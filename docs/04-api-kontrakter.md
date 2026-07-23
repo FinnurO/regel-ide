@@ -61,20 +61,47 @@
 
 ## 7. Vilkår / regeltre
 
-*Skjemaet under følger dagens (samlede) `Vilkår`-node. Se `01-referansemodell.md` §5 — dette splittes når Vilkår/Regel/Unntak-nodetypene er avklart, og disse endepunktene endres da tilsvarende.*
+*Tre distinkte ressurser, jf. den låste ontologien i `01-referansemodell.md` §5. Regel-IDEs komposisjonsnode kalles bevisst **regelnode**, ikke "regel" — `forklaringsmodell-api` har allerede en `Regel`-ressurs som betyr noe annet (det eksporterte, operasjonaliserte artefaktet), se `01-referansemodell.md` §5.6 og `07-forklaringsmodell-api-avvik.md`.*
+
+### 7.1 Vilkår (bladnode)
 
 | Metode | Sti | Beskrivelse |
 |---|---|---|
-| GET/POST | `/api/vilkar` | List / opprett vilkårsnode |
+| GET/POST | `/api/vilkar` | List / opprett vilkår |
 | GET/PUT | `/api/vilkar/{id}` | Les / oppdater — `PUT` på `publisert`-node avvises (409); bruk `/ny-versjon` |
 | POST | `/api/vilkar/{id}/ny-versjon` | Opprett ny versjon av en publisert node |
-| POST | `/api/vilkar/{id}/barn` | Koble til barn-node — validerer DAG (avviser sykel, 422, jf. AK-3.4.6) |
-| PUT | `/api/vilkar/{id}/operator` | Endre `barn_operator` (OG/ELLER/IKKE) |
 | POST | `/api/vilkar/{id}/valider` | Sett status `validert` (kun jurist) |
 | POST | `/api/vilkar/{id}/publiser` | Publiser (kun jurist) — kjører testcaser først (§4 i domenemodell) |
 | POST | `/api/vilkar/{id}/tilbaketrekk` | Sett status `tilbaketrukket` |
 | GET | `/api/vilkar/{id}/historikk` | Proveniens |
 | GET | `/api/vilkar/{id}/diff?mot={versjon}` | Sammenlign to versjoner (kap. 3.16 i produktkrav — skjermen er spesifisert, ikke algoritmen) |
+
+`POST`/`PUT` avvises (422) med feilkode `VILKAR_HAR_IKKE_BARN` dersom body inneholder et `barn`-felt — INV-1 (`01-referansemodell.md` §5.4) håndheves her, ikke bare i UI.
+
+### 7.2 Regelnoder (komposisjonsnode)
+
+| Metode | Sti | Beskrivelse |
+|---|---|---|
+| GET/POST | `/api/regelnoder` | List / opprett regelnode |
+| GET/PUT | `/api/regelnoder/{id}` | Les / oppdater — samme 409/`ny-versjon`-mønster som vilkår |
+| POST | `/api/regelnoder/{id}/ny-versjon` | Opprett ny versjon |
+| POST | `/api/regelnoder/{id}/barn` | Koble til barn (Vilkår- eller Regelnode-id) — validerer DAG på tvers av `barn`- og `unntak`-kanter samlet (avviser sykel, 422, jf. AK-3.4.6) |
+| PUT | `/api/regelnoder/{id}/operator` | Endre `barn_operator` (OG/ELLER/IKKE) |
+| POST | `/api/regelnoder/{id}/valider` | Sett status `validert` (kun jurist) |
+| POST | `/api/regelnoder/{id}/publiser` | Publiser (kun jurist) — krever alle `barn[]` publisert/ikke-påkrevd (§4 i domenemodell) |
+| POST | `/api/regelnoder/{id}/tilbaketrekk` | Sett status `tilbaketrukket` |
+| GET | `/api/regelnoder/{id}/historikk` | Proveniens |
+| GET | `/api/regelnoder/{id}/diff?mot={versjon}` | Sammenlign to versjoner |
+
+### 7.3 Unntak
+
+| Metode | Sti | Beskrivelse |
+|---|---|---|
+| GET/POST | `/api/unntak` | List / opprett — body krever `gjelderRegelId` og `betingelse` (422 uten begge, INV-3/INV-4) |
+| GET/PUT | `/api/unntak/{id}` | Les / oppdater |
+| POST | `/api/unntak/{id}/valider` | Sett status `validert` (kun jurist) |
+| POST | `/api/unntak/{id}/publiser` | Publiser — avvises (409) hvis `gjelderRegelId` ikke er `publisert` (§4 i domenemodell) |
+| GET | `/api/unntak/{id}/historikk` | Proveniens |
 
 ## 8. AI-forslag
 
@@ -93,7 +120,7 @@ Ingen `PUT`/publiseringsendepunkt for AI-forslag — AI kan aldri publisere (RBA
 |---|---|---|
 | GET/POST | `/api/testcaser` | List / opprett |
 | POST | `/api/testcaser/{id}/kjor` | Kjør mot gjeldende (eller angitt versjon av) vilkårstre |
-| GET | `/api/testcaser?vilkarId={id}` | Testcaser tilknyttet et vilkår — brukes av publiseringssjekken |
+| GET | `/api/testcaser?nodeType=vilkar\|regelnode\|unntak&nodeId={id}` | Testcaser tilknyttet en node — brukes av publiseringssjekken |
 
 ## 10. Kunnskapsgraf og påvirkningsanalyse
 
@@ -106,7 +133,7 @@ Ingen `PUT`/publiseringsendepunkt for AI-forslag — AI kan aldri publisere (RBA
 
 | Metode | Sti | Beskrivelse |
 |---|---|---|
-| GET | `/api/vilkar/{id}/eksport?format=eflint\|dmn\|openfisca\|ruleml` | Generert kode i lesevisning |
+| GET | `/api/regelnoder/{id}/eksport?format=eflint\|dmn\|openfisca\|ruleml` | Generert kode i lesevisning — kun regelnoder har `utdata`/Output-fane, se `02-produktkrav.md` kap. 3.4 |
 
 ## 12. Domenehendelser
 

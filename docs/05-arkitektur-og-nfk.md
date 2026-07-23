@@ -1,5 +1,20 @@
 # Arkitektur og ikke-funksjonelle krav
 
+## 0. Systemkontekst
+
+```mermaid
+graph LR
+  Bruker["Tverrfaglig team\n(tjenestedesigner, jurist,\nfagansvarlig, saksbehandler, utvikler)"] --> RegelIDE["Regel-IDE\n(dette repoet)"]
+  RegelIDE -- "import (søk/opplasting)" --> Lovdata["Lovdata\n(ekstern, ikke eid av oss)"]
+  RegelIDE -- "publiser begrep/tjeneste" --> DataNorge["data.norge.no\n(Felles datakatalog, SKOS/CPSV-AP-NO)"]
+  RegelIDE -- "eksporter regelnode\n(eFLINT/DMN/OpenFisca/RuleML)" --> Regelmotor["Ekstern regelmotor\n(kjører eksportert kode — ikke i scope her)"]
+  RegelIDE -- "publiser vilkår/regelnode\n(§4 domenemodell)" --> ForklaringsAPI["forklaringsmodell-api\n(kjøretid: Sak/Vurdering/Vedtak)"]
+  ForklaringsAPI -- "leser regel/vilkår-katalog" --> RegelIDE
+  Saksbehandlingssystem["Saksbehandlingssystem\n(ikke bygget her — se veikart byggesteg 7)"] -. "konsumerer" .-> ForklaringsAPI
+```
+
+Regel-IDE er *forfatterverktøyet*. Lovdata og data.norge.no er eksterne systemer vi kun leser fra/skriver til via kjente grensesnitt (søk/opplasting, SKOS/CPSV-AP-NO-publisering) — vi eier ingen del av dem. Regelmotoren som faktisk kjører den eksporterte koden (DMN-motor, eFLINT-tolk osv.) er eksplisitt utenfor scope (jf. `02-produktkrav.md` kap. 8). `forklaringsmodell-api` er den eneste integrasjonen vi både leser fra og skriver til som del av vår egen leveranse — se §3.5 under og `07-forklaringsmodell-api-avvik.md` for detaljene.
+
 ## 1. Teknologivalg
 
 - **Frontend:** React + TypeScript. Komponenter og tokens fra Designsystemet (`@digdir/designsystemet-react`, `-css`, `-theme`) — se `02-produktkrav.md` kap. 6 for det bindende designsystemkravet.
@@ -34,5 +49,7 @@ Se `01-referansemodell.md` §3 for hvorfor operatorsettet er redusert til OG/ELL
 ### 3.4 Hendelsesmodell
 Se `03-domenemodell.md` §5 for domenehendelsene. Disse bør publiseres på en meldingskø/event-buss (valg av teknologi ikke låst i v0.1) slik at kunnskapsgrafens påvirkningsanalyse og et fremtidig lovspeil-varslingssystem (`07-forklaringsmodell-api-avvik.md`) kan konsumere dem uavhengig av hovedapplikasjonen.
 
+**Bevisst utsatt, ikke glemt: publiseringsarkitektur.** Hendelsesmodellen (§5 i domenemodellen) og publiseringsmodellen (§4 der) beskriver *hva* som skal skje ved publisering og *hvilke* hendelser det skal gi — de beskriver bevisst **ikke** *hvordan* dette realiseres teknisk (event sourcing? CQRS? transaksjonsgrenser i én relasjonsdatabase med et outbox-mønster for hendelsene?). Det er en implementasjonsbeslutning for når byggesteg 1 (`06-veikart.md`) faktisk starter koding, ikke noe en kravspesifikasjon bør låse før det finnes reell last- eller konsistensdata å basere valget på. En enkel outbox-tabell i samme database som resten av modellen dekker kravene i §4/§5 fint til å begynne med; full CQRS/event sourcing er en skaleringsoptimalisering å vurdere senere, ikke en forutsetning.
+
 ### 3.5 Grensen mellom regel-IDE og forklaringsmodell-api
-Regel-IDE er *forfatterverktøyet* (Lag 1–2, jf. `digital-rettsstat`); `forklaringsmodell-api` er (deler av) *kjøretiden* (Lag 3–4 + tverrgående sporbarhet). Grensesnittet mellom dem er ikke ferdig spesifisert: når et vilkår publiseres i regel-IDE (§4 i `03-domenemodell.md`), må det på et tidspunkt bli en `Regel`- og/eller `Vilkar`-rad i `forklaringsmodell-api`s skjema. Om dette skjer ved eksport-fil + manuell registrering, eller ved at regel-IDE kaller `forklaringsmodell-api`s `/api/regler`/`/api/vilkar`-endepunkter direkte ved publisering, er ikke avgjort — se `07-forklaringsmodell-api-avvik.md` §3.
+Regel-IDE er *forfatterverktøyet* (Lag 1–2, jf. `digital-rettsstat`); `forklaringsmodell-api` er (deler av) *kjøretiden* (Lag 3–4 + tverrgående sporbarhet). Grensesnittet mellom dem er ikke ferdig spesifisert: når en Vilkår- eller Regelnode publiseres i regel-IDE (§4 i `03-domenemodell.md`), må den på et tidspunkt bli en `Regel`- og/eller `Vilkar`-rad i `forklaringsmodell-api`s skjema (merk navnekollisjonen — regel-IDEs `/api/regelnoder`, ikke `/api/vilkar`, er det som til slutt blir en `forklaringsmodell-api`-`Regel`-rad, se `01-referansemodell.md` §5.6). Om dette skjer ved eksport-fil + manuell registrering, eller ved at regel-IDE kaller `forklaringsmodell-api`s `/api/regler`/`/api/vilkar`-endepunkter direkte ved publisering, er ikke avgjort — se `07-forklaringsmodell-api-avvik.md` §3.

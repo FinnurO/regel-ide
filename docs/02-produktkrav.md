@@ -1,10 +1,12 @@
 # Produktkrav — Regel-IDE
 
-**Versjon:** 0.2 (restrukturert fra v1.0, 2026-07-23) · **Testcase:** Alminnelig skjenkebevilling (alkoholloven)
+**Versjon:** 0.3 (ontologi låst, se `00-endringslogg-v0.2.md`) · **Testcase:** Alminnelig skjenkebevilling (alkoholloven)
 
 > Dette dokumentet dekker **konsept, navigasjon, skjermer, akseptkriterier, roller og designsystem** — altså det som er produktkrav i snever forstand. Full entitetsdefinisjon, relasjoner, RBAC-matrise, livssykluser og publiseringsmodell står i [`03-domenemodell.md`](03-domenemodell.md). Ikke-funksjonelle krav og arkitektur står i [`05-arkitektur-og-nfk.md`](05-arkitektur-og-nfk.md). Begrepene under (Rettskilde, Begrep, Vilkår, Regel …) er definert presist i [`01-referansemodell.md`](01-referansemodell.md) — les den først hvis noe virker underspesifisert her.
 >
 > **Krav vs. anbefaling:** "skal" er bindende, "bør" er anbefalt (kan fravikes med begrunnelse). Der en skjerm/entitet er merket **[Fase 2]** eller **[Fase 3]**, se [`06-veikart.md`](06-veikart.md) for rekkefølge — alt annet er Fase 1/MVP.
+
+**Primærbrukere:** Regel-IDE er bevisst bygget for **tverrfaglige team**, ikke én rolle — tjenestedesignere, jurister, fagansvarlige/saksbehandlere og utviklere skal kunne jobbe i samme verktøy, samtidig, i samme rom (jf. `digital-rettsstat` prinsipp 7). Dette er ikke en uavklart avgrensning; det er selve konseptet. Konsekvensen for skjermdesign: ingen skjerm skal forutsette teknisk bakgrunn for å forstås (jf. forklarbarhets-/forståelighetskravet i kap. 7), og RBAC-matrisen (`03-domenemodell.md` §2) — ikke skjermseparasjon — er mekanismen som styrer hvem som kan gjøre hva.
 
 ---
 
@@ -44,8 +46,9 @@ Applikasjonen er et enkeltbruker-arbeidsverktøy for **én virksomhet** (f.eks. 
 - **Rollevelger** nederst i sidemenyen (kap. 5) — bytter aktiv rolle og påvirker hvilke handlinger som er tilgjengelige, iht. RBAC-matrisen i [`03-domenemodell.md`](03-domenemodell.md) §2.
 - Skallet skal være responsivt: kolonnelayouter stables til én kolonne på smale skjermer.
 
-**Navigasjonselementer (skjermer):**
-1. Dashboard **[Fase 3 — sist, se veikart]**
+**Navigasjonselementer (skjermer):** — MVP/konseptbevis-grensen er eksplisitt: kap. 1–9 under er *innenfor* det første beviset (rettskilde→begrep→vilkår→test→eksport→forklaring, se `06-veikart.md`); Dashboard og Kunnskapsgraf er eksplisitt **utenfor** — ikke fordi de er uviktige, men fordi de ikke beviser noe før resten har reelt innhold.
+
+1. Dashboard **[Utenfor MVP/konseptbevis — se veikart]**
 2. Tjenester → Tjenestedefinisjon **[Fase 1]**
 3. Rettskilder (Rettskildebibliotek) **[Fase 1]**
 4. Vilkår og regler (grafeditor) **[Fase 2]**
@@ -57,7 +60,7 @@ Applikasjonen er et enkeltbruker-arbeidsverktøy for **én virksomhet** (f.eks. 
 10. AI-forslag **[Fase 2]**
 11. Saksbehandling **[På vent — tynn demo-slice, se veikart]**
 12. Forklaringslogg **[På vent — tynn demo-slice, se veikart]**
-13. Kunnskapsgraf **[Fase 3]**
+13. Kunnskapsgraf **[Utenfor MVP/konseptbevis — se veikart]**
 14. Eksport **[Fase 2/3]**
 
 **AK-2.1** Gitt en bruker på en hvilken som helst skjerm, når hun velger et element i sidemenyen, så skal det navigeres til tilhørende skjerm og aktivt element markeres.
@@ -69,7 +72,7 @@ Applikasjonen er et enkeltbruker-arbeidsverktøy for **én virksomhet** (f.eks. 
 
 Hver skjerm skal bruke Designsystemet-komponenter (kap. 6). Detaljpaneler skal bruke faner. Lister/tabeller skal ha søk/filter der det er relevant.
 
-### 3.1 Dashboard **[Fase 3]**
+### 3.1 Dashboard **[Utenfor MVP/konseptbevis]**
 KPI-kort (antall tjenester, vilkår, presedens, kodelister), tabell «Nylig oppdaterte tjenester» (klikkbar → tjenestedefinisjon), aktivitetsgraf (siste 30 dager: endringer i vilkår, AI-forslag), og «AI-forslag til gjennomgang»-kort med antall og lenke.
 
 **AK-3.1.1** Gitt dashboardet, når en tjenesterad klikkes, så skal tjenestedefinisjonen for den tjenesten åpnes.
@@ -103,32 +106,33 @@ Høyre kolonne: tilknyttede presedensavgjørelser med rettskildevekt.
 
 ### 3.4 Vilkår og regler (grafeditor) — **kjernefunksjon** **[Fase 2]**
 
-> Nodemodellen her er under aktiv revisjon — se `01-referansemodell.md` §5 for den åpne beslutningen om Vilkår- vs. Regel-noder. Beskrivelsen under bruker inntil videre kravspesifikasjonens opprinnelige, samlede `Vilkår`-node; den deles opp når §5 er avklart mot testcaset.
+> Nodemodellen bruker de tre låste nodetypene fra `01-referansemodell.md` §5: **Vilkår** (bladnode), **Regel** (komposisjonsnode) og **Unntak**. Se der for kardinaliteter og invarianter — beskrivelsen under er skjermatferden, ikke ontologien.
 
 To visninger via veksler: **Graf** (standard) og **Tre**.
 
-**Grafmodell (DMN-inspirert DRD, skal være en rettet asyklisk graf — DAG, se `03-domenemodell.md` §1):**
-- Noder: toppnode «Vedtak om skjenkebevilling» (beslutning), vilkårsnoder (med §-referanse og skjønn/regel-indikator), delvurderinger (barn), og inndata-noder (datasett).
-- Kanter: informasjonsflyt nedenfra og opp (input → vilkår → vedtak), med pilhoder mot den noden som krever input.
-- Klikk på node velger den og fyller egenskapspanelet. Valgt node og dens naboer utheves; øvrige dempes.
+**Grafmodell (DMN-inspirert DRD, skal være en rettet asyklisk graf — DAG, se `03-domenemodell.md` §1.12):**
+- Noder, visuelt skilt per type: **Regel**-noder (inkl. rotnoden «Vedtak om skjenkebevilling»), **Vilkår**-noder (med §-referanse og skjønn/regel-indikator), **Unntak**-noder (visuelt koblet til sin `gjelder_regel` med en «unntak fra»-merking), og inndata-noder (datasett).
+- Kanter: informasjonsflyt nedenfra og opp (input → vilkår → regel → vedtak), med pilhoder mot den noden som krever input. Unntak-noder tegnes med en distinkt kantstil mot sin `gjelder_regel`.
+- Klikk på node velger den og fyller egenskapspanelet — panelets innhold varierer per nodetype (se under). Valgt node og dens naboer utheves; øvrige dempes.
 - Nummererte noder (rulemapping-stil).
 
-**Tre-visning:** hierarkisk liste med ROT-operator, operator per foreldernode («barn: OG»), og generert regeluttrykk.
+**Tre-visning:** hierarkisk liste med ROT-operator, operator per Regel-node («barn: OG»), Unntak vist som et eget, innrykket element under sin `gjelder_regel`, og generert regeluttrykk.
 
-**Egenskapspanel (faner):**
-- **Generelt** — ID, tittel, generisk mal, juridisk grunnlag, begrep, status, gyldig fra, beskrivelse, `vilkarstype` (formell/materiell, se `01-referansemodell.md` §6), input-datasett, utdata-parameter (navn + type), og logisk operator mellom barn (**OG/ELLER/IKKE** — ikke XOR/NAND, se `01-referansemodell.md` §3) med generert uttrykk.
-- **Tekster** — veiledningstekst til bruker/saksbehandler, innvilgelses-/avslagstekst.
+**Egenskapspanel (faner, feltene varierer per nodetype — se `03-domenemodell.md` §1.8–1.10 for fullstendig feltliste per type):**
+- **Generelt** — ID, tittel, generisk mal, juridisk grunnlag, begrep, status, gyldig fra, beskrivelse. For **Vilkår**: `vilkarstype` (formell/materiell), `vurderingstype`, input-datasett, og skjønnsfelt (skjønnsgrunnlag/skjønnsmomenter/eskaleringsrolle) når relevant. For **Regel**: `barn[]`, logisk operator (**OG/ELLER/IKKE** — ikke XOR/NAND, se `01-referansemodell.md` §3) med generert uttrykk, `utdata`. For **Unntak**: `gjelder_regel` og `betingelse` (valgt fra eksisterende Vilkår/Regel eller opprett ny).
+- **Tekster** — veiledningstekst til bruker/saksbehandler (alle nodetyper); innvilgelses-/avslagstekst (kun Regel, se `03-domenemodell.md` §1.9).
 - **Standardref.** — referanser til rettskilde/begrep/mal/lovhenvisninger.
-- **Output** — motoruavhengige målformat (eFLINT/DMN/OpenFisca/RuleML-RUML/XML) med av/på, og «Eksporter (N format)» → Eksport-skjermen.
+- **Output** — kun på Regel-noder: motoruavhengige målformat (eFLINT/DMN/OpenFisca/RuleML-RUML/XML) med av/på, og «Eksporter (N format)» → Eksport-skjermen.
 - **Metadata** — versjon/status/gyldighet, brukt i N vedtak, lovreferanser.
 - **Historikk** — proveniens med handling og kildereferanser.
 
-**AK-3.4.1** Gitt grafvisningen, når en vilkårs- eller delvurderingsnode klikkes, skal tilhørende vilkår velges og egenskapspanelet oppdateres.
-**AK-3.4.2** Gitt et vilkår med barn, når operator endres (OG/ELLER/IKKE), skal det genererte regeluttrykket oppdateres tilsvarende, lagres og anvendes.
-**AK-3.4.3** Gitt et vilkår, skal Generelt-fanen vise hvilke datasett som er input og navn+type på utdata-parameteren.
-**AK-3.4.4** Gitt Output-fanen, når formater velges og «Eksporter» klikkes, skal Eksport-skjermen åpnes med forhåndsvisning per valgt format.
-**AK-3.4.5** Vilkårsmodellen skal være generell (nodetyper og operatorer er ikke tjenestespesifikke) slik at samme struktur kan gjenbrukes for andre tjenester og eksporteres til andre motorer.
-**AK-3.4.6** Grafen skal ikke tillate sykler — et forsøk på å koble en node til en av sine egne etterkommere skal avvises med en feilmelding som viser sykelen.
+**AK-3.4.1** Gitt grafvisningen, når en node (Vilkår/Regel/Unntak) klikkes, skal noden velges og egenskapspanelet oppdateres med feltene for dens type.
+**AK-3.4.2** Gitt en Regel-node med barn, når operator endres (OG/ELLER/IKKE), skal det genererte regeluttrykket oppdateres tilsvarende, lagres og anvendes.
+**AK-3.4.3** Gitt en Vilkår-node, skal Generelt-fanen vise hvilke datasett som er input; gitt en Regel-node, skal fanen vise `utdata` (navn + type).
+**AK-3.4.4** Gitt Output-fanen på en Regel-node, når formater velges og «Eksporter» klikkes, skal Eksport-skjermen åpnes med forhåndsvisning per valgt format.
+**AK-3.4.5** Vilkårs-/regelmodellen skal være generell (nodetyper og operatorer er ikke tjenestespesifikke) slik at samme struktur kan gjenbrukes for andre tjenester og eksporteres til andre motorer.
+**AK-3.4.6** Grafen skal ikke tillate sykler på tvers av `barn`- og `unntak`/`betingelse`-relasjoner samlet — et forsøk på å koble en node til en av sine egne etterkommere (via noen av kanttypene) skal avvises med en feilmelding som viser sykelen.
+**AK-3.4.7** Gitt en Unntak-node, skal den vises tydelig knyttet til sin `gjelder_regel` (visuelt og i tre-visningens innrykk), og kan aldri opprettes uten både `gjelder_regel` og `betingelse` satt (INV-3/INV-4, `01-referansemodell.md` §5.4).
 
 **AI-forslag (fra denne skjermen):** «AI-forslag»-knapp åpner AI-skjermen (kap. 3.10).
 
@@ -176,7 +180,7 @@ Resultatbanner + tidslinje per vilkår: utfall, versjon av vilkåret som ble bru
 
 **AK-3.12.1** Forklaringsloggen skal vise hvilken **versjon** av hvert vilkår som ble brukt, og kobling til rettslig grunnlag og presedens.
 
-### 3.13 Kunnskapsgraf og påvirkningsanalyse **[Fase 3]**
+### 3.13 Kunnskapsgraf og påvirkningsanalyse **[Utenfor MVP/konseptbevis]**
 Tverrgående graf over hele modellen (erstatter tidligere tjeneste-til-tjeneste-graf).
 - **Noder:** rettskilde (`eId`), begrep, vilkår, datasett, kodeliste, forklaringsmal, tjeneste, vedtak, presedens.
 - **Kanter (typede):** `tolker/begrunner` (presedens→rettskilde), `bestemmer` (begrep→vilkår), `bruker` (vilkår→datasett), `basert_på` (forklaringsmal←datasett), `genererer` (forklaringsmal→vedtak), `relatert_til` (vilkår↔rundskriv), `refererer` (presedens→vilkår).
@@ -225,7 +229,7 @@ AI skal aldri validere eller publisere selv (jf. RBAC-matrisen, `03-domenemodell
 Kun mellomformat og målformat spesifiseres — ikke full kodegenerator-motor (se kap. 11).
 
 ### 4.4 Skjønnsbaserte vilkår
-`vurderingstype` ∈ {`regelbasert`, `skjonnsbasert`, `hybrid`}. Skjønns-/hybridvilkår skal ha skjønnsmomenter, dokumentasjonskrav og eskaleringsrolle. Utfall hentes fra `KL-VILKARSUTFALL` (seks verdier), ikke bare oppfylt/ikke oppfylt. Dette er samme mønster som NAVs "avklaringsbehov" (`digital-rettsstat/docs/06-regellaget.md` §3) — et navngitt stopp-punkt, ikke en unntakshåndtering.
+`vurderingstype` ∈ {`regelbasert`, `skjonnsbasert`, `hybrid`}. Skjønns-/hybridvilkår skal ha ett skjønnsgrunnlag, 1..N skjønnsmomenter, dokumentasjonskrav og eskaleringsrolle (presise definisjoner: `01-referansemodell.md` §6.1). Utfall hentes fra `KL-VILKARSUTFALL` (seks verdier), ikke bare oppfylt/ikke oppfylt. Et avklaringsbehov oppstår alltid ved evaluering av et skjønns-/hybridvilkår — dette er samme mønster som NAVs "avklaringsbehov" (`digital-rettsstat/docs/06-regellaget.md` §3) — et navngitt stopp-punkt, ikke en unntakshåndtering.
 
 ### 4.5 Logiske operatorer
 Mellom barnenoder og på rot: **OG, ELLER, IKKE**. Systemet skal generere et lesbart regeluttrykk og skal kunne oversette dette til målformatene (kap. 4.3). Se begrunnelse for å utelate XOR/NAND i `01-referansemodell.md` §3.
@@ -300,5 +304,8 @@ Full liste (ytelse, sporbarhet, reproduserbarhet, interoperabilitet, tekniske ri
 - **Rettskildevekt** — kategorisk vekt (bindende/tungtveiende/veiledende/illustrerende/historisk).
 - **Vilkarstype** — formell / materiell (jf. `01-referansemodell.md` §6).
 - **Lovspeil** — vedlikeholdt samsvar mellom rettskildeversjon og regelen som faktisk er implementert (Schartum; jf. `07-forklaringsmodell-api-avvik.md`).
+- **Regelnode** — komposisjonsnode i vilkårstreet (`barn[]` + operator + `utdata`), kalt "Regel" i referansemodellen — se `01-referansemodell.md` §5.6 for hvorfor navnet "regelnode" brukes i API-et for å unngå kollisjon med `forklaringsmodell-api`s `Regel`.
+- **Skjønnsgrunnlag / skjønnsmoment / avklaringsbehov** — se `01-referansemodell.md` §6.1.
+- **Vedtak / vedtaksgrunnlag / vedtaksvirkning** — se `01-referansemodell.md` §15.1.
 
 Se `01-referansemodell.md` for det fullstendige begrepsapparatet (Regelkilde, Rettskilde, Regel, Vilkår, Rettsfølge, Unntak, Fakta, Vilkårsvurdering, Regelanvendelse, Beslutningsmodell/-regel/-resultat, Regelmodell/-representasjon/-uttrykk/-implementasjon).

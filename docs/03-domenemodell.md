@@ -90,45 +90,68 @@ Felt: `saksnummer`, `dato`, `organ` (klagenemnd/statsforvalter/domstol), `utfall
 
 Presedens kan foreslå/begrunne tolkning av et vilkår, men blir **aldri automatisk bindende regelendring** — jurist/fagansvarlig avgjør.
 
-### 1.8 Vilkår (regelnode) — under revisjon
-Feltene under er kravspesifikasjonens opprinnelige, samlede node. **Se `01-referansemodell.md` §5** for forslaget om å dele denne i `Vilkår`/`Regel`/`Unntak`-nodetyper — feltlisten under vil endres når det avklares.
+### 1.8 Vilkår (bladnode — ontologi låst, se `01-referansemodell.md` §5)
 
 | Felt | Beskrivelse |
 |---|---|
 | `tittel`, `beskrivelse` | |
 | `generisk_mal` | F.eks. `GM-VANDEL-PERSON` (to-lags modell, produktkrav kap. 4.1) |
-| `vilkarstype` | **Nytt.** `formell` / `materiell`, jf. `01-referansemodell.md` §6 |
+| `vilkarstype` | `formell` / `materiell`, jf. `01-referansemodell.md` §6 |
 | `gjelder_rolle` | F.eks. bevillingshaver, styrer/stedfortreder |
 | `juridisk_grunnlag[]` | `{kilde, eId}` |
 | `begrep` | Referanse til begrep |
 | `vurderingstype` | `regelbasert` / `skjonnsbasert` / `hybrid` |
 | `parametre` | F.eks. `minimumsalder=20`, `kodeliste`-referanse |
-| `barn[]` | Delvurderinger (hierarki) — **skal danne en DAG**, se §1.10 |
-| `barn_operator` | `OG` / `ELLER` / `IKKE` (se `01-referansemodell.md` §3 for hvorfor ikke XOR/NAND) |
-| `input_datasett[]` | Datapunkter brukt som input |
-| `utdata_parameter` | `{navn, type}` — hva vilkåret produserer |
+| `input[]` | Datapunkter brukt som input (§1.6) — 1..N, jf. INV på referansemodellens §5.4 |
 | `status` | Se livssyklus, §3 under |
 
-**Skjønnsfelt** (for `skjonnsbasert`/`hybrid`): `skjonnsmomenter[]` (moment + kort beskrivelse + ev. presedensreferanse), `krever_dokumentasjon`, `eskaleringsrolle` (typisk jurist).
+**Invariant (INV-1, `01-referansemodell.md` §5.4):** et Vilkår har aldri `barn` — det er alltid en bladnode. Har en node barn, er den en Regel (§1.9), ikke et Vilkår.
 
-**Tekster (per vilkår):** veiledningstekst til bruker, veiledning til saksbehandler, innvilgelsestekst, avslagstekst, referanser til lovverk, gyldighetsperiode.
+**Skjønnsfelt** (kun når `vurderingstype ∈ {skjonnsbasert, hybrid}`): `skjonnsgrunnlag` (ref. til Begrep, kardinalitet 1, `01-referansemodell.md` §6.1), `skjonnsmomenter[]` (1..N, hver `{navn, beskrivelse, presedensreferanse?}`), `krever_dokumentasjon`, `eskaleringsrolle` (typisk jurist) — de to siste er avklaringsbehovets egne data.
 
-### 1.9 Generisk vilkårsmal
-`{beskrivelse, vurderingstype, brukt_i_antall_tjenester}`. Instansieres flere ganger med ulikt omfang/lovreferanse.
+**Tekster (per vilkår):** veiledningstekst til bruker, veiledning til saksbehandler, referanser til lovverk, gyldighetsperiode. (Innvilgelses-/avslagstekst flyttet til Regel, §1.9, siden det er komposisjonsnoden som produserer et resultat — se §1.16.)
 
-### 1.10 DAG-krav for vilkårs-/regeltreet
+### 1.9 Regel (komposisjonsnode)
+
+| Felt | Beskrivelse |
+|---|---|
+| `tittel`, `beskrivelse` | |
+| `barn[]` | Vilkår- **eller** Regel-noder (rekursivt) — **1..N** (INV-2), skal danne en DAG, se §1.12 |
+| `barn_operator` | `OG` / `ELLER` / `IKKE` (kun definert på Regel — INV-6; se `01-referansemodell.md` §3 for hvorfor ikke XOR/NAND) |
+| `unntak[]` | 0..N referanser til Unntak-noder (§1.10) hvis `gjelder_regel` peker hit |
+| `utdata` | `{navn, type}` — rettsfølgen/resultatet noden produserer, jf. `01-referansemodell.md` §15.1 |
+| `er_rotnode` | boolsk — kun rotnoden i et vilkårstre kjennetegnes slik (INV-5); rotnodens `utdata` er selve vedtaksforslaget |
+| `juridisk_grunnlag[]`, `generisk_mal`, `status` | Som for Vilkår |
+
+**Tekster (per regelnode):** innvilgelsestekst, avslagstekst (kun meningsfullt på en Regel, siden bare en komposisjonsnode med `utdata` kan innvilges/avslås — et enkeltvilkår er verken innvilget eller avslått, bare oppfylt/ikke oppfylt).
+
+### 1.10 Unntak
+
+| Felt | Beskrivelse |
+|---|---|
+| `tittel`, `beskrivelse` | |
+| `gjelder_regel` | Ref. til Regel — **kardinalitet 1, påkrevd** (INV-3). Kan ikke peke på et Vilkår. |
+| `betingelse` | Vilkår- **eller** Regel-node — **kardinalitet 1, påkrevd** (INV-4). Selve "med mindre …"-testen. |
+| `juridisk_grunnlag[]`, `status` | Som for Vilkår |
+
+Et Unntak har ingen `barn_operator` (INV-6) — forholdet til `gjelder_regel` er implisitt IKKE. Se `01-referansemodell.md` §5.5 for et fullt eksempel (unntak fra skjenketid ved lukket selskap) testet mot alle sju invariantene.
+
+### 1.11 Generisk vilkårsmal
+`{beskrivelse, vurderingstype, brukt_i_antall_tjenester}`. Instansieres flere ganger med ulikt omfang/lovreferanse. Gjelder Vilkår-, Regel- og Unntak-noder likt.
+
+### 1.12 DAG-krav for vilkårs-/regeltreet
 
 Vilkårs-/regelgrafen (produktkrav kap. 3.4) **skal** være en rettet asyklisk graf (DAG):
 
-- Enhver node (`barn[]`-relasjonen) skal ikke kunne nå seg selv via en kjede av barn-relasjoner.
+- Enhver node skal ikke kunne nå seg selv via en kjede av `barn`- **eller** `unntak`/`betingelse`-relasjoner (INV-7, `01-referansemodell.md` §5.4).
 - Systemet skal validere dette ved lagring (ikke bare i UI) — se AK-3.4.6 i produktkrav.
 - Årsak: sykler gir udefinert oppførsel ved evaluering, eksport (DMN/eFLINT krever DAG), testkjøring og påvirkningsanalyse (kunnskapsgraf, kap. 3.13).
-- Datasett-noder (§1.6) er alltid blad-input, aldri mål for en kant fra en vilkårsnode — informasjonsflyten er strengt input → vilkår → vedtak.
+- Datasett-noder (§1.6) er alltid blad-input, aldri mål for en kant fra en Vilkår-node — informasjonsflyten er strengt input → vilkår → regel → vedtak.
 
-### 1.11 Testcase
-Felt: `tilknyttet_vilkar[]`, `input` (eksempeldata), `forventet_resultat` (verdi fra `KL-VILKARSUTFALL`), `forventet_forklaring` (kort forventet begrunnelsestekst), `juridisk_grunnlag`.
+### 1.13 Testcase
+Felt: `tilknyttet_node[]` (Vilkår-, Regel- eller Unntak-referanser), `input` (eksempeldata), `forventet_resultat` (verdi fra `KL-VILKARSUTFALL` for Vilkår-noder, eller `utdata`-verdi for Regel-noder), `forventet_forklaring` (kort forventet begrunnelsestekst), `juridisk_grunnlag`.
 
-### 1.12 Proveniens / endringslogg (append-only, atskilt fra versjonering)
+### 1.14 Proveniens / endringslogg (append-only, atskilt fra versjonering)
 Versjonering (§0) svarer «hvilken versjon gjelder»; proveniens svarer «hvordan ble denne versjonen til».
 
 | Felt | Beskrivelse |
@@ -140,7 +163,17 @@ Versjonering (§0) svarer «hvilken versjon gjelder»; proveniens svarer «hvord
 | `ai_forslag_versjon` | nullable |
 | `godkjent_av` | nullable — jurist/fagansvarlig |
 
-### 1.13 ER-diagram (relasjoner mellom hovedentitetene)
+### 1.15 Testcase-simulert Vedtak, Vedtaksgrunnlag og Vedtaksvirkning
+
+*Regel-IDE eier ikke løpende vedtak — det gjør `forklaringsmodell-api`. Feltene under er hva regel-IDEs testmodul (produktkrav kap. 3.15) og eksportvisning trenger for å simulere/forhåndsvise et Vedtak uten en reell sak, jf. `01-referansemodell.md` §15.1.*
+
+| Entitet | Felt | Beskrivelse |
+|---|---|---|
+| Vedtak (simulert) | `rotnode_id`, `input_testcase_id`, `resultat` | Rot-Regelnodens `utdata`-verdi for en gitt testcase |
+| Vedtaksgrunnlag (simulert) | `vilkarsvurderinger[]`, `rettskilde_referanser[]`, `presedens_referanser[]` | Speiler forklaringsloggens innhold (produktkrav kap. 3.12) |
+| Vedtaksvirkning (simulert) | `type`, `beskrivelse`, `gyldig_fra`/`gyldig_til` | Én instans av rotnodens `utdata` — feltnavnene følger `forklaringsmodell-api`s `Vedtaksvirkning` bevisst, for å unngå enda et tredje navnesett, se `07-forklaringsmodell-api-avvik.md` |
+
+### 1.16 ER-diagram (relasjoner mellom hovedentitetene)
 
 ```mermaid
 erDiagram
@@ -149,17 +182,25 @@ erDiagram
   TEKST_TAG }o--|| VILKAR : "refererer (kind=vilkar)"
   BEGREP }o--o| KODELISTE : "verdiområde"
   VILKAR }o--o{ RETTSKILDE : "juridisk_grunnlag"
-  VILKAR }o--o| BEGREP : "begrep"
-  VILKAR }o--o{ DATASETT : "input_datasett"
-  VILKAR ||--o{ VILKAR : "barn (DAG)"
+  VILKAR }o--o| BEGREP : "begrep (skjonnsgrunnlag)"
+  VILKAR }o--o{ DATASETT : "input"
+  REGEL ||--o{ VILKAR : "barn"
+  REGEL ||--o{ REGEL : "barn (DAG)"
+  REGEL ||--o{ UNNTAK : "unntak"
+  UNNTAK }o--|| REGEL : "gjelder_regel"
+  UNNTAK }o--o| VILKAR : "betingelse"
+  UNNTAK }o--o| REGEL : "betingelse"
   VILKAR }o--o| GENERISK_MAL : "instans av"
-  TJENESTE }o--o{ VILKAR : "vilkår"
+  TJENESTE }o--o{ REGEL : "vilkår (rotnode)"
   TJENESTE }o--o{ RETTSKILDE : "regelverksreferanser"
   TJENESTE ||--o{ HENDELSE : "har"
   PRESEDENS }o--o{ RETTSKILDE : "tilknyttede_bestemmelser"
   PRESEDENS }o--o{ VILKAR : "relevans_for_vilkar"
-  TESTCASE }o--o{ VILKAR : "tilknyttet_vilkar"
+  TESTCASE }o--o{ VILKAR : "tilknyttet_node"
+  TESTCASE }o--o{ REGEL : "tilknyttet_node"
+  REGEL ||--o| VEDTAK_SIMULERT : "utdata → resultat"
   VILKAR ||--o{ PROVENIENS : "endringslogg"
+  REGEL ||--o{ PROVENIENS : "endringslogg"
   RETTSKILDE ||--o{ PROVENIENS : "endringslogg"
 ```
 
@@ -167,14 +208,16 @@ erDiagram
 
 ## 2. Rolle- og autorisasjonsmodell (RBAC)
 
+*"Vilkår" i tabellen under dekker alle tre nodetyper fra `01-referansemodell.md` §5 (Vilkår, Regel, Unntak) — de deler RBAC-regler, ikke bare felt.*
+
 | Handling | Fagansvarlig | Jurist | Systemforvalter | Saksbehandler | AI-assistent |
 |---|---|---|---|---|---|
 | Opprette/endre rettskilde (import) | ✓ | ✓ | | | |
 | Opprette/endre begrep | ✓ | ✓ | | | |
-| Opprette vilkår (utkast) | ✓ | ✓ | | | Foreslå (status `foreslått av AI`) |
-| Endre vilkår | ✓ | ✓ | | | |
-| Validere vilkår/AI-forslag | | ✓ | | | |
-| Publisere vilkår/tjeneste | | ✓ | | | |
+| Opprette vilkår/regelnode/unntak (utkast) | ✓ | ✓ | | | Foreslå (status `foreslått av AI`) |
+| Endre vilkår/regelnode/unntak | ✓ | ✓ | | | |
+| Validere vilkår/regelnode/unntak/AI-forslag | | ✓ | | | |
+| Publisere vilkår/regelnode/unntak/tjeneste | | ✓ | | | |
 | Endre juridiske kodelister | | ✓ | | | |
 | Endre tekniske kodelister | | | ✓ | | |
 | Referere ekstern autoritativ kodeliste | ✓ | ✓ | ✓ | | |
@@ -191,7 +234,9 @@ Prinsipp: **AI-assistenten har ingen rad med ✓ utenom "foreslå"** — den kan
 
 ## 3. Livssykluser
 
-### 3.1 Vilkår / Regel
+### 3.1 Vilkår / Regel / Unntak
+
+*Samme livssyklus for alle tre nodetyper (`01-referansemodell.md` §5). Et Unntak kan kun nå `publisert` samtidig med eller etter at sin `gjelder_regel` er publisert — se publiseringsmodellen §4.*
 
 ```mermaid
 stateDiagram-v2
@@ -231,6 +276,7 @@ Svarer på den eksterne vurderingens spørsmål: hva publiseres, er det atomisk,
 - **En publisert node skal aldri redigeres i-place.** En endring etter publisering oppretter en ny versjon (`erstatter`-kjeden i §0); den gamle versjonen forblir lesbar og er hva historiske vedtak fortsatt peker på (jf. `forklaringsmodell-api`s append-only-prinsipp).
 - **Rollback** = trekke tilbake (`tilbaketrukket`), ikke slette. En tilbaketrukket node kan ikke lenger brukes i nye evalueringer, men forblir i historikken for spor tilbake fra eksisterende vedtak.
 - **En regelnode kan ikke publiseres før alle dens `barn[]` enten er `publisert` eller eksplisitt markert som ikke påkrevd** (f.eks. en alternativ/ELLER-gren som ikke er ferdigstilt ennå skal blokkere publisering av foreldrenoden, ikke stille inn).
+- **Et Unntak kan ikke publiseres før sin `gjelder_regel` er publisert** (kan skje i samme publiseringstransaksjon, men aldri før). Omvendt: å publisere en Regel som har ett eller flere `utkast`/`under_revisjon`-Unntak knyttet til seg, skal ikke blokkeres av det — et upublisert unntak betyr bare at unntaket ennå ikke har virkning, ikke at hovedregelen ikke kan tas i bruk.
 
 ---
 
