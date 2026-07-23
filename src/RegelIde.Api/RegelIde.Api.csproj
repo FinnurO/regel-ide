@@ -13,6 +13,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RegelIde.Kildekonvertering\RegelIde.Kildekonvertering.csproj" />
+    <ProjectReference Include="..\RegelIde.Data\RegelIde.Data.csproj" />
   </ItemGroup>
 
 </Project>

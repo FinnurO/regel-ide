@@ -1,0 +1,95 @@
+using Microsoft.AspNetCore.Mvc.Testing;
+using MysticMind.PostgresEmbed;
+using Npgsql;
+
+namespace RegelIde.Api.Tests;
+
+/// <summary>
+/// Kjører hele API-et (inkl. Program.cs sin migrasjon+førstegangs-seeding) mot en ekte, engangs
+/// Postgres-instans — ingen Docker/Podman nødvendig i dette miljøet (se src/README.md).
+/// Merk: overstyrer tilkoblingsstrengen via en PROSESS-global miljøvariabel (se InitializeAsync),
+/// siden Program.cs (minimal hosting) leser konfigurasjon før WebApplicationFactorys egne hooks
+/// rekker å virke. Dette er trygt så lenge kun én testklasse bruker denne fixturen samtidig —
+/// blir det flere, må de enten dele én instans eller unngå parallell kjøring (xunit-collection).
+/// </summary>
+public sealed class EmbeddedPostgresApiFixture : IAsyncLifetime
+{
+    private PgServer? _server;
+    public WebApplicationFactory<Program> Factory { get; private set; } = null!;
+
+    public async Task InitializeAsync()
+    {
+        // Eksplisitt instanceId OG fast port: unngår kollisjon med andre embedded Postgres-instanser
+        // (f.eks. RegelIde.Data.Tests, som bruker port 55432) når `dotnet test` kjøres for hele
+        // løsningen og flere testprosjekter starter embedded Postgres samtidig — PgServers
+        // auto-portvalg (port: 0) viste seg upålitelig under akkurat denne samtidigheten.
+        _server = new PgServer("15.4.0", instanceId: Guid.NewGuid(), port: 55433, clearInstanceDirOnStop: true);
+        await Task.Run(() => _server.Start());
+
+        var masterConnString = $"Host=localhost;Port={_server.PgPort};Username=postgres;Password=postgres;Database=postgres";
+        await VentTilPostgresErKlarAsync(masterConnString);
+        await using (var conn = new NpgsqlConnection(masterConnString))
+        {
+            await conn.OpenAsync();
+            await using var cmd = new NpgsqlCommand("CREATE DATABASE regelide_api_test;", conn);
+            await cmd.ExecuteNonQueryAsync();
+        }
+
+        var testConnString = $"Host=localhost;Port={_server.PgPort};Username=postgres;Password=postgres;Database=regelide_api_test";
+
+        // Program.cs leser ConnectionStrings:RegelIdeDb via builder.Configuration rett etter
+        // WebApplication.CreateBuilder(args) — FØR WebApplicationFactorys egne ConfigureAppConfiguration-
+        // hooks rekker å legge seg inn i konfigurasjonen for en minimal-hosting-app i prosess. En
+        // miljøvariabel derimot leses av CreateBuilder sine innebygde standardkilder med én gang,
+        // og er derfor den pålitelige veien å overstyre tilkoblingsstrengen i denne testprosessen.
+        Environment.SetEnvironmentVariable("ConnectionStrings__RegelIdeDb", testConnString);
+
+        Factory = new WebApplicationFactory<Program>();
+
+        // Trigger host-oppstart (migrasjon + seeding i Program.cs) nå, ikke ved første test.
+        using var warmup = Factory.CreateClient();
+        await warmup.GetAsync("/api/rettskilder");
+    }
+
+    /// <summary>
+    /// PgServer.Start() returnerer før Postgres nødvendigvis er ferdig med oppstartsfasen
+    /// (57P03 "the database system is starting up") — retry med kort ventetid i stedet for å anta
+    /// at porten er klar med én gang.
+    /// </summary>
+    private static async Task VentTilPostgresErKlarAsync(string connString)
+    {
+        for (var forsok = 1; forsok <= 20; forsok++)
+        {
+            try
+            {
+                await using var conn = new NpgsqlConnection(connString);
+                await conn.OpenAsync();
+                return;
+            }
+            catch (Npgsql.PostgresException) when (forsok < 20)
+            {
+                await Task.Delay(250);
+            }
+            catch (Npgsql.NpgsqlException) when (forsok < 20)
+            {
+                await Task.Delay(250);
+            }
+        }
+    }
+
+    public Task DisposeAsync()
+    {
+        Factory?.Dispose();
+        try
+        {
+            _server?.Stop();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // Kjent Windows-spesifikt opprydningsproblem i MysticMind.PostgresEmbed, se
+            // RegelIde.Data.Tests/EmbeddedPostgresFixture.cs — ufarlig for testresultatet.
+        }
+        _server?.Dispose();
+        return Task.CompletedTask;
+    }
+}

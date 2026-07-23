@@ -1,44 +1,85 @@
-# src/ — Byggesteg 1: konverteringspipeline + les-API
+# src/ — Byggesteg 1: konverteringspipeline + database + les-API
 
 .NET 8-løsning. Jf. `docs/06-veikart.md` byggesteg 1 og `docs/08-byggesteg1-teknisk-design.md`:
 
 - `RegelIde.Kildekonvertering` — konverteringspipelinen (`LovdataKonverterer.Konverter`).
 - `RegelIde.Kildekonvertering.Tests` — xUnit-tester mot de ekte, fullstendige
   dokumentene i `data/kilder/raw-lovdata/` (ikke syntetiske utdrag).
-- `RegelIde.Api` — HTTP-API som **gir ut** allerede konverterte rettskilder (se eget
-  avsnitt under). Fremdeles ingen database — se scope-merknad der.
+- `RegelIde.Data` — EF Core + PostgreSQL, skjemaet fra §2 i teknisk design (låst, ikke
+  endret her) + `RettskildeImportTjeneste` som persisterer et `KonverteringResultat`.
+- `RegelIde.Data.Tests` — kjører migrasjonen og importtjenesten mot en ekte,
+  embedded Postgres-instans (se eget avsnitt under — ingen Docker/Podman nødvendig).
+- `RegelIde.Api` — HTTP-API som **gir ut** rettskilder fra databasen (se eget avsnitt under).
 
 ```bash
 dotnet test src/RegelIde.Kildekonvertering.Tests
+dotnet test src/RegelIde.Data.Tests
 dotnet test src/RegelIde.Api.Tests
-dotnet run --project src/RegelIde.Api   # kjør API-et lokalt, se Swagger på /swagger
+docker compose up -d   # eller: podman-compose up -d / podman compose up -d
+dotnet run --project src/RegelIde.Api   # krever kjørende Postgres, se Swagger på /swagger
 ```
+
+## Database: PostgreSQL uten Docker/Podman i denne byggeøkten
+
+Verken Docker eller Podman (Podman-CLI-en fantes, men VM-en/maskinen bak var ikke startet)
+var tilgjengelig i miljøet denne økten ble bygget i. Løst med
+[`MysticMind.PostgresEmbed`](https://github.com/mysticmind/mysticmind-postgresembed) — laster
+ned og kjører ekte Postgres-binærfiler direkte som en lokal prosess, ingen container-runtime
+nødvendig. Brukt **kun i tester** (`RegelIde.Data.Tests`, `RegelIde.Api.Tests`) for å verifisere
+migrasjonen og importlogikken mot ekte Postgres (partial unique index, GIN-fulltekstindeks,
+check-constraints — alt bekreftet fungerende, ikke bare kompilerende). `docker-compose.yml` i
+repo-roten er den tiltenkte veien for faktisk lokal kjøring av `RegelIde.Api`, men er **ikke
+verifisert kjørende** i denne økten — selve skjemaet er det, uavhengig av hvordan Postgres
+faktisk startes.
+
+**To testprosjekter som begge starter embedded Postgres kolliderte** når hele løsningen
+testes samlet (`dotnet test` uten prosjektfilter) — løst med eksplisitt, forskjellig port per
+fixture (`55432`/`55433`) og unik `instanceId`, se kommentarer i
+`EmbeddedPostgresFixture.cs`/`EmbeddedPostgresApiFixture.cs`.
+
+**Design-time-migrasjoner:** `RegelIdeDbContextFactory.cs` brukes kun av `dotnet ef migrations
+add …` (peker på en placeholder-connection-string, ikke en ekte database).
 
 ## RegelIde.Api — les-API for rettskilder
 
-Bygget etter eksplisitt instruks ("Sett et API for å gi ut rettskilder", 2026-07-24).
-**Scope-valg, ikke bedt om eksplisitt:** in-memory, ikke database. Endepunktene leser og
-konverterer alle HTML-filene i `data/kilder/raw-lovdata/` ved oppstart (samme
-`LovdataKonverterer` som pipelinen), og holder resultatet i minnet — databaselaget fra §2 i
-teknisk design (Postgres-skjemaet) er **ikke** koblet inn. Bakgrunn: å stå opp faktisk
-Postgres/EF Core/migrasjoner er en større, mindre reversibel infrastrukturbeslutning enn det
-en kort instruks ga grunnlag for å anta — dette er enkelt å bytte til et ekte repository bak
-samme API-kontrakt når det er ønsket, uten at endepunktene endrer form.
+Bygget etter eksplisitt instruks ("Sett et API for å gi ut rettskilder", 2026-07-24). Kjører nå
+mot ekte Postgres via `RegelIde.Data` (ikke lenger in-memory, se git-historikk for den
+mellomliggende in-memory-varianten). Migrerer databasen og sår de tre kjente
+fixture-dokumentene ved oppstart hvis den er tom (`Program.cs`) — en utviklings-bekvemmelighet,
+ikke en generell importmekanisme.
 
 **Endepunkter** (`RettskildeRepository.cs`, `Program.cs`):
-- `GET /api/rettskilder` — sammendragsliste (datokode, ELI, tittel, kortnavn, kildetype).
-- `GET /api/rettskilder/{datokode}` — full metadata + kanonisk AKN-XML.
-- `GET /api/rettskilder/{datokode}/noder` — hele nodetreet (flat liste med eId/parentEid, for tre-navigasjon).
-- `GET /api/rettskilder/{datokode}/noder/oppslag?eid=…` — én node ved eId. eId gis som
+- `GET /api/rettskilder` — sammendragsliste (id, ELI, tittel, kortnavn, kildetype).
+- `GET /api/rettskilder/{id}` — full metadata + kanonisk AKN-XML.
+- `GET /api/rettskilder/{id}/noder` — hele nodetreet (flat liste med eId/parentNodeId, for tre-navigasjon).
+- `GET /api/rettskilder/{id}/noder/oppslag?eid=…` — én node ved eId. eId gis som
   query-parameter, ikke rutesegment — en eId er en full ELI-URI med både `://` og flere
   skråstreker (`.../§1-1/ledd-1`), upraktisk/tvetydig i selve URL-stien.
-- `GET /api/rettskilder/{datokode}/referanser` — kryssreferansene funnet i løpeteksten.
+- `GET /api/rettskilder/{id}/referanser` — kryssreferansene funnet i løpeteksten.
 
-`datokode` (f.eks. `LOV-1989-06-02-27`) brukes som nøkkel i URL-er, ikke ELI-en — ELI-en
-inneholder selv skråstreker og passer derfor ikke som rutesegment.
+**`{id}` er databaseradens Guid, ikke datokode.** Det låste skjemaet (§2 i teknisk design) har
+ingen egen "datokode"-kolonne — kun en (nullable) ELI, som selv inneholder skråstreker og
+derfor ikke passer som rutesegment. Guid-en er den naturlige, alltid URL-sikre nøkkelen for et
+databasebacket API. (Den forrige in-memory-varianten av dette API-et brukte datokode som nøkkel
+— endret i samme slag som databasen ble koblet inn.)
 
-7 integrasjonstester (`RegelIde.Api.Tests`, `WebApplicationFactory`) mot de samme ekte
-dokumentene — ingen mocking av repositoryet.
+7 integrasjonstester (`RegelIde.Api.Tests`, `WebApplicationFactory` + embedded Postgres) mot de
+samme ekte dokumentene — ingen mocking, verken av repositoryet eller databasen.
+
+## Referanse-stubber (§3.1 steg 6) er nå faktisk implementert
+
+`RettskildeImportTjeneste` løser eksterne kryssreferanser mot databasen: finnes rettskilden
+(primær eller stub) fra før, gjenbrukes den; ellers opprettes en stub
+(`importrolle='referanse'`, `akn_xml=NULL`, `tittel` satt til ELI-en siden ingen ekte tittel er
+tilgjengelig før stubben forfremmes ved faktisk import). Bekreftet med ekte data: alkoholloven
+§ 9-4 ledd-3 viser til markedsføringsloven (ikke importert i dette settet) og oppretter en stub.
+
+**To reelle bugs funnet under dette arbeidet og rettet:**
+- Samme kryssreferanse kan forekomme flere ganger i samme ledd (samme mål lenket til to ganger
+  i løpeteksten) — `UNIQUE(fra_node_id, til_rettskilde_id, til_eid)` er der nettopp for å
+  forhindre dette (jf. kommentaren i §2), men importtjenesten prøvde å sette inn duplikatet i
+  stedet for å deduplisere selv. Rettet med en enkel `HashSet`-sjekk før innsetting.
+- (Se forrige runde i denne fila for øvrige rettinger i selve konverteringspipelinen.)
 
 ## Datakvalitetsfunn: fixture-filene var dobbelt feilkodet
 

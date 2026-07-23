@@ -1,0 +1,89 @@
+namespace RegelIde.Data;
+
+/// <summary>
+/// EF Core-entiteter som speiler docs/08-byggesteg1-teknisk-design.md §2 nøyaktig — feltnavn,
+/// typer og constraints er låst der etter tre QA-runder. Ingen avvik uten en tilsvarende endring
+/// i det dokumentet.
+/// </summary>
+public sealed class RettskildeEntitet
+{
+    public Guid Id { get; set; }
+    public required string Doctype { get; set; } // 'act' | 'doc' | 'judgment' | 'internal'
+    public required string Kildetype { get; set; } // 'Lov' | 'Forskrift' | 'Rundskriv' | 'Presedens' | 'Virksomhetsdokument'
+    public string Importrolle { get; set; } = "primaer"; // 'primaer' | 'referanse'
+    public required string Tittel { get; set; }
+    public string? Kortnavn { get; set; }
+    public string? Eli { get; set; }
+    public string? AknXml { get; set; } // NULL for referanse-stubber
+    public DateOnly? Ikrafttredelse { get; set; }
+    public DateOnly? KonsolidertDato { get; set; }
+    public string? Utgiver { get; set; }
+    public required string Status { get; set; } // 'Gjeldende' | 'Opphevet' | 'Utkast'
+    public int Versjon { get; set; } = 1;
+    public string Entitetsstatus { get; set; } = "gjeldende";
+    public Guid? ErstatterId { get; set; }
+    public DateOnly? GyldigFra { get; set; }
+    public DateOnly? GyldigTil { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? SistEndretAv { get; set; }
+    public DateTimeOffset? SistEndretTidspunkt { get; set; }
+
+    public List<RettskildeNodeEntitet> Noder { get; set; } = [];
+}
+
+public sealed class RettskildeNodeEntitet
+{
+    public Guid Id { get; set; }
+    public Guid RettskildeId { get; set; }
+    public required string Eid { get; set; } // canonical_id — endres aldri
+    public string Kildesystem { get; set; } = "lovdata";
+    public required string KildeId { get; set; } // source_id
+    public string? OffisiellEli { get; set; } // nullable — §1.2, fylles ut hvis Lovdata publiserer seksjons-ELI
+    public Guid? ParentNodeId { get; set; }
+    public required string NodeType { get; set; } // 'kapittel' | 'underinndeling' | 'paragraf' | 'ledd' | 'punkt'
+    public string? Nummer { get; set; }
+    public string? Overskrift { get; set; }
+    public string? Tekst { get; set; } // kun ledd/punkt (bladtekst)
+    public string? TekstHash { get; set; }
+    public int Sorteringsrekkefolge { get; set; }
+}
+
+public sealed class RettskildeReferanseEntitet
+{
+    public Guid Id { get; set; }
+    public Guid FraNodeId { get; set; }
+    public Guid TilRettskildeId { get; set; }
+    public required string TilEid { get; set; }
+}
+
+public sealed class TekstTaggEntitet
+{
+    public Guid Id { get; set; }
+    public Guid RettskildeId { get; set; }
+    public required string NodeEid { get; set; }
+    public int StartOffset { get; set; }
+    public int EndOffset { get; set; }
+    public required string QuotePrefix { get; set; }
+    public required string QuoteExact { get; set; }
+    public required string QuoteSuffix { get; set; }
+    public required string NodeTekstHash { get; set; }
+    public required string Kind { get; set; } // 'begrep' | 'vilkar' | 'regel'
+    public Guid? RefId { get; set; } // nullable inntil byggesteg 2/4
+    public string Entitetsstatus { get; set; } = "gjeldende";
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+}
+
+public sealed class ProveniensEntitet
+{
+    public Guid Id { get; set; }
+    public required string EntitetType { get; set; } // 'rettskilde' | 'begrep' | 'vilkar' | 'regelnode' | 'unntak' | …
+    public Guid EntitetId { get; set; }
+    public required string EndretAv { get; set; }
+    public DateTimeOffset Dato { get; set; }
+    public required string Handling { get; set; } // 'opprettet' | 'endret' | 'foreslatt_av_ai' | 'validert' | 'publisert' | 'arkivert'
+    public string? KildeReferanserJson { get; set; } // jsonb
+    public string? AiForslagVersjon { get; set; }
+    public string? GodkjentAv { get; set; }
+}

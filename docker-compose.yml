@@ -1,0 +1,19 @@
+# Lokal Postgres for RegelIde.Api, matcher connection string i src/RegelIde.Api/appsettings.json.
+# Fungerer med både `docker compose up -d` og `podman-compose up -d` / `podman compose up -d`.
+# Ikke verifisert kjørende i utviklingsøkten som skrev denne filen (verken Docker eller Podman-maskin
+# var tilgjengelig der) — selve databaseskjemaet er derimot verifisert mot ekte Postgres via
+# embedded-postgres-baserte tester (se src/RegelIde.Data.Tests).
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: regelide
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    volumes:
+      - regelide-pgdata:/var/lib/postgresql/data
+
+volumes:
+  regelide-pgdata:

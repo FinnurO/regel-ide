@@ -1,36 +1,29 @@
-using RegelIde.Kildekonvertering;
+using Microsoft.EntityFrameworkCore;
+using RegelIde.Data;
 
 namespace RegelIde.Api;
 
 /// <summary>
-/// In-memory register over rettskilder — leser og konverterer HTML-fixturene direkte fra
-/// <c>data/kilder/raw-lovdata/</c> ved oppstart (ingen kopi til byggeoutput — <c>ContentRootPath</c>
-/// peker på selve prosjektmappen både under <c>dotnet run</c> og i WebApplicationFactory-tester,
-/// ikke bin-outputen, så en relativ sti derfra er enklere og mer robust enn en CopyToOutputDirectory-omvei).
-/// Bevisst uten database ("Sett et API for å gi ut rettskilder" — scope for denne økten er
-/// å GI UT allerede-konverterte rettskilder, ikke bygge lagringslaget fra §2 i teknisk design).
-/// Byttes til et faktisk repository (Postgres, §2) uten at API-kontrakten nedenfor endres.
+/// Databasebacket register over rettskilder (§2 i teknisk design) — erstatter den tidligere
+/// in-memory-varianten fra denne økten. Scoped (per request), speiler DbContext sin levetid.
 /// </summary>
-public sealed class RettskildeRepository
+public sealed class RettskildeRepository(RegelIdeDbContext db)
 {
-    private readonly Dictionary<string, KonverteringResultat> _vedDatokode;
+    public Task<List<RettskildeEntitet>> AlleRettskilderAsync() =>
+        db.Rettskilder.Where(r => r.Importrolle == "primaer" && r.Entitetsstatus == "gjeldende").ToListAsync();
 
-    public RettskildeRepository(IWebHostEnvironment miljo, IConfiguration config)
+    public Task<RettskildeEntitet?> FinnAsync(Guid id) =>
+        db.Rettskilder.FirstOrDefaultAsync(r => r.Id == id);
+
+    public Task<List<RettskildeNodeEntitet>> NoderForAsync(Guid rettskildeId) =>
+        db.RettskildeNoder.Where(n => n.RettskildeId == rettskildeId).OrderBy(n => n.Sorteringsrekkefolge).ToListAsync();
+
+    public Task<RettskildeNodeEntitet?> FinnNodeAsync(Guid rettskildeId, string eid) =>
+        db.RettskildeNoder.FirstOrDefaultAsync(n => n.RettskildeId == rettskildeId && n.Eid == eid);
+
+    public async Task<List<RettskildeReferanseEntitet>> ReferanserForAsync(Guid rettskildeId)
     {
-        var relativSti = config["RettskilderMappe"] ?? Path.Combine("..", "..", "data", "kilder", "raw-lovdata");
-        var mappe = Path.GetFullPath(Path.Combine(miljo.ContentRootPath, relativSti));
-        var resultater = new List<KonverteringResultat>();
-        foreach (var fil in Directory.EnumerateFiles(mappe, "*.html").OrderBy(f => f))
-        {
-            var html = File.ReadAllText(fil);
-            resultater.Add(LovdataKonverterer.Konverter(html));
-        }
-
-        _vedDatokode = resultater.ToDictionary(r => r.Metadata.Datokode);
+        var nodeIder = await db.RettskildeNoder.Where(n => n.RettskildeId == rettskildeId).Select(n => n.Id).ToListAsync();
+        return await db.RettskildeReferanser.Where(r => nodeIder.Contains(r.FraNodeId)).ToListAsync();
     }
-
-    public IReadOnlyList<KonverteringResultat> AlleRettskilder() => _vedDatokode.Values.ToList();
-
-    public KonverteringResultat? FinnVedDatokode(string datokode) =>
-        _vedDatokode.GetValueOrDefault(datokode);
 }
