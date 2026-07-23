@@ -20,8 +20,9 @@
 |---|---|---|
 | GET/POST | `/api/begreper` | List / opprett begrep |
 | GET/PUT | `/api/begreper/{id}` | Les / oppdater — `PUT` på publisert begrep oppretter ny versjon, ikke in-place-endring |
-| POST | `/api/begreper/{id}/publiser` | Publiser til data.norge.no (skriver `skosUrl`, trigger `ConceptChanged`) |
+| POST | `/api/begreper/{id}/publiser` | Sett status `publisert` — inkluderer begrepet i `/api/katalog/begreper.ttl` (§13) ved neste kall, trigger `ConceptChanged`. **Kaller ikke data.norge.no** — se `05-arkitektur-og-nfk.md` §1.2 for hvorfor. `skosUrl` fylles ut asynkront etter data.norge.nos neste høsting, ikke i denne transaksjonen. |
 | GET | `/api/begreper/{id}/brukt-i` | Vilkår som refererer begrepet |
+| GET | `/api/eksternt-oppslag/data-norge?q={søk}&type=begrep\|tjeneste\|kodeliste` | Søk i data.norge.nos egne API-er — brukes for eksterne referanser (kap. 3.2/3.4/3.7 i produktkrav), separat fra publisering |
 
 ## 3. Kodelister
 
@@ -40,7 +41,7 @@
 | GET/PUT | `/api/tjenester/{id}` | Les / oppdater grunndata |
 | POST | `/api/tjenester/{id}/hendelser` | Legg til hendelse (§1.5) |
 | POST | `/api/tjenester/{id}/avhengigheter` | Legg til tjenesteavhengighet (intern eller data.norge.no-referanse) |
-| POST | `/api/tjenester/{id}/publiser` | Publiser tjeneste — atomisk over alle `validert`-vilkår, se publiseringsmodell `03-domenemodell.md` §4 |
+| POST | `/api/tjenester/{id}/publiser` | Publiser tjeneste — atomisk over alle `validert`-vilkår, se publiseringsmodell `03-domenemodell.md` §4. Inkluderer tjenesten i `/api/katalog/tjenester.ttl` (§13); kaller ikke data.norge.no direkte (samme mønster som begreper, se `05-arkitektur-og-nfk.md` §1.2) |
 
 ## 5. Datasett
 
@@ -140,6 +141,17 @@ Ingen `PUT`/publiseringsendepunkt for AI-forslag — AI kan aldri publisere (RBA
 | Metode | Sti | Beskrivelse |
 |---|---|---|
 | GET | `/api/hendelser?type=&fra=&til=` | Hendelseslogg (§5 i domenemodell) — grunnlag for dashbord-aktivitetsgraf |
+
+## 13. Høstbare katalog-endepunkter (data.norge.no)
+
+*Disse er det data.norge.nos harvester faktisk kaller — se `05-arkitektur-og-nfk.md` §1.2. Offentlig tilgjengelige uten autentisering (et harvester-krav), kun `publisert`-entiteter inkludert.*
+
+| Metode | Sti | Beskrivelse |
+|---|---|---|
+| GET | `/api/katalog/begreper.ttl` (og `.jsonld`) | Alle publiserte begreper som SKOS-AP-NO-Begrep-RDF |
+| GET | `/api/katalog/tjenester.ttl` (og `.jsonld`) | Alle publiserte tjenester som CPSV-AP-NO-RDF |
+
+Organisasjonen (Testkommunen) registrerer disse URL-ene **én gang** i data.norge.nos registreringsløsning (Altinn-autorisert) — ikke noe regel-IDE gjør per publisering.
 
 ## Generelle regler (gjelder alle ressurser over)
 

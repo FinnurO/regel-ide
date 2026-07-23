@@ -24,7 +24,12 @@ Konsekvensen for byggesteg 4 under: det gjenstår ikke lenger å *avgjøre* node
 
 **Innhold:** import (Lovdata-søk + filopplasting, AK-3.3.5–3.3.7), AKN-lagring, tre-navigasjon, metadata-fane, tekstmerking/tagging-mekanikken (uten at det ennå finnes begreper/vilkår å knytte til — lagre taggen med `ref: null` inntil byggesteg 2/4 gir den noe å peke på, eller bygg tagging-UI-et samtidig med byggesteg 2). `quoteSelector`-robusthet (`05-arkitektur-og-nfk.md` §3.1) bygges her, ikke ettermontert senere.
 
-**Testcase-innhold:** alkoholloven kapittel 1, 3 og 4 (bevillingsplikt, vilkår for bevilling, skjenketider) + relevant forskrift.
+**Testcase-innhold: hele alkoholloven og hele alkoholforskriften, ikke bare de "relevante" kapitlene.** Opprinnelig plan var å bare hente kapittel 1, 3 og 4. Det er feil av to grunner: (1) formålsparagrafen (§ 1-1) og definisjonene (§ 1-3, § 1-4) — som direkte gir oss tjenestebeskrivelsen og begrepsgrunnlaget, jf. `02-produktkrav.md` kap. 3.2/3.8 — står i kapittel 1, ikke i kapittel 4 der skjenkebevilling-vilkårene ligger; (2) vilkårsparagrafene vi faktisk skal modellere (§ 4-1 til § 4-7, kommunale skjenkebevillinger) henviser tilbake til kapittel 1 (§ 1-7a kommunens skjønnsutøvelse, § 1-7b krav til vandel, § 1-5 aldersgrenser) — et bibliotek med bare "de relevante kapitlene" ville brutt disse kryssreferansene. Rettskildebiblioteket (§1.1 i domenemodellen) skal derfor inneholde **hele** loven og **hele** forskriften; utvalget av vilkår vi faktisk bygger i byggesteg 4 (alder, vandel, skjenketid, unntak for lukket selskap) er fortsatt lite, men navigasjon og kryssreferanser skal virke for hele dokumentet.
+
+- **Lov:** LOV-1989-06-02-27, "Lov om omsetning av alkoholholdig drikk m.v. (alkoholloven)", 11 kapitler.
+- **Forskrift:** FOR-2005-06-08-538, "Forskrift om omsetning av alkoholholdig drikk mv. (alkoholforskriften)".
+- Begge hentet 2026-07-23 fra Lovdatas offisielle, gratis bulk-datasett (`gjeldende-lover.tar.bz2` / `gjeldende-sentrale-forskrifter.tar.bz2`, NLOD 2.0-lisens, kildeangivelse påkrevd) — se `data/kilder/README.md` for proveniens og `05-arkitektur-og-nfk.md` §1 for hvordan importfunksjonen (AK-3.3.5) skal bruke Lovdatas offisielle API i produktet, ikke denne engangs-bulk-hentingen.
+- Rådataen er Lovdatas "XML-kompatible HTML": `<section>`=kapittel, `<article class="legalArticle" data-lovdata-URL="…/§4-3">`=paragraf, `<article class="legalP">`=ledd, med kryssreferanser allerede som `<a href="lov/…/§X">`. `data-lovdata-URL`-verdien er så godt som en ferdig `eId` — konverteringen til AKN (byggesteg 1s implementasjon) er derfor en strukturell ombygging av allerede taggede grenser, ikke en tolkning av løpetekst.
 
 ## Byggesteg 2 — Tjenester og begrep sammen
 

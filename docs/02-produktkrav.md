@@ -38,7 +38,9 @@ Se [`05-arkitektur-og-nfk.md`](05-arkitektur-og-nfk.md) for begrunnelse og alter
 
 ## 2. Overordnet navigasjon og skall
 
-Applikasjonen er et enkeltbruker-arbeidsverktøy for **én virksomhet** (f.eks. en kommune) — ikke et flervirksomhets-fellesverktøy. Tjenester fra andre virksomheter refereres via eksternt oppslag (data.norge.no), ikke ved deling av redigeringsrettigheter.
+Applikasjonen er et enkeltbruker-arbeidsverktøy for **én virksomhet** — ikke et flervirksomhets-fellesverktøy. Tjenester fra andre virksomheter refereres via eksternt oppslag (data.norge.no), ikke ved deling av redigeringsrettigheter.
+
+**Testcasets virksomhet: Testkommunen.** Skjenkebevilling er en kommunal oppgave (alkoholloven kapittel 4, "Kommunale skjenkebevillinger" — kommunen er bevillingsmyndighet, ikke staten). Digdir har allerede en fiktiv **Testdepartementet** for statlig testing; siden vår kompetente myndighet (`Tjeneste.kompetent_myndighet`, `03-domenemodell.md` §1.5) er en kommune, bruker testcaset **Testkommunen** i stedet — ikke Testdepartementet.
 
 **Skall:**
 - **Venstre sidemeny** (mørk, IDE-følelse) med navigasjonsgrupper. Kollapser til skuff med hamburgermeny < 880px bredde.
@@ -144,7 +146,7 @@ Maskinlesbar modell (ikke skjemabygger) som et søknadssystem konsumerer.
 - Intro som forklarer at modellen publiseres (JSON Schema / SKOS) for gjenbruk.
 - Liste over opplysningselementer med opphav (oppgis av søker / oppslag / utledet), datatype, property-navn, påkrevd-flagg.
 - Detaljpanel med to faner: **Modell** (property, datatype, opphav, kilde, kodeliste, brukt-i-vilkår) og **Behandling & bruk** (behandlingsgrunnlag, hvordan info behandles og brukes, rettslig hjemmel, lagringstid, mottakere).
-- «Vis/skjul JSON Schema» og «Publiser modell».
+- «Vis/skjul JSON Schema» og «Publiser modell» (gjør modellen tilgjengelig for gjenbruk — ikke en direkte publisering til data.norge.no, se `05-arkitektur-og-nfk.md` §1.2).
 
 **AK-3.6.1** Gitt informasjonsmodellen, skal JSON Schema kunne vises, avledet av datasettdefinisjonene, med `required` = brukeroppgitte felter.
 **AK-3.6.2** Gitt et opplysningselement, skal Behandling & bruk-fanen vise behandlingsgrunnlag, lagringstid, mottakere og bruk.
@@ -155,7 +157,7 @@ Filtrerbar liste (alle/juridiske/tekniske/eksterne). Detaljpanel med faner **Kod
 ### 3.8 Begrepsregister **[Fase 1]**
 Ordliste + detaljpanel med faner **Detaljer** (definisjon, lovreferanse, gjelder for, kodeliste, SKOS-type, publisert-begrep-lenke til data.norge.no, brukt-i-vilkår), **Historikk**, **Metadata**.
 
-**AK-3.8.1** Gitt et begrep, skal `skos:Concept`-type og en lenke til det publiserte begrepet på data.norge.no vises.
+**AK-3.8.1** Gitt et publisert begrep, skal `skos:Concept`-type vises, og en lenke til det publiserte begrepet på data.norge.no når `skosUrl` er satt — feltet fylles ut asynkront etter data.norge.nos neste høsting (`05-arkitektur-og-nfk.md` §1.2), ikke umiddelbart ved publisering. Inntil da vises publiseringsstatus uten ekstern lenke.
 
 ### 3.9 Presedensregister **[Fase 1/2]**
 Filtrerbar tabell (sak, organ, dato, utfall, vekt). Detaljpanel med faner **Sammendrag** (dato, organ, saksnummer, rettskildevekt, bestemmelse, sammendrag), **Metadata**, **Koblinger** (bestemmelse/vilkår). Rettskildevekt fra `KL-RETTSKILDEVEKT` (aldri fritekst). «Ny presedens»-handling.
@@ -305,6 +307,9 @@ Full liste (ytelse, sporbarhet, reproduserbarhet, interoperabilitet, tekniske ri
 - **Vilkarstype** — formell / materiell (jf. `01-referansemodell.md` §6).
 - **Lovspeil** — vedlikeholdt samsvar mellom rettskildeversjon og regelen som faktisk er implementert (Schartum; jf. `07-forklaringsmodell-api-avvik.md`).
 - **Regelnode** — komposisjonsnode i vilkårstreet (`barn[]` + operator + `utdata`), kalt "Regel" i referansemodellen — se `01-referansemodell.md` §5.6 for hvorfor navnet "regelnode" brukes i API-et for å unngå kollisjon med `forklaringsmodell-api`s `Regel`.
+- **NLOD 2.0** — Norsk lisens for offentlige data, lisensen Lovdatas gratis API-datasett publiseres under (kildeangivelse påkrevd).
+- **DCAT-AP-NO / SKOS-AP-NO-Begrep / CPSV-AP-NO** — norske forvaltningsstandarder for hhv. datasettkataloger, begrepsbeskrivelser og tjenestebeskrivelser, brukt av data.norge.nos høstingsmekanisme (`05-arkitektur-og-nfk.md` §1.2).
+- **Testkommunen** — fiktiv kommune brukt som testcasets virksomhet, siden skjenkebevilling er en kommunal oppgave (se kap. 2).
 - **Skjønnsgrunnlag / skjønnsmoment / avklaringsbehov** — se `01-referansemodell.md` §6.1.
 - **Vedtak / vedtaksgrunnlag / vedtaksvirkning** — se `01-referansemodell.md` §15.1.
 

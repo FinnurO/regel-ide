@@ -277,6 +277,7 @@ Svarer på den eksterne vurderingens spørsmål: hva publiseres, er det atomisk,
 - **Rollback** = trekke tilbake (`tilbaketrukket`), ikke slette. En tilbaketrukket node kan ikke lenger brukes i nye evalueringer, men forblir i historikken for spor tilbake fra eksisterende vedtak.
 - **En regelnode kan ikke publiseres før alle dens `barn[]` enten er `publisert` eller eksplisitt markert som ikke påkrevd** (f.eks. en alternativ/ELLER-gren som ikke er ferdigstilt ennå skal blokkere publisering av foreldrenoden, ikke stille inn).
 - **Et Unntak kan ikke publiseres før sin `gjelder_regel` er publisert** (kan skje i samme publiseringstransaksjon, men aldri før). Omvendt: å publisere en Regel som har ett eller flere `utkast`/`under_revisjon`-Unntak knyttet til seg, skal ikke blokkeres av det — et upublisert unntak betyr bare at unntaket ennå ikke har virkning, ikke at hovedregelen ikke kan tas i bruk.
+- **For Begrep og Tjeneste spesifikt:** "publisert" betyr at entiteten inngår i regel-IDEs egne, offentlig eksponerte RDF-endepunkter (`04-api-kontrakter.md` §13) — **ikke** at noe sendes til data.norge.no. Data.norge.no høster (crawler) disse endepunktene selv, typisk én gang i døgnet, etter at organisasjonen har registrert dem én gang. Se `05-arkitektur-og-nfk.md` §1.2 for hele resonnementet — dette skiller seg fra publisering av Vilkår/Regel/Unntak, som ikke har noe eksternt harvest-mottak.
 
 ---
 

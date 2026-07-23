@@ -5,15 +5,16 @@
 ```mermaid
 graph LR
   Bruker["Tverrfaglig team\n(tjenestedesigner, jurist,\nfagansvarlig, saksbehandler, utvikler)"] --> RegelIDE["Regel-IDE\n(dette repoet)"]
-  RegelIDE -- "import (søk/opplasting)" --> Lovdata["Lovdata\n(ekstern, ikke eid av oss)"]
-  RegelIDE -- "publiser begrep/tjeneste" --> DataNorge["data.norge.no\n(Felles datakatalog, SKOS/CPSV-AP-NO)"]
+  RegelIDE -- "import via offisielt API\n(api.lovdata.no, NLOD 2.0)" --> Lovdata["Lovdata\n(ekstern, ikke eid av oss)"]
+  RegelIDE -- "søker/leser eksterne\nbegrep/tjenester/kodelister" --> DataNorge["data.norge.no\n(Felles datakatalog)"]
+  DataNorge -- "høster (crawler ~daglig)\nRDF: SKOS-AP-NO-Begrep + CPSV-AP-NO" --> RegelIDE
   RegelIDE -- "eksporter regelnode\n(eFLINT/DMN/OpenFisca/RuleML)" --> Regelmotor["Ekstern regelmotor\n(kjører eksportert kode — ikke i scope her)"]
   RegelIDE -- "publiser vilkår/regelnode\n(§4 domenemodell)" --> ForklaringsAPI["forklaringsmodell-api\n(kjøretid: Sak/Vurdering/Vedtak)"]
   ForklaringsAPI -- "leser regel/vilkår-katalog" --> RegelIDE
   Saksbehandlingssystem["Saksbehandlingssystem\n(ikke bygget her — se veikart byggesteg 7)"] -. "konsumerer" .-> ForklaringsAPI
 ```
 
-Regel-IDE er *forfatterverktøyet*. Lovdata og data.norge.no er eksterne systemer vi kun leser fra/skriver til via kjente grensesnitt (søk/opplasting, SKOS/CPSV-AP-NO-publisering) — vi eier ingen del av dem. Regelmotoren som faktisk kjører den eksporterte koden (DMN-motor, eFLINT-tolk osv.) er eksplisitt utenfor scope (jf. `02-produktkrav.md` kap. 8). `forklaringsmodell-api` er den eneste integrasjonen vi både leser fra og skriver til som del av vår egen leveranse — se §3.5 under og `07-forklaringsmodell-api-avvik.md` for detaljene.
+Regel-IDE er *forfatterverktøyet*. **Viktig presisering (rettet etter produkteiers innspill):** vi kan ikke "publisere til" data.norge.no — Felles datakatalog fungerer utelukkende ved at den **høster** (crawler) fra registrerte, offentlig tilgjengelige endepunkter, typisk én gang i døgnet. "Publisere" i regel-IDEs egen domenemodell (§4 i `03-domenemodell.md`) betyr derfor: gjøre et begrep/en tjeneste tilgjengelig i regel-IDEs **eget** høstbare RDF-endepunkt — se §1 og §3.6 under. Det vi faktisk gjør *mot* data.norge.no er lesing/søk (for eksterne referanser, `02-produktkrav.md` kap. 3.2/3.4/3.7). Regelmotoren som faktisk kjører den eksporterte koden (DMN-motor, eFLINT-tolk osv.) er eksplisitt utenfor scope (jf. `02-produktkrav.md` kap. 8). `forklaringsmodell-api` er den eneste integrasjonen vi både leser fra og skriver til som del av vår egen leveranse — se §3.5 under og `07-forklaringsmodell-api-avvik.md` for detaljene.
 
 ## 1. Teknologivalg
 
@@ -24,6 +25,30 @@ Regel-IDE er *forfatterverktøyet*. Lovdata og data.norge.no er eksterne systeme
 - **Begreper:** SKOS, publisert til Felles datakatalog (data.norge.no).
 - **Tjeneste:** CPSV-AP-NO.
 - **Backend:** Ikke låst i v0.1. `forklaringsmodell-api` er bygget i ASP.NET Core/.NET 8 — å bruke samme stack for regel-ide sitt eget API senker terskelen for å dele DTO-er/valideringslogikk mellom de to, men er ikke en forutsetning. Avklares i fase 1 (se `06-veikart.md`).
+- **RDF-serialisering:** trengs for høsting mot data.norge.no (§1.2 under) — f.eks. `dotNetRDF` hvis backend blir .NET, eller tilsvarende bibliotek for valgt stack. Ikke en stor arkitekturbeslutning, men en avhengighet å ta med i valget av backend.
+
+### 1.1 Import fra Lovdata
+
+Lovdata har et offisielt, gratis API for gjeldende lover og sentrale forskrifter under **NLOD 2.0**-lisens (åpen, krever kun kildeangivelse), eksplisitt lansert "tilpasset [...] KI-hverdag". Import-funksjonen (kap. 3.3 i produktkrav, AK-3.3.5) **skal** bruke `api.lovdata.no` direkte:
+
+- **Strukturerte endepunkter** (`renderRefID`, `documentIndex`, `documentHistory`, `v1/search`, `v1/structuredRules/*`) krever API-nøkkel (X-API-Key/Basic Auth) — registrering hos Lovdata er en forutsetning før importfunksjonen kan bygges ferdig.
+- **To gratis bulk-datasett uten autentisering** dekker det vi trenger for enkeltimport av en gitt lov/forskrift i mellomtiden: `v1/publicData/get/gjeldende-lover.tar.bz2` og `.../gjeldende-sentrale-forskrifter.tar.bz2` (hhv. ~5,8 MB og ~20 MB komprimert, alle gjeldende lover/sentrale forskrifter). Filene er navngitt `nl/nl-ÅÅÅÅMMDD-NNN.xml` / `sf/sf-ÅÅÅÅMMDD-NNN.xml` etter dato+løpenummer i datokoden (f.eks. alkoholloven LOV-1989-06-02-27 → `nl-19890602-027.xml`).
+- **Filformat:** "XML-kompatibel HTML", **cp1252-kodet** (ikke UTF-8/latin-1 — viktig å håndtere riktig ved import, ellers blir æøå korrupt). Strukturen er allerede nesten AKN-klar: `<section class="section" data-name="kap1">` = kapittel, `<article class="legalArticle" data-lovdata-URL=".../§4-3" data-name="§4-3">` = paragraf, nøstet `<article class="legalP">` = ledd, `<li><article class="listArticle">` = bokstav-/nummerpunkt. `data-lovdata-URL` er praktisk talt en ferdig hierarkisk identifikator regel-IDEs `eId` kan avledes direkte fra. Kryssreferanser mellom paragrafer er allerede `<a href="lov/.../§X">`.
+- **AI-assistert AKN-konvertering (kap. 3.3, AK-3.3.6):** siden kildeformatet allerede er strukturert (ikke løpetekst), er selve konverteringen en **strukturell ombygging** — en presis oppgave for en LLM, ikke juridisk tolkning. Anbefalt mønster: AI produserer AKN-utkast fra Lovdata-HTML-en → status `utkast` (jf. livssyklusen, `03-domenemodell.md` §3.2) → jurist/fagansvarlig verifiserer mot kildeteksten i side-ved-side-visningen (AK-3.3.6) → `gjeldende`. Samme mønster gjelder for et opplastet, ustrukturert dokument (rundskriv, virksomhetsdokument) — men der er strukturgarantien svakere (ingen `data-lovdata-URL`-ekvivalent), så forvent mer manuell etterretting og vurder OCR som forsteg for skannede PDF-er.
+- **Attribusjon:** all bruk skal oppgi Lovdata som kilde, jf. NLOD 2.0 — dette bør skje automatisk (f.eks. i `utgiver`-feltet, `03-domenemodell.md` §1.1, og i eksportert AKN-metadata), ikke som en manuell påminnelse til brukeren.
+
+### 1.2 Publisering mot data.norge.no (Felles datakatalog) — høsting, ikke push
+
+Felles datakatalog **høster** (crawler, typisk én gang i døgnet) fra registrerte, offentlig tilgjengelige endepunkter — den mottar ingen direkte "publiser"-kall. Kravene for høsting:
+
+1. Beskrivelsen må følge **DCAT-AP-NO** (datasettnivå), og de aktuelle profilene for våre entiteter: **SKOS-AP-NO-Begrep** for begreper (kap. 3.8 i produktkrav) og **CPSV-AP-NO** for tjenester (kap. 3.2).
+2. Filen som høstes må være **offentlig tilgjengelig på internett uten autentisering**.
+3. Filen må være gyldig **RDF** — Turtle eller JSON-LD.
+4. Organisasjonen (Testkommunen, se `02-produktkrav.md` kap. 2) må ha **Altinn-autorisert tilgang** til å registrere endepunktet i data.norge.nos registreringsløsning — dette er en **engangsregistrering på organisasjonsnivå**, ikke noe regel-IDE gjør per entitet.
+
+Konsekvens for domenemodellen (`03-domenemodell.md` §4): når et Begrep/en Tjeneste settes til `publisert`, betyr det at den nå inngår i regel-IDEs **egne**, offentlig eksponerte RDF-endepunkter (`04-api-kontrakter.md` — nye endepunkter for dette). Selve synligheten på data.norge.no skjer asynkront, ved neste høsting (opptil ett døgn senere) — ikke i publiseringstransaksjonen. `skosUrl`-feltet (`03-domenemodell.md` §1.3) fylles derfor ut *etter* første vellykkede høsting, ikke ved publisering.
+
+**Lesing/søk mot data.norge.no** (for eksterne referanser, kap. 3.2/3.4/3.7 i produktkrav) er en separat, enklere integrasjon: et vanlig utgående søke-/oppslagskall mot data.norge.nos egne API-er — ingen registrering eller RDF-eksponering kreves for dette, kun for publisering.
 
 ## 2. Ikke-funksjonelle krav
 
