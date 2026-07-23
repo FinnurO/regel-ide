@@ -1,17 +1,44 @@
-# src/ — Byggesteg 1: konverteringspipelinen
+# src/ — Byggesteg 1: konverteringspipeline + les-API
 
-.NET 8-løsning. Scope for denne byggeøkten: **kun** konverteringspipelinen
-(Lovdata-HTML → AKN-XML + nodetre), jf. `docs/06-veikart.md` byggesteg 1 og
-`docs/08-byggesteg1-teknisk-design.md`. Ingen database, ingen HTTP-API, ingen
-frontend ennå — se prosjektene:
+.NET 8-løsning. Jf. `docs/06-veikart.md` byggesteg 1 og `docs/08-byggesteg1-teknisk-design.md`:
 
-- `RegelIde.Kildekonvertering` — selve pipelinen (`LovdataKonverterer.Konverter`).
+- `RegelIde.Kildekonvertering` — konverteringspipelinen (`LovdataKonverterer.Konverter`).
 - `RegelIde.Kildekonvertering.Tests` — xUnit-tester mot de ekte, fullstendige
   dokumentene i `data/kilder/raw-lovdata/` (ikke syntetiske utdrag).
+- `RegelIde.Api` — HTTP-API som **gir ut** allerede konverterte rettskilder (se eget
+  avsnitt under). Fremdeles ingen database — se scope-merknad der.
 
 ```bash
 dotnet test src/RegelIde.Kildekonvertering.Tests
+dotnet test src/RegelIde.Api.Tests
+dotnet run --project src/RegelIde.Api   # kjør API-et lokalt, se Swagger på /swagger
 ```
+
+## RegelIde.Api — les-API for rettskilder
+
+Bygget etter eksplisitt instruks ("Sett et API for å gi ut rettskilder", 2026-07-24).
+**Scope-valg, ikke bedt om eksplisitt:** in-memory, ikke database. Endepunktene leser og
+konverterer alle HTML-filene i `data/kilder/raw-lovdata/` ved oppstart (samme
+`LovdataKonverterer` som pipelinen), og holder resultatet i minnet — databaselaget fra §2 i
+teknisk design (Postgres-skjemaet) er **ikke** koblet inn. Bakgrunn: å stå opp faktisk
+Postgres/EF Core/migrasjoner er en større, mindre reversibel infrastrukturbeslutning enn det
+en kort instruks ga grunnlag for å anta — dette er enkelt å bytte til et ekte repository bak
+samme API-kontrakt når det er ønsket, uten at endepunktene endrer form.
+
+**Endepunkter** (`RettskildeRepository.cs`, `Program.cs`):
+- `GET /api/rettskilder` — sammendragsliste (datokode, ELI, tittel, kortnavn, kildetype).
+- `GET /api/rettskilder/{datokode}` — full metadata + kanonisk AKN-XML.
+- `GET /api/rettskilder/{datokode}/noder` — hele nodetreet (flat liste med eId/parentEid, for tre-navigasjon).
+- `GET /api/rettskilder/{datokode}/noder/oppslag?eid=…` — én node ved eId. eId gis som
+  query-parameter, ikke rutesegment — en eId er en full ELI-URI med både `://` og flere
+  skråstreker (`.../§1-1/ledd-1`), upraktisk/tvetydig i selve URL-stien.
+- `GET /api/rettskilder/{datokode}/referanser` — kryssreferansene funnet i løpeteksten.
+
+`datokode` (f.eks. `LOV-1989-06-02-27`) brukes som nøkkel i URL-er, ikke ELI-en — ELI-en
+inneholder selv skråstreker og passer derfor ikke som rutesegment.
+
+7 integrasjonstester (`RegelIde.Api.Tests`, `WebApplicationFactory`) mot de samme ekte
+dokumentene — ingen mocking av repositoryet.
 
 ## Datakvalitetsfunn: fixture-filene var dobbelt feilkodet
 

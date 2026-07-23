@@ -1,0 +1,6 @@
+@RegelIde.Api_HostAddress = http://localhost:5187
+
+GET {{RegelIde.Api_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

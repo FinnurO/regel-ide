@@ -18,7 +18,9 @@ Den andre forskriften fra samme dato i bulk-arkivet (`sf-20050608-0539.xml`, "Fo
 
 ## Lokale forskrifter er ikke i bulk-datasettet
 
-Undersøkt 2026-07-24 (se `../../src/README.md`): Lovdatas gratis bulk-datasett dekker kun **sentrale** (statlige) rettskilder. Lokale forskrifter (kunngjort i Norsk Lovtidend **Del II**) er ikke tilgjengelig der, og heller ikke i samme "XML-kompatible HTML"-format på selve nettsiden (`lovdata.no/dokument/LF/...` bruker en helt annen, inkompatibel HTML-struktur — `morTag_p`/`paragrafHeader` i stedet for `legalArticle`/`documentHeader`). Konsekvens: lokale forskrifter må kommunen selv levere til regel-IDE (fil/opplasting), og systemet trenger en egen parser for det formatet kommunen faktisk leverer — det er ikke bare en ny kilde-URL å peke det eksisterende Lovdata-importet mot.
+Undersøkt 2026-07-24 (se `../../src/README.md`): Lovdatas gratis bulk-datasett dekker kun **sentrale** (statlige) rettskilder. Lokale forskrifter (kunngjort i Norsk Lovtidend **Del II**, bekreftet av Johann) er ikke tilgjengelig der, og heller ikke i samme "XML-kompatible HTML"-format på selve nettsiden (`lovdata.no/dokument/LF/...` bruker en helt annen, inkompatibel HTML-struktur — `morTag_p`/`paragrafHeader` i stedet for `legalArticle`/`documentHeader`). Konsekvens: lokale forskrifter må kommunen selv levere til regel-IDE (fil/opplasting), og systemet trenger en egen parser for det formatet kommunen faktisk leverer — det er ikke bare en ny kilde-URL å peke det eksisterende Lovdata-importet mot.
+
+**Idé til fremtidig scope (ikke besluttet, ikke bygget):** siden Lovdata selv ikke tilbyr noe API for lokale forskrifter, kan regel-IDE bli det de facto API-et for dette — kommunen leverer filen én gang, regel-IDE konverterer og gjør den tilgjengelig via `RegelIde.Api` (se `../../src/README.md`) på samme måte som sentrale rettskilder. Krever en egen parser for kommunens leveranseformat (ikke Lovdatas), og er ikke spec'et videre ennå.
 
 ## Format og hva det betyr for AKN-konverteringen
 
