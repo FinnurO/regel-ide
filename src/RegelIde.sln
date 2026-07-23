@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegelIde.Kildekonvertering", "RegelIde.Kildekonvertering\RegelIde.Kildekonvertering.csproj", "{7074520B-C979-4E6E-9557-3B7CF6014D46}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RegelIde.Kildekonvertering.Tests", "RegelIde.Kildekonvertering.Tests\RegelIde.Kildekonvertering.Tests.csproj", "{415C592F-7791-4984-940E-1214F6194ECF}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7074520B-C979-4E6E-9557-3B7CF6014D46}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7074520B-C979-4E6E-9557-3B7CF6014D46}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7074520B-C979-4E6E-9557-3B7CF6014D46}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7074520B-C979-4E6E-9557-3B7CF6014D46}.Release|Any CPU.Build.0 = Release|Any CPU
+		{415C592F-7791-4984-940E-1214F6194ECF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{415C592F-7791-4984-940E-1214F6194ECF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{415C592F-7791-4984-940E-1214F6194ECF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{415C592F-7791-4984-940E-1214F6194ECF}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
