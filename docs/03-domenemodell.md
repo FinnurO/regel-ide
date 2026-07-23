@@ -33,7 +33,7 @@ Proveniens (endringslogg) er en separat, append-only tabell — se §3.11 under.
 | `status` | enum | Gjeldende / Opphevet / Utkast |
 | `noder[]` | tre | Kapittel/paragraf/ledd/bokstav med `eId` |
 
-Adresserbare enheter har `eId` (f.eks. `par_1-7b`). Presedens modelleres som AKN `judgment` (§1.7).
+Adresserbare enheter har `eId`. **`par_1-7b`-formen her var en antatt konvensjon før vi hadde ekte Lovdata-data** — den faktiske foreslåtte konvensjonen (gjenbruk av Lovdatas egne `id`-verdier, f.eks. `kapittel-1-paragraf-3`) står i `08-byggesteg1-teknisk-design.md` §1.2, til ekstern kvalitetssikring. Presedens modelleres som AKN `judgment` (§1.7).
 
 ### 1.2 Tekst-tag
 Kobler en tekstflate i en rettskilde til en modell-entitet, lagret som `<term>` i AKN.
