@@ -2,7 +2,7 @@
 
 *Dekker AKN-skjema, databasetabeller og konverteringspipeline. Frontend-komponentstruktur er utelatt — overlatt til samme verktøy som produserte den opprinnelige interaktive prototypen (`Regel-IDE.dc.html`). Dette dokumentet er underlag til ekstern kvalitetssikring; ingen kode er skrevet mot det ennå.*
 
-*Begrunnelsene bak designvalgene er samlet i **Vedlegg A**, ikke gjentatt i hoveddokumentet — hver seksjon under peker dit med én kort referanse. To runder ekstern kvalitetssikring er gjennomført og innarbeidet (2026-07); status og gjenstående spørsmål står i §6.*
+*Begrunnelsene bak designvalgene er samlet i **Vedlegg A**, ikke gjentatt i hoveddokumentet — hver seksjon under peker dit med én kort referanse. Tre runder ekstern kvalitetssikring er gjennomført og innarbeidet (2026-07); status og de to gjenstående spørsmålene står i §6.*
 
 Basert på ekte kildedata: `data/kilder/raw-lovdata/alkoholloven-LOV-1989-06-02-27.html` og `.../alkoholforskriften-FOR-2005-06-08-538.html` (proveniens og strukturell råmapping: `data/kilder/README.md`).
 
@@ -67,25 +67,34 @@ Akoma Ntoso (OASIS LegalDocML) krever en FRBR-basert metadatablokk (Work/Express
 
 `<proprietary>` bærer regel-IDEs egne felt (`03-domenemodell.md` §1.1: `doctype`, `kildetype`, `status` …) — AKNs offisielle utvidelsesmekanisme.
 
-### 1.2 eId-konvensjon: ELI som kanonisk rot
+### 1.2 eId-konvensjon: ELI som kanonisk rot, låst nå
 
-**Kanonisk identitet er forankret i ELI (European Legislation Identifier)**, ikke i Lovdatas HTML-`id` — se Vedlegg A.3 for begrunnelse.
+**Arkitekturbeslutning (ikke lenger avventet):** vi venter ikke på at Lovdata skal publisere offisiell seksjonsnivå-ELI. Regel-IDE definerer sin egen, deterministiske utvidelse av det verifiserte lovnivå-URI-et, og låser den som kanonisk identitet nå — se Vedlegg A.3 for begrunnelse.
 
-**Verifisert direkte:** `https://lovdata.no/eli/lov/1989/06/02/27` løser til alkoholloven, realisert som `/eli/lov/1989/06/02/27/nor`. Dette er en ekstern, stabil identifikator på lovnivå.
+**Regel:** dersom en offisiell seksjons-ELI finnes og er verifisert, brukes den. Inntil videre finnes ingen slik for alkoholloven, så Regel-IDEs egen utvidelse brukes.
 
-**Ikke verifisert:** paragraf-/ledd-nivå ELI-adressering. Et treff for straffeloven viste mønsteret `/eli/lov/2005/05/20/28/section/152`; to tilsvarende forsøk for alkohollovens § 1-1 løste ikke til en paragrafspesifikk side. Dette er det viktigste gjenstående spørsmålet til neste QA-runde (§6, punkt 1).
+**Verifisert direkte:** `https://lovdata.no/eli/lov/1989/06/02/27` løser til alkoholloven, realisert som `/eli/lov/1989/06/02/27/nor` — ekstern, stabil identifikator på lovnivå.
 
-**Konvensjon, med lovnivået som verifisert rot:**
+**Regel-IDEs deterministiske utvidelse under lovnivå (låst):**
 
-| Nivå | `eId` | Status |
-|---|---|---|
-| Rettskilde (lovnivå) | `https://lovdata.no/eli/lov/1989/06/02/27/nor` | Verifisert ELI-URI |
-| Kapittel | `kap-1` | Regel-IDE-lokal (kapitler siteres ikke selvstendig i norsk juridisk praksis) |
-| Paragraf | `{lov-eli}/§1-1` | §-nummeret er selve den juridiske sitatformen — ikke verifisert som ELI, men den semantisk riktige utvidelsen |
-| Ledd | `{paragraf-eId}/ledd-1` | Regel-IDE-lokal utvidelse |
-| Punkt | `{ledd-eId}/punkt-1` | Regel-IDE-lokal utvidelse |
+| Nivå | `eId` |
+|---|---|
+| Rettskilde (lovnivå) | `https://lovdata.no/eli/lov/1989/06/02/27/nor` (verifisert ELI-URI) |
+| Kapittel | `kap-1` |
+| Paragraf | `{lov-eli}/§1-1` |
+| Ledd | `{paragraf-eId}/ledd-1` |
+| Punkt | `{ledd-eId}/punkt-1` |
 
-Lovdatas HTML-`id` (f.eks. `kapittel-1-paragraf-1-ledd-1`) lagres i en egen `kilde_id`-kolonne (§2) for sporbarhet — den er ikke systemets kanoniske identitet. `03-domenemodell.md`s eksempel `par_1-7b` reflekterer verken denne eller forrige konvensjon presist; rettes når §6 punkt 1 er avklart.
+**Migreringsvei dersom Lovdata senere publiserer offisiell seksjons-ELI:** `rettskilde_noder.offisiell_eli` (§2) fylles ut da, som et rent tillegg — `eid` endres ikke. Dette er den samme append-only-migreringsstrategien som §1.1 beskriver for URI-formatendringer generelt: en ekstern endring legger til informasjon, den omskriver ikke identitet som allerede er i bruk.
+
+### 1.2.1 Canonical Identity vs. Source Identity — generelt prinsipp
+
+Skillet mellom `eid` (kanonisk, ELI-forankret, endres aldri) og Lovdatas HTML-`id` (kildesystemets egen, kan endre seg) generaliseres til et navngitt, gjennomgående prinsipp for **alle** entiteter regel-IDE henter fra en ekstern kilde, ikke bare rettskilde-noder:
+
+- **`canonical_id`** (i skjemaet: `eid`) — regel-IDEs egen, permanente identitet. Endres aldri etter opprettelse.
+- **`source_id`** (i skjemaet: `kilde_id` + `kildesystem`) — identiteten i det systemet dataen kom fra (Lovdata i dag; Domstol.no for presedens, regjeringen.no for enkelte dokumenttyper senere). Kan endre seg uten at det påvirker `canonical_id`.
+
+Dette er allerede anvendt for rettskilde-noder (§2); prinsippet gjelder tilsvarende når presedens (Domstol.no) eller andre eksterne kilder legges til senere byggesteg — `kilde_id`-kolonnen utvides da med et `kildesystem`-felt (se §2) i stedet for at hver entitetstype finner opp sitt eget mønster.
 
 ### 1.3 Fullt eksempel, bygget fra ekte tekst (§ 1-1 og § 1-3)
 
@@ -172,8 +181,10 @@ CREATE UNIQUE INDEX ux_rettskilder_eli_gjeldende ON rettskilder(eli) WHERE entit
 CREATE TABLE rettskilde_noder (
   id                uuid PRIMARY KEY,
   rettskilde_id     uuid NOT NULL REFERENCES rettskilder(id) ON DELETE CASCADE,
-  eid               text NOT NULL,        -- kanonisk, ELI-forankret identitet, §1.2
-  kilde_id          text NOT NULL,        -- Lovdatas opprinnelige HTML-id — sporbarhet, ikke kanonisk (§1.2)
+  eid               text NOT NULL,        -- canonical_id: kanonisk, ELI-forankret identitet, §1.2 — endres aldri
+  kildesystem       text NOT NULL DEFAULT 'lovdata',  -- source_id-systemet, §1.2.1 — 'lovdata' i dag, 'domstol.no' m.fl. senere
+  kilde_id          text NOT NULL,        -- source_id: opprinnelig id i kildesystemet — sporbarhet, ikke kanonisk (§1.2.1)
+  offisiell_eli     text,                 -- nullable — fylles ut hvis/når Lovdata publiserer offisiell seksjons-ELI (§1.2), endrer ikke eid
   parent_node_id    uuid REFERENCES rettskilde_noder(id),
   node_type         text NOT NULL,        -- 'kapittel' | 'underinndeling' | 'paragraf' | 'ledd' | 'punkt'
   nummer            text,                 -- f.eks. '§ 1-1', 'Kapittel 1.'
@@ -246,7 +257,7 @@ Dette krever ingen egen nodeversjonstabell.
 
 ## 3. Konverteringspipeline (Lovdata-HTML → AKN)
 
-Transformasjonen fra Lovdata-kildet innhold til AKN er deterministisk og reproduserbar (Vedlegg A.8). AI-assistert konvertering er forbeholdt opplastede, ustrukturerte dokumenter (rundskriv, virksomhetsdokument, AK-3.3.6/3.3.7) — der finnes ingen strukturell ekvivalent til Lovdatas `data-lovdata-URL` å bygge på.
+Transformasjonen fra Lovdata-kildet innhold til AKN skal være **referansielt transparent**: samme kilde-HTML skal alltid gi bit-identisk AKN-innhold (samme `<body>`, `FRBRWork`, `FRBRExpression`) — med ett unntak, `FRBRManifestation/FRBRdate[@name='regel-ide-import']` (§1.1), som legitimt varierer med *når* importen kjørte, ikke med innholdet som importeres. Referansiell transparens i den innholdsbærende delen er det som gjør parseren testbar, diff-bar, signerbar og cache-bar (Vedlegg A.8). AI-assistert konvertering er forbeholdt opplastede, ustrukturerte dokumenter (rundskriv, virksomhetsdokument, AK-3.3.6/3.3.7) — der finnes ingen strukturell ekvivalent til Lovdatas `data-lovdata-URL` å bygge på, og ingen autoritativ rettskilde skal noensinne produseres av en LLM.
 
 ### 3.1 Steg (Lovdata-kildet import)
 
@@ -269,13 +280,17 @@ Transformasjonen fra Lovdata-kildet innhold til AKN er deterministisk og reprodu
 9. **Status:** `utkast`.
 10. **Menneskelig verifisering** (jurist/fagansvarlig, `03-domenemodell.md` §3.2): sammenlign generert AKN mot kildeteksten side-ved-side (AK-3.3.6) for å fange parserfeil. Godkjent → `gjeldende`.
 
+### 3.1.1 Forhåndsimporterte infrastrukturlover
+
+Ett-hopps referanse-stub (steg 6) er hovedregelen, men noen lover brukes på tvers av så godt som alle andre — **forvaltningsloven, offentleglova, personopplysningsloven og kommuneloven** er kandidater — og forhåndsimporteres derfor fullt ut som `importrolle='primaer'` uansett hvilket testcase byggesteg 1 starter med, i stedet for å vente på at et testcase tilfeldigvis refererer dem inn som stub. Begrunnelsen er ikke teknisk (stub-mekanismen håndterer dem fint) — den er at brukerne kommer til å slå opp i disse lovene svært ofte, og det er bedre å ha dem fullt tilgjengelige fra start. Nøyaktig hvilke lover som kvalifiserer som "infrastrukturlov" og deres eksakte ELI-referanser bekreftes før implementasjon, ikke antatt fra denne listen alene.
+
 ### 3.2 Kjente vanskelige tilfeller
 
 Funnet i den ekte teksten, ikke antatt:
 
-- **`(Opphevet)`-paragrafer** (f.eks. § 1-12, § 1-13, § 3-5, § 3-6, § 5-1, § 8-7, § 8-10 i alkoholloven) har ingen `legalP`-innhold. Parseren skal representere disse som et gyldig, tomt `<article>` med AKNs temporal-attributter (`end` uten `start` markerer en bestemmelse som var del av originaldokumentet, men er opphevet — Vedlegg A.9), ikke krasje eller hoppe over. Nøyaktig attributtkombinasjon: §6 punkt 4.
+- **`(Opphevet)`-paragrafer** (f.eks. § 1-12, § 1-13, § 3-5, § 3-6, § 5-1, § 8-7, § 8-10 i alkoholloven) har ingen `legalP`-innhold. **Regel, uten unntak: en opphevet paragraf skal alltid produsere en node — aldri hoppes over.** En opphevet bestemmelse er fortsatt del av rettshistorien, og referanser til den (interne eller fra andre dokumenter) skal forbli løsbare. Parseren skal representere den som et gyldig, tomt `<article>`, markert opphevet med AKNs temporal-attributter (`end` uten `start`, Vedlegg A.9). Er den nøyaktige attributtkombinasjonen usikker i en gitt sak, skal parseren likevel produsere `<article>`-noden med opphevelsen markert i `<proprietary>` (regel-IDEs egen `opphevet`-flagg) som reserveløsning — riktig AKN-idiomatikk (§6 punkt 4) påvirker hvor godt dokumentet samspiller med andre AKN-verktøy, ikke om referanser forblir stabile.
 - **Fotnoter** (`footnote`/`footnotereference`/`footnotes`-klasser) modelleres som egen AKN `<authorialNote>`, atskilt fra hovedteksten.
-- **Romertall-underinndelinger** (f.eks. kapittel 3s "I.", "II.", "III." mellom paragrafer, uten egne `<section>`) modelleres som egen strukturenhet — `<subchapter>` eller `<hcontainer>` (Vedlegg A.10). Hvilket: §6 punkt 3.
+- **Romertall-underinndelinger** (f.eks. kapittel 3s "I.", "II.", "III." mellom paragrafer, uten egne `<section>`) modelleres som egen strukturenhet: **`<hcontainer>` (låst)**, ikke `<subchapter>` — romertallsgrupperinger i norske lover er ofte redaksjonelle, ikke nødvendigvis et selvstendig juridisk hierarkinivå, og et generisk containerelement påstår ikke mer semantikk enn det som faktisk er verifisert (Vedlegg A.10). Migrering til `<subchapter>` er mulig senere dersom AKN-miljøet viser seg å forvente det; motsatt vei er vanskeligere.
 
 ### 3.3 Feilhåndtering
 
@@ -313,17 +328,20 @@ Konkrete mål for pilotskala (Testkommunen, ett testcase) — foreslått, ikke b
 - API-nøkkel-registrering hos Lovdata for de strukturerte endepunktene (`05-arkitektur-og-nfk.md` §1.1) — bulk-filene dekker byggesteg 1s behov i mellomtiden.
 - Frontend — se innledningen.
 
-## 6. Til ekstern kvalitetssikring — status etter to runder
+## 6. Til ekstern kvalitetssikring — status etter tre runder
 
-1. **eId-konvensjon.** ELI som kanonisk rot, verifisert på lovnivå. **Åpent:** paragraf-/ledd-nivå ELI-adressering er ikke verifisert for alkoholloven (§1.2) — bekreft om Lovdata publiserer seksjonsnivå-ELI konsekvent, og nøyaktig format for sammensatte paragrafnumre (`§1-7b`), før konvensjonen låses helt.
-2. **Redundans XML + node-tabell.** Avklart: synkron regenerering i samme transaksjon.
-3. **Romertall-underinndelinger.** Retning avklart: egen strukturenhet. **Åpent:** `<subchapter>` eller `<hcontainer>`.
-4. **Opphevede bestemmelser.** Retning avklart: AKNs `start`/`end`-temporalmekanisme. **Åpent:** nøyaktig attributtkombinasjon.
-5. **Ekstern kryssreferanse til ikke-importert rettskilde.** Avklart: ett-hopps metadata-stub. **Residual:** bør sentrale, tverrgående kilder (forvaltningsloven, personopplysningsloven — `digital-rettsstat` prinsipp 9) forhåndsimporteres fullt som `primaer` uansett testcase, i stedet for alltid å starte som stub?
-6. **Versjonering av noder og annotasjoner.** Avklart: dokumentnivå-versjonering + `tekst_hash` (§2.1).
-7. **Deterministisk/AI-skillelinjen i §3.** Bekreftet.
+Alle arkitekturvalg som kan besluttes uavhengig av eksterne standarder er nå låst. To punkter gjenstår genuint åpne, fordi de omhandler fakta om eksterne standarder/systemer utenfor regel-IDEs kontroll:
 
-**Prioritert rekkefølge for neste QA-runde:** eId/ELI-verifisering (1) → opphevede bestemmelser (4) → romertall-underinndelinger (3) → ett-hopp-grensen for referanser (5).
+1. **Offisiell seksjons-ELI, hvis/når den finnes.** Regel-IDEs egen eId-konvensjon (§1.2) er låst og fungerer uavhengig av dette — punktet er kun relevant for en fremtidig `offisiell_eli`-mapping (§2), ikke blokkerende. Bekreft, når det er praktisk mulig: publiserer Lovdata seksjonsnivå-ELI konsekvent, og i så fall nøyaktig format for sammensatte paragrafnumre (`§1-7b`)?
+2. **Nøyaktig AKN-attributtkombinasjon for opphevede bestemmelser.** Regelen "aldri hopp over en opphevet paragraf" (§3.2) og reserveløsningen (regel-IDE-egen `<proprietary>`-markering) er låst og fungerer uavhengig av dette — punktet påvirker kun hvor AKN-idiomatisk representasjonen er, ikke om systemet fungerer. Bekreft riktig `start`/`end`/`status`-konvensjon når AKN-kompetent hold er tilgjengelig.
+
+**Avklart i denne runden (tidligere åpne punkter, nå arkitekturbeslutninger):**
+- Romertall-underinndelinger: `<hcontainer>`, ikke `<subchapter>` (§3.2).
+- Ekstern kryssreferanse: ett hopp, aldri transitivt (§3.1 steg 6) — **pluss** et definert unntak: sentrale infrastrukturlover forhåndsimporteres fullt som `primaer` uansett testcase (§3.1.1).
+- Deterministisk/AI-skillelinjen: skjerpet til et eksplisitt krav om referansiell transparens (§3).
+- Canonical Identity vs. Source Identity er gjort til et navngitt, generelt prinsipp (§1.2.1), ikke bare et engangsvalg for rettskilde-noder.
+
+**Tidligere avklart, uendret:** redundans XML + node-tabell (synkron regenerering), dokumentnivå-versjonering + `tekst_hash`.
 
 ---
 
