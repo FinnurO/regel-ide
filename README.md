@@ -25,6 +25,7 @@ Digital-rettsstats `06-regellaget.md` skiller mellom **Lag 1-editoren** (tekst �
 | [`docs/06-veikart.md`](docs/06-veikart.md) | Faseplan — rekkefølgen vi faktisk bygger i, og hvorfor. |
 | [`docs/07-forklaringsmodell-api-avvik.md`](docs/07-forklaringsmodell-api-avvik.md) | Konkrete forslag til justeringer i `forklaringsmodell-api` for at begrepsbruken skal henge sammen på tvers av repoene. |
 | [`docs/08-byggesteg1-teknisk-design.md`](docs/08-byggesteg1-teknisk-design.md) | AKN-skjema, databasetabeller og konverteringspipeline for byggesteg 1 — **under ekstern kvalitetssikring, ingen kode skrevet mot dette ennå.** |
+| [`prototyper/`](prototyper/) | Interaktive HTML-mockuper fra Claude Design — frontend-siden, holdt bevisst atskilt fra det tekniske designet i `docs/`. |
 
 ## Forhold til søsterrepoer
 

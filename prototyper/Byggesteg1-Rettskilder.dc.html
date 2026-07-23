@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="ds/colors_and_type.css">
+<style>
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  a { color: var(--ds-color-accent-text-default); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ::-webkit-scrollbar { width: 10px; height: 10px; }
+  ::-webkit-scrollbar-thumb { background: var(--ds-color-neutral-border-default); border-radius: 999px; border: 2px solid transparent; background-clip: padding-box; }
+  aside ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.18); background-clip: padding-box; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+</style>
+</helmet>
+<template id="__bundler_thumbnail">
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#0062BA"/><text x="50" y="62" font-family="Inter, sans-serif" font-size="40" font-weight="600" fill="#fff" text-anchor="middle">§1</text></svg>
+</template>
+<div style="display: flex; height: 100vh; width: 100%; overflow: hidden; font-family: var(--font-family); color: var(--ds-color-neutral-text-default); background: var(--ds-color-neutral-background-tinted);">
+
+  <aside style="width: 250px; flex: 0 0 250px; background: #10233f; color: #cdd8ea; display: flex; flex-direction: column; overflow: hidden;">
+    <div style="padding: 18px 18px 16px; display: flex; align-items: center; gap: 11px; border-bottom: 1px solid rgba(255,255,255,.08);">
+      <div style="width: 36px; height: 36px; border-radius: 9px; background: var(--ds-color-accent-base-default); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 15px;">§1</div>
+      <div style="line-height: 1.2;">
+        <div style="font-weight: 600; font-size: 15px; color: #fff;">Rettskildebibliotek</div>
+        <div style="font-size: 11px; color: #7e93b4;">Byggesteg 1 · Regel-IDE</div>
+      </div>
+    </div>
+    <div style="padding: 12px; flex: 1; overflow-y: auto;">
+      <div style="font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: #7e93b4; padding: 6px 10px;">Arbeidsflate</div>
+      <sc-for list="{{ nav }}" as="it" hint-placeholder-count="4">
+        <div onClick="{{ it.onClick }}" style="{{ it.style }}">
+          <span style="display: flex; width: 20px; flex: 0 0 20px;">{{ it.iconEl }}</span>
+          <span style="flex: 1;">{{ it.label }}</span>
+          <sc-if value="{{ it.badge }}" hint-placeholder-val=""><span style="font-size: 11px; background: rgba(255,255,255,.14); padding: 1px 8px; border-radius: 999px;">{{ it.badge }}</span></sc-if>
+        </div>
+      </sc-for>
+    </div>
+    <div style="border-top: 1px solid rgba(255,255,255,.08); padding: 14px 16px; font-size: 12px; color: #7e93b4;">Testcase: skjenkebevilling</div>
+  </aside>
+
+  <div style="flex: 1; display: flex; flex-direction: column; min-width: 0;">
+    <header style="flex: 0 0 auto; background: var(--ds-color-neutral-background-default); border-bottom: 1px solid var(--ds-color-neutral-border-subtle); padding: 16px 30px; display: flex; align-items: center; gap: 16px;">
+      <div style="min-width: 0; flex: 1;">
+        <div style="font-size: 12px; color: var(--ds-color-neutral-text-subtle); margin-bottom: 3px;">Rettskildebibliotek › {{ crumb }}</div>
+        <div style="font-size: 23px; font-weight: 600; letter-spacing: -0.015em;">{{ title }}</div>
+      </div>
+      <div style="display: flex; gap: 9px; flex: 0 0 auto;">
+        <sc-for list="{{ headerActions }}" as="a" hint-placeholder-count="1"><button onClick="{{ a.onClick }}" style="{{ a.style }}"><span style="display: flex;">{{ a.iconEl }}</span>{{ a.label }}</button></sc-for>
+      </div>
+    </header>
+
+    <div style="flex: 1; overflow-y: auto; padding: 26px 30px;">
+
+      <!-- ============ BIBLIOTEK ============ -->
+      <sc-if value="{{ is.bibliotek }}" hint-placeholder-val="{{ true }}">
+        <div style="max-width: 1180px; animation: fadeIn .2s ease;">
+          <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 20px;">
+            <sc-for list="{{ kpis }}" as="k" hint-placeholder-count="3">
+              <div style="background: var(--ds-color-neutral-surface-default); border: 1px solid var(--ds-color-neutral-border-subtle); border-radius: var(--ds-border-radius-lg); padding: 18px 20px;">
+                <div style="display: flex; align-items: center; gap: 8px; color: var(--ds-color-neutral-text-subtle); font-size: 13px;"><span style="{{ k.iconWrap }}">{{ k.iconEl }}</span>{{ k.label }}</div>
+                <div style="font-size: 30px; font-weight: 600; letter-spacing: -0.02em; margin-top: 6px;">{{ k.value }}</div>
+                <div style="font-size: 12px; color: var(--ds-color-neutral-text-subtle); margin-top: 2px;">{{ k.sub }}</div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display: flex; gap: 8px; margin-bottom: 14px;"><sc-for list="{{ bibFilters }}" as="f" hint-placeholder-count="4"><div onClick="{{ f.onClick }}" style="{{ f.style }}">{{ f.label }}</div></sc-for></div>
+          <div style="background: var(--ds-color-neutral-surface-default); border: 1px solid var(--ds-color-neutral-border-subtle); border-radius: var(--ds-border-radius-lg); overflow-x: auto;">
+            <div style="min-width: 940px;">
+              <div style="display: grid; grid-template-columns: 2.2fr 1fr 1fr 0.9fr 0.7fr 1.1fr; padding: 11px 20px; font-size: 11px; font-weight: 600; color: var(--ds-color-neutral-text-subtle); text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--ds-color-neutral-border-subtle);">
+                <div>Rettskilde</div><div>Kildetype</div><div>Importrolle</div><div>Status</div><div>Versjon</div><div>Handling</div>
+              </div>
+              <sc-for list="{{ biblioteket }}" as="r" hint-placeholder-count="6">
+                <div style="display: grid; grid-template-columns: 2.2fr 1fr 1fr 0.9fr 0.7fr 1.1fr; padding: 13px 20px; border-bottom: 1px solid var(--ds-color-neutral-border-subtle); align-items: center;">
+                  <div onClick="{{ r.onOpen }}" style="cursor: pointer;"><div style="font-weight: 500; font-size: 14px; display: flex; align-items: center; gap: 7px;">{{ r.tittel }}<sc-if value="{{ r.infra }}" hint-placeholder-val=""><span style="{{ r.infraStyle }}">infrastruktur</span></sc-if></div><div style="font-family: var(--font-mono); font-size: 11px; color: var(--ds-color-neutral-text-subtle);">{{ r.eli }}</div></div>
+                  <div style="font-size: 13px;">{{ r.kildetype }}</div>
+                  <div><span style="{{ r.rolleStyle }}">{{ r.rolle }}</span></div>
+                  <div><span style="{{ r.statusStyle }}">{{ r.status }}</span></div>
+                  <div style="font-family: var(--font-mono); font-size: 13px;">v{{ r.versjon }}</div>
+                  <div><sc-if value="{{ r.erStub }}" hint-placeholder-val=""><button onClick="{{ r.onPromote }}" style="{{ btnSecondarySm }}">Hent fullt</button></sc-if><sc-if value="{{ r.erPrimaer }}" hint-placeholder-val=""><span onClick="{{ r.onOpen }}" style="font-size: 13px; color: var(--ds-color-accent-text-default); cursor: pointer;">Åpne →</span></sc-if></div>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="margin-top: 14px; display: flex; gap: 16px; flex-wrap: wrap; font-size: 12px; color: var(--ds-color-neutral-text-subtle);">
+            <span style="display: inline-flex; align-items: center; gap: 6px;"><span style="{{ dotPrimaer }}"></span>primær</span>
+            <span style="display: inline-flex; align-items: center; gap: 6px;"><span style="{{ dotStub }}"></span>referanse-stub</span>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ IMPORT WIZARD ============ -->
+      <sc-if value="{{ is.import }}" hint-placeholder-val="">
+        <div style="max-width: 1180px; animation: fadeIn .2s ease; display: grid; grid-template-columns: 240px 1fr; gap: 24px; align-items: start;">
+          <div style="background: var(--ds-color-neutral-surface-default); border: 1px solid var(--ds-color-neutral-border-subtle); border-radius: var(--ds-border-radius-lg); padding: 18px;">
+            <div style="font-size: 12px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--ds-color-neutral-text-subtle); margin-bottom: 14px;">Steg</div>
+            <sc-for list="{{ pipeline }}" as="p" hint-placeholder-count="6">
+              <div onClick="{{ p.onClick }}" style="display: flex; gap: 11px; padding: 7px 0; cursor: pointer;">
+                <div style="{{ p.dotStyle }}">{{ p.mark }}</div>
+                <div style="flex: 1; min-width: 0;"><div style="font-size: 13px; font-weight: {{ p.weight }}; color: {{ p.color }};">{{ p.label }}</div></div>
+              </div>
+            </sc-for>
+          </div>
+
+          <div style="background: var(--ds-color-neutral-surface-default); border: 1px solid var(--ds-color-neutral-border-subtle); border-radius: var(--ds-border-radius-lg); padding: 24px; min-height: 480px;">
+            <sc-if value="{{ importStepHent }}" hint-placeholder-val="{{ true }}">
+              <div style="font-size: 18px; font-weight: 600; margin-bottom: 14px;">Hent kilde</div>
+              <div style="display: flex; gap: 4px; background: var(--ds-color-neutral-surface-tinted); padding: 4px; border-radius: 10px; margin-bottom: 18px; max-width: 420px;">
+                <sc-for list="{{ methodTabs }}" as="t" hint-placeholder-count="2"><div onClick="{{ t.onClick }}" style="{{ t.style }}">{{ t.label }}</div></sc-for>
+              </div>
+              <sc-if value="{{ methodLovdata }}" hint-placeholder-val="{{ true }}">
+                <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+                  <div style="flex: 1; display: flex; align-items: center; gap: 8px; padding: 11px 13px; border: 1px solid var(--ds-color-neutral-border-default); border-radius: var(--ds-border-radius-default); color: var(--ds-color-neutral-text-subtle); font-size: 14px;">{{ searchIcon }}<span>alkoholloven · LOV-1989-06-02-27</span></div>
+                  <button onClick="{{ nextStep }}" style="{{ btnPrimary }}">Hent</button>
+                </div>
+                <div style="display: inline-flex; align-items: center; gap: 8px; padding: 7px 12px; border-radius: 999px; background: var(--ds-color-success-surface-tinted); color: var(--ds-color-success-text-default); font-size: 13px;">{{ checkIcon }} ELI verifisert · lovdata.no/eli/lov/1989/06/02/27/nor</div>
+              </sc-if>
+              <sc-if value="{{ methodOpplasting }}" hint-placeholder-val="">
+                <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 30px; border: 1.5px dashed var(--ds-color-neutral-border-default); border-radius: var(--ds-border-radius-lg); color: var(--ds-color-neutral-text-subtle); text-align: center;">
+                  <span style="display: flex; color: var(--ds-color-accent-text-default);">{{ uploadIcon }}</span>
+                  <div style="font-size: 14px;">Slipp fil her, eller <span style="color: var(--ds-color-accent-text-default); text-decoration: underline; cursor: pointer;">bla gjennom</span></div>
+                  <div style="font-size: 12px;">Godtar XML, NLM, AKN, PDF, DOCX</div>
+                </div>
+              </sc-if>
+            </sc-if>
+
+            <sc-if value="{{ importStepKonverter }}" hint-placeholder-val="">
+              <div style="font-size: 18px; font-weight: 600; margin-bottom: 14px;">Konvertering til AKN</div>
+              <div style="display: grid; grid-template-columns: 1fr 30px 1fr; gap: 8px; align-items: stretch;">
+                <div style="background: #1c1f23; border-radius: var(--ds-border-radius-default); overflow: hidden;">
+                  <div style="padding: 8px 12px; font-family: var(--font-mono); font-size: 11px; color: rgba(255,255,255,.55); border-bottom: 1px solid rgba(255,255,255,.08);">Kilde: Lovdata-HTML</div>
+                  <pre style="margin: 0; padding: 13px; font-family: var(--font-mono); font-size: 11px; line-height: 1.55; color: #e6e6e6; overflow-x: auto; white-space: pre; max-height: 300px;">{{ srcHtml }}</pre>
+                </div>
+                <div style="display: flex; align-items: center; justify-content: center; color: var(--ds-color-accent-base-default);">{{ arrowIcon }}</div>
+                <div style="background: #1c1f23; border-radius: var(--ds-border-radius-default); overflow: hidden;">
+                  <div style="padding: 8px 12px; font-family: var(--font-mono); font-size: 11px; color: rgba(255,255,255,.55); border-bottom: 1px solid rgba(255,255,255,.08);">Kanonisk AKN</div>
+                  <pre style="margin: 0; padding: 13px; font-family: var(--font-mono); font-size: 11px; line-height: 1.55; color: #e6e6e6; overflow-x: auto; white-space: pre; max-height: 300px;">{{ aknOut }}</pre>
+                </div>
+              </div>
+              <div style="display: flex; gap: 10px; margin-top: 16px; flex-wrap: wrap;">
+                <span style="{{ chipInfo }}">165 KB HTML</span><span style="{{ chipInfo }}">48 paragrafer</span><span style="{{ chipInfo }}">3 opphevet — beholdt</span><span style="{{ chipInfo }}">12 kryssreferanser</span><span style="{{ chipInfo }}">4 referanse-stubber opprettet</span>
+              </div>
+              <div style="margin-top: 18px; display: flex; gap: 10px;"><button onClick="{{ prevStep }}" style="{{ btnSecondary }}">Tilbake</button><button onClick="{{ nextStep }}" style="{{ btnPrimary }}">Til metadata</button></div>
+            </sc-if>
+
+            <sc-if value="{{ importStepMeta }}" hint-placeholder-val="">
+              <div style="font-size: 18px; font-weight: 600; margin-bottom: 14px;">Metadata</div>
+              <sc-for list="{{ frbrGroups }}" as="g" hint-placeholder-count="3">
+                <div style="margin-bottom: 16px;">
+                  <div style="font-size: 12px; font-weight: 600; color: var(--ds-color-accent-text-default); margin-bottom: 8px;">{{ g.tittel }}</div>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px 16px;">
+                    <sc-for list="{{ g.felt }}" as="f" hint-placeholder-count="2"><label style="display: flex; flex-direction: column; gap: 4px;"><span style="font-size: 12px; color: var(--ds-color-neutral-text-subtle);">{{ f.k }}</span><input value="{{ f.v }}" style="font-family: var(--font-mono); font-size: 13px; padding: 8px 10px; border: 1px solid var(--ds-color-neutral-border-default); border-radius: var(--ds-border-radius-default); background: var(--ds-color-neutral-surface-default); color: var(--ds-color-neutral-text-default);"></input></label></sc-for>
+                  </div>
+                </div>
+              </sc-for>
+              <div style="margin-top: 6px; display: flex; gap: 10px;"><button onClick="{{ prevStep }}" style="{{ btnSecondary }}">Tilbake</button><button onClick="{{ nextStep }}" style="{{ btnPrimary }}">Til verifisering</button></div>
+            </sc-if>
+
+            <sc-if value="{{ importStepVerifiser }}" hint-placeholder-val="">
+              <div style="font-size: 18px; font-weight: 600; margin-bottom: 14px;">Verifisering</div>
+              <div style="display: flex; align-items: center; gap: 12px; padding: 14px 16px; background: var(--ds-color-neutral-surface-tinted); border-radius: var(--ds-border-radius-lg); margin-bottom: 16px;">
+                <span style="{{ statusUtkast }}">utkast</span><span style="color: var(--ds-color-neutral-text-subtle);">{{ arrowIcon }}</span><span style="{{ statusGjeldende }}">gjeldende</span>
+                <span style="margin-left: auto; font-size: 13px; color: var(--ds-color-neutral-text-subtle);">verifisert av: Kari Nordmann (Jurist)</span>
+              </div>
+              <sc-for list="{{ verifyChecks }}" as="c" hint-placeholder-count="4"><div style="display: flex; align-items: center; gap: 10px; padding: 9px 0; border-top: 1px solid var(--ds-color-neutral-border-subtle); font-size: 14px;"><span style="display: flex; color: var(--ds-color-success-base-default);">{{ checkIcon }}</span>{{ c }}</div></sc-for>
+              <div style="margin-top: 18px; display: flex; gap: 10px;"><button onClick="{{ prevStep }}" style="{{ btnSecondary }}">Tilbake</button><button onClick="{{ finishImport }}" style="{{ btnSuccess }}">{{ checkIcon }} Godkjenn og publiser</button></div>
+            </sc-if>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ DETALJ ============ -->
+      <sc-if value="{{ is.detalj }}" hint-placeholder-val="">
+        <div style="max-width: 1180px; animation: fadeIn .2s ease; display: grid; grid-template-columns: 320px 1fr; gap: 18px; align-items: start;">
+          <div style="background: var(--ds-color-neutral-surface-default); border: 1px solid var(--ds-color-neutral-border-subtle); border-radius: var(--ds-border-radius-lg); overflow: hidden;">
+            <div style="padding: 13px 16px; border-bottom: 1px solid var(--ds-color-neutral-border-subtle); font-weight: 600; font-size: 14px;">Alkoholloven · struktur</div>
+            <div style="padding: 8px;">
+              <sc-for list="{{ treeRows }}" as="n" hint-placeholder-count="8">
+                <div onClick="{{ n.onClick }}" style="{{ n.style }}">
+                  <span style="flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ n.label }}</span>
+                  <sc-if value="{{ n.tag }}" hint-placeholder-val=""><span style="{{ n.tagStyle }}">{{ n.tag }}</span></sc-if>
+                </div>
+              </sc-for>
+            </div>
+          </div>
+          <div style="background: var(--ds-color-neutral-surface-default); border: 1px solid var(--ds-color-neutral-border-subtle); border-radius: var(--ds-border-radius-lg); overflow: hidden;">
+            <div style="padding: 18px 22px 0;">
+              <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;"><span style="font-size: 20px; font-weight: 600;">{{ detNode.tittel }}</span><span style="{{ detNode.statusStyle }}">{{ detNode.status }}</span></div>
+              <div style="font-family: var(--font-mono); font-size: 12px; color: var(--ds-color-neutral-text-subtle); margin-top: 3px;">{{ detNode.eid }}</div>
+              <div style="display: flex; border-bottom: 1px solid var(--ds-color-neutral-border-subtle); margin-top: 14px; overflow-x: auto;"><sc-for list="{{ detTabs }}" as="tb" hint-placeholder-count="5"><div onClick="{{ tb.onClick }}" style="{{ tb.style }}">{{ tb.label }}</div></sc-for></div>
+            </div>
+            <div style="padding: 20px 22px;">
+              <sc-if value="{{ detTabTekst }}" hint-placeholder-val="{{ true }}">
+                <sc-if value="{{ detNode.opphevet }}" hint-placeholder-val="">
+                  <div style="padding: 14px 16px; border: 1px dashed var(--ds-color-neutral-border-default); border-radius: var(--ds-border-radius-default); color: var(--ds-color-neutral-text-subtle); font-size: 14px;">Paragrafen er opphevet. Ingen gjeldende tekst.</div>
+                </sc-if>
+                <sc-if value="{{ detNode.harTekst }}" hint-placeholder-val="{{ true }}">
+                  <div style="font-size: 16px; line-height: 1.8;">{{ detNode.tekst }}</div>
+                  <sc-if value="{{ detNode.harRef }}" hint-placeholder-val=""><div style="margin-top: 14px; font-size: 13px; color: var(--ds-color-neutral-text-subtle);">Kryssreferanse: <span style="font-family: var(--font-mono); color: var(--ds-color-accent-text-default);">{{ detNode.refTil }}</span></div></sc-if>
+                </sc-if>
+              </sc-if>
+              <sc-if value="{{ detTabKilde }}" hint-placeholder-val="">
+                <div style="background: #1c1f23; border-radius: var(--ds-border-radius-default); overflow: hidden;"><div style="padding: 9px 14px; font-family: var(--font-mono); font-size: 11px; color: rgba(255,255,255,.55); border-bottom: 1px solid rgba(255,255,255,.08);">akn.xml</div><pre style="margin: 0; padding: 16px; font-family: var(--font-mono); font-size: 12px; line-height: 1.6; color: #e6e6e6; overflow-x: auto; white-space: pre;">{{ detNode.akn }}</pre></div>
+              </sc-if>
+              <sc-if value="{{ detTabIdent }}" hint-placeholder-val="">
+                <div style="font-size: 13px; color: var(--ds-color-neutral-text-subtle); margin-bottom: 12px;">Kanonisk identitet endres aldri; kilde-identitet er kildesystemets egen og kan endre seg.</div>
+                <sc-for list="{{ identRows }}" as="r" hint-placeholder-count="5"><div style="display: grid; grid-template-columns: 200px 1fr; gap: 14px; padding: 10px 0; border-top: 1px solid var(--ds-color-neutral-border-subtle); font-size: 13px;"><div style="color: var(--ds-color-neutral-text-subtle);">{{ r.k }}</div><div style="font-family: var(--font-mono); word-break: break-all;">{{ r.v }}</div></div></sc-for>
+              </sc-if>
+              <sc-if value="{{ detTabKobl }}" hint-placeholder-val="">
+                <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: var(--ds-color-neutral-text-subtle); margin-bottom: 8px;">Kryssreferanser</div>
+                <sc-for list="{{ krysseref }}" as="k" hint-placeholder-count="3"><div style="display: flex; align-items: center; gap: 10px; padding: 10px 0; border-top: 1px solid var(--ds-color-neutral-border-subtle);"><span style="{{ k.kindStyle }}">{{ k.kind }}</span><span style="flex: 1; font-size: 14px;">{{ k.mal }}</span><span style="font-family: var(--font-mono); font-size: 12px; color: var(--ds-color-neutral-text-subtle);">{{ k.eid }}</span></div></sc-for>
+              </sc-if>
+              <sc-if value="{{ detTabHist }}" hint-placeholder-val="">
+                <div style="position: relative; padding-left: 22px;"><div style="position: absolute; left: 5px; top: 6px; bottom: 6px; width: 2px; background: var(--ds-color-neutral-border-default);"></div>
+                  <sc-for list="{{ proveniens }}" as="p" hint-placeholder-count="3"><div style="position: relative; margin-bottom: 16px;"><div style="position: absolute; left: -21px; top: 4px; width: 10px; height: 10px; border-radius: 999px; {{ p.dotStyle }}"></div><div style="display: flex; align-items: center; gap: 8px;"><span style="font-size: 14px; font-weight: 500;">{{ p.hva }}</span><span style="{{ p.handStyle }}">{{ p.handling }}</span></div><div style="font-size: 12px; color: var(--ds-color-neutral-text-subtle);">{{ p.dato }} · {{ p.hvem }}</div></div></sc-for>
+                </div>
+              </sc-if>
+            </div>
+          </div>
+        </div>
+      </sc-if>
+
+      <!-- ============ VERSJONER ============ -->
+      <sc-if value="{{ is.versjon }}" hint-placeholder-val="">
+        <div style="max-width: 1080px; animation: fadeIn .2s ease;">
+          <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 18px;">
+            <span style="font-family: var(--font-mono); font-weight: 600;">Alkoholloven</span>
+            <span style="{{ chipInfo }}">v6 → v7</span>
+            <span style="font-size: 13px; color: var(--ds-color-neutral-text-subtle);">import 2026-07-23 · konsolidert 2024-01-01</span>
+          </div>
+          <div style="background: var(--ds-color-neutral-surface-default); border: 1px solid var(--ds-color-neutral-border-subtle); border-radius: var(--ds-border-radius-lg); overflow: hidden;">
+            <div style="display: grid; grid-template-columns: 1.4fr 1.3fr 1fr 1.2fr; padding: 11px 20px; font-size: 11px; font-weight: 600; color: var(--ds-color-neutral-text-subtle); text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--ds-color-neutral-border-subtle);">
+              <div>Node (eId)</div><div>tekst_hash</div><div>Endring</div><div>Tagger</div>
+            </div>
+            <sc-for list="{{ versjonNoder }}" as="n" hint-placeholder-count="5">
+              <div style="display: grid; grid-template-columns: 1.4fr 1.3fr 1fr 1.2fr; padding: 13px 20px; border-bottom: 1px solid var(--ds-color-neutral-border-subtle); align-items: center; font-size: 13px;">
+                <div style="font-family: var(--font-mono);">{{ n.eid }}</div>
+                <div style="font-family: var(--font-mono); font-size: 11px; color: var(--ds-color-neutral-text-subtle);">{{ n.hash }}</div>
+                <div><span style="{{ n.endringStyle }}">{{ n.endring }}</span></div>
+                <div><span style="{{ n.tagStyle }}">{{ n.tagStatus }}</span></div>
+              </div>
+            </sc-for>
+          </div>
+          <div style="margin-top: 16px; padding: 14px 18px; background: var(--ds-color-warning-surface-tinted); border: 1px solid var(--ds-color-warning-border-subtle); border-radius: var(--ds-border-radius-lg); display: flex; align-items: center; gap: 12px; font-size: 14px;"><span style="display: flex; color: var(--ds-color-warning-text-default);">{{ warnIcon }}</span><div><strong>1 tag flagget for manuell gjennomgang</strong> — § 1-7b endret ordlyd (hash endret). Taggen «uklanderlig vandel» må bekreftes mot ny tekst.</div></div>
+        </div>
+      </sc-if>
+
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    view: 'bibliotek', bibFilter: 'alle',
+    importStep: 'hent', method: 'lovdata',
+    detNode: 'p_1-3', detTab: 'tekst',
+  };
+
+  iconPaths = {
+    book: [{d:'M4 19.5A2.5 2.5 0 0 1 6.5 17H20'},{d:'M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z'}],
+    upload: [{d:'M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4'},{d:'M17 8l-5-5-5 5'},{t:'line',x1:12,y1:3,x2:12,y2:15}],
+    gitbranch: [{t:'line',x1:6,y1:3,x2:6,y2:15},{t:'circle',cx:18,cy:6,r:3},{t:'circle',cx:6,cy:18,r:3},{d:'M18 9a9 9 0 0 1-9 9'}],
+    layers: [{d:'m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z'},{d:'m22 12.5-9.17 4.16a2 2 0 0 1-1.66 0L2 12.5'},{d:'m22 17.5-9.17 4.16a2 2 0 0 1-1.66 0L2 17.5'}],
+    search: [{t:'circle',cx:11,cy:11,r:8},{d:'m21 21-4.3-4.3'}],
+    check: [{d:'M20 6 9 17l-5-5'}],
+    arrowR: [{t:'line',x1:5,y1:12,x2:19,y2:12},{d:'m12 5 7 7-7 7'}],
+    plus: [{t:'line',x1:12,y1:5,x2:12,y2:19},{t:'line',x1:5,y1:12,x2:19,y2:12}],
+    warn: [{d:'M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z'},{t:'line',x1:12,y1:9,x2:12,y2:13},{t:'line',x1:12,y1:17,x2:12,y2:17}],
+    shield: [{d:'M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z'}],
+    doc: [{d:'M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z'},{d:'M14 2v5h5'}],
+  };
+  icon(name, size, sw) { size = size || 18; const ps = this.iconPaths[name] || [];
+    return React.createElement('svg', { width: size, height: size, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: sw || 1.75, strokeLinecap: 'round', strokeLinejoin: 'round', style: { display: 'block', flex: '0 0 auto' } },
+      ps.map((p, i) => { const t = p.t || 'path'; const a = { key: i }; for (const k in p) if (k !== 't') a[k] = p[k]; return React.createElement(t, a); })); }
+
+  nav = [ ['bibliotek', 'Bibliotek', 'book', ''], ['import', 'Importer kilde', 'upload', ''], ['detalj', 'Rettskilde-detalj', 'doc', ''], ['versjon', 'Versjoner', 'gitbranch', ''] ];
+  titles = { bibliotek: 'Bibliotek', import: 'Importer rettskilde', detalj: 'Rettskilde-detalj', versjon: 'Versjonering' };
+
+  kpis = [ { label: 'Primærkilder', value: '14', sub: 'full AKN-tekst', icon: 'book' }, { label: 'Referanse-stubber', value: '62', sub: 'kun metadata, ett hopp', icon: 'layers' }, { label: 'Infrastrukturlover', value: '4', sub: 'forhåndsimportert', icon: 'shield' } ];
+  biblioteket = [
+    { tittel: 'Alkoholloven', eli: 'eli/lov/1989/06/02/27/nor', kildetype: 'Lov', rolle: 'primær', status: 'Gjeldende', versjon: 7, infra: false },
+    { tittel: 'Alkoholforskriften', eli: 'eli/forskrift/2005/06/08/538/nor', kildetype: 'Forskrift', rolle: 'primær', status: 'Gjeldende', versjon: 3, infra: false },
+    { tittel: 'Forvaltningsloven', eli: 'eli/lov/1967/02/10/nor', kildetype: 'Lov', rolle: 'primær', status: 'Gjeldende', versjon: 12, infra: true },
+    { tittel: 'Offentleglova', eli: 'eli/lov/2006/05/19/16/nor', kildetype: 'Lov', rolle: 'primær', status: 'Gjeldende', versjon: 8, infra: true },
+    { tittel: 'Serveringsloven', eli: 'eli/lov/1997/06/13/55/nor', kildetype: 'Lov', rolle: 'referanse', status: 'Gjeldende', versjon: 1, infra: false },
+    { tittel: 'Skatteforvaltningsloven', eli: 'eli/lov/2016/05/27/14/nor', kildetype: 'Lov', rolle: 'referanse', status: 'Gjeldende', versjon: 1, infra: false },
+  ];
+
+  pipeline = [ ['hent', 'Hent', 'Lovdata / opplasting'], ['konverter', 'Parse → AKN', 'deterministisk'], ['meta', 'FRBR-metadata', 'Work/Expr/Manifest'], ['verifiser', 'Verifisering', 'jurist godkjenner'] ];
+
+  srcHtml = '<article class="legalArticle"\n  id="kapittel-1-paragraf-3">\n  <span class="legalArticleValue">§ 1-3</span>\n  <span class="legalArticleTitle">Definisjoner</span>\n  <article class="legalP"\n    id="...-ledd-1">\n    <p>I denne lov brukes alkoholholdig\n    drikk … <a href="lov/1989-06-02-27/§1-5">\n    § 1-5</a> …</p>\n  </article>\n</article>';
+  aknOut = '<article eId="…/§1-3"\n  kildeId="kapittel-1-paragraf-3">\n  <num>§ 1-3</num>\n  <heading>Definisjoner</heading>\n  <paragraph eId="…/§1-3/ledd-1"\n    kildeId="…-ledd-1">\n    <content><p>I denne lov …\n    <ref href="#…/§1-5">§ 1-5</ref>\n    …</p></content>\n  </paragraph>\n</article>';
+
+  frbr = {
+    Work: [ ['FRBRthis', '/akn/no/act/1989-06-02/27'], ['FRBRdate (vedtakelse)', '1989-06-02'], ['FRBRauthor', 'Stortinget'], ['ansvarligDepartement', 'Helse- og omsorgsdep.'] ],
+    Expression: [ ['FRBRthis', '…/27/nor@2024-01-01'], ['FRBRdate (konsolidering)', '2024-01-01'], ['FRBRauthor', 'Lovdata'], ['FRBRlanguage', 'nor'] ],
+    Manifestation: [ ['FRBRdate (import)', '2026-07-23'], ['FRBRauthor', 'regel-ide'] ],
+  };
+  verifyChecks = [ 'Alle 48 paragrafer representert (3 opphevet beholdt som tomme noder)', '12 kryssreferanser løser til gyldige eId', 'FRBR-metadata komplett — ingen gjettede fallback-verdier', 'Generert AKN validerer mot AKN 3.0-skjema' ];
+
+  tree = [
+    { id: 'kap-1', label: 'Kapittel 1 — Alminnelige bestemmelser', depth: 0 },
+    { id: 'p_1-1', label: '§ 1-1 Lovens formål', depth: 1 },
+    { id: 'p_1-3', label: '§ 1-3 Definisjoner', depth: 1, tag: '2 tagger' },
+    { id: 'p_1-7b', label: '§ 1-7b Krav til vandel', depth: 1, tag: '3 tagger' },
+    { id: 'hc-2', label: 'II. (romertall-underinndeling)', depth: 1 },
+    { id: 'p_1-12', label: '§ 1-12 (Opphevet)', depth: 1 },
+    { id: 'kap-3', label: 'Kapittel 3 — Salg av alkoholholdig drikk', depth: 0 },
+  ];
+  nodeData = {
+    'p_1-1': { tittel: '§ 1-1 Lovens formål', status: 'Gjeldende', eid: '…/§1-1', harTekst: true, tekst: 'Reguleringen av innførsel og omsetning av alkoholholdig drikk etter denne lov har som mål å begrense i størst mulig utstrekning de samfunnsmessige og individuelle skader som alkoholbruk kan innebære.', akn: '<article eId="…/§1-1">\n  <num>§ 1-1</num>\n  <heading>Lovens formål.</heading>\n  <paragraph eId="…/§1-1/ledd-1">\n    <content><p>Reguleringen av …</p></content>\n  </paragraph>\n</article>' },
+    'p_1-3': { tittel: '§ 1-3 Definisjoner', status: 'Gjeldende', eid: '…/§1-3', harTekst: true, harRef: true, refTil: '…/§1-5', tekst: 'I denne lov brukes alkoholholdig drikk som fellesbetegnelse på drikker som inneholder mer enn 2,5 volumprosent alkohol, likevel slik at aldersgrensebestemmelsen i § 1-5 også får anvendelse på drikk mellom 0,7 og 2,5 volumprosent alkohol.', akn: '<article eId="…/§1-3">\n  <num>§ 1-3</num>\n  <heading>Definisjoner</heading>\n  <paragraph eId="…/§1-3/ledd-1">\n    <content><p>… <ref href="#…/§1-5">§ 1-5</ref> …</p></content>\n  </paragraph>\n</article>' },
+    'p_1-7b': { tittel: '§ 1-7b Krav til vandel', status: 'Gjeldende', eid: '…/§1-7b', harTekst: true, tekst: 'Bevillingshaver og andre personer som har vesentlig innflytelse på virksomheten, må ha utvist uklanderlig vandel i forhold til alkohollovgivningen og bestemmelser i annen lovgivning som har sammenheng med alkohollovens formål.', akn: '<article eId="…/§1-7b">\n  <num>§ 1-7b</num>\n  <heading>Krav til vandel</heading>\n  <paragraph eId="…/§1-7b/ledd-1">\n    <content><p>Bevillingshaver … <term refersTo="#uklanderlig-vandel">uklanderlig vandel</term> …</p></content>\n  </paragraph>\n</article>' },
+    'p_1-12': { tittel: '§ 1-12', status: 'Opphevet', eid: '…/§1-12', opphevet: true, harTekst: false, akn: '<article eId="…/§1-12" end="#2016-endring">\n  <num>§ 1-12</num>\n  <heading>(Opphevet)</heading>\n</article>' },
+    'hc-2': { tittel: 'II.', status: 'Gjeldende', eid: '…/kap-3/hc-2', harTekst: true, tekst: 'Romertall-underinndeling modellert som <hcontainer> — et generist containerelement som ikke påstår mer semantikk enn verifisert.', akn: '<hcontainer eId="…/kap-3/hc-2" name="romertall">\n  <num>II.</num>\n</hcontainer>' },
+  };
+  ident = {
+    'p_1-3': [ ['canonical_id (eid)', 'https://lovdata.no/eli/lov/1989/06/02/27/nor/§1-3'], ['kildesystem', 'lovdata'], ['kilde_id (source_id)', 'kapittel-1-paragraf-3'], ['offisiell_eli', '— (fylles hvis Lovdata publiserer)'], ['tekst_hash', 'sha256:a91f…3e0c'] ],
+  };
+  krysseref = [ { kind: 'intern', mal: '§ 1-5 Aldersgrense', eid: '…/§1-5' }, { kind: 'begrep', mal: 'alkoholholdig drikk', eid: 'begrep:alkoholholdig-drikk' } ];
+  proveniens = [
+    { hva: 'Verifisert og publisert', handling: 'publisert', dato: '2026-07-23 14:20', hvem: 'Kari Nordmann (Jurist)', h: 'publisert' },
+    { hva: 'Konvertert fra Lovdata-HTML → AKN', handling: 'opprettet', dato: '2026-07-23 14:02', hvem: 'System (deterministisk parser)', h: 'opprettet' },
+  ];
+  versjonNoder = [
+    { eid: '§ 1-1/ledd-1', hash: 'a3f1…', endring: 'uendret', tag: 'ingen' },
+    { eid: '§ 1-3/ledd-1', hash: 'b7c2…', endring: 'uendret', tag: 'beholdt (2)' },
+    { eid: '§ 1-7b/ledd-1', hash: 'e0d9→f4a1', endring: 'endret', tag: 'flagget (1)' },
+    { eid: '§ 1-7c/ledd-1', hash: 'c8b3…', endring: 'uendret', tag: 'beholdt (1)' },
+    { eid: '§ 1-8a/ledd-1', hash: '— (ny)', endring: 'ny node', tag: 'ingen' },
+  ];
+
+  go(v) { this.setState({ view: v }); }
+  tag(role, text) { return `display:inline-flex;align-items:center;font-size:12px;background:var(--ds-color-${role}-surface-tinted);color:var(--ds-color-${role}-text-default);padding:2px 9px;border-radius:999px;white-space:nowrap;`; }
+  btn(kind) { const base = 'display:inline-flex;align-items:center;gap:7px;font-family:inherit;font-size:13px;font-weight:500;padding:8px 14px;border-radius:var(--ds-border-radius-default);cursor:pointer;';
+    if (kind === 'primary') return base + 'border:none;background:var(--ds-color-accent-base-default);color:#fff;';
+    if (kind === 'success') return base + 'border:none;background:var(--ds-color-success-base-default);color:#fff;';
+    return base + 'border:1px solid var(--ds-color-neutral-border-default);background:var(--ds-color-neutral-background-default);color:var(--ds-color-neutral-text-default);'; }
+  pill(on) { return `padding:5px 13px;font-size:12px;cursor:pointer;border-radius:999px;font-weight:${on ? 600 : 400};background:${on ? 'var(--ds-color-accent-base-default)' : 'var(--ds-color-neutral-surface-tinted)'};color:${on ? '#fff' : 'var(--ds-color-neutral-text-subtle)'};`; }
+  tabStyle(on) { return `padding:11px 4px;margin-right:22px;font-size:14px;cursor:pointer;white-space:nowrap;border-bottom:2px solid ${on ? 'var(--ds-color-accent-base-default)' : 'transparent'};color:${on ? 'var(--ds-color-accent-text-default)' : 'var(--ds-color-neutral-text-subtle)'};font-weight:${on ? 600 : 400};`; }
+  seg(on) { return `flex:1;text-align:center;padding:9px 12px;font-size:13px;cursor:pointer;border-radius:8px;font-weight:${on ? 600 : 400};background:${on ? 'var(--ds-color-neutral-background-default)' : 'transparent'};color:${on ? 'var(--ds-color-neutral-text-default)' : 'var(--ds-color-neutral-text-subtle)'};box-shadow:${on ? 'var(--ds-shadow-xs)' : 'none'};`; }
+
+  renderVals() {
+    const s = this.state; const is = {}; ['bibliotek', 'import', 'detalj', 'versjon'].forEach(v => is[v] = s.view === v);
+    const nav = this.nav.map(n => ({ label: n[1], iconEl: this.icon(n[2], 18), badge: n[3],
+      style: `display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:9px;cursor:pointer;font-size:14px;margin-bottom:2px;font-weight:${s.view === n[0] ? 600 : 400};color:${s.view === n[0] ? '#fff' : '#cdd8ea'};background:${s.view === n[0] ? 'rgba(0,98,186,.22)' : 'transparent'};`,
+      onClick: () => this.go(n[0]) }));
+    const headerActions = s.view === 'bibliotek' ? [ { label: 'Importer kilde', iconEl: this.icon('plus', 16), style: this.btn('primary'), onClick: () => this.setState({ view: 'import', importStep: 'hent' }) } ] : [];
+
+    // bibliotek
+    const bibFilters = [ ['alle', 'Alle'], ['primaer', 'Primærkilder'], ['referanse', 'Referanse-stubber'], ['infra', 'Infrastrukturlover'] ].map(x => ({ label: x[1], onClick: () => this.setState({ bibFilter: x[0] }), style: this.pill(s.bibFilter === x[0]) }));
+    const bibVis = this.biblioteket.filter(r => s.bibFilter === 'alle' || (s.bibFilter === 'primaer' && r.rolle === 'primær') || (s.bibFilter === 'referanse' && r.rolle === 'referanse') || (s.bibFilter === 'infra' && r.infra));
+    const biblioteket = bibVis.map(r => ({ tittel: r.tittel, eli: r.eli, kildetype: r.kildetype, rolle: r.rolle, status: r.status, versjon: r.versjon, infra: r.infra,
+      infraStyle: this.tag('brand2', ''), rolleStyle: this.tag(r.rolle === 'primær' ? 'success' : 'neutral', r.rolle), statusStyle: this.tag(r.status === 'Gjeldende' ? 'success' : 'neutral', r.status),
+      erStub: r.rolle === 'referanse', erPrimaer: r.rolle === 'primær', onOpen: () => this.setState({ view: 'detalj' }), onPromote: () => this.setState({ view: 'import', importStep: 'hent' }) }));
+
+    // import
+    const importStep = s.importStep;
+    const pipeline = this.pipeline.map((p, i) => { const order = ['hent', 'konverter', 'meta', 'verifiser']; const cur = order.indexOf(importStep); const done = i < cur; const active = i === cur;
+      return { label: p[1], sub: p[2], onClick: () => this.setState({ importStep: p[0] }), weight: active ? 600 : 400, color: active ? 'var(--ds-color-accent-text-default)' : 'var(--ds-color-neutral-text-default)',
+        mark: done ? '✓' : (i + 1), dotStyle: `width:24px;height:24px;flex:0 0 auto;border-radius:999px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;${active ? 'background:var(--ds-color-accent-base-default);color:#fff;' : done ? 'background:var(--ds-color-success-surface-tinted);color:var(--ds-color-success-text-default);' : 'background:var(--ds-color-neutral-surface-tinted);color:var(--ds-color-neutral-text-subtle);'}` }; });
+    const methodTabs = [ ['lovdata', 'Hent fra Lovdata'], ['opplasting', 'Last opp fil'] ].map(x => ({ label: x[1], onClick: () => this.setState({ method: x[0] }), style: this.seg(s.method === x[0]) }));
+    const frbrGroups = Object.keys(this.frbr).map(k => ({ tittel: 'FRBR' + k, felt: this.frbr[k].map(f => ({ k: f[0], v: f[1] })) }));
+
+    // detalj
+    const treeRows = this.tree.map(n => ({ label: n.label, tag: n.tag || '', tagStyle: n.tag ? this.tag('brand2', n.tag) : '',
+      style: `display:flex;align-items:center;gap:8px;padding:8px 10px;padding-left:${(n.depth || 0) * 16 + 10}px;border-radius:7px;cursor:pointer;font-size:13px;${s.detNode === n.id ? 'background:var(--ds-color-accent-surface-tinted);' : ''}${this.nodeData[n.id] ? '' : 'color:var(--ds-color-neutral-text-subtle);'}`,
+      onClick: () => { if (this.nodeData[n.id]) this.setState({ detNode: n.id }); } }));
+    const nd = this.nodeData[s.detNode] || this.nodeData['p_1-3'];
+    const detNode = { tittel: nd.tittel, status: nd.status, eid: nd.eid, opphevet: !!nd.opphevet, harTekst: !!nd.harTekst, harRef: !!nd.harRef, refTil: nd.refTil, tekst: nd.tekst, akn: nd.akn, statusStyle: this.tag(nd.status === 'Opphevet' ? 'neutral' : 'success', nd.status) };
+    const detTabs = [ ['tekst', 'Tekst'], ['kilde', 'AKN-kilde'], ['ident', 'Identitet'], ['kobl', 'Koblinger'], ['hist', 'Historikk'] ].map(x => ({ label: x[1], onClick: () => this.setState({ detTab: x[0] }), style: this.tabStyle(s.detTab === x[0]) }));
+    const identRows = (this.ident[s.detNode] || this.ident['p_1-3']).map(r => ({ k: r[0], v: r[1] }));
+    const krysseref = this.krysseref.map(k => ({ ...k, kindStyle: this.tag(k.kind === 'intern' ? 'accent' : 'brand2', k.kind) }));
+    const proveniens = this.proveniens.map(p => ({ ...p, handStyle: this.tag(p.h === 'publisert' ? 'success' : 'neutral', p.handling), dotStyle: `background:var(--ds-color-${p.h === 'publisert' ? 'success' : 'neutral'}-base-default);` }));
+
+    // versjon
+    const versjonNoder = this.versjonNoder.map(n => ({ ...n,
+      endringStyle: this.tag(n.endring === 'endret' ? 'warning' : n.endring === 'ny node' ? 'info' : 'neutral', n.endring),
+      tagStyle: this.tag(n.tag.startsWith('flagget') ? 'warning' : n.tag.startsWith('beholdt') ? 'success' : 'neutral', n.tagStatus || n.tag), tagStatus: n.tag }));
+
+    return {
+      nav, headerActions, crumb: this.titles[s.view], title: this.titles[s.view], is,
+      kpis: this.kpis.map(k => ({ ...k, iconEl: this.icon(k.icon, 15), iconWrap: 'display:flex;color:var(--ds-color-accent-text-default);' })),
+      bibFilters, biblioteket, dotPrimaer: 'width:10px;height:10px;border-radius:999px;background:var(--ds-color-success-base-default);display:inline-block;', dotStub: 'width:10px;height:10px;border-radius:999px;background:var(--ds-color-neutral-border-strong);display:inline-block;',
+      pipeline, methodTabs, methodLovdata: s.method === 'lovdata', methodOpplasting: s.method === 'opplasting',
+      importStepHent: importStep === 'hent', importStepKonverter: importStep === 'konverter', importStepMeta: importStep === 'meta', importStepVerifiser: importStep === 'verifiser',
+      srcHtml: this.srcHtml, aknOut: this.aknOut, frbrGroups, verifyChecks: this.verifyChecks,
+      nextStep: () => { const o = ['hent', 'konverter', 'meta', 'verifiser']; const i = o.indexOf(s.importStep); this.setState({ importStep: o[Math.min(i + 1, 3)] }); },
+      prevStep: () => { const o = ['hent', 'konverter', 'meta', 'verifiser']; const i = o.indexOf(s.importStep); this.setState({ importStep: o[Math.max(i - 1, 0)] }); },
+      finishImport: () => this.setState({ view: 'bibliotek' }),
+      statusUtkast: this.tag('neutral', ''), statusGjeldende: this.tag('success', ''),
+      treeRows, detNode, detTabs, detTabTekst: s.detTab === 'tekst', detTabKilde: s.detTab === 'kilde', detTabIdent: s.detTab === 'ident', detTabKobl: s.detTab === 'kobl', detTabHist: s.detTab === 'hist',
+      identRows, krysseref, proveniens, versjonNoder,
+      btnPrimary: this.btn('primary'), btnSecondary: this.btn('secondary'), btnSuccess: this.btn('success'), btnSecondarySm: this.btn('secondary') + 'padding:5px 11px;font-size:12px;',
+      chipInfo: 'display:inline-flex;align-items:center;font-size:12px;background:var(--ds-color-info-surface-tinted);color:var(--ds-color-info-text-default);padding:3px 10px;border-radius:999px;',
+      searchIcon: this.icon('search', 16), checkIcon: this.icon('check', 15), uploadIcon: this.icon('upload', 22), arrowIcon: this.icon('arrowR', 18), warnIcon: this.icon('warn', 18),
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 # Teknisk design — Byggesteg 1 (Rettskildebibliotek)
 
-*Dekker AKN-skjema, databasetabeller og konverteringspipeline. Frontend-komponentstruktur er utelatt — overlatt til samme verktøy som produserte den opprinnelige interaktive prototypen (`Regel-IDE.dc.html`). Dette dokumentet er underlag til ekstern kvalitetssikring; ingen kode er skrevet mot det ennå.*
+*Dekker AKN-skjema, databasetabeller og konverteringspipeline. Frontend-komponentstruktur er utelatt — overlatt til samme verktøy som produserte den opprinnelige interaktive prototypen (`Regel-IDE.dc.html`). Dette dokumentet er underlag til ekstern kvalitetssikring; ingen kode er skrevet mot det ennå. En interaktiv mockup som implementerer dette designet visuelt finnes i [`../prototyper/Byggesteg1-Rettskilder.dc.html`](../prototyper/Byggesteg1-Rettskilder.dc.html) — verdt å sammenligne mot hvis noe under endres videre.*
 
 *Begrunnelsene bak designvalgene er samlet i **Vedlegg A**, ikke gjentatt i hoveddokumentet — hver seksjon under peker dit med én kort referanse. Tre runder ekstern kvalitetssikring er gjennomført og innarbeidet (2026-07); status og de to gjenstående spørsmålene står i §6.*
 
