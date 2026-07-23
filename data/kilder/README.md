@@ -56,3 +56,7 @@ Identifisert ved gjennomgang av innholdsfortegnelsen — se `01-referansemodell.
 - **Kapittel 4** (§ 4-1 til § 4-7) Kommunale skjenkebevillinger — § 4-3 (vilkår), § 4-4 (tidsinnskrenkninger/skjenketid)
 
 Resten av loven/forskriften er med for navigasjon og kryssreferanser, ikke fordi alt skal modelleres som vilkår i byggesteg 4.
+
+## `referanser/` — ekte kommunal praksis, ikke Testkommunens egne rettskilder
+
+Se [`referanser/README.md`](referanser/README.md). Inneholder Helsedirektoratets veileder i salgs- og skjenkekontroll (IS-2038) og ekte, vedtatte alkoholpolitiske retningslinjer fra Vennesla og Tønsberg kommuner — brukt som empirisk sammenligningsgrunnlag for byggesteg 2/4/6/7 (`06-veikart.md`, "Funn fra reelle virksomhetsdokumenter"), ikke som noe som importeres som Testkommunens egne rettskilder.
