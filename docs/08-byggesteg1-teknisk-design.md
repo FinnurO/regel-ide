@@ -127,10 +127,11 @@ CREATE TABLE rettskilder (
   id                uuid PRIMARY KEY,
   doctype           text NOT NULL,        -- 'act' | 'doc' | 'judgment' | 'internal'
   kildetype         text NOT NULL,        -- 'Lov' | 'Forskrift' | 'Rundskriv' | 'Presedens' | 'Virksomhetsdokument'
+  importrolle       text NOT NULL DEFAULT 'primaer',  -- 'primaer' | 'referanse' — se §3.1 steg 6
   tittel            text NOT NULL,
   kortnavn          text,
   eli               text,                 -- f.eks. 'LOV-1989-06-02-27'
-  akn_xml           text NOT NULL,        -- kanonisk, fullstendig AKN-dokument
+  akn_xml           text,                 -- NULL for referanse-stubber (kun metadata, ikke hentet ennå); NOT NULL når importrolle='primaer' eller stubben er forfremmet
   ikrafttredelse    date,
   konsolidert_dato  date,
   utgiver           text,                 -- f.eks. 'Lovdata' — NLOD 2.0-attribusjon, se 05-arkitektur-og-nfk §1.1
@@ -143,7 +144,9 @@ CREATE TABLE rettskilder (
   opprettet_av      text NOT NULL,
   opprettet_tidspunkt timestamptz NOT NULL DEFAULT now(),
   sist_endret_av    text,
-  sist_endret_tidspunkt timestamptz
+  sist_endret_tidspunkt timestamptz,
+  CHECK (importrolle IN ('primaer', 'referanse')),
+  CHECK (importrolle = 'referanse' OR akn_xml IS NOT NULL)  -- primaer-kilder skal alltid ha fullt innhold
 );
 
 -- Denormalisert projeksjon av AKN-treet, for navigasjon/søk/tagging-join uten å parse XML per kall
@@ -222,7 +225,10 @@ CREATE INDEX ix_proveniens_entitet ON proveniens(entitet_type, entitet_id);
    - Nøstet `<article class="legalP">` → `node_type='ledd'`, `tekst` = elementets tekstinnhold **med** `<a href="lov/…">`-elementer bevart som markører (ikke bare strippet til plain text) — disse blir `rettskilde_referanser`-rader (steg 6).
    - `<li><article class="listArticle">` → `node_type='punkt'`.
    - `<article class="changesToParent">` → **ikke** en tekstnode. Skriv i stedet en `proveniens`-rad (`handling='endret'`, `kilde_referanser` = lenkene i elementet).
-6. **Kryssreferanser** — for hver `<a href="lov/ÅÅÅÅ-MM-DD-N/§X-Y">` inni en ledd-node: slå opp om `ÅÅÅÅ-MM-DD-N` er samme rettskilde (intern referanse, `til_eid` i samme dokument) eller en annen (ekstern — krever at målrettskilden allerede er importert, ellers lagre referansen med `til_rettskilde_id=null` og et ventende-oppslag-flagg til den importeres).
+6. **Kryssreferanser — ekstern kilde importeres automatisk som stub, avgrenset (ett hopp, ikke transitivt).** For hver `<a href="lov/…">`/`<a href="forskrift/…">` funnet **inni selve løpeteksten** (en ledd- eller punkt-node — **ikke** header-metadata som «Endrer»/«Sist endret ved»/EØS-henvisninger, som er lovhistorikk, ikke normativt innhold loven bruker):
+   - Er `ÅÅÅÅ-MM-DD-N` samme rettskilde? → intern referanse, `til_eid` i samme dokument.
+   - Finnes `ÅÅÅÅ-MM-DD-N` allerede i biblioteket? → opprett `rettskilde_referanser`-rad mot den.
+   - Finnes den ikke? → **opprett en referanse-stub**: ny `rettskilder`-rad med `importrolle='referanse'`, `akn_xml=null`, kun metadata hentet fra Lovdatas dokumentheader (tittel, ELI, status, kildetype) — deretter `rettskilde_referanser`-raden. Stubben **følges ikke videre** (dens egne referanser importeres ikke rekursivt — det ville gitt uavgrenset transitiv import, se § 5). En referanse-stub kan senere forfremmes til `importrolle='primaer'` (en eksplisitt brukerhandling), som trigger full AKN-henting/-konvertering av den (steg 1–5 kjøres da for stubben).
 7. **Generer kanonisk AKN-XML** fra det bygde treet (§1) og skriv `rettskilder.akn_xml`.
 8. **Skriv `rettskilde_noder`** fra samme tre, i én transaksjon med steg 7 (se avveiningen i §2).
 9. **Status:** `utkast`.
@@ -245,5 +251,5 @@ CREATE INDEX ix_proveniens_entitet ON proveniens(entitet_type, entitet_id);
 1. **eId-konvensjon (§1.2):** er "gjenbruk Lovdatas egne id-verdier" riktig avveining, eller bør vi normalisere til en kortere, mer lesbar AKN-konvensjonell form (med den ekstra transformasjonsrisikoen det innebærer)?
 2. **Redundans XML + node-tabell (§2):** er det riktig avveining å holde begge synkront i én transaksjon, eller bør node-tabellen heller være en cache som kan bygges lat/async (med tilhørende konsistensvindu)?
 3. **Romertall-underinndelinger (§3.2):** hvordan bør disse modelleres i AKN — egen nodetype, eller et overskriftsfelt på artikkelen?
-4. **Ekstern kryssreferanse til ikke-importert rettskilde (§3.1 steg 6):** er "ventende-oppslag-flagg" god nok håndtering, eller bør import blokkeres/varsles tydeligere når en lov refererer til noe vi ikke har?
+4. **~~Ekstern kryssreferanse til ikke-importert rettskilde~~ — avklart:** import kaskaderer automatisk som en metadata-**stub** (`importrolle='referanse'`, ikke fullt AKN-innhold), avgrenset til ett hopp (ikke transitivt) og kun for referanser i selve løpeteksten (ikke header-metadata). Residual-spørsmål til QA: er ett hopp riktig grense, eller bør enkelte sentrale, tverrgående kilder (forvaltningsloven, personopplysningsloven — jf. `digital-rettsstat` prinsipp 9) heller forhåndsimporteres fullt ut som `primaer` uansett, siden de vil bli referert fra svært mange lover uavhengig av hvilken vi starter med?
 5. **Er den deterministiske/AI-skillelinjen i §3 riktig trukket** — bør noe av Lovdata-konverteringen likevel ha en LLM-assistert komponent (f.eks. for å oppsummere `changesToParent`-historikk til lesbar tekst), eller er «ren parser for Lovdata, LLM kun for opplastede dokumenter» riktig?
