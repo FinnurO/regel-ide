@@ -1,13 +1,33 @@
 namespace RegelIde.Data;
 
 /// <summary>
-/// EF Core-entiteter som speiler docs/08-byggesteg1-teknisk-design.md §2 nøyaktig — feltnavn,
-/// typer og constraints er låst der etter tre QA-runder. Ingen avvik uten en tilsvarende endring
-/// i det dokumentet.
+/// EF Core-entiteter som speiler docs/08-byggesteg1-teknisk-design.md §2 — feltnavn, typer og
+/// constraints er låst der etter tre QA-runder. Avvik markert eksplisitt: multi-virksomhet-
+/// refaktoreringen (docs/00-endringslogg-v0.3.md, 2026-07-24) la til <see cref="Virksomhet"/> og
+/// virksomhet_id-feltene under, som ikke var del av det opprinnelige låste skjemaet.
 /// </summary>
+public sealed class Virksomhet
+{
+    public Guid Id { get; set; }
+    public required string Navn { get; set; }
+    public string? Organisasjonsnummer { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+}
+
 public sealed class RettskildeEntitet
 {
     public Guid Id { get; set; }
+
+    /// <summary>
+    /// NULL = delt/nasjonal rettskilde (Lov/Forskrift fra Lovdata — importeres og vises likt for
+    /// alle virksomheter, aldri duplisert per virksomhet). Satt = virksomhetens egen lokale kilde
+    /// (lokal forskrift, virksomhetsdokument) — kun synlig for og eid av denne virksomheten.
+    /// Se docs/00-endringslogg-v0.3.md for begrunnelsen (opptil 1000 offentlige virksomheter —
+    /// duplisering av delte nasjonale kilder per virksomhet ville vært både kostbart og feilutsatt
+    /// ved lovendringer, som da måtte vedlikeholdes N ganger i stedet for én).
+    /// </summary>
+    public Guid? VirksomhetId { get; set; }
+
     public required string Doctype { get; set; } // 'act' | 'doc' | 'judgment' | 'internal'
     public required string Kildetype { get; set; } // 'Lov' | 'Forskrift' | 'Rundskriv' | 'Presedens' | 'Virksomhetsdokument'
     public string Importrolle { get; set; } = "primaer"; // 'primaer' | 'referanse'
@@ -60,6 +80,15 @@ public sealed class RettskildeReferanseEntitet
 public sealed class TekstTaggEntitet
 {
     public Guid Id { get; set; }
+
+    /// <summary>
+    /// Ikke nullable, i motsetning til RettskildeEntitet.VirksomhetId — en tagg er alltid en
+    /// virksomhets eget arbeidsprodukt, selv når den peker på en delt/nasjonal rettskilde. To
+    /// virksomheter kan tagge samme lovparagraf ulikt (forskjellige vilkår/begreper), så taggen
+    /// arver ikke synlighet fra RettskildeId.
+    /// </summary>
+    public required Guid VirksomhetId { get; set; }
+
     public Guid RettskildeId { get; set; }
     public required string NodeEid { get; set; }
     public int StartOffset { get; set; }
@@ -78,6 +107,10 @@ public sealed class TekstTaggEntitet
 public sealed class ProveniensEntitet
 {
     public Guid Id { get; set; }
+
+    /// <summary>NULL når den underliggende hendelsen gjaldt en delt/nasjonal entitet (§ RettskildeEntitet.VirksomhetId).</summary>
+    public Guid? VirksomhetId { get; set; }
+
     public required string EntitetType { get; set; } // 'rettskilde' | 'begrep' | 'vilkar' | 'regelnode' | 'unntak' | …
     public Guid EntitetId { get; set; }
     public required string EndretAv { get; set; }

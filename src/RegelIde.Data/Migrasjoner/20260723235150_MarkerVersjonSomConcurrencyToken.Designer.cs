@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RegelIde.Data;
@@ -11,9 +12,11 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    partial class RegelIdeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260723235150_MarkerVersjonSomConcurrencyToken")]
+    partial class MarkerVersjonSomConcurrencyToken
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -65,14 +68,8 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("jsonb")
                         .HasColumnName("kilde_referanser");
 
-                    b.Property<Guid?>("VirksomhetId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("virksomhet_id");
-
                     b.HasKey("Id")
                         .HasName("proveniens_pkey");
-
-                    b.HasIndex("VirksomhetId");
 
                     b.HasIndex("EntitetType", "EntitetId")
                         .HasDatabaseName("ix_proveniens_entitet");
@@ -182,24 +179,15 @@ namespace RegelIde.Data.Migrasjoner
                         .HasDefaultValue(1)
                         .HasColumnName("versjon");
 
-                    b.Property<Guid?>("VirksomhetId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("virksomhet_id");
-
                     b.HasKey("Id")
                         .HasName("rettskilder_pkey");
 
                     b.HasIndex("Eli")
                         .IsUnique()
-                        .HasDatabaseName("ux_rettskilder_eli_gjeldende_delt")
-                        .HasFilter("entitetsstatus = 'gjeldende' AND virksomhet_id IS NULL");
+                        .HasDatabaseName("ux_rettskilder_eli_gjeldende")
+                        .HasFilter("entitetsstatus = 'gjeldende'");
 
                     b.HasIndex("ErstatterId");
-
-                    b.HasIndex("VirksomhetId", "Eli")
-                        .IsUnique()
-                        .HasDatabaseName("ux_rettskilder_eli_gjeldende_per_virksomhet")
-                        .HasFilter("entitetsstatus = 'gjeldende' AND virksomhet_id IS NOT NULL");
 
                     b.ToTable("rettskilder", null, t =>
                         {
@@ -386,63 +374,17 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("integer")
                         .HasColumnName("start_offset");
 
-                    b.Property<Guid>("VirksomhetId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("virksomhet_id");
-
                     b.HasKey("Id")
                         .HasName("tekst_tagger_pkey");
-
-                    b.HasIndex("VirksomhetId")
-                        .HasDatabaseName("ix_tekst_tagger_virksomhet");
 
                     b.HasIndex("RettskildeId", "NodeEid")
                         .HasDatabaseName("ix_tekst_tagger_node");
 
-                    b.HasIndex("VirksomhetId", "RettskildeId", "NodeEid", "StartOffset", "EndOffset", "Kind", "RefId")
+                    b.HasIndex("RettskildeId", "NodeEid", "StartOffset", "EndOffset", "Kind", "RefId")
                         .IsUnique()
                         .HasDatabaseName("tekst_tagger_unik_tagg");
 
                     b.ToTable("tekst_tagger", (string)null);
-                });
-
-            modelBuilder.Entity("RegelIde.Data.Virksomhet", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Navn")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("navn");
-
-                    b.Property<DateTimeOffset>("OpprettetTidspunkt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("opprettet_tidspunkt")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<string>("Organisasjonsnummer")
-                        .HasColumnType("text")
-                        .HasColumnName("organisasjonsnummer");
-
-                    b.HasKey("Id")
-                        .HasName("virksomheter_pkey");
-
-                    b.HasIndex("Organisasjonsnummer")
-                        .IsUnique()
-                        .HasDatabaseName("ux_virksomheter_organisasjonsnummer")
-                        .HasFilter("organisasjonsnummer IS NOT NULL");
-
-                    b.ToTable("virksomheter", (string)null);
-                });
-
-            modelBuilder.Entity("RegelIde.Data.ProveniensEntitet", b =>
-                {
-                    b.HasOne("RegelIde.Data.Virksomhet", null)
-                        .WithMany()
-                        .HasForeignKey("VirksomhetId");
                 });
 
             modelBuilder.Entity("RegelIde.Data.RettskildeEntitet", b =>
@@ -450,10 +392,6 @@ namespace RegelIde.Data.Migrasjoner
                     b.HasOne("RegelIde.Data.RettskildeEntitet", null)
                         .WithMany()
                         .HasForeignKey("ErstatterId");
-
-                    b.HasOne("RegelIde.Data.Virksomhet", null)
-                        .WithMany()
-                        .HasForeignKey("VirksomhetId");
                 });
 
             modelBuilder.Entity("RegelIde.Data.RettskildeNodeEntitet", b =>
@@ -489,12 +427,6 @@ namespace RegelIde.Data.Migrasjoner
                     b.HasOne("RegelIde.Data.RettskildeEntitet", null)
                         .WithMany()
                         .HasForeignKey("RettskildeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RegelIde.Data.Virksomhet", null)
-                        .WithMany()
-                        .HasForeignKey("VirksomhetId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

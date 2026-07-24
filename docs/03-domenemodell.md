@@ -18,11 +18,23 @@ Alle entiteter i §1 arver følgende felt (samler den eksterne vurderingens punk
 
 Proveniens (endringslogg) er en separat, append-only tabell — se §3.11 under.
 
+### 0.1 Virksomhetstilhørighet (`virksomhet_id`) — lagt til i v0.3
+
+*Se `00-endringslogg-v0.3.md` for bakgrunnen (opptil ~1000 offentlige virksomheter deler én driftsatt løsning). Ikke en del av basemetadataen over — behandlingen varierer bevisst per entitetstype:*
+
+- **Alltid satt (påkrevd):** Begrep, Vilkår/Regel/Unntak, Tjeneste, Kodeliste (juridisk/teknisk — ikke ekstern-referanse), Testcase, Tekst-tag (§1.2). Dette er virksomhetens egne arbeidsprodukter, aldri delt — to virksomheter kan tagge samme delte rettskilde-node helt ulikt.
+- **Nullable, med betydning (delt/nasjonalt vs. virksomhetseid):** Rettskilde (§1.1) — `NULL` for Lov/Forskrift importert fra Lovdata (delt av alle virksomheter, importert/vedlikeholdt én gang), satt for virksomhetens egne lokale rettskilder (lokal forskrift, virksomhetsdokument).
+- **Nullable, følger den underliggende hendelsen:** Proveniens (§1.14) — arver samme delt/virksomhetseid-status som entiteten hendelsen gjelder.
+- **Ikke egen kolonne (arves via forelder):** Rettskildenoder og -referanser arver virksomhetstilhørighet fra sin Rettskilde via foreign key, i stedet for å duplisere feltet på hver node.
+
+RBAC (§2) og alle spørringer i praksis skal derfor alltid filtrere på "brukerens virksomhet ELLER delt" for Rettskilde, og strengt på "brukerens virksomhet" for alt annet i denne lista.
+
 ## 1. Entiteter og relasjoner
 
 ### 1.1 Rettskilde
 | Felt | Type | Beskrivelse |
 |---|---|---|
+| `virksomhet_id` | ref, nullable | **Nytt i v0.3, se §0.1.** `NULL` = delt/nasjonal (Lov/Forskrift); satt = virksomhetens egen lokale kilde |
 | `doctype` | enum | `act` (lov/forskrift), `doc` (rundskriv), `judgment` (presedens), `internal` (virksomhetsdokument) |
 | `kildetype` | enum | Lov, Forskrift, Rundskriv, Presedens, Virksomhetsdokument |
 | `tittel`, `kortnavn` | string | |
@@ -40,6 +52,7 @@ Kobler en tekstflate i en rettskilde til en modell-entitet, lagret som `<term>` 
 
 | Felt | Type | Beskrivelse |
 |---|---|---|
+| `virksomhet_id` | ref | **Nytt i v0.3, se §0.1.** Påkrevd, ikke nullable — en tagg er alltid virksomhetens eget arbeidsprodukt, selv når den peker på en delt/nasjonal rettskilde-node |
 | `kildeId`, `eId` | string | Hvilken bestemmelse |
 | `start`, `end` | int | Tegn-offset i normalisert tekst (posisjonsbasert — tillater overlappende tagger) |
 | `quoteSelector` | string | **Nytt.** Sitatet selv (før/etter-kontekst + eksakt tekst), etter W3C Web Annotation-mønster. Se `05-arkitektur-og-nfk.md` §3 for hvorfor ren offset ikke er robust nok ved konsoliderte lovendringer og korrektur |
@@ -156,6 +169,7 @@ Versjonering (§0) svarer «hvilken versjon gjelder»; proveniens svarer «hvord
 
 | Felt | Beskrivelse |
 |---|---|
+| `virksomhet_id` | **Nytt i v0.3, se §0.1.** Nullable — arver delt/virksomhetseid-status fra entiteten hendelsen gjelder |
 | `endret_av` | Person/rolle |
 | `dato` | |
 | `handling` | opprettet / endret / foreslått_av_ai / validert / publisert / arkivert |
@@ -209,6 +223,8 @@ erDiagram
 ## 2. Rolle- og autorisasjonsmodell (RBAC)
 
 *"Vilkår" i tabellen under dekker alle tre nodetyper fra `01-referansemodell.md` §5 (Vilkår, Regel, Unntak) — de deler RBAC-regler, ikke bare felt.*
+
+**Lagt til i v0.3 (se `00-endringslogg-v0.3.md`):** rollene under gjelder alltid **innenfor brukerens egen virksomhet** — en Jurist i virksomhet A kan aldri validere/publisere/endre virksomhet B sine entiteter, uansett rolle. Delte/nasjonale rettskilder (§0.1) er unntaket: import/vedlikehold der er ikke virksomhetsbundet på samme måte, men følger fortsatt rollene i tabellen. Nøyaktig håndheving (tilgangskontroll i API-et, avledet fra Ansattporten-innlogging) er **ikke bygget/spesifisert i detalj ennå** — se `00-endringslogg-v0.3.md`, "Ikke bekreftet ennå".
 
 | Handling | Fagansvarlig | Jurist | Systemforvalter | Saksbehandler | AI-assistent |
 |---|---|---|---|---|---|

@@ -14,11 +14,16 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
     // Placeholder inntil ekte autentisering/brukerkontekst finnes i systemet.
     private const string SystemBruker = "system-import";
 
-    public async Task<Guid> ImporterAsync(KonverteringResultat resultat, CancellationToken ct = default)
+    /// <param name="virksomhetId">
+    /// NULL (default) = delt/nasjonal kilde (Lov/Forskrift fra Lovdata) — importeres én gang, delt av
+    /// alle virksomheter. Satt = denne virksomhetens egen lokale kilde (lokal forskrift,
+    /// virksomhetsdokument), kun synlig for/eid av virksomheten. Se docs/00-endringslogg-v0.3.md.
+    /// </param>
+    public async Task<Guid> ImporterAsync(KonverteringResultat resultat, Guid? virksomhetId = null, CancellationToken ct = default)
     {
         var m = resultat.Metadata;
         var eksisterende = await db.Rettskilder
-            .FirstOrDefaultAsync(r => r.Eli == m.Eli && r.Entitetsstatus == "gjeldende", ct);
+            .FirstOrDefaultAsync(r => r.Eli == m.Eli && r.VirksomhetId == virksomhetId && r.Entitetsstatus == "gjeldende", ct);
 
         if (eksisterende is { Importrolle: "primaer" })
         {
@@ -42,7 +47,8 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             eksisterende.Status = m.Status;
             eksisterende.SistEndretAv = SystemBruker;
             eksisterende.SistEndretTidspunkt = DateTimeOffset.UtcNow;
-            db.Proveniens.Add(NyProveniensrad(rettskildeId, "endret"));
+            eksisterende.Versjon++; // basemetadata §0: "heltall, økende" -- appens ansvar å øke ved faktisk endring
+            db.Proveniens.Add(NyProveniensrad(rettskildeId, virksomhetId, "endret"));
         }
         else
         {
@@ -50,6 +56,7 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             db.Rettskilder.Add(new RettskildeEntitet
             {
                 Id = rettskildeId,
+                VirksomhetId = virksomhetId,
                 Doctype = m.Doctype,
                 Kildetype = m.Kildetype.ToString(),
                 Importrolle = "primaer",
@@ -64,7 +71,7 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 OpprettetAv = SystemBruker,
                 OpprettetTidspunkt = DateTimeOffset.UtcNow,
             });
-            db.Proveniens.Add(NyProveniensrad(rettskildeId, "opprettet"));
+            db.Proveniens.Add(NyProveniensrad(rettskildeId, virksomhetId, "opprettet"));
         }
 
         var nodeIdVedEid = resultat.Noder.ToDictionary(n => n.Eid, _ => Guid.NewGuid());
@@ -147,13 +154,14 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             OpprettetAv = SystemBruker,
             OpprettetTidspunkt = DateTimeOffset.UtcNow,
         });
-        db.Proveniens.Add(NyProveniensrad(stubId, "opprettet"));
+        db.Proveniens.Add(NyProveniensrad(stubId, virksomhetId: null, "opprettet")); // stubber er alltid delt/nasjonalt
         return stubId;
     }
 
-    private static ProveniensEntitet NyProveniensrad(Guid rettskildeId, string handling) => new()
+    private static ProveniensEntitet NyProveniensrad(Guid rettskildeId, Guid? virksomhetId, string handling) => new()
     {
         Id = Guid.NewGuid(),
+        VirksomhetId = virksomhetId,
         EntitetType = "rettskilde",
         EntitetId = rettskildeId,
         EndretAv = SystemBruker,

@@ -1,6 +1,6 @@
 # Produktkrav — Regel-IDE
 
-**Versjon:** 0.3 (ontologi låst, se `00-endringslogg-v0.2.md`) · **Testcase:** Alminnelig skjenkebevilling (alkoholloven)
+**Versjon:** 0.4 (multi-virksomhet, se `00-endringslogg-v0.3.md`) · **Testcase:** Alminnelig skjenkebevilling (alkoholloven)
 
 > Dette dokumentet dekker **konsept, navigasjon, skjermer, akseptkriterier, roller og designsystem** — altså det som er produktkrav i snever forstand. Full entitetsdefinisjon, relasjoner, RBAC-matrise, livssykluser og publiseringsmodell står i [`03-domenemodell.md`](03-domenemodell.md). Ikke-funksjonelle krav og arkitektur står i [`05-arkitektur-og-nfk.md`](05-arkitektur-og-nfk.md). Begrepene under (Rettskilde, Begrep, Vilkår, Regel …) er definert presist i [`01-referansemodell.md`](01-referansemodell.md) — les den først hvis noe virker underspesifisert her.
 >
@@ -38,7 +38,11 @@ Se [`05-arkitektur-og-nfk.md`](05-arkitektur-og-nfk.md) for begrunnelse og alter
 
 ## 2. Overordnet navigasjon og skall
 
-Applikasjonen er et enkeltbruker-arbeidsverktøy for **én virksomhet** — ikke et flervirksomhets-fellesverktøy. Tjenester fra andre virksomheter refereres via eksternt oppslag (data.norge.no), ikke ved deling av redigeringsrettigheter.
+**Endret i v0.3 (se `00-endringslogg-v0.3.md`):** Regel-IDE er en **flervirksomhets-applikasjon** — én driftsatt løsning, delt av opptil ca. 1000 offentlige virksomheter, ikke én separat driftsatt instans per virksomhet. Bakgrunnen er ren driftsøkonomi: en egen database/instans per virksomhet ville vært uforholdsmessig kostbart å drifte og vedlikeholde i den skalaen. Hver virksomhet ser og redigerer **kun sine egne** entiteter (Begrep, Vilkår/Regel/Unntak, Tjeneste, Testcase, lokale rettskilder/virksomhetsdokumenter — se `03-domenemodell.md` §0/§2 for hvordan dette håndheves per entitetstype). Delte/nasjonale rettskilder (Lov/Forskrift fra Lovdata) er unntaket: de importeres og vedlikeholdes **én gang**, synlige for alle virksomheter — å duplisere f.eks. alkoholloven per virksomhet ville betydd N separate vedlikeholdsjobber ved hver lovendring i stedet for én. Tjenester fra andre virksomheter refereres fortsatt via eksternt oppslag (data.norge.no), ikke ved deling av redigeringsrettigheter til virksomhetens egne entiteter.
+
+**Innlogging:** Ansattporten (se `05-arkitektur-og-nfk.md` for identitetsløsning og hvordan virksomhetstilhørighet avledes derfra).
+
+**Onboarding av en ny virksomhet** (opprette virksomheten, knytte dens første brukere) er ikke spesifisert i detalj ennå — se `00-endringslogg-v0.3.md`, "Ikke bekreftet ennå".
 
 **Testcasets virksomhet: Testkommunen.** Skjenkebevilling er en kommunal oppgave (alkoholloven kapittel 4, "Kommunale skjenkebevillinger" — kommunen er bevillingsmyndighet, ikke staten). Digdir har allerede en fiktiv **Testdepartementet** for statlig testing; siden vår kompetente myndighet (`Tjeneste.kompetent_myndighet`, `03-domenemodell.md` §1.5) er en kommune, bruker testcaset **Testkommunen** i stedet — ikke Testdepartementet.
 

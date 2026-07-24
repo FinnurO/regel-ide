@@ -4,7 +4,8 @@
 
 ```mermaid
 graph LR
-  Bruker["Tverrfaglig team\n(tjenestedesigner, jurist,\nfagansvarlig, saksbehandler, utvikler)"] --> RegelIDE["Regel-IDE\n(dette repoet)"]
+  Bruker["Tverrfaglig team, én av ~1000 virksomheter\n(tjenestedesigner, jurist,\nfagansvarlig, saksbehandler, utvikler)"] -- "innlogging" --> Ansattporten["Ansattporten\n(identitet, ekstern)"]
+  Ansattporten --> RegelIDE["Regel-IDE\n(dette repoet — delt av alle virksomheter)"]
   RegelIDE -- "import via offisielt API\n(api.lovdata.no, NLOD 2.0)" --> Lovdata["Lovdata\n(ekstern, ikke eid av oss)"]
   RegelIDE -- "søker/leser eksterne\nbegrep/tjenester/kodelister" --> DataNorge["data.norge.no\n(Felles datakatalog)"]
   DataNorge -- "høster (crawler ~daglig)\nRDF: SKOS-AP-NO-Begrep + CPSV-AP-NO" --> RegelIDE
@@ -24,8 +25,10 @@ Regel-IDE er *forfatterverktøyet*. **Viktig presisering (rettet etter produktei
 - **Regeleksport:** eFLINT, OpenFisca, DMN, RuleML — via mellomformat. Dette er identisk med `digital-rettsstat`s formatvalg (DMN/FLINT/OpenFisca/NRML), med to navnenyanser å avklare — se `07-forklaringsmodell-api-avvik.md`.
 - **Begreper:** SKOS, publisert til Felles datakatalog (data.norge.no).
 - **Tjeneste:** CPSV-AP-NO.
-- **Backend:** Ikke låst i v0.1. `forklaringsmodell-api` er bygget i ASP.NET Core/.NET 8 — å bruke samme stack for regel-ide sitt eget API senker terskelen for å dele DTO-er/valideringslogikk mellom de to, men er ikke en forutsetning. Avklares i fase 1 (se `06-veikart.md`).
-- **RDF-serialisering:** trengs for høsting mot data.norge.no (§1.2 under) — f.eks. `dotNetRDF` hvis backend blir .NET, eller tilsvarende bibliotek for valgt stack. Ikke en stor arkitekturbeslutning, men en avhengighet å ta med i valget av backend.
+- **Backend:** **Låst ved byggestart (2026-07-23): ASP.NET Core/.NET 8** — samme stack som `forklaringsmodell-api`, senker terskelen for å dele DTO-er/valideringslogikk mellom de to. Implementert: `RegelIde.Kildekonvertering` (konverteringspipeline), `RegelIde.Data` (EF Core + PostgreSQL), `RegelIde.Api` (les-API), se `src/README.md`.
+- **RDF-serialisering:** trengs for høsting mot data.norge.no (§1.2 under) — f.eks. `dotNetRDF`. Ikke gjort ennå (byggesteg 2+, når Begrep/Tjeneste finnes).
+- **Database:** PostgreSQL (Npgsql/EF Core), skjemaet i `08-byggesteg1-teknisk-design.md` §2. **Flervirksomhet fra v0.3** (se `00-endringslogg-v0.3.md`): én delt database for opptil ~1000 virksomheter, med `virksomhet_id` på virksomhetseide entiteter (§0.1 i `03-domenemodell.md`) — ikke én database per virksomhet, av driftskostnadshensyn.
+- **Identitet/innlogging:** **Ansattporten** (låst i v0.3). Virksomhetstilhørighet avledes fra Ansattporten-claims ved innlogging — nøyaktig hvilket claim (organisasjonsnummer → `virksomhet_id`) og hvordan en ny virksomhet/dens første brukere provisjoneres i regel-IDE, er **ikke spesifisert i detalj ennå**, se `00-endringslogg-v0.3.md`.
 
 ### 1.1 Import fra Lovdata
 
@@ -57,7 +60,8 @@ Konsekvens for domenemodellen (`03-domenemodell.md` §4): når et Begrep/en Tjen
 - **Sporbarhet:** all endring av sentrale entiteter skal skrives til proveniens (`03-domenemodell.md` §1.12) og trigge riktig domenehendelse (§5). Dette er samme ufravikelige krav som `digital-rettsstat` prinsipp 2 og `forklaringsmodell-api`s append-only-prinsipp.
 - **Reproduserbarhet:** et historisk vedtak skal kunne rekonstrueres presist fra de eksakte entitetsversjonene som gjaldt (point-in-time, jf. `digital-rettsstat/docs/07-standarder-og-sporbarhetskjeden.md`).
 - **Interoperabilitet:** AKN for rettskilder, SKOS for begreper, CPSV-AP-NO for tjeneste, JSON Schema for informasjonsmodell.
-- **Samtidig redigering / konfliktløsning:** flere brukere kan ha samme rettskilde eller vilkårstre åpent samtidig. v0.1 krever ikke sanntids samskriving (som LEOS har for lovtekst), men **skal** varsle og avvise en lagring som ville overskrevet en endring gjort av en annen bruker etter at gjeldende bruker sist lastet dataene (optimistic concurrency på `versjon`-feltet i basemetadata, `03-domenemodell.md` §0).
+- **Samtidig redigering / konfliktløsning:** flere brukere kan ha samme rettskilde eller vilkårstre åpent samtidig. v0.1 krever ikke sanntids samskriving (som LEOS har for lovtekst), men **skal** varsle og avvise en lagring som ville overskrevet en endring gjort av en annen bruker etter at gjeldende bruker sist lastet dataene (optimistic concurrency på `versjon`-feltet i basemetadata, `03-domenemodell.md` §0). **Implementert** (EF Core concurrency token på `rettskilder.versjon`, `RegelIde.Data`) — bekreftet mot ekte Postgres i test (`RettskildeImportTjenesteTests.Samtidig_skriving_pa_samme_rettskilde_avvises_ikke_stille`).
+- **Virksomhetsisolasjon (nytt i v0.3):** én virksomhet skal aldri kunne se eller skrive til en annen virksomhets entiteter (Begrep, Vilkår/Regel/Unntak, Tjeneste, Testcase, Tekst-tag, egne lokale rettskilder) — se `03-domenemodell.md` §0.1 for hvilke entiteter dette gjelder og hvordan delte/nasjonale rettskilder er det bevisste unntaket. **Håndhevet i databaseskjemaet** (virksomhet-scopede unike indekser, `RegelIde.Data`), men **ikke ennå håndhevet i API-laget** — det finnes ingen tilgangskontroll/filtrering på virksomhet i `RegelIde.Api` ennå, siden Ansattporten-integrasjonen (identitet → virksomhet) ikke er bygget. Se `00-endringslogg-v0.3.md`.
 - **Backup/gjenoppretting:** ikke spesifisert i detalj her — arves av valgt driftsplattform, men append-only-prinsippet (over) betyr at en gjenoppretting aldri kan tape en publisert versjon uten at det er synlig i proveniensen.
 
 ## 3. Tekniske risikoområder

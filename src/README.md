@@ -172,9 +172,22 @@ prinsipper):**
 - `regelIde:`-navnerom-URI-en er allerede notert over som en plassholder som bør
   fryses før tverrsystem-validering — ingen ny handling utover det.
 
-## Bevisst utenfor scope (jf. `06-veikart.md` byggesteg 1 og `08-byggesteg1-teknisk-design.md` §5)
+## Flervirksomhet (v0.3) — se `docs/00-endringslogg-v0.3.md`
 
-Databaselag, HTTP-API, tre-navigasjon-UI, tekstmerking/tagging-UI, referanse-stub-
-opprettelse i et faktisk bibliotek (§3.1 steg 6 — krever databasetilgang for å vite
-om målet allerede er importert), proveniens-skriving for `changesToParent`,
-Lovdata API-nøkkel-integrasjon (leser fortsatt fra lokale filer).
+Regel-IDE skal potensielt brukes av opptil ~1000 offentlige virksomheter — én delt
+driftsatt løsning, ikke én instans per virksomhet (for kostbart i den skalaen).
+`RegelIde.Data` har derfor en `virksomheter`-tabell og `virksomhet_id` på
+virksomhetseide entiteter (`Rettskilde` nullable — `NULL`=delt/nasjonal kilde;
+`TekstTagg` påkrevd; `Proveniens` nullable). Databaseskjemaet håndhever isolasjon
+(virksomhet-scopede unike indekser, bekreftet med tester mot ekte Postgres), men
+**API-laget filtrerer ikke på virksomhet ennå** — det finnes ingen autentisering i
+`RegelIde.Api`. Innloggingsløsning er besluttet (Ansattporten), men ikke
+implementert. Se `docs/00-endringslogg-v0.3.md` for fullstendig liste over hva som
+gjenstår.
+
+## Bevisst utenfor scope nå
+
+Tre-navigasjon-UI, tekstmerking/tagging-UI (selve UI-et, ikke databasestøtten —
+`tekst_tagger`-tabellen finnes), Ansattporten-integrasjon (OIDC/tokenvalidering),
+API-lags tilgangskontroll på virksomhet, onboarding-flyt for nye virksomheter,
+Lovdata API-nøkkel-integrasjon (leser fortsatt fra lokale filer/bulk-datasett).
