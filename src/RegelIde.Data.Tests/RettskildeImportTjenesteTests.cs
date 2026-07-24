@@ -8,7 +8,8 @@ namespace RegelIde.Data.Tests;
 /// migrasjonen (partial unique index, GIN-fulltekstindeks, check-constraints) faktisk fungerer mot
 /// ekte Postgres, ikke bare kompilerer.
 /// </summary>
-public class RettskildeImportTjenesteTests : IClassFixture<EmbeddedPostgresFixture>
+[Collection(DataTestCollection.Navn)]
+public class RettskildeImportTjenesteTests
 {
     private readonly EmbeddedPostgresFixture _fixture;
 

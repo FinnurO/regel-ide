@@ -40,3 +40,17 @@ public sealed record RettskildeReferanseDto(Guid FraNodeId, Guid TilRettskildeId
     public static RettskildeReferanseDto FraEntitet(RettskildeReferanseEntitet r) =>
         new(r.FraNodeId, r.TilRettskildeId, r.TilEid);
 }
+
+/// <summary>Tekst-tag (§1.2 i domenemodellen, AK-3.3.1–3.3.4). `RefId` er alltid null i byggesteg 1.</summary>
+public sealed record TekstTaggDto(
+    Guid Id, Guid RettskildeId, string NodeEid, int StartOffset, int EndOffset,
+    string QuotePrefix, string QuoteExact, string QuoteSuffix, string Kind, Guid? RefId, string OpprettetAv)
+{
+    public static TekstTaggDto FraEntitet(TekstTaggEntitet t) => new(
+        t.Id, t.RettskildeId, t.NodeEid, t.StartOffset, t.EndOffset,
+        t.QuotePrefix, t.QuoteExact, t.QuoteSuffix, t.Kind, t.RefId, t.OpprettetAv);
+}
+
+/// <summary>Forespørsel for POST /api/rettskilder/{id}/tagger.</summary>
+public sealed record OpprettTekstTaggRequest(
+    string NodeEid, int StartOffset, int EndOffset, string QuotePrefix, string QuoteExact, string QuoteSuffix, string Kind);

@@ -15,6 +15,7 @@ var connString = builder.Configuration.GetConnectionString("RegelIdeDb")
 builder.Services.AddDbContext<RegelIdeDbContext>(o => o.UseNpgsql(connString));
 builder.Services.AddScoped<RettskildeRepository>();
 builder.Services.AddScoped<RettskildeImportTjeneste>();
+builder.Services.AddScoped<TekstTaggTjeneste>();
 builder.Services.AddHttpClient<LovdataBulkHenter>();
 
 const string VitePolicy = "ViteDevServer";
@@ -136,6 +137,80 @@ rettskilder.MapGet("/{id:guid}/referanser", async (Guid id, RettskildeRepository
     })
     .WithName("HentRettskildeReferanser")
     .WithSummary("Henter kryssreferansene funnet i løpeteksten (interne og eksterne).");
+
+// ---------- Tekst-tagging (2026-07-24, AK-3.3.1–3.3.4) — krever X-Bruker-Id, tagger er alltid ----------
+// ---------- virksomhetens eget arbeidsprodukt (§0.1 i domenemodellen), aldri delt på tvers.     ----------
+
+rettskilder.MapGet("/{id:guid}/tagger", async (Guid id, HttpRequest request, RettskildeRepository repo,
+        TekstTaggTjeneste taggTjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        if (await repo.FinnAsync(id) is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
+
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+
+        var egneTagger = await taggTjeneste.ListerForAsync(id, bruker.VirksomhetId, ct);
+        return Results.Ok(egneTagger.Select(TekstTaggDto.FraEntitet));
+    })
+    .WithName("HentTekstTagger")
+    .WithSummary("Lister virksomhetens egne tagger for denne rettskilden (ikke delt på tvers av virksomheter).");
+
+rettskilder.MapPost("/{id:guid}/tagger", async (Guid id, HttpRequest request, OpprettTekstTaggRequest body,
+        RettskildeRepository repo, TekstTaggTjeneste taggTjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        if (await repo.FinnAsync(id) is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
+
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+
+        TekstTaggEntitet? opprettet;
+        try
+        {
+            opprettet = await taggTjeneste.OpprettAsync(id, bruker.VirksomhetId, bruker.Navn, body.NodeEid,
+                body.StartOffset, body.EndOffset, body.QuotePrefix, body.QuoteExact, body.QuoteSuffix, body.Kind, ct);
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+
+        if (opprettet is null)
+        {
+            return Results.NotFound(new { feil = $"Ingen node med eId '{body.NodeEid}' i rettskilde '{id}'." });
+        }
+
+        return Results.Created($"/api/rettskilder/{id}/tagger/{opprettet.Id}", TekstTaggDto.FraEntitet(opprettet));
+    })
+    .WithName("OpprettTekstTagg")
+    .WithSummary("Oppretter en ny tekst-tag (AK-3.3.1–3.3.2). ref_id er alltid null i byggesteg 1 (se docs/06-veikart.md).");
+
+rettskilder.MapDelete("/{id:guid}/tagger/{taggId:guid}", async (Guid id, Guid taggId, HttpRequest request,
+        TekstTaggTjeneste taggTjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+
+        var resultat = await taggTjeneste.SlettAsync(id, taggId, bruker.VirksomhetId, bruker.Navn, ct);
+        return resultat switch
+        {
+            SlettResultat.Ok => Results.NoContent(),
+            SlettResultat.IkkeFunnet => Results.NotFound(new { feil = $"Ingen tagg med id '{taggId}' på rettskilde '{id}'." }),
+            SlettResultat.TilhorerAnnenVirksomhet => Results.Json(new { feil = "Taggen tilhører en annen virksomhet." }, statusCode: 403),
+            SlettResultat.HarPublisertReferanse => Results.Conflict(new { feil = "Taggen har en publisert referanse og kan ikke fjernes (AK-3.3.4)." }),
+            _ => throw new InvalidOperationException($"Ukjent SlettResultat '{resultat}'."),
+        };
+    })
+    .WithName("SlettTekstTagg")
+    .WithSummary("Fjerner (arkiverer) en egendefinert tagg — AK-3.3.4.");
 
 // ---------- Import (2026-07-24) — krever X-Bruker-Id for attribusjon, se GjeldendeBrukerTjeneste ----------
 

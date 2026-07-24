@@ -135,3 +135,29 @@ body {
   border-radius: var(--ds-border-radius-md);
   margin-bottom: var(--ds-size-4);
 }
+
+/* Tekst-tagging (AK-3.3.1-3.3.4, se src/tagging/TagTekst.tsx). Selve merkingen (<mark>) og
+   kontekstmenyen (Dropdown) styles inline der -- egne-tagger-listen under er den samlede,
+   side-nivå listen bygget i RettskildeDetalj.tsx (én per rettskilde, ikke én per TagTekst-instans). */
+.egne-tagger-liste {
+  list-style: none;
+  padding: 0;
+  margin: var(--ds-size-2) 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--ds-size-1);
+}
+
+.egne-tagger-liste li {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+  font-size: var(--ds-font-size-1);
+}
+
+.egne-tagger-liste .sitat {
+  color: var(--ds-color-neutral-text-subtle);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

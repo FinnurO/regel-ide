@@ -54,6 +54,33 @@ export interface VirksomhetDto {
   organisasjonsnummer: string | null;
 }
 
+export type TaggKind = 'begrep' | 'tjeneste' | 'vilkar' | 'regel';
+
+/// Tekst-tag (§1.2 i domenemodellen, AK-3.3.1–3.3.4). `refId` er alltid null i byggesteg 1.
+export interface TekstTaggDto {
+  id: string;
+  rettskildeId: string;
+  nodeEid: string;
+  startOffset: number;
+  endOffset: number;
+  quotePrefix: string;
+  quoteExact: string;
+  quoteSuffix: string;
+  kind: TaggKind;
+  refId: string | null;
+  opprettetAv: string;
+}
+
+export interface OpprettTekstTaggRequest {
+  nodeEid: string;
+  startOffset: number;
+  endOffset: number;
+  quotePrefix: string;
+  quoteExact: string;
+  quoteSuffix: string;
+  kind: TaggKind;
+}
+
 export interface ApiFeil {
   feil: string;
 }

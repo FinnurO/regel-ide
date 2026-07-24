@@ -100,8 +100,8 @@ Tre-navigasjon (lov → kapittel → paragraf; forskrift; rundskriv; presedens; 
 Høyre kolonne: tilknyttede presedensavgjørelser med rettskildevekt.
 
 **Tekstmerking → tagging (2-stegs meny):**
-**AK-3.3.1** Gitt Tekst-fanen, når bruker markerer tekst og høyreklikker (eller slipper museknapp), så skal en meny vises: steg 1 velg type (begrep/vilkår/regel), steg 2 velg handling (ny / knytt til eksisterende), med «tilbake».
-**AK-3.3.2** Når en tag opprettes, skal den valgte tekstflaten markeres med fargekode (begrep=lilla, vilkår=gul, regel=grønn), lagres posisjonsbasert **og** med `eId` + quote-selector (se `05-arkitektur-og-nfk.md` §3 for hvorfor ren tegnoffset ikke er tilstrekkelig), og reflekteres i Koblinger-fanen og AKN-kilden.
+**AK-3.3.1** Gitt Tekst-fanen, når bruker markerer tekst og høyreklikker (eller slipper museknapp), så skal en meny vises: steg 1 velg type (begrep/tjeneste/vilkår/regel), steg 2 velg handling (ny / knytt til eksisterende), med «tilbake».
+**AK-3.3.2** Når en tag opprettes, skal den valgte tekstflaten markeres med fargekode (begrep=lilla, tjeneste=blå, vilkår=gul, regel=grønn), lagres posisjonsbasert **og** med `eId` + quote-selector (se `05-arkitektur-og-nfk.md` §3 for hvorfor ren tegnoffset ikke er tilstrekkelig), og reflekteres i Koblinger-fanen og AKN-kilden.
 **AK-3.3.3** Gitt markering av et helt avsnitt som overlapper et allerede tagget ord, skal ikke den innerste taggen skjules — begge skal vises lagvis.
 **AK-3.3.4** Gitt en egendefinert tag, når «Fjern» velges, skal taggen fjernes og teksten gå tilbake til forrige tilstand.
 

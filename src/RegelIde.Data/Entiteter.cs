@@ -113,7 +113,7 @@ public sealed class TekstTaggEntitet
     public required string QuoteExact { get; set; }
     public required string QuoteSuffix { get; set; }
     public required string NodeTekstHash { get; set; }
-    public required string Kind { get; set; } // 'begrep' | 'vilkar' | 'regel'
+    public required string Kind { get; set; } // 'begrep' | 'tjeneste' | 'vilkar' | 'regel'
     public Guid? RefId { get; set; } // nullable inntil byggesteg 2/4
     public string Entitetsstatus { get; set; } = "gjeldende";
     public required string OpprettetAv { get; set; }

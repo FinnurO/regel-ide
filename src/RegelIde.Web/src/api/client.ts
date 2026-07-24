@@ -1,10 +1,12 @@
 import type {
   ApiFeil,
   BrukerDto,
+  OpprettTekstTaggRequest,
   RettskildeDetalj,
   RettskildeNodeDto,
   RettskildeReferanseDto,
   RettskildeSammendrag,
+  TekstTaggDto,
   VirksomhetDto,
 } from './types';
 
@@ -58,6 +60,18 @@ export const api = {
   hentNoder: (id: string) => kall<RettskildeNodeDto[]>(`/api/rettskilder/${id}/noder`),
 
   hentReferanser: (id: string) => kall<RettskildeReferanseDto[]>(`/api/rettskilder/${id}/referanser`),
+
+  hentTagger: (rettskildeId: string) => kall<TekstTaggDto[]>(`/api/rettskilder/${rettskildeId}/tagger`),
+
+  opprettTagg: (rettskildeId: string, request: OpprettTekstTaggRequest) =>
+    kall<TekstTaggDto>(`/api/rettskilder/${rettskildeId}/tagger`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  slettTagg: (rettskildeId: string, taggId: string) =>
+    kall<void>(`/api/rettskilder/${rettskildeId}/tagger/${taggId}`, { method: 'DELETE' }),
 
   hentBrukere: () => kall<BrukerDto[]>('/api/brukere'),
 

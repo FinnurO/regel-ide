@@ -56,8 +56,8 @@ Kobler en tekstflate i en rettskilde til en modell-entitet, lagret som `<term>` 
 | `kildeId`, `eId` | string | Hvilken bestemmelse |
 | `start`, `end` | int | Tegn-offset i normalisert tekst (posisjonsbasert — tillater overlappende tagger) |
 | `quoteSelector` | string | **Nytt.** Sitatet selv (før/etter-kontekst + eksakt tekst), etter W3C Web Annotation-mønster. Se `05-arkitektur-og-nfk.md` §3 for hvorfor ren offset ikke er robust nok ved konsoliderte lovendringer og korrektur |
-| `kind` | enum | `begrep` / `vilkar` / `regel` |
-| `ref` | ref | ID til begrep/vilkår/regel (ny eller eksisterende) |
+| `kind` | enum | `begrep` / `tjeneste` / `vilkar` / `regel`. **`tjeneste` lagt til 2026-07-24:** dekker tekstutdrag som beskriver selve tjenesten (typisk formåls-/virkeområdeparagrafer), til bruk for Tjenestedefinisjonen (`02-produktkrav.md` kap. 3.2) på samme måte som `begrep` brukes for Begrepsregisteret |
+| `ref` | ref | ID til begrep/tjeneste/vilkår/regel (ny eller eksisterende) |
 
 ### 1.3 Begrep (SKOS)
 | Felt | Type | Beskrivelse |

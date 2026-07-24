@@ -9,9 +9,10 @@
 | GET/POST | `/api/rettskilder` | List / opprett rettskilde (import fra Lovdata-søk eller filopplasting, AK-3.3.5) |
 | GET | `/api/rettskilder/{id}` | Les rettskilde inkl. AKN-tre |
 | PUT | `/api/rettskilder/{id}/metadata` | Oppdater metadata (tittel, ELI, kildetype, ikrafttredelse …) — avvises (409) hvis kilden er `publisert`/`gjeldende` og har referanser fra publiserte vilkår; oppretter ny versjon i så fall |
+| GET | `/api/rettskilder/{id}/tagger` | List **egne** tagger for denne rettskilden (2026-07-24, tillegg til kontrakten — ikke det samme som Koblinger-fanen, se under) |
 | POST | `/api/rettskilder/{id}/tagger` | Opprett tekst-tag (AK-3.3.1–3.3.2) |
 | DELETE | `/api/rettskilder/{id}/tagger/{tagId}` | Fjern egendefinert tag (AK-3.3.4) — kun tagger uten publiserte referanser kan fjernes |
-| GET | `/api/rettskilder/{id}/koblinger` | Begrep/vilkår denne bestemmelsen er koblet til |
+| GET | `/api/rettskilder/{id}/koblinger` | Begrep/vilkår denne bestemmelsen er koblet til — forutsetter at Begrep/Vilkår faktisk finnes (byggesteg 2/4). Inntil da returnerer `GET .../tagger` de rå taggene (alltid `ref: null` i byggesteg 1), som er det Tekst-fanen trenger for å tegne fargekodet merking |
 | GET | `/api/rettskilder/{id}/historikk` | Proveniens |
 
 ## 2. Begreper
