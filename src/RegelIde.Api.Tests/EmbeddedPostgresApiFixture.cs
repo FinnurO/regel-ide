@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.EntityFrameworkCore;
 using MysticMind.PostgresEmbed;
 using Npgsql;
+using RegelIde.Data;
 
 namespace RegelIde.Api.Tests;
 
@@ -16,6 +18,11 @@ public sealed class EmbeddedPostgresApiFixture : IAsyncLifetime
 {
     private PgServer? _server;
     public WebApplicationFactory<Program> Factory { get; private set; } = null!;
+    private string _connString = "";
+
+    /// <summary>Direkte DB-tilgang for testoppsett (seede data Program.cs' egen seeding ikke dekker, f.eks. Utkast-rader).</summary>
+    public RegelIdeDbContext NyDbContext() =>
+        new(new DbContextOptionsBuilder<RegelIdeDbContext>().UseNpgsql(_connString).Options);
 
     public async Task InitializeAsync()
     {
@@ -36,6 +43,7 @@ public sealed class EmbeddedPostgresApiFixture : IAsyncLifetime
         }
 
         var testConnString = $"Host=localhost;Port={_server.PgPort};Username=postgres;Password=postgres;Database=regelide_api_test";
+        _connString = testConnString;
 
         // Program.cs leser ConnectionStrings:RegelIdeDb via builder.Configuration rett etter
         // WebApplication.CreateBuilder(args) — FØR WebApplicationFactorys egne ConfigureAppConfiguration-

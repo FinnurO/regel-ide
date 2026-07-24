@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using RegelIde.Api;
+using RegelIde.Data;
 
 namespace RegelIde.Api.Tests;
 
@@ -20,8 +21,11 @@ public class RettskilderEndepunktTests : IClassFixture<EmbeddedPostgresApiFixtur
         Converters = { new JsonStringEnumConverter() },
     };
 
+    private readonly EmbeddedPostgresApiFixture _fixture;
+
     public RettskilderEndepunktTests(EmbeddedPostgresApiFixture fixture)
     {
+        _fixture = fixture;
         _client = fixture.Factory.CreateClient();
     }
 
@@ -103,5 +107,71 @@ public class RettskilderEndepunktTests : IClassFixture<EmbeddedPostgresApiFixtur
 
         Assert.NotNull(referanser);
         Assert.Contains(referanser!, r => r.FraNodeId == fraNodeId && r.TilEid == $"{AlkohollovenEli}/§1-5");
+    }
+
+    // ---------- Åpne data: statusfilter + valgfri virksomhet-parameter (2026-07-24) ----------
+
+    [Fact]
+    public async Task Utkast_rettskilde_er_skjult_fra_listen_og_gir_404_ved_direkte_oppslag()
+    {
+        Guid utkastId;
+        await using (var db = _fixture.NyDbContext())
+        {
+            utkastId = Guid.NewGuid();
+            db.Rettskilder.Add(new RettskildeEntitet
+            {
+                Id = utkastId,
+                Doctype = "internal",
+                Kildetype = "Virksomhetsdokument",
+                Tittel = "Ikke ferdig verifisert kilde",
+                Status = "Utkast",
+                AknXml = "<akomaNtoso/>",
+                OpprettetAv = "test",
+                OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            });
+            await db.SaveChangesAsync();
+        }
+
+        var sammendrag = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>("/api/rettskilder", JsonInnstillinger);
+        Assert.DoesNotContain(sammendrag!, r => r.Id == utkastId);
+
+        var svar = await _client.GetAsync($"/api/rettskilder/{utkastId}");
+        Assert.Equal(HttpStatusCode.NotFound, svar.StatusCode);
+    }
+
+    [Fact]
+    public async Task VirksomhetId_parameter_snevrer_inn_til_kun_den_virksomhetens_egne_kilder()
+    {
+        Guid virksomhetId, egenRettskildeId;
+        await using (var db = _fixture.NyDbContext())
+        {
+            virksomhetId = Guid.NewGuid();
+            db.Virksomheter.Add(new Virksomhet { Id = virksomhetId, Navn = "Vennesla kommune" });
+            egenRettskildeId = Guid.NewGuid();
+            db.Rettskilder.Add(new RettskildeEntitet
+            {
+                Id = egenRettskildeId,
+                VirksomhetId = virksomhetId,
+                Doctype = "act",
+                Kildetype = "Forskrift",
+                Tittel = "Lokal forskrift om skjenketider, Vennesla kommune",
+                Status = "Gjeldende",
+                AknXml = "<akomaNtoso/>",
+                OpprettetAv = "test",
+                OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            });
+            await db.SaveChangesAsync();
+        }
+
+        // Uten parameter: ser alt (delte kilder + virksomhetens egen) -- åpne data, ikke en tilgangssperre.
+        var alt = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>("/api/rettskilder", JsonInnstillinger);
+        Assert.Contains(alt!, r => r.Id == egenRettskildeId);
+        Assert.Contains(alt!, r => r.Eli == AlkohollovenEli);
+
+        // Med ?virksomhetId=...: kun DENNE virksomhetens egne kilder, ikke de delte/nasjonale.
+        var kunEgne = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>(
+            $"/api/rettskilder?virksomhetId={virksomhetId}", JsonInnstillinger);
+        Assert.Single(kunEgne!);
+        Assert.Equal(egenRettskildeId, kunEgne!.Single().Id);
     }
 }

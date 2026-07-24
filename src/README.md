@@ -178,16 +178,21 @@ Regel-IDE skal potensielt brukes av opptil ~1000 offentlige virksomheter — én
 driftsatt løsning, ikke én instans per virksomhet (for kostbart i den skalaen).
 `RegelIde.Data` har derfor en `virksomheter`-tabell og `virksomhet_id` på
 virksomhetseide entiteter (`Rettskilde` nullable — `NULL`=delt/nasjonal kilde;
-`TekstTagg` påkrevd; `Proveniens` nullable). Databaseskjemaet håndhever isolasjon
-(virksomhet-scopede unike indekser, bekreftet med tester mot ekte Postgres), men
-**API-laget filtrerer ikke på virksomhet ennå** — det finnes ingen autentisering i
-`RegelIde.Api`. Innloggingsløsning er besluttet (Ansattporten), men ikke
-implementert. Se `docs/00-endringslogg-v0.3.md` for fullstendig liste over hva som
-gjenstår.
+`TekstTagg` påkrevd; `Proveniens` nullable).
+
+**Lesetilgang er bevisst åpne data, ikke virksomhets-lukket** (presisert av Johann
+2026-07-24 — se `docs/00-endringslogg-v0.3.md`): `RegelIde.Api` krever ingen
+innlogging for lesing. Det reelle synlighetsfilteret er **status**
+(`RettskildeRepository`: `Status != "Utkast"`), ikke virksomhet — en valgfri
+`?virksomhetId=`-parameter på listeendepunktet snevrer inn til én virksomhets
+egne kilder, men er ikke en tilgangssperre (utelates den, vises alt: delte
+kilder + alle virksomheters publiserte lokale kilder). **Skriving** (finnes
+ikke som API ennå) vil derimot være virksomhets- og rollebundet fra dag én og
+trenger Ansattporten (besluttet, ikke implementert) den dagen den bygges.
 
 ## Bevisst utenfor scope nå
 
 Tre-navigasjon-UI, tekstmerking/tagging-UI (selve UI-et, ikke databasestøtten —
-`tekst_tagger`-tabellen finnes), Ansattporten-integrasjon (OIDC/tokenvalidering),
-API-lags tilgangskontroll på virksomhet, onboarding-flyt for nye virksomheter,
+`tekst_tagger`-tabellen finnes), skrive-API (opprette/endre noe som helst) og
+Ansattporten-integrasjonen (OIDC/tokenvalidering) den vil trenge, onboarding-flyt for nye virksomheter,
 Lovdata API-nøkkel-integrasjon (leser fortsatt fra lokale filer/bulk-datasett).

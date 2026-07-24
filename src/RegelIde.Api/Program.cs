@@ -51,10 +51,11 @@ using (var scope = app.Services.CreateScope())
 
 var rettskilder = app.MapGroup("/api/rettskilder").WithOpenApi();
 
-rettskilder.MapGet("/", async (RettskildeRepository repo) =>
-        (await repo.AlleRettskilderAsync()).Select(RettskildeSammendrag.FraEntitet))
+rettskilder.MapGet("/", async (Guid? virksomhetId, RettskildeRepository repo) =>
+        (await repo.AlleRettskilderAsync(virksomhetId)).Select(RettskildeSammendrag.FraEntitet))
     .WithName("HentAlleRettskilder")
-    .WithSummary("Lister alle importerte primære rettskilder (sammendrag).");
+    .WithSummary("Lister rettskilder (åpne data — kun Status != 'Utkast'). " +
+        "?virksomhetId snevrer inn til én virksomhets bidrag; utelatt viser alt (delt + alle virksomheter).");
 
 rettskilder.MapGet("/{id:guid}", async (Guid id, RettskildeRepository repo) =>
     {

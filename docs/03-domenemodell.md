@@ -27,7 +27,7 @@ Proveniens (endringslogg) er en separat, append-only tabell — se §3.11 under.
 - **Nullable, følger den underliggende hendelsen:** Proveniens (§1.14) — arver samme delt/virksomhetseid-status som entiteten hendelsen gjelder.
 - **Ikke egen kolonne (arves via forelder):** Rettskildenoder og -referanser arver virksomhetstilhørighet fra sin Rettskilde via foreign key, i stedet for å duplisere feltet på hver node.
 
-RBAC (§2) og alle spørringer i praksis skal derfor alltid filtrere på "brukerens virksomhet ELLER delt" for Rettskilde, og strengt på "brukerens virksomhet" for alt annet i denne lista.
+**Presisert 2026-07-24 (se `05-arkitektur-og-nfk.md` §2 og `00-endringslogg-v0.3.md`): dette er IKKE en tilgangssperre for lesing.** Rettskildebiblioteket er åpne data — enhver kan lese enhver virksomhets *publiserte* (ikke `Utkast`) Rettskilde, uansett virksomhet. `virksomhet_id` avgjør *eierskap/hvem som kan endre*, og er en valgfri *innsnevringsfilter* ved lesing (§ `Status`-filteret er det som faktisk avgjør synlighet), ikke en isolasjonsgrense mellom virksomheter på lesesiden. RBAC (§2) og skrivetilgang er derimot strengt virksomhetsbundet: en bruker kan kun opprette/endre entiteter i denne lista for sin egen virksomhet.
 
 ## 1. Entiteter og relasjoner
 
