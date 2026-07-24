@@ -5,6 +5,7 @@ namespace RegelIde.Data;
 public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> options) : DbContext(options)
 {
     public DbSet<Virksomhet> Virksomheter => Set<Virksomhet>();
+    public DbSet<Bruker> Brukere => Set<Bruker>();
     public DbSet<RettskildeEntitet> Rettskilder => Set<RettskildeEntitet>();
     public DbSet<RettskildeNodeEntitet> RettskildeNoder => Set<RettskildeNodeEntitet>();
     public DbSet<RettskildeReferanseEntitet> RettskildeReferanser => Set<RettskildeReferanseEntitet>();
@@ -22,6 +23,17 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").HasDefaultValueSql("now()");
             e.HasIndex(x => x.Organisasjonsnummer).IsUnique().HasDatabaseName("ux_virksomheter_organisasjonsnummer")
                 .HasFilter("organisasjonsnummer IS NOT NULL");
+        });
+
+        b.Entity<Bruker>(e =>
+        {
+            e.ToTable("brukere");
+            e.HasKey(x => x.Id).HasName("brukere_pkey");
+            e.Property(x => x.Navn).HasColumnName("navn");
+            e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
+            e.Property(x => x.Rolle).HasColumnName("rolle");
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_brukere_virksomhet");
         });
 
         b.Entity<RettskildeEntitet>(e =>

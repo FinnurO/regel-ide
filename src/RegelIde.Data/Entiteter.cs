@@ -14,6 +14,22 @@ public sealed class Virksomhet
     public DateTimeOffset OpprettetTidspunkt { get; set; }
 }
 
+/// <summary>
+/// Lagt til 2026-07-24 (samme runde som GUI-arbeidet) — en enkel testbruker-modell, IKKE ekte
+/// autentisering. Erstattes av Ansattporten-innlogging senere uten at denne tabellen forsvinner:
+/// en ekte innlogget bruker vil fortsatt trenge en rad her (navn, virksomhet, rolle), bare med
+/// identiteten hentet fra et Ansattporten-claim i stedet for en GUI-nedtrekksliste.
+/// </summary>
+public sealed class Bruker
+{
+    public Guid Id { get; set; }
+    public required string Navn { get; set; }
+    public Guid VirksomhetId { get; set; }
+
+    /// <summary>Se RBAC-matrisen i docs/03-domenemodell.md §2: 'Fagansvarlig' | 'Jurist' | 'Systemforvalter' | 'Saksbehandler'.</summary>
+    public required string Rolle { get; set; }
+}
+
 public sealed class RettskildeEntitet
 {
     public Guid Id { get; set; }

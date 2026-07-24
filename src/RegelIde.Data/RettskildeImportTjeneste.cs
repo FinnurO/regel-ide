@@ -19,8 +19,15 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
     /// alle virksomheter. Satt = denne virksomhetens egen lokale kilde (lokal forskrift,
     /// virksomhetsdokument), kun synlig for/eid av virksomheten. Se docs/00-endringslogg-v0.3.md.
     /// </param>
-    public async Task<Guid> ImporterAsync(KonverteringResultat resultat, Guid? virksomhetId = null, CancellationToken ct = default)
+    /// <param name="opprettetAv">
+    /// Navnet som attribueres i `opprettet_av`/proveniens. NULL (default) = systemets egen
+    /// oppstarts-seeding (se "system-import" under); API-endepunkter som importerer på vegne av en
+    /// faktisk (test)bruker skal alltid sende bruker.Navn her — se GjeldendeBrukerTjeneste i RegelIde.Api.
+    /// </param>
+    public async Task<Guid> ImporterAsync(
+        KonverteringResultat resultat, Guid? virksomhetId = null, string? opprettetAv = null, CancellationToken ct = default)
     {
+        var attribuertTil = opprettetAv ?? SystemBruker;
         var m = resultat.Metadata;
         var eksisterende = await db.Rettskilder
             .FirstOrDefaultAsync(r => r.Eli == m.Eli && r.VirksomhetId == virksomhetId && r.Entitetsstatus == "gjeldende", ct);
@@ -45,10 +52,10 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             eksisterende.KonsolidertDato = m.KonsolidertDato;
             eksisterende.Utgiver = m.Utgiver;
             eksisterende.Status = m.Status;
-            eksisterende.SistEndretAv = SystemBruker;
+            eksisterende.SistEndretAv = attribuertTil;
             eksisterende.SistEndretTidspunkt = DateTimeOffset.UtcNow;
             eksisterende.Versjon++; // basemetadata §0: "heltall, økende" -- appens ansvar å øke ved faktisk endring
-            db.Proveniens.Add(NyProveniensrad(rettskildeId, virksomhetId, "endret"));
+            db.Proveniens.Add(NyProveniensrad(rettskildeId, virksomhetId, "endret", attribuertTil));
         }
         else
         {
@@ -68,10 +75,10 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 KonsolidertDato = m.KonsolidertDato,
                 Utgiver = m.Utgiver,
                 Status = m.Status,
-                OpprettetAv = SystemBruker,
+                OpprettetAv = attribuertTil,
                 OpprettetTidspunkt = DateTimeOffset.UtcNow,
             });
-            db.Proveniens.Add(NyProveniensrad(rettskildeId, virksomhetId, "opprettet"));
+            db.Proveniens.Add(NyProveniensrad(rettskildeId, virksomhetId, "opprettet", attribuertTil));
         }
 
         var nodeIdVedEid = resultat.Noder.ToDictionary(n => n.Eid, _ => Guid.NewGuid());
@@ -154,17 +161,20 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             OpprettetAv = SystemBruker,
             OpprettetTidspunkt = DateTimeOffset.UtcNow,
         });
-        db.Proveniens.Add(NyProveniensrad(stubId, virksomhetId: null, "opprettet")); // stubber er alltid delt/nasjonalt
+        // Stubber (§3.1 steg 6) er en automatisk konsekvens av å parse en kryssreferanse, ikke noe
+        // den kallende brukeren bevisst forfattet — attribueres derfor alltid til systemet, uansett
+        // hvem som utløste importen som fant referansen.
+        db.Proveniens.Add(NyProveniensrad(stubId, virksomhetId: null, "opprettet", SystemBruker));
         return stubId;
     }
 
-    private static ProveniensEntitet NyProveniensrad(Guid rettskildeId, Guid? virksomhetId, string handling) => new()
+    private static ProveniensEntitet NyProveniensrad(Guid rettskildeId, Guid? virksomhetId, string handling, string endretAv) => new()
     {
         Id = Guid.NewGuid(),
         VirksomhetId = virksomhetId,
         EntitetType = "rettskilde",
         EntitetId = rettskildeId,
-        EndretAv = SystemBruker,
+        EndretAv = endretAv,
         Dato = DateTimeOffset.UtcNow,
         Handling = handling,
     };

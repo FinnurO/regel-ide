@@ -27,4 +27,11 @@
     <ProjectReference Include="..\RegelIde.Data\RegelIde.Data.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Include="..\..\data\kilder\raw-lovdata\*.html">
+      <Link>Testdata\%(Filename)%(Extension)</Link>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

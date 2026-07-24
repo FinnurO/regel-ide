@@ -7,21 +7,24 @@ namespace RegelIde.Api;
 /// skjemaet (§2 i teknisk design) har ingen egen "datokode"-kolonne, kun (nullable) ELI, så Guid-en
 /// er den naturlige, alltid-URL-sikre nøkkelen for enkeltoppslag.
 /// </summary>
-public sealed record RettskildeSammendrag(Guid Id, string? Eli, string Tittel, string? Kortnavn, string Kildetype)
+public sealed record RettskildeSammendrag(Guid Id, Guid? VirksomhetId, string? Eli, string Tittel, string? Kortnavn, string Kildetype)
 {
     public static RettskildeSammendrag FraEntitet(RettskildeEntitet r) =>
-        new(r.Id, r.Eli, r.Tittel, r.Kortnavn, r.Kildetype);
+        new(r.Id, r.VirksomhetId, r.Eli, r.Tittel, r.Kortnavn, r.Kildetype);
 }
 
 /// <summary>Full rettskilde: metadata + kanonisk AKN-XML (§1 i teknisk design).</summary>
 public sealed record RettskildeDetalj(
-    Guid Id, string Doctype, string Kildetype, string Tittel, string? Kortnavn, string? Eli,
+    Guid Id, Guid? VirksomhetId, string Doctype, string Kildetype, string Tittel, string? Kortnavn, string? Eli,
     DateOnly? Ikrafttredelse, DateOnly? KonsolidertDato, string? Utgiver, string Status, string? AknXml)
 {
     public static RettskildeDetalj FraEntitet(RettskildeEntitet r) => new(
-        r.Id, r.Doctype, r.Kildetype, r.Tittel, r.Kortnavn, r.Eli,
+        r.Id, r.VirksomhetId, r.Doctype, r.Kildetype, r.Tittel, r.Kortnavn, r.Eli,
         r.Ikrafttredelse, r.KonsolidertDato, r.Utgiver, r.Status, r.AknXml);
 }
+
+/// <summary>Forespørsel for POST /api/rettskilder/lovdata.</summary>
+public sealed record LovdataImportRequest(string Datokode);
 
 /// <summary>Én node i rettskildens tre (kapittel/underinndeling/paragraf/ledd/punkt), for tre-navigasjon.</summary>
 public sealed record RettskildeNodeDto(

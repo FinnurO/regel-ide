@@ -11,7 +11,8 @@ namespace RegelIde.Api.Tests;
 /// Integrasjonstester: kjører hele API-et (inkl. migrasjon + førstegangs-seeding i Program.cs) mot
 /// en ekte, embedded Postgres-instans og de ekte rettskilde-fixturene i data/kilder/raw-lovdata/.
 /// </summary>
-public class RettskilderEndepunktTests : IClassFixture<EmbeddedPostgresApiFixture>
+[Collection(ApiTestCollection.Navn)]
+public class RettskilderEndepunktTests
 {
     private readonly HttpClient _client;
     private const string AlkohollovenEli = "https://lovdata.no/eli/lov/1989/06/02/27/nor";
@@ -41,7 +42,10 @@ public class RettskilderEndepunktTests : IClassFixture<EmbeddedPostgresApiFixtur
         var sammendrag = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>("/api/rettskilder", JsonInnstillinger);
 
         Assert.NotNull(sammendrag);
-        Assert.Equal(3, sammendrag!.Count);
+        // >= 3, ikke akkurat 3: denne testklassen deler databasen med ImportEndepunktTests
+        // (samme Postgres-instans for hele assemblyen, se ApiTestCollection), som kan legge til
+        // flere rettskilder (bl.a. en virksomhetseid kopi av forvaltningsloven).
+        Assert.True(sammendrag!.Count >= 3);
         Assert.Contains(sammendrag, r => r.Eli == AlkohollovenEli);
         Assert.Contains(sammendrag, r => r.Eli == "https://lovdata.no/eli/forskrift/2005/06/08/538/nor");
         Assert.Contains(sammendrag, r => r.Eli == "https://lovdata.no/eli/lov/1967/02/10/nor");

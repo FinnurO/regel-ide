@@ -26,11 +26,14 @@ public sealed class EmbeddedPostgresApiFixture : IAsyncLifetime
 
     public async Task InitializeAsync()
     {
-        // Eksplisitt instanceId OG fast port: unngår kollisjon med andre embedded Postgres-instanser
-        // (f.eks. RegelIde.Data.Tests, som bruker port 55432) når `dotnet test` kjøres for hele
-        // løsningen og flere testprosjekter starter embedded Postgres samtidig — PgServers
-        // auto-portvalg (port: 0) viste seg upålitelig under akkurat denne samtidigheten.
-        _server = new PgServer("15.4.0", instanceId: Guid.NewGuid(), port: 55433, clearInstanceDirOnStop: true);
+        // Eksplisitt instanceId, men AUTO-portvalg (port: 0): to testklasser i denne assemblyen
+        // (RettskilderEndepunktTests, ImportEndepunktTests) har hver sin instans av denne fixturen
+        // og startet tidligere embedded Postgres på samme FASTE port — trygt sekvensielt (se
+        // AssemblyInfo.cs: DisableTestParallelization), men en fast port delt mellom dem kolliderte
+        // uansett pga. SharpCompress/Windows sin porttildeling-timing. Auto-portvalg unngår dette,
+        // og er trygt mot RegelIde.Data.Tests (egen prosess, fast port 55432) siden OS-en uansett
+        // ikke gir ut en port som allerede er bundet av en annen prosess.
+        _server = new PgServer("15.4.0", instanceId: Guid.NewGuid(), clearInstanceDirOnStop: true);
         await Task.Run(() => _server.Start());
 
         var masterConnString = $"Host=localhost;Port={_server.PgPort};Username=postgres;Password=postgres;Database=postgres";
