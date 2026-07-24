@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button, Heading, Paragraph, Textfield } from '@digdir/designsystemet-react';
+import { Button, Checkbox, Heading, Paragraph, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { useBruker } from '../bruker/BrukerContext';
 
@@ -90,22 +90,19 @@ export default function Importer() {
           <strong> ikke</strong> støttet ennå — se src/README.md.
         </Paragraph>
         <form onSubmit={importerFraFil}>
-          <input
+          <Textfield
             type="file"
+            label="Velg fil"
             accept=".html,text/html"
             onChange={(e) => setFil(e.target.files?.[0] ?? null)}
             required
           />
-          <div style={{ margin: '0.75rem 0' }}>
-            <label>
-              <input
-                type="checkbox"
-                checked={erVirksomhetensEgen}
-                onChange={(e) => setErVirksomhetensEgen(e.target.checked)}
-              />{' '}
-              Dette er {gjeldendeBruker?.virksomhetNavn ?? 'min virksomhet'} sin egen lokale kilde (ikke en delt/nasjonal kilde)
-            </label>
-          </div>
+          <Checkbox
+            label={`Dette er ${gjeldendeBruker?.virksomhetNavn ?? 'min virksomhet'} sin egen lokale kilde (ikke en delt/nasjonal kilde)`}
+            checked={erVirksomhetensEgen}
+            onChange={(e) => setErVirksomhetensEgen(e.target.checked)}
+            style={{ margin: '0.75rem 0' }}
+          />
           <Button type="submit" disabled={filLaster || !fil}>
             {filLaster ? 'Importerer …' : 'Last opp og importer'}
           </Button>

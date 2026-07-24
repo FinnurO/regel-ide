@@ -17,41 +17,49 @@ body {
 .sidebar {
   width: 260px;
   flex-shrink: 0;
-  background: var(--ds-color-accent-surface-default);
-  color: var(--ds-color-accent-base-contrast-default, #fff);
+  background: var(--ds-color-neutral-background-default);
+  color: var(--ds-color-neutral-text-default);
+  border-right: 1px solid var(--ds-color-neutral-border-subtle);
   display: flex;
   flex-direction: column;
-  padding: var(--ds-spacing-4, 1rem);
+  padding: var(--ds-size-4);
 }
 
 .sidebar h1 {
   font-size: var(--ds-font-size-4);
-  margin: 0 0 var(--ds-spacing-6, 1.5rem) 0;
+  margin: 0 0 var(--ds-size-6) 0;
 }
 
 .sidebar nav {
   display: flex;
   flex-direction: column;
-  gap: var(--ds-spacing-1, 0.25rem);
+  gap: var(--ds-size-1);
   flex-grow: 1;
 }
 
 .sidebar nav a {
-  color: inherit;
+  color: var(--ds-color-neutral-text-default);
   text-decoration: none;
-  padding: var(--ds-spacing-2, 0.5rem) var(--ds-spacing-3, 0.75rem);
-  border-radius: var(--ds-border-radius-md, 4px);
+  padding: var(--ds-size-2) var(--ds-size-3);
+  border-radius: var(--ds-border-radius-sm);
+  border-left: 3px solid transparent;
 }
 
-.sidebar nav a:hover,
+.sidebar nav a:hover {
+  background: var(--ds-color-neutral-surface-hover);
+}
+
 .sidebar nav a.aktiv {
-  background: var(--ds-color-accent-surface-hover);
+  background: var(--ds-color-accent-surface-tinted);
+  color: var(--ds-color-accent-text-default);
+  border-left-color: var(--ds-color-accent-base-default);
+  font-weight: 600;
 }
 
 .bruker-velger {
-  border-top: 1px solid var(--ds-color-accent-border-subtle);
-  padding-top: var(--ds-spacing-3, 0.75rem);
-  margin-top: var(--ds-spacing-3, 0.75rem);
+  border-top: 1px solid var(--ds-color-neutral-border-subtle);
+  padding-top: var(--ds-size-3);
+  margin-top: var(--ds-size-3);
 }
 
 .bruker-velger select {
@@ -60,7 +68,7 @@ body {
 
 .innhold {
   flex-grow: 1;
-  padding: var(--ds-spacing-6, 1.5rem);
+  padding: var(--ds-size-6);
   max-width: 1100px;
 }
 
@@ -72,7 +80,7 @@ body {
 .rettskilde-tabell th,
 .rettskilde-tabell td {
   text-align: left;
-  padding: var(--ds-spacing-2, 0.5rem) var(--ds-spacing-3, 0.75rem);
+  padding: var(--ds-size-2) var(--ds-size-3);
   border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
 }
 
@@ -123,7 +131,7 @@ body {
 .feilmelding {
   background: var(--ds-color-danger-surface-default);
   color: var(--ds-color-danger-text-default);
-  padding: var(--ds-spacing-3, 0.75rem);
-  border-radius: var(--ds-border-radius-md, 4px);
-  margin-bottom: var(--ds-spacing-4, 1rem);
+  padding: var(--ds-size-3);
+  border-radius: var(--ds-border-radius-md);
+  margin-bottom: var(--ds-size-4);
 }

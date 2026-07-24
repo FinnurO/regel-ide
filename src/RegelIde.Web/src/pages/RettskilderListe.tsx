@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
-import { Heading, Paragraph } from '@digdir/designsystemet-react';
+import { Link as RouterLink } from 'react-router-dom';
+import { Checkbox, Heading, Link, Paragraph, Table } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { RettskildeSammendrag } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
@@ -32,10 +32,12 @@ export default function RettskilderListe() {
       </Paragraph>
 
       {gjeldendeBruker && (
-        <label style={{ display: 'block', marginBottom: '1rem' }}>
-          <input type="checkbox" checked={kunMine} onChange={(e) => setKunMine(e.target.checked)} />{' '}
-          Vis kun {gjeldendeBruker.virksomhetNavn} sine egne kilder
-        </label>
+        <Checkbox
+          label={`Vis kun ${gjeldendeBruker.virksomhetNavn} sine egne kilder`}
+          checked={kunMine}
+          onChange={(e) => setKunMine(e.target.checked)}
+          style={{ marginBottom: '1rem' }}
+        />
       )}
 
       {feil && <div className="feilmelding">{feil}</div>}
@@ -45,34 +47,36 @@ export default function RettskilderListe() {
       {rettskilder && rettskilder.length === 0 && <Paragraph>Ingen rettskilder funnet.</Paragraph>}
 
       {rettskilder && rettskilder.length > 0 && (
-        <table className="rettskilde-tabell">
-          <thead>
-            <tr>
-              <th>Tittel</th>
-              <th>Kildetype</th>
-              <th>ELI</th>
-              <th>Eierskap</th>
-            </tr>
-          </thead>
-          <tbody>
+        <Table className="rettskilde-tabell" border>
+          <Table.Head>
+            <Table.Row>
+              <Table.HeaderCell>Tittel</Table.HeaderCell>
+              <Table.HeaderCell>Kildetype</Table.HeaderCell>
+              <Table.HeaderCell>ELI</Table.HeaderCell>
+              <Table.HeaderCell>Eierskap</Table.HeaderCell>
+            </Table.Row>
+          </Table.Head>
+          <Table.Body>
             {rettskilder.map((r) => (
-              <tr key={r.id}>
-                <td>
-                  <Link to={`/rettskilder/${r.id}`}>{r.kortnavn ?? r.tittel}</Link>
-                </td>
-                <td>{r.kildetype}</td>
-                <td style={{ fontSize: 'var(--ds-font-size-1)' }}>{r.eli ?? '—'}</td>
-                <td>
+              <Table.Row key={r.id}>
+                <Table.Cell>
+                  <Link asChild>
+                    <RouterLink to={`/rettskilder/${r.id}`}>{r.kortnavn ?? r.tittel}</RouterLink>
+                  </Link>
+                </Table.Cell>
+                <Table.Cell>{r.kildetype}</Table.Cell>
+                <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{r.eli ?? '—'}</Table.Cell>
+                <Table.Cell>
                   {r.virksomhetId ? (
                     <span className="badge-virksomhet">Virksomhetseid</span>
                   ) : (
                     <span className="badge-delt">Delt / nasjonal</span>
                   )}
-                </td>
-              </tr>
+                </Table.Cell>
+              </Table.Row>
             ))}
-          </tbody>
-        </table>
+          </Table.Body>
+        </Table>
       )}
     </>
   );

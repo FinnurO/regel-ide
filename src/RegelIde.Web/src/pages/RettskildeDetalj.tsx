@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { Heading, Paragraph, Tag } from '@digdir/designsystemet-react';
+import { Link as RouterLink, useParams } from 'react-router-dom';
+import { Heading, Link, Paragraph, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { RettskildeDetalj as RettskildeDetaljType, RettskildeNodeDto } from '../api/types';
 
@@ -66,7 +66,9 @@ export default function RettskildeDetalj() {
 
   return (
     <>
-      <Link to="/">← Tilbake til listen</Link>
+      <Link asChild>
+        <RouterLink to="/">← Tilbake til listen</RouterLink>
+      </Link>
       <Heading level={1} data-size="lg" style={{ marginTop: '0.5rem' }}>
         {detalj.tittel}
       </Heading>
@@ -81,26 +83,26 @@ export default function RettskildeDetalj() {
         )}
       </div>
 
-      <table style={{ marginBottom: '1.5rem' }}>
-        <tbody>
-          <tr>
-            <td style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>ELI</td>
-            <td>{detalj.eli ?? '—'}</td>
-          </tr>
-          <tr>
-            <td style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Kortnavn</td>
-            <td>{detalj.kortnavn ?? '—'}</td>
-          </tr>
-          <tr>
-            <td style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Konsolidert dato</td>
-            <td>{detalj.konsolidertDato ?? '—'}</td>
-          </tr>
-          <tr>
-            <td style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Utgiver</td>
-            <td>{detalj.utgiver ?? '—'}</td>
-          </tr>
-        </tbody>
-      </table>
+      <Table style={{ marginBottom: '1.5rem' }}>
+        <Table.Body>
+          <Table.Row>
+            <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>ELI</Table.Cell>
+            <Table.Cell>{detalj.eli ?? '—'}</Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Kortnavn</Table.Cell>
+            <Table.Cell>{detalj.kortnavn ?? '—'}</Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Konsolidert dato</Table.Cell>
+            <Table.Cell>{detalj.konsolidertDato ?? '—'}</Table.Cell>
+          </Table.Row>
+          <Table.Row>
+            <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Utgiver</Table.Cell>
+            <Table.Cell>{detalj.utgiver ?? '—'}</Table.Cell>
+          </Table.Row>
+        </Table.Body>
+      </Table>
 
       <Heading level={2} data-size="sm">
         Innhold (tre-navigasjon)

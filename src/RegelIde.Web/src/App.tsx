@@ -1,4 +1,5 @@
 import { NavLink, Route, Routes } from 'react-router-dom';
+import { Field, Label, Select } from '@digdir/designsystemet-react';
 import { useBruker } from './bruker/BrukerContext';
 import RettskilderListe from './pages/RettskilderListe';
 import RettskildeDetalj from './pages/RettskildeDetalj';
@@ -11,20 +12,19 @@ function BrukerVelger() {
 
   return (
     <div className="bruker-velger">
-      <label htmlFor="bruker-select" style={{ display: 'block', fontSize: 'var(--ds-font-size-1)', marginBottom: '0.25rem' }}>
-        Innlogget som (testbruker)
-      </label>
-      <select
-        id="bruker-select"
-        value={gjeldendeBruker?.id ?? ''}
-        onChange={(e) => velgBruker(e.target.value || null)}
-      >
-        {brukere.map((b) => (
-          <option key={b.id} value={b.id}>
-            {b.navn} ({b.rolle}) — {b.virksomhetNavn}
-          </option>
-        ))}
-      </select>
+      <Field>
+        <Label data-size="sm">Innlogget som (testbruker)</Label>
+        <Select
+          value={gjeldendeBruker?.id ?? ''}
+          onChange={(e) => velgBruker(e.target.value || null)}
+        >
+          {brukere.map((b) => (
+            <Select.Option key={b.id} value={b.id}>
+              {b.navn} ({b.rolle}) — {b.virksomhetNavn}
+            </Select.Option>
+          ))}
+        </Select>
+      </Field>
     </div>
   );
 }
