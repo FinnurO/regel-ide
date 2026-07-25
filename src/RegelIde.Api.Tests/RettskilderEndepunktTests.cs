@@ -80,6 +80,20 @@ public class RettskilderEndepunktTests
     }
 
     [Fact]
+    public async Task Nodetre_eksponerer_opphevet_flagg_og_dato_for_1_12()
+    {
+        var id = await HentAlkohollovenIdAsync();
+        var noder = await _client.GetFromJsonAsync<List<RettskildeNodeDto>>($"/api/rettskilder/{id}/noder", JsonInnstillinger);
+
+        var opphevetParagraf = noder!.Single(n => n.Eid == $"{AlkohollovenEli}/§1-12");
+        Assert.True(opphevetParagraf.Opphevet);
+        Assert.Equal(new DateOnly(2005, 7, 1), opphevetParagraf.OpphevetDato);
+
+        var vanligParagraf = noder!.Single(n => n.Eid == $"{AlkohollovenEli}/§1-1");
+        Assert.False(vanligParagraf.Opphevet);
+    }
+
+    [Fact]
     public async Task Henter_enkeltnode_ved_eId_med_skraastreker_og_skjema()
     {
         var id = await HentAlkohollovenIdAsync();

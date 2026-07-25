@@ -28,6 +28,15 @@ public sealed class EmbeddedPostgresFixture : IAsyncLifetime
 
         await using var db = new RegelIdeDbContext(NyOptions(ConnectionString));
         await db.Database.MigrateAsync();
+
+        // Speiler seeding-blokken i RegelIde.Api/Program.cs -- TekstTaggTjeneste validerer kind mot
+        // denne tabellen nå (2026-07-25), ikke en hardkodet liste, så testene trenger radene her.
+        db.TaggKindKonfigurasjoner.AddRange(
+            new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "begrep", Navn = "Begrep", Farge = "accent", Sorteringsrekkefolge = 0 },
+            new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "tjeneste", Navn = "Tjeneste", Farge = "info", Sorteringsrekkefolge = 1 },
+            new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "vilkar", Navn = "Vilkår", Farge = "warning", Sorteringsrekkefolge = 2 },
+            new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "regel", Navn = "Regel", Farge = "success", Sorteringsrekkefolge = 3 });
+        await db.SaveChangesAsync();
     }
 
     public RegelIdeDbContext NyDbContext() => new(NyOptions(ConnectionString));

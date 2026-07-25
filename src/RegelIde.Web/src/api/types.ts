@@ -32,6 +32,9 @@ export interface RettskildeNodeDto {
   nummer: string | null;
   overskrift: string | null;
   tekst: string | null;
+  /** Flyttet gjennom fra Lovdatas data-repealeddate (2026-07-24) — se docs/08-byggesteg1-teknisk-design.md §2. */
+  opphevet: boolean;
+  opphevetDato: string | null;
 }
 
 export interface RettskildeReferanseDto {
@@ -54,7 +57,8 @@ export interface VirksomhetDto {
   organisasjonsnummer: string | null;
 }
 
-export type TaggKind = 'begrep' | 'tjeneste' | 'vilkar' | 'regel';
+/** Ikke lenger en fast literal-union — kind-settet er konfigurasjonsstyrt (se TaggKindKonfigurasjonDto), ikke hardkodet. */
+export type TaggKind = string;
 
 /// Tekst-tag (§1.2 i domenemodellen, AK-3.3.1–3.3.4). `refId` er alltid null i byggesteg 1.
 export interface TekstTaggDto {
@@ -79,6 +83,13 @@ export interface OpprettTekstTaggRequest {
   quoteExact: string;
   quoteSuffix: string;
   kind: TaggKind;
+}
+
+/** Konfigurerbare tag-kinds (2026-07-25, erstatter en tidligere hardkodet liste). */
+export interface TaggKindKonfigurasjonDto {
+  kode: string;
+  navn: string;
+  farge: string;
 }
 
 export interface ApiFeil {

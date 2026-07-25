@@ -4,15 +4,7 @@ import { Heading, Link, Paragraph, Table, Tag, ToggleGroup } from '@digdir/desig
 import { ApiError, api } from '../api/client';
 import type { RettskildeDetalj as RettskildeDetaljType, RettskildeNodeDto, TekstTaggDto } from '../api/types';
 import { TagTekst, type TagKind, type TextTag } from '../tagging/TagTekst';
-
-// Designsystemet har ingen lilla-familie (docs/09-design-konvensjoner.md) — begrep/tjeneste deler
-// derfor blåtoner (accent/info) fremfor en oppdiktet farge.
-const KINDS: TagKind[] = [
-  { id: 'begrep', label: 'Begrep', color: 'accent' },
-  { id: 'tjeneste', label: 'Tjeneste', color: 'info' },
-  { id: 'vilkar', label: 'Vilkår', color: 'warning' },
-  { id: 'regel', label: 'Regel', color: 'success' },
-];
+import { useKonfigurasjon } from '../konfigurasjon/KonfigurasjonContext';
 
 interface TreNode extends RettskildeNodeDto {
   barn: TreNode[];
@@ -33,6 +25,7 @@ function byggTre(noder: RettskildeNodeDto[]): TreNode[] {
 
 interface TreVisningProps {
   noder: TreNode[];
+  kinds: TagKind[];
   taggerPerNode: Map<string, TextTag[]>;
   activeKind: string;
   onActiveKindChange: (id: string) => void;
@@ -40,7 +33,7 @@ interface TreVisningProps {
   onRemoveTag: (id: string) => void;
 }
 
-function TreVisning({ noder, taggerPerNode, activeKind, onActiveKindChange, onTag, onRemoveTag }: TreVisningProps) {
+function TreVisning({ noder, kinds, taggerPerNode, activeKind, onActiveKindChange, onTag, onRemoveTag }: TreVisningProps) {
   return (
     <ul className="tre">
       {noder.map((n) => (
@@ -53,7 +46,7 @@ function TreVisning({ noder, taggerPerNode, activeKind, onActiveKindChange, onTa
                 <TagTekst
                   text={n.tekst}
                   tags={taggerPerNode.get(n.eid) ?? []}
-                  kinds={KINDS}
+                  kinds={kinds}
                   activeKind={activeKind}
                   onActiveKindChange={onActiveKindChange}
                   showLayerSwitch={false}
@@ -68,6 +61,7 @@ function TreVisning({ noder, taggerPerNode, activeKind, onActiveKindChange, onTa
           {n.barn.length > 0 && (
             <TreVisning
               noder={n.barn}
+              kinds={kinds}
               taggerPerNode={taggerPerNode}
               activeKind={activeKind}
               onActiveKindChange={onActiveKindChange}
@@ -83,13 +77,18 @@ function TreVisning({ noder, taggerPerNode, activeKind, onActiveKindChange, onTa
 
 export default function RettskildeDetalj() {
   const { id } = useParams<{ id: string }>();
+  const { taggKinds } = useKonfigurasjon();
   const [detalj, setDetalj] = useState<RettskildeDetaljType | null>(null);
   const [tre, setTre] = useState<TreNode[] | null>(null);
   const [tagger, setTagger] = useState<TekstTaggDto[]>([]);
-  const [activeKind, setActiveKind] = useState<string>(KINDS[0].id);
+  const [activeKind, setActiveKind] = useState<string>('');
   const [visAknXml, setVisAknXml] = useState(false);
   const [feil, setFeil] = useState<string | null>(null);
   const [taggFeil, setTaggFeil] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!activeKind && taggKinds.length > 0) setActiveKind(taggKinds[0].id);
+  }, [taggKinds, activeKind]);
 
   useEffect(() => {
     if (!id) return;
@@ -206,7 +205,7 @@ export default function RettskildeDetalj() {
         data-toggle-group="Vis tagger"
         style={{ marginBottom: '0.75rem' }}
       >
-        {KINDS.map((k) => (
+        {taggKinds.map((k) => (
           <ToggleGroup.Item key={k.id} value={k.id}>
             {k.label}
           </ToggleGroup.Item>
@@ -216,6 +215,7 @@ export default function RettskildeDetalj() {
       {tre && tre.length > 0 ? (
         <TreVisning
           noder={tre}
+          kinds={taggKinds}
           taggerPerNode={taggerPerNode}
           activeKind={activeKind}
           onActiveKindChange={setActiveKind}
@@ -234,8 +234,8 @@ export default function RettskildeDetalj() {
           <ul className="egne-tagger-liste">
             {tagger.map((t) => (
               <li key={t.id}>
-                <Tag data-color={KINDS.find((k) => k.id === t.kind)?.color} data-size="sm">
-                  {KINDS.find((k) => k.id === t.kind)?.label ?? t.kind}
+                <Tag data-color={taggKinds.find((k) => k.id === t.kind)?.color} data-size="sm">
+                  {taggKinds.find((k) => k.id === t.kind)?.label ?? t.kind}
                 </Tag>
                 <span className="sitat">«{t.quoteExact}»</span>
                 <button type="button" onClick={() => handleSlett(t.id)}>

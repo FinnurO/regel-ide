@@ -28,10 +28,11 @@ public sealed record LovdataImportRequest(string Datokode);
 
 /// <summary>Én node i rettskildens tre (kapittel/underinndeling/paragraf/ledd/punkt), for tre-navigasjon.</summary>
 public sealed record RettskildeNodeDto(
-    Guid Id, string Eid, Guid? ParentNodeId, string NodeType, string? Nummer, string? Overskrift, string? Tekst)
+    Guid Id, string Eid, Guid? ParentNodeId, string NodeType, string? Nummer, string? Overskrift, string? Tekst,
+    bool Opphevet, DateOnly? OpphevetDato)
 {
     public static RettskildeNodeDto FraEntitet(RettskildeNodeEntitet n) =>
-        new(n.Id, n.Eid, n.ParentNodeId, n.NodeType, n.Nummer, n.Overskrift, n.Tekst);
+        new(n.Id, n.Eid, n.ParentNodeId, n.NodeType, n.Nummer, n.Overskrift, n.Tekst, n.Opphevet, n.OpphevetDato);
 }
 
 /// <summary>Kryssreferanse funnet i løpeteksten (intern eller ekstern, §3.1 steg 6).</summary>
@@ -54,3 +55,9 @@ public sealed record TekstTaggDto(
 /// <summary>Forespørsel for POST /api/rettskilder/{id}/tagger.</summary>
 public sealed record OpprettTekstTaggRequest(
     string NodeEid, int StartOffset, int EndOffset, string QuotePrefix, string QuoteExact, string QuoteSuffix, string Kind);
+
+/// <summary>Konfigurerbare tag-kinds (2026-07-25, erstatter en tidligere hardkodet liste).</summary>
+public sealed record TaggKindKonfigurasjonDto(string Kode, string Navn, string Farge)
+{
+    public static TaggKindKonfigurasjonDto FraEntitet(TaggKindKonfigurasjonEntitet k) => new(k.Kode, k.Navn, k.Farge);
+}

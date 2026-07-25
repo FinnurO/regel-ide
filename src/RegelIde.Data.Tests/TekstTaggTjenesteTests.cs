@@ -87,6 +87,25 @@ public class TekstTaggTjenesteTests
     }
 
     [Fact]
+    public async Task Inaktiv_kind_avvises_som_ugyldig()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        db.TaggKindKonfigurasjoner.Add(new TaggKindKonfigurasjonEntitet
+        {
+            Id = Guid.NewGuid(), Kode = "utgatt-kind", Navn = "Utgått", Farge = "neutral", Sorteringsrekkefolge = 99, Aktiv = false,
+        });
+        await db.SaveChangesAsync();
+
+        var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
+        var tjeneste = new TekstTaggTjeneste(db);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(
+            rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "utgatt-kind"));
+    }
+
+    [Fact]
     public async Task Utdatert_quoteExact_som_ikke_matcher_faktisk_tekst_kastes()
     {
         await using var db = _fixture.NyDbContext();

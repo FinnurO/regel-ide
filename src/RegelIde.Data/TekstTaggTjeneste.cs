@@ -10,8 +10,6 @@ namespace RegelIde.Data;
 /// </summary>
 public sealed class TekstTaggTjeneste(RegelIdeDbContext db)
 {
-    private static readonly string[] GyldigeKinds = ["begrep", "tjeneste", "vilkar", "regel"];
-
     public Task<List<TekstTaggEntitet>> ListerForAsync(Guid rettskildeId, Guid virksomhetId, CancellationToken ct = default) =>
         db.TekstTagger
             .Where(t => t.RettskildeId == rettskildeId && t.VirksomhetId == virksomhetId && t.Entitetsstatus == "gjeldende")
@@ -20,24 +18,30 @@ public sealed class TekstTaggTjeneste(RegelIdeDbContext db)
 
     /// <summary>
     /// Oppretter en ny tagg. Returnerer null hvis <paramref name="nodeEid"/> ikke finnes på rettskilden
-    /// (kalleren mapper det til 404). Kaster <see cref="ArgumentException"/> ved ugyldig kind, offset
-    /// utenfor teksten, eller hvis <paramref name="quoteExact"/> ikke matcher nodens faktiske tekst i
-    /// det oppgitte intervallet — det siste fanger opp en stale klientmarkering fremfor å lagre en
-    /// tagg som ikke faktisk peker på det den sier den gjør (§3.3 "ingen gjettet fallback").
+    /// (kalleren mapper det til 404). Kaster <see cref="ArgumentException"/> ved ugyldig/inaktiv kind
+    /// (2026-07-25: kind-listen er nå konfigurasjonsstyrt via <see cref="TaggKindKonfigurasjonEntitet"/>,
+    /// ikke hardkodet), offset utenfor teksten, hvis <paramref name="quoteExact"/> ikke matcher nodens
+    /// faktiske tekst i det oppgitte intervallet (fanger opp en stale klientmarkering fremfor å lagre en
+    /// tagg som ikke faktisk peker på det den sier den gjør — §3.3 "ingen gjettet fallback"), eller hvis
+    /// noden er opphevet (2026-07-24: ikke et poeng å tagge tekst som ikke lenger gjelder).
     /// </summary>
     public async Task<TekstTaggEntitet?> OpprettAsync(
         Guid rettskildeId, Guid virksomhetId, string opprettetAv, string nodeEid,
         int startOffset, int endOffset, string quotePrefix, string quoteExact, string quoteSuffix, string kind,
         CancellationToken ct = default)
     {
-        if (!GyldigeKinds.Contains(kind))
+        if (!await db.TaggKindKonfigurasjoner.AnyAsync(k => k.Kode == kind && k.Aktiv, ct))
         {
-            throw new ArgumentException(
-                $"Ukjent tag-type '{kind}'. Gyldige verdier: {string.Join(", ", GyldigeKinds)}. Ingen gjettet fallback.");
+            throw new ArgumentException($"Ukjent eller inaktiv tag-type '{kind}'. Ingen gjettet fallback.");
         }
 
         var node = await db.RettskildeNoder.FirstOrDefaultAsync(n => n.RettskildeId == rettskildeId && n.Eid == nodeEid, ct);
         if (node is null) return null;
+
+        if (node.Opphevet)
+        {
+            throw new ArgumentException($"Node '{nodeEid}' er opphevet og kan ikke tagges.");
+        }
 
         var tekst = node.Tekst ?? "";
         if (startOffset < 0 || endOffset <= startOffset || endOffset > tekst.Length)

@@ -70,6 +70,18 @@ using (var scope = app.Services.CreateScope())
             new Bruker { Id = Guid.NewGuid(), Navn = "Anne Systemforvalter", VirksomhetId = testkommunen.Id, Rolle = "Systemforvalter" });
         await db.SaveChangesAsync();
     }
+
+    // Tag-kind-konfigurasjon (2026-07-25) — global, ikke virksomhets-scopet. Erstatter en tidligere
+    // hardkodet liste; se TaggKindKonfigurasjonEntitet-kommentaren i RegelIde.Data/Entiteter.cs.
+    if (!await db.TaggKindKonfigurasjoner.AnyAsync())
+    {
+        db.TaggKindKonfigurasjoner.AddRange(
+            new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "begrep", Navn = "Begrep", Farge = "accent", Sorteringsrekkefolge = 0 },
+            new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "tjeneste", Navn = "Tjeneste", Farge = "info", Sorteringsrekkefolge = 1 },
+            new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "vilkar", Navn = "Vilkår", Farge = "warning", Sorteringsrekkefolge = 2 },
+            new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "regel", Navn = "Regel", Farge = "success", Sorteringsrekkefolge = 3 });
+        await db.SaveChangesAsync();
+    }
 }
 
 app.MapGet("/api/brukere", async (RegelIdeDbContext db) =>
@@ -88,6 +100,13 @@ app.MapGet("/api/virksomheter", async (RegelIdeDbContext db) =>
     .WithOpenApi()
     .WithName("HentVirksomheter")
     .WithSummary("Lister virksomheter.");
+
+app.MapGet("/api/konfigurasjon/tagg-kinds", async (RegelIdeDbContext db) =>
+        (await db.TaggKindKonfigurasjoner.Where(k => k.Aktiv).OrderBy(k => k.Sorteringsrekkefolge).ToListAsync())
+            .Select(TaggKindKonfigurasjonDto.FraEntitet))
+    .WithOpenApi()
+    .WithName("HentTaggKindKonfigurasjon")
+    .WithSummary("Lister aktive tag-kinds (2026-07-25, erstatter en tidligere hardkodet liste i frontend/backend).");
 
 var rettskilder = app.MapGroup("/api/rettskilder").WithOpenApi();
 

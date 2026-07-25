@@ -42,6 +42,26 @@ public class RettskildeImportTjenesteTests
     }
 
     [Fact]
+    public async Task Opphevet_flagg_og_dato_flyttes_gjennom_til_lagret_node()
+    {
+        await using var db = _fixture.NyDbContext();
+        var tjeneste = new RettskildeImportTjeneste(db);
+        var resultat = LovdataKonverterer.Konverter(Testdata.LesAlkoholloven(), new DateOnly(2026, 7, 24));
+        var rettskildeId = await tjeneste.ImporterAsync(resultat);
+
+        var eli = resultat.Metadata.Eli;
+        var opphevetParagraf = await db.RettskildeNoder.SingleAsync(
+            n => n.RettskildeId == rettskildeId && n.Eid == $"{eli}/§1-12");
+        Assert.True(opphevetParagraf.Opphevet);
+        Assert.Equal(new DateOnly(2005, 7, 1), opphevetParagraf.OpphevetDato);
+
+        var vanligParagraf = await db.RettskildeNoder.SingleAsync(
+            n => n.RettskildeId == rettskildeId && n.Eid == $"{eli}/§1-1");
+        Assert.False(vanligParagraf.Opphevet);
+        Assert.Null(vanligParagraf.OpphevetDato);
+    }
+
+    [Fact]
     public async Task Gjentatt_import_av_samme_rettskilde_er_idempotent()
     {
         await using var db = _fixture.NyDbContext();

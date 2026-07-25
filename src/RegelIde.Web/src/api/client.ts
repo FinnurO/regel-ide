@@ -6,6 +6,7 @@ import type {
   RettskildeNodeDto,
   RettskildeReferanseDto,
   RettskildeSammendrag,
+  TaggKindKonfigurasjonDto,
   TekstTaggDto,
   VirksomhetDto,
 } from './types';
@@ -76,6 +77,8 @@ export const api = {
   hentBrukere: () => kall<BrukerDto[]>('/api/brukere'),
 
   hentVirksomheter: () => kall<VirksomhetDto[]>('/api/virksomheter'),
+
+  hentTaggKinds: () => kall<TaggKindKonfigurasjonDto[]>('/api/konfigurasjon/tagg-kinds'),
 
   importerFraLovdata: (datokode: string) =>
     kall<{ id: string }>('/api/rettskilder/lovdata', {

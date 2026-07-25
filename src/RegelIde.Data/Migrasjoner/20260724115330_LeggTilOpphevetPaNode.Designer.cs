@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RegelIde.Data;
@@ -11,9 +12,11 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    partial class RegelIdeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260724115330_LeggTilOpphevetPaNode")]
+    partial class LeggTilOpphevetPaNode
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -353,47 +356,6 @@ namespace RegelIde.Data.Migrasjoner
                         .HasDatabaseName("rettskilde_referanser_fra_node_id_til_rettskilde_id_til_ei_key");
 
                     b.ToTable("rettskilde_referanser", (string)null);
-                });
-
-            modelBuilder.Entity("RegelIde.Data.TaggKindKonfigurasjonEntitet", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("Aktiv")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("aktiv");
-
-                    b.Property<string>("Farge")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("farge");
-
-                    b.Property<string>("Kode")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("kode");
-
-                    b.Property<string>("Navn")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("navn");
-
-                    b.Property<int>("Sorteringsrekkefolge")
-                        .HasColumnType("integer")
-                        .HasColumnName("sorteringsrekkefolge");
-
-                    b.HasKey("Id")
-                        .HasName("taggkind_konfigurasjon_pkey");
-
-                    b.HasIndex("Kode")
-                        .IsUnique()
-                        .HasDatabaseName("ux_taggkind_konfigurasjon_kode");
-
-                    b.ToTable("taggkind_konfigurasjon", (string)null);
                 });
 
             modelBuilder.Entity("RegelIde.Data.TekstTaggEntitet", b =>

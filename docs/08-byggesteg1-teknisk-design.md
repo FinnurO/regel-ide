@@ -161,6 +161,7 @@ CREATE TABLE rettskilder (
   konsolidert_dato  date,
   utgiver           text,                 -- f.eks. 'Lovdata' — NLOD 2.0-attribusjon, 05-arkitektur-og-nfk §1.1
   status            text NOT NULL,        -- 'Gjeldende' | 'Opphevet' | 'Utkast'
+  er_bindende       boolean,              -- nullable -- 2026-07-25: NULL for Lov/Forskrift/Presedens (ikke relevant), true/false kun for Rundskriv/Virksomhetsdokument. Se 03-domenemodell.md §1.1.1 for hvorfor dette IKKE gjenbruker rettskildevekt
   versjon           int NOT NULL DEFAULT 1,
   entitetsstatus    text NOT NULL DEFAULT 'gjeldende',  -- felles basemetadata, 03-domenemodell §0
   erstatter_id      uuid REFERENCES rettskilder(id),
@@ -191,9 +192,19 @@ CREATE TABLE rettskilde_noder (
   overskrift        text,
   tekst             text,                 -- kun for ledd/punkt-noder (bladtekst)
   tekst_hash        text,                 -- se §3.4 for presis definisjon
-  sorteringsrekkefolge int NOT NULL,
-  UNIQUE (rettskilde_id, eid)
+  opphevet          boolean NOT NULL DEFAULT false,  -- 2026-07-24: flyttet gjennom fra Lovdatas data-repealeddate (§3.2) -- fantes fra før i konverteringspipelinen/AKN-XML-en, men ble aldri lagret på noden selv før nå
+  opphevet_dato     date,                 -- nullable -- kun satt når opphevet = true
+  versjon           int NOT NULL DEFAULT 1,             -- 2026-07-25: node-nivå versjonering, kun i bruk for håndbok/rundskriv-noder (03-domenemodell.md §1.1.1) -- Lov/Forskrift-noder regenereres fortsatt synkront ved reimport og trenger ikke egen historikk
+  entitetsstatus    text NOT NULL DEFAULT 'gjeldende',  -- samme mønster som rettskilder.entitetsstatus, replikert til nodenivå for håndbokens per-seksjon-versjonshistorikk
+  erstatter_node_id uuid REFERENCES rettskilde_noder(id),  -- peker til FORRIGE versjon av denne noden (samme retning som rettskilder.erstatter_id)
+  sorteringsrekkefolge int NOT NULL
 );
+-- 2026-07-25: endret fra en enkel UNIQUE(rettskilde_id, eid)-constraint til en partial index, filtrert
+-- til 'gjeldende' -- samme mønster som ux_rettskilder_eli_gjeldende over. Nødvendig for node-versjonering
+-- (håndbok-seksjoner): en redigert seksjon oppretter en NY rad med samme eid; den gamle raden får
+-- entitetsstatus='erstattet' i stedet for å bli overskrevet, og må derfor kunne sameksistere med den nye
+-- uten å kollidere på (rettskilde_id, eid). En vanlig UNIQUE-constraint ville gjort dette umulig.
+CREATE UNIQUE INDEX ux_rettskilde_noder_eid_gjeldende ON rettskilde_noder(rettskilde_id, eid) WHERE entitetsstatus = 'gjeldende';
 CREATE INDEX ix_rettskilde_noder_parent ON rettskilde_noder(parent_node_id);
 CREATE INDEX ix_rettskilde_noder_tekst_fts ON rettskilde_noder USING gin(to_tsvector('norwegian', tekst));
 CREATE INDEX ix_rettskilde_noder_eid_hash ON rettskilde_noder(eid, tekst_hash);  -- versjonssammenligning, §2.1
@@ -254,6 +265,19 @@ Versjonering skjer på hele `rettskilder`-dokumentet, ikke per node — bekrefte
 - Endret `tekst_hash` (eller noden borte) → taggen flagges for manuell gjennomgang.
 
 Dette krever ingen egen nodeversjonstabell.
+
+**Presisert 2026-07-25 — gjelder kun Lovdata-importert innhold (Lov/Forskrift).** For håndbok/rundskriv (`03-domenemodell.md` §1.1.1) stemmer ikke lenger "ingen egen nodeversjonstabell": Helsedirektoratets *"Se tidligere versjoner"* er per kommentar-seksjon, ikke bare per håndbok som helhet, og en jurist som redigerer én seksjon skal ikke tvinge en ny versjon av hele håndboken. Løsningen er likevel ikke en egen tabell, men de samme feltene (`versjon`/`entitetsstatus`/`erstatter_node_id`) replikert fra `rettskilder` ned til `rettskilde_noder` (§2 over) — brukt kun av håndbok-noder, ikke av Lov/Forskrift-noder (som fortsatt regenereres synkront ved reimport, uendret av dette).
+
+### 2.2 Forfatterflyt for håndbok/rundskriv (skisse, ikke implementert)
+
+I motsetning til Lov/Forskrift (parset fra Lovdata-HTML via `LovdataKonverterer` + persistert av `RettskildeImportTjeneste`, som er formet helt rundt et ferdig `KonverteringResultat`) har en håndbok ingen importpipeline — den forfattes direkte i verktøyet. Foreslått ny tjeneste, arbeidstittel `HandbokForfatterTjeneste`:
+
+- `OpprettHandbokAsync(tittel, virksomhetId, erBindende, opprettetAv)` — oppretter selve `rettskilder`-raden (`kildetype='Rundskriv'`, `doctype='doc'`, `status='Utkast'` inntil publisert).
+- `OpprettKapittelNodeAsync(rettskildeId, parentNodeId?, nummer, overskrift, opprettetAv)` — kapittel/underinndeling, samme `RettskildeNodeEntitet` som i dag.
+- `OpprettKommentarNodeAsync(rettskildeId, parentNodeId, nummer, overskrift, tekst, opprettetAv)` — en kommentar-seksjon (paragraf/ledd/punkt-nivå). Ved redigering av en EKSISTERENDE seksjon: oppretter en ny node-rad (`versjon++`, `erstatter_node_id` peker til forrige), setter forrige rads `entitetsstatus='erstattet'` — aldri en in-place-oppdatering (§2.1).
+- `KobleLovreferanseAsync(nodeId, tilRettskildeId, tilEid)` / `FjernLovreferanseAsync(...)` — oppretter/fjerner en `RettskildeReferanseEntitet`-rad, samme mekanisme som interne/eksterne Lovdata-kryssreferanser bruker i dag.
+
+`NyProveniensrad`-mønsteret i `RettskildeImportTjeneste.cs` (privat hjelpemetode i dag) bør trekkes ut til en delt intern hjelper når to tjenester begynner å bruke det, i stedet for å dupliseres inn i `HandbokForfatterTjeneste`.
 
 ## 3. Konverteringspipeline (Lovdata-HTML → AKN)
 

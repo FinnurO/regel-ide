@@ -98,6 +98,8 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 Overskrift = n.Overskrift,
                 Tekst = n.Tekst,
                 TekstHash = n.TekstHash,
+                Opphevet = n.Opphevet,
+                OpphevetDato = n.OpphevetDato,
                 Sorteringsrekkefolge = n.SorteringsRekkefolge,
             });
         }

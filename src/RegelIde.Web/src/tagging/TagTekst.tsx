@@ -31,11 +31,11 @@
  *   - Button        → «Fjern», menyhandlinger
  * Selve tekst-/markeringslogikken finnes IKKE i DS og er egen kode her.
  *
- * TOKENS: kun --ds-* (ingen egne farger). kind → semantisk rolle,
- * konfigurerbart via `kinds` (se KINDS i RettskildeDetalj.tsx for
- * byggesteg 1s faktiske firevalg: begrep=accent, tjeneste=info,
- * vilkar=warning, regel=success — Designsystemet har ingen lilla-familie,
- * se docs/09-design-konvensjoner.md).
+ * TOKENS: kun --ds-* (ingen egne farger). kind → semantisk rolle, konfigurerbart via `kinds`
+ * (2026-07-25: hentes fra GET /api/konfigurasjon/tagg-kinds via KonfigurasjonContext, ikke lenger
+ * hardkodet — se RegelIde.Data/Entiteter.cs' TaggKindKonfigurasjonEntitet-kommentar. Byggesteg 1s
+ * faktiske firevalg er begrep=accent, tjeneste=info, vilkar=warning, regel=success — Designsystemet
+ * har ingen lilla-familie, se docs/09-design-konvensjoner.md).
  */
 import { useCallback, useMemo, useRef, useState } from 'react';
 import { ToggleGroup, Dropdown, Tag, Button } from '@digdir/designsystemet-react';

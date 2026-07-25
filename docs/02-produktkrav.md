@@ -110,6 +110,13 @@ Høyre kolonne: tilknyttede presedensavgjørelser med rettskildevekt.
 **AK-3.3.6** Gitt en importert kilde i annet XML-format (Lovdata-XML/NLM), skal konvertering vises side-ved-side til AKN (kildeformat → normalisert AKN).
 **AK-3.3.7** Gitt importmodalen, skal bruker kunne sette/redigere metadata (tittel, kortnavn, ELI-identifikator, kildetype, ikrafttredelse, konsolidert dato, utgiver) før «Legg til i biblioteket».
 
+**Ny rettskilde fra bunnen av — håndbok/rundskriv (2026-07-25, spesifisert, ikke implementert):** til nå har «Ny kilde» kun betydd import (fra Lovdata eller fil). Undersøkelse av to reelle forbilder — Helsedirektoratets *"Alkoholloven med kommentarer"* (rådgivende kommentarer per paragraf) og Skatteetatens håndbøker (f.eks. Merverdiavgiftshåndboken, eksplisitt *"bindende for etatens saksbehandling (instruks)"*) — bekrefter behovet for en tredje kilde-opprinnelse: forfattet direkte i verktøyet, ikke importert. Se `03-domenemodell.md` §1.1.1 og `08-byggesteg1-teknisk-design.md` §2.2 for den underliggende modellen.
+
+**AK-3.3.8** Gitt «Opprett ny rettskilde fra bunnen av» (alternativ til «Ny kilde»/«Importer AKN» i AK-3.3.5), skal bruker kunne opprette en håndbok/rundskriv (`kildetype='Rundskriv'`) med egen kapittelstruktur og skrive kommentar-seksjoner direkte i verktøyet, uten en ekstern kilde å importere fra.
+**AK-3.3.9** Gitt en kommentar-seksjon, skal bruker kunne koble den til én eller flere paragrafer i en eksisterende Lov/Forskrift i biblioteket — samme kryssreferanse-mekanisme som interne lovhenvisninger (§1.3 i teknisk design), ikke en egen kobling-type.
+**AK-3.3.10** Gitt redigering av en publisert kommentar-seksjon, skal redigeringen opprette en ny versjon av *seksjonen* (ikke av hele håndboken, og ikke en in-place-overskriving) — historikk skal være tilgjengelig via «Se tidligere versjoner» per seksjon, ikke bare på håndbok-nivå.
+**AK-3.3.11** Gitt en håndbok/rundskriv, skal metadata vise om kilden er bindende (instruks) eller veiledende — satt av forfatteren ved opprettelse, ikke utledet.
+
 ### 3.4 Vilkår og regler (grafeditor) — **kjernefunksjon** **[Fase 2]**
 
 > Nodemodellen bruker de tre låste nodetypene fra `01-referansemodell.md` §5: **Vilkår** (bladnode), **Regel** (komposisjonsnode) og **Unntak**. Se der for kardinaliteter og invarianter — beskrivelsen under er skjermatferden, ikke ontologien.

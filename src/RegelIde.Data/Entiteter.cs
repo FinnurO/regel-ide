@@ -82,6 +82,16 @@ public sealed class RettskildeNodeEntitet
     public string? Overskrift { get; set; }
     public string? Tekst { get; set; } // kun ledd/punkt (bladtekst)
     public string? TekstHash { get; set; }
+
+    /// <summary>
+    /// Flyttet gjennom fra Lovdatas data-repealeddate (§3.2 i teknisk design) — fantes fra før i
+    /// RegelIde.Kildekonvertering (Modeller.cs) og brukes til AKN-XML-en, men ble aldri lagret på
+    /// noden selv før nå (2026-07-24). En opphevet paragraf produseres alltid som en node (aldri
+    /// hoppet over), men skal ikke tagges (TekstTaggTjeneste avviser det) og kan etter hvert skjules.
+    /// </summary>
+    public bool Opphevet { get; set; }
+    public DateOnly? OpphevetDato { get; set; }
+
     public int Sorteringsrekkefolge { get; set; }
 }
 
@@ -91,6 +101,22 @@ public sealed class RettskildeReferanseEntitet
     public Guid FraNodeId { get; set; }
     public Guid TilRettskildeId { get; set; }
     public required string TilEid { get; set; }
+}
+
+/// <summary>
+/// Global (ikke virksomhets-scopet) konfigurasjon av hvilke tag-kinds som finnes — erstatter en
+/// tidligere hardkodet liste (2026-07-25). Bevisst ikke en generisk nøkkel/verdi-Settings-ramme ennå,
+/// kun denne ene konkrete tabellen — utvides til noe bredere når flere konfigurerbare ting faktisk
+/// dukker opp.
+/// </summary>
+public sealed class TaggKindKonfigurasjonEntitet
+{
+    public Guid Id { get; set; }
+    public required string Kode { get; set; } // 'begrep' | 'tjeneste' | 'vilkar' | 'regel' | ... (utvidbart)
+    public required string Navn { get; set; } // "Begrep"
+    public required string Farge { get; set; } // Designsystemet-fargerolle: accent/info/warning/success/...
+    public int Sorteringsrekkefolge { get; set; }
+    public bool Aktiv { get; set; } = true;
 }
 
 public sealed class TekstTaggEntitet

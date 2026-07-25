@@ -97,6 +97,17 @@ public class TaggEndepunktTests
     }
 
     [Fact]
+    public async Task Opprett_pa_opphevet_node_gir_400()
+    {
+        var id = await HentAlkohollovenIdAsync();
+        var bruker = await HentTestbrukerAsync();
+
+        var svar = await _client.SendAsync(OpprettTaggRequest(id, bruker.Id, $"{AlkohollovenEli}/§1-12", "begrep", "abcd"));
+
+        Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
+    }
+
+    [Fact]
     public async Task Opprett_pa_ukjent_rettskilde_gir_404()
     {
         var bruker = await HentTestbrukerAsync();

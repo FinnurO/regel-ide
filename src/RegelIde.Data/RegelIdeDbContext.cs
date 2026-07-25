@@ -10,6 +10,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<RettskildeNodeEntitet> RettskildeNoder => Set<RettskildeNodeEntitet>();
     public DbSet<RettskildeReferanseEntitet> RettskildeReferanser => Set<RettskildeReferanseEntitet>();
     public DbSet<TekstTaggEntitet> TekstTagger => Set<TekstTaggEntitet>();
+    public DbSet<TaggKindKonfigurasjonEntitet> TaggKindKonfigurasjoner => Set<TaggKindKonfigurasjonEntitet>();
     public DbSet<ProveniensEntitet> Proveniens => Set<ProveniensEntitet>();
 
     protected override void OnModelCreating(ModelBuilder b)
@@ -103,6 +104,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Overskrift).HasColumnName("overskrift");
             e.Property(x => x.Tekst).HasColumnName("tekst");
             e.Property(x => x.TekstHash).HasColumnName("tekst_hash");
+            e.Property(x => x.Opphevet).HasColumnName("opphevet").HasDefaultValue(false);
+            e.Property(x => x.OpphevetDato).HasColumnName("opphevet_dato");
             e.Property(x => x.Sorteringsrekkefolge).HasColumnName("sorteringsrekkefolge");
 
             e.HasOne<RettskildeEntitet>().WithMany(r => r.Noder)
@@ -163,6 +166,19 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                 .IsUnique().HasDatabaseName("tekst_tagger_unik_tagg");
             e.HasIndex(x => new { x.RettskildeId, x.NodeEid }).HasDatabaseName("ix_tekst_tagger_node");
             e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_tekst_tagger_virksomhet");
+        });
+
+        b.Entity<TaggKindKonfigurasjonEntitet>(e =>
+        {
+            e.ToTable("taggkind_konfigurasjon");
+            e.HasKey(x => x.Id).HasName("taggkind_konfigurasjon_pkey");
+            e.Property(x => x.Kode).HasColumnName("kode");
+            e.Property(x => x.Navn).HasColumnName("navn");
+            e.Property(x => x.Farge).HasColumnName("farge");
+            e.Property(x => x.Sorteringsrekkefolge).HasColumnName("sorteringsrekkefolge");
+            e.Property(x => x.Aktiv).HasColumnName("aktiv").HasDefaultValue(true);
+
+            e.HasIndex(x => x.Kode).IsUnique().HasDatabaseName("ux_taggkind_konfigurasjon_kode");
         });
 
         b.Entity<ProveniensEntitet>(e =>
