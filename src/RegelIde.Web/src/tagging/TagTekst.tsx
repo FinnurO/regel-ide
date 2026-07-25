@@ -4,41 +4,38 @@
  * Generell tekst-tagger: viser en tekstflate der brukeren kan markere
  * et ord/avsnitt og knytte det til en modell-entitet (begrep, vilkår,
  * regel, tjeneste — utvidbart). Taggene er posisjonsbaserte (tegn-offset).
- * Ett lag (kind) vises av gangen via en ToggleGroup, så visningen holder
- * seg ryddig selv når samme strekning bærer flere tagger på tvers av lag.
- *
- * Opprinnelig utkast fra Claude Design; tilpasset her (2026-07-24) for
- * byggesteg 1:
- *   - `ref` er `string | null`, ikke påkrevd — docs/06-veikart.md sier
- *     en tagg skal lagres med ref:null helt til byggesteg 2/4 gir den
- *     noe å peke på. Originalen antok et allerede-eksisterende register.
- *   - `Dropdown.Context` (brukt i originalen) finnes ikke i den
- *     installerte @digdir/designsystemet-react (1.18.0) — riktig API er
- *     `Dropdown` med `open`/`onClose` direkte (bygget på Popovers
- *     kontrollerte modus), uten et usynlig Trigger-anker.
- *   - Ny `showLayerSwitch`-prop: når man (som her) bruker én TagTekst
- *     per avsnitt i et helt dokument, vil hvert avsnitt ellers få sin
- *     egen ToggleGroup/tagg-liste. Med `false` viser instansen kun selve
- *     tekstflaten, og forelder styrer ett delt lagvalg + én samlet liste.
+ * Samme strekning kan bære flere tagger på tvers av lag (kinds), men bare
+ * ett lag vises av gangen (radio) — så visningen holder seg ryddig.
  *
  * Brukes i rettskildevisningen, men er ikke bundet til AKN — «text» er
  * ren streng, og «kinds» konfigureres av forelder.
  *
  * DESIGNSYSTEMET-KOMPONENTER SOM BRUKES
- *   - ToggleGroup   → lag-filteret («Vis tagger»)
- *   - Dropdown      → 2-stegs kontekstmeny (type → handling)
+ *   - ToggleGroup   → lag-velger (radio: ett lag vises av gangen)
+ *   - Button        → tag-linjens handlinger, «Fjern»
  *   - Tag           → fargede markeringer + tagg-listen
- *   - Button        → «Fjern», menyhandlinger
  * Selve tekst-/markeringslogikken finnes IKKE i DS og er egen kode her.
  *
- * TOKENS: kun --ds-* (ingen egne farger). kind → semantisk rolle, konfigurerbart via `kinds`
- * (2026-07-25: hentes fra GET /api/konfigurasjon/tagg-kinds via KonfigurasjonContext, ikke lenger
- * hardkodet — se RegelIde.Data/Entiteter.cs' TaggKindKonfigurasjonEntitet-kommentar. Byggesteg 1s
- * faktiske firevalg er begrep=accent, tjeneste=info, vilkar=warning, regel=success — Designsystemet
- * har ingen lilla-familie, se docs/09-design-konvensjoner.md).
+ * TAG-LINJE (ikke flytende meny): når bruker markerer tekst, aktiveres en fast
+ * handlingslinje rett over teksten (steg 1: velg type, steg 2: ny/eksisterende).
+ * Bevisst valg — ingen posisjonering mot viewport, ingen kollisjon, og linjen
+ * er tastaturtilgjengelig i vanlig fokusrekkefølge.
+ *
+ * TOKENS: kun --ds-* (ingen egne farger). kind → semantisk rolle, konfigurerbart
+ * via `kinds` (2026-07-25: hentes fra GET /api/konfigurasjon/tagg-kinds via
+ * KonfigurasjonContext, ikke hardkodet — se RegelIde.Data/Entiteter.cs' egen
+ * TaggKindKonfigurasjonEntitet-kommentar).
+ *
+ * Opprinnelig utkast fra Claude Design (2026-07-26, versjon 2 — erstatter en
+ * tidligere flytende Dropdown-meny med denne faste tag-linjen); tilpasset her:
+ *   - `ref` er `string | null`, ikke påkrevd — docs/06-veikart.md sier en tagg
+ *     skal lagres med ref:null helt til byggesteg 2/4 gir den noe å peke på.
+ *     Originalens `ref==='__new__'`-sentinel (åpne opprett-dialog for ny
+ *     entitet) er derfor byttet med en direkte «Ny tagg»-handling som committer
+ *     ref:null med én gang — det finnes ingen entitet å opprette ennå.
  */
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { ToggleGroup, Dropdown, Tag, Button } from '@digdir/designsystemet-react';
+import { ToggleGroup, Tag, Button } from '@digdir/designsystemet-react';
 
 /* ------------------------------ typer ------------------------------ */
 
@@ -78,9 +75,7 @@ export interface TagTekstProps {
   /** Hvilket lag som vises (én type om gangen — radio). Ukontrollert hvis utelatt. */
   activeKind?: TagKindId;
   onActiveKindChange?: (id: TagKindId) => void;
-  /** Vis ToggleGroup-lagvelgeren i denne instansen. Default true — sett false når forelder viser én delt velger for flere TagTekst-instanser (f.eks. ett avsnitt per instans i et helt dokument). */
-  showLayerSwitch?: boolean;
-  /** Vis tagg-listen med Fjern under teksten. Default true — samme begrunnelse som showLayerSwitch. */
+  /** Vis tagg-listen med Fjern under teksten. Default true. */
   showTagList?: boolean;
   readOnly?: boolean;
 }
@@ -139,99 +134,131 @@ function selectionOffsets(container: HTMLElement): { start: number; end: number;
 /* --------------------------- komponent --------------------------- */
 
 export function TagTekst({
-  text,
-  tags,
-  kinds,
-  onTag,
-  onRemoveTag,
-  registry,
-  activeKind,
-  onActiveKindChange,
-  showLayerSwitch = true,
-  showTagList = true,
-  readOnly = false,
+  text, tags, kinds, onTag, onRemoveTag, registry,
+  activeKind, onActiveKindChange, showTagList = true, readOnly = false,
 }: TagTekstProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [internalKind, setInternalKind] = useState<TagKindId>(kinds[0]?.id);
   const active = activeKind ?? internalKind;
   const setActive = onActiveKindChange ?? setInternalKind;
 
-  const [menu, setMenu] = useState<
-    { x: number; y: number; start: number; end: number; text: string; step: 'type' | 'action'; kind?: TagKindId } | null
-  >(null);
+  const [sel, setSel] = useState<{ start: number; end: number; text: string } | null>(null);
+  const [pendingKind, setPendingKind] = useState<TagKindId | null>(null);
 
   const kindById = useMemo(() => Object.fromEntries(kinds.map((k) => [k.id, k])), [kinds]);
   const shownTags = useMemo(() => tags.filter((t) => t.kind === active), [tags, active]);
   const segments = useMemo(() => buildSegments(text, shownTags), [text, shownTags]);
 
-  const openMenu = useCallback(() => {
+  const captureSelection = useCallback(() => {
     if (readOnly || !containerRef.current) return;
     const off = selectionOffsets(containerRef.current);
-    if (!off) {
-      setMenu(null);
-      return;
-    }
-    let rect: DOMRect | undefined;
-    try {
-      rect = window.getSelection()!.getRangeAt(0).getBoundingClientRect();
-    } catch {
-      /* noop */
-    }
-    setMenu({
-      x: rect ? rect.left + rect.width / 2 : 0,
-      y: rect ? rect.bottom + 8 : 0,
-      start: off.start,
-      end: off.end,
-      text: off.text,
-      step: 'type',
-    });
+    setSel(off);
+    setPendingKind(null);
   }, [readOnly]);
 
   const commit = useCallback(
     (kind: TagKindId, ref: string | null) => {
-      if (!menu) return;
+      if (!sel) return;
       // Overlapp lov på tvers av kinds, men ikke innen samme kind.
-      if (overlapsSameKind(tags, menu.start, menu.end, kind)) {
-        setMenu(null);
+      if (overlapsSameKind(tags, sel.start, sel.end, kind)) {
+        setSel(null);
+        setPendingKind(null);
         window.getSelection()?.removeAllRanges();
         return;
       }
-      onTag({ start: menu.start, end: menu.end, kind, ref });
+      onTag({ start: sel.start, end: sel.end, kind, ref });
       setActive(kind); // vis laget man nettopp tagget i
-      setMenu(null);
+      setSel(null);
+      setPendingKind(null);
       window.getSelection()?.removeAllRanges();
     },
-    [menu, onTag, tags, setActive],
+    [sel, onTag, tags, setActive],
   );
+
+  const clearSelection = useCallback(() => {
+    setSel(null);
+    setPendingKind(null);
+    window.getSelection()?.removeAllRanges();
+  }, []);
 
   return (
     <div>
-      {showLayerSwitch && (
-        <ToggleGroup
-          value={active}
-          onChange={setActive}
-          data-size="sm"
-          data-toggle-group="Vis tagger"
-          style={{ marginBottom: 'var(--ds-size-3)' }}
+      {/* Lag-velger — Designsystemet ToggleGroup (single, radio): ett lag vises av gangen */}
+      <ToggleGroup
+        value={active}
+        onChange={setActive}
+        data-size="sm"
+        data-toggle-group="Vis tagger"
+        style={{ marginBottom: 'var(--ds-size-3)' }}
+      >
+        {kinds.map((k) => (
+          <ToggleGroup.Item key={k.id} value={k.id}>
+            {k.label}
+          </ToggleGroup.Item>
+        ))}
+      </ToggleGroup>
+
+      {/* TAG-LINJE — fast handlingslinje rett over teksten. Erstatter flytende
+          meny: ingen posisjonering, ingen kollisjon, alltid synlig i flyten. */}
+      {!readOnly && (
+        <div
+          role="toolbar"
+          aria-label="Tagg markert tekst"
+          style={{
+            display: 'flex', alignItems: 'center', gap: 'var(--ds-size-2)',
+            flexWrap: 'wrap', minHeight: 'var(--ds-size-10)',
+            padding: 'var(--ds-size-2) var(--ds-size-3)',
+            marginBottom: 'var(--ds-size-3)',
+            borderRadius: 'var(--ds-border-radius-default)',
+            background: sel ? 'var(--ds-color-accent-surface-tinted)' : 'var(--ds-color-neutral-surface-tinted)',
+            border: `1px solid ${sel ? 'var(--ds-color-accent-border-subtle)' : 'var(--ds-color-neutral-border-subtle)'}`,
+          }}
         >
-          {kinds.map((k) => (
-            <ToggleGroup.Item key={k.id} value={k.id}>
-              {k.label}
-            </ToggleGroup.Item>
-          ))}
-        </ToggleGroup>
+          {!sel ? (
+            <span style={{ fontSize: 'var(--ds-font-size-2)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+              Marker tekst for å tagge den
+            </span>
+          ) : !pendingKind ? (
+            <>
+              <span style={{ fontSize: 'var(--ds-font-size-2)', color: 'var(--ds-color-neutral-text-subtle)', maxWidth: 260, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                «{sel.text}» →
+              </span>
+              {kinds.map((k) => (
+                <Button key={k.id} variant="secondary" data-size="sm" onClick={() => setPendingKind(k.id)}>
+                  <span style={{ width: 9, height: 9, borderRadius: 2, flex: '0 0 auto', background: `var(--ds-color-${k.color}-base-default)` }} />
+                  {k.label}
+                </Button>
+              ))}
+              <Button variant="tertiary" data-size="sm" onClick={clearSelection} style={{ marginInlineStart: 'auto' }}>
+                Avbryt
+              </Button>
+            </>
+          ) : (
+            <>
+              <Tag data-color={kindById[pendingKind]?.color} data-size="sm">
+                {kindById[pendingKind]?.label}
+              </Tag>
+              <Button variant="secondary" data-size="sm" onClick={() => commit(pendingKind, null)}>
+                Ny tagg
+              </Button>
+              {(registry?.[pendingKind] ?? []).slice(0, 4).map((cand) => (
+                <Button key={cand.ref} variant="tertiary" data-size="sm" onClick={() => commit(pendingKind, cand.ref)}>
+                  {cand.label}
+                </Button>
+              ))}
+              <Button variant="tertiary" data-size="sm" onClick={() => setPendingKind(null)} style={{ marginInlineStart: 'auto' }}>
+                ‹ Tilbake
+              </Button>
+            </>
+          )}
+        </div>
       )}
 
       {/* Tekstflate — egen markeringslogikk */}
       <div
         ref={containerRef}
-        onMouseUp={openMenu}
-        onContextMenu={(e) => {
-          if (!readOnly) {
-            e.preventDefault();
-            openMenu();
-          }
-        }}
+        onMouseUp={captureSelection}
+        onKeyUp={captureSelection}
         style={{
           fontSize: 'var(--ds-font-size-4)',
           lineHeight: 'var(--ds-line-height-lg)',
@@ -259,56 +286,6 @@ export function TagTekst({
         )}
       </div>
 
-      {/* 2-stegs kontekstmeny — Designsystemet Dropdown, kontrollert og manuelt posisjonert
-          ved seleksjon (ikke via native popovertarget-anker, siden det ikke finnes noen synlig
-          trigger-knapp å feste den til). */}
-      {menu && (
-        <Dropdown open onClose={() => setMenu(null)} style={{ position: 'fixed', left: menu.x, top: menu.y }}>
-          {menu.step === 'type' ? (
-            <>
-              <Dropdown.Heading>Velg type</Dropdown.Heading>
-              <Dropdown.List>
-                {kinds.map((k) => (
-                  <Dropdown.Item key={k.id}>
-                    <Dropdown.Button onClick={() => setMenu({ ...menu, step: 'action', kind: k.id })}>
-                      <span
-                        style={{
-                          width: 9,
-                          height: 9,
-                          borderRadius: 2,
-                          flex: '0 0 auto',
-                          background: `var(--ds-color-${k.color}-base-default)`,
-                        }}
-                      />
-                      {k.label}
-                    </Dropdown.Button>
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.List>
-            </>
-          ) : (
-            <>
-              <Dropdown.Heading>{kindById[menu.kind!]?.label}</Dropdown.Heading>
-              <Dropdown.List>
-                <Dropdown.Item>
-                  <Dropdown.Button onClick={() => setMenu({ ...menu, step: 'type', kind: undefined })}>
-                    ‹ Velg annen type
-                  </Dropdown.Button>
-                </Dropdown.Item>
-                <Dropdown.Item>
-                  <Dropdown.Button onClick={() => commit(menu.kind!, null)}>Ny tagg</Dropdown.Button>
-                </Dropdown.Item>
-                {(registry?.[menu.kind!] ?? []).map((cand) => (
-                  <Dropdown.Item key={cand.ref}>
-                    <Dropdown.Button onClick={() => commit(menu.kind!, cand.ref)}>{cand.label}</Dropdown.Button>
-                  </Dropdown.Item>
-                ))}
-              </Dropdown.List>
-            </>
-          )}
-        </Dropdown>
-      )}
-
       {/* Tagg-liste med Fjern — Designsystemet Tag + Button */}
       {showTagList && tags.length > 0 && (
         <div
@@ -326,12 +303,8 @@ export function TagTekst({
                 </Tag>
                 <span
                   style={{
-                    flex: 1,
-                    minWidth: 0,
-                    color: 'var(--ds-color-neutral-text-subtle)',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
+                    flex: 1, minWidth: 0, color: 'var(--ds-color-neutral-text-subtle)',
+                    overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   }}
                 >
                   «{text.slice(t.start, t.end)}»{t.ref ? ` → ${t.ref}` : ''}

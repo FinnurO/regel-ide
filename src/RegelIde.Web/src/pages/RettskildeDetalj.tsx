@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink, useParams } from 'react-router-dom';
-import { Heading, Link, Paragraph, Table, Tag, ToggleGroup } from '@digdir/designsystemet-react';
+import { Heading, Link, Paragraph, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { RettskildeDetalj as RettskildeDetaljType, RettskildeNodeDto, TekstTaggDto } from '../api/types';
-import { TagTekst, type TagKind, type TextTag } from '../tagging/TagTekst';
+import { TagTekst, type TextTag } from '../tagging/TagTekst';
+import { RettskildeTre, type RettskildeNode as TreNodeVm } from '../tre/RettskildeTre';
 import { useKonfigurasjon } from '../konfigurasjon/KonfigurasjonContext';
 
 interface TreNode extends RettskildeNodeDto {
@@ -23,56 +24,33 @@ function byggTre(noder: RettskildeNodeDto[]): TreNode[] {
   return rotnoder;
 }
 
-interface TreVisningProps {
-  noder: TreNode[];
-  kinds: TagKind[];
-  taggerPerNode: Map<string, TextTag[]>;
-  activeKind: string;
-  onActiveKindChange: (id: string) => void;
-  onTag: (nodeEid: string, nodeTekst: string, t: { start: number; end: number; kind: string; ref: string | null }) => void;
-  onRemoveTag: (id: string) => void;
+/**
+ * Bygger om vårt flate/nøstede nodetre til RettskildeTre sin form.
+ * `antallKommentarer` gjenbrukes her som antall EGNE tekst-tagger på noden
+ * (ikke håndbok-kommentarer, som ikke finnes ennå) — komponentens generiske
+ * "tellemerke uten status"-visning passer fint til det inntil håndboken
+ * finnes, siden `kommentarStatus` da alltid er undefined for oss.
+ */
+function tilTreVm(noder: TreNode[], taggAntallPerNode: Map<string, number>): TreNodeVm[] {
+  return noder.map((n) => ({
+    eId: n.eid,
+    nodeType: n.nodeType as TreNodeVm['nodeType'],
+    merke: n.nummer ?? '',
+    tittel: n.overskrift ?? undefined,
+    tekst: n.tekst ?? undefined,
+    opphevet: n.opphevet,
+    antallKommentarer: taggAntallPerNode.get(n.eid),
+    children: n.barn.length > 0 ? tilTreVm(n.barn, taggAntallPerNode) : undefined,
+  }));
 }
 
-function TreVisning({ noder, kinds, taggerPerNode, activeKind, onActiveKindChange, onTag, onRemoveTag }: TreVisningProps) {
-  return (
-    <ul className="tre">
-      {noder.map((n) => (
-        <li key={n.id}>
-          <div className="tre-node">
-            <strong>{n.nummer ?? n.nodeType}</strong>
-            {n.overskrift && ` — ${n.overskrift}`}
-            {n.tekst && (n.nodeType === 'ledd' || n.nodeType === 'punkt') && (
-              <div style={{ margin: '0.1rem 0 0.3rem', fontSize: 'var(--ds-font-size-2)' }}>
-                <TagTekst
-                  text={n.tekst}
-                  tags={taggerPerNode.get(n.eid) ?? []}
-                  kinds={kinds}
-                  activeKind={activeKind}
-                  onActiveKindChange={onActiveKindChange}
-                  showLayerSwitch={false}
-                  showTagList={false}
-                  onTag={(t) => onTag(n.eid, n.tekst!, t)}
-                  onRemoveTag={onRemoveTag}
-                />
-              </div>
-            )}
-            <span className="eid">{n.eid}</span>
-          </div>
-          {n.barn.length > 0 && (
-            <TreVisning
-              noder={n.barn}
-              kinds={kinds}
-              taggerPerNode={taggerPerNode}
-              activeKind={activeKind}
-              onActiveKindChange={onActiveKindChange}
-              onTag={onTag}
-              onRemoveTag={onRemoveTag}
-            />
-          )}
-        </li>
-      ))}
-    </ul>
-  );
+function finnNode(noder: TreNode[], eid: string): TreNode | null {
+  for (const n of noder) {
+    if (n.eid === eid) return n;
+    const funnet = finnNode(n.barn, eid);
+    if (funnet) return funnet;
+  }
+  return null;
 }
 
 export default function RettskildeDetalj() {
@@ -82,6 +60,8 @@ export default function RettskildeDetalj() {
   const [tre, setTre] = useState<TreNode[] | null>(null);
   const [tagger, setTagger] = useState<TekstTaggDto[]>([]);
   const [activeKind, setActiveKind] = useState<string>('');
+  const [selectedEid, setSelectedEid] = useState<string | undefined>(undefined);
+  const [filter, setFilter] = useState('');
   const [visAknXml, setVisAknXml] = useState(false);
   const [feil, setFeil] = useState<string | null>(null);
   const [taggFeil, setTaggFeil] = useState<string | null>(null);
@@ -95,6 +75,7 @@ export default function RettskildeDetalj() {
     setFeil(null);
     setDetalj(null);
     setTre(null);
+    setSelectedEid(undefined);
     Promise.all([api.hentRettskilde(id), api.hentNoder(id), api.hentTagger(id)])
       .then(([d, noder, egneTagger]) => {
         setDetalj(d);
@@ -113,6 +94,15 @@ export default function RettskildeDetalj() {
     }
     return kart;
   }, [tagger]);
+
+  const taggAntallPerNode = useMemo(() => {
+    const kart = new Map<string, number>();
+    for (const t of tagger) kart.set(t.nodeEid, (kart.get(t.nodeEid) ?? 0) + 1);
+    return kart;
+  }, [tagger]);
+
+  const treVm = useMemo(() => (tre ? tilTreVm(tre, taggAntallPerNode) : []), [tre, taggAntallPerNode]);
+  const valgtNode = useMemo(() => (tre && selectedEid ? finnNode(tre, selectedEid) : null), [tre, selectedEid]);
 
   async function handleTag(
     nodeEid: string,
@@ -150,6 +140,8 @@ export default function RettskildeDetalj() {
 
   if (feil) return <div className="feilmelding">{feil}</div>;
   if (!detalj) return <Paragraph>Laster …</Paragraph>;
+
+  const kanTagges = valgtNode && valgtNode.tekst && (valgtNode.nodeType === 'ledd' || valgtNode.nodeType === 'punkt');
 
   return (
     <>
@@ -192,60 +184,64 @@ export default function RettskildeDetalj() {
       </Table>
 
       <Heading level={2} data-size="sm">
-        Innhold (tre-navigasjon)
+        Innhold
       </Heading>
-      <Paragraph style={{ marginBottom: '0.5rem' }}>
-        Marker tekst i et ledd/punkt for å tagge den som begrep, tjeneste, vilkår eller regel (AK-3.3.1). Ett lag vises
-        av gangen — bytt lag under.
-      </Paragraph>
-      <ToggleGroup
-        value={activeKind}
-        onChange={setActiveKind}
-        data-size="sm"
-        data-toggle-group="Vis tagger"
-        style={{ marginBottom: '0.75rem' }}
-      >
-        {taggKinds.map((k) => (
-          <ToggleGroup.Item key={k.id} value={k.id}>
-            {k.label}
-          </ToggleGroup.Item>
-        ))}
-      </ToggleGroup>
       {taggFeil && <div className="feilmelding">{taggFeil}</div>}
-      {tre && tre.length > 0 ? (
-        <TreVisning
-          noder={tre}
-          kinds={taggKinds}
-          taggerPerNode={taggerPerNode}
-          activeKind={activeKind}
-          onActiveKindChange={setActiveKind}
-          onTag={handleTag}
-          onRemoveTag={handleSlett}
-        />
-      ) : (
-        <Paragraph>Ingen noder.</Paragraph>
-      )}
 
-      {tagger.length > 0 && (
-        <div style={{ marginTop: '1.5rem' }}>
-          <Heading level={2} data-size="sm">
-            Egne tagger
-          </Heading>
-          <ul className="egne-tagger-liste">
-            {tagger.map((t) => (
-              <li key={t.id}>
-                <Tag data-color={taggKinds.find((k) => k.id === t.kind)?.color} data-size="sm">
-                  {taggKinds.find((k) => k.id === t.kind)?.label ?? t.kind}
-                </Tag>
-                <span className="sitat">«{t.quoteExact}»</span>
-                <button type="button" onClick={() => handleSlett(t.id)}>
-                  Fjern
-                </button>
-              </li>
-            ))}
-          </ul>
+      <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start', marginTop: '0.75rem' }}>
+        <div style={{ width: '360px', flexShrink: 0 }}>
+          <Textfield
+            label="Søk i strukturen"
+            value={filter}
+            onChange={(e) => setFilter(e.target.value)}
+            style={{ marginBottom: '0.75rem' }}
+          />
+          {treVm.length > 0 ? (
+            <div style={{ border: '1px solid var(--ds-color-neutral-border-subtle)', borderRadius: 'var(--ds-border-radius-lg)', maxHeight: '70vh', overflowY: 'auto' }}>
+              <RettskildeTre
+                nodes={treVm}
+                selectedEId={selectedEid}
+                onSelect={(eid) => setSelectedEid(eid)}
+                filter={filter}
+              />
+            </div>
+          ) : (
+            <Paragraph>Ingen noder.</Paragraph>
+          )}
         </div>
-      )}
+
+        <div style={{ flex: 1, minWidth: 0 }}>
+          {!valgtNode && <Paragraph>Velg en node i treet for å se innholdet.</Paragraph>}
+
+          {valgtNode && (
+            <>
+              <Heading level={3} data-size="xs" style={{ marginBottom: '0.25rem' }}>
+                {valgtNode.nummer ?? valgtNode.nodeType}
+                {valgtNode.overskrift && ` — ${valgtNode.overskrift}`}
+              </Heading>
+              <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)', marginBottom: '1rem' }}>
+                {valgtNode.eid}
+              </Paragraph>
+
+              {kanTagges ? (
+                <TagTekst
+                  text={valgtNode.tekst!}
+                  tags={taggerPerNode.get(valgtNode.eid) ?? []}
+                  kinds={taggKinds}
+                  activeKind={activeKind}
+                  onActiveKindChange={setActiveKind}
+                  onTag={(t) => handleTag(valgtNode.eid, valgtNode.tekst!, t)}
+                  onRemoveTag={handleSlett}
+                />
+              ) : (
+                <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
+                  Denne noden har ingen egen løpetekst — velg et ledd eller punkt under den for å tagge.
+                </Paragraph>
+              )}
+            </>
+          )}
+        </div>
+      </div>
 
       <div style={{ marginTop: '1.5rem' }}>
         <button type="button" onClick={() => setVisAknXml((v) => !v)}>
