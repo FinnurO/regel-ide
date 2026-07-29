@@ -1,10 +1,16 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink, useParams } from 'react-router-dom';
-import { Heading, Link, Paragraph, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Button, Heading, Link, Paragraph, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { RettskildeDetalj as RettskildeDetaljType, RettskildeNodeDto, TekstTaggDto } from '../api/types';
+import type {
+  RettskildeDetalj as RettskildeDetaljType,
+  RettskildeNodeDto,
+  RettskildeSammendrag,
+  TekstTaggDto,
+} from '../api/types';
 import { TagTekst, type TextTag } from '../tagging/TagTekst';
 import { RettskildeTre, type RettskildeNode as TreNodeVm } from '../tre/RettskildeTre';
+import { KommentarRedigering } from '../handbok/KommentarRedigering';
 import { useKonfigurasjon } from '../konfigurasjon/KonfigurasjonContext';
 
 interface TreNode extends RettskildeNodeDto {
@@ -66,6 +72,15 @@ export default function RettskildeDetalj() {
   const [feil, setFeil] = useState<string | null>(null);
   const [taggFeil, setTaggFeil] = useState<string | null>(null);
 
+  // Håndbok-forfatterflyt (2026-07-26) — kun relevant når kildetype='Rundskriv', se render under.
+  const [alleRettskilder, setAlleRettskilder] = useState<RettskildeSammendrag[]>([]);
+  const [visOpprettKapittel, setVisOpprettKapittel] = useState(false);
+  const [nyKapittelNummer, setNyKapittelNummer] = useState('');
+  const [nyKapittelOverskrift, setNyKapittelOverskrift] = useState('');
+  const [kapittelFeil, setKapittelFeil] = useState<string | null>(null);
+  const [kapittelLagrer, setKapittelLagrer] = useState(false);
+  const [visOpprettKommentar, setVisOpprettKommentar] = useState(false);
+
   useEffect(() => {
     if (!activeKind && taggKinds.length > 0) setActiveKind(taggKinds[0].id);
   }, [taggKinds, activeKind]);
@@ -84,6 +99,38 @@ export default function RettskildeDetalj() {
       })
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av rettskilden.'));
   }, [id]);
+
+  useEffect(() => {
+    if (detalj?.kildetype === 'Rundskriv') api.hentRettskilder().then(setAlleRettskilder);
+  }, [detalj?.kildetype]);
+
+  async function refetchNoder(velgEid?: string) {
+    if (!id) return;
+    const noder = await api.hentNoder(id);
+    setTre(byggTre(noder));
+    if (velgEid) setSelectedEid(velgEid);
+  }
+
+  async function opprettKapittel(parentNodeId: string | null) {
+    if (!id || !nyKapittelNummer.trim()) return;
+    setKapittelFeil(null);
+    setKapittelLagrer(true);
+    try {
+      const kapittel = await api.opprettKapittelNode(id, {
+        parentNodeId,
+        nummer: nyKapittelNummer.trim(),
+        overskrift: nyKapittelOverskrift.trim() || null,
+      });
+      setNyKapittelNummer('');
+      setNyKapittelOverskrift('');
+      setVisOpprettKapittel(false);
+      await refetchNoder(kapittel.eid);
+    } catch (err) {
+      setKapittelFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse av kapittel.');
+    } finally {
+      setKapittelLagrer(false);
+    }
+  }
 
   const taggerPerNode = useMemo(() => {
     const kart = new Map<string, TextTag[]>();
@@ -196,6 +243,29 @@ export default function RettskildeDetalj() {
             onChange={(e) => setFilter(e.target.value)}
             style={{ marginBottom: '0.75rem' }}
           />
+          {detalj.kildetype === 'Rundskriv' && (
+            <div style={{ marginBottom: '0.75rem' }}>
+              {!visOpprettKapittel ? (
+                <Button data-size="sm" variant="secondary" onClick={() => setVisOpprettKapittel(true)}>
+                  Nytt kapittel
+                </Button>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                  <Textfield label="Nummer" data-size="sm" value={nyKapittelNummer} onChange={(e) => setNyKapittelNummer(e.target.value)} />
+                  <Textfield label="Overskrift" data-size="sm" value={nyKapittelOverskrift} onChange={(e) => setNyKapittelOverskrift(e.target.value)} />
+                  <div style={{ display: 'flex', gap: '0.5rem' }}>
+                    <Button data-size="sm" disabled={kapittelLagrer || !nyKapittelNummer.trim()} onClick={() => opprettKapittel(null)}>
+                      {kapittelLagrer ? 'Oppretter …' : 'Opprett'}
+                    </Button>
+                    <Button data-size="sm" variant="tertiary" onClick={() => setVisOpprettKapittel(false)}>
+                      Avbryt
+                    </Button>
+                  </div>
+                  {kapittelFeil && <div className="feilmelding">{kapittelFeil}</div>}
+                </div>
+              )}
+            </div>
+          )}
           {treVm.length > 0 ? (
             <div style={{ border: '1px solid var(--ds-color-neutral-border-subtle)', borderRadius: 'var(--ds-border-radius-lg)', maxHeight: '70vh', overflowY: 'auto' }}>
               <RettskildeTre
@@ -223,7 +293,33 @@ export default function RettskildeDetalj() {
                 {valgtNode.eid}
               </Paragraph>
 
-              {kanTagges ? (
+              {detalj.kildetype === 'Rundskriv' ? (
+                valgtNode.handbokMetadata ? (
+                  <KommentarRedigering
+                    handbokId={id!}
+                    mode="rediger"
+                    node={valgtNode}
+                    alleRettskilder={alleRettskilder}
+                    onLagret={(oppdatert) => refetchNoder(oppdatert.eid)}
+                  />
+                ) : !visOpprettKommentar ? (
+                  <Button data-size="sm" variant="secondary" onClick={() => setVisOpprettKommentar(true)}>
+                    Ny kommentarseksjon her
+                  </Button>
+                ) : (
+                  <KommentarRedigering
+                    handbokId={id!}
+                    mode="ny"
+                    parentNodeId={valgtNode.id}
+                    alleRettskilder={alleRettskilder}
+                    onLagret={(opprettet) => {
+                      setVisOpprettKommentar(false);
+                      refetchNoder(opprettet.eid);
+                    }}
+                    onAvbryt={() => setVisOpprettKommentar(false)}
+                  />
+                )
+              ) : kanTagges ? (
                 <TagTekst
                   text={valgtNode.tekst!}
                   tags={taggerPerNode.get(valgtNode.eid) ?? []}

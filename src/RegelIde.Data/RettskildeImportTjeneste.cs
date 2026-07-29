@@ -55,7 +55,7 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             eksisterende.SistEndretAv = attribuertTil;
             eksisterende.SistEndretTidspunkt = DateTimeOffset.UtcNow;
             eksisterende.Versjon++; // basemetadata §0: "heltall, økende" -- appens ansvar å øke ved faktisk endring
-            db.Proveniens.Add(NyProveniensrad(rettskildeId, virksomhetId, "endret", attribuertTil));
+            db.Proveniens.Add(ProveniensHjelper.NyRad("rettskilde", rettskildeId, virksomhetId, "endret", attribuertTil));
         }
         else
         {
@@ -78,7 +78,7 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 OpprettetAv = attribuertTil,
                 OpprettetTidspunkt = DateTimeOffset.UtcNow,
             });
-            db.Proveniens.Add(NyProveniensrad(rettskildeId, virksomhetId, "opprettet", attribuertTil));
+            db.Proveniens.Add(ProveniensHjelper.NyRad("rettskilde", rettskildeId, virksomhetId, "opprettet", attribuertTil));
         }
 
         var nodeIdVedEid = resultat.Noder.ToDictionary(n => n.Eid, _ => Guid.NewGuid());
@@ -166,20 +166,9 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
         // Stubber (§3.1 steg 6) er en automatisk konsekvens av å parse en kryssreferanse, ikke noe
         // den kallende brukeren bevisst forfattet — attribueres derfor alltid til systemet, uansett
         // hvem som utløste importen som fant referansen.
-        db.Proveniens.Add(NyProveniensrad(stubId, virksomhetId: null, "opprettet", SystemBruker));
+        db.Proveniens.Add(ProveniensHjelper.NyRad("rettskilde", stubId, virksomhetId: null, "opprettet", SystemBruker));
         return stubId;
     }
-
-    private static ProveniensEntitet NyProveniensrad(Guid rettskildeId, Guid? virksomhetId, string handling, string endretAv) => new()
-    {
-        Id = Guid.NewGuid(),
-        VirksomhetId = virksomhetId,
-        EntitetType = "rettskilde",
-        EntitetId = rettskildeId,
-        EndretAv = endretAv,
-        Dato = DateTimeOffset.UtcNow,
-        Handling = handling,
-    };
 
     /// <summary>Trunkerer en eId (som kan ha et paragraf-/ledd-/punkt-suffiks) til dokumentets egen ELI, ved "/nor".</summary>
     private static string DokumentEliFra(string eidEllerEli)

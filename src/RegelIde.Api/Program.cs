@@ -16,6 +16,7 @@ builder.Services.AddDbContext<RegelIdeDbContext>(o => o.UseNpgsql(connString));
 builder.Services.AddScoped<RettskildeRepository>();
 builder.Services.AddScoped<RettskildeImportTjeneste>();
 builder.Services.AddScoped<TekstTaggTjeneste>();
+builder.Services.AddScoped<HandbokForfatterTjeneste>();
 builder.Services.AddHttpClient<LovdataBulkHenter>();
 
 const string VitePolicy = "ViteDevServer";
@@ -302,6 +303,180 @@ rettskilder.MapPost("/lovdata", async (HttpRequest request, LovdataImportRequest
     .WithName("ImporterFraLovdata")
     .WithSummary("Henter og importerer en rettskilde fra Lovdatas offisielle bulk-datasett via datokode " +
         "(f.eks. \"LOV-1989-06-02-27\"). Alltid en delt/nasjonal kilde.");
+
+// ---------- Håndbok/rundskriv-forfatterflyt (2026-07-26, docs/03-domenemodell.md §1.1.1) ----------
+// ---------- krever X-Bruker-Id for attribusjon, samme mønster som import/tagging over.       ----------
+
+var handboker = app.MapGroup("/api/handboker").WithOpenApi();
+
+handboker.MapPost("/", async (HttpRequest request, OpprettHandbokRequest body,
+        HandbokForfatterTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var handbok = await tjeneste.OpprettHandbokAsync(body.Tittel, bruker.VirksomhetId, bruker.Navn, ct);
+            return Results.Created($"/api/rettskilder/{handbok.Id}", new { id = handbok.Id });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OpprettHandbok")
+    .WithSummary("Oppretter en ny håndbok/rundskriv (AK-3.3.8) — kildetype='Rundskriv', ingen importpipeline.");
+
+handboker.MapPost("/{id:guid}/kapitler", async (Guid id, HttpRequest request, OpprettKapittelNodeRequest body,
+        HandbokForfatterTjeneste tjeneste, RettskildeRepository repo, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        if (await repo.FinnAsync(id) is null) return Results.NotFound(new { feil = $"Ingen håndbok med id '{id}'." });
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var node = await tjeneste.OpprettKapittelNodeAsync(id, body.ParentNodeId, body.Nummer, body.Overskrift, bruker.Navn, ct);
+            return Results.Created($"/api/rettskilder/{id}/noder/oppslag?eid={Uri.EscapeDataString(node.Eid)}", RettskildeNodeDto.FraEntitet(node));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OpprettHandbokKapittel")
+    .WithSummary("Oppretter en kapittel-/underinndelingsnode i håndbokens eget tre.");
+
+handboker.MapPost("/{id:guid}/kommentarer", async (Guid id, HttpRequest request, OpprettKommentarNodeRequest body,
+        HandbokForfatterTjeneste tjeneste, RettskildeRepository repo, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        if (await repo.FinnAsync(id) is null) return Results.NotFound(new { feil = $"Ingen håndbok med id '{id}'." });
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var resultat = await tjeneste.OpprettKommentarNodeAsync(id, body.ParentNodeId, body.Nummer, body.Overskrift,
+                body.TekstHtml, body.Dokumenttype, body.FesteNiva, body.Marginord, bruker.Navn, ct);
+            var dto = RettskildeNodeDto.FraEntitet(resultat.Node) with { HandbokMetadata = HandbokKommentarMetadataDto.FraEntitet(resultat.Metadata) };
+            return Results.Created($"/api/rettskilder/{id}/noder/oppslag?eid={Uri.EscapeDataString(resultat.Node.Eid)}", dto);
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OpprettHandbokKommentar")
+    .WithSummary("Oppretter en kommentarseksjon, versjon 1 (AK-3.3.8/3.3.11). Tekst saneres server-side.");
+
+handboker.MapPut("/{id:guid}/kommentarer/{nodeId:guid}", async (Guid id, Guid nodeId, HttpRequest request, RedigerKommentarNodeRequest body,
+        HandbokForfatterTjeneste tjeneste, RettskildeRepository repo, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        if (await repo.FinnAsync(id) is null) return Results.NotFound(new { feil = $"Ingen håndbok med id '{id}'." });
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var resultat = await tjeneste.RedigerKommentarNodeAsync(nodeId, body.TekstHtml, body.Overskrift,
+                body.Dokumenttype, body.FesteNiva, body.Marginord, bruker.Navn, ct);
+            var dto = RettskildeNodeDto.FraEntitet(resultat.Node) with { HandbokMetadata = HandbokKommentarMetadataDto.FraEntitet(resultat.Metadata) };
+            return Results.Ok(dto);
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("RedigerHandbokKommentar")
+    .WithSummary("Redigerer en kommentarseksjon — oppretter alltid en ny node-versjon (AK-3.3.10), aldri in-place.");
+
+// eid som query-parameter, ikke rutesegment — samme begrunnelse som /{id}/noder/oppslag over.
+handboker.MapGet("/{id:guid}/kommentarer/versjoner", async (Guid id, string eid,
+        HandbokForfatterTjeneste tjeneste, RettskildeRepository repo, CancellationToken ct) =>
+    {
+        if (await repo.FinnAsync(id) is null) return Results.NotFound(new { feil = $"Ingen håndbok med id '{id}'." });
+        var versjoner = await tjeneste.HentVersjonshistorikkAsync(id, eid, ct);
+        return Results.Ok(versjoner.Select(RettskildeNodeDto.FraEntitet));
+    })
+    .WithName("HentHandbokKommentarVersjoner")
+    .WithSummary("Lister alle versjoner av en kommentarseksjon, nyeste først — AK-3.3.10 \"Se tidligere versjoner\".");
+
+handboker.MapPost("/{id:guid}/kommentarer/{nodeId:guid}/lovreferanser", async (Guid id, Guid nodeId, KobleLovreferanseRequest body,
+        HandbokForfatterTjeneste tjeneste, RettskildeRepository repo, CancellationToken ct) =>
+    {
+        if (await repo.FinnAsync(id) is null) return Results.NotFound(new { feil = $"Ingen håndbok med id '{id}'." });
+        try
+        {
+            var referanse = await tjeneste.KobleLovreferanseAsync(nodeId, body.TilRettskildeId, body.TilEid, ct);
+            return Results.Created($"/api/rettskilder/{id}/referanser", RettskildeReferanseDto.FraEntitet(referanse));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KobleHandbokLovreferanse")
+    .WithSummary("Kobler en kommentarseksjon til én paragraf i en Lov/Forskrift (AK-3.3.9) — samme mekanisme som interne kryssreferanser.");
+
+handboker.MapDelete("/{id:guid}/kommentarer/{nodeId:guid}/lovreferanser/{referanseId:guid}", async (Guid referanseId,
+        HandbokForfatterTjeneste tjeneste, CancellationToken ct) =>
+        await tjeneste.FjernLovreferanseAsync(referanseId, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen lovreferanse med id '{referanseId}'." }))
+    .WithName("FjernHandbokLovreferanse")
+    .WithSummary("Fjerner en lovreferanse-kobling fra en kommentarseksjon.");
+
+handboker.MapPost("/{id:guid}/kommentarer/{nodeId:guid}/revisjonsmerke", async (Guid id, Guid nodeId, HttpRequest request, SettRevisjonsmerkeRequest body,
+        HandbokForfatterTjeneste tjeneste, RettskildeRepository repo, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        if (await repo.FinnAsync(id) is null) return Results.NotFound(new { feil = $"Ingen håndbok med id '{id}'." });
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            await tjeneste.SettRevisjonsmerkeAsync(nodeId, body.Revisjonsgrunn, bruker.Navn, ct);
+            return Results.NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SettHandbokRevisjonsmerke")
+    .WithSummary("Manuell «Må revideres»-merking (AK-3.3.12, v1-forenkling — ikke automatisk påvirkningsanalyse).");
+
+handboker.MapPost("/{id:guid}/kommentarer/{nodeId:guid}/publiser", async (Guid id, Guid nodeId, HttpRequest request, PubliserKommentarRequest body,
+        HandbokForfatterTjeneste tjeneste, RettskildeRepository repo, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        if (await repo.FinnAsync(id) is null) return Results.NotFound(new { feil = $"Ingen håndbok med id '{id}'." });
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            await tjeneste.PubliserKommentarAsync(nodeId, body.GodkjentAv, bruker.Navn, ct);
+            return Results.NoContent();
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("PubliserHandbokKommentar")
+    .WithSummary("Publiserer en kommentarseksjon. Bindende seksjoner krever registrert godkjenner (AK-3.3.11).");
 
 app.Run();
 

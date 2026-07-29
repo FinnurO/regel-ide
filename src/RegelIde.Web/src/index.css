@@ -113,3 +113,10 @@ body {
   border-radius: var(--ds-border-radius-md);
   margin-bottom: var(--ds-size-4);
 }
+
+/* MinimalEditor (håndbok-forfatterflyt) sin plassholdertekst — kan ikke uttrykkes inline, siden
+   den er avhengig av :empty::before, ikke en vanlig inline style-egenskap. */
+[data-placeholder]:empty::before {
+  content: attr(data-placeholder);
+  color: var(--ds-color-neutral-text-subtle);
+}

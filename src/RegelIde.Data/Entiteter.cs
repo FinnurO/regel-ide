@@ -93,6 +93,60 @@ public sealed class RettskildeNodeEntitet
     public DateOnly? OpphevetDato { get; set; }
 
     public int Sorteringsrekkefolge { get; set; }
+
+    /// <summary>
+    /// Node-nivå versjonering (2026-07-26, se docs/03-domenemodell.md §1.1.1 og
+    /// docs/08-byggesteg1-teknisk-design.md §2.1) — kun i bruk for håndbok/rundskriv-noder.
+    /// Lov/Forskrift-noder regenereres fortsatt synkront ved reimport (Vedlegg A.5/A.6) og forblir
+    /// alltid Versjon=1/Entitetsstatus="gjeldende"/ErstatterNodeId=null.
+    /// </summary>
+    public int Versjon { get; set; } = 1;
+    public string Entitetsstatus { get; set; } = "gjeldende";
+    public Guid? ErstatterNodeId { get; set; }
+
+    /// <summary>Navigasjonsegenskap til 1:1-metadataraden — kun satt (via Include) for håndbok-kommentarseksjoner.</summary>
+    public HandbokKommentarMetadataEntitet? HandbokMetadata { get; set; }
+}
+
+/// <summary>
+/// 1:1-utvidelse av <see cref="RettskildeNodeEntitet"/> for håndbok/rundskriv-kommentarseksjoner
+/// (docs/03-domenemodell.md §1.1.1, "Presisert 2026-07-26"). Egen tabell fordi dokumenttype/bindende
+/// er en egenskap PER KOMMENTAR-NODE, ikke per håndbok — og fordi Lov/Forskrift-noder ellers ville fått
+/// en rekke alltid-NULL håndbok-spesifikke kolonner på den delte rettskilde_noder-tabellen.
+/// </summary>
+public sealed class HandbokKommentarMetadataEntitet
+{
+    public Guid NodeId { get; set; }
+
+    /// <summary>'kommentar' | 'retningslinje' | 'instruks' | 'handbok'.</summary>
+    public required string Dokumenttype { get; set; }
+
+    /// <summary>
+    /// Utledet av <see cref="Dokumenttype"/> (kommentar=false, de tre andre=true) — settes av
+    /// HandbokForfatterTjeneste, aldri fritt av klienten (AK-3.3.11).
+    /// </summary>
+    public bool Bindende { get; set; }
+
+    /// <summary>'kapittel' | 'bestemmelse' | 'ledd' | 'bokstav' — detaljnivå kommentaren er festet på.</summary>
+    public required string FesteNiva { get; set; }
+
+    /// <summary>'under_arbeid' | 'til_godkjenning' | 'publisert' | 'ma_revideres'.</summary>
+    public required string Status { get; set; }
+
+    /// <summary>Utfylt når Status='ma_revideres' — v1-forenkling: manuell merking, ikke automatisk påvirkningsanalyse (byggesteg 8).</summary>
+    public string? Revisjonsgrunn { get; set; }
+
+    public DateOnly? Publisert { get; set; }
+    public DateOnly? SistFagligEndret { get; set; }
+
+    /// <summary>Lokal innholdsliste for lange kommentarer. Tom i v1 (ikke i forfatter-UI-et ennå).</summary>
+    public string UnderoverskrifterJson { get; set; } = "[]";
+
+    /// <summary>Stikkordindeks (Skatteetaten-mønster).</summary>
+    public List<string> Marginord { get; set; } = [];
+
+    /// <summary>Presedensreferanser med rettskildevekt. Alltid tom — forutsetter Presedensregisteret (byggesteg 3), ikke bygget ennå.</summary>
+    public string PraksisJson { get; set; } = "[]";
 }
 
 public sealed class RettskildeReferanseEntitet

@@ -29,15 +29,27 @@ public sealed class RettskildeRepository(RegelIdeDbContext db)
     public Task<RettskildeEntitet?> FinnAsync(Guid id) =>
         db.Rettskilder.FirstOrDefaultAsync(r => r.Id == id && r.Status != UtkastStatus);
 
+    // Filter på Entitetsstatus="gjeldende" lagt til 2026-07-26 (node-nivå versjonering, håndbok/rundskriv,
+    // docs/08-byggesteg1-teknisk-design.md §2.1) — virkningsløst for Lov/Forskrift-noder (alltid
+    // "gjeldende"), men nødvendig for håndbok-noder: en redigert kommentarseksjon har flere rader med
+    // samme eid (gammel="erstattet", ny="gjeldende") som ellers ville dukket opp som duplikater i treet.
     public Task<List<RettskildeNodeEntitet>> NoderForAsync(Guid rettskildeId) =>
-        db.RettskildeNoder.Where(n => n.RettskildeId == rettskildeId).OrderBy(n => n.Sorteringsrekkefolge).ToListAsync();
+        db.RettskildeNoder
+            .Where(n => n.RettskildeId == rettskildeId && n.Entitetsstatus == "gjeldende")
+            .Include(n => n.HandbokMetadata)
+            .OrderBy(n => n.Sorteringsrekkefolge)
+            .ToListAsync();
 
     public Task<RettskildeNodeEntitet?> FinnNodeAsync(Guid rettskildeId, string eid) =>
-        db.RettskildeNoder.FirstOrDefaultAsync(n => n.RettskildeId == rettskildeId && n.Eid == eid);
+        db.RettskildeNoder
+            .Include(n => n.HandbokMetadata)
+            .FirstOrDefaultAsync(n => n.RettskildeId == rettskildeId && n.Eid == eid && n.Entitetsstatus == "gjeldende");
 
     public async Task<List<RettskildeReferanseEntitet>> ReferanserForAsync(Guid rettskildeId)
     {
-        var nodeIder = await db.RettskildeNoder.Where(n => n.RettskildeId == rettskildeId).Select(n => n.Id).ToListAsync();
+        var nodeIder = await db.RettskildeNoder
+            .Where(n => n.RettskildeId == rettskildeId && n.Entitetsstatus == "gjeldende")
+            .Select(n => n.Id).ToListAsync();
         return await db.RettskildeReferanser.Where(r => nodeIder.Contains(r.FraNodeId)).ToListAsync();
     }
 }

@@ -4,6 +4,7 @@ import { useBruker } from './bruker/BrukerContext';
 import RettskilderListe from './pages/RettskilderListe';
 import RettskildeDetalj from './pages/RettskildeDetalj';
 import Importer from './pages/Importer';
+import HandbokOpprett from './pages/HandbokOpprett';
 
 function BrukerVelger() {
   const { brukere, gjeldendeBruker, velgBruker, laster } = useBruker();
@@ -41,6 +42,9 @@ function App() {
           <NavLink to="/importer" className={({ isActive }) => (isActive ? 'aktiv' : '')}>
             Importer
           </NavLink>
+          <NavLink to="/handboker/ny" className={({ isActive }) => (isActive ? 'aktiv' : '')}>
+            Ny håndbok
+          </NavLink>
         </nav>
         <BrukerVelger />
       </aside>
@@ -49,6 +53,7 @@ function App() {
           <Route path="/" element={<RettskilderListe />} />
           <Route path="/rettskilder/:id" element={<RettskildeDetalj />} />
           <Route path="/importer" element={<Importer />} />
+          <Route path="/handboker/ny" element={<HandbokOpprett />} />
         </Routes>
       </main>
     </div>

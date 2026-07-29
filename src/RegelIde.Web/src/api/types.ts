@@ -35,9 +35,67 @@ export interface RettskildeNodeDto {
   /** Flyttet gjennom fra Lovdatas data-repealeddate (2026-07-24) — se docs/08-byggesteg1-teknisk-design.md §2. */
   opphevet: boolean;
   opphevetDato: string | null;
+  /** Node-nivå versjonering (2026-07-26) — kun >1 for redigerte håndbok-seksjoner. */
+  versjon: number;
+  /** Kun satt for håndbok-kommentarseksjoner (docs/03-domenemodell.md §1.1.1). */
+  handbokMetadata: HandbokKommentarMetadataDto | null;
+}
+
+/** Håndbok-kommentarseksjonens 1:1-metadata. 'dokumenttype': kommentar|retningslinje|instruks|handbok. 'status': under_arbeid|til_godkjenning|publisert|ma_revideres. */
+export interface HandbokKommentarMetadataDto {
+  dokumenttype: string;
+  bindende: boolean;
+  festeNiva: string;
+  status: string;
+  revisjonsgrunn: string | null;
+  publisert: string | null;
+  sistFagligEndret: string | null;
+  marginord: string[];
+}
+
+export interface OpprettHandbokRequest {
+  tittel: string;
+}
+
+export interface OpprettKapittelNodeRequest {
+  parentNodeId: string | null;
+  nummer: string;
+  overskrift: string | null;
+}
+
+export interface OpprettKommentarNodeRequest {
+  parentNodeId: string;
+  nummer: string;
+  overskrift: string | null;
+  tekstHtml: string;
+  dokumenttype: string;
+  festeNiva: string;
+  marginord: string[] | null;
+}
+
+export interface RedigerKommentarNodeRequest {
+  tekstHtml: string;
+  overskrift: string | null;
+  dokumenttype: string;
+  festeNiva: string;
+  marginord: string[] | null;
+}
+
+export interface KobleLovreferanseRequest {
+  tilRettskildeId: string;
+  tilEid: string;
+}
+
+export interface SettRevisjonsmerkeRequest {
+  revisjonsgrunn: string;
+}
+
+export interface PubliserKommentarRequest {
+  godkjentAv: string | null;
 }
 
 export interface RettskildeReferanseDto {
+  id: string;
   fraNodeId: string;
   tilRettskildeId: string;
   tilEid: string;

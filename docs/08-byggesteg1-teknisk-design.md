@@ -161,7 +161,6 @@ CREATE TABLE rettskilder (
   konsolidert_dato  date,
   utgiver           text,                 -- f.eks. 'Lovdata' — NLOD 2.0-attribusjon, 05-arkitektur-og-nfk §1.1
   status            text NOT NULL,        -- 'Gjeldende' | 'Opphevet' | 'Utkast'
-  er_bindende       boolean,              -- nullable -- 2026-07-25: NULL for Lov/Forskrift/Presedens (ikke relevant), true/false kun for Rundskriv/Virksomhetsdokument. Se 03-domenemodell.md §1.1.1 for hvorfor dette IKKE gjenbruker rettskildevekt
   versjon           int NOT NULL DEFAULT 1,
   entitetsstatus    text NOT NULL DEFAULT 'gjeldende',  -- felles basemetadata, 03-domenemodell §0
   erstatter_id      uuid REFERENCES rettskilder(id),
@@ -208,6 +207,24 @@ CREATE UNIQUE INDEX ux_rettskilde_noder_eid_gjeldende ON rettskilde_noder(rettsk
 CREATE INDEX ix_rettskilde_noder_parent ON rettskilde_noder(parent_node_id);
 CREATE INDEX ix_rettskilde_noder_tekst_fts ON rettskilde_noder USING gin(to_tsvector('norwegian', tekst));
 CREATE INDEX ix_rettskilde_noder_eid_hash ON rettskilde_noder(eid, tekst_hash);  -- versjonssammenligning, §2.1
+
+-- 1:1-utvidelse av rettskilde_noder for håndbok-kommentarseksjoner (03-domenemodell.md §1.1.1,
+-- "Presisert 2026-07-26") -- dokumenttype/bindende er en egenskap PER KOMMENTAR-NODE, ikke per
+-- håndbok, og kan derfor ikke ligge som alltid-NULL-kolonner på den delte rettskilde_noder-tabellen.
+-- Implementert 2026-07-26 (HandbokForfatterTjeneste.cs).
+CREATE TABLE handbok_kommentar_metadata (
+  node_id           uuid PRIMARY KEY REFERENCES rettskilde_noder(id) ON DELETE CASCADE,
+  dokumenttype      text NOT NULL,        -- 'kommentar' | 'retningslinje' | 'instruks' | 'handbok'
+  bindende          boolean NOT NULL,     -- utledet av dokumenttype (kommentar=false, de tre andre=true) -- aldri satt fritt av klienten
+  feste_niva        text NOT NULL,        -- 'kapittel' | 'bestemmelse' | 'ledd' | 'bokstav'
+  status            text NOT NULL,        -- 'under_arbeid' | 'til_godkjenning' | 'publisert' | 'ma_revideres'
+  revisjonsgrunn    text,                 -- nullable -- utfylt når status='ma_revideres'
+  publisert         date,
+  sist_faglig_endret date,
+  underoverskrifter jsonb NOT NULL DEFAULT '[]',  -- {nummer, tittel, anker}[] -- tom i v1 (ikke i forfatter-UI-et ennå)
+  marginord         text[] NOT NULL DEFAULT '{}',
+  praksis           jsonb NOT NULL DEFAULT '[]'   -- alltid tom -- forutsetter Presedensregisteret, byggesteg 3, ikke bygget ennå
+);
 
 -- Interne kryssreferanser innenfor/på tvers av rettskilder (fra <ref href="#...">)
 CREATE TABLE rettskilde_referanser (

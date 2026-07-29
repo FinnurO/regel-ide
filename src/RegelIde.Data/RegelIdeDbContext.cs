@@ -11,6 +11,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<RettskildeReferanseEntitet> RettskildeReferanser => Set<RettskildeReferanseEntitet>();
     public DbSet<TekstTaggEntitet> TekstTagger => Set<TekstTaggEntitet>();
     public DbSet<TaggKindKonfigurasjonEntitet> TaggKindKonfigurasjoner => Set<TaggKindKonfigurasjonEntitet>();
+    public DbSet<HandbokKommentarMetadataEntitet> HandbokKommentarMetadata => Set<HandbokKommentarMetadataEntitet>();
     public DbSet<ProveniensEntitet> Proveniens => Set<ProveniensEntitet>();
 
     protected override void OnModelCreating(ModelBuilder b)
@@ -107,15 +108,49 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Opphevet).HasColumnName("opphevet").HasDefaultValue(false);
             e.Property(x => x.OpphevetDato).HasColumnName("opphevet_dato");
             e.Property(x => x.Sorteringsrekkefolge).HasColumnName("sorteringsrekkefolge");
+            e.Property(x => x.Versjon).HasColumnName("versjon").HasDefaultValue(1);
+            e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
+            e.Property(x => x.ErstatterNodeId).HasColumnName("erstatter_node_id");
 
             e.HasOne<RettskildeEntitet>().WithMany(r => r.Noder)
                 .HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne<RettskildeNodeEntitet>().WithMany()
                 .HasForeignKey(x => x.ParentNodeId);
+            e.HasOne<RettskildeNodeEntitet>().WithMany()
+                .HasForeignKey(x => x.ErstatterNodeId);
 
-            e.HasIndex(x => new { x.RettskildeId, x.Eid }).IsUnique().HasDatabaseName("rettskilde_noder_rettskilde_id_eid_key");
+            // Filtrert (ikke en vanlig UNIQUE) fra 2026-07-26 (docs/08-byggesteg1-teknisk-design.md §2,
+            // ux_rettskilde_noder_eid_gjeldende): en redigert håndbok-seksjon oppretter en NY rad med
+            // samme eid (§2.1) — den gamle raden får entitetsstatus='erstattet' i stedet for å bli
+            // overskrevet, og må derfor kunne sameksistere med den nye uten å kollidere på
+            // (rettskilde_id, eid). Virkningsløst for Lov/Forskrift-rader (alltid 'gjeldende').
+            e.HasIndex(x => new { x.RettskildeId, x.Eid }).IsUnique()
+                .HasDatabaseName("ux_rettskilde_noder_eid_gjeldende")
+                .HasFilter("entitetsstatus = 'gjeldende'");
             e.HasIndex(x => x.ParentNodeId).HasDatabaseName("ix_rettskilde_noder_parent");
             e.HasIndex(x => new { x.Eid, x.TekstHash }).HasDatabaseName("ix_rettskilde_noder_eid_hash");
+        });
+
+        b.Entity<HandbokKommentarMetadataEntitet>(e =>
+        {
+            e.ToTable("handbok_kommentar_metadata");
+            e.HasKey(x => x.NodeId).HasName("handbok_kommentar_metadata_pkey");
+            e.Property(x => x.NodeId).HasColumnName("node_id").ValueGeneratedNever();
+            e.Property(x => x.Dokumenttype).HasColumnName("dokumenttype");
+            e.Property(x => x.Bindende).HasColumnName("bindende");
+            e.Property(x => x.FesteNiva).HasColumnName("feste_niva");
+            e.Property(x => x.Status).HasColumnName("status");
+            e.Property(x => x.Revisjonsgrunn).HasColumnName("revisjonsgrunn");
+            e.Property(x => x.Publisert).HasColumnName("publisert");
+            e.Property(x => x.SistFagligEndret).HasColumnName("sist_faglig_endret");
+            e.Property(x => x.UnderoverskrifterJson).HasColumnName("underoverskrifter").HasColumnType("jsonb").HasDefaultValue("[]");
+            e.Property(x => x.Marginord).HasColumnName("marginord");
+            e.Property(x => x.PraksisJson).HasColumnName("praksis").HasColumnType("jsonb").HasDefaultValue("[]");
+
+            // 1:1 med rettskilde_noder — samme Id, ingen egen surrogatnøkkel.
+            e.HasOne<RettskildeNodeEntitet>().WithOne(n => n.HandbokMetadata)
+                .HasForeignKey<HandbokKommentarMetadataEntitet>(x => x.NodeId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
         b.Entity<RettskildeReferanseEntitet>(e =>

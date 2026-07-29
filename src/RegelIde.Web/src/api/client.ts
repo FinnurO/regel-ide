@@ -1,11 +1,18 @@
 import type {
   ApiFeil,
   BrukerDto,
+  KobleLovreferanseRequest,
+  OpprettHandbokRequest,
+  OpprettKapittelNodeRequest,
+  OpprettKommentarNodeRequest,
   OpprettTekstTaggRequest,
+  PubliserKommentarRequest,
+  RedigerKommentarNodeRequest,
   RettskildeDetalj,
   RettskildeNodeDto,
   RettskildeReferanseDto,
   RettskildeSammendrag,
+  SettRevisjonsmerkeRequest,
   TaggKindKonfigurasjonDto,
   TekstTaggDto,
   VirksomhetDto,
@@ -93,4 +100,61 @@ export const api = {
     const query = virksomhetId ? `?virksomhetId=${virksomhetId}` : '';
     return kall<{ id: string }>(`/api/rettskilder/fil${query}`, { method: 'POST', body: skjema });
   },
+
+  // ---------- Håndbok/rundskriv-forfatterflyt (2026-07-26, AK-3.3.8–3.3.12) ----------
+
+  opprettHandbok: (request: OpprettHandbokRequest) =>
+    kall<{ id: string }>('/api/handboker', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  opprettKapittelNode: (handbokId: string, request: OpprettKapittelNodeRequest) =>
+    kall<RettskildeNodeDto>(`/api/handboker/${handbokId}/kapitler`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  opprettKommentarNode: (handbokId: string, request: OpprettKommentarNodeRequest) =>
+    kall<RettskildeNodeDto>(`/api/handboker/${handbokId}/kommentarer`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  redigerKommentarNode: (handbokId: string, nodeId: string, request: RedigerKommentarNodeRequest) =>
+    kall<RettskildeNodeDto>(`/api/handboker/${handbokId}/kommentarer/${nodeId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  hentVersjonshistorikk: (handbokId: string, eid: string) =>
+    kall<RettskildeNodeDto[]>(`/api/handboker/${handbokId}/kommentarer/versjoner?eid=${encodeURIComponent(eid)}`),
+
+  kobleLovreferanse: (handbokId: string, nodeId: string, request: KobleLovreferanseRequest) =>
+    kall<RettskildeReferanseDto>(`/api/handboker/${handbokId}/kommentarer/${nodeId}/lovreferanser`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  fjernLovreferanse: (handbokId: string, nodeId: string, referanseId: string) =>
+    kall<void>(`/api/handboker/${handbokId}/kommentarer/${nodeId}/lovreferanser/${referanseId}`, { method: 'DELETE' }),
+
+  settRevisjonsmerke: (handbokId: string, nodeId: string, request: SettRevisjonsmerkeRequest) =>
+    kall<void>(`/api/handboker/${handbokId}/kommentarer/${nodeId}/revisjonsmerke`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  publiserKommentar: (handbokId: string, nodeId: string, request: PubliserKommentarRequest) =>
+    kall<void>(`/api/handboker/${handbokId}/kommentarer/${nodeId}/publiser`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
 };
