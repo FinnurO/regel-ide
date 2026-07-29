@@ -11,6 +11,8 @@ import BegreperListe from './pages/BegreperListe';
 import BegrepDetalj from './pages/BegrepDetalj';
 import KodelisterListe from './pages/KodelisterListe';
 import KodelisteDetalj from './pages/KodelisteDetalj';
+import VilkarstreListe from './pages/VilkarstreListe';
+import VilkarstreDetalj from './pages/VilkarstreDetalj';
 
 function BrukerVelger() {
   const { brukere, gjeldendeBruker, velgBruker, laster } = useBruker();
@@ -60,6 +62,9 @@ function App() {
           <NavLink to="/kodelister" className={({ isActive }) => (isActive ? 'aktiv' : '')}>
             Kodelister
           </NavLink>
+          <NavLink to="/vilkarstre" className={({ isActive }) => (isActive ? 'aktiv' : '')}>
+            Vilkårstre
+          </NavLink>
         </nav>
         <BrukerVelger />
       </aside>
@@ -75,6 +80,8 @@ function App() {
           <Route path="/begreper/:id" element={<BegrepDetalj />} />
           <Route path="/kodelister" element={<KodelisterListe />} />
           <Route path="/kodelister/:id" element={<KodelisteDetalj />} />
+          <Route path="/vilkarstre" element={<VilkarstreListe />} />
+          <Route path="/vilkarstre/:rotnodeId" element={<VilkarstreDetalj />} />
         </Routes>
       </main>
     </div>

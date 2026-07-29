@@ -254,6 +254,12 @@ public sealed class TjenesteEntitet
     public DateTimeOffset OpprettetTidspunkt { get; set; }
     public string? SistEndretAv { get; set; }
     public DateTimeOffset? SistEndretTidspunkt { get; set; }
+
+    /// <summary>
+    /// Byggesteg 4 — lukker gapet fra byggesteg 2 ("vilkårskobling ... kommer i byggesteg 4",
+    /// docs/06-veikart.md). Peker til rotnoden (alltid en Regelnode, INV-5) i tjenestens vilkårstre.
+    /// </summary>
+    public Guid? RotnodeId { get; set; }
 }
 
 /// <summary>Regelverksreferanse fra en Tjeneste til en rettskilde-node — samme form som <see cref="RettskildeReferanseEntitet"/>, egen tabell siden kilden er en Tjeneste, ikke en rettskilde-node.</summary>
@@ -342,6 +348,170 @@ public sealed class KodelisteKodeEntitet
     public DateOnly? GyldigFra { get; set; }
     public DateOnly? GyldigTil { get; set; }
     public Guid? ErstattesAvKodeId { get; set; }
+}
+
+/// <summary>
+/// Datasett (docs/03-domenemodell.md §1.6) — byggesteg 4, minimal. Full Datasett-skjerm (produktkrav
+/// kap. 3.5, filtrerbar tabell, "Nytt datapunkt") er byggesteg 6 — denne tabellen finnes nå kun fordi
+/// Vilkår.input (§5.4 i referansemodellen: kardinalitet 1..N) trenger noe å peke på. Ingen egen
+/// statuslivssyklus — §3 i domenemodellen spesifiserer ikke en for denne typen.
+/// </summary>
+public sealed class DatasettEntitet
+{
+    public Guid Id { get; set; }
+
+    /// <summary>Påkrevd — ikke eksplisitt kategorisert i §0.1, behandlet som virksomhetens eget arbeidsprodukt (samme begrunnelse som Vilkår/Begrep).</summary>
+    public required Guid VirksomhetId { get; set; }
+
+    public required string Felt { get; set; } // visningsnavn
+    public required string Prop { get; set; } // maskinnavn, f.eks. "styrer.fodselsdato"
+    public required string Dtype { get; set; } // 'string' | 'integer' | 'boolean' | 'date' | 'object'
+    public required string Type { get; set; } // 'oppslagbart' | 'brukeroppgitt' | 'utledet'
+    public string? Kilde { get; set; }
+    public Guid? KodelisteId { get; set; }
+    public string? Grunnlag { get; set; } // rettslig grunnlag for behandling/oppslag
+    public string? Lagring { get; set; } // lagringstid
+    public List<string> Mottakere { get; set; } = [];
+    public string? Bruk { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+}
+
+/// <summary>
+/// Vilkår (docs/03-domenemodell.md §1.8) — bladnode i vilkårstreet (INV-1, referansemodell §5.4:
+/// <c>Vilkår.barn = ∅</c>, aldri barn). Samme basemetadata/statusløp-mønster som <see cref="TjenesteEntitet"/>.
+/// </summary>
+public sealed class VilkarEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid VirksomhetId { get; set; }
+
+    public required string Tittel { get; set; }
+    public string? Beskrivelse { get; set; }
+    public string? GeneriskMal { get; set; } // fritekst-kode, f.eks. "GM-VANDEL-PERSON" — ingen egen registertabell i v1
+    public required string Vilkarstype { get; set; } // 'formell' | 'materiell'
+    public string? GjelderRolle { get; set; }
+    public string JuridiskGrunnlagJson { get; set; } = "[]"; // liste {kilde, eId}
+    public Guid? BegrepId { get; set; }
+    public required string Vurderingstype { get; set; } // 'regelbasert' | 'skjonnsbasert' | 'hybrid'
+    public string ParametreJson { get; set; } = "{}";
+
+    /// <summary>Kun relevante når <see cref="Vurderingstype"/> ∈ {skjonnsbasert, hybrid} — håndhevet i VilkarregisterTjeneste, ikke DB-constraint.</summary>
+    public Guid? SkjonnsgrunnlagBegrepId { get; set; }
+
+    /// <summary>Liste {navn, beskrivelse, presedensreferanse?} — presedensreferanse er ubrukelig til byggesteg 3 finnes, samme utsettelsesmønster som HandbokKommentarMetadataEntitet.PraksisJson.</summary>
+    public string SkjonnsmomenterJson { get; set; } = "[]";
+
+    public bool KreverDokumentasjon { get; set; }
+    public string? Eskaleringsrolle { get; set; }
+    public string? VeiledningTilBruker { get; set; }
+    public string? VeiledningTilSaksbehandler { get; set; }
+
+    /// <summary>
+    /// Lett annotering (2026-07-30, se docs/10-rules-as-code-landskap.md Trinn 1b) — markerer at denne
+    /// "vilkår"-noden egentlig er en beregnet verdi/aggregert faktum (f.eks. bevillingsgebyr etter
+    /// alkoholforskriften § 6-2), ikke en ekte testbar betingelse. Rent annoterende i v1 — ingen egen
+    /// Formel-nodetype eller beregningsmotor; se referansemodellen §5.8 for hvorfor dette IKKE er en
+    /// full ontologiendring.
+    /// </summary>
+    public bool ErFormel { get; set; }
+    public string? FormelBeskrivelse { get; set; }
+
+    public required string Status { get; set; }
+    public int Versjon { get; set; } = 1;
+    public string Entitetsstatus { get; set; } = "gjeldende";
+    public Guid? ErstatterId { get; set; }
+    public DateOnly? GyldigFra { get; set; }
+    public DateOnly? GyldigTil { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? SistEndretAv { get; set; }
+    public DateTimeOffset? SistEndretTidspunkt { get; set; }
+}
+
+/// <summary>Join-tabell for Vilkår.input (§5.4: kardinalitet 1..N mot Datasett). Ingen minimum håndheves ved opprettelse — bygges inkrementelt, en villet v1-forenkling.</summary>
+public sealed class VilkarInputDatasettEntitet
+{
+    public Guid Id { get; set; }
+    public Guid VilkarId { get; set; }
+    public Guid DatasettId { get; set; }
+}
+
+/// <summary>
+/// Regelnode (docs/03-domenemodell.md §1.9) — komposisjonsnode. Kalt "regelnode" i kode/API for å
+/// unngå navnekollisjon med forklaringsmodell-apis "Regel" (referansemodell §5.6), som betyr noe helt
+/// annet (det eksporterte, operasjonaliserte artefaktet).
+/// </summary>
+public sealed class RegelnodeEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid VirksomhetId { get; set; }
+
+    public required string Tittel { get; set; }
+    public string? Beskrivelse { get; set; }
+    public string? GeneriskMal { get; set; }
+    public required string BarnOperator { get; set; } // 'OG' | 'ELLER' | 'IKKE'
+    public required string UtdataNavn { get; set; }
+    public required string UtdataType { get; set; }
+
+    /// <summary>Kun rotnoden i et vilkårstre kjennetegnes slik (INV-5) — rotnodens utdata er selve vedtaksforslaget.</summary>
+    public bool ErRotnode { get; set; }
+
+    public string JuridiskGrunnlagJson { get; set; } = "[]";
+    public string? InnvilgelseTekst { get; set; }
+    public string? AvslagTekst { get; set; }
+
+    public required string Status { get; set; }
+    public int Versjon { get; set; } = 1;
+    public string Entitetsstatus { get; set; } = "gjeldende";
+    public Guid? ErstatterId { get; set; }
+    public DateOnly? GyldigFra { get; set; }
+    public DateOnly? GyldigTil { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? SistEndretAv { get; set; }
+    public DateTimeOffset? SistEndretTidspunkt { get; set; }
+}
+
+/// <summary>Polymorf join-tabell for Regelnode.barn[] (1..N, INV-2) — et barn er enten et Vilkår eller en annen Regelnode (rekursivt).</summary>
+public sealed class RegelnodeBarnEntitet
+{
+    public Guid Id { get; set; }
+    public Guid RegelnodeId { get; set; }
+    public required string BarnType { get; set; } // 'vilkar' | 'regelnode'
+    public Guid BarnId { get; set; }
+}
+
+/// <summary>
+/// Unntak (docs/03-domenemodell.md §1.10). <see cref="GjelderRegelId"/> og <see cref="BetingelseId"/>
+/// er begge påkrevd (INV-3/INV-4, referansemodell §5.4) — et Unntak kan ikke opprettes uten begge.
+/// </summary>
+public sealed class UnntakEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid VirksomhetId { get; set; }
+
+    public required string Tittel { get; set; }
+    public string? Beskrivelse { get; set; }
+
+    /// <summary>INV-3 — peker alltid på en Regelnode, aldri et Vilkår direkte.</summary>
+    public required Guid GjelderRegelId { get; set; }
+
+    /// <summary>INV-4 — selve "med mindre …"-testen. Vilkår eller Regelnode, samme rekursjon som Regelnode.barn.</summary>
+    public required string BetingelseType { get; set; } // 'vilkar' | 'regelnode'
+    public required Guid BetingelseId { get; set; }
+
+    public string JuridiskGrunnlagJson { get; set; } = "[]";
+    public required string Status { get; set; }
+    public int Versjon { get; set; } = 1;
+    public string Entitetsstatus { get; set; } = "gjeldende";
+    public Guid? ErstatterId { get; set; }
+    public DateOnly? GyldigFra { get; set; }
+    public DateOnly? GyldigTil { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? SistEndretAv { get; set; }
+    public DateTimeOffset? SistEndretTidspunkt { get; set; }
 }
 
 public sealed class ProveniensEntitet

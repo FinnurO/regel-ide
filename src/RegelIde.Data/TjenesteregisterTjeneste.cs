@@ -151,4 +151,23 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
         await db.SaveChangesAsync(ct);
         return tjeneste;
     }
+
+    /// <summary>
+    /// Byggesteg 4 — kobler tjenesten til rotnoden (alltid en Regelnode, INV-5) i vilkårstreet.
+    /// Lukker gapet fra byggesteg 2 ("vilkårskobling ... kommer i byggesteg 4", docs/06-veikart.md).
+    /// </summary>
+    public async Task<TjenesteEntitet?> SettRotnodeAsync(Guid tjenesteId, Guid regelnodeId, CancellationToken ct = default)
+    {
+        if (!await db.Regelnoder.AnyAsync(r => r.Id == regelnodeId && r.Entitetsstatus == "gjeldende", ct))
+        {
+            throw new ArgumentException($"Fant ingen regelnode med id '{regelnodeId}'.");
+        }
+
+        var tjeneste = await db.Tjenester.FirstOrDefaultAsync(t => t.Id == tjenesteId && t.Entitetsstatus == "gjeldende", ct);
+        if (tjeneste is null) return null;
+
+        tjeneste.RotnodeId = regelnodeId;
+        await db.SaveChangesAsync(ct);
+        return tjeneste;
+    }
 }

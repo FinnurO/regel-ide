@@ -189,6 +189,8 @@ export interface TjenesteDto {
   sprak: string[];
   status: string;
   versjon: number;
+  /** Byggesteg 4 — peker til rotnoden (alltid en Regelnode) i tjenestens vilkårstre. */
+  rotnodeId: string | null;
 }
 
 export interface TjenesteRequest {
@@ -284,4 +286,175 @@ export interface LeggTilKodeRequest {
   definisjon: string | null;
   gyldigFra: string | null;
   gyldigTil: string | null;
+}
+
+// ---------- Vilkårstre (byggesteg 4 runde 1, docs/03-domenemodell.md §1.6/§1.8-1.10) ----------
+
+export interface JuridiskGrunnlagInput {
+  kilde: string;
+  eId: string;
+}
+
+/** presedensreferanse er ubrukelig til byggesteg 3 (Presedensregister) finnes. */
+export interface SkjonnsmomentInput {
+  navn: string;
+  beskrivelse: string | null;
+  presedensreferanse: string | null;
+}
+
+export interface ProveniensDto {
+  id: string;
+  entitetType: string;
+  entitetId: string;
+  endretAv: string;
+  dato: string;
+  handling: string;
+  godkjentAv: string | null;
+}
+
+/** Datasett (§1.6), minimal — full skjerm er byggesteg 6. Kun lesing i denne runden, seedet. */
+export interface DatasettDto {
+  id: string;
+  virksomhetId: string;
+  felt: string;
+  prop: string;
+  dtype: string;
+  type: string;
+  kilde: string | null;
+  kodelisteId: string | null;
+  grunnlag: string | null;
+  lagring: string | null;
+  mottakere: string[];
+  bruk: string | null;
+}
+
+/** Vilkår (§1.8) — bladnode i vilkårstreet. 'vilkarstype': formell|materiell. 'vurderingstype': regelbasert|skjonnsbasert|hybrid. */
+export interface VilkarDto {
+  id: string;
+  virksomhetId: string;
+  tittel: string;
+  beskrivelse: string | null;
+  generiskMal: string | null;
+  vilkarstype: string;
+  gjelderRolle: string | null;
+  juridiskGrunnlag: JuridiskGrunnlagInput[];
+  begrepId: string | null;
+  vurderingstype: string;
+  parametreJson: string;
+  skjonnsgrunnlagBegrepId: string | null;
+  skjonnsmomenter: SkjonnsmomentInput[];
+  kreverDokumentasjon: boolean;
+  eskaleringsrolle: string | null;
+  veiledningTilBruker: string | null;
+  veiledningTilSaksbehandler: string | null;
+  /** Lett annotering (docs/10-rules-as-code-landskap.md) — dette er egentlig en beregnet verdi, ikke et ekte testbart vilkår. */
+  erFormel: boolean;
+  formelBeskrivelse: string | null;
+  status: string;
+  versjon: number;
+}
+
+export interface VilkarRequest {
+  tittel: string;
+  beskrivelse: string | null;
+  generiskMal: string | null;
+  vilkarstype: string;
+  gjelderRolle: string | null;
+  juridiskGrunnlag: JuridiskGrunnlagInput[] | null;
+  begrepId: string | null;
+  vurderingstype: string;
+  parametreJson: string | null;
+  skjonnsgrunnlagBegrepId: string | null;
+  skjonnsmomenter: SkjonnsmomentInput[] | null;
+  kreverDokumentasjon: boolean;
+  eskaleringsrolle: string | null;
+  veiledningTilBruker: string | null;
+  veiledningTilSaksbehandler: string | null;
+  erFormel: boolean;
+  formelBeskrivelse: string | null;
+}
+
+export interface LeggTilVilkarInputRequest {
+  datasettId: string;
+}
+
+/** Regelnode (§1.9) — komposisjonsnode. 'barnOperator': OG|ELLER|IKKE. */
+export interface RegelnodeDto {
+  id: string;
+  virksomhetId: string;
+  tittel: string;
+  beskrivelse: string | null;
+  generiskMal: string | null;
+  barnOperator: string;
+  utdataNavn: string;
+  utdataType: string;
+  erRotnode: boolean;
+  juridiskGrunnlag: JuridiskGrunnlagInput[];
+  innvilgelseTekst: string | null;
+  avslagTekst: string | null;
+  status: string;
+  versjon: number;
+}
+
+export interface RegelnodeRequest {
+  tittel: string;
+  beskrivelse: string | null;
+  generiskMal: string | null;
+  barnOperator: string;
+  utdataNavn: string;
+  utdataType: string;
+  erRotnode: boolean;
+  juridiskGrunnlag: JuridiskGrunnlagInput[] | null;
+  innvilgelseTekst: string | null;
+  avslagTekst: string | null;
+}
+
+/** 'barnType': vilkar|regelnode. */
+export interface RegelnodeBarnDto {
+  id: string;
+  regelnodeId: string;
+  barnType: string;
+  barnId: string;
+}
+
+export interface KobleBarnRequest {
+  barnType: string;
+  barnId: string;
+}
+
+export interface SettOperatorRequest {
+  barnOperator: string;
+}
+
+/** Unntak (§1.10). 'betingelseType': vilkar|regelnode. */
+export interface UnntakDto {
+  id: string;
+  virksomhetId: string;
+  tittel: string;
+  beskrivelse: string | null;
+  gjelderRegelId: string;
+  betingelseType: string;
+  betingelseId: string;
+  juridiskGrunnlag: JuridiskGrunnlagInput[];
+  status: string;
+  versjon: number;
+}
+
+export interface OpprettUnntakRequest {
+  tittel: string;
+  beskrivelse: string | null;
+  gjelderRegelId: string;
+  betingelseType: string;
+  betingelseId: string;
+  juridiskGrunnlag: JuridiskGrunnlagInput[] | null;
+}
+
+export interface OppdaterUnntakRequest {
+  tittel: string;
+  beskrivelse: string | null;
+  juridiskGrunnlag: JuridiskGrunnlagInput[] | null;
+}
+
+export interface SettRotnodeRequest {
+  regelnodeId: string;
 }

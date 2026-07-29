@@ -316,3 +316,7 @@ For å unngå at to ulike ting begge kalles "Regel" på tvers av repoene (jf. §
 
 - Om regelnoder eksporteres én-til-én til separate regelartefakter (én DMN-node per regelnode) eller om hele (del-)treet kompileres til ett samlet DMN/eFLINT-dokument. Avklares før eksportmotoren (kap. 4.14) bygges, se `06-veikart.md` byggesteg 4/6.
 - Migrering av data fra det aller første kravspesifikasjonsutkastet (som kun hadde én `Vilkår`-type) er ikke aktuelt lenger — det var aldri implementert.
+
+### 5.8 Ekstern landskapsanalyse (2026-07-30) — kandidater for en fremtidig v0.4-revisjon
+
+`10-rules-as-code-landskap.md` er en ekstern Claude Research-rapport som sammenligner denne ontologien mot FLINT/LegalRuleML/Catala/OPA/Rulemapping. Rapportens egen anbefaling er å **ikke** endre ontologien nå — se dokumentet for terskelen. Én lett justering er tatt inn i byggesteg 4 (en `ErFormel`-annotering på Vilkår, se der). Fire punkter er bevisst utsatt som kandidater for en fremtidig v0.4-revisjon, betinget av at pilotene faktisk treffer situasjonen: (1) skille "ikke spurt" fra "skjønn bevisst uavklart" i vedtaksevalueringens statusmodell (byggesteg 7, ikke denne ontologien direkte); (2) "Formel/utledet faktum" som fullverdig nodetype, ikke bare annotering; (3) en deontisk/handlingsdimensjon (FLINT act/fact/duty) for å dekke kontroll/inndragning, ikke bare tildelingsvedtaket; (4) "Unntak" modellert som en overstyringsrelasjon mellom regler i stedet for en egen entitetstype — relevant hvis unntak-fra-unntak eller motstridende regler faktisk oppstår.

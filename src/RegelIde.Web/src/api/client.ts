@@ -3,6 +3,8 @@ import type {
   BegrepDto,
   BegrepRequest,
   BrukerDto,
+  DatasettDto,
+  KobleBarnRequest,
   KobleLovreferanseRequest,
   KobleRegelverksreferanseRequest,
   KobleTaggTilEntitetRequest,
@@ -10,24 +12,36 @@ import type {
   KodelisteKodeDto,
   KodelisteRequest,
   LeggTilKodeRequest,
+  LeggTilVilkarInputRequest,
   OppdaterRettskildeMetadataRequest,
+  OppdaterUnntakRequest,
   OpprettHandbokRequest,
   OpprettKapittelNodeRequest,
   OpprettKommentarNodeRequest,
   OpprettTekstTaggRequest,
+  OpprettUnntakRequest,
+  ProveniensDto,
   PubliserKommentarRequest,
   RedigerKommentarNodeRequest,
+  RegelnodeBarnDto,
+  RegelnodeDto,
+  RegelnodeRequest,
   RettskildeDetalj,
   RettskildeNodeDto,
   RettskildeReferanseDto,
   RettskildeSammendrag,
+  SettOperatorRequest,
   SettRevisjonsmerkeRequest,
+  SettRotnodeRequest,
   SettStatusRequest,
   TaggKindKonfigurasjonDto,
   TekstTaggDto,
   TjenesteDto,
   TjenesteRegelverksreferanseDto,
   TjenesteRequest,
+  UnntakDto,
+  VilkarDto,
+  VilkarRequest,
   VirksomhetDto,
 } from './types';
 
@@ -276,6 +290,129 @@ export const api = {
 
   settKodelisteStatus: (id: string, request: SettStatusRequest) =>
     kall<KodelisteDto>(`/api/kodelister/${id}/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  // ---------- Vilkårstre (byggesteg 4 runde 1, docs/03-domenemodell.md §1.6/§1.8-1.10) ----------
+
+  hentDatasett: () => kall<DatasettDto[]>('/api/datasett'),
+
+  hentVilkarListe: () => kall<VilkarDto[]>('/api/vilkar'),
+
+  hentVilkar: (id: string) => kall<VilkarDto>(`/api/vilkar/${id}`),
+
+  opprettVilkar: (request: VilkarRequest) =>
+    kall<VilkarDto>('/api/vilkar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  oppdaterVilkar: (id: string, request: VilkarRequest) =>
+    kall<VilkarDto>(`/api/vilkar/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  settVilkarStatus: (id: string, request: SettStatusRequest) =>
+    kall<VilkarDto>(`/api/vilkar/${id}/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  hentVilkarInput: (id: string) => kall<DatasettDto[]>(`/api/vilkar/${id}/input`),
+
+  leggTilVilkarInput: (id: string, request: LeggTilVilkarInputRequest) =>
+    kall<DatasettDto>(`/api/vilkar/${id}/input`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  fjernVilkarInput: (id: string, datasettId: string) =>
+    kall<void>(`/api/vilkar/${id}/input/${datasettId}`, { method: 'DELETE' }),
+
+  hentVilkarHistorikk: (id: string) => kall<ProveniensDto[]>(`/api/vilkar/${id}/historikk`),
+
+  hentRegelnodeListe: () => kall<RegelnodeDto[]>('/api/regelnoder'),
+
+  hentRegelnode: (id: string) => kall<RegelnodeDto>(`/api/regelnoder/${id}`),
+
+  opprettRegelnode: (request: RegelnodeRequest) =>
+    kall<RegelnodeDto>('/api/regelnoder', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  oppdaterRegelnode: (id: string, request: RegelnodeRequest) =>
+    kall<RegelnodeDto>(`/api/regelnoder/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  settRegelnodeOperator: (id: string, request: SettOperatorRequest) =>
+    kall<RegelnodeDto>(`/api/regelnoder/${id}/operator`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  settRegelnodeStatus: (id: string, request: SettStatusRequest) =>
+    kall<RegelnodeDto>(`/api/regelnoder/${id}/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  hentRegelnodeBarn: (id: string) => kall<RegelnodeBarnDto[]>(`/api/regelnoder/${id}/barn`),
+
+  kobleRegelnodeBarn: (id: string, request: KobleBarnRequest) =>
+    kall<RegelnodeBarnDto>(`/api/regelnoder/${id}/barn`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  fjernRegelnodeBarn: (id: string, barnType: string, barnId: string) =>
+    kall<void>(`/api/regelnoder/${id}/barn/${barnType}/${barnId}`, { method: 'DELETE' }),
+
+  hentRegelnodeHistorikk: (id: string) => kall<ProveniensDto[]>(`/api/regelnoder/${id}/historikk`),
+
+  hentUnntakListe: () => kall<UnntakDto[]>('/api/unntak'),
+
+  hentUnntak: (id: string) => kall<UnntakDto>(`/api/unntak/${id}`),
+
+  opprettUnntak: (request: OpprettUnntakRequest) =>
+    kall<UnntakDto>('/api/unntak', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  oppdaterUnntak: (id: string, request: OppdaterUnntakRequest) =>
+    kall<UnntakDto>(`/api/unntak/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  settUnntakStatus: (id: string, request: SettStatusRequest) =>
+    kall<UnntakDto>(`/api/unntak/${id}/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  hentUnntakHistorikk: (id: string) => kall<ProveniensDto[]>(`/api/unntak/${id}/historikk`),
+
+  settTjenesteRotnode: (id: string, request: SettRotnodeRequest) =>
+    kall<TjenesteDto>(`/api/tjenester/${id}/rotnode`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),

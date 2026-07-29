@@ -20,6 +20,9 @@ builder.Services.AddScoped<HandbokForfatterTjeneste>();
 builder.Services.AddScoped<TjenesteregisterTjeneste>();
 builder.Services.AddScoped<BegrepsregisterTjeneste>();
 builder.Services.AddScoped<KodelisteregisterTjeneste>();
+builder.Services.AddScoped<VilkarregisterTjeneste>();
+builder.Services.AddScoped<RegelnoderegisterTjeneste>();
+builder.Services.AddScoped<UnntaksregisterTjeneste>();
 builder.Services.AddHttpClient<LovdataBulkHenter>();
 
 const string VitePolicy = "ViteDevServer";
@@ -95,6 +98,10 @@ using (var scope = app.Services.CreateScope())
     // Byggesteg 2-testcaseinnhold (2026-07-29, docs/06-veikart.md) — tjeneste/begreper/kodelister for
     // "Alminnelig skjenkebevilling". Kjøres etter alkoholloven-importen over (no-op hvis den mangler).
     await Byggesteg2InnholdSeed.SeedAsync(db);
+
+    // Byggesteg 4 runde 1-testcaseinnhold (2026-07-30) — vilkårstreet fra docs/01-referansemodell.md
+    // §5.5. Kjøres etter byggesteg 2 (no-op hvis tjenesten/begrepet den trenger ikke finnes ennå).
+    await Byggesteg4VilkarstreSeed.SeedAsync(db);
 }
 
 app.MapGet("/api/brukere", async (RegelIdeDbContext db) =>
@@ -812,6 +819,382 @@ kodelister.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, Set
     })
     .WithName("SettKodelisteStatus")
     .WithSummary("Endrer status (§3.1 i domenemodellen) — avvises for ekstern-referanse.");
+
+// ---------- Datasett (docs/03-domenemodell.md §1.6) — byggesteg 4, minimal, kun lesing ----------
+
+app.MapGet("/api/datasett", async (RegelIdeDbContext db) =>
+        Results.Ok((await db.Datasett.OrderBy(d => d.Felt).ToListAsync()).Select(DatasettDto.FraEntitet)))
+    .WithOpenApi()
+    .WithName("HentDatasett")
+    .WithSummary("Lister datasett (§1.6, minimal — full skjerm er byggesteg 6). Seedet, ingen opprett-UI ennå.");
+
+// ---------- Vilkårregister (docs/03-domenemodell.md §1.8) — byggesteg 4 runde 1 ----------
+
+var vilkar = app.MapGroup("/api/vilkar").WithOpenApi();
+
+vilkar.MapGet("/", async (HttpRequest request, VilkarregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        return Results.Ok((await register.ListerForAsync(bruker.VirksomhetId, ct)).Select(VilkarDto.FraEntitet));
+    })
+    .WithName("HentVilkar")
+    .WithSummary("Lister virksomhetens egne vilkår (produktkrav kap. 3.4).");
+
+vilkar.MapGet("/{id:guid}", async (Guid id, VilkarregisterTjeneste register, CancellationToken ct) =>
+    {
+        var v = await register.FinnAsync(id, ct);
+        return v is null ? Results.NotFound(new { feil = $"Ingen vilkår med id '{id}'." }) : Results.Ok(VilkarDto.FraEntitet(v));
+    })
+    .WithName("HentEttVilkar")
+    .WithSummary("Henter ett vilkår.");
+
+vilkar.MapPost("/", async (HttpRequest request, VilkarRequest body, VilkarregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var v = await register.OpprettAsync(bruker.VirksomhetId, body.Tittel, body.Beskrivelse, body.GeneriskMal,
+                body.Vilkarstype, body.GjelderRolle, body.JuridiskGrunnlag, body.BegrepId, body.Vurderingstype,
+                body.ParametreJson, body.SkjonnsgrunnlagBegrepId, body.Skjonnsmomenter, body.KreverDokumentasjon,
+                body.Eskaleringsrolle, body.VeiledningTilBruker, body.VeiledningTilSaksbehandler, body.ErFormel,
+                body.FormelBeskrivelse, bruker.Navn, ct);
+            return Results.Created($"/api/vilkar/{v.Id}", VilkarDto.FraEntitet(v));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OpprettVilkar")
+    .WithSummary("Oppretter et nytt vilkår (utkast).");
+
+vilkar.MapPut("/{id:guid}", async (Guid id, HttpRequest request, VilkarRequest body, VilkarregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var v = await register.OppdaterAsync(id, body.Tittel, body.Beskrivelse, body.GeneriskMal, body.Vilkarstype,
+                body.GjelderRolle, body.JuridiskGrunnlag, body.BegrepId, body.Vurderingstype, body.ParametreJson,
+                body.SkjonnsgrunnlagBegrepId, body.Skjonnsmomenter, body.KreverDokumentasjon, body.Eskaleringsrolle,
+                body.VeiledningTilBruker, body.VeiledningTilSaksbehandler, body.ErFormel, body.FormelBeskrivelse, bruker.Navn, ct);
+            return v is null ? Results.NotFound(new { feil = $"Ingen vilkår med id '{id}'." }) : Results.Ok(VilkarDto.FraEntitet(v));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OppdaterVilkar")
+    .WithSummary("Oppdaterer et vilkår.");
+
+vilkar.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, SettStatusRequest body, VilkarregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var v = await register.SettStatusAsync(id, body.Status, bruker.Navn, ct);
+            return v is null ? Results.NotFound(new { feil = $"Ingen vilkår med id '{id}'." }) : Results.Ok(VilkarDto.FraEntitet(v));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SettVilkarStatus")
+    .WithSummary("Endrer status (§3.1 i domenemodellen).");
+
+vilkar.MapGet("/{id:guid}/input", async (Guid id, VilkarregisterTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.InputForAsync(id, ct)).Select(DatasettDto.FraEntitet)))
+    .WithName("HentVilkarInput")
+    .WithSummary("Lister vilkårets input-datasett.");
+
+vilkar.MapPost("/{id:guid}/input", async (Guid id, LeggTilVilkarInputRequest body, VilkarregisterTjeneste register, CancellationToken ct) =>
+    {
+        try
+        {
+            var d = await register.LeggTilInputAsync(id, body.DatasettId, ct);
+            return Results.Created($"/api/vilkar/{id}/input", DatasettDto.FraEntitet(d));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("LeggTilVilkarInput")
+    .WithSummary("Kobler et datasett som input til vilkåret.");
+
+vilkar.MapDelete("/{id:guid}/input/{datasettId:guid}", async (Guid id, Guid datasettId, VilkarregisterTjeneste register, CancellationToken ct) =>
+        await register.FjernInputAsync(id, datasettId, ct) ? Results.NoContent() : Results.NotFound(new { feil = "Fant ingen slik input-kobling." }))
+    .WithName("FjernVilkarInput")
+    .WithSummary("Fjerner en input-datasett-kobling fra vilkåret.");
+
+vilkar.MapGet("/{id:guid}/historikk", async (Guid id, RegelIdeDbContext db) =>
+        Results.Ok((await db.Proveniens.Where(p => p.EntitetType == "vilkar" && p.EntitetId == id)
+            .OrderByDescending(p => p.Dato).ToListAsync()).Select(ProveniensDto.FraEntitet)))
+    .WithName("HentVilkarHistorikk")
+    .WithSummary("Proveniens for vilkåret.");
+
+// ---------- Regelnoderegister (docs/03-domenemodell.md §1.9) — byggesteg 4 runde 1 ----------
+
+var regelnoder = app.MapGroup("/api/regelnoder").WithOpenApi();
+
+regelnoder.MapGet("/", async (HttpRequest request, RegelnoderegisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        return Results.Ok((await register.ListerForAsync(bruker.VirksomhetId, ct)).Select(RegelnodeDto.FraEntitet));
+    })
+    .WithName("HentRegelnoder")
+    .WithSummary("Lister virksomhetens egne regelnoder.");
+
+regelnoder.MapGet("/{id:guid}", async (Guid id, RegelnoderegisterTjeneste register, CancellationToken ct) =>
+    {
+        var r = await register.FinnAsync(id, ct);
+        return r is null ? Results.NotFound(new { feil = $"Ingen regelnode med id '{id}'." }) : Results.Ok(RegelnodeDto.FraEntitet(r));
+    })
+    .WithName("HentEnRegelnode")
+    .WithSummary("Henter én regelnode.");
+
+regelnoder.MapPost("/", async (HttpRequest request, RegelnodeRequest body, RegelnoderegisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var r = await register.OpprettAsync(bruker.VirksomhetId, body.Tittel, body.Beskrivelse, body.GeneriskMal,
+                body.BarnOperator, body.UtdataNavn, body.UtdataType, body.ErRotnode, body.JuridiskGrunnlag,
+                body.InnvilgelseTekst, body.AvslagTekst, bruker.Navn, ct);
+            return Results.Created($"/api/regelnoder/{r.Id}", RegelnodeDto.FraEntitet(r));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OpprettRegelnode")
+    .WithSummary("Oppretter en ny regelnode (utkast).");
+
+regelnoder.MapPut("/{id:guid}", async (Guid id, HttpRequest request, RegelnodeRequest body, RegelnoderegisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var r = await register.OppdaterAsync(id, body.Tittel, body.Beskrivelse, body.GeneriskMal, body.UtdataNavn,
+                body.UtdataType, body.JuridiskGrunnlag, body.InnvilgelseTekst, body.AvslagTekst, bruker.Navn, ct);
+            return r is null ? Results.NotFound(new { feil = $"Ingen regelnode med id '{id}'." }) : Results.Ok(RegelnodeDto.FraEntitet(r));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OppdaterRegelnode")
+    .WithSummary("Oppdaterer en regelnode.");
+
+regelnoder.MapPut("/{id:guid}/operator", async (Guid id, HttpRequest request, SettOperatorRequest body, RegelnoderegisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var r = await register.SettOperatorAsync(id, body.BarnOperator, bruker.Navn, ct);
+            return r is null ? Results.NotFound(new { feil = $"Ingen regelnode med id '{id}'." }) : Results.Ok(RegelnodeDto.FraEntitet(r));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SettRegelnodeOperator")
+    .WithSummary("Endrer barn_operator (OG/ELLER/IKKE, AK-3.4.2).");
+
+regelnoder.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, SettStatusRequest body, RegelnoderegisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var r = await register.SettStatusAsync(id, body.Status, bruker.Navn, ct);
+            return r is null ? Results.NotFound(new { feil = $"Ingen regelnode med id '{id}'." }) : Results.Ok(RegelnodeDto.FraEntitet(r));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SettRegelnodeStatus")
+    .WithSummary("Endrer status (§3.1 i domenemodellen).");
+
+regelnoder.MapGet("/{id:guid}/barn", async (Guid id, RegelnoderegisterTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.BarnForAsync(id, ct)).Select(RegelnodeBarnDto.FraEntitet)))
+    .WithName("HentRegelnodeBarn")
+    .WithSummary("Lister regelnodens barn (Vilkår- eller Regelnode-referanser).");
+
+regelnoder.MapPost("/{id:guid}/barn", async (Guid id, KobleBarnRequest body, RegelnoderegisterTjeneste register, CancellationToken ct) =>
+    {
+        try
+        {
+            var b = await register.KobleBarnAsync(id, body.BarnType, body.BarnId, ct);
+            return Results.Created($"/api/regelnoder/{id}/barn", RegelnodeBarnDto.FraEntitet(b));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KobleRegelnodeBarn")
+    .WithSummary("Kobler et barn (Vilkår eller Regelnode) til regelnoden — validerer DAG (AK-3.4.6, INV-7).");
+
+regelnoder.MapDelete("/{id:guid}/barn/{barnType}/{barnId:guid}", async (Guid id, string barnType, Guid barnId, RegelnoderegisterTjeneste register, CancellationToken ct) =>
+        await register.FjernBarnAsync(id, barnType, barnId, ct) ? Results.NoContent() : Results.NotFound(new { feil = "Fant ingen slik barn-kobling." }))
+    .WithName("FjernRegelnodeBarn")
+    .WithSummary("Fjerner en barn-kobling fra regelnoden.");
+
+regelnoder.MapGet("/{id:guid}/historikk", async (Guid id, RegelIdeDbContext db) =>
+        Results.Ok((await db.Proveniens.Where(p => p.EntitetType == "regelnode" && p.EntitetId == id)
+            .OrderByDescending(p => p.Dato).ToListAsync()).Select(ProveniensDto.FraEntitet)))
+    .WithName("HentRegelnodeHistorikk")
+    .WithSummary("Proveniens for regelnoden.");
+
+// ---------- Unntaksregister (docs/03-domenemodell.md §1.10) — byggesteg 4 runde 1 ----------
+
+var unntak = app.MapGroup("/api/unntak").WithOpenApi();
+
+unntak.MapGet("/", async (HttpRequest request, UnntaksregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        return Results.Ok((await register.ListerForAsync(bruker.VirksomhetId, ct)).Select(UnntakDto.FraEntitet));
+    })
+    .WithName("HentUnntak")
+    .WithSummary("Lister virksomhetens egne unntak.");
+
+unntak.MapGet("/{id:guid}", async (Guid id, UnntaksregisterTjeneste register, CancellationToken ct) =>
+    {
+        var u = await register.FinnAsync(id, ct);
+        return u is null ? Results.NotFound(new { feil = $"Ingen unntak med id '{id}'." }) : Results.Ok(UnntakDto.FraEntitet(u));
+    })
+    .WithName("HentEttUnntak")
+    .WithSummary("Henter ett unntak.");
+
+unntak.MapPost("/", async (HttpRequest request, OpprettUnntakRequest body, UnntaksregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var u = await register.OpprettAsync(bruker.VirksomhetId, body.Tittel, body.Beskrivelse, body.GjelderRegelId,
+                body.BetingelseType, body.BetingelseId, body.JuridiskGrunnlag, bruker.Navn, ct);
+            return Results.Created($"/api/unntak/{u.Id}", UnntakDto.FraEntitet(u));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OpprettUnntak")
+    .WithSummary("Oppretter et unntak — krever gjelderRegelId og betingelse (INV-3/INV-4).");
+
+unntak.MapPut("/{id:guid}", async (Guid id, HttpRequest request, OppdaterUnntakRequest body, UnntaksregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var u = await register.OppdaterAsync(id, body.Tittel, body.Beskrivelse, body.JuridiskGrunnlag, bruker.Navn, ct);
+            return u is null ? Results.NotFound(new { feil = $"Ingen unntak med id '{id}'." }) : Results.Ok(UnntakDto.FraEntitet(u));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OppdaterUnntak")
+    .WithSummary("Oppdaterer et unntak (tittel/beskrivelse/juridisk grunnlag — ikke gjelder_regel/betingelse).");
+
+unntak.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, SettStatusRequest body, UnntaksregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var u = await register.SettStatusAsync(id, body.Status, bruker.Navn, ct);
+            return u is null ? Results.NotFound(new { feil = $"Ingen unntak med id '{id}'." }) : Results.Ok(UnntakDto.FraEntitet(u));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SettUnntakStatus")
+    .WithSummary("Endrer status (§3.1 i domenemodellen).");
+
+unntak.MapGet("/{id:guid}/historikk", async (Guid id, RegelIdeDbContext db) =>
+        Results.Ok((await db.Proveniens.Where(p => p.EntitetType == "unntak" && p.EntitetId == id)
+            .OrderByDescending(p => p.Dato).ToListAsync()).Select(ProveniensDto.FraEntitet)))
+    .WithName("HentUnntakHistorikk")
+    .WithSummary("Proveniens for unntaket.");
+
+// ---------- Vilkårstre-kobling på Tjeneste (byggesteg 4 — lukker gapet fra byggesteg 2) ----------
+
+tjenester.MapPost("/{id:guid}/rotnode", async (Guid id, SettRotnodeRequest body, TjenesteregisterTjeneste register, CancellationToken ct) =>
+    {
+        try
+        {
+            var t = await register.SettRotnodeAsync(id, body.RegelnodeId, ct);
+            return t is null ? Results.NotFound(new { feil = $"Ingen tjeneste med id '{id}'." }) : Results.Ok(TjenesteDto.FraEntitet(t));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SettTjenesteRotnode")
+    .WithSummary("Kobler tjenesten til rotnoden i sitt vilkårstre (byggesteg 4).");
 
 app.Run();
 

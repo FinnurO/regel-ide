@@ -18,6 +18,12 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<BegrepEntitet> Begreper => Set<BegrepEntitet>();
     public DbSet<KodelisteEntitet> Kodelister => Set<KodelisteEntitet>();
     public DbSet<KodelisteKodeEntitet> KodelisteKoder => Set<KodelisteKodeEntitet>();
+    public DbSet<DatasettEntitet> Datasett => Set<DatasettEntitet>();
+    public DbSet<VilkarEntitet> Vilkar => Set<VilkarEntitet>();
+    public DbSet<VilkarInputDatasettEntitet> VilkarInputDatasett => Set<VilkarInputDatasettEntitet>();
+    public DbSet<RegelnodeEntitet> Regelnoder => Set<RegelnodeEntitet>();
+    public DbSet<RegelnodeBarnEntitet> RegelnodeBarn => Set<RegelnodeBarnEntitet>();
+    public DbSet<UnntakEntitet> Unntak => Set<UnntakEntitet>();
 
     protected override void OnModelCreating(ModelBuilder b)
     {
@@ -270,9 +276,11 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").HasDefaultValueSql("now()");
             e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
             e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
+            e.Property(x => x.RotnodeId).HasColumnName("rotnode_id");
 
             e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
             e.HasOne<TjenesteEntitet>().WithMany().HasForeignKey(x => x.ErstatterId);
+            e.HasOne<RegelnodeEntitet>().WithMany().HasForeignKey(x => x.RotnodeId);
             e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_tjenester_virksomhet");
         });
 
@@ -364,6 +372,156 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasOne<KodelisteEntitet>().WithMany(k => k.Koder).HasForeignKey(x => x.KodelisteId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne<KodelisteKodeEntitet>().WithMany().HasForeignKey(x => x.ErstattesAvKodeId);
             e.HasIndex(x => new { x.KodelisteId, x.Kode }).IsUnique().HasDatabaseName("ux_kodeliste_koder_kode");
+        });
+
+        b.Entity<DatasettEntitet>(e =>
+        {
+            e.ToTable("datasett");
+            e.HasKey(x => x.Id).HasName("datasett_pkey");
+            e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
+            e.Property(x => x.Felt).HasColumnName("felt");
+            e.Property(x => x.Prop).HasColumnName("prop");
+            e.Property(x => x.Dtype).HasColumnName("dtype");
+            e.Property(x => x.Type).HasColumnName("type");
+            e.Property(x => x.Kilde).HasColumnName("kilde");
+            e.Property(x => x.KodelisteId).HasColumnName("kodeliste_id");
+            e.Property(x => x.Grunnlag).HasColumnName("grunnlag");
+            e.Property(x => x.Lagring).HasColumnName("lagring");
+            e.Property(x => x.Mottakere).HasColumnName("mottakere");
+            e.Property(x => x.Bruk).HasColumnName("bruk");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").HasDefaultValueSql("now()");
+
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
+            e.HasOne<KodelisteEntitet>().WithMany().HasForeignKey(x => x.KodelisteId);
+            e.HasIndex(x => x.Prop).HasDatabaseName("ix_datasett_prop");
+        });
+
+        b.Entity<VilkarEntitet>(e =>
+        {
+            e.ToTable("vilkar");
+            e.HasKey(x => x.Id).HasName("vilkar_pkey");
+            e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
+            e.Property(x => x.Tittel).HasColumnName("tittel");
+            e.Property(x => x.Beskrivelse).HasColumnName("beskrivelse");
+            e.Property(x => x.GeneriskMal).HasColumnName("generisk_mal");
+            e.Property(x => x.Vilkarstype).HasColumnName("vilkarstype");
+            e.Property(x => x.GjelderRolle).HasColumnName("gjelder_rolle");
+            e.Property(x => x.JuridiskGrunnlagJson).HasColumnName("juridisk_grunnlag").HasColumnType("jsonb").HasDefaultValue("[]");
+            e.Property(x => x.BegrepId).HasColumnName("begrep_id");
+            e.Property(x => x.Vurderingstype).HasColumnName("vurderingstype");
+            e.Property(x => x.ParametreJson).HasColumnName("parametre").HasColumnType("jsonb").HasDefaultValue("{}");
+            e.Property(x => x.SkjonnsgrunnlagBegrepId).HasColumnName("skjonnsgrunnlag_begrep_id");
+            e.Property(x => x.SkjonnsmomenterJson).HasColumnName("skjonnsmomenter").HasColumnType("jsonb").HasDefaultValue("[]");
+            e.Property(x => x.KreverDokumentasjon).HasColumnName("krever_dokumentasjon").HasDefaultValue(false);
+            e.Property(x => x.Eskaleringsrolle).HasColumnName("eskaleringsrolle");
+            e.Property(x => x.VeiledningTilBruker).HasColumnName("veiledning_til_bruker");
+            e.Property(x => x.VeiledningTilSaksbehandler).HasColumnName("veiledning_til_saksbehandler");
+            e.Property(x => x.ErFormel).HasColumnName("er_formel").HasDefaultValue(false);
+            e.Property(x => x.FormelBeskrivelse).HasColumnName("formel_beskrivelse");
+            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("utkast");
+            e.Property(x => x.Versjon).HasColumnName("versjon").HasDefaultValue(1);
+            e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
+            e.Property(x => x.ErstatterId).HasColumnName("erstatter_id");
+            e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
+            e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").HasDefaultValueSql("now()");
+            e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
+            e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
+
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
+            e.HasOne<VilkarEntitet>().WithMany().HasForeignKey(x => x.ErstatterId);
+            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.BegrepId);
+            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.SkjonnsgrunnlagBegrepId);
+            e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_vilkar_virksomhet");
+        });
+
+        b.Entity<VilkarInputDatasettEntitet>(e =>
+        {
+            e.ToTable("vilkar_input_datasett");
+            e.HasKey(x => x.Id).HasName("vilkar_input_datasett_pkey");
+            e.Property(x => x.VilkarId).HasColumnName("vilkar_id");
+            e.Property(x => x.DatasettId).HasColumnName("datasett_id");
+
+            e.HasOne<VilkarEntitet>().WithMany().HasForeignKey(x => x.VilkarId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<DatasettEntitet>().WithMany().HasForeignKey(x => x.DatasettId);
+            e.HasIndex(x => new { x.VilkarId, x.DatasettId }).IsUnique().HasDatabaseName("ux_vilkar_input_datasett");
+        });
+
+        b.Entity<RegelnodeEntitet>(e =>
+        {
+            e.ToTable("regelnoder", t => t.HasCheckConstraint(
+                "ck_regelnoder_barn_operator", "barn_operator IN ('OG', 'ELLER', 'IKKE')"));
+            e.HasKey(x => x.Id).HasName("regelnoder_pkey");
+            e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
+            e.Property(x => x.Tittel).HasColumnName("tittel");
+            e.Property(x => x.Beskrivelse).HasColumnName("beskrivelse");
+            e.Property(x => x.GeneriskMal).HasColumnName("generisk_mal");
+            e.Property(x => x.BarnOperator).HasColumnName("barn_operator");
+            e.Property(x => x.UtdataNavn).HasColumnName("utdata_navn");
+            e.Property(x => x.UtdataType).HasColumnName("utdata_type");
+            e.Property(x => x.ErRotnode).HasColumnName("er_rotnode").HasDefaultValue(false);
+            e.Property(x => x.JuridiskGrunnlagJson).HasColumnName("juridisk_grunnlag").HasColumnType("jsonb").HasDefaultValue("[]");
+            e.Property(x => x.InnvilgelseTekst).HasColumnName("innvilgelse_tekst");
+            e.Property(x => x.AvslagTekst).HasColumnName("avslag_tekst");
+            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("utkast");
+            e.Property(x => x.Versjon).HasColumnName("versjon").HasDefaultValue(1);
+            e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
+            e.Property(x => x.ErstatterId).HasColumnName("erstatter_id");
+            e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
+            e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").HasDefaultValueSql("now()");
+            e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
+            e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
+
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
+            e.HasOne<RegelnodeEntitet>().WithMany().HasForeignKey(x => x.ErstatterId);
+            e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_regelnoder_virksomhet");
+        });
+
+        b.Entity<RegelnodeBarnEntitet>(e =>
+        {
+            e.ToTable("regelnode_barn", t => t.HasCheckConstraint(
+                "ck_regelnode_barn_type", "barn_type IN ('vilkar', 'regelnode')"));
+            e.HasKey(x => x.Id).HasName("regelnode_barn_pkey");
+            e.Property(x => x.RegelnodeId).HasColumnName("regelnode_id");
+            e.Property(x => x.BarnType).HasColumnName("barn_type");
+            e.Property(x => x.BarnId).HasColumnName("barn_id");
+
+            e.HasOne<RegelnodeEntitet>().WithMany().HasForeignKey(x => x.RegelnodeId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => new { x.RegelnodeId, x.BarnType, x.BarnId }).IsUnique().HasDatabaseName("ux_regelnode_barn");
+        });
+
+        b.Entity<UnntakEntitet>(e =>
+        {
+            e.ToTable("unntak", t => t.HasCheckConstraint(
+                "ck_unntak_betingelse_type", "betingelse_type IN ('vilkar', 'regelnode')"));
+            e.HasKey(x => x.Id).HasName("unntak_pkey");
+            e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
+            e.Property(x => x.Tittel).HasColumnName("tittel");
+            e.Property(x => x.Beskrivelse).HasColumnName("beskrivelse");
+            e.Property(x => x.GjelderRegelId).HasColumnName("gjelder_regel_id");
+            e.Property(x => x.BetingelseType).HasColumnName("betingelse_type");
+            e.Property(x => x.BetingelseId).HasColumnName("betingelse_id");
+            e.Property(x => x.JuridiskGrunnlagJson).HasColumnName("juridisk_grunnlag").HasColumnType("jsonb").HasDefaultValue("[]");
+            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("utkast");
+            e.Property(x => x.Versjon).HasColumnName("versjon").HasDefaultValue(1);
+            e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
+            e.Property(x => x.ErstatterId).HasColumnName("erstatter_id");
+            e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
+            e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").HasDefaultValueSql("now()");
+            e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
+            e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
+
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
+            e.HasOne<UnntakEntitet>().WithMany().HasForeignKey(x => x.ErstatterId);
+            e.HasOne<RegelnodeEntitet>().WithMany().HasForeignKey(x => x.GjelderRegelId);
+            e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_unntak_virksomhet");
+            e.HasIndex(x => x.GjelderRegelId).HasDatabaseName("ix_unntak_gjelder_regel");
         });
     }
 }

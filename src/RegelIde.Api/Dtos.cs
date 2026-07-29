@@ -112,11 +112,13 @@ public sealed record SettStatusRequest(string Status);
 public sealed record TjenesteDto(
     Guid Id, Guid VirksomhetId, string Tittel, string? Beskrivelse, string? KompetentMyndighet, string? Output,
     string? Tjenestetype, string? Malgruppe, IReadOnlyList<string> Kanaler, string? Kostnad, string? Behandlingstid,
-    string? Kontaktpunkt, string? KonsekvensVedBrudd, IReadOnlyList<string> Sprak, string Status, int Versjon)
+    string? Kontaktpunkt, string? KonsekvensVedBrudd, IReadOnlyList<string> Sprak, string Status, int Versjon,
+    Guid? RotnodeId)
 {
     public static TjenesteDto FraEntitet(TjenesteEntitet t) => new(
         t.Id, t.VirksomhetId, t.Tittel, t.Beskrivelse, t.KompetentMyndighet, t.Output, t.Tjenestetype, t.Malgruppe,
-        t.Kanaler, t.Kostnad, t.Behandlingstid, t.Kontaktpunkt, t.KonsekvensVedBrudd, t.Sprak, t.Status, t.Versjon);
+        t.Kanaler, t.Kostnad, t.Behandlingstid, t.Kontaktpunkt, t.KonsekvensVedBrudd, t.Sprak, t.Status, t.Versjon,
+        t.RotnodeId);
 }
 
 /// <summary>Forespørsel for POST/PUT /api/tjenester.</summary>
@@ -176,3 +178,96 @@ public sealed record KodelisteRequest(
 
 /// <summary>Forespørsel for POST /api/kodelister/{id}/koder.</summary>
 public sealed record LeggTilKodeRequest(string Kode, string Term, string? Definisjon, DateOnly? GyldigFra, DateOnly? GyldigTil);
+
+// ---------- Vilkårstre (byggesteg 4 runde 1, docs/03-domenemodell.md §1.6/§1.8-1.10) ----------
+
+/// <summary>Proveniens/endringslogg — brukt av .../historikk-endepunktene for Vilkår/Regelnode/Unntak.</summary>
+public sealed record ProveniensDto(Guid Id, string EntitetType, Guid EntitetId, string EndretAv, DateTimeOffset Dato, string Handling, string? GodkjentAv)
+{
+    public static ProveniensDto FraEntitet(ProveniensEntitet p) => new(p.Id, p.EntitetType, p.EntitetId, p.EndretAv, p.Dato, p.Handling, p.GodkjentAv);
+}
+
+/// <summary>Datasett (§1.6), minimal — full skjerm er byggesteg 6. Kun lesing i denne runden, seedet.</summary>
+public sealed record DatasettDto(
+    Guid Id, Guid VirksomhetId, string Felt, string Prop, string Dtype, string Type, string? Kilde,
+    Guid? KodelisteId, string? Grunnlag, string? Lagring, IReadOnlyList<string> Mottakere, string? Bruk)
+{
+    public static DatasettDto FraEntitet(DatasettEntitet d) => new(
+        d.Id, d.VirksomhetId, d.Felt, d.Prop, d.Dtype, d.Type, d.Kilde, d.KodelisteId, d.Grunnlag, d.Lagring, d.Mottakere, d.Bruk);
+}
+
+/// <summary>Vilkår (§1.8) — bladnode i vilkårstreet. <c>ErFormel</c>/<c>FormelBeskrivelse</c>: se docs/10-rules-as-code-landskap.md.</summary>
+public sealed record VilkarDto(
+    Guid Id, Guid VirksomhetId, string Tittel, string? Beskrivelse, string? GeneriskMal, string Vilkarstype,
+    string? GjelderRolle, IReadOnlyList<JuridiskGrunnlagInput> JuridiskGrunnlag, Guid? BegrepId, string Vurderingstype,
+    string ParametreJson, Guid? SkjonnsgrunnlagBegrepId, IReadOnlyList<SkjonnsmomentInput> Skjonnsmomenter,
+    bool KreverDokumentasjon, string? Eskaleringsrolle, string? VeiledningTilBruker, string? VeiledningTilSaksbehandler,
+    bool ErFormel, string? FormelBeskrivelse, string Status, int Versjon)
+{
+    public static VilkarDto FraEntitet(VilkarEntitet v) => new(
+        v.Id, v.VirksomhetId, v.Tittel, v.Beskrivelse, v.GeneriskMal, v.Vilkarstype, v.GjelderRolle,
+        System.Text.Json.JsonSerializer.Deserialize<List<JuridiskGrunnlagInput>>(v.JuridiskGrunnlagJson) ?? [],
+        v.BegrepId, v.Vurderingstype, v.ParametreJson, v.SkjonnsgrunnlagBegrepId,
+        System.Text.Json.JsonSerializer.Deserialize<List<SkjonnsmomentInput>>(v.SkjonnsmomenterJson) ?? [],
+        v.KreverDokumentasjon, v.Eskaleringsrolle, v.VeiledningTilBruker, v.VeiledningTilSaksbehandler,
+        v.ErFormel, v.FormelBeskrivelse, v.Status, v.Versjon);
+}
+
+/// <summary>Forespørsel for POST/PUT /api/vilkar.</summary>
+public sealed record VilkarRequest(
+    string Tittel, string? Beskrivelse, string? GeneriskMal, string Vilkarstype, string? GjelderRolle,
+    IReadOnlyList<JuridiskGrunnlagInput>? JuridiskGrunnlag, Guid? BegrepId, string Vurderingstype, string? ParametreJson,
+    Guid? SkjonnsgrunnlagBegrepId, IReadOnlyList<SkjonnsmomentInput>? Skjonnsmomenter, bool KreverDokumentasjon,
+    string? Eskaleringsrolle, string? VeiledningTilBruker, string? VeiledningTilSaksbehandler, bool ErFormel, string? FormelBeskrivelse);
+
+/// <summary>Forespørsel for POST /api/vilkar/{id}/input.</summary>
+public sealed record LeggTilVilkarInputRequest(Guid DatasettId);
+
+/// <summary>Regelnode (§1.9) — komposisjonsnode.</summary>
+public sealed record RegelnodeDto(
+    Guid Id, Guid VirksomhetId, string Tittel, string? Beskrivelse, string? GeneriskMal, string BarnOperator,
+    string UtdataNavn, string UtdataType, bool ErRotnode, IReadOnlyList<JuridiskGrunnlagInput> JuridiskGrunnlag,
+    string? InnvilgelseTekst, string? AvslagTekst, string Status, int Versjon)
+{
+    public static RegelnodeDto FraEntitet(RegelnodeEntitet r) => new(
+        r.Id, r.VirksomhetId, r.Tittel, r.Beskrivelse, r.GeneriskMal, r.BarnOperator, r.UtdataNavn, r.UtdataType,
+        r.ErRotnode, System.Text.Json.JsonSerializer.Deserialize<List<JuridiskGrunnlagInput>>(r.JuridiskGrunnlagJson) ?? [],
+        r.InnvilgelseTekst, r.AvslagTekst, r.Status, r.Versjon);
+}
+
+/// <summary>Forespørsel for POST/PUT /api/regelnoder.</summary>
+public sealed record RegelnodeRequest(
+    string Tittel, string? Beskrivelse, string? GeneriskMal, string BarnOperator, string UtdataNavn, string UtdataType,
+    bool ErRotnode, IReadOnlyList<JuridiskGrunnlagInput>? JuridiskGrunnlag, string? InnvilgelseTekst, string? AvslagTekst);
+
+public sealed record RegelnodeBarnDto(Guid Id, Guid RegelnodeId, string BarnType, Guid BarnId)
+{
+    public static RegelnodeBarnDto FraEntitet(RegelnodeBarnEntitet b) => new(b.Id, b.RegelnodeId, b.BarnType, b.BarnId);
+}
+
+/// <summary>Forespørsel for POST /api/regelnoder/{id}/barn.</summary>
+public sealed record KobleBarnRequest(string BarnType, Guid BarnId);
+
+/// <summary>Forespørsel for PUT /api/regelnoder/{id}/operator.</summary>
+public sealed record SettOperatorRequest(string BarnOperator);
+
+/// <summary>Unntak (§1.10).</summary>
+public sealed record UnntakDto(
+    Guid Id, Guid VirksomhetId, string Tittel, string? Beskrivelse, Guid GjelderRegelId, string BetingelseType,
+    Guid BetingelseId, IReadOnlyList<JuridiskGrunnlagInput> JuridiskGrunnlag, string Status, int Versjon)
+{
+    public static UnntakDto FraEntitet(UnntakEntitet u) => new(
+        u.Id, u.VirksomhetId, u.Tittel, u.Beskrivelse, u.GjelderRegelId, u.BetingelseType, u.BetingelseId,
+        System.Text.Json.JsonSerializer.Deserialize<List<JuridiskGrunnlagInput>>(u.JuridiskGrunnlagJson) ?? [], u.Status, u.Versjon);
+}
+
+/// <summary>Forespørsel for POST /api/unntak.</summary>
+public sealed record OpprettUnntakRequest(
+    string Tittel, string? Beskrivelse, Guid GjelderRegelId, string BetingelseType, Guid BetingelseId,
+    IReadOnlyList<JuridiskGrunnlagInput>? JuridiskGrunnlag);
+
+/// <summary>Forespørsel for PUT /api/unntak/{id}.</summary>
+public sealed record OppdaterUnntakRequest(string Tittel, string? Beskrivelse, IReadOnlyList<JuridiskGrunnlagInput>? JuridiskGrunnlag);
+
+/// <summary>Forespørsel for POST /api/tjenester/{id}/rotnode.</summary>
+public sealed record SettRotnodeRequest(Guid RegelnodeId);
