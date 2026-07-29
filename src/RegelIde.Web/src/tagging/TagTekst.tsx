@@ -55,6 +55,8 @@ export interface TextTag {
   kind: TagKindId;
   /** Null inntil taggen er knyttet til en reell entitet (byggesteg 2/4). */
   ref: string | null;
+  /** quoteSelector-relokering ved reimport fant ikke et entydig treff (2026-07-29) — se docs/05-arkitektur-og-nfk.md §3.1. */
+  kreverGjennomgang?: boolean;
 }
 
 /** Kandidater for «knytt til eksisterende», gruppert per kind. Tom/utelatt i byggesteg 1. */
@@ -301,6 +303,11 @@ export function TagTekst({
                 <Tag data-color={kindById[t.kind]?.color} data-size="sm">
                   {kindById[t.kind]?.label}
                 </Tag>
+                {t.kreverGjennomgang && (
+                  <Tag data-color="danger" data-size="sm" title="Fant ikke et entydig treff ved reimport av rettskilden — sitatet må sjekkes manuelt.">
+                    Krever gjennomgang
+                  </Tag>
+                )}
                 <span
                   style={{
                     flex: 1, minWidth: 0, color: 'var(--ds-color-neutral-text-subtle)',

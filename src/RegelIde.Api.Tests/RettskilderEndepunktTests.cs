@@ -192,4 +192,55 @@ public class RettskilderEndepunktTests
         Assert.Single(kunEgne!);
         Assert.Equal(egenRettskildeId, kunEgne!.Single().Id);
     }
+
+    // ---------- Metadata-oppdatering (2026-07-29, AK-3.3.6 importbekreftelse) ----------
+
+    private async Task<BrukerDto> HentTestbrukerAsync()
+    {
+        var brukere = await _client.GetFromJsonAsync<List<BrukerDto>>("/api/brukere", JsonInnstillinger);
+        return brukere!.Single(b => b.Rolle == "Jurist");
+    }
+
+    [Fact]
+    public async Task Oppdater_metadata_uten_bruker_id_header_gir_400()
+    {
+        var id = await HentAlkohollovenIdAsync();
+        var svar = await _client.PatchAsJsonAsync($"/api/rettskilder/{id}/metadata", new OppdaterRettskildeMetadataRequest("Nytt", "Ny utgiver"));
+        Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
+    }
+
+    [Fact]
+    public async Task Oppdater_metadata_lagrer_kortnavn_og_utgiver()
+    {
+        var id = await HentAlkohollovenIdAsync();
+        var bruker = await HentTestbrukerAsync();
+
+        using var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/rettskilder/{id}/metadata")
+        {
+            Content = JsonContent.Create(new OppdaterRettskildeMetadataRequest("Alkoholloven (kortnavn testet)", "Lovdata (redigert)")),
+            Headers = { { GjeldendeBrukerTjeneste.HeaderNavn, bruker.Id.ToString() } },
+        };
+        var svar = await _client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+        var oppdatert = await svar.Content.ReadFromJsonAsync<RettskildeDetalj>(JsonInnstillinger);
+        Assert.Equal("Alkoholloven (kortnavn testet)", oppdatert!.Kortnavn);
+        Assert.Equal("Lovdata (redigert)", oppdatert.Utgiver);
+
+        var hentetPaNytt = await _client.GetFromJsonAsync<RettskildeDetalj>($"/api/rettskilder/{id}", JsonInnstillinger);
+        Assert.Equal("Alkoholloven (kortnavn testet)", hentetPaNytt!.Kortnavn);
+    }
+
+    [Fact]
+    public async Task Oppdater_metadata_pa_ukjent_rettskilde_gir_404()
+    {
+        var bruker = await HentTestbrukerAsync();
+        using var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/rettskilder/{Guid.NewGuid()}/metadata")
+        {
+            Content = JsonContent.Create(new OppdaterRettskildeMetadataRequest("X", "Y")),
+            Headers = { { GjeldendeBrukerTjeneste.HeaderNavn, bruker.Id.ToString() } },
+        };
+        var svar = await _client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.NotFound, svar.StatusCode);
+    }
 }

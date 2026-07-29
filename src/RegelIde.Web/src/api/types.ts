@@ -131,6 +131,8 @@ export interface TekstTaggDto {
   kind: TaggKind;
   refId: string | null;
   opprettetAv: string;
+  /** quoteSelector-relokering ved reimport (2026-07-29) fant ikke et entydig treff — se docs/05-arkitektur-og-nfk.md §3.1. */
+  kreverGjennomgang: boolean;
 }
 
 export interface OpprettTekstTaggRequest {
@@ -148,6 +150,11 @@ export interface TaggKindKonfigurasjonDto {
   kode: string;
   navn: string;
   farge: string;
+}
+
+export interface OppdaterRettskildeMetadataRequest {
+  kortnavn: string | null;
+  utgiver: string | null;
 }
 
 export interface ApiFeil {

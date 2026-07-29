@@ -81,15 +81,21 @@ tilgjengelig før stubben forfremmes ved faktisk import). Bekreftet med ekte dat
   stedet for å deduplisere selv. Rettet med en enkel `HashSet`-sjekk før innsetting.
 - (Se forrige runde i denne fila for øvrige rettinger i selve konverteringspipelinen.)
 
-## Datakvalitetsfunn: fixture-filene var dobbelt feilkodet
+## Datakvalitetsfunn: fixture-filene var dobbelt feilkodet — og selve rotårsaken, ikke bare fixturene
 
 `data/kilder/raw-lovdata/*.html` var på disk kodet med en mojibake-feil (UTF-8-tekst
-der norske tegn var kodet feil én gang for mye — sannsynligvis en cp1252→UTF-8-
-konvertering kjørt på tekst som allerede var UTF-8). Dette er rettet i denne
-byggeøkten ved å skrive filene tilbake med korrekt UTF-8 (samme innhold, kun
-tegnkoding endret — se git-historikk). `LovdataKonverterer.Konverter` forutsetter
-nå korrekt UTF-8 inn; `DekodCp1252TilUtf8` dekker det *ekte* scenarioet (rå bytes
-rett fra Lovdatas bulk-datasett), ikke denne engangsrettingen.
+der norske tegn var kodet feil én gang for mye). Dette ble først (2026-07-23) rettet
+kun på selve fixture-filene, ut fra en antakelse om at feilen skyldtes en ekstern
+engangsfeil under manuell nedlasting, og at Lovdatas ekte bulk-API leverer cp1252
+(kodet slik i `LovdataBulkHenter.HentRaaHtmlAsync`). **Denne antakelsen var feil,
+bekreftet 2026-07-29** ved en ekte live henting via `/api/rettskilder/lovdata` som
+produserte nøyaktig samme mojibake-mønster ("Â§", "formÃ¥l") — Lovdatas arkiv er
+faktisk UTF-8, og koden dekodet det feilaktig som cp1252. Rettet i
+`LovdataBulkHenter.cs` (nå `Encoding.UTF8.GetString`); den ubrukte
+`LovdataKonverterer.DekodCp1252TilUtf8`-hjelperen (samme feilaktige premiss, aldri
+faktisk kalt noe sted) er fjernet. `LovdataBulkHenterTests.cs` fanget aldri dette
+tidligere fordi assertions kun sjekket rene ASCII-understrenger — utvidet til å
+sjekke et ord med norske bokstaver eksplisitt.
 
 ## Bevisste utvidelser utover det låste designet (§6 i teknisk design dekker kun to åpne punkter — disse er nye, oppdaget under implementasjon)
 

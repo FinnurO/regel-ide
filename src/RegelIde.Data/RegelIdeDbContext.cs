@@ -188,6 +188,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
             e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").HasDefaultValueSql("now()");
+            e.Property(x => x.KreverGjennomgang).HasColumnName("krever_gjennomgang").HasDefaultValue(false);
 
             e.HasOne<RettskildeEntitet>().WithMany()
                 .HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);

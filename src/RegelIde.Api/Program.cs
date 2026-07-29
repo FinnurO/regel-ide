@@ -83,6 +83,11 @@ using (var scope = app.Services.CreateScope())
             new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "regel", Navn = "Regel", Farge = "success", Sorteringsrekkefolge = 3 });
         await db.SaveChangesAsync();
     }
+
+    // Testkommunens egne lokale rettskilder (2026-07-29, docs/06-veikart.md) — idempotent, guardet
+    // internt per rettskilde (ikke "!AnyAsync" på hele tabellen, siden dette kjører etter at
+    // Lov/Forskrift kan være importert fra før). Se TestkommuneInnholdSeed.cs for proveniens.
+    await TestkommuneInnholdSeed.SeedAsync(db);
 }
 
 app.MapGet("/api/brukere", async (RegelIdeDbContext db) =>
@@ -126,6 +131,22 @@ rettskilder.MapGet("/{id:guid}", async (Guid id, RettskildeRepository repo) =>
     })
     .WithName("HentRettskilde")
     .WithSummary("Henter full metadata + kanonisk AKN-XML for én rettskilde.");
+
+rettskilder.MapPatch("/{id:guid}/metadata", async (Guid id, HttpRequest request, OppdaterRettskildeMetadataRequest body,
+        RettskildeRepository repo, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        var oppdatert = await repo.OppdaterMetadataAsync(id, body.Kortnavn, body.Utgiver, bruker.Navn);
+        return oppdatert is null
+            ? Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." })
+            : Results.Ok(RettskildeDetalj.FraEntitet(oppdatert));
+    })
+    .WithName("OppdaterRettskildeMetadata")
+    .WithSummary("Oppdaterer Kortnavn/Utgiver etter import — AK-3.3.6, bekreftelsessteget i Importer.tsx.");
 
 rettskilder.MapGet("/{id:guid}/noder", async (Guid id, RettskildeRepository repo) =>
     {
@@ -319,7 +340,7 @@ handboker.MapPost("/", async (HttpRequest request, OpprettHandbokRequest body,
         }
         try
         {
-            var handbok = await tjeneste.OpprettHandbokAsync(body.Tittel, bruker.VirksomhetId, bruker.Navn, ct);
+            var handbok = await tjeneste.OpprettHandbokAsync(body.Tittel, bruker.VirksomhetId, bruker.Navn, ct: ct);
             return Results.Created($"/api/rettskilder/{handbok.Id}", new { id = handbok.Id });
         }
         catch (ArgumentException ex)

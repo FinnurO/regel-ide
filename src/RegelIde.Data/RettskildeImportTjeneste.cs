@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using RegelIde.Kildekonvertering;
 
@@ -34,7 +35,20 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
 
         if (eksisterende is { Importrolle: "primaer" })
         {
-            return eksisterende.Id; // allerede importert som primærkilde — ikke dupliser
+            // Referansielt transparent (AknXmlSkriver.cs): samme (metadata, noder) gir bit-identisk
+            // AKN-XML uansett importtidspunkt, bortsett fra ÉN linje (FRBRManifestation/@date,
+            // name="regel-ide-import") — normaliseres bort før sammenligning, ellers ville ENHVER
+            // reimport (selv av helt uendret kilde-HTML) feilaktig blitt tolket som en innholdsendring.
+            var uendret = eksisterende.AknXml is not null &&
+                NormaliserAknForSammenligning(eksisterende.AknXml) == NormaliserAknForSammenligning(resultat.AknXml);
+            if (uendret)
+            {
+                return eksisterende.Id; // allerede importert, ingen reell endring — ikke dupliser (§2.1)
+            }
+
+            // §2.1: en ny konsolidert versjon er en helt ny rettskilder-rad, aldri en inkrementell
+            // oppdatering av den gamle. QuoteSelector-relokering av eksisterende tagger skjer i samme slag.
+            return await OpprettNyVersjonAsync(eksisterende, resultat, virksomhetId, attribuertTil, ct);
         }
 
         Guid rettskildeId;
@@ -81,6 +95,18 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             db.Proveniens.Add(ProveniensHjelper.NyRad("rettskilde", rettskildeId, virksomhetId, "opprettet", attribuertTil));
         }
 
+        await SettInnNoderOgReferanserAsync(rettskildeId, resultat, ct);
+        await db.SaveChangesAsync(ct);
+        return rettskildeId;
+    }
+
+    /// <summary>
+    /// Setter inn hele node-/referanse-treet for en (ny eller nyopprettet-versjon-av) rettskilde.
+    /// Utledet fra den opprinnelige innsettingsløkken i <see cref="ImporterAsync"/> — brukt både der
+    /// og av <see cref="OpprettNyVersjonAsync"/>, som trenger nøyaktig samme logikk mot en ny rettskildeId.
+    /// </summary>
+    private async Task SettInnNoderOgReferanserAsync(Guid rettskildeId, KonverteringResultat resultat, CancellationToken ct)
+    {
         var nodeIdVedEid = resultat.Noder.ToDictionary(n => n.Eid, _ => Guid.NewGuid());
         foreach (var n in resultat.Noder)
         {
@@ -126,10 +152,106 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 TilEid = r.TilEid,
             });
         }
+    }
+
+    /// <summary>
+    /// §2.1: en ny konsolidert versjon av en allerede-primær rettskilde. Ny <see cref="RettskildeEntitet"/>-
+    /// rad (samme Eli, Versjon+1, ErstatterId til den gamle), gammel rad merkes 'erstattet', fullt nytt
+    /// node-/referanse-tre, og eksisterende tagger relokeres via quoteSelector (05-arkitektur-og-nfk.md §3.1).
+    /// </summary>
+    private async Task<Guid> OpprettNyVersjonAsync(
+        RettskildeEntitet gammel, KonverteringResultat resultat, Guid? virksomhetId, string attribuertTil, CancellationToken ct)
+    {
+        var m = resultat.Metadata;
+        var nyRettskildeId = Guid.NewGuid();
+        db.Rettskilder.Add(new RettskildeEntitet
+        {
+            Id = nyRettskildeId,
+            VirksomhetId = virksomhetId,
+            Doctype = m.Doctype,
+            Kildetype = m.Kildetype.ToString(),
+            Importrolle = "primaer",
+            Tittel = m.Tittel,
+            Kortnavn = m.Kortnavn,
+            Eli = m.Eli,
+            AknXml = resultat.AknXml,
+            Ikrafttredelse = m.Ikrafttredelse,
+            KonsolidertDato = m.KonsolidertDato,
+            Utgiver = m.Utgiver,
+            Status = m.Status,
+            Versjon = gammel.Versjon + 1,
+            ErstatterId = gammel.Id,
+            OpprettetAv = attribuertTil,
+            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        gammel.Entitetsstatus = "erstattet";
+        db.Proveniens.Add(ProveniensHjelper.NyRad("rettskilde", nyRettskildeId, virksomhetId, "endret", attribuertTil));
+
+        await SettInnNoderOgReferanserAsync(nyRettskildeId, resultat, ct);
+        await RelokerTaggerAsync(gammel.Id, nyRettskildeId, resultat.Noder, ct);
 
         await db.SaveChangesAsync(ct);
-        return rettskildeId;
+        return nyRettskildeId;
     }
+
+    /// <summary>
+    /// QuoteSelector-relokering (05-arkitektur-og-nfk.md §3.1) av gjeldende tagger fra den gamle
+    /// rettskilde-versjonen til den nye. Rekkefølge: (1) rask vei — uendret eid+tekst_hash, kun
+    /// RettskildeId flyttes; (2) quoteSelector-søk — nøyaktig ett substring-treff for QuoteExact et
+    /// sted i det nye node-settet, offset/eid/hash oppdateres til treffet; (3) verken eller, eller
+    /// flertydig treff — flagg KreverGjennomgang, la RettskildeId fortsatt peke på den (nå erstattede)
+    /// gamle raden slik at sitatkonteksten forblir inspiserbar.
+    /// </summary>
+    private async Task RelokerTaggerAsync(Guid gammelRettskildeId, Guid nyRettskildeId, IReadOnlyList<RettskildeNode> nyeNoder, CancellationToken ct)
+    {
+        var gjeldendeTagger = await db.TekstTagger
+            .Where(t => t.RettskildeId == gammelRettskildeId && t.Entitetsstatus == "gjeldende")
+            .ToListAsync(ct);
+        if (gjeldendeTagger.Count == 0) return;
+
+        var nyeNoderVedEid = nyeNoder.ToDictionary(n => n.Eid);
+        var bladNoderMedTekst = nyeNoder.Where(n => n.Tekst is not null).ToList();
+
+        foreach (var tagg in gjeldendeTagger)
+        {
+            if (nyeNoderVedEid.TryGetValue(tagg.NodeEid, out var sammeEid) && sammeEid.TekstHash == tagg.NodeTekstHash)
+            {
+                // Rask vei: nøyaktig samme node, ordrett uendret tekst — kun RettskildeId flyttes.
+                tagg.RettskildeId = nyRettskildeId;
+                continue;
+            }
+
+            var treff = bladNoderMedTekst
+                .Select(n => (Node: n, Indeks: n.Tekst!.IndexOf(tagg.QuoteExact, StringComparison.Ordinal)))
+                .Where(t => t.Indeks >= 0)
+                .ToList();
+
+            if (treff.Count == 1)
+            {
+                var (node, indeks) = treff[0];
+                tagg.RettskildeId = nyRettskildeId;
+                tagg.NodeEid = node.Eid;
+                tagg.StartOffset = indeks;
+                tagg.EndOffset = indeks + tagg.QuoteExact.Length;
+                tagg.NodeTekstHash = node.TekstHash!;
+            }
+            else
+            {
+                // Ingen eller flertydig treff — flagg for manuell gjennomgang. RettskildeId røres IKKE:
+                // taggen blir stående koblet til den (nå erstattede) gamle raden, slik at sitatkonteksten
+                // (quotePrefix/quoteExact/quoteSuffix) fortsatt er inspiserbar for en jurist.
+                tagg.KreverGjennomgang = true;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Fjerner den ene linjen som legitimt varierer med importtidspunkt (FRBRManifestation/@date,
+    /// AknXmlSkriver.cs) før to AKN-XML-strenger sammenlignes for reell innholdsendring.
+    /// </summary>
+    private static readonly Regex ImportDatoLinje = new("""<FRBRdate date="[^"]*" name="regel-ide-import"/>""", RegexOptions.Compiled);
+
+    private static string NormaliserAknForSammenligning(string aknXml) => ImportDatoLinje.Replace(aknXml, "");
 
     /// <summary>
     /// Finner en eksisterende rettskilde (primær eller stub) for en ekstern referansemål-ELI, eller

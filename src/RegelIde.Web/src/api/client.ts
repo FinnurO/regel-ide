@@ -2,6 +2,7 @@ import type {
   ApiFeil,
   BrukerDto,
   KobleLovreferanseRequest,
+  OppdaterRettskildeMetadataRequest,
   OpprettHandbokRequest,
   OpprettKapittelNodeRequest,
   OpprettKommentarNodeRequest,
@@ -68,6 +69,13 @@ export const api = {
   hentNoder: (id: string) => kall<RettskildeNodeDto[]>(`/api/rettskilder/${id}/noder`),
 
   hentReferanser: (id: string) => kall<RettskildeReferanseDto[]>(`/api/rettskilder/${id}/referanser`),
+
+  oppdaterRettskildeMetadata: (id: string, request: OppdaterRettskildeMetadataRequest) =>
+    kall<RettskildeDetalj>(`/api/rettskilder/${id}/metadata`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
 
   hentTagger: (rettskildeId: string) => kall<TekstTaggDto[]>(`/api/rettskilder/${rettskildeId}/tagger`),
 

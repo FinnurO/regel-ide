@@ -198,6 +198,15 @@ public sealed class TekstTaggEntitet
     public string Entitetsstatus { get; set; } = "gjeldende";
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }
+
+    /// <summary>
+    /// quoteSelector-relokering ved reimport (2026-07-29, docs/05-arkitektur-og-nfk.md §3.1) — satt til
+    /// true når <see cref="RettskildeImportTjeneste"/> ikke klarte å finne et entydig treff for
+    /// <see cref="QuoteExact"/> i en ny rettskilde-versjon (verken samme eid+uendret tekst_hash, eller
+    /// nøyaktig ett substring-treff). Taggen forblir da koblet til den nå 'erstattede' gamle raden —
+    /// sitatkonteksten er fortsatt inspiserbar, men peker ikke lenger på gjeldende tekst.
+    /// </summary>
+    public bool KreverGjennomgang { get; set; }
 }
 
 public sealed class ProveniensEntitet

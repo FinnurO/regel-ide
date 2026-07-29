@@ -19,6 +19,12 @@ public class LovdataBulkHenterTests
 
         Assert.Equal("https://lovdata.no/eli/lov/1967/02/10/nor", resultat.Metadata.Eli);
         Assert.Contains("forvaltningssaker", resultat.Metadata.Tittel);
+
+        // 2026-07-29: "forvaltningssaker" er ren ASCII og fanget IKKE opp den ekte mojibake-bugen
+        // (UTF-8-bytes feilaktig dekodet som cp1252, se LovdataBulkHenter.cs) — verifiser derfor
+        // eksplisitt et ord med norske bokstaver, som ville vist "behandlingsmÃ¥ten" ved feilen.
+        Assert.Contains("behandlingsmåten", resultat.Metadata.Tittel);
+        Assert.DoesNotContain("Ã", resultat.Metadata.Tittel);
     }
 
     [Fact]

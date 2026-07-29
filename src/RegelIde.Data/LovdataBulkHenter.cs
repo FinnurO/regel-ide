@@ -52,9 +52,15 @@ public sealed partial class LovdataBulkHenter(HttpClient http)
             await entryStrøm.CopyToAsync(minne, ct);
             var raaBytes = minne.ToArray();
 
-            // Lovdatas bulk-filer er cp1252-kodet (data/kilder/README.md) — i motsetning til de
-            // allerede UTF-8-korrigerte fixture-filene i data/kilder/raw-lovdata/.
-            return Encoding.GetEncoding(1252).GetString(raaBytes);
+            // RETTET 2026-07-29: antakelsen om at Lovdatas bulk-filer er cp1252-kodet (tidligere
+            // her og i data/kilder/README.md) viste seg å være FEIL — bekreftet ved en ekte live
+            // henting via /api/rettskilder/lovdata som produserte klassisk "UTF-8 lest som cp1252"-
+            // mojibake ("Â§", "formÃ¥l", "InnfÃ¸rsel"). Arkivets XML-filer er faktisk UTF-8. Dette er
+            // etter alt å dømme SAMME rotårsak som mojibake-hendelsen 2026-07-23 (se data/kilder/
+            // README.md) — den ble den gang antatt å være en ekstern engangsfeil under manuell
+            // nedlasting og rettet kun på de statiske fixture-filene, ikke i denne metoden, som
+            // dermed beholdt den samme feilen uoppdaget helt til nå.
+            return Encoding.UTF8.GetString(raaBytes);
         }
 
         throw new InvalidOperationException(

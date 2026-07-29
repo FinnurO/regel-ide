@@ -22,10 +22,15 @@ public sealed class HandbokForfatterTjeneste(RegelIdeDbContext db)
     private static readonly string[] GyldigeFesteNivaer = ["kapittel", "bestemmelse", "ledd", "bokstav"];
 
     /// <summary>
-    /// Oppretter selve håndbok-rettskilden (`kildetype='Rundskriv'`, `doctype='doc'`, `status='Utkast'`).
+    /// Oppretter en rettskilde forfattet direkte i verktøyet (ingen importpipeline). Default
+    /// `kildetype='Rundskriv'`/`doctype='doc'` dekker håndbok-forfatterflyten (AK-3.3.8); tjenesten
+    /// gjenbrukes uendret for Testkommunens egne lokale kilder (`Forskrift`/`act`,
+    /// `Virksomhetsdokument`/`internal`, se `06-veikart.md` — samme node-tre-mekanikk, bare en annen
+    /// kildetype/doctype-kombinasjon på selve rettskilde-raden) via `TestkommuneInnholdSeed`.
     /// </summary>
     public async Task<RettskildeEntitet> OpprettHandbokAsync(
-        string tittel, Guid virksomhetId, string opprettetAv, CancellationToken ct = default)
+        string tittel, Guid virksomhetId, string opprettetAv, string kildetype = "Rundskriv", string doctype = "doc",
+        CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(tittel))
         {
@@ -36,11 +41,11 @@ public sealed class HandbokForfatterTjeneste(RegelIdeDbContext db)
         {
             Id = Guid.NewGuid(),
             VirksomhetId = virksomhetId,
-            Doctype = "doc",
-            Kildetype = "Rundskriv",
+            Doctype = doctype,
+            Kildetype = kildetype,
             Importrolle = "primaer",
             Tittel = tittel,
-            AknXml = MinimalAknPlassholder(tittel),
+            AknXml = MinimalAknPlassholder(tittel, kildetype),
             // Bevisst "Gjeldende", ikke "Utkast" som teknisk design §2.2s skisse antyder: RettskildeEntitet
             // sin "Utkast"-status (§3.2) er en offentlig-synlighet-sperre for IKKE-verifisert PARSET
             // innhold (RettskildeRepository skjuler Utkast helt, også for eieren selv — det finnes ingen
@@ -88,6 +93,55 @@ public sealed class HandbokForfatterTjeneste(RegelIdeDbContext db)
             NodeType = parent is null ? "kapittel" : "underinndeling",
             Nummer = nummer,
             Overskrift = overskrift,
+            Sorteringsrekkefolge = await NesteSorteringAsync(rettskildeId, parentNodeId, ct),
+        };
+        db.RettskildeNoder.Add(node);
+        db.Proveniens.Add(ProveniensHjelper.NyRad("rettskilde_node", node.Id, null, "opprettet", opprettetAv));
+        await db.SaveChangesAsync(ct);
+        return node;
+    }
+
+    /// <summary>
+    /// Oppretter en ren tekstbærende bladnode (ledd/punkt) UTEN <see cref="HandbokKommentarMetadataEntitet"/> —
+    /// for innhold som ER selve rettskilden (en forskriftsparagraf, et retningslinje-avsnitt), til
+    /// forskjell fra <see cref="OpprettKommentarNodeAsync"/> som lager en kommentar TIL en annen
+    /// rettskilde. Brukt av <c>TestkommuneInnholdSeed</c> for Testkommunens lokale forskrift og
+    /// alkoholpolitiske retningslinjer (`06-veikart.md`) — samme sanering/eid-mekanikk, ingen
+    /// dokumenttype/bindende/feste_niva siden det ikke er en kommentar.
+    /// </summary>
+    public async Task<RettskildeNodeEntitet> OpprettBladNodeAsync(
+        Guid rettskildeId, Guid parentNodeId, string nodeType, string nummer, string? overskrift, string tekst,
+        string opprettetAv, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(nummer))
+        {
+            throw new ArgumentException("Nummer kan ikke være tomt. Ingen gjettet fallback.");
+        }
+        if (nodeType is not ("ledd" or "punkt"))
+        {
+            throw new ArgumentException($"Ukjent bladnode-type '{nodeType}'. Gyldige verdier: ledd, punkt.");
+        }
+
+        var parent = await HentGjeldendeNodeAsync(parentNodeId, ct);
+        if (parent is null)
+        {
+            throw new ArgumentException($"Foreldrenode '{parentNodeId}' finnes ikke eller er ikke gjeldende.");
+        }
+
+        var sanertTekst = KommentarTekstSanering.Saner(tekst);
+        var node = new RettskildeNodeEntitet
+        {
+            Id = Guid.NewGuid(),
+            RettskildeId = rettskildeId,
+            Eid = LagEid(parent.Eid, nummer),
+            Kildesystem = "regel-ide",
+            KildeId = nummer,
+            ParentNodeId = parentNodeId,
+            NodeType = nodeType,
+            Nummer = nummer,
+            Overskrift = overskrift,
+            Tekst = sanertTekst,
+            TekstHash = LovdataIdentifikatorer.BeregnTekstHash(sanertTekst),
             Sorteringsrekkefolge = await NesteSorteringAsync(rettskildeId, parentNodeId, ct),
         };
         db.RettskildeNoder.Add(node);
@@ -361,18 +415,18 @@ public sealed class HandbokForfatterTjeneste(RegelIdeDbContext db)
     private static string LagEid(string? parentEid, string nummer) =>
         parentEid is null ? $"kap-{nummer}" : $"{parentEid}/{nummer}";
 
-    private static string MinimalAknPlassholder(string tittel)
+    private static string MinimalAknPlassholder(string tittel, string kildetype)
     {
         var tekst = System.Net.WebUtility.HtmlEncode(tittel);
         // v1-forenkling (se plan): statisk plassholder, ikke synkront regenerert per redigering —
-        // rettskilde_noder er og blir autoritativ kilde for håndbokens navigasjon/lesing/tagging.
+        // rettskilde_noder er og blir autoritativ kilde for navigasjon/lesing/tagging uansett kildetype.
         // Tilfredsstiller kun CHECK-constrainten ck_rettskilder_akn_xml (non-null for importrolle='primaer').
         return $"""
             <akomaNtoso xmlns="http://docs.oasis-open.org/legaldocml/ns/akn/3.0">
-              <doc name="rundskriv">
+              <doc name="{System.Net.WebUtility.HtmlEncode(kildetype.ToLowerInvariant())}">
                 <meta>
                   <proprietary source="#regel-ide">
-                    <regelIde:kildetype>Rundskriv</regelIde:kildetype>
+                    <regelIde:kildetype>{System.Net.WebUtility.HtmlEncode(kildetype)}</regelIde:kildetype>
                     <regelIde:status>Utkast</regelIde:status>
                   </proprietary>
                 </meta>

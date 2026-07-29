@@ -52,4 +52,24 @@ public sealed class RettskildeRepository(RegelIdeDbContext db)
             .Select(n => n.Id).ToListAsync();
         return await db.RettskildeReferanser.Where(r => nodeIder.Contains(r.FraNodeId)).ToListAsync();
     }
+
+    /// <summary>
+    /// Oppdaterer Kortnavn/Utgiver på en allerede importert rettskilde — AK-3.3.6 "bekreft/rediger
+    /// metadata" i importbekreftelsen (`Importer.tsx`). Kun disse to feltene: resten av metadataen
+    /// (tittel, ELI, status osv.) er tolket direkte fra kilden og skal ikke friredigeres her.
+    /// Returnerer null hvis rettskilden ikke finnes (kalleren mapper til 404).
+    /// </summary>
+    public async Task<RettskildeEntitet?> OppdaterMetadataAsync(Guid id, string? kortnavn, string? utgiver, string endretAv)
+    {
+        var rettskilde = await db.Rettskilder.FirstOrDefaultAsync(r => r.Id == id);
+        if (rettskilde is null) return null;
+
+        rettskilde.Kortnavn = kortnavn;
+        rettskilde.Utgiver = utgiver;
+        rettskilde.SistEndretAv = endretAv;
+        rettskilde.SistEndretTidspunkt = DateTimeOffset.UtcNow;
+        rettskilde.Versjon++; // basemetadata §0: appens ansvar å øke ved faktisk endring
+        await db.SaveChangesAsync();
+        return rettskilde;
+    }
 }

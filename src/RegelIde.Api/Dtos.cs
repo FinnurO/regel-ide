@@ -26,6 +26,9 @@ public sealed record RettskildeDetalj(
 /// <summary>Forespørsel for POST /api/rettskilder/lovdata.</summary>
 public sealed record LovdataImportRequest(string Datokode);
 
+/// <summary>Forespørsel for PATCH /api/rettskilder/{id}/metadata — AK-3.3.6, kun Kortnavn/Utgiver.</summary>
+public sealed record OppdaterRettskildeMetadataRequest(string? Kortnavn, string? Utgiver);
+
 /// <summary>Én node i rettskildens tre (kapittel/underinndeling/paragraf/ledd/punkt), for tre-navigasjon.</summary>
 public sealed record RettskildeNodeDto(
     Guid Id, string Eid, Guid? ParentNodeId, string NodeType, string? Nummer, string? Overskrift, string? Tekst,
@@ -79,11 +82,12 @@ public sealed record RettskildeReferanseDto(Guid Id, Guid FraNodeId, Guid TilRet
 /// <summary>Tekst-tag (§1.2 i domenemodellen, AK-3.3.1–3.3.4). `RefId` er alltid null i byggesteg 1.</summary>
 public sealed record TekstTaggDto(
     Guid Id, Guid RettskildeId, string NodeEid, int StartOffset, int EndOffset,
-    string QuotePrefix, string QuoteExact, string QuoteSuffix, string Kind, Guid? RefId, string OpprettetAv)
+    string QuotePrefix, string QuoteExact, string QuoteSuffix, string Kind, Guid? RefId, string OpprettetAv,
+    bool KreverGjennomgang)
 {
     public static TekstTaggDto FraEntitet(TekstTaggEntitet t) => new(
         t.Id, t.RettskildeId, t.NodeEid, t.StartOffset, t.EndOffset,
-        t.QuotePrefix, t.QuoteExact, t.QuoteSuffix, t.Kind, t.RefId, t.OpprettetAv);
+        t.QuotePrefix, t.QuoteExact, t.QuoteSuffix, t.Kind, t.RefId, t.OpprettetAv, t.KreverGjennomgang);
 }
 
 /// <summary>Forespørsel for POST /api/rettskilder/{id}/tagger.</summary>

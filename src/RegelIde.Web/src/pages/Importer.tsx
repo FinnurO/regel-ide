@@ -1,7 +1,8 @@
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button, Checkbox, Heading, Paragraph, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
+import type { RettskildeDetalj, RettskildeNodeDto } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
 
 export default function Importer() {
@@ -17,13 +18,34 @@ export default function Importer() {
   const [filFeil, setFilFeil] = useState<string | null>(null);
   const [filLaster, setFilLaster] = useState(false);
 
+  // Importbekreftelse (AK-3.3.6) — vises i stedet for skjemaene etter en vellykket import.
+  const [importertId, setImportertId] = useState<string | null>(null);
+  const [kildetekst, setKildetekst] = useState<string | null>(null);
+  const [detalj, setDetalj] = useState<RettskildeDetalj | null>(null);
+  const [noder, setNoder] = useState<RettskildeNodeDto[] | null>(null);
+  const [kortnavn, setKortnavn] = useState('');
+  const [utgiver, setUtgiver] = useState('');
+  const [lagrerMetadata, setLagrerMetadata] = useState(false);
+  const [metadataFeil, setMetadataFeil] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!importertId) return;
+    Promise.all([api.hentRettskilde(importertId), api.hentNoder(importertId)]).then(([d, n]) => {
+      setDetalj(d);
+      setKortnavn(d.kortnavn ?? '');
+      setUtgiver(d.utgiver ?? '');
+      setNoder(n);
+    });
+  }, [importertId]);
+
   async function importerFraLovdata(e: FormEvent) {
     e.preventDefault();
     setLovdataFeil(null);
     setLovdataLaster(true);
     try {
       const { id } = await api.importerFraLovdata(datokode.trim());
-      navigate(`/rettskilder/${id}`);
+      setKildetekst(null); // ikke tilgjengelig klientsidig for Lovdata-sporet (hentet server-side)
+      setImportertId(id);
     } catch (err) {
       setLovdataFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved import fra Lovdata.');
     } finally {
@@ -37,14 +59,108 @@ export default function Importer() {
     setFilFeil(null);
     setFilLaster(true);
     try {
+      const tekst = await fil.text();
       const virksomhetId = erVirksomhetensEgen ? gjeldendeBruker?.virksomhetId : undefined;
       const { id } = await api.importerFraFil(fil, virksomhetId);
-      navigate(`/rettskilder/${id}`);
+      setKildetekst(tekst);
+      setImportertId(id);
     } catch (err) {
       setFilFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved import fra fil.');
     } finally {
       setFilLaster(false);
     }
+  }
+
+  async function bekreftOgLagre() {
+    if (!importertId) return;
+    setMetadataFeil(null);
+    setLagrerMetadata(true);
+    try {
+      await api.oppdaterRettskildeMetadata(importertId, { kortnavn: kortnavn.trim() || null, utgiver: utgiver.trim() || null });
+      navigate(`/rettskilder/${importertId}`);
+    } catch (err) {
+      setMetadataFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved lagring av metadata.');
+    } finally {
+      setLagrerMetadata(false);
+    }
+  }
+
+  if (importertId) {
+    return (
+      <>
+        <Heading level={1} data-size="lg">
+          Bekreft import
+        </Heading>
+        <Paragraph style={{ marginBottom: '1.5rem' }}>
+          {detalj ? detalj.tittel : 'Laster …'} — sjekk at metadata er riktig tolket, og sammenlign kildeteksten mot
+          strukturen regel-IDE har tolket ut av den (AK-3.3.6), før du fortsetter.
+        </Paragraph>
+
+        <div style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', maxWidth: '40rem' }}>
+          <Textfield label="Kortnavn" value={kortnavn} onChange={(e) => setKortnavn(e.target.value)} style={{ flex: 1 }} />
+          <Textfield label="Utgiver" value={utgiver} onChange={(e) => setUtgiver(e.target.value)} style={{ flex: 1 }} />
+        </div>
+
+        <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start', marginBottom: '1.5rem' }}>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <Heading level={2} data-size="sm" style={{ marginBottom: '0.5rem' }}>
+              Kildetekst
+            </Heading>
+            {kildetekst ? (
+              <pre
+                style={{
+                  maxHeight: '50vh', overflow: 'auto', margin: 0, padding: '0.75rem',
+                  background: 'var(--ds-color-neutral-surface-default)',
+                  border: '1px solid var(--ds-color-neutral-border-subtle)',
+                  borderRadius: 'var(--ds-border-radius-md)',
+                  fontSize: '0.75rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                }}
+              >
+                {kildetekst}
+              </pre>
+            ) : (
+              <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
+                Kildetekst er ikke tilgjengelig her for Lovdata-import (hentet server-side) — kun for filopplasting.
+              </Paragraph>
+            )}
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <Heading level={2} data-size="sm" style={{ marginBottom: '0.5rem' }}>
+              Tolket struktur ({noder?.length ?? 0} noder)
+            </Heading>
+            <div
+              style={{
+                maxHeight: '50vh', overflow: 'auto', padding: '0.75rem',
+                border: '1px solid var(--ds-color-neutral-border-subtle)',
+                borderRadius: 'var(--ds-border-radius-md)',
+              }}
+            >
+              {noder ? (
+                noder.map((n) => (
+                  <div key={n.id} style={{ fontSize: '0.85rem', marginBottom: '0.25rem' }}>
+                    {n.nummer ?? n.nodeType}
+                    {n.overskrift && ` — ${n.overskrift}`}
+                    {n.opphevet && ' (Opphevet)'}
+                  </div>
+                ))
+              ) : (
+                <Paragraph>Laster …</Paragraph>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {metadataFeil && <div className="feilmelding">{metadataFeil}</div>}
+        <div style={{ display: 'flex', gap: '0.5rem' }}>
+          <Button onClick={bekreftOgLagre} disabled={lagrerMetadata}>
+            {lagrerMetadata ? 'Lagrer …' : 'Bekreft og lagre'}
+          </Button>
+          <Button variant="tertiary" onClick={() => navigate(`/rettskilder/${importertId}`)}>
+            Hopp over
+          </Button>
+        </div>
+      </>
+    );
   }
 
   return (

@@ -136,7 +136,7 @@ export default function RettskildeDetalj() {
     const kart = new Map<string, TextTag[]>();
     for (const t of tagger) {
       const liste = kart.get(t.nodeEid) ?? [];
-      liste.push({ id: t.id, start: t.startOffset, end: t.endOffset, kind: t.kind, ref: t.refId });
+      liste.push({ id: t.id, start: t.startOffset, end: t.endOffset, kind: t.kind, ref: t.refId, kreverGjennomgang: t.kreverGjennomgang });
       kart.set(t.nodeEid, liste);
     }
     return kart;
