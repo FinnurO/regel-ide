@@ -209,6 +209,141 @@ public sealed class TekstTaggEntitet
     public bool KreverGjennomgang { get; set; }
 }
 
+/// <summary>
+/// Tjeneste (CPSV-AP-NO, docs/03-domenemodell.md §1.5) — byggesteg 2. Samme basemetadata-mønster som
+/// <see cref="RettskildeEntitet"/> og samme 5-verdis statusløp (§3.1: utkast → under_revisjon →
+/// validert → publisert → tilbaketrukket/arkivert), IKKE Rettskildes enklere 3-verdis status.
+/// <see cref="Hendelser"/>/<see cref="Tjenesteavhengigheter"/> lagres som jsonb-lister (samme mønster
+/// som <see cref="HandbokKommentarMetadataEntitet.UnderoverskrifterJson"/>) — verdiobjekter uten egen
+/// queryable rad, siden ingen skjerm trenger inkrementell CRUD på enkeltelementer (i motsetning til
+/// <see cref="KodelisteKodeEntitet"/>, der "Ny kode"-knappen krever nettopp det).
+/// </summary>
+public sealed class TjenesteEntitet
+{
+    public Guid Id { get; set; }
+
+    /// <summary>Påkrevd (§0.1) — en tjeneste er alltid virksomhetens eget arbeidsprodukt, aldri delt.</summary>
+    public required Guid VirksomhetId { get; set; }
+
+    public required string Tittel { get; set; }
+    public string? Beskrivelse { get; set; }
+    public string? KompetentMyndighet { get; set; }
+    public string? Output { get; set; }
+    public string? Tjenestetype { get; set; }
+    public string? Malgruppe { get; set; }
+    public List<string> Kanaler { get; set; } = [];
+    public string? Kostnad { get; set; }
+    public string? Behandlingstid { get; set; }
+    public string? Kontaktpunkt { get; set; }
+    public string? KonsekvensVedBrudd { get; set; }
+    public List<string> Sprak { get; set; } = [];
+
+    /// <summary>Liste av <c>{navn, type, trigger}</c> — se §1.5 "Hendelse". Jsonb, tom liste som default.</summary>
+    public string HendelserJson { get; set; } = "[]";
+
+    /// <summary>Liste av <c>{rel, navn, kilde, erEksternOppslag}</c> — se §1.5 "Tjenesteavhengighet". Jsonb.</summary>
+    public string TjenesteavhengigheterJson { get; set; } = "[]";
+
+    public required string Status { get; set; } // 'utkast' | 'under_revisjon' | 'validert' | 'publisert' | 'tilbaketrukket' | 'arkivert'
+    public int Versjon { get; set; } = 1;
+    public string Entitetsstatus { get; set; } = "gjeldende";
+    public Guid? ErstatterId { get; set; }
+    public DateOnly? GyldigFra { get; set; }
+    public DateOnly? GyldigTil { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? SistEndretAv { get; set; }
+    public DateTimeOffset? SistEndretTidspunkt { get; set; }
+}
+
+/// <summary>Regelverksreferanse fra en Tjeneste til en rettskilde-node — samme form som <see cref="RettskildeReferanseEntitet"/>, egen tabell siden kilden er en Tjeneste, ikke en rettskilde-node.</summary>
+public sealed class TjenesteRegelverksreferanseEntitet
+{
+    public Guid Id { get; set; }
+    public Guid TjenesteId { get; set; }
+    public Guid TilRettskildeId { get; set; }
+    public required string TilEid { get; set; }
+}
+
+/// <summary>
+/// Begrep (SKOS, docs/03-domenemodell.md §1.3) — byggesteg 2. Samme basemetadata/statusløp-mønster
+/// som <see cref="TjenesteEntitet"/>.
+/// </summary>
+public sealed class BegrepEntitet
+{
+    public Guid Id { get; set; }
+
+    /// <summary>Påkrevd (§0.1) — et begrep er alltid virksomhetens eget arbeidsprodukt.</summary>
+    public required Guid VirksomhetId { get; set; }
+
+    public required string Term { get; set; } // skos:prefLabel
+    public required string Definisjon { get; set; } // skos:definition
+    public string? LovreferanseEid { get; set; } // dct:source — validert mot RettskildeNoder ved lagring
+    public List<string> GjelderFor { get; set; } = [];
+    public Guid? KodelisteReferanseId { get; set; } // peker til verdiområde (§1.4)
+    public string? SkosUrl { get; set; } // publisert URI i Felles datakatalog (data.norge.no)
+    public required string Begrepstype { get; set; } // 'faktabegrep' | 'handlingsbegrep' (Schartum 2025 7.3.3-7.3.4)
+    public required string Status { get; set; } // 'utkast' | 'under_revisjon' | 'validert' | 'publisert' | 'tilbaketrukket' | 'arkivert'
+    public int Versjon { get; set; } = 1;
+    public string Entitetsstatus { get; set; } = "gjeldende";
+    public Guid? ErstatterId { get; set; }
+    public DateOnly? GyldigFra { get; set; }
+    public DateOnly? GyldigTil { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? SistEndretAv { get; set; }
+    public DateTimeOffset? SistEndretTidspunkt { get; set; }
+}
+
+/// <summary>
+/// Kodeliste / verdidomene (docs/03-domenemodell.md §1.4) — byggesteg 2. Tre typer (§0.1): juridisk og
+/// teknisk krever <see cref="VirksomhetId"/> (virksomhetens eget arbeidsprodukt); ekstern-referanse er
+/// delt/uten virksomhet (refererer en autoritativ kilde, dupliserer ikke). Ekstern-referanse har heller
+/// ikke noe 'publisert'-steg (§3.1) — alltid 'gjeldende' så lenge kilden den refererer til er det.
+/// </summary>
+public sealed class KodelisteEntitet
+{
+    public Guid Id { get; set; }
+
+    /// <summary>NULL kun for Type='ekstern-referanse' (§0.1) — juridisk/teknisk krever den (virksomhetens eget arbeidsprodukt).</summary>
+    public Guid? VirksomhetId { get; set; }
+
+    public required string Kode { get; set; } // f.eks. "KL-VANDELSOMRADE-ALKOHOLLOV"
+    public required string Navn { get; set; }
+    public required string Type { get; set; } // 'juridisk' | 'teknisk' | 'ekstern-referanse'
+    public string? JuridiskGrunnlagEid { get; set; } // kun Type='juridisk'
+    public string? EksternKildeUri { get; set; } // kun Type='ekstern-referanse'
+    public string? EksternKildeVersjon { get; set; } // kun Type='ekstern-referanse'
+    public required string Status { get; set; }
+    public int Versjon { get; set; } = 1;
+    public string Entitetsstatus { get; set; } = "gjeldende";
+    public Guid? ErstatterId { get; set; }
+    public DateOnly? GyldigFra { get; set; }
+    public DateOnly? GyldigTil { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? SistEndretAv { get; set; }
+    public DateTimeOffset? SistEndretTidspunkt { get; set; }
+
+    public List<KodelisteKodeEntitet> Koder { get; set; } = [];
+}
+
+/// <summary>
+/// Én kode i en <see cref="KodelisteEntitet"/> — egen tabell (ikke jsonb), siden "Ny kode"
+/// (produktkrav kap. 3.7) er en egen, inkrementell brukerhandling per kode.
+/// </summary>
+public sealed class KodelisteKodeEntitet
+{
+    public Guid Id { get; set; }
+    public Guid KodelisteId { get; set; }
+    public required string Kode { get; set; }
+    public required string Term { get; set; }
+    public string? Definisjon { get; set; }
+    public DateOnly? GyldigFra { get; set; }
+    public DateOnly? GyldigTil { get; set; }
+    public Guid? ErstattesAvKodeId { get; set; }
+}
+
 public sealed class ProveniensEntitet
 {
     public Guid Id { get; set; }

@@ -257,4 +257,46 @@ public class TekstTaggTjenesteTests
 
         Assert.Equal(SlettResultat.IkkeFunnet, resultat);
     }
+
+    [Fact]
+    public async Task Kobler_begrep_tagg_til_eksisterende_begrep()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+
+        var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
+        var tjeneste = new TekstTaggTjeneste(db);
+        var tagg = await tjeneste.OpprettAsync(
+            rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "begrep");
+
+        var begrep = await new BegrepsregisterTjeneste(db).OpprettAsync(
+            virksomhet, "eksempelbegrep", "Definisjon", null, null, null, null, "handlingsbegrep", "Kari Jurist");
+
+        var oppdatert = await tjeneste.KobleTilEntitetAsync(tagg!.Id, begrep.Id, "Kari Jurist");
+
+        Assert.NotNull(oppdatert);
+        Assert.Equal(begrep.Id, oppdatert!.RefId);
+    }
+
+    [Fact]
+    public async Task Kobling_til_feil_entitetstype_kastes()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+
+        var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
+        var tjeneste = new TekstTaggTjeneste(db);
+        var tagg = await tjeneste.OpprettAsync(
+            rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "begrep");
+
+        var enTjeneste = await new TjenesteregisterTjeneste(db).OpprettAsync(
+            virksomhet, "Skjenkebevilling", null, null, null, null, null, null, null, null, null, null, null, "Kari Jurist");
+
+        // Taggen er kind='begrep' — kan ikke peke på en Tjeneste-id, selv om Tjenesten faktisk finnes.
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.KobleTilEntitetAsync(tagg!.Id, enTjeneste.Id, "Kari Jurist"));
+    }
 }

@@ -99,3 +99,80 @@ public sealed record TaggKindKonfigurasjonDto(string Kode, string Navn, string F
 {
     public static TaggKindKonfigurasjonDto FraEntitet(TaggKindKonfigurasjonEntitet k) => new(k.Kode, k.Navn, k.Farge);
 }
+
+/// <summary>Forespørsel for POST .../koble — byggesteg 2, låser opp TekstTaggEntitet.RefId.</summary>
+public sealed record KobleTaggTilEntitetRequest(Guid RefId);
+
+/// <summary>Felles statusendrings-forespørsel for Tjeneste/Begrep/Kodeliste (§3.1 i domenemodellen).</summary>
+public sealed record SettStatusRequest(string Status);
+
+// ---------- Tjeneste (CPSV-AP-NO, docs/03-domenemodell.md §1.5) — byggesteg 2 ----------
+
+/// <summary>Tjeneste. <see cref="Kanaler"/>/<see cref="Sprak"/> er postgres text[]; hendelser/tjenesteavhengigheter (jsonb) er ikke eksponert i v1 (ingen forfatter-UI ennå).</summary>
+public sealed record TjenesteDto(
+    Guid Id, Guid VirksomhetId, string Tittel, string? Beskrivelse, string? KompetentMyndighet, string? Output,
+    string? Tjenestetype, string? Malgruppe, IReadOnlyList<string> Kanaler, string? Kostnad, string? Behandlingstid,
+    string? Kontaktpunkt, string? KonsekvensVedBrudd, IReadOnlyList<string> Sprak, string Status, int Versjon)
+{
+    public static TjenesteDto FraEntitet(TjenesteEntitet t) => new(
+        t.Id, t.VirksomhetId, t.Tittel, t.Beskrivelse, t.KompetentMyndighet, t.Output, t.Tjenestetype, t.Malgruppe,
+        t.Kanaler, t.Kostnad, t.Behandlingstid, t.Kontaktpunkt, t.KonsekvensVedBrudd, t.Sprak, t.Status, t.Versjon);
+}
+
+/// <summary>Forespørsel for POST/PUT /api/tjenester.</summary>
+public sealed record TjenesteRequest(
+    string Tittel, string? Beskrivelse, string? KompetentMyndighet, string? Output, string? Tjenestetype,
+    string? Malgruppe, IReadOnlyList<string>? Kanaler, string? Kostnad, string? Behandlingstid,
+    string? Kontaktpunkt, string? KonsekvensVedBrudd, IReadOnlyList<string>? Sprak);
+
+public sealed record TjenesteRegelverksreferanseDto(Guid Id, Guid TjenesteId, Guid TilRettskildeId, string TilEid)
+{
+    public static TjenesteRegelverksreferanseDto FraEntitet(TjenesteRegelverksreferanseEntitet r) =>
+        new(r.Id, r.TjenesteId, r.TilRettskildeId, r.TilEid);
+}
+
+/// <summary>Forespørsel for POST /api/tjenester/{id}/regelverksreferanser.</summary>
+public sealed record KobleRegelverksreferanseRequest(Guid TilRettskildeId, string TilEid);
+
+// ---------- Begrep (SKOS, docs/03-domenemodell.md §1.3) — byggesteg 2 ----------
+
+public sealed record BegrepDto(
+    Guid Id, Guid VirksomhetId, string Term, string Definisjon, string? LovreferanseEid,
+    IReadOnlyList<string> GjelderFor, Guid? KodelisteReferanseId, string? SkosUrl, string Begrepstype,
+    string Status, int Versjon)
+{
+    public static BegrepDto FraEntitet(BegrepEntitet b) => new(
+        b.Id, b.VirksomhetId, b.Term, b.Definisjon, b.LovreferanseEid, b.GjelderFor, b.KodelisteReferanseId,
+        b.SkosUrl, b.Begrepstype, b.Status, b.Versjon);
+}
+
+/// <summary>Forespørsel for POST/PUT /api/begreper.</summary>
+public sealed record BegrepRequest(
+    string Term, string Definisjon, string? LovreferanseEid, IReadOnlyList<string>? GjelderFor,
+    Guid? KodelisteReferanseId, string? SkosUrl, string Begrepstype);
+
+// ---------- Kodeliste / verdidomene (docs/03-domenemodell.md §1.4) — byggesteg 2 ----------
+
+public sealed record KodelisteKodeDto(
+    Guid Id, string Kode, string Term, string? Definisjon, DateOnly? GyldigFra, DateOnly? GyldigTil, Guid? ErstattesAvKodeId)
+{
+    public static KodelisteKodeDto FraEntitet(KodelisteKodeEntitet k) =>
+        new(k.Id, k.Kode, k.Term, k.Definisjon, k.GyldigFra, k.GyldigTil, k.ErstattesAvKodeId);
+}
+
+public sealed record KodelisteDto(
+    Guid Id, Guid? VirksomhetId, string Kode, string Navn, string Type, string? JuridiskGrunnlagEid,
+    string? EksternKildeUri, string? EksternKildeVersjon, string Status, int Versjon, IReadOnlyList<KodelisteKodeDto> Koder)
+{
+    public static KodelisteDto FraEntitet(KodelisteEntitet k) => new(
+        k.Id, k.VirksomhetId, k.Kode, k.Navn, k.Type, k.JuridiskGrunnlagEid, k.EksternKildeUri, k.EksternKildeVersjon,
+        k.Status, k.Versjon, k.Koder.Select(KodelisteKodeDto.FraEntitet).ToList());
+}
+
+/// <summary>Forespørsel for POST /api/kodelister. VirksomhetId påkrevd for juridisk/teknisk, må være null for ekstern-referanse (§0.1).</summary>
+public sealed record KodelisteRequest(
+    string Kode, string Navn, string Type, Guid? VirksomhetId, string? JuridiskGrunnlagEid,
+    string? EksternKildeUri, string? EksternKildeVersjon);
+
+/// <summary>Forespørsel for POST /api/kodelister/{id}/koder.</summary>
+public sealed record LeggTilKodeRequest(string Kode, string Term, string? Definisjon, DateOnly? GyldigFra, DateOnly? GyldigTil);

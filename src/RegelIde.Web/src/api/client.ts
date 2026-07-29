@@ -1,7 +1,15 @@
 import type {
   ApiFeil,
+  BegrepDto,
+  BegrepRequest,
   BrukerDto,
   KobleLovreferanseRequest,
+  KobleRegelverksreferanseRequest,
+  KobleTaggTilEntitetRequest,
+  KodelisteDto,
+  KodelisteKodeDto,
+  KodelisteRequest,
+  LeggTilKodeRequest,
   OppdaterRettskildeMetadataRequest,
   OpprettHandbokRequest,
   OpprettKapittelNodeRequest,
@@ -14,8 +22,12 @@ import type {
   RettskildeReferanseDto,
   RettskildeSammendrag,
   SettRevisjonsmerkeRequest,
+  SettStatusRequest,
   TaggKindKonfigurasjonDto,
   TekstTaggDto,
+  TjenesteDto,
+  TjenesteRegelverksreferanseDto,
+  TjenesteRequest,
   VirksomhetDto,
 } from './types';
 
@@ -89,6 +101,13 @@ export const api = {
   slettTagg: (rettskildeId: string, taggId: string) =>
     kall<void>(`/api/rettskilder/${rettskildeId}/tagger/${taggId}`, { method: 'DELETE' }),
 
+  kobleTaggTilEntitet: (rettskildeId: string, taggId: string, request: KobleTaggTilEntitetRequest) =>
+    kall<TekstTaggDto>(`/api/rettskilder/${rettskildeId}/tagger/${taggId}/koble`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
   hentBrukere: () => kall<BrukerDto[]>('/api/brukere'),
 
   hentVirksomheter: () => kall<VirksomhetDto[]>('/api/virksomheter'),
@@ -161,6 +180,102 @@ export const api = {
 
   publiserKommentar: (handbokId: string, nodeId: string, request: PubliserKommentarRequest) =>
     kall<void>(`/api/handboker/${handbokId}/kommentarer/${nodeId}/publiser`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  // ---------- Tjenesteregister (CPSV-AP-NO, docs/03-domenemodell.md §1.5) — byggesteg 2 ----------
+
+  hentTjenester: () => kall<TjenesteDto[]>('/api/tjenester'),
+
+  hentTjeneste: (id: string) => kall<TjenesteDto>(`/api/tjenester/${id}`),
+
+  opprettTjeneste: (request: TjenesteRequest) =>
+    kall<TjenesteDto>('/api/tjenester', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  oppdaterTjeneste: (id: string, request: TjenesteRequest) =>
+    kall<TjenesteDto>(`/api/tjenester/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  settTjenesteStatus: (id: string, request: SettStatusRequest) =>
+    kall<TjenesteDto>(`/api/tjenester/${id}/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  hentTjenesteRegelverksreferanser: (id: string) =>
+    kall<TjenesteRegelverksreferanseDto[]>(`/api/tjenester/${id}/regelverksreferanser`),
+
+  kobleTjenesteRegelverksreferanse: (id: string, request: KobleRegelverksreferanseRequest) =>
+    kall<TjenesteRegelverksreferanseDto>(`/api/tjenester/${id}/regelverksreferanser`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  fjernTjenesteRegelverksreferanse: (referanseId: string) =>
+    kall<void>(`/api/tjenester/regelverksreferanser/${referanseId}`, { method: 'DELETE' }),
+
+  // ---------- Begrepsregister (SKOS, docs/03-domenemodell.md §1.3) — byggesteg 2 ----------
+
+  hentBegreper: () => kall<BegrepDto[]>('/api/begreper'),
+
+  hentBegrep: (id: string) => kall<BegrepDto>(`/api/begreper/${id}`),
+
+  opprettBegrep: (request: BegrepRequest) =>
+    kall<BegrepDto>('/api/begreper', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  oppdaterBegrep: (id: string, request: BegrepRequest) =>
+    kall<BegrepDto>(`/api/begreper/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  settBegrepStatus: (id: string, request: SettStatusRequest) =>
+    kall<BegrepDto>(`/api/begreper/${id}/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  // ---------- Kodelisteregister / verdidomene (docs/03-domenemodell.md §1.4) — byggesteg 2 ----------
+
+  hentKodelister: () => kall<KodelisteDto[]>('/api/kodelister'),
+
+  hentKodeliste: (id: string) => kall<KodelisteDto>(`/api/kodelister/${id}`),
+
+  opprettKodeliste: (request: KodelisteRequest) =>
+    kall<KodelisteDto>('/api/kodelister', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  leggTilKodelisteKode: (id: string, request: LeggTilKodeRequest) =>
+    kall<KodelisteKodeDto>(`/api/kodelister/${id}/koder`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  fjernKodelisteKode: (kodeId: string) => kall<void>(`/api/kodelister/koder/${kodeId}`, { method: 'DELETE' }),
+
+  settKodelisteStatus: (id: string, request: SettStatusRequest) =>
+    kall<KodelisteDto>(`/api/kodelister/${id}/status`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),

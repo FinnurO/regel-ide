@@ -74,6 +74,13 @@ export interface TagTekstProps {
   onRemoveTag: (id: string) => void;
   /** Kandidater for «knytt til eksisterende» — utelatt/tom i byggesteg 1. */
   registry?: Registry;
+  /**
+   * Kobler en ALLEREDE OPPRETTET tagg (ref===null) til en eksisterende entitet — byggesteg 2,
+   * docs/06-veikart.md: låser opp TekstTaggEntitet.RefId. Til forskjell fra `registry`-kandidatene i
+   * tag-linjen over (som gjelder NYE tagger, valgt idet man tagger), gjelder dette tagger som allerede
+   * finnes i tagg-listen fra en tid før den tilhørende Begrep/Tjeneste-raden ble opprettet.
+   */
+  onLinkTag?: (tagId: string, ref: string) => void;
   /** Hvilket lag som vises (én type om gangen — radio). Ukontrollert hvis utelatt. */
   activeKind?: TagKindId;
   onActiveKindChange?: (id: TagKindId) => void;
@@ -136,7 +143,7 @@ function selectionOffsets(container: HTMLElement): { start: number; end: number;
 /* --------------------------- komponent --------------------------- */
 
 export function TagTekst({
-  text, tags, kinds, onTag, onRemoveTag, registry,
+  text, tags, kinds, onTag, onRemoveTag, registry, onLinkTag,
   activeKind, onActiveKindChange, showTagList = true, readOnly = false,
 }: TagTekstProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -316,6 +323,25 @@ export function TagTekst({
                 >
                   «{text.slice(t.start, t.end)}»{t.ref ? ` → ${t.ref}` : ''}
                 </span>
+                {!readOnly && !t.ref && onLinkTag && (registry?.[t.kind]?.length ?? 0) > 0 && (
+                  <select
+                    aria-label={`Koble tagg til eksisterende ${kindById[t.kind]?.label ?? t.kind}`}
+                    defaultValue=""
+                    onChange={(e) => {
+                      if (e.target.value) onLinkTag(t.id, e.target.value);
+                    }}
+                    style={{ fontSize: 'var(--ds-font-size-1)' }}
+                  >
+                    <option value="" disabled>
+                      Koble til …
+                    </option>
+                    {registry![t.kind].map((cand) => (
+                      <option key={cand.ref} value={cand.ref}>
+                        {cand.label}
+                      </option>
+                    ))}
+                  </select>
+                )}
                 {!readOnly && (
                   <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => onRemoveTag(t.id)}>
                     Fjern

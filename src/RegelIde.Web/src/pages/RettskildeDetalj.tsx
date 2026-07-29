@@ -8,7 +8,7 @@ import type {
   RettskildeSammendrag,
   TekstTaggDto,
 } from '../api/types';
-import { TagTekst, type TextTag } from '../tagging/TagTekst';
+import { TagTekst, type Registry, type TextTag } from '../tagging/TagTekst';
 import { RettskildeTre, type RettskildeNode as TreNodeVm } from '../tre/RettskildeTre';
 import { KommentarRedigering } from '../handbok/KommentarRedigering';
 import { useKonfigurasjon } from '../konfigurasjon/KonfigurasjonContext';
@@ -103,6 +103,30 @@ export default function RettskildeDetalj() {
   useEffect(() => {
     if (detalj?.kildetype === 'Rundskriv') api.hentRettskilder().then(setAlleRettskilder);
   }, [detalj?.kildetype]);
+
+  // Registry for «Koble til …»-handlingen i tagg-listen (byggesteg 2) — kandidater for kind='begrep'/'tjeneste'.
+  const [registry, setRegistry] = useState<Registry>({});
+  useEffect(() => {
+    Promise.all([api.hentBegreper(), api.hentTjenester()])
+      .then(([begreper, tjenester]) => {
+        setRegistry({
+          begrep: begreper.map((b) => ({ ref: b.id, label: b.term })),
+          tjeneste: tjenester.map((t) => ({ ref: t.id, label: t.tittel })),
+        });
+      })
+      .catch(() => setRegistry({})); // ingen bruker valgt ennå e.l. — «Koble til» skjules bare
+  }, []);
+
+  async function handleKobleTag(taggId: string, ref: string) {
+    if (!id) return;
+    setTaggFeil(null);
+    try {
+      const oppdatert = await api.kobleTaggTilEntitet(id, taggId, { refId: ref });
+      setTagger((forrige) => forrige.map((t) => (t.id === taggId ? oppdatert : t)));
+    } catch (e) {
+      setTaggFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved kobling av tagg.');
+    }
+  }
 
   async function refetchNoder(velgEid?: string) {
     if (!id) return;
@@ -328,6 +352,8 @@ export default function RettskildeDetalj() {
                   onActiveKindChange={setActiveKind}
                   onTag={(t) => handleTag(valgtNode.eid, valgtNode.tekst!, t)}
                   onRemoveTag={handleSlett}
+                  registry={registry}
+                  onLinkTag={handleKobleTag}
                 />
               ) : (
                 <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>

@@ -160,3 +160,128 @@ export interface OppdaterRettskildeMetadataRequest {
 export interface ApiFeil {
   feil: string;
 }
+
+// ---------- Tjeneste/Begrep/Kodeliste (byggesteg 2, 2026-07-29, docs/03-domenemodell.md §1.3-1.5) ----------
+
+export interface KobleTaggTilEntitetRequest {
+  refId: string;
+}
+
+/** Felles statusløp for Tjeneste/Begrep/Kodeliste: utkast|under_revisjon|validert|publisert|tilbaketrukket|arkivert. */
+export interface SettStatusRequest {
+  status: string;
+}
+
+export interface TjenesteDto {
+  id: string;
+  virksomhetId: string;
+  tittel: string;
+  beskrivelse: string | null;
+  kompetentMyndighet: string | null;
+  output: string | null;
+  tjenestetype: string | null;
+  malgruppe: string | null;
+  kanaler: string[];
+  kostnad: string | null;
+  behandlingstid: string | null;
+  kontaktpunkt: string | null;
+  konsekvensVedBrudd: string | null;
+  sprak: string[];
+  status: string;
+  versjon: number;
+}
+
+export interface TjenesteRequest {
+  tittel: string;
+  beskrivelse: string | null;
+  kompetentMyndighet: string | null;
+  output: string | null;
+  tjenestetype: string | null;
+  malgruppe: string | null;
+  kanaler: string[] | null;
+  kostnad: string | null;
+  behandlingstid: string | null;
+  kontaktpunkt: string | null;
+  konsekvensVedBrudd: string | null;
+  sprak: string[] | null;
+}
+
+export interface TjenesteRegelverksreferanseDto {
+  id: string;
+  tjenesteId: string;
+  tilRettskildeId: string;
+  tilEid: string;
+}
+
+export interface KobleRegelverksreferanseRequest {
+  tilRettskildeId: string;
+  tilEid: string;
+}
+
+/** SKOS-begrep (docs/03-domenemodell.md §1.3). 'begrepstype': faktabegrep|handlingsbegrep. */
+export interface BegrepDto {
+  id: string;
+  virksomhetId: string;
+  term: string;
+  definisjon: string;
+  lovreferanseEid: string | null;
+  gjelderFor: string[];
+  kodelisteReferanseId: string | null;
+  skosUrl: string | null;
+  begrepstype: string;
+  status: string;
+  versjon: number;
+}
+
+export interface BegrepRequest {
+  term: string;
+  definisjon: string;
+  lovreferanseEid: string | null;
+  gjelderFor: string[] | null;
+  kodelisteReferanseId: string | null;
+  skosUrl: string | null;
+  begrepstype: string;
+}
+
+export interface KodelisteKodeDto {
+  id: string;
+  kode: string;
+  term: string;
+  definisjon: string | null;
+  gyldigFra: string | null;
+  gyldigTil: string | null;
+  erstattesAvKodeId: string | null;
+}
+
+/** Kodeliste/verdidomene (docs/03-domenemodell.md §1.4). 'type': juridisk|teknisk|ekstern-referanse. */
+export interface KodelisteDto {
+  id: string;
+  virksomhetId: string | null;
+  kode: string;
+  navn: string;
+  type: string;
+  juridiskGrunnlagEid: string | null;
+  eksternKildeUri: string | null;
+  eksternKildeVersjon: string | null;
+  status: string;
+  versjon: number;
+  koder: KodelisteKodeDto[];
+}
+
+export interface KodelisteRequest {
+  kode: string;
+  navn: string;
+  type: string;
+  virksomhetId: string | null;
+  juridiskGrunnlagEid: string | null;
+  eksternKildeUri: string | null;
+  eksternKildeVersjon: string | null;
+}
+
+export interface LeggTilKodeRequest {
+  kode: string;
+  term: string;
+  definisjon: string | null;
+  gyldigFra: string | null;
+  gyldigTil: string | null;
+}

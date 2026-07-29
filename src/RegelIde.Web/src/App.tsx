@@ -5,6 +5,12 @@ import RettskilderListe from './pages/RettskilderListe';
 import RettskildeDetalj from './pages/RettskildeDetalj';
 import Importer from './pages/Importer';
 import HandbokOpprett from './pages/HandbokOpprett';
+import TjenesterListe from './pages/TjenesterListe';
+import TjenesteDetalj from './pages/TjenesteDetalj';
+import BegreperListe from './pages/BegreperListe';
+import BegrepDetalj from './pages/BegrepDetalj';
+import KodelisterListe from './pages/KodelisterListe';
+import KodelisteDetalj from './pages/KodelisteDetalj';
 
 function BrukerVelger() {
   const { brukere, gjeldendeBruker, velgBruker, laster } = useBruker();
@@ -45,6 +51,15 @@ function App() {
           <NavLink to="/handboker/ny" className={({ isActive }) => (isActive ? 'aktiv' : '')}>
             Ny håndbok
           </NavLink>
+          <NavLink to="/tjenester" className={({ isActive }) => (isActive ? 'aktiv' : '')}>
+            Tjenester
+          </NavLink>
+          <NavLink to="/begreper" className={({ isActive }) => (isActive ? 'aktiv' : '')}>
+            Begreper
+          </NavLink>
+          <NavLink to="/kodelister" className={({ isActive }) => (isActive ? 'aktiv' : '')}>
+            Kodelister
+          </NavLink>
         </nav>
         <BrukerVelger />
       </aside>
@@ -54,6 +69,12 @@ function App() {
           <Route path="/rettskilder/:id" element={<RettskildeDetalj />} />
           <Route path="/importer" element={<Importer />} />
           <Route path="/handboker/ny" element={<HandbokOpprett />} />
+          <Route path="/tjenester" element={<TjenesterListe />} />
+          <Route path="/tjenester/:id" element={<TjenesteDetalj />} />
+          <Route path="/begreper" element={<BegreperListe />} />
+          <Route path="/begreper/:id" element={<BegrepDetalj />} />
+          <Route path="/kodelister" element={<KodelisterListe />} />
+          <Route path="/kodelister/:id" element={<KodelisteDetalj />} />
         </Routes>
       </main>
     </div>

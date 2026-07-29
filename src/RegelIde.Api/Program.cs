@@ -17,6 +17,9 @@ builder.Services.AddScoped<RettskildeRepository>();
 builder.Services.AddScoped<RettskildeImportTjeneste>();
 builder.Services.AddScoped<TekstTaggTjeneste>();
 builder.Services.AddScoped<HandbokForfatterTjeneste>();
+builder.Services.AddScoped<TjenesteregisterTjeneste>();
+builder.Services.AddScoped<BegrepsregisterTjeneste>();
+builder.Services.AddScoped<KodelisteregisterTjeneste>();
 builder.Services.AddHttpClient<LovdataBulkHenter>();
 
 const string VitePolicy = "ViteDevServer";
@@ -88,6 +91,10 @@ using (var scope = app.Services.CreateScope())
     // internt per rettskilde (ikke "!AnyAsync" på hele tabellen, siden dette kjører etter at
     // Lov/Forskrift kan være importert fra før). Se TestkommuneInnholdSeed.cs for proveniens.
     await TestkommuneInnholdSeed.SeedAsync(db);
+
+    // Byggesteg 2-testcaseinnhold (2026-07-29, docs/06-veikart.md) — tjeneste/begreper/kodelister for
+    // "Alminnelig skjenkebevilling". Kjøres etter alkoholloven-importen over (no-op hvis den mangler).
+    await Byggesteg2InnholdSeed.SeedAsync(db);
 }
 
 app.MapGet("/api/brukere", async (RegelIdeDbContext db) =>
@@ -252,6 +259,29 @@ rettskilder.MapDelete("/{id:guid}/tagger/{taggId:guid}", async (Guid id, Guid ta
     })
     .WithName("SlettTekstTagg")
     .WithSummary("Fjerner (arkiverer) en egendefinert tagg — AK-3.3.4.");
+
+rettskilder.MapPost("/{id:guid}/tagger/{taggId:guid}/koble", async (Guid taggId, HttpRequest request, KobleTaggTilEntitetRequest body,
+        TekstTaggTjeneste taggTjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var oppdatert = await taggTjeneste.KobleTilEntitetAsync(taggId, body.RefId, bruker.Navn, ct);
+            return oppdatert is null
+                ? Results.NotFound(new { feil = $"Ingen tagg med id '{taggId}'." })
+                : Results.Ok(TekstTaggDto.FraEntitet(oppdatert));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KobleTekstTaggTilEntitet")
+    .WithSummary("Kobler en eksisterende tagg til en Begrep/Tjeneste-rad (byggesteg 2) — låser opp TekstTaggEntitet.RefId.");
 
 // ---------- Import (2026-07-24) — krever X-Bruker-Id for attribusjon, se GjeldendeBrukerTjeneste ----------
 
@@ -498,6 +528,290 @@ handboker.MapPost("/{id:guid}/kommentarer/{nodeId:guid}/publiser", async (Guid i
     })
     .WithName("PubliserHandbokKommentar")
     .WithSummary("Publiserer en kommentarseksjon. Bindende seksjoner krever registrert godkjenner (AK-3.3.11).");
+
+// ---------- Tjenesteregister (CPSV-AP-NO, docs/03-domenemodell.md §1.5) — byggesteg 2 ----------
+// ---------- krever X-Bruker-Id — en tjeneste er alltid virksomhetens eget arbeidsprodukt (§0.1). ----------
+
+var tjenester = app.MapGroup("/api/tjenester").WithOpenApi();
+
+tjenester.MapGet("/", async (HttpRequest request, TjenesteregisterTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        var liste = await tjeneste.ListerForAsync(bruker.VirksomhetId, ct);
+        return Results.Ok(liste.Select(TjenesteDto.FraEntitet));
+    })
+    .WithName("HentTjenester")
+    .WithSummary("Lister virksomhetens egne tjenester (produktkrav kap. 3.2).");
+
+tjenester.MapGet("/{id:guid}", async (Guid id, TjenesteregisterTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var t = await tjeneste.FinnAsync(id, ct);
+        return t is null ? Results.NotFound(new { feil = $"Ingen tjeneste med id '{id}'." }) : Results.Ok(TjenesteDto.FraEntitet(t));
+    })
+    .WithName("HentTjeneste")
+    .WithSummary("Henter én tjeneste.");
+
+tjenester.MapPost("/", async (HttpRequest request, TjenesteRequest body, TjenesteregisterTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var t = await tjeneste.OpprettAsync(bruker.VirksomhetId, body.Tittel, body.Beskrivelse, body.KompetentMyndighet,
+                body.Output, body.Tjenestetype, body.Malgruppe, body.Kanaler, body.Kostnad, body.Behandlingstid,
+                body.Kontaktpunkt, body.KonsekvensVedBrudd, body.Sprak, bruker.Navn, ct);
+            return Results.Created($"/api/tjenester/{t.Id}", TjenesteDto.FraEntitet(t));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OpprettTjeneste")
+    .WithSummary("Oppretter en ny tjeneste (utkast).");
+
+tjenester.MapPut("/{id:guid}", async (Guid id, HttpRequest request, TjenesteRequest body, TjenesteregisterTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var t = await tjeneste.OppdaterAsync(id, body.Tittel, body.Beskrivelse, body.KompetentMyndighet, body.Output,
+                body.Tjenestetype, body.Malgruppe, body.Kanaler, body.Kostnad, body.Behandlingstid, body.Kontaktpunkt,
+                body.KonsekvensVedBrudd, body.Sprak, bruker.Navn, ct);
+            return t is null ? Results.NotFound(new { feil = $"Ingen tjeneste med id '{id}'." }) : Results.Ok(TjenesteDto.FraEntitet(t));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OppdaterTjeneste")
+    .WithSummary("Oppdaterer en tjeneste.");
+
+tjenester.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, SettStatusRequest body, TjenesteregisterTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var t = await tjeneste.SettStatusAsync(id, body.Status, bruker.Navn, ct);
+            return t is null ? Results.NotFound(new { feil = $"Ingen tjeneste med id '{id}'." }) : Results.Ok(TjenesteDto.FraEntitet(t));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SettTjenesteStatus")
+    .WithSummary("Endrer status (§3.1 i domenemodellen).");
+
+tjenester.MapGet("/{id:guid}/regelverksreferanser", async (Guid id, TjenesteregisterTjeneste tjeneste, CancellationToken ct) =>
+        Results.Ok((await tjeneste.RegelverksreferanserForAsync(id, ct)).Select(TjenesteRegelverksreferanseDto.FraEntitet)))
+    .WithName("HentTjenesteRegelverksreferanser")
+    .WithSummary("Lister tjenestens regelverksreferanser.");
+
+tjenester.MapPost("/{id:guid}/regelverksreferanser", async (Guid id, KobleRegelverksreferanseRequest body, TjenesteregisterTjeneste tjeneste, CancellationToken ct) =>
+    {
+        try
+        {
+            var r = await tjeneste.KobleRegelverksreferanseAsync(id, body.TilRettskildeId, body.TilEid, ct);
+            return Results.Created($"/api/tjenester/{id}/regelverksreferanser", TjenesteRegelverksreferanseDto.FraEntitet(r));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KobleTjenesteRegelverksreferanse")
+    .WithSummary("Kobler tjenesten til en paragraf i en Lov/Forskrift.");
+
+tjenester.MapDelete("/regelverksreferanser/{referanseId:guid}", async (Guid referanseId, TjenesteregisterTjeneste tjeneste, CancellationToken ct) =>
+        await tjeneste.FjernRegelverksreferanseAsync(referanseId, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen regelverksreferanse med id '{referanseId}'." }))
+    .WithName("FjernTjenesteRegelverksreferanse")
+    .WithSummary("Fjerner en regelverksreferanse-kobling.");
+
+// ---------- Begrepsregister (SKOS, docs/03-domenemodell.md §1.3) — byggesteg 2 ----------
+
+var begreper = app.MapGroup("/api/begreper").WithOpenApi();
+
+begreper.MapGet("/", async (HttpRequest request, BegrepsregisterTjeneste begrepsregister, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        var liste = await begrepsregister.ListerForAsync(bruker.VirksomhetId, ct);
+        return Results.Ok(liste.Select(BegrepDto.FraEntitet));
+    })
+    .WithName("HentBegreper")
+    .WithSummary("Lister virksomhetens egne begreper (produktkrav kap. 3.8).");
+
+begreper.MapGet("/{id:guid}", async (Guid id, BegrepsregisterTjeneste begrepsregister, CancellationToken ct) =>
+    {
+        var b = await begrepsregister.FinnAsync(id, ct);
+        return b is null ? Results.NotFound(new { feil = $"Ingen begrep med id '{id}'." }) : Results.Ok(BegrepDto.FraEntitet(b));
+    })
+    .WithName("HentBegrep")
+    .WithSummary("Henter ett begrep.");
+
+begreper.MapPost("/", async (HttpRequest request, BegrepRequest body, BegrepsregisterTjeneste begrepsregister, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var b = await begrepsregister.OpprettAsync(bruker.VirksomhetId, body.Term, body.Definisjon, body.LovreferanseEid,
+                body.GjelderFor, body.KodelisteReferanseId, body.SkosUrl, body.Begrepstype, bruker.Navn, ct);
+            return Results.Created($"/api/begreper/{b.Id}", BegrepDto.FraEntitet(b));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OpprettBegrep")
+    .WithSummary("Oppretter et nytt begrep (utkast).");
+
+begreper.MapPut("/{id:guid}", async (Guid id, HttpRequest request, BegrepRequest body, BegrepsregisterTjeneste begrepsregister, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var b = await begrepsregister.OppdaterAsync(id, body.Term, body.Definisjon, body.LovreferanseEid,
+                body.GjelderFor, body.KodelisteReferanseId, body.SkosUrl, body.Begrepstype, bruker.Navn, ct);
+            return b is null ? Results.NotFound(new { feil = $"Ingen begrep med id '{id}'." }) : Results.Ok(BegrepDto.FraEntitet(b));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OppdaterBegrep")
+    .WithSummary("Oppdaterer et begrep.");
+
+begreper.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, SettStatusRequest body, BegrepsregisterTjeneste begrepsregister, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var b = await begrepsregister.SettStatusAsync(id, body.Status, bruker.Navn, ct);
+            return b is null ? Results.NotFound(new { feil = $"Ingen begrep med id '{id}'." }) : Results.Ok(BegrepDto.FraEntitet(b));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SettBegrepStatus")
+    .WithSummary("Endrer status (§3.1 i domenemodellen).");
+
+// ---------- Kodelisteregister / verdidomene (docs/03-domenemodell.md §1.4) — byggesteg 2 ----------
+// ---------- Åpne data (som Rettskildebiblioteket) — ekstern-referanse-kodelister er delt/uten     ----------
+// ---------- virksomhet og må kunne leses uten X-Bruker-Id.                                        ----------
+
+var kodelister = app.MapGroup("/api/kodelister").WithOpenApi();
+
+kodelister.MapGet("/", async (KodelisteregisterTjeneste kodelisteregister, CancellationToken ct) =>
+        Results.Ok((await kodelisteregister.AlleAsync(ct)).Select(KodelisteDto.FraEntitet)))
+    .WithName("HentKodelister")
+    .WithSummary("Lister alle kodelister (produktkrav kap. 3.7) — juridisk/teknisk/ekstern-referanse.");
+
+kodelister.MapGet("/{id:guid}", async (Guid id, KodelisteregisterTjeneste kodelisteregister, CancellationToken ct) =>
+    {
+        var k = await kodelisteregister.FinnAsync(id, ct);
+        return k is null ? Results.NotFound(new { feil = $"Ingen kodeliste med id '{id}'." }) : Results.Ok(KodelisteDto.FraEntitet(k));
+    })
+    .WithName("HentKodeliste")
+    .WithSummary("Henter én kodeliste, inkl. koder.");
+
+kodelister.MapPost("/", async (HttpRequest request, KodelisteRequest body, KodelisteregisterTjeneste kodelisteregister, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var k = await kodelisteregister.OpprettAsync(body.VirksomhetId, body.Kode, body.Navn, body.Type,
+                body.JuridiskGrunnlagEid, body.EksternKildeUri, body.EksternKildeVersjon, bruker.Navn, ct);
+            return Results.Created($"/api/kodelister/{k.Id}", KodelisteDto.FraEntitet(k));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OpprettKodeliste")
+    .WithSummary("Oppretter en ny kodeliste.");
+
+kodelister.MapPost("/{id:guid}/koder", async (Guid id, LeggTilKodeRequest body, KodelisteregisterTjeneste kodelisteregister, CancellationToken ct) =>
+    {
+        try
+        {
+            var kode = await kodelisteregister.LeggTilKodeAsync(id, body.Kode, body.Term, body.Definisjon, body.GyldigFra, body.GyldigTil, ct);
+            return kode is null
+                ? Results.NotFound(new { feil = $"Ingen kodeliste med id '{id}'." })
+                : Results.Created($"/api/kodelister/{id}", KodelisteKodeDto.FraEntitet(kode));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("LeggTilKodelisteKode")
+    .WithSummary("Legger til en ny kode i en kodeliste (\"Ny kode\", produktkrav kap. 3.7).");
+
+kodelister.MapDelete("/koder/{kodeId:guid}", async (Guid kodeId, KodelisteregisterTjeneste kodelisteregister, CancellationToken ct) =>
+        await kodelisteregister.FjernKodeAsync(kodeId, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen kode med id '{kodeId}'." }))
+    .WithName("FjernKodelisteKode")
+    .WithSummary("Fjerner en kode fra en kodeliste.");
+
+kodelister.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, SettStatusRequest body, KodelisteregisterTjeneste kodelisteregister, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var k = await kodelisteregister.SettStatusAsync(id, body.Status, bruker.Navn, ct);
+            return k is null ? Results.NotFound(new { feil = $"Ingen kodeliste med id '{id}'." }) : Results.Ok(KodelisteDto.FraEntitet(k));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SettKodelisteStatus")
+    .WithSummary("Endrer status (§3.1 i domenemodellen) — avvises for ekstern-referanse.");
 
 app.Run();
 

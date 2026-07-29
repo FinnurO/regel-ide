@@ -98,6 +98,35 @@ public sealed class TekstTaggTjeneste(RegelIdeDbContext db)
     /// kan fjernes". Arkiverer i stedet for å slette raden, for å bevare proveniens/sporbarhet
     /// (05-arkitektur-og-nfk.md §2), i tråd med entitetsstatus-mønsteret brukt ellers i skjemaet.
     /// </summary>
+    /// <summary>
+    /// Kobler en eksisterende tagg til en Begrep/Tjeneste-rad (byggesteg 2, docs/06-veikart.md — låser
+    /// opp <see cref="TekstTaggEntitet.RefId"/>, som var <c>null</c> "inntil byggesteg 2/4 gir taggen
+    /// noe å peke på"). Gyldig kun når taggens <see cref="TekstTaggEntitet.Kind"/> faktisk har en
+    /// matchende rad — en 'begrep'-tagg kan f.eks. ikke kobles til en Tjeneste-id. Returnerer null hvis
+    /// taggen ikke finnes (kalleren mapper det til 404).
+    /// </summary>
+    public async Task<TekstTaggEntitet?> KobleTilEntitetAsync(Guid taggId, Guid refId, string endretAv, CancellationToken ct = default)
+    {
+        var tagg = await db.TekstTagger.FirstOrDefaultAsync(t => t.Id == taggId && t.Entitetsstatus == "gjeldende", ct);
+        if (tagg is null) return null;
+
+        var finnesMatchende = tagg.Kind switch
+        {
+            "begrep" => await db.Begreper.AnyAsync(b => b.Id == refId && b.Entitetsstatus == "gjeldende", ct),
+            "tjeneste" => await db.Tjenester.AnyAsync(t => t.Id == refId && t.Entitetsstatus == "gjeldende", ct),
+            _ => throw new ArgumentException($"Tagger av type '{tagg.Kind}' kan ikke kobles til en entitet ennå (kun 'begrep'/'tjeneste')."),
+        };
+        if (!finnesMatchende)
+        {
+            throw new ArgumentException($"Fant ingen '{tagg.Kind}' med id '{refId}' å koble taggen til.");
+        }
+
+        tagg.RefId = refId;
+        db.Proveniens.Add(ProveniensHjelper.NyRad("tekst_tagg", tagg.Id, tagg.VirksomhetId, "endret", endretAv));
+        await db.SaveChangesAsync(ct);
+        return tagg;
+    }
+
     public async Task<SlettResultat> SlettAsync(Guid rettskildeId, Guid taggId, Guid virksomhetId, string endretAv, CancellationToken ct = default)
     {
         var tagg = await db.TekstTagger.FirstOrDefaultAsync(
