@@ -131,6 +131,22 @@ public class Byggesteg4EndepunktTests
         Assert.Contains(historikkSvar!, p => p.Handling == "opprettet");
     }
 
+    [Theory]
+    [InlineData("{ikke json}")]
+    [InlineData("[1,2,3]")]
+    public async Task Ugyldig_parametre_json_gir_400_ikke_500(string parametre)
+    {
+        var bruker = await HentTestbrukerAsync();
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/vilkar", bruker.Id,
+            new VilkarRequest("Parametertest", null, null, "formell", null, null, null, "regelbasert", parametre,
+                null, null, false, null, null, null, false, null)));
+
+        // Uten valideringen slapp verdien helt ned i jsonb-kolonnen, og Postgres avviste den med
+        // en DbUpdateException som ingen fanget — altså 500 på det som er en klientfeil.
+        Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
+        Assert.Contains("parametre", await svar.Content.ReadAsStringAsync());
+    }
+
     [Fact]
     public async Task Skjonnsbasert_vilkar_uten_skjonnsgrunnlag_gir_400()
     {

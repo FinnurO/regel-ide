@@ -40,6 +40,7 @@ public sealed class VilkarregisterTjeneste(RegelIdeDbContext db)
         string? eskaleringsrolle, string? veiledningTilBruker, string? veiledningTilSaksbehandler, bool erFormel,
         string? formelBeskrivelse, string opprettetAv, CancellationToken ct = default)
     {
+        var parametre = JsonSerialiseringHjelper.ValiderJsonObjekt(parametreJson, "parametre");
         await ValiderAsync(tittel, vilkarstype, vurderingstype, begrepId, skjonnsgrunnlagBegrepId, ct);
 
         var vilkar = new VilkarEntitet
@@ -54,7 +55,7 @@ public sealed class VilkarregisterTjeneste(RegelIdeDbContext db)
             JuridiskGrunnlagJson = JsonSerializer.Serialize(juridiskGrunnlag ?? [], JsonSerialiseringHjelper.Innstillinger),
             BegrepId = begrepId,
             Vurderingstype = vurderingstype,
-            ParametreJson = parametreJson ?? "{}",
+            ParametreJson = parametre,
             SkjonnsgrunnlagBegrepId = skjonnsgrunnlagBegrepId,
             SkjonnsmomenterJson = JsonSerializer.Serialize(skjonnsmomenter ?? [], JsonSerialiseringHjelper.Innstillinger),
             KreverDokumentasjon = kreverDokumentasjon,
@@ -80,6 +81,7 @@ public sealed class VilkarregisterTjeneste(RegelIdeDbContext db)
         string? eskaleringsrolle, string? veiledningTilBruker, string? veiledningTilSaksbehandler, bool erFormel,
         string? formelBeskrivelse, string endretAv, CancellationToken ct = default)
     {
+        var parametre = JsonSerialiseringHjelper.ValiderJsonObjekt(parametreJson, "parametre");
         await ValiderAsync(tittel, vilkarstype, vurderingstype, begrepId, skjonnsgrunnlagBegrepId, ct);
 
         var vilkar = await db.Vilkar.FirstOrDefaultAsync(v => v.Id == id && v.Entitetsstatus == "gjeldende", ct);
@@ -93,7 +95,7 @@ public sealed class VilkarregisterTjeneste(RegelIdeDbContext db)
         vilkar.JuridiskGrunnlagJson = JsonSerializer.Serialize(juridiskGrunnlag ?? [], JsonSerialiseringHjelper.Innstillinger);
         vilkar.BegrepId = begrepId;
         vilkar.Vurderingstype = vurderingstype;
-        vilkar.ParametreJson = parametreJson ?? "{}";
+        vilkar.ParametreJson = parametre;
         vilkar.SkjonnsgrunnlagBegrepId = skjonnsgrunnlagBegrepId;
         vilkar.SkjonnsmomenterJson = JsonSerializer.Serialize(skjonnsmomenter ?? [], JsonSerialiseringHjelper.Innstillinger);
         vilkar.KreverDokumentasjon = kreverDokumentasjon;
