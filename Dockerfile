@@ -34,7 +34,7 @@ ENV VITE_API_BASE_URL=""
 RUN npx vite build
 
 # ---------------------------------------------------------------- 2) API
-FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS api
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS api
 WORKDIR /src
 
 # csproj-ene først, slik at restore-laget kan gjenbrukes når bare kildekode endrer seg.
@@ -51,7 +51,7 @@ COPY src/ ./
 RUN dotnet publish RegelIde.Api/RegelIde.Api.csproj -c Release -o /publisert --no-restore
 
 # ---------------------------------------------------------------- 3) Kjøretid
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
 
 # postgresql16 er den eldste majorversjonen i Alpine 3.23 — docker-compose.yml og de
 # embedded-baserte testene kjører 15. Skjemaet bruker ingenting som skiller de to
