@@ -1,7 +1,7 @@
 # Enkeltcontainer-image
 
-Bygger hele Regel-IDE — Postgres, API og ferdigbygd SPA — til **ett** image, for et efemert
-testcluster som verken har persistent lagring eller mulighet til å kjøre flere containere.
+Bygger API og ferdigbygd SPA til **ett** image med **SQLite** som database, for et app-cluster
+som verken gir root, persistent volum eller mulighet til å kjøre en databasetjeneste ved siden av.
 
 ```bash
 docker build -t regelide .
@@ -10,42 +10,76 @@ docker run --rm -p 8080:8080 regelide
 ```
 
 Lokalt til utvikling er [`docker-compose.yml`](../docker-compose.yml) + `dotnet run` fortsatt
-riktig oppsett. Dette imaget er for deploy, ikke for utviklingsløkka.
+riktig oppsett, og det kjører **Postgres** — som også er målbildet i drift. Dette imaget er for
+deploy, ikke for utviklingsløkka.
+
+## Databaseprofilen
+
+Motoren velges med `RegelIde:Database` (`postgres` | `sqlite`), se
+[`Databaseoppsett.cs`](../src/RegelIde.Data/Databaseoppsett.cs). Postgres er standard overalt;
+SQLite settes kun i dette imaget. En ukjent verdi feiler ved oppstart i stedet for å falle
+tilbake til noe.
+
+Det som faktisk skiller de to i modellen:
+
+| | Postgres | SQLite |
+|---|---|---|
+| JSON-kolonner | `jsonb` (validerer innholdet) | `TEXT` (validerer ingenting) |
+| `text[]` | native array | JSON-kolonne via EF |
+| `opprettet_tidspunkt` | `DEFAULT now()` | ingen default — appen setter verdien |
+| `DateTimeOffset` | `timestamptz` | `long` med UTC-ticks, se under |
+| Skjema | migrasjonene i `Migrasjoner/` | `EnsureCreated` fra modellen |
+
+### DateTimeOffset må konverteres
+
+SQLite har ingen dato-type, og EF Core **kaster** `NotSupportedException` på `ORDER BY` og
+sammenligning av `DateTimeOffset`. Det ville tatt ned proveniens-/historikk-endepunktene, som
+sorterer på `dato`.
+
+Vær oppmerksom på at EF Core sin innebygde `DateTimeOffsetToBinaryConverter` **ikke** kan brukes:
+den pakker offset inn i verdien, så sorteringen følger lokal veggklokke i stedet for faktisk
+tidspunkt. Den kaster ikke — den gir stille feil rekkefølge, som er verre. Profilen bruker derfor
+en egen konverter på `UtcTicks`, som er monotont i faktisk tid. Verdien leses tilbake som UTC;
+det er ufarlig fordi all kode setter tidsstempler med `DateTimeOffset.UtcNow`.
+
+### Migrasjonene gjelder ikke for SQLite
+
+Migrasjonene er generert for Npgsql og inneholder typenavn SQLite ikke kjenner (`uuid`, `jsonb`,
+`text[]`, `timestamp with time zone`, `now()`). SQLite bygger derfor skjemaet rett fra modellen
+med `EnsureCreated`. Et eget migrasjonssett ville kostet et nytt prosjekt og dobbelt vedlikehold
+ved hver skjemaendring, uten å gi noe — SQLite-basen har aldri data å migrere.
+
+Prisen er at SQLite-skjemaet kan drive fra migrasjonene uten at noen merker det. Det er en grunn
+til at profilen ikke skal ta imot data som skal overleve.
 
 ## Hva som skjer ved oppstart
 
-`docker/start.sh` starter Postgres, venter til den svarer, og kjører deretter API-et i
-forgrunnen. API-et kjører migrasjonene og seeder testinnholdet (`Program.cs`), som tar
-20–30 sekunder — `HEALTHCHECK` har derfor `--start-period=90s`. `/helse` svarer 200 først
-når databasen faktisk svarer, så den kan brukes som readiness-probe.
-
-SIGTERM stopper API-et og deretter Postgres pent (målt til under ett sekund), slik at
-klyngen slipper å vente ut stopp-timeouten.
-
-## Postgres-versjon
-
-Containeren kjører **Postgres 16** (eldste major i Alpine 3.23), mens `docker-compose.yml` og
-de embedded-baserte testene kjører 15. Skjemaet bruker ingenting som skiller de to — jsonb,
-GIN-fulltekstindeks, partial unique index og check-constraints er verifisert kjørende på 16 —
-og databasen bygges uansett fra migrasjonene ved hver start. Verdt å vite, men ikke noe som
-krever at compose følger etter.
+`dotnet` er eneste prosess og PID 1. Den bygger skjemaet, importerer Lovdata-kildene fra
+`/kilder` og kjører seedene (`Program.cs`) — 20–30 sekunder, derfor `--start-period=90s` på
+`HEALTHCHECK`. `/helse` svarer 200 først når databasen faktisk svarer, så den kan brukes som
+readiness-probe. SIGTERM går rett til `dotnet` (målt til under ett sekund).
 
 ## Databasen forsvinner ved omstart
 
-Postgres-klyngen ligger i imaget, ikke i et volum. **All data går tapt når containeren
-stopper**, og alt seedes på nytt ved neste start. Det er et bevisst valg gitt målmiljøet, og
-gjør imaget uegnet til alt der data skal overleve. Skal det endres, må Postgres ut i en egen
-tjeneste med volum og `ConnectionStrings__RegelIdeDb` peke dit — API-et trenger ingen
-kodeendring for det.
+SQLite-filen ligger i containerens eget filsystem (`/data`). **All data går tapt når containeren
+stopper**, og alt bygges opp igjen ved neste start. Det er et bevisst valg gitt målmiljøet, og
+gjør imaget uegnet til alt der data skal overleve.
+
+Når en ekte database blir tilgjengelig — CloudNativePG i klyngen eller en managed Postgres — er
+byttet å sette `RegelIde__Database=postgres` og la `ConnectionStrings__RegelIdeDb` peke dit.
+Ingen kodeendring trengs, og migrasjonene tar over skjemaet.
 
 ## Sikkerhetsvalg
 
-- Postgres lytter **kun på unix-socket** (`listen_addresses=''`), aldri på TCP. Bare API-et i
-  samme container snakker med den, og 5432 eksponeres ikke. Derfor er `--auth=trust`
-  forsvarlig her. Flyttes databasen ut, må begge deler endres.
-- API-et kjører som den uprivilegerte brukeren `regelide` (uid 10001), ikke som root og ikke
-  som postgres. Kun `start.sh` starter som root, for å kunne starte Postgres.
-- Imaget inneholder **ingen** autentisering — API-et er fortsatt helt åpent, og identitet
+- **Ingen root, noe sted.** Containeren kjører som uid 1000 hele veien, uten oppstartsskript.
+  Det var ikke mulig med Postgres i containeren, som måtte starte som root for å få opp
+  `pg_ctl` — og som derfor ville blitt avvist av en `runAsNonRoot`-policy.
+- `/data` er `1777` framfor eid av én bestemt bruker, slik at imaget også fungerer når klyngen
+  tvinger gjennom en annen uid via `securityContext`. Mappen inneholder kun en efemer
+  demodatabase. SQLite trenger skrivetilgang til mappen, ikke bare filen, fordi WAL-modus
+  oppretter `-wal` og `-shm` ved siden av.
+- Ingen databaseport eksponeres, fordi det ikke finnes noen databaseprosess.
+- ⚠️ Imaget inneholder **ingen** autentisering — API-et er fortsatt helt åpent, og identitet
   velges av klienten via `X-Bruker-Id`. Det må på plass før dette står et sted andre når.
   Se `GjeldendeBrukerTjeneste.cs`.
 
@@ -59,27 +93,25 @@ docker save regelide -o regelide.tar
 docker run --rm -v "$PWD:/scan" aquasec/trivy image --input /scan/regelide.tar
 ```
 
-Målt 2026-07-30 på nøyaktig samme oppsett, kun basen byttet:
+Målt 2026-07-30, samme applikasjon gjennom tre varianter:
 
-| Base | Kritisk | Høy | Totalt | Med tilgjengelig fiks | Størrelse |
-|---|---|---|---|---|---|
-| `aspnet:8.0-bookworm-slim` | 18 | 43 | 323 | 1 | 816 MB |
-| `aspnet:8.0-alpine` (i bruk) | 0 | 0 | 1 | 1 | 339 MB |
+| Variant | Kritisk | Høy | Totalt | Størrelse |
+|---|---|---|---|---|
+| Debian + Postgres i container | 18 | 43 | 323 | 816 MB |
+| Alpine + Postgres i container | 0 | 0 | 0 | 339 MB |
+| Alpine + SQLite (i bruk) | 0 | 0 | **0** | **303 MB** |
 
-Poenget er ikke bare tallet: **ingen** av de 323 på Debian hadde en tilgjengelig fiks. De var
-merket `will_not_fix` eller `fix_deferred` i Debians sporing, så `apt-get upgrade` ville ikke
-gjort noe som helst. Det meste kom fra perl (dras inn som avhengighet av `postgresql-15`) og
-curl. Alpine trenger ingen av dem — postgres har ingen perl-avhengighet der, og busybox' wget
-dekker helsesjekken.
-
-Det ene gjenværende funnet er `CVE-2026-54570` (mXSS i AngleSharp 0.17.1, moderat), som kommer
-fra HtmlSanitizer og fikses av pakkeoppdaterings-PR-en.
+Det interessante med Debian-tallene var at **ingen** av de 323 hadde en tilgjengelig fiks — de var
+merket `will_not_fix`/`fix_deferred`, så `apt-get upgrade` gjorde ingenting. Det meste kom fra
+perl, som ble dratt inn som avhengighet av `postgresql-15`. Med SQLite forsvinner hele den
+avhengighetskjeden.
 
 ## Miljøvariabler
 
 | Variabel | Standard i imaget | Hva den gjør |
 |---|---|---|
-| `ConnectionStrings__RegelIdeDb` | unix-socket, db `regelide` | Peker API-et mot databasen. |
+| `RegelIde__Database` | `sqlite` | Velger databasemotor (`postgres` \| `sqlite`). |
+| `ConnectionStrings__RegelIdeDb` | `Data Source=/data/regelide.db` | Peker API-et mot databasen. |
 | `RegelIde__Kildemappe` | `/kilder` | Hvor førstegangs-seedingen leser Lovdata-HTML fra. |
 | `RegelIde__BakEnTerminerendeProxy` | `true` | Slår av `UseHttpsRedirection`, siden TLS termineres foran containeren. |
 | `ASPNETCORE_URLS` | `http://+:8080` | Porten API-et lytter på. |
