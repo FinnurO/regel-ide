@@ -1,0 +1,15 @@
+# Hold byggekonteksten liten og unngå at lokale bygg lekker inn i imaget.
+**/node_modules
+**/bin
+**/obj
+**/dist
+.git
+.gitignore
+docs
+historikk
+prototyper
+docker-compose.yml
+**/*.user
+**/.vs
+**/.vscode
+**/.idea
