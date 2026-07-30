@@ -268,4 +268,38 @@ public class RettskilderEndepunktTests
         Assert.NotNull(referanser);
         Assert.Empty(referanser!);
     }
+
+    [Fact]
+    public async Task Import_referanse_har_opprinnelse_import_og_kan_ikke_fjernes()
+    {
+        // 2026-07-30: kryssreferansen §1-3 → §1-5 fanges opp automatisk under import (§1-3 har en reell
+        // inline Lovdata-lenke) — bekrefter at den er skrivebeskyttet i UI-flyten.
+        var alkoholovenId = await HentAlkohollovenIdAsync();
+        var referanser = await _client.GetFromJsonAsync<List<RettskildeReferanseDto>>(
+            $"/api/rettskilder/{alkoholovenId}/referanser", JsonInnstillinger);
+        var importReferanse = referanser!.First(r => r.Opprinnelse == "import");
+
+        var fjernSvar = await _client.DeleteAsync($"/api/rettskilder/{alkoholovenId}/referanser/{importReferanse.Id}");
+        Assert.Equal(HttpStatusCode.BadRequest, fjernSvar.StatusCode);
+    }
+
+    [Fact]
+    public async Task Manuell_referanse_kan_opprettes_pa_en_node_og_fjernes_igjen()
+    {
+        var alkoholovenId = await HentAlkohollovenIdAsync();
+        var paragrafer = (await _client.GetFromJsonAsync<List<RettskildeNodeDto>>($"/api/rettskilder/{alkoholovenId}/noder", JsonInnstillinger))!
+            .Where(n => n.NodeType == "paragraf").ToList();
+        var fra = paragrafer[0];
+        var til = paragrafer[1];
+
+        var svar = await _client.PostAsJsonAsync(
+            $"/api/rettskilder/{alkoholovenId}/noder/{fra.Id}/referanser",
+            new KobleLovreferanseRequest(alkoholovenId, til.Eid), JsonInnstillinger);
+        Assert.Equal(HttpStatusCode.Created, svar.StatusCode);
+        var referanse = await svar.Content.ReadFromJsonAsync<RettskildeReferanseDto>(JsonInnstillinger);
+        Assert.Equal("manuell", referanse!.Opprinnelse);
+
+        var fjernSvar = await _client.DeleteAsync($"/api/rettskilder/{alkoholovenId}/referanser/{referanse.Id}");
+        Assert.Equal(HttpStatusCode.NoContent, fjernSvar.StatusCode);
+    }
 }

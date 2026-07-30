@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { Button, Heading, Link, Paragraph, Select, Table, Textfield } from '@digdir/designsystemet-react';
+import { Button, Field, Heading, Label, Link, Paragraph, Select, Table, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { KodelisteDto } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
@@ -56,11 +56,14 @@ export default function KodelisterListe() {
         <Textfield label="Kode" placeholder="f.eks. KL-VANDELSOMRADE" value={nyKode}
           onChange={(e) => setNyKode(e.target.value)} required />
         <Textfield label="Navn" value={nyNavn} onChange={(e) => setNyNavn(e.target.value)} required />
-        <Select label="Type" value={nyType} onChange={(e) => setNyType(e.target.value)}>
-          <Select.Option value="juridisk">Juridisk</Select.Option>
-          <Select.Option value="teknisk">Teknisk</Select.Option>
-          <Select.Option value="ekstern-referanse">Ekstern-referanse</Select.Option>
-        </Select>
+        <Field>
+          <Label>Type</Label>
+          <Select value={nyType} onChange={(e) => setNyType(e.target.value)}>
+            <Select.Option value="juridisk">Juridisk</Select.Option>
+            <Select.Option value="teknisk">Teknisk</Select.Option>
+            <Select.Option value="ekstern-referanse">Ekstern-referanse</Select.Option>
+          </Select>
+        </Field>
         <Button type="submit" disabled={oppretter || !nyKode.trim() || !nyNavn.trim()}>
           {oppretter ? 'Oppretter …' : 'Opprett'}
         </Button>

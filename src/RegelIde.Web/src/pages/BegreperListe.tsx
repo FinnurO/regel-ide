@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router-dom';
-import { Button, Heading, Link, Paragraph, Select, Table, Textfield } from '@digdir/designsystemet-react';
+import { Button, Field, Heading, Label, Link, Paragraph, Select, Table, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { BegrepDto } from '../api/types';
 
@@ -49,10 +49,13 @@ export default function BegreperListe() {
       <form onSubmit={opprett} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '1.5rem' }}>
         <Textfield label="Ny term" placeholder="f.eks. uklanderlig vandel" value={nyTerm}
           onChange={(e) => setNyTerm(e.target.value)} required />
-        <Select label="Begrepstype" value={nyBegrepstype} onChange={(e) => setNyBegrepstype(e.target.value)}>
-          <Select.Option value="faktabegrep">Faktabegrep</Select.Option>
-          <Select.Option value="handlingsbegrep">Handlingsbegrep</Select.Option>
-        </Select>
+        <Field>
+          <Label>Begrepstype</Label>
+          <Select value={nyBegrepstype} onChange={(e) => setNyBegrepstype(e.target.value)}>
+            <Select.Option value="faktabegrep">Faktabegrep</Select.Option>
+            <Select.Option value="handlingsbegrep">Handlingsbegrep</Select.Option>
+          </Select>
+        </Field>
         <Button type="submit" disabled={oppretter || !nyTerm.trim()}>
           {oppretter ? 'Oppretter …' : 'Opprett'}
         </Button>

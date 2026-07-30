@@ -314,7 +314,11 @@ public sealed class HandbokForfatterTjeneste(RegelIdeDbContext db)
             throw new ArgumentException("Denne lovreferansen er allerede koblet.");
         }
 
-        var referanse = new RettskildeReferanseEntitet { Id = Guid.NewGuid(), FraNodeId = nodeId, TilRettskildeId = tilRettskildeId, TilEid = tilEid };
+        var referanse = new RettskildeReferanseEntitet
+        {
+            Id = Guid.NewGuid(), FraNodeId = nodeId, TilRettskildeId = tilRettskildeId, TilEid = tilEid,
+            Opprinnelse = "manuell",
+        };
         db.RettskildeReferanser.Add(referanse);
         await db.SaveChangesAsync(ct);
         return referanse;
@@ -324,6 +328,10 @@ public sealed class HandbokForfatterTjeneste(RegelIdeDbContext db)
     {
         var referanse = await db.RettskildeReferanser.FirstOrDefaultAsync(r => r.Id == referanseId, ct);
         if (referanse is null) return false;
+        if (referanse.Opprinnelse == "import")
+        {
+            throw new ArgumentException("Referansen kommer fra kilde-importen og kan ikke fjernes her.");
+        }
         db.RettskildeReferanser.Remove(referanse);
         await db.SaveChangesAsync(ct);
         return true;

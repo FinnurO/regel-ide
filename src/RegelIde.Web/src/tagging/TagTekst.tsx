@@ -94,6 +94,13 @@ export interface TagTekstProps {
   /** Vis tagg-listen med Fjern under teksten. Default true. */
   showTagList?: boolean;
   readOnly?: boolean;
+  /**
+   * Kryssreferanser funnet i selve løpeteksten (Lovdatas egne `<a href>`-lenker under import,
+   * 2026-07-30) — rendres som en alltid-synlig innebygd lenke, uavhengig av hvilket tag-lag som
+   * vises (i motsetning til `tags`, som kun viser ett lag om gangen). Offsettene er absolutte mot
+   * `text`, samme koordinatsystem som `tags`.
+   */
+  references?: { start: number; end: number; href: string }[];
 }
 
 /* --------------------------- hjelpere --------------------------- */
@@ -103,6 +110,8 @@ interface Seg {
   kind?: TagKindId;
   ref?: string | null;
   tagId?: string;
+  /** Satt for en innebygd kryssreferanse-lenke (se `references`-propen) — ignorerer kind/mark-styling. */
+  href?: string;
 }
 
 /** Del teksten i segmenter for ÉTT lag (én kind om gangen). Innenfor ett
@@ -120,6 +129,38 @@ function buildSegments(text: string, tags: TextTag[]): Seg[] {
     i = t.end;
   }
   if (i < text.length) out.push({ text: text.slice(i) });
+  return out;
+}
+
+/** Klipper/forskyver tagger til en lokal understrekning [rs,re) — brukes til å dele tag-rendering
+ *  opp mellom referanse-strekninger uten å endre `commit`/`onTag`s absolutte koordinatsystem. */
+function clipTags(tags: TextTag[], rs: number, re: number): TextTag[] {
+  return tags
+    .filter((t) => t.end > rs && t.start < re)
+    .map((t) => ({ ...t, start: Math.max(t.start, rs) - rs, end: Math.min(t.end, re) - rs }));
+}
+
+/** To-nivås segmentering: topp-nivå deler teksten i innebygde referanse-lenker (alltid synlige,
+ *  uavhengig av aktivt tag-lag — se `references`-propen) og «vanlige» strekninger mellom dem. For
+ *  en vanlig strekning kjøres den eksisterende per-kind `buildSegments` uendret. En referanse-
+ *  strekning rendres direkte som lenke, uten videre tag-mark-nesting inni — en bevisst forenkling,
+ *  se `TagTekstProps.references`-docen. */
+function splitByReferences(
+  text: string,
+  references: { start: number; end: number; href: string }[] | undefined,
+  tags: TextTag[],
+): Seg[] {
+  if (!references || references.length === 0) return buildSegments(text, tags);
+  const sorted = [...references].filter((r) => r.end > r.start).sort((a, b) => a.start - b.start);
+  const out: Seg[] = [];
+  let i = 0;
+  for (const r of sorted) {
+    if (r.start < i) continue; // overlappende referanser — bør ikke skje, hopp over for robusthet
+    if (r.start > i) out.push(...buildSegments(text.slice(i, r.start), clipTags(tags, i, r.start)));
+    out.push({ text: text.slice(r.start, r.end), href: r.href });
+    i = r.end;
+  }
+  if (i < text.length) out.push(...buildSegments(text.slice(i), clipTags(tags, i, text.length)));
   return out;
 }
 
@@ -151,7 +192,7 @@ function selectionOffsets(container: HTMLElement): { start: number; end: number;
 
 export function TagTekst({
   text, tags, kinds, onTag, onRemoveTag, registry, onLinkTag, resolveRef,
-  activeKind, onActiveKindChange, showTagList = true, readOnly = false,
+  activeKind, onActiveKindChange, showTagList = true, readOnly = false, references,
 }: TagTekstProps) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [internalKind, setInternalKind] = useState<TagKindId>(kinds[0]?.id);
@@ -163,7 +204,7 @@ export function TagTekst({
 
   const kindById = useMemo(() => Object.fromEntries(kinds.map((k) => [k.id, k])), [kinds]);
   const shownTags = useMemo(() => tags.filter((t) => t.kind === active), [tags, active]);
-  const segments = useMemo(() => buildSegments(text, shownTags), [text, shownTags]);
+  const segments = useMemo(() => splitByReferences(text, references, shownTags), [text, references, shownTags]);
 
   const captureSelection = useCallback(() => {
     if (readOnly || !containerRef.current) return;
@@ -282,7 +323,11 @@ export function TagTekst({
         }}
       >
         {segments.map((s, i) =>
-          s.kind ? (
+          s.href ? (
+            <Link asChild key={i}>
+              <RouterLink to={s.href}>{s.text}</RouterLink>
+            </Link>
+          ) : s.kind ? (
             <mark
               key={i}
               title={`${kindById[s.kind]?.label ?? s.kind}${s.ref ? `: ${s.ref}` : ''}`}

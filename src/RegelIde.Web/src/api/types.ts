@@ -94,11 +94,16 @@ export interface PubliserKommentarRequest {
   godkjentAv: string | null;
 }
 
+/** 'import' = auto-fanget fra Lovdatas egne kryssreferanse-lenker (skrivebeskyttet), 'manuell' = lagt til av en bruker. */
 export interface RettskildeReferanseDto {
   id: string;
   fraNodeId: string;
   tilRettskildeId: string;
   tilEid: string;
+  opprinnelse: string;
+  /** Posisjon (tegn-offset/lengde) for referansens synlige tekst i FraNode sin tekst — null for manuelle referanser og de fåtallige import-referansene uten entydig treff. */
+  tekstStart: number | null;
+  tekstLengde: number | null;
 }
 
 export interface BrukerDto {

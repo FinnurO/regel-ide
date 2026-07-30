@@ -36,6 +36,7 @@ public class AlkohollovenKonverteringTests
         Assert.StartsWith("Reguleringen av innførsel og omsetning av alkoholholdig drikk", ledd1.Tekst);
         Assert.NotNull(ledd1.TekstHash);
         Assert.Equal(64, ledd1.TekstHash!.Length); // hex-SHA-256
+        Assert.Equal("1", ledd1.Nummer); // 2026-07-30: ledd fikk aldri et Nummer før denne runden
     }
 
     [Fact]
@@ -45,10 +46,24 @@ public class AlkohollovenKonverteringTests
         var ledd = Resultat.Noder.SingleOrDefault(n => n.Eid == leddEid);
         Assert.NotNull(ledd);
         Assert.Equal("I denne loven betyr:", ledd!.Tekst);
+        Assert.Equal("2", ledd.Nummer);
 
         var punkt1 = Resultat.Noder.Single(n => n.Eid == $"{leddEid}/punkt-1");
         Assert.Equal(NodeType.Punkt, punkt1.NodeType);
         Assert.Equal("alkoholfri drikk: drikk som inneholder under 0,7 volumprosent alkohol", punkt1.Tekst);
+        Assert.Equal("1", punkt1.Nummer);
+    }
+
+    [Fact]
+    public void Paragraf_1_3_alle_fem_ledd_far_fortlopende_nummerering()
+    {
+        // Bekrefter at nummereringen kommer fra parserens egen posisjonsteller (leddIndeks), ikke fra
+        // Lovdatas HTML — bekreftet i denne runden at Lovdata ikke selv markerer ledd-nummer i kildeteksten.
+        var paragrafEid = $"{LovEli}/§1-3";
+        var ledd = Resultat.Noder.Where(n => n.NodeType == NodeType.Ledd && n.ParentEid == paragrafEid)
+            .OrderBy(n => n.SorteringsRekkefolge).ToList();
+        Assert.Equal(6, ledd.Count);
+        Assert.Equal(["1", "2", "3", "4", "5", "6"], ledd.Select(n => n.Nummer));
     }
 
     [Fact]
@@ -57,6 +72,14 @@ public class AlkohollovenKonverteringTests
         var fraEid = $"{LovEli}/§1-3/ledd-1";
         var tilEid = $"{LovEli}/§1-5";
         Assert.Contains(Resultat.Referanser, r => r.FraNodeEid == fraEid && r.TilEid == tilEid && r.ErInternReferanse);
+
+        // 2026-07-30: referansens posisjon i løpeteksten skal peke nøyaktig på "§ 1-5" — dette er
+        // det som gjør referansen klikkbar INNI selve teksten i frontend, ikke bare i referanselisten.
+        var referanse = Resultat.Referanser.Single(r => r.FraNodeEid == fraEid && r.TilEid == tilEid);
+        var ledd1 = Resultat.Noder.Single(n => n.Eid == fraEid);
+        Assert.NotNull(referanse.TekstStart);
+        Assert.NotNull(referanse.TekstLengde);
+        Assert.Equal("§ 1-5", ledd1.Tekst!.Substring(referanse.TekstStart!.Value, referanse.TekstLengde!.Value));
     }
 
     [Theory]

@@ -171,6 +171,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.FraNodeId).HasColumnName("fra_node_id");
             e.Property(x => x.TilRettskildeId).HasColumnName("til_rettskilde_id");
             e.Property(x => x.TilEid).HasColumnName("til_eid");
+            e.Property(x => x.Opprinnelse).HasColumnName("opprinnelse").HasDefaultValue("import");
+            e.Property(x => x.TekstStart).HasColumnName("tekst_start");
+            e.Property(x => x.TekstLengde).HasColumnName("tekst_lengde");
 
             e.HasOne<RettskildeNodeEntitet>().WithMany()
                 .HasForeignKey(x => x.FraNodeId).OnDelete(DeleteBehavior.Cascade);

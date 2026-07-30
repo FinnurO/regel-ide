@@ -198,6 +198,7 @@ public class HandbokForfatterTjenesteTests
 
         var referanse = await tjeneste.KobleLovreferanseAsync(kommentar.Node.Id, alkoholovenId, paragraf.Eid);
         Assert.Equal(kommentar.Node.Id, referanse.FraNodeId);
+        Assert.Equal("manuell", referanse.Opprinnelse); // 2026-07-30: manuelt lagte referanser skal kunne fjernes igjen
 
         var duplikat = await Assert.ThrowsAsync<ArgumentException>(() =>
             tjeneste.KobleLovreferanseAsync(kommentar.Node.Id, alkoholovenId, paragraf.Eid));
@@ -206,6 +207,29 @@ public class HandbokForfatterTjenesteTests
         var fjernet = await tjeneste.FjernLovreferanseAsync(referanse.Id);
         Assert.True(fjernet);
         Assert.False(await db.RettskildeReferanser.AnyAsync(r => r.Id == referanse.Id));
+    }
+
+    [Fact]
+    public async Task Referanser_fra_import_kan_ikke_fjernes()
+    {
+        // 2026-07-30: kilde-referanser (auto-fanget fra Lovdatas egne kryssreferanse-lenker under
+        // import, se RettskildeImportTjeneste) er skrivebeskyttet — kun manuelt lagte kan fjernes.
+        await using var db = _fixture.NyDbContext();
+        var alkoholovenId = await ImporterAlkoholovenAsync(db);
+        var node = await db.RettskildeNoder.FirstAsync(n => n.RettskildeId == alkoholovenId);
+
+        var importReferanse = new RettskildeReferanseEntitet
+        {
+            Id = Guid.NewGuid(), FraNodeId = node.Id, TilRettskildeId = alkoholovenId, TilEid = "§1-5",
+            Opprinnelse = "import",
+        };
+        db.RettskildeReferanser.Add(importReferanse);
+        await db.SaveChangesAsync();
+
+        var tjeneste = new HandbokForfatterTjeneste(db);
+        var feil = await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.FjernLovreferanseAsync(importReferanse.Id));
+        Assert.Contains("kilde-importen", feil.Message);
+        Assert.True(await db.RettskildeReferanser.AnyAsync(r => r.Id == importReferanse.Id));
     }
 
     [Fact]

@@ -46,7 +46,9 @@ public sealed record RettskildeReferanse(
     string TilEid,
     bool ErInternReferanse,
     Kildetype? TilKildetype,
-    string? TilDatokode
+    string? TilDatokode,
+    int? TekstStart = null,
+    int? TekstLengde = null
 );
 
 public sealed record RettskildeNode

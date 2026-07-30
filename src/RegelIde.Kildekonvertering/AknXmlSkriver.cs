@@ -139,6 +139,7 @@ public static class AknXmlSkriver
 
                 case NodeType.Ledd:
                     sb.Append($"<paragraph eId=\"{Escape(node.Eid)}\" kildeId=\"{Escape(node.KildeId)}\">");
+                    sb.Append($"<num>{Escape(node.Nummer ?? "")}</num>");
                     sb.Append("<content>").Append("<p>").Append(SkrivSegmenter(node.Segmenter)).Append("</p>").Append("</content>");
                     sb.Append("</paragraph>");
                     // Punkt-barn (samme ParentEid = dette leddets eId) skrives ikke rekursivt via
@@ -151,6 +152,7 @@ public static class AknXmlSkriver
                         foreach (var punkt in punktBarn)
                         {
                             sb.Append($"<point eId=\"{Escape(punkt.Eid)}\" kildeId=\"{Escape(punkt.KildeId)}\">");
+                            sb.Append($"<num>{Escape(punkt.Nummer ?? "")}</num>");
                             sb.Append("<content>").Append("<p>").Append(SkrivSegmenter(punkt.Segmenter)).Append("</p>").Append("</content>");
                             sb.Append("</point>");
                         }

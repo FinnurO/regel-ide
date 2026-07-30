@@ -73,10 +73,10 @@ public sealed record SettRevisjonsmerkeRequest(string Revisjonsgrunn);
 public sealed record PubliserKommentarRequest(string? GodkjentAv);
 
 /// <summary>Kryssreferanse funnet i løpeteksten (intern eller ekstern, §3.1 steg 6).</summary>
-public sealed record RettskildeReferanseDto(Guid Id, Guid FraNodeId, Guid TilRettskildeId, string TilEid)
+public sealed record RettskildeReferanseDto(Guid Id, Guid FraNodeId, Guid TilRettskildeId, string TilEid, string Opprinnelse, int? TekstStart, int? TekstLengde)
 {
     public static RettskildeReferanseDto FraEntitet(RettskildeReferanseEntitet r) =>
-        new(r.Id, r.FraNodeId, r.TilRettskildeId, r.TilEid);
+        new(r.Id, r.FraNodeId, r.TilRettskildeId, r.TilEid, r.Opprinnelse, r.TekstStart, r.TekstLengde);
 }
 
 /// <summary>Tekst-tag (§1.2 i domenemodellen, AK-3.3.1–3.3.4). `RefId` er alltid null i byggesteg 1.</summary>

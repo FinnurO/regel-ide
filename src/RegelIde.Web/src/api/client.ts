@@ -97,6 +97,16 @@ export const api = {
 
   hentReferanser: (id: string) => kall<RettskildeReferanseDto[]>(`/api/rettskilder/${id}/referanser`),
 
+  opprettNodeReferanse: (rettskildeId: string, nodeId: string, request: KobleLovreferanseRequest) =>
+    kall<RettskildeReferanseDto>(`/api/rettskilder/${rettskildeId}/noder/${nodeId}/referanser`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  fjernNodeReferanse: (rettskildeId: string, referanseId: string) =>
+    kall<void>(`/api/rettskilder/${rettskildeId}/referanser/${referanseId}`, { method: 'DELETE' }),
+
   hentReferertAvTjenester: (id: string) =>
     kall<TjenesteReferanseDto[]>(`/api/rettskilder/${id}/referert-av-tjenester`),
 

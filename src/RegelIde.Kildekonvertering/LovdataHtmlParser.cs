@@ -327,7 +327,7 @@ public static partial class LovdataHtmlParser
         List<RettskildeNode> noder, List<RettskildeReferanse> referanser, SorteringsTeller sortering)
     {
         var eid = LovdataIdentifikatorer.LeddEid(paragrafEid, leddIndeks);
-        LeggTilLeddEllerPunktNode(legalP, eid, parentEid: paragrafEid, NodeType.Ledd, kontekst, noder, referanser, sortering);
+        LeggTilLeddEllerPunktNode(legalP, eid, parentEid: paragrafEid, NodeType.Ledd, kontekst, noder, referanser, sortering, leddIndeks.ToString());
         ParseChildPunkter([legalP], eid, kontekst, noder, referanser, sortering);
     }
 
@@ -387,7 +387,7 @@ public static partial class LovdataHtmlParser
             if (alleSegmenter.Count > 0) alleSegmenter.Add(new TekstSegment(" ", null, false));
             alleSegmenter.AddRange(HentSegmenter(legalP, kontekst));
         }
-        var plainTekst = KollapsDobleMellomrom(string.Concat(alleSegmenter.Select(s => s.Tekst)));
+        var plainTekst = KollapsDobleMellomrom(string.Concat(alleSegmenter.Select(s => s.Tekst))).Trim();
         var hash = LovdataIdentifikatorer.BeregnTekstHash(plainTekst);
 
         noder.Add(new RettskildeNode
@@ -396,12 +396,13 @@ public static partial class LovdataHtmlParser
             ParentEid = parentEid,
             KildeId = kildeId,
             NodeType = NodeType.Punkt,
-            Tekst = plainTekst.Trim(),
+            Nummer = punktIndeks.ToString(),
+            Tekst = plainTekst,
             TekstHash = hash,
             Segmenter = alleSegmenter,
             SorteringsRekkefolge = sortering.Neste(),
         });
-        LeggTilReferanser(referanser, eid, alleSegmenter);
+        LeggTilReferanser(referanser, eid, alleSegmenter, plainTekst);
 
         ParseChildPunkter(direkteLegalP, eid, kontekst, noder, referanser, sortering);
     }
@@ -414,12 +415,12 @@ public static partial class LovdataHtmlParser
     /// </summary>
     private static void LeggTilLeddEllerPunktNode(
         HtmlNode legalP, string eid, string parentEid, NodeType nodeType, ReferanseKontekst kontekst,
-        List<RettskildeNode> noder, List<RettskildeReferanse> referanser, SorteringsTeller sortering)
+        List<RettskildeNode> noder, List<RettskildeReferanse> referanser, SorteringsTeller sortering, string? nummer = null)
     {
         var kildeId = legalP.Attributes["id"]?.Value
             ?? throw new FormatException($"{nodeType} {eid} mangler id-attributt.");
         var segmenter = HentSegmenter(legalP, kontekst);
-        var plainTekst = KollapsDobleMellomrom(string.Concat(segmenter.Select(s => s.Tekst)));
+        var plainTekst = KollapsDobleMellomrom(string.Concat(segmenter.Select(s => s.Tekst))).Trim();
         var hash = LovdataIdentifikatorer.BeregnTekstHash(plainTekst);
 
         noder.Add(new RettskildeNode
@@ -428,20 +429,47 @@ public static partial class LovdataHtmlParser
             ParentEid = parentEid,
             KildeId = kildeId,
             NodeType = nodeType,
-            Tekst = plainTekst.Trim(),
+            Nummer = nummer,
+            Tekst = plainTekst,
             TekstHash = hash,
             Segmenter = segmenter,
             SorteringsRekkefolge = sortering.Neste(),
         });
 
-        LeggTilReferanser(referanser, eid, segmenter);
+        LeggTilReferanser(referanser, eid, segmenter, plainTekst);
     }
 
-    private static void LeggTilReferanser(List<RettskildeReferanse> referanser, string fraEid, IReadOnlyList<TekstSegment> segmenter)
+    /// <summary>
+    /// <paramref name="tekst"/> er den ENDELIGE, lagrede nodeteksten (etter kollaps av doble
+    /// mellomrom og Trim) — posisjonen til hver referanse slås opp med <see cref="string.IndexOf(string, int)"/>
+    /// fra en løpende cursor i stedet for å summere rå segment-lengder, slik at mellomrom-kollapsing/
+    /// trimming ikke gir feil offset. Finnes ikke et treff (bør ikke skje i praksis), forblir
+    /// TekstStart/TekstLengde null — referansen vises da fortsatt i "Referanser"-lista i UI-et, bare
+    /// ikke som en klikkbar lenke inni selve løpeteksten.
+    /// </summary>
+    private static void LeggTilReferanser(List<RettskildeReferanse> referanser, string fraEid, IReadOnlyList<TekstSegment> segmenter, string tekst)
     {
-        foreach (var s in segmenter.Where(s => s.ReferanseTilEid is not null))
+        var cursor = 0;
+        foreach (var s in segmenter)
         {
-            referanser.Add(new RettskildeReferanse(fraEid, s.ReferanseTilEid!, s.ErInternReferanse, null, null));
+            if (s.Tekst.Length == 0) continue;
+            var funnet = tekst.IndexOf(s.Tekst, cursor, StringComparison.Ordinal);
+            if (s.ReferanseTilEid is not null)
+            {
+                if (funnet >= 0)
+                {
+                    referanser.Add(new RettskildeReferanse(fraEid, s.ReferanseTilEid, s.ErInternReferanse, null, null, funnet, s.Tekst.Length));
+                    cursor = funnet + s.Tekst.Length;
+                }
+                else
+                {
+                    referanser.Add(new RettskildeReferanse(fraEid, s.ReferanseTilEid, s.ErInternReferanse, null, null));
+                }
+            }
+            else if (funnet >= 0)
+            {
+                cursor = funnet + s.Tekst.Length;
+            }
         }
     }
 

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RegelIde.Data;
@@ -12,9 +13,11 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    partial class RegelIdeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260730123620_LeggTilReferanseOpprinnelse")]
+    partial class LeggTilReferanseOpprinnelse
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -918,14 +921,6 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasDefaultValue("import")
                         .HasColumnName("opprinnelse");
-
-                    b.Property<int?>("TekstLengde")
-                        .HasColumnType("integer")
-                        .HasColumnName("tekst_lengde");
-
-                    b.Property<int?>("TekstStart")
-                        .HasColumnType("integer")
-                        .HasColumnName("tekst_start");
 
                     b.Property<string>("TilEid")
                         .IsRequired()

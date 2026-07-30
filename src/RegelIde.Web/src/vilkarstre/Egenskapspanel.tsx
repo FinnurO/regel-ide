@@ -13,10 +13,10 @@
  */
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink } from 'react-router-dom';
-import { Button, Link, Paragraph, Select, Tabs, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
+import { Button, Field, Label, Link, Paragraph, Select, Tabs, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
-import type { BegrepDto, JuridiskGrunnlagInput, ProveniensDto, RegelnodeDto, RettskildeSammendrag, UnntakDto, VilkarDto } from '../api/types';
+import type { BegrepDto, DatasettDto, JuridiskGrunnlagInput, ProveniensDto, RegelnodeDto, RettskildeSammendrag, UnntakDto, VilkarDto } from '../api/types';
 
 const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
 
@@ -40,27 +40,141 @@ export function Egenskapspanel({ node, begreper, rettskilder, onEndret }: Egensk
   return <UnntakPanel id={node.id} fane={fane} setFane={setFane} rettskilder={rettskilder} feil={feil} setFeil={setFeil} onEndret={onEndret} />;
 }
 
-/** Juridisk grunnlag-listen — hver oppføring blir en lenke til rettskilden (§X.eId matches) når den finnes. */
-function JuridiskGrunnlagListe({ grunnlag, rettskilder }: { grunnlag: JuridiskGrunnlagInput[]; rettskilder: RettskildeSammendrag[] }) {
-  if (grunnlag.length === 0) return <>—</>;
+/**
+ * Juridisk grunnlag — redigerbar liste (2026-07-30, tidligere kun lese-visning). Hver oppføring lenkes
+ * til rettskilden når den finnes (samme `rettskildeLenke`-mekanisme). Endringer holdes i lokal state til
+ * brukeren trykker Lagre (samme mønster som resten av panelet) — ingen egen lagre-handling her.
+ */
+function JuridiskGrunnlagRedigering({ grunnlag, rettskilder, onEndre }: {
+  grunnlag: JuridiskGrunnlagInput[]; rettskilder: RettskildeSammendrag[]; onEndre: (nyListe: JuridiskGrunnlagInput[]) => void;
+}) {
+  const [nyRettskildeId, setNyRettskildeId] = useState('');
+  const [nyEid, setNyEid] = useState('');
+
+  function leggTil() {
+    const rettskilde = rettskilder.find((r) => r.id === nyRettskildeId);
+    if (!rettskilde || !nyEid.trim()) return;
+    onEndre([...grunnlag, { kilde: rettskilde.kortnavn ?? rettskilde.tittel, eId: nyEid.trim() }]);
+    setNyRettskildeId('');
+    setNyEid('');
+  }
+
   return (
-    <>
-      {grunnlag.map((g, i) => {
-        const href = rettskildeLenke(g.eId, rettskilder);
-        return (
-          <span key={i}>
-            {i > 0 && ', '}
-            {href ? (
-              <Link asChild>
-                <RouterLink to={href}>{g.kilde} {g.eId}</RouterLink>
-              </Link>
-            ) : (
-              `${g.kilde} ${g.eId}`
-            )}
-          </span>
-        );
-      })}
-    </>
+    <div>
+      {grunnlag.length === 0 ? (
+        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+          Ingen juridisk grunnlag lagt til.
+        </Paragraph>
+      ) : (
+        <ul style={{ margin: '0 0 0.5rem', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+          {grunnlag.map((g, i) => {
+            const href = rettskildeLenke(g.eId, rettskilder);
+            return (
+              <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--ds-font-size-1)' }}>
+                {href ? (
+                  <Link asChild><RouterLink to={href}>{g.kilde} {g.eId}</RouterLink></Link>
+                ) : (
+                  <span>{g.kilde} {g.eId}</span>
+                )}
+                <Button variant="tertiary" data-color="danger" data-size="sm" type="button"
+                  onClick={() => onEndre(grunnlag.filter((_, j) => j !== i))}>
+                  Fjern
+                </Button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+        <Field>
+          <Label>Rettskilde</Label>
+          <Select data-size="sm" value={nyRettskildeId} onChange={(e) => setNyRettskildeId(e.target.value)}>
+            <Select.Option value="">Velg …</Select.Option>
+            {rettskilder.map((r) => <Select.Option key={r.id} value={r.id}>{r.tittel}</Select.Option>)}
+          </Select>
+        </Field>
+        <Textfield data-size="sm" label="eId" value={nyEid} onChange={(e) => setNyEid(e.target.value)}
+          style={{ minWidth: '16rem', fontFamily: 'monospace' }} />
+        <Button data-size="sm" type="button" variant="secondary" onClick={leggTil} disabled={!nyRettskildeId || !nyEid.trim()}>
+          Legg til
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Input-datasett på et Vilkår (§1.6/§1.8) — egen join-tabell (`vilkar_input_datasett`), derfor egne
+ * lagre/fjern-kall direkte mot API-et i stedet for å gå via panelets «Lagre»-knapp (2026-07-30).
+ */
+function InputDatasettAdministrasjon({ vilkarId }: { vilkarId: string }) {
+  const [input, setInput] = useState<DatasettDto[] | null>(null);
+  const [alleDatasett, setAlleDatasett] = useState<DatasettDto[]>([]);
+  const [nyDatasettId, setNyDatasettId] = useState('');
+  const [feil, setFeil] = useState<string | null>(null);
+
+  useEffect(() => {
+    setInput(null);
+    api.hentVilkarInput(vilkarId).then(setInput).catch(() => setInput([]));
+    api.hentDatasett().then(setAlleDatasett).catch(() => setAlleDatasett([]));
+  }, [vilkarId]);
+
+  async function leggTil() {
+    if (!nyDatasettId) return;
+    setFeil(null);
+    try {
+      const nytt = await api.leggTilVilkarInput(vilkarId, { datasettId: nyDatasettId });
+      setInput((forrige) => [...(forrige ?? []), nytt]);
+      setNyDatasettId('');
+    } catch (err) {
+      setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved kobling av datasett.');
+    }
+  }
+
+  async function fjern(datasettId: string) {
+    setFeil(null);
+    try {
+      await api.fjernVilkarInput(vilkarId, datasettId);
+      setInput((forrige) => (forrige ?? []).filter((d) => d.id !== datasettId));
+    } catch (err) {
+      setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved fjerning av datasett.');
+    }
+  }
+
+  if (input === null) return <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Laster …</Paragraph>;
+  const ubrukte = alleDatasett.filter((d) => !input.some((i) => i.id === d.id));
+
+  return (
+    <div>
+      {feil && <div className="feilmelding" style={{ marginBottom: '0.5rem' }}>{feil}</div>}
+      {input.length === 0 ? (
+        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+          Ingen input-datasett koblet.
+        </Paragraph>
+      ) : (
+        <ul style={{ margin: '0 0 0.5rem', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+          {input.map((d) => (
+            <li key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--ds-font-size-1)' }}>
+              <span style={{ fontFamily: 'monospace' }}>{d.prop}</span>
+              <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>({d.felt})</span>
+              <Button variant="tertiary" data-color="danger" data-size="sm" type="button" onClick={() => fjern(d.id)}>Fjern</Button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
+        <Field>
+          <Label>Datasett</Label>
+          <Select data-size="sm" value={nyDatasettId} onChange={(e) => setNyDatasettId(e.target.value)}>
+            <Select.Option value="">Velg …</Select.Option>
+            {ubrukte.map((d) => <Select.Option key={d.id} value={d.id}>{d.felt}</Select.Option>)}
+          </Select>
+        </Field>
+        <Button data-size="sm" type="button" variant="secondary" onClick={leggTil} disabled={!nyDatasettId}>
+          Legg til
+        </Button>
+      </div>
+    </div>
   );
 }
 
@@ -101,6 +215,9 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, feil, setFeil, 
   const [beskrivelse, setBeskrivelse] = useState('');
   const [vilkarstype, setVilkarstype] = useState('formell');
   const [vurderingstype, setVurderingstype] = useState('regelbasert');
+  const [begrepId, setBegrepId] = useState('');
+  const [skjonnsgrunnlagBegrepId, setSkjonnsgrunnlagBegrepId] = useState('');
+  const [juridiskGrunnlag, setJuridiskGrunnlag] = useState<JuridiskGrunnlagInput[]>([]);
   const [veiledningBruker, setVeiledningBruker] = useState('');
   const [veiledningSaksbehandler, setVeiledningSaksbehandler] = useState('');
   const [lagrer, setLagrer] = useState(false);
@@ -114,6 +231,9 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, feil, setFeil, 
       setBeskrivelse(v.beskrivelse ?? '');
       setVilkarstype(v.vilkarstype);
       setVurderingstype(v.vurderingstype);
+      setBegrepId(v.begrepId ?? '');
+      setSkjonnsgrunnlagBegrepId(v.skjonnsgrunnlagBegrepId ?? '');
+      setJuridiskGrunnlag(v.juridiskGrunnlag);
       setVeiledningBruker(v.veiledningTilBruker ?? '');
       setVeiledningSaksbehandler(v.veiledningTilSaksbehandler ?? '');
     });
@@ -128,9 +248,9 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, feil, setFeil, 
     try {
       const oppdatert = await api.oppdaterVilkar(id, {
         tittel: tittel.trim(), beskrivelse: beskrivelse.trim() || null, generiskMal: vilkar.generiskMal,
-        vilkarstype, gjelderRolle: vilkar.gjelderRolle, juridiskGrunnlag: vilkar.juridiskGrunnlag,
-        begrepId: vilkar.begrepId, vurderingstype, parametreJson: vilkar.parametreJson,
-        skjonnsgrunnlagBegrepId: vilkar.skjonnsgrunnlagBegrepId, skjonnsmomenter: vilkar.skjonnsmomenter,
+        vilkarstype, gjelderRolle: vilkar.gjelderRolle, juridiskGrunnlag,
+        begrepId: begrepId || null, vurderingstype, parametreJson: vilkar.parametreJson,
+        skjonnsgrunnlagBegrepId: skjonnsgrunnlagBegrepId || null, skjonnsmomenter: vilkar.skjonnsmomenter,
         kreverDokumentasjon: vilkar.kreverDokumentasjon, eskaleringsrolle: vilkar.eskaleringsrolle,
         veiledningTilBruker: veiledningBruker.trim() || null, veiledningTilSaksbehandler: veiledningSaksbehandler.trim() || null,
         erFormel: vilkar.erFormel, formelBeskrivelse: vilkar.formelBeskrivelse,
@@ -156,8 +276,8 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, feil, setFeil, 
   }
 
   if (!vilkar) return <Paragraph>Laster …</Paragraph>;
-  const begrep = begreper.find((b) => b.id === vilkar.begrepId);
-  const skjonnsgrunnlag = begreper.find((b) => b.id === vilkar.skjonnsgrunnlagBegrepId);
+  const begrep = begreper.find((b) => b.id === begrepId);
+  const skjonnsgrunnlag = begreper.find((b) => b.id === skjonnsgrunnlagBegrepId);
 
   return (
     <div>
@@ -172,31 +292,51 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, feil, setFeil, 
       {fane === 'generelt' && (
         <form onSubmit={lagre} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '32rem' }}>
           <Textfield label="Tittel" value={tittel} onChange={(e) => setTittel(e.target.value)} required />
-          <Textarea label="Beskrivelse" value={beskrivelse} onChange={(e) => setBeskrivelse(e.target.value)} rows={2} />
-          <Select label="Vilkårstype" value={vilkarstype} onChange={(e) => setVilkarstype(e.target.value)}>
-            <Select.Option value="formell">Formell</Select.Option>
-            <Select.Option value="materiell">Materiell</Select.Option>
-          </Select>
-          <Select label="Vurderingstype" value={vurderingstype} onChange={(e) => setVurderingstype(e.target.value)}>
-            <Select.Option value="regelbasert">Regelbasert</Select.Option>
-            <Select.Option value="skjonnsbasert">Skjønnsbasert</Select.Option>
-            <Select.Option value="hybrid">Hybrid</Select.Option>
-          </Select>
+          <Field>
+            <Label>Beskrivelse</Label>
+            <Textarea value={beskrivelse} onChange={(e) => setBeskrivelse(e.target.value)} rows={2} />
+          </Field>
+          <Field>
+            <Label>Vilkårstype</Label>
+            <Select value={vilkarstype} onChange={(e) => setVilkarstype(e.target.value)}>
+              <Select.Option value="formell">Formell</Select.Option>
+              <Select.Option value="materiell">Materiell</Select.Option>
+            </Select>
+          </Field>
+          <Field>
+            <Label>Vurderingstype</Label>
+            <Select value={vurderingstype} onChange={(e) => setVurderingstype(e.target.value)}>
+              <Select.Option value="regelbasert">Regelbasert</Select.Option>
+              <Select.Option value="skjonnsbasert">Skjønnsbasert</Select.Option>
+              <Select.Option value="hybrid">Hybrid</Select.Option>
+            </Select>
+          </Field>
+          <Field>
+            <Label>Begrep</Label>
+            <Select value={begrepId} onChange={(e) => setBegrepId(e.target.value)}>
+              <Select.Option value="">(ingen)</Select.Option>
+              {begreper.map((b) => <Select.Option key={b.id} value={b.id}>{b.term}</Select.Option>)}
+            </Select>
+          </Field>
           {begrep && (
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>
-              Begrep: <Link asChild><RouterLink to={`/begreper/${begrep.id}`}>«{begrep.term}»</RouterLink></Link>
+            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '-0.5rem' }}>
+              <Link asChild><RouterLink to={`/begreper/${begrep.id}`}>Åpne begrep →</RouterLink></Link>
             </Paragraph>
           )}
           {(vurderingstype === 'skjonnsbasert' || vurderingstype === 'hybrid') && (
             <>
-              <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
-                Skjønnsgrunnlag:{' '}
-                {skjonnsgrunnlag ? (
-                  <Link asChild><RouterLink to={`/begreper/${skjonnsgrunnlag.id}`}>«{skjonnsgrunnlag.term}»</RouterLink></Link>
-                ) : (
-                  '(ikke satt)'
-                )}
-              </Paragraph>
+              <Field>
+                <Label>Skjønnsgrunnlag</Label>
+                <Select value={skjonnsgrunnlagBegrepId} onChange={(e) => setSkjonnsgrunnlagBegrepId(e.target.value)}>
+                  <Select.Option value="">(ikke satt)</Select.Option>
+                  {begreper.map((b) => <Select.Option key={b.id} value={b.id}>{b.term}</Select.Option>)}
+                </Select>
+              </Field>
+              {skjonnsgrunnlag && (
+                <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '-0.5rem' }}>
+                  <Link asChild><RouterLink to={`/begreper/${skjonnsgrunnlag.id}`}>Åpne begrep →</RouterLink></Link>
+                </Paragraph>
+              )}
               {vilkar.skjonnsmomenter.length > 0 && (
                 <ul style={{ margin: 0 }}>
                   {vilkar.skjonnsmomenter.map((m, i) => <li key={i} style={{ fontSize: 'var(--ds-font-size-1)' }}>{m.navn}</li>)}
@@ -212,8 +352,14 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, feil, setFeil, 
 
       {fane === 'tekster' && (
         <form onSubmit={lagre} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '32rem' }}>
-          <Textarea label="Veiledningstekst til bruker" value={veiledningBruker} onChange={(e) => setVeiledningBruker(e.target.value)} rows={3} />
-          <Textarea label="Veiledning til saksbehandler" value={veiledningSaksbehandler} onChange={(e) => setVeiledningSaksbehandler(e.target.value)} rows={3} />
+          <Field>
+            <Label>Veiledningstekst til bruker</Label>
+            <Textarea value={veiledningBruker} onChange={(e) => setVeiledningBruker(e.target.value)} rows={3} />
+          </Field>
+          <Field>
+            <Label>Veiledning til saksbehandler</Label>
+            <Textarea value={veiledningSaksbehandler} onChange={(e) => setVeiledningSaksbehandler(e.target.value)} rows={3} />
+          </Field>
           <div>
             <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
@@ -221,13 +367,22 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, feil, setFeil, 
       )}
 
       {fane === 'metadata' && (
-        <div style={{ maxWidth: '32rem' }}>
+        <form onSubmit={lagre} style={{ maxWidth: '32rem' }}>
           <Paragraph>Versjon: {vilkar.versjon}</Paragraph>
-          <Paragraph>Juridisk grunnlag: <JuridiskGrunnlagListe grunnlag={vilkar.juridiskGrunnlag} rettskilder={rettskilder} /></Paragraph>
-          <Select label="Status" value={vilkar.status} onChange={(e) => endreStatus(e.target.value)} style={{ maxWidth: '16rem' }}>
-            {STATUSER.map((s) => <Select.Option key={s} value={s}>{s}</Select.Option>)}
-          </Select>
-        </div>
+          <Paragraph style={{ marginBottom: '0.25rem' }}>Juridisk grunnlag:</Paragraph>
+          <JuridiskGrunnlagRedigering grunnlag={juridiskGrunnlag} rettskilder={rettskilder} onEndre={setJuridiskGrunnlag} />
+          <div style={{ marginTop: '0.75rem' }}>
+            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+          </div>
+          <Field style={{ maxWidth: '16rem', marginTop: '1rem' }}>
+            <Label>Status</Label>
+            <Select value={vilkar.status} onChange={(e) => endreStatus(e.target.value)}>
+              {STATUSER.map((s) => <Select.Option key={s} value={s}>{s}</Select.Option>)}
+            </Select>
+          </Field>
+          <Paragraph style={{ marginBottom: '0.25rem', marginTop: '1rem' }}>Input-datasett:</Paragraph>
+          <InputDatasettAdministrasjon vilkarId={id} />
+        </form>
       )}
 
       {fane === 'historikk' && <Historikk liste={historikk} />}
@@ -247,6 +402,8 @@ function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndre
   const [avslagTekst, setAvslagTekst] = useState('');
   const [lagrer, setLagrer] = useState(false);
 
+  const [juridiskGrunnlag, setJuridiskGrunnlag] = useState<JuridiskGrunnlagInput[]>([]);
+
   useEffect(() => {
     setRegelnode(null);
     setHistorikk(null);
@@ -256,6 +413,7 @@ function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndre
       setBeskrivelse(r.beskrivelse ?? '');
       setInnvilgelseTekst(r.innvilgelseTekst ?? '');
       setAvslagTekst(r.avslagTekst ?? '');
+      setJuridiskGrunnlag(r.juridiskGrunnlag);
     });
     api.hentRegelnodeHistorikk(id).then(setHistorikk);
   }, [id]);
@@ -269,7 +427,7 @@ function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndre
       const oppdatert = await api.oppdaterRegelnode(id, {
         tittel: tittel.trim(), beskrivelse: beskrivelse.trim() || null, generiskMal: regelnode.generiskMal,
         barnOperator: regelnode.barnOperator, utdataNavn: regelnode.utdataNavn, utdataType: regelnode.utdataType,
-        erRotnode: regelnode.erRotnode, juridiskGrunnlag: regelnode.juridiskGrunnlag,
+        erRotnode: regelnode.erRotnode, juridiskGrunnlag,
         innvilgelseTekst: innvilgelseTekst.trim() || null, avslagTekst: avslagTekst.trim() || null,
       });
       setRegelnode(oppdatert);
@@ -318,12 +476,18 @@ function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndre
       {fane === 'generelt' && (
         <form onSubmit={lagre} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '32rem' }}>
           <Textfield label="Tittel" value={tittel} onChange={(e) => setTittel(e.target.value)} required />
-          <Textarea label="Beskrivelse" value={beskrivelse} onChange={(e) => setBeskrivelse(e.target.value)} rows={2} />
-          <Select label="Logisk operator (AK-3.4.2)" value={regelnode.barnOperator} onChange={(e) => endreOperator(e.target.value)}>
-            <Select.Option value="OG">OG</Select.Option>
-            <Select.Option value="ELLER">ELLER</Select.Option>
-            <Select.Option value="IKKE">IKKE</Select.Option>
-          </Select>
+          <Field>
+            <Label>Beskrivelse</Label>
+            <Textarea value={beskrivelse} onChange={(e) => setBeskrivelse(e.target.value)} rows={2} />
+          </Field>
+          <Field>
+            <Label>Logisk operator (AK-3.4.2)</Label>
+            <Select value={regelnode.barnOperator} onChange={(e) => endreOperator(e.target.value)}>
+              <Select.Option value="OG">OG</Select.Option>
+              <Select.Option value="ELLER">ELLER</Select.Option>
+              <Select.Option value="IKKE">IKKE</Select.Option>
+            </Select>
+          </Field>
           <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>
             Utdata: {regelnode.utdataNavn} ({regelnode.utdataType})
           </Paragraph>
@@ -335,8 +499,14 @@ function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndre
 
       {fane === 'tekster' && (
         <form onSubmit={lagre} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '32rem' }}>
-          <Textarea label="Innvilgelsestekst" value={innvilgelseTekst} onChange={(e) => setInnvilgelseTekst(e.target.value)} rows={3} />
-          <Textarea label="Avslagstekst" value={avslagTekst} onChange={(e) => setAvslagTekst(e.target.value)} rows={3} />
+          <Field>
+            <Label>Innvilgelsestekst</Label>
+            <Textarea value={innvilgelseTekst} onChange={(e) => setInnvilgelseTekst(e.target.value)} rows={3} />
+          </Field>
+          <Field>
+            <Label>Avslagstekst</Label>
+            <Textarea value={avslagTekst} onChange={(e) => setAvslagTekst(e.target.value)} rows={3} />
+          </Field>
           <div>
             <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
@@ -344,13 +514,20 @@ function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndre
       )}
 
       {fane === 'metadata' && (
-        <div style={{ maxWidth: '32rem' }}>
+        <form onSubmit={lagre} style={{ maxWidth: '32rem' }}>
           <Paragraph>Versjon: {regelnode.versjon}</Paragraph>
-          <Paragraph>Juridisk grunnlag: <JuridiskGrunnlagListe grunnlag={regelnode.juridiskGrunnlag} rettskilder={rettskilder} /></Paragraph>
-          <Select label="Status" value={regelnode.status} onChange={(e) => endreStatus(e.target.value)} style={{ maxWidth: '16rem' }}>
-            {STATUSER.map((s) => <Select.Option key={s} value={s}>{s}</Select.Option>)}
-          </Select>
-        </div>
+          <Paragraph style={{ marginBottom: '0.25rem' }}>Juridisk grunnlag:</Paragraph>
+          <JuridiskGrunnlagRedigering grunnlag={juridiskGrunnlag} rettskilder={rettskilder} onEndre={setJuridiskGrunnlag} />
+          <div style={{ marginTop: '0.75rem' }}>
+            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+          </div>
+          <Field style={{ maxWidth: '16rem', marginTop: '1rem' }}>
+            <Label>Status</Label>
+            <Select value={regelnode.status} onChange={(e) => endreStatus(e.target.value)}>
+              {STATUSER.map((s) => <Select.Option key={s} value={s}>{s}</Select.Option>)}
+            </Select>
+          </Field>
+        </form>
       )}
 
       {fane === 'historikk' && <Historikk liste={historikk} />}
@@ -366,6 +543,7 @@ function UnntakPanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndret }
   const [historikk, setHistorikk] = useState<ProveniensDto[] | null>(null);
   const [tittel, setTittel] = useState('');
   const [beskrivelse, setBeskrivelse] = useState('');
+  const [juridiskGrunnlag, setJuridiskGrunnlag] = useState<JuridiskGrunnlagInput[]>([]);
   const [lagrer, setLagrer] = useState(false);
 
   useEffect(() => {
@@ -375,6 +553,7 @@ function UnntakPanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndret }
       setUnntak(u);
       setTittel(u.tittel);
       setBeskrivelse(u.beskrivelse ?? '');
+      setJuridiskGrunnlag(u.juridiskGrunnlag);
     });
     api.hentUnntakHistorikk(id).then(setHistorikk);
   }, [id]);
@@ -385,7 +564,7 @@ function UnntakPanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndret }
     setFeil(null);
     setLagrer(true);
     try {
-      const oppdatert = await api.oppdaterUnntak(id, { tittel: tittel.trim(), beskrivelse: beskrivelse.trim() || null, juridiskGrunnlag: unntak.juridiskGrunnlag });
+      const oppdatert = await api.oppdaterUnntak(id, { tittel: tittel.trim(), beskrivelse: beskrivelse.trim() || null, juridiskGrunnlag });
       setUnntak(oppdatert);
       onEndret();
     } catch (err) {
@@ -420,7 +599,10 @@ function UnntakPanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndret }
       {fane === 'generelt' && (
         <form onSubmit={lagre} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '32rem' }}>
           <Textfield label="Tittel" value={tittel} onChange={(e) => setTittel(e.target.value)} required />
-          <Textarea label="Beskrivelse" value={beskrivelse} onChange={(e) => setBeskrivelse(e.target.value)} rows={2} />
+          <Field>
+            <Label>Beskrivelse</Label>
+            <Textarea value={beskrivelse} onChange={(e) => setBeskrivelse(e.target.value)} rows={2} />
+          </Field>
           <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
             gjelder_regel og betingelse settes ved opprettelse (INV-3/INV-4) og endres ikke her.
           </Paragraph>
@@ -435,13 +617,20 @@ function UnntakPanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndret }
       )}
 
       {fane === 'metadata' && (
-        <div style={{ maxWidth: '32rem' }}>
+        <form onSubmit={lagre} style={{ maxWidth: '32rem' }}>
           <Paragraph>Versjon: {unntak.versjon}</Paragraph>
-          <Paragraph>Juridisk grunnlag: <JuridiskGrunnlagListe grunnlag={unntak.juridiskGrunnlag} rettskilder={rettskilder} /></Paragraph>
-          <Select label="Status" value={unntak.status} onChange={(e) => endreStatus(e.target.value)} style={{ maxWidth: '16rem' }}>
-            {STATUSER.map((s) => <Select.Option key={s} value={s}>{s}</Select.Option>)}
-          </Select>
-        </div>
+          <Paragraph style={{ marginBottom: '0.25rem' }}>Juridisk grunnlag:</Paragraph>
+          <JuridiskGrunnlagRedigering grunnlag={juridiskGrunnlag} rettskilder={rettskilder} onEndre={setJuridiskGrunnlag} />
+          <div style={{ marginTop: '0.75rem' }}>
+            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+          </div>
+          <Field style={{ maxWidth: '16rem', marginTop: '1rem' }}>
+            <Label>Status</Label>
+            <Select value={unntak.status} onChange={(e) => endreStatus(e.target.value)}>
+              {STATUSER.map((s) => <Select.Option key={s} value={s}>{s}</Select.Option>)}
+            </Select>
+          </Field>
+        </form>
       )}
 
       {fane === 'historikk' && <Historikk liste={historikk} />}

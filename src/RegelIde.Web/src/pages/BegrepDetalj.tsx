@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams } from 'react-router-dom';
-import { Button, Heading, Link, Paragraph, Select, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
+import { Button, Field, Heading, Label, Link, Paragraph, Select, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
 import type { BegrepDto, RettskildeSammendrag, VilkarDto } from '../api/types';
@@ -13,6 +13,7 @@ export default function BegrepDetalj() {
   const [feil, setFeil] = useState<string | null>(null);
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
   const [bruktIVilkar, setBruktIVilkar] = useState<Array<{ vilkar: VilkarDto; rotnodeId: string | undefined }>>([]);
+  const [eierNavn, setEierNavn] = useState<string | null>(null);
 
   const [term, setTerm] = useState('');
   const [definisjon, setDefinisjon] = useState('');
@@ -31,8 +32,11 @@ export default function BegrepDetalj() {
 
   useEffect(() => {
     if (!id) return;
-    api.hentBegrep(id).then((b) => { setBegrep(b); fyllSkjemaFra(b); })
-      .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av begrep.'));
+    api.hentBegrep(id).then((b) => {
+      setBegrep(b);
+      fyllSkjemaFra(b);
+      api.hentVirksomheter().then((liste) => setEierNavn(liste.find((v) => v.id === b.virksomhetId)?.navn ?? null)).catch(() => setEierNavn(null));
+    }).catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av begrep.'));
     api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
     // «Brukt i vilkår» — bevisst forenkling (kun ett vilkårstre finnes i dag, se plan «Sammenhengende navigasjon»):
     // rotnodeId hentes fra første tjeneste som har en satt, i stedet for en generell reverse-oppslag.
@@ -89,7 +93,12 @@ export default function BegrepDetalj() {
       <Heading level={1} data-size="lg">
         «{begrep.term}»
       </Heading>
-      <Tag data-color="info" style={{ marginBottom: '1.5rem' }}>{begrep.status}</Tag>
+      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1.5rem' }}>
+        <Tag data-color="info">{begrep.status}</Tag>
+        <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+          Eier: {eierNavn ?? '—'}
+        </span>
+      </div>
 
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
@@ -97,7 +106,10 @@ export default function BegrepDetalj() {
         </Heading>
         <form onSubmit={lagre} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '40rem' }}>
           <Textfield label="Term" value={term} onChange={(e) => setTerm(e.target.value)} required />
-          <Textarea label="Definisjon" value={definisjon} onChange={(e) => setDefinisjon(e.target.value)} rows={3} required />
+          <Field>
+            <Label>Definisjon</Label>
+            <Textarea value={definisjon} onChange={(e) => setDefinisjon(e.target.value)} rows={3} required />
+          </Field>
           <Textfield label="Lovreferanse (eId)" value={lovreferanseEid} onChange={(e) => setLovreferanseEid(e.target.value)}
             style={{ fontFamily: 'monospace' }} />
           {begrep.lovreferanseEid && (
@@ -112,10 +124,13 @@ export default function BegrepDetalj() {
               })()}
             </Paragraph>
           )}
-          <Select label="Begrepstype" value={begrepstype} onChange={(e) => setBegrepstype(e.target.value)}>
-            <Select.Option value="faktabegrep">Faktabegrep</Select.Option>
-            <Select.Option value="handlingsbegrep">Handlingsbegrep</Select.Option>
-          </Select>
+          <Field>
+            <Label>Begrepstype</Label>
+            <Select value={begrepstype} onChange={(e) => setBegrepstype(e.target.value)}>
+              <Select.Option value="faktabegrep">Faktabegrep</Select.Option>
+              <Select.Option value="handlingsbegrep">Handlingsbegrep</Select.Option>
+            </Select>
+          </Field>
           {lagreFeil && <div className="feilmelding">{lagreFeil}</div>}
           <div>
             <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>

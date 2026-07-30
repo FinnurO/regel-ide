@@ -155,6 +155,22 @@ public sealed class RettskildeReferanseEntitet
     public Guid FraNodeId { get; set; }
     public Guid TilRettskildeId { get; set; }
     public required string TilEid { get; set; }
+
+    /// <summary>
+    /// 'import' (auto-fanget fra Lovdatas egne kryssreferanse-lenker under import) eller 'manuell'
+    /// (lagt til av en bruker via referanser-UI-et, 2026-07-30). Kilde-referanser er skrivebeskyttet —
+    /// se <see cref="HandbokForfatterTjeneste.FjernLovreferanseAsync"/>.
+    /// </summary>
+    public string Opprinnelse { get; set; } = "import";
+
+    /// <summary>
+    /// Posisjon (tegn-offset/lengde) for referansens synlige tekst i FraNode sin <c>Tekst</c> —
+    /// gjør referansen klikkbar INNI selve løpeteksten (2026-07-30), ikke bare i den separate
+    /// referanse-lista. Null for manuelt lagte referanser (peker ikke på noe bestemt tekstutdrag) og
+    /// for de fåtallige import-referansene der parseren ikke fant et entydig treff.
+    /// </summary>
+    public int? TekstStart { get; set; }
+    public int? TekstLengde { get; set; }
 }
 
 /// <summary>

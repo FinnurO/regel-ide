@@ -150,6 +150,9 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 FraNodeId = fraNodeId,
                 TilRettskildeId = tilRettskildeId,
                 TilEid = r.TilEid,
+                Opprinnelse = "import",
+                TekstStart = r.TekstStart,
+                TekstLengde = r.TekstLengde,
             });
         }
     }

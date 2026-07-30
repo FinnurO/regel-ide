@@ -198,6 +198,43 @@ rettskilder.MapGet("/{id:guid}/referert-av-tjenester", async (Guid id, Rettskild
     .WithName("HentRettskildeReferertAvTjenester")
     .WithSummary("Byggesteg 4 — hvilke tjenester som refererer denne rettskilden (motsatt retning av tjenestens regelverksreferanser).");
 
+// ---------- Referanser (2026-07-30) — generell variant av håndbokens lovreferanse-kobling,     ----------
+// ---------- brukbar på en node i HVILKEN SOM HELST rettskilde, ikke bare håndbok-kommentarer.  ----------
+
+rettskilder.MapPost("/{rettskildeId:guid}/noder/{nodeId:guid}/referanser", async (Guid rettskildeId, Guid nodeId, KobleLovreferanseRequest body,
+        HandbokForfatterTjeneste tjeneste, RettskildeRepository repo, CancellationToken ct) =>
+    {
+        if (await repo.FinnAsync(rettskildeId) is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{rettskildeId}'." });
+        try
+        {
+            var referanse = await tjeneste.KobleLovreferanseAsync(nodeId, body.TilRettskildeId, body.TilEid, ct);
+            return Results.Created($"/api/rettskilder/{rettskildeId}/referanser", RettskildeReferanseDto.FraEntitet(referanse));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KobleRettskildeNodeReferanse")
+    .WithSummary("Kobler en manuell referanse fra en node til en eId — samme mekanisme som håndbokens lovreferanser, men uten håndbok-binding.");
+
+rettskilder.MapDelete("/{rettskildeId:guid}/referanser/{referanseId:guid}", async (Guid rettskildeId, Guid referanseId,
+        HandbokForfatterTjeneste tjeneste, CancellationToken ct) =>
+    {
+        try
+        {
+            return await tjeneste.FjernLovreferanseAsync(referanseId, ct)
+                ? Results.NoContent()
+                : Results.NotFound(new { feil = $"Ingen referanse med id '{referanseId}'." });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("FjernRettskildeNodeReferanse")
+    .WithSummary("Fjerner en manuelt lagt referanse. Kilde-referanser (Opprinnelse='import') kan ikke fjernes her.");
+
 // ---------- Tekst-tagging (2026-07-24, AK-3.3.1–3.3.4) — krever X-Bruker-Id, tagger er alltid ----------
 // ---------- virksomhetens eget arbeidsprodukt (§0.1 i domenemodellen), aldri delt på tvers.     ----------
 
@@ -493,9 +530,20 @@ handboker.MapPost("/{id:guid}/kommentarer/{nodeId:guid}/lovreferanser", async (G
 
 handboker.MapDelete("/{id:guid}/kommentarer/{nodeId:guid}/lovreferanser/{referanseId:guid}", async (Guid referanseId,
         HandbokForfatterTjeneste tjeneste, CancellationToken ct) =>
-        await tjeneste.FjernLovreferanseAsync(referanseId, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen lovreferanse med id '{referanseId}'." }))
+    {
+        try
+        {
+            return await tjeneste.FjernLovreferanseAsync(referanseId, ct)
+                ? Results.NoContent()
+                : Results.NotFound(new { feil = $"Ingen lovreferanse med id '{referanseId}'." });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
     .WithName("FjernHandbokLovreferanse")
-    .WithSummary("Fjerner en lovreferanse-kobling fra en kommentarseksjon.");
+    .WithSummary("Fjerner en lovreferanse-kobling fra en kommentarseksjon. Kilde-referanser (Opprinnelse='import') kan ikke fjernes.");
 
 handboker.MapPost("/{id:guid}/kommentarer/{nodeId:guid}/revisjonsmerke", async (Guid id, Guid nodeId, HttpRequest request, SettRevisjonsmerkeRequest body,
         HandbokForfatterTjeneste tjeneste, RettskildeRepository repo, RegelIdeDbContext db, CancellationToken ct) =>
