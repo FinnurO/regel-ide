@@ -22,6 +22,14 @@ når databasen faktisk svarer, så den kan brukes som readiness-probe.
 SIGTERM stopper API-et og deretter Postgres pent (målt til under ett sekund), slik at
 klyngen slipper å vente ut stopp-timeouten.
 
+## Postgres-versjon
+
+Containeren kjører **Postgres 16** (eldste major i Alpine 3.23), mens `docker-compose.yml` og
+de embedded-baserte testene kjører 15. Skjemaet bruker ingenting som skiller de to — jsonb,
+GIN-fulltekstindeks, partial unique index og check-constraints er verifisert kjørende på 16 —
+og databasen bygges uansett fra migrasjonene ved hver start. Verdt å vite, men ikke noe som
+krever at compose følger etter.
+
 ## Databasen forsvinner ved omstart
 
 Postgres-klyngen ligger i imaget, ikke i et volum. **All data går tapt når containeren
@@ -40,6 +48,32 @@ kodeendring for det.
 - Imaget inneholder **ingen** autentisering — API-et er fortsatt helt åpent, og identitet
   velges av klienten via `X-Bruker-Id`. Det må på plass før dette står et sted andre når.
   Se `GjeldendeBrukerTjeneste.cs`.
+
+## Sårbarhetsskanning
+
+Skann med Trivy før deploy:
+
+```bash
+docker build -t regelide .
+docker save regelide -o regelide.tar
+docker run --rm -v "$PWD:/scan" aquasec/trivy image --input /scan/regelide.tar
+```
+
+Målt 2026-07-30 på nøyaktig samme oppsett, kun basen byttet:
+
+| Base | Kritisk | Høy | Totalt | Med tilgjengelig fiks | Størrelse |
+|---|---|---|---|---|---|
+| `aspnet:8.0-bookworm-slim` | 18 | 43 | 323 | 1 | 816 MB |
+| `aspnet:8.0-alpine` (i bruk) | 0 | 0 | 1 | 1 | 339 MB |
+
+Poenget er ikke bare tallet: **ingen** av de 323 på Debian hadde en tilgjengelig fiks. De var
+merket `will_not_fix` eller `fix_deferred` i Debians sporing, så `apt-get upgrade` ville ikke
+gjort noe som helst. Det meste kom fra perl (dras inn som avhengighet av `postgresql-15`) og
+curl. Alpine trenger ingen av dem — postgres har ingen perl-avhengighet der, og busybox' wget
+dekker helsesjekken.
+
+Det ene gjenværende funnet er `CVE-2026-54570` (mXSS i AngleSharp 0.17.1, moderat), som kommer
+fra HtmlSanitizer og fikses av pakkeoppdaterings-PR-en.
 
 ## Miljøvariabler
 
