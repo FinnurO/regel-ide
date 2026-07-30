@@ -10,9 +10,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Add(new JsonStringEnumConverter()));
 
-var connString = builder.Configuration.GetConnectionString("RegelIdeDb")
-    ?? "Host=localhost;Port=5432;Database=regelide;Username=postgres;Password=postgres";
-builder.Services.AddDbContext<RegelIdeDbContext>(o => o.UseNpgsql(connString));
+// Postgres som standard; SQLite kun når RegelIde:Database sier det (deploy-profilen, se
+// docker/README.md). Se Databaseoppsett.cs for hva som faktisk skiller de to.
+builder.Services.LeggTilRegelIdeDatabase(builder.Configuration);
 builder.Services.AddScoped<RettskildeRepository>();
 builder.Services.AddScoped<RettskildeImportTjeneste>();
 builder.Services.AddScoped<TekstTaggTjeneste>();
@@ -69,7 +69,7 @@ app.MapGet("/helse", async (RegelIdeDbContext db, CancellationToken ct) =>
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<RegelIdeDbContext>();
-    await db.Database.MigrateAsync();
+    await Databaseoppsett.SorgForSkjemaAsync(db);
 
     if (!await db.Rettskilder.AnyAsync())
     {
@@ -92,7 +92,13 @@ using (var scope = app.Services.CreateScope())
     // innlogging senere; se Bruker-kommentaren i RegelIde.Data/Entiteter.cs.
     if (!await db.Brukere.AnyAsync())
     {
-        var testkommunen = new Virksomhet { Id = Guid.NewGuid(), Navn = "Testkommunen" };
+        // OpprettetTidspunkt settes eksplisitt: på Postgres ville now() dekket det, men den
+        // databasestandarden finnes ikke på SQLite-profilen. Dette er eneste stedet i koden som
+        // lente seg på den.
+        var testkommunen = new Virksomhet
+        {
+            Id = Guid.NewGuid(), Navn = "Testkommunen", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        };
         db.Virksomheter.Add(testkommunen);
         db.Brukere.AddRange(
             new Bruker { Id = Guid.NewGuid(), Navn = "Kari Jurist", VirksomhetId = testkommunen.Id, Rolle = "Jurist" },
