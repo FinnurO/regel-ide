@@ -8,9 +8,16 @@
 #
 #   docker build -t regelide .
 #   docker run --rm -p 8080:8080 regelide     # http://localhost:8080
+#
+# ALPINE, IKKE DEBIAN: en Debian-basert variant av nøyaktig samme oppsett ga 323 kjente
+# sårbarheter (18 kritiske, 43 høye) i Trivy, mot 1 her — og ingen av de 323 hadde en
+# tilgjengelig fiks, siden Debian har merket dem will_not_fix/fix_deferred. Det meste kom
+# fra perl (dras inn av postgresql) og curl. På Alpine slipper vi begge: postgres trenger
+# ikke perl, og busybox' wget dekker helsesjekken. Imaget går samtidig fra 816 MB til
+# 339 MB. Samme base som Altinn-app-malen bruker.
 
 # ---------------------------------------------------------------- 1) SPA
-FROM node:24-bookworm-slim AS web
+FROM node:24-alpine AS web
 WORKDIR /web
 
 COPY src/RegelIde.Web/package.json src/RegelIde.Web/package-lock.json ./
@@ -27,7 +34,7 @@ ENV VITE_API_BASE_URL=""
 RUN npx vite build
 
 # ---------------------------------------------------------------- 2) API
-FROM mcr.microsoft.com/dotnet/sdk:8.0-bookworm-slim AS api
+FROM mcr.microsoft.com/dotnet/sdk:8.0-alpine AS api
 WORKDIR /src
 
 # csproj-ene først, slik at restore-laget kan gjenbrukes når bare kildekode endrer seg.
@@ -44,17 +51,23 @@ COPY src/ ./
 RUN dotnet publish RegelIde.Api/RegelIde.Api.csproj -c Release -o /publisert --no-restore
 
 # ---------------------------------------------------------------- 3) Kjøretid
-FROM mcr.microsoft.com/dotnet/aspnet:8.0-bookworm-slim AS final
+FROM mcr.microsoft.com/dotnet/aspnet:8.0-alpine AS final
 
-# Postgres 15 fra Debian bookworm — samme major som docker-compose.yml og som testene.
-# curl er kun til HEALTHCHECK.
-RUN apt-get update \
- && apt-get install -y --no-install-recommends postgresql-15 postgresql-client-15 curl \
- && rm -rf /var/lib/apt/lists/*
+# postgresql16 er den eldste majorversjonen i Alpine 3.23 — docker-compose.yml og de
+# embedded-baserte testene kjører 15. Skjemaet bruker ingenting som skiller de to
+# (jsonb, GIN-fulltekst, partial unique index og check-constraints er verifisert kjørende
+# her), og databasen bygges uansett fra migrasjonene ved hver start. Verdt å vite, men
+# ikke noe som krever at compose følger etter.
+#
+# su-exec dekker det setpriv gjør på Debian. icu kreves for at .NET skal ha ekte
+# kulturdata — uten den faller den tilbake til invariant kultur, som gir feil sortering
+# og formatering av norsk tekst.
+RUN apk add --no-cache postgresql16 postgresql16-client su-exec icu-libs icu-data-full tzdata
 
 ENV PGDATA=/var/lib/postgresql/data \
-    PGBIN=/usr/lib/postgresql/15/bin \
+    PGBIN=/usr/bin \
     ASPNETCORE_URLS=http://+:8080 \
+    DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
     ConnectionStrings__RegelIdeDb="Host=/var/run/postgresql;Database=regelide;Username=regelide" \
     RegelIde__Kildemappe=/kilder \
     RegelIde__BakEnTerminerendeProxy=true
@@ -68,11 +81,11 @@ ENV PGDATA=/var/lib/postgresql/data \
 RUN mkdir -p "$PGDATA" /var/run/postgresql \
  && chown -R postgres:postgres "$PGDATA" /var/run/postgresql \
  && chmod 1777 /var/run/postgresql \
- && su postgres -c "$PGBIN/initdb -D $PGDATA --auth=trust --encoding=UTF8 --locale=C" \
- && su postgres -c "$PGBIN/pg_ctl -D $PGDATA -o \"-c listen_addresses=''\" -w start" \
- && su postgres -c "createuser regelide" \
- && su postgres -c "createdb -O regelide regelide" \
- && su postgres -c "$PGBIN/pg_ctl -D $PGDATA -m fast -w stop"
+ && su-exec postgres initdb -D "$PGDATA" --auth=trust --encoding=UTF8 --locale=C \
+ && su-exec postgres pg_ctl -D "$PGDATA" -o "-c listen_addresses=''" -w start \
+ && su-exec postgres createuser regelide \
+ && su-exec postgres createdb -O regelide regelide \
+ && su-exec postgres pg_ctl -D "$PGDATA" -m fast -w stop
 
 WORKDIR /app
 COPY --from=api /publisert ./
@@ -81,14 +94,15 @@ COPY data/kilder/raw-lovdata/ /kilder/
 COPY docker/start.sh /usr/local/bin/start.sh
 
 # API-et kjører som en egen uprivilegert bruker, ikke som root og ikke som postgres.
-RUN useradd --system --uid 10001 --shell /usr/sbin/nologin regelide \
- && chown -R regelide:regelide /app \
+RUN adduser -S -u 10001 -H -s /sbin/nologin regelide \
+ && chown -R regelide:nogroup /app \
  && chmod +x /usr/local/bin/start.sh
 
 EXPOSE 8080
 
+# wget kommer fra busybox — ingen grunn til å installere curl bare for dette.
 # start-period dekker migrasjon + seeding ved første oppstart.
 HEALTHCHECK --interval=10s --timeout=3s --start-period=90s --retries=5 \
-  CMD curl -fsS http://localhost:8080/helse || exit 1
+  CMD wget -q -O- http://localhost:8080/helse || exit 1
 
 ENTRYPOINT ["/usr/local/bin/start.sh"]
