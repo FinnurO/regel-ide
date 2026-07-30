@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link as RouterLink, useParams, useSearchParams } from 'react-router-dom';
+import { Link as RouterLink, useParams, useSearchParams } from 'react-router';
 import { Button, Heading, Link, Paragraph, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type {

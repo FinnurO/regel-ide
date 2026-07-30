@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { Button, Heading, Paragraph, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { useBruker } from '../bruker/BrukerContext';
