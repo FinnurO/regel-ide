@@ -464,6 +464,86 @@ export interface SettRotnodeRequest {
   regelnodeId: string;
 }
 
+/** Kommunal/nasjonal parameterverdi (docs/12-fasit-handbok-leveranse.md dimensjon C). virksomhetId null = nasjonal standardverdi. */
+export interface DatasettVerdiDto {
+  id: string;
+  datasettId: string;
+  virksomhetId: string | null;
+  verdiJson: string;
+  kilde: string | null;
+}
+
+export interface SettDatasettVerdiRequest {
+  virksomhetId: string | null;
+  verdiJson: string;
+  kilde: string | null;
+}
+
+/** Veiledningskommentar på en vilkårstre-node (docs/12-fasit-handbok-leveranse.md "Hovedfunn" + dimensjon A). 'dokumenttype': kommentar|hjemmel|praktisk-rad|sjekkliste. */
+export interface VilkarstreKommentarDto {
+  id: string;
+  malType: string;
+  malId: string;
+  dokumenttype: string;
+  tekstHtml: string;
+  rekkefolge: number;
+}
+
+export interface OpprettVilkarstreKommentarRequest {
+  malType: string;
+  malId: string;
+  dokumenttype: string;
+  tekstHtml: string;
+}
+
+export interface OppdaterVilkarstreKommentarRequest {
+  dokumenttype: string;
+  tekstHtml: string;
+}
+
+export interface VeiledningDatasettVerdiDto {
+  datasettId: string;
+  felt: string;
+  prop: string;
+  verdiJson: string;
+  kilde: string | null;
+  erStandardverdi: boolean;
+}
+
+export interface VeiledningUnntakDto {
+  id: string;
+  tittel: string;
+  beskrivelse: string | null;
+  betingelseType: string;
+  betingelseId: string;
+  betingelseTittel: string;
+  kommentarer: VilkarstreKommentarDto[];
+}
+
+/** Én node i veiledningstreet — 'type': vilkar|regelnode avgjør hvilke felt som er satt. */
+export interface VeiledningNodeDto {
+  id: string;
+  type: string;
+  tittel: string;
+  beskrivelse: string | null;
+  vilkarstype: string | null;
+  vurderingstype: string | null;
+  skjonnsmomenter: SkjonnsmomentInput[];
+  barnOperator: string | null;
+  juridiskGrunnlag: JuridiskGrunnlagInput[];
+  inputDatasettVerdier: VeiledningDatasettVerdiDto[];
+  kommentarer: VilkarstreKommentarDto[];
+  barn: VeiledningNodeDto[];
+  unntak: VeiledningUnntakDto[];
+}
+
+export interface VeiledningDto {
+  tjenesteId: string;
+  tjenesteTittel: string;
+  virksomhetId: string | null;
+  rot: VeiledningNodeDto;
+}
+
 /** Motsatt retning av tjenestens regelverksreferanser — hvilke tjenester som refererer denne rettskilden. */
 export interface TjenesteReferanseDto {
   tjenesteId: string;

@@ -54,11 +54,13 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<KodelisteEntitet> Kodelister => Set<KodelisteEntitet>();
     public DbSet<KodelisteKodeEntitet> KodelisteKoder => Set<KodelisteKodeEntitet>();
     public DbSet<DatasettEntitet> Datasett => Set<DatasettEntitet>();
+    public DbSet<DatasettVerdiEntitet> DatasettVerdier => Set<DatasettVerdiEntitet>();
     public DbSet<VilkarEntitet> Vilkar => Set<VilkarEntitet>();
     public DbSet<VilkarInputDatasettEntitet> VilkarInputDatasett => Set<VilkarInputDatasettEntitet>();
     public DbSet<RegelnodeEntitet> Regelnoder => Set<RegelnodeEntitet>();
     public DbSet<RegelnodeBarnEntitet> RegelnodeBarn => Set<RegelnodeBarnEntitet>();
     public DbSet<UnntakEntitet> Unntak => Set<UnntakEntitet>();
+    public DbSet<VilkarstreKommentarEntitet> VilkarstreKommentarer => Set<VilkarstreKommentarEntitet>();
 
     /// <summary>
     /// UTC-ticks-konverteringen gjelder alle <see cref="DateTimeOffset"/>-felter, og settes ett sted
@@ -451,6 +453,28 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasIndex(x => x.Prop).HasDatabaseName("ix_datasett_prop");
         });
 
+        b.Entity<DatasettVerdiEntitet>(e =>
+        {
+            e.ToTable("datasett_verdier");
+            e.HasKey(x => x.Id).HasName("datasett_verdier_pkey");
+            e.Property(x => x.DatasettId).HasColumnName("datasett_id");
+            e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
+            e.Property(x => x.VerdiJson).HasColumnName("verdi").HasColumnType(jsonKolonne);
+            e.Property(x => x.Kilde).HasColumnName("kilde");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+
+            e.HasOne<DatasettEntitet>().WithMany().HasForeignKey(x => x.DatasettId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
+            // To filtrerte unik-indekser i stedet for én komposittindeks: Postgres/SQLite behandler NULL
+            // som distinkt i en vanlig unik-indeks, så uten filtrering ville "kun én standardverdi-rad
+            // per Datasett" (virksomhet_id IS NULL) aldri faktisk blitt håndhevet.
+            e.HasIndex(x => new { x.DatasettId, x.VirksomhetId }).IsUnique()
+                .HasDatabaseName("ux_datasett_verdier_datasett_virksomhet").HasFilter("virksomhet_id IS NOT NULL");
+            e.HasIndex(x => x.DatasettId).IsUnique()
+                .HasDatabaseName("ux_datasett_verdier_standardverdi").HasFilter("virksomhet_id IS NULL");
+        });
+
         b.Entity<VilkarEntitet>(e =>
         {
             e.ToTable("vilkar");
@@ -543,6 +567,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.RegelnodeId).HasColumnName("regelnode_id");
             e.Property(x => x.BarnType).HasColumnName("barn_type");
             e.Property(x => x.BarnId).HasColumnName("barn_id");
+            e.Property(x => x.Rekkefolge).HasColumnName("rekkefolge").HasDefaultValue(0);
 
             e.HasOne<RegelnodeEntitet>().WithMany().HasForeignKey(x => x.RegelnodeId).OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(x => new { x.RegelnodeId, x.BarnType, x.BarnId }).IsUnique().HasDatabaseName("ux_regelnode_barn");
@@ -576,6 +601,26 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasOne<RegelnodeEntitet>().WithMany().HasForeignKey(x => x.GjelderRegelId);
             e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_unntak_virksomhet");
             e.HasIndex(x => x.GjelderRegelId).HasDatabaseName("ix_unntak_gjelder_regel");
+        });
+
+        b.Entity<VilkarstreKommentarEntitet>(e =>
+        {
+            e.ToTable("vilkarstre_kommentarer", t => t.HasCheckConstraint(
+                "ck_vilkarstre_kommentarer_mal_type", "mal_type IN ('vilkar', 'regelnode', 'unntak')"));
+            e.HasKey(x => x.Id).HasName("vilkarstre_kommentarer_pkey");
+            e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
+            e.Property(x => x.MalType).HasColumnName("mal_type");
+            e.Property(x => x.MalId).HasColumnName("mal_id");
+            e.Property(x => x.Dokumenttype).HasColumnName("dokumenttype");
+            e.Property(x => x.TekstHtml).HasColumnName("tekst_html");
+            e.Property(x => x.Rekkefolge).HasColumnName("rekkefolge").HasDefaultValue(0);
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+            e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
+            e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
+
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
+            e.HasIndex(x => new { x.MalType, x.MalId }).HasDatabaseName("ix_vilkarstre_kommentarer_mal");
         });
     }
 }

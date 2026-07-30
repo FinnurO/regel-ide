@@ -146,7 +146,10 @@ public sealed class RegelnoderegisterTjeneste(RegelIdeDbContext db)
                 $"(INV-7): {VilkarstreGrafHjelper.FormaterSti(sti)}.");
         }
 
-        var rad = new RegelnodeBarnEntitet { Id = Guid.NewGuid(), RegelnodeId = regelnodeId, BarnType = barnType, BarnId = barnId };
+        // Append til slutten (2026-07-30) — Rekkefolge fantes ikke før veiledningsvisningen trengte en
+        // stabil beslutnings-ordnet traversering; ingen eksisterende barn hadde noen rekkefølge å bevare.
+        var rekkefolge = await db.RegelnodeBarn.Where(b => b.RegelnodeId == regelnodeId).CountAsync(ct);
+        var rad = new RegelnodeBarnEntitet { Id = Guid.NewGuid(), RegelnodeId = regelnodeId, BarnType = barnType, BarnId = barnId, Rekkefolge = rekkefolge };
         db.RegelnodeBarn.Add(rad);
         await db.SaveChangesAsync(ct);
         return rad;

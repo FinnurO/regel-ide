@@ -29,7 +29,11 @@ internal static class KommentarTekstSanering
     {
         var sanitizer = new HtmlSanitizer();
         sanitizer.AllowedTags.Clear();
-        foreach (var tag in new[] { "p", "h3", "h4", "b", "strong", "i", "em", "u", "a" })
+        // ul/ol/li lagt til 2026-07-30 (docs/12-fasit-handbok-leveranse.md dimensjon G) — dekker
+        // sjekkliste-innhold (ikke-interaktivt, se VilkarstreKommentarEntitet.Dokumenttype='sjekkliste').
+        // Ekte avkrysningsbare <input type="checkbox">-elementer er bevisst IKKE lagt til her — en egen,
+        // større sanitizer-/XSS-vurdering (jf. 64aa440-sikkerhetsfiksen), utenfor denne rundens scope.
+        foreach (var tag in new[] { "p", "h3", "h4", "b", "strong", "i", "em", "u", "a", "ul", "ol", "li" })
         {
             sanitizer.AllowedTags.Add(tag);
         }

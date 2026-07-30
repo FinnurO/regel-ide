@@ -394,6 +394,25 @@ public sealed class DatasettEntitet
 }
 
 /// <summary>
+/// Faktisk parameterverdi for et Datasett-felt (2026-07-30, docs/12-fasit-handbok-leveranse.md
+/// dimensjon C — "kommunale variasjoner som strukturert data, ikke fritekst"). <see cref="DatasettEntitet"/>
+/// er kun en felt-DEFINISJON (Felt/Prop/Dtype) uten verdi — denne raden er selve verdien, én per
+/// (Datasett, Virksomhet). <see cref="VirksomhetId"/> null betyr den nasjonale standardverdien
+/// (speiler rundskriv-eksempelets §8.4-standardregel-rad for kommuner uten eget registrert regelsett)
+/// — håndheves som maks én rad per Datasett via en egen filtrert unik-indeks, se RegelIdeDbContext.
+/// </summary>
+public sealed class DatasettVerdiEntitet
+{
+    public Guid Id { get; set; }
+    public Guid DatasettId { get; set; }
+    public Guid? VirksomhetId { get; set; }
+    public required string VerdiJson { get; set; } // validert med JsonSerialiseringHjelper.ValiderJsonObjekt
+    public string? Kilde { get; set; } // fritekst, f.eks. "Retningslinjer 2024–2028, vedtatt 12.06.2024"
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+}
+
+/// <summary>
 /// Vilkår (docs/03-domenemodell.md §1.8) — bladnode i vilkårstreet (INV-1, referansemodell §5.4:
 /// <c>Vilkår.barn = ∅</c>, aldri barn). Samme basemetadata/statusløp-mønster som <see cref="TjenesteEntitet"/>.
 /// </summary>
@@ -496,6 +515,13 @@ public sealed class RegelnodeBarnEntitet
     public Guid RegelnodeId { get; set; }
     public required string BarnType { get; set; } // 'vilkar' | 'regelnode'
     public Guid BarnId { get; set; }
+
+    /// <summary>
+    /// Rekkefølge blant søsknene til samme RegelnodeId (2026-07-30) — settes av
+    /// RegelnoderegisterTjeneste.KobleBarnAsync som "append til slutten". Fantes ikke før;
+    /// nødvendig for en stabil beslutnings-ordnet traversering (veiledningsvisningen).
+    /// </summary>
+    public int Rekkefolge { get; set; }
 }
 
 /// <summary>
@@ -524,6 +550,40 @@ public sealed class UnntakEntitet
     public Guid? ErstatterId { get; set; }
     public DateOnly? GyldigFra { get; set; }
     public DateOnly? GyldigTil { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? SistEndretAv { get; set; }
+    public DateTimeOffset? SistEndretTidspunkt { get; set; }
+}
+
+/// <summary>
+/// Veiledningskommentar på en vilkårstre-node (2026-07-30, docs/12-fasit-handbok-leveranse.md
+/// "Hovedfunn" + dimensjon A). En lettere, polymorf parallell til håndbok-kommentarer — IKKE en
+/// generalisering av <see cref="HandbokKommentarMetadataEntitet"/> (den er hard delt-primærnøkkel mot
+/// RettskildeNodeEntitet, se RegelIdeDbContext). Samme polymorfe mønster som
+/// <see cref="TekstTaggEntitet.Kind"/>/<c>RefId</c> og <see cref="RegelnodeBarnEntitet.BarnType"/>/
+/// <c>BarnId</c> — <see cref="MalType"/>/<see cref="MalId"/> peker på et Vilkår, en Regelnode eller
+/// et Unntak.
+/// </summary>
+public sealed class VilkarstreKommentarEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid VirksomhetId { get; set; }
+    public required string MalType { get; set; } // 'vilkar' | 'regelnode' | 'unntak'
+    public required Guid MalId { get; set; }
+
+    /// <summary>
+    /// Proveniens-merking på selve avsnittet — fasit-dimensjon A: "hvor sikker/kildebasert er DETTE
+    /// avsnittet", ikke "hvilken dokumenttype er dette" (derfor en egen enum, ikke en gjenbruk av
+    /// HandbokForfatterTjeneste sin dokumenttype-liste).
+    /// </summary>
+    public required string Dokumenttype { get; set; } // 'kommentar' | 'hjemmel' | 'praktisk-rad' | 'sjekkliste'
+
+    public required string TekstHtml { get; set; } // sanert med KommentarTekstSanering, samme allow-list som håndbok
+
+    /// <summary>Manuell visningsorden blant flere kommentarer PÅ SAMME node — node-til-node-rekkefølgen dekkes av vilkårstre-traverseringen selv.</summary>
+    public int Rekkefolge { get; set; }
+
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }
     public string? SistEndretAv { get; set; }

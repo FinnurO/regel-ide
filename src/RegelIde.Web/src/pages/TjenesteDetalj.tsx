@@ -130,9 +130,12 @@ export default function TjenesteDetalj() {
       <Tag data-color="info" style={{ marginBottom: '1.5rem' }}>{tjeneste.status}</Tag>
 
       {tjeneste.rotnodeId && (
-        <Paragraph style={{ marginBottom: '1.5rem' }}>
+        <Paragraph style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem' }}>
           <Link asChild>
             <RouterLink to={`/vilkarstre/${tjeneste.rotnodeId}`}>Åpne vilkårstre →</RouterLink>
+          </Link>
+          <Link asChild>
+            <RouterLink to={`/tjenester/${tjeneste.id}/veiledning`}>Åpne veiledning →</RouterLink>
           </Link>
         </Paragraph>
       )}

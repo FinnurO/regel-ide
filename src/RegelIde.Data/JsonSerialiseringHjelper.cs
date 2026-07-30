@@ -63,4 +63,32 @@ internal static class JsonSerialiseringHjelper
 
         return json;
     }
+
+    /// <summary>
+    /// Samme vern som <see cref="ValiderJsonObjekt"/>, men uten objekt-kravet — en Datasett-verdi
+    /// (2026-07-30, <see cref="DatasettVerdiEntitet"/>) kan legitimt være en streng, et tall, en
+    /// boolsk verdi eller en liste, avhengig av <see cref="DatasettEntitet.Dtype"/>
+    /// ("08:00–02:00", <c>true</c>, <c>["Idrettsarrangement", "Barne- og ungdomslokale"]</c>) — ikke
+    /// alltid et objekt som Vilkår sin <c>parametre</c>-kolonne. Tom/utelatt verdi blir <c>null</c>
+    /// (ikke <c>{}</c> — det finnes ingen meningsfull tom-verdi for f.eks. en streng eller et tall).
+    /// </summary>
+    /// <exception cref="ArgumentException">Verdien er ikke gyldig JSON.</exception>
+    public static string? ValiderJson(string? json, string feltnavn)
+    {
+        if (string.IsNullOrWhiteSpace(json))
+        {
+            return null;
+        }
+
+        try
+        {
+            using var dokument = JsonDocument.Parse(json);
+        }
+        catch (JsonException e)
+        {
+            throw new ArgumentException($"{feltnavn} er ikke gyldig JSON: {e.Message}");
+        }
+
+        return json;
+    }
 }

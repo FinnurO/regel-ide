@@ -16,9 +16,27 @@ import { Link as RouterLink } from 'react-router';
 import { Button, Field, Label, Link, Paragraph, Select, Tabs, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
-import type { BegrepDto, DatasettDto, JuridiskGrunnlagInput, ProveniensDto, RegelnodeDto, RettskildeSammendrag, UnntakDto, VilkarDto } from '../api/types';
+import type {
+  BegrepDto, DatasettDto, JuridiskGrunnlagInput, ProveniensDto, RegelnodeDto, RettskildeSammendrag, UnntakDto,
+  VilkarDto, VilkarstreKommentarDto,
+} from '../api/types';
+import { MinimalEditor } from '../handbok/MinimalEditor';
 
 const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
+
+const VEILEDNINGSDOKUMENTTYPER = [
+  { id: 'kommentar', label: 'Kommentar' },
+  { id: 'hjemmel', label: 'Hjemmel' },
+  { id: 'praktisk-rad', label: 'Praktisk råd' },
+  { id: 'sjekkliste', label: 'Sjekkliste' },
+];
+
+const VEILEDNINGSDOKUMENTTYPE_FARGE: Record<string, 'info' | 'warning' | 'neutral' | 'success'> = {
+  hjemmel: 'info',
+  'praktisk-rad': 'warning',
+  sjekkliste: 'success',
+  kommentar: 'neutral',
+};
 
 export type EgenskapspanelNode = { kind: 'vilkar' | 'regelnode' | 'unntak'; id: string };
 
@@ -155,7 +173,9 @@ function InputDatasettAdministrasjon({ vilkarId }: { vilkarId: string }) {
         <ul style={{ margin: '0 0 0.5rem', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
           {input.map((d) => (
             <li key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--ds-font-size-1)' }}>
-              <span style={{ fontFamily: 'monospace' }}>{d.prop}</span>
+              <Link asChild>
+                <RouterLink to={`/datasett/${d.id}`} style={{ fontFamily: 'monospace' }}>{d.prop}</RouterLink>
+              </Link>
               <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>({d.felt})</span>
               <Button variant="tertiary" data-color="danger" data-size="sm" type="button" onClick={() => fjern(d.id)}>Fjern</Button>
             </li>
@@ -174,6 +194,85 @@ function InputDatasettAdministrasjon({ vilkarId }: { vilkarId: string }) {
           Legg til
         </Button>
       </div>
+    </div>
+  );
+}
+
+/**
+ * Veiledningskommentarer på en vilkårstre-node (2026-07-30, docs/12-fasit-handbok-leveranse.md
+ * "Hovedfunn" + dimensjon A) — samme rolle som håndbok-kommentarer har på en rettskilde-node, men for
+ * Vilkår/Regelnode/Unntak. `Dokumenttype` er selve proveniens-merkingen (dimensjon A): en «hjemmel»-
+ * eller «praktisk-råd»-kommentar vises visuelt distinkt, ikke bare som en umerket fritekst.
+ */
+function VeiledningskommentarAdministrasjon({ malType, malId }: { malType: string; malId: string }) {
+  const [kommentarer, setKommentarer] = useState<VilkarstreKommentarDto[] | null>(null);
+  const [nyDokumenttype, setNyDokumenttype] = useState('kommentar');
+  const [nyTekst, setNyTekst] = useState('');
+  const [lagrer, setLagrer] = useState(false);
+  const [feil, setFeil] = useState<string | null>(null);
+
+  function last() {
+    api.hentVilkarstreKommentarer(malType, malId).then(setKommentarer).catch(() => setKommentarer([]));
+  }
+
+  useEffect(() => { setKommentarer(null); last(); }, [malType, malId]);
+
+  async function leggTil() {
+    if (!nyTekst.trim()) return;
+    setFeil(null);
+    setLagrer(true);
+    try {
+      await api.opprettVilkarstreKommentar({ malType, malId, dokumenttype: nyDokumenttype, tekstHtml: nyTekst });
+      setNyTekst('');
+      last();
+    } catch (err) {
+      setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved lagring av kommentar.');
+    } finally {
+      setLagrer(false);
+    }
+  }
+
+  async function fjern(id: string) {
+    await api.fjernVilkarstreKommentar(id);
+    last();
+  }
+
+  if (kommentarer === null) return <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Laster …</Paragraph>;
+
+  return (
+    <div>
+      {feil && <div className="feilmelding" style={{ marginBottom: '0.5rem' }}>{feil}</div>}
+      {kommentarer.length === 0 ? (
+        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+          Ingen veiledningskommentarer lagt til.
+        </Paragraph>
+      ) : (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
+          {kommentarer.map((k) => (
+            <div key={k.id} style={{
+              border: '1px solid var(--ds-color-neutral-border-subtle)', borderRadius: 'var(--ds-border-radius-md)', padding: '0.5rem',
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
+                <Tag data-color={VEILEDNINGSDOKUMENTTYPE_FARGE[k.dokumenttype] ?? 'neutral'} data-size="sm">
+                  {VEILEDNINGSDOKUMENTTYPER.find((d) => d.id === k.dokumenttype)?.label ?? k.dokumenttype}
+                </Tag>
+                <Button variant="tertiary" data-color="danger" data-size="sm" type="button" onClick={() => fjern(k.id)}>Fjern</Button>
+              </div>
+              <div style={{ fontSize: 'var(--ds-font-size-2)' }} dangerouslySetInnerHTML={{ __html: k.tekstHtml }} />
+            </div>
+          ))}
+        </div>
+      )}
+      <Field>
+        <Label>Dokumenttype</Label>
+        <Select data-size="sm" value={nyDokumenttype} onChange={(e) => setNyDokumenttype(e.target.value)} style={{ maxWidth: '16rem', marginBottom: '0.5rem' }}>
+          {VEILEDNINGSDOKUMENTTYPER.map((d) => <Select.Option key={d.id} value={d.id}>{d.label}</Select.Option>)}
+        </Select>
+      </Field>
+      <MinimalEditor value={nyTekst} onChange={(html) => setNyTekst(html)} />
+      <Button data-size="sm" type="button" onClick={leggTil} disabled={lagrer || !nyTekst.trim()} style={{ marginTop: '0.5rem' }}>
+        {lagrer ? 'Lagrer …' : 'Legg til'}
+      </Button>
     </div>
   );
 }
@@ -199,6 +298,7 @@ function FelleFaner({ fane, setFane }: { fane: string; setFane: (f: string) => v
         <Tabs.Tab value="generelt">Generelt</Tabs.Tab>
         <Tabs.Tab value="tekster">Tekster</Tabs.Tab>
         <Tabs.Tab value="metadata">Metadata</Tabs.Tab>
+        <Tabs.Tab value="veiledning">Veiledning</Tabs.Tab>
         <Tabs.Tab value="historikk">Historikk</Tabs.Tab>
       </Tabs.List>
     </Tabs>
@@ -385,6 +485,7 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, feil, setFeil, 
         </form>
       )}
 
+      {fane === 'veiledning' && <VeiledningskommentarAdministrasjon malType="vilkar" malId={id} />}
       {fane === 'historikk' && <Historikk liste={historikk} />}
     </div>
   );
@@ -530,6 +631,7 @@ function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndre
         </form>
       )}
 
+      {fane === 'veiledning' && <VeiledningskommentarAdministrasjon malType="regelnode" malId={id} />}
       {fane === 'historikk' && <Historikk liste={historikk} />}
     </div>
   );
@@ -633,6 +735,7 @@ function UnntakPanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndret }
         </form>
       )}
 
+      {fane === 'veiledning' && <VeiledningskommentarAdministrasjon malType="unntak" malId={id} />}
       {fane === 'historikk' && <Historikk liste={historikk} />}
     </div>
   );

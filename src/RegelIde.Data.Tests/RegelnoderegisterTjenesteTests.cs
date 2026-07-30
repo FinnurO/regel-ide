@@ -181,6 +181,31 @@ public class RegelnoderegisterTjenesteTests
     }
 
     [Fact]
+    public async Task Koblede_barn_far_stigende_rekkefolge()
+    {
+        // 2026-07-30 (docs/12-fasit-handbok-leveranse.md "Hovedfunn") — nødvendig for en stabil
+        // beslutnings-ordnet traversering i veiledningsvisningen.
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = await NyttVirksomhetAsync(db);
+        var vilkarA = await NyttVilkarAsync(db, virksomhet, "A");
+        var vilkarB = await NyttVilkarAsync(db, virksomhet, "B");
+        var vilkarC = await NyttVilkarAsync(db, virksomhet, "C");
+
+        var register = new RegelnoderegisterTjeneste(db);
+        var regelnode = await register.OpprettAsync(virksomhet, "Vedtak", null, null, "OG", "Utfall", "boolean",
+            true, null, null, null, "Kari Jurist");
+        await register.KobleBarnAsync(regelnode.Id, "vilkar", vilkarA.Id);
+        await register.KobleBarnAsync(regelnode.Id, "vilkar", vilkarB.Id);
+        await register.KobleBarnAsync(regelnode.Id, "vilkar", vilkarC.Id);
+
+        var barn = await register.BarnForAsync(regelnode.Id);
+
+        Assert.Equal(vilkarA.Id, barn.Single(b => b.Rekkefolge == 0).BarnId);
+        Assert.Equal(vilkarB.Id, barn.Single(b => b.Rekkefolge == 1).BarnId);
+        Assert.Equal(vilkarC.Id, barn.Single(b => b.Rekkefolge == 2).BarnId);
+    }
+
+    [Fact]
     public async Task Setter_status()
     {
         await using var db = _fixture.NyDbContext();

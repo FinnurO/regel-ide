@@ -270,7 +270,7 @@ export default function VilkarstreDetalj() {
                 <Select data-size="sm" value={kobleBarnId} onChange={(e) => setKobleBarnId(e.target.value)}>
                   <Select.Option value="">Velg …</Select.Option>
                   {(kobleBarnType === 'vilkar' ? vilkarListe : regelnoder)
-                    .filter((n) => !kobleForelder || kobleBarnType !== 'regelnode' || !kanNaKlient('regelnode', n.id, 'regelnode', kobleForelder, barnPerRegelnode, unntakListe))
+                    .filter((n) => !kobleForelder || kobleBarnType !== 'regelnode' || !kanNaKlient('regelnode', n.id, 'regelnode', kobleForelder, barnPerRegelnode, unntakListe ?? []))
                     .map((n) => (
                       <Select.Option key={n.id} value={n.id}>{n.tittel}</Select.Option>
                     ))}
@@ -308,7 +308,7 @@ export default function VilkarstreDetalj() {
                 <Select data-size="sm" value={nyUnntakBetingelseId} onChange={(e) => setNyUnntakBetingelseId(e.target.value)}>
                   <Select.Option value="">Velg …</Select.Option>
                   {(nyUnntakBetingelseType === 'vilkar' ? vilkarListe : regelnoder)
-                    .filter((n) => !nyUnntakGjelderRegel || nyUnntakBetingelseType !== 'regelnode' || !kanNaKlient('regelnode', n.id, 'regelnode', nyUnntakGjelderRegel, barnPerRegelnode, unntakListe))
+                    .filter((n) => !nyUnntakGjelderRegel || nyUnntakBetingelseType !== 'regelnode' || !kanNaKlient('regelnode', n.id, 'regelnode', nyUnntakGjelderRegel, barnPerRegelnode, unntakListe ?? []))
                     .map((n) => (
                       <Select.Option key={n.id} value={n.id}>{n.tittel}</Select.Option>
                     ))}

@@ -13,6 +13,8 @@ import KodelisterListe from './pages/KodelisterListe';
 import KodelisteDetalj from './pages/KodelisteDetalj';
 import VilkarstreListe from './pages/VilkarstreListe';
 import VilkarstreDetalj from './pages/VilkarstreDetalj';
+import DatasettDetalj from './pages/DatasettDetalj';
+import TjenesteVeiledning from './pages/TjenesteVeiledning';
 
 function BrukerVelger() {
   const { brukere, gjeldendeBruker, velgBruker, laster } = useBruker();
@@ -82,6 +84,8 @@ function App() {
           <Route path="/kodelister/:id" element={<KodelisteDetalj />} />
           <Route path="/vilkarstre" element={<VilkarstreListe />} />
           <Route path="/vilkarstre/:rotnodeId" element={<VilkarstreDetalj />} />
+          <Route path="/datasett/:id" element={<DatasettDetalj />} />
+          <Route path="/tjenester/:id/veiledning" element={<TjenesteVeiledning />} />
         </Routes>
       </main>
     </div>

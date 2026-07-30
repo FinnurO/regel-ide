@@ -14,6 +14,7 @@ builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Ad
 // docker/README.md). Se Databaseoppsett.cs for hva som faktisk skiller de to.
 builder.Services.LeggTilRegelIdeDatabase(builder.Configuration);
 builder.Services.AddScoped<RettskildeRepository>();
+builder.Services.AddScoped<VeiledningRepository>();
 builder.Services.AddScoped<RettskildeImportTjeneste>();
 builder.Services.AddScoped<TekstTaggTjeneste>();
 builder.Services.AddScoped<HandbokForfatterTjeneste>();
@@ -23,6 +24,8 @@ builder.Services.AddScoped<KodelisteregisterTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
 builder.Services.AddScoped<RegelnoderegisterTjeneste>();
 builder.Services.AddScoped<UnntaksregisterTjeneste>();
+builder.Services.AddScoped<DatasettregisterTjeneste>();
+builder.Services.AddScoped<VilkarstreKommentarTjeneste>();
 builder.Services.AddHttpClient<LovdataBulkHenter>();
 
 const string VitePolicy = "ViteDevServer";
@@ -132,6 +135,7 @@ using (var scope = app.Services.CreateScope())
     // Byggesteg 4 runde 1-testcaseinnhold (2026-07-30) — vilkårstreet fra docs/01-referansemodell.md
     // §5.5. Kjøres etter byggesteg 2 (no-op hvis tjenesten/begrepet den trenger ikke finnes ennå).
     await Byggesteg4VilkarstreSeed.SeedAsync(db);
+    await KommunaleParametreSeed.SeedAsync(db);
 }
 
 app.MapGet("/api/brukere", async (RegelIdeDbContext db) =>
@@ -911,6 +915,96 @@ app.MapGet("/api/datasett", async (RegelIdeDbContext db) =>
     .WithName("HentDatasett")
     .WithSummary("Lister datasett (§1.6, minimal — full skjerm er byggesteg 6). Seedet, ingen opprett-UI ennå.");
 
+app.MapGet("/api/datasett/{id:guid}/verdier", async (Guid id, DatasettregisterTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.HentVerdierAsync(id, ct)).Select(DatasettVerdiDto.FraEntitet)))
+    .WithOpenApi()
+    .WithName("HentDatasettVerdier")
+    .WithSummary("Lister kommunale/nasjonale parameterverdier for et datasett-felt (docs/12-fasit-handbok-leveranse.md dimensjon C).");
+
+app.MapPost("/api/datasett/{id:guid}/verdier", async (Guid id, HttpRequest request, SettDatasettVerdiRequest body,
+        DatasettregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var v = await register.SettVerdiAsync(id, body.VirksomhetId, body.VerdiJson, body.Kilde, bruker.Navn, ct);
+            return Results.Ok(DatasettVerdiDto.FraEntitet(v));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("SettDatasettVerdi")
+    .WithSummary("Setter (upsert) en kommunal eller nasjonal (VirksomhetId=null) parameterverdi.");
+
+app.MapDelete("/api/datasett/verdier/{verdiId:guid}", async (Guid verdiId, DatasettregisterTjeneste register, CancellationToken ct) =>
+        await register.FjernVerdiAsync(verdiId, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen verdi med id '{verdiId}'." }))
+    .WithOpenApi()
+    .WithName("FjernDatasettVerdi")
+    .WithSummary("Fjerner en parameterverdi.");
+
+// ---------- Vilkårstre-kommentarer (docs/12-fasit-handbok-leveranse.md "Hovedfunn" + dimensjon A) ----------
+
+var vilkarstreKommentarer = app.MapGroup("/api/vilkarstre-kommentarer").WithOpenApi();
+
+vilkarstreKommentarer.MapGet("/", async (string malType, Guid malId, VilkarstreKommentarTjeneste tjeneste, CancellationToken ct) =>
+        Results.Ok((await tjeneste.HentForNodeAsync(malType, malId, ct)).Select(VilkarstreKommentarDto.FraEntitet)))
+    .WithName("HentVilkarstreKommentarer")
+    .WithSummary("Lister veiledningskommentarer for en vilkårstre-node (?malType=vilkar|regelnode|unntak&malId=).");
+
+vilkarstreKommentarer.MapPost("/", async (HttpRequest request, OpprettVilkarstreKommentarRequest body,
+        VilkarstreKommentarTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var k = await tjeneste.OpprettAsync(bruker.VirksomhetId, body.MalType, body.MalId, body.Dokumenttype, body.TekstHtml, bruker.Navn, ct);
+            return Results.Created($"/api/vilkarstre-kommentarer/{k.Id}", VilkarstreKommentarDto.FraEntitet(k));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OpprettVilkarstreKommentar")
+    .WithSummary("Legger til en veiledningskommentar på en vilkårstre-node.");
+
+vilkarstreKommentarer.MapPut("/{id:guid}", async (Guid id, HttpRequest request, OppdaterVilkarstreKommentarRequest body,
+        VilkarstreKommentarTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var k = await tjeneste.OppdaterAsync(id, body.Dokumenttype, body.TekstHtml, bruker.Navn, ct);
+            return k is null ? Results.NotFound(new { feil = $"Ingen kommentar med id '{id}'." }) : Results.Ok(VilkarstreKommentarDto.FraEntitet(k));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OppdaterVilkarstreKommentar")
+    .WithSummary("Redigerer en veiledningskommentar.");
+
+vilkarstreKommentarer.MapDelete("/{id:guid}", async (Guid id, VilkarstreKommentarTjeneste tjeneste, CancellationToken ct) =>
+        await tjeneste.SlettAsync(id, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen kommentar med id '{id}'." }))
+    .WithName("SlettVilkarstreKommentar")
+    .WithSummary("Fjerner en veiledningskommentar.");
+
 // ---------- Vilkårregister (docs/03-domenemodell.md §1.8) — byggesteg 4 runde 1 ----------
 
 var vilkar = app.MapGroup("/api/vilkar").WithOpenApi();
@@ -1278,6 +1372,19 @@ tjenester.MapPost("/{id:guid}/rotnode", async (Guid id, SettRotnodeRequest body,
     })
     .WithName("SettTjenesteRotnode")
     .WithSummary("Kobler tjenesten til rotnoden i sitt vilkårstre (byggesteg 4).");
+
+tjenester.MapGet("/{id:guid}/veiledning", async (Guid id, Guid? virksomhetId, VeiledningRepository repo, CancellationToken ct) =>
+    {
+        var veiledning = await repo.ByggAsync(id, virksomhetId, ct);
+        return veiledning is null
+            ? Results.NotFound(new { feil = $"Tjenesten '{id}' finnes ikke, eller har ingen rotnode i vilkårstreet." })
+            : Results.Ok(veiledning);
+    })
+    .WithName("HentTjenesteVeiledning")
+    .WithSummary(
+        "Vilkårstreet rendret som en tjenestesentrert veiledning i beslutningsorden " +
+        "(docs/12-fasit-handbok-leveranse.md \"Hovedfunn\"). ?virksomhetId= velger hvilken kommunes " +
+        "datasett-verdier som vises — utelatt/ingen treff faller tilbake til den nasjonale standardverdien.");
 
 // SPA-ruting: /rettskilder/{id} o.l. er klientruter uten motstykke på serveren, så alt som
 // ikke traff et API-endepunkt eller en fil sendes til index.html. Gjør ingenting når wwwroot

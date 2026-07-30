@@ -277,3 +277,57 @@ public sealed record OppdaterUnntakRequest(string Tittel, string? Beskrivelse, I
 
 /// <summary>Forespørsel for POST /api/tjenester/{id}/rotnode.</summary>
 public sealed record SettRotnodeRequest(Guid RegelnodeId);
+
+/// <summary>
+/// Kommunal/nasjonal parameterverdi for et Datasett-felt (docs/12-fasit-handbok-leveranse.md
+/// dimensjon C, 2026-07-30). <c>VirksomhetId</c> null = nasjonal standardverdi.
+/// </summary>
+public sealed record DatasettVerdiDto(Guid Id, Guid DatasettId, Guid? VirksomhetId, string VerdiJson, string? Kilde)
+{
+    public static DatasettVerdiDto FraEntitet(DatasettVerdiEntitet v) => new(v.Id, v.DatasettId, v.VirksomhetId, v.VerdiJson, v.Kilde);
+}
+
+/// <summary>Forespørsel for POST /api/datasett/{id}/verdier.</summary>
+public sealed record SettDatasettVerdiRequest(Guid? VirksomhetId, string VerdiJson, string? Kilde);
+
+/// <summary>Veiledningskommentar på en vilkårstre-node (docs/12-fasit-handbok-leveranse.md "Hovedfunn" + dimensjon A).</summary>
+public sealed record VilkarstreKommentarDto(Guid Id, string MalType, Guid MalId, string Dokumenttype, string TekstHtml, int Rekkefolge)
+{
+    public static VilkarstreKommentarDto FraEntitet(VilkarstreKommentarEntitet k) =>
+        new(k.Id, k.MalType, k.MalId, k.Dokumenttype, k.TekstHtml, k.Rekkefolge);
+}
+
+/// <summary>Forespørsel for POST /api/vilkarstre-kommentarer.</summary>
+public sealed record OpprettVilkarstreKommentarRequest(string MalType, Guid MalId, string Dokumenttype, string TekstHtml);
+
+/// <summary>Forespørsel for PUT /api/vilkarstre-kommentarer/{id}.</summary>
+public sealed record OppdaterVilkarstreKommentarRequest(string Dokumenttype, string TekstHtml);
+
+/// <summary>
+/// Én datasett-verdi slik den gjelder for den spurte virksomheten i veiledningsvisningen — allerede
+/// falt tilbake til standardverdien der ingen kommune-spesifikk verdi finnes (§8.4-mønsteret).
+/// </summary>
+public sealed record VeiledningDatasettVerdiDto(Guid DatasettId, string Felt, string Prop, string VerdiJson, string? Kilde, bool ErStandardverdi);
+
+/// <summary>Ett Unntak inline i veiledningstraverseringen, rett etter sin GjelderRegel sine egne barn.</summary>
+public sealed record VeiledningUnntakDto(
+    Guid Id, string Tittel, string? Beskrivelse, string BetingelseType, Guid BetingelseId, string BetingelseTittel,
+    IReadOnlyList<VilkarstreKommentarDto> Kommentarer);
+
+/// <summary>
+/// Én node i veiledningstreet (docs/12-fasit-handbok-leveranse.md "Hovedfunn") — rekursiv, i
+/// beslutningsorden (Rekkefolge). <c>Type</c> ('vilkar'|'regelnode') avgjør hvilke av de
+/// type-spesifikke feltene som er satt, samme diskriminator-mønster som ellers i byggesteg 4.
+/// </summary>
+public sealed record VeiledningNodeDto(
+    Guid Id, string Type, string Tittel, string? Beskrivelse,
+    string? Vilkarstype, string? Vurderingstype, IReadOnlyList<SkjonnsmomentInput> Skjonnsmomenter,
+    string? BarnOperator,
+    IReadOnlyList<JuridiskGrunnlagInput> JuridiskGrunnlag,
+    IReadOnlyList<VeiledningDatasettVerdiDto> InputDatasettVerdier,
+    IReadOnlyList<VilkarstreKommentarDto> Kommentarer,
+    IReadOnlyList<VeiledningNodeDto> Barn,
+    IReadOnlyList<VeiledningUnntakDto> Unntak);
+
+/// <summary>Rotobjektet for GET /api/tjenester/{id}/veiledning.</summary>
+public sealed record VeiledningDto(Guid TjenesteId, string TjenesteTittel, Guid? VirksomhetId, VeiledningNodeDto Rot);

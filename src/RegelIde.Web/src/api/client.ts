@@ -4,6 +4,7 @@ import type {
   BegrepRequest,
   BrukerDto,
   DatasettDto,
+  DatasettVerdiDto,
   KobleBarnRequest,
   KobleLovreferanseRequest,
   KobleRegelverksreferanseRequest,
@@ -15,11 +16,13 @@ import type {
   LeggTilVilkarInputRequest,
   OppdaterRettskildeMetadataRequest,
   OppdaterUnntakRequest,
+  OppdaterVilkarstreKommentarRequest,
   OpprettHandbokRequest,
   OpprettKapittelNodeRequest,
   OpprettKommentarNodeRequest,
   OpprettTekstTaggRequest,
   OpprettUnntakRequest,
+  OpprettVilkarstreKommentarRequest,
   ProveniensDto,
   PubliserKommentarRequest,
   RedigerKommentarNodeRequest,
@@ -30,6 +33,7 @@ import type {
   RettskildeNodeDto,
   RettskildeReferanseDto,
   RettskildeSammendrag,
+  SettDatasettVerdiRequest,
   SettOperatorRequest,
   SettRevisjonsmerkeRequest,
   SettRotnodeRequest,
@@ -41,8 +45,10 @@ import type {
   TjenesteRegelverksreferanseDto,
   TjenesteRequest,
   UnntakDto,
+  VeiledningDto,
   VilkarDto,
   VilkarRequest,
+  VilkarstreKommentarDto,
   VirksomhetDto,
 } from './types';
 
@@ -50,11 +56,10 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5187';
 const BRUKER_ID_LAGRINGSNOKKEL = 'regelide.brukerId';
 
 export class ApiError extends Error {
-  constructor(
-    message: string,
-    public status: number,
-  ) {
+  public status: number;
+  constructor(message: string, status: number) {
     super(message);
+    this.status = status;
   }
 }
 
@@ -313,6 +318,38 @@ export const api = {
 
   hentDatasett: () => kall<DatasettDto[]>('/api/datasett'),
 
+  hentDatasettVerdier: (id: string) => kall<DatasettVerdiDto[]>(`/api/datasett/${id}/verdier`),
+
+  settDatasettVerdi: (id: string, request: SettDatasettVerdiRequest) =>
+    kall<DatasettVerdiDto>(`/api/datasett/${id}/verdier`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  fjernDatasettVerdi: (verdiId: string) => kall<void>(`/api/datasett/verdier/${verdiId}`, { method: 'DELETE' }),
+
+  // ---------- Vilkårstre-kommentarer (docs/12-fasit-handbok-leveranse.md "Hovedfunn" + dimensjon A) ----------
+
+  hentVilkarstreKommentarer: (malType: string, malId: string) =>
+    kall<VilkarstreKommentarDto[]>(`/api/vilkarstre-kommentarer?malType=${malType}&malId=${malId}`),
+
+  opprettVilkarstreKommentar: (request: OpprettVilkarstreKommentarRequest) =>
+    kall<VilkarstreKommentarDto>('/api/vilkarstre-kommentarer', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  oppdaterVilkarstreKommentar: (id: string, request: OppdaterVilkarstreKommentarRequest) =>
+    kall<VilkarstreKommentarDto>(`/api/vilkarstre-kommentarer/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  fjernVilkarstreKommentar: (id: string) => kall<void>(`/api/vilkarstre-kommentarer/${id}`, { method: 'DELETE' }),
+
   hentVilkarListe: () => kall<VilkarDto[]>('/api/vilkar'),
 
   hentVilkar: (id: string) => kall<VilkarDto>(`/api/vilkar/${id}`),
@@ -431,4 +468,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
     }),
+
+  hentTjenesteVeiledning: (id: string, virksomhetId: string | null) =>
+    kall<VeiledningDto>(`/api/tjenester/${id}/veiledning${virksomhetId ? `?virksomhetId=${virksomhetId}` : ''}`),
 };
