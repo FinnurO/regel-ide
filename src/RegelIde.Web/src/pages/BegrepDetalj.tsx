@@ -1,8 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useParams } from 'react-router-dom';
-import { Button, Heading, Paragraph, Select, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
+import { Link as RouterLink, useParams } from 'react-router-dom';
+import { Button, Heading, Link, Paragraph, Select, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { BegrepDto } from '../api/types';
+import { rettskildeLenke } from '../api/eidLenker';
+import type { BegrepDto, RettskildeSammendrag, VilkarDto } from '../api/types';
 
 const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
 
@@ -10,6 +11,8 @@ export default function BegrepDetalj() {
   const { id } = useParams<{ id: string }>();
   const [begrep, setBegrep] = useState<BegrepDto | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
+  const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
+  const [bruktIVilkar, setBruktIVilkar] = useState<Array<{ vilkar: VilkarDto; rotnodeId: string | undefined }>>([]);
 
   const [term, setTerm] = useState('');
   const [definisjon, setDefinisjon] = useState('');
@@ -30,6 +33,19 @@ export default function BegrepDetalj() {
     if (!id) return;
     api.hentBegrep(id).then((b) => { setBegrep(b); fyllSkjemaFra(b); })
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av begrep.'));
+    api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
+    // «Brukt i vilkår» — bevisst forenkling (kun ett vilkårstre finnes i dag, se plan «Sammenhengende navigasjon»):
+    // rotnodeId hentes fra første tjeneste som har en satt, i stedet for en generell reverse-oppslag.
+    Promise.all([api.hentVilkarListe(), api.hentTjenester()])
+      .then(([vilkarListe, tjenester]) => {
+        const rotnodeId = tjenester.find((t) => t.rotnodeId)?.rotnodeId ?? undefined;
+        setBruktIVilkar(
+          vilkarListe
+            .filter((v) => v.begrepId === id || v.skjonnsgrunnlagBegrepId === id)
+            .map((v) => ({ vilkar: v, rotnodeId })),
+        );
+      })
+      .catch(() => setBruktIVilkar([]));
   }, [id]);
 
   async function lagre(e: FormEvent) {
@@ -84,6 +100,18 @@ export default function BegrepDetalj() {
           <Textarea label="Definisjon" value={definisjon} onChange={(e) => setDefinisjon(e.target.value)} rows={3} required />
           <Textfield label="Lovreferanse (eId)" value={lovreferanseEid} onChange={(e) => setLovreferanseEid(e.target.value)}
             style={{ fontFamily: 'monospace' }} />
+          {begrep.lovreferanseEid && (
+            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '-0.5rem' }}>
+              {(() => {
+                const href = rettskildeLenke(begrep.lovreferanseEid, rettskilder);
+                return href ? (
+                  <Link asChild><RouterLink to={href}>Åpne i rettskilden →</RouterLink></Link>
+                ) : (
+                  <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Fant ikke rettskilden for denne eId-en.</span>
+                );
+              })()}
+            </Paragraph>
+          )}
           <Select label="Begrepstype" value={begrepstype} onChange={(e) => setBegrepstype(e.target.value)}>
             <Select.Option value="faktabegrep">Faktabegrep</Select.Option>
             <Select.Option value="handlingsbegrep">Handlingsbegrep</Select.Option>
@@ -95,7 +123,7 @@ export default function BegrepDetalj() {
         </form>
       </section>
 
-      <section>
+      <section style={{ marginBottom: '2rem' }}>
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Status
         </Heading>
@@ -105,6 +133,25 @@ export default function BegrepDetalj() {
           ))}
         </Select>
       </section>
+
+      {bruktIVilkar.length > 0 && (
+        <section>
+          <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+            Brukt i vilkår
+          </Heading>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            {bruktIVilkar.map(({ vilkar, rotnodeId }) =>
+              rotnodeId ? (
+                <Link asChild key={vilkar.id}>
+                  <RouterLink to={`/vilkarstre/${rotnodeId}?fokusVilkar=${vilkar.id}`}>{vilkar.tittel}</RouterLink>
+                </Link>
+              ) : (
+                <span key={vilkar.id}>{vilkar.tittel}</span>
+              ),
+            )}
+          </div>
+        </section>
+      )}
     </>
   );
 }

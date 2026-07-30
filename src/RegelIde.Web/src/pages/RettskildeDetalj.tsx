@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Link as RouterLink, useParams } from 'react-router-dom';
+import { Link as RouterLink, useParams, useSearchParams } from 'react-router-dom';
 import { Button, Heading, Link, Paragraph, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type {
@@ -7,8 +7,9 @@ import type {
   RettskildeNodeDto,
   RettskildeSammendrag,
   TekstTaggDto,
+  TjenesteReferanseDto,
 } from '../api/types';
-import { TagTekst, type Registry, type TextTag } from '../tagging/TagTekst';
+import { TagTekst, type Registry, type TagKindId, type TextTag } from '../tagging/TagTekst';
 import { RettskildeTre, type RettskildeNode as TreNodeVm } from '../tre/RettskildeTre';
 import { KommentarRedigering } from '../handbok/KommentarRedigering';
 import { useKonfigurasjon } from '../konfigurasjon/KonfigurasjonContext';
@@ -61,12 +62,14 @@ function finnNode(noder: TreNode[], eid: string): TreNode | null {
 
 export default function RettskildeDetalj() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const { taggKinds } = useKonfigurasjon();
   const [detalj, setDetalj] = useState<RettskildeDetaljType | null>(null);
   const [tre, setTre] = useState<TreNode[] | null>(null);
   const [tagger, setTagger] = useState<TekstTaggDto[]>([]);
   const [activeKind, setActiveKind] = useState<string>('');
   const [selectedEid, setSelectedEid] = useState<string | undefined>(undefined);
+  const [referertAvTjenester, setReferertAvTjenester] = useState<TjenesteReferanseDto[]>([]);
   const [filter, setFilter] = useState('');
   const [visAknXml, setVisAknXml] = useState(false);
   const [feil, setFeil] = useState<string | null>(null);
@@ -96,8 +99,11 @@ export default function RettskildeDetalj() {
         setDetalj(d);
         setTre(byggTre(noder));
         setTagger(egneTagger);
+        const eidFraLenke = searchParams.get('eid');
+        if (eidFraLenke) setSelectedEid(eidFraLenke);
       })
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av rettskilden.'));
+    api.hentReferertAvTjenester(id).then(setReferertAvTjenester).catch(() => setReferertAvTjenester([]));
   }, [id]);
 
   useEffect(() => {
@@ -106,16 +112,40 @@ export default function RettskildeDetalj() {
 
   // Registry for «Koble til …»-handlingen i tagg-listen (byggesteg 2) — kandidater for kind='begrep'/'tjeneste'.
   const [registry, setRegistry] = useState<Registry>({});
+  // Kobler-visning for allerede-koblede tagger («resolveRef») — 2026-07-30, se TagTekst.tsx.
+  const [begrepPerId, setBegrepPerId] = useState<Map<string, string>>(new Map());
+  const [tjenestePerId, setTjenestePerId] = useState<Map<string, string>>(new Map());
+  const [vilkarPerId, setVilkarPerId] = useState<Map<string, string>>(new Map());
+  const [regelnodePerId, setRegelnodePerId] = useState<Map<string, string>>(new Map());
+  const [rotnodeId, setRotnodeId] = useState<string | undefined>(undefined);
   useEffect(() => {
-    Promise.all([api.hentBegreper(), api.hentTjenester()])
-      .then(([begreper, tjenester]) => {
+    Promise.all([api.hentBegreper(), api.hentTjenester(), api.hentVilkarListe(), api.hentRegelnodeListe()])
+      .then(([begreper, tjenester, vilkarListe, regelnoder]) => {
         setRegistry({
           begrep: begreper.map((b) => ({ ref: b.id, label: b.term })),
           tjeneste: tjenester.map((t) => ({ ref: t.id, label: t.tittel })),
         });
+        setBegrepPerId(new Map(begreper.map((b) => [b.id, b.term])));
+        setTjenestePerId(new Map(tjenester.map((t) => [t.id, t.tittel])));
+        setVilkarPerId(new Map(vilkarListe.map((v) => [v.id, v.tittel])));
+        setRegelnodePerId(new Map(regelnoder.map((r) => [r.id, r.tittel])));
+        // Bevisst forenkling (kun ett vilkårstre finnes i dag) — se plan «Sammenhengende navigasjon».
+        setRotnodeId(tjenester.find((t) => t.rotnodeId)?.rotnodeId ?? undefined);
       })
       .catch(() => setRegistry({})); // ingen bruker valgt ennå e.l. — «Koble til» skjules bare
   }, []);
+
+  function resolveRef(kind: TagKindId, ref: string): { label: string; href: string } | undefined {
+    if (kind === 'begrep' && begrepPerId.has(ref)) return { label: begrepPerId.get(ref)!, href: `/begreper/${ref}` };
+    if (kind === 'tjeneste' && tjenestePerId.has(ref)) return { label: tjenestePerId.get(ref)!, href: `/tjenester/${ref}` };
+    if (kind === 'vilkar' && vilkarPerId.has(ref) && rotnodeId) {
+      return { label: vilkarPerId.get(ref)!, href: `/vilkarstre/${rotnodeId}?fokusVilkar=${ref}` };
+    }
+    if (kind === 'regel' && regelnodePerId.has(ref) && rotnodeId) {
+      return { label: regelnodePerId.get(ref)!, href: `/vilkarstre/${rotnodeId}?fokusVilkar=${ref}` };
+    }
+    return undefined;
+  }
 
   async function handleKobleTag(taggId: string, ref: string) {
     if (!id) return;
@@ -254,6 +284,23 @@ export default function RettskildeDetalj() {
         </Table.Body>
       </Table>
 
+      {referertAvTjenester.length > 0 && (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <Heading level={2} data-size="sm" style={{ marginBottom: '0.5rem' }}>
+            Brukt i tjenester
+          </Heading>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+            {referertAvTjenester.map((r) => (
+              <Link asChild key={`${r.tjenesteId}-${r.tilEid}`}>
+                <RouterLink to={`/tjenester/${r.tjenesteId}`}>
+                  {r.tjenesteTittel} ({r.tilEid})
+                </RouterLink>
+              </Link>
+            ))}
+          </div>
+        </div>
+      )}
+
       <Heading level={2} data-size="sm">
         Innhold
       </Heading>
@@ -354,6 +401,7 @@ export default function RettskildeDetalj() {
                   onRemoveTag={handleSlett}
                   registry={registry}
                   onLinkTag={handleKobleTag}
+                  resolveRef={resolveRef}
                 />
               ) : (
                 <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>

@@ -35,7 +35,8 @@
  *     ref:null med én gang — det finnes ingen entitet å opprette ennå.
  */
 import { useCallback, useMemo, useRef, useState } from 'react';
-import { ToggleGroup, Tag, Button } from '@digdir/designsystemet-react';
+import { Link as RouterLink } from 'react-router-dom';
+import { ToggleGroup, Tag, Button, Link } from '@digdir/designsystemet-react';
 
 /* ------------------------------ typer ------------------------------ */
 
@@ -81,6 +82,12 @@ export interface TagTekstProps {
    * finnes i tagg-listen fra en tid før den tilhørende Begrep/Tjeneste-raden ble opprettet.
    */
   onLinkTag?: (tagId: string, ref: string) => void;
+  /**
+   * Slår opp en menneskelesbar lenke for en koblet tagg sin `ref` — 2026-07-30, fikser at
+   * koblede tagger kun viste sin rå GUID/eId. `undefined` betyr «ingen lenke tilgjengelig ennå»
+   * (f.eks. treffet mangler i den ferdiglastede listen), og faller da tilbake til rå tekst.
+   */
+  resolveRef?: (kind: TagKindId, ref: string) => { label: string; href: string } | undefined;
   /** Hvilket lag som vises (én type om gangen — radio). Ukontrollert hvis utelatt. */
   activeKind?: TagKindId;
   onActiveKindChange?: (id: TagKindId) => void;
@@ -143,7 +150,7 @@ function selectionOffsets(container: HTMLElement): { start: number; end: number;
 /* --------------------------- komponent --------------------------- */
 
 export function TagTekst({
-  text, tags, kinds, onTag, onRemoveTag, registry, onLinkTag,
+  text, tags, kinds, onTag, onRemoveTag, registry, onLinkTag, resolveRef,
   activeKind, onActiveKindChange, showTagList = true, readOnly = false,
 }: TagTekstProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -321,7 +328,21 @@ export function TagTekst({
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   }}
                 >
-                  «{text.slice(t.start, t.end)}»{t.ref ? ` → ${t.ref}` : ''}
+                  «{text.slice(t.start, t.end)}»
+                  {t.ref &&
+                    (() => {
+                      const lenke = resolveRef?.(t.kind, t.ref);
+                      return lenke ? (
+                        <>
+                          {' → '}
+                          <Link asChild>
+                            <RouterLink to={lenke.href}>{lenke.label}</RouterLink>
+                          </Link>
+                        </>
+                      ) : (
+                        ` → ${t.ref}`
+                      );
+                    })()}
                 </span>
                 {!readOnly && !t.ref && onLinkTag && (registry?.[t.kind]?.length ?? 0) > 0 && (
                   <select

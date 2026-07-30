@@ -193,6 +193,11 @@ rettskilder.MapGet("/{id:guid}/referanser", async (Guid id, RettskildeRepository
     .WithName("HentRettskildeReferanser")
     .WithSummary("Henter kryssreferansene funnet i løpeteksten (interne og eksterne).");
 
+rettskilder.MapGet("/{id:guid}/referert-av-tjenester", async (Guid id, RettskildeRepository repo) =>
+        Results.Ok(await repo.ReferertAvTjenesterAsync(id)))
+    .WithName("HentRettskildeReferertAvTjenester")
+    .WithSummary("Byggesteg 4 — hvilke tjenester som refererer denne rettskilden (motsatt retning av tjenestens regelverksreferanser).");
+
 // ---------- Tekst-tagging (2026-07-24, AK-3.3.1–3.3.4) — krever X-Bruker-Id, tagger er alltid ----------
 // ---------- virksomhetens eget arbeidsprodukt (§0.1 i domenemodellen), aldri delt på tvers.     ----------
 

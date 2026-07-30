@@ -12,9 +12,11 @@
  * siden seed-dataene allerede dekker det som trengs for å bevise flyten.
  */
 import { useEffect, useState, type FormEvent } from 'react';
-import { Button, Paragraph, Select, Tabs, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
+import { Link as RouterLink } from 'react-router-dom';
+import { Button, Link, Paragraph, Select, Tabs, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { BegrepDto, ProveniensDto, RegelnodeDto, UnntakDto, VilkarDto } from '../api/types';
+import { rettskildeLenke } from '../api/eidLenker';
+import type { BegrepDto, JuridiskGrunnlagInput, ProveniensDto, RegelnodeDto, RettskildeSammendrag, UnntakDto, VilkarDto } from '../api/types';
 
 const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
 
@@ -23,18 +25,43 @@ export type EgenskapspanelNode = { kind: 'vilkar' | 'regelnode' | 'unntak'; id: 
 interface EgenskapspanelProps {
   node: EgenskapspanelNode;
   begreper: BegrepDto[];
+  rettskilder: RettskildeSammendrag[];
   onEndret: () => void;
 }
 
-export function Egenskapspanel({ node, begreper, onEndret }: EgenskapspanelProps) {
+export function Egenskapspanel({ node, begreper, rettskilder, onEndret }: EgenskapspanelProps) {
   const [fane, setFane] = useState('generelt');
   const [feil, setFeil] = useState<string | null>(null);
 
   useEffect(() => setFane('generelt'), [node.id]);
 
-  if (node.kind === 'vilkar') return <VilkarPanel id={node.id} fane={fane} setFane={setFane} begreper={begreper} feil={feil} setFeil={setFeil} onEndret={onEndret} />;
-  if (node.kind === 'regelnode') return <RegelnodePanel id={node.id} fane={fane} setFane={setFane} feil={feil} setFeil={setFeil} onEndret={onEndret} />;
-  return <UnntakPanel id={node.id} fane={fane} setFane={setFane} feil={feil} setFeil={setFeil} onEndret={onEndret} />;
+  if (node.kind === 'vilkar') return <VilkarPanel id={node.id} fane={fane} setFane={setFane} begreper={begreper} rettskilder={rettskilder} feil={feil} setFeil={setFeil} onEndret={onEndret} />;
+  if (node.kind === 'regelnode') return <RegelnodePanel id={node.id} fane={fane} setFane={setFane} rettskilder={rettskilder} feil={feil} setFeil={setFeil} onEndret={onEndret} />;
+  return <UnntakPanel id={node.id} fane={fane} setFane={setFane} rettskilder={rettskilder} feil={feil} setFeil={setFeil} onEndret={onEndret} />;
+}
+
+/** Juridisk grunnlag-listen — hver oppføring blir en lenke til rettskilden (§X.eId matches) når den finnes. */
+function JuridiskGrunnlagListe({ grunnlag, rettskilder }: { grunnlag: JuridiskGrunnlagInput[]; rettskilder: RettskildeSammendrag[] }) {
+  if (grunnlag.length === 0) return <>—</>;
+  return (
+    <>
+      {grunnlag.map((g, i) => {
+        const href = rettskildeLenke(g.eId, rettskilder);
+        return (
+          <span key={i}>
+            {i > 0 && ', '}
+            {href ? (
+              <Link asChild>
+                <RouterLink to={href}>{g.kilde} {g.eId}</RouterLink>
+              </Link>
+            ) : (
+              `${g.kilde} ${g.eId}`
+            )}
+          </span>
+        );
+      })}
+    </>
+  );
 }
 
 function Historikk({ liste }: { liste: ProveniensDto[] | null }) {
@@ -64,8 +91,8 @@ function FelleFaner({ fane, setFane }: { fane: string; setFane: (f: string) => v
   );
 }
 
-function VilkarPanel({ id, fane, setFane, begreper, feil, setFeil, onEndret }: {
-  id: string; fane: string; setFane: (f: string) => void; begreper: BegrepDto[];
+function VilkarPanel({ id, fane, setFane, begreper, rettskilder, feil, setFeil, onEndret }: {
+  id: string; fane: string; setFane: (f: string) => void; begreper: BegrepDto[]; rettskilder: RettskildeSammendrag[];
   feil: string | null; setFeil: (f: string | null) => void; onEndret: () => void;
 }) {
   const [vilkar, setVilkar] = useState<VilkarDto | null>(null);
@@ -155,11 +182,20 @@ function VilkarPanel({ id, fane, setFane, begreper, feil, setFeil, onEndret }: {
             <Select.Option value="skjonnsbasert">Skjønnsbasert</Select.Option>
             <Select.Option value="hybrid">Hybrid</Select.Option>
           </Select>
-          {begrep && <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Begrep: «{begrep.term}»</Paragraph>}
+          {begrep && (
+            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>
+              Begrep: <Link asChild><RouterLink to={`/begreper/${begrep.id}`}>«{begrep.term}»</RouterLink></Link>
+            </Paragraph>
+          )}
           {(vurderingstype === 'skjonnsbasert' || vurderingstype === 'hybrid') && (
             <>
               <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
-                Skjønnsgrunnlag: «{skjonnsgrunnlag?.term ?? '(ikke satt)'}»
+                Skjønnsgrunnlag:{' '}
+                {skjonnsgrunnlag ? (
+                  <Link asChild><RouterLink to={`/begreper/${skjonnsgrunnlag.id}`}>«{skjonnsgrunnlag.term}»</RouterLink></Link>
+                ) : (
+                  '(ikke satt)'
+                )}
               </Paragraph>
               {vilkar.skjonnsmomenter.length > 0 && (
                 <ul style={{ margin: 0 }}>
@@ -187,7 +223,7 @@ function VilkarPanel({ id, fane, setFane, begreper, feil, setFeil, onEndret }: {
       {fane === 'metadata' && (
         <div style={{ maxWidth: '32rem' }}>
           <Paragraph>Versjon: {vilkar.versjon}</Paragraph>
-          <Paragraph>Juridisk grunnlag: {vilkar.juridiskGrunnlag.map((g) => `${g.kilde} ${g.eId}`).join(', ') || '—'}</Paragraph>
+          <Paragraph>Juridisk grunnlag: <JuridiskGrunnlagListe grunnlag={vilkar.juridiskGrunnlag} rettskilder={rettskilder} /></Paragraph>
           <Select label="Status" value={vilkar.status} onChange={(e) => endreStatus(e.target.value)} style={{ maxWidth: '16rem' }}>
             {STATUSER.map((s) => <Select.Option key={s} value={s}>{s}</Select.Option>)}
           </Select>
@@ -199,8 +235,9 @@ function VilkarPanel({ id, fane, setFane, begreper, feil, setFeil, onEndret }: {
   );
 }
 
-function RegelnodePanel({ id, fane, setFane, feil, setFeil, onEndret }: {
-  id: string; fane: string; setFane: (f: string) => void; feil: string | null; setFeil: (f: string | null) => void; onEndret: () => void;
+function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndret }: {
+  id: string; fane: string; setFane: (f: string) => void; rettskilder: RettskildeSammendrag[];
+  feil: string | null; setFeil: (f: string | null) => void; onEndret: () => void;
 }) {
   const [regelnode, setRegelnode] = useState<RegelnodeDto | null>(null);
   const [historikk, setHistorikk] = useState<ProveniensDto[] | null>(null);
@@ -309,7 +346,7 @@ function RegelnodePanel({ id, fane, setFane, feil, setFeil, onEndret }: {
       {fane === 'metadata' && (
         <div style={{ maxWidth: '32rem' }}>
           <Paragraph>Versjon: {regelnode.versjon}</Paragraph>
-          <Paragraph>Juridisk grunnlag: {regelnode.juridiskGrunnlag.map((g) => `${g.kilde} ${g.eId}`).join(', ') || '—'}</Paragraph>
+          <Paragraph>Juridisk grunnlag: <JuridiskGrunnlagListe grunnlag={regelnode.juridiskGrunnlag} rettskilder={rettskilder} /></Paragraph>
           <Select label="Status" value={regelnode.status} onChange={(e) => endreStatus(e.target.value)} style={{ maxWidth: '16rem' }}>
             {STATUSER.map((s) => <Select.Option key={s} value={s}>{s}</Select.Option>)}
           </Select>
@@ -321,8 +358,9 @@ function RegelnodePanel({ id, fane, setFane, feil, setFeil, onEndret }: {
   );
 }
 
-function UnntakPanel({ id, fane, setFane, feil, setFeil, onEndret }: {
-  id: string; fane: string; setFane: (f: string) => void; feil: string | null; setFeil: (f: string | null) => void; onEndret: () => void;
+function UnntakPanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndret }: {
+  id: string; fane: string; setFane: (f: string) => void; rettskilder: RettskildeSammendrag[];
+  feil: string | null; setFeil: (f: string | null) => void; onEndret: () => void;
 }) {
   const [unntak, setUnntak] = useState<UnntakDto | null>(null);
   const [historikk, setHistorikk] = useState<ProveniensDto[] | null>(null);
@@ -399,7 +437,7 @@ function UnntakPanel({ id, fane, setFane, feil, setFeil, onEndret }: {
       {fane === 'metadata' && (
         <div style={{ maxWidth: '32rem' }}>
           <Paragraph>Versjon: {unntak.versjon}</Paragraph>
-          <Paragraph>Juridisk grunnlag: {unntak.juridiskGrunnlag.map((g) => `${g.kilde} ${g.eId}`).join(', ') || '—'}</Paragraph>
+          <Paragraph>Juridisk grunnlag: <JuridiskGrunnlagListe grunnlag={unntak.juridiskGrunnlag} rettskilder={rettskilder} /></Paragraph>
           <Select label="Status" value={unntak.status} onChange={(e) => endreStatus(e.target.value)} style={{ maxWidth: '16rem' }}>
             {STATUSER.map((s) => <Select.Option key={s} value={s}>{s}</Select.Option>)}
           </Select>

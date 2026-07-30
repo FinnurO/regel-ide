@@ -99,11 +99,11 @@ public sealed class TekstTaggTjeneste(RegelIdeDbContext db)
     /// (05-arkitektur-og-nfk.md §2), i tråd med entitetsstatus-mønsteret brukt ellers i skjemaet.
     /// </summary>
     /// <summary>
-    /// Kobler en eksisterende tagg til en Begrep/Tjeneste-rad (byggesteg 2, docs/06-veikart.md — låser
-    /// opp <see cref="TekstTaggEntitet.RefId"/>, som var <c>null</c> "inntil byggesteg 2/4 gir taggen
-    /// noe å peke på"). Gyldig kun når taggens <see cref="TekstTaggEntitet.Kind"/> faktisk har en
-    /// matchende rad — en 'begrep'-tagg kan f.eks. ikke kobles til en Tjeneste-id. Returnerer null hvis
-    /// taggen ikke finnes (kalleren mapper det til 404).
+    /// Kobler en eksisterende tagg til en Begrep/Tjeneste/Vilkår/Regelnode-rad (byggesteg 2 + 4,
+    /// docs/06-veikart.md — låser opp <see cref="TekstTaggEntitet.RefId"/>, som var <c>null</c> "inntil
+    /// byggesteg 2/4 gir taggen noe å peke på"). Gyldig kun når taggens <see cref="TekstTaggEntitet.Kind"/>
+    /// faktisk har en matchende rad — en 'begrep'-tagg kan f.eks. ikke kobles til en Tjeneste-id.
+    /// Returnerer null hvis taggen ikke finnes (kalleren mapper det til 404).
     /// </summary>
     public async Task<TekstTaggEntitet?> KobleTilEntitetAsync(Guid taggId, Guid refId, string endretAv, CancellationToken ct = default)
     {
@@ -114,7 +114,12 @@ public sealed class TekstTaggTjeneste(RegelIdeDbContext db)
         {
             "begrep" => await db.Begreper.AnyAsync(b => b.Id == refId && b.Entitetsstatus == "gjeldende", ct),
             "tjeneste" => await db.Tjenester.AnyAsync(t => t.Id == refId && t.Entitetsstatus == "gjeldende", ct),
-            _ => throw new ArgumentException($"Tagger av type '{tagg.Kind}' kan ikke kobles til en entitet ennå (kun 'begrep'/'tjeneste')."),
+            // Byggesteg 4 (2026-07-30): 'vilkar'/'regel'-tagger kan nå faktisk kobles til Vilkår/Regelnode —
+            // se docs/03-domenemodell.md §1.8/§1.9. "regel" er tag-kindens navn (byggesteg 1), koblet til
+            // RegelnodeEntitet (samme "regelnode ikke regel"-navnekonvensjon som resten av byggesteg 4).
+            "vilkar" => await db.Vilkar.AnyAsync(v => v.Id == refId && v.Entitetsstatus == "gjeldende", ct),
+            "regel" => await db.Regelnoder.AnyAsync(r => r.Id == refId && r.Entitetsstatus == "gjeldende", ct),
+            _ => throw new ArgumentException($"Tagger av type '{tagg.Kind}' kan ikke kobles til en entitet ennå."),
         };
         if (!finnesMatchende)
         {

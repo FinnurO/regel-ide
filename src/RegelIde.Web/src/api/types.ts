@@ -458,3 +458,10 @@ export interface OppdaterUnntakRequest {
 export interface SettRotnodeRequest {
   regelnodeId: string;
 }
+
+/** Motsatt retning av tjenestens regelverksreferanser — hvilke tjenester som refererer denne rettskilden. */
+export interface TjenesteReferanseDto {
+  tjenesteId: string;
+  tjenesteTittel: string;
+  tilEid: string;
+}

@@ -1,8 +1,9 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useParams } from 'react-router-dom';
-import { Button, Heading, Paragraph, Select, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
+import { Link as RouterLink, useParams } from 'react-router-dom';
+import { Button, Heading, Link, Paragraph, Select, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { TjenesteDto, TjenesteRegelverksreferanseDto } from '../api/types';
+import { rettskildeLenke } from '../api/eidLenker';
+import type { RettskildeSammendrag, TjenesteDto, TjenesteRegelverksreferanseDto } from '../api/types';
 
 const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
 
@@ -10,6 +11,7 @@ export default function TjenesteDetalj() {
   const { id } = useParams<{ id: string }>();
   const [tjeneste, setTjeneste] = useState<TjenesteDto | null>(null);
   const [referanser, setReferanser] = useState<TjenesteRegelverksreferanseDto[] | null>(null);
+  const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
   const [feil, setFeil] = useState<string | null>(null);
 
   const [tittel, setTittel] = useState('');
@@ -32,6 +34,7 @@ export default function TjenesteDetalj() {
     api.hentTjeneste(id).then((t) => { setTjeneste(t); fyllSkjemaFra(t); })
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av tjeneste.'));
     api.hentTjenesteRegelverksreferanser(id).then(setReferanser).catch(() => setReferanser([]));
+    api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
   }, [id]);
 
   async function lagre(e: FormEvent) {
@@ -79,6 +82,14 @@ export default function TjenesteDetalj() {
       </Heading>
       <Tag data-color="info" style={{ marginBottom: '1.5rem' }}>{tjeneste.status}</Tag>
 
+      {tjeneste.rotnodeId && (
+        <Paragraph style={{ marginBottom: '1.5rem' }}>
+          <Link asChild>
+            <RouterLink to={`/vilkarstre/${tjeneste.rotnodeId}`}>Åpne vilkårstre →</RouterLink>
+          </Link>
+        </Paragraph>
+      )}
+
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Egenskaper
@@ -114,9 +125,14 @@ export default function TjenesteDetalj() {
         {referanser && referanser.length === 0 && <Paragraph>Ingen regelverksreferanser koblet ennå.</Paragraph>}
         {referanser && referanser.length > 0 && (
           <ul>
-            {referanser.map((r) => (
-              <li key={r.id} style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>{r.tilEid}</li>
-            ))}
+            {referanser.map((r) => {
+              const href = rettskildeLenke(r.tilEid, rettskilder);
+              return (
+                <li key={r.id} style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>
+                  {href ? <Link asChild><RouterLink to={href}>{r.tilEid}</RouterLink></Link> : r.tilEid}
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

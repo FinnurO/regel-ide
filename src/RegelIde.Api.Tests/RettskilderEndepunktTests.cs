@@ -243,4 +243,29 @@ public class RettskilderEndepunktTests
         var svar = await _client.SendAsync(request);
         Assert.Equal(HttpStatusCode.NotFound, svar.StatusCode);
     }
+
+    [Fact]
+    public async Task Referert_av_tjenester_viser_alminnelig_skjenkebevilling()
+    {
+        // Byggesteg 4 (2026-07-30) — motsatt retning av tjenestens regelverksreferanser. Byggesteg 2-
+        // seedingen kobler "Alminnelig skjenkebevilling" til alkoholloven kap. 4 (§§ 4-1 til 4-7).
+        var id = await HentAlkohollovenIdAsync();
+
+        var referanser = await _client.GetFromJsonAsync<List<TjenesteReferanseDto>>(
+            $"/api/rettskilder/{id}/referert-av-tjenester", JsonInnstillinger);
+
+        Assert.NotNull(referanser);
+        Assert.Contains(referanser!, r => r.TjenesteTittel == "Alminnelig skjenkebevilling");
+        Assert.True(referanser!.Count(r => r.TjenesteTittel == "Alminnelig skjenkebevilling") >= 7);
+    }
+
+    [Fact]
+    public async Task Referert_av_tjenester_for_ukjent_rettskilde_gir_tom_liste()
+    {
+        var referanser = await _client.GetFromJsonAsync<List<TjenesteReferanseDto>>(
+            $"/api/rettskilder/{Guid.NewGuid()}/referert-av-tjenester", JsonInnstillinger);
+
+        Assert.NotNull(referanser);
+        Assert.Empty(referanser!);
+    }
 }

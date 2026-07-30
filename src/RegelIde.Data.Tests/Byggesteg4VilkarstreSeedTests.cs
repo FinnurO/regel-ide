@@ -58,6 +58,26 @@ public class Byggesteg4VilkarstreSeedTests
     }
 
     [Fact]
+    public async Task Seeder_tekst_tagger_som_kobler_vilkar_tilbake_til_lovteksten()
+    {
+        // 2026-07-30: fiksen på "Vilkår i vilkårstreet uten sporbar kobling tilbake til lovteksten".
+        await using var db = _fixture.NyDbContext();
+        await ForberedForutsetningerAsync(db);
+
+        await Byggesteg4VilkarstreSeed.SeedAsync(db);
+
+        var vilkarTagger = await db.TekstTagger.Where(t => t.Kind == "vilkar" && t.RefId != null).ToListAsync();
+        Assert.Equal(4, vilkarTagger.Count); // V-ALDER, V-VANDEL, V-STED, V-KLOKKESLETT
+
+        var vAlder = await db.Vilkar.SingleAsync(v => v.Tittel == "Aldersvilkår");
+        var aldersTagg = Assert.Single(vilkarTagger, t => t.RefId == vAlder.Id);
+        Assert.EndsWith("/§1-5/ledd-1", aldersTagg.NodeEid);
+
+        var vVandel = await db.Vilkar.SingleAsync(v => v.Tittel == "Vandelsvilkår");
+        Assert.Contains(vilkarTagger, t => t.RefId == vVandel.Id && t.NodeEid.EndsWith("/§1-7b/ledd-1"));
+    }
+
+    [Fact]
     public async Task Seeding_er_idempotent()
     {
         await using var db = _fixture.NyDbContext();
@@ -67,11 +87,13 @@ public class Byggesteg4VilkarstreSeedTests
         var antallVilkarForste = await db.Vilkar.CountAsync();
         var antallRegelnoderForste = await db.Regelnoder.CountAsync();
         var antallUnntakForste = await db.Unntak.CountAsync();
+        var antallTaggerForste = await db.TekstTagger.CountAsync(t => t.Kind == "vilkar" && t.RefId != null);
 
         await Byggesteg4VilkarstreSeed.SeedAsync(db);
 
         Assert.Equal(antallVilkarForste, await db.Vilkar.CountAsync());
         Assert.Equal(antallRegelnoderForste, await db.Regelnoder.CountAsync());
         Assert.Equal(antallUnntakForste, await db.Unntak.CountAsync());
+        Assert.Equal(antallTaggerForste, await db.TekstTagger.CountAsync(t => t.Kind == "vilkar" && t.RefId != null));
     }
 }

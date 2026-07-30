@@ -37,6 +37,7 @@ import type {
   TaggKindKonfigurasjonDto,
   TekstTaggDto,
   TjenesteDto,
+  TjenesteReferanseDto,
   TjenesteRegelverksreferanseDto,
   TjenesteRequest,
   UnntakDto,
@@ -95,6 +96,9 @@ export const api = {
   hentNoder: (id: string) => kall<RettskildeNodeDto[]>(`/api/rettskilder/${id}/noder`),
 
   hentReferanser: (id: string) => kall<RettskildeReferanseDto[]>(`/api/rettskilder/${id}/referanser`),
+
+  hentReferertAvTjenester: (id: string) =>
+    kall<TjenesteReferanseDto[]>(`/api/rettskilder/${id}/referert-av-tjenester`),
 
   oppdaterRettskildeMetadata: (id: string, request: OppdaterRettskildeMetadataRequest) =>
     kall<RettskildeDetalj>(`/api/rettskilder/${id}/metadata`, {

@@ -299,4 +299,50 @@ public class TekstTaggTjenesteTests
         // Taggen er kind='begrep' — kan ikke peke på en Tjeneste-id, selv om Tjenesten faktisk finnes.
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.KobleTilEntitetAsync(tagg!.Id, enTjeneste.Id, "Kari Jurist"));
     }
+
+    [Fact]
+    public async Task Kobler_vilkar_tagg_til_eksisterende_vilkar()
+    {
+        // Byggesteg 4 (2026-07-30) — lukker gapet der 'vilkar'-tagger ikke kunne kobles til noe.
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+
+        var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
+        var tjeneste = new TekstTaggTjeneste(db);
+        var tagg = await tjeneste.OpprettAsync(
+            rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "vilkar");
+
+        var vilkar = await new VilkarregisterTjeneste(db).OpprettAsync(
+            virksomhet, "Aldersvilkår", null, null, "materiell", null, null, null, "regelbasert", null,
+            null, null, false, null, null, null, false, null, "Kari Jurist");
+
+        var oppdatert = await tjeneste.KobleTilEntitetAsync(tagg!.Id, vilkar.Id, "Kari Jurist");
+
+        Assert.NotNull(oppdatert);
+        Assert.Equal(vilkar.Id, oppdatert!.RefId);
+    }
+
+    [Fact]
+    public async Task Kobler_regel_tagg_til_eksisterende_regelnode()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+
+        var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
+        var tjeneste = new TekstTaggTjeneste(db);
+        var tagg = await tjeneste.OpprettAsync(
+            rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "regel");
+
+        var regelnode = await new RegelnoderegisterTjeneste(db).OpprettAsync(
+            virksomhet, "Vedtak", null, null, "OG", "Utfall", "boolean", true, null, null, null, "Kari Jurist");
+
+        var oppdatert = await tjeneste.KobleTilEntitetAsync(tagg!.Id, regelnode.Id, "Kari Jurist");
+
+        Assert.NotNull(oppdatert);
+        Assert.Equal(regelnode.Id, oppdatert!.RefId);
+    }
 }

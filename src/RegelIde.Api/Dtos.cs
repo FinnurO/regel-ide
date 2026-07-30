@@ -136,6 +136,12 @@ public sealed record TjenesteRegelverksreferanseDto(Guid Id, Guid TjenesteId, Gu
 /// <summary>Forespørsel for POST /api/tjenester/{id}/regelverksreferanser.</summary>
 public sealed record KobleRegelverksreferanseRequest(Guid TilRettskildeId, string TilEid);
 
+/// <summary>
+/// Motsatt retning av <see cref="TjenesteRegelverksreferanseDto"/> — brukt av
+/// GET /api/rettskilder/{id}/referert-av-tjenester (byggesteg 4, 2026-07-30).
+/// </summary>
+public sealed record TjenesteReferanseDto(Guid TjenesteId, string TjenesteTittel, string TilEid);
+
 // ---------- Begrep (SKOS, docs/03-domenemodell.md §1.3) — byggesteg 2 ----------
 
 public sealed record BegrepDto(

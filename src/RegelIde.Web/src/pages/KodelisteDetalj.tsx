@@ -1,14 +1,16 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useParams } from 'react-router-dom';
-import { Button, Heading, Paragraph, Select, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Link as RouterLink, useParams } from 'react-router-dom';
+import { Button, Heading, Link, Paragraph, Select, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { KodelisteDto } from '../api/types';
+import { rettskildeLenke } from '../api/eidLenker';
+import type { KodelisteDto, RettskildeSammendrag } from '../api/types';
 
 const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
 
 export default function KodelisteDetalj() {
   const { id } = useParams<{ id: string }>();
   const [kodeliste, setKodeliste] = useState<KodelisteDto | null>(null);
+  const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
   const [feil, setFeil] = useState<string | null>(null);
   const [statusEndres, setStatusEndres] = useState(false);
   const [statusFeil, setStatusFeil] = useState<string | null>(null);
@@ -25,6 +27,7 @@ export default function KodelisteDetalj() {
   }
 
   useEffect(lastKodeliste, [id]);
+  useEffect(() => { api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([])); }, []);
 
   async function endreStatus(nyStatus: string) {
     if (!id) return;
@@ -83,7 +86,15 @@ export default function KodelisteDetalj() {
       )}
       {kodeliste.juridiskGrunnlagEid && (
         <Paragraph style={{ marginBottom: '1.5rem', fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>
-          Juridisk grunnlag: {kodeliste.juridiskGrunnlagEid}
+          Juridisk grunnlag:{' '}
+          {(() => {
+            const href = rettskildeLenke(kodeliste.juridiskGrunnlagEid, rettskilder);
+            return href ? (
+              <Link asChild><RouterLink to={href}>{kodeliste.juridiskGrunnlagEid}</RouterLink></Link>
+            ) : (
+              kodeliste.juridiskGrunnlagEid
+            );
+          })()}
         </Paragraph>
       )}
 

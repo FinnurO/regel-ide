@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
-import { Link as RouterLink, useParams } from 'react-router-dom';
+import { Link as RouterLink, useParams, useSearchParams } from 'react-router-dom';
 import { Button, Heading, Link, Paragraph, Select, Textfield, ToggleGroup } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { BegrepDto, RegelnodeBarnDto, RegelnodeDto, UnntakDto, VilkarDto } from '../api/types';
+import type { BegrepDto, RegelnodeBarnDto, RegelnodeDto, RettskildeSammendrag, UnntakDto, VilkarDto } from '../api/types';
 import { byggVilkarstre, flatNodeliste, type VilkarstreNode } from '../vilkarstre/bygging';
 import { VilkarstreGraf } from '../vilkarstre/VilkarstreGraf';
 import { VilkarstreTre } from '../vilkarstre/VilkarstreTre';
@@ -10,10 +10,12 @@ import { Egenskapspanel, type EgenskapspanelNode } from '../vilkarstre/Egenskaps
 
 export default function VilkarstreDetalj() {
   const { rotnodeId } = useParams<{ rotnodeId: string }>();
+  const [searchParams] = useSearchParams();
   const [regelnoder, setRegelnoder] = useState<RegelnodeDto[] | null>(null);
   const [vilkarListe, setVilkarListe] = useState<VilkarDto[] | null>(null);
   const [unntakListe, setUnntakListe] = useState<UnntakDto[] | null>(null);
   const [begreper, setBegreper] = useState<BegrepDto[]>([]);
+  const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
   const [barnPerRegelnode, setBarnPerRegelnode] = useState<Map<string, RegelnodeBarnDto[]>>(new Map());
   const [feil, setFeil] = useState<string | null>(null);
   const [visning, setVisning] = useState<'graf' | 'tre'>('graf');
@@ -34,14 +36,15 @@ export default function VilkarstreDetalj() {
   const lastAlt = useCallback(async () => {
     if (!rotnodeId) return;
     try {
-      const [rn, vk, un, bg] = await Promise.all([
-        api.hentRegelnodeListe(), api.hentVilkarListe(), api.hentUnntakListe(), api.hentBegreper(),
+      const [rn, vk, un, bg, rk] = await Promise.all([
+        api.hentRegelnodeListe(), api.hentVilkarListe(), api.hentUnntakListe(), api.hentBegreper(), api.hentRettskilder(),
       ]);
       const barnPar = await Promise.all(rn.map(async (r) => [r.id, await api.hentRegelnodeBarn(r.id)] as const));
       setRegelnoder(rn);
       setVilkarListe(vk);
       setUnntakListe(un);
       setBegreper(bg);
+      setRettskilder(rk);
       setBarnPerRegelnode(new Map(barnPar));
     } catch (e) {
       setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av vilkårstreet.');
@@ -56,6 +59,14 @@ export default function VilkarstreDetalj() {
   }, [rotnodeId, regelnoder, vilkarListe, unntakListe, barnPerRegelnode]);
 
   const alleNoder = useMemo(() => (tre ? flatNodeliste(tre) : []), [tre]);
+
+  useEffect(() => {
+    if (valgt || alleNoder.length === 0) return;
+    const fokusId = searchParams.get('fokusVilkar');
+    if (!fokusId) return;
+    const funnet = alleNoder.find((n) => n.id === fokusId);
+    if (funnet) setValgt({ kind: funnet.kind, id: funnet.id });
+  }, [alleNoder, searchParams, valgt]);
 
   function onSelect(node: VilkarstreNode) {
     setValgt({ kind: node.kind, id: node.id });
@@ -182,7 +193,7 @@ export default function VilkarstreDetalj() {
 
         <div style={{ flex: 3, minWidth: 0, borderLeft: '1px solid var(--ds-color-neutral-border-subtle)', paddingLeft: '1.5rem' }}>
           {valgt ? (
-            <Egenskapspanel node={valgt} begreper={begreper} onEndret={lastAlt} />
+            <Egenskapspanel node={valgt} begreper={begreper} rettskilder={rettskilder} onEndret={lastAlt} />
           ) : (
             <Paragraph>Velg en node i grafen/treet for å se og redigere egenskapene.</Paragraph>
           )}
