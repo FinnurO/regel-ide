@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link as RouterLink } from 'react-router-dom';
+import { Link as RouterLink } from 'react-router';
 import { Checkbox, Heading, Link, Paragraph, Table } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { RettskildeSammendrag } from '../api/types';
