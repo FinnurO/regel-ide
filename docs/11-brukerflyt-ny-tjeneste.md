@@ -1,10 +1,14 @@
 # 11. Brukerflyt: Få inn en ny tjeneste med håndbok og vilkår
 
-**Status: kommentert og delvis rettet (2026-07-30).** Johann sin første kommentarrunde er innarbeidet
-under (se punktene merket **Rettet**). Flere av kommentarene er større funksjonsønsker (daglig
-Lovdata-synkronisering, PDF/Word-import, data.norge.no-oppslag, valg av grafeditor-bibliotek,
-håndbok-liste, ledd-nummerering, Forskrift→Lov-kobling) som ikke er løst i denne runden — de er
-notert som separate saker og ikke gjentatt her.
+**Status: kommentert og rettet (2026-07-30).** Johann sin første kommentarrunde er innarbeidet
+under (se punktene merket **Rettet**), inkl. ledd/punkt-nummerering (som opprinnelig sto i denne
+lista som en større, utsatt sak, men ble løst i samme runde som referanse-arbeidet). Samme runde la
+også til inline klikkbare kryssreferanser i selve løpeteksten (§ 1-5 vises nå som en ekte lenke inni
+paragrafteksten, ikke bare i den separate "Referanser"-lista — se Fase 5/6). Flere av kommentarene
+er større funksjonsønsker (daglig Lovdata-synkronisering, PDF/Word-import, data.norge.no-oppslag,
+valg av grafeditor-bibliotek, håndbok-liste-side, mulighet til å velge underliggende rettskilde ved
+opprettelse av ny håndbok, Forskrift→Lov-kobling utover den generelle kryssreferanse-mekanismen) som
+fortsatt IKKE er løst — notert som separate saker og ikke gjentatt her.
 
 Denne beskriver en foreslått ende-til-ende-flyt for
 hvordan en fagperson/jurist går fra «vi har en tjeneste som trenger regelverksstøtte» til et
@@ -22,10 +26,12 @@ mot spesifikasjonen. Punkter merket ⚠️ har ingen UI-støtte ennå, kun API/s
 | # | Begrensning | Hvor |
 |---|---|---|
 | ~~1~~ | ~~Ingen skjema for å legge til regelverksreferanser på en Tjeneste.~~ **Rettet 2026-07-30** — `TjenesteDetalj.tsx` har nå et skjema for å koble/fjerne regelverksreferanser. | `TjenesteDetalj.tsx` |
-| 2 | Ingen skjema for å sette **juridisk grunnlag eller begrep** på et Vilkår/Regelnode etter opprettelse (Egenskapspanelet viser dem som lenker, men har ingen redigeringsfelt). | `Egenskapspanel.tsx` |
-| 3 | Ingen skjema for å opprette et **Unntak**, eller for å koble et **Datasett** som input til et Vilkår. | `VilkarstreDetalj.tsx` / `Egenskapspanel.tsx` |
-| 4 | ~~Nyopprettede, ikke-tilkoblede Vilkår/Regelnoder var usynlige i grafen/treet, uten forklaring.~~ **Rettet 2026-07-30** — en «Løse noder»-liste viser dem nå. | `VilkarstreDetalj.tsx` |
-| 5 | ~~«Koble barn til regelnode»s tre nedtrekksmenyer manglet synlig ledetekst (Designsystemet-komponentfeil: `label`-prop på bare `Select`/`Textarea` blir en dødt HTML-attributt, ikke en synlig `<label>`).~~ **Rettet 2026-07-30**, systemisk over 6 filer — samtidig lagt til klientside sykel-filtrering på «Barn»-listen. | `Select`/`Textarea`-bruk i 6 filer |
+| ~~2~~ | ~~Ingen skjema for å sette juridisk grunnlag eller begrep på et Vilkår/Regelnode etter opprettelse.~~ **Rettet 2026-07-30** — juridisk grunnlag er nå en redigerbar liste, og Vilkår har Select-pickere for begrep/skjønnsgrunnlag. | `Egenskapspanel.tsx` |
+| ~~3~~ | ~~Ingen skjema for å opprette et Unntak, eller for å koble et Datasett som input til et Vilkår.~~ **Rettet 2026-07-30** — «Nytt unntak»-skjema (med sykel-filter på betingelsen) og input-datasett-administrasjon på Vilkår. | `VilkarstreDetalj.tsx` / `Egenskapspanel.tsx` |
+| ~~4~~ | ~~Nyopprettede, ikke-tilkoblede Vilkår/Regelnoder var usynlige i grafen/treet, uten forklaring.~~ **Rettet 2026-07-30** — en «Løse noder»-liste viser dem nå. | `VilkarstreDetalj.tsx` |
+| ~~5~~ | ~~«Koble barn til regelnode»s tre nedtrekksmenyer manglet synlig ledetekst (Designsystemet-komponentfeil: `label`-prop på bare `Select`/`Textarea` blir en dødt HTML-attributt, ikke en synlig `<label>`).~~ **Rettet 2026-07-30**, systemisk over 6 filer — samtidig lagt til klientside sykel-filtrering på «Barn»-listen. | `Select`/`Textarea`-bruk i 6 filer |
+| 6 | Ingen mulighet til å velge underliggende rettskilde/kildetype når man oppretter en ny håndbok — `HandbokOpprett.tsx` tar kun en tittel. | `HandbokOpprett.tsx` |
+| 7 | Ingen side som lister eksisterende håndbøker — de er kun synlige/nåbare via den generelle rettskilde-listen. | *(ingen fil finnes ennå)* |
 
 ## Fase 0 — Forutsetning
 
