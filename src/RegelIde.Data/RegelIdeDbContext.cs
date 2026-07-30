@@ -1,6 +1,41 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace RegelIde.Data;
+
+/// <summary>
+/// Lagrer <see cref="DateTimeOffset"/> som UTC-ticks. Brukes KUN på SQLite-profilen.
+/// <para>
+/// SQLite har ingen dato-type, og EF Core nekter å oversette både ORDER BY og sammenligning på
+/// <c>DateTimeOffset</c> — <c>NotSupportedException</c>, ikke stille degradering. Det ville tatt
+/// ned proveniens-/historikk-endepunktene, som sorterer på <c>dato</c>.
+/// </para>
+/// <para>
+/// Merk at EF Core sin innebygde <c>DateTimeOffsetToBinaryConverter</c> IKKE kan brukes her: den
+/// pakker offset inn i verdien, slik at sorteringen følger lokal veggklokke i stedet for faktisk
+/// tidspunkt. Den kaster ikke — den gir stille feil rekkefølge, som er verre. <c>UtcTicks</c> er
+/// monotont i faktisk tid uansett offset.
+/// </para>
+/// <para>
+/// Verdien leses tilbake som UTC. Det er ufarlig her fordi all kode setter tidsstempler med
+/// <c>DateTimeOffset.UtcNow</c> — det finnes ingen lokal offset å miste.
+/// </para>
+/// </summary>
+internal sealed class UtcTicksKonverter() : ValueConverter<DateTimeOffset, long>(
+    verdi => verdi.UtcTicks,
+    ticks => new DateTimeOffset(ticks, TimeSpan.Zero));
+
+internal static class ModellByggerUtvidelser
+{
+    /// <summary>
+    /// <c>now()</c> som databasestandard på Postgres. På SQLite droppes standardverdien: funksjonen
+    /// finnes ikke der, og <c>CURRENT_TIMESTAMP</c> gir en streng uten offset som ikke leses trygt
+    /// tilbake til <see cref="DateTimeOffset"/>. Applikasjonen setter uansett verdien selv overalt.
+    /// </summary>
+    public static PropertyBuilder<DateTimeOffset> StandardNaa(this PropertyBuilder<DateTimeOffset> p, bool sqlite) =>
+        sqlite ? p : p.HasDefaultValueSql("now()");
+}
 
 public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> options) : DbContext(options)
 {
@@ -25,15 +60,31 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<RegelnodeBarnEntitet> RegelnodeBarn => Set<RegelnodeBarnEntitet>();
     public DbSet<UnntakEntitet> Unntak => Set<UnntakEntitet>();
 
+    /// <summary>
+    /// UTC-ticks-konverteringen gjelder alle <see cref="DateTimeOffset"/>-felter, og settes ett sted
+    /// framfor på 18 properties. Kun på SQLite — Postgres har <c>timestamptz</c> og trenger den ikke.
+    /// </summary>
+    protected override void ConfigureConventions(ModelConfigurationBuilder b)
+    {
+        if (Database.IsSqlite())
+        {
+            b.Properties<DateTimeOffset>().HaveConversion<UtcTicksKonverter>();
+        }
+    }
+
     protected override void OnModelCreating(ModelBuilder b)
     {
+        // EF cacher modellen per provider, så det er trygt å forgrene på motor her.
+        var sqlite = Database.IsSqlite();
+        var jsonKolonne = sqlite ? "TEXT" : "jsonb";
+
         b.Entity<Virksomhet>(e =>
         {
             e.ToTable("virksomheter");
             e.HasKey(x => x.Id).HasName("virksomheter_pkey");
             e.Property(x => x.Navn).HasColumnName("navn");
             e.Property(x => x.Organisasjonsnummer).HasColumnName("organisasjonsnummer");
-            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").HasDefaultValueSql("now()");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.HasIndex(x => x.Organisasjonsnummer).IsUnique().HasDatabaseName("ux_virksomheter_organisasjonsnummer")
                 .HasFilter("organisasjonsnummer IS NOT NULL");
         });
@@ -80,7 +131,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
             e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
             e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
-            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").HasDefaultValueSql("now()");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
             e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
 
@@ -154,9 +205,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Revisjonsgrunn).HasColumnName("revisjonsgrunn");
             e.Property(x => x.Publisert).HasColumnName("publisert");
             e.Property(x => x.SistFagligEndret).HasColumnName("sist_faglig_endret");
-            e.Property(x => x.UnderoverskrifterJson).HasColumnName("underoverskrifter").HasColumnType("jsonb").HasDefaultValue("[]");
+            e.Property(x => x.UnderoverskrifterJson).HasColumnName("underoverskrifter").HasColumnType(jsonKolonne).HasDefaultValue("[]");
             e.Property(x => x.Marginord).HasColumnName("marginord");
-            e.Property(x => x.PraksisJson).HasColumnName("praksis").HasColumnType("jsonb").HasDefaultValue("[]");
+            e.Property(x => x.PraksisJson).HasColumnName("praksis").HasColumnType(jsonKolonne).HasDefaultValue("[]");
 
             // 1:1 med rettskilde_noder — samme Id, ingen egen surrogatnøkkel.
             e.HasOne<RettskildeNodeEntitet>().WithOne(n => n.HandbokMetadata)
@@ -201,7 +252,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.RefId).HasColumnName("ref_id");
             e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
             e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
-            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").HasDefaultValueSql("now()");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.KreverGjennomgang).HasColumnName("krever_gjennomgang").HasDefaultValue(false);
 
             e.HasOne<RettskildeEntitet>().WithMany()
@@ -239,9 +290,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.EntitetType).HasColumnName("entitet_type");
             e.Property(x => x.EntitetId).HasColumnName("entitet_id");
             e.Property(x => x.EndretAv).HasColumnName("endret_av");
-            e.Property(x => x.Dato).HasColumnName("dato").HasDefaultValueSql("now()");
+            e.Property(x => x.Dato).HasColumnName("dato").StandardNaa(sqlite);
             e.Property(x => x.Handling).HasColumnName("handling");
-            e.Property(x => x.KildeReferanserJson).HasColumnName("kilde_referanser").HasColumnType("jsonb");
+            e.Property(x => x.KildeReferanserJson).HasColumnName("kilde_referanser").HasColumnType(jsonKolonne);
             e.Property(x => x.AiForslagVersjon).HasColumnName("ai_forslag_versjon");
             e.Property(x => x.GodkjentAv).HasColumnName("godkjent_av");
 
@@ -267,8 +318,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Kontaktpunkt).HasColumnName("kontaktpunkt");
             e.Property(x => x.KonsekvensVedBrudd).HasColumnName("konsekvens_ved_brudd");
             e.Property(x => x.Sprak).HasColumnName("sprak");
-            e.Property(x => x.HendelserJson).HasColumnName("hendelser").HasColumnType("jsonb").HasDefaultValue("[]");
-            e.Property(x => x.TjenesteavhengigheterJson).HasColumnName("tjenesteavhengigheter").HasColumnType("jsonb").HasDefaultValue("[]");
+            e.Property(x => x.HendelserJson).HasColumnName("hendelser").HasColumnType(jsonKolonne).HasDefaultValue("[]");
+            e.Property(x => x.TjenesteavhengigheterJson).HasColumnName("tjenesteavhengigheter").HasColumnType(jsonKolonne).HasDefaultValue("[]");
             e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("utkast");
             e.Property(x => x.Versjon).HasColumnName("versjon").HasDefaultValue(1);
             e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
@@ -276,7 +327,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
             e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
             e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
-            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").HasDefaultValueSql("now()");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
             e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
             e.Property(x => x.RotnodeId).HasColumnName("rotnode_id");
@@ -321,7 +372,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
             e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
             e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
-            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").HasDefaultValueSql("now()");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
             e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
 
@@ -350,7 +401,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
             e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
             e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
-            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").HasDefaultValueSql("now()");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
             e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
 
@@ -393,7 +444,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Mottakere).HasColumnName("mottakere");
             e.Property(x => x.Bruk).HasColumnName("bruk");
             e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
-            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").HasDefaultValueSql("now()");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
 
             e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
             e.HasOne<KodelisteEntitet>().WithMany().HasForeignKey(x => x.KodelisteId);
@@ -410,12 +461,12 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.GeneriskMal).HasColumnName("generisk_mal");
             e.Property(x => x.Vilkarstype).HasColumnName("vilkarstype");
             e.Property(x => x.GjelderRolle).HasColumnName("gjelder_rolle");
-            e.Property(x => x.JuridiskGrunnlagJson).HasColumnName("juridisk_grunnlag").HasColumnType("jsonb").HasDefaultValue("[]");
+            e.Property(x => x.JuridiskGrunnlagJson).HasColumnName("juridisk_grunnlag").HasColumnType(jsonKolonne).HasDefaultValue("[]");
             e.Property(x => x.BegrepId).HasColumnName("begrep_id");
             e.Property(x => x.Vurderingstype).HasColumnName("vurderingstype");
-            e.Property(x => x.ParametreJson).HasColumnName("parametre").HasColumnType("jsonb").HasDefaultValue("{}");
+            e.Property(x => x.ParametreJson).HasColumnName("parametre").HasColumnType(jsonKolonne).HasDefaultValue("{}");
             e.Property(x => x.SkjonnsgrunnlagBegrepId).HasColumnName("skjonnsgrunnlag_begrep_id");
-            e.Property(x => x.SkjonnsmomenterJson).HasColumnName("skjonnsmomenter").HasColumnType("jsonb").HasDefaultValue("[]");
+            e.Property(x => x.SkjonnsmomenterJson).HasColumnName("skjonnsmomenter").HasColumnType(jsonKolonne).HasDefaultValue("[]");
             e.Property(x => x.KreverDokumentasjon).HasColumnName("krever_dokumentasjon").HasDefaultValue(false);
             e.Property(x => x.Eskaleringsrolle).HasColumnName("eskaleringsrolle");
             e.Property(x => x.VeiledningTilBruker).HasColumnName("veiledning_til_bruker");
@@ -429,7 +480,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
             e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
             e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
-            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").HasDefaultValueSql("now()");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
             e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
 
@@ -465,7 +516,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.UtdataNavn).HasColumnName("utdata_navn");
             e.Property(x => x.UtdataType).HasColumnName("utdata_type");
             e.Property(x => x.ErRotnode).HasColumnName("er_rotnode").HasDefaultValue(false);
-            e.Property(x => x.JuridiskGrunnlagJson).HasColumnName("juridisk_grunnlag").HasColumnType("jsonb").HasDefaultValue("[]");
+            e.Property(x => x.JuridiskGrunnlagJson).HasColumnName("juridisk_grunnlag").HasColumnType(jsonKolonne).HasDefaultValue("[]");
             e.Property(x => x.InnvilgelseTekst).HasColumnName("innvilgelse_tekst");
             e.Property(x => x.AvslagTekst).HasColumnName("avslag_tekst");
             e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("utkast");
@@ -475,7 +526,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
             e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
             e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
-            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").HasDefaultValueSql("now()");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
             e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
 
@@ -508,7 +559,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.GjelderRegelId).HasColumnName("gjelder_regel_id");
             e.Property(x => x.BetingelseType).HasColumnName("betingelse_type");
             e.Property(x => x.BetingelseId).HasColumnName("betingelse_id");
-            e.Property(x => x.JuridiskGrunnlagJson).HasColumnName("juridisk_grunnlag").HasColumnType("jsonb").HasDefaultValue("[]");
+            e.Property(x => x.JuridiskGrunnlagJson).HasColumnName("juridisk_grunnlag").HasColumnType(jsonKolonne).HasDefaultValue("[]");
             e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("utkast");
             e.Property(x => x.Versjon).HasColumnName("versjon").HasDefaultValue(1);
             e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
@@ -516,7 +567,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
             e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
             e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
-            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").HasDefaultValueSql("now()");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
             e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
 

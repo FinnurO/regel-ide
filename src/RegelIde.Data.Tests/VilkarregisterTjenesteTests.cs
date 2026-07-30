@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 
 namespace RegelIde.Data.Tests;
@@ -153,5 +154,116 @@ public class VilkarregisterTjenesteTests
 
         Assert.True(vilkar.ErFormel);
         Assert.Equal("Beregnet etter alkoholforskriften § 6-2.", vilkar.FormelBeskrivelse);
+    }
+
+    /* ---------- parametre-kolonnen: eneste jsonb-feltet som tar rå klientstreng ---------- */
+
+    private async Task<(RegelIdeDbContext Db, VilkarregisterTjeneste Register, Guid Virksomhet)> NyttOppsettAsync()
+    {
+        var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+        return (db, new VilkarregisterTjeneste(db), virksomhet);
+    }
+
+    private Task<VilkarEntitet> OpprettMedParametreAsync(
+        VilkarregisterTjeneste register, Guid virksomhet, string? parametre) =>
+        register.OpprettAsync(virksomhet, "Aldersvilkår", null, null, "materiell", null, null, null,
+            "regelbasert", parametre, null, null, false, null, null, null, false, null, "Kari Jurist");
+
+    [Theory]
+    [InlineData("{ikke json}")]
+    [InlineData("{\"mangler\": }")]
+    [InlineData("{\"uavsluttet\": 1")]
+    [InlineData("")]           // tom streng er ikke gyldig JSON — men behandles som "utelatt", se egen test
+    public async Task Ugyldig_parametre_json_gir_ArgumentException_ikke_databasefeil(string parametre)
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+        var register = new VilkarregisterTjeneste(db);
+
+        if (parametre.Length == 0)
+        {
+            // Tom streng er en utelatt verdi, ikke en feil.
+            var vilkar = await OpprettMedParametreAsync(register, virksomhet, parametre);
+            Assert.Equal("{}", vilkar.ParametreJson);
+            return;
+        }
+
+        // Poenget: ArgumentException (-> 400) i stedet for DbUpdateException (-> ubehandlet 500).
+        var feil = await Assert.ThrowsAsync<ArgumentException>(
+            () => OpprettMedParametreAsync(register, virksomhet, parametre));
+        Assert.Contains("parametre", feil.Message);
+        Assert.Empty(await db.Vilkar.Where(v => v.VirksomhetId == virksomhet).ToListAsync());
+    }
+
+    [Theory]
+    [InlineData("[1, 2, 3]")]
+    [InlineData("\"bare en streng\"")]
+    [InlineData("42")]
+    [InlineData("null")]
+    public async Task Gyldig_json_som_ikke_er_objekt_avvises(string parametre)
+    {
+        var (db, register, virksomhet) = await NyttOppsettAsync();
+        await using var _ = db;
+
+        var feil = await Assert.ThrowsAsync<ArgumentException>(
+            () => OpprettMedParametreAsync(register, virksomhet, parametre));
+        Assert.Contains("JSON-objekt", feil.Message);
+    }
+
+    [Fact]
+    public async Task Gyldig_parametre_objekt_lagres_og_kan_leses_tilbake()
+    {
+        var (db, register, virksomhet) = await NyttOppsettAsync();
+        await using var _ = db;
+
+        var vilkar = await OpprettMedParametreAsync(
+            register, virksomhet, """{"aldersgrense":18,"gjelderØl":true}""");
+
+        db.ChangeTracker.Clear();
+        var lagret = await db.Vilkar.SingleAsync(v => v.Id == vilkar.Id);
+
+        // Sammenlignes semantisk, ikke tegn for tegn: Postgres' jsonb normaliserer verdien ved
+        // lagring (her legges det inn mellomrom etter kolon). SQLite lagrer JSON som ren TEXT og
+        // gjør ingen slik normalisering — en tegn-for-tegn-assert ville altså gitt ulikt svar på
+        // de to profilene, og testet lagringsformatet i stedet for oppførselen vi bryr oss om.
+        using var dokument = JsonDocument.Parse(lagret.ParametreJson);
+        Assert.Equal(18, dokument.RootElement.GetProperty("aldersgrense").GetInt32());
+        Assert.True(dokument.RootElement.GetProperty("gjelderØl").GetBoolean());
+    }
+
+    [Fact]
+    public async Task Utelatt_parametre_blir_tomt_objekt()
+    {
+        var (db, register, virksomhet) = await NyttOppsettAsync();
+        await using var _ = db;
+
+        var vilkar = await OpprettMedParametreAsync(register, virksomhet, null);
+
+        Assert.Equal("{}", vilkar.ParametreJson);
+    }
+
+    [Fact]
+    public async Task Oppdatering_validerer_parametre_og_lar_raden_sta_urort()
+    {
+        var (db, register, virksomhet) = await NyttOppsettAsync();
+        await using var _ = db;
+
+        var vilkar = await OpprettMedParametreAsync(register, virksomhet, """{"aldersgrense":18}""");
+
+        await Assert.ThrowsAsync<ArgumentException>(() => register.OppdaterAsync(
+            vilkar.Id, "Endret tittel", null, null, "materiell", null, null, null, "regelbasert",
+            "{ugyldig}", null, null, false, null, null, null, false, null, "Kari Jurist"));
+
+        // Verifiser mot databasen, ikke mot sporet entitet.
+        db.ChangeTracker.Clear();
+        var uendret = await db.Vilkar.SingleAsync(v => v.Id == vilkar.Id);
+        Assert.Equal("Aldersvilkår", uendret.Tittel);
+        using var dokument = JsonDocument.Parse(uendret.ParametreJson);
+        Assert.Equal(18, dokument.RootElement.GetProperty("aldersgrense").GetInt32());
     }
 }
