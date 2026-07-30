@@ -1,0 +1,4 @@
+# Skallskript må ha LF også når de sjekkes ut på Windows — med CRLF blir shebang-linjen
+# ugyldig inne i containeren ("no such file or directory" på /bin/sh^M).
+*.sh text eol=lf
+Dockerfile text eol=lf

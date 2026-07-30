@@ -1,4 +1,4 @@
-import { NavLink, Route, Routes } from 'react-router-dom';
+import { NavLink, Route, Routes } from 'react-router';
 import { Field, Label, Select } from '@digdir/designsystemet-react';
 import { useBruker } from './bruker/BrukerContext';
 import RettskilderListe from './pages/RettskilderListe';

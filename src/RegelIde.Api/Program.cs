@@ -40,7 +40,28 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors(VitePolicy);
-app.UseHttpsRedirection();
+
+// I containeren (docker/Dockerfile) serveres API og SPA fra samme origin over ren HTTP —
+// TLS termineres av ingress foran oss. UseHttpsRedirection ville da bare logge en advarsel
+// om at den ikke finner noen HTTPS-port. Utenfor container er oppførselen som før.
+if (!app.Configuration.GetValue("RegelIde:BakEnTerminerendeProxy", false))
+{
+    app.UseHttpsRedirection();
+}
+
+// Serverer den ferdigbygde SPA-en hvis den er lagt inn ved siden av API-et (wwwroot).
+// Tom mappe utenfor container ⇒ ingen effekt, og `vite dev` brukes som før.
+app.UseDefaultFiles();
+app.UseStaticFiles();
+
+// Enkel liveness/readiness for klyngen: svarer 200 først når databasen faktisk svarer.
+app.MapGet("/helse", async (RegelIdeDbContext db, CancellationToken ct) =>
+        await db.Database.CanConnectAsync(ct)
+            ? Results.Ok(new { status = "oppe" })
+            : Results.StatusCode(StatusCodes.Status503ServiceUnavailable))
+    .WithName("Helsesjekk")
+    .WithSummary("Svarer 200 når API-et er oppe og databasen svarer.")
+    .ExcludeFromDescription();
 
 // Migrer og førstegangs-sås de kjente fixture-dokumentene hvis basen er tom — kun en utviklings-
 // bekvemmelighet ("virker rett ut av boksen"), ikke en generell import-mekanisme. Ekte import skjer
@@ -52,7 +73,10 @@ using (var scope = app.Services.CreateScope())
 
     if (!await db.Rettskilder.AnyAsync())
     {
-        var kildemappe = Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "..", "..", "data", "kilder", "raw-lovdata"));
+        // Stien er konfigurerbar fordi containeren ikke har repoets mappestruktur rundt seg
+        // (der ligger kildene på /kilder). Fallback er den samme relative stien som før.
+        var kildemappe = app.Configuration["RegelIde:Kildemappe"]
+            ?? Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "..", "..", "data", "kilder", "raw-lovdata"));
         if (Directory.Exists(kildemappe))
         {
             var importer = scope.ServiceProvider.GetRequiredService<RettskildeImportTjeneste>();
@@ -1248,6 +1272,11 @@ tjenester.MapPost("/{id:guid}/rotnode", async (Guid id, SettRotnodeRequest body,
     })
     .WithName("SettTjenesteRotnode")
     .WithSummary("Kobler tjenesten til rotnoden i sitt vilkårstre (byggesteg 4).");
+
+// SPA-ruting: /rettskilder/{id} o.l. er klientruter uten motstykke på serveren, så alt som
+// ikke traff et API-endepunkt eller en fil sendes til index.html. Gjør ingenting når wwwroot
+// er tom (utviklingsoppsettet, der Vite serverer klienten selv).
+app.MapFallbackToFile("index.html");
 
 app.Run();
 

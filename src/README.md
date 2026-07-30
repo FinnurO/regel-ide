@@ -19,6 +19,10 @@ docker compose up -d   # eller: podman-compose up -d / podman compose up -d
 dotnet run --project src/RegelIde.Api   # krever kjørende Postgres, se Swagger på /swagger
 ```
 
+For deploy finnes i tillegg et enkeltcontainer-image som pakker Postgres, API og ferdigbygd
+SPA i ett — se [`docker/README.md`](../docker/README.md). Det er laget for et efemert
+testcluster og mister all data ved omstart; til utvikling er oppsettet over fortsatt riktig.
+
 ## Database: PostgreSQL uten Docker/Podman i denne byggeøkten
 
 Verken Docker eller Podman (Podman-CLI-en fantes, men VM-en/maskinen bak var ikke startet)

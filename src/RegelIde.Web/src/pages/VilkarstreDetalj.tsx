@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
-import { Link as RouterLink, useParams, useSearchParams } from 'react-router-dom';
+import { Link as RouterLink, useParams, useSearchParams } from 'react-router';
 import { Button, Field, Heading, Label, Link, Paragraph, Select, Textfield, ToggleGroup } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { BegrepDto, RegelnodeBarnDto, RegelnodeDto, RettskildeSammendrag, UnntakDto, VilkarDto } from '../api/types';

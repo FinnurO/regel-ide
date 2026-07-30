@@ -61,7 +61,25 @@ export interface MinimalEditorProps {
 
 const DEFAULT_ALLOW = ['p', 'h3', 'b', 'i', 'u', 'a'];
 
+/** Skjemaer en href får ha. Alt annet — særlig javascript: og data: — fjernes. */
+const TILLATTE_URL_SKJEMA = ['http:', 'https:', 'mailto:'];
+
 /* --------------------------- hjelpere --------------------------- */
+
+/**
+ * Er dette en href vi tør sette på en lenke? Relative URL-er er trygge (de arver
+ * sidens eget skjema); absolutte må ha et skjema fra allow-listen. Speiler
+ * AllowedSchemes i KommentarTekstSanering.cs, som fortsatt er den autoritative
+ * grensen — denne finnes for at en javascript:-lenke ikke engang skal kunne
+ * bli stående i redigeringsflaten mens man jobber.
+ */
+export function erTryggUrl(verdi: string): boolean {
+  try {
+    return TILLATTE_URL_SKJEMA.includes(new URL(verdi, window.location.origin).protocol);
+  } catch {
+    return false;
+  }
+}
 
 /** Sanering til tillatt markup (klientside — kun for UX, ikke sikkerhetsgrense). Kjøres ved lagring. */
 export function saniter(html: string, allow: string[] = DEFAULT_ALLOW): string {
@@ -77,12 +95,28 @@ export function saniter(html: string, allow: string[] = DEFAULT_ALLOW): string {
       }
       [...child.attributes].forEach((a) => {
         const behold = tag === 'a' && ['href', 'data-ref-kind', 'data-ref-id'].includes(a.name);
-        if (!behold) child.removeAttribute(a.name);
+        if (!behold || (a.name === 'href' && !erTryggUrl(a.value))) child.removeAttribute(a.name);
       });
     });
   };
   walk(root);
   return root.innerHTML;
+}
+
+/**
+ * Bygger noden som settes inn i flaten for en typet referanse, som DOM — aldri som
+ * en HTML-streng. `label` er lagret, brukerstyrt data (kortnavn/tittel på en
+ * rettskilde), og settes derfor med textContent: markup i den skal bli synlig tekst,
+ * ikke tolkes. Etterfølges av et mellomrom slik at markøren får et sted å stå.
+ */
+export function byggReferanseNode(o: RefOption): DocumentFragment {
+  const lenke = document.createElement('a');
+  lenke.setAttribute('data-ref-kind', o.kind);
+  lenke.setAttribute('data-ref-id', o.id);
+  lenke.textContent = o.label;
+  const bit = document.createDocumentFragment();
+  bit.append(lenke, document.createTextNode(' ')); // nbsp, som før — vanlig mellomrom kollapser
+  return bit;
 }
 
 /** Leser ut alle typede pekere fra innholdet. */
@@ -107,6 +141,10 @@ export function MinimalEditor({
   const [fmt, setFmt] = useState({ bold: false, italic: false, underline: false, block: 'p' });
   const [panel, setPanel] = useState<null | 'lenke' | 'referanse'>(null);
   const [url, setUrl] = useState('');
+  const [urlFeil, setUrlFeil] = useState<string | null>(null);
+  /** Siste markørposisjon inne i flaten. Å klikke en knapp i panelet flytter fokus ut,
+   *  så vi må ha tatt vare på hvor innsettingen skal skje. */
+  const sisteRange = useRef<Range | null>(null);
 
   // Seed én gang — React skal ikke eie contentEditable-barna.
   useEffect(() => {
@@ -119,7 +157,15 @@ export function MinimalEditor({
     onChange(html, lesReferanser(html));
   }, [onChange, allow]);
 
+  const huskUtvalg = useCallback(() => {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const r = sel.getRangeAt(0);
+    if (ref.current?.contains(r.commonAncestorContainer)) sisteRange.current = r.cloneRange();
+  }, []);
+
   const sync = useCallback(() => {
+    huskUtvalg();
     try {
       let block = 'p';
       const b = document.queryCommandValue('formatBlock');
@@ -133,7 +179,7 @@ export function MinimalEditor({
     } catch {
       /* noop */
     }
-  }, []);
+  }, [huskUtvalg]);
 
   const exec = useCallback(
     (cmd: string, val?: string) => {
@@ -149,15 +195,40 @@ export function MinimalEditor({
     [sync, emit],
   );
 
+  /**
+   * Setter inn en typet referanse som DOM-noder, ikke som en HTML-streng.
+   *
+   * Tidligere ble `<a ...>${o.label}</a>` bygget som tekst og sendt gjennom
+   * execCommand('insertHTML'). o.label er lagret, brukerstyrt data (kortnavn/tittel
+   * på en rettskilde), så markup i den ble tolket som markup ved innsetting og kjørte
+   * umiddelbart i redaktørens nettleser — server-saneringen kjører først ved lagring
+   * og rakk aldri å stoppe det. textContent gjør at label alltid blir tekst.
+   */
   const settInnReferanse = useCallback(
     (o: RefOption) => {
-      ref.current?.focus();
-      const html = `<a data-ref-kind="${o.kind}" data-ref-id="${o.id}">${o.label}</a>&nbsp;`;
-      try {
-        document.execCommand('insertHTML', false, html);
-      } catch {
-        /* noop */
+      const vert = ref.current;
+      if (!vert) return;
+      vert.focus();
+
+      let range = sisteRange.current;
+      if (!range || !vert.contains(range.commonAncestorContainer)) {
+        range = document.createRange();
+        range.selectNodeContents(vert);
+        range.collapse(false); // ingen kjent markør — legg bakerst
       }
+      range.deleteContents();
+
+      const bit = byggReferanseNode(o);
+      const mellomrom = bit.lastChild!;
+      range.insertNode(bit);
+
+      range.setStartAfter(mellomrom);
+      range.collapse(true);
+      const sel = window.getSelection();
+      sel?.removeAllRanges();
+      sel?.addRange(range);
+      sisteRange.current = range.cloneRange();
+
       setPanel(null);
       emit();
     },
@@ -256,15 +327,27 @@ export function MinimalEditor({
             label="URL"
             data-size="sm"
             value={url}
-            onChange={(e) => setUrl(e.target.value)}
+            error={urlFeil}
+            onChange={(e) => {
+              setUrl(e.target.value);
+              setUrlFeil(null);
+            }}
             placeholder="https://lovdata.no/…"
             style={{ flex: 1 }}
           />
           <Button
             data-size="sm"
             onClick={() => {
-              if (url) exec('createLink', url);
+              if (!url) return;
+              // Uten denne kan man lage en javascript:-lenke i sitt eget dokument. Den
+              // strippes riktignok av saniter() ved lagring, men skal ikke kunne oppstå.
+              if (!erTryggUrl(url)) {
+                setUrlFeil('Bare http-, https- og mailto-adresser er tillatt.');
+                return;
+              }
+              exec('createLink', url);
               setUrl('');
+              setUrlFeil(null);
               setPanel(null);
             }}
           >
@@ -275,6 +358,7 @@ export function MinimalEditor({
             data-size="sm"
             onClick={() => {
               setUrl('');
+              setUrlFeil(null);
               setPanel(null);
             }}
           >
@@ -318,7 +402,10 @@ export function MinimalEditor({
           emit();
         }}
         onMouseUp={sync}
-        onBlur={emit}
+        onBlur={() => {
+          huskUtvalg();
+          emit();
+        }}
         style={{
           minHeight: 300,
           padding: 'var(--ds-size-5) var(--ds-size-6)',

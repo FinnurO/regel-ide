@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router';
 import { Button, Checkbox, Heading, Paragraph, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { RettskildeDetalj, RettskildeNodeDto } from '../api/types';
