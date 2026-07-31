@@ -80,6 +80,62 @@ Hvis alkoholloven-eksemplet avdekker at en av de sju invariantene (`01-referanse
 
 **Hvorfor etter byggesteg 4:** AI-assistenten (kap. 3.10) foreslår vilkårsnoder i det (nå avklarte) skjemaet fra byggesteg 4, og henter presedens fra byggesteg 3. Å bygge den før skjemaet er stabilt ville bety å bygge mot et mål som beveger seg.
 
+**Utvidet omfang (2026-07-31, Johanns forslag etter fasit-rundene mot skjenkebevilling):** kap. 3.10 er i
+dag spesifisert smalt — kun AI-forslag til **vilkårsnoder**, hentet fra Presedensregisteret
+(byggesteg 3). Erfaringen fra fasit-arbeidet (`docs/12-fasit-handbok-leveranse.md` runde 3–4) viser
+at det samme mønsteret er langt bredere anvendelig: gitt reelt kildemateriale (et rundskriv-utkast)
+klarte en KI å foreslå — og, via de eksisterende API-ene, faktisk opprette — reelle Vilkår,
+lovtekst-tagger, Tjenester og håndbok-kapitler for en tjeneste som i praksis var tom. Det var manuelt
+utført denne runden (én økt, ett kildedokument); Johanns forslag er å gjøre dette til en repeterbar,
+brukerstyrt funksjon:
+
+- **Kunnskapsbibliotek** — en ny, liten opplastingsflate **sentrert rundt `Tjeneste`** (ikke rundt
+  Rettskilde eller Vilkår): virksomheten laster opp dokumenter (PDF/Word/skannet), lenker til
+  nettsider/veiledere, og eventuelt egne notater, knyttet til én bestemt tjeneste. Dette er
+  begrunnelsen/kildegrunnlaget en jurist ville brukt manuelt — nå tilgjengelig som strukturert input
+  til AI-forslagene under, i stedet for et implisitt "jurist husker/søker opp selv".
+- **Skillsbasert generering, ikke én generalist-modell** — separate, spesialiserte "agenter" per
+  artefakttype, hver med sin egen målstruktur og sitt eget vokabular å style seg etter:
+  - **Tjenestebeskrivelse** (CPSV-AP-NO, kap. 3.2) — tittel, beskrivelse, kompetent myndighet,
+    målgruppe, kanaler osv.
+  - **Begrep** (SKOS-mønsteret, kap. 3.8) — term/definisjon/lovreferanse/begrepstype.
+  - **Vilkår og Vilkårstre** (kap. 3.4) — Vilkår/Regelnode/Unntak i det låste skjemaet fra byggesteg 0,
+    inkl. kobling til Datasett-input der det er naturlig.
+  - **Håndbok** (den forfattede rundskriv-modellen fra byggesteg 1) — kapitler og kommentarseksjoner,
+    med ekte lovreferanser.
+  - **Rettskilder og strukturering** — foreslå hvilke rettskilder (lov/forskrift/lokal retningslinje)
+    en tjeneste bør omfatte (jf. `HandbokRettskildeomfangEntitet`, runde 3), og importere/strukturere
+    dem der de ikke allerede finnes i biblioteket.
+- **Rekkefølgen agentene kjører i, ikke bare hvilke agenter som finnes, er selve funnet fra runde 4**:
+  rettskilder → begrep → vilkår (+ lovtekst-tagging) → tjenestebeskrivelse/håndbok, i den rekkefølgen
+  — nøyaktig samme avhengighetskjede som byggesteg 1→2→4 allerede følger, og nøyaktig rekkefølgen den
+  manuelle øvelsen fulgte. En håndbok-agent som kjører før vilkårene finnes, kan bare skrive løs
+  prosa uten noe reelt å lenke til; en vilkår-agent som kjører før begrepene finnes, risikerer å
+  dilke opp dupliserte skjønnsgrunnlag. Agentene bør derfor dele kunnskapsbiblioteket som felles
+  kontekst, men kjøre i en fast pipeline, ikke uavhengig av hverandre.
+- **Proveniens, ikke automatisk publisering** — domenemodellens statusdiagram (`03-domenemodell.md`
+  linje 289–298) har **allerede** en `foreslatt_av_ai`-tilstand mellom `utkast` og `under_revisjon` —
+  den ble bevisst utelatt i v1 av alle entitetene bygget i byggesteg 2/4 ("samme v1-forenkling som
+  byggesteg 2, siden AI-forslag er byggesteg 5"). Denne utvidelsen er **grunnen til at det feltet
+  fortsatt trengs** — den samme statusen/proveniens-merkingen bør gjelde generelt for
+  Vilkår/Regelnode/Begrep/Tjeneste/håndbok-kommentarer generert av en agent, ikke bare vilkårsnoder
+  som kap. 3.10 i dag spesifiserer. AI-forslag skal alltid lande som `foreslatt_av_ai`/`utkast`,
+  aldri `publisert` — en jurist/fagansvarlig godkjenner eksplisitt (samme AK-3.10.2-mønster som i
+  dag, generalisert til flere entitetstyper).
+
+**Hovedavveining å ta stilling til når dette planlegges i detalj:** skillsbasert generering gir bedre
+kvalitet per artefakttype (hver agent forholder seg til én, veldefinert målstruktur — CPSV-feltene,
+SKOS-feltene, de låste Vilkår/Regelnode/Unntak-invariantene — i stedet for én generalist-prompt som
+må huske alle samtidig), men koster reell orkestreringskompleksitet (delt kontekst mellom agentene,
+rekkefølge-styring, og hva som skjer når to agenter foreslår overlappende begreper/vilkår). Dette bør
+avklares som en egen designrunde når byggesteg 5 faktisk tas fatt på — ikke besluttet her.
+
+**Ikke gjort ennå:** verken kunnskapsbiblioteket eller de skillsbaserte agentene er bygget eller
+spesifisert i detalj — dette avsnittet er en retningsbeslutning for byggesteg 5s reviderte omfang,
+ikke en implementasjonsplan. `02-produktkrav.md` kap. 3.10 må oppdateres til å reflektere det
+utvidede omfanget (kunnskapsbibliotek + flere artefakttyper, ikke bare vilkårsnoder) når byggesteg 5
+planlegges i detalj.
+
 ## Byggesteg 6 — Datasett, informasjonsmodell, eksportmotor
 
 **Innhold:** Datasett (kap. 3.5) kan til dels bygges parallelt med byggesteg 4 (vilkårsnoder trenger `input_datasett`-referanser), men Informasjonsmodell-skjermen (kap. 3.6, generert JSON Schema) og Eksportvisning (kap. 3.14, eFLINT/DMN/OpenFisca/RuleML) forutsetter et publisert vilkårstre å generere fra, og hører derfor naturlig til etter byggesteg 4/5.
@@ -111,7 +167,7 @@ Sist, fordi det er en ren aggregeringsvisning over alt det andre (KPI-er, aktivi
 | 2. Tjenester + Begrep (+ Kodelister) | 3.2, 3.7, 3.8 | 1 |
 | 3. Presedensregister | 3.9 | 1, 2 |
 | 4. Vilkårstre (2 runder) | 3.4, delvis 3.15 | 0, 1, 2, 3 |
-| 5. AI-forslag | 3.10 | 4 |
+| 5. AI-forslag (utvidet: kunnskapsbibliotek + skillsbaserte agenter på tvers av rettskilde/begrep/vilkår/håndbok/tjeneste) | 3.10 | 1, 2, 3, 4 |
 | 6. Datasett, informasjonsmodell, eksport | 3.5, 3.6, 3.14 | 4, 5 |
 | 7. Saksbehandling/forklaringslogg (tynn slice) — **MVP-grense** | deler av 3.11, 3.12 | 4, 6, + avklaring mot `forklaringsmodell-api` |
 | 8. Kunnskapsgraf/påvirkningsanalyse — utenfor MVP | 3.13 | 1–6 |
