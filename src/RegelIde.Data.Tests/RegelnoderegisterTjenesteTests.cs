@@ -23,7 +23,7 @@ public class RegelnoderegisterTjenesteTests
 
     private static Task<VilkarEntitet> NyttVilkarAsync(RegelIdeDbContext db, Guid virksomhet, string tittel) =>
         new VilkarregisterTjeneste(db).OpprettAsync(virksomhet, tittel, null, null, "materiell", null, null,
-            null, "regelbasert", null, null, null, false, null, null, null, false, null, "Kari Jurist");
+            null, "regelbasert", null, null, null, false, null, null, null, false, null, null, "Kari Jurist");
 
     [Fact]
     public async Task Oppretter_regelnode_som_utkast()

@@ -316,7 +316,7 @@ public class TekstTaggTjenesteTests
 
         var vilkar = await new VilkarregisterTjeneste(db).OpprettAsync(
             virksomhet, "Aldersvilkår", null, null, "materiell", null, null, null, "regelbasert", null,
-            null, null, false, null, null, null, false, null, "Kari Jurist");
+            null, null, false, null, null, null, false, null, null, "Kari Jurist");
 
         var oppdatert = await tjeneste.KobleTilEntitetAsync(tagg!.Id, vilkar.Id, "Kari Jurist");
 

@@ -17,7 +17,7 @@ import { Button, Field, Label, Link, Paragraph, Select, Tabs, Tag, Textarea, Tex
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
 import type {
-  BegrepDto, DatasettDto, JuridiskGrunnlagInput, ProveniensDto, RegelnodeDto, RettskildeSammendrag, UnntakDto,
+  BegrepDto, DatasettDto, JuridiskGrunnlagInput, ProveniensDto, RegelnodeDto, RettskildeSammendrag, TjenesteDto, UnntakDto,
   VilkarDto, VilkarstreKommentarDto,
 } from '../api/types';
 import { MinimalEditor } from '../handbok/MinimalEditor';
@@ -44,18 +44,25 @@ interface EgenskapspanelProps {
   node: EgenskapspanelNode;
   begreper: BegrepDto[];
   rettskilder: RettskildeSammendrag[];
+  /** Til Vilkår sin «Tjeneste»-kobling (docs/03-domenemodell.md §1.8, presisert 2026-07-31) — identifisering av et vilkår er atskilt fra å koble det inn i vilkårstreet. */
+  tjenester: TjenesteDto[];
   onEndret: () => void;
   /** Kryssnavigasjon fra Veiledning-fanen (docs/12-fasit-handbok-leveranse.md "forfatterflate") — kun meningsfullt fra en regelnode-kontekst. */
   onOpprettVilkarUnderRegelnode?: (regelnodeId: string) => void;
 }
 
-export function Egenskapspanel({ node, begreper, rettskilder, onEndret, onOpprettVilkarUnderRegelnode }: EgenskapspanelProps) {
+export function Egenskapspanel({ node, begreper, rettskilder, tjenester, onEndret, onOpprettVilkarUnderRegelnode }: EgenskapspanelProps) {
   const [fane, setFane] = useState('generelt');
   const [feil, setFeil] = useState<string | null>(null);
 
   useEffect(() => setFane('generelt'), [node.id]);
 
-  if (node.kind === 'vilkar') return <VilkarPanel id={node.id} fane={fane} setFane={setFane} begreper={begreper} rettskilder={rettskilder} feil={feil} setFeil={setFeil} onEndret={onEndret} />;
+  if (node.kind === 'vilkar') {
+    return (
+      <VilkarPanel id={node.id} fane={fane} setFane={setFane} begreper={begreper} rettskilder={rettskilder}
+        tjenester={tjenester} feil={feil} setFeil={setFeil} onEndret={onEndret} />
+    );
+  }
   if (node.kind === 'regelnode') {
     return (
       <RegelnodePanel id={node.id} fane={fane} setFane={setFane} rettskilder={rettskilder} feil={feil} setFeil={setFeil} onEndret={onEndret}
@@ -337,9 +344,9 @@ function FelleFaner({ fane, setFane }: { fane: string; setFane: (f: string) => v
   );
 }
 
-function VilkarPanel({ id, fane, setFane, begreper, rettskilder, feil, setFeil, onEndret }: {
+function VilkarPanel({ id, fane, setFane, begreper, rettskilder, tjenester, feil, setFeil, onEndret }: {
   id: string; fane: string; setFane: (f: string) => void; begreper: BegrepDto[]; rettskilder: RettskildeSammendrag[];
-  feil: string | null; setFeil: (f: string | null) => void; onEndret: () => void;
+  tjenester: TjenesteDto[]; feil: string | null; setFeil: (f: string | null) => void; onEndret: () => void;
 }) {
   const [vilkar, setVilkar] = useState<VilkarDto | null>(null);
   const [historikk, setHistorikk] = useState<ProveniensDto[] | null>(null);
@@ -347,6 +354,7 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, feil, setFeil, 
   const [beskrivelse, setBeskrivelse] = useState('');
   const [vilkarstype, setVilkarstype] = useState('formell');
   const [vurderingstype, setVurderingstype] = useState('regelbasert');
+  const [tjenesteId, setTjenesteId] = useState('');
   const [begrepId, setBegrepId] = useState('');
   const [skjonnsgrunnlagBegrepId, setSkjonnsgrunnlagBegrepId] = useState('');
   const [juridiskGrunnlag, setJuridiskGrunnlag] = useState<JuridiskGrunnlagInput[]>([]);
@@ -363,6 +371,7 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, feil, setFeil, 
       setBeskrivelse(v.beskrivelse ?? '');
       setVilkarstype(v.vilkarstype);
       setVurderingstype(v.vurderingstype);
+      setTjenesteId(v.tjenesteId ?? '');
       setBegrepId(v.begrepId ?? '');
       setSkjonnsgrunnlagBegrepId(v.skjonnsgrunnlagBegrepId ?? '');
       setJuridiskGrunnlag(v.juridiskGrunnlag);
@@ -385,7 +394,7 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, feil, setFeil, 
         skjonnsgrunnlagBegrepId: skjonnsgrunnlagBegrepId || null, skjonnsmomenter: vilkar.skjonnsmomenter,
         kreverDokumentasjon: vilkar.kreverDokumentasjon, eskaleringsrolle: vilkar.eskaleringsrolle,
         veiledningTilBruker: veiledningBruker.trim() || null, veiledningTilSaksbehandler: veiledningSaksbehandler.trim() || null,
-        erFormel: vilkar.erFormel, formelBeskrivelse: vilkar.formelBeskrivelse,
+        erFormel: vilkar.erFormel, formelBeskrivelse: vilkar.formelBeskrivelse, tjenesteId: tjenesteId || null,
       });
       setVilkar(oppdatert);
       onEndret();
@@ -442,6 +451,16 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, feil, setFeil, 
               <Select.Option value="skjonnsbasert">Skjønnsbasert</Select.Option>
               <Select.Option value="hybrid">Hybrid</Select.Option>
             </Select>
+          </Field>
+          <Field>
+            <Label>Tjeneste</Label>
+            <Select value={tjenesteId} onChange={(e) => setTjenesteId(e.target.value)}>
+              <Select.Option value="">(ikke identifisert for noen tjeneste ennå)</Select.Option>
+              {tjenester.map((t) => <Select.Option key={t.id} value={t.id}>{t.tittel}</Select.Option>)}
+            </Select>
+            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', margin: '0.25rem 0 0' }}>
+              Hvilken tjeneste vilkåret er identifisert for — atskilt fra om det faktisk er koblet inn i vilkårstreet.
+            </Paragraph>
           </Field>
           <Field>
             <Label>Begrep</Label>

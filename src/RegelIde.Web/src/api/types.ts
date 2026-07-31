@@ -344,6 +344,8 @@ export interface DatasettDto {
 export interface VilkarDto {
   id: string;
   virksomhetId: string;
+  /** Hvilken tjeneste dette vilkåret er identifisert for — atskilt fra om det er koblet inn i vilkårstreet. */
+  tjenesteId: string | null;
   tittel: string;
   beskrivelse: string | null;
   generiskMal: string | null;
@@ -384,6 +386,7 @@ export interface VilkarRequest {
   veiledningTilSaksbehandler: string | null;
   erFormel: boolean;
   formelBeskrivelse: string | null;
+  tjenesteId: string | null;
 }
 
 export interface LeggTilVilkarInputRequest {

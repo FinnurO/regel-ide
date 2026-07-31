@@ -214,14 +214,14 @@ public sealed record DatasettDto(
 
 /// <summary>Vilkår (§1.8) — bladnode i vilkårstreet. <c>ErFormel</c>/<c>FormelBeskrivelse</c>: se docs/10-rules-as-code-landskap.md.</summary>
 public sealed record VilkarDto(
-    Guid Id, Guid VirksomhetId, string Tittel, string? Beskrivelse, string? GeneriskMal, string Vilkarstype,
+    Guid Id, Guid VirksomhetId, Guid? TjenesteId, string Tittel, string? Beskrivelse, string? GeneriskMal, string Vilkarstype,
     string? GjelderRolle, IReadOnlyList<JuridiskGrunnlagInput> JuridiskGrunnlag, Guid? BegrepId, string Vurderingstype,
     string ParametreJson, Guid? SkjonnsgrunnlagBegrepId, IReadOnlyList<SkjonnsmomentInput> Skjonnsmomenter,
     bool KreverDokumentasjon, string? Eskaleringsrolle, string? VeiledningTilBruker, string? VeiledningTilSaksbehandler,
     bool ErFormel, string? FormelBeskrivelse, string Status, int Versjon)
 {
     public static VilkarDto FraEntitet(VilkarEntitet v) => new(
-        v.Id, v.VirksomhetId, v.Tittel, v.Beskrivelse, v.GeneriskMal, v.Vilkarstype, v.GjelderRolle,
+        v.Id, v.VirksomhetId, v.TjenesteId, v.Tittel, v.Beskrivelse, v.GeneriskMal, v.Vilkarstype, v.GjelderRolle,
         System.Text.Json.JsonSerializer.Deserialize<List<JuridiskGrunnlagInput>>(v.JuridiskGrunnlagJson) ?? [],
         v.BegrepId, v.Vurderingstype, v.ParametreJson, v.SkjonnsgrunnlagBegrepId,
         System.Text.Json.JsonSerializer.Deserialize<List<SkjonnsmomentInput>>(v.SkjonnsmomenterJson) ?? [],
@@ -234,7 +234,8 @@ public sealed record VilkarRequest(
     string Tittel, string? Beskrivelse, string? GeneriskMal, string Vilkarstype, string? GjelderRolle,
     IReadOnlyList<JuridiskGrunnlagInput>? JuridiskGrunnlag, Guid? BegrepId, string Vurderingstype, string? ParametreJson,
     Guid? SkjonnsgrunnlagBegrepId, IReadOnlyList<SkjonnsmomentInput>? Skjonnsmomenter, bool KreverDokumentasjon,
-    string? Eskaleringsrolle, string? VeiledningTilBruker, string? VeiledningTilSaksbehandler, bool ErFormel, string? FormelBeskrivelse);
+    string? Eskaleringsrolle, string? VeiledningTilBruker, string? VeiledningTilSaksbehandler, bool ErFormel,
+    string? FormelBeskrivelse, Guid? TjenesteId);
 
 /// <summary>Forespørsel for POST /api/vilkar/{id}/input.</summary>
 public sealed record LeggTilVilkarInputRequest(Guid DatasettId);

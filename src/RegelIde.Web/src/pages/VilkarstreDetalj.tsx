@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react
 import { Link as RouterLink, useParams, useSearchParams } from 'react-router';
 import { Button, Field, Heading, Label, Link, Paragraph, Select, Textfield, ToggleGroup } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { BegrepDto, RegelnodeBarnDto, RegelnodeDto, RettskildeSammendrag, UnntakDto, VilkarDto } from '../api/types';
+import type { BegrepDto, RegelnodeBarnDto, RegelnodeDto, RettskildeSammendrag, TjenesteDto, UnntakDto, VilkarDto } from '../api/types';
 import { byggVilkarstre, flatNodeliste, type VilkarstreNode } from '../vilkarstre/bygging';
 import { VilkarstreGraf } from '../vilkarstre/VilkarstreGraf';
 import { VilkarstreTre } from '../vilkarstre/VilkarstreTre';
@@ -53,6 +53,7 @@ export default function VilkarstreDetalj() {
   const [unntakListe, setUnntakListe] = useState<UnntakDto[] | null>(null);
   const [begreper, setBegreper] = useState<BegrepDto[]>([]);
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
+  const [tjenester, setTjenester] = useState<TjenesteDto[]>([]);
   const [barnPerRegelnode, setBarnPerRegelnode] = useState<Map<string, RegelnodeBarnDto[]>>(new Map());
   const [feil, setFeil] = useState<string | null>(null);
   const [visning, setVisning] = useState<'graf' | 'tre'>('graf');
@@ -83,8 +84,9 @@ export default function VilkarstreDetalj() {
   const lastAlt = useCallback(async () => {
     if (!rotnodeId) return;
     try {
-      const [rn, vk, un, bg, rk] = await Promise.all([
+      const [rn, vk, un, bg, rk, tj] = await Promise.all([
         api.hentRegelnodeListe(), api.hentVilkarListe(), api.hentUnntakListe(), api.hentBegreper(), api.hentRettskilder(),
+        api.hentTjenester(),
       ]);
       const barnPar = await Promise.all(rn.map(async (r) => [r.id, await api.hentRegelnodeBarn(r.id)] as const));
       setRegelnoder(rn);
@@ -92,6 +94,7 @@ export default function VilkarstreDetalj() {
       setUnntakListe(un);
       setBegreper(bg);
       setRettskilder(rk);
+      setTjenester(tj);
       setBarnPerRegelnode(new Map(barnPar));
     } catch (e) {
       setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av vilkårstreet.');
@@ -106,6 +109,28 @@ export default function VilkarstreDetalj() {
   }, [rotnodeId, regelnoder, vilkarListe, unntakListe, barnPerRegelnode]);
 
   const alleNoder = useMemo(() => (tre ? flatNodeliste(tre) : []), [tre]);
+
+  /**
+   * Regelnoder brukt i NOE tjenestes vilkårstre, ikke bare dette (2026-07-31, fasit-runde 5 —
+   * rettet bug: «Løse noder» viste tidligere alt fra ANDRE vilkårstre som «ikke tilordnet» bare
+   * fordi det ikke var nåbart fra DENNE rotnoden). En regelnode regnes først som reelt løs når den
+   * ikke er nåbar fra noen tjenestes rotnode i det hele tatt.
+   */
+  const regelnoderBruktINoenTjeneste = useMemo(() => {
+    if (!regelnoder || !vilkarListe || !unntakListe) return new Set<string>();
+    const brukt = new Set<string>();
+    for (const t of tjenester) {
+      if (!t.rotnodeId) continue;
+      const treForTjeneste = byggVilkarstre(t.rotnodeId, regelnoder, vilkarListe, unntakListe, barnPerRegelnode);
+      if (!treForTjeneste) continue;
+      for (const n of flatNodeliste(treForTjeneste)) {
+        if (n.kind === 'regelnode') brukt.add(n.id);
+      }
+    }
+    return brukt;
+  }, [tjenester, regelnoder, vilkarListe, unntakListe, barnPerRegelnode]);
+
+  const gjeldendeTjeneste = tjenester.find((t) => t.rotnodeId === rotnodeId);
 
   useEffect(() => {
     if (valgt || alleNoder.length === 0) return;
@@ -136,6 +161,7 @@ export default function VilkarstreDetalj() {
           juridiskGrunnlag: null, begrepId: null, vurderingstype: 'regelbasert', parametreJson: null,
           skjonnsgrunnlagBegrepId: null, skjonnsmomenter: null, kreverDokumentasjon: false, eskaleringsrolle: null,
           veiledningTilBruker: null, veiledningTilSaksbehandler: null, erFormel: false, formelBeskrivelse: null,
+          tjenesteId: gjeldendeTjeneste?.id ?? null,
         });
         if (nyttVilkarUnderRegelnode) {
           await api.kobleRegelnodeBarn(nyttVilkarUnderRegelnode, { barnType: 'vilkar', barnId: nyttVilkar.id });
@@ -196,8 +222,14 @@ export default function VilkarstreDetalj() {
   if (feil) return <div className="feilmelding">{feil}</div>;
   if (!tre || !vilkarListe || !regelnoder) return <Paragraph>Laster …</Paragraph>;
 
-  const ubrukteVilkar = vilkarListe.filter((v) => !alleNoder.some((n) => n.kind === 'vilkar' && n.id === v.id));
-  const ubrukteRegelnoder = regelnoder.filter((r) => !alleNoder.some((n) => n.kind === 'regelnode' && n.id === r.id));
+  // Kun vilkår identifisert for DENNE tjenesten (via Vilkår.TjenesteId) regnes som «ikke tilordnet»
+  // her — vilkår uten tjenestekobling, eller identifisert for en annen tjeneste, hører ikke hjemme
+  // i denne listen (se docs/03-domenemodell.md §1.5, "Håndboken er en forfatterflate").
+  const ubrukteVilkar = gjeldendeTjeneste
+    ? vilkarListe.filter((v) => v.tjenesteId === gjeldendeTjeneste.id && !alleNoder.some((n) => n.kind === 'vilkar' && n.id === v.id))
+    : [];
+  // Regelnoder regnes først som løse når de ikke er nåbare fra NOEN tjenestes rotnode.
+  const ubrukteRegelnoder = regelnoder.filter((r) => !regelnoderBruktINoenTjeneste.has(r.id));
 
   return (
     <>
@@ -341,7 +373,7 @@ export default function VilkarstreDetalj() {
 
         <div style={{ flex: 3, minWidth: 0, borderLeft: '1px solid var(--ds-color-neutral-border-subtle)', paddingLeft: '1.5rem' }}>
           {valgt ? (
-            <Egenskapspanel node={valgt} begreper={begreper} rettskilder={rettskilder} onEndret={lastAlt}
+            <Egenskapspanel node={valgt} begreper={begreper} rettskilder={rettskilder} tjenester={tjenester} onEndret={lastAlt}
               onOpprettVilkarUnderRegelnode={opprettVilkarUnderRegelnode} />
           ) : (
             <Paragraph>Velg en node i grafen/treet for å se og redigere egenskapene.</Paragraph>

@@ -170,4 +170,20 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
         await db.SaveChangesAsync(ct);
         return tjeneste;
     }
+
+    /// <summary>
+    /// Fjerner koblingen mellom tjenesten og dens rotnode (2026-07-31, fasit-runde 5) — selve
+    /// regelnoden slettes ikke, kun referansen fra Tjenesten. Nødvendig fordi opprettelse av en
+    /// rotnode i dag er en i praksis irreversibel handling uten dette — se
+    /// docs/12-fasit-handbok-leveranse.md.
+    /// </summary>
+    public async Task<TjenesteEntitet?> FjernRotnodeAsync(Guid tjenesteId, CancellationToken ct = default)
+    {
+        var tjeneste = await db.Tjenester.FirstOrDefaultAsync(t => t.Id == tjenesteId && t.Entitetsstatus == "gjeldende", ct);
+        if (tjeneste is null) return null;
+
+        tjeneste.RotnodeId = null;
+        await db.SaveChangesAsync(ct);
+        return tjeneste;
+    }
 }

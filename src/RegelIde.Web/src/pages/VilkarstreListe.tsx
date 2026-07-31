@@ -1,40 +1,22 @@
-import { useEffect, useState, type FormEvent } from 'react';
-import { Link as RouterLink, useNavigate } from 'react-router';
-import { Button, Heading, Link, Paragraph, Table, Textfield } from '@digdir/designsystemet-react';
+import { useEffect, useState } from 'react';
+import { Link as RouterLink } from 'react-router';
+import { Heading, Link, Paragraph, Table } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { TjenesteDto } from '../api/types';
 
+/**
+ * Rotnode-kobling opprettes/endres/fjernes kun på TjenesteDetalj.tsx (2026-07-31, fasit-runde 5) —
+ * ett sted å vedlikeholde koblingen, i stedet for et separat, write-once opprettelsesskjema her som
+ * ikke lot deg se eller angre en feilaktig opprettelse i etterkant.
+ */
 export default function VilkarstreListe() {
-  const navigate = useNavigate();
   const [tjenester, setTjenester] = useState<TjenesteDto[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
-  const [oppretterForTjeneste, setOppretterForTjeneste] = useState<string | null>(null);
-  const [rotnodeTittel, setRotnodeTittel] = useState('');
-  const [oppretter, setOppretter] = useState(false);
 
   useEffect(() => {
     api.hentTjenester().then(setTjenester)
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av tjenester.'));
   }, []);
-
-  async function opprettRotnode(e: FormEvent, tjenesteId: string) {
-    e.preventDefault();
-    setFeil(null);
-    setOppretter(true);
-    try {
-      const regelnode = await api.opprettRegelnode({
-        tittel: rotnodeTittel.trim(), beskrivelse: null, generiskMal: null, barnOperator: 'OG',
-        utdataNavn: 'Vedtak', utdataType: 'vedtak', erRotnode: true, juridiskGrunnlag: null,
-        innvilgelseTekst: null, avslagTekst: null,
-      });
-      await api.settTjenesteRotnode(tjenesteId, { regelnodeId: regelnode.id });
-      navigate(`/vilkarstre/${regelnode.id}`);
-    } catch (err) {
-      setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse av rotnode.');
-    } finally {
-      setOppretter(false);
-    }
-  }
 
   return (
     <>
@@ -43,6 +25,7 @@ export default function VilkarstreListe() {
       </Heading>
       <Paragraph style={{ marginBottom: '1rem' }}>
         Grafeditor for Vilkår/Regel/Unntak (produktkrav kap. 3.4) — velg en tjeneste for å åpne dens vilkårstre.
+        Rotnode opprettes/endres på selve tjenestesiden.
       </Paragraph>
 
       {feil && <div className="feilmelding">{feil}</div>}
@@ -66,17 +49,10 @@ export default function VilkarstreListe() {
                     <Link asChild>
                       <RouterLink to={`/vilkarstre/${t.rotnodeId}`}>Åpne vilkårstre</RouterLink>
                     </Link>
-                  ) : oppretterForTjeneste === t.id ? (
-                    <form onSubmit={(e) => opprettRotnode(e, t.id)} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
-                      <Textfield data-size="sm" label="Rotnodens tittel" value={rotnodeTittel} onChange={(e) => setRotnodeTittel(e.target.value)} required />
-                      <Button data-size="sm" type="submit" disabled={oppretter || !rotnodeTittel.trim()}>
-                        {oppretter ? 'Oppretter …' : 'Opprett'}
-                      </Button>
-                    </form>
                   ) : (
-                    <Button data-size="sm" variant="secondary" onClick={() => { setOppretterForTjeneste(t.id); setRotnodeTittel(`Vedtak om ${t.tittel.toLowerCase()}`); }}>
-                      Opprett rotnode
-                    </Button>
+                    <Link asChild>
+                      <RouterLink to={`/tjenester/${t.id}`}>Opprett rotnode på tjenestesiden →</RouterLink>
+                    </Link>
                   )}
                 </Table.Cell>
               </Table.Row>

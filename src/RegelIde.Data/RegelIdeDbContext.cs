@@ -497,6 +497,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.ToTable("vilkar");
             e.HasKey(x => x.Id).HasName("vilkar_pkey");
             e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
+            e.Property(x => x.TjenesteId).HasColumnName("tjeneste_id");
             e.Property(x => x.Tittel).HasColumnName("tittel");
             e.Property(x => x.Beskrivelse).HasColumnName("beskrivelse");
             e.Property(x => x.GeneriskMal).HasColumnName("generisk_mal");
@@ -529,7 +530,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasOne<VilkarEntitet>().WithMany().HasForeignKey(x => x.ErstatterId);
             e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.BegrepId);
             e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.SkjonnsgrunnlagBegrepId);
+            e.HasOne<TjenesteEntitet>().WithMany().HasForeignKey(x => x.TjenesteId);
             e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_vilkar_virksomhet");
+            e.HasIndex(x => x.TjenesteId).HasDatabaseName("ix_vilkar_tjeneste");
         });
 
         b.Entity<VilkarInputDatasettEntitet>(e =>

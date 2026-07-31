@@ -371,7 +371,8 @@ export const api = {
       body: JSON.stringify({ retning }),
     }),
 
-  hentVilkarListe: () => kall<VilkarDto[]>('/api/vilkar'),
+  hentVilkarListe: (tjenesteId?: string) =>
+    kall<VilkarDto[]>(tjenesteId ? `/api/vilkar?tjenesteId=${tjenesteId}` : '/api/vilkar'),
 
   hentVilkar: (id: string) => kall<VilkarDto>(`/api/vilkar/${id}`),
 
@@ -489,6 +490,9 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
     }),
+
+  fjernTjenesteRotnode: (id: string) =>
+    kall<TjenesteDto>(`/api/tjenester/${id}/rotnode`, { method: 'DELETE' }),
 
   hentTjenesteVeiledning: (id: string, virksomhetId: string | null) =>
     kall<VeiledningDto>(`/api/tjenester/${id}/veiledning${virksomhetId ? `?virksomhetId=${virksomhetId}` : ''}`),

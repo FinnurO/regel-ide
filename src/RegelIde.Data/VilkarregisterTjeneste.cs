@@ -21,8 +21,9 @@ public sealed class VilkarregisterTjeneste(RegelIdeDbContext db)
     private static readonly string[] GyldigeStatuser =
         ["utkast", "under_revisjon", "validert", "publisert", "tilbaketrukket", "arkivert"];
 
-    public Task<List<VilkarEntitet>> ListerForAsync(Guid virksomhetId, CancellationToken ct = default) =>
-        db.Vilkar.Where(v => v.VirksomhetId == virksomhetId && v.Entitetsstatus == "gjeldende")
+    public Task<List<VilkarEntitet>> ListerForAsync(Guid virksomhetId, Guid? tjenesteId = null, CancellationToken ct = default) =>
+        db.Vilkar.Where(v => v.VirksomhetId == virksomhetId && v.Entitetsstatus == "gjeldende"
+                && (tjenesteId == null || v.TjenesteId == tjenesteId))
             .OrderBy(v => v.Tittel).ToListAsync(ct);
 
     public Task<VilkarEntitet?> FinnAsync(Guid id, CancellationToken ct = default) =>
@@ -38,15 +39,16 @@ public sealed class VilkarregisterTjeneste(RegelIdeDbContext db)
         IReadOnlyList<JuridiskGrunnlagInput>? juridiskGrunnlag, Guid? begrepId, string vurderingstype, string? parametreJson,
         Guid? skjonnsgrunnlagBegrepId, IReadOnlyList<SkjonnsmomentInput>? skjonnsmomenter, bool kreverDokumentasjon,
         string? eskaleringsrolle, string? veiledningTilBruker, string? veiledningTilSaksbehandler, bool erFormel,
-        string? formelBeskrivelse, string opprettetAv, CancellationToken ct = default)
+        string? formelBeskrivelse, Guid? tjenesteId, string opprettetAv, CancellationToken ct = default)
     {
         var parametre = JsonSerialiseringHjelper.ValiderJsonObjekt(parametreJson, "parametre");
-        await ValiderAsync(tittel, vilkarstype, vurderingstype, begrepId, skjonnsgrunnlagBegrepId, ct);
+        await ValiderAsync(tittel, vilkarstype, vurderingstype, begrepId, skjonnsgrunnlagBegrepId, tjenesteId, ct);
 
         var vilkar = new VilkarEntitet
         {
             Id = Guid.NewGuid(),
             VirksomhetId = virksomhetId,
+            TjenesteId = tjenesteId,
             Tittel = tittel,
             Beskrivelse = beskrivelse,
             GeneriskMal = generiskMal,
@@ -79,14 +81,15 @@ public sealed class VilkarregisterTjeneste(RegelIdeDbContext db)
         IReadOnlyList<JuridiskGrunnlagInput>? juridiskGrunnlag, Guid? begrepId, string vurderingstype, string? parametreJson,
         Guid? skjonnsgrunnlagBegrepId, IReadOnlyList<SkjonnsmomentInput>? skjonnsmomenter, bool kreverDokumentasjon,
         string? eskaleringsrolle, string? veiledningTilBruker, string? veiledningTilSaksbehandler, bool erFormel,
-        string? formelBeskrivelse, string endretAv, CancellationToken ct = default)
+        string? formelBeskrivelse, Guid? tjenesteId, string endretAv, CancellationToken ct = default)
     {
         var parametre = JsonSerialiseringHjelper.ValiderJsonObjekt(parametreJson, "parametre");
-        await ValiderAsync(tittel, vilkarstype, vurderingstype, begrepId, skjonnsgrunnlagBegrepId, ct);
+        await ValiderAsync(tittel, vilkarstype, vurderingstype, begrepId, skjonnsgrunnlagBegrepId, tjenesteId, ct);
 
         var vilkar = await db.Vilkar.FirstOrDefaultAsync(v => v.Id == id && v.Entitetsstatus == "gjeldende", ct);
         if (vilkar is null) return null;
 
+        vilkar.TjenesteId = tjenesteId;
         vilkar.Tittel = tittel;
         vilkar.Beskrivelse = beskrivelse;
         vilkar.GeneriskMal = generiskMal;
@@ -158,7 +161,8 @@ public sealed class VilkarregisterTjeneste(RegelIdeDbContext db)
     }
 
     private async Task ValiderAsync(
-        string tittel, string vilkarstype, string vurderingstype, Guid? begrepId, Guid? skjonnsgrunnlagBegrepId, CancellationToken ct)
+        string tittel, string vilkarstype, string vurderingstype, Guid? begrepId, Guid? skjonnsgrunnlagBegrepId,
+        Guid? tjenesteId, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(tittel))
         {
@@ -183,6 +187,10 @@ public sealed class VilkarregisterTjeneste(RegelIdeDbContext db)
         if (skjonnsgrunnlagBegrepId is not null && !await db.Begreper.AnyAsync(b => b.Id == skjonnsgrunnlagBegrepId && b.Entitetsstatus == "gjeldende", ct))
         {
             throw new ArgumentException($"Fant ingen begrep med id '{skjonnsgrunnlagBegrepId}' (skjønnsgrunnlag).");
+        }
+        if (tjenesteId is not null && !await db.Tjenester.AnyAsync(t => t.Id == tjenesteId && t.Entitetsstatus == "gjeldende", ct))
+        {
+            throw new ArgumentException($"Fant ingen tjeneste med id '{tjenesteId}'.");
         }
     }
 }

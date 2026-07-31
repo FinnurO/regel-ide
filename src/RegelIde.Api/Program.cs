@@ -1061,17 +1061,17 @@ vilkarstreKommentarer.MapPost("/{id:guid}/flytt", async (Guid id, HttpRequest re
 
 var vilkar = app.MapGroup("/api/vilkar").WithOpenApi();
 
-vilkar.MapGet("/", async (HttpRequest request, VilkarregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+vilkar.MapGet("/", async (HttpRequest request, Guid? tjenesteId, VilkarregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
             return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
         }
-        return Results.Ok((await register.ListerForAsync(bruker.VirksomhetId, ct)).Select(VilkarDto.FraEntitet));
+        return Results.Ok((await register.ListerForAsync(bruker.VirksomhetId, tjenesteId, ct)).Select(VilkarDto.FraEntitet));
     })
     .WithName("HentVilkar")
-    .WithSummary("Lister virksomhetens egne vilkår (produktkrav kap. 3.4).");
+    .WithSummary("Lister virksomhetens egne vilkår (produktkrav kap. 3.4). ?tjenesteId= filtrerer på identifisert tjeneste.");
 
 vilkar.MapGet("/{id:guid}", async (Guid id, VilkarregisterTjeneste register, CancellationToken ct) =>
     {
@@ -1094,7 +1094,7 @@ vilkar.MapPost("/", async (HttpRequest request, VilkarRequest body, Vilkarregist
                 body.Vilkarstype, body.GjelderRolle, body.JuridiskGrunnlag, body.BegrepId, body.Vurderingstype,
                 body.ParametreJson, body.SkjonnsgrunnlagBegrepId, body.Skjonnsmomenter, body.KreverDokumentasjon,
                 body.Eskaleringsrolle, body.VeiledningTilBruker, body.VeiledningTilSaksbehandler, body.ErFormel,
-                body.FormelBeskrivelse, bruker.Navn, ct);
+                body.FormelBeskrivelse, body.TjenesteId, bruker.Navn, ct);
             return Results.Created($"/api/vilkar/{v.Id}", VilkarDto.FraEntitet(v));
         }
         catch (ArgumentException ex)
@@ -1117,7 +1117,8 @@ vilkar.MapPut("/{id:guid}", async (Guid id, HttpRequest request, VilkarRequest b
             var v = await register.OppdaterAsync(id, body.Tittel, body.Beskrivelse, body.GeneriskMal, body.Vilkarstype,
                 body.GjelderRolle, body.JuridiskGrunnlag, body.BegrepId, body.Vurderingstype, body.ParametreJson,
                 body.SkjonnsgrunnlagBegrepId, body.Skjonnsmomenter, body.KreverDokumentasjon, body.Eskaleringsrolle,
-                body.VeiledningTilBruker, body.VeiledningTilSaksbehandler, body.ErFormel, body.FormelBeskrivelse, bruker.Navn, ct);
+                body.VeiledningTilBruker, body.VeiledningTilSaksbehandler, body.ErFormel, body.FormelBeskrivelse,
+                body.TjenesteId, bruker.Navn, ct);
             return v is null ? Results.NotFound(new { feil = $"Ingen vilkår med id '{id}'." }) : Results.Ok(VilkarDto.FraEntitet(v));
         }
         catch (ArgumentException ex)
@@ -1424,6 +1425,14 @@ tjenester.MapPost("/{id:guid}/rotnode", async (Guid id, SettRotnodeRequest body,
     })
     .WithName("SettTjenesteRotnode")
     .WithSummary("Kobler tjenesten til rotnoden i sitt vilkårstre (byggesteg 4).");
+
+tjenester.MapDelete("/{id:guid}/rotnode", async (Guid id, TjenesteregisterTjeneste register, CancellationToken ct) =>
+    {
+        var t = await register.FjernRotnodeAsync(id, ct);
+        return t is null ? Results.NotFound(new { feil = $"Ingen tjeneste med id '{id}'." }) : Results.Ok(TjenesteDto.FraEntitet(t));
+    })
+    .WithName("FjernTjenesteRotnode")
+    .WithSummary("Fjerner koblingen til rotnoden (selve regelnoden slettes ikke) — gjør en feilaktig opprettelse reversibel.");
 
 tjenester.MapGet("/{id:guid}/veiledning", async (Guid id, Guid? virksomhetId, VeiledningRepository repo, CancellationToken ct) =>
     {

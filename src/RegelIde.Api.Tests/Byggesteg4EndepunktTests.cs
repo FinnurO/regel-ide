@@ -111,14 +111,14 @@ public class Byggesteg4EndepunktTests
         var bruker = await HentTestbrukerAsync();
         var opprettSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/vilkar", bruker.Id,
             new VilkarRequest("API-test-vilkår", null, null, "formell", null, null, null, "regelbasert", null,
-                null, null, false, null, null, null, false, null)));
+                null, null, false, null, null, null, false, null, null)));
         Assert.Equal(HttpStatusCode.Created, opprettSvar.StatusCode);
         var vilkar = await opprettSvar.Content.ReadFromJsonAsync<VilkarDto>(JsonInnstillinger);
         Assert.Equal("utkast", vilkar!.Status);
 
         var oppdaterSvar = await _client.SendAsync(MedBruker(HttpMethod.Put, $"/api/vilkar/{vilkar.Id}", bruker.Id,
             new VilkarRequest("API-test-vilkår v2", "Ny beskrivelse", null, "formell", null, null, null, "regelbasert",
-                null, null, null, false, null, null, null, false, null)));
+                null, null, null, false, null, null, null, false, null, null)));
         var oppdatert = await oppdaterSvar.Content.ReadFromJsonAsync<VilkarDto>(JsonInnstillinger);
         Assert.Equal("API-test-vilkår v2", oppdatert!.Tittel);
 
@@ -139,7 +139,7 @@ public class Byggesteg4EndepunktTests
         var bruker = await HentTestbrukerAsync();
         var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/vilkar", bruker.Id,
             new VilkarRequest("Parametertest", null, null, "formell", null, null, null, "regelbasert", parametre,
-                null, null, false, null, null, null, false, null)));
+                null, null, false, null, null, null, false, null, null)));
 
         // Uten valideringen slapp verdien helt ned i jsonb-kolonnen, og Postgres avviste den med
         // en DbUpdateException som ingen fanget — altså 500 på det som er en klientfeil.
@@ -153,7 +153,7 @@ public class Byggesteg4EndepunktTests
         var bruker = await HentTestbrukerAsync();
         var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/vilkar", bruker.Id,
             new VilkarRequest("Skjønnstest", null, null, "materiell", null, null, null, "skjonnsbasert", null,
-                null, null, false, null, null, null, false, null)));
+                null, null, false, null, null, null, false, null, null)));
 
         Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
     }

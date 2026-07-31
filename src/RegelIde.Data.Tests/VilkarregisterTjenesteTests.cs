@@ -25,7 +25,7 @@ public class VilkarregisterTjenesteTests
         var register = new VilkarregisterTjeneste(db);
         var vilkar = await register.OpprettAsync(virksomhet, "Aldersvilkår", "Beskrivelse", null, "materiell", null,
             [new JuridiskGrunnlagInput("alkoholloven", "§1-5")], null, "regelbasert", null, null, null, false, null,
-            null, null, false, null, "Kari Jurist");
+            null, null, false, null, null, "Kari Jurist");
 
         Assert.Equal("utkast", vilkar.Status);
         Assert.Contains("§1-5", vilkar.JuridiskGrunnlagJson);
@@ -44,7 +44,7 @@ public class VilkarregisterTjenesteTests
         var register = new VilkarregisterTjeneste(db);
         await Assert.ThrowsAsync<ArgumentException>(() => register.OpprettAsync(
             virksomhet, "Vandelsvilkår", null, null, "materiell", null, null, null, "skjonnsbasert", null,
-            null, null, false, null, null, null, false, null, "Kari Jurist"));
+            null, null, false, null, null, null, false, null, null, "Kari Jurist"));
     }
 
     [Fact]
@@ -58,7 +58,7 @@ public class VilkarregisterTjenesteTests
         var register = new VilkarregisterTjeneste(db);
         await Assert.ThrowsAsync<ArgumentException>(() => register.OpprettAsync(
             virksomhet, "Vandelsvilkår", null, null, "materiell", null, null, null, "skjonnsbasert", null,
-            Guid.NewGuid(), null, false, null, null, null, false, null, "Kari Jurist"));
+            Guid.NewGuid(), null, false, null, null, null, false, null, null, "Kari Jurist"));
     }
 
     [Fact]
@@ -72,7 +72,7 @@ public class VilkarregisterTjenesteTests
         var register = new VilkarregisterTjeneste(db);
         await Assert.ThrowsAsync<ArgumentException>(() => register.OpprettAsync(
             virksomhet, "Test", null, null, "ukjent-type", null, null, null, "regelbasert", null,
-            null, null, false, null, null, null, false, null, "Kari Jurist"));
+            null, null, false, null, null, null, false, null, null, "Kari Jurist"));
     }
 
     [Fact]
@@ -85,10 +85,10 @@ public class VilkarregisterTjenesteTests
 
         var register = new VilkarregisterTjeneste(db);
         var vilkar = await register.OpprettAsync(virksomhet, "Aldersvilkår", null, null, "materiell", null, null,
-            null, "regelbasert", null, null, null, false, null, null, null, false, null, "Kari Jurist");
+            null, "regelbasert", null, null, null, false, null, null, null, false, null, null, "Kari Jurist");
 
         var oppdatert = await register.OppdaterAsync(vilkar.Id, "Aldersvilkår v2", "Ny beskrivelse", null, "materiell",
-            null, null, null, "regelbasert", null, null, null, false, null, null, null, false, null, "Ola Fagansvarlig");
+            null, null, null, "regelbasert", null, null, null, false, null, null, null, false, null, null, "Ola Fagansvarlig");
 
         Assert.NotNull(oppdatert);
         Assert.Equal("Aldersvilkår v2", oppdatert!.Tittel);
@@ -111,7 +111,7 @@ public class VilkarregisterTjenesteTests
 
         var register = new VilkarregisterTjeneste(db);
         var vilkar = await register.OpprettAsync(virksomhet, "Aldersvilkår", null, null, "materiell", null, null,
-            null, "regelbasert", null, null, null, false, null, null, null, false, null, "Kari Jurist");
+            null, "regelbasert", null, null, null, false, null, null, null, false, null, null, "Kari Jurist");
 
         await register.LeggTilInputAsync(vilkar.Id, datasett.Id);
         var input = await register.InputForAsync(vilkar.Id);
@@ -132,7 +132,7 @@ public class VilkarregisterTjenesteTests
 
         var register = new VilkarregisterTjeneste(db);
         var vilkar = await register.OpprettAsync(virksomhet, "Aldersvilkår", null, null, "materiell", null, null,
-            null, "regelbasert", null, null, null, false, null, null, null, false, null, "Kari Jurist");
+            null, "regelbasert", null, null, null, false, null, null, null, false, null, null, "Kari Jurist");
 
         var oppdatert = await register.SettStatusAsync(vilkar.Id, "validert", "Kari Jurist");
 
@@ -150,7 +150,7 @@ public class VilkarregisterTjenesteTests
 
         var register = new VilkarregisterTjeneste(db);
         var vilkar = await register.OpprettAsync(virksomhet, "Bevillingsgebyr", null, null, "materiell", null, null,
-            null, "regelbasert", null, null, null, false, null, null, null, true, "Beregnet etter alkoholforskriften § 6-2.", "Kari Jurist");
+            null, "regelbasert", null, null, null, false, null, null, null, true, "Beregnet etter alkoholforskriften § 6-2.", null, "Kari Jurist");
 
         Assert.True(vilkar.ErFormel);
         Assert.Equal("Beregnet etter alkoholforskriften § 6-2.", vilkar.FormelBeskrivelse);
@@ -170,7 +170,7 @@ public class VilkarregisterTjenesteTests
     private Task<VilkarEntitet> OpprettMedParametreAsync(
         VilkarregisterTjeneste register, Guid virksomhet, string? parametre) =>
         register.OpprettAsync(virksomhet, "Aldersvilkår", null, null, "materiell", null, null, null,
-            "regelbasert", parametre, null, null, false, null, null, null, false, null, "Kari Jurist");
+            "regelbasert", parametre, null, null, false, null, null, null, false, null, null, "Kari Jurist");
 
     [Theory]
     [InlineData("{ikke json}")]
@@ -257,7 +257,7 @@ public class VilkarregisterTjenesteTests
 
         await Assert.ThrowsAsync<ArgumentException>(() => register.OppdaterAsync(
             vilkar.Id, "Endret tittel", null, null, "materiell", null, null, null, "regelbasert",
-            "{ugyldig}", null, null, false, null, null, null, false, null, "Kari Jurist"));
+            "{ugyldig}", null, null, false, null, null, null, false, null, null, "Kari Jurist"));
 
         // Verifiser mot databasen, ikke mot sporet entitet.
         db.ChangeTracker.Clear();

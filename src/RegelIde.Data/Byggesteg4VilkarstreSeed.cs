@@ -56,7 +56,7 @@ public static class Byggesteg4VilkarstreSeed
         var vAlder = await vilkarregister.OpprettAsync(
             virksomhetId, "Aldersvilkår", "Styrer og stedfortreder må være over 20 år.", null, "materiell", "styrer/stedfortreder",
             [new JuridiskGrunnlagInput("alkoholloven", $"{AlkohollovenEli}/§1-5")], null, "regelbasert", """{"minimumsalder":20}""",
-            null, null, false, null, null, null, false, null, SeedBruker, ct);
+            null, null, false, null, null, null, false, null, tjeneste.Id, SeedBruker, ct);
         await vilkarregister.LeggTilInputAsync(vAlder.Id, styrerFodselsdato.Id, ct);
         await SeedVilkarTaggAsync(db, tekstTaggTjeneste, alkoholloven, virksomhetId, "§1-5", vAlder.Id, ct);
 
@@ -69,27 +69,27 @@ public static class Byggesteg4VilkarstreSeed
                 new SkjonnsmomentInput("Økonomisk vandel", null, null),
                 new SkjonnsmomentInput("Straffbare forhold", null, null),
             ],
-            true, "Jurist", null, null, false, null, SeedBruker, ct);
+            true, "Jurist", null, null, false, null, tjeneste.Id, SeedBruker, ct);
         await SeedVilkarTaggAsync(db, tekstTaggTjeneste, alkoholloven, virksomhetId, "§1-7b", vVandel.Id, ct);
 
         var vSted = await vilkarregister.OpprettAsync(
             virksomhetId, "Stedsvilkår", "Skjenkestedet må være et lokale det kan gis bevilling til.", null, "formell", null,
             [new JuridiskGrunnlagInput("alkoholloven", $"{AlkohollovenEli}/§4-3")], null, "regelbasert", null,
-            null, null, false, null, null, null, false, null, SeedBruker, ct);
+            null, null, false, null, null, null, false, null, tjeneste.Id, SeedBruker, ct);
         await vilkarregister.LeggTilInputAsync(vSted.Id, lokaletype.Id, ct);
         await SeedVilkarTaggAsync(db, tekstTaggTjeneste, alkoholloven, virksomhetId, "§4-3", vSted.Id, ct);
 
         var vKlokkeslett = await vilkarregister.OpprettAsync(
             virksomhetId, "Klokkeslettsvilkår", "Skjenkingen må skje innenfor kommunens fastsatte skjenketid.", null, "formell", null,
             [new JuridiskGrunnlagInput("alkoholloven", $"{AlkohollovenEli}/§4-4")], null, "regelbasert", null,
-            null, null, false, null, null, null, false, null, SeedBruker, ct);
+            null, null, false, null, null, null, false, null, tjeneste.Id, SeedBruker, ct);
         await vilkarregister.LeggTilInputAsync(vKlokkeslett.Id, klokkeslett.Id, ct);
         await SeedVilkarTaggAsync(db, tekstTaggTjeneste, alkoholloven, virksomhetId, "§4-4", vKlokkeslett.Id, ct);
 
         var vErLukketSelskap = await vilkarregister.OpprettAsync(
             virksomhetId, "Er lukket selskap", "Hvorvidt arrangementet er et lukket selskap (unntak fra skjenketid).", null, "formell", null,
             [new JuridiskGrunnlagInput("alkoholloven", $"{AlkohollovenEli}/§4-4")], null, "regelbasert", null,
-            null, null, false, null, null, null, false, null, SeedBruker, ct);
+            null, null, false, null, null, null, false, null, tjeneste.Id, SeedBruker, ct);
         await vilkarregister.LeggTilInputAsync(vErLukketSelskap.Id, erLukketSelskap.Id, ct);
 
         var rSkjenketid = await regelnoderegister.OpprettAsync(

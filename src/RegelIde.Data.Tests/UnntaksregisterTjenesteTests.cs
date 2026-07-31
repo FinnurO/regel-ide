@@ -23,7 +23,7 @@ public class UnntaksregisterTjenesteTests
 
     private static Task<VilkarEntitet> NyttVilkarAsync(RegelIdeDbContext db, Guid virksomhet, string tittel) =>
         new VilkarregisterTjeneste(db).OpprettAsync(virksomhet, tittel, null, null, "materiell", null, null,
-            null, "regelbasert", null, null, null, false, null, null, null, false, null, "Kari Jurist");
+            null, "regelbasert", null, null, null, false, null, null, null, false, null, null, "Kari Jurist");
 
     private static Task<RegelnodeEntitet> NyRegelnodeAsync(RegelIdeDbContext db, Guid virksomhet, string tittel, bool erRotnode = false) =>
         new RegelnoderegisterTjeneste(db).OpprettAsync(virksomhet, tittel, null, null, "OG", "Utfall", "boolean",

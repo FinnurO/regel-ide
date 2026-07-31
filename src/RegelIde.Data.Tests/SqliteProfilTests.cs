@@ -222,7 +222,7 @@ public sealed class SqliteProfilTests : IAsyncLifetime
         var register = new VilkarregisterTjeneste(db);
         var vilkar = await register.OpprettAsync(virksomhet.Id, "Aldersvilkår", null, null, "materiell", null,
             [new JuridiskGrunnlagInput("alkoholloven", "§1-5")], null, "regelbasert", """{"aldersgrense":18}""",
-            null, null, false, null, null, null, false, null, "Kari Jurist");
+            null, null, false, null, null, null, false, null, null, "Kari Jurist");
         db.ChangeTracker.Clear();
 
         var lest = await db.Vilkar.SingleAsync(v => v.Id == vilkar.Id);
@@ -245,7 +245,7 @@ public sealed class SqliteProfilTests : IAsyncLifetime
         // så applikasjonsvalideringen er eneste vern mot at søppel blir liggende.
         await Assert.ThrowsAsync<ArgumentException>(() => register.OpprettAsync(
             virksomhet.Id, "Aldersvilkår", null, null, "materiell", null, null, null, "regelbasert",
-            "{ugyldig}", null, null, false, null, null, null, false, null, "Kari Jurist"));
+            "{ugyldig}", null, null, false, null, null, null, false, null, null, "Kari Jurist"));
     }
 
     /* --------------------------- ekte innhold ende-til-ende --------------------------- */

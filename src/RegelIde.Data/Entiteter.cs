@@ -441,6 +441,15 @@ public sealed class VilkarEntitet
     public Guid Id { get; set; }
     public required Guid VirksomhetId { get; set; }
 
+    /// <summary>
+    /// Hvilken tjeneste dette vilkåret er identifisert for (2026-07-31, fasit-runde 5) — bevisst
+    /// atskilt fra om vilkåret faktisk er koblet inn i tjenestens vilkårstre
+    /// (<see cref="RegelnodeBarnEntitet"/>). Å identifisere et vilkår fra lovteksten er et lettere,
+    /// tidligere steg enn å sette opp selve regelgrafen — se docs/12-fasit-handbok-leveranse.md.
+    /// Nullable for eksisterende/generiske vilkår opprettet før dette feltet fantes.
+    /// </summary>
+    public Guid? TjenesteId { get; set; }
+
     public required string Tittel { get; set; }
     public string? Beskrivelse { get; set; }
     public string? GeneriskMal { get; set; } // fritekst-kode, f.eks. "GM-VANDEL-PERSON" — ingen egen registertabell i v1

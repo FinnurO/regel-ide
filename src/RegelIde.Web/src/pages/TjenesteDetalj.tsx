@@ -3,7 +3,7 @@ import { Link as RouterLink, useParams } from 'react-router';
 import { Button, Field, Heading, Label, Link, Paragraph, Select, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
-import type { RettskildeSammendrag, TjenesteDto, TjenesteRegelverksreferanseDto } from '../api/types';
+import type { RegelnodeDto, RettskildeSammendrag, TjenesteDto, TjenesteRegelverksreferanseDto } from '../api/types';
 
 const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
 
@@ -34,6 +34,15 @@ export default function TjenesteDetalj() {
   const [leggerTilReferanse, setLeggerTilReferanse] = useState(false);
   const [referanseFeil, setReferanseFeil] = useState<string | null>(null);
 
+  const [rotnode, setRotnode] = useState<RegelnodeDto | null>(null);
+  const [regelnoder, setRegelnoder] = useState<RegelnodeDto[]>([]);
+  const [visOpprettRotnode, setVisOpprettRotnode] = useState(false);
+  const [nyRotnodeTittel, setNyRotnodeTittel] = useState('');
+  const [visByttRotnode, setVisByttRotnode] = useState(false);
+  const [valgtRotnodeId, setValgtRotnodeId] = useState('');
+  const [rotnodeEndres, setRotnodeEndres] = useState(false);
+  const [rotnodeFeil, setRotnodeFeil] = useState<string | null>(null);
+
   /** Kanaler/språk redigeres som kommaseparert tekst i denne runden — ingen multi-select-UI bygget ennå. */
   function tilListe(kommaseparert: string): string[] {
     return kommaseparert.split(',').map((s) => s.trim()).filter(Boolean);
@@ -59,7 +68,66 @@ export default function TjenesteDetalj() {
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av tjeneste.'));
     api.hentTjenesteRegelverksreferanser(id).then(setReferanser).catch(() => setReferanser([]));
     api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
+    api.hentRegelnodeListe().then(setRegelnoder).catch(() => setRegelnoder([]));
   }, [id]);
+
+  useEffect(() => {
+    if (!tjeneste?.rotnodeId) { setRotnode(null); return; }
+    api.hentRegelnode(tjeneste.rotnodeId).then(setRotnode).catch(() => setRotnode(null));
+  }, [tjeneste?.rotnodeId]);
+
+  async function opprettRotnode(e: FormEvent) {
+    e.preventDefault();
+    if (!id || !nyRotnodeTittel.trim()) return;
+    setRotnodeFeil(null);
+    setRotnodeEndres(true);
+    try {
+      const nyRegelnode = await api.opprettRegelnode({
+        tittel: nyRotnodeTittel.trim(), beskrivelse: null, generiskMal: null, barnOperator: 'OG',
+        utdataNavn: 'Vedtak', utdataType: 'vedtak', erRotnode: true, juridiskGrunnlag: null,
+        innvilgelseTekst: null, avslagTekst: null,
+      });
+      const oppdatert = await api.settTjenesteRotnode(id, { regelnodeId: nyRegelnode.id });
+      setTjeneste(oppdatert);
+      setVisOpprettRotnode(false);
+      setNyRotnodeTittel('');
+    } catch (err) {
+      setRotnodeFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse av rotnode.');
+    } finally {
+      setRotnodeEndres(false);
+    }
+  }
+
+  async function byttRotnode(e: FormEvent) {
+    e.preventDefault();
+    if (!id || !valgtRotnodeId) return;
+    setRotnodeFeil(null);
+    setRotnodeEndres(true);
+    try {
+      const oppdatert = await api.settTjenesteRotnode(id, { regelnodeId: valgtRotnodeId });
+      setTjeneste(oppdatert);
+      setVisByttRotnode(false);
+      setValgtRotnodeId('');
+    } catch (err) {
+      setRotnodeFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved bytte av rotnode.');
+    } finally {
+      setRotnodeEndres(false);
+    }
+  }
+
+  async function fjernRotnode() {
+    if (!id) return;
+    setRotnodeFeil(null);
+    setRotnodeEndres(true);
+    try {
+      const oppdatert = await api.fjernTjenesteRotnode(id);
+      setTjeneste(oppdatert);
+    } catch (err) {
+      setRotnodeFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved fjerning av rotnode.');
+    } finally {
+      setRotnodeEndres(false);
+    }
+  }
 
   async function lagre(e: FormEvent) {
     e.preventDefault();
@@ -129,16 +197,59 @@ export default function TjenesteDetalj() {
       </Heading>
       <Tag data-color="info" style={{ marginBottom: '1.5rem' }}>{tjeneste.status}</Tag>
 
-      {tjeneste.rotnodeId && (
-        <Paragraph style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem' }}>
-          <Link asChild>
-            <RouterLink to={`/vilkarstre/${tjeneste.rotnodeId}`}>Åpne vilkårstre →</RouterLink>
-          </Link>
-          <Link asChild>
-            <RouterLink to={`/tjenester/${tjeneste.id}/veiledning`}>Åpne veiledning →</RouterLink>
-          </Link>
-        </Paragraph>
-      )}
+      <section style={{ marginBottom: '2rem' }}>
+        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+          Vilkårstre
+        </Heading>
+        {tjeneste.rotnodeId ? (
+          <>
+            <Paragraph style={{ marginBottom: '0.75rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              <span>Rotnode: <strong>{rotnode?.tittel ?? '…'}</strong></span>
+              <Link asChild>
+                <RouterLink to={`/vilkarstre/${tjeneste.rotnodeId}`}>Åpne vilkårstre →</RouterLink>
+              </Link>
+              <Link asChild>
+                <RouterLink to={`/tjenester/${tjeneste.id}/veiledning`}>Åpne veiledning →</RouterLink>
+              </Link>
+            </Paragraph>
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.75rem' }}>
+              <Button data-size="sm" variant="secondary" onClick={() => setVisByttRotnode((v) => !v)}>
+                {visByttRotnode ? 'Avbryt' : 'Bytt rotnode'}
+              </Button>
+              <Button data-size="sm" variant="tertiary" data-color="danger" disabled={rotnodeEndres} onClick={fjernRotnode}>
+                Fjern rotnode
+              </Button>
+            </div>
+            {visByttRotnode && (
+              <form onSubmit={byttRotnode} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                <Field>
+                  <Label>Ny rotnode (regelnode)</Label>
+                  <Select data-size="sm" value={valgtRotnodeId} onChange={(e) => setValgtRotnodeId(e.target.value)}>
+                    <Select.Option value="">Velg …</Select.Option>
+                    {regelnoder.map((r) => <Select.Option key={r.id} value={r.id}>{r.tittel}</Select.Option>)}
+                  </Select>
+                </Field>
+                <Button data-size="sm" type="submit" disabled={rotnodeEndres || !valgtRotnodeId}>
+                  {rotnodeEndres ? 'Setter …' : 'Sett som rotnode'}
+                </Button>
+              </form>
+            )}
+          </>
+        ) : visOpprettRotnode ? (
+          <form onSubmit={opprettRotnode} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+            <Textfield data-size="sm" label="Rotnodens tittel" value={nyRotnodeTittel} onChange={(e) => setNyRotnodeTittel(e.target.value)} required />
+            <Button data-size="sm" type="submit" disabled={rotnodeEndres || !nyRotnodeTittel.trim()}>
+              {rotnodeEndres ? 'Oppretter …' : 'Opprett'}
+            </Button>
+            <Button data-size="sm" variant="tertiary" onClick={() => setVisOpprettRotnode(false)}>Avbryt</Button>
+          </form>
+        ) : (
+          <Button data-size="sm" variant="secondary" onClick={() => { setVisOpprettRotnode(true); setNyRotnodeTittel(`Vedtak om ${tjeneste.tittel.toLowerCase()}`); }}>
+            Opprett rotnode
+          </Button>
+        )}
+        {rotnodeFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{rotnodeFeil}</div>}
+      </section>
 
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
