@@ -123,9 +123,91 @@ Samme begrep kan refereres fra flere vilkårsnoder uten duplisering. Ett begreps
 ### 1.5 Tjeneste (CPSV-AP-NO)
 Felt: tittel, beskrivelse, kompetent myndighet, output, tjenestetype, målgruppe, kanaler, kostnad/gebyr, behandlingstid, språk, kontaktpunkt, konsekvens ved brudd, regelverksreferanser (`eId`-lenker), vilkår (ref til §1.8), **hendelser[]**, tjenesteavhengigheter[], status, versjon.
 
-**Hendelse:** `{navn, type: Forretningshendelse/Innrapportering/Hendelse, trigger}`. Eksempler: søknad om bevilling, søknad om fornyelse, endringsmelding, årlig omsetningsoppgave, kontroll/tilsyn, vedtak om inndragning.
+**Hendelse (`cv:Event`/`cv:LifeEvent`/`cv:BusinessEvent`) — korrigert 2026-07-31.** Opprinnelig beskrevet
+her som `{navn, type: Forretningshendelse/Innrapportering/Hendelse, trigger}` — det var **feil
+karakterisert** i en tidligere runde som "et internt saksforløp, ikke CPSV sitt Event-begrep". Johann
+korrigerte dette direkte: eksemplene (kontroll/tilsyn, brudd, eierskifte, avvikling, overtakelse,
+årlig innrapportering) ER nøyaktig CPSV sine Virksomhetshendelser — ting som skjer MED en virksomhet
+og gjør én eller flere tjenester relevante. Riktig modell, avklart i samme runde:
+
+- **Hendelse blir et eget, delt register** (egen tabell, ikke en jsonb-liste per tjeneste) — samme
+  nasjonal/lokal-mønster som `RettskildeEntitet.VirksomhetId` (`null` = nasjonal/delt hendelse, f.eks.
+  "Eierskifte"; satt = virksomhetens egen lokale hendelse). `Type` rettes til å faktisk matche CPSV:
+  `generell` (`cv:Event`) / `livshendelse` (`cv:LifeEvent`) / `virksomhetshendelse`
+  (`cv:BusinessEvent`) — ikke de gamle, upresise verdiene.
+- **Kobling til Tjeneste er ren, symmetrisk klassifisering (mange-til-mange), ingen lagret retning**
+  — dette ER selve CPSV-semantikken (`cpsv:isClassifiedBy`). To tjenester som deler samme hendelse
+  blir dermed *relaterte* uten at noen retning er lagret — f.eks. klassifiserer hendelsen
+  "Kontroll/tilsyn" (virksomhetshendelse) BÅDE «Alminnelig skjenkebevilling» OG «Kontroller av
+  salgs- og skjenkesteder».
+- **Rettede, årsaksforklarte kjeder mellom to konkrete tjenester er noe ANNET** — det er
+  `Tjenesteavhengighet` (under), ikke `Hendelse`. Eksempel Johann selv ga: «Alminnelig
+  skjenkebevilling» → (hendelsen "Endring av eierskap" inntreffer) → «Endring av eiere eller
+  eierandeler». Dette er en rettet avhengighet MED en kjent utløsende hendelse — se under.
 
 **Tjenesteavhengighet:** `{rel: før/avhengig av/input til, navn, kilde: intern tjeneste eller "eksternt oppslag · data.norge.no"}`. Dette er én relasjonstype i kunnskapsgrafen (kap. 3.13 i produktkrav), ikke en separat graf.
+
+**Utvidet og presisert 2026-07-31 (to runder med korrigerende innspill fra Johann):** hovedsaken er å
+**modellere knytninger og retning mellom offentlige tjenester på tjeneste-nivå** — `Tjenesteavhengighet`
+er selve mekanismen, `Hendelse` er en sekundær, valgfri annotering, ikke et nødvendig mellomledd.
+Tjeneste-relasjonen skal **ikke** speile eller være bundet til den underliggende vilkårstre-/
+regelgrafen — den er en grovere, strukturell kobling ("dette henger sammen") som **kan ha unntak eller
+nyanser i det faktiske regelverket** uten at det gjør selve tjeneste-relasjonen feil. Poenget er å
+synliggjøre **strukturert** det som i dag kun står som løs prosa (f.eks. rundskriv-tekst som "krever
+både serverings- og skjenkebevilling", eller `§12 Relevante tjenester`-lister skrevet som ren tekst,
+jf. `docs/12-fasit-handbok-leveranse.md` runde 4). `Tjenesteavhengighet` skal derfor **ikke** ha noen
+FK inn i Vilkårstreet (ingen kobling til `Vilkar`/`RegelnodeBarnEntitet`/`Datasett`) — det er en egen,
+bevisst løsere lagdeling enn regelgrafen.
+
+**Presisering (2026-07-31, andre runde): Hendelse er kun ekte, eksterne fenomener — aldri en tjenestes
+eget resultat/utfall.** "Bestått Etablererprøve" er IKKE en Hendelse i denne modellen, selv om det er
+et utfall av å bruke tjenesten «Etablererprøven» — det er for detaljert, og blander sammen
+tjeneste-nivået med vilkårs-/faktanivået inni tjenesten. En Hendelse er noe som skjer MED en
+virksomhet, uavhengig av om det er dokumentert som et vedtak/resultat i en bestemt tjeneste:
+eierskifte, kontroll/tilsyn, brudd på regelverket, avvikling. `forutsetning_for`/`gir_mulighet_til`
+skal derfor **aldri** kreve en Hendelse for å gi mening — de er rene, direkte tjeneste-til-tjeneste-
+koblinger uten mellomledd:
+
+- **`forutsetning_for`** ("er forutsetning for" / vist omvendt som "krever" på den andre tjenestens
+  side) — X må foreligge for at Y skal kunne innvilges. Eksempel: «Serveringsbevilling» er
+  forutsetning for «Alminnelig skjenkebevilling». «Etablererprøven»/«Kunnskapsprøvene» er
+  forutsetning for «Serveringsbevilling».
+- **`gir_mulighet_til`** ("gir mulighet til") — å inneha X åpner for å søke Y, uten at det
+  nødvendigvis er et strengt, alltid-gjeldende vilkår i Y (rom for unntak i regelgrafen). Eksempel:
+  «Alminnelig skjenkebevilling» gir mulighet til «Utvidelse av skjenkebevilling for en enkelt
+  anledning». «Etablererprøven» gir mulighet til «Serveringsbevilling».
+- **`utlost_av`** — den ENESTE rel-verdien som kobles til en konkret `Hendelse`, og kun for ekte,
+  eksterne hendelser (aldri en tjenestes eget resultat): X → Y fordi en navngitt hendelse faktisk
+  inntreffer. Eksempel: «Alminnelig skjenkebevilling» → (hendelsen "Endring av eierskap" inntreffer)
+  → «Endring av eiere eller eierandeler».
+- Eksisterende `før`/`avhengig av`/`input til` beholdes som mer generelle verdier for koblinger som
+  ikke passer noen av de tre over.
+
+**Fritekst-nyanse, ikke full formalisering av unntak:** siden en tjeneste-relasjon bevisst er løsere
+enn regelgrafen, holder det med et valgfritt `beskrivelse`-felt for å notere kjente unntak/forbehold
+i prosa (f.eks. "gjelder ikke ved enkelt anledning-bevilling") — det er ikke meningen å bygge en
+egen betingelseslogikk på selve relasjonen; det hører hjemme i mottakerens (Y sin) egen vilkårstre.
+
+**Presisering (2026-07-31, tredje runde): ett rettet kant per relasjon, ikke to.** Grafteoretisk er
+`Tjenesteavhengighet` en rettet kant (`FraTjenesteId → TilTjenesteId`) — retningen ligger i selve
+kanten, ikke i to separat lagrede rader. Å lagre et speilbilde (én rad B→A i tillegg til A→B) ville
+vært feil: radene ville måtte holdes manuelt synkronisert og garantert drevet fra hverandre over tid
+(én endres/slettes, den andre blir stående). I stedet beregnes riktig visningstekst avhengig av
+hvilken tjeneste man ser fra, ut fra samme rad:
+
+| `rel` | Vist på `Fra`-tjenestens side | Vist på `Til`-tjenestens side |
+|---|---|---|
+| `forutsetning_for` | "er forutsetning for {Til}" | "krever {Fra}" |
+| `gir_mulighet_til` | "gir mulighet til {Til}" | "forutsetter {Fra}" |
+| `utlost_av` | "kan føre til {Til} (via {Hendelse})" | "kan utløses av {Fra} (via {Hendelse})" |
+
+En tjenestes detaljside henter relasjoner i **begge retninger** (rader der tjenesten er `Fra`, og
+rader der den er `Til`) og viser hver med riktig tekst fra tabellen over — ingen duplisert lagring.
+
+Som `Hendelse` er `Tjenesteavhengighet` i dag kun spesifisert, aldri koblet til DTO/UI (`Dtos.cs`:
+*"hendelser/tjenesteavhengigheter (jsonb) er ikke eksponert i v1"*) — begge bør bli egne tabeller
+(ikke jsonb) når dette bygges: `Tjenesteavhengighet` trenger en ekte FK til den andre Tjenesten (og
+valgfritt til Hendelse-registeret ved `rel=utlost_av`), ikke bare en fritekst-`kilde`.
 
 ### 1.6 Datasett / datapunkt
 Felt: `felt`/`prop` (visningsnavn/maskinnavn, f.eks. `styrer.fodselsdato`), `dtype` (string/integer/boolean/date/object), `type` (oppslagbart/brukeroppgitt/utledet), `kilde`, `vilkar` (kobling), `kodeliste` (der relevant), `grunnlag` (rettslig grunnlag for behandling/oppslag), `lagring` (lagringstid), `mottakere`, `bruk`.

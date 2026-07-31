@@ -61,6 +61,30 @@ Gjennomgang av Vennesla kommunes rutine for saksbehandling av bevillingssøknade
 
 **Testcase-innhold:** tjenesten "Alminnelig skjenkebevilling"; begreper som "uklanderlig vandel", "styrer og stedfortreder", "skjenketid"; kodelistene `KL-VANDELSOMRADE-ALKOHOLLOV` og `KL-RETTSKILDEVEKT`.
 
+**Utestående, avklart 2026-07-31: Hendelse (`cv:Event`/`cv:LifeEvent`/`cv:BusinessEvent`) og
+Tjenesteavhengighet som ekte tabeller, ikke jsonb.** Begge feltene ble spesifisert i byggesteg 2s
+opprinnelige omfang (`03-domenemodell.md` §1.5) men aldri koblet til DTO/UI. Etter fasit-arbeidet mot
+skjenkebevilling (`docs/12-fasit-handbok-leveranse.md` runde 3–4, som konkret opprettet 13 relaterte
+tjenester uten noen måte å faktisk koble dem sammen) og en direkte tilbakemelding fra Johann, er
+designet nå korrigert og avklart — se `03-domenemodell.md` §1.5 for full begrunnelse og eksempler:
+
+- **Hendelse** blir et delt register (nasjonal/lokal, samme mønster som Rettskilde), med korrekte
+  CPSV-typer (`generell`/`livshendelse`/`virksomhetshendelse`), koblet **mange-til-mange** mot
+  Tjeneste som ren, symmetrisk klassifisering.
+- **Tjenesteavhengighet** er en **egen, bevisst løsere lagdeling enn vilkårstreet** — ingen FK inn i
+  Vilkår/Regelnode, kun tjeneste-til-tjeneste. `Rel` utvides til `forutsetning_for`/`gir_mulighet_til`
+  (f.eks. «Serveringsbevilling» forutsetning for «Alminnelig skjenkebevilling»; «Alminnelig
+  skjenkebevilling» gir mulighet til «Utvidelse for en enkelt anledning») og `utlost_av` (koblet til
+  en konkret Hendelse, f.eks. «Alminnelig skjenkebevilling» → hendelsen "Endring av eierskap" →
+  «Endring av eiere»), pluss et fritekst `beskrivelse`-felt for kjente unntak/nyanser — se
+  `03-domenemodell.md` §1.5 for full begrunnelse.
+
+**Ikke bygget ennå** — dette er en designavklaring for byggesteg 2, ikke en gjennomført
+implementasjon. Naturlig neste steg når det tas fatt på: ny `HendelseEntitet` + M:N-koblingstabell
+mot Tjeneste, gjør `Tjenesteavhengighet` om fra jsonb til egen tabell med FK-er (til Tjeneste og
+Hendelse), DTO-er/endepunkter, og UI på `TjenesteDetalj.tsx` — samt en konkret demonstrasjon ved å
+koble de 12 tjenestene fra fasit-runde 4 til reelle hendelser/avhengigheter.
+
 ## Byggesteg 3 — Presedensregister
 
 **Hvorfor nå og ikke tidligere/senere:** presedens kan først kobles meningsfullt til `eId` (byggesteg 1) og gi kontekst til begrepstolkning (byggesteg 2) — men trengs *før* byggesteg 4, fordi AI-assistert forslag til vilkårstre (kap. 4.2 i produktkrav) eksplisitt søker presedensregisteret som andre steg i sin prosess.
