@@ -41,7 +41,33 @@ en død database. Appen ville sett frisk ut mens den var nede.
 `Program.cs` mapper derfor `/helse` og `/health` til samme handler, dekket av
 `HelsesjekkTests` som sjekker at svaret er JSON og ikke html.
 
-### 3. Autentiseringsprofilen må settes eksplisitt
+### 3. Sti-prefikset må settes
+
+Appen serveres på `/{org}/{app}/`, og ingressen stripper **ikke** prefikset. `RegelIde:Stiprefiks`
+gjør to ting: `UsePathBase` fjerner prefikset før ruting, og `<base href>` i index.html settes til
+det, slik at klientens relative asset- og API-URL-er peker riktig.
+
+Prefikset kan ikke bakes inn i SPA-bygget — da ville imaget vært låst til én sti. Derfor er
+Vite bygget med `base: './'` og prefikset settes ved kjøretid.
+
+To feller er verdt å kjenne, begge oppdaget ved å teste og ikke ved å lese koden:
+
+**`UsePathBase` alene er ikke nok.** `WebApplication` setter inn sitt eget `UseRouting` først i
+pipelinen når man ikke kaller det selv, og da har rutingen allerede matchet på full sti.
+Symptomet er lumsk: endepunktene svarer fortsatt på rot, mens alt under prefikset faller til
+SPA-fallbacken og gir 200 med `text/html` — altså «alt svarer», men ingenting er riktig.
+`Program.cs` kaller derfor `UseRouting()` eksplisitt rett etter `UsePathBase`.
+
+**`<base href>` må skrives om ved kjøretid, ikke bare på forsiden.** Derfor serveres index.html
+av `MapFallback` med omskrevet innhold, ikke av `UseDefaultFiles`/`MapFallbackToFile` som ville
+sendt fila rått fra disk. Uten dette ville forsiden fungert mens en reload på
+`/{org}/{app}/vilkarstre` løst `assets/...` mot `.../vilkarstre/` og gitt 404 — det man ikke
+oppdager ved bare å laste forsiden.
+
+Merk at appen fortsatt svarer på rot-stier i tillegg. Ingressen sender bare prefiksede
+forespørsler, så det er ufarlig, og Docker-`HEALTHCHECK` bruker det.
+
+### 4. Autentiseringsprofilen må settes eksplisitt
 
 Imaget har `RegelIde__Autentisering=testbruker` som standard, slik at det er kjørbart lokalt.
 **Deployet må sette `altinn`**, ellers står appen åpen med brukervelger. Også dette feiler stille —

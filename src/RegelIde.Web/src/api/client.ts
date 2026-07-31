@@ -59,6 +59,18 @@ import type {
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5187';
+
+/**
+ * Bygger URL-en for et API-kall.
+ *
+ * Er API_BASE satt (vite dev mot et API på annen port) brukes den absolutt, som før. Er den tom
+ * — altså API og SPA fra samme origin, som i containeren — gjøres stien relativ, slik at den
+ * løses mot <base href> og treffer riktig også når appen står under et sti-prefiks. Med en
+ * rot-absolutt "/api/..." ville kallet gått utenfor appen og gitt 404 i app-clusteret.
+ */
+function apiUrl(path: string): string {
+  return API_BASE ? `${API_BASE}${path}` : path.replace(/^\//, '');
+}
 const BRUKER_ID_LAGRINGSNOKKEL = 'regelide.brukerId';
 
 export class ApiError extends Error {
@@ -83,7 +95,7 @@ async function kall<T>(path: string, init?: RequestInit): Promise<T> {
   const headers = new Headers(init?.headers);
   if (brukerId && !headers.has('X-Bruker-Id')) headers.set('X-Bruker-Id', brukerId);
 
-  const svar = await fetch(`${API_BASE}${path}`, { ...init, headers });
+  const svar = await fetch(apiUrl(path), { ...init, headers });
   if (!svar.ok) {
     let melding = `${svar.status} ${svar.statusText}`;
     try {

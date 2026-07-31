@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using RegelIde.Api;
@@ -54,6 +55,24 @@ builder.Services.AddCors(o => o.AddPolicy(VitePolicy, p => p
 
 var app = builder.Build();
 
+// Altinns app-cluster serverer appen under /{org}/{app}/, og ingressen stripper IKKE prefikset —
+// appen forventes å håndtere det selv. UsePathBase fjerner det fra stien før ruting, slik at
+// resten av pipelinen kan fortsette å tenke i «/api/...» og «/helse». Må ligge først; en
+// middleware registrert før denne ser fortsatt hele stien.
+// Tom verdi ⇒ ingen effekt, så lokal kjøring er uendret. Se docs/deploy-altinn-app-cluster.md.
+var stiprefiks = Stiprefiks.Les(app.Configuration);
+if (stiprefiks is not null)
+{
+    app.UsePathBase(stiprefiks);
+
+    // Det eksplisitte UseRouting-kallet er nødvendig, ikke pynt. WebApplication setter inn sitt
+    // eget UseRouting FØRST i pipelinen når man ikke kaller det selv — da har rutingen allerede
+    // matchet på full sti, og UsePathBase over kommer for sent. Symptomet er lumsk: endepunktene
+    // svarer fortsatt på rot, mens alt under prefikset faller til SPA-fallbacken og gir 200 med
+    // text/html. Kaller vi UseRouting her, brukes denne posisjonen i stedet.
+    app.UseRouting();
+}
+
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
@@ -72,7 +91,10 @@ if (!app.Configuration.GetValue("RegelIde:BakEnTerminerendeProxy", false))
 
 // Serverer den ferdigbygde SPA-en hvis den er lagt inn ved siden av API-et (wwwroot).
 // Tom mappe utenfor container ⇒ ingen effekt, og `vite dev` brukes som før.
-app.UseDefaultFiles();
+//
+// Merk at UseDefaultFiles er bevisst IKKE med: den ville sendt «/» til index.html på disk, som
+// serveres rått av UseStaticFiles og dermed uten omskrevet <base href>. Forsiden ville altså
+// fungert lokalt og vært knekt under et sti-prefiks. «/» håndteres i stedet av MapFallback nederst.
 app.UseStaticFiles();
 
 // No-op under testbruker-profilen (ingen skjemaer registrert), så rekkefølgen er den samme uansett.
@@ -1626,7 +1648,18 @@ tjenester.MapDelete("/avhengigheter/{avhengighetId:guid}", async (Guid avhengigh
 // SPA-ruting: /rettskilder/{id} o.l. er klientruter uten motstykke på serveren, så alt som
 // ikke traff et API-endepunkt eller en fil sendes til index.html. Gjør ingenting når wwwroot
 // er tom (utviklingsoppsettet, der Vite serverer klienten selv).
-app.MapFallbackToFile("index.html");
+//
+// Vi serverer innholdet selv i stedet for MapFallbackToFile, fordi <base href> må settes til
+// sti-prefikset. Klientens asset- og API-URL-er er relative (vite base: './'), og løses mot
+// denne. Uten omskrivingen ville en reload på /{org}/{app}/vilkarstre løst «assets/...» mot
+// .../vilkarstre/ og gitt 404 — nettopp det man ikke oppdager ved bare å laste forsiden.
+var indeksfil = Path.Combine(app.Environment.WebRootPath ?? "", "index.html");
+if (File.Exists(indeksfil))
+{
+    var indeksinnhold = Stiprefiks.SettBaseHref(File.ReadAllText(indeksfil), stiprefiks);
+
+    app.MapFallback(() => Results.Content(indeksinnhold, "text/html", Encoding.UTF8));
+}
 
 app.Run();
 

@@ -2,7 +2,11 @@
 <html lang="nb">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <!-- Serveren skriver om href her når RegelIde:Stiprefiks er satt (se Program.cs). Alle
+         relative URL-er i appen løses mot denne, slik at de peker riktig uansett hvor dypt
+         man står i klientruteren. Uendret "/" lokalt. -->
+    <base href="/" />
+    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <link rel="preconnect" href="https://rsms.me/" />
     <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
