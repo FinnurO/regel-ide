@@ -288,6 +288,26 @@ public sealed class TjenesteRegelverksreferanseEntitet
 }
 
 /// <summary>
+/// Håndbok-nivå rettskildeomfang (2026-07-31, docs/12-fasit-handbok-leveranse.md "Håndbok-nivå
+/// rettskildeomfang") — hvilke rettskilder en håndbok som helhet omhandler (f.eks. alkoholloven +
+/// alkoholforskriften + kommunens alkoholpolitiske retningslinje + forvaltningsloven), deklarert på
+/// håndboken selv (<see cref="HandbokId"/> peker på håndbokens EGEN <see cref="RettskildeEntitet.Id"/>,
+/// siden en håndbok IKKE har en egen tabell — den ER en RettskildeEntitet med
+/// <c>Kildetype="Rundskriv"</c>, se <see cref="HandbokForfatterTjeneste.OpprettHandbokAsync"/>).
+/// Distinkt fra <see cref="RettskildeReferanseEntitet"/>, som knytter et bestemt TEKSTUTDRAG
+/// (<see cref="RettskildeReferanseEntitet.FraNodeId"/>) til en bestemt <c>eId</c> — dette feltet
+/// deklarerer en hel rettskilde som relevant for håndboken, uten noen bestemt paragraf-presisjon.
+/// </summary>
+public sealed class HandbokRettskildeomfangEntitet
+{
+    public Guid Id { get; set; }
+    public Guid HandbokId { get; set; }
+    public Guid TilRettskildeId { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+}
+
+/// <summary>
 /// Begrep (SKOS, docs/03-domenemodell.md §1.3) — byggesteg 2. Samme basemetadata/statusløp-mønster
 /// som <see cref="TjenesteEntitet"/>.
 /// </summary>
@@ -581,7 +601,16 @@ public sealed class VilkarstreKommentarEntitet
 
     public required string TekstHtml { get; set; } // sanert med KommentarTekstSanering, samme allow-list som håndbok
 
-    /// <summary>Manuell visningsorden blant flere kommentarer PÅ SAMME node — node-til-node-rekkefølgen dekkes av vilkårstre-traverseringen selv.</summary>
+    /// <summary>
+    /// Intern sorteringsnøkkel blant flere kommentarer PÅ SAMME node — node-til-node-rekkefølgen
+    /// dekkes av vilkårstre-traverseringen selv. Settes KUN av <see
+    /// cref="VilkarstreKommentarTjeneste.OpprettAsync"/> (append) og <see
+    /// cref="VilkarstreKommentarTjeneste.FlyttAsync"/> (swap med nabo) — aldri av en klient som en
+    /// fritt valgt literal verdi (2026-07-31, docs/12-fasit-handbok-leveranse.md "Prinsipp: rekkefølge
+    /// og nummerering er alltid beregnet, aldri en redigerbar literal"). Visningsnummerering (hvis
+    /// noe fremtidig UI trenger å vise "1.", "2." osv.) skal alltid beregnes fra listeposisjon ved
+    /// rendering, aldri leses direkte fra dette feltet som en streng.
+    /// </summary>
     public int Rekkefolge { get; set; }
 
     public required string OpprettetAv { get; set; }

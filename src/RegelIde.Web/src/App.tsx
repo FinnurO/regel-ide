@@ -14,6 +14,7 @@ import KodelisteDetalj from './pages/KodelisteDetalj';
 import VilkarstreListe from './pages/VilkarstreListe';
 import VilkarstreDetalj from './pages/VilkarstreDetalj';
 import DatasettDetalj from './pages/DatasettDetalj';
+import DatasettListe from './pages/DatasettListe';
 import TjenesteVeiledning from './pages/TjenesteVeiledning';
 
 function BrukerVelger() {
@@ -67,6 +68,9 @@ function App() {
           <NavLink to="/vilkarstre" className={({ isActive }) => (isActive ? 'aktiv' : '')}>
             Vilkårstre
           </NavLink>
+          <NavLink to="/datasett" className={({ isActive }) => (isActive ? 'aktiv' : '')}>
+            Datasett
+          </NavLink>
         </nav>
         <BrukerVelger />
       </aside>
@@ -84,6 +88,7 @@ function App() {
           <Route path="/kodelister/:id" element={<KodelisteDetalj />} />
           <Route path="/vilkarstre" element={<VilkarstreListe />} />
           <Route path="/vilkarstre/:rotnodeId" element={<VilkarstreDetalj />} />
+          <Route path="/datasett" element={<DatasettListe />} />
           <Route path="/datasett/:id" element={<DatasettDetalj />} />
           <Route path="/tjenester/:id/veiledning" element={<TjenesteVeiledning />} />
         </Routes>

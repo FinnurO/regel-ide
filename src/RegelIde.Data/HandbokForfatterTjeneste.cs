@@ -338,6 +338,50 @@ public sealed class HandbokForfatterTjeneste(RegelIdeDbContext db)
     }
 
     /// <summary>
+    /// Deklarerer at en håndbok som helhet omhandler en gitt rettskilde (2026-07-31, docs/12-fasit-
+    /// handbok-leveranse.md "Håndbok-nivå rettskildeomfang") — f.eks. alkoholloven, alkoholforskriften,
+    /// en kommunal retningslinje og forvaltningsloven for skjenkebevilling-fasiten. Distinkt fra <see
+    /// cref="KobleLovreferanseAsync"/>, som knytter et bestemt tekstavsnitt til en bestemt paragraf.
+    /// </summary>
+    public async Task<HandbokRettskildeomfangEntitet> LeggTilRettskildeomfangAsync(
+        Guid handbokId, Guid tilRettskildeId, string opprettetAv, CancellationToken ct = default)
+    {
+        if (!await db.Rettskilder.AnyAsync(r => r.Id == handbokId && r.Doctype == "doc", ct))
+        {
+            throw new ArgumentException($"'{handbokId}' er ikke en håndbok (doctype='doc').");
+        }
+        if (!await db.Rettskilder.AnyAsync(r => r.Id == tilRettskildeId, ct))
+        {
+            throw new ArgumentException($"Rettskilde '{tilRettskildeId}' finnes ikke.");
+        }
+        if (await db.HandbokRettskildeomfang.AnyAsync(o => o.HandbokId == handbokId && o.TilRettskildeId == tilRettskildeId, ct))
+        {
+            throw new ArgumentException("Denne rettskilden er allerede lagt til håndbokens omfang.");
+        }
+
+        var omfang = new HandbokRettskildeomfangEntitet
+        {
+            Id = Guid.NewGuid(), HandbokId = handbokId, TilRettskildeId = tilRettskildeId,
+            OpprettetAv = opprettetAv, OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        };
+        db.HandbokRettskildeomfang.Add(omfang);
+        await db.SaveChangesAsync(ct);
+        return omfang;
+    }
+
+    public async Task<bool> FjernRettskildeomfangAsync(Guid omfangId, CancellationToken ct = default)
+    {
+        var omfang = await db.HandbokRettskildeomfang.FirstOrDefaultAsync(o => o.Id == omfangId, ct);
+        if (omfang is null) return false;
+        db.HandbokRettskildeomfang.Remove(omfang);
+        await db.SaveChangesAsync(ct);
+        return true;
+    }
+
+    public Task<List<HandbokRettskildeomfangEntitet>> HentRettskildeomfangAsync(Guid handbokId, CancellationToken ct = default) =>
+        db.HandbokRettskildeomfang.Where(o => o.HandbokId == handbokId).ToListAsync(ct);
+
+    /// <summary>
     /// Manuell "Må revideres"-merking (AK-3.3.12, v1-forenkling — se docs/03-domenemodell.md §1.1.1).
     /// Automatisk flagging fra en fremtidig påvirkningsanalyse (byggesteg 8) er en senere utvidelse av
     /// samme felt, ingen skjemaendring.

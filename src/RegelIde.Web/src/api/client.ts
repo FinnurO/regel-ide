@@ -43,6 +43,7 @@ import type {
   TjenesteDto,
   TjenesteReferanseDto,
   TjenesteRegelverksreferanseDto,
+  HandbokRettskildeomfangDto,
   TjenesteRequest,
   UnntakDto,
   VeiledningDto,
@@ -218,6 +219,19 @@ export const api = {
       body: JSON.stringify(request),
     }),
 
+  hentHandbokRettskildeomfang: (handbokId: string) =>
+    kall<HandbokRettskildeomfangDto[]>(`/api/handboker/${handbokId}/rettskilder`),
+
+  leggTilHandbokRettskildeomfang: (handbokId: string, tilRettskildeId: string) =>
+    kall<HandbokRettskildeomfangDto>(`/api/handboker/${handbokId}/rettskilder`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tilRettskildeId }),
+    }),
+
+  fjernHandbokRettskildeomfang: (handbokId: string, omfangId: string) =>
+    kall<void>(`/api/handboker/${handbokId}/rettskilder/${omfangId}`, { method: 'DELETE' }),
+
   // ---------- Tjenesteregister (CPSV-AP-NO, docs/03-domenemodell.md §1.5) — byggesteg 2 ----------
 
   hentTjenester: () => kall<TjenesteDto[]>('/api/tjenester'),
@@ -349,6 +363,13 @@ export const api = {
     }),
 
   fjernVilkarstreKommentar: (id: string) => kall<void>(`/api/vilkarstre-kommentarer/${id}`, { method: 'DELETE' }),
+
+  flyttVilkarstreKommentar: (id: string, retning: 'opp' | 'ned') =>
+    kall<VilkarstreKommentarDto>(`/api/vilkarstre-kommentarer/${id}/flytt`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ retning }),
+    }),
 
   hentVilkarListe: () => kall<VilkarDto[]>('/api/vilkar'),
 

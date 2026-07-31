@@ -50,6 +50,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<ProveniensEntitet> Proveniens => Set<ProveniensEntitet>();
     public DbSet<TjenesteEntitet> Tjenester => Set<TjenesteEntitet>();
     public DbSet<TjenesteRegelverksreferanseEntitet> TjenesteRegelverksreferanser => Set<TjenesteRegelverksreferanseEntitet>();
+    public DbSet<HandbokRettskildeomfangEntitet> HandbokRettskildeomfang => Set<HandbokRettskildeomfangEntitet>();
     public DbSet<BegrepEntitet> Begreper => Set<BegrepEntitet>();
     public DbSet<KodelisteEntitet> Kodelister => Set<KodelisteEntitet>();
     public DbSet<KodelisteKodeEntitet> KodelisteKoder => Set<KodelisteKodeEntitet>();
@@ -353,6 +354,22 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 
             e.HasIndex(x => new { x.TjenesteId, x.TilRettskildeId, x.TilEid }).IsUnique()
                 .HasDatabaseName("ux_tjeneste_regelverksreferanser");
+        });
+
+        b.Entity<HandbokRettskildeomfangEntitet>(e =>
+        {
+            e.ToTable("handbok_rettskildeomfang");
+            e.HasKey(x => x.Id).HasName("handbok_rettskildeomfang_pkey");
+            e.Property(x => x.HandbokId).HasColumnName("handbok_id");
+            e.Property(x => x.TilRettskildeId).HasColumnName("til_rettskilde_id");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.HandbokId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.TilRettskildeId);
+
+            e.HasIndex(x => new { x.HandbokId, x.TilRettskildeId }).IsUnique()
+                .HasDatabaseName("ux_handbok_rettskildeomfang");
         });
 
         b.Entity<BegrepEntitet>(e =>

@@ -3,6 +3,7 @@ import { Link as RouterLink, useParams, useSearchParams } from 'react-router';
 import { Button, Field, Heading, Label, Link, Paragraph, Select, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type {
+  HandbokRettskildeomfangDto,
   RettskildeDetalj as RettskildeDetaljType,
   RettskildeNodeDto,
   RettskildeReferanseDto,
@@ -93,6 +94,13 @@ export default function RettskildeDetalj() {
   const [leggerTilReferanse, setLeggerTilReferanse] = useState(false);
   const [referanseFeil, setReferanseFeil] = useState<string | null>(null);
 
+  // Håndbok-nivå rettskildeomfang (2026-07-31) — hvilke rettskilder håndboken som HELHET omhandler,
+  // distinkt fra Referanser over (som er per tekstavsnitt). Kun relevant når detalj.doctype === 'doc'.
+  const [rettskildeomfang, setRettskildeomfang] = useState<HandbokRettskildeomfangDto[]>([]);
+  const [nyOmfangRettskildeId, setNyOmfangRettskildeId] = useState('');
+  const [leggerTilOmfang, setLeggerTilOmfang] = useState(false);
+  const [omfangFeil, setOmfangFeil] = useState<string | null>(null);
+
   useEffect(() => {
     if (!activeKind && taggKinds.length > 0) setActiveKind(taggKinds[0].id);
   }, [taggKinds, activeKind]);
@@ -112,7 +120,29 @@ export default function RettskildeDetalj() {
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av rettskilden.'));
     api.hentReferertAvTjenester(id).then(setReferertAvTjenester).catch(() => setReferertAvTjenester([]));
     api.hentReferanser(id).then(setReferanser).catch(() => setReferanser([]));
+    api.hentHandbokRettskildeomfang(id).then(setRettskildeomfang).catch(() => setRettskildeomfang([]));
   }, [id]);
+
+  async function leggTilOmfang() {
+    if (!id || !nyOmfangRettskildeId) return;
+    setOmfangFeil(null);
+    setLeggerTilOmfang(true);
+    try {
+      const nytt = await api.leggTilHandbokRettskildeomfang(id, nyOmfangRettskildeId);
+      setRettskildeomfang((forrige) => [...forrige, nytt]);
+      setNyOmfangRettskildeId('');
+    } catch (err) {
+      setOmfangFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved lagring av rettskildeomfang.');
+    } finally {
+      setLeggerTilOmfang(false);
+    }
+  }
+
+  async function fjernOmfang(omfangId: string) {
+    if (!id) return;
+    await api.fjernHandbokRettskildeomfang(id, omfangId);
+    setRettskildeomfang((forrige) => forrige.filter((o) => o.id !== omfangId));
+  }
 
   // Egen effekt for ?eid= (i stedet for kun å lese den én gang inni data-lastingen over) — en lenke
   // KAN peke til en annen node i SAMME rettskilde (typisk: en intern kryssreferanse i løpeteksten,
@@ -327,6 +357,40 @@ export default function RettskildeDetalj() {
           <span className="badge-delt">Delt / nasjonal</span>
         )}
       </div>
+
+      {detalj.doctype === 'doc' && (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.3rem' }}>
+            Denne håndboken omhandler:{' '}
+            {rettskildeomfang.length === 0 && <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>(ingen rettskilder deklarert ennå)</span>}
+            {rettskildeomfang.map((o, i) => {
+              const rk = alleRettskilder.find((r) => r.id === o.tilRettskildeId);
+              return (
+                <span key={o.id}>
+                  {i > 0 && ', '}
+                  <Link asChild><RouterLink to={`/rettskilder/${o.tilRettskildeId}`}>{rk?.tittel ?? o.tilRettskildeId}</RouterLink></Link>
+                  {' '}
+                  <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernOmfang(o.id)}>Fjern</Button>
+                </span>
+              );
+            })}
+          </Paragraph>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+            <Field>
+              <Label>Legg til rettskilde</Label>
+              <Select data-size="sm" value={nyOmfangRettskildeId} onChange={(e) => setNyOmfangRettskildeId(e.target.value)}>
+                <Select.Option value="">Velg …</Select.Option>
+                {alleRettskilder.filter((r) => r.id !== id && !rettskildeomfang.some((o) => o.tilRettskildeId === r.id))
+                  .map((r) => <Select.Option key={r.id} value={r.id}>{r.tittel}</Select.Option>)}
+              </Select>
+            </Field>
+            <Button data-size="sm" onClick={leggTilOmfang} disabled={leggerTilOmfang || !nyOmfangRettskildeId}>
+              {leggerTilOmfang ? 'Legger til …' : 'Legg til'}
+            </Button>
+          </div>
+          {omfangFeil && <div className="feilmelding" style={{ marginTop: '0.3rem' }}>{omfangFeil}</div>}
+        </div>
+      )}
 
       <Table style={{ marginBottom: '1.5rem' }}>
         <Table.Body>

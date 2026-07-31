@@ -19,12 +19,49 @@ Dokumentet brukes fremover til to ting:
 
 ## Kildegrunnlag
 
-Fasiten er destillert fra `skjenkebevilling-rundskriv_3.md` (Johanns opplastede eksempel, 2026-07-30)
-— en reell, ferdig veiledning til behandling av søknad om skjenkebevilling. Etter eksplisitt
-instruks er **alt som er DMN/DRD-spesifikt i kildedokumentet ignorert** — regel-ide har ingen
-DMN-motor. Der kildedokumentet skriver "hentet fra DMN-modellen" eller "beslutning i DRD-en", leses
-det her som "hentet fra vilkårstreet og datasett-parametrene" — det er regel-ides eget svar på
-samme rolle (strukturert, maskinlesbar beslutningslogikk), ikke en ny mekanisme å bygge.
+Fasiten er nå `docs/kildegrunnlag/skjenkebevilling-rundskriv-fasit.md` — Johanns opplastede
+**versjon 4** (2026-07-31, erstatter `skjenkebevilling-rundskriv_3.md` som primærkilde; v3 er ikke
+slettet, men v4 er den gjeldende fasiten). Etter eksplisitt instruks er **alt som er DMN/DRD-spesifikt
+i kildedokumentet ignorert** — regel-ide har ingen DMN-motor. Der kildedokumentet skriver "hentet fra
+DMN-modellen" eller "beslutning i DRD-en", leses det her som "hentet fra vilkårstreet og
+datasett-parametrene" — det er regel-ides eget svar på samme rolle (strukturert, maskinlesbar
+beslutningslogikk), ikke en ny mekanisme å bygge.
+
+**Endringer fra v3 til v4** (relevante for denne fasiten — ikke en fullstendig diff):
+
+- **Nytt §3 "Habilitet"** (fvl. § 8), satt inn FØR Formalia, som saksgangens første punkt. Dette er en
+  vurdering av **saksbehandleren selv**, ikke av søkeren/virksomheten — den passer ikke inn i
+  Vilkår/Regelnode-ontologien (som alltid evaluerer eligibility for søkeren). Se ny merknad under
+  dimensjon E.
+- **§6 Vandelsvurdering kraftig utvidet**: krever identifikasjon av alle relevante personer/
+  virksomheter med organisasjonsnummer/D-/F-nummer, og lister ni konkrete "Årsaker til avslag" — dette
+  er **Fakta**, ikke prosa, og bør kunne registreres strukturert (se ny merknad om håndbok som
+  fakta-kilde nedenfor).
+- **§7 "større arrangement" er nå tallfestet** (>1000 gjester) — enda et konkret eksempel på en
+  terskelverdi som bør være et Datasett-parameter, ikke en frase i løpetekst.
+- **§9 utvidet med "Gyldighet"** (4 år, eller til 30. september året etter neste kommunevalg — en
+  avledet/beregnet regel, ikke en ren betingelse) og **"Prikkbelastning"** (sanksjonssystem, hører
+  sammen med funn #5/#3 i `06-veikart.md` om kontroll/tilsyn — ikke modellert, ikke del av denne
+  runden).
+- **Bekreftet, konkret illustrasjon av et reelt strukturelt problem**: v4 har **to seksjoner
+  nummerert "## 11."** ("Sjekkliste for saksbehandler" og "Sjekkliste for søker") og en tredje
+  seksjon skrevet `##12.` (uten mellomrom) — fordi nummereringen er tastet inn manuelt i
+  kildedokumentet og ingen forfatter/verktøy fanget opp duplikatet. Dette er ikke en kritikk av
+  kildedokumentet i seg selv (det er et Word/Markdown-dokument uten strukturvalidering) — det er
+  **beviset** på at regel-ide selv aldri må gjøre samme feil mulig: se ny prinsipp-seksjon
+  "Rekkefølge og nummerering: aldri en manuelt redigerbar literal" nedenfor.
+- **Ny "## 12. Relevante tjenester"-seksjon**: en flat liste over ~14 navngitte, relaterte tjenester
+  (Omsetningsoppgave, Serveringsbevilling, Skjenkebevilling for et enkelt arrangement, osv.) — navn
+  som tekst, ikke lenker/ID-er. Speiler nøyaktig samme gap som dimensjon C/A: en ekte, strukturert
+  kobling (mot `Tjeneste`-registeret) gjengitt som fritekst i kildedokumentet.
+- **§8 forenklet**: viser nå bare én kommunes parametertabell inline i stedet for v3s
+  side-ved-side-sammenligning av flere kommuner — ikke en regresjon i seg selv (samme datamodell-gap
+  som før), men betyr at v4 alene ikke lenger demonstrerer multi-kommune-variasjon like tydelig som
+  v3 gjorde. Begge dokumentene brukes derfor sammen som kildegrunnlag der det er relevant.
+- **Ingen inline rettskilde-lenker** — bekreftet av Johann selv ("den ikke inneholder
+  referanser/linker til rettskilder, men det må den gjøre"): kildedokumentet siterer paragrafer som
+  ren tekst ("alkoholloven § 1-7b"), aldri som klikkbare lenker. Dette er **ikke** et krav til
+  kildedokumentet — det er et krav til **regel-ides genererte output**. Se fiksen under dimensjon A.
 
 ## Hovedfunn: en god håndbok forteller VILKÅRSTREET, ikke bare paragrafene
 
@@ -77,6 +114,65 @@ håndboken (som fortsatt er riktig verktøy for ren lovkommentar, uavhengig av t
 Dimensjonene under gjelder uavhengig av hvilket alternativ som velges; de beskriver kvaliteten på selve INNHOLDET, ikke
 hvor det bor.
 
+## Prinsipp: rekkefølge og nummerering er alltid beregnet, aldri en redigerbar literal
+
+v4-kildedokumentets duplikate "## 11." (se over) er ikke et kuriosum — det er en konkret advarsel
+Johann pekte på direkte: **"Du foreslår manuell nummerering. Det vil ikke fungere."** Dette
+korrigerer ordlyden i den opprinnelige runde-1-planen, der `VilkarstreKommentarEntitet.Rekkefolge`
+ble beskrevet som å tilby "manuell overstyring av visningsorden" — en fremtidig UI-affordanse som
+aldri ble bygget denne runden, men som var feil retning å beskrive den i.
+
+**Prinsippet som gjelder videre, for `Rekkefolge` og enhver fremtidig seksjons-/leddnummerering i
+håndbok/veiledning-output:**
+
+- Et lagret sorteringsfelt (`Rekkefolge`, eller en fremtidig håndbok-avsnitts-rekkefølge) er en
+  **intern sorteringsnøkkel** — aldri et felt en forfatter skriver en literal verdi inn i via et
+  tekst-/tallfelt.
+- Reordning skjer via **strukturelle handlinger** (dra-og-slipp, opp/ned-knapper, "sett inn før/
+  etter") som omberegner nøkkelen bak kulissene — aldri ved at brukeren taster "11" eller "12" i et
+  input-felt.
+- All nummerering som **vises** til en leser (§-nummer, listepunkt-tall, sjekkliste-nummer) beregnes
+  **fra listeposisjon ved rendering**, aldri fra en lagret streng en forfatter selv har skrevet. Da
+  er en duplikat-nummerering som v4s strukturelt umulig å produsere.
+
+Dette er ikke implementert som kode denne runden (ingen reorder-UI er bygget ennå for
+`Rekkefolge` — den settes i dag kun av backend som "append til slutten") — det er en **stående
+designbegrensning** for når en slik UI faktisk bygges, tilsvarende hvordan dimensjonene under er
+mål-tilstander, ikke ferdige leveranser.
+
+## Håndboken er en forfatterflate for vilkår/fakta/sjekklister — ikke bare en lesevisning
+
+Johanns presisering (2026-07-31): **"Samtidig så er det her man lager de detaljerte vilkårene som
+brukes i vilkårstreet og sjekklister. Her definerer man også fakta."** Dette korrigerer en implisitt
+premiss i runde-1-designet: `VeiledningRepository`/`TjenesteVeiledning.tsx` ble bygget som en
+LESEVISNING som genereres FRA et allerede eksisterende vilkårstre — men i praksis er
+håndbok-/veiledningsarbeidet (minst delvis) der de underliggende Vilkår-detaljene,
+Datasett/"Fakta" og sjekklistene faktisk **skrives første gang**, ikke bare der de gjengis.
+
+v4s §6 (identifikasjonskrav, ni konkrete avslagsgrunner) og §7 (>1000-gjester-terskelen) er gode
+eksempler: dette ER fakta/vilkårsdetaljer en jurist typisk formulerer FØRST i en håndbok-tekst, som
+deretter bør kunne bli strukturerte `Vilkar.ParametreJson`/`Datasett`-verdier eller
+`Skjonnsmomenter`-oppføringer — ikke omvendt. Dagens `Egenskapspanel`s "Veiledning"-fane lar en
+forfatter feste en kommentar TIL en allerede eksisterende Vilkår/Regelnode-node, men gir ingen vei
+til å OPPRETTE et nytt Vilkår, sette dets `ParametreJson`, eller registrere en `DatasettVerdi` uten å
+forlate håndbok-konteksten og gå til en helt separat side (Vilkårstre/Datasett-registeret). Dette er
+en reell arkitektonisk implikasjon for frontend-design — se vurderingen under.
+
+## Håndbok-nivå rettskildeomfang
+
+Johanns nye krav (2026-07-31): en håndbok må kunne **deklarere tidlig, ved opprettelse**, hvilke(n)
+rettskilde(r) den omhandler — kan være flere. Konkret eksempel fra fasiten: alkoholloven (lov),
+alkoholforskriften (forskrift), kommunens alkoholpolitiske retningslinje, OG forvaltningsloven (siden
+Habilitet/Formalia siterer fvl. §§ 8/11/17).
+
+Dette finnes **ikke** i dag — `HandbokForfatterTjeneste`/`HandbokKommentarMetadataEntitet` er
+strengt paragraf-anchoret til ÉN rettskilde-node (`NodeId`) per kommentar, og
+`VeiledningRepository` har ingen håndbok-nivå-entitet overhodet (den er en live-rendret projeksjon,
+ikke en persistert "håndbok"-rad å feste et rettskildeomfang til). Et sett med relaterte rettskilder
+kan i dag kun uttrykkes implisitt, spredt over enkelt-referanser på hver enkelt Vilkår/Regelnode-node
+— det finnes intet sted som svarer på "hvilke rettskilder handler denne håndboken/veiledningen om,
+totalt sett" som ett samlet svar. **Gap, ikke løst denne runden** — adressert i vurderingen under.
+
 ## Kvalitetsdimensjoner
 
 Hver dimensjon har: hva idealet faktisk gjør, hvor regel-ide står i dag, og det konkrete gapet.
@@ -96,6 +192,16 @@ markør for proveniens på avsnittsnivå.
 
 **Gap:** en `Kommentartype`/`Sikkerhetsgrad`-lignende markør per avsnitt eller per kommentarseksjon
 (f.eks. `hjemmel`/`kilde`/`praktisk-rad`), rendret visuelt distinkt (som i eksempelet), er ikke bygget.
+
+**Rettelse 2026-07-31**: Johann påpekte at fasitens kildedokument selv IKKE har klikkbare
+rettskilde-lenker, men at regel-ides genererte veiledning MÅ ha det — bekreftet at
+`TjenesteVeiledning.tsx`s `Hjemmel: …`-linje til da rendret `juridiskGrunnlag` som ren, sammenslått
+tekst (`${kilde} ${eId}`), ikke som lenker, til tross for at samme data allerede rendres som ekte
+lenker andre steder (`Egenskapspanel.tsx`, `TjenesteDetalj.tsx`, via `rettskildeLenke()`). Fikset
+samme runde: hvert `juridiskGrunnlag`-element i veiledningen er nå en `<Link>` til
+`/rettskilder/{id}?eid=…` når eId-en matcher en kjent rettskilde, ellers uendret tekst-fallback.
+Verifisert med `npx tsc -b --noEmit` (ikke browser-verifisert i denne runden — se
+Optional-Next-Step).
 
 ### B. Presisjon på tall og frister — aldri "en del år"
 
@@ -154,6 +260,14 @@ til byggesteg 4/7, ikke løst.
 **Gap:** en håndbok kan i dag ikke systematisk gjengi § 9-innhold, fordi regel-ide ikke har noe
 sted å registrere det strukturert — bare vilkårstreets pre-vedtak-vilkår.
 
+**Utvidet av v4**: det nye §3 "Habilitet" er et EGET, beslektet men distinkt gap — det er en
+vurdering av **saksbehandleren selv** (fvl. § 8), ikke av søkeren. Det passer ikke i
+Vilkår/Regelnode-ontologien i det hele tatt (som alltid evaluerer eligibility for SØKER), og er ikke
+en variant av dimensjon E sitt vedtaksvilkår-gap — det er et tredje, foreløpig helt umodellert
+konsept ("prosess-forutsetning for selve saksbehandlingen"). Sammenfaller med funn #4 i
+`06-veikart.md` ("Saksbehandler-habilitet, fvl. § 6") — nå konkret illustrert med et reelt
+eksempel, fortsatt uløst, fortsatt notert til en senere byggesteg.
+
 ### F. Dokumentgraf, ikke monolitt
 
 Idealet er ett dokument av flere som henger sammen — det viser aktivt til et søsterdokument
@@ -177,6 +291,21 @@ tilbake til nummererte `<p>`-avsnitt uten avkrysning.
 
 **Gap:** dette er et rent editor-/sanerings-gap, ikke et datamodell-gap — enklest å tette av alle
 punktene i dette dokumentet.
+
+### H. Håndbok-nivå rettskildeomfang (ny dimensjon, 2026-07-31)
+
+Idealet lar en håndbok deklarere, tidlig og samlet, hvilke rettskilder den som HELHET omhandler —
+for fasiten: alkoholloven, alkoholforskriften, kommunens alkoholpolitiske retningslinje og
+forvaltningsloven (siden Habilitet/Formalia siterer fvl. §§ 8/11/17). Dette er distinkt fra
+node-nivå-referanser (dimensjon A/F) — et samlet "denne håndboken handler om X, Y, Z"-svar, ikke en
+sum av enkelt-avsnitts-koblinger.
+
+Regel-ide har nå (denne runden) `HandbokRettskildeomfangEntitet` + `/api/handboker/{id}/rettskilder`
+(GET/POST/DELETE), en avkrysningsliste ved håndbok-opprettelse (`HandbokOpprett.tsx`) og en
+"Denne håndboken omhandler: …"-visning med legg-til/fjern-skjema på håndbok-siden
+(`RettskildeDetalj.tsx`). **Gap som gjenstår:** ingen validering av at innholdet FAKTISK kun siterer
+de deklarerte rettskildene (en forfatter kan fortsatt koble en Referanser-seksjon til en rettskilde
+som ikke er i omfanget, uten varsel) — omfanget er informativt/navigerbart, ikke håndhevet.
 
 ## Skåringsmodell
 
@@ -221,6 +350,38 @@ enhetstester.**
 **Ikke re-skåret denne runden** (bevisst utenfor scope, se Context): B (forfatterdisiplin, ikke kode),
 D (skjønnsmomenter kan nå festes en veiledningskommentar via samme mekanisme som A, men selve
 koblingen skjønnsmoment↔kommentartekst er ikke bygget strukturert), E, F (uendret).
+
+**Status etter runde 3 (2026-07-31)** — Johanns oppfølging på rundskriv v4: reproduksjonstest,
+ikke-manuell rekkefølge, håndbok-nivå rettskildeomfang, og ekte rettskilde-lenker i veiledningen.
+
+| Dimensjon | Skår | Kort begrunnelse |
+|---|---|---|
+| A — Sporbarhet på tekstnivå | **75 %** *(uendret tall, men reell forbedring)* | `Hjemmel: …`-linjen i `TjenesteVeiledning.tsx` var ren tekst til nå — rendres nå som ekte, klikkbare lenker til rettskilden (samme `rettskildeLenke()`-mekanisme som resten av appen). Ikke hevet til 100 %: fortsatt ingen kontroll av at en "hjemmel"-kommentar faktisk siterer riktig lovtekst. |
+| H — Håndbok-nivå rettskildeomfang | **75 %** | Ny dimensjon (se over) — full CRUD + UI (opprettelse og etterhåndsredigering), verifisert i browser. Ikke 100 %: omfanget håndheves ikke (ingen varsel ved koblinger utenfor deklarert omfang). |
+| Rekkefølge/nummerering (prinsipp, ikke egen dimensjon) | — | `VilkarstreKommentarEntitet.Rekkefolge` kan nå flyttes via ▲/▼-knapper (`FlyttAsync`, swap med nabo) i stedet for kun append — verifisert i browser at rekkefølgen faktisk endres og består reload. Ingen UI lar noensinne en bruker skrive et tall direkte; prinsippet er også skrevet inn i selve doc-kommentaren på feltet (`Entiteter.cs`), ikke bare her. |
+
+**Reproduksjonstest** (`RundskrivReproduksjonTests.cs`, `RegelIde.Api.Tests`) — svar på "er det mulig
+å reprodusere rundskriv v4 via applikasjonen": **delvis, med en presist begrunnet grense**. Testen
+seeder ikke ny data (gjenbruker det eksisterende Byggesteg4-treet + KommunaleParametreSeed) og
+bekrefter, via det ekte `GET /api/tjenester/{id}/veiledning`-endepunktet (pluss to `POST
+/api/vilkarstre-kommentarer`-kall som demonstrerer forfatter-mekanismen for §6/§11), følgende
+dekningskart:
+
+| Seksjon | Dekning |
+|---|---|
+| §2 Saksgang (oversikt) | Delvis (3 av 6 spørsmål strukturert: vandel, kvalifikasjon, kommunalt skjønn) |
+| §3 Habilitet | Nei — passer ikke i Vilkår/Regelnode-ontologien (evaluerer saksbehandler, ikke søker) |
+| §4 Formalia | Nei — ingen søknad-komplett-vilkår modellert |
+| §5 Serveringsbevilling | Nei — ingen egen vilkår-node |
+| §6 Vandelsvurdering | Delvis — vilkåret finnes strukturert, avslagsgrunnene krever manuell `VilkarstreKommentar` |
+| §7 Kvalifikasjonskrav | Delvis — aldersgrense strukturert, >1000-gjester-terskel og kunnskapsprøve-unntak er ikke |
+| §8 Kommunal skjønnsvurdering | Delvis — kun klokkeslett er `DatasettVerdi`, resten av tabellen er ikke |
+| §9 Vilkår i vedtaket (Gyldighet/Prikkbelastning) | Nei — Vedtaksvirkning eies av `forklaringsmodell-api` |
+| §11 Sjekkliste | Delvis — mekanismen (`ul`/`li`) virker ende-til-ende, konkrete punkter krever manuell kommentar |
+| §12 Relevante tjenester | Nei — `Tjeneste` har ikke noe relatert-tjenester-felt |
+
+Testen feiler bevisst hvis et fremtidig gap tettes uten at testen selv oppdateres — den er skrevet
+som en levende kontrakt for hvor grensen går, ikke en engangsmåling.
 
 ## Skjermbilde-konformitet mot Claude Design
 

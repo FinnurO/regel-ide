@@ -220,6 +220,13 @@ export interface TjenesteRegelverksreferanseDto {
   tilEid: string;
 }
 
+/** Håndbok-nivå rettskildeomfang (docs/12-fasit-handbok-leveranse.md, 2026-07-31). */
+export interface HandbokRettskildeomfangDto {
+  id: string;
+  handbokId: string;
+  tilRettskildeId: string;
+}
+
 export interface KobleRegelverksreferanseRequest {
   tilRettskildeId: string;
   tilEid: string;

@@ -623,6 +623,37 @@ handboker.MapPost("/{id:guid}/kommentarer/{nodeId:guid}/publiser", async (Guid i
     .WithName("PubliserHandbokKommentar")
     .WithSummary("Publiserer en kommentarseksjon. Bindende seksjoner krever registrert godkjenner (AK-3.3.11).");
 
+handboker.MapGet("/{id:guid}/rettskilder", async (Guid id, HandbokForfatterTjeneste tjeneste, CancellationToken ct) =>
+        Results.Ok((await tjeneste.HentRettskildeomfangAsync(id, ct)).Select(HandbokRettskildeomfangDto.FraEntitet)))
+    .WithName("HentHandbokRettskildeomfang")
+    .WithSummary("Lister hvilke rettskilder en håndbok som helhet omhandler.");
+
+handboker.MapPost("/{id:guid}/rettskilder", async (Guid id, HttpRequest request, LeggTilRettskildeomfangRequest body,
+        HandbokForfatterTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var omfang = await tjeneste.LeggTilRettskildeomfangAsync(id, body.TilRettskildeId, bruker.Navn, ct);
+            return Results.Created($"/api/handboker/{id}/rettskilder/{omfang.Id}", HandbokRettskildeomfangDto.FraEntitet(omfang));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("LeggTilHandbokRettskildeomfang")
+    .WithSummary("Deklarerer at håndboken som helhet omhandler en gitt rettskilde.");
+
+handboker.MapDelete("/{id:guid}/rettskilder/{omfangId:guid}", async (Guid omfangId, HandbokForfatterTjeneste tjeneste, CancellationToken ct) =>
+        await tjeneste.FjernRettskildeomfangAsync(omfangId, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen rettskildeomfang med id '{omfangId}'." }))
+    .WithName("FjernHandbokRettskildeomfang")
+    .WithSummary("Fjerner en rettskilde fra håndbokens omfang.");
+
 // ---------- Tjenesteregister (CPSV-AP-NO, docs/03-domenemodell.md §1.5) — byggesteg 2 ----------
 // ---------- krever X-Bruker-Id — en tjeneste er alltid virksomhetens eget arbeidsprodukt (§0.1). ----------
 
@@ -1004,6 +1035,27 @@ vilkarstreKommentarer.MapDelete("/{id:guid}", async (Guid id, VilkarstreKommenta
         await tjeneste.SlettAsync(id, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen kommentar med id '{id}'." }))
     .WithName("SlettVilkarstreKommentar")
     .WithSummary("Fjerner en veiledningskommentar.");
+
+vilkarstreKommentarer.MapPost("/{id:guid}/flytt", async (Guid id, HttpRequest request, FlyttVilkarstreKommentarRequest body,
+        VilkarstreKommentarTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var k = await tjeneste.FlyttAsync(id, body.Retning, bruker.Navn, ct);
+            return Results.Ok(VilkarstreKommentarDto.FraEntitet(k));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("FlyttVilkarstreKommentar")
+    .WithSummary("Flytter en kommentar én posisjon opp/ned blant søsknene sine (bytter Rekkefolge med naboen, aldri en fritt satt verdi).");
 
 // ---------- Vilkårregister (docs/03-domenemodell.md §1.8) — byggesteg 4 runde 1 ----------
 

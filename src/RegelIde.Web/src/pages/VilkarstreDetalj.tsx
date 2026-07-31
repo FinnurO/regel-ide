@@ -62,6 +62,8 @@ export default function VilkarstreDetalj() {
   const [nyType, setNyType] = useState<'vilkar' | 'regelnode'>('vilkar');
   const [nyTittel, setNyTittel] = useState('');
   const [leggerTil, setLeggerTil] = useState(false);
+  /** Satt når «Opprett nytt vilkår her» brukes fra Veiledning-fanen (Egenskapspanel) — kobler det nye vilkåret inn under denne regelnoden automatisk etter opprettelse. */
+  const [nyttVilkarUnderRegelnode, setNyttVilkarUnderRegelnode] = useState<string | null>(null);
 
   const [visKoble, setVisKoble] = useState(false);
   const [kobleForelder, setKobleForelder] = useState('');
@@ -117,18 +119,27 @@ export default function VilkarstreDetalj() {
     setValgt({ kind: node.kind, id: node.id });
   }
 
+  function opprettVilkarUnderRegelnode(regelnodeId: string) {
+    setNyType('vilkar');
+    setNyttVilkarUnderRegelnode(regelnodeId);
+    setVisLeggTil(true);
+  }
+
   async function leggTil(e: FormEvent) {
     e.preventDefault();
     setFeil(null);
     setLeggerTil(true);
     try {
       if (nyType === 'vilkar') {
-        await api.opprettVilkar({
+        const nyttVilkar = await api.opprettVilkar({
           tittel: nyTittel.trim(), beskrivelse: null, generiskMal: null, vilkarstype: 'formell', gjelderRolle: null,
           juridiskGrunnlag: null, begrepId: null, vurderingstype: 'regelbasert', parametreJson: null,
           skjonnsgrunnlagBegrepId: null, skjonnsmomenter: null, kreverDokumentasjon: false, eskaleringsrolle: null,
           veiledningTilBruker: null, veiledningTilSaksbehandler: null, erFormel: false, formelBeskrivelse: null,
         });
+        if (nyttVilkarUnderRegelnode) {
+          await api.kobleRegelnodeBarn(nyttVilkarUnderRegelnode, { barnType: 'vilkar', barnId: nyttVilkar.id });
+        }
       } else {
         await api.opprettRegelnode({
           tittel: nyTittel.trim(), beskrivelse: null, generiskMal: null, barnOperator: 'OG', utdataNavn: 'Utfall',
@@ -137,6 +148,7 @@ export default function VilkarstreDetalj() {
       }
       setNyTittel('');
       setVisLeggTil(false);
+      setNyttVilkarUnderRegelnode(null);
       await lastAlt();
     } catch (err) {
       setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse.');
@@ -210,7 +222,7 @@ export default function VilkarstreDetalj() {
           </div>
 
           <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-            <Button data-size="sm" variant="secondary" onClick={() => setVisLeggTil((v) => !v)}>
+            <Button data-size="sm" variant="secondary" onClick={() => { setVisLeggTil((v) => !v); setNyttVilkarUnderRegelnode(null); }}>
               {visLeggTil ? 'Avbryt' : 'Nytt vilkår/regelnode'}
             </Button>
             <Button data-size="sm" variant="secondary" onClick={() => setVisKoble((v) => !v)}>
@@ -222,10 +234,15 @@ export default function VilkarstreDetalj() {
           </div>
 
           {visLeggTil && (
-            <form onSubmit={leggTil} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginTop: '0.75rem' }}>
+            <form onSubmit={leggTil} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginTop: '0.75rem', flexWrap: 'wrap' }}>
+              {nyttVilkarUnderRegelnode && (
+                <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', width: '100%', margin: 0 }}>
+                  Kobles automatisk inn som barn av valgt regelnode ved opprettelse.
+                </Paragraph>
+              )}
               <Field>
                 <Label>Type</Label>
-                <Select data-size="sm" value={nyType} onChange={(e) => setNyType(e.target.value as 'vilkar' | 'regelnode')}>
+                <Select data-size="sm" value={nyType} onChange={(e) => setNyType(e.target.value as 'vilkar' | 'regelnode')} disabled={!!nyttVilkarUnderRegelnode}>
                   <Select.Option value="vilkar">Vilkår</Select.Option>
                   <Select.Option value="regelnode">Regelnode</Select.Option>
                 </Select>
@@ -324,7 +341,8 @@ export default function VilkarstreDetalj() {
 
         <div style={{ flex: 3, minWidth: 0, borderLeft: '1px solid var(--ds-color-neutral-border-subtle)', paddingLeft: '1.5rem' }}>
           {valgt ? (
-            <Egenskapspanel node={valgt} begreper={begreper} rettskilder={rettskilder} onEndret={lastAlt} />
+            <Egenskapspanel node={valgt} begreper={begreper} rettskilder={rettskilder} onEndret={lastAlt}
+              onOpprettVilkarUnderRegelnode={opprettVilkarUnderRegelnode} />
           ) : (
             <Paragraph>Velg en node i grafen/treet for å se og redigere egenskapene.</Paragraph>
           )}

@@ -45,16 +45,23 @@ interface EgenskapspanelProps {
   begreper: BegrepDto[];
   rettskilder: RettskildeSammendrag[];
   onEndret: () => void;
+  /** Kryssnavigasjon fra Veiledning-fanen (docs/12-fasit-handbok-leveranse.md "forfatterflate") — kun meningsfullt fra en regelnode-kontekst. */
+  onOpprettVilkarUnderRegelnode?: (regelnodeId: string) => void;
 }
 
-export function Egenskapspanel({ node, begreper, rettskilder, onEndret }: EgenskapspanelProps) {
+export function Egenskapspanel({ node, begreper, rettskilder, onEndret, onOpprettVilkarUnderRegelnode }: EgenskapspanelProps) {
   const [fane, setFane] = useState('generelt');
   const [feil, setFeil] = useState<string | null>(null);
 
   useEffect(() => setFane('generelt'), [node.id]);
 
   if (node.kind === 'vilkar') return <VilkarPanel id={node.id} fane={fane} setFane={setFane} begreper={begreper} rettskilder={rettskilder} feil={feil} setFeil={setFeil} onEndret={onEndret} />;
-  if (node.kind === 'regelnode') return <RegelnodePanel id={node.id} fane={fane} setFane={setFane} rettskilder={rettskilder} feil={feil} setFeil={setFeil} onEndret={onEndret} />;
+  if (node.kind === 'regelnode') {
+    return (
+      <RegelnodePanel id={node.id} fane={fane} setFane={setFane} rettskilder={rettskilder} feil={feil} setFeil={setFeil} onEndret={onEndret}
+        onOpprettVilkarUnderRegelnode={onOpprettVilkarUnderRegelnode} />
+    );
+  }
   return <UnntakPanel id={node.id} fane={fane} setFane={setFane} rettskilder={rettskilder} feil={feil} setFeil={setFeil} onEndret={onEndret} />;
 }
 
@@ -204,7 +211,9 @@ function InputDatasettAdministrasjon({ vilkarId }: { vilkarId: string }) {
  * Vilkår/Regelnode/Unntak. `Dokumenttype` er selve proveniens-merkingen (dimensjon A): en «hjemmel»-
  * eller «praktisk-råd»-kommentar vises visuelt distinkt, ikke bare som en umerket fritekst.
  */
-function VeiledningskommentarAdministrasjon({ malType, malId }: { malType: string; malId: string }) {
+function VeiledningskommentarAdministrasjon({ malType, malId, setFane, onOpprettVilkarUnderRegelnode }: {
+  malType: string; malId: string; setFane?: (f: string) => void; onOpprettVilkarUnderRegelnode?: (regelnodeId: string) => void;
+}) {
   const [kommentarer, setKommentarer] = useState<VilkarstreKommentarDto[] | null>(null);
   const [nyDokumenttype, setNyDokumenttype] = useState('kommentar');
   const [nyTekst, setNyTekst] = useState('');
@@ -237,10 +246,29 @@ function VeiledningskommentarAdministrasjon({ malType, malId }: { malType: strin
     last();
   }
 
+  async function flytt(id: string, retning: 'opp' | 'ned') {
+    setFeil(null);
+    try {
+      await api.flyttVilkarstreKommentar(id, retning);
+      last();
+    } catch (err) {
+      setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved flytting av kommentar.');
+    }
+  }
+
   if (kommentarer === null) return <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Laster …</Paragraph>;
 
   return (
     <div>
+      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+        {malType === 'vilkar' && setFane && (
+          <Button variant="tertiary" data-size="sm" type="button" onClick={() => setFane('metadata')}>Se/rediger inndata-datasett →</Button>
+        )}
+        {malType === 'regelnode' && onOpprettVilkarUnderRegelnode && (
+          <Button variant="tertiary" data-size="sm" type="button" onClick={() => onOpprettVilkarUnderRegelnode(malId)}>Opprett nytt vilkår her →</Button>
+        )}
+        <Link asChild><RouterLink to="/datasett">Datasett-registeret →</RouterLink></Link>
+      </div>
       {feil && <div className="feilmelding" style={{ marginBottom: '0.5rem' }}>{feil}</div>}
       {kommentarer.length === 0 ? (
         <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
@@ -248,7 +276,7 @@ function VeiledningskommentarAdministrasjon({ malType, malId }: { malType: strin
         </Paragraph>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
-          {kommentarer.map((k) => (
+          {kommentarer.map((k, i) => (
             <div key={k.id} style={{
               border: '1px solid var(--ds-color-neutral-border-subtle)', borderRadius: 'var(--ds-border-radius-md)', padding: '0.5rem',
             }}>
@@ -256,7 +284,11 @@ function VeiledningskommentarAdministrasjon({ malType, malId }: { malType: strin
                 <Tag data-color={VEILEDNINGSDOKUMENTTYPE_FARGE[k.dokumenttype] ?? 'neutral'} data-size="sm">
                   {VEILEDNINGSDOKUMENTTYPER.find((d) => d.id === k.dokumenttype)?.label ?? k.dokumenttype}
                 </Tag>
-                <Button variant="tertiary" data-color="danger" data-size="sm" type="button" onClick={() => fjern(k.id)}>Fjern</Button>
+                <div style={{ display: 'flex', gap: '0.25rem' }}>
+                  <Button variant="tertiary" data-size="sm" type="button" title="Flytt opp" disabled={i === 0} onClick={() => flytt(k.id, 'opp')}>▲</Button>
+                  <Button variant="tertiary" data-size="sm" type="button" title="Flytt ned" disabled={i === kommentarer.length - 1} onClick={() => flytt(k.id, 'ned')}>▼</Button>
+                  <Button variant="tertiary" data-color="danger" data-size="sm" type="button" onClick={() => fjern(k.id)}>Fjern</Button>
+                </div>
               </div>
               <div style={{ fontSize: 'var(--ds-font-size-2)' }} dangerouslySetInnerHTML={{ __html: k.tekstHtml }} />
             </div>
@@ -485,15 +517,16 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, feil, setFeil, 
         </form>
       )}
 
-      {fane === 'veiledning' && <VeiledningskommentarAdministrasjon malType="vilkar" malId={id} />}
+      {fane === 'veiledning' && <VeiledningskommentarAdministrasjon malType="vilkar" malId={id} setFane={setFane} />}
       {fane === 'historikk' && <Historikk liste={historikk} />}
     </div>
   );
 }
 
-function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndret }: {
+function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndret, onOpprettVilkarUnderRegelnode }: {
   id: string; fane: string; setFane: (f: string) => void; rettskilder: RettskildeSammendrag[];
   feil: string | null; setFeil: (f: string | null) => void; onEndret: () => void;
+  onOpprettVilkarUnderRegelnode?: (regelnodeId: string) => void;
 }) {
   const [regelnode, setRegelnode] = useState<RegelnodeDto | null>(null);
   const [historikk, setHistorikk] = useState<ProveniensDto[] | null>(null);
@@ -631,7 +664,9 @@ function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndre
         </form>
       )}
 
-      {fane === 'veiledning' && <VeiledningskommentarAdministrasjon malType="regelnode" malId={id} />}
+      {fane === 'veiledning' && (
+        <VeiledningskommentarAdministrasjon malType="regelnode" malId={id} onOpprettVilkarUnderRegelnode={onOpprettVilkarUnderRegelnode} />
+      )}
       {fane === 'historikk' && <Historikk liste={historikk} />}
     </div>
   );

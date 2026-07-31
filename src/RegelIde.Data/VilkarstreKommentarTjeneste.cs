@@ -60,6 +60,43 @@ public sealed class VilkarstreKommentarTjeneste(RegelIdeDbContext db)
         return kommentar;
     }
 
+    /// <summary>
+    /// Flytter en kommentar én posisjon opp/ned blant søsknene sine ved å BYTTE <see
+    /// cref="VilkarstreKommentarEntitet.Rekkefolge"/> med naboen — aldri ved å sette en fritt valgt
+    /// verdi. Se docs/12-fasit-handbok-leveranse.md "Prinsipp: rekkefølge og nummerering er alltid
+    /// beregnet, aldri en redigerbar literal" (2026-07-31).
+    /// </summary>
+    public async Task<VilkarstreKommentarEntitet> FlyttAsync(Guid id, string retning, string endretAv, CancellationToken ct = default)
+    {
+        if (retning is not ("opp" or "ned"))
+        {
+            throw new ArgumentException($"Ukjent retning '{retning}'. Gyldige verdier: opp, ned.");
+        }
+
+        var kommentar = await db.VilkarstreKommentarer.FirstOrDefaultAsync(k => k.Id == id, ct)
+            ?? throw new ArgumentException($"Fant ingen kommentar med id '{id}'.");
+
+        var sosken = await db.VilkarstreKommentarer
+            .Where(k => k.MalType == kommentar.MalType && k.MalId == kommentar.MalId)
+            .OrderBy(k => k.Rekkefolge).ThenBy(k => k.OpprettetTidspunkt)
+            .ToListAsync(ct);
+
+        var indeks = sosken.FindIndex(k => k.Id == id);
+        var naboIndeks = retning == "opp" ? indeks - 1 : indeks + 1;
+        if (naboIndeks < 0 || naboIndeks >= sosken.Count)
+        {
+            throw new ArgumentException($"Kommentaren er allerede {(retning == "opp" ? "først" : "sist")} — kan ikke flyttes {retning}.");
+        }
+
+        var nabo = sosken[naboIndeks];
+        (kommentar.Rekkefolge, nabo.Rekkefolge) = (nabo.Rekkefolge, kommentar.Rekkefolge);
+        kommentar.SistEndretAv = endretAv;
+        kommentar.SistEndretTidspunkt = DateTimeOffset.UtcNow;
+        db.Proveniens.Add(ProveniensHjelper.NyRad("vilkarstre_kommentar", kommentar.Id, kommentar.VirksomhetId, "flyttet", endretAv));
+        await db.SaveChangesAsync(ct);
+        return kommentar;
+    }
+
     public async Task<bool> SlettAsync(Guid id, CancellationToken ct = default)
     {
         var kommentar = await db.VilkarstreKommentarer.FirstOrDefaultAsync(k => k.Id == id, ct);

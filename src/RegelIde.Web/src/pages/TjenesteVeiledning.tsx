@@ -10,10 +10,11 @@
  * dokument-entitet i denne runden.
  */
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router';
-import { Field, Heading, Label, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
+import { Link as RouterLink, useParams } from 'react-router';
+import { Field, Heading, Label, Link, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { VeiledningDto, VeiledningNodeDto, VirksomhetDto } from '../api/types';
+import { rettskildeLenke } from '../api/eidLenker';
+import type { RettskildeSammendrag, VeiledningDto, VeiledningNodeDto, VirksomhetDto } from '../api/types';
 
 const DOKUMENTTYPE_FARGE: Record<string, 'info' | 'warning' | 'neutral' | 'success'> = {
   hjemmel: 'info',
@@ -38,7 +39,7 @@ function VisVerdi({ verdiJson }: { verdiJson: string }) {
   }
 }
 
-function VeiledningNode({ node, dybde }: { node: VeiledningNodeDto; dybde: number }) {
+function VeiledningNode({ node, dybde, rettskilder }: { node: VeiledningNodeDto; dybde: number; rettskilder: RettskildeSammendrag[] }) {
   return (
     <section style={{ marginLeft: `${dybde * 1.25}rem`, marginBottom: '1.5rem' }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.3rem' }}>
@@ -51,7 +52,16 @@ function VeiledningNode({ node, dybde }: { node: VeiledningNodeDto; dybde: numbe
       {node.beskrivelse && <Paragraph style={{ marginBottom: '0.3rem' }}>{node.beskrivelse}</Paragraph>}
       {node.juridiskGrunnlag.length > 0 && (
         <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.3rem' }}>
-          Hjemmel: {node.juridiskGrunnlag.map((g) => `${g.kilde} ${g.eId}`).join(', ')}
+          Hjemmel:{' '}
+          {node.juridiskGrunnlag.map((g, i) => {
+            const href = rettskildeLenke(g.eId, rettskilder);
+            return (
+              <span key={`${g.kilde}-${g.eId}`}>
+                {i > 0 && ', '}
+                {href ? <Link asChild><RouterLink to={href}>{g.kilde} {g.eId}</RouterLink></Link> : `${g.kilde} ${g.eId}`}
+              </span>
+            );
+          })}
         </Paragraph>
       )}
       {node.skjonnsmomenter.length > 0 && (
@@ -93,7 +103,7 @@ function VeiledningNode({ node, dybde }: { node: VeiledningNodeDto; dybde: numbe
         </div>
       ))}
 
-      {node.barn.map((b) => <VeiledningNode key={b.id} node={b} dybde={dybde + 1} />)}
+      {node.barn.map((b) => <VeiledningNode key={b.id} node={b} dybde={dybde + 1} rettskilder={rettskilder} />)}
 
       {node.unntak.map((u) => (
         <div key={u.id} style={{ marginLeft: '1.25rem', marginTop: '0.5rem', borderLeft: '3px solid var(--ds-color-warning-border-default)', paddingLeft: '0.75rem' }}>
@@ -120,9 +130,11 @@ export default function TjenesteVeiledning() {
   const [virksomheter, setVirksomheter] = useState<VirksomhetDto[]>([]);
   const [virksomhetId, setVirksomhetId] = useState('');
   const [veiledning, setVeiledning] = useState<VeiledningDto | null>(null);
+  const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
   const [feil, setFeil] = useState<string | null>(null);
 
   useEffect(() => { api.hentVirksomheter().then(setVirksomheter).catch(() => setVirksomheter([])); }, []);
+  useEffect(() => { api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([])); }, []);
 
   useEffect(() => {
     if (!id) return;
@@ -150,7 +162,7 @@ export default function TjenesteVeiledning() {
         </Select>
       </Field>
 
-      <VeiledningNode node={veiledning.rot} dybde={0} />
+      <VeiledningNode node={veiledning.rot} dybde={0} rettskilder={rettskilder} />
     </>
   );
 }

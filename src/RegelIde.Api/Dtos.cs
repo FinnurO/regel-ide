@@ -133,6 +133,16 @@ public sealed record TjenesteRegelverksreferanseDto(Guid Id, Guid TjenesteId, Gu
         new(r.Id, r.TjenesteId, r.TilRettskildeId, r.TilEid);
 }
 
+/// <summary>Håndbok-nivå rettskildeomfang (docs/12-fasit-handbok-leveranse.md, 2026-07-31).</summary>
+public sealed record HandbokRettskildeomfangDto(Guid Id, Guid HandbokId, Guid TilRettskildeId)
+{
+    public static HandbokRettskildeomfangDto FraEntitet(HandbokRettskildeomfangEntitet o) =>
+        new(o.Id, o.HandbokId, o.TilRettskildeId);
+}
+
+/// <summary>Forespørsel for POST /api/handboker/{id}/rettskilder.</summary>
+public sealed record LeggTilRettskildeomfangRequest(Guid TilRettskildeId);
+
 /// <summary>Forespørsel for POST /api/tjenester/{id}/regelverksreferanser.</summary>
 public sealed record KobleRegelverksreferanseRequest(Guid TilRettskildeId, string TilEid);
 
@@ -302,6 +312,9 @@ public sealed record OpprettVilkarstreKommentarRequest(string MalType, Guid MalI
 
 /// <summary>Forespørsel for PUT /api/vilkarstre-kommentarer/{id}.</summary>
 public sealed record OppdaterVilkarstreKommentarRequest(string Dokumenttype, string TekstHtml);
+
+/// <summary>Forespørsel for POST /api/vilkarstre-kommentarer/{id}/flytt. Retning: 'opp' | 'ned'.</summary>
+public sealed record FlyttVilkarstreKommentarRequest(string Retning);
 
 /// <summary>
 /// Én datasett-verdi slik den gjelder for den spurte virksomheten i veiledningsvisningen — allerede
