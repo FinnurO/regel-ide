@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react';
+import { Link as RouterLink } from 'react-router';
 import { Button, Field, Heading, Label, Link, Paragraph, Select, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
+import { rettskildeLenke } from '../api/eidLenker';
 import type { RettskildeNodeDto, RettskildeReferanseDto, RettskildeSammendrag } from '../api/types';
 import { MinimalEditor } from './MinimalEditor';
 
@@ -259,14 +261,23 @@ export function KommentarRedigering({ handbokId, mode, parentNodeId, node, alleR
             </Heading>
             {referanser.length > 0 && (
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 var(--ds-size-2)' }}>
-                {referanser.map((r) => (
-                  <li key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--ds-size-2)' }}>
-                    <span style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>{r.tilEid}</span>
-                    <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernLovreferanse(r.id)}>
-                      Fjern
-                    </Button>
-                  </li>
-                ))}
+                {referanser.map((r) => {
+                  const href = rettskildeLenke(r.tilEid, alleRettskilder);
+                  return (
+                    <li key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--ds-size-2)' }}>
+                      {href ? (
+                        <Link asChild style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>
+                          <RouterLink to={href}>{r.tilEid}</RouterLink>
+                        </Link>
+                      ) : (
+                        <span style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>{r.tilEid}</span>
+                      )}
+                      <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernLovreferanse(r.id)}>
+                        Fjern
+                      </Button>
+                    </li>
+                  );
+                })}
               </ul>
             )}
             <div style={{ display: 'flex', gap: 'var(--ds-size-2)', alignItems: 'flex-end', flexWrap: 'wrap' }}>

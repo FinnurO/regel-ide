@@ -380,6 +380,69 @@ dekningskart:
 | §11 Sjekkliste | Delvis — mekanismen (`ul`/`li`) virker ende-til-ende, konkrete punkter krever manuell kommentar |
 | §12 Relevante tjenester | Nei — `Tjeneste` har ikke noe relatert-tjenester-felt |
 
+Testen selv, og tabellen over, er bevisst **uendret** — den måler dekning fra den delte seed-baseline
+(`Byggesteg4VilkarstreSeed`/`KommunaleParametreSeed`), ikke innholdet en enkelt bruker har lagt til i
+en løpende instans. Runde 4 (under) demonstrerer likevel at "Nei"-radene ikke er en permanent grense
+i domenemodellen — bare i seed-dataene.
+
+## Runde 4 (2026-07-31): "Da må du opprette de" — fyller gapet via API-ene
+
+Johanns tilbakemelding på runde 3: dekningen i fasit-dokumentet var lav fordi jeg rapporterte gap
+uten å bruke applikasjonens egne API-er til faktisk å **opprette** det som manglet — poenget med
+reproduksjonsøvelsen er nettopp å se om håndboken *lar seg bygge*, ikke bare å konstatere at den
+ikke gjør det i dag. Johann bekreftet en konkret nedbrytning av rundskriv v4 til lovreferanser,
+vilkår og tjenester, og ba om at dette ble bygget direkte mot API-ene (ikke GUI), med GUI som
+etterfølgende kontroll.
+
+**Opprettet, alt via ekte HTTP-kall mot de eksisterende endepunktene — ingen ny kode:**
+
+- **Serveringsloven** (`LOV-1997-06-13-55`) importert fra Lovdatas offisielle bulk-arkiv via
+  `POST /api/rettskilder/lovdata` — nøyaktig samme mekanisme som alkoholloven/forvaltningsloven ble
+  importert med. Reell paragrafstruktur (§ 3 Bevilling, § 5 Etablererprøve, § 6 Krav til vandel),
+  ikke en stub.
+- **5 nye Vilkår** (`POST /api/vilkar`): Habilitet, Formalia, Serveringsbevillingsvilkår,
+  Kunnskapsprøve, Kommunal skjønnsvurdering (skjønnsbasert, med et nytt Begrep som skjønnsgrunnlag)
+  — koblet inn som barn av rotnoden (`POST /api/regelnoder/{rootId}/barn`), synlige i både
+  Vilkårstre-grafen og den genererte veiledningen.
+- **6 ekte tekst-tagger** (`POST /api/rettskilder/{id}/tagger` + `.../koble`) som knytter de nye
+  Vilkårene til faktiske lovtekst-ledd (fvl § 8/§11/§17, serveringsloven § 3, alkoholloven §
+  1-7a/§1-7c) — samme mekanisme som knyttet de fire opprinnelige Vilkårene til lovteksten (runde
+  "byggesteg 4 kryssnavigasjon").
+- **12 nye Tjenester** (`POST /api/tjenester`) — hele "Relevante tjenester"-listen fra § 12 i
+  rundskrivet (Omsetningsoppgave, Etablererprøven, Kunnskapsprøvene, Kontroller osv.).
+- **10 nye `VilkarstreKommentarer`** (`POST /api/vilkarstre-kommentarer`) for innhold som ikke passer
+  som et testbart Vilkår (§9s faste vilkår/gyldighet/gebyr/avledet vilkår på rotnoden, §6s
+  avslagsgrunn-sjekkliste og 10-årsgrense på Vandelsvilkåret, §8s skjønnsbaserte tilleggsvilkår) —
+  demonstrerer at kommentar-mekanismen faktisk BÆRER dette innholdet når en forfatter skriver det inn,
+  ikke bare i teorien.
+- **Håndboken "Skjenkebevilling – testrunde 3"** (tom etter runde 3s browser-verifisering) fylt med
+  **13 kapitler** (§§ 1–13, riktig nummerert — ingen duplikat, i motsetning til kildedokumentets to
+  "§ 11"-er) og en kommentarseksjon per kapittel, med ekte lovreferanser koblet på seksjonene der
+  rundskrivet har en konkret paragraf. Håndbokens rettskildeomfang (ny funksjon fra runde 3) satt til
+  alle fem relevante kilder: alkoholloven, alkoholforskriften, kommunens retningslinjer,
+  serveringsloven og forvaltningsloven.
+
+**Verifisert i browser** (ikke bare via API-responser): håndboken viser nå reelt innhold per kapittel
+med klikkbare lovreferanser i «Lovreferanser»-seksjonen; vilkårstreet viser de fem nye Vilkårene som
+egne noder; veiledningen (`GET /api/tjenester/{id}/veiledning`) render alt sammenhengende — rotnodens
+fem nye kommentarer, Vandelsvilkårets sjekkliste og 10-årsgrense-hjemmel, og de fem nye Vilkårene med
+ekte, klikkbare hjemmel-lenker (inkludert til det nyimporterte serveringsloven).
+
+**Konklusjon**: svaret på "lar håndboken seg bygge" er **ja** — samtlige "Nei"/"Delvis"-rader i
+dekningstabellen over kunne fylles med ekte data via eksisterende API-er, uten kodeendringer. Det som
+sto igjen som et reelt gap etter runde 3 (Habilitet, Formalia, Serveringsbevilling, kommunal
+skjønnsvurdering som strukturert Vilkår, §12s relaterte tjenester) var altså et **innholdsgap**, ikke
+et **modellgap** — domenemodellen tillot det hele tiden, ingen ny entitet eller migrasjon var
+nødvendig. Det ene reelle unntaket: §9s Gyldighet/Prikkbelastning/gebyr er fortsatt representert som
+fritekst-kommentarer, ikke strukturerte felt — fordi `Vedtaksvirkning` bevisst eies av
+`forklaringsmodell-api` (se dimensjon E) — men selv DET la seg bygge, bare ikke som et testbart
+Vilkår.
+
+**Ikke gjort denne runden** (bevisst, ikke et overraskende gap): "Testkommunen 2017 Vurdering av
+habilitet 2018" (nevnt i rundskriv v4 § 3) ble ikke opprettet som egen rettskilde — Johanns egen
+breakdown karakteriserer den som et internt saksdokument/presedens, ikke en rettskilde i egentlig
+forstand, og Presedensregisteret (byggesteg 3) er fortsatt ikke bygget.
+
 Testen feiler bevisst hvis et fremtidig gap tettes uten at testen selv oppdateres — den er skrevet
 som en levende kontrakt for hvor grensen går, ikke en engangsmåling.
 
