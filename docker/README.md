@@ -91,20 +91,37 @@ Skann med Trivy før deploy:
 docker build -t regelide .
 docker save regelide -o regelide.tar
 docker run --rm -v "$PWD:/scan" aquasec/trivy image --input /scan/regelide.tar
+
+# ...og med Docker Scout, som bruker en annen sårbarhetsdatabase:
+docker scout cves regelide
 ```
 
-Målt 2026-07-30, samme applikasjon gjennom tre varianter:
+Samme applikasjon gjennom fire varianter:
 
-| Variant | Kritisk | Høy | Totalt | Størrelse |
-|---|---|---|---|---|
-| Debian + Postgres i container | 18 | 43 | 323 | 816 MB |
-| Alpine + Postgres i container | 0 | 0 | 0 | 339 MB |
-| Alpine + SQLite (i bruk) | 0 | 0 | **0** | **303 MB** |
+| Variant | Kritisk | Høy | Middels | Totalt | Størrelse |
+|---|---|---|---|---|---|
+| Debian + Postgres i container | 18 | 43 | — | 323 | 816 MB |
+| Alpine 3.23 + Postgres i container | 0 | 0 | — | 0 | 339 MB |
+| Alpine 3.23 + SQLite | 0 | 0 | 1 | 1 | 303 MB |
+| Alpine 3.24 + SQLite (i bruk) | 0 | 0 | **0** | **0** | 303 MB |
 
 Det interessante med Debian-tallene var at **ingen** av de 323 hadde en tilgjengelig fiks — de var
 merket `will_not_fix`/`fix_deferred`, så `apt-get upgrade` gjorde ingenting. Det meste kom fra
 perl, som ble dratt inn som avhengighet av `postgresql-15`. Med SQLite forsvinner hele den
 avhengighetskjeden.
+
+### Hvorfor base-imaget er pinnet til `alpine3.24`
+
+`10.0-alpine` er en flytende tag. Den pekte på Alpine 3.23.5, som har
+[CVE-2025-60876](https://scout.docker.com/v/CVE-2025-60876) i busybox — middels alvorlighet, og
+merket **not fixed** på 3.23. Fiksen finnes bare som pakkerevisjon i 3.24
+(`busybox-1.37.0-r30` → `-r31`), så den kunne ikke hentes inn med `apk upgrade` på 3.23.
+
+Busybox er ikke bare pynt her: `HEALTHCHECK` bruker `wget` derfra.
+
+Merk at **Trivy rapporterte 0 i begge tilfeller** — den hadde ikke denne CVE-en i databasen sin.
+Docker Scout fant den. Det er en god påminnelse om at én skanner ikke er nok; de bruker ulike
+kilder, og her var det bare den ene som så noe.
 
 ## Miljøvariabler
 
