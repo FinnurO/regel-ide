@@ -33,7 +33,7 @@ ENV VITE_API_BASE_URL=""
 RUN npx vite build
 
 # ---------------------------------------------------------------- 2) API
-FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine AS api
+FROM mcr.microsoft.com/dotnet/sdk:10.0-alpine3.24 AS api
 WORKDIR /src
 
 # csproj-ene først, slik at restore-laget kan gjenbrukes når bare kildekode endrer seg.
@@ -50,7 +50,7 @@ COPY src/ ./
 RUN dotnet publish RegelIde.Api/RegelIde.Api.csproj -c Release -o /publisert --no-restore
 
 # ---------------------------------------------------------------- 3) Kjøretid
-FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine AS final
+FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.24 AS final
 
 # icu kreves for at .NET skal ha ekte kulturdata — uten den faller den tilbake til invariant
 # kultur, som gir feil sortering og formatering av norsk tekst. Ingen databasepakker trengs:
