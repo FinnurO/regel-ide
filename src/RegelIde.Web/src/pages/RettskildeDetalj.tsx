@@ -86,6 +86,15 @@ export default function RettskildeDetalj() {
   const [kapittelLagrer, setKapittelLagrer] = useState(false);
   const [visOpprettKommentar, setVisOpprettKommentar] = useState(false);
 
+  // «Opprett vilkår fra dette utdraget» (2026-07-31, docs/13-backlog.md §2.5) — tekst-først-
+  // forfatterflyt: identifiser vilkåret i lovteksten via en umerket kind='vilkar'-tagg, opprett
+  // vilkåret derfra (juridisk grunnlag forhåndsutfylt fra taggens node), koble taggen — UTEN å
+  // samtidig plassere det i regelgrafen (det er et eget, senere steg, jf. Johanns egen presisering).
+  const [opprettVilkarFraTaggId, setOpprettVilkarFraTaggId] = useState<string | null>(null);
+  const [nyVilkarTittel, setNyVilkarTittel] = useState('');
+  const [nyVilkarTjenesteId, setNyVilkarTjenesteId] = useState('');
+  const [oppretterVilkarFraTag, setOppretterVilkarFraTag] = useState(false);
+
   // Referanser (2026-07-30) — kryssreferanser fra og til denne rettskilden, per node. Kilde-referanser
   // (Opprinnelse='import') er skrivebeskyttet; manuelle kan legges til/fjernes for enhver node.
   const [referanser, setReferanser] = useState<RettskildeReferanseDto[]>([]);
@@ -216,6 +225,50 @@ export default function RettskildeDetalj() {
       setTagger((forrige) => forrige.map((t) => (t.id === taggId ? oppdatert : t)));
     } catch (e) {
       setTaggFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved kobling av tagg.');
+    }
+  }
+
+  /** Åpner skjemaet for «opprett vilkår fra dette utdraget» — tittel forhåndsutfylt fra selve sitatet. */
+  function startOpprettVilkarFraTag(taggId: string) {
+    const tagg = tagger.find((t) => t.id === taggId);
+    setOpprettVilkarFraTaggId(taggId);
+    setNyVilkarTittel(tagg?.quoteExact.slice(0, 80) ?? '');
+    setNyVilkarTjenesteId('');
+    setTaggFeil(null);
+  }
+
+  /**
+   * Oppretter Vilkåret (juridisk grunnlag forhåndsutfylt fra rettskilden + taggens node) og kobler
+   * umiddelbart den umerkede taggen til det — bevisst UTEN å plassere det i regelgrafen (Johanns egen
+   * presisering, docs/13-backlog.md §2.5: identifisere og bygge treet er to separate, senere steg).
+   */
+  async function opprettVilkarFraTag(e: FormEvent) {
+    e.preventDefault();
+    if (!id || !opprettVilkarFraTaggId || !nyVilkarTittel.trim() || !nyVilkarTjenesteId) return;
+    const tagg = tagger.find((t) => t.id === opprettVilkarFraTaggId);
+    if (!tagg) return;
+    setTaggFeil(null);
+    setOppretterVilkarFraTag(true);
+    try {
+      const nyttVilkar = await api.opprettVilkar({
+        tittel: nyVilkarTittel.trim(), beskrivelse: null, generiskMal: null, vilkarstype: 'formell',
+        gjelderRolle: null,
+        juridiskGrunnlag: detalj ? [{ kilde: detalj.kortnavn ?? detalj.tittel, eId: tagg.nodeEid }] : null,
+        begrepId: null, vurderingstype: 'regelbasert', parametreJson: null, skjonnsgrunnlagBegrepId: null,
+        skjonnsmomenter: null, kreverDokumentasjon: false, eskaleringsrolle: null, veiledningTilBruker: null,
+        veiledningTilSaksbehandler: null, erFormel: false, formelBeskrivelse: null,
+        tjenesteId: nyVilkarTjenesteId,
+      });
+      const oppdatertTagg = await api.kobleTaggTilEntitet(id, opprettVilkarFraTaggId, { refId: nyttVilkar.id });
+      setTagger((forrige) => forrige.map((t) => (t.id === oppdatertTagg.id ? oppdatertTagg : t)));
+      setVilkarPerId((forrige) => new Map(forrige).set(nyttVilkar.id, nyttVilkar.tittel));
+      setOpprettVilkarFraTaggId(null);
+      setNyVilkarTittel('');
+      setNyVilkarTjenesteId('');
+    } catch (err) {
+      setTaggFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse av vilkår fra tagg.');
+    } finally {
+      setOppretterVilkarFraTag(false);
     }
   }
 
@@ -546,19 +599,63 @@ export default function RettskildeDetalj() {
                   />
                 )
               ) : kanTagges ? (
-                <TagTekst
-                  text={valgtNode.tekst!}
-                  tags={taggerPerNode.get(valgtNode.eid) ?? []}
-                  kinds={taggKinds}
-                  activeKind={activeKind}
-                  onActiveKindChange={setActiveKind}
-                  onTag={(t) => handleTag(valgtNode.eid, valgtNode.tekst!, t)}
-                  onRemoveTag={handleSlett}
-                  registry={registry}
-                  onLinkTag={handleKobleTag}
-                  resolveRef={resolveRef}
-                  references={inlineReferanser}
-                />
+                <>
+                  <TagTekst
+                    text={valgtNode.tekst!}
+                    tags={taggerPerNode.get(valgtNode.eid) ?? []}
+                    kinds={taggKinds}
+                    activeKind={activeKind}
+                    onActiveKindChange={setActiveKind}
+                    onTag={(t) => handleTag(valgtNode.eid, valgtNode.tekst!, t)}
+                    onRemoveTag={handleSlett}
+                    registry={registry}
+                    onLinkTag={handleKobleTag}
+                    onOpprettFraTag={(taggId) => startOpprettVilkarFraTag(taggId)}
+                    opprettFraTagKinds={['vilkar']}
+                    resolveRef={resolveRef}
+                    references={inlineReferanser}
+                  />
+                  {opprettVilkarFraTaggId && (
+                    <form
+                      onSubmit={opprettVilkarFraTag}
+                      style={{
+                        display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap',
+                        marginTop: '0.75rem', padding: '0.75rem', borderRadius: 'var(--ds-border-radius-default)',
+                        background: 'var(--ds-color-warning-surface-tinted)',
+                        border: '1px solid var(--ds-color-warning-border-subtle)',
+                      }}
+                    >
+                      <Paragraph style={{ width: '100%', margin: 0, fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                        Opprett vilkår fra utdraget «{tagger.find((t) => t.id === opprettVilkarFraTaggId)?.quoteExact}» —
+                        juridisk grunnlag fylles automatisk ut fra denne rettskilden og noden. Vilkåret plasseres IKKE
+                        automatisk i noe vilkårstre — det gjøres som et eget steg senere.
+                      </Paragraph>
+                      <Textfield
+                        data-size="sm"
+                        label="Tittel på vilkåret"
+                        value={nyVilkarTittel}
+                        onChange={(e) => setNyVilkarTittel(e.target.value)}
+                        style={{ minWidth: '16rem' }}
+                        required
+                      />
+                      <Field>
+                        <Label>Tjeneste</Label>
+                        <Select data-size="sm" value={nyVilkarTjenesteId} onChange={(e) => setNyVilkarTjenesteId(e.target.value)}>
+                          <Select.Option value="">Velg …</Select.Option>
+                          {alleTjenesterForReferanse.map((t) => (
+                            <Select.Option key={t.id} value={t.id}>{t.label}</Select.Option>
+                          ))}
+                        </Select>
+                      </Field>
+                      <Button data-size="sm" type="submit" disabled={oppretterVilkarFraTag || !nyVilkarTittel.trim() || !nyVilkarTjenesteId}>
+                        {oppretterVilkarFraTag ? 'Oppretter …' : 'Opprett vilkår'}
+                      </Button>
+                      <Button data-size="sm" variant="tertiary" onClick={() => setOpprettVilkarFraTaggId(null)}>
+                        Avbryt
+                      </Button>
+                    </form>
+                  )}
+                </>
               ) : (
                 <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
                   Denne noden har ingen egen løpetekst — velg et ledd eller punkt under den for å tagge.

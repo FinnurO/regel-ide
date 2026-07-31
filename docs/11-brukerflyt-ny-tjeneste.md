@@ -1,14 +1,22 @@
 # 11. Brukerflyt: Få inn en ny tjeneste med håndbok og vilkår
 
-**Status: kommentert og rettet (2026-07-30).** Johann sin første kommentarrunde er innarbeidet
-under (se punktene merket **Rettet**), inkl. ledd/punkt-nummerering (som opprinnelig sto i denne
-lista som en større, utsatt sak, men ble løst i samme runde som referanse-arbeidet). Samme runde la
-også til inline klikkbare kryssreferanser i selve løpeteksten (§ 1-5 vises nå som en ekte lenke inni
-paragrafteksten, ikke bare i den separate "Referanser"-lista — se Fase 5/6). Flere av kommentarene
-er større funksjonsønsker (daglig Lovdata-synkronisering, PDF/Word-import, data.norge.no-oppslag,
-valg av grafeditor-bibliotek, håndbok-liste-side, mulighet til å velge underliggende rettskilde ved
-opprettelse av ny håndbok, Forskrift→Lov-kobling utover den generelle kryssreferanse-mekanismen) som
-fortsatt IKKE er løst — notert som separate saker og ikke gjentatt her.
+**Status: kommentert og rettet (2026-07-30), utvidet med runde 2026-07-31.** Johann sin første
+kommentarrunde er innarbeidet under (se punktene merket **Rettet**), inkl. ledd/punkt-nummerering
+(som opprinnelig sto i denne lista som en større, utsatt sak, men ble løst i samme runde som
+referanse-arbeidet). Samme runde la også til inline klikkbare kryssreferanser i selve løpeteksten
+(§ 1-5 vises nå som en ekte lenke inni paragrafteksten, ikke bare i den separate
+"Referanser"-lista — se Fase 5/6). Flere av kommentarene er større funksjonsønsker (daglig
+Lovdata-synkronisering, PDF/Word-import, data.norge.no-oppslag, valg av grafeditor-bibliotek,
+håndbok-liste-side, mulighet til å velge underliggende rettskilde ved opprettelse av ny håndbok,
+Forskrift→Lov-kobling utover den generelle kryssreferanse-mekanismen) som fortsatt IKKE er løst —
+notert som separate saker og ikke gjentatt her, se `docs/13-backlog.md` §6 for status.
+
+**Runden 2026-07-31** la til fem nye ting, dekket under: punktliste/nummerert liste i
+håndbok-editoren (Fase 4), Vilkår/Tjeneste-referanser i håndbokens Referanse-panel (Fase 4), Hendelse
++ Tjenesteavhengighet som ekte, koblede entiteter på Tjeneste-siden (ny Fase 1b), og «Opprett vilkår
+fra dette utdraget» — en ny, kortere vei gjennom tekst-taggingen som gjør Fase 5 sitt gamle krav om
+at Vilkåret må finnes fra før, overflødig (Fase 5 er omskrevet). Samme runde fjernet også en stående
+selvmotsigelse i Fase 3 (se punkt 4 der).
 
 Denne beskriver en foreslått ende-til-ende-flyt for
 hvordan en fagperson/jurist går fra «vi har en tjeneste som trenger regelverksstøtte» til et
@@ -18,7 +26,8 @@ tekst-tagging tilbake til lovteksten. Den er skrevet for to bruksområder:
 1. **Brukertesting** — en konkret sti å følge for å gi tilbakemelding på hva som fungerer og ikke.
 2. **Fremtidig brukerveiledning** — når flyten er kommentert og justert, kan den formaliseres.
 
-Flyten er verifisert mot faktisk UI-kode (byggesteg 1, 2 og 4 runde 1) per 2026-07-30 — ikke bare
+Flyten er verifisert mot faktisk UI-kode (byggesteg 1, 2 og 4 runde 1, samt Hendelse/
+Tjenesteavhengighet og «opprett vilkår fra tagg» fra runden 2026-07-31) per 2026-07-31 — ikke bare
 mot spesifikasjonen. Punkter merket ⚠️ har ingen UI-støtte ennå, kun API/seed-støtte.
 
 ## Kjente begrensninger denne flyten vil avdekke
@@ -48,6 +57,20 @@ Rettskilden (lov/forskrift) tjenesten bygger på må finnes i Rettskildebibliote
 3. Under **Regelverksreferanser**: velg rettskilde, skriv inn eId (f.eks.
    `https://lovdata.no/eli/lov/.../§4-1`) → *Koble referanse*. Kan fjernes igjen med *Fjern*.
 
+## Fase 1b — Koble Hendelser og Tjenesteavhengigheter (nytt 2026-07-31)
+
+På samme tjeneste-detaljside som Fase 1, under Regelverksreferanser:
+
+1. **Hendelser**: velg en eksisterende Hendelse (nasjonal/lokal, delt register — f.eks.
+   «Kontroll/tilsyn») → *Koble til tjenesten*. Dette klassifiserer tjenesten mot hendelsen (en
+   symmetrisk M:N-kobling, `cpsv:isClassifiedBy` — ingen retning).
+2. **Tjenesteavhengigheter**: velg en annen Tjeneste og en relasjonstype (`forutsetning_for`,
+   `gir_mulighet_til`, `utløst_av` + Hendelse, `for`, `avhengig_av`, `input_til`) → *Koble*. Dette er
+   en RETTET relasjon — kun én rad lagres per par, uansett hvilken retning man ser den fra.
+3. **Forventet resultat:** koblingen vises i lista med korrekt visningstekst for den valgte
+   retningen (f.eks. «forutsetning for Alminnelig skjenkebevilling»/«krever Serveringsbevilling som
+   forutsetning», avhengig av hvilken tjeneste man står på), og kan fjernes igjen.
+
 ## Fase 2 — Kartlegg begreper (om tjenesten bruker skjønnsbaserte vilkår)
 
 1. *Begreper* → skriv term (f.eks. «uklanderlig vandel») → velg type → *Opprett*.
@@ -66,8 +89,9 @@ Rettskilden (lov/forskrift) tjenesten bygger på må finnes i Rettskildebibliote
    barn → *Koble*. Bygg opp treet slik den reelle logikken (OG/ELLER) krever. «Barn»-listen filtrerer
    nå bort kandidater som ville skapt en sykel med valgt forelder.
 4. Klikk på et Vilkår i grafen → Egenskapspanel → fyll ut vilkårstype/vurderingstype → *Lagre*.
-   - ⚠️ Hvis vilkåret er skjønnsbasert og skal peke på et begrep, eller skal ha et juridisk
-     grunnlag: dette **må settes utenfor UI** i denne runden. Noter dette som et testfunn.
+   Juridisk grunnlag er en redigerbar liste og begrep/skjønnsgrunnlag er Select-pickere direkte i
+   panelet (**Rettet 2026-07-30**, se «Kjente begrensninger» punkt 2 over) — ingenting av dette
+   krever lenger noe utenfor UI.
 5. Prøv å koble et barn som skaper en sykel (f.eks. koble rotnoden som barn av sitt eget barn) —
    **forventet resultat:** avvises med en tydelig feilmelding som viser sykelen.
 
@@ -79,17 +103,41 @@ Kan gjøres når som helst, uavhengig av fase 1–3.
    kilde-detaljsiden.
 2. *Nytt kapittel* → nummer + overskrift → *Opprett*.
 3. Velg kapittelet i treet → *Ny kommentarseksjon her* → skriv tekst, sett dokumenttype/festenivå
-   → koble til en lovparagraf i den opprinnelige rettskilden → *Lagre*.
-4. **Forventet resultat:** kommentaren vises under kapittelet, og lovreferansen er søkbar/synlig.
+   → koble til en lovparagraf i den opprinnelige rettskilden → *Lagre*. Editoren støtter nå
+   punktliste og nummerert liste («•»/«1.»-knappene, **nytt 2026-07-31**) — nyttig for
+   sjekkliste-aktig kommentarinnhold.
+4. **Referanse-panelet** i kommentareditoren kan nå (**nytt 2026-07-31**) også koble kommentaren
+   direkte til et navngitt **Vilkår** eller **Tjeneste**, ikke bare til en lovparagraf — nyttig når
+   kommentaren egentlig forklarer et vilkår eller en tjenestesammenheng, ikke en konkret §.
+5. **Forventet resultat:** kommentaren vises under kapittelet, og lovreferansen/vilkår-/
+   tjenestereferansen er søkbar/synlig.
 
 ## Fase 5 — Koble lovteksten til vilkårene (tekst-tagging)
 
-1. Gå til den opprinnelige rettskilden → finn paragrafen/leddet et vilkår stammer fra.
+Det finnes nå to veier gjennom denne fasen — velg den som passer:
+
+**Vei A — vilkåret finnes allerede (bygget i Fase 3):**
+
+1. Gå til den opprinnelige rettskilden → finn paragrafen/leddet vilkåret stammer fra.
 2. Marker teksten som er selve vilkårsbetingelsen → velg laget **Vilkår** i tag-linjen → *Ny tagg*.
-3. I tagg-listen under: bruk *«Koble til …»* for å knytte taggen til det riktige Vilkåret (krever
-   at Vilkåret er opprettet i fase 3 først).
+3. I tagg-listen under: bruk *«Koble til …»* for å knytte taggen til det riktige, allerede
+   eksisterende Vilkåret.
 4. **Forventet resultat:** tagg-linjen viser nå en ekte lenke til vilkårets tittel i stedet for en
    GUID.
+
+**Vei B — vilkåret finnes ikke ennå (nytt 2026-07-31, tekst-først-flyt):**
+
+1. Gå til den opprinnelige rettskilden → finn paragrafen/leddet → marker teksten → velg laget
+   **Vilkår** → *Ny tagg*, som i vei A.
+2. I tagg-listen: bruk den nye knappen *«Opprett vilkår fra dette utdraget»* i stedet for
+   «Koble til …». Skriv tittel, velg tjeneste → *Opprett*.
+3. Vilkåret opprettes med juridisk grunnlag automatisk avledet fra rettskilden/noden teksten er
+   tagget mot, og taggen kobles til det nyopprettede Vilkåret automatisk — ingen forutgående tur til
+   Fase 3 er nødvendig.
+4. **Forventet resultat:** samme som vei A — tagg-linjen viser en ekte lenke til vilkårets tittel.
+   **Merk:** vilkåret plasseres bevisst *ikke* i regelgrafen/treet automatisk — det må fortsatt
+   kobles inn som barn av en Regelnode manuelt i Fase 3, steg 3, når man er klar for det. Dette
+   holder de to bekymringene («hva sier loven» vs. «hvordan er treet strukturert») separate.
 
 ## Fase 6 — Verifiser at alt henger sammen (kryssnavigasjon)
 

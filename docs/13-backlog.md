@@ -11,10 +11,10 @@ Ment å oppdateres etter hver runde — ikke en engangs-plan.*
 |---|---|---|
 | 0 | Lås ontologien (Vilkår/Regel/Unntak) | ✅ Fullført 2026-07-23 |
 | 1 | Rettskildebibliotek (+ håndbok/rundskriv-forfatterflyt) | ✅ Bygget og verifisert. Utvidet 2026-07-31 med håndbok-nivå rettskildeomfang (§3 under) |
-| 2 | Tjenester + Begrep + Kodelister | ✅ Bygget. **Utestående:** Hendelse (CPSV Event) og Tjenesteavhengighet som ekte tabeller — designet 2026-07-31, ikke bygget (§2.1 under) |
+| 2 | Tjenester + Begrep + Kodelister | ✅ Bygget, inkl. Hendelse (CPSV Event) og Tjenesteavhengighet som ekte tabeller (§2.1, ferdig 2026-07-31) |
 | 3 | Presedensregister | ⬜ Ikke startet |
-| 4 | Vilkårstre (grafeditor) | ✅ Runde 1 bygget og verifisert. Runde 2 (testmodul + full publiseringsmodell) ⬜ ikke startet |
-| 5 | AI-forslag (utvidet: kunnskapsbibliotek + skillsbaserte agenter) | ⬜ Ikke startet — omfang avklart 2026-07-31 (§2.2 under), men verken kunnskapsbibliotek eller agenter er bygget |
+| 4 | Vilkårstre (grafeditor) | ✅ Runde 1 bygget og verifisert, inkl. tekst-først «opprett vilkår fra tagg»-flyt (§2.5). Runde 2 (testmodul + full publiseringsmodell) ⬜ ikke startet |
+| 5 | AI-forslag (utvidet: kunnskapsbibliotek + skillsbaserte agenter) | ⬜ Ikke startet — omfang avklart 2026-07-31 (§2.2 under), men verken kunnskapsbibliotek eller agenter er bygget. **Eneste gjenstående punkt fra runde 5/6.** |
 | 6 | Datasett, informasjonsmodell, eksportmotor | 🚧 Datasett-registeret + `DatasettVerdi` bygget (byggesteg 4-runden). Informasjonsmodell-skjerm og eksportmotor ⬜ ikke startet |
 | 7 | Saksbehandling/forklaringslogg (tynn slice) | ⬜ Ikke startet — MVP-grensen |
 | 8 | Kunnskapsgraf/påvirkningsanalyse | ⬜ Bevisst utenfor MVP |
@@ -66,13 +66,17 @@ grønt (17 nye), `tsc -b --noEmit` rent, ny UI-seksjon i `TjenesteDetalj.tsx` ve
 ### 2.5 «Opprett vilkår fra dette utdraget» — tekst-først-forfatterflyt
 *Fra samtalen om vilkår-tagging.*
 
-- I dag må et Vilkår opprettes separat (i Vilkårstre-siden) FØR det kan kobles til en tagget
-  lovtekst-passasje — ingen vei fra «merk tekst i loven → opprett Vilkår direkte».
-- Avklart omfang: ny handling på en umerket `kind='vilkar'`-tagg som (1) oppretter Vilkåret med
-  juridisk grunnlag forhåndsutfylt fra taggen, (2) kobler taggen til det nye Vilkåret, (3) setter
-  `Vilkår.TjenesteId` til valgt tjeneste — **uten** samtidig å plassere det i regelgrafen (det er et
-  eget, tyngre steg, jf. §2.6 dimensjonen om håndboken som forfatterflate).
-- Ikke bygget ennå — ingen eksplisitt avgjørelse om timing.
+✅ **Ferdig 2026-07-31.** Ny `onOpprettFraTag`/`opprettFraTagKinds`-prop på `TagTekst.tsx` — en
+knapp «Opprett vilkår fra dette utdraget →» vises for umerkede `kind='vilkar'`-tagger (kun for de
+kinds forelder spesifikt slår på, `RettskildeDetalj.tsx` bruker `['vilkar']`). Åpner et lite
+inline-skjema (tittel forhåndsutfylt fra sitatet, obligatorisk Tjeneste-valg); ved opprettelse settes
+juridisk grunnlag automatisk fra rettskildens kortnavn + taggens node-eId, `TjenesteId` fra valget, og
+taggen kobles umiddelbart — **uten** noen kobling til regelgrafen (bekreftet via API: vilkåret finnes
+i ingen regelnodes `barn[]`). Ren frontend-endring, ingen backend-kode trengtes. Verifisert
+ende-til-ende i browser mot ekte alkoholloven-tekst (§ 1-6, "Bevillingsperioden") — vilkåret som ble
+opprettet under verifiseringen ble stående (ekte, korrekt innhold, ikke fjernet: taggens kobling er nå
+"publisert referanse" og kan ikke slettes igjen, AK-3.3.4 — selve beviset på at koblingen faktisk ble
+skrevet til databasen via den ekte flyten).
 
 ### 2.6 Virkningsregel — forslag til å lukke dimensjon E (Vilkår-i-vedtak-taksonomi, 0 %)
 *Forslag mottatt 2026-07-31 (Claude Chat-notat, se full tekst i samtalen). Terminologi allerede låst

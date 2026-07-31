@@ -83,6 +83,17 @@ export interface TagTekstProps {
    */
   onLinkTag?: (tagId: string, ref: string) => void;
   /**
+   * Utløser «opprett ny entitet fra dette utdraget» for en umerket tagg (2026-07-31,
+   * docs/13-backlog.md §2.5) — til forskjell fra `onLinkTag` (koble til noe som ALLEREDE finnes),
+   * dette er starten på en tekst-først-forfatterflyt: identifiser vilkåret i lovteksten, opprett det
+   * derfra, koble taggen — uten at det samtidig plasseres i regelgrafen (et eget, senere steg).
+   * Selve opprettelses-skjemaet (trenger f.eks. et Tjeneste-valg) er applikasjonsspesifikt og
+   * rendres av forelder, ikke her — denne komponenten er bare utløseren.
+   */
+  onOpprettFraTag?: (tagId: string, kind: TagKindId) => void;
+  /** Hvilke kinds `onOpprettFraTag`-knappen skal vises for. Utelatt/tom viser den ingen steder. */
+  opprettFraTagKinds?: TagKindId[];
+  /**
    * Slår opp en menneskelesbar lenke for en koblet tagg sin `ref` — 2026-07-30, fikser at
    * koblede tagger kun viste sin rå GUID/eId. `undefined` betyr «ingen lenke tilgjengelig ennå»
    * (f.eks. treffet mangler i den ferdiglastede listen), og faller da tilbake til rå tekst.
@@ -191,7 +202,7 @@ function selectionOffsets(container: HTMLElement): { start: number; end: number;
 /* --------------------------- komponent --------------------------- */
 
 export function TagTekst({
-  text, tags, kinds, onTag, onRemoveTag, registry, onLinkTag, resolveRef,
+  text, tags, kinds, onTag, onRemoveTag, registry, onLinkTag, onOpprettFraTag, opprettFraTagKinds, resolveRef,
   activeKind, onActiveKindChange, showTagList = true, readOnly = false, references,
 }: TagTekstProps) {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -407,6 +418,11 @@ export function TagTekst({
                       </option>
                     ))}
                   </select>
+                )}
+                {!readOnly && !t.ref && onOpprettFraTag && (opprettFraTagKinds ?? []).includes(t.kind) && (
+                  <Button variant="tertiary" data-size="sm" onClick={() => onOpprettFraTag(t.id, t.kind)}>
+                    Opprett {kindById[t.kind]?.label.toLowerCase() ?? t.kind} fra dette utdraget →
+                  </Button>
                 )}
                 {!readOnly && (
                   <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => onRemoveTag(t.id)}>
