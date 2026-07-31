@@ -57,7 +57,8 @@ til at profilen ikke skal ta imot data som skal overleve.
 `dotnet` er eneste prosess og PID 1. Den bygger skjemaet, importerer Lovdata-kildene fra
 `/kilder` og kjører seedene (`Program.cs`) — 20–30 sekunder, derfor `--start-period=90s` på
 `HEALTHCHECK`. `/helse` svarer 200 først når databasen faktisk svarer, så den kan brukes som
-readiness-probe. SIGTERM går rett til `dotnet` (målt til under ett sekund).
+readiness-probe. `/health` er et alias for samme handler, fordi Altinns app-Helm-chart har
+hardkodet den stien — se `docs/deploy-altinn-app-cluster.md`. SIGTERM går rett til `dotnet` (målt til under ett sekund).
 
 ## Databasen forsvinner ved omstart
 

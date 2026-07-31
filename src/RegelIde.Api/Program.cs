@@ -84,13 +84,20 @@ if (autentiseringsprofil is Autentiseringsprofil.Altinn)
 }
 
 // Enkel liveness/readiness for klyngen: svarer 200 først når databasen faktisk svarer.
-app.MapGet("/helse", async (RegelIdeDbContext db, CancellationToken ct) =>
-        await db.Database.CanConnectAsync(ct)
-            ? Results.Ok(new { status = "oppe" })
-            : Results.StatusCode(StatusCodes.Status503ServiceUnavailable))
-    .WithName("Helsesjekk")
-    .WithSummary("Svarer 200 når API-et er oppe og databasen svarer.")
-    .ExcludeFromDescription();
+// Altinns app-Helm-chart har hardkodet probe-sti /health, og den er ikke konfigurerbar i
+// values.yaml. Uten dette aliaset ville /health truffet SPA-fallbacken under og svart 200
+// text/html uansett — probene ville altså rapportert klar også med død database, som er verre
+// enn å feile. Begge stiene deler samme handler, så de kan ikke drive fra hverandre.
+foreach (var sti in new[] { "/helse", "/health" })
+{
+    app.MapGet(sti, async (RegelIdeDbContext db, CancellationToken ct) =>
+            await db.Database.CanConnectAsync(ct)
+                ? Results.Ok(new { status = "oppe" })
+                : Results.StatusCode(StatusCodes.Status503ServiceUnavailable))
+        .WithName($"Helsesjekk{sti.Replace("/", "_")}")
+        .WithSummary("Svarer 200 når API-et er oppe og databasen svarer.")
+        .ExcludeFromDescription();
+}
 
 // Migrer og førstegangs-sås de kjente fixture-dokumentene hvis basen er tom — kun en utviklings-
 // bekvemmelighet ("virker rett ut av boksen"), ikke en generell import-mekanisme. Ekte import skjer
