@@ -311,8 +311,14 @@ public sealed class AutentiseringsprofilTests : IDisposable
         Assert.Equal("999888777", virksomhet.Organisasjonsnummer);
     }
 
+    /// <summary>Plattform er påkrevd, så alle konfigurasjonstester må sette den.</summary>
+    private const string Plattformnokkel = "RegelIde:Altinn:Plattform";
+
+    private static IConfiguration KonfigMedPlattform(params (string Nokkel, string Verdi)[] verdier) =>
+        Konfig([(Plattformnokkel, "https://platform.at23.altinn.cloud"), .. verdier]);
+
     [Fact]
-    public void Ingen_dagl_identifikatorer_ligger_i_kildekoden()
+    public void Ingen_miljospesifikke_verdier_ligger_i_kildekoden()
     {
         // Verdiene er miljøspesifikke og flyktige, og settes i appsettings.Local.json eller som
         // miljøvariabel. Står de i appsettings.json, er de på vei til GitHub. Testen leser den
@@ -321,16 +327,41 @@ public sealed class AutentiseringsprofilTests : IDisposable
             "RegelIde.Api", "appsettings.json");
         Assert.True(File.Exists(sti), $"Fant ikke {Path.GetFullPath(sti)}");
 
+        var fil = new ConfigurationBuilder().AddJsonFile(sti, optional: false).Build();
+
+        // Plattform hører i samme kategori: en committet verdi ville blitt arvet av alle miljøer,
+        // og appen ville avvist gyldige innlogginger i alle unntatt ett. Se Altinninnstillinger.cs.
+        Assert.Null(fil[Plattformnokkel]);
+
         var innstillinger = Altinninnstillinger.Les(
-            new ConfigurationBuilder().AddJsonFile(sti, optional: false).Build());
+            new ConfigurationBuilder().AddConfiguration(fil)
+                .AddInMemoryCollection([new KeyValuePair<string, string?>(Plattformnokkel, "https://x")])
+                .Build());
 
         Assert.Empty(innstillinger.DaglIdentifikatorer);
         Assert.Null(innstillinger.Organisasjonsnummer);
     }
 
     [Fact]
+    public void Plattform_uten_verdi_feiler_ved_oppstart_i_stedet_for_a_gjette_miljo()
+    {
+        // Hvert Altinn-miljø signerer runtime-cookien med sin egen nøkkel. En standardverdi ville
+        // gitt en app som starter fint og avviser alle gyldige innlogginger i alle andre miljøer —
+        // uten noe spor av hvorfor. Dette er nøyaktig feilen deployen til at23 gikk på.
+        foreach (var verdi in new[] { null, "", "   " })
+        {
+            var konfigurasjon = verdi is null ? Konfig() : Konfig((Plattformnokkel, verdi));
+            var feil = Assert.Throws<InvalidOperationException>(
+                () => Altinninnstillinger.Les(konfigurasjon));
+
+            Assert.Contains("Plattform må settes", feil.Message);
+            Assert.Contains("platform.at23.altinn.cloud", feil.Message);
+        }
+    }
+
+    [Fact]
     public void Vis_claims_er_av_som_standard()
-        => Assert.False(Altinninnstillinger.Les(Konfig()).VisClaims);
+        => Assert.False(Altinninnstillinger.Les(KonfigMedPlattform()).VisClaims);
 
     [Fact]
     public void Velkjent_endepunkt_peker_paa_plattformens_openid_konfigurasjon()
@@ -339,11 +370,11 @@ public sealed class AutentiseringsprofilTests : IDisposable
             Innstillinger.VelkjentEndepunkt);
 
     [Fact]
-    public void Standardinnstillingene_peker_paa_tt02()
+    public void Standardverdiene_utenom_plattform_er_like_i_alle_miljoer()
     {
-        var innstillinger = Altinninnstillinger.Les(Konfig());
+        var innstillinger = Altinninnstillinger.Les(KonfigMedPlattform());
 
-        Assert.Equal("https://platform.tt02.altinn.no", innstillinger.Plattform);
+        Assert.Equal("https://platform.at23.altinn.cloud", innstillinger.Plattform);
         Assert.Equal("AltinnStudioRuntime", innstillinger.Cookienavn);
         Assert.Empty(innstillinger.DaglIdentifikatorer);
     }
@@ -351,10 +382,34 @@ public sealed class AutentiseringsprofilTests : IDisposable
     [Fact]
     public void Dagl_identifikatorer_leses_fra_konfigurasjon()
     {
-        var innstillinger = Altinninnstillinger.Les(Konfig(
+        var innstillinger = Altinninnstillinger.Les(KonfigMedPlattform(
             ("RegelIde:Altinn:DaglIdentifikatorer:0", "1001"),
             ("RegelIde:Altinn:DaglIdentifikatorer:1", "1002")));
 
         Assert.Equal(["1001", "1002"], innstillinger.DaglIdentifikatorer);
+    }
+
+    // ---------- Feilsvaret når vi ikke vet hvem som skriver ----------
+
+    [Fact]
+    public void Testbrukerprofilen_nevner_headeren_i_feilsvaret()
+    {
+        // 400: i en profil uten innlogging er en manglende header en klientfeil.
+        var svar = Assert.IsAssignableFrom<IStatusCodeHttpResult>(new TestbrukerKontekst(_db).IkkeFunnetSvar());
+        Assert.Equal(StatusCodes.Status400BadRequest, svar.StatusCode);
+    }
+
+    [Fact]
+    public void Altinnprofilen_svarer_401_og_nevner_ikke_headeren()
+    {
+        // Endepunktene sa tidligere "Mangler eller ukjent X-Bruker-Id-header" uansett profil. Under
+        // Altinn-innlogging finnes ingen slik header, så meldingen sendte den som feilsøkte rett i
+        // feil retning — og 400 skjulte at dette er en autentiseringsfeil klienten kan handle på.
+        var svar = Altinn().IkkeFunnetSvar();
+
+        Assert.Equal(StatusCodes.Status401Unauthorized,
+            Assert.IsAssignableFrom<IStatusCodeHttpResult>(svar).StatusCode);
+        Assert.DoesNotContain(TestbrukerKontekst.HeaderNavn,
+            Assert.IsAssignableFrom<IValueHttpResult>(svar).Value?.ToString());
     }
 }

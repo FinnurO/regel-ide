@@ -59,6 +59,16 @@ public sealed class AltinnBrukerkontekst(
     }
 
     /// <summary>
+    /// 401, ikke 400: her er det ingen header å mangle — brukeren er rett og slett ikke innlogget,
+    /// eller cookien ble ikke godtatt. Statuskoden er også det klienten kan reagere på for å
+    /// starte innloggingen på nytt når sesjonen løper ut i en åpen fane.
+    /// </summary>
+    public IResult IkkeFunnetSvar() =>
+        Results.Json(
+            new { feil = "Ikke innlogget. Last siden på nytt for å logge inn via Altinn." },
+            statusCode: StatusCodes.Status401Unauthorized);
+
+    /// <summary>
     /// DAGL gir Jurist, alt annet gir Saksbehandler. Saksbehandler er den minst privilegerte
     /// rollen i RBAC-matrisen (docs/03-domenemodell.md §2), så et rolleoppslag som ikke er
     /// konfigurert — eller som feiler — gir minst tilgang, ikke mest.

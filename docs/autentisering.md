@@ -6,7 +6,7 @@ databaseprofilen i `docker/README.md`:
 | `RegelIde:Autentisering` | Kilde til identitet | Brukes til |
 |---|---|---|
 | `testbruker` *(standard)* | `X-Bruker-Id`-header + brukervelger i GUI-et | Lokal utvikling, tester |
-| `altinn` | `AltinnStudioRuntime`-cookien, validert mot Altinn-plattformens JWKS | Deploy i Altinns app-cluster (tt02) |
+| `altinn` | `AltinnStudioRuntime`-cookien, validert mot Altinn-plattformens JWKS | Deploy i Altinns app-cluster |
 
 Ukjent verdi feiler ved oppstart i stedet for å falle tilbake til noe.
 
@@ -29,8 +29,41 @@ DAGL kan altså ikke leses ut av et ID-porten-token uansett. Rollen ligger i Alt
 Egen klient ville betydd full registreringsjobb og *deretter* nøyaktig samme oppslag mot Altinn.
 Det er bare riktig vei hvis appen må nås utenfra `altinn.no`.
 
-Forutsetningen for cookie-varianten er at vi kjører på et subdomene av `altinn.no` — cookien er
-scopet dit, og følger ikke med noe annet sted.
+Forutsetningen for cookie-varianten er at vi kjører på samme domene som plattformen i det aktuelle
+miljøet (`*.altinn.no` i tt02/prod, `*.altinn.cloud` i at-miljøene) — cookien er scopet dit, og
+følger ikke med noe annet sted.
+
+## Hvem ber om innlogging
+
+`JwtBearer` **utfordrer ikke av seg selv**: den validerer cookien hvis den er der, og går videre
+uten identitet hvis den ikke er der. Det er riktig for et API, men betyr at ingenting i pipelinen
+noen gang ber brukeren logge inn. Symptomet er lumsk — SPA-en laster helt fint for en utlogget
+bruker, og feiler først på første API-kall, så du får en tom side med en teknisk feilmelding i
+stedet for en innlogging.
+
+`Altinninnlogging.cs` lukker det: uautentiserte **nettleser-navigasjoner** (GET som ber om
+`text/html`) sendes til plattformens innlogging med appens egen URL som `goto`:
+
+```
+{Plattform}/authentication/api/v1/authentication?goto={absolutt URL tilbake til appen}
+```
+
+Plattformen tar resten — ID-porten-sesjon, avgivervalg, setter cookien, sender brukeren tilbake.
+
+Tre ting middlewaren med vilje **ikke** rører:
+
+- **`/api/...`** svarer 401, ikke 302. En redirect ville blitt fulgt av `fetch` og gitt et
+  uforståelig CORS-brudd i stedet for en statuskode klienten kan handle på.
+- **`/helse` og `/health`** spørres av klyngen uten cookie. En redirect der ville gjort at probene
+  aldri ble klare, og appen ville sett død ut for Kubernetes selv om den var frisk.
+- **Statiske filer** ligger foran autentiseringen i pipelinen og er uendret.
+
+### Løkkevernet
+
+Godtar vi ikke cookien vi selv nettopp sendte brukeren for å hente, ville vi redirectet på nytt i
+det uendelige. Middlewaren setter derfor en kortlevd markør-cookie (`regelide-innlogging-forsokt`,
+2 minutter) før den redirecter. Kommer brukeren tilbake uten gyldig sesjon, vises en feilside som
+navngir plattformen vi validerte mot — i praksis er det alltid den som er feil.
 
 ## Rollemapping
 
@@ -92,6 +125,8 @@ konfigurasjonen for det aktuelle clusteret:
 env:
   - name: RegelIde__Autentisering
     value: altinn
+  - name: RegelIde__Altinn__Plattform
+    value: https://platform.at23.altinn.cloud   # må matche miljøet, se under
   - name: RegelIde__Altinn__Organisasjonsnummer
     value: "<organisasjonsnummer>"
   - name: RegelIde__Altinn__DaglIdentifikatorer__0
@@ -125,24 +160,51 @@ to numrene side om side, og den er dekket av en egen test.
 Oppslaget sammenligner mot `urn:altinn:userid` og `urn:altinn:ssn`, slik at konfigurasjonen
 virker uansett hvilket av de to som er lagt inn.
 
-### Hvis noe ikke stemmer i tt02
+### Hvis noe ikke stemmer
 
 Claim-settet er ikke verifisert mot et ekte token ennå. Sett `RegelIde:Altinn:VisClaims=true`,
 logg inn, og hent `/api/meg/claims` — da ser du nøyaktig hva tokenet inneholder, inkludert
 brukerens userid. Endepunktet viser kun innsenderens egne claims, finnes bare under
 Altinn-profilen, og er av som standard.
 
+Feilsøkingsrekkefølge når innloggingen ikke virker:
+
+| Symptom | Sannsynlig årsak |
+|---|---|
+| Siden laster uten å spørre om innlogging | Profilen er `testbruker`, ikke `altinn` — sjekk `/api/oppsett` |
+| «Innlogget, men sesjonen ble ikke godtatt» | `Plattform` peker på et annet miljø enn appen kjører i |
+| Innlogget, men GUI-et viser «Ikke innlogget» | Tokenet mangler `urn:altinn:userid` — se `/api/meg/claims` |
+| Daglig leder blir Saksbehandler | Feil identifikator i `DaglIdentifikatorer` — party-id i stedet for userid? |
+
 ## Konfigurasjon
 
 | Nøkkel | Standard |
 |---|---|
 | `RegelIde:Autentisering` | `testbruker` |
-| `RegelIde:Altinn:Plattform` | `https://platform.tt02.altinn.no` |
+| `RegelIde:Altinn:Plattform` | **ingen — påkrevd under `altinn`** |
 | `RegelIde:Altinn:Cookienavn` | `AltinnStudioRuntime` |
 | `RegelIde:Altinn:Virksomhet` | `Testkommunen` |
 | `RegelIde:Altinn:Organisasjonsnummer` | tom (settes per miljø) |
 | `RegelIde:Altinn:DaglIdentifikatorer` | tom (settes per miljø) |
 | `RegelIde:Altinn:VisClaims` | `false` |
+
+### Plattform må matche miljøet — appen nekter å starte uten den
+
+`Plattform` har **ingen standardverdi**, og det er et bevisst valg. Hvert Altinn-miljø signerer
+runtime-cookien med sin egen nøkkel:
+
+| Miljø | App | Plattform |
+|---|---|---|
+| at22/at23/at24 | `{org}.apps.at23.altinn.cloud` | `https://platform.at23.altinn.cloud` |
+| tt02 | `{org}.apps.tt02.altinn.no` | `https://platform.tt02.altinn.no` |
+| prod | `{org}.apps.altinn.no` | `https://platform.altinn.no` |
+
+En standardverdi ville betydd at deploy til et *annet* miljø ga en app som starter fint, ser helt
+frisk ut, og avviser hver enkelt gyldig innlogging — uten noe spor av hvorfor. Nå stopper den i
+stedet ved oppstart med en melding som sier hva som mangler.
+
+Dette er ikke hypotetisk: den første deployen til at23 pekte på tt02 sin JWKS, fordi tt02 var
+standardverdien.
 
 ## Klienten
 
@@ -150,6 +212,16 @@ GUI-et spør `/api/oppsett` om profilen. Under `testbruker` vises brukervelgeren
 `altinn` hentes brukeren fra `/api/meg` og velgeren erstattes av ren tekst. `/api/brukere` svarer
 404 under Altinn-profilen — å liste brukere der ville invitert til å velge en annen enn den man er
 logget inn som.
+
+Får `/api/meg` 401 under `altinn`, vises meldingen fra serveren i stedet for «Innlogget som
+ukjent». Klienten laster med vilje **ikke** siden på nytt: selve dokumentet ble servert, så cookien
+ble godtatt — mangler vi likevel brukeren, er det et claim som mangler, og en ny innlogging ville
+gitt samme token. Det ville altså blitt en løkke uten utsikt til å løse seg.
+
+Feilmeldingen kommer fra profilen (`IBrukerkontekst.IkkeFunnetSvar`), ikke fra endepunktet.
+Endepunktene sa tidligere «Mangler eller ukjent `X-Bruker-Id`-header» uansett profil — under
+Altinn-innlogging finnes ingen slik header, så meldingen sendte den som feilsøkte rett i feil
+retning.
 
 ## Gjenstår
 

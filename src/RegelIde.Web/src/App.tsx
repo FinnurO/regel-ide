@@ -18,7 +18,7 @@ import DatasettListe from './pages/DatasettListe';
 import TjenesteVeiledning from './pages/TjenesteVeiledning';
 
 function BrukerVelger() {
-  const { brukere, gjeldendeBruker, velgBruker, laster, ekteInnlogging } = useBruker();
+  const { brukere, gjeldendeBruker, velgBruker, laster, ekteInnlogging, innloggingsfeil } = useBruker();
 
   if (laster) return null;
 
@@ -26,9 +26,14 @@ function BrukerVelger() {
   if (ekteInnlogging) {
     return (
       <div className="bruker-velger">
+        {/* «Innlogget som ukjent» ville skjult at noe er galt. Si hva som feilet i stedet. */}
         <Label data-size="sm">
-          Innlogget som {gjeldendeBruker?.navn ?? 'ukjent'}
-          {gjeldendeBruker && ` (${gjeldendeBruker.rolle}) — ${gjeldendeBruker.virksomhetNavn}`}
+          {innloggingsfeil ?? (
+            <>
+              Innlogget som {gjeldendeBruker?.navn ?? 'ukjent'}
+              {gjeldendeBruker && ` (${gjeldendeBruker.rolle}) — ${gjeldendeBruker.virksomhetNavn}`}
+            </>
+          )}
         </Label>
       </div>
     );
