@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
-import { api, hentValgtBrukerId, settValgtBrukerId } from '../api/client';
+import { ApiError, api, hentValgtBrukerId, settValgtBrukerId } from '../api/client';
 import type { BrukerDto } from '../api/types';
 
 interface BrukerContextVerdi {
@@ -9,6 +9,8 @@ interface BrukerContextVerdi {
   laster: boolean;
   /** Om serveren kjører med ekte innlogging. Da skal brukervelgeren ikke vises. */
   ekteInnlogging: boolean;
+  /** Satt når vi er innlogget, men serveren ikke fant noen brukerkonto å knytte oss til. */
+  innloggingsfeil: string | null;
 }
 
 const BrukerContext = createContext<BrukerContextVerdi | null>(null);
@@ -23,6 +25,7 @@ export function BrukerProvider({ children }: { children: ReactNode }) {
   const [gjeldendeBrukerId, setGjeldendeBrukerId] = useState<string | null>(hentValgtBrukerId());
   const [innloggetBruker, setInnloggetBruker] = useState<BrukerDto | null>(null);
   const [ekteInnlogging, setEkteInnlogging] = useState(false);
+  const [innloggingsfeil, setInnloggingsfeil] = useState<string | null>(null);
   const [laster, setLaster] = useState(true);
 
   useEffect(() => {
@@ -31,7 +34,19 @@ export function BrukerProvider({ children }: { children: ReactNode }) {
       .then(async (oppsett) => {
         if (oppsett.autentisering === 'altinn') {
           setEkteInnlogging(true);
-          setInnloggetBruker(await api.hentMeg());
+          try {
+            setInnloggetBruker(await api.hentMeg());
+          } catch (feil) {
+            // Selve dokumentet ble servert, så serveren godtok cookien — kom vi likevel hit,
+            // manglet claimet vi identifiserer brukeren med. Vi laster IKKE siden på nytt: det
+            // ville gitt en evig runddans, siden en ny innlogging ikke ville endret claimene.
+            // /api/meg/claims viser hva tokenet faktisk inneholder (krever VisClaims=true).
+            if (feil instanceof ApiError && feil.status === 401) {
+              setInnloggingsfeil(feil.message);
+              return;
+            }
+            throw feil;
+          }
           return;
         }
 
@@ -56,7 +71,9 @@ export function BrukerProvider({ children }: { children: ReactNode }) {
     : (brukere.find((b) => b.id === gjeldendeBrukerId) ?? null);
 
   return (
-    <BrukerContext.Provider value={{ brukere, gjeldendeBruker, velgBruker, laster, ekteInnlogging }}>
+    <BrukerContext.Provider
+      value={{ brukere, gjeldendeBruker, velgBruker, laster, ekteInnlogging, innloggingsfeil }}
+    >
       {children}
     </BrukerContext.Provider>
   );

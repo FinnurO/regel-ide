@@ -12,6 +12,14 @@ public interface IBrukerkontekst
 {
     /// <summary>Returnerer brukeren forespørselen skal attribueres til, eller null hvis den ikke kan identifiseres.</summary>
     Task<Bruker?> FinnAsync(HttpContext kontekst, CancellationToken ct = default);
+
+    /// <summary>
+    /// Svaret endepunktene sender når <see cref="FinnAsync"/> ikke fant noen bruker. Ligger her
+    /// fordi grunnen er profilspesifikk: under testbruker-profilen mangler en header, under
+    /// Altinn-profilen er man ikke innlogget. Snakker man om headeren i det andre tilfellet, sender
+    /// man den som feilsøker rett i feil retning.
+    /// </summary>
+    IResult IkkeFunnetSvar();
 }
 
 /// <summary>
@@ -31,4 +39,10 @@ public sealed class TestbrukerKontekst(RegelIdeDbContext db) : IBrukerkontekst
         }
         return await db.Brukere.FirstOrDefaultAsync(b => b.Id == brukerId, ct);
     }
+
+    /// <summary>
+    /// 400, ikke 401: headeren er en klientfeil i en profil som ikke har noen innlogging å vise til.
+    /// </summary>
+    public IResult IkkeFunnetSvar() =>
+        Results.BadRequest(new { feil = $"Mangler eller ukjent {HeaderNavn}-header." });
 }

@@ -84,7 +84,8 @@ app.UseCors(VitePolicy);
 // I containeren (docker/Dockerfile) serveres API og SPA fra samme origin over ren HTTP —
 // TLS termineres av ingress foran oss. UseHttpsRedirection ville da bare logge en advarsel
 // om at den ikke finner noen HTTPS-port. Utenfor container er oppførselen som før.
-if (!app.Configuration.GetValue("RegelIde:BakEnTerminerendeProxy", false))
+var bakEnTerminerendeProxy = app.Configuration.GetValue("RegelIde:BakEnTerminerendeProxy", false);
+if (!bakEnTerminerendeProxy)
 {
     app.UseHttpsRedirection();
 }
@@ -103,6 +104,12 @@ if (autentiseringsprofil is Autentiseringsprofil.Altinn)
 {
     app.UseAuthentication();
     app.UseAuthorization();
+
+    // Uten denne ber ingenting brukeren om å logge inn: JwtBearer validerer cookien hvis den er
+    // der og går videre uten identitet hvis den ikke er der. SPA-en lastet derfor fint for en
+    // utlogget bruker og feilet først på første API-kall. Må ligge etter UseAuthentication —
+    // ellers er User alltid tom og alt blir redirectet. Se Altinninnlogging.cs.
+    app.BrukAltinninnlogging(app.Services.GetRequiredService<Altinninnstillinger>(), bakEnTerminerendeProxy);
 }
 
 // Enkel liveness/readiness for klyngen: svarer 200 først når databasen faktisk svarer.
@@ -214,7 +221,9 @@ app.MapGet("/api/oppsett", () => Results.Ok(new { autentisering = autentiserings
 app.MapGet("/api/meg", async (HttpRequest request, RegelIdeDbContext db, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
-        if (bruker is null) return Results.Unauthorized();
+        // IkkeInnloggetSvar, ikke Results.Unauthorized(): den siste har ingen kropp, og klienten
+        // viser meldingen herfra når den er innlogget men ikke fikk noen brukerkonto.
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
 
         var virksomhet = await db.Virksomheter.FirstAsync(v => v.Id == bruker.VirksomhetId, ct);
         return Results.Ok(new BrukerDto(bruker.Id, bruker.Navn, virksomhet.Id, virksomhet.Navn, bruker.Rolle));
@@ -290,7 +299,7 @@ rettskilder.MapPatch("/{id:guid}/metadata", async (Guid id, HttpRequest request,
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         var oppdatert = await repo.OppdaterMetadataAsync(id, body.Kortnavn, body.Utgiver, bruker.Navn);
         return oppdatert is null
@@ -384,7 +393,7 @@ rettskilder.MapGet("/{id:guid}/tagger", async (Guid id, HttpRequest request, Ret
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
 
         var egneTagger = await taggTjeneste.ListerForAsync(id, bruker.VirksomhetId, ct);
@@ -401,7 +410,7 @@ rettskilder.MapPost("/{id:guid}/tagger", async (Guid id, HttpRequest request, Op
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
 
         TekstTaggEntitet? opprettet;
@@ -431,7 +440,7 @@ rettskilder.MapDelete("/{id:guid}/tagger/{taggId:guid}", async (Guid id, Guid ta
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
 
         var resultat = await taggTjeneste.SlettAsync(id, taggId, bruker.VirksomhetId, bruker.Navn, ct);
@@ -453,7 +462,7 @@ rettskilder.MapPost("/{id:guid}/tagger/{taggId:guid}/koble", async (Guid taggId,
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -478,7 +487,7 @@ rettskilder.MapPost("/fil", async (HttpRequest request, IFormFile fil, Guid? vir
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
 
         using var leser = new StreamReader(fil.OpenReadStream(), System.Text.Encoding.UTF8);
@@ -510,7 +519,7 @@ rettskilder.MapPost("/lovdata", async (HttpRequest request, LovdataImportRequest
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
 
         string html;
@@ -553,7 +562,7 @@ handboker.MapPost("/", async (HttpRequest request, OpprettHandbokRequest body,
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -575,7 +584,7 @@ handboker.MapPost("/{id:guid}/kapitler", async (Guid id, HttpRequest request, Op
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -597,7 +606,7 @@ handboker.MapPost("/{id:guid}/kommentarer", async (Guid id, HttpRequest request,
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -621,7 +630,7 @@ handboker.MapPut("/{id:guid}/kommentarer/{nodeId:guid}", async (Guid id, Guid no
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -690,7 +699,7 @@ handboker.MapPost("/{id:guid}/kommentarer/{nodeId:guid}/revisjonsmerke", async (
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -712,7 +721,7 @@ handboker.MapPost("/{id:guid}/kommentarer/{nodeId:guid}/publiser", async (Guid i
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -738,7 +747,7 @@ handboker.MapPost("/{id:guid}/rettskilder", async (Guid id, HttpRequest request,
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -768,7 +777,7 @@ tjenester.MapGet("/", async (HttpRequest request, TjenesteregisterTjeneste tjene
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         var liste = await tjeneste.ListerForAsync(bruker.VirksomhetId, ct);
         return Results.Ok(liste.Select(TjenesteDto.FraEntitet));
@@ -789,7 +798,7 @@ tjenester.MapPost("/", async (HttpRequest request, TjenesteRequest body, Tjenest
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -811,7 +820,7 @@ tjenester.MapPut("/{id:guid}", async (Guid id, HttpRequest request, TjenesteRequ
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -833,7 +842,7 @@ tjenester.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, Sett
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -882,7 +891,7 @@ begreper.MapGet("/", async (HttpRequest request, BegrepsregisterTjeneste begreps
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         var liste = await begrepsregister.ListerForAsync(bruker.VirksomhetId, ct);
         return Results.Ok(liste.Select(BegrepDto.FraEntitet));
@@ -903,7 +912,7 @@ begreper.MapPost("/", async (HttpRequest request, BegrepRequest body, Begrepsreg
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -924,7 +933,7 @@ begreper.MapPut("/{id:guid}", async (Guid id, HttpRequest request, BegrepRequest
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -945,7 +954,7 @@ begreper.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, SettS
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -984,7 +993,7 @@ kodelister.MapPost("/", async (HttpRequest request, KodelisteRequest body, Kodel
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -1027,7 +1036,7 @@ kodelister.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, Set
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -1062,7 +1071,7 @@ app.MapPost("/api/datasett/{id:guid}/verdier", async (Guid id, HttpRequest reque
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -1099,7 +1108,7 @@ vilkarstreKommentarer.MapPost("/", async (HttpRequest request, OpprettVilkarstre
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -1120,7 +1129,7 @@ vilkarstreKommentarer.MapPut("/{id:guid}", async (Guid id, HttpRequest request, 
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -1146,7 +1155,7 @@ vilkarstreKommentarer.MapPost("/{id:guid}/flytt", async (Guid id, HttpRequest re
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -1170,7 +1179,7 @@ vilkar.MapGet("/", async (HttpRequest request, Guid? tjenesteId, VilkarregisterT
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         return Results.Ok((await register.ListerForAsync(bruker.VirksomhetId, tjenesteId, ct)).Select(VilkarDto.FraEntitet));
     })
@@ -1190,7 +1199,7 @@ vilkar.MapPost("/", async (HttpRequest request, VilkarRequest body, Vilkarregist
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -1214,7 +1223,7 @@ vilkar.MapPut("/{id:guid}", async (Guid id, HttpRequest request, VilkarRequest b
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -1238,7 +1247,7 @@ vilkar.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, SettSta
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -1293,7 +1302,7 @@ regelnoder.MapGet("/", async (HttpRequest request, RegelnoderegisterTjeneste reg
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         return Results.Ok((await register.ListerForAsync(bruker.VirksomhetId, ct)).Select(RegelnodeDto.FraEntitet));
     })
@@ -1313,7 +1322,7 @@ regelnoder.MapPost("/", async (HttpRequest request, RegelnodeRequest body, Regel
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -1335,7 +1344,7 @@ regelnoder.MapPut("/{id:guid}", async (Guid id, HttpRequest request, RegelnodeRe
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -1356,7 +1365,7 @@ regelnoder.MapPut("/{id:guid}/operator", async (Guid id, HttpRequest request, Se
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -1376,7 +1385,7 @@ regelnoder.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, Set
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -1431,7 +1440,7 @@ unntak.MapGet("/", async (HttpRequest request, UnntaksregisterTjeneste register,
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         return Results.Ok((await register.ListerForAsync(bruker.VirksomhetId, ct)).Select(UnntakDto.FraEntitet));
     })
@@ -1451,7 +1460,7 @@ unntak.MapPost("/", async (HttpRequest request, OpprettUnntakRequest body, Unnta
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -1472,7 +1481,7 @@ unntak.MapPut("/{id:guid}", async (Guid id, HttpRequest request, OppdaterUnntakR
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -1492,7 +1501,7 @@ unntak.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, SettSta
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -1569,7 +1578,7 @@ hendelser.MapPost("/", async (HttpRequest request, HendelseRequest body, Hendels
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {
@@ -1625,7 +1634,7 @@ tjenester.MapPost("/{id:guid}/avhengigheter", async (Guid id, HttpRequest reques
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
-            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
         try
         {

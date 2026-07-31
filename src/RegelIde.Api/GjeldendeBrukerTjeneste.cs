@@ -27,6 +27,15 @@ public static class GjeldendeBrukerTjeneste
         var kontekst = request.HttpContext.RequestServices.GetRequiredService<IBrukerkontekst>();
         return kontekst.FinnAsync(request.HttpContext, ct);
     }
+
+    /// <summary>
+    /// Svaret når <see cref="FinnAsync"/> ga null. Selve meldingen og statuskoden kommer fra
+    /// profilen (<see cref="IBrukerkontekst.IkkeFunnetSvar"/>) — endepunktene skrev tidligere
+    /// «Mangler eller ukjent X-Bruker-Id-header» uansett profil, som er direkte villedende under
+    /// Altinn-innlogging der ingen slik header finnes.
+    /// </summary>
+    public static IResult IkkeInnloggetSvar(HttpRequest request) =>
+        request.HttpContext.RequestServices.GetRequiredService<IBrukerkontekst>().IkkeFunnetSvar();
 }
 
 public sealed record BrukerDto(Guid Id, string Navn, Guid VirksomhetId, string VirksomhetNavn, string Rolle);

@@ -2,13 +2,21 @@ namespace RegelIde.Api.Autentisering;
 
 /// <summary>
 /// Konfigurasjonen <see cref="Autentiseringsprofil.Altinn"/> trenger, lest under <c>RegelIde:Altinn</c>.
-/// Alt har fornuftige standardverdier for tt02, slik at deploy dit bare trenger å sette profilen.
+/// <see cref="Plattform"/> må oppgis; resten har standardverdier som er like i alle miljøer.
 /// </summary>
 public sealed class Altinninnstillinger
 {
     public const string Seksjon = "RegelIde:Altinn";
 
-    /// <summary>Plattformens basis-URL. tt02 som standard; prod ville vært platform.altinn.no.</summary>
+    /// <summary>
+    /// Plattformens basis-URL — <c>https://platform.at23.altinn.cloud</c>, <c>https://platform.tt02.altinn.no</c>,
+    /// <c>https://platform.altinn.no</c>.
+    /// <para>
+    /// Har bevisst ingen standardverdi. Hvert miljø signerer runtime-cookien med sin egen nøkkel, så
+    /// en standard ville betydd at deploy til et annet miljø ga en app som starter fint og avviser
+    /// alle gyldige innlogginger — uten noe spor av hvorfor. Nå stopper den i stedet ved oppstart.
+    /// </para>
+    /// </summary>
     public required string Plattform { get; init; }
 
     /// <summary>Navnet på runtime-cookien. Samme verdi som skall-appens <c>RuntimeCookieName</c>.</summary>
@@ -44,7 +52,12 @@ public sealed class Altinninnstillinger
         var seksjon = konfigurasjon.GetSection(Seksjon);
         return new Altinninnstillinger
         {
-            Plattform = seksjon["Plattform"] ?? "https://platform.tt02.altinn.no",
+            Plattform = seksjon["Plattform"]?.Trim() is { Length: > 0 } plattform
+                ? plattform
+                : throw new InvalidOperationException(
+                    $"{Seksjon}:Plattform må settes når {Autentiseringsoppsett.Konfigurasjonsnokkel}=altinn. "
+                    + "Verdien er miljøspesifikk, f.eks. https://platform.at23.altinn.cloud, "
+                    + "https://platform.tt02.altinn.no eller https://platform.altinn.no."),
             Cookienavn = seksjon["Cookienavn"] ?? "AltinnStudioRuntime",
             Virksomhet = seksjon["Virksomhet"] ?? "Testkommunen",
             Organisasjonsnummer = seksjon["Organisasjonsnummer"],

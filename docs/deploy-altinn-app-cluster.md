@@ -1,4 +1,4 @@
-# Deploy i Altinns app-cluster (tt02)
+# Deploy i Altinns app-cluster
 
 Regel-IDE deployes som om den var en Altinn-app, men den er det ikke. Den kjører i stedet vårt
 eget image, plassert inn i Altinns deploy-maskineri via app-repoet
@@ -18,7 +18,7 @@ Deployment-spec.
 
 Det er samme mønster som `ttd/olebhansen-poc-custom-app1` bruker.
 
-## De tre tingene som må stemme
+## De fem tingene som må stemme
 
 ### 1. Porten må være 5005
 
@@ -72,6 +72,36 @@ forespørsler, så det er ufarlig, og Docker-`HEALTHCHECK` bruker det.
 Imaget har `RegelIde__Autentisering=testbruker` som standard, slik at det er kjørbart lokalt.
 **Deployet må sette `altinn`**, ellers står appen åpen med brukervelger. Også dette feiler stille —
 appen virker, den spør bare ikke om hvem du er.
+
+### 5. `Plattform` må peke på samme miljø som appen kjører i
+
+`RegelIde__Altinn__Plattform` bestemmer hvilken JWKS runtime-cookien valideres mot. Hvert Altinn-
+miljø signerer med sin egen nøkkel, så peker den feil, blir hver enkelt gyldig innlogging avvist:
+
+| App-vert | Plattform |
+|---|---|
+| `{org}.apps.at23.altinn.cloud` | `https://platform.at23.altinn.cloud` |
+| `{org}.apps.tt02.altinn.no` | `https://platform.tt02.altinn.no` |
+| `{org}.apps.altinn.no` | `https://platform.altinn.no` |
+
+Dette er den ene av de fem som **ikke** feiler stille: appen nekter å starte uten verdien. Det er
+et bevisst valg, for symptomet ellers er en app som ser helt frisk ut og avviser alle som prøver å
+logge inn — se [`autentisering.md`](autentisering.md).
+
+### Fellesnevneren: fire av fem feiler stille
+
+Port, probe-sti, sti-prefiks og autentiseringsprofil har alle den egenskapen at appen starter fint
+og *ser* riktig ut. Feilen viser seg som 404, som en probe som aldri blir klar, eller som en app
+uten innlogging. Sjekk dem i denne rekkefølgen ved en ny deploy:
+
+```
+curl -s https://{vert}/{org}/{app}/health      # 200 + application/json — ikke text/html
+curl -s https://{vert}/{org}/{app}/api/oppsett # {"autentisering":"altinn"}
+curl -sI -H 'Accept: text/html' https://{vert}/{org}/{app}/  # 302 til plattformens innlogging
+```
+
+Svarer `/health` med `text/html`, har SPA-fallbacken tatt den, og probene ville rapportert klar
+også med død database.
 
 ## Miljøspesifikke verdier
 
