@@ -53,13 +53,21 @@ public class VeiledningEndepunktTests
 
         Assert.Equal("Vedtak om skjenkebevilling", veiledning!.Rot.Tittel);
         Assert.Equal("regelnode", veiledning.Rot.Type);
-        Assert.Equal(3, veiledning.Rot.Barn.Count); // V-ALDER, V-VANDEL, R-SKJENKETID, i Rekkefolge
+        // V-ALDER, V-VANDEL, R-SKJENKETID (Byggesteg4VilkarstreSeed) + 5 fra FasitRunde4Seed
+        // (Habilitet, Formalia, Serveringsbevillingsvilkår, Kunnskapsprøve, Kommunal skjønnsvurdering),
+        // i Rekkefolge (append-rekkefølgen de ble koblet inn i) — 2026-07-31 runde 2.
+        Assert.Equal(8, veiledning.Rot.Barn.Count);
         Assert.Equal("Aldersvilkår", veiledning.Rot.Barn[0].Tittel);
         Assert.Equal("Vandelsvilkår", veiledning.Rot.Barn[1].Tittel);
         var rSkjenketid = veiledning.Rot.Barn[2];
         Assert.Equal("regelnode", rSkjenketid.Type);
         Assert.Single(rSkjenketid.Unntak);
         Assert.Equal("Unntak for lukket selskap", rSkjenketid.Unntak[0].Tittel);
+        Assert.Equal("Habilitet", veiledning.Rot.Barn[3].Tittel);
+        Assert.Equal("Formalia", veiledning.Rot.Barn[4].Tittel);
+        Assert.Equal("Serveringsbevillingsvilkår", veiledning.Rot.Barn[5].Tittel);
+        Assert.Equal("Kunnskapsprøve", veiledning.Rot.Barn[6].Tittel);
+        Assert.Equal("Kommunal skjønnsvurdering", veiledning.Rot.Barn[7].Tittel);
     }
 
     [Fact]

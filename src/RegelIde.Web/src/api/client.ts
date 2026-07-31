@@ -5,6 +5,9 @@ import type {
   BrukerDto,
   DatasettDto,
   DatasettVerdiDto,
+  HendelseDto,
+  HendelseRequest,
+  KobleHendelseRequest,
   KobleBarnRequest,
   KobleLovreferanseRequest,
   KobleRegelverksreferanseRequest,
@@ -43,6 +46,8 @@ import type {
   TjenesteDto,
   TjenesteReferanseDto,
   TjenesteRegelverksreferanseDto,
+  TjenesteavhengighetDto,
+  TjenesteavhengighetRequest,
   HandbokRettskildeomfangDto,
   TjenesteRequest,
   UnntakDto,
@@ -271,6 +276,43 @@ export const api = {
 
   fjernTjenesteRegelverksreferanse: (referanseId: string) =>
     kall<void>(`/api/tjenester/regelverksreferanser/${referanseId}`, { method: 'DELETE' }),
+
+  // ---------- Hendelseregister (docs/03-domenemodell.md §1.5, docs/13-backlog.md §2.1) ----------
+
+  hentHendelser: () => kall<HendelseDto[]>('/api/hendelser'),
+
+  opprettHendelse: (request: HendelseRequest) =>
+    kall<HendelseDto>('/api/hendelser', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  hentTjenesteHendelser: (id: string) => kall<HendelseDto[]>(`/api/tjenester/${id}/hendelser`),
+
+  kobleTjenesteHendelse: (id: string, request: KobleHendelseRequest) =>
+    kall<HendelseDto[]>(`/api/tjenester/${id}/hendelser`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  fjernTjenesteHendelse: (id: string, hendelseId: string) =>
+    kall<void>(`/api/tjenester/${id}/hendelser/${hendelseId}`, { method: 'DELETE' }),
+
+  // ---------- Tjenesteavhengighetregister (docs/03-domenemodell.md §1.5, docs/13-backlog.md §2.1) ----------
+
+  hentTjenesteavhengigheter: (id: string) => kall<TjenesteavhengighetDto[]>(`/api/tjenester/${id}/avhengigheter`),
+
+  opprettTjenesteavhengighet: (id: string, request: TjenesteavhengighetRequest) =>
+    kall<TjenesteavhengighetDto[]>(`/api/tjenester/${id}/avhengigheter`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  slettTjenesteavhengighet: (avhengighetId: string) =>
+    kall<void>(`/api/tjenester/avhengigheter/${avhengighetId}`, { method: 'DELETE' }),
 
   // ---------- Begrepsregister (SKOS, docs/03-domenemodell.md §1.3) — byggesteg 2 ----------
 

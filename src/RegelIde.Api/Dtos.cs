@@ -140,6 +140,30 @@ public sealed record HandbokRettskildeomfangDto(Guid Id, Guid HandbokId, Guid Ti
         new(o.Id, o.HandbokId, o.TilRettskildeId);
 }
 
+/// <summary>Hendelse (docs/03-domenemodell.md §1.5, docs/13-backlog.md §2.1).</summary>
+public sealed record HendelseDto(Guid Id, Guid? VirksomhetId, string Navn, string Type, string? Beskrivelse)
+{
+    public static HendelseDto FraEntitet(HendelseEntitet h) => new(h.Id, h.VirksomhetId, h.Navn, h.Type, h.Beskrivelse);
+}
+
+/// <summary>Forespørsel for POST /api/hendelser.</summary>
+public sealed record HendelseRequest(string Navn, string Type, string? Beskrivelse);
+
+/// <summary>Forespørsel for POST /api/tjenester/{id}/hendelser.</summary>
+public sealed record KobleHendelseRequest(Guid HendelseId);
+
+/// <summary>Én tjenesteavhengighet sett fra den spurte tjenestens ståsted — se <see cref="TjenesteavhengighetVisning"/>.</summary>
+public sealed record TjenesteavhengighetDto(
+    Guid Id, string Rel, string Retning, string Visningstekst,
+    Guid MotpartTjenesteId, string MotpartTjenesteTittel, Guid? HendelseId, string? HendelseNavn, string? Beskrivelse)
+{
+    public static TjenesteavhengighetDto FraVisning(TjenesteavhengighetVisning v) => new(
+        v.Id, v.Rel, v.Retning, v.Visningstekst, v.MotpartTjenesteId, v.MotpartTjenesteTittel, v.HendelseId, v.HendelseNavn, v.Beskrivelse);
+}
+
+/// <summary>Forespørsel for POST /api/tjenester/{id}/avhengigheter — {id} blir alltid FraTjenesteId.</summary>
+public sealed record TjenesteavhengighetRequest(Guid TilTjenesteId, string Rel, Guid? HendelseId, string? Beskrivelse);
+
 /// <summary>Forespørsel for POST /api/handboker/{id}/rettskilder.</summary>
 public sealed record LeggTilRettskildeomfangRequest(Guid TilRettskildeId);
 

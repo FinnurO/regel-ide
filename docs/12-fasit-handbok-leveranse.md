@@ -446,6 +446,51 @@ forstand, og Presedensregisteret (byggesteg 3) er fortsatt ikke bygget.
 Testen feiler bevisst hvis et fremtidig gap tettes uten at testen selv oppdateres — den er skrevet
 som en levende kontrakt for hvor grensen går, ikke en engangsmåling.
 
+## Runde 5 (2026-07-31): seed-parity — testdatabasen reflekterer nå det runde 4 faktisk bygde
+
+**Problem oppdaget under skriving av `docs/13-backlog.md`**: alt innholdet runde 4 opprettet (5 nye
+Vilkår, 13 nye Tjenester, 6 tekst-tagger, 10 VilkarstreKommentarer, en fylt håndbok) ble opprettet via
+ekte, engangs-HTTP-kall mot **én langvarig utviklingsdatabase** — aldri skrevet inn i noen av
+seed-klassene `Program.cs` kjører ved oppstart. `RundskrivReproduksjonTests.cs` kjører derimot mot en
+**frisk, embedded Postgres-instans per testkjøring**, seedet kun fra disse klassene. Testen målte
+derfor konstant den langt magrere runde-1-baselinen — dekningstabellen i forrige seksjon var reelt
+korrekt for testkjøringen, men ga et unødvendig pessimistisk, foreldet bilde av hva applikasjonen
+faktisk kunne bygge, siden runde 4 hadde bevist noe testen aldri fikk se.
+
+**Fiks**: ny `FasitRunde4Seed.cs` (`RegelIde.Data`), kjørt fra `Program.cs` etter
+`Byggesteg4VilkarstreSeed`/`KommunaleParametreSeed` — reproduserer runde 4s innhold direkte mot
+`RegelIdeDbContext` (samme mønster som de andre seed-klassene), ordrett hentet fra
+`docs/kildegrunnlag/skjenkebevilling-rundskriv-fasit.md` §3/§4/§5/§6/§7/§8/§9/§12 (ikke oppspinn).
+Serveringsloven (`LOV-1997-06-13-55`) er i tillegg lagt inn som en ny, permanent fixture-fil
+(`data/kilder/raw-lovdata/serveringsloven-LOV-1997-06-13-55.html`, hentet på nytt fra Lovdatas
+offisielle bulk-arkiv) slik at den importeres automatisk ved oppstart, samme mekanisme som
+alkoholloven/-forskriften/forvaltningsloven — ingen egen kode trengtes for selve importen.
+
+**Oppdatert dekningstabell** (fra `Dekningsrapport_for_rundskriv_v4_skrives_til_test_output`, kjørt
+mot embedded Postgres etter fiksen):
+
+| Seksjon | Dekning i dag |
+|---|---|
+| §2 Saksgang (oversikt) | Ja — alle seks spørsmål (habilitet, formalia, serveringsbevilling, vandel, kvalifikasjon, kommunalt skjønn) har nå en Vilkår-node |
+| §3 Habilitet | Delvis — modellert som Vilkår med `GjelderRolle="saksbehandler"` (fvl § 8); en bevisst utvidelse av hvordan ontologien i praksis brukes, ikke dens opprinnelige sikte (søkeren) |
+| §4 Formalia | Ja — egen Vilkår-node, juridisk grunnlag fvl §§ 11/17 |
+| §5 Serveringsbevilling | Ja — egen Vilkår-node, juridisk grunnlag serveringsloven § 3 |
+| §6 Vandelsvurdering | Delvis — vilkåret finnes strukturert, avslagsgrunnene er nå seedet som en ekte sjekkliste-`VilkarstreKommentar` |
+| §7 Kvalifikasjonskrav | Delvis — aldersgrense og kunnskapsprøve strukturert som egne Vilkår, >1000-gjester-unntaket er fortsatt ikke betinget modellert |
+| §8 Kommunal skjønnsvurdering | Delvis — egen Vilkår-node med skjønnsmomenter og hjemmel; kun klokkeslett er `DatasettVerdi`, resten av parametertabellen (inkl. «Ansvarlig vertskap») er fritekst-kommentar |
+| §9 Vilkår i vedtaket (Gyldighet/Prikkbelastning/gebyr) | Delvis — representert som 5 fritekst-`VilkarstreKommentarer` på rotnoden, IKKE som strukturerte Vedtaksvirkning-felt (dimensjon E, se `docs/13-backlog.md` §2.6) |
+| §11 Sjekkliste | Delvis — mekanismen (`ul`/`li`) virker ende-til-ende, og §6s konkrete avslagsgrunner er nå seedet som ekte sjekkliste |
+| §12 Relevante tjenester | Nei — de 13 tjenestene finnes som egne Tjeneste-rader, men `Tjeneste` har fortsatt ikke noe relatert-tjenester-felt til å koble dem til «Alminnelig skjenkebevilling» — det ENE gjenstående rene modellgapet (se `docs/13-backlog.md` §2.1 Hendelse/Tjenesteavhengighet) |
+
+**Viktig presisering**: ingen ny modell-kapasitet ble bygget denne runden — kun testdata. §3–§9s
+forbedring var, akkurat som runde 4 selv konkluderte, alltid et **innholdsgap**, ikke et **modellgap**.
+Dimensjonsskårene (A/C/G/H) over er derfor **uendret** — de måler kodens evne, ikke hvor mye
+testdata som tilfeldigvis er lastet inn. Eneste faktiske endring i produksjonskode: to eksisterende
+tester (`Byggesteg4EndepunktTests.Rotnoden_har_atte_barn_…`,
+`VeiledningEndepunktTests.Veiledningen_folger_beslutningsrekkefolgen_…`) måtte oppdateres til å
+forvente 8 barn på rotnoden i stedet for 3, siden treet nå reelt har 8 — en ren konsekvens av at
+seed-dataene endelig reflekterer treet runde 4 beskrev.
+
 ## Skjermbilde-konformitet mot Claude Design
 
 Egen, enklere sammenligningsakse — gjelder UI/visuell verifisering, ikke innhold. Når en browser-

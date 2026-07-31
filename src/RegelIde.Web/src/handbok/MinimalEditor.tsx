@@ -59,7 +59,7 @@ export interface MinimalEditorProps {
   allow?: string[];
 }
 
-const DEFAULT_ALLOW = ['p', 'h3', 'b', 'i', 'u', 'a'];
+const DEFAULT_ALLOW = ['p', 'h3', 'b', 'i', 'u', 'a', 'ul', 'ol', 'li'];
 
 /** Skjemaer en href får ha. Alt annet — særlig javascript: og data: — fjernes. */
 const TILLATTE_URL_SKJEMA = ['http:', 'https:', 'mailto:'];
@@ -138,7 +138,7 @@ export function MinimalEditor({
   allow = DEFAULT_ALLOW,
 }: MinimalEditorProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const [fmt, setFmt] = useState({ bold: false, italic: false, underline: false, block: 'p' });
+  const [fmt, setFmt] = useState({ bold: false, italic: false, underline: false, block: 'p', ul: false, ol: false });
   const [panel, setPanel] = useState<null | 'lenke' | 'referanse'>(null);
   const [url, setUrl] = useState('');
   const [urlFeil, setUrlFeil] = useState<string | null>(null);
@@ -175,6 +175,8 @@ export function MinimalEditor({
         italic: document.queryCommandState('italic'),
         underline: document.queryCommandState('underline'),
         block,
+        ul: document.queryCommandState('insertUnorderedList'),
+        ol: document.queryCommandState('insertOrderedList'),
       });
     } catch {
       /* noop */
@@ -292,6 +294,32 @@ export function MinimalEditor({
             style={{ textDecoration: 'underline', minWidth: 32 }}
           >
             U
+          </Button>
+
+          <span
+            aria-hidden
+            style={{ width: 1, height: 22, background: 'var(--ds-color-neutral-border-default)', margin: '0 var(--ds-size-1)' }}
+          />
+
+          <Button
+            variant={fmt.ul ? 'primary' : 'tertiary'}
+            data-size="sm"
+            aria-pressed={fmt.ul}
+            aria-label="Punktliste"
+            onClick={() => exec('insertUnorderedList')}
+            style={{ minWidth: 32 }}
+          >
+            •
+          </Button>
+          <Button
+            variant={fmt.ol ? 'primary' : 'tertiary'}
+            data-size="sm"
+            aria-pressed={fmt.ol}
+            aria-label="Nummerert liste"
+            onClick={() => exec('insertOrderedList')}
+            style={{ minWidth: 32 }}
+          >
+            1.
           </Button>
 
           <span

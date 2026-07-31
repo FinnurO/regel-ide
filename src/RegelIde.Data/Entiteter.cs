@@ -254,12 +254,6 @@ public sealed class TjenesteEntitet
     public string? KonsekvensVedBrudd { get; set; }
     public List<string> Sprak { get; set; } = [];
 
-    /// <summary>Liste av <c>{navn, type, trigger}</c> — se §1.5 "Hendelse". Jsonb, tom liste som default.</summary>
-    public string HendelserJson { get; set; } = "[]";
-
-    /// <summary>Liste av <c>{rel, navn, kilde, erEksternOppslag}</c> — se §1.5 "Tjenesteavhengighet". Jsonb.</summary>
-    public string TjenesteavhengigheterJson { get; set; } = "[]";
-
     public required string Status { get; set; } // 'utkast' | 'under_revisjon' | 'validert' | 'publisert' | 'tilbaketrukket' | 'arkivert'
     public int Versjon { get; set; } = 1;
     public string Entitetsstatus { get; set; } = "gjeldende";
@@ -285,6 +279,73 @@ public sealed class TjenesteRegelverksreferanseEntitet
     public Guid TjenesteId { get; set; }
     public Guid TilRettskildeId { get; set; }
     public required string TilEid { get; set; }
+}
+
+/// <summary>
+/// Hendelse (CPSV <c>cv:Event</c>/<c>cv:LifeEvent</c>/<c>cv:BusinessEvent</c>) — docs/03-domenemodell.md
+/// §1.5, korrigert/avklart 2026-07-31 (docs/13-backlog.md §2.1). Et eget, DELT register — samme
+/// nasjonal/lokal-mønster som <see cref="RettskildeEntitet.VirksomhetId"/>: <c>null</c> = nasjonal/delt
+/// hendelse (f.eks. «Eierskifte»), satt = virksomhetens egen lokale hendelse. En Hendelse er alltid et
+/// EKTE, eksternt fenomen som skjer MED en virksomhet (eierskifte, kontroll/tilsyn, brudd, avvikling)
+/// — aldri en tjenestes eget resultat/utfall (f.eks. "Bestått Etablererprøve" hører IKKE hjemme her).
+/// </summary>
+public sealed class HendelseEntitet
+{
+    public Guid Id { get; set; }
+    public Guid? VirksomhetId { get; set; }
+
+    public required string Navn { get; set; }
+    public required string Type { get; set; } // 'generell' (cv:Event) | 'livshendelse' (cv:LifeEvent) | 'virksomhetshendelse' (cv:BusinessEvent)
+    public string? Beskrivelse { get; set; }
+
+    public int Versjon { get; set; } = 1;
+    public string Entitetsstatus { get; set; } = "gjeldende";
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? SistEndretAv { get; set; }
+    public DateTimeOffset? SistEndretTidspunkt { get; set; }
+}
+
+/// <summary>
+/// Klassifisering av en Tjeneste ved en Hendelse — ren, symmetrisk mange-til-mange-kobling
+/// (<c>cpsv:isClassifiedBy</c>), INGEN lagret retning: to tjenester som deler samme Hendelse blir
+/// dermed relaterte uten at én "forårsaker" den andre. Rettede, årsaksforklarte koblinger er
+/// <see cref="TjenesteavhengighetEntitet"/>, et annet konsept.
+/// </summary>
+public sealed class TjenesteHendelseEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid TjenesteId { get; set; }
+    public required Guid HendelseId { get; set; }
+}
+
+/// <summary>
+/// Tjenesteavhengighet (docs/03-domenemodell.md §1.5) — én RETTET kant <c>FraTjenesteId → TilTjenesteId</c>
+/// per relasjon (aldri to speilbilde-rader, se domenemodellens presisering 2026-07-31 tredje runde).
+/// Bevisst løsere lagdeling enn regelgrafen — INGEN FK inn i Vilkårstreet (Vilkår/RegelnodeBarn/Datasett),
+/// kun tjeneste-til-tjeneste. <see cref="HendelseId"/> er kun relevant (og valgfri der den er) når
+/// <see cref="Rel"/> er <c>"utlost_av"</c> — den eneste rel-verdien som kobles til en konkret Hendelse.
+/// </summary>
+public sealed class TjenesteavhengighetEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid VirksomhetId { get; set; }
+
+    public required Guid FraTjenesteId { get; set; }
+    public required Guid TilTjenesteId { get; set; }
+
+    /// <summary>'forutsetning_for' | 'gir_mulighet_til' | 'utlost_av' | 'for' | 'avhengig_av' | 'input_til'.</summary>
+    public required string Rel { get; set; }
+
+    /// <summary>Kun satt (og kun meningsfullt) når <see cref="Rel"/> == "utlost_av".</summary>
+    public Guid? HendelseId { get; set; }
+
+    /// <summary>Fritekst-nyanse for kjente unntak/forbehold — ikke ment for egen betingelseslogikk (den hører hjemme i Til-tjenestens eget vilkårstre).</summary>
+    public string? Beskrivelse { get; set; }
+
+    public string Entitetsstatus { get; set; } = "gjeldende";
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
 }
 
 /// <summary>

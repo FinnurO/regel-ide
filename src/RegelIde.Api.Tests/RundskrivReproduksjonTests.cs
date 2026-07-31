@@ -15,11 +15,19 @@ namespace RegelIde.Api.Tests;
 /// er IKKE en tekstlikhet-test — det er en DEKNINGSTEST: for hver §-seksjon i kildedokumentet,
 /// bekreftes om et representativt fragment faktisk kan gjenfinnes i den ekte, live-genererte
 /// veiledningen (`GET /api/tjenester/{id}/veiledning`), eller om seksjonen bekreftet IKKE kan
-/// representeres med dagens datamodell (§3/§9/§12 — se docs/12-fasit-handbok-leveranse.md).
+/// representeres med dagens datamodell (kun §12 gjenstår som et rent modellgap — se under).
 ///
-/// To seksjoner (§6/§11) demonstreres via den EKTE forfatter-mekanismen (POST
-/// /api/vilkarstre-kommentarer) i Arrange-delen, ikke en test-only bypass — det er nøyaktig den
-/// samme HTTP-veien en jurist ville brukt fra Egenskapspanelets "Veiledning"-fane.
+/// 2026-07-31, runde 2: <see cref="FasitRunde4Seed"/> (RegelIde.Data) seeder nå det som opprinnelig
+/// ble opprettet via ekte, engangs-HTTP-kall mot en kjørende utviklingsinstans (5 nye Vilkår, 13 nye
+/// Tjenester, ekte tekst-tagger, 10 VilkarstreKommentarer) — så testen her måler det faktiske,
+/// gjentakbare innholdet i test-databasen, ikke bare den opprinnelige, magrere seed-baselinen. Se
+/// docs/13-backlog.md §1/§4 punkt 1 for hvorfor dette var nødvendig: uten seeden var testen
+/// permanent, unødvendig pessimistisk om §3/§4/§5/§8/§9, uavhengig av hvor mye som faktisk var bygget
+/// "for hånd" i en annen database.
+///
+/// To seksjoner (§6/§11) demonstreres i tillegg via den EKTE forfatter-mekanismen (POST
+/// /api/vilkarstre-kommentarer) i Arrange-delen av sine respektive tester, ikke en test-only bypass —
+/// det er nøyaktig den samme HTTP-veien en jurist ville brukt fra Egenskapspanelets "Veiledning"-fane.
 /// </summary>
 [Collection(ApiTestCollection.Navn)]
 public class RundskrivReproduksjonTests
@@ -93,38 +101,49 @@ public class RundskrivReproduksjonTests
         var veiledning = await _client.GetFromJsonAsync<VeiledningDto>($"/api/tjenester/{tjenesteId}/veiledning", JsonInnstillinger);
 
         // §2 lister habilitet, formalia, serveringsbevilling, vandel, kvalifikasjon, kommunalt skjønn.
-        // Av disse har dagens vilkårstre strukturert dekning for vandel (Vandelsvilkår), kvalifikasjon
-        // (Aldersvilkår) og kommunalt skjønn (R-SKJENKETID + DatasettVerdi) — de tre andre er §3/§4/§5,
-        // bekreftet IKKE representerbare (se egen test under).
+        // Alle seks har nå en strukturert Vilkår-node i treet (FasitRunde4Seed, 2026-07-31 runde 2) —
+        // se den egne testen under for de nyansene som fortsatt IKKE er dekket (>1000-gjester-terskel,
+        // parametertabellen i §8, Vedtaksvirkning i §9).
         Assert.NotNull(FinnNode(veiledning!.Rot, "Vandelsvilkår"));
         Assert.NotNull(FinnNode(veiledning.Rot, "Aldersvilkår"));
         Assert.NotNull(FinnNode(veiledning.Rot, "Klokkeslettsvilkår"));
+        Assert.NotNull(FinnNode(veiledning.Rot, "Habilitet"));
+        Assert.NotNull(FinnNode(veiledning.Rot, "Formalia"));
+        Assert.NotNull(FinnNode(veiledning.Rot, "Serveringsbevillingsvilkår"));
+        Assert.NotNull(FinnNode(veiledning.Rot, "Kunnskapsprøve"));
+        Assert.NotNull(FinnNode(veiledning.Rot, "Kommunal skjønnsvurdering"));
     }
 
     [Fact]
-    public async Task Paragraf3_4_5_og_9_og_12_har_ingen_representasjon_i_dagens_datamodell()
+    public async Task Paragraf3_4_5_og_9_dekkes_nå_strukturert_men_12_er_fortsatt_et_rent_modellgap()
     {
-        // Dette er IKKE en midlertidig svikt å fikse — det er en bekreftelse av kjente,
-        // dokumenterte gap (docs/12-fasit-handbok-leveranse.md). Testen feiler bevisst hvis noen i en
-        // fremtidig runde bygger dekning uten å oppdatere denne testen og skåringstabellen sammen.
+        // Runde 1 (2026-07-31) bekreftet at §3/§4/§5/§9 IKKE var representerbare — men det var et
+        // INNHOLDSGAP i seed-dataene, ikke et modellgap (docs/12-fasit-handbok-leveranse.md "Runde 4":
+        // "domenemodellen tillot det hele tiden, ingen ny entitet eller migrasjon var nødvendig").
+        // FasitRunde4Seed (runde 2) fyller nettopp dette innholdet. §12 er det ene gjenstående ekte
+        // modellgapet: TjenesteDto har fortsatt ikke noe "relaterte tjenester"-felt (bekreftet ved
+        // kodegjennomgang av Dtos.cs) — de 13 tjenestene fra FasitRunde4Seed finnes som egne,
+        // frittstående Tjeneste-rader, men ingen mekanisme kobler dem til "Alminnelig skjenkebevilling"
+        // (se docs/13-backlog.md §2.1 Hendelse/Tjenesteavhengighet — nettopp det som ville lukket dette).
         var juristId = await HentJuristIdAsync();
         var tjenesteId = await HentTjenesteIdAsync(juristId);
         var veiledning = await _client.GetFromJsonAsync<VeiledningDto>($"/api/tjenester/{tjenesteId}/veiledning", JsonInnstillinger);
         var heleTreet = SamleAllTekst(veiledning!.Rot);
 
-        // §3 Habilitet (fvl. § 8) — saksbehandlerens EGEN habilitet, ikke søkerens eligibility. Passer
-        // ikke i Vilkår/Regelnode-ontologien (som alltid evaluerer søkeren), derfor ingen "habilitet"-tekst.
-        Assert.DoesNotContain("habil", heleTreet, StringComparison.OrdinalIgnoreCase);
+        // §3 Habilitet (fvl. § 8) — modellert som et formelt Vilkår med GjelderRolle="saksbehandler".
+        // Merk presiseringen: dette evaluerer saksbehandlerens EGEN habilitet, ikke søkerens — en bevisst
+        // utvidelse av hvordan Vilkår-ontologien i praksis brukes, ikke noe INV-en i seg selv krever.
+        Assert.Contains("habil", heleTreet, StringComparison.OrdinalIgnoreCase);
 
-        // §4 Formalia (fvl. § 17, søknad komplett) og §5 Serveringsbevilling — ingen egen Vilkår-node.
-        Assert.DoesNotContain("serveringsbevilling", heleTreet, StringComparison.OrdinalIgnoreCase);
+        // §4 Formalia (fvl. §§ 11/17) og §5 Serveringsbevilling (serveringsloven § 3) — egne Vilkår-noder.
+        Assert.Contains("serveringsbevilling", heleTreet, StringComparison.OrdinalIgnoreCase);
 
-        // §9 Prikkbelastning / Gyldighet (vedtaks-varighet) — Vedtaksvirkning eies bevisst av
-        // forklaringsmodell-api, ikke regel-ide (docs/01-referansemodell.md).
-        Assert.DoesNotContain("prikkbelastning", heleTreet, StringComparison.OrdinalIgnoreCase);
+        // §9 Faste vilkår/prikkbelastning — representert som fritekst-VilkarstreKommentar på rotnoden,
+        // IKKE som et strukturert Vedtaksvirkning-felt (den eies fortsatt bevisst av forklaringsmodell-api,
+        // dimensjon E). "Kan skrives ned" er ikke det samme som "kan modelleres strukturert" — se docs/13-backlog.md §2.6.
+        Assert.Contains("prikkbelastning", heleTreet, StringComparison.OrdinalIgnoreCase);
 
-        // §12 Relevante tjenester — TjenesteDto har ikke noe "relaterte tjenester"-felt å inspisere i
-        // det hele tatt (bekreftet ved kodegjennomgang av Dtos.cs) — det ER selve gapet.
+        // §12 Relevante tjenester — fortsatt et rent modellgap, se XML-doc over.
         Assert.DoesNotContain("Omsetningsoppgave", heleTreet, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -165,8 +184,11 @@ public class RundskrivReproduksjonTests
     {
         // §11 (bevisst duplikatnummerert i kildedokumentet — se docs/12-fasit-handbok-leveranse.md
         // "Prinsipp: rekkefølge og nummerering er alltid beregnet") er en avkrysningsbar sjekkliste.
-        // Sanitizeren tillater ul/li (denne sesjonen) — dette bekrefter at MEKANISMEN virker
-        // ende-til-ende via det ekte endepunktet, ikke bare i en isolert sanitizer-enhetstest.
+        // Sanitizeren tillater ul/li — dette bekrefter at MEKANISMEN virker ende-til-ende via det ekte
+        // endepunktet, ikke bare i en isolert sanitizer-enhetstest. FasitRunde4Seed har allerede lagt en
+        // egen, innholdsriktig sjekkliste (§6 avslagsgrunner) på samme Vilkår — denne testen legger til
+        // en TREDJE, egen sjekkliste-kommentar og verifiserer den spesifikt (ikke via .Single(), som ville
+        // feilet nå som noden har flere sjekkliste-kommentarer).
         var juristId = await HentJuristIdAsync();
         var tjenesteId = await HentTjenesteIdAsync(juristId);
         var veiledningFor = await _client.GetFromJsonAsync<VeiledningDto>($"/api/tjenester/{tjenesteId}/veiledning", JsonInnstillinger);
@@ -186,18 +208,21 @@ public class RundskrivReproduksjonTests
         opprettRespons.EnsureSuccessStatusCode();
 
         var veiledningEtter = await _client.GetFromJsonAsync<VeiledningDto>($"/api/tjenester/{tjenesteId}/veiledning", JsonInnstillinger);
-        var sjekklisteKommentar = FinnNode(veiledningEtter!.Rot, "Vandelsvilkår")!.Kommentarer.Single(k => k.Dokumenttype == "sjekkliste");
+        var sjekklisteKommentar = FinnNode(veiledningEtter!.Rot, "Vandelsvilkår")!.Kommentarer
+            .Single(k => k.Dokumenttype == "sjekkliste" && k.TekstHtml.Contains("organisasjonsnummer"));
         Assert.Contains("<ul>", sjekklisteKommentar.TekstHtml);
         Assert.Contains("Kontrollert organisasjonsnummer", sjekklisteKommentar.TekstHtml);
     }
 
     [Fact]
-    public async Task Paragraf8_kommunal_skjonnsvurdering_dekkes_delvis_kun_klokkeslett_er_strukturert()
+    public async Task Paragraf8_kommunal_skjonnsvurdering_har_na_bade_strukturert_vilkar_og_fritekst_parametertabell()
     {
         // §8s tabell har fem parametre (maks bevillinger, forbudte konsepter, politisk behandling,
-        // kunnskapsprøve-krav, kommunale tilleggsvilkår) — kun klokkeslett er faktisk seedet som
-        // DatasettVerdi i dag (se KommunaleParametreSeed). Dette er en ærlig, delvis-dekning-test,
-        // ikke en fullstendig én-til-én-reproduksjon.
+        // kunnskapsprøve-krav, kommunale tilleggsvilkår). Klokkeslett er den eneste som er strukturert
+        // som DatasettVerdi (se KommunaleParametreSeed) — resten (inkl. «Ansvarlig vertskap») er nå
+        // representert som fritekst-VilkarstreKommentar på det nye Kommunal skjønnsvurdering-Vilkåret
+        // (FasitRunde4Seed), IKKE som strukturerte, individuelt spørrbare felt. Dette er fortsatt en
+        // ærlig delvis-dekning-test, ikke en fullstendig én-til-én-reproduksjon.
         var juristId = await HentJuristIdAsync();
         var tjenesteId = await HentTjenesteIdAsync(juristId);
         var virksomheter = await _client.GetFromJsonAsync<List<VirksomhetDto>>("/api/virksomheter", JsonInnstillinger);
@@ -209,8 +234,12 @@ public class RundskrivReproduksjonTests
         Assert.NotNull(klokkeslettsvilkar);
         Assert.Single(klokkeslettsvilkar!.InputDatasettVerdier);
 
+        var kommunalSkjonnsvurdering = FinnNode(veiledning.Rot, "Kommunal skjønnsvurdering");
+        Assert.NotNull(kommunalSkjonnsvurdering);
+        Assert.Empty(kommunalSkjonnsvurdering!.InputDatasettVerdier); // «Ansvarlig vertskap» er fritekst, ikke et strukturert Datasett-felt
+
         var heleTreet = SamleAllTekst(veiledning.Rot);
-        Assert.DoesNotContain("Ansvarlig vertskap", heleTreet, StringComparison.OrdinalIgnoreCase); // kommunalt tilleggsvilkår — ikke modellert
+        Assert.Contains("Ansvarlig vertskap", heleTreet, StringComparison.OrdinalIgnoreCase); // kommunalt tilleggsvilkår — fritekst, ikke DatasettVerdi
     }
 
     /// <summary>
@@ -228,16 +257,16 @@ public class RundskrivReproduksjonTests
 
         var rader = new[]
         {
-            ("§2 Saksgang (oversikt)", FinnNode(veiledning.Rot, "Vandelsvilkår") is not null ? "Delvis (3 av 6 spørsmål strukturert)" : "Nei"),
-            ("§3 Habilitet", "Nei — passer ikke i Vilkår/Regelnode-ontologien (evaluerer saksbehandler, ikke søker)"),
-            ("§4 Formalia", "Nei — ingen søknad-komplett-vilkår modellert"),
-            ("§5 Serveringsbevilling", "Nei — ingen egen vilkår-node"),
-            ("§6 Vandelsvurdering", "Delvis — vilkåret finnes strukturert, avslagsgrunner krever manuell VilkarstreKommentar"),
-            ("§7 Kvalifikasjonskrav", "Delvis — aldersgrense strukturert, >1000-gjester-terskel og kunnskapsprøve-unntak er ikke"),
-            ("§8 Kommunal skjønnsvurdering", "Delvis — kun klokkeslett er DatasettVerdi, resten av tabellen er ikke"),
-            ("§9 Vilkår i vedtaket (Gyldighet/Prikkbelastning)", "Nei — Vedtaksvirkning eies av forklaringsmodell-api"),
-            ("§11 Sjekkliste", "Delvis — mekanismen (ul/li) virker, konkrete punkter krever manuell kommentar"),
-            ("§12 Relevante tjenester", "Nei — Tjeneste har ikke noe relatert-tjenester-felt"),
+            ("§2 Saksgang (oversikt)", "Ja — alle seks spørsmål (habilitet, formalia, serveringsbevilling, vandel, kvalifikasjon, kommunalt skjønn) har nå en Vilkår-node"),
+            ("§3 Habilitet", "Delvis — modellert som Vilkår med GjelderRolle=\"saksbehandler\" (fvl § 8); en bevisst utvidelse av ontologien, ikke dens opprinnelige sikte (søkeren)"),
+            ("§4 Formalia", "Ja — egen Vilkår-node, juridisk grunnlag fvl §§ 11/17"),
+            ("§5 Serveringsbevilling", "Ja — egen Vilkår-node, juridisk grunnlag serveringsloven § 3"),
+            ("§6 Vandelsvurdering", "Delvis — vilkåret finnes strukturert, avslagsgrunner nå seedet som ekte sjekkliste-VilkarstreKommentar"),
+            ("§7 Kvalifikasjonskrav", "Delvis — aldersgrense og kunnskapsprøve strukturert som egne Vilkår, >1000-gjester-unntaket er fortsatt ikke betinget modellert"),
+            ("§8 Kommunal skjønnsvurdering", "Delvis — egen Vilkår-node med skjønnsmomenter og hjemmel; kun klokkeslett er DatasettVerdi, resten av parametertabellen (inkl. «Ansvarlig vertskap») er fritekst-kommentar"),
+            ("§9 Vilkår i vedtaket (Gyldighet/Prikkbelastning/gebyr)", "Delvis — representert som 5 fritekst-VilkarstreKommentarer på rotnoden, IKKE som strukturerte Vedtaksvirkning-felt (dimensjon E, se docs/13-backlog.md §2.6)"),
+            ("§11 Sjekkliste", "Delvis — mekanismen (ul/li) virker ende-til-ende, og §6s konkrete avslagsgrunner er nå seedet som ekte sjekkliste"),
+            ("§12 Relevante tjenester", "Nei — de 13 tjenestene finnes som egne Tjeneste-rader, men Tjeneste har ikke noe relatert-tjenester-felt til å koble dem til «Alminnelig skjenkebevilling» (se docs/13-backlog.md §2.1)"),
         };
 
         _output.WriteLine("# Dekningsrapport: skjenkebevilling-rundskriv-fasit.md (v4) vs. generert veiledning");

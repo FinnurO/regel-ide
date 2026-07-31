@@ -232,6 +232,45 @@ export interface KobleRegelverksreferanseRequest {
   tilEid: string;
 }
 
+/** Hendelse (docs/03-domenemodell.md §1.5, docs/13-backlog.md §2.1). 'type': generell|livshendelse|virksomhetshendelse. */
+export interface HendelseDto {
+  id: string;
+  virksomhetId: string | null;
+  navn: string;
+  type: string;
+  beskrivelse: string | null;
+}
+
+export interface HendelseRequest {
+  navn: string;
+  type: string;
+  beskrivelse: string | null;
+}
+
+export interface KobleHendelseRequest {
+  hendelseId: string;
+}
+
+/** Én tjenesteavhengighet sett fra den spurte tjenestens ståsted — retning+visningstekst er ferdig beregnet server-side. */
+export interface TjenesteavhengighetDto {
+  id: string;
+  rel: string;
+  retning: 'fra' | 'til';
+  visningstekst: string;
+  motpartTjenesteId: string;
+  motpartTjenesteTittel: string;
+  hendelseId: string | null;
+  hendelseNavn: string | null;
+  beskrivelse: string | null;
+}
+
+export interface TjenesteavhengighetRequest {
+  tilTjenesteId: string;
+  rel: string;
+  hendelseId: string | null;
+  beskrivelse: string | null;
+}
+
 /** SKOS-begrep (docs/03-domenemodell.md §1.3). 'begrepstype': faktabegrep|handlingsbegrep. */
 export interface BegrepDto {
   id: string;

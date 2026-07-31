@@ -3,9 +3,21 @@ import { Link as RouterLink, useParams } from 'react-router';
 import { Button, Field, Heading, Label, Link, Paragraph, Select, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
-import type { RegelnodeDto, RettskildeSammendrag, TjenesteDto, TjenesteRegelverksreferanseDto } from '../api/types';
+import type {
+  HendelseDto, RegelnodeDto, RettskildeSammendrag, TjenesteavhengighetDto, TjenesteDto, TjenesteRegelverksreferanseDto,
+} from '../api/types';
 
 const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
+
+/** 'for'/'avhengig_av'/'input_til' er de generelle relasjonene; de tre første har en presis betydning (docs/03-domenemodell.md §1.5). */
+const TJENESTEAVHENGIGHET_REL = [
+  { id: 'forutsetning_for', label: 'er forutsetning for' },
+  { id: 'gir_mulighet_til', label: 'gir mulighet til' },
+  { id: 'utlost_av', label: 'utløses av en hendelse' },
+  { id: 'for', label: 'kommer før (generelt)' },
+  { id: 'avhengig_av', label: 'er avhengig av (generelt)' },
+  { id: 'input_til', label: 'er input til (generelt)' },
+];
 
 export default function TjenesteDetalj() {
   const { id } = useParams<{ id: string }>();
@@ -33,6 +45,24 @@ export default function TjenesteDetalj() {
   const [nyReferanseEid, setNyReferanseEid] = useState('');
   const [leggerTilReferanse, setLeggerTilReferanse] = useState(false);
   const [referanseFeil, setReferanseFeil] = useState<string | null>(null);
+
+  const [hendelser, setHendelser] = useState<HendelseDto[] | null>(null);
+  const [alleHendelser, setAlleHendelser] = useState<HendelseDto[]>([]);
+  const [nyHendelseId, setNyHendelseId] = useState('');
+  const [leggerTilHendelse, setLeggerTilHendelse] = useState(false);
+  const [visNyHendelse, setVisNyHendelse] = useState(false);
+  const [nyHendelseNavn, setNyHendelseNavn] = useState('');
+  const [nyHendelseType, setNyHendelseType] = useState('virksomhetshendelse');
+  const [hendelseFeil, setHendelseFeil] = useState<string | null>(null);
+
+  const [avhengigheter, setAvhengigheter] = useState<TjenesteavhengighetDto[] | null>(null);
+  const [alleTjenester, setAlleTjenester] = useState<TjenesteDto[]>([]);
+  const [nyAvhengighetTilId, setNyAvhengighetTilId] = useState('');
+  const [nyAvhengighetRel, setNyAvhengighetRel] = useState('forutsetning_for');
+  const [nyAvhengighetHendelseId, setNyAvhengighetHendelseId] = useState('');
+  const [nyAvhengighetBeskrivelse, setNyAvhengighetBeskrivelse] = useState('');
+  const [leggerTilAvhengighet, setLeggerTilAvhengighet] = useState(false);
+  const [avhengighetFeil, setAvhengighetFeil] = useState<string | null>(null);
 
   const [rotnode, setRotnode] = useState<RegelnodeDto | null>(null);
   const [regelnoder, setRegelnoder] = useState<RegelnodeDto[]>([]);
@@ -69,6 +99,10 @@ export default function TjenesteDetalj() {
     api.hentTjenesteRegelverksreferanser(id).then(setReferanser).catch(() => setReferanser([]));
     api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
     api.hentRegelnodeListe().then(setRegelnoder).catch(() => setRegelnoder([]));
+    api.hentTjenesteHendelser(id).then(setHendelser).catch(() => setHendelser([]));
+    api.hentHendelser().then(setAlleHendelser).catch(() => setAlleHendelser([]));
+    api.hentTjenesteavhengigheter(id).then(setAvhengigheter).catch(() => setAvhengigheter([]));
+    api.hentTjenester().then(setAlleTjenester).catch(() => setAlleTjenester([]));
   }, [id]);
 
   useEffect(() => {
@@ -171,6 +205,75 @@ export default function TjenesteDetalj() {
   async function fjernReferanse(referanseId: string) {
     await api.fjernTjenesteRegelverksreferanse(referanseId);
     setReferanser((forrige) => (forrige ?? []).filter((r) => r.id !== referanseId));
+  }
+
+  async function kobleHendelse(e: FormEvent) {
+    e.preventDefault();
+    if (!id || !nyHendelseId) return;
+    setHendelseFeil(null);
+    setLeggerTilHendelse(true);
+    try {
+      const oppdatert = await api.kobleTjenesteHendelse(id, { hendelseId: nyHendelseId });
+      setHendelser(oppdatert);
+      setNyHendelseId('');
+    } catch (err) {
+      setHendelseFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved kobling av hendelse.');
+    } finally {
+      setLeggerTilHendelse(false);
+    }
+  }
+
+  async function opprettOgKobleHendelse(e: FormEvent) {
+    e.preventDefault();
+    if (!id || !nyHendelseNavn.trim()) return;
+    setHendelseFeil(null);
+    setLeggerTilHendelse(true);
+    try {
+      const hendelse = await api.opprettHendelse({ navn: nyHendelseNavn.trim(), type: nyHendelseType, beskrivelse: null });
+      setAlleHendelser((forrige) => [...forrige, hendelse]);
+      const oppdatert = await api.kobleTjenesteHendelse(id, { hendelseId: hendelse.id });
+      setHendelser(oppdatert);
+      setNyHendelseNavn('');
+      setVisNyHendelse(false);
+    } catch (err) {
+      setHendelseFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse av hendelse.');
+    } finally {
+      setLeggerTilHendelse(false);
+    }
+  }
+
+  async function fjernHendelse(hendelseId: string) {
+    if (!id) return;
+    await api.fjernTjenesteHendelse(id, hendelseId);
+    setHendelser((forrige) => (forrige ?? []).filter((h) => h.id !== hendelseId));
+  }
+
+  async function leggTilAvhengighet(e: FormEvent) {
+    e.preventDefault();
+    if (!id || !nyAvhengighetTilId) return;
+    setAvhengighetFeil(null);
+    setLeggerTilAvhengighet(true);
+    try {
+      const oppdatert = await api.opprettTjenesteavhengighet(id, {
+        tilTjenesteId: nyAvhengighetTilId,
+        rel: nyAvhengighetRel,
+        hendelseId: nyAvhengighetRel === 'utlost_av' ? nyAvhengighetHendelseId || null : null,
+        beskrivelse: nyAvhengighetBeskrivelse.trim() || null,
+      });
+      setAvhengigheter(oppdatert);
+      setNyAvhengighetTilId('');
+      setNyAvhengighetHendelseId('');
+      setNyAvhengighetBeskrivelse('');
+    } catch (err) {
+      setAvhengighetFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse av avhengighet.');
+    } finally {
+      setLeggerTilAvhengighet(false);
+    }
+  }
+
+  async function fjernAvhengighet(avhengighetId: string) {
+    await api.slettTjenesteavhengighet(avhengighetId);
+    setAvhengigheter((forrige) => (forrige ?? []).filter((a) => a.id !== avhengighetId));
   }
 
   async function endreStatus(nyStatus: string) {
@@ -323,6 +426,121 @@ export default function TjenesteDetalj() {
           </Button>
           {referanseFeil && <div className="feilmelding" style={{ width: '100%' }}>{referanseFeil}</div>}
         </form>
+      </section>
+
+      <section style={{ marginTop: '2rem' }}>
+        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+          Hendelser
+        </Heading>
+        <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)', marginBottom: '0.75rem' }}>
+          Ren, symmetrisk klassifisering (docs/03-domenemodell.md §1.5) — ingen retning. To tjenester som
+          deler samme hendelse blir relaterte uten at én forårsaker den andre.
+        </Paragraph>
+        {hendelser === null && <Paragraph>Laster …</Paragraph>}
+        {hendelser && hendelser.length === 0 && <Paragraph>Ingen hendelser koblet ennå.</Paragraph>}
+        {hendelser && hendelser.length > 0 && (
+          <ul>
+            {hendelser.map((h) => (
+              <li key={h.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <span>{h.navn}</span>
+                <Tag data-color="neutral" data-size="sm">{h.type}</Tag>
+                <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernHendelse(h.id)}>Fjern</Button>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <form onSubmit={kobleHendelse} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap', marginTop: '0.75rem' }}>
+          <Field>
+            <Label>Eksisterende hendelse</Label>
+            <Select data-size="sm" value={nyHendelseId} onChange={(e) => setNyHendelseId(e.target.value)}>
+              <Select.Option value="">Velg …</Select.Option>
+              {alleHendelser
+                .filter((h) => !(hendelser ?? []).some((koblet) => koblet.id === h.id))
+                .map((h) => <Select.Option key={h.id} value={h.id}>{h.navn} ({h.type})</Select.Option>)}
+            </Select>
+          </Field>
+          <Button data-size="sm" type="submit" disabled={leggerTilHendelse || !nyHendelseId}>
+            {leggerTilHendelse ? 'Kobler …' : 'Koble hendelse'}
+          </Button>
+          <Button data-size="sm" variant="tertiary" onClick={() => setVisNyHendelse((v) => !v)}>
+            {visNyHendelse ? 'Avbryt' : '+ Ny hendelse'}
+          </Button>
+        </form>
+        {visNyHendelse && (
+          <form onSubmit={opprettOgKobleHendelse} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap', marginTop: '0.5rem' }}>
+            <Textfield data-size="sm" label="Navn på ny hendelse" value={nyHendelseNavn} onChange={(e) => setNyHendelseNavn(e.target.value)} required />
+            <Field>
+              <Label>Type</Label>
+              <Select data-size="sm" value={nyHendelseType} onChange={(e) => setNyHendelseType(e.target.value)}>
+                <Select.Option value="generell">Generell (cv:Event)</Select.Option>
+                <Select.Option value="livshendelse">Livshendelse</Select.Option>
+                <Select.Option value="virksomhetshendelse">Virksomhetshendelse</Select.Option>
+              </Select>
+            </Field>
+            <Button data-size="sm" type="submit" disabled={leggerTilHendelse || !nyHendelseNavn.trim()}>
+              {leggerTilHendelse ? 'Oppretter …' : 'Opprett og koble'}
+            </Button>
+          </form>
+        )}
+        {hendelseFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{hendelseFeil}</div>}
+      </section>
+
+      <section style={{ marginTop: '2rem' }}>
+        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+          Tjenesteavhengigheter
+        </Heading>
+        <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)', marginBottom: '0.75rem' }}>
+          Rettede, årsaksforklarte koblinger mellom to tjenester (docs/03-domenemodell.md §1.5) — ett
+          rettet kant per relasjon, vist med riktig tekst uansett hvilken side du ser fra.
+        </Paragraph>
+        {avhengigheter === null && <Paragraph>Laster …</Paragraph>}
+        {avhengigheter && avhengigheter.length === 0 && <Paragraph>Ingen tjenesteavhengigheter registrert ennå.</Paragraph>}
+        {avhengigheter && avhengigheter.length > 0 && (
+          <ul>
+            {avhengigheter.map((a) => (
+              <li key={a.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <Link asChild>
+                  <RouterLink to={`/tjenester/${a.motpartTjenesteId}`}>{a.visningstekst}</RouterLink>
+                </Link>
+                {a.beskrivelse && <Tag data-color="neutral" data-size="sm">{a.beskrivelse}</Tag>}
+                {/* Sletting virker uansett hvilken side raden vises fra — samme rad-id begge steder. */}
+                <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernAvhengighet(a.id)}>Fjern</Button>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <form onSubmit={leggTilAvhengighet} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap', marginTop: '0.75rem' }}>
+          <Field>
+            <Label>Relasjon (denne tjenesten …)</Label>
+            <Select data-size="sm" value={nyAvhengighetRel} onChange={(e) => setNyAvhengighetRel(e.target.value)}>
+              {TJENESTEAVHENGIGHET_REL.map((r) => <Select.Option key={r.id} value={r.id}>{r.label}</Select.Option>)}
+            </Select>
+          </Field>
+          <Field>
+            <Label>Til tjeneste</Label>
+            <Select data-size="sm" value={nyAvhengighetTilId} onChange={(e) => setNyAvhengighetTilId(e.target.value)}>
+              <Select.Option value="">Velg …</Select.Option>
+              {alleTjenester.filter((t) => t.id !== id).map((t) => <Select.Option key={t.id} value={t.id}>{t.tittel}</Select.Option>)}
+            </Select>
+          </Field>
+          {nyAvhengighetRel === 'utlost_av' && (
+            <Field>
+              <Label>Hendelse</Label>
+              <Select data-size="sm" value={nyAvhengighetHendelseId} onChange={(e) => setNyAvhengighetHendelseId(e.target.value)}>
+                <Select.Option value="">Velg …</Select.Option>
+                {alleHendelser.map((h) => <Select.Option key={h.id} value={h.id}>{h.navn}</Select.Option>)}
+              </Select>
+            </Field>
+          )}
+          <Textfield data-size="sm" label="Nyanse/unntak (valgfritt)" value={nyAvhengighetBeskrivelse}
+            onChange={(e) => setNyAvhengighetBeskrivelse(e.target.value)} style={{ minWidth: '16rem' }} />
+          <Button data-size="sm" type="submit" disabled={leggerTilAvhengighet || !nyAvhengighetTilId}>
+            {leggerTilAvhengighet ? 'Oppretter …' : 'Opprett avhengighet'}
+          </Button>
+        </form>
+        {avhengighetFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{avhengighetFeil}</div>}
       </section>
     </>
   );

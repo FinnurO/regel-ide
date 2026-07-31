@@ -26,6 +26,8 @@ builder.Services.AddScoped<RegelnoderegisterTjeneste>();
 builder.Services.AddScoped<UnntaksregisterTjeneste>();
 builder.Services.AddScoped<DatasettregisterTjeneste>();
 builder.Services.AddScoped<VilkarstreKommentarTjeneste>();
+builder.Services.AddScoped<HendelseregisterTjeneste>();
+builder.Services.AddScoped<TjenesteavhengighetregisterTjeneste>();
 builder.Services.AddHttpClient<LovdataBulkHenter>();
 
 const string VitePolicy = "ViteDevServer";
@@ -136,6 +138,17 @@ using (var scope = app.Services.CreateScope())
     // §5.5. Kjøres etter byggesteg 2 (no-op hvis tjenesten/begrepet den trenger ikke finnes ennå).
     await Byggesteg4VilkarstreSeed.SeedAsync(db);
     await KommunaleParametreSeed.SeedAsync(db);
+
+    // Fasit-runde 4-innhold (2026-07-31, docs/12-fasit-handbok-leveranse.md) — det som opprinnelig ble
+    // bygget via ekte, live API-kall mot en kjørende instans, nå som gjentakbar seed slik at
+    // RundskrivReproduksjonTests.cs faktisk måler det samme innholdet i test-databasen. Kjøres etter
+    // Byggesteg4VilkarstreSeed (krever rotnoden + Vandelsvilkåret den bygger).
+    await FasitRunde4Seed.SeedAsync(db);
+
+    // Hendelse + Tjenesteavhengighet (2026-07-31, docs/03-domenemodell.md §1.5, docs/13-backlog.md §2.1)
+    // — kobler de 13 fasit-tjenestene faktisk sammen med "Alminnelig skjenkebevilling" i stedet for at
+    // de forblir frittstående. Kjøres etter FasitRunde4Seed (krever tjenestene den oppretter).
+    await HendelseTjenesteavhengighetSeed.SeedAsync(db);
 }
 
 app.MapGet("/api/brukere", async (RegelIdeDbContext db) =>
@@ -1446,6 +1459,100 @@ tjenester.MapGet("/{id:guid}/veiledning", async (Guid id, Guid? virksomhetId, Ve
         "Vilkårstreet rendret som en tjenestesentrert veiledning i beslutningsorden " +
         "(docs/12-fasit-handbok-leveranse.md \"Hovedfunn\"). ?virksomhetId= velger hvilken kommunes " +
         "datasett-verdier som vises — utelatt/ingen treff faller tilbake til den nasjonale standardverdien.");
+
+// ---------- Hendelseregister (docs/03-domenemodell.md §1.5, docs/13-backlog.md §2.1) ----------
+
+var hendelser = app.MapGroup("/api/hendelser").WithOpenApi();
+
+hendelser.MapGet("/", async (HttpRequest request, HendelseregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        var liste = await register.ListerAsync(bruker?.VirksomhetId, ct);
+        return Results.Ok(liste.Select(HendelseDto.FraEntitet));
+    })
+    .WithName("HentHendelser")
+    .WithSummary("Lister nasjonale/delte hendelser pluss (hvis en gyldig testbruker er valgt) virksomhetens egne lokale hendelser.");
+
+hendelser.MapPost("/", async (HttpRequest request, HendelseRequest body, HendelseregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var h = await register.OpprettAsync(bruker.VirksomhetId, body.Navn, body.Type, body.Beskrivelse, bruker.Navn, ct);
+            return Results.Created($"/api/hendelser/{h.Id}", HendelseDto.FraEntitet(h));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OpprettHendelse")
+    .WithSummary("Oppretter en ny hendelse, virksomhetseid (satt VirksomhetId) — nasjonale/delte hendelser opprettes ikke via denne v1-flyten.");
+
+tjenester.MapGet("/{id:guid}/hendelser", async (Guid id, HendelseregisterTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.ListerForTjenesteAsync(id, ct)).Select(HendelseDto.FraEntitet)))
+    .WithName("HentTjenesteHendelser")
+    .WithSummary("Lister hendelsene som klassifiserer denne tjenesten (cpsv:isClassifiedBy — symmetrisk, ingen retning).");
+
+tjenester.MapPost("/{id:guid}/hendelser", async (Guid id, KobleHendelseRequest body, HendelseregisterTjeneste register, CancellationToken ct) =>
+    {
+        try
+        {
+            await register.KobleTilTjenesteAsync(id, body.HendelseId, ct);
+            return Results.Ok((await register.ListerForTjenesteAsync(id, ct)).Select(HendelseDto.FraEntitet));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KobleTjenesteHendelse")
+    .WithSummary("Klassifiserer tjenesten ved en hendelse.");
+
+tjenester.MapDelete("/{id:guid}/hendelser/{hendelseId:guid}", async (Guid id, Guid hendelseId, HendelseregisterTjeneste register, CancellationToken ct) =>
+        await register.FjernFraTjenesteAsync(id, hendelseId, ct)
+            ? Results.NoContent()
+            : Results.NotFound(new { feil = "Fant ingen slik klassifisering." }))
+    .WithName("FjernTjenesteHendelse")
+    .WithSummary("Fjerner klassifiseringen (selve hendelsen slettes ikke).");
+
+// ---------- Tjenesteavhengighetregister (docs/03-domenemodell.md §1.5, docs/13-backlog.md §2.1) ----------
+
+tjenester.MapGet("/{id:guid}/avhengigheter", async (Guid id, TjenesteavhengighetregisterTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.HentForTjenesteAsync(id, ct)).Select(TjenesteavhengighetDto.FraVisning)))
+    .WithName("HentTjenesteavhengigheter")
+    .WithSummary(
+        "Lister tjenestens avhengigheter i BEGGE retninger (der tjenesten er Fra, og der den er Til) " +
+        "med ferdig beregnet visningstekst — ett rettet kant per relasjon, ingen duplisert lagring.");
+
+tjenester.MapPost("/{id:guid}/avhengigheter", async (Guid id, HttpRequest request, TjenesteavhengighetRequest body, TjenesteavhengighetregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            await register.OpprettAsync(bruker.VirksomhetId, id, body.TilTjenesteId, body.Rel, body.HendelseId, body.Beskrivelse, bruker.Navn, ct);
+            return Results.Ok((await register.HentForTjenesteAsync(id, ct)).Select(TjenesteavhengighetDto.FraVisning));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OpprettTjenesteavhengighet")
+    .WithSummary("Oppretter en rettet avhengighet FRA denne tjenesten TIL en annen.");
+
+tjenester.MapDelete("/avhengigheter/{avhengighetId:guid}", async (Guid avhengighetId, TjenesteavhengighetregisterTjeneste register, CancellationToken ct) =>
+        await register.SlettAsync(avhengighetId, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen avhengighet med id '{avhengighetId}'." }))
+    .WithName("SlettTjenesteavhengighet")
+    .WithSummary("Sletter en tjenesteavhengighet.");
 
 // SPA-ruting: /rettskilder/{id} o.l. er klientruter uten motstykke på serveren, så alt som
 // ikke traff et API-endepunkt eller en fil sendes til index.html. Gjør ingenting når wwwroot

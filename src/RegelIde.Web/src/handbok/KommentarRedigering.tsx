@@ -25,6 +25,12 @@ function utledBindende(dokumenttype: string): boolean {
   return dokumenttype !== 'kommentar';
 }
 
+/** Enkel {id,label}-kandidat for Referanse-panelet — Vilkår/Tjeneste trenger ikke mer enn dette (se KommentarRedigeringProps). */
+interface NavngittEntitet {
+  id: string;
+  label: string;
+}
+
 interface KommentarRedigeringProps {
   handbokId: string;
   /** 'ny': oppretter en kommentarseksjon under parentNodeId. 'rediger': redigerer et eksisterende `node` (oppretter ny versjon). */
@@ -32,6 +38,9 @@ interface KommentarRedigeringProps {
   parentNodeId?: string;
   node?: RettskildeNodeDto;
   alleRettskilder: RettskildeSammendrag[];
+  /** Referanse-kandidater ut over rettskilder (2026-07-31, docs/13-backlog.md §2.4) — kun en peker (kind+id), ingen tekst-fletting. */
+  alleVilkar?: NavngittEntitet[];
+  alleTjenester?: NavngittEntitet[];
   onLagret: (node: RettskildeNodeDto) => void;
   onAvbryt?: () => void;
 }
@@ -41,7 +50,17 @@ interface KommentarRedigeringProps {
  * marginord og selve rik-teksten (MinimalEditor) her; lovreferanse-kobling, versjonshistorikk,
  * revisjonsmerking og publisering er kun tilgjengelig i 'rediger'-modus (krever en eksisterende node).
  */
-export function KommentarRedigering({ handbokId, mode, parentNodeId, node, alleRettskilder, onLagret, onAvbryt }: KommentarRedigeringProps) {
+export function KommentarRedigering({
+  handbokId,
+  mode,
+  parentNodeId,
+  node,
+  alleRettskilder,
+  alleVilkar = [],
+  alleTjenester = [],
+  onLagret,
+  onAvbryt,
+}: KommentarRedigeringProps) {
   const metadata = node?.handbokMetadata ?? null;
 
   const [nummer, setNummer] = useState(node?.nummer ?? '');
@@ -237,7 +256,11 @@ export function KommentarRedigering({ handbokId, mode, parentNodeId, node, alleR
         <MinimalEditor
           value={tekstHtml}
           onChange={(html) => setTekstHtml(html)}
-          referanser={alleRettskilder.map((r) => ({ kind: 'rettskilde', id: r.id, label: r.kortnavn ?? r.tittel }))}
+          referanser={[
+            ...alleRettskilder.map((r) => ({ kind: 'rettskilde', id: r.id, label: r.kortnavn ?? r.tittel })),
+            ...alleVilkar.map((v) => ({ kind: 'vilkar', id: v.id, label: v.label })),
+            ...alleTjenester.map((t) => ({ kind: 'tjeneste', id: t.id, label: t.label })),
+          ]}
         />
       </div>
 

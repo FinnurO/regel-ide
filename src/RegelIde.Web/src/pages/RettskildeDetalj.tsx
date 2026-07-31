@@ -184,6 +184,18 @@ export default function RettskildeDetalj() {
       .catch(() => setRegistry({})); // ingen bruker valgt ennå e.l. — «Koble til» skjules bare
   }, []);
 
+  // Referanse-kandidater for håndbok-kommentarers MinimalEditor, ut over rettskilder (2026-07-31,
+  // docs/13-backlog.md §2.4) — samme Vilkår/Tjeneste-registre som resolveRef under bruker, bare snudd
+  // om til {id,label}-listeform. Kun en typet peker (kind+id), ingen tekst-fletting.
+  const alleVilkarForReferanse = useMemo(
+    () => [...vilkarPerId.entries()].map(([id, label]) => ({ id, label })),
+    [vilkarPerId],
+  );
+  const alleTjenesterForReferanse = useMemo(
+    () => [...tjenestePerId.entries()].map(([id, label]) => ({ id, label })),
+    [tjenestePerId],
+  );
+
   function resolveRef(kind: TagKindId, ref: string): { label: string; href: string } | undefined {
     if (kind === 'begrep' && begrepPerId.has(ref)) return { label: begrepPerId.get(ref)!, href: `/begreper/${ref}` };
     if (kind === 'tjeneste' && tjenestePerId.has(ref)) return { label: tjenestePerId.get(ref)!, href: `/tjenester/${ref}` };
@@ -510,6 +522,8 @@ export default function RettskildeDetalj() {
                     mode="rediger"
                     node={valgtNode}
                     alleRettskilder={alleRettskilder}
+                    alleVilkar={alleVilkarForReferanse}
+                    alleTjenester={alleTjenesterForReferanse}
                     onLagret={(oppdatert) => refetchNoder(oppdatert.eid)}
                   />
                 ) : !visOpprettKommentar ? (
@@ -522,6 +536,8 @@ export default function RettskildeDetalj() {
                     mode="ny"
                     parentNodeId={valgtNode.id}
                     alleRettskilder={alleRettskilder}
+                    alleVilkar={alleVilkarForReferanse}
+                    alleTjenester={alleTjenesterForReferanse}
                     onLagret={(opprettet) => {
                       setVisOpprettKommentar(false);
                       refetchNoder(opprettet.eid);

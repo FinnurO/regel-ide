@@ -71,8 +71,11 @@ public class Byggesteg4EndepunktTests
     }
 
     [Fact]
-    public async Task Rotnoden_har_tre_barn_inkludert_en_nestet_regelnode()
+    public async Task Rotnoden_har_atte_barn_inkludert_en_nestet_regelnode()
     {
+        // 3 fra Byggesteg4VilkarstreSeed (Aldersvilkår, Vandelsvilkår, R-SKJENKETID) + 5 fra
+        // FasitRunde4Seed (Habilitet, Formalia, Serveringsbevillingsvilkår, Kunnskapsprøve,
+        // Kommunal skjønnsvurdering), 2026-07-31 runde 2 — se docs/13-backlog.md §1/§4 punkt 1.
         var bruker = await HentTestbrukerAsync();
         var regelnoder = await (await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/regelnoder", bruker.Id)))
             .Content.ReadFromJsonAsync<List<RegelnodeDto>>(JsonInnstillinger);
@@ -80,7 +83,7 @@ public class Byggesteg4EndepunktTests
 
         var barn = await _client.GetFromJsonAsync<List<RegelnodeBarnDto>>($"/api/regelnoder/{rotnode.Id}/barn", JsonInnstillinger);
 
-        Assert.Equal(3, barn!.Count);
+        Assert.Equal(8, barn!.Count);
         Assert.Single(barn, b => b.BarnType == "regelnode");
     }
 
