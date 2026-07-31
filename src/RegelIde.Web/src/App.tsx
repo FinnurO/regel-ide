@@ -18,9 +18,21 @@ import DatasettListe from './pages/DatasettListe';
 import TjenesteVeiledning from './pages/TjenesteVeiledning';
 
 function BrukerVelger() {
-  const { brukere, gjeldendeBruker, velgBruker, laster } = useBruker();
+  const { brukere, gjeldendeBruker, velgBruker, laster, ekteInnlogging } = useBruker();
 
   if (laster) return null;
+
+  // Med ekte innlogging er brukeren gitt — da er en nedtrekksliste både misvisende og uten effekt.
+  if (ekteInnlogging) {
+    return (
+      <div className="bruker-velger">
+        <Label data-size="sm">
+          Innlogget som {gjeldendeBruker?.navn ?? 'ukjent'}
+          {gjeldendeBruker && ` (${gjeldendeBruker.rolle}) — ${gjeldendeBruker.virksomhetNavn}`}
+        </Label>
+      </div>
+    );
+  }
 
   return (
     <div className="bruker-velger">

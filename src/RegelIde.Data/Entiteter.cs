@@ -28,6 +28,13 @@ public sealed class Bruker
 
     /// <summary>Se RBAC-matrisen i docs/03-domenemodell.md §2: 'Fagansvarlig' | 'Jurist' | 'Systemforvalter' | 'Saksbehandler'.</summary>
     public required string Rolle { get; set; }
+
+    /// <summary>
+    /// Altinn-bruker-id (claim <c>urn:altinn:userid</c>) for rader som er opprettet ved
+    /// innlogging. NULL for de seedede testbrukerne, som ikke svarer til noen ekte identitet.
+    /// Unik der den er satt, slik at gjentatte innlogginger treffer samme rad.
+    /// </summary>
+    public string? AltinnBrukerId { get; set; }
 }
 
 public sealed class RettskildeEntitet
