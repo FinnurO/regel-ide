@@ -1,10 +1,22 @@
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using RegelIde.Api;
+using RegelIde.Api.Autentisering;
 using RegelIde.Data;
 using RegelIde.Kildekonvertering;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Miljøspesifikke verdier — hvilke Altinn-brukere som er DAGL, hvilken syntetisk organisasjon
+// vi kjører mot — hører ikke hjemme i git. De er flyktige og betyr ingenting i et annet miljø.
+// Lokalt legges de i appsettings.Local.json (gitignorert, se appsettings.Local.example.json);
+// i drift settes de som miljøvariabler. Se docs/autentisering.md.
+builder.Configuration.AddJsonFile("appsettings.Local.json", optional: true, reloadOnChange: true);
+
+// Filen legges sist i kjeden og ville ellers overstyrt både miljøvariabler og kommandolinje.
+// Vi legger dem inn på nytt, slik at den vanlige rekkefølgen står: fil < miljø < kommandolinje.
+builder.Configuration.AddEnvironmentVariables();
+builder.Configuration.AddCommandLine(args);
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -13,6 +25,10 @@ builder.Services.ConfigureHttpJsonOptions(o => o.SerializerOptions.Converters.Ad
 // Postgres som standard; SQLite kun når RegelIde:Database sier det (deploy-profilen, se
 // docker/README.md). Se Databaseoppsett.cs for hva som faktisk skiller de to.
 builder.Services.LeggTilRegelIdeDatabase(builder.Configuration);
+
+// Testbruker-header som standard; Altinn-cookie kun når RegelIde:Autentisering sier det.
+// Se Autentiseringsoppsett.cs og docs/autentisering.md.
+builder.Services.LeggTilRegelIdeAutentisering(builder.Configuration);
 builder.Services.AddScoped<RettskildeRepository>();
 builder.Services.AddScoped<VeiledningRepository>();
 builder.Services.AddScoped<RettskildeImportTjeneste>();
@@ -58,6 +74,14 @@ if (!app.Configuration.GetValue("RegelIde:BakEnTerminerendeProxy", false))
 // Tom mappe utenfor container ⇒ ingen effekt, og `vite dev` brukes som før.
 app.UseDefaultFiles();
 app.UseStaticFiles();
+
+// No-op under testbruker-profilen (ingen skjemaer registrert), så rekkefølgen er den samme uansett.
+var autentiseringsprofil = Autentiseringsoppsett.LesProfil(app.Configuration);
+if (autentiseringsprofil is Autentiseringsprofil.Altinn)
+{
+    app.UseAuthentication();
+    app.UseAuthorization();
+}
 
 // Enkel liveness/readiness for klyngen: svarer 200 først når databasen faktisk svarer.
 app.MapGet("/helse", async (RegelIdeDbContext db, CancellationToken ct) =>
@@ -151,9 +175,47 @@ using (var scope = app.Services.CreateScope())
     await HendelseTjenesteavhengighetSeed.SeedAsync(db);
 }
 
+// GUI-et spør om profilen for å vite om brukervelgeren skal vises i det hele tatt.
+app.MapGet("/api/oppsett", () => Results.Ok(new { autentisering = autentiseringsprofil.ToString().ToLowerInvariant() }))
+    .WithOpenApi()
+    .WithName("HentOppsett")
+    .WithSummary("Forteller klienten hvilken autentiseringsprofil serveren kjører.");
+
+// Hvem er jeg — den eneste kilden til gjeldende bruker under Altinn-profilen.
+app.MapGet("/api/meg", async (HttpRequest request, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return Results.Unauthorized();
+
+        var virksomhet = await db.Virksomheter.FirstAsync(v => v.Id == bruker.VirksomhetId, ct);
+        return Results.Ok(new BrukerDto(bruker.Id, bruker.Navn, virksomhet.Id, virksomhet.Navn, bruker.Rolle));
+    })
+    .WithOpenApi()
+    .WithName("HentMeg")
+    .WithSummary("Returnerer den innloggede brukeren, uavhengig av autentiseringsprofil.");
+
+// Diagnostikk: viser claims i eget token, slik at første innlogging i tt02 avklarer hvilke
+// identifikatorer runtime-tokenet faktisk inneholder (userid vs party-id vs fødselsnummer).
+// Av som standard, og viser aldri andres claims enn innsenderens egne.
+if (autentiseringsprofil is Autentiseringsprofil.Altinn
+    && Altinninnstillinger.Les(app.Configuration).VisClaims)
+{
+    app.MapGet("/api/meg/claims", (HttpContext kontekst) =>
+            kontekst.User.Identity?.IsAuthenticated is true
+                ? Results.Ok(kontekst.User.Claims.Select(c => new { type = c.Type, verdi = c.Value }))
+                : Results.Unauthorized())
+        .WithName("HentMineClaims")
+        .WithSummary("Diagnostikk for tt02-oppkobling. Krever RegelIde:Altinn:VisClaims=true.");
+}
+
 app.MapGet("/api/brukere", async (RegelIdeDbContext db) =>
     {
-        var brukere = await db.Brukere.Join(db.Virksomheter, b => b.VirksomhetId, v => v.Id,
+        // Under Altinn-profilen er dette ikke en innloggingsmekanisme, og å liste brukere ville
+        // bare invitert til å velge en annen enn den man er logget inn som. Klienten bruker /api/meg.
+        if (autentiseringsprofil is not Autentiseringsprofil.Testbruker) return Results.NotFound();
+
+        var brukere = await db.Brukere.Where(b => b.AltinnBrukerId == null)
+            .Join(db.Virksomheter, b => b.VirksomhetId, v => v.Id,
                 (b, v) => new BrukerDto(b.Id, b.Navn, v.Id, v.Navn, b.Rolle))
             .ToListAsync();
         return Results.Ok(brukere);

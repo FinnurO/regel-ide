@@ -148,6 +148,8 @@ export const api = {
     }),
 
   hentBrukere: () => kall<BrukerDto[]>('/api/brukere'),
+  hentOppsett: () => kall<{ autentisering: 'testbruker' | 'altinn' }>('/api/oppsett'),
+  hentMeg: () => kall<BrukerDto>('/api/meg'),
 
   hentVirksomheter: () => kall<VirksomhetDto[]>('/api/virksomheter'),
 

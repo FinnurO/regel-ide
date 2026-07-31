@@ -1,25 +1,31 @@
-using Microsoft.EntityFrameworkCore;
+using RegelIde.Api.Autentisering;
 using RegelIde.Data;
 
 namespace RegelIde.Api;
 
 /// <summary>
-/// Løser "hvem skriver" fra en enkel <c>X-Bruker-Id</c>-header — IKKE ekte autentisering.
-/// GUI-et lar brukeren velge en testbruker og sender dens Id på hvert skrivekall, slik at
-/// import/senere skriving kan attribueres (opprettet_av, virksomhet_id) uten Ansattporten ennå.
-/// Se Bruker-kommentaren i RegelIde.Data/Entiteter.cs for hvordan dette byttes ut senere.
+/// Løser "hvem skriver" for skrivende endepunkter. Selve mekanismen ligger i
+/// <see cref="IBrukerkontekst"/> og velges med <c>RegelIde:Autentisering</c> — se
+/// <see cref="Autentiseringsoppsett"/> og docs/autentisering.md.
+/// <para>
+/// Denne klassen er bevisst beholdt som en tynn statisk inngang. Rundt 36 endepunkter kaller
+/// <see cref="FinnAsync"/> med nøyaktig samme mønster; å injisere grensesnittet i hver enkelt
+/// lambda ville gitt en stor diff uten å endre oppførsel, og gjort det vanskeligere å se hva som
+/// faktisk er nytt. Oppslaget mot request-scopet er prisen for det.
+/// </para>
 /// </summary>
 public static class GjeldendeBrukerTjeneste
 {
-    public const string HeaderNavn = "X-Bruker-Id";
+    /// <summary>
+    /// Navnet på headeren testbruker-profilen bruker. Beholdt her fordi feilmeldingene i
+    /// endepunktene refererer til den.
+    /// </summary>
+    public const string HeaderNavn = TestbrukerKontekst.HeaderNavn;
 
-    public static async Task<Bruker?> FinnAsync(HttpRequest request, RegelIdeDbContext db, CancellationToken ct = default)
+    public static Task<Bruker?> FinnAsync(HttpRequest request, RegelIdeDbContext db, CancellationToken ct = default)
     {
-        if (!request.Headers.TryGetValue(HeaderNavn, out var verdi) || !Guid.TryParse(verdi, out var brukerId))
-        {
-            return null;
-        }
-        return await db.Brukere.FirstOrDefaultAsync(b => b.Id == brukerId, ct);
+        var kontekst = request.HttpContext.RequestServices.GetRequiredService<IBrukerkontekst>();
+        return kontekst.FinnAsync(request.HttpContext, ct);
     }
 }
 

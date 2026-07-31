@@ -7,23 +7,35 @@ interface BrukerContextVerdi {
   gjeldendeBruker: BrukerDto | null;
   velgBruker: (brukerId: string | null) => void;
   laster: boolean;
+  /** Om serveren kjører med ekte innlogging. Da skal brukervelgeren ikke vises. */
+  ekteInnlogging: boolean;
 }
 
 const BrukerContext = createContext<BrukerContextVerdi | null>(null);
 
 /**
- * Enkel testbruker-velger — IKKE ekte autentisering, se Bruker-kommentaren i
- * RegelIde.Data/Entiteter.cs. Erstattes av Ansattporten-innlogging senere.
+ * Henter gjeldende bruker. Under testbruker-profilen er dette en velger over seedede brukere
+ * (IKKE autentisering); under Altinn-profilen er brukeren gitt av innloggingen og lista tom.
+ * Serveren bestemmer hvilken av delene via /api/oppsett — se Autentiseringsoppsett.cs.
  */
 export function BrukerProvider({ children }: { children: ReactNode }) {
   const [brukere, setBrukere] = useState<BrukerDto[]>([]);
   const [gjeldendeBrukerId, setGjeldendeBrukerId] = useState<string | null>(hentValgtBrukerId());
+  const [innloggetBruker, setInnloggetBruker] = useState<BrukerDto | null>(null);
+  const [ekteInnlogging, setEkteInnlogging] = useState(false);
   const [laster, setLaster] = useState(true);
 
   useEffect(() => {
     api
-      .hentBrukere()
-      .then((liste) => {
+      .hentOppsett()
+      .then(async (oppsett) => {
+        if (oppsett.autentisering === 'altinn') {
+          setEkteInnlogging(true);
+          setInnloggetBruker(await api.hentMeg());
+          return;
+        }
+
+        const liste = await api.hentBrukere();
         setBrukere(liste);
         // Velg automatisk første testbruker hvis ingen er valgt ennå, slik at import fungerer med det samme.
         if (!hentValgtBrukerId() && liste.length > 0) {
@@ -39,10 +51,12 @@ export function BrukerProvider({ children }: { children: ReactNode }) {
     setGjeldendeBrukerId(brukerId);
   };
 
-  const gjeldendeBruker = brukere.find((b) => b.id === gjeldendeBrukerId) ?? null;
+  const gjeldendeBruker = ekteInnlogging
+    ? innloggetBruker
+    : (brukere.find((b) => b.id === gjeldendeBrukerId) ?? null);
 
   return (
-    <BrukerContext.Provider value={{ brukere, gjeldendeBruker, velgBruker, laster }}>
+    <BrukerContext.Provider value={{ brukere, gjeldendeBruker, velgBruker, laster, ekteInnlogging }}>
       {children}
     </BrukerContext.Provider>
   );

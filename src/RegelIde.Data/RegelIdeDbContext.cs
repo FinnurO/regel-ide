@@ -102,8 +102,15 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Navn).HasColumnName("navn");
             e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
             e.Property(x => x.Rolle).HasColumnName("rolle");
+            e.Property(x => x.AltinnBrukerId).HasColumnName("altinn_bruker_id");
             e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId).OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_brukere_virksomhet");
+            // Partiell unik indeks: gjentatt innlogging skal treffe samme rad, men de seedede
+            // testbrukerne har alle NULL her og må kunne eksistere side om side.
+            e.HasIndex(x => x.AltinnBrukerId)
+                .IsUnique()
+                .HasFilter("altinn_bruker_id IS NOT NULL")
+                .HasDatabaseName("ux_brukere_altinn_bruker_id");
         });
 
         b.Entity<RettskildeEntitet>(e =>

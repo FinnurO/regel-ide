@@ -57,12 +57,16 @@ FROM mcr.microsoft.com/dotnet/aspnet:10.0-alpine3.24 AS final
 # SQLite følger med som et bibliotek i publiseringen.
 RUN apk add --no-cache icu-libs icu-data-full tzdata
 
+# RegelIde__Autentisering=testbruker er brukervelgeren, ikke ekte innlogging. Settes til «altinn»
+# ved deploy i Altinns app-cluster — se docs/autentisering.md. Standarden holder imaget kjørbart
+# lokalt uten Altinn rundt seg.
 ENV ASPNETCORE_URLS=http://+:8080 \
     DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false \
     RegelIde__Database=sqlite \
     ConnectionStrings__RegelIdeDb="Data Source=/data/regelide.db" \
     RegelIde__Kildemappe=/kilder \
-    RegelIde__BakEnTerminerendeProxy=true
+    RegelIde__BakEnTerminerendeProxy=true \
+    RegelIde__Autentisering=testbruker
 
 WORKDIR /app
 COPY --from=api /publisert ./

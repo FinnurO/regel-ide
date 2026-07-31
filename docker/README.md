@@ -131,6 +131,7 @@ kilder, og her var det bare den ene som så noe.
 | `ConnectionStrings__RegelIdeDb` | `Data Source=/data/regelide.db` | Peker API-et mot databasen. |
 | `RegelIde__Kildemappe` | `/kilder` | Hvor førstegangs-seedingen leser Lovdata-HTML fra. |
 | `RegelIde__BakEnTerminerendeProxy` | `true` | Slår av `UseHttpsRedirection`, siden TLS termineres foran containeren. |
+| `RegelIde__Autentisering` | `testbruker` | Hvor identiteten kommer fra (`testbruker` \| `altinn`). Standarden er brukervelgeren, **ikke** ekte innlogging — se [docs/autentisering.md](../docs/autentisering.md). |
 | `ASPNETCORE_URLS` | `http://+:8080` | Porten API-et lytter på. |
 
 ## Bygget av SPA-en
