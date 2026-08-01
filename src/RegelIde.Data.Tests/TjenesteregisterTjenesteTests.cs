@@ -142,4 +142,44 @@ public class TjenesteregisterTjenesteTests
 
         await Assert.ThrowsAsync<ArgumentException>(() => register.SettStatusAsync(tjeneste.Id, "ukjent", "Kari Jurist"));
     }
+
+    [Fact]
+    public async Task Setter_status_med_godkjentAv_logges_i_proveniens()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+
+        var register = new TjenesteregisterTjeneste(db);
+        var tjeneste = await register.OpprettAsync(virksomhet, "Skjenkebevilling", null, null, null, null, null,
+            null, null, null, null, null, null, "Kari Jurist");
+
+        await register.SettStatusAsync(tjeneste.Id, "validert", "Kari Jurist", godkjentAv: "Ola Fagansvarlig");
+
+        var proveniens = await db.Proveniens
+            .Where(p => p.EntitetId == tjeneste.Id && p.Handling == "validert")
+            .SingleAsync();
+        Assert.Equal("Ola Fagansvarlig", proveniens.GodkjentAv);
+    }
+
+    [Fact]
+    public async Task Byggesteg5_oppretter_forslag_fra_ki_med_status_foreslatt_av_ai()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+
+        var register = new TjenesteregisterTjeneste(db);
+        var tjeneste = await register.OpprettForslagFraKiAsync(
+            virksomhet, "Stub-tjeneste (KI-forslag)", "Beskrivelse fra KI", "system-ki", "stub-v1",
+            """{"rettskildeIder":[],"lenkeIder":[]}""");
+
+        Assert.Equal("foreslatt_av_ai", tjeneste.Status);
+        var proveniens = await db.Proveniens.SingleAsync(p => p.EntitetId == tjeneste.Id);
+        Assert.Equal("foreslatt_av_ai", proveniens.Handling);
+        Assert.Equal("stub-v1", proveniens.AiForslagVersjon);
+        Assert.NotNull(proveniens.KildeReferanserJson);
+    }
 }

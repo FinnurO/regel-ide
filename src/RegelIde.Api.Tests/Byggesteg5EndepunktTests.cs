@@ -1,0 +1,235 @@
+using System.Net;
+using System.Net.Http.Json;
+using System.Text.Json;
+using System.Text.Json.Serialization;
+using RegelIde.Api;
+using RegelIde.Data;
+
+namespace RegelIde.Api.Tests;
+
+/// <summary>
+/// Integrasjonstester for byggesteg 5 runde 1 («Identifiser tjenester»/«Identifiser begrep», stub-KI,
+/// docs/06-veikart.md) — kjører mot ekte embedded Postgres inkl. Program.cs' egen oppstartsseeding
+/// (alkoholloven er allerede importert som rettskilde før noen test kjører).
+/// </summary>
+[Collection(ApiTestCollection.Navn)]
+public class Byggesteg5EndepunktTests
+{
+    private readonly EmbeddedPostgresApiFixture _fixture;
+    private readonly HttpClient _client;
+
+    private static readonly JsonSerializerOptions JsonInnstillinger = new(JsonSerializerDefaults.Web)
+    {
+        Converters = { new JsonStringEnumConverter() },
+    };
+
+    public Byggesteg5EndepunktTests(EmbeddedPostgresApiFixture fixture)
+    {
+        _fixture = fixture;
+        _client = fixture.Factory.CreateClient();
+    }
+
+    private async Task<BrukerDto> HentTestbrukerAsync()
+    {
+        var brukere = await _client.GetFromJsonAsync<List<BrukerDto>>("/api/brukere", JsonInnstillinger);
+        return brukere!.Single(b => b.Rolle == "Jurist");
+    }
+
+    private async Task<Guid> HentAlkohollovenIdAsync()
+    {
+        var rettskilder = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>("/api/rettskilder", JsonInnstillinger);
+        return rettskilder!.First(r => r.Tittel.Contains("alkohol", StringComparison.OrdinalIgnoreCase)).Id;
+    }
+
+    private static HttpRequestMessage MedBruker(HttpMethod metode, string url, Guid brukerId, object? body = null)
+    {
+        var request = new HttpRequestMessage(metode, url) { Headers = { { GjeldendeBrukerTjeneste.HeaderNavn, brukerId.ToString() } } };
+        if (body is not null) request.Content = JsonContent.Create(body);
+        return request;
+    }
+
+    // ---------- Kunnskapsbibliotek-lenker ----------
+
+    [Fact]
+    public async Task Legger_til_lister_og_sletter_kunnskapsbibliotek_lenke()
+    {
+        var bruker = await HentTestbrukerAsync();
+
+        var opprettSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/kunnskapsbibliotek/lenker", bruker.Id,
+            new LeggTilLenkeRequest("https://testkommunen.no/tjenester", "Om tjenestetilbudet")));
+        Assert.Equal(HttpStatusCode.Created, opprettSvar.StatusCode);
+        var lenke = await opprettSvar.Content.ReadFromJsonAsync<KunnskapsbibliotekLenkeDto>(JsonInnstillinger);
+
+        var listeSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/kunnskapsbibliotek/lenker", bruker.Id));
+        var liste = await listeSvar.Content.ReadFromJsonAsync<List<KunnskapsbibliotekLenkeDto>>(JsonInnstillinger);
+        Assert.Contains(liste!, l => l.Id == lenke!.Id);
+
+        var slettSvar = await _client.SendAsync(MedBruker(HttpMethod.Delete, $"/api/kunnskapsbibliotek/lenker/{lenke!.Id}", bruker.Id));
+        Assert.Equal(HttpStatusCode.NoContent, slettSvar.StatusCode);
+    }
+
+    [Fact]
+    public async Task Ugyldig_url_gir_400()
+    {
+        var bruker = await HentTestbrukerAsync();
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/kunnskapsbibliotek/lenker", bruker.Id,
+            new LeggTilLenkeRequest("ikke-en-url", null)));
+        Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
+    }
+
+    // ---------- «Identifiser begrep» ----------
+
+    [Fact]
+    public async Task Kjorer_begrepsforslag_og_finner_det_i_koen()
+    {
+        var bruker = await HentTestbrukerAsync();
+        var rettskildeId = await HentAlkohollovenIdAsync();
+
+        var kjorSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/begreper/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])));
+        Assert.Equal(HttpStatusCode.OK, kjorSvar.StatusCode);
+        var opprettede = await kjorSvar.Content.ReadFromJsonAsync<List<BegrepDto>>(JsonInnstillinger);
+        Assert.Single(opprettede!);
+        Assert.Equal("foreslatt_av_ai", opprettede![0].Status);
+
+        var koSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/begreper/forslag", bruker.Id));
+        var ko = await koSvar.Content.ReadFromJsonAsync<List<BegrepsforslagDto>>(JsonInnstillinger);
+        Assert.Contains(ko!, f => f.Begrep.Id == opprettede[0].Id);
+    }
+
+    [Fact]
+    public async Task Begrepsforslag_ukjent_rettskilde_gir_400()
+    {
+        var bruker = await HentTestbrukerAsync();
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/begreper/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([Guid.NewGuid()])));
+        Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
+    }
+
+    [Fact]
+    public async Task Begrepsforslag_ko_er_isolert_per_virksomhet()
+    {
+        var bruker = await HentTestbrukerAsync();
+        var rettskildeId = await HentAlkohollovenIdAsync();
+        await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/begreper/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])));
+
+        Guid annenBrukerId;
+        await using (var db = _fixture.NyDbContext())
+        {
+            var annenVirksomhetId = Guid.NewGuid();
+            db.Virksomheter.Add(new Virksomhet { Id = annenVirksomhetId, Navn = "Annen kommune (byggesteg 5-test)" });
+            annenBrukerId = Guid.NewGuid();
+            db.Brukere.Add(new Bruker { Id = annenBrukerId, Navn = "Uvedkommende", VirksomhetId = annenVirksomhetId, Rolle = "Testrolle" });
+            await db.SaveChangesAsync();
+        }
+
+        var annenKoSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/begreper/forslag", annenBrukerId));
+        var annenKo = await annenKoSvar.Content.ReadFromJsonAsync<List<BegrepsforslagDto>>(JsonInnstillinger);
+        Assert.Empty(annenKo!);
+    }
+
+    [Fact]
+    public async Task Full_avvis_rediger_godkjenn_syklus_pa_begrepsforslag()
+    {
+        var bruker = await HentTestbrukerAsync();
+        var rettskildeId = await HentAlkohollovenIdAsync();
+
+        var kjorSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/begreper/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])));
+        var opprettede = await kjorSvar.Content.ReadFromJsonAsync<List<BegrepDto>>(JsonInnstillinger);
+        var forslagId = opprettede![0].Id;
+
+        // Avvis -> tilbake til utkast
+        var avvisSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/begreper/{forslagId}/status", bruker.Id,
+            new SettStatusRequest("utkast")));
+        Assert.Equal(HttpStatusCode.OK, avvisSvar.StatusCode);
+        var avvist = await avvisSvar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger);
+        Assert.Equal("utkast", avvist!.Status);
+
+        // Kjør et nytt forslag for å teste Godkjenn-veien uavhengig av det avviste
+        var kjor2 = await (await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/begreper/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<List<BegrepDto>>(JsonInnstillinger);
+        var godkjennSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/begreper/{kjor2![0].Id}/status", bruker.Id,
+            new SettStatusRequest("validert", "Ola Fagansvarlig")));
+        Assert.Equal(HttpStatusCode.OK, godkjennSvar.StatusCode);
+        var godkjent = await godkjennSvar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger);
+        Assert.Equal("validert", godkjent!.Status);
+
+        // Godkjent forslag skal ikke lenger stå i køen
+        var koSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/begreper/forslag", bruker.Id));
+        var ko = await koSvar.Content.ReadFromJsonAsync<List<BegrepsforslagDto>>(JsonInnstillinger);
+        Assert.DoesNotContain(ko!, f => f.Begrep.Id == godkjent.Id);
+    }
+
+    // ---------- «Identifiser tjenester» ----------
+
+    [Fact]
+    public async Task Kjorer_tjenesteforslag_med_kunnskapsbibliotek_lenke_og_finner_det_i_koen()
+    {
+        var bruker = await HentTestbrukerAsync();
+        var rettskildeId = await HentAlkohollovenIdAsync();
+        await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/kunnskapsbibliotek/lenker", bruker.Id,
+            new LeggTilLenkeRequest("https://testkommunen.no/tjenester", "Om tjenestetilbudet")));
+
+        var kjorSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])));
+        Assert.Equal(HttpStatusCode.OK, kjorSvar.StatusCode);
+        var opprettede = await kjorSvar.Content.ReadFromJsonAsync<List<TjenesteDto>>(JsonInnstillinger);
+        Assert.Single(opprettede!);
+        Assert.Equal("foreslatt_av_ai", opprettede![0].Status);
+
+        var koSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/tjenester/forslag", bruker.Id));
+        var ko = await koSvar.Content.ReadFromJsonAsync<List<TjenesteforslagDto>>(JsonInnstillinger);
+        Assert.Contains(ko!, f => f.Tjeneste.Id == opprettede[0].Id);
+    }
+
+    [Fact]
+    public async Task Tjenesteforslag_ko_er_isolert_per_virksomhet()
+    {
+        var bruker = await HentTestbrukerAsync();
+        var rettskildeId = await HentAlkohollovenIdAsync();
+        await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])));
+
+        Guid annenBrukerId;
+        await using (var db = _fixture.NyDbContext())
+        {
+            var annenVirksomhetId = Guid.NewGuid();
+            db.Virksomheter.Add(new Virksomhet { Id = annenVirksomhetId, Navn = "Enda en annen kommune (byggesteg 5-test)" });
+            annenBrukerId = Guid.NewGuid();
+            db.Brukere.Add(new Bruker { Id = annenBrukerId, Navn = "Uvedkommende", VirksomhetId = annenVirksomhetId, Rolle = "Testrolle" });
+            await db.SaveChangesAsync();
+        }
+
+        var annenKoSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/tjenester/forslag", annenBrukerId));
+        var annenKo = await annenKoSvar.Content.ReadFromJsonAsync<List<TjenesteforslagDto>>(JsonInnstillinger);
+        Assert.Empty(annenKo!);
+    }
+
+    [Fact]
+    public async Task Full_avvis_rediger_godkjenn_syklus_pa_tjenesteforslag()
+    {
+        var bruker = await HentTestbrukerAsync();
+        var rettskildeId = await HentAlkohollovenIdAsync();
+
+        var opprettede = await (await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<List<TjenesteDto>>(JsonInnstillinger);
+        var forslagId = opprettede![0].Id;
+
+        var redigerSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/tjenester/{forslagId}/status", bruker.Id,
+            new SettStatusRequest("under_revisjon")));
+        Assert.Equal(HttpStatusCode.OK, redigerSvar.StatusCode);
+        var redigert = await redigerSvar.Content.ReadFromJsonAsync<TjenesteDto>(JsonInnstillinger);
+        Assert.Equal("under_revisjon", redigert!.Status);
+
+        var godkjennSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/tjenester/{forslagId}/status", bruker.Id,
+            new SettStatusRequest("validert", "Ola Fagansvarlig")));
+        var godkjent = await godkjennSvar.Content.ReadFromJsonAsync<TjenesteDto>(JsonInnstillinger);
+        Assert.Equal("validert", godkjent!.Status);
+
+        var koSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/tjenester/forslag", bruker.Id));
+        var ko = await koSvar.Content.ReadFromJsonAsync<List<TjenesteforslagDto>>(JsonInnstillinger);
+        Assert.DoesNotContain(ko!, f => f.Tjeneste.Id == godkjent.Id);
+    }
+}

@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RegelIde.Data;
@@ -12,9 +13,11 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    partial class RegelIdeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260731161632_LeggTilKunnskapsbibliotek")]
+    partial class LeggTilKunnskapsbibliotek
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -135,10 +138,6 @@ namespace RegelIde.Data.Migrasjoner
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<string>("AltinnBrukerId")
-                        .HasColumnType("text")
-                        .HasColumnName("altinn_bruker_id");
-
                     b.Property<string>("Navn")
                         .IsRequired()
                         .HasColumnType("text")
@@ -155,11 +154,6 @@ namespace RegelIde.Data.Migrasjoner
 
                     b.HasKey("Id")
                         .HasName("brukere_pkey");
-
-                    b.HasIndex("AltinnBrukerId")
-                        .IsUnique()
-                        .HasDatabaseName("ux_brukere_altinn_bruker_id")
-                        .HasFilter("altinn_bruker_id IS NOT NULL");
 
                     b.HasIndex("VirksomhetId")
                         .HasDatabaseName("ix_brukere_virksomhet");

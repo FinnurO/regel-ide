@@ -14,7 +14,7 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
     // Samme 5-verdis statusløp som Rettskilde/Kodeliste (§3.1) — ikke full FSM-håndheving av lovlige
     // overganger i v1 (samme v1-forenkling som HandbokKommentarMetadataEntitet.Status, se §1.1.1).
     private static readonly string[] GyldigeStatuser =
-        ["utkast", "under_revisjon", "validert", "publisert", "tilbaketrukket", "arkivert"];
+        ["utkast", "foreslatt_av_ai", "under_revisjon", "validert", "publisert", "tilbaketrukket", "arkivert"];
 
     public Task<List<TjenesteEntitet>> ListerForAsync(Guid virksomhetId, CancellationToken ct = default) =>
         db.Tjenester
@@ -61,6 +61,39 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
         };
         db.Tjenester.Add(tjeneste);
         db.Proveniens.Add(ProveniensHjelper.NyRad("tjeneste", tjeneste.Id, virksomhetId, "opprettet", opprettetAv));
+        await db.SaveChangesAsync(ct);
+        return tjeneste;
+    }
+
+    /// <summary>
+    /// Byggesteg 5 runde 1 («Identifiser tjenester») — landet med Status="foreslatt_av_ai" og en
+    /// <see cref="ProveniensHjelper.NyForslagRad"/>-rad. Kun Tittel/Beskrivelse settes av agenten —
+    /// resten av CPSV-AP-NO-feltene (allerede nullable) fylles ut av mennesket ved godkjenning, samme
+    /// "generer minimum, menneske fullfører"-prinsipp som «opprett vilkår fra tagg». Bevisst ingen
+    /// auto-opprettet <see cref="TjenesteRegelverksreferanseEntitet"/> — agenten vet hvilken rettskilde
+    /// som inspirerte forslaget (se kildeReferanserJson), ikke hvilken spesifikk eId/paragraf.
+    /// </summary>
+    public async Task<TjenesteEntitet> OpprettForslagFraKiAsync(
+        Guid virksomhetId, string tittel, string? beskrivelse, string opprettetAv, string aiForslagVersjon,
+        string? kildeReferanserJson, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(tittel))
+        {
+            throw new ArgumentException("Tittel kan ikke være tom. Ingen gjettet fallback.");
+        }
+
+        var tjeneste = new TjenesteEntitet
+        {
+            Id = Guid.NewGuid(),
+            VirksomhetId = virksomhetId,
+            Tittel = tittel,
+            Beskrivelse = beskrivelse,
+            Status = "foreslatt_av_ai",
+            OpprettetAv = opprettetAv,
+            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        };
+        db.Tjenester.Add(tjeneste);
+        db.Proveniens.Add(ProveniensHjelper.NyForslagRad("tjeneste", tjeneste.Id, virksomhetId, opprettetAv, aiForslagVersjon, kildeReferanserJson));
         await db.SaveChangesAsync(ct);
         return tjeneste;
     }
@@ -134,7 +167,8 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
         return true;
     }
 
-    public async Task<TjenesteEntitet?> SettStatusAsync(Guid id, string nyStatus, string endretAv, CancellationToken ct = default)
+    public async Task<TjenesteEntitet?> SettStatusAsync(
+        Guid id, string nyStatus, string endretAv, CancellationToken ct = default, string? godkjentAv = null)
     {
         if (!GyldigeStatuser.Contains(nyStatus))
         {
@@ -147,7 +181,10 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
         tjeneste.Status = nyStatus;
         tjeneste.SistEndretAv = endretAv;
         tjeneste.SistEndretTidspunkt = DateTimeOffset.UtcNow;
-        db.Proveniens.Add(ProveniensHjelper.NyRad("tjeneste", tjeneste.Id, tjeneste.VirksomhetId, nyStatus == "publisert" ? "publisert" : "endret", endretAv));
+        var proveniens = ProveniensHjelper.NyRad(
+            "tjeneste", tjeneste.Id, tjeneste.VirksomhetId, nyStatus is "publisert" or "validert" ? nyStatus : "endret", endretAv);
+        proveniens.GodkjentAv = godkjentAv;
+        db.Proveniens.Add(proveniens);
         await db.SaveChangesAsync(ct);
         return tjeneste;
     }

@@ -154,11 +154,32 @@ må huske alle samtidig), men koster reell orkestreringskompleksitet (delt konte
 rekkefølge-styring, og hva som skjer når to agenter foreslår overlappende begreper/vilkår). Dette bør
 avklares som en egen designrunde når byggesteg 5 faktisk tas fatt på — ikke besluttet her.
 
-**Ikke gjort ennå:** verken kunnskapsbiblioteket eller de skillsbaserte agentene er bygget eller
-spesifisert i detalj — dette avsnittet er en retningsbeslutning for byggesteg 5s reviderte omfang,
-ikke en implementasjonsplan. `02-produktkrav.md` kap. 3.10 må oppdateres til å reflektere det
-utvidede omfanget (kunnskapsbibliotek + flere artefakttyper, ikke bare vilkårsnoder) når byggesteg 5
-planlegges i detalj.
+**Runde 1 bygget (2026-07-31)** — og den avdekket en reell svakhet i retningsbeslutningen over: et
+kunnskapsbibliotek sentrert rundt `Tjeneste` gir ikke mening for en agent som skal finne ut *hvilke*
+Tjenester som finnes — Tjenesten eksisterer ikke ennå når den agenten kjører. Faktisk bygget i runde 1,
+derfor:
+
+- **To uavhengige, rettskilde-drevne agenter** — «Identifiser tjenester» og «Identifiser begrep» —
+  ikke Tjeneste-sentrert. Begge tar valgte, allerede importerte rettskilder som primær kontekst
+  (ekte, strukturert lovtekst — bedre KI-kontekst enn et opplastet, uparset dokument, og krever ingen
+  fil-opplasting/BLOB-lagring). «Identifiser tjenester» tar i tillegg virksomhetens registrerte
+  kunnskapsbibliotek-**lenker** (nettside o.l.) — kunnskapsbiblioteket er dermed forenklet til et
+  lite, virksomhets-scopet lenke-register i runde 1, ikke fil/notat-opplasting.
+  «Identifiser begrep» bruker ikke kunnskapsbiblioteket i det hele tatt.
+- **`IKiAgentKlient`-abstraksjon + stub-implementasjon** (`KiAgentKlientStub`, `src/RegelIde.Data/`)
+  — beviser rørledningen (kø, godkjenn/avvis, proveniens) uten en ekte KI-leverandør. Ekte
+  leverandørvalg er fortsatt en egen, senere beslutning — ingen agent-kode må endres når den tas.
+- **`foreslatt_av_ai`-status generalisert** til Tjeneste og Begrep (`TjenesteregisterTjeneste`/
+  `BegrepsregisterTjeneste`), med en direkte `foreslatt_av_ai → validert`-kant lagt til statusdiagrammet
+  i `03-domenemodell.md` (løser en tidligere uoverensstemmelse med AK-3.10.2).
+- Se `02-produktkrav.md` kap. 3.10 for det fulle bildet av hva runde 1 faktisk bygde.
+
+**Ikke gjort ennå (runde 2+, fortsatt retningsnivå, ikke implementasjonsplan):** de tre andre
+agentene (Tjenestebeskrivelse/Vilkår-og-Vilkårstre/Håndbok) og deres innbyrdes rekkefølge, ekte
+KI-leverandør-kobling, fil-/dokumentopplasting (PDF/Word/skannet) og dokumentinnholds-uttrekk/OCR,
+en generalisert multi-type forslagskø (i dag: to separate køer, én per artefakttype), og
+`foreslatt_av_ai` for Vilkår/Regelnode/Unntak. Se `docs/14-byggesteg5-teknisk-design.md` for
+`IKiAgentKlient`-kontrakten og kunnskapsbibliotek-skjemaet som mal for disse rundene.
 
 ## Byggesteg 6 — Datasett, informasjonsmodell, eksportmotor
 

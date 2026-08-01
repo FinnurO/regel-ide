@@ -1,0 +1,192 @@
+import { useEffect, useState, type FormEvent } from 'react';
+import { Link as RouterLink, useNavigate } from 'react-router';
+import { Button, Checkbox, Heading, Link, Paragraph, Table, Textfield } from '@digdir/designsystemet-react';
+import { ApiError, api } from '../api/client';
+import type { KunnskapsbibliotekLenkeDto, RettskildeSammendrag, TjenesteforslagDto } from '../api/types';
+import { useBruker } from '../bruker/BrukerContext';
+
+/**
+ * «Identifiser tjenester» (byggesteg 5 runde 1, docs/06-veikart.md) — foreslår nye Tjeneste-objekter
+ * fra valgte rettskilder pluss virksomhetens registrerte kunnskapsbibliotek-lenker (nettside o.l.).
+ * Bevisst ikke avhengig av at noe Tjeneste-objekt finnes fra før. Kjører mot en STUB-KI
+ * (KiAgentKlientStub i RegelIde.Data) — se merknaden under kø-listen.
+ */
+export default function TjenesteforslagKo() {
+  const navigate = useNavigate();
+  const { gjeldendeBruker } = useBruker();
+
+  const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
+  const [valgteRettskilder, setValgteRettskilder] = useState<Set<string>>(new Set());
+  const [lenker, setLenker] = useState<KunnskapsbibliotekLenkeDto[]>([]);
+  const [nyUrl, setNyUrl] = useState('');
+  const [nyBeskrivelse, setNyBeskrivelse] = useState('');
+  const [leggerTilLenke, setLeggerTilLenke] = useState(false);
+  const [ko, setKo] = useState<TjenesteforslagDto[] | null>(null);
+  const [feil, setFeil] = useState<string | null>(null);
+  const [kjorer, setKjorer] = useState(false);
+
+  function lastLenker() {
+    api.hentKunnskapsbibliotekLenker().then(setLenker).catch(() => setLenker([]));
+  }
+
+  function lastKo() {
+    api.hentTjenesteforslagKo().then(setKo).catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av kø.'));
+  }
+
+  useEffect(() => {
+    api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
+    lastLenker();
+    lastKo();
+  }, []);
+
+  function vekslRettskilde(id: string, valgt: boolean) {
+    setValgteRettskilder((forrige) => {
+      const ny = new Set(forrige);
+      if (valgt) ny.add(id); else ny.delete(id);
+      return ny;
+    });
+  }
+
+  async function leggTilLenke(e: FormEvent) {
+    e.preventDefault();
+    setFeil(null);
+    setLeggerTilLenke(true);
+    try {
+      await api.leggTilKunnskapsbibliotekLenke({ url: nyUrl.trim(), beskrivelse: nyBeskrivelse.trim() || null });
+      setNyUrl('');
+      setNyBeskrivelse('');
+      lastLenker();
+    } catch (err) {
+      setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse av lenke.');
+    } finally {
+      setLeggerTilLenke(false);
+    }
+  }
+
+  async function slettLenke(id: string) {
+    await api.slettKunnskapsbibliotekLenke(id);
+    lastLenker();
+  }
+
+  async function kjorForslag() {
+    setFeil(null);
+    setKjorer(true);
+    try {
+      await api.kjorTjenesteforslag({ rettskildeIder: [...valgteRettskilder] });
+      lastKo();
+    } catch (err) {
+      setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved kjøring av KI-forslag.');
+    } finally {
+      setKjorer(false);
+    }
+  }
+
+  async function avvis(id: string) {
+    await api.settTjenesteStatus(id, { status: 'utkast' });
+    lastKo();
+  }
+
+  async function rediger(id: string) {
+    await api.settTjenesteStatus(id, { status: 'under_revisjon' });
+    navigate(`/tjenester/${id}`);
+  }
+
+  async function godkjenn(id: string) {
+    await api.settTjenesteStatus(id, { status: 'validert', godkjentAv: gjeldendeBruker?.navn });
+    lastKo();
+  }
+
+  return (
+    <>
+      <Heading level={1} data-size="lg">
+        Identifiser tjenester
+      </Heading>
+      <Paragraph style={{ marginBottom: '1.5rem', maxWidth: '40rem' }}>
+        Velg rettskilder og/eller registrer lenker til virksomhetens nettside o.l. — agenten foreslår
+        nye Tjeneste-objekter. Forslag lander alltid som «foreslått av KI», og må godkjennes eksplisitt
+        før de blir gjeldende.
+      </Paragraph>
+
+      <Heading level={2} data-size="sm">Kunnskapsbibliotek (lenker)</Heading>
+      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.5rem' }}>
+        Nettside eller annen kilde som beskriver hva virksomheten leverer av tjenester.
+      </Paragraph>
+      {lenker.length > 0 && (
+        <ul style={{ marginBottom: '0.75rem' }}>
+          {lenker.map((l) => (
+            <li key={l.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.2rem' }}>
+              <Link href={l.url} target="_blank" rel="noreferrer">{l.beskrivelse ?? l.url}</Link>
+              <Button variant="tertiary" data-size="sm" onClick={() => slettLenke(l.id)}>Fjern</Button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <form onSubmit={leggTilLenke} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '1.5rem' }}>
+        <Textfield label="URL" placeholder="https://…" value={nyUrl} onChange={(e) => setNyUrl(e.target.value)} required />
+        <Textfield label="Beskrivelse (valgfri)" value={nyBeskrivelse} onChange={(e) => setNyBeskrivelse(e.target.value)} />
+        <Button type="submit" disabled={leggerTilLenke || !nyUrl.trim()}>
+          {leggerTilLenke ? 'Legger til …' : 'Legg til lenke'}
+        </Button>
+      </form>
+
+      {rettskilder.length > 0 && (
+        <div style={{ marginBottom: '1rem' }}>
+          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.3rem' }}>Rettskilder:</Paragraph>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', marginBottom: '0.75rem' }}>
+            {rettskilder.map((r) => (
+              <Checkbox key={r.id} label={r.tittel} checked={valgteRettskilder.has(r.id)}
+                onChange={(e) => vekslRettskilde(r.id, e.target.checked)} />
+            ))}
+          </div>
+          <Button onClick={kjorForslag} disabled={kjorer || valgteRettskilder.size === 0}>
+            {kjorer ? 'Kjører KI-forslag …' : 'Kjør KI-forslag'}
+          </Button>
+        </div>
+      )}
+
+      {feil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{feil}</div>}
+
+      <Heading level={2} data-size="sm" style={{ marginTop: '1.5rem' }}>
+        Ventende forslag
+      </Heading>
+      {!ko && <Paragraph>Laster …</Paragraph>}
+      {ko && ko.length === 0 && <Paragraph>Ingen ventende tjenesteforslag.</Paragraph>}
+      {ko && ko.length > 0 && (
+        <Table border>
+          <Table.Head>
+            <Table.Row>
+              <Table.HeaderCell>Tittel</Table.HeaderCell>
+              <Table.HeaderCell>Beskrivelse</Table.HeaderCell>
+              <Table.HeaderCell>KI-versjon</Table.HeaderCell>
+              <Table.HeaderCell>Handlinger</Table.HeaderCell>
+            </Table.Row>
+          </Table.Head>
+          <Table.Body>
+            {ko.map((f) => (
+              <Table.Row key={f.tjeneste.id}>
+                <Table.Cell>
+                  <Link asChild><RouterLink to={`/tjenester/${f.tjeneste.id}`}>{f.tjeneste.tittel}</RouterLink></Link>
+                </Table.Cell>
+                <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{f.tjeneste.beskrivelse ?? '—'}</Table.Cell>
+                <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{f.aiForslagVersjon ?? '—'}</Table.Cell>
+                <Table.Cell>
+                  <div style={{ display: 'flex', gap: '0.4rem' }}>
+                    <Button variant="tertiary" data-size="sm" onClick={() => avvis(f.tjeneste.id)}>Avvis</Button>
+                    <Button variant="tertiary" data-size="sm" onClick={() => rediger(f.tjeneste.id)}>Rediger</Button>
+                    <Button data-size="sm" onClick={() => godkjenn(f.tjeneste.id)}>Godkjenn og legg til</Button>
+                  </div>
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      )}
+
+      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '1.5rem', opacity: 0.7 }}>
+        Byggesteg 5 runde 1: KI-klienten er en stub (KiAgentKlientStub) — den returnerer ett fast
+        eksempelforslag for å bevise kø-/godkjenningsmekanismen, ikke ekte språkmodell-resonnering.
+        Ekte leverandørvalg er en egen, senere beslutning.
+      </Paragraph>
+    </>
+  );
+}

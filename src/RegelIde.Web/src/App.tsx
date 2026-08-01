@@ -16,6 +16,8 @@ import VilkarstreDetalj from './pages/VilkarstreDetalj';
 import DatasettDetalj from './pages/DatasettDetalj';
 import DatasettListe from './pages/DatasettListe';
 import TjenesteVeiledning from './pages/TjenesteVeiledning';
+import TjenesteforslagKo from './pages/TjenesteforslagKo';
+import BegrepsforslagKo from './pages/BegrepsforslagKo';
 
 function BrukerVelger() {
   const { brukere, gjeldendeBruker, velgBruker, laster, ekteInnlogging, innloggingsfeil } = useBruker();
@@ -88,6 +90,12 @@ function App() {
           <NavLink to="/datasett" className={({ isActive }) => (isActive ? 'aktiv' : '')}>
             Datasett
           </NavLink>
+          <NavLink to="/tjenester/forslag" className={({ isActive }) => (isActive ? 'aktiv' : '')}>
+            Identifiser tjenester (KI)
+          </NavLink>
+          <NavLink to="/begreper/forslag" className={({ isActive }) => (isActive ? 'aktiv' : '')}>
+            Identifiser begrep (KI)
+          </NavLink>
         </nav>
         <BrukerVelger />
       </aside>
@@ -98,8 +106,10 @@ function App() {
           <Route path="/importer" element={<Importer />} />
           <Route path="/handboker/ny" element={<HandbokOpprett />} />
           <Route path="/tjenester" element={<TjenesterListe />} />
+          <Route path="/tjenester/forslag" element={<TjenesteforslagKo />} />
           <Route path="/tjenester/:id" element={<TjenesteDetalj />} />
           <Route path="/begreper" element={<BegreperListe />} />
+          <Route path="/begreper/forslag" element={<BegrepsforslagKo />} />
           <Route path="/begreper/:id" element={<BegrepDetalj />} />
           <Route path="/kodelister" element={<KodelisterListe />} />
           <Route path="/kodelister/:id" element={<KodelisteDetalj />} />

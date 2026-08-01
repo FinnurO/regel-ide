@@ -175,6 +175,8 @@ export interface KobleTaggTilEntitetRequest {
 /** Felles statusløp for Tjeneste/Begrep/Kodeliste: utkast|under_revisjon|validert|publisert|tilbaketrukket|arkivert. */
 export interface SettStatusRequest {
   status: string;
+  /** Byggesteg 5 runde 1 (AK-3.10.2) — settes når status endres til "validert" etter et KI-forslag. */
+  godkjentAv?: string;
 }
 
 export interface TjenesteDto {
@@ -598,4 +600,41 @@ export interface TjenesteReferanseDto {
   tjenesteId: string;
   tjenesteTittel: string;
   tilEid: string;
+}
+
+// ---------- Byggesteg 5 runde 1 — Kunnskapsbibliotek + AI-forslag (docs/06-veikart.md) ----------
+
+/** Kunnskapsbibliotek-lenke — kun brukt av «Identifiser tjenester»-agenten. */
+export interface KunnskapsbibliotekLenkeDto {
+  id: string;
+  virksomhetId: string;
+  url: string;
+  beskrivelse: string | null;
+  opprettetAv: string;
+  opprettetTidspunkt: string;
+}
+
+export interface LeggTilLenkeRequest {
+  url: string;
+  beskrivelse?: string | null;
+}
+
+export interface KjorForslagRequest {
+  rettskildeIder: string[];
+}
+
+/** Kø-visning for «Identifiser begrep» — beriker BegrepDto med proveniens fra AI-forslaget. */
+export interface BegrepsforslagDto {
+  begrep: BegrepDto;
+  aiForslagVersjon: string | null;
+  foreslattTidspunkt: string;
+  kildeReferanserJson: string | null;
+}
+
+/** Kø-visning for «Identifiser tjenester» — beriker TjenesteDto med proveniens fra AI-forslaget. */
+export interface TjenesteforslagDto {
+  tjeneste: TjenesteDto;
+  aiForslagVersjon: string | null;
+  foreslattTidspunkt: string;
+  kildeReferanserJson: string | null;
 }

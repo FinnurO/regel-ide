@@ -54,6 +54,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<TjenesteHendelseEntitet> TjenesteHendelser => Set<TjenesteHendelseEntitet>();
     public DbSet<TjenesteavhengighetEntitet> Tjenesteavhengigheter => Set<TjenesteavhengighetEntitet>();
     public DbSet<HandbokRettskildeomfangEntitet> HandbokRettskildeomfang => Set<HandbokRettskildeomfangEntitet>();
+    public DbSet<KunnskapsbibliotekLenkeEntitet> KunnskapsbibliotekLenker => Set<KunnskapsbibliotekLenkeEntitet>();
     public DbSet<BegrepEntitet> Begreper => Set<BegrepEntitet>();
     public DbSet<KodelisteEntitet> Kodelister => Set<KodelisteEntitet>();
     public DbSet<KodelisteKodeEntitet> KodelisteKoder => Set<KodelisteKodeEntitet>();
@@ -702,6 +703,20 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 
             e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
             e.HasIndex(x => new { x.MalType, x.MalId }).HasDatabaseName("ix_vilkarstre_kommentarer_mal");
+        });
+
+        b.Entity<KunnskapsbibliotekLenkeEntitet>(e =>
+        {
+            e.ToTable("kunnskapsbibliotek_lenker");
+            e.HasKey(x => x.Id).HasName("kunnskapsbibliotek_lenker_pkey");
+            e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
+            e.Property(x => x.Url).HasColumnName("url");
+            e.Property(x => x.Beskrivelse).HasColumnName("beskrivelse");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_kunnskapsbibliotek_lenker_virksomhet");
         });
     }
 }

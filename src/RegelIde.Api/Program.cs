@@ -45,6 +45,10 @@ builder.Services.AddScoped<DatasettregisterTjeneste>();
 builder.Services.AddScoped<VilkarstreKommentarTjeneste>();
 builder.Services.AddScoped<HendelseregisterTjeneste>();
 builder.Services.AddScoped<TjenesteavhengighetregisterTjeneste>();
+builder.Services.AddScoped<KunnskapsbibliotekTjeneste>();
+builder.Services.AddScoped<IKiAgentKlient, KiAgentKlientStub>();
+builder.Services.AddScoped<BegrepsforslagTjeneste>();
+builder.Services.AddScoped<TjenesteforslagTjeneste>();
 builder.Services.AddHttpClient<LovdataBulkHenter>();
 
 const string VitePolicy = "ViteDevServer";
@@ -846,7 +850,7 @@ tjenester.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, Sett
         }
         try
         {
-            var t = await tjeneste.SettStatusAsync(id, body.Status, bruker.Navn, ct);
+            var t = await tjeneste.SettStatusAsync(id, body.Status, bruker.Navn, ct, body.GodkjentAv);
             return t is null ? Results.NotFound(new { feil = $"Ingen tjeneste med id '{id}'." }) : Results.Ok(TjenesteDto.FraEntitet(t));
         }
         catch (ArgumentException ex)
@@ -881,6 +885,96 @@ tjenester.MapDelete("/regelverksreferanser/{referanseId:guid}", async (Guid refe
         await tjeneste.FjernRegelverksreferanseAsync(referanseId, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen regelverksreferanse med id '{referanseId}'." }))
     .WithName("FjernTjenesteRegelverksreferanse")
     .WithSummary("Fjerner en regelverksreferanse-kobling.");
+
+// ---------- «Identifiser tjenester» (byggesteg 5 runde 1, docs/06-veikart.md) — stub-KI ----------
+
+tjenester.MapGet("/forslag", async (HttpRequest request, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        var forslag = await db.Tjenester
+            .Where(t => t.VirksomhetId == bruker.VirksomhetId && t.Entitetsstatus == "gjeldende" && t.Status == "foreslatt_av_ai")
+            .OrderByDescending(t => t.OpprettetTidspunkt)
+            .ToListAsync(ct);
+        var resultat = new List<TjenesteforslagDto>();
+        foreach (var t in forslag)
+        {
+            var proveniens = await db.Proveniens
+                .Where(p => p.EntitetType == "tjeneste" && p.EntitetId == t.Id && p.Handling == "foreslatt_av_ai")
+                .OrderByDescending(p => p.Dato)
+                .FirstOrDefaultAsync(ct);
+            resultat.Add(new TjenesteforslagDto(TjenesteDto.FraEntitet(t), proveniens?.AiForslagVersjon, proveniens?.Dato ?? t.OpprettetTidspunkt, proveniens?.KildeReferanserJson));
+        }
+        return Results.Ok(resultat);
+    })
+    .WithName("HentTjenesteforslagKo")
+    .WithSummary("Lister ventende KI-forslag til nye tjenester (foreslatt_av_ai).");
+
+tjenester.MapPost("/forslag/kjor", async (HttpRequest request, KjorForslagRequest body, TjenesteforslagTjeneste forslagstjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var opprettede = await forslagstjeneste.KjorForslagAsync(bruker.VirksomhetId, body.RettskildeIder, bruker.Navn, ct);
+            return Results.Ok(opprettede.Select(TjenesteDto.FraEntitet));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KjorTjenesteforslag")
+    .WithSummary("Kjører «Identifiser tjenester»-agenten mot valgte rettskilder + kunnskapsbibliotek (byggesteg 5 runde 1, stub-KI).");
+
+// ---------- Kunnskapsbibliotek (byggesteg 5 runde 1, docs/06-veikart.md) — krever X-Bruker-Id, ----------
+// ---------- alltid virksomhetens eget arbeidsprodukt, kun brukt av «Identifiser tjenester». ----------
+
+var kunnskapsbibliotek = app.MapGroup("/api/kunnskapsbibliotek").WithOpenApi();
+
+kunnskapsbibliotek.MapGet("/lenker", async (HttpRequest request, KunnskapsbibliotekTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        var liste = await tjeneste.ListerForVirksomhetAsync(bruker.VirksomhetId, ct);
+        return Results.Ok(liste.Select(KunnskapsbibliotekLenkeDto.FraEntitet));
+    })
+    .WithName("HentKunnskapsbibliotekLenker")
+    .WithSummary("Lister virksomhetens kunnskapsbibliotek-lenker.");
+
+kunnskapsbibliotek.MapPost("/lenker", async (HttpRequest request, LeggTilLenkeRequest body, KunnskapsbibliotekTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var lenke = await tjeneste.LeggTilLenkeAsync(bruker.VirksomhetId, body.Url, body.Beskrivelse, bruker.Navn, ct);
+            return Results.Created($"/api/kunnskapsbibliotek/lenker/{lenke.Id}", KunnskapsbibliotekLenkeDto.FraEntitet(lenke));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("LeggTilKunnskapsbibliotekLenke")
+    .WithSummary("Legger til en lenke i virksomhetens kunnskapsbibliotek.");
+
+kunnskapsbibliotek.MapDelete("/lenker/{id:guid}", async (Guid id, KunnskapsbibliotekTjeneste tjeneste, CancellationToken ct) =>
+        await tjeneste.SlettAsync(id, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen kunnskapsbibliotek-lenke med id '{id}'." }))
+    .WithName("SlettKunnskapsbibliotekLenke")
+    .WithSummary("Fjerner en kunnskapsbibliotek-lenke.");
 
 // ---------- Begrepsregister (SKOS, docs/03-domenemodell.md §1.3) — byggesteg 2 ----------
 
@@ -958,7 +1052,7 @@ begreper.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, SettS
         }
         try
         {
-            var b = await begrepsregister.SettStatusAsync(id, body.Status, bruker.Navn, ct);
+            var b = await begrepsregister.SettStatusAsync(id, body.Status, bruker.Navn, ct, body.GodkjentAv);
             return b is null ? Results.NotFound(new { feil = $"Ingen begrep med id '{id}'." }) : Results.Ok(BegrepDto.FraEntitet(b));
         }
         catch (ArgumentException ex)
@@ -968,6 +1062,53 @@ begreper.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, SettS
     })
     .WithName("SettBegrepStatus")
     .WithSummary("Endrer status (§3.1 i domenemodellen).");
+
+// ---------- «Identifiser begrep» (byggesteg 5 runde 1, docs/06-veikart.md) — stub-KI ----------
+
+begreper.MapGet("/forslag", async (HttpRequest request, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        var forslag = await db.Begreper
+            .Where(b => b.VirksomhetId == bruker.VirksomhetId && b.Entitetsstatus == "gjeldende" && b.Status == "foreslatt_av_ai")
+            .OrderByDescending(b => b.OpprettetTidspunkt)
+            .ToListAsync(ct);
+        var resultat = new List<BegrepsforslagDto>();
+        foreach (var b in forslag)
+        {
+            var proveniens = await db.Proveniens
+                .Where(p => p.EntitetType == "begrep" && p.EntitetId == b.Id && p.Handling == "foreslatt_av_ai")
+                .OrderByDescending(p => p.Dato)
+                .FirstOrDefaultAsync(ct);
+            resultat.Add(new BegrepsforslagDto(BegrepDto.FraEntitet(b), proveniens?.AiForslagVersjon, proveniens?.Dato ?? b.OpprettetTidspunkt, proveniens?.KildeReferanserJson));
+        }
+        return Results.Ok(resultat);
+    })
+    .WithName("HentBegrepsforslagKo")
+    .WithSummary("Lister ventende KI-forslag til nye begrep (foreslatt_av_ai).");
+
+begreper.MapPost("/forslag/kjor", async (HttpRequest request, KjorForslagRequest body, BegrepsforslagTjeneste forslagstjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var opprettede = await forslagstjeneste.KjorForslagAsync(bruker.VirksomhetId, body.RettskildeIder, bruker.Navn, ct);
+            return Results.Ok(opprettede.Select(BegrepDto.FraEntitet));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KjorBegrepsforslag")
+    .WithSummary("Kjører «Identifiser begrep»-agenten mot valgte rettskilder (byggesteg 5 runde 1, stub-KI).");
 
 // ---------- Kodelisteregister / verdidomene (docs/03-domenemodell.md §1.4) — byggesteg 2 ----------
 // ---------- Åpne data (som Rettskildebiblioteket) — ekstern-referanse-kodelister er delt/uten     ----------

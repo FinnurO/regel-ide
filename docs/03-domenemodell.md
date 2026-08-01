@@ -375,6 +375,7 @@ stateDiagram-v2
   foreslatt_av_ai --> utkast: avvist av jurist/fagansvarlig
   utkast --> under_revisjon: endring startet
   foreslatt_av_ai --> under_revisjon: redigert før godkjenning
+  foreslatt_av_ai --> validert: godkjent uten endring
   under_revisjon --> validert: jurist validerer
   validert --> publisert: publisering (§4)
   publisert --> under_revisjon: ny endring (oppretter ny versjon, §0)
@@ -383,7 +384,7 @@ stateDiagram-v2
   publisert --> arkivert: erstattet av ny versjon
 ```
 
-Samme mønster (utkast → under revisjon → validert → publisert → tilbaketrukket/arkivert) gjelder for **rettskilder**, **tjenester** og **kodelister**, med ett unntak: eksterne autoritative kodelister (§1.4) har ikke `publisert`-steget — de er alltid `gjeldende` så lenge kilden de refererer til er det.
+Samme mønster (utkast → under revisjon → validert → publisert → tilbaketrukket/arkivert) gjelder for **rettskilder**, **tjenester** og **kodelister**, med ett unntak: eksterne autoritative kodelister (§1.4) har ikke `publisert`-steget — de er alltid `gjeldende` så lenge kilden de refererer til er det. Fra byggesteg 5 runde 1 (2026-07-31) gjelder `foreslatt_av_ai`-grenen av diagrammet også faktisk for **tjenester** og **begreper** («Identifiser tjenester»/«Identifiser begrep», `docs/06-veikart.md`) — ikke bare Vilkår/Regel/Unntak som opprinnelig spesifisert her.
 
 ### 3.2 Rettskilde
 

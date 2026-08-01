@@ -175,12 +175,29 @@ Ordliste + detaljpanel med faner **Detaljer** (definisjon, lovreferanse, gjelder
 Filtrerbar tabell (sak, organ, dato, utfall, vekt). Detaljpanel med faner **Sammendrag** (dato, organ, saksnummer, rettskildevekt, bestemmelse, sammendrag), **Metadata**, **Koblinger** (bestemmelse/vilkår). Rettskildevekt fra `KL-RETTSKILDEVEKT` (aldri fritekst). «Ny presedens»-handling.
 
 ### 3.10 AI-forslag **[Fase 2]**
-Kø av forslag (venstre) med konfidens, valgt forslag (midt) og forslagsdetaljer (høyre).
-- Forslag skal vise: tittel, kilde, foreslått plassering, begrunnelse med kildesitering, presedens brukt som grunnlag, foreslått generisk mal og parametre, konfidens, status.
-- Handlinger: **Avvis**, **Rediger**, **Godkjenn og legg til**.
 
-**AK-3.10.1** AI-assistenten skal foreslå vilkårsnoder med kildehenvisning, forslag til generisk mal, kodeliste for parametre, `vurderingstype` og presedensbaserte tolkningsforslag — men skal aldri publisere selv.
-**AK-3.10.2** Gitt et AI-forslag, når det godkjennes, skal vilkåret opprettes/oppdateres med status `validert`, og overgangen skal logges i proveniensen med `ai_forslag_versjon` og `godkjent_av`.
+**Runde 1 (bygget 2026-07-31, docs/06-veikart.md "Byggesteg 5 — AI-forslag")**: to uavhengige,
+rettskilde-drevne agenter — «Identifiser tjenester» og «Identifiser begrep» — bak et byttbart
+`IKiAgentKlient`-abstraksjonslag med en stub-implementasjon (ekte leverandørvalg er en egen, senere
+beslutning). Ingen av dem krever at et Tjeneste-objekt finnes fra før. Kø av forslag (venstre-lignende
+liste) med valgt forslag og forslagsdetaljer, per artefakttype (Begrep-kø på `/begreper/forslag`,
+Tjeneste-kø på `/tjenester/forslag`, IKKE en generalisert multi-type-kø ennå):
+
+- **«Identifiser begrep»**: input = valgte rettskilder (allerede importert, strukturert lovtekst).
+  Forslag viser: term, definisjon, begrepstype, KI-versjon. Ingen kobling til Tjeneste.
+- **«Identifiser tjenester»**: input = valgte rettskilder + virksomhetens registrerte
+  kunnskapsbibliotek-lenker (nettside o.l., et lite eget register — `/api/kunnskapsbibliotek/lenker`).
+  Forslag viser: tittel, kort beskrivelse, KI-versjon. Ingen automatisk regelverksreferanse-kobling
+  (agenten vet hvilken rettskilde som inspirerte forslaget, ikke hvilken spesifikke paragraf).
+- Handlinger for begge: **Avvis** (→ status `utkast`), **Rediger** (→ status `under_revisjon`,
+  naviger til den ordinære detaljsiden), **Godkjenn og legg til** (→ status `validert`).
+
+**AK-3.10.1** AI-assistenten skal foreslå vilkårsnoder med kildehenvisning, forslag til generisk mal, kodeliste for parametre, `vurderingstype` og presedensbaserte tolkningsforslag — men skal aldri publisere selv. *(Fortsatt kap. 3.4-spesifikk, ikke bygget i runde 1 — se §2.6/byggesteg 5 runde 2+ i backlog.)*
+**AK-3.10.2** Gitt et AI-forslag, når det godkjennes, skal vilkåret opprettes/oppdateres med status `validert`, og overgangen skal logges i proveniensen med `ai_forslag_versjon` og `godkjent_av`. *(Generalisert og implementert i runde 1 for Tjeneste og Begrep — samme mønster gjelder Vilkår når dets agent bygges.)*
+
+Det utvidede fem-agent-bildet (Tjenestebeskrivelse/Begrep/Vilkår-og-Vilkårstre/Håndbok/
+Rettskilder-og-strukturering, fast kjørerekkefølge for de resterende) forblir retningsnivå i
+`06-veikart.md` — ikke implementert utover de to agentene over.
 
 ### 3.11 Saksbehandling **[På vent — se veikart for demo-slice]**
 Saksdetalj med saksinfo og faner (oversikt, vilkår, dokumenter, kommunikasjon, vedtak, historikk). Vilkårstabell viser status per vilkår (fra `KL-VILKARSUTFALL`) inkl. skjønnskrevende, vurderingskilde (automatisk/saksbehandler/mangler dok.) og handling (vis/vurder/be om dokumentasjon). «Overstyr verdi» og «Generer vedtak».

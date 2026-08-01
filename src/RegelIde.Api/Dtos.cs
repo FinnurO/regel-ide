@@ -103,8 +103,12 @@ public sealed record TaggKindKonfigurasjonDto(string Kode, string Navn, string F
 /// <summary>Forespørsel for POST .../koble — byggesteg 2, låser opp TekstTaggEntitet.RefId.</summary>
 public sealed record KobleTaggTilEntitetRequest(Guid RefId);
 
-/// <summary>Felles statusendrings-forespørsel for Tjeneste/Begrep/Kodeliste (§3.1 i domenemodellen).</summary>
-public sealed record SettStatusRequest(string Status);
+/// <summary>
+/// Felles statusendrings-forespørsel for Tjeneste/Begrep/Kodeliste (§3.1 i domenemodellen).
+/// <see cref="GodkjentAv"/> er valgfri — brukt av byggesteg 5 runde 1 (AI-forslag, AK-3.10.2) når
+/// status settes til "validert" etter et KI-forslag; øvrige kallere lar den stå null.
+/// </summary>
+public sealed record SettStatusRequest(string Status, string? GodkjentAv = null);
 
 // ---------- Tjeneste (CPSV-AP-NO, docs/03-domenemodell.md §1.5) — byggesteg 2 ----------
 
@@ -369,3 +373,24 @@ public sealed record VeiledningNodeDto(
 
 /// <summary>Rotobjektet for GET /api/tjenester/{id}/veiledning.</summary>
 public sealed record VeiledningDto(Guid TjenesteId, string TjenesteTittel, Guid? VirksomhetId, VeiledningNodeDto Rot);
+
+// ---------- Byggesteg 5 runde 1 — Kunnskapsbibliotek + AI-forslag (docs/06-veikart.md) ----------
+
+/// <summary>Kunnskapsbibliotek-lenke — kun brukt av «Identifiser tjenester»-agenten.</summary>
+public sealed record KunnskapsbibliotekLenkeDto(Guid Id, Guid VirksomhetId, string Url, string? Beskrivelse, string OpprettetAv, DateTimeOffset OpprettetTidspunkt)
+{
+    public static KunnskapsbibliotekLenkeDto FraEntitet(KunnskapsbibliotekLenkeEntitet l) => new(
+        l.Id, l.VirksomhetId, l.Url, l.Beskrivelse, l.OpprettetAv, l.OpprettetTidspunkt);
+}
+
+/// <summary>Forespørsel for POST /api/kunnskapsbibliotek/lenker.</summary>
+public sealed record LeggTilLenkeRequest(string Url, string? Beskrivelse);
+
+/// <summary>Forespørsel for POST /api/begreper/forslag/kjor og /api/tjenester/forslag/kjor.</summary>
+public sealed record KjorForslagRequest(IReadOnlyList<Guid> RettskildeIder);
+
+/// <summary>Kø-visning for «Identifiser begrep» — beriker BegrepDto med proveniens fra AI-forslaget.</summary>
+public sealed record BegrepsforslagDto(BegrepDto Begrep, string? AiForslagVersjon, DateTimeOffset ForeslattTidspunkt, string? KildeReferanserJson);
+
+/// <summary>Kø-visning for «Identifiser tjenester» — beriker TjenesteDto med proveniens fra AI-forslaget.</summary>
+public sealed record TjenesteforslagDto(TjenesteDto Tjeneste, string? AiForslagVersjon, DateTimeOffset ForeslattTidspunkt, string? KildeReferanserJson);

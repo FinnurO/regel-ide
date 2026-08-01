@@ -10,7 +10,7 @@ public sealed class BegrepsregisterTjeneste(RegelIdeDbContext db)
 {
     private static readonly string[] GyldigeBegrepstyper = ["faktabegrep", "handlingsbegrep"];
     private static readonly string[] GyldigeStatuser =
-        ["utkast", "under_revisjon", "validert", "publisert", "tilbaketrukket", "arkivert"];
+        ["utkast", "foreslatt_av_ai", "under_revisjon", "validert", "publisert", "tilbaketrukket", "arkivert"];
 
     public Task<List<BegrepEntitet>> ListerForAsync(Guid virksomhetId, CancellationToken ct = default) =>
         db.Begreper
@@ -50,6 +50,41 @@ public sealed class BegrepsregisterTjeneste(RegelIdeDbContext db)
         return begrep;
     }
 
+    /// <summary>
+    /// Byggesteg 5 runde 1 («Identifiser begrep») — kopi av <see cref="OpprettAsync"/>, men landet med
+    /// Status="foreslatt_av_ai" og en <see cref="ProveniensHjelper.NyForslagRad"/>-rad i stedet for
+    /// "opprettet" — aldri publisert av en agent, jf. digital-rettsstat prinsipp 4.
+    /// </summary>
+    public async Task<BegrepEntitet> OpprettForslagFraKiAsync(
+        Guid virksomhetId, string term, string definisjon, string? lovreferanseEid, IReadOnlyList<string>? gjelderFor,
+        Guid? kodelisteReferanseId, string? skosUrl, string begrepstype, string opprettetAv, string aiForslagVersjon,
+        string? kildeReferanserJson, CancellationToken ct = default)
+    {
+        ValiderFelter(term, definisjon, begrepstype);
+        await ValiderLovreferanseAsync(lovreferanseEid, ct);
+        await ValiderKodelisteReferanseAsync(kodelisteReferanseId, ct);
+
+        var begrep = new BegrepEntitet
+        {
+            Id = Guid.NewGuid(),
+            VirksomhetId = virksomhetId,
+            Term = term,
+            Definisjon = definisjon,
+            LovreferanseEid = lovreferanseEid,
+            GjelderFor = gjelderFor?.ToList() ?? [],
+            KodelisteReferanseId = kodelisteReferanseId,
+            SkosUrl = skosUrl,
+            Begrepstype = begrepstype,
+            Status = "foreslatt_av_ai",
+            OpprettetAv = opprettetAv,
+            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        };
+        db.Begreper.Add(begrep);
+        db.Proveniens.Add(ProveniensHjelper.NyForslagRad("begrep", begrep.Id, virksomhetId, opprettetAv, aiForslagVersjon, kildeReferanserJson));
+        await db.SaveChangesAsync(ct);
+        return begrep;
+    }
+
     public async Task<BegrepEntitet?> OppdaterAsync(
         Guid id, string term, string definisjon, string? lovreferanseEid, IReadOnlyList<string>? gjelderFor,
         Guid? kodelisteReferanseId, string? skosUrl, string begrepstype, string endretAv, CancellationToken ct = default)
@@ -76,7 +111,8 @@ public sealed class BegrepsregisterTjeneste(RegelIdeDbContext db)
         return begrep;
     }
 
-    public async Task<BegrepEntitet?> SettStatusAsync(Guid id, string nyStatus, string endretAv, CancellationToken ct = default)
+    public async Task<BegrepEntitet?> SettStatusAsync(
+        Guid id, string nyStatus, string endretAv, CancellationToken ct = default, string? godkjentAv = null)
     {
         if (!GyldigeStatuser.Contains(nyStatus))
         {
@@ -89,7 +125,10 @@ public sealed class BegrepsregisterTjeneste(RegelIdeDbContext db)
         begrep.Status = nyStatus;
         begrep.SistEndretAv = endretAv;
         begrep.SistEndretTidspunkt = DateTimeOffset.UtcNow;
-        db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", begrep.Id, begrep.VirksomhetId, nyStatus == "publisert" ? "publisert" : "endret", endretAv));
+        var proveniens = ProveniensHjelper.NyRad(
+            "begrep", begrep.Id, begrep.VirksomhetId, nyStatus is "publisert" or "validert" ? nyStatus : "endret", endretAv);
+        proveniens.GodkjentAv = godkjentAv;
+        db.Proveniens.Add(proveniens);
         await db.SaveChangesAsync(ct);
         return begrep;
     }

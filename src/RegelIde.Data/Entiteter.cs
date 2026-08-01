@@ -712,3 +712,21 @@ public sealed class ProveniensEntitet
     public string? AiForslagVersjon { get; set; }
     public string? GodkjentAv { get; set; }
 }
+
+/// <summary>
+/// Kunnskapsbibliotek (byggesteg 5 runde 1, docs/06-veikart.md "Byggesteg 5 — AI-forslag") — en lenke
+/// til virksomhetens nettside/andre kilder som beskriver hva den leverer. Brukes kun av
+/// «Identifiser tjenester»-agenten (<see cref="TjenesteregisterTjeneste"/>) som ekstra kontekst utover
+/// valgte rettskilder. Alltid virksomhetens eget arbeidsprodukt, aldri delt (samme begrunnelse som
+/// <see cref="TjenesteEntitet.VirksomhetId"/>). Rått kildemateriale, ikke et forfattet arbeidsprodukt —
+/// ingen Status/Versjon/Entitetsstatus, sletting er hard delete.
+/// </summary>
+public sealed class KunnskapsbibliotekLenkeEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid VirksomhetId { get; set; }
+    public required string Url { get; set; }
+    public string? Beskrivelse { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+}

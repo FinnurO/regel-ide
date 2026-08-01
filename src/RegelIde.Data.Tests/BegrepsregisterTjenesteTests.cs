@@ -139,4 +139,47 @@ public class BegrepsregisterTjenesteTests
         Assert.NotNull(oppdatert);
         Assert.Equal("validert", oppdatert!.Status);
     }
+
+    [Fact]
+    public async Task Setter_status_med_godkjentAv_logges_i_proveniens()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+
+        var register = new BegrepsregisterTjeneste(db);
+        var begrep = await register.OpprettAsync(virksomhet, "eksempelbegrep", "Definisjon", null,
+            null, null, null, "handlingsbegrep", "Kari Jurist");
+
+        await register.SettStatusAsync(begrep.Id, "validert", "Kari Jurist", godkjentAv: "Ola Fagansvarlig");
+
+        var proveniens = await db.Proveniens
+            .Where(p => p.EntitetId == begrep.Id && p.Handling == "validert")
+            .SingleAsync();
+        Assert.Equal("Ola Fagansvarlig", proveniens.GodkjentAv);
+    }
+
+    [Fact]
+    public async Task Byggesteg5_oppretter_forslag_fra_ki_med_status_foreslatt_av_ai()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+
+        // Merk: bevisst IKKE "uklanderlig vandel" — det navnet brukes av Byggesteg2InnholdSeed sin
+        // globale term-guard (se SeedBegrepAsync) og en kollisjon her ville stille skjult sabotert
+        // Byggesteg2InnholdSeedTests i den delte embedded-Postgres-collectionen.
+        var register = new BegrepsregisterTjeneste(db);
+        var begrep = await register.OpprettForslagFraKiAsync(
+            virksomhet, "uklanderlig vandel (KI-forslag-test)", "Definisjon fra KI", null, null, null, null,
+            "faktabegrep", "system-ki", "stub-v1", """{"rettskildeIder":[]}""");
+
+        Assert.Equal("foreslatt_av_ai", begrep.Status);
+        var proveniens = await db.Proveniens.SingleAsync(p => p.EntitetId == begrep.Id);
+        Assert.Equal("foreslatt_av_ai", proveniens.Handling);
+        Assert.Equal("stub-v1", proveniens.AiForslagVersjon);
+        Assert.NotNull(proveniens.KildeReferanserJson);
+    }
 }

@@ -20,4 +20,24 @@ internal static class ProveniensHjelper
         Dato = DateTimeOffset.UtcNow,
         Handling = handling,
     };
+
+    /// <summary>
+    /// AI-forslag-variant (byggesteg 5 runde 1) — setter Handling="foreslatt_av_ai" og fyller
+    /// AiForslagVersjon/KildeReferanserJson, som <see cref="NyRad"/> aldri gjør. Additiv: eksisterende
+    /// kallere av NyRad er upåvirket.
+    /// </summary>
+    public static ProveniensEntitet NyForslagRad(
+        string entitetType, Guid entitetId, Guid? virksomhetId, string endretAv, string aiForslagVersjon,
+        string? kildeReferanserJson = null) => new()
+    {
+        Id = Guid.NewGuid(),
+        VirksomhetId = virksomhetId,
+        EntitetType = entitetType,
+        EntitetId = entitetId,
+        EndretAv = endretAv,
+        Dato = DateTimeOffset.UtcNow,
+        Handling = "foreslatt_av_ai",
+        AiForslagVersjon = aiForslagVersjon,
+        KildeReferanserJson = kildeReferanserJson,
+    };
 }

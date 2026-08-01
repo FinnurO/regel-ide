@@ -14,7 +14,7 @@ Ment å oppdateres etter hver runde — ikke en engangs-plan.*
 | 2 | Tjenester + Begrep + Kodelister | ✅ Bygget, inkl. Hendelse (CPSV Event) og Tjenesteavhengighet som ekte tabeller (§2.1, ferdig 2026-07-31) |
 | 3 | Presedensregister | ⬜ Ikke startet |
 | 4 | Vilkårstre (grafeditor) | ✅ Runde 1 bygget og verifisert, inkl. tekst-først «opprett vilkår fra tagg»-flyt (§2.5). Runde 2 (testmodul + full publiseringsmodell) ⬜ ikke startet |
-| 5 | AI-forslag (utvidet: kunnskapsbibliotek + skillsbaserte agenter) | ⬜ Ikke startet — omfang avklart 2026-07-31 (§2.2 under), men verken kunnskapsbibliotek eller agenter er bygget. **Eneste gjenstående punkt fra runde 5/6.** |
+| 5 | AI-forslag (utvidet: kunnskapsbibliotek + skillsbaserte agenter) | ✅ Runde 1 ferdig 2026-07-31 (§2.2 under) — to agenter («Identifiser tjenester»/«Identifiser begrep») + `IKiAgentKlient`-stub. ⬜ Runde 2+ (tre agenter, ekte KI-leverandør) gjenstår. |
 | 6 | Datasett, informasjonsmodell, eksportmotor | 🚧 Datasett-registeret + `DatasettVerdi` bygget (byggesteg 4-runden). Informasjonsmodell-skjerm og eksportmotor ⬜ ikke startet |
 | 7 | Saksbehandling/forklaringslogg (tynn slice) | ⬜ Ikke startet — MVP-grensen |
 | 8 | Kunnskapsgraf/påvirkningsanalyse | ⬜ Bevisst utenfor MVP |
@@ -38,15 +38,32 @@ skjenkebevilling» — inkl. domenemodellens egne to worked examples ("Kontroll/
 begge tjenestene; "Endring av eierskap" → "Endring av eiere eller eierandeler"). 291/291 backend-tester
 grønt (17 nye), `tsc -b --noEmit` rent, ny UI-seksjon i `TjenesteDetalj.tsx` verifisert i browser.
 
-### 2.2 Kunnskapsbibliotek + skillsbaserte AI-agenter (byggesteg 5, utvidet omfang)
-*Full spesifikasjon: `06-veikart.md` byggesteg 5.*
+### 2.2 Kunnskapsbibliotek + skillsbaserte AI-agenter (byggesteg 5)
+*Full spesifikasjon: `06-veikart.md` byggesteg 5, `docs/14-byggesteg5-teknisk-design.md` for den
+tekniske malen.*
 
-- Opplastingsflate sentrert rundt Tjeneste (dokumenter/lenker/notater).
-- Fem spesialiserte agenter (Tjenestebeskrivelse/Begrep/Vilkår+Vilkårstre/Håndbok/Rettskilder),
-  kjørt i fast pipeline (rettskilder → begrep → vilkår → tjenestebeskrivelse/håndbok).
-- Alt AI-generert lander som `foreslatt_av_ai`/`utkast` — aldri automatisk publisert.
-- **Forutsetter ikke** byggesteg 3, men presedens (byggesteg 3) ville styrket "Rettskilder og
-  strukturering"-agenten betydelig — vurder rekkefølge.
+**✅ Runde 1 ferdig 2026-07-31.** Under planleggingen ble den opprinnelige "kunnskapsbibliotek
+sentrert rundt Tjeneste"-antakelsen korrigert (Johann): den gir ikke mening for en agent som skal
+finne ut *hvilke* Tjenester som finnes — Tjenesten eksisterer ikke ennå når den agenten kjører. Bygget
+i stedet:
+
+- To uavhengige, **rettskilde-drevne** agenter — «Identifiser tjenester» (`/tjenester/forslag`) og
+  «Identifiser begrep» (`/begreper/forslag`) — ikke Tjeneste-sentrert. Kunnskapsbiblioteket forenklet
+  til et lite virksomhets-scopet lenke-register (`KunnskapsbibliotekLenkeEntitet`), brukt kun av
+  tjeneste-agenten; ingen fil-/notat-opplasting i denne runden.
+- `IKiAgentKlient`-abstraksjon + `KiAgentKlientStub` — beviser hele rørledningen (kø,
+  Avvis/Rediger/Godkjenn, proveniens med `AiForslagVersjon`/`GodkjentAv`) uten en ekte KI-leverandør.
+  Leverandørvalg forblir en egen, senere beslutning.
+- `foreslatt_av_ai` generalisert til Tjeneste og Begrep, inkl. en fiks av en tidligere
+  uoverensstemmelse mellom AK-3.10.2 og statusdiagrammet i `03-domenemodell.md`.
+- 291+15 nye backend-tester grønt, `tsc -b --noEmit` rent, begge agentene verifisert ende-til-ende
+  i browser (inkl. at de IKKE krysskobler hverandres køer).
+
+**⬜ Runde 2+ gjenstår** (fortsatt retningsnivå, ikke bygget): de tre andre agentene
+(Tjenestebeskrivelse/Vilkår-og-Vilkårstre/Håndbok) i fast pipeline, ekte KI-leverandør-kobling,
+fil-/dokumentopplasting + innholdsuttrekk, en generalisert multi-type forslagskø,
+`foreslatt_av_ai` for Vilkår/Regelnode/Unntak. **Forutsetter ikke** byggesteg 3, men presedens
+(byggesteg 3) ville styrket "Rettskilder og strukturering"-agenten betydelig — vurder rekkefølge.
 
 ### 2.3 Editor: punktliste/nummerert liste-knapper i `MinimalEditor`
 *Fasit dimensjon G, skåret 50 %.*
@@ -147,8 +164,8 @@ Ingen av disse krever videre avklaring — bare en prioritering:
    dagens samtale om tagging.
 6. **Byggesteg 3 — Presedensregister.** Løser samtidig «Testkommunen 2017 Vurdering av habilitet
    2018»-referansen fra rundskriv v4 §3, som i dag ikke har noe sted å høre hjemme.
-7. **Byggesteg 5 — Kunnskapsbibliotek + AI-agenter** (§2.2). Størst av de gjenstående — vurder om
-   byggesteg 3 bør være ferdig først, siden «Rettskilder og strukturering»-agenten forutsetter et
+7. **Byggesteg 5 runde 2+ — de tre resterende AI-agentene** (§2.2, runde 1 ferdig 2026-07-31). Vurder
+   om byggesteg 3 bør være ferdig først, siden «Rettskilder og strukturering»-agenten forutsetter et
    presedensregister for å være noe mer enn en ren rettskilde-importer.
 8. **Byggesteg 6/7** — informasjonsmodell/eksportmotor og saksbehandling/forklaringslogg-slice,
    etter 3–5 er på plass.

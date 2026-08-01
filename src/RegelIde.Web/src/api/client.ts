@@ -5,6 +5,7 @@ import type {
   BrukerDto,
   DatasettDto,
   DatasettVerdiDto,
+  BegrepsforslagDto,
   HendelseDto,
   HendelseRequest,
   KobleHendelseRequest,
@@ -15,7 +16,10 @@ import type {
   KodelisteDto,
   KodelisteKodeDto,
   KodelisteRequest,
+  KjorForslagRequest,
+  KunnskapsbibliotekLenkeDto,
   LeggTilKodeRequest,
+  LeggTilLenkeRequest,
   LeggTilVilkarInputRequest,
   OppdaterRettskildeMetadataRequest,
   OppdaterUnntakRequest,
@@ -48,6 +52,7 @@ import type {
   TjenesteRegelverksreferanseDto,
   TjenesteavhengighetDto,
   TjenesteavhengighetRequest,
+  TjenesteforslagDto,
   HandbokRettskildeomfangDto,
   TjenesteRequest,
   UnntakDto,
@@ -281,6 +286,31 @@ export const api = {
   hentTjenesteRegelverksreferanser: (id: string) =>
     kall<TjenesteRegelverksreferanseDto[]>(`/api/tjenester/${id}/regelverksreferanser`),
 
+  // ---------- «Identifiser tjenester» (byggesteg 5 runde 1, docs/06-veikart.md) — stub-KI ----------
+
+  hentTjenesteforslagKo: () => kall<TjenesteforslagDto[]>('/api/tjenester/forslag'),
+
+  kjorTjenesteforslag: (request: KjorForslagRequest) =>
+    kall<TjenesteDto[]>('/api/tjenester/forslag/kjor', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  // ---------- Kunnskapsbibliotek (byggesteg 5 runde 1) — kun brukt av «Identifiser tjenester» ----------
+
+  hentKunnskapsbibliotekLenker: () => kall<KunnskapsbibliotekLenkeDto[]>('/api/kunnskapsbibliotek/lenker'),
+
+  leggTilKunnskapsbibliotekLenke: (request: LeggTilLenkeRequest) =>
+    kall<KunnskapsbibliotekLenkeDto>('/api/kunnskapsbibliotek/lenker', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  slettKunnskapsbibliotekLenke: (id: string) =>
+    kall<void>(`/api/kunnskapsbibliotek/lenker/${id}`, { method: 'DELETE' }),
+
   kobleTjenesteRegelverksreferanse: (id: string, request: KobleRegelverksreferanseRequest) =>
     kall<TjenesteRegelverksreferanseDto>(`/api/tjenester/${id}/regelverksreferanser`, {
       method: 'POST',
@@ -350,6 +380,17 @@ export const api = {
 
   settBegrepStatus: (id: string, request: SettStatusRequest) =>
     kall<BegrepDto>(`/api/begreper/${id}/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  // ---------- «Identifiser begrep» (byggesteg 5 runde 1, docs/06-veikart.md) — stub-KI ----------
+
+  hentBegrepsforslagKo: () => kall<BegrepsforslagDto[]>('/api/begreper/forslag'),
+
+  kjorBegrepsforslag: (request: KjorForslagRequest) =>
+    kall<BegrepDto[]>('/api/begreper/forslag/kjor', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
