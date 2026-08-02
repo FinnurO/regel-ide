@@ -386,6 +386,19 @@ public sealed record KunnskapsbibliotekLenkeDto(Guid Id, Guid VirksomhetId, stri
 /// <summary>Forespørsel for POST /api/kunnskapsbibliotek/lenker.</summary>
 public sealed record LeggTilLenkeRequest(string Url, string? Beskrivelse);
 
+/// <summary>Ett søketreff i Lovdata-katalogen (byggesteg 5 runde 2) — kun metadata, ingen full tekst.</summary>
+public sealed record LovdataKatalogTreffDto(string Datokode, string Tittel, string Type)
+{
+    public static LovdataKatalogTreffDto FraEntitet(LovdataKatalogOppforingEntitet o) => new(o.Datokode, o.Tittel, o.Type);
+}
+
+/// <summary>Kunnskapsbibliotek-fil (byggesteg 5 runde 2) — inneholder aldri de rå bytene, kun utvunnet tekst.</summary>
+public sealed record KunnskapsbibliotekFilDto(Guid Id, Guid VirksomhetId, string Filnavn, string Filtype, string UtvunnetTekst, string OpprettetAv, DateTimeOffset OpprettetTidspunkt)
+{
+    public static KunnskapsbibliotekFilDto FraEntitet(KunnskapsbibliotekFilEntitet f) => new(
+        f.Id, f.VirksomhetId, f.Filnavn, f.Filtype, f.UtvunnetTekst, f.OpprettetAv, f.OpprettetTidspunkt);
+}
+
 /// <summary>Forespørsel for POST /api/begreper/forslag/kjor og /api/tjenester/forslag/kjor.</summary>
 public sealed record KjorForslagRequest(IReadOnlyList<Guid> RettskildeIder);
 

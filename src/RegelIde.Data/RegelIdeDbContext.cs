@@ -55,6 +55,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<TjenesteavhengighetEntitet> Tjenesteavhengigheter => Set<TjenesteavhengighetEntitet>();
     public DbSet<HandbokRettskildeomfangEntitet> HandbokRettskildeomfang => Set<HandbokRettskildeomfangEntitet>();
     public DbSet<KunnskapsbibliotekLenkeEntitet> KunnskapsbibliotekLenker => Set<KunnskapsbibliotekLenkeEntitet>();
+    public DbSet<KunnskapsbibliotekFilEntitet> KunnskapsbibliotekFiler => Set<KunnskapsbibliotekFilEntitet>();
+    public DbSet<LovdataKatalogOppforingEntitet> LovdataKatalogOppforinger => Set<LovdataKatalogOppforingEntitet>();
     public DbSet<BegrepEntitet> Begreper => Set<BegrepEntitet>();
     public DbSet<KodelisteEntitet> Kodelister => Set<KodelisteEntitet>();
     public DbSet<KodelisteKodeEntitet> KodelisteKoder => Set<KodelisteKodeEntitet>();
@@ -717,6 +719,34 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 
             e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId).OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_kunnskapsbibliotek_lenker_virksomhet");
+        });
+
+        b.Entity<KunnskapsbibliotekFilEntitet>(e =>
+        {
+            e.ToTable("kunnskapsbibliotek_filer");
+            e.HasKey(x => x.Id).HasName("kunnskapsbibliotek_filer_pkey");
+            e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
+            e.Property(x => x.Filnavn).HasColumnName("filnavn");
+            e.Property(x => x.Filtype).HasColumnName("filtype");
+            e.Property(x => x.Innhold).HasColumnName("innhold");
+            e.Property(x => x.UtvunnetTekst).HasColumnName("utvunnet_tekst");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_kunnskapsbibliotek_filer_virksomhet");
+        });
+
+        b.Entity<LovdataKatalogOppforingEntitet>(e =>
+        {
+            e.ToTable("lovdata_katalog_oppforinger");
+            e.HasKey(x => x.Datokode).HasName("lovdata_katalog_oppforinger_pkey");
+            e.Property(x => x.Datokode).HasColumnName("datokode");
+            e.Property(x => x.Tittel).HasColumnName("tittel");
+            e.Property(x => x.Type).HasColumnName("type");
+            e.Property(x => x.SistOppdatert).HasColumnName("sist_oppdatert");
+
+            e.HasIndex(x => x.SistOppdatert).HasDatabaseName("ix_lovdata_katalog_oppforinger_sist_oppdatert");
         });
     }
 }

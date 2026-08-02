@@ -79,4 +79,105 @@ public class KunnskapsbibliotekTjenesteTests
         Assert.Single(listeA);
         Assert.Equal("https://a.testkommunen.no", listeA[0].Url);
     }
+
+    private const string LangTekst =
+        "Dette er en ekte tekst-PDF for testing av tekstuttrekk og kunnskapsbiblioteket i regel-ide. " +
+        "Teksten er bevisst gjort lang nok til å passere terskelen for hva som regnes som et tekstlag.";
+
+    [Fact]
+    public async Task Legger_til_pdf_fil_med_tekstlag()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+
+        var tjeneste = new KunnskapsbibliotekTjeneste(db);
+        var fil = await tjeneste.LeggTilFilAsync(virksomhet, "skjema.pdf", TestFilFixtures.LagPdf(LangTekst), "Kari Jurist");
+
+        Assert.Equal("pdf", fil.Filtype);
+        Assert.Contains("ekte tekst-PDF", fil.UtvunnetTekst);
+        var liste = await tjeneste.ListerFilerForVirksomhetAsync(virksomhet);
+        Assert.Single(liste);
+        Assert.Empty(liste[0].Innhold); // listing skal ikke hente rå bytes over wire
+    }
+
+    [Fact]
+    public async Task Legger_til_docx_fil_med_tekst()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+
+        var tjeneste = new KunnskapsbibliotekTjeneste(db);
+        var fil = await tjeneste.LeggTilFilAsync(virksomhet, "notat.docx", TestFilFixtures.LagDocx(LangTekst), "Kari Jurist");
+
+        Assert.Equal("docx", fil.Filtype);
+        Assert.Contains("ekte tekst-PDF", fil.UtvunnetTekst);
+    }
+
+    [Fact]
+    public async Task Skannet_pdf_uten_tekstlag_avvises()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+
+        var tjeneste = new KunnskapsbibliotekTjeneste(db);
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            tjeneste.LeggTilFilAsync(virksomhet, "skann.pdf", TestFilFixtures.LagPdf(tekst: null), "Kari Jurist"));
+
+        Assert.Empty(await tjeneste.ListerFilerForVirksomhetAsync(virksomhet));
+    }
+
+    [Fact]
+    public async Task For_stor_fil_avvises_uten_forsok_pa_tekstuttrekk()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+
+        var tjeneste = new KunnskapsbibliotekTjeneste(db);
+        var forStor = new byte[21 * 1024 * 1024];
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            tjeneste.LeggTilFilAsync(virksomhet, "stor.pdf", forStor, "Kari Jurist"));
+    }
+
+    [Fact]
+    public async Task Sletter_fil()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+
+        var tjeneste = new KunnskapsbibliotekTjeneste(db);
+        var fil = await tjeneste.LeggTilFilAsync(virksomhet, "skjema.pdf", TestFilFixtures.LagPdf(LangTekst), "Kari Jurist");
+
+        Assert.True(await tjeneste.SlettFilAsync(fil.Id));
+        Assert.Empty(await tjeneste.ListerFilerForVirksomhetAsync(virksomhet));
+    }
+
+    [Fact]
+    public async Task Lister_kun_egen_virksomhets_filer()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhetA = Guid.NewGuid();
+        var virksomhetB = Guid.NewGuid();
+        db.Virksomheter.AddRange(
+            new Virksomhet { Id = virksomhetA, Navn = "Testkommunen A" },
+            new Virksomhet { Id = virksomhetB, Navn = "Testkommunen B" });
+        await db.SaveChangesAsync();
+
+        var tjeneste = new KunnskapsbibliotekTjeneste(db);
+        await tjeneste.LeggTilFilAsync(virksomhetA, "a.pdf", TestFilFixtures.LagPdf(LangTekst), "Kari Jurist");
+        await tjeneste.LeggTilFilAsync(virksomhetB, "b.pdf", TestFilFixtures.LagPdf(LangTekst), "Kari Jurist");
+
+        var listeA = await tjeneste.ListerFilerForVirksomhetAsync(virksomhetA);
+        Assert.Single(listeA);
+        Assert.Equal("a.pdf", listeA[0].Filnavn);
+    }
 }

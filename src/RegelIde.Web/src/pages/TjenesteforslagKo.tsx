@@ -1,8 +1,8 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router';
 import { Button, Checkbox, Heading, Link, Paragraph, Table, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { KunnskapsbibliotekLenkeDto, RettskildeSammendrag, TjenesteforslagDto } from '../api/types';
+import type { KunnskapsbibliotekFilDto, KunnskapsbibliotekLenkeDto, RettskildeSammendrag, TjenesteforslagDto } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
 
 /**
@@ -21,12 +21,19 @@ export default function TjenesteforslagKo() {
   const [nyUrl, setNyUrl] = useState('');
   const [nyBeskrivelse, setNyBeskrivelse] = useState('');
   const [leggerTilLenke, setLeggerTilLenke] = useState(false);
+  const [filer, setFiler] = useState<KunnskapsbibliotekFilDto[]>([]);
+  const [lasterOppFil, setLasterOppFil] = useState(false);
+  const filInputRef = useRef<HTMLInputElement>(null);
   const [ko, setKo] = useState<TjenesteforslagDto[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
   const [kjorer, setKjorer] = useState(false);
 
   function lastLenker() {
     api.hentKunnskapsbibliotekLenker().then(setLenker).catch(() => setLenker([]));
+  }
+
+  function lastFiler() {
+    api.hentKunnskapsbibliotekFiler().then(setFiler).catch(() => setFiler([]));
   }
 
   function lastKo() {
@@ -36,6 +43,7 @@ export default function TjenesteforslagKo() {
   useEffect(() => {
     api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
     lastLenker();
+    lastFiler();
     lastKo();
   }, []);
 
@@ -66,6 +74,27 @@ export default function TjenesteforslagKo() {
   async function slettLenke(id: string) {
     await api.slettKunnskapsbibliotekLenke(id);
     lastLenker();
+  }
+
+  async function lastOppFil(e: ChangeEvent<HTMLInputElement>) {
+    const fil = e.target.files?.[0];
+    if (!fil) return;
+    setFeil(null);
+    setLasterOppFil(true);
+    try {
+      await api.lastOppKunnskapsbibliotekFil(fil);
+      lastFiler();
+    } catch (err) {
+      setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved opplasting av fil.');
+    } finally {
+      setLasterOppFil(false);
+      if (filInputRef.current) filInputRef.current.value = '';
+    }
+  }
+
+  async function slettFil(id: string) {
+    await api.slettKunnskapsbibliotekFil(id);
+    lastFiler();
   }
 
   async function kjorForslag() {
@@ -107,9 +136,9 @@ export default function TjenesteforslagKo() {
         før de blir gjeldende.
       </Paragraph>
 
-      <Heading level={2} data-size="sm">Kunnskapsbibliotek (lenker)</Heading>
+      <Heading level={2} data-size="sm">Kunnskapsbibliotek (lenker og filer)</Heading>
       <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.5rem' }}>
-        Nettside eller annen kilde som beskriver hva virksomheten leverer av tjenester.
+        Nettside, PDF eller Word-dokument som beskriver hva virksomheten leverer av tjenester.
       </Paragraph>
       {lenker.length > 0 && (
         <ul style={{ marginBottom: '0.75rem' }}>
@@ -121,13 +150,40 @@ export default function TjenesteforslagKo() {
           ))}
         </ul>
       )}
-      <form onSubmit={leggTilLenke} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '1.5rem' }}>
+      <form onSubmit={leggTilLenke} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '1rem' }}>
         <Textfield label="URL" placeholder="https://…" value={nyUrl} onChange={(e) => setNyUrl(e.target.value)} required />
         <Textfield label="Beskrivelse (valgfri)" value={nyBeskrivelse} onChange={(e) => setNyBeskrivelse(e.target.value)} />
         <Button type="submit" disabled={leggerTilLenke || !nyUrl.trim()}>
           {leggerTilLenke ? 'Legger til …' : 'Legg til lenke'}
         </Button>
       </form>
+
+      {filer.length > 0 && (
+        <ul style={{ marginBottom: '0.75rem' }}>
+          {filer.map((f) => (
+            <li key={f.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.2rem' }}>
+              <span>{f.filnavn} ({f.filtype})</span>
+              <Button variant="tertiary" data-size="sm" onClick={() => slettFil(f.id)}>Fjern</Button>
+            </li>
+          ))}
+        </ul>
+      )}
+      <div style={{ marginBottom: '1.5rem' }}>
+        <label htmlFor="kunnskapsbibliotek-fil">
+          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.3rem' }}>
+            Last opp PDF eller Word (.docx) — avvises hvis filen mangler tekstlag (f.eks. et rent skann):
+          </Paragraph>
+        </label>
+        <input
+          id="kunnskapsbibliotek-fil"
+          ref={filInputRef}
+          type="file"
+          accept=".pdf,.docx"
+          disabled={lasterOppFil}
+          onChange={lastOppFil}
+        />
+        {lasterOppFil && <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Laster opp …</Paragraph>}
+      </div>
 
       {rettskilder.length > 0 && (
         <div style={{ marginBottom: '1rem' }}>

@@ -2,16 +2,33 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
 import { Button, Checkbox, Heading, Paragraph, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { RettskildeDetalj, RettskildeNodeDto } from '../api/types';
+import type { LovdataKatalogTreffDto, RettskildeDetalj, RettskildeNodeDto } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
 
 export default function Importer() {
   const navigate = useNavigate();
   const { gjeldendeBruker } = useBruker();
 
-  const [datokode, setDatokode] = useState('');
+  const [sokestreng, setSokestreng] = useState('');
+  const [treff, setTreff] = useState<LovdataKatalogTreffDto[]>([]);
+  const [sokerLaster, setSokerLaster] = useState(false);
   const [lovdataFeil, setLovdataFeil] = useState<string | null>(null);
   const [lovdataLaster, setLovdataLaster] = useState(false);
+
+  useEffect(() => {
+    if (!sokestreng.trim()) {
+      setTreff([]);
+      return;
+    }
+    setSokerLaster(true);
+    const tidsavbrudd = setTimeout(() => {
+      api.sokLovdataKatalog(sokestreng.trim())
+        .then(setTreff)
+        .catch(() => setTreff([]))
+        .finally(() => setSokerLaster(false));
+    }, 300);
+    return () => clearTimeout(tidsavbrudd);
+  }, [sokestreng]);
 
   const [fil, setFil] = useState<File | null>(null);
   const [erVirksomhetensEgen, setErVirksomhetensEgen] = useState(false);
@@ -38,12 +55,11 @@ export default function Importer() {
     });
   }, [importertId]);
 
-  async function importerFraLovdata(e: FormEvent) {
-    e.preventDefault();
+  async function importerFraLovdata(datokode: string) {
     setLovdataFeil(null);
     setLovdataLaster(true);
     try {
-      const { id } = await api.importerFraLovdata(datokode.trim());
+      const { id } = await api.importerFraLovdata(datokode);
       setKildetekst(null); // ikke tilgjengelig klientsidig for Lovdata-sporet (hentet server-side)
       setImportertId(id);
     } catch (err) {
@@ -175,24 +191,38 @@ export default function Importer() {
 
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={2} data-size="sm">
-          Fra Lovdata (datokode)
+          Fra Lovdata (søk)
         </Heading>
         <Paragraph style={{ marginBottom: '0.75rem' }}>
-          Henter og konverterer direkte fra Lovdatas offisielle bulk-datasett. Alltid en delt/nasjonal
+          Søk i en lokal, søkbar katalog over Lovdatas bulk-datasett (fornyes automatisk) — velg et treff
+          for å hente og konvertere direkte fra Lovdatas offisielle datasett. Alltid en delt/nasjonal
           kilde (Lov eller Forskrift) — passer ikke for lokale forskrifter eller virksomhetsdokumenter.
         </Paragraph>
-        <form onSubmit={importerFraLovdata} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
-          <Textfield
-            label="Datokode"
-            placeholder="f.eks. LOV-1989-06-02-27"
-            value={datokode}
-            onChange={(e) => setDatokode(e.target.value)}
-            required
-          />
-          <Button type="submit" disabled={lovdataLaster || !datokode.trim()}>
-            {lovdataLaster ? 'Importerer …' : 'Importer'}
-          </Button>
-        </form>
+        <Textfield
+          label="Søk etter tittel"
+          placeholder="f.eks. alkoholloven"
+          value={sokestreng}
+          onChange={(e) => setSokestreng(e.target.value)}
+          style={{ maxWidth: '30rem', marginBottom: '0.75rem' }}
+        />
+        {sokerLaster && <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Søker …</Paragraph>}
+        {!sokerLaster && sokestreng.trim() && treff.length === 0 && (
+          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Ingen treff.</Paragraph>
+        )}
+        {treff.length > 0 && (
+          <ul style={{ maxHeight: '20rem', overflow: 'auto' }}>
+            {treff.map((t) => (
+              <li key={t.datokode} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.3rem' }}>
+                <span style={{ flex: 1 }}>
+                  {t.tittel} <span style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>({t.datokode}, {t.type})</span>
+                </span>
+                <Button data-size="sm" disabled={lovdataLaster} onClick={() => importerFraLovdata(t.datokode)}>
+                  {lovdataLaster ? 'Importerer …' : 'Importer'}
+                </Button>
+              </li>
+            ))}
+          </ul>
+        )}
         {lovdataFeil && <div className="feilmelding" style={{ marginTop: '0.75rem' }}>{lovdataFeil}</div>}
       </section>
 

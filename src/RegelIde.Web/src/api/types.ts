@@ -619,6 +619,24 @@ export interface LeggTilLenkeRequest {
   beskrivelse?: string | null;
 }
 
+/** Kunnskapsbibliotek-fil (byggesteg 5 runde 2) — inneholder aldri rå fil-bytes, kun utvunnet tekst. */
+export interface KunnskapsbibliotekFilDto {
+  id: string;
+  virksomhetId: string;
+  filnavn: string;
+  filtype: string;
+  utvunnetTekst: string;
+  opprettetAv: string;
+  opprettetTidspunkt: string;
+}
+
+/** Ett søketreff i Lovdata-katalogen (byggesteg 5 runde 2) — kun metadata, ingen full tekst. */
+export interface LovdataKatalogTreffDto {
+  datokode: string;
+  tittel: string;
+  type: string;
+}
+
 export interface KjorForslagRequest {
   rettskildeIder: string[];
 }

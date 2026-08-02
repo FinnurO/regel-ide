@@ -1,5 +1,6 @@
 using System.Text;
 using System.Text.RegularExpressions;
+using HtmlAgilityPack;
 using SharpCompress.Readers;
 
 namespace RegelIde.Data;
@@ -65,6 +66,52 @@ public sealed partial class LovdataBulkHenter(HttpClient http)
 
         throw new InvalidOperationException(
             $"Fant ikke noen fil for datokode '{datokode}' i Lovdata-arkivet. Ingen gjettet fallback.");
+    }
+
+    /// <summary>
+    /// Byggesteg 5 runde 2 (Lovdata-katalog/søk, docs/14-byggesteg5-teknisk-design.md) — itererer ALLE
+    /// oppføringer i begge bulk-arkiv og trekker kun ut tittel + datokode + type, IKKE hele
+    /// AKN-tre-konverteringen (<see cref="LovdataKonverterer"/> i RegelIde.Kildekonvertering er
+    /// unødvendig tung bare for en katalograd). Brukes av <see cref="LovdataKatalogTjeneste"/> til å
+    /// (gjen)bygge en søkbar katalog — selve oppslaget på én lov (<see cref="HentRaaHtmlAsync"/>) er
+    /// uendret og fortsatt datokode-only.
+    /// </summary>
+    public async IAsyncEnumerable<(string Datokode, string Tittel, string Type)> HentAlleOppforingerAsync(
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct = default)
+    {
+        foreach (var (arkivUrl, type) in new[] { (LoverUrl, "lov"), (ForskrifterUrl, "forskrift") })
+        {
+            var arkivBytes = await http.GetByteArrayAsync(arkivUrl, ct);
+            using var arkivStrøm = new MemoryStream(arkivBytes);
+            using var leser = ReaderFactory.Open(arkivStrøm);
+            while (leser.MoveToNextEntry())
+            {
+                ct.ThrowIfCancellationRequested();
+                if (leser.Entry.IsDirectory) continue;
+
+                var navn = Path.GetFileName(leser.Entry.Key ?? "");
+                var m = ArkivFilnavnMønster().Match(navn);
+                if (!m.Success) continue;
+
+                using var entryStrøm = leser.OpenEntryStream();
+                using var minne = new MemoryStream();
+                await entryStrøm.CopyToAsync(minne, ct);
+                var html = Encoding.UTF8.GetString(minne.ToArray());
+
+                var dokument = new HtmlDocument();
+                dokument.LoadHtml(html);
+                var tittelNode = dokument.DocumentNode.SelectSingleNode("//dd[@class='title']")
+                    ?? throw new FormatException($"'{navn}' mangler påkrevd metadatafelt 'title'. Ingen gjettet fallback.");
+                var tittel = HtmlEntity.DeEntitize(tittelNode.InnerText.Trim());
+
+                var dato = m.Groups[2].Value;
+                var løpenummer = int.Parse(m.Groups[3].Value);
+                var datokode = $"{(type == "lov" ? "LOV" : "FOR")}-{dato[..4]}-{dato[4..6]}-{dato[6..8]}" +
+                    (løpenummer == 0 ? "" : $"-{løpenummer}");
+
+                yield return (datokode, tittel, type);
+            }
+        }
     }
 
     private static (string ArkivUrl, string Dato, int Løpenummer) TolkDatokode(string datokode)

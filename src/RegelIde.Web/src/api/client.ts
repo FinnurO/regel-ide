@@ -17,7 +17,9 @@ import type {
   KodelisteKodeDto,
   KodelisteRequest,
   KjorForslagRequest,
+  KunnskapsbibliotekFilDto,
   KunnskapsbibliotekLenkeDto,
+  LovdataKatalogTreffDto,
   LeggTilKodeRequest,
   LeggTilLenkeRequest,
   LeggTilVilkarInputRequest,
@@ -179,6 +181,9 @@ export const api = {
       body: JSON.stringify({ datokode }),
     }),
 
+  sokLovdataKatalog: (q: string) =>
+    kall<LovdataKatalogTreffDto[]>(`/api/lovdata-katalog/sok?q=${encodeURIComponent(q)}`),
+
   importerFraFil: (fil: File, virksomhetId?: string) => {
     const skjema = new FormData();
     skjema.append('fil', fil);
@@ -310,6 +315,17 @@ export const api = {
 
   slettKunnskapsbibliotekLenke: (id: string) =>
     kall<void>(`/api/kunnskapsbibliotek/lenker/${id}`, { method: 'DELETE' }),
+
+  hentKunnskapsbibliotekFiler: () => kall<KunnskapsbibliotekFilDto[]>('/api/kunnskapsbibliotek/filer'),
+
+  lastOppKunnskapsbibliotekFil: (fil: File) => {
+    const skjema = new FormData();
+    skjema.append('fil', fil);
+    return kall<KunnskapsbibliotekFilDto>('/api/kunnskapsbibliotek/filer', { method: 'POST', body: skjema });
+  },
+
+  slettKunnskapsbibliotekFil: (id: string) =>
+    kall<void>(`/api/kunnskapsbibliotek/filer/${id}`, { method: 'DELETE' }),
 
   kobleTjenesteRegelverksreferanse: (id: string, request: KobleRegelverksreferanseRequest) =>
     kall<TjenesteRegelverksreferanseDto>(`/api/tjenester/${id}/regelverksreferanser`, {

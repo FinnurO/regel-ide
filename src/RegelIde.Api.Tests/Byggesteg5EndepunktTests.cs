@@ -48,6 +48,48 @@ public class Byggesteg5EndepunktTests
         return request;
     }
 
+    /// <summary>Minimal, gyldig PDF bygget for hånd — se RegelIde.Data.Tests/TestFilFixtures.cs for samme mønster/begrunnelse.</summary>
+    private static byte[] LagTestPdf(string? tekst)
+    {
+        var innholdStream = tekst is null ? "" : $"BT /F1 12 Tf 10 100 Td ({tekst}) Tj ET";
+        var objekter = new[]
+        {
+            "<< /Type /Catalog /Pages 2 0 R >>",
+            "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+            "<< /Type /Page /Parent 2 0 R /Resources << /Font << /F1 4 0 R >> >> /MediaBox [0 0 300 300] /Contents 5 0 R >>",
+            "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+            $"<< /Length {innholdStream.Length} >>\nstream\n{innholdStream}\nendstream",
+        };
+        var sb = new System.Text.StringBuilder("%PDF-1.4\n");
+        var offsets = new int[objekter.Length];
+        for (var i = 0; i < objekter.Length; i++)
+        {
+            offsets[i] = sb.Length;
+            sb.Append($"{i + 1} 0 obj\n{objekter[i]}\nendobj\n");
+        }
+        var xrefStart = sb.Length;
+        sb.Append($"xref\n0 {objekter.Length + 1}\n0000000000 65535 f \n");
+        foreach (var offset in offsets) sb.Append($"{offset:D10} 00000 n \n");
+        sb.Append($"trailer\n<< /Size {objekter.Length + 1} /Root 1 0 R >>\nstartxref\n{xrefStart}\n%%EOF");
+        return System.Text.Encoding.ASCII.GetBytes(sb.ToString());
+    }
+
+    private const string TestPdfTekst =
+        "Dette er en ekte tekst-PDF for testing av opplasting til kunnskapsbiblioteket via API-et. " +
+        "Teksten er bevisst gjort lang nok til å passere terskelen for hva som regnes som et tekstlag.";
+
+    private static HttpRequestMessage MedFilOpplasting(string url, Guid brukerId, string filnavn, byte[] innhold)
+    {
+        var innholdContent = new ByteArrayContent(innhold);
+        innholdContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
+        var multipart = new MultipartFormDataContent { { innholdContent, "fil", filnavn } };
+        return new HttpRequestMessage(HttpMethod.Post, url)
+        {
+            Headers = { { GjeldendeBrukerTjeneste.HeaderNavn, brukerId.ToString() } },
+            Content = multipart,
+        };
+    }
+
     // ---------- Kunnskapsbibliotek-lenker ----------
 
     [Fact]
@@ -75,6 +117,58 @@ public class Byggesteg5EndepunktTests
         var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/kunnskapsbibliotek/lenker", bruker.Id,
             new LeggTilLenkeRequest("ikke-en-url", null)));
         Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
+    }
+
+    // ---------- Kunnskapsbibliotek-filer ----------
+
+    [Fact]
+    public async Task Laster_opp_lister_og_sletter_kunnskapsbibliotek_fil()
+    {
+        var bruker = await HentTestbrukerAsync();
+
+        var opprettSvar = await _client.SendAsync(MedFilOpplasting(
+            "/api/kunnskapsbibliotek/filer", bruker.Id, "skjema.pdf", LagTestPdf(TestPdfTekst)));
+        Assert.Equal(HttpStatusCode.Created, opprettSvar.StatusCode);
+        var fil = await opprettSvar.Content.ReadFromJsonAsync<KunnskapsbibliotekFilDto>(JsonInnstillinger);
+        Assert.Equal("pdf", fil!.Filtype);
+        Assert.Contains("ekte tekst-PDF", fil.UtvunnetTekst);
+
+        var listeSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/kunnskapsbibliotek/filer", bruker.Id));
+        var liste = await listeSvar.Content.ReadFromJsonAsync<List<KunnskapsbibliotekFilDto>>(JsonInnstillinger);
+        Assert.Contains(liste!, f => f.Id == fil.Id);
+
+        var slettSvar = await _client.SendAsync(MedBruker(HttpMethod.Delete, $"/api/kunnskapsbibliotek/filer/{fil.Id}", bruker.Id));
+        Assert.Equal(HttpStatusCode.NoContent, slettSvar.StatusCode);
+    }
+
+    [Fact]
+    public async Task Skannet_pdf_uten_tekstlag_gir_400()
+    {
+        var bruker = await HentTestbrukerAsync();
+        var svar = await _client.SendAsync(MedFilOpplasting(
+            "/api/kunnskapsbibliotek/filer", bruker.Id, "skann.pdf", LagTestPdf(tekst: null)));
+        Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
+    }
+
+    [Fact]
+    public async Task Kunnskapsbibliotek_filer_er_isolert_per_virksomhet()
+    {
+        var bruker = await HentTestbrukerAsync();
+        await _client.SendAsync(MedFilOpplasting("/api/kunnskapsbibliotek/filer", bruker.Id, "skjema.pdf", LagTestPdf(TestPdfTekst)));
+
+        Guid annenBrukerId;
+        await using (var db = _fixture.NyDbContext())
+        {
+            var annenVirksomhetId = Guid.NewGuid();
+            db.Virksomheter.Add(new Virksomhet { Id = annenVirksomhetId, Navn = "Nok en annen kommune (byggesteg 5-test)" });
+            annenBrukerId = Guid.NewGuid();
+            db.Brukere.Add(new Bruker { Id = annenBrukerId, Navn = "Uvedkommende", VirksomhetId = annenVirksomhetId, Rolle = "Testrolle" });
+            await db.SaveChangesAsync();
+        }
+
+        var annenListeSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/kunnskapsbibliotek/filer", annenBrukerId));
+        var annenListe = await annenListeSvar.Content.ReadFromJsonAsync<List<KunnskapsbibliotekFilDto>>(JsonInnstillinger);
+        Assert.Empty(annenListe!);
     }
 
     // ---------- «Identifiser begrep» ----------

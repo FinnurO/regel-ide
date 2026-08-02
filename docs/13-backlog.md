@@ -14,7 +14,7 @@ Ment å oppdateres etter hver runde — ikke en engangs-plan.*
 | 2 | Tjenester + Begrep + Kodelister | ✅ Bygget, inkl. Hendelse (CPSV Event) og Tjenesteavhengighet som ekte tabeller (§2.1, ferdig 2026-07-31) |
 | 3 | Presedensregister | ⬜ Ikke startet |
 | 4 | Vilkårstre (grafeditor) | ✅ Runde 1 bygget og verifisert, inkl. tekst-først «opprett vilkår fra tagg»-flyt (§2.5). Runde 2 (testmodul + full publiseringsmodell) ⬜ ikke startet |
-| 5 | AI-forslag (utvidet: kunnskapsbibliotek + skillsbaserte agenter) | ✅ Runde 1 ferdig 2026-07-31 (§2.2 under) — to agenter («Identifiser tjenester»/«Identifiser begrep») + `IKiAgentKlient`-stub. ⬜ Runde 2+ (tre agenter, ekte KI-leverandør) gjenstår. |
+| 5 | AI-forslag (utvidet: kunnskapsbibliotek + skillsbaserte agenter) | ✅ Runde 1 ferdig 2026-07-31 — to agenter («Identifiser tjenester»/«Identifiser begrep») + `IKiAgentKlient`-stub. ✅ Runde 2 ferdig 2026-08-02 (§2.2 under) — ekte KI-leverandør (OpenRouter/DeepSeek), fil-opplasting til kunnskapsbiblioteket, Lovdata-søk. ⬜ Runde 3+ (de tre resterende agentene) gjenstår. |
 | 6 | Datasett, informasjonsmodell, eksportmotor | 🚧 Datasett-registeret + `DatasettVerdi` bygget (byggesteg 4-runden). Informasjonsmodell-skjerm og eksportmotor ⬜ ikke startet |
 | 7 | Saksbehandling/forklaringslogg (tynn slice) | ⬜ Ikke startet — MVP-grensen |
 | 8 | Kunnskapsgraf/påvirkningsanalyse | ⬜ Bevisst utenfor MVP |
@@ -59,11 +59,27 @@ i stedet:
 - 291+15 nye backend-tester grønt, `tsc -b --noEmit` rent, begge agentene verifisert ende-til-ende
   i browser (inkl. at de IKKE krysskobler hverandres køer).
 
-**⬜ Runde 2+ gjenstår** (fortsatt retningsnivå, ikke bygget): de tre andre agentene
-(Tjenestebeskrivelse/Vilkår-og-Vilkårstre/Håndbok) i fast pipeline, ekte KI-leverandør-kobling,
-fil-/dokumentopplasting + innholdsuttrekk, en generalisert multi-type forslagskø,
-`foreslatt_av_ai` for Vilkår/Regelnode/Unntak. **Forutsetter ikke** byggesteg 3, men presedens
-(byggesteg 3) ville styrket "Rettskilder og strukturering"-agenten betydelig — vurder rekkefølge.
+**✅ Runde 2 ferdig 2026-08-02.** Tre uavhengige utvidelser, ikke nye agenter (se
+`docs/14-byggesteg5-teknisk-design.md` §1/§2/§6 for teknisk detalj):
+
+- **Ekte KI-leverandør**: `KiAgentKlientOpenRouter` mot OpenRouter, modell DeepSeek V4 Flash 0731
+  (konfigurerbar streng) — valgt fremfor DeepSeeks egen (Kina-hostede) API. Konfigurasjonsstyrt
+  (`RegelIde:KiAgent:Leverandor`, default fortsatt stub); nøkkel via `dotnet user-secrets`.
+  Modellvalg fra en admin-side i appen (uten restart) er bevisst IKKE bygget denne runden.
+- **Kunnskapsbibliotek utvidet med fil-opplasting** (`KunnskapsbibliotekFilEntitet`, PDF/Word) —
+  avviser filer uten tekstlag (sannsynlige skann) via tekstuttrekk-forsøk, IKKE ekte OCR. Fil-bytes
+  som bytea i Postgres, ikke ekstern blob-lagring.
+- **Lovdata-katalog + søk** — `Importer.tsx` krevde tidligere at brukeren kjente den eksakte
+  datokoden. En søkbar katalog (kun tittel+datokode, bygges/fornyes automatisk) løser dette; ingen
+  endring i selve import-endepunktet.
+- 364 backend-tester grønt (201+163, inkl. ekte nettverkskall mot både OpenRouter-stub-handler og
+  Lovdatas bulk-API), `tsc -b --noEmit` rent, Lovdata-søk+import verifisert ende-til-ende i browser.
+
+**⬜ Runde 3+ gjenstår** (fortsatt retningsnivå, ikke bygget): de tre andre agentene
+(Tjenestebeskrivelse/Vilkår-og-Vilkårstre/Håndbok) i fast pipeline, en generalisert multi-type
+forslagskø, `foreslatt_av_ai` for Vilkår/Regelnode/Unntak, ekte OCR for skannede dokumenter, og
+modellvalg fra en admin-side. **Forutsetter ikke** byggesteg 3, men presedens (byggesteg 3) ville
+styrket "Rettskilder og strukturering"-agenten betydelig — vurder rekkefølge.
 
 ### 2.3 Editor: punktliste/nummerert liste-knapper i `MinimalEditor`
 *Fasit dimensjon G, skåret 50 %.*
@@ -164,7 +180,7 @@ Ingen av disse krever videre avklaring — bare en prioritering:
    dagens samtale om tagging.
 6. **Byggesteg 3 — Presedensregister.** Løser samtidig «Testkommunen 2017 Vurdering av habilitet
    2018»-referansen fra rundskriv v4 §3, som i dag ikke har noe sted å høre hjemme.
-7. **Byggesteg 5 runde 2+ — de tre resterende AI-agentene** (§2.2, runde 1 ferdig 2026-07-31). Vurder
+7. **Byggesteg 5 runde 3+ — de tre resterende AI-agentene** (§2.2, runde 1+2 ferdig). Vurder
    om byggesteg 3 bør være ferdig først, siden «Rettskilder og strukturering»-agenten forutsetter et
    presedensregister for å være noe mer enn en ren rettskilde-importer.
 8. **Byggesteg 6/7** — informasjonsmodell/eksportmotor og saksbehandling/forklaringslogg-slice,
@@ -183,19 +199,19 @@ Disse er **eksplisitt nevnt som uløste, større funksjonsønsker** i `docs/11-b
 (ferdig avklart, venter kun på tur) og §2.6 (nytt forslag som trenger en diskusjonsrunde), er dette
 spørsmål der vi ikke engang har landet retning ennå:
 
-- **Daglig Lovdata-synkronisering (full + delta) for bedre søk på rettskilder.** I dag er import
-  ren pull, brukerinitiert (fil-opplasting eller ett-og-ett Lovdata-søk via `AK-3.3.5`) — det finnes
-  ingen bakgrunnsjobb (bekreftet: ingen `BackgroundService`/`IHostedService`/cron noe sted i
-  `src/`), og ingen fulltekstsøk-mekanisme på rettskilde-innholdet (bekreftet: ingen
-  `tsvector`/fulltekstindeks noe sted). To atskilte spørsmål bak dette ene punktet: (a) *daglig
-  fullimport* — hold hele Lovdata-bulk-datasettet (`05-arkitektur-og-nfk.md` §1.1) i synk mot vår
-  DB, oppdager nye/endrede lover/forskrifter automatisk i stedet for kun ved manuelt søk; (b) *daglig
-  delta* — mer presis, kun endringene siden forrige kjøring (Lovdatas strukturerte
-  `documentHistory`-endepunkt krever API-nøkkel, jf. samme §1.1 — registrering hos Lovdata er en
-  forutsetning her, ikke bare kode); (c) *bedre søk* er i realiteten et eget delkrav (fulltekstsøk
-  mot rettskilde-tekst, i dag kun tre-navigasjon) som ville dra nytte av at (a)/(b) finnes, men kan i
-  prinsippet bygges uavhengig (Postgres `tsvector`/`GIN`-indeks på eksisterende `RettskildeNode.Tekst`
-  ville holde for v1, ingen ny avhengighet). Ingen av de tre er designet i detalj.
+- **Daglig Lovdata-synkronisering (full + delta) for bedre søk på rettskilder.** **Delvis adressert
+  2026-08-02** — se `docs/14-byggesteg5-teknisk-design.md` §6: en ny, søkbar **katalog**
+  (`LovdataKatalogOppforingEntitet`, kun tittel+datokode+type) fjerner kravet om at brukeren allerede
+  kjenner den eksakte datokoden ved import (`Importer.tsx`), og fornyer seg selv (lat, 24t) — men
+  dette løser IKKE de tre opprinnelige underspørsmålene fullt ut: (a) *daglig fullimport* av selve
+  rettskilde-**innholdet** (ikke bare katalogtittelen) skjer fortsatt kun ved eksplisitt
+  brukervalgt import — ingen bakgrunnsjobb finnes fortsatt (`BackgroundService`/`IHostedService`);
+  (b) *daglig delta* via Lovdatas `documentHistory`-endepunkt (krever egen API-nøkkel/registrering)
+  er fortsatt ikke vurdert; (c) *fulltekstsøk mot allerede importert rettskilde-tekst*
+  (`RettskildeNode.Tekst`, i dag kun tre-navigasjon) er en helt egen ting fra katalog-søket over —
+  katalogen søker kun i Lovdatas egne titler, ikke i innholdet til rettskilder som faktisk er
+  importert til denne appen. Postgres `tsvector`/`GIN`-indeks på `RettskildeNode.Tekst` ville
+  fortsatt vært riktig løsning for (c), ingen ny avhengighet.
 - **Valg av grafeditor-bibliotek.** `VilkarstreGraf.tsx` er i dag en egenhendig, enkel SVG-komponent
   (bevisst valg i byggesteg 4 runde 1 — «ingen ny npm-avhengighet», automatisk lagdelt layout, ikke
   dra-og-slipp). Det eksplisitte spørsmålet «bør vi velge et ekte grafbibliotek» (f.eks. React Flow/
@@ -203,7 +219,10 @@ spørsmål der vi ikke engang har landet retning ennå:
   4 runde 2 (testmodul + full publiseringsmodell) eller et fremtidig dra-og-slipp-krav vekker temaet;
   ingen grunn til å bytte i dag uten et konkret behov dagens SVG-løsning ikke dekker.
 - **Andre punkter fra samme kilde-setning, notert for fullstendighet** (ingen retning tatt): PDF/Word-
-  import av kildedokumenter, data.norge.no-oppslag (lesing/søk — ikke høsting, som er separat og
-  designet i `05-arkitektur-og-nfk.md` §1.2), egen håndbok-liste-side, mulighet til å velge
-  underliggende rettskilde ved opprettelse av ny håndbok, og Forskrift→Lov-kobling utover den
-  generelle kryssreferanse-mekanismen.
+  import **av rettskilder** (fortsatt ikke løst — `POST /api/rettskilder/fil` tar fortsatt kun
+  Lovdatas «XML-kompatible HTML»-format; PDF/Word-opplasting bygget 2026-08-02 er til
+  **kunnskapsbiblioteket**, dvs. ekstra KI-kontekstmateriale, en helt annen ting enn å importere en
+  ny rettskilde), data.norge.no-oppslag (lesing/søk — ikke høsting, som er separat og designet i
+  `05-arkitektur-og-nfk.md` §1.2), egen håndbok-liste-side, mulighet til å velge underliggende
+  rettskilde ved opprettelse av ny håndbok, og Forskrift→Lov-kobling utover den generelle
+  kryssreferanse-mekanismen.

@@ -46,10 +46,21 @@ builder.Services.AddScoped<VilkarstreKommentarTjeneste>();
 builder.Services.AddScoped<HendelseregisterTjeneste>();
 builder.Services.AddScoped<TjenesteavhengighetregisterTjeneste>();
 builder.Services.AddScoped<KunnskapsbibliotekTjeneste>();
-builder.Services.AddScoped<IKiAgentKlient, KiAgentKlientStub>();
+// "Stub" (default) eller "OpenRouter" — se docs/14-byggesteg5-teknisk-design.md. Bytte krever
+// restart av API-et; å gjøre dette velgbart fra en admin-side i appen er en senere, avgrenset
+// utvidelse (flytt valget til en DB-lagret innstilling + en dispatcher-IKiAgentKlient).
+if (builder.Configuration["RegelIde:KiAgent:Leverandor"] == "OpenRouter")
+{
+    builder.Services.AddHttpClient<IKiAgentKlient, KiAgentKlientOpenRouter>();
+}
+else
+{
+    builder.Services.AddScoped<IKiAgentKlient, KiAgentKlientStub>();
+}
 builder.Services.AddScoped<BegrepsforslagTjeneste>();
 builder.Services.AddScoped<TjenesteforslagTjeneste>();
 builder.Services.AddHttpClient<LovdataBulkHenter>();
+builder.Services.AddScoped<LovdataKatalogTjeneste>();
 
 const string VitePolicy = "ViteDevServer";
 builder.Services.AddCors(o => o.AddPolicy(VitePolicy, p => p
@@ -555,6 +566,17 @@ rettskilder.MapPost("/lovdata", async (HttpRequest request, LovdataImportRequest
     .WithSummary("Henter og importerer en rettskilde fra Lovdatas offisielle bulk-datasett via datokode " +
         "(f.eks. \"LOV-1989-06-02-27\"). Alltid en delt/nasjonal kilde.");
 
+app.MapGet("/api/lovdata-katalog/sok", async (string q, LovdataKatalogTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var treff = await tjeneste.SokAsync(q, ct);
+        return Results.Ok(treff.Select(LovdataKatalogTreffDto.FraEntitet));
+    })
+    .WithOpenApi()
+    .WithName("SokLovdataKatalog")
+    .WithSummary("Søker i en lokal, søkbar katalog over Lovdatas bulk-datasett (byggesteg 5 runde 2) — " +
+        "kun metadata, bygges/fornyes automatisk (24t foreldelsesgrense). Bruk treffets datokode mot " +
+        "/api/rettskilder/lovdata for selve importen.");
+
 // ---------- Håndbok/rundskriv-forfatterflyt (2026-07-26, docs/03-domenemodell.md §1.1.1) ----------
 // ---------- krever X-Bruker-Id for attribusjon, samme mønster som import/tagging over.       ----------
 
@@ -975,6 +997,49 @@ kunnskapsbibliotek.MapDelete("/lenker/{id:guid}", async (Guid id, Kunnskapsbibli
         await tjeneste.SlettAsync(id, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen kunnskapsbibliotek-lenke med id '{id}'." }))
     .WithName("SlettKunnskapsbibliotekLenke")
     .WithSummary("Fjerner en kunnskapsbibliotek-lenke.");
+
+kunnskapsbibliotek.MapGet("/filer", async (HttpRequest request, KunnskapsbibliotekTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        var liste = await tjeneste.ListerFilerForVirksomhetAsync(bruker.VirksomhetId, ct);
+        return Results.Ok(liste.Select(KunnskapsbibliotekFilDto.FraEntitet));
+    })
+    .WithName("HentKunnskapsbibliotekFiler")
+    .WithSummary("Lister virksomhetens kunnskapsbibliotek-filer (uten rå fil-bytes).");
+
+kunnskapsbibliotek.MapPost("/filer", async (HttpRequest request, IFormFile fil, KunnskapsbibliotekTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+
+        using var minne = new MemoryStream();
+        await fil.OpenReadStream().CopyToAsync(minne, ct);
+
+        try
+        {
+            var lagretFil = await tjeneste.LeggTilFilAsync(bruker.VirksomhetId, fil.FileName, minne.ToArray(), bruker.Navn, ct);
+            return Results.Created($"/api/kunnskapsbibliotek/filer/{lagretFil.Id}", KunnskapsbibliotekFilDto.FraEntitet(lagretFil));
+        }
+        catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("LastOppKunnskapsbibliotekFil")
+    .WithSummary("Laster opp en PDF/Word-fil til virksomhetens kunnskapsbibliotek — avvises hvis filen mangler tekstlag.")
+    .DisableAntiforgery();
+
+kunnskapsbibliotek.MapDelete("/filer/{id:guid}", async (Guid id, KunnskapsbibliotekTjeneste tjeneste, CancellationToken ct) =>
+        await tjeneste.SlettFilAsync(id, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen kunnskapsbibliotek-fil med id '{id}'." }))
+    .WithName("SlettKunnskapsbibliotekFil")
+    .WithSummary("Fjerner en kunnskapsbibliotek-fil.");
 
 // ---------- Begrepsregister (SKOS, docs/03-domenemodell.md §1.3) — byggesteg 2 ----------
 

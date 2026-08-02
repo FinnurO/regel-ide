@@ -730,3 +730,43 @@ public sealed class KunnskapsbibliotekLenkeEntitet
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }
 }
+
+/// <summary>
+/// Kunnskapsbibliotek — opplastet fil (byggesteg 5 runde 2), samme rolle som
+/// <see cref="KunnskapsbibliotekLenkeEntitet"/> (rått kildemateriale til «Identifiser tjenester»,
+/// ingen Status/Versjon, hard delete), men for faktiske dokumenter (PDF/Word) i stedet for lenker.
+/// Egen tabell fremfor en <c>Type</c>-diskriminator på lenke-entiteten, siden formen er helt ulik
+/// (binært innhold + utvunnet tekst vs. en ren URL) — samme begrunnelse som andre steder i kodebasen
+/// der ulike kilde-typer får separate entitetsklasser. <see cref="Innhold"/> lagres som bytea i
+/// Postgres (ikke ekstern blob-lagring — se docs/14-byggesteg5-teknisk-design.md). Tekstlaget i
+/// <see cref="UtvunnetTekst"/> er allerede validert ikke-tomt av
+/// <see cref="KunnskapsbibliotekTekstUtvinner"/> før raden opprettes — rene skann uten tekstlag
+/// avvises der og når aldri hit.
+/// </summary>
+/// <summary>
+/// Søkbar katalograd over Lovdatas bulk-datasett (byggesteg 5 runde 2) — KUN metadata (tittel/type),
+/// aldri full strukturert tekst. <see cref="Datokode"/> er primærnøkkel og brukes direkte som input til
+/// eksisterende <c>POST /api/rettskilder/lovdata</c> (uendret) når brukeren velger et treff. Hele
+/// katalogen slettes og bygges på nytt ved hver <see cref="LovdataKatalogTjeneste.SikreOppdatertKatalogAsync"/>
+/// (foreldet etter 24t, matcher Lovdatas nattlige oppdateringssyklus) — <see cref="SistOppdatert"/> er
+/// derfor identisk på alle rader fra samme bygging.
+/// </summary>
+public sealed class LovdataKatalogOppforingEntitet
+{
+    public required string Datokode { get; set; }
+    public required string Tittel { get; set; }
+    public required string Type { get; set; } // 'lov' | 'forskrift'
+    public DateTimeOffset SistOppdatert { get; set; }
+}
+
+public sealed class KunnskapsbibliotekFilEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid VirksomhetId { get; set; }
+    public required string Filnavn { get; set; }
+    public required string Filtype { get; set; } // 'pdf' | 'docx'
+    public required byte[] Innhold { get; set; }
+    public required string UtvunnetTekst { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+}

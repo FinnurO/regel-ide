@@ -47,4 +47,24 @@ public class LovdataBulkHenterTests
 
         await Assert.ThrowsAsync<InvalidOperationException>(() => henter.HentRaaHtmlAsync("LOV-1900-01-01-999"));
     }
+
+    /// <summary>Byggesteg 5 runde 2 (Lovdata-katalog) — ekte nettverkskall, samme kultur som testene over.</summary>
+    [Fact]
+    public async Task Henter_alle_oppforinger_og_finner_forvaltningsloven()
+    {
+        using var http = new HttpClient();
+        var henter = new LovdataBulkHenter(http);
+
+        var oppføringer = new List<(string Datokode, string Tittel, string Type)>();
+        await foreach (var oppføring in henter.HentAlleOppforingerAsync())
+        {
+            oppføringer.Add(oppføring);
+        }
+
+        Assert.True(oppføringer.Count > 100, "Forventet et stort antall lover+forskrifter i bulk-arkivene.");
+        var forvaltningsloven = Assert.Single(oppføringer, o => o.Datokode == "LOV-1967-02-10");
+        Assert.Contains("forvaltningssaker", forvaltningsloven.Tittel);
+        Assert.Equal("lov", forvaltningsloven.Type);
+        Assert.Contains(oppføringer, o => o.Type == "forskrift");
+    }
 }

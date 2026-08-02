@@ -23,6 +23,10 @@ public sealed class TjenesteforslagTjeneste(RegelIdeDbContext db, IKiAgentKlient
         var lenker = await db.KunnskapsbibliotekLenker
             .Where(l => l.VirksomhetId == virksomhetId)
             .ToListAsync(ct);
+        var filer = await db.KunnskapsbibliotekFiler
+            .Where(f => f.VirksomhetId == virksomhetId)
+            .Select(f => new { f.Id, f.Filnavn, f.UtvunnetTekst })
+            .ToListAsync(ct);
 
         var sb = new StringBuilder(rettskildeKontekst);
         if (lenker.Count > 0)
@@ -31,6 +35,15 @@ public sealed class TjenesteforslagTjeneste(RegelIdeDbContext db, IKiAgentKlient
             foreach (var lenke in lenker)
             {
                 sb.AppendLine(lenke.Beskrivelse is null ? lenke.Url : $"{lenke.Url} — {lenke.Beskrivelse}");
+            }
+        }
+        if (filer.Count > 0)
+        {
+            sb.AppendLine("# Kunnskapsbibliotek-filer");
+            foreach (var fil in filer)
+            {
+                sb.AppendLine($"## {fil.Filnavn}");
+                sb.AppendLine(fil.UtvunnetTekst);
             }
         }
 
@@ -47,7 +60,12 @@ public sealed class TjenesteforslagTjeneste(RegelIdeDbContext db, IKiAgentKlient
         }
         if (forslag is null || forslag.Count == 0) return [];
 
-        var kildeReferanserJson = JsonSerializer.Serialize(new { rettskildeIder, lenkeIder = lenker.Select(l => l.Id) });
+        var kildeReferanserJson = JsonSerializer.Serialize(new
+        {
+            rettskildeIder,
+            lenkeIder = lenker.Select(l => l.Id),
+            filIder = filer.Select(f => f.Id),
+        });
         var opprettede = new List<TjenesteEntitet>();
         foreach (var f in forslag)
         {

@@ -174,12 +174,26 @@ derfor:
   i `03-domenemodell.md` (løser en tidligere uoverensstemmelse med AK-3.10.2).
 - Se `02-produktkrav.md` kap. 3.10 for det fulle bildet av hva runde 1 faktisk bygde.
 
-**Ikke gjort ennå (runde 2+, fortsatt retningsnivå, ikke implementasjonsplan):** de tre andre
-agentene (Tjenestebeskrivelse/Vilkår-og-Vilkårstre/Håndbok) og deres innbyrdes rekkefølge, ekte
-KI-leverandør-kobling, fil-/dokumentopplasting (PDF/Word/skannet) og dokumentinnholds-uttrekk/OCR,
-en generalisert multi-type forslagskø (i dag: to separate køer, én per artefakttype), og
-`foreslatt_av_ai` for Vilkår/Regelnode/Unntak. Se `docs/14-byggesteg5-teknisk-design.md` for
-`IKiAgentKlient`-kontrakten og kunnskapsbibliotek-skjemaet som mal for disse rundene.
+**Runde 2 bygget (2026-08-02)** — tre uavhengige utvidelser, ikke nye agenter:
+
+- **Ekte KI-leverandør**: `KiAgentKlientOpenRouter` mot OpenRouter (DeepSeek V4 Flash 0731),
+  konfigurasjonsstyrt (`RegelIde:KiAgent:Leverandor`), stub fortsatt default og fortsatt det tester
+  bruker. Se `docs/14-byggesteg5-teknisk-design.md` §1.
+- **Kunnskapsbibliotek utvidet med fil-opplasting** (`KunnskapsbibliotekFilEntitet`, PDF/Word) —
+  avviser filer uten tekstlag (sannsynlige skann) via `KunnskapsbibliotekTekstUtvinner`, IKKE ekte
+  OCR. Fil-bytes lagres som bytea i Postgres, ikke ekstern blob-lagring. Se
+  `docs/14-byggesteg5-teknisk-design.md` §2.
+- **Lovdata-katalog + søk** (`Importer.tsx`) — løser at import tidligere krevde at brukeren allerede
+  kjente den eksakte datokoden. En søkbar katalog (kun tittel+datokode, ~26 MB Lovdata-bulkdata totalt
+  gjør en full lokal kopi triviell om det trengs) bygges/fornyes automatisk (24t). Ingen endring i
+  selve import-endepunktet. Se `docs/14-byggesteg5-teknisk-design.md` §6.
+
+**Ikke gjort ennå (runde 3+, fortsatt retningsnivå, ikke implementasjonsplan):** de tre andre
+agentene (Tjenestebeskrivelse/Vilkår-og-Vilkårstre/Håndbok) og deres innbyrdes rekkefølge, en
+generalisert multi-type forslagskø (i dag: to separate køer, én per artefakttype), `foreslatt_av_ai`
+for Vilkår/Regelnode/Unntak, ekte OCR for skannede dokumenter, og modellvalg fra en admin-side i
+appen (i dag: konfig + restart). Se `docs/14-byggesteg5-teknisk-design.md` for `IKiAgentKlient`-
+kontrakten og kunnskapsbibliotek-skjemaet som mal for disse rundene.
 
 ## Byggesteg 6 — Datasett, informasjonsmodell, eksportmotor
 

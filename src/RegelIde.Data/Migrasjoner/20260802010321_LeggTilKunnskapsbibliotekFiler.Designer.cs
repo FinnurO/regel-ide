@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RegelIde.Data;
@@ -12,9 +13,11 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    partial class RegelIdeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260802010321_LeggTilKunnskapsbibliotekFiler")]
+    partial class LeggTilKunnskapsbibliotekFiler
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -703,35 +706,6 @@ namespace RegelIde.Data.Migrasjoner
                         .HasDatabaseName("ix_kunnskapsbibliotek_lenker_virksomhet");
 
                     b.ToTable("kunnskapsbibliotek_lenker", (string)null);
-                });
-
-            modelBuilder.Entity("RegelIde.Data.LovdataKatalogOppforingEntitet", b =>
-                {
-                    b.Property<string>("Datokode")
-                        .HasColumnType("text")
-                        .HasColumnName("datokode");
-
-                    b.Property<DateTimeOffset>("SistOppdatert")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("sist_oppdatert");
-
-                    b.Property<string>("Tittel")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("tittel");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("type");
-
-                    b.HasKey("Datokode")
-                        .HasName("lovdata_katalog_oppforinger_pkey");
-
-                    b.HasIndex("SistOppdatert")
-                        .HasDatabaseName("ix_lovdata_katalog_oppforinger_sist_oppdatert");
-
-                    b.ToTable("lovdata_katalog_oppforinger", (string)null);
                 });
 
             modelBuilder.Entity("RegelIde.Data.ProveniensEntitet", b =>
