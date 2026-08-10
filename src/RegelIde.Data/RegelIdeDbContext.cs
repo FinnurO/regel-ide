@@ -727,6 +727,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasKey(x => x.Id).HasName("kunnskapsbibliotek_filer_pkey");
             e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
             e.Property(x => x.Filnavn).HasColumnName("filnavn");
+            e.Property(x => x.Tittel).HasColumnName("tittel");
             e.Property(x => x.Filtype).HasColumnName("filtype");
             e.Property(x => x.Innhold).HasColumnName("innhold");
             e.Property(x => x.UtvunnetTekst).HasColumnName("utvunnet_tekst");

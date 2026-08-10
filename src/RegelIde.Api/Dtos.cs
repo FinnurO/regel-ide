@@ -393,14 +393,22 @@ public sealed record LovdataKatalogTreffDto(string Datokode, string Tittel, stri
 }
 
 /// <summary>Kunnskapsbibliotek-fil (byggesteg 5 runde 2) — inneholder aldri de rå bytene, kun utvunnet tekst.</summary>
-public sealed record KunnskapsbibliotekFilDto(Guid Id, Guid VirksomhetId, string Filnavn, string Filtype, string UtvunnetTekst, string OpprettetAv, DateTimeOffset OpprettetTidspunkt)
+public sealed record KunnskapsbibliotekFilDto(Guid Id, Guid VirksomhetId, string Filnavn, string? Tittel, string Filtype, string UtvunnetTekst, string OpprettetAv, DateTimeOffset OpprettetTidspunkt)
 {
     public static KunnskapsbibliotekFilDto FraEntitet(KunnskapsbibliotekFilEntitet f) => new(
-        f.Id, f.VirksomhetId, f.Filnavn, f.Filtype, f.UtvunnetTekst, f.OpprettetAv, f.OpprettetTidspunkt);
+        f.Id, f.VirksomhetId, f.Filnavn, f.Tittel, f.Filtype, f.UtvunnetTekst, f.OpprettetAv, f.OpprettetTidspunkt);
 }
 
 /// <summary>Forespørsel for POST /api/begreper/forslag/kjor og /api/tjenester/forslag/kjor.</summary>
 public sealed record KjorForslagRequest(IReadOnlyList<Guid> RettskildeIder);
+
+/// <summary>
+/// Svar fra POST .../forslag/kjor (byggesteg 5 runde 3) — token-forbruk fra KI-kallet
+/// (<see cref="RegelIde.Data.KiSvar"/>, null hvis leverandøren ikke rapporterer det) og en eksplisitt
+/// <see cref="Melding"/> når agenten svarte, men <see cref="Forslag"/> er tom — se
+/// <see cref="RegelIde.Data.KiForslagResultat{T}"/> for begrunnelsen.
+/// </summary>
+public sealed record KjorForslagResponsDto<T>(IReadOnlyList<T> Forslag, int? InputTokens, int? OutputTokens, string? Melding);
 
 /// <summary>Kø-visning for «Identifiser begrep» — beriker BegrepDto med proveniens fra AI-forslaget.</summary>
 public sealed record BegrepsforslagDto(BegrepDto Begrep, string? AiForslagVersjon, DateTimeOffset ForeslattTidspunkt, string? KildeReferanserJson);

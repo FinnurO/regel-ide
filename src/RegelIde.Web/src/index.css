@@ -114,6 +114,16 @@ body {
   margin-bottom: var(--ds-size-4);
 }
 
+/* Byggesteg 5 runde 3: for "kjøringen fullførte, men fant ingenting" — ikke en feil (derfor ikke
+   .feilmelding sin danger-styling), men fortsatt noe brukeren bør legge merke til, ikke bare stillhet. */
+.infomelding {
+  background: var(--ds-color-info-surface-default);
+  color: var(--ds-color-info-text-default);
+  padding: var(--ds-size-3);
+  border-radius: var(--ds-border-radius-md);
+  margin-bottom: var(--ds-size-4);
+}
+
 /* MinimalEditor (håndbok-forfatterflyt) sin plassholdertekst — kan ikke uttrykkes inline, siden
    den er avhengig av :empty::before, ikke en vanlig inline style-egenskap. */
 [data-placeholder]:empty::before {

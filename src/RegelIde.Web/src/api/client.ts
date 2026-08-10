@@ -17,6 +17,7 @@ import type {
   KodelisteKodeDto,
   KodelisteRequest,
   KjorForslagRequest,
+  KjorForslagResponsDto,
   KunnskapsbibliotekFilDto,
   KunnskapsbibliotekLenkeDto,
   LovdataKatalogTreffDto,
@@ -296,7 +297,7 @@ export const api = {
   hentTjenesteforslagKo: () => kall<TjenesteforslagDto[]>('/api/tjenester/forslag'),
 
   kjorTjenesteforslag: (request: KjorForslagRequest) =>
-    kall<TjenesteDto[]>('/api/tjenester/forslag/kjor', {
+    kall<KjorForslagResponsDto<TjenesteDto>>('/api/tjenester/forslag/kjor', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
@@ -318,9 +319,10 @@ export const api = {
 
   hentKunnskapsbibliotekFiler: () => kall<KunnskapsbibliotekFilDto[]>('/api/kunnskapsbibliotek/filer'),
 
-  lastOppKunnskapsbibliotekFil: (fil: File) => {
+  lastOppKunnskapsbibliotekFil: (fil: File, tittel?: string) => {
     const skjema = new FormData();
     skjema.append('fil', fil);
+    if (tittel?.trim()) skjema.append('tittel', tittel.trim());
     return kall<KunnskapsbibliotekFilDto>('/api/kunnskapsbibliotek/filer', { method: 'POST', body: skjema });
   },
 
@@ -406,7 +408,7 @@ export const api = {
   hentBegrepsforslagKo: () => kall<BegrepsforslagDto[]>('/api/begreper/forslag'),
 
   kjorBegrepsforslag: (request: KjorForslagRequest) =>
-    kall<BegrepDto[]>('/api/begreper/forslag/kjor', {
+    kall<KjorForslagResponsDto<BegrepDto>>('/api/begreper/forslag/kjor', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),

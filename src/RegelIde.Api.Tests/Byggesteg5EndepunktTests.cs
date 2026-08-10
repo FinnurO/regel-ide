@@ -78,11 +78,12 @@ public class Byggesteg5EndepunktTests
         "Dette er en ekte tekst-PDF for testing av opplasting til kunnskapsbiblioteket via API-et. " +
         "Teksten er bevisst gjort lang nok til å passere terskelen for hva som regnes som et tekstlag.";
 
-    private static HttpRequestMessage MedFilOpplasting(string url, Guid brukerId, string filnavn, byte[] innhold)
+    private static HttpRequestMessage MedFilOpplasting(string url, Guid brukerId, string filnavn, byte[] innhold, string? tittel = null)
     {
         var innholdContent = new ByteArrayContent(innhold);
         innholdContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/octet-stream");
         var multipart = new MultipartFormDataContent { { innholdContent, "fil", filnavn } };
+        if (tittel is not null) multipart.Add(new StringContent(tittel), "tittel");
         return new HttpRequestMessage(HttpMethod.Post, url)
         {
             Headers = { { GjeldendeBrukerTjeneste.HeaderNavn, brukerId.ToString() } },
@@ -142,6 +143,22 @@ public class Byggesteg5EndepunktTests
     }
 
     [Fact]
+    public async Task Fil_med_tittel_lagrer_og_returnerer_tittelen()
+    {
+        var bruker = await HentTestbrukerAsync();
+
+        var opprettSvar = await _client.SendAsync(MedFilOpplasting(
+            "/api/kunnskapsbibliotek/filer", bruker.Id, "skjema.pdf", LagTestPdf(TestPdfTekst), "Søknadsskjema (test)"));
+        Assert.Equal(HttpStatusCode.Created, opprettSvar.StatusCode);
+        var fil = await opprettSvar.Content.ReadFromJsonAsync<KunnskapsbibliotekFilDto>(JsonInnstillinger);
+        Assert.Equal("Søknadsskjema (test)", fil!.Tittel);
+
+        var listeSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/kunnskapsbibliotek/filer", bruker.Id));
+        var liste = await listeSvar.Content.ReadFromJsonAsync<List<KunnskapsbibliotekFilDto>>(JsonInnstillinger);
+        Assert.Contains(liste!, f => f.Id == fil.Id && f.Tittel == "Søknadsskjema (test)");
+    }
+
+    [Fact]
     public async Task Skannet_pdf_uten_tekstlag_gir_400()
     {
         var bruker = await HentTestbrukerAsync();
@@ -182,9 +199,11 @@ public class Byggesteg5EndepunktTests
         var kjorSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/begreper/forslag/kjor", bruker.Id,
             new KjorForslagRequest([rettskildeId])));
         Assert.Equal(HttpStatusCode.OK, kjorSvar.StatusCode);
-        var opprettede = await kjorSvar.Content.ReadFromJsonAsync<List<BegrepDto>>(JsonInnstillinger);
-        Assert.Single(opprettede!);
-        Assert.Equal("foreslatt_av_ai", opprettede![0].Status);
+        var respons = await kjorSvar.Content.ReadFromJsonAsync<KjorForslagResponsDto<BegrepDto>>(JsonInnstillinger);
+        var opprettede = respons!.Forslag;
+        Assert.Single(opprettede);
+        Assert.Equal("foreslatt_av_ai", opprettede[0].Status);
+        Assert.Null(respons.Melding);
 
         var koSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/begreper/forslag", bruker.Id));
         var ko = await koSvar.Content.ReadFromJsonAsync<List<BegrepsforslagDto>>(JsonInnstillinger);
@@ -231,8 +250,8 @@ public class Byggesteg5EndepunktTests
 
         var kjorSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/begreper/forslag/kjor", bruker.Id,
             new KjorForslagRequest([rettskildeId])));
-        var opprettede = await kjorSvar.Content.ReadFromJsonAsync<List<BegrepDto>>(JsonInnstillinger);
-        var forslagId = opprettede![0].Id;
+        var opprettede = await kjorSvar.Content.ReadFromJsonAsync<KjorForslagResponsDto<BegrepDto>>(JsonInnstillinger);
+        var forslagId = opprettede!.Forslag[0].Id;
 
         // Avvis -> tilbake til utkast
         var avvisSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/begreper/{forslagId}/status", bruker.Id,
@@ -243,8 +262,8 @@ public class Byggesteg5EndepunktTests
 
         // Kjør et nytt forslag for å teste Godkjenn-veien uavhengig av det avviste
         var kjor2 = await (await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/begreper/forslag/kjor", bruker.Id,
-            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<List<BegrepDto>>(JsonInnstillinger);
-        var godkjennSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/begreper/{kjor2![0].Id}/status", bruker.Id,
+            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<KjorForslagResponsDto<BegrepDto>>(JsonInnstillinger);
+        var godkjennSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/begreper/{kjor2!.Forslag[0].Id}/status", bruker.Id,
             new SettStatusRequest("validert", "Ola Fagansvarlig")));
         Assert.Equal(HttpStatusCode.OK, godkjennSvar.StatusCode);
         var godkjent = await godkjennSvar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger);
@@ -269,9 +288,11 @@ public class Byggesteg5EndepunktTests
         var kjorSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/kjor", bruker.Id,
             new KjorForslagRequest([rettskildeId])));
         Assert.Equal(HttpStatusCode.OK, kjorSvar.StatusCode);
-        var opprettede = await kjorSvar.Content.ReadFromJsonAsync<List<TjenesteDto>>(JsonInnstillinger);
-        Assert.Single(opprettede!);
-        Assert.Equal("foreslatt_av_ai", opprettede![0].Status);
+        var respons = await kjorSvar.Content.ReadFromJsonAsync<KjorForslagResponsDto<TjenesteDto>>(JsonInnstillinger);
+        var opprettede = respons!.Forslag;
+        Assert.Single(opprettede);
+        Assert.Equal("foreslatt_av_ai", opprettede[0].Status);
+        Assert.Null(respons.Melding);
 
         var koSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/tjenester/forslag", bruker.Id));
         var ko = await koSvar.Content.ReadFromJsonAsync<List<TjenesteforslagDto>>(JsonInnstillinger);
@@ -308,8 +329,8 @@ public class Byggesteg5EndepunktTests
         var rettskildeId = await HentAlkohollovenIdAsync();
 
         var opprettede = await (await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/kjor", bruker.Id,
-            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<List<TjenesteDto>>(JsonInnstillinger);
-        var forslagId = opprettede![0].Id;
+            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<KjorForslagResponsDto<TjenesteDto>>(JsonInnstillinger);
+        var forslagId = opprettede!.Forslag[0].Id;
 
         var redigerSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/tjenester/{forslagId}/status", bruker.Id,
             new SettStatusRequest("under_revisjon")));

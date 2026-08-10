@@ -624,6 +624,7 @@ export interface KunnskapsbibliotekFilDto {
   id: string;
   virksomhetId: string;
   filnavn: string;
+  tittel: string | null;
   filtype: string;
   utvunnetTekst: string;
   opprettetAv: string;
@@ -639,6 +640,18 @@ export interface LovdataKatalogTreffDto {
 
 export interface KjorForslagRequest {
   rettskildeIder: string[];
+}
+
+/**
+ * Svar fra POST .../forslag/kjor (byggesteg 5 runde 3) — token-forbruk fra KI-kallet (null hvis
+ * leverandøren ikke rapporterer det) og en eksplisitt melding når agenten svarte, men fant null
+ * forslag i valgt kontekst — skiller "kjørte, fant ingenting" fra stillhet som ellers ser ut som en feil.
+ */
+export interface KjorForslagResponsDto<T> {
+  forslag: T[];
+  inputTokens: number | null;
+  outputTokens: number | null;
+  melding: string | null;
 }
 
 /** Kø-visning for «Identifiser begrep» — beriker BegrepDto med proveniens fra AI-forslaget. */

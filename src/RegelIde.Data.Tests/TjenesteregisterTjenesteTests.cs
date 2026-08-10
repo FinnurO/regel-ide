@@ -173,8 +173,10 @@ public class TjenesteregisterTjenesteTests
 
         var register = new TjenesteregisterTjeneste(db);
         var tjeneste = await register.OpprettForslagFraKiAsync(
-            virksomhet, "Stub-tjeneste (KI-forslag)", "Beskrivelse fra KI", "system-ki", "stub-v1",
-            """{"rettskildeIder":[],"lenkeIder":[]}""");
+            virksomhet, "Stub-tjeneste (KI-forslag)", "Beskrivelse fra KI",
+            kompetentMyndighet: null, output: null, tjenestetype: null, malgruppe: null, kanaler: null,
+            kostnad: null, behandlingstid: null, kontaktpunkt: null, konsekvensVedBrudd: null, sprak: null,
+            "system-ki", "stub-v1", """{"rettskildeIder":[],"lenkeIder":[]}""");
 
         Assert.Equal("foreslatt_av_ai", tjeneste.Status);
         var proveniens = await db.Proveniens.SingleAsync(p => p.EntitetId == tjeneste.Id);

@@ -55,6 +55,14 @@ public sealed class EmbeddedPostgresApiFixture : IAsyncLifetime
         // og er derfor den pålitelige veien å overstyre tilkoblingsstrengen i denne testprosessen.
         Environment.SetEnvironmentVariable("ConnectionStrings__RegelIdeDb", testConnString);
 
+        // Samme resonnement gjelder RegelIde:KiAgent:Leverandor (Program.cs:54, avgjør DI rett etter
+        // CreateBuilder). Uten dette ville en ekte appsettings.Local.json/user-secrets på
+        // utviklermaskinen (satt for byggesteg 5 runde 3-testing mot HostYourAI) blitt lest av DENNE
+        // testprosessen også — testene som forventer et fast, deterministisk KiAgentKlientStub-svar
+        // ville i stedet gjort ekte, betalte nettverkskall og fått ekte (varierende) KI-svar. Tvungen
+        // Stub her, uavhengig av hva som ligger i utviklerens lokale config.
+        Environment.SetEnvironmentVariable("RegelIde__KiAgent__Leverandor", "Stub");
+
         Factory = new WebApplicationFactory<Program>();
 
         // Trigger host-oppstart (migrasjon + seeding i Program.cs) nå, ikke ved første test.

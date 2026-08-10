@@ -22,11 +22,13 @@ export default function TjenesteforslagKo() {
   const [nyBeskrivelse, setNyBeskrivelse] = useState('');
   const [leggerTilLenke, setLeggerTilLenke] = useState(false);
   const [filer, setFiler] = useState<KunnskapsbibliotekFilDto[]>([]);
+  const [nyFilTittel, setNyFilTittel] = useState('');
   const [lasterOppFil, setLasterOppFil] = useState(false);
   const filInputRef = useRef<HTMLInputElement>(null);
   const [ko, setKo] = useState<TjenesteforslagDto[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
   const [kjorer, setKjorer] = useState(false);
+  const [sisteKjoring, setSisteKjoring] = useState<{ melding: string | null; inputTokens: number | null; outputTokens: number | null } | null>(null);
 
   function lastLenker() {
     api.hentKunnskapsbibliotekLenker().then(setLenker).catch(() => setLenker([]));
@@ -82,7 +84,8 @@ export default function TjenesteforslagKo() {
     setFeil(null);
     setLasterOppFil(true);
     try {
-      await api.lastOppKunnskapsbibliotekFil(fil);
+      await api.lastOppKunnskapsbibliotekFil(fil, nyFilTittel);
+      setNyFilTittel('');
       lastFiler();
     } catch (err) {
       setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved opplasting av fil.');
@@ -99,9 +102,11 @@ export default function TjenesteforslagKo() {
 
   async function kjorForslag() {
     setFeil(null);
+    setSisteKjoring(null);
     setKjorer(true);
     try {
-      await api.kjorTjenesteforslag({ rettskildeIder: [...valgteRettskilder] });
+      const respons = await api.kjorTjenesteforslag({ rettskildeIder: [...valgteRettskilder] });
+      setSisteKjoring({ melding: respons.melding, inputTokens: respons.inputTokens, outputTokens: respons.outputTokens });
       lastKo();
     } catch (err) {
       setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved kjøring av KI-forslag.');
@@ -162,7 +167,7 @@ export default function TjenesteforslagKo() {
         <ul style={{ marginBottom: '0.75rem' }}>
           {filer.map((f) => (
             <li key={f.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.2rem' }}>
-              <span>{f.filnavn} ({f.filtype})</span>
+              <span>{f.tittel ?? f.filnavn} ({f.filtype})</span>
               <Button variant="tertiary" data-size="sm" onClick={() => slettFil(f.id)}>Fjern</Button>
             </li>
           ))}
@@ -174,6 +179,12 @@ export default function TjenesteforslagKo() {
             Last opp PDF eller Word (.docx) — avvises hvis filen mangler tekstlag (f.eks. et rent skann):
           </Paragraph>
         </label>
+        <Textfield
+          label="Tittel (valgfri)"
+          value={nyFilTittel}
+          onChange={(e) => setNyFilTittel(e.target.value)}
+          style={{ maxWidth: '25rem', marginBottom: '0.5rem' }}
+        />
         <input
           id="kunnskapsbibliotek-fil"
           ref={filInputRef}
@@ -201,6 +212,19 @@ export default function TjenesteforslagKo() {
       )}
 
       {feil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{feil}</div>}
+
+      {sisteKjoring && (
+        <div style={{ marginBottom: '1rem' }}>
+          {sisteKjoring.melding && (
+            <div className="infomelding" style={{ marginBottom: '0.3rem' }}>{sisteKjoring.melding}</div>
+          )}
+          {(sisteKjoring.inputTokens !== null || sisteKjoring.outputTokens !== null) && (
+            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', opacity: 0.7 }}>
+              Siste KI-kall: {sisteKjoring.inputTokens ?? '—'} input-tokens, {sisteKjoring.outputTokens ?? '—'} output-tokens.
+            </Paragraph>
+          )}
+        </div>
+      )}
 
       <Heading level={2} data-size="sm" style={{ marginTop: '1.5rem' }}>
         Ventende forslag
