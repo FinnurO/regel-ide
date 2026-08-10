@@ -764,6 +764,8 @@ public sealed class KunnskapsbibliotekFilEntitet
     public Guid Id { get; set; }
     public required Guid VirksomhetId { get; set; }
     public required string Filnavn { get; set; }
+    /// <summary>Valgfri, menneskelesbar tittel (byggesteg 5 runde 3) — samme rolle som Lenke.Beskrivelse. Vises i UI i stedet for Filnavn når satt.</summary>
+    public string? Tittel { get; set; }
     public required string Filtype { get; set; } // 'pdf' | 'docx'
     public required byte[] Innhold { get; set; }
     public required string UtvunnetTekst { get; set; }

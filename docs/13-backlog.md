@@ -75,6 +75,27 @@ i stedet:
 - 364 backend-tester grønt (201+163, inkl. ekte nettverkskall mot både OpenRouter-stub-handler og
   Lovdatas bulk-API), `tsc -b --noEmit` rent, Lovdata-søk+import verifisert ende-til-ende i browser.
 
+**✅ Runde 3 ferdig 2026-08-10.** Utløst av forberedelsen til et ekte testcase (Agder fylkeskommune)
+— avdekket at runde 2s design hadde reelle mangler før den kunne gi et meningsfullt resultat mot en
+ekte modell (se `docs/14-byggesteg5-teknisk-design.md` §1/§7 for teknisk detalj):
+
+- **KI-klienten generalisert** — `KiAgentKlientOpenRouter` (hardkodet OpenRouter+DeepSeek-default)
+  erstattet med `KiAgentKlientOpenAiKompatibel` (leverandøragnostisk — `BaseUrl`/`Modell`/`ApiKey`
+  alle konfig). Vurdert leverandør: HostYourAI (EU-hostet, GDPR-compliant, kjører åpne modeller).
+- **Rettet et reelt gap**: `RettskildeKontekstHjelper` sendte ikke `Eid` per node — en agent kunne
+  aldri returnere en presis `LovreferanseEid`, uansett instruks. System-instruksene var også kun
+  ettords-etiketter uten skjemabeskrivelse; nå fullstendige, skjema-beskrivende prompter + defensiv
+  markdown-kodeblokk-strimling (`JsonSvarHjelper`).
+- **Tjeneste-forslaget dekker nå resten av CPSV-AP-NO-feltene** som allerede fantes i skjemaet
+  (`KompetentMyndighet`/`Output`/`Tjenestetype`/`Malgruppe`/`Kanaler`/`Kostnad`/`Behandlingstid`/
+  `Kontaktpunkt`/`KonsekvensVedBrudd`/`Sprak`), ikke bare Tittel/Beskrivelse. Fire CPSV-AP-NO-
+  konsepter (`hasParticipation`/`hasInput`/`dct:spatial`/`requires`-vs-`hasPart`) er bevisst IKKE
+  modellert i skjemaet i det hele tatt — dokumentert som eget, senere spørsmål, ikke bygget.
+- **Kunnskapsbibliotek-filer kan nå ha en egen `Tittel`** (uavhengig av opplastet filnavn).
+- **Ny testcase-virksomhet** (`AgderFylkeskommuneSeed.cs`) — kun Virksomhet+Bruker seedet; selve
+  rettskilde-import/fil-opplasting/lenker/agent-kjøring gjøres live gjennom appen.
+- 370 backend-tester grønt (206+164), `tsc -b --noEmit` rent.
+
 **⬜ Runde 3+ gjenstår** (fortsatt retningsnivå, ikke bygget): de tre andre agentene
 (Tjenestebeskrivelse/Vilkår-og-Vilkårstre/Håndbok) i fast pipeline, en generalisert multi-type
 forslagskø, `foreslatt_av_ai` for Vilkår/Regelnode/Unntak, ekte OCR for skannede dokumenter, og

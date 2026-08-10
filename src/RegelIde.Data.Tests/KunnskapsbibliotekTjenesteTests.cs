@@ -93,12 +93,14 @@ public class KunnskapsbibliotekTjenesteTests
         await db.SaveChangesAsync();
 
         var tjeneste = new KunnskapsbibliotekTjeneste(db);
-        var fil = await tjeneste.LeggTilFilAsync(virksomhet, "skjema.pdf", TestFilFixtures.LagPdf(LangTekst), "Kari Jurist");
+        var fil = await tjeneste.LeggTilFilAsync(virksomhet, "skjema.pdf", TestFilFixtures.LagPdf(LangTekst), "Kari Jurist", "Søknadsskjema (test)");
 
         Assert.Equal("pdf", fil.Filtype);
+        Assert.Equal("Søknadsskjema (test)", fil.Tittel);
         Assert.Contains("ekte tekst-PDF", fil.UtvunnetTekst);
         var liste = await tjeneste.ListerFilerForVirksomhetAsync(virksomhet);
         Assert.Single(liste);
+        Assert.Equal("Søknadsskjema (test)", liste[0].Tittel);
         Assert.Empty(liste[0].Innhold); // listing skal ikke hente rå bytes over wire
     }
 

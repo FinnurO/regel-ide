@@ -25,7 +25,7 @@ public sealed class KunnskapsbibliotekTjeneste(RegelIdeDbContext db)
             .OrderByDescending(f => f.OpprettetTidspunkt)
             .Select(f => new KunnskapsbibliotekFilEntitet
             {
-                Id = f.Id, VirksomhetId = f.VirksomhetId, Filnavn = f.Filnavn, Filtype = f.Filtype,
+                Id = f.Id, VirksomhetId = f.VirksomhetId, Filnavn = f.Filnavn, Tittel = f.Tittel, Filtype = f.Filtype,
                 Innhold = Array.Empty<byte>(), UtvunnetTekst = f.UtvunnetTekst, OpprettetAv = f.OpprettetAv, OpprettetTidspunkt = f.OpprettetTidspunkt,
             })
             .ToListAsync(ct);
@@ -33,7 +33,7 @@ public sealed class KunnskapsbibliotekTjeneste(RegelIdeDbContext db)
     /// <exception cref="ArgumentException">For stor fil, ukjent filtype, eller ugyldig PDF/Word.</exception>
     /// <exception cref="InvalidOperationException">Filen mangler tekstlag (sannsynligvis et skann).</exception>
     public async Task<KunnskapsbibliotekFilEntitet> LeggTilFilAsync(
-        Guid virksomhetId, string filnavn, byte[] innhold, string opprettetAv, CancellationToken ct = default)
+        Guid virksomhetId, string filnavn, byte[] innhold, string opprettetAv, string? tittel = null, CancellationToken ct = default)
     {
         if (innhold.LongLength > MaksFilstorrelseBytes)
         {
@@ -49,6 +49,7 @@ public sealed class KunnskapsbibliotekTjeneste(RegelIdeDbContext db)
             Id = Guid.NewGuid(),
             VirksomhetId = virksomhetId,
             Filnavn = filnavn,
+            Tittel = string.IsNullOrWhiteSpace(tittel) ? null : tittel,
             Filtype = filtype,
             Innhold = innhold,
             UtvunnetTekst = utvunnetTekst,

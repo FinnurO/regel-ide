@@ -67,15 +67,19 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
 
     /// <summary>
     /// Byggesteg 5 runde 1 («Identifiser tjenester») — landet med Status="foreslatt_av_ai" og en
-    /// <see cref="ProveniensHjelper.NyForslagRad"/>-rad. Kun Tittel/Beskrivelse settes av agenten —
-    /// resten av CPSV-AP-NO-feltene (allerede nullable) fylles ut av mennesket ved godkjenning, samme
-    /// "generer minimum, menneske fullfører"-prinsipp som «opprett vilkår fra tagg». Bevisst ingen
-    /// auto-opprettet <see cref="TjenesteRegelverksreferanseEntitet"/> — agenten vet hvilken rettskilde
-    /// som inspirerte forslaget (se kildeReferanserJson), ikke hvilken spesifikk eId/paragraf.
+    /// <see cref="ProveniensHjelper.NyForslagRad"/>-rad. Kun Tittel er obligatorisk fra agenten — de
+    /// øvrige, allerede nullable CPSV-AP-NO-feltene settes hvis agenten faktisk fant belegg for dem
+    /// (byggesteg 5 runde 3, utvidet fra kun Tittel/Beskrivelse), resten fylles ut av mennesket ved
+    /// godkjenning, samme "generer minimum, menneske fullfører"-prinsipp som «opprett vilkår fra
+    /// tagg». Bevisst ingen auto-opprettet <see cref="TjenesteRegelverksreferanseEntitet"/> — agenten
+    /// vet hvilken rettskilde som inspirerte forslaget (se kildeReferanserJson), ikke hvilken
+    /// spesifikk eId/paragraf.
     /// </summary>
     public async Task<TjenesteEntitet> OpprettForslagFraKiAsync(
-        Guid virksomhetId, string tittel, string? beskrivelse, string opprettetAv, string aiForslagVersjon,
-        string? kildeReferanserJson, CancellationToken ct = default)
+        Guid virksomhetId, string tittel, string? beskrivelse, string? kompetentMyndighet, string? output,
+        string? tjenestetype, string? malgruppe, IReadOnlyList<string>? kanaler, string? kostnad,
+        string? behandlingstid, string? kontaktpunkt, string? konsekvensVedBrudd, IReadOnlyList<string>? sprak,
+        string opprettetAv, string aiForslagVersjon, string? kildeReferanserJson, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(tittel))
         {
@@ -88,6 +92,16 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
             VirksomhetId = virksomhetId,
             Tittel = tittel,
             Beskrivelse = beskrivelse,
+            KompetentMyndighet = kompetentMyndighet,
+            Output = output,
+            Tjenestetype = tjenestetype,
+            Malgruppe = malgruppe,
+            Kanaler = kanaler?.ToList() ?? [],
+            Kostnad = kostnad,
+            Behandlingstid = behandlingstid,
+            Kontaktpunkt = kontaktpunkt,
+            KonsekvensVedBrudd = konsekvensVedBrudd,
+            Sprak = sprak?.ToList() ?? [],
             Status = "foreslatt_av_ai",
             OpprettetAv = opprettetAv,
             OpprettetTidspunkt = DateTimeOffset.UtcNow,

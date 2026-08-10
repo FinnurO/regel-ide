@@ -46,12 +46,14 @@ builder.Services.AddScoped<VilkarstreKommentarTjeneste>();
 builder.Services.AddScoped<HendelseregisterTjeneste>();
 builder.Services.AddScoped<TjenesteavhengighetregisterTjeneste>();
 builder.Services.AddScoped<KunnskapsbibliotekTjeneste>();
-// "Stub" (default) eller "OpenRouter" — se docs/14-byggesteg5-teknisk-design.md. Bytte krever
+// "Stub" (default) eller "OpenAiKompatibel" — se docs/14-byggesteg5-teknisk-design.md. Bytte krever
 // restart av API-et; å gjøre dette velgbart fra en admin-side i appen er en senere, avgrenset
 // utvidelse (flytt valget til en DB-lagret innstilling + en dispatcher-IKiAgentKlient).
-if (builder.Configuration["RegelIde:KiAgent:Leverandor"] == "OpenRouter")
+// "OpenAiKompatibel" er ikke bundet til én leverandør — BaseUrl/Modell/ApiKey er alle konfig
+// (RegelIde:KiAgent:*), så samme klasse fungerer mot HostYourAI, OpenRouter, eller noe helt annet.
+if (builder.Configuration["RegelIde:KiAgent:Leverandor"] == "OpenAiKompatibel")
 {
-    builder.Services.AddHttpClient<IKiAgentKlient, KiAgentKlientOpenRouter>();
+    builder.Services.AddHttpClient<IKiAgentKlient, KiAgentKlientOpenAiKompatibel>();
 }
 else
 {
@@ -204,6 +206,11 @@ using (var scope = app.Services.CreateScope())
     // internt per rettskilde (ikke "!AnyAsync" på hele tabellen, siden dette kjører etter at
     // Lov/Forskrift kan være importert fra før). Se TestkommuneInnholdSeed.cs for proveniens.
     await TestkommuneInnholdSeed.SeedAsync(db);
+
+    // Byggesteg 5 runde 3 (docs/14-byggesteg5-teknisk-design.md) — testcase for ekte KI-agentkjøring
+    // mot ekte data. Kun Virksomhet+Bruker seedet her; rettskilde/fil/lenke/agent-kjøring gjøres
+    // live gjennom appen.
+    await AgderFylkeskommuneSeed.SeedAsync(db);
 
     // Byggesteg 2-testcaseinnhold (2026-07-29, docs/06-veikart.md) — tjeneste/begreper/kodelister for
     // "Alminnelig skjenkebevilling". Kjøres etter alkoholloven-importen over (no-op hvis den mangler).
@@ -944,8 +951,9 @@ tjenester.MapPost("/forslag/kjor", async (HttpRequest request, KjorForslagReques
         }
         try
         {
-            var opprettede = await forslagstjeneste.KjorForslagAsync(bruker.VirksomhetId, body.RettskildeIder, bruker.Navn, ct);
-            return Results.Ok(opprettede.Select(TjenesteDto.FraEntitet));
+            var resultat = await forslagstjeneste.KjorForslagAsync(bruker.VirksomhetId, body.RettskildeIder, bruker.Navn, ct);
+            return Results.Ok(new KjorForslagResponsDto<TjenesteDto>(
+                resultat.Opprettede.Select(TjenesteDto.FraEntitet).ToList(), resultat.InputTokens, resultat.OutputTokens, resultat.Melding));
         }
         catch (ArgumentException ex)
         {
@@ -1021,10 +1029,11 @@ kunnskapsbibliotek.MapPost("/filer", async (HttpRequest request, IFormFile fil, 
 
         using var minne = new MemoryStream();
         await fil.OpenReadStream().CopyToAsync(minne, ct);
+        string? tittel = request.Form.TryGetValue("tittel", out var tittelVerdi) ? tittelVerdi.ToString() : null;
 
         try
         {
-            var lagretFil = await tjeneste.LeggTilFilAsync(bruker.VirksomhetId, fil.FileName, minne.ToArray(), bruker.Navn, ct);
+            var lagretFil = await tjeneste.LeggTilFilAsync(bruker.VirksomhetId, fil.FileName, minne.ToArray(), bruker.Navn, tittel, ct);
             return Results.Created($"/api/kunnskapsbibliotek/filer/{lagretFil.Id}", KunnskapsbibliotekFilDto.FraEntitet(lagretFil));
         }
         catch (Exception ex) when (ex is ArgumentException or InvalidOperationException)
@@ -1164,8 +1173,9 @@ begreper.MapPost("/forslag/kjor", async (HttpRequest request, KjorForslagRequest
         }
         try
         {
-            var opprettede = await forslagstjeneste.KjorForslagAsync(bruker.VirksomhetId, body.RettskildeIder, bruker.Navn, ct);
-            return Results.Ok(opprettede.Select(BegrepDto.FraEntitet));
+            var resultat = await forslagstjeneste.KjorForslagAsync(bruker.VirksomhetId, body.RettskildeIder, bruker.Navn, ct);
+            return Results.Ok(new KjorForslagResponsDto<BegrepDto>(
+                resultat.Opprettede.Select(BegrepDto.FraEntitet).ToList(), resultat.InputTokens, resultat.OutputTokens, resultat.Melding));
         }
         catch (ArgumentException ex)
         {

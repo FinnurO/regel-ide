@@ -22,29 +22,40 @@ public interface IKiAgentKlient
   `TjenesteforslagTjeneste`, og fremtidige) definerer sin egen private JSON-kontrakt for hva den ber
   om og forventer tilbake — samme mønster som `KiAgentKlientStub`s to faste svar viser.
 - **Registrer i `Program.cs`**: betinget på `RegelIde:KiAgent:Leverandor` (`"Stub"` default |
-  `"OpenRouter"`) — `AddHttpClient<IKiAgentKlient, KiAgentKlientOpenRouter>()` vs.
-  `AddScoped<IKiAgentKlient, KiAgentKlientStub>()`. Et neste leverandørbytte (en annen modell hos
-  samme leverandør, eller en helt annen leverandør) er enten en ren konfigverdi-endring (samme
-  klasse, ny `RegelIde:KiAgent:OpenRouter:Modell`) eller "ny klasse + én ny gren i denne
-  if/else-en" — aldri en endring i noen agent-service.
-- **Runde 2 (2026-08-02) tok leverandørvalget**: `KiAgentKlientOpenRouter.cs` mot OpenRouters
-  OpenAI-kompatible API, modell `deepseek/deepseek-v4-flash-0731` (DeepSeek V4 Flash 0731) —
-  konfigurerbar streng, ikke hardkodet. Valgt fremfor DeepSeeks egen API fordi sistnevnte hostes i
-  Kina; OpenRouter (og tilsvarende: AWS Bedrock, Azure AI Foundry) lar det åpne modell-vektsettet
-  kjøres/rutes utenfor Kina — relevant for et offentlig-sektor-verktøy selv når selve innholdet
-  (offentlig lovtekst) i seg selv er lite sensitivt. API-nøkkel: `RegelIde:KiAgent:OpenRouter:ApiKey`
-  via `dotnet user-secrets` (IKKE `appsettings.Local.json` — begge virker via `IConfiguration`, men
-  User Secrets er null-risiko for commit ved uhell). **Modellvalg fra en admin-side i appen (uten
-  restart) er bevisst IKKE bygget** — konfig+restart holder for denne runden; en dispatcher-
-  `IKiAgentKlient` som slår opp gjeldende leverandør/modell fra en DB-lagret innstilling per kall er
-  en avgrenset, senere utvidelse hvis behovet faktisk oppstår.
-- Tester mot en ekte leverandør (`KiAgentKlientOpenRouterTests.cs`) stubber `HttpMessageHandler` —
-  ALDRI ekte nettverkskall i automatiserte tester her, i motsetning til `LovdataBulkHenterTests`
-  (Lovdata er gratis/uautentisert offentlig data; et ekte OpenRouter-kall koster penger og krever en
-  nøkkel som ikke skal ligge i CI).
-- Trege, ekte KI-kall trenger fortsatt ingen bakgrunnsjobb-mekanisme i praksis (OpenRouter-kall er
-  sekund-raske for disse promptene) — ingen slik mekanisme finnes i kodebasen (se
-  `05-arkitektur-og-nfk.md`); vurder dette på nytt hvis en fremtidig agent bruker mye lengre kontekst.
+  `"OpenAiKompatibel"`) — `AddHttpClient<IKiAgentKlient, KiAgentKlientOpenAiKompatibel>()` vs.
+  `AddScoped<IKiAgentKlient, KiAgentKlientStub>()`.
+- **Runde 3 (2026-08-10) generaliserte klienten** til å være leverandøragnostisk —
+  `KiAgentKlientOpenAiKompatibel.cs` snakker OpenAI-kompatibelt chat-completions-format mot en
+  KONFIGURERBAR `RegelIde:KiAgent:BaseUrl`, ikke en hardkodet leverandør-URL. Erstatter runde 2s
+  `KiAgentKlientOpenRouter` (hardkodet mot openrouter.ai + en DeepSeek-default-modell) — begge er nå
+  fjernet. Et leverandør- eller modellbytte er en ren konfigverdi-endring
+  (`RegelIde:KiAgent:BaseUrl`/`Modell`/`ApiKey`), aldri en kodeendring. Vurdert leverandør: HostYourAI
+  (bekreftet ekte — EU-hostet, GDPR-compliant, OpenAI- og Anthropic-kompatibelt API, kjører åpne
+  modeller på EU-GPU-er) — løser samme Kina-hosting-bekymring som runde 2 flagget for DeepSeeks egen
+  API, men for ETHVERT åpent modell-vektsett, ikke bare én navngitt leverandør. API-nøkkel:
+  `RegelIde:KiAgent:ApiKey` via `dotnet user-secrets` (IKKE `appsettings.Local.json` — begge virker
+  via `IConfiguration`, men User Secrets er null-risiko for commit ved uhell). **Modellvalg fra en
+  admin-side i appen (uten restart) er fortsatt bevisst IKKE bygget** — konfig+restart holder for
+  denne runden; en dispatcher-`IKiAgentKlient` som slår opp gjeldende leverandør/modell fra en
+  DB-lagret innstilling per kall er en avgrenset, senere utvidelse hvis behovet faktisk oppstår.
+- `AiForslagVersjon` (proveniens-feltet, vises som "KI-versjon" i kø-UI) beregnes nå dynamisk i
+  begge agent-tjenestene (`$"OpenAiKompatibel:{Modell}"` når ekte leverandør er aktiv, ellers
+  `"stub-v1"`) — en fast konstant ville løyet om proveniensen idet en ekte modell faktisk kjører.
+- Tester mot en ekte leverandør (`KiAgentKlientOpenAiKompatibelTests.cs`) stubber
+  `HttpMessageHandler` — ALDRI ekte nettverkskall i automatiserte tester her, i motsetning til
+  `LovdataBulkHenterTests` (Lovdata er gratis/uautentisert offentlig data; et ekte KI-kall koster
+  penger og krever en nøkkel som ikke skal ligge i CI).
+- Trege, ekte KI-kall trenger fortsatt ingen bakgrunnsjobb-mekanisme i praksis — ingen slik mekanisme
+  finnes i kodebasen (se `05-arkitektur-og-nfk.md`); vurder dette på nytt hvis en fremtidig agent
+  bruker mye lengre kontekst.
+- **`RettskildeKontekstHjelper` inkluderer nå `Eid` per node** (runde 3) — uten dette kunne en agent
+  aldri returnere en presis `LovreferanseEid` for et Begrep, uansett hvor godt den var instruert,
+  fordi informasjonen rett og slett ikke fantes i det den fikk se.
+- **System-instruksene er nå fullstendige, skjema-beskrivende prompter** (runde 3), ikke ettords-
+  etiketter — de spesifiserer eksakte feltnavn, tillatte enum-verdier, og "svar KUN med ren JSON,
+  ingen markdown-kodeblokk". `JsonSvarHjelper.StrimleKodeblokk` strimler defensivt en evt.
+  ` ```json ``` `-innpakning uansett, siden ekte chatmodeller ofte gjør dette selv når de er bedt om
+  å la være.
 
 ## 2. Kunnskapsbibliotek — skjema (lenker + filer, runde 2)
 
@@ -146,3 +157,26 @@ lagringsavveining. Det som manglet var en søkbar katalog, ikke mer lokalt lagre
   `LovdataBulkHenterTests` — katalogtabellen er delt på tvers av HELE testkjøringen (embedded
   Postgres, ingen virksomhet-scoping mulig), så hver test nullstiller tabellen eksplisitt selv i
   stedet for å anta en bestemt starttilstand.
+
+## 7. Tjeneste-forslag mot CPSV-AP-NO (runde 3) — hva agenten dekker, og fire bevisste gap
+
+Johann la fram CPSV-AP-NO-standardens felt-tabell (obligatorisk/anbefalt/valgfritt). Sjekket mot
+`TjenesteEntitet`: skjemaet hadde ALLEREDE `KompetentMyndighet`/`Output`/`Tjenestetype`/`Malgruppe`/
+`Kanaler[]`/`Kostnad`/`Behandlingstid`/`Kontaktpunkt`/`KonsekvensVedBrudd`/`Sprak[]` som nullable
+felt — men `OpprettForslagFraKiAsync` satte kun `Tittel`+`Beskrivelse`. Runde 3 utvider
+`TjenesteForslagJson`/`OpprettForslagFraKiAsync` til å sette alle disse — kun `Tittel` er
+obligatorisk fra agenten, resten `null` hvis konteksten ikke gir tydelig belegg.
+
+**Fire CPSV-AP-NO-konsepter er bevisst IKKE modellert i skjemaet i det hele tatt** (uavhengig av KI
+— dette er ikke noe en bedre prompt kan løse, siden feltene ikke finnes å skrive til):
+
+- `cpsv:hasParticipation` — organisasjon+rolle som egen struktur. I dag: `KompetentMyndighet` er kun
+  fritekst, ingen kobling til en `OffentligOrganisasjon`-lignende entitet eller rolle-vokabular.
+- `cpsv:hasInput` — dokumentasjonskrav som konsept. Finnes ikke i det hele tatt i dag.
+- `dct:spatial` — geografisk område tjenesten er tilgjengelig i. Finnes ikke i det hele tatt i dag.
+- `dct:requires`/`dct:hasPart` — presis skille mellom "avhengig av" og "sammensatt av" på
+  `TjenesteavhengighetEntitet.Rel`. Nærmest i dag: `"avhengig_av"` ≈ requires, men ingen
+  "har_del"/hasPart-verdi — `Rel`-enumet ble designet rundt Hendelse-utløste relasjoner (byggesteg 2),
+  ikke CPSV sin komposisjons-/avhengighets-akse.
+
+Bevisst utsatt til en egen, senere beslutning — ikke bygget i denne runden.

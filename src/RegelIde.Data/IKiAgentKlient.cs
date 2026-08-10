@@ -9,8 +9,15 @@ namespace RegelIde.Data;
 /// </summary>
 public interface IKiAgentKlient
 {
-    Task<string> GenererAsync(string systemInstruks, string kontekst, CancellationToken ct = default);
+    Task<KiSvar> GenererAsync(string systemInstruks, string kontekst, CancellationToken ct = default);
 }
+
+/// <summary>
+/// Svaret fra ett KI-kall (byggesteg 5 runde 3) — selve innholdet pluss leverandørens rapporterte
+/// token-forbruk, hvis den rapporterer det (<see cref="KiAgentKlientStub"/> gjør ikke det — den er
+/// ikke et ekte kall, derfor <c>null</c>, ikke oppdiktede tall).
+/// </summary>
+public sealed record KiSvar(string Innhold, int? InputTokens, int? OutputTokens);
 
 /// <summary>
 /// STUB (byggesteg 5 runde 1) — returnerer ett fast, tydelig merket eksempelforslag per agenttype.
@@ -27,6 +34,8 @@ public sealed class KiAgentKlientStub : IKiAgentKlient
     private const string TjenesteSvar =
         """[{"Tittel": "Stub-tjeneste (KI-forslag)", "KortBeskrivelse": "STUB-forslag – ingen ekte KI er koblet til. Eksempeltekst generert for å bevise rørledningen."}]""";
 
-    public Task<string> GenererAsync(string systemInstruks, string kontekst, CancellationToken ct = default) =>
-        Task.FromResult(systemInstruks.Contains("begrep", StringComparison.OrdinalIgnoreCase) ? BegrepSvar : TjenesteSvar);
+    public Task<KiSvar> GenererAsync(string systemInstruks, string kontekst, CancellationToken ct = default) =>
+        Task.FromResult(new KiSvar(
+            systemInstruks.Contains("begrep", StringComparison.OrdinalIgnoreCase) ? BegrepSvar : TjenesteSvar,
+            InputTokens: null, OutputTokens: null));
 }

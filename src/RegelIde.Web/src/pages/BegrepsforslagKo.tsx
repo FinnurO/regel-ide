@@ -19,6 +19,7 @@ export default function BegrepsforslagKo() {
   const [ko, setKo] = useState<BegrepsforslagDto[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
   const [kjorer, setKjorer] = useState(false);
+  const [sisteKjoring, setSisteKjoring] = useState<{ melding: string | null; inputTokens: number | null; outputTokens: number | null } | null>(null);
 
   function lastKo() {
     api.hentBegrepsforslagKo().then(setKo).catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av kø.'));
@@ -39,9 +40,11 @@ export default function BegrepsforslagKo() {
 
   async function kjorForslag() {
     setFeil(null);
+    setSisteKjoring(null);
     setKjorer(true);
     try {
-      await api.kjorBegrepsforslag({ rettskildeIder: [...valgteRettskilder] });
+      const respons = await api.kjorBegrepsforslag({ rettskildeIder: [...valgteRettskilder] });
+      setSisteKjoring({ melding: respons.melding, inputTokens: respons.inputTokens, outputTokens: respons.outputTokens });
       lastKo();
     } catch (err) {
       setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved kjøring av KI-forslag.');
@@ -92,6 +95,19 @@ export default function BegrepsforslagKo() {
       )}
 
       {feil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{feil}</div>}
+
+      {sisteKjoring && (
+        <div style={{ marginBottom: '1rem' }}>
+          {sisteKjoring.melding && (
+            <div className="infomelding" style={{ marginBottom: '0.3rem' }}>{sisteKjoring.melding}</div>
+          )}
+          {(sisteKjoring.inputTokens !== null || sisteKjoring.outputTokens !== null) && (
+            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', opacity: 0.7 }}>
+              Siste KI-kall: {sisteKjoring.inputTokens ?? '—'} input-tokens, {sisteKjoring.outputTokens ?? '—'} output-tokens.
+            </Paragraph>
+          )}
+        </div>
+      )}
 
       <Heading level={2} data-size="sm" style={{ marginTop: '1.5rem' }}>
         Ventende forslag

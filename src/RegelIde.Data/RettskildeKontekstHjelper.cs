@@ -40,7 +40,10 @@ internal static class RettskildeKontekstHjelper
             sb.AppendLine($"# {rettskilde.Tittel}");
             foreach (var node in noder.Where(n => n.RettskildeId == rettskilde.Id))
             {
-                sb.AppendLine(node.Tekst);
+                // Eid tas med slik at en agent kan sitere PRESIST hvilket ledd/punkt et forslag kom
+                // fra (f.eks. Begrep.LovreferanseEid) — uten dette finnes informasjonen ikke i det
+                // agenten faktisk ser, uansett hvor godt den er instruert (byggesteg 5 runde 3).
+                sb.AppendLine($"[{node.Eid}] {node.Tekst}");
             }
         }
         return sb.ToString();
