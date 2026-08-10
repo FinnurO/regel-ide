@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using MysticMind.PostgresEmbed;
+using RegelIde.TestInfrastruktur;
 
 namespace RegelIde.Data.Tests;
 
@@ -16,14 +17,24 @@ public sealed class EmbeddedPostgresFixture : IAsyncLifetime
     public async Task InitializeAsync()
     {
         // Eksplisitt instanceId OG fast port: unngår kollisjon med andre embedded Postgres-instanser
-        // (f.eks. RegelIde.Api.Tests, som bruker port 55433) når `dotnet test` kjøres for hele
-        // løsningen og flere testprosjekter starter embedded Postgres samtidig — PgServers
-        // auto-portvalg (port: 0) viste seg upålitelig under akkurat denne samtidigheten.
+        // når `dotnet test` kjøres for hele løsningen og flere testprosjekter starter embedded
+        // Postgres samtidig — PgServers auto-portvalg (port: 0) viste seg upålitelig under akkurat
+        // denne samtidigheten. RegelIde.Api.Tests bruker i dag auto-portvalg (se
+        // EmbeddedPostgresApiFixture.cs) — i prinsippet kunne den lande på nettopp 55432 i vinduet
+        // før denne fixturen binder den, men det er IKKE bekreftet som en reell årsak til noe
+        // observert flaky-tilfelle (GitHub-issue #10) — kun et teoretisk, samme-klasse problem.
         _server = new PgServer("15.4.0", instanceId: Guid.NewGuid(), port: 55432, clearInstanceDirOnStop: true);
         await Task.Run(() => _server.Start());
         ConnectionString = $"Host=localhost;Port={_server.PgPort};Username=postgres;Password=postgres;Database=regelide_test";
 
-        await using var master = new RegelIdeDbContext(NyOptions("Host=localhost;Port=" + _server.PgPort + ";Username=postgres;Password=postgres;Database=postgres"));
+        // PgServer.Start() returnerer før Postgres faktisk tar imot tilkoblinger — under samtidig
+        // `dotnet test` av flere prosjekter (denne + RegelIde.Api.Tests sin egen embedded Postgres)
+        // rekker oppstarten ikke alltid å bli klar før dette første kallet, og
+        // ExecuteSqlRawAsync-en under timer ut (GitHub-issue #10, "flaky, ikke deterministisk").
+        var masterConnString = "Host=localhost;Port=" + _server.PgPort + ";Username=postgres;Password=postgres;Database=postgres";
+        await EmbeddedPostgresHjelper.VentTilKlarAsync(masterConnString);
+
+        await using var master = new RegelIdeDbContext(NyOptions(masterConnString));
         await master.Database.ExecuteSqlRawAsync("CREATE DATABASE regelide_test;");
 
         await using var db = new RegelIdeDbContext(NyOptions(ConnectionString));

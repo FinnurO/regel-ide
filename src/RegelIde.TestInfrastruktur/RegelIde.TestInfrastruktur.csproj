@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Kun for Npgsql-typene i EmbeddedPostgresHjelper — ingen egen versjonspinning her, den
+         resolves via RegelIde.Data sin Npgsql.EntityFrameworkCore.PostgreSQL-referanse, samme
+         mønster som RegelIde.Data.Tests/RegelIde.Api.Tests allerede bruker den transitivt. -->
+    <ProjectReference Include="..\RegelIde.Data\RegelIde.Data.csproj" />
+  </ItemGroup>
+
+</Project>
