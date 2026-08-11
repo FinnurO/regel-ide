@@ -14,7 +14,7 @@ Ment å oppdateres etter hver runde — ikke en engangs-plan.*
 | 2 | Tjenester + Begrep + Kodelister | ✅ Bygget, inkl. Hendelse (CPSV Event) og Tjenesteavhengighet som ekte tabeller (§2.1, ferdig 2026-07-31) |
 | 3 | Presedensregister | ⬜ Ikke startet |
 | 4 | Vilkårstre (grafeditor) | ✅ Runde 1 bygget og verifisert, inkl. tekst-først «opprett vilkår fra tagg»-flyt (§2.5). Runde 2 (testmodul + full publiseringsmodell) ⬜ ikke startet |
-| 5 | AI-forslag (utvidet: kunnskapsbibliotek + skillsbaserte agenter) | ✅ Runde 1 ferdig 2026-07-31 — to agenter («Identifiser tjenester»/«Identifiser begrep») + `IKiAgentKlient`-stub. ✅ Runde 2 ferdig 2026-08-02 (§2.2 under) — ekte KI-leverandør (OpenRouter/DeepSeek), fil-opplasting til kunnskapsbiblioteket, Lovdata-søk. ⬜ Runde 3+ (de tre resterende agentene) gjenstår. |
+| 5 | AI-forslag (utvidet: kunnskapsbibliotek + skillsbaserte agenter) | ✅ Runde 1 ferdig 2026-07-31 — to agenter («Identifiser tjenester»/«Identifiser begrep») + `IKiAgentKlient`-stub. ✅ Runde 2 ferdig 2026-08-02 — ekte KI-leverandør, fil-opplasting, Lovdata-søk. ✅ Runde 3 ferdig 2026-08-10 — generisk KI-klient, resten av CPSV-AP-NO-feltene, ny testcase. ✅ Runde 4 ferdig 2026-08-10 (§2.2 under) — relaterte tjenester/regelverksreferanser fra agenten + RAG-spike (uten pgvector) mot samme kost-/kvalitetsproblem. ⬜ De tre resterende agentene (Tjenestebeskrivelse/Vilkår-og-Vilkårstre/Håndbok) gjenstår. |
 | 6 | Datasett, informasjonsmodell, eksportmotor | 🚧 Datasett-registeret + `DatasettVerdi` bygget (byggesteg 4-runden). Informasjonsmodell-skjerm og eksportmotor ⬜ ikke startet |
 | 7 | Saksbehandling/forklaringslogg (tynn slice) | ⬜ Ikke startet — MVP-grensen |
 | 8 | Kunnskapsgraf/påvirkningsanalyse | ⬜ Bevisst utenfor MVP |
@@ -96,7 +96,103 @@ ekte modell (se `docs/14-byggesteg5-teknisk-design.md` §1/§7 for teknisk detal
   rettskilde-import/fil-opplasting/lenker/agent-kjøring gjøres live gjennom appen.
 - 370 backend-tester grønt (206+164), `tsc -b --noEmit` rent.
 
-**⬜ Runde 3+ gjenstår** (fortsatt retningsnivå, ikke bygget): de tre andre agentene
+**✅ Runde 4 ferdig 2026-08-10.** To parallelle, avgrensede spor (se
+`docs/14-byggesteg5-teknisk-design.md` §8 for teknisk detalj), utløst av live-testing av runde 3 som
+avdekket et reelt kost-/kvalitetsproblem (en kjøring med 6 rettskilder, ~49k input-tokens, ga et tomt
+`[]`-svar) og to dokumenterte agent-gap:
+
+- **Spor A — Relaterte tjenester + regelverksreferanser.** «Identifiser tjenester» kan nå foreslå
+  `TjenesteavhengighetEntitet`-relasjoner (til EN eksisterende tjeneste via server-nummererte `E#`,
+  eller til en annen ny tjeneste i samme batch via `T#` — samme "server nummererer, agent
+  refererer"-prinsipp som eId-fiksen i runde 3) og `TjenesteRegelverksreferanseEntitet`-koblinger
+  (eksakte `[eId]`-tagger). Uoppløselige/hallusinerte referanser droppes stille, aldri hele batchen.
+  Ny `"har_del"`-`Rel`-verdi (dekker `dct:hasPart`-siden av det fjerde CPSV-AP-NO-konseptet fra
+  §2.2 runde 3 — kun lettet, ikke fullt løst). Bonus: `TjenesteavhengighetregisterTjeneste.
+  OpprettAsync` hadde tidligere INGEN sykel-sjekk — ny bounded BFS lagt til (gjelder både UI og
+  agent). Ingen frontend-endring — `TjenesteDetalj.tsx` viser de nye koblingene automatisk.
+- **Spor B — RAG-spike (uten pgvector, bevisst valg — se §8.2 i teknisk design for begrunnelsen).**
+  Ny `IEmbeddingKlient`/`EmbeddingKlientOpenAiKompatibel`/`EmbeddingKlientStub`, embeddings lagret
+  som en vanlig Postgres `double precision[]`-kolonne (`RettskildeNodeEmbeddingEntitet`), kosinuslikhet
+  i ren C#. `TjenesteforslagTjeneste.KjorForslagMedRagAsync` er en ALTERNATIV kjørevei (erstatter
+  ikke `KjorForslagAsync`) som henter kun de K mest like rettskilde-nodene mot kunnskapsbibliotekets
+  lenke-/fil-tekst som "spørsmål" — for direkte, rå sammenligning mot dagens dump-alt-baseline.
+- 223 backend-tester i `RegelIde.Data.Tests` (opp fra 213 — 10 nye) + 164 i `RegelIde.Api.Tests`,
+  alle grønt. Bifangst: fikset en latent `EmbeddedPostgresFixture`-bug (manglende try/catch rundt
+  `_server?.Dispose()`) som blåste opp rapportert feilantall under denne rundens testing — se §8.3 i
+  teknisk design.
+
+**Eksplisitt IKKE gjort i runde 4 — deferred, ikke glemt:**
+
+*Fra Spor A:*
+- De tre andre CPSV-AP-NO-konseptene fra runde 3 (`cpsv:hasParticipation`, `cpsv:hasInput`,
+  `dct:spatial`) er FORTSATT ikke modellert.
+- `"har_del"` gir agenten riktig `Rel`-verdi, men ingen egen typed hasPart-struktur (rekkefølge/
+  komposisjon) — `dct:requires`-vs-`hasPart` er lettet, ikke fullt løst.
+- Agenten ser kun TITTEL på eksisterende tjenester når den vurderer relasjoner, ikke beskrivelse/
+  CPSV-felt — kan gi upresise forslag der to tjenester har like titler men ulikt innhold.
+
+*Fra Spor B:*
+- «Identifiser begrep» er IKKE del av RAG-spiken — ingen naturlig retrieval-anker identifisert for
+  den agenten (ingen kunnskapsbibliotek-side å måle mot).
+- Kunnskapsbibliotek-lenker/filer chunkes/embeddes IKKE — fortsetter å dumpes fullt ut. Sannsynlig
+  neste store kostnadsdriver etter at rettskilde-noder er løst med RAG.
+- Ingen pgvector/produksjons-skala vektorindeks — spiken bruker cosinelikhet i C# over en vanlig
+  array-kolonne. Egen, senere beslutning hvis RAG viser seg nyttig i praksis.
+- Ingen automatisk re-embedding ved reimport/versjonering av en rettskilde — embeddings beregnes
+  lazy uten invalideringsstrategi hvis nodetekst endres.
+- ~~Hvilken leverandør som faktisk tilbyr embeddings er ubekreftet~~ **Bekreftet 2026-08-10**:
+  HostYourAI har et eget embeddings-endepunkt (`POST /api/v1/embeddings`, modell
+  `BAAI/bge-multilingual-gemma2` — flerspråklig), separat fra chat-completions.
+- ~~Ingen automatisert evaluering/scoring av RAG-vs-dump-alt~~ **Rå (ikke automatisert)
+  sammenligning faktisk kjørt 2026-08-10**, OG en faktisk innholdsgjennomgang av forslagene (ikke
+  bare tokens) mot alkoholloven (~276 noder) via et nytt, ikke frontend-koblet endepunkt
+  (`POST /api/tjenester/forslag/kjor-rag`) — se `docs/14-byggesteg5-teknisk-design.md` §8.4 for
+  fullt funn. Kort oppsummert: RAG med K=40 brukte **84 % færre input-tokens** enn dump-alt
+  (4 479 vs. 28 830) og ga et ikke-tomt svar der dump-alt SAMME kontekst var ustabilt (tomt ett
+  forsøk, rikt et annet). MEN en innholdssammenligning viste at RAG-forslagene var vesentlig
+  tynnere — **snitt feltfullstendighet falt fra 83 % til 28 %** (kanaler/kostnad/behandlingstid/
+  kontaktpunkt/språk nesten alltid tomme), 2 av 6 var dubletter av dump-alt-funn (med færre felt
+  utfylt), og 3 av 6 var tvilsomme som egne CPSV-tjenester (en saksbehandlings-beskrivelse, en
+  tilsynsplikt, en regulering/forbud). Netto reelt nye, velformede tjenester fra RAG: trolig 1, ikke
+  6. RAG med K=20 ga et tomt svar. **Konklusjon revidert**: RAG er billigere og unngikk denne
+  gangen dump-alts tomme-svar-problem, men prisen var vesentlig lavere feltfullstendighet — ikke en
+  entydig seier. Tynt datagrunnlag (én rettskilde, én kjøring per K) — ikke et statistisk bevis.
+- Underveis avdekket og fikset: `RettskildeEmbeddingTjeneste`/`EmbeddingKlientOpenAiKompatibel`
+  kalte embeddings-API-et ÉN GANG PER NODE, sekvensielt, uten batching/backoff — traff HostYourAI
+  sin `429 Too Many Requests` konsekvent ved ~276 noder. Fikset: `IEmbeddingKlient.EmbedAsync` tar
+  nå en LISTE av tekster (batcher 16 noder per kall, standard OpenAI `input`-som-array-format) +
+  enkel retry-med-backoff (maks 3 forsøk) på 429.
+- **Ny, konkret post**: ingen systematisk tuning/undersøkelse av riktig K (antall noder RAG henter)
+  — K=20 var for lite for alkoholloven (tomt svar), K=40 unngikk det tomme svaret men ga fortsatt
+  vesentlig lavere feltfullstendighet enn dump-alt. En fast K uavhengig av rettskildens
+  størrelse/antall noder er sannsynligvis feil for en fremtidig, mindre eksperimentell versjon;
+  bør trolig skalere med enten rettskilde-størrelse eller en likhets-terskel i stedet for et fast tall.
+- **Ny, konkret post**: uklart OM feltfullstendighets-fallet (83 % → 28 %) er en egenskap ved
+  RAG-retrieval generelt (mindre kontekst per node → mindre grunnlag for agenten å utlede
+  sekundærfelt fra) eller en prompt-svakhet som kan fikses uavhengig av kontekst-størrelse (f.eks.
+  presisere i system-instruksen at sekundærfelt skal utledes aktivt fra det agenten faktisk ser,
+  ikke bare når det er "tydelig"). Ikke undersøkt — se full innholdssammenligning i
+  `docs/14-byggesteg5-teknisk-design.md` §8.4.
+- **Foreslått, IKKE bygget — Spor C: generer → forankre → verifiser** (Johanns forslag etter §8.4-
+  funnet). Snur rekkefølgen: agenten foreslår kandidat-tjenester FØRST (billig, fra paragraf-/
+  kapittel-overskrifter, ikke hvert ledd/punkt), og RAG brukes ETTERPÅ til å forankre/verifisere
+  HVERT forslag mot sin egen, presise spørsmålsvektor — løser trolig feltfullstendighets-fallet
+  over, siden retrieval ikke lenger deler én kompromiss-pool på alle forslagene. Trolig DYRERE
+  totalt enn dagens RAG (flere KI-kall, ikke færre — kostnadsdriveren er verifiseringsstegets N
+  chat-kall, ikke embeddings), ikke billigere. Full skisse med åpne spørsmål:
+  `docs/14-byggesteg5-teknisk-design.md` §8.5. Ikke tatt stilling til om det skal bygges.
+- **Foreslått, IKKE bygget — er selve chunkingen (ledd/punkt-nivå) riktig for RAG?** Ekstern
+  analyse (CoPilot) sammenlignet mot koden bekreftet to konkrete svakheter uavhengig av Spor A/B/C:
+  (1) teksten som embeddes har ingen forelder-kontekst (paragraf-`Overskrift`/`Nummer` ligger på en
+  ANNEN node enn ledd-teksten som embeddes), (2) chunking på ledd-nivå fragmenterer det dump-alt ser
+  som én sammenhengende paragraf/tjeneste — plausibel forklaring på §8.4s feltfullstendighets-fall.
+  Tre lagdelte, ikke-bygde fikser (billigst→dyrest: forelder-kontekst inn i embedding-teksten →
+  utvid til søskenledd ved henting → reranking-steg) — full presisering, inkl. hvorfor
+  forarbeider/dommer-delen av rådet ikke er anvendbar før byggesteg 3 (Presedensregister) finnes:
+  `docs/14-byggesteg5-teknisk-design.md` §8.6. Rangert FØR et eventuelt Spor C siden begge deler
+  samme underliggende chunking.
+
+**⬜ Fortsatt gjenstår** (fortsatt retningsnivå, ikke bygget): de tre andre agentene
 (Tjenestebeskrivelse/Vilkår-og-Vilkårstre/Håndbok) i fast pipeline, en generalisert multi-type
 forslagskø, `foreslatt_av_ai` for Vilkår/Regelnode/Unntak, ekte OCR for skannede dokumenter, og
 modellvalg fra en admin-side. **Forutsetter ikke** byggesteg 3, men presedens (byggesteg 3) ville
