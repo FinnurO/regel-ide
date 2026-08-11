@@ -402,6 +402,10 @@ public sealed record KunnskapsbibliotekFilDto(Guid Id, Guid VirksomhetId, string
 /// <summary>Forespørsel for POST /api/begreper/forslag/kjor og /api/tjenester/forslag/kjor.</summary>
 public sealed record KjorForslagRequest(IReadOnlyList<Guid> RettskildeIder);
 
+/// <summary>Forespørsel for POST /api/tjenester/forslag/kjor-rag (byggesteg 5 runde 4, RAG-spike) —
+/// <see cref="AntallNoder"/> er K i "de K mest like nodene", se <see cref="RegelIde.Data.RagKontekstHjelper"/>.</summary>
+public sealed record KjorForslagMedRagRequest(IReadOnlyList<Guid> RettskildeIder, int AntallNoder);
+
 /// <summary>
 /// Svar fra POST .../forslag/kjor (byggesteg 5 runde 3) — token-forbruk fra KI-kallet
 /// (<see cref="RegelIde.Data.KiSvar"/>, null hvis leverandøren ikke rapporterer det) og en eksplisitt

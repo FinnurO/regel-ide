@@ -68,7 +68,20 @@ public sealed class EmbeddedPostgresFixture : IAsyncLifetime
             // Ufarlig for testresultatet (selve testen er allerede ferdig når dette skjer); scratch-
             // mappen ryddes uansett bort av OS-et over tid.
         }
-        _server?.Dispose();
+        try
+        {
+            // PgServer.Dispose() kaller SELV Stop() -> RemoveInstanceDir() internt (samme kode-sti,
+            // samme fillås-risiko som over) — uten denne try/catch-en propagerer akkurat samme
+            // UnauthorizedAccessException herfra i stedet, som xUnit rapporterer som en
+            // "Test Collection Cleanup Failure" og (observert 2026-08-10) får til å blåse opp
+            // rapportert test-totalt/feilantall kraftig, selv om alle testene selv allerede er ferdige
+            // og grønne på dette tidspunktet.
+            _server?.Dispose();
+        }
+        catch (UnauthorizedAccessException)
+        {
+            // Samme begrunnelse som over.
+        }
         return Task.CompletedTask;
     }
 }

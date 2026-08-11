@@ -131,6 +131,44 @@ public class TjenesteavhengighetregisterTjenesteTests
     }
 
     [Fact]
+    public async Task Ny_kobling_som_ville_lukket_en_sykel_kastes()
+    {
+        // Byggesteg 5 runde 4 — fantes ingen sykel-sjekk her tidligere (kun selvreferanse+duplikat).
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = await NyVirksomhetAsync(db);
+        var a = await NyTjenesteAsync(db, virksomhet, "A");
+        var b = await NyTjenesteAsync(db, virksomhet, "B");
+        var c = await NyTjenesteAsync(db, virksomhet, "C");
+
+        var register = new TjenesteavhengighetregisterTjeneste(db);
+        await register.OpprettAsync(virksomhet, a, b, "forutsetning_for", null, null, "Kari Jurist");
+        await register.OpprettAsync(virksomhet, b, c, "forutsetning_for", null, null, "Kari Jurist");
+
+        // c -> a ville lukket sykelen a -> b -> c -> a.
+        var ex = await Assert.ThrowsAsync<ArgumentException>(() =>
+            register.OpprettAsync(virksomhet, c, a, "forutsetning_for", null, null, "Kari Jurist"));
+        Assert.Contains("sykel", ex.Message);
+    }
+
+    [Fact]
+    public async Task Har_del_gir_riktig_visningstekst_pa_begge_sider()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = await NyVirksomhetAsync(db);
+        var helhet = await NyTjenesteAsync(db, virksomhet, "Skjenkebevilling");
+        var del = await NyTjenesteAsync(db, virksomhet, "Kunnskapsprøve");
+
+        var register = new TjenesteavhengighetregisterTjeneste(db);
+        await register.OpprettAsync(virksomhet, helhet, del, "har_del", null, null, "Kari Jurist");
+
+        var fraSiden = await register.HentForTjenesteAsync(helhet);
+        Assert.Equal("har del Kunnskapsprøve", Assert.Single(fraSiden).Visningstekst);
+
+        var tilSiden = await register.HentForTjenesteAsync(del);
+        Assert.Equal("er del av Skjenkebevilling", Assert.Single(tilSiden).Visningstekst);
+    }
+
+    [Fact]
     public async Task Sletter_avhengighet()
     {
         await using var db = _fixture.NyDbContext();
