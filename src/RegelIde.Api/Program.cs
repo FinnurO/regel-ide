@@ -60,6 +60,20 @@ else
     builder.Services.AddScoped<IKiAgentKlient, KiAgentKlientStub>();
 }
 builder.Services.AddScoped<BegrepsforslagTjeneste>();
+// Byggesteg 5 runde 4 (RAG-spike) — samme "Stub eller OpenAiKompatibel"-mønster som IKiAgentKlient
+// over, men egen konfig (RegelIde:KiAgent:EmbeddingBaseUrl/EmbeddingModell) siden en leverandør
+// typisk har separate URL-er/modellnavn for chat-completions og embeddings. Om HostYourAI faktisk
+// tilbyr embeddings er ubekreftet (se docs/13-backlog.md) — Stub-fallback lar API-et starte og
+// TjenesteforslagTjeneste.KjorForslagMedRagAsync kjøre uten en ekte leverandør konfigurert.
+if (builder.Configuration["RegelIde:KiAgent:EmbeddingBaseUrl"] is not null)
+{
+    builder.Services.AddHttpClient<IEmbeddingKlient, EmbeddingKlientOpenAiKompatibel>();
+}
+else
+{
+    builder.Services.AddScoped<IEmbeddingKlient, EmbeddingKlientStub>();
+}
+builder.Services.AddScoped<RettskildeEmbeddingTjeneste>();
 builder.Services.AddScoped<TjenesteforslagTjeneste>();
 builder.Services.AddHttpClient<LovdataBulkHenter>();
 builder.Services.AddScoped<LovdataKatalogTjeneste>();
@@ -962,6 +976,30 @@ tjenester.MapPost("/forslag/kjor", async (HttpRequest request, KjorForslagReques
     })
     .WithName("KjorTjenesteforslag")
     .WithSummary("Kjører «Identifiser tjenester»-agenten mot valgte rettskilder + kunnskapsbibliotek (byggesteg 5 runde 1, stub-KI).");
+
+// Byggesteg 5 runde 4 (RAG-spike) — RÅ SAMMENLIGNING mot endepunktet over, ikke en erstatning. Ingen
+// frontend-kobling denne runden (se docs/13-backlog.md §2.2) — kun til manuell/skriptet sammenligning
+// av tokens+forslag mellom dump-alt (over) og RAG (her) på samme testcase.
+tjenester.MapPost("/forslag/kjor-rag", async (HttpRequest request, KjorForslagMedRagRequest body, TjenesteforslagTjeneste forslagstjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var resultat = await forslagstjeneste.KjorForslagMedRagAsync(bruker.VirksomhetId, body.RettskildeIder, body.AntallNoder, bruker.Navn, ct);
+            return Results.Ok(new KjorForslagResponsDto<TjenesteDto>(
+                resultat.Opprettede.Select(TjenesteDto.FraEntitet).ToList(), resultat.InputTokens, resultat.OutputTokens, resultat.Melding));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KjorTjenesteforslagMedRag")
+    .WithSummary("RAG-spike (byggesteg 5 runde 4) — samme agent som /forslag/kjor, men henter kun de K mest like rettskilde-nodene i stedet for å dumpe alt. Rå sammenligning, ikke en erstatning.");
 
 // ---------- Kunnskapsbibliotek (byggesteg 5 runde 1, docs/06-veikart.md) — krever X-Bruker-Id, ----------
 // ---------- alltid virksomhetens eget arbeidsprodukt, kun brukt av «Identifiser tjenester». ----------

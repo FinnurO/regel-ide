@@ -15,10 +15,16 @@ public sealed record TjenesteavhengighetVisning(
 /// </summary>
 public sealed class TjenesteavhengighetregisterTjeneste(RegelIdeDbContext db)
 {
-    private static readonly string[] GyldigeRel =
-        ["forutsetning_for", "gir_mulighet_til", "utlost_av", "for", "avhengig_av", "input_til"];
+    // internal (ikke private) siden TjenesteforslagTjeneste (byggesteg 5 runde 4) gjenbruker denne
+    // listen i sin system-instruks til KI-agenten, i stedet for å duplisere den og risikere drift.
+    internal static readonly string[] GyldigeRel =
+        ["forutsetning_for", "gir_mulighet_til", "utlost_av", "for", "avhengig_av", "input_til", "har_del"];
 
     // docs/03-domenemodell.md §1.5 "ett rettet kant per relasjon" — tabellen med Fra-/Til-visningstekst.
+    // "har_del" lagt til byggesteg 5 runde 4 — dekker dct:hasPart-siden av det CPSV-AP-NO-konseptet
+    // docs/14-byggesteg5-teknisk-design.md §7 dokumenterte som utsatt i runde 3 (kun selve Rel-verdien,
+    // ingen egen typed komposisjons-/rekkefølge-struktur — se docs/13-backlog.md for hva som fortsatt
+    // er åpent).
     private static readonly Dictionary<string, (string Fra, string Til)> Visningstekster = new()
     {
         ["forutsetning_for"] = ("er forutsetning for {0}", "krever {0}"),
@@ -27,6 +33,7 @@ public sealed class TjenesteavhengighetregisterTjeneste(RegelIdeDbContext db)
         ["for"] = ("kommer før {0}", "kommer etter {0}"),
         ["avhengig_av"] = ("{0} er avhengig av denne", "avhengig av {0}"),
         ["input_til"] = ("er input til {0}", "har input fra {0}"),
+        ["har_del"] = ("har del {0}", "er del av {0}"),
     };
 
     public async Task<List<TjenesteavhengighetVisning>> HentForTjenesteAsync(Guid tjenesteId, CancellationToken ct = default)
@@ -87,6 +94,11 @@ public sealed class TjenesteavhengighetregisterTjeneste(RegelIdeDbContext db)
         {
             throw new ArgumentException("Denne avhengigheten (samme fra/til/rel) finnes allerede.");
         }
+        if (await LukkerSykelAsync(fraTjenesteId, tilTjenesteId, ct))
+        {
+            throw new ArgumentException(
+                $"Denne avhengigheten ville lukket en sykel — '{tilTjenesteId}' kan allerede (transitivt) nå '{fraTjenesteId}'.");
+        }
 
         var avhengighet = new TjenesteavhengighetEntitet
         {
@@ -104,6 +116,36 @@ public sealed class TjenesteavhengighetregisterTjeneste(RegelIdeDbContext db)
         db.Proveniens.Add(ProveniensHjelper.NyRad("tjenesteavhengighet", avhengighet.Id, virksomhetId, "opprettet", opprettetAv));
         await db.SaveChangesAsync(ct);
         return avhengighet;
+    }
+
+    /// <summary>
+    /// BFS fra <paramref name="tilTjenesteId"/> over eksisterende, gjeldende
+    /// <see cref="TjenesteavhengighetEntitet"/>-kanter — sant hvis <paramref name="fraTjenesteId"/> er
+    /// nåbar, dvs. at en NY kant fraTjenesteId→tilTjenesteId ville lukket en sykel. Byggesteg 5 runde 4
+    /// — fantes ikke tidligere i det hele tatt (kun selvreferanse+duplikat ble sjekket), i motsetning
+    /// til <c>VilkarstreGrafHjelper.FinnStiAsync</c> som allerede gjør dette for vilkårstreet. Egen,
+    /// enklere BFS her siden dette kun spenner over ÉN kant-type (denne tabellen), ikke flere
+    /// node-typer som vilkårstreet.
+    /// </summary>
+    private async Task<bool> LukkerSykelAsync(Guid fraTjenesteId, Guid tilTjenesteId, CancellationToken ct)
+    {
+        var besokt = new HashSet<Guid> { tilTjenesteId };
+        var ko = new Queue<Guid>();
+        ko.Enqueue(tilTjenesteId);
+        while (ko.Count > 0)
+        {
+            var gjeldende = ko.Dequeue();
+            var naboer = await db.Tjenesteavhengigheter
+                .Where(t => t.Entitetsstatus == "gjeldende" && t.FraTjenesteId == gjeldende)
+                .Select(t => t.TilTjenesteId)
+                .ToListAsync(ct);
+            foreach (var nabo in naboer)
+            {
+                if (nabo == fraTjenesteId) return true;
+                if (besokt.Add(nabo)) ko.Enqueue(nabo);
+            }
+        }
+        return false;
     }
 
     public async Task<bool> SlettAsync(Guid id, CancellationToken ct = default)

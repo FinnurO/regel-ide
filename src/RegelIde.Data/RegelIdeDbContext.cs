@@ -47,6 +47,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<TekstTaggEntitet> TekstTagger => Set<TekstTaggEntitet>();
     public DbSet<TaggKindKonfigurasjonEntitet> TaggKindKonfigurasjoner => Set<TaggKindKonfigurasjonEntitet>();
     public DbSet<HandbokKommentarMetadataEntitet> HandbokKommentarMetadata => Set<HandbokKommentarMetadataEntitet>();
+    public DbSet<RettskildeNodeEmbeddingEntitet> RettskildeNodeEmbeddinger => Set<RettskildeNodeEmbeddingEntitet>();
     public DbSet<ProveniensEntitet> Proveniens => Set<ProveniensEntitet>();
     public DbSet<TjenesteEntitet> Tjenester => Set<TjenesteEntitet>();
     public DbSet<TjenesteRegelverksreferanseEntitet> TjenesteRegelverksreferanser => Set<TjenesteRegelverksreferanseEntitet>();
@@ -228,6 +229,23 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // 1:1 med rettskilde_noder — samme Id, ingen egen surrogatnøkkel.
             e.HasOne<RettskildeNodeEntitet>().WithOne(n => n.HandbokMetadata)
                 .HasForeignKey<HandbokKommentarMetadataEntitet>(x => x.NodeId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        b.Entity<RettskildeNodeEmbeddingEntitet>(e =>
+        {
+            e.ToTable("rettskilde_node_embeddinger");
+            e.HasKey(x => x.NodeId).HasName("rettskilde_node_embeddinger_pkey");
+            e.Property(x => x.NodeId).HasColumnName("node_id").ValueGeneratedNever();
+            e.Property(x => x.Embedding).HasColumnName("embedding");
+            e.Property(x => x.Modell).HasColumnName("modell");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+
+            // 1:1 med rettskilde_noder — ingen navigasjonsegenskap tilbake (i motsetning til
+            // HandbokMetadata) siden dette kun konsumeres via RettskildeEmbeddingTjeneste/
+            // RagKontekstHjelper, aldri via en Include fra RettskildeNodeEntitet selv.
+            e.HasOne<RettskildeNodeEntitet>().WithMany()
+                .HasForeignKey(x => x.NodeId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
 

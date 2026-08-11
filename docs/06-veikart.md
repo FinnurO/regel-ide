@@ -188,12 +188,45 @@ derfor:
   gjør en full lokal kopi triviell om det trengs) bygges/fornyes automatisk (24t). Ingen endring i
   selve import-endepunktet. Se `docs/14-byggesteg5-teknisk-design.md` §6.
 
-**Ikke gjort ennå (runde 3+, fortsatt retningsnivå, ikke implementasjonsplan):** de tre andre
-agentene (Tjenestebeskrivelse/Vilkår-og-Vilkårstre/Håndbok) og deres innbyrdes rekkefølge, en
-generalisert multi-type forslagskø (i dag: to separate køer, én per artefakttype), `foreslatt_av_ai`
-for Vilkår/Regelnode/Unntak, ekte OCR for skannede dokumenter, og modellvalg fra en admin-side i
-appen (i dag: konfig + restart). Se `docs/14-byggesteg5-teknisk-design.md` for `IKiAgentKlient`-
-kontrakten og kunnskapsbibliotek-skjemaet som mal for disse rundene.
+**Runde 3 bygget (2026-08-10)** — generaliserte `IKiAgentKlient` til leverandøragnostisk
+(`KiAgentKlientOpenAiKompatibel`), rettet et reelt gap (agenten fikk aldri `Eid` per node — kunne
+derfor aldri returnere en presis `LovreferanseEid`), og utvidet «Identifiser tjenester» til å dekke
+resten av CPSV-AP-NO-feltene som allerede fantes i skjemaet. Se `docs/14-byggesteg5-teknisk-design.md`
+§1/§7 og `docs/13-backlog.md` §2.2 for teknisk detalj og de fire bevisst uløste CPSV-AP-NO-konseptene.
+
+**Runde 4 bygget (2026-08-10)** — to parallelle, avgrensede spor, utløst av live-testing som avdekket
+et reelt kost-/kvalitetsproblem (dagens `RettskildeKontekstHjelper` dumper ALL bladtekst uten
+relevansfilter — en kjøring med 6 rettskilder/~49k tokens ga et tomt svar) og to dokumenterte
+agent-gap (ingen relaterte tjenester, ingen regelverksreferanser fra «Identifiser tjenester»). Se
+`docs/14-byggesteg5-teknisk-design.md` §8 for full teknisk detalj:
+
+- **Spor A**: agenten kan nå foreslå relaterte tjenester (`TjenesteavhengighetEntitet`, inkl. en ny
+  `"har_del"`-relasjon) og regelverksreferanser, med samme "server nummererer referanser, agenten
+  bruker dem, uoppløselige droppes stille"-prinsipp som eId-fiksen i runde 3. Bonus: en tidligere
+  manglende sykel-sjekk i `TjenesteavhengighetregisterTjeneste.OpprettAsync` er fikset.
+- **Spor B**: en RAG-spike (uten pgvector, bevisst valg — se teknisk design for begrunnelsen) som
+  henter kun de K mest like rettskilde-nodene mot kunnskapsbibliotekets tekst som "spørsmål", i
+  stedet for å dumpe alt. Kjøres side ved side med dagens metode (`KjorForslagMedRagAsync`, IKKE en
+  erstatning). En rå sammenligning mot en ekte embeddings-leverandør (HostYourAI,
+  `BAAI/bge-multilingual-gemma2`), inkl. en faktisk innholdsgjennomgang av forslagene (ikke bare
+  tokens), ga et blandet bilde: RAG med riktig K brukte 84 % færre input-tokens og ga et ikke-tomt
+  svar der dump-alt på samme rettskilde var ustabilt (tomt ved ett forsøk, rikt ved et annet) — men
+  feltfullstendigheten falt fra 83 % til 28 %, og av 6 RAG-forslag var 2 dubletter av dump-alt-funn
+  og 3 tvilsomme som egne tjenester. Netto reelt nye, velformede forslag fra RAG: trolig 1, ikke 6.
+  Se `docs/14-byggesteg5-teknisk-design.md` §8.4 for fullt funn og §8.4.1 for en bifangst-fiks
+  (embeddings-kall batches nå + retry-med-backoff på rate-limiting, i stedet for ett HTTP-kall per
+  node).
+
+**Ikke gjort ennå (fortsatt retningsnivå, ikke implementasjonsplan):** de tre andre agentene
+(Tjenestebeskrivelse/Vilkår-og-Vilkårstre/Håndbok) og deres innbyrdes rekkefølge, en generalisert
+multi-type forslagskø (i dag: to separate køer, én per artefakttype), `foreslatt_av_ai` for
+Vilkår/Regelnode/Unntak, ekte OCR for skannede dokumenter, modellvalg fra en admin-side i appen (i
+dag: konfig + restart), de tre resterende CPSV-AP-NO-konseptene (`hasParticipation`/`hasInput`/
+`dct:spatial`), full `hasPart`-komposisjonssemantikk, kunnskapsbibliotek-lenker/filer chunket/embeddet
+for RAG, pgvector/produksjons-vektorindeks, automatisk re-embedding ved reimport, og automatisert
+RAG-vs-dump-alt-scoring. Se `docs/13-backlog.md` §2.2 for den fulle, oppdaterte listen og
+`docs/14-byggesteg5-teknisk-design.md` for `IKiAgentKlient`/`IEmbeddingKlient`-kontraktene som mal for
+fremtidige runder.
 
 ## Byggesteg 6 — Datasett, informasjonsmodell, eksportmotor
 

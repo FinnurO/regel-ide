@@ -25,6 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\RegelIde.Data\RegelIde.Data.csproj" />
+    <ProjectReference Include="..\RegelIde.TestInfrastruktur\RegelIde.TestInfrastruktur.csproj" />
   </ItemGroup>
 
   <ItemGroup>

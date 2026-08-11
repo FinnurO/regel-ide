@@ -156,6 +156,29 @@ public sealed class HandbokKommentarMetadataEntitet
     public string PraksisJson { get; set; } = "[]";
 }
 
+/// <summary>
+/// 1:1-utvidelse av <see cref="RettskildeNodeEntitet"/> med et embedding-vektor for RAG-spiken
+/// (byggesteg 5 runde 4, docs/14-byggesteg5-teknisk-design.md) — samme "egen tabell, ikke en alltid-
+/// NULL-kolonne på den delte rettskilde_noder-tabellen"-begrunnelse som
+/// <see cref="HandbokKommentarMetadataEntitet"/>, siden embeddings kun beregnes lazy for noder som
+/// faktisk er brukt i en RAG-kontekstbygging. Bevisst en vanlig <c>double precision[]</c>-kolonne, IKKE
+/// pgvector — se docs/14 §RAG-spike for begrunnelsen (ingen ny NuGet-avhengighet, embedded-test-
+/// Postgres-en har ikke extension-en forhåndskompilert). Kosinelikhet beregnes i C# ved henting
+/// (<see cref="RagKontekstHjelper"/>), ikke i databasen.
+/// </summary>
+public sealed class RettskildeNodeEmbeddingEntitet
+{
+    public Guid NodeId { get; set; }
+    public required List<double> Embedding { get; set; }
+
+    /// <summary>Hvilken embeddings-modell vektoren stammer fra — en fremtidig modellbytte gjør gamle
+    /// rader ikke-sammenlignbare med nye, men v1 av spiken har ingen automatisk re-embedding/
+    /// invalidering (se docs/13-backlog.md), kun dette feltet til manuell diagnose.</summary>
+    public required string Modell { get; set; }
+
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+}
+
 public sealed class RettskildeReferanseEntitet
 {
     public Guid Id { get; set; }

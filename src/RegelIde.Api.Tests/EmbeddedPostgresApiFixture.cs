@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using MysticMind.PostgresEmbed;
 using Npgsql;
 using RegelIde.Data;
+using RegelIde.TestInfrastruktur;
 
 namespace RegelIde.Api.Tests;
 
@@ -37,7 +38,7 @@ public sealed class EmbeddedPostgresApiFixture : IAsyncLifetime
         await Task.Run(() => _server.Start());
 
         var masterConnString = $"Host=localhost;Port={_server.PgPort};Username=postgres;Password=postgres;Database=postgres";
-        await VentTilPostgresErKlarAsync(masterConnString);
+        await EmbeddedPostgresHjelper.VentTilKlarAsync(masterConnString);
         await using (var conn = new NpgsqlConnection(masterConnString))
         {
             await conn.OpenAsync();
@@ -68,32 +69,6 @@ public sealed class EmbeddedPostgresApiFixture : IAsyncLifetime
         // Trigger host-oppstart (migrasjon + seeding i Program.cs) nå, ikke ved første test.
         using var warmup = Factory.CreateClient();
         await warmup.GetAsync("/api/rettskilder");
-    }
-
-    /// <summary>
-    /// PgServer.Start() returnerer før Postgres nødvendigvis er ferdig med oppstartsfasen
-    /// (57P03 "the database system is starting up") — retry med kort ventetid i stedet for å anta
-    /// at porten er klar med én gang.
-    /// </summary>
-    private static async Task VentTilPostgresErKlarAsync(string connString)
-    {
-        for (var forsok = 1; forsok <= 20; forsok++)
-        {
-            try
-            {
-                await using var conn = new NpgsqlConnection(connString);
-                await conn.OpenAsync();
-                return;
-            }
-            catch (Npgsql.PostgresException) when (forsok < 20)
-            {
-                await Task.Delay(250);
-            }
-            catch (Npgsql.NpgsqlException) when (forsok < 20)
-            {
-                await Task.Delay(250);
-            }
-        }
     }
 
     public Task DisposeAsync()
