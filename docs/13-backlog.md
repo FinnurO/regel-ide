@@ -449,9 +449,17 @@ Ingen av disse krever videre avklaring — bare en prioritering:
    (Schartum-spørsmål, ikke teknisk). **Avklaringsrunde 2 kjørt samme dag** (se `docs/15` §14) —
    CPOV-sjekk og AKN-XSD-vei i .NET nå også avklart (CPOV bekreftet irrelevant for
    forvaltningsoppgave-spørsmålet; intet .NET AKN-bibliotek finnes; full XSD-kodegenerering vurdert
-   lite verdifullt). Trinn 1 (bygg parseren på Bergen-eksempelet) kan nå starte på det som er låst.
-   Overlapper delvis med byggesteg 3 (Presedensregister, punkt 6) og byggesteg 5 (punkt 7/9 under) —
-   bør trolig fortsette som egen avklaringsrunde uavhengig av hvilken byggesteg-rekkefølge som ellers
+   lite verdifullt). ✅ **Trinn 1, punkt 1-4 bygget 2026-08-12** — ny `HandbokTekstParser.cs`
+   (regex-segmentering på dokumentets egen nummerering, ingen KI), skjemautvidelse på
+   `RettskildeEntitet`/`Virksomhet` (de låste feltene fra §13), ekte testfixture (Bergens
+   retningslinjer, faktisk hentet via WebFetch — ikke syntetisk). Konkludert at
+   `RettskildeReferanseEntitet` kan bære `hjemlet_i`/`kryssrefererer` uendret, ingen ny tabell.
+   451/451 backend-tester grønt (uavhengig verifisert). **Ikke gjort**: AKN-eksport/rundtur
+   (punkt 5, bevisst utenfor scope), import-endepunkt for håndbøker, `FunksjonellRolle`-populering,
+   GUID-oppslag av `hjemlet_i` mot en faktisk importert rettskilde (krever et import-endepunkt som
+   ikke finnes ennå). Overlapper delvis med byggesteg 3 (Presedensregister, punkt 6) og byggesteg 5
+   (punkt 7/9 under) — bør trolig fortsette som egen avklaringsrunde uavhengig av hvilken
+   byggesteg-rekkefølge som ellers
    velges.
 9. **[NY, BUG] `AknXmlSkriver.cs` genererer sannsynligvis ugyldig AKN 3.0.** Bifangst fra
    avklaringsrunde 2s AKN-XSD-forskning (`docs/15` §14): en faktisk skjemavalidering fant to
