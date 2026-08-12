@@ -311,12 +311,14 @@ ikke sette seg over loven, og et system som behandler den som likeverdig med for
 gale svar. Feltene må derfor være obligatorisk (`NormativVirkning`, for `Kildetype`-verdier der det
 er relevant) og autorisert av jurist, ikke utledet av KI.
 
-**[FORTSATT ÅPENT — juridisk spørsmål, ikke avklart denne runden]** Er `bindende_forvaltning` riktig
-snitt for retningslinjer generelt? De binder formelt bare forvaltningen, men de *bestemmer utfall* i
-praksis, og likhetsprinsippet gjør at avvik krever begrunnelse — samtidig kan de ikke skape plikter
-utover loven, og forvaltningen kan ikke binde bort skjønnet fullstendig. Bergens punkt 3.4 (generell
-unntakshjemmel «i spesielle tilfeller») ser ut til å eksistere nettopp for å unngå at retningslinjene
-gjør det. Hører til Schartum-tradisjonen, ikke noe jeg eller kodebasen kan avgjøre — se §13.
+**[PÅ AVKLARING — juridisk spørsmål, IKKE avgjort, se §13 for utvidelsen 2026-08-12]** Er
+`bindende_forvaltning` riktig snitt for retningslinjer generelt? De binder formelt bare
+forvaltningen, men de *bestemmer utfall* i praksis, og likhetsprinsippet gjør at avvik krever
+begrunnelse — samtidig kan de ikke skape plikter utover loven, og forvaltningen kan ikke binde bort
+skjønnet fullstendig. Bergens punkt 3.4 (generell unntakshjemmel «i spesielle tilfeller») ser ut til
+å eksistere nettopp for å unngå at retningslinjene gjør det. Johann utvidet spørsmålet 2026-08-12:
+det gjelder ikke bare retningslinjer — **innbyggerveiledere er egentlig også bindende**, i praksis.
+Hører til Schartum-tradisjonen, ikke noe jeg eller kodebasen kan avgjøre — se §13.
 
 ### 3.4 Grafen er ikke et tre — og det er en gave
 
@@ -883,11 +885,17 @@ versjonering og separat forfatterrettighet selv innenfor én tabell.
   koden har allerede svart: det er samme entitet (`RettskildeEntitet`/`RettskildeNodeEntitet`), ulik
   proveniens (import via `LovdataHtmlParser` vs. forfatting via
   `HandbokForfatterTjeneste.OpprettBladNodeAsync`).
-- ~~**`RettsligStatus`-taksonomien.**~~ **[DELVIS LUKKET 2026-08-12, se §3.3]** — feltet er splittet i
-  to ortogonale akser (`NormativVirkning`/`FunksjonellRolle`) i stedet for én tredeling; den
-  strukturelle delen er låst. **Fortsatt åpent**: om `NormativVirkning="bindende_forvaltning"` er
-  riktig snitt for retningslinjer generelt (Schartum-spørsmålet, se §3.3) — venter på videre juridisk
+- ~~**`RettsligStatus`-taksonomien.**~~ **[DELVIS LUKKET 2026-08-12, se §3.3/§13]** — feltet er
+  splittet i to ortogonale akser (`NormativVirkning`/`FunksjonellRolle`) i stedet for én tredeling;
+  den strukturelle delen er låst. **PÅ AVKLARING**: om `NormativVirkning="bindende_forvaltning"` er
+  riktig snitt for retningslinjer OG innbyggerveiledere generelt (Schartum-spørsmålet, utvidet
+  2026-08-12 til også å gjelde innbyggerveiledere — se §3.3/§13) — venter på videre juridisk
   vurdering, ikke en teknisk beslutning.
+- **[NYTT, PÅ AVKLARING 2026-08-12]** Hva en søker faktisk ble vist i veiledningen på
+  søknadstidspunktet — mulig del av vedtaksgrunnlaget (berettigede forventninger), et ANNET spørsmål
+  enn NormativVirkning-klassifiseringen av selve dokumentet. Kobler byggesteg 4s eksisterende
+  `Veiledning`-modell til en fremtidig byggesteg 7 (saksbehandling) — se §13 for full utdyping. Ikke
+  avgjort, ikke noe å bygge nå.
 - **AKN-URI for ikke-forskrift kommunale instrumenter** (§3.3, §9.4). Lovdata er ELI-koordinator for
   kunngjort regelverk; retningslinjer faller utenfor. Forslag til navngivning:
   `/akn/no/doc/retningslinje/{kommunenr}-{organ}/{vedtaksdato}/{dok-nr}/nor@/!main`. Men dette er en
@@ -1010,8 +1018,29 @@ referatet/begrunnelsen; skjemaet selv står i de respektive seksjonene, ikke dup
 
 ### Hva som fortsatt er åpent
 
-- Om `NormativVirkning="bindende_forvaltning"` er riktig snitt for retningslinjer generelt
-  (Schartum-spørsmålet, §3.3) — venter på videre juridisk vurdering, ikke løst ved teknisk konsensus.
+- **[PÅ AVKLARING, utvidet 2026-08-12]** Om `NormativVirkning="bindende_forvaltning"` er riktig
+  snitt for retningslinjer generelt (Schartum-spørsmålet, §3.3) — venter på videre juridisk
+  vurdering, ikke løst ved teknisk konsensus. Johann skjerpet spørsmålet samme dag: **egentlig er
+  alle retningslinjer OG innbyggerveiledere bindende** — innbyggerveiledere er enda et lag ned i
+  formalitet enn en retningslinje (retningslinjen er selv bystyrevedtatt; en innbyggerveileder er
+  typisk administrativt forfattet tekst basert på retningslinjen), men praktisk sett like
+  utfallsbestemmende, muligens mer — det er det innbyggeren faktisk leser før de søker.
+  `NormativVirkning`-taksonomien (§3.3) må derfor prøves mot BÅDE retningslinje- og
+  innbyggerveileder-tekst, ikke bare retningslinjer, før den låses fullt ut. Ikke avgjort her.
+- **[NYTT SPØRSMÅL, PÅ AVKLARING 2026-08-12]** «Hva sa veiledningen til brukeren da de søkte om
+  tjenesten?» — dette er et ANNET spørsmål enn NormativVirkning-klassifiseringen av
+  retningslinje-DOKUMENTET. Det handler om PROVENANS: hva en innbygger faktisk ble vist på
+  søknadstidspunktet kan i seg selv være en del av vedtaksgrunnlaget (berettigede
+  forventninger/likhetsprinsippet — avviker vedtaket fra det brukeren ble fortalt, kan det kreve
+  egen begrunnelse, uavhengig av om selve veiledningsteksten formelt er «bindende»). Regel-IDE har
+  allerede en `Veiledning`-modell (byggesteg 4: `GET /api/tjenester/{id}/veiledning`,
+  `TjenesteVeiledning.tsx`, hjemmel-sitater som ekte lenker) — men den viser dagens gjeldende
+  veiledning, ikke et tidsstemplet snapshot av hva som ble vist en konkret søker. Byggesteg 7
+  (saksbehandling/forklaringslogg, MVP-grense — ikke bygget) er der dette faktisk hører hjemme: en
+  fremtidig vedtaksgrunnlag-modell bør trolig snapshotte veiledningsinnholdet på søknadstidspunktet,
+  samme "ingen gjettet fallback"/`Utdrag`-prinsipp som `FeltkildeEntitet` (§5.4) allerede bruker for
+  andre felt. Ikke noe å bygge nå — notert som en fremtidig kobling mellom byggesteg 4s
+  Veiledning-arbeid og byggesteg 7, ikke avgjort her.
 - CPOV mot `PublicService` (§10.3), AKN-XSD-veien i .NET (§9.5) — ikke tatt opp denne runden.
 - Sveipegranularitet, Normtype-firedeling, deduplisering, tjenestetypologi-autorisering,
   crawle-etikett — uendret fra §11.
