@@ -433,9 +433,13 @@ Ingen av disse krever videre avklaring — bare en prioritering:
    Testkommunen). Underveis avdekket: dump-alt-endepunktet traff en `TaskCanceledException` (100s
    HttpClient-timeout mot HostYourAI) på FØRSTE forsøk, lyktes på andre — samme type transient
    ustabilitet §8.4 allerede dokumenterte (der som tomt `[]`-svar, her som timeout), ikke en ny feil,
-   men ytterligere en konkret grunn til R0. **R0 gjenstår** — ren kode, ingen avklaring nødvendig:
-   logg rå respons/feil ved tomt eller mislykket forsøk, ett automatisk retry, `n≥5` per arm ved
-   fremtidig måling. Mål: tomrespons/timeout under 5 %.
+   men ytterligere en konkret grunn til R0. ✅ **R0 bygget 2026-08-12** — ny delt
+   `KiForslagRetryHjelper` (ett retry ved tomt forslag-array, etter parsing i
+   `TjenesteforslagTjeneste`/`BegrepsforslagTjeneste`) + ett retry ved transient HTTP-feil/timeout
+   direkte i `KiAgentKlientOpenAiKompatibel.GenererAsync` (fast 300ms, ikke doblende backoff — en
+   engangs-timeout, ikke rate-limiting). `ILogger<T>` lagt til (valgfri, non-breaking). 438/438
+   backend-tester grønt (9 nye). **`n≥5` per arm-målingsinfrastruktur er fortsatt ikke bygget** —
+   egen, senere evalueringsoppgave, ikke en klient-kodeendring.
 8. **Håndbok/dokumentgraf-notatet (`docs/15-handbok-dokumentgraf-notat.md`) — egen avklaringsrunde,
    ikke kode.** Mottatt og konsolidert mot koden 2026-08-12. **Avklaringsrunde 1 kjørt samme dag**
    (se `docs/15` §13) — tre av fire Trinn 0-punkter nå LÅST: AKN som serialisering (ikke
