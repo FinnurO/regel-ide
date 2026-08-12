@@ -257,11 +257,19 @@ retningslinjene er det som styrer § 1-7a-vurderingen. Hvis digital-rettsstat-pr
 sporbarhetskjede fra rettskilde til tjeneste, er dette leddet som mangler — og det er et spørsmål
 Digdir kan reise med Lovdata, ikke bare et implementasjonsproblem her.
 
-**Korrigert forslag — nye kolonner på `RettskildeEntitet`, ikke en ny tabell** (se §0.1 punkt 3):
+**[LÅST — avklaringsrunde 1, 2026-08-12] `RettsligStatus` er ikke ett felt, men to ortogonale akser**
+— ett felt kan ikke bære både normativ kraft OG funksjonell rolle (et delegasjonsreglement og en
+retningslinje har samme normative kraft — begge binder forvaltningen, ingen binder borgeren direkte
+— men helt ulik funksjon; en forskrift og en retningslinje kan omvendt ha samme funksjon men ulik
+kraft). Se §13 for full begrunnelse.
 
 ```csharp
 // Nye felt på RettskildeEntitet:
-RettsligStatus      string?    // "forskrift" | "politisk_vedtak" | "administrativ_praksis"
+NormativVirkning    string?    // AKSE A, populeres denne runden: "bindende_borger" |
+                                // "bindende_forvaltning" | "vektbaerende" | "faktisk_praksis"
+FunksjonellRolle    string?    // AKSE B, feltet finnes men forblir nullable til
+                                // delegasjonsreglement-arbeidet starter: "materiell_norm" |
+                                // "kompetansenorm" | "prosessnorm" | "gebyr_okonomi" | "tolkning"
 InterntDokNr        string?    // "SD-24-113" — les fra dokumentet når det finnes
 Revisjonsnr         string?    // "01"
 VedtattAv           string?    // "Bystyret"
@@ -272,18 +280,45 @@ GyldigTil           DateOnly?  // 2028-07-01 — merk: Ikrafttredelse/Konsolider
 HjemmelEid          string?    // "alkoholloven/§1-7d"
 ```
 
-`Kommunenummer` er UTELATT fra listen over — bør hentes via `VirksomhetId` → `VirksomhetEntitet`
-heller enn dupliseres på `RettskildeEntitet`, men dette er ikke sjekket mot `VirksomhetEntitet`s
-faktiske felt i denne runden.
+`FunksjonellRolle="kompetansenorm"` er den viktigste nye verdien: det er kategorien som løser
+delegasjonsreglementer (kommuneloven kap. 5) OG interkommunale samarbeids-/vertskommuneavtaler
+(kommuneloven kap. 17–20) — begge er det som faktisk løser lovens abstrakte adressat («kommunen»)
+til et konkret organ («Kontor for skjenkesaker»), altså den egentlige kilden til
+`cv:hasCompetentAuthority`. Uten denne kategorien har feltet ingen kilde utover gjetning eller
+URL-sti-parsing.
+
+**[LÅST] `Kommunenummer` går IKKE inn i AKN/ELI-URI-en, og går IKKE på `RettskildeEntitet` i det
+hele tatt.** Kommunenummer er ikke stabilt over tid (Bergen: 1201 før 2020, 4601 etter — samme organ,
+samme bystyre, nytt nummer), og ELIs første søyle er nettopp stabile URI-er. `Organisasjonsnummer`
+(allerede på `VirksomhetEntitet`, bekreftet i koden) er langt mer stabilt og skal bære URI-nøkkelen.
+`Kommunenummer` legges i stedet som et NYTT, nullbart attributt på `VirksomhetEntitet` selv (nullbart
+fordi statlige/regionale virksomheter — Digdir, et direktorat, en statsforvalter — ikke har et) —
+sammen med et nytt `Forvaltningsniva`-felt (`"stat"` | `"fylke"` | `"kommune"`), som styrer hvilket
+organ som er vedtaksmyndighet (bystyre/kommunestyre/fylkesting).
+
+```csharp
+// Nye felt på VirksomhetEntitet (i dag: Id, Navn, Organisasjonsnummer, OpprettetTidspunkt):
+Kommunenummer     string?  // "4601" — geografisk/statistisk attributt, ALDRI i URI-nøkkelen
+Forvaltningsniva  string?  // "stat" | "fylke" | "kommune"
+```
 
 Bergen versjonerer faktisk pent — `SD-24-113` + `Rev.nr. 01` + gyldighetsperiode er en brukbar nøkkel
 lest rett ut av dokumentet. Anta ikke at alle 357 gjør det; `VirksomhetId + Kildetype + Vedtaksdato`
 er fallback.
 
-Merk at `RettsligStatus` er et *rettslig* felt, ikke et teknisk. En retningslinje kan ikke sette seg
-over loven, og et system som behandler den som likeverdig med forskrift vil produsere gale svar.
-Feltet må derfor være obligatorisk (for `Kildetype`-verdier der det er relevant) og autorisert av
-jurist, ikke utledet av KI.
+Merk at `NormativVirkning`/`FunksjonellRolle` er *rettslige* felt, ikke tekniske. En retningslinje kan
+ikke sette seg over loven, og et system som behandler den som likeverdig med forskrift vil produsere
+gale svar. Feltene må derfor være obligatorisk (`NormativVirkning`, for `Kildetype`-verdier der det
+er relevant) og autorisert av jurist, ikke utledet av KI.
+
+**[PÅ AVKLARING — juridisk spørsmål, IKKE avgjort, se §13 for utvidelsen 2026-08-12]** Er
+`bindende_forvaltning` riktig snitt for retningslinjer generelt? De binder formelt bare
+forvaltningen, men de *bestemmer utfall* i praksis, og likhetsprinsippet gjør at avvik krever
+begrunnelse — samtidig kan de ikke skape plikter utover loven, og forvaltningen kan ikke binde bort
+skjønnet fullstendig. Bergens punkt 3.4 (generell unntakshjemmel «i spesielle tilfeller») ser ut til
+å eksistere nettopp for å unngå at retningslinjene gjør det. Johann utvidet spørsmålet 2026-08-12:
+det gjelder ikke bare retningslinjer — **innbyggerveiledere er egentlig også bindende**, i praksis.
+Hører til Schartum-tradisjonen, ikke noe jeg eller kodebasen kan avgjøre — se §13.
 
 ### 3.4 Grafen er ikke et tre — og det er en gave
 
@@ -537,18 +572,29 @@ kryssammenligning har noe å tilby som 9 300 mennesker ikke har.
 
 ---
 
-## 8. Prioritert rekkefølge [KORRIGERT 2026-08-12 — punkt 1 og 8 justert]
+## 8. Prioritert rekkefølge [KORRIGERT 2026-08-12 — punkt 1 og 8 justert; Trinn 0 avklart runde 1]
 
-**Trinn 0 — avklaringer som må landes før koding (ikke kode).**
+**Trinn 0 — avklaringer som må landes før koding (ikke kode). Status etter avklaringsrunde 1
+(2026-08-12), se §13 for full begrunnelse:**
 
-- AKN som serialisering eller primærlager (§9.5). Anbefaling foreligger; må besluttes.
-- Én CPSV-entitet med `Objekttype` eller to entiteter (§10.2). Anbefaling foreligger; må besluttes.
-- `RettsligStatus`-taksonomien juridisk avklart (§11).
-- Sjekk CPOV mot `PublicService` (§10.3), og AKN-XSD-veien i .NET (§9.5).
-- **Nytt:** bekreft at `Url`/`InterntDokNr`/`RettsligStatus`-utvidelsen (§0.1) faktisk går på
-  `RettskildeEntitet` og ikke skaper konflikt med `ck_rettskilder_akn_xml`-constrainten (som i dag
-  krever `AknXml IS NOT NULL` for `Importrolle='primaer'` — et hentet-men-ikke-AKN-serialisert
-  PDF-dokument må trolig regnes som `Importrolle='referanse'` inntil AKN-eksport (§9.5) finnes).
+- ✅ **AKN som serialisering, ikke primærlager** (§9.5) — LÅST. Relasjonelt er arbeidslager; AKN
+  genereres på forespørsel for forfattet innhold, lagres bitidentisk kun når AKN er mottatt som
+  input. Rundturstesten har nå en konkret, avgrenset assertion-liste.
+- ✅ **Én `TjenesteEntitet` med diskriminator** (§10.2) — LÅST, feltnavn `Registertype`
+  (`tjeneste`/`forvaltningsoppgave`), ikke `Objekttype`. Eksportslusen gjøres strukturell (dedikerte
+  repository-grensesnitt + en regresjonstest), ikke disiplinbasert. `dekker`-relasjonen forblir en
+  egen `OppgaveTjenesteEntitet`, deltar IKKE i `TjenesteavhengighetEntitet`s sykelsjekkede graf.
+- 🟡 **`RettsligStatus`-taksonomien** (§3.3, §11) — DELVIS LÅST. Splittet i to akser
+  (`NormativVirkning`/`FunksjonellRolle`) i stedet for én tredeling; strukturen er avklart, men om
+  `NormativVirkning="bindende_forvaltning"` er riktig snitt for retningslinjer generelt
+  (Schartum-spørsmålet) er fortsatt åpent — venter på videre juridisk vurdering.
+- ⬜ Sjekk CPOV mot `PublicService` (§10.3), og AKN-XSD-veien i .NET (§9.5) — ikke tatt opp denne
+  runden, står fortsatt åpent.
+- ✅ **[Nytt spørsmål fra runde 1, løst samme runde]** `Kommunenummer` går på `VirksomhetEntitet`
+  (nytt felt, sammen med `Forvaltningsniva`), ALDRI i en AKN/ELI-URI — `Organisasjonsnummer` bærer
+  URI-nøkkelen. Se §3.3.
+- ✅ Konflikten med `ck_rettskilder_akn_xml`-constrainten (kan et hentet-men-ikke-AKN-serialisert
+  dokument lagres?) er løst av samme "generert AKN lagres ikke"-beslutning — se §9.5.
 
 **Trinn 1 — ingen KI, ingen ny abstraksjon.**
 
@@ -675,31 +721,59 @@ ikke-forskrift kommunale instrumenter.
 
 ### 9.5 Beslutningen som betyr noe: serialisering, ikke primærlager
 
-**Anbefaling: AKN som kanonisk serialisering og forfattermål. Relasjonelt som arbeidslager.**
+**[LÅST — avklaringsrunde 1, 2026-08-12] AKN som kanonisk serialisering og forfattermål. Relasjonelt
+som arbeidslager.** Begrunnelsen er ikke bare at byggesteg 1 allerede gjør det slik — AKNs verdi
+ligger i utveksling og sitering, som begge er EKSPORTSIDENS anliggende. Hverdagsarbeidet
+(spørringer, joins mot Vilkår og Tjeneste, graftraversering for sykelsjekk) er relasjonelt arbeid.
 
-Begrunnelse: byggesteg 1 importerer allerede Lovdata til et relasjonelt tre OG en AKN-serialisering
-side om side (`AknXml`-kolonnen — se §9.1s korreksjon); SQL og EF Core over `ParentNodeId` er appens
-daglige arbeid; joins mot Vilkår, Tjeneste og Forvaltningsoppgave krever relasjonelt. XML-lagring i
-Postgres med XPath er mulig, men mister EF og gjør hverdagsspørringene tunge. Å bytte primærlager er
-en omskriving, ikke et tillegg — men det trengs ikke, siden mønsteret (relasjonelt + AKN-kolonne
-side om side) allerede er etablert.
+Begrunnelse (uendret): byggesteg 1 importerer allerede Lovdata til et relasjonelt tre OG en
+AKN-serialisering side om side (`AknXml`-kolonnen — se §9.1s korreksjon); SQL og EF Core over
+`ParentNodeId` er appens daglige arbeid; joins mot Vilkår, Tjeneste og Forvaltningsoppgave krever
+relasjonelt. XML-lagring i Postgres med XPath er mulig, men mister EF og gjør hverdagsspørringene
+tunge. Å bytte primærlager er en omskriving, ikke et tillegg — men det trengs ikke, siden mønsteret
+(relasjonelt + AKN-kolonne side om side) allerede er etablert.
 
-**Disiplinen som gjør det ærlig — rundturstesten:**
+**[LÅST] Skill mellom mottatt og generert AKN — ikke lagre generert AKN separat.** Når AKN er
+*input* (Lovdata-import i dag; eventuelt Lovdata-publiserte retningslinjer i fremtiden) er
+dokumentet det autoritative artefaktet og lagres bitidentisk — samme prinsipp som Lag 1 i §2
+(`AknXml`-kolonnen slik den allerede fungerer). Når modellen er forfattet i Regel-IDE (håndbok-
+forfatting via `HandbokForfatterTjeneste`), genereres AKN PÅ FORESPØRSEL og lagres IKKE i en egen
+kolonne. Å lagre generert AKN ved siden av den relasjonelle modellen ville gitt to representasjoner
+som kan divergere — nøyaktig det synkroniseringsproblemet valget av "serialisering, ikke
+primærlager" skal unngå. Konsekvens: for `Kildetype`-verdier der innholdet er forfattet (ikke
+importert), forblir `AknXml`-kolonnen `NULL` (dekket av `Importrolle='referanse'`-unntaket i
+`ck_rettskilder_akn_xml`) helt til en eksport faktisk etterspørres.
+
+**[LÅST] Rundturstesten — definer hva den faktisk hevder, "semantisk ekvivalens" er ikke
+implementerbart som assertion.**
 
 ```
-importer AKN → relasjonell modell → eksporter AKN → assert semantisk ekvivalens
+importer AKN → relasjonell modell → eksporter AKN → assert [konkret liste under]
 ```
 
-Det er invarianten som gjør «start med struktur, produser PDF» reell i stedet for aspirasjonell, og
-som hindrer at den relasjonelle modellen driver bort fra standarden. Den bør være en automatisert
-test, ikke en engangsverifisering — samme kultur som `RundskrivReproduksjonTests.cs`. **Ikke bygget
-i dag** — dagens flyt er kun importretningen (HTML → AKN → relasjonelt), aldri tilbake.
+SKAL assertere:
+- Identisk nodetre — samme `ParentNodeId`-struktur, samme barn, samme rekkefølge
+  (`Sorteringsrekkefolge`)
+- Identisk `Eid` per node
+- Identisk tekst per node ETTER normalisering av mellomrom (ikke byte-for-byte)
+- Identisk MENGDE `hjemlet_i`- og `kryssrefererer`-kanter (§3.2)
+- Identiske metadatafelt (`InterntDokNr`, `Revisjonsnr`, `Vedtaksdato`, `VedtattAv`, osv.)
 
-**Verktøyforbehold:** jeg kjenner ikke noe modent AKN-bibliotek for .NET. Moden verktøykjede (LIME,
-AKN4EU-verktøy) er i hovedsak Java og JavaScript. Realistisk vei i denne kodebasen: generer klasser
-fra AKN-XSD-en, eller håndrull med `System.Xml.Linq` mot skjemaet — samme tilnærming
-`AknXmlSkriver.cs` allerede bruker for skriveretningen. Verifiser mot XSD i test. Dette bør prises
-inn før §11 låses.
+SKAL IKKE assertere:
+- Byte-identisk XML
+- Attributtrekkefølge i XML-en
+- Whitespace i selve XML-serialiseringen
+
+Uten denne avgrensningen blir testen enten trivielt grønn (for løs) eller permanent rød (for
+strengt bundet til XML-formatering) — begge verdiløse. Bør være en automatisert test, ikke en
+engangsverifisering — samme kultur som `RundskrivReproduksjonTests.cs`. **Ikke bygget i dag** —
+dagens flyt er kun importretningen (HTML → AKN → relasjonelt), aldri tilbake.
+
+**Verktøyforbehold (uendret):** jeg kjenner ikke noe modent AKN-bibliotek for .NET. Moden
+verktøykjede (LIME, AKN4EU-verktøy) er i hovedsak Java og JavaScript. Realistisk vei i denne
+kodebasen: generer klasser fra AKN-XSD-en, eller håndrull med `System.Xml.Linq` mot skjemaet —
+samme tilnærming `AknXmlSkriver.cs` allerede bruker for skriveretningen. Verifiser mot XSD i test.
+Dette bør fortsatt prises inn før eksportveien bygges (§9.3s CPOV-sjekk henger sammen med dette).
 
 ---
 
@@ -730,14 +804,28 @@ Dermed blir §5.2s autoriserte typologi ikke «finn opp en mekanisme», men **ut
 **[KORRIGERT 2026-08-12]** `cv:hasLegalResource`-kravet er allerede strukturelt oppfylt for
 `Tjeneste` i dagens skjema — `TjenesteRegelverksreferanseEntitet` (bygget byggesteg 5 runde 4, Spor A)
 kobler en tjeneste til eksakte `[eId]`-tagger. Å gjøre `hasLegalResource` OBLIGATORISK for
-`Objekttype="forvaltningsoppgave"` (§10.2) er dermed en valideringsregel på eksisterende
+`Registertype="forvaltningsoppgave"` (§10.2) er dermed en valideringsregel på eksisterende
 infrastruktur, ikke en ny kobling.
 
 ### 10.2 Anbefaling: CPSV som form, med eksportsluse
 
-Én relasjonell entitet med obligatorisk `Objekttype` (`tjeneste` | `forvaltningsoppgave`) —
-**[KORRIGERT] velg et navn som ikke kolliderer med eksisterende `Tjenestetype`-felt på
-`TjenesteEntitet`, se §8 punkt 8.** To SHACL-former over samme data:
+**[LÅST — avklaringsrunde 1, 2026-08-12] Feltnavnet er `Registertype`, ikke `Objekttype`.**
+`TjenesteEntitet` har allerede et `Tjenestetype`-felt som svarer på *hva slags* ting dette er
+(Bevilling/Registrering/...) — den nye diskriminatoren svarer på et annet spørsmål: *hvilket
+register/regelsett raden hører til*, som avgjør SHACL-form og eksportberettigelse. `Registertype`
+er eksplisitt om nettopp det, mapper én-til-én mot SHACL-formen og eksportslusen under, og en jurist
+som leser skjemaet forstår det uten kildekode-kontekst.
+
+```csharp
+// Nytt felt på TjenesteEntitet:
+Registertype  string  // "tjeneste" | "forvaltningsoppgave" — NON-NULLABLE, ingen default.
+                       // Migrering: backfill ALLE eksisterende rader til "tjeneste" (korrekt per
+                       // definisjon — enhver rad opprettet før dette feltet fantes ER en tjeneste),
+                       // men selve C#-typen skal IKKE ha en default-verdi — nye rader må ta
+                       // eksplisitt stilling.
+```
+
+To SHACL-former over samme data:
 
 ```
 TjenesteShape
@@ -752,15 +840,32 @@ ForvaltningsoppgaveShape
 
 Og slusen, som er hele poenget:
 
-> **Bare `Objekttype = tjeneste` emitteres som `cpsv:PublicService` i ekstern eksport.**
+> **Bare `Registertype = tjeneste` emitteres som `cpsv:PublicService` i ekstern eksport.**
 
 Publiserer man tilsynsplikter som `PublicService` til en nasjonal eller europeisk katalog, ser en
 konsument tre ganger flere tjenester enn det finnes — og Finland ekskluderte nettopp disse med
 overlegg. Intern modell samlet (én verktøykjede, ett UI, én eksportløype), ekstern kontrakt ærlig.
 
-Dette erstatter det separate `ForvaltningsoppgaveEntitet`-forslaget i §5.2/`13-backlog.md` §2.7.
-`OppgaveTjenesteEntitet` beholdes uendret som koblingstabell, siden fravær av rad er
-etterlevelseshullet.
+**[LÅST] Slusen skal være strukturell, ikke basert på disiplin.** Én tabell gjør slusen til det
+ENESTE som står mellom en tilsynsplikt og en publisert `cpsv:PublicService` — en glemt `WHERE`
+publiserer feil data til en nasjonal katalog. Løsning: ingen kode utenfor et dedikert
+repository-lag får røre `TjenesteEntitet` direkte for eksportformål. To repository-grensesnitt
+(f.eks. et for CPSV-eksport, ett for intern administrasjon), hver med sitt `Registertype`-filter
+anvendt INTERNT, pluss én regresjonstest som seeder en `Registertype="forvaltningsoppgave"`-rad,
+kjører CPSV-eksporten, og asserterer at raden er FRAVÆRENDE i output. Da er én tabell strukturelt
+like trygt som to separate tabeller ville vært.
+
+**[LÅST] `dekker`-relasjonen (§3.2, oppgave↔tjeneste) gjenbruker IKKE `TjenesteavhengighetEntitet`s
+graf, selv om begge sider nå er rader i samme `TjenesteEntitet`-tabell.** `TjenesteavhengighetEntitet`
+er allerede selvrefererende M:N (`FraTjenesteId`/`TilTjenesteId` + `Rel`, bekreftet i
+`Entiteter.cs`), med bounded sykelsjekk i `TjenesteavhengighetregisterTjeneste.LukkerSykelAsync` —
+bygget for kant-semantikken «forutsetning for»/«avhengig av», IKKE for en dekningsrelasjon. Å presse
+`dekker` inn i samme sykelsjekkede graf risikerer falske sykelavvisninger (samme resonnement som
+Virkningsregel i `13-backlog.md` §2.6). `OppgaveTjenesteEntitet` beholdes derfor som EGEN tabell med
+en FK-peker (nå: to FK-er inn i samme `TjenesteEntitet`-tabell, ikke to forskjellige tabeller), som
+IKKE deltar i `VilkarstreGrafHjelper`/`TjenesteavhengighetregisterTjeneste`s sykelsjekk. Dette
+erstatter det separate `ForvaltningsoppgaveEntitet`-forslaget i §5.2/`13-backlog.md` §2.7. Fravær av
+en `OppgaveTjenesteEntitet`-rad for en gitt oppgave er fortsatt etterlevelseshullet.
 
 ### 10.3 To ting å sjekke, ikke å anta
 
@@ -780,9 +885,17 @@ versjonering og separat forfatterrettighet selv innenfor én tabell.
   koden har allerede svart: det er samme entitet (`RettskildeEntitet`/`RettskildeNodeEntitet`), ulik
   proveniens (import via `LovdataHtmlParser` vs. forfatting via
   `HandbokForfatterTjeneste.OpprettBladNodeAsync`).
-- **`RettsligStatus`-taksonomien** må avklares juridisk før den låses. Skillet forskrift / politisk
-  vedtak / administrativ praksis har reelle konsekvenser for hvor langt et system kan gå i å
-  behandle en retningslinje som normerende.
+- ~~**`RettsligStatus`-taksonomien.**~~ **[DELVIS LUKKET 2026-08-12, se §3.3/§13]** — feltet er
+  splittet i to ortogonale akser (`NormativVirkning`/`FunksjonellRolle`) i stedet for én tredeling;
+  den strukturelle delen er låst. **PÅ AVKLARING**: om `NormativVirkning="bindende_forvaltning"` er
+  riktig snitt for retningslinjer OG innbyggerveiledere generelt (Schartum-spørsmålet, utvidet
+  2026-08-12 til også å gjelde innbyggerveiledere — se §3.3/§13) — venter på videre juridisk
+  vurdering, ikke en teknisk beslutning.
+- **[NYTT, PÅ AVKLARING 2026-08-12]** Hva en søker faktisk ble vist i veiledningen på
+  søknadstidspunktet — mulig del av vedtaksgrunnlaget (berettigede forventninger), et ANNET spørsmål
+  enn NormativVirkning-klassifiseringen av selve dokumentet. Kobler byggesteg 4s eksisterende
+  `Veiledning`-modell til en fremtidig byggesteg 7 (saksbehandling) — se §13 for full utdyping. Ikke
+  avgjort, ikke noe å bygge nå.
 - **AKN-URI for ikke-forskrift kommunale instrumenter** (§3.3, §9.4). Lovdata er ELI-koordinator for
   kunngjort regelverk; retningslinjer faller utenfor. Forslag til navngivning:
   `/akn/no/doc/retningslinje/{kommunenr}-{organ}/{vedtaksdato}/{dok-nr}/nor@/!main`. Men dette er en
@@ -804,11 +917,18 @@ versjonering og separat forfatterrettighet selv innenfor én tabell.
 - **Crawle-etikett og hjemmel.** `robots.txt`, rate-limiting, identifisert crawler med
   kontaktadresse. Og: spør før du skraper — Kontor for skjenkesaker kan ha eksport. Pass på at
   navngitte saksbehandlere og direktenumre på sidene ikke havner utilsiktet i kunnskapsbasen.
-- **[NYTT 2026-08-12]** Går `Url`/`Innhold`/`InnholdsHash`-utvidelsen (§0.1 punkt 1) på
-  `RettskildeEntitet` i konflikt med `ck_rettskilder_akn_xml`-constrainten? Må sjekkes før migrasjon
-  skrives — se Trinn 0 i §8.
-- **[NYTT 2026-08-12]** Kan `Kommunenummer` hentes fra `VirksomhetEntitet` i stedet for å dupliseres
-  på `RettskildeEntitet`? Ikke sjekket denne runden.
+- ~~Går `Url`/`Innhold`/`InnholdsHash`-utvidelsen på `RettskildeEntitet` i konflikt med
+  `ck_rettskilder_akn_xml`-constrainten?~~ **[LUKKET 2026-08-12, se §9.5]** — løses av samme
+  "generert AKN lagres ikke"-beslutning: et hentet-men-ikke-AKN-serialisert dokument har
+  `Importrolle='referanse'` (samme unntak konstrainten allerede gir), helt til en eksport faktisk
+  bygges og etterspørres.
+- ~~Kan `Kommunenummer` hentes fra `VirksomhetEntitet` i stedet for å dupliseres på
+  `RettskildeEntitet`?~~ **[LUKKET 2026-08-12, se §3.3]** — bekreftet: `VirksomhetEntitet` har i dag
+  KUN `Id`/`Navn`/`Organisasjonsnummer`/`OpprettetTidspunkt`, ingen `Kommunenummer`. Løsning: legg
+  `Kommunenummer` (nullbart) + nytt `Forvaltningsniva`-felt PÅ `VirksomhetEntitet` selv — ikke på
+  `RettskildeEntitet`, og ALDRI i en AKN/ELI-URI (kommunenummer er ikke stabilt over tid — Bergen var
+  1201 før 2020, 4601 etter). `Organisasjonsnummer` (allerede der, stabilt) bærer URI-nøkkelen i
+  stedet.
 
 ---
 
@@ -871,3 +991,66 @@ ikke-forskrift instrumenter, etter at Lovdatas ELI-rolle ble bekreftet.
 kryssreferanser mellom paragrafer («§ 1-7b viser til § 3-2») allerede er bygget i rådataen — det er
 korrigert der, og gjentatt/rettet her i §6.3, siden dette notatet delvis bygde videre på den
 antagelsen.
+
+---
+
+## 13. Avklaringsrunde 1 (2026-08-12) — referat
+
+*Kilde: Johanns direkte tilbakemelding i chat, 2026-08-12, som svar på Trinn 0-spørsmålene i §8.
+Verifisert mot koden (`VilkarstreGrafHjelper.KanNaAsync`, `TjenesteavhengighetEntitet`s
+selvrefererende M:N-struktur, `VirksomhetEntitet`s faktiske felt) før det legges inn her — se
+inline-referansene i §3.3/§9.5/§10.2/§11 for de faktiske skjemaendringene. Dette avsnittet er
+referatet/begrunnelsen; skjemaet selv står i de respektive seksjonene, ikke duplisert her.*
+
+### Hva som ble avklart
+
+| Spørsmål | Utfall | Se |
+|---|---|---|
+| AKN: primærlager eller serialisering? | Serialisering. Generert AKN lagres ikke — kun mottatt AKN er bitidentisk lagret. | §9.5 |
+| Rundturstestens assertions | Konkret liste (nodetre, `Eid`, normalisert tekst, kanttall, metadata) — IKKE byte-identisk XML | §9.5 |
+| Én entitet eller to? | Én — `TjenesteEntitet` + nytt felt | §10.2 |
+| Feltnavn på diskriminatoren | `Registertype`, ikke `Objekttype` | §10.2 |
+| Eksportsluse-robusthet | Strukturell (repository-lag + regresjonstest), ikke disiplinbasert | §10.2 |
+| `dekker`-relasjonens graf | Egen `OppgaveTjenesteEntitet`, IKKE `TjenesteavhengighetEntitet`s sykelsjekkede graf | §10.2 |
+| `RettsligStatus` | Splittet i `NormativVirkning` (låst, populeres nå) + `FunksjonellRolle` (låst struktur, nullbar til videre) | §3.3 |
+| `Kommunenummer`-plassering | `VirksomhetEntitet`, ikke `RettskildeEntitet`, ikke i URI | §3.3 |
+| URI-nøkkel | `Organisasjonsnummer`, ikke `Kommunenummer` (kommunenummer er ikke stabilt — Bergen 1201→4601) | §3.3 |
+
+### Hva som fortsatt er åpent
+
+- **[PÅ AVKLARING, utvidet 2026-08-12]** Om `NormativVirkning="bindende_forvaltning"` er riktig
+  snitt for retningslinjer generelt (Schartum-spørsmålet, §3.3) — venter på videre juridisk
+  vurdering, ikke løst ved teknisk konsensus. Johann skjerpet spørsmålet samme dag: **egentlig er
+  alle retningslinjer OG innbyggerveiledere bindende** — innbyggerveiledere er enda et lag ned i
+  formalitet enn en retningslinje (retningslinjen er selv bystyrevedtatt; en innbyggerveileder er
+  typisk administrativt forfattet tekst basert på retningslinjen), men praktisk sett like
+  utfallsbestemmende, muligens mer — det er det innbyggeren faktisk leser før de søker.
+  `NormativVirkning`-taksonomien (§3.3) må derfor prøves mot BÅDE retningslinje- og
+  innbyggerveileder-tekst, ikke bare retningslinjer, før den låses fullt ut. Ikke avgjort her.
+- **[NYTT SPØRSMÅL, PÅ AVKLARING 2026-08-12]** «Hva sa veiledningen til brukeren da de søkte om
+  tjenesten?» — dette er et ANNET spørsmål enn NormativVirkning-klassifiseringen av
+  retningslinje-DOKUMENTET. Det handler om PROVENANS: hva en innbygger faktisk ble vist på
+  søknadstidspunktet kan i seg selv være en del av vedtaksgrunnlaget (berettigede
+  forventninger/likhetsprinsippet — avviker vedtaket fra det brukeren ble fortalt, kan det kreve
+  egen begrunnelse, uavhengig av om selve veiledningsteksten formelt er «bindende»). Regel-IDE har
+  allerede en `Veiledning`-modell (byggesteg 4: `GET /api/tjenester/{id}/veiledning`,
+  `TjenesteVeiledning.tsx`, hjemmel-sitater som ekte lenker) — men den viser dagens gjeldende
+  veiledning, ikke et tidsstemplet snapshot av hva som ble vist en konkret søker. Byggesteg 7
+  (saksbehandling/forklaringslogg, MVP-grense — ikke bygget) er der dette faktisk hører hjemme: en
+  fremtidig vedtaksgrunnlag-modell bør trolig snapshotte veiledningsinnholdet på søknadstidspunktet,
+  samme "ingen gjettet fallback"/`Utdrag`-prinsipp som `FeltkildeEntitet` (§5.4) allerede bruker for
+  andre felt. Ikke noe å bygge nå — notert som en fremtidig kobling mellom byggesteg 4s
+  Veiledning-arbeid og byggesteg 7, ikke avgjort her.
+- CPOV mot `PublicService` (§10.3), AKN-XSD-veien i .NET (§9.5) — ikke tatt opp denne runden.
+- Sveipegranularitet, Normtype-firedeling, deduplisering, tjenestetypologi-autorisering,
+  crawle-etikett — uendret fra §11.
+
+### En kapabilitet verdt å notere, ikke bygge nå
+
+`NormativVirkning`/`FunksjonellRolle`-splitten gir, når begge akser er populert, en kontroll ingen
+har i dag: en retningslinje som setter et ABSOLUTT forbud (ingen `unntakshjemmel`-kobling) kan
+flagges som rettslig tvilsom, fordi forvaltningen normalt ikke kan binde bort skjønnet fullstendig.
+Bergens punkt 4.1/4.10 (forbud mot stripping/toppløs-servering, forbud mot bevilling til
+én-prosents MC-klubber) illustrerer nettopp dette — punkt 3.4s generelle unntakshjemmel («i
+spesielle tilfeller») finnes sannsynligvis for å unngå akkurat dette problemet. Dette er en
+konsekvens av taksonomien, ikke noe som trenger egen kode nå — notert for Trinn 4 (annotasjon).

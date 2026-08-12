@@ -437,13 +437,15 @@ Ingen av disse krever videre avklaring — bare en prioritering:
    logg rå respons/feil ved tomt eller mislykket forsøk, ett automatisk retry, `n≥5` per arm ved
    fremtidig måling. Mål: tomrespons/timeout under 5 %.
 8. **Håndbok/dokumentgraf-notatet (`docs/15-handbok-dokumentgraf-notat.md`) — egen avklaringsrunde,
-   ikke kode.** Mottatt og konsolidert mot koden 2026-08-12. Trinn 0 i notatets §8 (AKN-primærlager
-   vs. serialisering, `Objekttype`-diskriminator, `RettsligStatus`-taksonomi juridisk) må avklares
-   FØR Trinn 1 kan startes. Merk: notatets §2/§3.3-skjemaforslag er allerede korrigert i konsolideringen
-   til å utvide `RettskildeEntitet`/`RettskildeNodeEntitet` i stedet for nye tabeller — se `docs/15`
-   §0.1. Overlapper delvis med byggesteg 3 (Presedensregister, punkt 6) og byggesteg 5 (punkt 7/9
-   under) — bør trolig tas som egen avklaringsrunde uavhengig av hvilken byggesteg-rekkefølge som
-   ellers velges.
+   ikke kode.** Mottatt og konsolidert mot koden 2026-08-12. **Avklaringsrunde 1 kjørt samme dag**
+   (se `docs/15` §13) — tre av fire Trinn 0-punkter nå LÅST: AKN som serialisering (ikke
+   primærlager), én `TjenesteEntitet` med `Registertype`-diskriminator (ikke `Objekttype`, ikke to
+   tabeller), `RettsligStatus` splittet i `NormativVirkning`/`FunksjonellRolle`. **Fortsatt åpent**:
+   om `NormativVirkning="bindende_forvaltning"` er riktig snitt for retningslinjer generelt
+   (Schartum-spørsmål, ikke teknisk), samt CPOV-sjekk og AKN-XSD-vei i .NET. Trinn 1 (bygg parseren
+   på Bergen-eksempelet) kan nå starte på det som er låst. Overlapper delvis med byggesteg 3
+   (Presedensregister, punkt 6) og byggesteg 5 (punkt 7/9 under) — bør trolig fortsette som egen
+   avklaringsrunde uavhengig av hvilken byggesteg-rekkefølge som ellers velges.
 9. **Byggesteg 5 runde 3+ — de tre resterende AI-agentene** (§2.2, runde 1+2 ferdig). Vurder
    om byggesteg 3 bør være ferdig først, siden «Rettskilder og strukturering»-agenten forutsetter et
    presedensregister for å være noe mer enn en ren rettskilde-importer.
