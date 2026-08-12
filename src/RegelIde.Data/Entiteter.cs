@@ -12,6 +12,19 @@ public sealed class Virksomhet
     public required string Navn { get; set; }
     public string? Organisasjonsnummer { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }
+
+    /// <summary>
+    /// [LÅST — avklaringsrunde 1, 2026-08-12, docs/15-handbok-dokumentgraf-notat.md §3.3/§11] Nullbart
+    /// geografisk/statistisk attributt — statlige/regionale virksomheter (Digdir, et direktorat, en
+    /// statsforvalter) har ingen. ALDRI i en AKN/ELI-URI: kommunenummer er ikke stabilt over tid
+    /// (Bergen var 1201 før 2020, 4601 etter — samme organ, samme bystyre, nytt nummer).
+    /// <see cref="Organisasjonsnummer"/> (allerede stabilt) bærer URI-nøkkelen i stedet.
+    /// </summary>
+    public string? Kommunenummer { get; set; }
+
+    /// <summary>'stat' | 'fylke' | 'kommune' — styrer hvilket organ som er vedtaksmyndighet
+    /// (bystyre/kommunestyre/fylkesting), se §3.3.</summary>
+    public string? Forvaltningsniva { get; set; }
 }
 
 /// <summary>
@@ -71,6 +84,63 @@ public sealed class RettskildeEntitet
     public DateTimeOffset OpprettetTidspunkt { get; set; }
     public string? SistEndretAv { get; set; }
     public DateTimeOffset? SistEndretTidspunkt { get; set; }
+
+    // ---------- Lag 1 (docs/15-handbok-dokumentgraf-notat.md §2/§8 Trinn 1) — hentet, bitidentisk
+    // original + endringsdeteksjon for kilder som KUN finnes på et kommunalt nettsted. Alle nullable:
+    // irrelevante for delt/nasjonal Lovdata-import (Url/Innhold forblir NULL der, samme mønster som
+    // AknXml er NULL for referanse-stubber).
+
+    /// <summary>Eksakt URL kilden ble hentet fra — finnes ikke for Lovdata-import (annen henteflyt).</summary>
+    public string? Url { get; set; }
+
+    /// <summary>Bytea — uendret original (typisk PDF) for et hentet dokument. Distinkt fra
+    /// <see cref="AknXml"/>, som er en AVLEDET serialisering, ikke originalen selv.</summary>
+    public byte[]? Innhold { get; set; }
+
+    /// <summary>SHA-256 over <see cref="Innhold"/> — den ENESTE versjoneringsmekanismen som finnes for
+    /// et dokument som bare ligger på kommunens nettside (§2 Lag 1).</summary>
+    public string? InnholdsHash { get; set; }
+
+    public DateTimeOffset? Hentet { get; set; }
+    public string? HttpEtag { get; set; }
+    public string? HttpLastModified { get; set; }
+
+    // ---------- RettsligStatus, splittet i to ortogonale akser (§3.3, [LÅST] avklaringsrunde 1
+    // 2026-08-12) — ett felt kan ikke bære både normativ kraft OG funksjonell rolle.
+
+    /// <summary>AKSE A — populeres denne runden: 'bindende_borger' | 'bindende_forvaltning' |
+    /// 'vektbaerende' | 'faktisk_praksis'. [PÅ AVKLARING, §13] om 'bindende_forvaltning' er riktig
+    /// snitt for retningslinjer/innbyggerveiledere generelt (Schartum-spørsmålet) — IKKE avgjort,
+    /// derfor bevisst ikke gjort obligatorisk i skjemaet ennå, selv om §3.3 sier feltet "må være
+    /// obligatorisk" når taksonomien er ferdig avklart.</summary>
+    public string? NormativVirkning { get; set; }
+
+    /// <summary>AKSE B — feltet finnes, forblir nullable til delegasjonsreglement-arbeidet starter (§3.3):
+    /// 'materiell_norm' | 'kompetansenorm' | 'prosessnorm' | 'gebyr_okonomi' | 'tolkning'. IKKE
+    /// populert av <see cref="HandbokTekstParser"/> denne runden (bevisst utsatt, se §13).</summary>
+    public string? FunksjonellRolle { get; set; }
+
+    /// <summary>"SD-24-113" — les fra dokumentet når det finnes.</summary>
+    public string? InterntDokNr { get; set; }
+
+    /// <summary>"01".</summary>
+    public string? Revisjonsnr { get; set; }
+
+    /// <summary>"Bystyret".</summary>
+    public string? VedtattAv { get; set; }
+
+    public DateOnly? Vedtaksdato { get; set; }
+
+    /// <summary>Bystyresak, når den finnes.</summary>
+    public string? Saksnummer { get; set; }
+
+    /// <summary>"alkoholloven/§1-7d".</summary>
+    public string? HjemmelEid { get; set; }
+
+    // §3.3s "GyldigTil" (2028-07-01) er BEVISST IKKE en ny kolonne — <see cref="GyldigTil"/> lenger
+    // opp i denne klassen fantes allerede (nasjonale rettskilder) og gjenbrukes uendret, nøyaktig som
+    // §3.3 selv ber om å sjekke ("Ikrafttredelse/KonsolidertDato finnes allerede ... sjekk om de kan
+    // gjenbrukes/utvides"). Ingen duplikatkolonne.
 
     public List<RettskildeNodeEntitet> Noder { get; set; } = [];
 }
