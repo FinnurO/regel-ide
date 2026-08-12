@@ -192,6 +192,90 @@ avdekket et reelt kost-/kvalitetsproblem (en kjøring med 6 rettskilder, ~49k in
   `docs/14-byggesteg5-teknisk-design.md` §8.6. Rangert FØR et eventuelt Spor C siden begge deler
   samme underliggende chunking.
 
+**Mottatt, ikke bygget — ekstern konsolidert analyse (Claude Chat, 2026-08-12).** Tre-rundes
+research (PTV/Suomi.fi åpne API, Finlands innholdsproduksjonsveiledning, Arum/rulemapping.org),
+sammenlignet mot koden. Fem punkter verifisert/korrigert direkte mot repoet:
+
+- **To registre, ikke ett skjema.** Finlands egen innholdsveiledning sier eksplisitt at tilsyn/
+  rapportering/interne vedtak IKKE er CPSV-tjenester («Services do not refer to the tasks of the
+  organisation») — presist det motsatte av hva jeg selv trakk tilbake i forrige runde. Konklusjon:
+  Regel-IDE trenger et EGET register for lovpålagte forvaltningsoppgaver (kundevendt-uavhengig) i
+  tillegg til `TjenesteEntitet` (kundevendt, kanalbærende) — §8.4s «Tilsyn med privat innførsel»/
+  «Forbud mot skjenking utenfor lokaler» er ikke hallusinasjon, de er reelle funn uten riktig boks.
+  Fullt skjemaforslag (`ForvaltningsoppgaveEntitet`/`OppgaveTjenesteEntitet`/`FeltkildeEntitet`) og en
+  deterministisk «sveip»-arkitektur som alternativ til RAG (100 % dekning ved konstruksjon, sporbar
+  til én eId per funn) — se §2.7 under. **Dette er en arkitekturbeslutning, IKKE en byggeklar post.**
+- **Korpuset er invertert — antakelse, ikke bekreftet for Testkommunen (se R1(b) under).**
+  Analysens tese: rettskilde-noder (RAG-embedded, §8.2) bærer normalt IKKE
+  kanaler/kostnad/behandlingstid/kontaktpunkt — kunnskapsbiblioteket gjør, men er IKKE chunket/
+  embedded (dumpes fullt i begge kjøreveier), så RAG-investeringen gikk til korpuset som ikke bærer
+  de omstridte feltene. **R1(b) fant det motsatte for Testkommunen**: kunnskapsbiblioteket der er så
+  tynt (én lenke, under 10 ord) at det aldri kunne vært kilden — feltene som faktisk er ekte
+  (gebyr/frist/inndragning) kommer fra RETTSKILDEN, ikke biblioteket. Tesen kan fortsatt stemme for
+  en virksomhet med et reelt kunnskapsbibliotek (Agder fylkeskommune har opplastede filer med
+  utvunnet tekst) — ikke testet der. Fortsatt riktig at kunnskapsbiblioteket ikke er chunket/embedded
+  og er en sannsynlig fremtidig kostnadsdriver, uavhengig av dette funnet.
+- **R1 («det gratis eksperimentet») kjørt 2026-08-12 — resultatet er IKKE et rent ja/nei mellom
+  §8.6-hypotesen og konfabulering, begge har delvis rett.** Søk i selve alkoholloven-fixturen
+  (`data/kilder/raw-lovdata/alkoholloven-LOV-1989-06-02-27.html`) etter de faktiske verdiene dump-alt
+  fylte inn i de 13 av 15 forslagene med sekundærfelt utfylt (se §8.4/artefakten):
+  - **Ekte, i lovteksten** — IKKE konfabulert: «4 måneder»-fristen (§ 1-7a, viser til tjenesteloven
+    § 11 — men med et unntak for enkelte bevillinger dump-alt ikke skiller ut, altså mulig OVER-
+    generalisering, ikke oppspinn), «årlig gebyr»/«årlig bevillingsgebyr» (§ 6-8/§ 6-9, ordrett),
+    «Inndragning av bevilling» (§ 1-8, ordrett). Støtter §8.6s paragraf-fragmenteringshypotese — disse
+    er nettopp den typen prosedyre-detalj som ofte står i en paragrafs SENERE ledd, adskilt fra
+    "hvem kan søke"-leddet RAG rangerer høyest.
+  - **Ikke i lovteksten i noen form** — ikke sporbart til rettskilde uansett kontekst-bygger:
+    `kanaler` (`"fysisk"`/`"digitalt"` på samtlige forslag) og `sprak` (`"norsk"` på samtlige) — null
+    treff på noe tilsvarende i fixturen. LLM-ens egne, plausible standardvalg, ikke uttrekk.
+    `kontaktpunkt` er kun en kopi av `kompetentMyndighet`, ingen egen kilde. Disse feltene er
+    strukturelt IKKE lovtekst-sporbare for noen RAG-fiks — de hører til Finlands **lokale lag** (A.4
+    i analysen: virksomheten, ikke rettskilden, bestemmer kanal/språk i praksis) — en fremtidig
+    to-lagsskjema (§2.7-tilstøtende, se `docs/14 §8.4`) løser dette bedre enn chunking gjør.
+  - **Konsekvens**: dump-alts 83 % feltfullstendighet i §8.4 er delvis kunstig høy fra ugrunngede
+    default-verdier (kanaler/språk), ikke bare fra reelt bedre uttrekk enn RAG. §8.6s tre fikser
+    (forelder-kontekst i embedding, søskenledd ved henting, reranking) er fortsatt riktig retning for
+    kostnad/behandlingstid/konsekvensVedBrudd — men vil aldri løse kanaler/språk, uansett hvor god
+    chunkingen blir.
+  - **R1(b) kjørt 2026-08-12 — entydig resultat, korrigerer A.2s «korpuset er invertert»-antakelse
+    for denne testcasen.** Testkommunens kunnskapsbibliotek slettet helt (dens ENE lenke,
+    `https://testkommunen.no/tjenester — Om tjenestetilbudet` — allerede for tynn til å bære noe
+    reelt, se `TjenesteforslagTjeneste.cs` linje ~162), dump-alt kjørt på nytt mot samme alkoholloven
+    (ekte kall mot HostYourAI, `POST /api/tjenester/forslag/kjor`), lenken gjenopprettet etterpå.
+    Resultat: **89,7 % feltfullstendighet, 14 forslag, 28 902 input-tokens** — HØYERE
+    feltfullstendighet enn originalkjøringen med lenken til stede (83 %), og praktisk talt identisk
+    tokenforbruk (kunnskapsbiblioteket bidro med under 10 ord til konteksten). Konklusjon: for DENNE
+    testcasen kom **null** av dump-alts feltfullstendighet fra kunnskapsbiblioteket — alt kommer fra
+    rettskilde-nodene (de ekte verdiene, jf. punktet over) og fra LLM-ens egne standardvalg
+    (kanaler/språk, nå enda mer konsekvent — `["digitalt","fysisk"]` på samtlige 14 forslag). A.2s
+    "korpuset er invertert"-tese (at kunnskapsbiblioteket bærer de omstridte feltene) stemmer altså
+    IKKE empirisk her — det gjorde det aldri en forskjell fordi lenken var for tynn til å bære noe i
+    utgangspunktet. Dette lukker en reell åpen usikkerhet fra forrige runde (§8.4: "uklart OM
+    feltfullstendighets-fallet er en egenskap ved RAG-retrieval eller en prompt-svakhet") ytterligere
+    mot RAG-retrievalens egen mekanisme (§8.6-fragmentering) som hovedforklaring, ikke
+    kunnskapsbiblioteket. Merk: dette er ett datapunkt for én virksomhet med et nesten tomt
+    kunnskapsbibliotek — konklusjonen kan være annerledes for Agder fylkeskommune, som HAR reelt
+    kunnskapsbibliotek-innhold (opplastede filer med utvunnet tekst).
+- **Faktisk feil i den eksterne analysen, rettet før noe bygges på den**: rapportens skisse (del B.5,
+  "sveipe"-arkitekturen) forutsetter at "henvisningsfølging er deterministisk … fra lenker som
+  allerede finnes i rådataen". Sjekket direkte mot koden (`RettskildeImportTjeneste.cs`,
+  `Entiteter.cs`) — **dette finnes ikke**. Kun `ParentNodeId` (vertikal hierarki: ledd→paragraf→
+  kapittel, + `Overskrift`/`Nummer` på forelder) finnes; INGEN lateral kryssreferanse-graf mellom
+  paragrafer (f.eks. "§ 1-7b viser til § 3-2") er bygget noe sted. Sveipets foreldre-kontekst-del er
+  byggbar i dag helt gratis; henvisnings-utvidelsen krever at en kryssreferanse-graf bygges FØRST fra
+  AKN-importen — en ekte, ikke-triviell ny arbeidspost rapporten framstiller som allerede løst.
+- **Del C (agentløkke med verktøy vs. enkeltstående kall) bekrefter en konklusjon koden allerede
+  støtter**: over rettskilde er `ParentNodeId`/`Overskrift`/`Nummer` nok til å gi et sveip deterministisk
+  foreldre-kontekst gratis — ingen agency nødvendig. Agency gir trolig reell verdi kun over
+  kunnskapsbibliotekets ustrukturerte dokumenter (ingen eId, ingen henvisningsgraf, ingen garanti om
+  hvor et gebyr står) — anbefalt rekkefølge der: sveip først, kode-basert henvisningsutvidelse andre,
+  smalt agentisk søkeverktøy (kun over kunnskapsbiblioteket) sist og kun hvis 1+2 etterlater et målt
+  gap. Ingen ny abstraksjon i `IKiAgentKlient` trengs for de to første stegene.
+- Full kildeliste, Finland-API-adresser (åpent PTV API, CC0, uten innlogging —
+  `api.palvelutietovaranto.suomi.fi`) og hva analysen selv flagger som ikke lest/ikke reprodusert:
+  se den delte rapporten i samtalehistorikken for denne runden (ikke kopiert inn her for å unngå
+  drift — dette avsnittet er et sammendrag med verifiseringsstatus, ikke primærkilden).
+
 **⬜ Fortsatt gjenstår** (fortsatt retningsnivå, ikke bygget): de tre andre agentene
 (Tjenestebeskrivelse/Vilkår-og-Vilkårstre/Håndbok) i fast pipeline, en generalisert multi-type
 forslagskø, `foreslatt_av_ai` for Vilkår/Regelnode/Unntak, ekte OCR for skannede dokumenter, og
@@ -268,6 +352,52 @@ bruker, men uten å delta i sykelsjekken) dekker notatets §4-behov uten å rør
 **Status:** ikke bygget, ikke tatt stilling til av Johann ennå — venter på en egen avklaringsrunde
 (samme prosess som ontologilåsen 2026-07-23), ikke bare et «ja, bygg det».
 
+### 2.7 To registre: CPSV-tjeneste vs. forvaltningsoppgave — forslag til å løse §8.4s skjemamismatch
+*Forslag mottatt 2026-08-12 (ekstern konsolidert analyse, Claude Chat — se §2.2s "Mottatt, ikke
+bygget"-punkt over for full verifisering mot koden). Samme status som §2.6: et analysert forslag,
+ikke en kravspesifikasjon.*
+
+**⚠️ SUPERSEDT 2026-08-12 av `docs/15-handbok-dokumentgraf-notat.md` §10.2.** Et oppfølgingsnotat
+samme dag foreslo en billigere løsning på samme problem: én `TjenesteEntitet` med `Objekttype`-
+diskriminator (`tjeneste`/`forvaltningsoppgave`) + to SHACL-former + en hard eksportsluse
+(`Objekttype=tjeneste` er det ENESTE som emitteres som `cpsv:PublicService`), i stedet for en helt
+separat `ForvaltningsoppgaveEntitet`-tabell. Løser samme skjemamismatch, samme dekningsdifferanse
+(§5.3/§10.2 i det nye notatet), men uten en ny tabell å holde synkron med `TjenesteEntitet`. Denne
+seksjonen (§2.7) stå igjen som historikk — se `docs/15` for den oppdaterte anbefalingen, inkl. en
+navnekollisjons-advarsel (`TjenesteEntitet` har allerede et `Tjenestetype`-felt, forskjellig fra det
+foreslåtte `Objekttype`).
+
+**Kjernen:** §8.4 fant at 3 av 6 RAG-forslag var "tvilsomme som egne CPSV-tjenester" (en
+saksbehandlings-beskrivelse, en tilsynsplikt, et forbud). Finlands egen innholdsveiledning sier
+tilsyn/rapportering/interne oppgaver bevisst IKKE skal beskrives som CPSV-tjenester — agenten fant
+reelle forvaltningsoppgaver, men skjemaet har ingen boks for dem utenom `Tjeneste`. Foreslått:
+
+- `ForvaltningsoppgaveEntitet` (`RettskildeId` påkrevd, `Normtype` ∈ plikt/kompetanse/forbud/
+  definisjon, `Adressat`) — ETT register per bestemmelse, bygget av et deterministisk «sveip» over
+  rettskildens struktur (paragraf for paragraf, ikke RAG/top-K) i stedet for et generert forslag.
+  100 % dekning ved konstruksjon («vi har besøkt hver bestemmelse»), sporbar til én eId per funn.
+- `OppgaveTjenesteEntitet` (kobling oppgave↔tjeneste; fravær av rad = eksplisitt etterlevelseshull).
+- `FeltkildeEntitet` (provenans per CPSV-sekundærfelt — `KildeType`/`KildeRef`/`Utdrag`), som gjør
+  §8.4/R1(a)-funnet over (kanaler/språk uten kildegrunnlag) strukturelt synlig i stedet for noe man må
+  oppdage ved manuell gjennomgang: uten kilde skrives feltet aldri.
+- Leveransen er en DIFFERANSE, ikke en katalog: `Oppgaver ∖ Tjenester = etterlevelseshull` (det
+  egentlig verdifulle funnet), `Oppgaver ∩ Tjenester = CPSV-katalogen` (biprodukt).
+
+**Vurdering — reell, ikke-triviell kostnad, ikke bare en ekstra tabell:** krever et sveip-endepunkt
+(65 kall à ~2000 tokens for alkoholloven ≈ 130k input-tokens, 4-5× dyrere per kjøring enn dagens
+dump-alt, mot bevisbar dekning), en ny kodeliste-autorisert typologi for `Normtype`/klassifisering
+(gjenbruk byggesteg 2s kodelistemaskineri), og et åpent spørsmål om `Forvaltningsoppgave`/`Tjeneste`
+bør være separate tabeller eller én med diskriminator (kodebasens etablerte mønster peker mot
+separate, men semantikken overlapper mer her enn i eksisterende par som `KunnskapsbibliotekLenke`/
+`-Fil`). Løser samtidig to av Spor Cs (§8.5) åpne spørsmål (terskel for "godt nok forankret" faller
+bort — kriteriet blir om en kildechunk faktisk inneholder verdien, ikke en kosinusverdi), men
+forutsetter en henvisningsgraf som IKKE finnes i dag for full "hent bestemmelser paragrafen viser
+til"-funksjonalitet (se §2.2-korreksjonen over) — kan bygges uten den, bare med redusert kontekst per
+sveip-kall.
+
+**Status:** ikke bygget, ikke tatt stilling til av Johann ennå — venter på en egen avklaringsrunde
+(samme prosess som ontologilåsen 2026-07-23 og §2.6), ikke bare et «ja, bygg det».
+
 ## 3. Kjente gap fra fasit-dokumentet (`12-fasit-handbok-leveranse.md`)
 
 | Dimensjon | Skår | Gap |
@@ -297,11 +427,28 @@ Ingen av disse krever videre avklaring — bare en prioritering:
    dagens samtale om tagging.
 6. **Byggesteg 3 — Presedensregister.** Løser samtidig «Testkommunen 2017 Vurdering av habilitet
    2018»-referansen fra rundskriv v4 §3, som i dag ikke har noe sted å høre hjemme.
-7. **Byggesteg 5 runde 3+ — de tre resterende AI-agentene** (§2.2, runde 1+2 ferdig). Vurder
+7. **Byggesteg 5 runde 5 — stabiliser agenten før mer måling (§2.2s "Mottatt, ikke bygget"-punkt,
+   R0).** ✅ **R1(b) kjørt 2026-08-12** — se §2.2 for fullt resultat (89,7 % feltfullstendighet med
+   tomt kunnskapsbibliotek, høyere enn originalens 83 %; null av verdien kom fra biblioteket for
+   Testkommunen). Underveis avdekket: dump-alt-endepunktet traff en `TaskCanceledException` (100s
+   HttpClient-timeout mot HostYourAI) på FØRSTE forsøk, lyktes på andre — samme type transient
+   ustabilitet §8.4 allerede dokumenterte (der som tomt `[]`-svar, her som timeout), ikke en ny feil,
+   men ytterligere en konkret grunn til R0. **R0 gjenstår** — ren kode, ingen avklaring nødvendig:
+   logg rå respons/feil ved tomt eller mislykket forsøk, ett automatisk retry, `n≥5` per arm ved
+   fremtidig måling. Mål: tomrespons/timeout under 5 %.
+8. **Håndbok/dokumentgraf-notatet (`docs/15-handbok-dokumentgraf-notat.md`) — egen avklaringsrunde,
+   ikke kode.** Mottatt og konsolidert mot koden 2026-08-12. Trinn 0 i notatets §8 (AKN-primærlager
+   vs. serialisering, `Objekttype`-diskriminator, `RettsligStatus`-taksonomi juridisk) må avklares
+   FØR Trinn 1 kan startes. Merk: notatets §2/§3.3-skjemaforslag er allerede korrigert i konsolideringen
+   til å utvide `RettskildeEntitet`/`RettskildeNodeEntitet` i stedet for nye tabeller — se `docs/15`
+   §0.1. Overlapper delvis med byggesteg 3 (Presedensregister, punkt 6) og byggesteg 5 (punkt 7/9
+   under) — bør trolig tas som egen avklaringsrunde uavhengig av hvilken byggesteg-rekkefølge som
+   ellers velges.
+9. **Byggesteg 5 runde 3+ — de tre resterende AI-agentene** (§2.2, runde 1+2 ferdig). Vurder
    om byggesteg 3 bør være ferdig først, siden «Rettskilder og strukturering»-agenten forutsetter et
    presedensregister for å være noe mer enn en ren rettskilde-importer.
-8. **Byggesteg 6/7** — informasjonsmodell/eksportmotor og saksbehandling/forklaringslogg-slice,
-   etter 3–5 er på plass.
+10. **Byggesteg 6/7** — informasjonsmodell/eksportmotor og saksbehandling/forklaringslogg-slice,
+    etter 3–5 er på plass.
 
 ## 5. Bevisst utenfor scope (ikke glemt, bare rangert bak)
 
