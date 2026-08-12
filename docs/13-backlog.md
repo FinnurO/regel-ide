@@ -442,14 +442,25 @@ Ingen av disse krever videre avklaring — bare en prioritering:
    primærlager), én `TjenesteEntitet` med `Registertype`-diskriminator (ikke `Objekttype`, ikke to
    tabeller), `RettsligStatus` splittet i `NormativVirkning`/`FunksjonellRolle`. **Fortsatt åpent**:
    om `NormativVirkning="bindende_forvaltning"` er riktig snitt for retningslinjer generelt
-   (Schartum-spørsmål, ikke teknisk), samt CPOV-sjekk og AKN-XSD-vei i .NET. Trinn 1 (bygg parseren
-   på Bergen-eksempelet) kan nå starte på det som er låst. Overlapper delvis med byggesteg 3
-   (Presedensregister, punkt 6) og byggesteg 5 (punkt 7/9 under) — bør trolig fortsette som egen
-   avklaringsrunde uavhengig av hvilken byggesteg-rekkefølge som ellers velges.
-9. **Byggesteg 5 runde 3+ — de tre resterende AI-agentene** (§2.2, runde 1+2 ferdig). Vurder
-   om byggesteg 3 bør være ferdig først, siden «Rettskilder og strukturering»-agenten forutsetter et
-   presedensregister for å være noe mer enn en ren rettskilde-importer.
-10. **Byggesteg 6/7** — informasjonsmodell/eksportmotor og saksbehandling/forklaringslogg-slice,
+   (Schartum-spørsmål, ikke teknisk). **Avklaringsrunde 2 kjørt samme dag** (se `docs/15` §14) —
+   CPOV-sjekk og AKN-XSD-vei i .NET nå også avklart (CPOV bekreftet irrelevant for
+   forvaltningsoppgave-spørsmålet; intet .NET AKN-bibliotek finnes; full XSD-kodegenerering vurdert
+   lite verdifullt). Trinn 1 (bygg parseren på Bergen-eksempelet) kan nå starte på det som er låst.
+   Overlapper delvis med byggesteg 3 (Presedensregister, punkt 6) og byggesteg 5 (punkt 7/9 under) —
+   bør trolig fortsette som egen avklaringsrunde uavhengig av hvilken byggesteg-rekkefølge som ellers
+   velges.
+9. **[NY, BUG] `AknXmlSkriver.cs` genererer sannsynligvis ugyldig AKN 3.0.** Bifangst fra
+   avklaringsrunde 2s AKN-XSD-forskning (`docs/15` §14): en faktisk skjemavalidering fant to
+   konkrete brudd i eksisterende, produksjonsbrukt kode (byggesteg 1, Lov/Forskrift-import) — (a)
+   `kildeId`-attributtet på `<article>`/`<paragraph>`/`<point>` er ikke gyldig i noe navnerom
+   skjemaet tillater, (b) `FRBRWork`/`FRBRExpression` mangler alltid det obligatoriske
+   `FRBRdate`-elementet. `AknXml`-kolonnen for ALT importert Lov/Forskrift er derfor sannsynligvis
+   ikke gyldig AKN 3.0 per det offisielle skjemaet. Uavhengig av håndbok/dokumentgraf-arbeidet — en
+   forhåndseksisterende feil, ikke noe nytt arbeid introduserte. Ikke rettet, ikke prioritert ennå.
+10. **Byggesteg 5 runde 3+ — de tre resterende AI-agentene** (§2.2, runde 1+2 ferdig). Vurder
+    om byggesteg 3 bør være ferdig først, siden «Rettskilder og strukturering»-agenten forutsetter et
+    presedensregister for å være noe mer enn en ren rettskilde-importer.
+11. **Byggesteg 6/7** — informasjonsmodell/eksportmotor og saksbehandling/forklaringslogg-slice,
     etter 3–5 er på plass.
 
 ## 5. Bevisst utenfor scope (ikke glemt, bare rangert bak)
