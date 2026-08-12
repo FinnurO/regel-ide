@@ -1,0 +1,31 @@
+KanoniskUrl: https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser
+StiType: tematisk
+Sti: innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser
+Tittel: Bevilling og tillatelser
+
+Dette er en ren indeks-/listeside (tematisk navigasjonssti) under "Næring, avgifter og anskaffelser".
+Siden har ingen egen brødtekst utover meny-/lenkelisten under — den EKSISTERER for å samle de
+underliggende tjenestesidene i én tematisk sti, jf. docs/15-handbok-dokumentgraf-notat.md §3.4.
+
+LENKER:
+- [Bevillingsgebyr salgs- og skjenkebevillinger 2025/2026 - Frist er 17.februar 2026](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/bevillingsgebyr-salgsog-skjenkebevillinger-20252026-frist-er-17februar-2026)
+- [Etablererprøven og kunnskapsprøven](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/etablererproven-og-kunnskapsproven)
+- [Godkjenning av ny styrer, stedfortreder og daglig leder i bevillinger](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/godkjenning-av-ny-styrer-stedfortreder-og-daglig-leder-i-bevillinger)
+- [Kontrollvirksomhet av skjenking og salg av alkohol](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/kontrollvirksomhet-av-skjenking-og-salg-av-alkohol)
+- [Krav om fettutskiller](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/krav-om-fettutskiller)
+- [Kurs i ansvarlig alkoholhåndtering 2026](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/kurs-i-ansvarlig-alkoholhandtering-2026)
+- [Lukket selskap: Ambulerende skjenkebevilling](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/lukket-selskap-ambulerende-skjenkebevilling)
+- [Melde inn og ut av tobakkssalgsregisteret](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/melde-inn-og-ut-av-tobakkssalgsregisteret)
+- [Retningslinjer for tildeling av salgs- og skjenkebevillinger og Forskrift om salgs-, skjenke- og åpningstider](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/retningslinjer-for-tildeling-av-salgsog-skjenkebevillinger-og-forskrift-om-salgsskjenkeog-apningstider)
+- [Salgsbevilling for alkohol](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/salgsbevilling-for-alkohol)
+- [Skjenketid ved overgang til sommertid og vintertid](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/skjenketid-ved-overgang-til-sommertid-og-vintertid)
+- [Skjenketider i forbindelse med fotball VM 2026 – perioden 11. juni til 19. juli 2026](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/skjenketider-i-forbindelse-med-fotball-vm-2026-perioden-11-juni-til-19-juli-2026)
+- [Søknad om serveringsbevilling](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/soknad-om-serveringsbevilling)
+- [Søknad om skjenkebevilling for alkohol og endringer i eksisterende bevilling](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/soknad-om-skjenkebevilling-for-alkohol-og-endringer-i-eksisterende-bevilling-f-eks-soknad-om-uteservering)
+- [Søknad om skjenkebevilling for alkoholholdig drikk gruppe 3](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/soknad-om-skjenkebevilling-for-alkoholholdig-drikk-gruppe-3)
+- [Søknad om skjenkebevilling på uteareal](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/soknad-om-skjenkebevilling-pa-uteareal)
+- [Søknad om utvidet skjenkeareal for en enkelt anledning](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/soknad-om-utvidet-skjenkeareal-for-en-enkelt-anledning)
+- [Søknad om utvidet skjenkeareal på eksisterende skjenkebevilling](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/soknad-om-utvidet-skjenkeareal-pa-eksisterende-skjenkebevilling)
+- [Tilsyn av internkontroll ved virksomheter med salgs- og skjenkebevilling](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/tilsyn-av-internkontroll-ved-virksomheter-med-salgsog-skjenkebevilling)
+- [Utvidet skjenke- og åpningstid for en enkelt anledning](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/utvidet-skjenkeog-apningstid-for-en-enkelt-anledning)
+- [Åpent arrangement: Skjenkebevilling for én enkelt anledning](/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/apent-arrangement-skjenkebevilling-for-n-enkelt-anledning)

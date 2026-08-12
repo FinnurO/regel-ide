@@ -1,0 +1,8 @@
+KanoniskUrl: https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/soknad-om-utvidet-skjenkeareal-for-en-enkelt-anledning
+Tittel: Søknad om utvidet skjenkeareal for en enkelt anledning
+
+Gjelder for eksisterende bevillingshavere som ønsker å utvide sitt skjenkeareal for en enkelt
+anledning.
+
+LENKER:
+- [Søknad om utvidet skjenkeareal for en enkelt anledning](https://skjema.bergen.kommune.no/viewer/bergen/BK269-Utvidet_skjenkeareal)

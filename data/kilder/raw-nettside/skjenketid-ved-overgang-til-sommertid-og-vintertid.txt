@@ -1,0 +1,11 @@
+KanoniskUrl: https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/skjenketid-ved-overgang-til-sommertid-og-vintertid
+Tittel: Skjenketid ved overgang til sommertid og vintertid
+
+Ved overgang til sommertid, når klokken stilles fra 02.00 til 03.00, må steder med skjenketid til
+kl. 02.00 eller senere stenge skjenkingen kl. 02.00 (som blir kl. 03.00 i ny tid).
+
+Ved overgang til vintertid, når klokken stilles fra 03.00 til 02.00, utløper all skjenketid når
+klokken viser 03.00 den natten — det gis ingen forlengelse for ekstratimen.
+
+LENKER:
+- [Alkoholloven § 4-4. Tidsinnskrenkninger for skjenking av alkoholholdig drikker](https://www.helsedirektoratet.no/rundskriv/alkoholloven/kapittel-4-kommunale-skjenkebevillinger/-4-4.tidsinnskrenkninger-for-skjenking-av-alkoholholdig-drikker)

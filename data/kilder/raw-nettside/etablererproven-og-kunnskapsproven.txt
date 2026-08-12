@@ -1,0 +1,22 @@
+KanoniskUrl: https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/etablererproven-og-kunnskapsproven
+Tittel: Etablererprøven og kunnskapsprøven
+
+Beskriver krav til å avlegge Etablererprøven eller kunnskapsprøven for å være styrer/stedfortreder
+ved ulike virksomheter i Bergen. Tre kategorier: serveringssteder (krever etablererprøven), steder
+med skjenkebevilling (krever begge prøvene), og dagligvarebutikker med alkoholsalg (krever
+kunnskapsprøven).
+
+Prisen er 400 kroner per prøve. Oppmøte for avleggelse av prøve er kl. 09:00 og 13:00, i
+Strandgaten 5, 5. etasje, Bergen. Etablererprøven er en flervalgsprøve på 90 minutter — du må svare
+riktig på 40 av 50 spørsmål. Kunnskapsprøven er en flervalgsprøve på 60 minutter — du må svare
+riktig på 24 av 30 spørsmål. Tilrettelegging (maks 30 minutter ekstra tid) er mulig ved
+dokumentert behov.
+
+LENKER:
+- [Detaljer - Bergen kommune](https://bestill.bergen.kommune.no/Detaljer/EVENT/2260)
+- [Vinn nettbutikk](https://www.vinn.no/nettbutikk/)
+- [Serveringsloven](https://lovdata.no/dokument/NL/lov/1997-06-13-55)
+- [Forskrift om etablererprøve](https://lovdata.no/dokument/SF/forskrift/2000-01-18-46)
+- [Alkoholloven](http://www.lovdata.no/cgi-wift/wiftldles?doc=/usr/www/lovdata/all/nl-19890602-027.html&emne=alkohol)
+- [Alkoholforskriften](https://lovdata.no/dokument/SF/forskrift/2005-06-08-538)
+- mailto:postmottak.skjenkesaker@bergen.kommune.no

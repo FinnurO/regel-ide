@@ -1,0 +1,17 @@
+KanoniskUrl: https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/soknad-om-skjenkebevilling-for-alkoholholdig-drikk-gruppe-3
+Tittel: Søknad om skjenkebevilling for alkoholholdig drikk gruppe 3
+
+Innehavere av skjenkebevilling for gruppe 1 og 2 kan søke om varig utvidelse til gruppe 3.
+
+Alkoholgrupper: gruppe 1 er drikk over 2,5 og høyst 4,7 volumprosent alkohol; gruppe 2 er drikk
+over 4,7 og mindre enn 22 volumprosent alkohol; gruppe 3 er drikk mellom 22 og 60 volumprosent
+alkohol.
+
+Saksbehandlingstid er ca. to måneder fra fullstendig søknad. Endringer i eksisterende bevilling
+søkes via det ordinære skjemaet.
+
+LENKER:
+- [alkohollovens § 4-2](http://www.lovdata.no/all/tl-19890602-027-008.html#4-2)
+- [Alkoholloven](http://www.lovdata.no/all/nl-19890602-027.html)
+- [Søknad om endring i skjenkebevillingen](https://skjema.bergen.kommune.no/viewer/bergen/BK425-SKJENK-Soknad_om_skjenkebevilling)
+- [Skjenkebevilling for alkohol](https://www.bergen.kommune.no/innbyggerhjelpen/naring-og-skatt/naring/bevilling-og-tillatelser/skjenkebevilling-for-alkohol)

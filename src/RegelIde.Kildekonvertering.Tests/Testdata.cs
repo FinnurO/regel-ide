@@ -17,4 +17,12 @@ internal static class Testdata
     /// </summary>
     public static string LesBergenRetningslinjer() =>
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "bergen-retningslinjer-SD-24-113.txt"));
+
+    /// <summary>
+    /// Ekte tekst (ikke syntetisk) fra Bergen kommunes FORSKRIFT om salgs-, skjenke- og
+    /// åpningstider (Dok.nr SD-24-114) — se data/kilder/raw-handbok/README.md for proveniens og for
+    /// det reelle strukturfunnet (bare tallpunktum-overskrifter, ikke "Kapittel N", på toppnivå).
+    /// </summary>
+    public static string LesBergenForskrift() =>
+        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "bergen-forskrift-salgs-skjenke-apningstider.txt"));
 }

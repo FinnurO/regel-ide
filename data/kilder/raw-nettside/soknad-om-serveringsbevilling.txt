@@ -1,0 +1,19 @@
+KanoniskUrl: https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/soknad-om-serveringsbevilling
+Tittel: Søknad om serveringsbevilling
+
+Kafeer, kantiner, food trucks og lignende som serverer mat og drikke, må søke serveringsbevilling
+i Bergen kommune. Bevillingen gjelder både innendørs og utendørs servering, uavhengig av
+sitteplasser.
+
+Vedlegg: driftskonsept, leiekontrakt, brukstillatelse, registrering hos Mattilsynet,
+firmaregistrering og yrkesskadeforsikring. Søker må ha bestått etablererprøven.
+Saksbehandlingstid er 1–2 måneder, behandlet løpende ved fullstendig dokumentasjon.
+Bevillingen har ingen tidsbegrensning (i motsetning til alkoholbevillinger som gjelder fire år).
+Sporadisk/gratis servering krever normalt ikke bevilling.
+
+Klage går til Kontor for skjenkesaker, deretter til Statsforvalteren.
+
+LENKER:
+- [Søknadsskjema ved endring av daglig leder, styrer eller stedfortreder](https://skjema.bergen.kommune.no/viewer/bergen/BK263-Skjenk-Godkjenning_ny_styrer)
+- [Serveringsloven](https://lovdata.no/dokument/NL/lov/1997-06-13-55)
+- [Søk elektronisk om serveringsbevilling](https://skjema.bergen.kommune.no/viewer/bergen/BK015-SKJENK-Soknad_serveringsbevilling)
