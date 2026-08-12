@@ -95,6 +95,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Navn).HasColumnName("navn");
             e.Property(x => x.Organisasjonsnummer).HasColumnName("organisasjonsnummer");
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+            e.Property(x => x.Kommunenummer).HasColumnName("kommunenummer");
+            e.Property(x => x.Forvaltningsniva).HasColumnName("forvaltningsniva");
             e.HasIndex(x => x.Organisasjonsnummer).IsUnique().HasDatabaseName("ux_virksomheter_organisasjonsnummer")
                 .HasFilter("organisasjonsnummer IS NOT NULL");
         });
@@ -151,6 +153,24 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
             e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
+
+            // Lag 1 (docs/15-handbok-dokumentgraf-notat.md §2/§8 Trinn 1) — hentet, bitidentisk original.
+            e.Property(x => x.Url).HasColumnName("url");
+            e.Property(x => x.Innhold).HasColumnName("innhold");
+            e.Property(x => x.InnholdsHash).HasColumnName("innholds_hash");
+            e.Property(x => x.Hentet).HasColumnName("hentet");
+            e.Property(x => x.HttpEtag).HasColumnName("http_etag");
+            e.Property(x => x.HttpLastModified).HasColumnName("http_last_modified");
+
+            // RettsligStatus, to akser (§3.3, [LÅST] avklaringsrunde 1 2026-08-12).
+            e.Property(x => x.NormativVirkning).HasColumnName("normativ_virkning");
+            e.Property(x => x.FunksjonellRolle).HasColumnName("funksjonell_rolle");
+            e.Property(x => x.InterntDokNr).HasColumnName("internt_dok_nr");
+            e.Property(x => x.Revisjonsnr).HasColumnName("revisjonsnr");
+            e.Property(x => x.VedtattAv).HasColumnName("vedtatt_av");
+            e.Property(x => x.Vedtaksdato).HasColumnName("vedtaksdato");
+            e.Property(x => x.Saksnummer).HasColumnName("saksnummer");
+            e.Property(x => x.HjemmelEid).HasColumnName("hjemmel_eid");
 
             e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.ErstatterId);
             e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
