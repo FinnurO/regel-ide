@@ -4,3 +4,6 @@ obj/
 # Miljøspesifikk konfigurasjon: Tenor-brukere, syntetiske organisasjoner og andre verdier som
 # hører til miljøet vi deployer mot, ikke til koden. Se appsettings.Local.example.json.
 appsettings.Local.json
+
+# Personlige Claude Code-innstillinger (tillatelsesregler o.l.) — ikke team-delt.
+.claude/settings.local.json
