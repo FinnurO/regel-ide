@@ -588,8 +588,12 @@ kryssammenligning har noe å tilby som 9 300 mennesker ikke har.
   (`NormativVirkning`/`FunksjonellRolle`) i stedet for én tredeling; strukturen er avklart, men om
   `NormativVirkning="bindende_forvaltning"` er riktig snitt for retningslinjer generelt
   (Schartum-spørsmålet) er fortsatt åpent — venter på videre juridisk vurdering.
-- ⬜ Sjekk CPOV mot `PublicService` (§10.3), og AKN-XSD-veien i .NET (§9.5) — ikke tatt opp denne
-  runden, står fortsatt åpent.
+- ✅ **CPOV mot `PublicService` (§10.3)** — undersøkt 2026-08-12 (avklaringsrunde 2, §13): CPOV
+  modellerer organisasjoner, ikke oppgaver — komplementært, ikke et alternativ. §10.2 bekreftet.
+- ✅ **AKN-XSD-veien i .NET (§9.5)** — undersøkt 2026-08-12: bekreftet at intet .NET-bibliotek
+  finnes, offisiell XSD funnet, full kodegenerering vurdert lite verdifull (65 mixed-content-typer).
+  **Bifangst**: fant to reelle AKN-skjemabrudd i eksisterende `AknXmlSkriver.cs` — se §13, egen
+  oppfølging, ikke løst i denne runden.
 - ✅ **[Nytt spørsmål fra runde 1, løst samme runde]** `Kommunenummer` går på `VirksomhetEntitet`
   (nytt felt, sammen med `Forvaltningsniva`), ALDRI i en AKN/ELI-URI — `Organisasjonsnummer` bærer
   URI-nøkkelen. Se §3.3.
@@ -769,11 +773,28 @@ strengt bundet til XML-formatering) — begge verdiløse. Bør være en automati
 engangsverifisering — samme kultur som `RundskrivReproduksjonTests.cs`. **Ikke bygget i dag** —
 dagens flyt er kun importretningen (HTML → AKN → relasjonelt), aldri tilbake.
 
-**Verktøyforbehold (uendret):** jeg kjenner ikke noe modent AKN-bibliotek for .NET. Moden
-verktøykjede (LIME, AKN4EU-verktøy) er i hovedsak Java og JavaScript. Realistisk vei i denne
-kodebasen: generer klasser fra AKN-XSD-en, eller håndrull med `System.Xml.Linq` mot skjemaet —
-samme tilnærming `AknXmlSkriver.cs` allerede bruker for skriveretningen. Verifiser mot XSD i test.
-Dette bør fortsatt prises inn før eksportveien bygges (§9.3s CPOV-sjekk henger sammen med dette).
+**[LÅST 2026-08-12 — undersøkt konkret, se §13]** Bekreftet ved faktisk NuGet-/GitHub-søk (ikke bare
+antatt): 0 relevante NuGet-treff på `akomantoso`/`legaldocml`; GitHub-topic `akoma-ntoso` lister 37
+repoer, ingen i C#/.NET (Python, Java, TypeScript, XQuery). Offisiell XSD funnet med direkte URL:
+`akomantoso30.xsd` (OASIS LegalDocML TC, AKN 1.0, godkjent 2018-08-29,
+`docs.oasis-open.org/legaldocml/akn-core/v1.0/os/part2-specs/schemas/`). Skjemaet MÅLT (ikke bare
+beskrevet som "stort"): 719 elementer, 155 complexTypes — men **65 av dem er `mixed="true"`**
+(tekst flettet med elementer, nøyaktig der løpende rettstekst+referanser lever). Full
+klassegenerering fra XSD-en er derfor teknisk mulig men praktisk lite verdifullt — generatorer som
+`xsd.exe` håndterer mixed content dårlig akkurat der presisjon trengs mest.
+**[KORRIGERT]** `AknXmlSkriver.cs` bruker IKKE `System.Xml.Linq` (notatets egen påstand var feil) —
+den bygger med ren `StringBuilder`-strengkonkatenering. Anbefaling uendret i retning: fortsett
+håndrullet skriving, IKKE full kodegenerering; overvei ren skjemavalidering
+(`System.Xml.Schema.XmlSchemaSet`) i test UTEN kodegenerering som et lettere alternativ.
+
+**[NYTT FUNN 2026-08-12 — reell bug, utenfor denne rundens scope, se §13]** En faktisk
+skjemavalidering av `AknXmlSkriver.cs`s output-mønster mot `akomantoso30.xsd` fant TO konkrete brudd
+i eksisterende, produksjonsbrukt kode (Lov/Forskrift-import, byggesteg 1): (1) `kildeId`-attributtet
+skrevet direkte på `<article>`/`<paragraph>`/`<point>` er ikke et gyldig AKN-attributt i noe
+navnerom skjemaet tillater, (2) `FRBRWork`/`FRBRExpression` mangler alltid et obligatorisk
+`FRBRdate`-element. Dagens `AknXml`-kolonneinnhold for ALT importert Lov/Forskrift er altså
+sannsynligvis ikke gyldig AKN 3.0 per det offisielle skjemaet — uavhengig av
+håndbok/dokumentgraf-arbeidet i dette notatet. Flagget som egen oppfølging, ikke løst her.
 
 ---
 
@@ -869,9 +890,14 @@ en `OppgaveTjenesteEntitet`-rad for en gitt oppgave er fortsatt etterlevelseshul
 
 ### 10.3 To ting å sjekke, ikke å anta
 
-**CPOV** (Core Public Organisation Vocabulary) modellerer offentlige organisasjoners kompetanse. Det
-kan passe en forvaltningsoppgave bedre enn å strekke `PublicService`. Jeg har ikke verifisert CPOVs
-egenskapsliste — dette ligger i Digdirs eget fagfelt og bør sjekkes før §10.2 låses.
+**[LÅST 2026-08-12 — CPOV-sjekk gjennomført, se §13]** CPOV modellerer offentlige organisasjoners
+kompetanse, IKKE plikter/hjemler for enkeltoppgaver. Faktisk oppslag mot CPOV 2.1.1-spesifikasjonens
+egenskapsliste bekrefter: CPOV har ingen klasse eller egenskap for kompetent myndighet *fra en
+oppgave*, hjemmel for en konkret plikt, normtype, eller adressatorgan. `cv:hasCompetentAuthority`
+(CPSV-AP) peker allerede til samme `m8g:PublicOrganisation`-klasse CPOV utdyper — CPOV og CPSV-AP
+er komplementære, ikke alternativer. **§10.2s tilnærming er bekreftet riktig; CPOV er irrelevant for
+selve tjeneste-vs-forvaltningsoppgave-spørsmålet**, men relevant for en senere, adskilt berikelse av
+`Virksomhet`/organisasjonssiden (adresse, kontaktpunkt, over-/underordning).
 
 **Livsløpene divergerer.** En oppgave endres når loven endres — nasjonalt, én forfatting. En tjeneste
 endres når kommunen omorganiserer — lokalt, 357 forfattinger. Det argumenterer for separat
@@ -1054,3 +1080,47 @@ Bergens punkt 4.1/4.10 (forbud mot stripping/toppløs-servering, forbud mot bevi
 én-prosents MC-klubber) illustrerer nettopp dette — punkt 3.4s generelle unntakshjemmel («i
 spesielle tilfeller») finnes sannsynligvis for å unngå akkurat dette problemet. Dette er en
 konsekvens av taksonomien, ikke noe som trenger egen kode nå — notert for Trinn 4 (annotasjon).
+
+---
+
+## 14. Avklaringsrunde 2 (2026-08-12) — research, ikke diskusjon
+
+*Kilde: en dedikert research-agent, gitt de to gjenstående Trinn 0-forskningspunktene fra §8/§13
+("Fortsatt åpent") som oppgave. Ren kildesjekk (spesifikasjoner, XSD, NuGet/GitHub-søk, faktisk
+skjemavalidering) — ingen skjønnsmessige avklaringer av typen runde 1 (§13) krevde. Fullstendig
+kildeliste og metode i selve funnene, se §9.5/§10.3 der konklusjonene er innarbeidet.*
+
+### Hva som ble avklart
+
+| Spørsmål | Utfall | Se |
+|---|---|---|
+| CPOV vs. `PublicService` for forvaltningsoppgave | CPOV modellerer organisasjoner, ikke oppgaver/plikter — komplementært, ikke et alternativ. §10.2 bekreftet uendret. | §10.3 |
+| Finnes et modent AKN/.NET-bibliotek? | Bekreftet: nei (0 NuGet-treff, 0 av 37 GitHub-repoer i C#) | §9.5 |
+| Hvor er den offisielle AKN-XSD-en? | `akomantoso30.xsd`, OASIS LegalDocML v1.0, direkte URL funnet | §9.5 |
+| Er full klassegenerering fra XSD-en praktisk? | Teknisk mulig, praktisk lite verdifullt — 65 av 155 complexTypes er `mixed="true"` | §9.5 |
+| Bruker `AknXmlSkriver.cs` `System.Xml.Linq`? | **Nei** — ren `StringBuilder`. Notatets egen påstand i §9.1/§9.5 var feil, korrigert. | §9.5 |
+
+### Bifangst — reell bug funnet, IKKE løst denne runden
+
+Research-agenten bygde en minimal skjemavalidator og testet `AknXmlSkriver.cs`s faktiske
+output-mønster mot det offisielle AKN 3.0-skjemaet. Den fant to konkrete, verifiserte brudd i
+eksisterende, produksjonsbrukt kode (byggesteg 1, Lov/Forskrift-import — ikke noe i dette notatets
+eget scope):
+
+1. `kildeId`-attributtet skrevet direkte på `<article>`/`<paragraph>`/`<point>` er ikke gyldig AKN
+   — skjemaet tillater kun utvidelsesattributter i et ANNET navnerom (`##other`), ikke uprefikserte
+   egendefinerte attributter.
+2. `FRBRWork`/`FRBRExpression` mangler alltid et obligatorisk `FRBRdate`-element — bevisst utelatt
+   per en kommentar i koden ("ingen gjettet fallback" for vedtakelsesdato), men skjemaet krever minst
+   én.
+
+Konsekvens: `AknXml`-kolonneinnholdet for ALT importert Lov/Forskrift i dag er sannsynligvis IKKE
+gyldig AKN 3.0 per det offisielle skjemaet. Dette er uavhengig av håndbok/dokumentgraf-arbeidet i
+resten av dette notatet — det er en forhåndseksisterende, upåaktet feil i byggesteg 1s AKN-
+serialisering, avdekket som et biprodukt av å faktisk teste (ikke bare anta) mot skjemaet. Flagget
+som egen oppfølgingssak, se `13-backlog.md`.
+
+### Hva som fortsatt er åpent
+
+Ingenting nytt fra denne runden — de to opprinnelige, juridiske spørsmålene fra §13 (Schartum,
+veiledning-provenans) er uendret åpne.
