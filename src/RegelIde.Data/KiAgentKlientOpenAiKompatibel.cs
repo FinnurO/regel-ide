@@ -2,6 +2,8 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace RegelIde.Data;
 
@@ -13,8 +15,26 @@ namespace RegelIde.Data;
 /// OpenRouter, eller noe helt annet som snakker samme wire-format) krever kun nye konfigverdier,
 /// aldri en kodeendring i denne klassen. Se docs/14-byggesteg5-teknisk-design.md for begrunnelsen.
 /// </summary>
-public sealed class KiAgentKlientOpenAiKompatibel(HttpClient http, IConfiguration config) : IKiAgentKlient
+/// <remarks>
+/// R0 (byggesteg 5 runde 5, docs/13-backlog.md §4 punkt 7): ett automatisk retry ved en TRANSIENT
+/// HTTP-feil (nettverksfeil/timeout på selve kallet — en annen feilmodus enn et tomt, men gyldig,
+/// JSON-svar, se retry-logikken i <see cref="TjenesteforslagTjeneste"/>/<see cref="BegrepsforslagTjeneste"/>
+/// via <see cref="KiForslagRetryHjelper"/> for DEN feilmodusen). Observert live mot HostYourAI: en
+/// <see cref="TaskCanceledException"/> (HttpClient sin 100-sekunders standard-timeout) på første
+/// forsøk, lyktes på forsøk to. Én fast, kort forsinkelse (300ms) — IKKE doblende backoff som
+/// 429-fiksen i <see cref="EmbeddingKlientOpenAiKompatibel"/>: dette er en engangs-timeout/
+/// nettverksglipp, ikke rate-limiting, så det er ingen grunn til å vente lenger og lenger.
+/// </remarks>
+public sealed class KiAgentKlientOpenAiKompatibel(
+    HttpClient http, IConfiguration config, ILogger<KiAgentKlientOpenAiKompatibel>? logger = null) : IKiAgentKlient
 {
+    private readonly ILogger<KiAgentKlientOpenAiKompatibel> _logger =
+        logger ?? NullLogger<KiAgentKlientOpenAiKompatibel>.Instance;
+
+    // Kun ETT ekstra forsøk (ikke en rate-limit-backoff) — se klasse-doc-kommentaren over.
+    private const int MaksAntallForsok = 2;
+    private const int ForsinkelseMs = 300;
+
     public async Task<KiSvar> GenererAsync(string systemInstruks, string kontekst, CancellationToken ct = default)
     {
         var baseUrl = config["RegelIde:KiAgent:BaseUrl"];
@@ -36,26 +56,66 @@ public sealed class KiAgentKlientOpenAiKompatibel(HttpClient http, IConfiguratio
                 "RegelIde:KiAgent:ApiKey er ikke satt. Kjør 'dotnet user-secrets set \"RegelIde:KiAgent:ApiKey\" \"<nøkkel>\"' fra src/RegelIde.Api. Ingen gjettet fallback.");
         }
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, baseUrl)
+        string responsBody;
+        var forsok = 0;
+        while (true)
         {
-            Content = JsonContent.Create(new
+            forsok++;
+            using var request = new HttpRequestMessage(HttpMethod.Post, baseUrl)
             {
-                model = modell,
-                messages = new[]
+                Content = JsonContent.Create(new
                 {
-                    new { role = "system", content = systemInstruks },
-                    new { role = "user", content = kontekst },
-                },
-            }),
-        };
-        request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiNokkel);
+                    model = modell,
+                    messages = new[]
+                    {
+                        new { role = "system", content = systemInstruks },
+                        new { role = "user", content = kontekst },
+                    },
+                }),
+            };
+            request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", apiNokkel);
 
-        using var response = await http.SendAsync(request, ct);
-        var responsBody = await response.Content.ReadAsStringAsync(ct);
-        if (!response.IsSuccessStatusCode)
-        {
-            throw new InvalidOperationException(
-                $"KI-kallet mot '{baseUrl}' feilet ({(int)response.StatusCode} {response.StatusCode}): {responsBody}");
+            HttpResponseMessage response;
+            try
+            {
+                response = await http.SendAsync(request, ct);
+            }
+            catch (Exception ex) when (ex is HttpRequestException or TaskCanceledException)
+            {
+                // Et ekte avbrutt kall fra KALLEREN (ikke HttpClient sin egen interne timeout) skal
+                // forplante seg uendret, ikke tolkes som en transient feil å prøve igjen på.
+                if (ct.IsCancellationRequested)
+                {
+                    throw;
+                }
+                if (forsok >= MaksAntallForsok)
+                {
+                    _logger.LogError(ex,
+                        "KI-kallet mot '{BaseUrl}' feilet med en transient nettverksfeil/timeout etter {Forsok} forsøk — gir opp.",
+                        baseUrl, forsok);
+                    throw new InvalidOperationException(
+                        $"KI-kallet mot '{baseUrl}' feilet etter {forsok} forsøk (transient nettverksfeil/timeout): {ex.Message}", ex);
+                }
+                _logger.LogWarning(ex,
+                    "KI-kallet mot '{BaseUrl}' feilet med en transient nettverksfeil/timeout på forsøk {Forsok} — prøver igjen om {ForsinkelseMs}ms.",
+                    baseUrl, forsok, ForsinkelseMs);
+                await Task.Delay(ForsinkelseMs, ct);
+                continue;
+            }
+
+            using (response)
+            {
+                responsBody = await response.Content.ReadAsStringAsync(ct);
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogError(
+                        "KI-kallet mot '{BaseUrl}' feilet ({StatusCode}). Rå respons: {RaaRespons}",
+                        baseUrl, (int)response.StatusCode, responsBody);
+                    throw new InvalidOperationException(
+                        $"KI-kallet mot '{baseUrl}' feilet ({(int)response.StatusCode} {response.StatusCode}): {responsBody}");
+                }
+            }
+            break;
         }
 
         using var dokument = JsonDocument.Parse(responsBody);

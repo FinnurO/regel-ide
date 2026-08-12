@@ -2,6 +2,8 @@ using System.Text;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace RegelIde.Data;
 
@@ -14,8 +16,12 @@ namespace RegelIde.Data;
 public sealed class TjenesteforslagTjeneste(
     RegelIdeDbContext db, IKiAgentKlient kiKlient, TjenesteregisterTjeneste tjenesteregister,
     TjenesteavhengighetregisterTjeneste tjenesteavhengighetregister, IConfiguration config,
-    RettskildeEmbeddingTjeneste rettskildeEmbeddingTjeneste, IEmbeddingKlient embeddingKlient)
+    RettskildeEmbeddingTjeneste rettskildeEmbeddingTjeneste, IEmbeddingKlient embeddingKlient,
+    ILogger<TjenesteforslagTjeneste>? logger = null)
 {
+    private readonly ILogger<TjenesteforslagTjeneste> _logger = logger ?? NullLogger<TjenesteforslagTjeneste>.Instance;
+
+
     // Byggesteg 5 runde 3: se samme begrunnelse i BegrepsforslagTjeneste.
     private string AiForslagVersjon =>
         config["RegelIde:KiAgent:Leverandor"] == "OpenAiKompatibel"
@@ -180,13 +186,18 @@ public sealed class TjenesteforslagTjeneste(
             }
         }
 
-        var svar = await kiKlient.GenererAsync(SystemInstruks, sb.ToString(), ct);
-
+        var kontekstTekst = sb.ToString();
+        KiSvar svar;
         List<TjenesteForslagJson>? forslag;
         try
         {
-            forslag = JsonSerializer.Deserialize<List<TjenesteForslagJson>>(
-                JsonSvarHjelper.StrimleKodeblokk(svar.Innhold), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            // R0 (docs/13-backlog.md §4 punkt 7) — ETT automatisk retry med SAMME kontekst hvis
+            // agenten svarer med et tomt forslag-array, se KiForslagRetryHjelper for begrunnelsen.
+            (svar, forslag) = await KiForslagRetryHjelper.KjorMedEttRetryVedTomtSvarAsync<TjenesteForslagJson>(
+                kallCt => kiKlient.GenererAsync(SystemInstruks, kontekstTekst, kallCt),
+                json => JsonSerializer.Deserialize<List<TjenesteForslagJson>>(
+                    JsonSvarHjelper.StrimleKodeblokk(json), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }),
+                _logger, "Identifiser tjenester", ct);
         }
         catch (JsonException ex)
         {

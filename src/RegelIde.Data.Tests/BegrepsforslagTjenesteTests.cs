@@ -154,4 +154,82 @@ public class BegrepsforslagTjenesteTests
         Assert.Equal(49123, resultat.InputTokens);
         Assert.Equal(2, resultat.OutputTokens);
     }
+
+    /// <summary>R0 (docs/13-backlog.md §4 punkt 7) — svarer med et tomt array på det FØRSTE kallet,
+    /// et rikt svar på det ANDRE — beviser at KiForslagRetryHjelper faktisk gjør ett nytt kall med
+    /// SAMME kontekst (fanget og sammenlignet her) i stedet for bare å gi opp på første tomme svar.</summary>
+    private sealed class TomtSaRiktSvarKlient : IKiAgentKlient
+    {
+        private int _kall;
+        public int AntallKall => _kall;
+        public string? FoersteKontekst { get; private set; }
+        public string? AndreKontekst { get; private set; }
+
+        public Task<KiSvar> GenererAsync(string systemInstruks, string kontekst, CancellationToken ct = default)
+        {
+            _kall++;
+            if (_kall == 1)
+            {
+                FoersteKontekst = kontekst;
+                return Task.FromResult(new KiSvar("[]", InputTokens: 100, OutputTokens: 1));
+            }
+            AndreKontekst = kontekst;
+            return Task.FromResult(new KiSvar(
+                """[{"Term": "begrep-fra-retry", "Definisjon": "d", "Begrepstype": "faktabegrep"}]""",
+                InputTokens: 100, OutputTokens: 5));
+        }
+    }
+
+    [Fact]
+    public async Task Tomt_forste_svar_gir_ett_automatisk_retry_med_samme_kontekst_som_lykkes()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+        var rettskildeId = await new RettskildeImportTjeneste(db).ImporterAsync(
+            LovdataKonverterer.Konverter(Testdata.LesAlkoholloven(), new DateOnly(2026, 7, 24)));
+
+        var klient = new TomtSaRiktSvarKlient();
+        var forslagstjeneste = new BegrepsforslagTjeneste(db, klient, new BegrepsregisterTjeneste(db), new ConfigurationBuilder().Build());
+        var resultat = await forslagstjeneste.KjorForslagAsync(virksomhet, [rettskildeId], "system-ki");
+
+        Assert.Equal(2, klient.AntallKall);
+        Assert.Equal(klient.FoersteKontekst, klient.AndreKontekst); // samme kontekst, ikke en endret prompt
+        Assert.Single(resultat.Opprettede);
+        Assert.Equal("begrep-fra-retry", resultat.Opprettede[0].Term);
+        Assert.Null(resultat.Melding);
+    }
+
+    /// <summary>Alltid tomt array — beviser at retry-en gir opp etter ETT ekstra forsøk (ikke en
+    /// uendelig løkke) og returnerer et tomt, men gyldig, resultat i stedet for å kaste en feil.</summary>
+    private sealed class AlltidTomtSvarKlient : IKiAgentKlient
+    {
+        public int AntallKall { get; private set; }
+
+        public Task<KiSvar> GenererAsync(string systemInstruks, string kontekst, CancellationToken ct = default)
+        {
+            AntallKall++;
+            return Task.FromResult(new KiSvar("[]", InputTokens: 200, OutputTokens: 2));
+        }
+    }
+
+    [Fact]
+    public async Task Tomt_svar_ogsa_etter_retry_gir_tomt_resultat_kaster_ikke_og_ringer_nettopp_to_ganger()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+        var rettskildeId = await new RettskildeImportTjeneste(db).ImporterAsync(
+            LovdataKonverterer.Konverter(Testdata.LesAlkoholloven(), new DateOnly(2026, 7, 24)));
+
+        var klient = new AlltidTomtSvarKlient();
+        var forslagstjeneste = new BegrepsforslagTjeneste(db, klient, new BegrepsregisterTjeneste(db), new ConfigurationBuilder().Build());
+        var resultat = await forslagstjeneste.KjorForslagAsync(virksomhet, [rettskildeId], "system-ki");
+
+        Assert.Equal(2, klient.AntallKall); // nøyaktig ett retry, ikke en uendelig løkke
+        Assert.Empty(resultat.Opprettede);
+        Assert.NotNull(resultat.Melding);
+    }
 }
