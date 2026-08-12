@@ -23,6 +23,24 @@ public class KiAgentKlientOpenAiKompatibelTests
         }
     }
 
+    /// <summary>R0 (docs/13-backlog.md §4 punkt 7) — én "handling" per kall (siste gjentas hvis flere
+    /// kall enn oppgitt), der en handling ENTEN kaster (simulerer en transient nettverksfeil/timeout)
+    /// ELLER returnerer et fast svar. Samme prinsipp som SekvensStubHandler i
+    /// EmbeddingKlientOpenAiKompatibelTests, men generalisert til å kunne kaste i stedet for kun å
+    /// variere statuskode/kropp — 429 er en HTTP-status, en timeout er et unntak fra selve kallet.</summary>
+    private sealed class UnntakEllerSvarHandler(IReadOnlyList<Func<HttpResponseMessage>> handlinger) : HttpMessageHandler
+    {
+        private int _kall;
+        public int AntallKall => _kall;
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
+        {
+            var handling = handlinger[Math.Min(_kall, handlinger.Count - 1)];
+            _kall++;
+            return Task.FromResult(handling());
+        }
+    }
+
     private const string TestBaseUrl = "https://api.eksempel-leverandor.test/v1/chat/completions";
     private const string TestModell = "et-modellnavn";
 
@@ -134,5 +152,40 @@ public class KiAgentKlientOpenAiKompatibelTests
 
         Assert.Null(resultat.InputTokens);
         Assert.Null(resultat.OutputTokens);
+    }
+
+    [Fact]
+    public async Task Transient_timeout_pa_forste_forsok_lykkes_pa_retry()
+    {
+        // R0 (docs/13-backlog.md §4 punkt 7) — reell observert oppførsel mot HostYourAI: en
+        // TaskCanceledException (HttpClient sin 100-sekunders standard-timeout) på første forsøk,
+        // lyktes på forsøk to. Samme feilmodus simulert her uten et ekte nettverkskall.
+        const string svarJson = """{"choices": [{"message": {"content": "[]"}}]}""";
+        var handler = new UnntakEllerSvarHandler([
+            () => throw new TaskCanceledException("simulert HttpClient-timeout"),
+            () => new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(svarJson, Encoding.UTF8, "application/json") },
+        ]);
+        using var http = new HttpClient(handler);
+        var klient = new KiAgentKlientOpenAiKompatibel(http, LagConfig());
+
+        var resultat = await klient.GenererAsync("s", "k");
+
+        Assert.Equal("[]", resultat.Innhold);
+        Assert.Equal(2, handler.AntallKall);
+    }
+
+    [Fact]
+    public async Task Transient_feil_pa_alle_forsok_kaster_tydelig_feil_ikke_stille_svelging()
+    {
+        var handler = new UnntakEllerSvarHandler([
+            () => throw new TaskCanceledException("simulert HttpClient-timeout"),
+        ]); // alltid timeout
+        using var http = new HttpClient(handler);
+        var klient = new KiAgentKlientOpenAiKompatibel(http, LagConfig());
+
+        var ex = await Assert.ThrowsAsync<InvalidOperationException>(() => klient.GenererAsync("s", "k"));
+
+        Assert.Contains(TestBaseUrl, ex.Message);
+        Assert.Equal(2, handler.AntallKall); // maks 2 forsøk totalt, se KiAgentKlientOpenAiKompatibel
     }
 }

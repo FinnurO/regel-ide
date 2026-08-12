@@ -1,6 +1,8 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace RegelIde.Data;
 
@@ -9,8 +11,13 @@ namespace RegelIde.Data;
 /// kobling til Tjeneste. Kaller <see cref="IKiAgentKlient"/> med de valgte rettskildenes faktiske
 /// tekst som kontekst og oppretter forslag via <see cref="BegrepsregisterTjeneste.OpprettForslagFraKiAsync"/>.
 /// </summary>
-public sealed class BegrepsforslagTjeneste(RegelIdeDbContext db, IKiAgentKlient kiKlient, BegrepsregisterTjeneste begrepsregister, IConfiguration config)
+public sealed class BegrepsforslagTjeneste(
+    RegelIdeDbContext db, IKiAgentKlient kiKlient, BegrepsregisterTjeneste begrepsregister, IConfiguration config,
+    ILogger<BegrepsforslagTjeneste>? logger = null)
 {
+    private readonly ILogger<BegrepsforslagTjeneste> _logger = logger ?? NullLogger<BegrepsforslagTjeneste>.Instance;
+
+
     // Byggesteg 5 runde 3: kun "stub-v1" er faktisk riktig når stubben kjører. Med en ekte
     // IKiAgentKlient bak grensesnittet ville en fast konstant lyve om proveniensen — den vises rått
     // som "KI-versjon" i kø-UI-et.
@@ -45,13 +52,18 @@ public sealed class BegrepsforslagTjeneste(RegelIdeDbContext db, IKiAgentKlient 
         Guid virksomhetId, IReadOnlyList<Guid> rettskildeIder, string opprettetAv, CancellationToken ct = default)
     {
         var kontekst = await RettskildeKontekstHjelper.ByggKontekstAsync(db, rettskildeIder, ct);
-        var svar = await kiKlient.GenererAsync(SystemInstruks, kontekst, ct);
 
+        KiSvar svar;
         List<BegrepForslagJson>? forslag;
         try
         {
-            forslag = JsonSerializer.Deserialize<List<BegrepForslagJson>>(
-                JsonSvarHjelper.StrimleKodeblokk(svar.Innhold), new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+            // R0 (docs/13-backlog.md §4 punkt 7) — ETT automatisk retry med SAMME kontekst hvis
+            // agenten svarer med et tomt forslag-array, se KiForslagRetryHjelper for begrunnelsen.
+            (svar, forslag) = await KiForslagRetryHjelper.KjorMedEttRetryVedTomtSvarAsync<BegrepForslagJson>(
+                kallCt => kiKlient.GenererAsync(SystemInstruks, kontekst, kallCt),
+                json => JsonSerializer.Deserialize<List<BegrepForslagJson>>(
+                    JsonSvarHjelper.StrimleKodeblokk(json), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }),
+                _logger, "Identifiser begrep", ct);
         }
         catch (JsonException ex)
         {
