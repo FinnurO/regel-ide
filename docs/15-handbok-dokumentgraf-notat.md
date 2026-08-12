@@ -787,14 +787,16 @@ den bygger med ren `StringBuilder`-strengkonkatenering. Anbefaling uendret i ret
 håndrullet skriving, IKKE full kodegenerering; overvei ren skjemavalidering
 (`System.Xml.Schema.XmlSchemaSet`) i test UTEN kodegenerering som et lettere alternativ.
 
-**[NYTT FUNN 2026-08-12 — reell bug, utenfor denne rundens scope, se §13]** En faktisk
-skjemavalidering av `AknXmlSkriver.cs`s output-mønster mot `akomantoso30.xsd` fant TO konkrete brudd
-i eksisterende, produksjonsbrukt kode (Lov/Forskrift-import, byggesteg 1): (1) `kildeId`-attributtet
-skrevet direkte på `<article>`/`<paragraph>`/`<point>` er ikke et gyldig AKN-attributt i noe
-navnerom skjemaet tillater, (2) `FRBRWork`/`FRBRExpression` mangler alltid et obligatorisk
-`FRBRdate`-element. Dagens `AknXml`-kolonneinnhold for ALT importert Lov/Forskrift er altså
-sannsynligvis ikke gyldig AKN 3.0 per det offisielle skjemaet — uavhengig av
-håndbok/dokumentgraf-arbeidet i dette notatet. Flagget som egen oppfølging, ikke løst her.
+**[FUNNET 2026-08-12, LØST 2026-08-13, se docs/13-backlog.md pkt. 9]** En faktisk skjemavalidering av
+`AknXmlSkriver.cs`s output-mønster mot `akomantoso30.xsd` fant TO konkrete brudd i eksisterende,
+produksjonsbrukt kode (Lov/Forskrift-import, byggesteg 1): (1) `kildeId`-attributtet skrevet direkte
+på `<article>`/`<paragraph>`/`<point>` er ikke et gyldig AKN-attributt i noe navnerom skjemaet
+tillater, (2) `FRBRWork`/`FRBRExpression` mangler alltid et obligatorisk `FRBRdate`-element. Da
+disse to faktisk ble rettet (2026-08-13), avdekket en full skjemakjøring av EKTE fixtures fire til,
+tidligere ukjente brudd i samme fil (duplikat TLCOrganization, ugyldig "end"-attributt, feilplassert
+authorialNote, manglende "name" på hcontainer) — alle seks rettet i samme omgang, med ny automatisert
+skjemavalideringstest (`AknXmlSkjemaValideringTests.cs`) mot den vendorede offisielle XSD-en. Se
+docs/13-backlog.md pkt. 9 for full detaljering av løsningen.
 
 ---
 
@@ -1100,7 +1102,7 @@ kildeliste og metode i selve funnene, se §9.5/§10.3 der konklusjonene er innar
 | Er full klassegenerering fra XSD-en praktisk? | Teknisk mulig, praktisk lite verdifullt — 65 av 155 complexTypes er `mixed="true"` | §9.5 |
 | Bruker `AknXmlSkriver.cs` `System.Xml.Linq`? | **Nei** — ren `StringBuilder`. Notatets egen påstand i §9.1/§9.5 var feil, korrigert. | §9.5 |
 
-### Bifangst — reell bug funnet, IKKE løst denne runden
+### Bifangst — reell bug funnet, LØST 2026-08-13 (se docs/13-backlog.md pkt. 9)
 
 Research-agenten bygde en minimal skjemavalidator og testet `AknXmlSkriver.cs`s faktiske
 output-mønster mot det offisielle AKN 3.0-skjemaet. Den fant to konkrete, verifiserte brudd i

@@ -461,14 +461,29 @@ Ingen av disse krever videre avklaring — bare en prioritering:
    (punkt 7/9 under) — bør trolig fortsette som egen avklaringsrunde uavhengig av hvilken
    byggesteg-rekkefølge som ellers
    velges.
-9. **[NY, BUG] `AknXmlSkriver.cs` genererer sannsynligvis ugyldig AKN 3.0.** Bifangst fra
-   avklaringsrunde 2s AKN-XSD-forskning (`docs/15` §14): en faktisk skjemavalidering fant to
-   konkrete brudd i eksisterende, produksjonsbrukt kode (byggesteg 1, Lov/Forskrift-import) — (a)
-   `kildeId`-attributtet på `<article>`/`<paragraph>`/`<point>` er ikke gyldig i noe navnerom
-   skjemaet tillater, (b) `FRBRWork`/`FRBRExpression` mangler alltid det obligatoriske
-   `FRBRdate`-elementet. `AknXml`-kolonnen for ALT importert Lov/Forskrift er derfor sannsynligvis
-   ikke gyldig AKN 3.0 per det offisielle skjemaet. Uavhengig av håndbok/dokumentgraf-arbeidet — en
-   forhåndseksisterende feil, ikke noe nytt arbeid introduserte. Ikke rettet, ikke prioritert ennå.
+9. **[LØST 2026-08-13] `AknXmlSkriver.cs` genererte ugyldig AKN 3.0 — rettet.** Bifangst fra
+   avklaringsrunde 2s AKN-XSD-forskning (`docs/15` §14) fant to konkrete brudd: (a) `kildeId`-
+   attributtet på `<article>`/`<paragraph>`/`<point>` var ikke gyldig i noe navnerom skjemaet
+   tillater, (b) `FRBRWork`/`FRBRExpression` manglet alltid det obligatoriske `FRBRdate`-elementet.
+   Under selve rettingen ble AknXmlSkriver.cs sitt faktiske output kjørt mot den ekte
+   `akomantoso30.xsd` (vendoret i `RegelIde.Kildekonvertering.Tests/Testdata/Xsd/`) for tre reelle
+   fixtures — det avdekket FIRE flere, tidligere ukjente brudd i samme fil: duplikat
+   `TLCOrganization eId="stortinget"` for Lov (kolliderer med FrbrAuthorHref, som alltid er
+   "stortinget" for Lov) pluss manglende påkrevd `href` på den generiske organisasjonen;
+   `end="…"`-attributtet på opphevede `<article>`-elementer fantes ikke i noe attributeGroup
+   skjemaet definerer (den gamle kommentaren kalte dette "ikke bekreftet" — nå bekreftet ugyldig);
+   `<authorialNote>` (fotnoter) skrevet som block-nivå-sibling av `<article>`s barn i stedet for
+   inline i tekstflyt (authorialNote er et subFlow-element); `<hcontainer>` manglet det påkrevde
+   `name`-attributtet. Alle seks rettet i samme omgang (kildeId/opphevet flyttet til
+   `regelIde:`-navneromsattributter — skjemaets faktiske utvidelsesmekanisme,
+   `xsd:anyAttribute namespace="##other"` — IKKE `<proprietary>`, som viste seg IKKE å være gyldig
+   som barn av hierarkiske elementer; manglende `FRBRdate` løst med Ikrafttredelse, ærlig merket
+   `name="ikrafttredelse"` — ikke som vedtakelsesdato — med en eksplisitt "ukjent"-sentinel
+   (`date="9999-01-01"`) som siste utvei, ikke en gjettet dato). Ny automatisert test
+   `AknXmlSkjemaValideringTests.cs` validerer ekte alkoholloven-/alkoholforskriften-/
+   forvaltningsloven-fixtures mot det ekte skjemaet (`System.Xml.Schema.XmlSchemaSet` +
+   `ValidationType.Schema`), så dette ikke kan regressere stille. Full backend-testsuite grønt
+   etter rettingen.
 10. **Byggesteg 5 runde 3+ — de tre resterende AI-agentene** (§2.2, runde 1+2 ferdig). Vurder
     om byggesteg 3 bør være ferdig først, siden «Rettskilder og strukturering»-agenten forutsetter et
     presedensregister for å være noe mer enn en ren rettskilde-importer.

@@ -33,6 +33,12 @@
       <Link>Testdata\%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <!-- Offisiell AKN 3.0-skjema (OASIS LegalDocML v1.0, godkjent 2018-08-29) + companion xml.xsd,
+         vendoret for AknXmlSkjemaValideringTests.cs. Kilde:
+         docs.oasis-open.org/legaldocml/akn-core/v1.0/os/part2-specs/schemas/akomantoso30.xsd -->
+    <None Include="Testdata\Xsd\*.xsd">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>
