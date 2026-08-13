@@ -475,6 +475,65 @@ Ingen av disse krever videre avklaring — bare en prioritering:
    (punkt 7/9 under) — bør trolig fortsette som egen avklaringsrunde uavhengig av hvilken
    byggesteg-rekkefølge som ellers
    velges.
+   ✅ **Applikasjonslaget bygget 2026-08-13** (Johanns eksplisitte instruks: «vi må jo kunne lagre og
+   behandle det vi henter») — de to forrige rundenes bibliotek-/testnivå-modell er nå faktisk koblet til
+   en kjørende database, API-endepunkter og en frontend-side:
+   - Ny `HandbokImportTjeneste.cs` (RegelIde.Data) — persisterer `HandbokParseResultat` som en ekte
+     `RettskildeEntitet` (**`Importrolle="primaer"`, ikke `"referanse"`** — se nedenfor for hvorfor dette
+     avviker fra forrige rundes seedede eksempel) + node-tre, to-pass (Eid→Guid FØRST, deretter
+     `ParentNodeId`-oppslag) siden HandbokTekstParser IKKE garanterer foreldre-før-barn-rekkefølge.
+     `Kryssrefererer`→`RettskildeReferanseEntitet` skrevet etter at hele treet er lagret. `HjemletI`
+     løses KUN til en `HandbokRettskildeomfangEntitet` (håndbok-nivå, ikke paragraf-presisjon) når
+     eksakt ÉN Lov/Forskrift-Tittel matcher `EksternLovnavn` — null/flere treff forblir ULØST, ALDRI
+     gjettet (se `AntallHjemletILovnavnUlost`-diagnostikken).
+   - **Ekte funn under bygging, IKKE fikset i parseren (bevisst utenfor scope)**: Bergens forskrift-
+     fixture har «kl. … 18.00.» linjebrutt slik at «18.00.» står alene på en linje —
+     `HandbokTekstParser.PunktMønster` tolker den som et gyldig 2-segments punktnummer og åpner en
+     `kap18/pkt18.00`-node hvis foreldre-`kap18` aldri finnes (og kapper samtidig kap1s ekte
+     løpetekst midt i en setning). `HandbokImportTjeneste` krasjer IKKE på dette (`ParentNodeId=null`,
+     diagnostikk i `AntallNoderMedUlostForelder`, regresjonstestet) — men selve tekst-tapet i kap1 er
+     IKKE rettet. En fremtidig runde bør utvide `PunktMønster`/sidebrytningsfiltreringen for dette.
+   - Ny `BergenKorpusSeed.cs` — Bergen kommune-`Virksomhet` (Kommunenummer "4601",
+     Forvaltningsniva="kommune") + alkoholloven/alkoholforskriften (DELT/nasjonalt, `VirksomhetId=null`
+     — et bevisst avvik fra en literal lesning av oppgaveteksten, se kommentaren i filen: nasjonale
+     Lov/Forskrift skal ALDRI dupliseres per virksomhet) + begge håndbok-fixturene (Bergens forskrift
+     importert via `HandbokImportTjeneste`, IKKE `LovdataKonverterer` — README nevner ingen Lovdata-URL
+     for den, kun en direkte PDF-URL, og å konstruere en ELI ville vært gjetting) + alle 23
+     nettside-fixturene (inkl. de to indekssidene selv som ekte `NettsideDokumentEntitet`-rader — et
+     lite, dokumentert avvik fra `NettsideDokumentgrafTests.ByggKorpusAsync`, som kun parser dem for
+     lenkelisten uten å lagre dem). Idempotent (global guard på "Bergen kommune"), wired inn i
+     `Program.cs` etter de øvrige seedene.
+   - Nye `GET /api/nettsider` og `GET /api/nettsider/{id}` — liste (Tittel/KanoniskUrl/Hentet/StiTyper)
+     og detalj (RaaTekst, Stier, Lenker med flat oppløsningsstatus: `TilNettsideDokumentId`/
+     `TilRettskildeId`-par, begge null når uløst/ekstern). Nye DTO-er i `Dtos.cs`, samme
+     `FraEntitet`-mønster som resten av filen.
+   - Frontend: `NettsiderListe.tsx`/`NettsideDetalj.tsx`, ny `src/nettside/RaaTekstMedLenker.tsx`
+     (konverterer Markdown-lenker `[tekst](href)` i `RaaTekst` til ekte `<a>`, løst internt til
+     `/nettsider/{id}` eller `/rettskilder/{id}`, ellers ekstern ny-fane-lenke), rutet inn i `App.tsx`
+     med sidebar-lenke. Verifisert i ekte browser (SQLite-profil) — bundlingssidens `lovdatalenke`/
+     `lenker_til`-lenker løser helt frem til ekte `alkoholloven`/`alkoholforskriften`/håndbok-rader.
+   - **To reelle integrasjonshull funnet og fikset under browser-verifiseringen** (ikke antatt —
+     bekreftet ved faktisk kjøring): (1) `RettskildeRepository.AlleRettskilderAsync` filtrerer på
+     `Importrolle=="primaer"` — forrige rundes seedede eksempel brukte `"referanse"` for nøyaktig denne
+     håndboken, noe som ville gjort Bergens innhold usynlig i rettskilder-LISTEN (kun nåbart direkte på
+     GUID). Rettet ved å bruke `Importrolle="primaer"` + en minimal AKN-plassholder (egen kopi av
+     `HandbokForfatterTjeneste.MinimalAknPlassholder`, som er `private`) i `HandbokImportTjeneste`.
+     (2) `RettskildeDetalj.tsx` viste "ingen egen løpetekst" for `kapittel`-noder MED egen tekst (§
+     HandbokNode-kommentaren: kapittel 6/7/9/10 har hele sin tekst direkte på kapittel-nivå) fordi
+     `kanTagges` var hardkodet til kun `ledd`/`punkt` — utvidet til å vise (ikke-taggbar) tekst for
+     enhver node som faktisk har `Tekst`.
+   - Én til test-kollisjon funnet og rettet i EKSISTERENDE `TestkommuneInnholdSeedTests.cs`: to
+     uscopede `Kildetype`-oppslag (uten `Tittel`-filter) forutsatte at Testkommunens Forskrift/
+     Virksomhetsdokument var de ENESTE radene av sin type i den delte Postgres-testdatabasen — brøt i
+     det øyeblikket Bergens egne rader av samme Kildetype dukket opp. Scopet på `Tittel.Contains
+     ("Testkommune")`, samme mønster som en søsken-assert i samme fil allerede brukte.
+   - 486/486 backend-tester grønt (75 Kildekonvertering + 168 Api + 243 Data, uavhengig verifisert),
+     `npx tsc -b --noEmit` fra RegelIde.Web rent.
+   - **Ikke gjort denne runden**: `NettsideSeksjon` (fortsatt kun dokument-granularitet),
+     `NettsideHenterTjeneste`/live henting, `presentasjonsvariant`-kanten, `FunksjonellRolle`, GUID-
+     oppløsning av `hjemlet_i` mot en PRESIS paragraf-eId (kun håndbok-NIVÅ-kobling via
+     `HandbokRettskildeomfangEntitet` bygget — å konstruere en paragraf-eId fra `EksternParagraf` uten
+     et verifisert format ville vært gjetting), retting av `PunktMønster`-linjebrytningsfunnet over.
 9. **[LØST 2026-08-13] `AknXmlSkriver.cs` genererte ugyldig AKN 3.0 — rettet.** Bifangst fra
    avklaringsrunde 2s AKN-XSD-forskning (`docs/15` §14) fant to konkrete brudd: (a) `kildeId`-
    attributtet på `<article>`/`<paragraph>`/`<point>` var ikke gyldig i noe navnerom skjemaet
