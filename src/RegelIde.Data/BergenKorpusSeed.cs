@@ -74,7 +74,12 @@ public static class BergenKorpusSeed
 
         var bergen = new Virksomhet
         {
-            Id = Guid.NewGuid(), Navn = "Bergen kommune", Organisasjonsnummer = null,
+            // Organisasjonsnummer er den STABILE nøkkelen (docs/15 §3.3, LÅST) — Kommunenummer er kun et
+            // sekundært, geografisk attributt, aldri en URI-/oppslagsnøkkel (nettopp fordi Bergens eget
+            // kommunenummer endret seg fra 1201 til 4601 i 2020 — samme organ, nytt nummer). Verifisert
+            // ekte tall, ikke gjettet: Brønnøysundregisterets Enhetsregister, "BERGEN KOMMUNE" (hentet
+            // 2026-08-14 via data.brreg.no/enhetsregisteret/api/enheter).
+            Id = Guid.NewGuid(), Navn = "Bergen kommune", Organisasjonsnummer = "964338531",
             Kommunenummer = "4601", Forvaltningsniva = "kommune", OpprettetTidspunkt = DateTimeOffset.UtcNow,
         };
         db.Virksomheter.Add(bergen);
