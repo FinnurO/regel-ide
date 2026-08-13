@@ -18,6 +18,8 @@ import DatasettListe from './pages/DatasettListe';
 import TjenesteVeiledning from './pages/TjenesteVeiledning';
 import TjenesteforslagKo from './pages/TjenesteforslagKo';
 import BegrepsforslagKo from './pages/BegrepsforslagKo';
+import NettsiderListe from './pages/NettsiderListe';
+import NettsideDetalj from './pages/NettsideDetalj';
 
 function BrukerVelger() {
   const { brukere, gjeldendeBruker, velgBruker, laster, ekteInnlogging, innloggingsfeil } = useBruker();
@@ -90,6 +92,9 @@ function App() {
           <NavLink to="/datasett" className={({ isActive }) => (isActive ? 'aktiv' : '')}>
             Datasett
           </NavLink>
+          <NavLink to="/nettsider" className={({ isActive }) => (isActive ? 'aktiv' : '')}>
+            Nettsider
+          </NavLink>
           <NavLink to="/tjenester/forslag" className={({ isActive }) => (isActive ? 'aktiv' : '')}>
             Identifiser tjenester (KI)
           </NavLink>
@@ -117,6 +122,8 @@ function App() {
           <Route path="/vilkarstre/:rotnodeId" element={<VilkarstreDetalj />} />
           <Route path="/datasett" element={<DatasettListe />} />
           <Route path="/datasett/:id" element={<DatasettDetalj />} />
+          <Route path="/nettsider" element={<NettsiderListe />} />
+          <Route path="/nettsider/:id" element={<NettsideDetalj />} />
           <Route path="/tjenester/:id/veiledning" element={<TjenesteVeiledning />} />
         </Routes>
       </main>

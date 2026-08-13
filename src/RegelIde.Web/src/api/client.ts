@@ -39,6 +39,8 @@ import type {
   RegelnodeBarnDto,
   RegelnodeDto,
   RegelnodeRequest,
+  NettsideDetaljDto,
+  NettsideSammendragDto,
   RettskildeDetalj,
   RettskildeNodeDto,
   RettskildeReferanseDto,
@@ -261,6 +263,13 @@ export const api = {
 
   fjernHandbokRettskildeomfang: (handbokId: string, omfangId: string) =>
     kall<void>(`/api/handboker/${handbokId}/rettskilder/${omfangId}`, { method: 'DELETE' }),
+
+  // ---------- Nettsider (docs/15-handbok-dokumentgraf-notat.md §3.1/§3.2/§3.4) ----------
+
+  hentNettsider: (virksomhetId?: string) =>
+    kall<NettsideSammendragDto[]>(`/api/nettsider${virksomhetId ? `?virksomhetId=${virksomhetId}` : ''}`),
+
+  hentNettside: (id: string) => kall<NettsideDetaljDto>(`/api/nettsider/${id}`),
 
   // ---------- Tjenesteregister (CPSV-AP-NO, docs/03-domenemodell.md §1.5) — byggesteg 2 ----------
 

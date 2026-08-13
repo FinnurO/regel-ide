@@ -245,6 +245,14 @@ using (var scope = app.Services.CreateScope())
     // — kobler de 13 fasit-tjenestene faktisk sammen med "Alminnelig skjenkebevilling" i stedet for at
     // de forblir frittstående. Kjøres etter FasitRunde4Seed (krever tjenestene den oppretter).
     await HendelseTjenesteavhengighetSeed.SeedAsync(db);
+
+    // Bergen kommunes nettside-/håndbok-dokumentgraf-korpus (2026-08-13, docs/15-handbok-dokumentgraf-
+    // notat.md, byggesteg-1-utvidelsen — applikasjonslaget). Egen mor-mappe (ikke den samme
+    // "raw-lovdata"-spesifikke `kildemappe`-variabelen over) siden BergenKorpusSeed selv trenger
+    // BÅDE raw-lovdata, raw-handbok OG raw-nettside — samme konfigurerbare-sti-begrunnelse.
+    var dataKilderRotmappe = app.Configuration["RegelIde:DataKilderRotmappe"]
+        ?? Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "..", "..", "data", "kilder"));
+    await BergenKorpusSeed.SeedAsync(db, dataKilderRotmappe);
 }
 
 // GUI-et spør om profilen for å vite om brukervelgeren skal vises i det hele tatt.
@@ -813,6 +821,45 @@ handboker.MapDelete("/{id:guid}/rettskilder/{omfangId:guid}", async (Guid omfang
         await tjeneste.FjernRettskildeomfangAsync(omfangId, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen rettskildeomfang med id '{omfangId}'." }))
     .WithName("FjernHandbokRettskildeomfang")
     .WithSummary("Fjerner en rettskilde fra håndbokens omfang.");
+
+// ---------- Nettsider (docs/15-handbok-dokumentgraf-notat.md §3.1/§3.2/§3.4) — byggesteg-1-utvidelsen ----------
+// ---------- Rene, uautentiserte lesende endepunkter — samme "åpne data"-status som /api/rettskilder. ----------
+
+var nettsider = app.MapGroup("/api/nettsider").WithOpenApi();
+
+nettsider.MapGet("/", async (Guid? virksomhetId, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var query = db.NettsideDokumenter.Include(d => d.Stier).AsQueryable();
+        if (virksomhetId is not null) query = query.Where(d => d.VirksomhetId == virksomhetId);
+        var dokumenter = await query.OrderBy(d => d.Tittel).ThenBy(d => d.KanoniskUrl).ToListAsync(ct);
+        return Results.Ok(dokumenter.Select(NettsideSammendragDto.FraEntitet));
+    })
+    .WithName("HentAlleNettsider")
+    .WithSummary("Lister nettside-dokumenter. ?virksomhetId snevrer inn til én virksomhets korpus; utelatt viser alt.");
+
+nettsider.MapGet("/{id:guid}", async (Guid id, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var dokument = await db.NettsideDokumenter.Include(d => d.Stier).FirstOrDefaultAsync(d => d.Id == id, ct);
+        if (dokument is null) return Results.NotFound(new { feil = $"Ingen nettside med id '{id}'." });
+
+        var lenker = await db.NettsideLenker.Where(l => l.FraNettsideDokumentId == id).ToListAsync(ct);
+
+        var dokumentIder = lenker.Where(l => l.TilNettsideDokumentId is not null).Select(l => l.TilNettsideDokumentId!.Value).Distinct().ToList();
+        var rettskildeIder = lenker.Where(l => l.TilRettskildeId is not null).Select(l => l.TilRettskildeId!.Value).Distinct().ToList();
+        var tilDokumenter = await db.NettsideDokumenter.Where(d => dokumentIder.Contains(d.Id)).ToDictionaryAsync(d => d.Id, ct);
+        var tilRettskilder = await db.Rettskilder.Where(r => rettskildeIder.Contains(r.Id)).ToDictionaryAsync(r => r.Id, ct);
+
+        var lenkeDtoer = lenker
+            .Select(l => NettsideLenkeDto.FraEntitet(
+                l,
+                l.TilNettsideDokumentId is not null ? tilDokumenter.GetValueOrDefault(l.TilNettsideDokumentId.Value) : null,
+                l.TilRettskildeId is not null ? tilRettskilder.GetValueOrDefault(l.TilRettskildeId.Value) : null))
+            .ToList();
+
+        return Results.Ok(NettsideDetaljDto.FraEntitet(dokument, lenkeDtoer));
+    })
+    .WithName("HentNettside")
+    .WithSummary("Henter rå tekst, navigasjonsstier og utgående lenker (med oppløsningsstatus) for én nettside.");
 
 // ---------- Tjenesteregister (CPSV-AP-NO, docs/03-domenemodell.md §1.5) — byggesteg 2 ----------
 // ---------- krever X-Bruker-Id — en tjeneste er alltid virksomhetens eget arbeidsprodukt (§0.1). ----------

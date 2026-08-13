@@ -144,6 +144,50 @@ public sealed record HandbokRettskildeomfangDto(Guid Id, Guid HandbokId, Guid Ti
         new(o.Id, o.HandbokId, o.TilRettskildeId);
 }
 
+// ---------- Nettsider (docs/15-handbok-dokumentgraf-notat.md §3.1/§3.2/§3.4) — byggesteg-1-utvidelsen ----------
+
+/// <summary>Listevisning — GET /api/nettsider. <see cref="StiTyper"/> er de DISTINKTE StiType-verdiene
+/// dokumentet opptrer under (§3.4: "samme node, flere navigasjonsstier"), ikke selve stiene.</summary>
+public sealed record NettsideSammendragDto(Guid Id, string KanoniskUrl, string? Tittel, DateTimeOffset? Hentet, IReadOnlyList<string> StiTyper)
+{
+    public static NettsideSammendragDto FraEntitet(NettsideDokumentEntitet d) => new(
+        d.Id, d.KanoniskUrl, d.Tittel, d.Hentet, d.Stier.Select(s => s.StiType).Distinct().OrderBy(t => t).ToList());
+}
+
+/// <summary>Én navigasjonssti (§3.4) — Sti+StiType, uten dokument-FK (allerede kjent fra konteksten).</summary>
+public sealed record NettsideStiDto(string Sti, string StiType)
+{
+    public static NettsideStiDto FraEntitet(NettsideStiEntitet s) => new(s.Sti, s.StiType);
+}
+
+/// <summary>
+/// Én utgående lenke (§3.2), med oppløsningsstatus flatet ut som nullbare felt (samme mønster som
+/// <see cref="RettskildeReferanseDto"/> ellers i denne filen — ingen nestet "mål"-objekt). Alle seks
+/// <c>Til…</c>-felt er null når lenken er uløst (ekstern, eller et av de eldre Lovdata-formatene
+/// <c>LovdataUrlTolker</c> bevisst ikke tolker — se data/kilder/raw-nettside/README.md).
+/// </summary>
+public sealed record NettsideLenkeDto(
+    Guid Id, string Type, string RaaHref, string? AnkerTekst,
+    Guid? TilNettsideDokumentId, string? TilNettsideDokumentTittel, string? TilNettsideDokumentKanoniskUrl,
+    Guid? TilRettskildeId, string? TilRettskildeTittel, string? TilRettskildeEli)
+{
+    public static NettsideLenkeDto FraEntitet(NettsideLenkeEntitet l, NettsideDokumentEntitet? tilDokument, RettskildeEntitet? tilRettskilde) => new(
+        l.Id, l.Type, l.RaaHref, l.AnkerTekst,
+        tilDokument?.Id, tilDokument?.Tittel, tilDokument?.KanoniskUrl,
+        tilRettskilde?.Id, tilRettskilde?.Tittel, tilRettskilde?.Eli);
+}
+
+/// <summary>Detaljvisning — GET /api/nettsider/{id}. <see cref="Lenker"/> bygges av endepunktet selv
+/// (krever oppslag av målenes Tittel/KanoniskUrl/Eli), ikke en ren entitetsprojeksjon.</summary>
+public sealed record NettsideDetaljDto(
+    Guid Id, Guid? VirksomhetId, string KanoniskUrl, string? Tittel, string? RaaTekst, DateTimeOffset? Hentet,
+    IReadOnlyList<NettsideStiDto> Stier, IReadOnlyList<NettsideLenkeDto> Lenker)
+{
+    public static NettsideDetaljDto FraEntitet(NettsideDokumentEntitet d, IReadOnlyList<NettsideLenkeDto> lenker) => new(
+        d.Id, d.VirksomhetId, d.KanoniskUrl, d.Tittel, d.RaaTekst, d.Hentet,
+        d.Stier.Select(NettsideStiDto.FraEntitet).ToList(), lenker);
+}
+
 /// <summary>Hendelse (docs/03-domenemodell.md §1.5, docs/13-backlog.md §2.1).</summary>
 public sealed record HendelseDto(Guid Id, Guid? VirksomhetId, string Navn, string Type, string? Beskrivelse)
 {
