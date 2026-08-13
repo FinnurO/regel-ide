@@ -457,7 +457,21 @@ Ingen av disse krever videre avklaring — bare en prioritering:
    451/451 backend-tester grønt (uavhengig verifisert). **Ikke gjort**: AKN-eksport/rundtur
    (punkt 5, bevisst utenfor scope), import-endepunkt for håndbøker, `FunksjonellRolle`-populering,
    GUID-oppslag av `hjemlet_i` mot en faktisk importert rettskilde (krever et import-endepunkt som
-   ikke finnes ennå). Overlapper delvis med byggesteg 3 (Presedensregister, punkt 6) og byggesteg 5
+   ikke finnes ennå). ✅ **Utvidet 2026-08-13 (Johanns eksplisitte instruks: «alle 21 sider + begge
+   PDF-er»)**: Bergens forskrift som andre PDF-fixture (`HandbokTekstParser` utvidet med
+   `TallpunktumSeksjonMønster` for en reelt annen dokumentstruktur, regresjonstestet mot
+   retningslinjene). Ny `NettsideDokumentEntitet`/`NettsideStiEntitet`/`NettsideLenkeEntitet`
+   (§3.1/§3.2 — ikke bygget før nå), 23 ekte Bergen-sider som fixtures. **§3.4s "samme nodene, to
+   stier"-påstand presisert, ikke fullt bekreftet**: 20 av 21 sider deler begge stier, «Krav om
+   fettutskiller» har kun én (reelt, testet unntak). Kjernebevis
+   (`Bundlingssiden_kobler_helt_frem_til_importerte_rettskilder_pa_eli_og_url`): en nettside kobles
+   via `lovdatalenke`/`lenker_til` HELT FREM til ekte importerte `RettskildeEntitet`-rader
+   (alkoholloven/alkoholforskriften, GUID-matchet på `Eli`). Ekte funn: Bergens egne Lovdata-lenker
+   bruker minst tre URL-format over årene, kun det moderne håndteres (ingen gjettet fallback for de
+   to eldre). 477/477 backend-tester grønt (uavhengig verifisert, inkl. en csproj-mergekonflikt løst
+   mot samtidig AKN-fix-arbeid). **Ikke gjort**: `NettsideSeksjon` (dokument-granularitet denne
+   runden), `NettsideHenterTjeneste`/live henting, `presentasjonsvariant`-kanten (krever KI),
+   `FunksjonellRolle`. Overlapper delvis med byggesteg 3 (Presedensregister, punkt 6) og byggesteg 5
    (punkt 7/9 under) — bør trolig fortsette som egen avklaringsrunde uavhengig av hvilken
    byggesteg-rekkefølge som ellers
    velges.
