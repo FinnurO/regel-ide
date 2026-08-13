@@ -1,0 +1,19 @@
+KanoniskUrl: https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/lukket-selskap-ambulerende-skjenkebevilling
+Tittel: Lukket selskap: Ambulerende skjenkebevilling
+
+Den som vil skjenke alkohol i lukket selskap, må søke om ambulerende skjenkebevilling. Gjelder
+sammenkomster som bryllup, konfirmasjoner og jubileer der deltakerne har en tilknytning til
+arrangøren, og arrangementet ikke er åpent for offentligheten.
+
+Ambulerende bevilling er nødvendig når: lokalet leies med tilleggstjenester fra utleier, alkohol
+selges, eller stedet har en eksisterende skjenkebevilling.
+
+Søknader behandles løpende uten frist, men må sendes minst én uke før arrangementet. Klage på
+vedtak må sendes innen tre uker til Kontor for skjenkesaker, som videresender til
+Statsforvalteren. Gebyret for denne bevillingen er 470 kroner, fakturert etterskuddsvis.
+
+LENKER:
+- [Alkoholloven](https://lovdata.no/dokument/NL/lov/1989-06-02-27)
+- [Helsedirektoratet](https://www.helsedirektoratet.no/rundskriv/alkoholloven/kapittel-4-kommunale-skjenkebevillinger/-4-5.ambulerende-skjenkebevilling)
+- [Alkoholforskriften](https://lovdata.no/dokument/SF/forskrift/2005-06-08-538)
+- [Søk om ambulerende skjenkebevilling](https://skjema.bergen.kommune.no/viewer/bergen/BK230-SKJENK-ambulerende_skjenkebevilling)

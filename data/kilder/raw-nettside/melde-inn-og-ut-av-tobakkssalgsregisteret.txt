@@ -1,0 +1,19 @@
+KanoniskUrl: https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/melde-inn-og-ut-av-tobakkssalgsregisteret
+Tittel: Melde inn og ut av tobakkssalgsregisteret
+
+Bergen kommune fører tilsyn med registrerte utsalgssteder som selger tobakksvarer og
+tobakkssurrogater som e-sigaretter og urtebaserte snusprodukter. Helsedirektoratet fører tilsyn
+med grossister.
+
+Registrering skjer i Helsedirektoratets system. Utmelding følger egen veiledning.
+
+Årlig tilsynsavgift i Bergen kommune i 2026 er kr. 5900,- for salg. Midlertidig salg koster
+kr. 1580,-. Alle utsalgssteder skal ha minst ett tilsyn årlig, og kommunen skal gjennomføre minst
+dobbelt så mange tilsyn som det er registrerte utsalgssteder. Alle utsalgssteder må ha skriftlige
+internkontrollrutiner etter tobakksskadeloven.
+
+LENKER:
+- [Gå inn her](https://tbr.helsedirektoratet.no/)
+- [Tobakksskadeloven](https://lovdata.no/dokument/NL/lov/1973-03-09-14?q=tobakkskadeloven)
+- [Forskrift om tobakksskader](https://lovdata.no/dokument/SF/forskrift/2017-09-21-1446#KAPITTEL_4)
+- [Registreringsplikt for å selge tobakk og tobakkssurrogater](https://helsedirektoratet.no/folkehelse/tobakk-royk-og-snus/registreringsplikt-for-a-selge-tobakk-og-tobakkssurrogater)

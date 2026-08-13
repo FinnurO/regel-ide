@@ -58,6 +58,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<KunnskapsbibliotekLenkeEntitet> KunnskapsbibliotekLenker => Set<KunnskapsbibliotekLenkeEntitet>();
     public DbSet<KunnskapsbibliotekFilEntitet> KunnskapsbibliotekFiler => Set<KunnskapsbibliotekFilEntitet>();
     public DbSet<LovdataKatalogOppforingEntitet> LovdataKatalogOppforinger => Set<LovdataKatalogOppforingEntitet>();
+    public DbSet<NettsideDokumentEntitet> NettsideDokumenter => Set<NettsideDokumentEntitet>();
+    public DbSet<NettsideStiEntitet> NettsideStier => Set<NettsideStiEntitet>();
+    public DbSet<NettsideLenkeEntitet> NettsideLenker => Set<NettsideLenkeEntitet>();
     public DbSet<BegrepEntitet> Begreper => Set<BegrepEntitet>();
     public DbSet<KodelisteEntitet> Kodelister => Set<KodelisteEntitet>();
     public DbSet<KodelisteKodeEntitet> KodelisteKoder => Set<KodelisteKodeEntitet>();
@@ -786,6 +789,64 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.SistOppdatert).HasColumnName("sist_oppdatert");
 
             e.HasIndex(x => x.SistOppdatert).HasDatabaseName("ix_lovdata_katalog_oppforinger_sist_oppdatert");
+        });
+
+        b.Entity<NettsideDokumentEntitet>(e =>
+        {
+            e.ToTable("nettside_dokumenter");
+            e.HasKey(x => x.Id).HasName("nettside_dokumenter_pkey");
+            e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
+            e.Property(x => x.KanoniskUrl).HasColumnName("kanonisk_url");
+            e.Property(x => x.Tittel).HasColumnName("tittel");
+            e.Property(x => x.RaaTekst).HasColumnName("raa_tekst");
+            e.Property(x => x.InnholdsHash).HasColumnName("innholds_hash");
+            e.Property(x => x.Hentet).HasColumnName("hentet");
+
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
+
+            // Deduplisieringsnøkkelen (§3.4) — UNIQUE, ikke bare indeksert.
+            e.HasIndex(x => x.KanoniskUrl).IsUnique().HasDatabaseName("ux_nettside_dokumenter_kanonisk_url");
+        });
+
+        b.Entity<NettsideStiEntitet>(e =>
+        {
+            e.ToTable("nettside_stier", t => t.HasCheckConstraint(
+                "ck_nettside_stier_stitype", "sti_type IN ('tematisk', 'organisatorisk')"));
+            e.HasKey(x => x.Id).HasName("nettside_stier_pkey");
+            e.Property(x => x.NettsideDokumentId).HasColumnName("nettside_dokument_id");
+            e.Property(x => x.Sti).HasColumnName("sti");
+            e.Property(x => x.StiType).HasColumnName("sti_type");
+
+            e.HasOne<NettsideDokumentEntitet>().WithMany(d => d.Stier)
+                .HasForeignKey(x => x.NettsideDokumentId).OnDelete(DeleteBehavior.Cascade);
+
+            // §3.4: samme dokument kan ha FLERE stier, men IKKE den samme stien registrert to ganger.
+            e.HasIndex(x => new { x.NettsideDokumentId, x.StiType, x.Sti }).IsUnique()
+                .HasDatabaseName("ux_nettside_stier_dokument_type_sti");
+        });
+
+        b.Entity<NettsideLenkeEntitet>(e =>
+        {
+            e.ToTable("nettside_lenker", t => t.HasCheckConstraint(
+                "ck_nettside_lenker_type", "type IN ('lenker_til', 'lovdatalenke')"));
+            e.HasKey(x => x.Id).HasName("nettside_lenker_pkey");
+            e.Property(x => x.FraNettsideDokumentId).HasColumnName("fra_nettside_dokument_id");
+            e.Property(x => x.Type).HasColumnName("type");
+            e.Property(x => x.RaaHref).HasColumnName("raa_href");
+            e.Property(x => x.AnkerTekst).HasColumnName("anker_tekst");
+            e.Property(x => x.TilNettsideDokumentId).HasColumnName("til_nettside_dokument_id");
+            e.Property(x => x.TilEidKandidat).HasColumnName("til_eid_kandidat");
+            e.Property(x => x.TilRettskildeId).HasColumnName("til_rettskilde_id");
+
+            e.HasOne<NettsideDokumentEntitet>().WithMany()
+                .HasForeignKey(x => x.FraNettsideDokumentId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<NettsideDokumentEntitet>().WithMany()
+                .HasForeignKey(x => x.TilNettsideDokumentId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne<RettskildeEntitet>().WithMany()
+                .HasForeignKey(x => x.TilRettskildeId);
+
+            e.HasIndex(x => new { x.FraNettsideDokumentId, x.RaaHref }).HasDatabaseName("ix_nettside_lenker_fra_href");
+            e.HasIndex(x => x.TilRettskildeId).HasDatabaseName("ix_nettside_lenker_til_rettskilde");
         });
     }
 }

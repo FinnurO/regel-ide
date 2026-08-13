@@ -1,0 +1,9 @@
+KanoniskUrl: https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/soknad-om-utvidet-skjenkeareal-pa-eksisterende-skjenkebevilling
+Tittel: Søknad om utvidet skjenkeareal på eksisterende skjenkebevilling
+
+Bevillingshavere kan søke om å utvide sitt eksisterende skjenkeareal. Kontor for skjenkesaker kan,
+med delegert myndighet fra kommunedirektøren og i medhold av alkoholloven § 4-2 sjette ledd,
+godkjenne slike søknader.
+
+LENKER:
+- [Søknadsskjema for utvidet skjenkeareal på eksisterende skjenkebevilling](https://skjema.bergen.kommune.no/viewer/bergen/BK425-SKJENK-Soknad_om_skjenkebevilling)

@@ -145,6 +145,32 @@ public static partial class HandbokTekstParser
     private static partial Regex KapittelMønster();
 
     /// <summary>
+    /// EKTE FUNN, Del A (data/kilder/raw-handbok/README.md, "Forskriften — en ANNEN dokumentstruktur"):
+    /// Bergens FORSKRIFT om salgs-, skjenke- og åpningstider bruker IKKE "Kapittel N" på toppnivå —
+    /// den bruker en ren tallpunktum-overskrift i store bokstaver: "1. SALGSTID FOR ALKOHOLHOLDIG
+    /// DRIKK ...", "2. SKJENKETID", "3. ÅPNINGSTID". Uten dette mønsteret matcher IKKE
+    /// <see cref="PunktMønster"/> heller (den krever minst ett <c>.</c>-segment til), og siden
+    /// underpunktene ("2.1", "2.1.1") FAKTISK matcher <see cref="PunktMønster"/>, trigges
+    /// overskrifts-fallbacken (§2 Lag 2) ALDRI — toppnivåteksten ville i stedet blitt stille
+    /// forkastet (før første punkt) eller feilaktig smeltet inn i forrige punkt-node (etter et
+    /// punkt), ikke falt tilbake til noe rent. Behandles derfor IDENTISK med et Kapittel-nivå (samme
+    /// eId-form <c>"kap{N}"</c>) slik at eksisterende <see cref="PunktEid"/>/<see cref="ForelderEid"/>
+    /// for "N.N"-punkter under fungerer helt uendret.
+    /// <para>
+    /// Kravet er IKKE bare stor forbokstav — HELE resten av linjen må være store bokstaver/tall/
+    /// tegnsetting (ingen liten bokstav noe sted). Første forsøk (kun stor forbokstav) kolliderte med
+    /// Bergens RETNINGSLINJER sin egen "1./2./3./4."-dokumentasjonsliste i Kapittel 2 (§2, testet i
+    /// <c>HandbokTekstParserTests.Enkeltsifrede_lister_...</c>) — "1. Kopi av brukstillatelsen ..." har
+    /// stor forbokstav, men er åpenbart løpetekst, ikke en toppnivå-overskrift, og ga et duplisert
+    /// "kap1"-eId sammen med den ekte Kapittel 1-noden. Helt-store-bokstaver-kravet skiller pålitelig
+    /// mellom de to i BÅDE ekte fixturer — dokumentert føre-var-begrensning, ikke antatt universell for
+    /// alle kommunale forskrifter.
+    /// </para>
+    /// </summary>
+    [GeneratedRegex(@"^(\d{1,2})\.\s+([A-ZÆØÅ][A-ZÆØÅ0-9,.\-\s]*)$")]
+    private static partial Regex TallpunktumSeksjonMønster();
+
+    /// <summary>
     /// "4.1", "4.10", "9.1 – Kontroll med salgssteder", "1.2." (med trailing punktum). Bevisst
     /// <c>\d{1,2}</c> per segment (ikke <c>\d+</c>) — reduserer risiko for at en dato skrevet
     /// "DD.MM.ÅÅÅÅ" alene på en linje feiltolkes som et 3-nivås punktnummer (årstall har 4 sifre,
@@ -193,15 +219,20 @@ public static partial class HandbokTekstParser
             if (trimmet.Length == 0) continue;
 
             var kapittelTreff = KapittelMønster().Match(trimmet);
-            if (kapittelTreff.Success)
+            // Kun forsøkt når KapittelMønster ikke traff — se TallpunktumSeksjonMønster-kommentaren
+            // for hvilken ekte dokumentstruktur (Bergens forskrift) dette dekker.
+            var seksjonTreff = kapittelTreff.Success ? null : TallpunktumSeksjonMønster().Match(trimmet);
+            if (kapittelTreff.Success || seksjonTreff is { Success: true })
             {
                 FlushÅpenNode();
-                var kapittelNummer = kapittelTreff.Groups[1].Value;
+                var kapittelNummer = kapittelTreff.Success ? kapittelTreff.Groups[1].Value : seksjonTreff!.Groups[1].Value;
                 apenEid = $"kap{kapittelNummer}";
                 apenParentEid = null;
                 apenNodeType = "kapittel";
                 apenNummer = kapittelNummer;
-                apenOverskrift = kapittelTreff.Groups[2].Success ? kapittelTreff.Groups[2].Value.Trim() : null;
+                apenOverskrift = kapittelTreff.Success
+                    ? (kapittelTreff.Groups[2].Success ? kapittelTreff.Groups[2].Value.Trim() : null)
+                    : seksjonTreff!.Groups[2].Value.Trim();
                 continue;
             }
 

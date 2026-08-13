@@ -1,0 +1,19 @@
+KanoniskUrl: https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/skjenketider-i-forbindelse-med-fotball-vm-2026-perioden-11-juni-til-19-juli-2026
+Tittel: Skjenketider i forbindelse med fotball VM 2026 - perioden 11. juni til 19. juli 2026
+
+Beskriver midlertidig utvidet skjenketid for utesteder som viser VM-kamper i Bergen i perioden
+11. juni til 19. juli 2026. Bystyret har vedtatt en midlertidig endring i skjenketidsforskriften.
+Steder kan skjenke til kl. 06.00 dersom de viser direkte VM-kamper, allerede har utvidet
+skjenketid til kl. 03.00, og oppfyller bemanningskravene. Ansatte som arbeider etter midnatt må ha
+gjennomført kurs i ansvarlig alkoholhåndtering eller vekterkurs. Steder med 18-årsgrense må ha
+minst tre kursede ansatte til stede fra midnatt.
+
+Søknad sendes til Postmottak.Skjenkesaker@bergen.kommune.no.
+
+MERK (§6.7 — støyfiltrering): dette er nøyaktig notatets eget eksempel på en tidsavgrenset
+nyhets-/kampanjesak lagt som ORDINÆR tjenesteside i Bergens struktur, i motsetning til Oslo som
+legger tilsvarende under en egen aktuelt-underdomene. Se README for videre diskusjon.
+
+LENKER:
+- [Stortinget.no - sak om lovendring](https://www.stortinget.no/no/Saker-og-publikasjoner/Saker/Sak/?p=200278)
+- mailto:Postmottak.Skjenkesaker@bergen.kommune.no

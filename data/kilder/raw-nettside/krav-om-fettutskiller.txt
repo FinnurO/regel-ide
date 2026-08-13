@@ -1,0 +1,12 @@
+KanoniskUrl: https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/krav-om-fettutskiller
+Tittel: Krav om fettutskiller
+
+Alle virksomheter som lager og serverer mat, produserer også fettholdig avløpsvann. Det stilles
+derfor krav til installering av fettutskiller for å unngå at både private og offentlige
+ledningsnett går tett.
+
+Virksomheter må søke om påslippstillatelse hos Bergen Vann, og søknad må være innvilget før
+matproduksjon kan settes i gang.
+
+LENKER:
+- [Se her for mer informasjon om søknadsprosessen](https://www.bergen.kommune.no/innbyggerhjelpen/vann-vei-og-trafikk/vann-og-avlop/avlop-og-avlopshandtering/paslipp-av-fettholdig-avlopsvann)

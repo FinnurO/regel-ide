@@ -1,0 +1,22 @@
+KanoniskUrl: https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/tilsyn-av-internkontroll-ved-virksomheter-med-salgsog-skjenkebevilling
+Tittel: Tilsyn av internkontroll ved virksomheter med salgs- og skjenkebevilling
+
+Beskriver krav til internkontroll for virksomheter med salgs- og skjenkebevilling, hva som utgjør
+god internkontroll, kommunens tilsynsrolle, relevant regelverk og veiledning, og praktiske råd for
+oppdatering av kontrolldokumentasjon. Bevillingshavere må systematisk dokumentere etterlevelse av
+alkohollovgivningen gjennom organiserte rutiner, opplæringsdokumentasjon, risikovurderinger og
+avvikslogger.
+
+MERK — personopplysning maskert (docs/15 §11): siden inneholdt et telefonnummer angitt for
+"Kontor for skjenkesaker" (avdelingens sentralbord/direktenummer, ikke navngitt person). Tallet er
+fjernet fra denne fixturen og erstattet med [telefonnummer fjernet – se README] i tråd med
+føre-var-praksisen fra forrige runde (masker der det er tvil, spør heller enn å anta).
+Kontaktpunkt: [telefonnummer fjernet – se README] (Kontor for skjenkesaker).
+
+LENKER:
+- [Alkoholloven](http://www.lovdata.no/all/nl-19890602-027.html)
+- [Helsedirektoratets veileder til god internkontroll](https://www.helsedirektoratet.no/tema/alkohol/guide-til-god-internkontroll-etter-alkoholloven)
+- [alkoholforskriften § 8-3](http://www.lovdata.no/for/sf/ho/to-20050608-0538-008.html)
+- [Lovdata - Alkoholloven](https://lovdata.no/dokument/NL/lov/1989-06-02-27)
+- [Lovdata - Alkoholforskriften](https://lovdata.no/dokument/SF/forskrift/2005-06-08-538)
+- [Retningslinjer for Bergen kommunes bevillingspolitikk](https://www.bergen.kommune.no/innbyggerhjelpen/naring-og-skatt/naring/bevilling-og-tillatelser/retningslinjer-for-tildeling-av-salgsog-skjenkebevillinger-og-forskrift-om-salgsskjenkeog-apningstider)
