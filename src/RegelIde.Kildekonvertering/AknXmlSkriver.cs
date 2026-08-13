@@ -8,6 +8,19 @@ namespace RegelIde.Kildekonvertering;
 /// og FRBR-metadataen, per struktur/eksempel i docs/08-byggesteg1-teknisk-design.md §1.1/§1.3.
 /// Referansielt transparent (§3): samme (metadata, noder) gir alltid bit-identisk XML, uavhengig av
 /// <paramref name="importDato"/>-parameteren (som kun påvirker FRBRManifestation/@date, §1.1).
+///
+/// Output er validert mot den offisielle AKN 3.0-skjemaen (akomantoso30.xsd, OASIS LegalDocML v1.0) —
+/// se <c>AknXmlSkjemaValideringTests.cs</c>. Følgende er derfor bevisste valg, ikke tilfeldigheter:
+/// - Egendefinerte data (kildeId, opphevet-markering) skrives som attributter i <c>regelIde:</c>-
+///   navnerommet, ALDRI som uprefikserte attributter eller som &lt;proprietary&gt;-barn på hierarkiske
+///   elementer (&lt;article&gt;/&lt;paragraph&gt;/&lt;point&gt;) — skjemaets eneste utvidelsesmekanisme
+///   for attributter er <c>xsd:anyAttribute namespace="##other"</c> (attributeGroup "core"), og
+///   &lt;proprietary&gt; er kun gyldig som barn av &lt;meta&gt;, ikke av hierarkiske elementer
+///   (docs/13-backlog.md pkt. 9).
+/// - Fotnoter (&lt;authorialNote&gt;) skrives inline i SISTE ledds &lt;p&gt;, ikke som egne siblings av
+///   &lt;article&gt;s barn — authorialNote er et subFlow-element, kun lovlig i tekstflyt (mixed content).
+/// - FRBRWork/FRBRExpression har alltid minst ett &lt;FRBRdate&gt; (skjemaet krever det, coreProperties),
+///   plassert i riktig sekvens FØR FRBRauthor — se <see cref="SkrivFrbrDato"/>.
 /// </summary>
 public static class AknXmlSkriver
 {
@@ -30,9 +43,6 @@ public static class AknXmlSkriver
 
     private static void SkrivMeta(StringBuilder sb, RettskildeMetadata m, DateOnly importDato)
     {
-        var segment = m.Kildetype == Kildetype.Lov ? "lov" : "forskrift";
-        // FRBRWork/FRBRthis/FRBRuri er ELI-en uten språk-/manifestasjonssuffiks — utledes fra m.Eli
-        // ved å fjerne det avsluttende "/nor" (§1.1s eksempel skiller Work fra Expression nettopp slik).
         var workUri = m.Eli.EndsWith("/nor", StringComparison.Ordinal) ? m.Eli[..^4] : m.Eli;
         var expressionUri = m.Eli;
         var manifestationUri = $"{m.Eli}.xml";
@@ -40,11 +50,20 @@ public static class AknXmlSkriver
         sb.Append("<meta>");
         sb.Append("<identification source=\"#regel-ide\">");
 
+        // coreProperties (skjemaet) krever rekkefølgen FRBRthis, FRBRuri, [FRBRalias]*, FRBRdate+,
+        // FRBRauthor+ — deretter FRBRWork/FRBRExpression-spesifikke felt. FRBRauthor FØR FRBRdate
+        // (som i den gamle koden) er derfor like ugyldig som å utelate FRBRdate helt.
         sb.Append("<FRBRWork>");
         sb.Append($"<FRBRthis value=\"{Escape(workUri)}\"/>");
         sb.Append($"<FRBRuri value=\"{Escape(workUri)}\"/>");
-        // Vedtakelsesdato er ikke pålitelig tilgjengelig som eget maskinlesbart header-felt i rådataen
-        // (kun i fritekst-referanser) — utelates heller enn å gjettes (§3.3: ingen gjettet fallback).
+        // Vedtakelsesdato (datoen Stortinget faktisk vedtok loven) er ikke pålitelig tilgjengelig som
+        // eget maskinlesbart header-felt i rådataen (kun i fritekst-referanser). §3.3-prinsippet "ingen
+        // gjettet fallback" gjelder fortsatt for DEN datoen spesifikt — men skjemaet krever minst ett
+        // FRBRdate-element uansett. Løsning (avklart 2026-08-12): bruk Ikrafttredelse — en reell,
+        // allerede innhentet dato, bare merket ærlig som noe ANNET enn vedtakelse — og kun når heller
+        // ikke den finnes, en eksplisitt "ukjent"-sentinel (IKKE en gjettet dato). Se
+        // <see cref="SkrivFrbrDato"/> og docs/13-backlog.md pkt. 9.
+        SkrivFrbrDato(sb, foretrukket: null, m.Ikrafttredelse);
         sb.Append($"<FRBRauthor href=\"#{m.FrbrAuthorHref}\"/>");
         sb.Append("<FRBRcountry value=\"no\"/>");
         sb.Append("</FRBRWork>");
@@ -52,10 +71,7 @@ public static class AknXmlSkriver
         sb.Append("<FRBRExpression>");
         sb.Append($"<FRBRthis value=\"{Escape(expressionUri)}\"/>");
         sb.Append($"<FRBRuri value=\"{Escape(expressionUri)}\"/>");
-        if (m.KonsolidertDato is { } konsolidert)
-        {
-            sb.Append($"<FRBRdate date=\"{konsolidert:yyyy-MM-dd}\" name=\"konsolidering\"/>");
-        }
+        SkrivFrbrDato(sb, m.KonsolidertDato is { } konsolidert ? (konsolidert, "konsolidering") : null, m.Ikrafttredelse);
         sb.Append("<FRBRauthor href=\"#lovdata\"/>");
         sb.Append("<FRBRlanguage language=\"nor\"/>");
         sb.Append("</FRBRExpression>");
@@ -70,12 +86,23 @@ public static class AknXmlSkriver
         sb.Append("</identification>");
 
         sb.Append("<references source=\"#regel-ide\">");
+        // TLCOrganization krever href (attributeGroup "link", ##other-attributeGroup "core" gjelder
+        // ikke her — href er en ordinær, PÅKREVD AKN-attributt). For Lov er FrbrAuthorHref alltid
+        // "stortinget" (se Modeller.cs), altså identisk med organisasjonen under — å skrive begge ga
+        // en duplikat-eId (skjemaets eId-nøkkelbegrensning på <act>) OG en TLCOrganization uten href.
+        // Løsning: bygg listen, fjern duplikater på eId (§14/docs/13 pkt. 9).
+        var organisasjoner = new List<(string EId, string Href, string ShowAs)>();
         if (m.Kildetype == Kildetype.Lov)
         {
-            sb.Append("<TLCOrganization eId=\"stortinget\" href=\"/ontology/organization/no/stortinget\" showAs=\"Stortinget\"/>");
+            organisasjoner.Add(("stortinget", "/ontology/organization/no/stortinget", "Stortinget"));
         }
-        sb.Append($"<TLCOrganization eId=\"{Escape(m.FrbrAuthorHref)}\" showAs=\"{Escape(m.FrbrAuthorShowAs)}\"/>");
-        sb.Append("<TLCOrganization eId=\"lovdata\" href=\"/ontology/organization/no/lovdata\" showAs=\"Lovdata\"/>");
+        organisasjoner.Add((m.FrbrAuthorHref, $"/ontology/organization/no/{m.FrbrAuthorHref}", m.FrbrAuthorShowAs));
+        organisasjoner.Add(("lovdata", "/ontology/organization/no/lovdata", "Lovdata"));
+
+        foreach (var org in organisasjoner.DistinctBy(o => o.EId))
+        {
+            sb.Append($"<TLCOrganization eId=\"{Escape(org.EId)}\" href=\"{Escape(org.Href)}\" showAs=\"{Escape(org.ShowAs)}\"/>");
+        }
         sb.Append("</references>");
 
         sb.Append("<proprietary source=\"#regel-ide\">");
@@ -86,6 +113,23 @@ public static class AknXmlSkriver
         sb.Append("</proprietary>");
 
         sb.Append("</meta>");
+    }
+
+    /// <summary>
+    /// Skriver et &lt;FRBRdate&gt;-element. Skjemaet (complexType "coreProperties") krever minst ett
+    /// FRBRdate per FRBR-nivå (Work/Expression) — aldri null. Prioritet: <paramref name="foretrukket"/>
+    /// (en dato/navn-kombinasjon som er meningsfull for nettopp DETTE FRBR-nivået, f.eks. konsolidering
+    /// for Expression) → <paramref name="ikrafttredelse"/> (reell, allerede innhentet dato — merket
+    /// ærlig med <c>name="ikrafttredelse"</c>, ALDRI som vedtakelsesdato siden det ville vært en
+    /// påstand vi ikke kan bekrefte) → en eksplisitt "ukjent"-sentinel. Sentinelen (9999-01-01) er en
+    /// tydelig markør, IKKE en gjettet dato — §3.3-prinsippet om ingen gjettet fallback er dermed
+    /// bevart for selve vedtakelsesdatoen, samtidig som skjemaets krav om minst ett FRBRdate oppfylles.
+    /// </summary>
+    private static void SkrivFrbrDato(StringBuilder sb, (DateOnly Dato, string Navn)? foretrukket, DateOnly? ikrafttredelse)
+    {
+        var (dato, navn) = foretrukket
+            ?? (ikrafttredelse is { } i ? (i, "ikrafttredelse") : (new DateOnly(9999, 1, 1), "ukjent"));
+        sb.Append($"<FRBRdate date=\"{dato:yyyy-MM-dd}\" name=\"{navn}\"/>");
     }
 
     /// <summary>Skriver noder rekursivt i sorteringsrekkefølge, gruppert per forelder via ParentEid.</summary>
@@ -105,7 +149,10 @@ public static class AknXmlSkriver
                     break;
 
                 case NodeType.Underinndeling:
-                    sb.Append($"<hcontainer eId=\"{Escape(node.Eid)}\">");
+                    // <hcontainer> er AKNs generiske hierarkiske element (§ kommentar i skjemaet:
+                    // "The attribute name is required and gives a name to the element") — i motsetning
+                    // til <chapter>/<article> har den INGEN egen betydning uten en "name"-attributt.
+                    sb.Append($"<hcontainer eId=\"{Escape(node.Eid)}\" name=\"romertallgruppe\">");
                     sb.Append($"<num>{Escape(node.Nummer ?? "")}.</num>");
                     if (!string.IsNullOrEmpty(node.Overskrift)) sb.Append($"<heading>{Escape(node.Overskrift)}</heading>");
                     SkrivNoder(sb, alleNoder, node.Eid);
@@ -113,58 +160,109 @@ public static class AknXmlSkriver
                     break;
 
                 case NodeType.Paragraf:
-                    sb.Append($"<article eId=\"{Escape(node.Eid)}\" kildeId=\"{Escape(node.KildeId)}\"");
-                    if (node.Opphevet && node.OpphevetDato is { } opphevetDato)
+                    sb.Append($"<article eId=\"{Escape(node.Eid)}\" regelIde:kildeId=\"{Escape(node.KildeId)}\"");
+                    if (node.Opphevet)
                     {
-                        // §3.2: opphevet paragraf skal alltid produsere en node. AKNs temporal-gruppe
-                        // (start/end) er ikke bekreftet i eksakt attributtkombinasjon (§6 punkt 2) —
-                        // regel-IDEs egen <proprietary>-markering brukes derfor som reserveløsning,
-                        // ikke som erstatning for end-attributtet når det kan settes trygt.
-                        sb.Append($" end=\"{opphevetDato:yyyy-MM-dd}\"");
+                        // §3.2: opphevet paragraf skal alltid produsere en node. AKNs offisielle
+                        // temporal-mekanisme (attributtet "period" pekende til en <temporalGroup> i
+                        // <lifecycle>) er ikke implementert her — det tidligere "end"-attributtet
+                        // fantes ikke i noe attributeGroup skjemaet definerer for hierarkiske elementer
+                        // og var derfor rett og slett ugyldig (bekreftet ved skjemavalidering, ikke
+                        // bare "uavklart" som den gamle kommentaren sa). regelIde:-attributter er
+                        // derimot skjemalovlige (anyAttribute namespace="##other") og brukes i stedet.
+                        sb.Append(" regelIde:opphevet=\"true\"");
+                        if (node.OpphevetDato is { } opphevetDato)
+                        {
+                            sb.Append($" regelIde:opphevetDato=\"{opphevetDato:yyyy-MM-dd}\"");
+                        }
                     }
                     sb.Append(">");
                     sb.Append($"<num>{Escape(node.Nummer ?? "")}</num>");
                     if (!string.IsNullOrEmpty(node.Overskrift)) sb.Append($"<heading>{Escape(node.Overskrift)}</heading>");
-                    if (node.Opphevet)
+
+                    // Fotnoter kan IKKE skrives som egne siblings av leddene (som før) — <authorialNote>
+                    // er et subFlow-element og er kun lovlig inline i tekstflyt (f.eks. i <p>), ikke som
+                    // block-nivå-barn av <article>. De legges derfor inn i SISTE ledds <p> i stedet.
+                    var leddBarn = alleNoder.Where(n => n.ParentEid == node.Eid).OrderBy(n => n.SorteringsRekkefolge).ToList();
+                    var fotnoteMarkup = SkrivFotnoterInline(node.Fotnoter);
+                    for (var i = 0; i < leddBarn.Count; i++)
                     {
-                        sb.Append($"<proprietary source=\"#regel-ide\"><regelIde:opphevet dato=\"{node.OpphevetDato:yyyy-MM-dd}\"/></proprietary>");
+                        var erSisteLedd = i == leddBarn.Count - 1;
+                        SkrivLedd(sb, alleNoder, leddBarn[i], erSisteLedd ? fotnoteMarkup : null);
                     }
-                    SkrivNoder(sb, alleNoder, node.Eid);
-                    foreach (var fotnote in node.Fotnoter)
-                    {
-                        sb.Append($"<authorialNote marker=\"{Escape(fotnote.Etikett)}\"><p>{Escape(fotnote.Tekst)}</p></authorialNote>");
-                    }
+                    // Ekstremt sjeldent tilfelle: paragraf har fotnote(r) men ingen ledd å feste dem i
+                    // (ingen løpetekst overhodet). Det finnes ingen skjemalovlig plassering av
+                    // <authorialNote> direkte på <article> — fotnoten utelates heller enn å skrive
+                    // ugyldig AKN. Ikke observert i faktiske Lovdata-kilder (§14); flagg i
+                    // docs/13-backlog.md dersom dette faktisk inntreffer.
                     sb.Append("</article>");
                     break;
 
                 case NodeType.Ledd:
-                    sb.Append($"<paragraph eId=\"{Escape(node.Eid)}\" kildeId=\"{Escape(node.KildeId)}\">");
-                    sb.Append($"<num>{Escape(node.Nummer ?? "")}</num>");
-                    sb.Append("<content>").Append("<p>").Append(SkrivSegmenter(node.Segmenter)).Append("</p>").Append("</content>");
-                    sb.Append("</paragraph>");
-                    // Punkt-barn (samme ParentEid = dette leddets eId) skrives ikke rekursivt via
-                    // SkrivNoder her fordi <paragraph> i AKN ikke har et eget "barn-steg" i vårt skjema —
-                    // de skrives som søsken-<point>-elementer rett etter, se under.
-                    var punktBarn = alleNoder.Where(n => n.ParentEid == node.Eid).OrderBy(n => n.SorteringsRekkefolge).ToList();
-                    if (punktBarn.Count > 0)
-                    {
-                        sb.Append("<list>");
-                        foreach (var punkt in punktBarn)
-                        {
-                            sb.Append($"<point eId=\"{Escape(punkt.Eid)}\" kildeId=\"{Escape(punkt.KildeId)}\">");
-                            sb.Append($"<num>{Escape(punkt.Nummer ?? "")}</num>");
-                            sb.Append("<content>").Append("<p>").Append(SkrivSegmenter(punkt.Segmenter)).Append("</p>").Append("</content>");
-                            sb.Append("</point>");
-                        }
-                        sb.Append("</list>");
-                    }
+                    // Nås i praksis aldri via denne rekursjonen — Ledd sitt ParentEid er alltid en
+                    // Paragraf sin Eid (LovdataHtmlParser), og Paragraf-casen over skriver derfor sine
+                    // ledd-barn direkte (for å kunne plassere fotnoter i siste ledd). Beholdt som
+                    // forsvarsverk mot fremtidige/andre nodetre-produsenter.
+                    SkrivLedd(sb, alleNoder, node, ekstraInnhold: null);
                     break;
 
                 case NodeType.Punkt:
-                    // Skrevet som del av <list> over, sammen med sitt ledd — ingen egen håndtering her.
+                    // Skrevet som del av <list> i SkrivLedd, sammen med sitt ledd — ingen egen håndtering her.
                     break;
             }
         }
+    }
+
+    /// <summary>
+    /// Skriver ett ledd (&lt;paragraph&gt;) og dets punkt-barn (&lt;list&gt;/&lt;point&gt;).
+    /// <paramref name="ekstraInnhold"/> er allerede ferdigbygget AKN-markup (typisk &lt;authorialNote&gt;
+    /// fra paragrafens fotnoter) som skal limes inn i SLUTTEN av dette leddets &lt;p&gt; — se
+    /// begrunnelsen i Paragraf-casen i <see cref="SkrivNoder"/>.
+    /// </summary>
+    private static void SkrivLedd(StringBuilder sb, IReadOnlyList<RettskildeNode> alleNoder, RettskildeNode node, string? ekstraInnhold)
+    {
+        sb.Append($"<paragraph eId=\"{Escape(node.Eid)}\" regelIde:kildeId=\"{Escape(node.KildeId)}\">");
+        sb.Append($"<num>{Escape(node.Nummer ?? "")}</num>");
+        sb.Append("<content>").Append("<p>").Append(SkrivSegmenter(node.Segmenter));
+        if (ekstraInnhold is not null)
+        {
+            sb.Append(ekstraInnhold);
+        }
+        sb.Append("</p>").Append("</content>");
+        sb.Append("</paragraph>");
+
+        // Punkt-barn (samme ParentEid = dette leddets eId) skrives ikke rekursivt via SkrivNoder her
+        // fordi <paragraph> i AKN ikke har et eget "barn-steg" i vårt skjema — de skrives som søsken-
+        // <point>-elementer rett etter, som søsken av <paragraph> i den omsluttende <article>.
+        var punktBarn = alleNoder.Where(n => n.ParentEid == node.Eid).OrderBy(n => n.SorteringsRekkefolge).ToList();
+        if (punktBarn.Count > 0)
+        {
+            sb.Append("<list>");
+            foreach (var punkt in punktBarn)
+            {
+                sb.Append($"<point eId=\"{Escape(punkt.Eid)}\" regelIde:kildeId=\"{Escape(punkt.KildeId)}\">");
+                sb.Append($"<num>{Escape(punkt.Nummer ?? "")}</num>");
+                sb.Append("<content>").Append("<p>").Append(SkrivSegmenter(punkt.Segmenter)).Append("</p>").Append("</content>");
+                sb.Append("</point>");
+            }
+            sb.Append("</list>");
+        }
+    }
+
+    /// <summary>
+    /// Bygger &lt;authorialNote&gt;-markup for en paragrafs fotnoter, ment å limes inn i slutten av
+    /// et &lt;p&gt; (authorialNote er et subFlow-element, kun lovlig inline i tekstflyt). Returnerer
+    /// null når det ikke er noen fotnoter (skiller "ingen fotnote" fra "tom streng å legge til").
+    /// </summary>
+    private static string? SkrivFotnoterInline(IReadOnlyList<Fotnote> fotnoter)
+    {
+        if (fotnoter.Count == 0) return null;
+        var sb = new StringBuilder();
+        foreach (var fotnote in fotnoter)
+        {
+            sb.Append($"<authorialNote marker=\"{Escape(fotnote.Etikett)}\"><p>{Escape(fotnote.Tekst)}</p></authorialNote>");
+        }
+        return sb.ToString();
     }
 
     private static string SkrivSegmenter(IReadOnlyList<TekstSegment>? segmenter)
