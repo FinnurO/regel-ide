@@ -54,18 +54,30 @@ public sealed class RettskildeRepository(RegelIdeDbContext db)
     }
 
     /// <summary>
-    /// Oppdaterer Kortnavn/Utgiver på en allerede importert rettskilde — AK-3.3.6 "bekreft/rediger
-    /// metadata" i importbekreftelsen (`Importer.tsx`). Kun disse to feltene: resten av metadataen
-    /// (tittel, ELI, status osv.) er tolket direkte fra kilden og skal ikke friredigeres her.
+    /// Oppdaterer redigerbar metadata på en allerede importert rettskilde — opprinnelig AK-3.3.6
+    /// "bekreft/rediger metadata" (Kortnavn/Utgiver, i importbekreftelsen `Importer.tsx`), utvidet
+    /// 2026-08-13 (avklaringsrunde) med de håndbok-metadatafeltene som allerede fantes på entiteten
+    /// men manglet en skrivevei: InterntDokNr/Revisjonsnr/VedtattAv/Vedtaksdato/GyldigTil/KonsolidertDato.
+    /// <see cref="RettskildeEntitet.Eli"/> er BEVISST utenfor denne signaturen — permanent
+    /// skrivebeskyttet (§3.3), aldri en del av redigeringen. Resten av metadataen (tittel, status osv.)
+    /// er tolket direkte fra kilden og skal fortsatt ikke friredigeres her.
     /// Returnerer null hvis rettskilden ikke finnes (kalleren mapper til 404).
     /// </summary>
-    public async Task<RettskildeEntitet?> OppdaterMetadataAsync(Guid id, string? kortnavn, string? utgiver, string endretAv)
+    public async Task<RettskildeEntitet?> OppdaterMetadataAsync(
+        Guid id, string? kortnavn, string? utgiver, string? interntDokNr, string? revisjonsnr, string? vedtattAv,
+        DateOnly? vedtaksdato, DateOnly? gyldigTil, DateOnly? konsolidertDato, string endretAv)
     {
         var rettskilde = await db.Rettskilder.FirstOrDefaultAsync(r => r.Id == id);
         if (rettskilde is null) return null;
 
         rettskilde.Kortnavn = kortnavn;
         rettskilde.Utgiver = utgiver;
+        rettskilde.InterntDokNr = interntDokNr;
+        rettskilde.Revisjonsnr = revisjonsnr;
+        rettskilde.VedtattAv = vedtattAv;
+        rettskilde.Vedtaksdato = vedtaksdato;
+        rettskilde.GyldigTil = gyldigTil;
+        rettskilde.KonsolidertDato = konsolidertDato;
         rettskilde.SistEndretAv = endretAv;
         rettskilde.SistEndretTidspunkt = DateTimeOffset.UtcNow;
         rettskilde.Versjon++; // basemetadata §0: appens ansvar å øke ved faktisk endring
@@ -83,4 +95,49 @@ public sealed class RettskildeRepository(RegelIdeDbContext db)
             .Where(r => r.TilRettskildeId == rettskildeId)
             .Join(db.Tjenester, r => r.TjenesteId, t => t.Id, (r, t) => new TjenesteReferanseDto(t.Id, t.Tittel, r.TilEid))
             .ToListAsync();
+
+    /// <summary>
+    /// Punkt 6/9 (avklaringsrunde 2026-08-13) — sideordnet <see cref="ReferertAvTjenesterAsync"/>, men
+    /// for referanser som ORIGINERER i et ANNET dokuments nodetre (håndbok/rundskriv), ikke fra en
+    /// Tjeneste. Joiner <see cref="RettskildeReferanseEntitet.FraNodeId"/> → <see cref="RettskildeNodeEntitet"/>
+    /// for å finne EIENDE dokument (dens <see cref="RettskildeNodeEntitet.RettskildeId"/>) — dette er
+    /// nøyaktig den koblingen som før kun fantes fra tjeneste-siden: "Skjenkebevilling – testrunde 3"
+    /// har 9 reelle håndbok-originerte referanser til forvaltningsloven/serveringsloven/alkoholloven i
+    /// databasen, usynlige den andre veien før dette endepunktet fantes.
+    /// </summary>
+    public Task<List<DokumentReferanseDto>> ReferertAvAndreDokumenterAsync(Guid rettskildeId) =>
+        db.RettskildeReferanser
+            .Where(r => r.TilRettskildeId == rettskildeId)
+            .Join(db.RettskildeNoder, r => r.FraNodeId, n => n.Id, (r, n) => new { r, n })
+            .Join(db.Rettskilder, rn => rn.n.RettskildeId, d => d.Id,
+                (rn, d) => new DokumentReferanseDto(d.Id, d.Tittel, rn.n.Eid, rn.n.Overskrift, rn.r.TilEid))
+            .ToListAsync();
+
+    /// <summary>
+    /// Punkt 8 — §3.4s multi-sti-egenskap for en Brukerveiledning (kun ikke-tom for den doctypen, se
+    /// <see cref="RettskildeEntitet.Stier"/>). Tom liste for enhver annen rettskilde, ikke en feil.
+    /// </summary>
+    public Task<List<NettsideStiEntitet>> StierForAsync(Guid rettskildeId) =>
+        db.NettsideStier.Where(s => s.RettskildeId == rettskildeId).ToListAsync();
+
+    /// <summary>
+    /// Punkt 8/9 — de utgående <see cref="NettsideLenkeEntitet"/>-radene for en Brukerveilednings
+    /// side-node, med oppløsningsstatus. Egen liten join siden <see cref="NettsideLenkeEntitet"/>
+    /// bevisst IKKE ble konvergert inn i <see cref="RettskildeReferanseEntitet"/> (se Entiteter.cs-
+    /// kommentaren) — denne metoden er derfor det som lar RettskildeDetalj.tsx vise dem i SAMME
+    /// "Referanser"-visning som alle andre doctyper, i stedet for en nettside-spesifikk duplikat-UI
+    /// (punkt 10/9s krav, løst her på API-siden).
+    /// </summary>
+    public async Task<List<NettsideLenkeMedMalDto>> NettsideLenkerForAsync(Guid rettskildeId)
+    {
+        var nodeIder = await db.RettskildeNoder.Where(n => n.RettskildeId == rettskildeId).Select(n => n.Id).ToListAsync();
+        var lenker = await db.NettsideLenker.Where(l => nodeIder.Contains(l.FraNodeId)).ToListAsync();
+
+        var malIder = lenker.Where(l => l.TilRettskildeId is not null).Select(l => l.TilRettskildeId!.Value).Distinct().ToList();
+        var mal = await db.Rettskilder.Where(r => malIder.Contains(r.Id)).ToDictionaryAsync(r => r.Id);
+
+        return lenker
+            .Select(l => NettsideLenkeMedMalDto.FraEntitet(l, l.TilRettskildeId is not null ? mal.GetValueOrDefault(l.TilRettskildeId.Value) : null))
+            .ToList();
+    }
 }

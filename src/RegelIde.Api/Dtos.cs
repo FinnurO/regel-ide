@@ -13,21 +13,35 @@ public sealed record RettskildeSammendrag(Guid Id, Guid? VirksomhetId, string? E
         new(r.Id, r.VirksomhetId, r.Eli, r.Tittel, r.Kortnavn, r.Kildetype);
 }
 
-/// <summary>Full rettskilde: metadata + kanonisk AKN-XML (§1 i teknisk design).</summary>
+/// <summary>Full rettskilde: metadata + kanonisk AKN-XML (§1 i teknisk design). ELI er ALLTID skrivebeskyttet
+/// (§3.3, avklaringsrunde 2026-08-13) — vist her, men aldri en del av <see cref="OppdaterRettskildeMetadataRequest"/>.
+/// De seks feltene fra <see cref="InterntDokNr"/> til <see cref="GyldigTil"/> fantes allerede på
+/// <see cref="RettskildeEntitet"/> (håndbok-metadata, §3.3) men var før nå ikke UI-eksponert i det hele tatt.</summary>
 public sealed record RettskildeDetalj(
     Guid Id, Guid? VirksomhetId, string Doctype, string Kildetype, string Tittel, string? Kortnavn, string? Eli,
-    DateOnly? Ikrafttredelse, DateOnly? KonsolidertDato, string? Utgiver, string Status, string? AknXml)
+    DateOnly? Ikrafttredelse, DateOnly? KonsolidertDato, string? Utgiver, string Status, string? AknXml,
+    string? InterntDokNr, string? Revisjonsnr, string? VedtattAv, DateOnly? Vedtaksdato, DateOnly? GyldigTil,
+    string? Url)
 {
     public static RettskildeDetalj FraEntitet(RettskildeEntitet r) => new(
         r.Id, r.VirksomhetId, r.Doctype, r.Kildetype, r.Tittel, r.Kortnavn, r.Eli,
-        r.Ikrafttredelse, r.KonsolidertDato, r.Utgiver, r.Status, r.AknXml);
+        r.Ikrafttredelse, r.KonsolidertDato, r.Utgiver, r.Status, r.AknXml,
+        r.InterntDokNr, r.Revisjonsnr, r.VedtattAv, r.Vedtaksdato, r.GyldigTil, r.Url);
 }
 
 /// <summary>Forespørsel for POST /api/rettskilder/lovdata.</summary>
 public sealed record LovdataImportRequest(string Datokode);
 
-/// <summary>Forespørsel for PATCH /api/rettskilder/{id}/metadata — AK-3.3.6, kun Kortnavn/Utgiver.</summary>
-public sealed record OppdaterRettskildeMetadataRequest(string? Kortnavn, string? Utgiver);
+/// <summary>
+/// Forespørsel for PATCH /api/rettskilder/{id}/metadata — AK-3.3.6 (Kortnavn/Utgiver, opprinnelig
+/// importbekreftelsen i Importer.tsx) UTVIDET 2026-08-13 (avklaringsrunde) med de håndbok-metadatafeltene
+/// som allerede fantes på <see cref="RettskildeEntitet"/> men ikke var skrivbare noe sted:
+/// InterntDokNr/Revisjonsnr/VedtattAv/Vedtaksdato/GyldigTil/KonsolidertDato. <see cref="RettskildeEntitet.Eli"/>
+/// er BEVISST IKKE med her — permanent skrivebeskyttet, aldri brukerredigerbar eller gjettet.
+/// </summary>
+public sealed record OppdaterRettskildeMetadataRequest(
+    string? Kortnavn, string? Utgiver, string? InterntDokNr, string? Revisjonsnr, string? VedtattAv,
+    DateOnly? Vedtaksdato, DateOnly? GyldigTil, DateOnly? KonsolidertDato);
 
 /// <summary>Én node i rettskildens tre (kapittel/underinndeling/paragraf/ledd/punkt), for tre-navigasjon.</summary>
 public sealed record RettskildeNodeDto(
@@ -144,48 +158,33 @@ public sealed record HandbokRettskildeomfangDto(Guid Id, Guid HandbokId, Guid Ti
         new(o.Id, o.HandbokId, o.TilRettskildeId);
 }
 
-// ---------- Nettsider (docs/15-handbok-dokumentgraf-notat.md §3.1/§3.2/§3.4) — byggesteg-1-utvidelsen ----------
+// ---------- Nettsider (docs/15-handbok-dokumentgraf-notat.md §3.1/§3.2/§3.4) ----------
+// ---------- Punkt 8 (avklaringsrunde 2026-08-13): full konvergens — en nettside ER nå en    ----------
+// ---------- ordinær RettskildeEntitet (Kildetype="Brukerveiledning"), vist via de vanlige   ----------
+// ---------- /api/rettskilder-endepunktene. Disse to DTO-ene dekker det som IKKE allerede    ----------
+// ---------- fanges av RettskildeDetalj/RettskildeNodeDto: §3.4s multi-sti og §3.2s lenker.  ----------
 
-/// <summary>Listevisning — GET /api/nettsider. <see cref="StiTyper"/> er de DISTINKTE StiType-verdiene
-/// dokumentet opptrer under (§3.4: "samme node, flere navigasjonsstier"), ikke selve stiene.</summary>
-public sealed record NettsideSammendragDto(Guid Id, string KanoniskUrl, string? Tittel, DateTimeOffset? Hentet, IReadOnlyList<string> StiTyper)
-{
-    public static NettsideSammendragDto FraEntitet(NettsideDokumentEntitet d) => new(
-        d.Id, d.KanoniskUrl, d.Tittel, d.Hentet, d.Stier.Select(s => s.StiType).Distinct().OrderBy(t => t).ToList());
-}
-
-/// <summary>Én navigasjonssti (§3.4) — Sti+StiType, uten dokument-FK (allerede kjent fra konteksten).</summary>
+/// <summary>Én navigasjonssti (§3.4) — Sti+StiType, uten rettskilde-FK (allerede kjent fra konteksten).
+/// Kun ikke-tom for Kildetype="Brukerveiledning" (se RettskildeEntitet.Stier).</summary>
 public sealed record NettsideStiDto(string Sti, string StiType)
 {
     public static NettsideStiDto FraEntitet(NettsideStiEntitet s) => new(s.Sti, s.StiType);
 }
 
 /// <summary>
-/// Én utgående lenke (§3.2), med oppløsningsstatus flatet ut som nullbare felt (samme mønster som
-/// <see cref="RettskildeReferanseDto"/> ellers i denne filen — ingen nestet "mål"-objekt). Alle seks
-/// <c>Til…</c>-felt er null når lenken er uløst (ekstern, eller et av de eldre Lovdata-formatene
-/// <c>LovdataUrlTolker</c> bevisst ikke tolker — se data/kilder/raw-nettside/README.md).
+/// Én utgående lenke (§3.2) fra en Brukerveilednings side-node, med oppløsningsstatus flatet ut som
+/// nullbare felt (samme mønster som <see cref="RettskildeReferanseDto"/> ellers i denne filen — ingen
+/// nestet "mål"-objekt). <see cref="TilRettskildeId"/>-familien er null når lenken er uløst (ekstern,
+/// eller et av de eldre Lovdata-formatene <c>LovdataUrlTolker</c> bevisst ikke tolker). ÉN kolonne nå,
+/// ikke to (se Entiteter.cs/NettsideLenkeEntitet-kommentaren) — punkt 8s konvergens gjorde "intern
+/// nettside-lenke" og "PDF-omtale-lenke til håndbok" til nøyaktig samme oppløsning.
 /// </summary>
-public sealed record NettsideLenkeDto(
+public sealed record NettsideLenkeMedMalDto(
     Guid Id, string Type, string RaaHref, string? AnkerTekst,
-    Guid? TilNettsideDokumentId, string? TilNettsideDokumentTittel, string? TilNettsideDokumentKanoniskUrl,
     Guid? TilRettskildeId, string? TilRettskildeTittel, string? TilRettskildeEli)
 {
-    public static NettsideLenkeDto FraEntitet(NettsideLenkeEntitet l, NettsideDokumentEntitet? tilDokument, RettskildeEntitet? tilRettskilde) => new(
-        l.Id, l.Type, l.RaaHref, l.AnkerTekst,
-        tilDokument?.Id, tilDokument?.Tittel, tilDokument?.KanoniskUrl,
-        tilRettskilde?.Id, tilRettskilde?.Tittel, tilRettskilde?.Eli);
-}
-
-/// <summary>Detaljvisning — GET /api/nettsider/{id}. <see cref="Lenker"/> bygges av endepunktet selv
-/// (krever oppslag av målenes Tittel/KanoniskUrl/Eli), ikke en ren entitetsprojeksjon.</summary>
-public sealed record NettsideDetaljDto(
-    Guid Id, Guid? VirksomhetId, string KanoniskUrl, string? Tittel, string? RaaTekst, DateTimeOffset? Hentet,
-    IReadOnlyList<NettsideStiDto> Stier, IReadOnlyList<NettsideLenkeDto> Lenker)
-{
-    public static NettsideDetaljDto FraEntitet(NettsideDokumentEntitet d, IReadOnlyList<NettsideLenkeDto> lenker) => new(
-        d.Id, d.VirksomhetId, d.KanoniskUrl, d.Tittel, d.RaaTekst, d.Hentet,
-        d.Stier.Select(NettsideStiDto.FraEntitet).ToList(), lenker);
+    public static NettsideLenkeMedMalDto FraEntitet(NettsideLenkeEntitet l, RettskildeEntitet? tilRettskilde) => new(
+        l.Id, l.Type, l.RaaHref, l.AnkerTekst, tilRettskilde?.Id, tilRettskilde?.Tittel, tilRettskilde?.Eli);
 }
 
 /// <summary>Hendelse (docs/03-domenemodell.md §1.5, docs/13-backlog.md §2.1).</summary>
@@ -223,6 +222,19 @@ public sealed record KobleRegelverksreferanseRequest(Guid TilRettskildeId, strin
 /// GET /api/rettskilder/{id}/referert-av-tjenester (byggesteg 4, 2026-07-30).
 /// </summary>
 public sealed record TjenesteReferanseDto(Guid TjenesteId, string TjenesteTittel, string TilEid);
+
+/// <summary>
+/// Motsatt retning av <see cref="RettskildeReferanseDto"/> — brukt av
+/// GET /api/rettskilder/{id}/referert-av-dokumenter (punkt 6/9, avklaringsrunde 2026-08-13).
+/// Samme rolle som <see cref="TjenesteReferanseDto"/> har for tjenester, men for referanser som
+/// ORIGINERER i en ANNEN RettskildeEntitet (typisk håndbok/rundskriv) sitt nodetre, ikke fra en
+/// Tjeneste. <see cref="FraNodeEid"/>/<see cref="FraNodeOverskrift"/> identifiserer PRESIST hvilken
+/// seksjon i det eiende dokumentet som refererer — nødvendig for å vise koblingen RETT VED SIDEN AV
+/// den refererte noden (punkt 9), ikke bare som en global sluttliste (jf. <see cref="TjenesteReferanseDto"/>,
+/// som ikke har et per-node-presisjonsbehov siden en Tjeneste ikke selv har et nodetre).
+/// </summary>
+public sealed record DokumentReferanseDto(
+    Guid DokumentId, string DokumentTittel, string FraNodeEid, string? FraNodeOverskrift, string TilEid);
 
 // ---------- Begrep (SKOS, docs/03-domenemodell.md §1.3) — byggesteg 2 ----------
 

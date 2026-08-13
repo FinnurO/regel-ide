@@ -6,6 +6,7 @@ import type {
   DatasettDto,
   DatasettVerdiDto,
   BegrepsforslagDto,
+  DokumentReferanseDto,
   HendelseDto,
   HendelseRequest,
   KobleHendelseRequest,
@@ -39,8 +40,8 @@ import type {
   RegelnodeBarnDto,
   RegelnodeDto,
   RegelnodeRequest,
-  NettsideDetaljDto,
-  NettsideSammendragDto,
+  NettsideLenkeMedMalDto,
+  NettsideStiDto,
   RettskildeDetalj,
   RettskildeNodeDto,
   RettskildeReferanseDto,
@@ -142,6 +143,9 @@ export const api = {
 
   hentReferertAvTjenester: (id: string) =>
     kall<TjenesteReferanseDto[]>(`/api/rettskilder/${id}/referert-av-tjenester`),
+
+  hentReferertAvDokumenter: (id: string) =>
+    kall<DokumentReferanseDto[]>(`/api/rettskilder/${id}/referert-av-dokumenter`),
 
   oppdaterRettskildeMetadata: (id: string, request: OppdaterRettskildeMetadataRequest) =>
     kall<RettskildeDetalj>(`/api/rettskilder/${id}/metadata`, {
@@ -264,12 +268,12 @@ export const api = {
   fjernHandbokRettskildeomfang: (handbokId: string, omfangId: string) =>
     kall<void>(`/api/handboker/${handbokId}/rettskilder/${omfangId}`, { method: 'DELETE' }),
 
-  // ---------- Nettsider (docs/15-handbok-dokumentgraf-notat.md §3.1/§3.2/§3.4) ----------
+  // ---------- Nettsider / Brukerveiledning (docs/15-handbok-dokumentgraf-notat.md §3.1/§3.2/§3.4) ----------
+  // ---------- Punkt 8: nettsider vises nå via /api/rettskilder — disse to dekker kun §3.4/§3.2. ----------
 
-  hentNettsider: (virksomhetId?: string) =>
-    kall<NettsideSammendragDto[]>(`/api/nettsider${virksomhetId ? `?virksomhetId=${virksomhetId}` : ''}`),
+  hentRettskildeStier: (id: string) => kall<NettsideStiDto[]>(`/api/rettskilder/${id}/stier`),
 
-  hentNettside: (id: string) => kall<NettsideDetaljDto>(`/api/nettsider/${id}`),
+  hentRettskildeNettsideLenker: (id: string) => kall<NettsideLenkeMedMalDto[]>(`/api/rettskilder/${id}/nettside-lenker`),
 
   // ---------- Tjenesteregister (CPSV-AP-NO, docs/03-domenemodell.md §1.5) — byggesteg 2 ----------
 

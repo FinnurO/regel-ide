@@ -205,7 +205,9 @@ public class RettskilderEndepunktTests
     public async Task Oppdater_metadata_uten_bruker_id_header_gir_400()
     {
         var id = await HentAlkohollovenIdAsync();
-        var svar = await _client.PatchAsJsonAsync($"/api/rettskilder/{id}/metadata", new OppdaterRettskildeMetadataRequest("Nytt", "Ny utgiver"));
+        var svar = await _client.PatchAsJsonAsync(
+            $"/api/rettskilder/{id}/metadata",
+            new OppdaterRettskildeMetadataRequest("Nytt", "Ny utgiver", null, null, null, null, null, null));
         Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
     }
 
@@ -217,7 +219,8 @@ public class RettskilderEndepunktTests
 
         using var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/rettskilder/{id}/metadata")
         {
-            Content = JsonContent.Create(new OppdaterRettskildeMetadataRequest("Alkoholloven (kortnavn testet)", "Lovdata (redigert)")),
+            Content = JsonContent.Create(new OppdaterRettskildeMetadataRequest(
+                "Alkoholloven (kortnavn testet)", "Lovdata (redigert)", null, null, null, null, null, null)),
             Headers = { { GjeldendeBrukerTjeneste.HeaderNavn, bruker.Id.ToString() } },
         };
         var svar = await _client.SendAsync(request);
@@ -231,13 +234,45 @@ public class RettskilderEndepunktTests
         Assert.Equal("Alkoholloven (kortnavn testet)", hentetPaNytt!.Kortnavn);
     }
 
+    /// <summary>
+    /// Punkt 4 (avklaringsrunde 2026-08-13) — de seks feltene som allerede fantes på entiteten
+    /// (håndbok-metadata) men manglet en skrivevei før nå. Eli forblir UTENFOR requesten (permanent
+    /// skrivebeskyttet) — verifisert her ved at den er uendret etter kallet.
+    /// </summary>
+    [Fact]
+    public async Task Oppdater_metadata_lagrer_de_nye_handbok_feltene_og_lar_eli_sta_urort()
+    {
+        var id = await HentAlkohollovenIdAsync();
+        var bruker = await HentTestbrukerAsync();
+        var forOppdatering = await _client.GetFromJsonAsync<RettskildeDetalj>($"/api/rettskilder/{id}", JsonInnstillinger);
+
+        using var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/rettskilder/{id}/metadata")
+        {
+            Content = JsonContent.Create(new OppdaterRettskildeMetadataRequest(
+                forOppdatering!.Kortnavn, forOppdatering.Utgiver,
+                "SD-24-113", "01", "Bystyret", new DateOnly(2024, 6, 19), new DateOnly(2028, 7, 1), new DateOnly(2026, 1, 1))),
+            Headers = { { GjeldendeBrukerTjeneste.HeaderNavn, bruker.Id.ToString() } },
+        };
+        var svar = await _client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+        var oppdatert = await svar.Content.ReadFromJsonAsync<RettskildeDetalj>(JsonInnstillinger);
+        Assert.Equal("SD-24-113", oppdatert!.InterntDokNr);
+        Assert.Equal("01", oppdatert.Revisjonsnr);
+        Assert.Equal("Bystyret", oppdatert.VedtattAv);
+        Assert.Equal(new DateOnly(2024, 6, 19), oppdatert.Vedtaksdato);
+        Assert.Equal(new DateOnly(2028, 7, 1), oppdatert.GyldigTil);
+        Assert.Equal(new DateOnly(2026, 1, 1), oppdatert.KonsolidertDato);
+        Assert.Equal(forOppdatering.Eli, oppdatert.Eli); // ALDRI skrivbar via denne requesten.
+    }
+
     [Fact]
     public async Task Oppdater_metadata_pa_ukjent_rettskilde_gir_404()
     {
         var bruker = await HentTestbrukerAsync();
         using var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/rettskilder/{Guid.NewGuid()}/metadata")
         {
-            Content = JsonContent.Create(new OppdaterRettskildeMetadataRequest("X", "Y")),
+            Content = JsonContent.Create(new OppdaterRettskildeMetadataRequest("X", "Y", null, null, null, null, null, null)),
             Headers = { { GjeldendeBrukerTjeneste.HeaderNavn, bruker.Id.ToString() } },
         };
         var svar = await _client.SendAsync(request);

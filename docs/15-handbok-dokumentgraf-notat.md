@@ -204,13 +204,21 @@ per annotasjonstype uten å røre lag 1–2.
 | `Rettskilde` / `RettskildeNode` | Lovdata (byggesteg 1) | eId — nasjonal, kanonisk |
 | `Rettskilde` / `RettskildeNode` med `Kildetype="Retningslinje"` e.l. *(var: `LokalRettskilde`)* | Kommunal forskrift (Lovdata) eller retningslinje (kommunens nettsted) | Se 3.3 |
 | `Rettskilde` / `RettskildeNode` med `Kildetype="Virksomhetsdokument"`/`"Rundskriv"` *(var: `HandbokKilde`/`HandbokNode`)* | PDF, dokument, veileder | `Eid` (dokumentets egen nummerering) |
-| `NettsideDokument` / `NettsideSeksjon` | Kommunens nettsider | URL + overskriftssti |
+| `Rettskilde` / `RettskildeNode` med `Kildetype="Brukerveiledning"` *(var: `NettsideDokument`/`NettsideSeksjon`)* | Kommunens nettsider | `Url` + én `RettskildeNode` med `NodeType="side"` |
 | `Forvaltningsoppgave` *(eller `Tjeneste` med `Objekttype="forvaltningsoppgave"`, se §10.2)* | Utledet av rettskildesveip | eId + normtype |
 | `Tjeneste` | Utledet av oppgave + operative kilder | Egen Guid, aldri fra URL |
 | `Begrep` | Definisjoner i alle kildetyper | SKOS |
 
-`NettsideDokument`/`NettsideSeksjon` er fortsatt genuint nye nodetyper — ingen eksisterende tabell
-dekker nettsideinnsamling.
+**[KORRIGERT 2026-08-13 — punkt 8, avklaringsrunde]** `NettsideDokument`/`NettsideSeksjon` fantes som
+EGEN tabell/entitet i én tidligere runde (byggesteg-1-utvidelsen, `NettsideDokumentEntitet`), men er
+siden FULLT KONVERGERT inn i `RettskildeEntitet`/`RettskildeNodeEntitet` — nøyaktig samme
+"eksisterende tabell dekker det, ikke en ny"-utfall som allerede gjaldt Lag 1/2 i §2. Denne rundens
+funn: en nettside HAR ingen intern overskriftsstruktur verdt å modellere separat (Bergens 23 sider er
+korte tjenestesider) — "kun dokument-granularitet" (ingen `NettsideSeksjon`, kun ÉN
+`RettskildeNode` med `NodeType="side"` per side) gjelder derfor nå Brukerveiledning-DOCTYPEN
+spesifikt, IKKE en egen `NettsideDokument`-modell. §3.4s multi-sti-egenskap er reell og
+nettside-spesifikk og lever videre som `NettsideStiEntitet`, nå FK-et mot `rettskilder.Id` i stedet
+for en egen dokumenttabell. Se `BrukerveiledningImportTjeneste.cs` for gjennomføringen.
 
 ### 3.2 Kanttyper, og hva som er deterministisk
 
@@ -218,8 +226,8 @@ dekker nettsideinnsamling.
 |---|---|---|
 | `hjemlet_i` | HandbokNode → RettskildeNode | **Deterministisk** — regex på «jf.», «i medhold av», «§ x-y» + lovnavn |
 | `kryssrefererer` | HandbokNode → HandbokNode | **Deterministisk** — «punkt 4.7» løses mot `Eid` |
-| `lenker_til` | NettsideSeksjon → * | **Deterministisk** — `<a href>` |
-| `lovdatalenke` | NettsideSeksjon → RettskildeNode | **Deterministisk** — lovdata.no-URL-er parses til eId-kandidater |
+| `lenker_til` | RettskildeNode (side) → RettskildeEntitet *(var: NettsideSeksjon → \*)* | **Deterministisk** — `<a href>` |
+| `lovdatalenke` | RettskildeNode (side) → RettskildeEntitet *(var: NettsideSeksjon → RettskildeNode)* | **Deterministisk** — lovdata.no-URL-er parses til eId-kandidater, løses mot Eli |
 | `forvaltes_av` | Tjeneste → Organisasjonsenhet | **Deterministisk** — se 3.4 |
 | `versjon_av` | HandbokKilde → HandbokKilde | **Deterministisk** — `Dok.nr` + `Rev.nr` |
 | `presiserer` | HandbokNode → Vilkår | KI (klassifisering) |

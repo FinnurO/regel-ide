@@ -212,4 +212,32 @@ public class HandbokEndepunktTests
             $"/api/handboker/{handbokId}/kommentarer/{kommentar.Id}/publiser", brukerId, new PubliserKommentarRequest("Ola Fagansvarlig")));
         Assert.Equal(HttpStatusCode.NoContent, medGodkjennerSvar.StatusCode);
     }
+
+    /// <summary>
+    /// Punkt 6/9 (avklaringsrunde 2026-08-13) — den revers-koblingen som FØR kun fantes fra
+    /// tjeneste-siden (ReferertAvTjenesterAsync). En håndbok-kommentar som kobler en lovreferanse
+    /// skal nå være synlig FRA loven, via /api/rettskilder/{lovId}/referert-av-dokumenter.
+    /// </summary>
+    [Fact]
+    public async Task Referert_av_dokumenter_viser_handbok_som_kobler_lovreferanse()
+    {
+        var (handbokId, kapittelId, brukerId) = await OpprettHandbokMedKapittelAsync();
+        var kommentarSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/handboker/{handbokId}/kommentarer", brukerId,
+            new OpprettKommentarNodeRequest(kapittelId, "1.1", "Om vandel", "<p>Tekst</p>", "kommentar", "bestemmelse", null)));
+        var kommentar = await kommentarSvar.Content.ReadFromJsonAsync<RettskildeNodeDto>(JsonInnstillinger);
+
+        var alkoholoven = (await _client.GetFromJsonAsync<List<RettskildeSammendrag>>("/api/rettskilder", JsonInnstillinger))!
+            .Single(r => r.Eli == "https://lovdata.no/eli/lov/1989/06/02/27/nor");
+        var paragraf = (await _client.GetFromJsonAsync<List<RettskildeNodeDto>>($"/api/rettskilder/{alkoholoven.Id}/noder", JsonInnstillinger))!
+            .First(n => n.NodeType == "paragraf");
+
+        await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/handboker/{handbokId}/kommentarer/{kommentar!.Id}/lovreferanser", brukerId,
+            new KobleLovreferanseRequest(alkoholoven.Id, paragraf.Eid)));
+
+        var referertAv = await _client.GetFromJsonAsync<List<DokumentReferanseDto>>(
+            $"/api/rettskilder/{alkoholoven.Id}/referert-av-dokumenter", JsonInnstillinger);
+
+        Assert.NotNull(referertAv);
+        Assert.Contains(referertAv!, r => r.DokumentId == handbokId && r.FraNodeEid == kommentar.Eid && r.TilEid == paragraf.Eid);
+    }
 }

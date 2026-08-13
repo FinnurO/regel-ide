@@ -5,6 +5,61 @@
 2026-07-31-runden (Hendelse/Tjenesteavhengighet, kunnskapsbibliotek, editor, vilkår-referanser).
 Ment å oppdateres etter hver runde — ikke en engangs-plan.*
 
+## 0. UX/datamodell-gjennomgang 2026-08-13 (10 punkter fra skjermbilder, plan `squishy-squishing-hearth`)
+
+Etter at appen ble kjørt lokalt mot Bergen-korpuset (PR #30) ga Johann 10 konkrete tilbakemeldinger på
+faktiske skjermbilder. Bygget, i planens rekkefølge:
+
+1. **Eier vises overalt** — ny `useVirksomheter`-hook (`src/RegelIde.Web/src/virksomhet/`) slår opp
+   `virksomhetId` mot faktisk navn i `RettskilderListe`/`RettskildeDetalj`/`TjenesterListe`/
+   `BegreperListe` (badge/kolonne viser navn, aldri en rå GUID eller en generisk "Virksomhetseid"-badge).
+2. **Sortering + filter** på `RettskilderListe`/`TjenesterListe`/`BegreperListe` — klikkbare
+   kolonneoverskrifter (client-side, ingen ny avhengighet) + ett fritekstfilter, mønsteret gjentatt
+   (ikke abstrahert til en delt hook, bevisst, se filenes egne endringer).
+3. **Håndbok-rettskildeomfang som ekte tabell** (Tittel/Kildetype/Fjern) i stedet for komma-separerte
+   pills, i `RettskildeDetalj.tsx`.
+4. **Håndbok-metadata utvidet** — `InterntDokNr`/`Revisjonsnr`/`VedtattAv`/`Vedtaksdato`/`GyldigTil`/
+   `KonsolidertDato` er nå redigerbare via en ny redigeringsform i `RettskildeDetalj.tsx` (utvidet
+   `PATCH /api/rettskilder/{id}/metadata`). `Eli` er OG FORBLIR permanent skrivebeskyttet — aldri i
+   requesten, kun vist.
+5. **Menneskelesbar eId-visning** — ny `eidVisningstekst()` i `eidLenker.ts`
+   (`"{kortnavn} § {nummer} — {overskrift}"`, `undefined`/rå-eId-fallback når noden ikke er kjent —
+   ingen gjettet tekst), brukt i `TjenesteDetalj.tsx`s regelverksreferanser. **Gjenstående** (bevisst
+   utelatt, se §5 under): samme mønster i `BegrepDetalj.tsx`/`Egenskapspanel.tsx`/`TjenesteVeiledning.tsx`.
+6. **Revers-oppslag håndbok→lov** — ny `RettskildeRepository.ReferertAvAndreDokumenterAsync` +
+   `GET /api/rettskilder/{id}/referert-av-dokumenter`, sideordnet den eksisterende
+   tjeneste-varianten. Vist BÅDE som global liste og PER NODE i `RettskildeDetalj.tsx` (punkt 9).
+7. **Paragraf-picker på Tjeneste** — `TjenesteDetalj.tsx`s "Koble referanse" viser nå en `<Select>` av
+   den valgte rettskildens faktiske blad-noder (§ ikke kapittel-noder), fritekstfeltet består som
+   markert "avansert / manuell eId".
+8. **Brukerveiledning-konvergens (størst endring)** — `NettsideDokumentEntitet` er FJERNET.
+   En nettside er nå en ordinær `RettskildeEntitet` (`Kildetype="Brukerveiledning"`,
+   `Doctype="webside"`, `Importrolle="primaer"`), importert av ny `BrukerveiledningImportTjeneste.cs`
+   (sideordnet `HandbokImportTjeneste.cs`), med ÉN `RettskildeNode` (`NodeType="side"`) — ingen
+   oppfunnet seksjonsstruktur (§3.1 i `15-handbok-dokumentgraf-notat.md` er oppdatert). `/api/nettsider`
+   er fjernet; to nye, smalere endepunkter (`/api/rettskilder/{id}/stier`, `.../nettside-lenker`) dekker
+   det generiske `/api/rettskilder`-settet IKKE allerede fanger (§3.4-multi-sti, §3.2-lenker).
+   `NettsiderListe.tsx`/`NettsideDetalj.tsx` fjernet; `RettskildeDetalj.tsx` har en ny gren for
+   `kildetype === 'Brukerveiledning'` (Stier-badges + `RaaTekstMedLenker`, flyttet til
+   `src/rettskilde/`). **Avklart under implementasjon**: `NettsideLenkeEntitet` konvergerte IKKE inn i
+   `RettskildeReferanseEntitet` — feltene passer ikke uten friksjon (`TilEid` er påkrevd der, en
+   nettside-lenke har det ofte ikke; `RaaHref`/`AnkerTekst`/`TilEidKandidat` ville blitt alltid-NULL-
+   kolonner på en delt tabell). Den forble en egen, liten tabell, kun med FK-formen oppdatert
+   (`FraNettsideDokumentId` → `FraNodeId`; `TilNettsideDokumentId`+`TilRettskildeId` kollapset til
+   ÉN `TilRettskildeId`, siden alle lenkemål nå ER `RettskildeEntitet`-rader). Ny migrasjon
+   `KonvergerNettsideTilRettskilde`. Kjernebeviset fra forrige runde
+   (`NettsideDokumentgrafTests.Bundlingssiden_kobler_helt_frem…`) er bevart, oppdatert til den nye
+   modellen, ikke slettet.
+9. **Ingen duplikat lenkevisning** — løst naturlig av punkt 8: `RettskildeDetalj.tsx`s generiske
+   "Referanser"-seksjon viser nå BÅDE `RettskildeReferanseEntitet`- og (for Brukerveiledning)
+   `NettsideLenkeEntitet`-rader i SAMME liste, ikke to parallelle strukturerte tabeller.
+10. Se punkt 8 — nettside-detaljens tidligere dupliserte "LENKER:"-blokk finnes ikke mer (hele siden
+    som eide den er fjernet).
+
+**Bevisst utelatt/gjenstående denne runden**: `eidVisningstekst` er ikke rullet ut i
+`BegrepDetalj.tsx`/`Egenskapspanel.tsx`/`TjenesteVeiledning.tsx` (punkt 5, se over) — samme rå-eId-
+visning som før, ingen regresjon, bare ikke forbedret ennå.
+
 ## 1. Byggesteg-status
 
 | # | Byggesteg | Status |

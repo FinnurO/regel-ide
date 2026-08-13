@@ -3,7 +3,10 @@ import { Link as RouterLink, useParams, useSearchParams } from 'react-router';
 import { Button, Field, Heading, Label, Link, Paragraph, Select, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type {
+  DokumentReferanseDto,
   HandbokRettskildeomfangDto,
+  NettsideLenkeMedMalDto,
+  NettsideStiDto,
   RettskildeDetalj as RettskildeDetaljType,
   RettskildeNodeDto,
   RettskildeReferanseDto,
@@ -15,6 +18,10 @@ import { TagTekst, type Registry, type TagKindId, type TextTag } from '../taggin
 import { RettskildeTre, type RettskildeNode as TreNodeVm } from '../tre/RettskildeTre';
 import { KommentarRedigering } from '../handbok/KommentarRedigering';
 import { useKonfigurasjon } from '../konfigurasjon/KonfigurasjonContext';
+import { useVirksomheter } from '../virksomhet/useVirksomheter';
+import { RaaTekstMedLenker } from '../rettskilde/RaaTekstMedLenker';
+
+const STITYPE_FARGE: Record<string, 'info' | 'success'> = { tematisk: 'info', organisatorisk: 'success' };
 
 interface TreNode extends RettskildeNodeDto {
   barn: TreNode[];
@@ -72,6 +79,15 @@ export default function RettskildeDetalj() {
   const [activeKind, setActiveKind] = useState<string>('');
   const [selectedEid, setSelectedEid] = useState<string | undefined>(undefined);
   const [referertAvTjenester, setReferertAvTjenester] = useState<TjenesteReferanseDto[]>([]);
+  // Punkt 6/9 (avklaringsrunde 2026-08-13) — motsatt retning av Referanser under, men fra ANDRE
+  // dokumenters (håndbok/rundskriv) noder, ikke fra en Tjeneste.
+  const [referertAvDokumenter, setReferertAvDokumenter] = useState<DokumentReferanseDto[]>([]);
+
+  // Punkt 8 — kun ikke-tomme for kildetype='Brukerveiledning' (§3.4/§3.2). Trygt å hente for ALLE
+  // doctyper (serveren returnerer tom liste for enhver annen), samme "safe empty"-mønster som
+  // referertAvTjenester/-Dokumenter over.
+  const [nettsideStier, setNettsideStier] = useState<NettsideStiDto[]>([]);
+  const [nettsideLenker, setNettsideLenker] = useState<NettsideLenkeMedMalDto[]>([]);
   const [filter, setFilter] = useState('');
   const [visAknXml, setVisAknXml] = useState(false);
   const [feil, setFeil] = useState<string | null>(null);
@@ -110,6 +126,62 @@ export default function RettskildeDetalj() {
   const [leggerTilOmfang, setLeggerTilOmfang] = useState(false);
   const [omfangFeil, setOmfangFeil] = useState<string | null>(null);
 
+  const { visEier } = useVirksomheter();
+
+  // Metadata-redigering (2026-08-13, avklaringsrunde punkt 3) — Eli forblir ALLTID skrivebeskyttet
+  // (kun vist, aldri i dette skjemaet); de seks andre feltene fantes allerede på entiteten, men var
+  // ikke skrivbare noe sted i UI-et før nå.
+  const [redigererMetadata, setRedigererMetadata] = useState(false);
+  const [metaKortnavn, setMetaKortnavn] = useState('');
+  const [metaUtgiver, setMetaUtgiver] = useState('');
+  const [metaInterntDokNr, setMetaInterntDokNr] = useState('');
+  const [metaRevisjonsnr, setMetaRevisjonsnr] = useState('');
+  const [metaVedtattAv, setMetaVedtattAv] = useState('');
+  const [metaVedtaksdato, setMetaVedtaksdato] = useState('');
+  const [metaGyldigTil, setMetaGyldigTil] = useState('');
+  const [metaKonsolidertDato, setMetaKonsolidertDato] = useState('');
+  const [lagrerMetadata, setLagrerMetadata] = useState(false);
+  const [metadataFeil, setMetadataFeil] = useState<string | null>(null);
+
+  function startRedigerMetadata() {
+    if (!detalj) return;
+    setMetaKortnavn(detalj.kortnavn ?? '');
+    setMetaUtgiver(detalj.utgiver ?? '');
+    setMetaInterntDokNr(detalj.interntDokNr ?? '');
+    setMetaRevisjonsnr(detalj.revisjonsnr ?? '');
+    setMetaVedtattAv(detalj.vedtattAv ?? '');
+    setMetaVedtaksdato(detalj.vedtaksdato ?? '');
+    setMetaGyldigTil(detalj.gyldigTil ?? '');
+    setMetaKonsolidertDato(detalj.konsolidertDato ?? '');
+    setMetadataFeil(null);
+    setRedigererMetadata(true);
+  }
+
+  async function lagreMetadata(e: FormEvent) {
+    e.preventDefault();
+    if (!id) return;
+    setMetadataFeil(null);
+    setLagrerMetadata(true);
+    try {
+      const oppdatert = await api.oppdaterRettskildeMetadata(id, {
+        kortnavn: metaKortnavn.trim() || null,
+        utgiver: metaUtgiver.trim() || null,
+        interntDokNr: metaInterntDokNr.trim() || null,
+        revisjonsnr: metaRevisjonsnr.trim() || null,
+        vedtattAv: metaVedtattAv.trim() || null,
+        vedtaksdato: metaVedtaksdato || null,
+        gyldigTil: metaGyldigTil || null,
+        konsolidertDato: metaKonsolidertDato || null,
+      });
+      setDetalj(oppdatert);
+      setRedigererMetadata(false);
+    } catch (err) {
+      setMetadataFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved lagring av metadata.');
+    } finally {
+      setLagrerMetadata(false);
+    }
+  }
+
   useEffect(() => {
     if (!activeKind && taggKinds.length > 0) setActiveKind(taggKinds[0].id);
   }, [taggKinds, activeKind]);
@@ -128,7 +200,10 @@ export default function RettskildeDetalj() {
       })
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av rettskilden.'));
     api.hentReferertAvTjenester(id).then(setReferertAvTjenester).catch(() => setReferertAvTjenester([]));
+    api.hentReferertAvDokumenter(id).then(setReferertAvDokumenter).catch(() => setReferertAvDokumenter([]));
     api.hentReferanser(id).then(setReferanser).catch(() => setReferanser([]));
+    api.hentRettskildeStier(id).then(setNettsideStier).catch(() => setNettsideStier([]));
+    api.hentRettskildeNettsideLenker(id).then(setNettsideLenker).catch(() => setNettsideLenker([]));
     api.hentHandbokRettskildeomfang(id).then(setRettskildeomfang).catch(() => setRettskildeomfang([]));
   }, [id]);
 
@@ -336,6 +411,22 @@ export default function RettskildeDetalj() {
     [referanser, valgtNode],
   );
 
+  /** eId-prefiksmatch — en referanse til f.eks. "…/§4-1/ledd-2" skal fortsatt vises på §4-1-noden. */
+  function eidMatcherNode(tilEid: string, nodeEid: string): boolean {
+    return tilEid === nodeEid || tilEid.startsWith(`${nodeEid}/`);
+  }
+
+  // Punkt 6/9 — samme "referert av"-koblinger som de globale listene lenger opp, men filtrert til
+  // NØYAKTIG den valgte noden, slik at de vises rett ved siden av teksten de faktisk peker på.
+  const referertAvTjenesterForNode = useMemo(
+    () => (valgtNode ? referertAvTjenester.filter((r) => eidMatcherNode(r.tilEid, valgtNode.eid)) : []),
+    [referertAvTjenester, valgtNode],
+  );
+  const referertAvDokumenterForNode = useMemo(
+    () => (valgtNode ? referertAvDokumenter.filter((r) => eidMatcherNode(r.tilEid, valgtNode.eid)) : []),
+    [referertAvDokumenter, valgtNode],
+  );
+
   async function handleTag(
     nodeEid: string,
     nodeTekst: string,
@@ -423,30 +514,74 @@ export default function RettskildeDetalj() {
       <div style={{ display: 'flex', gap: '0.5rem', margin: '0.5rem 0 1rem', flexWrap: 'wrap' }}>
         <Tag data-color="info">{detalj.kildetype}</Tag>
         <Tag data-color={detalj.status === 'Gjeldende' ? 'success' : 'warning'}>{detalj.status}</Tag>
-        {detalj.virksomhetId ? (
-          <span className="badge-virksomhet">Virksomhetseid</span>
-        ) : (
-          <span className="badge-delt">Delt / nasjonal</span>
-        )}
+        <Tag data-color={detalj.virksomhetId ? 'success' : 'info'}>{visEier(detalj.virksomhetId)}</Tag>
       </div>
+
+      {detalj.kildetype === 'Brukerveiledning' && (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <Heading level={2} data-size="sm" style={{ marginBottom: '0.5rem' }}>
+            Navigasjonsstier
+          </Heading>
+          {detalj.url && (
+            <Paragraph style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)', marginBottom: '0.5rem' }}>
+              <Link href={detalj.url} target="_blank" rel="noopener noreferrer">{detalj.url}</Link>
+            </Paragraph>
+          )}
+          {nettsideStier.length === 0 ? (
+            <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
+              Ingen kjent navigasjonssti for denne siden.
+            </Paragraph>
+          ) : (
+            <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+              {nettsideStier.map((s, i) => (
+                <span key={i} style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
+                  <Tag data-color={STITYPE_FARGE[s.stiType] ?? 'neutral'} data-size="sm">{s.stiType}</Tag>
+                  <span style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>{s.sti}</span>
+                </span>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {detalj.doctype === 'doc' && (
         <div style={{ marginBottom: '1.5rem' }}>
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.3rem' }}>
-            Denne håndboken omhandler:{' '}
-            {rettskildeomfang.length === 0 && <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>(ingen rettskilder deklarert ennå)</span>}
-            {rettskildeomfang.map((o, i) => {
-              const rk = alleRettskilder.find((r) => r.id === o.tilRettskildeId);
-              return (
-                <span key={o.id}>
-                  {i > 0 && ', '}
-                  <Link asChild><RouterLink to={`/rettskilder/${o.tilRettskildeId}`}>{rk?.tittel ?? o.tilRettskildeId}</RouterLink></Link>
-                  {' '}
-                  <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernOmfang(o.id)}>Fjern</Button>
-                </span>
-              );
-            })}
-          </Paragraph>
+          <Heading level={2} data-size="sm" style={{ marginBottom: '0.5rem' }}>
+            Denne håndboken omhandler
+          </Heading>
+          {rettskildeomfang.length === 0 ? (
+            <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
+              Ingen rettskilder deklarert ennå.
+            </Paragraph>
+          ) : (
+            <Table border style={{ marginBottom: '0.75rem' }}>
+              <Table.Head>
+                <Table.Row>
+                  <Table.HeaderCell>Tittel</Table.HeaderCell>
+                  <Table.HeaderCell>Kildetype</Table.HeaderCell>
+                  <Table.HeaderCell></Table.HeaderCell>
+                </Table.Row>
+              </Table.Head>
+              <Table.Body>
+                {rettskildeomfang.map((o) => {
+                  const rk = alleRettskilder.find((r) => r.id === o.tilRettskildeId);
+                  return (
+                    <Table.Row key={o.id}>
+                      <Table.Cell>
+                        <Link asChild>
+                          <RouterLink to={`/rettskilder/${o.tilRettskildeId}`}>{rk?.kortnavn ?? rk?.tittel ?? o.tilRettskildeId}</RouterLink>
+                        </Link>
+                      </Table.Cell>
+                      <Table.Cell>{rk?.kildetype ?? '—'}</Table.Cell>
+                      <Table.Cell>
+                        <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernOmfang(o.id)}>Fjern</Button>
+                      </Table.Cell>
+                    </Table.Row>
+                  );
+                })}
+              </Table.Body>
+            </Table>
+          )}
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
             <Field>
               <Label>Legg til rettskilde</Label>
@@ -464,26 +599,86 @@ export default function RettskildeDetalj() {
         </div>
       )}
 
-      <Table style={{ marginBottom: '1.5rem' }}>
-        <Table.Body>
-          <Table.Row>
-            <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>ELI</Table.Cell>
-            <Table.Cell>{detalj.eli ?? '—'}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Kortnavn</Table.Cell>
-            <Table.Cell>{detalj.kortnavn ?? '—'}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Konsolidert dato</Table.Cell>
-            <Table.Cell>{detalj.konsolidertDato ?? '—'}</Table.Cell>
-          </Table.Row>
-          <Table.Row>
-            <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Utgiver</Table.Cell>
-            <Table.Cell>{detalj.utgiver ?? '—'}</Table.Cell>
-          </Table.Row>
-        </Table.Body>
-      </Table>
+      <div style={{ marginBottom: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <Heading level={2} data-size="sm" style={{ marginBottom: '0.5rem' }}>
+            Metadata
+          </Heading>
+          {!redigererMetadata && (
+            <Button data-size="sm" variant="tertiary" onClick={startRedigerMetadata}>Rediger</Button>
+          )}
+        </div>
+
+        {!redigererMetadata ? (
+          <Table>
+            <Table.Body>
+              <Table.Row>
+                <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>ELI</Table.Cell>
+                <Table.Cell>{detalj.eli ?? '—'}</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Kortnavn</Table.Cell>
+                <Table.Cell>{detalj.kortnavn ?? '—'}</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Konsolidert dato</Table.Cell>
+                <Table.Cell>{detalj.konsolidertDato ?? '—'}</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Utgiver</Table.Cell>
+                <Table.Cell>{detalj.utgiver ?? '—'}</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Internt dok.nr</Table.Cell>
+                <Table.Cell>{detalj.interntDokNr ?? '—'}</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Revisjonsnr</Table.Cell>
+                <Table.Cell>{detalj.revisjonsnr ?? '—'}</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Vedtatt av</Table.Cell>
+                <Table.Cell>{detalj.vedtattAv ?? '—'}</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Vedtaksdato</Table.Cell>
+                <Table.Cell>{detalj.vedtaksdato ?? '—'}</Table.Cell>
+              </Table.Row>
+              <Table.Row>
+                <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Gyldig til</Table.Cell>
+                <Table.Cell>{detalj.gyldigTil ?? '—'}</Table.Cell>
+              </Table.Row>
+            </Table.Body>
+          </Table>
+        ) : (
+          <form onSubmit={lagreMetadata} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '40rem' }}>
+            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', margin: 0 }}>
+              ELI ({detalj.eli ?? '—'}) er permanent skrivebeskyttet og kan ikke redigeres her.
+            </Paragraph>
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <Textfield data-size="sm" label="Kortnavn" value={metaKortnavn} onChange={(e) => setMetaKortnavn(e.target.value)} style={{ flex: 1, minWidth: '12rem' }} />
+              <Textfield data-size="sm" label="Utgiver" value={metaUtgiver} onChange={(e) => setMetaUtgiver(e.target.value)} style={{ flex: 1, minWidth: '12rem' }} />
+            </div>
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <Textfield data-size="sm" label="Internt dok.nr" value={metaInterntDokNr} onChange={(e) => setMetaInterntDokNr(e.target.value)} style={{ flex: 1, minWidth: '12rem' }} />
+              <Textfield data-size="sm" label="Revisjonsnr" value={metaRevisjonsnr} onChange={(e) => setMetaRevisjonsnr(e.target.value)} style={{ flex: 1, minWidth: '12rem' }} />
+            </div>
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <Textfield data-size="sm" label="Vedtatt av" value={metaVedtattAv} onChange={(e) => setMetaVedtattAv(e.target.value)} style={{ flex: 1, minWidth: '12rem' }} />
+              <Textfield data-size="sm" type="date" label="Vedtaksdato" value={metaVedtaksdato} onChange={(e) => setMetaVedtaksdato(e.target.value)} style={{ flex: 1, minWidth: '12rem' }} />
+            </div>
+            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+              <Textfield data-size="sm" type="date" label="Gyldig til" value={metaGyldigTil} onChange={(e) => setMetaGyldigTil(e.target.value)} style={{ flex: 1, minWidth: '12rem' }} />
+              <Textfield data-size="sm" type="date" label="Konsolidert dato" value={metaKonsolidertDato} onChange={(e) => setMetaKonsolidertDato(e.target.value)} style={{ flex: 1, minWidth: '12rem' }} />
+            </div>
+            {metadataFeil && <div className="feilmelding">{metadataFeil}</div>}
+            <div style={{ display: 'flex', gap: '0.5rem' }}>
+              <Button data-size="sm" type="submit" disabled={lagrerMetadata}>{lagrerMetadata ? 'Lagrer …' : 'Lagre'}</Button>
+              <Button data-size="sm" variant="tertiary" onClick={() => setRedigererMetadata(false)}>Avbryt</Button>
+            </div>
+          </form>
+        )}
+      </div>
 
       {referertAvTjenester.length > 0 && (
         <div style={{ marginBottom: '1.5rem' }}>
@@ -505,6 +700,43 @@ export default function RettskildeDetalj() {
                 </Link>
                 <div style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
                   {eIder.join(', ')}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {referertAvDokumenter.length > 0 && (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <Heading level={2} data-size="sm" style={{ marginBottom: '0.5rem' }}>
+            Referert fra håndbøker/andre dokumenter
+          </Heading>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {Array.from(
+              referertAvDokumenter.reduce((kart, r) => {
+                const liste = kart.get(r.dokumentId) ?? { tittel: r.dokumentTittel, rader: [] as DokumentReferanseDto[] };
+                liste.rader.push(r);
+                kart.set(r.dokumentId, liste);
+                return kart;
+              }, new Map<string, { tittel: string; rader: DokumentReferanseDto[] }>()),
+            ).map(([dokumentId, { tittel, rader }]) => (
+              <div key={dokumentId}>
+                <Link asChild>
+                  <RouterLink to={`/rettskilder/${dokumentId}`}>{tittel}</RouterLink>
+                </Link>
+                <div style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                  {rader.map((r, i) => (
+                    <span key={r.tilEid + i}>
+                      {i > 0 && ', '}
+                      <Link asChild>
+                        <RouterLink to={`/rettskilder/${dokumentId}?eid=${encodeURIComponent(r.fraNodeEid)}`}>
+                          {r.fraNodeOverskrift ?? r.fraNodeEid}
+                        </RouterLink>
+                      </Link>
+                      {' → '}{r.tilEid}
+                    </span>
+                  ))}
                 </div>
               </div>
             ))}
@@ -605,6 +837,14 @@ export default function RettskildeDetalj() {
                     onAvbryt={() => setVisOpprettKommentar(false)}
                   />
                 )
+              ) : detalj.kildetype === 'Brukerveiledning' ? (
+                valgtNode.tekst ? (
+                  <div style={{ maxWidth: '60rem' }}>
+                    <RaaTekstMedLenker raaTekst={valgtNode.tekst} lenker={nettsideLenker} />
+                  </div>
+                ) : (
+                  <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Ingen tekst hentet for denne siden.</Paragraph>
+                )
               ) : kanTagges ? (
                 <>
                   <TagTekst
@@ -671,6 +911,32 @@ export default function RettskildeDetalj() {
                 </Paragraph>
               )}
 
+              {(referertAvTjenesterForNode.length > 0 || referertAvDokumenterForNode.length > 0) && (
+                <div style={{ marginTop: '1rem', padding: '0.75rem', borderRadius: 'var(--ds-border-radius-default)', background: 'var(--ds-color-info-surface-tinted)' }}>
+                  <Heading level={4} data-size="2xs" style={{ marginBottom: '0.4rem' }}>
+                    Referert fra (punkt 6/9 — koblingen til denne noden, sett fra den andre siden)
+                  </Heading>
+                  <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.3rem', fontSize: 'var(--ds-font-size-1)' }}>
+                    {referertAvTjenesterForNode.map((r, i) => (
+                      <li key={`t-${r.tjenesteId}-${i}`}>
+                        <Link asChild><RouterLink to={`/tjenester/${r.tjenesteId}`}>{r.tjenesteTittel}</RouterLink></Link>
+                        <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}> (tjeneste, {r.tilEid})</span>
+                      </li>
+                    ))}
+                    {referertAvDokumenterForNode.map((r, i) => (
+                      <li key={`d-${r.dokumentId}-${i}`}>
+                        <Link asChild>
+                          <RouterLink to={`/rettskilder/${r.dokumentId}?eid=${encodeURIComponent(r.fraNodeEid)}`}>
+                            {r.dokumentTittel}{r.fraNodeOverskrift ? ` — ${r.fraNodeOverskrift}` : ''}
+                          </RouterLink>
+                        </Link>
+                        <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}> ({r.tilEid})</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
               <div style={{ marginTop: '1.5rem', paddingTop: '1rem', borderTop: '1px solid var(--ds-color-neutral-border-subtle)' }}>
                 <Heading level={3} data-size="xs" style={{ marginBottom: '0.5rem' }}>
                   Referanser
@@ -678,7 +944,12 @@ export default function RettskildeDetalj() {
                 {referanseFeil && <div className="feilmelding" style={{ marginBottom: '0.5rem' }}>{referanseFeil}</div>}
                 {(() => {
                   const nodeReferanser = referanser.filter((r) => r.fraNodeId === valgtNode.id);
-                  if (nodeReferanser.length === 0) {
+                  // Punkt 9/10 — for Brukerveiledning vises de AUTOMATISK utledede §3.2-lenkene i
+                  // SAMME liste som de generelle referansene, i stedet for en egen, duplikat
+                  // strukturert lenke-tabell ved siden av (NettsideDetalj.tsx sin gamle "LENKER:"-
+                  // blokk finnes ikke mer — dette ER den ene erstatningsvisningen for ALLE doctyper).
+                  const nettsideLenkerForNode = detalj.kildetype === 'Brukerveiledning' ? nettsideLenker : [];
+                  if (nodeReferanser.length === 0 && nettsideLenkerForNode.length === 0) {
                     return <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>Ingen referanser fra denne noden.</Paragraph>;
                   }
                   return (
@@ -693,6 +964,19 @@ export default function RettskildeDetalj() {
                           ) : (
                             <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernReferanse(r.id)}>Fjern</Button>
                           )}
+                        </li>
+                      ))}
+                      {nettsideLenkerForNode.map((l) => (
+                        <li key={l.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--ds-font-size-1)' }}>
+                          <Tag data-color={l.type === 'lovdatalenke' ? 'warning' : 'neutral'} data-size="sm">{l.type}</Tag>
+                          {l.tilRettskildeId ? (
+                            <Link asChild>
+                              <RouterLink to={`/rettskilder/${l.tilRettskildeId}`}>{l.tilRettskildeTittel ?? l.tilRettskildeEli}</RouterLink>
+                            </Link>
+                          ) : (
+                            <Link href={l.raaHref} target="_blank" rel="noopener noreferrer">{l.ankerTekst ?? l.raaHref}</Link>
+                          )}
+                          <Tag data-color="neutral" data-size="sm">fra kilden</Tag>
                         </li>
                       ))}
                     </ul>
