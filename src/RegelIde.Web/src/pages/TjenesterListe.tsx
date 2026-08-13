@@ -1,8 +1,11 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router';
 import { Button, Heading, Link, Paragraph, Table, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { TjenesteDto } from '../api/types';
+import { useVirksomheter } from '../virksomhet/useVirksomheter';
+
+type Sorteringskolonne = 'tittel' | 'tjenestetype' | 'status' | 'eier';
 
 export default function TjenesterListe() {
   const navigate = useNavigate();
@@ -11,6 +14,10 @@ export default function TjenesterListe() {
   const [nyTittel, setNyTittel] = useState('');
   const [oppretterFeil, setOppretterFeil] = useState<string | null>(null);
   const [oppretter, setOppretter] = useState(false);
+  const [filterTekst, setFilterTekst] = useState('');
+  const [sortKolonne, setSortKolonne] = useState<Sorteringskolonne>('tittel');
+  const [sortStigende, setSortStigende] = useState(true);
+  const { visEier } = useVirksomheter();
 
   useEffect(() => {
     api
@@ -37,6 +44,47 @@ export default function TjenesterListe() {
     }
   }
 
+  function bytteSortering(kolonne: Sorteringskolonne) {
+    if (sortKolonne === kolonne) setSortStigende((s) => !s);
+    else {
+      setSortKolonne(kolonne);
+      setSortStigende(true);
+    }
+  }
+
+  const viste = useMemo(() => {
+    if (!tjenester) return null;
+    const tekst = filterTekst.trim().toLowerCase();
+    const filtrert = tekst
+      ? tjenester.filter(
+          (t) =>
+            t.tittel.toLowerCase().includes(tekst) ||
+            (t.tjenestetype?.toLowerCase().includes(tekst) ?? false) ||
+            t.status.toLowerCase().includes(tekst) ||
+            visEier(t.virksomhetId).toLowerCase().includes(tekst),
+        )
+      : tjenester;
+
+    const sortnokkel = (t: TjenesteDto) =>
+      sortKolonne === 'tittel'
+        ? t.tittel
+        : sortKolonne === 'tjenestetype'
+          ? (t.tjenestetype ?? '')
+          : sortKolonne === 'status'
+            ? t.status
+            : visEier(t.virksomhetId);
+
+    return [...filtrert].sort((a, b) => {
+      const cmp = sortnokkel(a).localeCompare(sortnokkel(b), 'nb');
+      return sortStigende ? cmp : -cmp;
+    });
+  }, [tjenester, filterTekst, sortKolonne, sortStigende, visEier]);
+
+  function sorteringsindikator(kolonne: Sorteringskolonne) {
+    if (sortKolonne !== kolonne) return '';
+    return sortStigende ? ' ▲' : ' ▼';
+  }
+
   return (
     <>
       <Heading level={1} data-size="lg">
@@ -55,21 +103,46 @@ export default function TjenesterListe() {
       </form>
       {oppretterFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{oppretterFeil}</div>}
 
+      <Textfield
+        label="Filtrer"
+        placeholder="Tittel, tjenestetype, status eller eier"
+        value={filterTekst}
+        onChange={(e) => setFilterTekst(e.target.value)}
+        style={{ maxWidth: '20rem', marginBottom: '1rem' }}
+      />
+
       {feil && <div className="feilmelding">{feil}</div>}
       {!tjenester && !feil && <Paragraph>Laster …</Paragraph>}
-      {tjenester && tjenester.length === 0 && <Paragraph>Ingen tjenester funnet.</Paragraph>}
+      {viste && viste.length === 0 && <Paragraph>Ingen tjenester funnet.</Paragraph>}
 
-      {tjenester && tjenester.length > 0 && (
+      {viste && viste.length > 0 && (
         <Table border>
           <Table.Head>
             <Table.Row>
-              <Table.HeaderCell>Tittel</Table.HeaderCell>
-              <Table.HeaderCell>Tjenestetype</Table.HeaderCell>
-              <Table.HeaderCell>Status</Table.HeaderCell>
+              <Table.HeaderCell>
+                <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('tittel')}>
+                  Tittel{sorteringsindikator('tittel')}
+                </button>
+              </Table.HeaderCell>
+              <Table.HeaderCell>
+                <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('tjenestetype')}>
+                  Tjenestetype{sorteringsindikator('tjenestetype')}
+                </button>
+              </Table.HeaderCell>
+              <Table.HeaderCell>
+                <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('status')}>
+                  Status{sorteringsindikator('status')}
+                </button>
+              </Table.HeaderCell>
+              <Table.HeaderCell>
+                <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('eier')}>
+                  Eier{sorteringsindikator('eier')}
+                </button>
+              </Table.HeaderCell>
             </Table.Row>
           </Table.Head>
           <Table.Body>
-            {tjenester.map((t) => (
+            {viste.map((t) => (
               <Table.Row key={t.id}>
                 <Table.Cell>
                   <Link asChild>
@@ -78,6 +151,7 @@ export default function TjenesterListe() {
                 </Table.Cell>
                 <Table.Cell>{t.tjenestetype ?? '—'}</Table.Cell>
                 <Table.Cell>{t.status}</Table.Cell>
+                <Table.Cell>{visEier(t.virksomhetId)}</Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>

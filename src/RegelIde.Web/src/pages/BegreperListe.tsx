@@ -1,8 +1,11 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router';
 import { Button, Field, Heading, Label, Link, Paragraph, Select, Table, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { BegrepDto } from '../api/types';
+import { useVirksomheter } from '../virksomhet/useVirksomheter';
+
+type Sorteringskolonne = 'term' | 'begrepstype' | 'status' | 'eier';
 
 export default function BegreperListe() {
   const navigate = useNavigate();
@@ -12,6 +15,10 @@ export default function BegreperListe() {
   const [nyBegrepstype, setNyBegrepstype] = useState('faktabegrep');
   const [oppretterFeil, setOppretterFeil] = useState<string | null>(null);
   const [oppretter, setOppretter] = useState(false);
+  const [filterTekst, setFilterTekst] = useState('');
+  const [sortKolonne, setSortKolonne] = useState<Sorteringskolonne>('term');
+  const [sortStigende, setSortStigende] = useState(true);
+  const { visEier } = useVirksomheter();
 
   useEffect(() => {
     api
@@ -35,6 +42,47 @@ export default function BegreperListe() {
     } finally {
       setOppretter(false);
     }
+  }
+
+  function bytteSortering(kolonne: Sorteringskolonne) {
+    if (sortKolonne === kolonne) setSortStigende((s) => !s);
+    else {
+      setSortKolonne(kolonne);
+      setSortStigende(true);
+    }
+  }
+
+  const viste = useMemo(() => {
+    if (!begreper) return null;
+    const tekst = filterTekst.trim().toLowerCase();
+    const filtrert = tekst
+      ? begreper.filter(
+          (b) =>
+            b.term.toLowerCase().includes(tekst) ||
+            b.begrepstype.toLowerCase().includes(tekst) ||
+            b.status.toLowerCase().includes(tekst) ||
+            visEier(b.virksomhetId).toLowerCase().includes(tekst),
+        )
+      : begreper;
+
+    const sortnokkel = (b: BegrepDto) =>
+      sortKolonne === 'term'
+        ? b.term
+        : sortKolonne === 'begrepstype'
+          ? b.begrepstype
+          : sortKolonne === 'status'
+            ? b.status
+            : visEier(b.virksomhetId);
+
+    return [...filtrert].sort((a, b) => {
+      const cmp = sortnokkel(a).localeCompare(sortnokkel(b), 'nb');
+      return sortStigende ? cmp : -cmp;
+    });
+  }, [begreper, filterTekst, sortKolonne, sortStigende, visEier]);
+
+  function sorteringsindikator(kolonne: Sorteringskolonne) {
+    if (sortKolonne !== kolonne) return '';
+    return sortStigende ? ' ▲' : ' ▼';
   }
 
   return (
@@ -62,22 +110,47 @@ export default function BegreperListe() {
       </form>
       {oppretterFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{oppretterFeil}</div>}
 
+      <Textfield
+        label="Filtrer"
+        placeholder="Term, begrepstype, status eller eier"
+        value={filterTekst}
+        onChange={(e) => setFilterTekst(e.target.value)}
+        style={{ maxWidth: '20rem', marginBottom: '1rem' }}
+      />
+
       {feil && <div className="feilmelding">{feil}</div>}
       {!begreper && !feil && <Paragraph>Laster …</Paragraph>}
-      {begreper && begreper.length === 0 && <Paragraph>Ingen begreper funnet.</Paragraph>}
+      {viste && viste.length === 0 && <Paragraph>Ingen begreper funnet.</Paragraph>}
 
-      {begreper && begreper.length > 0 && (
+      {viste && viste.length > 0 && (
         <Table border>
           <Table.Head>
             <Table.Row>
-              <Table.HeaderCell>Term</Table.HeaderCell>
-              <Table.HeaderCell>Begrepstype</Table.HeaderCell>
+              <Table.HeaderCell>
+                <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('term')}>
+                  Term{sorteringsindikator('term')}
+                </button>
+              </Table.HeaderCell>
+              <Table.HeaderCell>
+                <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('begrepstype')}>
+                  Begrepstype{sorteringsindikator('begrepstype')}
+                </button>
+              </Table.HeaderCell>
               <Table.HeaderCell>Lovreferanse</Table.HeaderCell>
-              <Table.HeaderCell>Status</Table.HeaderCell>
+              <Table.HeaderCell>
+                <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('status')}>
+                  Status{sorteringsindikator('status')}
+                </button>
+              </Table.HeaderCell>
+              <Table.HeaderCell>
+                <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('eier')}>
+                  Eier{sorteringsindikator('eier')}
+                </button>
+              </Table.HeaderCell>
             </Table.Row>
           </Table.Head>
           <Table.Body>
-            {begreper.map((b) => (
+            {viste.map((b) => (
               <Table.Row key={b.id}>
                 <Table.Cell>
                   <Link asChild>
@@ -87,6 +160,7 @@ export default function BegreperListe() {
                 <Table.Cell>{b.begrepstype}</Table.Cell>
                 <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{b.lovreferanseEid ?? '—'}</Table.Cell>
                 <Table.Cell>{b.status}</Table.Cell>
+                <Table.Cell>{visEier(b.virksomhetId)}</Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>
