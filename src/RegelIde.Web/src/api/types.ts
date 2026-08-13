@@ -229,6 +229,52 @@ export interface HandbokRettskildeomfangDto {
   tilRettskildeId: string;
 }
 
+// ---------- Nettsider (docs/15-handbok-dokumentgraf-notat.md §3.1/§3.2/§3.4) ----------
+
+/** Listevisning — GET /api/nettsider. stiTyper er de DISTINKTE StiType-verdiene, ikke selve stiene. */
+export interface NettsideSammendragDto {
+  id: string;
+  kanoniskUrl: string;
+  tittel: string | null;
+  hentet: string | null;
+  stiTyper: string[];
+}
+
+export interface NettsideStiDto {
+  sti: string;
+  stiType: string;
+}
+
+/**
+ * Én utgående lenke, oppløsningsstatus flatet ut som nullbare felt: enten er
+ * til Nettside-feltene satt (intern lenke til en annen NettsideDokument), ELLER til
+ * Rettskilde-feltene satt (lovdatalenke/PDF-omtale løst til en importert rettskilde),
+ * ELLER ingen av dem (uløst — ekstern lenke, eller et ikke-håndtert Lovdata-URL-format).
+ */
+export interface NettsideLenkeDto {
+  id: string;
+  type: string;
+  raaHref: string;
+  ankerTekst: string | null;
+  tilNettsideDokumentId: string | null;
+  tilNettsideDokumentTittel: string | null;
+  tilNettsideDokumentKanoniskUrl: string | null;
+  tilRettskildeId: string | null;
+  tilRettskildeTittel: string | null;
+  tilRettskildeEli: string | null;
+}
+
+export interface NettsideDetaljDto {
+  id: string;
+  virksomhetId: string | null;
+  kanoniskUrl: string;
+  tittel: string | null;
+  raaTekst: string | null;
+  hentet: string | null;
+  stier: NettsideStiDto[];
+  lenker: NettsideLenkeDto[];
+}
+
 export interface KobleRegelverksreferanseRequest {
   tilRettskildeId: string;
   tilEid: string;

@@ -403,6 +403,13 @@ export default function RettskildeDetalj() {
   if (!detalj) return <Paragraph>Laster …</Paragraph>;
 
   const kanTagges = valgtNode && valgtNode.tekst && (valgtNode.nodeType === 'ledd' || valgtNode.nodeType === 'punkt');
+  // Håndbok-/nettside-importerte "kapittel"-noder (HandbokImportTjeneste) kan ha EGEN løpetekst
+  // direkte på kapittel-nivå (se HandbokNode.Tekst-kommentaren: "Kapittel 6/7/9/10 har HELE sin
+  // tekst direkte på kapittel-nivå") — uten dette ville teksten vært usynlig i UI-et, ikke bare
+  // ikke-taggbar, siden `kanTagges` bevisst er begrenset til ledd/punkt (den eneste tidligere
+  // observerte bladnode-formen). Vises derfor som ren, ikke-taggbar tekst i stedet for feilaktig
+  // "ingen egen løpetekst".
+  const harIkkeTaggbarTekst = valgtNode && valgtNode.tekst && !kanTagges;
 
   return (
     <>
@@ -656,6 +663,8 @@ export default function RettskildeDetalj() {
                     </form>
                   )}
                 </>
+              ) : harIkkeTaggbarTekst ? (
+                <Paragraph style={{ whiteSpace: 'pre-wrap' }}>{valgtNode.tekst}</Paragraph>
               ) : (
                 <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
                   Denne noden har ingen egen løpetekst — velg et ledd eller punkt under den for å tagge.
