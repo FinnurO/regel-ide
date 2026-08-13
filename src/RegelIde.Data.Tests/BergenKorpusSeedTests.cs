@@ -45,6 +45,8 @@ public class BergenKorpusSeedTests
         var bergen = await db.Virksomheter.SingleAsync(v => v.Navn == "Bergen kommune");
         Assert.Equal("4601", bergen.Kommunenummer);
         Assert.Equal("kommune", bergen.Forvaltningsniva);
+        // Organisasjonsnummer er den STABILE nøkkelen (docs/15 §3.3, LÅST) — må ikke være null.
+        Assert.Equal("964338531", bergen.Organisasjonsnummer);
 
         // Alkoholloven/alkoholforskriften — delt/nasjonalt (VirksomhetId=null), se BergenKorpusSeed-kommentaren.
         var alkoholloven = await db.Rettskilder.SingleAsync(r => r.Eli == "https://lovdata.no/eli/lov/1989/06/02/27/nor");
