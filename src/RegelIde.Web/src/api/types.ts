@@ -22,6 +22,14 @@ export interface RettskildeDetalj {
   utgiver: string | null;
   status: string;
   aknXml: string | null;
+  /** ELI (over) er ALLTID skrivebeskyttet — disse fem er derimot redigerbare via oppdaterRettskildeMetadata. */
+  interntDokNr: string | null;
+  revisjonsnr: string | null;
+  vedtattAv: string | null;
+  vedtaksdato: string | null;
+  gyldigTil: string | null;
+  /** Kildens opprinnelige URL — satt for Brukerveiledning (den hentede nettsidens URL) og noen håndbøker. */
+  url: string | null;
 }
 
 export interface RettskildeNodeDto {
@@ -160,6 +168,13 @@ export interface TaggKindKonfigurasjonDto {
 export interface OppdaterRettskildeMetadataRequest {
   kortnavn: string | null;
   utgiver: string | null;
+  /** Utelates trygt (bindes til null server-side) — kun RettskildeDetalj-siden fyller ut disse i dag. */
+  interntDokNr?: string | null;
+  revisjonsnr?: string | null;
+  vedtattAv?: string | null;
+  vedtaksdato?: string | null;
+  gyldigTil?: string | null;
+  konsolidertDato?: string | null;
 }
 
 export interface ApiFeil {
@@ -229,50 +244,31 @@ export interface HandbokRettskildeomfangDto {
   tilRettskildeId: string;
 }
 
-// ---------- Nettsider (docs/15-handbok-dokumentgraf-notat.md §3.1/§3.2/§3.4) ----------
+// ---------- Nettsider / Brukerveiledning (docs/15-handbok-dokumentgraf-notat.md §3.1/§3.2/§3.4) ----------
+// ---------- Punkt 8 (avklaringsrunde 2026-08-13): full konvergens — en nettside ER nå en    ----------
+// ---------- ordinær RettskildeDetalj/RettskildeNodeDto (Kildetype="Brukerveiledning"). Disse  ----------
+// ---------- to typene dekker kun det som IKKE allerede finnes der: §3.4-stier og §3.2-lenker. ----------
 
-/** Listevisning — GET /api/nettsider. stiTyper er de DISTINKTE StiType-verdiene, ikke selve stiene. */
-export interface NettsideSammendragDto {
-  id: string;
-  kanoniskUrl: string;
-  tittel: string | null;
-  hentet: string | null;
-  stiTyper: string[];
-}
-
+/** GET /api/rettskilder/{id}/stier — §3.4, kun ikke-tom for Kildetype="Brukerveiledning". */
 export interface NettsideStiDto {
   sti: string;
   stiType: string;
 }
 
 /**
- * Én utgående lenke, oppløsningsstatus flatet ut som nullbare felt: enten er
- * til Nettside-feltene satt (intern lenke til en annen NettsideDokument), ELLER til
- * Rettskilde-feltene satt (lovdatalenke/PDF-omtale løst til en importert rettskilde),
- * ELLER ingen av dem (uløst — ekstern lenke, eller et ikke-håndtert Lovdata-URL-format).
+ * GET /api/rettskilder/{id}/nettside-lenker — én utgående lenke (§3.2) fra en Brukerveilednings
+ * side-node. Til…-feltene er null når lenken er uløst (ekstern, eller et ikke-håndtert Lovdata-
+ * URL-format) — ÉN målfamilie nå, ikke to (punkt 8 kollapset "intern nettside-lenke" og
+ * "PDF-omtale-lenke til håndbok" til nøyaktig samme oppløsning, siden begge mål nå ER RettskildeEntitet).
  */
-export interface NettsideLenkeDto {
+export interface NettsideLenkeMedMalDto {
   id: string;
   type: string;
   raaHref: string;
   ankerTekst: string | null;
-  tilNettsideDokumentId: string | null;
-  tilNettsideDokumentTittel: string | null;
-  tilNettsideDokumentKanoniskUrl: string | null;
   tilRettskildeId: string | null;
   tilRettskildeTittel: string | null;
   tilRettskildeEli: string | null;
-}
-
-export interface NettsideDetaljDto {
-  id: string;
-  virksomhetId: string | null;
-  kanoniskUrl: string;
-  tittel: string | null;
-  raaTekst: string | null;
-  hentet: string | null;
-  stier: NettsideStiDto[];
-  lenker: NettsideLenkeDto[];
 }
 
 export interface KobleRegelverksreferanseRequest {
@@ -645,6 +641,15 @@ export interface VeiledningDto {
 export interface TjenesteReferanseDto {
   tjenesteId: string;
   tjenesteTittel: string;
+  tilEid: string;
+}
+
+/** Motsatt retning av RettskildeReferanseDto — punkt 6/9, andre dokumenters (håndbok/rundskriv) noder som refererer denne rettskilden. */
+export interface DokumentReferanseDto {
+  dokumentId: string;
+  dokumentTittel: string;
+  fraNodeEid: string;
+  fraNodeOverskrift: string | null;
   tilEid: string;
 }
 

@@ -345,13 +345,16 @@ rettskilder.MapPatch("/{id:guid}/metadata", async (Guid id, HttpRequest request,
         {
             return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
-        var oppdatert = await repo.OppdaterMetadataAsync(id, body.Kortnavn, body.Utgiver, bruker.Navn);
+        var oppdatert = await repo.OppdaterMetadataAsync(
+            id, body.Kortnavn, body.Utgiver, body.InterntDokNr, body.Revisjonsnr, body.VedtattAv,
+            body.Vedtaksdato, body.GyldigTil, body.KonsolidertDato, bruker.Navn);
         return oppdatert is null
             ? Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." })
             : Results.Ok(RettskildeDetalj.FraEntitet(oppdatert));
     })
     .WithName("OppdaterRettskildeMetadata")
-    .WithSummary("Oppdaterer Kortnavn/Utgiver etter import — AK-3.3.6, bekreftelsessteget i Importer.tsx.");
+    .WithSummary("Oppdaterer redigerbar metadata (Kortnavn/Utgiver/InterntDokNr/Revisjonsnr/VedtattAv/" +
+        "Vedtaksdato/GyldigTil/KonsolidertDato). Eli er ALLTID skrivebeskyttet, aldri i denne requesten.");
 
 rettskilder.MapGet("/{id:guid}/noder", async (Guid id, RettskildeRepository repo) =>
     {
@@ -388,6 +391,31 @@ rettskilder.MapGet("/{id:guid}/referert-av-tjenester", async (Guid id, Rettskild
         Results.Ok(await repo.ReferertAvTjenesterAsync(id)))
     .WithName("HentRettskildeReferertAvTjenester")
     .WithSummary("Byggesteg 4 — hvilke tjenester som refererer denne rettskilden (motsatt retning av tjenestens regelverksreferanser).");
+
+rettskilder.MapGet("/{id:guid}/referert-av-dokumenter", async (Guid id, RettskildeRepository repo) =>
+        Results.Ok(await repo.ReferertAvAndreDokumenterAsync(id)))
+    .WithName("HentRettskildeReferertAvDokumenter")
+    .WithSummary("Punkt 6/9 — hvilke ANDRE dokumenters (håndbok/rundskriv) noder som refererer denne rettskilden.");
+
+// ---------- Punkt 8 (avklaringsrunde 2026-08-13) — §3.4s multi-sti og §3.2s lenker for en   ----------
+// ---------- Brukerveiledning. Tomme lister for enhver annen doctype, ikke en feil.          ----------
+
+rettskilder.MapGet("/{id:guid}/stier", async (Guid id, RettskildeRepository repo) =>
+    {
+        if (await repo.FinnAsync(id) is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
+        var stier = await repo.StierForAsync(id);
+        return Results.Ok(stier.Select(NettsideStiDto.FraEntitet));
+    })
+    .WithName("HentRettskildeStier")
+    .WithSummary("§3.4 — navigasjonsstiene en Brukerveiledning opptrer under. Tom liste for andre doctyper.");
+
+rettskilder.MapGet("/{id:guid}/nettside-lenker", async (Guid id, RettskildeRepository repo) =>
+    {
+        if (await repo.FinnAsync(id) is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
+        return Results.Ok(await repo.NettsideLenkerForAsync(id));
+    })
+    .WithName("HentRettskildeNettsideLenker")
+    .WithSummary("§3.2 — utgående lenker (lenker_til/lovdatalenke) fra en Brukerveilednings side-node, med oppløsningsstatus.");
 
 // ---------- Referanser (2026-07-30) — generell variant av håndbokens lovreferanse-kobling,     ----------
 // ---------- brukbar på en node i HVILKEN SOM HELST rettskilde, ikke bare håndbok-kommentarer.  ----------
@@ -821,45 +849,6 @@ handboker.MapDelete("/{id:guid}/rettskilder/{omfangId:guid}", async (Guid omfang
         await tjeneste.FjernRettskildeomfangAsync(omfangId, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen rettskildeomfang med id '{omfangId}'." }))
     .WithName("FjernHandbokRettskildeomfang")
     .WithSummary("Fjerner en rettskilde fra håndbokens omfang.");
-
-// ---------- Nettsider (docs/15-handbok-dokumentgraf-notat.md §3.1/§3.2/§3.4) — byggesteg-1-utvidelsen ----------
-// ---------- Rene, uautentiserte lesende endepunkter — samme "åpne data"-status som /api/rettskilder. ----------
-
-var nettsider = app.MapGroup("/api/nettsider").WithOpenApi();
-
-nettsider.MapGet("/", async (Guid? virksomhetId, RegelIdeDbContext db, CancellationToken ct) =>
-    {
-        var query = db.NettsideDokumenter.Include(d => d.Stier).AsQueryable();
-        if (virksomhetId is not null) query = query.Where(d => d.VirksomhetId == virksomhetId);
-        var dokumenter = await query.OrderBy(d => d.Tittel).ThenBy(d => d.KanoniskUrl).ToListAsync(ct);
-        return Results.Ok(dokumenter.Select(NettsideSammendragDto.FraEntitet));
-    })
-    .WithName("HentAlleNettsider")
-    .WithSummary("Lister nettside-dokumenter. ?virksomhetId snevrer inn til én virksomhets korpus; utelatt viser alt.");
-
-nettsider.MapGet("/{id:guid}", async (Guid id, RegelIdeDbContext db, CancellationToken ct) =>
-    {
-        var dokument = await db.NettsideDokumenter.Include(d => d.Stier).FirstOrDefaultAsync(d => d.Id == id, ct);
-        if (dokument is null) return Results.NotFound(new { feil = $"Ingen nettside med id '{id}'." });
-
-        var lenker = await db.NettsideLenker.Where(l => l.FraNettsideDokumentId == id).ToListAsync(ct);
-
-        var dokumentIder = lenker.Where(l => l.TilNettsideDokumentId is not null).Select(l => l.TilNettsideDokumentId!.Value).Distinct().ToList();
-        var rettskildeIder = lenker.Where(l => l.TilRettskildeId is not null).Select(l => l.TilRettskildeId!.Value).Distinct().ToList();
-        var tilDokumenter = await db.NettsideDokumenter.Where(d => dokumentIder.Contains(d.Id)).ToDictionaryAsync(d => d.Id, ct);
-        var tilRettskilder = await db.Rettskilder.Where(r => rettskildeIder.Contains(r.Id)).ToDictionaryAsync(r => r.Id, ct);
-
-        var lenkeDtoer = lenker
-            .Select(l => NettsideLenkeDto.FraEntitet(
-                l,
-                l.TilNettsideDokumentId is not null ? tilDokumenter.GetValueOrDefault(l.TilNettsideDokumentId.Value) : null,
-                l.TilRettskildeId is not null ? tilRettskilder.GetValueOrDefault(l.TilRettskildeId.Value) : null))
-            .ToList();
-
-        return Results.Ok(NettsideDetaljDto.FraEntitet(dokument, lenkeDtoer));
-    })
-    .WithName("HentNettside")
-    .WithSummary("Henter rå tekst, navigasjonsstier og utgående lenker (med oppløsningsstatus) for én nettside.");
 
 // ---------- Tjenesteregister (CPSV-AP-NO, docs/03-domenemodell.md §1.5) — byggesteg 2 ----------
 // ---------- krever X-Bruker-Id — en tjeneste er alltid virksomhetens eget arbeidsprodukt (§0.1). ----------

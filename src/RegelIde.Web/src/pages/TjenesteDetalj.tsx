@@ -1,10 +1,11 @@
-import { useEffect, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
 import { Button, Field, Heading, Label, Link, Paragraph, Select, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import { rettskildeLenke } from '../api/eidLenker';
+import { eidVisningstekst, rettskildeLenke } from '../api/eidLenker';
 import type {
-  HendelseDto, RegelnodeDto, RettskildeSammendrag, TjenesteavhengighetDto, TjenesteDto, TjenesteRegelverksreferanseDto,
+  HendelseDto, RegelnodeDto, RettskildeNodeDto, RettskildeSammendrag, TjenesteavhengighetDto, TjenesteDto,
+  TjenesteRegelverksreferanseDto,
 } from '../api/types';
 
 const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
@@ -45,6 +46,21 @@ export default function TjenesteDetalj() {
   const [nyReferanseEid, setNyReferanseEid] = useState('');
   const [leggerTilReferanse, setLeggerTilReferanse] = useState(false);
   const [referanseFeil, setReferanseFeil] = useState<string | null>(null);
+
+  // Node-oppslag per rettskilde (punkt 5/7, avklaringsrunde 2026-08-13) — brukt BÅDE til lesbar
+  // gruppert visning av eksisterende referanser (eidVisningstekst) og til paragraf-picker-en i
+  // "Koble referanse"-formen under. Ett delt Map, hentet lazy/idempotent per rettskilde-id.
+  const [noderPerRettskilde, setNoderPerRettskilde] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
+
+  async function sikreNoderFor(rettskildeId: string) {
+    if (!rettskildeId || noderPerRettskilde.has(rettskildeId)) return;
+    try {
+      const noder = await api.hentNoder(rettskildeId);
+      setNoderPerRettskilde((forrige) => new Map(forrige).set(rettskildeId, noder));
+    } catch {
+      // Ingen gjettet fallback — kalleren viser rå eId / en tom picker når nodene ikke lot seg hente.
+    }
+  }
 
   const [hendelser, setHendelser] = useState<HendelseDto[] | null>(null);
   const [alleHendelser, setAlleHendelser] = useState<HendelseDto[]>([]);
@@ -109,6 +125,22 @@ export default function TjenesteDetalj() {
     if (!tjeneste?.rotnodeId) { setRotnode(null); return; }
     api.hentRegelnode(tjeneste.rotnodeId).then(setRotnode).catch(() => setRotnode(null));
   }, [tjeneste?.rotnodeId]);
+
+  // Punkt 5 — hent nodene til hver rettskilde faktisk referert i lista, slik at eidVisningstekst kan
+  // vise "{kortnavn} § {nummer} — {overskrift}" i stedet for rå eId.
+  useEffect(() => {
+    if (!referanser) return;
+    for (const rettskildeId of new Set(referanser.map((r) => r.tilRettskildeId))) {
+      sikreNoderFor(rettskildeId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [referanser]);
+
+  // Punkt 7 — paragraf-picker-en i "Koble referanse" trenger nodene til den VALGTE rettskilden.
+  useEffect(() => {
+    if (nyReferanseRettskildeId) sikreNoderFor(nyReferanseRettskildeId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nyReferanseRettskildeId]);
 
   async function opprettRotnode(e: FormEvent) {
     e.preventDefault();
@@ -206,6 +238,22 @@ export default function TjenesteDetalj() {
     await api.fjernTjenesteRegelverksreferanse(referanseId);
     setReferanser((forrige) => (forrige ?? []).filter((r) => r.id !== referanseId));
   }
+
+  // Punkt 5 — én gruppe per referert lov/forskrift, i stedet for én flat liste.
+  const referanserGruppert = useMemo(() => {
+    const kart = new Map<string, TjenesteRegelverksreferanseDto[]>();
+    for (const r of referanser ?? []) {
+      const liste = kart.get(r.tilRettskildeId) ?? [];
+      liste.push(r);
+      kart.set(r.tilRettskildeId, liste);
+    }
+    return [...kart.entries()];
+  }, [referanser]);
+
+  // Punkt 7 — kun blad-noder med en faktisk paragraf/nummer er valgbare (ikke kapittel-noder uten
+  // egen paragraf) — se eidLenker.ts/TjenesteDetalj-kommentaren i planen for begrunnelsen.
+  const paragrafKandidater = (noderPerRettskilde.get(nyReferanseRettskildeId) ?? [])
+    .filter((n) => n.nodeType !== 'kapittel' && n.nummer);
 
   async function kobleHendelse(e: FormEvent) {
     e.preventDefault();
@@ -398,28 +446,62 @@ export default function TjenesteDetalj() {
         {referanser === null && <Paragraph>Laster …</Paragraph>}
         {referanser && referanser.length === 0 && <Paragraph>Ingen regelverksreferanser koblet ennå.</Paragraph>}
         {referanser && referanser.length > 0 && (
-          <ul>
-            {referanser.map((r) => {
-              const href = rettskildeLenke(r.tilEid, rettskilder);
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '0.75rem' }}>
+            {referanserGruppert.map(([tilRettskildeId, rader]) => {
+              const rettskilde = rettskilder.find((r) => r.id === tilRettskildeId);
               return (
-                <li key={r.id} style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                  {href ? <Link asChild><RouterLink to={href}>{r.tilEid}</RouterLink></Link> : r.tilEid}
-                  <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernReferanse(r.id)}>Fjern</Button>
-                </li>
+                <div key={tilRettskildeId}>
+                  <Heading level={3} data-size="xs" style={{ marginBottom: '0.3rem' }}>
+                    {rettskilde ? (rettskilde.kortnavn ?? rettskilde.tittel) : tilRettskildeId}
+                  </Heading>
+                  <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
+                    {rader.map((r) => {
+                      const visningstekst = eidVisningstekst(r.tilEid, rettskilder, noderPerRettskilde);
+                      const href = rettskildeLenke(r.tilEid, rettskilder);
+                      return (
+                        <li key={r.id} style={{ fontSize: 'var(--ds-font-size-1)', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                          {href ? (
+                            <Link asChild><RouterLink to={href}>{visningstekst ?? r.tilEid}</RouterLink></Link>
+                          ) : (
+                            <span style={visningstekst ? undefined : { fontFamily: 'monospace' }}>{visningstekst ?? r.tilEid}</span>
+                          )}
+                          <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernReferanse(r.id)}>Fjern</Button>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </div>
               );
             })}
-          </ul>
+          </div>
         )}
 
         <form onSubmit={leggTilReferanse} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap', marginTop: '0.75rem' }}>
           <Field>
             <Label>Rettskilde</Label>
-            <Select data-size="sm" value={nyReferanseRettskildeId} onChange={(e) => setNyReferanseRettskildeId(e.target.value)}>
+            <Select
+              data-size="sm"
+              value={nyReferanseRettskildeId}
+              onChange={(e) => { setNyReferanseRettskildeId(e.target.value); setNyReferanseEid(''); }}
+            >
               <Select.Option value="">Velg …</Select.Option>
               {rettskilder.map((r) => <Select.Option key={r.id} value={r.id}>{r.tittel}</Select.Option>)}
             </Select>
           </Field>
-          <Textfield data-size="sm" label="eId (f.eks. https://lovdata.no/eli/lov/.../§4-1)" value={nyReferanseEid}
+          {nyReferanseRettskildeId && paragrafKandidater.length > 0 && (
+            <Field>
+              <Label>Paragraf</Label>
+              <Select data-size="sm" value={nyReferanseEid} onChange={(e) => setNyReferanseEid(e.target.value)}>
+                <Select.Option value="">Velg …</Select.Option>
+                {paragrafKandidater.map((n) => (
+                  <Select.Option key={n.id} value={n.eid}>
+                    {n.nummer}{n.overskrift ? ` — ${n.overskrift}` : ''}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Field>
+          )}
+          <Textfield data-size="sm" label="Avansert / manuell eId" value={nyReferanseEid}
             onChange={(e) => setNyReferanseEid(e.target.value)} style={{ minWidth: '22rem', fontFamily: 'monospace' }} />
           <Button data-size="sm" type="submit" disabled={leggerTilReferanse || !nyReferanseRettskildeId || !nyReferanseEid.trim()}>
             {leggerTilReferanse ? 'Kobler …' : 'Koble referanse'}

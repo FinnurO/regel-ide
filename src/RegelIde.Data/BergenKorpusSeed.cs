@@ -143,20 +143,21 @@ public static class BergenKorpusSeed
     }
 
     /// <summary>
-    /// Alle 23 nettside-fixturene importeres som ekte <see cref="NettsideDokumentEntitet"/>-rader —
-    /// INKLUDERT de to indekssidene selv (et lite, bevisst avvik fra <c>NettsideDokumentgrafTests
-    /// .ByggKorpusAsync</c>, som kun PARSER indekssidene for lenkelisten uten å lagre dem: her lagres
-    /// de OGSÅ, siden de er ekte, siterbare sider med egen KanoniskUrl/Tittel/RaaTekst, og
-    /// oppgavens ordlyd ber om at "alle 23" importeres via <see cref="NettsideGrafKobler.LagreDokumentAsync"/>).
-    /// Stier utledes fra de samme to indekssidenes egne lenkelister EKSAKT som <c>ByggKorpusAsync</c> gjør
-    /// (samme absolutt-URL-normalisering for rot-relative href-er) — deretter ett
-    /// <see cref="NettsideGrafKobler.LoosLenkerAsync"/>-kall til slutt.
+    /// Alle 23 nettside-fixturene importeres som ekte <see cref="RettskildeEntitet"/>-rader med
+    /// <c>Kildetype="Brukerveiledning"</c> (punkt 8, avklaringsrunde 2026-08-13 — konvergert bort fra
+    /// den nå fjernede <c>NettsideDokumentEntitet</c>) — INKLUDERT de to indekssidene selv (et lite,
+    /// bevisst avvik fra <c>NettsideDokumentgrafTests.ByggKorpusAsync</c>, som kun PARSER indekssidene
+    /// for lenkelisten uten å lagre dem: her lagres de OGSÅ, siden de er ekte, siterbare sider med
+    /// egen Url/Tittel/RaaTekst). Stier utledes fra de samme to indekssidenes egne lenkelister EKSAKT
+    /// som <c>ByggKorpusAsync</c> gjør (samme absolutt-URL-normalisering for rot-relative href-er) —
+    /// deretter ett <see cref="NettsideGrafKobler.LoosLenkerAsync"/>-kall til slutt.
     /// </summary>
     private static async Task SeedNettsiderAsync(RegelIdeDbContext db, string dataKilderRotmappe, Guid bergenId, CancellationToken ct)
     {
         var mappe = Path.Combine(dataKilderRotmappe, "raw-nettside");
         if (!Directory.Exists(mappe)) return;
 
+        var importTjeneste = new BrukerveiledningImportTjeneste(db);
         var kobler = new NettsideGrafKobler(db);
         var urlTilId = new Dictionary<string, Guid>(StringComparer.OrdinalIgnoreCase);
         var indeksResultater = new List<(string? Sti, string? StiType, NettsideParseResultat Resultat)>();
@@ -168,7 +169,7 @@ public static class BergenKorpusSeed
 
             var fixtur = LesFixtureFil(await File.ReadAllTextAsync(full, ct));
             var resultat = NettsideTekstParser.Parse(fixtur.KanoniskUrl, fixtur.Tittel, fixtur.RaaTekst);
-            var id = await kobler.LagreDokumentAsync(resultat, bergenId, ct);
+            var id = await importTjeneste.LagreDokumentAsync(resultat, bergenId, SeedBruker, ct);
             urlTilId[fixtur.KanoniskUrl] = id;
 
             if (IndeksNettsideFiler.Contains(filnavn)) indeksResultater.Add((fixtur.Sti, fixtur.StiType, resultat));
@@ -181,9 +182,9 @@ public static class BergenKorpusSeed
             foreach (var lenke in indeksResultat.Lenker.Where(l => l.Type == NettsideLenketype.LenkerTil))
             {
                 var mal = TilAbsoluttUrl(lenke.RaaHref);
-                if (urlTilId.TryGetValue(mal, out var dokumentId))
+                if (urlTilId.TryGetValue(mal, out var rettskildeId))
                 {
-                    await kobler.LeggTilStiAsync(dokumentId, sti, stiType, ct);
+                    await importTjeneste.LeggTilStiAsync(rettskildeId, sti, stiType, ct);
                 }
             }
         }

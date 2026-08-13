@@ -64,13 +64,16 @@ public class BergenKorpusSeedTests
         Assert.Equal(bergen.Id, forskrift.VirksomhetId);
         Assert.Equal("Forskrift", forskrift.Kildetype);
 
-        // Nettsidene — 23 dokumenter, Bergen-scopet, minst én lenke løst helt frem til alkoholloven.
-        var antallNettsider = await db.NettsideDokumenter.CountAsync(d => d.VirksomhetId == bergen.Id);
+        // Nettsidene — punkt 8 (avklaringsrunde 2026-08-13): 23 RETTSKILDER (Kildetype="Brukerveiledning"),
+        // Bergen-scopet, ikke lenger en egen NettsideDokumentEntitet-tabell. Minst én lenke løst helt
+        // frem til alkoholloven.
+        var antallNettsider = await db.Rettskilder.CountAsync(r => r.VirksomhetId == bergen.Id && r.Kildetype == "Brukerveiledning");
         Assert.Equal(23, antallNettsider);
 
-        var bundling = await db.NettsideDokumenter.SingleAsync(d => d.KanoniskUrl.Contains("retningslinjer-for-tildeling"));
+        var bundling = await db.Rettskilder.SingleAsync(r => r.Kildetype == "Brukerveiledning" && r.Url!.Contains("retningslinjer-for-tildeling"));
+        var bundlingSideNode = await db.RettskildeNoder.SingleAsync(n => n.RettskildeId == bundling.Id && n.Eid == "side");
         var lovdatalenke = await db.NettsideLenker.SingleAsync(
-            l => l.FraNettsideDokumentId == bundling.Id && l.RaaHref == "https://lovdata.no/dokument/NL/lov/1989-06-02-27");
+            l => l.FraNodeId == bundlingSideNode.Id && l.RaaHref == "https://lovdata.no/dokument/NL/lov/1989-06-02-27");
         Assert.Equal(alkoholloven.Id, lovdatalenke.TilRettskildeId);
     }
 
@@ -82,12 +85,12 @@ public class BergenKorpusSeedTests
 
         await BergenKorpusSeed.SeedAsync(db, rotmappe);
         var antallEtterForste = await db.Virksomheter.CountAsync(v => v.Navn == "Bergen kommune");
-        var antallNettsiderForste = await db.NettsideDokumenter.CountAsync();
+        var antallNettsiderForste = await db.Rettskilder.CountAsync(r => r.Kildetype == "Brukerveiledning");
         var antallRettskilderForste = await db.Rettskilder.CountAsync();
 
         await BergenKorpusSeed.SeedAsync(db, rotmappe);
         var antallEtterAndre = await db.Virksomheter.CountAsync(v => v.Navn == "Bergen kommune");
-        var antallNettsiderAndre = await db.NettsideDokumenter.CountAsync();
+        var antallNettsiderAndre = await db.Rettskilder.CountAsync(r => r.Kildetype == "Brukerveiledning");
         var antallRettskilderAndre = await db.Rettskilder.CountAsync();
 
         Assert.Equal(1, antallEtterForste);

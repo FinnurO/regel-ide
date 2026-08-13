@@ -143,6 +143,15 @@ public sealed class RettskildeEntitet
     // gjenbrukes/utvides"). Ingen duplikatkolonne.
 
     public List<RettskildeNodeEntitet> Noder { get; set; } = [];
+
+    /// <summary>
+    /// Kun ikke-tom for <c>Kildetype="Brukerveiledning"</c> (punkt 8, avklaringsrunde 2026-08-13) —
+    /// §3.4s multi-sti-egenskap (en nettside kan opptre under FLERE navigasjonsstier samtidig, se
+    /// <see cref="NettsideStiEntitet"/>s klassekommentar) er reell og nettside-spesifikk, ingen annen
+    /// doctype har dette. Samme "egen tabell for en egenskap kun én doctype har"-mønster som
+    /// <see cref="HandbokKommentarMetadataEntitet"/> og <see cref="RettskildeNodeEntitet.HandbokMetadata"/>.
+    /// </summary>
+    public List<NettsideStiEntitet> Stier { get; set; } = [];
 }
 
 public sealed class RettskildeNodeEntitet
@@ -853,73 +862,23 @@ public sealed class LovdataKatalogOppforingEntitet
 }
 
 /// <summary>
-/// <c>NettsideDokument</c> (docs/15-handbok-dokumentgraf-notat.md §3.1) — en kommunal nettside,
-/// EGEN nodetype siden ingen eksisterende tabell dekker nettsideinnsamling (§3.1s egen konklusjon:
-/// "ingen eksisterende tabell dekker nettsideinnsamling", i motsetning til Lag 1/2s
-/// håndbok-/rettskilde-utvidelse i forrige runde). Samme <c>Url</c>/<c>Innhold</c>/<c>InnholdsHash</c>-
-/// mønster som <see cref="RettskildeEntitet"/> fikk i forrige runde (§2 Lag 1) — bevisst gjenbrukt
-/// navnekonvensjon, ikke en ny oppfinnelse.
+/// <c>NettsideSti</c> (§3.1/§3.4) — én av potensielt FLERE navigasjonsstier en nettside opptrer
+/// under. §3.4 er eksplisitt: "lagre ALLE stier en node opptrer under som separate rader. Å velge én
+/// sti og kaste resten kaster informasjon." — derfor egen tabell (1:N), ikke et enkelt strengfelt.
 /// <para>
-/// **AVVIK FRA §3.1s forslag, dokumentert**: notatet nevner <c>NettsideDokument</c>/<c>NettsideSeksjon</c>
-/// som ETT par (dokument + underliggende seksjoner). Denne runden bygger KUN dokument-granularitet
-/// (én rad per side, <see cref="RaaTekst"/> er HELE sidens tekstlag) — ingen egen
-/// <c>NettsideSeksjonEntitet</c>. Begrunnelse: Bergens 23 faktisk hentede sider (data/kilder/raw-nettside/)
-/// er korte tjenestesider uten intern overskriftshierarki som ville hatt selvstendig verdi som egne
-/// siterbare noder (i motsetning til håndbok-PDF-ene, som HAR en autoritativ egen nummerering å
-/// seksjonere på, jf. forrige rundes <c>HandbokTekstParser</c>). Å innføre en tom/uutnyttet
-/// seksjonstabell nå ville vært spekulativ struktur uten data til å bevise den mot — samme
-/// "høst struktur, ikke generer den"-prinsipp (§0) som resten av notatet bygger på. Seksjonsnivå kan
-/// legges til senere UTEN å røre denne tabellen, akkurat som Lag 3 i §2 ble lagt til uten å røre
-/// Lag 1/2.
+/// **Punkt 8 (avklaringsrunde 2026-08-13) — full konvergens**: <c>NettsideDokumentEntitet</c> er
+/// fjernet. En nettside ER nå en ordinær <see cref="RettskildeEntitet"/> med
+/// <c>Kildetype="Brukerveiledning"</c> (se <see cref="RegelIde.Data.BrukerveiledningImportTjeneste"/>),
+/// samme nodetre-maskineri som håndbok. <see cref="RettskildeId"/> peker derfor nå på
+/// <c>rettskilder.Id</c>, ikke en egen <c>nettside_dokumenter</c>-tabell — formen (Id/FK/Sti/StiType)
+/// er UENDRET, kun FK-målet er repekt (§3.4s multi-sti-egenskap ER reell og nettside-spesifikk, ingen
+/// annen doctype trenger den, derfor fortsatt egen tabell — se <see cref="RettskildeEntitet.Stier"/>).
 /// </para>
-/// </summary>
-public sealed class NettsideDokumentEntitet
-{
-    public Guid Id { get; set; }
-
-    /// <summary>
-    /// NULL for nasjonale/fellesressurser eller der ingen matchende <see cref="Virksomhet"/> finnes
-    /// i seed-dataene (§3.1s egen note — sjekket denne runden: ingen "Bergen kommune"-virksomhet
-    /// finnes i <c>TestkommuneInnholdSeed</c>/øvrige seed-filer, og å opprette en ny seed-virksomhet
-    /// er bevisst utenfor scope, se sluttrapporten). Alle 23 rader i denne rundens korpus har derfor
-    /// <c>VirksomhetId = null</c>.
-    /// </summary>
-    public Guid? VirksomhetId { get; set; }
-
-    /// <summary>
-    /// DEDUPLISERINGSNØKKELEN (§3.4: "dedupliser på kanonisk URL") — UNIQUE. Absolutt URL, ikke
-    /// relativ sti, slik at samme dokument aldri kan opprettes to ganger selv om det ble hentet via
-    /// to forskjellige relative lenker.
-    /// </summary>
-    public required string KanoniskUrl { get; set; }
-
-    public string? Tittel { get; set; }
-
-    /// <summary>Hovedinnholdet, TEKSTLAG (ikke rå HTML) — se data/kilder/raw-nettside/README.md for
-    /// fixture-konvensjonen (Markdown-lenker <c>[tekst](href)</c> i teksten, siden RaaTekst per
-    /// definisjon ikke er HTML og derfor ikke kan bære <c>&lt;a href&gt;</c> direkte).</summary>
-    public string? RaaTekst { get; set; }
-
-    /// <summary>SHA-256 av <see cref="RaaTekst"/> — samme mønster og samme funksjon
-    /// (<see cref="RegelIde.Kildekonvertering.LovdataIdentifikatorer.BeregnTekstHash"/>) som
-    /// <see cref="RettskildeEntitet.InnholdsHash"/>/<see cref="RettskildeNodeEntitet.TekstHash"/>.</summary>
-    public string? InnholdsHash { get; set; }
-
-    public DateTimeOffset? Hentet { get; set; }
-
-    public List<NettsideStiEntitet> Stier { get; set; } = [];
-}
-
-/// <summary>
-/// <c>NettsideSti</c> (§3.1/§3.4) — én av potensielt FLERE navigasjonsstier et
-/// <see cref="NettsideDokumentEntitet"/> opptrer under. §3.4 er eksplisitt: "lagre ALLE stier en
-/// node opptrer under som separate rader. Å velge én sti og kaste resten kaster informasjon." —
-/// derfor egen tabell (1:N), ikke et enkelt strengfelt på dokumentet.
 /// </summary>
 public sealed class NettsideStiEntitet
 {
     public Guid Id { get; set; }
-    public Guid NettsideDokumentId { get; set; }
+    public Guid RettskildeId { get; set; }
 
     /// <summary>F.eks. "innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser"
     /// (tematisk) eller "omkommunen/avdelinger/kontor-for-skjenkesaker" (organisatorisk) — §3.4s egne
@@ -932,40 +891,39 @@ public sealed class NettsideStiEntitet
 
 /// <summary>
 /// Deterministiske kanter FRA en nettside (§3.2): <c>lenker_til</c> og <c>lovdatalenke</c>. EGEN
-/// tabell, IKKE en gjenbruk av <see cref="RettskildeReferanseEntitet"/> — se
-/// <see cref="RegelIde.Kildekonvertering.NettsideTekstParser"/>s klassekommentar for det fulle
-/// resonnementet (samme spørsmål forrige runde stilte for <c>hjemlet_i</c>/<c>kryssrefererer</c>,
-/// besvart ulikt her): <see cref="RettskildeReferanseEntitet.FraNodeId"/> er en FK mot
-/// <see cref="RettskildeNodeEntitet"/>, en HELT ANNEN entitet enn <see cref="NettsideDokumentEntitet"/>
-/// — å gjenbruke tabellen ville krevd enten en nullable "hvilken av to FraId-kolonner gjelder"-
-/// konstruksjon (skjult diskriminator, samme antipattern §10.2 unngikk for Tjeneste/Forvaltningsoppgave
-/// ved å bruke ÉN tabell med et EKSPLISITT diskriminatorfelt — her er formen på kilden selv
-/// forskjellig, ikke bare en rolle på samme radtype) eller duplisering av alle rettskilde-spesifikke
-/// felt (<c>TekstStart</c>/<c>TekstLengde</c> gir ingen mening for en nettside-lenke uten en
-/// <c>NodeEid</c>-ekvivalent). Ny, liten tabell er derfor riktigere enn gjenbruk.
+/// tabell — punkt 8s avklaring: vurdert MOT konvergens med <see cref="RettskildeReferanseEntitet"/>
+/// (siden begge nå har en <see cref="RettskildeNodeEntitet"/>-FK som kilde etter denne rundens
+/// endring), men IKKE konvergert, fordi feltene ikke passer uten friksjon:
+/// <see cref="RettskildeReferanseEntitet.TilEid"/> er PÅKREVD der (en referanse peker alltid på en
+/// presis paragraf), mens en nettside-lenke ofte IKKE har noe presist mål (ekstern lenke, eller en
+/// hel rettskilde uten paragraf-presisjon); <see cref="RaaHref"/>/<see cref="AnkerTekst"/>/
+/// <see cref="TilEidKandidat"/> har heller ingen mening for en Lovdata-kryssreferanse og ville blitt
+/// alltid-NULL-kolonner der (samme antipattern <see cref="HandbokKommentarMetadataEntitet"/> og
+/// <see cref="RettskildeNodeEmbeddingEntitet"/> allerede unngår ved å være egne tabeller). Ny, liten
+/// tabell er derfor fortsatt riktigere enn gjenbruk — se <see cref="RegelIde.Kildekonvertering.NettsideTekstParser"/>
+/// for den opprinnelige begrunnelsen (uendret i sak, kun FK-formen er ny).
 /// </summary>
 public sealed class NettsideLenkeEntitet
 {
     public Guid Id { get; set; }
-    public Guid FraNettsideDokumentId { get; set; }
+
+    /// <summary>
+    /// Punkt 8: var <c>FraNettsideDokumentId</c> (FK mot den nå fjernede <c>NettsideDokumentEntitet</c>).
+    /// Peker nå på SIDEN-NODEN (<see cref="RettskildeNodeEntitet"/> med <c>NodeType="side"</c>) en
+    /// <see cref="RegelIde.Data.BrukerveiledningImportTjeneste"/>-import oppretter — samme FK-form som
+    /// <see cref="RettskildeReferanseEntitet.FraNodeId"/> nå.
+    /// </summary>
+    public Guid FraNodeId { get; set; }
 
     /// <summary>'lenker_til' | 'lovdatalenke' (§3.2).</summary>
     public required string Type { get; set; }
 
     /// <summary>Den eksakte href-en/URL-en funnet i kildeteksten — ALDRI normalisert bort, selv
-    /// etter at <see cref="TilNettsideDokumentId"/>/<see cref="TilRettskildeId"/> er løst, samme
-    /// "vis kilden, ikke bare konklusjonen"-prinsipp som <see cref="RettskildeReferanseEntitet"/>.</summary>
+    /// etter at <see cref="TilRettskildeId"/> er løst, samme "vis kilden, ikke bare konklusjonen"-
+    /// prinsipp som <see cref="RettskildeReferanseEntitet"/>.</summary>
     public required string RaaHref { get; set; }
 
     public string? AnkerTekst { get; set; }
-
-    /// <summary>Løst INTERN lenke — satt når <see cref="RaaHref"/> peker på et annet dokuments
-    /// <see cref="NettsideDokumentEntitet.KanoniskUrl"/> som allerede finnes i korpuset. Løsningen
-    /// er DB-avhengig (krever oppslag mot alle kjente <c>NettsideDokument</c>-rader) og gjøres derfor
-    /// IKKE av den rene, DB-frie <c>NettsideTekstParser</c> selv — se
-    /// <see cref="RegelIde.Data.NettsideGrafKobler"/>, samme arkitektur som
-    /// <c>FinnEllerOpprettReferanseStubAsync</c> løser <c>hjemlet_i</c> i Lovdata-pipelinen.</summary>
-    public Guid? TilNettsideDokumentId { get; set; }
 
     /// <summary>
     /// KUN for <see cref="Type"/> = 'lovdatalenke': ELI-formen parset deterministisk av
@@ -978,9 +936,13 @@ public sealed class NettsideLenkeEntitet
     /// </summary>
     public string? TilEidKandidat { get; set; }
 
-    /// <summary>Løst DB-rad — satt når <see cref="TilEidKandidat"/> faktisk matcher en allerede
-    /// importert <see cref="RettskildeEntitet"/> (match på <see cref="RettskildeEntitet.Eli"/>).
-    /// DB-avhengig, satt av <see cref="RegelIde.Data.NettsideGrafKobler"/>, ikke av parseren.</summary>
+    /// <summary>
+    /// Punkt 8: kollapser den TIDLIGERE <c>TilNettsideDokumentId</c> (intern nettside-til-nettside-lenke)
+    /// OG denne (lovdatalenke/PDF-omtale-lenke til en importert håndbok) til ÉN kolonne — siden ALLE
+    /// lenkemål nå er <see cref="RettskildeEntitet"/>-rader (en nettside ER en rettskilde), finnes
+    /// ikke lenger to ulike måltyper å skille mellom. Løst DB-avhengig av
+    /// <see cref="RegelIde.Data.NettsideGrafKobler.LoosLenkerAsync"/>, ikke av parseren.
+    /// </summary>
     public Guid? TilRettskildeId { get; set; }
 }
 
