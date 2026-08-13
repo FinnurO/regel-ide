@@ -20,6 +20,7 @@ import { KommentarRedigering } from '../handbok/KommentarRedigering';
 import { useKonfigurasjon } from '../konfigurasjon/KonfigurasjonContext';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { RaaTekstMedLenker } from '../rettskilde/RaaTekstMedLenker';
+import { eidVisningstekst } from '../api/eidLenker';
 
 const STITYPE_FARGE: Record<string, 'info' | 'success'> = { tematisk: 'info', organisatorisk: 'success' };
 
@@ -394,6 +395,34 @@ export default function RettskildeDetalj() {
   const treVm = useMemo(() => (tre ? tilTreVm(tre, taggAntallPerNode) : []), [tre, taggAntallPerNode]);
   const valgtNode = useMemo(() => (tre && selectedEid ? finnNode(tre, selectedEid) : null), [tre, selectedEid]);
 
+  // Lesbar visning av "Referert fra håndbøker/andre dokumenter"s TilEid (funn 2, avklaringsrunde
+  // 2026-08-13) — TilEid peker alltid på en node i DENNE rettskilden (det er nettopp derfor raden
+  // dukker opp her), så vi slår den opp mot vår egen, allerede lastede nodeliste (flatet ut fra
+  // treet) og gjenbruker eidVisningstekst-mønsteret fra TjenesteDetalj.tsx i stedet for å vise den
+  // rå eId-kjeden. Faller ALLTID tilbake til rå eId når noden ikke er funnet ennå — «ingen gjettet
+  // fallback».
+  const detaljNoderPerRettskilde = useMemo(() => {
+    const kart = new Map<string, RettskildeNodeDto[]>();
+    if (!detalj || !tre) return kart;
+    const flate: RettskildeNodeDto[] = [];
+    function samle(noder: TreNode[]) {
+      for (const n of noder) {
+        flate.push(n);
+        samle(n.barn);
+      }
+    }
+    samle(tre);
+    kart.set(detalj.id, flate);
+    return kart;
+  }, [detalj, tre]);
+  const detaljSomSammendrag = useMemo(
+    () => (detalj ? [{ id: detalj.id, virksomhetId: detalj.virksomhetId, eli: detalj.eli, tittel: detalj.tittel, kortnavn: detalj.kortnavn, kildetype: detalj.kildetype }] : []),
+    [detalj],
+  );
+  function tilEidVisning(tilEid: string): string {
+    return eidVisningstekst(tilEid, detaljSomSammendrag, detaljNoderPerRettskilde) ?? tilEid;
+  }
+
   // Innebygde referanse-lenker i selve løpeteksten (2026-07-30) — samme kilde som "Referanser"-
   // seksjonen under, men kun de med en kjent tekstposisjon (import-referanser der parseren fant et
   // entydig treff; manuelle referanser har ingen posisjon og vises kun i lista under).
@@ -610,46 +639,63 @@ export default function RettskildeDetalj() {
         </div>
 
         {!redigererMetadata ? (
-          <Table>
-            <Table.Body>
-              <Table.Row>
-                <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>ELI</Table.Cell>
-                <Table.Cell>{detalj.eli ?? '—'}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Kortnavn</Table.Cell>
-                <Table.Cell>{detalj.kortnavn ?? '—'}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Konsolidert dato</Table.Cell>
-                <Table.Cell>{detalj.konsolidertDato ?? '—'}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Utgiver</Table.Cell>
-                <Table.Cell>{detalj.utgiver ?? '—'}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Internt dok.nr</Table.Cell>
-                <Table.Cell>{detalj.interntDokNr ?? '—'}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Revisjonsnr</Table.Cell>
-                <Table.Cell>{detalj.revisjonsnr ?? '—'}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Vedtatt av</Table.Cell>
-                <Table.Cell>{detalj.vedtattAv ?? '—'}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Vedtaksdato</Table.Cell>
-                <Table.Cell>{detalj.vedtaksdato ?? '—'}</Table.Cell>
-              </Table.Row>
-              <Table.Row>
-                <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Gyldig til</Table.Cell>
-                <Table.Cell>{detalj.gyldigTil ?? '—'}</Table.Cell>
-              </Table.Row>
-            </Table.Body>
-          </Table>
+          <>
+            {/* Funn 1 (avklaringsrunde 2026-08-13) — splittet i to grupper: «Fra Lovdata» (skrive-
+                beskyttet, kun populert for importerte Lov/Forskrift) og «Lokalt forvaltet» (redigerbar
+                via «Rediger», populert for lokalt forfattede/kunngjorte kilder som håndbøker). Ren
+                visuell gruppering — ingen API-/skjemaendring, feltene var allerede alle på samme DTO. */}
+            <Heading level={3} data-size="2xs" style={{ margin: '0 0 0.25rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
+              Fra Lovdata
+            </Heading>
+            <Table style={{ marginBottom: '1rem' }}>
+              <Table.Body>
+                <Table.Row>
+                  <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>ELI</Table.Cell>
+                  <Table.Cell>{detalj.eli ?? '—'}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Kortnavn</Table.Cell>
+                  <Table.Cell>{detalj.kortnavn ?? '—'}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Konsolidert dato</Table.Cell>
+                  <Table.Cell>{detalj.konsolidertDato ?? '—'}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Utgiver</Table.Cell>
+                  <Table.Cell>{detalj.utgiver ?? '—'}</Table.Cell>
+                </Table.Row>
+              </Table.Body>
+            </Table>
+
+            <Heading level={3} data-size="2xs" style={{ margin: '0 0 0.25rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
+              Lokalt forvaltet
+            </Heading>
+            <Table>
+              <Table.Body>
+                <Table.Row>
+                  <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Internt dok.nr</Table.Cell>
+                  <Table.Cell>{detalj.interntDokNr ?? '—'}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Revisjonsnr</Table.Cell>
+                  <Table.Cell>{detalj.revisjonsnr ?? '—'}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Vedtatt av</Table.Cell>
+                  <Table.Cell>{detalj.vedtattAv ?? '—'}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Vedtaksdato</Table.Cell>
+                  <Table.Cell>{detalj.vedtaksdato ?? '—'}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Gyldig til</Table.Cell>
+                  <Table.Cell>{detalj.gyldigTil ?? '—'}</Table.Cell>
+                </Table.Row>
+              </Table.Body>
+            </Table>
+          </>
         ) : (
           <form onSubmit={lagreMetadata} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '40rem' }}>
             <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', margin: 0 }}>
@@ -734,7 +780,7 @@ export default function RettskildeDetalj() {
                           {r.fraNodeOverskrift ?? r.fraNodeEid}
                         </RouterLink>
                       </Link>
-                      {' → '}{r.tilEid}
+                      {' → '}{tilEidVisning(r.tilEid)}
                     </span>
                   ))}
                 </div>
@@ -930,7 +976,7 @@ export default function RettskildeDetalj() {
                             {r.dokumentTittel}{r.fraNodeOverskrift ? ` — ${r.fraNodeOverskrift}` : ''}
                           </RouterLink>
                         </Link>
-                        <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}> ({r.tilEid})</span>
+                        <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}> ({tilEidVisning(r.tilEid)})</span>
                       </li>
                     ))}
                   </ul>

@@ -104,13 +104,26 @@ public sealed class RettskildeRepository(RegelIdeDbContext db)
     /// nøyaktig den koblingen som før kun fantes fra tjeneste-siden: "Skjenkebevilling – testrunde 3"
     /// har 9 reelle håndbok-originerte referanser til forvaltningsloven/serveringsloven/alkoholloven i
     /// databasen, usynlige den andre veien før dette endepunktet fantes.
+    ///
+    /// Bugfiks 2026-08-13 (levende gjennomgang): filtrerer nå på <c>Opprinnelse == "manuell"</c> — det
+    /// ER akkurat skillet mellom "en jurist koblet dette fra en håndbok-seksjon" (manuell,
+    /// <see cref="HandbokForfatterTjeneste.KobleLovreferanseAsync"/>) og "dette er lovens/forskriftens
+    /// EGEN interne struktur, funnet ved import" (import, <c>LovdataHtmlParser</c>/
+    /// <c>RettskildeImportTjeneste</c>). Uten dette filteret ble en rettskildes egne interne
+    /// kryssreferanser (§10-1 → §10-6 osv., skrevet med <c>Opprinnelse="import"</c> ved import) talt
+    /// som om et ANNET dokument refererte den — de var aldri det, se <see cref="DokumentReferanseDto"/>s
+    /// klassekommentar ("... i en ANNEN RettskildeEntitet ..."). Den eksplisitte
+    /// <c>d.Id != rettskildeId</c>-sjekken under er et forsvarslag i tillegg (Opprinnelse-filteret over
+    /// eliminerer sannsynligvis alle faktiske forekomster alene) — en selvreferanse er PER DEFINISJON
+    /// ikke "et annet dokument", uansett hvilken Opprinnelse den skulle vært skrevet med.
     /// </summary>
     public Task<List<DokumentReferanseDto>> ReferertAvAndreDokumenterAsync(Guid rettskildeId) =>
         db.RettskildeReferanser
-            .Where(r => r.TilRettskildeId == rettskildeId)
+            .Where(r => r.TilRettskildeId == rettskildeId && r.Opprinnelse == "manuell")
             .Join(db.RettskildeNoder, r => r.FraNodeId, n => n.Id, (r, n) => new { r, n })
-            .Join(db.Rettskilder, rn => rn.n.RettskildeId, d => d.Id,
-                (rn, d) => new DokumentReferanseDto(d.Id, d.Tittel, rn.n.Eid, rn.n.Overskrift, rn.r.TilEid))
+            .Join(db.Rettskilder, rn => rn.n.RettskildeId, d => d.Id, (rn, d) => new { rn.r, rn.n, d })
+            .Where(x => x.d.Id != rettskildeId)
+            .Select(x => new DokumentReferanseDto(x.d.Id, x.d.Tittel, x.n.Eid, x.n.Overskrift, x.r.TilEid))
             .ToListAsync();
 
     /// <summary>
