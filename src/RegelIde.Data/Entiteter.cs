@@ -25,6 +25,18 @@ public sealed class Virksomhet
     /// <summary>'stat' | 'fylke' | 'kommune' — styrer hvilket organ som er vedtaksmyndighet
     /// (bystyre/kommunestyre/fylkesting), se §3.3.</summary>
     public string? Forvaltningsniva { get; set; }
+
+    /// <summary>
+    /// (2026-08-14, organisasjonsregister-seeding) Gater om virksomheten er brukbar for REELT arbeid i
+    /// dag — synlig i virksomhet-VELGERE (opprett/tilordne bruker, legge til kommunal datasett-verdi
+    /// osv.) — versus seedet-men-sovende: til stede i registeret for fremtidig aktivering, men ikke
+    /// noe man skal kunne velge for nytt arbeid ennå. Styrer KUN UI-velgere, ikke lesetilgang: allerede
+    /// eksisterende innhold (rettskilder, tjenester osv.) eid av en inaktiv virksomhet forblir fullt
+    /// synlig og søkbart (se <c>useVirksomheter.ts</c>' <c>visEier</c>, som bevisst IKKE filtrerer på
+    /// dette feltet). Default <c>true</c> i databasen (migrasjonen) — sikker fallback for eksisterende
+    /// rader ingen seed rører, slik at ingenting existing forsvinner stille fra en velger.
+    /// </summary>
+    public bool Aktiv { get; set; } = true;
 }
 
 /// <summary>

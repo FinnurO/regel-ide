@@ -142,6 +142,12 @@ export interface VirksomhetDto {
   id: string;
   navn: string;
   organisasjonsnummer: string | null;
+  /**
+   * Gater om virksomheten skal kunne VELGES for nytt arbeid (opprett/tilordne bruker, ny kommunal
+   * datasett-verdi osv.) — se `Virksomhet.Aktiv` i Entiteter.cs. Skal ALDRI filtrere bort en
+   * virksomhet fra visning av allerede eksisterende innhold den eier (se `visEier` i useVirksomheter.ts).
+   */
+  aktiv: boolean;
 }
 
 /** Ikke lenger en fast literal-union — kind-settet er konfigurasjonsstyrt (se TaggKindKonfigurasjonDto), ikke hardkodet. */

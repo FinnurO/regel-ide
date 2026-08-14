@@ -80,7 +80,10 @@ export default function DatasettDetalj() {
   const virksomhetNavn = new Map(virksomheter.map((v) => [v.id, v.navn]));
   const standardverdi = verdier.find((v) => v.virksomhetId === null);
   const kommuneverdier = verdier.filter((v) => v.virksomhetId !== null);
-  const virksomheterUtenVerdi = virksomheter.filter((v) => !kommuneverdier.some((k) => k.virksomhetId === v.id));
+  // Kun aktive virksomheter i "Legg til"-velgeren — dette LEGGER TIL en ny kommunal verdi (nytt
+  // arbeid), i motsetning til tabellen over som fortsatt viser EKSISTERENDE verdier for enhver
+  // virksomhet uansett Aktiv-status (virksomhetNavn-oppslaget over er bevisst ufiltrert).
+  const virksomheterUtenVerdi = virksomheter.filter((v) => v.aktiv && !kommuneverdier.some((k) => k.virksomhetId === v.id));
 
   return (
     <>

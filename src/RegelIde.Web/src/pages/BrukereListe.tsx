@@ -18,6 +18,11 @@ const GYLDIGE_ROLLER: BrukerRolle[] = ['Fagansvarlig', 'Jurist', 'Systemforvalte
  */
 export default function BrukereListe() {
   const { virksomheter, laster: lasterVirksomheter } = useVirksomheter();
+  // Kun aktive virksomheter i VELGERNE under (tilordne til ny/eksisterende bruker) — de ~370 sovende
+  // kommunene/fylkeskommunene fra organisasjonsregister-seedingen (2026-08-14) skal ikke flomme over
+  // en velger ment for reelt dagligarbeid. Berører KUN disse velgerne, ikke selve bruker-tabellen
+  // (som fortsatt viser virksomhetNavn for eksisterende brukere uansett Aktiv-status).
+  const aktiveVirksomheter = virksomheter.filter((v) => v.aktiv);
   const { lastBrukerePaNytt } = useBruker();
 
   const [brukere, setBrukere] = useState<BrukerDto[] | null>(null);
@@ -47,8 +52,8 @@ export default function BrukereListe() {
   }, []);
 
   useEffect(() => {
-    if (!nyVirksomhetId && virksomheter.length > 0) setNyVirksomhetId(virksomheter[0].id);
-  }, [virksomheter, nyVirksomhetId]);
+    if (!nyVirksomhetId && aktiveVirksomheter.length > 0) setNyVirksomhetId(aktiveVirksomheter[0].id);
+  }, [aktiveVirksomheter, nyVirksomhetId]);
 
   async function opprett(e: FormEvent) {
     e.preventDefault();
@@ -123,7 +128,7 @@ export default function BrukereListe() {
         <Field>
           <Label>Virksomhet</Label>
           <Select value={nyVirksomhetId} onChange={(e) => setNyVirksomhetId(e.target.value)} disabled={lasterVirksomheter}>
-            {virksomheter.map((v) => (
+            {aktiveVirksomheter.map((v) => (
               <Select.Option key={v.id} value={v.id}>
                 {v.navn}
               </Select.Option>
@@ -166,7 +171,7 @@ export default function BrukereListe() {
                         onChange={(e) => setRedigerVirksomhetId(e.target.value)}
                         aria-label={`Virksomhet for ${b.navn}`}
                       >
-                        {virksomheter.map((v) => (
+                        {aktiveVirksomheter.map((v) => (
                           <Select.Option key={v.id} value={v.id}>
                             {v.navn}
                           </Select.Option>
