@@ -241,8 +241,15 @@ public sealed class TjenesteforslagTjeneste(
             {
                 foreach (var eid in f.RegelverksreferanserEid)
                 {
-                    var node = await db.RettskildeNoder.FirstOrDefaultAsync(n => n.Eid == eid, ct);
-                    if (node is null) continue; // hallusinert/kortform-eId — drop stille
+                    // Scopet til rettskilderIder (denne kjøringens faktiske kontekst), ikke et globalt
+                    // oppslag — forsvarslag mot Eid-kollisjon mellom rettskilder valgt i SAMME kjøring
+                    // (f.eks. håndbøker fra ulike virksomheter kan i prinsippet dele samme
+                    // dokument-interne nummerering). Rot-fiksen for Brukerveiledning-kollisjonen er at
+                    // Eid nå er KanoniskUrl (globalt unik) — se BrukerveiledningImportTjeneste — men
+                    // denne scopingen er billig, korrekt, og reduserer blindsonen uansett kildetype.
+                    var node = await db.RettskildeNoder
+                        .FirstOrDefaultAsync(n => n.Eid == eid && rettskildeIder.Contains(n.RettskildeId), ct);
+                    if (node is null) continue; // hallusinert/kortform-eId/utenfor kontekst — drop stille
                     try
                     {
                         await tjenesteregister.KobleRegelverksreferanseAsync(tjeneste.Id, node.RettskildeId, eid, ct);

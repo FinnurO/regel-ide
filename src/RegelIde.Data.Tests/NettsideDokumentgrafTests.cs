@@ -50,7 +50,7 @@ public sealed class NettsideDokumentgrafTests : IAsyncLifetime
     /// <summary>Henter den EI ene "side"-noden for en importert Brukerveiledning — samme rolle som
     /// dokument-Id-en spilte i den gamle NettsideDokumentEntitet-modellen, nå ett nivå ned.</summary>
     private static Task<RettskildeNodeEntitet> SideNodeAsync(RegelIdeDbContext db, Guid rettskildeId) =>
-        db.RettskildeNoder.SingleAsync(n => n.RettskildeId == rettskildeId && n.Eid == "side");
+        db.RettskildeNoder.SingleAsync(n => n.RettskildeId == rettskildeId && n.NodeType == "side");
 
     /// <summary>Alle 21 URL-ene under "Bevilling og tillatelser" — bundlingssiden inkludert (samme
     /// slug er nevnt to ganger i oppgavebeskrivelsen, IKKE hentet/lagret to ganger her).</summary>

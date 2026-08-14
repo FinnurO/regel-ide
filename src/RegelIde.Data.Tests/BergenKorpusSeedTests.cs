@@ -71,7 +71,10 @@ public class BergenKorpusSeedTests
         Assert.Equal(23, antallNettsider);
 
         var bundling = await db.Rettskilder.SingleAsync(r => r.Kildetype == "Brukerveiledning" && r.Url!.Contains("retningslinjer-for-tildeling"));
-        var bundlingSideNode = await db.RettskildeNoder.SingleAsync(n => n.RettskildeId == bundling.Id && n.Eid == "side");
+        // Eid er nå bundlingens egen KanoniskUrl (rettet 2026-08-14 — literal "side" kolliderte på
+        // tvers av ALLE Brukerveiledning-rader, se BrukerveiledningImportTjeneste-kommentaren).
+        var bundlingSideNode = await db.RettskildeNoder.SingleAsync(n => n.RettskildeId == bundling.Id && n.NodeType == "side");
+        Assert.Equal(bundling.Url, bundlingSideNode.Eid);
         var lovdatalenke = await db.NettsideLenker.SingleAsync(
             l => l.FraNodeId == bundlingSideNode.Id && l.RaaHref == "https://lovdata.no/dokument/NL/lov/1989-06-02-27");
         Assert.Equal(alkoholloven.Id, lovdatalenke.TilRettskildeId);
