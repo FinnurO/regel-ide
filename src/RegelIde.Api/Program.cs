@@ -84,7 +84,12 @@ builder.Services.AddHttpClient<AltinnRessursHenter>();
 // av testfixturene i src/RegelIde.Data.Tests/Testdata/AltinnHosting/, samme header Johanns
 // referanseskript setter) — data.brreg.no/tjenesteoversikten.no over krever ingen tilsvarende header.
 builder.Services.AddHttpClient<AltinnSkjemaoversiktHenter>(c =>
-    c.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; RegelIde-høster/1.0; +https://github.com/FinnurO/regel-ide)"));
+    // EKTE FUNN 2026-08-14 (ved live-verifisering, ikke fanget av testsuiten siden den stubber
+    // HttpMessageHandler og dermed hopper over ekte header-validering): "høster" inneholder "ø", en
+    // ikke-ASCII-karakter. HttpClient krever ASCII-only header-verdier og kaster
+    // HttpRequestException på HELT FØRSTE kall — hele høstingen feilet 100 % av tiden. "hoster" (uten
+    // ø) løser det uten å endre meningen.
+    c.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; RegelIde-hoster/1.0; +https://github.com/FinnurO/regel-ide)"));
 
 const string VitePolicy = "ViteDevServer";
 builder.Services.AddCors(o => o.AddPolicy(VitePolicy, p => p
