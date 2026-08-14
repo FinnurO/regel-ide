@@ -448,6 +448,23 @@ public sealed record LovdataKatalogTreffDto(string Datokode, string Tittel, stri
     public static LovdataKatalogTreffDto FraEntitet(LovdataKatalogOppforingEntitet o) => new(o.Datokode, o.Tittel, o.Type);
 }
 
+/// <summary>
+/// Én høstet, rå kildepost (<see cref="EksternKildeEntitet"/>) — se den klassens kommentar for hvorfor
+/// den bevisst IKKE er koblet til domenemodellen ennå. <see cref="RaaJson"/> er hele kildeobjektet,
+/// verbatim.
+/// </summary>
+public sealed record EksternKildeDto(Guid Id, string Kildetype, string EksternId, string RaaJson, string InnholdsHash, DateTimeOffset HentetTidspunkt)
+{
+    public static EksternKildeDto FraEntitet(EksternKildeEntitet k) =>
+        new(k.Id, k.Kildetype, k.EksternId, k.RaaJson, k.InnholdsHash, k.HentetTidspunkt);
+}
+
+/// <summary>Rotobjektet for GET /api/eksterne-kilder — paginert.</summary>
+public sealed record EksternKildeListeDto(int Totalt, IReadOnlyList<EksternKildeDto> Kilder);
+
+/// <summary>Sammendrag returnert av POST /api/eksterne-kilder/oppgaveregister/hent.</summary>
+public sealed record EksternKildeHostingResultatDto(int Nye, int Oppdaterte, int Uendret);
+
 /// <summary>Kunnskapsbibliotek-fil (byggesteg 5 runde 2) — inneholder aldri de rå bytene, kun utvunnet tekst.</summary>
 public sealed record KunnskapsbibliotekFilDto(Guid Id, Guid VirksomhetId, string Filnavn, string? Tittel, string Filtype, string UtvunnetTekst, string OpprettetAv, DateTimeOffset OpprettetTidspunkt)
 {

@@ -58,6 +58,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<KunnskapsbibliotekLenkeEntitet> KunnskapsbibliotekLenker => Set<KunnskapsbibliotekLenkeEntitet>();
     public DbSet<KunnskapsbibliotekFilEntitet> KunnskapsbibliotekFiler => Set<KunnskapsbibliotekFilEntitet>();
     public DbSet<LovdataKatalogOppforingEntitet> LovdataKatalogOppforinger => Set<LovdataKatalogOppforingEntitet>();
+    public DbSet<EksternKildeEntitet> EksterneKilder => Set<EksternKildeEntitet>();
     public DbSet<NettsideStiEntitet> NettsideStier => Set<NettsideStiEntitet>();
     public DbSet<NettsideLenkeEntitet> NettsideLenker => Set<NettsideLenkeEntitet>();
     public DbSet<BegrepEntitet> Begreper => Set<BegrepEntitet>();
@@ -789,6 +790,21 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.SistOppdatert).HasColumnName("sist_oppdatert");
 
             e.HasIndex(x => x.SistOppdatert).HasDatabaseName("ix_lovdata_katalog_oppforinger_sist_oppdatert");
+        });
+
+        b.Entity<EksternKildeEntitet>(e =>
+        {
+            e.ToTable("eksterne_kilder");
+            e.HasKey(x => x.Id).HasName("eksterne_kilder_pkey");
+            e.Property(x => x.Kildetype).HasColumnName("kildetype");
+            e.Property(x => x.EksternId).HasColumnName("ekstern_id");
+            e.Property(x => x.RaaJson).HasColumnName("raa_json").HasColumnType(jsonKolonne);
+            e.Property(x => x.InnholdsHash).HasColumnName("innholds_hash");
+            e.Property(x => x.HentetTidspunkt).HasColumnName("hentet_tidspunkt");
+
+            // Idempotens-nøkkelen re-høsting matcher på — se EksternKildeEntitet punkt (a)/(c).
+            e.HasIndex(x => new { x.Kildetype, x.EksternId }).IsUnique().HasDatabaseName("ux_eksterne_kilder_kildetype_ekstern_id");
+            e.HasIndex(x => x.Kildetype).HasDatabaseName("ix_eksterne_kilder_kildetype");
         });
 
         // ---------- Punkt 8 (avklaringsrunde 2026-08-13): NettsideDokumentEntitet er fjernet — en ----------
