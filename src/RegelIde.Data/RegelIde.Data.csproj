@@ -29,4 +29,12 @@
     <ProjectReference Include="..\RegelIde.Kildekonvertering\RegelIde.Kildekonvertering.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <!-- Kopi av Johanns kommune-/fylkeskommune-eksport (Brønnøysundregisteret), committet slik at
+         OrganisasjonsregisterSeed er reproduserbar uten å lese fra Downloads ved kjøretid. -->
+    <None Include="Seed\organisasjoner-norge.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

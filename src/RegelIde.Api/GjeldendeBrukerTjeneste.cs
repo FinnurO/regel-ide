@@ -45,7 +45,7 @@ public static class GjeldendeBrukerTjeneste
 /// </summary>
 public sealed record BrukerDto(Guid Id, string Navn, Guid VirksomhetId, string VirksomhetNavn, string Rolle, bool ErAltinnBruker);
 
-public sealed record VirksomhetDto(Guid Id, string Navn, string? Organisasjonsnummer);
+public sealed record VirksomhetDto(Guid Id, string Navn, string? Organisasjonsnummer, bool Aktiv);
 
 /// <summary>Brukerhåndteringssiden — se BrukerregisterTjeneste.GyldigeRoller for gyldige verdier.</summary>
 public sealed record OpprettBrukerRequest(string Navn, string Rolle, Guid VirksomhetId);

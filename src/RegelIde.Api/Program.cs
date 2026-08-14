@@ -254,6 +254,12 @@ using (var scope = app.Services.CreateScope())
     var dataKilderRotmappe = app.Configuration["RegelIde:DataKilderRotmappe"]
         ?? Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "..", "..", "data", "kilder"));
     await BergenKorpusSeed.SeedAsync(db, dataKilderRotmappe);
+
+    // Organisasjonsregister (2026-08-14) — norske kommuner/fylkeskommuner fra Johanns eksport, se
+    // OrganisasjonsregisterSeed.cs. Kjøres SIST av virksomhet-seedene over, slik at matching mot
+    // Testkommunen/Agder/Bærum+Tønsberg/Bergen faktisk finner de eksisterende radene i stedet for å
+    // opprette duplikater.
+    await OrganisasjonsregisterSeed.SeedAsync(db);
 }
 
 // GUI-et spør om profilen for å vite om brukervelgeren skal vises i det hele tatt.
@@ -347,7 +353,7 @@ app.MapPut("/api/brukere/{id:guid}", async (Guid id, OppdaterBrukerRequest body,
     .WithSummary("Endrer rolle og virksomhetstilordning for en eksisterende bruker (test- eller Altinn-bruker).");
 
 app.MapGet("/api/virksomheter", async (RegelIdeDbContext db) =>
-        (await db.Virksomheter.ToListAsync()).Select(v => new VirksomhetDto(v.Id, v.Navn, v.Organisasjonsnummer)))
+        (await db.Virksomheter.ToListAsync()).Select(v => new VirksomhetDto(v.Id, v.Navn, v.Organisasjonsnummer, v.Aktiv)))
     .WithOpenApi()
     .WithName("HentVirksomheter")
     .WithSummary("Lister virksomheter.");

@@ -99,6 +99,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.Kommunenummer).HasColumnName("kommunenummer");
             e.Property(x => x.Forvaltningsniva).HasColumnName("forvaltningsniva");
+            e.Property(x => x.Aktiv).HasColumnName("aktiv").HasDefaultValue(true);
             e.HasIndex(x => x.Organisasjonsnummer).IsUnique().HasDatabaseName("ux_virksomheter_organisasjonsnummer")
                 .HasFilter("organisasjonsnummer IS NOT NULL");
         });
