@@ -48,10 +48,6 @@ public sealed class BrukerveiledningImportTjeneste(RegelIdeDbContext db)
 {
     private const string SystemBruker = "system-import";
 
-    /// <summary>Eid-en til sidens eneste node — konstant, siden det per definisjon kun finnes ÉN
-    /// (§3.1: kun dokument-granularitet, ingen seksjonsnivå å adressere separat).</summary>
-    private const string SideEid = "side";
-
     public async Task<Guid> LagreDokumentAsync(
         NettsideParseResultat resultat, Guid? virksomhetId = null, string? opprettetAv = null, CancellationToken ct = default)
     {
@@ -89,9 +85,20 @@ public sealed class BrukerveiledningImportTjeneste(RegelIdeDbContext db)
             {
                 Id = Guid.NewGuid(),
                 RettskildeId = rettskilde.Id,
-                Eid = SideEid,
+                // EKTE FUNN 2026-08-14 (rapportert av Johann): Eid var tidligere en literal konstant
+                // "side" — identisk på ALLE Brukerveiledning-rader. Det ble aldri en praktisk feil før
+                // KI-forslags-veien begynte å sitere Brukerveiledning-innhold: TjenesteforslagTjeneste
+                // slår opp siterte eId-er MOT HELE rettskilde_noder-tabellen
+                // (`FirstOrDefaultAsync(n => n.Eid == eid)`), og den manuelle paragraf-picker-en i
+                // TjenesteDetalj.tsx forutsetter en global-unik Eid for lenking. For lov/forskrift ER
+                // Eid globalt unik (den er alltid prefikset med rettskildens egen Eli). En
+                // Brukerveiledning har ingen Eli — men har allerede en garantert unik, ekte
+                // identifikator: KanoniskUrl (samme streng `LagreDokumentAsync` dedupliserer på over).
+                // Bruker DEN som Eid i stedet for å gjette/finne opp et nytt skjema — "ingen gjettet
+                // fallback" gjelder identifikatoren selv, ikke bare feltverdier.
+                Eid = side.KanoniskUrl,
                 Kildesystem = "regel-ide",
-                KildeId = SideEid,
+                KildeId = "side",
                 NodeType = "side",
                 Tekst = side.RaaTekst,
                 TekstHash = side.RaaTekst is not null ? LovdataIdentifikatorer.BeregnTekstHash(side.RaaTekst) : null,
@@ -110,7 +117,7 @@ public sealed class BrukerveiledningImportTjeneste(RegelIdeDbContext db)
             eksisterende.Hentet = DateTimeOffset.UtcNow;
             rettskildeId = eksisterende.Id;
 
-            var sideNode = await db.RettskildeNoder.SingleAsync(n => n.RettskildeId == rettskildeId && n.Eid == SideEid, ct);
+            var sideNode = await db.RettskildeNoder.SingleAsync(n => n.RettskildeId == rettskildeId && n.NodeType == "side", ct);
             sideNode.Tekst = side.RaaTekst;
             sideNode.TekstHash = side.RaaTekst is not null ? LovdataIdentifikatorer.BeregnTekstHash(side.RaaTekst) : null;
             sideNodeId = sideNode.Id;

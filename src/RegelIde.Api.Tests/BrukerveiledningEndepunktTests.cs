@@ -59,7 +59,9 @@ public class BrukerveiledningEndepunktTests
         var noder = await _client.GetFromJsonAsync<List<RettskildeNodeDto>>($"/api/rettskilder/{bundling.Id}/noder", JsonInnstillinger);
         var sideNode = Assert.Single(noder!);
         Assert.Equal("side", sideNode.NodeType);
-        Assert.Equal("side", sideNode.Eid);
+        // Eid er nå sidens egen KanoniskUrl/Url (rettet 2026-08-14 — literal "side" kolliderte på
+        // tvers av ALLE Brukerveiledning-rader, se BrukerveiledningImportTjeneste-kommentaren).
+        Assert.Equal(detalj.Url, sideNode.Eid);
         Assert.NotNull(sideNode.Tekst);
     }
 

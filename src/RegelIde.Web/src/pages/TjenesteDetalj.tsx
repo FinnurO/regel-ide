@@ -252,8 +252,13 @@ export default function TjenesteDetalj() {
 
   // Punkt 7 — kun blad-noder med en faktisk paragraf/nummer er valgbare (ikke kapittel-noder uten
   // egen paragraf) — se eidLenker.ts/TjenesteDetalj-kommentaren i planen for begrunnelsen.
+  // EKTE FUNN 2026-08-14: en Brukerveiledning har ÉN node ("side"-type) uten noe Nummer (den har per
+  // definisjon ingen paragrafinndeling, §3.1) — det opprinnelige filteret (`&& n.nummer`) fjernet
+  // derfor den eneste noden en Brukerveiledning har, og etterlot brukeren uten noe å velge og ingen
+  // måte å oppdage riktig eId manuelt. En "side"-node ER en reell, hel referanse (hele siden) — la
+  // den alltid være valgbar.
   const paragrafKandidater = (noderPerRettskilde.get(nyReferanseRettskildeId) ?? [])
-    .filter((n) => n.nodeType !== 'kapittel' && n.nummer);
+    .filter((n) => n.nodeType === 'side' || (n.nodeType !== 'kapittel' && n.nummer));
 
   async function kobleHendelse(e: FormEvent) {
     e.preventDefault();
@@ -495,7 +500,8 @@ export default function TjenesteDetalj() {
                 <Select.Option value="">Velg …</Select.Option>
                 {paragrafKandidater.map((n) => (
                   <Select.Option key={n.id} value={n.eid}>
-                    {n.nummer}{n.overskrift ? ` — ${n.overskrift}` : ''}
+                    {/* "side"-noder (Brukerveiledning) har ikke noe paragrafnummer — vis "Hele siden" i stedet */}
+                    {n.nodeType === 'side' ? 'Hele siden' : n.nummer}{n.overskrift ? ` — ${n.overskrift}` : ''}
                   </Select.Option>
                 ))}
               </Select>
