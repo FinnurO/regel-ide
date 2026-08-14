@@ -3,6 +3,8 @@ import type {
   BegrepDto,
   BegrepRequest,
   BrukerDto,
+  OppdaterBrukerRequest,
+  OpprettBrukerRequest,
   DatasettDto,
   DatasettVerdiDto,
   BegrepsforslagDto,
@@ -176,6 +178,20 @@ export const api = {
   hentBrukere: () => kall<BrukerDto[]>('/api/brukere'),
   hentOppsett: () => kall<{ autentisering: 'testbruker' | 'altinn' }>('/api/oppsett'),
   hentMeg: () => kall<BrukerDto>('/api/meg'),
+
+  opprettBruker: (request: OpprettBrukerRequest) =>
+    kall<BrukerDto>('/api/brukere', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  oppdaterBruker: (id: string, request: OppdaterBrukerRequest) =>
+    kall<BrukerDto>(`/api/brukere/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
 
   hentVirksomheter: () => kall<VirksomhetDto[]>('/api/virksomheter'),
 

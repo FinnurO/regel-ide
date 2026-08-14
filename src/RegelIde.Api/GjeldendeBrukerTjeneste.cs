@@ -38,6 +38,17 @@ public static class GjeldendeBrukerTjeneste
         request.HttpContext.RequestServices.GetRequiredService<IBrukerkontekst>().IkkeFunnetSvar();
 }
 
-public sealed record BrukerDto(Guid Id, string Navn, Guid VirksomhetId, string VirksomhetNavn, string Rolle);
+/// <summary>
+/// <paramref name="ErAltinnBruker"/> speiler <c>Bruker.AltinnBrukerId != null</c> — GUI-et bruker
+/// dette til å skille ekte innloggede identiteter fra testbrukere (brukerhåndteringssiden), IKKE
+/// til noe autorisasjonsformål.
+/// </summary>
+public sealed record BrukerDto(Guid Id, string Navn, Guid VirksomhetId, string VirksomhetNavn, string Rolle, bool ErAltinnBruker);
 
 public sealed record VirksomhetDto(Guid Id, string Navn, string? Organisasjonsnummer);
+
+/// <summary>Brukerhåndteringssiden — se BrukerregisterTjeneste.GyldigeRoller for gyldige verdier.</summary>
+public sealed record OpprettBrukerRequest(string Navn, string Rolle, Guid VirksomhetId);
+
+/// <summary>Navnet endres ikke via dette endepunktet, se BrukerregisterTjeneste.OppdaterAsync.</summary>
+public sealed record OppdaterBrukerRequest(string Rolle, Guid VirksomhetId);
