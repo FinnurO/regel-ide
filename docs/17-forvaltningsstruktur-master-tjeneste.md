@@ -1,10 +1,8 @@
 # 17. Notat: Forvaltningsstruktur (organisasjonstyper) og master-tjeneste
 
-*Status: forslag til beslutning, ikke besluttet. Egen avklaringsrunde, samme form som ontologilåsen og
-håndbok-/dokumentgraf-notatet (`15-handbok-dokumentgraf-notat.md`) fikk. Ingen kode, ingen migrasjon og
-ingen entitet er skrevet mot dette notatet — det er bevisst: Johann har varslet at han vil levere en
-seed-liste over organisasjoner senere, og skjemaet bør ikke låses før den listen og spørsmålene i §9 er
-avklart. Mottatt som oppdrag fra Johann 2026-08-13/14.*
+*Status: kjernespørsmålene er avklart 2026-08-14 (§11) — bygging kan starte. Egen avklaringsrunde, samme
+form som ontologilåsen og håndbok-/dokumentgraf-notatet (`15-handbok-dokumentgraf-notat.md`) fikk.
+Mottatt som oppdrag fra Johann 2026-08-13/14, seed-listen levert samme dag og seedet (PR #38 — se §11).*
 
 Verifisert mot `master` @ `a246f5e` (2026-08-14). Alle linjenumre er fra det commit-et. Tre andre
 branchar hadde kodeendringer under arbeid samtidig; ingen av dem berører feltene dette notatet
@@ -641,6 +639,8 @@ eksplisitt fremfor underforstått.
 
 ## 9. Åpne spørsmål — [PÅ AVKLARING], før koding starter
 
+*Besvart 2026-08-14, se §11 for fasiten. Beholdt uendret under som spørsmålene faktisk ble stilt.*
+
 Analogt med ELI- og brukerveiledning-spørsmålene i forrige runde: dette er spørsmål jeg ikke kan
 avgjøre alene, og som endrer skjemaet hvis svaret er et annet enn jeg antar.
 
@@ -720,3 +720,55 @@ anvender ett nivå opp (Tjeneste i stedet for Vilkår).
 - **Kostnadsanslaget for alternativ A vs. C.** Basert på lesing av kallkjedene, ikke på et forsøk.
 - **At ingen av de tre parallelle branchene** under arbeid 2026-08-14 endrer feltene her. Sjekket på
   `master`, ikke i deres arbeidskopier.
+
+---
+
+## 11. Beslutninger 2026-08-14 [LÅST]
+
+Etter at et eksternt notat («Revisjon av tjenestemodellen») foreslo en delvis overlappende struktur
+(`ForvaltningsomraadeEntitet`, `Virksomhet.Organiseringstype`) uten kjennskap til dette dokumentet, ble
+forholdet mellom de to vurdert i `docs/18-vurdering-rettighet-samhandling-modell.md`. Johann svarte
+deretter direkte på de gjenstående §9-spørsmålene, informert av den vurderingen. Dette er fasiten —
+§9s spørsmål reåpnes ikke.
+
+- **Organisasjonstype blir IKKE en `CHECK`-constraint.** Endret fra §3s anbefaling. Johann valgte
+  fluktveien §3 selv skisserte: samme mønster som `TaggKindKonfigurasjonEntitet`
+  (`Program.cs:209-217`) — en liten, global, redigerbar kodeliste-tabell (`kode`, `navn`,
+  `sorteringsrekkefolge`), seedet ved oppstart med `kommune`/`fylkeskommune`/`statsforvalter`/
+  `tingrett`/`lagmannsrett`/`jordskifterett`, med FK fra `Virksomhet`. Ingen migrasjon trengs for å
+  legge til en ny type (f.eks. `sektormyndighet`, `direktorat`) senere — kun en ny rad. Dette gjør §9s
+  spørsmål «er de seks typene fullstendige?» mindre kritisk å svare uttømmende på nå, siden svaret
+  ikke lenger er en migrasjonskostnad.
+- **`ForvaltningsomraadeEntitet` (notatets §3, land→fylke→kommune-hierarki) er AVVIST, ikke bare
+  utsatt.** Johanns begrunnelse: hierarkipunkter må reflektere faktisk forvaltningspraksis, ikke
+  geografisk nesting — geografisk virkeområde har reelle unntak (f.eks. Svalbard) som en streng
+  kommune→fylke→land-hierarki ikke kan uttrykke uten å lyve. Dette gjelder også hvis unntakene er
+  sjeldne: en hierarki-tabell som er feil i noen rader er verre enn ingen tabell. `Virksomhet.
+  Organiseringstype` (notatets to-verdis akse `geografisk_forvaltningsledd`/`sektormyndighet`) er
+  dermed også avvist — den var kun et hjelpefelt for hierarkiet.
+- **Geografisk virkeområde (med unntak) modelleres IKKE nå.** Ingen kjent virksomhet i registeret
+  trenger det ennå. Løses den dagen et konkret tilfelle faktisk krever det — «ingen gjettet fallback»
+  gjelder her strukturen selv, ikke bare feltverdier: ikke bygg en unntaksmekanisme før et unntak
+  faktisk må representeres.
+- **Organisatorisk hierarki/myndighetslinje mellom virksomheter bygges IKKE nå.** §9s opprinnelige
+  antakelse (§8, utenfor scope) bekreftet. Ingen `overordnet_virksomhet_id` eller tilsvarende ennå.
+- **Master-tjeneste: Alternativ C (§5.3) er bekreftet, uendret fra anbefalingen.** Eierløse
+  (`VirksomhetId = NULL`) master-rader i samme `Tjeneste`-tabell, `Tjenestenivaa`-diskriminator
+  (`'master'` \| `'instans'` — Johanns eget ord, se §9 ordvalg), `GjelderOrganisasjonstype` på
+  master-raden (nå en FK til kodelisten over, ikke en streng), nullbar selvrefererende
+  `MasterTjenesteId` på instansrader. Notatets `SamhandlingTilbyder`-modell (én innholdsrad + N
+  tilbydere) ble eksplisitt vurdert og avvist til fordel for master/instans — se
+  `docs/18` §A.2 for hvorfor Tilbyder-modellen ikke har plass til lokal variasjon (kostnad,
+  behandlingstid, vilkårstre) som §5.5 viste faktisk finnes i seeded innhold.
+- **Fortsatt PÅ AVKLARING, ikke reist i denne runden:** domstoler og `Forvaltningsniva` (§9,
+  anbefaling står: `NULL` for domstoler siden domstolene ikke er forvaltning), om domstoler har
+  «tjenester» i CPSV-forstand, og hvem som kan redigere en eierløs master-rad (§9s RBAC-spørsmål,
+  anbefaling står: samme regel som delte rettskilder). Ingen av disse blokkerer byggingen av
+  kjerneskjemaet i §3–§5 og tas opp igjen når de faktisk blir relevante (domstol-seeding,
+  master-tjeneste-redigering).
+
+**Seed-listen (§7) er allerede levert og seedet** — se PR #38 (`OrganisasjonsregisterSeed.cs`), som
+la til `Virksomhet.Aktiv` og seedet kommuner/fylkeskommuner fra Johanns eksport. Den seedingen
+forutsatte ingen del av dette notatet og trenger ingen endring for å være forenlig med beslutningene
+over — `Organisasjonstype`-kodelisten kobles på i etterkant, samme mønster som `Aktiv` ble lagt til
+uten å røre eksisterende rader.
