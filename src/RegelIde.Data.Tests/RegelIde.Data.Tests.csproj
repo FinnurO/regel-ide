@@ -41,6 +41,12 @@
       <Link>Testdata\Nettside\%(Filename)%(Extension)</Link>
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <!-- Ekte fixtures for AltinnRessursHenter/AltinnSkjemaoversiktHenter (feature/altinn-hostere), allerede
+         committet direkte i dette prosjektets egen Testdata-mappe (ikke under data/kilder/ som fixturene
+         over) — samme CopyToOutputDirectory-mønster som RegelIde.Kildekonvertering.Tests' Testdata\Xsd\*.xsd. -->
+    <None Include="Testdata\AltinnHosting\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

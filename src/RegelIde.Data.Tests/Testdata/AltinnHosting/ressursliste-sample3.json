@@ -1,0 +1,214 @@
+[
+  {
+    "identifier": "app_brg_aarsregnskap-bank-202404",
+    "version": null,
+    "title": {
+      "en": "Annual accounts for banking and finance RR-0003",
+      "nb": "Årsregnskap for bank og finans RR-0003",
+      "nn": "Årsrekneskap for bank og finans RR-0003"
+    },
+    "description": {
+      "en": "Submitting annual accounts to the Register of Company Accounts",
+      "nb": "Innsending av årsregnskap til Regnskapsregisteret",
+      "nn": "Innsending av årsrekneskap til Rekneskapsregisteret"
+    },
+    "rightDescription": {
+      "en": "Authorization to submit annual accounts.",
+      "nb": "Fullmakt til å sende inn årsregnskap.",
+      "nn": "Fullmakt til å sende inn årsrekneskap."
+    },
+    "homepage": null,
+    "status": null,
+    "spatial": null,
+    "contactPoints": [
+      {
+        "category": "Tilbakemeldinger",
+        "email": "",
+        "telephone": "",
+        "contactPage": "https://www.brreg.no/kontaktskjema/"
+      }
+    ],
+    "produces": null,
+    "isPartOf": null,
+    "thematicAreas": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "brg/aarsregnskap-bank-202404",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "delegable": true,
+    "visible": true,
+    "hasCompetentAuthority": {
+      "name": {
+        "en": "Brønnøysund Register Centre",
+        "nb": "Brønnøysundregistrene",
+        "nn": "Brønnøysundregistera"
+      },
+      "organization": "974760673",
+      "orgcode": "brg"
+    },
+    "keywords": null,
+    "accessListMode": "Disabled",
+    "selfIdentifiedUserEnabled": false,
+    "enterpriseUserEnabled": false,
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "brg"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "aarsregnskap-bank-202404"
+      }
+    ],
+    "consentTemplate": null,
+    "consentText": null,
+    "consentMetadata": null,
+    "isOneTimeConsent": false,
+    "versionId": 3025
+  },
+  {
+    "identifier": "app_dsb_farligstoff",
+    "version": null,
+    "title": {
+      "en": "Innmelding, endring og opphør av farlig stoff",
+      "nb": "Innmelding, endring og opphør av farlig stoff",
+      "nn": "Innmelding, endring og avvikling av farleg stoff"
+    },
+    "description": {
+      "en": "Brukes av virksomheter og privatpersoner som oppbevarer farlig stoff på en eiendom, i et anlegg eller transporterer farlig stoff i rørledning.",
+      "nb": "Brukes av virksomheter og privatpersoner som oppbevarer farlig stoff på en eiendom, i et anlegg eller transporterer farlig stoff i rørledning.",
+      "nn": "Brukast av verksemder og privatpersonar som oppbevarer farleg stoff på en eigendom, i eit anlegg eller transporterer farleg stoff i røyrledning."
+    },
+    "rightDescription": {
+      "en": "By granting access to this service, you are authorising another person to use it on your behalf. Please read the service description for more information about what this access entails.",
+      "nb": "Ved å gi tilgang til denne tjenesten gir du en annen person fullmakt til å bruke den på dine vegne. Les beskrivelsen av tjenesten for mer informasjon om hva tilgangen innebærer.",
+      "nn": "Når du gir tilgang til denne tenesta, gir du ein annan person fullmakt til å bruka ho på dine vegner. Les skildringa av tenesta for meir informasjon om kva tilgangen inneber."
+    },
+    "homepage": null,
+    "status": null,
+    "spatial": null,
+    "contactPoints": [
+      {
+        "category": "Brukerstøtte",
+        "email": "postmottak@dsb.no",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "produces": null,
+    "isPartOf": null,
+    "thematicAreas": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Altinn3",
+        "reference": "dsb/farligstoff",
+        "referenceType": "ApplicationId"
+      }
+    ],
+    "delegable": true,
+    "visible": true,
+    "hasCompetentAuthority": {
+      "name": {
+        "en": "The Norwegian Directorate for Civil Protection",
+        "nb": "Direktoratet for samfunnssikkerhet og beredskap",
+        "nn": "Direktoratet for samfunnssikkerhet og beredskap"
+      },
+      "organization": "974760983",
+      "orgcode": "dsb"
+    },
+    "keywords": null,
+    "accessListMode": "Disabled",
+    "selfIdentifiedUserEnabled": false,
+    "enterpriseUserEnabled": false,
+    "resourceType": "AltinnApp",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:org",
+        "value": "dsb"
+      },
+      {
+        "id": "urn:altinn:app",
+        "value": "farligstoff"
+      }
+    ],
+    "consentTemplate": null,
+    "consentText": null,
+    "consentMetadata": null,
+    "isOneTimeConsent": false,
+    "versionId": 1734
+  },
+  {
+    "identifier": "72735971-43c2-4eb1-9ff1-e2dcb3fdf4fd",
+    "version": "3",
+    "title": {
+      "en": "Register over reelle rettighetshavere - Rapporteringspliktig virksomhet begrenset - På vegne av",
+      "nb": "Register over reelle rettighetshavere - Rapporteringspliktig virksomhet begrenset - På vegne av",
+      "nn": "Register over reelle rettighetshavere - Rapporteringspliktig virksomhet begrenset - På vegne av"
+    },
+    "description": {
+      "en": "Tilgangsstyrt API for Register over reelle rettighetshavere",
+      "nb": "Tilgangsstyrt API for Register over reelle rettighetshavere",
+      "nn": "Tilgangsstyrt API for Register over reelle rettighetshavere"
+    },
+    "rightDescription": {
+      "en": "Denne tjenesten gir deg mulighet til å delegere din tilgang til en annen virksomhet, eksempelvis en leverandør. Når delegeringen er utført, vil den andre virksomheten motta melding om at de på vegne av din virksomhet kan benytte de tjenester som er tilgjengelig innenfor den rettighetspakken som er delegert. Sletting av tilganger kan også utføres via samme tjeneste",
+      "nb": "Denne tjenesten gir deg mulighet til å delegere din tilgang til en annen virksomhet, eksempelvis en leverandør. Når delegeringen er utført, vil den andre virksomheten motta melding om at de på vegne av din virksomhet kan benytte de tjenester som er tilgjengelig innenfor den rettighetspakken som er delegert. Sletting av tilganger kan også utføres via samme tjeneste",
+      "nn": "Denne tjenesten gir deg mulighet til å delegere din tilgang til en annen virksomhet, eksempelvis en leverandør. Når delegeringen er utført, vil den andre virksomheten motta melding om at de på vegne av din virksomhet kan benytte de tjenester som er tilgjengelig innenfor den rettighetspakken som er delegert. Sletting av tilganger kan også utføres via samme tjeneste"
+    },
+    "homepage": "",
+    "status": "Completed",
+    "spatial": null,
+    "contactPoints": [
+      {
+        "category": "",
+        "email": "firmapost@brreg.no",
+        "telephone": "",
+        "contactPage": ""
+      }
+    ],
+    "produces": null,
+    "isPartOf": null,
+    "thematicAreas": null,
+    "resourceReferences": [
+      {
+        "referenceSource": "Default",
+        "reference": "brreg:reelle/rapporteringspliktig.begrenset",
+        "referenceType": "MaskinportenScope"
+      }
+    ],
+    "delegable": true,
+    "visible": true,
+    "hasCompetentAuthority": {
+      "name": {
+        "en": "Brønnøysund Register Centre",
+        "nb": "Brønnøysundregistrene",
+        "nn": "Brønnøysundregistera"
+      },
+      "organization": "974760673",
+      "orgcode": "brg"
+    },
+    "keywords": [],
+    "accessListMode": "Disabled",
+    "selfIdentifiedUserEnabled": false,
+    "enterpriseUserEnabled": false,
+    "resourceType": "MaskinportenSchema",
+    "availableForType": null,
+    "authorizationReference": [
+      {
+        "id": "urn:altinn:resource",
+        "value": "72735971-43c2-4eb1-9ff1-e2dcb3fdf4fd"
+      }
+    ],
+    "consentTemplate": null,
+    "consentText": null,
+    "consentMetadata": null,
+    "isOneTimeConsent": false,
+    "versionId": 129
+  }
+]

@@ -79,6 +79,12 @@ builder.Services.AddScoped<TjenesteforslagTjeneste>();
 builder.Services.AddHttpClient<LovdataBulkHenter>();
 builder.Services.AddScoped<LovdataKatalogTjeneste>();
 builder.Services.AddHttpClient<OppgaveregisterHenter>();
+builder.Services.AddHttpClient<AltinnRessursHenter>();
+// info.altinn.no returnerer 403 uten en nettleserlignende User-Agent (bekreftet ved live-verifisering
+// av testfixturene i src/RegelIde.Data.Tests/Testdata/AltinnHosting/, samme header Johanns
+// referanseskript setter) — data.brreg.no/tjenesteoversikten.no over krever ingen tilsvarende header.
+builder.Services.AddHttpClient<AltinnSkjemaoversiktHenter>(c =>
+    c.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; RegelIde-høster/1.0; +https://github.com/FinnurO/regel-ide)"));
 
 const string VitePolicy = "ViteDevServer";
 builder.Services.AddCors(o => o.AddPolicy(VitePolicy, p => p
@@ -695,6 +701,25 @@ eksterneKilder.MapPost("/oppgaveregister/hent", async (OppgaveregisterHenter hen
     .WithName("HentOppgaveregisterSkjema")
     .WithSummary("Høster alle skjemaer fra Oppgaveregisteret (Brønnøysundregistrene) inn som rå, uforandrede " +
         "kildeposter — idempotent upsert på (kildetype, ekstern_id). Ikke koblet til domenemodellen ennå.");
+
+eksterneKilder.MapPost("/altinn-ressurser/hent", async (AltinnRessursHenter henter, CancellationToken ct) =>
+    {
+        var resultat = await henter.HentAlleRessurserAsync(ct);
+        return Results.Ok(new EksternKildeHostingResultatDto(resultat.Nye, resultat.Oppdaterte, resultat.Uendret));
+    })
+    .WithName("HentAltinnRessurser")
+    .WithSummary("Høster alle AltinnApp-ressurser fra Altinns ressursregister (tjenesteoversikten.no) inn som " +
+        "rå, uforandrede kildeposter — idempotent upsert på (kildetype, ekstern_id). Ikke koblet til domenemodellen ennå.");
+
+eksterneKilder.MapPost("/altinn-skjemaoversikt/hent", async (AltinnSkjemaoversiktHenter henter, CancellationToken ct) =>
+    {
+        var resultat = await henter.HentAltAsync(ct);
+        return Results.Ok(new EksternKildeHostingResultatDto(resultat.Nye, resultat.Oppdaterte, resultat.Uendret));
+    })
+    .WithName("HentAltinnSkjemaoversikt")
+    .WithSummary("Kryper hele Altinns skjemaoversikt (info.altinn.no/skjemaoversikt, ~800+ tjenestesider) og " +
+        "høster hver tjenesteside inn som en strukturert kildepost — SYNKRONT, langvarig kall (trenger lang " +
+        "klient-timeout), lagrer inkrementelt per etat. Idempotent, trygt å kjøre på nytt ved avbrudd.");
 
 eksterneKilder.MapGet("/", async (string? kildetype, RegelIdeDbContext db, CancellationToken ct, int start = 0, int antall = 50) =>
     {

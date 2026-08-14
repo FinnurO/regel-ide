@@ -171,6 +171,56 @@ kobler INGENTING til `TjenesteEntitet`, `VilkarEntitet` eller noen hypotetisk ny
    `Kildekvalitetsflagg`/`KvalitetssikretBeskrivelse`-konsept, fortsatt uavklart i
    `18-vurdering-rettighet-samhandling-modell.md`); ingen frontend-side (kun de to endepunktene).
 
+## 0d. To flere kilder i høstelaget — Altinn ressursregister + skjemaoversikt 2026-08-14 (`feature/altinn-hostere`)
+
+Samme høstelag som 0c (`EksternKildeEntitet`, ingen FK til domenemodellen), utvidet med to nye kilder.
+Fri streng-`Kildetype` betyr ingen skjemaendring var nødvendig — kun to nye høstere + to nye trigger-
+endepunkter i den eksisterende `eksterneKilder`-gruppen.
+
+1. **`AltinnRessursHenter.cs`** (`src/RegelIde.Data/`) — Altinns ressursregister
+   (`tjenesteoversikten.no/api/v1/prod/resource/resourcelist`, ~4200 ressurser, ett kall). Filtrert til
+   `resourceType == "AltinnApp"` (~820 av ~4200) — Johanns uttalte behov denne runden, skrevet som én
+   egen, lett synlig klausul (ikke bakt inn i parse-/upsert-løkken) slik at flere `resourceType`-verdier
+   kan tas med senere uten å røre resten av høsteren. `EksternId` = ressursens egen `identifier`,
+   `Kildetype = "altinn_ressurs"`. Samme upsert-på-hash/batch-`SaveChangesAsync`-mønster som
+   `OppgaveregisterHenter`. Trigger: `POST /api/eksterne-kilder/altinn-ressurser/hent`.
+2. **`AltinnSkjemaoversiktHenter.cs`** (`src/RegelIde.Data/`) — Altinns skjemaoversikt
+   (`info.altinn.no/skjemaoversikt`), en to-nivås HTML-krype (ingen JSON-API finnes for denne kilden):
+   indeksside → ~200+ etatlenker (2 stisegmenter) → hver etatside → dens tjenestelenker (3 stisegmenter,
+   filtrert til etatens EGEN slug) → hver tjenesteside parses (HtmlAgilityPack, samme presedens som
+   `LovdataHtmlParser`/`LovdataBulkHenter`) til tittel + eksterne lenker (ekskludert Altinn-interne
+   domener og statiske filendelser) + `<details>`/`<summary>`-seksjoner. `RaaJson` er den HARVESTEDE
+   STRUKTUREN (`{url, tjeneste, lenker, seksjoner}`), ikke rå HTML — samme "utvunnet tekst er
+   sannhetslaget for en skrapet side"-begrunnelse som `BrukerveiledningImportTjeneste` bruker for
+   Bergen-korpuset. `EksternId` = tjenestens egen URL-sti (f.eks.
+   `/skjemaoversikt/advokattilsynet/advokat/`), `Kildetype = "altinn_skjemaoversikt"`.
+   - **Ekte markup-kvirk håndtert eksplisitt** (bekreftet i de committede fixturene): indekssiden lister
+     `/skjemaoversikt/kategori/` i NØYAKTIG samme liste-markup som en ekte etat (en UI-filterlenke, ikke
+     en etat) — ekskludert eksplisitt, ellers ville den blitt krypet som en falsk "etat". Etater uten
+     logo-SVG får en bokstav-avatar-fallback som egen tekstnode inni lenken (ville gitt "AA-ordningen" i
+     stedet for "A-ordningen" uten spesialhåndtering).
+   - **Ingen bakgrunnsjobb-infrastruktur denne runden** (avgrenset, ikke big-bang) — en full kryping er
+     ~800+ tjenestesider × 0.5s høflighetsforsinkelse ≈ 7+ minutter, så
+     `POST /api/eksterne-kilder/altinn-skjemaoversikt/hent` er et SYNKRONT, langvarig kall (kalleren
+     trenger lang klient-timeout). Lagrer INKREMENTELT (én `SaveChangesAsync` per etat, ikke én batch for
+     hele kjøringen) slik at delvis fremgang er varig ved en avbrutt/timet-ut kjøring. Idempotent upsert
+     gjør re-kjøring etter avbrudd trygt (ingen duplikater, allerede hostede uendrede sider blir raske
+     no-op-er) — dette ER mitigeringen, ikke en ekte "fortsett der du slapp"-mekanisme. Ingen per-side
+     feilsvelging: en mislykket forespørsel kaster og stopper hele kjøringen.
+3. **Tester** — `AltinnRessursHenterTests.cs` og `AltinnSkjemaoversiktHenterTests.cs` (`RegelIde.Data.Tests`),
+   samme stub-`HttpMessageHandler`-prinsipp som 0c. Fixturedata for begge nye kildene er EKTE, verifisert
+   live mot henholdsvis tjenesteoversikten.no og info.altinn.no
+   (`src/RegelIde.Data.Tests/Testdata/AltinnHosting/`) — de rene parse-funksjonene for skjemaoversikten
+   testes mot de ekte HTML-fixturene direkte (ikke syntetisk minimal HTML), siden det er nettopp ekte
+   markup-kvirker en syntetisk fixture ville skjult; kun selve orkestreringstesten bruker en liten,
+   syntetisk 1-etat/1-tjeneste-indeks/etatside (den endelige tjenestesiden er fortsatt den ekte fixturen).
+   `EksterneKilderEndepunktTests.cs` (`RegelIde.Api.Tests`) utvidet med POST-tester for begge nye
+   endepunktene, samme `WebApplicationFactory`-stub-mønster som 0c.
+4. **Bevisst utelatt**: samme liste som 0c punkt 5 (ingen FK til domenemodellen, ingen automatisk
+   bakgrunnsoppdatering, ingen kurateringsUI, ingen frontend-side) — pluss, spesifikt for
+   skjemaoversikten, ingen bakgrunnsjobb-/kø-infrastruktur (se punkt 2 over) og ingen retry/feilsvelging
+   per side.
+
 ## 1. Byggesteg-status
 
 | # | Byggesteg | Status |

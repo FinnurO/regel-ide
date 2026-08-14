@@ -80,6 +80,85 @@ public class EksterneKilderEndepunktTests
         Assert.Equal(2, antall);
     }
 
+    private const string ToRessurserJson = """
+    [
+      { "identifier": "app_test_en", "resourceType": "AltinnApp" },
+      { "identifier": "test-maskinporten", "resourceType": "MaskinportenSchema" }
+    ]
+    """;
+
+    [Fact]
+    public async Task Post_hent_altinn_ressurser_lagrer_kun_altinnapp_og_returnerer_sammendrag()
+    {
+        await using (var db = _fixture.NyDbContext())
+        {
+            await db.EksterneKilder.ExecuteDeleteAsync();
+        }
+
+        using var factoryMedStub = _fixture.Factory.WithWebHostBuilder(builder =>
+            builder.ConfigureServices(services =>
+                services.AddHttpClient<AltinnRessursHenter>().ConfigurePrimaryHttpMessageHandler(() => new StubHandler(ToRessurserJson))));
+        using var klient = factoryMedStub.CreateClient();
+
+        var svar = await klient.PostAsync("/api/eksterne-kilder/altinn-ressurser/hent", content: null);
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+
+        var resultat = await svar.Content.ReadFromJsonAsync<EksternKildeHostingResultatDto>(JsonInnstillinger);
+        Assert.NotNull(resultat);
+        Assert.Equal(1, resultat!.Nye); // MaskinportenSchema er filtrert bort
+
+        await using var etterDb = _fixture.NyDbContext();
+        var antall = await etterDb.EksterneKilder.CountAsync(k => k.Kildetype == AltinnRessursHenter.Kildetype);
+        Assert.Equal(1, antall);
+        Assert.True(await etterDb.EksterneKilder.AnyAsync(k => k.Kildetype == AltinnRessursHenter.Kildetype && k.EksternId == "app_test_en"));
+    }
+
+    private sealed class HtmlStubHandler(IReadOnlyList<string> htmlSvar) : HttpMessageHandler
+    {
+        private int _kall;
+
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
+        {
+            var body = htmlSvar[Math.Min(_kall, htmlSvar.Count - 1)];
+            _kall++;
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK) { Content = new StringContent(body, Encoding.UTF8, "text/html") });
+        }
+    }
+
+    [Fact]
+    public async Task Post_hent_altinn_skjemaoversikt_kryper_og_lagrer_en_tjenesteside()
+    {
+        await using (var db = _fixture.NyDbContext())
+        {
+            await db.EksterneKilder.ExecuteDeleteAsync();
+        }
+
+        const string indeksHtml = """<html><body><a href="/skjemaoversikt/advokattilsynet/">Advokattilsynet</a></body></html>""";
+        const string etatHtml = """<html><body><a href="/skjemaoversikt/advokattilsynet/advokat/">Advokat</a></body></html>""";
+        var tjenesteHtml = """<html><body><h1>Advokat</h1></body></html>""";
+
+        using var factoryMedStub = _fixture.Factory.WithWebHostBuilder(builder =>
+            builder.ConfigureServices(services =>
+                services.AddHttpClient<AltinnSkjemaoversiktHenter>()
+                    .ConfigurePrimaryHttpMessageHandler(() => new HtmlStubHandler([indeksHtml, etatHtml, tjenesteHtml]))));
+        using var klient = factoryMedStub.CreateClient();
+
+        var svar = await klient.PostAsync("/api/eksterne-kilder/altinn-skjemaoversikt/hent", content: null);
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+
+        var resultat = await svar.Content.ReadFromJsonAsync<EksternKildeHostingResultatDto>(JsonInnstillinger);
+        Assert.NotNull(resultat);
+        Assert.Equal(1, resultat!.Nye);
+
+        await using var etterDb = _fixture.NyDbContext();
+        var rad = await etterDb.EksterneKilder.SingleAsync(k => k.Kildetype == AltinnSkjemaoversiktHenter.Kildetype);
+        Assert.Equal("/skjemaoversikt/advokattilsynet/advokat/", rad.EksternId);
+        // Postgres' jsonb-kolonne normaliserer whitespace ved lagring/lesing (canonical form, mellomrom
+        // etter kolon) — sammenlign derfor på det parsede innholdet, ikke rå tekstlikhet.
+        using var raaJson = JsonDocument.Parse(rad.RaaJson);
+        Assert.Equal("Advokat", raaJson.RootElement.GetProperty("tjeneste").GetString());
+    }
+
     [Fact]
     public async Task Get_lister_hostede_kilder_paginert_og_filtrert_pa_kildetype()
     {
