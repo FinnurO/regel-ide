@@ -78,6 +78,7 @@ builder.Services.AddScoped<RettskildeEmbeddingTjeneste>();
 builder.Services.AddScoped<TjenesteforslagTjeneste>();
 builder.Services.AddHttpClient<LovdataBulkHenter>();
 builder.Services.AddScoped<LovdataKatalogTjeneste>();
+builder.Services.AddHttpClient<OppgaveregisterHenter>();
 
 const string VitePolicy = "ViteDevServer";
 builder.Services.AddCors(o => o.AddPolicy(VitePolicy, p => p
@@ -679,6 +680,40 @@ app.MapGet("/api/lovdata-katalog/sok", async (string q, LovdataKatalogTjeneste t
     .WithSummary("Søker i en lokal, søkbar katalog over Lovdatas bulk-datasett (byggesteg 5 runde 2) — " +
         "kun metadata, bygges/fornyes automatisk (24t foreldelsesgrense). Bruk treffets datokode mot " +
         "/api/rettskilder/lovdata for selve importen.");
+
+// ---------- Eksterne kilder — rått høstelag for skjema-/tjenestekatalog (docs/13-backlog.md), ----------
+// ---------- ENNÅ IKKE koblet til domenemodellen (docs/17/docs/18 fortsatt uavklart). Trigges på ----------
+// ---------- forespørsel, ikke ved oppstart — samme begrunnelse som lovdata-katalogen over.       ----------
+
+var eksterneKilder = app.MapGroup("/api/eksterne-kilder").WithOpenApi();
+
+eksterneKilder.MapPost("/oppgaveregister/hent", async (OppgaveregisterHenter henter, CancellationToken ct) =>
+    {
+        var resultat = await henter.HentAlleSkjemaAsync(ct);
+        return Results.Ok(new EksternKildeHostingResultatDto(resultat.Nye, resultat.Oppdaterte, resultat.Uendret));
+    })
+    .WithName("HentOppgaveregisterSkjema")
+    .WithSummary("Høster alle skjemaer fra Oppgaveregisteret (Brønnøysundregistrene) inn som rå, uforandrede " +
+        "kildeposter — idempotent upsert på (kildetype, ekstern_id). Ikke koblet til domenemodellen ennå.");
+
+eksterneKilder.MapGet("/", async (string? kildetype, RegelIdeDbContext db, CancellationToken ct, int start = 0, int antall = 50) =>
+    {
+        var faktiskStart = Math.Max(start, 0);
+        var faktiskAntall = antall <= 0 ? 50 : Math.Min(antall, 200);
+
+        var sporring = db.EksterneKilder.AsQueryable();
+        if (!string.IsNullOrWhiteSpace(kildetype)) sporring = sporring.Where(k => k.Kildetype == kildetype);
+
+        var totalt = await sporring.CountAsync(ct);
+        var rader = await sporring
+            .OrderBy(k => k.Kildetype).ThenBy(k => k.EksternId)
+            .Skip(faktiskStart).Take(faktiskAntall)
+            .ToListAsync(ct);
+
+        return Results.Ok(new EksternKildeListeDto(totalt, rader.Select(EksternKildeDto.FraEntitet).ToList()));
+    })
+    .WithName("ListEksterneKilder")
+    .WithSummary("Paginert liste over høstede rå kildeposter, valgfritt filtrert på kildetype (start/antall, default 50, maks 200).");
 
 // ---------- Håndbok/rundskriv-forfatterflyt (2026-07-26, docs/03-domenemodell.md §1.1.1) ----------
 // ---------- krever X-Bruker-Id for attribusjon, samme mønster som import/tagging over.       ----------

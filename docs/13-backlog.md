@@ -128,6 +128,49 @@ forbilde for hva som manglet i regel-ide. Bygget:
    §4); ingen sletting av brukere (reiser spørsmål om hva som skjer med data en slettet bruker "eier" —
    utenfor scope).
 
+## 0c. Rått høstelag for eksterne skjema-/tjenestekataloger — Oppgaveregisteret 2026-08-14 (`feature/hostet-kildepost-oppgaveregister`)
+
+Johann vil begynne å lese inn eksterne kataloger av skjema/tjenester (Altinn skjemakatalog,
+Oppgaveregisteret, FDK/data.norge.no m.fl.) som rått kildemateriale, med sikte på å etter hvert kunne
+mappe dem inn i appens Tjeneste-modell — men den mappingen er BEVISST IKKE del av denne runden. Det
+pågår en uavklart, ubeslektet arkitekturdiskusjon (`17-forvaltningsstruktur-master-tjeneste.md`/
+`18-vurdering-rettighet-samhandling-modell.md`) om en mulig Rettighet/Samhandling-splitt av selve
+Tjeneste-modellen — denne runden bygger høstelaget uavhengig av hvordan den diskusjonen ender, og
+kobler INGENTING til `TjenesteEntitet`, `VilkarEntitet` eller noen hypotetisk ny entitet ennå.
+
+1. **Ny, modell-agnostisk entitet** — `EksternKildeEntitet` (`src/RegelIde.Data/Entiteter.cs`): lagrer
+   én ekstern katalogpost EKSAKT som hentet (`RaaJson`, `jsonb`/`text`), pluss kun nok metadata til å
+   identifisere/deduplisere raden (`Kildetype` — fri streng, samme mønster som
+   `RettskildeEntitet.Kildetype` — `EksternId`, `InnholdsHash`, `HentetTidspunkt`). Unik indeks på
+   (`Kildetype`, `EksternId`) er idempotens-nøkkelen. Ny migrasjon `LeggTilEksterneKilder`.
+2. **Oppgaveregister-høster** — `OppgaveregisterHenter.cs` (`src/RegelIde.Data/`), samme
+   "hent på forespørsel, ikke ved oppstart"-mønster som `LovdataKatalogTjeneste`. Henter hele
+   `https://data.brreg.no/oppgaveregisteret/api/skjema/alle.json` (~900 skjemaer, ett kall), og
+   UPSERTER (til forskjell fra Lovdata-katalogens slett-og-bygg-på-nytt): matcher på
+   (`Kildetype`, `EksternId`=Oppgaveregisterets `guid`), oppdaterer kun rader der `InnholdsHash` faktisk
+   endret seg, lar uendrede rader (inkl. `HentetTidspunkt`) stå urørt. Én batch-`SaveChangesAsync`.
+3. **To nye endepunkter** — `POST /api/eksterne-kilder/oppgaveregister/hent` (trigger, returnerer
+   nye/oppdaterte/uendret-sammendrag) og `GET /api/eksterne-kilder?kildetype=…` (paginert liste,
+   `start`/`antall`, default 50/maks 200).
+4. **Tester** — `OppgaveregisterHenterTests.cs` (`RegelIde.Data.Tests`) stubber
+   `HttpMessageHandler` (samme mønster som `KiAgentKlientOpenAiKompatibelTests`) med tre EKTE skjemaer
+   fra det offentlige API-et — ingen nettverksavhengighet i test-suiten. Dekker første høsting (3 nye
+   rader), uendret re-høsting (no-op, `HentetTidspunkt` urørt), delvis endret re-høsting (kun den
+   endrede raden oppdateres) og at den unike indeksen faktisk stopper duplikater på DB-nivå.
+   `EksterneKilderEndepunktTests.cs` (`RegelIde.Api.Tests`) dekker begge endepunktene — POST-testen
+   overstyrer `OppgaveregisterHenter`s `HttpMessageHandler` via `WebApplicationFactory.WithWebHostBuilder`
+   for samme grunn (ingen ekte data.brreg.no-kall fra test-suiten, i motsetning til prosjektets ellers
+   vanlige "ekte nettverkskall er greit for Lovdata"-kultur).
+5. **Bevisst utelatt denne runden**: ingen FK/kobling fra `EksternKildeEntitet` til noen domeneentitet
+   (selve poenget, se over); ingen andre kildekataloger (Altinn skjemakatalog, Norge.no, FDK m.fl.) —
+   kun Oppgaveregisteret, men `Kildetype` er en fri streng slik at flere kan legges til uten
+   skjemaendring; ingen automatisk bakgrunnsoppdatering (kun eksplisitt trigger, ingen 24t-
+   foreldelsesgrense slik Lovdata-katalogen har); ingen "publiser tilbake til kilderegistrene"-logikk
+   (navngivningen er nøytral med hensyn til retning, men ingen push/eksport/CPSV-kode bygget);
+   ingen UI for kuratering/kvalitetsflagging av høstede rader (notatets §6
+   `Kildekvalitetsflagg`/`KvalitetssikretBeskrivelse`-konsept, fortsatt uavklart i
+   `18-vurdering-rettighet-samhandling-modell.md`); ingen frontend-side (kun de to endepunktene).
+
 ## 1. Byggesteg-status
 
 | # | Byggesteg | Status |

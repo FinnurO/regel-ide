@@ -971,3 +971,60 @@ public sealed class KunnskapsbibliotekFilEntitet
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }
 }
+
+/// <summary>
+/// Rå, uforandret kopi av én oppføring fra en ekstern skjema-/tjenestekatalog — et frittstående
+/// HØSTELAG, ikke en del av domenemodellen. Første og eneste kilde denne runden er Oppgaveregisteret
+/// (Brønnøysundregistrene), se <see cref="RegelIde.Data.OppgaveregisterHenter"/>. Formålet er å samle
+/// inn strukturert kildemateriale FØR det tolkes inn i appens domenemodell, ikke å erstatte den
+/// tolkningen — "høst struktur, ikke generer den".
+/// <para>
+/// (a) **Bevisst INGEN FK** til <see cref="TjenesteEntitet"/>, <see cref="VilkarEntitet"/>, eller noen
+/// fremtidig Rettighet/Samhandling-entitet. docs/17-forvaltningsstruktur-master-tjeneste.md og
+/// docs/18-vurdering-rettighet-samhandling-modell.md diskuterer fortsatt om/hvordan Tjeneste-modellen
+/// bør revideres (en mulig Rettighet/Samhandling-splitt) — uavklart på flere punkter per 2026-08-14.
+/// Denne tabellen skal verken vente på det svaret eller forutsette hvilket svar som vinner: mapping
+/// til domenemodellen er en egen, senere beslutning, tatt av en annen komponent enn denne.
+/// </para>
+/// <para>
+/// (b) <see cref="RaaJson"/> ER sannheten — den fullstendige, ufortolkede kildeposten, lagret verbatim
+/// (byte-for-byte fra kildens respons). De øvrige kolonnene
+/// (<see cref="Kildetype"/>/<see cref="EksternId"/>/<see cref="InnholdsHash"/>/<see cref="HentetTidspunkt"/>)
+/// finnes KUN for å identifisere/deduplisere rader ved re-høsting — vi vet ennå ikke hvilke felter en
+/// fremtidig domenemapping trenger, så ingenting tolkes ut av JSON-en her på forhånd.
+/// </para>
+/// <para>
+/// (c) <see cref="Kildetype"/> er en fri streng, samme mønster som <see cref="RettskildeEntitet.Kildetype"/>
+/// (ingen CHECK-constraint) — flere kildetyper (Altinn skjemakatalog, Norge.no, FDK/data.norge.no m.fl.)
+/// kan legges til senere UTEN skjemaendring. Navngivningen er bevisst nøytral med hensyn til retning:
+/// verken et navn som "EksternKildeType" (som ville antatt vi alltid bare LESER) eller noe som forbereder
+/// publisering tilbake til kilderegistrene — denne runden bygger verken den ene eller den andre retningen,
+/// kun selve høstingen.
+/// </para>
+/// </summary>
+public sealed class EksternKildeEntitet
+{
+    public Guid Id { get; set; }
+
+    /// <summary>F.eks. "oppgaveregister_skjema". Fri streng — se klassekommentaren punkt (c).</summary>
+    public required string Kildetype { get; set; }
+
+    /// <summary>
+    /// Kildens egen stabile identifikator (Oppgaveregisterets <c>guid</c>-felt, f.eks. "2BD") —
+    /// SAMMEN med <see cref="Kildetype"/> den idempotente nøkkelen re-høsting matcher på (unik indeks).
+    /// </summary>
+    public required string EksternId { get; set; }
+
+    /// <summary>Hele kildeobjektet, verbatim, som mottatt — se klassekommentaren punkt (b). Postgres <c>jsonb</c>, <c>text</c> på SQLite.</summary>
+    public required string RaaJson { get; set; }
+
+    /// <summary>
+    /// SHA-256 over <see cref="RaaJson"/> (<see cref="RegelIde.Kildekonvertering.LovdataIdentifikatorer.BeregnTekstHash"/>)
+    /// — samme endringsdeteksjonsmønster som <see cref="RettskildeEntitet.InnholdsHash"/>. Uendret hash
+    /// ved re-høsting ⇒ raden røres ikke i det hele tatt (heller ikke <see cref="HentetTidspunkt"/>).
+    /// </summary>
+    public required string InnholdsHash { get; set; }
+
+    /// <summary>Tidspunktet raden sist faktisk ble opprettet/endret av en høsting — IKKE tidspunktet for siste kjøring hvis den kjøringen ikke endret noe.</summary>
+    public DateTimeOffset HentetTidspunkt { get; set; }
+}
