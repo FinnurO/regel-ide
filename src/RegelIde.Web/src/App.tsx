@@ -1,5 +1,5 @@
 import { NavLink, Route, Routes } from 'react-router';
-import { Field, Label, Select } from '@digdir/designsystemet-react';
+import { Dropdown, Label } from '@digdir/designsystemet-react';
 import { useBruker } from './bruker/BrukerContext';
 import RettskilderListe from './pages/RettskilderListe';
 import RettskildeDetalj from './pages/RettskildeDetalj';
@@ -18,45 +18,73 @@ import DatasettListe from './pages/DatasettListe';
 import TjenesteVeiledning from './pages/TjenesteVeiledning';
 import TjenesteforslagKo from './pages/TjenesteforslagKo';
 import BegrepsforslagKo from './pages/BegrepsforslagKo';
+import BrukereListe from './pages/BrukereListe';
 
-function BrukerVelger() {
+/**
+ * Identitetsindikator — alltid synlig øverst til høyre, samme sted på alle sider (se .topbar i
+ * index.css). Erstatter den tidligere løpende teksten + fullbredde-<select> i sidebaren.
+ * <para>
+ * Under ekte innlogging (Altinn) vises identiteten som ren tekst UTEN bytt-mulighet — det gir ingen
+ * mening å "bytte" når man faktisk er innlogget. Kun testbruker-profilen får en klikkbar brikke som
+ * åpner en Dropdown for å bytte testbruker (erstatter den gamle <select>en, ikke i tillegg til den).
+ * </para>
+ */
+function IdentitetsBrikke() {
   const { brukere, gjeldendeBruker, velgBruker, laster, ekteInnlogging, innloggingsfeil } = useBruker();
 
   if (laster) return null;
 
-  // Med ekte innlogging er brukeren gitt — da er en nedtrekksliste både misvisende og uten effekt.
+  if (innloggingsfeil) {
+    // «Innlogget som ukjent» ville skjult at noe er galt. Si hva som feilet i stedet.
+    return (
+      <div className="identitet-brikke identitet-brikke--feil" role="status">
+        <Label data-size="sm">{innloggingsfeil}</Label>
+      </div>
+    );
+  }
+
+  if (!gjeldendeBruker) return null;
+
+  const detaljer = (
+    <span className="identitet-brikke__tekst">
+      <span className="identitet-brikke__navn">{gjeldendeBruker.navn}</span>
+      <span className="identitet-brikke__meta">
+        {gjeldendeBruker.virksomhetNavn} · {gjeldendeBruker.rolle}
+      </span>
+    </span>
+  );
+
   if (ekteInnlogging) {
     return (
-      <div className="bruker-velger">
-        {/* «Innlogget som ukjent» ville skjult at noe er galt. Si hva som feilet i stedet. */}
-        <Label data-size="sm">
-          {innloggingsfeil ?? (
-            <>
-              Innlogget som {gjeldendeBruker?.navn ?? 'ukjent'}
-              {gjeldendeBruker && ` (${gjeldendeBruker.rolle}) — ${gjeldendeBruker.virksomhetNavn}`}
-            </>
-          )}
-        </Label>
+      <div className="identitet-brikke" aria-label="Innlogget bruker">
+        {detaljer}
       </div>
     );
   }
 
   return (
-    <div className="bruker-velger">
-      <Field>
-        <Label data-size="sm">Innlogget som (testbruker)</Label>
-        <Select
-          value={gjeldendeBruker?.id ?? ''}
-          onChange={(e) => velgBruker(e.target.value || null)}
-        >
+    <Dropdown.TriggerContext>
+      <Dropdown.Trigger variant="tertiary" className="identitet-brikke identitet-brikke--knapp">
+        {detaljer}
+        <span aria-hidden="true" className="identitet-brikke__pil">▾</span>
+      </Dropdown.Trigger>
+      <Dropdown placement="bottom-end">
+        <Dropdown.Heading>Bytt testbruker</Dropdown.Heading>
+        <Dropdown.List>
           {brukere.map((b) => (
-            <Select.Option key={b.id} value={b.id}>
-              {b.navn} ({b.rolle}) — {b.virksomhetNavn}
-            </Select.Option>
+            <Dropdown.Item key={b.id}>
+              <Dropdown.Button
+                aria-current={b.id === gjeldendeBruker.id}
+                data-valgt={b.id === gjeldendeBruker.id || undefined}
+                onClick={() => velgBruker(b.id)}
+              >
+                {b.navn} ({b.rolle}) — {b.virksomhetNavn}
+              </Dropdown.Button>
+            </Dropdown.Item>
           ))}
-        </Select>
-      </Field>
-    </div>
+        </Dropdown.List>
+      </Dropdown>
+    </Dropdown.TriggerContext>
   );
 }
 
@@ -96,30 +124,38 @@ function App() {
           <NavLink to="/begreper/forslag" className={({ isActive }) => (isActive ? 'aktiv' : '')}>
             Identifiser begrep (KI)
           </NavLink>
+          <NavLink to="/brukere" className={({ isActive }) => (isActive ? 'aktiv' : '')}>
+            Brukere
+          </NavLink>
         </nav>
-        <BrukerVelger />
       </aside>
-      <main className="innhold">
-        <Routes>
-          <Route path="/" element={<RettskilderListe />} />
-          <Route path="/rettskilder/:id" element={<RettskildeDetalj />} />
-          <Route path="/importer" element={<Importer />} />
-          <Route path="/handboker/ny" element={<HandbokOpprett />} />
-          <Route path="/tjenester" element={<TjenesterListe />} />
-          <Route path="/tjenester/forslag" element={<TjenesteforslagKo />} />
-          <Route path="/tjenester/:id" element={<TjenesteDetalj />} />
-          <Route path="/begreper" element={<BegreperListe />} />
-          <Route path="/begreper/forslag" element={<BegrepsforslagKo />} />
-          <Route path="/begreper/:id" element={<BegrepDetalj />} />
-          <Route path="/kodelister" element={<KodelisterListe />} />
-          <Route path="/kodelister/:id" element={<KodelisteDetalj />} />
-          <Route path="/vilkarstre" element={<VilkarstreListe />} />
-          <Route path="/vilkarstre/:rotnodeId" element={<VilkarstreDetalj />} />
-          <Route path="/datasett" element={<DatasettListe />} />
-          <Route path="/datasett/:id" element={<DatasettDetalj />} />
-          <Route path="/tjenester/:id/veiledning" element={<TjenesteVeiledning />} />
-        </Routes>
-      </main>
+      <div className="hovedomrade">
+        <header className="topbar">
+          <IdentitetsBrikke />
+        </header>
+        <main className="innhold">
+          <Routes>
+            <Route path="/" element={<RettskilderListe />} />
+            <Route path="/rettskilder/:id" element={<RettskildeDetalj />} />
+            <Route path="/importer" element={<Importer />} />
+            <Route path="/handboker/ny" element={<HandbokOpprett />} />
+            <Route path="/tjenester" element={<TjenesterListe />} />
+            <Route path="/tjenester/forslag" element={<TjenesteforslagKo />} />
+            <Route path="/tjenester/:id" element={<TjenesteDetalj />} />
+            <Route path="/begreper" element={<BegreperListe />} />
+            <Route path="/begreper/forslag" element={<BegrepsforslagKo />} />
+            <Route path="/begreper/:id" element={<BegrepDetalj />} />
+            <Route path="/kodelister" element={<KodelisterListe />} />
+            <Route path="/kodelister/:id" element={<KodelisteDetalj />} />
+            <Route path="/vilkarstre" element={<VilkarstreListe />} />
+            <Route path="/vilkarstre/:rotnodeId" element={<VilkarstreDetalj />} />
+            <Route path="/datasett" element={<DatasettListe />} />
+            <Route path="/datasett/:id" element={<DatasettDetalj />} />
+            <Route path="/tjenester/:id/veiledning" element={<TjenesteVeiledning />} />
+            <Route path="/brukere" element={<BrukereListe />} />
+          </Routes>
+        </main>
+      </div>
     </div>
   );
 }

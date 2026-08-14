@@ -96,6 +96,38 @@ visning som før, ingen regresjon, bare ikke forbedret ennå.
    parallelle identitets-UX-arbeidet adresserer — ingen kodeendring gjort her, bevisst utenfor scope
    for denne runden.
 
+## 0b. Identitetsbrikke + brukerhåndtering 2026-08-14 (`feature/virksomhet-bruker-ux`)
+
+Johann pekte på Kontaktlisteregisteret (en annen, ubeslektet Digdir-PoC) som referanseeksempel på at
+det til enhver tid skal være tydelig **hvem man representerer** — ikke som design å kopiere, men som
+forbilde for hva som manglet i regel-ide. Bygget:
+
+1. **Identitetsbrikke øverst til høyre** — `App.tsx` har en ny `.topbar` (over `.innhold`, samme sted
+   på alle sider) med en kompakt `IdentitetsBrikke` som alltid viser navn, virksomhet og rolle. Under
+   testbruker-profilen er brikken en `@digdir/designsystemet-react` `Dropdown.Trigger` som åpner en
+   `Dropdown` for å bytte testbruker — dette ERSTATTER den tidligere fullbredde `<select>`en i
+   sidebaren, ikke i tillegg til den. Under ekte Altinn-innlogging vises identiteten som ren tekst
+   uten bytt-mulighet (`ekteInnlogging`/`innloggingsfeil`-håndteringen fra `BrukerContext.tsx` er
+   bevart uendret).
+2. **Ny brukerhåndteringsside** (`/brukere`, `src/RegelIde.Web/src/pages/BrukereListe.tsx`) — lister
+   ALLE brukere (`GET /api/brukere` utvidet til å returnere både testbrukere og ekte Altinn-brukere,
+   med nytt `ErAltinnBruker`-felt på `BrukerDto`; en `Tag` skiller de to typene tydelig i tabellen).
+   Nytt opprett-skjema (Navn/Rolle/Virksomhet) og inline rediger-rad (Rolle+Virksomhet) bruker to nye
+   endepunkter, `POST /api/brukere` og `PUT /api/brukere/{id}`, støttet av en ny
+   `BrukerregisterTjeneste` (`src/RegelIde.Data/BrukerregisterTjeneste.cs`, samme primary-constructor-
+   DI-mønster som `BegrepsregisterTjeneste`/`TjenesteregisterTjeneste`). `BrukerContext.tsx` filtrerer
+   bort `ErAltinnBruker`-rader for testbruker-velgeren og eksponerer en `lastBrukerePaNytt()` som
+   brukerhåndteringssiden kaller etter opprett/rediger, slik at identitetsbrikken viser en nyopprettet
+   bruker uten full sidelast (verifisert i nettleser: ny bruker opprettet, tilordnet en virksomhet, og
+   deretter valgt i brikken — samme mekanisme som `X-Bruker-Id`/`GjeldendeBrukerTjeneste` alltid har
+   brukt, ingen egen innloggingsvei).
+3. **Bevisst utelatt denne runden**: ingen ny virksomhet-opprettelse-UI (kun tilordning til
+   *eksisterende* virksomhet var etterspurt); ingen endring av selve Altinn-autentiseringsflyten (kun
+   hvordan den vises); ingen RBAC-håndhevelse (rollen kan settes og vises, men begrenser ennå ikke hva
+   en bruker faktisk kan gjøre — samme kjente gap som i `16-vurdering-rettskilde-til-tjenestebeskrivelse.md`
+   §4); ingen sletting av brukere (reiser spørsmål om hva som skjer med data en slettet bruker "eier" —
+   utenfor scope).
+
 ## 1. Byggesteg-status
 
 | # | Byggesteg | Status |

@@ -37,6 +37,7 @@ builder.Services.AddScoped<TekstTaggTjeneste>();
 builder.Services.AddScoped<HandbokForfatterTjeneste>();
 builder.Services.AddScoped<TjenesteregisterTjeneste>();
 builder.Services.AddScoped<BegrepsregisterTjeneste>();
+builder.Services.AddScoped<BrukerregisterTjeneste>();
 builder.Services.AddScoped<KodelisteregisterTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
 builder.Services.AddScoped<RegelnoderegisterTjeneste>();
@@ -270,7 +271,7 @@ app.MapGet("/api/meg", async (HttpRequest request, RegelIdeDbContext db, Cancell
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
 
         var virksomhet = await db.Virksomheter.FirstAsync(v => v.Id == bruker.VirksomhetId, ct);
-        return Results.Ok(new BrukerDto(bruker.Id, bruker.Navn, virksomhet.Id, virksomhet.Navn, bruker.Rolle));
+        return Results.Ok(new BrukerDto(bruker.Id, bruker.Navn, virksomhet.Id, virksomhet.Navn, bruker.Rolle, bruker.AltinnBrukerId != null));
     })
     .WithOpenApi()
     .WithName("HentMeg")
@@ -292,19 +293,58 @@ if (autentiseringsprofil is Autentiseringsprofil.Altinn
 
 app.MapGet("/api/brukere", async (RegelIdeDbContext db) =>
     {
-        // Under Altinn-profilen er dette ikke en innloggingsmekanisme, og å liste brukere ville
-        // bare invitert til å velge en annen enn den man er logget inn som. Klienten bruker /api/meg.
-        if (autentiseringsprofil is not Autentiseringsprofil.Testbruker) return Results.NotFound();
-
-        var brukere = await db.Brukere.Where(b => b.AltinnBrukerId == null)
-            .Join(db.Virksomheter, b => b.VirksomhetId, v => v.Id,
-                (b, v) => new BrukerDto(b.Id, b.Navn, v.Id, v.Navn, b.Rolle))
+        // Lister ALLE brukere (testbrukere OG ekte Altinn-brukere, se ErAltinnBruker) — brukt av to
+        // ulike GUI-flater: brukervelgeren i identitetsbrikken (kun under testbruker-profilen, og
+        // klienten filtrerer der bort ErAltinnBruker-rader selv, se BrukerContext.tsx) og den nye
+        // brukerhåndteringssiden (/brukere), som skal vise alt uansett profil.
+        var brukere = await db.Brukere
+            .Join(db.Virksomheter, b => b.VirksomhetId, v => v.Id, (b, v) => new { b, v })
+            .OrderBy(x => x.b.Navn)
+            .Select(x => new BrukerDto(x.b.Id, x.b.Navn, x.v.Id, x.v.Navn, x.b.Rolle, x.b.AltinnBrukerId != null))
             .ToListAsync();
         return Results.Ok(brukere);
     })
     .WithOpenApi()
     .WithName("HentBrukere")
-    .WithSummary("Lister testbrukere (IKKE ekte autentisering, se GjeldendeBrukerTjeneste) for GUI-ets brukervelger.");
+    .WithSummary("Lister alle brukere (testbrukere og ekte Altinn-brukere) for GUI-ets brukervelger og brukerhåndteringssiden.");
+
+app.MapPost("/api/brukere", async (OpprettBrukerRequest body, BrukerregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        try
+        {
+            var bruker = await register.OpprettAsync(body.Navn, body.Rolle, body.VirksomhetId, ct);
+            var virksomhet = await db.Virksomheter.FirstAsync(v => v.Id == bruker.VirksomhetId, ct);
+            return Results.Created(
+                $"/api/brukere/{bruker.Id}",
+                new BrukerDto(bruker.Id, bruker.Navn, virksomhet.Id, virksomhet.Navn, bruker.Rolle, false));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("OpprettBruker")
+    .WithSummary("Oppretter en ny testbruker og tilordner den til en virksomhet (brukerhåndteringssiden).");
+
+app.MapPut("/api/brukere/{id:guid}", async (Guid id, OppdaterBrukerRequest body, BrukerregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        try
+        {
+            var bruker = await register.OppdaterAsync(id, body.Rolle, body.VirksomhetId, ct);
+            if (bruker is null) return Results.NotFound(new { feil = $"Ingen bruker med id '{id}'." });
+
+            var virksomhet = await db.Virksomheter.FirstAsync(v => v.Id == bruker.VirksomhetId, ct);
+            return Results.Ok(new BrukerDto(bruker.Id, bruker.Navn, virksomhet.Id, virksomhet.Navn, bruker.Rolle, bruker.AltinnBrukerId != null));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("OppdaterBruker")
+    .WithSummary("Endrer rolle og virksomhetstilordning for en eksisterende bruker (test- eller Altinn-bruker).");
 
 app.MapGet("/api/virksomheter", async (RegelIdeDbContext db) =>
         (await db.Virksomheter.ToListAsync()).Select(v => new VirksomhetDto(v.Id, v.Navn, v.Organisasjonsnummer)))

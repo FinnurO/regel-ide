@@ -56,14 +56,64 @@ body {
   font-weight: 600;
 }
 
-.bruker-velger {
-  border-top: 1px solid var(--ds-color-neutral-border-subtle);
-  padding-top: var(--ds-size-3);
-  margin-top: var(--ds-size-3);
+.hovedomrade {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
-.bruker-velger select {
-  width: 100%;
+/* Identitetsindikator — alltid øverst til høyre, samme sted på alle sider (se App.tsx: IdentitetsBrikke). */
+.topbar {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding: var(--ds-size-3) var(--ds-size-6);
+  border-bottom: 1px solid var(--ds-color-neutral-border-subtle);
+  flex-shrink: 0;
+}
+
+.identitet-brikke {
+  display: flex;
+  align-items: center;
+  gap: var(--ds-size-2);
+  border-radius: var(--ds-border-radius-lg);
+  padding: var(--ds-size-1) var(--ds-size-3);
+}
+
+.identitet-brikke--knapp {
+  background: var(--ds-color-neutral-surface-default);
+  border: 1px solid var(--ds-color-neutral-border-subtle);
+}
+
+.identitet-brikke--knapp:hover {
+  background: var(--ds-color-neutral-surface-hover);
+}
+
+.identitet-brikke--feil {
+  border: 1px solid var(--ds-color-danger-border-default);
+  color: var(--ds-color-danger-text-default);
+}
+
+.identitet-brikke__tekst {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  line-height: 1.2;
+}
+
+.identitet-brikke__navn {
+  font-weight: 600;
+  font-size: var(--ds-font-size-2);
+}
+
+.identitet-brikke__meta {
+  font-size: var(--ds-font-size-1);
+  color: var(--ds-color-neutral-text-subtle);
+}
+
+.identitet-brikke__pil {
+  color: var(--ds-color-neutral-text-subtle);
 }
 
 .innhold {

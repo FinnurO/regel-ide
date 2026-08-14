@@ -120,6 +120,22 @@ export interface BrukerDto {
   virksomhetId: string;
   virksomhetNavn: string;
   rolle: string;
+  /** Speiler Bruker.AltinnBrukerId != null på serveren — skiller ekte innloggede fra testbrukere. */
+  erAltinnBruker: boolean;
+}
+
+/** RBAC-matrisen, docs/03-domenemodell.md §2 — se BrukerregisterTjeneste.GyldigeRoller på serveren. */
+export type BrukerRolle = 'Fagansvarlig' | 'Jurist' | 'Systemforvalter' | 'Saksbehandler';
+
+export interface OpprettBrukerRequest {
+  navn: string;
+  rolle: BrukerRolle;
+  virksomhetId: string;
+}
+
+export interface OppdaterBrukerRequest {
+  rolle: BrukerRolle;
+  virksomhetId: string;
 }
 
 export interface VirksomhetDto {
