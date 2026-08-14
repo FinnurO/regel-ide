@@ -22,4 +22,16 @@ internal static class Testdata
     /// <summary>Ekte fixture fra data/kilder/raw-nettside/&lt;filnavn&gt; — se README der.</summary>
     public static string LesNettsideFixture(string filnavn) =>
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "Nettside", filnavn));
+
+    /// <summary>Tre ekte ressurser (2 AltinnApp + 1 MaskinportenSchema) fra Altinns ressursregister-API, verifisert live (feature/altinn-hostere).</summary>
+    public static string LesAltinnRessursliste() =>
+        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "AltinnHosting", "ressursliste-sample3.json"));
+
+    /// <summary>Ekte skjemaoversikt-indeksside (info.altinn.no/skjemaoversikt), verifisert live (feature/altinn-hostere).</summary>
+    public static string LesSkjemaoversiktIndeksside() =>
+        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "AltinnHosting", "skjemaoversikt-provider-index.html"));
+
+    /// <summary>Ekte tjenesteside (/skjemaoversikt/advokattilsynet/advokat/), verifisert live (feature/altinn-hostere).</summary>
+    public static string LesSkjemaoversiktAdvokatside() =>
+        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "AltinnHosting", "skjemaoversikt-advokat.html"));
 }
