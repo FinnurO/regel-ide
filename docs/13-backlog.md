@@ -60,6 +60,42 @@ faktiske skjermbilder. Bygget, i planens rekkefølge:
 `BegrepDetalj.tsx`/`Egenskapspanel.tsx`/`TjenesteVeiledning.tsx` (punkt 5, se over) — samme rå-eId-
 visning som før, ingen regresjon, bare ikke forbedret ennå.
 
+## 0.1 Tre funn fra en levende gjennomgang av UX-runden over (2026-08-13/14)
+
+1. **Metadata-panelet splittet i to grupper** — `RettskildeDetalj.tsx`s Metadata-visning (les-modus)
+   er nå to tydelig merkede tabeller i stedet for én udifferensiert liste: **«Fra Lovdata»**
+   (ELI/Kortnavn/Konsolidert dato/Utgiver — skrivebeskyttet, kun populert for importerte
+   Lov/Forskrift) og **«Lokalt forvaltet»** (Internt dok.nr/Revisjonsnr/Vedtatt av/Vedtaksdato/Gyldig
+   til — redigerbar via «Rediger», populert for håndbøker o.l.). Ren visning, ingen API-/skjemaendring.
+
+2. **Bugfiks: «Referert fra håndbøker/andre dokumenter» talte rettskildens EGNE interne referanser
+   som om et annet dokument refererte den.** Sett i praksis på alkoholforskriften — seksjonen listet
+   dusinvis av rader der «det andre dokumentet» var forskriften selv (dens egne §10-1→§10-6-type
+   interne kryssreferanser, `Opprinnelse="import"`, fanget av `LovdataHtmlParser` ved import).
+   `RettskildeRepository.ReferertAvAndreDokumenterAsync` filtrerer nå på `Opprinnelse == "manuell"`
+   (nøyaktig skillet mellom «en jurist koblet dette fra en håndbok» og «lovens egen struktur, funnet
+   ved import») pluss en eksplisitt `DokumentId != rettskildeId`-sjekk som forsvarslag. Ny
+   regresjonstest: `RettskilderEndepunktTests.Referert_av_dokumenter_utelater_rettskildens_egne_interne_referanser`
+   (bruker den ekte, allerede kjente §1-3→§1-5-selvreferansen i alkoholloven-fixturen). Samtidig
+   gjort lesbar: `RettskildeDetalj.tsx` viser nå `TilEid` gjennom `eidVisningstekst` (samme mønster som
+   `TjenesteDetalj.tsx`s regelverksreferanser) i stedet for rå eId-kjeder, med raw-eId som fallback
+   når noden ikke er funnet ennå.
+
+3. **Undersøkt, IKKE en bug**: «nytt begrep vises ikke i begrepslisten» ble reprodusert i en isolert
+   kjørende instans (egen DB, porter 5287/5273) i worktreet. Konklusjon: **hypotese (b)**, ikke (a).
+   Både `GET /api/begreper` og `POST /api/begreper` bruker konsekvent
+   `bruker.VirksomhetId` fra samme `GjeldendeBrukerTjeneste.FinnAsync`-oppslag — ingen filterfeil,
+   ingen client-side staleness (`BegreperListe.tsx` refetcher friskt ved hver mount). I browseren:
+   opprettet «test-begrep-verifikasjon» som «Ola Fagansvarlig» (Testkommunen) — vises umiddelbart i
+   lista. Byttet bruker til «Silje Jurist» (Agder fylkeskommune, en ANNEN virksomhet) via
+   brukervelgeren — lista viser korrekt 0 begreper (Agder fylkeskommune har ingen). Byttet tilbake til
+   Ola — begrepet er der igjen, uendret. Dette er korrekt multi-tenant-filtrering
+   (`BegrepsregisterTjeneste.ListerForAsync(bruker.VirksomhetId)`), ikke en bug — men reelt
+   FORVIRRENDE fordi hver `Bruker`-rad har én fast `VirksomhetId`, så «bytt bruker» i velgeren OGSÅ
+   bytter virksomhet-kontekst uten at det er tydelig markert som sådan. Samme rotårsak som det
+   parallelle identitets-UX-arbeidet adresserer — ingen kodeendring gjort her, bevisst utenfor scope
+   for denne runden.
+
 ## 1. Byggesteg-status
 
 | # | Byggesteg | Status |

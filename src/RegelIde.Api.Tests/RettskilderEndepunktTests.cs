@@ -305,6 +305,25 @@ public class RettskilderEndepunktTests
     }
 
     [Fact]
+    public async Task Referert_av_dokumenter_utelater_rettskildens_egne_interne_referanser()
+    {
+        // Bugfiks (avklaringsrunde 2026-08-13, funn 2): §1-3 → §1-5 er alkohollovens EGEN interne
+        // kryssreferanse, fanget opp med Opprinnelse="import" under selve importen (se
+        // Import_referanse_har_opprinnelse_import_og_kan_ikke_fjernes under). Før fiksen ble denne
+        // (og enhver annen import-referanse) talt som om et ANNET dokument refererte alkoholloven —
+        // den skal IKKE dukke opp her: alkoholloven er ikke "et annet dokument" enn seg selv, og en
+        // rettskildes egen interne struktur (import) er ikke det samme som en håndbok/rundskriv som
+        // faktisk kobler seg til den (manuell).
+        var alkoholovenId = await HentAlkohollovenIdAsync();
+
+        var referertAv = await _client.GetFromJsonAsync<List<DokumentReferanseDto>>(
+            $"/api/rettskilder/{alkoholovenId}/referert-av-dokumenter", JsonInnstillinger);
+
+        Assert.NotNull(referertAv);
+        Assert.DoesNotContain(referertAv!, r => r.DokumentId == alkoholovenId);
+    }
+
+    [Fact]
     public async Task Import_referanse_har_opprinnelse_import_og_kan_ikke_fjernes()
     {
         // 2026-07-30: kryssreferansen §1-3 → §1-5 fanges opp automatisk under import (§1-3 har en reell
