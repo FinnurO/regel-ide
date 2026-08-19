@@ -264,6 +264,52 @@ stabil offentlig URL/API denne appen kan polle selv.
    statsforvalteren.no, og ingen master-tjeneste/"brukes av"-modellering av `tilbys_av`-mønsteret (se
    punkt 2 — fortsatt en åpen, uavklart diskusjon).
 
+## 0f. Femte kilde i høstelaget — fylkeskommune-dialogtjenester, generalisert importør 2026-08-19 (`feature/generaliser-tjenesteliste-importer`)
+
+Samme høstelag som 0c/0d/0e (`EksternKildeEntitet`, ingen FK til domenemodellen), utvidet med en femte
+kilde: fylkeskommunenes "dialog"-kontaktskjema-oversikt (~655 rader i produksjon, høstet av Johanns egen
+eksterne skrape, samme fil-baserte mønster som 0e). Siden denne kilden er strukturelt nær-identisk med
+Statsforvalter-tjenester fra 0e — samme toppnivå-array-form, samme `url`-identitetsnøkkel, samme
+`tilbys_av`-liste — ble 0e sin `StatsforvalterTjenesteHenter` GENERALISERT i stedet for klonet til en
+nesten-duplikatklasse.
+
+1. **`StatsforvalterTjenesteHenter` → `TjenestelisteImporter.cs`** (`src/RegelIde.Data/`) — samme klasse,
+   nytt navn som reflekterer at den nå dekker flere kilder. `ImporterAsync(string raaJson, ...)` tar nå
+   `Kildetype` som en ekstra PARAMETER (`ImporterAsync(string raaJson, string kildetype, ...)`) i stedet
+   for en hardkodet klassekonstant. De to kjente verdiene er navngitte konstanter på klassen:
+   `TjenestelisteImporter.Statsforvalter` ("statsforvalter_tjeneste") og
+   `TjenestelisteImporter.FylkeskommuneDialog` ("fylkeskommune_dialogtjeneste"). Resultat-recorden er
+   omdøpt `StatsforvalterTjenesteHostingResultat` → `TjenestelisteHostingResultat` (samme fire felt).
+2. **Eneste reelle forskjell mellom kildene er `Kildetype`-strengen** — fylkeskommune-kilden bruker
+   feltnavnet `kategori` der Statsforvalter-kilden bruker `tema`, men importøren leser aldri det feltet
+   uansett (bevares verbatim i `RaaJson`, samme som alt annet ikke-modellert). Empirisk, i produksjons-
+   uttrekket, har HVER ENESTE rad i fylkeskommune-kilden nøyaktig 1 `tilbys_av`-oppføring — til forskjell
+   fra Statsforvalter-kildens rike multi-tilbyder-spredning — fordi denne kilden er 100 % lokalt/fylke-
+   spesifikt innhold (hvert fylkes eget kontaktskjema-portal), distinkt fra det Novari-delte
+   fylkeskommune-innholdet som allerede er høstet via Altinns ressursregister (0d). Koden behandler dette
+   likt uansett — ingen spesialtilfelle for "alltid 1 tilbyder".
+3. **To nye endepunkter, delt implementasjon** — det eksisterende
+   `POST /api/eksterne-kilder/statsforvalter-tjenester/importer` er UENDRET i kontrakt (samme request-
+   /respons-form), kaller nå bare `TjenestelisteImporter.ImporterAsync(..., TjenestelisteImporter.Statsforvalter, ...)`.
+   Nytt `POST /api/eksterne-kilder/fylkeskommune-tjenester/importer` kaller samme metode med
+   `TjenestelisteImporter.FylkeskommuneDialog`. Egne navngitte ruter per kilde, samme mønster som de fire
+   andre kildene i laget — IKKE kollapset til ett generisk `?kildetype=`-endepunkt. Begge returnerer
+   `TjenestelisteHostingResultatDto` (omdøpt fra `StatsforvalterTjenesteHostingResultatDto`, samme fire
+   felt, gjenbrukt for begge kildene siden formen er identisk).
+4. **Tester** — `TjenestelisteImporterTests.cs` (`RegelIde.Data.Tests`, omdøpt fra
+   `StatsforvalterTjenesteHenterTests.cs`) dekker nå BEGGE `Kildetype`-verdier i samme fil: de
+   eksisterende Statsforvalter-casene (uendret) pluss et parallelt sett for fylkeskommune-kilden, med fire
+   EKTE rader (`Testdata/FylkeskommuneDialogHosting/fylkeskommune-dialogtjenester-sample.json`, trimmet
+   fra Johanns ~655-rads uttrekk) — første import, uendret re-import (no-op), delvis endret re-import
+   (kun én rad oppdateres), og et syntetisk tomt-orgnummer-tilfelle. Én ny test bekrefter at de to
+   kildetypene ikke påvirker hverandre (sammensatt nøkkel `(Kildetype, EksternId)`).
+   `EksterneKilderEndepunktTests.cs` (`RegelIde.Api.Tests`) fikk et nytt endepunkttilfelle for
+   `/fylkeskommune-tjenester/importer`, samme syntetiske-fixture-mønster som Statsforvalter-testen.
+5. **Bevisst utelatt denne runden**: samme liste som 0e punkt 6 — ingen FK til domenemodellen, ingen
+   automatisk bakgrunnsoppdatering, ingen kurateringsUI, ingen frontend-side, ingen endring av Johanns
+   eksterne skraper, ingen live nettverkshenting, og ingen master-tjeneste/"brukes av"-modellering av
+   `tilbys_av`-mønsteret (fortsatt en åpen, uavklart diskusjon, gjelder nå begge kildene).
+
 ## 1. Byggesteg-status
 
 | # | Byggesteg | Status |

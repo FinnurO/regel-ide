@@ -183,7 +183,7 @@ public class EksterneKilderEndepunktTests
 
     /// <summary>
     /// Statsforvalter-tjeneste-endepunktet er FIL-basert (ingen <c>HttpClient</c> i
-    /// <see cref="StatsforvalterTjenesteHenter"/>) — testen poster derfor den rå JSON-en direkte som
+    /// <see cref="TjenestelisteImporter"/>) — testen poster derfor den rå JSON-en direkte som
     /// request-body, ingen <see cref="HttpMessageHandler"/>-stub nødvendig.
     /// </summary>
     [Fact]
@@ -199,7 +199,7 @@ public class EksterneKilderEndepunktTests
             new StringContent(TreStatsforvalterTjenesterJson, Encoding.UTF8, "application/json"));
         Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
 
-        var resultat = await svar.Content.ReadFromJsonAsync<StatsforvalterTjenesteHostingResultatDto>(JsonInnstillinger);
+        var resultat = await svar.Content.ReadFromJsonAsync<TjenestelisteHostingResultatDto>(JsonInnstillinger);
         Assert.NotNull(resultat);
         Assert.Equal(2, resultat!.Nye);
         Assert.Equal(0, resultat.Oppdaterte);
@@ -207,10 +207,65 @@ public class EksterneKilderEndepunktTests
         Assert.Equal(1, resultat.TilbydereMedManglendeOrgnummer);
 
         await using var etterDb = _fixture.NyDbContext();
-        var antall = await etterDb.EksterneKilder.CountAsync(k => k.Kildetype == StatsforvalterTjenesteHenter.Kildetype);
+        var antall = await etterDb.EksterneKilder.CountAsync(k => k.Kildetype == TjenestelisteImporter.Statsforvalter);
         Assert.Equal(2, antall);
         Assert.True(await etterDb.EksterneKilder.AnyAsync(k =>
-            k.Kildetype == StatsforvalterTjenesteHenter.Kildetype && k.EksternId == "https://example.test/statsforvalter/tjeneste-en"));
+            k.Kildetype == TjenestelisteImporter.Statsforvalter && k.EksternId == "https://example.test/statsforvalter/tjeneste-en"));
+    }
+
+    private const string ToFylkeskommuneTjenesterJson = """
+    [
+      {
+        "tjenestenavn": "Test-dialogtjeneste én",
+        "url": "https://example.test/fylkeskommune/dialogtjeneste-en",
+        "kategori": "Test",
+        "beskrivelse": "Testtjeneste.",
+        "tilbys_av": [ { "organisasjon": "Test fylkeskommune", "organisasjonsnummer": "921707134" } ]
+      },
+      {
+        "tjenestenavn": "Test-dialogtjeneste to",
+        "url": "https://example.test/fylkeskommune/dialogtjeneste-to",
+        "kategori": "Test",
+        "beskrivelse": "Testtjeneste med manglende orgnummer.",
+        "tilbys_av": [ { "organisasjon": "Ukjent fylkeskommune", "organisasjonsnummer": "" } ]
+      }
+    ]
+    """;
+
+    /// <summary>
+    /// Samme mønster som Statsforvalter-testen over — fylkeskommune-dialogtjeneste-endepunktet deler
+    /// implementasjon (<see cref="TjenestelisteImporter"/>) og er like FIL-basert, men skriver en annen
+    /// <see cref="EksternKildeEntitet.Kildetype"/> (<see cref="TjenestelisteImporter.FylkeskommuneDialog"/>).
+    /// </summary>
+    [Fact]
+    public async Task Post_importer_fylkeskommune_tjenester_lagrer_tjenestene_og_returnerer_sammendrag_med_manglende_orgnummer()
+    {
+        await using (var db = _fixture.NyDbContext())
+        {
+            await db.EksterneKilder.ExecuteDeleteAsync();
+        }
+
+        var svar = await _client.PostAsync(
+            "/api/eksterne-kilder/fylkeskommune-tjenester/importer",
+            new StringContent(ToFylkeskommuneTjenesterJson, Encoding.UTF8, "application/json"));
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+
+        var resultat = await svar.Content.ReadFromJsonAsync<TjenestelisteHostingResultatDto>(JsonInnstillinger);
+        Assert.NotNull(resultat);
+        Assert.Equal(2, resultat!.Nye);
+        Assert.Equal(0, resultat.Oppdaterte);
+        Assert.Equal(0, resultat.Uendret);
+        Assert.Equal(1, resultat.TilbydereMedManglendeOrgnummer);
+
+        await using var etterDb = _fixture.NyDbContext();
+        var antall = await etterDb.EksterneKilder.CountAsync(k => k.Kildetype == TjenestelisteImporter.FylkeskommuneDialog);
+        Assert.Equal(2, antall);
+        Assert.True(await etterDb.EksterneKilder.AnyAsync(k =>
+            k.Kildetype == TjenestelisteImporter.FylkeskommuneDialog && k.EksternId == "https://example.test/fylkeskommune/dialogtjeneste-en"));
+
+        // Beviser at de to fil-baserte endepunktene ikke lekker inn i hverandres kildetype selv om de
+        // deler samme TjenestelisteImporter-instans.
+        Assert.Equal(0, await etterDb.EksterneKilder.CountAsync(k => k.Kildetype == TjenestelisteImporter.Statsforvalter));
     }
 
     [Fact]

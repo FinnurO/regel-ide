@@ -47,9 +47,14 @@
     <None Include="Testdata\AltinnHosting\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <!-- Ekte 5-rads utvalg for StatsforvalterTjenesteHenter (feature/statsforvalter-tjenester-hoster),
+    <!-- Ekte 5-rads utvalg for TjenestelisteImporter/Statsforvalter (feature/statsforvalter-tjenester-hoster),
          trimmet fra Johanns ekte ~288-rads produksjonsuttrekk — samme mønster som Testdata\AltinnHosting. -->
     <None Include="Testdata\StatsforvalterHosting\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <!-- Ekte 4-rads utvalg for TjenestelisteImporter/FylkeskommuneDialog (feature/generaliser-tjenesteliste-importer),
+         trimmet fra Johanns ekte ~655-rads produksjonsuttrekk — samme mønster som Testdata\StatsforvalterHosting. -->
+    <None Include="Testdata\FylkeskommuneDialogHosting\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

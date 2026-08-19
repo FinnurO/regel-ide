@@ -1,0 +1,50 @@
+[
+  {
+    "tjenestenavn": "Kontaktskjema - Karriere Agder - Kristiansand",
+    "url": "https://dialog.agderfk.no/dialogue/AFK-30",
+    "kategori": "Karriere Agder",
+    "beskrivelse": "",
+    "tilbys_av": [
+      {
+        "organisasjon": "Agder fylkeskommune",
+        "organisasjonsnummer": "921707134"
+      }
+    ]
+  },
+  {
+    "tjenestenavn": "Samtykke for lærlinger og lærekandidater",
+    "url": "https://dialog.agderfk.no/dialogue/AFK-94",
+    "kategori": "Opplæring i bedrift",
+    "beskrivelse": "",
+    "tilbys_av": [
+      {
+        "organisasjon": "Agder fylkeskommune",
+        "organisasjonsnummer": "921707134"
+      }
+    ]
+  },
+  {
+    "tjenestenavn": "Søknad om tilskudd til kulturtiltak",
+    "url": "https://dialog.agderfk.no/dialogue/AFK-180",
+    "kategori": "Tilskuddsordninger, Kultur og kulturminnevern",
+    "beskrivelse": "",
+    "tilbys_av": [
+      {
+        "organisasjon": "Agder fylkeskommune",
+        "organisasjonsnummer": "921707134"
+      }
+    ]
+  },
+  {
+    "tjenestenavn": "Registrering av medlemmer i prøvenemnder",
+    "url": "https://dialog.innlandetfylke.no/dialogue/IFK-60",
+    "kategori": "Fagopplæring",
+    "beskrivelse": "",
+    "tilbys_av": [
+      {
+        "organisasjon": "Innlandet fylkeskommune",
+        "organisasjonsnummer": "920717152"
+      }
+    ]
+  }
+]

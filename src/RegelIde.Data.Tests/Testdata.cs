@@ -43,4 +43,15 @@ internal static class Testdata
     /// </summary>
     public static string LesStatsforvalterTjenesteliste() =>
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "StatsforvalterHosting", "statsforvalter-tjenester-sample.json"));
+
+    /// <summary>
+    /// Fire ekte rader, trimmet fra Johanns ~655-rads fylkeskommune "dialog"-kontaktskjema-uttrekk
+    /// (feature/generaliser-tjenesteliste-importer) — strukturelt identisk med Statsforvalter-kilden
+    /// (samme <see cref="RegelIde.Data.TjenestelisteImporter"/>) bortsett fra feltnavnet <c>kategori</c>
+    /// i stedet for <c>tema</c>, som importøren aldri leser uansett. To rader fra Agder fylkeskommune,
+    /// én fra Innlandet fylkeskommune — hver med nøyaktig 1 <c>tilbys_av</c>-oppføring, empirisk
+    /// representativt for hele produksjonsuttrekket.
+    /// </summary>
+    public static string LesFylkeskommuneDialogtjenesteliste() =>
+        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "FylkeskommuneDialogHosting", "fylkeskommune-dialogtjenester-sample.json"));
 }
