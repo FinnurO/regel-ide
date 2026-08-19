@@ -310,6 +310,59 @@ nesten-duplikatklasse.
    eksterne skraper, ingen live nettverkshenting, og ingen master-tjeneste/"brukes av"-modellering av
    `tilbys_av`-mønsteret (fortsatt en åpen, uavklart diskusjon, gjelder nå begge kildene).
 
+## 0g. Sjette kilde i høstelaget — kommune.no-tjenester, EGEN importørklasse 2026-08-19 (`feature/kommune-tjenester-hoster`)
+
+Samme høstelag som 0c–0f (`EksternKildeEntitet`, ingen FK til domenemodellen), utvidet med en sjette,
+fil-basert kilde: kommune.no-tjenester, høstet av Johanns eget eksterne skrapeskript (utenfor dette
+repoet) mot ~327 individuelle kommune.no-nettsteder via fem ulike metoder (`SKJEMA_NO_API`/`ACOS_API`/
+`HTML_INNEBYGD_JSON`/`HTML`/`UNNTAK_HTML_KATALOG`), ~15 332 rader i produksjon.
+
+1. **`KommuneTjenesteHenter.cs`** (`src/RegelIde.Data/`) — EGEN klasse, ikke en tredje
+   `TjenestelisteImporter.Kildetype`-verdi. Kilden er strukturelt ulik de to `TjenestelisteImporter`
+   allerede dekker: toppnivået er et array av KOMMUNE-objekter, hver med sin egen `records[]`-liste av
+   tjenester — ikke et bart array av tjenester. `ImporterAsync(string raaJson, ...)` tar den rå
+   JSON-STRENGEN direkte, ingen `HttpClient`. `Kildetype = "kommune_tjeneste"`.
+2. **EKTE funn som avgjorde identitetsnøkkelen**: i det ekte 15 332-rads produksjonsuttrekket deler 139
+   URL-er TO GENUINT FORSKJELLIGE kommuner — det finnes to reelle, distinkte kommuner som begge heter
+   "Herøy" (organisasjonsnummer 872417982 i Nordland, 964978840 i Møre og Romsdal), begge hostet under
+   nøyaktig samme `skjema.heroy.kommune.no`-URL-mønster. En `url`-alene identitetsnøkkel (mønsteret
+   `TjenestelisteImporter` trygt bruker for SINE kilder) ville derfor STILLE kollapset begge kommunenes
+   distinkte tjenester til én rad. Løsningen: `EksternKildeEntitet.EksternId` er en sammensatt nøkkel av
+   den EIENDE kommunens `organisasjonsnummer` og tjenestens egen `url` (`KommuneTjenesteHenter.BeregnEksternId`,
+   skilletegn `"::"` — organisasjonsnummer er alltid eksakt 9 siffer og kan derfor aldri selv inneholde et
+   kolon). Kollapser fortsatt de ~74 ekte innad-i-kommune-duplikatene (samme tjeneste funnet av flere av de
+   fem skrapemetodene for SAMME kommune), men Herøy-parets rader forblir distinkte. Dette er nøyaktig
+   grunnen til at kilden fikk sin egen klasse i stedet for en tredje `TjenestelisteImporter`-kildetype.
+3. **`organisasjonsnummer` hentes fra kommune-objektet, ikke fra det nestede `tilbys_av[0]`** — strukturelt
+   garantert til stede på hvert kommune-objekt, verifisert mot fixturen at det stemmer overens med
+   `tilbys_av[0].organisasjonsnummer` i praksis, men en tryggere kilde å basere nøkkelen på siden
+   `tilbys_av` i prinsippet kunne vært tom. `RaaJson` er selve tjeneste-recordet, verbatim — ingen
+   kommune-nivå-kontekst (`sources[]`/`antall_tjenester`) tilføyd, siden hvert record allerede er
+   selvforsynt.
+4. **Batching PER KOMMUNE** (~327 `SaveChangesAsync`-kall i produksjon, ikke én batch for hele filen eller
+   én per record) — samme balanse som `AltinnSkjemaoversiktHenter`s "én lagring per etat". Kestrels
+   DEFAULT maks request-body-grense (30 MB) er bekreftet, ikke bare antatt, god margin for den ~8,7 MB
+   produksjonsfilen — ingen `KestrelServerOptions`-endring var nødvendig.
+5. **Nytt endepunkt** — `POST /api/eksterne-kilder/kommune-tjenester/importer`, samme rå-body-passthrough-
+   mønster som de to `TjenestelisteImporter`-endepunktene. Egen DTO (`KommuneTjenesteHostingResultatDto`),
+   ikke `TjenestelisteHostingResultatDto` gjenbrukt, siden det siste feltets betydning er reelt
+   forskjellig: her telles RECORDS hvis eiende kommune mangler `organisasjonsnummer` (empirisk null i
+   produksjon, men aldri stille antatt — en kommune uten organisasjonsnummer får sine records talt og
+   hoppet over, ALDRI falt tilbake til url-alene som identifikator).
+6. **Tester** — `KommuneTjenesteHenterTests.cs` (`RegelIde.Data.Tests`) bruker ni ekte rader/tre ekte
+   kommuner (`Testdata/KommuneTjenesteHosting/treff-sample.json`, trimmet fra Johanns ekte ~15 332-rads
+   uttrekk, inkludert BEVISST det ekte Herøy-url-kollisjonsparet). Dekker første import (9 nye, med de to
+   Herøy-radene som forblir separate — den viktigste enkeltpåstanden i denne runden), uendret re-import
+   (no-op), delvis endret re-import (kun én rad oppdateres), et syntetisk manglende-organisasjonsnummer-
+   tilfelle (telles OG hoppes over, ikke importert med url-alene), samt en fokusert enhetstest av selve
+   `BeregnEksternId`-sammensetningen (inkl. at samme url + ulikt organisasjonsnummer gir to distinkte
+   nøkler). `EksterneKilderEndepunktTests.cs` (`RegelIde.Api.Tests`) fikk et nytt endepunkttilfelle med en
+   syntetisk to-kommune-delt-url-fixture, samme kollisjonsbevis på endepunktnivå.
+7. **Bevisst utelatt denne runden**: samme liste som 0e punkt 6 — ingen FK til domenemodellen, ingen
+   automatisk bakgrunnsoppdatering, ingen kurateringsUI, ingen frontend-side, ingen master-tjeneste/
+   "brukes av"-modellering av `tilbys_av`-mønsteret — pluss, spesifikt for denne kilden, ingen porting av
+   Johanns kommune.no-skrapelogikk (fem metoder) inn i dette repoet; den forblir helt ekstern.
+
 ## 1. Byggesteg-status
 
 | # | Byggesteg | Status |

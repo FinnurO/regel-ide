@@ -57,6 +57,12 @@
     <None Include="Testdata\FylkeskommuneDialogHosting\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <!-- Ekte 3-kommune/9-rads utvalg for KommuneTjenesteHenter (feature/kommune-tjenester-hoster), trimmet fra
+         Johanns ekte ~15 332-rads produksjonsuttrekk — inkluderer bevisst den ekte Herøy-url-kollisjonen
+         (to distinkte kommuner, samme url-mønster), se KommuneTjenesteHenter.cs klassekommentar. -->
+    <None Include="Testdata\KommuneTjenesteHosting\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -54,4 +54,14 @@ internal static class Testdata
     /// </summary>
     public static string LesFylkeskommuneDialogtjenesteliste() =>
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "FylkeskommuneDialogHosting", "fylkeskommune-dialogtjenester-sample.json"));
+
+    /// <summary>
+    /// Tre ekte kommune-objekter/ni ekte tjeneste-records, trimmet fra Johanns ~15 332-rads
+    /// kommune.no-uttrekk (feature/kommune-tjenester-hoster) — inkluderer BEVISST den ekte
+    /// url-kollisjonen mellom to distinkte kommuner som begge heter "Herøy" (organisasjonsnummer
+    /// 872417982 i Nordland vs. 964978840 i Møre og Romsdal), se
+    /// <see cref="RegelIde.Data.KommuneTjenesteHenter"/>s klassekommentar.
+    /// </summary>
+    public static string LesKommuneTjenesteHosting() =>
+        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "KommuneTjenesteHosting", "treff-sample.json"));
 }

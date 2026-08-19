@@ -268,6 +268,81 @@ public class EksterneKilderEndepunktTests
         Assert.Equal(0, await etterDb.EksterneKilder.CountAsync(k => k.Kildetype == TjenestelisteImporter.Statsforvalter));
     }
 
+    private const string TreKommuneTjenesterJson = """
+    [
+      {
+        "kommune": "TEST KOMMUNE ÉN",
+        "organisasjonsnummer": "111111111",
+        "slug": "test-en",
+        "sources": [],
+        "antall_tjenester": 1,
+        "records": [
+          {
+            "tjenestenavn": "Test-tjeneste kommune én",
+            "url": "https://example.test/kommune/delt-url",
+            "kategori": "Test",
+            "beskrivelse": "",
+            "tilbys_av": [ { "organisasjon": "TEST KOMMUNE ÉN", "organisasjonsnummer": "111111111" } ],
+            "kilder": []
+          }
+        ]
+      },
+      {
+        "kommune": "TEST KOMMUNE TO",
+        "organisasjonsnummer": "222222222",
+        "slug": "test-to",
+        "sources": [],
+        "antall_tjenester": 1,
+        "records": [
+          {
+            "tjenestenavn": "Test-tjeneste kommune to",
+            "url": "https://example.test/kommune/delt-url",
+            "kategori": "Test",
+            "beskrivelse": "",
+            "tilbys_av": [ { "organisasjon": "TEST KOMMUNE TO", "organisasjonsnummer": "222222222" } ],
+            "kilder": []
+          }
+        ]
+      }
+    ]
+    """;
+
+    /// <summary>
+    /// Kommune-tjeneste-endepunktet er FIL-basert (ingen <c>HttpClient</c> i
+    /// <see cref="KommuneTjenesteHenter"/>) — testen poster derfor den rå JSON-en direkte som request-body,
+    /// ingen <see cref="HttpMessageHandler"/>-stub nødvendig. Fixturen har to kommuner som (syntetisk, men
+    /// samme mønster som det ekte Herøy-funnet) deler SAMME url — beviser at endepunktet importerer begge
+    /// som separate rader, ikke kollapset.
+    /// </summary>
+    [Fact]
+    public async Task Post_importer_kommune_tjenester_lagrer_begge_kommunenes_delte_url_som_separate_rader()
+    {
+        await using (var db = _fixture.NyDbContext())
+        {
+            await db.EksterneKilder.ExecuteDeleteAsync();
+        }
+
+        var svar = await _client.PostAsync(
+            "/api/eksterne-kilder/kommune-tjenester/importer",
+            new StringContent(TreKommuneTjenesterJson, Encoding.UTF8, "application/json"));
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+
+        var resultat = await svar.Content.ReadFromJsonAsync<KommuneTjenesteHostingResultatDto>(JsonInnstillinger);
+        Assert.NotNull(resultat);
+        Assert.Equal(2, resultat!.Nye);
+        Assert.Equal(0, resultat.Oppdaterte);
+        Assert.Equal(0, resultat.Uendret);
+        Assert.Equal(0, resultat.RecordsMedManglendeOrganisasjonsnummer);
+
+        await using var etterDb = _fixture.NyDbContext();
+        var antall = await etterDb.EksterneKilder.CountAsync(k => k.Kildetype == KommuneTjenesteHenter.Kildetype);
+        Assert.Equal(2, antall);
+        Assert.True(await etterDb.EksterneKilder.AnyAsync(k =>
+            k.Kildetype == KommuneTjenesteHenter.Kildetype && k.EksternId == "111111111::https://example.test/kommune/delt-url"));
+        Assert.True(await etterDb.EksterneKilder.AnyAsync(k =>
+            k.Kildetype == KommuneTjenesteHenter.Kildetype && k.EksternId == "222222222::https://example.test/kommune/delt-url"));
+    }
+
     [Fact]
     public async Task Get_lister_hostede_kilder_paginert_og_filtrert_pa_kildetype()
     {
