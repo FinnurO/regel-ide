@@ -3,6 +3,16 @@ using Microsoft.EntityFrameworkCore;
 namespace RegelIde.Data;
 
 /// <summary>
+/// Ett cross-tenant søketreff (2026-08-19, feature/tjenesteavhengighet-ekstern-referanse) — KUN
+/// <c>Status="publisert"</c> tjenester fra ENHVER virksomhet er søkbare her, aldri utkast/andre statuser
+/// fra en annen virksomhet enn kalleren (samme virksomhet-isolasjons-default som docs/02 §0.1 — draft-
+/// arbeid er alltid privat). <see cref="VirksomhetNavn"/> er med for disambiguering i UI-et ("Registrer
+/// matbedriften — Mattilsynet"-stilen), samme begrunnelse som andre steder i koden slår opp virksomhetens
+/// navn ved siden av selve treffet.
+/// </summary>
+public sealed record TjenesteTverrTenantTreff(Guid Id, string Tittel, string? Beskrivelse, Guid VirksomhetId, string VirksomhetNavn);
+
+/// <summary>
 /// Tjenesteregister (CPSV-AP-NO, docs/03-domenemodell.md §1.5) — byggesteg 2. Navngitt "register",
 /// ikke "Tjeneste", for å unngå kollisjon med domenebegrepet Tjeneste selv (jf. <see cref="TekstTaggTjeneste"/>/
 /// <see cref="HandbokForfatterTjeneste"/>-suffikset). Samme stil som disse: primary-constructor DI,
@@ -24,6 +34,33 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
 
     public Task<TjenesteEntitet?> FinnAsync(Guid id, CancellationToken ct = default) =>
         db.Tjenester.FirstOrDefaultAsync(t => t.Id == id && t.Entitetsstatus == "gjeldende", ct);
+
+    /// <summary>
+    /// Cross-tenant søk (2026-08-19) — for å finne en ANNEN virksomhets tjeneste som mål for en
+    /// tjenesteavhengighet (gap 1 i docs/13-backlog.md-runden: det finnes i dag ingen måte å FINNE en
+    /// annen tenants tjeneste å lenke til). Kun publiserte tjenester er synlige, fra ENHVER virksomhet —
+    /// se <see cref="TjenesteTverrTenantTreff"/>s klassekommentar. Samme enkle
+    /// ToLower().Contains()-søk som <see cref="LovdataKatalogTjeneste.SokAsync"/> — trenger ikke være
+    /// mer sofistikert enn det.
+    /// </summary>
+    public async Task<List<TjenesteTverrTenantTreff>> SokTverrTenantAsync(string sokestreng, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(sokestreng)) return [];
+
+        // Projisert til en anonym type FØR OrderBy/Take — EF Core klarer ikke å oversette en
+        // OrderBy over en egenkonstruert record (TjenesteTverrTenantTreff) rett etter en Join.
+        // Selve record-en materialiseres derfor klient-side, etter ToListAsync.
+        var lavSokestreng = sokestreng.ToLower();
+        var rader = await db.Tjenester
+            .Where(t => t.Entitetsstatus == "gjeldende" && t.Status == "publisert" &&
+                (t.Tittel.ToLower().Contains(lavSokestreng) || (t.Beskrivelse != null && t.Beskrivelse.ToLower().Contains(lavSokestreng))))
+            .Join(db.Virksomheter, t => t.VirksomhetId, v => v.Id,
+                (t, v) => new { t.Id, t.Tittel, t.Beskrivelse, t.VirksomhetId, VirksomhetNavn = v.Navn })
+            .OrderBy(x => x.Tittel)
+            .Take(50)
+            .ToListAsync(ct);
+        return rader.Select(x => new TjenesteTverrTenantTreff(x.Id, x.Tittel, x.Beskrivelse, x.VirksomhetId, x.VirksomhetNavn)).ToList();
+    }
 
     public Task<List<TjenesteRegelverksreferanseEntitet>> RegelverksreferanserForAsync(Guid tjenesteId, CancellationToken ct = default) =>
         db.TjenesteRegelverksreferanser.Where(r => r.TjenesteId == tjenesteId).ToListAsync(ct);

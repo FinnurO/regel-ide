@@ -60,6 +60,7 @@ import type {
   TjenesteRegelverksreferanseDto,
   TjenesteavhengighetDto,
   TjenesteavhengighetRequest,
+  TjenesteTverrTenantTreffDto,
   TjenesteforslagDto,
   HandbokRettskildeomfangDto,
   TjenesteRequest,
@@ -320,6 +321,9 @@ export const api = {
 
   hentTjenesteRegelverksreferanser: (id: string) =>
     kall<TjenesteRegelverksreferanseDto[]>(`/api/tjenester/${id}/regelverksreferanser`),
+
+  sokTjenesterTverrTenant: (q: string) =>
+    kall<TjenesteTverrTenantTreffDto[]>(`/api/tjenester/sok-tverr-tenant?q=${encodeURIComponent(q)}`),
 
   // ---------- «Identifiser tjenester» (byggesteg 5 runde 1, docs/06-veikart.md) — stub-KI ----------
 

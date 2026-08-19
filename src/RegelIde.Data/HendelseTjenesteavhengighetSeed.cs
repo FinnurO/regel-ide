@@ -136,7 +136,7 @@ public static class HendelseTjenesteavhengighetSeed
     {
         try
         {
-            await register.OpprettAsync(virksomhetId, fraTjenesteId, tilTjenesteId, rel, hendelseId, beskrivelse, SeedBruker, ct);
+            await register.OpprettAsync(virksomhetId, fraTjenesteId, tilTjenesteId, rel, hendelseId, beskrivelse, SeedBruker, ct: ct);
         }
         catch (ArgumentException)
         {

@@ -182,4 +182,139 @@ public class TjenesteavhengighetregisterTjenesteTests
         Assert.True(await register.SlettAsync(avhengighet.Id));
         Assert.Empty(await register.HentForTjenesteAsync(a));
     }
+
+    // ---------- Ekstern tjenestereferanse (2026-08-19, feature/tjenesteavhengighet-ekstern-referanse) ----------
+
+    [Fact]
+    public async Task Oppretter_avhengighet_til_ekstern_referanse_og_leser_riktig_motpart()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = await NyVirksomhetAsync(db);
+        var serveringsbevilling = await NyTjenesteAsync(db, virksomhet, "Serveringsbevilling");
+
+        var register = new TjenesteavhengighetregisterTjeneste(db);
+        await register.OpprettAsync(
+            virksomhet, serveringsbevilling, null, "avhengig_av", null, null, "Kari Jurist",
+            tilOrganisasjonsnummer: "974761122", tilNavn: "Registrer matbedriften din hos Mattilsynet");
+
+        var fraSiden = await register.HentForTjenesteAsync(serveringsbevilling);
+        var visning = Assert.Single(fraSiden);
+        Assert.Null(visning.MotpartTjenesteId);
+        Assert.Equal("974761122", visning.MotpartOrganisasjonsnummer);
+        Assert.Equal("Registrer matbedriften din hos Mattilsynet", visning.MotpartNavn);
+        Assert.Equal("Registrer matbedriften din hos Mattilsynet er avhengig av denne", visning.Visningstekst);
+
+        // Selve raden peker via TilEksternReferanseId, ikke TilTjenesteId.
+        var rad = await db.Tjenesteavhengigheter.SingleAsync(t => t.FraTjenesteId == serveringsbevilling);
+        Assert.Null(rad.TilTjenesteId);
+        Assert.NotNull(rad.TilEksternReferanseId);
+    }
+
+    [Fact]
+    public async Task Gjenbruker_eksisterende_ekstern_referanse_pa_orgnr_og_navn_ikke_duplikat()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = await NyVirksomhetAsync(db);
+        var serveringsbevilling = await NyTjenesteAsync(db, virksomhet, "Serveringsbevilling");
+        var skjenkebevilling = await NyTjenesteAsync(db, virksomhet, "Alminnelig skjenkebevilling");
+
+        var register = new TjenesteavhengighetregisterTjeneste(db);
+        await register.OpprettAsync(
+            virksomhet, serveringsbevilling, null, "avhengig_av", null, null, "Kari Jurist",
+            tilOrganisasjonsnummer: "974761122", tilNavn: "Registrer matbedriften din hos Mattilsynet");
+        await register.OpprettAsync(
+            virksomhet, skjenkebevilling, null, "avhengig_av", null, null, "Kari Jurist",
+            tilOrganisasjonsnummer: "974761122", tilNavn: "Registrer matbedriften din hos Mattilsynet");
+
+        // To kanter refererer samme (orgnr, navn) — skal gjenbruke SAMME plassholder-rad, ikke opprette to.
+        Assert.Single(await db.EksterneTjenestereferanser.ToListAsync());
+    }
+
+    [Fact]
+    public async Task Ulikt_navn_samme_orgnr_gir_to_distinkte_eksterne_referanser()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = await NyVirksomhetAsync(db);
+        var a = await NyTjenesteAsync(db, virksomhet, "A");
+        var b = await NyTjenesteAsync(db, virksomhet, "B");
+
+        var register = new TjenesteavhengighetregisterTjeneste(db);
+        await register.OpprettAsync(
+            virksomhet, a, null, "avhengig_av", null, null, "Kari Jurist",
+            tilOrganisasjonsnummer: "974761122", tilNavn: "Registrer matbedriften din hos Mattilsynet");
+        await register.OpprettAsync(
+            virksomhet, b, null, "avhengig_av", null, null, "Kari Jurist",
+            tilOrganisasjonsnummer: "974761122", tilNavn: "Vandelskontroll fra Mattilsynet");
+
+        Assert.Equal(2, await db.EksterneTjenestereferanser.CountAsync());
+    }
+
+    [Fact]
+    public async Task Verken_tiltjeneste_eller_ekstern_mal_gir_400()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = await NyVirksomhetAsync(db);
+        var a = await NyTjenesteAsync(db, virksomhet, "A");
+
+        var register = new TjenesteavhengighetregisterTjeneste(db);
+        var ex = await Assert.ThrowsAsync<ArgumentException>(() =>
+            register.OpprettAsync(virksomhet, a, null, "avhengig_av", null, null, "Kari Jurist"));
+        Assert.Contains("Mål for avhengigheten mangler", ex.Message);
+    }
+
+    [Fact]
+    public async Task Bade_tiltjeneste_og_ekstern_mal_gir_400()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = await NyVirksomhetAsync(db);
+        var a = await NyTjenesteAsync(db, virksomhet, "A");
+        var b = await NyTjenesteAsync(db, virksomhet, "B");
+
+        var register = new TjenesteavhengighetregisterTjeneste(db);
+        var ex = await Assert.ThrowsAsync<ArgumentException>(() =>
+            register.OpprettAsync(
+                virksomhet, a, b, "avhengig_av", null, null, "Kari Jurist",
+                tilOrganisasjonsnummer: "974761122", tilNavn: "Registrer matbedriften din hos Mattilsynet"));
+        Assert.Contains("ikke begge", ex.Message);
+    }
+
+    [Fact]
+    public async Task Ekstern_referanse_uten_navn_gir_400()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = await NyVirksomhetAsync(db);
+        var a = await NyTjenesteAsync(db, virksomhet, "A");
+
+        var register = new TjenesteavhengighetregisterTjeneste(db);
+        var ex = await Assert.ThrowsAsync<ArgumentException>(() =>
+            register.OpprettAsync(
+                virksomhet, a, null, "avhengig_av", null, null, "Kari Jurist", tilOrganisasjonsnummer: "974761122"));
+        Assert.Contains("krever både organisasjonsnummer og navn", ex.Message);
+    }
+
+    [Fact]
+    public async Task Ekte_og_ekstern_avhengighet_pa_samme_tjeneste_gir_riktig_motpart_for_hver()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = await NyVirksomhetAsync(db);
+        var serveringsbevilling = await NyTjenesteAsync(db, virksomhet, "Serveringsbevilling");
+        var skjenkebevilling = await NyTjenesteAsync(db, virksomhet, "Alminnelig skjenkebevilling");
+
+        var register = new TjenesteavhengighetregisterTjeneste(db);
+        await register.OpprettAsync(virksomhet, serveringsbevilling, skjenkebevilling, "forutsetning_for", null, null, "Kari Jurist");
+        await register.OpprettAsync(
+            virksomhet, serveringsbevilling, null, "avhengig_av", null, null, "Kari Jurist",
+            tilOrganisasjonsnummer: "974761122", tilNavn: "Vandelskontroll fra Politiet");
+
+        var fraSiden = await register.HentForTjenesteAsync(serveringsbevilling);
+        Assert.Equal(2, fraSiden.Count);
+
+        var ekteMotpart = Assert.Single(fraSiden, v => v.MotpartTjenesteId is not null);
+        Assert.Equal(skjenkebevilling, ekteMotpart.MotpartTjenesteId);
+        Assert.Null(ekteMotpart.MotpartOrganisasjonsnummer);
+
+        var eksternMotpart = Assert.Single(fraSiden, v => v.MotpartTjenesteId is null);
+        Assert.Equal("974761122", eksternMotpart.MotpartOrganisasjonsnummer);
+        Assert.Equal("Vandelskontroll fra Politiet", eksternMotpart.MotpartNavn);
+    }
 }

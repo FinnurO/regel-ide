@@ -317,24 +317,49 @@ export interface KobleHendelseRequest {
   hendelseId: string;
 }
 
-/** Én tjenesteavhengighet sett fra den spurte tjenestens ståsted — retning+visningstekst er ferdig beregnet server-side. */
+/**
+ * Én tjenesteavhengighet sett fra den spurte tjenestens ståsted — retning+visningstekst er ferdig
+ * beregnet server-side. Motparten er ENTEN en ekte tjeneste (`motpartTjenesteId` satt,
+ * `motpartOrganisasjonsnummer` null) ELLER en ekstern plassholder (omvendt) — `motpartNavn` er alltid
+ * populert uansett hvilket, slik at en visning kan rendres med kun én null-sjekk (på
+ * `motpartTjenesteId`, for å avgjøre om en `/tjenester/:id`-lenke gir mening — en ekstern referanse har
+ * ingen ekte Tjeneste-rad å navigere til).
+ */
 export interface TjenesteavhengighetDto {
   id: string;
   rel: string;
   retning: 'fra' | 'til';
   visningstekst: string;
-  motpartTjenesteId: string;
-  motpartTjenesteTittel: string;
+  motpartTjenesteId: string | null;
+  motpartOrganisasjonsnummer: string | null;
+  motpartNavn: string;
+  motpartUrl: string | null;
   hendelseId: string | null;
   hendelseNavn: string | null;
   beskrivelse: string | null;
 }
 
+/**
+ * `tilTjenesteId` ELLER (`tilOrganisasjonsnummer` + `tilNavn`, valgfritt `tilUrl`) — nøyaktig ett av de
+ * to målene må oppgis.
+ */
 export interface TjenesteavhengighetRequest {
-  tilTjenesteId: string;
+  tilTjenesteId: string | null;
   rel: string;
   hendelseId: string | null;
   beskrivelse: string | null;
+  tilOrganisasjonsnummer?: string | null;
+  tilNavn?: string | null;
+  tilUrl?: string | null;
+}
+
+/** Ett cross-tenant søketreff (GET /api/tjenester/sok-tverr-tenant) — kun publiserte tjenester fra ALLE virksomheter. */
+export interface TjenesteTverrTenantTreffDto {
+  id: string;
+  tittel: string;
+  beskrivelse: string | null;
+  virksomhetId: string;
+  virksomhetNavn: string;
 }
 
 /** SKOS-begrep (docs/03-domenemodell.md §1.3). 'begrepstype': faktabegrep|handlingsbegrep. */
