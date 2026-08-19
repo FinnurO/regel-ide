@@ -221,6 +221,49 @@ endepunkter i den eksisterende `eksterneKilder`-gruppen.
    skjemaoversikten, ingen bakgrunnsjobb-/kø-infrastruktur (se punkt 2 over) og ingen retry/feilsvelging
    per side.
 
+## 0e. Fjerde kilde i høstelaget — Statsforvalter-tjenester, FIL-basert 2026-08-19 (`feature/statsforvalter-tjenester-hoster`)
+
+Samme høstelag som 0c/0d (`EksternKildeEntitet`, ingen FK til domenemodellen), utvidet med en fjerde
+kilde som er strukturelt annerledes enn de tre andre: FIL-basert, ikke URL-basert. Johann kjører sin
+egen eksterne Python-skrape (utenfor dette repoet) mot alle 10 Statsforvalter-embetenes "skjema og
+tjenester"-sider periodisk og leverer resultatet som en JSON-fil han selv poster inn — det finnes ingen
+stabil offentlig URL/API denne appen kan polle selv.
+
+1. **`StatsforvalterTjenesteHenter.cs`** (`src/RegelIde.Data/`) — `ImporterAsync(string raaJson, ...)`
+   tar den rå JSON-STRENGEN direkte som parameter, IKKE en `HttpClient`-avhengighet — ingen utgående
+   nettverkskall i klassen. `EksternId` = tjenestens egen `url`-felt, IKKE `tjenestenavn` — bevist
+   nødvendig av et ekte bokmål/nynorsk PDF-variant-par i produksjonsdataene ("Klage på
+   forvaltningsvedtak", to rader, samme navn, ulik url). `Kildetype = "statsforvalter_tjeneste"`.
+   Samme upsert-på-hash/batch-`SaveChangesAsync`-mønster som `OppgaveregisterHenter`.
+2. **`tilbys_av`-mønsteret bevart, ikke modellert** — kildeformatet har én tjeneste-rad med en liste av
+   organisasjoner som tilbyr den (empirisk fordeling i ekte produksjonsdata, 288 rader/10 embeter: 157
+   med 1 tilbyder, 56 med 2, 56 med 8, 19 med alle 10). Dette er IKKE en master/instans-relasjon —
+   den designbeslutningen er eksplisitt parkert (Johann: "la oss vente litt med master"). Denne runden
+   bevarer mønsteret verbatim i `RaaJson`, ingen ny tabell/relasjon.
+3. **Kjent oppstrøms-datakvalitetsavvik telt, aldri gjettet rundt** — Johanns egen skrape (hans kode,
+   utenfor repoet, ikke rettet her) har en fallback som stille kan skrive tom streng for
+   `organisasjonsnummer`. `StatsforvalterTjenesteHostingResultat.TilbydereMedManglendeOrgnummer` teller
+   dette eksplisitt per import; en tom/manglende verdi behandles ALDRI som en gyldig identifikator
+   (samme "ingen gjettet fallback"-prinsipp som ellers i kodebasen).
+4. **Nytt endepunkt** — `POST /api/eksterne-kilder/statsforvalter-tjenester/importer` leser request-body
+   som rå streng (`HttpRequest.Body`) og sender den UENDRET til `ImporterAsync` — ingen
+   deserialiser/reserialiser-runde ved endepunktet, slik at `RaaJson` blir byte-identisk med det som ble
+   postet. Returnerer `StatsforvalterTjenesteHostingResultatDto` (utvider de tre vanlige feltene med
+   `TilbydereMedManglendeOrgnummer`).
+5. **Tester** — `StatsforvalterTjenesteHenterTests.cs` (`RegelIde.Data.Tests`) bruker fem EKTE rader
+   (`Testdata/StatsforvalterHosting/statsforvalter-tjenester-sample.json`, trimmet fra Johanns
+   ~288-rads uttrekk) som primærfixture — ingen `HttpMessageHandler`-stub nødvendig siden importøren
+   ikke gjør nettverkskall. Dekker første import (5 nye), uendret re-import (no-op), delvis endret
+   re-import (kun én rad oppdateres), at de to url-distinkte/tjenestenavn-identiske PDF-radene
+   importeres separat, og et syntetisk tilfelle med tomt `organisasjonsnummer` (tellingen fanger det,
+   raden importeres likevel verbatim). `EksterneKilderEndepunktTests.cs` (`RegelIde.Api.Tests`) dekker
+   endepunktet med en liten syntetisk fixture som poster rå JSON direkte (ingen stub-oppsett).
+6. **Bevisst utelatt denne runden**: samme liste som 0c punkt 5 (ingen FK til domenemodellen, ingen
+   automatisk bakgrunnsoppdatering, ingen kurateringsUI, ingen frontend-side) — pluss ingen endring av
+   Johanns eksterne Python-skrape (utenfor dette repoet), ingen live nettverkshenting fra
+   statsforvalteren.no, og ingen master-tjeneste/"brukes av"-modellering av `tilbys_av`-mønsteret (se
+   punkt 2 — fortsatt en åpen, uavklart diskusjon).
+
 ## 1. Byggesteg-status
 
 | # | Byggesteg | Status |

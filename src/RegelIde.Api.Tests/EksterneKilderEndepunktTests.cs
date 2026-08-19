@@ -159,6 +159,60 @@ public class EksterneKilderEndepunktTests
         Assert.Equal("Advokat", raaJson.RootElement.GetProperty("tjeneste").GetString());
     }
 
+    private const string TreStatsforvalterTjenesterJson = """
+    [
+      {
+        "tjenestenavn": "Test-tjeneste én",
+        "url": "https://example.test/statsforvalter/tjeneste-en",
+        "tema": "Test",
+        "beskrivelse": "Testtjeneste.",
+        "tilbys_av": [ { "organisasjon": "Agder", "organisasjonsnummer": "974762994" } ]
+      },
+      {
+        "tjenestenavn": "Test-tjeneste to",
+        "url": "https://example.test/statsforvalter/tjeneste-to",
+        "tema": "Test",
+        "beskrivelse": "Testtjeneste med manglende orgnummer.",
+        "tilbys_av": [
+          { "organisasjon": "Ukjent embete", "organisasjonsnummer": "" },
+          { "organisasjon": "Vestland", "organisasjonsnummer": "974760665" }
+        ]
+      }
+    ]
+    """;
+
+    /// <summary>
+    /// Statsforvalter-tjeneste-endepunktet er FIL-basert (ingen <c>HttpClient</c> i
+    /// <see cref="StatsforvalterTjenesteHenter"/>) — testen poster derfor den rå JSON-en direkte som
+    /// request-body, ingen <see cref="HttpMessageHandler"/>-stub nødvendig.
+    /// </summary>
+    [Fact]
+    public async Task Post_importer_statsforvalter_tjenester_lagrer_tjenestene_og_returnerer_sammendrag_med_manglende_orgnummer()
+    {
+        await using (var db = _fixture.NyDbContext())
+        {
+            await db.EksterneKilder.ExecuteDeleteAsync();
+        }
+
+        var svar = await _client.PostAsync(
+            "/api/eksterne-kilder/statsforvalter-tjenester/importer",
+            new StringContent(TreStatsforvalterTjenesterJson, Encoding.UTF8, "application/json"));
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+
+        var resultat = await svar.Content.ReadFromJsonAsync<StatsforvalterTjenesteHostingResultatDto>(JsonInnstillinger);
+        Assert.NotNull(resultat);
+        Assert.Equal(2, resultat!.Nye);
+        Assert.Equal(0, resultat.Oppdaterte);
+        Assert.Equal(0, resultat.Uendret);
+        Assert.Equal(1, resultat.TilbydereMedManglendeOrgnummer);
+
+        await using var etterDb = _fixture.NyDbContext();
+        var antall = await etterDb.EksterneKilder.CountAsync(k => k.Kildetype == StatsforvalterTjenesteHenter.Kildetype);
+        Assert.Equal(2, antall);
+        Assert.True(await etterDb.EksterneKilder.AnyAsync(k =>
+            k.Kildetype == StatsforvalterTjenesteHenter.Kildetype && k.EksternId == "https://example.test/statsforvalter/tjeneste-en"));
+    }
+
     [Fact]
     public async Task Get_lister_hostede_kilder_paginert_og_filtrert_pa_kildetype()
     {

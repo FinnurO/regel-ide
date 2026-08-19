@@ -47,6 +47,11 @@
     <None Include="Testdata\AltinnHosting\*">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <!-- Ekte 5-rads utvalg for StatsforvalterTjenesteHenter (feature/statsforvalter-tjenester-hoster),
+         trimmet fra Johanns ekte ~288-rads produksjonsuttrekk — samme mønster som Testdata\AltinnHosting. -->
+    <None Include="Testdata\StatsforvalterHosting\*">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -34,4 +34,13 @@ internal static class Testdata
     /// <summary>Ekte tjenesteside (/skjemaoversikt/advokattilsynet/advokat/), verifisert live (feature/altinn-hostere).</summary>
     public static string LesSkjemaoversiktAdvokatside() =>
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "AltinnHosting", "skjemaoversikt-advokat.html"));
+
+    /// <summary>
+    /// Fem ekte rader, trimmet fra Johanns ~288-rads Statsforvalter "skjema og tjenester"-uttrekk
+    /// (feature/statsforvalter-tjenester-hoster) — dekker en tjeneste tilbudt av alle 10 embeter, en
+    /// tilbudt av kun 1, en tilbudt av 2, og et ekte bokmål/nynorsk PDF-variant-par med samme
+    /// tjenestenavn men ulik url.
+    /// </summary>
+    public static string LesStatsforvalterTjenesteliste() =>
+        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "StatsforvalterHosting", "statsforvalter-tjenester-sample.json"));
 }
