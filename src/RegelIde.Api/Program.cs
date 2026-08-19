@@ -90,8 +90,9 @@ builder.Services.AddHttpClient<AltinnSkjemaoversiktHenter>(c =>
     // HttpRequestException på HELT FØRSTE kall — hele høstingen feilet 100 % av tiden. "hoster" (uten
     // ø) løser det uten å endre meningen.
     c.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; RegelIde-hoster/1.0; +https://github.com/FinnurO/regel-ide)"));
-// Fil-basert, ikke URL-basert (se StatsforvalterTjenesteHenter.cs klassekommentar) — ingen HttpClient å registrere.
-builder.Services.AddScoped<StatsforvalterTjenesteHenter>();
+// Fil-basert, ikke URL-basert (se TjenestelisteImporter.cs klassekommentar) — ingen HttpClient å registrere.
+// Delt av begge fil-baserte kildene (Statsforvalter-tjenester + fylkeskommune-dialogtjenester).
+builder.Services.AddScoped<TjenestelisteImporter>();
 
 const string VitePolicy = "ViteDevServer";
 builder.Services.AddCors(o => o.AddPolicy(VitePolicy, p => p
@@ -728,12 +729,12 @@ eksterneKilder.MapPost("/altinn-skjemaoversikt/hent", async (AltinnSkjemaoversik
         "høster hver tjenesteside inn som en strukturert kildepost — SYNKRONT, langvarig kall (trenger lang " +
         "klient-timeout), lagrer inkrementelt per etat. Idempotent, trygt å kjøre på nytt ved avbrudd.");
 
-eksterneKilder.MapPost("/statsforvalter-tjenester/importer", async (HttpRequest request, StatsforvalterTjenesteHenter henter, CancellationToken ct) =>
+eksterneKilder.MapPost("/statsforvalter-tjenester/importer", async (HttpRequest request, TjenestelisteImporter importer, CancellationToken ct) =>
     {
         using var leser = new StreamReader(request.Body);
         var raaJson = await leser.ReadToEndAsync(ct);
-        var resultat = await henter.ImporterAsync(raaJson, ct);
-        return Results.Ok(new StatsforvalterTjenesteHostingResultatDto(resultat.Nye, resultat.Oppdaterte, resultat.Uendret, resultat.TilbydereMedManglendeOrgnummer));
+        var resultat = await importer.ImporterAsync(raaJson, TjenestelisteImporter.Statsforvalter, ct);
+        return Results.Ok(new TjenestelisteHostingResultatDto(resultat.Nye, resultat.Oppdaterte, resultat.Uendret, resultat.TilbydereMedManglendeOrgnummer));
     })
     .WithName("ImporterStatsforvalterTjenester")
     .WithSummary("Importerer Statsforvalternes 'skjema og tjenester'-oversikt fra en rå JSON-array-body — " +
@@ -741,6 +742,21 @@ eksterneKilder.MapPost("/statsforvalter-tjenester/importer", async (HttpRequest 
         "stabil offentlig URL denne appen kan polle selv). Idempotent upsert på (kildetype, url). Ikke " +
         "koblet til domenemodellen ennå. Rapporterer også antall tilbys_av-oppføringer med manglende " +
         "organisasjonsnummer — et kjent oppstrøms-skjørhetstilfelle, aldri behandlet som en gyldig identifikator.");
+
+eksterneKilder.MapPost("/fylkeskommune-tjenester/importer", async (HttpRequest request, TjenestelisteImporter importer, CancellationToken ct) =>
+    {
+        using var leser = new StreamReader(request.Body);
+        var raaJson = await leser.ReadToEndAsync(ct);
+        var resultat = await importer.ImporterAsync(raaJson, TjenestelisteImporter.FylkeskommuneDialog, ct);
+        return Results.Ok(new TjenestelisteHostingResultatDto(resultat.Nye, resultat.Oppdaterte, resultat.Uendret, resultat.TilbydereMedManglendeOrgnummer));
+    })
+    .WithName("ImporterFylkeskommuneTjenester")
+    .WithSummary("Importerer fylkeskommunenes 'dialog'-kontaktskjema-oversikt fra en rå JSON-array-body — " +
+        "strukturelt identisk fil-basert kilde som Statsforvalter-tjenester (samme Johann-eksterne-skrape-" +
+        "mønster, ingen stabil offentlig URL denne appen kan polle selv), delt implementasjon via " +
+        "TjenestelisteImporter. Idempotent upsert på (kildetype, url). Ikke koblet til domenemodellen ennå. " +
+        "Rapporterer også antall tilbys_av-oppføringer med manglende organisasjonsnummer, selv om empirisk " +
+        "alle rader i denne kilden har nøyaktig én tilbyder.");
 
 eksterneKilder.MapGet("/", async (string? kildetype, RegelIdeDbContext db, CancellationToken ct, int start = 0, int antall = 50) =>
     {
