@@ -53,7 +53,12 @@ internal static class Testdata
     /// representativt for hele produksjonsuttrekket.
     /// </summary>
     public static string LesFylkeskommuneDialogtjenesteliste() =>
-        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "FylkeskommuneDialogHosting", "fylkeskommune-dialogtjenester-sample.json"));
+        // Normaliser til LF: TjenestelisteImporterTests bygger en "endret"-variant via en literal
+        // \n-basert .Replace() på denne strengen. Med core.autocrlf=true (vanlig på Windows) sjekker git
+        // den committede fixturen ut med \r\n, som aldri matcher et \n-mønster og gjør Replace()-en til
+        // en stille no-op — samme normaliserings-idiom som NettsideFixtureLeser.Les allerede bruker.
+        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "FylkeskommuneDialogHosting", "fylkeskommune-dialogtjenester-sample.json"))
+            .Replace("\r\n", "\n");
 
     /// <summary>
     /// Tre ekte kommune-objekter/ni ekte tjeneste-records, trimmet fra Johanns ~15 332-rads
