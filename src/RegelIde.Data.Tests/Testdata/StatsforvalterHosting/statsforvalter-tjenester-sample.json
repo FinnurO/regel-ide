@@ -1,0 +1,102 @@
+[
+  {
+    "tjenestenavn": "Barnevern, informere om at barn i institusjon har hatt kontakt med politiet",
+    "url": "https://info.altinn.no/skjemaoversikt/statsforvalteren/orientering-om-at-barn-har-hatt-kontakt-med-politi",
+    "tema": "Barn og foreldre",
+    "beskrivelse": "Barnevernsinstitusjoner kan bruke digitalt skjema for å melde fra til Statsforvalteren om at barn har vært i kontakt med politiet.",
+    "tilbys_av": [
+      {
+        "organisasjon": "STAF",
+        "organisasjonsnummer": "921627009"
+      },
+      {
+        "organisasjon": "Agder",
+        "organisasjonsnummer": "974762994"
+      },
+      {
+        "organisasjon": "Innlandet",
+        "organisasjonsnummer": "974761645"
+      },
+      {
+        "organisasjon": "Møre og Romsdal",
+        "organisasjonsnummer": "974764067"
+      },
+      {
+        "organisasjon": "Nordland",
+        "organisasjonsnummer": "974764687"
+      },
+      {
+        "organisasjon": "Troms og Finnmark",
+        "organisasjonsnummer": "967311014"
+      },
+      {
+        "organisasjon": "Trøndelag",
+        "organisasjonsnummer": "974764350"
+      },
+      {
+        "organisasjon": "Vestfold og Telemark",
+        "organisasjonsnummer": "974762501"
+      },
+      {
+        "organisasjon": "Vestland",
+        "organisasjonsnummer": "974760665"
+      },
+      {
+        "organisasjon": "Østfold, Buskerud, Oslo og Akershus",
+        "organisasjonsnummer": "974761319"
+      }
+    ]
+  },
+  {
+    "tjenestenavn": "Arealforvaltning - skjema og veilededere",
+    "url": "https://www.statsforvalteren.no/nb/agder/Plan-og-bygg/Arealforvaltning/Skjema-arealforvaltning-/Skjema-arealforvaltning-/",
+    "tema": "Plan og bygg",
+    "beskrivelse": "Sjekklister for regulerings- og bebyggelsesplaner. Veileder og sjekkliste for dispensasjonssøknader (Statsforvalteren i Agder)",
+    "tilbys_av": [
+      {
+        "organisasjon": "Agder",
+        "organisasjonsnummer": "974762994"
+      }
+    ]
+  },
+  {
+    "tjenestenavn": "Avfall, årleg rapportering for deponi",
+    "url": "https://info.altinn.no/skjemaoversikt/miljodirektoratet/mdir-002-arlig-rapportering-for-deponier/",
+    "tema": "Miljø og klima",
+    "beskrivelse": "For industrideponi og avfallsdeponi som skal levere årleg rapportering til Miljødirektoratet og Statsforvaltaren.",
+    "tilbys_av": [
+      {
+        "organisasjon": "Møre og Romsdal",
+        "organisasjonsnummer": "974764067"
+      },
+      {
+        "organisasjon": "Vestland",
+        "organisasjonsnummer": "974760665"
+      }
+    ]
+  },
+  {
+    "tjenestenavn": "Klage på forvaltningsvedtak",
+    "url": "https://www.regjeringen.no/contentassets/45b55b2c88e94e79b55b1798053f7ad7/0073b_bokmal.pdf",
+    "tema": "Folk og samfunn, Barnehage og opplæring, Barn og foreldre, Helse, omsorg og sosialtenester, Miljø og klima, Landbruk og mat, Kommunal styring, Plan og bygg, Samfunnstryggleik og beredskap",
+    "beskrivelse": "Melding om rett til å klage på forvaltningsvedtak (forvaltningslovens §27 tredje ledd)",
+    "tilbys_av": [
+      {
+        "organisasjon": "Møre og Romsdal",
+        "organisasjonsnummer": "974764067"
+      }
+    ]
+  },
+  {
+    "tjenestenavn": "Klage på forvaltningsvedtak",
+    "url": "https://www.regjeringen.no/contentassets/45b55b2c88e94e79b55b1798053f7ad7/0073n_nynorsk.pdf",
+    "tema": "Folk og samfunn, Barnehage og opplæring, Barn og foreldre, Helse, omsorg og sosialtenester, Miljø og klima, Landbruk og mat, Kommunal styring, Plan og bygg, Samfunnstryggleik og beredskap",
+    "beskrivelse": "Melding om rett til å klage på forvaltningsvedtak (forvaltningslovens §27 tredje ledd)",
+    "tilbys_av": [
+      {
+        "organisasjon": "Møre og Romsdal",
+        "organisasjonsnummer": "974764067"
+      }
+    ]
+  }
+]

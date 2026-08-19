@@ -465,6 +465,15 @@ public sealed record EksternKildeListeDto(int Totalt, IReadOnlyList<EksternKilde
 /// <summary>Sammendrag returnert av POST /api/eksterne-kilder/oppgaveregister/hent.</summary>
 public sealed record EksternKildeHostingResultatDto(int Nye, int Oppdaterte, int Uendret);
 
+/// <summary>
+/// Sammendrag returnert av POST /api/eksterne-kilder/statsforvalter-tjenester/importer — utvider
+/// <see cref="EksternKildeHostingResultatDto"/>s tre felt med
+/// <see cref="TilbydereMedManglendeOrgnummer"/>, siden denne kilden (til forskjell fra de tre andre)
+/// har en <c>tilbys_av</c>-liste der et kjent oppstrøms-skjørhetstilfelle kan gi tom-streng-organisasjonsnummer
+/// — se <see cref="RegelIde.Data.StatsforvalterTjenesteHenter"/>s klassekommentar.
+/// </summary>
+public sealed record StatsforvalterTjenesteHostingResultatDto(int Nye, int Oppdaterte, int Uendret, int TilbydereMedManglendeOrgnummer);
+
 /// <summary>Kunnskapsbibliotek-fil (byggesteg 5 runde 2) — inneholder aldri de rå bytene, kun utvunnet tekst.</summary>
 public sealed record KunnskapsbibliotekFilDto(Guid Id, Guid VirksomhetId, string Filnavn, string? Tittel, string Filtype, string UtvunnetTekst, string OpprettetAv, DateTimeOffset OpprettetTidspunkt)
 {

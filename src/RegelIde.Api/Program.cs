@@ -90,6 +90,8 @@ builder.Services.AddHttpClient<AltinnSkjemaoversiktHenter>(c =>
     // HttpRequestException på HELT FØRSTE kall — hele høstingen feilet 100 % av tiden. "hoster" (uten
     // ø) løser det uten å endre meningen.
     c.DefaultRequestHeaders.UserAgent.ParseAdd("Mozilla/5.0 (compatible; RegelIde-hoster/1.0; +https://github.com/FinnurO/regel-ide)"));
+// Fil-basert, ikke URL-basert (se StatsforvalterTjenesteHenter.cs klassekommentar) — ingen HttpClient å registrere.
+builder.Services.AddScoped<StatsforvalterTjenesteHenter>();
 
 const string VitePolicy = "ViteDevServer";
 builder.Services.AddCors(o => o.AddPolicy(VitePolicy, p => p
@@ -725,6 +727,20 @@ eksterneKilder.MapPost("/altinn-skjemaoversikt/hent", async (AltinnSkjemaoversik
     .WithSummary("Kryper hele Altinns skjemaoversikt (info.altinn.no/skjemaoversikt, ~800+ tjenestesider) og " +
         "høster hver tjenesteside inn som en strukturert kildepost — SYNKRONT, langvarig kall (trenger lang " +
         "klient-timeout), lagrer inkrementelt per etat. Idempotent, trygt å kjøre på nytt ved avbrudd.");
+
+eksterneKilder.MapPost("/statsforvalter-tjenester/importer", async (HttpRequest request, StatsforvalterTjenesteHenter henter, CancellationToken ct) =>
+    {
+        using var leser = new StreamReader(request.Body);
+        var raaJson = await leser.ReadToEndAsync(ct);
+        var resultat = await henter.ImporterAsync(raaJson, ct);
+        return Results.Ok(new StatsforvalterTjenesteHostingResultatDto(resultat.Nye, resultat.Oppdaterte, resultat.Uendret, resultat.TilbydereMedManglendeOrgnummer));
+    })
+    .WithName("ImporterStatsforvalterTjenester")
+    .WithSummary("Importerer Statsforvalternes 'skjema og tjenester'-oversikt fra en rå JSON-array-body — " +
+        "FIL-basert, ikke URL-basert (Johanns egen eksterne Python-skrape leverer filen periodisk, ingen " +
+        "stabil offentlig URL denne appen kan polle selv). Idempotent upsert på (kildetype, url). Ikke " +
+        "koblet til domenemodellen ennå. Rapporterer også antall tilbys_av-oppføringer med manglende " +
+        "organisasjonsnummer — et kjent oppstrøms-skjørhetstilfelle, aldri behandlet som en gyldig identifikator.");
 
 eksterneKilder.MapGet("/", async (string? kildetype, RegelIdeDbContext db, CancellationToken ct, int start = 0, int antall = 50) =>
     {
