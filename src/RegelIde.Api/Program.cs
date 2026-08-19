@@ -1039,6 +1039,16 @@ tjenester.MapGet("/{id:guid}", async (Guid id, TjenesteregisterTjeneste tjeneste
     .WithName("HentTjeneste")
     .WithSummary("Henter én tjeneste.");
 
+tjenester.MapGet("/sok-tverr-tenant", async (string q, TjenesteregisterTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var treff = await tjeneste.SokTverrTenantAsync(q, ct);
+        return Results.Ok(treff.Select(TjenesteTverrTenantTreffDto.FraTreff));
+    })
+    .WithName("SokTjenesterTverrTenant")
+    .WithSummary("Søker i PUBLISERTE tjenester fra ALLE virksomheter (ikke bare egen) — for å finne en annen " +
+        "virksomhets tjeneste som mål for en tjenesteavhengighet. Utkast/andre statuser fra andre virksomheter " +
+        "forblir usynlige, samme virksomhet-isolasjons-default som docs/02 §0.1.");
+
 tjenester.MapPost("/", async (HttpRequest request, TjenesteRequest body, TjenesteregisterTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
@@ -2091,7 +2101,9 @@ tjenester.MapPost("/{id:guid}/avhengigheter", async (Guid id, HttpRequest reques
         }
         try
         {
-            await register.OpprettAsync(bruker.VirksomhetId, id, body.TilTjenesteId, body.Rel, body.HendelseId, body.Beskrivelse, bruker.Navn, ct);
+            await register.OpprettAsync(
+                bruker.VirksomhetId, id, body.TilTjenesteId, body.Rel, body.HendelseId, body.Beskrivelse, bruker.Navn,
+                body.TilOrganisasjonsnummer, body.TilNavn, body.TilUrl, ct);
             return Results.Ok((await register.HentForTjenesteAsync(id, ct)).Select(TjenesteavhengighetDto.FraVisning));
         }
         catch (ArgumentException ex)

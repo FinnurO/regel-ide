@@ -54,6 +54,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<HendelseEntitet> Hendelser => Set<HendelseEntitet>();
     public DbSet<TjenesteHendelseEntitet> TjenesteHendelser => Set<TjenesteHendelseEntitet>();
     public DbSet<TjenesteavhengighetEntitet> Tjenesteavhengigheter => Set<TjenesteavhengighetEntitet>();
+    public DbSet<EksternTjenestereferanseEntitet> EksterneTjenestereferanser => Set<EksternTjenestereferanseEntitet>();
     public DbSet<HandbokRettskildeomfangEntitet> HandbokRettskildeomfang => Set<HandbokRettskildeomfangEntitet>();
     public DbSet<KunnskapsbibliotekLenkeEntitet> KunnskapsbibliotekLenker => Set<KunnskapsbibliotekLenkeEntitet>();
     public DbSet<KunnskapsbibliotekFilEntitet> KunnskapsbibliotekFiler => Set<KunnskapsbibliotekFilEntitet>();
@@ -442,11 +443,19 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 
         b.Entity<TjenesteavhengighetEntitet>(e =>
         {
-            e.ToTable("tjenesteavhengigheter");
+            // Nøyaktig én av til_tjeneste_id/til_ekstern_referanse_id (2026-08-19,
+            // feature/tjenesteavhengighet-ekstern-referanse) — se TjenesteavhengighetEntitets klassekommentar.
+            // Samme "aldri stol på DB-constraint-en alene for en lesbar feilmelding" som ellers i kodebasen:
+            // OpprettAsync validerer det samme defensivt i C# FØR raden når så langt som SaveChangesAsync.
+            e.ToTable("tjenesteavhengigheter", t => t.HasCheckConstraint(
+                "ck_tjenesteavhengigheter_ett_mal",
+                "(til_tjeneste_id IS NOT NULL AND til_ekstern_referanse_id IS NULL) OR " +
+                "(til_tjeneste_id IS NULL AND til_ekstern_referanse_id IS NOT NULL)"));
             e.HasKey(x => x.Id).HasName("tjenesteavhengigheter_pkey");
             e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
             e.Property(x => x.FraTjenesteId).HasColumnName("fra_tjeneste_id");
             e.Property(x => x.TilTjenesteId).HasColumnName("til_tjeneste_id");
+            e.Property(x => x.TilEksternReferanseId).HasColumnName("til_ekstern_referanse_id");
             e.Property(x => x.Rel).HasColumnName("rel");
             e.Property(x => x.HendelseId).HasColumnName("hendelse_id");
             e.Property(x => x.Beskrivelse).HasColumnName("beskrivelse");
@@ -457,9 +466,26 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
             e.HasOne<TjenesteEntitet>().WithMany().HasForeignKey(x => x.FraTjenesteId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne<TjenesteEntitet>().WithMany().HasForeignKey(x => x.TilTjenesteId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<EksternTjenestereferanseEntitet>().WithMany().HasForeignKey(x => x.TilEksternReferanseId).OnDelete(DeleteBehavior.Restrict);
             e.HasOne<HendelseEntitet>().WithMany().HasForeignKey(x => x.HendelseId);
             e.HasIndex(x => x.FraTjenesteId).HasDatabaseName("ix_tjenesteavhengigheter_fra");
             e.HasIndex(x => x.TilTjenesteId).HasDatabaseName("ix_tjenesteavhengigheter_til");
+            e.HasIndex(x => x.TilEksternReferanseId).HasDatabaseName("ix_tjenesteavhengigheter_til_ekstern");
+        });
+
+        b.Entity<EksternTjenestereferanseEntitet>(e =>
+        {
+            e.ToTable("eksterne_tjenestereferanser");
+            e.HasKey(x => x.Id).HasName("eksterne_tjenestereferanser_pkey");
+            e.Property(x => x.Organisasjonsnummer).HasColumnName("organisasjonsnummer");
+            e.Property(x => x.Navn).HasColumnName("navn");
+            e.Property(x => x.Url).HasColumnName("url");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+
+            // Ikke unik — (organisasjonsnummer, navn) er idempotent-nøkkelen OpprettAsync matcher på i C#,
+            // men to forskjellige plassholdere for SAMME org (ulikt navn) er fullt gyldig og forventet.
+            e.HasIndex(x => new { x.Organisasjonsnummer, x.Navn }).HasDatabaseName("ix_eksterne_tjenestereferanser_orgnr_navn");
         });
 
         b.Entity<HandbokRettskildeomfangEntitet>(e =>

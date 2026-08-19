@@ -274,7 +274,7 @@ public sealed class TjenesteforslagTjeneste(
                     {
                         await tjenesteavhengighetregister.OpprettAsync(
                             virksomhetId, tjeneste.Id, motpartId.Value, relasjon.Rel,
-                            hendelseId: null, beskrivelse: null, opprettetAv, ct);
+                            hendelseId: null, beskrivelse: null, opprettetAv, ct: ct);
                     }
                     catch (ArgumentException)
                     {

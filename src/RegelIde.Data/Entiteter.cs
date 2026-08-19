@@ -446,6 +446,17 @@ public sealed class TjenesteHendelseEntitet
 /// Bevisst løsere lagdeling enn regelgrafen — INGEN FK inn i Vilkårstreet (Vilkår/RegelnodeBarn/Datasett),
 /// kun tjeneste-til-tjeneste. <see cref="HendelseId"/> er kun relevant (og valgfri der den er) når
 /// <see cref="Rel"/> er <c>"utlost_av"</c> — den eneste rel-verdien som kobles til en konkret Hendelse.
+/// <para>
+/// (2026-08-19, `feature/tjenesteavhengighet-ekstern-referanse`) <see cref="FraTjenesteId"/> er ALLTID en
+/// ekte tjeneste eid av kallerens egen virksomhet (kanten opprettes alltid FRA denne). Målet
+/// («Til»-siden) er derimot ett av to: en ekte <see cref="TjenesteEntitet"/> (<see cref="TilTjenesteId"/>,
+/// typisk en ANNEN virksomhets publiserte tjeneste — søkt opp via cross-tenant-søket), ELLER en
+/// <see cref="EksternTjenestereferanseEntitet"/>-plassholder (<see cref="TilEksternReferanseId"/>) for en
+/// tjeneste som ikke finnes som ekte rad i det hele tatt. NØYAKTIG ÉN av de to må være satt — håndhevet
+/// BÅDE av <c>ck_tjenesteavhengigheter_ett_mal</c> (RegelIdeDbContext) OG defensivt i
+/// <see cref="TjenesteavhengighetregisterTjeneste.OpprettAsync"/> (aldri stol på at CHECK-feilmeldingen
+/// alene er lesbar for en bruker).
+/// </para>
 /// </summary>
 public sealed class TjenesteavhengighetEntitet
 {
@@ -453,7 +464,12 @@ public sealed class TjenesteavhengighetEntitet
     public required Guid VirksomhetId { get; set; }
 
     public required Guid FraTjenesteId { get; set; }
-    public required Guid TilTjenesteId { get; set; }
+
+    /// <summary>Nullable — nøyaktig én av denne og <see cref="TilEksternReferanseId"/> er satt, se klassekommentaren.</summary>
+    public Guid? TilTjenesteId { get; set; }
+
+    /// <summary>Nullable — nøyaktig én av denne og <see cref="TilTjenesteId"/> er satt, se klassekommentaren.</summary>
+    public Guid? TilEksternReferanseId { get; set; }
 
     /// <summary>'forutsetning_for' | 'gir_mulighet_til' | 'utlost_av' | 'for' | 'avhengig_av' | 'input_til'.</summary>
     public required string Rel { get; set; }
@@ -465,6 +481,40 @@ public sealed class TjenesteavhengighetEntitet
     public string? Beskrivelse { get; set; }
 
     public string Entitetsstatus { get; set; } = "gjeldende";
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+}
+
+/// <summary>
+/// Plassholder-referanse til en tjeneste som IKKE finnes som en ekte <see cref="TjenesteEntitet"/>-rad
+/// (2026-08-19, `feature/tjenesteavhengighet-ekstern-referanse`) — enten fordi den eiende organisasjonen
+/// ikke er onboardet til Regel-IDE, eller fordi den ikke har modellert nettopp denne tjenesten ennå
+/// (f.eks. "Registrer matbedriften din hos Mattilsynet", "Vandelskontroll fra Politiet/Skatteetaten" —
+/// reelle offentlig-offentlig-avhengigheter en kommunes Serveringsbevilling har I DAG, der motparten
+/// mest sannsynlig ALDRI blir en Regel-IDE-tenant).
+/// <para>
+/// <see cref="Organisasjonsnummer"/> er BEVISST bindingsnøkkelen (Johanns eksplisitte instruks: "gjerne
+/// med org.nummer som binding slik at man kan se avhengighetene") — IKKE en <c>VirksomhetId</c>-FK, siden
+/// den refererte organisasjonen kanskje aldri onboardes som en ekte <see cref="Virksomhet"/>. Nøkkelen er
+/// likevel et EKTE organisasjonsnummer — ingen gjettet fallback for identifikatoren selv — nettopp slik at
+/// en FREMTIDIG reell onboarding av samme organisasjon i prinsippet kunne gjenkjennes/forsones mot denne
+/// raden. Den forsoningen er IKKE bygget nå (se docs/13-backlog.md) — kun nøkkelvalget som gjør den mulig
+/// senere, uten at noe er gjettet i dag.
+/// </para>
+/// <para>
+/// IKKE <see cref="EksternKildeEntitet"/> — det er det rå, bulk-høstede harvest-laget (Oppgaveregisteret
+/// m.fl., hele JSON-blober per høstet post). Denne entiteten er et lett, formålsbygd plassholder-objekt,
+/// opprettet ETT OM ETT fra en tjenesteavhengighet-kobling (idempotent match på
+/// <see cref="Organisasjonsnummer"/>+<see cref="Navn"/>, se <see cref="TjenesteavhengighetregisterTjeneste.OpprettAsync"/>),
+/// ikke noe høstet i bulk.
+/// </para>
+/// </summary>
+public sealed class EksternTjenestereferanseEntitet
+{
+    public Guid Id { get; set; }
+    public required string Organisasjonsnummer { get; set; }
+    public required string Navn { get; set; }
+    public string? Url { get; set; }
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }
 }

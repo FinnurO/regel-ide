@@ -5,6 +5,57 @@
 2026-07-31-runden (Hendelse/Tjenesteavhengighet, kunnskapsbibliotek, editor, vilkår-referanser).
 Ment å oppdateres etter hver runde — ikke en engangs-plan.*
 
+## 0h. Ekstern tjenestereferanse + cross-tenant søk for tjenesteavhengigheter 2026-08-19 (`feature/tjenesteavhengighet-ekstern-referanse`)
+
+Bekreftet med Johann: `GET /api/tjenester/{id}`+`/avhengigheter`-subtreet var allerede virksomhet-
+uskjermet (ingen ownership-sjekk, i motsetning til den virksomhet-scopede `GET /api/tjenester`-lista) —
+men det fantes likevel INGEN måte å (1) FINNE en annen tenants tjeneste å lenke til, eller (2) referere
+en tjeneste som ikke finnes som ekte rad i det hele tatt (organisasjonen ikke onboardet, eller ikke
+modellert ennå — f.eks. "Registrer matbedriften din hos Mattilsynet", "Vandelskontroll fra Politiet/
+Skatteetaten", reelle offentlig-offentlig-avhengigheter en kommunes Serveringsbevilling har i dag).
+
+1. **`EksternTjenestereferanseEntitet`** (`RegelIde.Data/Entiteter.cs`) — ny, lett plassholder-entitet:
+   `Id`, `Organisasjonsnummer` (påkrevd, BEVISST bindingsnøkkelen per Johanns instruks — IKKE en
+   `VirksomhetId`-FK, siden den refererte organisasjonen kanskje aldri onboardes), `Navn` (påkrevd),
+   `Url` (valgfri), samme `OpprettetAv`/`OpprettetTidspunkt`-proveniensmønster som andre entiteter. IKKE
+   `EksternKildeEntitet` (det rå, bulk-høstede harvest-laget) — et helt annet, formålsbygd konsept.
+   Org.nummer-nøkkelen gjør en FREMTIDIG forsoning mot en ekte onboardet virksomhet med samme org.nummer
+   i prinsippet mulig senere — ikke bygget nå, kun nøkkelvalget som ikke stenger døren.
+2. **`TjenesteavhengighetEntitet`** — `TilTjenesteId` ble `Guid?`, ny `TilEksternReferanseId` (`Guid?`).
+   Nøyaktig én av de to må være satt — håndhevet BÅDE av en ny `ck_tjenesteavhengigheter_ett_mal`
+   CHECK-constraint (samme stil som andre CHECK-constraints i `RegelIdeDbContext.cs`) OG defensivt i
+   `TjenesteavhengighetregisterTjeneste.OpprettAsync` (validert FØR databasen når så langt som å kaste
+   en lesbar `ArgumentException`, aldri stol på CHECK-feilmeldingen alene). Migrasjon
+   `LeggTilEksternTjenestereferanse`. `FraTjenesteId` er uendret — en kant opprettes fortsatt alltid FRA
+   kallerens egen, ekte tjeneste.
+3. **Idempotent match-eller-opprett** — `OpprettAsync` matcher en EKSISTERENDE
+   `EksternTjenestereferanseEntitet` på `(Organisasjonsnummer, Navn)` før en ny opprettes, slik at flere
+   avhengighetskanter som refererer samme eksterne tjeneste ikke spammer duplikat-plassholdere. Samme
+   org.nummer med ULIKT navn gir bevisst to distinkte rader (testet).
+4. **`GET /api/tjenester/sok-tverr-tenant?q=…`** (`TjenesteregisterTjeneste.SokTverrTenantAsync`) — nytt
+   cross-tenant søk, KUN `Status="publisert"` tjenester fra ENHVER virksomhet (bekreftet med Johann —
+   utkast/andre statuser fra andre virksomheter forblir usynlige, samme virksomhet-isolasjons-default
+   som §0.1 under). Enkel `ToLower().Contains()` mot tittel+beskrivelse (samme stil som
+   `LovdataKatalogTjeneste.SokAsync`), beriket med eiende virksomhets navn for disambiguering i UI-et.
+   Merk: projeksjonen til `TjenesteTverrTenantTreff`-recorden må skje KLIENT-side etter `ToListAsync` —
+   EF Core klarer ikke å oversette en `OrderBy` over en egenkonstruert record rett etter en `Join`.
+5. **Lesestien** (`HentForTjenesteAsync`/`TjenesteavhengighetVisning`/`TjenesteavhengighetDto`) — motparten
+   er nå ENTEN en ekte tjeneste (`MotpartTjenesteId` satt) ELLER en ekstern plassholder (omvendt,
+   `MotpartOrganisasjonsnummer`+`MotpartUrl` satt) — `MotpartNavn` er alltid populert uansett hvilket, så
+   klienten trenger kun én null-sjekk (på `MotpartTjenesteId`, for om en `/tjenester/:id`-lenke gir
+   mening). Sykel-BFS-en (`LukkerSykelAsync`) kjøres bevisst KUN når målet er en ekte tjeneste — en
+   ekstern plassholder er et blindspor uten utgående kanter og kan ikke lukke en sykel.
+6. **`TjenesteDetalj.tsx`** — avhengighetslisten rendrer nå ren tekst (+ org.nr-tag, + valgfri lenke) for
+   eksterne referanser i stedet for en broken `/tjenester/:id`-lenke. «Legg til avhengighet»-formen fikk
+   et cross-tenant søk (samme debounced søk-og-velg-mønster som Lovdata-katalogsøket i `Importer.tsx`)
+   OG en «avansert/manuell» org.nummer+navn+url-fallback — samme parallell-felt-mønster som den
+   eksisterende paragraf-picker/manuell-eId-kombinasjonen i samme fil, ikke en ny UX-konvensjon.
+7. **Bevisst utenfor scope denne runden**: reconciliation mellom en `EksternTjenestereferanseEntitet`-
+   plassholder og `EksternKildeEntitet`-harvest-laget (Oppgaveregisterets ekte Mattilsynet/Politiet/
+   Skatteetaten-rader); automatisk "oppgradering" av en plassholder til en ekte `TilTjenesteId` hvis
+   organisasjonen senere onboardes og modellerer en matchende tjeneste — begge naturlige neste steg,
+   ingen av dem bygget nå.
+
 ## 0. UX/datamodell-gjennomgang 2026-08-13 (10 punkter fra skjermbilder, plan `squishy-squishing-hearth`)
 
 Etter at appen ble kjørt lokalt mot Bergen-korpuset (PR #30) ga Johann 10 konkrete tilbakemeldinger på

@@ -199,17 +199,40 @@ public sealed record HendelseRequest(string Navn, string Type, string? Beskrivel
 /// <summary>Forespørsel for POST /api/tjenester/{id}/hendelser.</summary>
 public sealed record KobleHendelseRequest(Guid HendelseId);
 
-/// <summary>Én tjenesteavhengighet sett fra den spurte tjenestens ståsted — se <see cref="TjenesteavhengighetVisning"/>.</summary>
+/// <summary>
+/// Én tjenesteavhengighet sett fra den spurte tjenestens ståsted — se <see cref="TjenesteavhengighetVisning"/>.
+/// (2026-08-19) Motparten er ENTEN en ekte tjeneste (<see cref="MotpartTjenesteId"/> satt,
+/// <see cref="MotpartOrganisasjonsnummer"/> null) ELLER en ekstern plassholder (omvendt) —
+/// <see cref="MotpartNavn"/> er alltid populert uansett, slik at klienten kan rendre begge tilfeller med
+/// kun én null-sjekk (på <see cref="MotpartTjenesteId"/>, for å avgjøre om en <c>/tjenester/:id</c>-lenke
+/// gir mening).
+/// </summary>
 public sealed record TjenesteavhengighetDto(
     Guid Id, string Rel, string Retning, string Visningstekst,
-    Guid MotpartTjenesteId, string MotpartTjenesteTittel, Guid? HendelseId, string? HendelseNavn, string? Beskrivelse)
+    Guid? MotpartTjenesteId, string? MotpartOrganisasjonsnummer, string MotpartNavn, string? MotpartUrl,
+    Guid? HendelseId, string? HendelseNavn, string? Beskrivelse)
 {
     public static TjenesteavhengighetDto FraVisning(TjenesteavhengighetVisning v) => new(
-        v.Id, v.Rel, v.Retning, v.Visningstekst, v.MotpartTjenesteId, v.MotpartTjenesteTittel, v.HendelseId, v.HendelseNavn, v.Beskrivelse);
+        v.Id, v.Rel, v.Retning, v.Visningstekst, v.MotpartTjenesteId, v.MotpartOrganisasjonsnummer, v.MotpartNavn, v.MotpartUrl,
+        v.HendelseId, v.HendelseNavn, v.Beskrivelse);
 }
 
-/// <summary>Forespørsel for POST /api/tjenester/{id}/avhengigheter — {id} blir alltid FraTjenesteId.</summary>
-public sealed record TjenesteavhengighetRequest(Guid TilTjenesteId, string Rel, Guid? HendelseId, string? Beskrivelse);
+/// <summary>
+/// Forespørsel for POST /api/tjenester/{id}/avhengigheter — {id} blir alltid FraTjenesteId.
+/// (2026-08-19) <see cref="TilTjenesteId"/> ble nullable — mål er ENTEN denne (en ekte tjeneste, typisk
+/// funnet via GET /api/tjenester/sok-tverr-tenant) ELLER den eksterne trioen
+/// <see cref="TilOrganisasjonsnummer"/>/<see cref="TilNavn"/> (+valgfri <see cref="TilUrl"/>) — nøyaktig
+/// ett av de to må oppgis, håndhevet i <see cref="TjenesteavhengighetregisterTjeneste.OpprettAsync"/>.
+/// </summary>
+public sealed record TjenesteavhengighetRequest(
+    Guid? TilTjenesteId, string Rel, Guid? HendelseId, string? Beskrivelse,
+    string? TilOrganisasjonsnummer = null, string? TilNavn = null, string? TilUrl = null);
+
+/// <summary>Ett cross-tenant søketreff for GET /api/tjenester/sok-tverr-tenant — se <see cref="TjenesteTverrTenantTreff"/>.</summary>
+public sealed record TjenesteTverrTenantTreffDto(Guid Id, string Tittel, string? Beskrivelse, Guid VirksomhetId, string VirksomhetNavn)
+{
+    public static TjenesteTverrTenantTreffDto FraTreff(TjenesteTverrTenantTreff t) => new(t.Id, t.Tittel, t.Beskrivelse, t.VirksomhetId, t.VirksomhetNavn);
+}
 
 /// <summary>Forespørsel for POST /api/handboker/{id}/rettskilder.</summary>
 public sealed record LeggTilRettskildeomfangRequest(Guid TilRettskildeId);

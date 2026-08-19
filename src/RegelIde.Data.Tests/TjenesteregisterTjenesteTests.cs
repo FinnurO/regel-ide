@@ -184,4 +184,60 @@ public class TjenesteregisterTjenesteTests
         Assert.Equal("stub-v1", proveniens.AiForslagVersjon);
         Assert.NotNull(proveniens.KildeReferanserJson);
     }
+
+    // ---------- Cross-tenant søk (2026-08-19, feature/tjenesteavhengighet-ekstern-referanse) ----------
+
+    [Fact]
+    public async Task SokTverrTenant_finner_kun_publiserte_tjenester_fra_andre_virksomheter()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhetA = Guid.NewGuid();
+        var virksomhetB = Guid.NewGuid();
+        db.Virksomheter.AddRange(
+            new Virksomhet { Id = virksomhetA, Navn = "Testkommunen A" },
+            new Virksomhet { Id = virksomhetB, Navn = "Mattilsynet" });
+        await db.SaveChangesAsync();
+
+        var register = new TjenesteregisterTjeneste(db);
+        var publisert = await register.OpprettAsync(
+            virksomhetB, "Registrer matbedriften din", null, null, null, null, null, null, null, null, null, null, null, "Kari Jurist");
+        await register.SettStatusAsync(publisert.Id, "publisert", "Kari Jurist");
+
+        var utkast = await register.OpprettAsync(
+            virksomhetB, "Registrer et internt utkast", null, null, null, null, null, null, null, null, null, null, null, "Kari Jurist");
+        // utkast forblir Status="utkast" — skal IKKE være søkbar tverr-tenant.
+
+        var treffPublisert = await register.SokTverrTenantAsync("Registrer matbedriften");
+        var funnet = Assert.Single(treffPublisert);
+        Assert.Equal(publisert.Id, funnet.Id);
+        Assert.Equal("Mattilsynet", funnet.VirksomhetNavn);
+
+        var treffUtkast = await register.SokTverrTenantAsync("internt utkast");
+        Assert.Empty(treffUtkast);
+    }
+
+    [Fact]
+    public async Task SokTverrTenant_er_case_insensitiv_substring_pa_tittel()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Mattilsynet" });
+        await db.SaveChangesAsync();
+
+        var register = new TjenesteregisterTjeneste(db);
+        var tjeneste = await register.OpprettAsync(
+            virksomhet, "Vandelskontroll fra Politiet", null, null, null, null, null, null, null, null, null, null, null, "Kari Jurist");
+        await register.SettStatusAsync(tjeneste.Id, "publisert", "Kari Jurist");
+
+        var treff = await register.SokTverrTenantAsync("vandelskontroll");
+        Assert.Contains(treff, t => t.Id == tjeneste.Id);
+    }
+
+    [Fact]
+    public async Task SokTverrTenant_tom_sokestreng_gir_ingen_treff()
+    {
+        await using var db = _fixture.NyDbContext();
+        var register = new TjenesteregisterTjeneste(db);
+        Assert.Empty(await register.SokTverrTenantAsync("   "));
+    }
 }

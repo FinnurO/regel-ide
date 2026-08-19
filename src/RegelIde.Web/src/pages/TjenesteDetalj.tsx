@@ -5,7 +5,7 @@ import { ApiError, api } from '../api/client';
 import { eidVisningstekst, rettskildeLenke } from '../api/eidLenker';
 import type {
   HendelseDto, RegelnodeDto, RettskildeNodeDto, RettskildeSammendrag, TjenesteavhengighetDto, TjenesteDto,
-  TjenesteRegelverksreferanseDto,
+  TjenesteRegelverksreferanseDto, TjenesteTverrTenantTreffDto,
 } from '../api/types';
 
 const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
@@ -79,6 +79,47 @@ export default function TjenesteDetalj() {
   const [nyAvhengighetBeskrivelse, setNyAvhengighetBeskrivelse] = useState('');
   const [leggerTilAvhengighet, setLeggerTilAvhengighet] = useState(false);
   const [avhengighetFeil, setAvhengighetFeil] = useState<string | null>(null);
+
+  // Ekstern referanse (2026-08-19) — «avansert/manuell»-fallback, samme mønster som
+  // "Avansert / manuell eId" ved siden av paragraf-picker-en: den manuelle trioen er et alternativt mål,
+  // ikke en samtidig kombinasjon — å velge en tjeneste (egen ELLER cross-tenant) tømmer den, og omvendt.
+  const [nyAvhengighetTilOrgnr, setNyAvhengighetTilOrgnr] = useState('');
+  const [nyAvhengighetTilNavn, setNyAvhengighetTilNavn] = useState('');
+  const [nyAvhengighetTilUrl, setNyAvhengighetTilUrl] = useState('');
+  const [tverrTenantSok, setTverrTenantSok] = useState('');
+  const [tverrTenantTreff, setTverrTenantTreff] = useState<TjenesteTverrTenantTreffDto[]>([]);
+  const [tverrTenantSokerLaster, setTverrTenantSokerLaster] = useState(false);
+  const [valgtTverrTenantTreff, setValgtTverrTenantTreff] = useState<TjenesteTverrTenantTreffDto | null>(null);
+
+  function velgTilTjeneste(tjenesteId: string, treff: TjenesteTverrTenantTreffDto | null = null) {
+    setNyAvhengighetTilId(tjenesteId);
+    setValgtTverrTenantTreff(treff);
+    setNyAvhengighetTilOrgnr('');
+    setNyAvhengighetTilNavn('');
+    setNyAvhengighetTilUrl('');
+  }
+
+  function endreEkstern(felt: 'orgnr' | 'navn' | 'url', verdi: string) {
+    if (felt === 'orgnr') setNyAvhengighetTilOrgnr(verdi);
+    else if (felt === 'navn') setNyAvhengighetTilNavn(verdi);
+    else setNyAvhengighetTilUrl(verdi);
+    if (felt !== 'url') {
+      setNyAvhengighetTilId('');
+      setValgtTverrTenantTreff(null);
+    }
+  }
+
+  useEffect(() => {
+    if (!tverrTenantSok.trim()) { setTverrTenantTreff([]); return; }
+    setTverrTenantSokerLaster(true);
+    const tidsavbrudd = setTimeout(() => {
+      api.sokTjenesterTverrTenant(tverrTenantSok.trim())
+        .then(setTverrTenantTreff)
+        .catch(() => setTverrTenantTreff([]))
+        .finally(() => setTverrTenantSokerLaster(false));
+    }, 300);
+    return () => clearTimeout(tidsavbrudd);
+  }, [tverrTenantSok]);
 
   const [rotnode, setRotnode] = useState<RegelnodeDto | null>(null);
   const [regelnoder, setRegelnoder] = useState<RegelnodeDto[]>([]);
@@ -303,18 +344,24 @@ export default function TjenesteDetalj() {
 
   async function leggTilAvhengighet(e: FormEvent) {
     e.preventDefault();
-    if (!id || !nyAvhengighetTilId) return;
+    const harEksternMal = !nyAvhengighetTilId && nyAvhengighetTilOrgnr.trim() && nyAvhengighetTilNavn.trim();
+    if (!id || (!nyAvhengighetTilId && !harEksternMal)) return;
     setAvhengighetFeil(null);
     setLeggerTilAvhengighet(true);
     try {
       const oppdatert = await api.opprettTjenesteavhengighet(id, {
-        tilTjenesteId: nyAvhengighetTilId,
+        tilTjenesteId: nyAvhengighetTilId || null,
         rel: nyAvhengighetRel,
         hendelseId: nyAvhengighetRel === 'utlost_av' ? nyAvhengighetHendelseId || null : null,
         beskrivelse: nyAvhengighetBeskrivelse.trim() || null,
+        tilOrganisasjonsnummer: nyAvhengighetTilId ? null : nyAvhengighetTilOrgnr.trim() || null,
+        tilNavn: nyAvhengighetTilId ? null : nyAvhengighetTilNavn.trim() || null,
+        tilUrl: nyAvhengighetTilId ? null : nyAvhengighetTilUrl.trim() || null,
       });
       setAvhengigheter(oppdatert);
-      setNyAvhengighetTilId('');
+      velgTilTjeneste('');
+      setTverrTenantSok('');
+      setTverrTenantTreff([]);
       setNyAvhengighetHendelseId('');
       setNyAvhengighetBeskrivelse('');
     } catch (err) {
@@ -588,9 +635,21 @@ export default function TjenesteDetalj() {
           <ul>
             {avhengigheter.map((a) => (
               <li key={a.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                <Link asChild>
-                  <RouterLink to={`/tjenester/${a.motpartTjenesteId}`}>{a.visningstekst}</RouterLink>
-                </Link>
+                {/* Ekstern referanse (motpartTjenesteId null) har ingen ekte Tjeneste-rad å navigere til
+                    — vis visningsteksten som ren tekst i stedet for en /tjenester/:id-lenke. */}
+                {a.motpartTjenesteId ? (
+                  <Link asChild>
+                    <RouterLink to={`/tjenester/${a.motpartTjenesteId}`}>{a.visningstekst}</RouterLink>
+                  </Link>
+                ) : (
+                  <span>{a.visningstekst}</span>
+                )}
+                {a.motpartOrganisasjonsnummer && (
+                  <Tag data-color="info" data-size="sm">org.nr {a.motpartOrganisasjonsnummer}</Tag>
+                )}
+                {a.motpartUrl && (
+                  <Link href={a.motpartUrl} target="_blank" rel="noreferrer" style={{ fontSize: 'var(--ds-font-size-1)' }}>↗</Link>
+                )}
                 {a.beskrivelse && <Tag data-color="neutral" data-size="sm">{a.beskrivelse}</Tag>}
                 {/* Sletting virker uansett hvilken side raden vises fra — samme rad-id begge steder. */}
                 <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernAvhengighet(a.id)}>Fjern</Button>
@@ -607,8 +666,8 @@ export default function TjenesteDetalj() {
             </Select>
           </Field>
           <Field>
-            <Label>Til tjeneste</Label>
-            <Select data-size="sm" value={nyAvhengighetTilId} onChange={(e) => setNyAvhengighetTilId(e.target.value)}>
+            <Label>Til tjeneste (egen virksomhet)</Label>
+            <Select data-size="sm" value={nyAvhengighetTilId} onChange={(e) => velgTilTjeneste(e.target.value)}>
               <Select.Option value="">Velg …</Select.Option>
               {alleTjenester.filter((t) => t.id !== id).map((t) => <Select.Option key={t.id} value={t.id}>{t.tittel}</Select.Option>)}
             </Select>
@@ -624,10 +683,50 @@ export default function TjenesteDetalj() {
           )}
           <Textfield data-size="sm" label="Nyanse/unntak (valgfritt)" value={nyAvhengighetBeskrivelse}
             onChange={(e) => setNyAvhengighetBeskrivelse(e.target.value)} style={{ minWidth: '16rem' }} />
-          <Button data-size="sm" type="submit" disabled={leggerTilAvhengighet || !nyAvhengighetTilId}>
+          <Button data-size="sm" type="submit"
+            disabled={leggerTilAvhengighet || (!nyAvhengighetTilId && !(nyAvhengighetTilOrgnr.trim() && nyAvhengighetTilNavn.trim()))}>
             {leggerTilAvhengighet ? 'Oppretter …' : 'Opprett avhengighet'}
           </Button>
         </form>
+
+        <div style={{ marginTop: '0.75rem', paddingTop: '0.75rem', borderTop: '1px solid var(--ds-color-neutral-border-subtle)' }}>
+          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
+            Eller finn en ANNEN virksomhets publiserte tjeneste, eller — hvis den ikke finnes som en ekte
+            tjeneste i Regel-IDE i det hele tatt (f.eks. en tjeneste hos Mattilsynet/Politiet) — oppgi den
+            som en ekstern referanse manuelt nedenfor.
+          </Paragraph>
+          <Textfield data-size="sm" label="Søk i andre virksomheters publiserte tjenester" value={tverrTenantSok}
+            onChange={(e) => setTverrTenantSok(e.target.value)} style={{ maxWidth: '24rem', marginBottom: '0.5rem' }} />
+          {tverrTenantSokerLaster && <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Søker …</Paragraph>}
+          {!tverrTenantSokerLaster && tverrTenantSok.trim() && tverrTenantTreff.length === 0 && (
+            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Ingen treff.</Paragraph>
+          )}
+          {tverrTenantTreff.length > 0 && (
+            <ul style={{ maxHeight: '12rem', overflow: 'auto', marginBottom: '0.5rem' }}>
+              {tverrTenantTreff.map((t) => (
+                <li key={t.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.2rem' }}>
+                  <span style={{ flex: 1, fontSize: 'var(--ds-font-size-1)' }}>
+                    {t.tittel} <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>({t.virksomhetNavn})</span>
+                  </span>
+                  <Button data-size="sm" variant="tertiary" onClick={() => velgTilTjeneste(t.id, t)}>Velg</Button>
+                </li>
+              ))}
+            </ul>
+          )}
+          {valgtTverrTenantTreff && (
+            <Tag data-color="success" data-size="sm" style={{ marginBottom: '0.5rem' }}>
+              Valgt: {valgtTverrTenantTreff.tittel} ({valgtTverrTenantTreff.virksomhetNavn})
+            </Tag>
+          )}
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+            <Textfield data-size="sm" label="Avansert / manuell — organisasjonsnummer" value={nyAvhengighetTilOrgnr}
+              onChange={(e) => endreEkstern('orgnr', e.target.value)} style={{ minWidth: '12rem' }} />
+            <Textfield data-size="sm" label="Navn på tjenesten" value={nyAvhengighetTilNavn}
+              onChange={(e) => endreEkstern('navn', e.target.value)} style={{ minWidth: '16rem' }} />
+            <Textfield data-size="sm" label="URL (valgfritt)" value={nyAvhengighetTilUrl}
+              onChange={(e) => endreEkstern('url', e.target.value)} style={{ minWidth: '14rem' }} />
+          </div>
+        </div>
         {avhengighetFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{avhengighetFeil}</div>}
       </section>
     </>

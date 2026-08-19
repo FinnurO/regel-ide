@@ -124,4 +124,56 @@ public class HendelseOgTjenesteavhengighetEndepunktTests
             new TjenesteavhengighetRequest(b, "ukjent_rel", null, null)));
         Assert.Equal(System.Net.HttpStatusCode.BadRequest, svar.StatusCode);
     }
+
+    // ---------- Ekstern tjenestereferanse + cross-tenant søk (2026-08-19, feature/tjenesteavhengighet-ekstern-referanse) ----------
+
+    [Fact]
+    public async Task Oppretter_avhengighet_til_ekstern_referanse_via_endepunktet_og_leser_riktig_motpart()
+    {
+        var juristId = await HentJuristIdAsync();
+        var serveringsbevilling = await OpprettTjenesteAsync(juristId, "Test-serveringsbevilling-ekstern");
+
+        var opprettSvar = await _client.SendAsync(MedBruker(
+            HttpMethod.Post, $"/api/tjenester/{serveringsbevilling}/avhengigheter", juristId,
+            new TjenesteavhengighetRequest(
+                null, "avhengig_av", null, null,
+                TilOrganisasjonsnummer: "974761122", TilNavn: "Test-registrer matbedriften hos Mattilsynet")));
+        opprettSvar.EnsureSuccessStatusCode();
+
+        var liste = await opprettSvar.Content.ReadFromJsonAsync<List<TjenesteavhengighetDto>>(JsonInnstillinger);
+        var visning = Assert.Single(liste!);
+        Assert.Null(visning.MotpartTjenesteId);
+        Assert.Equal("974761122", visning.MotpartOrganisasjonsnummer);
+        Assert.Equal("Test-registrer matbedriften hos Mattilsynet", visning.MotpartNavn);
+    }
+
+    [Fact]
+    public async Task Verken_tiltjeneste_eller_ekstern_mal_gir_400_via_endepunktet()
+    {
+        var juristId = await HentJuristIdAsync();
+        var a = await OpprettTjenesteAsync(juristId, "Test-A-mangler-mal");
+
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/tjenester/{a}/avhengigheter", juristId,
+            new TjenesteavhengighetRequest(null, "avhengig_av", null, null)));
+        Assert.Equal(System.Net.HttpStatusCode.BadRequest, svar.StatusCode);
+    }
+
+    [Fact]
+    public async Task SokTverrTenant_endepunktet_returnerer_kun_publiserte_tjenester()
+    {
+        var juristId = await HentJuristIdAsync();
+        var publisertId = await OpprettTjenesteAsync(juristId, "Test-tverr-tenant-publisert");
+        var settStatusSvar = await _client.SendAsync(MedBruker(
+            HttpMethod.Post, $"/api/tjenester/{publisertId}/status", juristId, new SettStatusRequest("publisert", null)));
+        settStatusSvar.EnsureSuccessStatusCode();
+
+        var utkastId = await OpprettTjenesteAsync(juristId, "Test-tverr-tenant-utkast-privat");
+
+        var treffSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/tjenester/sok-tverr-tenant?q=Test-tverr-tenant", juristId));
+        treffSvar.EnsureSuccessStatusCode();
+        var treff = await treffSvar.Content.ReadFromJsonAsync<List<TjenesteTverrTenantTreffDto>>(JsonInnstillinger);
+
+        Assert.Contains(treff!, t => t.Id == publisertId);
+        Assert.DoesNotContain(treff!, t => t.Id == utkastId);
+    }
 }
