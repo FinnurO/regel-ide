@@ -176,4 +176,30 @@ public class HendelseOgTjenesteavhengighetEndepunktTests
         Assert.Contains(treff!, t => t.Id == publisertId);
         Assert.DoesNotContain(treff!, t => t.Id == utkastId);
     }
+
+    [Fact]
+    public async Task Eksport_endepunktet_returnerer_tjeneste_og_avhengigheter()
+    {
+        var juristId = await HentJuristIdAsync();
+        var serveringsbevilling = await OpprettTjenesteAsync(juristId, "Test-eksport-serveringsbevilling");
+        var etablererproven = await OpprettTjenesteAsync(juristId, "Test-eksport-etablererproven");
+        var kobleSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/tjenester/{serveringsbevilling}/avhengigheter", juristId,
+            new TjenesteavhengighetRequest(etablererproven, "forutsetning_for", null, null, null, null, null)));
+        kobleSvar.EnsureSuccessStatusCode();
+
+        var eksportSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, $"/api/tjenester/{serveringsbevilling}/eksport", juristId));
+        eksportSvar.EnsureSuccessStatusCode();
+        var eksport = await eksportSvar.Content.ReadFromJsonAsync<TjenesteEksportDto>(JsonInnstillinger);
+
+        Assert.Equal("Test-eksport-serveringsbevilling", eksport!.Tjeneste.Tittel);
+        Assert.Contains(eksport.Avhengigheter, a => a.MotpartTjenesteId == etablererproven);
+    }
+
+    [Fact]
+    public async Task Eksport_endepunktet_gir_404_for_ukjent_tjeneste()
+    {
+        var juristId = await HentJuristIdAsync();
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Get, $"/api/tjenester/{Guid.NewGuid()}/eksport", juristId));
+        Assert.Equal(System.Net.HttpStatusCode.NotFound, svar.StatusCode);
+    }
 }

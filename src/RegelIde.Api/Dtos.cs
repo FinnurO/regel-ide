@@ -535,3 +535,20 @@ public sealed record BegrepsforslagDto(BegrepDto Begrep, string? AiForslagVersjo
 
 /// <summary>Kø-visning for «Identifiser tjenester» — beriker TjenesteDto med proveniens fra AI-forslaget.</summary>
 public sealed record TjenesteforslagDto(TjenesteDto Tjeneste, string? AiForslagVersjon, DateTimeOffset ForeslattTidspunkt, string? KildeReferanserJson);
+
+/// <summary>
+/// (2026-08-20) Full eksport av ÉN tjeneste og alt den er koblet til på KJERNEMODELL-nivået —
+/// egenskaper, regelverksreferanser, hendelser og tjenesteavhengigheter (i BEGGE retninger, inkludert
+/// eksterne plassholder-referanser, <c>feature/tjenesteavhengighet-ekstern-referanse</c>). BEVISST
+/// UTEN vilkårstre — se <see cref="RegelIde.Data.TjenesteEksportTjeneste"/>s klassekommentar for
+/// hvorfor det er en egen, senere avklaring, ikke en del av dette. Rent sammensatt LESEENDEPUNKT —
+/// ingen egen lagret representasjon, alltid friskt beregnet fra de samme radene de øvrige
+/// <c>/api/tjenester/{id}/...</c>-endepunktene allerede viser. Formål: ett JSON-dokument som er
+/// tilstrekkelig til å forstå kjernemodellen for én tjeneste uten å måtte slå opp flere endepunkter
+/// selv — først brukt til å gi et eksternt UX-designverktøy (Johann, 2026-08-20) et ekte
+/// datagrunnlag for et skjermbilde-forslag på Serverings-/skjenkebevilling-domenet.
+/// </summary>
+public sealed record TjenesteEksportDto(
+    TjenesteDto Tjeneste, string VirksomhetNavn,
+    IReadOnlyList<TjenesteRegelverksreferanseDto> Regelverksreferanser, IReadOnlyList<HendelseDto> Hendelser,
+    IReadOnlyList<TjenesteavhengighetDto> Avhengigheter, DateTimeOffset EksportertTidspunkt);

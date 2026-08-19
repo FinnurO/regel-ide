@@ -46,6 +46,7 @@ builder.Services.AddScoped<DatasettregisterTjeneste>();
 builder.Services.AddScoped<VilkarstreKommentarTjeneste>();
 builder.Services.AddScoped<HendelseregisterTjeneste>();
 builder.Services.AddScoped<TjenesteavhengighetregisterTjeneste>();
+builder.Services.AddScoped<TjenesteEksportTjeneste>();
 builder.Services.AddScoped<KunnskapsbibliotekTjeneste>();
 // "Stub" (default) eller "OpenAiKompatibel" — se docs/14-byggesteg5-teknisk-design.md. Bytte krever
 // restart av API-et; å gjøre dette velgbart fra en admin-side i appen er en senere, avgrenset
@@ -2091,6 +2092,26 @@ tjenester.MapGet("/{id:guid}/avhengigheter", async (Guid id, Tjenesteavhengighet
     .WithSummary(
         "Lister tjenestens avhengigheter i BEGGE retninger (der tjenesten er Fra, og der den er Til) " +
         "med ferdig beregnet visningstekst — ett rettet kant per relasjon, ingen duplisert lagring.");
+
+// ---------- Tjenesteeksport (2026-08-20) — ett samlet JSON-dokument for én tjeneste ----------
+
+tjenester.MapGet("/{id:guid}/eksport", async (Guid id, TjenesteEksportTjeneste eksport, CancellationToken ct) =>
+    {
+        var resultat = await eksport.EksporterAsync(id, ct);
+        if (resultat is null) return Results.NotFound(new { feil = $"Ingen tjeneste med id '{id}'." });
+
+        return Results.Ok(new TjenesteEksportDto(
+            TjenesteDto.FraEntitet(resultat.Tjeneste), resultat.VirksomhetNavn,
+            resultat.Regelverksreferanser.Select(TjenesteRegelverksreferanseDto.FraEntitet).ToList(),
+            resultat.Hendelser.Select(HendelseDto.FraEntitet).ToList(),
+            resultat.Avhengigheter.Select(TjenesteavhengighetDto.FraVisning).ToList(),
+            resultat.EksportertTidspunkt));
+    })
+    .WithName("EksporterTjeneste")
+    .WithSummary(
+        "Ett samlet JSON-dokument for tjenestens KJERNEMODELL — egenskaper, regelverksreferanser, " +
+        "hendelser og tjenesteavhengigheter (inkl. eksterne plassholder-referanser). BEVISST uten " +
+        "vilkårstre (egen, senere avklaring). Rent sammensatt leseendepunkt, ingen egen lagret representasjon.");
 
 tjenester.MapPost("/{id:guid}/avhengigheter", async (Guid id, HttpRequest request, TjenesteavhengighetRequest body, TjenesteavhengighetregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {

@@ -5,6 +5,25 @@
 2026-07-31-runden (Hendelse/Tjenesteavhengighet, kunnskapsbibliotek, editor, vilkår-referanser).
 Ment å oppdateres etter hver runde — ikke en engangs-plan.*
 
+## 0i. Tjenesteeksport (GET /api/tjenester/{id}/eksport) 2026-08-20 (`feature/tjeneste-eksport`)
+
+Ett samlet JSON-lesedokument for én tjeneste — egenskaper, regelverksreferanser, hendelser og
+tjenesteavhengigheter (i begge retninger, inkludert eksterne plassholder-referanser fra §0h). Bygget
+for å gi et eksternt UX-designverktøy et ekte datagrunnlag for et skjermbilde-forslag på
+Serverings-/skjenkebevilling-domenet — ikke bare til det, eksport av en tjeneste var uansett
+etterspurt som egen funksjon.
+
+**Bevisst uten vilkårstre.** Et første utkast bygde også inn `TjenesteEntitet.RotnodeId`s
+regelnode-tre, rettet etter direkte tilbakemelding: det var feil scope. Kjernemodellen (tjeneste +
+avhengigheter) og vilkårstreet er en bevisst løs kobling — ETT nullbart FK-felt, ikke en tett
+sammenveving — og hører til en egen, senere avklaringsrunde. Å ta det med i denne eksporten ville
+antydet at vilkårstreet var en del av det som avklares nå.
+
+Ny `TjenesteEksportTjeneste.cs` (RegelIde.Data) komponerer resultatet fra de tre registertjenestene
+som allerede fantes (`TjenesteregisterTjeneste`, `HendelseregisterTjeneste`,
+`TjenesteavhengighetregisterTjeneste`) — ingen ny lagret tilstand, ingen ny skjemaform, rent
+leseendepunkt.
+
 ## 0h. Ekstern tjenestereferanse + cross-tenant søk for tjenesteavhengigheter 2026-08-19 (`feature/tjenesteavhengighet-ekstern-referanse`)
 
 Bekreftet med Johann: `GET /api/tjenester/{id}`+`/avhengigheter`-subtreet var allerede virksomhet-
