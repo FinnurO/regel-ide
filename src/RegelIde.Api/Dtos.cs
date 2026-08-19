@@ -475,6 +475,16 @@ public sealed record EksternKildeHostingResultatDto(int Nye, int Oppdaterte, int
 /// </summary>
 public sealed record TjenestelisteHostingResultatDto(int Nye, int Oppdaterte, int Uendret, int TilbydereMedManglendeOrgnummer);
 
+/// <summary>
+/// Sammendrag returnert av POST /api/eksterne-kilder/kommune-tjenester/importer — den sjette,
+/// fil-baserte kilden i høstelaget (<see cref="RegelIde.Data.KommuneTjenesteHenter"/>). Egen DTO, ikke
+/// <see cref="TjenestelisteHostingResultatDto"/> gjenbrukt, siden det siste feltets betydning er reelt
+/// forskjellig: her telles RECORDS hvis EIENDE KOMMUNE mangler <c>organisasjonsnummer</c> (og dermed ikke
+/// kan få en trygg sammensatt identitetsnøkkel, se <see cref="RegelIde.Data.KommuneTjenesteHenter"/>s
+/// klassekommentar), ikke enkeltoppføringer i en <c>tilbys_av</c>-liste.
+/// </summary>
+public sealed record KommuneTjenesteHostingResultatDto(int Nye, int Oppdaterte, int Uendret, int RecordsMedManglendeOrganisasjonsnummer);
+
 /// <summary>Kunnskapsbibliotek-fil (byggesteg 5 runde 2) — inneholder aldri de rå bytene, kun utvunnet tekst.</summary>
 public sealed record KunnskapsbibliotekFilDto(Guid Id, Guid VirksomhetId, string Filnavn, string? Tittel, string Filtype, string UtvunnetTekst, string OpprettetAv, DateTimeOffset OpprettetTidspunkt)
 {

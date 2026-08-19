@@ -1,0 +1,234 @@
+[
+  {
+    "kommune": "ALTA KOMMUNE",
+    "organisasjonsnummer": "944588132",
+    "slug": "alta",
+    "sources": [
+      {
+        "url": "https://skjema.no/alta",
+        "metode": "SKJEMA_NO_API",
+        "antall_unikt_bidrag": 34,
+        "antall_i_kilden": 34,
+        "antall_overlapp": 0,
+        "antall_kandidater": 0
+      }
+    ],
+    "antall_tjenester": 3,
+    "records": [
+      {
+        "tjenestenavn": "Boligtomter kommunale - Søknad",
+        "url": "https://skjema.no/alta/5403_18",
+        "kategori": "Bygg og eiendom",
+        "beskrivelse": "",
+        "tilbys_av": [
+          {
+            "organisasjon": "ALTA KOMMUNE",
+            "organisasjonsnummer": "944588132"
+          }
+        ],
+        "kilder": [
+          {
+            "url": "https://skjema.no/alta",
+            "metode": "SKJEMA_NO_API"
+          }
+        ]
+      },
+      {
+        "tjenestenavn": "Forhåndskonferanse - bestilling",
+        "url": "https://skjema.no/alta/705173",
+        "kategori": "Bygg og eiendom",
+        "beskrivelse": "",
+        "tilbys_av": [
+          {
+            "organisasjon": "ALTA KOMMUNE",
+            "organisasjonsnummer": "944588132"
+          }
+        ],
+        "kilder": [
+          {
+            "url": "https://skjema.no/alta",
+            "metode": "SKJEMA_NO_API"
+          }
+        ]
+      },
+      {
+        "tjenestenavn": "Fyringsanlegg - registrering",
+        "url": "https://skjema.no/alta/702237",
+        "kategori": "Bygg og eiendom",
+        "beskrivelse": "",
+        "tilbys_av": [
+          {
+            "organisasjon": "ALTA KOMMUNE",
+            "organisasjonsnummer": "944588132"
+          }
+        ],
+        "kilder": [
+          {
+            "url": "https://skjema.no/alta",
+            "metode": "SKJEMA_NO_API"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "kommune": "HERØY KOMMUNE",
+    "organisasjonsnummer": "872417982",
+    "slug": "heroy",
+    "sources": [
+      {
+        "url": "https://skjema.heroy.kommune.no/",
+        "metode": "HTML_INNEBYGD_JSON",
+        "antall_unikt_bidrag": 76,
+        "antall_i_kilden": 76,
+        "antall_overlapp": 0,
+        "antall_kandidater": 0
+      },
+      {
+        "url": "https://dialog.heroy.kommune.no/",
+        "metode": "HTML",
+        "antall_unikt_bidrag": 0,
+        "antall_i_kilden": 0,
+        "antall_overlapp": 0,
+        "antall_kandidater": 0
+      }
+    ],
+    "antall_tjenester": 3,
+    "records": [
+      {
+        "tjenestenavn": "Kontakt oss",
+        "url": "https://skjema.heroy.kommune.no/skjema/HER152/Kontakt_oss",
+        "kategori": "",
+        "beskrivelse": "",
+        "tilbys_av": [
+          {
+            "organisasjon": "HERØY KOMMUNE",
+            "organisasjonsnummer": "872417982"
+          }
+        ],
+        "kilder": [
+          {
+            "url": "https://skjema.heroy.kommune.no/",
+            "metode": "HTML_INNEBYGD_JSON"
+          }
+        ]
+      },
+      {
+        "tjenestenavn": "Godkjenning av barnehage",
+        "url": "https://skjema.heroy.kommune.no/skjema/HER148/Godkjenning_av_barnehage",
+        "kategori": "Skule og barnehage",
+        "beskrivelse": "",
+        "tilbys_av": [
+          {
+            "organisasjon": "HERØY KOMMUNE",
+            "organisasjonsnummer": "872417982"
+          }
+        ],
+        "kilder": [
+          {
+            "url": "https://skjema.heroy.kommune.no/",
+            "metode": "HTML_INNEBYGD_JSON"
+          }
+        ]
+      },
+      {
+        "tjenestenavn": "Grunnskuleopplæring vaksen - ordinær",
+        "url": "https://skjema.heroy.kommune.no/skjema/HER078/Grunnskuleopplring_vaksen__ordinr",
+        "kategori": "Skule og barnehage",
+        "beskrivelse": "",
+        "tilbys_av": [
+          {
+            "organisasjon": "HERØY KOMMUNE",
+            "organisasjonsnummer": "872417982"
+          }
+        ],
+        "kilder": [
+          {
+            "url": "https://skjema.heroy.kommune.no/",
+            "metode": "HTML_INNEBYGD_JSON"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "kommune": "HERØY KOMMUNE",
+    "organisasjonsnummer": "964978840",
+    "slug": "heroy",
+    "sources": [
+      {
+        "url": "https://skjema.heroy.kommune.no/",
+        "metode": "HTML_INNEBYGD_JSON",
+        "antall_unikt_bidrag": 76,
+        "antall_i_kilden": 76,
+        "antall_overlapp": 0,
+        "antall_kandidater": 0
+      },
+      {
+        "url": "https://dialog.heroy.kommune.no/",
+        "metode": "HTML",
+        "antall_unikt_bidrag": 0,
+        "antall_i_kilden": 0,
+        "antall_overlapp": 0,
+        "antall_kandidater": 0
+      }
+    ],
+    "antall_tjenester": 3,
+    "records": [
+      {
+        "tjenestenavn": "Kontakt oss",
+        "url": "https://skjema.heroy.kommune.no/skjema/HER152/Kontakt_oss",
+        "kategori": "",
+        "beskrivelse": "",
+        "tilbys_av": [
+          {
+            "organisasjon": "HERØY KOMMUNE",
+            "organisasjonsnummer": "964978840"
+          }
+        ],
+        "kilder": [
+          {
+            "url": "https://skjema.heroy.kommune.no/",
+            "metode": "HTML_INNEBYGD_JSON"
+          }
+        ]
+      },
+      {
+        "tjenestenavn": "Avlesing vassmålar - registrering målarstand",
+        "url": "https://skjema.heroy.kommune.no/skjema/HER069/Avlesing_vassmlar__registrering_mlarstand",
+        "kategori": "Veg, vatn og avløp",
+        "beskrivelse": "",
+        "tilbys_av": [
+          {
+            "organisasjon": "HERØY KOMMUNE",
+            "organisasjonsnummer": "964978840"
+          }
+        ],
+        "kilder": [
+          {
+            "url": "https://skjema.heroy.kommune.no/",
+            "metode": "HTML_INNEBYGD_JSON"
+          }
+        ]
+      },
+      {
+        "tjenestenavn": "Plan for varsling og sikring av vegarbeid",
+        "url": "https://skjema.heroy.kommune.no/skjema/HER070/Plan_for_varsling_og_sikring_av_vegarbeid",
+        "kategori": "Veg, vatn og avløp",
+        "beskrivelse": "",
+        "tilbys_av": [
+          {
+            "organisasjon": "HERØY KOMMUNE",
+            "organisasjonsnummer": "964978840"
+          }
+        ],
+        "kilder": [
+          {
+            "url": "https://skjema.heroy.kommune.no/",
+            "metode": "HTML_INNEBYGD_JSON"
+          }
+        ]
+      }
+    ]
+  }
+]

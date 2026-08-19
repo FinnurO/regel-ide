@@ -93,6 +93,10 @@ builder.Services.AddHttpClient<AltinnSkjemaoversiktHenter>(c =>
 // Fil-basert, ikke URL-basert (se TjenestelisteImporter.cs klassekommentar) — ingen HttpClient å registrere.
 // Delt av begge fil-baserte kildene (Statsforvalter-tjenester + fylkeskommune-dialogtjenester).
 builder.Services.AddScoped<TjenestelisteImporter>();
+// Sjette kilde i høstelaget — også fil-basert, men strukturelt ulik (nestet-per-kommune, ikke et bart
+// tjeneste-array) nok til å ha fått sin egen klasse i stedet for en tredje TjenestelisteImporter-kildetype,
+// se KommuneTjenesteHenter.cs klassekommentar.
+builder.Services.AddScoped<KommuneTjenesteHenter>();
 
 const string VitePolicy = "ViteDevServer";
 builder.Services.AddCors(o => o.AddPolicy(VitePolicy, p => p
@@ -757,6 +761,22 @@ eksterneKilder.MapPost("/fylkeskommune-tjenester/importer", async (HttpRequest r
         "TjenestelisteImporter. Idempotent upsert på (kildetype, url). Ikke koblet til domenemodellen ennå. " +
         "Rapporterer også antall tilbys_av-oppføringer med manglende organisasjonsnummer, selv om empirisk " +
         "alle rader i denne kilden har nøyaktig én tilbyder.");
+
+eksterneKilder.MapPost("/kommune-tjenester/importer", async (HttpRequest request, KommuneTjenesteHenter henter, CancellationToken ct) =>
+    {
+        using var leser = new StreamReader(request.Body);
+        var raaJson = await leser.ReadToEndAsync(ct);
+        var resultat = await henter.ImporterAsync(raaJson, ct);
+        return Results.Ok(new KommuneTjenesteHostingResultatDto(resultat.Nye, resultat.Oppdaterte, resultat.Uendret, resultat.RecordsMedManglendeOrganisasjonsnummer));
+    })
+    .WithName("ImporterKommuneTjenester")
+    .WithSummary("Importerer kommune.no-tjenester fra en rå JSON-body — array av KOMMUNE-objekter, hver med " +
+        "egen records[]-liste (ikke et bart tjeneste-array som Statsforvalter/fylkeskommune-kildene). FIL-basert " +
+        "(Johanns eget eksterne skrapeskript mot ~327 kommune.no-nettsteder, ingen stabil offentlig URL denne " +
+        "appen kan polle selv). Idempotent upsert på (kildetype, organisasjonsnummer::url) — en sammensatt nøkkel, " +
+        "IKKE url alene, fordi to reelt distinkte kommuner (begge \"Herøy\") deler samme url-mønster i " +
+        "produksjonsdataene. Ikke koblet til domenemodellen ennå. Rapporterer også antall records hvis eiende " +
+        "kommune mangler organisasjonsnummer (empirisk null i produksjon, men aldri stille antatt).");
 
 eksterneKilder.MapGet("/", async (string? kildetype, RegelIdeDbContext db, CancellationToken ct, int start = 0, int antall = 50) =>
     {
