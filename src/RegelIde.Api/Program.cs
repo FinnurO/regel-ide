@@ -1069,7 +1069,8 @@ tjenester.MapPost("/", async (HttpRequest request, TjenesteRequest body, Tjenest
             var t = await tjeneste.OpprettAsync(bruker.VirksomhetId, body.Tittel, body.Beskrivelse, body.KompetentMyndighet,
                 body.Output, body.Tjenestetype, body.Malgruppe, body.Kanaler, body.Kostnad, body.Behandlingstid,
                 body.Kontaktpunkt, body.KonsekvensVedBrudd, body.Sprak, bruker.Navn, ct,
-                body.Livshendelser, body.LosKlassifisering, body.Tjenesteomrade);
+                body.Livshendelser, body.LosKlassifisering, body.Tjenesteomrade,
+                body.Type, body.Formal, body.Innhold);
             return Results.Created($"/api/tjenester/{t.Id}", TjenesteDto.FraEntitet(t));
         }
         catch (ArgumentException ex)
@@ -1092,7 +1093,8 @@ tjenester.MapPut("/{id:guid}", async (Guid id, HttpRequest request, TjenesteRequ
             var t = await tjeneste.OppdaterAsync(id, bruker.VirksomhetId, body.Tittel, body.Beskrivelse, body.KompetentMyndighet, body.Output,
                 body.Tjenestetype, body.Malgruppe, body.Kanaler, body.Kostnad, body.Behandlingstid, body.Kontaktpunkt,
                 body.KonsekvensVedBrudd, body.Sprak, bruker.Navn, ct,
-                body.Livshendelser, body.LosKlassifisering, body.Tjenesteomrade);
+                body.Livshendelser, body.LosKlassifisering, body.Tjenesteomrade,
+                body.Type, body.Formal, body.Innhold);
             return t is null ? Results.NotFound(new { feil = $"Ingen tjeneste med id '{id}'." }) : Results.Ok(TjenesteDto.FraEntitet(t));
         }
         catch (ArgumentException ex)

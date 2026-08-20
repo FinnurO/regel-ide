@@ -26,7 +26,12 @@ public static class ServeringsbevillingModellSeed
 
     public static async Task SeedAsync(RegelIdeDbContext db, CancellationToken ct = default)
     {
-        if (await db.Handlinger.AnyAsync(h => h.Navn == MarkorHandling, ct)) return;
+        // OBS: markørsjekken (guard) for handlinger/avhengigheter er FLYTTET NED, til rett før
+        // handlinger-opprettelsen (§3) — se kommentaren der. Rettighet-feltene (§1/§2) skal fylles
+        // ut/oppdateres HVER gang SeedAsync kjører, selv etter markøren er satt (idempotent —
+        // OppdaterAsync/find-or-create skriver bare de samme verdiene på nytt), slik at en
+        // etterfølgende utvidelse av innholdet (Type/Formal/Innhold, 2026-08-20-runde 2) faktisk
+        // slår gjennom mot en database der handlingene allerede ble seedet i en TIDLIGERE kjøring.
 
         // Finn Serveringsbevilling FØRST, via KompetentMyndighet-markøren FasitRunde4Seed setter på
         // nettopp denne raden (RelevanteTjenester-løkken der) — og AVLED Testkommunen fra dens eget
@@ -66,31 +71,66 @@ public static class ServeringsbevillingModellSeed
                 "regler, kan kommunen fatte vedtak om suspensjon eller tilbakekall av serveringsbevillingen. " +
                 "Alvorlige eller gjentatte brudd kan føre til at virksomheten ikke lenger kan drive serveringsstedet.",
             serveringsbevilling.Sprak, SeedBruker, ct,
-            livshendelser: ["Starte og drive en bedrift"], losKlassifisering: null, tjenesteomrade: "Næring, salg og servering");
+            livshendelser: ["Starte og drive en bedrift"], losKlassifisering: null, tjenesteomrade: "Næring, salg og servering",
+            type: "myndighetsutovelse",
+            formal: "Serveringsbevilling gir tillatelse til å etablere og drive et serveringssted hvor det serveres " +
+                "mat og/eller drikke, og hvor forholdene ligger til rette for fortæring på stedet. Formålet med " +
+                "ordningen er å sikre at serveringssteder drives i samsvar med gjeldende regelverk og at " +
+                "virksomheten utøves på en forsvarlig måte.",
+            innhold: ServeringsbevillingInnhold());
 
         // ---------- 2. Fettutskiller — ny, ekte Rettighet, eid av Bergen kommune ----------
         // Bergen kommune, IKKE Testkommunen — det er den faktiske eieren av den allerede
         // eksisterende "Krav om fettutskiller"-rettskilden (Brukerveiledning-doctype), bekreftet
         // 2026-08-20 mot /api/rettskilder. Dette gjør avhengigheten under til en reell,
         // kryss-tenant-forankret kobling, ikke en plassholder.
-        var fettutskiller = await db.Tjenester.FirstOrDefaultAsync(
-                t => t.Tittel == "Krav om fettutskiller" && t.VirksomhetId == bergenKommune.Id && t.Entitetsstatus == "gjeldende", ct)
-            ?? await tjenesteregister.OpprettAsync(
-                bergenKommune.Id, "Krav om fettutskiller",
-                beskrivelse: "Ordningen skal bidra til å beskytte det kommunale avløpsnettet og renseanlegg mot " +
-                    "problemer som oppstår når fett slippes ut i avløpssystemet. Fettutskilleren skiller ut fett fra " +
-                    "avløpsvannet før vannet ledes videre til det offentlige avløpsnettet.",
-                kompetentMyndighet: "Bergen kommune", output: null, tjenestetype: "Enkeltvedtak",
-                malgruppe: [
-                    "Restauranter", "Kafeer og konditorier", "Gatekjøkken", "Kantiner", "Cateringvirksomheter",
-                    "Bakerier", "Matbutikker med steke- eller grillavdeling", "Næringsmiddelindustri og matproduksjon",
-                ],
-                kanaler: null, kostnad: null, behandlingstid: null, kontaktpunkt: null,
-                konsekvensVedBrudd: "Dersom virksomheten ikke oppfyller kravene til installasjon, drift eller " +
-                    "rapportering, kan kommunen gi pålegg om utbedring og følge opp saken etter gjeldende regelverk.",
-                sprak: ["nb"], opprettetAv: SeedBruker, ct,
-                livshendelser: ["Starte og drive en bedrift"], losKlassifisering: null,
-                tjenesteomrade: "Avløp, renovasjon og forurensning");
+        var fettutskillerFunnetFra = await db.Tjenester.FirstOrDefaultAsync(
+            t => t.Tittel == "Krav om fettutskiller" && t.VirksomhetId == bergenKommune.Id && t.Entitetsstatus == "gjeldende", ct);
+        var fettutskiller = fettutskillerFunnetFra ?? await tjenesteregister.OpprettAsync(
+            bergenKommune.Id, "Krav om fettutskiller",
+            beskrivelse: "Ordningen skal bidra til å beskytte det kommunale avløpsnettet og renseanlegg mot " +
+                "problemer som oppstår når fett slippes ut i avløpssystemet. Fettutskilleren skiller ut fett fra " +
+                "avløpsvannet før vannet ledes videre til det offentlige avløpsnettet.",
+            kompetentMyndighet: "Bergen kommune", output: null, tjenestetype: "Enkeltvedtak", malgruppe: null,
+            kanaler: null, kostnad: null, behandlingstid: null, kontaktpunkt: null, konsekvensVedBrudd: null,
+            sprak: ["nb"], opprettetAv: SeedBruker, ct: ct);
+
+        // OppdaterAsync kalles ALLTID (ikke bare på førstegangs-opprettelse via `??` over) — se
+        // kommentaren ved SeedAsync-toppen for hvorfor: uten dette ville Type/Formal/Innhold aldri
+        // slått gjennom mot en Fettutskiller-rad som allerede ble opprettet i en TIDLIGERE kjøring
+        // av denne seeden (før denne runden la til disse feltene).
+        await tjenesteregister.OppdaterAsync(
+            fettutskiller.Id, bergenKommune.Id, fettutskiller.Tittel, fettutskiller.Beskrivelse,
+            fettutskiller.KompetentMyndighet, fettutskiller.Output, fettutskiller.Tjenestetype,
+            malgruppe: [
+                "Restauranter", "Kafeer og konditorier", "Gatekjøkken", "Kantiner", "Cateringvirksomheter",
+                "Bakerier", "Matbutikker med steke- eller grillavdeling", "Næringsmiddelindustri og matproduksjon",
+            ],
+            fettutskiller.Kanaler, fettutskiller.Kostnad, fettutskiller.Behandlingstid, fettutskiller.Kontaktpunkt,
+            konsekvensVedBrudd: "Dersom virksomheten ikke oppfyller kravene til installasjon, drift eller " +
+                "rapportering, kan kommunen gi pålegg om utbedring og følge opp saken etter gjeldende regelverk.",
+            fettutskiller.Sprak, SeedBruker, ct,
+            livshendelser: ["Starte og drive en bedrift"], losKlassifisering: null,
+            tjenesteomrade: "Avløp, renovasjon og forurensning",
+            type: "myndighetsutovelse",
+            formal: "Ordningen skal bidra til å beskytte det kommunale avløpsnettet og renseanlegg mot " +
+                "problemer som oppstår når fett slippes ut i avløpssystemet. Fettutskilleren skiller ut fett " +
+                "fra avløpsvannet før vannet ledes videre til det offentlige avløpsnettet. Dette reduserer " +
+                "risikoen for tette rør, driftsforstyrrelser, oversvømmelser og forurensning.",
+            innhold: FettutskillerInnhold());
+
+        // ---------- 6. Kodelister (KL-HANDLINGSTYPE/KL-UTFORT-AV/KL-BRUKSOMRAADE/KL-KANAL) ----------
+        // Kjøres HER, FØR markørsjekken under — den er idempotent per kodeliste selv (se
+        // SeedEnKodelisteAsync), og skal fylles inn selv når handlinger/avhengigheter allerede ble
+        // seedet i en TIDLIGERE kjøring (samme grunn som Rettighet-feltene over kjører ubetinget) —
+        // en plassering ETTER markørsjekken (der den lå først) betydde den ALDRI kjørte på en
+        // database der markøren allerede var satt (bekreftet empirisk 2026-08-20).
+        await SeedKodelisterAsync(db, testkommunen.Id, ct);
+
+        // ---------- Markørsjekk (guard) for §3/§4/§5 — handlinger og avhengigheter ----------
+        // Se kommentaren ved SeedAsync-toppen: §1/§2 (Rettighet-feltene) kjører alltid, uavhengig av
+        // denne markøren — kun handlinger/avhengigheter-opprettelsen under er engangs.
+        if (await db.Handlinger.AnyAsync(h => h.Navn == MarkorHandling, ct)) return;
 
         // ---------- 3. Handlinger under Serveringsbevilling ----------
         await OpprettHandlingHvisNyAsync(handlingregister, testkommunen.Id, serveringsbevilling.Id,
@@ -259,5 +299,145 @@ public static class ServeringsbevillingModellSeed
         await register.OpprettAsync(
             virksomhetId, tjenesteId, navn, handlingstype, bruksomraade, utfortAv,
             kanaler, behandlingstid, kostnad, vedlegg, veiledningstekst, arsaker, resultat, merknad, SeedBruker, ct);
+    }
+
+    /// <summary>Ordrett fra serveringsbevilling-modell-forslag.json sin rettigheter[0].innhold — kun
+    /// 【N-hash】-citation-markører fjernet (samme rensing modellfilen selv beskriver).</summary>
+    private static TjenesteInnholdInput ServeringsbevillingInnhold() => new(
+        TidspunktOgFrister: "Serveringsbevilling må være innvilget før serveringsvirksomheten starter. Ved " +
+            "overdragelse av et eksisterende serveringssted må ny eier søke om egen serveringsbevilling innen " +
+            "30 dager etter at overdragelsesavtalen ble inngått. Kommunen behandler søknaden etter at nødvendig " +
+            "dokumentasjon er mottatt. Saksbehandlingstiden kan variere mellom kommuner.",
+        InnsenderOgTilgang: new TjenesteInnsenderInput(
+            ["Innehaver av enkeltpersonforetak", "Styreleder eller daglig leder i virksomheten",
+                "Person med nødvendig fullmakt", "Person med relevant rolle i Altinn"],
+            "Normalt elektronisk ID."),
+        Vedlegg: [
+            "Dokumentasjon på bestått etablererprøve for daglig leder", "Firmaattest", "Dokumentasjon på eierforhold",
+            "Eventuelle leie- eller adkomstdokumenter", "Overdragelsesavtale ved eierskifte",
+            "Skatteattest for virksomheten og for hver person med vesentlig innflytelse over virksomheten",
+        ],
+        VedleggMerknad: "Kommunen kan ved behov be om ytterligere dokumentasjon, som finansieringsplan, " +
+            "driftsbudsjett eller andre opplysninger som er nødvendige for å behandle søknaden.",
+        OpplysningerSomSkalSendesInn: [
+            "Virksomhetens navn og organisasjonsnummer", "Forretningsadresse og serveringsstedets beliggenhet",
+            "Daglig leder", "Eiere og personer med vesentlig innflytelse over virksomheten",
+            "Type serveringsvirksomhet", "Eventuell overdragelse av eksisterende virksomhet",
+        ],
+        OpplysningerMerknad: null,
+        VeiledningOgUtfylling: [
+            "Avklare at lokalene kan brukes til serveringsformål.", "Registrere virksomheten i relevante offentlige registre.",
+            "Sørge for at daglig leder har bestått etablererprøven.", "Samle nødvendig dokumentasjon og vedlegg.",
+        ],
+        VeiledningMerknad: "Alle opplysninger må være korrekte og fullstendige. Mangelfulle søknader kan føre til lengre behandlingstid.",
+        InnsendingOgOppfolging: new TjenesteInnsendingInput(
+            "Søknaden sendes elektronisk via kommunens digitale løsning eller Altinn.",
+            ["Kommunen kontrollerer dokumentasjonen", "Relevante myndigheter kan bli bedt om uttalelser",
+                "Kommunen vurderer om vilkårene for bevilling er oppfylt", "Vedtak sendes til søker"],
+            null),
+        KontaktOgHjelp: new TjenesteKontaktInput(
+            "Har du spørsmål om søknaden eller regelverket, kan du kontakte kommunen.",
+            ["Krav til serveringsbevilling", "Dokumentasjon og vedlegg", "Etablererprøven", "Saksbehandling og status i saken"]),
+        HvaRettighetenInnebarer: new TjenesteHvaRettighetenInnebarerInput(
+            Innledning: "En serveringsbevilling gir virksomheten rett til å etablere og drive et serveringssted i " +
+                "samsvar med serveringsloven. Bevillingen gjelder for den virksomheten og det serveringsstedet som " +
+                "er oppgitt i søknaden.",
+            Varighet: "Serveringsbevillingen gjelder inntil videre, så lenge virksomheten oppfyller kravene i " +
+                "regelverket og forholdene som bevillingen bygger på ikke endres vesentlig. Ved overdragelse av " +
+                "virksomheten må ny eier søke om egen serveringsbevilling.",
+            Plikter: [
+                "Sørge for at serveringsstedet drives i samsvar med gjeldende regelverk",
+                "Ha en daglig leder som oppfyller lovens krav",
+                "Melde fra til kommunen om relevante endringer i virksomheten",
+                "Opprettholde kravene til vandel for bevillingshaver, daglig leder og personer med vesentlig innflytelse over virksomheten",
+                "Gi nødvendige opplysninger til kommunen ved forespørsel eller kontroll",
+            ],
+            EndringerIVirksomheten: new TjenesteEndringerInput(
+                "Virksomheten har plikt til å melde fra til kommunen om forhold som kan ha betydning for bevillingen.",
+                ["Skifte av daglig leder", "Endringer i eierskap eller selskapsstruktur",
+                    "Endringer i personkretsen med vesentlig innflytelse over virksomheten", "Andre vesentlige endringer i driften"]),
+            KontrollOgTilsyn: "Kommunen og andre offentlige myndigheter kan føre kontroll med at vilkårene for " +
+                "bevillingen overholdes. Virksomheten plikter å medvirke til kontroll og gi nødvendige opplysninger når dette kreves.",
+            AvgrensningMerknad: "Serveringsbevilling gir rett til å servere mat og alkoholfri drikke. Dersom " +
+                "virksomheten ønsker å servere alkohol, må det i tillegg søkes om egen skjenkebevilling etter alkoholloven."));
+
+    /// <summary>Ordrett fra serveringsbevilling-modell-forslag.json sin rettigheter[1].innhold (§3-§11).</summary>
+    private static TjenesteInnholdInput FettutskillerInnhold() => new(
+        TidspunktOgFrister: "Fettutskiller skal normalt være installert og registrert før virksomheten starter " +
+            "opp eller før påslipp til offentlig avløpsnett begynner. Virksomheten kan også ha plikt til å sende " +
+            "inn rapportering og dokumentasjon innen frister fastsatt av kommunen. Mange kommuner krever årlig " +
+            "rapportering innen 1. mars.",
+        InnsenderOgTilgang: new TjenesteInnsenderInput(
+            ["Virksomhetens eier eller ansvarlige representant", "Ansvarlig søker eller rørlegger ved installasjon",
+                "Annen person med nødvendig fullmakt"],
+            "Normalt elektronisk ID gjennom kommunens digitale løsninger."),
+        Vedlegg: [
+            "Situasjonsplan eller ledningskart", "Tegninger av avløpsanlegg og fettutskiller",
+            "Tekniske spesifikasjoner for fettutskilleren", "Dokumentasjon på dimensjonering",
+            "Ferdigmelding eller sluttdokumentasjon", "Dokumentasjon på tømming og kontroll",
+        ],
+        VedleggMerknad: "Kravene kan variere mellom kommuner.",
+        OpplysningerSomSkalSendesInn: [
+            "Virksomhetens navn og organisasjonsnummer", "Adresse og eiendom", "Type virksomhet",
+            "Forventet påslipp av fettholdig avløpsvann", "Opplysninger om fettutskilleren", "Kontaktperson",
+        ],
+        OpplysningerMerknad: "Kommunen bruker opplysningene til å vurdere om kravene til påslipp og avløpsanlegg er oppfylt.",
+        VeiledningOgUtfylling: [
+            "Avklare om virksomheten omfattes av krav om fettutskiller.", "Sørge for korrekt dimensjonering av anlegget.",
+            "Innhente nødvendig teknisk dokumentasjon.", "Avklare eventuelle lokale krav med kommunen.",
+        ],
+        VeiledningMerknad: "Mangelfull dokumentasjon kan føre til lengre saksbehandlingstid.",
+        InnsendingOgOppfolging: new TjenesteInnsendingInput(
+            null,
+            ["Dokumentasjonen kontrolleres", "Kommunen vurderer om kravene er oppfylt",
+                "Virksomheten kan få påslippskrav eller andre vilkår", "Kommunen kan gjennomføre tilsyn og kontroll"],
+            "Virksomheten kan bli bedt om å sende inn tilleggsopplysninger ved behov."),
+        KontaktOgHjelp: new TjenesteKontaktInput(
+            "Dersom du har spørsmål om krav til fettutskiller, registrering, drift eller rapportering, kan du kontakte kommunen.",
+            ["Krav til fettutskiller", "Tekniske løsninger", "Rapportering", "Kontroll og tilsyn", "Påslippskrav"]),
+        HvaRettighetenInnebarer: new TjenesteHvaRettighetenInnebarerInput(
+            Innledning: null, Varighet: null, Plikter: [], EndringerIVirksomheten: null, KontrollOgTilsyn: null, AvgrensningMerknad: null,
+            KravTilDrift: "Virksomheten er ansvarlig for at fettutskilleren fungerer som forutsatt og vedlikeholdes " +
+                "i henhold til kommunens krav. Fettutskilleren skal tømmes og rengjøres regelmessig slik at den " +
+                "opprettholder ønsket renseeffekt.",
+            TommeavtaleOgKontroll: "Det skal normalt foreligge en gyldig avtale om tømming av fettutskilleren. " +
+                "Kommunen kan stille krav til tømmefrekvens, tilstandskontroll og dokumentasjon på utført vedlikehold.",
+            Rapportering: "Virksomheten kan ha plikt til å sende inn rapporter om tømming, vedlikehold og kontroll " +
+                "av fettutskilleren. Kommunen kan be om dokumentasjon som viser at kravene overholdes."));
+
+    /// <summary>
+    /// KL-HANDLINGSTYPE/KL-UTFORT-AV/KL-BRUKSOMRAADE/KL-KANAL som ekte, redigerbare KodelisteEntitet-
+    /// rader (Type="teknisk") — se §6-kommentaren ved kallstedet. Idempotent per kodeliste (sjekker
+    /// om koden allerede finnes før den opprettes), IKKE gatet av MarkorHandling-sjekken.
+    /// </summary>
+    private static async Task SeedKodelisterAsync(RegelIdeDbContext db, Guid virksomhetId, CancellationToken ct)
+    {
+        var kodelisteregister = new KodelisteregisterTjeneste(db);
+
+        await SeedEnKodelisteAsync(db, kodelisteregister, virksomhetId, "KL-HANDLINGSTYPE", "Handlingstype",
+            HandlingregisterTjeneste.GyldigeHandlingstyper.Select(k => (k, k)), ct);
+        await SeedEnKodelisteAsync(db, kodelisteregister, virksomhetId, "KL-UTFORT-AV", "Utført av",
+            HandlingregisterTjeneste.GyldigeUtfortAv.Select(k => (k, k)), ct);
+        await SeedEnKodelisteAsync(db, kodelisteregister, virksomhetId, "KL-BRUKSOMRAADE", "Bruksområde",
+            [("soknad_registrering", "Søknad / registrering"), ("periodisk_rapportering", "Periodisk rapportering"),
+                ("hendelsesrapportering", "Hendelsesrapportering")], ct);
+        await SeedEnKodelisteAsync(db, kodelisteregister, virksomhetId, "KL-KANAL", "Kanal",
+            [("elektronisk", "Elektronisk"), ("papir", "Papir"), ("begge", "Både elektronisk og på papir"),
+                ("annet", "Annet (f.eks. meldeplikt uten skjema)")], ct);
+    }
+
+    private static async Task SeedEnKodelisteAsync(
+        RegelIdeDbContext db, KodelisteregisterTjeneste register, Guid virksomhetId, string kode, string navn,
+        IEnumerable<(string Kode, string Term)> koder, CancellationToken ct)
+    {
+        if (await db.Kodelister.AnyAsync(k => k.Kode == kode, ct)) return;
+
+        var kodeliste = await register.OpprettAsync(
+            virksomhetId, kode, navn, "teknisk", juridiskGrunnlagEid: null, eksternKildeUri: null,
+            eksternKildeVersjon: null, SeedBruker, ct);
+        foreach (var (verdiKode, term) in koder)
+        {
+            await register.LeggTilKodeAsync(kodeliste.Id, verdiKode, term, definisjon: null, gyldigFra: null, gyldigTil: null, ct);
+        }
     }
 }

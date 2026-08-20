@@ -1,6 +1,39 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 
 namespace RegelIde.Data;
+
+// ---------- Verdiobjekter for Rettighetens "innhold"-felt (2026-08-20, Tjenestedetalj-runden) ----------
+// Overfører serveringsbevilling-modell-forslag.json sin rettigheter[].innhold-seksjon til ekte felt.
+// Samme JSONB-mønster som HandlingregisterTjeneste.cs sine Handling*Input-records.
+
+public sealed record TjenesteInnsenderInput(IReadOnlyList<string> HvemKanSende, string? Innlogging);
+public sealed record TjenesteInnsendingInput(string? Kanal, IReadOnlyList<string> EtterMottak, string? Merknad);
+public sealed record TjenesteKontaktInput(string? Generelt, IReadOnlyList<string> KommunenKanVeiledeOm);
+public sealed record TjenesteEndringerInput(string? Plikt, IReadOnlyList<string> Eksempler);
+
+/// <summary>
+/// Modellfilens "hva_bevillingen_innebarer"/"hva_ordningen_innebarer" — forent til ETT feltnavn
+/// (modellfilen selv foreslo dette, §1.1.1-kommentaren). Et supersett av begge rettighetenes
+/// underfelt (Serveringsbevilling: Innledning/Varighet/Plikter/EndringerIVirksomheten/
+/// KontrollOgTilsyn/AvgrensningMerknad; Fettutskiller: KravTilDrift/TommeavtaleOgKontroll/
+/// Rapportering) — hver rettighet fyller bare ut det som gjelder for den, resten forblir null.
+/// "konsekvenser_ved_brudd_pa_regelverket"/"...manglende_etterlevelse" er BEVISST IKKE med her — det
+/// er allerede det ekte, eksisterende <see cref="TjenesteEntitet.KonsekvensVedBrudd"/>-feltet, ikke
+/// duplisert inn i denne JSON-blobben.
+/// </summary>
+public sealed record TjenesteHvaRettighetenInnebarerInput(
+    string? Innledning, string? Varighet, IReadOnlyList<string> Plikter,
+    TjenesteEndringerInput? EndringerIVirksomheten, string? KontrollOgTilsyn, string? AvgrensningMerknad,
+    string? KravTilDrift = null, string? TommeavtaleOgKontroll = null, string? Rapportering = null);
+
+public sealed record TjenesteInnholdInput(
+    string? TidspunktOgFrister, TjenesteInnsenderInput? InnsenderOgTilgang,
+    IReadOnlyList<string> Vedlegg, string? VedleggMerknad,
+    IReadOnlyList<string> OpplysningerSomSkalSendesInn, string? OpplysningerMerknad,
+    IReadOnlyList<string> VeiledningOgUtfylling, string? VeiledningMerknad,
+    TjenesteInnsendingInput? InnsendingOgOppfolging, TjenesteKontaktInput? KontaktOgHjelp,
+    TjenesteHvaRettighetenInnebarerInput? HvaRettighetenInnebarer);
 
 /// <summary>
 /// Ett cross-tenant søketreff (2026-08-19, feature/tjenesteavhengighet-ekstern-referanse) — KUN
@@ -25,6 +58,14 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
     // overganger i v1 (samme v1-forenkling som HandbokKommentarMetadataEntitet.Status, se §1.1.1).
     private static readonly string[] GyldigeStatuser =
         ["utkast", "foreslatt_av_ai", "under_revisjon", "validert", "publisert", "tilbaketrukket", "arkivert"];
+
+    /// <summary>Rettighetstype (2026-08-20, fra serveringsbevilling-modell-forslag.json sitt "type"-felt,
+    /// KI-agentens nivå 2-forslag) — hardkodet, utvidbar liste, samme "ingen DB-CHECK"-holdning som
+    /// <see cref="HandlingregisterTjeneste.GyldigeHandlingstyper"/>.</summary>
+    internal static readonly string[] GyldigeRettighetstyper =
+        ["myndighetsutovelse", "ytelse", "infrastruktur", "veiledning", "medvirkning"];
+
+    private static string? Serialiser<T>(T? verdi) => verdi is null ? null : JsonSerializer.Serialize(verdi, JsonSerialiseringHjelper.Innstillinger);
 
     public Task<List<TjenesteEntitet>> ListerForAsync(Guid virksomhetId, CancellationToken ct = default) =>
         db.Tjenester
@@ -70,11 +111,16 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
         string? tjenestetype, IReadOnlyList<string>? malgruppe, IReadOnlyList<string>? kanaler, string? kostnad,
         string? behandlingstid, string? kontaktpunkt, string? konsekvensVedBrudd, IReadOnlyList<string>? sprak,
         string opprettetAv, CancellationToken ct = default,
-        IReadOnlyList<string>? livshendelser = null, string? losKlassifisering = null, string? tjenesteomrade = null)
+        IReadOnlyList<string>? livshendelser = null, string? losKlassifisering = null, string? tjenesteomrade = null,
+        string? type = null, string? formal = null, TjenesteInnholdInput? innhold = null)
     {
         if (string.IsNullOrWhiteSpace(tittel))
         {
             throw new ArgumentException("Tittel kan ikke være tom. Ingen gjettet fallback.");
+        }
+        if (type is not null && !GyldigeRettighetstyper.Contains(type))
+        {
+            throw new ArgumentException($"Ukjent rettighetstype '{type}'. Gyldige verdier: {string.Join(", ", GyldigeRettighetstyper)}.");
         }
 
         var tjeneste = new TjenesteEntitet
@@ -96,6 +142,9 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
             Livshendelser = livshendelser?.ToList() ?? [],
             LosKlassifisering = losKlassifisering,
             Tjenesteomrade = tjenesteomrade,
+            Type = type,
+            Formal = formal,
+            InnholdJson = Serialiser(innhold),
             Status = "utkast",
             OpprettetAv = opprettetAv,
             OpprettetTidspunkt = DateTimeOffset.UtcNow,
@@ -166,11 +215,16 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
         string? tjenestetype, IReadOnlyList<string>? malgruppe, IReadOnlyList<string>? kanaler, string? kostnad,
         string? behandlingstid, string? kontaktpunkt, string? konsekvensVedBrudd, IReadOnlyList<string>? sprak,
         string endretAv, CancellationToken ct = default,
-        IReadOnlyList<string>? livshendelser = null, string? losKlassifisering = null, string? tjenesteomrade = null)
+        IReadOnlyList<string>? livshendelser = null, string? losKlassifisering = null, string? tjenesteomrade = null,
+        string? type = null, string? formal = null, TjenesteInnholdInput? innhold = null)
     {
         if (string.IsNullOrWhiteSpace(tittel))
         {
             throw new ArgumentException("Tittel kan ikke være tom. Ingen gjettet fallback.");
+        }
+        if (type is not null && !GyldigeRettighetstyper.Contains(type))
+        {
+            throw new ArgumentException($"Ukjent rettighetstype '{type}'. Gyldige verdier: {string.Join(", ", GyldigeRettighetstyper)}.");
         }
 
         var tjeneste = await db.Tjenester.FirstOrDefaultAsync(
@@ -192,6 +246,9 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
         tjeneste.Livshendelser = livshendelser?.ToList() ?? [];
         tjeneste.LosKlassifisering = losKlassifisering;
         tjeneste.Tjenesteomrade = tjenesteomrade;
+        tjeneste.Type = type;
+        tjeneste.Formal = formal;
+        tjeneste.InnholdJson = Serialiser(innhold);
         tjeneste.SistEndretAv = endretAv;
         tjeneste.SistEndretTidspunkt = DateTimeOffset.UtcNow;
         tjeneste.Versjon++;

@@ -381,6 +381,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Livshendelser).HasColumnName("livshendelser").HasDefaultValueSql("'{}'");
             e.Property(x => x.LosKlassifisering).HasColumnName("los_klassifisering");
             e.Property(x => x.Tjenesteomrade).HasColumnName("tjenesteomrade");
+            e.Property(x => x.Type).HasColumnName("type");
+            e.Property(x => x.Formal).HasColumnName("formal");
+            e.Property(x => x.InnholdJson).HasColumnName("innhold").HasColumnType(jsonKolonne);
             e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("utkast");
             e.Property(x => x.Versjon).HasColumnName("versjon").HasDefaultValue(1);
             e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");

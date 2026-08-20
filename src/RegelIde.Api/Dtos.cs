@@ -134,21 +134,24 @@ public sealed record TjenesteDto(
     Guid Id, Guid VirksomhetId, string Tittel, string? Beskrivelse, string? KompetentMyndighet, string? Output,
     string? Tjenestetype, IReadOnlyList<string> Malgruppe, IReadOnlyList<string> Kanaler, string? Kostnad, string? Behandlingstid,
     string? Kontaktpunkt, string? KonsekvensVedBrudd, IReadOnlyList<string> Sprak, string Status, int Versjon,
-    Guid? RotnodeId, IReadOnlyList<string> Livshendelser, string? LosKlassifisering, string? Tjenesteomrade)
+    Guid? RotnodeId, IReadOnlyList<string> Livshendelser, string? LosKlassifisering, string? Tjenesteomrade,
+    string? Type, string? Formal, TjenesteInnholdInput? Innhold)
 {
     public static TjenesteDto FraEntitet(TjenesteEntitet t) => new(
         t.Id, t.VirksomhetId, t.Tittel, t.Beskrivelse, t.KompetentMyndighet, t.Output, t.Tjenestetype, t.Malgruppe,
         t.Kanaler, t.Kostnad, t.Behandlingstid, t.Kontaktpunkt, t.KonsekvensVedBrudd, t.Sprak, t.Status, t.Versjon,
-        t.RotnodeId, t.Livshendelser, t.LosKlassifisering, t.Tjenesteomrade);
+        t.RotnodeId, t.Livshendelser, t.LosKlassifisering, t.Tjenesteomrade, t.Type, t.Formal,
+        t.InnholdJson is null ? null : System.Text.Json.JsonSerializer.Deserialize<TjenesteInnholdInput>(t.InnholdJson));
 }
 
-/// <summary>Forespørsel for POST/PUT /api/tjenester. De tre siste feltene har defaultverdi (null) slik at
-/// eksisterende positional-kall (12 opprinnelige felt) fortsatt kompilerer uendret.</summary>
+/// <summary>Forespørsel for POST/PUT /api/tjenester. De tre feltene fra 2026-08-20-runden(e) har
+/// defaultverdi (null) slik at eksisterende positional-kall fortsatt kompilerer uendret.</summary>
 public sealed record TjenesteRequest(
     string Tittel, string? Beskrivelse, string? KompetentMyndighet, string? Output, string? Tjenestetype,
     IReadOnlyList<string>? Malgruppe, IReadOnlyList<string>? Kanaler, string? Kostnad, string? Behandlingstid,
     string? Kontaktpunkt, string? KonsekvensVedBrudd, IReadOnlyList<string>? Sprak,
-    IReadOnlyList<string>? Livshendelser = null, string? LosKlassifisering = null, string? Tjenesteomrade = null);
+    IReadOnlyList<string>? Livshendelser = null, string? LosKlassifisering = null, string? Tjenesteomrade = null,
+    string? Type = null, string? Formal = null, TjenesteInnholdInput? Innhold = null);
 
 // ---------- Handling (2026-08-20) — se HandlingEntitet i RegelIde.Data for begrunnelse ----------
 // Underliggende JSON-verdiobjekter (HandlingKanalInput/HandlingHjemmelInput/osv.) er definert i
