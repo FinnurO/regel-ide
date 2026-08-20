@@ -393,6 +393,24 @@ public sealed class TjenesteEntitet
     /// Egen, egen akse fra <see cref="LosKlassifisering"/> — de to kan gi ulike svar for samme rad.</summary>
     public string? Tjenesteomrade { get; set; }
 
+    /// <summary>Nytt 2026-08-20 (Tjenestedetalj-runden) — rettighetstype (myndighetsutøvelse/ytelse/...),
+    /// valideres mot <c>TjenesteregisterTjeneste.GyldigeRettighetstyper</c>. Fra
+    /// serveringsbevilling-modell-forslag.json sitt "type"-felt.</summary>
+    public string? Type { get; set; }
+
+    /// <summary>Nytt 2026-08-20 — formålsteksten (typisk lovens eget "§1 Formål"-avsnitt), atskilt fra
+    /// <see cref="Beskrivelse"/> som allerede har et annet, kortere, teknisk-notat-aktig innhold.</summary>
+    public string? Formal { get; set; }
+
+    /// <summary>Nytt 2026-08-20 — rettighetens rike, forfattede innholdsseksjoner (tidspunkt/frister,
+    /// innsender, vedlegg, veiledning, hva rettigheten innebærer, osv.), fra
+    /// serveringsbevilling-modell-forslag.json sin rettigheter[].innhold. Se
+    /// <see cref="TjenesteInnholdInput"/> i TjenesteregisterTjeneste.cs for skjemaet. Nullable (ikke
+    /// "{}"-default) — de fleste tjenester vil ikke ha dette utfylt, og en NOT NULL-kolonne uten
+    /// defaultValueSql feiler mot en tabell som allerede har rader (samme feil som ble rettet på
+    /// Livshendelser-migrasjonen).</summary>
+    public string? InnholdJson { get; set; }
+
     public required string Status { get; set; } // 'utkast' | 'under_revisjon' | 'validert' | 'publisert' | 'tilbaketrukket' | 'arkivert'
     public int Versjon { get; set; } = 1;
     public string Entitetsstatus { get; set; } = "gjeldende";

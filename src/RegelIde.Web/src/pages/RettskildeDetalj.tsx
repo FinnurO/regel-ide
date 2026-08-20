@@ -534,7 +534,7 @@ export default function RettskildeDetalj() {
   return (
     <>
       <Link asChild>
-        <RouterLink to="/">← Tilbake til listen</RouterLink>
+        <RouterLink to="/rettskilder">← Tilbake til listen</RouterLink>
       </Link>
       <Heading level={1} data-size="lg" style={{ marginTop: '0.5rem' }}>
         {detalj.tittel}

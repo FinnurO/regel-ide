@@ -5,9 +5,9 @@ import { ApiError, api } from '../api/client';
 import { eidVisningstekst, rettskildeLenke } from '../api/eidLenker';
 import type {
   HandlingDto, HendelseDto, RegelnodeDto, RettskildeNodeDto, RettskildeSammendrag, TjenesteavhengighetDto, TjenesteDto,
-  TjenesteRegelverksreferanseDto, TjenesteTverrTenantTreffDto,
+  TjenesteInnholdInput, TjenesteRegelverksreferanseDto, TjenesteTverrTenantTreffDto,
 } from '../api/types';
-import { GYLDIGE_HANDLINGSTYPER, GYLDIGE_UTFORT_AV } from '../api/types';
+import { GYLDIGE_HANDLINGSTYPER, GYLDIGE_RETTIGHETSTYPER, GYLDIGE_UTFORT_AV } from '../api/types';
 
 const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
 
@@ -42,9 +42,44 @@ export default function TjenesteDetalj() {
   const [livshendelser, setLivshendelser] = useState('');
   const [losKlassifisering, setLosKlassifisering] = useState('');
   const [tjenesteomrade, setTjenesteomrade] = useState('');
+  const [type, setType] = useState('');
+  const [formal, setFormal] = useState('');
   const [lagrer, setLagrer] = useState(false);
   const [lagreFeil, setLagreFeil] = useState<string | null>(null);
   const [statusEndres, setStatusEndres] = useState(false);
+
+  // ---------- Innhold (2026-08-20, Tjenestedetalj-runde 2) — rettighetens rike, forfattede
+  // innholdsseksjoner. Hvert listefelt redigeres som linjeseparert tekst (én rad per linje) —
+  // samme prinsipp som Egenskaper-formens kommaseparerte lister, bare linjeskift siden innholdet
+  // her typisk er hele setninger, ikke enkeltord. ----------
+  const [visRedigerInnhold, setVisRedigerInnhold] = useState(false);
+  const [innholdLagrer, setInnholdLagrer] = useState(false);
+  const [innholdFeil, setInnholdFeil] = useState<string | null>(null);
+
+  const [iTidspunktOgFrister, setITidspunktOgFrister] = useState('');
+  const [iInnsenderHvemKanSende, setIInnsenderHvemKanSende] = useState('');
+  const [iInnsenderInnlogging, setIInnsenderInnlogging] = useState('');
+  const [iVedlegg, setIVedlegg] = useState('');
+  const [iVedleggMerknad, setIVedleggMerknad] = useState('');
+  const [iOpplysninger, setIOpplysninger] = useState('');
+  const [iOpplysningerMerknad, setIOpplysningerMerknad] = useState('');
+  const [iVeiledning, setIVeiledning] = useState('');
+  const [iVeiledningMerknad, setIVeiledningMerknad] = useState('');
+  const [iInnsendingKanal, setIInnsendingKanal] = useState('');
+  const [iInnsendingEtterMottak, setIInnsendingEtterMottak] = useState('');
+  const [iInnsendingMerknad, setIInnsendingMerknad] = useState('');
+  const [iKontaktGenerelt, setIKontaktGenerelt] = useState('');
+  const [iKontaktKommunenKanVeiledeOm, setIKontaktKommunenKanVeiledeOm] = useState('');
+  const [iHviInnledning, setIHviInnledning] = useState('');
+  const [iHviVarighet, setIHviVarighet] = useState('');
+  const [iHviPlikter, setIHviPlikter] = useState('');
+  const [iHviEndringerPlikt, setIHviEndringerPlikt] = useState('');
+  const [iHviEndringerEksempler, setIHviEndringerEksempler] = useState('');
+  const [iHviKontrollOgTilsyn, setIHviKontrollOgTilsyn] = useState('');
+  const [iHviAvgrensningMerknad, setIHviAvgrensningMerknad] = useState('');
+  const [iHviKravTilDrift, setIHviKravTilDrift] = useState('');
+  const [iHviTommeavtaleOgKontroll, setIHviTommeavtaleOgKontroll] = useState('');
+  const [iHviRapportering, setIHviRapportering] = useState('');
 
   const [nyReferanseRettskildeId, setNyReferanseRettskildeId] = useState('');
   const [nyReferanseEid, setNyReferanseEid] = useState('');
@@ -146,6 +181,14 @@ export default function TjenesteDetalj() {
     return kommaseparert.split(',').map((s) => s.trim()).filter(Boolean);
   }
 
+  /** Innhold-listefelt (setninger, ikke enkeltord) redigeres linjeseparert — én rad per linje. */
+  function tilListeNL(tekst: string): string[] {
+    return tekst.split('\n').map((s) => s.trim()).filter(Boolean);
+  }
+  function fraListeNL(liste: string[]): string {
+    return liste.join('\n');
+  }
+
   function fyllSkjemaFra(t: TjenesteDto) {
     setTittel(t.tittel);
     setBeskrivelse(t.beskrivelse ?? '');
@@ -161,6 +204,70 @@ export default function TjenesteDetalj() {
     setLivshendelser(t.livshendelser.join(', '));
     setLosKlassifisering(t.losKlassifisering ?? '');
     setTjenesteomrade(t.tjenesteomrade ?? '');
+    setType(t.type ?? '');
+    setFormal(t.formal ?? '');
+
+    const i = t.innhold;
+    setITidspunktOgFrister(i?.tidspunktOgFrister ?? '');
+    setIInnsenderHvemKanSende(fraListeNL(i?.innsenderOgTilgang?.hvemKanSende ?? []));
+    setIInnsenderInnlogging(i?.innsenderOgTilgang?.innlogging ?? '');
+    setIVedlegg(fraListeNL(i?.vedlegg ?? []));
+    setIVedleggMerknad(i?.vedleggMerknad ?? '');
+    setIOpplysninger(fraListeNL(i?.opplysningerSomSkalSendesInn ?? []));
+    setIOpplysningerMerknad(i?.opplysningerMerknad ?? '');
+    setIVeiledning(fraListeNL(i?.veiledningOgUtfylling ?? []));
+    setIVeiledningMerknad(i?.veiledningMerknad ?? '');
+    setIInnsendingKanal(i?.innsendingOgOppfolging?.kanal ?? '');
+    setIInnsendingEtterMottak(fraListeNL(i?.innsendingOgOppfolging?.etterMottak ?? []));
+    setIInnsendingMerknad(i?.innsendingOgOppfolging?.merknad ?? '');
+    setIKontaktGenerelt(i?.kontaktOgHjelp?.generelt ?? '');
+    setIKontaktKommunenKanVeiledeOm(fraListeNL(i?.kontaktOgHjelp?.kommunenKanVeiledeOm ?? []));
+    setIHviInnledning(i?.hvaRettighetenInnebarer?.innledning ?? '');
+    setIHviVarighet(i?.hvaRettighetenInnebarer?.varighet ?? '');
+    setIHviPlikter(fraListeNL(i?.hvaRettighetenInnebarer?.plikter ?? []));
+    setIHviEndringerPlikt(i?.hvaRettighetenInnebarer?.endringerIVirksomheten?.plikt ?? '');
+    setIHviEndringerEksempler(fraListeNL(i?.hvaRettighetenInnebarer?.endringerIVirksomheten?.eksempler ?? []));
+    setIHviKontrollOgTilsyn(i?.hvaRettighetenInnebarer?.kontrollOgTilsyn ?? '');
+    setIHviAvgrensningMerknad(i?.hvaRettighetenInnebarer?.avgrensningMerknad ?? '');
+    setIHviKravTilDrift(i?.hvaRettighetenInnebarer?.kravTilDrift ?? '');
+    setIHviTommeavtaleOgKontroll(i?.hvaRettighetenInnebarer?.tommeavtaleOgKontroll ?? '');
+    setIHviRapportering(i?.hvaRettighetenInnebarer?.rapportering ?? '');
+  }
+
+  /** Bygger TjenesteInnholdInput fra det flate skjema-state-et over. */
+  function byggInnhold(): TjenesteInnholdInput {
+    const harEndringer = iHviEndringerPlikt.trim() || iHviEndringerEksempler.trim();
+    const harInnsender = iInnsenderHvemKanSende.trim() || iInnsenderInnlogging.trim();
+    const harInnsending = iInnsendingKanal.trim() || iInnsendingEtterMottak.trim() || iInnsendingMerknad.trim();
+    const harKontakt = iKontaktGenerelt.trim() || iKontaktKommunenKanVeiledeOm.trim();
+    return {
+      tidspunktOgFrister: iTidspunktOgFrister.trim() || null,
+      innsenderOgTilgang: harInnsender
+        ? { hvemKanSende: tilListeNL(iInnsenderHvemKanSende), innlogging: iInnsenderInnlogging.trim() || null } : null,
+      vedlegg: tilListeNL(iVedlegg),
+      vedleggMerknad: iVedleggMerknad.trim() || null,
+      opplysningerSomSkalSendesInn: tilListeNL(iOpplysninger),
+      opplysningerMerknad: iOpplysningerMerknad.trim() || null,
+      veiledningOgUtfylling: tilListeNL(iVeiledning),
+      veiledningMerknad: iVeiledningMerknad.trim() || null,
+      innsendingOgOppfolging: harInnsending
+        ? { kanal: iInnsendingKanal.trim() || null, etterMottak: tilListeNL(iInnsendingEtterMottak), merknad: iInnsendingMerknad.trim() || null }
+        : null,
+      kontaktOgHjelp: harKontakt
+        ? { generelt: iKontaktGenerelt.trim() || null, kommunenKanVeiledeOm: tilListeNL(iKontaktKommunenKanVeiledeOm) } : null,
+      hvaRettighetenInnebarer: {
+        innledning: iHviInnledning.trim() || null,
+        varighet: iHviVarighet.trim() || null,
+        plikter: tilListeNL(iHviPlikter),
+        endringerIVirksomheten: harEndringer
+          ? { plikt: iHviEndringerPlikt.trim() || null, eksempler: tilListeNL(iHviEndringerEksempler) } : null,
+        kontrollOgTilsyn: iHviKontrollOgTilsyn.trim() || null,
+        avgrensningMerknad: iHviAvgrensningMerknad.trim() || null,
+        kravTilDrift: iHviKravTilDrift.trim() || null,
+        tommeavtaleOgKontroll: iHviTommeavtaleOgKontroll.trim() || null,
+        rapportering: iHviRapportering.trim() || null,
+      },
+    };
   }
 
   useEffect(() => {
@@ -265,12 +372,37 @@ export default function TjenesteDetalj() {
         konsekvensVedBrudd: konsekvensVedBrudd.trim() || null, sprak: tilListe(sprak),
         livshendelser: tilListe(livshendelser), losKlassifisering: losKlassifisering.trim() || null,
         tjenesteomrade: tjenesteomrade.trim() || null,
+        type: type || null, formal: formal.trim() || null, innhold: tjeneste.innhold,
       });
       setTjeneste(oppdatert);
     } catch (err) {
       setLagreFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved lagring.');
     } finally {
       setLagrer(false);
+    }
+  }
+
+  async function lagreInnhold(e: FormEvent) {
+    e.preventDefault();
+    if (!id || !tjeneste) return;
+    setInnholdFeil(null);
+    setInnholdLagrer(true);
+    try {
+      const oppdatert = await api.oppdaterTjeneste(id, {
+        tittel: tjeneste.tittel, beskrivelse: tjeneste.beskrivelse, kompetentMyndighet: tjeneste.kompetentMyndighet,
+        output: tjeneste.output, tjenestetype: tjeneste.tjenestetype, malgruppe: tjeneste.malgruppe,
+        kanaler: tjeneste.kanaler, kostnad: tjeneste.kostnad, behandlingstid: tjeneste.behandlingstid,
+        kontaktpunkt: tjeneste.kontaktpunkt, konsekvensVedBrudd: tjeneste.konsekvensVedBrudd, sprak: tjeneste.sprak,
+        livshendelser: tjeneste.livshendelser, losKlassifisering: tjeneste.losKlassifisering,
+        tjenesteomrade: tjeneste.tjenesteomrade, type: tjeneste.type, formal: tjeneste.formal,
+        innhold: byggInnhold(),
+      });
+      setTjeneste(oppdatert);
+      setVisRedigerInnhold(false);
+    } catch (err) {
+      setInnholdFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved lagring av innhold.');
+    } finally {
+      setInnholdLagrer(false);
     }
   }
 
@@ -502,8 +634,20 @@ export default function TjenesteDetalj() {
             <Label>Beskrivelse</Label>
             <Textarea value={beskrivelse} onChange={(e) => setBeskrivelse(e.target.value)} rows={3} />
           </Field>
+          <Field>
+            <Label>Formål</Label>
+            <Textarea value={formal} onChange={(e) => setFormal(e.target.value)} rows={3}
+              placeholder="F.eks. lovens eget «§1 Formål»-avsnitt — atskilt fra Beskrivelse over." />
+          </Field>
           <Textfield label="Kompetent myndighet" value={kompetentMyndighet} onChange={(e) => setKompetentMyndighet(e.target.value)} />
           <Textfield label="Tjenestetype" value={tjenestetype} onChange={(e) => setTjenestetype(e.target.value)} />
+          <Field>
+            <Label>Rettighetstype</Label>
+            <Select value={type} onChange={(e) => setType(e.target.value)}>
+              <Select.Option value="">Ikke satt</Select.Option>
+              {GYLDIGE_RETTIGHETSTYPER.map((t) => <Select.Option key={t} value={t}>{t}</Select.Option>)}
+            </Select>
+          </Field>
           <Textfield label="Målgruppe (kommaseparert)" value={malgruppe} onChange={(e) => setMalgruppe(e.target.value)}
             placeholder="f.eks. Virksomheter som skal etablere et nytt serveringssted" />
           <Textfield label="Kanaler (kommaseparert)" value={kanaler} onChange={(e) => setKanaler(e.target.value)} placeholder="f.eks. Nett, Skranke" />
@@ -522,6 +666,194 @@ export default function TjenesteDetalj() {
             <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
         </form>
+      </section>
+
+      <section style={{ marginBottom: '2rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline' }}>
+          <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+            Innhold
+          </Heading>
+          <Button data-size="sm" variant="tertiary" onClick={() => setVisRedigerInnhold((v) => !v)}>
+            {visRedigerInnhold ? 'Avbryt' : tjeneste.innhold ? 'Rediger innhold' : 'Legg til innhold'}
+          </Button>
+        </div>
+        <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)', marginBottom: '0.75rem' }}>
+          Rettighetens rike, forfattede innholdsseksjoner — tidspunkt/frister, hvem som kan sende inn,
+          vedlegg, veiledning, hva rettigheten faktisk innebærer for innehaveren.
+        </Paragraph>
+
+        {!visRedigerInnhold && !tjeneste.innhold && <Paragraph>Ingen innhold registrert ennå.</Paragraph>}
+
+        {!visRedigerInnhold && tjeneste.innhold && (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
+            {tjeneste.innhold.tidspunktOgFrister && (
+              <div>
+                <Heading level={3} data-size="xs" style={{ marginBottom: '0.25rem' }}>Tidspunkt og frister</Heading>
+                <Paragraph>{tjeneste.innhold.tidspunktOgFrister}</Paragraph>
+              </div>
+            )}
+            {tjeneste.innhold.innsenderOgTilgang && (
+              <div>
+                <Heading level={3} data-size="xs" style={{ marginBottom: '0.25rem' }}>Innsender og tilgang</Heading>
+                {tjeneste.innhold.innsenderOgTilgang.hvemKanSende.length > 0 && (
+                  <ul style={{ margin: '0 0 0.3rem', paddingLeft: '1.25rem' }}>
+                    {tjeneste.innhold.innsenderOgTilgang.hvemKanSende.map((s, i) => <li key={i}>{s}</li>)}
+                  </ul>
+                )}
+                {tjeneste.innhold.innsenderOgTilgang.innlogging && (
+                  <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                    {tjeneste.innhold.innsenderOgTilgang.innlogging}
+                  </Paragraph>
+                )}
+              </div>
+            )}
+            {tjeneste.innhold.vedlegg.length > 0 && (
+              <div>
+                <Heading level={3} data-size="xs" style={{ marginBottom: '0.25rem' }}>Vedlegg</Heading>
+                <ul style={{ margin: '0 0 0.3rem', paddingLeft: '1.25rem' }}>
+                  {tjeneste.innhold.vedlegg.map((s, i) => <li key={i}>{s}</li>)}
+                </ul>
+                {tjeneste.innhold.vedleggMerknad && (
+                  <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                    {tjeneste.innhold.vedleggMerknad}
+                  </Paragraph>
+                )}
+              </div>
+            )}
+            {tjeneste.innhold.opplysningerSomSkalSendesInn.length > 0 && (
+              <div>
+                <Heading level={3} data-size="xs" style={{ marginBottom: '0.25rem' }}>Opplysninger som skal sendes inn</Heading>
+                <ul style={{ margin: '0 0 0.3rem', paddingLeft: '1.25rem' }}>
+                  {tjeneste.innhold.opplysningerSomSkalSendesInn.map((s, i) => <li key={i}>{s}</li>)}
+                </ul>
+                {tjeneste.innhold.opplysningerMerknad && (
+                  <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                    {tjeneste.innhold.opplysningerMerknad}
+                  </Paragraph>
+                )}
+              </div>
+            )}
+            {tjeneste.innhold.veiledningOgUtfylling.length > 0 && (
+              <div>
+                <Heading level={3} data-size="xs" style={{ marginBottom: '0.25rem' }}>Veiledning og utfylling</Heading>
+                <ul style={{ margin: '0 0 0.3rem', paddingLeft: '1.25rem' }}>
+                  {tjeneste.innhold.veiledningOgUtfylling.map((s, i) => <li key={i}>{s}</li>)}
+                </ul>
+                {tjeneste.innhold.veiledningMerknad && (
+                  <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                    {tjeneste.innhold.veiledningMerknad}
+                  </Paragraph>
+                )}
+              </div>
+            )}
+            {tjeneste.innhold.innsendingOgOppfolging && (
+              <div>
+                <Heading level={3} data-size="xs" style={{ marginBottom: '0.25rem' }}>Innsending og oppfølging</Heading>
+                {tjeneste.innhold.innsendingOgOppfolging.kanal && <Paragraph>{tjeneste.innhold.innsendingOgOppfolging.kanal}</Paragraph>}
+                {tjeneste.innhold.innsendingOgOppfolging.etterMottak.length > 0 && (
+                  <ul style={{ margin: '0 0 0.3rem', paddingLeft: '1.25rem' }}>
+                    {tjeneste.innhold.innsendingOgOppfolging.etterMottak.map((s, i) => <li key={i}>{s}</li>)}
+                  </ul>
+                )}
+                {tjeneste.innhold.innsendingOgOppfolging.merknad && (
+                  <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                    {tjeneste.innhold.innsendingOgOppfolging.merknad}
+                  </Paragraph>
+                )}
+              </div>
+            )}
+            {tjeneste.innhold.kontaktOgHjelp && (
+              <div>
+                <Heading level={3} data-size="xs" style={{ marginBottom: '0.25rem' }}>Kontakt og hjelp</Heading>
+                {tjeneste.innhold.kontaktOgHjelp.generelt && <Paragraph>{tjeneste.innhold.kontaktOgHjelp.generelt}</Paragraph>}
+                {tjeneste.innhold.kontaktOgHjelp.kommunenKanVeiledeOm.length > 0 && (
+                  <ul style={{ margin: '0.3rem 0 0', paddingLeft: '1.25rem' }}>
+                    {tjeneste.innhold.kontaktOgHjelp.kommunenKanVeiledeOm.map((s, i) => <li key={i}>{s}</li>)}
+                  </ul>
+                )}
+              </div>
+            )}
+            {tjeneste.innhold.hvaRettighetenInnebarer && (
+              <div>
+                <Heading level={3} data-size="xs" style={{ marginBottom: '0.25rem' }}>Hva rettigheten innebærer</Heading>
+                {tjeneste.innhold.hvaRettighetenInnebarer.innledning && <Paragraph style={{ marginBottom: '0.4rem' }}>{tjeneste.innhold.hvaRettighetenInnebarer.innledning}</Paragraph>}
+                {tjeneste.innhold.hvaRettighetenInnebarer.varighet && <Paragraph style={{ marginBottom: '0.4rem' }}>{tjeneste.innhold.hvaRettighetenInnebarer.varighet}</Paragraph>}
+                {tjeneste.innhold.hvaRettighetenInnebarer.plikter.length > 0 && (
+                  <ul style={{ margin: '0 0 0.4rem', paddingLeft: '1.25rem' }}>
+                    {tjeneste.innhold.hvaRettighetenInnebarer.plikter.map((s, i) => <li key={i}>{s}</li>)}
+                  </ul>
+                )}
+                {tjeneste.innhold.hvaRettighetenInnebarer.endringerIVirksomheten && (
+                  <div style={{ marginBottom: '0.4rem' }}>
+                    {tjeneste.innhold.hvaRettighetenInnebarer.endringerIVirksomheten.plikt && (
+                      <Paragraph>{tjeneste.innhold.hvaRettighetenInnebarer.endringerIVirksomheten.plikt}</Paragraph>
+                    )}
+                    {tjeneste.innhold.hvaRettighetenInnebarer.endringerIVirksomheten.eksempler.length > 0 && (
+                      <ul style={{ margin: '0.2rem 0 0', paddingLeft: '1.25rem' }}>
+                        {tjeneste.innhold.hvaRettighetenInnebarer.endringerIVirksomheten.eksempler.map((s, i) => <li key={i}>{s}</li>)}
+                      </ul>
+                    )}
+                  </div>
+                )}
+                {tjeneste.innhold.hvaRettighetenInnebarer.kravTilDrift && <Paragraph style={{ marginBottom: '0.4rem' }}>{tjeneste.innhold.hvaRettighetenInnebarer.kravTilDrift}</Paragraph>}
+                {tjeneste.innhold.hvaRettighetenInnebarer.tommeavtaleOgKontroll && <Paragraph style={{ marginBottom: '0.4rem' }}>{tjeneste.innhold.hvaRettighetenInnebarer.tommeavtaleOgKontroll}</Paragraph>}
+                {tjeneste.innhold.hvaRettighetenInnebarer.kontrollOgTilsyn && <Paragraph style={{ marginBottom: '0.4rem' }}>{tjeneste.innhold.hvaRettighetenInnebarer.kontrollOgTilsyn}</Paragraph>}
+                {tjeneste.innhold.hvaRettighetenInnebarer.rapportering && <Paragraph style={{ marginBottom: '0.4rem' }}>{tjeneste.innhold.hvaRettighetenInnebarer.rapportering}</Paragraph>}
+                {tjeneste.innhold.hvaRettighetenInnebarer.avgrensningMerknad && (
+                  <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                    {tjeneste.innhold.hvaRettighetenInnebarer.avgrensningMerknad}
+                  </Paragraph>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
+        {visRedigerInnhold && (
+          <form onSubmit={lagreInnhold} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '40rem' }}>
+            <Field><Label>Tidspunkt og frister</Label><Textarea value={iTidspunktOgFrister} onChange={(e) => setITidspunktOgFrister(e.target.value)} rows={2} /></Field>
+
+            <Heading level={4} data-size="2xs">Innsender og tilgang</Heading>
+            <Field><Label>Hvem kan sende (én pr. linje)</Label><Textarea value={iInnsenderHvemKanSende} onChange={(e) => setIInnsenderHvemKanSende(e.target.value)} rows={3} /></Field>
+            <Textfield label="Innlogging" value={iInnsenderInnlogging} onChange={(e) => setIInnsenderInnlogging(e.target.value)} />
+
+            <Heading level={4} data-size="2xs">Vedlegg</Heading>
+            <Field><Label>Vedlegg (én pr. linje)</Label><Textarea value={iVedlegg} onChange={(e) => setIVedlegg(e.target.value)} rows={3} /></Field>
+            <Textfield label="Merknad" value={iVedleggMerknad} onChange={(e) => setIVedleggMerknad(e.target.value)} />
+
+            <Heading level={4} data-size="2xs">Opplysninger som skal sendes inn</Heading>
+            <Field><Label>Opplysninger (én pr. linje)</Label><Textarea value={iOpplysninger} onChange={(e) => setIOpplysninger(e.target.value)} rows={3} /></Field>
+            <Textfield label="Merknad" value={iOpplysningerMerknad} onChange={(e) => setIOpplysningerMerknad(e.target.value)} />
+
+            <Heading level={4} data-size="2xs">Veiledning og utfylling</Heading>
+            <Field><Label>Veiledningspunkter (én pr. linje)</Label><Textarea value={iVeiledning} onChange={(e) => setIVeiledning(e.target.value)} rows={3} /></Field>
+            <Textfield label="Merknad" value={iVeiledningMerknad} onChange={(e) => setIVeiledningMerknad(e.target.value)} />
+
+            <Heading level={4} data-size="2xs">Innsending og oppfølging</Heading>
+            <Textfield label="Kanal" value={iInnsendingKanal} onChange={(e) => setIInnsendingKanal(e.target.value)} />
+            <Field><Label>Etter mottak (én pr. linje)</Label><Textarea value={iInnsendingEtterMottak} onChange={(e) => setIInnsendingEtterMottak(e.target.value)} rows={3} /></Field>
+            <Textfield label="Merknad" value={iInnsendingMerknad} onChange={(e) => setIInnsendingMerknad(e.target.value)} />
+
+            <Heading level={4} data-size="2xs">Kontakt og hjelp</Heading>
+            <Textfield label="Generelt" value={iKontaktGenerelt} onChange={(e) => setIKontaktGenerelt(e.target.value)} />
+            <Field><Label>Kommunen kan veilede om (én pr. linje)</Label><Textarea value={iKontaktKommunenKanVeiledeOm} onChange={(e) => setIKontaktKommunenKanVeiledeOm(e.target.value)} rows={3} /></Field>
+
+            <Heading level={4} data-size="2xs">Hva rettigheten innebærer</Heading>
+            <Textfield label="Innledning" value={iHviInnledning} onChange={(e) => setIHviInnledning(e.target.value)} />
+            <Textfield label="Varighet" value={iHviVarighet} onChange={(e) => setIHviVarighet(e.target.value)} />
+            <Field><Label>Plikter (én pr. linje)</Label><Textarea value={iHviPlikter} onChange={(e) => setIHviPlikter(e.target.value)} rows={3} /></Field>
+            <Textfield label="Endringer i virksomheten — plikt" value={iHviEndringerPlikt} onChange={(e) => setIHviEndringerPlikt(e.target.value)} />
+            <Field><Label>Endringer i virksomheten — eksempler (én pr. linje)</Label><Textarea value={iHviEndringerEksempler} onChange={(e) => setIHviEndringerEksempler(e.target.value)} rows={3} /></Field>
+            <Field><Label>Krav til drift (kun relevant for løpende krav/plikt-typer rettigheter)</Label><Textarea value={iHviKravTilDrift} onChange={(e) => setIHviKravTilDrift(e.target.value)} rows={2} /></Field>
+            <Field><Label>Tømmeavtale og kontroll</Label><Textarea value={iHviTommeavtaleOgKontroll} onChange={(e) => setIHviTommeavtaleOgKontroll(e.target.value)} rows={2} /></Field>
+            <Field><Label>Rapportering</Label><Textarea value={iHviRapportering} onChange={(e) => setIHviRapportering(e.target.value)} rows={2} /></Field>
+            <Field><Label>Kontroll og tilsyn</Label><Textarea value={iHviKontrollOgTilsyn} onChange={(e) => setIHviKontrollOgTilsyn(e.target.value)} rows={2} /></Field>
+            <Field><Label>Avgrensning (f.eks. mot en tilstøtende rettighet)</Label><Textarea value={iHviAvgrensningMerknad} onChange={(e) => setIHviAvgrensningMerknad(e.target.value)} rows={2} /></Field>
+
+            {innholdFeil && <div className="feilmelding">{innholdFeil}</div>}
+            <div><Button type="submit" disabled={innholdLagrer}>{innholdLagrer ? 'Lagrer …' : 'Lagre innhold'}</Button></div>
+          </form>
+        )}
       </section>
 
       <section style={{ marginBottom: '2rem' }}>

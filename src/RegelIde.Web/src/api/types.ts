@@ -240,6 +240,11 @@ export interface TjenesteDto {
   livshendelser: string[];
   losKlassifisering: string | null;
   tjenesteomrade: string | null;
+  /** Rettighetstype (2026-08-20, Tjenestedetalj-runde 2) — se GYLDIGE_RETTIGHETSTYPER. */
+  type: string | null;
+  /** Formålsteksten (typisk lovens eget "§1 Formål") — atskilt fra beskrivelse. */
+  formal: string | null;
+  innhold: TjenesteInnholdInput | null;
 }
 
 export interface TjenesteRequest {
@@ -258,7 +263,65 @@ export interface TjenesteRequest {
   livshendelser?: string[] | null;
   losKlassifisering?: string | null;
   tjenesteomrade?: string | null;
+  type?: string | null;
+  formal?: string | null;
+  innhold?: TjenesteInnholdInput | null;
 }
+
+// ---------- Rettighetens "innhold" (2026-08-20, Tjenestedetalj-runde 2) ----------
+// Fra serveringsbevilling-modell-forslag.json sin rettigheter[].innhold — se
+// TjenesteregisterTjeneste.cs for den autoritative C#-definisjonen dette speiler.
+
+export interface TjenesteInnsenderInput {
+  hvemKanSende: string[];
+  innlogging: string | null;
+}
+
+export interface TjenesteInnsendingInput {
+  kanal: string | null;
+  etterMottak: string[];
+  merknad: string | null;
+}
+
+export interface TjenesteKontaktInput {
+  generelt: string | null;
+  kommunenKanVeiledeOm: string[];
+}
+
+export interface TjenesteEndringerInput {
+  plikt: string | null;
+  eksempler: string[];
+}
+
+/** Supersett av begge modellerte rettigheters underfelt — hver rettighet fyller bare det som gjelder. */
+export interface TjenesteHvaRettighetenInnebarerInput {
+  innledning: string | null;
+  varighet: string | null;
+  plikter: string[];
+  endringerIVirksomheten: TjenesteEndringerInput | null;
+  kontrollOgTilsyn: string | null;
+  avgrensningMerknad: string | null;
+  kravTilDrift: string | null;
+  tommeavtaleOgKontroll: string | null;
+  rapportering: string | null;
+}
+
+export interface TjenesteInnholdInput {
+  tidspunktOgFrister: string | null;
+  innsenderOgTilgang: TjenesteInnsenderInput | null;
+  vedlegg: string[];
+  vedleggMerknad: string | null;
+  opplysningerSomSkalSendesInn: string[];
+  opplysningerMerknad: string | null;
+  veiledningOgUtfylling: string[];
+  veiledningMerknad: string | null;
+  innsendingOgOppfolging: TjenesteInnsendingInput | null;
+  kontaktOgHjelp: TjenesteKontaktInput | null;
+  hvaRettighetenInnebarer: TjenesteHvaRettighetenInnebarerInput | null;
+}
+
+/** TjenesteregisterTjeneste.GyldigeRettighetstyper på serveren. */
+export const GYLDIGE_RETTIGHETSTYPER = ['myndighetsutovelse', 'ytelse', 'infrastruktur', 'veiledning', 'medvirkning'] as const;
 
 // ---------- Handling (2026-08-20) — se HandlingEntitet i RegelIde.Data for begrunnelse ----------
 
