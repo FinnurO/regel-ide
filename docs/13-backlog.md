@@ -1031,3 +1031,62 @@ spørsmål der vi ikke engang har landet retning ennå:
   `05-arkitektur-og-nfk.md` §1.2), egen håndbok-liste-side, mulighet til å velge underliggende
   rettskilde ved opprettelse av ny håndbok, og Forskrift→Lov-kobling utover den generelle
   kryssreferanse-mekanismen.
+
+## 7. Storskala innhenting/KI-assistert modellering av handlinger — metodediskusjon 2026-08-20
+
+Ren modellutforskning i `serveringsbevilling-modell-forslag.json` (ikke bygget, se `_endringslogg`-
+feltene i selve filen for full detalj) reiste et oppfølgingsspørsmål Johann selv stilte: gitt at
+Handling-modellen nå virker dekkende for ÉN tjeneste (Serveringsbevilling, dypt modellert mot ekte
+Oppgaveregisteret-/Altinn-/Lovdata-data), hvordan skalerer vi dette til de ~19 300 høstede radene
+uten å behandle hver manuelt? Notert her for senere metodevalg, ikke besluttet.
+
+**Tre grunnleggende forskjellige kildestrukturer, bekreftet ved faktisk uttrekk 2026-08-20 (ikke
+antatt):**
+
+1. **Oppgaveregisteret (903 rader)** — 100 % konsistent skjema på tvers av ALLE rader (verifisert med
+   `jsonb_object_keys`-aggregering, ikke stikkprøve), med `lovhjemler`/`eier.organisasjonsnummer`/
+   `bruksomraader` allerede strukturert. Kan mappes til Handling-utkast med et rent script — ingen
+   KI nødvendig.
+2. **Altinn skjemaoversikt (1401 rader)** — konsistent 4-felt-skall (`url`/`lenker`/`tjeneste`/
+   `seksjoner`), men `seksjoner[].overskrift` er reell fritekst (123 distinkte varianter). De ~9
+   vanligste overskriftene dekker likevel 70–80 % av korpuset (`Hvem skal bruke skjemaet?` alene på
+   1027/1401 rader) — regelbasert mønstergjenkjenning kan dekke kjernen, KI kun på resten.
+   Lov-/paragrafreferanser kan i tillegg trekkes ut med ren regex mot `lenker[].tekst`/`href` (samme
+   teknikk som ga oss serveringsloven §§ 3/5/8/10/22/23/27 i denne filen — verifisert direkte mot
+   Lovdata, ikke KI-generert).
+3. **Statlig sektor, vare-/tema-organisert (f.eks. toll.no)** — INGEN 1:1 side↔handling. Konkret
+   bekreftet 2026-08-20 ved faktisk besøk på
+   `https://www.toll.no/no/varer/fisk/eksport-av-fisk/eksportavgift`: siden blander FIRE handlinger
+   fordelt på TO myndigheter (registrering hos Norges sjømatråd, årsavgift til sjømatrådet,
+   deklarering til Tolletaten, en separat «godkjent eksportør»-autorisasjon hos Tolletaten som siden
+   selv advarer mot å forveksle med registreringen) pluss en ren avgiftssatstabell som ikke er en
+   handling. Dette kan ikke skrapes med samme mønster som Oppgaveregisteret/Altinn — krever faktisk
+   dekomponering, altså KI, men bør kreve sitat-plikt (utrekk med eksakt kildesitat, verifisert av et
+   andre/billigere pass før noe skrives inn) — ikke fri generering.
+
+**Forslag til rekkefølge (billigst/mest deterministisk først, ikke besluttet):**
+1. Importer flere lover fra Lovdata via ELI (samme mekanisme som allerede virker for serveringsloven/
+   forvaltningsloven/alkoholloven/alkoholforskriften), prioritert etter hvor ofte loven faktisk
+   nevnes i allerede høstet data — ikke gjettet.
+2. Oppgaveregisteret → rent mapping-script, ~900 handlings-utkast uten KI.
+3. Altinn → regelbasert utrekk på kjerne-overskriftene + regex-basert paragrafutrekk, KI kun på
+   den ustrukturerte resten.
+4. **Kommune_tjeneste (15 332 rader) — dedupliser FØR modellering, ikke etter.** Sannsynligvis noen
+   hundre kanoniske tjenestetyper gjentatt i ~357 kommuner med 90+ % identisk innhold (samme
+   lovregulerte tjeneste). Klynge på lovhjemmel-treff (sterkeste signal) og evt. tekst-embeddings
+   (svakere, brukes der § ikke er nevnt) — modeller de kanoniske typene fullt (samme dybde som
+   Serveringsbevilling i denne filen), behandle hver kommunes side som et TYNT overlegg
+   (kontaktpunkt, lokalt gebyr, lokal URL) i stedet for en egen full modell per kommune.
+5. Toll.no-typen sist — eneste tier som faktisk krever KI-dekomponering, alltid med sitat-plikt.
+
+**Ubesvart verktøyspørsmål (Johann 2026-08-20, samme runde):** gitt f.eks. ~357 ulike, men delvis
+overlappende beskrivelser av «samme» tjeneste (én per kommune) som til sammen sannsynligvis er nær
+100 % dekkende — (a) hvilke verktøy henter inn og kobler alle tekstene til riktig
+tjeneste/handling (entitetsoppløsning/record linkage — kandidater: lovhjemmel-regex som primær
+klyngenøkkel, tekst-embeddings + nærmeste-nabo-klynging som sekundær, evt. Claude Batches-endepunktet
+for klassifisering mot en allerede kjent kanonisk liste), og (b) hvilke verktøy kan analysere alle
+357 og produsere ÉN ny, syntetisert tekst (foreslått: map-reduce — trekk ut STRUKTURERTE felt per
+kommune først i samme Handling-skjema som resten av denne filen, deretter en konsensus/varians-
+analyse: felter der 350+/357 er identiske blir default-tekst, felter med reell spredning blir
+eksplisitte «varierer per kommune»-noter — ikke ett blindt sammenslått avsnitt). Ikke besluttet,
+ikke bygget noe av dette — kun notert som retning for en fremtidig runde.

@@ -224,7 +224,8 @@ export interface TjenesteDto {
   kompetentMyndighet: string | null;
   output: string | null;
   tjenestetype: string | null;
-  malgruppe: string | null;
+  /** Rettighet-utvidelse (2026-08-20) — ble string|null, nå en liste (postgres text[]), samme mønster som kanaler/sprak. */
+  malgruppe: string[];
   kanaler: string[];
   kostnad: string | null;
   behandlingstid: string | null;
@@ -235,6 +236,10 @@ export interface TjenesteDto {
   versjon: number;
   /** Byggesteg 4 — peker til rotnoden (alltid en Regelnode) i tjenestens vilkårstre. */
   rotnodeId: string | null;
+  /** Rettighet-utvidelse (2026-08-20, docs/17-forvaltningsstruktur-master-tjeneste.md) — CPSV-AP-NO cv:LifeEvent-lignende koblinger. */
+  livshendelser: string[];
+  losKlassifisering: string | null;
+  tjenesteomrade: string | null;
 }
 
 export interface TjenesteRequest {
@@ -243,14 +248,112 @@ export interface TjenesteRequest {
   kompetentMyndighet: string | null;
   output: string | null;
   tjenestetype: string | null;
-  malgruppe: string | null;
+  malgruppe: string[] | null;
   kanaler: string[] | null;
   kostnad: string | null;
   behandlingstid: string | null;
   kontaktpunkt: string | null;
   konsekvensVedBrudd: string | null;
   sprak: string[] | null;
+  livshendelser?: string[] | null;
+  losKlassifisering?: string | null;
+  tjenesteomrade?: string | null;
 }
+
+// ---------- Handling (2026-08-20) — se HandlingEntitet i RegelIde.Data for begrunnelse ----------
+
+/** Et lovsitat i kortform — 'lov' er et kortnavn (f.eks. "serveringsloven"), ikke en full tittel/Eli. */
+export interface HandlingHjemmelInput {
+  lov: string;
+  henvisning: string | null;
+}
+
+export interface HandlingKanalInput {
+  kanal: string;
+  adresse: string | null;
+}
+
+export interface HandlingBehandlingstidInput {
+  frist: string | null;
+  hjemmel: HandlingHjemmelInput | null;
+}
+
+export interface HandlingKostnadInput {
+  belop: string | null;
+  hjemmel: HandlingHjemmelInput[];
+}
+
+export interface HandlingVedleggInput {
+  navn: string;
+  kategori: string | null;
+  hjemmel: HandlingHjemmelInput | null;
+}
+
+export interface HandlingVeiledningstekstInput {
+  overskrift: string;
+  innhold: string | null;
+  hjemmel: HandlingHjemmelInput | null;
+}
+
+export interface HandlingArsakInput {
+  arsak: string;
+  hjemmel: HandlingHjemmelInput;
+}
+
+export interface HandlingBevisKanalInput {
+  kanal: string;
+}
+
+export interface HandlingResultatInput {
+  hva: string | null;
+  bevisKanaler: HandlingBevisKanalInput[];
+}
+
+/** Handling — en konkret, tidsavgrenset interaksjon knyttet til en Rettighet (Tjeneste). Se docs/17/18 + planen for begrunnelsen. */
+export interface HandlingDto {
+  id: string;
+  tjenesteId: string;
+  navn: string;
+  handlingstype: string;
+  bruksomraade: string | null;
+  utfortAv: string | null;
+  /** Override av Tjeneste.rotnodeId for nettopp DENNE handlingens saksbehandling — mangler den, gjelder rettighetens. */
+  rotnodeId: string | null;
+  kanaler: HandlingKanalInput[];
+  behandlingstid: HandlingBehandlingstidInput;
+  kostnad: HandlingKostnadInput;
+  vedlegg: HandlingVedleggInput[];
+  veiledningstekst: HandlingVeiledningstekstInput[];
+  arsaker: HandlingArsakInput[];
+  resultat: HandlingResultatInput;
+  merknad: string | null;
+  status: string;
+  versjon: number;
+}
+
+export interface HandlingRequest {
+  navn: string;
+  handlingstype: string;
+  bruksomraade: string | null;
+  utfortAv: string | null;
+  kanaler: HandlingKanalInput[] | null;
+  behandlingstid: HandlingBehandlingstidInput | null;
+  kostnad: HandlingKostnadInput | null;
+  vedlegg: HandlingVedleggInput[] | null;
+  veiledningstekst: HandlingVeiledningstekstInput[] | null;
+  arsaker: HandlingArsakInput[] | null;
+  resultat: HandlingResultatInput | null;
+  merknad: string | null;
+}
+
+/** HandlingregisterTjeneste.GyldigeHandlingstyper på serveren — hold synkron, ikke koblet til en KodelisteEntitet i v1. */
+export const GYLDIGE_HANDLINGSTYPER = [
+  'soke', 'endre', 'si_opp', 'melde', 'registrere', 'rapportere', 'ettersende_dokumentasjon',
+  'klage', 'gi_samtykke', 'trekke_samtykke', 'be_om_innsyn', 'bestille', 'kontrolleres', 'avslutte', 'annet',
+] as const;
+
+/** HandlingregisterTjeneste.GyldigeUtfortAv på serveren. */
+export const GYLDIGE_UTFORT_AV = ['soker', 'forvaltning', 'tredjepart'] as const;
 
 export interface TjenesteRegelverksreferanseDto {
   id: string;

@@ -367,13 +367,31 @@ public sealed class TjenesteEntitet
     public string? KompetentMyndighet { get; set; }
     public string? Output { get; set; }
     public string? Tjenestetype { get; set; }
-    public string? Malgruppe { get; set; }
+
+    /// <summary>Endret fra <c>string?</c> 2026-08-20 (Rettighet/Handling-modellrunden) — samme
+    /// listeform som <see cref="Kanaler"/>/<see cref="Sprak"/> på denne entiteten, for å dekke flere
+    /// målgrupper uten å presse dem inn i én fri tekststreng.</summary>
+    public List<string> Malgruppe { get; set; } = [];
     public List<string> Kanaler { get; set; } = [];
     public string? Kostnad { get; set; }
     public string? Behandlingstid { get; set; }
     public string? Kontaktpunkt { get; set; }
     public string? KonsekvensVedBrudd { get; set; }
     public List<string> Sprak { get; set; } = [];
+
+    /// <summary>Nytt 2026-08-20 — livshendelse(r) tjenesten hører til (f.eks. "Starte og drive en
+    /// bedrift"), atskilt fra <see cref="Tjenesteomrade"/> (fagområdet). Ikke koblet mot noe eksternt
+    /// LOS-vokabular ennå — fri tekst.</summary>
+    public List<string> Livshendelser { get; set; } = [];
+
+    /// <summary>Nytt 2026-08-20 — Digdirs LOS-klassifisering (felles vokabular for klassifisering av
+    /// offentlige tjenester og ressurser). Ikke koblet mot det faktiske LOS-vokabularet ennå (LOS 4 er
+    /// varslet, ikke lansert) — fri tekst i mellomtiden.</summary>
+    public string? LosKlassifisering { get; set; }
+
+    /// <summary>Nytt 2026-08-20 — innbyggervennlig tema/kategori (f.eks. "Næring, salg og servering").
+    /// Egen, egen akse fra <see cref="LosKlassifisering"/> — de to kan gi ulike svar for samme rad.</summary>
+    public string? Tjenesteomrade { get; set; }
 
     public required string Status { get; set; } // 'utkast' | 'under_revisjon' | 'validert' | 'publisert' | 'tilbaketrukket' | 'arkivert'
     public int Versjon { get; set; } = 1;
@@ -391,6 +409,65 @@ public sealed class TjenesteEntitet
     /// docs/06-veikart.md). Peker til rotnoden (alltid en Regelnode, INV-5) i tjenestens vilkårstre.
     /// </summary>
     public Guid? RotnodeId { get; set; }
+}
+
+/// <summary>
+/// Nytt 2026-08-20 — en konkret handling tilknyttet en Rettighet (<see cref="TjenesteEntitet"/>):
+/// søke, melde, klage, kontrolleres, osv. Vurdert mot <c>docs/18-vurdering-rettighet-samhandling-
+/// modell.md</c> før bygging: en helt ny, parallell "Rettighet"-tabell ble avvist der (høy kostnad,
+/// liten nytte mot bare 14 seedede Tjeneste-rader) — <see cref="TjenesteEntitet"/> ER Rettigheten,
+/// utvidet. Handling er derimot genuint nytt, intet lignende fantes.
+///
+/// De rike underfeltene (kanaler/vedlegg/veiledningstekst/hjemmel/kostnad/behandlingstid/resultat/
+/// arsaker) lagres som JSON-strenger, samme mønster som <see cref="VilkarEntitet.SkjonnsmomenterJson"/>
+/// — verdiobjekter uten egen livssyklus, ingen "legg til én rad"-UI kreves i v1. Se
+/// <see cref="JsonSerialiseringHjelper"/> for valideringen som allerede finnes for dette mønsteret.
+///
+/// <see cref="RotnodeId"/> er en EGEN, nullbar kobling til vilkårstreet — til forskjell fra
+/// <see cref="TjenesteEntitet.RotnodeId"/> (som fortsatt gjelder Rettigheten som helhet). Tolkning:
+/// en handling uten eget vilkårstre bruker Rettighetens; en handling MED eget vilkårstre overstyrer
+/// det for sin egen saksbehandling (f.eks. en klage kan ha andre vilkår enn selve søknaden).
+/// </summary>
+public sealed class HandlingEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid TjenesteId { get; set; }
+    public required string Navn { get; set; }
+
+    /// <summary>Valideres mot <c>HandlingregisterTjeneste.GyldigeHandlingstyper</c> — ikke en
+    /// DB-CHECK, samme "utvid med én kodelinje, ingen migrasjon"-holdning som
+    /// <c>TjenesteavhengighetregisterTjeneste.GyldigeRel</c>.</summary>
+    public required string Handlingstype { get; set; }
+
+    /// <summary>Grov, ekte kategori hentet fra Oppgaveregisterets eget "bruksomraader[].navn"-felt
+    /// (søknad_registrering/periodisk_rapportering/hendelsesrapportering) — Handlingstype er en finere
+    /// underinndeling av denne. Valgfri: ikke alle handlinger er hentet fra en høstet kilde.</summary>
+    public string? Bruksomraade { get; set; }
+
+    /// <summary>'soker' | 'forvaltning' | 'tredjepart' — hvem som faktisk utfører handlingen.</summary>
+    public string? UtfortAv { get; set; }
+
+    /// <summary>Override av <see cref="TjenesteEntitet.RotnodeId"/> for denne ene handlingens
+    /// saksbehandling — se klassekommentaren.</summary>
+    public Guid? RotnodeId { get; set; }
+
+    public string KanalerJson { get; set; } = "[]"; // [{kanal, adresse}]
+    public string BehandlingstidJson { get; set; } = "{}"; // {frist, hjemmel}
+    public string KostnadJson { get; set; } = "{}"; // {belop, hjemmel: [...]}
+    public string VedleggJson { get; set; } = "[]"; // [{navn, kategori?, hjemmel}]
+    public string VeiledningstekstJson { get; set; } = "[]"; // [{overskrift, innhold, hjemmel?}]
+    public string ArsakerJson { get; set; } = "[]"; // [{arsak, hjemmel}] — kun for "bortfall"-type handlinger
+    public string ResultatJson { get; set; } = "{}"; // {hva, bevisKanaler: [...]}
+
+    public string? Merknad { get; set; }
+
+    public required string Status { get; set; } // samme 6 verdier som TjenesteEntitet.Status
+    public int Versjon { get; set; } = 1;
+    public string Entitetsstatus { get; set; } = "gjeldende";
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? SistEndretAv { get; set; }
+    public DateTimeOffset? SistEndretTidspunkt { get; set; }
 }
 
 /// <summary>Regelverksreferanse fra en Tjeneste til en rettskilde-node — samme form som <see cref="RettskildeReferanseEntitet"/>, egen tabell siden kilden er en Tjeneste, ikke en rettskilde-node.</summary>

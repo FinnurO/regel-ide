@@ -67,9 +67,10 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
 
     public async Task<TjenesteEntitet> OpprettAsync(
         Guid virksomhetId, string tittel, string? beskrivelse, string? kompetentMyndighet, string? output,
-        string? tjenestetype, string? malgruppe, IReadOnlyList<string>? kanaler, string? kostnad,
+        string? tjenestetype, IReadOnlyList<string>? malgruppe, IReadOnlyList<string>? kanaler, string? kostnad,
         string? behandlingstid, string? kontaktpunkt, string? konsekvensVedBrudd, IReadOnlyList<string>? sprak,
-        string opprettetAv, CancellationToken ct = default)
+        string opprettetAv, CancellationToken ct = default,
+        IReadOnlyList<string>? livshendelser = null, string? losKlassifisering = null, string? tjenesteomrade = null)
     {
         if (string.IsNullOrWhiteSpace(tittel))
         {
@@ -85,13 +86,16 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
             KompetentMyndighet = kompetentMyndighet,
             Output = output,
             Tjenestetype = tjenestetype,
-            Malgruppe = malgruppe,
+            Malgruppe = malgruppe?.ToList() ?? [],
             Kanaler = kanaler?.ToList() ?? [],
             Kostnad = kostnad,
             Behandlingstid = behandlingstid,
             Kontaktpunkt = kontaktpunkt,
             KonsekvensVedBrudd = konsekvensVedBrudd,
             Sprak = sprak?.ToList() ?? [],
+            Livshendelser = livshendelser?.ToList() ?? [],
+            LosKlassifisering = losKlassifisering,
+            Tjenesteomrade = tjenesteomrade,
             Status = "utkast",
             OpprettetAv = opprettetAv,
             OpprettetTidspunkt = DateTimeOffset.UtcNow,
@@ -114,7 +118,7 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
     /// </summary>
     public async Task<TjenesteEntitet> OpprettForslagFraKiAsync(
         Guid virksomhetId, string tittel, string? beskrivelse, string? kompetentMyndighet, string? output,
-        string? tjenestetype, string? malgruppe, IReadOnlyList<string>? kanaler, string? kostnad,
+        string? tjenestetype, IReadOnlyList<string>? malgruppe, IReadOnlyList<string>? kanaler, string? kostnad,
         string? behandlingstid, string? kontaktpunkt, string? konsekvensVedBrudd, IReadOnlyList<string>? sprak,
         string opprettetAv, string aiForslagVersjon, string? kildeReferanserJson, CancellationToken ct = default)
     {
@@ -132,7 +136,7 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
             KompetentMyndighet = kompetentMyndighet,
             Output = output,
             Tjenestetype = tjenestetype,
-            Malgruppe = malgruppe,
+            Malgruppe = malgruppe?.ToList() ?? [],
             Kanaler = kanaler?.ToList() ?? [],
             Kostnad = kostnad,
             Behandlingstid = behandlingstid,
@@ -149,18 +153,28 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
         return tjeneste;
     }
 
+    /// <summary>
+    /// Sikkerhetsfiks 2026-08-20 (kjent hull, se docs/17-forvaltningsstruktur-master-tjeneste.md §2.2 og
+    /// docs/18-vurdering-rettighet-samhandling-modell.md §D.7): denne metoden filtrerte tidligere kun på
+    /// <c>Entitetsstatus</c> — enhver innlogget bruker kunne endre enhver annen virksomhets tjeneste hvis
+    /// hun hadde id-en. Nå kreves at raden faktisk eies av <paramref name="virksomhetId"/>. Lesing
+    /// (<see cref="FinnAsync"/>) er BEVISST urørt — samme "åpne data"-holdning som kodelistene, og hullet
+    /// som ble flagget var skriving, ikke lesing.
+    /// </summary>
     public async Task<TjenesteEntitet?> OppdaterAsync(
-        Guid id, string tittel, string? beskrivelse, string? kompetentMyndighet, string? output,
-        string? tjenestetype, string? malgruppe, IReadOnlyList<string>? kanaler, string? kostnad,
+        Guid id, Guid virksomhetId, string tittel, string? beskrivelse, string? kompetentMyndighet, string? output,
+        string? tjenestetype, IReadOnlyList<string>? malgruppe, IReadOnlyList<string>? kanaler, string? kostnad,
         string? behandlingstid, string? kontaktpunkt, string? konsekvensVedBrudd, IReadOnlyList<string>? sprak,
-        string endretAv, CancellationToken ct = default)
+        string endretAv, CancellationToken ct = default,
+        IReadOnlyList<string>? livshendelser = null, string? losKlassifisering = null, string? tjenesteomrade = null)
     {
         if (string.IsNullOrWhiteSpace(tittel))
         {
             throw new ArgumentException("Tittel kan ikke være tom. Ingen gjettet fallback.");
         }
 
-        var tjeneste = await db.Tjenester.FirstOrDefaultAsync(t => t.Id == id && t.Entitetsstatus == "gjeldende", ct);
+        var tjeneste = await db.Tjenester.FirstOrDefaultAsync(
+            t => t.Id == id && t.VirksomhetId == virksomhetId && t.Entitetsstatus == "gjeldende", ct);
         if (tjeneste is null) return null;
 
         tjeneste.Tittel = tittel;
@@ -168,13 +182,16 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
         tjeneste.KompetentMyndighet = kompetentMyndighet;
         tjeneste.Output = output;
         tjeneste.Tjenestetype = tjenestetype;
-        tjeneste.Malgruppe = malgruppe;
+        tjeneste.Malgruppe = malgruppe?.ToList() ?? [];
         tjeneste.Kanaler = kanaler?.ToList() ?? [];
         tjeneste.Kostnad = kostnad;
         tjeneste.Behandlingstid = behandlingstid;
         tjeneste.Kontaktpunkt = kontaktpunkt;
         tjeneste.KonsekvensVedBrudd = konsekvensVedBrudd;
         tjeneste.Sprak = sprak?.ToList() ?? [];
+        tjeneste.Livshendelser = livshendelser?.ToList() ?? [];
+        tjeneste.LosKlassifisering = losKlassifisering;
+        tjeneste.Tjenesteomrade = tjenesteomrade;
         tjeneste.SistEndretAv = endretAv;
         tjeneste.SistEndretTidspunkt = DateTimeOffset.UtcNow;
         tjeneste.Versjon++;
@@ -219,14 +236,15 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
     }
 
     public async Task<TjenesteEntitet?> SettStatusAsync(
-        Guid id, string nyStatus, string endretAv, CancellationToken ct = default, string? godkjentAv = null)
+        Guid id, Guid virksomhetId, string nyStatus, string endretAv, CancellationToken ct = default, string? godkjentAv = null)
     {
         if (!GyldigeStatuser.Contains(nyStatus))
         {
             throw new ArgumentException($"Ukjent status '{nyStatus}'. Gyldige verdier: {string.Join(", ", GyldigeStatuser)}.");
         }
 
-        var tjeneste = await db.Tjenester.FirstOrDefaultAsync(t => t.Id == id && t.Entitetsstatus == "gjeldende", ct);
+        var tjeneste = await db.Tjenester.FirstOrDefaultAsync(
+            t => t.Id == id && t.VirksomhetId == virksomhetId && t.Entitetsstatus == "gjeldende", ct);
         if (tjeneste is null) return null;
 
         tjeneste.Status = nyStatus;
@@ -244,14 +262,15 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
     /// Byggesteg 4 — kobler tjenesten til rotnoden (alltid en Regelnode, INV-5) i vilkårstreet.
     /// Lukker gapet fra byggesteg 2 ("vilkårskobling ... kommer i byggesteg 4", docs/06-veikart.md).
     /// </summary>
-    public async Task<TjenesteEntitet?> SettRotnodeAsync(Guid tjenesteId, Guid regelnodeId, CancellationToken ct = default)
+    public async Task<TjenesteEntitet?> SettRotnodeAsync(Guid tjenesteId, Guid virksomhetId, Guid regelnodeId, CancellationToken ct = default)
     {
         if (!await db.Regelnoder.AnyAsync(r => r.Id == regelnodeId && r.Entitetsstatus == "gjeldende", ct))
         {
             throw new ArgumentException($"Fant ingen regelnode med id '{regelnodeId}'.");
         }
 
-        var tjeneste = await db.Tjenester.FirstOrDefaultAsync(t => t.Id == tjenesteId && t.Entitetsstatus == "gjeldende", ct);
+        var tjeneste = await db.Tjenester.FirstOrDefaultAsync(
+            t => t.Id == tjenesteId && t.VirksomhetId == virksomhetId && t.Entitetsstatus == "gjeldende", ct);
         if (tjeneste is null) return null;
 
         tjeneste.RotnodeId = regelnodeId;
@@ -265,9 +284,10 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
     /// rotnode i dag er en i praksis irreversibel handling uten dette — se
     /// docs/12-fasit-handbok-leveranse.md.
     /// </summary>
-    public async Task<TjenesteEntitet?> FjernRotnodeAsync(Guid tjenesteId, CancellationToken ct = default)
+    public async Task<TjenesteEntitet?> FjernRotnodeAsync(Guid tjenesteId, Guid virksomhetId, CancellationToken ct = default)
     {
-        var tjeneste = await db.Tjenester.FirstOrDefaultAsync(t => t.Id == tjenesteId && t.Entitetsstatus == "gjeldende", ct);
+        var tjeneste = await db.Tjenester.FirstOrDefaultAsync(
+            t => t.Id == tjenesteId && t.VirksomhetId == virksomhetId && t.Entitetsstatus == "gjeldende", ct);
         if (tjeneste is null) return null;
 
         tjeneste.RotnodeId = null;

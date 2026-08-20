@@ -30,7 +30,11 @@ public static class Byggesteg4VilkarstreSeed
         var testkommunen = await db.Virksomheter.FirstOrDefaultAsync(v => v.Navn == "Testkommunen", ct);
         if (testkommunen is null) return;
 
-        var tjeneste = await db.Tjenester.FirstOrDefaultAsync(t => t.Tittel == "Alminnelig skjenkebevilling", ct);
+        // Skopet på testkommunen.Id, ikke bare Tittel — samme begrunnelse som skopingen i
+        // Byggesteg2InnholdSeed sitt opprett-guard: ellers kan et uskopet oppslag treffe en
+        // "Alminnelig skjenkebevilling"-rad fra en helt annen, uavhengig test i denne delte databasen.
+        var tjeneste = await db.Tjenester.FirstOrDefaultAsync(
+            t => t.Tittel == "Alminnelig skjenkebevilling" && t.VirksomhetId == testkommunen.Id, ct);
         var vandelBegrep = await db.Begreper.FirstOrDefaultAsync(b => b.Term == "uklanderlig vandel", ct);
         if (tjeneste is null || vandelBegrep is null) return; // byggesteg 2-seedingen må ha kjørt først
 
@@ -109,7 +113,7 @@ public static class Byggesteg4VilkarstreSeed
         await regelnoderegister.KobleBarnAsync(rRoot.Id, "vilkar", vVandel.Id, ct);
         await regelnoderegister.KobleBarnAsync(rRoot.Id, "regelnode", rSkjenketid.Id, ct);
 
-        await tjenesteregister.SettRotnodeAsync(tjeneste.Id, rRoot.Id, ct);
+        await tjenesteregister.SettRotnodeAsync(tjeneste.Id, virksomhetId, rRoot.Id, ct);
     }
 
     /// <summary>

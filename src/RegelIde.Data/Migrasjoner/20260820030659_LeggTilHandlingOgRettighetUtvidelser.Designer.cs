@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RegelIde.Data;
@@ -12,9 +13,11 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    partial class RegelIdeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260820030659_LeggTilHandlingOgRettighetUtvidelser")]
+    partial class LeggTilHandlingOgRettighetUtvidelser
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1815,8 +1818,7 @@ namespace RegelIde.Data.Migrasjoner
                     b.PrimitiveCollection<List<string>>("Livshendelser")
                         .IsRequired()
                         .HasColumnType("text[]")
-                        .HasColumnName("livshendelser")
-                        .HasDefaultValueSql("'{}'");
+                        .HasColumnName("livshendelser");
 
                     b.Property<string>("LosKlassifisering")
                         .HasColumnType("text")

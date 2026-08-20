@@ -85,7 +85,11 @@ public class OrganisasjonsregisterSeedTests
 
         // Bergen kommune har allerede organisasjonsnummer/kommunenummer/forvaltningsniva fra
         // BergenKorpusSeed — seeden skal kun tvinge Aktiv, ALDRI overskrive de andre (kun NULL-backfill).
-        var bergen = await db.Virksomheter.SingleAsync(v => v.Navn == "Bergen kommune");
+        // FirstAsync, ikke SingleAsync — samme defensive valg som Testkommunen-oppslaget over: denne
+        // delte DataTestCollection-databasen kan i praksis se mer enn én "Bergen kommune"-rad avhengig
+        // av hvilke andre testklasser (nå: ServeringsbevillingModellSeedTests) som også kaller
+        // BergenKorpusSeed i samme kjøring.
+        var bergen = await db.Virksomheter.FirstAsync(v => v.Navn == "Bergen kommune");
         Assert.Equal("964338531", bergen.Organisasjonsnummer);
         Assert.Equal("4601", bergen.Kommunenummer);
         Assert.Equal("kommune", bergen.Forvaltningsniva);
@@ -134,7 +138,11 @@ public class OrganisasjonsregisterSeedTests
         // Bergen/Agder forblir tvunget aktive, uendret av gjentatt kjøring.
         var agder = await db.Virksomheter.SingleAsync(v => v.Navn == "Agder fylkeskommune");
         Assert.True(agder.Aktiv);
-        var bergen = await db.Virksomheter.SingleAsync(v => v.Navn == "Bergen kommune");
+        // FirstAsync, ikke SingleAsync — samme defensive valg som Testkommunen-oppslaget over: denne
+        // delte DataTestCollection-databasen kan i praksis se mer enn én "Bergen kommune"-rad avhengig
+        // av hvilke andre testklasser (nå: ServeringsbevillingModellSeedTests) som også kaller
+        // BergenKorpusSeed i samme kjøring.
+        var bergen = await db.Virksomheter.FirstAsync(v => v.Navn == "Bergen kommune");
         Assert.True(bergen.Aktiv);
     }
 
@@ -146,7 +154,11 @@ public class OrganisasjonsregisterSeedTests
 
         await OrganisasjonsregisterSeed.SeedAsync(db);
 
-        var bergen = await db.Virksomheter.SingleAsync(v => v.Navn == "Bergen kommune");
+        // FirstAsync, ikke SingleAsync — samme defensive valg som Testkommunen-oppslaget over: denne
+        // delte DataTestCollection-databasen kan i praksis se mer enn én "Bergen kommune"-rad avhengig
+        // av hvilke andre testklasser (nå: ServeringsbevillingModellSeedTests) som også kaller
+        // BergenKorpusSeed i samme kjøring.
+        var bergen = await db.Virksomheter.FirstAsync(v => v.Navn == "Bergen kommune");
         var brukere = await db.Brukere.Where(b => b.VirksomhetId == bergen.Id).ToListAsync();
         Assert.Equal(2, brukere.Count);
         Assert.Contains(brukere, b => b.Navn == "Mari Fagansvarlig" && b.Rolle == "Fagansvarlig");
