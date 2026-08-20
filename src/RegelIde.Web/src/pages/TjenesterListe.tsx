@@ -1,11 +1,37 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router';
-import { Button, Heading, Link, Paragraph, Table, Textfield } from '@digdir/designsystemet-react';
+import { Button, Card, Heading, Link, Paragraph, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { TjenesteDto } from '../api/types';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 
 type Sorteringskolonne = 'tittel' | 'tjenestetype' | 'status' | 'eier';
+
+/** Samme 6 statusverdier som backend (TjenesteregisterTjeneste), farge+visningstekst for Tag. */
+const STATUS_VISNING: Record<string, { farge: 'neutral' | 'warning' | 'info' | 'success' | 'danger'; tekst: string }> = {
+  utkast: { farge: 'neutral', tekst: 'Utkast' },
+  under_revisjon: { farge: 'warning', tekst: 'Under revisjon' },
+  validert: { farge: 'info', tekst: 'Validert' },
+  publisert: { farge: 'success', tekst: 'Publisert' },
+  tilbaketrukket: { farge: 'danger', tekst: 'Tilbaketrukket' },
+  arkivert: { farge: 'neutral', tekst: 'Arkivert' },
+};
+
+/**
+ * KPI-rad (2026-08-20, "Startside Alternativ 1c") — kun tall vi faktisk kan bekrefte er riktige.
+ * Mock-en viste også «Til godkjenning»/«Håndbøker i arbeid», men ingen av dem har en reell
+ * datakilde ennå (ingen "til_godkjenning"-status finnes, håndbøker har ikke en egen fremdrifts-
+ * status i DTO-en) — utelatt heller enn å vise et tall vi ikke kan stå for. De to KI-forslagskøene
+ * er derimot ekte, allerede eksisterende endepunkter.
+ */
+function KpiKort({ etikett, verdi }: { etikett: string; verdi: number | null }) {
+  return (
+    <Card style={{ flex: 1, minWidth: '160px', padding: '0.75rem 1rem' }}>
+      <div style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>{etikett}</div>
+      <div style={{ fontSize: 'var(--ds-font-size-5)', fontWeight: 600, marginTop: '0.1rem' }}>{verdi ?? '…'}</div>
+    </Card>
+  );
+}
 
 export default function TjenesterListe() {
   const navigate = useNavigate();
@@ -19,11 +45,16 @@ export default function TjenesterListe() {
   const [sortStigende, setSortStigende] = useState(true);
   const { visEier } = useVirksomheter();
 
+  const [tjenesteforslagAntall, setTjenesteforslagAntall] = useState<number | null>(null);
+  const [begrepsforslagAntall, setBegrepsforslagAntall] = useState<number | null>(null);
+
   useEffect(() => {
     api
       .hentTjenester()
       .then(setTjenester)
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av tjenester.'));
+    api.hentTjenesteforslagKo().then((liste) => setTjenesteforslagAntall(liste.length)).catch(() => setTjenesteforslagAntall(null));
+    api.hentBegrepsforslagKo().then((liste) => setBegrepsforslagAntall(liste.length)).catch(() => setBegrepsforslagAntall(null));
   }, []);
 
   async function opprett(e: FormEvent) {
@@ -87,12 +118,17 @@ export default function TjenesterListe() {
 
   return (
     <>
-      <Heading level={1} data-size="lg">
+      <Heading level={1} data-size="lg" style={{ marginBottom: '0.2rem' }}>
         Tjenester
       </Heading>
-      <Paragraph style={{ marginBottom: '1rem' }}>
-        Tjenestedefinisjoner (CPSV-AP-NO, produktkrav kap. 3.2) — virksomhetens eget arbeidsprodukt.
+      <Paragraph style={{ marginBottom: '1.25rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
+        Virksomhetens tjeneste- og rettighetsdefinisjoner.
       </Paragraph>
+
+      <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap', marginBottom: '1.5rem' }}>
+        <KpiKort etikett="KI-forslag tjenester ubehandlet" verdi={tjenesteforslagAntall} />
+        <KpiKort etikett="KI-forslag begrep ubehandlet" verdi={begrepsforslagAntall} />
+      </div>
 
       <form onSubmit={opprett} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '1.5rem' }}>
         <Textfield label="Ny tjeneste" placeholder="f.eks. Alminnelig skjenkebevilling" value={nyTittel}
@@ -116,46 +152,53 @@ export default function TjenesterListe() {
       {viste && viste.length === 0 && <Paragraph>Ingen tjenester funnet.</Paragraph>}
 
       {viste && viste.length > 0 && (
-        <Table border>
-          <Table.Head>
-            <Table.Row>
-              <Table.HeaderCell>
-                <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('tittel')}>
-                  Tittel{sorteringsindikator('tittel')}
-                </button>
-              </Table.HeaderCell>
-              <Table.HeaderCell>
-                <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('tjenestetype')}>
-                  Tjenestetype{sorteringsindikator('tjenestetype')}
-                </button>
-              </Table.HeaderCell>
-              <Table.HeaderCell>
-                <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('status')}>
-                  Status{sorteringsindikator('status')}
-                </button>
-              </Table.HeaderCell>
-              <Table.HeaderCell>
-                <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('eier')}>
-                  Eier{sorteringsindikator('eier')}
-                </button>
-              </Table.HeaderCell>
-            </Table.Row>
-          </Table.Head>
-          <Table.Body>
-            {viste.map((t) => (
-              <Table.Row key={t.id}>
-                <Table.Cell>
-                  <Link asChild>
-                    <RouterLink to={`/tjenester/${t.id}`}>{t.tittel}</RouterLink>
-                  </Link>
-                </Table.Cell>
-                <Table.Cell>{t.tjenestetype ?? '—'}</Table.Cell>
-                <Table.Cell>{t.status}</Table.Cell>
-                <Table.Cell>{visEier(t.virksomhetId)}</Table.Cell>
+        <Card style={{ padding: 0, overflow: 'hidden' }}>
+          <Table>
+            <Table.Head>
+              <Table.Row>
+                <Table.HeaderCell>
+                  <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('tittel')}>
+                    Tittel{sorteringsindikator('tittel')}
+                  </button>
+                </Table.HeaderCell>
+                <Table.HeaderCell>
+                  <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('tjenestetype')}>
+                    Tjenestetype{sorteringsindikator('tjenestetype')}
+                  </button>
+                </Table.HeaderCell>
+                <Table.HeaderCell>
+                  <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('status')}>
+                    Status{sorteringsindikator('status')}
+                  </button>
+                </Table.HeaderCell>
+                <Table.HeaderCell>
+                  <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('eier')}>
+                    Eier{sorteringsindikator('eier')}
+                  </button>
+                </Table.HeaderCell>
               </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
+            </Table.Head>
+            <Table.Body>
+              {viste.map((t) => {
+                const status = STATUS_VISNING[t.status];
+                return (
+                  <Table.Row key={t.id}>
+                    <Table.Cell>
+                      <Link asChild>
+                        <RouterLink to={`/tjenester/${t.id}`}>{t.tittel}</RouterLink>
+                      </Link>
+                    </Table.Cell>
+                    <Table.Cell>{t.tjenestetype ?? '—'}</Table.Cell>
+                    <Table.Cell>
+                      <Tag data-color={status?.farge ?? 'neutral'} data-size="sm">{status?.tekst ?? t.status}</Tag>
+                    </Table.Cell>
+                    <Table.Cell>{visEier(t.virksomhetId)}</Table.Cell>
+                  </Table.Row>
+                );
+              })}
+            </Table.Body>
+          </Table>
+        </Card>
       )}
     </>
   );
