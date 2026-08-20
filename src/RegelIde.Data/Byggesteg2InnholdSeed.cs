@@ -112,7 +112,12 @@ public static class Byggesteg2InnholdSeed
         RegelIdeDbContext db, TjenesteregisterTjeneste tjenesteregister, Guid virksomhetId, Guid alkohollovenId, CancellationToken ct)
     {
         const string tittel = "Alminnelig skjenkebevilling";
-        if (await db.Tjenester.AnyAsync(t => t.Tittel == tittel, ct)) return; // global guard, se SeedBegrepAsync
+        // Skopet på virksomhetId, ikke bare Tittel (avvik fra SeedBegrepAsync sin "kun én Testkommunen-
+        // rad i praksis"-antakelse) — denne tittelen er generisk nok til at helt uavhengige tester i en
+        // delt testdatabase oppretter egne rader med samme navn under andre virksomheter, noe som ville
+        // fått dette guardet til å hoppe over å opprette DENNE virksomhetens rad (bekreftet empirisk
+        // 2026-08-20, se ServeringsbevillingModellSeedTests).
+        if (await db.Tjenester.AnyAsync(t => t.Tittel == tittel && t.VirksomhetId == virksomhetId, ct)) return;
 
         var tjeneste = await tjenesteregister.OpprettAsync(
             virksomhetId, tittel,
@@ -120,7 +125,7 @@ public static class Byggesteg2InnholdSeed
             kompetentMyndighet: "Testkommunen",
             output: "Vedtak om skjenkebevilling",
             tjenestetype: "Enkeltvedtak",
-            malgruppe: "Virksomheter som ønsker å skjenke alkoholholdig drikk",
+            malgruppe: ["Virksomheter som ønsker å skjenke alkoholholdig drikk"],
             kanaler: ["Digitalt søknadsskjema"],
             kostnad: "Bevillingsgebyr fastsatt av kommunestyret, jf. alkoholforskriften kapittel 6",
             behandlingstid: "Inntil 3 måneder",

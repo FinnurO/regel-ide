@@ -4,9 +4,10 @@ import { Button, Field, Heading, Label, Link, Paragraph, Select, Tag, Textarea, 
 import { ApiError, api } from '../api/client';
 import { eidVisningstekst, rettskildeLenke } from '../api/eidLenker';
 import type {
-  HendelseDto, RegelnodeDto, RettskildeNodeDto, RettskildeSammendrag, TjenesteavhengighetDto, TjenesteDto,
+  HandlingDto, HendelseDto, RegelnodeDto, RettskildeNodeDto, RettskildeSammendrag, TjenesteavhengighetDto, TjenesteDto,
   TjenesteRegelverksreferanseDto, TjenesteTverrTenantTreffDto,
 } from '../api/types';
+import { GYLDIGE_HANDLINGSTYPER, GYLDIGE_UTFORT_AV } from '../api/types';
 
 const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
 
@@ -38,6 +39,9 @@ export default function TjenesteDetalj() {
   const [kontaktpunkt, setKontaktpunkt] = useState('');
   const [konsekvensVedBrudd, setKonsekvensVedBrudd] = useState('');
   const [sprak, setSprak] = useState('');
+  const [livshendelser, setLivshendelser] = useState('');
+  const [losKlassifisering, setLosKlassifisering] = useState('');
+  const [tjenesteomrade, setTjenesteomrade] = useState('');
   const [lagrer, setLagrer] = useState(false);
   const [lagreFeil, setLagreFeil] = useState<string | null>(null);
   const [statusEndres, setStatusEndres] = useState(false);
@@ -70,6 +74,13 @@ export default function TjenesteDetalj() {
   const [nyHendelseNavn, setNyHendelseNavn] = useState('');
   const [nyHendelseType, setNyHendelseType] = useState('virksomhetshendelse');
   const [hendelseFeil, setHendelseFeil] = useState<string | null>(null);
+
+  const [handlinger, setHandlinger] = useState<HandlingDto[] | null>(null);
+  const [nyHandlingNavn, setNyHandlingNavn] = useState('');
+  const [nyHandlingType, setNyHandlingType] = useState<string>(GYLDIGE_HANDLINGSTYPER[0]);
+  const [nyHandlingUtfortAv, setNyHandlingUtfortAv] = useState('');
+  const [leggerTilHandling, setLeggerTilHandling] = useState(false);
+  const [handlingFeil, setHandlingFeil] = useState<string | null>(null);
 
   const [avhengigheter, setAvhengigheter] = useState<TjenesteavhengighetDto[] | null>(null);
   const [alleTjenester, setAlleTjenester] = useState<TjenesteDto[]>([]);
@@ -140,13 +151,16 @@ export default function TjenesteDetalj() {
     setBeskrivelse(t.beskrivelse ?? '');
     setKompetentMyndighet(t.kompetentMyndighet ?? '');
     setTjenestetype(t.tjenestetype ?? '');
-    setMalgruppe(t.malgruppe ?? '');
+    setMalgruppe(t.malgruppe.join(', '));
     setKanaler(t.kanaler.join(', '));
     setKostnad(t.kostnad ?? '');
     setBehandlingstid(t.behandlingstid ?? '');
     setKontaktpunkt(t.kontaktpunkt ?? '');
     setKonsekvensVedBrudd(t.konsekvensVedBrudd ?? '');
     setSprak(t.sprak.join(', '));
+    setLivshendelser(t.livshendelser.join(', '));
+    setLosKlassifisering(t.losKlassifisering ?? '');
+    setTjenesteomrade(t.tjenesteomrade ?? '');
   }
 
   useEffect(() => {
@@ -157,6 +171,7 @@ export default function TjenesteDetalj() {
     api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
     api.hentRegelnodeListe().then(setRegelnoder).catch(() => setRegelnoder([]));
     api.hentTjenesteHendelser(id).then(setHendelser).catch(() => setHendelser([]));
+    api.hentHandlinger(id).then(setHandlinger).catch(() => setHandlinger([]));
     api.hentHendelser().then(setAlleHendelser).catch(() => setAlleHendelser([]));
     api.hentTjenesteavhengigheter(id).then(setAvhengigheter).catch(() => setAvhengigheter([]));
     api.hentTjenester().then(setAlleTjenester).catch(() => setAlleTjenester([]));
@@ -245,9 +260,11 @@ export default function TjenesteDetalj() {
       const oppdatert = await api.oppdaterTjeneste(id, {
         tittel: tittel.trim(), beskrivelse: beskrivelse.trim() || null,
         kompetentMyndighet: kompetentMyndighet.trim() || null, output: tjeneste.output,
-        tjenestetype: tjenestetype.trim() || null, malgruppe: malgruppe.trim() || null, kanaler: tilListe(kanaler),
+        tjenestetype: tjenestetype.trim() || null, malgruppe: tilListe(malgruppe), kanaler: tilListe(kanaler),
         kostnad: kostnad.trim() || null, behandlingstid: behandlingstid.trim() || null, kontaktpunkt: kontaktpunkt.trim() || null,
         konsekvensVedBrudd: konsekvensVedBrudd.trim() || null, sprak: tilListe(sprak),
+        livshendelser: tilListe(livshendelser), losKlassifisering: losKlassifisering.trim() || null,
+        tjenesteomrade: tjenesteomrade.trim() || null,
       });
       setTjeneste(oppdatert);
     } catch (err) {
@@ -340,6 +357,27 @@ export default function TjenesteDetalj() {
     if (!id) return;
     await api.fjernTjenesteHendelse(id, hendelseId);
     setHendelser((forrige) => (forrige ?? []).filter((h) => h.id !== hendelseId));
+  }
+
+  async function opprettHandling(e: FormEvent) {
+    e.preventDefault();
+    if (!id || !nyHandlingNavn.trim()) return;
+    setHandlingFeil(null);
+    setLeggerTilHandling(true);
+    try {
+      const ny = await api.opprettHandling(id, {
+        navn: nyHandlingNavn.trim(), handlingstype: nyHandlingType, bruksomraade: null,
+        utfortAv: nyHandlingUtfortAv || null, kanaler: null, behandlingstid: null, kostnad: null,
+        vedlegg: null, veiledningstekst: null, arsaker: null, resultat: null, merknad: null,
+      });
+      setHandlinger((forrige) => [...(forrige ?? []), ny].sort((a, b) => a.navn.localeCompare(b.navn)));
+      setNyHandlingNavn('');
+      setNyHandlingUtfortAv('');
+    } catch (err) {
+      setHandlingFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse av handling.');
+    } finally {
+      setLeggerTilHandling(false);
+    }
   }
 
   async function leggTilAvhengighet(e: FormEvent) {
@@ -466,13 +504,19 @@ export default function TjenesteDetalj() {
           </Field>
           <Textfield label="Kompetent myndighet" value={kompetentMyndighet} onChange={(e) => setKompetentMyndighet(e.target.value)} />
           <Textfield label="Tjenestetype" value={tjenestetype} onChange={(e) => setTjenestetype(e.target.value)} />
-          <Textfield label="Målgruppe" value={malgruppe} onChange={(e) => setMalgruppe(e.target.value)} />
+          <Textfield label="Målgruppe (kommaseparert)" value={malgruppe} onChange={(e) => setMalgruppe(e.target.value)}
+            placeholder="f.eks. Virksomheter som skal etablere et nytt serveringssted" />
           <Textfield label="Kanaler (kommaseparert)" value={kanaler} onChange={(e) => setKanaler(e.target.value)} placeholder="f.eks. Nett, Skranke" />
           <Textfield label="Kostnad" value={kostnad} onChange={(e) => setKostnad(e.target.value)} />
           <Textfield label="Behandlingstid" value={behandlingstid} onChange={(e) => setBehandlingstid(e.target.value)} />
           <Textfield label="Kontaktpunkt" value={kontaktpunkt} onChange={(e) => setKontaktpunkt(e.target.value)} />
           <Textfield label="Konsekvens ved brudd" value={konsekvensVedBrudd} onChange={(e) => setKonsekvensVedBrudd(e.target.value)} />
           <Textfield label="Språk (kommaseparert)" value={sprak} onChange={(e) => setSprak(e.target.value)} placeholder="f.eks. nb, en" />
+          <Textfield label="Livshendelser (kommaseparert)" value={livshendelser} onChange={(e) => setLivshendelser(e.target.value)}
+            placeholder="f.eks. Starte og drive en bedrift" />
+          <Textfield label="LOS-klassifisering" value={losKlassifisering} onChange={(e) => setLosKlassifisering(e.target.value)} />
+          <Textfield label="Tjenesteområde" value={tjenesteomrade} onChange={(e) => setTjenesteomrade(e.target.value)}
+            placeholder="f.eks. Næring, salg og servering" />
           {lagreFeil && <div className="feilmelding">{lagreFeil}</div>}
           <div>
             <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
@@ -619,6 +663,53 @@ export default function TjenesteDetalj() {
           </form>
         )}
         {hendelseFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{hendelseFeil}</div>}
+      </section>
+
+      <section style={{ marginTop: '2rem' }}>
+        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+          Handlinger
+        </Heading>
+        <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)', marginBottom: '0.75rem' }}>
+          Konkrete, tidsavgrensede interaksjoner knyttet til denne rettigheten (søknad, melding, klage …) —
+          hver med egne kanaler/vedlegg/behandlingstid/veiledningstekst.
+        </Paragraph>
+        {handlinger === null && <Paragraph>Laster …</Paragraph>}
+        {handlinger && handlinger.length === 0 && <Paragraph>Ingen handlinger registrert ennå.</Paragraph>}
+        {handlinger && handlinger.length > 0 && (
+          <ul>
+            {handlinger.map((h) => (
+              <li key={h.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <Link asChild>
+                  <RouterLink to={`/tjenester/${tjeneste.id}/handlinger/${h.id}`}>{h.navn}</RouterLink>
+                </Link>
+                <Tag data-color="info" data-size="sm">{h.handlingstype}</Tag>
+                {h.utfortAv && <Tag data-color="neutral" data-size="sm">{h.utfortAv}</Tag>}
+                <Tag data-color="neutral" data-size="sm">{h.status}</Tag>
+              </li>
+            ))}
+          </ul>
+        )}
+
+        <form onSubmit={opprettHandling} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap', marginTop: '0.75rem' }}>
+          <Textfield data-size="sm" label="Navn på ny handling" value={nyHandlingNavn} onChange={(e) => setNyHandlingNavn(e.target.value)} required />
+          <Field>
+            <Label>Handlingstype</Label>
+            <Select data-size="sm" value={nyHandlingType} onChange={(e) => setNyHandlingType(e.target.value)}>
+              {GYLDIGE_HANDLINGSTYPER.map((t) => <Select.Option key={t} value={t}>{t}</Select.Option>)}
+            </Select>
+          </Field>
+          <Field>
+            <Label>Utført av</Label>
+            <Select data-size="sm" value={nyHandlingUtfortAv} onChange={(e) => setNyHandlingUtfortAv(e.target.value)}>
+              <Select.Option value="">Ikke satt</Select.Option>
+              {GYLDIGE_UTFORT_AV.map((u) => <Select.Option key={u} value={u}>{u}</Select.Option>)}
+            </Select>
+          </Field>
+          <Button data-size="sm" type="submit" disabled={leggerTilHandling || !nyHandlingNavn.trim()}>
+            {leggerTilHandling ? 'Oppretter …' : 'Opprett handling'}
+          </Button>
+        </form>
+        {handlingFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{handlingFeil}</div>}
       </section>
 
       <section style={{ marginTop: '2rem' }}>

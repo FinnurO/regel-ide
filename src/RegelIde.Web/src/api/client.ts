@@ -9,6 +9,8 @@ import type {
   DatasettVerdiDto,
   BegrepsforslagDto,
   DokumentReferanseDto,
+  HandlingDto,
+  HandlingRequest,
   HendelseDto,
   HendelseRequest,
   KobleHendelseRequest,
@@ -644,4 +646,41 @@ export const api = {
 
   hentTjenesteVeiledning: (id: string, virksomhetId: string | null) =>
     kall<VeiledningDto>(`/api/tjenester/${id}/veiledning${virksomhetId ? `?virksomhetId=${virksomhetId}` : ''}`),
+
+  // ---------- Handlinger (2026-08-20) — konkrete handlinger tilknyttet en Rettighet (Tjeneste) ----------
+
+  hentHandlinger: (tjenesteId: string) => kall<HandlingDto[]>(`/api/tjenester/${tjenesteId}/handlinger`),
+
+  hentHandling: (handlingId: string) => kall<HandlingDto>(`/api/tjenester/handlinger/${handlingId}`),
+
+  opprettHandling: (tjenesteId: string, request: HandlingRequest) =>
+    kall<HandlingDto>(`/api/tjenester/${tjenesteId}/handlinger`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  oppdaterHandling: (handlingId: string, request: HandlingRequest) =>
+    kall<HandlingDto>(`/api/tjenester/handlinger/${handlingId}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  slettHandling: (handlingId: string) =>
+    kall<void>(`/api/tjenester/handlinger/${handlingId}`, { method: 'DELETE' }),
+
+  settHandlingStatus: (handlingId: string, request: SettStatusRequest) =>
+    kall<HandlingDto>(`/api/tjenester/handlinger/${handlingId}/status`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  settHandlingRotnode: (handlingId: string, request: SettRotnodeRequest) =>
+    kall<HandlingDto>(`/api/tjenester/handlinger/${handlingId}/rotnode`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
 };

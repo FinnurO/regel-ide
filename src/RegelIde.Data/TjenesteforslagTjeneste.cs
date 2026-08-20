@@ -222,7 +222,7 @@ public sealed class TjenesteforslagTjeneste(
         {
             var tjeneste = await tjenesteregister.OpprettForslagFraKiAsync(
                 virksomhetId, f.Tittel, f.KortBeskrivelse, f.KompetentMyndighet, f.Output, f.Tjenestetype,
-                f.Malgruppe, f.Kanaler, f.Kostnad, f.Behandlingstid, f.Kontaktpunkt, f.KonsekvensVedBrudd,
+                f.Malgruppe is null ? null : [f.Malgruppe], f.Kanaler, f.Kostnad, f.Behandlingstid, f.Kontaktpunkt, f.KonsekvensVedBrudd,
                 f.Sprak, opprettetAv, AiForslagVersjon, kildeReferanserJson, ct);
             opprettede.Add(tjeneste);
         }

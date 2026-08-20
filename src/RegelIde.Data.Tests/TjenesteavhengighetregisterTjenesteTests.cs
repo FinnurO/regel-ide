@@ -227,7 +227,9 @@ public class TjenesteavhengighetregisterTjenesteTests
             tilOrganisasjonsnummer: "974761122", tilNavn: "Registrer matbedriften din hos Mattilsynet");
 
         // To kanter refererer samme (orgnr, navn) — skal gjenbruke SAMME plassholder-rad, ikke opprette to.
-        Assert.Single(await db.EksterneTjenestereferanser.ToListAsync());
+        // Filtrert på orgnr (ikke hele tabellen) — DataTestCollection deler én Postgres på tvers av
+        // ALLE tester i samlingen, så en usortert tabell-telling er skjørt mot andre testers egne rader.
+        Assert.Single(await db.EksterneTjenestereferanser.Where(r => r.Organisasjonsnummer == "974761122").ToListAsync());
     }
 
     [Fact]
@@ -246,7 +248,8 @@ public class TjenesteavhengighetregisterTjenesteTests
             virksomhet, b, null, "avhengig_av", null, null, "Kari Jurist",
             tilOrganisasjonsnummer: "974761122", tilNavn: "Vandelskontroll fra Mattilsynet");
 
-        Assert.Equal(2, await db.EksterneTjenestereferanser.CountAsync());
+        // Filtrert på orgnr (ikke hele tabellen) — se kommentar i testen over om delt Postgres-samling.
+        Assert.Equal(2, await db.EksterneTjenestereferanser.CountAsync(r => r.Organisasjonsnummer == "974761122"));
     }
 
     [Fact]

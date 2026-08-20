@@ -50,6 +50,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<RettskildeNodeEmbeddingEntitet> RettskildeNodeEmbeddinger => Set<RettskildeNodeEmbeddingEntitet>();
     public DbSet<ProveniensEntitet> Proveniens => Set<ProveniensEntitet>();
     public DbSet<TjenesteEntitet> Tjenester => Set<TjenesteEntitet>();
+    public DbSet<HandlingEntitet> Handlinger => Set<HandlingEntitet>();
     public DbSet<TjenesteRegelverksreferanseEntitet> TjenesteRegelverksreferanser => Set<TjenesteRegelverksreferanseEntitet>();
     public DbSet<HendelseEntitet> Hendelser => Set<HendelseEntitet>();
     public DbSet<TjenesteHendelseEntitet> TjenesteHendelser => Set<TjenesteHendelseEntitet>();
@@ -377,6 +378,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Kontaktpunkt).HasColumnName("kontaktpunkt");
             e.Property(x => x.KonsekvensVedBrudd).HasColumnName("konsekvens_ved_brudd");
             e.Property(x => x.Sprak).HasColumnName("sprak");
+            e.Property(x => x.Livshendelser).HasColumnName("livshendelser").HasDefaultValueSql("'{}'");
+            e.Property(x => x.LosKlassifisering).HasColumnName("los_klassifisering");
+            e.Property(x => x.Tjenesteomrade).HasColumnName("tjenesteomrade");
             e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("utkast");
             e.Property(x => x.Versjon).HasColumnName("versjon").HasDefaultValue(1);
             e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
@@ -393,6 +397,37 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasOne<TjenesteEntitet>().WithMany().HasForeignKey(x => x.ErstatterId);
             e.HasOne<RegelnodeEntitet>().WithMany().HasForeignKey(x => x.RotnodeId);
             e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_tjenester_virksomhet");
+        });
+
+        b.Entity<HandlingEntitet>(e =>
+        {
+            e.ToTable("handlinger");
+            e.HasKey(x => x.Id).HasName("handlinger_pkey");
+            e.Property(x => x.TjenesteId).HasColumnName("tjeneste_id");
+            e.Property(x => x.Navn).HasColumnName("navn");
+            e.Property(x => x.Handlingstype).HasColumnName("handlingstype");
+            e.Property(x => x.Bruksomraade).HasColumnName("bruksomraade");
+            e.Property(x => x.UtfortAv).HasColumnName("utfort_av");
+            e.Property(x => x.RotnodeId).HasColumnName("rotnode_id");
+            e.Property(x => x.KanalerJson).HasColumnName("kanaler").HasColumnType(jsonKolonne).HasDefaultValue("[]");
+            e.Property(x => x.BehandlingstidJson).HasColumnName("behandlingstid").HasColumnType(jsonKolonne).HasDefaultValue("{}");
+            e.Property(x => x.KostnadJson).HasColumnName("kostnad").HasColumnType(jsonKolonne).HasDefaultValue("{}");
+            e.Property(x => x.VedleggJson).HasColumnName("vedlegg").HasColumnType(jsonKolonne).HasDefaultValue("[]");
+            e.Property(x => x.VeiledningstekstJson).HasColumnName("veiledningstekst").HasColumnType(jsonKolonne).HasDefaultValue("[]");
+            e.Property(x => x.ArsakerJson).HasColumnName("arsaker").HasColumnType(jsonKolonne).HasDefaultValue("[]");
+            e.Property(x => x.ResultatJson).HasColumnName("resultat").HasColumnType(jsonKolonne).HasDefaultValue("{}");
+            e.Property(x => x.Merknad).HasColumnName("merknad");
+            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("utkast");
+            e.Property(x => x.Versjon).HasColumnName("versjon").HasDefaultValue(1);
+            e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+            e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
+            e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
+
+            e.HasOne<TjenesteEntitet>().WithMany().HasForeignKey(x => x.TjenesteId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<RegelnodeEntitet>().WithMany().HasForeignKey(x => x.RotnodeId);
+            e.HasIndex(x => x.TjenesteId).HasDatabaseName("ix_handlinger_tjeneste");
         });
 
         b.Entity<TjenesteRegelverksreferanseEntitet>(e =>

@@ -36,8 +36,13 @@ public static class FasitRunde4Seed
         if (await db.Vilkar.AnyAsync(v => v.Tittel == MarkorVilkar, ct)) return;
 
         var testkommunen = await db.Virksomheter.FirstOrDefaultAsync(v => v.Navn == "Testkommunen", ct);
-        var tjeneste = await db.Tjenester.FirstOrDefaultAsync(t => t.Tittel == "Alminnelig skjenkebevilling", ct);
-        if (testkommunen is null || tjeneste?.RotnodeId is null) return; // byggesteg 2/4-seedingen må ha kjørt først
+        if (testkommunen is null) return;
+        // Skopet på testkommunen.Id, ikke bare Tittel — samme begrunnelse som skopingen i
+        // Byggesteg2InnholdSeed/Byggesteg4VilkarstreSeed: ellers kan et uskopet oppslag treffe en
+        // "Alminnelig skjenkebevilling"-rad fra en helt annen, uavhengig test i denne delte databasen.
+        var tjeneste = await db.Tjenester.FirstOrDefaultAsync(
+            t => t.Tittel == "Alminnelig skjenkebevilling" && t.VirksomhetId == testkommunen.Id, ct);
+        if (tjeneste?.RotnodeId is null) return; // byggesteg 2/4-seedingen må ha kjørt først
 
         var rRoot = await db.Regelnoder.FirstOrDefaultAsync(r => r.Id == tjeneste.RotnodeId && r.Tittel == RotnodeTittel, ct);
         var vandelsvilkar = await db.Vilkar.FirstOrDefaultAsync(v => v.Tittel == "Vandelsvilkår", ct);
@@ -180,9 +185,15 @@ public static class FasitRunde4Seed
             "bevilling kan gis med vilkår som imøtekommer merknaden.</p>", SeedBruker, ct);
 
         // §12 "Relevante tjenester" — hele listen, ordrett fra kildedokumentet, ikke et utvalg.
+        // Skopet på virksomhetId, ikke bare Tittel — flere titler her (f.eks. "Serveringsbevilling",
+        // "Alminnelig skjenkebevilling") er generiske nok til at andre, helt uavhengige tester i denne
+        // delte databasen oppretter sine egne rader med samme navn under egne virksomheter. Et uskopet
+        // guard ville da hoppet over å opprette DENNE virksomhetens rad, og seedingen ville stille
+        // no-opet for akkurat det elementet (bekreftet empirisk 2026-08-20, se ServeringsbevillingModell-
+        // SeedTests-kommentaren for hele feilsøkingskjeden).
         foreach (var tittel in RelevanteTjenester)
         {
-            if (await db.Tjenester.AnyAsync(t => t.Tittel == tittel, ct)) continue;
+            if (await db.Tjenester.AnyAsync(t => t.Tittel == tittel && t.VirksomhetId == virksomhetId, ct)) continue;
             await tjenesteregister.OpprettAsync(
                 virksomhetId, tittel, beskrivelse: $"{tittel} — relatert tjeneste (rundskriv-fasit § 12), " +
                 "nevnt i forbindelse med «Alminnelig skjenkebevilling» men foreløpig uten en strukturert kobling " +

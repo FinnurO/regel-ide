@@ -32,7 +32,7 @@ public sealed class TjenesteavhengighetregisterTjeneste(RegelIdeDbContext db)
     // internal (ikke private) siden TjenesteforslagTjeneste (byggesteg 5 runde 4) gjenbruker denne
     // listen i sin system-instruks til KI-agenten, i stedet for å duplisere den og risikere drift.
     internal static readonly string[] GyldigeRel =
-        ["forutsetning_for", "gir_mulighet_til", "utlost_av", "for", "avhengig_av", "input_til", "har_del"];
+        ["forutsetning_for", "gir_mulighet_til", "utlost_av", "for", "avhengig_av", "input_til", "har_del", "kan_miste"];
 
     // docs/03-domenemodell.md §1.5 "ett rettet kant per relasjon" — tabellen med Fra-/Til-visningstekst.
     // "har_del" lagt til byggesteg 5 runde 4 — dekker dct:hasPart-siden av det CPSV-AP-NO-konseptet
@@ -48,6 +48,10 @@ public sealed class TjenesteavhengighetregisterTjeneste(RegelIdeDbContext db)
         ["avhengig_av"] = ("{0} er avhengig av denne", "avhengig av {0}"),
         ["input_til"] = ("er input til {0}", "har input fra {0}"),
         ["har_del"] = ("har del {0}", "er del av {0}"),
+        // Lagt til 2026-08-20 (Rettighet/Handling-modellrunden) — for avhengigheter der motparten ikke
+        // er en forutsetning, men en risiko: rettigheten kan gå tapt som følge av at motparten
+        // inntreffer (f.eks. Serveringsbevilling "kan_miste" ved Kunngjøring av konkurs).
+        ["kan_miste"] = ("kan miste retten pga. {0}", "kan utløse tap av {0}"),
     };
 
     public async Task<List<TjenesteavhengighetVisning>> HentForTjenesteAsync(Guid tjenesteId, CancellationToken ct = default)

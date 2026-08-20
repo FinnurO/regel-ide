@@ -29,7 +29,7 @@ public class TjenesteregisterTjenesteTests
         var register = new TjenesteregisterTjeneste(db);
         var tjeneste = await register.OpprettAsync(
             virksomhet, "Alminnelig skjenkebevilling", "Beskrivelse", "Testkommunen", "Vedtak", "Enkeltvedtak",
-            "Virksomheter", ["Digitalt"], "Gebyr", "3 måneder", "Skjenkekontoret", "Inndragning", ["nb"],
+            ["Virksomheter"], ["Digitalt"], "Gebyr", "3 måneder", "Skjenkekontoret", "Inndragning", ["nb"],
             "Kari Jurist");
 
         Assert.Equal("utkast", tjeneste.Status);
@@ -63,7 +63,7 @@ public class TjenesteregisterTjenesteTests
         var tjeneste = await register.OpprettAsync(virksomhet, "Skjenkebevilling", null, null, null, null, null,
             null, null, null, null, null, null, "Kari Jurist");
 
-        var oppdatert = await register.OppdaterAsync(tjeneste.Id, "Alminnelig skjenkebevilling", "Ny beskrivelse",
+        var oppdatert = await register.OppdaterAsync(tjeneste.Id, virksomhet, "Alminnelig skjenkebevilling", "Ny beskrivelse",
             null, null, null, null, null, null, null, null, null, null, "Ola Fagansvarlig");
 
         Assert.NotNull(oppdatert);
@@ -122,7 +122,7 @@ public class TjenesteregisterTjenesteTests
         var tjeneste = await register.OpprettAsync(virksomhet, "Skjenkebevilling", null, null, null, null, null,
             null, null, null, null, null, null, "Kari Jurist");
 
-        var oppdatert = await register.SettStatusAsync(tjeneste.Id, "publisert", "Kari Jurist");
+        var oppdatert = await register.SettStatusAsync(tjeneste.Id, virksomhet, "publisert", "Kari Jurist");
 
         Assert.NotNull(oppdatert);
         Assert.Equal("publisert", oppdatert!.Status);
@@ -140,7 +140,7 @@ public class TjenesteregisterTjenesteTests
         var tjeneste = await register.OpprettAsync(virksomhet, "Skjenkebevilling", null, null, null, null, null,
             null, null, null, null, null, null, "Kari Jurist");
 
-        await Assert.ThrowsAsync<ArgumentException>(() => register.SettStatusAsync(tjeneste.Id, "ukjent", "Kari Jurist"));
+        await Assert.ThrowsAsync<ArgumentException>(() => register.SettStatusAsync(tjeneste.Id, virksomhet, "ukjent", "Kari Jurist"));
     }
 
     [Fact]
@@ -155,7 +155,7 @@ public class TjenesteregisterTjenesteTests
         var tjeneste = await register.OpprettAsync(virksomhet, "Skjenkebevilling", null, null, null, null, null,
             null, null, null, null, null, null, "Kari Jurist");
 
-        await register.SettStatusAsync(tjeneste.Id, "validert", "Kari Jurist", godkjentAv: "Ola Fagansvarlig");
+        await register.SettStatusAsync(tjeneste.Id, virksomhet, "validert", "Kari Jurist", godkjentAv: "Ola Fagansvarlig");
 
         var proveniens = await db.Proveniens
             .Where(p => p.EntitetId == tjeneste.Id && p.Handling == "validert")
@@ -201,7 +201,7 @@ public class TjenesteregisterTjenesteTests
         var register = new TjenesteregisterTjeneste(db);
         var publisert = await register.OpprettAsync(
             virksomhetB, "Registrer matbedriften din", null, null, null, null, null, null, null, null, null, null, null, "Kari Jurist");
-        await register.SettStatusAsync(publisert.Id, "publisert", "Kari Jurist");
+        await register.SettStatusAsync(publisert.Id, virksomhetB, "publisert", "Kari Jurist");
 
         var utkast = await register.OpprettAsync(
             virksomhetB, "Registrer et internt utkast", null, null, null, null, null, null, null, null, null, null, null, "Kari Jurist");
@@ -227,7 +227,7 @@ public class TjenesteregisterTjenesteTests
         var register = new TjenesteregisterTjeneste(db);
         var tjeneste = await register.OpprettAsync(
             virksomhet, "Vandelskontroll fra Politiet", null, null, null, null, null, null, null, null, null, null, null, "Kari Jurist");
-        await register.SettStatusAsync(tjeneste.Id, "publisert", "Kari Jurist");
+        await register.SettStatusAsync(tjeneste.Id, virksomhet, "publisert", "Kari Jurist");
 
         var treff = await register.SokTverrTenantAsync("vandelskontroll");
         Assert.Contains(treff, t => t.Id == tjeneste.Id);
@@ -239,5 +239,74 @@ public class TjenesteregisterTjenesteTests
         await using var db = _fixture.NyDbContext();
         var register = new TjenesteregisterTjeneste(db);
         Assert.Empty(await register.SokTverrTenantAsync("   "));
+    }
+
+    // ---------- Sikkerhetsfiks 2026-08-20 (docs/17 §2.2, docs/18 §D.7) ----------
+
+    [Fact]
+    public async Task Annen_virksomhet_kan_ikke_oppdatere_en_tjeneste_den_ikke_eier()
+    {
+        await using var db = _fixture.NyDbContext();
+        var eier = Guid.NewGuid();
+        var annen = Guid.NewGuid();
+        db.Virksomheter.AddRange(
+            new Virksomhet { Id = eier, Navn = "Testkommunen" },
+            new Virksomhet { Id = annen, Navn = "Bergen kommune" });
+        await db.SaveChangesAsync();
+
+        var register = new TjenesteregisterTjeneste(db);
+        var tjeneste = await register.OpprettAsync(eier, "Serveringsbevilling", null, null, null, null, null,
+            null, null, null, null, null, null, "Kari Jurist");
+
+        var resultat = await register.OppdaterAsync(tjeneste.Id, annen, "Kapret tittel", null, null, null, null,
+            null, null, null, null, null, null, null, "Ukjent Bruker");
+
+        Assert.Null(resultat);
+        var uendret = await register.FinnAsync(tjeneste.Id);
+        Assert.Equal("Serveringsbevilling", uendret!.Tittel);
+    }
+
+    [Fact]
+    public async Task Annen_virksomhet_kan_ikke_sette_status_pa_en_tjeneste_den_ikke_eier()
+    {
+        await using var db = _fixture.NyDbContext();
+        var eier = Guid.NewGuid();
+        var annen = Guid.NewGuid();
+        db.Virksomheter.AddRange(
+            new Virksomhet { Id = eier, Navn = "Testkommunen" },
+            new Virksomhet { Id = annen, Navn = "Bergen kommune" });
+        await db.SaveChangesAsync();
+
+        var register = new TjenesteregisterTjeneste(db);
+        var tjeneste = await register.OpprettAsync(eier, "Serveringsbevilling", null, null, null, null, null,
+            null, null, null, null, null, null, "Kari Jurist");
+
+        var resultat = await register.SettStatusAsync(tjeneste.Id, annen, "publisert", "Ukjent Bruker");
+
+        Assert.Null(resultat);
+        var uendret = await register.FinnAsync(tjeneste.Id);
+        Assert.Equal("utkast", uendret!.Status);
+    }
+
+    [Fact]
+    public async Task Eieren_selv_kan_fortsatt_oppdatere_og_sette_status()
+    {
+        await using var db = _fixture.NyDbContext();
+        var eier = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = eier, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+
+        var register = new TjenesteregisterTjeneste(db);
+        var tjeneste = await register.OpprettAsync(eier, "Serveringsbevilling", null, null, null, null, null,
+            null, null, null, null, null, null, "Kari Jurist");
+
+        var oppdatert = await register.OppdaterAsync(tjeneste.Id, eier, "Ny tittel", null, null, null, null,
+            null, null, null, null, null, null, null, "Kari Jurist");
+        Assert.NotNull(oppdatert);
+        Assert.Equal("Ny tittel", oppdatert!.Tittel);
+
+        var medStatus = await register.SettStatusAsync(tjeneste.Id, eier, "publisert", "Kari Jurist");
+        Assert.NotNull(medStatus);
+        Assert.Equal("publisert", medStatus!.Status);
     }
 }

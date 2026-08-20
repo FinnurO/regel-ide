@@ -46,6 +46,7 @@ builder.Services.AddScoped<DatasettregisterTjeneste>();
 builder.Services.AddScoped<VilkarstreKommentarTjeneste>();
 builder.Services.AddScoped<HendelseregisterTjeneste>();
 builder.Services.AddScoped<TjenesteavhengighetregisterTjeneste>();
+builder.Services.AddScoped<HandlingregisterTjeneste>();
 builder.Services.AddScoped<TjenesteEksportTjeneste>();
 builder.Services.AddScoped<KunnskapsbibliotekTjeneste>();
 // "Stub" (default) eller "OpenAiKompatibel" — se docs/14-byggesteg5-teknisk-design.md. Bytte krever
@@ -274,6 +275,12 @@ using (var scope = app.Services.CreateScope())
     var dataKilderRotmappe = app.Configuration["RegelIde:DataKilderRotmappe"]
         ?? Path.GetFullPath(Path.Combine(app.Environment.ContentRootPath, "..", "..", "data", "kilder"));
     await BergenKorpusSeed.SeedAsync(db, dataKilderRotmappe);
+
+    // Rettighet/Handling-modellrunden (2026-08-20) — overfører den hånd-skrevne modellutforskningen
+    // (serveringsbevilling-modell-forslag.json) til ekte rader. Kjøres etter FasitRunde4Seed (krever
+    // Serveringsbevilling) og BergenKorpusSeed (krever Bergen kommune-virksomheten, som Fettutskiller
+    // opprettes under).
+    await ServeringsbevillingModellSeed.SeedAsync(db);
 
     // Organisasjonsregister (2026-08-14) — norske kommuner/fylkeskommuner fra Johanns eksport, se
     // OrganisasjonsregisterSeed.cs. Kjøres SIST av virksomhet-seedene over, slik at matching mot
@@ -1061,7 +1068,8 @@ tjenester.MapPost("/", async (HttpRequest request, TjenesteRequest body, Tjenest
         {
             var t = await tjeneste.OpprettAsync(bruker.VirksomhetId, body.Tittel, body.Beskrivelse, body.KompetentMyndighet,
                 body.Output, body.Tjenestetype, body.Malgruppe, body.Kanaler, body.Kostnad, body.Behandlingstid,
-                body.Kontaktpunkt, body.KonsekvensVedBrudd, body.Sprak, bruker.Navn, ct);
+                body.Kontaktpunkt, body.KonsekvensVedBrudd, body.Sprak, bruker.Navn, ct,
+                body.Livshendelser, body.LosKlassifisering, body.Tjenesteomrade);
             return Results.Created($"/api/tjenester/{t.Id}", TjenesteDto.FraEntitet(t));
         }
         catch (ArgumentException ex)
@@ -1081,9 +1089,10 @@ tjenester.MapPut("/{id:guid}", async (Guid id, HttpRequest request, TjenesteRequ
         }
         try
         {
-            var t = await tjeneste.OppdaterAsync(id, body.Tittel, body.Beskrivelse, body.KompetentMyndighet, body.Output,
+            var t = await tjeneste.OppdaterAsync(id, bruker.VirksomhetId, body.Tittel, body.Beskrivelse, body.KompetentMyndighet, body.Output,
                 body.Tjenestetype, body.Malgruppe, body.Kanaler, body.Kostnad, body.Behandlingstid, body.Kontaktpunkt,
-                body.KonsekvensVedBrudd, body.Sprak, bruker.Navn, ct);
+                body.KonsekvensVedBrudd, body.Sprak, bruker.Navn, ct,
+                body.Livshendelser, body.LosKlassifisering, body.Tjenesteomrade);
             return t is null ? Results.NotFound(new { feil = $"Ingen tjeneste med id '{id}'." }) : Results.Ok(TjenesteDto.FraEntitet(t));
         }
         catch (ArgumentException ex)
@@ -1103,7 +1112,7 @@ tjenester.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, Sett
         }
         try
         {
-            var t = await tjeneste.SettStatusAsync(id, body.Status, bruker.Navn, ct, body.GodkjentAv);
+            var t = await tjeneste.SettStatusAsync(id, bruker.VirksomhetId, body.Status, bruker.Navn, ct, body.GodkjentAv);
             return t is null ? Results.NotFound(new { feil = $"Ingen tjeneste med id '{id}'." }) : Results.Ok(TjenesteDto.FraEntitet(t));
         }
         catch (ArgumentException ex)
@@ -1138,6 +1147,121 @@ tjenester.MapDelete("/regelverksreferanser/{referanseId:guid}", async (Guid refe
         await tjeneste.FjernRegelverksreferanseAsync(referanseId, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen regelverksreferanse med id '{referanseId}'." }))
     .WithName("FjernTjenesteRegelverksreferanse")
     .WithSummary("Fjerner en regelverksreferanse-kobling.");
+
+// ---------- Handlinger (2026-08-20) — konkrete handlinger tilknyttet en Rettighet ----------
+
+tjenester.MapGet("/{id:guid}/handlinger", async (Guid id, HandlingregisterTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.ListerForTjenesteAsync(id, ct)).Select(HandlingDto.FraEntitet)))
+    .WithName("HentHandlinger")
+    .WithSummary("Lister handlingene tilknyttet en rettighet (tjeneste). Åpen lesing, samme holdning som GET /api/tjenester/{id}.");
+
+tjenester.MapPost("/{id:guid}/handlinger", async (Guid id, HttpRequest request, HandlingRequest body, HandlingregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        try
+        {
+            var h = await register.OpprettAsync(
+                bruker.VirksomhetId, id, body.Navn, body.Handlingstype, body.Bruksomraade, body.UtfortAv,
+                body.Kanaler, body.Behandlingstid, body.Kostnad, body.Vedlegg, body.Veiledningstekst, body.Arsaker,
+                body.Resultat, body.Merknad, bruker.Navn, ct);
+            return Results.Created($"/api/tjenester/handlinger/{h.Id}", HandlingDto.FraEntitet(h));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OpprettHandling")
+    .WithSummary("Oppretter en ny handling under en rettighet (tjeneste).");
+
+tjenester.MapGet("/handlinger/{handlingId:guid}", async (Guid handlingId, HandlingregisterTjeneste register, CancellationToken ct) =>
+    {
+        var h = await register.FinnAsync(handlingId, ct);
+        return h is null ? Results.NotFound(new { feil = $"Ingen handling med id '{handlingId}'." }) : Results.Ok(HandlingDto.FraEntitet(h));
+    })
+    .WithName("HentHandling")
+    .WithSummary("Henter én handling.");
+
+tjenester.MapPut("/handlinger/{handlingId:guid}", async (Guid handlingId, HttpRequest request, HandlingRequest body, HandlingregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        try
+        {
+            var h = await register.OppdaterAsync(
+                handlingId, bruker.VirksomhetId, body.Navn, body.Handlingstype, body.Bruksomraade, body.UtfortAv,
+                body.Kanaler, body.Behandlingstid, body.Kostnad, body.Vedlegg, body.Veiledningstekst, body.Arsaker,
+                body.Resultat, body.Merknad, bruker.Navn, ct);
+            return h is null ? Results.NotFound(new { feil = $"Ingen handling med id '{handlingId}'." }) : Results.Ok(HandlingDto.FraEntitet(h));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OppdaterHandling")
+    .WithSummary("Oppdaterer en handling.");
+
+tjenester.MapDelete("/handlinger/{handlingId:guid}", async (Guid handlingId, HttpRequest request, HandlingregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        return await register.SlettAsync(handlingId, bruker.VirksomhetId, ct)
+            ? Results.NoContent()
+            : Results.NotFound(new { feil = $"Ingen handling med id '{handlingId}'." });
+    })
+    .WithName("SlettHandling")
+    .WithSummary("Sletter en handling.");
+
+tjenester.MapPost("/handlinger/{handlingId:guid}/status", async (Guid handlingId, HttpRequest request, SettStatusRequest body, HandlingregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        try
+        {
+            var h = await register.SettStatusAsync(handlingId, bruker.VirksomhetId, body.Status, bruker.Navn, ct);
+            return h is null ? Results.NotFound(new { feil = $"Ingen handling med id '{handlingId}'." }) : Results.Ok(HandlingDto.FraEntitet(h));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SettHandlingStatus")
+    .WithSummary("Endrer status på en handling.");
+
+tjenester.MapPost("/handlinger/{handlingId:guid}/rotnode", async (Guid handlingId, HttpRequest request, SettRotnodeRequest body, HandlingregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        try
+        {
+            var h = await register.SettRotnodeAsync(handlingId, bruker.VirksomhetId, body.RegelnodeId, ct);
+            return h is null ? Results.NotFound(new { feil = $"Ingen handling med id '{handlingId}'." }) : Results.Ok(HandlingDto.FraEntitet(h));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SettHandlingRotnode")
+    .WithSummary("Kobler handlingen til en EGEN rotnode i vilkårstreet — overstyrer rettighetens for denne ene handlingens saksbehandling.");
 
 // ---------- «Identifiser tjenester» (byggesteg 5 runde 1, docs/06-veikart.md) — stub-KI ----------
 
@@ -1988,11 +2112,16 @@ unntak.MapGet("/{id:guid}/historikk", async (Guid id, RegelIdeDbContext db) =>
 
 // ---------- Vilkårstre-kobling på Tjeneste (byggesteg 4 — lukker gapet fra byggesteg 2) ----------
 
-tjenester.MapPost("/{id:guid}/rotnode", async (Guid id, SettRotnodeRequest body, TjenesteregisterTjeneste register, CancellationToken ct) =>
+tjenester.MapPost("/{id:guid}/rotnode", async (Guid id, HttpRequest request, SettRotnodeRequest body, TjenesteregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
         try
         {
-            var t = await register.SettRotnodeAsync(id, body.RegelnodeId, ct);
+            var t = await register.SettRotnodeAsync(id, bruker.VirksomhetId, body.RegelnodeId, ct);
             return t is null ? Results.NotFound(new { feil = $"Ingen tjeneste med id '{id}'." }) : Results.Ok(TjenesteDto.FraEntitet(t));
         }
         catch (ArgumentException ex)
@@ -2003,9 +2132,14 @@ tjenester.MapPost("/{id:guid}/rotnode", async (Guid id, SettRotnodeRequest body,
     .WithName("SettTjenesteRotnode")
     .WithSummary("Kobler tjenesten til rotnoden i sitt vilkårstre (byggesteg 4).");
 
-tjenester.MapDelete("/{id:guid}/rotnode", async (Guid id, TjenesteregisterTjeneste register, CancellationToken ct) =>
+tjenester.MapDelete("/{id:guid}/rotnode", async (Guid id, HttpRequest request, TjenesteregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
-        var t = await register.FjernRotnodeAsync(id, ct);
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        var t = await register.FjernRotnodeAsync(id, bruker.VirksomhetId, ct);
         return t is null ? Results.NotFound(new { feil = $"Ingen tjeneste med id '{id}'." }) : Results.Ok(TjenesteDto.FraEntitet(t));
     })
     .WithName("FjernTjenesteRotnode")

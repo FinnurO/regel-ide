@@ -117,7 +117,7 @@ public class TjenesteforslagTjenesteTests
         Assert.Equal("Testkommunen", tjeneste.KompetentMyndighet);
         Assert.Equal("Et vedtak", tjeneste.Output);
         Assert.Equal("Bevilling", tjeneste.Tjenestetype);
-        Assert.Equal("Virksomheter", tjeneste.Malgruppe);
+        Assert.Equal(["Virksomheter"], tjeneste.Malgruppe);
         Assert.Equal(["digitalt", "fysisk"], tjeneste.Kanaler);
         Assert.Equal("Gratis", tjeneste.Kostnad);
         Assert.Equal("4 uker", tjeneste.Behandlingstid);

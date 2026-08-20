@@ -126,24 +126,66 @@ public sealed record SettStatusRequest(string Status, string? GodkjentAv = null)
 
 // ---------- Tjeneste (CPSV-AP-NO, docs/03-domenemodell.md §1.5) — byggesteg 2 ----------
 
-/// <summary>Tjeneste. <see cref="Kanaler"/>/<see cref="Sprak"/> er postgres text[]; hendelser/tjenesteavhengigheter (jsonb) er ikke eksponert i v1 (ingen forfatter-UI ennå).</summary>
+/// <summary>Tjeneste ("Rettighet" i UI/modelltekst — samme rad, ikke en ny tabell, se
+/// docs/18-vurdering-rettighet-samhandling-modell.md). <see cref="Kanaler"/>/<see cref="Sprak"/>/
+/// <see cref="Malgruppe"/>/<see cref="Livshendelser"/> er postgres text[]; hendelser/tjenesteavhengigheter
+/// (jsonb) er ikke eksponert i v1 (ingen forfatter-UI ennå).</summary>
 public sealed record TjenesteDto(
     Guid Id, Guid VirksomhetId, string Tittel, string? Beskrivelse, string? KompetentMyndighet, string? Output,
-    string? Tjenestetype, string? Malgruppe, IReadOnlyList<string> Kanaler, string? Kostnad, string? Behandlingstid,
+    string? Tjenestetype, IReadOnlyList<string> Malgruppe, IReadOnlyList<string> Kanaler, string? Kostnad, string? Behandlingstid,
     string? Kontaktpunkt, string? KonsekvensVedBrudd, IReadOnlyList<string> Sprak, string Status, int Versjon,
-    Guid? RotnodeId)
+    Guid? RotnodeId, IReadOnlyList<string> Livshendelser, string? LosKlassifisering, string? Tjenesteomrade)
 {
     public static TjenesteDto FraEntitet(TjenesteEntitet t) => new(
         t.Id, t.VirksomhetId, t.Tittel, t.Beskrivelse, t.KompetentMyndighet, t.Output, t.Tjenestetype, t.Malgruppe,
         t.Kanaler, t.Kostnad, t.Behandlingstid, t.Kontaktpunkt, t.KonsekvensVedBrudd, t.Sprak, t.Status, t.Versjon,
-        t.RotnodeId);
+        t.RotnodeId, t.Livshendelser, t.LosKlassifisering, t.Tjenesteomrade);
 }
 
-/// <summary>Forespørsel for POST/PUT /api/tjenester.</summary>
+/// <summary>Forespørsel for POST/PUT /api/tjenester. De tre siste feltene har defaultverdi (null) slik at
+/// eksisterende positional-kall (12 opprinnelige felt) fortsatt kompilerer uendret.</summary>
 public sealed record TjenesteRequest(
     string Tittel, string? Beskrivelse, string? KompetentMyndighet, string? Output, string? Tjenestetype,
-    string? Malgruppe, IReadOnlyList<string>? Kanaler, string? Kostnad, string? Behandlingstid,
-    string? Kontaktpunkt, string? KonsekvensVedBrudd, IReadOnlyList<string>? Sprak);
+    IReadOnlyList<string>? Malgruppe, IReadOnlyList<string>? Kanaler, string? Kostnad, string? Behandlingstid,
+    string? Kontaktpunkt, string? KonsekvensVedBrudd, IReadOnlyList<string>? Sprak,
+    IReadOnlyList<string>? Livshendelser = null, string? LosKlassifisering = null, string? Tjenesteomrade = null);
+
+// ---------- Handling (2026-08-20) — se HandlingEntitet i RegelIde.Data for begrunnelse ----------
+// Underliggende JSON-verdiobjekter (HandlingKanalInput/HandlingHjemmelInput/osv.) er definert i
+// RegelIde.Data/HandlingregisterTjeneste.cs, ikke duplisert her — samme mønster som
+// JuridiskGrunnlagInput/SkjonnsmomentInput brukt av VilkarDto.
+
+/// <summary>En konkret handling tilknyttet en Rettighet (Tjeneste) — søke, melde, klage, kontrolleres.
+/// Se <see cref="RegelIde.Data.HandlingEntitet"/> for full begrunnelse.</summary>
+public sealed record HandlingDto(
+    Guid Id, Guid TjenesteId, string Navn, string Handlingstype, string? Bruksomraade, string? UtfortAv,
+    Guid? RotnodeId, IReadOnlyList<HandlingKanalInput> Kanaler, HandlingBehandlingstidInput Behandlingstid,
+    HandlingKostnadInput Kostnad, IReadOnlyList<HandlingVedleggInput> Vedlegg,
+    IReadOnlyList<HandlingVeiledningstekstInput> Veiledningstekst, IReadOnlyList<HandlingArsakInput> Arsaker,
+    HandlingResultatInput Resultat, string? Merknad, string Status, int Versjon)
+{
+    public static HandlingDto FraEntitet(HandlingEntitet h) => new(
+        h.Id, h.TjenesteId, h.Navn, h.Handlingstype, h.Bruksomraade, h.UtfortAv, h.RotnodeId,
+        System.Text.Json.JsonSerializer.Deserialize<List<HandlingKanalInput>>(h.KanalerJson) ?? [],
+        System.Text.Json.JsonSerializer.Deserialize<HandlingBehandlingstidInput>(h.BehandlingstidJson)
+            ?? new HandlingBehandlingstidInput(null, null),
+        System.Text.Json.JsonSerializer.Deserialize<HandlingKostnadInput>(h.KostnadJson)
+            ?? new HandlingKostnadInput(null, []),
+        System.Text.Json.JsonSerializer.Deserialize<List<HandlingVedleggInput>>(h.VedleggJson) ?? [],
+        System.Text.Json.JsonSerializer.Deserialize<List<HandlingVeiledningstekstInput>>(h.VeiledningstekstJson) ?? [],
+        System.Text.Json.JsonSerializer.Deserialize<List<HandlingArsakInput>>(h.ArsakerJson) ?? [],
+        System.Text.Json.JsonSerializer.Deserialize<HandlingResultatInput>(h.ResultatJson)
+            ?? new HandlingResultatInput(null, []),
+        h.Merknad, h.Status, h.Versjon);
+}
+
+/// <summary>Forespørsel for POST/PUT /api/tjenester/{id}/handlinger og .../handlinger/{handlingId}.</summary>
+public sealed record HandlingRequest(
+    string Navn, string Handlingstype, string? Bruksomraade, string? UtfortAv,
+    IReadOnlyList<HandlingKanalInput>? Kanaler, HandlingBehandlingstidInput? Behandlingstid,
+    HandlingKostnadInput? Kostnad, IReadOnlyList<HandlingVedleggInput>? Vedlegg,
+    IReadOnlyList<HandlingVeiledningstekstInput>? Veiledningstekst, IReadOnlyList<HandlingArsakInput>? Arsaker,
+    HandlingResultatInput? Resultat, string? Merknad);
 
 public sealed record TjenesteRegelverksreferanseDto(Guid Id, Guid TjenesteId, Guid TilRettskildeId, string TilEid)
 {

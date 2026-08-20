@@ -7,6 +7,7 @@ import Importer from './pages/Importer';
 import HandbokOpprett from './pages/HandbokOpprett';
 import TjenesterListe from './pages/TjenesterListe';
 import TjenesteDetalj from './pages/TjenesteDetalj';
+import HandlingDetalj from './pages/HandlingDetalj';
 import BegreperListe from './pages/BegreperListe';
 import BegrepDetalj from './pages/BegrepDetalj';
 import KodelisterListe from './pages/KodelisterListe';
@@ -142,6 +143,7 @@ function App() {
             <Route path="/tjenester" element={<TjenesterListe />} />
             <Route path="/tjenester/forslag" element={<TjenesteforslagKo />} />
             <Route path="/tjenester/:id" element={<TjenesteDetalj />} />
+            <Route path="/tjenester/:tjenesteId/handlinger/:handlingId" element={<HandlingDetalj />} />
             <Route path="/begreper" element={<BegreperListe />} />
             <Route path="/begreper/forslag" element={<BegrepsforslagKo />} />
             <Route path="/begreper/:id" element={<BegrepDetalj />} />
