@@ -124,6 +124,50 @@ public class RettskildeImportTjenesteTests
         Assert.Equal(1, antallMedForvaltningslovenEli);
     }
 
+    // Egen, unik isolasjons-datokode for testen under -- MÅ være ulik IsolertDatokode ("LOV-2099-…")
+    // som flere ANDRE tester i denne klassen (Reimport_*) også bruker og etterlater i databasen
+    // (delt embedded Postgres på tvers av hele klassen, ingen opprydning mellom tester). Gjenbruk av
+    // samme isolasjons-Eli her ville gjort steg 1 sitt "Ny"-utfall avhengig av kjøringsrekkefølge.
+    private const string EgenIsolertDatokode = "LOV-2098-01-01-998";
+
+    private static string LesEgenIsolertAlkoholloven() => Testdata.LesAlkoholloven().Replace("LOV-1989-06-02-27", EgenIsolertDatokode);
+
+    [Fact]
+    public async Task ImporterMedUtfallAsync_klassifiserer_alle_fire_utfall_korrekt()
+    {
+        // Delta-analysen LovdataFullimportTjeneste bygger på (docs/13-backlog.md §6) — verifiserer her
+        // isolert, uten nettverk, at hvert av de fire utfallene faktisk klassifiseres riktig.
+        await using var db = _fixture.NyDbContext();
+        var tjeneste = new RettskildeImportTjeneste(db);
+
+        // 1) Ny -- fantes ikke fra før.
+        var html = LesEgenIsolertAlkoholloven();
+        var forste = await tjeneste.ImporterMedUtfallAsync(LovdataKonverterer.Konverter(html, new DateOnly(2026, 7, 24)));
+        Assert.Equal(RettskildeImportUtfall.Ny, forste.Utfall);
+
+        // 2) Uendret -- bit-identisk innhold, kun importdato ulik.
+        var andre = await tjeneste.ImporterMedUtfallAsync(LovdataKonverterer.Konverter(html, new DateOnly(2026, 7, 25)));
+        Assert.Equal(RettskildeImportUtfall.Uendret, andre.Utfall);
+        Assert.Equal(forste.RettskildeId, andre.RettskildeId);
+
+        // 3) NyVersjon -- reelt endret paragraf.
+        var endretHtml = html.Replace(
+            "begrense forbruket av alkoholholdige drikkevarer.", "begrense forbruket av alkoholholdige drikkevarer betydelig.");
+        var tredje = await tjeneste.ImporterMedUtfallAsync(LovdataKonverterer.Konverter(endretHtml, new DateOnly(2026, 8, 1)));
+        Assert.Equal(RettskildeImportUtfall.NyVersjon, tredje.Utfall);
+        Assert.NotEqual(forste.RettskildeId, tredje.RettskildeId);
+
+        // 4) ForfremmetStub -- alkoholloven §9-4 refererer markedsføringsloven, som fra steg 1 dermed
+        // allerede finnes som en referanse-stub -- import av den forfremmer denne eksisterende stubben.
+        var stubFor = await db.Rettskilder.SingleAsync(r => r.Eli == "https://lovdata.no/eli/lov/2009/01/09/2/nor");
+        Assert.Equal("referanse", stubFor.Importrolle);
+        var markedsforingslovenHtml = html // gjenbruker isolert alkoholloven-HTML som stand-in, kun ELI-en teller her
+            .Replace(EgenIsolertDatokode, "LOV-2009-01-09-2");
+        var fjerde = await tjeneste.ImporterMedUtfallAsync(LovdataKonverterer.Konverter(markedsforingslovenHtml, new DateOnly(2026, 7, 24)));
+        Assert.Equal(RettskildeImportUtfall.ForfremmetStub, fjerde.Utfall);
+        Assert.Equal(stubFor.Id, fjerde.RettskildeId);
+    }
+
     [Fact]
     public async Task Fulltekstsokindeks_fra_migrasjonen_fungerer_mot_ekte_postgres()
     {

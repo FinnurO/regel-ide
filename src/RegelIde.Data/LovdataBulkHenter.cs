@@ -69,14 +69,14 @@ public sealed partial class LovdataBulkHenter(HttpClient http)
     }
 
     /// <summary>
-    /// Byggesteg 5 runde 2 (Lovdata-katalog/søk, docs/14-byggesteg5-teknisk-design.md) — itererer ALLE
-    /// oppføringer i begge bulk-arkiv og trekker kun ut tittel + datokode + type, IKKE hele
-    /// AKN-tre-konverteringen (<see cref="LovdataKonverterer"/> i RegelIde.Kildekonvertering er
-    /// unødvendig tung bare for en katalograd). Brukes av <see cref="LovdataKatalogTjeneste"/> til å
-    /// (gjen)bygge en søkbar katalog — selve oppslaget på én lov (<see cref="HentRaaHtmlAsync"/>) er
-    /// uendret og fortsatt datokode-only.
+    /// Delt lavnivå-iterasjon over BEGGE bulk-arkiv (lov+forskrift) — laster ned og dekomprimerer
+    /// hvert arkiv ÉN gang, yielder allerede UTF-8-dekodet rå HTML for hver oppføring. Brukt av både
+    /// <see cref="HentAlleOppforingerAsync"/> (trekker kun ut tittel, byggesteg 5 runde 2 katalogen)
+    /// og <see cref="HentAlleDokumenterAsync"/> (trekker ut hele dokumentet, full Lovdata-synk,
+    /// docs/13-backlog.md §6) — å laste ned og dekomprimere de samme ~26 MB arkivene to ganger for
+    /// to ulike formål ville vært unødvendig tregt.
     /// </summary>
-    public async IAsyncEnumerable<(string Datokode, string Tittel, string Type)> HentAlleOppforingerAsync(
+    private async IAsyncEnumerable<(string Datokode, string Type, string Html)> HentAlleArkivEntrierAsync(
         [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct = default)
     {
         foreach (var (arkivUrl, type) in new[] { (LoverUrl, "lov"), (ForskrifterUrl, "forskrift") })
@@ -98,21 +98,69 @@ public sealed partial class LovdataBulkHenter(HttpClient http)
                 await entryStrøm.CopyToAsync(minne, ct);
                 var html = Encoding.UTF8.GetString(minne.ToArray());
 
-                var dokument = new HtmlDocument();
-                dokument.LoadHtml(html);
-                var tittelNode = dokument.DocumentNode.SelectSingleNode("//dd[@class='title']")
-                    ?? throw new FormatException($"'{navn}' mangler påkrevd metadatafelt 'title'. Ingen gjettet fallback.");
-                var tittel = HtmlEntity.DeEntitize(tittelNode.InnerText.Trim());
-
                 var dato = m.Groups[2].Value;
                 var løpenummer = int.Parse(m.Groups[3].Value);
                 var datokode = $"{(type == "lov" ? "LOV" : "FOR")}-{dato[..4]}-{dato[4..6]}-{dato[6..8]}" +
                     (løpenummer == 0 ? "" : $"-{løpenummer}");
 
-                yield return (datokode, tittel, type);
+                yield return (datokode, type, html);
             }
         }
     }
+
+    /// <summary>
+    /// Byggesteg 5 runde 2 (Lovdata-katalog/søk, docs/14-byggesteg5-teknisk-design.md) — itererer ALLE
+    /// oppføringer i begge bulk-arkiv og trekker kun ut tittel + datokode + type, IKKE hele
+    /// AKN-tre-konverteringen (<see cref="LovdataKonverterer"/> i RegelIde.Kildekonvertering er
+    /// unødvendig tung bare for en katalograd). Brukes av <see cref="LovdataKatalogTjeneste"/> til å
+    /// (gjen)bygge en søkbar katalog — selve oppslaget på én lov (<see cref="HentRaaHtmlAsync"/>) er
+    /// uendret og fortsatt datokode-only.
+    /// </summary>
+    public async IAsyncEnumerable<(string Datokode, string Tittel, string Type)> HentAlleOppforingerAsync(
+        [System.Runtime.CompilerServices.EnumeratorCancellation] CancellationToken ct = default)
+    {
+        await foreach (var (datokode, type, html) in HentAlleArkivEntrierAsync(ct))
+        {
+            var tittel = LesTittelBesteForsok(html)
+                ?? throw new FormatException($"Oppføring '{datokode}' mangler påkrevd metadatafelt 'title'. Ingen gjettet fallback.");
+
+            yield return (datokode, tittel, type);
+        }
+    }
+
+    /// <summary>
+    /// Beste-forsøk tittel-uttrekk fra Lovdatas metadata-blokk (<c>&lt;dd class="title"&gt;</c>) — helt
+    /// uavhengig av <c>RegelIde.Kildekonvertering.LovdataKonverterer</c>s strukturelle AKN-parsing.
+    /// Returnerer null (aldri kaster) i motsetning til bruken i <see cref="HentAlleOppforingerAsync"/>,
+    /// som SELV velger å kaste når tittelen mangler — her, brukt av <see cref="LovdataFullimportTjeneste"/>
+    /// til å likevel få en tittel med i importstatus-raden for dokumenter som IKKE lar seg AKN-konvertere,
+    /// er tittelen en bekvemmelighet for triage, ikke en forutsetning.
+    /// </summary>
+    public static string? LesTittelBesteForsok(string html)
+    {
+        try
+        {
+            var dokument = new HtmlDocument();
+            dokument.LoadHtml(html);
+            var tittelNode = dokument.DocumentNode.SelectSingleNode("//dd[@class='title']");
+            return tittelNode is null ? null : HtmlEntity.DeEntitize(tittelNode.InnerText.Trim());
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Full Lovdata-synkronisering (docs/13-backlog.md §6, "Daglig Lovdata-synkronisering") — som
+    /// <see cref="HentAlleOppforingerAsync"/>, men yielder hele det rå HTML-dokumentet i stedet for
+    /// bare tittelen, slik at hver oppføring kan konverteres til AKN direkte
+    /// (<c>RegelIde.Kildekonvertering.LovdataKonverterer.Konverter</c>) uten et eget nettverkskall per
+    /// dokument — <see cref="HentRaaHtmlAsync"/> laster ned HELE arkivet på nytt for hvert kall, helt
+    /// uaktuelt i en løkke over tusenvis av dokumenter. Brukt av <see cref="LovdataFullimportTjeneste"/>.
+    /// </summary>
+    public IAsyncEnumerable<(string Datokode, string Type, string Html)> HentAlleDokumenterAsync(CancellationToken ct = default) =>
+        HentAlleArkivEntrierAsync(ct);
 
     private static (string ArkivUrl, string Dato, int Løpenummer) TolkDatokode(string datokode)
     {

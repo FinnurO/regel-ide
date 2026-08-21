@@ -902,6 +902,23 @@ export interface LovdataKatalogTreffDto {
   type: string;
 }
 
+/**
+ * Siste kjente importforsøk for ETT KJENT Lovdata-dokument (fra bulk-arkivet) — se
+ * LovdataImportstatusEntitet på serveren. `importert=false` betyr at LovdataFullimportTjeneste (eller
+ * en enkeltimport via api.importerFraLovdata) ikke klarte å AKN-konvertere dokumentet — `feilmelding`
+ * er da satt til den faktiske unntaksmeldingen, til triage/case-by-case-vurdering (docs/13-backlog.md §6).
+ */
+export interface LovdataImportstatusDto {
+  datokode: string;
+  type: string;
+  tittel: string | null;
+  eli: string;
+  importert: boolean;
+  rettskildeId: string | null;
+  feilmelding: string | null;
+  sistForsoktTidspunkt: string;
+}
+
 export interface KjorForslagRequest {
   rettskildeIder: string[];
 }

@@ -25,6 +25,7 @@ import type {
   KjorForslagResponsDto,
   KunnskapsbibliotekFilDto,
   KunnskapsbibliotekLenkeDto,
+  LovdataImportstatusDto,
   LovdataKatalogTreffDto,
   LeggTilKodeRequest,
   LeggTilLenkeRequest,
@@ -84,7 +85,7 @@ const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5187';
  * løses mot <base href> og treffer riktig også når appen står under et sti-prefiks. Med en
  * rot-absolutt "/api/..." ville kallet gått utenfor appen og gitt 404 i app-clusteret.
  */
-function apiUrl(path: string): string {
+export function apiUrl(path: string): string {
   return API_BASE ? `${API_BASE}${path}` : path.replace(/^\//, '');
 }
 const BRUKER_ID_LAGRINGSNOKKEL = 'regelide.brukerId';
@@ -210,6 +211,9 @@ export const api = {
   sokLovdataKatalog: (q: string) =>
     kall<LovdataKatalogTreffDto[]>(`/api/lovdata-katalog/sok?q=${encodeURIComponent(q)}`),
 
+  hentLovdataImportstatus: (importert?: boolean) =>
+    kall<LovdataImportstatusDto[]>(`/api/lovdata-importstatus${importert !== undefined ? `?importert=${importert}` : ''}`),
+
   importerFraFil: (fil: File, virksomhetId?: string) => {
     const skjema = new FormData();
     skjema.append('fil', fil);
@@ -323,6 +327,11 @@ export const api = {
 
   hentTjenesteRegelverksreferanser: (id: string) =>
     kall<TjenesteRegelverksreferanseDto[]>(`/api/tjenester/${id}/regelverksreferanser`),
+
+  // Hele, sammensatte modelleksporten for én tjeneste (snake_case JSON, se
+  // RettighetModellEksportTjeneste) — ingen egen DTO her, formen er bevisst fleksibel/under utvikling
+  // og speiler ikke UI-ets egne camelCase-typer et-til-et.
+  hentModelleksport: (id: string) => kall<Record<string, unknown>>(`/api/tjenester/${id}/modelleksport`),
 
   sokTjenesterTverrTenant: (q: string) =>
     kall<TjenesteTverrTenantTreffDto[]>(`/api/tjenester/sok-tverr-tenant?q=${encodeURIComponent(q)}`),

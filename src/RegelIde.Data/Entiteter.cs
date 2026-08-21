@@ -1019,6 +1019,43 @@ public sealed class LovdataKatalogOppforingEntitet
 }
 
 /// <summary>
+/// Ett resultat per KJENT Lovdata-dokument (fra bulk-arkivet) etter siste
+/// <see cref="LovdataFullimportTjeneste"/>-forsøk på full AKN-import — uansett om forsøket lyktes.
+/// Formålet (2026-08-20, oppfølging av full Lovdata-synkronisering) er å kunne SE, i databasen,
+/// nøyaktig hvilke dokumenter parseren i dag IKKE takler (<see cref="Importert"/> = false), med nok
+/// metadata til å prioritere/utvide parseren case-by-case i stedet for å gjette en generell løsning
+/// — se docs/13-backlog.md §6. <see cref="Eli"/> er alltid satt, UANSETT utfall: den er avledet rent
+/// fra datokoden (<c>LovdataIdentifikatorer.AvledEliFraDatokode</c>), ikke fra den strukturelle
+/// AKN-parsingen som nettopp er det som kan feile — derfor alltid tilgjengelig som en direkte lenke
+/// til Lovdata-ressursen selv når importen mislykkes. <see cref="Datokode"/> er primærnøkkel (samme
+/// mønster som <see cref="LovdataKatalogOppforingEntitet"/>) — én rad per kjent dokument, overskrevet
+/// ved hver ny kjøring (ikke historikk over tid — kun SISTE kjente status er interessant her).
+/// </summary>
+public sealed class LovdataImportstatusEntitet
+{
+    public required string Datokode { get; set; }
+    public required string Type { get; set; } // 'lov' | 'forskrift'
+
+    /// <summary>Beste-forsøk tittel (se <c>LovdataBulkHenter.LesTittelBesteForsok</c>) — null hvis
+    /// selv det enkle tittel-uttrekket feilet (svært sjeldent, uavhengig av hovedparseren).</summary>
+    public string? Tittel { get; set; }
+
+    /// <summary>Lovdatas offisielle ELI, dobler som direkte URL (<c>https://lovdata.no/eli/...</c>).</summary>
+    public required string Eli { get; set; }
+
+    /// <summary>Flagget brukeren ba om: false = dette dokumentet er IKKE importert (parseren avviste det).</summary>
+    public required bool Importert { get; set; }
+
+    /// <summary>Satt når <see cref="Importert"/> er true — hvilken <see cref="RettskildeEntitet"/> dette ble.</summary>
+    public Guid? RettskildeId { get; set; }
+
+    /// <summary>Satt når <see cref="Importert"/> er false — den faktiske unntaksmeldingen, til triage.</summary>
+    public string? Feilmelding { get; set; }
+
+    public DateTimeOffset SistForsoktTidspunkt { get; set; }
+}
+
+/// <summary>
 /// <c>NettsideSti</c> (§3.1/§3.4) — én av potensielt FLERE navigasjonsstier en nettside opptrer
 /// under. §3.4 er eksplisitt: "lagre ALLE stier en node opptrer under som separate rader. Å velge én
 /// sti og kaste resten kaster informasjon." — derfor egen tabell (1:N), ikke et enkelt strengfelt.
