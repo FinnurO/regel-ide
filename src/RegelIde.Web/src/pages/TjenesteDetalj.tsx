@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
 import { Button, Field, Heading, Label, Link, Paragraph, Select, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
-import { ApiError, api } from '../api/client';
+import { ApiError, api, apiUrl } from '../api/client';
 import { eidVisningstekst, rettskildeLenke } from '../api/eidLenker';
 import type {
   HandlingDto, HendelseDto, RegelnodeDto, RettskildeNodeDto, RettskildeSammendrag, TjenesteavhengighetDto, TjenesteDto,
@@ -25,6 +25,14 @@ export default function TjenesteDetalj() {
   const { id } = useParams<{ id: string }>();
   const [tjeneste, setTjeneste] = useState<TjenesteDto | null>(null);
   const [referanser, setReferanser] = useState<TjenesteRegelverksreferanseDto[] | null>(null);
+
+  // JSON-modelleksport (hele, sammensatte modellen samlet ett sted — se RettighetModellEksportTjeneste)
+  // — lastes først når brukeren faktisk ber om den, ikke ved sidevisning, siden dette er et sekundært,
+  // sjeldent brukt innsynsverktøy (sammenlign med referanser/handlinger, som alltid vises).
+  const [visModelleksport, setVisModelleksport] = useState(false);
+  const [modelleksport, setModelleksport] = useState<Record<string, unknown> | null>(null);
+  const [modelleksportLaster, setModelleksportLaster] = useState(false);
+  const [modelleksportFeil, setModelleksportFeil] = useState<string | null>(null);
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
   const [feil, setFeil] = useState<string | null>(null);
 
@@ -382,6 +390,21 @@ export default function TjenesteDetalj() {
     }
   }
 
+  async function apneModelleksport() {
+    if (!id) return;
+    setVisModelleksport(true);
+    if (modelleksport) return; // allerede lastet — ikke hent på nytt bare fordi seksjonen åpnes igjen
+    setModelleksportFeil(null);
+    setModelleksportLaster(true);
+    try {
+      setModelleksport(await api.hentModelleksport(id));
+    } catch (err) {
+      setModelleksportFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved henting av JSON-eksport.');
+    } finally {
+      setModelleksportLaster(false);
+    }
+  }
+
   async function lagreInnhold(e: FormEvent) {
     e.preventDefault();
     if (!id || !tjeneste) return;
@@ -568,7 +591,29 @@ export default function TjenesteDetalj() {
       <Heading level={1} data-size="lg">
         {tjeneste.tittel}
       </Heading>
-      <Tag data-color="info" style={{ marginBottom: '1.5rem' }}>{tjeneste.status}</Tag>
+      <Tag data-color="info" style={{ marginBottom: '0.75rem' }}>{tjeneste.status}</Tag>
+      <Paragraph style={{ marginBottom: '1.5rem', display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
+        <Button data-size="sm" variant="tertiary" onClick={() => (visModelleksport ? setVisModelleksport(false) : apneModelleksport())}>
+          {visModelleksport ? 'Skjul JSON-eksport' : 'Vis JSON-eksport'}
+        </Button>
+        <Link href={apiUrl(`/api/tjenester/${tjeneste.id}/modelleksport`)} target="_blank" rel="noreferrer">
+          Åpne i ny fane →
+        </Link>
+      </Paragraph>
+      {visModelleksport && (
+        <section style={{ marginBottom: '2rem' }}>
+          {modelleksportLaster && <Paragraph>Laster …</Paragraph>}
+          {modelleksportFeil && <div className="feilmelding">{modelleksportFeil}</div>}
+          {modelleksport && (
+            <pre style={{
+              maxHeight: '32rem', overflow: 'auto', padding: '1rem', borderRadius: '0.25rem',
+              background: 'var(--ds-color-neutral-background-subtle, #f4f4f4)', fontSize: '0.8rem',
+            }}>
+              {JSON.stringify(modelleksport, null, 2)}
+            </pre>
+          )}
+        </section>
+      )}
 
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>

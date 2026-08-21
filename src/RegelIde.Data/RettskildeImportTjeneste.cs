@@ -4,6 +4,25 @@ using RegelIde.Kildekonvertering;
 
 namespace RegelIde.Data;
 
+/// <summary>Hva <see cref="RettskildeImportTjeneste.ImporterMedUtfallAsync"/> faktisk gjorde med dokumentet.</summary>
+public enum RettskildeImportUtfall
+{
+    /// <summary>Helt ny rettskilde — fantes ikke fra før (verken som primær eller referanse-stub).</summary>
+    Ny,
+
+    /// <summary>En tidligere referanse-stub (§3.1 steg 6) ble forfremmet til en fullt importert primærkilde.</summary>
+    ForfremmetStub,
+
+    /// <summary>Innholdet var reelt endret siden forrige import — en ny, versjonert rad ble opprettet (§2.1).</summary>
+    NyVersjon,
+
+    /// <summary>Allerede importert med bit-identisk innhold (etter normalisering) — ingen ny rad opprettet.</summary>
+    Uendret,
+}
+
+/// <summary>Resultatet av én <see cref="RettskildeImportTjeneste.ImporterMedUtfallAsync"/>-kjøring.</summary>
+public sealed record RettskildeImportResultat(Guid RettskildeId, RettskildeImportUtfall Utfall);
+
 /// <summary>
 /// Persisterer et <see cref="KonverteringResultat"/> (fra RegelIde.Kildekonvertering) til databasen
 /// (§2 i teknisk design). Idempotent på ELI: importerer aldri samme gjeldende rettskilde to ganger.
@@ -26,6 +45,15 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
     /// faktisk (test)bruker skal alltid sende bruker.Navn her — se GjeldendeBrukerTjeneste i RegelIde.Api.
     /// </param>
     public async Task<Guid> ImporterAsync(
+        KonverteringResultat resultat, Guid? virksomhetId = null, string? opprettetAv = null, CancellationToken ct = default) =>
+        (await ImporterMedUtfallAsync(resultat, virksomhetId, opprettetAv, ct)).RettskildeId;
+
+    /// <summary>
+    /// Som <see cref="ImporterAsync"/>, men returnerer også HVILKET utfall importen faktisk fikk —
+    /// til bruk der noe (f.eks. <see cref="LovdataFullimportTjeneste"/>) trenger å telle/rapportere
+    /// ny/oppdatert/uendret over et stort antall dokumenter, ikke bare den resulterende id-en.
+    /// </summary>
+    public async Task<RettskildeImportResultat> ImporterMedUtfallAsync(
         KonverteringResultat resultat, Guid? virksomhetId = null, string? opprettetAv = null, CancellationToken ct = default)
     {
         var attribuertTil = opprettetAv ?? SystemBruker;
@@ -43,17 +71,21 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 NormaliserAknForSammenligning(eksisterende.AknXml) == NormaliserAknForSammenligning(resultat.AknXml);
             if (uendret)
             {
-                return eksisterende.Id; // allerede importert, ingen reell endring — ikke dupliser (§2.1)
+                // allerede importert, ingen reell endring — ikke dupliser (§2.1)
+                return new RettskildeImportResultat(eksisterende.Id, RettskildeImportUtfall.Uendret);
             }
 
             // §2.1: en ny konsolidert versjon er en helt ny rettskilder-rad, aldri en inkrementell
             // oppdatering av den gamle. QuoteSelector-relokering av eksisterende tagger skjer i samme slag.
-            return await OpprettNyVersjonAsync(eksisterende, resultat, virksomhetId, attribuertTil, ct);
+            var nyVersjonId = await OpprettNyVersjonAsync(eksisterende, resultat, virksomhetId, attribuertTil, ct);
+            return new RettskildeImportResultat(nyVersjonId, RettskildeImportUtfall.NyVersjon);
         }
 
         Guid rettskildeId;
+        var forfremmetStub = false;
         if (eksisterende is { Importrolle: "referanse" })
         {
+            forfremmetStub = true;
             // Forfremmelse av en tidligere opprettet referanse-stub (§3.1 steg 6) til en fullt importert primærkilde.
             rettskildeId = eksisterende.Id;
             eksisterende.Importrolle = "primaer";
@@ -97,7 +129,8 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
 
         await SettInnNoderOgReferanserAsync(rettskildeId, resultat, ct);
         await db.SaveChangesAsync(ct);
-        return rettskildeId;
+        return new RettskildeImportResultat(
+            rettskildeId, forfremmetStub ? RettskildeImportUtfall.ForfremmetStub : RettskildeImportUtfall.Ny);
     }
 
     /// <summary>
@@ -110,6 +143,18 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
         var nodeIdVedEid = resultat.Noder.ToDictionary(n => n.Eid, _ => Guid.NewGuid());
         foreach (var n in resultat.Noder)
         {
+            // TryGetValue, IKKE GetValueOrDefault: nodeIdVedEid er Dictionary<string, Guid> (Guid er en
+            // value type), så GetValueOrDefault på et manglende nøkkel returnerer Guid.Empty — IKKE null
+            // — og ville brutt FK-constrainten mot rettskilde_noder (bekreftet ekte, en paragraf- OG
+            // kapittelfri lov hvis ledd har eId scopet til dokumentets ELI, men ParentEid=null siden ELI'en
+            // ikke er noen ekte nodes eId — se ParseLedd i LovdataHtmlParser). Samme lærdom/mønster som
+            // allerede etablert i HandbokImportTjeneste.cs.
+            Guid? parentNodeId = null;
+            if (n.ParentEid is not null && nodeIdVedEid.TryGetValue(n.ParentEid, out var funnetParentNodeId))
+            {
+                parentNodeId = funnetParentNodeId;
+            }
+
             db.RettskildeNoder.Add(new RettskildeNodeEntitet
             {
                 Id = nodeIdVedEid[n.Eid],
@@ -118,7 +163,7 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 Kildesystem = n.Kildesystem,
                 KildeId = n.KildeId,
                 OffisiellEli = null,
-                ParentNodeId = n.ParentEid is not null ? nodeIdVedEid.GetValueOrDefault(n.ParentEid) : null,
+                ParentNodeId = parentNodeId,
                 NodeType = n.NodeType.TilDbVerdi(),
                 Nummer = n.Nummer,
                 Overskrift = n.Overskrift,

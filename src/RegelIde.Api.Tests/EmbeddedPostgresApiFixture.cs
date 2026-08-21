@@ -64,6 +64,13 @@ public sealed class EmbeddedPostgresApiFixture : IAsyncLifetime
         // Stub her, uavhengig av hva som ligger i utviklerens lokale config.
         Environment.SetEnvironmentVariable("RegelIde__KiAgent__Leverandor", "Stub");
 
+        // Samme resonnement: uten dette ville HVER test som bruker denne fixturen (og dermed
+        // WebApplicationFactory<Program>, som kjører Program.cs' faktiske DI/oppstart) trigget en
+        // ekte Lovdata-fullimport av tusenvis av dokumenter i bakgrunnen — trege, nettverksavhengige
+        // og helt uten poeng for det disse testene faktisk verifiserer. Se
+        // LovdataFullimportBakgrunnstjeneste i RegelIde.Api.
+        Environment.SetEnvironmentVariable("RegelIde__LovdataFullimport__AktivVedOppstart", "false");
+
         Factory = new WebApplicationFactory<Program>();
 
         // Trigger host-oppstart (migrasjon + seeding i Program.cs) nå, ikke ved første test.

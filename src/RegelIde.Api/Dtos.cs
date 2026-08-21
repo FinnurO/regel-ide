@@ -516,6 +516,15 @@ public sealed record LovdataKatalogTreffDto(string Datokode, string Tittel, stri
     public static LovdataKatalogTreffDto FraEntitet(LovdataKatalogOppforingEntitet o) => new(o.Datokode, o.Tittel, o.Type);
 }
 
+/// <summary>Siste kjente importforsøk for ETT Lovdata-dokument — se <see cref="LovdataImportstatusEntitet"/>.</summary>
+public sealed record LovdataImportstatusDto(
+    string Datokode, string Type, string? Tittel, string Eli, bool Importert, Guid? RettskildeId,
+    string? Feilmelding, DateTimeOffset SistForsoktTidspunkt)
+{
+    public static LovdataImportstatusDto FraEntitet(LovdataImportstatusEntitet e) => new(
+        e.Datokode, e.Type, e.Tittel, e.Eli, e.Importert, e.RettskildeId, e.Feilmelding, e.SistForsoktTidspunkt);
+}
+
 /// <summary>
 /// Én høstet, rå kildepost (<see cref="EksternKildeEntitet"/>) — se den klassens kommentar for hvorfor
 /// den bevisst IKKE er koblet til domenemodellen ennå. <see cref="RaaJson"/> er hele kildeobjektet,

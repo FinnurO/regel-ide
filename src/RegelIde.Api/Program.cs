@@ -1,4 +1,5 @@
 using System.Text;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
 using RegelIde.Api;
@@ -48,6 +49,7 @@ builder.Services.AddScoped<HendelseregisterTjeneste>();
 builder.Services.AddScoped<TjenesteavhengighetregisterTjeneste>();
 builder.Services.AddScoped<HandlingregisterTjeneste>();
 builder.Services.AddScoped<TjenesteEksportTjeneste>();
+builder.Services.AddScoped<RettighetModellEksportTjeneste>();
 builder.Services.AddScoped<KunnskapsbibliotekTjeneste>();
 // "Stub" (default) eller "OpenAiKompatibel" — se docs/14-byggesteg5-teknisk-design.md. Bytte krever
 // restart av API-et; å gjøre dette velgbart fra en admin-side i appen er en senere, avgrenset
@@ -80,6 +82,11 @@ builder.Services.AddScoped<RettskildeEmbeddingTjeneste>();
 builder.Services.AddScoped<TjenesteforslagTjeneste>();
 builder.Services.AddHttpClient<LovdataBulkHenter>();
 builder.Services.AddScoped<LovdataKatalogTjeneste>();
+builder.Services.AddScoped<LovdataFullimportTjeneste>();
+builder.Services.AddScoped<LovdataImportstatusTjeneste>();
+// Full Lovdata-synkronisering ved oppstart (docs/13-backlog.md §6) — se klassekommentaren for
+// hvorfor dette er en BackgroundService og ikke et synkront steg i oppstartsblokken under.
+builder.Services.AddHostedService<LovdataFullimportBakgrunnstjeneste>();
 builder.Services.AddHttpClient<OppgaveregisterHenter>();
 builder.Services.AddHttpClient<AltinnRessursHenter>();
 // info.altinn.no returnerer 403 uten en nettleserlignende User-Agent (bekreftet ved live-verifisering
@@ -659,7 +666,8 @@ rettskilder.MapPost("/fil", async (HttpRequest request, IFormFile fil, Guid? vir
         "?virksomhetId angir at dette er virksomhetens egen lokale kilde; utelatt = delt/nasjonal kilde.");
 
 rettskilder.MapPost("/lovdata", async (HttpRequest request, LovdataImportRequest body,
-        LovdataBulkHenter henter, RettskildeImportTjeneste importer, RegelIdeDbContext db, CancellationToken ct) =>
+        LovdataBulkHenter henter, RettskildeImportTjeneste importer, LovdataImportstatusTjeneste importstatusTjeneste,
+        RegelIdeDbContext db, ILogger<Program> logger, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
@@ -677,6 +685,12 @@ rettskilder.MapPost("/lovdata", async (HttpRequest request, LovdataImportRequest
             return Results.BadRequest(new { feil = ex.Message });
         }
 
+        // Avledet fra datokoden ALENE (samme som LovdataFullimportTjeneste) — alltid tilgjengelig her,
+        // siden HentRaaHtmlAsync over allerede har bekreftet at datokoden er velformet.
+        var eli = LovdataIdentifikatorer.AvledEliFraDatokode(body.Datokode, out var kildetype);
+        var type = kildetype == Kildetype.Lov ? "lov" : "forskrift";
+        var tittel = LovdataBulkHenter.LesTittelBesteForsok(html);
+
         KonverteringResultat resultat;
         try
         {
@@ -684,17 +698,39 @@ rettskilder.MapPost("/lovdata", async (HttpRequest request, LovdataImportRequest
         }
         catch (Exception ex) when (ex is FormatException or NotSupportedException)
         {
+            // Konsistens (2026-08-20, se LovdataImportstatusTjeneste): brukeren kan ha trigget denne
+            // enkeltimporten nettopp FORDI dokumentet stod som importert=false i lovdata_importstatus
+            // (fra forrige fullimport-runde) — hvis det fortsatt feiler, skal raden få den FERSKE
+            // feilmeldingen, ikke stå igjen med en utdatert én til neste app-restart. Svelger egne feil
+            // her: denne bekvemmeligheten skal aldri velte feilresponsen brukeren allerede skal få.
+            try
+            {
+                await importstatusTjeneste.OppdaterAsync(body.Datokode, type, tittel, eli, importert: false, rettskildeId: null, ex.Message, ct);
+            }
+            catch (Exception statusEx) when (statusEx is not OperationCanceledException)
+            {
+                logger.LogWarning(statusEx, "Kunne ikke oppdatere lovdata_importstatus for {Datokode} etter mislykket enkeltimport.", body.Datokode);
+            }
+
             return Results.UnprocessableEntity(new { feil = $"Hentet fra Lovdata, men kunne ikke tolke innholdet: {ex.Message}" });
         }
 
         // Alltid delt/nasjonalt (virksomhetId=null) -- dette endepunktet henter kun fra Lovdatas
         // offisielle bulk-datasett, som per definisjon kun inneholder nasjonale Lov/Forskrift.
         var rettskildeId = await importer.ImporterAsync(resultat, virksomhetId: null, bruker.Navn, ct);
+
+        // Konsistens (2026-08-20, se LovdataImportstatusTjeneste): en vellykket enkeltimport her skal
+        // ALLTID gjenspeiles i lovdata_importstatus også, ikke bare fullimport-rundens egen skriving —
+        // ellers står raden fortsatt som importert=false med en utdatert feilmelding selv om dokumentet
+        // nå faktisk er en ekte rettskilde.
+        await importstatusTjeneste.OppdaterAsync(body.Datokode, type, tittel, eli, importert: true, rettskildeId, feilmelding: null, ct);
+
         return Results.Created($"/api/rettskilder/{rettskildeId}", new { id = rettskildeId });
     })
     .WithName("ImporterFraLovdata")
     .WithSummary("Henter og importerer en rettskilde fra Lovdatas offisielle bulk-datasett via datokode " +
-        "(f.eks. \"LOV-1989-06-02-27\"). Alltid en delt/nasjonal kilde.");
+        "(f.eks. \"LOV-1989-06-02-27\"). Alltid en delt/nasjonal kilde. Oppdaterer også lovdata_importstatus " +
+        "for denne datokoden (konsistens med LovdataFullimportTjeneste).");
 
 app.MapGet("/api/lovdata-katalog/sok", async (string q, LovdataKatalogTjeneste tjeneste, CancellationToken ct) =>
     {
@@ -706,6 +742,19 @@ app.MapGet("/api/lovdata-katalog/sok", async (string q, LovdataKatalogTjeneste t
     .WithSummary("Søker i en lokal, søkbar katalog over Lovdatas bulk-datasett (byggesteg 5 runde 2) — " +
         "kun metadata, bygges/fornyes automatisk (24t foreldelsesgrense). Bruk treffets datokode mot " +
         "/api/rettskilder/lovdata for selve importen.");
+
+app.MapGet("/api/lovdata-importstatus", async (bool? importert, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var sporsmal = db.LovdataImportstatuser.AsQueryable();
+        if (importert is { } i) sporsmal = sporsmal.Where(s => s.Importert == i);
+
+        var treff = await sporsmal.OrderBy(s => s.Datokode).ToListAsync(ct);
+        return Results.Ok(treff.Select(LovdataImportstatusDto.FraEntitet));
+    })
+    .WithName("HentLovdataImportstatus")
+    .WithSummary("Siste kjente importforsøk per KJENT Lovdata-dokument (fra bulk-arkivet), skrevet av " +
+        "LovdataFullimportTjeneste — inkl. dokumenter som IKKE lot seg AKN-importere (importert=false), " +
+        "med tittel/ELI/feilmelding til triage. ?importert=false viser kun det som trengs å prioriteres.");
 
 // ---------- Eksterne kilder — rått høstelag for skjema-/tjenestekatalog (docs/13-backlog.md), ----------
 // ---------- ENNÅ IKKE koblet til domenemodellen (docs/17/docs/18 fortsatt uavklart). Trigges på ----------
@@ -2248,6 +2297,20 @@ tjenester.MapGet("/{id:guid}/eksport", async (Guid id, TjenesteEksportTjeneste e
         "Ett samlet JSON-dokument for tjenestens KJERNEMODELL — egenskaper, regelverksreferanser, " +
         "hendelser og tjenesteavhengigheter (inkl. eksterne plassholder-referanser). BEVISST uten " +
         "vilkårstre (egen, senere avklaring). Rent sammensatt leseendepunkt, ingen egen lagret representasjon.");
+
+tjenester.MapGet("/{id:guid}/modelleksport", async (Guid id, RettighetModellEksportTjeneste eksport, CancellationToken ct) =>
+    {
+        var resultat = await eksport.EksporterAsync(id, ct);
+        return resultat is null
+            ? Results.NotFound(new { feil = $"Ingen tjeneste med id '{id}'." })
+            : Results.Text(resultat.ToJsonString(new JsonSerializerOptions { WriteIndented = true }), "application/json");
+    })
+    .WithName("EksporterRettighetModell")
+    .WithSummary(
+        "Eksporterer én Rettighet (Tjeneste) formet EKSAKT som rettigheter[]-elementene i den " +
+        "hånd-modellerte serveringsbevilling-modell-forslag.json — snake_case feltnavn, samme " +
+        "nøsting (innhold/regelverksreferanser/handlinger/avhengigheter). Til bruk i modell-vs-app " +
+        "verifisering, ikke et alternativ til /eksport (som er det flate CPSV-dokumentet).");
 
 tjenester.MapPost("/{id:guid}/avhengigheter", async (Guid id, HttpRequest request, TjenesteavhengighetRequest body, TjenesteavhengighetregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {

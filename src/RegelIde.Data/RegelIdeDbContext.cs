@@ -60,6 +60,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<KunnskapsbibliotekLenkeEntitet> KunnskapsbibliotekLenker => Set<KunnskapsbibliotekLenkeEntitet>();
     public DbSet<KunnskapsbibliotekFilEntitet> KunnskapsbibliotekFiler => Set<KunnskapsbibliotekFilEntitet>();
     public DbSet<LovdataKatalogOppforingEntitet> LovdataKatalogOppforinger => Set<LovdataKatalogOppforingEntitet>();
+    public DbSet<LovdataImportstatusEntitet> LovdataImportstatuser => Set<LovdataImportstatusEntitet>();
     public DbSet<EksternKildeEntitet> EksterneKilder => Set<EksternKildeEntitet>();
     public DbSet<NettsideStiEntitet> NettsideStier => Set<NettsideStiEntitet>();
     public DbSet<NettsideLenkeEntitet> NettsideLenker => Set<NettsideLenkeEntitet>();
@@ -854,6 +855,24 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.SistOppdatert).HasColumnName("sist_oppdatert");
 
             e.HasIndex(x => x.SistOppdatert).HasDatabaseName("ix_lovdata_katalog_oppforinger_sist_oppdatert");
+        });
+
+        b.Entity<LovdataImportstatusEntitet>(e =>
+        {
+            e.ToTable("lovdata_importstatus");
+            e.HasKey(x => x.Datokode).HasName("lovdata_importstatus_pkey");
+            e.Property(x => x.Datokode).HasColumnName("datokode");
+            e.Property(x => x.Type).HasColumnName("type");
+            e.Property(x => x.Tittel).HasColumnName("tittel");
+            e.Property(x => x.Eli).HasColumnName("eli");
+            e.Property(x => x.Importert).HasColumnName("importert");
+            e.Property(x => x.RettskildeId).HasColumnName("rettskilde_id");
+            e.Property(x => x.Feilmelding).HasColumnName("feilmelding");
+            e.Property(x => x.SistForsoktTidspunkt).HasColumnName("sist_forsokt_tidspunkt");
+
+            // Hovedbruken (docs/13-backlog.md §6): "vis meg alt som IKKE er importert" — filtrert indeks
+            // siden det er akkurat den delmengden (i dag ~93 % av korpuset) som faktisk søkes i for triage.
+            e.HasIndex(x => x.Importert).HasDatabaseName("ix_lovdata_importstatus_importert");
         });
 
         b.Entity<EksternKildeEntitet>(e =>
