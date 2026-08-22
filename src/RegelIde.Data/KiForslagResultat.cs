@@ -8,3 +8,11 @@ namespace RegelIde.Data;
 /// mistolkes som at noe gikk feil (observert live, byggesteg 5 runde 3).
 /// </summary>
 public sealed record KiForslagResultat<T>(IReadOnlyList<T> Opprettede, int? InputTokens, int? OutputTokens, string? Melding);
+
+/// <summary>
+/// Ett element i resultatet av <see cref="TjenesteforslagTjeneste.KjorFullForslagAsync"/> (omfang
+/// "full", handlingsforslag-ki-omfang-runden) — den nyopprettede Tjenesten pluss Handlingene KI-en
+/// foreslo UNDER den i SAMME kall. Egen record (ikke et løst tuppel) siden formen krysser API-grensen
+/// til <c>RegelIde.Api</c> sin DTO-mapping, samme rolle som <see cref="KiForslagResultat{T}"/> selv.
+/// </summary>
+public sealed record TjenesteMedHandlingerResultat(TjenesteEntitet Tjeneste, IReadOnlyList<HandlingEntitet> Handlinger);

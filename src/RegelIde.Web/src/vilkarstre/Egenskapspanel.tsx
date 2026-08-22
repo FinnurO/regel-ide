@@ -13,7 +13,7 @@
  */
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Button, Field, Label, Link, Paragraph, Select, Tabs, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Field, Label, Link, Paragraph, Select, Spinner, Tabs, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
 import type {
@@ -173,12 +173,12 @@ function InputDatasettAdministrasjon({ vilkarId }: { vilkarId: string }) {
     }
   }
 
-  if (input === null) return <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Laster …</Paragraph>;
+  if (input === null) return <Spinner aria-label="Laster …" data-size="xs" />;
   const ubrukte = alleDatasett.filter((d) => !input.some((i) => i.id === d.id));
 
   return (
     <div>
-      {feil && <div className="feilmelding" style={{ marginBottom: '0.5rem' }}>{feil}</div>}
+      {feil && <Alert data-color="danger" style={{ marginBottom: '0.5rem' }}>{feil}</Alert>}
       {input.length === 0 ? (
         <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
           Ingen input-datasett koblet.
@@ -263,7 +263,7 @@ function VeiledningskommentarAdministrasjon({ malType, malId, setFane, onOpprett
     }
   }
 
-  if (kommentarer === null) return <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Laster …</Paragraph>;
+  if (kommentarer === null) return <Spinner aria-label="Laster …" data-size="xs" />;
 
   return (
     <div>
@@ -276,7 +276,7 @@ function VeiledningskommentarAdministrasjon({ malType, malId, setFane, onOpprett
         )}
         <Link asChild><RouterLink to="/datasett">Datasett-registeret →</RouterLink></Link>
       </div>
-      {feil && <div className="feilmelding" style={{ marginBottom: '0.5rem' }}>{feil}</div>}
+      {feil && <Alert data-color="danger" style={{ marginBottom: '0.5rem' }}>{feil}</Alert>}
       {kommentarer.length === 0 ? (
         <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
           Ingen veiledningskommentarer lagt til.
@@ -317,7 +317,7 @@ function VeiledningskommentarAdministrasjon({ malType, malId, setFane, onOpprett
 }
 
 function Historikk({ liste }: { liste: ProveniensDto[] | null }) {
-  if (liste === null) return <Paragraph>Laster …</Paragraph>;
+  if (liste === null) return <Spinner aria-label="Laster …" data-size="sm" />;
   if (liste.length === 0) return <Paragraph>Ingen historikk ennå.</Paragraph>;
   return (
     <ul>
@@ -416,7 +416,7 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, tjenester, feil
     }
   }
 
-  if (!vilkar) return <Paragraph>Laster …</Paragraph>;
+  if (!vilkar) return <Spinner aria-label="Laster …" data-size="sm" />;
   const begrep = begreper.find((b) => b.id === begrepId);
   const skjonnsgrunnlag = begreper.find((b) => b.id === skjonnsgrunnlagBegrepId);
 
@@ -428,7 +428,7 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, tjenester, feil
         {vilkar.erFormel && <Tag data-color="warning">Formel</Tag>}
       </div>
       <FelleFaner fane={fane} setFane={setFane} />
-      {feil && <div className="feilmelding" style={{ marginBottom: '0.75rem' }}>{feil}</div>}
+      {feil && <Alert data-color="danger" style={{ marginBottom: '0.75rem' }}>{feil}</Alert>}
 
       {fane === 'generelt' && (
         <form onSubmit={lagre} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '32rem' }}>
@@ -614,7 +614,7 @@ function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndre
     }
   }
 
-  if (!regelnode) return <Paragraph>Laster …</Paragraph>;
+  if (!regelnode) return <Spinner aria-label="Laster …" data-size="sm" />;
 
   return (
     <div>
@@ -624,7 +624,7 @@ function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndre
         {regelnode.erRotnode && <Tag data-color="success">Rotnode</Tag>}
       </div>
       <FelleFaner fane={fane} setFane={setFane} />
-      {feil && <div className="feilmelding" style={{ marginBottom: '0.75rem' }}>{feil}</div>}
+      {feil && <Alert data-color="danger" style={{ marginBottom: '0.75rem' }}>{feil}</Alert>}
 
       {fane === 'generelt' && (
         <form onSubmit={lagre} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '32rem' }}>
@@ -741,7 +741,7 @@ function UnntakPanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndret }
     }
   }
 
-  if (!unntak) return <Paragraph>Laster …</Paragraph>;
+  if (!unntak) return <Spinner aria-label="Laster …" data-size="sm" />;
 
   return (
     <div>
@@ -750,7 +750,7 @@ function UnntakPanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndret }
         <Tag data-color="neutral">{unntak.status}</Tag>
       </div>
       <FelleFaner fane={fane} setFane={setFane} />
-      {feil && <div className="feilmelding" style={{ marginBottom: '0.75rem' }}>{feil}</div>}
+      {feil && <Alert data-color="danger" style={{ marginBottom: '0.75rem' }}>{feil}</Alert>}
 
       {fane === 'generelt' && (
         <form onSubmit={lagre} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '32rem' }}>

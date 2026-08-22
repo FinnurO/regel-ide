@@ -10,6 +10,8 @@ import type {
   BegrepsforslagDto,
   DokumentReferanseDto,
   HandlingDto,
+  HandlingMedTjenesteDto,
+  HandlingRegelverksreferanseDto,
   HandlingRequest,
   HendelseDto,
   HendelseRequest,
@@ -23,6 +25,8 @@ import type {
   KodelisteRequest,
   KjorForslagRequest,
   KjorForslagResponsDto,
+  KjorHandlingsforslagRequest,
+  TjenesteMedHandlingerDto,
   KunnskapsbibliotekFilDto,
   KunnskapsbibliotekLenkeDto,
   LovdataImportstatusDto,
@@ -73,6 +77,13 @@ import type {
   VilkarRequest,
   VilkarstreKommentarDto,
   VirksomhetDto,
+  VirksomhetsbegrepDto,
+  MyndighetstildelingDto,
+  VirksomhetKandidatDto,
+  SveipVirksomhetKandidaterRequest,
+  SveipVirksomhetKandidaterResultatDto,
+  VirksomhetKandidatBatchRequest,
+  VirksomhetKandidatBatchResultatDto,
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5187';
@@ -198,6 +209,69 @@ export const api = {
     }),
 
   hentVirksomheter: () => kall<VirksomhetDto[]>('/api/virksomheter'),
+
+  hentVirksomhetsbegrep: (virksomhetId: string) =>
+    kall<VirksomhetsbegrepDto[]>(`/api/virksomheter/${virksomhetId}/begrep`),
+
+  opprettVirksomhetsbegrep: (request: { virksomhetId: string; term: string; skosUrl: string | null }) =>
+    kall<VirksomhetsbegrepDto>('/api/virksomhetsbegrep', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  hentMyndighetstildelingerForVirksomhet: (virksomhetId: string) =>
+    kall<MyndighetstildelingDto[]>(`/api/virksomheter/${virksomhetId}/myndighetstildelinger`),
+
+  hentVentendeKandidater: (virksomhetId: string) =>
+    kall<VirksomhetKandidatDto[]>(`/api/virksomhet-kandidater?virksomhetId=${virksomhetId}`),
+
+  /** Full kandidatliste-UI (kravspek §4.2 pkt. 3) — status='Alle' fjerner statusfiltreringen helt. */
+  hentVirksomhetKandidater: (filter: { virksomhetId?: string; rettskildeId?: string; status?: string }) => {
+    const parametre = new URLSearchParams();
+    if (filter.virksomhetId) parametre.set('virksomhetId', filter.virksomhetId);
+    if (filter.rettskildeId) parametre.set('rettskildeId', filter.rettskildeId);
+    if (filter.status) parametre.set('status', filter.status);
+    const sok = parametre.toString();
+    return kall<VirksomhetKandidatDto[]>(`/api/virksomhet-kandidater${sok ? `?${sok}` : ''}`);
+  },
+
+  sveipVirksomhetKandidater: (request: SveipVirksomhetKandidaterRequest) =>
+    kall<SveipVirksomhetKandidaterResultatDto>('/api/virksomhet-kandidater/sveip', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  godkjennVirksomhetKandidaterBatch: (request: VirksomhetKandidatBatchRequest) =>
+    kall<VirksomhetKandidatBatchResultatDto>('/api/virksomhet-kandidater/godkjenn-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  avvisVirksomhetKandidaterBatch: (request: VirksomhetKandidatBatchRequest) =>
+    kall<VirksomhetKandidatBatchResultatDto>('/api/virksomhet-kandidater/avvis-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  hardslettVirksomhetKandidat: (id: string) =>
+    kall<void>(`/api/virksomhet-kandidater/${id}`, { method: 'DELETE' }),
+
+  settVirksomhetForvaltningsniva: (id: string, forvaltningsniva: string | null) =>
+    kall<VirksomhetDto>(`/api/virksomheter/${id}/forvaltningsniva`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ forvaltningsniva }),
+    }),
+
+  godkjennVirksomhetKandidat: (id: string) =>
+    kall<VirksomhetKandidatDto>(`/api/virksomhet-kandidater/${id}/godkjenn`, { method: 'POST' }),
+
+  avvisVirksomhetKandidat: (id: string) =>
+    kall<VirksomhetKandidatDto>(`/api/virksomhet-kandidater/${id}/avvis`, { method: 'POST' }),
 
   hentTaggKinds: () => kall<TaggKindKonfigurasjonDto[]>('/api/konfigurasjon/tagg-kinds'),
 
@@ -342,6 +416,24 @@ export const api = {
 
   kjorTjenesteforslag: (request: KjorForslagRequest) =>
     kall<KjorForslagResponsDto<TjenesteDto>>('/api/tjenester/forslag/kjor', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  // Omfang "full" (handlingsforslag-ki-omfang-runden) — samme endepunkt som over, men request.omfang
+  // = 'full' gir en ANNEN responsform (Tjeneste + Handlinger per element) — egen typet klientmetode
+  // i stedet for å overbelaste kjorTjenesteforslag sin returtype.
+  kjorFullTjenesteforslag: (request: KjorForslagRequest) =>
+    kall<KjorForslagResponsDto<TjenesteMedHandlingerDto>>('/api/tjenester/forslag/kjor', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  // Omfang "handling" (handlingsforslag-ki-omfang-runden) — Handlinger for ÉN eksisterende tjeneste.
+  kjorHandlingsforslag: (tjenesteId: string, request: KjorHandlingsforslagRequest) =>
+    kall<KjorForslagResponsDto<HandlingDto>>(`/api/tjenester/${tjenesteId}/handlinger/forslag/kjor`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
@@ -658,6 +750,9 @@ export const api = {
 
   // ---------- Handlinger (2026-08-20) — konkrete handlinger tilknyttet en Rettighet (Tjeneste) ----------
 
+  /** Toppnivå-listen (2026-08-22) — ALLE handlinger tvers av ALLE tjenester, ett kall. */
+  hentAlleHandlinger: () => kall<HandlingMedTjenesteDto[]>('/api/handlinger'),
+
   hentHandlinger: (tjenesteId: string) => kall<HandlingDto[]>(`/api/tjenester/${tjenesteId}/handlinger`),
 
   hentHandling: (handlingId: string) => kall<HandlingDto>(`/api/tjenester/handlinger/${handlingId}`),
@@ -691,5 +786,15 @@ export const api = {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
+    }),
+
+  hentHandlingRegelverksreferanser: (handlingId: string) =>
+    kall<HandlingRegelverksreferanseDto[]>(`/api/tjenester/handlinger/${handlingId}/regelverksreferanser`),
+
+  flyttHandlingTilTjeneste: (handlingId: string, tjenesteId: string) =>
+    kall<HandlingDto>(`/api/tjenester/handlinger/${handlingId}/flytt-til-tjeneste`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tjenesteId }),
     }),
 };

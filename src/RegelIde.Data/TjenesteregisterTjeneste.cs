@@ -73,6 +73,19 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
             .OrderBy(t => t.Tittel)
             .ToListAsync(ct);
 
+    /// <summary>
+    /// Lister ALLE tjenester tvers av ALLE virksomheter (2026-08-22, Johanns eksplisitte avklaring: "alle
+    /// kan se alles tjenester, men kun pålogget virksomhet kan endre sine egne") — samme "åpne data for
+    /// lesing, virksomhet-scopet for skriving"-holdning som <see cref="FinnAsync"/>/<see cref="OppdaterAsync"/>
+    /// allerede har hatt for ENKELT-tjenesten, nå ført gjennom til LISTE-endepunktet også. <see cref="ListerForAsync"/>
+    /// beholdes uendret (brukes fortsatt der "mine egne" faktisk er det man vil ha, om noe skulle trenge det).
+    /// </summary>
+    public Task<List<TjenesteEntitet>> ListerAlleAsync(CancellationToken ct = default) =>
+        db.Tjenester
+            .Where(t => t.Entitetsstatus == "gjeldende")
+            .OrderBy(t => t.Tittel)
+            .ToListAsync(ct);
+
     public Task<TjenesteEntitet?> FinnAsync(Guid id, CancellationToken ct = default) =>
         db.Tjenester.FirstOrDefaultAsync(t => t.Id == id && t.Entitetsstatus == "gjeldende", ct);
 

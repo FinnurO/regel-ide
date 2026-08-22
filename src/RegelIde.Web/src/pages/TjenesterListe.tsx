@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router';
-import { Button, Card, Heading, Link, Paragraph, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Heading, Link, Paragraph, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { TjenesteDto } from '../api/types';
+import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
+import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 
 type Sorteringskolonne = 'tittel' | 'tjenestetype' | 'status' | 'eier';
@@ -111,6 +113,8 @@ export default function TjenesterListe() {
     });
   }, [tjenester, filterTekst, sortKolonne, sortStigende, visEier]);
 
+  const paginering = usePaginering(viste ?? []);
+
   function sorteringsindikator(kolonne: Sorteringskolonne) {
     if (sortKolonne !== kolonne) return '';
     return sortStigende ? ' ▲' : ' ▼';
@@ -137,7 +141,7 @@ export default function TjenesterListe() {
           {oppretter ? 'Oppretter …' : 'Opprett'}
         </Button>
       </form>
-      {oppretterFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{oppretterFeil}</div>}
+      {oppretterFeil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{oppretterFeil}</Alert>}
 
       <Textfield
         label="Filtrer"
@@ -147,8 +151,8 @@ export default function TjenesterListe() {
         style={{ maxWidth: '20rem', marginBottom: '1rem' }}
       />
 
-      {feil && <div className="feilmelding">{feil}</div>}
-      {!tjenester && !feil && <Paragraph>Laster …</Paragraph>}
+      {feil && <Alert data-color="danger">{feil}</Alert>}
+      {!tjenester && !feil && <Spinner aria-label="Laster …" data-size="sm" />}
       {viste && viste.length === 0 && <Paragraph>Ingen tjenester funnet.</Paragraph>}
 
       {viste && viste.length > 0 && (
@@ -179,7 +183,7 @@ export default function TjenesterListe() {
               </Table.Row>
             </Table.Head>
             <Table.Body>
-              {viste.map((t) => {
+              {paginering.visteRader.map((t) => {
                 const status = STATUS_VISNING[t.status];
                 return (
                   <Table.Row key={t.id}>
@@ -200,6 +204,7 @@ export default function TjenesterListe() {
           </Table>
         </Card>
       )}
+      {viste && viste.length > 0 && <Pagineringskontroll {...paginering} />}
     </>
   );
 }

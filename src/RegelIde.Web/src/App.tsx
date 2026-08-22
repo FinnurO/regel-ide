@@ -7,6 +7,7 @@ import HandbokOpprett from './pages/HandbokOpprett';
 import TjenesterListe from './pages/TjenesterListe';
 import TjenesteDetalj from './pages/TjenesteDetalj';
 import HandlingDetalj from './pages/HandlingDetalj';
+import HandlingerListe from './pages/HandlingerListe';
 import BegreperListe from './pages/BegreperListe';
 import BegrepDetalj from './pages/BegrepDetalj';
 import KodelisterListe from './pages/KodelisterListe';
@@ -19,6 +20,9 @@ import TjenesteVeiledning from './pages/TjenesteVeiledning';
 import TjenesteforslagKo from './pages/TjenesteforslagKo';
 import BegrepsforslagKo from './pages/BegrepsforslagKo';
 import BrukereListe from './pages/BrukereListe';
+import VirksomheterListe from './pages/VirksomheterListe';
+import VirksomhetDetalj from './pages/VirksomhetDetalj';
+import VirksomhetKandidaterListe from './pages/VirksomhetKandidaterListe';
 
 function App() {
   return (
@@ -38,6 +42,7 @@ function App() {
           <Route path="/tjenester/forslag" element={<TjenesteforslagKo />} />
           <Route path="/tjenester/:id" element={<TjenesteDetalj />} />
           <Route path="/tjenester/:tjenesteId/handlinger/:handlingId" element={<HandlingDetalj />} />
+          <Route path="/handlinger" element={<HandlingerListe />} />
           <Route path="/begreper" element={<BegreperListe />} />
           <Route path="/begreper/forslag" element={<BegrepsforslagKo />} />
           <Route path="/begreper/:id" element={<BegrepDetalj />} />
@@ -49,6 +54,9 @@ function App() {
           <Route path="/datasett/:id" element={<DatasettDetalj />} />
           <Route path="/tjenester/:id/veiledning" element={<TjenesteVeiledning />} />
           <Route path="/brukere" element={<BrukereListe />} />
+          <Route path="/virksomheter" element={<VirksomheterListe />} />
+          <Route path="/virksomheter/:id" element={<VirksomhetDetalj />} />
+          <Route path="/virksomhet-kandidater" element={<VirksomhetKandidaterListe />} />
         </Routes>
       </main>
     </div>

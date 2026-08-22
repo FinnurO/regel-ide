@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router';
-import { Button, Checkbox, Heading, Link, Paragraph, Table, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { KunnskapsbibliotekFilDto, KunnskapsbibliotekLenkeDto, RettskildeSammendrag, TjenesteforslagDto } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
@@ -28,7 +28,10 @@ export default function TjenesteforslagKo() {
   const [ko, setKo] = useState<TjenesteforslagDto[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
   const [kjorer, setKjorer] = useState(false);
-  const [sisteKjoring, setSisteKjoring] = useState<{ melding: string | null; inputTokens: number | null; outputTokens: number | null } | null>(null);
+  const [omfang, setOmfang] = useState<'tjeneste' | 'full'>('tjeneste');
+  const [sisteKjoring, setSisteKjoring] = useState<{
+    melding: string | null; inputTokens: number | null; outputTokens: number | null; antallHandlinger: number | null;
+  } | null>(null);
 
   function lastLenker() {
     api.hentKunnskapsbibliotekLenker().then(setLenker).catch(() => setLenker([]));
@@ -105,8 +108,18 @@ export default function TjenesteforslagKo() {
     setSisteKjoring(null);
     setKjorer(true);
     try {
-      const respons = await api.kjorTjenesteforslag({ rettskildeIder: [...valgteRettskilder] });
-      setSisteKjoring({ melding: respons.melding, inputTokens: respons.inputTokens, outputTokens: respons.outputTokens });
+      // Omfang "full" (handlingsforslag-ki-omfang-runden) ber KI-en fylle BÅDE Tjeneste-formen og
+      // Handlinger under den i samme kall — samme "ventende forslag"-tabell under viser tjenesten
+      // uansett omfang (den leser kun status="foreslatt_av_ai", ikke hvilket endepunkt som opprettet
+      // den), så bare selve KI-kallet og antall-handlinger-meldingen skiller de to omfangene her.
+      if (omfang === 'full') {
+        const respons = await api.kjorFullTjenesteforslag({ rettskildeIder: [...valgteRettskilder], omfang: 'full' });
+        const antallHandlinger = respons.forslag.reduce((sum, f) => sum + f.handlinger.length, 0);
+        setSisteKjoring({ melding: respons.melding, inputTokens: respons.inputTokens, outputTokens: respons.outputTokens, antallHandlinger });
+      } else {
+        const respons = await api.kjorTjenesteforslag({ rettskildeIder: [...valgteRettskilder] });
+        setSisteKjoring({ melding: respons.melding, inputTokens: respons.inputTokens, outputTokens: respons.outputTokens, antallHandlinger: null });
+      }
       lastKo();
     } catch (err) {
       setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved kjøring av KI-forslag.');
@@ -174,26 +187,21 @@ export default function TjenesteforslagKo() {
         </ul>
       )}
       <div style={{ marginBottom: '1.5rem' }}>
-        <label htmlFor="kunnskapsbibliotek-fil">
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.3rem' }}>
-            Last opp PDF eller Word (.docx) — avvises hvis filen mangler tekstlag (f.eks. et rent skann):
-          </Paragraph>
-        </label>
         <Textfield
           label="Tittel (valgfri)"
           value={nyFilTittel}
           onChange={(e) => setNyFilTittel(e.target.value)}
           style={{ maxWidth: '25rem', marginBottom: '0.5rem' }}
         />
-        <input
-          id="kunnskapsbibliotek-fil"
-          ref={filInputRef}
+        <Textfield
           type="file"
+          ref={filInputRef}
+          label="Last opp PDF eller Word (.docx) — avvises hvis filen mangler tekstlag (f.eks. et rent skann)"
           accept=".pdf,.docx"
           disabled={lasterOppFil}
           onChange={lastOppFil}
         />
-        {lasterOppFil && <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Laster opp …</Paragraph>}
+        {lasterOppFil && <Spinner aria-label="Laster opp …" data-size="xs" />}
       </div>
 
       {rettskilder.length > 0 && (
@@ -205,22 +213,30 @@ export default function TjenesteforslagKo() {
                 onChange={(e) => vekslRettskilde(r.id, e.target.checked)} />
             ))}
           </div>
+          <Field style={{ maxWidth: '20rem', marginBottom: '0.75rem' }}>
+            <Label>Omfang</Label>
+            <Select data-size="sm" value={omfang} onChange={(e) => setOmfang(e.target.value as 'tjeneste' | 'full')}>
+              <Select.Option value="tjeneste">Bare tjeneste</Select.Option>
+              <Select.Option value="full">Tjeneste + handlinger (ett kall)</Select.Option>
+            </Select>
+          </Field>
           <Button onClick={kjorForslag} disabled={kjorer || valgteRettskilder.size === 0}>
             {kjorer ? 'Kjører KI-forslag …' : 'Kjør KI-forslag'}
           </Button>
         </div>
       )}
 
-      {feil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{feil}</div>}
+      {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
 
       {sisteKjoring && (
         <div style={{ marginBottom: '1rem' }}>
           {sisteKjoring.melding && (
-            <div className="infomelding" style={{ marginBottom: '0.3rem' }}>{sisteKjoring.melding}</div>
+            <Alert data-color="info" style={{ marginBottom: '0.3rem' }}>{sisteKjoring.melding}</Alert>
           )}
           {(sisteKjoring.inputTokens !== null || sisteKjoring.outputTokens !== null) && (
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', opacity: 0.7 }}>
+            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
               Siste KI-kall: {sisteKjoring.inputTokens ?? '—'} input-tokens, {sisteKjoring.outputTokens ?? '—'} output-tokens.
+              {sisteKjoring.antallHandlinger !== null && ` ${sisteKjoring.antallHandlinger} handling(er) foreslått under tjenesten(e).`}
             </Paragraph>
           )}
         </div>
@@ -229,7 +245,7 @@ export default function TjenesteforslagKo() {
       <Heading level={2} data-size="sm" style={{ marginTop: '1.5rem' }}>
         Ventende forslag
       </Heading>
-      {!ko && <Paragraph>Laster …</Paragraph>}
+      {!ko && <Spinner aria-label="Laster …" data-size="sm" />}
       {ko && ko.length === 0 && <Paragraph>Ingen ventende tjenesteforslag.</Paragraph>}
       {ko && ko.length > 0 && (
         <Table border>
@@ -262,7 +278,7 @@ export default function TjenesteforslagKo() {
         </Table>
       )}
 
-      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '1.5rem', opacity: 0.7 }}>
+      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '1.5rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
         Byggesteg 5 runde 1: KI-klienten er en stub (KiAgentKlientStub) — den returnerer ett fast
         eksempelforslag for å bevise kø-/godkjenningsmekanismen, ikke ekte språkmodell-resonnering.
         Ekte leverandørvalg er en egen, senere beslutning.

@@ -11,10 +11,11 @@
  */
 import { useEffect, useState } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
-import { Field, Heading, Label, Link, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
+import { Alert, Heading, Link, Paragraph, Spinner, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
 import type { RettskildeSammendrag, VeiledningDto, VeiledningNodeDto, VirksomhetDto } from '../api/types';
+import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 
 const DOKUMENTTYPE_FARGE: Record<string, 'info' | 'warning' | 'neutral' | 'success'> = {
   hjemmel: 'info',
@@ -143,8 +144,8 @@ export default function TjenesteVeiledning() {
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av veiledningen.'));
   }, [id, virksomhetId]);
 
-  if (feil) return <div className="feilmelding">{feil}</div>;
-  if (!veiledning) return <Paragraph>Laster …</Paragraph>;
+  if (feil) return <Alert data-color="danger">{feil}</Alert>;
+  if (!veiledning) return <Spinner aria-label="Laster …" data-size="sm" />;
 
   return (
     <>
@@ -154,13 +155,14 @@ export default function TjenesteVeiledning() {
         veiledningskommentarer vevd inn per node — ikke en persistert dokumentversjon, alltid
         gjeldende tilstand.
       </Paragraph>
-      <Field style={{ maxWidth: '20rem', marginBottom: '1.5rem' }}>
-        <Label>Virksomhet</Label>
-        <Select value={virksomhetId} onChange={(e) => setVirksomhetId(e.target.value)}>
-          <Select.Option value="">(nasjonal standardverdi)</Select.Option>
-          {virksomheter.map((v) => <Select.Option key={v.id} value={v.id}>{v.navn}</Select.Option>)}
-        </Select>
-      </Field>
+      <VirksomhetVelger
+        virksomheter={virksomheter}
+        value={virksomhetId}
+        onChange={setVirksomhetId}
+        label="Virksomhet"
+        tomValgTekst="(nasjonal standardverdi)"
+        style={{ maxWidth: '20rem', marginBottom: '1.5rem' }}
+      />
 
       <VeiledningNode node={veiledning.rot} dybde={0} rettskilder={rettskilder} />
     </>

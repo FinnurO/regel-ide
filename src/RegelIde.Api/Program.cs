@@ -40,6 +40,10 @@ builder.Services.AddScoped<TjenesteregisterTjeneste>();
 builder.Services.AddScoped<BegrepsregisterTjeneste>();
 builder.Services.AddScoped<BrukerregisterTjeneste>();
 builder.Services.AddScoped<KodelisteregisterTjeneste>();
+builder.Services.AddScoped<VirksomhetsbegrepTjeneste>();
+builder.Services.AddScoped<MyndighetstildelingTjeneste>();
+builder.Services.AddScoped<VirksomhetKandidatTjeneste>();
+builder.Services.AddScoped<VirksomhetKandidatSveipTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
 builder.Services.AddScoped<RegelnoderegisterTjeneste>();
 builder.Services.AddScoped<UnntaksregisterTjeneste>();
@@ -80,6 +84,9 @@ else
 }
 builder.Services.AddScoped<RettskildeEmbeddingTjeneste>();
 builder.Services.AddScoped<TjenesteforslagTjeneste>();
+// «Foreslå handlinger» (handlingsforslag-ki-omfang-runden) — omfang "handling" for EN eksisterende
+// tjeneste. Samme IKiAgentKlient som over (Stub/OpenAiKompatibel), ingen egen leverandørvalg-konfig.
+builder.Services.AddScoped<HandlingsforslagTjeneste>();
 builder.Services.AddHttpClient<LovdataBulkHenter>();
 builder.Services.AddScoped<LovdataKatalogTjeneste>();
 builder.Services.AddScoped<LovdataFullimportTjeneste>();
@@ -235,6 +242,11 @@ using (var scope = app.Services.CreateScope())
 
     // Tag-kind-konfigurasjon (2026-07-25) — global, ikke virksomhets-scopet. Erstatter en tidligere
     // hardkodet liste; se TaggKindKonfigurasjonEntitet-kommentaren i RegelIde.Data/Entiteter.cs.
+    // (2026-08-22: en femte "virksomhet"-kind ble kort lagt til her og reverdert samme runde —
+    // en løpetekst-omtale av en virksomhet tagges som 'begrep' mot en navneform-rad
+    // (Begrepskategori='virksomhet', docs/20 §2.3), IKKE direkte mot Virksomhet-katalogen. Se
+    // VirksomhetsbegrepTjeneste/GET /api/begreper for hvordan navneformer allerede flettes inn i
+    // 'begrep'-registeret.)
     if (!await db.TaggKindKonfigurasjoner.AnyAsync())
     {
         db.TaggKindKonfigurasjoner.AddRange(
@@ -387,10 +399,40 @@ app.MapPut("/api/brukere/{id:guid}", async (Guid id, OppdaterBrukerRequest body,
     .WithSummary("Endrer rolle og virksomhetstilordning for en eksisterende bruker (test- eller Altinn-bruker).");
 
 app.MapGet("/api/virksomheter", async (RegelIdeDbContext db) =>
-        (await db.Virksomheter.ToListAsync()).Select(v => new VirksomhetDto(v.Id, v.Navn, v.Organisasjonsnummer, v.Aktiv)))
+        (await db.Virksomheter.ToListAsync()).Select(VirksomhetDto.FraEntitet))
     .WithOpenApi()
     .WithName("HentVirksomheter")
-    .WithSummary("Lister virksomheter.");
+    .WithSummary("Lister virksomheter — hele virksomhetskatalogen (docs/20), ikke bare aktive tenanter.");
+
+app.MapPut("/api/virksomheter/{id:guid}/forvaltningsniva", async (Guid id, SettForvaltningsnivaRequest body, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var virksomhet = await db.Virksomheter.FirstOrDefaultAsync(v => v.Id == id, ct);
+        if (virksomhet is null) return Results.NotFound(new { feil = $"Ingen virksomhet med id '{id}'." });
+
+        // Validert mot KL-FORVALTNINGSNIVA (docs/20) i stedet for en hardkodet liste her — samme
+        // "kodelisten ER sannheten, ikke en kopi av den i kode"-prinsipp som resten av appen. NULL
+        // (tilbake til "ikke satt") er alltid gyldig — docs/20 §7.2: feltet skal kunne stå tomt.
+        if (body.Forvaltningsniva is not null)
+        {
+            var kodelisteId = await db.Kodelister
+                .Where(k => k.Kode == "KL-FORVALTNINGSNIVA")
+                .Select(k => k.Id)
+                .FirstOrDefaultAsync(ct);
+            var gyldig = kodelisteId != Guid.Empty && await db.KodelisteKoder
+                .AnyAsync(k => k.KodelisteId == kodelisteId && k.Kode == body.Forvaltningsniva, ct);
+            if (!gyldig)
+            {
+                return Results.BadRequest(new { feil = $"'{body.Forvaltningsniva}' er ikke en gyldig kode i KL-FORVALTNINGSNIVA." });
+            }
+        }
+
+        virksomhet.Forvaltningsniva = body.Forvaltningsniva;
+        await db.SaveChangesAsync(ct);
+        return Results.Ok(VirksomhetDto.FraEntitet(virksomhet));
+    })
+    .WithOpenApi()
+    .WithName("SettVirksomhetForvaltningsniva")
+    .WithSummary("Setter Forvaltningsnivå — validert mot KL-FORVALTNINGSNIVA-kodelisten (docs/20 §7.2: aldri gjettet automatisk).");
 
 app.MapGet("/api/konfigurasjon/tagg-kinds", async (RegelIdeDbContext db) =>
         (await db.TaggKindKonfigurasjoner.Where(k => k.Aktiv).OrderBy(k => k.Sorteringsrekkefolge).ToListAsync())
@@ -780,6 +822,15 @@ eksterneKilder.MapPost("/altinn-ressurser/hent", async (AltinnRessursHenter hent
     .WithSummary("Høster alle AltinnApp-ressurser fra Altinns ressursregister (tjenesteoversikten.no) inn som " +
         "rå, uforandrede kildeposter — idempotent upsert på (kildetype, ekstern_id). Ikke koblet til domenemodellen ennå.");
 
+eksterneKilder.MapPost("/oppgaveregister/koble-til-handlinger", async (RegelIdeDbContext db, CancellationToken ct) =>
+        Results.Ok(OppgaveregisterHandlingSeedResultatDto.FraResultat(await OppgaveregisterHandlingSeed.SeedAsync(db, ct))))
+    .WithName("KobleOppgaveregisterTilHandlinger")
+    .WithSummary("Kobler allerede høstede Oppgaveregister-skjemaer (POST .../oppgaveregister/hent MÅ ha kjørt først) " +
+        "inn i domenemodellen som ekte Handling-rader — eksakt match mot Virksomhet (organisasjonsnummer) og " +
+        "Rettskilde (Eli), én samlende Tjeneste per eiende virksomhet. Idempotent, se OppgaveregisterHandlingSeed " +
+        "for treffrate-forklaringen (lav rettskilde-/virksomhet-treffrate er forventet, avhenger av hvor mye av " +
+        "Lovdata-/virksomhetsregisteret som faktisk er importert i denne instansen).");
+
 eksterneKilder.MapPost("/altinn-skjemaoversikt/hent", async (AltinnSkjemaoversiktHenter henter, CancellationToken ct) =>
     {
         var resultat = await henter.HentAltAsync(ct);
@@ -1082,11 +1133,15 @@ tjenester.MapGet("/", async (HttpRequest request, TjenesteregisterTjeneste tjene
         {
             return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
-        var liste = await tjeneste.ListerForAsync(bruker.VirksomhetId, ct);
+        // 2026-08-22, Johanns eksplisitte avklaring: åpen lesing tvers av ALLE virksomheter (samme
+        // holdning som GET /api/handlinger allerede har) — kun SKRIVING (Oppdater/status/rotnode) er
+        // fortsatt scopet til pålogget virksomhet, se sikkerhetsfiksen i TjenesteregisterTjeneste.
+        var liste = await tjeneste.ListerAlleAsync(ct);
         return Results.Ok(liste.Select(TjenesteDto.FraEntitet));
     })
     .WithName("HentTjenester")
-    .WithSummary("Lister virksomhetens egne tjenester (produktkrav kap. 3.2).");
+    .WithSummary("Lister ALLE tjenester tvers av alle virksomheter (åpen lesing). Skriving er fortsatt " +
+        "scopet til pålogget virksomhet.");
 
 tjenester.MapGet("/{id:guid}", async (Guid id, TjenesteregisterTjeneste tjeneste, CancellationToken ct) =>
     {
@@ -1201,6 +1256,14 @@ tjenester.MapDelete("/regelverksreferanser/{referanseId:guid}", async (Guid refe
 
 // ---------- Handlinger (2026-08-20) — konkrete handlinger tilknyttet en Rettighet ----------
 
+app.MapGet("/api/handlinger", async (HandlingregisterTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.ListerAlleAsync(ct)).Select(HandlingMedTjenesteDto.FraRad)))
+    .WithOpenApi()
+    .WithName("HentAlleHandlinger")
+    .WithSummary("Lister ALLE handlinger tvers av ALLE tjenester/rettigheter (toppnivå-siden /handlinger), " +
+        "med eiende tjenestes tittel og virksomhetId i samme svar — ETT kall, ikke N (ett per tjeneste). " +
+        "Åpen lesing, samme holdning som GET /api/tjenester/{id}/handlinger.");
+
 tjenester.MapGet("/{id:guid}/handlinger", async (Guid id, HandlingregisterTjeneste register, CancellationToken ct) =>
         Results.Ok((await register.ListerForTjenesteAsync(id, ct)).Select(HandlingDto.FraEntitet)))
     .WithName("HentHandlinger")
@@ -1236,6 +1299,13 @@ tjenester.MapGet("/handlinger/{handlingId:guid}", async (Guid handlingId, Handli
     })
     .WithName("HentHandling")
     .WithSummary("Henter én handling.");
+
+tjenester.MapGet("/handlinger/{handlingId:guid}/regelverksreferanser", async (Guid handlingId, RegelIdeDbContext db, CancellationToken ct) =>
+        Results.Ok(await db.HandlingRegelverksreferanser.Where(r => r.HandlingId == handlingId)
+            .Select(r => HandlingRegelverksreferanseDto.FraEntitet(r)).ToListAsync(ct)))
+    .WithName("HentHandlingRegelverksreferanser")
+    .WithSummary("Lister handlingens regelverksreferanser (2026-08-22, se OppgaveregisterHandlingSeed) — samme rolle " +
+        "for en Handling som GET /api/tjenester/{id}/regelverksreferanser har for en Tjeneste. Åpen lesing.");
 
 tjenester.MapPut("/handlinger/{handlingId:guid}", async (Guid handlingId, HttpRequest request, HandlingRequest body, HandlingregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
@@ -1314,6 +1384,27 @@ tjenester.MapPost("/handlinger/{handlingId:guid}/rotnode", async (Guid handlingI
     .WithName("SettHandlingRotnode")
     .WithSummary("Kobler handlingen til en EGEN rotnode i vilkårstreet — overstyrer rettighetens for denne ene handlingens saksbehandling.");
 
+tjenester.MapPost("/handlinger/{handlingId:guid}/flytt-til-tjeneste", async (Guid handlingId, HttpRequest request, FlyttHandlingRequest body, HandlingregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        try
+        {
+            var h = await register.FlyttTilTjenesteAsync(handlingId, bruker.VirksomhetId, body.TjenesteId, bruker.Navn, ct);
+            return h is null ? Results.NotFound(new { feil = $"Ingen handling med id '{handlingId}'." }) : Results.Ok(HandlingDto.FraEntitet(h));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("FlyttHandlingTilTjeneste")
+    .WithSummary("Flytter handlingen til en ANNEN tjeneste hos SAMME virksomhet — typisk for å flytte den bort fra " +
+        "Oppgaveregister-seedens grove samle-plassholder ('Oppgaveregisteret — X') til en reell, redigert tjeneste.");
+
 // ---------- «Identifiser tjenester» (byggesteg 5 runde 1, docs/06-veikart.md) — stub-KI ----------
 
 tjenester.MapGet("/forslag", async (HttpRequest request, RegelIdeDbContext db, CancellationToken ct) =>
@@ -1350,9 +1441,30 @@ tjenester.MapPost("/forslag/kjor", async (HttpRequest request, KjorForslagReques
         }
         try
         {
-            var resultat = await forslagstjeneste.KjorForslagAsync(bruker.VirksomhetId, body.RettskildeIder, bruker.Navn, ct);
-            return Results.Ok(new KjorForslagResponsDto<TjenesteDto>(
-                resultat.Opprettede.Select(TjenesteDto.FraEntitet).ToList(), resultat.InputTokens, resultat.OutputTokens, resultat.Melding));
+            // Omfang (handlingsforslag-ki-omfang-runden) — "tjeneste" (default, uendret oppførsel) eller
+            // "full" (Tjeneste + Handlinger i samme kall). "handling" hører til det EGNE endepunktet
+            // POST /api/tjenester/{id}/handlinger/forslag/kjor — det krever en eksisterende tjeneste
+            // (ruteparameteret der), noe dette endepunktet ikke har. Ingen gjettet fallback for et
+            // ukjent/feil omfang her heller.
+            switch (body.Omfang)
+            {
+                case "tjeneste":
+                    {
+                        var resultat = await forslagstjeneste.KjorForslagAsync(bruker.VirksomhetId, body.RettskildeIder, bruker.Navn, ct);
+                        return Results.Ok(new KjorForslagResponsDto<TjenesteDto>(
+                            resultat.Opprettede.Select(TjenesteDto.FraEntitet).ToList(), resultat.InputTokens, resultat.OutputTokens, resultat.Melding));
+                    }
+                case "full":
+                    {
+                        var resultat = await forslagstjeneste.KjorFullForslagAsync(bruker.VirksomhetId, body.RettskildeIder, bruker.Navn, ct);
+                        return Results.Ok(new KjorForslagResponsDto<TjenesteMedHandlingerDto>(
+                            resultat.Opprettede.Select(TjenesteMedHandlingerDto.FraResultat).ToList(), resultat.InputTokens, resultat.OutputTokens, resultat.Melding));
+                    }
+                case "handling":
+                    return Results.BadRequest(new { feil = "Omfang 'handling' krever en eksisterende tjeneste — bruk POST /api/tjenester/{id}/handlinger/forslag/kjor i stedet." });
+                default:
+                    return Results.BadRequest(new { feil = $"Ukjent omfang '{body.Omfang}'. Gyldige verdier her: tjeneste, full." });
+            }
         }
         catch (ArgumentException ex)
         {
@@ -1360,7 +1472,32 @@ tjenester.MapPost("/forslag/kjor", async (HttpRequest request, KjorForslagReques
         }
     })
     .WithName("KjorTjenesteforslag")
-    .WithSummary("Kjører «Identifiser tjenester»-agenten mot valgte rettskilder + kunnskapsbibliotek (byggesteg 5 runde 1, stub-KI).");
+    .WithSummary("Kjører «Identifiser tjenester»-agenten mot valgte rettskilder + kunnskapsbibliotek. " +
+        "Omfang 'tjeneste' (default) eller 'full' (Tjeneste + Handlinger i samme kall) — se KjorForslagRequest.Omfang.");
+
+// «Foreslå handlinger» (handlingsforslag-ki-omfang-runden) — omfang "handling": Handlinger for ÉN
+// EKSISTERENDE tjeneste ({id} i ruten), typisk for å dele opp/berike handlingene under en av
+// Oppgaveregisterets grove "Oppgaveregisteret — X"-samletjenester (se OppgaveregisterHandlingSeed).
+tjenester.MapPost("/{id:guid}/handlinger/forslag/kjor", async (Guid id, HttpRequest request, KjorHandlingsforslagRequest body, HandlingsforslagTjeneste forslagstjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var resultat = await forslagstjeneste.KjorForslagAsync(bruker.VirksomhetId, id, body.RettskildeIder, bruker.Navn, ct);
+            return Results.Ok(new KjorForslagResponsDto<HandlingDto>(
+                resultat.Opprettede.Select(HandlingDto.FraEntitet).ToList(), resultat.InputTokens, resultat.OutputTokens, resultat.Melding));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KjorHandlingsforslag")
+    .WithSummary("Kjører «Foreslå handlinger»-agenten (omfang 'handling') mot valgte rettskilder for ÉN eksisterende tjeneste.");
 
 // Byggesteg 5 runde 4 (RAG-spike) — RÅ SAMMENLIGNING mot endepunktet over, ikke en erstatning. Ingen
 // frontend-kobling denne runden (se docs/13-backlog.md §2.2) — kun til manuell/skriptet sammenligning
@@ -1477,18 +1614,22 @@ kunnskapsbibliotek.MapDelete("/filer/{id:guid}", async (Guid id, Kunnskapsbiblio
 
 var begreper = app.MapGroup("/api/begreper").WithOpenApi();
 
-begreper.MapGet("/", async (HttpRequest request, BegrepsregisterTjeneste begrepsregister, RegelIdeDbContext db, CancellationToken ct) =>
+begreper.MapGet("/", async (HttpRequest request, BegrepsregisterTjeneste begrepsregister,
+        VirksomhetsbegrepTjeneste virksomhetsbegrepregister, RegelIdeDbContext db, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
             return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
-        var liste = await begrepsregister.ListerForAsync(bruker.VirksomhetId, ct);
-        return Results.Ok(liste.Select(BegrepDto.FraEntitet));
+        // Egne fakta-/handlingsbegrep + ALLE delte virksomhets-/rollebegrep (docs/20 §2.3/§2.4) —
+        // uten det siste er de INVISIBLE i tagg-picker-en (se VirksomhetsbegrepTjeneste.AlleAsync).
+        var egne = await begrepsregister.ListerForAsync(bruker.VirksomhetId, ct);
+        var delte = await virksomhetsbegrepregister.AlleAsync(ct);
+        return Results.Ok(egne.Concat(delte).Select(BegrepDto.FraEntitet));
     })
     .WithName("HentBegreper")
-    .WithSummary("Lister virksomhetens egne begreper (produktkrav kap. 3.8).");
+    .WithSummary("Lister virksomhetens egne begreper (produktkrav kap. 3.8) + alle delte virksomhets-/rollebegrep (docs/20).");
 
 begreper.MapGet("/{id:guid}", async (Guid id, BegrepsregisterTjeneste begrepsregister, CancellationToken ct) =>
     {
@@ -1689,6 +1830,248 @@ kodelister.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, Set
     })
     .WithName("SettKodelisteStatus")
     .WithSummary("Endrer status (§3.1 i domenemodellen) — avvises for ekstern-referanse.");
+
+// ---------- Virksomhetskatalog og rollemodell (docs/20) ----------
+// RBAC (docs/20 §0 pkt. 3): skrivehandlinger attribueres til den innloggede brukerens EGEN
+// virksomhet/navn (bruker.Navn som opprettetAv/behandletAv) — ingen per-virksomhet skriveperre på
+// disse delte, nasjonale tabellene.
+
+app.MapPost("/api/virksomhetsbegrep", async (HttpRequest request, VirksomhetsbegrepRequest body,
+        VirksomhetsbegrepTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var opprettet = await register.OpprettVirksomhetsbegrepAsync(body.VirksomhetId, body.Term, bruker.Navn, body.SkosUrl, ct);
+            return Results.Created($"/api/begreper/{opprettet.Id}", BegrepDto.FraEntitet(opprettet));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("OpprettVirksomhetsbegrep")
+    .WithSummary("Navneform brukt om en virksomhet i rettskildetekst (docs/20 §2.3) — f.eks. 'Mattilsynet'.");
+
+app.MapGet("/api/virksomheter/{id:guid}/begrep", async (Guid id, VirksomhetsbegrepTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.AlleVirksomhetsbegrepForAsync(id, ct)).Select(BegrepDto.FraEntitet)))
+    .WithOpenApi()
+    .WithName("HentVirksomhetsbegrepForVirksomhet")
+    .WithSummary("Lister navneformer (inkl. synonymer) brukt om denne virksomheten i rettskildetekst.");
+
+app.MapPost("/api/rollebegrep", async (HttpRequest request, RollebegrepRequest body,
+        VirksomhetsbegrepTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var opprettet = await register.OpprettRollebegrepAsync(body.LovkildeId, body.Term, bruker.Navn, ct);
+            return Results.Created($"/api/begreper/{opprettet.Id}", BegrepDto.FraEntitet(opprettet));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("OpprettRollebegrep")
+    .WithSummary("Rollebegrep (docs/20 §2.4) — Term+LovkildeId er sammen begrepets identitet, f.eks. 'forurensningsmyndighet' i forurensningsloven.");
+
+app.MapGet("/api/rettskilder/{lovkildeId:guid}/rollebegrep", async (Guid lovkildeId, VirksomhetsbegrepTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.AlleRollebegrepForLovAsync(lovkildeId, ct)).Select(BegrepDto.FraEntitet)))
+    .WithOpenApi()
+    .WithName("HentRollebegrepForLov")
+    .WithSummary("Lister rollebegrep definert for denne loven.");
+
+app.MapPost("/api/myndighetstildelinger", async (HttpRequest request, MyndighetstildelingRequest body,
+        MyndighetstildelingTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var paragrafspenn = body.Paragrafspenn.Select(p => new ParagrafspennPar(p.FraEid, p.TilEid)).ToList();
+            var opprettet = await register.OpprettAsync(
+                body.RolleBegrepId, body.VirksomhetId, body.HjemmelRettskildeId, paragrafspenn, body.Vilkaar, bruker.Navn, ct);
+            return Results.Created($"/api/myndighetstildelinger/{opprettet.Id}", MyndighetstildelingDto.FraEntitet(opprettet));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("OpprettMyndighetstildeling")
+    .WithSummary("Kobler et rollebegrep til en konkret virksomhet, hjemlet i en forskrift (docs/20 §2.5). Gyldighet arves fra hjemmelen, ingen egne datoer her.");
+
+app.MapGet("/api/virksomheter/{id:guid}/myndighetstildelinger", async (Guid id, MyndighetstildelingTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.AlleForVirksomhetAsync(id, ct)).Select(MyndighetstildelingDto.FraEntitet)))
+    .WithOpenApi()
+    .WithName("HentMyndighetstildelingerForVirksomhet")
+    .WithSummary("Lister myndighetstildelinger denne virksomheten har.");
+
+app.MapGet("/api/rollebegrep/{id:guid}/tildelinger", async (Guid id, MyndighetstildelingTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.AlleForRolleBegrepAsync(id, ct)).Select(MyndighetstildelingDto.FraEntitet)))
+    .WithOpenApi()
+    .WithName("HentMyndighetstildelingerForRolleBegrep")
+    .WithSummary("Lister hvilke virksomheter et rollebegrep er tildelt til, og under hvilke hjemler.");
+
+var virksomhetKandidater = app.MapGroup("/api/virksomhet-kandidater").WithOpenApi();
+
+virksomhetKandidater.MapGet("/", async (Guid? virksomhetId, Guid? rettskildeId, string? status,
+        VirksomhetKandidatTjeneste register, CancellationToken ct) =>
+    {
+        // Gammel standard beholdt for eksisterende kallere (VirksomhetDetalj.tsx sin godkjenn/avvis-
+        // widget) som aldri sender ?status: utelatt/tom betyr fortsatt "kun Venter", ikke "alle".
+        // "Alle" er en egen, eksplisitt verdi kandidatliste-UI-et sender når status-filteret er av —
+        // se docs/20 §2.6 vs. kravspek §4.2 pkt. 3s krav om et fullt filtrerbart listevisning.
+        var effektivStatus = string.IsNullOrEmpty(status) ? "Venter" : status;
+        var filter = effektivStatus == "Alle" ? null : effektivStatus;
+        return Results.Ok((await register.ListerAsync(virksomhetId, rettskildeId, filter, ct)).Select(VirksomhetKandidatDto.FraEntitet));
+    })
+    .WithName("HentVirksomhetKandidater")
+    .WithSummary("Kandidatliste (kravspek §4.2 pkt. 3) — valgfritt filtrert på virksomhet/rettskilde/status. " +
+        "status utelatt = kun 'Venter' (arbeidskø-standard, docs/20 §2.6); status='Alle' = ingen statusfilter.");
+
+virksomhetKandidater.MapPost("/", async (HttpRequest request, VirksomhetKandidatRequest body,
+        VirksomhetKandidatTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var kandidat = await register.OpprettEllerFinnAsync(
+                body.VirksomhetId, body.RettskildeId, body.NodeEid, body.StartOffset, body.EndOffset, bruker.Navn, ct);
+            return Results.Created($"/api/virksomhet-kandidater/{kandidat.Id}", VirksomhetKandidatDto.FraEntitet(kandidat));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OpprettVirksomhetKandidat")
+    .WithSummary("Idempotent — samme (virksomhet, rettskilde, node, startOffset) gir samme rad tilbake uansett status, ikke et duplikat.");
+
+virksomhetKandidater.MapPost("/sveip", async (HttpRequest request, SveipVirksomhetKandidaterRequest body,
+        VirksomhetKandidatSveipTjeneste sveip, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var resultat = await sveip.SveipAsync(body.VirksomhetId, bruker.Navn, ct);
+            return Results.Ok(new SveipVirksomhetKandidaterResultatDto(resultat.AntallTreffFunnet, resultat.AntallNyeKandidater));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SveipVirksomhetKandidater")
+    .WithSummary("Kravspek §4.2 pkt. 1/2 — tekstsøk gjennom alle rettskilde-noder etter virksomhetens " +
+        "navneform-begrep, legger treff i kandidatkøen med status 'Venter'. Idempotent (kjør flere ganger uten duplikater).");
+
+virksomhetKandidater.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest request,
+        VirksomhetKandidatTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var oppdatert = await register.GodkjennAsync(id, bruker.Navn, ct);
+            return oppdatert is null ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }) : Results.Ok(VirksomhetKandidatDto.FraEntitet(oppdatert));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("GodkjennVirksomhetKandidat")
+    .WithSummary("Oppretter en ekte TekstTagg (kind='begrep', RefId=navneform-Begrep) i tillegg til å sette status.");
+
+virksomhetKandidater.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request,
+        VirksomhetKandidatTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var oppdatert = await register.AvvisAsync(id, bruker.Navn, ct);
+            return oppdatert is null ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }) : Results.Ok(VirksomhetKandidatDto.FraEntitet(oppdatert));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("AvvisVirksomhetKandidat");
+
+virksomhetKandidater.MapPost("/godkjenn-batch", async (HttpRequest request, VirksomhetKandidatBatchRequest body,
+        VirksomhetKandidatTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var rader = new List<VirksomhetKandidatBatchRadDto>();
+        foreach (var id in body.Ider)
+        {
+            try
+            {
+                var oppdatert = await register.GodkjennAsync(id, bruker.Navn, ct);
+                rader.Add(oppdatert is null
+                    ? new VirksomhetKandidatBatchRadDto(id, false, $"Ingen kandidat med id '{id}'.", null)
+                    : new VirksomhetKandidatBatchRadDto(id, true, null, VirksomhetKandidatDto.FraEntitet(oppdatert)));
+            }
+            catch (ArgumentException ex)
+            {
+                rader.Add(new VirksomhetKandidatBatchRadDto(id, false, ex.Message, null));
+            }
+        }
+        return Results.Ok(new VirksomhetKandidatBatchResultatDto(rader));
+    })
+    .WithName("GodkjennVirksomhetKandidaterBatch")
+    .WithSummary("Massegodkjenning (kravspek §4.2 pkt. 4) — server-side batch med per-rad-feilhåndtering, ikke N separate kall.");
+
+virksomhetKandidater.MapPost("/avvis-batch", async (HttpRequest request, VirksomhetKandidatBatchRequest body,
+        VirksomhetKandidatTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var rader = new List<VirksomhetKandidatBatchRadDto>();
+        foreach (var id in body.Ider)
+        {
+            try
+            {
+                var oppdatert = await register.AvvisAsync(id, bruker.Navn, ct);
+                rader.Add(oppdatert is null
+                    ? new VirksomhetKandidatBatchRadDto(id, false, $"Ingen kandidat med id '{id}'.", null)
+                    : new VirksomhetKandidatBatchRadDto(id, true, null, VirksomhetKandidatDto.FraEntitet(oppdatert)));
+            }
+            catch (ArgumentException ex)
+            {
+                rader.Add(new VirksomhetKandidatBatchRadDto(id, false, ex.Message, null));
+            }
+        }
+        return Results.Ok(new VirksomhetKandidatBatchResultatDto(rader));
+    })
+    .WithName("AvvisVirksomhetKandidaterBatch")
+    .WithSummary("Masseavvisning (kravspek §4.2 pkt. 4) — server-side batch med per-rad-feilhåndtering.");
+
+virksomhetKandidater.MapDelete("/{id:guid}", async (Guid id, VirksomhetKandidatTjeneste register, CancellationToken ct) =>
+    {
+        try
+        {
+            return await register.HardslettAvvistAsync(id, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("HardslettAvvistVirksomhetKandidat")
+    .WithSummary("Kun 'Avvist'-rader kan hardslettes (docs/20 §2.6) — et eksplisitt unntak fra husstilens vanlige mykslette-mønster.");
 
 // ---------- Datasett (docs/03-domenemodell.md §1.6) — byggesteg 4, minimal, kun lesing ----------
 

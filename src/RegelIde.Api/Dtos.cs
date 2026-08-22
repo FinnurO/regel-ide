@@ -162,13 +162,13 @@ public sealed record TjenesteRequest(
 /// Se <see cref="RegelIde.Data.HandlingEntitet"/> for full begrunnelse.</summary>
 public sealed record HandlingDto(
     Guid Id, Guid TjenesteId, string Navn, string Handlingstype, string? Bruksomraade, string? UtfortAv,
-    Guid? RotnodeId, IReadOnlyList<HandlingKanalInput> Kanaler, HandlingBehandlingstidInput Behandlingstid,
+    Guid? RotnodeId, Guid? EksternKildeId, IReadOnlyList<HandlingKanalInput> Kanaler, HandlingBehandlingstidInput Behandlingstid,
     HandlingKostnadInput Kostnad, IReadOnlyList<HandlingVedleggInput> Vedlegg,
     IReadOnlyList<HandlingVeiledningstekstInput> Veiledningstekst, IReadOnlyList<HandlingArsakInput> Arsaker,
     HandlingResultatInput Resultat, string? Merknad, string Status, int Versjon)
 {
     public static HandlingDto FraEntitet(HandlingEntitet h) => new(
-        h.Id, h.TjenesteId, h.Navn, h.Handlingstype, h.Bruksomraade, h.UtfortAv, h.RotnodeId,
+        h.Id, h.TjenesteId, h.Navn, h.Handlingstype, h.Bruksomraade, h.UtfortAv, h.RotnodeId, h.EksternKildeId,
         System.Text.Json.JsonSerializer.Deserialize<List<HandlingKanalInput>>(h.KanalerJson) ?? [],
         System.Text.Json.JsonSerializer.Deserialize<HandlingBehandlingstidInput>(h.BehandlingstidJson)
             ?? new HandlingBehandlingstidInput(null, null),
@@ -190,10 +190,40 @@ public sealed record HandlingRequest(
     IReadOnlyList<HandlingVeiledningstekstInput>? Veiledningstekst, IReadOnlyList<HandlingArsakInput>? Arsaker,
     HandlingResultatInput? Resultat, string? Merknad);
 
+/// <summary>Én rad for GET /api/handlinger (toppnivå-siden, 2026-08-22) — samme "innpakket base-DTO
+/// pluss ekstra visningsfelt"-mønster som <see cref="TjenesteforslagDto"/>, ikke en duplisert/flatet
+/// kopi av HandlingDto sine felt.</summary>
+public sealed record HandlingMedTjenesteDto(HandlingDto Handling, string TjenesteTittel, Guid VirksomhetId)
+{
+    public static HandlingMedTjenesteDto FraRad(HandlingMedTjeneste rad) =>
+        new(HandlingDto.FraEntitet(rad.Handling), rad.TjenesteTittel, rad.VirksomhetId);
+}
+
 public sealed record TjenesteRegelverksreferanseDto(Guid Id, Guid TjenesteId, Guid TilRettskildeId, string TilEid)
 {
     public static TjenesteRegelverksreferanseDto FraEntitet(TjenesteRegelverksreferanseEntitet r) =>
         new(r.Id, r.TjenesteId, r.TilRettskildeId, r.TilEid);
+}
+
+/// <summary>Samme rolle for en Handling som <see cref="TjenesteRegelverksreferanseDto"/> har for en
+/// Tjeneste (2026-08-22, <see cref="RegelIde.Data.OppgaveregisterHandlingSeed"/>).</summary>
+public sealed record HandlingRegelverksreferanseDto(Guid Id, Guid HandlingId, Guid TilRettskildeId, string TilEid)
+{
+    public static HandlingRegelverksreferanseDto FraEntitet(HandlingRegelverksreferanseEntitet r) =>
+        new(r.Id, r.HandlingId, r.TilRettskildeId, r.TilEid);
+}
+
+/// <summary>Sammendrag returnert av POST /api/eksterne-kilder/oppgaveregister/koble-til-handlinger —
+/// se <see cref="RegelIde.Data.OppgaveregisterHandlingSeed"/>s klassekommentar for hva hvert felt teller
+/// og hvorfor lave rettskilde-/virksomhet-treffrater er forventet.</summary>
+public sealed record OppgaveregisterHandlingSeedResultatDto(
+    int SkjemaTotalt, int NyeHandlinger, int OppdaterteHandlinger, int UendretHandlinger,
+    int HoppetOverUsikkerVirksomhet, int NyeTjenester, int LovhjemlerTotalt,
+    int RettskildematcherFunnet, int RettskildematcherIkkeFunnet)
+{
+    public static OppgaveregisterHandlingSeedResultatDto FraResultat(RegelIde.Data.OppgaveregisterHandlingSeedResultat r) =>
+        new(r.SkjemaTotalt, r.NyeHandlinger, r.OppdaterteHandlinger, r.UendretHandlinger, r.HoppetOverUsikkerVirksomhet,
+            r.NyeTjenester, r.LovhjemlerTotalt, r.RettskildematcherFunnet, r.RettskildematcherIkkeFunnet);
 }
 
 /// <summary>Håndbok-nivå rettskildeomfang (docs/12-fasit-handbok-leveranse.md, 2026-07-31).</summary>
@@ -307,19 +337,67 @@ public sealed record DokumentReferanseDto(
 // ---------- Begrep (SKOS, docs/03-domenemodell.md §1.3) — byggesteg 2 ----------
 
 public sealed record BegrepDto(
-    Guid Id, Guid VirksomhetId, string Term, string Definisjon, string? LovreferanseEid,
-    IReadOnlyList<string> GjelderFor, Guid? KodelisteReferanseId, string? SkosUrl, string Begrepstype,
-    string Status, int Versjon)
+    Guid Id, Guid? VirksomhetId, string? Begrepskategori, Guid? VirksomhetReferanseId, Guid? LovkildeId,
+    string Term, string? Definisjon, string? LovreferanseEid, IReadOnlyList<string> GjelderFor,
+    Guid? KodelisteReferanseId, string? SkosUrl, string? Begrepstype, string Status, int Versjon)
 {
     public static BegrepDto FraEntitet(BegrepEntitet b) => new(
-        b.Id, b.VirksomhetId, b.Term, b.Definisjon, b.LovreferanseEid, b.GjelderFor, b.KodelisteReferanseId,
-        b.SkosUrl, b.Begrepstype, b.Status, b.Versjon);
+        b.Id, b.VirksomhetId, b.Begrepskategori, b.VirksomhetReferanseId, b.LovkildeId, b.Term,
+        b.Definisjon, b.LovreferanseEid, b.GjelderFor, b.KodelisteReferanseId, b.SkosUrl, b.Begrepstype,
+        b.Status, b.Versjon);
 }
 
 /// <summary>Forespørsel for POST/PUT /api/begreper.</summary>
 public sealed record BegrepRequest(
     string Term, string Definisjon, string? LovreferanseEid, IReadOnlyList<string>? GjelderFor,
     Guid? KodelisteReferanseId, string? SkosUrl, string Begrepstype);
+
+// ---------- Virksomhetskatalog og rollemodell (docs/20) ----------
+
+public sealed record SettForvaltningsnivaRequest(string? Forvaltningsniva);
+
+public sealed record VirksomhetsbegrepRequest(Guid VirksomhetId, string Term, string? SkosUrl);
+public sealed record RollebegrepRequest(Guid LovkildeId, string Term);
+
+public sealed record ParagrafspennParDto(string FraEid, string? TilEid);
+
+public sealed record MyndighetstildelingRequest(
+    Guid RolleBegrepId, Guid VirksomhetId, Guid HjemmelRettskildeId,
+    IReadOnlyList<ParagrafspennParDto> Paragrafspenn, string? Vilkaar);
+
+public sealed record MyndighetstildelingDto(
+    Guid Id, Guid RolleBegrepId, Guid VirksomhetId, Guid HjemmelRettskildeId,
+    IReadOnlyList<ParagrafspennParDto> Paragrafspenn, string? Vilkaar)
+{
+    public static MyndighetstildelingDto FraEntitet(MyndighetstildelingEntitet m) => new(
+        m.Id, m.RolleBegrepId, m.VirksomhetId, m.HjemmelRettskildeId,
+        MyndighetstildelingTjeneste.LesParagrafspenn(m).Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList(),
+        m.Vilkaar);
+}
+
+public sealed record VirksomhetKandidatRequest(Guid VirksomhetId, Guid RettskildeId, string NodeEid, int StartOffset, int EndOffset);
+
+public sealed record VirksomhetKandidatDto(
+    Guid Id, Guid VirksomhetId, Guid RettskildeId, string NodeEid, int StartOffset, int EndOffset, string Status,
+    string OpprettetAv, DateTimeOffset OpprettetTidspunkt, string? BehandletAv, DateTimeOffset? BehandletTidspunkt)
+{
+    public static VirksomhetKandidatDto FraEntitet(VirksomhetKandidatEntitet k) => new(
+        k.Id, k.VirksomhetId, k.RettskildeId, k.NodeEid, k.StartOffset, k.EndOffset, k.Status,
+        k.OpprettetAv, k.OpprettetTidspunkt, k.BehandletAv, k.BehandletTidspunkt);
+}
+
+/// <summary>Sveip-trigger (kravspek §4.2 pkt. 1) — søker gjennom alle rettskilder etter virksomhetens navneformer.</summary>
+public sealed record SveipVirksomhetKandidaterRequest(Guid VirksomhetId);
+
+public sealed record SveipVirksomhetKandidaterResultatDto(int AntallTreffFunnet, int AntallNyeKandidater);
+
+/// <summary>Massegodkjenning/-avvisning (kravspek §4.2 pkt. 4) — server-side batch, ikke N separate kall.
+/// Per-rad-feilhåndtering: én ugyldig id stopper ikke resten av batchen.</summary>
+public sealed record VirksomhetKandidatBatchRequest(IReadOnlyList<Guid> Ider);
+
+public sealed record VirksomhetKandidatBatchRadDto(Guid Id, bool Ok, string? Feil, VirksomhetKandidatDto? Resultat);
+
+public sealed record VirksomhetKandidatBatchResultatDto(IReadOnlyList<VirksomhetKandidatBatchRadDto> Rader);
 
 // ---------- Kodeliste / verdidomene (docs/03-domenemodell.md §1.4) — byggesteg 2 ----------
 
@@ -440,6 +518,9 @@ public sealed record OppdaterUnntakRequest(string Tittel, string? Beskrivelse, I
 
 /// <summary>Forespørsel for POST /api/tjenester/{id}/rotnode.</summary>
 public sealed record SettRotnodeRequest(Guid RegelnodeId);
+
+/// <summary>Flytt-en-handling-til-en-annen-tjeneste (2026-08-22) — se HandlingregisterTjeneste.FlyttTilTjenesteAsync.</summary>
+public sealed record FlyttHandlingRequest(Guid TjenesteId);
 
 /// <summary>
 /// Kommunal/nasjonal parameterverdi for et Datasett-felt (docs/12-fasit-handbok-leveranse.md
@@ -569,8 +650,28 @@ public sealed record KunnskapsbibliotekFilDto(Guid Id, Guid VirksomhetId, string
         f.Id, f.VirksomhetId, f.Filnavn, f.Tittel, f.Filtype, f.UtvunnetTekst, f.OpprettetAv, f.OpprettetTidspunkt);
 }
 
-/// <summary>Forespørsel for POST /api/begreper/forslag/kjor og /api/tjenester/forslag/kjor.</summary>
-public sealed record KjorForslagRequest(IReadOnlyList<Guid> RettskildeIder);
+/// <summary>
+/// Forespørsel for POST /api/begreper/forslag/kjor og /api/tjenester/forslag/kjor.
+/// <see cref="Omfang"/> (handlingsforslag-ki-omfang-runden) brukes KUN av /api/tjenester/forslag/kjor
+/// — "tjeneste" (default, uendret oppførsel — ingen regresjon for eksisterende kallere, inkl.
+/// /api/begreper/forslag/kjor som ikke bryr seg om feltet) eller "full" (Tjeneste + Handlinger i
+/// samme kall, se <see cref="RegelIde.Data.TjenesteforslagTjeneste.KjorFullForslagAsync"/>). Omfang
+/// "handling" hører IKKE hjemme her — det krever en EKSISTERENDE tjeneste og har derfor sitt eget
+/// endepunkt, POST /api/tjenester/{id}/handlinger/forslag/kjor (<see cref="KjorHandlingsforslagRequest"/>).
+/// </summary>
+public sealed record KjorForslagRequest(IReadOnlyList<Guid> RettskildeIder, string Omfang = "tjeneste");
+
+/// <summary>Forespørsel for POST /api/tjenester/{id}/handlinger/forslag/kjor (omfang "handling",
+/// handlingsforslag-ki-omfang-runden) — {id} i ruten ER tjenesten handlingene skal foreslås for,
+/// ingen egen TjenesteId-felt trengs i body.</summary>
+public sealed record KjorHandlingsforslagRequest(IReadOnlyList<Guid> RettskildeIder);
+
+/// <summary>Ett element i svaret fra omfang "full" — tjenesten pluss handlingene KI-en foreslo under den.</summary>
+public sealed record TjenesteMedHandlingerDto(TjenesteDto Tjeneste, IReadOnlyList<HandlingDto> Handlinger)
+{
+    public static TjenesteMedHandlingerDto FraResultat(RegelIde.Data.TjenesteMedHandlingerResultat r) =>
+        new(TjenesteDto.FraEntitet(r.Tjeneste), r.Handlinger.Select(HandlingDto.FraEntitet).ToList());
+}
 
 /// <summary>Forespørsel for POST /api/tjenester/forslag/kjor-rag (byggesteg 5 runde 4, RAG-spike) —
 /// <see cref="AntallNoder"/> er K i "de K mest like nodene", se <see cref="RegelIde.Data.RagKontekstHjelper"/>.</summary>

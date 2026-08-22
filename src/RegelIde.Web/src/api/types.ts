@@ -148,6 +148,77 @@ export interface VirksomhetDto {
    * virksomhet fra visning av allerede eksisterende innhold den eier (se `visEier` i useVirksomheter.ts).
    */
   aktiv: boolean;
+  /** 'stat' | 'kommune' | 'fylkeskommune' | 'statsforvalter' | 'tingrett' | 'lagmannsrett' | 'jordskifterett' — se docs/20 §2.1. NULL for alt utenom kommune/fylkeskommune til noen fyller det inn manuelt. */
+  forvaltningsniva: string | null;
+  organisasjonsformKode: string | null;
+  sektorkode: string | null;
+  overordnetEnhetId: string | null;
+  sistBrregSynkronisert: string | null;
+}
+
+export interface VirksomhetsbegrepDto {
+  id: string;
+  virksomhetId: string | null;
+  begrepskategori: string | null;
+  virksomhetReferanseId: string | null;
+  lovkildeId: string | null;
+  term: string;
+  definisjon: string | null;
+  status: string;
+}
+
+export interface ParagrafspennParDto {
+  fraEid: string;
+  tilEid: string | null;
+}
+
+export interface MyndighetstildelingDto {
+  id: string;
+  rolleBegrepId: string;
+  virksomhetId: string;
+  hjemmelRettskildeId: string;
+  paragrafspenn: ParagrafspennParDto[];
+  vilkaar: string | null;
+}
+
+export interface VirksomhetKandidatDto {
+  id: string;
+  virksomhetId: string;
+  rettskildeId: string;
+  nodeEid: string;
+  startOffset: number;
+  endOffset: number;
+  status: string;
+  opprettetAv: string;
+  opprettetTidspunkt: string;
+  behandletAv: string | null;
+  behandletTidspunkt: string | null;
+}
+
+/** Kravspek §4.2 pkt. 1/2 — sveip-trigger for én virksomhet. */
+export interface SveipVirksomhetKandidaterRequest {
+  virksomhetId: string;
+}
+
+export interface SveipVirksomhetKandidaterResultatDto {
+  antallTreffFunnet: number;
+  antallNyeKandidater: number;
+}
+
+/** Massegodkjenning/-avvisning (kravspek §4.2 pkt. 4) — server-side batch, per-rad-feilhåndtering. */
+export interface VirksomhetKandidatBatchRequest {
+  ider: string[];
+}
+
+export interface VirksomhetKandidatBatchRadDto {
+  id: string;
+  ok: boolean;
+  feil: string | null;
+  resultat: VirksomhetKandidatDto | null;
+}
+
+export interface VirksomhetKandidatBatchResultatDto {
+  rader: VirksomhetKandidatBatchRadDto[];
 }
 
 /** Ikke lenger en fast literal-union — kind-settet er konfigurasjonsstyrt (se TaggKindKonfigurasjonDto), ikke hardkodet. */
@@ -382,6 +453,8 @@ export interface HandlingDto {
   utfortAv: string | null;
   /** Override av Tjeneste.rotnodeId for nettopp DENNE handlingens saksbehandling — mangler den, gjelder rettighetens. */
   rotnodeId: string | null;
+  /** Hvilket høstet Oppgaveregister-skjema denne handlingen ble seedet fra (2026-08-22, OppgaveregisterHandlingSeed) — null for håndskrevne handlinger. */
+  eksternKildeId: string | null;
   kanaler: HandlingKanalInput[];
   behandlingstid: HandlingBehandlingstidInput;
   kostnad: HandlingKostnadInput;
@@ -392,6 +465,14 @@ export interface HandlingDto {
   merknad: string | null;
   status: string;
   versjon: number;
+}
+
+/** Én rad fra GET /api/handlinger (toppnivå-siden, 2026-08-22) — Handlingen selv pluss eiende tjenestes
+ * tittel og virksomhetId, slik at HandlingerListe.tsx ikke må gjøre ett kall per tjeneste. */
+export interface HandlingMedTjenesteDto {
+  handling: HandlingDto;
+  tjenesteTittel: string;
+  virksomhetId: string;
 }
 
 export interface HandlingRequest {
@@ -421,6 +502,15 @@ export const GYLDIGE_UTFORT_AV = ['soker', 'forvaltning', 'tredjepart'] as const
 export interface TjenesteRegelverksreferanseDto {
   id: string;
   tjenesteId: string;
+  tilRettskildeId: string;
+  tilEid: string;
+}
+
+/** Samme rolle for en Handling som TjenesteRegelverksreferanseDto har for en Tjeneste (2026-08-22,
+ * se OppgaveregisterHandlingSeed) — kun lesing i UI-et ennå, ingen koble til/fjern-endepunkt finnes. */
+export interface HandlingRegelverksreferanseDto {
+  id: string;
+  handlingId: string;
   tilRettskildeId: string;
   tilEid: string;
 }
@@ -919,8 +1009,27 @@ export interface LovdataImportstatusDto {
   sistForsoktTidspunkt: string;
 }
 
+/**
+ * `omfang` (handlingsforslag-ki-omfang-runden) brukes KUN av POST /api/tjenester/forslag/kjor —
+ * "tjeneste" (default, uendret oppførsel) eller "full" (Tjeneste + Handlinger i samme kall).
+ * "handling" hører til det EGNE endepunktet POST /api/tjenester/{id}/handlinger/forslag/kjor
+ * (se KjorHandlingsforslagRequest) — det krever en eksisterende tjeneste, som ikke finnes her.
+ */
 export interface KjorForslagRequest {
   rettskildeIder: string[];
+  omfang?: 'tjeneste' | 'full';
+}
+
+/** Forespørsel for POST /api/tjenester/{id}/handlinger/forslag/kjor (omfang "handling") —
+ * {id} i ruten ER tjenesten handlingene skal foreslås for. */
+export interface KjorHandlingsforslagRequest {
+  rettskildeIder: string[];
+}
+
+/** Ett element i svaret fra omfang "full" — tjenesten pluss handlingene KI-en foreslo under den. */
+export interface TjenesteMedHandlingerDto {
+  tjeneste: TjenesteDto;
+  handlinger: HandlingDto[];
 }
 
 /**

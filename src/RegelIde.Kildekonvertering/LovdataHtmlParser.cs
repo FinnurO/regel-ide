@@ -236,10 +236,11 @@ public static partial class LovdataHtmlParser
     /// ikke bare et kasse-avvik av "Kapittel" — ordinal StringComparison skiller dem. "Kapitel" (uten
     /// dobbel-t), "Avdeling", "Chapter"/"Section"/"Part" (engelsk — bekreftet ekte i innlemmet
     /// konvensjonstekst, samme mønster som GDPR-annekset) er alle bekreftet ekte under full
-    /// korpusgjennomgang 2026-08-21. Bevisst IKKE håndtert: ordinal-tallnavn FØR selve kapittel-ordet
-    /// ("1ste kapitel.", "Første kapitel.") — for få bekreftede forekomster og strukturelt omvendt av
-    /// alle andre varianter (tallet kommer FØR ordet, ikke etter) til å rettferdiggjøre en egen,
-    /// dedikert grein her; se også kommentaren i FjernNummerPrefiks om "Første del."-varianten.</summary>
+    /// korpusgjennomgang 2026-08-21. Ordinal-tallnavn FØR selve kapittel-ordet ("Første kapitel.",
+    /// "Andre kapitel.") ble opprinnelig bevisst utelatt her (for få bekreftede forekomster på
+    /// tidspunktet) — nå håndtert som en egen, dedikert grein i <see cref="FjernNummerPrefiks"/>
+    /// (2026-08-22, se <see cref="NorskOrdinaltall"/>), siden strukturen der er omvendt (tallet kommer
+    /// FØR ordet, ikke etter) og ikke passer i denne ord+nummer-løkken.</summary>
     private static readonly string[] KapittelOrdvarianter =
         ["Kapittel", "KAPITTEL", "Kap.", "Kap", "Kapitel", "Avdeling", "Chapter", "Section", "Part", "Avsnitt"];
 
@@ -328,6 +329,39 @@ public static partial class LovdataHtmlParser
                 {
                     return heleOverskriften[prefiks.Length..].TrimStart();
                 }
+
+                // "Kapittel. 1. Tittel"/"Kapittel. 1 Tittel" — punktum RETT ETTER selve ordet, IKKE
+                // bare etter nummeret (bekreftet ekte, full korpusgjennomgang 2026-08-22, to uavhengige
+                // dokumenter). Ufarlig å prøve for alle ord/tegnsettinger: en tekst uten dette ekstra
+                // punktumet treffer rett og slett ikke, akkurat som før.
+                var prefiksMedPunktumEtterOrd = $"{ord}. {nummer}{tegnsetting}";
+                if (heleOverskriften.StartsWith(prefiksMedPunktumEtterOrd, StringComparison.Ordinal))
+                {
+                    return heleOverskriften[prefiksMedPunktumEtterOrd.Length..].TrimStart();
+                }
+            }
+        }
+
+        // Ordinal-tallnavn FØR selve kapittel-ordet ("Første kapitel.", "Andre kapitel.") — bekreftet
+        // ekte, full korpusgjennomgang 2026-08-22 (fire uavhengige dokumenter; tidligere bevisst utelatt
+        // pga. for få bekreftede forekomster på tidspunktet, se den historiske kommentaren på
+        // KapittelOrdvarianter). Kun de ti første ordinaltallene — et norsk lovverk med FLERE enn ti
+        // kapitler i nettopp DENNE gamle skrivemåten er ikke bekreftet i korpuset, og et nytt, ukjent
+        // ordinaltall skal fortsatt kaste, ikke gjettes videre oppover (§3.3). Dette er et fast,
+        // avgrenset norsk ordforråd (ikke en gjetning) — samme status som KapittelOrdvarianter selv.
+        if (int.TryParse(nummer, out var arabiskNummer) && arabiskNummer is >= 1 and <= 10)
+        {
+            var ordinalOrd = NorskOrdinaltall[arabiskNummer - 1];
+            foreach (var kapittelOrd in new[] { "kapitel", "kapittel" })
+            {
+                foreach (var tegnsetting in new[] { ".", " ", ":", "" })
+                {
+                    var prefiks = $"{ordinalOrd} {kapittelOrd}{tegnsetting}";
+                    if (heleOverskriften.StartsWith(prefiks, StringComparison.Ordinal))
+                    {
+                        return heleOverskriften[prefiks.Length..].TrimStart();
+                    }
+                }
             }
         }
 
@@ -363,10 +397,35 @@ public static partial class LovdataHtmlParser
             return "";
         }
 
+        // Overskriften starter ikke med NOEN kjent kapittel-/underinndelingsordvariant i det hele
+        // tatt — da har den aldri "påstått" å innkode et nummer i utgangspunktet, og det finnes
+        // ingenting å validere (til forskjell fra en overskrift som FAKTISK starter med et kjent ord,
+        // men med feil eller uklart nummer etterpå — den skal fortsatt kaste under). Bekreftet ekte og
+        // OVERRASKENDE vanlig i full korpusgjennomgang 2026-08-22: regelverks-TITLER uten egen
+        // nummerering ("Kommisjonsforordning (EU) 2024/3190 …"), kommentar-/merknadsoverskrifter som
+        // refererer til et ANNET kapittel enn sitt eget ("Merknader til Kapittel 4 …", "Til kapittel
+        // 5 …"), og en rekke andre nummererings-konvensjoner utenfor denne parserens kjente ordliste
+        // (engelske "Rule"/"Category"/"PART"/"ANNEX", bokstavlister "a."/"B.", "AVSNITT"/"AVDELING" med
+        // et nummer som ikke stemmer med den synlige teksten, osv.) — samme prinsipp som allerede gjaldt
+        // for et navngitt (ikke-numerert) kapittel over, bare uavhengig av om selve nummeret
+        // tilfeldigvis ER numerisk/romertall. Målt effekt: løser 44 av 48 tidligere importfeil av
+        // nettopp denne typen (de resterende 4 starter FAKTISK med et kjent ord som "KAPITTEL", men med
+        // et tall som ikke stemmer med den synlige romertallsteksten — en reell, uforklart uoverens-
+        // stemmelse i kildedataene, som fortsatt bør kaste, ikke gjettes forbi).
+        if (!KapittelOrdvarianter.Any(ord => heleOverskriften.StartsWith(ord, StringComparison.Ordinal)))
+        {
+            return heleOverskriften;
+        }
+
         throw new FormatException(
             $"Overskrift '{heleOverskriften}' matcher ingen kjent prefiks-variant for nummer '{nummer}' " +
             "('Kapittel N.'/'Kap. N.'/'Kap N.'/bart tall, med eller uten egen tittel). Ingen gjettet fallback (§3.3).");
     }
+
+    /// <summary>De ti første norske ordinaltallene, kun brukt for "Første kapitel."-varianten
+    /// (se <see cref="FjernNummerPrefiks"/>) — et fast, avgrenset ordforråd, ikke en gjetning.</summary>
+    private static readonly string[] NorskOrdinaltall =
+        ["Første", "Andre", "Tredje", "Fjerde", "Femte", "Sjette", "Sjuende", "Åttende", "Niende", "Tiende"];
 
     /// <summary>Rent tall (§8-2) eller romertall (I-XXXIX, romslig nok margin for kapittelantall
     /// som faktisk forekommer) — skiller en NUMMERERT overskrift (skal ha "N. Tittel"-formen) fra
@@ -713,6 +772,33 @@ public static partial class LovdataHtmlParser
             {
                 fotnoter.AddRange(ParseFotnoter(child));
             }
+            else if (child.Name == "p" && klasse.Contains("leddfortsettelse"))
+            {
+                // Fortsettelsestekst for et FORUTGÅENDE ledd/punkt DIREKTE under paragrafen, typisk rett
+                // etter en liste som selv lå direkte under paragrafen uten noe omsluttende ledd
+                // (bekreftet ekte, alkoholforskriften § 7-2 og flere andre — full korpusgjennomgang
+                // 2026-08-22). Ikke sitt eget ledd — appender til Tekst/Segmenter på den SISTE
+                // ledd-/punkt-noden som allerede er lagt til under denne paragrafen (samme "ledd"-nivå
+                // som en liste-fortsettelse ville tilhørt), i stedet for å opprette en ny, løsrevet node.
+                var forrigeIndeks = noder.FindLastIndex(n => n.ParentEid == eid);
+                if (forrigeIndeks < 0)
+                {
+                    throw new NotSupportedException(
+                        $"<p class=\"leddfortsettelse\"> under paragraf {eid} har ingen forutgående ledd/punkt å fortsette. Ingen gjettet fallback (§3.3).");
+                }
+                var forrige = noder[forrigeIndeks];
+                var forrigeTekstLengde = forrige.Tekst?.Length ?? 0;
+                var nyeSegmenter = new List<TekstSegment>(forrige.Segmenter ?? []) { new(" ", null, false) };
+                nyeSegmenter.AddRange(HentSegmenter(child, kontekst));
+                var nyTekst = KollapsDobleMellomrom(string.Concat(nyeSegmenter.Select(s => s.Tekst))).Trim();
+                noder[forrigeIndeks] = forrige with
+                {
+                    Tekst = nyTekst,
+                    TekstHash = LovdataIdentifikatorer.BeregnTekstHash(nyTekst),
+                    Segmenter = nyeSegmenter,
+                };
+                LeggTilReferanser(referanser, forrige.Eid, nyeSegmenter, nyTekst, startCursor: forrigeTekstLengde);
+            }
             else
             {
                 throw new NotSupportedException(
@@ -906,10 +992,16 @@ public static partial class LovdataHtmlParser
     /// trimming ikke gir feil offset. Finnes ikke et treff (bør ikke skje i praksis), forblir
     /// TekstStart/TekstLengde null — referansen vises da fortsatt i "Referanser"-lista i UI-et, bare
     /// ikke som en klikkbar lenke inni selve løpeteksten.
+    /// <paramref name="startCursor"/> (2026-08-22): brukes når <paramref name="segmenter"/> kun er en
+    /// TILLEGG-del av en node som allerede har fått sine opprinnelige referanser lagt til én gang
+    /// (se "leddfortsettelse"-håndteringen i HåndterParagrafBarn) — søket starter da etter den
+    /// allerede prosesserte delen av <paramref name="tekst"/> i stedet for fra 0, slik at et kort
+    /// segment i fortsettelsen ikke feilaktig matcher en tidligere forekomst av samme tekst.
     /// </summary>
-    private static void LeggTilReferanser(List<RettskildeReferanse> referanser, string fraEid, IReadOnlyList<TekstSegment> segmenter, string tekst)
+    private static void LeggTilReferanser(
+        List<RettskildeReferanse> referanser, string fraEid, IReadOnlyList<TekstSegment> segmenter, string tekst, int startCursor = 0)
     {
-        var cursor = 0;
+        var cursor = startCursor;
         foreach (var s in segmenter)
         {
             if (s.Tekst.Length == 0) continue;
@@ -973,6 +1065,21 @@ public static partial class LovdataHtmlParser
             if (child.Name == "a" && child.Attributes["href"]?.Value is string href)
             {
                 segmenter.Add(TolkLenke(child, href, kontekst));
+            }
+            else if (child.Name == "a")
+            {
+                // <a> uten href-attributt overhodet (bekreftet ekte — et bokmerke-/ankermål uten egen
+                // lenkedestinasjon, ikke en referanse) — samme transparente behandling som de vanlige
+                // GjennomsiktigeInlineElementer under, bare et eget case siden "a" ellers alltid
+                // forsøkes tolket som lenke over.
+                segmenter.AddRange(HentSegmenter(child, kontekst));
+            }
+            else if ((child.Name == "div" && klasse.Contains("indent")) || child.Name == "blockquote")
+            {
+                // Samme transparente innrykk-håndtering som i ParseKapittelInnhold/Parse/
+                // HåndterParagrafBarn — bekreftet ekte også INNI løpetekst (siterte/innlemmede EU-/
+                // EØS-tekster nøstet dypere enn ledd-/punkt-nivå, full korpusgjennomgang 2026-08-22).
+                segmenter.AddRange(HentSegmenter(child, kontekst));
             }
             else if (child.Name == "sup" && klasse.Contains("footnotereference"))
             {

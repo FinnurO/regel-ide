@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
-import { Button, Field, Heading, Label, Link, Paragraph, Select, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
 import type { BegrepDto, RettskildeSammendrag, VilkarDto } from '../api/types';
@@ -85,8 +85,8 @@ export default function BegrepDetalj() {
     }
   }
 
-  if (feil) return <div className="feilmelding">{feil}</div>;
-  if (!begrep) return <Paragraph>Laster …</Paragraph>;
+  if (feil) return <Alert data-color="danger">{feil}</Alert>;
+  if (!begrep) return <Spinner aria-label="Laster …" data-size="sm" />;
 
   return (
     <>
@@ -131,7 +131,7 @@ export default function BegrepDetalj() {
               <Select.Option value="handlingsbegrep">Handlingsbegrep</Select.Option>
             </Select>
           </Field>
-          {lagreFeil && <div className="feilmelding">{lagreFeil}</div>}
+          {lagreFeil && <Alert data-color="danger">{lagreFeil}</Alert>}
           <div>
             <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>

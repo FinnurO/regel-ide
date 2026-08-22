@@ -13,14 +13,17 @@
  * "Egenskaper"-seksjonen på TjenesteDetalj.
  */
 import { useEffect, useState, type FormEvent } from 'react';
-import { Link as RouterLink, useParams } from 'react-router';
-import { Button, Field, Heading, Label, Link, Paragraph, Select, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
+import { Link as RouterLink, useNavigate, useParams } from 'react-router';
+import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import {
   GYLDIGE_HANDLINGSTYPER, GYLDIGE_UTFORT_AV,
   type HandlingArsakInput, type HandlingDto, type HandlingHjemmelInput, type HandlingKanalInput,
-  type HandlingRequest, type HandlingVedleggInput, type HandlingVeiledningstekstInput, type RegelnodeDto, type TjenesteDto,
+  type HandlingRegelverksreferanseDto, type HandlingRequest, type HandlingVedleggInput,
+  type HandlingVeiledningstekstInput, type RegelnodeDto, type RettskildeNodeDto, type RettskildeSammendrag,
+  type TjenesteDto,
 } from '../api/types';
+import { eidVisningstekst, rettskildeLenke } from '../api/eidLenker';
 
 const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
 
@@ -35,6 +38,7 @@ function VisHjemmel({ hjemmel }: { hjemmel: HandlingHjemmelInput | null }) {
 }
 
 export default function HandlingDetalj() {
+  const navigate = useNavigate();
   const { tjenesteId, handlingId } = useParams<{ tjenesteId: string; handlingId: string }>();
   const [handling, setHandling] = useState<HandlingDto | null>(null);
   const [tjeneste, setTjeneste] = useState<TjenesteDto | null>(null);
@@ -63,10 +67,64 @@ export default function HandlingDetalj() {
     api.hentTjeneste(tjenesteId).then(setTjeneste).catch(() => setTjeneste(null));
   }, [tjenesteId]);
 
+  // Flytt til en annen tjeneste (2026-08-22, Johanns tilbakemelding) — kandidatene er ALLE virksomhetens
+  // egne tjenester utenom den nåværende, GET /api/tjenester er åpen lesing (samme runde), så vi filtrerer
+  // klient-side på tjeneste.virksomhetId i stedet for et eget, smalere endepunkt.
+  const [alleTjenester, setAlleTjenester] = useState<TjenesteDto[]>([]);
+  const [flyttTilTjenesteId, setFlyttTilTjenesteId] = useState('');
+  const [flytter, setFlytter] = useState(false);
+  const [flyttFeil, setFlyttFeil] = useState<string | null>(null);
+
+  useEffect(() => {
+    api.hentTjenester().then(setAlleTjenester).catch(() => setAlleTjenester([]));
+  }, []);
+
+  const flyttbareTjenester = alleTjenester.filter((t) => t.virksomhetId === tjeneste?.virksomhetId && t.id !== tjenesteId);
+
+  async function flyttTilTjeneste(e: FormEvent) {
+    e.preventDefault();
+    if (!handling || !flyttTilTjenesteId) return;
+    setFlyttFeil(null);
+    setFlytter(true);
+    try {
+      await api.flyttHandlingTilTjeneste(handling.id, flyttTilTjenesteId);
+      navigate(`/tjenester/${flyttTilTjenesteId}/handlinger/${handling.id}`);
+    } catch (err) {
+      setFlyttFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved flytting.');
+    } finally {
+      setFlytter(false);
+    }
+  }
+
   useEffect(() => {
     if (!handling?.rotnodeId) { setRotnode(null); return; }
     api.hentRegelnode(handling.rotnodeId).then(setRotnode).catch(() => setRotnode(null));
   }, [handling?.rotnodeId]);
+
+  // Regelverksreferanser (2026-08-22) — samme rolle som på TjenesteDetalj, men read-only her: det
+  // finnes ennå ikke noe koble-til/fjern-endepunkt for EN handlings regelverksreferanser (kun den
+  // automatiske Oppgaveregister-seeden skriver disse i dag). Se docs/09 for at "Laster …" skal være
+  // Spinner, ikke tekst — samme mønster videreført her.
+  const [regelverksreferanser, setRegelverksreferanser] = useState<HandlingRegelverksreferanseDto[] | null>(null);
+  const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
+  const [noderPerRettskilde, setNoderPerRettskilde] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
+
+  useEffect(() => {
+    if (!handlingId) return;
+    api.hentHandlingRegelverksreferanser(handlingId).then(setRegelverksreferanser).catch(() => setRegelverksreferanser([]));
+    api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
+  }, [handlingId]);
+
+  useEffect(() => {
+    if (!regelverksreferanser) return;
+    for (const rettskildeId of new Set(regelverksreferanser.map((r) => r.tilRettskildeId))) {
+      if (noderPerRettskilde.has(rettskildeId)) continue;
+      api.hentNoder(rettskildeId)
+        .then((noder) => setNoderPerRettskilde((forrige) => new Map(forrige).set(rettskildeId, noder)))
+        .catch(() => {}); // ingen gjettet fallback — viser rå eId under når nodene ikke lot seg hente
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [regelverksreferanser]);
 
   function fyllSkjemaFra(h: HandlingDto) {
     setHandling(h);
@@ -350,8 +408,8 @@ export default function HandlingDetalj() {
     }
   }
 
-  if (feil) return <div className="feilmelding">{feil}</div>;
-  if (!handling) return <Paragraph>Laster …</Paragraph>;
+  if (feil) return <Alert data-color="danger">{feil}</Alert>;
+  if (!handling) return <Spinner aria-label="Laster …" data-size="sm" />;
 
   return (
     <>
@@ -360,6 +418,28 @@ export default function HandlingDetalj() {
       </Paragraph>
       <Heading level={1} data-size="lg">{handling.navn}</Heading>
       <Tag data-color="info" style={{ marginBottom: '1.5rem' }}>{handling.status}</Tag>
+
+      <section style={{ marginBottom: '2rem' }}>
+        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>Tilhørende rettighet</Heading>
+        <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)', marginBottom: '0.75rem' }}>
+          Nå under <strong>{tjeneste?.tittel ?? '…'}</strong>. Handlinger seedet fra en automatisk kilde
+          (f.eks. Oppgaveregisteret) lander i en grov samle-plassholder — flytt til en reell, redigert
+          rettighet når en fagperson har vurdert den.
+        </Paragraph>
+        <form onSubmit={flyttTilTjeneste} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+          <Field style={{ minWidth: '20rem' }}>
+            <Label>Flytt til rettighet</Label>
+            <Select data-size="sm" value={flyttTilTjenesteId} onChange={(e) => setFlyttTilTjenesteId(e.target.value)}>
+              <Select.Option value="">Velg …</Select.Option>
+              {flyttbareTjenester.map((t) => <Select.Option key={t.id} value={t.id}>{t.tittel}</Select.Option>)}
+            </Select>
+          </Field>
+          <Button data-size="sm" type="submit" disabled={!flyttTilTjenesteId || flytter}>
+            {flytter ? 'Flytter …' : 'Flytt'}
+          </Button>
+        </form>
+        {flyttFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{flyttFeil}</Alert>}
+      </section>
 
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>Egenskaper</Heading>
@@ -383,7 +463,7 @@ export default function HandlingDetalj() {
             <Label>Merknad</Label>
             <Textarea value={merknad} onChange={(e) => setMerknad(e.target.value)} rows={2} />
           </Field>
-          {lagreFeil && <div className="feilmelding">{lagreFeil}</div>}
+          {lagreFeil && <Alert data-color="danger">{lagreFeil}</Alert>}
           <div><Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button></div>
         </form>
       </section>
@@ -393,6 +473,45 @@ export default function HandlingDetalj() {
         <Select value={handling.status} disabled={statusEndres} onChange={(e) => endreStatus(e.target.value)} style={{ maxWidth: '16rem' }}>
           {STATUSER.map((s) => <Select.Option key={s} value={s}>{s}</Select.Option>)}
         </Select>
+      </section>
+
+      <section style={{ marginBottom: '2rem' }}>
+        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>Regelverksreferanser</Heading>
+        <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)', marginBottom: '0.75rem' }}>
+          Kun lesing her ennå — disse settes i dag automatisk av Oppgaveregister-seeden
+          (lovhjemmel-feltet fra Brønnøysundregistrenes skjemakatalog), det finnes ingen koble til/fjern-
+          knapp for én handling ennå (se Regelverksreferanser på rettigheten selv for det).
+        </Paragraph>
+        {regelverksreferanser === null && <Spinner aria-label="Laster …" data-size="sm" />}
+        {regelverksreferanser && regelverksreferanser.length === 0 && (
+          <Paragraph>Ingen regelverksreferanser koblet.</Paragraph>
+        )}
+        {regelverksreferanser && regelverksreferanser.length > 0 && (
+          <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
+            {regelverksreferanser.map((r) => {
+              // Oppgaveregister-seeden matcher i dag kun på DOKUMENT-nivå (r.tilEid = rettskildens
+              // egen Eli, ikke en paragraf-eid — se OppgaveregisterHandlingSeed sin klassekommentar).
+              // eidVisningstekst finner da ingen node (nodene ligger under dokumentet, ikke PÅ det) og
+              // faller tilbake til rå eId — vis i stedet rettskildens tittel/kortnavn + en tydelig
+              // markør, siden vi her VET (eksakt strenglikhet, ikke gjettet) at referansen gjelder hele
+              // dokumentet.
+              const rettskilde = rettskilder.find((rk) => rk.eli === r.tilEid);
+              const visningstekst = rettskilde
+                ? `${rettskilde.kortnavn ?? rettskilde.tittel} (hele dokumentet)`
+                : eidVisningstekst(r.tilEid, rettskilder, noderPerRettskilde);
+              const href = rettskildeLenke(r.tilEid, rettskilder);
+              return (
+                <li key={r.id} style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                  {href ? (
+                    <Link asChild><RouterLink to={href}>{visningstekst ?? r.tilEid}</RouterLink></Link>
+                  ) : (
+                    <span style={visningstekst ? undefined : { fontFamily: 'monospace' }}>{visningstekst ?? r.tilEid}</span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -421,7 +540,7 @@ export default function HandlingDetalj() {
             {rotnodeEndres ? 'Setter …' : 'Sett som rotnode'}
           </Button>
         </form>
-        {rotnodeFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{rotnodeFeil}</div>}
+        {rotnodeFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{rotnodeFeil}</Alert>}
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -444,7 +563,7 @@ export default function HandlingDetalj() {
           <Textfield data-size="sm" label="Adresse (valgfritt)" value={nyKanalAdresse} onChange={(e) => setNyKanalAdresse(e.target.value)} />
           <Button data-size="sm" type="submit" disabled={!nyKanalKanal.trim()}>Legg til kanal</Button>
         </form>
-        {kanalFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{kanalFeil}</div>}
+        {kanalFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{kanalFeil}</Alert>}
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -455,7 +574,7 @@ export default function HandlingDetalj() {
           <Textfield data-size="sm" label="Hjemmel — henvisning" value={behandlingstidHenvisning} onChange={(e) => setBehandlingstidHenvisning(e.target.value)} />
           <Button data-size="sm" type="submit" disabled={behandlingstidLagrer}>{behandlingstidLagrer ? 'Lagrer …' : 'Lagre'}</Button>
         </form>
-        {behandlingstidFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{behandlingstidFeil}</div>}
+        {behandlingstidFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{behandlingstidFeil}</Alert>}
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -464,7 +583,7 @@ export default function HandlingDetalj() {
           <Textfield data-size="sm" label="Beløp/beskrivelse" value={belop} onChange={(e) => setBelop(e.target.value)} style={{ minWidth: '28rem' }} />
           <Button data-size="sm" type="submit" disabled={belopLagrer}>{belopLagrer ? 'Lagrer …' : 'Lagre'}</Button>
         </form>
-        {belopFeil && <div className="feilmelding" style={{ marginBottom: '0.5rem' }}>{belopFeil}</div>}
+        {belopFeil && <Alert data-color="danger" style={{ marginBottom: '0.5rem' }}>{belopFeil}</Alert>}
         {handling.kostnad.hjemmel.length > 0 && (
           <ul>
             {handling.kostnad.hjemmel.map((h, i) => (
@@ -504,7 +623,7 @@ export default function HandlingDetalj() {
           <Textfield data-size="sm" label="Hjemmel — henvisning" value={nyVedleggHenvisning} onChange={(e) => setNyVedleggHenvisning(e.target.value)} />
           <Button data-size="sm" type="submit" disabled={!nyVedleggNavn.trim()}>Legg til vedlegg</Button>
         </form>
-        {vedleggFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{vedleggFeil}</div>}
+        {vedleggFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{vedleggFeil}</Alert>}
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -538,7 +657,7 @@ export default function HandlingDetalj() {
           </div>
           <div><Button data-size="sm" type="submit" disabled={!nyVeiledningOverskrift.trim()}>Legg til veiledningstekst</Button></div>
         </form>
-        {veiledningFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{veiledningFeil}</div>}
+        {veiledningFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{veiledningFeil}</Alert>}
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -564,7 +683,7 @@ export default function HandlingDetalj() {
           <Textfield data-size="sm" label="Hjemmel — henvisning" value={nyArsakHenvisning} onChange={(e) => setNyArsakHenvisning(e.target.value)} />
           <Button data-size="sm" type="submit" disabled={!nyArsakArsak.trim() || !nyArsakLov.trim()}>Legg til årsak</Button>
         </form>
-        {arsakFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{arsakFeil}</div>}
+        {arsakFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{arsakFeil}</Alert>}
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -573,7 +692,7 @@ export default function HandlingDetalj() {
           <Textfield data-size="sm" label="Hva oppnås" value={hva} onChange={(e) => setHva(e.target.value)} style={{ minWidth: '28rem' }} />
           <Button data-size="sm" type="submit">Lagre</Button>
         </form>
-        {resultatFeil && <div className="feilmelding" style={{ marginBottom: '0.5rem' }}>{resultatFeil}</div>}
+        {resultatFeil && <Alert data-color="danger" style={{ marginBottom: '0.5rem' }}>{resultatFeil}</Alert>}
         <Label>Bevis-kanaler (hvordan resultatet dokumenteres)</Label>
         {handling.resultat.bevisKanaler.length > 0 && (
           <ul>

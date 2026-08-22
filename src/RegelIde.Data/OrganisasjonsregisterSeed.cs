@@ -5,19 +5,18 @@ using Microsoft.EntityFrameworkCore;
 namespace RegelIde.Data;
 
 /// <summary>
-/// Seeder norske kommuner/fylkeskommuner fra <c>Seed/organisasjoner-norge.json</c> (Johanns eksport,
-/// 2026-08-14) inn som <see cref="Virksomhet"/>-rader, og styrer <see cref="Virksomhet.Aktiv"/> for
-/// hele registeret etter Johanns eksplisitte instruks: "La oss ikke gjøre alle aktive. Behold Bergen,
-/// Agder fylkeskommune og Testkommune [aktive]." — alt annet forblir Aktiv=false: til stede i
-/// registeret, men ikke valgbart for nytt arbeid ennå (se <see cref="Virksomhet.Aktiv"/>s egen
-/// klassekommentar).
+/// Seeder ALLE virksomheter fra <c>Seed/organisasjoner-norge.json</c> (Johanns eksport, 2026-08-14)
+/// inn som <see cref="Virksomhet"/>-rader, og styrer <see cref="Virksomhet.Aktiv"/> for hele registeret
+/// etter Johanns eksplisitte instruks: "La oss ikke gjøre alle aktive. Behold Bergen, Agder
+/// fylkeskommune og Testkommune [aktive]." — alt annet forblir Aktiv=false: til stede i registeret,
+/// men ikke valgbart for nytt arbeid ennå (se <see cref="Virksomhet.Aktiv"/>s egen klassekommentar).
 ///
 /// <para>
-/// **Kun KOMM/FYLK** — kildefilen har 451 rader, men 80 av dem har andre <c>orgForm</c>-verdier
-/// (STAT/ORGL/SF/STI/FLI/AS/ANNA/SÆR — statlige/private/andre organisasjonstyper som lå med i samme
-/// eksport av andre grunner). Denne runden er avgrenset til kommuner/fylkeskommuner (docs/17 sin
-/// bredere forvaltningsstruktur er eksplisitt parkert, se oppgavebeskrivelsen) — de 80 andre radene
-/// hoppes bevisst over, ikke seedet som noe.
+/// [ENDRET — virksomhetskatalog-runden, 2026-08-22, docs/20 §4, `[LÅST]`] Var avgrenset til
+/// `KOMM`/`FYLK` (357+14 av 451 rader) — de 80 andre radene (`STAT`/`ORGL`/`SF`/`AS`/`STI`/`FLI`/
+/// `ANNA`/`SÆR`) hoppes IKKE lenger over. Eksplisitt instruert: "du kan ikke vurdere hva som er reelle
+/// virksomheter [som] gjør offentlige oppgaver bare basert på navnet" — ALLE 451 rader seedes uendret,
+/// ingen navnemønster- eller `orgForm`-basert filtrering.
 /// </para>
 ///
 /// <para>
@@ -99,9 +98,16 @@ public static class OrganisasjonsregisterSeed
 
         foreach (var entry in alle)
         {
-            if (entry.OrgForm is not ("KOMM" or "FYLK")) continue; // se klassekommentaren — kun kommuner/fylkeskommuner denne runden.
-
-            var forvaltningsniva = entry.OrgForm == "FYLK" ? "fylke" : "kommune";
+            // [ENDRET, docs/20 §4 `[LÅST]`] KOMM/FYLK er entydig fra Brregs orgForm og settes derfor
+            // automatisk — alt annet starter NULL og fylles inn manuelt (docs/20 §7.2, `[LÅST]`: ikke
+            // gjett Forvaltningsniva fra orgForm/sektorkode/navn for de resterende kategoriene, selv
+            // der et riktig gjett (f.eks. "statsforvalter") ville vært opplagt).
+            var forvaltningsniva = entry.OrgForm switch
+            {
+                "FYLK" => "fylkeskommune",
+                "KOMM" => "kommune",
+                _ => null,
+            };
             var skalAlltidVaereAktiv = entry.Organisasjonsnummer is BergenOrgnr or AgderOrgnr;
 
             var matchetPaOrgnr = perOrgnr.TryGetValue(entry.Organisasjonsnummer, out var funnetPaOrgnr);
@@ -142,6 +148,37 @@ public static class OrganisasjonsregisterSeed
         await db.SaveChangesAsync(ct);
 
         await SeedBergenBrukereAsync(db, bergen, ct);
+        if (testkommunen is not null) await SeedForvaltningsnivaKodelisteAsync(db, testkommunen.Id, ct);
+    }
+
+    /// <summary>
+    /// [Ny, virksomhetskatalog-runden, docs/20] Forvaltningsniva var et fritt-streng-felt uten noen
+    /// redigerbar/synlig verdiliste — Johann påpekte dette rett etter at UI-et var bygget: "burde ikke
+    /// forvaltningsnivå vært en kodeliste?" Ja. Samme mønster som KL-HANDLINGSTYPE m.fl. i
+    /// ServeringsbevillingModellSeed.cs — Type="teknisk", eid av Testkommunen (samme eier-konvensjon
+    /// som de andre tekniske kodelistene, selv om verdisettet reelt er delt/nasjonalt).
+    /// </summary>
+    private static async Task SeedForvaltningsnivaKodelisteAsync(RegelIdeDbContext db, Guid virksomhetId, CancellationToken ct)
+    {
+        const string kode = "KL-FORVALTNINGSNIVA";
+        if (await db.Kodelister.AnyAsync(k => k.Kode == kode, ct)) return;
+
+        var register = new KodelisteregisterTjeneste(db);
+        var kodeliste = await register.OpprettAsync(
+            virksomhetId, kode, "Forvaltningsnivå", "teknisk", juridiskGrunnlagEid: null, eksternKildeUri: null,
+            eksternKildeVersjon: null, "system", ct);
+
+        // Verdisettet fra docs/20 §2.1 — se Virksomhet.Forvaltningsniva sin klassekommentar.
+        (string Kode, string Term)[] verdier =
+        [
+            ("stat", "Stat"), ("kommune", "Kommune"), ("fylkeskommune", "Fylkeskommune"),
+            ("statsforvalter", "Statsforvalter"), ("tingrett", "Tingrett"),
+            ("lagmannsrett", "Lagmannsrett"), ("jordskifterett", "Jordskifterett"),
+        ];
+        foreach (var (verdiKode, term) in verdier)
+        {
+            await register.LeggTilKodeAsync(kodeliste.Id, verdiKode, term, definisjon: null, gyldigFra: null, gyldigTil: null, ct);
+        }
     }
 
     /// <summary>

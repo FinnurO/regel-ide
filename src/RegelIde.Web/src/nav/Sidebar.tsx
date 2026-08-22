@@ -7,9 +7,10 @@ import { useBruker } from '../bruker/BrukerContext';
  * 11-punkts listen med tre grupper (Kilder / Arbeidsprodukt / Administrasjon) som speiler den
  * faktiske hierarkiske strukturen i domenet, i stedet for en alfabetisk/kronologisk flat liste.
  *
- * "Kommende" rader (Importer katalog, Handlinger, Virksomheter) har ingen side bygget ennå — vist
- * som en ikke-klikkbar rad med et "Kommer"-merke, samme "ingen gjettet fallback"-holdning som
- * resten av appen: vi later ikke som funksjonaliteten finnes før den faktisk gjør det.
+ * "Kommende" rader (i dag: kun Importer katalog) har ingen side bygget ennå — vist som en
+ * ikke-klikkbar rad med et "Kommer"-merke, samme "ingen gjettet fallback"-holdning som resten av
+ * appen: vi later ikke som funksjonaliteten finnes før den faktisk gjør det. Handlinger fikk sin
+ * egen toppnivå-side 2026-08-22 (HandlingerListe.tsx) og er derfor en ekte lenke igjen.
  */
 interface NavRad {
   kind: 'lenke';
@@ -43,7 +44,7 @@ const GRUPPER: Gruppe[] = [
     heading: 'Arbeidsprodukt',
     rader: [
       { kind: 'lenke', to: '/tjenester', label: 'Tjenester' },
-      { kind: 'kommende', label: 'Handlinger' },
+      { kind: 'lenke', to: '/handlinger', label: 'Handlinger' },
       { kind: 'lenke', to: '/vilkarstre', label: 'Vilkårstre' },
       { kind: 'lenke', to: '/handboker/ny', label: 'Håndbøker' },
       { kind: 'lenke', to: '/tjenester/forslag', label: 'KI-forslag tjenester' },
@@ -54,7 +55,8 @@ const GRUPPER: Gruppe[] = [
     heading: 'Administrasjon',
     rader: [
       { kind: 'lenke', to: '/brukere', label: 'Brukere' },
-      { kind: 'kommende', label: 'Virksomheter' },
+      { kind: 'lenke', to: '/virksomheter', label: 'Virksomheter' },
+      { kind: 'lenke', to: '/virksomhet-kandidater', label: 'Virksomhetskandidater' },
     ],
   },
 ];

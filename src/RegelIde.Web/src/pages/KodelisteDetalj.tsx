@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
-import { Button, Heading, Link, Paragraph, Select, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Heading, Link, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
 import type { KodelisteDto, RettskildeSammendrag } from '../api/types';
@@ -65,8 +65,8 @@ export default function KodelisteDetalj() {
     lastKodeliste();
   }
 
-  if (feil) return <div className="feilmelding">{feil}</div>;
-  if (!kodeliste) return <Paragraph>Laster …</Paragraph>;
+  if (feil) return <Alert data-color="danger">{feil}</Alert>;
+  if (!kodeliste) return <Spinner aria-label="Laster …" data-size="sm" />;
 
   const erEksternReferanse = kodeliste.type === 'ekstern-referanse';
 
@@ -80,7 +80,7 @@ export default function KodelisteDetalj() {
 
       {erEksternReferanse && (
         <Paragraph style={{ marginBottom: '1.5rem' }}>
-          Ekstern kilde: <a href={kodeliste.eksternKildeUri ?? undefined}>{kodeliste.eksternKildeUri}</a>
+          Ekstern kilde: <Link href={kodeliste.eksternKildeUri ?? undefined} target="_blank" rel="noopener noreferrer">{kodeliste.eksternKildeUri}</Link>
           {kodeliste.eksternKildeVersjon && ` (versjon ${kodeliste.eksternKildeVersjon})`}
         </Paragraph>
       )}
@@ -136,7 +136,7 @@ export default function KodelisteDetalj() {
             {leggerTilKode ? 'Legger til …' : 'Ny kode'}
           </Button>
         </form>
-        {kodeFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{kodeFeil}</div>}
+        {kodeFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{kodeFeil}</Alert>}
       </section>
 
       <section>
@@ -154,7 +154,7 @@ export default function KodelisteDetalj() {
             ))}
           </Select>
         )}
-        {statusFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{statusFeil}</div>}
+        {statusFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{statusFeil}</Alert>}
       </section>
     </>
   );

@@ -40,6 +40,9 @@ internal static class ModellByggerUtvidelser
 public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> options) : DbContext(options)
 {
     public DbSet<Virksomhet> Virksomheter => Set<Virksomhet>();
+    public DbSet<VirksomhetNettsideEntitet> VirksomhetNettsider => Set<VirksomhetNettsideEntitet>();
+    public DbSet<MyndighetstildelingEntitet> Myndighetstildelinger => Set<MyndighetstildelingEntitet>();
+    public DbSet<VirksomhetKandidatEntitet> VirksomhetKandidater => Set<VirksomhetKandidatEntitet>();
     public DbSet<Bruker> Brukere => Set<Bruker>();
     public DbSet<RettskildeEntitet> Rettskilder => Set<RettskildeEntitet>();
     public DbSet<RettskildeNodeEntitet> RettskildeNoder => Set<RettskildeNodeEntitet>();
@@ -52,6 +55,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<TjenesteEntitet> Tjenester => Set<TjenesteEntitet>();
     public DbSet<HandlingEntitet> Handlinger => Set<HandlingEntitet>();
     public DbSet<TjenesteRegelverksreferanseEntitet> TjenesteRegelverksreferanser => Set<TjenesteRegelverksreferanseEntitet>();
+    public DbSet<HandlingRegelverksreferanseEntitet> HandlingRegelverksreferanser => Set<HandlingRegelverksreferanseEntitet>();
     public DbSet<HendelseEntitet> Hendelser => Set<HendelseEntitet>();
     public DbSet<TjenesteHendelseEntitet> TjenesteHendelser => Set<TjenesteHendelseEntitet>();
     public DbSet<TjenesteavhengighetEntitet> Tjenesteavhengigheter => Set<TjenesteavhengighetEntitet>();
@@ -103,9 +107,79 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.Kommunenummer).HasColumnName("kommunenummer");
             e.Property(x => x.Forvaltningsniva).HasColumnName("forvaltningsniva");
+            e.Property(x => x.OrganisasjonsformKode).HasColumnName("organisasjonsform_kode");
+            e.Property(x => x.Sektorkode).HasColumnName("sektorkode");
+            e.Property(x => x.OverordnetEnhetId).HasColumnName("overordnet_enhet_id");
+            e.Property(x => x.SistBrregSynkronisert).HasColumnName("sist_brreg_synkronisert");
             e.Property(x => x.Aktiv).HasColumnName("aktiv").HasDefaultValue(true);
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.OverordnetEnhetId);
             e.HasIndex(x => x.Organisasjonsnummer).IsUnique().HasDatabaseName("ux_virksomheter_organisasjonsnummer")
                 .HasFilter("organisasjonsnummer IS NOT NULL");
+        });
+
+        b.Entity<VirksomhetNettsideEntitet>(e =>
+        {
+            e.ToTable("virksomhet_nettsider", t => t.HasCheckConstraint(
+                "ck_virksomhet_nettsider_type", "type IN ('Hovedside', 'Ovrig')"));
+            e.HasKey(x => x.Id).HasName("virksomhet_nettsider_pkey");
+            e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
+            e.Property(x => x.Url).HasColumnName("url");
+            e.Property(x => x.Type).HasColumnName("type");
+            e.Property(x => x.Merknad).HasColumnName("merknad");
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_virksomhet_nettsider_virksomhet");
+        });
+
+        b.Entity<MyndighetstildelingEntitet>(e =>
+        {
+            e.ToTable("myndighetstildelinger");
+            e.HasKey(x => x.Id).HasName("myndighetstildelinger_pkey");
+            e.Property(x => x.RolleBegrepId).HasColumnName("rolle_begrep_id");
+            e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
+            e.Property(x => x.HjemmelRettskildeId).HasColumnName("hjemmel_rettskilde_id");
+            e.Property(x => x.ParagrafspennJson).HasColumnName("paragrafspenn_json").HasDefaultValue("[]");
+            e.Property(x => x.Vilkaar).HasColumnName("vilkaar");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+            e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
+            e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
+            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.RolleBegrepId);
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.HjemmelRettskildeId);
+            e.HasIndex(x => x.RolleBegrepId).HasDatabaseName("ix_myndighetstildelinger_rolle_begrep");
+            e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_myndighetstildelinger_virksomhet");
+            e.HasIndex(x => x.HjemmelRettskildeId).HasDatabaseName("ix_myndighetstildelinger_hjemmel");
+        });
+
+        b.Entity<VirksomhetKandidatEntitet>(e =>
+        {
+            e.ToTable("virksomhet_kandidater", t => t.HasCheckConstraint(
+                "ck_virksomhet_kandidater_status", "status IN ('Venter', 'Godkjent', 'Avvist')"));
+            e.HasKey(x => x.Id).HasName("virksomhet_kandidater_pkey");
+            e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
+            e.Property(x => x.RettskildeId).HasColumnName("rettskilde_id");
+            e.Property(x => x.NodeEid).HasColumnName("node_eid");
+            e.Property(x => x.StartOffset).HasColumnName("start_offset");
+            e.Property(x => x.EndOffset).HasColumnName("end_offset");
+            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("Venter");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+            e.Property(x => x.BehandletAv).HasColumnName("behandlet_av");
+            e.Property(x => x.BehandletTidspunkt).HasColumnName("behandlet_tidspunkt");
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_virksomhet_kandidater_virksomhet");
+            e.HasIndex(x => x.RettskildeId).HasDatabaseName("ix_virksomhet_kandidater_rettskilde");
+            // Sveipet skal ikke gjenskape en kandidat som allerede finnes for samme (virksomhet, node,
+            // START-posisjon) — uansett status (docs/20 §2.6: "Venter"-status filtreres i APPLIKASJONEN
+            // ved visning/ny sveip, men selve UNIKHETEN gjelder uansett status, ellers ville en Avvist-
+            // rad ikke hindret gjenoppdukking som spesifisert). StartOffset er DEL AV NØKKELEN (ikke bare
+            // node-nivå som opprinnelig skjematisert) — ett sveip kan gi flere uavhengige treff i samme
+            // node (se VirksomhetKandidatEntitet.StartOffset-kommentaren), og disse må forbli distinkte
+            // kandidater. To ulike navneformer kan ikke starte på samme tegn-posisjon i samme node, så
+            // dette hindrer fortsatt reelle duplikater uten å kollapse ekte, uavhengige treff.
+            e.HasIndex(x => new { x.VirksomhetId, x.RettskildeId, x.NodeEid, x.StartOffset }).IsUnique()
+                .HasDatabaseName("ux_virksomhet_kandidater_virksomhet_node_start");
         });
 
         b.Entity<Bruker>(e =>
@@ -421,6 +495,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.ArsakerJson).HasColumnName("arsaker").HasColumnType(jsonKolonne).HasDefaultValue("[]");
             e.Property(x => x.ResultatJson).HasColumnName("resultat").HasColumnType(jsonKolonne).HasDefaultValue("{}");
             e.Property(x => x.Merknad).HasColumnName("merknad");
+            e.Property(x => x.EksternKildeId).HasColumnName("ekstern_kilde_id");
             e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("utkast");
             e.Property(x => x.Versjon).HasColumnName("versjon").HasDefaultValue(1);
             e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
@@ -431,7 +506,13 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 
             e.HasOne<TjenesteEntitet>().WithMany().HasForeignKey(x => x.TjenesteId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne<RegelnodeEntitet>().WithMany().HasForeignKey(x => x.RotnodeId);
+            e.HasOne<EksternKildeEntitet>().WithMany().HasForeignKey(x => x.EksternKildeId).OnDelete(DeleteBehavior.SetNull);
             e.HasIndex(x => x.TjenesteId).HasDatabaseName("ix_handlinger_tjeneste");
+            // Unik KUN for ikke-null verdier (partial index, samme standard-SQL-syntaks på begge
+            // profiler) — de aller fleste handlinger er håndskrevne og har EksternKildeId = null, som
+            // ellers ville kollidert i en vanlig unik indeks.
+            e.HasIndex(x => x.EksternKildeId).IsUnique().HasDatabaseName("ux_handlinger_ekstern_kilde")
+                .HasFilter("ekstern_kilde_id IS NOT NULL");
         });
 
         b.Entity<TjenesteRegelverksreferanseEntitet>(e =>
@@ -447,6 +528,21 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 
             e.HasIndex(x => new { x.TjenesteId, x.TilRettskildeId, x.TilEid }).IsUnique()
                 .HasDatabaseName("ux_tjeneste_regelverksreferanser");
+        });
+
+        b.Entity<HandlingRegelverksreferanseEntitet>(e =>
+        {
+            e.ToTable("handling_regelverksreferanser");
+            e.HasKey(x => x.Id).HasName("handling_regelverksreferanser_pkey");
+            e.Property(x => x.HandlingId).HasColumnName("handling_id");
+            e.Property(x => x.TilRettskildeId).HasColumnName("til_rettskilde_id");
+            e.Property(x => x.TilEid).HasColumnName("til_eid");
+
+            e.HasOne<HandlingEntitet>().WithMany().HasForeignKey(x => x.HandlingId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.TilRettskildeId);
+
+            e.HasIndex(x => new { x.HandlingId, x.TilRettskildeId, x.TilEid }).IsUnique()
+                .HasDatabaseName("ux_handling_regelverksreferanser");
         });
 
         b.Entity<HendelseEntitet>(e =>
@@ -545,9 +641,13 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 
         b.Entity<BegrepEntitet>(e =>
         {
-            e.ToTable("begreper");
+            e.ToTable("begreper", t => t.HasCheckConstraint(
+                "ck_begreper_begrepskategori", "begrepskategori IS NULL OR begrepskategori IN ('virksomhet', 'rolle')"));
             e.HasKey(x => x.Id).HasName("begreper_pkey");
             e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
+            e.Property(x => x.Begrepskategori).HasColumnName("begrepskategori");
+            e.Property(x => x.VirksomhetReferanseId).HasColumnName("virksomhet_referanse_id");
+            e.Property(x => x.LovkildeId).HasColumnName("lovkilde_id");
             e.Property(x => x.Term).HasColumnName("term");
             e.Property(x => x.Definisjon).HasColumnName("definisjon");
             e.Property(x => x.LovreferanseEid).HasColumnName("lovreferanse_eid");
@@ -566,10 +666,24 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
             e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
 
-            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
+            // OnDelete(Cascade) uttrykkelig satt: da VirksomhetId var Guid (påkrevd) defaultet EF Core
+            // selv til Cascade her; nå den er Guid? (valgfri, docs/20 §2.3) ville EF's DEFAULT for en
+            // valgfri relasjon endret oppførselen stille (til Restrict/SetNull) — uttrykkelig Cascade
+            // bevarer eksakt samme oppførsel som før for ordinære fakta-/handlingsbegrep.
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetReferanseId);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.LovkildeId);
             e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.ErstatterId);
             e.HasOne<KodelisteEntitet>().WithMany().HasForeignKey(x => x.KodelisteReferanseId);
             e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_begreper_virksomhet");
+            e.HasIndex(x => x.VirksomhetReferanseId).HasDatabaseName("ix_begreper_virksomhet_referanse");
+            // Rollebegrepets identitet er (Term, LovkildeId) sammen (docs/20 §2.4) — samme rollenavn i
+            // to ulike lover er to ulike rader, men samme rollenavn i SAMME lov skal ikke kunne
+            // dupliseres. Partiell (kun Begrepskategori='rolle') og Entitetsstatus-filtrert, samme
+            // mønster som andre "unik blant gjeldende"-indekser i denne filen.
+            e.HasIndex(x => new { x.Term, x.LovkildeId }).IsUnique()
+                .HasFilter("begrepskategori = 'rolle' AND entitetsstatus = 'gjeldende'")
+                .HasDatabaseName("ux_begreper_rollebegrep_term_lovkilde");
         });
 
         b.Entity<KodelisteEntitet>(e =>

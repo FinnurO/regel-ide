@@ -2,13 +2,13 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "api",
+      "name": "virksomhet-api",
       "runtimeExecutable": "dotnet",
       "runtimeArgs": ["run", "--project", "src/RegelIde.Api"],
       "port": 5187
     },
     {
-      "name": "web",
+      "name": "virksomhet-web",
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "src/RegelIde.Web", "run", "dev"],
       "port": 5173
