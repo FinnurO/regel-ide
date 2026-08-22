@@ -11,6 +11,17 @@ internal static class Testdata
     public static string LesAlkoholforskriften() =>
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "alkoholforskriften-FOR-2005-06-08-538.html"));
 
+    /// <summary>
+    /// Ekte tekst — hele Lov om advokater og andre som yter rettslig bistand (advokatloven,
+    /// LOV-2022-05-12-28), hentet fra Lovdatas offisielle bulk-datasett (kandidatsøk-og-godkjenning-
+    /// runden, samme kilde/format som alkoholloven, se data/kilder/README.md). Brukt som testcase for
+    /// virksomhetskandidat-sveipet: § 4 første ledd inneholder ordrett "Advokattilsynet utsteder
+    /// advokatbevilling", og loven inneholder også den historiske navneformen "Tilsynsrådet for
+    /// advokatvirksomhet" (forgjengeren til Advokattilsynet) — dekker begge navneformer i én ekte kilde.
+    /// </summary>
+    public static string LesAdvokatloven() =>
+        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "advokatloven-LOV-2022-05-12-28.html"));
+
     /// <summary>Ekte tekst fra Bergens retningslinjer SD-24-113 — se data/kilder/raw-handbok/README.md.</summary>
     public static string LesBergenRetningslinjer() =>
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "Handbok", "bergen-retningslinjer-SD-24-113.txt"));

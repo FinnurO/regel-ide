@@ -56,6 +56,7 @@ const GRUPPER: Gruppe[] = [
     rader: [
       { kind: 'lenke', to: '/brukere', label: 'Brukere' },
       { kind: 'lenke', to: '/virksomheter', label: 'Virksomheter' },
+      { kind: 'lenke', to: '/virksomhet-kandidater', label: 'Virksomhetskandidater' },
     ],
   },
 ];

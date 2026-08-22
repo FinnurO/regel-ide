@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RegelIde.Data;
@@ -12,9 +13,11 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    partial class RegelIdeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260822034839_LeggTilTegnintervallPaVirksomhetKandidat")]
+    partial class LeggTilTegnintervallPaVirksomhetKandidat
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -527,10 +530,6 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("bruksomraade");
 
-                    b.Property<Guid?>("EksternKildeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("ekstern_kilde_id");
-
                     b.Property<string>("Entitetsstatus")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -634,48 +633,12 @@ namespace RegelIde.Data.Migrasjoner
                     b.HasKey("Id")
                         .HasName("handlinger_pkey");
 
-                    b.HasIndex("EksternKildeId")
-                        .IsUnique()
-                        .HasDatabaseName("ux_handlinger_ekstern_kilde")
-                        .HasFilter("ekstern_kilde_id IS NOT NULL");
-
                     b.HasIndex("RotnodeId");
 
                     b.HasIndex("TjenesteId")
                         .HasDatabaseName("ix_handlinger_tjeneste");
 
                     b.ToTable("handlinger", (string)null);
-                });
-
-            modelBuilder.Entity("RegelIde.Data.HandlingRegelverksreferanseEntitet", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("HandlingId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("handling_id");
-
-                    b.Property<string>("TilEid")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("til_eid");
-
-                    b.Property<Guid>("TilRettskildeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("til_rettskilde_id");
-
-                    b.HasKey("Id")
-                        .HasName("handling_regelverksreferanser_pkey");
-
-                    b.HasIndex("TilRettskildeId");
-
-                    b.HasIndex("HandlingId", "TilRettskildeId", "TilEid")
-                        .IsUnique()
-                        .HasDatabaseName("ux_handling_regelverksreferanser");
-
-                    b.ToTable("handling_regelverksreferanser", (string)null);
                 });
 
             modelBuilder.Entity("RegelIde.Data.HendelseEntitet", b =>
@@ -2843,11 +2806,6 @@ namespace RegelIde.Data.Migrasjoner
 
             modelBuilder.Entity("RegelIde.Data.HandlingEntitet", b =>
                 {
-                    b.HasOne("RegelIde.Data.EksternKildeEntitet", null)
-                        .WithMany()
-                        .HasForeignKey("EksternKildeId")
-                        .OnDelete(DeleteBehavior.SetNull);
-
                     b.HasOne("RegelIde.Data.RegelnodeEntitet", null)
                         .WithMany()
                         .HasForeignKey("RotnodeId");
@@ -2855,21 +2813,6 @@ namespace RegelIde.Data.Migrasjoner
                     b.HasOne("RegelIde.Data.TjenesteEntitet", null)
                         .WithMany()
                         .HasForeignKey("TjenesteId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("RegelIde.Data.HandlingRegelverksreferanseEntitet", b =>
-                {
-                    b.HasOne("RegelIde.Data.HandlingEntitet", null)
-                        .WithMany()
-                        .HasForeignKey("HandlingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
-                        .WithMany()
-                        .HasForeignKey("TilRettskildeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

@@ -186,9 +186,39 @@ export interface VirksomhetKandidatDto {
   virksomhetId: string;
   rettskildeId: string;
   nodeEid: string;
+  startOffset: number;
+  endOffset: number;
   status: string;
+  opprettetAv: string;
+  opprettetTidspunkt: string;
   behandletAv: string | null;
   behandletTidspunkt: string | null;
+}
+
+/** Kravspek §4.2 pkt. 1/2 — sveip-trigger for én virksomhet. */
+export interface SveipVirksomhetKandidaterRequest {
+  virksomhetId: string;
+}
+
+export interface SveipVirksomhetKandidaterResultatDto {
+  antallTreffFunnet: number;
+  antallNyeKandidater: number;
+}
+
+/** Massegodkjenning/-avvisning (kravspek §4.2 pkt. 4) — server-side batch, per-rad-feilhåndtering. */
+export interface VirksomhetKandidatBatchRequest {
+  ider: string[];
+}
+
+export interface VirksomhetKandidatBatchRadDto {
+  id: string;
+  ok: boolean;
+  feil: string | null;
+  resultat: VirksomhetKandidatDto | null;
+}
+
+export interface VirksomhetKandidatBatchResultatDto {
+  rader: VirksomhetKandidatBatchRadDto[];
 }
 
 /** Ikke lenger en fast literal-union — kind-settet er konfigurasjonsstyrt (se TaggKindKonfigurasjonDto), ikke hardkodet. */

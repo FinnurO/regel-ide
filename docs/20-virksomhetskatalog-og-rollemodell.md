@@ -151,6 +151,53 @@ beholdes for å hindre gjenoppdukking ved neste sveip, men kan hardslettes manue
 **Statusregler**: kun `Venter` vises i køen og foreslås på nytt ved ny sveip. `Godkjent` → oppretter
 den faktiske forekomst-taggingen (samme mekanisme som §2.3/§2.4s begrep-i-tekst-kobling).
 
+### 2.6.1 Sveip og godkjenning — bygget (kandidatsøk-og-godkjenning-runden)
+
+Bygget i en senere runde enn resten av dette dokumentet (§2.6 over beskrev fortsatt bare KØEN, ikke
+sveipet, da den ble skrevet). Faktisk implementasjon:
+
+**Ekstra felt på `VirksomhetKandidatEntitet`**: `StartOffset`/`EndOffset` (int) — presist tegn-intervall
+i nodens `Tekst` på sveip-tidspunktet. Lagt til fordi punkt 5 (godkjenning → tagg) krever et eksakt
+intervall, og fordi ETT sveip kan gi FLERE treff i samme node (f.eks. samme navneform nevnt to ganger i
+samme ledd). Konsekvens: den unike indeksen er utvidet fra `(VirksomhetId, RettskildeId, NodeEid)` til
+`(VirksomhetId, RettskildeId, NodeEid, StartOffset)` — to ulike treff i samme node er nå to uavhengige
+kandidatrader, som kan godkjennes/avvises hver for seg. Migrasjon:
+`20260822034839_LeggTilTegnintervallPaVirksomhetKandidat`.
+
+**Sveipefunksjonen** (`VirksomhetKandidatSveipTjeneste`, egen klasse fra selve køen): for én virksomhet,
+henter ALLE dens navneform-`Begrep`-rader (`Begrepskategori="virksomhet"`, gruppert på
+`VirksomhetReferanseId` — ikke bare `Virksomhet.Navn`) og matcher hver navneform med ordgrense-regex
+(`\bnavn\b`, case-sensitivt, lengste navneform først i alternasjonen) mot `Tekst` på alle
+ikke-opphevede, gjeldende rettskilde-noder. Hvert treff sendes til
+`VirksomhetKandidatTjeneste.OpprettEllerFinnAsync` (idempotent per den utvidede nøkkelen over).
+
+**Godkjenning → ekte tagg** (`VirksomhetKandidatTjeneste.GodkjennAsync`): re-kjører matchingen mot nodens
+DÅVÆRENDE tekst ved godkjenningstidspunktet i stedet for å lagre quoteSelector-en (prefiks/eksakt/
+suffiks) på kandidaten — henter nodens `Tekst` på nytt, slår opp tegn-utdraget i det lagrede intervallet,
+og krever at det EKSAKT matcher en fortsatt-gjeldende navneform-`Begrep`-rad for virksomheten. Matcher
+det ikke (node reimportert/endret siden sveipet, eller navneformen fjernet) → `ArgumentException`, ingen
+tagg opprettes og kandidatens status forblir `Venter`. Samme "ingen gjettet fallback"-vern som
+`TekstTaggTjeneste.OpprettAsync` allerede har for staleness. Valgt fremfor å utvide kandidat-raden med
+egne quoteSelector-felt — unngår duplisert lagring av noe som allerede kan avledes fra noden.
+
+Taggen som opprettes: `kind="begrep"`, `RefId` = navneform-`Begrep`-radens id (ALDRI en egen
+`"virksomhet"`-kind som peker direkte på `Virksomhet` — forsøkt og reversert i en tidligere runde, se
+klassekommentaren på `VirksomhetKandidatTjeneste.GodkjennAsync`, fordi det bypasser navneform-laget som
+finnes nettopp for synonymer). `TekstTaggEntitet.VirksomhetId` settes til virksomheten TEKSTEN OMTALER
+(kandidatens `VirksomhetId`), ikke til den godkjennende brukerens egen virksomhet — et bevisst valg som
+gjør `TekstTaggTjeneste.ListerForAsync(rettskildeId, virksomhetId)` til riktig oppslag for §3s "fra
+virksomhet til rettskilde"-visning, konsistent med at kandidatkøen selv er delt/global (§0 pkt. 3), ikke
+tenant-scopet.
+
+**API**: `app.MapGroup("/api/virksomhet-kandidater")` — `GET /` (filtrerbar på virksomhet/rettskilde/
+status, status utelatt = kun `Venter`, `status=Alle` = ingen statusfilter), `POST /sveip`, `POST /`
+(manuell), `POST /{id}/godkjenn`, `POST /{id}/avvis`, `POST /godkjenn-batch`/`POST /avvis-batch`
+(massehandling med per-rad-feilhåndtering), `DELETE /{id}` (hardslett, kun `Avvist`).
+
+**UI**: `VirksomhetKandidaterListe.tsx` (egen rute `/virksomhet-kandidater`, sorterbar/filtrerbar tabell
++ avkrysningsbokser + massegodkjenn/avvis + sveip-trigger) og en "Kjør sveip"-knapp + lenke til fullisten
+fra `VirksomhetDetalj.tsx`.
+
 ## 3. Aggregerte visninger (beregnet, ikke lagret)
 
 Uendret fra kravspekens §3 — beregnes ved lesing, aldri lagret som egen fakta:

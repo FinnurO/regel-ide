@@ -77,6 +77,10 @@ import type {
   VirksomhetsbegrepDto,
   MyndighetstildelingDto,
   VirksomhetKandidatDto,
+  SveipVirksomhetKandidaterRequest,
+  SveipVirksomhetKandidaterResultatDto,
+  VirksomhetKandidatBatchRequest,
+  VirksomhetKandidatBatchResultatDto,
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5187';
@@ -218,6 +222,40 @@ export const api = {
 
   hentVentendeKandidater: (virksomhetId: string) =>
     kall<VirksomhetKandidatDto[]>(`/api/virksomhet-kandidater?virksomhetId=${virksomhetId}`),
+
+  /** Full kandidatliste-UI (kravspek §4.2 pkt. 3) — status='Alle' fjerner statusfiltreringen helt. */
+  hentVirksomhetKandidater: (filter: { virksomhetId?: string; rettskildeId?: string; status?: string }) => {
+    const parametre = new URLSearchParams();
+    if (filter.virksomhetId) parametre.set('virksomhetId', filter.virksomhetId);
+    if (filter.rettskildeId) parametre.set('rettskildeId', filter.rettskildeId);
+    if (filter.status) parametre.set('status', filter.status);
+    const sok = parametre.toString();
+    return kall<VirksomhetKandidatDto[]>(`/api/virksomhet-kandidater${sok ? `?${sok}` : ''}`);
+  },
+
+  sveipVirksomhetKandidater: (request: SveipVirksomhetKandidaterRequest) =>
+    kall<SveipVirksomhetKandidaterResultatDto>('/api/virksomhet-kandidater/sveip', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  godkjennVirksomhetKandidaterBatch: (request: VirksomhetKandidatBatchRequest) =>
+    kall<VirksomhetKandidatBatchResultatDto>('/api/virksomhet-kandidater/godkjenn-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  avvisVirksomhetKandidaterBatch: (request: VirksomhetKandidatBatchRequest) =>
+    kall<VirksomhetKandidatBatchResultatDto>('/api/virksomhet-kandidater/avvis-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  hardslettVirksomhetKandidat: (id: string) =>
+    kall<void>(`/api/virksomhet-kandidater/${id}`, { method: 'DELETE' }),
 
   settVirksomhetForvaltningsniva: (id: string, forvaltningsniva: string | null) =>
     kall<VirksomhetDto>(`/api/virksomheter/${id}/forvaltningsniva`, {
