@@ -3,6 +3,8 @@ import { Link as RouterLink, useNavigate } from 'react-router';
 import { Alert, Button, Card, Heading, Link, Paragraph, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { TjenesteDto } from '../api/types';
+import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
+import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 
 type Sorteringskolonne = 'tittel' | 'tjenestetype' | 'status' | 'eier';
@@ -111,6 +113,8 @@ export default function TjenesterListe() {
     });
   }, [tjenester, filterTekst, sortKolonne, sortStigende, visEier]);
 
+  const paginering = usePaginering(viste ?? []);
+
   function sorteringsindikator(kolonne: Sorteringskolonne) {
     if (sortKolonne !== kolonne) return '';
     return sortStigende ? ' ▲' : ' ▼';
@@ -179,7 +183,7 @@ export default function TjenesterListe() {
               </Table.Row>
             </Table.Head>
             <Table.Body>
-              {viste.map((t) => {
+              {paginering.visteRader.map((t) => {
                 const status = STATUS_VISNING[t.status];
                 return (
                   <Table.Row key={t.id}>
@@ -200,6 +204,7 @@ export default function TjenesterListe() {
           </Table>
         </Card>
       )}
+      {viste && viste.length > 0 && <Pagineringskontroll {...paginering} />}
     </>
   );
 }

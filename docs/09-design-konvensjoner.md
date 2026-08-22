@@ -33,9 +33,10 @@ maks-bredde 1100px (IKKE fullbredde-design).
 `Textarea`, `Textfield`, `Tabs`, `ToggleGroup`, `Checkbox`, `Radio`, `Switch`, `Dropdown`, `Card`,
 `Badge`, `Chip`, `Breadcrumbs`, `Dialog`, `Popover`, `Tooltip`, `Details`, `Divider`,
 `ErrorSummary`, `ValidationMessage`, `Search`, `Pagination`, `Skeleton`, `Spinner`, `Avatar`,
-`List`, `Alert`. De første 12 (Button→Checkbox) er alt som faktisk er brukt i dag — resten finnes i
-biblioteket men er ALDRI brukt ennå; bruk dem der de løser et reelt problem (se kjente
-UX-mangler under), ikke utenfor denne listen.
+`List`, `Alert`. De første 12 (Button→Checkbox) er alt som faktisk er brukt i dag, PLUSS `Combobox`
+og `Pagination` (tatt i bruk 2026-08-22, branch `paginering` — se §9) — resten finnes i biblioteket
+men er ALDRI brukt ennå; bruk dem der de løser et reelt problem (se kjente UX-mangler under), ikke
+utenfor denne listen.
 
 **Kjente UX-mangler å adressere** (ikke bare pynte på): ingen brødsmulesti — hver side finner på sin
 egen «← Tilbake»-lenke eller har ingen; ingen delt visning av valideringsfeil per felt, kun én
@@ -201,3 +202,80 @@ ikke gjentas:
 - Responsiv kollaps av sidemenyen under 880px (krav i produktkrav kap. 7 — ikke implementert).
 - `--ds-color-neutral-background-tinted`-varianten av hovedinnhold (kun den enkleste to-flate-varianten
   er valgt så langt).
+
+## 9. Paginering av lange lister + søkbar virksomhetsvelger (2026-08-22, branch `paginering`)
+
+Bakgrunn: fem liste-sider hentet ALT → filtrerte/sorterte klient-side → rendret HELE resultatet i én
+`Table` — reelt observert ytelsesproblem (ikke bare teoretisk), bekreftet ved at
+`VirksomhetKandidaterListe.tsx`s `<Select>` med ~451 virksomheter som `<option>` fikk et
+render-timeout under live-verifisering.
+
+**To ulike problemer, to ulike løsninger — ikke bland dem:**
+
+- **Mange TABELLRADER** → paginering (`src/RegelIde.Web/src/tabell/usePaginering.ts` +
+  `Pagineringskontroll.tsx`).
+- **Mange `<option>` i én dropdown** (virksomhetsvelgere) → `Combobox` (søkbar), IKKE paginering —
+  en dropdown sin options-liste pagineres ikke, den gjøres søkbar. Se
+  `src/RegelIde.Web/src/virksomhet/VirksomhetVelger.tsx`.
+
+### 9.1 `usePaginering<T>(rader: T[])` — delt hook
+
+```ts
+const viste = useMemo(() => /* filtrer + sorter */, [data, filterTekst, sortKolonne, sortStigende]);
+const paginering = usePaginering(viste ?? []);
+// paginering.visteRader  ← bruk DENNE i Table.Body.map(...), ikke `viste` direkte
+// <Pagineringskontroll {...paginering} />  ← rendres rett under tabellen
+```
+
+Returnerer `{ side, settSide, sidestorrelse, settSidestorrelse, totaltAntallSider,
+totaltAntallRader, visteRader }`. Sentrale designvalg:
+
+- Paginerer et allerede FILTRERT OG SORTERT array — filter/sortering virker fortsatt på hele
+  datasettet, paginering er kun en render-optimalisering av visningen, ikke en serverside-
+  begrensning.
+- **Nullstiller automatisk til side 1** når `rader` får en ny referanse (nytt filter, ny sortering,
+  nye data hentet) via en `useEffect([rader])` — bevisst, se kommentar i kildekoden. Siden kallerens
+  `useMemo` for `viste` uansett kun lager en ny array-referanse når filter/sortering/data faktisk
+  endrer seg, trigger dette IKKE ved urelaterte re-renders (f.eks. at selve siden endres).
+- Faste sidestørrelser `20 | 50 | 100 | 'alle'` (`SIDESTORRELSER`-konstanten) — bevisst ikke fritekst
+  (Johanns eksplisitte ønske).
+- `settSidestorrelse` nullstiller også til side 1 (en ny sidestørrelse endrer sidetallingen).
+
+`Pagineringskontroll` (samme mappe) rendrer sidestørrelse-`Select` + "Viser X–Y av Z"-tekst +
+Designsystemets `Pagination` (skjules helt ved 0 rader; selve `Pagination`-elementet skjules når
+sidestørrelse er «Alle» eller alt får plass på én side). Bygget på `usePagination`-hjelpehooken fra
+`@digdir/designsystemet-react` selv (`Pagination.List`/`Pagination.Item`/`Pagination.Button`,
+`data-current`/`data-total` som STRENGER — verifisert mot installert `1.18.0` sine `.d.ts`-filer,
+ikke gjettet).
+
+**Fem sider har fått paginering**: `RettskilderListe.tsx` (BEGGE tabellene — hovedlisten og
+"ikke-importert"-underlisten, samme mønster to ganger i én fil), `TjenesterListe.tsx`,
+`HandlingerListe.tsx`, `VirksomheterListe.tsx`, `VirksomhetKandidaterListe.tsx`.
+
+**Massehandling + paginering** (`VirksomhetKandidaterListe.tsx` spesifikt): "Velg alle viste"-
+checkboxen i tabellhodet betyr etter denne endringen alle rader på GJELDENDE SIDE
+(`paginering.visteRader`), ikke hele det filtrerte treffsettet — brukerens eksisterende utvalg på
+tvers av sider bevares når man blar (kun checkbox-tilstanden i toppen reflekterer siden man står på).
+
+### 9.2 `VirksomhetVelger` — søkbar erstatning for `<Select>` med alle virksomheter
+
+`src/RegelIde.Web/src/virksomhet/VirksomhetVelger.tsx`, bygget på `Combobox` (§0-vokabularet).
+Props: `virksomheter`, `value` (valgt id, `''` for tomt valg), `onChange`, `label`, `tomValgTekst`
+(teksten på det tomme valget, f.eks. «Alle virksomheter» / «Velg virksomhet …» /
+«(nasjonal standardverdi)» — varierer fra side til side, se bruken), `hideLabel?`, `style?`.
+
+To ting man MÅ gjøre riktig med `Combobox` her, begge verifisert mot installert `1.18.0` sine
+`.d.ts`-filer (ikke gjettet):
+
+- **Egen `filter`-prop er obligatorisk**: standardfilteret i `Combobox` matcher
+  `option.value.toLowerCase().startsWith(inputValue)` — her er `value` virksomhetens GUID, ikke
+  navnet. Uten en egen `filter={(inputValue, option) => option.label.toLowerCase().includes(...)}`
+  må brukeren skrive inn en GUID for å finne noe.
+- `Combobox` har `label` innebygd (encapsulerer selv i et `<label>`-element) — IKKE wrap den i
+  `Field`+`Label` slik `Select` krever (§5-tabellen); det mønsteret gjelder kun `Select`.
+
+Erstattet tre forekomster av «render alle virksomheter som `<Select.Option>`»:
+`VirksomhetKandidaterListe.tsx` (både "Virksomhet å sveipe for" og "Virksomhet"-filteret) og
+`TjenesteVeiledning.tsx`. Andre steder i kodebasen som viser/velger ÉN virksomhet ut fra en
+allerede liten, kontekstavgrenset liste (f.eks. brukerens egen virksomhet) er IKKE endret — dette
+gjelder kun steder som rendret HELE virksomhetslisten (~451 rader) som options.

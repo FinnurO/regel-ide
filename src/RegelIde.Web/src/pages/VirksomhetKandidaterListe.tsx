@@ -4,7 +4,10 @@ import { Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, Select,
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
 import type { RettskildeNodeDto, RettskildeSammendrag, VirksomhetKandidatDto } from '../api/types';
+import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
+import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
+import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 
 type Sorteringskolonne = 'virksomhet' | 'rettskilde' | 'status' | 'opprettet';
 
@@ -125,9 +128,11 @@ export default function VirksomhetKandidaterListe() {
     });
   }
 
+  // Merk: "alle viste" betyr alle på GJELDENDE SIDE, ikke hele det filtrerte treffsettet — samme
+  // avgrensning som checkbox-etiketten "Velg alle viste" allerede antydet før paginering fantes,
+  // nå bare eksplisitt riktig i og med at "viste" er per side.
   function vekslAlleViste(valgt: boolean) {
-    if (!viste) return;
-    setValgte(valgt ? new Set(viste.map((k) => k.id)) : new Set());
+    setValgte(valgt ? new Set(paginering.visteRader.map((k) => k.id)) : new Set());
   }
 
   async function massehandling(handling: 'godkjenn' | 'avvis') {
@@ -192,6 +197,8 @@ export default function VirksomhetKandidaterListe() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [kandidater, sortKolonne, sortStigende, visEier, rettskilderPerId]);
 
+  const paginering = usePaginering(viste ?? []);
+
   return (
     <>
       <Heading level={1} data-size="lg" style={{ marginBottom: '0.2rem' }}>
@@ -211,15 +218,14 @@ export default function VirksomhetKandidaterListe() {
           (se Virksomhetsdetalj → «Navneformer i rettskildetekst») og legger nye treff i køen som «Venter».
         </Paragraph>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-          <Field style={{ minWidth: '20rem' }}>
-            <Label>Virksomhet å sveipe for</Label>
-            <Select data-size="sm" value={sveipVirksomhetId} onChange={(e) => setSveipVirksomhetId(e.target.value)}>
-              <Select.Option value="">Velg virksomhet …</Select.Option>
-              {virksomheter.map((v) => (
-                <Select.Option key={v.id} value={v.id}>{v.navn}</Select.Option>
-              ))}
-            </Select>
-          </Field>
+          <VirksomhetVelger
+            virksomheter={virksomheter}
+            value={sveipVirksomhetId}
+            onChange={setSveipVirksomhetId}
+            label="Virksomhet å sveipe for"
+            tomValgTekst="Velg virksomhet …"
+            style={{ minWidth: '20rem' }}
+          />
           <Button onClick={kjorSveip} disabled={!sveipVirksomhetId || sveiper}>
             {sveiper ? 'Sveiper …' : 'Kjør sveip'}
           </Button>
@@ -233,15 +239,14 @@ export default function VirksomhetKandidaterListe() {
       </Card>
 
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '1rem' }}>
-        <Field style={{ minWidth: '16rem' }}>
-          <Label>Virksomhet</Label>
-          <Select data-size="sm" value={virksomhetFilter} onChange={(e) => setVirksomhetFilter(e.target.value)}>
-            <Select.Option value="">Alle virksomheter</Select.Option>
-            {virksomheter.map((v) => (
-              <Select.Option key={v.id} value={v.id}>{v.navn}</Select.Option>
-            ))}
-          </Select>
-        </Field>
+        <VirksomhetVelger
+          virksomheter={virksomheter}
+          value={virksomhetFilter}
+          onChange={setVirksomhetFilter}
+          label="Virksomhet"
+          tomValgTekst="Alle virksomheter"
+          style={{ minWidth: '16rem' }}
+        />
         <Field style={{ minWidth: '18rem' }}>
           <Label>Lov/forskrift</Label>
           <Select data-size="sm" value={rettskildeFilter} onChange={(e) => setRettskildeFilter(e.target.value)}>
@@ -289,7 +294,7 @@ export default function VirksomhetKandidaterListe() {
                   <Table.HeaderCell>
                     <Checkbox
                       aria-label="Velg alle viste"
-                      checked={viste.length > 0 && valgte.size === viste.length}
+                      checked={paginering.visteRader.length > 0 && paginering.visteRader.every((k) => valgte.has(k.id))}
                       onChange={(e) => vekslAlleViste(e.target.checked)}
                     />
                   </Table.HeaderCell>
@@ -314,7 +319,7 @@ export default function VirksomhetKandidaterListe() {
                 </Table.Row>
               </Table.Head>
               <Table.Body>
-                {viste.map((k) => (
+                {paginering.visteRader.map((k) => (
                   <Table.Row key={k.id}>
                     <Table.Cell>
                       <Checkbox
@@ -366,6 +371,8 @@ export default function VirksomhetKandidaterListe() {
           </div>
         </Card>
       )}
+
+      {viste && viste.length > 0 && <Pagineringskontroll {...paginering} />}
     </>
   );
 }
