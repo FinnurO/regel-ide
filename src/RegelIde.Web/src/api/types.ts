@@ -148,6 +148,47 @@ export interface VirksomhetDto {
    * virksomhet fra visning av allerede eksisterende innhold den eier (se `visEier` i useVirksomheter.ts).
    */
   aktiv: boolean;
+  /** 'stat' | 'kommune' | 'fylkeskommune' | 'statsforvalter' | 'tingrett' | 'lagmannsrett' | 'jordskifterett' — se docs/20 §2.1. NULL for alt utenom kommune/fylkeskommune til noen fyller det inn manuelt. */
+  forvaltningsniva: string | null;
+  organisasjonsformKode: string | null;
+  sektorkode: string | null;
+  overordnetEnhetId: string | null;
+  sistBrregSynkronisert: string | null;
+}
+
+export interface VirksomhetsbegrepDto {
+  id: string;
+  virksomhetId: string | null;
+  begrepskategori: string | null;
+  virksomhetReferanseId: string | null;
+  lovkildeId: string | null;
+  term: string;
+  definisjon: string | null;
+  status: string;
+}
+
+export interface ParagrafspennParDto {
+  fraEid: string;
+  tilEid: string | null;
+}
+
+export interface MyndighetstildelingDto {
+  id: string;
+  rolleBegrepId: string;
+  virksomhetId: string;
+  hjemmelRettskildeId: string;
+  paragrafspenn: ParagrafspennParDto[];
+  vilkaar: string | null;
+}
+
+export interface VirksomhetKandidatDto {
+  id: string;
+  virksomhetId: string;
+  rettskildeId: string;
+  nodeEid: string;
+  status: string;
+  behandletAv: string | null;
+  behandletTidspunkt: string | null;
 }
 
 /** Ikke lenger en fast literal-union — kind-settet er konfigurasjonsstyrt (se TaggKindKonfigurasjonDto), ikke hardkodet. */

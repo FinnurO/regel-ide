@@ -73,6 +73,9 @@ import type {
   VilkarRequest,
   VilkarstreKommentarDto,
   VirksomhetDto,
+  VirksomhetsbegrepDto,
+  MyndighetstildelingDto,
+  VirksomhetKandidatDto,
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5187';
@@ -198,6 +201,35 @@ export const api = {
     }),
 
   hentVirksomheter: () => kall<VirksomhetDto[]>('/api/virksomheter'),
+
+  hentVirksomhetsbegrep: (virksomhetId: string) =>
+    kall<VirksomhetsbegrepDto[]>(`/api/virksomheter/${virksomhetId}/begrep`),
+
+  opprettVirksomhetsbegrep: (request: { virksomhetId: string; term: string; skosUrl: string | null }) =>
+    kall<VirksomhetsbegrepDto>('/api/virksomhetsbegrep', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  hentMyndighetstildelingerForVirksomhet: (virksomhetId: string) =>
+    kall<MyndighetstildelingDto[]>(`/api/virksomheter/${virksomhetId}/myndighetstildelinger`),
+
+  hentVentendeKandidater: (virksomhetId: string) =>
+    kall<VirksomhetKandidatDto[]>(`/api/virksomhet-kandidater?virksomhetId=${virksomhetId}`),
+
+  settVirksomhetForvaltningsniva: (id: string, forvaltningsniva: string | null) =>
+    kall<VirksomhetDto>(`/api/virksomheter/${id}/forvaltningsniva`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ forvaltningsniva }),
+    }),
+
+  godkjennVirksomhetKandidat: (id: string) =>
+    kall<VirksomhetKandidatDto>(`/api/virksomhet-kandidater/${id}/godkjenn`, { method: 'POST' }),
+
+  avvisVirksomhetKandidat: (id: string) =>
+    kall<VirksomhetKandidatDto>(`/api/virksomhet-kandidater/${id}/avvis`, { method: 'POST' }),
 
   hentTaggKinds: () => kall<TaggKindKonfigurasjonDto[]>('/api/konfigurasjon/tagg-kinds'),
 

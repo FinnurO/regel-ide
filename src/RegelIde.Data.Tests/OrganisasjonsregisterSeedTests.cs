@@ -70,7 +70,7 @@ public class OrganisasjonsregisterSeedTests
 
         var agder = await db.Virksomheter.SingleAsync(v => v.Navn == "Agder fylkeskommune");
         Assert.Equal("921707134", agder.Organisasjonsnummer);
-        Assert.Equal("fylke", agder.Forvaltningsniva);
+        Assert.Equal("fylkeskommune", agder.Forvaltningsniva); // [ENDRET, docs/20 §2.1] var "fylke".
         Assert.True(agder.Aktiv); // Johanns eksplisitte instruks — alltid aktiv.
 
         var barum = await db.Virksomheter.SingleAsync(v => v.Navn == "Bærum kommune");
@@ -106,8 +106,19 @@ public class OrganisasjonsregisterSeedTests
         Assert.Null(oslo.Kommunenummer);
         Assert.False(oslo.Aktiv);
 
-        // Andre organisasjonstyper i kildefilen (STAT/ORGL/SF/STI/FLI/AS/ANNA/SÆR) hoppes bevisst over.
-        Assert.False(await db.Virksomheter.AnyAsync(v => v.Navn.Contains("Statsforvalteren")));
+        // [ENDRET, docs/20 §4 `[LÅST]`] Andre organisasjonstyper (STAT/ORGL/SF/STI/FLI/AS/ANNA/SÆR)
+        // seedes nå OGSÅ — ingen filtrering, ingen navnebasert gjetting av Forvaltningsniva.
+        // FormaterNavnEnkelt small-caps'er ALT unntatt aller første bokstav — "Statsforvalteren i
+        // agder", ikke "Agder" (kildenavnet var allerede blandet kasus, men funksjonen normaliserer
+        // uansett, se FormaterNavnEnkelt).
+        var statsforvalteren = await db.Virksomheter.SingleAsync(v => v.Navn == "Statsforvalteren i agder");
+        Assert.Equal("974762994", statsforvalteren.Organisasjonsnummer);
+        Assert.Null(statsforvalteren.Forvaltningsniva); // ikke gjettet, selv om "statsforvalter" ville vært opplagt riktig.
+        Assert.False(statsforvalteren.Aktiv);
+
+        var mattilsynet = await db.Virksomheter.SingleAsync(v => v.Navn == "Mattilsynet");
+        Assert.Equal("985399077", mattilsynet.Organisasjonsnummer);
+        Assert.Null(mattilsynet.Forvaltningsniva);
     }
 
     [Fact]

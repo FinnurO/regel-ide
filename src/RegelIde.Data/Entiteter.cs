@@ -22,9 +22,35 @@ public sealed class Virksomhet
     /// </summary>
     public string? Kommunenummer { get; set; }
 
-    /// <summary>'stat' | 'fylke' | 'kommune' — styrer hvilket organ som er vedtaksmyndighet
-    /// (bystyre/kommunestyre/fylkesting), se §3.3.</summary>
+    /// <summary>
+    /// [ENDRET — virksomhetskatalog-runden, 2026-08-22, docs/20 §2.1] Var en grov, 3-verdis akse
+    /// (`stat`|`fylke`|`kommune`); slått sammen med det som tidligere var en egen, planlagt
+    /// `Organisasjonstype`-akse (docs/17 §3, `[LÅST]` der — bevisst OPPHEVET her, et instruert omvalg,
+    /// ikke en feil). Verdisett nå: `stat`|`kommune`|`fylkeskommune`|`statsforvalter`|`tingrett`|
+    /// `lagmannsrett`|`jordskifterett`. `kommune`/`fylkeskommune` settes automatisk ved seeding
+    /// (entydig fra Brregs `orgForm`, se <see cref="OrganisasjonsregisterSeed"/>) — alt annet starter
+    /// NULL og fylles inn manuelt (docs/20 §7.2, `[LÅST]`: "ikke gjett fra sektorkode/navn").
+    /// </summary>
     public string? Forvaltningsniva { get; set; }
+
+    /// <summary>[Ny, virksomhetskatalog-runden] Fra Brreg, ren referanseinformasjon — IKKE brukt for
+    /// å utlede <see cref="Forvaltningsniva"/> automatisk utover den entydige kommune/fylkeskommune-
+    /// seedingen (samme begrunnelse som statsforvalter-eksempelet i docs/20 §2.1: `ORGL` alene er for
+    /// grovt, og selv der det ER entydig gjettbart skal det ikke gjettes, se §4).</summary>
+    public string? OrganisasjonsformKode { get; set; }
+
+    /// <summary>[Ny, virksomhetskatalog-runden] Fra Brreg (institusjonell sektorkode, SSB) — ren
+    /// referanseinformasjon, samme "ingen automatisk avledning"-begrunnelse som
+    /// <see cref="OrganisasjonsformKode"/>.</summary>
+    public string? Sektorkode { get; set; }
+
+    /// <summary>[Ny, virksomhetskatalog-runden] Fra Brreg, for organisatorisk hierarki. Selvrefererende,
+    /// nullbar — de fleste virksomheter i katalogen har ingen kjent overordnet enhet.</summary>
+    public Guid? OverordnetEnhetId { get; set; }
+
+    /// <summary>[Ny, virksomhetskatalog-runden] Tidspunkt for siste berikelses-oppslag mot Brreg
+    /// (docs/20 §4) — NULL for rader som bare er seedet, aldri beriket.</summary>
+    public DateOnly? SistBrregSynkronisert { get; set; }
 
     /// <summary>
     /// (2026-08-14, organisasjonsregister-seeding) Gater om virksomheten er brukbar for REELT arbeid i
@@ -37,6 +63,21 @@ public sealed class Virksomhet
     /// rader ingen seed rører, slik at ingenting existing forsvinner stille fra en velger.
     /// </summary>
     public bool Aktiv { get; set; } = true;
+}
+
+/// <summary>
+/// [Ny, virksomhetskatalog-runden, docs/20 §2.2] Nettsteder for en <see cref="Virksomhet"/> i
+/// katalogen — distinkt fra de eksisterende <c>NettsideSti</c>/<c>NettsideLenke</c>-tabellene (ulik
+/// hensikt: dette er virksomhetens EGNE nettsted, ikke en lenke fra et datasett/en tjeneste til en
+/// ekstern side). Én <c>Hovedside</c>-rad kan auto-seedes ved Brreg-berikelse; øvrige legges til manuelt.
+/// </summary>
+public sealed class VirksomhetNettsideEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid VirksomhetId { get; set; }
+    public required string Url { get; set; }
+    public required string Type { get; set; } // 'Hovedside' | 'Ovrig'
+    public string? Merknad { get; set; }
 }
 
 /// <summary>
@@ -637,21 +678,49 @@ public sealed class HandbokRettskildeomfangEntitet
 /// <summary>
 /// Begrep (SKOS, docs/03-domenemodell.md §1.3) — byggesteg 2. Samme basemetadata/statusløp-mønster
 /// som <see cref="TjenesteEntitet"/>.
+///
+/// <para>
+/// [ENDRET — virksomhetskatalog-runden, 2026-08-22, docs/20 §2.3/§2.4] <see cref="Begrepskategori"/>
+/// er en ny, valgfri diskriminator: NULL betyr et ordinært fakta-/handlingsbegrep (opprinnelig, uendret
+/// betydning — <see cref="VirksomhetId"/>/<see cref="Definisjon"/>/<see cref="Begrepstype"/> er da
+/// fortsatt de facto påkrevd, validert i tjenestelaget, ikke en DB CHECK). `'virksomhet'` og `'rolle'`
+/// er de to nye kategoriene — DELT/nasjonal referansedata uten én eiende virksomhet, samme mønster som
+/// <see cref="KodelisteEntitet"/>s `Type='ekstern-referanse'`. Derfor er <see cref="VirksomhetId"/> nå
+/// NULLBAR (var påkrevd) — NULL for `Begrepskategori IN ('virksomhet','rolle')`, satt for alt annet.
+/// </para>
 /// </summary>
 public sealed class BegrepEntitet
 {
     public Guid Id { get; set; }
 
-    /// <summary>Påkrevd (§0.1) — et begrep er alltid virksomhetens eget arbeidsprodukt.</summary>
-    public required Guid VirksomhetId { get; set; }
+    /// <summary>Påkrevd for ordinære fakta-/handlingsbegrep (§0.1 — et begrep er da virksomhetens eget
+    /// arbeidsprodukt). NULL for <see cref="Begrepskategori"/> `'virksomhet'`/`'rolle'` — delt,
+    /// nasjonal referansedata uten én eiende virksomhet (docs/20 §2.3/§2.4).</summary>
+    public Guid? VirksomhetId { get; set; }
+
+    /// <summary>NULL = ordinært fakta-/handlingsbegrep (opprinnelig betydning, uendret). `'virksomhet'`
+    /// = navneform brukt om en virksomhet i rettskildetekst (<see cref="Term"/> = navnet,
+    /// <see cref="VirksomhetReferanseId"/> = hvilken). `'rolle'` = et rollebegrep tildelt konkrete
+    /// virksomheter gjennom forskrift (<see cref="Term"/> = rollenavnet, <see cref="LovkildeId"/> =
+    /// hvilken lov — sammen utgjør de to rollebegrepets identitet, docs/20 §2.4).</summary>
+    public string? Begrepskategori { get; set; }
+
+    /// <summary>Kun for <see cref="Begrepskategori"/> = `'virksomhet'` — hvilken virksomhet
+    /// <see cref="Term"/> er en navneform for.</summary>
+    public Guid? VirksomhetReferanseId { get; set; }
+
+    /// <summary>Kun for <see cref="Begrepskategori"/> = `'rolle'` — loven rollebegrepet hører til.
+    /// Del av rollebegrepets IDENTITET sammen med <see cref="Term"/>, ikke bare metadata (docs/20 §2.4):
+    /// samme rollenavn i to ulike lover er to ulike rader.</summary>
+    public Guid? LovkildeId { get; set; }
 
     public required string Term { get; set; } // skos:prefLabel
-    public required string Definisjon { get; set; } // skos:definition
+    public string? Definisjon { get; set; } // skos:definition — påkrevd for Begrepskategori=NULL, se klassekommentaren
     public string? LovreferanseEid { get; set; } // dct:source — validert mot RettskildeNoder ved lagring
     public List<string> GjelderFor { get; set; } = [];
     public Guid? KodelisteReferanseId { get; set; } // peker til verdiområde (§1.4)
     public string? SkosUrl { get; set; } // publisert URI i Felles datakatalog (data.norge.no)
-    public required string Begrepstype { get; set; } // 'faktabegrep' | 'handlingsbegrep' (Schartum 2025 7.3.3-7.3.4)
+    public string? Begrepstype { get; set; } // 'faktabegrep' | 'handlingsbegrep' (Schartum 2025 7.3.3-7.3.4) — påkrevd for Begrepskategori=NULL, se klassekommentaren
     public required string Status { get; set; } // 'utkast' | 'under_revisjon' | 'validert' | 'publisert' | 'tilbaketrukket' | 'arkivert'
     public int Versjon { get; set; } = 1;
     public string Entitetsstatus { get; set; } = "gjeldende";
@@ -662,6 +731,53 @@ public sealed class BegrepEntitet
     public DateTimeOffset OpprettetTidspunkt { get; set; }
     public string? SistEndretAv { get; set; }
     public DateTimeOffset? SistEndretTidspunkt { get; set; }
+}
+
+/// <summary>
+/// [Ny, virksomhetskatalog-runden, docs/20 §2.5] Kobler et rollebegrep (<see cref="BegrepEntitet"/> med
+/// <see cref="BegrepEntitet.Begrepskategori"/> = `'rolle'`) til en konkret virksomhet, hjemlet i en
+/// forskrift/et delegeringsvedtak. INGEN egen <c>GyldigFra</c>/<c>GyldigTil</c> her — gyldighet arves
+/// fra <see cref="HjemmelRettskildeId"/> (allerede har <c>Status</c>/<c>GyldigFra</c>/<c>GyldigTil</c>
+/// som førsteklasses felt, docs/20 §2.5/§8 — ingen forutsetning måtte bygges for dette).
+/// </summary>
+public sealed class MyndighetstildelingEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid RolleBegrepId { get; set; }
+    public required Guid VirksomhetId { get; set; }
+    public required Guid HjemmelRettskildeId { get; set; }
+
+    /// <summary>Strukturert (docs/20 §7.1, `[LÅST]`) — JSON-serialisert liste av
+    /// <c>{ FraEid: string, TilEid: string? }</c>-par. <c>TilEid = null</c> betyr et enkeltstående
+    /// punkt, ikke et spenn. Matches mot faktiske paragraf-/ledd-noder via eksisterende eId-oppslag.</summary>
+    public string ParagrafspennJson { get; set; } = "[]";
+
+    public string? Vilkaar { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? SistEndretAv { get; set; }
+    public DateTimeOffset? SistEndretTidspunkt { get; set; }
+}
+
+/// <summary>
+/// [Ny, virksomhetskatalog-runden, docs/20 §2.6] Arbeidskø for godkjenning av virksomhetsforekomster
+/// funnet ved tekstsøk. Bevisst UTEN full <c>Entitetsstatus</c>/<c>Versjon</c>-versjonering som resten
+/// av rettskildeinnholdet (docs/20 §2.6) — dette er en arbeidskø, ikke autoritativt rettskildeinnhold.
+/// </summary>
+public sealed class VirksomhetKandidatEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid VirksomhetId { get; set; }
+    public required Guid RettskildeId { get; set; }
+
+    /// <summary>Presis node-referanse (samme eId-mønster som resten av rettskilde-modellen).</summary>
+    public required string NodeEid { get; set; }
+
+    public string Status { get; set; } = "Venter"; // 'Venter' | 'Godkjent' | 'Avvist'
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? BehandletAv { get; set; }
+    public DateTimeOffset? BehandletTidspunkt { get; set; }
 }
 
 /// <summary>

@@ -40,6 +40,9 @@ builder.Services.AddScoped<TjenesteregisterTjeneste>();
 builder.Services.AddScoped<BegrepsregisterTjeneste>();
 builder.Services.AddScoped<BrukerregisterTjeneste>();
 builder.Services.AddScoped<KodelisteregisterTjeneste>();
+builder.Services.AddScoped<VirksomhetsbegrepTjeneste>();
+builder.Services.AddScoped<MyndighetstildelingTjeneste>();
+builder.Services.AddScoped<VirksomhetKandidatTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
 builder.Services.AddScoped<RegelnoderegisterTjeneste>();
 builder.Services.AddScoped<UnntaksregisterTjeneste>();
@@ -235,6 +238,11 @@ using (var scope = app.Services.CreateScope())
 
     // Tag-kind-konfigurasjon (2026-07-25) — global, ikke virksomhets-scopet. Erstatter en tidligere
     // hardkodet liste; se TaggKindKonfigurasjonEntitet-kommentaren i RegelIde.Data/Entiteter.cs.
+    // (2026-08-22: en femte "virksomhet"-kind ble kort lagt til her og reverdert samme runde —
+    // en løpetekst-omtale av en virksomhet tagges som 'begrep' mot en navneform-rad
+    // (Begrepskategori='virksomhet', docs/20 §2.3), IKKE direkte mot Virksomhet-katalogen. Se
+    // VirksomhetsbegrepTjeneste/GET /api/begreper for hvordan navneformer allerede flettes inn i
+    // 'begrep'-registeret.)
     if (!await db.TaggKindKonfigurasjoner.AnyAsync())
     {
         db.TaggKindKonfigurasjoner.AddRange(
@@ -387,10 +395,40 @@ app.MapPut("/api/brukere/{id:guid}", async (Guid id, OppdaterBrukerRequest body,
     .WithSummary("Endrer rolle og virksomhetstilordning for en eksisterende bruker (test- eller Altinn-bruker).");
 
 app.MapGet("/api/virksomheter", async (RegelIdeDbContext db) =>
-        (await db.Virksomheter.ToListAsync()).Select(v => new VirksomhetDto(v.Id, v.Navn, v.Organisasjonsnummer, v.Aktiv)))
+        (await db.Virksomheter.ToListAsync()).Select(VirksomhetDto.FraEntitet))
     .WithOpenApi()
     .WithName("HentVirksomheter")
-    .WithSummary("Lister virksomheter.");
+    .WithSummary("Lister virksomheter — hele virksomhetskatalogen (docs/20), ikke bare aktive tenanter.");
+
+app.MapPut("/api/virksomheter/{id:guid}/forvaltningsniva", async (Guid id, SettForvaltningsnivaRequest body, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var virksomhet = await db.Virksomheter.FirstOrDefaultAsync(v => v.Id == id, ct);
+        if (virksomhet is null) return Results.NotFound(new { feil = $"Ingen virksomhet med id '{id}'." });
+
+        // Validert mot KL-FORVALTNINGSNIVA (docs/20) i stedet for en hardkodet liste her — samme
+        // "kodelisten ER sannheten, ikke en kopi av den i kode"-prinsipp som resten av appen. NULL
+        // (tilbake til "ikke satt") er alltid gyldig — docs/20 §7.2: feltet skal kunne stå tomt.
+        if (body.Forvaltningsniva is not null)
+        {
+            var kodelisteId = await db.Kodelister
+                .Where(k => k.Kode == "KL-FORVALTNINGSNIVA")
+                .Select(k => k.Id)
+                .FirstOrDefaultAsync(ct);
+            var gyldig = kodelisteId != Guid.Empty && await db.KodelisteKoder
+                .AnyAsync(k => k.KodelisteId == kodelisteId && k.Kode == body.Forvaltningsniva, ct);
+            if (!gyldig)
+            {
+                return Results.BadRequest(new { feil = $"'{body.Forvaltningsniva}' er ikke en gyldig kode i KL-FORVALTNINGSNIVA." });
+            }
+        }
+
+        virksomhet.Forvaltningsniva = body.Forvaltningsniva;
+        await db.SaveChangesAsync(ct);
+        return Results.Ok(VirksomhetDto.FraEntitet(virksomhet));
+    })
+    .WithOpenApi()
+    .WithName("SettVirksomhetForvaltningsniva")
+    .WithSummary("Setter Forvaltningsnivå — validert mot KL-FORVALTNINGSNIVA-kodelisten (docs/20 §7.2: aldri gjettet automatisk).");
 
 app.MapGet("/api/konfigurasjon/tagg-kinds", async (RegelIdeDbContext db) =>
         (await db.TaggKindKonfigurasjoner.Where(k => k.Aktiv).OrderBy(k => k.Sorteringsrekkefolge).ToListAsync())
@@ -1477,18 +1515,22 @@ kunnskapsbibliotek.MapDelete("/filer/{id:guid}", async (Guid id, Kunnskapsbiblio
 
 var begreper = app.MapGroup("/api/begreper").WithOpenApi();
 
-begreper.MapGet("/", async (HttpRequest request, BegrepsregisterTjeneste begrepsregister, RegelIdeDbContext db, CancellationToken ct) =>
+begreper.MapGet("/", async (HttpRequest request, BegrepsregisterTjeneste begrepsregister,
+        VirksomhetsbegrepTjeneste virksomhetsbegrepregister, RegelIdeDbContext db, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
         {
             return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
-        var liste = await begrepsregister.ListerForAsync(bruker.VirksomhetId, ct);
-        return Results.Ok(liste.Select(BegrepDto.FraEntitet));
+        // Egne fakta-/handlingsbegrep + ALLE delte virksomhets-/rollebegrep (docs/20 §2.3/§2.4) —
+        // uten det siste er de INVISIBLE i tagg-picker-en (se VirksomhetsbegrepTjeneste.AlleAsync).
+        var egne = await begrepsregister.ListerForAsync(bruker.VirksomhetId, ct);
+        var delte = await virksomhetsbegrepregister.AlleAsync(ct);
+        return Results.Ok(egne.Concat(delte).Select(BegrepDto.FraEntitet));
     })
     .WithName("HentBegreper")
-    .WithSummary("Lister virksomhetens egne begreper (produktkrav kap. 3.8).");
+    .WithSummary("Lister virksomhetens egne begreper (produktkrav kap. 3.8) + alle delte virksomhets-/rollebegrep (docs/20).");
 
 begreper.MapGet("/{id:guid}", async (Guid id, BegrepsregisterTjeneste begrepsregister, CancellationToken ct) =>
     {
@@ -1689,6 +1731,153 @@ kodelister.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, Set
     })
     .WithName("SettKodelisteStatus")
     .WithSummary("Endrer status (§3.1 i domenemodellen) — avvises for ekstern-referanse.");
+
+// ---------- Virksomhetskatalog og rollemodell (docs/20) ----------
+// RBAC (docs/20 §0 pkt. 3): skrivehandlinger attribueres til den innloggede brukerens EGEN
+// virksomhet/navn (bruker.Navn som opprettetAv/behandletAv) — ingen per-virksomhet skriveperre på
+// disse delte, nasjonale tabellene.
+
+app.MapPost("/api/virksomhetsbegrep", async (HttpRequest request, VirksomhetsbegrepRequest body,
+        VirksomhetsbegrepTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var opprettet = await register.OpprettVirksomhetsbegrepAsync(body.VirksomhetId, body.Term, bruker.Navn, body.SkosUrl, ct);
+            return Results.Created($"/api/begreper/{opprettet.Id}", BegrepDto.FraEntitet(opprettet));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("OpprettVirksomhetsbegrep")
+    .WithSummary("Navneform brukt om en virksomhet i rettskildetekst (docs/20 §2.3) — f.eks. 'Mattilsynet'.");
+
+app.MapGet("/api/virksomheter/{id:guid}/begrep", async (Guid id, VirksomhetsbegrepTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.AlleVirksomhetsbegrepForAsync(id, ct)).Select(BegrepDto.FraEntitet)))
+    .WithOpenApi()
+    .WithName("HentVirksomhetsbegrepForVirksomhet")
+    .WithSummary("Lister navneformer (inkl. synonymer) brukt om denne virksomheten i rettskildetekst.");
+
+app.MapPost("/api/rollebegrep", async (HttpRequest request, RollebegrepRequest body,
+        VirksomhetsbegrepTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var opprettet = await register.OpprettRollebegrepAsync(body.LovkildeId, body.Term, bruker.Navn, ct);
+            return Results.Created($"/api/begreper/{opprettet.Id}", BegrepDto.FraEntitet(opprettet));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("OpprettRollebegrep")
+    .WithSummary("Rollebegrep (docs/20 §2.4) — Term+LovkildeId er sammen begrepets identitet, f.eks. 'forurensningsmyndighet' i forurensningsloven.");
+
+app.MapGet("/api/rettskilder/{lovkildeId:guid}/rollebegrep", async (Guid lovkildeId, VirksomhetsbegrepTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.AlleRollebegrepForLovAsync(lovkildeId, ct)).Select(BegrepDto.FraEntitet)))
+    .WithOpenApi()
+    .WithName("HentRollebegrepForLov")
+    .WithSummary("Lister rollebegrep definert for denne loven.");
+
+app.MapPost("/api/myndighetstildelinger", async (HttpRequest request, MyndighetstildelingRequest body,
+        MyndighetstildelingTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var paragrafspenn = body.Paragrafspenn.Select(p => new ParagrafspennPar(p.FraEid, p.TilEid)).ToList();
+            var opprettet = await register.OpprettAsync(
+                body.RolleBegrepId, body.VirksomhetId, body.HjemmelRettskildeId, paragrafspenn, body.Vilkaar, bruker.Navn, ct);
+            return Results.Created($"/api/myndighetstildelinger/{opprettet.Id}", MyndighetstildelingDto.FraEntitet(opprettet));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("OpprettMyndighetstildeling")
+    .WithSummary("Kobler et rollebegrep til en konkret virksomhet, hjemlet i en forskrift (docs/20 §2.5). Gyldighet arves fra hjemmelen, ingen egne datoer her.");
+
+app.MapGet("/api/virksomheter/{id:guid}/myndighetstildelinger", async (Guid id, MyndighetstildelingTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.AlleForVirksomhetAsync(id, ct)).Select(MyndighetstildelingDto.FraEntitet)))
+    .WithOpenApi()
+    .WithName("HentMyndighetstildelingerForVirksomhet")
+    .WithSummary("Lister myndighetstildelinger denne virksomheten har.");
+
+app.MapGet("/api/rollebegrep/{id:guid}/tildelinger", async (Guid id, MyndighetstildelingTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.AlleForRolleBegrepAsync(id, ct)).Select(MyndighetstildelingDto.FraEntitet)))
+    .WithOpenApi()
+    .WithName("HentMyndighetstildelingerForRolleBegrep")
+    .WithSummary("Lister hvilke virksomheter et rollebegrep er tildelt til, og under hvilke hjemler.");
+
+var virksomhetKandidater = app.MapGroup("/api/virksomhet-kandidater").WithOpenApi();
+
+virksomhetKandidater.MapGet("/", async (Guid? virksomhetId, Guid? rettskildeId, VirksomhetKandidatTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.ListerVentendeAsync(virksomhetId, rettskildeId, ct)).Select(VirksomhetKandidatDto.FraEntitet)))
+    .WithName("HentVentendeVirksomhetKandidater")
+    .WithSummary("Godkjenningskø (docs/20 §2.6) — kun 'Venter'-rader, valgfritt filtrert til virksomhet og/eller rettskilde.");
+
+virksomhetKandidater.MapPost("/", async (HttpRequest request, VirksomhetKandidatRequest body,
+        VirksomhetKandidatTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var kandidat = await register.OpprettEllerFinnAsync(body.VirksomhetId, body.RettskildeId, body.NodeEid, bruker.Navn, ct);
+            return Results.Created($"/api/virksomhet-kandidater/{kandidat.Id}", VirksomhetKandidatDto.FraEntitet(kandidat));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OpprettVirksomhetKandidat")
+    .WithSummary("Idempotent — samme (virksomhet, rettskilde, node) gir samme rad tilbake uansett status, ikke et duplikat.");
+
+virksomhetKandidater.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest request,
+        VirksomhetKandidatTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var oppdatert = await register.GodkjennAsync(id, bruker.Navn, ct);
+        return oppdatert is null ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }) : Results.Ok(VirksomhetKandidatDto.FraEntitet(oppdatert));
+    })
+    .WithName("GodkjennVirksomhetKandidat");
+
+virksomhetKandidater.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request,
+        VirksomhetKandidatTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var oppdatert = await register.AvvisAsync(id, bruker.Navn, ct);
+        return oppdatert is null ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }) : Results.Ok(VirksomhetKandidatDto.FraEntitet(oppdatert));
+    })
+    .WithName("AvvisVirksomhetKandidat");
+
+virksomhetKandidater.MapDelete("/{id:guid}", async (Guid id, VirksomhetKandidatTjeneste register, CancellationToken ct) =>
+    {
+        try
+        {
+            return await register.HardslettAvvistAsync(id, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("HardslettAvvistVirksomhetKandidat")
+    .WithSummary("Kun 'Avvist'-rader kan hardslettes (docs/20 §2.6) — et eksplisitt unntak fra husstilens vanlige mykslette-mønster.");
 
 // ---------- Datasett (docs/03-domenemodell.md §1.6) — byggesteg 4, minimal, kun lesing ----------
 

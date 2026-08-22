@@ -45,7 +45,18 @@ public static class GjeldendeBrukerTjeneste
 /// </summary>
 public sealed record BrukerDto(Guid Id, string Navn, Guid VirksomhetId, string VirksomhetNavn, string Rolle, bool ErAltinnBruker);
 
-public sealed record VirksomhetDto(Guid Id, string Navn, string? Organisasjonsnummer, bool Aktiv);
+/// <summary>[Utvidet, virksomhetskatalog-runden, docs/20 §2.1] De nye feltene har defaultverdier slik
+/// at eksisterende konstruksjonssteder ikke må endres — kun HentVirksomhetskatalog-endepunktet fyller
+/// dem inn.</summary>
+public sealed record VirksomhetDto(
+    Guid Id, string Navn, string? Organisasjonsnummer, bool Aktiv,
+    string? Forvaltningsniva = null, string? OrganisasjonsformKode = null, string? Sektorkode = null,
+    Guid? OverordnetEnhetId = null, DateOnly? SistBrregSynkronisert = null)
+{
+    public static VirksomhetDto FraEntitet(Virksomhet v) => new(
+        v.Id, v.Navn, v.Organisasjonsnummer, v.Aktiv, v.Forvaltningsniva, v.OrganisasjonsformKode,
+        v.Sektorkode, v.OverordnetEnhetId, v.SistBrregSynkronisert);
+}
 
 /// <summary>Brukerhåndteringssiden — se BrukerregisterTjeneste.GyldigeRoller for gyldige verdier.</summary>
 public sealed record OpprettBrukerRequest(string Navn, string Rolle, Guid VirksomhetId);

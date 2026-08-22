@@ -307,19 +307,53 @@ public sealed record DokumentReferanseDto(
 // ---------- Begrep (SKOS, docs/03-domenemodell.md §1.3) — byggesteg 2 ----------
 
 public sealed record BegrepDto(
-    Guid Id, Guid VirksomhetId, string Term, string Definisjon, string? LovreferanseEid,
-    IReadOnlyList<string> GjelderFor, Guid? KodelisteReferanseId, string? SkosUrl, string Begrepstype,
-    string Status, int Versjon)
+    Guid Id, Guid? VirksomhetId, string? Begrepskategori, Guid? VirksomhetReferanseId, Guid? LovkildeId,
+    string Term, string? Definisjon, string? LovreferanseEid, IReadOnlyList<string> GjelderFor,
+    Guid? KodelisteReferanseId, string? SkosUrl, string? Begrepstype, string Status, int Versjon)
 {
     public static BegrepDto FraEntitet(BegrepEntitet b) => new(
-        b.Id, b.VirksomhetId, b.Term, b.Definisjon, b.LovreferanseEid, b.GjelderFor, b.KodelisteReferanseId,
-        b.SkosUrl, b.Begrepstype, b.Status, b.Versjon);
+        b.Id, b.VirksomhetId, b.Begrepskategori, b.VirksomhetReferanseId, b.LovkildeId, b.Term,
+        b.Definisjon, b.LovreferanseEid, b.GjelderFor, b.KodelisteReferanseId, b.SkosUrl, b.Begrepstype,
+        b.Status, b.Versjon);
 }
 
 /// <summary>Forespørsel for POST/PUT /api/begreper.</summary>
 public sealed record BegrepRequest(
     string Term, string Definisjon, string? LovreferanseEid, IReadOnlyList<string>? GjelderFor,
     Guid? KodelisteReferanseId, string? SkosUrl, string Begrepstype);
+
+// ---------- Virksomhetskatalog og rollemodell (docs/20) ----------
+
+public sealed record SettForvaltningsnivaRequest(string? Forvaltningsniva);
+
+public sealed record VirksomhetsbegrepRequest(Guid VirksomhetId, string Term, string? SkosUrl);
+public sealed record RollebegrepRequest(Guid LovkildeId, string Term);
+
+public sealed record ParagrafspennParDto(string FraEid, string? TilEid);
+
+public sealed record MyndighetstildelingRequest(
+    Guid RolleBegrepId, Guid VirksomhetId, Guid HjemmelRettskildeId,
+    IReadOnlyList<ParagrafspennParDto> Paragrafspenn, string? Vilkaar);
+
+public sealed record MyndighetstildelingDto(
+    Guid Id, Guid RolleBegrepId, Guid VirksomhetId, Guid HjemmelRettskildeId,
+    IReadOnlyList<ParagrafspennParDto> Paragrafspenn, string? Vilkaar)
+{
+    public static MyndighetstildelingDto FraEntitet(MyndighetstildelingEntitet m) => new(
+        m.Id, m.RolleBegrepId, m.VirksomhetId, m.HjemmelRettskildeId,
+        MyndighetstildelingTjeneste.LesParagrafspenn(m).Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList(),
+        m.Vilkaar);
+}
+
+public sealed record VirksomhetKandidatRequest(Guid VirksomhetId, Guid RettskildeId, string NodeEid);
+
+public sealed record VirksomhetKandidatDto(
+    Guid Id, Guid VirksomhetId, Guid RettskildeId, string NodeEid, string Status,
+    string? BehandletAv, DateTimeOffset? BehandletTidspunkt)
+{
+    public static VirksomhetKandidatDto FraEntitet(VirksomhetKandidatEntitet k) => new(
+        k.Id, k.VirksomhetId, k.RettskildeId, k.NodeEid, k.Status, k.BehandletAv, k.BehandletTidspunkt);
+}
 
 // ---------- Kodeliste / verdidomene (docs/03-domenemodell.md §1.4) — byggesteg 2 ----------
 

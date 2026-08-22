@@ -19,6 +19,8 @@ import TjenesteVeiledning from './pages/TjenesteVeiledning';
 import TjenesteforslagKo from './pages/TjenesteforslagKo';
 import BegrepsforslagKo from './pages/BegrepsforslagKo';
 import BrukereListe from './pages/BrukereListe';
+import VirksomheterListe from './pages/VirksomheterListe';
+import VirksomhetDetalj from './pages/VirksomhetDetalj';
 
 function App() {
   return (
@@ -49,6 +51,8 @@ function App() {
           <Route path="/datasett/:id" element={<DatasettDetalj />} />
           <Route path="/tjenester/:id/veiledning" element={<TjenesteVeiledning />} />
           <Route path="/brukere" element={<BrukereListe />} />
+          <Route path="/virksomheter" element={<VirksomheterListe />} />
+          <Route path="/virksomheter/:id" element={<VirksomhetDetalj />} />
         </Routes>
       </main>
     </div>
