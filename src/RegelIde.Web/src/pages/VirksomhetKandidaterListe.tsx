@@ -63,17 +63,6 @@ export default function VirksomhetKandidaterListe() {
   // som ga treffet.
   const [noderPerRettskilde, setNoderPerRettskilde] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
 
-  useEffect(() => {
-    if (!kandidater) return;
-    for (const rettskildeId of new Set(kandidater.map((k) => k.rettskildeId))) {
-      if (noderPerRettskilde.has(rettskildeId)) continue;
-      api.hentNoder(rettskildeId)
-        .then((noder) => setNoderPerRettskilde((forrige) => new Map(forrige).set(rettskildeId, noder)))
-        .catch(() => {}); // ingen gjettet fallback — viser rå node-eId under når nodene ikke lot seg hente
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kandidater]);
-
   function visNavneformFunnet(k: VirksomhetKandidatDto): string | null {
     const node = noderPerRettskilde.get(k.rettskildeId)?.find((n) => n.eid === k.nodeEid);
     if (!node?.tekst) return null;
@@ -198,6 +187,22 @@ export default function VirksomhetKandidaterListe() {
   }, [kandidater, sortKolonne, sortStigende, visEier, rettskilderPerId]);
 
   const paginering = usePaginering(viste ?? []);
+
+  // Hent node-tekst KUN for rettskildene på GJELDENDE SIDE (2026-08-22) — ikke for hele det
+  // filtrerte treffsettet. Med case-insensitiv sveip (samme dag) kan én virksomhet ha kandidater
+  // spredt over titalls-hundretalls ULIKE rettskilder samtidig (f.eks. 373 treff for "fylkeskommune"
+  // på tvers av store deler av lovverket) — å hente noder for ALLE av dem samtidig var en reell,
+  // observert render-treg/timeout-regresjon. Paginering gjør denne mengden avgrenset og forutsigbar
+  // (maks ett `hentNoder`-kall per DISTINKT rettskilde blant de viste radene, ikke per rad).
+  useEffect(() => {
+    for (const rettskildeId of new Set(paginering.visteRader.map((k) => k.rettskildeId))) {
+      if (noderPerRettskilde.has(rettskildeId)) continue;
+      api.hentNoder(rettskildeId)
+        .then((noder) => setNoderPerRettskilde((forrige) => new Map(forrige).set(rettskildeId, noder)))
+        .catch(() => {}); // ingen gjettet fallback — viser rå node-eId under når nodene ikke lot seg hente
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paginering.visteRader]);
 
   return (
     <>
