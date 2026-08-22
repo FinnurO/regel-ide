@@ -129,7 +129,7 @@ public class OppgaveregisterHandlingSeedTests
         Assert.Equal(0, resultat.RettskildematcherIkkeFunnet);
 
         var tjeneste = await db.Tjenester.SingleAsync(t => t.VirksomhetId == virksomhet.Id);
-        Assert.Equal("Innsendte skjemaer — " + virksomhet.Navn, tjeneste.Tittel);
+        Assert.Equal("Oppgaveregisteret — " + virksomhet.Navn, tjeneste.Tittel);
         Assert.Equal("utkast", tjeneste.Status);
 
         var handling = await db.Handlinger.SingleAsync(h => h.TjenesteId == tjeneste.Id);
