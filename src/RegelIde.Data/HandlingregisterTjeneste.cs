@@ -43,8 +43,12 @@ public sealed class HandlingregisterTjeneste(RegelIdeDbContext db)
 
     internal static readonly string[] GyldigeUtfortAv = ["soker", "forvaltning", "tredjepart"];
 
+    // "foreslatt_av_ai" lagt til (handlingsforslag-ki-omfang-runden) — samme mønster som
+    // TjenesteregisterTjeneste/BegrepsregisterTjeneste sine egne GyldigeStatuser-lister: statusen ER
+    // en gyldig verdi å SETTE (ikke bare noe proveniensraden alene forteller), slik at f.eks. en
+    // fremtidig "avvis forslag" (tilbake til "utkast") kan skje via samme SettStatusAsync som alt annet.
     private static readonly string[] GyldigeStatuser =
-        ["utkast", "under_revisjon", "validert", "publisert", "tilbaketrukket", "arkivert"];
+        ["utkast", "foreslatt_av_ai", "under_revisjon", "validert", "publisert", "tilbaketrukket", "arkivert"];
 
     public Task<List<HandlingEntitet>> ListerForTjenesteAsync(Guid tjenesteId, CancellationToken ct = default) =>
         db.Handlinger
@@ -115,6 +119,59 @@ public sealed class HandlingregisterTjeneste(RegelIdeDbContext db)
         };
         db.Handlinger.Add(handling);
         db.Proveniens.Add(ProveniensHjelper.NyRad("handling", handling.Id, virksomhetId, "opprettet", opprettetAv));
+        await db.SaveChangesAsync(ct);
+        return handling;
+    }
+
+    /// <summary>
+    /// «Foreslå handlinger»/«full»-omfang (handlingsforslag-ki-omfang-runden, se
+    /// <see cref="HandlingsforslagTjeneste"/> og <see cref="TjenesteforslagTjeneste.KjorFullForslagAsync"/>)
+    /// — kopi av <see cref="OpprettAsync"/>, men <c>Status = "foreslatt_av_ai"</c> og en
+    /// <see cref="ProveniensHjelper.NyForslagRad"/>-rad i stedet for <c>NyRad(..., "opprettet", ...)</c>,
+    /// EKSAKT samme mønster som <see cref="TjenesteregisterTjeneste.OpprettForslagFraKiAsync"/> og
+    /// <see cref="BegrepsregisterTjeneste.OpprettForslagFraKiAsync"/> (docs/14-byggesteg5-teknisk-design.md
+    /// §4). Validerer FORTSATT at <paramref name="tjenesteId"/> hører til <paramref name="virksomhetId"/> —
+    /// samme sjekk som <see cref="OpprettAsync"/> — en KI-agent er ikke unntatt sikkerhetsscopingen
+    /// klassekommentaren beskriver, selv om den (i motsetning til Tjeneste-forslaget) skriver UNDER en
+    /// allerede eksisterende rad i stedet for å opprette en helt ny toppnivå-entitet.
+    /// </summary>
+    public async Task<HandlingEntitet> OpprettForslagFraKiAsync(
+        Guid virksomhetId, Guid tjenesteId, string navn, string handlingstype, string? bruksomraade, string? utfortAv,
+        IReadOnlyList<HandlingKanalInput>? kanaler, HandlingBehandlingstidInput? behandlingstid,
+        HandlingKostnadInput? kostnad, IReadOnlyList<HandlingVedleggInput>? vedlegg,
+        IReadOnlyList<HandlingVeiledningstekstInput>? veiledningstekst, IReadOnlyList<HandlingArsakInput>? arsaker,
+        HandlingResultatInput? resultat, string? merknad, string opprettetAv, string aiForslagVersjon,
+        string? kildeReferanserJson, CancellationToken ct = default)
+    {
+        Valider(navn, handlingstype, utfortAv);
+
+        if (!await db.Tjenester.AnyAsync(t => t.Id == tjenesteId && t.VirksomhetId == virksomhetId && t.Entitetsstatus == "gjeldende", ct))
+        {
+            throw new ArgumentException($"Fant ingen tjeneste med id '{tjenesteId}' for denne virksomheten. Ingen gjettet fallback.");
+        }
+
+        var handling = new HandlingEntitet
+        {
+            Id = Guid.NewGuid(),
+            TjenesteId = tjenesteId,
+            Navn = navn,
+            Handlingstype = handlingstype,
+            Bruksomraade = bruksomraade,
+            UtfortAv = utfortAv,
+            KanalerJson = Serialiser(kanaler ?? []),
+            BehandlingstidJson = Serialiser(behandlingstid ?? new HandlingBehandlingstidInput(null, null)),
+            KostnadJson = Serialiser(kostnad ?? new HandlingKostnadInput(null, [])),
+            VedleggJson = Serialiser(vedlegg ?? []),
+            VeiledningstekstJson = Serialiser(veiledningstekst ?? []),
+            ArsakerJson = Serialiser(arsaker ?? []),
+            ResultatJson = Serialiser(resultat ?? new HandlingResultatInput(null, [])),
+            Merknad = merknad,
+            Status = "foreslatt_av_ai",
+            OpprettetAv = opprettetAv,
+            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        };
+        db.Handlinger.Add(handling);
+        db.Proveniens.Add(ProveniensHjelper.NyForslagRad("handling", handling.Id, virksomhetId, opprettetAv, aiForslagVersjon, kildeReferanserJson));
         await db.SaveChangesAsync(ct);
         return handling;
     }

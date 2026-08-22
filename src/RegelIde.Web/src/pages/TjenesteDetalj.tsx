@@ -125,6 +125,13 @@ export default function TjenesteDetalj() {
   const [leggerTilHandling, setLeggerTilHandling] = useState(false);
   const [handlingFeil, setHandlingFeil] = useState<string | null>(null);
 
+  // «Foreslå handlinger» (handlingsforslag-ki-omfang-runden, omfang "handling") — bruker tjenestens
+  // EGNE, allerede koblede regelverksreferanser som rettskilde-kontekst i stedet for en egen
+  // rettskilde-velger (minimal UI-kobling denne runden — se planen for denne runden).
+  const [handlingsforslagKjorer, setHandlingsforslagKjorer] = useState(false);
+  const [handlingsforslagFeil, setHandlingsforslagFeil] = useState<string | null>(null);
+  const [handlingsforslagMelding, setHandlingsforslagMelding] = useState<string | null>(null);
+
   const [avhengigheter, setAvhengigheter] = useState<TjenesteavhengighetDto[] | null>(null);
   const [alleTjenester, setAlleTjenester] = useState<TjenesteDto[]>([]);
   const [nyAvhengighetTilId, setNyAvhengighetTilId] = useState('');
@@ -532,6 +539,36 @@ export default function TjenesteDetalj() {
       setHandlingFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse av handling.');
     } finally {
       setLeggerTilHandling(false);
+    }
+  }
+
+  /**
+   * «Foreslå handlinger» (handlingsforslag-ki-omfang-runden, omfang "handling") — bruker DENNE
+   * tjenestens egne, allerede koblede regelverksreferansers rettskilder som KI-kontekst (i stedet for
+   * en egen rettskilde-velger, som ville duplisert TjenesteforslagKo.tsx sin UI for lite gevinst i
+   * denne runden — se planen). Nye handlinger vises umiddelbart i listen over (samme
+   * Entitetsstatus="gjeldende"-filter som alle andre handlinger, uavhengig av Status).
+   */
+  async function foreslaHandlinger() {
+    if (!id) return;
+    const rettskildeIder = [...new Set((referanser ?? []).map((r) => r.tilRettskildeId))];
+    if (rettskildeIder.length === 0) {
+      setHandlingsforslagFeil('Ingen regelverksreferanser koblet til denne tjenesten ennå — koble minst én under «Regelverksreferanser» først.');
+      return;
+    }
+    setHandlingsforslagFeil(null);
+    setHandlingsforslagMelding(null);
+    setHandlingsforslagKjorer(true);
+    try {
+      const respons = await api.kjorHandlingsforslag(id, { rettskildeIder });
+      setHandlinger((forrige) => [...(forrige ?? []), ...respons.forslag].sort((a, b) => a.navn.localeCompare(b.navn)));
+      setHandlingsforslagMelding(
+        respons.melding ?? `${respons.forslag.length} handling(er) foreslått av KI-en (status "foreslått av KI").`,
+      );
+    } catch (err) {
+      setHandlingsforslagFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved kjøring av handlingsforslag.');
+    } finally {
+      setHandlingsforslagKjorer(false);
     }
   }
 
@@ -1050,6 +1087,19 @@ export default function TjenesteDetalj() {
           Konkrete, tidsavgrensede interaksjoner knyttet til denne rettigheten (søknad, melding, klage …) —
           hver med egne kanaler/vedlegg/behandlingstid/veiledningstekst.
         </Paragraph>
+        <div style={{ marginBottom: '0.75rem' }}>
+          <Button
+            variant="secondary"
+            data-size="sm"
+            onClick={foreslaHandlinger}
+            disabled={handlingsforslagKjorer}
+            title="Bruker tjenestens koblede regelverksreferanser som KI-kontekst"
+          >
+            {handlingsforslagKjorer ? 'Foreslår handlinger …' : 'Foreslå handlinger (KI)'}
+          </Button>
+          {handlingsforslagFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{handlingsforslagFeil}</Alert>}
+          {handlingsforslagMelding && <Alert data-color="info" style={{ marginTop: '0.5rem' }}>{handlingsforslagMelding}</Alert>}
+        </div>
         {handlinger === null && <Spinner aria-label="Laster …" data-size="sm" />}
         {handlinger && handlinger.length === 0 && <Paragraph>Ingen handlinger registrert ennå.</Paragraph>}
         {handlinger && handlinger.length > 0 && (

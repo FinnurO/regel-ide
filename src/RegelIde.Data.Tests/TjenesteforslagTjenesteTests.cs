@@ -29,7 +29,7 @@ public class TjenesteforslagTjenesteTests
 
         var forslagstjeneste = new TjenesteforslagTjeneste(
             db, new KiAgentKlientStub(), new TjenesteregisterTjeneste(db), new TjenesteavhengighetregisterTjeneste(db), new ConfigurationBuilder().Build(),
-            new RettskildeEmbeddingTjeneste(db, new EmbeddingKlientStub(), new ConfigurationBuilder().Build()), new EmbeddingKlientStub());
+            new RettskildeEmbeddingTjeneste(db, new EmbeddingKlientStub(), new ConfigurationBuilder().Build()), new EmbeddingKlientStub(), new HandlingregisterTjeneste(db));
         var resultat = await forslagstjeneste.KjorForslagAsync(virksomhet, [rettskildeId], "system-ki");
 
         Assert.Single(resultat.Opprettede);
@@ -53,7 +53,7 @@ public class TjenesteforslagTjenesteTests
 
         var forslagstjeneste = new TjenesteforslagTjeneste(
             db, new KiAgentKlientStub(), new TjenesteregisterTjeneste(db), new TjenesteavhengighetregisterTjeneste(db), new ConfigurationBuilder().Build(),
-            new RettskildeEmbeddingTjeneste(db, new EmbeddingKlientStub(), new ConfigurationBuilder().Build()), new EmbeddingKlientStub());
+            new RettskildeEmbeddingTjeneste(db, new EmbeddingKlientStub(), new ConfigurationBuilder().Build()), new EmbeddingKlientStub(), new HandlingregisterTjeneste(db));
         var resultat = await forslagstjeneste.KjorForslagAsync(virksomhet, [rettskildeId], "system-ki");
 
         Assert.Single(resultat.Opprettede);
@@ -69,7 +69,7 @@ public class TjenesteforslagTjenesteTests
 
         var forslagstjeneste = new TjenesteforslagTjeneste(
             db, new KiAgentKlientStub(), new TjenesteregisterTjeneste(db), new TjenesteavhengighetregisterTjeneste(db), new ConfigurationBuilder().Build(),
-            new RettskildeEmbeddingTjeneste(db, new EmbeddingKlientStub(), new ConfigurationBuilder().Build()), new EmbeddingKlientStub());
+            new RettskildeEmbeddingTjeneste(db, new EmbeddingKlientStub(), new ConfigurationBuilder().Build()), new EmbeddingKlientStub(), new HandlingregisterTjeneste(db));
         await Assert.ThrowsAsync<ArgumentException>(() =>
             forslagstjeneste.KjorForslagAsync(virksomhet, [Guid.NewGuid()], "system-ki"));
     }
@@ -105,7 +105,7 @@ public class TjenesteforslagTjenesteTests
         var klient = new FangendeKlient();
         var forslagstjeneste = new TjenesteforslagTjeneste(
             db, klient, new TjenesteregisterTjeneste(db), new TjenesteavhengighetregisterTjeneste(db), new ConfigurationBuilder().Build(),
-            new RettskildeEmbeddingTjeneste(db, new EmbeddingKlientStub(), new ConfigurationBuilder().Build()), new EmbeddingKlientStub());
+            new RettskildeEmbeddingTjeneste(db, new EmbeddingKlientStub(), new ConfigurationBuilder().Build()), new EmbeddingKlientStub(), new HandlingregisterTjeneste(db));
         var resultat = await forslagstjeneste.KjorForslagAsync(virksomhet, [rettskildeId], "system-ki");
 
         Assert.Contains("[", klient.SisteKontekst); // eId-tag foran nodetekst, se RettskildeKontekstHjelper
@@ -160,7 +160,7 @@ public class TjenesteforslagTjenesteTests
         var tjenesteavhengighetregister = new TjenesteavhengighetregisterTjeneste(db);
         var forslagstjeneste = new TjenesteforslagTjeneste(
             db, new RelasjonsKlient(gyldigEid), tjenesteregister, tjenesteavhengighetregister, new ConfigurationBuilder().Build(),
-            new RettskildeEmbeddingTjeneste(db, new EmbeddingKlientStub(), new ConfigurationBuilder().Build()), new EmbeddingKlientStub());
+            new RettskildeEmbeddingTjeneste(db, new EmbeddingKlientStub(), new ConfigurationBuilder().Build()), new EmbeddingKlientStub(), new HandlingregisterTjeneste(db));
         var resultat = await forslagstjeneste.KjorForslagAsync(virksomhet, [rettskildeId], "system-ki");
 
         Assert.Equal(2, resultat.Opprettede.Count);
@@ -244,7 +244,7 @@ public class TjenesteforslagTjenesteTests
         var embeddingKlient = new OppslagsEmbeddingKlient([], standard: [0]);
         var forslagstjeneste = new TjenesteforslagTjeneste(
             db, new KiAgentKlientStub(), new TjenesteregisterTjeneste(db), new TjenesteavhengighetregisterTjeneste(db),
-            new ConfigurationBuilder().Build(), new RettskildeEmbeddingTjeneste(db, embeddingKlient, new ConfigurationBuilder().Build()), embeddingKlient);
+            new ConfigurationBuilder().Build(), new RettskildeEmbeddingTjeneste(db, embeddingKlient, new ConfigurationBuilder().Build()), embeddingKlient, new HandlingregisterTjeneste(db));
 
         var ex = await Assert.ThrowsAsync<ArgumentException>(() =>
             forslagstjeneste.KjorForslagMedRagAsync(virksomhet, [rettskildeId], antallNoder: 3, "system-ki"));
@@ -279,7 +279,7 @@ public class TjenesteforslagTjenesteTests
         var klient = new FangendeKlient();
         var forslagstjeneste = new TjenesteforslagTjeneste(
             db, klient, new TjenesteregisterTjeneste(db), new TjenesteavhengighetregisterTjeneste(db),
-            new ConfigurationBuilder().Build(), rettskildeEmbeddingTjeneste, embeddingKlient);
+            new ConfigurationBuilder().Build(), rettskildeEmbeddingTjeneste, embeddingKlient, new HandlingregisterTjeneste(db));
 
         var resultat = await forslagstjeneste.KjorForslagMedRagAsync(virksomhet, [rettskildeId], antallNoder: 1, "system-ki");
 
@@ -291,5 +291,100 @@ public class TjenesteforslagTjenesteTests
         var nodeIderMedTekst = alleNoder.Select(n => n.Id).ToList();
         var embeddinger = await db.RettskildeNodeEmbeddinger.Where(e => nodeIderMedTekst.Contains(e.NodeId)).ToListAsync();
         Assert.Equal(alleNoder.Count, embeddinger.Count);
+    }
+
+    // ---------- Omfang "full" (handlingsforslag-ki-omfang-runden) — Tjeneste + Handlinger i ett kall ----------
+
+    /// <summary>Fast svar med ÉN tjeneste og to handlinger under den — beviser at KjorFullForslagAsync
+    /// oppretter Tjenesten FØRST (for å få en id) og deretter Handlingene UNDER den.</summary>
+    private sealed class FullForslagKlient : IKiAgentKlient
+    {
+        public string? SisteSystemInstruks { get; private set; }
+
+        public Task<KiSvar> GenererAsync(string systemInstruks, string kontekst, CancellationToken ct = default)
+        {
+            SisteSystemInstruks = systemInstruks;
+            return Task.FromResult(new KiSvar("""
+                [{"Tjeneste": {"Tittel": "Skjenkebevilling (full)", "KortBeskrivelse": "d", "KompetentMyndighet": "Testkommunen"},
+                  "Handlinger": [
+                    {"Navn": "Søke om skjenkebevilling", "Handlingstype": "soke", "UtfortAv": "soker"},
+                    {"Navn": "Klage på avslag", "Handlingstype": "klage", "UtfortAv": "soker"}
+                  ]}]
+                """, InputTokens: 999, OutputTokens: 321));
+        }
+    }
+
+    [Fact]
+    public async Task KjorFullForslagAsync_oppretter_tjeneste_forst_og_handlinger_under_den()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+        var rettskildeId = await new RettskildeImportTjeneste(db).ImporterAsync(
+            LovdataKonverterer.Konverter(Testdata.LesAlkoholloven(), new DateOnly(2026, 7, 24)));
+
+        var klient = new FullForslagKlient();
+        var forslagstjeneste = new TjenesteforslagTjeneste(
+            db, klient, new TjenesteregisterTjeneste(db), new TjenesteavhengighetregisterTjeneste(db), new ConfigurationBuilder().Build(),
+            new RettskildeEmbeddingTjeneste(db, new EmbeddingKlientStub(), new ConfigurationBuilder().Build()), new EmbeddingKlientStub(),
+            new HandlingregisterTjeneste(db));
+
+        var resultat = await forslagstjeneste.KjorFullForslagAsync(virksomhet, [rettskildeId], "system-ki");
+
+        Assert.Single(resultat.Opprettede);
+        var element = resultat.Opprettede[0];
+        Assert.Equal("Skjenkebevilling (full)", element.Tjeneste.Tittel);
+        Assert.Equal("foreslatt_av_ai", element.Tjeneste.Status);
+        Assert.Equal(2, element.Handlinger.Count);
+        Assert.All(element.Handlinger, h =>
+        {
+            Assert.Equal(element.Tjeneste.Id, h.TjenesteId);
+            Assert.Equal("foreslatt_av_ai", h.Status);
+        });
+        Assert.Contains(element.Handlinger, h => h.Navn == "Søke om skjenkebevilling" && h.Handlingstype == "soke");
+        Assert.Contains(element.Handlinger, h => h.Navn == "Klage på avslag" && h.Handlingstype == "klage");
+        Assert.Equal(999, resultat.InputTokens);
+        Assert.Equal(321, resultat.OutputTokens);
+
+        // Handlingenes proveniens skal også være markert som KI-forslag, med samme AiForslagVersjon
+        // som tjenestens egen (samme kjøring, samme leverandør/modell).
+        var tjenesteProveniens = await db.Proveniens.SingleAsync(p => p.EntitetType == "tjeneste" && p.EntitetId == element.Tjeneste.Id);
+        foreach (var handling in element.Handlinger)
+        {
+            var handlingProveniens = await db.Proveniens.SingleAsync(p => p.EntitetType == "handling" && p.EntitetId == handling.Id);
+            Assert.Equal("foreslatt_av_ai", handlingProveniens.Handling);
+            Assert.Equal(tjenesteProveniens.AiForslagVersjon, handlingProveniens.AiForslagVersjon);
+        }
+
+        Assert.Contains("Handlingstype", klient.SisteSystemInstruks);
+        Assert.Contains("Tittel", klient.SisteSystemInstruks);
+    }
+
+    [Fact]
+    public async Task KjorFullForslagAsync_tomt_svar_gir_forklarende_melding()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        await db.SaveChangesAsync();
+        var rettskildeId = await new RettskildeImportTjeneste(db).ImporterAsync(
+            LovdataKonverterer.Konverter(Testdata.LesAlkoholloven(), new DateOnly(2026, 7, 24)));
+
+        var forslagstjeneste = new TjenesteforslagTjeneste(
+            db, new TjenesteforslagKjorerTomtSvarKlient(), new TjenesteregisterTjeneste(db), new TjenesteavhengighetregisterTjeneste(db),
+            new ConfigurationBuilder().Build(), new RettskildeEmbeddingTjeneste(db, new EmbeddingKlientStub(), new ConfigurationBuilder().Build()),
+            new EmbeddingKlientStub(), new HandlingregisterTjeneste(db));
+
+        var resultat = await forslagstjeneste.KjorFullForslagAsync(virksomhet, [rettskildeId], "system-ki");
+
+        Assert.Empty(resultat.Opprettede);
+        Assert.NotNull(resultat.Melding);
+    }
+
+    private sealed class TjenesteforslagKjorerTomtSvarKlient : IKiAgentKlient
+    {
+        public Task<KiSvar> GenererAsync(string systemInstruks, string kontekst, CancellationToken ct = default) =>
+            Task.FromResult(new KiSvar("[]", InputTokens: 10, OutputTokens: 1));
     }
 }

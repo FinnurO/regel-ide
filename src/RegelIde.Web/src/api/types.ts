@@ -1009,8 +1009,27 @@ export interface LovdataImportstatusDto {
   sistForsoktTidspunkt: string;
 }
 
+/**
+ * `omfang` (handlingsforslag-ki-omfang-runden) brukes KUN av POST /api/tjenester/forslag/kjor —
+ * "tjeneste" (default, uendret oppførsel) eller "full" (Tjeneste + Handlinger i samme kall).
+ * "handling" hører til det EGNE endepunktet POST /api/tjenester/{id}/handlinger/forslag/kjor
+ * (se KjorHandlingsforslagRequest) — det krever en eksisterende tjeneste, som ikke finnes her.
+ */
 export interface KjorForslagRequest {
   rettskildeIder: string[];
+  omfang?: 'tjeneste' | 'full';
+}
+
+/** Forespørsel for POST /api/tjenester/{id}/handlinger/forslag/kjor (omfang "handling") —
+ * {id} i ruten ER tjenesten handlingene skal foreslås for. */
+export interface KjorHandlingsforslagRequest {
+  rettskildeIder: string[];
+}
+
+/** Ett element i svaret fra omfang "full" — tjenesten pluss handlingene KI-en foreslo under den. */
+export interface TjenesteMedHandlingerDto {
+  tjeneste: TjenesteDto;
+  handlinger: HandlingDto[];
 }
 
 /**

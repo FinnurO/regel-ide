@@ -650,8 +650,28 @@ public sealed record KunnskapsbibliotekFilDto(Guid Id, Guid VirksomhetId, string
         f.Id, f.VirksomhetId, f.Filnavn, f.Tittel, f.Filtype, f.UtvunnetTekst, f.OpprettetAv, f.OpprettetTidspunkt);
 }
 
-/// <summary>Forespørsel for POST /api/begreper/forslag/kjor og /api/tjenester/forslag/kjor.</summary>
-public sealed record KjorForslagRequest(IReadOnlyList<Guid> RettskildeIder);
+/// <summary>
+/// Forespørsel for POST /api/begreper/forslag/kjor og /api/tjenester/forslag/kjor.
+/// <see cref="Omfang"/> (handlingsforslag-ki-omfang-runden) brukes KUN av /api/tjenester/forslag/kjor
+/// — "tjeneste" (default, uendret oppførsel — ingen regresjon for eksisterende kallere, inkl.
+/// /api/begreper/forslag/kjor som ikke bryr seg om feltet) eller "full" (Tjeneste + Handlinger i
+/// samme kall, se <see cref="RegelIde.Data.TjenesteforslagTjeneste.KjorFullForslagAsync"/>). Omfang
+/// "handling" hører IKKE hjemme her — det krever en EKSISTERENDE tjeneste og har derfor sitt eget
+/// endepunkt, POST /api/tjenester/{id}/handlinger/forslag/kjor (<see cref="KjorHandlingsforslagRequest"/>).
+/// </summary>
+public sealed record KjorForslagRequest(IReadOnlyList<Guid> RettskildeIder, string Omfang = "tjeneste");
+
+/// <summary>Forespørsel for POST /api/tjenester/{id}/handlinger/forslag/kjor (omfang "handling",
+/// handlingsforslag-ki-omfang-runden) — {id} i ruten ER tjenesten handlingene skal foreslås for,
+/// ingen egen TjenesteId-felt trengs i body.</summary>
+public sealed record KjorHandlingsforslagRequest(IReadOnlyList<Guid> RettskildeIder);
+
+/// <summary>Ett element i svaret fra omfang "full" — tjenesten pluss handlingene KI-en foreslo under den.</summary>
+public sealed record TjenesteMedHandlingerDto(TjenesteDto Tjeneste, IReadOnlyList<HandlingDto> Handlinger)
+{
+    public static TjenesteMedHandlingerDto FraResultat(RegelIde.Data.TjenesteMedHandlingerResultat r) =>
+        new(TjenesteDto.FraEntitet(r.Tjeneste), r.Handlinger.Select(HandlingDto.FraEntitet).ToList());
+}
 
 /// <summary>Forespørsel for POST /api/tjenester/forslag/kjor-rag (byggesteg 5 runde 4, RAG-spike) —
 /// <see cref="AntallNoder"/> er K i "de K mest like nodene", se <see cref="RegelIde.Data.RagKontekstHjelper"/>.</summary>

@@ -25,6 +25,8 @@ import type {
   KodelisteRequest,
   KjorForslagRequest,
   KjorForslagResponsDto,
+  KjorHandlingsforslagRequest,
+  TjenesteMedHandlingerDto,
   KunnskapsbibliotekFilDto,
   KunnskapsbibliotekLenkeDto,
   LovdataImportstatusDto,
@@ -414,6 +416,24 @@ export const api = {
 
   kjorTjenesteforslag: (request: KjorForslagRequest) =>
     kall<KjorForslagResponsDto<TjenesteDto>>('/api/tjenester/forslag/kjor', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  // Omfang "full" (handlingsforslag-ki-omfang-runden) — samme endepunkt som over, men request.omfang
+  // = 'full' gir en ANNEN responsform (Tjeneste + Handlinger per element) — egen typet klientmetode
+  // i stedet for å overbelaste kjorTjenesteforslag sin returtype.
+  kjorFullTjenesteforslag: (request: KjorForslagRequest) =>
+    kall<KjorForslagResponsDto<TjenesteMedHandlingerDto>>('/api/tjenester/forslag/kjor', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  // Omfang "handling" (handlingsforslag-ki-omfang-runden) — Handlinger for ÉN eksisterende tjeneste.
+  kjorHandlingsforslag: (tjenesteId: string, request: KjorHandlingsforslagRequest) =>
+    kall<KjorForslagResponsDto<HandlingDto>>(`/api/tjenester/${tjenesteId}/handlinger/forslag/kjor`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
