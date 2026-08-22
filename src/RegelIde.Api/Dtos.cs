@@ -345,15 +345,29 @@ public sealed record MyndighetstildelingDto(
         m.Vilkaar);
 }
 
-public sealed record VirksomhetKandidatRequest(Guid VirksomhetId, Guid RettskildeId, string NodeEid);
+public sealed record VirksomhetKandidatRequest(Guid VirksomhetId, Guid RettskildeId, string NodeEid, int StartOffset, int EndOffset);
 
 public sealed record VirksomhetKandidatDto(
-    Guid Id, Guid VirksomhetId, Guid RettskildeId, string NodeEid, string Status,
-    string? BehandletAv, DateTimeOffset? BehandletTidspunkt)
+    Guid Id, Guid VirksomhetId, Guid RettskildeId, string NodeEid, int StartOffset, int EndOffset, string Status,
+    string OpprettetAv, DateTimeOffset OpprettetTidspunkt, string? BehandletAv, DateTimeOffset? BehandletTidspunkt)
 {
     public static VirksomhetKandidatDto FraEntitet(VirksomhetKandidatEntitet k) => new(
-        k.Id, k.VirksomhetId, k.RettskildeId, k.NodeEid, k.Status, k.BehandletAv, k.BehandletTidspunkt);
+        k.Id, k.VirksomhetId, k.RettskildeId, k.NodeEid, k.StartOffset, k.EndOffset, k.Status,
+        k.OpprettetAv, k.OpprettetTidspunkt, k.BehandletAv, k.BehandletTidspunkt);
 }
+
+/// <summary>Sveip-trigger (kravspek §4.2 pkt. 1) — søker gjennom alle rettskilder etter virksomhetens navneformer.</summary>
+public sealed record SveipVirksomhetKandidaterRequest(Guid VirksomhetId);
+
+public sealed record SveipVirksomhetKandidaterResultatDto(int AntallTreffFunnet, int AntallNyeKandidater);
+
+/// <summary>Massegodkjenning/-avvisning (kravspek §4.2 pkt. 4) — server-side batch, ikke N separate kall.
+/// Per-rad-feilhåndtering: én ugyldig id stopper ikke resten av batchen.</summary>
+public sealed record VirksomhetKandidatBatchRequest(IReadOnlyList<Guid> Ider);
+
+public sealed record VirksomhetKandidatBatchRadDto(Guid Id, bool Ok, string? Feil, VirksomhetKandidatDto? Resultat);
+
+public sealed record VirksomhetKandidatBatchResultatDto(IReadOnlyList<VirksomhetKandidatBatchRadDto> Rader);
 
 // ---------- Kodeliste / verdidomene (docs/03-domenemodell.md §1.4) — byggesteg 2 ----------
 

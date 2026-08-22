@@ -21,6 +21,7 @@ import BegrepsforslagKo from './pages/BegrepsforslagKo';
 import BrukereListe from './pages/BrukereListe';
 import VirksomheterListe from './pages/VirksomheterListe';
 import VirksomhetDetalj from './pages/VirksomhetDetalj';
+import VirksomhetKandidaterListe from './pages/VirksomhetKandidaterListe';
 
 function App() {
   return (
@@ -53,6 +54,7 @@ function App() {
           <Route path="/brukere" element={<BrukereListe />} />
           <Route path="/virksomheter" element={<VirksomheterListe />} />
           <Route path="/virksomheter/:id" element={<VirksomhetDetalj />} />
+          <Route path="/virksomhet-kandidater" element={<VirksomhetKandidaterListe />} />
         </Routes>
       </main>
     </div>

@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useParams } from 'react-router';
-import { Button, Card, Field, Heading, Label, Paragraph, Select, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Link as RouterLink, useParams } from 'react-router';
+import { Button, Card, Field, Heading, Label, Link, Paragraph, Select, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { KodelisteDto, MyndighetstildelingDto, VirksomhetKandidatDto, VirksomhetsbegrepDto } from '../api/types';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
@@ -17,6 +17,10 @@ export default function VirksomhetDetalj() {
   const [nyTerm, setNyTerm] = useState('');
   const [leggerTil, setLeggerTil] = useState(false);
   const [leggTilFeil, setLeggTilFeil] = useState<string | null>(null);
+
+  const [sveiper, setSveiper] = useState(false);
+  const [sveipFeil, setSveipFeil] = useState<string | null>(null);
+  const [sveipResultat, setSveipResultat] = useState<{ funnet: number; nye: number } | null>(null);
 
   const [forvaltningsnivaKodeliste, setForvaltningsnivaKodeliste] = useState<KodelisteDto | null>(null);
   const [forvaltningsnivaLagres, setForvaltningsnivaLagres] = useState(false);
@@ -68,6 +72,22 @@ export default function VirksomhetDetalj() {
       setLeggTilFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse av navneform.');
     } finally {
       setLeggerTil(false);
+    }
+  }
+
+  async function kjorSveip() {
+    if (!id) return;
+    setSveiper(true);
+    setSveipFeil(null);
+    setSveipResultat(null);
+    try {
+      const resultat = await api.sveipVirksomhetKandidater({ virksomhetId: id });
+      setSveipResultat({ funnet: resultat.antallTreffFunnet, nye: resultat.antallNyeKandidater });
+      lastAlt();
+    } catch (err) {
+      setSveipFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved sveip.');
+    } finally {
+      setSveiper(false);
     }
   }
 
@@ -216,8 +236,20 @@ export default function VirksomhetDetalj() {
           Ventende kandidater
         </Heading>
         <Paragraph style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
-          Funn fra tekstsøk som ikke er godkjent eller avvist ennå.
+          Funn fra tekstsøk som ikke er godkjent eller avvist ennå.{' '}
+          <Link asChild><RouterLink to={`/virksomhet-kandidater?virksomhetId=${id}`}>Se full kandidatliste (alle statuser, filtrerbar)</RouterLink></Link>
         </Paragraph>
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.75rem' }}>
+          <Button data-size="sm" variant="secondary" onClick={kjorSveip} disabled={sveiper}>
+            {sveiper ? 'Sveiper …' : 'Kjør sveip for denne virksomheten'}
+          </Button>
+        </div>
+        {sveipFeil && <div className="feilmelding" style={{ marginBottom: '0.75rem' }}>{sveipFeil}</div>}
+        {sveipResultat && (
+          <div className="infomelding" style={{ marginBottom: '0.75rem' }}>
+            Fant {sveipResultat.funnet} treff totalt, {sveipResultat.nye} nye kandidater lagt i køen.
+          </div>
+        )}
         {!kandidater && <Paragraph>Laster …</Paragraph>}
         {kandidater && kandidater.length === 0 && <Paragraph>Ingen ventende kandidater.</Paragraph>}
         {kandidater && kandidater.length > 0 && (

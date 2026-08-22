@@ -43,6 +43,7 @@ builder.Services.AddScoped<KodelisteregisterTjeneste>();
 builder.Services.AddScoped<VirksomhetsbegrepTjeneste>();
 builder.Services.AddScoped<MyndighetstildelingTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatTjeneste>();
+builder.Services.AddScoped<VirksomhetKandidatSveipTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
 builder.Services.AddScoped<RegelnoderegisterTjeneste>();
 builder.Services.AddScoped<UnntaksregisterTjeneste>();
@@ -1822,10 +1823,20 @@ app.MapGet("/api/rollebegrep/{id:guid}/tildelinger", async (Guid id, Myndighetst
 
 var virksomhetKandidater = app.MapGroup("/api/virksomhet-kandidater").WithOpenApi();
 
-virksomhetKandidater.MapGet("/", async (Guid? virksomhetId, Guid? rettskildeId, VirksomhetKandidatTjeneste register, CancellationToken ct) =>
-        Results.Ok((await register.ListerVentendeAsync(virksomhetId, rettskildeId, ct)).Select(VirksomhetKandidatDto.FraEntitet)))
-    .WithName("HentVentendeVirksomhetKandidater")
-    .WithSummary("Godkjenningskø (docs/20 §2.6) — kun 'Venter'-rader, valgfritt filtrert til virksomhet og/eller rettskilde.");
+virksomhetKandidater.MapGet("/", async (Guid? virksomhetId, Guid? rettskildeId, string? status,
+        VirksomhetKandidatTjeneste register, CancellationToken ct) =>
+    {
+        // Gammel standard beholdt for eksisterende kallere (VirksomhetDetalj.tsx sin godkjenn/avvis-
+        // widget) som aldri sender ?status: utelatt/tom betyr fortsatt "kun Venter", ikke "alle".
+        // "Alle" er en egen, eksplisitt verdi kandidatliste-UI-et sender når status-filteret er av —
+        // se docs/20 §2.6 vs. kravspek §4.2 pkt. 3s krav om et fullt filtrerbart listevisning.
+        var effektivStatus = string.IsNullOrEmpty(status) ? "Venter" : status;
+        var filter = effektivStatus == "Alle" ? null : effektivStatus;
+        return Results.Ok((await register.ListerAsync(virksomhetId, rettskildeId, filter, ct)).Select(VirksomhetKandidatDto.FraEntitet));
+    })
+    .WithName("HentVirksomhetKandidater")
+    .WithSummary("Kandidatliste (kravspek §4.2 pkt. 3) — valgfritt filtrert på virksomhet/rettskilde/status. " +
+        "status utelatt = kun 'Venter' (arbeidskø-standard, docs/20 §2.6); status='Alle' = ingen statusfilter.");
 
 virksomhetKandidater.MapPost("/", async (HttpRequest request, VirksomhetKandidatRequest body,
         VirksomhetKandidatTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
@@ -1834,7 +1845,8 @@ virksomhetKandidater.MapPost("/", async (HttpRequest request, VirksomhetKandidat
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         try
         {
-            var kandidat = await register.OpprettEllerFinnAsync(body.VirksomhetId, body.RettskildeId, body.NodeEid, bruker.Navn, ct);
+            var kandidat = await register.OpprettEllerFinnAsync(
+                body.VirksomhetId, body.RettskildeId, body.NodeEid, body.StartOffset, body.EndOffset, bruker.Navn, ct);
             return Results.Created($"/api/virksomhet-kandidater/{kandidat.Id}", VirksomhetKandidatDto.FraEntitet(kandidat));
         }
         catch (ArgumentException ex)
@@ -1843,27 +1855,111 @@ virksomhetKandidater.MapPost("/", async (HttpRequest request, VirksomhetKandidat
         }
     })
     .WithName("OpprettVirksomhetKandidat")
-    .WithSummary("Idempotent — samme (virksomhet, rettskilde, node) gir samme rad tilbake uansett status, ikke et duplikat.");
+    .WithSummary("Idempotent — samme (virksomhet, rettskilde, node, startOffset) gir samme rad tilbake uansett status, ikke et duplikat.");
+
+virksomhetKandidater.MapPost("/sveip", async (HttpRequest request, SveipVirksomhetKandidaterRequest body,
+        VirksomhetKandidatSveipTjeneste sveip, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var resultat = await sveip.SveipAsync(body.VirksomhetId, bruker.Navn, ct);
+            return Results.Ok(new SveipVirksomhetKandidaterResultatDto(resultat.AntallTreffFunnet, resultat.AntallNyeKandidater));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SveipVirksomhetKandidater")
+    .WithSummary("Kravspek §4.2 pkt. 1/2 — tekstsøk gjennom alle rettskilde-noder etter virksomhetens " +
+        "navneform-begrep, legger treff i kandidatkøen med status 'Venter'. Idempotent (kjør flere ganger uten duplikater).");
 
 virksomhetKandidater.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest request,
         VirksomhetKandidatTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
-        var oppdatert = await register.GodkjennAsync(id, bruker.Navn, ct);
-        return oppdatert is null ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }) : Results.Ok(VirksomhetKandidatDto.FraEntitet(oppdatert));
+        try
+        {
+            var oppdatert = await register.GodkjennAsync(id, bruker.Navn, ct);
+            return oppdatert is null ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }) : Results.Ok(VirksomhetKandidatDto.FraEntitet(oppdatert));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
     })
-    .WithName("GodkjennVirksomhetKandidat");
+    .WithName("GodkjennVirksomhetKandidat")
+    .WithSummary("Oppretter en ekte TekstTagg (kind='begrep', RefId=navneform-Begrep) i tillegg til å sette status.");
 
 virksomhetKandidater.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request,
         VirksomhetKandidatTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
-        var oppdatert = await register.AvvisAsync(id, bruker.Navn, ct);
-        return oppdatert is null ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }) : Results.Ok(VirksomhetKandidatDto.FraEntitet(oppdatert));
+        try
+        {
+            var oppdatert = await register.AvvisAsync(id, bruker.Navn, ct);
+            return oppdatert is null ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }) : Results.Ok(VirksomhetKandidatDto.FraEntitet(oppdatert));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
     })
     .WithName("AvvisVirksomhetKandidat");
+
+virksomhetKandidater.MapPost("/godkjenn-batch", async (HttpRequest request, VirksomhetKandidatBatchRequest body,
+        VirksomhetKandidatTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var rader = new List<VirksomhetKandidatBatchRadDto>();
+        foreach (var id in body.Ider)
+        {
+            try
+            {
+                var oppdatert = await register.GodkjennAsync(id, bruker.Navn, ct);
+                rader.Add(oppdatert is null
+                    ? new VirksomhetKandidatBatchRadDto(id, false, $"Ingen kandidat med id '{id}'.", null)
+                    : new VirksomhetKandidatBatchRadDto(id, true, null, VirksomhetKandidatDto.FraEntitet(oppdatert)));
+            }
+            catch (ArgumentException ex)
+            {
+                rader.Add(new VirksomhetKandidatBatchRadDto(id, false, ex.Message, null));
+            }
+        }
+        return Results.Ok(new VirksomhetKandidatBatchResultatDto(rader));
+    })
+    .WithName("GodkjennVirksomhetKandidaterBatch")
+    .WithSummary("Massegodkjenning (kravspek §4.2 pkt. 4) — server-side batch med per-rad-feilhåndtering, ikke N separate kall.");
+
+virksomhetKandidater.MapPost("/avvis-batch", async (HttpRequest request, VirksomhetKandidatBatchRequest body,
+        VirksomhetKandidatTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var rader = new List<VirksomhetKandidatBatchRadDto>();
+        foreach (var id in body.Ider)
+        {
+            try
+            {
+                var oppdatert = await register.AvvisAsync(id, bruker.Navn, ct);
+                rader.Add(oppdatert is null
+                    ? new VirksomhetKandidatBatchRadDto(id, false, $"Ingen kandidat med id '{id}'.", null)
+                    : new VirksomhetKandidatBatchRadDto(id, true, null, VirksomhetKandidatDto.FraEntitet(oppdatert)));
+            }
+            catch (ArgumentException ex)
+            {
+                rader.Add(new VirksomhetKandidatBatchRadDto(id, false, ex.Message, null));
+            }
+        }
+        return Results.Ok(new VirksomhetKandidatBatchResultatDto(rader));
+    })
+    .WithName("AvvisVirksomhetKandidaterBatch")
+    .WithSummary("Masseavvisning (kravspek §4.2 pkt. 4) — server-side batch med per-rad-feilhåndtering.");
 
 virksomhetKandidater.MapDelete("/{id:guid}", async (Guid id, VirksomhetKandidatTjeneste register, CancellationToken ct) =>
     {

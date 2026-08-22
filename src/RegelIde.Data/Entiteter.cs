@@ -773,6 +773,22 @@ public sealed class VirksomhetKandidatEntitet
     /// <summary>Presis node-referanse (samme eId-mønster som resten av rettskilde-modellen).</summary>
     public required string NodeEid { get; set; }
 
+    /// <summary>
+    /// [Ny, kandidatsøk-og-godkjenning-runden] Tegn-intervall [<see cref="StartOffset"/>,
+    /// <see cref="EndOffset"/>) for TREFFET i nodens <c>Tekst</c> på sveip-tidspunktet — IKKE lagret på
+    /// noden selv, siden en node kan re-importeres/endre tekst mellom sveip og godkjenning.
+    /// Designvalg: kandidat-nøkkelen (unik indeks, se RegelIdeDbContext) er derfor utvidet fra
+    /// (VirksomhetId, RettskildeId, NodeEid) til også inkludere <see cref="StartOffset"/> — ETT sveip kan
+    /// gi FLERE treff i samme node (f.eks. "Advokattilsynet" nevnt to ganger i samme ledd), og disse må
+    /// kunne godkjennes/avvises UAVHENGIG av hverandre siden de blir til separate tagger. Ved godkjenning
+    /// re-kjøres matchingen mot nodens DÅVÆRENDE tekst (samme "matcher ikke → kast"-vern som
+    /// <see cref="TekstTaggTjeneste.OpprettAsync"/> allerede har) — quoteSelector-feltene (prefiks/eksakt/
+    /// suffiks) beregnes da på nytt fra frisk tekst i stedet for å lagres her, og trenger derfor ikke
+    /// dupliseres på denne raden.
+    /// </summary>
+    public int StartOffset { get; set; }
+    public int EndOffset { get; set; }
+
     public string Status { get; set; } = "Venter"; // 'Venter' | 'Godkjent' | 'Avvist'
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }

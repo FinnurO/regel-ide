@@ -158,6 +158,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
             e.Property(x => x.RettskildeId).HasColumnName("rettskilde_id");
             e.Property(x => x.NodeEid).HasColumnName("node_eid");
+            e.Property(x => x.StartOffset).HasColumnName("start_offset");
+            e.Property(x => x.EndOffset).HasColumnName("end_offset");
             e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("Venter");
             e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
@@ -167,12 +169,16 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_virksomhet_kandidater_virksomhet");
             e.HasIndex(x => x.RettskildeId).HasDatabaseName("ix_virksomhet_kandidater_rettskilde");
-            // Sveipet skal ikke gjenskape en kandidat som allerede finnes for samme (virksomhet,
-            // node) — uansett status (docs/20 §2.6: "Venter"-status filtreres i APPLIKASJONEN ved
-            // visning/ny sveip, men selve UNIKHETEN på (virksomhet, node) gjelder uansett status,
-            // ellers ville en Avvist-rad ikke hindret gjenoppdukking som spesifisert).
-            e.HasIndex(x => new { x.VirksomhetId, x.RettskildeId, x.NodeEid }).IsUnique()
-                .HasDatabaseName("ux_virksomhet_kandidater_virksomhet_node");
+            // Sveipet skal ikke gjenskape en kandidat som allerede finnes for samme (virksomhet, node,
+            // START-posisjon) — uansett status (docs/20 §2.6: "Venter"-status filtreres i APPLIKASJONEN
+            // ved visning/ny sveip, men selve UNIKHETEN gjelder uansett status, ellers ville en Avvist-
+            // rad ikke hindret gjenoppdukking som spesifisert). StartOffset er DEL AV NØKKELEN (ikke bare
+            // node-nivå som opprinnelig skjematisert) — ett sveip kan gi flere uavhengige treff i samme
+            // node (se VirksomhetKandidatEntitet.StartOffset-kommentaren), og disse må forbli distinkte
+            // kandidater. To ulike navneformer kan ikke starte på samme tegn-posisjon i samme node, så
+            // dette hindrer fortsatt reelle duplikater uten å kollapse ekte, uavhengige treff.
+            e.HasIndex(x => new { x.VirksomhetId, x.RettskildeId, x.NodeEid, x.StartOffset }).IsUnique()
+                .HasDatabaseName("ux_virksomhet_kandidater_virksomhet_node_start");
         });
 
         b.Entity<Bruker>(e =>
