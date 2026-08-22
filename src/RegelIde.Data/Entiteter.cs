@@ -530,7 +530,7 @@ public sealed class HandlingEntitet
     /// </summary>
     public Guid? EksternKildeId { get; set; }
 
-    public required string Status { get; set; } // samme 6 verdier som TjenesteEntitet.Status
+    public required string Status { get; set; } // samme 7 verdier som TjenesteEntitet.Status (inkl. "foreslatt_av_ai")
     public int Versjon { get; set; } = 1;
     public string Entitetsstatus { get; set; } = "gjeldende";
     public required string OpprettetAv { get; set; }

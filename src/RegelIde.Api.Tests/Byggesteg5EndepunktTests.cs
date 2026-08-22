@@ -347,4 +347,89 @@ public class Byggesteg5EndepunktTests
         var ko = await koSvar.Content.ReadFromJsonAsync<List<TjenesteforslagDto>>(JsonInnstillinger);
         Assert.DoesNotContain(ko!, f => f.Tjeneste.Id == godkjent.Id);
     }
+
+    // ---------- Omfang (handlingsforslag-ki-omfang-runden) ----------
+
+    [Fact]
+    public async Task Omfang_full_oppretter_tjeneste_og_handlinger_i_samme_kall()
+    {
+        var bruker = await HentTestbrukerAsync();
+        var rettskildeId = await HentAlkohollovenIdAsync();
+
+        var kjorSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId], Omfang: "full")));
+        Assert.Equal(HttpStatusCode.OK, kjorSvar.StatusCode);
+        var respons = await kjorSvar.Content.ReadFromJsonAsync<KjorForslagResponsDto<TjenesteMedHandlingerDto>>(JsonInnstillinger);
+        var opprettede = respons!.Forslag;
+        Assert.Single(opprettede);
+        Assert.Equal("foreslatt_av_ai", opprettede[0].Tjeneste.Status);
+        // Stub-KI-en (KiAgentKlientStub) gir ett fast handlingsforslag under stub-tjenesten — se
+        // IKiAgentKlient.cs sitt FullSvar-felt.
+        Assert.Single(opprettede[0].Handlinger);
+        Assert.Equal("foreslatt_av_ai", opprettede[0].Handlinger[0].Status);
+        Assert.Equal(opprettede[0].Tjeneste.Id, opprettede[0].Handlinger[0].TjenesteId);
+
+        // Handlingen skal også dukke opp i den vanlige handlinger-listen for tjenesten.
+        var handlingerSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, $"/api/tjenester/{opprettede[0].Tjeneste.Id}/handlinger", bruker.Id));
+        var handlinger = await handlingerSvar.Content.ReadFromJsonAsync<List<HandlingDto>>(JsonInnstillinger);
+        Assert.Contains(handlinger!, h => h.Id == opprettede[0].Handlinger[0].Id);
+    }
+
+    [Fact]
+    public async Task Omfang_handling_pa_tjeneste_endepunktet_gir_400_henviser_til_eget_endepunkt()
+    {
+        var bruker = await HentTestbrukerAsync();
+        var rettskildeId = await HentAlkohollovenIdAsync();
+
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId], Omfang: "handling")));
+        Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
+    }
+
+    [Fact]
+    public async Task Ukjent_omfang_gir_400()
+    {
+        var bruker = await HentTestbrukerAsync();
+        var rettskildeId = await HentAlkohollovenIdAsync();
+
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId], Omfang: "noe-ukjent")));
+        Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
+    }
+
+    [Fact]
+    public async Task Kjorer_handlingsforslag_for_eksisterende_tjeneste_og_finner_dem_i_tjenestens_handlingsliste()
+    {
+        var bruker = await HentTestbrukerAsync();
+        var rettskildeId = await HentAlkohollovenIdAsync();
+
+        var tjenesteSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester", bruker.Id,
+            new TjenesteRequest("Oppgaveregisteret — Testkommunen (API-test)", null, null, null, null, null, null, null, null, null, null, null)));
+        Assert.Equal(HttpStatusCode.Created, tjenesteSvar.StatusCode);
+        var tjeneste = await tjenesteSvar.Content.ReadFromJsonAsync<TjenesteDto>(JsonInnstillinger);
+
+        var kjorSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/tjenester/{tjeneste!.Id}/handlinger/forslag/kjor", bruker.Id,
+            new KjorHandlingsforslagRequest([rettskildeId])));
+        Assert.Equal(HttpStatusCode.OK, kjorSvar.StatusCode);
+        var respons = await kjorSvar.Content.ReadFromJsonAsync<KjorForslagResponsDto<HandlingDto>>(JsonInnstillinger);
+        var opprettede = respons!.Forslag;
+        Assert.Single(opprettede);
+        Assert.Equal("foreslatt_av_ai", opprettede[0].Status);
+        Assert.Equal(tjeneste.Id, opprettede[0].TjenesteId);
+
+        var handlingerSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, $"/api/tjenester/{tjeneste.Id}/handlinger", bruker.Id));
+        var handlinger = await handlingerSvar.Content.ReadFromJsonAsync<List<HandlingDto>>(JsonInnstillinger);
+        Assert.Contains(handlinger!, h => h.Id == opprettede[0].Id);
+    }
+
+    [Fact]
+    public async Task Handlingsforslag_for_ukjent_tjeneste_gir_400()
+    {
+        var bruker = await HentTestbrukerAsync();
+        var rettskildeId = await HentAlkohollovenIdAsync();
+
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/tjenester/{Guid.NewGuid()}/handlinger/forslag/kjor", bruker.Id,
+            new KjorHandlingsforslagRequest([rettskildeId])));
+        Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
+    }
 }

@@ -84,6 +84,9 @@ else
 }
 builder.Services.AddScoped<RettskildeEmbeddingTjeneste>();
 builder.Services.AddScoped<TjenesteforslagTjeneste>();
+// «Foreslå handlinger» (handlingsforslag-ki-omfang-runden) — omfang "handling" for EN eksisterende
+// tjeneste. Samme IKiAgentKlient som over (Stub/OpenAiKompatibel), ingen egen leverandørvalg-konfig.
+builder.Services.AddScoped<HandlingsforslagTjeneste>();
 builder.Services.AddHttpClient<LovdataBulkHenter>();
 builder.Services.AddScoped<LovdataKatalogTjeneste>();
 builder.Services.AddScoped<LovdataFullimportTjeneste>();
@@ -1438,9 +1441,30 @@ tjenester.MapPost("/forslag/kjor", async (HttpRequest request, KjorForslagReques
         }
         try
         {
-            var resultat = await forslagstjeneste.KjorForslagAsync(bruker.VirksomhetId, body.RettskildeIder, bruker.Navn, ct);
-            return Results.Ok(new KjorForslagResponsDto<TjenesteDto>(
-                resultat.Opprettede.Select(TjenesteDto.FraEntitet).ToList(), resultat.InputTokens, resultat.OutputTokens, resultat.Melding));
+            // Omfang (handlingsforslag-ki-omfang-runden) — "tjeneste" (default, uendret oppførsel) eller
+            // "full" (Tjeneste + Handlinger i samme kall). "handling" hører til det EGNE endepunktet
+            // POST /api/tjenester/{id}/handlinger/forslag/kjor — det krever en eksisterende tjeneste
+            // (ruteparameteret der), noe dette endepunktet ikke har. Ingen gjettet fallback for et
+            // ukjent/feil omfang her heller.
+            switch (body.Omfang)
+            {
+                case "tjeneste":
+                    {
+                        var resultat = await forslagstjeneste.KjorForslagAsync(bruker.VirksomhetId, body.RettskildeIder, bruker.Navn, ct);
+                        return Results.Ok(new KjorForslagResponsDto<TjenesteDto>(
+                            resultat.Opprettede.Select(TjenesteDto.FraEntitet).ToList(), resultat.InputTokens, resultat.OutputTokens, resultat.Melding));
+                    }
+                case "full":
+                    {
+                        var resultat = await forslagstjeneste.KjorFullForslagAsync(bruker.VirksomhetId, body.RettskildeIder, bruker.Navn, ct);
+                        return Results.Ok(new KjorForslagResponsDto<TjenesteMedHandlingerDto>(
+                            resultat.Opprettede.Select(TjenesteMedHandlingerDto.FraResultat).ToList(), resultat.InputTokens, resultat.OutputTokens, resultat.Melding));
+                    }
+                case "handling":
+                    return Results.BadRequest(new { feil = "Omfang 'handling' krever en eksisterende tjeneste — bruk POST /api/tjenester/{id}/handlinger/forslag/kjor i stedet." });
+                default:
+                    return Results.BadRequest(new { feil = $"Ukjent omfang '{body.Omfang}'. Gyldige verdier her: tjeneste, full." });
+            }
         }
         catch (ArgumentException ex)
         {
@@ -1448,7 +1472,32 @@ tjenester.MapPost("/forslag/kjor", async (HttpRequest request, KjorForslagReques
         }
     })
     .WithName("KjorTjenesteforslag")
-    .WithSummary("Kjører «Identifiser tjenester»-agenten mot valgte rettskilder + kunnskapsbibliotek (byggesteg 5 runde 1, stub-KI).");
+    .WithSummary("Kjører «Identifiser tjenester»-agenten mot valgte rettskilder + kunnskapsbibliotek. " +
+        "Omfang 'tjeneste' (default) eller 'full' (Tjeneste + Handlinger i samme kall) — se KjorForslagRequest.Omfang.");
+
+// «Foreslå handlinger» (handlingsforslag-ki-omfang-runden) — omfang "handling": Handlinger for ÉN
+// EKSISTERENDE tjeneste ({id} i ruten), typisk for å dele opp/berike handlingene under en av
+// Oppgaveregisterets grove "Oppgaveregisteret — X"-samletjenester (se OppgaveregisterHandlingSeed).
+tjenester.MapPost("/{id:guid}/handlinger/forslag/kjor", async (Guid id, HttpRequest request, KjorHandlingsforslagRequest body, HandlingsforslagTjeneste forslagstjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        try
+        {
+            var resultat = await forslagstjeneste.KjorForslagAsync(bruker.VirksomhetId, id, body.RettskildeIder, bruker.Navn, ct);
+            return Results.Ok(new KjorForslagResponsDto<HandlingDto>(
+                resultat.Opprettede.Select(HandlingDto.FraEntitet).ToList(), resultat.InputTokens, resultat.OutputTokens, resultat.Melding));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KjorHandlingsforslag")
+    .WithSummary("Kjører «Foreslå handlinger»-agenten (omfang 'handling') mot valgte rettskilder for ÉN eksisterende tjeneste.");
 
 // Byggesteg 5 runde 4 (RAG-spike) — RÅ SAMMENLIGNING mot endepunktet over, ikke en erstatning. Ingen
 // frontend-kobling denne runden (se docs/13-backlog.md §2.2) — kun til manuell/skriptet sammenligning

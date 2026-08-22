@@ -17,6 +17,9 @@ public sealed class TjenesteforslagTjeneste(
     RegelIdeDbContext db, IKiAgentKlient kiKlient, TjenesteregisterTjeneste tjenesteregister,
     TjenesteavhengighetregisterTjeneste tjenesteavhengighetregister, IConfiguration config,
     RettskildeEmbeddingTjeneste rettskildeEmbeddingTjeneste, IEmbeddingKlient embeddingKlient,
+    // handlingsforslag-ki-omfang-runden — kun brukt av omfang "full" (KjorFullForslagAsync), for å
+    // opprette Handlingene UNDER den nyopprettede tjenesten i SAMME kjøring.
+    HandlingregisterTjeneste handlingregister,
     ILogger<TjenesteforslagTjeneste>? logger = null)
 {
     private readonly ILogger<TjenesteforslagTjeneste> _logger = logger ?? NullLogger<TjenesteforslagTjeneste>.Instance;
@@ -39,18 +42,10 @@ public sealed class TjenesteforslagTjeneste(
     //
     // Ikke en `const string` lenger, siden Rel-listen under interpoleres inn fra
     // TjenesteavhengighetregisterTjeneste.GyldigeRel (ett sted, ikke en duplisert, driftbar kopi).
-    private static string SystemInstruks =>
+    // Trukket ut fra SystemInstruks (handlingsforslag-ki-omfang-runden) slik at FullSystemInstruks kan
+    // beskrive EKSAKT samme Tjeneste-skjema for omfang "full", ordrett, i stedet for en drivende kopi.
+    private static string TjenesteFeltBeskrivelse =>
         """
-        Du er en assistent som identifiserer offentlige tjenester (CPSV-AP-NO) fra lovtekst,
-        virksomhetens nettside-lenker og opplastede dokumenter.
-
-        Konteksten under inneholder lovtekst (hver paragraf/ledd merket med en [eId]-tag),
-        kunnskapsbibliotek-lenker, opplastede dokumenter, og en liste over virksomhetens
-        eksisterende tjenester (merket "E1", "E2", osv.).
-
-        Svar KUN med en ren JSON-array, ingen markdown-kodeblokk (```), ingen forklaringstekst før
-        eller etter. Hvert element beskriver ÉN tjeneste med disse feltene — kun "Tittel" er
-        obligatorisk, resten skal være null hvis konteksten ikke gir tydelig belegg (dikt ikke opp):
         - "Tittel": tjenestens navn (streng, obligatorisk)
         - "KortBeskrivelse": en fyldig beskrivelse av hva tjenesten er og hvem den er for
         - "KompetentMyndighet": hvilken myndighet/virksomhet som er ansvarlig for tjenesten
@@ -72,9 +67,59 @@ public sealed class TjenesteforslagTjeneste(
           "T{n}" for tjeneste nummer n i DIN EGEN JSON-array (1-indeksert, i den rekkefølgen du
           selv returnerer dem) — bruk "T{n}" når to tjenester du foreslår i samme svar hører
           sammen. "Rel" må være en av: RELENUM. Null eller tom liste hvis ingen tydelig relasjon.
+        """.Replace("RELENUM", string.Join(", ", TjenesteavhengighetregisterTjeneste.GyldigeRel));
+
+    private static string SystemInstruks =>
+        """
+        Du er en assistent som identifiserer offentlige tjenester (CPSV-AP-NO) fra lovtekst,
+        virksomhetens nettside-lenker og opplastede dokumenter.
+
+        Konteksten under inneholder lovtekst (hver paragraf/ledd merket med en [eId]-tag),
+        kunnskapsbibliotek-lenker, opplastede dokumenter, og en liste over virksomhetens
+        eksisterende tjenester (merket "E1", "E2", osv.).
+
+        Svar KUN med en ren JSON-array, ingen markdown-kodeblokk (```), ingen forklaringstekst før
+        eller etter. Hvert element beskriver ÉN tjeneste med disse feltene — kun "Tittel" er
+        obligatorisk, resten skal være null hvis konteksten ikke gir tydelig belegg (dikt ikke opp):
+        TJENESTEFELT
 
         Returner en tom array [] hvis du ikke finner noen tydelige tjenester.
-        """.Replace("RELENUM", string.Join(", ", TjenesteavhengighetregisterTjeneste.GyldigeRel));
+        """.Replace("TJENESTEFELT", TjenesteFeltBeskrivelse);
+
+    // Omfang "full" (handlingsforslag-ki-omfang-runden) — ber KI-en fylle BÅDE Tjeneste-formen OG et
+    // sett Handlinger under den i SAMME svar, for å spare et andre KI-kall der brukeren vil ha begge
+    // deler på én gang (se docs-oppgaven for denne runden). JSON-konvolutten er en array av
+    // {"Tjeneste": {...}, "Handlinger": [...]}-objekter — samme ytre array-form som omfang "tjeneste"
+    // alene, men med handlingene nøstet inn under hver tjeneste i stedet for et eget, parallelt kall.
+    private static string FullSystemInstruks =>
+        """
+        Du er en assistent som identifiserer offentlige tjenester (CPSV-AP-NO) OG deres konkrete
+        Handlinger (søke, endre, si opp, melde, registrere, rapportere, klage, kontrolleres, ...) fra
+        lovtekst, virksomhetens nettside-lenker og opplastede dokumenter — i ÉTT kall.
+
+        Konteksten under inneholder lovtekst (hver paragraf/ledd merket med en [eId]-tag),
+        kunnskapsbibliotek-lenker, opplastede dokumenter, og en liste over virksomhetens
+        eksisterende tjenester (merket "E1", "E2", osv.).
+
+        Svar KUN med en ren JSON-array, ingen markdown-kodeblokk (```), ingen forklaringstekst før
+        eller etter. Hvert element beskriver ÉN tjeneste MED sine handlinger, med NØYAKTIG disse to
+        feltene:
+        - "Tjeneste": et objekt med feltene beskrevet under (kun "Tittel" er obligatorisk, resten
+          null hvis konteksten ikke gir tydelig belegg — dikt ikke opp)
+        - "Handlinger": liste av handlinger som hører til DENNE tjenesten, hver med feltene
+          beskrevet under (kun "Navn" og "Handlingstype" er obligatoriske) — tom liste hvis ingen
+          tydelige handlinger
+
+        Tjeneste-felt:
+        TJENESTEFELT
+
+        Handling-felt:
+        HANDLINGFELT
+
+        Returner en tom array [] hvis du ikke finner noen tydelige tjenester.
+        """
+            .Replace("TJENESTEFELT", TjenesteFeltBeskrivelse)
+            .Replace("HANDLINGFELT", HandlingForslagSkjemaHjelper.SkjemaBeskrivelse);
 
     private sealed record RelatertTjenesteJson(string Referanse, string Rel);
 
@@ -85,6 +130,9 @@ public sealed class TjenesteforslagTjeneste(
         string? Tjenestetype, string? Malgruppe, IReadOnlyList<string>? Kanaler, string? Kostnad,
         string? Behandlingstid, string? Kontaktpunkt, string? KonsekvensVedBrudd, IReadOnlyList<string>? Sprak,
         IReadOnlyList<string>? RegelverksreferanserEid, IReadOnlyList<RelatertTjenesteJson>? RelatertTil);
+
+    /// <summary>JSON-konvolutten for omfang "full" — én tjeneste pluss handlingene KI-en foreslo under den.</summary>
+    private sealed record FullForslagJson(TjenesteForslagJson Tjeneste, IReadOnlyList<HandlingForslagJson>? Handlinger);
 
     public async Task<KiForslagResultat<TjenesteEntitet>> KjorForslagAsync(
         Guid virksomhetId, IReadOnlyList<Guid> rettskildeIder, string opprettetAv, CancellationToken ct = default)
@@ -139,8 +187,15 @@ public sealed class TjenesteforslagTjeneste(
         return sb.ToString();
     }
 
-    private async Task<KiForslagResultat<TjenesteEntitet>> KjorForslagFraKontekstAsync(
-        Guid virksomhetId, IReadOnlyList<Guid> rettskildeIder, string rettskildeKontekst, string opprettetAv, CancellationToken ct)
+    /// <summary>Kunnskapsbibliotek-lenker/-filer + eksisterende, gjeldende tjenester (E1/E2/...) for
+    /// virksomheten — delt oppslag/kontekst-dump brukt av BÅDE omfang "tjeneste" og "full", trukket ut
+    /// (handlingsforslag-ki-omfang-runden) for å unngå to drivende kopier av samme spørringer/dump.</summary>
+    private sealed record DeltKontekst(
+        string KontekstTekst, List<KunnskapsbibliotekLenkeEntitet> Lenker,
+        List<(Guid Id, string Filnavn, string? Tittel, string UtvunnetTekst)> Filer,
+        List<EksisterendeTjenesteRef> EksisterendeTjenester);
+
+    private async Task<DeltKontekst> ByggDeltKontekstAsync(Guid virksomhetId, string rettskildeKontekst, CancellationToken ct)
     {
         var lenker = await db.KunnskapsbibliotekLenker
             .Where(l => l.VirksomhetId == virksomhetId)
@@ -186,7 +241,17 @@ public sealed class TjenesteforslagTjeneste(
             }
         }
 
-        var kontekstTekst = sb.ToString();
+        return new DeltKontekst(
+            sb.ToString(), lenker,
+            filer.Select(f => (f.Id, f.Filnavn, f.Tittel, f.UtvunnetTekst)).ToList(),
+            eksisterendeTjenester);
+    }
+
+    private async Task<KiForslagResultat<TjenesteEntitet>> KjorForslagFraKontekstAsync(
+        Guid virksomhetId, IReadOnlyList<Guid> rettskildeIder, string rettskildeKontekst, string opprettetAv, CancellationToken ct)
+    {
+        var deltKontekst = await ByggDeltKontekstAsync(virksomhetId, rettskildeKontekst, ct);
+
         KiSvar svar;
         List<TjenesteForslagJson>? forslag;
         try
@@ -194,7 +259,7 @@ public sealed class TjenesteforslagTjeneste(
             // R0 (docs/13-backlog.md §4 punkt 7) — ETT automatisk retry med SAMME kontekst hvis
             // agenten svarer med et tomt forslag-array, se KiForslagRetryHjelper for begrunnelsen.
             (svar, forslag) = await KiForslagRetryHjelper.KjorMedEttRetryVedTomtSvarAsync<TjenesteForslagJson>(
-                kallCt => kiKlient.GenererAsync(SystemInstruks, kontekstTekst, kallCt),
+                kallCt => kiKlient.GenererAsync(SystemInstruks, deltKontekst.KontekstTekst, kallCt),
                 json => JsonSerializer.Deserialize<List<TjenesteForslagJson>>(
                     JsonSvarHjelper.StrimleKodeblokk(json), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }),
                 _logger, "Identifiser tjenester", ct);
@@ -214,8 +279,8 @@ public sealed class TjenesteforslagTjeneste(
         var kildeReferanserJson = JsonSerializer.Serialize(new
         {
             rettskildeIder,
-            lenkeIder = lenker.Select(l => l.Id),
-            filIder = filer.Select(f => f.Id),
+            lenkeIder = deltKontekst.Lenker.Select(l => l.Id),
+            filIder = deltKontekst.Filer.Select(f => f.Id),
         });
         var opprettede = new List<TjenesteEntitet>();
         foreach (var f in forslag)
@@ -227,11 +292,107 @@ public sealed class TjenesteforslagTjeneste(
             opprettede.Add(tjeneste);
         }
 
-        // Byggesteg 5 runde 4 — koble regelverksreferanser og relaterte tjenester ETTER at alle
-        // tjenestene i batchen er opprettet (T#-referanser kan peke på HVERANDRE). Samme
-        // "hallusinert/uoppløselig referanse dropper stille, kaster ikke hele batchen"-prinsipp som
-        // eId-fiksen i BegrepsforslagTjeneste (runde 3) — en ekte modell bommer på referanser omtrent
-        // like ofte som på eId-format, og det skal ikke koste resten av forslagene.
+        await KobleReferanserOgRelasjonerAsync(
+            virksomhetId, rettskildeIder, forslag, opprettede, deltKontekst.EksisterendeTjenester, opprettetAv, ct);
+
+        return new KiForslagResultat<TjenesteEntitet>(opprettede, svar.InputTokens, svar.OutputTokens, null);
+    }
+
+    /// <summary>
+    /// Omfang "full" (handlingsforslag-ki-omfang-runden) — ETT KI-kall som fyller BÅDE Tjeneste-formen
+    /// OG Handlingene under den, i stedet for to separate kall (<see cref="KjorForslagAsync"/> +
+    /// <see cref="HandlingsforslagTjeneste.KjorForslagAsync"/>). Deler kontekst-bygging
+    /// (<see cref="ByggDeltKontekstAsync"/>) og referanse-/relasjon-oppløsning
+    /// (<see cref="KobleReferanserOgRelasjonerAsync"/>) med omfang "tjeneste" — kun selve
+    /// JSON-konvolutten (<see cref="FullForslagJson"/> i stedet for <see cref="TjenesteForslagJson"/>)
+    /// og at Handlinger opprettes ETTER hver tjeneste (for å ha en ekte TjenesteId å henge dem på)
+    /// skiller de to kjøreveiene.
+    /// </summary>
+    public async Task<KiForslagResultat<TjenesteMedHandlingerResultat>> KjorFullForslagAsync(
+        Guid virksomhetId, IReadOnlyList<Guid> rettskildeIder, string opprettetAv, CancellationToken ct = default)
+    {
+        var rettskildeKontekst = await RettskildeKontekstHjelper.ByggKontekstAsync(db, rettskildeIder, ct);
+        var deltKontekst = await ByggDeltKontekstAsync(virksomhetId, rettskildeKontekst, ct);
+
+        KiSvar svar;
+        List<FullForslagJson>? forslag;
+        try
+        {
+            (svar, forslag) = await KiForslagRetryHjelper.KjorMedEttRetryVedTomtSvarAsync<FullForslagJson>(
+                kallCt => kiKlient.GenererAsync(FullSystemInstruks, deltKontekst.KontekstTekst, kallCt),
+                json => JsonSerializer.Deserialize<List<FullForslagJson>>(
+                    JsonSvarHjelper.StrimleKodeblokk(json), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }),
+                _logger, "Identifiser tjenester + handlinger (full)", ct);
+        }
+        catch (JsonException ex)
+        {
+            throw new InvalidOperationException($"KI-klienten returnerte ugyldig JSON for fullt tjeneste-/handlingsforslag: {ex.Message}", ex);
+        }
+        if (forslag is null || forslag.Count == 0)
+        {
+            return new KiForslagResultat<TjenesteMedHandlingerResultat>(
+                [], svar.InputTokens, svar.OutputTokens, "KI-agenten svarte, men fant ingen tjenester å foreslå i valgt kontekst.");
+        }
+
+        var kildeReferanserJson = JsonSerializer.Serialize(new
+        {
+            rettskildeIder,
+            lenkeIder = deltKontekst.Lenker.Select(l => l.Id),
+            filIder = deltKontekst.Filer.Select(f => f.Id),
+        });
+
+        // Tjenestene opprettes FØRST, for alle elementene i batchen — samme "opprett alt, koble
+        // etterpå"-rekkefølge som omfang "tjeneste" (T#-referanser i RelatertTil kan peke på HVERANDRE
+        // på tvers av elementene i batchen, se KobleReferanserOgRelasjonerAsync).
+        var tjenesteForslag = forslag.Select(f => f.Tjeneste).ToList();
+        var opprettedeTjenester = new List<TjenesteEntitet>();
+        foreach (var f in tjenesteForslag)
+        {
+            var tjeneste = await tjenesteregister.OpprettForslagFraKiAsync(
+                virksomhetId, f.Tittel, f.KortBeskrivelse, f.KompetentMyndighet, f.Output, f.Tjenestetype,
+                f.Malgruppe is null ? null : [f.Malgruppe], f.Kanaler, f.Kostnad, f.Behandlingstid, f.Kontaktpunkt, f.KonsekvensVedBrudd,
+                f.Sprak, opprettetAv, AiForslagVersjon, kildeReferanserJson, ct);
+            opprettedeTjenester.Add(tjeneste);
+        }
+
+        await KobleReferanserOgRelasjonerAsync(
+            virksomhetId, rettskildeIder, tjenesteForslag, opprettedeTjenester, deltKontekst.EksisterendeTjenester, opprettetAv, ct);
+
+        // Handlingene opprettes ETTER at tjenesten de hører til faktisk har en Id — samme
+        // "opprett Tjeneste FØRST, deretter Handlingene under den"-rekkefølge oppgaven for denne
+        // runden ba om.
+        var resultat = new List<TjenesteMedHandlingerResultat>();
+        for (var i = 0; i < forslag.Count; i++)
+        {
+            var tjeneste = opprettedeTjenester[i];
+            var handlingerOpprettet = new List<HandlingEntitet>();
+            foreach (var h in forslag[i].Handlinger ?? [])
+            {
+                var handling = await handlingregister.OpprettForslagFraKiAsync(
+                    virksomhetId, tjeneste.Id, h.Navn, h.Handlingstype, h.Bruksomraade, h.UtfortAv, h.Kanaler,
+                    h.Behandlingstid, h.Kostnad, h.Vedlegg, h.Veiledningstekst, h.Arsaker, h.Resultat, h.Merknad,
+                    opprettetAv, AiForslagVersjon, kildeReferanserJson, ct);
+                handlingerOpprettet.Add(handling);
+            }
+            resultat.Add(new TjenesteMedHandlingerResultat(tjeneste, handlingerOpprettet));
+        }
+
+        return new KiForslagResultat<TjenesteMedHandlingerResultat>(resultat, svar.InputTokens, svar.OutputTokens, null);
+    }
+
+    /// <summary>
+    /// Byggesteg 5 runde 4 — koble regelverksreferanser og relaterte tjenester ETTER at alle
+    /// tjenestene i batchen er opprettet (T#-referanser kan peke på HVERANDRE). Samme
+    /// "hallusinert/uoppløselig referanse dropper stille, kaster ikke hele batchen"-prinsipp som
+    /// eId-fiksen i BegrepsforslagTjeneste (runde 3) — en ekte modell bommer på referanser omtrent
+    /// like ofte som på eId-format, og det skal ikke koste resten av forslagene. Trukket ut
+    /// (handlingsforslag-ki-omfang-runden) slik at omfang "tjeneste" og "full" deler NØYAKTIG samme
+    /// koblingslogikk i stedet for to drivende kopier.
+    /// </summary>
+    private async Task KobleReferanserOgRelasjonerAsync(
+        Guid virksomhetId, IReadOnlyList<Guid> rettskildeIder, IReadOnlyList<TjenesteForslagJson> forslag,
+        List<TjenesteEntitet> opprettede, List<EksisterendeTjenesteRef> eksisterendeTjenester, string opprettetAv, CancellationToken ct)
+    {
         for (var i = 0; i < forslag.Count; i++)
         {
             var f = forslag[i];
@@ -283,8 +444,6 @@ public sealed class TjenesteforslagTjeneste(
                 }
             }
         }
-
-        return new KiForslagResultat<TjenesteEntitet>(opprettede, svar.InputTokens, svar.OutputTokens, null);
     }
 
     /// <summary>
