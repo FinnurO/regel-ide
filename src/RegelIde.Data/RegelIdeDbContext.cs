@@ -55,6 +55,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<TjenesteEntitet> Tjenester => Set<TjenesteEntitet>();
     public DbSet<HandlingEntitet> Handlinger => Set<HandlingEntitet>();
     public DbSet<TjenesteRegelverksreferanseEntitet> TjenesteRegelverksreferanser => Set<TjenesteRegelverksreferanseEntitet>();
+    public DbSet<HandlingRegelverksreferanseEntitet> HandlingRegelverksreferanser => Set<HandlingRegelverksreferanseEntitet>();
     public DbSet<HendelseEntitet> Hendelser => Set<HendelseEntitet>();
     public DbSet<TjenesteHendelseEntitet> TjenesteHendelser => Set<TjenesteHendelseEntitet>();
     public DbSet<TjenesteavhengighetEntitet> Tjenesteavhengigheter => Set<TjenesteavhengighetEntitet>();
@@ -488,6 +489,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.ArsakerJson).HasColumnName("arsaker").HasColumnType(jsonKolonne).HasDefaultValue("[]");
             e.Property(x => x.ResultatJson).HasColumnName("resultat").HasColumnType(jsonKolonne).HasDefaultValue("{}");
             e.Property(x => x.Merknad).HasColumnName("merknad");
+            e.Property(x => x.EksternKildeId).HasColumnName("ekstern_kilde_id");
             e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("utkast");
             e.Property(x => x.Versjon).HasColumnName("versjon").HasDefaultValue(1);
             e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
@@ -498,7 +500,13 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 
             e.HasOne<TjenesteEntitet>().WithMany().HasForeignKey(x => x.TjenesteId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne<RegelnodeEntitet>().WithMany().HasForeignKey(x => x.RotnodeId);
+            e.HasOne<EksternKildeEntitet>().WithMany().HasForeignKey(x => x.EksternKildeId).OnDelete(DeleteBehavior.SetNull);
             e.HasIndex(x => x.TjenesteId).HasDatabaseName("ix_handlinger_tjeneste");
+            // Unik KUN for ikke-null verdier (partial index, samme standard-SQL-syntaks på begge
+            // profiler) — de aller fleste handlinger er håndskrevne og har EksternKildeId = null, som
+            // ellers ville kollidert i en vanlig unik indeks.
+            e.HasIndex(x => x.EksternKildeId).IsUnique().HasDatabaseName("ux_handlinger_ekstern_kilde")
+                .HasFilter("ekstern_kilde_id IS NOT NULL");
         });
 
         b.Entity<TjenesteRegelverksreferanseEntitet>(e =>
@@ -514,6 +522,21 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 
             e.HasIndex(x => new { x.TjenesteId, x.TilRettskildeId, x.TilEid }).IsUnique()
                 .HasDatabaseName("ux_tjeneste_regelverksreferanser");
+        });
+
+        b.Entity<HandlingRegelverksreferanseEntitet>(e =>
+        {
+            e.ToTable("handling_regelverksreferanser");
+            e.HasKey(x => x.Id).HasName("handling_regelverksreferanser_pkey");
+            e.Property(x => x.HandlingId).HasColumnName("handling_id");
+            e.Property(x => x.TilRettskildeId).HasColumnName("til_rettskilde_id");
+            e.Property(x => x.TilEid).HasColumnName("til_eid");
+
+            e.HasOne<HandlingEntitet>().WithMany().HasForeignKey(x => x.HandlingId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.TilRettskildeId);
+
+            e.HasIndex(x => new { x.HandlingId, x.TilRettskildeId, x.TilEid }).IsUnique()
+                .HasDatabaseName("ux_handling_regelverksreferanser");
         });
 
         b.Entity<HendelseEntitet>(e =>

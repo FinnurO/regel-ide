@@ -423,6 +423,8 @@ export interface HandlingDto {
   utfortAv: string | null;
   /** Override av Tjeneste.rotnodeId for nettopp DENNE handlingens saksbehandling — mangler den, gjelder rettighetens. */
   rotnodeId: string | null;
+  /** Hvilket høstet Oppgaveregister-skjema denne handlingen ble seedet fra (2026-08-22, OppgaveregisterHandlingSeed) — null for håndskrevne handlinger. */
+  eksternKildeId: string | null;
   kanaler: HandlingKanalInput[];
   behandlingstid: HandlingBehandlingstidInput;
   kostnad: HandlingKostnadInput;
@@ -433,6 +435,14 @@ export interface HandlingDto {
   merknad: string | null;
   status: string;
   versjon: number;
+}
+
+/** Én rad fra GET /api/handlinger (toppnivå-siden, 2026-08-22) — Handlingen selv pluss eiende tjenestes
+ * tittel og virksomhetId, slik at HandlingerListe.tsx ikke må gjøre ett kall per tjeneste. */
+export interface HandlingMedTjenesteDto {
+  handling: HandlingDto;
+  tjenesteTittel: string;
+  virksomhetId: string;
 }
 
 export interface HandlingRequest {

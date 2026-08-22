@@ -162,13 +162,13 @@ public sealed record TjenesteRequest(
 /// Se <see cref="RegelIde.Data.HandlingEntitet"/> for full begrunnelse.</summary>
 public sealed record HandlingDto(
     Guid Id, Guid TjenesteId, string Navn, string Handlingstype, string? Bruksomraade, string? UtfortAv,
-    Guid? RotnodeId, IReadOnlyList<HandlingKanalInput> Kanaler, HandlingBehandlingstidInput Behandlingstid,
+    Guid? RotnodeId, Guid? EksternKildeId, IReadOnlyList<HandlingKanalInput> Kanaler, HandlingBehandlingstidInput Behandlingstid,
     HandlingKostnadInput Kostnad, IReadOnlyList<HandlingVedleggInput> Vedlegg,
     IReadOnlyList<HandlingVeiledningstekstInput> Veiledningstekst, IReadOnlyList<HandlingArsakInput> Arsaker,
     HandlingResultatInput Resultat, string? Merknad, string Status, int Versjon)
 {
     public static HandlingDto FraEntitet(HandlingEntitet h) => new(
-        h.Id, h.TjenesteId, h.Navn, h.Handlingstype, h.Bruksomraade, h.UtfortAv, h.RotnodeId,
+        h.Id, h.TjenesteId, h.Navn, h.Handlingstype, h.Bruksomraade, h.UtfortAv, h.RotnodeId, h.EksternKildeId,
         System.Text.Json.JsonSerializer.Deserialize<List<HandlingKanalInput>>(h.KanalerJson) ?? [],
         System.Text.Json.JsonSerializer.Deserialize<HandlingBehandlingstidInput>(h.BehandlingstidJson)
             ?? new HandlingBehandlingstidInput(null, null),
@@ -190,10 +190,40 @@ public sealed record HandlingRequest(
     IReadOnlyList<HandlingVeiledningstekstInput>? Veiledningstekst, IReadOnlyList<HandlingArsakInput>? Arsaker,
     HandlingResultatInput? Resultat, string? Merknad);
 
+/// <summary>Én rad for GET /api/handlinger (toppnivå-siden, 2026-08-22) — samme "innpakket base-DTO
+/// pluss ekstra visningsfelt"-mønster som <see cref="TjenesteforslagDto"/>, ikke en duplisert/flatet
+/// kopi av HandlingDto sine felt.</summary>
+public sealed record HandlingMedTjenesteDto(HandlingDto Handling, string TjenesteTittel, Guid VirksomhetId)
+{
+    public static HandlingMedTjenesteDto FraRad(HandlingMedTjeneste rad) =>
+        new(HandlingDto.FraEntitet(rad.Handling), rad.TjenesteTittel, rad.VirksomhetId);
+}
+
 public sealed record TjenesteRegelverksreferanseDto(Guid Id, Guid TjenesteId, Guid TilRettskildeId, string TilEid)
 {
     public static TjenesteRegelverksreferanseDto FraEntitet(TjenesteRegelverksreferanseEntitet r) =>
         new(r.Id, r.TjenesteId, r.TilRettskildeId, r.TilEid);
+}
+
+/// <summary>Samme rolle for en Handling som <see cref="TjenesteRegelverksreferanseDto"/> har for en
+/// Tjeneste (2026-08-22, <see cref="RegelIde.Data.OppgaveregisterHandlingSeed"/>).</summary>
+public sealed record HandlingRegelverksreferanseDto(Guid Id, Guid HandlingId, Guid TilRettskildeId, string TilEid)
+{
+    public static HandlingRegelverksreferanseDto FraEntitet(HandlingRegelverksreferanseEntitet r) =>
+        new(r.Id, r.HandlingId, r.TilRettskildeId, r.TilEid);
+}
+
+/// <summary>Sammendrag returnert av POST /api/eksterne-kilder/oppgaveregister/koble-til-handlinger —
+/// se <see cref="RegelIde.Data.OppgaveregisterHandlingSeed"/>s klassekommentar for hva hvert felt teller
+/// og hvorfor lave rettskilde-/virksomhet-treffrater er forventet.</summary>
+public sealed record OppgaveregisterHandlingSeedResultatDto(
+    int SkjemaTotalt, int NyeHandlinger, int OppdaterteHandlinger, int UendretHandlinger,
+    int HoppetOverUsikkerVirksomhet, int NyeTjenester, int LovhjemlerTotalt,
+    int RettskildematcherFunnet, int RettskildematcherIkkeFunnet)
+{
+    public static OppgaveregisterHandlingSeedResultatDto FraResultat(RegelIde.Data.OppgaveregisterHandlingSeedResultat r) =>
+        new(r.SkjemaTotalt, r.NyeHandlinger, r.OppdaterteHandlinger, r.UendretHandlinger, r.HoppetOverUsikkerVirksomhet,
+            r.NyeTjenester, r.LovhjemlerTotalt, r.RettskildematcherFunnet, r.RettskildematcherIkkeFunnet);
 }
 
 /// <summary>Håndbok-nivå rettskildeomfang (docs/12-fasit-handbok-leveranse.md, 2026-07-31).</summary>

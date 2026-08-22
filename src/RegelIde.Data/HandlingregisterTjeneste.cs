@@ -20,6 +20,11 @@ public sealed record HandlingArsakInput(string Arsak, HandlingHjemmelInput Hjemm
 public sealed record HandlingBevisKanalInput(string Kanal);
 public sealed record HandlingResultatInput(string? Hva, IReadOnlyList<HandlingBevisKanalInput> BevisKanaler);
 
+/// <summary>Én rad fra <see cref="HandlingregisterTjeneste.ListerAlleAsync"/> — Handlingen selv pluss
+/// nettopp den delen av eiende Tjeneste toppnivå-lista <c>/handlinger</c> trenger (tittel for lenke,
+/// virksomhetId for <c>useVirksomheter().visEier</c>), uten å hente hele TjenesteEntitet-raden.</summary>
+public sealed record HandlingMedTjeneste(HandlingEntitet Handling, string TjenesteTittel, Guid VirksomhetId);
+
 /// <summary>
 /// Handlingsregister (2026-08-20) — sideordnet <see cref="TjenesteregisterTjeneste"/>. Samme stil:
 /// primary-constructor DI, hardkodede, UTVIDBARE verdilister (ikke DB-CHECK, ikke KodelisteEntitet i
@@ -45,6 +50,23 @@ public sealed class HandlingregisterTjeneste(RegelIdeDbContext db)
         db.Handlinger
             .Where(h => h.TjenesteId == tjenesteId && h.Entitetsstatus == "gjeldende")
             .OrderBy(h => h.Navn)
+            .ToListAsync(ct);
+
+    /// <summary>
+    /// Lister ALLE handlinger TVERS AV ALLE tjenester (2026-08-22, toppnivå-siden <c>/handlinger</c>) —
+    /// samme "åpne data for lesing"-holdning som <see cref="FinnAsync"/>/<see cref="ListerForTjenesteAsync"/>,
+    /// ikke virksomhet-scopet. Joiner inn eiende tjenestes <see cref="TjenesteEntitet.Tittel"/> og
+    /// <see cref="TjenesteEntitet.VirksomhetId"/> i SAMME spørring — klienten skal IKKE måtte gjøre N
+    /// kall (ett per tjeneste) for å bygge denne listen.
+    /// </summary>
+    public Task<List<HandlingMedTjeneste>> ListerAlleAsync(CancellationToken ct = default) =>
+        db.Handlinger
+            .Where(h => h.Entitetsstatus == "gjeldende")
+            .Join(
+                db.Tjenester.Where(t => t.Entitetsstatus == "gjeldende"),
+                h => h.TjenesteId, t => t.Id,
+                (h, t) => new HandlingMedTjeneste(h, t.Tittel, t.VirksomhetId))
+            .OrderBy(x => x.Handling.Navn)
             .ToListAsync(ct);
 
     /// <summary>Lesing er bevisst IKKE virksomhet-scopet her — samme "åpne data for lesing"-holdning
