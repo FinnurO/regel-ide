@@ -62,11 +62,16 @@ public sealed class HandlingregisterTjeneste(RegelIdeDbContext db)
     public Task<List<HandlingMedTjeneste>> ListerAlleAsync(CancellationToken ct = default) =>
         db.Handlinger
             .Where(h => h.Entitetsstatus == "gjeldende")
+            // Sorterer FØR Join+projeksjon til HandlingMedTjeneste — EF Core kan ikke oversette en
+            // OrderBy som leser en egenskap PÅ et allerede klient-konstruert record-objekt (§3.3-aktig
+            // lærdom, samme "kaster tydelig i stedet for å gjette" fant vi ved live-verifisering:
+            // System.InvalidOperationException "could not be translated"). Rekkefølgen fra denne
+            // OrderBy-en bevares gjennom Join-en av EF/Postgres uten videre reordering-operasjoner.
+            .OrderBy(h => h.Navn)
             .Join(
                 db.Tjenester.Where(t => t.Entitetsstatus == "gjeldende"),
                 h => h.TjenesteId, t => t.Id,
                 (h, t) => new HandlingMedTjeneste(h, t.Tittel, t.VirksomhetId))
-            .OrderBy(x => x.Handling.Navn)
             .ToListAsync(ct);
 
     /// <summary>Lesing er bevisst IKKE virksomhet-scopet her — samme "åpne data for lesing"-holdning
