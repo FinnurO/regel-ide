@@ -25,8 +25,20 @@ public sealed class VirksomhetKandidatSveipTjeneste(RegelIdeDbContext db, Virkso
     /// regex, som spesifisert i oppgaveteksten. Navneformene sorteres på LENGDE (lengst først) før de
     /// settes sammen i én alternasjons-regex, slik at en lengre navneform som inneholder en kortere som
     /// delstreng ikke risikerer å bare gi et kortere delvis treff (ingen kjente slike par for
-    /// Advokattilsynet i dag, men prinsippet holder generelt). Case-sensitivt — navneformene er egennavn
-    /// (proper nouns), og case-sensitivitet unngår tilfeldige treff i annen sammenheng.
+    /// Advokattilsynet i dag, men prinsippet holder generelt).
+    /// <para>
+    /// <b>Case-INSENSITIVT (2026-08-22, Johanns eksplisitte instruks — omgjør en tidligere case-
+    /// sensitiv versjon):</b> opprinnelig antagelse var at navneformer alltid er egennavn ("Advokattilsynet"),
+    /// men et reelt funn samme dag (Agder fylkeskommune, navneform "Fylkeskommune") viste at ikke alle
+    /// navneformer faktisk brukes konsekvent som proper noun i lovtekst — "fylkeskommune" forekommer
+    /// nesten utelukkende med liten forbokstav som alminnelig substantiv (286 case-insensitive treff i
+    /// korpuset, 0 med eksakt "Fylkeskommune"). Case-insensitivitet er en BEVISST avveining: for en
+    /// GENERISK navneform som "Fylkeskommune" (ikke spesifikk for ÉN fylkeskommune) vil dette gi mange
+    /// falske positiver (alle generelle lovomtaler av fylkeskommuner, ikke bare Agders) — akseptert
+    /// fordi kandidatkøen uansett krever manuell godkjenning/avvisning (§2.6) før noe blir en ekte tagg,
+    /// så en for bred sveip er en arbeidsbyrde, ikke en korrekthetsfeil. Den REELLE anbefalingen for en
+    /// presis navneform er fortsatt å bruke en spesifikk frase ("Agder fylkeskommune") — det løses ikke
+    /// av denne kodeendringen, kun gjort MULIG å leve med et bredere/upresist navneform-valg.
     /// </para>
     /// <para>
     /// <b>Ytelse:</b> full in-memory scan av alle rettskilde-noder per sveip — akseptabelt for dagens
@@ -54,7 +66,7 @@ public sealed class VirksomhetKandidatSveipTjeneste(RegelIdeDbContext db, Virkso
 
         var mønster = new Regex(
             @"\b(?:" + string.Join('|', navneformer.OrderByDescending(n => n.Length).Select(Regex.Escape)) + @")\b",
-            RegexOptions.None);
+            RegexOptions.IgnoreCase);
 
         var noder = await db.RettskildeNoder
             .Where(n => n.Tekst != null && !n.Opphevet && n.Entitetsstatus == "gjeldende")
