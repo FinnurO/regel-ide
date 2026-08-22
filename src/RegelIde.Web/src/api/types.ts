@@ -506,6 +506,15 @@ export interface TjenesteRegelverksreferanseDto {
   tilEid: string;
 }
 
+/** Samme rolle for en Handling som TjenesteRegelverksreferanseDto har for en Tjeneste (2026-08-22,
+ * se OppgaveregisterHandlingSeed) — kun lesing i UI-et ennå, ingen koble til/fjern-endepunkt finnes. */
+export interface HandlingRegelverksreferanseDto {
+  id: string;
+  handlingId: string;
+  tilRettskildeId: string;
+  tilEid: string;
+}
+
 /** Håndbok-nivå rettskildeomfang (docs/12-fasit-handbok-leveranse.md, 2026-07-31). */
 export interface HandbokRettskildeomfangDto {
   id: string;

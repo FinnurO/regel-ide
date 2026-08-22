@@ -19,8 +19,11 @@ import { ApiError, api } from '../api/client';
 import {
   GYLDIGE_HANDLINGSTYPER, GYLDIGE_UTFORT_AV,
   type HandlingArsakInput, type HandlingDto, type HandlingHjemmelInput, type HandlingKanalInput,
-  type HandlingRequest, type HandlingVedleggInput, type HandlingVeiledningstekstInput, type RegelnodeDto, type TjenesteDto,
+  type HandlingRegelverksreferanseDto, type HandlingRequest, type HandlingVedleggInput,
+  type HandlingVeiledningstekstInput, type RegelnodeDto, type RettskildeNodeDto, type RettskildeSammendrag,
+  type TjenesteDto,
 } from '../api/types';
+import { eidVisningstekst, rettskildeLenke } from '../api/eidLenker';
 
 const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
 
@@ -67,6 +70,31 @@ export default function HandlingDetalj() {
     if (!handling?.rotnodeId) { setRotnode(null); return; }
     api.hentRegelnode(handling.rotnodeId).then(setRotnode).catch(() => setRotnode(null));
   }, [handling?.rotnodeId]);
+
+  // Regelverksreferanser (2026-08-22) — samme rolle som på TjenesteDetalj, men read-only her: det
+  // finnes ennå ikke noe koble-til/fjern-endepunkt for EN handlings regelverksreferanser (kun den
+  // automatiske Oppgaveregister-seeden skriver disse i dag). Se docs/09 for at "Laster …" skal være
+  // Spinner, ikke tekst — samme mønster videreført her.
+  const [regelverksreferanser, setRegelverksreferanser] = useState<HandlingRegelverksreferanseDto[] | null>(null);
+  const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
+  const [noderPerRettskilde, setNoderPerRettskilde] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
+
+  useEffect(() => {
+    if (!handlingId) return;
+    api.hentHandlingRegelverksreferanser(handlingId).then(setRegelverksreferanser).catch(() => setRegelverksreferanser([]));
+    api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
+  }, [handlingId]);
+
+  useEffect(() => {
+    if (!regelverksreferanser) return;
+    for (const rettskildeId of new Set(regelverksreferanser.map((r) => r.tilRettskildeId))) {
+      if (noderPerRettskilde.has(rettskildeId)) continue;
+      api.hentNoder(rettskildeId)
+        .then((noder) => setNoderPerRettskilde((forrige) => new Map(forrige).set(rettskildeId, noder)))
+        .catch(() => {}); // ingen gjettet fallback — viser rå eId under når nodene ikke lot seg hente
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [regelverksreferanser]);
 
   function fyllSkjemaFra(h: HandlingDto) {
     setHandling(h);
@@ -393,6 +421,45 @@ export default function HandlingDetalj() {
         <Select value={handling.status} disabled={statusEndres} onChange={(e) => endreStatus(e.target.value)} style={{ maxWidth: '16rem' }}>
           {STATUSER.map((s) => <Select.Option key={s} value={s}>{s}</Select.Option>)}
         </Select>
+      </section>
+
+      <section style={{ marginBottom: '2rem' }}>
+        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>Regelverksreferanser</Heading>
+        <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)', marginBottom: '0.75rem' }}>
+          Kun lesing her ennå — disse settes i dag automatisk av Oppgaveregister-seeden
+          (lovhjemmel-feltet fra Brønnøysundregistrenes skjemakatalog), det finnes ingen koble til/fjern-
+          knapp for én handling ennå (se Regelverksreferanser på rettigheten selv for det).
+        </Paragraph>
+        {regelverksreferanser === null && <Spinner aria-label="Laster …" data-size="sm" />}
+        {regelverksreferanser && regelverksreferanser.length === 0 && (
+          <Paragraph>Ingen regelverksreferanser koblet.</Paragraph>
+        )}
+        {regelverksreferanser && regelverksreferanser.length > 0 && (
+          <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
+            {regelverksreferanser.map((r) => {
+              // Oppgaveregister-seeden matcher i dag kun på DOKUMENT-nivå (r.tilEid = rettskildens
+              // egen Eli, ikke en paragraf-eid — se OppgaveregisterHandlingSeed sin klassekommentar).
+              // eidVisningstekst finner da ingen node (nodene ligger under dokumentet, ikke PÅ det) og
+              // faller tilbake til rå eId — vis i stedet rettskildens tittel/kortnavn + en tydelig
+              // markør, siden vi her VET (eksakt strenglikhet, ikke gjettet) at referansen gjelder hele
+              // dokumentet.
+              const rettskilde = rettskilder.find((rk) => rk.eli === r.tilEid);
+              const visningstekst = rettskilde
+                ? `${rettskilde.kortnavn ?? rettskilde.tittel} (hele dokumentet)`
+                : eidVisningstekst(r.tilEid, rettskilder, noderPerRettskilde);
+              const href = rettskildeLenke(r.tilEid, rettskilder);
+              return (
+                <li key={r.id} style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                  {href ? (
+                    <Link asChild><RouterLink to={href}>{visningstekst ?? r.tilEid}</RouterLink></Link>
+                  ) : (
+                    <span style={visningstekst ? undefined : { fontFamily: 'monospace' }}>{visningstekst ?? r.tilEid}</span>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
       </section>
 
       <section style={{ marginBottom: '2rem' }}>

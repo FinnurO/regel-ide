@@ -11,6 +11,7 @@ import type {
   DokumentReferanseDto,
   HandlingDto,
   HandlingMedTjenesteDto,
+  HandlingRegelverksreferanseDto,
   HandlingRequest,
   HendelseDto,
   HendelseRequest,
@@ -766,4 +767,7 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
     }),
+
+  hentHandlingRegelverksreferanser: (handlingId: string) =>
+    kall<HandlingRegelverksreferanseDto[]>(`/api/tjenester/handlinger/${handlingId}/regelverksreferanser`),
 };
