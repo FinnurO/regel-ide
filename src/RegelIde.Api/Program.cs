@@ -818,6 +818,15 @@ eksterneKilder.MapPost("/altinn-ressurser/hent", async (AltinnRessursHenter hent
     .WithSummary("Høster alle AltinnApp-ressurser fra Altinns ressursregister (tjenesteoversikten.no) inn som " +
         "rå, uforandrede kildeposter — idempotent upsert på (kildetype, ekstern_id). Ikke koblet til domenemodellen ennå.");
 
+eksterneKilder.MapPost("/oppgaveregister/koble-til-handlinger", async (RegelIdeDbContext db, CancellationToken ct) =>
+        Results.Ok(OppgaveregisterHandlingSeedResultatDto.FraResultat(await OppgaveregisterHandlingSeed.SeedAsync(db, ct))))
+    .WithName("KobleOppgaveregisterTilHandlinger")
+    .WithSummary("Kobler allerede høstede Oppgaveregister-skjemaer (POST .../oppgaveregister/hent MÅ ha kjørt først) " +
+        "inn i domenemodellen som ekte Handling-rader — eksakt match mot Virksomhet (organisasjonsnummer) og " +
+        "Rettskilde (Eli), én samlende Tjeneste per eiende virksomhet. Idempotent, se OppgaveregisterHandlingSeed " +
+        "for treffrate-forklaringen (lav rettskilde-/virksomhet-treffrate er forventet, avhenger av hvor mye av " +
+        "Lovdata-/virksomhetsregisteret som faktisk er importert i denne instansen).");
+
 eksterneKilder.MapPost("/altinn-skjemaoversikt/hent", async (AltinnSkjemaoversiktHenter henter, CancellationToken ct) =>
     {
         var resultat = await henter.HentAltAsync(ct);
@@ -1239,6 +1248,14 @@ tjenester.MapDelete("/regelverksreferanser/{referanseId:guid}", async (Guid refe
 
 // ---------- Handlinger (2026-08-20) — konkrete handlinger tilknyttet en Rettighet ----------
 
+app.MapGet("/api/handlinger", async (HandlingregisterTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.ListerAlleAsync(ct)).Select(HandlingMedTjenesteDto.FraRad)))
+    .WithOpenApi()
+    .WithName("HentAlleHandlinger")
+    .WithSummary("Lister ALLE handlinger tvers av ALLE tjenester/rettigheter (toppnivå-siden /handlinger), " +
+        "med eiende tjenestes tittel og virksomhetId i samme svar — ETT kall, ikke N (ett per tjeneste). " +
+        "Åpen lesing, samme holdning som GET /api/tjenester/{id}/handlinger.");
+
 tjenester.MapGet("/{id:guid}/handlinger", async (Guid id, HandlingregisterTjeneste register, CancellationToken ct) =>
         Results.Ok((await register.ListerForTjenesteAsync(id, ct)).Select(HandlingDto.FraEntitet)))
     .WithName("HentHandlinger")
@@ -1274,6 +1291,13 @@ tjenester.MapGet("/handlinger/{handlingId:guid}", async (Guid handlingId, Handli
     })
     .WithName("HentHandling")
     .WithSummary("Henter én handling.");
+
+tjenester.MapGet("/handlinger/{handlingId:guid}/regelverksreferanser", async (Guid handlingId, RegelIdeDbContext db, CancellationToken ct) =>
+        Results.Ok(await db.HandlingRegelverksreferanser.Where(r => r.HandlingId == handlingId)
+            .Select(r => HandlingRegelverksreferanseDto.FraEntitet(r)).ToListAsync(ct)))
+    .WithName("HentHandlingRegelverksreferanser")
+    .WithSummary("Lister handlingens regelverksreferanser (2026-08-22, se OppgaveregisterHandlingSeed) — samme rolle " +
+        "for en Handling som GET /api/tjenester/{id}/regelverksreferanser har for en Tjeneste. Åpen lesing.");
 
 tjenester.MapPut("/handlinger/{handlingId:guid}", async (Guid handlingId, HttpRequest request, HandlingRequest body, HandlingregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {

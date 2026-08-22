@@ -520,6 +520,16 @@ public sealed class HandlingEntitet
 
     public string? Merknad { get; set; }
 
+    /// <summary>
+    /// [Ny, 2026-08-22, <see cref="OppgaveregisterHandlingSeed"/>] Hvilken <see cref="EksternKildeEntitet"/>
+    /// (Oppgaveregister-skjemaet) denne handlingen ble seedet fra — <c>null</c> for alle håndskrevne
+    /// handlinger (de aller fleste i dag). Dette ER den idempotente re-kjørings-nøkkelen for seeden
+    /// (matcher på denne, ikke på Navn — et skjemanavn kan endre seg mellom to høstinger av samme
+    /// <see cref="EksternKildeEntitet.EksternId"/>), samme rolle som <see cref="EksternKildeEntitet.EksternId"/>
+    /// spiller for høstelaget selv ett nivå ned.
+    /// </summary>
+    public Guid? EksternKildeId { get; set; }
+
     public required string Status { get; set; } // samme 6 verdier som TjenesteEntitet.Status
     public int Versjon { get; set; } = 1;
     public string Entitetsstatus { get; set; } = "gjeldende";
@@ -534,6 +544,24 @@ public sealed class TjenesteRegelverksreferanseEntitet
 {
     public Guid Id { get; set; }
     public Guid TjenesteId { get; set; }
+    public Guid TilRettskildeId { get; set; }
+    public required string TilEid { get; set; }
+}
+
+/// <summary>
+/// [Ny, 2026-08-22, <see cref="OppgaveregisterHandlingSeed"/>] Regelverksreferanse fra en Handling til
+/// en rettskilde — EKSAKT samme form/rolle som <see cref="TjenesteRegelverksreferanseEntitet"/>, egen
+/// tabell siden kilden her er en Handling, ikke en Tjeneste (en handling kan ha en annen, mer spesifikk
+/// hjemmel enn den overordnede rettighetens egen). <see cref="TilEid"/> er her ALLTID rettskildens eget
+/// <see cref="RettskildeEntitet.Eli"/> (dokument-nivå, ikke paragraf-nivå) — se
+/// <see cref="OppgaveregisterHandlingSeed"/>s klassekommentar for hvorfor paragraf-nivå-oppløsning
+/// bevisst ikke er forsøkt (Oppgaveregisterets <c>henvisning</c>-fritekst er for variert til å tolkes
+/// uten å gjette).
+/// </summary>
+public sealed class HandlingRegelverksreferanseEntitet
+{
+    public Guid Id { get; set; }
+    public Guid HandlingId { get; set; }
     public Guid TilRettskildeId { get; set; }
     public required string TilEid { get; set; }
 }

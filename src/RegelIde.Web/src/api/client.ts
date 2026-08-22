@@ -10,6 +10,7 @@ import type {
   BegrepsforslagDto,
   DokumentReferanseDto,
   HandlingDto,
+  HandlingMedTjenesteDto,
   HandlingRequest,
   HendelseDto,
   HendelseRequest,
@@ -689,6 +690,9 @@ export const api = {
     kall<VeiledningDto>(`/api/tjenester/${id}/veiledning${virksomhetId ? `?virksomhetId=${virksomhetId}` : ''}`),
 
   // ---------- Handlinger (2026-08-20) — konkrete handlinger tilknyttet en Rettighet (Tjeneste) ----------
+
+  /** Toppnivå-listen (2026-08-22) — ALLE handlinger tvers av ALLE tjenester, ett kall. */
+  hentAlleHandlinger: () => kall<HandlingMedTjenesteDto[]>('/api/handlinger'),
 
   hentHandlinger: (tjenesteId: string) => kall<HandlingDto[]>(`/api/tjenester/${tjenesteId}/handlinger`),
 
