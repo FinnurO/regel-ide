@@ -13,7 +13,7 @@
  * "Egenskaper"-seksjonen på TjenesteDetalj.
  */
 import { useEffect, useState, type FormEvent } from 'react';
-import { Link as RouterLink, useParams } from 'react-router';
+import { Link as RouterLink, useNavigate, useParams } from 'react-router';
 import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import {
@@ -38,6 +38,7 @@ function VisHjemmel({ hjemmel }: { hjemmel: HandlingHjemmelInput | null }) {
 }
 
 export default function HandlingDetalj() {
+  const navigate = useNavigate();
   const { tjenesteId, handlingId } = useParams<{ tjenesteId: string; handlingId: string }>();
   const [handling, setHandling] = useState<HandlingDto | null>(null);
   const [tjeneste, setTjeneste] = useState<TjenesteDto | null>(null);
@@ -65,6 +66,35 @@ export default function HandlingDetalj() {
     if (!tjenesteId) return;
     api.hentTjeneste(tjenesteId).then(setTjeneste).catch(() => setTjeneste(null));
   }, [tjenesteId]);
+
+  // Flytt til en annen tjeneste (2026-08-22, Johanns tilbakemelding) — kandidatene er ALLE virksomhetens
+  // egne tjenester utenom den nåværende, GET /api/tjenester er åpen lesing (samme runde), så vi filtrerer
+  // klient-side på tjeneste.virksomhetId i stedet for et eget, smalere endepunkt.
+  const [alleTjenester, setAlleTjenester] = useState<TjenesteDto[]>([]);
+  const [flyttTilTjenesteId, setFlyttTilTjenesteId] = useState('');
+  const [flytter, setFlytter] = useState(false);
+  const [flyttFeil, setFlyttFeil] = useState<string | null>(null);
+
+  useEffect(() => {
+    api.hentTjenester().then(setAlleTjenester).catch(() => setAlleTjenester([]));
+  }, []);
+
+  const flyttbareTjenester = alleTjenester.filter((t) => t.virksomhetId === tjeneste?.virksomhetId && t.id !== tjenesteId);
+
+  async function flyttTilTjeneste(e: FormEvent) {
+    e.preventDefault();
+    if (!handling || !flyttTilTjenesteId) return;
+    setFlyttFeil(null);
+    setFlytter(true);
+    try {
+      await api.flyttHandlingTilTjeneste(handling.id, flyttTilTjenesteId);
+      navigate(`/tjenester/${flyttTilTjenesteId}/handlinger/${handling.id}`);
+    } catch (err) {
+      setFlyttFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved flytting.');
+    } finally {
+      setFlytter(false);
+    }
+  }
 
   useEffect(() => {
     if (!handling?.rotnodeId) { setRotnode(null); return; }
@@ -388,6 +418,28 @@ export default function HandlingDetalj() {
       </Paragraph>
       <Heading level={1} data-size="lg">{handling.navn}</Heading>
       <Tag data-color="info" style={{ marginBottom: '1.5rem' }}>{handling.status}</Tag>
+
+      <section style={{ marginBottom: '2rem' }}>
+        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>Tilhørende rettighet</Heading>
+        <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)', marginBottom: '0.75rem' }}>
+          Nå under <strong>{tjeneste?.tittel ?? '…'}</strong>. Handlinger seedet fra en automatisk kilde
+          (f.eks. Oppgaveregisteret) lander i en grov samle-plassholder — flytt til en reell, redigert
+          rettighet når en fagperson har vurdert den.
+        </Paragraph>
+        <form onSubmit={flyttTilTjeneste} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+          <Field style={{ minWidth: '20rem' }}>
+            <Label>Flytt til rettighet</Label>
+            <Select data-size="sm" value={flyttTilTjenesteId} onChange={(e) => setFlyttTilTjenesteId(e.target.value)}>
+              <Select.Option value="">Velg …</Select.Option>
+              {flyttbareTjenester.map((t) => <Select.Option key={t.id} value={t.id}>{t.tittel}</Select.Option>)}
+            </Select>
+          </Field>
+          <Button data-size="sm" type="submit" disabled={!flyttTilTjenesteId || flytter}>
+            {flytter ? 'Flytter …' : 'Flytt'}
+          </Button>
+        </form>
+        {flyttFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{flyttFeil}</Alert>}
+      </section>
 
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>Egenskaper</Heading>

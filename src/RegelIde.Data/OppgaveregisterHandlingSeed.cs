@@ -136,7 +136,10 @@ public static class OppgaveregisterHandlingSeed
         _ => "annet",
     };
 
-    private const string AggregertTjenesteTittelPrefiks = "Innsendte skjemaer — ";
+    // 2026-08-22, Johanns tilbakemelding: "Oppgaveregisteret — X" gjør det tydeligere at dette er en
+    // AUTOMATISK KILDE-plassholder (ikke en fagperson-redigert tjeneste), samme "kilde i navnet"-
+    // signal som f.eks. Lovdata-importerte rettskilder allerede gir gjennom sin egen Kildetype/Eli.
+    private const string AggregertTjenesteTittelPrefiks = "Oppgaveregisteret — ";
 
     public static async Task<OppgaveregisterHandlingSeedResultat> SeedAsync(RegelIdeDbContext db, CancellationToken ct = default)
     {

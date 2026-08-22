@@ -519,6 +519,9 @@ public sealed record OppdaterUnntakRequest(string Tittel, string? Beskrivelse, I
 /// <summary>Forespørsel for POST /api/tjenester/{id}/rotnode.</summary>
 public sealed record SettRotnodeRequest(Guid RegelnodeId);
 
+/// <summary>Flytt-en-handling-til-en-annen-tjeneste (2026-08-22) — se HandlingregisterTjeneste.FlyttTilTjenesteAsync.</summary>
+public sealed record FlyttHandlingRequest(Guid TjenesteId);
+
 /// <summary>
 /// Kommunal/nasjonal parameterverdi for et Datasett-felt (docs/12-fasit-handbok-leveranse.md
 /// dimensjon C, 2026-07-30). <c>VirksomhetId</c> null = nasjonal standardverdi.

@@ -770,4 +770,11 @@ export const api = {
 
   hentHandlingRegelverksreferanser: (handlingId: string) =>
     kall<HandlingRegelverksreferanseDto[]>(`/api/tjenester/handlinger/${handlingId}/regelverksreferanser`),
+
+  flyttHandlingTilTjeneste: (handlingId: string, tjenesteId: string) =>
+    kall<HandlingDto>(`/api/tjenester/handlinger/${handlingId}/flytt-til-tjeneste`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ tjenesteId }),
+    }),
 };

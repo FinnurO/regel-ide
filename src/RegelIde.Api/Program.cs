@@ -1381,6 +1381,27 @@ tjenester.MapPost("/handlinger/{handlingId:guid}/rotnode", async (Guid handlingI
     .WithName("SettHandlingRotnode")
     .WithSummary("Kobler handlingen til en EGEN rotnode i vilkårstreet — overstyrer rettighetens for denne ene handlingens saksbehandling.");
 
+tjenester.MapPost("/handlinger/{handlingId:guid}/flytt-til-tjeneste", async (Guid handlingId, HttpRequest request, FlyttHandlingRequest body, HandlingregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        try
+        {
+            var h = await register.FlyttTilTjenesteAsync(handlingId, bruker.VirksomhetId, body.TjenesteId, bruker.Navn, ct);
+            return h is null ? Results.NotFound(new { feil = $"Ingen handling med id '{handlingId}'." }) : Results.Ok(HandlingDto.FraEntitet(h));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("FlyttHandlingTilTjeneste")
+    .WithSummary("Flytter handlingen til en ANNEN tjeneste hos SAMME virksomhet — typisk for å flytte den bort fra " +
+        "Oppgaveregister-seedens grove samle-plassholder ('Oppgaveregisteret — X') til en reell, redigert tjeneste.");
+
 // ---------- «Identifiser tjenester» (byggesteg 5 runde 1, docs/06-veikart.md) — stub-KI ----------
 
 tjenester.MapGet("/forslag", async (HttpRequest request, RegelIdeDbContext db, CancellationToken ct) =>

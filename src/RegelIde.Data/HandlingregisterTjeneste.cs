@@ -191,6 +191,39 @@ public sealed class HandlingregisterTjeneste(RegelIdeDbContext db)
         return handling;
     }
 
+    /// <summary>
+    /// Flytter en handling til en ANNEN tjeneste hos SAMME virksomhet (2026-08-22, Johanns
+    /// tilbakemelding: samletjenestene Oppgaveregister-seeden lager ("Oppgaveregisteret — X") er
+    /// bevisst grove plassholdere — man må lett kunne flytte hver handling til sin egentlige
+    /// tjeneste når en fagperson har vurdert den, se OppgaveregisterHandlingSeed punkt (b)). Sikkerhets-
+    /// scopet på SAMME måte som OppdaterAsync/SettStatusAsync: <paramref name="virksomhetId"/> må eie
+    /// BÅDE handlingens nåværende tjeneste OG måltjenesten — flytting TVERS AV virksomheter er ikke en
+    /// "flytt"-operasjon (det ville endre hvem som EIER handlingen), og støttes derfor ikke her.
+    /// </summary>
+    public async Task<HandlingEntitet?> FlyttTilTjenesteAsync(
+        Guid handlingId, Guid virksomhetId, Guid nyTjenesteId, string endretAv, CancellationToken ct = default)
+    {
+        var handling = await db.Handlinger
+            .Join(db.Tjenester, h => h.TjenesteId, t => t.Id, (h, t) => new { Handling = h, t.VirksomhetId })
+            .Where(x => x.Handling.Id == handlingId && x.VirksomhetId == virksomhetId && x.Handling.Entitetsstatus == "gjeldende")
+            .Select(x => x.Handling)
+            .FirstOrDefaultAsync(ct);
+        if (handling is null) return null;
+
+        if (!await db.Tjenester.AnyAsync(t => t.Id == nyTjenesteId && t.VirksomhetId == virksomhetId && t.Entitetsstatus == "gjeldende", ct))
+        {
+            throw new ArgumentException($"Fant ingen tjeneste med id '{nyTjenesteId}' for denne virksomheten. Ingen gjettet fallback.");
+        }
+
+        handling.TjenesteId = nyTjenesteId;
+        handling.SistEndretAv = endretAv;
+        handling.SistEndretTidspunkt = DateTimeOffset.UtcNow;
+        handling.Versjon++;
+        db.Proveniens.Add(ProveniensHjelper.NyRad("handling", handling.Id, virksomhetId, "endret", endretAv));
+        await db.SaveChangesAsync(ct);
+        return handling;
+    }
+
     public async Task<HandlingEntitet?> SettStatusAsync(Guid id, Guid virksomhetId, string nyStatus, string endretAv, CancellationToken ct = default)
     {
         if (!GyldigeStatuser.Contains(nyStatus))
