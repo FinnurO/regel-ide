@@ -4,6 +4,8 @@ import { Alert, Button, Checkbox, Heading, Link, Paragraph, Spinner, Table, Text
 import { ApiError, api } from '../api/client';
 import type { LovdataImportstatusDto, RettskildeSammendrag } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
+import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
+import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 
 type Sorteringskolonne = 'tittel' | 'kildetype' | 'eier';
@@ -145,6 +147,9 @@ export default function RettskilderListe() {
     });
   }, [ikkeImportert, importstatusFilterTekst, importstatusSortKolonne, importstatusSortStigende]);
 
+  const paginering = usePaginering(viste ?? []);
+  const importstatusPaginering = usePaginering(visteIkkeImportert ?? []);
+
   function sorteringsindikator(kolonne: Sorteringskolonne) {
     if (sortKolonne !== kolonne) return '';
     return sortStigende ? ' ▲' : ' ▼';
@@ -211,7 +216,7 @@ export default function RettskilderListe() {
             </Table.Row>
           </Table.Head>
           <Table.Body>
-            {viste.map((r) => (
+            {paginering.visteRader.map((r) => (
               <Table.Row key={r.id}>
                 <Table.Cell>
                   <Link asChild>
@@ -226,6 +231,7 @@ export default function RettskilderListe() {
           </Table.Body>
         </Table>
       )}
+      {viste && viste.length > 0 && <Pagineringskontroll {...paginering} />}
 
       <div style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid var(--ds-color-neutral-border-subtle)' }}>
         <Checkbox
@@ -303,7 +309,7 @@ export default function RettskilderListe() {
                       </Table.Row>
                     </Table.Head>
                     <Table.Body>
-                      {visteIkkeImportert.map((s) => (
+                      {importstatusPaginering.visteRader.map((s) => (
                         <Table.Row key={s.datokode}>
                           <Table.Cell>{s.tittel ?? '—'}</Table.Cell>
                           <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{s.datokode}</Table.Cell>
@@ -329,6 +335,9 @@ export default function RettskilderListe() {
                       ))}
                     </Table.Body>
                   </Table>
+                )}
+                {visteIkkeImportert && visteIkkeImportert.length > 0 && (
+                  <Pagineringskontroll {...importstatusPaginering} />
                 )}
               </>
             )}

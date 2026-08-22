@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 import { Card, Heading, Link, Paragraph, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
+import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 
 type Sorteringskolonne = 'navn' | 'organisasjonsnummer' | 'forvaltningsniva' | 'aktiv';
@@ -50,6 +52,8 @@ export default function VirksomheterListe() {
       return sortStigende ? cmp : -cmp;
     });
   }, [virksomheter, filterTekst, sortKolonne, sortStigende]);
+
+  const paginering = usePaginering(viste);
 
   function sorteringsindikator(kolonne: Sorteringskolonne) {
     if (sortKolonne !== kolonne) return '';
@@ -106,7 +110,7 @@ export default function VirksomheterListe() {
               </Table.Row>
             </Table.Head>
             <Table.Body>
-              {viste.map((v) => {
+              {paginering.visteRader.map((v) => {
                 const forvaltningsniva = forvaltningsnivaVisning(v.forvaltningsniva);
                 return (
                   <Table.Row key={v.id}>
@@ -129,6 +133,7 @@ export default function VirksomheterListe() {
           </Table>
         </Card>
       )}
+      {!laster && viste.length > 0 && <Pagineringskontroll {...paginering} />}
     </>
   );
 }

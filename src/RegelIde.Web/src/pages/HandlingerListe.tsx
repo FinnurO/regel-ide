@@ -13,6 +13,8 @@ import { Link as RouterLink } from 'react-router';
 import { Card, Heading, Link, Paragraph, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { HandlingMedTjenesteDto } from '../api/types';
+import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
+import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 
 type Sorteringskolonne = 'navn' | 'handlingstype' | 'status' | 'tjeneste' | 'eier';
@@ -81,6 +83,8 @@ export default function HandlingerListe() {
     });
   }, [rader, filterTekst, sortKolonne, sortStigende, visEier]);
 
+  const paginering = usePaginering(viste ?? []);
+
   function sorteringsindikator(kolonne: Sorteringskolonne) {
     if (sortKolonne !== kolonne) return '';
     return sortStigende ? ' ▲' : ' ▼';
@@ -140,7 +144,7 @@ export default function HandlingerListe() {
               </Table.Row>
             </Table.Head>
             <Table.Body>
-              {viste.map((r) => {
+              {paginering.visteRader.map((r) => {
                 const status = STATUS_VISNING[r.handling.status];
                 return (
                   <Table.Row key={r.handling.id}>
@@ -166,6 +170,7 @@ export default function HandlingerListe() {
           </Table>
         </Card>
       )}
+      {viste && viste.length > 0 && <Pagineringskontroll {...paginering} />}
     </>
   );
 }
