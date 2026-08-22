@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useParams } from 'react-router';
-import { Button, Card, Field, Heading, Label, Paragraph, Select, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Field, Heading, Label, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { KodelisteDto, MyndighetstildelingDto, VirksomhetKandidatDto, VirksomhetsbegrepDto } from '../api/types';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
@@ -71,9 +71,9 @@ export default function VirksomhetDetalj() {
     }
   }
 
-  if (virksomheterLaster) return <Paragraph>Laster …</Paragraph>;
+  if (virksomheterLaster) return <Spinner aria-label="Laster …" data-size="sm" />;
   const virksomhet = id ? virksomheterPerId.get(id) : undefined;
-  if (!virksomhet) return <div className="feilmelding">Fant ingen virksomhet med id «{id}».</div>;
+  if (!virksomhet) return <Alert data-color="danger">Fant ingen virksomhet med id «{id}».</Alert>;
 
   const forvaltningsniva = forvaltningsnivaOverstyrt === undefined ? virksomhet.forvaltningsniva : forvaltningsnivaOverstyrt;
 
@@ -91,7 +91,7 @@ export default function VirksomhetDetalj() {
         </Tag>
       </Paragraph>
 
-      {feil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{feil}</div>}
+      {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
 
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
@@ -117,7 +117,7 @@ export default function VirksomhetDetalj() {
                       ))}
                     </Select>
                   </Field>
-                  {forvaltningsnivaFeil && <div className="feilmelding" style={{ marginTop: '0.25rem' }}>{forvaltningsnivaFeil}</div>}
+                  {forvaltningsnivaFeil && <Alert data-color="danger" style={{ marginTop: '0.25rem' }}>{forvaltningsnivaFeil}</Alert>}
                 </Table.Cell>
               </Table.Row>
               <Table.Row>
@@ -152,7 +152,7 @@ export default function VirksomhetDetalj() {
         <Paragraph style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
           Alle navneformer under peker på samme virksomhet — synonymer (f.eks. «Fylkesmann»/«Statsforvalter») er bare flere rader, ingen egen mekanisme.
         </Paragraph>
-        {!begrep && <Paragraph>Laster …</Paragraph>}
+        {!begrep && <Spinner aria-label="Laster …" data-size="sm" />}
         {begrep && begrep.length === 0 && <Paragraph>Ingen navneformer registrert ennå.</Paragraph>}
         {begrep && begrep.length > 0 && (
           <Card style={{ padding: 0, overflow: 'hidden', marginBottom: '0.75rem' }}>
@@ -174,7 +174,7 @@ export default function VirksomhetDetalj() {
             {leggerTil ? 'Legger til …' : 'Legg til'}
           </Button>
         </form>
-        {leggTilFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{leggTilFeil}</div>}
+        {leggTilFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{leggTilFeil}</Alert>}
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -185,7 +185,7 @@ export default function VirksomhetDetalj() {
           Rollebegrep (f.eks. «forurensningsmyndighet») tildelt denne virksomheten gjennom en forskrift.
           Gyldighet arves fra hjemmelen, ingen egne datoer her.
         </Paragraph>
-        {!tildelinger && <Paragraph>Laster …</Paragraph>}
+        {!tildelinger && <Spinner aria-label="Laster …" data-size="sm" />}
         {tildelinger && tildelinger.length === 0 && <Paragraph>Ingen myndighetstildelinger registrert.</Paragraph>}
         {tildelinger && tildelinger.length > 0 && (
           <Card style={{ padding: 0, overflow: 'hidden' }}>
@@ -218,7 +218,7 @@ export default function VirksomhetDetalj() {
         <Paragraph style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
           Funn fra tekstsøk som ikke er godkjent eller avvist ennå.
         </Paragraph>
-        {!kandidater && <Paragraph>Laster …</Paragraph>}
+        {!kandidater && <Spinner aria-label="Laster …" data-size="sm" />}
         {kandidater && kandidater.length === 0 && <Paragraph>Ingen ventende kandidater.</Paragraph>}
         {kandidater && kandidater.length > 0 && (
           <Card style={{ padding: 0, overflow: 'hidden' }}>

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams, useSearchParams } from 'react-router';
-import { Button, Field, Heading, Label, Link, Paragraph, Select, Textfield, ToggleGroup } from '@digdir/designsystemet-react';
+import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Textfield, ToggleGroup } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { BegrepDto, RegelnodeBarnDto, RegelnodeDto, RettskildeSammendrag, TjenesteDto, UnntakDto, VilkarDto } from '../api/types';
 import { byggVilkarstre, flatNodeliste, type VilkarstreNode } from '../vilkarstre/bygging';
@@ -219,8 +219,8 @@ export default function VilkarstreDetalj() {
     }
   }
 
-  if (feil) return <div className="feilmelding">{feil}</div>;
-  if (!tre || !vilkarListe || !regelnoder) return <Paragraph>Laster …</Paragraph>;
+  if (feil) return <Alert data-color="danger">{feil}</Alert>;
+  if (!tre || !vilkarListe || !regelnoder) return <Spinner aria-label="Laster …" data-size="sm" />;
 
   // Kun vilkår identifisert for DENNE tjenesten (via Vilkår.TjenesteId) regnes som «ikke tilordnet»
   // her — vilkår uten tjenestekobling, eller identifisert for en annen tjeneste, hører ikke hjemme
@@ -331,7 +331,7 @@ export default function VilkarstreDetalj() {
               <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', width: '100%', margin: 0 }}>
                 «Barn»-listen viser kun kandidater som ikke ville skapt en sykel (INV-7) med valgt forelder.
               </Paragraph>
-              {kobleFeil && <div className="feilmelding" style={{ width: '100%' }}>{kobleFeil}</div>}
+              {kobleFeil && <Alert data-color="danger" style={{ width: '100%' }}>{kobleFeil}</Alert>}
             </form>
           )}
 
@@ -366,7 +366,7 @@ export default function VilkarstreDetalj() {
               <Button data-size="sm" type="submit" disabled={oppretterUnntak || !nyUnntakTittel.trim() || !nyUnntakGjelderRegel || !nyUnntakBetingelseId}>
                 {oppretterUnntak ? 'Oppretter …' : 'Opprett unntak'}
               </Button>
-              {unntakFeil && <div className="feilmelding" style={{ width: '100%' }}>{unntakFeil}</div>}
+              {unntakFeil && <Alert data-color="danger" style={{ width: '100%' }}>{unntakFeil}</Alert>}
             </form>
           )}
         </div>

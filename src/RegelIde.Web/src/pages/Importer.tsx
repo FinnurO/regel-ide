@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
-import { Button, Checkbox, Heading, Paragraph, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Checkbox, Heading, Paragraph, Spinner, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { LovdataKatalogTreffDto, RettskildeDetalj, RettskildeNodeDto } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
@@ -153,20 +153,20 @@ export default function Importer() {
             >
               {noder ? (
                 noder.map((n) => (
-                  <div key={n.id} style={{ fontSize: '0.85rem', marginBottom: '0.25rem' }}>
+                  <div key={n.id} style={{ fontSize: 'var(--ds-font-size-2)', marginBottom: '0.25rem' }}>
                     {n.nummer ?? n.nodeType}
                     {n.overskrift && ` — ${n.overskrift}`}
                     {n.opphevet && ' (Opphevet)'}
                   </div>
                 ))
               ) : (
-                <Paragraph>Laster …</Paragraph>
+                <Spinner aria-label="Laster …" data-size="sm" />
               )}
             </div>
           </div>
         </div>
 
-        {metadataFeil && <div className="feilmelding">{metadataFeil}</div>}
+        {metadataFeil && <Alert data-color="danger">{metadataFeil}</Alert>}
         <div style={{ display: 'flex', gap: '0.5rem' }}>
           <Button onClick={bekreftOgLagre} disabled={lagrerMetadata}>
             {lagrerMetadata ? 'Lagrer …' : 'Bekreft og lagre'}
@@ -223,7 +223,7 @@ export default function Importer() {
             ))}
           </ul>
         )}
-        {lovdataFeil && <div className="feilmelding" style={{ marginTop: '0.75rem' }}>{lovdataFeil}</div>}
+        {lovdataFeil && <Alert data-color="danger" style={{ marginTop: '0.75rem' }}>{lovdataFeil}</Alert>}
       </section>
 
       <section>
@@ -253,7 +253,7 @@ export default function Importer() {
             {filLaster ? 'Importerer …' : 'Last opp og importer'}
           </Button>
         </form>
-        {filFeil && <div className="feilmelding" style={{ marginTop: '0.75rem' }}>{filFeil}</div>}
+        {filFeil && <Alert data-color="danger" style={{ marginTop: '0.75rem' }}>{filFeil}</Alert>}
       </section>
     </>
   );

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router';
-import { Button, Field, Heading, Label, Link, Paragraph, Select, Table, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { BegrepDto } from '../api/types';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
@@ -108,7 +108,7 @@ export default function BegreperListe() {
           {oppretter ? 'Oppretter …' : 'Opprett'}
         </Button>
       </form>
-      {oppretterFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{oppretterFeil}</div>}
+      {oppretterFeil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{oppretterFeil}</Alert>}
 
       <Textfield
         label="Filtrer"
@@ -118,8 +118,8 @@ export default function BegreperListe() {
         style={{ maxWidth: '20rem', marginBottom: '1rem' }}
       />
 
-      {feil && <div className="feilmelding">{feil}</div>}
-      {!begreper && !feil && <Paragraph>Laster …</Paragraph>}
+      {feil && <Alert data-color="danger">{feil}</Alert>}
+      {!begreper && !feil && <Spinner aria-label="Laster …" data-size="sm" />}
       {viste && viste.length === 0 && <Paragraph>Ingen begreper funnet.</Paragraph>}
 
       {viste && viste.length > 0 && (

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Heading, Link, Paragraph, Table } from '@digdir/designsystemet-react';
+import { Alert, Heading, Link, Paragraph, Spinner, Table } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { TjenesteDto } from '../api/types';
 
@@ -28,8 +28,8 @@ export default function VilkarstreListe() {
         Rotnode opprettes/endres på selve tjenestesiden.
       </Paragraph>
 
-      {feil && <div className="feilmelding">{feil}</div>}
-      {!tjenester && !feil && <Paragraph>Laster …</Paragraph>}
+      {feil && <Alert data-color="danger">{feil}</Alert>}
+      {!tjenester && !feil && <Spinner aria-label="Laster …" data-size="sm" />}
       {tjenester && tjenester.length === 0 && <Paragraph>Ingen tjenester funnet — opprett en under «Tjenester» først.</Paragraph>}
 
       {tjenester && tjenester.length > 0 && (

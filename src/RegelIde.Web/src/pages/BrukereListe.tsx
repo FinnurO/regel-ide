@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Button, Field, Heading, Label, Paragraph, Select, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Field, Heading, Label, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { BrukerDto, BrukerRolle } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
@@ -139,13 +139,13 @@ export default function BrukereListe() {
           {oppretter ? 'Oppretter …' : 'Opprett bruker'}
         </Button>
       </form>
-      {oppretterFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{oppretterFeil}</div>}
+      {oppretterFeil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{oppretterFeil}</Alert>}
 
-      {feil && <div className="feilmelding">{feil}</div>}
-      {!brukere && !feil && <Paragraph>Laster …</Paragraph>}
+      {feil && <Alert data-color="danger">{feil}</Alert>}
+      {!brukere && !feil && <Spinner aria-label="Laster …" data-size="sm" />}
       {brukere && brukere.length === 0 && <Paragraph>Ingen brukere funnet.</Paragraph>}
 
-      {redigererFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{redigererFeil}</div>}
+      {redigererFeil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{redigererFeil}</Alert>}
 
       {brukere && brukere.length > 0 && (
         <Table border>

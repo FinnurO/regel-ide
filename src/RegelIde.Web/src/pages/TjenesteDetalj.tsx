@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
-import { Button, Field, Heading, Label, Link, Paragraph, Select, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api, apiUrl } from '../api/client';
 import { eidVisningstekst, rettskildeLenke } from '../api/eidLenker';
 import type {
@@ -583,8 +583,8 @@ export default function TjenesteDetalj() {
     }
   }
 
-  if (feil) return <div className="feilmelding">{feil}</div>;
-  if (!tjeneste) return <Paragraph>Laster …</Paragraph>;
+  if (feil) return <Alert data-color="danger">{feil}</Alert>;
+  if (!tjeneste) return <Spinner aria-label="Laster …" data-size="sm" />;
 
   return (
     <>
@@ -602,12 +602,12 @@ export default function TjenesteDetalj() {
       </Paragraph>
       {visModelleksport && (
         <section style={{ marginBottom: '2rem' }}>
-          {modelleksportLaster && <Paragraph>Laster …</Paragraph>}
-          {modelleksportFeil && <div className="feilmelding">{modelleksportFeil}</div>}
+          {modelleksportLaster && <Spinner aria-label="Laster …" data-size="sm" />}
+          {modelleksportFeil && <Alert data-color="danger">{modelleksportFeil}</Alert>}
           {modelleksport && (
             <pre style={{
-              maxHeight: '32rem', overflow: 'auto', padding: '1rem', borderRadius: '0.25rem',
-              background: 'var(--ds-color-neutral-background-subtle, #f4f4f4)', fontSize: '0.8rem',
+              maxHeight: '32rem', overflow: 'auto', padding: '1rem', borderRadius: 'var(--ds-border-radius-sm)',
+              background: 'var(--ds-color-neutral-surface-tinted)', fontSize: 'var(--ds-font-size-1)',
             }}>
               {JSON.stringify(modelleksport, null, 2)}
             </pre>
@@ -666,7 +666,7 @@ export default function TjenesteDetalj() {
             Opprett rotnode
           </Button>
         )}
-        {rotnodeFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{rotnodeFeil}</div>}
+        {rotnodeFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{rotnodeFeil}</Alert>}
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -706,7 +706,7 @@ export default function TjenesteDetalj() {
           <Textfield label="LOS-klassifisering" value={losKlassifisering} onChange={(e) => setLosKlassifisering(e.target.value)} />
           <Textfield label="Tjenesteområde" value={tjenesteomrade} onChange={(e) => setTjenesteomrade(e.target.value)}
             placeholder="f.eks. Næring, salg og servering" />
-          {lagreFeil && <div className="feilmelding">{lagreFeil}</div>}
+          {lagreFeil && <Alert data-color="danger">{lagreFeil}</Alert>}
           <div>
             <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
@@ -895,7 +895,7 @@ export default function TjenesteDetalj() {
             <Field><Label>Kontroll og tilsyn</Label><Textarea value={iHviKontrollOgTilsyn} onChange={(e) => setIHviKontrollOgTilsyn(e.target.value)} rows={2} /></Field>
             <Field><Label>Avgrensning (f.eks. mot en tilstøtende rettighet)</Label><Textarea value={iHviAvgrensningMerknad} onChange={(e) => setIHviAvgrensningMerknad(e.target.value)} rows={2} /></Field>
 
-            {innholdFeil && <div className="feilmelding">{innholdFeil}</div>}
+            {innholdFeil && <Alert data-color="danger">{innholdFeil}</Alert>}
             <div><Button type="submit" disabled={innholdLagrer}>{innholdLagrer ? 'Lagrer …' : 'Lagre innhold'}</Button></div>
           </form>
         )}
@@ -916,7 +916,7 @@ export default function TjenesteDetalj() {
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Regelverksreferanser
         </Heading>
-        {referanser === null && <Paragraph>Laster …</Paragraph>}
+        {referanser === null && <Spinner aria-label="Laster …" data-size="sm" />}
         {referanser && referanser.length === 0 && <Paragraph>Ingen regelverksreferanser koblet ennå.</Paragraph>}
         {referanser && referanser.length > 0 && (
           <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', marginBottom: '0.75rem' }}>
@@ -980,7 +980,7 @@ export default function TjenesteDetalj() {
           <Button data-size="sm" type="submit" disabled={leggerTilReferanse || !nyReferanseRettskildeId || !nyReferanseEid.trim()}>
             {leggerTilReferanse ? 'Kobler …' : 'Koble referanse'}
           </Button>
-          {referanseFeil && <div className="feilmelding" style={{ width: '100%' }}>{referanseFeil}</div>}
+          {referanseFeil && <Alert data-color="danger" style={{ width: '100%' }}>{referanseFeil}</Alert>}
         </form>
       </section>
 
@@ -992,7 +992,7 @@ export default function TjenesteDetalj() {
           Ren, symmetrisk klassifisering (docs/03-domenemodell.md §1.5) — ingen retning. To tjenester som
           deler samme hendelse blir relaterte uten at én forårsaker den andre.
         </Paragraph>
-        {hendelser === null && <Paragraph>Laster …</Paragraph>}
+        {hendelser === null && <Spinner aria-label="Laster …" data-size="sm" />}
         {hendelser && hendelser.length === 0 && <Paragraph>Ingen hendelser koblet ennå.</Paragraph>}
         {hendelser && hendelser.length > 0 && (
           <ul>
@@ -1039,7 +1039,7 @@ export default function TjenesteDetalj() {
             </Button>
           </form>
         )}
-        {hendelseFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{hendelseFeil}</div>}
+        {hendelseFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{hendelseFeil}</Alert>}
       </section>
 
       <section style={{ marginTop: '2rem' }}>
@@ -1050,7 +1050,7 @@ export default function TjenesteDetalj() {
           Konkrete, tidsavgrensede interaksjoner knyttet til denne rettigheten (søknad, melding, klage …) —
           hver med egne kanaler/vedlegg/behandlingstid/veiledningstekst.
         </Paragraph>
-        {handlinger === null && <Paragraph>Laster …</Paragraph>}
+        {handlinger === null && <Spinner aria-label="Laster …" data-size="sm" />}
         {handlinger && handlinger.length === 0 && <Paragraph>Ingen handlinger registrert ennå.</Paragraph>}
         {handlinger && handlinger.length > 0 && (
           <ul>
@@ -1086,7 +1086,7 @@ export default function TjenesteDetalj() {
             {leggerTilHandling ? 'Oppretter …' : 'Opprett handling'}
           </Button>
         </form>
-        {handlingFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{handlingFeil}</div>}
+        {handlingFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{handlingFeil}</Alert>}
       </section>
 
       <section style={{ marginTop: '2rem' }}>
@@ -1097,7 +1097,7 @@ export default function TjenesteDetalj() {
           Rettede, årsaksforklarte koblinger mellom to tjenester (docs/03-domenemodell.md §1.5) — ett
           rettet kant per relasjon, vist med riktig tekst uansett hvilken side du ser fra.
         </Paragraph>
-        {avhengigheter === null && <Paragraph>Laster …</Paragraph>}
+        {avhengigheter === null && <Spinner aria-label="Laster …" data-size="sm" />}
         {avhengigheter && avhengigheter.length === 0 && <Paragraph>Ingen tjenesteavhengigheter registrert ennå.</Paragraph>}
         {avhengigheter && avhengigheter.length > 0 && (
           <ul>
@@ -1195,7 +1195,7 @@ export default function TjenesteDetalj() {
               onChange={(e) => endreEkstern('url', e.target.value)} style={{ minWidth: '14rem' }} />
           </div>
         </div>
-        {avhengighetFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{avhengighetFeil}</div>}
+        {avhengighetFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{avhengighetFeil}</Alert>}
       </section>
     </>
   );

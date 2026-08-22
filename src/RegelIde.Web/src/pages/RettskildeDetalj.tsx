@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams, useSearchParams } from 'react-router';
-import { Button, Field, Heading, Label, Link, Paragraph, Select, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type {
   DokumentReferanseDto,
@@ -519,8 +519,8 @@ export default function RettskildeDetalj() {
     }
   }
 
-  if (feil) return <div className="feilmelding">{feil}</div>;
-  if (!detalj) return <Paragraph>Laster …</Paragraph>;
+  if (feil) return <Alert data-color="danger">{feil}</Alert>;
+  if (!detalj) return <Spinner aria-label="Laster …" data-size="sm" />;
 
   const kanTagges = valgtNode && valgtNode.tekst && (valgtNode.nodeType === 'ledd' || valgtNode.nodeType === 'punkt');
   // Håndbok-/nettside-importerte "kapittel"-noder (HandbokImportTjeneste) kan ha EGEN løpetekst
@@ -624,7 +624,7 @@ export default function RettskildeDetalj() {
               {leggerTilOmfang ? 'Legger til …' : 'Legg til'}
             </Button>
           </div>
-          {omfangFeil && <div className="feilmelding" style={{ marginTop: '0.3rem' }}>{omfangFeil}</div>}
+          {omfangFeil && <Alert data-color="danger" style={{ marginTop: '0.3rem' }}>{omfangFeil}</Alert>}
         </div>
       )}
 
@@ -717,7 +717,7 @@ export default function RettskildeDetalj() {
               <Textfield data-size="sm" type="date" label="Gyldig til" value={metaGyldigTil} onChange={(e) => setMetaGyldigTil(e.target.value)} style={{ flex: 1, minWidth: '12rem' }} />
               <Textfield data-size="sm" type="date" label="Konsolidert dato" value={metaKonsolidertDato} onChange={(e) => setMetaKonsolidertDato(e.target.value)} style={{ flex: 1, minWidth: '12rem' }} />
             </div>
-            {metadataFeil && <div className="feilmelding">{metadataFeil}</div>}
+            {metadataFeil && <Alert data-color="danger">{metadataFeil}</Alert>}
             <div style={{ display: 'flex', gap: '0.5rem' }}>
               <Button data-size="sm" type="submit" disabled={lagrerMetadata}>{lagrerMetadata ? 'Lagrer …' : 'Lagre'}</Button>
               <Button data-size="sm" variant="tertiary" onClick={() => setRedigererMetadata(false)}>Avbryt</Button>
@@ -793,7 +793,7 @@ export default function RettskildeDetalj() {
       <Heading level={2} data-size="sm">
         Innhold
       </Heading>
-      {taggFeil && <div className="feilmelding">{taggFeil}</div>}
+      {taggFeil && <Alert data-color="danger">{taggFeil}</Alert>}
 
       <div style={{ display: 'flex', gap: '1.5rem', alignItems: 'flex-start', marginTop: '0.75rem' }}>
         <div style={{ width: '360px', flexShrink: 0 }}>
@@ -821,7 +821,7 @@ export default function RettskildeDetalj() {
                       Avbryt
                     </Button>
                   </div>
-                  {kapittelFeil && <div className="feilmelding">{kapittelFeil}</div>}
+                  {kapittelFeil && <Alert data-color="danger">{kapittelFeil}</Alert>}
                 </div>
               )}
             </div>
@@ -987,7 +987,7 @@ export default function RettskildeDetalj() {
                 <Heading level={3} data-size="xs" style={{ marginBottom: '0.5rem' }}>
                   Referanser
                 </Heading>
-                {referanseFeil && <div className="feilmelding" style={{ marginBottom: '0.5rem' }}>{referanseFeil}</div>}
+                {referanseFeil && <Alert data-color="danger" style={{ marginBottom: '0.5rem' }}>{referanseFeil}</Alert>}
                 {(() => {
                   const nodeReferanser = referanser.filter((r) => r.fraNodeId === valgtNode.id);
                   // Punkt 9/10 — for Brukerveiledning vises de AUTOMATISK utledede §3.2-lenkene i
@@ -1049,11 +1049,11 @@ export default function RettskildeDetalj() {
       </div>
 
       <div style={{ marginTop: '1.5rem' }}>
-        <button type="button" onClick={() => setVisAknXml((v) => !v)}>
+        <Button data-size="sm" variant="tertiary" type="button" onClick={() => setVisAknXml((v) => !v)}>
           {visAknXml ? 'Skjul' : 'Vis'} kanonisk AKN-XML
-        </button>
+        </Button>
         {visAknXml && (
-          <pre style={{ overflow: 'auto', maxHeight: '400px', background: 'var(--ds-color-neutral-surface-default)', padding: '1rem', fontSize: '0.8rem' }}>
+          <pre style={{ overflow: 'auto', maxHeight: '400px', background: 'var(--ds-color-neutral-surface-tinted)', padding: '1rem', fontSize: 'var(--ds-font-size-1)', marginTop: 'var(--ds-size-2)' }}>
             {detalj.aknXml}
           </pre>
         )}

@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router';
-import { Button, Field, Heading, Label, Link, Paragraph, Select, Table, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { KodelisteDto } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
@@ -68,10 +68,10 @@ export default function KodelisterListe() {
           {oppretter ? 'Oppretter …' : 'Opprett'}
         </Button>
       </form>
-      {oppretterFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{oppretterFeil}</div>}
+      {oppretterFeil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{oppretterFeil}</Alert>}
 
-      {feil && <div className="feilmelding">{feil}</div>}
-      {!kodelister && !feil && <Paragraph>Laster …</Paragraph>}
+      {feil && <Alert data-color="danger">{feil}</Alert>}
+      {!kodelister && !feil && <Spinner aria-label="Laster …" data-size="sm" />}
       {kodelister && kodelister.length === 0 && <Paragraph>Ingen kodelister funnet.</Paragraph>}
 
       {kodelister && kodelister.length > 0 && (

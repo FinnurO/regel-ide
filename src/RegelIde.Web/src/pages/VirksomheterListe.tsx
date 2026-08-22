@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Card, Heading, Link, Paragraph, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Card, Heading, Link, Paragraph, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 
 type Sorteringskolonne = 'navn' | 'organisasjonsnummer' | 'forvaltningsniva' | 'aktiv';
@@ -75,7 +75,7 @@ export default function VirksomheterListe() {
         style={{ maxWidth: '20rem', marginBottom: '1rem' }}
       />
 
-      {laster && <Paragraph>Laster …</Paragraph>}
+      {laster && <Spinner aria-label="Laster …" data-size="sm" />}
       {!laster && viste.length === 0 && <Paragraph>Ingen virksomheter funnet.</Paragraph>}
 
       {!laster && viste.length > 0 && (
