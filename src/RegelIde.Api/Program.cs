@@ -1130,11 +1130,15 @@ tjenester.MapGet("/", async (HttpRequest request, TjenesteregisterTjeneste tjene
         {
             return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
-        var liste = await tjeneste.ListerForAsync(bruker.VirksomhetId, ct);
+        // 2026-08-22, Johanns eksplisitte avklaring: åpen lesing tvers av ALLE virksomheter (samme
+        // holdning som GET /api/handlinger allerede har) — kun SKRIVING (Oppdater/status/rotnode) er
+        // fortsatt scopet til pålogget virksomhet, se sikkerhetsfiksen i TjenesteregisterTjeneste.
+        var liste = await tjeneste.ListerAlleAsync(ct);
         return Results.Ok(liste.Select(TjenesteDto.FraEntitet));
     })
     .WithName("HentTjenester")
-    .WithSummary("Lister virksomhetens egne tjenester (produktkrav kap. 3.2).");
+    .WithSummary("Lister ALLE tjenester tvers av alle virksomheter (åpen lesing). Skriving er fortsatt " +
+        "scopet til pålogget virksomhet.");
 
 tjenester.MapGet("/{id:guid}", async (Guid id, TjenesteregisterTjeneste tjeneste, CancellationToken ct) =>
     {

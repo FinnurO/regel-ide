@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useSearchParams } from 'react-router';
-import { Button, Card, Checkbox, Field, Heading, Label, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
+import { Link as RouterLink, useSearchParams } from 'react-router';
+import { Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { RettskildeSammendrag, VirksomhetKandidatDto } from '../api/types';
+import { rettskildeLenke } from '../api/eidLenker';
+import type { RettskildeNodeDto, RettskildeSammendrag, VirksomhetKandidatDto } from '../api/types';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 
 type Sorteringskolonne = 'virksomhet' | 'rettskilde' | 'status' | 'opprettet';
@@ -51,6 +52,30 @@ export default function VirksomhetKandidaterListe() {
   useEffect(() => {
     api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
   }, []);
+
+  // Node-tekst per rettskilde (2026-08-22, samme lazy-per-rettskilde-mønster som TjenesteDetalj/
+  // HandlingDetalj) — brukt til å vise selve NAVNEFORM-TEKSTEN treffet fant (StartOffset/EndOffset
+  // skåret ut av nodens Tekst), ikke bare den rå node-eId-en. Uten dette er det ikke synlig i lista
+  // OM det var "Advokattilsynet" eller en annen navneform (f.eks. "Tilsynsrådet for advokatvirksomhet")
+  // som ga treffet.
+  const [noderPerRettskilde, setNoderPerRettskilde] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
+
+  useEffect(() => {
+    if (!kandidater) return;
+    for (const rettskildeId of new Set(kandidater.map((k) => k.rettskildeId))) {
+      if (noderPerRettskilde.has(rettskildeId)) continue;
+      api.hentNoder(rettskildeId)
+        .then((noder) => setNoderPerRettskilde((forrige) => new Map(forrige).set(rettskildeId, noder)))
+        .catch(() => {}); // ingen gjettet fallback — viser rå node-eId under når nodene ikke lot seg hente
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kandidater]);
+
+  function visNavneformFunnet(k: VirksomhetKandidatDto): string | null {
+    const node = noderPerRettskilde.get(k.rettskildeId)?.find((n) => n.eid === k.nodeEid);
+    if (!node?.tekst) return null;
+    return node.tekst.slice(k.startOffset, k.endOffset);
+  }
 
   function lastKandidater() {
     setLaster(true);
@@ -279,6 +304,7 @@ export default function VirksomhetKandidaterListe() {
                     </button>
                   </Table.HeaderCell>
                   <Table.HeaderCell>Node</Table.HeaderCell>
+                  <Table.HeaderCell>Navneform funnet</Table.HeaderCell>
                   <Table.HeaderCell>
                     <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('status')}>
                       Status{sorteringsindikator('status')}
@@ -299,7 +325,25 @@ export default function VirksomhetKandidaterListe() {
                     </Table.Cell>
                     <Table.Cell>{visEier(k.virksomhetId)}</Table.Cell>
                     <Table.Cell>{visRettskilde(k.rettskildeId)}</Table.Cell>
-                    <Table.Cell style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>{k.nodeEid}</Table.Cell>
+                    <Table.Cell style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>
+                      {(() => {
+                        const href = rettskildeLenke(k.nodeEid, rettskilder);
+                        // Slik at bruker kan lese noden i sin fulle sammenheng FØR godkjenning
+                        // (Johanns tilbakemelding 2026-08-22) — åpner rettskildevisningen på nøyaktig
+                        // denne noden, samme ?eid=-mønster som resolveRef/rettskildeLenke ellers.
+                        return href ? <Link asChild><RouterLink to={href} target="_blank">{k.nodeEid} ↗</RouterLink></Link> : k.nodeEid;
+                      })()}
+                    </Table.Cell>
+                    <Table.Cell>
+                      {(() => {
+                        const navneform = visNavneformFunnet(k);
+                        return navneform ? (
+                          <Tag data-color="accent" data-size="sm">{navneform}</Tag>
+                        ) : (
+                          <span style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>…</span>
+                        );
+                      })()}
+                    </Table.Cell>
                     <Table.Cell>
                       <Tag data-color={STATUS_FARGE[k.status] ?? 'neutral'} data-size="sm">{k.status}</Tag>
                     </Table.Cell>
