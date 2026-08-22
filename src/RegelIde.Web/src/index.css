@@ -21,7 +21,7 @@ body {
   width: 260px;
   flex-shrink: 0;
   height: 100%;
-  background: #fff;
+  background: var(--ds-color-neutral-background-default);
   color: var(--ds-color-neutral-text-default);
   border-right: 1px solid var(--ds-color-neutral-border-subtle);
   display: flex;
@@ -43,11 +43,11 @@ body {
   flex-shrink: 0;
   border-radius: var(--ds-border-radius-md);
   background: var(--ds-color-accent-base-default);
-  color: #fff;
+  color: var(--ds-color-accent-base-contrast-default);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
+  font-weight: var(--ds-font-weight-semibold);
   font-size: var(--ds-font-size-3);
 }
 
@@ -59,7 +59,7 @@ body {
 }
 
 .sidebar__brand-navn {
-  font-weight: 600;
+  font-weight: var(--ds-font-weight-semibold);
   font-size: var(--ds-font-size-2);
 }
 
@@ -103,7 +103,7 @@ a.sidebar__item:hover {
 .sidebar__item.aktiv {
   background: var(--ds-color-accent-surface-tinted);
   color: var(--ds-color-accent-text-default);
-  font-weight: 500;
+  font-weight: var(--ds-font-weight-medium);
 }
 
 .sidebar__item--kommende {
@@ -155,11 +155,11 @@ a.sidebar__item:hover {
   flex-shrink: 0;
   border-radius: var(--ds-border-radius-full);
   background: var(--ds-color-accent-base-default);
-  color: #fff;
+  color: var(--ds-color-accent-base-contrast-default);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 600;
+  font-weight: var(--ds-font-weight-semibold);
   font-size: var(--ds-font-size-1);
 }
 
@@ -185,7 +185,7 @@ a.sidebar__item:hover {
 }
 
 .identitet-brikke__navn {
-  font-weight: 500;
+  font-weight: var(--ds-font-weight-medium);
   font-size: var(--ds-font-size-2);
   white-space: nowrap;
   overflow: hidden;
@@ -229,30 +229,16 @@ a.sidebar__item:hover {
   background: var(--ds-color-neutral-surface-hover);
 }
 
-.badge-delt {
-  display: inline-block;
-  font-size: var(--ds-font-size-1);
-  padding: 0.1rem 0.5rem;
-  border-radius: 999px;
-  background: var(--ds-color-info-surface-default);
-  color: var(--ds-color-info-text-default);
-}
-
-.badge-virksomhet {
-  display: inline-block;
-  font-size: var(--ds-font-size-1);
-  padding: 0.1rem 0.5rem;
-  border-radius: 999px;
-  background: var(--ds-color-success-surface-default);
-  color: var(--ds-color-success-text-default);
-}
+/* .badge-delt/.badge-virksomhet fjernet 2026-08-22 (frontend-design-audit) — udokumentert, ubrukte
+   (ingen .tsx refererte dem), og dupliserte nøyaktig hva `Tag`/`Badge` allerede løser i det lovlige
+   komponent-vokabularet (§0 docs/09); samme mønster som `.feilmelding`/`.infomelding`-fjerningen. */
 
 .tabell-sorter-knapp {
   background: none;
   border: none;
   padding: 0;
   font: inherit;
-  font-weight: 600;
+  font-weight: var(--ds-font-weight-semibold);
   color: inherit;
   cursor: pointer;
   text-decoration: underline;
@@ -264,23 +250,9 @@ a.sidebar__item:hover {
   color: var(--ds-color-accent-text-default);
 }
 
-.feilmelding {
-  background: var(--ds-color-danger-surface-default);
-  color: var(--ds-color-danger-text-default);
-  padding: var(--ds-size-3);
-  border-radius: var(--ds-border-radius-md);
-  margin-bottom: var(--ds-size-4);
-}
-
-/* Byggesteg 5 runde 3: for "kjøringen fullførte, men fant ingenting" — ikke en feil (derfor ikke
-   .feilmelding sin danger-styling), men fortsatt noe brukeren bør legge merke til, ikke bare stillhet. */
-.infomelding {
-  background: var(--ds-color-info-surface-default);
-  color: var(--ds-color-info-text-default);
-  padding: var(--ds-size-3);
-  border-radius: var(--ds-border-radius-md);
-  margin-bottom: var(--ds-size-4);
-}
+/* .feilmelding/.infomelding (ad-hoc feil-/infobokser) fjernet 2026-08-22 (frontend-design-audit) —
+   erstattet med Designsystemet sin `Alert` (data-color="danger"/"info") overalt, siden Alert er i det
+   lovlige komponent-vokabularet (§0 docs/09) og gjør nøyaktig det disse to klassene simulerte. */
 
 /* MinimalEditor (håndbok-forfatterflyt) sin plassholdertekst — kan ikke uttrykkes inline, siden
    den er avhengig av :empty::before, ikke en vanlig inline style-egenskap. */

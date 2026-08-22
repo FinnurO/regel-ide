@@ -11,7 +11,7 @@
  */
 import { useEffect, useState } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
-import { Field, Heading, Label, Link, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
+import { Alert, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
 import type { RettskildeSammendrag, VeiledningDto, VeiledningNodeDto, VirksomhetDto } from '../api/types';
@@ -143,8 +143,8 @@ export default function TjenesteVeiledning() {
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av veiledningen.'));
   }, [id, virksomhetId]);
 
-  if (feil) return <div className="feilmelding">{feil}</div>;
-  if (!veiledning) return <Paragraph>Laster …</Paragraph>;
+  if (feil) return <Alert data-color="danger">{feil}</Alert>;
+  if (!veiledning) return <Spinner aria-label="Laster …" data-size="sm" />;
 
   return (
     <>

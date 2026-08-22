@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router';
-import { Button, Checkbox, Heading, Link, Paragraph, Table, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Checkbox, Heading, Link, Paragraph, Spinner, Table, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { KunnskapsbibliotekFilDto, KunnskapsbibliotekLenkeDto, RettskildeSammendrag, TjenesteforslagDto } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
@@ -174,26 +174,21 @@ export default function TjenesteforslagKo() {
         </ul>
       )}
       <div style={{ marginBottom: '1.5rem' }}>
-        <label htmlFor="kunnskapsbibliotek-fil">
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.3rem' }}>
-            Last opp PDF eller Word (.docx) — avvises hvis filen mangler tekstlag (f.eks. et rent skann):
-          </Paragraph>
-        </label>
         <Textfield
           label="Tittel (valgfri)"
           value={nyFilTittel}
           onChange={(e) => setNyFilTittel(e.target.value)}
           style={{ maxWidth: '25rem', marginBottom: '0.5rem' }}
         />
-        <input
-          id="kunnskapsbibliotek-fil"
-          ref={filInputRef}
+        <Textfield
           type="file"
+          ref={filInputRef}
+          label="Last opp PDF eller Word (.docx) — avvises hvis filen mangler tekstlag (f.eks. et rent skann)"
           accept=".pdf,.docx"
           disabled={lasterOppFil}
           onChange={lastOppFil}
         />
-        {lasterOppFil && <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Laster opp …</Paragraph>}
+        {lasterOppFil && <Spinner aria-label="Laster opp …" data-size="xs" />}
       </div>
 
       {rettskilder.length > 0 && (
@@ -211,15 +206,15 @@ export default function TjenesteforslagKo() {
         </div>
       )}
 
-      {feil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{feil}</div>}
+      {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
 
       {sisteKjoring && (
         <div style={{ marginBottom: '1rem' }}>
           {sisteKjoring.melding && (
-            <div className="infomelding" style={{ marginBottom: '0.3rem' }}>{sisteKjoring.melding}</div>
+            <Alert data-color="info" style={{ marginBottom: '0.3rem' }}>{sisteKjoring.melding}</Alert>
           )}
           {(sisteKjoring.inputTokens !== null || sisteKjoring.outputTokens !== null) && (
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', opacity: 0.7 }}>
+            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
               Siste KI-kall: {sisteKjoring.inputTokens ?? '—'} input-tokens, {sisteKjoring.outputTokens ?? '—'} output-tokens.
             </Paragraph>
           )}
@@ -229,7 +224,7 @@ export default function TjenesteforslagKo() {
       <Heading level={2} data-size="sm" style={{ marginTop: '1.5rem' }}>
         Ventende forslag
       </Heading>
-      {!ko && <Paragraph>Laster …</Paragraph>}
+      {!ko && <Spinner aria-label="Laster …" data-size="sm" />}
       {ko && ko.length === 0 && <Paragraph>Ingen ventende tjenesteforslag.</Paragraph>}
       {ko && ko.length > 0 && (
         <Table border>
@@ -262,7 +257,7 @@ export default function TjenesteforslagKo() {
         </Table>
       )}
 
-      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '1.5rem', opacity: 0.7 }}>
+      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '1.5rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
         Byggesteg 5 runde 1: KI-klienten er en stub (KiAgentKlientStub) — den returnerer ett fast
         eksempelforslag for å bevise kø-/godkjenningsmekanismen, ikke ekte språkmodell-resonnering.
         Ekte leverandørvalg er en egen, senere beslutning.

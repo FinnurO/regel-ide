@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
-import { Button, Checkbox, Heading, Paragraph, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Checkbox, Heading, Paragraph, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { RettskildeSammendrag } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
@@ -93,7 +93,7 @@ export default function HandbokOpprett() {
           </Button>
         </div>
       </form>
-      {feil && <div className="feilmelding" style={{ marginTop: '0.75rem' }}>{feil}</div>}
+      {feil && <Alert data-color="danger" style={{ marginTop: '0.75rem' }}>{feil}</Alert>}
     </>
   );
 }

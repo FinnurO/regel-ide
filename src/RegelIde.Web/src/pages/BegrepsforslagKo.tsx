@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router';
-import { Button, Checkbox, Heading, Link, Paragraph, Table } from '@digdir/designsystemet-react';
+import { Alert, Button, Checkbox, Heading, Link, Paragraph, Spinner, Table } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { BegrepsforslagDto, RettskildeSammendrag } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
@@ -94,15 +94,15 @@ export default function BegrepsforslagKo() {
         </div>
       )}
 
-      {feil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{feil}</div>}
+      {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
 
       {sisteKjoring && (
         <div style={{ marginBottom: '1rem' }}>
           {sisteKjoring.melding && (
-            <div className="infomelding" style={{ marginBottom: '0.3rem' }}>{sisteKjoring.melding}</div>
+            <Alert data-color="info" style={{ marginBottom: '0.3rem' }}>{sisteKjoring.melding}</Alert>
           )}
           {(sisteKjoring.inputTokens !== null || sisteKjoring.outputTokens !== null) && (
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', opacity: 0.7 }}>
+            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
               Siste KI-kall: {sisteKjoring.inputTokens ?? '—'} input-tokens, {sisteKjoring.outputTokens ?? '—'} output-tokens.
             </Paragraph>
           )}
@@ -112,7 +112,7 @@ export default function BegrepsforslagKo() {
       <Heading level={2} data-size="sm" style={{ marginTop: '1.5rem' }}>
         Ventende forslag
       </Heading>
-      {!ko && <Paragraph>Laster …</Paragraph>}
+      {!ko && <Spinner aria-label="Laster …" data-size="sm" />}
       {ko && ko.length === 0 && <Paragraph>Ingen ventende begrepsforslag.</Paragraph>}
       {ko && ko.length > 0 && (
         <Table border>
@@ -147,7 +147,7 @@ export default function BegrepsforslagKo() {
         </Table>
       )}
 
-      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '1.5rem', opacity: 0.7 }}>
+      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '1.5rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
         Byggesteg 5 runde 1: KI-klienten er en stub (KiAgentKlientStub) — den returnerer ett fast
         eksempelforslag for å bevise kø-/godkjenningsmekanismen, ikke ekte språkmodell-resonnering.
         Ekte leverandørvalg er en egen, senere beslutning.

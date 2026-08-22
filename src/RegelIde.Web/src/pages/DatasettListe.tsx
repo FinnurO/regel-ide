@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Heading, Link, Paragraph, Table } from '@digdir/designsystemet-react';
+import { Alert, Heading, Link, Paragraph, Spinner, Table } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { DatasettDto } from '../api/types';
 
@@ -26,8 +26,8 @@ export default function DatasettListe() {
         felt, se lenken i tabellen.
       </Paragraph>
 
-      {feil && <div className="feilmelding">{feil}</div>}
-      {!datasett && !feil && <Paragraph>Laster …</Paragraph>}
+      {feil && <Alert data-color="danger">{feil}</Alert>}
+      {!datasett && !feil && <Spinner aria-label="Laster …" data-size="sm" />}
       {datasett && datasett.length === 0 && <Paragraph>Ingen datasett funnet.</Paragraph>}
 
       {datasett && datasett.length > 0 && (

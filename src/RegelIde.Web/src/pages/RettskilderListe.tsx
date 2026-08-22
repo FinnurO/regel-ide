@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Button, Checkbox, Heading, Link, Paragraph, Table, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Checkbox, Heading, Link, Paragraph, Spinner, Table, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { LovdataImportstatusDto, RettskildeSammendrag } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
@@ -182,9 +182,9 @@ export default function RettskilderListe() {
         />
       </div>
 
-      {feil && <div className="feilmelding">{feil}</div>}
+      {feil && <Alert data-color="danger">{feil}</Alert>}
 
-      {!rettskilder && !feil && <Paragraph>Laster …</Paragraph>}
+      {!rettskilder && !feil && <Spinner aria-label="Laster …" data-size="sm" />}
 
       {viste && viste.length === 0 && <Paragraph>Ingen rettskilder funnet.</Paragraph>}
 
@@ -249,8 +249,8 @@ export default function RettskilderListe() {
               tabellen over.
             </Paragraph>
 
-            {ikkeImportertLaster && <Paragraph>Laster …</Paragraph>}
-            {ikkeImportertFeil && <div className="feilmelding">{ikkeImportertFeil}</div>}
+            {ikkeImportertLaster && <Spinner aria-label="Laster …" data-size="sm" />}
+            {ikkeImportertFeil && <Alert data-color="danger">{ikkeImportertFeil}</Alert>}
 
             {ikkeImportert && (
               <>

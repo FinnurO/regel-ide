@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useParams } from 'react-router';
-import { Button, Field, Heading, Label, Paragraph, Select, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Field, Heading, Label, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { DatasettDto, DatasettVerdiDto, VirksomhetDto } from '../api/types';
 
@@ -74,8 +74,8 @@ export default function DatasettDetalj() {
     lastVerdier();
   }
 
-  if (feil) return <div className="feilmelding">{feil}</div>;
-  if (!datasett || verdier === null) return <Paragraph>Laster …</Paragraph>;
+  if (feil) return <Alert data-color="danger">{feil}</Alert>;
+  if (!datasett || verdier === null) return <Spinner aria-label="Laster …" data-size="sm" />;
 
   const virksomhetNavn = new Map(virksomheter.map((v) => [v.id, v.navn]));
   const standardverdi = verdier.find((v) => v.virksomhetId === null);
@@ -147,7 +147,7 @@ export default function DatasettDetalj() {
             {lagrer ? 'Lagrer …' : 'Legg til'}
           </Button>
         </form>
-        {skjemaFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{skjemaFeil}</div>}
+        {skjemaFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{skjemaFeil}</Alert>}
       </section>
     </>
   );

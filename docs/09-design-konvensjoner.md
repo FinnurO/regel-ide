@@ -10,7 +10,10 @@
 
 **Typografi**: Inter (UI/løpetekst); IBM Plex Mono kun for kode/eId/organisasjonsnummer-aktig tekst.
 Brødtekst/paragraf 18px/400/line-height 27px. Sideheading (H1, "lg") 36px/500/line-height 46.8px.
-Underheadinger typisk 21–24px/600. Småtekst/meta (tags, hjelpetekst) 14px.
+Underheadinger typisk 21–24px/500 (RETTET 2026-08-22, frontend-design-audit: stod tidligere "600" —
+`--ds-heading-{xs,sm}-font-weight` er 500 i installert `digdir.css`, IKKE 600, for ALLE headingstørrelser
+2xs→2xl; 600 finnes kun som `--ds-font-weight-semibold` for enkeltkomponenter som `Label`/`Table`-header,
+ikke for `Heading`). Småtekst/meta (tags, hjelpetekst) 14px.
 
 **Farger (lys tema)**: nøytral tekst `#1F2C3D` (standard)/`#545E6B` (dempet); nøytral
 bakgrunn/overflate `#FFFFFF`, hover `#D8DADD`, tint `#E7E9EA`; nøytral kant `#B8BCC1` (subtil)/
@@ -154,7 +157,45 @@ Presisering utover §4s tokenfamilier — hva som FAKTISK brukes på nyere detal
 **Sjekk denne §6 (og resten av dokumentet) FØR du bygger en ny detaljside** — ikke bare den nyeste
 siden i git-loggen, siden nye presiseringer skal landes her, ikke bare i koden.
 
-## 7. Ikke gjort ennå
+## 7. Gjentatte avvik funnet ved full frontend-revisjon (2026-08-22, `frontend-design-audit`)
+
+Denne runden gikk gjennom ALLE `.tsx`-filer i `src/RegelIde.Web/src` mot §0-§6. Utover det som allerede
+var rettet (se git-historikk på branchen), dukket disse mønstrene opp mer enn ett sted — nevnt her så de
+ikke gjentas:
+
+- **Metatekst med `opacity: 0.7` i stedet for subtil FARGE** (samme feil som §6 allerede nevner for
+  `VirksomhetDetalj.tsx`s første utkast) dukket opp fire steder til, i `BegrepsforslagKo.tsx` og
+  `TjenesteforslagKo.tsx` (token-tellingen etter et KI-kall, og stub-KI-merknaden). Rettet til
+  `fontSize: 'var(--ds-font-size-1)'` + `color: 'var(--ds-color-neutral-text-subtle)'`. Skann alltid etter
+  `opacity:` når du skriver metatekst — det er ALDRI riktig mønster for det.
+- **`<input type="file">` rått i stedet for `Textfield type="file"`**: fantes i `TjenesteforslagKo.tsx`
+  (ved siden av `Importer.tsx`, som allerede gjorde det riktig — se §5-tabellen). Samme fiks: `<Textfield
+  type="file" label="…" accept="…" onChange={…} ref={…} />` — `ref` er typet
+  `HTMLInputElement | HTMLTextAreaElement` og fungerer med eksisterende `useRef<HTMLInputElement>`-kode
+  som nuller ut valgt fil etter opplasting.
+- **`<a href>` rått i stedet for `Link`**: fantes i `KodelisteDetalj.tsx` (ekstern kilde-lenke). Digdir kan
+  ikke style en rå `<a>` (jf. §5) — bruk `<Link href={url} target="_blank" rel="noopener noreferrer">`
+  som resten av kodebasen allerede gjør for eksterne lenker (`RettskildeDetalj.tsx`,
+  `RettskilderListe.tsx`, `TjenesteDetalj.tsx`, `TjenesteforslagKo.tsx`, `RaaTekstMedLenker.tsx`).
+- **Rå `<button>` uten noen styling** (så ut som nettleserens standard-3D-knapp): én forekomst i
+  `RettskildeDetalj.tsx` (vis/skjul AKN-XML). Rettet til `<Button data-size="sm" variant="tertiary">`.
+  MERK: dette gjelder KUN knapper uten egen styling — `.tabell-sorter-knapp`-mønsteret (rå `<button
+  className="tabell-sorter-knapp">` inni en `Table.HeaderCell` for sorterbare kolonner, brukt konsekvent
+  i alle liste-sider) og en bar `×`-fjern-knapp inni en `Tag` (`KommentarRedigering.tsx`) er BEVISST rå
+  HTML — `Button` har fast padding/høyde/kant som ikke passer disse to stedene, og begge er allerede
+  eksplisitt unstylet/gjennomsiktig via CSS/inline style. Ikke "fiks" disse to til `Button`.
+- **Ad-hoc CSS-klasser `.badge-delt`/`.badge-virksomhet`** i `index.css` var udokumenterte, ubrukte (ingen
+  `.tsx` refererte dem) og dupliserte nøyaktig hva `Tag`/`Badge` løser — fjernet, samme resonnement som
+  `.feilmelding`/`.infomelding`-fjerningen. Sjekk `index.css` for lignende død kode før du legger til en ny
+  ad-hoc-klasse — søk først etter om `Tag`/`Badge`/`Chip`/`Alert` allerede dekker behovet.
+- **§0-rettelse**: "Underheadinger typisk 21–24px/600" var feil — verifisert mot installert
+  `digdir.css`/`heading.css`, `--ds-heading-{xs,sm,...}-font-weight` er **500** for ALLE headingstørrelser
+  (2xs→2xl), ikke 600. 600 finnes kun som `--ds-font-weight-semibold`, brukt av enkeltkomponenter som
+  `Label`/`Table`-header — ikke av `Heading`. Øvrige §0-verdier (alle hex-farger, border-radius 2/4/8px,
+  input/knapp-høyde 48px, tabellrad-padding 8px/12px, font-size-skalaen, line-height-multiplikatorene)
+  ble kryssjekket linje for linje mot samme fil og stemmer eksakt.
+
+## 8. Ikke gjort ennå
 
 - Selvhosting av Inter (kjører fortsatt mot rsms.me i dev).
 - Responsiv kollaps av sidemenyen under 880px (krav i produktkrav kap. 7 — ikke implementert).

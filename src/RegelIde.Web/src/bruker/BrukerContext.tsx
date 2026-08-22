@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
+import { Spinner } from '@digdir/designsystemet-react';
 import { ApiError, api, hentValgtBrukerId, settValgtBrukerId } from '../api/client';
 import type { BrukerDto } from '../api/types';
 
@@ -115,7 +116,9 @@ export function BrukerProvider({ children }: { children: ReactNode }) {
        * navigasjon/refresh. Et kort "Laster …"-glimt her er en billig pris for å unngå det.
        */}
       {laster ? (
-        <div style={{ padding: '2rem', color: 'var(--ds-color-neutral-text-subtle, #666)' }}>Laster …</div>
+        <div style={{ padding: '2rem', display: 'flex', alignItems: 'center', gap: 'var(--ds-size-2)' }}>
+          <Spinner aria-label="Laster …" data-size="sm" />
+        </div>
       ) : (
         children
       )}

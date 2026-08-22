@@ -14,7 +14,7 @@
  */
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
-import { Button, Field, Heading, Label, Link, Paragraph, Select, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import {
   GYLDIGE_HANDLINGSTYPER, GYLDIGE_UTFORT_AV,
@@ -350,8 +350,8 @@ export default function HandlingDetalj() {
     }
   }
 
-  if (feil) return <div className="feilmelding">{feil}</div>;
-  if (!handling) return <Paragraph>Laster …</Paragraph>;
+  if (feil) return <Alert data-color="danger">{feil}</Alert>;
+  if (!handling) return <Spinner aria-label="Laster …" data-size="sm" />;
 
   return (
     <>
@@ -383,7 +383,7 @@ export default function HandlingDetalj() {
             <Label>Merknad</Label>
             <Textarea value={merknad} onChange={(e) => setMerknad(e.target.value)} rows={2} />
           </Field>
-          {lagreFeil && <div className="feilmelding">{lagreFeil}</div>}
+          {lagreFeil && <Alert data-color="danger">{lagreFeil}</Alert>}
           <div><Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button></div>
         </form>
       </section>
@@ -421,7 +421,7 @@ export default function HandlingDetalj() {
             {rotnodeEndres ? 'Setter …' : 'Sett som rotnode'}
           </Button>
         </form>
-        {rotnodeFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{rotnodeFeil}</div>}
+        {rotnodeFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{rotnodeFeil}</Alert>}
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -444,7 +444,7 @@ export default function HandlingDetalj() {
           <Textfield data-size="sm" label="Adresse (valgfritt)" value={nyKanalAdresse} onChange={(e) => setNyKanalAdresse(e.target.value)} />
           <Button data-size="sm" type="submit" disabled={!nyKanalKanal.trim()}>Legg til kanal</Button>
         </form>
-        {kanalFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{kanalFeil}</div>}
+        {kanalFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{kanalFeil}</Alert>}
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -455,7 +455,7 @@ export default function HandlingDetalj() {
           <Textfield data-size="sm" label="Hjemmel — henvisning" value={behandlingstidHenvisning} onChange={(e) => setBehandlingstidHenvisning(e.target.value)} />
           <Button data-size="sm" type="submit" disabled={behandlingstidLagrer}>{behandlingstidLagrer ? 'Lagrer …' : 'Lagre'}</Button>
         </form>
-        {behandlingstidFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{behandlingstidFeil}</div>}
+        {behandlingstidFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{behandlingstidFeil}</Alert>}
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -464,7 +464,7 @@ export default function HandlingDetalj() {
           <Textfield data-size="sm" label="Beløp/beskrivelse" value={belop} onChange={(e) => setBelop(e.target.value)} style={{ minWidth: '28rem' }} />
           <Button data-size="sm" type="submit" disabled={belopLagrer}>{belopLagrer ? 'Lagrer …' : 'Lagre'}</Button>
         </form>
-        {belopFeil && <div className="feilmelding" style={{ marginBottom: '0.5rem' }}>{belopFeil}</div>}
+        {belopFeil && <Alert data-color="danger" style={{ marginBottom: '0.5rem' }}>{belopFeil}</Alert>}
         {handling.kostnad.hjemmel.length > 0 && (
           <ul>
             {handling.kostnad.hjemmel.map((h, i) => (
@@ -504,7 +504,7 @@ export default function HandlingDetalj() {
           <Textfield data-size="sm" label="Hjemmel — henvisning" value={nyVedleggHenvisning} onChange={(e) => setNyVedleggHenvisning(e.target.value)} />
           <Button data-size="sm" type="submit" disabled={!nyVedleggNavn.trim()}>Legg til vedlegg</Button>
         </form>
-        {vedleggFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{vedleggFeil}</div>}
+        {vedleggFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{vedleggFeil}</Alert>}
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -538,7 +538,7 @@ export default function HandlingDetalj() {
           </div>
           <div><Button data-size="sm" type="submit" disabled={!nyVeiledningOverskrift.trim()}>Legg til veiledningstekst</Button></div>
         </form>
-        {veiledningFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{veiledningFeil}</div>}
+        {veiledningFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{veiledningFeil}</Alert>}
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -564,7 +564,7 @@ export default function HandlingDetalj() {
           <Textfield data-size="sm" label="Hjemmel — henvisning" value={nyArsakHenvisning} onChange={(e) => setNyArsakHenvisning(e.target.value)} />
           <Button data-size="sm" type="submit" disabled={!nyArsakArsak.trim() || !nyArsakLov.trim()}>Legg til årsak</Button>
         </form>
-        {arsakFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{arsakFeil}</div>}
+        {arsakFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{arsakFeil}</Alert>}
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -573,7 +573,7 @@ export default function HandlingDetalj() {
           <Textfield data-size="sm" label="Hva oppnås" value={hva} onChange={(e) => setHva(e.target.value)} style={{ minWidth: '28rem' }} />
           <Button data-size="sm" type="submit">Lagre</Button>
         </form>
-        {resultatFeil && <div className="feilmelding" style={{ marginBottom: '0.5rem' }}>{resultatFeil}</div>}
+        {resultatFeil && <Alert data-color="danger" style={{ marginBottom: '0.5rem' }}>{resultatFeil}</Alert>}
         <Label>Bevis-kanaler (hvordan resultatet dokumenteres)</Label>
         {handling.resultat.bevisKanaler.length > 0 && (
           <ul>

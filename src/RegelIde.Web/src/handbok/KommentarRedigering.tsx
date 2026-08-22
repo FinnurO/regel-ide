@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Button, Field, Heading, Label, Link, Paragraph, Select, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
 import type { RettskildeNodeDto, RettskildeReferanseDto, RettskildeSammendrag } from '../api/types';
@@ -264,7 +264,7 @@ export function KommentarRedigering({
         />
       </div>
 
-      {feil && <div className="feilmelding">{feil}</div>}
+      {feil && <Alert data-color="danger">{feil}</Alert>}
       <div style={{ display: 'flex', gap: 'var(--ds-size-2)' }}>
         <Button onClick={lagre} disabled={lagrer}>
           {lagrer ? 'Lagrer …' : mode === 'ny' ? 'Opprett' : 'Lagre (ny versjon)'}
@@ -320,7 +320,7 @@ export function KommentarRedigering({
                 Koble
               </Button>
             </div>
-            {referanseFeil && <div className="feilmelding" style={{ marginTop: 'var(--ds-size-2)' }}>{referanseFeil}</div>}
+            {referanseFeil && <Alert data-color="danger" style={{ marginTop: 'var(--ds-size-2)' }}>{referanseFeil}</Alert>}
           </section>
 
           <section style={{ borderTop: '1px solid var(--ds-color-neutral-border-subtle)', paddingTop: 'var(--ds-size-4)' }}>
@@ -351,7 +351,7 @@ export function KommentarRedigering({
                 Merk «Må revideres»
               </Button>
             </div>
-            {handlingFeil && <div className="feilmelding" style={{ marginTop: 'var(--ds-size-2)' }}>{handlingFeil}</div>}
+            {handlingFeil && <Alert data-color="danger" style={{ marginTop: 'var(--ds-size-2)' }}>{handlingFeil}</Alert>}
             {metadata?.status === 'ma_revideres' && metadata.revisjonsgrunn && (
               <Paragraph style={{ color: 'var(--ds-color-danger-text-default)', marginTop: 'var(--ds-size-2)' }}>
                 Må revideres: {metadata.revisjonsgrunn}
