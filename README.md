@@ -29,6 +29,38 @@ Digital-rettsstats `06-regellaget.md` skiller mellom **Lag 1-editoren** (tekst �
 | [`prototyper/`](prototyper/) | Interaktive HTML-mockuper fra Claude Design — frontend-siden, holdt bevisst atskilt fra det tekniske designet i `docs/`. |
 | [`historikk/`](historikk/) | Det opprinnelige kravspesifikasjons-kildedokumentet (v1.0), beholdt for sporbarhet — ikke gjeldende krav. |
 
+## Kjøre lokalt
+
+Forutsetter .NET 10 SDK, Node.js, og Docker eller Podman.
+
+1. **Start database** (fra repo-roten, matcher connection string i `src/RegelIde.Api/appsettings.json`):
+   ```
+   docker compose up -d
+   ```
+   (eller `podman compose up -d` / `podman-compose up -d`).
+
+2. **Kjør migrasjoner** (kun første gang, og etter at noen har lagt til en ny migrasjon):
+   ```
+   dotnet ef database update --project src/RegelIde.Data --startup-project src/RegelIde.Data
+   ```
+   Krever `dotnet-ef`-verktøyet (`dotnet tool install --global dotnet-ef` hvis det ikke finnes fra før). API-et migrerer IKKE databasen selv ved oppstart.
+
+3. **Start API-et** (fra repo-roten):
+   ```
+   dotnet run --project src/RegelIde.Api
+   ```
+   Lytter på `http://localhost:5187`.
+
+4. **Start frontend** (i et eget terminalvindu):
+   ```
+   cd src/RegelIde.Web
+   npm install   # kun første gang
+   npm run dev
+   ```
+   Lytter på `http://localhost:5173`.
+
+5. **(Valgfritt) Ekte KI-modell** — uten dette kjører KI-forslagsfunksjonene på en deterministisk stub. Sett `RegelIde:KiAgent:Leverandor`/`BaseUrl`/`Modell`/`ApiKey` via `dotnet user-secrets` fra `src/RegelIde.Api` (aldri i en committed fil) — se [`docs/14-byggesteg5-teknisk-design.md`](docs/14-byggesteg5-teknisk-design.md).
+
 ## Forhold til søsterrepoer
 
 - **[`digital-rettsstat`](https://github.com/FinnurO/digital-rettsstat)** — rammeverket og charteret dette verktøyet realiserer (Lag 1–2 + tverrgående sporbarhet).
