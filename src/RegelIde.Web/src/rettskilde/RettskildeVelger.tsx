@@ -2,35 +2,36 @@ import { EXPERIMENTAL_Suggestion as Suggestion, Field, Label, Paragraph, type Su
 import type { RettskildeSammendrag } from '../api/types';
 import { useRettskildeSok } from './useRettskildeSok';
 
-export interface RettskildeFlervalgProps {
+export interface RettskildeVelgerProps {
   rettskilder: RettskildeSammendrag[];
-  valgte: Set<string>;
-  onChange: (valgte: Set<string>) => void;
+  /** Id på valgt rettskilde, `''` for ikke valgt. */
+  value: string;
+  onChange: (id: string) => void;
   label?: string;
 }
 
 /**
- * Flervalg av rettskilder — erstatter én `Checkbox` per rettskilde (docs/09 §10; uholdbart med
- * 5893 reelle rader i dag, se `curl /api/rettskilder | wc`) med Designsystemets `Suggestion`
- * (`EXPERIMENTAL_Suggestion`, `multiple`-modus). API verifisert mot installert `1.18.0` sine
- * `.d.ts`/kildefiler i `node_modules` (ikke gjettet) — se docs/09 §10 for detaljene, inkl. hvorfor
- * DOM-monteringen styres selv (`useRettskildeSok`) i stedet for library'ets egen `filter`-prop.
+ * Enkeltvalg av ÉN rettskilde blant alle — søsterkomponent til `RettskildeFlervalg` (samme
+ * `Suggestion`-baserte "søk-før-mount"-teknikk, se docs/09 §10 og `useRettskildeSok`), men
+ * `multiple={false}` og en streng-`value` i stedet for et `Set`. Erstatter et rått
+ * `<Select>`+`alleRettskilder.map(...)` med 5893 `<option>` — samme DOM-monteringsfelle som
+ * `RettskildeFlervalg` løser, bare for enkeltvalg (velge HVILKEN rettskilde en lovreferanse skal
+ * peke på, f.eks. `KommentarRedigering.tsx`/`RettskildeDetalj.tsx`).
  */
-export function RettskildeFlervalg({ rettskilder, valgte, onChange, label = 'Rettskilder' }: RettskildeFlervalgProps) {
+export function RettskildeVelger({ rettskilder, value, onChange, label = 'Rettskilde' }: RettskildeVelgerProps) {
   const { sok, setSok, treff, alleTreffAntall } = useRettskildeSok(rettskilder);
 
-  const valgteItems = rettskilder
-    .filter((r) => valgte.has(r.id))
-    .map((r) => ({ label: r.tittel, value: r.id }));
+  const valgt = rettskilder.find((r) => r.id === value);
+  const selected: SuggestionItem | null = valgt ? { label: valgt.tittel, value: valgt.id } : null;
 
   return (
-    <Field style={{ marginBottom: '0.75rem', maxWidth: '30rem' }}>
+    <Field style={{ maxWidth: '30rem' }}>
       <Label>{label}</Label>
       <Suggestion
-        multiple
+        multiple={false}
         filter={false}
-        selected={valgteItems}
-        onSelectedChange={(items: SuggestionItem[]) => onChange(new Set(items.map((i) => i.value)))}
+        selected={selected}
+        onSelectedChange={(item: SuggestionItem | null) => onChange(item?.value ?? '')}
       >
         <Suggestion.Input
           placeholder="Søk rettskilder …"

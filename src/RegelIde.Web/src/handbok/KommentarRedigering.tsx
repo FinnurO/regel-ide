@@ -4,6 +4,7 @@ import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Tag, Tex
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
 import type { RettskildeNodeDto, RettskildeReferanseDto, RettskildeSammendrag } from '../api/types';
+import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { MinimalEditor } from './MinimalEditor';
 
 const DOKUMENTTYPER = [
@@ -304,17 +305,7 @@ export function KommentarRedigering({
               </ul>
             )}
             <div style={{ display: 'flex', gap: 'var(--ds-size-2)', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-              <Field style={{ width: '14rem' }}>
-                <Label data-size="sm">Rettskilde</Label>
-                <Select value={tilRettskildeId} onChange={(e) => setTilRettskildeId(e.target.value)}>
-                  <Select.Option value="">Velg …</Select.Option>
-                  {alleRettskilder.map((r) => (
-                    <Select.Option key={r.id} value={r.id}>
-                      {r.kortnavn ?? r.tittel}
-                    </Select.Option>
-                  ))}
-                </Select>
-              </Field>
+              <RettskildeVelger rettskilder={alleRettskilder} value={tilRettskildeId} onChange={setTilRettskildeId} />
               <Textfield label="eId" data-size="sm" value={tilEid} onChange={(e) => setTilEid(e.target.value)} style={{ flex: 1, minWidth: '14rem' }} />
               <Button data-size="sm" onClick={kobleLovreferanse} disabled={!tilRettskildeId || !tilEid.trim()}>
                 Koble

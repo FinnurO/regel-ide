@@ -1,9 +1,10 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { useNavigate } from 'react-router';
-import { Alert, Button, Checkbox, Heading, Paragraph, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Heading, Paragraph, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { RettskildeSammendrag } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
+import { RettskildeFlervalg } from '../rettskilde/RettskildeFlervalg';
 
 /**
  * Oppretter en ny håndbok/rundskriv (AK-3.3.8) — alternativ til «Ny kilde»/«Importer AKN» siden en
@@ -21,14 +22,6 @@ export default function HandbokOpprett() {
   const [valgteRettskilder, setValgteRettskilder] = useState<Set<string>>(new Set());
 
   useEffect(() => { api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([])); }, []);
-
-  function vekslRettskilde(id: string, valgt: boolean) {
-    setValgteRettskilder((forrige) => {
-      const ny = new Set(forrige);
-      if (valgt) ny.add(id); else ny.delete(id);
-      return ny;
-    });
-  }
 
   async function opprett(e: FormEvent) {
     e.preventDefault();
@@ -70,21 +63,12 @@ export default function HandbokOpprett() {
         />
 
         {rettskilder.length > 0 && (
-          <div>
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.3rem' }}>
-              Rettskilder håndboken omhandler (kan endres senere):
-            </Paragraph>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem' }}>
-              {rettskilder.map((r) => (
-                <Checkbox
-                  key={r.id}
-                  label={r.tittel}
-                  checked={valgteRettskilder.has(r.id)}
-                  onChange={(e) => vekslRettskilde(r.id, e.target.checked)}
-                />
-              ))}
-            </div>
-          </div>
+          <RettskildeFlervalg
+            rettskilder={rettskilder}
+            valgte={valgteRettskilder}
+            onChange={setValgteRettskilder}
+            label="Rettskilder håndboken omhandler (kan endres senere)"
+          />
         )}
 
         <div>

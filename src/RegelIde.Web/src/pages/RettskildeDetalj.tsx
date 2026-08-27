@@ -17,6 +17,7 @@ import type {
 import { TagTekst, type Registry, type TagKindId, type TextTag } from '../tagging/TagTekst';
 import { RettskildeTre, type RettskildeNode as TreNodeVm } from '../tre/RettskildeTre';
 import { KommentarRedigering } from '../handbok/KommentarRedigering';
+import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { useKonfigurasjon } from '../konfigurasjon/KonfigurasjonContext';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { RaaTekstMedLenker } from '../rettskilde/RaaTekstMedLenker';
@@ -612,14 +613,12 @@ export default function RettskildeDetalj() {
             </Table>
           )}
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-            <Field>
-              <Label>Legg til rettskilde</Label>
-              <Select data-size="sm" value={nyOmfangRettskildeId} onChange={(e) => setNyOmfangRettskildeId(e.target.value)}>
-                <Select.Option value="">Velg …</Select.Option>
-                {alleRettskilder.filter((r) => r.id !== id && !rettskildeomfang.some((o) => o.tilRettskildeId === r.id))
-                  .map((r) => <Select.Option key={r.id} value={r.id}>{r.tittel}</Select.Option>)}
-              </Select>
-            </Field>
+            <RettskildeVelger
+              rettskilder={alleRettskilder.filter((r) => r.id !== id && !rettskildeomfang.some((o) => o.tilRettskildeId === r.id))}
+              value={nyOmfangRettskildeId}
+              onChange={setNyOmfangRettskildeId}
+              label="Legg til rettskilde"
+            />
             <Button data-size="sm" onClick={leggTilOmfang} disabled={leggerTilOmfang || !nyOmfangRettskildeId}>
               {leggerTilOmfang ? 'Legger til …' : 'Legg til'}
             </Button>
@@ -1029,13 +1028,7 @@ export default function RettskildeDetalj() {
                   );
                 })()}
                 <form onSubmit={leggTilReferanse} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-                  <Field>
-                    <Label>Rettskilde</Label>
-                    <Select data-size="sm" value={nyReferanseRettskildeId} onChange={(e) => setNyReferanseRettskildeId(e.target.value)}>
-                      <Select.Option value="">Velg …</Select.Option>
-                      {alleRettskilder.map((r) => <Select.Option key={r.id} value={r.id}>{r.tittel}</Select.Option>)}
-                    </Select>
-                  </Field>
+                  <RettskildeVelger rettskilder={alleRettskilder} value={nyReferanseRettskildeId} onChange={setNyReferanseRettskildeId} />
                   <Textfield data-size="sm" label="eId" value={nyReferanseEid} onChange={(e) => setNyReferanseEid(e.target.value)}
                     style={{ minWidth: '20rem', fontFamily: 'monospace' }} />
                   <Button data-size="sm" type="submit" disabled={leggerTilReferanse || !nyReferanseRettskildeId || !nyReferanseEid.trim()}>

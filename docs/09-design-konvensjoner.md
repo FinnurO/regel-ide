@@ -316,3 +316,35 @@ rad, som nå er fjernet fra begge filene).
 Live-verifisert (ikke bare kompilert): søk på "alkohol" mounter nøyaktig de matchende
 `<u-option>`-elementene (ikke alle 5893), valg gir en fjernbar `Chip` og aktiverer
 "Kjør KI-forslag", og å fjerne chippen nullstiller utvalget og deaktiverer knappen igjen.
+
+### 10.1 `useRettskildeSok` + `RettskildeVelger` — samme teknikk, ENKELTvalg (2026-08-27)
+
+Johann ba om samme behandling "andre steder med lange lister". Et sveip over hele frontend
+(`grep Checkbox\|Select\.Option`) fant to reelle familier av samme problem utover §10s to KI-
+forslag-sider — begge over ALLE 5893 rettskilder, ikke et filtrert delsett:
+
+- **`HandbokOpprett.tsx`** — identisk `Checkbox`-per-rettskilde-liste ("Rettskilder håndboken
+  omhandler") → byttet direkte til `RettskildeFlervalg` (ingen ny kode, samme komponent).
+- **Enkeltvalg av ÉN rettskilde** i tre skjemaer — `KommentarRedigering.tsx` (koble lovreferanse
+  til en håndbok-kommentar), `RettskildeDetalj.tsx` (både "Legg til rettskilde"/håndbok-omfang OG
+  den generelle "Koble referanse"-sekjonen) — alle tre var et rått `<Select>` med
+  `alleRettskilder.map(...)` som `<Select.Option>`. `RettskildeFlervalg` passer ikke (den er
+  flervalg/`Set`), så ny søsterkomponent `RettskildeVelger` (samme mappe): `multiple={false}`,
+  streng `value`/`onChange(id: string)` i stedet for `Set`.
+
+**Delt filtreringslogikk** flyttet ut i `useRettskildeSok(rettskilder)` (samme mappe) — brukes av
+BEGGE komponentene, som nå kun står for selve `Suggestion`-oppsettet (multiple vs. enkelt).
+Returnerer `{ sok, setSok, treff, alleTreffAntall }`; samme 50-treffs grense og samme
+"skriv-for-å-søke"-tomtekst som §10 (ingen ny avveining, bare unngått duplisering).
+
+`RettskildeVelger` sine props: `rettskilder`, `value` (valgt id, `''` for tomt), `onChange`
+(`(id: string) => void`), `label?` (default `"Rettskilde"`). Kallerne kan sende et allerede
+FILTRERT `rettskilder`-array (f.eks. `RettskildeDetalj.tsx`s "Legg til rettskilde" ekskluderer
+rettskilder som allerede er i håndbokens omfang, og seg selv) — komponenten selv vet ikke noe om
+denne filtreringen, den får bare den ferdige kandidatlisten.
+
+Live-verifisert end-to-end, ikke bare kompilert: opprettet en ny håndbok via `RettskildeFlervalg`
+(chip-valg → `Opprett` → naviger til den nye håndbokens `RettskildeDetalj`-side), deretter i
+"Legg til rettskilde" søkte på "alkohol", bekreftet at den allerede lenkede rettskilden var
+UTELATT fra treffene (filtreringen i kalleren virker), valgte en ny, klikket "Legg til", og
+bekreftet at den dukket opp i "Denne håndboken omhandler"-tabellen og at velgeren nullstilte seg.
