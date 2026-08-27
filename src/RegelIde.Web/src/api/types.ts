@@ -316,6 +316,9 @@ export interface TjenesteDto {
   /** Formålsteksten (typisk lovens eget "§1 Formål") — atskilt fra beskrivelse. */
   formal: string | null;
   innhold: TjenesteInnholdInput | null;
+  /** Frie, egendefinerte innholdsseksjoner utover de faste Innhold-feltene (2026-08-27,
+   * Tjenestedetalj-redesignrunden) — "+ Legg til eget innholdselement". */
+  egneInnholdselementer: EgetInnholdselementInput[];
 }
 
 export interface TjenesteRequest {
@@ -337,6 +340,17 @@ export interface TjenesteRequest {
   type?: string | null;
   formal?: string | null;
   innhold?: TjenesteInnholdInput | null;
+  egneInnholdselementer?: EgetInnholdselementInput[] | null;
+}
+
+/** Ett fritt, egendefinert innholdselement ("+ Legg til eget innholdselement",
+ * Tjenestedetalj-redesignrunden 2026-08-27). `id` genereres klientside (`crypto.randomUUID()`) og
+ * MÅ være stabil over lagringer — den kan være mål for en felt-nivå regelverksreferanse
+ * (`felt = "egneInnholdselementer.{id}"`). */
+export interface EgetInnholdselementInput {
+  id: string;
+  tittel: string;
+  tekst: string | null;
 }
 
 // ---------- Rettighetens "innhold" (2026-08-20, Tjenestedetalj-runde 2) ----------
@@ -475,6 +489,19 @@ export interface HandlingMedTjenesteDto {
   virksomhetId: string;
 }
 
+/** Forespørsel for POST /api/tjenester/{id}/handlinger/koble (2026-08-27) — kobler en
+ * EKSISTERENDE handling (som virksomheten selv eier) sekundært til denne tjenesten. */
+export interface KobleHandlingRequest {
+  handlingId: string;
+}
+
+/** Én sekundær handlings-kobling (2026-08-27) — se HandlingTjenesteEntitet på serveren. */
+export interface HandlingTjenesteDto {
+  id: string;
+  handlingId: string;
+  tjenesteId: string;
+}
+
 export interface HandlingRequest {
   navn: string;
   handlingstype: string;
@@ -504,6 +531,9 @@ export interface TjenesteRegelverksreferanseDto {
   tjenesteId: string;
   tilRettskildeId: string;
   tilEid: string;
+  /** null = gjelder hele tjenesten (Regelverksreferanser-fanen). Satt = knyttet til ETT bestemt
+   * felt i Innhold-fanen — se feltnøkkel-konvensjonen i api/tjenesteFelt.ts. */
+  felt: string | null;
 }
 
 /** Samme rolle for en Handling som TjenesteRegelverksreferanseDto har for en Tjeneste (2026-08-22,
@@ -552,6 +582,7 @@ export interface NettsideLenkeMedMalDto {
 export interface KobleRegelverksreferanseRequest {
   tilRettskildeId: string;
   tilEid: string;
+  felt?: string | null;
 }
 
 /** Hendelse (docs/03-domenemodell.md §1.5, docs/13-backlog.md §2.1). 'type': generell|livshendelse|virksomhetshendelse. */
@@ -1058,4 +1089,22 @@ export interface TjenesteforslagDto {
   aiForslagVersjon: string | null;
   foreslattTidspunkt: string;
   kildeReferanserJson: string | null;
+}
+
+/**
+ * Innlogget brukers foretrukne fanerekkefølge/-synlighet og accordion-rekkefølge/åpen-tilstand på
+ * Tjeneste-siden (2026-08-27, Tjenestedetalj-redesignrunden) — GET/PUT /api/brukere/meg/tjeneste-visning.
+ * Per BRUKER, ikke per tjeneste — se BrukerVisningsinnstillingEntitet på serveren. Egendefinerte
+ * innholdselementer har sin egen rekkefølge/åpen-tilstand lagret på selve tjenesten
+ * (TjenesteDto.egneInnholdselementer), ikke her.
+ */
+export interface VisningsinnstillingInput {
+  /** De 7 faste fane-nøklene, ordnet. "oversikt" er alltid først og er ALDRI med her. */
+  seksjonsrekkefolge: string[];
+  /** Delmengde av samme 7 nøkler — skjulte faner. */
+  skjulteSeksjoner: string[];
+  /** De 9 faste accordion-nøklene i Innhold-fanen, ordnet. */
+  accordionRekkefolge: string[];
+  /** Åpen/lukket per fast accordion-nøkkel. */
+  accordionApne: Record<string, boolean>;
 }

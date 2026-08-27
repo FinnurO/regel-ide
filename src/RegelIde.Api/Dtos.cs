@@ -135,13 +135,14 @@ public sealed record TjenesteDto(
     string? Tjenestetype, IReadOnlyList<string> Malgruppe, IReadOnlyList<string> Kanaler, string? Kostnad, string? Behandlingstid,
     string? Kontaktpunkt, string? KonsekvensVedBrudd, IReadOnlyList<string> Sprak, string Status, int Versjon,
     Guid? RotnodeId, IReadOnlyList<string> Livshendelser, string? LosKlassifisering, string? Tjenesteomrade,
-    string? Type, string? Formal, TjenesteInnholdInput? Innhold)
+    string? Type, string? Formal, TjenesteInnholdInput? Innhold, IReadOnlyList<EgetInnholdselementInput> EgneInnholdselementer)
 {
     public static TjenesteDto FraEntitet(TjenesteEntitet t) => new(
         t.Id, t.VirksomhetId, t.Tittel, t.Beskrivelse, t.KompetentMyndighet, t.Output, t.Tjenestetype, t.Malgruppe,
         t.Kanaler, t.Kostnad, t.Behandlingstid, t.Kontaktpunkt, t.KonsekvensVedBrudd, t.Sprak, t.Status, t.Versjon,
         t.RotnodeId, t.Livshendelser, t.LosKlassifisering, t.Tjenesteomrade, t.Type, t.Formal,
-        t.InnholdJson is null ? null : System.Text.Json.JsonSerializer.Deserialize<TjenesteInnholdInput>(t.InnholdJson));
+        t.InnholdJson is null ? null : System.Text.Json.JsonSerializer.Deserialize<TjenesteInnholdInput>(t.InnholdJson),
+        System.Text.Json.JsonSerializer.Deserialize<List<EgetInnholdselementInput>>(t.EgneInnholdselementerJson) ?? []);
 }
 
 /// <summary>Forespørsel for POST/PUT /api/tjenester. De tre feltene fra 2026-08-20-runden(e) har
@@ -151,7 +152,8 @@ public sealed record TjenesteRequest(
     IReadOnlyList<string>? Malgruppe, IReadOnlyList<string>? Kanaler, string? Kostnad, string? Behandlingstid,
     string? Kontaktpunkt, string? KonsekvensVedBrudd, IReadOnlyList<string>? Sprak,
     IReadOnlyList<string>? Livshendelser = null, string? LosKlassifisering = null, string? Tjenesteomrade = null,
-    string? Type = null, string? Formal = null, TjenesteInnholdInput? Innhold = null);
+    string? Type = null, string? Formal = null, TjenesteInnholdInput? Innhold = null,
+    IReadOnlyList<EgetInnholdselementInput>? EgneInnholdselementer = null);
 
 // ---------- Handling (2026-08-20) — se HandlingEntitet i RegelIde.Data for begrunnelse ----------
 // Underliggende JSON-verdiobjekter (HandlingKanalInput/HandlingHjemmelInput/osv.) er definert i
@@ -182,6 +184,18 @@ public sealed record HandlingDto(
         h.Merknad, h.Status, h.Versjon);
 }
 
+/// <summary>Forespørsel for POST /api/tjenester/{id}/handlinger/koble (2026-08-27, Tjenestedetalj-
+/// redesignrunden) — kobler en EKSISTERENDE handling (som virksomheten selv eier) som en sekundær
+/// "også brukt av"-kobling. Se <see cref="RegelIde.Data.HandlingTjenesteEntitet"/>.</summary>
+public sealed record KobleHandlingRequest(Guid HandlingId);
+
+/// <summary>Én sekundær handlings-kobling — samme rolle for <see cref="RegelIde.Data.HandlingTjenesteEntitet"/>
+/// som andre kobling-DTO-er i denne filen.</summary>
+public sealed record HandlingTjenesteDto(Guid Id, Guid HandlingId, Guid TjenesteId)
+{
+    public static HandlingTjenesteDto FraEntitet(HandlingTjenesteEntitet k) => new(k.Id, k.HandlingId, k.TjenesteId);
+}
+
 /// <summary>Forespørsel for POST/PUT /api/tjenester/{id}/handlinger og .../handlinger/{handlingId}.</summary>
 public sealed record HandlingRequest(
     string Navn, string Handlingstype, string? Bruksomraade, string? UtfortAv,
@@ -199,10 +213,10 @@ public sealed record HandlingMedTjenesteDto(HandlingDto Handling, string Tjenest
         new(HandlingDto.FraEntitet(rad.Handling), rad.TjenesteTittel, rad.VirksomhetId);
 }
 
-public sealed record TjenesteRegelverksreferanseDto(Guid Id, Guid TjenesteId, Guid TilRettskildeId, string TilEid)
+public sealed record TjenesteRegelverksreferanseDto(Guid Id, Guid TjenesteId, Guid TilRettskildeId, string TilEid, string? Felt)
 {
     public static TjenesteRegelverksreferanseDto FraEntitet(TjenesteRegelverksreferanseEntitet r) =>
-        new(r.Id, r.TjenesteId, r.TilRettskildeId, r.TilEid);
+        new(r.Id, r.TjenesteId, r.TilRettskildeId, r.TilEid, r.Felt);
 }
 
 /// <summary>Samme rolle for en Handling som <see cref="TjenesteRegelverksreferanseDto"/> har for en
@@ -312,8 +326,9 @@ public sealed record TjenesteTverrTenantTreffDto(Guid Id, string Tittel, string?
 /// <summary>Forespørsel for POST /api/handboker/{id}/rettskilder.</summary>
 public sealed record LeggTilRettskildeomfangRequest(Guid TilRettskildeId);
 
-/// <summary>Forespørsel for POST /api/tjenester/{id}/regelverksreferanser.</summary>
-public sealed record KobleRegelverksreferanseRequest(Guid TilRettskildeId, string TilEid);
+/// <summary>Forespørsel for POST /api/tjenester/{id}/regelverksreferanser. <see cref="Felt"/> valgfri —
+/// se feltnøkkel-konvensjonen på <see cref="RegelIde.Data.TjenesteFeltnokler"/> (TjenesteregisterTjeneste.cs).</summary>
+public sealed record KobleRegelverksreferanseRequest(Guid TilRettskildeId, string TilEid, string? Felt = null);
 
 /// <summary>
 /// Motsatt retning av <see cref="TjenesteRegelverksreferanseDto"/> — brukt av

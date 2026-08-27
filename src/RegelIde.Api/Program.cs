@@ -52,6 +52,8 @@ builder.Services.AddScoped<VilkarstreKommentarTjeneste>();
 builder.Services.AddScoped<HendelseregisterTjeneste>();
 builder.Services.AddScoped<TjenesteavhengighetregisterTjeneste>();
 builder.Services.AddScoped<HandlingregisterTjeneste>();
+builder.Services.AddScoped<HandlingTjenesteregisterTjeneste>();
+builder.Services.AddScoped<BrukerVisningsinnstillingTjeneste>();
 builder.Services.AddScoped<TjenesteEksportTjeneste>();
 builder.Services.AddScoped<RettighetModellEksportTjeneste>();
 builder.Services.AddScoped<KunnskapsbibliotekTjeneste>();
@@ -397,6 +399,34 @@ app.MapPut("/api/brukere/{id:guid}", async (Guid id, OppdaterBrukerRequest body,
     .WithOpenApi()
     .WithName("OppdaterBruker")
     .WithSummary("Endrer rolle og virksomhetstilordning for en eksisterende bruker (test- eller Altinn-bruker).");
+
+app.MapGet("/api/brukere/meg/tjeneste-visning", async (HttpRequest request, BrukerVisningsinnstillingTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        return Results.Ok(await tjeneste.HentAsync(bruker.Id, ct));
+    })
+    .WithOpenApi()
+    .WithName("HentTjenesteVisningsinnstillinger")
+    .WithSummary("Innlogget brukers foretrukne fanerekkefølge/-synlighet og accordion-rekkefølge/åpen-tilstand på " +
+        "Tjeneste-siden (2026-08-27) — per bruker, ikke per tjeneste, se BrukerVisningsinnstillingEntitet. " +
+        "Returnerer en dokumentert standardtilstand hvis brukeren ikke har lagret noe ennå.");
+
+app.MapPut("/api/brukere/meg/tjeneste-visning", async (HttpRequest request, VisningsinnstillingInput body, BrukerVisningsinnstillingTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        return Results.Ok(await tjeneste.LagreAsync(bruker.Id, body, ct));
+    })
+    .WithOpenApi()
+    .WithName("LagreTjenesteVisningsinnstillinger")
+    .WithSummary("Lagrer innlogget brukers visningsinnstillinger for Tjeneste-siden (helt-erstatning, ikke inkrementell).");
 
 app.MapGet("/api/virksomheter", async (RegelIdeDbContext db) =>
         (await db.Virksomheter.ToListAsync()).Select(VirksomhetDto.FraEntitet))
@@ -1174,7 +1204,7 @@ tjenester.MapPost("/", async (HttpRequest request, TjenesteRequest body, Tjenest
                 body.Output, body.Tjenestetype, body.Malgruppe, body.Kanaler, body.Kostnad, body.Behandlingstid,
                 body.Kontaktpunkt, body.KonsekvensVedBrudd, body.Sprak, bruker.Navn, ct,
                 body.Livshendelser, body.LosKlassifisering, body.Tjenesteomrade,
-                body.Type, body.Formal, body.Innhold);
+                body.Type, body.Formal, body.Innhold, body.EgneInnholdselementer);
             return Results.Created($"/api/tjenester/{t.Id}", TjenesteDto.FraEntitet(t));
         }
         catch (ArgumentException ex)
@@ -1198,7 +1228,7 @@ tjenester.MapPut("/{id:guid}", async (Guid id, HttpRequest request, TjenesteRequ
                 body.Tjenestetype, body.Malgruppe, body.Kanaler, body.Kostnad, body.Behandlingstid, body.Kontaktpunkt,
                 body.KonsekvensVedBrudd, body.Sprak, bruker.Navn, ct,
                 body.Livshendelser, body.LosKlassifisering, body.Tjenesteomrade,
-                body.Type, body.Formal, body.Innhold);
+                body.Type, body.Formal, body.Innhold, body.EgneInnholdselementer);
             return t is null ? Results.NotFound(new { feil = $"Ingen tjeneste med id '{id}'." }) : Results.Ok(TjenesteDto.FraEntitet(t));
         }
         catch (ArgumentException ex)
@@ -1238,7 +1268,7 @@ tjenester.MapPost("/{id:guid}/regelverksreferanser", async (Guid id, KobleRegelv
     {
         try
         {
-            var r = await tjeneste.KobleRegelverksreferanseAsync(id, body.TilRettskildeId, body.TilEid, ct);
+            var r = await tjeneste.KobleRegelverksreferanseAsync(id, body.TilRettskildeId, body.TilEid, ct, body.Felt);
             return Results.Created($"/api/tjenester/{id}/regelverksreferanser", TjenesteRegelverksreferanseDto.FraEntitet(r));
         }
         catch (ArgumentException ex)
@@ -1264,10 +1294,60 @@ app.MapGet("/api/handlinger", async (HandlingregisterTjeneste register, Cancella
         "med eiende tjenestes tittel og virksomhetId i samme svar — ETT kall, ikke N (ett per tjeneste). " +
         "Åpen lesing, samme holdning som GET /api/tjenester/{id}/handlinger.");
 
-tjenester.MapGet("/{id:guid}/handlinger", async (Guid id, HandlingregisterTjeneste register, CancellationToken ct) =>
-        Results.Ok((await register.ListerForTjenesteAsync(id, ct)).Select(HandlingDto.FraEntitet)))
+tjenester.MapGet("/{id:guid}/handlinger", async (Guid id, HandlingTjenesteregisterTjeneste koblinger, CancellationToken ct) =>
+        Results.Ok((await koblinger.HentForTjenesteAsync(id, ct)).Select(HandlingDto.FraEntitet)))
     .WithName("HentHandlinger")
-    .WithSummary("Lister handlingene tilknyttet en rettighet (tjeneste). Åpen lesing, samme holdning som GET /api/tjenester/{id}.");
+    .WithSummary("Lister handlingene tilknyttet en rettighet (tjeneste) — unionen av de den EIER og de den er " +
+        "sekundært KOBLET til (2026-08-27, se HandlingTjenesteEntitet). Åpen lesing, samme holdning som GET /api/tjenester/{id}.");
+
+tjenester.MapGet("/handlinger/register", async (string? sok, HttpRequest request, HandlingTjenesteregisterTjeneste koblinger, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        var treff = await koblinger.SokRegisterAsync(bruker.VirksomhetId, sok ?? "", ct);
+        return Results.Ok(treff.Select(HandlingDto.FraEntitet));
+    })
+    .WithName("SokHandlingRegister")
+    .WithSummary("Søker blant EGEN virksomhets handlinger (uansett hvilken tjeneste de er eid av) — kandidatlisten " +
+        "for «koble eksisterende handling». IKKE åpen tvers av virksomheter, se HandlingTjenesteregisterTjeneste.");
+
+tjenester.MapPost("/{id:guid}/handlinger/koble", async (Guid id, HttpRequest request, KobleHandlingRequest body, HandlingTjenesteregisterTjeneste koblinger, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        try
+        {
+            var kobling = await koblinger.KobleAsync(id, bruker.VirksomhetId, body.HandlingId, ct);
+            return Results.Created($"/api/tjenester/handlinger/koblinger/{kobling.Id}", HandlingTjenesteDto.FraEntitet(kobling));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KobleHandlingTilTjeneste")
+    .WithSummary("Kobler en EKSISTERENDE handling (som virksomheten selv eier) sekundært til denne tjenesten — " +
+        "eierskapet (HandlingEntitet.TjenesteId) endres ikke.");
+
+tjenester.MapDelete("/handlinger/koblinger/{koblingId:guid}", async (Guid koblingId, HttpRequest request, HandlingTjenesteregisterTjeneste koblinger, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        return await koblinger.FjernKoblingAsync(koblingId, bruker.VirksomhetId, ct)
+            ? Results.NoContent()
+            : Results.NotFound(new { feil = $"Ingen kobling med id '{koblingId}'." });
+    })
+    .WithName("FjernHandlingTjenesteKobling")
+    .WithSummary("Fjerner KUN koblingsraden — selve handlingen (og eierskapet) er urørt.");
 
 tjenester.MapPost("/{id:guid}/handlinger", async (Guid id, HttpRequest request, HandlingRequest body, HandlingregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {

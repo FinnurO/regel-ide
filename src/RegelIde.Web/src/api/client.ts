@@ -13,6 +13,8 @@ import type {
   HandlingMedTjenesteDto,
   HandlingRegelverksreferanseDto,
   HandlingRequest,
+  HandlingTjenesteDto,
+  KobleHandlingRequest,
   HendelseDto,
   HendelseRequest,
   KobleHendelseRequest,
@@ -84,6 +86,7 @@ import type {
   SveipVirksomhetKandidaterResultatDto,
   VirksomhetKandidatBatchRequest,
   VirksomhetKandidatBatchResultatDto,
+  VisningsinnstillingInput,
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5187';
@@ -203,6 +206,16 @@ export const api = {
 
   oppdaterBruker: (id: string, request: OppdaterBrukerRequest) =>
     kall<BrukerDto>(`/api/brukere/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  // Innlogget brukers visningsinnstillinger for Tjeneste-siden (2026-08-27) — per bruker, se VisningsinnstillingInput.
+  hentTjenesteVisningsinnstillinger: () => kall<VisningsinnstillingInput>('/api/brukere/meg/tjeneste-visning'),
+
+  lagreTjenesteVisningsinnstillinger: (request: VisningsinnstillingInput) =>
+    kall<VisningsinnstillingInput>('/api/brukere/meg/tjeneste-visning', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
@@ -787,6 +800,23 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
     }),
+
+  // ---------- Delte handlings-koblinger (2026-08-27, Tjenestedetalj-redesignrunden) ----------
+  // "Koble eksisterende handling" — se HandlingTjenesteEntitet på serveren.
+
+  /** Søker blant EGEN virksomhets handlinger (kandidatlisten for «koble eksisterende handling») — IKKE åpen tvers av virksomheter. */
+  sokHandlingRegister: (sok: string) =>
+    kall<HandlingDto[]>(`/api/tjenester/handlinger/register?sok=${encodeURIComponent(sok)}`),
+
+  kobleHandlingTilTjeneste: (tjenesteId: string, request: KobleHandlingRequest) =>
+    kall<HandlingTjenesteDto>(`/api/tjenester/${tjenesteId}/handlinger/koble`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  fjernHandlingTjenesteKobling: (koblingId: string) =>
+    kall<void>(`/api/tjenester/handlinger/koblinger/${koblingId}`, { method: 'DELETE' }),
 
   hentHandlingRegelverksreferanser: (handlingId: string) =>
     kall<HandlingRegelverksreferanseDto[]>(`/api/tjenester/handlinger/${handlingId}/regelverksreferanser`),

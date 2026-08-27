@@ -44,6 +44,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<MyndighetstildelingEntitet> Myndighetstildelinger => Set<MyndighetstildelingEntitet>();
     public DbSet<VirksomhetKandidatEntitet> VirksomhetKandidater => Set<VirksomhetKandidatEntitet>();
     public DbSet<Bruker> Brukere => Set<Bruker>();
+    public DbSet<BrukerVisningsinnstillingEntitet> BrukerVisningsinnstillinger => Set<BrukerVisningsinnstillingEntitet>();
     public DbSet<RettskildeEntitet> Rettskilder => Set<RettskildeEntitet>();
     public DbSet<RettskildeNodeEntitet> RettskildeNoder => Set<RettskildeNodeEntitet>();
     public DbSet<RettskildeReferanseEntitet> RettskildeReferanser => Set<RettskildeReferanseEntitet>();
@@ -56,6 +57,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<HandlingEntitet> Handlinger => Set<HandlingEntitet>();
     public DbSet<TjenesteRegelverksreferanseEntitet> TjenesteRegelverksreferanser => Set<TjenesteRegelverksreferanseEntitet>();
     public DbSet<HandlingRegelverksreferanseEntitet> HandlingRegelverksreferanser => Set<HandlingRegelverksreferanseEntitet>();
+    public DbSet<HandlingTjenesteEntitet> HandlingTjenester => Set<HandlingTjenesteEntitet>();
     public DbSet<HendelseEntitet> Hendelser => Set<HendelseEntitet>();
     public DbSet<TjenesteHendelseEntitet> TjenesteHendelser => Set<TjenesteHendelseEntitet>();
     public DbSet<TjenesteavhengighetEntitet> Tjenesteavhengigheter => Set<TjenesteavhengighetEntitet>();
@@ -198,6 +200,21 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                 .IsUnique()
                 .HasFilter("altinn_bruker_id IS NOT NULL")
                 .HasDatabaseName("ux_brukere_altinn_bruker_id");
+        });
+
+        b.Entity<BrukerVisningsinnstillingEntitet>(e =>
+        {
+            e.ToTable("bruker_visningsinnstillinger");
+            e.HasKey(x => x.Id).HasName("bruker_visningsinnstillinger_pkey");
+            e.Property(x => x.BrukerId).HasColumnName("bruker_id");
+            e.Property(x => x.SeksjonsrekkefolgeJson).HasColumnName("seksjonsrekkefolge").HasColumnType(jsonKolonne).HasDefaultValue("[]");
+            e.Property(x => x.SkjulteSeksjonerJson).HasColumnName("skjulte_seksjoner").HasColumnType(jsonKolonne).HasDefaultValue("[]");
+            e.Property(x => x.AccordionRekkefolgeJson).HasColumnName("accordion_rekkefolge").HasColumnType(jsonKolonne).HasDefaultValue("[]");
+            e.Property(x => x.AccordionApneJson).HasColumnName("accordion_apne").HasColumnType(jsonKolonne).HasDefaultValue("{}");
+
+            e.HasOne<Bruker>().WithMany().HasForeignKey(x => x.BrukerId).OnDelete(DeleteBehavior.Cascade);
+            // Én rad per bruker — se klassekommentaren.
+            e.HasIndex(x => x.BrukerId).IsUnique().HasDatabaseName("ux_bruker_visningsinnstillinger_bruker");
         });
 
         b.Entity<RettskildeEntitet>(e =>
@@ -459,6 +476,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Type).HasColumnName("type");
             e.Property(x => x.Formal).HasColumnName("formal");
             e.Property(x => x.InnholdJson).HasColumnName("innhold").HasColumnType(jsonKolonne);
+            e.Property(x => x.EgneInnholdselementerJson).HasColumnName("egne_innholdselementer").HasColumnType(jsonKolonne).HasDefaultValue("[]");
             e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("utkast");
             e.Property(x => x.Versjon).HasColumnName("versjon").HasDefaultValue(1);
             e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
@@ -522,12 +540,20 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.TjenesteId).HasColumnName("tjeneste_id");
             e.Property(x => x.TilRettskildeId).HasColumnName("til_rettskilde_id");
             e.Property(x => x.TilEid).HasColumnName("til_eid");
+            e.Property(x => x.Felt).HasColumnName("felt");
 
             e.HasOne<TjenesteEntitet>().WithMany().HasForeignKey(x => x.TjenesteId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.TilRettskildeId);
 
+            // To partial unike indekser i stedet for én (2026-08-27, Felt-utvidelsen) — Postgres/
+            // SQLite sin vanlige UNIQUE-semantikk regner NULL != NULL, så en enkelt indeks som
+            // inkluderte Felt ville sluppet gjennom ubegrensede duplikater av den FLATE listen
+            // (Felt IS NULL, dagens/opprinnelige oppførsel). Samme partial-indeks-teknikk som
+            // AltinnBrukerId/EksternKildeId bruker et annet sted i denne filen.
             e.HasIndex(x => new { x.TjenesteId, x.TilRettskildeId, x.TilEid }).IsUnique()
-                .HasDatabaseName("ux_tjeneste_regelverksreferanser");
+                .HasDatabaseName("ux_tjeneste_regelverksreferanser").HasFilter("felt IS NULL");
+            e.HasIndex(x => new { x.TjenesteId, x.TilRettskildeId, x.TilEid, x.Felt }).IsUnique()
+                .HasDatabaseName("ux_tjeneste_regelverksreferanser_felt").HasFilter("felt IS NOT NULL");
         });
 
         b.Entity<HandlingRegelverksreferanseEntitet>(e =>
@@ -543,6 +569,18 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 
             e.HasIndex(x => new { x.HandlingId, x.TilRettskildeId, x.TilEid }).IsUnique()
                 .HasDatabaseName("ux_handling_regelverksreferanser");
+        });
+
+        b.Entity<HandlingTjenesteEntitet>(e =>
+        {
+            e.ToTable("handling_tjenester");
+            e.HasKey(x => x.Id).HasName("handling_tjenester_pkey");
+            e.Property(x => x.HandlingId).HasColumnName("handling_id");
+            e.Property(x => x.TjenesteId).HasColumnName("tjeneste_id");
+
+            e.HasOne<HandlingEntitet>().WithMany().HasForeignKey(x => x.HandlingId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<TjenesteEntitet>().WithMany().HasForeignKey(x => x.TjenesteId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => new { x.HandlingId, x.TjenesteId }).IsUnique().HasDatabaseName("ux_handling_tjenester");
         });
 
         b.Entity<HendelseEntitet>(e =>

@@ -103,6 +103,36 @@ public sealed class Bruker
     public string? AltinnBrukerId { get; set; }
 }
 
+/// <summary>
+/// [Ny, 2026-08-27, Tjenestedetalj-redesignrunden] Rene UI-visningspreferanser for Tjeneste-siden —
+/// EN rad per <see cref="Bruker"/>, aldri per <see cref="TjenesteEntitet"/> (samme fanerekkefølge og
+/// samme accordion-åpen-tilstand følger brukeren fra tjeneste til tjeneste, bevisst valgt fremfor
+/// «per tjeneste» — se plan-notatet for begrunnelsen). Dekker KUN de faste 7 fane-nøklene og de 9
+/// faste accordion-nøklene i Innhold-fanen — egendefinerte innholdselementer ("+ Legg til eget
+/// innholdselement") har sin egen, tjeneste-spesifikke rekkefølge/åpen-tilstand lagret sammen med
+/// selve innholdet (<see cref="TjenesteEntitet.EgneInnholdselementerJson"/>), ikke her, siden en
+/// custom-nøkkel bare gir mening for DEN ene tjenesten den ble skrevet på.
+/// </summary>
+public sealed class BrukerVisningsinnstillingEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid BrukerId { get; set; }
+
+    /// <summary>Ordnet liste med de 7 faste fane-nøklene (vilkarstre/innhold/status/regelverk/
+    /// hendelser/handlinger/avhengigheter) — "oversikt" er alltid først og aldri med her, se
+    /// klassekommentaren. JSON-array av strenger.</summary>
+    public string SeksjonsrekkefolgeJson { get; set; } = "[]";
+
+    /// <summary>Delmengde av de samme 7 nøklene — skjulte faner. JSON-array av strenger.</summary>
+    public string SkjulteSeksjonerJson { get; set; } = "[]";
+
+    /// <summary>Ordnet liste med de 9 faste accordion-nøklene i Innhold-fanen. JSON-array av strenger.</summary>
+    public string AccordionRekkefolgeJson { get; set; } = "[]";
+
+    /// <summary>Åpen/lukket per fast accordion-nøkkel. JSON-objekt, streng-nøkkel til bool.</summary>
+    public string AccordionApneJson { get; set; } = "{}";
+}
+
 public sealed class RettskildeEntitet
 {
     public Guid Id { get; set; }
@@ -452,6 +482,17 @@ public sealed class TjenesteEntitet
     /// Livshendelser-migrasjonen).</summary>
     public string? InnholdJson { get; set; }
 
+    /// <summary>Nytt 2026-08-27 (Tjenestedetalj-redesignrunden) — frie, egendefinerte
+    /// innholdsseksjoner utover de faste <see cref="InnholdJson"/>-feltene ("+ Legg til eget
+    /// innholdselement"). Samme JSON-strengmønster som <see cref="HandlingEntitet.VedleggJson"/> —
+    /// en liste av <c>{id, tittel, tekst}</c>, deserialisert til
+    /// <c>List&lt;EgetInnholdselementInput&gt;</c> (TjenesteregisterTjeneste.cs) i API-laget.
+    /// Rekkefølgen i JSON-arrayet ER visningsrekkefølgen — ingen egen sorteringskolonne.
+    /// <c>Id</c> genereres klientside og er stabil over lagringer, siden den kan være mål for en
+    /// felt-nivå regelverksreferanse (<see cref="TjenesteRegelverksreferanseEntitet.Felt"/> =
+    /// <c>"egneInnholdselementer.{id}"</c>).</summary>
+    public string EgneInnholdselementerJson { get; set; } = "[]";
+
     public required string Status { get; set; } // 'utkast' | 'under_revisjon' | 'validert' | 'publisert' | 'tilbaketrukket' | 'arkivert'
     public int Versjon { get; set; } = 1;
     public string Entitetsstatus { get; set; } = "gjeldende";
@@ -546,6 +587,19 @@ public sealed class TjenesteRegelverksreferanseEntitet
     public Guid TjenesteId { get; set; }
     public Guid TilRettskildeId { get; set; }
     public required string TilEid { get; set; }
+
+    /// <summary>
+    /// Nytt 2026-08-27 (Tjenestedetalj-redesignrunden) — <c>null</c> = gjelder hele tjenesten (den
+    /// flate listen i "Regelverksreferanser"-fanen, dagens/opprinnelige oppførsel). Satt = knyttet
+    /// til ETT bestemt felt i "Innhold"-fanen — verdien er det ekte DTO-feltnavnet
+    /// (<see cref="TjenesteEntitet"/>/<c>TjenesteInnholdInput</c> sine egne property-navn, med punktum
+    /// for nestede felt, f.eks. <c>"innhold.hvaRettighetenInnebarer.kontrollOgTilsyn"</c>), eller
+    /// <c>"egneInnholdselementer.{id}"</c> for et fritt innholdselement. Se den fulle,
+    /// dokumenterte feltnøkkel-konvensjonen i TjenesteregisterTjeneste.cs. Bevisst IKKE en validert
+    /// enum-liste her — egendefinerte innholdselementer har dynamiske id-er en fast liste ikke kan
+    /// romme.
+    /// </summary>
+    public string? Felt { get; set; }
 }
 
 /// <summary>
@@ -564,6 +618,24 @@ public sealed class HandlingRegelverksreferanseEntitet
     public Guid HandlingId { get; set; }
     public Guid TilRettskildeId { get; set; }
     public required string TilEid { get; set; }
+}
+
+/// <summary>
+/// [Ny, 2026-08-27, Tjenestedetalj-redesignrunden] Sekundær "også brukt av"-kobling mellom en
+/// <see cref="HandlingEntitet"/> og en ANNEN <see cref="TjenesteEntitet"/> enn den som eier den
+/// ("Koble eksisterende handling" — søk blant ALLE tjenesters handlinger). IKKE eierskap:
+/// <see cref="HandlingEntitet.TjenesteId"/> forblir uendret den ENE eier-referansen (forfatter,
+/// sikkerhetsscoping i <c>HandlingregisterTjeneste</c>, tilbakelenken på <c>HandlingDetalj</c>-siden).
+/// Denne tabellen er ren mange-til-mange, samme rolle for Handling som
+/// <see cref="TjenesteHendelseEntitet"/> har for Hendelse — men her finnes ALLTID også en egen
+/// eier utenfor koblingstabellen, siden en Handling (i motsetning til Hendelse) er forfattet
+/// innhold, ikke et delt register fra dag én.
+/// </summary>
+public sealed class HandlingTjenesteEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid HandlingId { get; set; }
+    public required Guid TjenesteId { get; set; }
 }
 
 /// <summary>

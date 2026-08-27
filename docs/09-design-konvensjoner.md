@@ -347,4 +347,38 @@ Live-verifisert end-to-end, ikke bare kompilert: opprettet en ny håndbok via `R
 (chip-valg → `Opprett` → naviger til den nye håndbokens `RettskildeDetalj`-side), deretter i
 "Legg til rettskilde" søkte på "alkohol", bekreftet at den allerede lenkede rettskilden var
 UTELATT fra treffene (filtreringen i kalleren virker), valgte en ny, klikket "Legg til", og
+
+## 11. Tjenestedetalj-redesignrunden (2026-08-27) — `Details`, full-bredde-unntak, per-bruker visningsinnstillinger
+
+Full omskriving av `TjenesteDetalj.tsx` (fra ett 1253-linjers endimensjonalt skjema til en
+fanebasert side, se docs/22-tjeneste-side-redesign-brief.md for hva den løste) — tre nye,
+gjenbrukbare mønstre verdt å dokumentere for senere sider:
+
+**`Details`/`Details.Summary`/`Details.Content`** — FØRSTE bruk i appen (§0-vokabularet listet den
+som "aldri brukt ennå" til nå). Brukt som accordion-primitiv i Innhold-fanen i stedet for
+håndrullede divs. Kontrollert `open`+`onToggle` (verifisert mot installert `1.18.0` sine
+`.d.ts`-filer — `onToggle` er en native `toggle`-hendelse, `(e.target as
+HTMLDetailsElement).open` gir den NYE tilstanden, siden hendelsen fyres ETTER at den allerede har
+endret seg). Egne opp/ned/fjern-knapper i `Summary` MÅ `e.stopPropagation()` — hele `Summary`
+toggler ellers accordion-en når man klikker en knapp inni den.
+
+**`.tjenestedetalj-fullbredde`-klassen** (`index.css`) — unntak fra den globale `.innhold > *
+{ max-width: 1100px }`-regelen (§0). `TjenesteDetalj.tsx` er den FØRSTE og til nå ENESTE siden som
+trenger full bredde, for å få hovedinnhold + et høyre kontekstpanel side ved side (samme
+"navigator/editor/referanser"-IDE-behov som README sine to metaforer beskriver). Legg til flere
+spesifikke unntak etter SAMME mønster (én klasse per side som faktisk trenger det) hvis flere
+sider får et tilsvarende to-kolonne-behov — gjør ALDRI 1100px-regelen generelt løsere for å løse
+ett enkelt sides behov.
+
+**Per-bruker visningsinnstillinger** (`BrukerVisningsinnstillingEntitet`/
+`GET+PUT /api/brukere/meg/tjeneste-visning`, frontend-hooken
+`src/RegelIde.Web/src/tjeneste/useVisningsinnstillinger.ts`) — første gang appen lagrer en
+UI-STRUKTUR-preferanse (fanerekkefølge/-synlighet, accordion-rekkefølge/åpen-tilstand) server-side
+PER BRUKER i stedet for enten localStorage (tapes på annen enhet/nettleser) eller per tjeneste
+(ville tvunget alle som ser samme tjeneste til samme layout). Bevisst grense: INNHOLD som er
+tjeneste-spesifikt (egendefinerte innholdselementers egen rekkefølge/åpen-tilstand) styres LOKALT
+i selve fane-komponenten, ALDRI i denne delte per-bruker-tilstanden — en custom-nøkkel fra
+tjeneste A gir ikke mening på tjeneste B. Gjenbrukbart mønster hvis en annen side senere trenger
+samme "husk brukerens fanerekkefølge"-behov — samme `Bruker`-FK, samme
+`GjeldendeBrukerTjeneste.FinnAsync`-oppslag som resten av skrivende endepunkter allerede bruker.
 bekreftet at den dukket opp i "Denne håndboken omhandler"-tabellen og at velgeren nullstilte seg.

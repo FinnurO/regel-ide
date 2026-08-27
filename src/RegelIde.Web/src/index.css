@@ -213,6 +213,15 @@ a.sidebar__item:hover {
   max-width: 1100px;
 }
 
+/* Unntak fra 1100px-grensen over (2026-08-27, Tjenestedetalj-redesignrunden, docs/09 §11) —
+   TjenesteDetalj.tsx trenger full bredde for hovedinnhold + høyre kontekstpanel side ved side,
+   samme "IDE"-layout-behov som README sine to metaforer beskriver. Eneste siden med dette
+   unntaket i dag — legg til flere spesifikke unntak her ETTER samme mønster hvis flere sider
+   får et tilsvarende to-kolonne-behov, ikke gjør 1100px-regelen generelt løsere. */
+.tjenestedetalj-fullbredde {
+  max-width: none;
+}
+
 .rettskilde-tabell {
   width: 100%;
   border-collapse: collapse;

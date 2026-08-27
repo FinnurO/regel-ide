@@ -36,6 +36,50 @@ public sealed record TjenesteInnholdInput(
     TjenesteHvaRettighetenInnebarerInput? HvaRettighetenInnebarer);
 
 /// <summary>
+/// Ett fritt, egendefinert innholdselement ("+ Legg til eget innholdselement",
+/// Tjenestedetalj-redesignrunden 2026-08-27) — se <see cref="TjenesteEntitet.EgneInnholdselementerJson"/>.
+/// <paramref name="Id"/> genereres klientside (frontend bruker <c>crypto.randomUUID()</c>) og MÅ være
+/// stabil over lagringer — den kan være mål for en felt-nivå regelverksreferanse
+/// (<c>Felt = "egneInnholdselementer.{Id}"</c>, se feltnøkkel-konvensjonen under).
+/// </summary>
+public sealed record EgetInnholdselementInput(string Id, string Tittel, string? Tekst);
+
+/// <summary>
+/// Feltnøkkel-konvensjonen for <see cref="TjenesteRegelverksreferanseEntitet.Felt"/> (2026-08-27,
+/// Tjenestedetalj-redesignrunden) — ÉN kilde til sannhet, samme nøkler frontend og backend bruker,
+/// ALLTID de ekte DTO-feltnavnene (aldri en forkortelse/oversettelsestabell):
+/// <list type="bullet">
+/// <item>Grunnleggende-felt: <c>tittel</c>, <c>tjenestetype</c>, <c>beskrivelse</c>, <c>formal</c>,
+/// <c>kompetentMyndighet</c>, <c>type</c>, <c>malgruppe</c>, <c>kanaler</c>, <c>kostnad</c>,
+/// <c>behandlingstid</c>, <c>kontaktpunkt</c>, <c>konsekvensVedBrudd</c>, <c>sprak</c>,
+/// <c>livshendelser</c>, <c>losKlassifisering</c>, <c>tjenesteomrade</c>, <c>output</c>.</item>
+/// <item>Innhold-underfelt, punktum-adskilt fra roten <c>innhold</c>:
+/// <c>innhold.tidspunktOgFrister</c>, <c>innhold.innsenderOgTilgang.hvemKanSende</c>,
+/// <c>innhold.innsenderOgTilgang.innlogging</c>, <c>innhold.vedlegg</c>, <c>innhold.vedleggMerknad</c>,
+/// <c>innhold.opplysningerSomSkalSendesInn</c>, <c>innhold.opplysningerMerknad</c>,
+/// <c>innhold.veiledningOgUtfylling</c>, <c>innhold.veiledningMerknad</c>,
+/// <c>innhold.innsendingOgOppfolging.kanal</c>, <c>innhold.innsendingOgOppfolging.etterMottak</c>,
+/// <c>innhold.innsendingOgOppfolging.merknad</c>, <c>innhold.kontaktOgHjelp.generelt</c>,
+/// <c>innhold.kontaktOgHjelp.kommunenKanVeiledeOm</c>,
+/// <c>innhold.hvaRettighetenInnebarer.innledning</c>, <c>innhold.hvaRettighetenInnebarer.varighet</c>,
+/// <c>innhold.hvaRettighetenInnebarer.plikter</c>,
+/// <c>innhold.hvaRettighetenInnebarer.endringerIVirksomheten.plikt</c>,
+/// <c>innhold.hvaRettighetenInnebarer.endringerIVirksomheten.eksempler</c>,
+/// <c>innhold.hvaRettighetenInnebarer.kravTilDrift</c>,
+/// <c>innhold.hvaRettighetenInnebarer.tommeavtaleOgKontroll</c>,
+/// <c>innhold.hvaRettighetenInnebarer.rapportering</c>,
+/// <c>innhold.hvaRettighetenInnebarer.kontrollOgTilsyn</c>,
+/// <c>innhold.hvaRettighetenInnebarer.avgrensningMerknad</c>.</item>
+/// <item>Frie innholdselementer: <c>egneInnholdselementer.{id}</c>.</item>
+/// </list>
+/// Ingen DB-CHECK/enum her — <c>Felt</c> er fri streng nettopp fordi custom-elementer har
+/// dynamiske id-er en fast liste ikke kan romme. Frontend er den eneste stedet som faktisk
+/// validerer/tilbyr disse nøklene i et grensesnitt (velgeren viser kun de feltene som faktisk
+/// finnes på siden).
+/// </summary>
+internal static class TjenesteFeltnokler;
+
+/// <summary>
 /// Ett cross-tenant søketreff (2026-08-19, feature/tjenesteavhengighet-ekstern-referanse) — KUN
 /// <c>Status="publisert"</c> tjenester fra ENHVER virksomhet er søkbare her, aldri utkast/andre statuser
 /// fra en annen virksomhet enn kalleren (samme virksomhet-isolasjons-default som docs/02 §0.1 — draft-
@@ -125,7 +169,8 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
         string? behandlingstid, string? kontaktpunkt, string? konsekvensVedBrudd, IReadOnlyList<string>? sprak,
         string opprettetAv, CancellationToken ct = default,
         IReadOnlyList<string>? livshendelser = null, string? losKlassifisering = null, string? tjenesteomrade = null,
-        string? type = null, string? formal = null, TjenesteInnholdInput? innhold = null)
+        string? type = null, string? formal = null, TjenesteInnholdInput? innhold = null,
+        IReadOnlyList<EgetInnholdselementInput>? egneInnholdselementer = null)
     {
         if (string.IsNullOrWhiteSpace(tittel))
         {
@@ -158,6 +203,7 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
             Type = type,
             Formal = formal,
             InnholdJson = Serialiser(innhold),
+            EgneInnholdselementerJson = Serialiser(egneInnholdselementer?.ToList() ?? []) ?? "[]",
             Status = "utkast",
             OpprettetAv = opprettetAv,
             OpprettetTidspunkt = DateTimeOffset.UtcNow,
@@ -229,7 +275,8 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
         string? behandlingstid, string? kontaktpunkt, string? konsekvensVedBrudd, IReadOnlyList<string>? sprak,
         string endretAv, CancellationToken ct = default,
         IReadOnlyList<string>? livshendelser = null, string? losKlassifisering = null, string? tjenesteomrade = null,
-        string? type = null, string? formal = null, TjenesteInnholdInput? innhold = null)
+        string? type = null, string? formal = null, TjenesteInnholdInput? innhold = null,
+        IReadOnlyList<EgetInnholdselementInput>? egneInnholdselementer = null)
     {
         if (string.IsNullOrWhiteSpace(tittel))
         {
@@ -262,6 +309,7 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
         tjeneste.Type = type;
         tjeneste.Formal = formal;
         tjeneste.InnholdJson = Serialiser(innhold);
+        tjeneste.EgneInnholdselementerJson = Serialiser(egneInnholdselementer?.ToList() ?? []) ?? "[]";
         tjeneste.SistEndretAv = endretAv;
         tjeneste.SistEndretTidspunkt = DateTimeOffset.UtcNow;
         tjeneste.Versjon++;
@@ -271,7 +319,7 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
     }
 
     public async Task<TjenesteRegelverksreferanseEntitet> KobleRegelverksreferanseAsync(
-        Guid tjenesteId, Guid tilRettskildeId, string tilEid, CancellationToken ct = default)
+        Guid tjenesteId, Guid tilRettskildeId, string tilEid, CancellationToken ct = default, string? felt = null)
     {
         if (!await db.Tjenester.AnyAsync(t => t.Id == tjenesteId && t.Entitetsstatus == "gjeldende", ct))
         {
@@ -281,15 +329,18 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
         {
             throw new ArgumentException($"Målnoden '{tilEid}' finnes ikke i rettskilde '{tilRettskildeId}'.");
         }
+        // Samme (rettskilde, eId) kan kobles til BÅDE den flate listen (felt=null) OG ett eller
+        // flere enkeltfelt — duplikatsjekken må derfor inkludere Felt, se de to partial-indeksene
+        // i RegelIdeDbContext.cs.
         if (await db.TjenesteRegelverksreferanser.AnyAsync(
-                r => r.TjenesteId == tjenesteId && r.TilRettskildeId == tilRettskildeId && r.TilEid == tilEid, ct))
+                r => r.TjenesteId == tjenesteId && r.TilRettskildeId == tilRettskildeId && r.TilEid == tilEid && r.Felt == felt, ct))
         {
             throw new ArgumentException("Denne regelverksreferansen er allerede koblet.");
         }
 
         var referanse = new TjenesteRegelverksreferanseEntitet
         {
-            Id = Guid.NewGuid(), TjenesteId = tjenesteId, TilRettskildeId = tilRettskildeId, TilEid = tilEid,
+            Id = Guid.NewGuid(), TjenesteId = tjenesteId, TilRettskildeId = tilRettskildeId, TilEid = tilEid, Felt = felt,
         };
         db.TjenesteRegelverksreferanser.Add(referanse);
         await db.SaveChangesAsync(ct);
