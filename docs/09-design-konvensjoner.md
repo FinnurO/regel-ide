@@ -33,10 +33,11 @@ maks-bredde 1100px (IKKE fullbredde-design).
 `Textarea`, `Textfield`, `Tabs`, `ToggleGroup`, `Checkbox`, `Radio`, `Switch`, `Dropdown`, `Card`,
 `Badge`, `Chip`, `Breadcrumbs`, `Dialog`, `Popover`, `Tooltip`, `Details`, `Divider`,
 `ErrorSummary`, `ValidationMessage`, `Search`, `Pagination`, `Skeleton`, `Spinner`, `Avatar`,
-`List`, `Alert`. De første 12 (Button→Checkbox) er alt som faktisk er brukt i dag, PLUSS `Combobox`
-og `Pagination` (tatt i bruk 2026-08-22, branch `paginering` — se §9) — resten finnes i biblioteket
-men er ALDRI brukt ennå; bruk dem der de løser et reelt problem (se kjente UX-mangler under), ikke
-utenfor denne listen.
+`List`, `Alert`, `EXPERIMENTAL_Suggestion` (importert som `Suggestion`, se §10). De første 12
+(Button→Checkbox) er alt som faktisk er brukt i dag, PLUSS `Combobox` og `Pagination` (tatt i bruk
+2026-08-22, branch `paginering` — se §9) og `Suggestion` (tatt i bruk 2026-08-27 — se §10) — resten
+finnes i biblioteket men er ALDRI brukt ennå; bruk dem der de løser et reelt problem (se kjente
+UX-mangler under), ikke utenfor denne listen.
 
 **Kjente UX-mangler å adressere** (ikke bare pynte på): ingen brødsmulesti — hver side finner på sin
 egen «← Tilbake»-lenke eller har ingen; ingen delt visning av valideringsfeil per felt, kun én
@@ -279,3 +280,39 @@ Erstattet tre forekomster av «render alle virksomheter som `<Select.Option>`»:
 `TjenesteVeiledning.tsx`. Andre steder i kodebasen som viser/velger ÉN virksomhet ut fra en
 allerede liten, kontekstavgrenset liste (f.eks. brukerens egen virksomhet) er IKKE endret — dette
 gjelder kun steder som rendret HELE virksomhetslisten (~451 rader) som options.
+
+## 10. `RettskildeFlervalg` — flervalg av rettskilder uten å mounte hele lista (2026-08-27)
+
+Johann pekte på at «Identifiser tjenester» og «Identifiser begrep» rendret én `Checkbox` per
+rettskilde for å velge hvilke som skulle inn i et KI-forslagskall — med 5893 reelle rettskilder i
+dag (`curl localhost:5187/api/rettskilder`) en uholdbart lang liste, og pekte på Designsystemets
+`Suggestion`-komponent (dokumentert på designsystemet.no som «Flervalg»-varianten av den) som
+erstatning.
+
+**Eksport-navnet er `EXPERIMENTAL_Suggestion`**, ikke `Suggestion` — verifisert mot installert
+`1.18.0` sine `.d.ts`/kildefiler i `node_modules/@digdir/designsystemet-react` (komponenten er
+fortsatt experimental i denne versjonen). Importeres omdøpt: `import { EXPERIMENTAL_Suggestion as
+Suggestion, ... }`.
+
+**Samme DOM-monteringsfelle som `Combobox` (§9) — unngått med egen filtrering, ikke library'ets
+`filter`-prop:** `Suggestion` mounter ALLE `<Suggestion.Option>`-barn i DOM-en uansett — dens
+innebygde filtrering virker ved å SKJULE allerede mount'ede options (`option.disabled`), ikke ved å
+utelate dem fra treet. §9 dokumenterer et reelt render-timeout med bare ~451 `<option>` (native
+`Select`) — med 5893 rettskilder (13× så mange) er samme felle nesten garantert. Løsningen i
+`src/RegelIde.Web/src/rettskilde/RettskildeFlervalg.tsx`: `filter={false}` på `Suggestion`, og en
+egen `sok`-React-state (fra `Suggestion.Input`s `onInput`, IKKE dens `value`/`onChange` — komponenten
+advarer selv i konsollen mot begge, siden `Suggestion` skal styre input-verdien via `selected`)
+filtrerer `rettskilder`-arrayet FØR rendering, og kun de første 50 treffene mountes som
+`<Suggestion.Option>`. Ved tomt søk mountes null options (viser en «Skriv for å søke …»-tekst via
+`Suggestion.Empty`) — ingen 5893-elements DOM-tre eksisterer noe sted i denne komponentens levetid.
+
+**Props**: `rettskilder` (`RettskildeSammendrag[]`), `valgte` (`Set<string>`), `onChange`
+(`(valgte: Set<string>) => void`, kan sendes direkte som en `useState`-setter), `label?`
+(default `"Rettskilder"`). Brukt i `TjenesteforslagKo.tsx` og `BegrepsforslagKo.tsx` — begge hadde
+identisk `Checkbox`-liste + `valgteRettskilder: Set<string>`-tilstand, kun `onChange`-kallet endret
+(direkte `setValgteRettskilder` i stedet for en `vekslRettskilde(id, checked)`-hjelpefunksjon per
+rad, som nå er fjernet fra begge filene).
+
+Live-verifisert (ikke bare kompilert): søk på "alkohol" mounter nøyaktig de matchende
+`<u-option>`-elementene (ikke alle 5893), valg gir en fjernbar `Chip` og aktiverer
+"Kjør KI-forslag", og å fjerne chippen nullstiller utvalget og deaktiverer knappen igjen.

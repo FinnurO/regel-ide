@@ -1,9 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router';
-import { Alert, Button, Checkbox, Heading, Link, Paragraph, Spinner, Table } from '@digdir/designsystemet-react';
+import { Alert, Button, Heading, Link, Paragraph, Spinner, Table } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { BegrepsforslagDto, RettskildeSammendrag } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
+import { RettskildeFlervalg } from '../rettskilde/RettskildeFlervalg';
 
 /**
  * «Identifiser begrep» (byggesteg 5 runde 1, docs/06-veikart.md) — rent rettskilde-drevet, ingen
@@ -29,14 +30,6 @@ export default function BegrepsforslagKo() {
     api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
     lastKo();
   }, []);
-
-  function vekslRettskilde(id: string, valgt: boolean) {
-    setValgteRettskilder((forrige) => {
-      const ny = new Set(forrige);
-      if (valgt) ny.add(id); else ny.delete(id);
-      return ny;
-    });
-  }
 
   async function kjorForslag() {
     setFeil(null);
@@ -81,13 +74,7 @@ export default function BegrepsforslagKo() {
 
       {rettskilder.length > 0 && (
         <div style={{ marginBottom: '1rem' }}>
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.3rem' }}>Rettskilder:</Paragraph>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', marginBottom: '0.75rem' }}>
-            {rettskilder.map((r) => (
-              <Checkbox key={r.id} label={r.tittel} checked={valgteRettskilder.has(r.id)}
-                onChange={(e) => vekslRettskilde(r.id, e.target.checked)} />
-            ))}
-          </div>
+          <RettskildeFlervalg rettskilder={rettskilder} valgte={valgteRettskilder} onChange={setValgteRettskilder} />
           <Button onClick={kjorForslag} disabled={kjorer || valgteRettskilder.size === 0}>
             {kjorer ? 'Kjører KI-forslag …' : 'Kjør KI-forslag'}
           </Button>

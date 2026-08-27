@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router';
-import { Alert, Button, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { KunnskapsbibliotekFilDto, KunnskapsbibliotekLenkeDto, RettskildeSammendrag, TjenesteforslagDto } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
+import { RettskildeFlervalg } from '../rettskilde/RettskildeFlervalg';
 
 /**
  * «Identifiser tjenester» (byggesteg 5 runde 1, docs/06-veikart.md) — foreslår nye Tjeneste-objekter
@@ -51,14 +52,6 @@ export default function TjenesteforslagKo() {
     lastFiler();
     lastKo();
   }, []);
-
-  function vekslRettskilde(id: string, valgt: boolean) {
-    setValgteRettskilder((forrige) => {
-      const ny = new Set(forrige);
-      if (valgt) ny.add(id); else ny.delete(id);
-      return ny;
-    });
-  }
 
   async function leggTilLenke(e: FormEvent) {
     e.preventDefault();
@@ -206,13 +199,7 @@ export default function TjenesteforslagKo() {
 
       {rettskilder.length > 0 && (
         <div style={{ marginBottom: '1rem' }}>
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.3rem' }}>Rettskilder:</Paragraph>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.2rem', marginBottom: '0.75rem' }}>
-            {rettskilder.map((r) => (
-              <Checkbox key={r.id} label={r.tittel} checked={valgteRettskilder.has(r.id)}
-                onChange={(e) => vekslRettskilde(r.id, e.target.checked)} />
-            ))}
-          </div>
+          <RettskildeFlervalg rettskilder={rettskilder} valgte={valgteRettskilder} onChange={setValgteRettskilder} />
           <Field style={{ maxWidth: '20rem', marginBottom: '0.75rem' }}>
             <Label>Omfang</Label>
             <Select data-size="sm" value={omfang} onChange={(e) => setOmfang(e.target.value as 'tjeneste' | 'full')}>
