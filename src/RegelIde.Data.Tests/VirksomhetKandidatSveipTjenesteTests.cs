@@ -143,6 +143,51 @@ public class VirksomhetKandidatSveipTjenesteTests
     }
 
     [Fact]
+    public async Task Sveip_hopper_over_en_ANNEN_virksomhets_lokale_rettskilde()
+    {
+        // Johanns tilbakemelding 2026-08-22 (bekreftet reelt i produksjonsdata): sveip for Agder
+        // fylkeskommune traff en rettskilde eid av Bergen kommune. Sveipet skal KUN gjelde delte/
+        // nasjonale rettskilder (VirksomhetId == null) pluss virksomhetens EGNE — en annen virksomhets
+        // lokale rettskilde skal ALDRI gi treff, selv om navneformen faktisk forekommer i teksten.
+        await using var db = _fixture.NyDbContext();
+        var enAnnenVirksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = "En annen virksomhet AS" };
+        db.Virksomheter.Add(enAnnenVirksomhet);
+        await db.SaveChangesAsync();
+
+        // Importert som EN ANNEN virksomhets EGEN, lokale rettskilde — ikke delt/nasjonal.
+        var rettskildeId = await new RettskildeImportTjeneste(db).ImporterAsync(
+            LovdataKonverterer.Konverter(Testdata.LesAdvokatloven(), new DateOnly(2026, 8, 22)), enAnnenVirksomhet.Id);
+        var virksomhet = await OpprettAdvokattilsynetMedNavneformerAsync(db);
+
+        var sveip = new VirksomhetKandidatSveipTjeneste(db, new VirksomhetKandidatTjeneste(db, new TekstTaggTjeneste(db)));
+        await sveip.SveipAsync(virksomhet.Id, "sveip");
+
+        var kandidaterIDenLokaleRettskilden = await db.VirksomhetKandidater
+            .Where(k => k.VirksomhetId == virksomhet.Id && k.RettskildeId == rettskildeId)
+            .ToListAsync();
+        Assert.Empty(kandidaterIDenLokaleRettskilden);
+    }
+
+    [Fact]
+    public async Task Sveip_finner_treff_i_egen_lokal_rettskilde()
+    {
+        // Samme scoping-regel motsatt vei: EGNE lokale rettskilder skal fortsatt gi treff.
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = await OpprettAdvokattilsynetMedNavneformerAsync(db);
+
+        var rettskildeId = await new RettskildeImportTjeneste(db).ImporterAsync(
+            LovdataKonverterer.Konverter(Testdata.LesAdvokatloven(), new DateOnly(2026, 8, 22)), virksomhet.Id);
+
+        var sveip = new VirksomhetKandidatSveipTjeneste(db, new VirksomhetKandidatTjeneste(db, new TekstTaggTjeneste(db)));
+        await sveip.SveipAsync(virksomhet.Id, "sveip");
+
+        var kandidaterIEgenRettskilde = await db.VirksomhetKandidater
+            .Where(k => k.VirksomhetId == virksomhet.Id && k.RettskildeId == rettskildeId)
+            .ToListAsync();
+        Assert.NotEmpty(kandidaterIEgenRettskilde);
+    }
+
+    [Fact]
     public async Task Kaster_hvis_virksomheten_ikke_har_noen_navneform()
     {
         await using var db = _fixture.NyDbContext();

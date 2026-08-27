@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router';
 import { Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
@@ -69,7 +69,17 @@ export default function VirksomhetKandidaterListe() {
     return node.tekst.slice(k.startOffset, k.endOffset);
   }
 
+  // Forespørsel-sekvensnummer (2026-08-22, Johanns tilbakemelding: kandidater for en virksomhet dukket
+  // opp i lista mens et ANNET filter var valgt) — uten dette kunne en TREG, ELDRE forespørsel (f.eks.
+  // fra filteret rett før brukeren byttet raskt til et nytt) svare ETTER en NYERE, og overskrive
+  // resultatet med data som ikke lenger matcher det synlige filteret. `hentVirksomheter`/`api.kall`
+  // har ingen innebygd avbrytnings-mekanisme (ingen AbortController), så vi løser det her i stedet:
+  // hvert kall får sitt eget løpenummer, og kun svaret fra det SISTE utstedte kallet får lov til å
+  // sette state.
+  const sisteForesporsel = useRef(0);
+
   function lastKandidater() {
+    const denneForesporselen = ++sisteForesporsel.current;
     setLaster(true);
     setFeil(null);
     api
@@ -79,11 +89,17 @@ export default function VirksomhetKandidaterListe() {
         status: statusFilter,
       })
       .then((liste) => {
+        if (denneForesporselen !== sisteForesporsel.current) return; // en nyere forespørsel er allerede i gang/ferdig
         setKandidater(liste);
         setValgte(new Set()); // Nytt filter/ny liste — forrige utvalg gjelder ikke lenger.
       })
-      .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av kandidater.'))
-      .finally(() => setLaster(false));
+      .catch((e) => {
+        if (denneForesporselen !== sisteForesporsel.current) return;
+        setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av kandidater.');
+      })
+      .finally(() => {
+        if (denneForesporselen === sisteForesporsel.current) setLaster(false);
+      });
   }
 
   useEffect(lastKandidater, [virksomhetFilter, rettskildeFilter, statusFilter]);

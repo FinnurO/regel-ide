@@ -68,9 +68,17 @@ public sealed class VirksomhetKandidatSveipTjeneste(RegelIdeDbContext db, Virkso
             @"\b(?:" + string.Join('|', navneformer.OrderByDescending(n => n.Length).Select(Regex.Escape)) + @")\b",
             RegexOptions.IgnoreCase);
 
+        // Kun DELTE/nasjonale rettskilder (Rettskilde.VirksomhetId == null) pluss virksomhetens EGNE
+        // (2026-08-22, Johanns tilbakemelding — bekreftet reelt: sveip for Agder fylkeskommune traff
+        // en rettskilde eid av Bergen kommune). En annen virksomhets lokale rettskilde (f.eks. Bergen
+        // sin egen brukerveiledning) er ikke relevant for EN ANNEN virksomhet sitt navneform-treff,
+        // uansett om ordet faktisk forekommer der — samme "riktig omfang, ikke bare riktig ord"-
+        // prinsipp som resten av virksomhet-scopingen i appen.
         var noder = await db.RettskildeNoder
-            .Where(n => n.Tekst != null && !n.Opphevet && n.Entitetsstatus == "gjeldende")
-            .Select(n => new { n.RettskildeId, n.Eid, n.Tekst })
+            .Join(db.Rettskilder, n => n.RettskildeId, r => r.Id, (n, r) => new { Node = n, r.VirksomhetId })
+            .Where(x => x.Node.Tekst != null && !x.Node.Opphevet && x.Node.Entitetsstatus == "gjeldende"
+                        && (x.VirksomhetId == null || x.VirksomhetId == virksomhetId))
+            .Select(x => new { x.Node.RettskildeId, x.Node.Eid, x.Node.Tekst })
             .ToListAsync(ct);
 
         var antallTreff = 0;
