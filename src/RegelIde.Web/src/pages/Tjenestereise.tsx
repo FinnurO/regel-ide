@@ -37,9 +37,17 @@ export default function Tjenestereise() {
       return;
     }
     setFeil(null);
+    // [Endret, 2026-08-29] `avbrutt`-vakt — oppdaget via kodegjennomgang: uten den kunne et raskt
+    // valg av sentrum A (treg, f.eks. dybde=5 på en stor graf) etterfulgt av et raskt valg av
+    // sentrum B (rask, liten graf) la A sitt SENERE ankomne, utdaterte svar stille overskrive B sin
+    // allerede korrekt viste graf — ingen feil, bare feil graf synlig for valgt sentrum. Samme
+    // "er dette effektkjøringen fortsatt gjeldende"-mønster som Reacts egen useEffect-dokumentasjon
+    // anbefaler for kappløp, uten å kreve at `api`-klienten selv støtter AbortSignal.
+    let avbrutt = false;
     api.hentTjenestereiseGraf(sentrumId, { dybde, inkluderHandlinger, livshendelse: livshendelseFilter || null })
-      .then(setGraf)
-      .catch(() => setFeil('Kunne ikke hente tjenestereise-grafen.'));
+      .then((resultat) => { if (!avbrutt) setGraf(resultat); })
+      .catch(() => { if (!avbrutt) setFeil('Kunne ikke hente tjenestereise-grafen.'); });
+    return () => { avbrutt = true; };
   }, [sentrumId, dybde, inkluderHandlinger, livshendelseFilter]);
 
   return (
@@ -90,7 +98,14 @@ export default function Tjenestereise() {
       {!sentrumId && <Paragraph>Velg en sentrum-tjeneste for å tegne grafen.</Paragraph>}
 
       {sentrumId && graf && (
-        <TjenesteGrafCanvas noder={graf.noder} kanter={graf.kanter} felt={felt} onFeltChange={setFelt} fremhevetId={sentrumId} />
+        // `key={sentrumId}` — oppdaget via kodegjennomgang: uten den gjenbrukte React samme
+        // `TjenesteGrafCanvas`-instans (og dermed dens interne nodeposisjon-bevaring, se
+        // `TjenesteGrafCanvas.tsx`) på tvers av et BYTTE av sentrum-tjeneste. En node-id som
+        // tilfeldigvis dukker opp igjen i en helt annen, urelatert graf beholdt da sin gamle posisjon
+        // fra FORRIGE sentrums layout i stedet for å flyttes til sin ferske, riktige plass. Et nytt
+        // sentrum er en genuint ny "graf-økt" og skal montere lerretet på nytt — dybde/handlinger/
+        // livshendelse-endringer for SAMME sentrum beholder fortsatt posisjonsbevaringen (samme key).
+        <TjenesteGrafCanvas key={sentrumId} noder={graf.noder} kanter={graf.kanter} felt={felt} onFeltChange={setFelt} fremhevetId={sentrumId} />
       )}
     </>
   );

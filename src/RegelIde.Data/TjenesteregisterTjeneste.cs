@@ -281,7 +281,15 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
         IReadOnlyList<string>? malgruppe, string? konsekvensVedBrudd, string opprettetAv, CancellationToken ct = default,
         IReadOnlyList<string>? livshendelser = null, string? losKlassifisering = null, string? tjenesteomrade = null,
         string? type = null, string? formal = null, TjenesteInnholdInput? innhold = null,
-        IReadOnlyList<EgetInnholdselementInput>? egneInnholdselementer = null)
+        IReadOnlyList<EgetInnholdselementInput>? egneInnholdselementer = null,
+        // [Ny, 2026-08-29] Var utelatt — doc-kommentaren over påsto (feilaktig, oppdaget via
+        // kodegjennomgang) at denne metoden speilet OpprettAsync feltmessig, men manglet disse åtte —
+        // en import til en ANNEN virksomhet mistet dem stille, mens nøyaktig samme JSON importert til
+        // egen virksomhet beholdt dem. Lagt til bakerst (valgfrie, default null) for å ikke endre
+        // eksisterende kallesteders posisjonsargumenter.
+        string? beskrivelse = null, string? output = null, string? tjenestetype = null,
+        IReadOnlyList<string>? kanaler = null, string? kostnad = null, string? behandlingstid = null,
+        string? kontaktpunkt = null, IReadOnlyList<string>? sprak = null)
     {
         if (string.IsNullOrWhiteSpace(tittel))
         {
@@ -297,9 +305,17 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
             Id = Guid.NewGuid(),
             VirksomhetId = malVirksomhetId,
             Tittel = tittel,
+            Beskrivelse = beskrivelse,
             KompetentMyndighet = kompetentMyndighet,
+            Output = output,
+            Tjenestetype = tjenestetype,
             Malgruppe = malgruppe?.ToList() ?? [],
+            Kanaler = kanaler?.ToList() ?? [],
+            Kostnad = kostnad,
+            Behandlingstid = behandlingstid,
+            Kontaktpunkt = kontaktpunkt,
             KonsekvensVedBrudd = konsekvensVedBrudd,
+            Sprak = sprak?.ToList() ?? [],
             Livshendelser = livshendelser?.ToList() ?? [],
             LosKlassifisering = losKlassifisering,
             Tjenesteomrade = tjenesteomrade,
@@ -457,11 +473,18 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
     /// Ekte SQL-sletting (ikke en `Entitetsstatus`-markering) — et aldri-behandlet forslag har ingen
     /// verdi å bevare et spor av. Handlinger/regelverksreferanse-koblinger/hendelse-tilknytning
     /// kaskaderer allerede i DB-skjemaet (`OnDelete(Cascade)` på `TjenesteId`/`HandlingId`,
-    /// `RegelIdeDbContext.cs`). Tjenesteavhengigheter der denne tjenesten er MÅL har derimot bevisst
-    /// `OnDelete(Restrict)` (unngår at en sletting et annet sted utilsiktet kutter en kant en tredje
-    /// tjeneste fortsatt viser fra) — slettes derfor eksplisitt her FØR selve tjenesten, i begge
-    /// retninger. Proveniens-rader har ingen ekte FK (løst typet `EntitetId`) og ryddes eksplisitt for
-    /// både tjenesten selv og hver av dens handlinger, ellers blir de foreldreløse.
+    /// `RegelIdeDbContext.cs`), likeså `Vilkar.TjenesteId`/`Tjeneste.ErstatterId` (begge `SetNull` —
+    /// [Endret, 2026-08-29]: var uspesifisert/Restrict før, kunne kaste en ufanget FK-brudd-exception
+    /// her dersom et vilkår eller en annen tjenestes "erstatter"-referanse pekte på forslag-raden).
+    /// Tjenesteavhengigheter der denne tjenesten er MÅL har derimot bevisst `OnDelete(Restrict)`
+    /// (unngår at en sletting et annet sted utilsiktet kutter en kant en tredje tjeneste fortsatt viser
+    /// fra) — slettes derfor eksplisitt her FØR selve tjenesten, i begge retninger, MEN kun etter at
+    /// [Ny, 2026-08-29] et eget vakt-sjekk over har bekreftet at INGEN av kantene faktisk henger sammen
+    /// med en tjeneste utenfor selve forslaget (se guard-blokken før transaksjonen starter) — uten den
+    /// sjekken ville denne sletting stille kunne fjerne en helt urelatert, allerede godkjent tjenestes
+    /// ekte avhengighet, bare fordi den tilfeldigvis pekte på nettopp dette forslaget. Proveniens-rader
+    /// har ingen ekte FK (løst typet `EntitetId`) og ryddes eksplisitt for både tjenesten selv og hver
+    /// av dens handlinger, ellers blir de foreldreløse.
     /// </para>
     /// </summary>
     public async Task<bool> SlettForslagAsync(Guid tjenesteId, Guid virksomhetId, CancellationToken ct = default)
@@ -482,6 +505,29 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
         if (!erEier && !erOpprinneligForeslagsstiller)
         {
             throw new ArgumentException("Ingen tilgang — verken eier av tjenesten eller virksomheten som foreslo den.");
+        }
+
+        // [Ny, 2026-08-29] Nekt sletting dersom en ANNEN, allerede behandlet tjeneste (uansett hvilken
+        // virksomhet den tilhører) fortsatt har en ekte avhengighet til/fra denne forslag-raden —
+        // oppdaget via kodegjennomgang (PR #55): den opprinnelige koden slettet tjenesteavhengigheter i
+        // BEGGE retninger uten å sjekke den andre siden i det hele tatt, og kunne dermed stille slette
+        // en validert/publisert tjenestes ekte, godkjente avhengighet bare fordi den tilfeldigvis pekte
+        // mot et forslag som ble ryddet bort. Et forslag som fortsatt henger sammen med ekte innhold er
+        // ikke lenger "aldri rørt" — mennesket må fjerne DEN koblingen bevisst først (fra den andre
+        // tjenestens egen Avhengigheter-fane), i tråd med appens "ingen stille destruksjon"-holdning.
+        var forslagStatuser = new[] { "foreslatt_av_ai", "foreslatt_av_annen_virksomhet" };
+        var henvisesFraUtenforForslaget = await db.Tjenesteavhengigheter
+            .Where(a => a.FraTjenesteId == tjenesteId || a.TilTjenesteId == tjenesteId)
+            .Select(a => a.FraTjenesteId == tjenesteId ? a.TilTjenesteId : (Guid?)a.FraTjenesteId)
+            .Where(id => id != null)
+            .Select(id => id!.Value)
+            .Distinct()
+            .Join(db.Tjenester, id => id, t => t.Id, (id, t) => t.Status)
+            .AnyAsync(status => !forslagStatuser.Contains(status), ct);
+        if (henvisesFraUtenforForslaget)
+        {
+            throw new ArgumentException(
+                "Kan ikke slette — en annen, allerede behandlet tjeneste har fortsatt en avhengighet til/fra denne. Fjern den avhengigheten først (fra den andre tjenestens Avhengigheter-fane).");
         }
 
         await using var transaksjon = await db.Database.BeginTransactionAsync(ct);

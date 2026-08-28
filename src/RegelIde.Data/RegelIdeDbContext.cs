@@ -492,7 +492,14 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.RotnodeId).HasColumnName("rotnode_id");
 
             e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
-            e.HasOne<TjenesteEntitet>().WithMany().HasForeignKey(x => x.ErstatterId);
+            // [Endret, 2026-08-29] Var uspesifisert (dermed Postgres NO ACTION/Restrict) — oppdaget via
+            // kodegjennomgang at TjenesteregisterTjeneste.SlettForslagAsync sin hard-sletting av en
+            // ubehandlet forslag-tjeneste ville kastet en ufanget FK-brudd-exception (500, ikke den
+            // dokumenterte 400) dersom en ANNEN, ekte tjeneste tilfeldigvis hadde ErstatterId satt til
+            // nettopp DEN forslag-raden. SetNull (ikke Cascade) — å slette en aldri-godkjent forslag-rad
+            // skal aldri kaskadere til å slette en ekte, urelatert tjeneste; det andre-siden-tjenesten
+            // mister bare den (uansett meningsløse) "erstatter en slettet forslag-rad"-referansen.
+            e.HasOne<TjenesteEntitet>().WithMany().HasForeignKey(x => x.ErstatterId).OnDelete(DeleteBehavior.SetNull);
             e.HasOne<RegelnodeEntitet>().WithMany().HasForeignKey(x => x.RotnodeId);
             e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_tjenester_virksomhet");
         });
@@ -855,7 +862,13 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasOne<VilkarEntitet>().WithMany().HasForeignKey(x => x.ErstatterId);
             e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.BegrepId);
             e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.SkjonnsgrunnlagBegrepId);
-            e.HasOne<TjenesteEntitet>().WithMany().HasForeignKey(x => x.TjenesteId);
+            // [Endret, 2026-08-29] Var uspesifisert (Postgres NO ACTION) — samme begrunnelse som
+            // Tjeneste.ErstatterId over: TjenesteregisterTjeneste.SlettForslagAsync sin hard-sletting av
+            // en ubehandlet forslag-tjeneste ville kastet en ufanget FK-brudd-exception dersom et vilkår
+            // fortsatt var koblet til den (f.eks. via "Identifiser vilkår" kjørt før forslaget ble
+            // vurdert). SetNull — vilkåret selv er ekte innhold og skal IKKE forsvinne fordi tjenesten
+            // det var koblet til ble slettet; det mister bare selve koblingen.
+            e.HasOne<TjenesteEntitet>().WithMany().HasForeignKey(x => x.TjenesteId).OnDelete(DeleteBehavior.SetNull);
             e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_vilkar_virksomhet");
             e.HasIndex(x => x.TjenesteId).HasDatabaseName("ix_vilkar_tjeneste");
         });

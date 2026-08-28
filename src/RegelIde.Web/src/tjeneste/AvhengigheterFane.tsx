@@ -74,7 +74,11 @@ export function AvhengigheterFane({ tjenesteId, avhengigheter, setAvhengigheter,
 
   async function leggTilAvhengighet(e: FormEvent) {
     e.preventDefault();
-    const harEksternMal = !nyAvhengighetTilId && nyAvhengighetTilOrgnr.trim() && nyAvhengighetTilNavn.trim();
+    // [Endret, 2026-08-29] Navn alene er nok — organisasjonsnummer er valgfritt på serveren
+    // (se TjenesteavhengighetregisterTjeneste.OpprettAsync), for konseptuelle eksterne motparter uten
+    // et ekte norsk orgnummer («en utenlandsk vigselsmyndighet»). Denne siden krevde tidligere BEGGE
+    // felt og kunne dermed aldri sende inn nettopp den kombinasjonen backend-endringen muliggjorde.
+    const harEksternMal = !nyAvhengighetTilId && nyAvhengighetTilNavn.trim();
     if (!nyAvhengighetTilId && !harEksternMal) return;
     setAvhengighetFeil(null);
     setLeggerTilAvhengighet(true);
@@ -162,7 +166,7 @@ export function AvhengigheterFane({ tjenesteId, avhengigheter, setAvhengigheter,
         <Textfield data-size="sm" label="Nyanse/unntak (valgfritt)" value={nyAvhengighetBeskrivelse}
           onChange={(e) => setNyAvhengighetBeskrivelse(e.target.value)} style={{ minWidth: '16rem' }} />
         <Button data-size="sm" type="submit"
-          disabled={leggerTilAvhengighet || (!nyAvhengighetTilId && !(nyAvhengighetTilOrgnr.trim() && nyAvhengighetTilNavn.trim()))}>
+          disabled={leggerTilAvhengighet || (!nyAvhengighetTilId && !nyAvhengighetTilNavn.trim())}>
           {leggerTilAvhengighet ? 'Oppretter …' : 'Opprett avhengighet'}
         </Button>
       </form>
@@ -171,6 +175,9 @@ export function AvhengigheterFane({ tjenesteId, avhengigheter, setAvhengigheter,
         <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
           Eller finn en ANNEN virksomhets publiserte tjeneste, eller — hvis den ikke finnes som en ekte
           tjeneste i Regel-IDE i det hele tatt — oppgi den som en ekstern referanse manuelt nedenfor.
+          Navn er det eneste påkrevde feltet; organisasjonsnummer brukes som bindingsnøkkel når
+          motparten faktisk har et, men en konseptuell motpart uten et ekte norsk orgnummer (f.eks. en
+          utenlandsk myndighet) kan opprettes med navn alene.
         </Paragraph>
         <Textfield data-size="sm" label="Søk i andre virksomheters publiserte tjenester" value={tverrTenantSok}
           onChange={(e) => setTverrTenantSok(e.target.value)} style={{ maxWidth: '24rem', marginBottom: '0.5rem' }} />
@@ -196,7 +203,7 @@ export function AvhengigheterFane({ tjenesteId, avhengigheter, setAvhengigheter,
           </Tag>
         )}
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-          <Textfield data-size="sm" label="Avansert / manuell — organisasjonsnummer" value={nyAvhengighetTilOrgnr}
+          <Textfield data-size="sm" label="Avansert / manuell — organisasjonsnummer (valgfritt)" value={nyAvhengighetTilOrgnr}
             onChange={(e) => endreEkstern('orgnr', e.target.value)} style={{ minWidth: '12rem' }} />
           <Textfield data-size="sm" label="Navn på tjenesten" value={nyAvhengighetTilNavn}
             onChange={(e) => endreEkstern('navn', e.target.value)} style={{ minWidth: '16rem' }} />

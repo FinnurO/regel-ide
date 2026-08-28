@@ -139,7 +139,14 @@ public sealed class TjenesteavhengighetregisterTjeneste(RegelIdeDbContext db)
         // orgnummer UTEN navn gir derimot ingen mening (navn er det eneste alltid-viste feltet, se
         // TjenesteavhengighetVisning.MotpartNavn) — det fanges av den siste sjekken under.
         var harEksternMal = !string.IsNullOrWhiteSpace(tilNavn);
-        if (tilTjenesteId is not null && harEksternMal)
+        // [Ny, 2026-08-29] `harEksternSignal` (navn ELLER orgnummer) — ikke bare `harEksternMal` (navn
+        // alene) — brukt KUN i denne ambiguitets-sjekken. Oppdaget via kodegjennomgang: med kun
+        // `harEksternMal` her ble en forespørsel med `tilTjenesteId` SATT og `tilOrganisasjonsnummer`
+        // SATT, men `tilNavn` tom, stille akseptert som en vanlig intern avhengighet — orgnummeret
+        // forsvant sporløst i stedet for å utløse denne feilen, siden ingen av sjekkene under fanget
+        // nettopp DEN kombinasjonen.
+        var harEksternSignal = harEksternMal || !string.IsNullOrWhiteSpace(tilOrganisasjonsnummer);
+        if (tilTjenesteId is not null && harEksternSignal)
         {
             throw new ArgumentException("Oppgi enten TilTjenesteId eller navn (evt. + organisasjonsnummer) til en ekstern referanse — ikke begge.");
         }
@@ -179,8 +186,21 @@ public sealed class TjenesteavhengighetregisterTjeneste(RegelIdeDbContext db)
         Guid? tilEksternReferanseId = null;
         if (harEksternMal)
         {
-            var eksisterende = await db.EksterneTjenestereferanser.FirstOrDefaultAsync(
-                e => e.Organisasjonsnummer == tilOrganisasjonsnummer && e.Navn == tilNavn, ct);
+            // [Endret, 2026-08-29] Uten orgnummer er `Navn` alene identitetsnøkkelen (se
+            // EksternTjenestereferanseEntitet.Organisasjonsnummer sin klassekommentar) — det åpner for
+            // at to HELT ULIKE, ikke-relaterte eksterne parter som tilfeldigvis er beskrevet med
+            // nøyaktig samme ord ("en utenlandsk vigselsmyndighet" for to forskjellige land) blir
+            // stille slått sammen til én rad, oppdaget via kodegjennomgang. Ekte orgnummer identifiserer
+            // fortsatt globalt uansett virksomhet (det ER samme organisasjon). Uten orgnummer
+            // avgrenses gjenbruk derfor til KUN plassholdere allerede referert av EN AVHENGIGHET EID AV
+            // SAMME virksomhet — et mye mindre, mer forsvarlig kollisjonsomfang enn "hele historien til
+            // alle virksomheter noensinne", uten å ofre gjenbruk innad i én og samme importkjøring/
+            // virksomhets gjentatte referanser til det samme.
+            var eksisterende = await db.EksterneTjenestereferanser
+                .Where(e => e.Organisasjonsnummer == tilOrganisasjonsnummer && e.Navn == tilNavn)
+                .Where(e => tilOrganisasjonsnummer != null
+                    || db.Tjenesteavhengigheter.Any(a => a.TilEksternReferanseId == e.Id && a.VirksomhetId == virksomhetId))
+                .FirstOrDefaultAsync(ct);
             if (eksisterende is not null)
             {
                 tilEksternReferanseId = eksisterende.Id;
