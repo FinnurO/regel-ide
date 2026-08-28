@@ -2773,7 +2773,44 @@ tjenester.MapGet("/{id:guid}/modelleksport", async (Guid id, RettighetModellEksp
         "Eksporterer én Rettighet (Tjeneste) formet EKSAKT som rettigheter[]-elementene i den " +
         "hånd-modellerte serveringsbevilling-modell-forslag.json — snake_case feltnavn, samme " +
         "nøsting (innhold/regelverksreferanser/handlinger/avhengigheter). Til bruk i modell-vs-app " +
-        "verifisering, ikke et alternativ til /eksport (som er det flate CPSV-dokumentet).");
+        "verifisering, ikke et alternativ til /eksport (som er det flate CPSV-dokumentet). Se " +
+        "søsken-endepunktene under for flertalls-eksport og JSON Schema.");
+
+tjenester.MapGet("/modelleksport", async (Guid[]? ids, Guid? virksomhetId, RettighetModellEksportTjeneste eksport, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        IReadOnlyList<Guid> tjenesteIder;
+        if (virksomhetId is { } vid)
+        {
+            tjenesteIder = await db.Tjenester
+                .Where(t => t.VirksomhetId == vid && t.Entitetsstatus == "gjeldende")
+                .Select(t => t.Id).ToListAsync(ct);
+        }
+        else if (ids is { Length: > 0 })
+        {
+            tjenesteIder = ids;
+        }
+        else
+        {
+            return Results.BadRequest(new { feil = "Oppgi enten 'ids' (én eller flere) eller 'virksomhetId'. Ingen gjettet fallback." });
+        }
+
+        var resultat = await eksport.EksporterFlereAsync(tjenesteIder, ct);
+        return Results.Text(resultat.ToJsonString(new JsonSerializerOptions { WriteIndented = true }), "application/json");
+    })
+    .WithName("EksporterRettighetModellFlere")
+    .WithSummary(
+        "Eksporterer et SETT av rettigheter i ett dokument: { rettigheter: [...] }, samme form per " +
+        "element som enkelt-eksporten over. ?ids=<guid>&ids=<guid>... eksporterer akkurat de oppgitte " +
+        "(ukjente/slettede ider hoppes stille over); ?virksomhetId=<guid> eksporterer ALLE gjeldende " +
+        "tjenester for den virksomheten (ids ignoreres da). Nøyaktig én av delene må oppgis.");
+
+tjenester.MapGet("/modelleksport/schema", () =>
+        Results.Text(TjenesteModellSkjema.Bygg().ToJsonString(new JsonSerializerOptions { WriteIndented = true }), "application/schema+json"))
+    .WithName("HentTjenesteModellSkjema")
+    .WithSummary(
+        "JSON Schema (draft 2020-12) for formen begge modelleksport-endepunktene over produserer — " +
+        "beskriver felt, formål og gyldige verdier for kodefelt (status/type/handlingstype/rel/osv.), " +
+        "for både mennesker og KI-agenter. Dette er per i dag KUN eksportformatet, ingen importmotpart.");
 
 tjenester.MapPost("/{id:guid}/avhengigheter", async (Guid id, HttpRequest request, TjenesteavhengighetRequest body, TjenesteavhengighetregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {

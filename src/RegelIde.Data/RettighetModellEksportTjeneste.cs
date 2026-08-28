@@ -5,11 +5,19 @@ using Microsoft.EntityFrameworkCore;
 namespace RegelIde.Data;
 
 /// <summary>
-/// Eksporterer én Rettighet (Tjeneste) — inkl. alle dens Handlinger og Avhengigheter — som ett
-/// JSON-objekt formet EKSAKT som <c>rettigheter[]</c>-elementene i den hånd-modellerte
-/// <c>serveringsbevilling-modell-forslag.json</c> (samme feltnavn, snake_case, samme nøsting).
-/// Formålet er å kunne verifisere, felt for felt, at det som faktisk ble bygget stemmer med det som
-/// ble avtalt i modelleringsrunden — se docs/13-backlog.md og planen for Rettighet/Handling-runden.
+/// Eksporterer én eller flere Rettigheter (Tjenester) — inkl. alle deres Handlinger og Avhengigheter —
+/// som JSON formet EKSAKT som <c>rettigheter[]</c>-elementene i den hånd-modellerte
+/// <c>serveringsbevilling-modell-forslag.json</c> (samme feltnavn, snake_case, samme nøsting). Filen
+/// selv ble aldri committet noe sted (ren modellutforskning, se docs/13-backlog.md §7) — navnet
+/// lever videre kun som konvensjonen denne klassen reproduserer.
+/// Formålet er tredelt (docs/23-tjeneste-modell-eksport-og-skjema.md): (1) intern verifisering, felt
+/// for felt, at det som faktisk ble bygget stemmer med det som ble avtalt i modelleringsrunden,
+/// (2) ekstern deling av en tjenestes fulle modell ut av applikasjonen, og (3) et fremtidig
+/// importmål — det finnes IKKE en importmotpart ennå, se samme dokument.
+/// <para>
+/// Søsterklassen <see cref="TjenesteModellSkjema"/> bygger et JSON Schema for nøyaktig formen denne
+/// klassen produserer (begge de to metodene under) — hold de to i synk ved feltendringer.
+/// </para>
 /// <para>
 /// Bevisst en HELT ANNEN eksport enn <see cref="TjenesteEksportTjeneste"/> (som er det eksisterende,
 /// flate CPSV-lesedokumentet uten Handlinger/Innhold) — de tjener to forskjellige formål og skal
@@ -23,24 +31,51 @@ namespace RegelIde.Data;
 /// </para>
 /// </summary>
 public sealed class RettighetModellEksportTjeneste(
-    RegelIdeDbContext db, HandlingregisterTjeneste handlingregister, TjenesteavhengighetregisterTjeneste avhengighetregister)
+    RegelIdeDbContext db,
+    HandlingTjenesteregisterTjeneste handlingTjenesteregister,
+    TjenesteavhengighetregisterTjeneste avhengighetregister)
 {
     public async Task<JsonObject?> EksporterAsync(Guid tjenesteId, CancellationToken ct = default)
     {
         var tjeneste = await db.Tjenester.FirstOrDefaultAsync(t => t.Id == tjenesteId && t.Entitetsstatus == "gjeldende", ct);
-        if (tjeneste is null) return null;
+        return tjeneste is null ? null : await BygghetRettighetAsync(tjeneste, ct);
+    }
 
+    /// <summary>
+    /// Eksporterer et SETT av tjenester i ett dokument: <c>{ "rettigheter": [...] }</c> — samme
+    /// rotnøkkel som den (aldri committede) modellfilen selv brukte for flere rettigheter i én fil
+    /// (bekreftet ved `rettigheter[0]`/`rettigheter[1]`-indeksering i <c>ServeringsbevillingModellSeed.cs</c>).
+    /// IDer som ikke finnes (slettet, feil id, tilhører en annen virksomhet enn forventet) hoppes
+    /// stille over — én ugyldig id skal ikke felle hele bulk-eksporten.
+    /// </summary>
+    public async Task<JsonObject> EksporterFlereAsync(IReadOnlyList<Guid> tjenesteIder, CancellationToken ct = default)
+    {
+        var tjenester = await db.Tjenester
+            .Where(t => tjenesteIder.Contains(t.Id) && t.Entitetsstatus == "gjeldende")
+            .ToListAsync(ct);
+        var rettigheter = new JsonArray();
+        foreach (var tjeneste in tjenester)
+        {
+            rettigheter.Add(await BygghetRettighetAsync(tjeneste, ct));
+        }
+        return new JsonObject { ["rettigheter"] = rettigheter };
+    }
+
+    private async Task<JsonObject> BygghetRettighetAsync(TjenesteEntitet tjeneste, CancellationToken ct)
+    {
+        var tjenesteId = tjeneste.Id;
         var regelverksreferanser = await db.TjenesteRegelverksreferanser
             .Where(r => r.TjenesteId == tjenesteId).ToListAsync(ct);
         var rettskilder = await db.Rettskilder
             .Where(r => regelverksreferanser.Select(x => x.TilRettskildeId).Contains(r.Id)).ToListAsync(ct);
-        var handlinger = await handlingregister.ListerForTjenesteAsync(tjenesteId, ct);
+        var handlinger = await handlingTjenesteregister.HentForTjenesteAsync(tjenesteId, ct);
         var avhengigheter = await avhengighetregister.HentForTjenesteAsync(tjenesteId, ct);
 
         var innhold = tjeneste.InnholdJson is null
             ? null : JsonSerializer.Deserialize<TjenesteInnholdInput>(tjeneste.InnholdJson);
+        var egneInnholdselementer = JsonSerializer.Deserialize<List<EgetInnholdselementInput>>(tjeneste.EgneInnholdselementerJson) ?? [];
 
-        var rot = new JsonObject
+        return new JsonObject
         {
             ["navn"] = tjeneste.Tittel,
             ["tjenesteomrade"] = tjeneste.Tjenesteomrade,
@@ -51,12 +86,11 @@ public sealed class RettighetModellEksportTjeneste(
             ["status"] = tjeneste.Status,
             ["malgruppe"] = ArrStr(tjeneste.Malgruppe),
             ["formal"] = tjeneste.Formal,
-            ["innhold"] = InnholdJson(innhold, tjeneste.KonsekvensVedBrudd),
+            ["innhold"] = InnholdJson(innhold, tjeneste.KonsekvensVedBrudd, egneInnholdselementer),
             ["regelverksreferanser"] = RegelverksreferanserJson(regelverksreferanser, rettskilder),
-            ["handlinger"] = new JsonArray(handlinger.Select(HandlingJson).ToArray()),
+            ["handlinger"] = new JsonArray(handlinger.Select(h => HandlingJson(h, tjenesteId)).ToArray()),
             ["avhengigheter"] = new JsonArray(avhengigheter.Select(AvhengighetJson).ToArray()),
         };
-        return rot;
     }
 
     private static JsonArray ArrStr(IEnumerable<string> verdier) => new(verdier.Select(v => (JsonNode)v).ToArray());
@@ -67,67 +101,74 @@ public sealed class RettighetModellEksportTjeneste(
     private static JsonArray HjemmelListeJson(IReadOnlyList<HandlingHjemmelInput> liste) =>
         new(liste.Select(h => (JsonNode?)HjemmelJson(h)).ToArray());
 
-    private static JsonObject? InnholdJson(TjenesteInnholdInput? i, string? konsekvensVedBrudd)
+    private static JsonObject? InnholdJson(TjenesteInnholdInput? i, string? konsekvensVedBrudd, IReadOnlyList<EgetInnholdselementInput> egneInnholdselementer)
     {
-        if (i is null) return null;
-        var o = new JsonObject
+        if (i is null && egneInnholdselementer.Count == 0) return null;
+        var o = new JsonObject();
+        if (i is not null)
         {
-            ["tidspunkt_og_frister"] = i.TidspunktOgFrister,
-            ["vedlegg"] = ArrStr(i.Vedlegg),
-            ["vedlegg_merknad"] = i.VedleggMerknad,
-            ["opplysninger_som_skal_sendes_inn"] = ArrStr(i.OpplysningerSomSkalSendesInn),
-            ["opplysninger_merknad"] = i.OpplysningerMerknad,
-            ["veiledning_og_utfylling"] = ArrStr(i.VeiledningOgUtfylling),
-            ["veiledning_merknad"] = i.VeiledningMerknad,
-        };
-        if (i.InnsenderOgTilgang is { } ins)
-        {
-            o["innsender_og_tilgang"] = new JsonObject
+            o["tidspunkt_og_frister"] = i.TidspunktOgFrister;
+            o["vedlegg"] = ArrStr(i.Vedlegg);
+            o["vedlegg_merknad"] = i.VedleggMerknad;
+            o["opplysninger_som_skal_sendes_inn"] = ArrStr(i.OpplysningerSomSkalSendesInn);
+            o["opplysninger_merknad"] = i.OpplysningerMerknad;
+            o["veiledning_og_utfylling"] = ArrStr(i.VeiledningOgUtfylling);
+            o["veiledning_merknad"] = i.VeiledningMerknad;
+
+            if (i.InnsenderOgTilgang is { } ins)
             {
-                ["hvem_kan_sende"] = ArrStr(ins.HvemKanSende),
-                ["innlogging"] = ins.Innlogging,
-            };
-        }
-        if (i.InnsendingOgOppfolging is { } send)
-        {
-            o["innsending_og_oppfolging"] = new JsonObject
-            {
-                ["kanal"] = send.Kanal,
-                ["etter_mottak"] = ArrStr(send.EtterMottak),
-                ["merknad"] = send.Merknad,
-            };
-        }
-        if (i.KontaktOgHjelp is { } kontakt)
-        {
-            o["kontakt_og_hjelp"] = new JsonObject
-            {
-                ["generelt"] = kontakt.Generelt,
-                ["kommunen_kan_veilede_om"] = ArrStr(kontakt.KommunenKanVeiledeOm),
-            };
-        }
-        if (i.HvaRettighetenInnebarer is { } hvi)
-        {
-            var hviJson = new JsonObject
-            {
-                ["innledning"] = hvi.Innledning,
-                ["varighet"] = hvi.Varighet,
-                ["plikter"] = ArrStr(hvi.Plikter),
-                ["kontroll_og_tilsyn"] = hvi.KontrollOgTilsyn,
-                ["konsekvenser_ved_brudd_pa_regelverket"] = konsekvensVedBrudd,
-                ["avgrensning_merknad"] = hvi.AvgrensningMerknad,
-                ["krav_til_drift"] = hvi.KravTilDrift,
-                ["tommeavtale_og_kontroll"] = hvi.TommeavtaleOgKontroll,
-                ["rapportering"] = hvi.Rapportering,
-            };
-            if (hvi.EndringerIVirksomheten is { } end)
-            {
-                hviJson["endringer_i_virksomheten"] = new JsonObject
+                o["innsender_og_tilgang"] = new JsonObject
                 {
-                    ["plikt"] = end.Plikt,
-                    ["eksempler"] = ArrStr(end.Eksempler),
+                    ["hvem_kan_sende"] = ArrStr(ins.HvemKanSende),
+                    ["innlogging"] = ins.Innlogging,
                 };
             }
-            o["hva_rettigheten_innebarer"] = hviJson;
+            if (i.InnsendingOgOppfolging is { } send)
+            {
+                o["innsending_og_oppfolging"] = new JsonObject
+                {
+                    ["kanal"] = send.Kanal,
+                    ["etter_mottak"] = ArrStr(send.EtterMottak),
+                    ["merknad"] = send.Merknad,
+                };
+            }
+            if (i.KontaktOgHjelp is { } kontakt)
+            {
+                o["kontakt_og_hjelp"] = new JsonObject
+                {
+                    ["generelt"] = kontakt.Generelt,
+                    ["kommunen_kan_veilede_om"] = ArrStr(kontakt.KommunenKanVeiledeOm),
+                };
+            }
+            if (i.HvaRettighetenInnebarer is { } hvi)
+            {
+                var hviJson = new JsonObject
+                {
+                    ["innledning"] = hvi.Innledning,
+                    ["varighet"] = hvi.Varighet,
+                    ["plikter"] = ArrStr(hvi.Plikter),
+                    ["kontroll_og_tilsyn"] = hvi.KontrollOgTilsyn,
+                    ["konsekvenser_ved_brudd_pa_regelverket"] = konsekvensVedBrudd,
+                    ["avgrensning_merknad"] = hvi.AvgrensningMerknad,
+                    ["krav_til_drift"] = hvi.KravTilDrift,
+                    ["tommeavtale_og_kontroll"] = hvi.TommeavtaleOgKontroll,
+                    ["rapportering"] = hvi.Rapportering,
+                };
+                if (hvi.EndringerIVirksomheten is { } end)
+                {
+                    hviJson["endringer_i_virksomheten"] = new JsonObject
+                    {
+                        ["plikt"] = end.Plikt,
+                        ["eksempler"] = ArrStr(end.Eksempler),
+                    };
+                }
+                o["hva_rettigheten_innebarer"] = hviJson;
+            }
+        }
+        if (egneInnholdselementer.Count > 0)
+        {
+            o["egne_innholdselementer"] = new JsonArray(egneInnholdselementer.Select(e =>
+                (JsonNode)new JsonObject { ["id"] = e.Id, ["tittel"] = e.Tittel, ["tekst"] = e.Tekst }).ToArray());
         }
         return o;
     }
@@ -143,11 +184,14 @@ public sealed class RettighetModellEksportTjeneste(
             {
                 ["lov"] = rettskilde?.Kortnavn ?? rettskilde?.Tittel,
                 ["henvisning"] = r.TilEid,
+                // Null = gjelder hele tjenesten (dagens flate liste); satt = knyttet til ett bestemt
+                // felt — se feltnøkkel-konvensjonen i TjenesteregisterTjeneste.cs (TjenesteFeltnokler).
+                ["felt"] = r.Felt,
             };
         }).ToArray());
     }
 
-    private static JsonNode HandlingJson(HandlingEntitet h)
+    private static JsonNode HandlingJson(HandlingEntitet h, Guid tjenesteId)
     {
         var kanaler = JsonSerializer.Deserialize<List<HandlingKanalInput>>(h.KanalerJson) ?? [];
         var behandlingstid = JsonSerializer.Deserialize<HandlingBehandlingstidInput>(h.BehandlingstidJson);
@@ -164,6 +208,11 @@ public sealed class RettighetModellEksportTjeneste(
             ["bruksomraade"] = h.Bruksomraade,
             ["utfort_av"] = h.UtfortAv,
             ["merknad"] = h.Merknad,
+            // (2026-08-28) Handlinger kan nå være delt mellom flere tjenester (HandlingTjenesteEntitet,
+            // "koblet", ikke eierskap) — se HandlingTjenesteregisterTjeneste sin klassekommentar. Denne
+            // flagger om DENNE tjenesten (parameteren) faktisk eier handlingen (HandlingEntitet.TjenesteId)
+            // eller bare har den koblet inn i sin Handlinger-fane.
+            ["eies_av_denne_tjenesten"] = h.TjenesteId == tjenesteId,
         };
         if (kanaler.Count > 0)
         {

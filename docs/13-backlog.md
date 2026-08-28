@@ -1090,3 +1090,34 @@ kommune først i samme Handling-skjema som resten av denne filen, deretter en ko
 analyse: felter der 350+/357 er identiske blir default-tekst, felter med reell spredning blir
 eksplisitte «varierer per kommune»-noter — ikke ett blindt sammenslått avsnitt). Ikke besluttet,
 ikke bygget noe av dette — kun notert som retning for en fremtidig runde.
+
+## 8. `Myndighetstildeling`/rollebegrep brukes til mer enn navneform på virksomheten 2026-08-28
+
+Johann (samtale 2026-08-28): samme rollestreng i en rettskilde — hans eksempel «forurensningsmyndighet»
+— kan i praksis VÆRE ulike virksomheter i ulike deler av SAMME rettskilde (typisk: ulike kapitler/
+paragrafspenn legger rollen til forskjellige organer, f.eks. stat vs. kommune). **Viktig og fortsatt
+uløst, presiserer han, fordi dette brukes til mer enn selve navneformen** — dvs. mer enn bare å vise
+en pen etikett i rettskildeteksten.
+
+Grunnmekanismen for NAVNEFORM-siden av dette er allerede designet og bygget (docs/20 §2.4/§2.5,
+Begrepskategori-runden): `BegrepEntitet` med `Begrepskategori = "rolle"` gir rollebegrepet identitet
+som `(Term, LovkildeId)` — samme streng i to ulike lover er allerede to ulike rader — og
+`MyndighetstildelingEntitet` kobler ETT slikt rollebegrep til en konkret `VirksomhetId` PER
+`ParagrafspennJson`, nettopp for at «forurensningsmyndighet §11» og «forurensningsmyndighet §19» i
+SAMME lov kan peke på to forskjellige virksomheter. Mekanismen finnes altså (`Entiteter.cs:806,843`).
+
+**Det som IKKE er gjort**: ingenting i appen leser fra `Myndighetstildeling` ennå for noe funksjonelt.
+Konkret, verifisert gap: `TjenesteEntitet.KompetentMyndighet` (`Entiteter.cs:438`) er fortsatt en flat,
+fritekst `string?` — satt manuelt per tjeneste, ALDRI utledet fra en rollebegrep+paragrafspenn-
+oppslag. Samme gap gjelder sannsynligvis alle andre steder «myndighet»/kompetent organ brukes
+funksjonelt (f.eks. hvem en handling faktisk skal rettes til, hvem en tjenesteavhengighet peker på
+når motparten er en rolle og ikke en navngitt virksomhet) — ikke fullt kartlagt hvor mange slike
+steder det er, kun bekreftet at det første/mest sentrale (`KompetentMyndighet`) er uberørt.
+
+**Ikke besluttet**: om `KompetentMyndighet` (og lignende felt) skal forbli en fri streng med et
+VALGFRITT oppslag-forslag fra `Myndighetstildeling` (redaktøren kan overstyre), eller om den skal bli
+en utledet/låst verdi når en rolletildeling faktisk finnes for tjenestens rettskildegrunnlag+paragraf.
+Trenger en egen runde: (a) kartlegge ALLE stedene i domenemodellen der «myndighet»/«kompetent organ»
+i dag er fri tekst men egentlig burde vært et rolle+paragraf-oppslag, (b) designe hvordan et slikt
+oppslag flyter inn i disse feltene uten å frata brukeren muligheten til å skrive noe når ingen
+tildeling finnes ennå.

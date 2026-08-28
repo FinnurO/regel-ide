@@ -30,6 +30,14 @@
   </ItemGroup>
 
   <ItemGroup>
+    <!-- (2026-08-28) Lar RegelIde.Data.Tests referere internal GyldigeX-kodelistene direkte (f.eks.
+         fra TjenesteModellSkjemaTests, som verifiserer at det genererte JSON Schema-et aldri driver
+         fra disse) — i stedet for å duplisere verdiene i testkoden og risikere at duplikatet selv
+         drifter fra sannheten. -->
+    <InternalsVisibleTo Include="RegelIde.Data.Tests" />
+  </ItemGroup>
+
+  <ItemGroup>
     <!-- Kopi av Johanns kommune-/fylkeskommune-eksport (Brønnøysundregisteret), committet slik at
          OrganisasjonsregisterSeed er reproduserbar uten å lese fra Downloads ved kjøretid. -->
     <None Include="Seed\organisasjoner-norge.json">

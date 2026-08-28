@@ -100,7 +100,9 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
 {
     // Samme 5-verdis statusløp som Rettskilde/Kodeliste (§3.1) — ikke full FSM-håndheving av lovlige
     // overganger i v1 (samme v1-forenkling som HandbokKommentarMetadataEntitet.Status, se §1.1.1).
-    private static readonly string[] GyldigeStatuser =
+    // internal (ikke private) siden TjenesteModellSkjema (docs/23) gjenbruker denne listen i det
+    // genererte JSON Schema-et, i stedet for å duplisere verdiene og risikere drift.
+    internal static readonly string[] GyldigeStatuser =
         ["utkast", "foreslatt_av_ai", "under_revisjon", "validert", "publisert", "tilbaketrukket", "arkivert"];
 
     /// <summary>Rettighetstype (2026-08-20, fra serveringsbevilling-modell-forslag.json sitt "type"-felt,

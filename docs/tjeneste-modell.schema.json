@@ -1,0 +1,775 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "tjeneste-modell.schema.json",
+  "title": "Rettighet (Tjeneste) — modelleksport",
+  "description": "Beskriver JSON-formen fra GET /api/tjenester/{id}/modelleksport (én rettighet, bart objekt) OG GET /api/tjenester/modelleksport (flere rettigheter, { rettigheter: [...] }). Brukes til tre formål: (1) intern verifisering av at det bygde stemmer med det modellerte, (2) ekstern deling av en tjenestes fulle modell ut av applikasjonen, og (3) et fremtidig importmål. VIKTIG: dette er per i dag KUN eksportformatet — det finnes ingen importmotpart i applikasjonen ennå.",
+  "$defs": {
+    "Hjemmel": {
+      "type": "object",
+      "properties": {
+        "lov": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Rettskildens korte navn (f.eks. \"Alkoholloven – alkhl\")."
+        },
+        "henvisning": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Presis paragraf-/leddreferanse, typisk en lovdata.no eId-URI."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Én hjemmelsreferanse (lov + presis henvisning)."
+    },
+    "EgetInnholdselement": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Klientgenerert, stabil id (crypto.randomUUID()) — kan være mål for en felt-nivå regelverksreferanse via feltnøkkelen \"egneInnholdselementer.{id}\"."
+        },
+        "tittel": {
+          "type": "string",
+          "description": "Overskriften brukeren selv har gitt elementet."
+        },
+        "tekst": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Fritekstinnholdet."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Et fritt, egendefinert innholdselement utover de faste Innhold-feltene."
+    },
+    "Regelverksreferanse": {
+      "type": "object",
+      "properties": {
+        "lov": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Rettskildens korte navn."
+        },
+        "henvisning": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Presis paragraf-/leddreferanse (eId-URI)."
+        },
+        "felt": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Null = referansen gjelder HELE tjenesten (den flate listen i Regelverk-fanen). Satt = knyttet til ETT bestemt felt — verdien er en feltnøkkel fra den dokumenterte konvensjonen i TjenesteregisterTjeneste.cs (TjenesteFeltnokler): flate feltnavn for Grunnleggende-seksjonen (f.eks. \"tittel\", \"kompetentMyndighet\"), punktum-adskilte nøkler for Innhold-underfelt (f.eks. \"innhold.hvaRettighetenInnebarer.varighet\"), og \"egneInnholdselementer.{id}\" for frie elementer. Ingen fast enum her — egendefinerte elementer har dynamiske id-er en fast liste ikke kan romme."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Én regelverksreferanse, ev. knyttet til ett bestemt felt."
+    },
+    "Kanal": {
+      "type": "object",
+      "properties": {
+        "kanal": {
+          "type": "string",
+          "description": "Kanalnavn (fri tekst, f.eks. \"Altinn\", \"papirskjema\")."
+        },
+        "adresse": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "URL/adresse for kanalen, om aktuelt."
+        }
+      },
+      "additionalProperties": false
+    },
+    "Vedlegg": {
+      "type": "object",
+      "properties": {
+        "navn": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Navnet på vedlegget som kreves."
+        },
+        "kategori": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Fri kategorisering av vedlegget."
+        },
+        "hjemmel": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Hjemmel"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "Veiledningstekst": {
+      "type": "object",
+      "properties": {
+        "overskrift": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Overskrift på veiledningsavsnittet."
+        },
+        "innhold": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Selve veiledningsteksten."
+        },
+        "hjemmel": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Hjemmel"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "Arsak": {
+      "type": "object",
+      "properties": {
+        "arsak": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Årsak til handlingen (fri tekst)."
+        },
+        "hjemmel": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Hjemmel"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "additionalProperties": false
+    },
+    "Handling": {
+      "type": "object",
+      "properties": {
+        "navn": {
+          "type": "string",
+          "description": "Handlingens navn."
+        },
+        "handlingstype": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "soke",
+            "endre",
+            "si_opp",
+            "melde",
+            "registrere",
+            "rapportere",
+            "ettersende_dokumentasjon",
+            "klage",
+            "gi_samtykke",
+            "trekke_samtykke",
+            "be_om_innsyn",
+            "bestille",
+            "kontrolleres",
+            "avslutte",
+            "annet",
+            null
+          ],
+          "description": "Handlingens type."
+        },
+        "bruksomraade": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Fritekst-beskrivelse av når handlingen brukes."
+        },
+        "utfort_av": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "soker",
+            "forvaltning",
+            "tredjepart",
+            null
+          ],
+          "description": "Hvem som utfører handlingen."
+        },
+        "merknad": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Fri merknad."
+        },
+        "eies_av_denne_tjenesten": {
+          "type": "boolean",
+          "description": "true = denne tjenesten er handlingens EIER (HandlingEntitet.TjenesteId). false = handlingen er kun sekundært KOBLET inn i denne tjenestens Handlinger-fane (delt mange-til-mange, HandlingTjenesteEntitet) — den eies og forfattes av en annen tjeneste. Kun til stede i flertalls- eller enkelt-eksport avhengig av hvilken tjeneste som er eksportert; feltet finnes alltid, verdien avgjør eierskap."
+        },
+        "kanaler": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Kanal"
+          },
+          "description": "Kanaler handlingen kan utføres gjennom. Utelatt (ikke tom liste) når ingen finnes."
+        },
+        "behandlingstid": {
+          "type": "object",
+          "properties": {
+            "frist": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Behandlingsfrist, fri tekst (f.eks. \"4 uker\")."
+            },
+            "hjemmel": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Hjemmel"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "additionalProperties": false,
+          "description": "Utelatt når verken frist eller hjemmel er satt."
+        },
+        "kostnad": {
+          "type": "object",
+          "properties": {
+            "belop": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Beløp/gebyr, fri tekst."
+            },
+            "hjemmel": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Hjemmel"
+              },
+              "description": "Én eller flere hjemler for kostnaden."
+            }
+          },
+          "additionalProperties": false,
+          "description": "Utelatt når verken beløp eller hjemmel er satt."
+        },
+        "vedlegg": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Vedlegg"
+          },
+          "description": "Vedlegg som kreves for handlingen. Utelatt når ingen finnes."
+        },
+        "veiledningstekst": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Veiledningstekst"
+          },
+          "description": "Veiledningstekster knyttet til handlingen. Utelatt når ingen finnes."
+        },
+        "arsaker": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Arsak"
+          },
+          "description": "Årsaker til handlingen. Utelatt når ingen finnes."
+        },
+        "resultat": {
+          "type": "object",
+          "properties": {
+            "hva": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Hva resultatet av handlingen er."
+            },
+            "bevis_kanaler": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "kanal": {
+                    "type": [
+                      "string",
+                      "null"
+                    ],
+                    "description": "Kanal beviset leveres gjennom."
+                  }
+                },
+                "additionalProperties": false
+              }
+            }
+          },
+          "additionalProperties": false,
+          "description": "Utelatt når verken \"hva\" eller bevis-kanaler er satt."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Én handling knyttet til rettigheten — enten eid av den, eller kun koblet inn (se eies_av_denne_tjenesten)."
+    },
+    "Avhengighet": {
+      "type": "object",
+      "properties": {
+        "rel": {
+          "type": "string",
+          "enum": [
+            "forutsetning_for",
+            "gir_mulighet_til",
+            "utlost_av",
+            "for",
+            "avhengig_av",
+            "input_til",
+            "har_del",
+            "kan_miste"
+          ],
+          "description": "Relasjonstypen mellom denne rettigheten og motparten."
+        },
+        "retning": {
+          "type": "string",
+          "enum": [
+            "fra",
+            "til"
+          ],
+          "description": "\"fra\" = denne rettigheten er kilden til den rettede kanten, \"til\" = denne rettigheten er målet. Beregnet fra hvilken side av lagringsraden rettigheten står på (FraTjenesteId/TilTjenesteId) — ingen egen kodeliste-array i domenemodellen."
+        },
+        "mal_type": {
+          "type": "string",
+          "enum": [
+            "tjeneste",
+            "ekstern_referanse"
+          ],
+          "description": "\"tjeneste\" = motparten er en annen ekte tjeneste i systemet (se mal_id). \"ekstern_referanse\" = motparten er en ekstern plassholder (se organisasjonsnummer/kildeurl). Beregnet ut fra om motparten har en ekte Tjeneste-rad — ingen egen kodeliste-array i domenemodellen."
+        },
+        "mal_navn": {
+          "type": "string",
+          "description": "Motpartens visningsnavn, alltid populert uansett mal_type."
+        },
+        "mal_id": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Id-en til motpart-tjenesten. Kun til stede når mal_type er \"tjeneste\"."
+        },
+        "organisasjonsnummer": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Motpartens organisasjonsnummer. Kun til stede når mal_type er \"ekstern_referanse\"."
+        },
+        "kildeurl": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Kildeurl for den eksterne referansen, om oppgitt."
+        },
+        "merknad": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Fri merknad/beskrivelse av avhengigheten."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Én tjenesteavhengighet sett fra denne rettighetens ståsted."
+    },
+    "Innhold": {
+      "type": "object",
+      "properties": {
+        "tidspunkt_og_frister": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Tidspunkt/frister knyttet til søknaden/tjenesten."
+        },
+        "vedlegg": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Navn på vedlegg som kreves (fri tekstliste, ikke samme som Handling.vedlegg)."
+        },
+        "vedlegg_merknad": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Merknad til vedleggslisten."
+        },
+        "opplysninger_som_skal_sendes_inn": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Hvilke opplysninger søkeren skal sende inn."
+        },
+        "opplysninger_merknad": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Merknad til opplysningslisten."
+        },
+        "veiledning_og_utfylling": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Veiledningspunkter for utfylling."
+        },
+        "veiledning_merknad": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Merknad til veiledningslisten."
+        },
+        "innsender_og_tilgang": {
+          "type": "object",
+          "properties": {
+            "hvem_kan_sende": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Hvem som kan sende inn (roller/aktørtyper)."
+            },
+            "innlogging": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Innloggingskrav, fri tekst."
+            }
+          },
+          "additionalProperties": false,
+          "description": "Utelatt når ikke relevant for tjenesten."
+        },
+        "innsending_og_oppfolging": {
+          "type": "object",
+          "properties": {
+            "kanal": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Innsendingskanal."
+            },
+            "etter_mottak": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Hva som skjer etter mottak."
+            },
+            "merknad": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Fri merknad."
+            }
+          },
+          "additionalProperties": false,
+          "description": "Utelatt når ikke relevant for tjenesten."
+        },
+        "kontakt_og_hjelp": {
+          "type": "object",
+          "properties": {
+            "generelt": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Generell kontaktinformasjon."
+            },
+            "kommunen_kan_veilede_om": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Hva forvaltningen kan veilede om."
+            }
+          },
+          "additionalProperties": false,
+          "description": "Utelatt når ikke relevant for tjenesten."
+        },
+        "hva_rettigheten_innebarer": {
+          "type": "object",
+          "properties": {
+            "innledning": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Innledende beskrivelse av hva rettigheten innebærer."
+            },
+            "varighet": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Rettighetens varighet."
+            },
+            "plikter": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Plikter rettighetshaveren har."
+            },
+            "kontroll_og_tilsyn": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Beskrivelse av kontroll/tilsyn."
+            },
+            "konsekvenser_ved_brudd_pa_regelverket": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "ALLTID hentet fra TjenesteEntitet.KonsekvensVedBrudd (det ekte, eksisterende feltet) — ikke duplisert lagring i selve Innhold-blobben."
+            },
+            "avgrensning_merknad": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Avgrensning av rettighetens omfang."
+            },
+            "krav_til_drift": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Krav til drift (Fettutskiller-typen rettigheter)."
+            },
+            "tommeavtale_og_kontroll": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Tømmeavtale/kontrollordning (Fettutskiller-typen rettigheter)."
+            },
+            "rapportering": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "description": "Rapporteringsplikt (Fettutskiller-typen rettigheter)."
+            },
+            "endringer_i_virksomheten": {
+              "type": "object",
+              "properties": {
+                "plikt": {
+                  "type": [
+                    "string",
+                    "null"
+                  ],
+                  "description": "Plikt ved endringer i virksomheten."
+                },
+                "eksempler": {
+                  "type": "array",
+                  "items": {
+                    "type": "string"
+                  },
+                  "description": "Eksempler på relevante endringer."
+                }
+              },
+              "additionalProperties": false,
+              "description": "Utelatt når ikke relevant."
+            }
+          },
+          "additionalProperties": false,
+          "description": "Utelatt når ikke relevant for tjenesten."
+        },
+        "egne_innholdselementer": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/EgetInnholdselement"
+          },
+          "description": "Frie, brukerdefinerte innholdsseksjoner utover feltene over. Utelatt (ikke tom liste) når tjenesten ikke har noen."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Rettighetens \"Innhold\"-fane. HELE objektet er utelatt (null) kun når verken de faste feltene eller egne_innholdselementer er satt."
+    },
+    "Rettighet": {
+      "type": "object",
+      "properties": {
+        "navn": {
+          "type": "string",
+          "description": "Tjenestens/rettighetens tittel."
+        },
+        "tjenesteomrade": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Innbyggervennlig tema/kategori (egen akse fra los_klassifisering)."
+        },
+        "los_klassifisering": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Fri tekst — ikke koblet mot det faktiske LOS-vokabularet ennå (LOS 4 er varslet, ikke lansert)."
+        },
+        "livshendelser": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Livshendelser tjenesten er relevant for. Fri tekst, ikke koblet mot et eksternt vokabular ennå."
+        },
+        "type": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "enum": [
+            "myndighetsutovelse",
+            "ytelse",
+            "infrastruktur",
+            "veiledning",
+            "medvirkning",
+            null
+          ],
+          "description": "Rettighetstype (myndighetsutøvelse/ytelse/...)."
+        },
+        "kompetent_myndighet": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Fri tekst i dag — IKKE utledet fra rollebegrep/Myndighetstildeling ennå, se docs/13-backlog.md §8 (kjent, uløst gap: samme rollenavn kan i praksis være ulike virksomheter i ulike deler av samme rettskilde)."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "utkast",
+            "foreslatt_av_ai",
+            "under_revisjon",
+            "validert",
+            "publisert",
+            "tilbaketrukket",
+            "arkivert"
+          ],
+          "description": "Rettighetens status i forfatterløpet."
+        },
+        "malgruppe": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Hvem tjenesten retter seg mot."
+        },
+        "formal": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "Tjenestens formål."
+        },
+        "innhold": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/Innhold"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "regelverksreferanser": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Regelverksreferanse"
+          },
+          "description": "Regelverksforankringen — hele tjenesten og/eller enkeltfelt."
+        },
+        "handlinger": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Handling"
+          },
+          "description": "Handlinger knyttet til rettigheten (eide og/eller koblede, se Handling.eies_av_denne_tjenesten)."
+        },
+        "avhengigheter": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Avhengighet"
+          },
+          "description": "Andre rettigheter/eksterne referanser denne rettigheten er avhengig av eller relatert til."
+        }
+      },
+      "additionalProperties": false,
+      "description": "Én komplett rettighet (tjeneste)."
+    }
+  },
+  "oneOf": [
+    {
+      "$ref": "#/$defs/Rettighet"
+    },
+    {
+      "type": "object",
+      "description": "Flertalls-eksport (GET /api/tjenester/modelleksport).",
+      "properties": {
+        "rettigheter": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Rettighet"
+          }
+        }
+      },
+      "required": [
+        "rettigheter"
+      ],
+      "additionalProperties": false
+    }
+  ]
+}
