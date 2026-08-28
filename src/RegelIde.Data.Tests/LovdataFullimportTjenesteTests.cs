@@ -20,7 +20,17 @@ public class LovdataFullimportTjenesteTests
         _fixture = fixture;
     }
 
+    // [Ny, 2026-08-28] Ekte nettverkskall mot api.lovdata.no (~26 MB arkiver, importert TO ganger) —
+    // ekskludert fra standard `dotnet test` via `VSTestTestCaseFilter` i RegelIde.Data.Tests.csproj
+    // (Category!=LiveIntegration). Kjør eksplisitt med -p:VSTestTestCaseFilter="Category=LiveIntegration"
+    // for en "ekte Lovdata"-smoke-kjøring. Se docs (test-treghet-runden) for hvorfor: denne ENE testen tok
+    // ~32 min i et sandkasse-miljø med tregt/strupet nettverk mot lovdata.no, og en idle Npgsql-
+    // forbindelse i samme delte connection-pool (DataTestCollection) ble observert droppet under
+    // ventetiden — noe som fikk HELT urelaterte, rene DB-tester i samme collection til å feile med en
+    // "transient failure"-unntak. Ikke fjern denne kategoriseringen uten samtidig å isolere
+    // live-nettverkstestene i sin egen collection/fixture.
     [Fact]
+    [Trait("Category", "LiveIntegration")]
     public async Task Forste_kjoring_importerer_alt_andre_kjoring_finner_kun_uendret()
     {
         await using var db = _fixture.NyDbContext();

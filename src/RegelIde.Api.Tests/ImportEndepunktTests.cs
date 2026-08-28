@@ -107,7 +107,10 @@ public class ImportEndepunktTests
         Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
     }
 
+    // [Ny, 2026-08-28] Ekte nettverkskall mot lovdata.no — ekskludert fra standard `dotnet test` via
+    // `VSTestTestCaseFilter` i RegelIde.Api.Tests.csproj, se LovdataFullimportTjenesteTests.
     [Fact]
+    [Trait("Category", "LiveIntegration")]
     public async Task Import_fra_lovdata_henter_og_lagrer_som_delt_kilde()
     {
         var bruker = await HentTestbrukerAsync();
@@ -138,6 +141,7 @@ public class ImportEndepunktTests
     /// vellykkede enkeltimporten.
     /// </summary>
     [Fact]
+    [Trait("Category", "LiveIntegration")]
     public async Task Import_fra_lovdata_oppdaterer_importstatus_ved_suksess()
     {
         var bruker = await HentTestbrukerAsync();
@@ -175,6 +179,7 @@ public class ImportEndepunktTests
     /// den nå) — testen måtte derfor byttes til et dokument som fortsatt genuint feiler.
     /// </summary>
     [Fact]
+    [Trait("Category", "LiveIntegration")]
     public async Task Import_fra_lovdata_oppdaterer_importstatus_med_fersk_feilmelding_ved_feil()
     {
         var bruker = await HentTestbrukerAsync();

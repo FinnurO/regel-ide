@@ -7,6 +7,13 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+
+    <!-- [Ny, 2026-08-28] Samme begrunnelse som RegelIde.Data.Tests.csproj — ekskluder de tre
+         Import_fra_lovdata_*-testene i ImportEndepunktTests.cs (Category=LiveIntegration, ekte
+         nettverkskall mot lovdata.no) fra en vanlig `dotnet test`. Overstyr med
+         `dotnet test -p:VSTestTestCaseFilter="Category=LiveIntegration"` for en bevisst "ekte
+         Lovdata"-kjøring. -->
+    <VSTestTestCaseFilter Condition=" '$(VSTestTestCaseFilter)' == '' ">Category!=LiveIntegration</VSTestTestCaseFilter>
   </PropertyGroup>
 
   <ItemGroup>

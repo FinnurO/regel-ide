@@ -5,7 +5,11 @@ namespace RegelIde.Data.Tests;
 /// <summary>
 /// Ekte nettverkskall mot Lovdatas offisielle bulk-API — bevisst, ikke mocket, samme prinsipp som
 /// resten av prosjektets "test mot ekte data"-kultur. Kan være treg (laster ned hele arkivet).
+/// [Ny, 2026-08-28] Alle fire faktaene her er tagget `Category=LiveIntegration` og ekskludert fra
+/// standard `dotnet test` via `VSTestTestCaseFilter` i RegelIde.Data.Tests.csproj — se
+/// LovdataFullimportTjenesteTests for hvorfor.
 /// </summary>
+[Trait("Category", "LiveIntegration")]
 public class LovdataBulkHenterTests
 {
     [Fact]
