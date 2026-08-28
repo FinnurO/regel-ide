@@ -1692,7 +1692,9 @@ import.MapPost("/{malVirksomhetId:guid}/rettigheter", async (
                 tjeneste = await tjenesteregister.OpprettForslagFraAnnenVirksomhetAsync(
                     malVirksomhetId, bruker.VirksomhetId, t.Tittel, t.KompetentMyndighet, t.Malgruppe,
                     t.KonsekvensVedBrudd, bruker.Navn, ct, t.Livshendelser, t.LosKlassifisering, t.Tjenesteomrade,
-                    t.Type, t.Formal, t.Innhold, t.EgneInnholdselementer);
+                    t.Type, t.Formal, t.Innhold, t.EgneInnholdselementer,
+                    beskrivelse: t.Beskrivelse, output: t.Output, tjenestetype: t.Tjenestetype, kanaler: t.Kanaler,
+                    kostnad: t.Kostnad, behandlingstid: t.Behandlingstid, kontaktpunkt: t.Kontaktpunkt, sprak: t.Sprak);
             }
 
             foreach (var h in body.Handlinger)

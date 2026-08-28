@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import {
   ReactFlow, Background, Controls, MiniMap, Position, useNodesState, useEdgesState, type Edge, type Node,
 } from '@xyflow/react';
@@ -51,23 +51,30 @@ export interface TjenesteGrafCanvasProps {
  * grafer) — vises i stedet i et lite detaljpanel under lerretet når kanten holdes over eller velges
  * (`onEdgeMouseEnter`/`onEdgeMouseLeave`/`onEdgeClick`), og kanttypen er `smoothstep` (rette
  * linjesegmenter) i stedet for konkurrerende buede bezier-kurver for vanlige kanter — begge uten ny
- * avhengighet (innebygde React Flow-typer). Layout-stabilitet: `useEffect`-en under beholder
- * EKSISTERENDE nodeposisjoner (inkl. en brukers manuelle drag) for noder som allerede fantes, og
- * regner kun ut posisjon for id-er som er nye — uten dette kjørte HELE layouten på nytt (og
- * overskrev en drag) selv når bare en visningscheckbox (`felt`) ble endret, som ikke påvirker
- * topologien i det hele tatt.
+ * avhengighet (innebygde React Flow-typer). Layout-stabilitet: `useEffect`-en under beholder en
+ * FAKTISK manuelt flyttet nodes posisjon (drag) på tvers av `felt`-endringer, men lar ellers en fersk
+ * beregnet posisjon slå gjennom — se `sisteBeregnetPosisjon`-kommentaren rett over selve effekten for
+ * hvorfor "eksisterte fra før" alene IKKE er nok til å telle som "manuelt flyttet, ikke rør": et
+ * `felt`-toggle kan endre en nodes høyde, som igjen bør flytte SENERE noder i samme lag — å låse ALLE
+ * eksisterende posisjoner ville gjeninnført nettopp den rad-overlapp-bugen høyde-bevisst layout
+ * (`beregnLagdeltLayout`s `hoydePerNode`) retter.
  */
 export function TjenesteGrafCanvas({ noder, kanter, felt, onFeltChange, fremhevetId, hoyde = '65vh' }: TjenesteGrafCanvasProps) {
   const [fremhevetKantId, setFremhevetKantId] = useState<string | null>(null);
   const [valgtKantId, setValgtKantId] = useState<string | null>(null);
 
   const { nodes: beregnedeNoder, edges: beregnedeKanter } = useMemo<{ nodes: Node[]; edges: Edge[] }>(() => {
-    const posisjoner = beregnLagdeltLayout(noder, kanter, fremhevetId);
+    // Nodehøyder beregnes FØR layouten kjøres (ikke bare i node-bygge-loopen under) — layouten trenger
+    // dem for å gi rad-avstand som faktisk matcher innholdet, se doc-kommentaren på
+    // `beregnLagdeltLayout`. Beregnet ÉN gang og gjenbrukt her, ikke duplisert to steder.
+    const hoydePerNode = new Map<string, number>(
+      noder.map((n) => [n.id, 28 + nodeLabel(n, felt).split('\n').length * 18]),
+    );
+    const posisjoner = beregnLagdeltLayout(noder, kanter, fremhevetId, hoydePerNode);
     const eierAvHandling = new Set(kanter.filter((k) => k.erHandlingTilhorighet).map((k) => k.fraId));
     const nodes: Node[] = noder.map((n) => {
-      const antallLinjer = nodeLabel(n, felt).split('\n').length;
       const width = n.erHandling ? 170 : 190;
-      const height = 28 + antallLinjer * 18;
+      const height = hoydePerNode.get(n.id)!;
       // Vanlige tjeneste-til-tjeneste-kanter kobler til venstre (mål/inn)/høyre (kilde/ut) —
       // handling-tilhørighet kobler til topp (mål, på selve handling-noden)/bunn (kilde, på
       // tjenesten som eier handlingen) — to atskilte korridorer, se doc-kommentar over.
@@ -119,14 +126,29 @@ export function TjenesteGrafCanvas({ noder, kanter, felt, onFeltChange, fremheve
   const [nodes, setNodes, onNodesChange] = useNodesState(beregnedeNoder);
   const [edges, setEdges, onEdgesChange] = useEdgesState(beregnedeKanter);
 
+  // [Endret, 2026-08-29] `sisteBeregnetPosisjon` — oppdaget via kodegjennomgang: den forrige versjonen
+  // behandlet ENHVER eksisterende node-id som "manuelt flyttet, ikke rør" — men et `felt`-toggle kan
+  // endre en nodes HØYDE (og dermed hva `beregnLagdeltLayout` faktisk BØR regne ut for senere noder i
+  // samme lag), og den gamle logikken låste posisjonen til den FØR-toggle-verdien uansett, som
+  // stille gjeninnførte akkurat den overlapp-bugen rad-avstand-fiksen over skulle rette. Denne
+  // refen husker forrige render sin FRISKE beregnede posisjon per id; en node får den NYE beregnede
+  // posisjonen med mindre brukerens faktiske posisjon (fra React Flow sin egen `nodes`-tilstand)
+  // AVVIKER fra det den var sist beregnet til — det er DA, og bare da, et reelt tegn på et manuelt drag.
+  const sisteBeregnetPosisjon = useRef<Map<string, { x: number; y: number }>>(new Map());
+
   useEffect(() => {
-    // Behold posisjonen til noder som allerede fantes (inkl. en brukers manuelle drag) — regn kun ut
-    // posisjon for id-er som er NYE i denne oppdateringen. Uten dette hoppet HELE grafen til en fersk
-    // layout selv når bare `felt` (rene visnings-checkbokser, ingen topologiendring) endret seg.
     setNodes((forrige) => {
-      const forrigePosisjon = new Map(forrige.map((n) => [n.id, n.position]));
-      return beregnedeNoder.map((n) => (forrigePosisjon.has(n.id) ? { ...n, position: forrigePosisjon.get(n.id)! } : n));
+      const forrigeFaktisk = new Map(forrige.map((n) => [n.id, n.position]));
+      const sistBeregnet = sisteBeregnetPosisjon.current;
+      return beregnedeNoder.map((n) => {
+        const faktisk = forrigeFaktisk.get(n.id);
+        const sistBeregnetForDenne = sistBeregnet.get(n.id);
+        const erUrort = !faktisk || !sistBeregnetForDenne
+          || (faktisk.x === sistBeregnetForDenne.x && faktisk.y === sistBeregnetForDenne.y);
+        return erUrort ? n : { ...n, position: faktisk };
+      });
     });
+    sisteBeregnetPosisjon.current = new Map(beregnedeNoder.map((n) => [n.id, n.position]));
     setEdges(beregnedeKanter);
   }, [beregnedeNoder, beregnedeKanter, setNodes, setEdges]);
 

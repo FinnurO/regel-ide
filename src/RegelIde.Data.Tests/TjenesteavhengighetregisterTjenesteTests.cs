@@ -299,6 +299,28 @@ public class TjenesteavhengighetregisterTjenesteTests
     }
 
     /// <summary>
+    /// [Ny, 2026-08-29] Retter funnet fra kodegjennomgangen (PR #55): med `tilTjenesteId` SATT og
+    /// `tilOrganisasjonsnummer` SATT, men `tilNavn` tom, ble forespørselen tidligere stille akseptert
+    /// som en vanlig intern avhengighet — orgnummeret forsvant sporløst i stedet for å utløse den
+    /// samme "ikke begge"-feilen som når `tilNavn` OGSÅ var satt.
+    /// </summary>
+    [Fact]
+    public async Task TilTjenesteId_og_organisasjonsnummer_uten_navn_gir_400_ikke_stille_forkastet_orgnr()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = await NyVirksomhetAsync(db);
+        var a = await NyTjenesteAsync(db, virksomhet, "A");
+        var b = await NyTjenesteAsync(db, virksomhet, "B");
+
+        var register = new TjenesteavhengighetregisterTjeneste(db);
+        var ex = await Assert.ThrowsAsync<ArgumentException>(() =>
+            register.OpprettAsync(
+                virksomhet, a, b, "avhengig_av", null, null, "Kari Jurist", tilOrganisasjonsnummer: "974761122"));
+        Assert.Contains("ikke begge", ex.Message);
+        Assert.False(await db.Tjenesteavhengigheter.AnyAsync(t => t.FraTjenesteId == a));
+    }
+
+    /// <summary>
     /// [Ny, 2026-08-28, bulk-import-runden] Reproduserer funnet fra vielsesreise-importtesten
     /// (data/eksempler/gifte-seg-reise.modelleksport.json): en konseptuell ekstern motpart («en
     /// utenlandsk vigselsmyndighet») har ingen ekte norsk orgnummer i det hele tatt, og skal likevel
@@ -324,6 +346,59 @@ public class TjenesteavhengighetregisterTjenesteTests
 
         var referanse = await db.EksterneTjenestereferanser.SingleAsync(e => e.Navn == "Vigsel gjennomført av utenlandsk vigselsmyndighet");
         Assert.Null(referanse.Organisasjonsnummer);
+    }
+
+    /// <summary>
+    /// [Ny, 2026-08-29] Retter funnet fra kodegjennomgangen: uten orgnummer er navn den eneste
+    /// identitetsnøkkelen, og to avhengigheter fra SAMME virksomhet med samme navn er den vanlige,
+    /// ønskede gjenbruk-casen (samme konseptuelle motpart referert flere ganger i én import).
+    /// </summary>
+    [Fact]
+    public async Task Navnebasert_gjenbruk_fungerer_fortsatt_for_samme_virksomhet()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = await NyVirksomhetAsync(db);
+        var a = await NyTjenesteAsync(db, virksomhet, "A_navnebasert_samme_virksomhet");
+        var b = await NyTjenesteAsync(db, virksomhet, "B_navnebasert_samme_virksomhet");
+
+        var register = new TjenesteavhengighetregisterTjeneste(db);
+        await register.OpprettAsync(
+            virksomhet, a, null, "avhengig_av", null, null, "Kari Jurist",
+            tilNavn: "En konseptuell ekstern part uten orgnr — samme virksomhet-test");
+        await register.OpprettAsync(
+            virksomhet, b, null, "avhengig_av", null, null, "Kari Jurist",
+            tilNavn: "En konseptuell ekstern part uten orgnr — samme virksomhet-test");
+
+        Assert.Single(await db.EksterneTjenestereferanser
+            .Where(e => e.Navn == "En konseptuell ekstern part uten orgnr — samme virksomhet-test").ToListAsync());
+    }
+
+    /// <summary>
+    /// [Ny, 2026-08-29] Retter det faktiske funnet: uten denne virksomhet-avgrensningen ville to HELT
+    /// ULIKE, urelaterte virksomheters avhengigheter til to forskjellige, men identisk navngitte
+    /// eksterne parter (uten orgnr) blitt stille slått sammen til én plassholder-rad.
+    /// </summary>
+    [Fact]
+    public async Task Navnebasert_gjenbruk_krysser_ikke_virksomhetsgrensen()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhetA = await NyVirksomhetAsync(db);
+        var virksomhetB = await NyVirksomhetAsync(db);
+        var tjenesteA = await NyTjenesteAsync(db, virksomhetA, "TjenesteA_kryssvirksomhet");
+        var tjenesteB = await NyTjenesteAsync(db, virksomhetB, "TjenesteB_kryssvirksomhet");
+
+        var register = new TjenesteavhengighetregisterTjeneste(db);
+        await register.OpprettAsync(
+            virksomhetA, tjenesteA, null, "avhengig_av", null, null, "Kari Jurist",
+            tilNavn: "En konseptuell ekstern part uten orgnr — kryssvirksomhet-test");
+        await register.OpprettAsync(
+            virksomhetB, tjenesteB, null, "avhengig_av", null, null, "Kari Jurist",
+            tilNavn: "En konseptuell ekstern part uten orgnr — kryssvirksomhet-test");
+
+        // To rader, ikke én — samme navn hos to urelaterte virksomheter er ikke bevis på at det
+        // faktisk er den samme eksterne parten.
+        Assert.Equal(2, await db.EksterneTjenestereferanser
+            .CountAsync(e => e.Navn == "En konseptuell ekstern part uten orgnr — kryssvirksomhet-test"));
     }
 
     [Fact]

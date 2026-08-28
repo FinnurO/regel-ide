@@ -526,8 +526,21 @@ function byggAvhengighetKandidater(rettigheter: RaaRettighet[], navnTilId: Map<s
 
   // "til"-oppføringer uten en reciprok "fra"-oppføring et annet sted — inverter (den ANDRE tjenesten
   // er da faktisk kilden til kanten, selv om DENNE rettigheten er den som nevner den).
+  //
+  // [Endret, 2026-08-29] `erDekket` alene sjekker kun mot EKTE 'fra'-oppføringer — to rettigheter som
+  // BEGGE (feilaktig) erklærer samme relasjon med retning:'til' (ingen av dem bruker noensinne 'fra')
+  // ble tidligere ikke gjenkjent som duplikater av hverandre: A→{til, rel, B} og B→{til, rel, A}
+  // inverterte da til to SPEILVENDTE kandidater (B→A og A→B, samme rel) i stedet for én. `settInnTilNokler`
+  // sporer allerede-inverterte (rel, {navnA, navnB})-par ORDEN-UAVHENGIG innad i DENNE andre runden —
+  // den andre halvparten av samme par gjenkjennes da som allerede dekket, ikke som en ny kant.
+  const settInnTilNokler = new Set<string>();
+  const kanoniskTilNokkel = (rel: string, navnA: string, navnB: string) =>
+    `${rel}|${[navnA.trim().toLowerCase(), navnB.trim().toLowerCase()].sort().join('|')}`;
   rettigheter.forEach((r) => r.avhengigheter.forEach((a) => {
     if (a.retning === 'til' && !erDekket(r.navn, a)) {
+      const nokkel = kanoniskTilNokkel(a.rel, r.navn, a.mal_navn);
+      if (settInnTilNokler.has(nokkel)) return;
+      settInnTilNokler.add(nokkel);
       settInn(a.mal_navn, { ...a, retning: 'fra', mal_navn: r.navn });
     }
   }));

@@ -67,6 +67,11 @@ export function nodeLabel(n: GrafNodeLik, felt: FeltvisningValg): string {
   return linjer.join('\n');
 }
 
+/** Fallback-høyde for et kall uten `hoydePerNode` (f.eks. et fremtidig kall utenfor
+ * `TjenesteGrafCanvas`) — matcher datastørrelsen `28 + 2*18` (navn + ett ekstra felt) der bruker der. */
+const STANDARD_NODE_HOYDE = 64;
+const RAD_MELLOMROM = 20;
+
 /**
  * Generalisert lagdelt layout — BFS-dybde fra en (valgfri) foretrukket rot for x, indeks innad i
  * laget for y. Håndterer FLERE usammenhengende komponenter (vanlig i en stor, ikke-persistert
@@ -75,10 +80,17 @@ export function nodeLabel(n: GrafNodeLik, felt: FeltvisningValg): string {
  * behandles først hvis oppgitt, slik at DEN komponenten alltid havner øverst. Egne handling-noder
  * plasseres rett under sin eiende tjeneste (ikke egen dybde/lag). Fritt drabart av React Flow selv
  * etterpå — ingen layoutbibliotek (dagre/elkjs).
+ *
+ * [Endret, 2026-08-29] `hoydePerNode` — oppdaget via kodegjennomgang: rad-avstanden innad i et lag var
+ * tidligere en FAST `i * 100`, uavhengig av at nodehøyden selv er variabel (`28 + antallLinjer * 18`
+ * i `TjenesteGrafCanvas.tsx`, styrt av `felt`-visningsvalgene) — med alle fire "Vis på hver
+ * node"-valgene på og godt utfylt innhold ble noder opptil 118px høye, som overlappet den faste
+ * 100px-avstanden. Rad-Y akkumuleres nå fra FAKTISK nodehøyde + `RAD_MELLOMROM` i stedet.
  */
 export function beregnLagdeltLayout(
-  noder: GrafNodeLik[], kanter: GrafKantLik[], forsteRotId?: string,
+  noder: GrafNodeLik[], kanter: GrafKantLik[], forsteRotId?: string, hoydePerNode?: Map<string, number>,
 ): Map<string, { x: number; y: number }> {
+  const hoydeFor = (id: string) => hoydePerNode?.get(id) ?? STANDARD_NODE_HOYDE;
   const naboer = new Map<string, string[]>();
   const alleTjenesteIder = noder.filter((n) => !n.erHandling).map((n) => n.id);
   alleTjenesteIder.forEach((id) => naboer.set(id, []));
@@ -116,14 +128,19 @@ export function beregnLagdeltLayout(
       if (!perLag.has(d)) perLag.set(d, []);
       perLag.get(d)!.push(id);
     }
-    let antallRader = 0;
+    // Lagene i én komponent legges ut PARALLELT (samme startpunkt `yOffset`, ulik x per dybde `d`) —
+    // neste komponent kan derfor først starte under den HØYESTE av dem, ikke bare det laget med flest
+    // noder (et fåtall svært høye noder kan trenge mer plass enn mange lave).
+    let hoyesteSluttY = yOffset;
     for (const [d, ider] of perLag) {
-      ider.forEach((id, i) => {
-        posisjon.set(id, { x: d * 260, y: yOffset + i * 100 });
-        antallRader = Math.max(antallRader, i + 1);
+      let y = yOffset;
+      ider.forEach((id) => {
+        posisjon.set(id, { x: d * 260, y });
+        y += hoydeFor(id) + RAD_MELLOMROM;
       });
+      hoyesteSluttY = Math.max(hoyesteSluttY, y);
     }
-    yOffset += (antallRader + 1) * 100;
+    yOffset = hoyesteSluttY + RAD_MELLOMROM;
   }
 
   const handlingTeller = new Map<string, number>();
