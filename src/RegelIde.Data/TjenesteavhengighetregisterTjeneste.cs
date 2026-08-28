@@ -132,18 +132,24 @@ public sealed class TjenesteavhengighetregisterTjeneste(RegelIdeDbContext db)
         string opprettetAv, string? tilOrganisasjonsnummer = null, string? tilNavn = null, string? tilUrl = null,
         CancellationToken ct = default)
     {
-        var harEksternMal = !string.IsNullOrWhiteSpace(tilOrganisasjonsnummer) || !string.IsNullOrWhiteSpace(tilNavn);
+        // [ENDRET, 2026-08-28] `Navn` alene er nå det reelle signalet om en ekstern-referanse-hensikt —
+        // orgnummer er valgfritt (se EksternTjenestereferanseEntitet.Organisasjonsnummer sin
+        // klassekommentar): en konseptuell motpart uten noe ekte norsk orgnummer («en utenlandsk
+        // vigselsmyndighet») skal fortsatt kunne opprettes, bare uten den bindingsnøkkelen. Et oppgitt
+        // orgnummer UTEN navn gir derimot ingen mening (navn er det eneste alltid-viste feltet, se
+        // TjenesteavhengighetVisning.MotpartNavn) — det fanges av den siste sjekken under.
+        var harEksternMal = !string.IsNullOrWhiteSpace(tilNavn);
         if (tilTjenesteId is not null && harEksternMal)
         {
-            throw new ArgumentException("Oppgi enten TilTjenesteId eller organisasjonsnummer+navn til en ekstern referanse — ikke begge.");
+            throw new ArgumentException("Oppgi enten TilTjenesteId eller navn (evt. + organisasjonsnummer) til en ekstern referanse — ikke begge.");
+        }
+        if (tilTjenesteId is null && !harEksternMal && !string.IsNullOrWhiteSpace(tilOrganisasjonsnummer))
+        {
+            throw new ArgumentException("En ekstern referanse oppgitt med organisasjonsnummer krever også et navn. Ingen gjettet fallback.");
         }
         if (tilTjenesteId is null && !harEksternMal)
         {
-            throw new ArgumentException("Mål for avhengigheten mangler. Oppgi enten TilTjenesteId eller organisasjonsnummer+navn til en ekstern referanse. Ingen gjettet fallback.");
-        }
-        if (harEksternMal && (string.IsNullOrWhiteSpace(tilOrganisasjonsnummer) || string.IsNullOrWhiteSpace(tilNavn)))
-        {
-            throw new ArgumentException("En ekstern referanse krever både organisasjonsnummer og navn. Ingen gjettet fallback.");
+            throw new ArgumentException("Mål for avhengigheten mangler. Oppgi enten TilTjenesteId eller (minst) navn til en ekstern referanse. Ingen gjettet fallback.");
         }
         if (tilTjenesteId is not null && fraTjenesteId == tilTjenesteId)
         {
@@ -184,7 +190,7 @@ public sealed class TjenesteavhengighetregisterTjeneste(RegelIdeDbContext db)
                 var nyReferanse = new EksternTjenestereferanseEntitet
                 {
                     Id = Guid.NewGuid(),
-                    Organisasjonsnummer = tilOrganisasjonsnummer!,
+                    Organisasjonsnummer = tilOrganisasjonsnummer,
                     Navn = tilNavn!,
                     Url = tilUrl,
                     OpprettetAv = opprettetAv,

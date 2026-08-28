@@ -748,7 +748,18 @@ public sealed class TjenesteavhengighetEntitet
 public sealed class EksternTjenestereferanseEntitet
 {
     public Guid Id { get; set; }
-    public required string Organisasjonsnummer { get; set; }
+    /// <summary>
+    /// [ENDRET, 2026-08-28, bulk-import-runden] Gjort nullbar — reell import-testdata (vielsesreisen,
+    /// se data/eksempler/) avdekket eksterne motparter som er KONSEPTUELLE, ikke identifiserbare norske
+    /// organisasjoner i det hele tatt («en utenlandsk vigselsmyndighet», «et allerede inngått
+    /// registrert partnerskap») — de kan aldri få et ekte orgnummer, uansett hvor lenge man venter.
+    /// Dette er BEVISST atskilt fra <see cref="Virksomhet.Organisasjonsnummer"/>, som fortsatt er
+    /// `[LÅST]` som en EKTE, stabil BRREG-nøkkel (docs/17 §11) — denne endringen rører IKKE den
+    /// beslutningen. Når orgnummer FAKTISK finnes, brukes det fortsatt som bindingsnøkkel akkurat som
+    /// før (se <see cref="TjenesteavhengighetregisterTjeneste.OpprettAsync"/>); kun når det ikke
+    /// finnes noe orgnummer i det hele tatt faller deduplisering tilbake til <see cref="Navn"/> alene.
+    /// </summary>
+    public string? Organisasjonsnummer { get; set; }
     public required string Navn { get; set; }
     public string? Url { get; set; }
     public required string OpprettetAv { get; set; }
@@ -1198,10 +1209,19 @@ public sealed class ProveniensEntitet
     public Guid EntitetId { get; set; }
     public required string EndretAv { get; set; }
     public DateTimeOffset Dato { get; set; }
-    public required string Handling { get; set; } // 'opprettet' | 'endret' | 'foreslatt_av_ai' | 'validert' | 'publisert' | 'arkivert'
+    public required string Handling { get; set; } // 'opprettet' | 'endret' | 'foreslatt_av_ai' | 'foreslatt_av_annen_virksomhet' | 'validert' | 'publisert' | 'arkivert'
     public string? KildeReferanserJson { get; set; } // jsonb
     public string? AiForslagVersjon { get; set; }
     public string? GodkjentAv { get; set; }
+
+    /// <summary>
+    /// [Ny, 2026-08-28, import-wizard-runden] Kun satt når <see cref="Handling"/> er
+    /// <c>'foreslatt_av_annen_virksomhet'</c> — hvilken virksomhet som faktisk KJØRTE importen og
+    /// dermed foreslo denne raden til <see cref="VirksomhetId"/> (mål-/eier-virksomheten). Samme
+    /// additive mønster som <see cref="AiForslagVersjon"/> — ingen eksisterende kallere av
+    /// <see cref="ProveniensEntitet"/> påvirkes.
+    /// </summary>
+    public Guid? ForeslattAvVirksomhetId { get; set; }
 }
 
 /// <summary>

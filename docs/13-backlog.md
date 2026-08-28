@@ -1017,12 +1017,16 @@ spørsmål der vi ikke engang har landet retning ennå:
   katalogen søker kun i Lovdatas egne titler, ikke i innholdet til rettskilder som faktisk er
   importert til denne appen. Postgres `tsvector`/`GIN`-indeks på `RettskildeNode.Tekst` ville
   fortsatt vært riktig løsning for (c), ingen ny avhengighet.
-- **Valg av grafeditor-bibliotek.** `VilkarstreGraf.tsx` er i dag en egenhendig, enkel SVG-komponent
-  (bevisst valg i byggesteg 4 runde 1 — «ingen ny npm-avhengighet», automatisk lagdelt layout, ikke
-  dra-og-slipp). Det eksplisitte spørsmålet «bør vi velge et ekte grafbibliotek» (f.eks. React Flow/
-  dagre for layout, eller noe annet) er aldri besvart — kun utsatt. Relevant igjen når/hvis byggesteg
-  4 runde 2 (testmodul + full publiseringsmodell) eller et fremtidig dra-og-slipp-krav vekker temaet;
-  ingen grunn til å bytte i dag uten et konkret behov dagens SVG-løsning ikke dekker.
+- **Valg av grafeditor-bibliotek — DELVIS besvart 2026-08-28.** Spørsmålet «bør vi velge et ekte
+  grafbibliotek» er nå besvart for det konkrete tilfellet som endelig vekket det: `Tjenestereise.tsx`
+  (tjenestereise-graf-runden) trengte dra-bare noder + konfigurerbar dybde/filter, og bruker
+  `@xyflow/react` (React Flow) — appens første nye frontend-npm-avhengighet, verifisert mot React
+  19/Vite 8/TS 6 FØR bygging, se docs/09-design-konvensjoner.md §12. **`VilkarstreGraf.tsx` selv er
+  IKKE migrert** — den løser fortsatt byggesteg 4s tre-formede vilkårstre-visning fint med sin
+  egenhendige SVG-løsning, og trenger ikke dra-og-slipp for det formålet. Om/når byggesteg 4 runde 2
+  (testmodul + full publiseringsmodell) vekker et reelt dra-og-slipp-behov DER også, er
+  `@xyflow/react` nå en etablert, allerede-verifisert mulighet å velge — ikke lenger et helt nytt
+  spørsmål å avklare fra bunnen av.
 - **Andre punkter fra samme kilde-setning, notert for fullstendighet** (ingen retning tatt): PDF/Word-
   import **av rettskilder** (fortsatt ikke løst — `POST /api/rettskilder/fil` tar fortsatt kun
   Lovdatas «XML-kompatible HTML»-format; PDF/Word-opplasting bygget 2026-08-02 er til
@@ -1121,3 +1125,55 @@ Trenger en egen runde: (a) kartlegge ALLE stedene i domenemodellen der «myndigh
 i dag er fri tekst men egentlig burde vært et rolle+paragraf-oppslag, (b) designe hvordan et slikt
 oppslag flyter inn i disse feltene uten å frata brukeren muligheten til å skrive noe når ingen
 tildeling finnes ennå.
+
+### 8.1 Presisering 2026-08-28: dette er IKKE en ubrukt branch — det er allerede levende kode
+
+Første refleks var å vurdere å skrote virksomhetskatalog/rollemodell-arbeidet som en forkastet
+sidegren (samme skjebne som `docs/arkiv/19-virksomhet-begrep-og-rettskildekobling-SUPERSEDED.md`,
+se §8.2). En systematisk kodegjennomgang (2026-08-28) viste at det er FEIL — dette er allerede
+merget til master (migrasjon `20260822004112_LeggTilVirksomhetskatalogOgRollemodell`) og delvis
+i reell, testet produksjonsbruk:
+
+- **Levende, med fungerende UI**: `VirksomhetKandidatEntitet`-flyten — egen side
+  `src/RegelIde.Web/src/pages/VirksomhetKandidaterListe.tsx` (399 linjer, i sidemenyen), reelt
+  godkjenn/avvis/batch/sveip-arbeidsflyt via `VirksomhetKandidatTjeneste`/
+  `VirksomhetKandidatSveipTjeneste` og `POST /api/virksomhet-kandidater/...`. Godkjenning oppretter
+  en ekte `TekstTaggEntitet`. Testet (`VirksomhetKandidatTjenesteTests.cs` 243 linjer,
+  `VirksomhetKandidatSveipTjenesteTests.cs` 212 linjer).
+- **Levende, med fungerende UI**: `BegrepEntitet` sin `Begrepskategori = "virksomhet"`-side —
+  skjema for å legge til navneformer i `VirksomhetDetalj.tsx`, via `VirksomhetsbegrepTjeneste`.
+- **Levende ved oppstart**: `OrganisasjonsregisterSeed.SeedAsync` kjøres ubetinget i
+  `Program.cs` (ikke dev-only), seeder alle 451 rader fra `organisasjoner-norge.json`.
+
+De reelle, verifiserte gapene (utover selve §8-poenget om `KompetentMyndighet`) er SMALERE enn
+først antatt:
+
+1. **`Begrepskategori = "rolle"` og `MyndighetstildelingEntitet` har API-endepunkter og
+   backend-tester (`POST /api/rollebegrep`, `POST /api/myndighetstildelinger`), men INGEN
+   frontend-skjema for å OPPRETTE dem** — kun en read-only tabell i `VirksomhetDetalj.tsx`
+   (`hentMyndighetstildelingerForVirksomhet`). Kan i dag kun opprettes via direkte HTTP/Swagger.
+2. **docs/20 §3 sine "aggregerte visninger"** (rettskilde→virksomhet, virksomhet→rettskilde,
+   beregnet fra `Paragrafspenn`-treff, bevisst tenkt beregnet ved lesing — ikke lagret) **finnes
+   ikke noe sted** — ingen endepunkt, ingen UI, ingen tjeneste utover en ubrukt
+   `MyndighetstildelingTjeneste.ErGjeldendeAsync`-hjelper som KUN testene kaller
+   (`MyndighetstildelingTjenesteTests.cs`). Dette er den mest sannsynlige veien INN til å faktisk
+   løse §8s hovedpoeng (et oppslag `KompetentMyndighet` kunne brukt), men er ren, ubrukt
+   infrastruktur i dag.
+3. **`KompetentMyndighet`-koblingen** (selve §8-punktet) — uendret, fortsatt ugjort.
+
+**Konklusjon**: ingen kode skal fjernes/skrotes — det ville vært en reell regresjon av en
+fungerende, testet funksjon (kandidatgodkjenning), ikke rydding av dødt kode. De tre punktene over
+er de faktiske, avgrensede TODO-ene for en fremtidig runde, ikke et helt sideprosjekt å forkaste.
+
+### 8.2 Slektskap til `docs/arkiv/19-virksomhet-begrep-og-rettskildekobling-SUPERSEDED.md`
+
+Den arkiverte filen var en tidligere, EKSPLISITT forkastet runde (2026-08-20, «null commits,
+skjemaet traff ikke de faktiske kravene» — se docs/20s egen åpning) som foreslo å gjøre `Begrep`
+delt/nasjonalt ved å nullstille dens tidligere obligatoriske `VirksomhetId` (samme "NULL = delt"-
+konvensjon som `Rettskilde`/`Kodeliste` allerede bruker). Den grep med akkurat samme grunnproblem
+som §8 her — én rollestreng («Fylkesmann»/«Statsforvalter», forurensningsmyndighet-eksempelet) kan
+peke på flere ulike virksomheter — men uten en paragraf-spenn-mekanisme til å skille tilfellene.
+docs/20 (den runden som FAKTISK ble bygget, se §8.1) tok med seg to lærdommer derfra videre: seed
+ved navngitt import, ikke bred høsting (§4), og at å slå sammen to uavhengige akser i ett felt kan
+være et BEVISST valg (§2.2), ikke automatisk en feil å unngå. Filen selv forblir arkivert som
+historikk — ikke gjenopplivet, ikke slettet.

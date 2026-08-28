@@ -113,3 +113,26 @@ Når/hvis noen av disse skal kobles inn i domenemodellen (samme mønster som Opp
 **skriv en tilsvarende seksjon i dette dokumentet FØR koden skrives** — det var nettopp mangelen på
 en slik skriftlig mapping som gjorde at spørsmålet "dekker vi alt?" ikke kunne besvares uten denne
 etterpåkommende gjennomgangen.
+
+## 4. Import-wizard: modelleksport-JSON → ekte rader (2026-08-28)
+
+*Skrevet ETTER koden denne gangen (ikke før, som §3 anbefaler) — notert her for ordens skyld, ikke
+som et forbilde å gjenta.* Kilden er en ANNEN app-instans (eller en KI som modellerer en tjenestereise
+i samme form) sin `RettighetModellEksportTjeneste`-formede JSON (`docs/23-tjeneste-modell-eksport-og-
+skjema.md`), ikke et eksternt register — mappingen skjer derfor i frontend
+(`ImportWizard.tsx`/`konverterModelleksport.ts`), IKKE i et eget `*Hoster`/`*Seed`-klassepar som de
+andre kildene over.
+
+| Kildefelt (snake_case) | Mål | Metode |
+|---|---|---|
+| `kompetent_myndighet` (fritekst) | `TjenesteRequest.kompetentMyndighet` (uendret fritekst) OG et FORSLAG til mål-virksomhet | Enkel deloverlapp mot `Virksomhet.Navn` (`gjettVirksomhetSokeord`) — ALDRI auto-valgt, kun forhåndsutfylt i `VirksomhetVelger`. Ingen fuzzy-matching-bibliotek brukt eller innført. |
+| `regelverksreferanser[].lov`/`henvisning` | `KobleRegelverksreferanseRequest` (ekte `tilRettskildeId`/`tilEid`) | Samme prinsipp — `gjettRettskildeSokeord` trekker ut et forsøkt søkeord til `RettskildeVelger`, mennesket velger/bekrefter. Uten treff: raden UTELATES (ingen gjettet FK), talt opp som advarsel. |
+| `avhengigheter[].mal_navn` | Ekte `tilTjenesteId` | Batch-intern navn→id-oppslag FØRST (de fleste `mal_id`-verdiene er synthetic slugs som kun gir mening i den enkelte importfilen — IKKE parset som ekte id-er), deretter cross-tenant-søk (`sokTjenesterTverrTenant`) hvis ikke funnet i batchen. |
+| `avhengigheter[].organisasjonsnummer`/`kildeurl` (`mal_type="ekstern_referanse"`) | `TjenesteavhengighetRequest.tilOrganisasjonsnummer`/`tilNavn`/`tilUrl` | Sendes uendret — `TjenesteavhengighetregisterTjeneste.OpprettAsync` deduplikerer allerede mot `EksternTjenestereferanseEntitet`. |
+| Reciprok "retning: til"-oppføring | (ingenting — hoppes over) | Modelleksporten viser samme kant fra BEGGE endepunkters ståsted (som en ekte eksport ville) — en `avhengigheter[]`-rad med `retning: "til"` som allerede er dekket av en `retning: "fra"`-rad et annet sted i batchen SKAL IKKE opprettes på nytt. Se `byggAvhengighetKandidater` i `ImportWizard.tsx`. |
+| `HandlingArsakInput.Hjemmel`/`HandlingVedleggInput.Navn`/`HandlingVeiledningstekstInput.Overskrift` mangler i kilden | (ingenting — raden utelates) | Disse er ikke-nullbare i skrive-API-et, men NULLBARE i modelleksport-skjemaet — et reelt gap mellom lese- og skriveform. Utelates enkeltvis med en samlet advarsel, ingen oppdiktet placeholder-verdi. |
+
+**Ny funksjonalitet, ikke bare mapping**: import kan opprette tjenesten under en ANNEN virksomhet enn
+den som kjører wizarden — den lander da som et forslag (`Status = "foreslatt_av_annen_virksomhet"`,
+`Proveniens.ForeslattAvVirksomhetId`) i mål-virksomhetens kø, se docs/23 §6 og
+`TjenesteregisterTjeneste.OpprettForslagFraAnnenVirksomhetAsync`.

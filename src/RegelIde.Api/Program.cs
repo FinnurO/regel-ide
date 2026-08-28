@@ -56,6 +56,7 @@ builder.Services.AddScoped<HandlingTjenesteregisterTjeneste>();
 builder.Services.AddScoped<BrukerVisningsinnstillingTjeneste>();
 builder.Services.AddScoped<TjenesteEksportTjeneste>();
 builder.Services.AddScoped<RettighetModellEksportTjeneste>();
+builder.Services.AddScoped<TjenestereiseGrafTjeneste>();
 builder.Services.AddScoped<KunnskapsbibliotekTjeneste>();
 // "Stub" (default) eller "OpenAiKompatibel" — se docs/14-byggesteg5-teknisk-design.md. Bytte krever
 // restart av API-et; å gjøre dette velgbart fra en admin-side i appen er en senere, avgrenset
@@ -1259,6 +1260,30 @@ tjenester.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, Sett
     .WithName("SettTjenesteStatus")
     .WithSummary("Endrer status (§3.1 i domenemodellen).");
 
+tjenester.MapDelete("/{id:guid}/forslag", async (Guid id, HttpRequest request, TjenesteregisterTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        try
+        {
+            var slettet = await tjeneste.SlettForslagAsync(id, bruker.VirksomhetId, ct);
+            return slettet ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen tjeneste med id '{id}'." });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SlettTjenesteforslag")
+    .WithSummary(
+        "Hard-sletter en tjeneste som FORTSATT står som et ubehandlet forslag (foreslatt_av_ai/" +
+        "foreslatt_av_annen_virksomhet) — enten eieren selv, eller virksomheten som faktisk kjørte " +
+        "importen (tverr-virksomhet), kan slette. Ikke en 'Avvis'-erstatning (den tilbakestiller kun " +
+        "status og beholder innholdet) — for opprydding etter en import-test.");
+
 tjenester.MapGet("/{id:guid}/regelverksreferanser", async (Guid id, TjenesteregisterTjeneste tjeneste, CancellationToken ct) =>
         Results.Ok((await tjeneste.RegelverksreferanserForAsync(id, ct)).Select(TjenesteRegelverksreferanseDto.FraEntitet)))
     .WithName("HentTjenesteRegelverksreferanser")
@@ -1494,23 +1519,37 @@ tjenester.MapGet("/forslag", async (HttpRequest request, RegelIdeDbContext db, C
         {
             return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
         }
+        // (2026-08-28, import-wizard-runden) Utvidet fra kun "foreslatt_av_ai" til ÅOGSÅ vise
+        // "foreslatt_av_annen_virksomhet" (tverr-virksomhet import-forslag) — samme kø, samme
+        // Avvis/Rediger/Godkjenn-handlinger uansett kilde, se TjenesteforslagDto.
         var forslag = await db.Tjenester
-            .Where(t => t.VirksomhetId == bruker.VirksomhetId && t.Entitetsstatus == "gjeldende" && t.Status == "foreslatt_av_ai")
+            .Where(t => t.VirksomhetId == bruker.VirksomhetId && t.Entitetsstatus == "gjeldende"
+                        && (t.Status == "foreslatt_av_ai" || t.Status == "foreslatt_av_annen_virksomhet"))
             .OrderByDescending(t => t.OpprettetTidspunkt)
             .ToListAsync(ct);
         var resultat = new List<TjenesteforslagDto>();
         foreach (var t in forslag)
         {
             var proveniens = await db.Proveniens
-                .Where(p => p.EntitetType == "tjeneste" && p.EntitetId == t.Id && p.Handling == "foreslatt_av_ai")
+                .Where(p => p.EntitetType == "tjeneste" && p.EntitetId == t.Id
+                            && (p.Handling == "foreslatt_av_ai" || p.Handling == "foreslatt_av_annen_virksomhet"))
                 .OrderByDescending(p => p.Dato)
                 .FirstOrDefaultAsync(ct);
-            resultat.Add(new TjenesteforslagDto(TjenesteDto.FraEntitet(t), proveniens?.AiForslagVersjon, proveniens?.Dato ?? t.OpprettetTidspunkt, proveniens?.KildeReferanserJson));
+            string? foreslattAvVirksomhetNavn = null;
+            if (proveniens?.ForeslattAvVirksomhetId is { } forslagFraId)
+            {
+                foreslattAvVirksomhetNavn = await db.Virksomheter
+                    .Where(v => v.Id == forslagFraId).Select(v => v.Navn).FirstOrDefaultAsync(ct);
+            }
+            resultat.Add(new TjenesteforslagDto(
+                TjenesteDto.FraEntitet(t), proveniens?.AiForslagVersjon, proveniens?.Dato ?? t.OpprettetTidspunkt,
+                proveniens?.KildeReferanserJson, foreslattAvVirksomhetNavn));
         }
         return Results.Ok(resultat);
     })
     .WithName("HentTjenesteforslagKo")
-    .WithSummary("Lister ventende KI-forslag til nye tjenester (foreslatt_av_ai).");
+    .WithSummary("Lister ventende forslag til nye tjenester — KI-forslag (foreslatt_av_ai) OG " +
+        "tverr-virksomhet import-forslag (foreslatt_av_annen_virksomhet), se TjenesteforslagDto.");
 
 tjenester.MapPost("/forslag/kjor", async (HttpRequest request, KjorForslagRequest body, TjenesteforslagTjeneste forslagstjeneste, RegelIdeDbContext db, CancellationToken ct) =>
     {
@@ -1602,6 +1641,98 @@ tjenester.MapPost("/forslag/kjor-rag", async (HttpRequest request, KjorForslagMe
     })
     .WithName("KjorTjenesteforslagMedRag")
     .WithSummary("RAG-spike (byggesteg 5 runde 4) — samme agent som /forslag/kjor, men henter kun de K mest like rettskilde-nodene i stedet for å dumpe alt. Rå sammenligning, ikke en erstatning.");
+
+// ---------- Import-wizard (2026-08-28) — modelleksport-JSON → ekte tjenester/handlinger ----------
+// Se docs/21-feltmapping-eksterne-kilder.md for mapping-reglene (navn→virksomhet, lov-tekst→
+// rettskilde, mal_navn→ekte/batch-intern tjeneste-id) og docs/23 §6 for hvorfor dette IKKE er en
+// generell/automatisk importer — wizarden på frontend har allerede løst alle FK-er (rettskilde-node,
+// evt. eksisterende tjeneste å koble til i stedet) FØR dette kalles. Ett kall pr. rettighet.
+
+var import = app.MapGroup("/api/import").WithOpenApi();
+
+import.MapPost("/{malVirksomhetId:guid}/rettigheter", async (
+        Guid malVirksomhetId, HttpRequest request, ImportRettighetRequest body,
+        TjenesteregisterTjeneste tjenesteregister, HandlingregisterTjeneste handlingregister,
+        RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        if (!await db.Virksomheter.AnyAsync(v => v.Id == malVirksomhetId, ct))
+        {
+            return Results.BadRequest(new { feil = $"Fant ingen virksomhet med id '{malVirksomhetId}'. Ingen gjettet fallback." });
+        }
+
+        // [Ny, 2026-08-28, bulk-import-runden] Hele rettigheten (tjeneste + handlinger +
+        // regelverksreferanser) skrives i ÉN ambient transaksjon — hver av de underliggende
+        // register-metodene kaller sin egen `SaveChangesAsync`, så uten dette lot en ArgumentException
+        // fra f.eks. en ukjent `Handlingstype` midt i handling-løkken en ALLEREDE COMMITTET tjeneste
+        // stå igjen løs i databasen samtidig som endepunktet rapporterte HELE forespørselen som feilet
+        // (400) — reproduserbart, oppdaget under live-verifisering av bulk-importen (69
+        // rettigheter/89 handlinger-scenarioet). En rad som feiler skal feile ATOMISK, ellers hoper
+        // det seg opp foreldreløse tjenester ved retry av en stor batch.
+        await using var transaksjon = await db.Database.BeginTransactionAsync(ct);
+        try
+        {
+            var t = body.Tjeneste;
+            TjenesteEntitet tjeneste;
+            if (malVirksomhetId == bruker.VirksomhetId)
+            {
+                // Egen virksomhet importerer til seg selv — vanlig opprettelse, ingen forslagsstatus.
+                tjeneste = await tjenesteregister.OpprettAsync(
+                    bruker.VirksomhetId, t.Tittel, t.Beskrivelse, t.KompetentMyndighet, t.Output, t.Tjenestetype,
+                    t.Malgruppe, t.Kanaler, t.Kostnad, t.Behandlingstid, t.Kontaktpunkt, t.KonsekvensVedBrudd,
+                    t.Sprak, bruker.Navn, ct, t.Livshendelser, t.LosKlassifisering, t.Tjenesteomrade, t.Type,
+                    t.Formal, t.Innhold, t.EgneInnholdselementer);
+            }
+            else
+            {
+                tjeneste = await tjenesteregister.OpprettForslagFraAnnenVirksomhetAsync(
+                    malVirksomhetId, bruker.VirksomhetId, t.Tittel, t.KompetentMyndighet, t.Malgruppe,
+                    t.KonsekvensVedBrudd, bruker.Navn, ct, t.Livshendelser, t.LosKlassifisering, t.Tjenesteomrade,
+                    t.Type, t.Formal, t.Innhold, t.EgneInnholdselementer);
+            }
+
+            foreach (var h in body.Handlinger)
+            {
+                if (malVirksomhetId == bruker.VirksomhetId)
+                {
+                    await handlingregister.OpprettAsync(
+                        bruker.VirksomhetId, tjeneste.Id, h.Navn, h.Handlingstype, h.Bruksomraade, h.UtfortAv,
+                        h.Kanaler, h.Behandlingstid, h.Kostnad, h.Vedlegg, h.Veiledningstekst, h.Arsaker,
+                        h.Resultat, h.Merknad, bruker.Navn, ct);
+                }
+                else
+                {
+                    await handlingregister.OpprettForslagFraAnnenVirksomhetAsync(
+                        malVirksomhetId, tjeneste.Id, h.Navn, h.Handlingstype, h.Bruksomraade, h.UtfortAv,
+                        h.Kanaler, h.Behandlingstid, h.Kostnad, h.Vedlegg, h.Veiledningstekst, h.Arsaker,
+                        h.Resultat, h.Merknad, bruker.Navn, bruker.VirksomhetId, ct);
+                }
+            }
+
+            foreach (var r in body.Regelverksreferanser)
+            {
+                await tjenesteregister.KobleRegelverksreferanseAsync(tjeneste.Id, r.TilRettskildeId, r.TilEid, ct, r.Felt);
+            }
+
+            await transaksjon.CommitAsync(ct);
+            return Results.Created($"/api/tjenester/{tjeneste.Id}", TjenesteDto.FraEntitet(tjeneste));
+        }
+        catch (ArgumentException ex)
+        {
+            await transaksjon.RollbackAsync(ct);
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("ImporterRettighet")
+    .WithSummary(
+        "Oppretter ÉN rettighet (+ dens handlinger + regelverksreferanser) fra en modelleksport-JSON, " +
+        "allerede menneske-bekreftet av import-wizarden. Hvis malVirksomhetId er en ANNEN virksomhet " +
+        "enn den innloggede brukerens egen, lander den som et forslag (foreslatt_av_annen_virksomhet) " +
+        "i MÅL-virksomhetens forslagskø i stedet for å bli gjeldende innhold direkte.");
 
 // ---------- Kunnskapsbibliotek (byggesteg 5 runde 1, docs/06-veikart.md) — krever X-Bruker-Id, ----------
 // ---------- alltid virksomhetens eget arbeidsprodukt, kun brukt av «Identifiser tjenester». ----------
@@ -2740,6 +2871,33 @@ tjenester.MapGet("/{id:guid}/avhengigheter", async (Guid id, Tjenesteavhengighet
     .WithSummary(
         "Lister tjenestens avhengigheter i BEGGE retninger (der tjenesten er Fra, og der den er Til) " +
         "med ferdig beregnet visningstekst — ett rettet kant per relasjon, ingen duplisert lagring.");
+
+// ---------- Tjenestereise-graf (2026-08-28) — multi-hop, for interaktiv visualisering ----------
+
+tjenester.MapGet("/{id:guid}/avhengighetsgraf", async (
+        Guid id, int? dybde, bool? inkluderHandlinger, string? livshendelse,
+        TjenestereiseGrafTjeneste graftjeneste, CancellationToken ct) =>
+    {
+        var resultat = await graftjeneste.ByggAsync(id, dybde ?? 2, inkluderHandlinger ?? false, livshendelse, ct);
+        return resultat is null
+            ? Results.NotFound(new { feil = $"Ingen tjeneste med id '{id}'." })
+            : Results.Ok(AvhengighetsgrafDto.FraGraf(resultat));
+    })
+    .WithName("HentTjenestereiseGraf")
+    .WithSummary(
+        $"Multi-hop (BFS, maks {TjenestereiseGrafTjeneste.MaksDybde} hopp) traversering av " +
+        "tjenesteavhengigheter fra ett sentrum, til interaktiv graf-visning. ?dybde=1-5 (default 2), " +
+        "?inkluderHandlinger=true legger på hver synlig tjenestes handlinger som egne noder (IKKE en " +
+        "del av dybde-telling), ?livshendelse=<verdi> filtrerer bort tjenester uten akkurat den " +
+        "livshendelsen (sentrum vises alltid uansett filter). Eksterne referanser traverseres ikke " +
+        "videre (ingen ekte Tjeneste-rad å hente fra).");
+
+tjenester.MapGet("/livshendelser", async (TjenestereiseGrafTjeneste graftjeneste, CancellationToken ct) =>
+        Results.Ok(await graftjeneste.DistinkteLivshendelserAsync(ct)))
+    .WithName("HentDistinkteLivshendelser")
+    .WithSummary(
+        "Alle distinkte livshendelse-verdier faktisk i bruk på tvers av tjenester — INGEN kodeliste " +
+        "finnes (fri text[]), til bruk i graf-sidens filter-nedtrekk.");
 
 // ---------- Tjenesteeksport (2026-08-20) — ett samlet JSON-dokument for én tjeneste ----------
 

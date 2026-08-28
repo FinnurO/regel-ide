@@ -585,6 +585,19 @@ export interface KobleRegelverksreferanseRequest {
   felt?: string | null;
 }
 
+/**
+ * [Ny, 2026-08-28, import-wizard-runden] POST /api/import/{malVirksomhetId}/rettigheter — ett
+ * allerede menneske-bekreftet element fra en modelleksport-JSON. `tjeneste`/`handlinger` gjenbruker
+ * EKSAKT samme request-formene som de vanlige skriveendepunktene; `regelverksreferanser` peker
+ * allerede på ekte rettskilde-noder (wizarden har løst navn→FK FØR dette sendes). Avhengigheter
+ * sendes IKKE her, se `ImportWizard.tsx`.
+ */
+export interface ImportRettighetRequest {
+  tjeneste: TjenesteRequest;
+  handlinger: HandlingRequest[];
+  regelverksreferanser: KobleRegelverksreferanseRequest[];
+}
+
 /** Hendelse (docs/03-domenemodell.md §1.5, docs/13-backlog.md §2.1). 'type': generell|livshendelse|virksomhetshendelse. */
 export interface HendelseDto {
   id: string;
@@ -647,6 +660,30 @@ export interface TjenesteTverrTenantTreffDto {
   beskrivelse: string | null;
   virksomhetId: string;
   virksomhetNavn: string;
+}
+
+/** [Ny, 2026-08-28] Én node i en tjenestereise-graf (GET /api/tjenester/{id}/avhengighetsgraf). */
+export interface GrafNodeDto {
+  id: string;
+  navn: string;
+  erHandling: boolean;
+  type: string | null;
+  kompetentMyndighet: string | null;
+  livshendelser: string[];
+  status: string | null;
+}
+
+/** `erHandlingTilhorighet` = ikke en ekte avhengighet, kun tjeneste→egen-handling-tilhørighet. */
+export interface GrafKantDto {
+  fraId: string;
+  tilId: string;
+  rel: string;
+  erHandlingTilhorighet: boolean;
+}
+
+export interface AvhengighetsgrafDto {
+  noder: GrafNodeDto[];
+  kanter: GrafKantDto[];
 }
 
 /** SKOS-begrep (docs/03-domenemodell.md §1.3). 'begrepstype': faktabegrep|handlingsbegrep. */
@@ -1083,12 +1120,17 @@ export interface BegrepsforslagDto {
   kildeReferanserJson: string | null;
 }
 
-/** Kø-visning for «Identifiser tjenester» — beriker TjenesteDto med proveniens fra AI-forslaget. */
+/**
+ * Kø-visning for «Identifiser tjenester» — beriker TjenesteDto med proveniens fra forslaget.
+ * `aiForslagVersjon` satt = KI-forslag; `foreslattAvVirksomhetNavn` satt = tverr-virksomhet
+ * import-forslag (2026-08-28). Nøyaktig én av de to er satt.
+ */
 export interface TjenesteforslagDto {
   tjeneste: TjenesteDto;
   aiForslagVersjon: string | null;
   foreslattTidspunkt: string;
   kildeReferanserJson: string | null;
+  foreslattAvVirksomhetNavn: string | null;
 }
 
 /**

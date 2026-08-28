@@ -323,12 +323,45 @@ public sealed record TjenesteTverrTenantTreffDto(Guid Id, string Tittel, string?
     public static TjenesteTverrTenantTreffDto FraTreff(TjenesteTverrTenantTreff t) => new(t.Id, t.Tittel, t.Beskrivelse, t.VirksomhetId, t.VirksomhetNavn);
 }
 
+/// <summary>[Ny, 2026-08-28] Én node i en tjenestereise-graf (GET /api/tjenester/{id}/avhengighetsgraf) — se <see cref="TjenestereiseNode"/>.</summary>
+public sealed record GrafNodeDto(
+    Guid Id, string Navn, bool ErHandling, string? Type, string? KompetentMyndighet,
+    IReadOnlyList<string> Livshendelser, string? Status)
+{
+    public static GrafNodeDto FraVisning(TjenestereiseNode n) => new(n.Id, n.Navn, n.ErHandling, n.Type, n.KompetentMyndighet, n.Livshendelser, n.Status);
+}
+
+/// <summary>Én kant — <see cref="ErHandlingTilhorighet"/> = ikke en ekte avhengighet, se <see cref="TjenestereiseKant"/>.</summary>
+public sealed record GrafKantDto(Guid FraId, Guid TilId, string Rel, bool ErHandlingTilhorighet)
+{
+    public static GrafKantDto FraVisning(TjenestereiseKant k) => new(k.FraId, k.TilId, k.Rel, k.ErHandlingTilhorighet);
+}
+
+public sealed record AvhengighetsgrafDto(IReadOnlyList<GrafNodeDto> Noder, IReadOnlyList<GrafKantDto> Kanter)
+{
+    public static AvhengighetsgrafDto FraGraf(TjenestereiseGraf g) =>
+        new(g.Noder.Select(GrafNodeDto.FraVisning).ToList(), g.Kanter.Select(GrafKantDto.FraVisning).ToList());
+}
+
 /// <summary>Forespørsel for POST /api/handboker/{id}/rettskilder.</summary>
 public sealed record LeggTilRettskildeomfangRequest(Guid TilRettskildeId);
 
 /// <summary>Forespørsel for POST /api/tjenester/{id}/regelverksreferanser. <see cref="Felt"/> valgfri —
 /// se feltnøkkel-konvensjonen på <see cref="RegelIde.Data.TjenesteFeltnokler"/> (TjenesteregisterTjeneste.cs).</summary>
 public sealed record KobleRegelverksreferanseRequest(Guid TilRettskildeId, string TilEid, string? Felt = null);
+
+/// <summary>
+/// [Ny, 2026-08-28, import-wizard-runden] Ett allerede menneske-bekreftet element fra en modelleksport-
+/// JSON: <see cref="Tjeneste"/>/<see cref="Handlinger"/> gjenbruker EKSAKT samme request-DTO-er som
+/// de vanlige skriveendepunktene (ingen duplisert felt-liste), <see cref="Regelverksreferanser"/>
+/// peker allerede på ekte rettskilde-noder (wizarden har løst navn→FK FØR dette sendes). Avhengigheter
+/// sendes IKKE her — de opprettes i et eget, senere kall (etter at ALLE rettigheter i importen har
+/// fått ekte id-er), via det allerede eksisterende <c>POST /{id}/avhengigheter</c>.
+/// </summary>
+public sealed record ImportRettighetRequest(
+    TjenesteRequest Tjeneste,
+    IReadOnlyList<HandlingRequest> Handlinger,
+    IReadOnlyList<KobleRegelverksreferanseRequest> Regelverksreferanser);
 
 /// <summary>
 /// Motsatt retning av <see cref="TjenesteRegelverksreferanseDto"/> — brukt av
@@ -703,8 +736,14 @@ public sealed record KjorForslagResponsDto<T>(IReadOnlyList<T> Forslag, int? Inp
 /// <summary>Kø-visning for «Identifiser begrep» — beriker BegrepDto med proveniens fra AI-forslaget.</summary>
 public sealed record BegrepsforslagDto(BegrepDto Begrep, string? AiForslagVersjon, DateTimeOffset ForeslattTidspunkt, string? KildeReferanserJson);
 
-/// <summary>Kø-visning for «Identifiser tjenester» — beriker TjenesteDto med proveniens fra AI-forslaget.</summary>
-public sealed record TjenesteforslagDto(TjenesteDto Tjeneste, string? AiForslagVersjon, DateTimeOffset ForeslattTidspunkt, string? KildeReferanserJson);
+/// <summary>
+/// Kø-visning for «Identifiser tjenester» — beriker TjenesteDto med proveniens fra forslaget.
+/// <see cref="AiForslagVersjon"/> satt = KI-forslag; <see cref="ForeslattAvVirksomhetNavn"/> satt =
+/// tverr-virksomhet-import-forslag (2026-08-28, import-wizard-runden). Nøyaktig én av de to er satt.
+/// </summary>
+public sealed record TjenesteforslagDto(
+    TjenesteDto Tjeneste, string? AiForslagVersjon, DateTimeOffset ForeslattTidspunkt, string? KildeReferanserJson,
+    string? ForeslattAvVirksomhetNavn = null);
 
 /// <summary>
 /// (2026-08-20) Full eksport av ÉN tjeneste og alt den er koblet til på KJERNEMODELL-nivået —

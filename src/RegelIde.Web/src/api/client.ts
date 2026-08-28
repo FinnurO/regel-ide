@@ -57,6 +57,8 @@ import type {
   RettskildeNodeDto,
   RettskildeReferanseDto,
   RettskildeSammendrag,
+  ImportRettighetRequest,
+  AvhengighetsgrafDto,
   SettDatasettVerdiRequest,
   SettOperatorRequest,
   SettRevisjonsmerkeRequest,
@@ -412,6 +414,13 @@ export const api = {
       body: JSON.stringify(request),
     }),
 
+  /** [Ny, 2026-08-28] Hard-sletter et FORTSATT ubehandlet forslag (foreslatt_av_ai/
+   * foreslatt_av_annen_virksomhet) — enten eieren eller virksomheten som faktisk kjørte importen kan
+   * slette. IKKE en "Avvis"-erstatning (den beholder innholdet, se TjenesteforslagKo.tsx) — for
+   * opprydding etter en import-test. */
+  slettTjenesteforslag: (id: string) =>
+    kall<void>(`/api/tjenester/${id}/forslag`, { method: 'DELETE' }),
+
   hentTjenesteRegelverksreferanser: (id: string) =>
     kall<TjenesteRegelverksreferanseDto[]>(`/api/tjenester/${id}/regelverksreferanser`),
 
@@ -524,6 +533,25 @@ export const api = {
 
   slettTjenesteavhengighet: (avhengighetId: string) =>
     kall<void>(`/api/tjenester/avhengigheter/${avhengighetId}`, { method: 'DELETE' }),
+
+  // ---------- Import-wizard (2026-08-28) — modelleksport-JSON → ekte tjenester/handlinger ----------
+
+  importerRettighet: (malVirksomhetId: string, request: ImportRettighetRequest) =>
+    kall<TjenesteDto>(`/api/import/${malVirksomhetId}/rettigheter`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  // ---------- Tjenestereise-graf (2026-08-28) — multi-hop, interaktiv visualisering ----------
+
+  hentTjenestereiseGraf: (id: string, valg: { dybde: number; inkluderHandlinger: boolean; livshendelse: string | null }) => {
+    const sok = new URLSearchParams({ dybde: String(valg.dybde), inkluderHandlinger: String(valg.inkluderHandlinger) });
+    if (valg.livshendelse) sok.set('livshendelse', valg.livshendelse);
+    return kall<AvhengighetsgrafDto>(`/api/tjenester/${id}/avhengighetsgraf?${sok.toString()}`);
+  },
+
+  hentDistinkteLivshendelser: () => kall<string[]>('/api/tjenester/livshendelser'),
 
   // ---------- Begrepsregister (SKOS, docs/03-domenemodell.md §1.3) — byggesteg 2 ----------
 

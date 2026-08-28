@@ -7,6 +7,16 @@
 
     <IsPackable>false</IsPackable>
     <IsTestProject>true</IsTestProject>
+
+    <!-- [Ny, 2026-08-28] Ekskluder ekte nettverkskall mot lovdata.no (Category=LiveIntegration, se
+         LovdataFullimportTjenesteTests/LovdataBulkHenterTests) fra en vanlig `dotnet test` — én av
+         disse ("Forste_kjoring_importerer_alt...") tok alene ~32 min i et sandkasse-miljø med
+         tregt/strupet nettverk, og en idle Npgsql-forbindelse i samme delte connection-pool
+         (DataTestCollection) ble observert droppet under ventetiden, som fikk HELT urelaterte, rene
+         DB-tester til å feile med en falsk "transient failure". `Condition` her (ikke bare en
+         hardkodet verdi) lar `dotnet test -p:VSTestTestCaseFilter="Category=LiveIntegration"`
+         overstyre for en bevisst "ekte Lovdata"-smoke-kjøring. -->
+    <VSTestTestCaseFilter Condition=" '$(VSTestTestCaseFilter)' == '' ">Category!=LiveIntegration</VSTestTestCaseFilter>
   </PropertyGroup>
 
   <ItemGroup>

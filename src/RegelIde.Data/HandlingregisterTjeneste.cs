@@ -48,7 +48,7 @@ public sealed class HandlingregisterTjeneste(RegelIdeDbContext db)
     // en gyldig verdi å SETTE (ikke bare noe proveniensraden alene forteller), slik at f.eks. en
     // fremtidig "avvis forslag" (tilbake til "utkast") kan skje via samme SettStatusAsync som alt annet.
     private static readonly string[] GyldigeStatuser =
-        ["utkast", "foreslatt_av_ai", "under_revisjon", "validert", "publisert", "tilbaketrukket", "arkivert"];
+        ["utkast", "foreslatt_av_ai", "foreslatt_av_annen_virksomhet", "under_revisjon", "validert", "publisert", "tilbaketrukket", "arkivert"];
 
     public Task<List<HandlingEntitet>> ListerForTjenesteAsync(Guid tjenesteId, CancellationToken ct = default) =>
         db.Handlinger
@@ -172,6 +172,54 @@ public sealed class HandlingregisterTjeneste(RegelIdeDbContext db)
         };
         db.Handlinger.Add(handling);
         db.Proveniens.Add(ProveniensHjelper.NyForslagRad("handling", handling.Id, virksomhetId, opprettetAv, aiForslagVersjon, kildeReferanserJson));
+        await db.SaveChangesAsync(ct);
+        return handling;
+    }
+
+    /// <summary>
+    /// [Ny, 2026-08-28, import-wizard-runden] Samme mønster som <see cref="OpprettForslagFraKiAsync"/>,
+    /// men kilden er en ANNEN virksomhets import (<see cref="TjenesteregisterTjeneste
+    /// .OpprettForslagFraAnnenVirksomhetAsync"/>), ikke KI. Kalles KUN rett etter at den eiende
+    /// tjenesten selv nettopp ble opprettet under <paramref name="virksomhetId"/> i samme import-kall —
+    /// ownership-sjekken under holder derfor uansett hvilken virksomhet som faktisk KJØRTE importen.
+    /// </summary>
+    public async Task<HandlingEntitet> OpprettForslagFraAnnenVirksomhetAsync(
+        Guid virksomhetId, Guid tjenesteId, string navn, string handlingstype, string? bruksomraade, string? utfortAv,
+        IReadOnlyList<HandlingKanalInput>? kanaler, HandlingBehandlingstidInput? behandlingstid,
+        HandlingKostnadInput? kostnad, IReadOnlyList<HandlingVedleggInput>? vedlegg,
+        IReadOnlyList<HandlingVeiledningstekstInput>? veiledningstekst, IReadOnlyList<HandlingArsakInput>? arsaker,
+        HandlingResultatInput? resultat, string? merknad, string opprettetAv, Guid forslagFraVirksomhetId,
+        CancellationToken ct = default)
+    {
+        Valider(navn, handlingstype, utfortAv);
+
+        if (!await db.Tjenester.AnyAsync(t => t.Id == tjenesteId && t.VirksomhetId == virksomhetId && t.Entitetsstatus == "gjeldende", ct))
+        {
+            throw new ArgumentException($"Fant ingen tjeneste med id '{tjenesteId}' for denne virksomheten. Ingen gjettet fallback.");
+        }
+
+        var handling = new HandlingEntitet
+        {
+            Id = Guid.NewGuid(),
+            TjenesteId = tjenesteId,
+            Navn = navn,
+            Handlingstype = handlingstype,
+            Bruksomraade = bruksomraade,
+            UtfortAv = utfortAv,
+            KanalerJson = Serialiser(kanaler ?? []),
+            BehandlingstidJson = Serialiser(behandlingstid ?? new HandlingBehandlingstidInput(null, null)),
+            KostnadJson = Serialiser(kostnad ?? new HandlingKostnadInput(null, [])),
+            VedleggJson = Serialiser(vedlegg ?? []),
+            VeiledningstekstJson = Serialiser(veiledningstekst ?? []),
+            ArsakerJson = Serialiser(arsaker ?? []),
+            ResultatJson = Serialiser(resultat ?? new HandlingResultatInput(null, [])),
+            Merknad = merknad,
+            Status = "foreslatt_av_annen_virksomhet",
+            OpprettetAv = opprettetAv,
+            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        };
+        db.Handlinger.Add(handling);
+        db.Proveniens.Add(ProveniensHjelper.NyTverrVirksomhetForslagRad("handling", handling.Id, virksomhetId, opprettetAv, forslagFraVirksomhetId));
         await db.SaveChangesAsync(ct);
         return handling;
     }

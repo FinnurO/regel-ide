@@ -40,4 +40,24 @@ internal static class ProveniensHjelper
         AiForslagVersjon = aiForslagVersjon,
         KildeReferanserJson = kildeReferanserJson,
     };
+
+    /// <summary>
+    /// Tverr-virksomhet-forslag-variant (2026-08-28, import-wizard-runden) — samme idé som
+    /// <see cref="NyForslagRad"/>, men kilden er en ANNEN virksomhets import, ikke KI.
+    /// <paramref name="malVirksomhetId"/> er raden sin egen/eier-virksomhet (samme rolle som
+    /// <paramref name="virksomhetId"/> i <see cref="NyRad"/>); <paramref name="forslagFraVirksomhetId"/>
+    /// er virksomheten som faktisk kjørte importen.
+    /// </summary>
+    public static ProveniensEntitet NyTverrVirksomhetForslagRad(
+        string entitetType, Guid entitetId, Guid malVirksomhetId, string endretAv, Guid forslagFraVirksomhetId) => new()
+    {
+        Id = Guid.NewGuid(),
+        VirksomhetId = malVirksomhetId,
+        EntitetType = entitetType,
+        EntitetId = entitetId,
+        EndretAv = endretAv,
+        Dato = DateTimeOffset.UtcNow,
+        Handling = "foreslatt_av_annen_virksomhet",
+        ForeslattAvVirksomhetId = forslagFraVirksomhetId,
+    };
 }

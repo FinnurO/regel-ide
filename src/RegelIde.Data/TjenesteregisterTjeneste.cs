@@ -102,8 +102,11 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
     // overganger i v1 (samme v1-forenkling som HandbokKommentarMetadataEntitet.Status, se §1.1.1).
     // internal (ikke private) siden TjenesteModellSkjema (docs/23) gjenbruker denne listen i det
     // genererte JSON Schema-et, i stedet for å duplisere verdiene og risikere drift.
+    // "foreslatt_av_annen_virksomhet" lagt til 2026-08-28 (import-wizard-runden) — samme
+    // godkjenningskø-mekanisme som "foreslatt_av_ai", men kilden er en ANNEN virksomhets import,
+    // ikke KI. Se OpprettForslagFraAnnenVirksomhetAsync.
     internal static readonly string[] GyldigeStatuser =
-        ["utkast", "foreslatt_av_ai", "under_revisjon", "validert", "publisert", "tilbaketrukket", "arkivert"];
+        ["utkast", "foreslatt_av_ai", "foreslatt_av_annen_virksomhet", "under_revisjon", "validert", "publisert", "tilbaketrukket", "arkivert"];
 
     /// <summary>Rettighetstype (2026-08-20, fra serveringsbevilling-modell-forslag.json sitt "type"-felt,
     /// KI-agentens nivå 2-forslag) — hardkodet, utvidbar liste, samme "ingen DB-CHECK"-holdning som
@@ -264,6 +267,57 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
     }
 
     /// <summary>
+    /// [Ny, 2026-08-28, import-wizard-runden] Import-wizardens skriveendepunkt: oppretter en
+    /// tjeneste EID av <paramref name="malVirksomhetId"/> (kan være en ANNEN virksomhet enn den som
+    /// kjører importen), landet med Status="foreslatt_av_annen_virksomhet". Speiler
+    /// <see cref="OpprettAsync"/> feltmessig (samme fulle sett — livshendelser/losKlassifisering/
+    /// type/formal/innhold/egneInnholdselementer inkludert, siden modelleksport-JSON-en dekker disse),
+    /// men skriver en <see cref="ProveniensHjelper.NyTverrVirksomhetForslagRad"/> i stedet for en
+    /// vanlig "opprettet"-rad, slik at mål-virksomheten kan se HVEM som foreslo den (se
+    /// TjenesteforslagKo.tsx-generaliseringen i API-laget).
+    /// </summary>
+    public async Task<TjenesteEntitet> OpprettForslagFraAnnenVirksomhetAsync(
+        Guid malVirksomhetId, Guid forslagFraVirksomhetId, string tittel, string? kompetentMyndighet,
+        IReadOnlyList<string>? malgruppe, string? konsekvensVedBrudd, string opprettetAv, CancellationToken ct = default,
+        IReadOnlyList<string>? livshendelser = null, string? losKlassifisering = null, string? tjenesteomrade = null,
+        string? type = null, string? formal = null, TjenesteInnholdInput? innhold = null,
+        IReadOnlyList<EgetInnholdselementInput>? egneInnholdselementer = null)
+    {
+        if (string.IsNullOrWhiteSpace(tittel))
+        {
+            throw new ArgumentException("Tittel kan ikke være tom. Ingen gjettet fallback.");
+        }
+        if (type is not null && !GyldigeRettighetstyper.Contains(type))
+        {
+            throw new ArgumentException($"Ukjent rettighetstype '{type}'. Gyldige verdier: {string.Join(", ", GyldigeRettighetstyper)}.");
+        }
+
+        var tjeneste = new TjenesteEntitet
+        {
+            Id = Guid.NewGuid(),
+            VirksomhetId = malVirksomhetId,
+            Tittel = tittel,
+            KompetentMyndighet = kompetentMyndighet,
+            Malgruppe = malgruppe?.ToList() ?? [],
+            KonsekvensVedBrudd = konsekvensVedBrudd,
+            Livshendelser = livshendelser?.ToList() ?? [],
+            LosKlassifisering = losKlassifisering,
+            Tjenesteomrade = tjenesteomrade,
+            Type = type,
+            Formal = formal,
+            InnholdJson = Serialiser(innhold),
+            EgneInnholdselementerJson = Serialiser(egneInnholdselementer?.ToList() ?? []) ?? "[]",
+            Status = "foreslatt_av_annen_virksomhet",
+            OpprettetAv = opprettetAv,
+            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        };
+        db.Tjenester.Add(tjeneste);
+        db.Proveniens.Add(ProveniensHjelper.NyTverrVirksomhetForslagRad("tjeneste", tjeneste.Id, malVirksomhetId, opprettetAv, forslagFraVirksomhetId));
+        await db.SaveChangesAsync(ct);
+        return tjeneste;
+    }
+
+    /// <summary>
     /// Sikkerhetsfiks 2026-08-20 (kjent hull, se docs/17-forvaltningsstruktur-master-tjeneste.md §2.2 og
     /// docs/18-vurdering-rettighet-samhandling-modell.md §D.7): denne metoden filtrerte tidligere kun på
     /// <c>Entitetsstatus</c> — enhver innlogget bruker kunne endre enhver annen virksomhets tjeneste hvis
@@ -379,6 +433,81 @@ public sealed class TjenesteregisterTjeneste(RegelIdeDbContext db)
         db.Proveniens.Add(proveniens);
         await db.SaveChangesAsync(ct);
         return tjeneste;
+    }
+
+    /// <summary>
+    /// [Ny, 2026-08-28, bulk-import-runden] Hard-sletter en tjeneste som FORTSATT står som et
+    /// ubehandlet forslag — enten en KI-generert («foreslatt_av_ai») eller en tverr-virksomhet-import
+    /// («foreslatt_av_annen_virksomhet»). Bevisst avgrenset til KUN disse to statusene: en tjeneste
+    /// noen faktisk har validert/publisert/redigert (eller til og med bare avvist tilbake til
+    /// «utkast», se <c>TjenesteforslagKo.tsx</c> sin <c>avvis</c>-funksjon) er ikke lenger et
+    /// ubehandlet forslag og skal IKKE kunne forsvinne via dette endepunktet — «Avvis»-knappen der
+    /// SLETTER bevisst ikke (kun tilbakestiller status), nettopp for at mål-virksomheten skal beholde
+    /// innholdet for senere vurdering. Denne metoden er noe annet: et reelt "angre selve importen"
+    /// for et forslag som ALDRI ble rørt av mål-virksomheten.
+    /// <para>
+    /// Tilgang: enten (a) <paramref name="virksomhetId"/> er tjenestens EGEN eier (samme som
+    /// <see cref="SettStatusAsync"/> allerede krever), eller (b) <paramref name="virksomhetId"/> er
+    /// virksomheten som FAKTISK kjørte importen (<see cref="ProveniensEntitet.ForeslattAvVirksomhetId"/>
+    /// på forslag-raden) — dette er selve gapet som utløste denne metoden: uten (b) kunne en
+    /// importerende virksomhet aldri rydde opp igjen sine egne tverr-virksomhet-testforslag, siden
+    /// <see cref="SettStatusAsync"/>s eierskapssjekk alene blokkerer alt annet enn mål-virksomheten selv.
+    /// </para>
+    /// <para>
+    /// Ekte SQL-sletting (ikke en `Entitetsstatus`-markering) — et aldri-behandlet forslag har ingen
+    /// verdi å bevare et spor av. Handlinger/regelverksreferanse-koblinger/hendelse-tilknytning
+    /// kaskaderer allerede i DB-skjemaet (`OnDelete(Cascade)` på `TjenesteId`/`HandlingId`,
+    /// `RegelIdeDbContext.cs`). Tjenesteavhengigheter der denne tjenesten er MÅL har derimot bevisst
+    /// `OnDelete(Restrict)` (unngår at en sletting et annet sted utilsiktet kutter en kant en tredje
+    /// tjeneste fortsatt viser fra) — slettes derfor eksplisitt her FØR selve tjenesten, i begge
+    /// retninger. Proveniens-rader har ingen ekte FK (løst typet `EntitetId`) og ryddes eksplisitt for
+    /// både tjenesten selv og hver av dens handlinger, ellers blir de foreldreløse.
+    /// </para>
+    /// </summary>
+    public async Task<bool> SlettForslagAsync(Guid tjenesteId, Guid virksomhetId, CancellationToken ct = default)
+    {
+        var tjeneste = await db.Tjenester.FirstOrDefaultAsync(t => t.Id == tjenesteId && t.Entitetsstatus == "gjeldende", ct);
+        if (tjeneste is null) return false;
+
+        if (tjeneste.Status is not ("foreslatt_av_ai" or "foreslatt_av_annen_virksomhet"))
+        {
+            throw new ArgumentException(
+                $"Kan kun slette et ubehandlet forslag (status 'foreslatt_av_ai'/'foreslatt_av_annen_virksomhet') — denne har status '{tjeneste.Status}'.");
+        }
+
+        var erEier = tjeneste.VirksomhetId == virksomhetId;
+        var erOpprinneligForeslagsstiller = !erEier && await db.Proveniens.AnyAsync(
+            p => p.EntitetType == "tjeneste" && p.EntitetId == tjenesteId
+                 && p.Handling == "foreslatt_av_annen_virksomhet" && p.ForeslattAvVirksomhetId == virksomhetId, ct);
+        if (!erEier && !erOpprinneligForeslagsstiller)
+        {
+            throw new ArgumentException("Ingen tilgang — verken eier av tjenesten eller virksomheten som foreslo den.");
+        }
+
+        await using var transaksjon = await db.Database.BeginTransactionAsync(ct);
+
+        var handlingIder = await db.Handlinger.Where(h => h.TjenesteId == tjenesteId).Select(h => h.Id).ToListAsync(ct);
+
+        // Rene `ExecuteDeleteAsync`-kall gjennomgående (ALDRI en sporet `Remove` blandet inn) — en
+        // sporet slett-av-`tjeneste` etter et `ExecuteDeleteAsync` på tjenesteavhengigheter viste seg
+        // (live, i egne tester) å utløse `DbUpdateConcurrencyException`: `ExecuteDeleteAsync` går
+        // utenom endringssporingen, så en tjenesteavhengighet-rad som ALLEREDE var sporet (fra et
+        // tidligere kall på samme DbContext, f.eks. selve opprettelsen) sto fortsatt som "Unchanged" i
+        // sporeren etter at raden var borte i databasen — EF sin klientsidekaskade for
+        // `OnDelete(Cascade)` prøvde da å slette den fantom-raden på nytt via `SaveChangesAsync`,
+        // fant 0 rader, og kastet. `db.Tjenester` slettes derfor også via `ExecuteDeleteAsync` her,
+        // ikke `Remove`+`SaveChangesAsync` — ingen sporede entiteter involvert i det hele tatt.
+        await db.Tjenesteavhengigheter
+            .Where(a => a.FraTjenesteId == tjenesteId || a.TilTjenesteId == tjenesteId)
+            .ExecuteDeleteAsync(ct);
+        await db.Proveniens
+            .Where(p => (p.EntitetType == "tjeneste" && p.EntitetId == tjenesteId)
+                        || (p.EntitetType == "handling" && handlingIder.Contains(p.EntitetId)))
+            .ExecuteDeleteAsync(ct);
+        await db.Tjenester.Where(t => t.Id == tjenesteId).ExecuteDeleteAsync(ct);
+
+        await transaksjon.CommitAsync(ct);
+        return true;
     }
 
     /// <summary>
