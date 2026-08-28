@@ -23,6 +23,8 @@ import BrukereListe from './pages/BrukereListe';
 import VirksomheterListe from './pages/VirksomheterListe';
 import VirksomhetDetalj from './pages/VirksomhetDetalj';
 import VirksomhetKandidaterListe from './pages/VirksomhetKandidaterListe';
+import ImportWizard from './pages/ImportWizard';
+import Tjenestereise from './pages/Tjenestereise';
 
 function App() {
   return (
@@ -37,6 +39,8 @@ function App() {
           <Route path="/rettskilder" element={<RettskilderListe />} />
           <Route path="/rettskilder/:id" element={<RettskildeDetalj />} />
           <Route path="/importer" element={<Importer />} />
+          <Route path="/importer/rettighetsmodell" element={<ImportWizard />} />
+          <Route path="/tjenestereise" element={<Tjenestereise />} />
           <Route path="/handboker/ny" element={<HandbokOpprett />} />
           <Route path="/tjenester" element={<TjenesterListe />} />
           <Route path="/tjenester/forslag" element={<TjenesteforslagKo />} />

@@ -126,6 +126,14 @@ export default function TjenesteforslagKo() {
     lastKo();
   }
 
+  /** [Ny, 2026-08-28] Hard-sletter forslaget — til forskjell fra `avvis` (tilbakestiller kun status,
+   * beholder innholdet for senere vurdering) fjerner denne det helt. Til opprydding etter en
+   * import-test (69+ rettigheter) eller et åpenbart søppel-KI-forslag ingen ønsker å beholde spor av. */
+  async function slett(id: string) {
+    await api.slettTjenesteforslag(id);
+    lastKo();
+  }
+
   async function rediger(id: string) {
     await api.settTjenesteStatus(id, { status: 'under_revisjon' });
     navigate(`/tjenester/${id}`);
@@ -255,6 +263,7 @@ export default function TjenesteforslagKo() {
                 <Table.Cell>
                   <div style={{ display: 'flex', gap: '0.4rem' }}>
                     <Button variant="tertiary" data-size="sm" onClick={() => avvis(f.tjeneste.id)}>Avvis</Button>
+                    <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => slett(f.tjeneste.id)}>Slett</Button>
                     <Button variant="tertiary" data-size="sm" onClick={() => rediger(f.tjeneste.id)}>Rediger</Button>
                     <Button data-size="sm" onClick={() => godkjenn(f.tjeneste.id)}>Godkjenn og legg til</Button>
                   </div>

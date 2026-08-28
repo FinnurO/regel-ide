@@ -56,7 +56,8 @@ kort oversikt, ikke en duplisert sannhet.
 
 - **Rot**: `navn`, `tjenesteomrade`, `los_klassifisering`, `livshendelser[]`, `type` (enum:
   myndighetsutovelse/ytelse/infrastruktur/veiledning/medvirkning), `kompetent_myndighet` (fri
-  tekst — se den kjente begrensningen i §4), `status` (enum, 7 verdier), `malgruppe[]`, `formal`,
+  tekst — se den kjente begrensningen i §4), `status` (enum, 8 verdier — inkl. `foreslatt_av_annen_virksomhet`,
+  se §6), `malgruppe[]`, `formal`,
   `innhold`, `regelverksreferanser[]`, `handlinger[]`, `avhengigheter[]`.
 - **`innhold`**: de faste feltene fra Innhold-fanen (`tidspunkt_og_frister`, `vedlegg[]`,
   `opplysninger_som_skal_sendes_inn[]`, `veiledning_og_utfylling[]`,
@@ -96,18 +97,26 @@ indeksering i kodekommentarer, bl.a. `ServeringsbevillingModellSeed.cs`) er gjen
 flertalls-eksporten i denne runden, IKKE en ny, oppdiktet nøkkel. Fremtidige lesere bør ikke lete
 etter selve filen — den er borte, kun navnekonvensjonen består.
 
-## 6. Import — fortsatt ikke bygget
+## 6. Import — delvis bygget (2026-08-28)
 
-`RettighetModellEksportTjeneste` har KUN eksport-metoder (`EksporterAsync`,
-`EksporterFlereAsync`). Det finnes ingen kode noe sted som leser dette formatet tilbake inn i
-applikasjonen. Skulle en importer bygges senere, må den bl.a. løse:
+`RettighetModellEksportTjeneste` selv har fortsatt KUN eksport-metoder (`EksporterAsync`,
+`EksporterFlereAsync`) — ingen automatisk/generell importer leser dette formatet tilbake. Det
+finnes derimot nå en MENNESKE-STYRT import-wizard (`ImportWizard.tsx`,
+`POST /api/import/{malVirksomhetId}/rettigheter`) som løser de samme problemene manuelt, ett
+bekreftet felt om gangen — se [`docs/21-feltmapping-eksterne-kilder.md`](21-feltmapping-eksterne-kilder.md)
+§4 for de fulle mapping-reglene:
 
-- **Navn → FK-oversettelse.** Eksporten bruker `lov`/`mal_navn` (menneskelesbare navn), mens
-  de virkelige skrive-API-ene bruker GUID-er (`tilRettskildeId`, `tilEid`, `mal_id`) — en importer
-  må slå opp/matche navn mot eksisterende rader, ikke anta de finnes ordrett.
-- **`eies_av_denne_tjenesten`/koblede handlinger** — en importer må avgjøre om en handling som
-  allerede finnes andre steder (samme navn?) skal kobles inn på nytt eller opprettes på nytt.
-- **`felt`-verdier** som ikke lenger matcher en gyldig feltnøkkel (f.eks. hvis et
-  `egneInnholdselementer.{id}`-mål er fjernet i mellomtiden).
+- **Navn → FK-oversettelse.** Løst i wizarden: forhåndsutfylte søk mot ekte rettskilder/tjenester,
+  ALDRI en automatisk/fuzzy kobling — mennesket velger eller utelater.
+- **`eies_av_denne_tjenesten`/koblede handlinger** — wizarden lar deg koble en rettighet til en
+  ALLEREDE eksisterende tjeneste i stedet for å opprette en duplikat (via cross-tenant-søk); egne
+  handlinger dedupliseres foreløpig IKKE tvers av virksomheter (se docs/21 §4).
+- **`felt`-verdier** som ikke matcher en gyldig feltnøkkel — fortsatt ikke validert av wizarden;
+  et fremtidig forbedringspunkt.
 
-Se [`docs/13-backlog.md`](13-backlog.md) for status på dette som et åpent backlog-punkt.
+**Nytt i samme runde**: import kan opprette en tjeneste under en ANNEN virksomhet enn den som
+kjører wizarden — den lander da som et forslag (`Status = "foreslatt_av_annen_virksomhet"`) i
+mål-virksomhetens forslagskø (samme kø/UI som KI-forslag, `TjenesteforslagKo.tsx`), ikke direkte
+som gjeldende innhold. Se `TjenesteregisterTjeneste.OpprettForslagFraAnnenVirksomhetAsync`.
+
+Se [`docs/13-backlog.md`](13-backlog.md) for gjenstående, ikke løste punkter.

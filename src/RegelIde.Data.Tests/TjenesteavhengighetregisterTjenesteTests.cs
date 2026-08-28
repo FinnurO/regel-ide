@@ -292,7 +292,38 @@ public class TjenesteavhengighetregisterTjenesteTests
         var ex = await Assert.ThrowsAsync<ArgumentException>(() =>
             register.OpprettAsync(
                 virksomhet, a, null, "avhengig_av", null, null, "Kari Jurist", tilOrganisasjonsnummer: "974761122"));
-        Assert.Contains("krever både organisasjonsnummer og navn", ex.Message);
+        // [ENDRET, 2026-08-28] Navn alene er nå det reelle ekstern-referanse-signalet (orgnummer er
+        // blitt valgfritt, se EksternTjenestereferanseEntitet.Organisasjonsnummer) — et oppgitt
+        // orgnummer UTEN navn gir fortsatt en tydelig feil, bare med ny ordlyd.
+        Assert.Contains("organisasjonsnummer krever også et navn", ex.Message);
+    }
+
+    /// <summary>
+    /// [Ny, 2026-08-28, bulk-import-runden] Reproduserer funnet fra vielsesreise-importtesten
+    /// (data/eksempler/gifte-seg-reise.modelleksport.json): en konseptuell ekstern motpart («en
+    /// utenlandsk vigselsmyndighet») har ingen ekte norsk orgnummer i det hele tatt, og skal likevel
+    /// kunne opprettes — orgnummer er nå valgfritt, kun navn er påkrevd.
+    /// </summary>
+    [Fact]
+    public async Task Ekstern_referanse_uten_organisasjonsnummer_opprettes_med_navn_alene()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = await NyVirksomhetAsync(db);
+        var registrering = await NyTjenesteAsync(db, virksomhet, "Ekteskap inngått etter utenlandsk rett – registrering i Norge");
+
+        var register = new TjenesteavhengighetregisterTjeneste(db);
+        await register.OpprettAsync(
+            virksomhet, registrering, null, "avhengig_av", null, null, "Kari Jurist",
+            tilNavn: "Vigsel gjennomført av utenlandsk vigselsmyndighet");
+
+        var fraSiden = await register.HentForTjenesteAsync(registrering);
+        var visning = Assert.Single(fraSiden);
+        Assert.Null(visning.MotpartTjenesteId);
+        Assert.Null(visning.MotpartOrganisasjonsnummer);
+        Assert.Equal("Vigsel gjennomført av utenlandsk vigselsmyndighet", visning.MotpartNavn);
+
+        var referanse = await db.EksterneTjenestereferanser.SingleAsync(e => e.Navn == "Vigsel gjennomført av utenlandsk vigselsmyndighet");
+        Assert.Null(referanse.Organisasjonsnummer);
     }
 
     [Fact]

@@ -447,8 +447,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.KildeReferanserJson).HasColumnName("kilde_referanser").HasColumnType(jsonKolonne);
             e.Property(x => x.AiForslagVersjon).HasColumnName("ai_forslag_versjon");
             e.Property(x => x.GodkjentAv).HasColumnName("godkjent_av");
+            e.Property(x => x.ForeslattAvVirksomhetId).HasColumnName("foreslatt_av_virksomhet_id");
 
             e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.ForeslattAvVirksomhetId);
 
             e.HasIndex(x => new { x.EntitetType, x.EntitetId }).HasDatabaseName("ix_proveniens_entitet");
         });

@@ -382,3 +382,24 @@ tjeneste A gir ikke mening på tjeneste B. Gjenbrukbart mønster hvis en annen s
 samme "husk brukerens fanerekkefølge"-behov — samme `Bruker`-FK, samme
 `GjeldendeBrukerTjeneste.FinnAsync`-oppslag som resten av skrivende endepunkter allerede bruker.
 bekreftet at den dukket opp i "Denne håndboken omhandler"-tabellen og at velgeren nullstilte seg.
+
+## 12. `@xyflow/react` (React Flow) — appens første nye frontend-npm-avhengighet (2026-08-28)
+
+Bakgrunn: `docs/13-backlog.md` hadde et åpent, aldri besvart spørsmål — "bør vi velge et ekte
+grafbibliotek (React Flow/dagre) i stedet for `VilkarstreGraf.tsx` sin egenhendige SVG-løsning?" —
+eksplisitt utsatt til «et fremtidig dra-og-slipp-krav vekker temaet». `Tjenestereise.tsx`
+(tjenestereise-graf-runden) er nettopp det kravet: dra-bare noder, konfigurerbar dybde/filter/
+felt-visning — noe utover det `VilkarstreGraf.tsx`s rene, tre-formede lag-layout kunne dekke uten
+betydelig egenbygd maskineri (drag-håndtering, zoom/pan, minimap).
+
+**Verifisert FØR bruk, ikke antatt**: `@xyflow/react` sine `peerDependencies` godtar `react`/
+`react-dom` `>=17` — testet direkte mot appens faktiske `react@19.2.7`/`vite@8.1.5`/`typescript
+~6.0.2`-oppsett (`npm install`, `tsc -b --noEmit`, `npm run build`, samt en reell render i
+nettleseren) FØR resten av grafsiden ble bygget — ingen npm-avhengighet legges inn "og vi får se".
+
+**Konvensjon for videre bruk**: importer kun det som faktisk trengs (`ReactFlow`, `Background`,
+`Controls`, `MiniMap`, typene `Node`/`Edge`) — ikke layoutbiblioteker (dagre/elkjs) med mindre et
+konkret, udekket layout-behov faktisk dukker opp (samme "ingen ny avhengighet uten et konkret behov"-
+holdning som fikk denne saken utsatt i utgangspunktet). CSS-importen (`@xyflow/react/dist/style.css`)
+er nødvendig — biblioteket styler IKKE via `--ds-*`-tokens, men egne noder/kanter i `Tjenestereise.tsx`
+bruker `--ds-*`-tokens for farge/border/radius der det er mulig (se `beregnPosisjoner`/`nodeLabel`).

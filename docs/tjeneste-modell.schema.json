@@ -693,6 +693,7 @@
           "enum": [
             "utkast",
             "foreslatt_av_ai",
+            "foreslatt_av_annen_virksomhet",
             "under_revisjon",
             "validert",
             "publisert",

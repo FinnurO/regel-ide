@@ -46,9 +46,11 @@ const GRUPPER: Gruppe[] = [
       { kind: 'lenke', to: '/tjenester', label: 'Tjenester' },
       { kind: 'lenke', to: '/handlinger', label: 'Handlinger' },
       { kind: 'lenke', to: '/vilkarstre', label: 'Vilkårstre' },
+      { kind: 'lenke', to: '/tjenestereise', label: 'Tjenestereise (graf)' },
       { kind: 'lenke', to: '/handboker/ny', label: 'Håndbøker' },
       { kind: 'lenke', to: '/tjenester/forslag', label: 'KI-forslag tjenester' },
       { kind: 'lenke', to: '/begreper/forslag', label: 'KI-forslag begrep' },
+      { kind: 'lenke', to: '/importer/rettighetsmodell', label: 'Importer rettighetsmodell' },
     ],
   },
   {

@@ -1,0 +1,1155 @@
+{
+  "rettigheter": [
+    {
+      "navn": "Prøvingsattest for ekteskap",
+      "tjenesteomrade": "Familie og samliv",
+      "los_klassifisering": null,
+      "livshendelser": [
+        "Gifte seg"
+      ],
+      "type": "myndighetsutovelse",
+      "kompetent_myndighet": "Skatteetaten",
+      "status": "foreslatt_av_ai",
+      "malgruppe": [
+        "Personer som skal inngå ekteskap i Norge"
+      ],
+      "formal": "Bekrefte, før vigsel, at paret oppfyller ekteskapslovens vilkår for å inngå ekteskap",
+      "innhold": {
+        "tidspunkt_og_frister": "Søk i god tid før bryllupet — det kan ta tid å skaffe nødvendig dokumentasjon, særlig ved tidligere ekteskap eller utenlandsk statsborgerskap. Attesten er gyldig i fire måneder fra utstedelsesdato.",
+        "vedlegg": [
+          "Legitimasjon for begge parter",
+          "Dokumentasjon på sivilstand, f.eks. skilsmisse- eller dødsattest ved tidligere ekteskap",
+          "Tilleggsdokumentasjon dersom én eller begge er utenlandske statsborgere"
+        ],
+        "vedlegg_merknad": "Omfanget av nødvendig dokumentasjon øker vesentlig når én eller begge parter er utenlandske statsborgere uten permanent oppholdstillatelse eller flyktningstatus i Norge.",
+        "opplysninger_som_skal_sendes_inn": [
+          "Personopplysninger om begge parter",
+          "Egenerklæring om at ekteskapsvilkårene er oppfylt",
+          "Forlovererklæring fra én valgt forlover",
+          "Erklæring om skifte, dersom du har vært gift tidligere"
+        ],
+        "innsender_og_tilgang": {
+          "hvem_kan_sende": [
+            "Brudefolket selv, i fellesskap"
+          ],
+          "innlogging": "Digital søknad på skatteetaten.no krever innlogging med f.eks. MinID eller BankID"
+        },
+        "innsending_og_oppfolging": {
+          "kanal": "Skatteetaten.no (digitalt) eller skattekontor (papir)",
+          "etter_mottak": [
+            "Skatteetaten kontrollerer at ekteskapsvilkårene i ekteskapsloven er oppfylt",
+            "Attest utstedes digitalt eller sendes i posten når vilkårene er bekreftet oppfylt"
+          ]
+        },
+        "hva_rettigheten_innebarer": {
+          "innledning": "Attesten bekrefter at Skatteetaten har kontrollert og funnet at paret oppfyller ekteskapslovens vilkår for å inngå ekteskap.",
+          "varighet": "Gyldig i 4 måneder fra utstedelsesdato",
+          "konsekvenser_ved_brudd_pa_regelverket": "Vigsler kan ikke lovlig gjennomføre vigsel uten en gyldig prøvingsattest fremlagt av paret"
+        },
+        "opplysninger_merknad": "Bekreftet på skatteetaten.no: søknadsskjemaet omfatter både egenerklæring og forlovererklæring (RF/Q-0151), og forloveren må logge inn med BankID e.l. i den digitale løsningen. Jeg trakk forlovererklæringen ut av modellen i forrige runde fordi jeg ikke fant kildedekning da — det var feil av meg; den er bekreftet fortsatt gjeldende og satt tilbake her."
+      },
+      "regelverksreferanser": [
+        {
+          "lov": "Ekteskapsloven – ekteskl (LOV-1991-07-04-47)",
+          "henvisning": "https://lovdata.no/lov/1991-07-04-47/§7",
+          "felt": null
+        },
+        {
+          "lov": "Ekteskapsloven – ekteskl (LOV-1991-07-04-47)",
+          "henvisning": "https://lovdata.no/lov/1991-07-04-47/§10",
+          "felt": "innhold.hva_rettigheten_innebarer.varighet"
+        }
+      ],
+      "handlinger": [
+        {
+          "navn": "Søke om prøvingsattest",
+          "handlingstype": "soke",
+          "bruksomraade": "Brukes av paret før vigsel, for å få kontrollert at ekteskapsvilkårene er oppfylt",
+          "utfort_av": "soker",
+          "merknad": "Bør gjøres tidlig nok til at attesten (gyldig 4 måneder) ikke rekker å utløpe før vigselsdatoen",
+          "eies_av_denne_tjenesten": true,
+          "kanaler": [
+            {
+              "kanal": "Skatteetaten.no",
+              "adresse": "https://www.skatteetaten.no"
+            },
+            {
+              "kanal": "Skattekontor (papirskjema/oppmøte)"
+            }
+          ],
+          "behandlingstid": {
+            "frist": "Varierer mellom skattekontor; se gjeldende saksbehandlingstid på skatteetaten.no",
+            "hjemmel": null
+          },
+          "vedlegg": [
+            {
+              "navn": "Legitimasjon",
+              "kategori": "Identitet",
+              "hjemmel": null
+            },
+            {
+              "navn": "Dokumentasjon på sivilstand ved tidligere ekteskap",
+              "kategori": "Sivilstand",
+              "hjemmel": {
+                "lov": "Ekteskapsloven – ekteskl",
+                "henvisning": "https://lovdata.no/lov/1991-07-04-47/§7"
+              }
+            },
+            {
+              "navn": "Forlovererklæring fra én valgt forlover",
+              "kategori": "Erklæring",
+              "hjemmel": null
+            },
+            {
+              "navn": "Erklæring om skifte (RF/Q-0160), dersom søkeren har vært gift tidligere",
+              "kategori": "Erklæring",
+              "hjemmel": null
+            }
+          ],
+          "arsaker": [
+            {
+              "arsak": "Lovpålagt kontroll av ekteskapsvilkårene før vigsel kan gjennomføres",
+              "hjemmel": {
+                "lov": "Ekteskapsloven – ekteskl",
+                "henvisning": "https://lovdata.no/lov/1991-07-04-47/§7"
+              }
+            }
+          ],
+          "resultat": {
+            "hva": "Prøvingsattest, gyldig i 4 måneder fra utstedelse",
+            "bevis_kanaler": [
+              {
+                "kanal": "Digital attest i Skatteetatens løsning"
+              },
+              {
+                "kanal": "Papirattest per post"
+              }
+            ]
+          }
+        }
+      ],
+      "avhengigheter": [
+        {
+          "rel": "forutsetning_for",
+          "retning": "fra",
+          "mal_type": "tjeneste",
+          "mal_navn": "Ekteskap (vigsel)",
+          "mal_id": "tjeneste-ekteskap-vigsel",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Gyldig prøvingsattest (maks 4 måneder gammel) er en ufravikelig forutsetning for at vigsel kan gjennomføres, jf. ekteskapsloven §10"
+        }
+      ]
+    },
+    {
+      "navn": "Ekteskap (vigsel)",
+      "tjenesteomrade": "Familie og samliv",
+      "los_klassifisering": null,
+      "livshendelser": [
+        "Gifte seg"
+      ],
+      "type": "myndighetsutovelse",
+      "kompetent_myndighet": "Vigsler med vigselsrett (kommunens vigselskontor, tros- eller livssynssamfunn med vigselsrett, m.fl.)",
+      "status": "foreslatt_av_ai",
+      "malgruppe": [
+        "Personer som skal inngå ekteskap i Norge"
+      ],
+      "formal": "Formalisere ekteskapet gjennom en vigsel utført av en person med vigselsrett, og registrere den nye sivilstanden",
+      "innhold": {
+        "tidspunkt_og_frister": "Vigselen kan tidligst skje når gyldig prøvingsattest foreligger, og senest før attesten utløper (4 måneder etter utstedelse).",
+        "innsender_og_tilgang": {
+          "hvem_kan_sende": [
+            "Brudefolket bestiller tid hos ønsket vigsler"
+          ],
+          "innlogging": null
+        },
+        "innsending_og_oppfolging": {
+          "kanal": "Kommunens vigselskontor eller tros-/livssynssamfunn med vigselsrett",
+          "etter_mottak": [
+            "Vigsler kontrollerer gyldig prøvingsattest og legitimasjon på vigselsdagen",
+            "Vigsler fyller ut og sender vigselsmelding til Folkeregisteret",
+            "Folkeregisteret registrerer ny sivilstand og ektefelle på begge parter"
+          ]
+        },
+        "hva_rettigheten_innebarer": {
+          "innledning": "Ekteskapet gir partene status som ektefeller med de rettigheter og plikter som følger av ekteskapsloven og annen lovgivning (blant annet skatt, arv og folkeregistrering).",
+          "varighet": "Løper til det oppløses ved skilsmisse eller opphører ved dødsfall"
+        }
+      },
+      "regelverksreferanser": [
+        {
+          "lov": "Ekteskapsloven – ekteskl (LOV-1991-07-04-47), kapittel 3 (vigsel)",
+          "henvisning": null,
+          "felt": null
+        },
+        {
+          "lov": "Ekteskapsloven – ekteskl (LOV-1991-07-04-47)",
+          "henvisning": "https://lovdata.no/lov/1991-07-04-47/§13",
+          "felt": null
+        }
+      ],
+      "handlinger": [
+        {
+          "navn": "Gjennomføre borgerlig (kommunal) vigsel",
+          "handlingstype": "bestille",
+          "bruksomraade": "Kommunen har, siden ansvarsovertakelsen 1. januar 2018, plikt til å tilby borgerlig vigsel til alle som ønsker det, uavhengig av bosted",
+          "utfort_av": "forvaltning",
+          "merknad": "Vigsler er en kommunalt utpekt person (f.eks. ordfører, varaordfører eller kommunedirektør/delegert); kommunen skal tilby minst ett vigselstidspunkt uten kostnad for paret. Jf. Rundskriv Q-11/2017 om kommunale vigsler.",
+          "eies_av_denne_tjenesten": true,
+          "kanaler": [
+            {
+              "kanal": "Kommunens vigselskontor"
+            }
+          ],
+          "vedlegg": [
+            {
+              "navn": "Gyldig prøvingsattest",
+              "kategori": "Forutsetning",
+              "hjemmel": null
+            },
+            {
+              "navn": "Legitimasjon for brudefolk og to vitner",
+              "kategori": "Identitet",
+              "hjemmel": null
+            }
+          ],
+          "resultat": {
+            "hva": "Ekteskapet er inngått; vigselsattest utstedes til paret",
+            "bevis_kanaler": [
+              {
+                "kanal": "Vigselsattest fra kommunens vigsler"
+              }
+            ]
+          }
+        },
+        {
+          "navn": "Gjennomføre vigsel i registrert tros- eller livssynssamfunn",
+          "handlingstype": "bestille",
+          "bruksomraade": "Brukes når paret ønsker vigsel utført av en person med individuelt tildelt vigselsrett i et registrert tros- eller livssynssamfunn",
+          "utfort_av": "tredjepart",
+          "merknad": "Vigsleren er ikke offentlig ansatt, men en privat aktør som er gitt myndighet (vigselsrett) til å utføre en handling med offentligrettslig virkning. Vigsleren kan også nekte å vie enkelte par (reservasjonsrett), jf. ekteskapsloven §13.",
+          "eies_av_denne_tjenesten": true,
+          "kanaler": [
+            {
+              "kanal": "Registrert tros- eller livssynssamfunn med individuelt tildelt vigselsrett"
+            }
+          ],
+          "vedlegg": [
+            {
+              "navn": "Gyldig prøvingsattest",
+              "kategori": "Forutsetning",
+              "hjemmel": null
+            },
+            {
+              "navn": "Legitimasjon for brudefolk og to vitner",
+              "kategori": "Identitet",
+              "hjemmel": null
+            }
+          ],
+          "resultat": {
+            "hva": "Ekteskapet er inngått; vigselsattest utstedes til paret",
+            "bevis_kanaler": [
+              {
+                "kanal": "Vigselsattest fra vigsler i tros-/livssynssamfunnet"
+              }
+            ]
+          }
+        },
+        {
+          "navn": "Gjennomføre vigsel etter norsk rett ved utenriksstasjon eller sjømannskirke",
+          "handlingstype": "bestille",
+          "bruksomraade": "Brukes når norske borgere (eller en norsk borger og dennes utenlandske partner) ønsker å gifte seg i utlandet, men etter norsk rett",
+          "utfort_av": "tredjepart",
+          "merknad": "Vigsler er notarius publicus-lignende personell ved en norsk utenriksstasjon (f.eks. ambassade) eller en sjømannskirke på Utenriksdepartementets/Sjømannskirkens egne lister over vigslingsberettigede stasjoner. Kravet om opphold i Norge bortfaller for parten som ikke er bosatt i Norge, men prøvingsattest kreves fortsatt.",
+          "eies_av_denne_tjenesten": true,
+          "kanaler": [
+            {
+              "kanal": "Norsk utenriksstasjon (f.eks. ambassade)"
+            },
+            {
+              "kanal": "Sjømannskirken i utlandet"
+            }
+          ],
+          "vedlegg": [
+            {
+              "navn": "Gyldig prøvingsattest",
+              "kategori": "Forutsetning",
+              "hjemmel": null
+            },
+            {
+              "navn": "Pass",
+              "kategori": "Identitet",
+              "hjemmel": null
+            }
+          ],
+          "resultat": {
+            "hva": "Ekteskapet er inngått etter norsk rett i utlandet",
+            "bevis_kanaler": [
+              {
+                "kanal": "Vigselsattest fra utenriksstasjonen/sjømannskirken"
+              }
+            ]
+          }
+        },
+        {
+          "navn": "Melde vigsel til Folkeregisteret",
+          "handlingstype": "melde",
+          "bruksomraade": "Registrerer den nye sivilstanden og ektefellen i Folkeregisteret",
+          "utfort_av": "forvaltning",
+          "merknad": "Utføres av vigsler/vigselsmyndigheten, ikke av brudefolket selv",
+          "eies_av_denne_tjenesten": true,
+          "resultat": {
+            "hva": "Ny sivilstand (gift) og ektefelle registrert i Folkeregisteret",
+            "bevis_kanaler": [
+              {
+                "kanal": "Digital oversikt hos Skatteetaten/Folkeregisteret"
+              }
+            ]
+          }
+        }
+      ],
+      "avhengigheter": [
+        {
+          "rel": "forutsetning_for",
+          "retning": "til",
+          "mal_type": "tjeneste",
+          "mal_navn": "Prøvingsattest for ekteskap",
+          "mal_id": "tjeneste-provingsattest-ekteskap",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Vigsel kan ikke gjennomføres uten gyldig prøvingsattest"
+        },
+        {
+          "rel": "gir_mulighet_til",
+          "retning": "fra",
+          "mal_type": "tjeneste",
+          "mal_navn": "Endring av navn ved ekteskap",
+          "mal_id": "tjeneste-navneendring-ekteskap",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Et inngått og registrert ekteskap gir mulighet til å melde nytt etternavn (felles navn, ektefelles navn eller dobbeltnavn)"
+        },
+        {
+          "rel": "input_til",
+          "retning": "fra",
+          "mal_type": "tjeneste",
+          "mal_navn": "Familieinnvandring – oppholdstillatelse for ektefelle",
+          "mal_id": "tjeneste-familieinnvandring-ektefelle",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Vigselsattesten er sentral dokumentasjon i søknad om familieinnvandring når ektefellen ikke allerede har oppholdsrett i Norge"
+        },
+        {
+          "rel": "kan_miste",
+          "retning": "fra",
+          "mal_type": "tjeneste",
+          "mal_navn": "Overgangsstønad til enslig mor eller far",
+          "mal_id": "tjeneste-overgangsstonad-enslig-forsorger",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Å inngå nytt ekteskap kan medføre at retten til overgangsstønad/utvidet barnetrygd som enslig forsørger faller bort"
+        },
+        {
+          "rel": "utlost_av",
+          "retning": "til",
+          "mal_type": "tjeneste",
+          "mal_navn": "Skattekort og skatteklasse ved endret sivilstand",
+          "mal_id": "tjeneste-skattekort-sivilstand",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Vigselen utløser automatisk oppdatering av registrert sivilstand og dermed skattekort hos begge ektefeller"
+        },
+        {
+          "rel": "for",
+          "retning": "til",
+          "mal_type": "tjeneste",
+          "mal_navn": "Ektepakt",
+          "mal_id": "tjeneste-ektepakt",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "En ektepakt regulerer formuesforholdet mellom ektefellene og kan inngås uavhengig av tidspunktet for selve vigselen"
+        },
+        {
+          "rel": "forutsetning_for",
+          "retning": "til",
+          "mal_type": "tjeneste",
+          "mal_navn": "Vigselsrett for enkeltperson i tros- eller livssynssamfunn",
+          "mal_id": "tjeneste-vigselsrett-enkeltperson",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Gjelder kun vigsel-kanalen i tros-/livssynssamfunn, ikke kommunal (borgerlig) vigsel: vigsleren må selv ha individuelt tildelt vigselsrett"
+        }
+      ]
+    },
+    {
+      "navn": "Ekteskapsattest for vigsel etter utenlandsk rett",
+      "tjenesteomrade": "Familie og samliv",
+      "los_klassifisering": null,
+      "livshendelser": [
+        "Gifte seg",
+        "Flytte til/fra Norge"
+      ],
+      "type": "myndighetsutovelse",
+      "kompetent_myndighet": "Skatteetaten (med Statsforvalteren/Utenriksdepartementet for apostille/legalisering)",
+      "status": "foreslatt_av_ai",
+      "malgruppe": [
+        "Personer som skal gifte seg i utlandet etter det aktuelle landets ekteskapslovgivning"
+      ],
+      "formal": "Dokumentere overfor utenlandske myndigheter at norsk rett ikke er til hinder for at søkeren kan inngå ekteskap",
+      "innhold": {
+        "tidspunkt_og_frister": "Gyldig i 4 måneder fra utstedelse, samme som prøvingsattesten.",
+        "opplysninger_som_skal_sendes_inn": [
+          "Egenerklæring, og i noen tilfeller bekreftelse fra kommende ektefelle",
+          "Forlovererklæring fra én valgt forlover",
+          "Erklæring om skifte, dersom søkeren har vært gift tidligere",
+          "Opplysninger om tilkommende ektefelle"
+        ],
+        "opplysninger_merknad": "Krever ekteskapsvilkårene prøvet på samme måte som for prøvingsattest, men rettet mot utenlandske myndigheters dokumentasjonskrav. Dersom begge parter er bosatt i Norge prøves normalt vilkårene for begge; er norsk borger gift med utenlandsk borger uten tilknytning til Norge, prøves normalt bare vilkårene for den norske parten.",
+        "innsending_og_oppfolging": {
+          "kanal": "Skatteetaten.no (digitalt, krever BankID for søker og forlover) eller papirskjema til Skatteetaten, Postboks 9200 Grønland, 0134 Oslo",
+          "etter_mottak": [
+            "Skatteetaten prøver ekteskapsvilkårene",
+            "Attesten sendes til Statsforvalteren eller Utenriksdepartementet for apostille/legalisering",
+            "Søkeren mottar attesten i posten og videresender den selv til vigsleren i utlandet"
+          ]
+        },
+        "hva_rettigheten_innebarer": {
+          "innledning": "Attesten er et bevis på at norsk lov ikke er til hinder for at søkeren gifter seg, og brukes av vigsler/myndigheter i utlandet som ikke aksepterer en norsk prøvingsattest direkte.",
+          "varighet": "Gyldig i 4 måneder fra utstedelse"
+        }
+      },
+      "regelverksreferanser": [
+        {
+          "lov": "Ekteskapsloven – ekteskl (LOV-1991-07-04-47)",
+          "henvisning": "https://lovdata.no/lov/1991-07-04-47/§7",
+          "felt": null
+        }
+      ],
+      "handlinger": [
+        {
+          "navn": "Søke om ekteskapsattest",
+          "handlingstype": "soke",
+          "bruksomraade": "Brukes når landet der vigselen skal skje krever attest for at ekteskapsvilkårene i søkerens hjemland er oppfylt",
+          "utfort_av": "soker",
+          "eies_av_denne_tjenesten": true,
+          "kanaler": [
+            {
+              "kanal": "Skatteetaten.no (digitalt)",
+              "adresse": "https://skatt.skatteetaten.no/web/minfolkeregisterside/"
+            },
+            {
+              "kanal": "Papirskjema til Skatteetaten, Postboks 9200 Grønland, 0134 Oslo"
+            }
+          ],
+          "vedlegg": [
+            {
+              "navn": "Forlovererklæring",
+              "kategori": "Erklæring",
+              "hjemmel": null
+            },
+            {
+              "navn": "Erklæring om skifte, dersom tidligere gift",
+              "kategori": "Erklæring",
+              "hjemmel": null
+            },
+            {
+              "navn": "Opplysninger om tilkommende ektefelle",
+              "kategori": "Erklæring",
+              "hjemmel": null
+            }
+          ],
+          "resultat": {
+            "hva": "Ekteskapsattest, apostillert/legalisert, gyldig i 4 måneder",
+            "bevis_kanaler": [
+              {
+                "kanal": "Attest i posten etter apostille/legalisering"
+              }
+            ]
+          }
+        }
+      ],
+      "avhengigheter": [
+        {
+          "rel": "forutsetning_for",
+          "retning": "fra",
+          "mal_type": "tjeneste",
+          "mal_navn": "Ekteskap inngått etter utenlandsk rett – registrering i Norge",
+          "mal_id": "tjeneste-registrering-utenlandsk-ekteskap",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Attesten er det som gjør at vigsleren i utlandet kan gjennomføre vigselen; vigselsattesten som følger av dette må siden registreres i Norge"
+        }
+      ]
+    },
+    {
+      "navn": "Ekteskap inngått etter utenlandsk rett – registrering i Norge",
+      "tjenesteomrade": "Familie og samliv",
+      "los_klassifisering": null,
+      "livshendelser": [
+        "Gifte seg",
+        "Flytte til Norge"
+      ],
+      "type": "myndighetsutovelse",
+      "kompetent_myndighet": "Skatteetaten (Folkeregisteret)",
+      "status": "foreslatt_av_ai",
+      "malgruppe": [
+        "Personer som har giftet seg i utlandet etter utenlandsk rett, og som har (eller en av partene har) tilknytning til Norge"
+      ],
+      "formal": "Anerkjenne og registrere et ekteskap som allerede er gyldig inngått i utlandet, slik at det får virkning (bl.a. sivilstand, arv, skatt) også i Norge",
+      "innhold": {
+        "vedlegg": [
+          "Original vigselsattest, i original med stempel og signatur",
+          "Erklæring om mitt ekteskap (fylles ut av hver ektefelle med tilknytning til Norge)"
+        ],
+        "vedlegg_merknad": "Krav til dokumentasjon avhenger sterkt av hvilket land ekteskapet ble inngått i. For enkelte land med lav dokumenttroverdighet aksepteres normalt ikke vigselsattesten alene, selv med apostille/legalisering, med mindre UDI allerede har godtatt ekteskapet i en familiegjenforeningssak. Dokumentasjon på annet språk enn engelsk/nordisk må oversettes av statsautorisert translatør (i Norge) eller ha egen apostille/legalisering (i utlandet).",
+        "innsending_og_oppfolging": {
+          "kanal": "Post til Skatteetaten, Postboks 9200 Grønland, 0134 Oslo (originaldokumenter godtas ikke elektronisk)",
+          "etter_mottak": [
+            "Skatteetaten vurderer om ekteskapet kan anerkjennes og registreres etter norsk rett",
+            "Ekteskapet registreres i Folkeregisteret ved godkjenning, og original vigselsattest returneres rekommandert"
+          ]
+        },
+        "hva_rettigheten_innebarer": {
+          "innledning": "Et utenlandsk ekteskap anerkjennes normalt etter norsk rett med mindre det strider mot norsk rettsorden (ordre public), men får ikke virkning i Norge (sivilstand, arv mv.) før det er registrert i Folkeregisteret."
+        }
+      },
+      "regelverksreferanser": [
+        {
+          "lov": "Ekteskapsloven – ekteskl (LOV-1991-07-04-47)",
+          "henvisning": "https://lovdata.no/lov/1991-07-04-47/§18a",
+          "felt": null
+        }
+      ],
+      "handlinger": [
+        {
+          "navn": "Sende inn erklæring og original vigselsattest for registrering",
+          "handlingstype": "melde",
+          "bruksomraade": "Brukes for å få et utenlandsk inngått ekteskap registrert i det norske Folkeregisteret",
+          "utfort_av": "soker",
+          "eies_av_denne_tjenesten": true,
+          "kanaler": [
+            {
+              "kanal": "Post til Skatteetaten"
+            }
+          ],
+          "resultat": {
+            "hva": "Ekteskapet er registrert i Folkeregisteret; ny sivilstand og ektefelle vises på Min side",
+            "bevis_kanaler": [
+              {
+                "kanal": "Bekreftelse fra Skatteetaten"
+              }
+            ]
+          }
+        }
+      ],
+      "avhengigheter": [
+        {
+          "rel": "avhengig_av",
+          "retning": "fra",
+          "mal_type": "ekstern_referanse",
+          "mal_navn": "Vigsel gjennomført av utenlandsk vigselsmyndighet",
+          "mal_id": null,
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Selve vigselen er utført av en utenlandsk myndighet/vigsler utenfor norsk jurisdiksjon, og er derfor modellert som en ekstern referanse, ikke en norsk tjeneste"
+        }
+      ]
+    },
+    {
+      "navn": "Omgjøring av registrert partnerskap til ekteskap",
+      "tjenesteomrade": "Familie og samliv",
+      "los_klassifisering": null,
+      "livshendelser": [
+        "Gifte seg"
+      ],
+      "type": "myndighetsutovelse",
+      "kompetent_myndighet": "Skatteetaten",
+      "status": "foreslatt_av_ai",
+      "malgruppe": [
+        "Personer med registrert partnerskap inngått før felles ekteskapslov (2009) som ønsker å gjøre partnerskapet om til ekteskap"
+      ],
+      "formal": "Gjøre om et eksisterende registrert partnerskap til ekteskap uten ny vigsel",
+      "innhold": {
+        "innsending_og_oppfolging": {
+          "kanal": "Papirskjema RF-1441, sendt til Skatteetaten, Postboks 9200 Grønland, 0134 Oslo",
+          "etter_mottak": [
+            "Skatteetaten behandler meldingen og sender svar i posten"
+          ]
+        },
+        "hva_rettigheten_innebarer": {
+          "innledning": "Omgjøringen krever ingen ny vigsel eller prøving av ekteskapsvilkår — det registrerte partnerskapet blir til ekteskap ved skriftlig melding."
+        }
+      },
+      "regelverksreferanser": [
+        {
+          "lov": "Ekteskapsloven – ekteskl (LOV-1991-07-04-47)",
+          "henvisning": null,
+          "felt": null
+        }
+      ],
+      "handlinger": [
+        {
+          "navn": "Melde omgjøring av registrert partnerskap til ekteskap",
+          "handlingstype": "melde",
+          "bruksomraade": "Brukes av partnere i et eksisterende registrert partnerskap som ønsker ekteskap i stedet",
+          "utfort_av": "soker",
+          "eies_av_denne_tjenesten": true,
+          "kanaler": [
+            {
+              "kanal": "Papirskjema RF-1441"
+            }
+          ],
+          "resultat": {
+            "hva": "Registrert partnerskap er omgjort til ekteskap",
+            "bevis_kanaler": [
+              {
+                "kanal": "Brev fra Skatteetaten"
+              }
+            ]
+          }
+        }
+      ],
+      "avhengigheter": [
+        {
+          "rel": "avhengig_av",
+          "retning": "fra",
+          "mal_type": "ekstern_referanse",
+          "mal_navn": "Eksisterende registrert partnerskap",
+          "mal_id": null,
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Forutsetter et allerede inngått registrert partnerskap (ordningen ble stengt for nyinngåelse fra 2009); representert som ekstern referanse siden partnerskap ikke er modellert som egen rettighet her"
+        }
+      ]
+    },
+    {
+      "navn": "Endring av navn ved ekteskap",
+      "tjenesteomrade": "Familie og samliv",
+      "los_klassifisering": null,
+      "livshendelser": [
+        "Gifte seg"
+      ],
+      "type": "myndighetsutovelse",
+      "kompetent_myndighet": "Skatteetaten (Folkeregisteret)",
+      "status": "foreslatt_av_ai",
+      "malgruppe": [
+        "Gifte personer som ønsker felles etternavn, ektefellens etternavn eller dobbeltnavn"
+      ],
+      "formal": "Registrere nytt etternavn i Folkeregisteret i forbindelse med inngått ekteskap",
+      "innhold": {
+        "opplysninger_som_skal_sendes_inn": [
+          "Ønsket nytt etternavn (felles navn, ektefellens navn, eller dobbeltnavn)"
+        ],
+        "opplysninger_merknad": "Fritt valg blant \"ledige\" etternavn (brukt av over 200 personer i Norge); beskyttede etternavn krever samtykke fra innehaver.",
+        "innsending_og_oppfolging": {
+          "kanal": "Skatteetaten.no (digitalt skjema) eller papirskjema RF-1453 «Melding om endring av navn»",
+          "etter_mottak": [
+            "Skatteetaten registrerer navneendringen i Folkeregisteret og sender bekreftelse"
+          ]
+        },
+        "hva_rettigheten_innebarer": {
+          "innledning": "Frivillig endring — paret kan velge felles etternavn, at én tar den andres navn, beholde egne navn, eller kombinere som dobbeltnavn."
+        }
+      },
+      "regelverksreferanser": [
+        {
+          "lov": "Navneloven – navnel",
+          "henvisning": null,
+          "felt": null
+        }
+      ],
+      "handlinger": [
+        {
+          "navn": "Melde navneendring",
+          "handlingstype": "melde",
+          "bruksomraade": "Brukes for å registrere nytt etternavn etter ekteskapsinngåelse",
+          "utfort_av": "soker",
+          "merknad": "Frivillig; kan gjøres når som helst etter vigselen, uten tidsfrist",
+          "eies_av_denne_tjenesten": true,
+          "kanaler": [
+            {
+              "kanal": "Skatteetaten.no",
+              "adresse": "https://www.skatteetaten.no"
+            },
+            {
+              "kanal": "Papirskjema RF-1453 sendt til Skatteetaten, Postboks 9200 Grønland, 0134 Oslo"
+            }
+          ],
+          "resultat": {
+            "hva": "Nytt registrert etternavn i Folkeregisteret",
+            "bevis_kanaler": [
+              {
+                "kanal": "Automatisk tilsendt bekreftelse på navneendring"
+              }
+            ]
+          }
+        }
+      ],
+      "avhengigheter": [
+        {
+          "rel": "gir_mulighet_til",
+          "retning": "til",
+          "mal_type": "tjeneste",
+          "mal_navn": "Ekteskap (vigsel)",
+          "mal_id": "tjeneste-ekteskap-vigsel",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Muligheten til å melde nytt navn på ekteskapsgrunnlag oppstår først når ekteskapet er registrert"
+        }
+      ]
+    },
+    {
+      "navn": "Ektepakt",
+      "tjenesteomrade": "Familie og samliv",
+      "los_klassifisering": null,
+      "livshendelser": [
+        "Gifte seg"
+      ],
+      "type": "infrastruktur",
+      "kompetent_myndighet": "Brønnøysundregistrene (Ektepaktregisteret)",
+      "status": "foreslatt_av_ai",
+      "malgruppe": [
+        "Ektefeller eller kommende ektefeller som ønsker å regulere formuesforholdet"
+      ],
+      "formal": "Gi ektepakten rettsvern overfor tredjepart (f.eks. kreditorer) gjennom offentlig registrering",
+      "innhold": null,
+      "regelverksreferanser": [
+        {
+          "lov": "Ekteskapsloven – ekteskl (LOV-1991-07-04-47)",
+          "henvisning": "https://lovdata.no/lov/1991-07-04-47/kapittel-9",
+          "felt": null
+        }
+      ],
+      "handlinger": [
+        {
+          "navn": "Registrere (tinglyse) ektepakt",
+          "handlingstype": "registrere",
+          "bruksomraade": "Brukes når ektefeller/kommende ektefeller vil sikre en avtale om formuesforholdet rettsvern overfor tredjepart",
+          "utfort_av": "soker",
+          "merknad": "Ektepakten gjelder mellom partene fra den er inngått (evt. fra vigselsdatoen), men må tinglyses for å ha virkning overfor kreditorer og andre tredjeparter",
+          "eies_av_denne_tjenesten": true,
+          "kanaler": [
+            {
+              "kanal": "Brønnøysundregistrene / Ektepaktregisteret",
+              "adresse": "https://www.brreg.no"
+            }
+          ],
+          "kostnad": {
+            "belop": "Gebyrbelagt; se gjeldende sats i forskrift om gebyr til Brønnøysundregistrene på brreg.no",
+            "hjemmel": []
+          },
+          "resultat": {
+            "hva": "Ektepakten er registrert og har rettsvern overfor tredjepart",
+            "bevis_kanaler": [
+              {
+                "kanal": "Registerutskrift fra Ektepaktregisteret"
+              }
+            ]
+          }
+        }
+      ],
+      "avhengigheter": [
+        {
+          "rel": "for",
+          "retning": "fra",
+          "mal_type": "tjeneste",
+          "mal_navn": "Ekteskap (vigsel)",
+          "mal_id": "tjeneste-ekteskap-vigsel",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Ektepakten regulerer formuesforholdet mellom ektefellene og får virkning mellom partene fra vigselsdatoen; kan inngås før eller etter selve vigselen"
+        }
+      ]
+    },
+    {
+      "navn": "Registrering av tros- eller livssynssamfunn",
+      "tjenesteomrade": "Tro og livssyn",
+      "los_klassifisering": null,
+      "livshendelser": [],
+      "type": "myndighetsutovelse",
+      "kompetent_myndighet": "Statsforvalteren",
+      "status": "foreslatt_av_ai",
+      "malgruppe": [
+        "Tros- og livssynssamfunn"
+      ],
+      "formal": "Gi et tros- eller livssynssamfunn en formell status som gir grunnlag for blant annet tilskudd og adgang til å søke om vigselsrett for sine forstandere/prester/tilsvarende",
+      "innhold": null,
+      "regelverksreferanser": [
+        {
+          "lov": "Lov om tros- og livssynssamfunn – trossamfunnsloven",
+          "henvisning": null,
+          "felt": null
+        }
+      ],
+      "handlinger": [
+        {
+          "navn": "Søke om registrering av tros- eller livssynssamfunn",
+          "handlingstype": "registrere",
+          "bruksomraade": "Brukes av et tros- eller livssynssamfunn som ønsker formell registrering",
+          "utfort_av": "tredjepart",
+          "merknad": "Utføres av samfunnet selv (en ikke-offentlig aktør), ikke av det ekteskapssøkende paret",
+          "eies_av_denne_tjenesten": true,
+          "kanaler": [
+            {
+              "kanal": "Statsforvalteren"
+            }
+          ],
+          "resultat": {
+            "hva": "Samfunnet er registrert etter trossamfunnsloven",
+            "bevis_kanaler": [
+              {
+                "kanal": "Bekreftelse fra Statsforvalteren"
+              }
+            ]
+          }
+        }
+      ],
+      "avhengigheter": [
+        {
+          "rel": "forutsetning_for",
+          "retning": "fra",
+          "mal_type": "tjeneste",
+          "mal_navn": "Vigselsrett for enkeltperson i tros- eller livssynssamfunn",
+          "mal_id": "tjeneste-vigselsrett-enkeltperson",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Kun registrerte tros- og livssynssamfunn kan få tildelt vigselsrett for sine forstandere/prester/tilsvarende"
+        }
+      ]
+    },
+    {
+      "navn": "Vigselsrett for enkeltperson i tros- eller livssynssamfunn",
+      "tjenesteomrade": "Tro og livssyn",
+      "los_klassifisering": null,
+      "livshendelser": [
+        "Gifte seg"
+      ],
+      "type": "myndighetsutovelse",
+      "kompetent_myndighet": "Statsforvalteren",
+      "status": "foreslatt_av_ai",
+      "malgruppe": [
+        "Navngitte forstandere/prester/tilsvarende i registrerte tros- og livssynssamfunn"
+      ],
+      "formal": "Delegere offentligrettslig myndighet til en navngitt person i et registrert tros- eller livssynssamfunn, slik at vedkommende kan foreta vigsler med samme rettsvirkning som en kommunal vigsel",
+      "innhold": {
+        "hva_rettigheten_innebarer": {
+          "innledning": "Vigselsretten er personlig og knyttet til én navngitt person i ett registrert samfunn, ikke til samfunnet som sådan.",
+          "konsekvenser_ved_brudd_pa_regelverket": "Statsforvalteren kan tilbakekalle vigselsretten dersom vilkårene for tildelingen ikke lenger er oppfylt"
+        }
+      },
+      "regelverksreferanser": [
+        {
+          "lov": "Ekteskapsloven – ekteskl (LOV-1991-07-04-47)",
+          "henvisning": "https://lovdata.no/lov/1991-07-04-47/§12",
+          "felt": null
+        },
+        {
+          "lov": "Lov om tros- og livssynssamfunn – trossamfunnsloven",
+          "henvisning": null,
+          "felt": null
+        }
+      ],
+      "handlinger": [
+        {
+          "navn": "Søke om vigselsrett for navngitt person",
+          "handlingstype": "soke",
+          "bruksomraade": "Brukes av et registrert tros- eller livssynssamfunn som ønsker at en navngitt forstander/prest/tilsvarende skal kunne foreta vigsler",
+          "utfort_av": "tredjepart",
+          "merknad": "Søkes av samfunnet på vegne av enkeltpersonen, ikke av det ekteskapssøkende paret",
+          "eies_av_denne_tjenesten": true,
+          "kanaler": [
+            {
+              "kanal": "Statsforvalteren"
+            }
+          ],
+          "resultat": {
+            "hva": "Navngitt person er gitt vigselsrett, med adgang til å foreta vigsler med offentligrettslig virkning",
+            "bevis_kanaler": [
+              {
+                "kanal": "Vedtak fra Statsforvalteren"
+              }
+            ]
+          }
+        }
+      ],
+      "avhengigheter": [
+        {
+          "rel": "forutsetning_for",
+          "retning": "til",
+          "mal_type": "tjeneste",
+          "mal_navn": "Registrering av tros- eller livssynssamfunn",
+          "mal_id": "tjeneste-registrering-trossamfunn",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Samfunnet må selv være registrert før det kan søkes om vigselsrett for en navngitt person"
+        },
+        {
+          "rel": "forutsetning_for",
+          "retning": "fra",
+          "mal_type": "tjeneste",
+          "mal_navn": "Ekteskap (vigsel)",
+          "mal_id": "tjeneste-ekteskap-vigsel",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Gjelder kun vigsel-kanalen i tros-/livssynssamfunn: personen må ha individuelt tildelt vigselsrett for å kunne gjennomføre en gyldig vigsel"
+        }
+      ]
+    },
+    {
+      "navn": "Skattekort og skatteklasse ved endret sivilstand",
+      "tjenesteomrade": "Skatt og avgift",
+      "los_klassifisering": null,
+      "livshendelser": [
+        "Gifte seg"
+      ],
+      "type": "myndighetsutovelse",
+      "kompetent_myndighet": "Skatteetaten",
+      "status": "foreslatt_av_ai",
+      "malgruppe": [
+        "Nygifte ektefeller"
+      ],
+      "formal": "Sikre at skattekort og eventuell skatteberegning reflekterer riktig sivilstand",
+      "innhold": null,
+      "regelverksreferanser": [],
+      "handlinger": [
+        {
+          "navn": "Kontrollere og eventuelt justere skattekort",
+          "handlingstype": "kontrolleres",
+          "bruksomraade": "Brukes av ektefeller for å sjekke at ny sivilstand er riktig reflektert, og justere forskuddstrekk ved behov",
+          "utfort_av": "soker",
+          "merknad": "Selve registreringen av endret sivilstand skjer automatisk basert på Folkeregisteret; brukeren kan selv justere skattekortet ved behov",
+          "eies_av_denne_tjenesten": true,
+          "kanaler": [
+            {
+              "kanal": "Skatteetaten.no",
+              "adresse": "https://www.skatteetaten.no"
+            }
+          ]
+        }
+      ],
+      "avhengigheter": [
+        {
+          "rel": "utlost_av",
+          "retning": "fra",
+          "mal_type": "tjeneste",
+          "mal_navn": "Ekteskap (vigsel)",
+          "mal_id": "tjeneste-ekteskap-vigsel",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Endret sivilstand registrert i Folkeregisteret oppdateres automatisk hos Skatteetaten"
+        }
+      ]
+    },
+    {
+      "navn": "Familieinnvandring – oppholdstillatelse for ektefelle",
+      "tjenesteomrade": "Innvandring",
+      "los_klassifisering": null,
+      "livshendelser": [
+        "Gifte seg",
+        "Flytte til Norge"
+      ],
+      "type": "myndighetsutovelse",
+      "kompetent_myndighet": "Utlendingsdirektoratet (UDI)",
+      "status": "foreslatt_av_ai",
+      "malgruppe": [
+        "Ektefeller uten oppholdsrett i Norge fra før"
+      ],
+      "formal": "Gi ektefelle uten eksisterende oppholdsrett lovlig opphold i Norge på grunnlag av familietilknytning",
+      "innhold": {
+        "vedlegg": [
+          "Vigselsattest",
+          "Dokumentasjon på identitet",
+          "Dokumentasjon på underhold/bolig der dette kreves"
+        ],
+        "vedlegg_merknad": "Konkrete krav til dokumentasjon og eventuelt underholdskrav avhenger av søkerens statsborgerskap og situasjon — se udi.no for gjeldende krav."
+      },
+      "regelverksreferanser": [
+        {
+          "lov": "Utlendingsloven – utlendl",
+          "henvisning": null,
+          "felt": null
+        }
+      ],
+      "handlinger": [
+        {
+          "navn": "Søke om oppholdstillatelse på grunnlag av familieinnvandring",
+          "handlingstype": "soke",
+          "bruksomraade": "Brukes når ektefellen ikke allerede har lovlig opphold i Norge",
+          "utfort_av": "soker",
+          "eies_av_denne_tjenesten": true,
+          "kanaler": [
+            {
+              "kanal": "UDI.no / søknadsportal",
+              "adresse": "https://www.udi.no"
+            },
+            {
+              "kanal": "Politiet (fremmøte/biometri)"
+            }
+          ],
+          "kostnad": {
+            "belop": "Gebyrbelagt; se gjeldende søknadsgebyr på udi.no",
+            "hjemmel": []
+          },
+          "behandlingstid": {
+            "frist": "Varierer; se saksbehandlingstider på udi.no",
+            "hjemmel": null
+          }
+        }
+      ],
+      "avhengigheter": [
+        {
+          "rel": "input_til",
+          "retning": "til",
+          "mal_type": "tjeneste",
+          "mal_navn": "Ekteskap (vigsel)",
+          "mal_id": "tjeneste-ekteskap-vigsel",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Søknaden bygger på vigselsattesten som dokumentasjon på familietilknytning"
+        }
+      ]
+    },
+    {
+      "navn": "Nytt pass ved navneendring",
+      "tjenesteomrade": "Identitet og dokumenter",
+      "los_klassifisering": null,
+      "livshendelser": [
+        "Gifte seg"
+      ],
+      "type": "ytelse",
+      "kompetent_myndighet": "Politiet (Pass- og ID-enheten)",
+      "status": "foreslatt_av_ai",
+      "malgruppe": [
+        "Personer som har endret navn ved ekteskap"
+      ],
+      "formal": "Utstede pass med korrekt, oppdatert navn",
+      "innhold": null,
+      "regelverksreferanser": [
+        {
+          "lov": "Passloven – passl",
+          "henvisning": null,
+          "felt": null
+        }
+      ],
+      "handlinger": [
+        {
+          "navn": "Bestille time og søke om nytt pass",
+          "handlingstype": "bestille",
+          "utfort_av": "soker",
+          "eies_av_denne_tjenesten": true,
+          "kanaler": [
+            {
+              "kanal": "Politiet.no",
+              "adresse": "https://www.politiet.no"
+            }
+          ],
+          "kostnad": {
+            "belop": "Gebyrbelagt; se gjeldende passgebyr på politiet.no",
+            "hjemmel": []
+          }
+        }
+      ],
+      "avhengigheter": [
+        {
+          "rel": "avhengig_av",
+          "retning": "fra",
+          "mal_type": "tjeneste",
+          "mal_navn": "Endring av navn ved ekteskap",
+          "mal_id": "tjeneste-navneendring-ekteskap",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Nytt pass med korrekt navn kan først bestilles etter at navneendringen er registrert i Folkeregisteret"
+        }
+      ]
+    },
+    {
+      "navn": "Endring av førerkort ved navneendring",
+      "tjenesteomrade": "Identitet og dokumenter",
+      "los_klassifisering": null,
+      "livshendelser": [
+        "Gifte seg"
+      ],
+      "type": "ytelse",
+      "kompetent_myndighet": "Statens vegvesen",
+      "status": "foreslatt_av_ai",
+      "malgruppe": [
+        "Personer som har endret navn ved ekteskap"
+      ],
+      "formal": "Utstede nytt førerkort med korrekt, oppdatert navn",
+      "innhold": null,
+      "regelverksreferanser": [],
+      "handlinger": [
+        {
+          "navn": "Bestille nytt førerkort",
+          "handlingstype": "bestille",
+          "utfort_av": "soker",
+          "eies_av_denne_tjenesten": true,
+          "kanaler": [
+            {
+              "kanal": "Statens vegvesen – trafikkstasjon/digital tjeneste",
+              "adresse": "https://www.vegvesen.no"
+            }
+          ],
+          "kostnad": {
+            "belop": "Gebyrbelagt; se gjeldende sats på vegvesen.no",
+            "hjemmel": []
+          }
+        }
+      ],
+      "avhengigheter": [
+        {
+          "rel": "avhengig_av",
+          "retning": "fra",
+          "mal_type": "tjeneste",
+          "mal_navn": "Endring av navn ved ekteskap",
+          "mal_id": "tjeneste-navneendring-ekteskap",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Nytt førerkort med korrekt navn kan først bestilles etter at navneendringen er registrert i Folkeregisteret"
+        }
+      ]
+    },
+    {
+      "navn": "Overgangsstønad til enslig mor eller far",
+      "tjenesteomrade": "Familie og samliv",
+      "los_klassifisering": null,
+      "livshendelser": [
+        "Bli enslig forsørger",
+        "Gifte seg"
+      ],
+      "type": "ytelse",
+      "kompetent_myndighet": "NAV",
+      "status": "foreslatt_av_ai",
+      "malgruppe": [
+        "Enslige mødre eller fedre som forsørger barn alene"
+      ],
+      "formal": "Sikre midlertidig inntekt til enslig forsørger i en overgangsfase",
+      "innhold": {
+        "hva_rettigheten_innebarer": {
+          "innledning": "Ytelsen forutsetter at mottaker er reelt enslig forsørger.",
+          "konsekvenser_ved_brudd_pa_regelverket": "Retten faller bort dersom mottaker ikke lenger oppfyller vilkåret om å være enslig forsørger, blant annet ved nytt ekteskap eller ekteskapslignende samboerskap"
+        }
+      },
+      "regelverksreferanser": [
+        {
+          "lov": "Folketrygdloven – ftrl",
+          "henvisning": "https://lovdata.no/lov/1997-02-28-19/kapittel-15",
+          "felt": null
+        }
+      ],
+      "handlinger": [],
+      "avhengigheter": [
+        {
+          "rel": "kan_miste",
+          "retning": "til",
+          "mal_type": "tjeneste",
+          "mal_navn": "Ekteskap (vigsel)",
+          "mal_id": "tjeneste-ekteskap-vigsel",
+          "organisasjonsnummer": null,
+          "kildeurl": null,
+          "merknad": "Retten til overgangsstønad (og utvidet barnetrygd) som enslig forsørger kan bortfalle dersom mottakeren inngår nytt ekteskap"
+        }
+      ]
+    }
+  ]
+}

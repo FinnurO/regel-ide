@@ -13,6 +13,7 @@
     "@digdir/designsystemet-css": "^1.18.0",
     "@digdir/designsystemet-react": "^1.18.0",
     "@digdir/designsystemet-theme": "^1.11.0",
+    "@xyflow/react": "^12.11.5",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router": "^8.3.0"
