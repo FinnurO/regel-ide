@@ -2,9 +2,10 @@ import { useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 import { Alert, Button, Card, Heading, Link, Paragraph, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { BrregEnhetDto } from '../api/types';
+import type { BrregEnhetDto, VirksomhetDto } from '../api/types';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
+import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 
 type Sorteringskolonne = 'navn' | 'organisasjonsnummer' | 'forvaltningsniva' | 'aktiv';
@@ -73,7 +74,10 @@ export default function VirksomheterListe() {
         ha brukere for å stå her.
       </Paragraph>
 
-      <BrregSokPanel eksisterendeOrgnr={new Set(virksomheter.map((v) => v.organisasjonsnummer).filter((n): n is string => !!n))} onOpprettet={oppdater} />
+      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
+        <BrregSokPanel eksisterendeOrgnr={new Set(virksomheter.map((v) => v.organisasjonsnummer).filter((n): n is string => !!n))} onOpprettet={oppdater} />
+        <NavnKunPanel virksomheter={virksomheter} onOpprettet={oppdater} />
+      </div>
 
       <Textfield
         label="Filtrer"
@@ -243,6 +247,73 @@ function BrregSokPanel({ eksisterendeOrgnr, onOpprettet }: { eksisterendeOrgnr: 
           })}
         </ul>
       )}
+    </Card>
+  );
+}
+
+/**
+ * [Ny, 2026-08-30, brukertilbakemelding] Opprett en virksomhet med KUN navn — for aktører uten egen
+ * Brreg-registrering, f.eks. Kystvakten (del av Forsvaret). «Del av virksomhet» er valgfri og setter
+ * OverordnetEnhetId — samme felt Brreg-berikelse ellers fyller automatisk (docs/20 §2.1), her manuelt
+ * siden Brreg ikke har denne relasjonen for aktører uten egen registrering.
+ */
+function NavnKunPanel({ virksomheter, onOpprettet }: { virksomheter: VirksomhetDto[]; onOpprettet: () => void }) {
+  const [navn, setNavn] = useState('');
+  const [overordnetEnhetId, setOverordnetEnhetId] = useState('');
+  const [oppretter, setOppretter] = useState(false);
+  const [feil, setFeil] = useState<string | null>(null);
+  const [sistOpprettetNavn, setSistOpprettetNavn] = useState<string | null>(null);
+
+  async function opprett(e: React.FormEvent) {
+    e.preventDefault();
+    if (!navn.trim()) return;
+    setOppretter(true);
+    setFeil(null);
+    try {
+      await api.opprettVirksomhet({ navn: navn.trim(), overordnetEnhetId: overordnetEnhetId || null });
+      setSistOpprettetNavn(navn.trim());
+      setNavn('');
+      setOverordnetEnhetId('');
+      onOpprettet();
+    } catch (err) {
+      setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse.');
+    } finally {
+      setOppretter(false);
+    }
+  }
+
+  return (
+    <Card style={{ padding: '1rem', maxWidth: '28rem', flex: '1 1 20rem' }}>
+      <Heading level={2} data-size="sm" style={{ marginBottom: '0.3rem' }}>
+        Opprett virksomhet med bare navn
+      </Heading>
+      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+        For aktører uten egen Brreg-registrering, f.eks. Kystvakten (del av Forsvaret) — «del av
+        virksomhet» er valgfri.
+      </Paragraph>
+      <form onSubmit={opprett}>
+        <Textfield
+          label="Navn"
+          value={navn}
+          onChange={(e) => setNavn(e.target.value)}
+          style={{ marginBottom: '0.5rem' }}
+        />
+        <VirksomhetVelger
+          virksomheter={virksomheter}
+          value={overordnetEnhetId}
+          onChange={setOverordnetEnhetId}
+          label="Del av virksomhet (valgfri)"
+          tomValgTekst="Ingen — selvstendig virksomhet"
+          style={{ marginBottom: '0.75rem' }}
+        />
+        {feil && <Alert data-color="danger" style={{ marginBottom: '0.5rem' }}>{feil}</Alert>}
+        {sistOpprettetNavn && !feil && (
+          <Alert data-color="success" style={{ marginBottom: '0.5rem' }}>«{sistOpprettetNavn}» opprettet.</Alert>
+        )}
+        <Button type="submit" disabled={oppretter || !navn.trim()}>
+          {oppretter ? 'Oppretter …' : 'Opprett virksomhet'}
+        </Button>
+      </form>
     </Card>
   );
 }

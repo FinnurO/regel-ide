@@ -436,6 +436,36 @@ app.MapGet("/api/virksomheter", async (RegelIdeDbContext db) =>
     .WithName("HentVirksomheter")
     .WithSummary("Lister virksomheter — hele virksomhetskatalogen (docs/20), ikke bare aktive tenanter.");
 
+app.MapPost("/api/virksomheter", async (OpprettVirksomhetRequest body, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        if (string.IsNullOrWhiteSpace(body.Navn))
+        {
+            return Results.BadRequest(new { feil = "Navn er påkrevd." });
+        }
+        if (body.OverordnetEnhetId is { } overordnetId && !await db.Virksomheter.AnyAsync(v => v.Id == overordnetId, ct))
+        {
+            return Results.BadRequest(new { feil = $"Fant ingen virksomhet med id '{overordnetId}' å knytte til. Ingen gjettet fallback." });
+        }
+        var virksomhet = new Virksomhet
+        {
+            Id = Guid.NewGuid(),
+            Navn = body.Navn.Trim(),
+            Organisasjonsnummer = null,
+            Forvaltningsniva = null,
+            OverordnetEnhetId = body.OverordnetEnhetId,
+            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            Aktiv = true,
+        };
+        db.Virksomheter.Add(virksomhet);
+        await db.SaveChangesAsync(ct);
+        return Results.Created($"/api/virksomheter/{virksomhet.Id}", VirksomhetDto.FraEntitet(virksomhet));
+    })
+    .WithOpenApi()
+    .WithName("OpprettVirksomhet")
+    .WithSummary(
+        "Oppretter en virksomhet med KUN navn, ingen organisasjonsnummer — for aktører uten egen " +
+        "Brreg-registrering (f.eks. Kystvakten som del av Forsvaret), se OpprettVirksomhetRequest.");
+
 app.MapPut("/api/virksomheter/{id:guid}/forvaltningsniva", async (Guid id, SettForvaltningsnivaRequest body, RegelIdeDbContext db, CancellationToken ct) =>
     {
         var virksomhet = await db.Virksomheter.FirstOrDefaultAsync(v => v.Id == id, ct);

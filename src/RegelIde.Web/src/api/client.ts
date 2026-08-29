@@ -82,6 +82,7 @@ import type {
   VilkarRequest,
   VilkarstreKommentarDto,
   VirksomhetDto,
+  OpprettVirksomhetRequest,
   BrregEnhetDto,
   VirksomhetsbegrepDto,
   MyndighetstildelingDto,
@@ -282,6 +283,15 @@ export const api = {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ forvaltningsniva }),
+    }),
+
+  /** [Ny, 2026-08-30] Opprett en virksomhet med KUN navn — for aktører uten egen Brreg-registrering
+   * (f.eks. Kystvakten, del av Forsvaret). */
+  opprettVirksomhet: (request: OpprettVirksomhetRequest) =>
+    kall<VirksomhetDto>('/api/virksomheter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
     }),
 
   /** [Ny, 2026-08-29, docs/13-backlog.md §9] Fritekstsøk mot Brreg — for å finne og opprette

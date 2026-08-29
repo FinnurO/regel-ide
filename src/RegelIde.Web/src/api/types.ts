@@ -156,6 +156,12 @@ export interface VirksomhetDto {
   sistBrregSynkronisert: string | null;
 }
 
+/** [Ny, 2026-08-30] Opprett en virksomhet med KUN navn — se POST /api/virksomheter. */
+export interface OpprettVirksomhetRequest {
+  navn: string;
+  overordnetEnhetId: string | null;
+}
+
 /** [Ny, 2026-08-29, docs/13-backlog.md §9] Ett søketreff fra Brønnøysundregisterets Enhetsregister —
  * se GET /api/virksomheter/brreg-sok. */
 export interface BrregEnhetDto {
