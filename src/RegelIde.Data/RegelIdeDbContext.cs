@@ -43,6 +43,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<VirksomhetNettsideEntitet> VirksomhetNettsider => Set<VirksomhetNettsideEntitet>();
     public DbSet<MyndighetstildelingEntitet> Myndighetstildelinger => Set<MyndighetstildelingEntitet>();
     public DbSet<VirksomhetKandidatEntitet> VirksomhetKandidater => Set<VirksomhetKandidatEntitet>();
+    public DbSet<NavnekandidatEntitet> Navnekandidater => Set<NavnekandidatEntitet>();
     public DbSet<Bruker> Brukere => Set<Bruker>();
     public DbSet<BrukerVisningsinnstillingEntitet> BrukerVisningsinnstillinger => Set<BrukerVisningsinnstillingEntitet>();
     public DbSet<RettskildeEntitet> Rettskilder => Set<RettskildeEntitet>();
@@ -182,6 +183,35 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // dette hindrer fortsatt reelle duplikater uten å kollapse ekte, uavhengige treff.
             e.HasIndex(x => new { x.VirksomhetId, x.RettskildeId, x.NodeEid, x.StartOffset }).IsUnique()
                 .HasDatabaseName("ux_virksomhet_kandidater_virksomhet_node_start");
+        });
+
+        b.Entity<NavnekandidatEntitet>(e =>
+        {
+            e.ToTable("navnekandidater", t =>
+            {
+                t.HasCheckConstraint("ck_navnekandidater_status", "status IN ('Venter', 'Godkjent', 'Avvist')");
+                t.HasCheckConstraint("ck_navnekandidater_kategori", "kategori IN ('virksomhet', 'rolle')");
+            });
+            e.HasKey(x => x.Id).HasName("navnekandidater_pkey");
+            e.Property(x => x.ForeslattTekst).HasColumnName("foreslatt_tekst");
+            e.Property(x => x.Kategori).HasColumnName("kategori");
+            e.Property(x => x.RettskildeId).HasColumnName("rettskilde_id");
+            e.Property(x => x.NodeEid).HasColumnName("node_eid");
+            e.Property(x => x.StartOffset).HasColumnName("start_offset");
+            e.Property(x => x.EndOffset).HasColumnName("end_offset");
+            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("Venter");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+            e.Property(x => x.BehandletAv).HasColumnName("behandlet_av");
+            e.Property(x => x.BehandletTidspunkt).HasColumnName("behandlet_tidspunkt");
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => x.RettskildeId).HasDatabaseName("ix_navnekandidater_rettskilde");
+            // Samme idempotens-nøkkel-resonnement som ux_virksomhet_kandidater_virksomhet_node_start
+            // (se den indeksens kommentar) — ETT sveip kan gi flere uavhengige treff i samme node, og
+            // gjentatt sveip skal ikke gjenskape en kandidat som allerede finnes for nøyaktig denne
+            // start-posisjonen, uansett status.
+            e.HasIndex(x => new { x.RettskildeId, x.NodeEid, x.StartOffset }).IsUnique()
+                .HasDatabaseName("ux_navnekandidater_rettskilde_node_start");
         });
 
         b.Entity<Bruker>(e =>

@@ -472,6 +472,23 @@ public sealed record VirksomhetKandidatBatchRadDto(Guid Id, bool Ok, string? Fei
 
 public sealed record VirksomhetKandidatBatchResultatDto(IReadOnlyList<VirksomhetKandidatBatchRadDto> Rader);
 
+// ---------- Navnekandidater — oppdagelse av egennavn/juridiske aktører (docs/13-backlog.md §9) ----------
+
+public sealed record NavnekandidatDto(
+    Guid Id, string ForeslattTekst, string Kategori, Guid RettskildeId, string NodeEid, int StartOffset, int EndOffset,
+    string Status, string OpprettetAv, DateTimeOffset OpprettetTidspunkt, string? BehandletAv, DateTimeOffset? BehandletTidspunkt)
+{
+    public static NavnekandidatDto FraEntitet(NavnekandidatEntitet k) => new(
+        k.Id, k.ForeslattTekst, k.Kategori, k.RettskildeId, k.NodeEid, k.StartOffset, k.EndOffset, k.Status,
+        k.OpprettetAv, k.OpprettetTidspunkt, k.BehandletAv, k.BehandletTidspunkt);
+}
+
+/// <summary>Sveip-trigger — <see cref="RettskildeId"/> = <c>null</c> sveiper HELE det importerte
+/// korpuset, satt snevrer inn til én rettskilde.</summary>
+public sealed record SveipNavnekandidaterRequest(Guid? RettskildeId);
+
+public sealed record SveipNavnekandidaterResultatDto(int AntallTreffFunnet, int AntallNyeKandidater);
+
 // ---------- Kodeliste / verdidomene (docs/03-domenemodell.md §1.4) — byggesteg 2 ----------
 
 public sealed record KodelisteKodeDto(

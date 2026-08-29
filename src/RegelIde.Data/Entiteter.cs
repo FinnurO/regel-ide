@@ -908,6 +908,65 @@ public sealed class VirksomhetKandidatEntitet
 }
 
 /// <summary>
+/// Arbeidskø for OPPDAGEDE navnekandidater (docs/13-backlog.md §9) — komplementær til, og en
+/// forbehandling FORAN, <see cref="VirksomhetKandidatEntitet"/>s kø. Den avgjørende forskjellen:
+/// <see cref="VirksomhetKandidatSveipTjeneste"/> er en BEKREFTELSES-mekanisme (krever en allerede
+/// kjent navneform-<see cref="BegrepEntitet"/>-rad, leter etter FLERE forekomster av DEN kjente
+/// strengen). Denne tabellen er en OPPDAGELSES-mekanisme (<see cref="NavnekandidatOppdagelseTjeneste"/>)
+/// — ren regex-mønstergjenkjenning i allerede importert rettskildetekst, som foreslår HELT NYE
+/// kandidatnavn ingen <see cref="BegrepEntitet"/>-rad dekker ennå. Aldri KI/LLM (eksplisitt instruks).
+/// <para>
+/// <b>Designvalg — egen tabell, IKKE gjenbruk av <see cref="VirksomhetKandidatEntitet"/>:</b> den
+/// tabellen har en påkrevd (NOT NULL) <see cref="VirksomhetKandidatEntitet.VirksomhetId"/>-FK, som
+/// forutsetter at vi ALLEREDE vet hvilken <see cref="Virksomhet"/>-rad teksten omtaler — nettopp det
+/// denne oppdagelsesmekanismen IKKE vet (det er selve poenget: et helt nytt navn, ingen kobling
+/// finnes ennå). Å gjøre feltet nullbart der ville blandet to grunnleggende ulike radtyper
+/// (bekreftet forekomst av kjent virksomhet vs. uidentifisert kandidatnavn) i én tabell med ulik
+/// obligatorikk avhengig av rad — samme "ikke bland to uavhengige akser i ett felt"-lærdom som
+/// docs/20s innledning selv nevner fra en tidligere forkastet runde.
+/// </para>
+/// <para>
+/// <b>Kategori avgjør godkjenningsoppførsel</b> (se <see cref="NavnekandidatOppdagelseTjeneste.GodkjennAsync"/>):
+/// <c>"rolle"</c> kan opprettes DIREKTE som et ekte rollebegrep ved godkjenning (alt som trengs — streng
+/// + hvilken lov — er allerede kjent fra selve kandidaten). <c>"virksomhet"</c> kan IKKE det — hvilken
+/// konkrete <see cref="Virksomhet"/>-rad et nytt egennavn faktisk viser til krever et menneske (kan være
+/// en helt ny virksomhet). Godkjenning der betyr kun "verdt å følge opp", selve koblingen skjer via den
+/// eksisterende navneform-tilleggsflyten i <c>VirksomhetDetalj.tsx</c>.
+/// </para>
+/// </summary>
+public sealed class NavnekandidatEntitet
+{
+    public Guid Id { get; set; }
+
+    /// <summary>Selve teksten funnet ved sveipet — den faktiske strengen, ikke en normalisert form
+    /// (bevarer opprinnelig store/små bokstaver, avgjørende for <see cref="Kategori"/>s klassifiseringsregel).</summary>
+    public required string ForeslattTekst { get; set; }
+
+    /// <summary>`'virksomhet'` (ekte egennavn, suffiksmønster + stor forbokstav MIDT i en setning) eller
+    /// `'rolle'` (juridisk aktør-substantiv uten egennavn-status — fast liste, ELLER suffiksmønster med
+    /// liten forbokstav). Se <see cref="NavnekandidatOppdagelseTjeneste"/> for selve klassifiseringslogikken.</summary>
+    public required string Kategori { get; set; }
+
+    public required Guid RettskildeId { get; set; }
+
+    /// <summary>Presis node-referanse — samme mønster som <see cref="VirksomhetKandidatEntitet.NodeEid"/>.</summary>
+    public required string NodeEid { get; set; }
+
+    /// <summary>Tegn-intervall [<see cref="StartOffset"/>, <see cref="EndOffset"/>) i nodens <c>Tekst</c>
+    /// på sveip-tidspunktet — samme "ikke lagre på noden selv"-begrunnelse som
+    /// <see cref="VirksomhetKandidatEntitet.StartOffset"/>. Del av den unike idempotens-nøkkelen
+    /// (<c>RettskildeId</c>, <c>NodeEid</c>, <c>StartOffset</c>) — se RegelIdeDbContext.</summary>
+    public int StartOffset { get; set; }
+    public int EndOffset { get; set; }
+
+    public string Status { get; set; } = "Venter"; // 'Venter' | 'Godkjent' | 'Avvist'
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? BehandletAv { get; set; }
+    public DateTimeOffset? BehandletTidspunkt { get; set; }
+}
+
+/// <summary>
 /// Kodeliste / verdidomene (docs/03-domenemodell.md §1.4) — byggesteg 2. Tre typer (§0.1): juridisk og
 /// teknisk krever <see cref="VirksomhetId"/> (virksomhetens eget arbeidsprodukt); ekstern-referanse er
 /// delt/uten virksomhet (refererer en autoritativ kilde, dupliserer ikke). Ekstern-referanse har heller

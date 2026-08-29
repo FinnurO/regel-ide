@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import { Link as RouterLink } from 'react-router';
+import { Link as RouterLink, useSearchParams } from 'react-router';
 import { Alert, Button, Card, Heading, Link, Paragraph, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { BrregEnhetDto, VirksomhetDto } from '../api/types';
@@ -18,6 +18,12 @@ function forvaltningsnivaVisning(verdi: string | null): { farge: 'neutral' | 'in
 
 export default function VirksomheterListe() {
   const { virksomheter, laster, oppdater } = useVirksomheter();
+  // [Ny, docs/13-backlog.md §9] ?forslagNavn=… (fra Navnekandidater-siden sin "virksomhet"-kategori,
+  // "Finn/opprett virksomhet"-lenken) forhåndsutfyller BEGGE opprett-panelene under — et helt nytt
+  // egennavn kan jo enten allerede finnes i Brreg (søk finner det) eller trenge "bare navn"-flyten
+  // (aktør uten egen Brreg-registrering), og vi vet ikke hvilket UTEN at brukeren faktisk ser etter.
+  const [søkeparametre] = useSearchParams();
+  const forhaandsutfyltNavn = søkeparametre.get('forslagNavn') ?? '';
   const [filterTekst, setFilterTekst] = useState('');
   const [sortKolonne, setSortKolonne] = useState<Sorteringskolonne>('navn');
   const [sortStigende, setSortStigende] = useState(true);
@@ -75,8 +81,12 @@ export default function VirksomheterListe() {
       </Paragraph>
 
       <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
-        <BrregSokPanel eksisterendeOrgnr={new Set(virksomheter.map((v) => v.organisasjonsnummer).filter((n): n is string => !!n))} onOpprettet={oppdater} />
-        <NavnKunPanel virksomheter={virksomheter} onOpprettet={oppdater} />
+        <BrregSokPanel
+          eksisterendeOrgnr={new Set(virksomheter.map((v) => v.organisasjonsnummer).filter((n): n is string => !!n))}
+          onOpprettet={oppdater}
+          forhaandsutfyltSok={forhaandsutfyltNavn}
+        />
+        <NavnKunPanel virksomheter={virksomheter} onOpprettet={oppdater} forhaandsutfyltNavn={forhaandsutfyltNavn} />
       </div>
 
       <Textfield
@@ -152,8 +162,10 @@ export default function VirksomheterListe() {
  * f.eks. Bufetat/Statped/NPE) uten å måtte taste inn orgnr/navn manuelt. Portert fra
  * `github.com/FinnurO/kontaktlisteregisteret`s `BrregService`-mønster, se `BrregKlient.cs`.
  */
-function BrregSokPanel({ eksisterendeOrgnr, onOpprettet }: { eksisterendeOrgnr: Set<string>; onOpprettet: () => void }) {
-  const [sokTekst, setSokTekst] = useState('');
+function BrregSokPanel({
+  eksisterendeOrgnr, onOpprettet, forhaandsutfyltSok,
+}: { eksisterendeOrgnr: Set<string>; onOpprettet: () => void; forhaandsutfyltSok?: string }) {
+  const [sokTekst, setSokTekst] = useState(forhaandsutfyltSok ?? '');
   const [soker, setSoker] = useState(false);
   const [treff, setTreff] = useState<BrregEnhetDto[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
@@ -257,8 +269,10 @@ function BrregSokPanel({ eksisterendeOrgnr, onOpprettet }: { eksisterendeOrgnr: 
  * OverordnetEnhetId — samme felt Brreg-berikelse ellers fyller automatisk (docs/20 §2.1), her manuelt
  * siden Brreg ikke har denne relasjonen for aktører uten egen registrering.
  */
-function NavnKunPanel({ virksomheter, onOpprettet }: { virksomheter: VirksomhetDto[]; onOpprettet: () => void }) {
-  const [navn, setNavn] = useState('');
+function NavnKunPanel({
+  virksomheter, onOpprettet, forhaandsutfyltNavn,
+}: { virksomheter: VirksomhetDto[]; onOpprettet: () => void; forhaandsutfyltNavn?: string }) {
+  const [navn, setNavn] = useState(forhaandsutfyltNavn ?? '');
   const [overordnetEnhetId, setOverordnetEnhetId] = useState('');
   const [oppretter, setOppretter] = useState(false);
   const [feil, setFeil] = useState<string | null>(null);

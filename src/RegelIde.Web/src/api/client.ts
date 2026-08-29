@@ -91,6 +91,9 @@ import type {
   SveipVirksomhetKandidaterResultatDto,
   VirksomhetKandidatBatchRequest,
   VirksomhetKandidatBatchResultatDto,
+  NavnekandidatDto,
+  SveipNavnekandidaterRequest,
+  SveipNavnekandidaterResultatDto,
   VisningsinnstillingInput,
 } from './types';
 
@@ -310,6 +313,29 @@ export const api = {
 
   avvisVirksomhetKandidat: (id: string) =>
     kall<VirksomhetKandidatDto>(`/api/virksomhet-kandidater/${id}/avvis`, { method: 'POST' }),
+
+  /** [Ny, docs/13-backlog.md §9] Oppdagelsesmekanismen — komplementær til virksomhet-kandidatene over. */
+  hentNavnekandidater: (filter: { rettskildeId?: string; status?: string; kategori?: string }) => {
+    const parametre = new URLSearchParams();
+    if (filter.rettskildeId) parametre.set('rettskildeId', filter.rettskildeId);
+    if (filter.status) parametre.set('status', filter.status);
+    if (filter.kategori) parametre.set('kategori', filter.kategori);
+    const sok = parametre.toString();
+    return kall<NavnekandidatDto[]>(`/api/navnekandidater${sok ? `?${sok}` : ''}`);
+  },
+
+  sveipNavnekandidater: (request: SveipNavnekandidaterRequest) =>
+    kall<SveipNavnekandidaterResultatDto>('/api/navnekandidater/sveip', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  godkjennNavnekandidat: (id: string) =>
+    kall<NavnekandidatDto>(`/api/navnekandidater/${id}/godkjenn`, { method: 'POST' }),
+
+  avvisNavnekandidat: (id: string) =>
+    kall<NavnekandidatDto>(`/api/navnekandidater/${id}/avvis`, { method: 'POST' }),
 
   hentTaggKinds: () => kall<TaggKindKonfigurasjonDto[]>('/api/konfigurasjon/tagg-kinds'),
 

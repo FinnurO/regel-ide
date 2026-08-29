@@ -44,6 +44,7 @@ builder.Services.AddScoped<VirksomhetsbegrepTjeneste>();
 builder.Services.AddScoped<MyndighetstildelingTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatSveipTjeneste>();
+builder.Services.AddScoped<NavnekandidatOppdagelseTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
 builder.Services.AddScoped<RegelnoderegisterTjeneste>();
 builder.Services.AddScoped<UnntaksregisterTjeneste>();
@@ -2405,6 +2406,79 @@ virksomhetKandidater.MapDelete("/{id:guid}", async (Guid id, VirksomhetKandidatT
     })
     .WithName("HardslettAvvistVirksomhetKandidat")
     .WithSummary("Kun 'Avvist'-rader kan hardslettes (docs/20 §2.6) — et eksplisitt unntak fra husstilens vanlige mykslette-mønster.");
+
+// ---------- Navnekandidater — oppdagelse av egennavn/juridiske aktører (docs/13-backlog.md §9) ----------
+// Komplementær til /api/virksomhet-kandidater over: DEN er en bekreftelsesmekanisme (krever en
+// allerede kjent navneform), DENNE er en oppdagelsesmekanisme (ren regex-mønstergjenkjenning, foreslår
+// helt nye navn). Se NavnekandidatOppdagelseTjeneste for hele resonnementet.
+
+var navnekandidater = app.MapGroup("/api/navnekandidater").WithOpenApi();
+
+navnekandidater.MapGet("/", async (string? status, string? kategori, Guid? rettskildeId,
+        NavnekandidatOppdagelseTjeneste register, CancellationToken ct) =>
+    {
+        // Samme eksplisitte "utelatt = kun Venter, 'Alle' = ingen filter"-mønster som
+        // /api/virksomhet-kandidater — se den endepunktkommentaren.
+        var effektivStatus = string.IsNullOrEmpty(status) ? "Venter" : status;
+        var statusFilter = effektivStatus == "Alle" ? null : effektivStatus;
+        return Results.Ok((await register.ListerAsync(statusFilter, kategori, rettskildeId, ct)).Select(NavnekandidatDto.FraEntitet));
+    })
+    .WithName("HentNavnekandidater")
+    .WithSummary("Kandidatliste, valgfritt filtrert på status/kategori/rettskilde. status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter.");
+
+navnekandidater.MapPost("/sveip", async (HttpRequest request, SveipNavnekandidaterRequest body,
+        NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var resultat = await register.SveipAsync(body.RettskildeId, bruker.Navn, ct);
+            return Results.Ok(new SveipNavnekandidaterResultatDto(resultat.AntallTreffFunnet, resultat.AntallNyeKandidater));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SveipNavnekandidater")
+    .WithSummary("docs/13-backlog.md §9 — regex-mønstergjenkjenning gjennom allerede importerte rettskilde-noder " +
+        "(RettskildeId=null: hele korpuset, satt: kun én rettskilde). Idempotent (kjør flere ganger uten duplikater).");
+
+navnekandidater.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest request,
+        NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var oppdatert = await register.GodkjennAsync(id, bruker.Navn, ct);
+            return oppdatert is null ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }) : Results.Ok(NavnekandidatDto.FraEntitet(oppdatert));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("GodkjennNavnekandidat")
+    .WithSummary("'rolle': oppretter et ekte rollebegrep direkte. 'virksomhet': setter kun status — selve virksomhetskoblingen skjer manuelt via VirksomhetDetalj.");
+
+navnekandidater.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request,
+        NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var oppdatert = await register.AvvisAsync(id, bruker.Navn, ct);
+            return oppdatert is null ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }) : Results.Ok(NavnekandidatDto.FraEntitet(oppdatert));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("AvvisNavnekandidat");
 
 // ---------- Datasett (docs/03-domenemodell.md §1.6) — byggesteg 4, minimal, kun lesing ----------
 

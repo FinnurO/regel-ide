@@ -238,6 +238,32 @@ export interface VirksomhetKandidatBatchResultatDto {
   rader: VirksomhetKandidatBatchRadDto[];
 }
 
+/** Oppdagelsesmekanismen (docs/13-backlog.md §9) — komplementær til VirksomhetKandidatDto over. */
+export interface NavnekandidatDto {
+  id: string;
+  foreslattTekst: string;
+  kategori: 'virksomhet' | 'rolle';
+  rettskildeId: string;
+  nodeEid: string;
+  startOffset: number;
+  endOffset: number;
+  status: string;
+  opprettetAv: string;
+  opprettetTidspunkt: string;
+  behandletAv: string | null;
+  behandletTidspunkt: string | null;
+}
+
+/** rettskildeId=null sveiper hele det importerte korpuset, satt snevrer inn til én rettskilde. */
+export interface SveipNavnekandidaterRequest {
+  rettskildeId: string | null;
+}
+
+export interface SveipNavnekandidaterResultatDto {
+  antallTreffFunnet: number;
+  antallNyeKandidater: number;
+}
+
 /** Ikke lenger en fast literal-union — kind-settet er konfigurasjonsstyrt (se TaggKindKonfigurasjonDto), ikke hardkodet. */
 export type TaggKind = string;
 

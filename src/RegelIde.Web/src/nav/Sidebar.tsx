@@ -59,6 +59,7 @@ const GRUPPER: Gruppe[] = [
       { kind: 'lenke', to: '/brukere', label: 'Brukere' },
       { kind: 'lenke', to: '/virksomheter', label: 'Virksomheter' },
       { kind: 'lenke', to: '/virksomhet-kandidater', label: 'Virksomhetskandidater' },
+      { kind: 'lenke', to: '/navnekandidater', label: 'Navnekandidater' },
     ],
   },
 ];
