@@ -1551,6 +1551,39 @@ tjenester.MapGet("/forslag", async (HttpRequest request, RegelIdeDbContext db, C
     .WithSummary("Lister ventende forslag til nye tjenester — KI-forslag (foreslatt_av_ai) OG " +
         "tverr-virksomhet import-forslag (foreslatt_av_annen_virksomhet), se TjenesteforslagDto.");
 
+tjenester.MapGet("/foreslatt-av-meg", async (HttpRequest request, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return Results.BadRequest(new { feil = $"Mangler eller ukjent {GjeldendeBrukerTjeneste.HeaderNavn}-header." });
+        }
+        // Motstykket til "/forslag" over — tjenester DENNE virksomheten selv har foreslått til en
+        // ANNEN (mål-)virksomhet, og som fortsatt står ubehandlet der. Lar importøren selv rydde opp
+        // via SlettForslagAsync uten å måtte logge inn som mål-virksomheten.
+        var mineForslag = await (
+            from t in db.Tjenester
+            join p in db.Proveniens on t.Id equals p.EntitetId
+            where t.Entitetsstatus == "gjeldende" && t.Status == "foreslatt_av_annen_virksomhet"
+                  && p.EntitetType == "tjeneste" && p.Handling == "foreslatt_av_annen_virksomhet"
+                  && p.ForeslattAvVirksomhetId == bruker.VirksomhetId
+            orderby p.Dato descending
+            select new { Tjeneste = t, p.Dato }
+        ).ToListAsync(ct);
+        var resultat = new List<MittForslagDto>();
+        foreach (var rad in mineForslag)
+        {
+            var malVirksomhetNavn = await db.Virksomheter
+                .Where(v => v.Id == rad.Tjeneste.VirksomhetId).Select(v => v.Navn).FirstAsync(ct);
+            resultat.Add(new MittForslagDto(TjenesteDto.FraEntitet(rad.Tjeneste), rad.Dato, malVirksomhetNavn));
+        }
+        return Results.Ok(resultat);
+    })
+    .WithName("HentMineForslagTilAndreVirksomheter")
+    .WithSummary(
+        "Lister tjenester DENNE virksomheten selv har foreslått til en ANNEN (mål-)virksomhet, og som " +
+        "fortsatt står ubehandlet der — motstykket til /forslag, som kun viser det egen virksomhet EIER.");
+
 tjenester.MapPost("/forslag/kjor", async (HttpRequest request, KjorForslagRequest body, TjenesteforslagTjeneste forslagstjeneste, RegelIdeDbContext db, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);

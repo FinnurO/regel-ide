@@ -2,7 +2,7 @@ import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'r
 import { Link as RouterLink, useNavigate } from 'react-router';
 import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { KunnskapsbibliotekFilDto, KunnskapsbibliotekLenkeDto, RettskildeSammendrag, TjenesteforslagDto } from '../api/types';
+import type { KunnskapsbibliotekFilDto, KunnskapsbibliotekLenkeDto, MittForslagDto, RettskildeSammendrag, TjenesteforslagDto } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
 import { RettskildeFlervalg } from '../rettskilde/RettskildeFlervalg';
 
@@ -27,6 +27,12 @@ export default function TjenesteforslagKo() {
   const [lasterOppFil, setLasterOppFil] = useState(false);
   const filInputRef = useRef<HTMLInputElement>(null);
   const [ko, setKo] = useState<TjenesteforslagDto[] | null>(null);
+  // [Ny, 2026-08-29] Motstykket til `ko` over — tjenester DENNE virksomheten selv har foreslått til
+  // en annen, fortsatt ubehandlet der. Oppdaget som et reelt hull under opprydding etter en
+  // test-import: `ko` viser kun det egen virksomhet EIER, så et forslag man selv har SENDT ut var
+  // usynlig for importøren igjen — ingen UI-vei til å bruke SlettForslagAsync sin allerede
+  // eksisterende "opprinnelig foreslagsstiller"-tilgang.
+  const [mineForslag, setMineForslag] = useState<MittForslagDto[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
   const [kjorer, setKjorer] = useState(false);
   const [omfang, setOmfang] = useState<'tjeneste' | 'full'>('tjeneste');
@@ -46,11 +52,16 @@ export default function TjenesteforslagKo() {
     api.hentTjenesteforslagKo().then(setKo).catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av kø.'));
   }
 
+  function lastMineForslag() {
+    api.hentMineForslagTilAndreVirksomheter().then(setMineForslag).catch(() => setMineForslag([]));
+  }
+
   useEffect(() => {
     api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
     lastLenker();
     lastFiler();
     lastKo();
+    lastMineForslag();
   }, []);
 
   async function leggTilLenke(e: FormEvent) {
@@ -142,6 +153,13 @@ export default function TjenesteforslagKo() {
   async function godkjenn(id: string) {
     await api.settTjenesteStatus(id, { status: 'validert', godkjentAv: gjeldendeBruker?.navn });
     lastKo();
+  }
+
+  /** [Ny, 2026-08-29] Angre et EGET tverr-virksomhet-forslag som fortsatt står ubehandlet hos
+   * mål-virksomheten — se `mineForslag`-kommentaren over. */
+  async function slettMittForslag(id: string) {
+    await api.slettTjenesteforslag(id);
+    lastMineForslag();
   }
 
   return (
@@ -267,6 +285,41 @@ export default function TjenesteforslagKo() {
                     <Button variant="tertiary" data-size="sm" onClick={() => rediger(f.tjeneste.id)}>Rediger</Button>
                     <Button data-size="sm" onClick={() => godkjenn(f.tjeneste.id)}>Godkjenn og legg til</Button>
                   </div>
+                </Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      )}
+
+      <Heading level={2} data-size="sm" style={{ marginTop: '1.5rem' }}>
+        Mine forslag til andre virksomheter
+      </Heading>
+      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
+        Tjenester DENNE virksomheten selv har foreslått til en ANNEN virksomhet via import-wizarden
+        («Importer rettighetsmodell»), som fortsatt står ubehandlet der. Bruk «Slett» for å angre —
+        f.eks. for å rydde opp etter en test-import før en ny kjøring.
+      </Paragraph>
+      {!mineForslag && <Spinner aria-label="Laster …" data-size="sm" />}
+      {mineForslag && mineForslag.length === 0 && <Paragraph>Ingen egne forslag venter hos andre virksomheter.</Paragraph>}
+      {mineForslag && mineForslag.length > 0 && (
+        <Table border>
+          <Table.Head>
+            <Table.Row>
+              <Table.HeaderCell>Tittel</Table.HeaderCell>
+              <Table.HeaderCell>Mål-virksomhet</Table.HeaderCell>
+              <Table.HeaderCell>Handlinger</Table.HeaderCell>
+            </Table.Row>
+          </Table.Head>
+          <Table.Body>
+            {mineForslag.map((f) => (
+              <Table.Row key={f.tjeneste.id}>
+                <Table.Cell>
+                  <Link asChild><RouterLink to={`/tjenester/${f.tjeneste.id}`}>{f.tjeneste.tittel}</RouterLink></Link>
+                </Table.Cell>
+                <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{f.malVirksomhetNavn}</Table.Cell>
+                <Table.Cell>
+                  <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => slettMittForslag(f.tjeneste.id)}>Slett</Button>
                 </Table.Cell>
               </Table.Row>
             ))}
