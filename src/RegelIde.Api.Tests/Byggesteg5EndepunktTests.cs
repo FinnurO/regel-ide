@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.EntityFrameworkCore;
 using RegelIde.Api;
 using RegelIde.Data;
 
@@ -320,6 +321,64 @@ public class Byggesteg5EndepunktTests
         var annenKoSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/tjenester/forslag", annenBrukerId));
         var annenKo = await annenKoSvar.Content.ReadFromJsonAsync<List<TjenesteforslagDto>>(JsonInnstillinger);
         Assert.Empty(annenKo!);
+    }
+
+    /// <summary>
+    /// [Ny, 2026-08-29] HTTP-nivå-dekning for `GET /api/tjenester/foreslatt-av-meg` — motstykket til
+    /// `/forslag` sett fra IMPORTØRENS side, se `MittForslagDto`. Oppdaget som et reelt UI-hull under
+    /// opprydding etter en tidligere test-import i denne samme sesjonen: uten dette endepunktet var
+    /// det ingen API/UI-vei for en importør til å se (og dermed slette via `SlettForslagAsync`) sine
+    /// egne ubehandlede tverr-virksomhet-forslag hos en ANNEN virksomhet.
+    /// </summary>
+    [Fact]
+    public async Task Foreslatt_av_meg_viser_kun_importorens_egne_tverr_virksomhet_forslag_hos_malvirksomheten()
+    {
+        var importorBruker = await HentTestbrukerAsync();
+        Guid malVirksomhetId;
+        Guid tjenesteId;
+        await using (var db = _fixture.NyDbContext())
+        {
+            malVirksomhetId = Guid.NewGuid();
+            db.Virksomheter.Add(new Virksomhet { Id = malVirksomhetId, Navn = "Skatteetaten (byggesteg 5-test)" });
+            await db.SaveChangesAsync();
+            var importorVirksomhetId = (await db.Brukere.SingleAsync(b => b.Id == importorBruker.Id)).VirksomhetId;
+            var tjeneste = await new TjenesteregisterTjeneste(db).OpprettForslagFraAnnenVirksomhetAsync(
+                malVirksomhetId, importorVirksomhetId, "Prøvingsattest for ekteskap", null, null, null, importorBruker.Navn);
+            tjenesteId = tjeneste.Id;
+        }
+
+        var mineForslagSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/tjenester/foreslatt-av-meg", importorBruker.Id));
+        Assert.Equal(HttpStatusCode.OK, mineForslagSvar.StatusCode);
+        var mineForslag = await mineForslagSvar.Content.ReadFromJsonAsync<List<MittForslagDto>>(JsonInnstillinger);
+        var mitt = Assert.Single(mineForslag!, f => f.Tjeneste.Id == tjenesteId);
+        Assert.Equal("Skatteetaten (byggesteg 5-test)", mitt.MalVirksomhetNavn);
+
+        // Mål-virksomhetens EGEN «/forslag»-kø er upåvirket (det er fortsatt DEN som eier
+        // godkjenning/avvisning) — de to endepunktene viser to forskjellige sider av samme forslag.
+        Guid malBrukerId;
+        await using (var db = _fixture.NyDbContext())
+        {
+            malBrukerId = Guid.NewGuid();
+            db.Brukere.Add(new Bruker { Id = malBrukerId, Navn = "Skatteetaten-saksbehandler", VirksomhetId = malVirksomhetId, Rolle = "Testrolle" });
+            await db.SaveChangesAsync();
+        }
+        var malKoSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/tjenester/forslag", malBrukerId));
+        var malKo = await malKoSvar.Content.ReadFromJsonAsync<List<TjenesteforslagDto>>(JsonInnstillinger);
+        Assert.Contains(malKo!, f => f.Tjeneste.Id == tjenesteId);
+
+        // En helt urelatert tredje virksomhet skal ikke se noe her.
+        Guid uvedkommendeBrukerId;
+        await using (var db = _fixture.NyDbContext())
+        {
+            var uvedkommendeVirksomhetId = Guid.NewGuid();
+            db.Virksomheter.Add(new Virksomhet { Id = uvedkommendeVirksomhetId, Navn = "UDI (byggesteg 5-test)" });
+            uvedkommendeBrukerId = Guid.NewGuid();
+            db.Brukere.Add(new Bruker { Id = uvedkommendeBrukerId, Navn = "Uvedkommende", VirksomhetId = uvedkommendeVirksomhetId, Rolle = "Testrolle" });
+            await db.SaveChangesAsync();
+        }
+        var uvedkommendeSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/tjenester/foreslatt-av-meg", uvedkommendeBrukerId));
+        var uvedkommendeForslag = await uvedkommendeSvar.Content.ReadFromJsonAsync<List<MittForslagDto>>(JsonInnstillinger);
+        Assert.Empty(uvedkommendeForslag!);
     }
 
     [Fact]

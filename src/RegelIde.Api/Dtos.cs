@@ -746,6 +746,16 @@ public sealed record TjenesteforslagDto(
     string? ForeslattAvVirksomhetNavn = null);
 
 /// <summary>
+/// [Ny, 2026-08-29] Motstykket til <see cref="TjenesteforslagDto"/>, sett fra IMPORTØRENS side — den
+/// vanlige forslagskøen (`GET /api/tjenester/forslag`) viser kun det EGEN virksomhet EIER (mål-
+/// virksomheten), så et tverr-virksomhet-import-forslag man selv har foreslått til en ANNEN
+/// virksomhet er usynlig der. Oppdaget som et reelt hull under opprydding etter en test-import: uten
+/// denne var det ingen UI-vei til å bruke <see cref="TjenesteregisterTjeneste.SlettForslagAsync"/>s
+/// allerede eksisterende "opprinnelig foreslagsstiller"-tilgang — kun rå API-kall.
+/// </summary>
+public sealed record MittForslagDto(TjenesteDto Tjeneste, DateTimeOffset ForeslattTidspunkt, string MalVirksomhetNavn);
+
+/// <summary>
 /// (2026-08-20) Full eksport av ÉN tjeneste og alt den er koblet til på KJERNEMODELL-nivået —
 /// egenskaper, regelverksreferanser, hendelser og tjenesteavhengigheter (i BEGGE retninger, inkludert
 /// eksterne plassholder-referanser, <c>feature/tjenesteavhengighet-ekstern-referanse</c>). BEVISST

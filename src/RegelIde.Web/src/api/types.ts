@@ -1133,6 +1133,14 @@ export interface TjenesteforslagDto {
   foreslattAvVirksomhetNavn: string | null;
 }
 
+/** [Ny, 2026-08-29] Motstykket til TjenesteforslagDto — tjenester DENNE virksomheten selv har
+ * foreslått til en ANNEN virksomhet, fortsatt ubehandlet der. Se GET /api/tjenester/foreslatt-av-meg. */
+export interface MittForslagDto {
+  tjeneste: TjenesteDto;
+  foreslattTidspunkt: string;
+  malVirksomhetNavn: string;
+}
+
 /**
  * Innlogget brukers foretrukne fanerekkefølge/-synlighet og accordion-rekkefølge/åpen-tilstand på
  * Tjeneste-siden (2026-08-27, Tjenestedetalj-redesignrunden) — GET/PUT /api/brukere/meg/tjeneste-visning.

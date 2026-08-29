@@ -73,6 +73,7 @@ import type {
   TjenesteavhengighetRequest,
   TjenesteTverrTenantTreffDto,
   TjenesteforslagDto,
+  MittForslagDto,
   HandbokRettskildeomfangDto,
   TjenesteRequest,
   UnntakDto,
@@ -435,6 +436,9 @@ export const api = {
   // ---------- «Identifiser tjenester» (byggesteg 5 runde 1, docs/06-veikart.md) — stub-KI ----------
 
   hentTjenesteforslagKo: () => kall<TjenesteforslagDto[]>('/api/tjenester/forslag'),
+
+  /** [Ny, 2026-08-29] Motstykket til hentTjenesteforslagKo — se MittForslagDto. */
+  hentMineForslagTilAndreVirksomheter: () => kall<MittForslagDto[]>('/api/tjenester/foreslatt-av-meg'),
 
   kjorTjenesteforslag: (request: KjorForslagRequest) =>
     kall<KjorForslagResponsDto<TjenesteDto>>('/api/tjenester/forslag/kjor', {
