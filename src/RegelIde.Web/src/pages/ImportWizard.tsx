@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import {
-  Alert, Button, Checkbox, Details, Field, Heading, Label, Paragraph, Tag, Textarea, Textfield,
+  Alert, Button, Checkbox, Details, Field, Heading, Label, Paragraph, Spinner, Tag, Textarea, Textfield,
 } from '@digdir/designsystemet-react';
 import { Link as RouterLink } from 'react-router';
 import { ApiError, api } from '../api/client';
@@ -86,6 +86,22 @@ export default function ImportWizard() {
 
   const [bulkKjorer, setBulkKjorer] = useState(false);
   const [bulkFremdrift, setBulkFremdrift] = useState<{ ferdig: number; totalt: number } | null>(null);
+  /** [Ny, 2026-08-29] Navnet på rettigheten som importeres AKKURAT NÅ — separat fra tallet i
+   * `bulkFremdrift`, for en tydelig, umiskjennelig "noe skjer"-indikator (fant Chrome krasjet uten
+   * dette da 88 rettigheter ble limt inn samtidig — se `apnetIndekser` under for hovedårsaken). */
+  const [bulkGjeldendeNavn, setBulkGjeldendeNavn] = useState<string | null>(null);
+  const [bulkOppsummering, setBulkOppsummering] = useState<{ ok: number; feilet: number } | null>(null);
+
+  /** [Ny, 2026-08-29] KRITISK ytelsesfiks — hver rad sitt skjema (`VirksomhetVelger`) rendrer ALLE
+   * ~451 virksomheter som ekte DOM-noder (bevisst usyktet, se VirksomhetVelger.tsx — søkbar i stedet
+   * for paginert, siden det normalt kun finnes ÉN instans på skjermen om gangen). `Details.Content`
+   * er en ren `<div>` uten lat rendering (bekreftet ved å lese pakkens kildekode) — native
+   * `<details>` FJERNER ikke skjult innhold fra DOM-treet, kun visuelt. Med 88 rader limt inn samtidig
+   * betydde det ~40 000 combobox-alternativer montert i ÉN React-commit — bekreftet årsak til en
+   * reell Chrome-krasj (ikke bare den sandkassede forhåndsvisningsruten). Fiksen: ikke rendre en rads
+   * tunge skjema-innhold før raden faktisk er åpnet FØRSTE gang — resten av appen (bulk-knappene)
+   * trenger det aldri, siden de leser `tilstander` direkte, ikke DOM-et. */
+  const [apnetIndekser, setApnetIndekser] = useState<Set<number>>(new Set());
 
   const [visGraf, setVisGraf] = useState(false);
   const [grafInkludererHandlinger, setGrafInkludererHandlinger] = useState(false);
@@ -96,16 +112,45 @@ export default function ImportWizard() {
     api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
   }, []);
 
+  const [tolker, setTolker] = useState(false);
+
+  /** Selve tolkningen er synkron og rask, men med en 245 KB-fil (88 rettigheter) er den ALDRI
+   * øyeblikkelig nok til at en knapp uten tilbakemelding er greit — «aner ikke hva som skjer»
+   * (brukertilbakemelding, 2026-08-29). `setTimeout(0)` gir React én rammetegning til å faktisk vise
+   * "Tolker …" FØR det synkrone parse-arbeidet blokkerer tråden. */
   function lastOpp() {
     setParseFeil(null);
-    try {
-      const parset = tolkModelleksportJson(raaTekst);
-      setRettigheter(parset);
-      setTilstander(parset.map((r) => nyTilstand(r, virksomheter, gjeldendeBruker?.virksomhetId ?? '')));
-    } catch (err) {
-      setParseFeil(err instanceof Error ? err.message : 'Ukjent feil ved tolkning av filen.');
-      setRettigheter(null);
-    }
+    setTolker(true);
+    setTimeout(() => {
+      try {
+        const parset = tolkModelleksportJson(raaTekst);
+        setRettigheter(parset);
+        setTilstander(parset.map((r) => nyTilstand(r, virksomheter, gjeldendeBruker?.virksomhetId ?? '')));
+        setApnetIndekser(new Set());
+        setBulkOppsummering(null);
+      } catch (err) {
+        setParseFeil(err instanceof Error ? err.message : 'Ukjent feil ved tolkning av filen.');
+        setRettigheter(null);
+      } finally {
+        setTolker(false);
+      }
+    }, 0);
+  }
+
+  /** [Ny, 2026-08-29] Filopplasting som alternativ til å lime inn — brukertilbakemelding: å lime inn
+   * 245 KB tekst i en `<textarea>` gir ingen synlig bekreftelse på at limingen faktisk gikk gjennom.
+   * Leser filen KLIENT-SIDE (FileReader) — ingen serveropplasting, siden innholdet uansett bare skal
+   * inn i `raaTekst`-state før «Tolk JSON» kjører samme vei som ved liming. */
+  function lastOppFil(e: React.ChangeEvent<HTMLInputElement>) {
+    const fil = e.target.files?.[0];
+    if (!fil) return;
+    const leser = new FileReader();
+    leser.onload = () => {
+      setRaaTekst(typeof leser.result === 'string' ? leser.result : '');
+    };
+    leser.onerror = () => setParseFeil(`Kunne ikke lese filen «${fil.name}».`);
+    leser.readAsText(fil);
+    e.target.value = '';
   }
 
   function oppdater(i: number, delvis: Partial<RettighetTilstand>) {
@@ -129,13 +174,16 @@ export default function ImportWizard() {
     }
   }
 
-  async function opprettRettighet(i: number) {
-    if (!rettigheter) return;
+  /** Returnerer `true`/`false` for utfallet — brukt av bulk-kjøringen til å telle opp en
+   * oppsummering etterpå (se `bulkOppsummering`), siden `tilstander` selv ikke er pålitelig å lese
+   * rett etter løkken (se merknad i `opprettAlleGjenstaende`). */
+  async function opprettRettighet(i: number): Promise<boolean> {
+    if (!rettigheter) return false;
     const raa = rettigheter[i];
     const t = tilstander[i];
     if (!t.malVirksomhetId) {
       oppdater(i, { feil: 'Velg en mål-virksomhet først.' });
-      return;
+      return false;
     }
     oppdater(i, { oppretter: true, feil: null });
     try {
@@ -150,8 +198,10 @@ export default function ImportWizard() {
       ];
       const opprettet = await api.importerRettighet(t.malVirksomhetId, { tjeneste: request, handlinger, regelverksreferanser });
       oppdater(i, { opprettetTjenesteId: opprettet.id, advarsler: alleAdvarsler, oppretter: false });
+      return true;
     } catch (err) {
       oppdater(i, { feil: err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse.', oppretter: false });
+      return false;
     }
   }
 
@@ -163,15 +213,17 @@ export default function ImportWizard() {
    * (`koblerTilEksisterendeId`), siden den tjenesten kan være ekte, verdifullt innhold fra før
    * wizarden noensinne rørte den. Setter tilbake til "ikke ferdig" ved suksess, slik at raden kan
    * rettes opp (f.eks. annen mål-virksomhet) og importeres på nytt. */
-  async function slettForslag(i: number) {
+  async function slettForslag(i: number): Promise<boolean> {
     const t = tilstander[i];
-    if (!t.opprettetTjenesteId) return;
+    if (!t.opprettetTjenesteId) return false;
     oppdater(i, { sletterForslag: true, feil: null });
     try {
       await api.slettTjenesteforslag(t.opprettetTjenesteId);
       oppdater(i, { opprettetTjenesteId: null, sletterForslag: false, advarsler: [] });
+      return true;
     } catch (err) {
       oppdater(i, { feil: err instanceof ApiError ? err.message : 'Ukjent feil ved sletting.', sletterForslag: false });
+      return false;
     }
   }
 
@@ -187,12 +239,25 @@ export default function ImportWizard() {
       .map((t, i) => (ferdigId(t) ? null : i))
       .filter((i): i is number => i !== null);
     setBulkKjorer(true);
+    setBulkOppsummering(null);
     setBulkFremdrift({ ferdig: 0, totalt: indekser.length });
+    // Lokale tellere, ikke `tilstander.filter(...)` etterpå — denne løkken kjører fra ÉN closure over
+    // `tilstander` fra render-tidspunktet da knappen ble trykket (`opprettRettighet` leser
+    // `tilstander[i]` derfra, ikke friskt fra state). Den enkelte radens EGEN input er upåvirket av
+    // det (den endres ikke av at ANDRE rader oppdateres), men å telle opp SUKSESS/FEIL fra
+    // `tilstander` etter løkken ville lest den samme forhåndsdaterte kopien — derfor telles utfallet
+    // direkte fra hvert `opprettRettighet`-kall i stedet.
+    let antallOk = 0;
+    let antallFeilet = 0;
     for (const i of indekser) {
-      await opprettRettighet(i);
+      setBulkGjeldendeNavn(rettigheter[i].navn);
+      const ok = await opprettRettighet(i);
+      if (ok) antallOk += 1; else antallFeilet += 1;
       setBulkFremdrift((f) => (f ? { ...f, ferdig: f.ferdig + 1 } : f));
     }
+    setBulkGjeldendeNavn(null);
     setBulkKjorer(false);
+    setBulkOppsummering({ ok: antallOk, feilet: antallFeilet });
   }
 
   /** [Ny, 2026-08-28] Bulk-angring — motstykket til `opprettAlleGjenstaende`, samme "sekvensielt,
@@ -204,12 +269,19 @@ export default function ImportWizard() {
       .map((t, i) => (t.opprettetTjenesteId ? i : null))
       .filter((i): i is number => i !== null);
     setBulkKjorer(true);
+    setBulkOppsummering(null);
     setBulkFremdrift({ ferdig: 0, totalt: indekser.length });
+    let antallOk = 0;
+    let antallFeilet = 0;
     for (const i of indekser) {
-      await slettForslag(i);
+      setBulkGjeldendeNavn(rettigheter?.[i]?.navn ?? null);
+      const ok = await slettForslag(i);
+      if (ok) antallOk += 1; else antallFeilet += 1;
       setBulkFremdrift((f) => (f ? { ...f, ferdig: f.ferdig + 1 } : f));
     }
+    setBulkGjeldendeNavn(null);
     setBulkKjorer(false);
+    setBulkOppsummering({ ok: antallOk, feilet: antallFeilet });
   }
 
   const alleFerdige = tilstander.length > 0 && tilstander.every((t) => ferdigId(t) !== null);
@@ -270,8 +342,15 @@ export default function ImportWizard() {
 
       {!rettigheter && (
         <div style={{ maxWidth: '48rem' }}>
+          <Textfield
+            type="file"
+            label="Last opp modelleksport-JSON-fil"
+            accept=".json,application/json"
+            onChange={lastOppFil}
+            style={{ marginBottom: '0.75rem' }}
+          />
           <Field>
-            <Label>Modelleksport-JSON</Label>
+            <Label>… eller lim inn JSON-en direkte</Label>
             <Textarea
               value={raaTekst}
               onChange={(e) => setRaaTekst(e.target.value)}
@@ -279,9 +358,15 @@ export default function ImportWizard() {
               style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}
             />
           </Field>
+          {raaTekst.length > 0 && (
+            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.3rem' }}>
+              {raaTekst.length.toLocaleString('nb')} tegn lastet inn.
+            </Paragraph>
+          )}
           {parseFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{parseFeil}</Alert>}
-          <Button style={{ marginTop: '0.75rem' }} onClick={lastOpp} disabled={!raaTekst.trim()}>
-            Tolk JSON
+          <Button style={{ marginTop: '0.75rem' }} onClick={lastOpp} disabled={!raaTekst.trim() || tolker}>
+            {tolker && <Spinner aria-label="Tolker …" data-size="xs" />}
+            {tolker ? 'Tolker …' : 'Tolk JSON'}
           </Button>
         </div>
       )}
@@ -292,25 +377,50 @@ export default function ImportWizard() {
             Fant {rettigheter.length} rettighet(er). {tilstander.filter((t) => ferdigId(t)).length} av {rettigheter.length} klare.
           </Paragraph>
 
-          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
             <Button variant="secondary" onClick={() => setVisGraf((v) => !v)}>
               {visGraf ? 'Skjul graf-forhåndsvisning' : 'Forhåndsvis som graf (før noe opprettes)'}
             </Button>
             {antallGjenstaende > 0 && (
               <Button onClick={opprettAlleGjenstaende} disabled={bulkKjorer}>
-                {bulkKjorer && bulkFremdrift
-                  ? `Importerer … (${bulkFremdrift.ferdig}/${bulkFremdrift.totalt})`
-                  : `Importer alle ${antallGjenstaende} gjenstående rettigheter`}
+                {bulkKjorer && <Spinner aria-label="Importerer …" data-size="xs" />}
+                {bulkKjorer ? 'Importerer …' : `Importer alle ${antallGjenstaende} gjenstående rettigheter`}
               </Button>
             )}
             {antallSlettbare > 0 && (
               <Button variant="secondary" data-color="danger" onClick={slettAlleOpprettede} disabled={bulkKjorer}>
-                {bulkKjorer && bulkFremdrift
-                  ? `Sletter … (${bulkFremdrift.ferdig}/${bulkFremdrift.totalt})`
-                  : `Slett alle ${antallSlettbare} opprettede (angre denne importen)`}
+                {bulkKjorer && <Spinner aria-label="Sletter …" data-size="xs" />}
+                {bulkKjorer ? 'Sletter …' : `Slett alle ${antallSlettbare} opprettede (angre denne importen)`}
               </Button>
             )}
           </div>
+
+          {/* [Ny, 2026-08-29] Tydelig, umiskjennelig "noe skjer"-indikator — brukertilbakemelding:
+              «aner ikke hva som skjer» etter å ha limt inn/tolket en stor fil. Navngir raden som
+              behandles akkurat nå, ikke bare en tellerposisjon. */}
+          {bulkKjorer && bulkFremdrift && (
+            <div style={{ marginBottom: '1rem', maxWidth: '32rem' }}>
+              <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.3rem' }}>
+                «{bulkGjeldendeNavn}» … ({bulkFremdrift.ferdig}/{bulkFremdrift.totalt})
+              </Paragraph>
+              <div style={{ height: '0.4rem', borderRadius: '999px', overflow: 'hidden', background: 'var(--ds-color-neutral-surface-active)' }}>
+                <div
+                  style={{
+                    height: '100%',
+                    width: `${bulkFremdrift.totalt > 0 ? (bulkFremdrift.ferdig / bulkFremdrift.totalt) * 100 : 0}%`,
+                    background: 'var(--ds-color-accent-base-default)',
+                    transition: 'width 0.15s ease',
+                  }}
+                />
+              </div>
+            </div>
+          )}
+          {bulkOppsummering && !bulkKjorer && (
+            <Alert data-color={bulkOppsummering.feilet > 0 ? 'warning' : 'success'} style={{ marginBottom: '1rem', maxWidth: '32rem' }}>
+              Ferdig: {bulkOppsummering.ok} vellykket
+              {bulkOppsummering.feilet > 0 && `, ${bulkOppsummering.feilet} feilet — se feilmelding på den enkelte raden under`}.
+            </Alert>
+          )}
 
           {visGraf && inMemoryGraf && (
             <div style={{ marginBottom: '1.5rem' }}>
@@ -332,8 +442,17 @@ export default function ImportWizard() {
           {rettigheter.map((raa, i) => {
             const t = tilstander[i];
             const ferdig = ferdigId(t);
+            const apnet = apnetIndekser.has(i);
             return (
-              <Details key={raa.navn + i} style={{ marginBottom: '0.5rem' }}>
+              <Details
+                key={raa.navn + i}
+                style={{ marginBottom: '0.5rem' }}
+                onToggle={(e) => {
+                  if ((e.currentTarget as HTMLDetailsElement).open) {
+                    setApnetIndekser((s) => (s.has(i) ? s : new Set(s).add(i)));
+                  }
+                }}
+              >
                 <Details.Summary>
                   {raa.navn}{' '}
                   {ferdig && <Tag data-color="success" data-size="sm">{t.opprettetTjenesteId ? 'Opprettet' : 'Koblet til eksisterende'}</Tag>}
@@ -356,7 +475,14 @@ export default function ImportWizard() {
                     </>
                   )}
 
-                  {!ferdig && (
+                  {!ferdig && !apnet && (
+                    <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                      Åpne raden for å velge mål-virksomhet manuelt eller koble referanser — «Importer
+                      alle N gjenstående» over bruker det forhåndsgjettede/forvalgte uten at du trenger
+                      å åpne noen rad.
+                    </Paragraph>
+                  )}
+                  {!ferdig && apnet && (
                     <>
                       <div style={{ marginBottom: '0.75rem', maxWidth: '24rem' }}>
                         <VirksomhetVelger
