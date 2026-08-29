@@ -1177,3 +1177,65 @@ docs/20 (den runden som FAKTISK ble bygget, se §8.1) tok med seg to lærdommer 
 ved navngitt import, ikke bred høsting (§4), og at å slå sammen to uavhengige akser i ett felt kan
 være et BEVISST valg (§2.2), ikke automatisk en feil å unngå. Filen selv forblir arkivert som
 historikk — ikke gjenopplivet, ikke slettet.
+
+## 9. Egennavn/juridiske-aktør-oppdagelse fra lovtekst — todeling avklart, oppdagelses-delen ugjort 2026-08-29
+
+Johann la fram et betydelig, egenhendig research-funn (samtale 2026-08-29): en manuell gjennomgang av
+faktisk Lovdata-tekst som identifiserte egennavn/juridiske aktører i fem kategorier (myndigheter/
+organer, geografiske egennavn, norske steder/administrative områder, universiteter, internasjonale
+institusjoner/avtaler) — og en viktig selvstendig observasjon: «egennavn» bør deles i to, (A) ekte
+egennavn i streng språklig forstand (Svalbard, Miljødirektoratet, Norges Bank) og (B) navngitte
+juridiske aktører som ikke er egennavn i grammatisk forstand, men juridisk avgjørende (forurensnings-
+myndighetene, departementet, kommunen — «hvem/hva loven gir myndighet til»).
+
+**Viktig avklaring — dette var IKKE et nytt forslag, det er allerede bygget.** Todelingen over
+(A/B) er ORDRETT `Begrep.Begrepskategori`: `"virksomhet"` (A) vs. `"rolle"` (B) — se docs/20 §2.3/§2.4
+og §8 over. «Kobling via lovreferanse/instruks/fritekst» han etterlyste er `MyndighetstildelingEntitet`
+(`HjemmelRettskildeId` + `Paragrafspenn` + `Vilkaar`) — samme mekanisme §8 allerede beskriver som
+bygget, men ubrukt. Hovedenhet/underenhet (`Virksomhet.OverordnetEnhetId`) ble eksplisitt avvist av
+Johann som mekanisme for dette («helt tilfeldig hvordan det brukes») — korrekt avvist, siden det
+ALDRI var ment for myndighetsspørsmålet, kun Brreg-organisatorisk referanse (docs/20 §2.1).
+
+**Scope-beslutning [LÅST 2026-08-29]**: kun kategori «myndigheter/organer/institusjoner» (Johanns
+liste §1) denne runden — IKKE geografiske egennavn, norske stedsnavn, universiteter eller
+internasjonale institusjoner/avtaler ennå. Disse fire kategoriene faller for øvrig utenfor det
+`docs/20` §1 allerede har låst («strengt virksomheter identifisert ved org.nummer denne runden») —
+en fremtidig utvidelse av scope, ikke en glemt detalj, hvis/når det blir aktuelt. Merk: en fremtidig
+utvidelse hit ville sannsynligvis IKKE bruke `Virksomhet`-entiteten i det hele tatt (Svalbard/EFTA/
+Universitetet i Oslo er ikke "virksomheter identifisert ved org.nummer") — egen modellering, ikke
+bare et scope-flagg på dagens tabeller.
+
+**Det faktiske, ubygde gapet — presisert 2026-08-29**: eksisterende `VirksomhetKandidatSveipTjeneste`
+er en BEKREFTELSES-mekanisme, ikke en OPPDAGELSES-mekanisme — den krever at en navneform-`Begrep`-rad
+allerede finnes for en virksomhet FØR sveipet kan lete etter forekomster av den (`ArgumentException`
+uten «ingen gjettet fallback»). Den foreslår ALDRI et helt nytt, ukjent navn funnet i rå tekst. Dette
+er den reelle, manglende biten av Johanns pseudokode-forslag (`finn_kandidater`/`myndighetsmønstre`-
+delen) — IKKE et nytt skjema, en **oppdagelses-forbehandling** foran den eksisterende køen:
+
+- Ren tekstanalyse (regex), ALDRI KI — eksplisitt instruks fra Johann, ikke bare en foretrukket
+  løsning.
+- Mønstre å lete etter (fra Johanns liste, ikke uttømmende): suffiksmønstre («-tilsynet»,
+  «-direktoratet», «-departementet», «-nemnda»/«-nemnden», «-domstolen», «-ombudet», «-verket»,
+  «-etaten», «-banken»), pluss en fast liste juridiske aktør-substantiv uten slikt suffiks
+  («Kongen», «Kongen i statsråd», «Stortinget», «Regjeringen», «statsforvalteren», «kommunen»,
+  «fylkeskommunen», «departementet»).
+- Kjøres mot ALLEREDE IMPORTERTE rettskilde-noder (samme korpus som sveipet, ~5900 rettskilder i dag)
+  — IKKE en ny, live skraping av Lovdata (Johanns pseudokode antok dette, men vi har allerede
+  rettskilde-innholdet strukturert lokalt, se `RettskildeNoder`/`Eid`). Dekningen er derfor begrenset
+  til det som faktisk ER importert, ikke alle ~800 norske lover — en reell, ikke-antatt begrensning å
+  være tydelig om overfor Johann, ikke late som om treff-lista er komplett.
+- Output: NYE `Begrep`-kandidatrader (kategori `virksomhet` ELLER `rolle`, avgjort ved samme
+  suffiks/nøkkelord-mønster som fant treffet) til manuell godkjenning — FØR de blir ekte navneformer
+  det eksisterende sveipet/køen kan bruke. Bygger PÅ den eksisterende `VirksomhetKandidat`-
+  arbeidsflyten, erstatter den ikke.
+- Ikke besluttet: nøyaktig grensesnitt/tabell for denne mellomstasjonen (egen kø-tabell, eller
+  gjenbruk av `VirksomhetKandidat` med et nytt `Kilde`-felt for å skille «bekreftet forekomst av kjent
+  navn» fra «foreslått helt nytt navn») — trenger en egen designrunde før bygging, ikke besluttet i
+  farten denne dagen.
+
+**Konkret, umiddelbart neste steg (uavhengig av oppdagelses-spørsmålet over)**: et Brreg-søk-og-
+opprett-verktøy for å legge inn virksomheter Johann selv har identifisert som reelt manglende i
+katalogen (Bufetat, Statped, Norsk pasientskadeerstatning, Helseklage, Konfliktrådet,
+Kriminalomsorgen, Politiet, Statens lånekasse for utdanning, regionale helseforetak, Statens
+helsetilsyn, Domstoladministrasjonen, Kystvakten, Norges Bank, Sametinget) — se implementasjon samme
+dag, portert fra `github.com/FinnurO/kontaktlisteregisteret`s `BrregService`.

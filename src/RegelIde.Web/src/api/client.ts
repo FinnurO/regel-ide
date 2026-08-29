@@ -82,6 +82,7 @@ import type {
   VilkarRequest,
   VilkarstreKommentarDto,
   VirksomhetDto,
+  BrregEnhetDto,
   VirksomhetsbegrepDto,
   MyndighetstildelingDto,
   VirksomhetKandidatDto,
@@ -281,6 +282,17 @@ export const api = {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ forvaltningsniva }),
+    }),
+
+  /** [Ny, 2026-08-29, docs/13-backlog.md §9] Fritekstsøk mot Brreg — for å finne og opprette
+   * virksomheter som mangler i katalogen. */
+  sokBrreg: (tekst: string) => kall<BrregEnhetDto[]>(`/api/virksomheter/brreg-sok?q=${encodeURIComponent(tekst)}`),
+
+  opprettVirksomhetFraBrreg: (organisasjonsnummer: string) =>
+    kall<VirksomhetDto>('/api/virksomheter/fra-brreg', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ organisasjonsnummer }),
     }),
 
   godkjennVirksomhetKandidat: (id: string) =>

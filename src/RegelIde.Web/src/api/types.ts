@@ -156,6 +156,17 @@ export interface VirksomhetDto {
   sistBrregSynkronisert: string | null;
 }
 
+/** [Ny, 2026-08-29, docs/13-backlog.md §9] Ett søketreff fra Brønnøysundregisterets Enhetsregister —
+ * se GET /api/virksomheter/brreg-sok. */
+export interface BrregEnhetDto {
+  organisasjonsnummer: string;
+  navn: string;
+  organisasjonsformKode: string | null;
+  organisasjonsformBeskrivelse: string | null;
+  poststed: string | null;
+  erAktiv: boolean;
+}
+
 export interface VirksomhetsbegrepDto {
   id: string;
   virksomhetId: string | null;
