@@ -420,6 +420,15 @@ public sealed record BrregEnhetDto(
 
 public sealed record OpprettVirksomhetFraBrregRequest(string Organisasjonsnummer);
 
+/// <summary>
+/// [Ny, 2026-08-30, brukertilbakemelding] Opprett en virksomhet med KUN navn — ingen org.nummer.
+/// Dekker reelle juridiske aktører/underorganer som ikke har (eller ikke bør ha) sin egen Brreg-
+/// registrering, f.eks. Kystvakten (del av Forsvaret) — <see cref="OverordnetEnhetId"/> lar en slik
+/// virksomhet knyttes til en allerede eksisterende virksomhet i katalogen, samme felt som Brreg-
+/// berikelse ellers fyller automatisk (docs/20 §2.1), her satt manuelt siden Brreg ikke har dataen.
+/// </summary>
+public sealed record OpprettVirksomhetRequest(string Navn, Guid? OverordnetEnhetId);
+
 public sealed record VirksomhetsbegrepRequest(Guid VirksomhetId, string Term, string? SkosUrl);
 public sealed record RollebegrepRequest(Guid LovkildeId, string Term);
 
