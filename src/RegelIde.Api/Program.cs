@@ -98,6 +98,7 @@ builder.Services.AddScoped<LovdataImportstatusTjeneste>();
 // hvorfor dette er en BackgroundService og ikke et synkront steg i oppstartsblokken under.
 builder.Services.AddHostedService<LovdataFullimportBakgrunnstjeneste>();
 builder.Services.AddHttpClient<OppgaveregisterHenter>();
+builder.Services.AddHttpClient<BrregKlient>();
 builder.Services.AddHttpClient<AltinnRessursHenter>();
 // info.altinn.no returnerer 403 uten en nettleserlignende User-Agent (bekreftet ved live-verifisering
 // av testfixturene i src/RegelIde.Data.Tests/Testdata/AltinnHosting/, samme header Johanns
@@ -464,6 +465,62 @@ app.MapPut("/api/virksomheter/{id:guid}/forvaltningsniva", async (Guid id, SettF
     .WithOpenApi()
     .WithName("SettVirksomhetForvaltningsniva")
     .WithSummary("Setter Forvaltningsnivå — validert mot KL-FORVALTNINGSNIVA-kodelisten (docs/20 §7.2: aldri gjettet automatisk).");
+
+app.MapGet("/api/virksomheter/brreg-sok", async (string? q, BrregKlient klient, CancellationToken ct) =>
+    {
+        if (string.IsNullOrWhiteSpace(q)) return Results.Ok(Array.Empty<BrregEnhetDto>());
+        var treff = await klient.SokAsync(q, ct: ct);
+        return Results.Ok(treff.Select(BrregEnhetDto.FraBrregEnhet));
+    })
+    .WithOpenApi()
+    .WithName("SokBrreg")
+    .WithSummary("Fritekstsøk mot Brønnøysundregistrenes Enhetsregister — for å finne virksomheter som mangler i katalogen (docs/13-backlog.md §9).");
+
+app.MapPost("/api/virksomheter/fra-brreg", async (OpprettVirksomhetFraBrregRequest body, BrregKlient klient, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var rentOrgnr = body.Organisasjonsnummer.Replace(" ", "");
+        if (await db.Virksomheter.AnyAsync(v => v.Organisasjonsnummer == rentOrgnr, ct))
+        {
+            return Results.Conflict(new { feil = $"Virksomhet med organisasjonsnummer '{rentOrgnr}' finnes allerede i katalogen." });
+        }
+        var enhet = await klient.HentPaOrgnrAsync(rentOrgnr, ct);
+        if (enhet is null)
+        {
+            return Results.NotFound(new { feil = $"Fant ingen enhet med organisasjonsnummer '{rentOrgnr}' i Brreg." });
+        }
+
+        // [LÅST, docs/20 §4/§7.2] Forvaltningsniva settes ALDRI ut fra Brreg-data (orgForm/sektorkode)
+        // — starter blankt, Johann fyller inn manuelt. Samme regel som gjelder katalogseeding, nå
+        // også for enkeltopprettelse via dette endepunktet.
+        var virksomhet = new Virksomhet
+        {
+            Id = Guid.NewGuid(),
+            Navn = enhet.Navn,
+            Organisasjonsnummer = enhet.Organisasjonsnummer,
+            OrganisasjonsformKode = enhet.Organisasjonsform?.Kode,
+            Sektorkode = enhet.InstitusjonellSektorkode?.Kode,
+            Forvaltningsniva = null,
+            OverordnetEnhetId = enhet.OverordnetEnhet is { } morOrgnr
+                ? await db.Virksomheter.Where(v => v.Organisasjonsnummer == morOrgnr).Select(v => (Guid?)v.Id).FirstOrDefaultAsync(ct)
+                : null,
+            SistBrregSynkronisert = DateOnly.FromDateTime(DateTime.UtcNow),
+            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            Aktiv = true,
+        };
+        db.Virksomheter.Add(virksomhet);
+        if (!string.IsNullOrWhiteSpace(enhet.Hjemmeside))
+        {
+            db.VirksomhetNettsider.Add(new VirksomhetNettsideEntitet
+            {
+                Id = Guid.NewGuid(), VirksomhetId = virksomhet.Id, Url = enhet.Hjemmeside, Type = "Hovedside",
+            });
+        }
+        await db.SaveChangesAsync(ct);
+        return Results.Created($"/api/virksomheter/{virksomhet.Id}", VirksomhetDto.FraEntitet(virksomhet));
+    })
+    .WithOpenApi()
+    .WithName("OpprettVirksomhetFraBrreg")
+    .WithSummary("Oppretter en ny Virksomhet-rad fra et Brreg-oppslag på organisasjonsnummer (docs/13-backlog.md §9).");
 
 app.MapGet("/api/konfigurasjon/tagg-kinds", async (RegelIdeDbContext db) =>
         (await db.TaggKindKonfigurasjoner.Where(k => k.Aktiv).OrderBy(k => k.Sorteringsrekkefolge).ToListAsync())

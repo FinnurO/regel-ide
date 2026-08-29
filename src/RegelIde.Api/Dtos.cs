@@ -404,6 +404,22 @@ public sealed record BegrepRequest(
 
 public sealed record SettForvaltningsnivaRequest(string? Forvaltningsniva);
 
+/// <summary>
+/// [Ny, 2026-08-29, docs/13-backlog.md §9] Ett Brreg-søketreff — nok til å vise i en velgerliste og
+/// avgjøre om det allerede finnes i katalogen (frontend sjekker mot allerede lastet
+/// <see cref="VirksomhetDto"/>-liste på <see cref="Organisasjonsnummer"/>).
+/// </summary>
+public sealed record BrregEnhetDto(
+    string Organisasjonsnummer, string Navn, string? OrganisasjonsformKode, string? OrganisasjonsformBeskrivelse,
+    string? Poststed, bool ErAktiv)
+{
+    public static BrregEnhetDto FraBrregEnhet(BrregEnhet e) => new(
+        e.Organisasjonsnummer, e.Navn, e.Organisasjonsform?.Kode, e.Organisasjonsform?.Beskrivelse,
+        e.Forretningsadresse?.Poststed, e.ErAktiv);
+}
+
+public sealed record OpprettVirksomhetFraBrregRequest(string Organisasjonsnummer);
+
 public sealed record VirksomhetsbegrepRequest(Guid VirksomhetId, string Term, string? SkosUrl);
 public sealed record RollebegrepRequest(Guid LovkildeId, string Term);
 

@@ -1,6 +1,8 @@
 import { useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Card, Heading, Link, Paragraph, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Heading, Link, Paragraph, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { ApiError, api } from '../api/client';
+import type { BrregEnhetDto } from '../api/types';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
@@ -14,7 +16,7 @@ function forvaltningsnivaVisning(verdi: string | null): { farge: 'neutral' | 'in
 }
 
 export default function VirksomheterListe() {
-  const { virksomheter, laster } = useVirksomheter();
+  const { virksomheter, laster, oppdater } = useVirksomheter();
   const [filterTekst, setFilterTekst] = useState('');
   const [sortKolonne, setSortKolonne] = useState<Sorteringskolonne>('navn');
   const [sortStigende, setSortStigende] = useState(true);
@@ -70,6 +72,8 @@ export default function VirksomheterListe() {
         i Regel-IDE og virksomheter som bare forekommer i rettskildetekst. En virksomhet trenger ikke
         ha brukere for å stå her.
       </Paragraph>
+
+      <BrregSokPanel eksisterendeOrgnr={new Set(virksomheter.map((v) => v.organisasjonsnummer).filter((n): n is string => !!n))} onOpprettet={oppdater} />
 
       <Textfield
         label="Filtrer"
@@ -135,5 +139,110 @@ export default function VirksomheterListe() {
       )}
       {!laster && viste.length > 0 && <Pagineringskontroll {...paginering} />}
     </>
+  );
+}
+
+/**
+ * [Ny, 2026-08-29, docs/13-backlog.md §9] Søk-og-opprett mot Brreg — for å tette reelle hull i
+ * katalogen (Johann fant flere navngitte myndigheter/institusjoner i lovtekst som mangler helt,
+ * f.eks. Bufetat/Statped/NPE) uten å måtte taste inn orgnr/navn manuelt. Portert fra
+ * `github.com/FinnurO/kontaktlisteregisteret`s `BrregService`-mønster, se `BrregKlient.cs`.
+ */
+function BrregSokPanel({ eksisterendeOrgnr, onOpprettet }: { eksisterendeOrgnr: Set<string>; onOpprettet: () => void }) {
+  const [sokTekst, setSokTekst] = useState('');
+  const [soker, setSoker] = useState(false);
+  const [treff, setTreff] = useState<BrregEnhetDto[] | null>(null);
+  const [feil, setFeil] = useState<string | null>(null);
+  const [oppretterOrgnr, setOppretterOrgnr] = useState<string | null>(null);
+  const [nettoppOpprettet, setNettoppOpprettet] = useState<Set<string>>(new Set());
+
+  async function sok(e: React.FormEvent) {
+    e.preventDefault();
+    if (!sokTekst.trim()) return;
+    setSoker(true);
+    setFeil(null);
+    try {
+      setTreff(await api.sokBrreg(sokTekst.trim()));
+    } catch (err) {
+      setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved søk mot Brreg.');
+      setTreff(null);
+    } finally {
+      setSoker(false);
+    }
+  }
+
+  async function opprett(orgnr: string) {
+    setOppretterOrgnr(orgnr);
+    setFeil(null);
+    try {
+      await api.opprettVirksomhetFraBrreg(orgnr);
+      setNettoppOpprettet((s) => new Set(s).add(orgnr));
+      onOpprettet();
+    } catch (err) {
+      setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse.');
+    } finally {
+      setOppretterOrgnr(null);
+    }
+  }
+
+  return (
+    <Card style={{ padding: '1rem', marginBottom: '1.25rem', maxWidth: '40rem' }}>
+      <Heading level={2} data-size="sm" style={{ marginBottom: '0.3rem' }}>
+        Søk i Brreg og opprett virksomhet
+      </Heading>
+      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+        For virksomheter som mangler i katalogen over — søk på navn eller organisasjonsnummer i
+        Brønnøysundregisterets Enhetsregister, og opprett den direkte herfra.
+      </Paragraph>
+      <form onSubmit={sok} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '0.75rem' }}>
+        <Textfield
+          label="Navn eller organisasjonsnummer"
+          placeholder="f.eks. Statped, eller 974761084"
+          value={sokTekst}
+          onChange={(e) => setSokTekst(e.target.value)}
+          style={{ maxWidth: '20rem' }}
+        />
+        <Button type="submit" disabled={soker || !sokTekst.trim()}>
+          {soker ? 'Søker …' : 'Søk i Brreg'}
+        </Button>
+      </form>
+
+      {feil && <Alert data-color="danger" style={{ marginBottom: '0.75rem' }}>{feil}</Alert>}
+
+      {treff && treff.length === 0 && <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Ingen treff i Brreg.</Paragraph>}
+
+      {treff && treff.length > 0 && (
+        <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
+          {treff.map((t) => {
+            const alleredeICatalogen = eksisterendeOrgnr.has(t.organisasjonsnummer) || nettoppOpprettet.has(t.organisasjonsnummer);
+            return (
+              <li
+                key={t.organisasjonsnummer}
+                style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', padding: '0.4rem 0', borderTop: '1px solid var(--ds-color-neutral-border-subtle)' }}
+              >
+                <span style={{ flex: 1 }}>
+                  {t.navn}{' '}
+                  <span style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                    ({t.organisasjonsnummer})
+                  </span>
+                  {t.organisasjonsformBeskrivelse && (
+                    <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}> — {t.organisasjonsformBeskrivelse}</span>
+                  )}
+                  {t.poststed && <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>, {t.poststed}</span>}
+                  {!t.erAktiv && <Tag data-color="warning" data-size="sm" style={{ marginLeft: '0.4rem' }}>Slettet i Brreg</Tag>}
+                </span>
+                {alleredeICatalogen ? (
+                  <Tag data-color="success" data-size="sm">Allerede i katalogen</Tag>
+                ) : (
+                  <Button data-size="sm" onClick={() => opprett(t.organisasjonsnummer)} disabled={oppretterOrgnr === t.organisasjonsnummer}>
+                    {oppretterOrgnr === t.organisasjonsnummer ? 'Oppretter …' : 'Opprett virksomhet'}
+                  </Button>
+                )}
+              </li>
+            );
+          })}
+        </ul>
+      )}
+    </Card>
   );
 }

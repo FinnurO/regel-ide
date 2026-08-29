@@ -13,6 +13,9 @@ interface VirksomheterVerdi {
    * fallback" — samme prinsipp som `rettskildeLenke`/`eidVisningstekst` i eidLenker.ts).
    */
   visEier: (virksomhetId: string | null | undefined) => string;
+  /** [Ny, 2026-08-29] Henter listen på nytt — brukt etter at en ny virksomhet er opprettet fra Brreg
+   * (se VirksomheterListe.tsx), siden hooken ellers kun henter én gang ved mount. */
+  oppdater: () => void;
 }
 
 /**
@@ -31,13 +34,16 @@ export function useVirksomheter(): VirksomheterVerdi {
   const [virksomheter, setVirksomheter] = useState<VirksomhetDto[]>([]);
   const [laster, setLaster] = useState(true);
 
-  useEffect(() => {
+  function hent() {
+    setLaster(true);
     api
       .hentVirksomheter()
       .then(setVirksomheter)
       .catch(() => setVirksomheter([]))
       .finally(() => setLaster(false));
-  }, []);
+  }
+
+  useEffect(hent, []);
 
   const virksomheterPerId = new Map(virksomheter.map((v) => [v.id, v] as const));
 
@@ -47,5 +53,5 @@ export function useVirksomheter(): VirksomheterVerdi {
     return virksomheterPerId.get(virksomhetId)?.navn ?? virksomhetId;
   }
 
-  return { virksomheter, virksomheterPerId, laster, visEier };
+  return { virksomheter, virksomheterPerId, laster, visEier, oppdater: hent };
 }
