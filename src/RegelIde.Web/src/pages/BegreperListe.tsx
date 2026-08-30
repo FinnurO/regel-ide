@@ -59,17 +59,21 @@ export default function BegreperListe() {
       ? begreper.filter(
           (b) =>
             b.term.toLowerCase().includes(tekst) ||
-            b.begrepstype.toLowerCase().includes(tekst) ||
+            (b.begrepstype ?? '').toLowerCase().includes(tekst) ||
             b.status.toLowerCase().includes(tekst) ||
             visEier(b.virksomhetId).toLowerCase().includes(tekst),
         )
       : begreper;
 
+    // b.begrepstype er null for virksomhet-/rolle-kategori-begreper (kun faktabegrep/handlingsbegrep
+    // har en reell begrepstype) — falt til '' før localeCompare, ellers krasjer sortering/filtrering
+    // på akkurat disse radene (bug funnet av Johann 2026-08-30: skriving i filterfeltet krasjet HELE
+    // siden fordi begrepstype.toLowerCase() ble kalt på null).
     const sortnokkel = (b: BegrepDto) =>
       sortKolonne === 'term'
         ? b.term
         : sortKolonne === 'begrepstype'
-          ? b.begrepstype
+          ? (b.begrepstype ?? '')
           : sortKolonne === 'status'
             ? b.status
             : visEier(b.virksomhetId);

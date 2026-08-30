@@ -7,6 +7,8 @@ export interface RettskildeSammendrag {
   tittel: string;
   kortnavn: string | null;
   kildetype: string;
+  /** "Kommunal- og distriktsdepartementet" e.l. — NULL for alt som ikke er Lovdata-importert Lov/Forskrift. */
+  ansvarligDepartement: string | null;
 }
 
 export interface RettskildeDetalj {
@@ -20,6 +22,8 @@ export interface RettskildeDetalj {
   ikrafttredelse: string | null;
   konsolidertDato: string | null;
   utgiver: string | null;
+  /** Rå streng fra Lovdatas "ministry"-metadatafelt (departement-virksomhet-lenke, 2026-08-30). NULL for alt som ikke er Lov/Forskrift importert fra Lovdata. */
+  ansvarligDepartement: string | null;
   status: string;
   aknXml: string | null;
   /** ELI (over) er ALLTID skrivebeskyttet — disse fem er derimot redigerbare via oppdaterRettskildeMetadata. */
@@ -30,6 +34,8 @@ export interface RettskildeDetalj {
   gyldigTil: string | null;
   /** Kildens opprinnelige URL — satt for Brukerveiledning (den hentede nettsidens URL) og noen håndbøker. */
   url: string | null;
+  /** Eksakt (case-insensitivt) navnetreff mot virksomhetskatalogen — NULL når departementet ikke finnes som egen Virksomhet-rad ("ingen gjettet fallback": vises da som ren tekst, ikke en lenke). */
+  ansvarligDepartementVirksomhetId: string | null;
 }
 
 export interface RettskildeNodeDto {
@@ -750,14 +756,21 @@ export interface AvhengighetsgrafDto {
 /** SKOS-begrep (docs/03-domenemodell.md §1.3). 'begrepstype': faktabegrep|handlingsbegrep. */
 export interface BegrepDto {
   id: string;
-  virksomhetId: string;
+  virksomhetId: string | null;
+  /** null = ordinært begrep (faktabegrep/handlingsbegrep). 'virksomhet' = navneform for
+   * virksomhetReferanseId. 'rolle' = rollebegrep hjemlet i lovkildeId. Se docs/20 §2.3/§2.4. */
+  begrepskategori: string | null;
+  /** Kun satt når begrepskategori === 'virksomhet' — hvilken virksomhet dette er en navneform for. */
+  virksomhetReferanseId: string | null;
+  /** Kun satt når begrepskategori === 'rolle' — loven rollebegrepet er hjemlet i. */
+  lovkildeId: string | null;
   term: string;
-  definisjon: string;
+  definisjon: string | null;
   lovreferanseEid: string | null;
   gjelderFor: string[];
   kodelisteReferanseId: string | null;
   skosUrl: string | null;
-  begrepstype: string;
+  begrepstype: string | null;
   status: string;
   versjon: number;
 }
