@@ -1,5 +1,6 @@
 import type {
   ApiFeil,
+  BegrepBruktIRettskildeDto,
   BegrepDto,
   BegrepRequest,
   BrukerDto,
@@ -264,6 +265,10 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
     }),
+
+  /** Departement-virksomhet-lenke (2026-08-30) — gjeldende lover/forskrifter der AnsvarligDepartement eksakt matcher denne virksomhetens navn. */
+  hentRettskilderAnsvarligFor: (virksomhetId: string) =>
+    kall<RettskildeSammendrag[]>(`/api/virksomheter/${virksomhetId}/rettskilder-ansvarlig-for`),
 
   hentVentendeKandidater: (virksomhetId: string) =>
     kall<VirksomhetKandidatDto[]>(`/api/virksomhet-kandidater?virksomhetId=${virksomhetId}`),
@@ -691,6 +696,10 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
     }),
+
+  /** Ekte reverse-oppslag — rettskilde-noder som faktisk NEVNER begrepets Term i lovteksten (ikke det
+   * samme som BegrepDto.lovreferanseEid, se BegrepBruktIRettskilderTjeneste på serveren). */
+  hentBegrepBruktIRettskilder: (id: string) => kall<BegrepBruktIRettskildeDto[]>(`/api/begreper/${id}/brukt-i-rettskilder`),
 
   // ---------- «Identifiser begrep» (byggesteg 5 runde 1, docs/06-veikart.md) — stub-KI ----------
 

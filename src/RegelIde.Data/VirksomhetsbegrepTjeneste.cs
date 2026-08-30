@@ -49,8 +49,19 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     /// SAMMEN identiteten (samme rollenavn i to ulike lover er to ulike rader; samme rollenavn i SAMME
     /// lov skal ikke kunne dupliseres — se den unike partielle indeksen i RegelIdeDbContext).
     /// </summary>
+    /// <param name="lovreferanseEid">
+    /// [Ny, 2026-08-30] Valgfri eId til NØYAKTIG den noden rollebegrepet ble oppdaget i (typisk
+    /// <see cref="NavnekandidatEntitet.NodeEid"/> fra godkjenningsflyten i
+    /// <see cref="NavnekandidatOppdagelseTjeneste.GodkjennAsync"/>). Uten denne var det tidligere
+    /// umulig å se, fra selve paragrafen, at et rollebegrep var "tagget" der — Johann observerte at
+    /// et godkjent "Statsforvalteren"-rollebegrep verken viste seg som en tagg i
+    /// vergemålsforskriften § 19 ledd 1 (der det faktisk ble funnet), og at en lenke fra
+    /// begrepssiden til loven (uten node) landet på en tom side (ingen node valgt). Fortsatt
+    /// valgfri (`null`) for manuelt opprettede rollebegrep via <c>POST /api/rollebegrep</c>, som
+    /// ikke har noen enkelt "opprinnelsesnode".
+    /// </param>
     public async Task<BegrepEntitet> OpprettRollebegrepAsync(
-        Guid lovkildeId, string term, string opprettetAv, CancellationToken ct = default)
+        Guid lovkildeId, string term, string opprettetAv, string? lovreferanseEid = null, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(term))
         {
@@ -74,6 +85,7 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
             Begrepskategori = "rolle",
             LovkildeId = lovkildeId,
             Term = term,
+            LovreferanseEid = lovreferanseEid,
             Status = "publisert",
             OpprettetAv = opprettetAv,
             OpprettetTidspunkt = DateTimeOffset.UtcNow,

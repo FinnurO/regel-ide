@@ -157,6 +157,30 @@ public sealed class RettskildeEntitet
     public DateOnly? Ikrafttredelse { get; set; }
     public DateOnly? KonsolidertDato { get; set; }
     public string? Utgiver { get; set; }
+
+    /// <summary>
+    /// [Ny, kodegjennomgang 2026-08-30] "Kommunal- og distriktsdepartementet" e.l. — Lovdata oppgir
+    /// dette allerede i sin egen metadata for Lov/Forskrift, og verdien ble FØR NÅ kun skrevet inn i
+    /// <see cref="AknXml"/> (<c>regelIde:ansvarligDepartement</c>, se AknXmlSkriver.cs) og aldri parset
+    /// ut til noe eget, spørrbart felt — 1711 "departementet"-navnekandidater i køen kunne dermed ikke
+    /// vise HVILKET departement de faktisk gjaldt uten å åpne selve AKN-XML-blob-en. Additivt, nullable
+    /// (samme mønster som <see cref="KildeReferanserJson"/>): NULL for alt som ikke er Lovdata-importert
+    /// Lov/Forskrift (håndbøker, rundskriv, virksomhetsdokumenter, referanse-stubber) — fravær av data,
+    /// ikke en feil.
+    /// <para>
+    /// [Utvidet, departement-virksomhet-lenke, 2026-08-30] Kobles til en ekte <see cref="Virksomhet"/>
+    /// KUN ved lesing, via et eksakt (case-insensitivt) navnematch mot <see cref="Virksomhet.Navn"/>
+    /// (se <c>RettskildeRepository.FinnVirksomhetIdForNavnAsync</c>/<c>RettskilderAnsvarligForAsync</c>)
+    /// — BEVISST ikke via Begrep/navnekandidat-mekanismen (den er for tekst-OPPDAGELSE av navn i
+    /// løpende lovtekst; her har vi allerede en strukturert, eksakt streng direkte fra Lovdatas
+    /// metadata, ingen oppdagelse trengs) og BEVISST ikke en lagret FK-kolonne her på selve feltet
+    /// (en ren navne-join ved lesing kan aldri bli utdatert av at katalogen endres — se
+    /// DepartementSeed.cs for hvilke Virksomhet-rader som faktisk finnes for departementene). Denne
+    /// strengen vises som ren tekst i UI når navnematchen ikke gir noe treff.
+    /// </para>
+    /// </summary>
+    public string? AnsvarligDepartement { get; set; }
+
     public required string Status { get; set; } // 'Gjeldende' | 'Opphevet' | 'Utkast'
     public int Versjon { get; set; } = 1;
     public string Entitetsstatus { get; set; } = "gjeldende";
@@ -938,8 +962,15 @@ public sealed class NavnekandidatEntitet
 {
     public Guid Id { get; set; }
 
-    /// <summary>Selve teksten funnet ved sveipet — den faktiske strengen, ikke en normalisert form
-    /// (bevarer opprinnelig store/små bokstaver, avgjørende for <see cref="Kategori"/>s klassifiseringsregel).</summary>
+    /// <summary>Selve teksten funnet ved sveipet.
+    /// <para>
+    /// <b>[Rettet, kodegjennomgang 2026-08-30]</b> Store/små bokstaver bevares KUN for
+    /// <c>Kategori == "virksomhet"</c> (avgjørende for selve klassifiseringsregelen — et egennavn skal
+    /// beholde sin faktiske stavemåte). For <c>Kategori == "rolle"</c> er teksten derimot NORMALISERT
+    /// til små bokstaver FØR lagring (<see cref="NavnekandidatOppdagelseTjeneste.SveipAsync"/>) — en
+    /// rolle er per definisjon ikke et egennavn, så case er støy, ikke identitet (bekreftet i live data:
+    /// "statsforvalteren"/"Statsforvalteren" ga tidligere separate kandidater for samme rolle).
+    /// </para></summary>
     public required string ForeslattTekst { get; set; }
 
     /// <summary>`'virksomhet'` (ekte egennavn, suffiksmønster + stor forbokstav MIDT i en setning) eller

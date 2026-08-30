@@ -7,26 +7,42 @@ namespace RegelIde.Api;
 /// skjemaet (§2 i teknisk design) har ingen egen "datokode"-kolonne, kun (nullable) ELI, så Guid-en
 /// er den naturlige, alltid-URL-sikre nøkkelen for enkeltoppslag.
 /// </summary>
-public sealed record RettskildeSammendrag(Guid Id, Guid? VirksomhetId, string? Eli, string Tittel, string? Kortnavn, string Kildetype)
+/// <summary>
+/// <see cref="AnsvarligDepartement"/> lagt til (2026-08-30, navnekandidat-fiks 2) — NULL for alt som
+/// ikke er Lovdata-importert Lov/Forskrift, se <see cref="RettskildeEntitet.AnsvarligDepartement"/>.
+/// Med her (ikke bare på <see cref="RettskildeDetalj"/>) fordi Navnekandidater-listen slår opp
+/// departement via akkurat DENNE DTO-en (samme "allerede hentet rettskilde-lookup"-mønster som
+/// <c>visRettskilde</c> i NavnekandidaterListe.tsx allerede bruker for kortnavn/tittel).
+/// </summary>
+public sealed record RettskildeSammendrag(
+    Guid Id, Guid? VirksomhetId, string? Eli, string Tittel, string? Kortnavn, string Kildetype, string? AnsvarligDepartement)
 {
     public static RettskildeSammendrag FraEntitet(RettskildeEntitet r) =>
-        new(r.Id, r.VirksomhetId, r.Eli, r.Tittel, r.Kortnavn, r.Kildetype);
+        new(r.Id, r.VirksomhetId, r.Eli, r.Tittel, r.Kortnavn, r.Kildetype, r.AnsvarligDepartement);
 }
 
 /// <summary>Full rettskilde: metadata + kanonisk AKN-XML (§1 i teknisk design). ELI er ALLTID skrivebeskyttet
 /// (§3.3, avklaringsrunde 2026-08-13) — vist her, men aldri en del av <see cref="OppdaterRettskildeMetadataRequest"/>.
 /// De seks feltene fra <see cref="InterntDokNr"/> til <see cref="GyldigTil"/> fantes allerede på
 /// <see cref="RettskildeEntitet"/> (håndbok-metadata, §3.3) men var før nå ikke UI-eksponert i det hele tatt.</summary>
+/// <summary>
+/// <paramref name="AnsvarligDepartement"/> er den rå strengen fra Lovdatas "ministry"-metadatafelt
+/// (departement-virksomhet-lenke, 2026-08-30). <paramref name="AnsvarligDepartementVirksomhetId"/> er
+/// et EKSAKT (case-insensitivt) navnetreff mot katalogen, løst server-side ved lesing (se
+/// <see cref="RettskildeRepository.FinnVirksomhetIdForNavnAsync"/>) — null når strengen ikke matcher
+/// noen <see cref="Virksomhet"/> eksakt («ingen gjettet fallback»); frontend viser da
+/// <see cref="AnsvarligDepartement"/> som ren tekst i stedet for en lenke.
+/// </summary>
 public sealed record RettskildeDetalj(
     Guid Id, Guid? VirksomhetId, string Doctype, string Kildetype, string Tittel, string? Kortnavn, string? Eli,
-    DateOnly? Ikrafttredelse, DateOnly? KonsolidertDato, string? Utgiver, string Status, string? AknXml,
-    string? InterntDokNr, string? Revisjonsnr, string? VedtattAv, DateOnly? Vedtaksdato, DateOnly? GyldigTil,
-    string? Url)
+    DateOnly? Ikrafttredelse, DateOnly? KonsolidertDato, string? Utgiver, string? AnsvarligDepartement, string Status,
+    string? AknXml, string? InterntDokNr, string? Revisjonsnr, string? VedtattAv, DateOnly? Vedtaksdato,
+    DateOnly? GyldigTil, string? Url, Guid? AnsvarligDepartementVirksomhetId)
 {
-    public static RettskildeDetalj FraEntitet(RettskildeEntitet r) => new(
+    public static RettskildeDetalj FraEntitet(RettskildeEntitet r, Guid? ansvarligDepartementVirksomhetId = null) => new(
         r.Id, r.VirksomhetId, r.Doctype, r.Kildetype, r.Tittel, r.Kortnavn, r.Eli,
-        r.Ikrafttredelse, r.KonsolidertDato, r.Utgiver, r.Status, r.AknXml,
-        r.InterntDokNr, r.Revisjonsnr, r.VedtattAv, r.Vedtaksdato, r.GyldigTil, r.Url);
+        r.Ikrafttredelse, r.KonsolidertDato, r.Utgiver, r.AnsvarligDepartement, r.Status, r.AknXml,
+        r.InterntDokNr, r.Revisjonsnr, r.VedtattAv, r.Vedtaksdato, r.GyldigTil, r.Url, ansvarligDepartementVirksomhetId);
 }
 
 /// <summary>Forespørsel for POST /api/rettskilder/lovdata.</summary>
@@ -399,6 +415,14 @@ public sealed record BegrepDto(
 public sealed record BegrepRequest(
     string Term, string Definisjon, string? LovreferanseEid, IReadOnlyList<string>? GjelderFor,
     Guid? KodelisteReferanseId, string? SkosUrl, string Begrepstype);
+
+/// <summary>Ett treff for GET /api/begreper/{id}/brukt-i-rettskilder — se
+/// <see cref="BegrepBruktIRettskilderTjeneste"/> for det ekte reverse-oppslaget dette speiler.</summary>
+public sealed record BegrepBruktIRettskildeDto(Guid RettskildeId, string NodeEid, string RettskildeTittel, string Snippet)
+{
+    public static BegrepBruktIRettskildeDto FraTreff(BegrepBruktIRettskildeTreff t) =>
+        new(t.RettskildeId, t.NodeEid, t.RettskildeTittel, t.Snippet);
+}
 
 // ---------- Virksomhetskatalog og rollemodell (docs/20) ----------
 

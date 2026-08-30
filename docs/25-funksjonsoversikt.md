@@ -54,7 +54,9 @@ støttes ikke ennå.
 Begrepsregister (SKOS-basert: term, definisjon, lovreferanse, begrepstype fakta-/handlingsbegrep),
 med full status-pipeline (utkast → validert → publisert → arkivert). Kan opprettes manuelt, eller
 foreslås av en KI-agent som sveiper valgte rettskilder («Identifiser begrep») — alle forslag havner i
-en godkjenningskø (Avvis/Rediger/Godkjenn), ingenting blir gjeldende automatisk.
+en godkjenningskø (Avvis/Rediger/Godkjenn), ingenting blir gjeldende automatisk. Begrepsdetaljen viser
+også «Brukt i rettskilder» — et ekte reverse-oppslag (ordgrense-avgrenset tekstsøk i importert
+lovtekst etter begrepets Term, maks 50 treff), atskilt fra den manuelt satte lovreferansen.
 
 *Hvor:* «Begreper» (`/begreper`, `/begreper/:id`), «KI-forslag begrep» (`/begreper/forslag`).
 
