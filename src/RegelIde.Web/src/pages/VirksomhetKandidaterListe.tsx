@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router';
 import { Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import { rettskildeLenke } from '../api/eidLenker';
+import { rettskildeLenkeForId } from '../api/eidLenker';
 import type { RettskildeNodeDto, RettskildeSammendrag, VirksomhetKandidatDto } from '../api/types';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
@@ -371,13 +371,15 @@ export default function VirksomhetKandidaterListe() {
                     <Table.Cell>{visEier(k.virksomhetId)}</Table.Cell>
                     <Table.Cell>{visRettskilde(k.rettskildeId)}</Table.Cell>
                     <Table.Cell style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>
-                      {(() => {
-                        const href = rettskildeLenke(k.nodeEid, rettskilder);
-                        // Slik at bruker kan lese noden i sin fulle sammenheng FØR godkjenning
-                        // (Johanns tilbakemelding 2026-08-22) — åpner rettskildevisningen på nøyaktig
-                        // denne noden, samme ?eid=-mønster som resolveRef/rettskildeLenke ellers.
-                        return href ? <Link asChild><RouterLink to={href} target="_blank">{k.nodeEid} ↗</RouterLink></Link> : k.nodeEid;
-                      })()}
+                      {/* Slik at bruker kan lese noden i sin fulle sammenheng FØR godkjenning
+                          (Johanns tilbakemelding 2026-08-22) — åpner rettskildevisningen på nøyaktig
+                          denne noden. [Rettet, 2026-08-30] Bruker rettskildeLenkeForId (rettskildeId
+                          allerede kjent på raden) i stedet for rettskildeLenke sin ELI-prefiks-
+                          gjetting — den fant ingen treff for kap-/rom-/punkt-nummererte noder
+                          (LovdataIdentifikatorer.KapittelEid er bevisst ELI-uavhengig). */}
+                      <Link asChild>
+                        <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{k.nodeEid} ↗</RouterLink>
+                      </Link>
                     </Table.Cell>
                     <Table.Cell>
                       {(() => {

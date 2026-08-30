@@ -14,6 +14,21 @@ export function rettskildeLenke(eid: string, rettskilder: RettskildeSammendrag[]
 }
 
 /**
+ * [Rettet, 2026-08-30] Samme lenke som {@link rettskildeLenke}, men for kallere som ALLEREDE vet
+ * hvilken rettskilde eId-en hører til (typisk en kandidatrad med sin egen `rettskildeId`-felt) —
+ * bygger lenken direkte i stedet for å lete etter en rettskilde hvis ELI er PREFIKS av eId-en.
+ * Nødvendig fordi den ELI-prefiks-antakelsen ikke er universell: `LovdataIdentifikatorer.KapittelEid`
+ * bygger bevisst en eId "uavhengig av rettskildens ELI" (kap-/rom-/punkt-nummererte dokumenter, f.eks.
+ * instrukser) — Johann observerte at slike noder ikke ble lenket til (viste rå eId som tekst) i
+ * Navnekandidater-/Virksomhetskandidater-listene, fordi den generelle {@link rettskildeLenke} da
+ * ikke fant NOEN rettskilde hvis ELI var prefiks av "kap-I/rom-3/punkt-2". Her trengs ikke det
+ * søket i det hele tatt — rettskildeId er allerede kjent.
+ */
+export function rettskildeLenkeForId(rettskildeId: string, eid: string): string {
+  return `/rettskilder/${rettskildeId}?eid=${encodeURIComponent(eid)}`;
+}
+
+/**
  * Menneskelesbar visningstekst for en eId (punkt 7, avklaringsrunde 2026-08-13) —
  * `"{kortnavn ?? tittel} § {nummer} — {overskrift}"`, eller så mye av den formen som faktisk finnes
  * (nummer/overskrift utelates hver for seg når noden ikke har dem). Slår opp rettskilden via
