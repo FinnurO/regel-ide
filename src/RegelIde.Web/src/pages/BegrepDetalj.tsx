@@ -4,7 +4,7 @@ import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner,
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
-import type { BegrepDto, RettskildeSammendrag, VilkarDto } from '../api/types';
+import type { BegrepBruktIRettskildeDto, BegrepDto, RettskildeSammendrag, VilkarDto } from '../api/types';
 
 const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
 
@@ -14,6 +14,7 @@ export default function BegrepDetalj() {
   const [feil, setFeil] = useState<string | null>(null);
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
   const [bruktIVilkar, setBruktIVilkar] = useState<Array<{ vilkar: VilkarDto; rotnodeId: string | undefined }>>([]);
+  const [bruktIRettskilder, setBruktIRettskilder] = useState<BegrepBruktIRettskildeDto[]>([]);
   const { visEier } = useVirksomheter();
 
   const [term, setTerm] = useState('');
@@ -50,6 +51,7 @@ export default function BegrepDetalj() {
         );
       })
       .catch(() => setBruktIVilkar([]));
+    api.hentBegrepBruktIRettskilder(id).then(setBruktIRettskilder).catch(() => setBruktIRettskilder([]));
   }, [id]);
 
   async function lagre(e: FormEvent) {
@@ -193,7 +195,7 @@ export default function BegrepDetalj() {
       </section>
 
       {bruktIVilkar.length > 0 && (
-        <section>
+        <section style={{ marginBottom: '2rem' }}>
           <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
             Brukt i vilkår
           </Heading>
@@ -207,6 +209,29 @@ export default function BegrepDetalj() {
                 <span key={vilkar.id}>{vilkar.tittel}</span>
               ),
             )}
+          </div>
+        </section>
+      )}
+
+      {bruktIRettskilder.length > 0 && (
+        <section>
+          <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+            Brukt i rettskilder
+          </Heading>
+          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
+            Steder i importert lovtekst der «{begrep.term}» faktisk forekommer — et ekte tekstsøk, ikke basert på lovreferansen over.
+          </Paragraph>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {bruktIRettskilder.map((r) => (
+              <div key={`${r.rettskildeId}-${r.nodeEid}`}>
+                <Link asChild>
+                  <RouterLink to={`/rettskilder/${r.rettskildeId}?eid=${encodeURIComponent(r.nodeEid)}`}>{r.rettskildeTittel}</RouterLink>
+                </Link>
+                <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', margin: 0 }}>
+                  {r.snippet}
+                </Paragraph>
+              </div>
+            ))}
           </div>
         </section>
       )}
