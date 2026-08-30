@@ -104,6 +104,25 @@ export default function VirksomhetKandidaterListe() {
 
   useEffect(lastKandidater, [virksomhetFilter, rettskildeFilter, statusFilter]);
 
+  // [Rettet, 2026-08-30 — gjeninnført etter at et tidligere forsøk gikk tapt i en umerget
+  // grensammenslåing] «Virksomhet»-filteret brukte hele katalogen (~476 rader) i VirksomhetVelger —
+  // Johann observerte at feltet hang/var tregt å skrive i (bekreftet: kun 3 av 476 virksomheter har
+  // noen kandidat i det hele tatt). Egen, uavhengig forespørsel — scopet av rettskilde/status som
+  // resten av lista, men ALDRI av virksomhetFilter selv (ellers ville nedtrekkslisten krympe til kun
+  // ÉN virksomhet i det øyeblikket brukeren velger den).
+  const [virksomhetIderMedKandidater, setVirksomhetIderMedKandidater] = useState<Set<string> | null>(null);
+  useEffect(() => {
+    api
+      .hentVirksomhetKandidater({ rettskildeId: rettskildeFilter || undefined, status: statusFilter })
+      .then((liste) => setVirksomhetIderMedKandidater(new Set(liste.map((k) => k.virksomhetId))))
+      .catch(() => setVirksomhetIderMedKandidater(null));
+  }, [rettskildeFilter, statusFilter]);
+
+  const virksomheterMedKandidater = useMemo(
+    () => (virksomhetIderMedKandidater ? virksomheter.filter((v) => virksomhetIderMedKandidater.has(v.id)) : virksomheter),
+    [virksomheter, virksomhetIderMedKandidater],
+  );
+
   const rettskilderPerId = useMemo(() => new Map(rettskilder.map((r) => [r.id, r] as const)), [rettskilder]);
   function visRettskilde(rettskildeId: string): string {
     return rettskilderPerId.get(rettskildeId)?.kortnavn ?? rettskilderPerId.get(rettskildeId)?.tittel ?? rettskildeId;
@@ -261,7 +280,7 @@ export default function VirksomhetKandidaterListe() {
 
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '1rem' }}>
         <VirksomhetVelger
-          virksomheter={virksomheter}
+          virksomheter={virksomheterMedKandidater}
           value={virksomhetFilter}
           onChange={setVirksomhetFilter}
           label="Virksomhet"
