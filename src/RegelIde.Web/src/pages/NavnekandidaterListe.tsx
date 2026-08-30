@@ -1,14 +1,32 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Alert, Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Table, Tag, Textfield, ToggleGroup } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
 import type { NavnekandidatDto, RettskildeSammendrag } from '../api/types';
+import { RettskildeFlervalg } from '../rettskilde/RettskildeFlervalg';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 
-type Sorteringskolonne = 'kategori' | 'rettskilde' | 'status' | 'opprettet';
+type Sorteringskolonne = 'foreslattTekst' | 'kategori' | 'rettskilde' | 'status' | 'opprettet';
+
+/**
+ * Gruppering av listen (2026-08-30, Johanns eksplisitte ønske "det må bli enklere å se forslagene i
+ * sammenheng ... gruppere/vise hierarkisk") — klient-side, samme "over den allerede hentede listen"-
+ * prinsipp som resten av filtreringen/sorteringen her, ikke et nytt serverendepunkt. 'ingen' er
+ * standard (dagens flate visning, uendret). Grupperingsnøkkelen for 'foreslattTekst' er den EKSAKTE
+ * strengen (case-sensitiv) — normaliserer IKKE bort store/små bokstaver-varianter selv (det er
+ * `navnekandidat-flerords-normalisering`-branchens ansvar server-side, ikke gjort her); grupperingen
+ * fungerer generelt uansett, og vil automatisk bli enda mer effektiv den dagen den branchen merges.
+ */
+type Gruppering = 'ingen' | 'foreslattTekst' | 'rettskilde';
+
+interface Kandidatgruppe {
+  nokkel: string;
+  visningsnavn: string;
+  rader: NavnekandidatDto[];
+}
 
 const STATUS_FARGE: Record<string, 'neutral' | 'warning' | 'success' | 'danger'> = {
   Venter: 'warning',
@@ -36,13 +54,34 @@ const KATEGORI_FARGE: Record<string, 'info' | 'accent'> = {
  * VirksomhetKandidaterListe.tsx (se den filens kommentarer for hele resonnementet) — batchen
  * håndterer BEGGE kategoriene korrekt i samme kall siden serveren uansett kaller samme
  * GodkjennAsync/AvvisAsync per rad, ikke en egen batch-spesifikk forgrening.
+ *
+ * Sortering/gruppering/filtrering (2026-08-30) — med ~3990 kandidater i én flat, rettskilde-ordnet
+ * liste ba Johann eksplisitt (to ganger) om bedre oversikt: "sortere på foreslått tekst ... gruppere/
+ * vise hierarkisk ... multiple select på rettskilde, foreslått tekst". Alt er klient-side over den
+ * allerede hentede `kandidater`-listen, samme mønster som BegreperListe.tsx sitt filter/sortering —
+ * ingen nye serverendepunkter. `rettskildeId`-serverfilteret som fantes her tidligere (ett enkelt
+ * valg, sendt som spørreparameter) er ERSTATTET av et klient-side flervalgsfilter
+ * (`RettskildeFlervalg`, samme komponent som «Identifiser begrep»/«Identifiser tjenester» bruker for
+ * å velge blant 5893 rettskilder uten å mounte alle som options, se docs/09 §10) — kategori/status
+ * er fortsatt reelle serverfiltre (uendret). Gruppering ('ingen' | 'foreslattTekst' | 'rettskilde')
+ * er en ren visningsmodus: ved gruppering vises IKKE paginering (antall GRUPPER er uansett drastisk
+ * lavere enn antall rader, se `Kandidatgruppe`), og «velg alle»/gruppens egen avkrysningsboks
+ * velger radene i det fulle filtrerte settet uansett kollaps-tilstand (kollaps skjuler kun VISNING,
+ * ikke utvalg) — se `vekslGruppe`/`raderForMasterSjekkboks`.
  */
 export default function NavnekandidaterListe() {
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
 
-  const [rettskildeFilter, setRettskildeFilter] = useState('');
   const [kategoriFilter, setKategoriFilter] = useState<'virksomhet' | 'rolle' | ''>('');
   const [statusFilter, setStatusFilter] = useState<'Venter' | 'Godkjent' | 'Avvist' | 'Alle'>('Venter');
+
+  // Klient-side filtre (se klassekommentaren) — virker på den allerede hentede `kandidater`-listen,
+  // ikke på serverspørringen.
+  const [rettskildeValgteFilter, setRettskildeValgteFilter] = useState<Set<string>>(new Set());
+  const [filterForeslattTekst, setFilterForeslattTekst] = useState('');
+
+  const [gruppering, setGruppering] = useState<Gruppering>('ingen');
+  const [gruppeApne, setGruppeApne] = useState<Set<string>>(new Set());
 
   const [kandidater, setKandidater] = useState<NavnekandidatDto[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
@@ -75,7 +114,6 @@ export default function NavnekandidaterListe() {
     setFeil(null);
     api
       .hentNavnekandidater({
-        rettskildeId: rettskildeFilter || undefined,
         kategori: kategoriFilter || undefined,
         status: statusFilter,
       })
@@ -93,7 +131,13 @@ export default function NavnekandidaterListe() {
       });
   }
 
-  useEffect(lastKandidater, [rettskildeFilter, kategoriFilter, statusFilter]);
+  useEffect(lastKandidater, [kategoriFilter, statusFilter]);
+
+  // Nytt grupperingsvalg — forrige åpne/lukkede grupper gjelder ikke lenger (andre nøkler: rettskilde-
+  // id-er vs. foreslått-tekst-strenger).
+  useEffect(() => {
+    setGruppeApne(new Set());
+  }, [gruppering]);
 
   const rettskilderPerId = useMemo(() => new Map(rettskilder.map((r) => [r.id, r] as const)), [rettskilder]);
   function visRettskilde(rettskildeId: string): string {
@@ -133,9 +177,33 @@ export default function NavnekandidaterListe() {
     });
   }
 
-  // "Alle viste" = alle på GJELDENDE SIDE, samme avgrensning som VirksomhetKandidaterListe.tsx.
+  // "Alle viste" = alle på GJELDENDE SIDE ved 'ingen' gruppering (samme avgrensning som
+  // VirksomhetKandidaterListe.tsx), MEN hele det filtrerte settet ved gruppering (ingen paginering da
+  // — se `raderForMasterSjekkboks`).
   function vekslAlleViste(valgt: boolean) {
-    setValgte(valgt ? new Set(paginering.visteRader.map((k) => k.id)) : new Set());
+    setValgte(valgt ? new Set(raderForMasterSjekkboks.map((k) => k.id)) : new Set());
+  }
+
+  // Gruppens EGEN avkrysningsboks — velger/fjerner ALLE radene i gruppen (uansett om gruppen er
+  // kollapset, jf. Johanns krav om at «velg alle»-lignende kontroller skal treffe hele gruppen, ikke
+  // bare det synlige) uten å nullstille resten av utvalget (i motsetning til `vekslAlleViste`, som
+  // bevisst nullstiller alt ved avhukning — samme mønster videreført herfra).
+  function vekslGruppe(rader: NavnekandidatDto[], valgt: boolean) {
+    setValgte((forrige) => {
+      const ny = new Set(forrige);
+      for (const k of rader) {
+        if (valgt) ny.add(k.id); else ny.delete(k.id);
+      }
+      return ny;
+    });
+  }
+
+  function vekslGruppeApen(nokkel: string) {
+    setGruppeApne((forrige) => {
+      const ny = new Set(forrige);
+      if (ny.has(nokkel)) ny.delete(nokkel); else ny.add(nokkel);
+      return ny;
+    });
   }
 
   async function massehandling(handling: 'godkjenn' | 'avvis') {
@@ -175,22 +243,115 @@ export default function NavnekandidaterListe() {
 
   const viste = useMemo(() => {
     if (!kandidater) return null;
+    const tekst = filterForeslattTekst.trim().toLowerCase();
+    const filtrert = kandidater.filter((k) => {
+      if (rettskildeValgteFilter.size > 0 && !rettskildeValgteFilter.has(k.rettskildeId)) return false;
+      if (tekst && !k.foreslattTekst.toLowerCase().includes(tekst)) return false;
+      return true;
+    });
     const sortnokkel = (k: NavnekandidatDto) =>
-      sortKolonne === 'kategori'
-        ? k.kategori
-        : sortKolonne === 'rettskilde'
-          ? visRettskilde(k.rettskildeId)
-          : sortKolonne === 'status'
-            ? k.status
-            : k.opprettetTidspunkt;
-    return [...kandidater].sort((a, b) => {
+      sortKolonne === 'foreslattTekst'
+        ? k.foreslattTekst
+        : sortKolonne === 'kategori'
+          ? k.kategori
+          : sortKolonne === 'rettskilde'
+            ? visRettskilde(k.rettskildeId)
+            : sortKolonne === 'status'
+              ? k.status
+              : k.opprettetTidspunkt;
+    return [...filtrert].sort((a, b) => {
       const cmp = sortnokkel(a).localeCompare(sortnokkel(b), 'nb');
       return sortStigende ? cmp : -cmp;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kandidater, sortKolonne, sortStigende, rettskilderPerId]);
+  }, [kandidater, rettskildeValgteFilter, filterForeslattTekst, sortKolonne, sortStigende, rettskilderPerId]);
 
   const paginering = usePaginering(viste ?? []);
+
+  // Gruppert visning (se `Gruppering`-kommentaren over) — bygget OVENPÅ det allerede filtrerte og
+  // sorterte `viste`-settet, altså inkluderer den samme klient-filtreringen/sorteringen som den flate
+  // visningen. Radrekkefølgen INNI hver gruppe arver dermed `sortKolonne`/`sortStigende`; selve
+  // GRUPPENE sorteres etter antall (flest først, jf. Johanns "se forslagene i sammenheng" — de mest
+  // gjentatte forslagene er det mest interessante å se samlet), med alfabetisk (nb) som tiebreak.
+  const grupper = useMemo<Kandidatgruppe[] | null>(() => {
+    if (!viste || gruppering === 'ingen') return null;
+    const perNokkel = new Map<string, NavnekandidatDto[]>();
+    for (const k of viste) {
+      const nokkel = gruppering === 'foreslattTekst' ? k.foreslattTekst : k.rettskildeId;
+      const eksisterende = perNokkel.get(nokkel);
+      if (eksisterende) eksisterende.push(k); else perNokkel.set(nokkel, [k]);
+    }
+    return [...perNokkel.entries()]
+      .map(([nokkel, rader]): Kandidatgruppe => ({
+        nokkel,
+        visningsnavn: gruppering === 'rettskilde' ? visRettskilde(nokkel) : nokkel,
+        rader,
+      }))
+      .sort((a, b) => b.rader.length - a.rader.length || a.visningsnavn.localeCompare(b.visningsnavn, 'nb'));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viste, gruppering, rettskilderPerId]);
+
+  // Radene «velg alle»-toppboksen (og av-huking) skal virke på: gjeldende SIDE ved flat visning
+  // (samme avgrensning som før), men HELE det filtrerte settet ved gruppering — der finnes det ingen
+  // paginering å avgrense til (se JSX under), og kollapsede grupper skal fortsatt kunne velges i sin
+  // helhet.
+  const raderForMasterSjekkboks = gruppering === 'ingen' ? paginering.visteRader : (viste ?? []);
+
+  function apneAlleGrupper() {
+    if (grupper) setGruppeApne(new Set(grupper.map((g) => g.nokkel)));
+  }
+  function lukkAlleGrupper() {
+    setGruppeApne(new Set());
+  }
+
+  // Selve raden — delt mellom flat visning (`paginering.visteRader.map(...)`) og gruppert visning
+  // (radene inni en åpnet gruppe), slik at markup for én rad kun finnes ett sted.
+  function renderKandidatRad(k: NavnekandidatDto) {
+    return (
+      <Table.Row key={k.id}>
+        <Table.Cell>
+          <Checkbox
+            aria-label={`Velg kandidat ${k.id}`}
+            checked={valgte.has(k.id)}
+            onChange={(e) => vekslValgt(k.id, e.target.checked)}
+          />
+        </Table.Cell>
+        <Table.Cell>
+          <Tag data-color={KATEGORI_FARGE[k.kategori] ?? 'neutral'} data-size="sm">{k.kategori}</Tag>
+        </Table.Cell>
+        <Table.Cell style={{ fontWeight: 500 }}>{k.foreslattTekst}</Table.Cell>
+        <Table.Cell>{visRettskilde(k.rettskildeId)}</Table.Cell>
+        <Table.Cell style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>
+          {(() => {
+            const href = rettskildeLenke(k.nodeEid, rettskilder);
+            return href ? <Link asChild><RouterLink to={href} target="_blank">{k.nodeEid} ↗</RouterLink></Link> : k.nodeEid;
+          })()}
+        </Table.Cell>
+        <Table.Cell>
+          <Tag data-color={STATUS_FARGE[k.status] ?? 'neutral'} data-size="sm">{k.status}</Tag>
+        </Table.Cell>
+        <Table.Cell>
+          {k.status === 'Venter' ? (
+            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              <Button data-size="sm" onClick={() => enkelthandling(k.id, 'godkjenn')}>Godkjenn</Button>
+              <Button data-size="sm" variant="tertiary" onClick={() => enkelthandling(k.id, 'avvis')}>Avvis</Button>
+              {k.kategori === 'virksomhet' && (
+                <Link asChild>
+                  <RouterLink to={`/virksomheter?forslagNavn=${encodeURIComponent(k.foreslattTekst)}`} target="_blank">
+                    Finn/opprett virksomhet ↗
+                  </RouterLink>
+                </Link>
+              )}
+            </div>
+          ) : (
+            <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+              {k.behandletAv ? `Behandlet av ${k.behandletAv}` : '—'}
+            </span>
+          )}
+        </Table.Cell>
+      </Table.Row>
+    );
+  }
 
   return (
     <>
@@ -228,7 +389,6 @@ export default function NavnekandidaterListe() {
       </Card>
 
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '1rem' }}>
-        <RettskildeVelger rettskilder={rettskilder} value={rettskildeFilter} onChange={setRettskildeFilter} label="Rettskilde (tomt = alle)" />
         <Field style={{ minWidth: '12rem' }}>
           <Label>Kategori</Label>
           <Select data-size="sm" value={kategoriFilter} onChange={(e) => setKategoriFilter(e.target.value as typeof kategoriFilter)}>
@@ -247,6 +407,51 @@ export default function NavnekandidaterListe() {
           </Select>
         </Field>
       </div>
+
+      <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
+        <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
+          Filtrer og grupper
+        </Heading>
+        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+          Virker på listen som allerede er hentet (kategori/status over styrer selve
+          serverspørringen) — nyttig for å se f.eks. samme foreslåtte tekst på tvers av mange
+          rettskilder i sammenheng, i stedet for spredt ut over hundrevis av enkeltrader.
+        </Paragraph>
+        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+          <RettskildeFlervalg
+            rettskilder={rettskilder}
+            valgte={rettskildeValgteFilter}
+            onChange={setRettskildeValgteFilter}
+            label="Rettskilder (tomt = alle)"
+          />
+          <Textfield
+            label="Foreslått tekst inneholder"
+            placeholder="f.eks. statsforvalteren"
+            value={filterForeslattTekst}
+            onChange={(e) => setFilterForeslattTekst(e.target.value)}
+            style={{ maxWidth: '18rem' }}
+          />
+        </div>
+        <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
+          <Label style={{ margin: 0 }}>Gruppering</Label>
+          <ToggleGroup
+            value={gruppering}
+            onChange={(v) => setGruppering(v as Gruppering)}
+            data-size="sm"
+            data-toggle-group="Gruppering"
+          >
+            <ToggleGroup.Item value="ingen">Ingen (flat liste)</ToggleGroup.Item>
+            <ToggleGroup.Item value="foreslattTekst">Foreslått tekst</ToggleGroup.Item>
+            <ToggleGroup.Item value="rettskilde">Rettskilde</ToggleGroup.Item>
+          </ToggleGroup>
+          {gruppering !== 'ingen' && (
+            <>
+              <Button data-size="sm" variant="tertiary" onClick={apneAlleGrupper}>Åpne alle</Button>
+              <Button data-size="sm" variant="tertiary" onClick={lukkAlleGrupper}>Lukk alle</Button>
+            </>
+          )}
+        </div>
+      </Card>
 
       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
         <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0 }}>
@@ -274,7 +479,7 @@ export default function NavnekandidaterListe() {
                   <Table.HeaderCell>
                     <Checkbox
                       aria-label="Velg alle viste"
-                      checked={paginering.visteRader.length > 0 && paginering.visteRader.every((k) => valgte.has(k.id))}
+                      checked={raderForMasterSjekkboks.length > 0 && raderForMasterSjekkboks.every((k) => valgte.has(k.id))}
                       onChange={(e) => vekslAlleViste(e.target.checked)}
                     />
                   </Table.HeaderCell>
@@ -283,7 +488,11 @@ export default function NavnekandidaterListe() {
                       Kategori{sorteringsindikator('kategori')}
                     </button>
                   </Table.HeaderCell>
-                  <Table.HeaderCell>Foreslått tekst</Table.HeaderCell>
+                  <Table.HeaderCell>
+                    <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('foreslattTekst')}>
+                      Foreslått tekst{sorteringsindikator('foreslattTekst')}
+                    </button>
+                  </Table.HeaderCell>
                   <Table.HeaderCell>
                     <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('rettskilde')}>
                       Lov/forskrift{sorteringsindikator('rettskilde')}
@@ -299,57 +508,42 @@ export default function NavnekandidaterListe() {
                 </Table.Row>
               </Table.Head>
               <Table.Body>
-                {paginering.visteRader.map((k) => (
-                  <Table.Row key={k.id}>
-                    <Table.Cell>
-                      <Checkbox
-                        aria-label={`Velg kandidat ${k.id}`}
-                        checked={valgte.has(k.id)}
-                        onChange={(e) => vekslValgt(k.id, e.target.checked)}
-                      />
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Tag data-color={KATEGORI_FARGE[k.kategori] ?? 'neutral'} data-size="sm">{k.kategori}</Tag>
-                    </Table.Cell>
-                    <Table.Cell style={{ fontWeight: 500 }}>{k.foreslattTekst}</Table.Cell>
-                    <Table.Cell>{visRettskilde(k.rettskildeId)}</Table.Cell>
-                    <Table.Cell style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>
-                      {(() => {
-                        const href = rettskildeLenke(k.nodeEid, rettskilder);
-                        return href ? <Link asChild><RouterLink to={href} target="_blank">{k.nodeEid} ↗</RouterLink></Link> : k.nodeEid;
-                      })()}
-                    </Table.Cell>
-                    <Table.Cell>
-                      <Tag data-color={STATUS_FARGE[k.status] ?? 'neutral'} data-size="sm">{k.status}</Tag>
-                    </Table.Cell>
-                    <Table.Cell>
-                      {k.status === 'Venter' ? (
-                        <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
-                          <Button data-size="sm" onClick={() => enkelthandling(k.id, 'godkjenn')}>Godkjenn</Button>
-                          <Button data-size="sm" variant="tertiary" onClick={() => enkelthandling(k.id, 'avvis')}>Avvis</Button>
-                          {k.kategori === 'virksomhet' && (
-                            <Link asChild>
-                              <RouterLink to={`/virksomheter?forslagNavn=${encodeURIComponent(k.foreslattTekst)}`} target="_blank">
-                                Finn/opprett virksomhet ↗
-                              </RouterLink>
-                            </Link>
-                          )}
-                        </div>
-                      ) : (
-                        <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
-                          {k.behandletAv ? `Behandlet av ${k.behandletAv}` : '—'}
-                        </span>
-                      )}
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
+                {gruppering === 'ingen'
+                  ? paginering.visteRader.map(renderKandidatRad)
+                  : grupper!.map((g) => (
+                      <Fragment key={g.nokkel}>
+                        <Table.Row style={{ background: 'var(--ds-color-neutral-surface-tinted)' }}>
+                          <Table.Cell>
+                            <Checkbox
+                              aria-label={`Velg alle i gruppen ${g.visningsnavn}`}
+                              checked={g.rader.every((k) => valgte.has(k.id))}
+                              onChange={(e) => vekslGruppe(g.rader, e.target.checked)}
+                            />
+                          </Table.Cell>
+                          <Table.Cell colSpan={6}>
+                            <button
+                              type="button"
+                              className="tabell-gruppe-knapp"
+                              onClick={() => vekslGruppeApen(g.nokkel)}
+                              aria-expanded={gruppeApne.has(g.nokkel)}
+                            >
+                              {gruppeApne.has(g.nokkel) ? '▼' : '▶'} {g.visningsnavn}
+                            </button>
+                            <Tag data-color="neutral" data-size="sm" style={{ marginLeft: '0.5rem' }}>
+                              {g.rader.length} kandidat{g.rader.length === 1 ? '' : 'er'}
+                            </Tag>
+                          </Table.Cell>
+                        </Table.Row>
+                        {gruppeApne.has(g.nokkel) && g.rader.map(renderKandidatRad)}
+                      </Fragment>
+                    ))}
               </Table.Body>
             </Table>
           </div>
         </Card>
       )}
 
-      {viste && viste.length > 0 && <Pagineringskontroll {...paginering} />}
+      {gruppering === 'ingen' && viste && viste.length > 0 && <Pagineringskontroll {...paginering} />}
     </>
   );
 }

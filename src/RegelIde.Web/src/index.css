@@ -259,6 +259,25 @@ a.sidebar__item:hover {
   color: var(--ds-color-accent-text-default);
 }
 
+/* Gruppe-toggle-knapp i en tabellrad (NavnekandidaterListe.tsx sin gruppering, 2026-08-30) — samme
+   bevisste "rå button" som `.tabell-sorter-knapp` (jf. docs/09-design-konvensjoner.md §7: `Button`
+   har fast padding/høyde som ikke passer inni en tabellrad), men uten den understrekede
+   sorterings-indikasjonen siden dette toggler åpen/lukket, ikke sortering. */
+.tabell-gruppe-knapp {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  font-weight: var(--ds-font-weight-semibold);
+  color: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.tabell-gruppe-knapp:hover {
+  color: var(--ds-color-accent-text-default);
+}
+
 /* .feilmelding/.infomelding (ad-hoc feil-/infobokser) fjernet 2026-08-22 (frontend-design-audit) —
    erstattet med Designsystemet sin `Alert` (data-color="danger"/"info") overalt, siden Alert er i det
    lovlige komponent-vokabularet (§0 docs/09) og gjør nøyaktig det disse to klassene simulerte. */
