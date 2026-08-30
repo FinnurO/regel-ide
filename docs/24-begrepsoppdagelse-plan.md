@@ -106,6 +106,44 @@ dag). Anbefaling: M8 tas eksplisitt UT av første leveranse (se §4, byggerekkef
 mønsteret er juridisk mindre viktig, men fordi det krever et helt annet stykke infrastrukturarbeid enn
 resten av mønsterkatalogen.
 
+**Presisering fra Johann (2026-08-30) — M8 er to strukturelt ulike undertilfeller, ikke ett.** Selv om
+M8 forblir utenfor scope for første leveranse (grunnen over — ingen `NodeType.Vedlegg` — endres ikke av
+dette), er presiseringen viktig å ha med FØR noen bygger det, siden de to undertilfellene krever ulik
+ekstraksjonslogikk:
+
+- **M8a — vedlegget ER en definisjonsseksjon, bare flyttet ut av hoveddokumentet.** Eksempel:
+  matinformasjonsforskriftens Vedlegg I «Særlige definisjoner» — funksjonelt identisk med M1 (samlet
+  definisjonsparagraf), bare på `seksjon.type == "vedlegg"` i stedet for `"paragraf"`. Når
+  `NodeType.Vedlegg` finnes, kan dette gjenbruke M1s ekstraksjonslogikk direkte (samme
+  overskrift-signal, samme bokstavliste-struktur) — ingen ny algoritme, bare en ny nodetype inn i en
+  eksisterende gren.
+- **M8b — definisjoner gitt i tabellform inni et vedlegg med et ANNET formål.** Vanskeligere: verken
+  rad- eller kolonnestruktur er entydig «begrep i én kolonne, definisjon i en annen» (Johanns eksempel:
+  Nasjonalt kvalifikasjonsrammeverk-forskriften, der raden — nivå 1–8 — er begrepet og FLERE kolonner
+  (kunnskap/ferdigheter/generell kompetanse) til sammen utgjør definisjonen). Krever i tillegg et filter
+  som skiller en definisjonstabell fra en tabell som bruker et allerede etablert begrep til noe annet
+  formål (samme fallgruve som M16: Johanns eksempel er leketøyforskriftens grenseverditabell for
+  migrasjon av grunnstoffer — strukturelt lik en definisjonstabell, men er en terskelverdiliste, ikke en
+  definisjon). Foreslått filter: kolonneoverskrift matcher `/definisjon|betegnelse|beskrivelse|forklaring/i`
+  → definisjonstabell (konfidens høy hvis begrep-/definisjon-kolonne begge identifiseres eksplisitt,
+  middels hvis definisjonen må slås sammen fra flere kolonner); ellers → ikke en definisjonstabell, hopp
+  over.
+
+**Konsekvens for AKN/tagging-konklusjonen i §1.4**: samme «gjenbruk `TekstTaggEntitet`»-konklusjon
+gjelder også her, bare på finere granularitet — Johanns skisse bruker Akoma Ntosos eget
+`<attachment>`/`<table>`-element med `<term>`/`<def>` på `<td>`-nivå, men av EKSAKT samme grunn som §1.4
+allerede resonnerer seg fram til (AKN-XML er en avledet, referensielt transparent serialisering av
+`RettskildeNodeEntitet`-treet, aldri redigert direkte), skal ikke dette skrives inn i selve AKN-en heller.
+`TekstTaggEntitet.StartOffset`/`EndOffset` peker allerede presist til et vilkårlig tekstutdrag — en
+tabellcelles brødtekst er, sett fra `RettskildeNode.Tekst` sitt ståsted, bare enda et tekstutdrag å
+peke til, forutsatt at `NodeType.Vedlegg`-arbeidet (når det kommer) også gir tabellceller sin egen
+node-representasjon (`Tekst`-felt) å peke inn i — ikke noe nytt eget mekanisme-behov utover det.
+
+**Referert lovkilde bekreftet av Johann**: FOR-2015-06-25-793 § 1 —
+<https://lovdata.no/forskrift/2015-06-25-793/%C2%A71> (matinformasjonsforskriften — samme forskrift
+M8a-eksempelet over stammer fra). Fortsatt ikke importert i korpuset (se Hull 1 over) — dette er den
+konkrete, verifiserte URL-en å importere fra når byggerekkefølgens steg 1 gjennomføres.
+
 **Mindre observasjon:** `LovdataHtmlParser.cs` sin kommentar ved `ParseChildPunkter` (linje ~848) bekrefter
 at punktlister kan nøstes vilkårlig dypt i ekte data (eksempel: alkoholforskriften § 6-2). M1s
 listepunkt-klassifisering ("listepunkt parser_til (term, forklaring)") må derfor håndtere at ett
