@@ -1148,10 +1148,24 @@ i reell, testet produksjonsbruk:
 De reelle, verifiserte gapene (utover selve §8-poenget om `KompetentMyndighet`) er SMALERE enn
 først antatt:
 
-1. **`Begrepskategori = "rolle"` og `MyndighetstildelingEntitet` har API-endepunkter og
+1. ~~`Begrepskategori = "rolle"` og `MyndighetstildelingEntitet` har API-endepunkter og
    backend-tester (`POST /api/rollebegrep`, `POST /api/myndighetstildelinger`), men INGEN
-   frontend-skjema for å OPPRETTE dem** — kun en read-only tabell i `VirksomhetDetalj.tsx`
-   (`hentMyndighetstildelingerForVirksomhet`). Kan i dag kun opprettes via direkte HTTP/Swagger.
+   frontend-skjema for å OPPRETTE dem~~ — **lukket 2026-08-30** (`feature/myndighetstildeling-
+   opprett-ui`). `VirksomhetDetalj.tsx`s tidligere read-only "Myndighetstildelinger"-tabell har nå
+   en "Legg til myndighetstildeling"-knapp som åpner `LeggTilMyndighetstildelingForm.tsx`
+   (`src/RegelIde.Web/src/virksomhet/`): velg et eksisterende rollebegrep (ny `GET /api/rollebegrep`
+   — listet ALLE rollebegrep på tvers av lover, siden det tidligere eneste listeendepunktet,
+   `GET /api/rettskilder/{lovkildeId}/rollebegrep`, krevde at kalleren allerede visste hvilken lov),
+   hjemmel via eksisterende `RettskildeVelger` (gjenbrukt uendret), og en `Paragrafspenn`-bygger som
+   gjenbruker paragraf-picker-mønsteret fra `KobleRegelverksreferanseForm` (Select sourced fra
+   rollebegrepets EGEN lovs noder + "avansert/manuell" eId-fallback) til å bygge OPP en liste av
+   `{FraEid, TilEid?}`-par, ikke bare ett par. `VirksomhetVelger`/klient-filter var ikke nødvendig her
+   — virksomheten er allerede gitt av siden brukeren står på. Ny
+   `MyndighetstildelingEndepunktTests.cs` (`RegelIde.Api.Tests`) dekker `GET /api/rollebegrep` samt
+   opprettelse med gyldige referanser og avvisning (400) med en ikke-eksisterende rollebegrep- eller
+   virksomhet-id — samme "ingen gjettet fallback"-mønster `MyndighetstildelingTjeneste.OpprettAsync`
+   allerede håndhever, nå også verifisert på endepunkt-nivå (tidligere kun dekket i
+   `MyndighetstildelingTjenesteTests.cs` på tjenestenivå).
 2. **docs/20 §3 sine "aggregerte visninger"** (rettskilde→virksomhet, virksomhet→rettskilde,
    beregnet fra `Paragrafspenn`-treff, bevisst tenkt beregnet ved lesing — ikke lagret) **finnes
    ikke noe sted** — ingen endepunkt, ingen UI, ingen tjeneste utover en ubrukt
@@ -1162,8 +1176,8 @@ først antatt:
 3. **`KompetentMyndighet`-koblingen** (selve §8-punktet) — uendret, fortsatt ugjort.
 
 **Konklusjon**: ingen kode skal fjernes/skrotes — det ville vært en reell regresjon av en
-fungerende, testet funksjon (kandidatgodkjenning), ikke rydding av dødt kode. De tre punktene over
-er de faktiske, avgrensede TODO-ene for en fremtidig runde, ikke et helt sideprosjekt å forkaste.
+fungerende, testet funksjon (kandidatgodkjenning), ikke rydding av dødt kode. Punkt 1 over er nå
+lukket; punkt 2 og 3 er de gjenstående, avgrensede TODO-ene for en fremtidig runde.
 
 ### 8.2 Slektskap til `docs/arkiv/19-virksomhet-begrep-og-rettskildekobling-SUPERSEDED.md`
 

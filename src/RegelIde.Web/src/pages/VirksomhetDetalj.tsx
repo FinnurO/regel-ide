@@ -2,8 +2,9 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
 import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { KodelisteDto, MyndighetstildelingDto, VirksomhetKandidatDto, VirksomhetsbegrepDto } from '../api/types';
+import type { KodelisteDto, MyndighetstildelingDto, RettskildeSammendrag, VirksomhetKandidatDto, VirksomhetsbegrepDto } from '../api/types';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
+import { LeggTilMyndighetstildelingForm } from '../virksomhet/LeggTilMyndighetstildelingForm';
 
 export default function VirksomhetDetalj() {
   const { id } = useParams<{ id: string }>();
@@ -12,6 +13,8 @@ export default function VirksomhetDetalj() {
   const [begrep, setBegrep] = useState<VirksomhetsbegrepDto[] | null>(null);
   const [tildelinger, setTildelinger] = useState<MyndighetstildelingDto[] | null>(null);
   const [kandidater, setKandidater] = useState<VirksomhetKandidatDto[] | null>(null);
+  const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
+  const [visLeggTilTildeling, setVisLeggTilTildeling] = useState(false);
   const [feil, setFeil] = useState<string | null>(null);
 
   const [nyTerm, setNyTerm] = useState('');
@@ -43,6 +46,7 @@ export default function VirksomhetDetalj() {
     api.hentKodelister()
       .then((liste) => setForvaltningsnivaKodeliste(liste.find((k) => k.kode === 'KL-FORVALTNINGSNIVA') ?? null))
       .catch(() => setForvaltningsnivaKodeliste(null));
+    api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
   }, []);
 
   async function endreForvaltningsniva(verdi: string) {
@@ -228,6 +232,19 @@ export default function VirksomhetDetalj() {
               </Table.Body>
             </Table>
           </Card>
+        )}
+        <Button data-size="sm" variant="secondary" onClick={() => setVisLeggTilTildeling((v) => !v)}>
+          {visLeggTilTildeling ? 'Skjul skjema' : 'Legg til myndighetstildeling'}
+        </Button>
+        {visLeggTilTildeling && id && (
+          <LeggTilMyndighetstildelingForm
+            virksomhetId={id}
+            rettskilder={rettskilder}
+            onOpprettet={(ny) => {
+              setTildelinger((forrige) => [...(forrige ?? []), ny]);
+              setVisLeggTilTildeling(false);
+            }}
+          />
         )}
       </section>
 

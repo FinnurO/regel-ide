@@ -92,6 +92,18 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
         db.Begreper.Where(b => b.Begrepskategori == "rolle" && b.LovkildeId == lovkildeId
             && b.Entitetsstatus == "gjeldende").ToListAsync(ct);
 
+    /// <summary>
+    /// ALLE rollebegrep, uansett hvilken lov de hører til — til bruk i en søk/velg-picker for å
+    /// OPPRETTE en <see cref="MyndighetstildelingEntitet"/> (docs/13-backlog.md §8.1 punkt 1: fantes
+    /// ingen frontend-skjema for dette, kun en read-only tildelings-tabell). Til forskjell fra
+    /// <see cref="AlleRollebegrepForLovAsync"/> (scoped til ÉN kjent lov, brukt i lovtekst-visningen)
+    /// vet ikke denne kalleren på forhånd hvilken lov — brukeren skal kunne søke på tvers av alle.
+    /// </summary>
+    public Task<List<BegrepEntitet>> AlleRollebegrepAsync(CancellationToken ct = default) =>
+        db.Begreper.Where(b => b.Begrepskategori == "rolle" && b.Entitetsstatus == "gjeldende")
+            .OrderBy(b => b.Term)
+            .ToListAsync(ct);
+
     public Task<BegrepEntitet?> FinnAsync(Guid id, CancellationToken ct = default) =>
         db.Begreper.FirstOrDefaultAsync(b => b.Id == id && b.Entitetsstatus == "gjeldende", ct);
 
