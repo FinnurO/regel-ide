@@ -109,6 +109,27 @@ public sealed record RettskildeReferanseDto(Guid Id, Guid FraNodeId, Guid TilRet
         new(r.Id, r.FraNodeId, r.TilRettskildeId, r.TilEid, r.Opprinnelse, r.TekstStart, r.TekstLengde);
 }
 
+/// <summary>
+/// Hjemmel-referanse (2026-08-30, se RettskildeHjemmelEntitet-kommentaren) — header-metadatafeltet
+/// Hjemmel: hvilken paragraf i hvilken lov denne rettskilden (typisk en forskrift) er hjemlet i.
+/// <see cref="HjemmelRettskildeId"/> peker ALLTID til en ekte rad (primær ELLER referanse-stub, samme
+/// mekanisme som <see cref="RettskildeReferanseDto.TilRettskildeId"/>) — klienten slår denne opp mot
+/// den allerede hentede rettskilde-lista (samme "ingen egen oppslags-endepunkt"-prinsipp som
+/// eidLenker.ts sin <c>rettskildeLenke</c>) for å avgjøre om den er synlig/lenkbar ennå.
+/// </summary>
+public sealed record RettskildeHjemmelDto(Guid Id, string HjemmelEid, Guid HjemmelRettskildeId, int Sorteringsrekkefolge)
+{
+    public static RettskildeHjemmelDto FraEntitet(RettskildeHjemmelEntitet h) =>
+        new(h.Id, h.HjemmelEid, h.HjemmelRettskildeId, h.Sorteringsrekkefolge);
+}
+
+/// <summary>
+/// Motsatt retning av <see cref="RettskildeHjemmelDto"/> — én forskrift som er hjemlet i DENNE loven,
+/// til visning i lovens "Hjemmel for"-seksjon (samme "reverse lookup"-mønster som
+/// <see cref="DokumentReferanseDto"/> for de vanlige løpetekst-kryssreferansene).
+/// </summary>
+public sealed record RettskildeHjemletForDto(Guid ForskriftId, string ForskriftTittel, string HjemmelEid);
+
 /// <summary>Tekst-tag (§1.2 i domenemodellen, AK-3.3.1–3.3.4). `RefId` er alltid null i byggesteg 1.</summary>
 public sealed record TekstTaggDto(
     Guid Id, Guid RettskildeId, string NodeEid, int StartOffset, int EndOffset,

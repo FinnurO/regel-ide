@@ -4,7 +4,9 @@ using HtmlAgilityPack;
 
 namespace RegelIde.Kildekonvertering;
 
-public sealed record ParseResultat(RettskildeMetadata Metadata, IReadOnlyList<RettskildeNode> Noder, IReadOnlyList<RettskildeReferanse> Referanser);
+public sealed record ParseResultat(
+    RettskildeMetadata Metadata, IReadOnlyList<RettskildeNode> Noder, IReadOnlyList<RettskildeReferanse> Referanser,
+    IReadOnlyList<RettskildeHjemmel> Hjemler);
 
 /// <summary>
 /// Steg 3-6 i konverteringspipelinen (docs/08-byggesteg1-teknisk-design.md §3.1): parse HTML til DOM,
@@ -25,6 +27,7 @@ public static partial class LovdataHtmlParser
         var header = doc.DocumentNode.SelectSingleNode("//header[contains(@class,'documentHeader')]")
             ?? throw new FormatException("Fant ikke <header class=\"documentHeader\"> — ikke et gjenkjennelig Lovdata-dokument.");
         var metadata = ParseMetadata(header);
+        var hjemler = HentHjemler(header);
         var kontekst = new ReferanseKontekst(metadata.Datokode, metadata.Eli);
 
         var body = doc.DocumentNode.SelectSingleNode("//main[contains(@class,'documentBody')]")
@@ -142,7 +145,7 @@ public static partial class LovdataHtmlParser
 
         foreach (var child in body.ChildNodes) HåndterDokumentBarn(child);
 
-        return new ParseResultat(metadata, noder, referanser);
+        return new ParseResultat(metadata, noder, referanser, hjemler);
     }
 
     private sealed class SorteringsTeller
@@ -208,6 +211,61 @@ public static partial class LovdataHtmlParser
             FrbrAuthorHref = frbrAuthorHref,
             FrbrAuthorShowAs = frbrAuthorShowAs,
         };
+    }
+
+    /// <summary>
+    /// Header-metadatafeltet <c>&lt;dt class="basedOn"&gt;Hjemmel&lt;/dt&gt;</c> — hvilke paragraf(er) i
+    /// hvilken lov dokumentet er hjemlet i (§ RettskildeHjemmel i Modeller.cs). Bekreftet ekte KUN på
+    /// forskrifter under gjennomgang av samtlige fixturer i data/kilder/raw-lovdata/ 2026-08-30 (7
+    /// lov-fixturer — advokatloven/alkoholloven/forvaltningsloven/motorferdselloven/personopplysnings-
+    /// loven/serveringsloven/tannhelsetjenesteloven — har ALLE 0 forekomster av "basedOn", mens den
+    /// ENESTE forskrift-fixturen, alkoholforskriften, har nøyaktig én, med 20 paragraf-referanser, ALLE
+    /// til samme lov). Parses likevel UAVHENGIG av Kildetype (returnerer bare tom liste når feltet
+    /// mangler — ikke en feil) i tilfelle Lovdata skulle vise seg å bruke feltet på en lov et sted i
+    /// det virkelige (langt større) korpuset senere — ingen antagelse låst inn i selve parse-logikken.
+    /// <para>
+    /// Href-formatet i denne ENE bekreftede forekomsten (<c>lov/1989-06-02-27/§1-2</c>) er BIT-IDENTISK
+    /// med løpetekst-kryssreferansenes eget mønster (§3.1 steg 6, se <see cref="LovdataHrefTolker"/> og
+    /// <see cref="TolkLenke"/>) — <see cref="LovdataHrefTolker.TolkLøpetekstHref"/> gjenbrukes derfor
+    /// direkte i stedet for en egen tolker. Alle 20 bekreftede referanser peker til SAMME lov, men hver
+    /// &lt;a&gt; tolkes uavhengig av de andre — en Hjemmel til FLERE ulike lover samtidig (ikke bekreftet
+    /// i fixture-korpuset, men strukturelt fullt mulig ut fra selve HTML-formen) håndteres derfor
+    /// riktig helt uten videre arbeid, det er ingen antagelse om én-lov-per-dokument noe sted her.
+    /// </para>
+    /// <para>
+    /// Kaster på ethvert avvik fra dette ene bekreftede mønsteret (ukjent href-prefiks, eller en
+    /// hjemmel-lenke UTEN paragrafnummer — f.eks. en hjemmel til en hel lov, ikke én bestemt paragraf)
+    /// i stedet for å gjette en betydning — «ingen gjettet fallback» (§3.3), samme filosofi som resten
+    /// av parseren. Ikke bekreftet ekte i noen fixture ennå; skal undersøkes/utvides bevisst den dagen
+    /// det faktisk forekommer, ikke antas her.
+    /// </para>
+    /// </summary>
+    private static IReadOnlyList<RettskildeHjemmel> HentHjemler(HtmlNode header)
+    {
+        var dd = header.SelectSingleNode(".//dd[@class='basedOn']");
+        if (dd is null) return [];
+
+        var hjemler = new List<RettskildeHjemmel>();
+        var sortering = 0;
+        foreach (var a in dd.SelectNodes(".//a") ?? Enumerable.Empty<HtmlNode>())
+        {
+            var href = a.Attributes["href"]?.Value
+                ?? throw new FormatException("Hjemmel-lenke mangler href-attributt. Ingen gjettet fallback (§3.3).");
+            var tolket = LovdataHrefTolker.TolkLøpetekstHref(href)
+                ?? throw new FormatException(
+                    $"Hjemmel-lenke '{href}' matcher ikke kjent lov/forskrift-href-mønster. Ingen gjettet fallback (§3.3).");
+            if (tolket.Paragrafnummer is null)
+            {
+                throw new FormatException(
+                    $"Hjemmel-lenke '{href}' mangler paragrafnummer (hjemmel til en HEL lov/forskrift, ikke én " +
+                    "bestemt paragraf) — ikke bekreftet ekte i noe fixture-korpus ennå. Ingen gjettet fallback (§3.3).");
+            }
+
+            var lovEli = LovdataIdentifikatorer.AvledEliFraDatokode(tolket.Datokode, out _);
+            var eid = LovdataIdentifikatorer.ParagrafEid(lovEli, tolket.Paragrafnummer);
+            hjemler.Add(new RettskildeHjemmel(eid, sortering++));
+        }
+        return hjemler;
     }
 
     private static DateOnly? FørsteDato(string? rått)

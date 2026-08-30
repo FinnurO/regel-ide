@@ -25,6 +25,7 @@ public static class LovdataKonverterer
             Metadata = parsed.Metadata,
             Noder = parsed.Noder,
             Referanser = parsed.Referanser,
+            Hjemler = parsed.Hjemler,
             AknXml = aknXml,
             ImportDato = dato,
         };

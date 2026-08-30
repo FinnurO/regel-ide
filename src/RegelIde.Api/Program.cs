@@ -642,6 +642,26 @@ rettskilder.MapGet("/{id:guid}/referanser", async (Guid id, RettskildeRepository
     .WithName("HentRettskildeReferanser")
     .WithSummary("Henter kryssreferansene funnet i løpeteksten (interne og eksterne).");
 
+rettskilder.MapGet("/{id:guid}/hjemmel", async (Guid id, RettskildeRepository repo) =>
+    {
+        if (await repo.FinnAsync(id) is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
+        var hjemler = await repo.HjemlerForAsync(id);
+        return Results.Ok(hjemler.Select(RettskildeHjemmelDto.FraEntitet));
+    })
+    .WithName("HentRettskildeHjemmel")
+    .WithSummary("Henter Hjemmel-referansene fra header-metadatafeltet <dt class=\"basedOn\"> (2026-08-30) — " +
+        "hvilke(n) paragraf(er) i hvilken lov denne rettskilden (typisk en forskrift) er hjemlet i. " +
+        "Tom liste for enhver rettskilde uten feltet (bekreftet KUN forskrifter i fixture-korpuset).");
+
+rettskilder.MapGet("/{id:guid}/hjemmel-for", async (Guid id, RettskildeRepository repo) =>
+    {
+        if (await repo.FinnAsync(id) is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
+        return Results.Ok(await repo.HjemletForAsync(id));
+    })
+    .WithName("HentRettskildeHjemmelFor")
+    .WithSummary("Motsatt retning av /hjemmel — hvilke forskrifter er hjemlet i DENNE rettskilden (typisk en lov). " +
+        "Tom liste for en rettskilde ingen andre rettskilder er hjemlet i.");
+
 rettskilder.MapGet("/{id:guid}/referert-av-tjenester", async (Guid id, RettskildeRepository repo) =>
         Results.Ok(await repo.ReferertAvTjenesterAsync(id)))
     .WithName("HentRettskildeReferertAvTjenester")

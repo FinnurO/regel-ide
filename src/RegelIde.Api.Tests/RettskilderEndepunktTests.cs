@@ -127,6 +127,83 @@ public class RettskilderEndepunktTests
         Assert.Contains(referanser!, r => r.FraNodeId == fraNodeId && r.TilEid == $"{AlkohollovenEli}/§1-5");
     }
 
+    // ---------- Hjemmel (2026-08-30) — header-metadatafeltet <dt class="basedOn">, se
+    // RettskildeHjemmelEntitet-kommentaren. Startup-seedingen importerer HELE data/kilder/raw-lovdata/
+    // i filnavnrekkefølge — "alkoholforskriften-..." kommer FØR "alkoholloven-..." alfabetisk, så
+    // dette dekker ende-til-ende at en referanse-stub opprettet under forskrift-importen faktisk
+    // forfremmes korrekt når alkoholloven importeres like etter, i samme seeding-kjøring. ----------
+
+    [Fact]
+    public async Task Hjemmel_for_alkoholforskriften_har_tjueen_referanser_til_den_virkelige_alkoholloven()
+    {
+        var sammendrag = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>("/api/rettskilder", JsonInnstillinger);
+        var forskriftId = sammendrag!.Single(r => r.Eli == "https://lovdata.no/eli/forskrift/2005/06/08/538/nor").Id;
+        var lovenId = await HentAlkohollovenIdAsync();
+
+        var hjemler = await _client.GetFromJsonAsync<List<RettskildeHjemmelDto>>(
+            $"/api/rettskilder/{forskriftId}/hjemmel", JsonInnstillinger);
+
+        Assert.NotNull(hjemler);
+        Assert.Equal(21, hjemler!.Count);
+        Assert.All(hjemler, h => Assert.Equal(lovenId, h.HjemmelRettskildeId));
+        Assert.Contains(hjemler, h => h.HjemmelEid == $"{AlkohollovenEli}/§1-2");
+        // Rekkefølgen fra kilde-HTML-en er bevart (0-indeksert Sorteringsrekkefolge).
+        Assert.Equal(0, hjemler.Single(h => h.HjemmelEid == $"{AlkohollovenEli}/§1-2").Sorteringsrekkefolge);
+    }
+
+    [Fact]
+    public async Task Hjemmel_for_alkoholloven_selv_er_tom_liste()
+    {
+        var id = await HentAlkohollovenIdAsync();
+        var hjemler = await _client.GetFromJsonAsync<List<RettskildeHjemmelDto>>($"/api/rettskilder/{id}/hjemmel", JsonInnstillinger);
+
+        Assert.NotNull(hjemler);
+        Assert.Empty(hjemler!);
+    }
+
+    [Fact]
+    public async Task Hjemmel_for_ukjent_rettskilde_gir_404()
+    {
+        var svar = await _client.GetAsync($"/api/rettskilder/{Guid.NewGuid()}/hjemmel");
+        Assert.Equal(HttpStatusCode.NotFound, svar.StatusCode);
+    }
+
+    [Fact]
+    public async Task HjemmelFor_pa_alkoholloven_viser_alkoholforskriften_som_hjemlet_forskrift()
+    {
+        var sammendrag = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>("/api/rettskilder", JsonInnstillinger);
+        var forskriftId = sammendrag!.Single(r => r.Eli == "https://lovdata.no/eli/forskrift/2005/06/08/538/nor").Id;
+        var lovenId = await HentAlkohollovenIdAsync();
+
+        var hjemletFor = await _client.GetFromJsonAsync<List<RettskildeHjemletForDto>>(
+            $"/api/rettskilder/{lovenId}/hjemmel-for", JsonInnstillinger);
+
+        Assert.NotNull(hjemletFor);
+        Assert.Equal(21, hjemletFor!.Count);
+        Assert.All(hjemletFor, r => Assert.Equal(forskriftId, r.ForskriftId));
+        Assert.Contains(hjemletFor, r => r.HjemmelEid == $"{AlkohollovenEli}/§1-2");
+    }
+
+    [Fact]
+    public async Task HjemmelFor_pa_alkoholforskriften_selv_er_tom_liste()
+    {
+        var sammendrag = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>("/api/rettskilder", JsonInnstillinger);
+        var forskriftId = sammendrag!.Single(r => r.Eli == "https://lovdata.no/eli/forskrift/2005/06/08/538/nor").Id;
+
+        var hjemletFor = await _client.GetFromJsonAsync<List<RettskildeHjemletForDto>>(
+            $"/api/rettskilder/{forskriftId}/hjemmel-for", JsonInnstillinger);
+
+        Assert.NotNull(hjemletFor);
+        Assert.Empty(hjemletFor!);
+    }
+
+    [Fact]
+    public async Task HjemmelFor_for_ukjent_rettskilde_gir_404()
+    {
+        var svar = await _client.GetAsync($"/api/rettskilder/{Guid.NewGuid()}/hjemmel-for");
+        Assert.Equal(HttpStatusCode.NotFound, svar.StatusCode);
+    }
+
     // ---------- Åpne data: statusfilter + valgfri virksomhet-parameter (2026-07-24) ----------
 
     [Fact]

@@ -98,6 +98,32 @@ public sealed class RettskildeRepository(RegelIdeDbContext db)
     }
 
     /// <summary>
+    /// Hjemmel-referansene FRA denne rettskilden (typisk en forskrift) — header-metadatafeltet
+    /// Hjemmel (2026-08-30, se RettskildeHjemmelEntitet-kommentaren). DOKUMENTNIVÅ, derfor intet
+    /// node-oppslag her (til forskjell fra <see cref="ReferanserForAsync"/>). Tom liste for enhver
+    /// rettskilde uten feltet (bekreftet KUN på forskrifter i fixture-korpuset, ikke en feil for andre
+    /// doctyper), i kildens egen rekkefølge.
+    /// </summary>
+    public Task<List<RettskildeHjemmelEntitet>> HjemlerForAsync(Guid rettskildeId) =>
+        db.RettskildeHjemler
+            .Where(h => h.RettskildeId == rettskildeId)
+            .OrderBy(h => h.Sorteringsrekkefolge)
+            .ToListAsync();
+
+    /// <summary>
+    /// Motsatt retning av <see cref="HjemlerForAsync"/> — hvilke ANDRE rettskilder (typisk forskrifter)
+    /// som er hjemlet i DENNE rettskilden (typisk en lov). Samme "reverse lookup"-mønster som
+    /// <see cref="ReferertAvAndreDokumenterAsync"/>, bare for Hjemmel i stedet for løpetekst-referanser.
+    /// </summary>
+    public Task<List<RettskildeHjemletForDto>> HjemletForAsync(Guid rettskildeId) =>
+        db.RettskildeHjemler
+            .Where(h => h.HjemmelRettskildeId == rettskildeId)
+            .Join(db.Rettskilder, h => h.RettskildeId, r => r.Id, (h, r) => new { h, r })
+            .OrderBy(x => x.r.Tittel).ThenBy(x => x.h.Sorteringsrekkefolge)
+            .Select(x => new RettskildeHjemletForDto(x.r.Id, x.r.Tittel, x.h.HjemmelEid))
+            .ToListAsync();
+
+    /// <summary>
     /// Oppdaterer redigerbar metadata på en allerede importert rettskilde — opprinnelig AK-3.3.6
     /// "bekreft/rediger metadata" (Kortnavn/Utgiver, i importbekreftelsen `Importer.tsx`), utvidet
     /// 2026-08-13 (avklaringsrunde) med de håndbok-metadatafeltene som allerede fantes på entiteten

@@ -390,6 +390,44 @@ public sealed class RettskildeReferanseEntitet
 }
 
 /// <summary>
+/// Hjemmel-referanse (2026-08-30) — header-metadatafeltet &lt;dt class="basedOn"&gt;Hjemmel&lt;/dt&gt;
+/// i Lovdatas egen HTML: hvilken paragraf i hvilken lov <see cref="RettskildeId"/> (typisk en
+/// forskrift) er hjemlet i. DOKUMENTNIVÅ-metadata — bevisst en EGEN tabell, IKKE gjenbruk av
+/// <see cref="RettskildeReferanseEntitet"/>: den siste er per-NODE (FraNodeId er NOT NULL, en konkret
+/// paragraf/ledd/punkt i løpeteksten som lenker videre), mens en Hjemmel-referanse ikke har noen
+/// egen node å feste seg til — den gjelder DOKUMENTET som helhet (se
+/// <see cref="RegelIde.Kildekonvertering.RettskildeHjemmel"/> sin klassekommentar for full
+/// begrunnelse, inkl. hvorfor feltet bekreftet KUN forekommer på forskrifter i fixture-korpuset).
+/// <para>
+/// <see cref="HjemmelRettskildeId"/> løses/opprettes ved import med NØYAKTIG samme mekanisme som
+/// <see cref="RettskildeReferanseEntitet.TilRettskildeId"/> (§3.1 steg 6 — se
+/// RettskildeImportTjeneste.FinnEllerOpprettReferanseStubAsync): enten en allerede importert primær-
+/// rettskilde, eller en referanse-stub (importrolle='referanse', Status='Utkast') som senere
+/// forfremmes automatisk den dagen loven selv importeres. «Ingen gjettet fallback»: en stub er ALDRI
+/// synlig i den vanlige rettskilde-lista (Status != 'Utkast'-filteret i HentAlleRettskilder), og gir
+/// derfor ingen automatisk lenke/kobling i UI-et før loven faktisk er importert — <see cref="HjemmelEid"/>
+/// (ren tekst, samme paragraf-eId-format som <see cref="RettskildeNodeEntitet.Eid"/>) er uansett alltid
+/// lagret, uavhengig av om målet er importert ennå.
+/// </para>
+/// </summary>
+public sealed class RettskildeHjemmelEntitet
+{
+    public Guid Id { get; set; }
+
+    /// <summary>Dokumentet (typisk en forskrift) hvis header-metadata Hjemmel-feltet ble funnet i.</summary>
+    public required Guid RettskildeId { get; set; }
+
+    /// <summary>"{lov-eli}/§X-Y" — se klassekommentaren og LovdataIdentifikatorer.ParagrafEid.</summary>
+    public required string HjemmelEid { get; set; }
+
+    /// <summary>Loven (primær ELLER referanse-stub) — se klassekommentaren.</summary>
+    public required Guid HjemmelRettskildeId { get; set; }
+
+    /// <summary>Bevarer header-feltets egen rekkefølge (§1-2, §1-3, … i kildeorden), kun for visning.</summary>
+    public int Sorteringsrekkefolge { get; set; }
+}
+
+/// <summary>
 /// Global (ikke virksomhets-scopet) konfigurasjon av hvilke tag-kinds som finnes — erstatter en
 /// tidligere hardkodet liste (2026-07-25). Bevisst ikke en generisk nøkkel/verdi-Settings-ramme ennå,
 /// kun denne ene konkrete tabellen — utvides til noe bredere når flere konfigurerbare ting faktisk
