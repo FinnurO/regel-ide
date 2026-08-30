@@ -264,6 +264,24 @@ export interface SveipNavnekandidaterResultatDto {
   antallNyeKandidater: number;
 }
 
+/** Massegodkjenning/-avvisning — egen, ikke delt DTO-familie (se backend-kommentaren på
+ * NavnekandidatBatchRequest for begrunnelsen: samme form som VirksomhetKandidatBatch*, men holdt
+ * separat per kø). */
+export interface NavnekandidatBatchRequest {
+  ider: string[];
+}
+
+export interface NavnekandidatBatchRadDto {
+  id: string;
+  ok: boolean;
+  feil: string | null;
+  resultat: NavnekandidatDto | null;
+}
+
+export interface NavnekandidatBatchResultatDto {
+  rader: NavnekandidatBatchRadDto[];
+}
+
 /** Ikke lenger en fast literal-union — kind-settet er konfigurasjonsstyrt (se TaggKindKonfigurasjonDto), ikke hardkodet. */
 export type TaggKind = string;
 
@@ -1163,6 +1181,23 @@ export interface BegrepsforslagDto {
   kildeReferanserJson: string | null;
 }
 
+/** Massegodkjenning/-avvisning av begrepsforslag — egen DTO-familie, se NavnekandidatBatchRequest over
+ * for begrunnelsen om hvorfor hver kø har sin egen fremfor en delt/generisk variant. */
+export interface BegrepsforslagBatchRequest {
+  ider: string[];
+}
+
+export interface BegrepsforslagBatchRadDto {
+  id: string;
+  ok: boolean;
+  feil: string | null;
+  resultat: BegrepDto | null;
+}
+
+export interface BegrepsforslagBatchResultatDto {
+  rader: BegrepsforslagBatchRadDto[];
+}
+
 /**
  * Kø-visning for «Identifiser tjenester» — beriker TjenesteDto med proveniens fra forslaget.
  * `aiForslagVersjon` satt = KI-forslag; `foreslattAvVirksomhetNavn` satt = tverr-virksomhet
@@ -1182,6 +1217,35 @@ export interface MittForslagDto {
   tjeneste: TjenesteDto;
   foreslattTidspunkt: string;
   malVirksomhetNavn: string;
+}
+
+/** Massegodkjenning/-avvisning av tjenesteforslag — egen DTO-familie, se NavnekandidatBatchRequest over. */
+export interface TjenesteforslagBatchRequest {
+  ider: string[];
+}
+
+export interface TjenesteforslagBatchRadDto {
+  id: string;
+  ok: boolean;
+  feil: string | null;
+  resultat: TjenesteDto | null;
+}
+
+export interface TjenesteforslagBatchResultatDto {
+  rader: TjenesteforslagBatchRadDto[];
+}
+
+/** Massesletting av ubehandlede tjenesteforslag — dekker BÅDE «Ventende forslag» sin enkeltrad-Slett
+ * OG «Mine forslag til andre virksomheter» sin Slett-alle-merkede (samme SlettForslagAsync-endepunkt
+ * uansett hvilken seksjon knappen står i, se backend-DTO-kommentaren). */
+export interface TjenesteforslagSlettBatchRadDto {
+  id: string;
+  ok: boolean;
+  feil: string | null;
+}
+
+export interface TjenesteforslagSlettBatchResultatDto {
+  rader: TjenesteforslagSlettBatchRadDto[];
 }
 
 /**

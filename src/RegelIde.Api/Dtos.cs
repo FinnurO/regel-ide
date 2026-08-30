@@ -489,6 +489,24 @@ public sealed record SveipNavnekandidaterRequest(Guid? RettskildeId);
 
 public sealed record SveipNavnekandidaterResultatDto(int AntallTreffFunnet, int AntallNyeKandidater);
 
+/// <summary>
+/// Massegodkjenning/-avvisning (samme testing-i-store-mengder-begrunnelse som
+/// <see cref="VirksomhetKandidatBatchRequest"/> over — sveip kan legge svært mange kandidater i køen
+/// samtidig). Egen, IKKE delt/generisk DTO-familie fremfor å gjenbruke VirksomhetKandidatBatch*-typene
+/// på tvers av de to køene: formen er identisk, men <see cref="NavnekandidatBatchRadDto.Resultat"/> må
+/// likevel være <see cref="NavnekandidatDto"/> (ikke <see cref="VirksomhetKandidatDto"/>) for at
+/// klienten skal få riktig type tilbake — samme "egen, parallell type" -linje som NavnekandidatDto selv
+/// allerede følger ved siden av VirksomhetKandidatDto, i stedet for å innføre en generisk
+/// BatchRadDto&lt;T&gt; kun for disse to. <see cref="NavnekandidatBatchRequest"/> derimot ER strukturelt
+/// identisk med VirksomhetKandidatBatchRequest (bare en id-liste) — holdt som egen type likevel, for at
+/// navnet skal si hvilken kø den hører til i signaturer/generert klient-kode.
+/// </summary>
+public sealed record NavnekandidatBatchRequest(IReadOnlyList<Guid> Ider);
+
+public sealed record NavnekandidatBatchRadDto(Guid Id, bool Ok, string? Feil, NavnekandidatDto? Resultat);
+
+public sealed record NavnekandidatBatchResultatDto(IReadOnlyList<NavnekandidatBatchRadDto> Rader);
+
 // ---------- Kodeliste / verdidomene (docs/03-domenemodell.md §1.4) — byggesteg 2 ----------
 
 public sealed record KodelisteKodeDto(
@@ -778,6 +796,16 @@ public sealed record KjorForslagResponsDto<T>(IReadOnlyList<T> Forslag, int? Inp
 /// <summary>Kø-visning for «Identifiser begrep» — beriker BegrepDto med proveniens fra AI-forslaget.</summary>
 public sealed record BegrepsforslagDto(BegrepDto Begrep, string? AiForslagVersjon, DateTimeOffset ForeslattTidspunkt, string? KildeReferanserJson);
 
+/// <summary>Massegodkjenning/-avvisning av begrepsforslag (store test-sveip-/import-mengder gjør
+/// enkeltrad-behandling upraktisk) — samme per-rad-feilhåndterings-mønster som
+/// <see cref="VirksomhetKandidatBatchRequest"/>/<see cref="NavnekandidatBatchRequest"/>, egen
+/// ikke-generisk DTO-familie av samme begrunnelse som der (se NavnekandidatBatchRequest-kommentaren).</summary>
+public sealed record BegrepsforslagBatchRequest(IReadOnlyList<Guid> Ider);
+
+public sealed record BegrepsforslagBatchRadDto(Guid Id, bool Ok, string? Feil, BegrepDto? Resultat);
+
+public sealed record BegrepsforslagBatchResultatDto(IReadOnlyList<BegrepsforslagBatchRadDto> Rader);
+
 /// <summary>
 /// Kø-visning for «Identifiser tjenester» — beriker TjenesteDto med proveniens fra forslaget.
 /// <see cref="AiForslagVersjon"/> satt = KI-forslag; <see cref="ForeslattAvVirksomhetNavn"/> satt =
@@ -796,6 +824,25 @@ public sealed record TjenesteforslagDto(
 /// allerede eksisterende "opprinnelig foreslagsstiller"-tilgang — kun rå API-kall.
 /// </summary>
 public sealed record MittForslagDto(TjenesteDto Tjeneste, DateTimeOffset ForeslattTidspunkt, string MalVirksomhetNavn);
+
+/// <summary>Massegodkjenning/-avvisning av tjenesteforslag — samme begrunnelse/mønster som
+/// BegrepsforslagBatch*/VirksomhetKandidatBatch*/NavnekandidatBatch* (se NavnekandidatBatchRequest-
+/// kommentaren for hvorfor hver kø har sin egen, ikke-generiske DTO-familie).</summary>
+public sealed record TjenesteforslagBatchRequest(IReadOnlyList<Guid> Ider);
+
+public sealed record TjenesteforslagBatchRadDto(Guid Id, bool Ok, string? Feil, TjenesteDto? Resultat);
+
+public sealed record TjenesteforslagBatchResultatDto(IReadOnlyList<TjenesteforslagBatchRadDto> Rader);
+
+/// <summary>Massesletting av UBEHANDLEDE tjenesteforslag — dekker BÅDE «Ventende forslag»-tabellens
+/// enkeltrad-Slett-knapp OG «Mine forslag til andre virksomheter»-seksjonens Slett-knapp
+/// (TjenesteforslagKo.tsx), siden begge til syvende og sist kaller samme
+/// <see cref="TjenesteregisterTjeneste.SlettForslagAsync"/> (eier ELLER opprinnelig
+/// foreslagsstiller — se den metodens egen tilgangskommentar). Ingen <c>Resultat</c>-felt her (til
+/// forskjell fra Godkjenn/Avvis-radene over) — en sletting har ingenting igjen å returnere.</summary>
+public sealed record TjenesteforslagSlettBatchRadDto(Guid Id, bool Ok, string? Feil);
+
+public sealed record TjenesteforslagSlettBatchResultatDto(IReadOnlyList<TjenesteforslagSlettBatchRadDto> Rader);
 
 /// <summary>
 /// (2026-08-20) Full eksport av ÉN tjeneste og alt den er koblet til på KJERNEMODELL-nivået —

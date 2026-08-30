@@ -1672,6 +1672,96 @@ tjenester.MapGet("/foreslatt-av-meg", async (HttpRequest request, RegelIdeDbCont
         "Lister tjenester DENNE virksomheten selv har foreslått til en ANNEN (mål-)virksomhet, og som " +
         "fortsatt står ubehandlet der — motstykket til /forslag, som kun viser det egen virksomhet EIER.");
 
+// [Ny] Massehandling på tjenesteforslag (store test-import-/-sveip-mengder gjør enkeltrad-behandling
+// upraktisk, se docs/13-backlog.md-ekvivalent begrunnelse for /api/virksomhet-kandidater/*-batch) —
+// godkjenn/avvis går via SAMME TjenesteregisterTjeneste.SettStatusAsync som enkeltrad-endepunktet over
+// («/{id}/status»), slett-batch via samme SlettForslagAsync som «DELETE /{id}/forslag». Ingen egen
+// forretningslogikk her utover selve løkka + per-rad-feilhåndtering.
+
+tjenester.MapPost("/forslag/godkjenn-batch", async (HttpRequest request, TjenesteforslagBatchRequest body,
+        TjenesteregisterTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var rader = new List<TjenesteforslagBatchRadDto>();
+        foreach (var id in body.Ider)
+        {
+            try
+            {
+                // GodkjentAv=bruker.Navn (samme som enkeltrad-«Godkjenn og legg til»-knappen i
+                // TjenesteforslagKo.tsx sender via gjeldendeBruker) — batchen trenger ikke et eget
+                // felt for dette siden det uansett alltid er den innloggede brukeren selv som godkjenner.
+                var oppdatert = await tjeneste.SettStatusAsync(id, bruker.VirksomhetId, "validert", bruker.Navn, ct, bruker.Navn);
+                rader.Add(oppdatert is null
+                    ? new TjenesteforslagBatchRadDto(id, false, $"Ingen tjenesteforslag med id '{id}'.", null)
+                    : new TjenesteforslagBatchRadDto(id, true, null, TjenesteDto.FraEntitet(oppdatert)));
+            }
+            catch (ArgumentException ex)
+            {
+                rader.Add(new TjenesteforslagBatchRadDto(id, false, ex.Message, null));
+            }
+        }
+        return Results.Ok(new TjenesteforslagBatchResultatDto(rader));
+    })
+    .WithName("GodkjennTjenesteforslagBatch")
+    .WithSummary("Massegodkjenning av ventende tjenesteforslag — server-side batch med per-rad-feilhåndtering, " +
+        "samme mønster som /api/virksomhet-kandidater/godkjenn-batch. Kun EGEN virksomhets forslag treffes " +
+        "(SettStatusAsync sin eierskapssjekk uendret) — en id utenfor egen virksomhet rapporteres som feilet rad.");
+
+tjenester.MapPost("/forslag/avvis-batch", async (HttpRequest request, TjenesteforslagBatchRequest body,
+        TjenesteregisterTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var rader = new List<TjenesteforslagBatchRadDto>();
+        foreach (var id in body.Ider)
+        {
+            try
+            {
+                var oppdatert = await tjeneste.SettStatusAsync(id, bruker.VirksomhetId, "utkast", bruker.Navn, ct);
+                rader.Add(oppdatert is null
+                    ? new TjenesteforslagBatchRadDto(id, false, $"Ingen tjenesteforslag med id '{id}'.", null)
+                    : new TjenesteforslagBatchRadDto(id, true, null, TjenesteDto.FraEntitet(oppdatert)));
+            }
+            catch (ArgumentException ex)
+            {
+                rader.Add(new TjenesteforslagBatchRadDto(id, false, ex.Message, null));
+            }
+        }
+        return Results.Ok(new TjenesteforslagBatchResultatDto(rader));
+    })
+    .WithName("AvvisTjenesteforslagBatch")
+    .WithSummary("Masseavvisning — tilbakestiller status til 'utkast' (IKKE sletting, samme som enkeltrad-" +
+        "«Avvis»-knappen i TjenesteforslagKo.tsx) — server-side batch med per-rad-feilhåndtering.");
+
+tjenester.MapPost("/forslag/slett-batch", async (HttpRequest request, TjenesteforslagBatchRequest body,
+        TjenesteregisterTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var rader = new List<TjenesteforslagSlettBatchRadDto>();
+        foreach (var id in body.Ider)
+        {
+            try
+            {
+                var slettet = await tjeneste.SlettForslagAsync(id, bruker.VirksomhetId, ct);
+                rader.Add(slettet
+                    ? new TjenesteforslagSlettBatchRadDto(id, true, null)
+                    : new TjenesteforslagSlettBatchRadDto(id, false, $"Ingen tjenesteforslag med id '{id}'."));
+            }
+            catch (ArgumentException ex)
+            {
+                rader.Add(new TjenesteforslagSlettBatchRadDto(id, false, ex.Message));
+            }
+        }
+        return Results.Ok(new TjenesteforslagSlettBatchResultatDto(rader));
+    })
+    .WithName("SlettTjenesteforslagBatch")
+    .WithSummary("Massesletting av UBEHANDLEDE forslag (foreslatt_av_ai/foreslatt_av_annen_virksomhet) — " +
+        "dekker BÅDE «Ventende forslag»-tabellens enkeltrad-Slett-knapp OG «Mine forslag til andre " +
+        "virksomheter»-seksjonens Slett-knapp (samme SlettForslagAsync-tilgangsregel: eier ELLER opprinnelig " +
+        "foreslagsstiller — se den metodens egen kommentar for hvorfor).");
+
 tjenester.MapPost("/forslag/kjor", async (HttpRequest request, KjorForslagRequest body, TjenesteforslagTjeneste forslagstjeneste, RegelIdeDbContext db, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
@@ -2061,6 +2151,62 @@ begreper.MapGet("/forslag", async (HttpRequest request, RegelIdeDbContext db, Ca
     })
     .WithName("HentBegrepsforslagKo")
     .WithSummary("Lister ventende KI-forslag til nye begrep (foreslatt_av_ai).");
+
+// [Ny] Massehandling på begrepsforslag — samme begrunnelse/mønster som tjenesteforslag-batchen over
+// (godkjenn/avvis via SAMME BegrepsregisterTjeneste.SettStatusAsync som enkeltrad-endepunktet
+// «/{id}/status»). Ingen egen «slett-batch» her — begrepsforslag har ikke noe «Slett»-enkeltrad-
+// endepunkt i BegrepsforslagKo.tsx (kun Avvis/Rediger/Godkjenn), så det er intet å speile i batch heller.
+
+begreper.MapPost("/forslag/godkjenn-batch", async (HttpRequest request, BegrepsforslagBatchRequest body,
+        BegrepsregisterTjeneste begrepsregister, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var rader = new List<BegrepsforslagBatchRadDto>();
+        foreach (var id in body.Ider)
+        {
+            try
+            {
+                var oppdatert = await begrepsregister.SettStatusAsync(id, "validert", bruker.Navn, ct, bruker.Navn);
+                rader.Add(oppdatert is null
+                    ? new BegrepsforslagBatchRadDto(id, false, $"Ingen begrepsforslag med id '{id}'.", null)
+                    : new BegrepsforslagBatchRadDto(id, true, null, BegrepDto.FraEntitet(oppdatert)));
+            }
+            catch (ArgumentException ex)
+            {
+                rader.Add(new BegrepsforslagBatchRadDto(id, false, ex.Message, null));
+            }
+        }
+        return Results.Ok(new BegrepsforslagBatchResultatDto(rader));
+    })
+    .WithName("GodkjennBegrepsforslagBatch")
+    .WithSummary("Massegodkjenning av ventende begrepsforslag — server-side batch med per-rad-feilhåndtering, " +
+        "samme mønster som /api/virksomhet-kandidater/godkjenn-batch.");
+
+begreper.MapPost("/forslag/avvis-batch", async (HttpRequest request, BegrepsforslagBatchRequest body,
+        BegrepsregisterTjeneste begrepsregister, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var rader = new List<BegrepsforslagBatchRadDto>();
+        foreach (var id in body.Ider)
+        {
+            try
+            {
+                var oppdatert = await begrepsregister.SettStatusAsync(id, "utkast", bruker.Navn, ct);
+                rader.Add(oppdatert is null
+                    ? new BegrepsforslagBatchRadDto(id, false, $"Ingen begrepsforslag med id '{id}'.", null)
+                    : new BegrepsforslagBatchRadDto(id, true, null, BegrepDto.FraEntitet(oppdatert)));
+            }
+            catch (ArgumentException ex)
+            {
+                rader.Add(new BegrepsforslagBatchRadDto(id, false, ex.Message, null));
+            }
+        }
+        return Results.Ok(new BegrepsforslagBatchResultatDto(rader));
+    })
+    .WithName("AvvisBegrepsforslagBatch")
+    .WithSummary("Masseavvisning — tilbakestiller status til 'utkast', server-side batch med per-rad-feilhåndtering.");
 
 begreper.MapPost("/forslag/kjor", async (HttpRequest request, KjorForslagRequest body, BegrepsforslagTjeneste forslagstjeneste, RegelIdeDbContext db, CancellationToken ct) =>
     {
@@ -2479,6 +2625,58 @@ navnekandidater.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request,
         }
     })
     .WithName("AvvisNavnekandidat");
+
+navnekandidater.MapPost("/godkjenn-batch", async (HttpRequest request, NavnekandidatBatchRequest body,
+        NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var rader = new List<NavnekandidatBatchRadDto>();
+        foreach (var id in body.Ider)
+        {
+            try
+            {
+                var oppdatert = await register.GodkjennAsync(id, bruker.Navn, ct);
+                rader.Add(oppdatert is null
+                    ? new NavnekandidatBatchRadDto(id, false, $"Ingen kandidat med id '{id}'.", null)
+                    : new NavnekandidatBatchRadDto(id, true, null, NavnekandidatDto.FraEntitet(oppdatert)));
+            }
+            catch (ArgumentException ex)
+            {
+                rader.Add(new NavnekandidatBatchRadDto(id, false, ex.Message, null));
+            }
+        }
+        return Results.Ok(new NavnekandidatBatchResultatDto(rader));
+    })
+    .WithName("GodkjennNavnekandidaterBatch")
+    .WithSummary("Massegodkjenning (store test-sveip-mengder) — server-side batch med per-rad-feilhåndtering, " +
+        "samme mønster som /api/virksomhet-kandidater/godkjenn-batch. 'rolle' oppretter et ekte rollebegrep PER " +
+        "rad som lykkes; 'virksomhet' setter kun status — se GodkjennNavnekandidat-endepunktet over.");
+
+navnekandidater.MapPost("/avvis-batch", async (HttpRequest request, NavnekandidatBatchRequest body,
+        NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var rader = new List<NavnekandidatBatchRadDto>();
+        foreach (var id in body.Ider)
+        {
+            try
+            {
+                var oppdatert = await register.AvvisAsync(id, bruker.Navn, ct);
+                rader.Add(oppdatert is null
+                    ? new NavnekandidatBatchRadDto(id, false, $"Ingen kandidat med id '{id}'.", null)
+                    : new NavnekandidatBatchRadDto(id, true, null, NavnekandidatDto.FraEntitet(oppdatert)));
+            }
+            catch (ArgumentException ex)
+            {
+                rader.Add(new NavnekandidatBatchRadDto(id, false, ex.Message, null));
+            }
+        }
+        return Results.Ok(new NavnekandidatBatchResultatDto(rader));
+    })
+    .WithName("AvvisNavnekandidaterBatch")
+    .WithSummary("Masseavvisning — server-side batch med per-rad-feilhåndtering.");
 
 // ---------- Datasett (docs/03-domenemodell.md §1.6) — byggesteg 4, minimal, kun lesing ----------
 

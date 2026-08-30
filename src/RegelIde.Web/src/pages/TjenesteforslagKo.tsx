@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type ChangeEvent, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router';
-import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { KunnskapsbibliotekFilDto, KunnskapsbibliotekLenkeDto, MittForslagDto, RettskildeSammendrag, TjenesteforslagDto } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
@@ -35,6 +35,19 @@ export default function TjenesteforslagKo() {
   const [mineForslag, setMineForslag] = useState<MittForslagDto[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
   const [kjorer, setKjorer] = useState(false);
+
+  // Massehandling på "Ventende forslag" (2026-08-30) — store test-import-/-sveip-mengder gjør
+  // enkeltrad-behandling upraktisk, samme UX/backend-mønster som VirksomhetKandidaterListe.tsx.
+  const [valgte, setValgte] = useState<Set<string>>(new Set());
+  const [massehandlingKjorer, setMassehandlingKjorer] = useState(false);
+  const [massehandlingFeil, setMassehandlingFeil] = useState<string | null>(null);
+
+  // [Ny, 2026-08-30] Samme massehandling-mønster for "Mine forslag til andre virksomheter" —
+  // egen valgt-mengde/feilstate siden det er en helt separat tabell/handling (Slett, ikke
+  // Godkjenn/Avvis) med egne id-er fra en annen liste.
+  const [valgteMine, setValgteMine] = useState<Set<string>>(new Set());
+  const [massesletterMine, setMassesletterMine] = useState(false);
+  const [massesletterMineFeil, setMassesletterMineFeil] = useState<string | null>(null);
   const [omfang, setOmfang] = useState<'tjeneste' | 'full'>('tjeneste');
   const [sisteKjoring, setSisteKjoring] = useState<{
     melding: string | null; inputTokens: number | null; outputTokens: number | null; antallHandlinger: number | null;
@@ -49,11 +62,15 @@ export default function TjenesteforslagKo() {
   }
 
   function lastKo() {
-    api.hentTjenesteforslagKo().then(setKo).catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av kø.'));
+    api.hentTjenesteforslagKo()
+      .then((liste) => { setKo(liste); setValgte(new Set()); }) // Ny liste — forrige utvalg gjelder ikke lenger.
+      .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av kø.'));
   }
 
   function lastMineForslag() {
-    api.hentMineForslagTilAndreVirksomheter().then(setMineForslag).catch(() => setMineForslag([]));
+    api.hentMineForslagTilAndreVirksomheter()
+      .then((liste) => { setMineForslag(liste); setValgteMine(new Set()); })
+      .catch(() => setMineForslag([]));
   }
 
   useEffect(() => {
@@ -162,6 +179,77 @@ export default function TjenesteforslagKo() {
     lastMineForslag();
   }
 
+  function vekslValgt(id: string, valgt: boolean) {
+    setValgte((forrige) => {
+      const ny = new Set(forrige);
+      if (valgt) ny.add(id); else ny.delete(id);
+      return ny;
+    });
+  }
+
+  // Ingen paginering på denne siden — "alle viste" er dermed hele "Ventende forslag"-tabellen.
+  function vekslAlleViste(valgt: boolean) {
+    setValgte(valgt ? new Set((ko ?? []).map((f) => f.tjeneste.id)) : new Set());
+  }
+
+  async function massehandling(handling: 'godkjenn' | 'avvis') {
+    if (valgte.size === 0) return;
+    setMassehandlingKjorer(true);
+    setMassehandlingFeil(null);
+    try {
+      const request = { ider: [...valgte] };
+      const resultat = handling === 'godkjenn'
+        ? await api.godkjennTjenesteforslagBatch(request)
+        : await api.avvisTjenesteforslagBatch(request);
+      const feilede = resultat.rader.filter((r) => !r.ok);
+      if (feilede.length > 0) {
+        setMassehandlingFeil(
+          `${feilede.length} av ${resultat.rader.length} rad(er) feilet: ${feilede.map((r) => r.feil).join('; ')}`,
+        );
+      }
+      lastKo();
+    } catch (err) {
+      setMassehandlingFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved massehandling.');
+    } finally {
+      setMassehandlingKjorer(false);
+    }
+  }
+
+  function vekslValgtMitt(id: string, valgt: boolean) {
+    setValgteMine((forrige) => {
+      const ny = new Set(forrige);
+      if (valgt) ny.add(id); else ny.delete(id);
+      return ny;
+    });
+  }
+
+  function vekslAlleVisteMine(valgt: boolean) {
+    setValgteMine(valgt ? new Set((mineForslag ?? []).map((f) => f.tjeneste.id)) : new Set());
+  }
+
+  /** Samme SlettForslagAsync-endepunkt som enkeltrad-`slettMittForslag`/`slett` over — se
+   * TjenesteforslagSlettBatchResultatDto-kommentaren på backend for hvorfor de to seksjonene deler ett
+   * batch-endepunkt selv om de viser to forskjellige lister. */
+  async function massesletteMine() {
+    if (valgteMine.size === 0) return;
+    setMassesletterMine(true);
+    setMassesletterMineFeil(null);
+    try {
+      const resultat = await api.slettTjenesteforslagBatch({ ider: [...valgteMine] });
+      const feilede = resultat.rader.filter((r) => !r.ok);
+      if (feilede.length > 0) {
+        setMassesletterMineFeil(
+          `${feilede.length} av ${resultat.rader.length} rad(er) feilet: ${feilede.map((r) => r.feil).join('; ')}`,
+        );
+      }
+      lastMineForslag();
+    } catch (err) {
+      setMassesletterMineFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved massesletting.');
+    } finally {
+      setMassesletterMine(false);
+    }
+  }
+
   return (
     <>
       <Heading level={1} data-size="lg">
@@ -261,35 +349,63 @@ export default function TjenesteforslagKo() {
       {!ko && <Spinner aria-label="Laster …" data-size="sm" />}
       {ko && ko.length === 0 && <Paragraph>Ingen ventende tjenesteforslag.</Paragraph>}
       {ko && ko.length > 0 && (
-        <Table border>
-          <Table.Head>
-            <Table.Row>
-              <Table.HeaderCell>Tittel</Table.HeaderCell>
-              <Table.HeaderCell>Beskrivelse</Table.HeaderCell>
-              <Table.HeaderCell>KI-versjon</Table.HeaderCell>
-              <Table.HeaderCell>Handlinger</Table.HeaderCell>
-            </Table.Row>
-          </Table.Head>
-          <Table.Body>
-            {ko.map((f) => (
-              <Table.Row key={f.tjeneste.id}>
-                <Table.Cell>
-                  <Link asChild><RouterLink to={`/tjenester/${f.tjeneste.id}`}>{f.tjeneste.tittel}</RouterLink></Link>
-                </Table.Cell>
-                <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{f.tjeneste.beskrivelse ?? '—'}</Table.Cell>
-                <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{f.aiForslagVersjon ?? '—'}</Table.Cell>
-                <Table.Cell>
-                  <div style={{ display: 'flex', gap: '0.4rem' }}>
-                    <Button variant="tertiary" data-size="sm" onClick={() => avvis(f.tjeneste.id)}>Avvis</Button>
-                    <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => slett(f.tjeneste.id)}>Slett</Button>
-                    <Button variant="tertiary" data-size="sm" onClick={() => rediger(f.tjeneste.id)}>Rediger</Button>
-                    <Button data-size="sm" onClick={() => godkjenn(f.tjeneste.id)}>Godkjenn og legg til</Button>
-                  </div>
-                </Table.Cell>
+        <>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0 }}>
+              {valgte.size} valgt{valgte.size === 1 ? '' : 'e'}
+            </Paragraph>
+            <Button data-size="sm" onClick={() => massehandling('godkjenn')} disabled={valgte.size === 0 || massehandlingKjorer}>
+              {massehandlingKjorer ? 'Godkjenner …' : 'Godkjenn valgte'}
+            </Button>
+            <Button data-size="sm" variant="secondary" onClick={() => massehandling('avvis')} disabled={valgte.size === 0 || massehandlingKjorer}>
+              {massehandlingKjorer ? 'Avviser …' : 'Avvis valgte'}
+            </Button>
+          </div>
+          {massehandlingFeil && <div className="feilmelding" style={{ marginBottom: '0.75rem' }}>{massehandlingFeil}</div>}
+          <Table border>
+            <Table.Head>
+              <Table.Row>
+                <Table.HeaderCell>
+                  <Checkbox
+                    aria-label="Velg alle viste"
+                    checked={ko.length > 0 && ko.every((f) => valgte.has(f.tjeneste.id))}
+                    onChange={(e) => vekslAlleViste(e.target.checked)}
+                  />
+                </Table.HeaderCell>
+                <Table.HeaderCell>Tittel</Table.HeaderCell>
+                <Table.HeaderCell>Beskrivelse</Table.HeaderCell>
+                <Table.HeaderCell>KI-versjon</Table.HeaderCell>
+                <Table.HeaderCell>Handlinger</Table.HeaderCell>
               </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
+            </Table.Head>
+            <Table.Body>
+              {ko.map((f) => (
+                <Table.Row key={f.tjeneste.id}>
+                  <Table.Cell>
+                    <Checkbox
+                      aria-label={`Velg forslag ${f.tjeneste.tittel}`}
+                      checked={valgte.has(f.tjeneste.id)}
+                      onChange={(e) => vekslValgt(f.tjeneste.id, e.target.checked)}
+                    />
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Link asChild><RouterLink to={`/tjenester/${f.tjeneste.id}`}>{f.tjeneste.tittel}</RouterLink></Link>
+                  </Table.Cell>
+                  <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{f.tjeneste.beskrivelse ?? '—'}</Table.Cell>
+                  <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{f.aiForslagVersjon ?? '—'}</Table.Cell>
+                  <Table.Cell>
+                    <div style={{ display: 'flex', gap: '0.4rem' }}>
+                      <Button variant="tertiary" data-size="sm" onClick={() => avvis(f.tjeneste.id)}>Avvis</Button>
+                      <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => slett(f.tjeneste.id)}>Slett</Button>
+                      <Button variant="tertiary" data-size="sm" onClick={() => rediger(f.tjeneste.id)}>Rediger</Button>
+                      <Button data-size="sm" onClick={() => godkjenn(f.tjeneste.id)}>Godkjenn og legg til</Button>
+                    </div>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        </>
       )}
 
       <Heading level={2} data-size="sm" style={{ marginTop: '1.5rem' }}>
@@ -303,28 +419,59 @@ export default function TjenesteforslagKo() {
       {!mineForslag && <Spinner aria-label="Laster …" data-size="sm" />}
       {mineForslag && mineForslag.length === 0 && <Paragraph>Ingen egne forslag venter hos andre virksomheter.</Paragraph>}
       {mineForslag && mineForslag.length > 0 && (
-        <Table border>
-          <Table.Head>
-            <Table.Row>
-              <Table.HeaderCell>Tittel</Table.HeaderCell>
-              <Table.HeaderCell>Mål-virksomhet</Table.HeaderCell>
-              <Table.HeaderCell>Handlinger</Table.HeaderCell>
-            </Table.Row>
-          </Table.Head>
-          <Table.Body>
-            {mineForslag.map((f) => (
-              <Table.Row key={f.tjeneste.id}>
-                <Table.Cell>
-                  <Link asChild><RouterLink to={`/tjenester/${f.tjeneste.id}`}>{f.tjeneste.tittel}</RouterLink></Link>
-                </Table.Cell>
-                <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{f.malVirksomhetNavn}</Table.Cell>
-                <Table.Cell>
-                  <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => slettMittForslag(f.tjeneste.id)}>Slett</Button>
-                </Table.Cell>
+        <>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
+            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0 }}>
+              {valgteMine.size} valgt{valgteMine.size === 1 ? '' : 'e'}
+            </Paragraph>
+            <Button
+              data-size="sm"
+              variant="secondary"
+              data-color="danger"
+              onClick={massesletteMine}
+              disabled={valgteMine.size === 0 || massesletterMine}
+            >
+              {massesletterMine ? 'Sletter …' : 'Slett valgte'}
+            </Button>
+          </div>
+          {massesletterMineFeil && <div className="feilmelding" style={{ marginBottom: '0.75rem' }}>{massesletterMineFeil}</div>}
+          <Table border>
+            <Table.Head>
+              <Table.Row>
+                <Table.HeaderCell>
+                  <Checkbox
+                    aria-label="Velg alle viste"
+                    checked={mineForslag.length > 0 && mineForslag.every((f) => valgteMine.has(f.tjeneste.id))}
+                    onChange={(e) => vekslAlleVisteMine(e.target.checked)}
+                  />
+                </Table.HeaderCell>
+                <Table.HeaderCell>Tittel</Table.HeaderCell>
+                <Table.HeaderCell>Mål-virksomhet</Table.HeaderCell>
+                <Table.HeaderCell>Handlinger</Table.HeaderCell>
               </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
+            </Table.Head>
+            <Table.Body>
+              {mineForslag.map((f) => (
+                <Table.Row key={f.tjeneste.id}>
+                  <Table.Cell>
+                    <Checkbox
+                      aria-label={`Velg forslag ${f.tjeneste.tittel}`}
+                      checked={valgteMine.has(f.tjeneste.id)}
+                      onChange={(e) => vekslValgtMitt(f.tjeneste.id, e.target.checked)}
+                    />
+                  </Table.Cell>
+                  <Table.Cell>
+                    <Link asChild><RouterLink to={`/tjenester/${f.tjeneste.id}`}>{f.tjeneste.tittel}</RouterLink></Link>
+                  </Table.Cell>
+                  <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{f.malVirksomhetNavn}</Table.Cell>
+                  <Table.Cell>
+                    <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => slettMittForslag(f.tjeneste.id)}>Slett</Button>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
+          </Table>
+        </>
       )}
 
       <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '1.5rem', color: 'var(--ds-color-neutral-text-subtle)' }}>

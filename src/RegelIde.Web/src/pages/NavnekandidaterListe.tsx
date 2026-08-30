@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
 import type { NavnekandidatDto, RettskildeSammendrag } from '../api/types';
@@ -29,6 +29,13 @@ const KATEGORI_FARGE: Record<string, 'info' | 'accent'> = {
  * `"virksomhet"` settes kun status — selve virksomhetskoblingen (ny ELLER eksisterende virksomhet)
  * krever et menneske og skjer via Brreg-søket/"opprett med bare navn"-skjemaet på `/virksomheter`
  * (lenken under sender med `?forslagNavn=` som forhåndsutfyller begge der).
+ *
+ * Massehandling (avkrysningsbokser + «Godkjenn valgte»/«Avvis valgte», 2026-08-30) — store
+ * test-sveip gjennom hele det importerte korpuset kan legge svært mange kandidater i køen samtidig,
+ * og enkeltrad-behandling skalerer ikke da. Samme UX/backend-mønster som
+ * VirksomhetKandidaterListe.tsx (se den filens kommentarer for hele resonnementet) — batchen
+ * håndterer BEGGE kategoriene korrekt i samme kall siden serveren uansett kaller samme
+ * GodkjennAsync/AvvisAsync per rad, ikke en egen batch-spesifikk forgrening.
  */
 export default function NavnekandidaterListe() {
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
@@ -40,6 +47,10 @@ export default function NavnekandidaterListe() {
   const [kandidater, setKandidater] = useState<NavnekandidatDto[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
   const [laster, setLaster] = useState(false);
+
+  const [valgte, setValgte] = useState<Set<string>>(new Set());
+  const [massehandlingKjorer, setMassehandlingKjorer] = useState(false);
+  const [massehandlingFeil, setMassehandlingFeil] = useState<string | null>(null);
 
   const [sveipRettskildeId, setSveipRettskildeId] = useState('');
   const [sveiper, setSveiper] = useState(false);
@@ -71,6 +82,7 @@ export default function NavnekandidaterListe() {
       .then((liste) => {
         if (denneForesporselen !== sisteForesporsel.current) return;
         setKandidater(liste);
+        setValgte(new Set()); // Nytt filter/ny liste — forrige utvalg gjelder ikke lenger.
       })
       .catch((e) => {
         if (denneForesporselen !== sisteForesporsel.current) return;
@@ -110,6 +122,42 @@ export default function NavnekandidaterListe() {
       lastKandidater();
     } catch (err) {
       setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved behandling av kandidat.');
+    }
+  }
+
+  function vekslValgt(id: string, valgt: boolean) {
+    setValgte((forrige) => {
+      const ny = new Set(forrige);
+      if (valgt) ny.add(id); else ny.delete(id);
+      return ny;
+    });
+  }
+
+  // "Alle viste" = alle på GJELDENDE SIDE, samme avgrensning som VirksomhetKandidaterListe.tsx.
+  function vekslAlleViste(valgt: boolean) {
+    setValgte(valgt ? new Set(paginering.visteRader.map((k) => k.id)) : new Set());
+  }
+
+  async function massehandling(handling: 'godkjenn' | 'avvis') {
+    if (valgte.size === 0) return;
+    setMassehandlingKjorer(true);
+    setMassehandlingFeil(null);
+    try {
+      const request = { ider: [...valgte] };
+      const resultat = handling === 'godkjenn'
+        ? await api.godkjennNavnekandidaterBatch(request)
+        : await api.avvisNavnekandidaterBatch(request);
+      const feilede = resultat.rader.filter((r) => !r.ok);
+      if (feilede.length > 0) {
+        setMassehandlingFeil(
+          `${feilede.length} av ${resultat.rader.length} rad(er) feilet: ${feilede.map((r) => r.feil).join('; ')}`,
+        );
+      }
+      lastKandidater();
+    } catch (err) {
+      setMassehandlingFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved massehandling.');
+    } finally {
+      setMassehandlingKjorer(false);
     }
   }
 
@@ -200,6 +248,19 @@ export default function NavnekandidaterListe() {
         </Field>
       </div>
 
+      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
+        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0 }}>
+          {valgte.size} valgt{valgte.size === 1 ? '' : 'e'}
+        </Paragraph>
+        <Button data-size="sm" onClick={() => massehandling('godkjenn')} disabled={valgte.size === 0 || massehandlingKjorer}>
+          {massehandlingKjorer ? 'Godkjenner …' : 'Godkjenn valgte'}
+        </Button>
+        <Button data-size="sm" variant="secondary" onClick={() => massehandling('avvis')} disabled={valgte.size === 0 || massehandlingKjorer}>
+          {massehandlingKjorer ? 'Avviser …' : 'Avvis valgte'}
+        </Button>
+      </div>
+      {massehandlingFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{massehandlingFeil}</div>}
+
       {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
       {laster && !kandidater && <Paragraph>Laster …</Paragraph>}
       {viste && viste.length === 0 && <Paragraph>Ingen kandidater matcher filteret.</Paragraph>}
@@ -210,6 +271,13 @@ export default function NavnekandidaterListe() {
             <Table>
               <Table.Head>
                 <Table.Row>
+                  <Table.HeaderCell>
+                    <Checkbox
+                      aria-label="Velg alle viste"
+                      checked={paginering.visteRader.length > 0 && paginering.visteRader.every((k) => valgte.has(k.id))}
+                      onChange={(e) => vekslAlleViste(e.target.checked)}
+                    />
+                  </Table.HeaderCell>
                   <Table.HeaderCell>
                     <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('kategori')}>
                       Kategori{sorteringsindikator('kategori')}
@@ -233,6 +301,13 @@ export default function NavnekandidaterListe() {
               <Table.Body>
                 {paginering.visteRader.map((k) => (
                   <Table.Row key={k.id}>
+                    <Table.Cell>
+                      <Checkbox
+                        aria-label={`Velg kandidat ${k.id}`}
+                        checked={valgte.has(k.id)}
+                        onChange={(e) => vekslValgt(k.id, e.target.checked)}
+                      />
+                    </Table.Cell>
                     <Table.Cell>
                       <Tag data-color={KATEGORI_FARGE[k.kategori] ?? 'neutral'} data-size="sm">{k.kategori}</Tag>
                     </Table.Cell>
