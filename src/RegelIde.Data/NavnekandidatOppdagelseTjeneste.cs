@@ -29,10 +29,50 @@ namespace RegelIde.Data;
 /// "forurensningsmyndighetene", ikke et egennavn) — posisjon i setningen er irrelevant her, siden
 /// liten forbokstav i seg selv allerede utelukker et egennavn.</item>
 /// <item>Fast liste juridisk-aktør-substantiv UTEN suffiks ("Kongen", "Kongen i statsråd", "Stortinget",
-/// "Regjeringen", "statsforvalteren", "kommunen", "fylkeskommunen", "departementet") → ALLTID
-/// <c>"rolle"</c>, uansett store/små bokstaver — disse er generiske rollesubstantiv, ikke navn på
-/// én bestemt institusjon, og posisjon i setningen endrer ikke det.</item>
+/// "Regjeringen", samt BØYNINGSFORMENE av "statsforvalter"/"kommune"/"fylkeskommune"/"departement" —
+/// se <see cref="FasteRollesubstantiv"/>) → ALLTID <c>"rolle"</c>, uansett store/små bokstaver — disse
+/// er generiske rollesubstantiv, ikke navn på én bestemt institusjon, og posisjon i setningen endrer
+/// ikke det.</item>
+/// <item><b>[Ny, kodegjennomgang 2026-08-30]</b> Flerords-mønster: inntil 3 STOR-forbokstav-ord (ev.
+/// med bindeordet "og" MELLOM to av dem, f.eks. "Møre og Romsdal"), UMIDDELBART
+/// etterfulgt av ett kjent institusjonsord i UBESTEMT FORM som eget, mellomromsdelt ord (se
+/// <see cref="Institusjonsord"/>, f.eks. "fylkeskommune", "kommune") → <c>"virksomhet"</c>. Fanger
+/// egennavn+institusjonsord-par som verken suffiksmønsteret (institusjonsordet er IKKE smeltet sammen
+/// med egennavnet, det er et eget ord) eller den faste rollelisten (som kun matcher institusjonsordet
+/// ALENE, uten et navn foran) dekker — bekreftet i live data, FOR-2019-09-30-1310 §2 andre ledd:
+/// "Østfold fylkeskommune: Driftsområde Ytre Oslofjord Øst", "Møre og Romsdal fylkeskommune: …", osv.
+/// Se <see cref="FinnEgennavnForanInstitusjonsord"/> og <see cref="ErFlerordsKontekstTillatt"/> for
+/// presisjonsvernet (krever stor forbokstav rett før institusjonsordet — ellers hverken "en
+/// fylkeskommune" eller "et statlig tilsyn" ville vært trygt).</item>
 /// </list>
+/// <para>
+/// <b>[Ny, kodegjennomgang 2026-08-30] Normalisering før lagring — KUN <c>"rolle"</c>:</b> for
+/// <c>"rolle"</c>-treff er selve store/små bokstaver-formen IKKE del av identiteten (en rolle er per
+/// definisjon ikke et egennavn — "statsforvalteren" og "Statsforvalteren" er samme rolle, kun ulik
+/// forbokstav fordi den ene tilfeldigvis sto ved en setningsstart). Bekreftet i live data: 68
+/// forekomster av "statsforvalteren" og 45 av "Statsforvalteren" ga tidligere separate kandidater, ren
+/// posisjonell idempotens fanget aldri opp at det var samme term. Løsning: <see cref="SveipAsync"/>
+/// folder <c>"rolle"</c>-treffets tekst til små bokstaver (<see cref="string.ToLowerInvariant"/>) FØR
+/// den brukes som dedup-nøkkel og FØR den lagres som <see cref="NavnekandidatEntitet.ForeslattTekst"/>.
+/// <c>"virksomhet"</c>-treff (inkl. flerords-mønsteret over) er IKKE del av denne normaliseringen —
+/// der ER store/små bokstaver et reelt signal (et egennavn skal beholde sin faktiske stavemåte), så
+/// disse beholder rå tekst uendret.
+/// </para>
+/// <para>
+/// <b>[Ny, kodegjennomgang 2026-08-30] Term-basert dedup, i tillegg til posisjonell (KUN <c>"rolle"</c>):</b>
+/// idempotens var tidligere REN posisjon (<c>RettskildeId</c>, <c>NodeEid</c>, <c>StartOffset</c>) — to
+/// ulike posisjoner med (etter normalisering) SAMME tekst i SAMME rettskilde ga tidligere to separate
+/// <see cref="NavnekandidatEntitet"/>-rader (nettopp "statsforvalteren"/"Statsforvalteren"-caset over).
+/// Dette er en reell arkitekturendring, ikke bare en bugfiks: <see cref="SveipAsync"/> sjekker nå, FØR
+/// <see cref="OpprettEllerFinnAsync"/> kalles, om det ALLEREDE finnes en <c>"rolle"</c>-kandidatrad
+/// (uansett status — Venter/Godkjent/Avvist — og uansett tekstposisjon) med samme normaliserte tekst
+/// for samme <c>RettskildeId</c> — samme prinsipp som den eksisterende "alleredeDekket mot godkjent
+/// Begrep"-filtreringen under, nå utvidet til Å OGSÅ dekke ikke-godkjente kandidater. Uten dette ville
+/// normaliseringen over kun forhindret NYE duplikater fra ETT sveip (samme treff, samme kjøring), ikke
+/// duplikater på TVERS av sveip/posisjoner — som var selve det bekreftede problemet. Kun <c>"rolle"</c>,
+/// av samme grunn som normaliseringen over er scopet dit (<c>"virksomhet"</c> har ingen normalisert
+/// term å slå opp mot — case er signal, ikke støy — der gjelder fortsatt ren posisjonell idempotens).
+/// </para>
 /// <para>
 /// <b>Kjøres KUN mot allerede importerte rettskilde-noder</b> — samme datakilde som
 /// <see cref="VirksomhetKandidatSveipTjeneste"/> (<c>Entitetsstatus == "gjeldende" &amp;&amp; !Opphevet</c>),
@@ -116,12 +156,31 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
 
     /// <summary>Faste juridisk-aktør-substantiv UTEN suffiks (docs/13-backlog.md §9) — ALLTID
     /// <c>"rolle"</c>-kandidater, uansett store/små bokstaver. Lengst-først i alternasjonen, slik at
-    /// "Kongen i statsråd" foretrekkes framfor et delvis treff på bare "Kongen".</summary>
+    /// "Kongen i statsråd" foretrekkes framfor et delvis treff på bare "Kongen".
+    /// <para>
+    /// <b>[Ny, kodegjennomgang 2026-08-30]</b> "statsforvalter"/"kommune"/"fylkeskommune"/"departement"
+    /// er utvidet fra KUN bestemt entall (den opprinnelige, eneste dekkede formen) til ALLE fire
+    /// bøyningsformer via <see cref="Bøyningsformer"/> — ubestemt entall, bestemt entall, ubestemt
+    /// flertall, bestemt flertall. Bekreftet i live data: "kommuneloven" har 71 forekomster av
+    /// "kommuner" og 71 av "fylkeskommuner" (ubestemt flertall) som IKKE ble fanget i det hele tatt før
+    /// denne utvidelsen. Bevisst en LUKKET liste over kjente stammer + et lite, begrenset sett
+    /// bøyningsendelser — IKKE en generell lemmatizer/språkmodell (eksplisitt forbudt, ren regex).
+    /// </para></summary>
     private static readonly string[] FasteRollesubstantiv =
     [
         "Kongen i statsråd", "Kongen", "Stortinget", "Regjeringen",
-        "statsforvalteren", "kommunen", "fylkeskommunen", "departementet",
+        .. Bøyningsformer("statsforvalter", "en", "e", "ne"), // statsforvalter/-en/-e/-ne
+        .. Bøyningsformer("kommune", "n", "r", "ne"), // kommune/-n/-r/-ne
+        .. Bøyningsformer("fylkeskommune", "n", "r", "ne"), // fylkeskommune/-n/-r/-ne
+        .. Bøyningsformer("departement", "et", "er", "ene"), // departement/-et/-er/-ene
     ];
+
+    /// <summary>Bygger de fire bøyningsformene (ubestemt entall = stammen selv, + de tre oppgitte
+    /// endelsene i rekkefølgen bestemt entall/ubestemt flertall/bestemt flertall) av én kjent stamme —
+    /// se <see cref="FasteRollesubstantiv"/>s kommentar for hvorfor dette er en lukket liste, ikke en
+    /// generell bøyningsregel.</summary>
+    private static string[] Bøyningsformer(string stamme, string bestemtEntallEndelse, string ubestemtFlertallEndelse, string bestemtFlertallEndelse) =>
+        [stamme, stamme + bestemtEntallEndelse, stamme + ubestemtFlertallEndelse, stamme + bestemtFlertallEndelse];
 
     private static readonly Regex SuffiksMønster = new(
         @"\b\p{L}[\p{L}]*(?:" + string.Join('|', Suffikser) + @")\b");
@@ -129,6 +188,60 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
     private static readonly Regex FasteRollerMønster = new(
         @"\b(?:" + string.Join('|', FasteRollesubstantiv.OrderByDescending(s => s.Length).Select(Regex.Escape)) + @")\b",
         RegexOptions.IgnoreCase);
+
+    /// <summary>
+    /// Kjente institusjonsord i UBESTEMT FORM (docs/13-backlog.md §9, Johanns liste — ikke uttømmende)
+    /// brukt av flerords-mønsteret (<see cref="FinnEgennavnForanInstitusjonsord"/>) — MÅ stå som eget,
+    /// mellomromsdelt ord etter et egennavn (til forskjell fra <see cref="Suffikser"/>, som er smeltet
+    /// sammen med stammen). "vegvesen" lagt til utover Johanns opprinnelige liste — "Statens vegvesen"
+    /// skrives (til forskjell fra f.eks. "tilsyn"-institusjoner, som alltid er ETT sammensatt ord som
+    /// "Datatilsynet") faktisk som to ord i virkelig bruk, og ordet har lav tvetydighetsrisiko alene
+    /// (nesten utelukkende brukt om denne ene, spesifikke etaten).
+    /// </summary>
+    private static readonly string[] Institusjonsord =
+    [
+        "fylkeskommune", "kommune", "direktorat", "tilsyn", "departement", "fylkesmannsembete", "vegvesen",
+    ];
+
+    private static readonly Regex InstitusjonsordMønster = new(
+        @"\b(?:" + string.Join('|', Institusjonsord.OrderByDescending(s => s.Length).Select(Regex.Escape)) + @")\b");
+
+    /// <summary>
+    /// Det ENESTE bindeordet flerords-mønsteret tillater MELLOM to store-forbokstav-ord (f.eks. "Møre
+    /// og Romsdal", "Troms og Finnmark", "Sogn og Fjordane" — alle bekreftet ekte, tidligere/nåværende
+    /// fylkesnavn i live-data-sveipet under).
+    /// <para>
+    /// <b>[Ny, kodegjennomgang 2026-08-30]</b> Opprinnelig vurdert å også inkludere "i" (Johanns
+    /// pseudo-eksempel "Sør i Nordland"), men et korpusomfattende testsveip mot den kjørende
+    /// dev-databasen avdekket et konkret falskt positiv: "Inntaksnemnda i Finnmark fylkeskommune" —
+    /// her er "i" en ekte PREPOSISJON ("Inntaksnemnda i [fylket] Finnmark fylkeskommune"), ikke et
+    /// navneinternt bindeord, og fanget dermed feilaktig med et helt urelatert substantiv foran. "og"
+    /// viste INGEN tilsvarende feil i samme sveip (kun ekte sammensatte fylkesnavn). Fjernet "i" på
+    /// bakgrunn av dette funnet — presisjon foran Johanns opprinnelige eksempel, som viste seg ikke å
+    /// holde mål mot ekte data.
+    /// </para></summary>
+    private static readonly HashSet<string> TillatteBindeord = new(StringComparer.Ordinal) { "og" };
+
+    /// <summary>
+    /// [Ny, kodegjennomgang 2026-08-30] Lukket liste over norske determinativer/kvantorer/pronomen som
+    /// ALDRI skal telle som et egennavn-ord i flerords-mønsteret, SELV OM de er stor forbokstav (de er
+    /// det typisk KUN fordi de tilfeldigvis åpner en node/setning — nøyaktig samme tvetydighet som
+    /// begrunner <see cref="ErSetningsstart"/> for suffiksmønsteret). Avdekket av samme korpusomfattende
+    /// testsveip som begrunner <see cref="TillatteBindeord"/>-innstrammingen: uten denne lista ga
+    /// mønsteret falske positiver som "Enhver fylkeskommune", "En kommune", "Hver kommune",
+    /// "Det departement" — generiske funksjonsord, ikke navn. En LUKKET liste (determinativer/pronomen
+    /// er en grammatisk lukket ordklasse i norsk, til forskjell fra f.eks. adjektiv) — IKKE et forsøk på
+    /// å luke ut ALLE tenkelige falske positiver (et adjektiv som "Statlig tilsyn" ville fortsatt sluppet
+    /// gjennom — se <see cref="ErFlerordsKontekstTillatt"/>s kommentar om denne gjenværende, dokumenterte
+    /// begrensningen).
+    /// </summary>
+    private static readonly HashSet<string> AldriEgennavnOrd = new(StringComparer.Ordinal)
+    {
+        "En", "Et", "Ei", "Den", "Det", "Denne", "Dette", "Disse",
+        "Enhver", "Ethvert", "Enkelte", "Hver", "Hvert", "Alle", "Ingen",
+        "Flere", "Mange", "Noen", "Andre", "Annen", "Annet",
+        "Hvilken", "Hvilket", "Hvilke", "Slik", "Slike", "Samme",
+    };
 
     /// <summary>
     /// Kjører oppdagelsessveipet — enten mot ÉN rettskilde (<paramref name="rettskildeId"/> satt) eller
@@ -184,23 +297,60 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
             .GroupBy(b => b.LovkildeId!.Value)
             .ToDictionary(g => g.Key, g => new HashSet<string>(g.Select(x => x.Term), StringComparer.OrdinalIgnoreCase));
 
+        // [Ny, kodegjennomgang 2026-08-30] Forhåndslastet, ÉN gang for hele sveipet, samme "unngå N+1"
+        // -hensyn som mengdene over — normaliserte (små bokstaver) "rolle"-termer PER RettskildeId, fra
+        // EKSISTERENDE Navnekandidat-rader, uansett status. Brukes til å utvide "alleredeDekket"-sjekket
+        // under til Å OGSÅ dekke ikke-godkjente kandidater, ikke bare godkjente Begrep-rader — se
+        // klassekommentarens "Term-basert dedup"-avsnitt for hvorfor. Oppdateres fortløpende i løkken
+        // under (samme sveip kan treffe samme normaliserte term flere ganger på ulike posisjoner).
+        var rolleKandidatTermerPerRettskilde = (await db.Navnekandidater
+                .Where(k => k.Kategori == "rolle")
+                .Select(k => new { k.RettskildeId, k.ForeslattTekst }).ToListAsync(ct))
+            .GroupBy(k => k.RettskildeId)
+            .ToDictionary(g => g.Key, g => new HashSet<string>(g.Select(x => x.ForeslattTekst.ToLowerInvariant()), StringComparer.Ordinal));
+
         var antallTreff = 0;
         var antallNyeKandidater = 0;
         foreach (var node in noder)
         {
             foreach (var (start, lengde, kategori) in FinnKandidaterITekst(node.Tekst!))
             {
-                var tekst = node.Tekst![start..(start + lengde)];
-                var alleredeDekket = kategori == "virksomhet"
+                var raaTekst = node.Tekst![start..(start + lengde)];
+                // [Ny, kodegjennomgang 2026-08-30] Normaliser KUN "rolle" til små bokstaver — se
+                // klassekommentarens "Normalisering før lagring"-avsnitt. "virksomhet" beholder rå tekst
+                // (case er signal, ikke støy, for et egennavn).
+                var tekst = kategori == "rolle" ? raaTekst.ToLowerInvariant() : raaTekst;
+
+                var alleredeDekketAvBegrep = kategori == "virksomhet"
                     ? virksomhetTermer.Contains(tekst)
                     : rolleTermerPerLovkilde.TryGetValue(node.RettskildeId, out var rolleTermer) && rolleTermer.Contains(tekst);
-                if (alleredeDekket) continue;
+                // [Ny, kodegjennomgang 2026-08-30] Term-basert dedup mot EKSISTERENDE, ikke-godkjente
+                // kandidater — kun "rolle" (se klassekommentaren). Uavhengig av tekstposisjon: samme
+                // normaliserte term i samme rettskilde skal ikke gi en ny rad, selv om posisjonen er ny.
+                var alleredeDekketAvEksisterendeKandidat = kategori == "rolle"
+                    && rolleKandidatTermerPerRettskilde.TryGetValue(node.RettskildeId, out var eksisterendeTermer)
+                    && eksisterendeTermer.Contains(tekst);
+                if (alleredeDekketAvBegrep || alleredeDekketAvEksisterendeKandidat) continue;
 
                 antallTreff++;
                 var forAntall = await db.Navnekandidater.CountAsync(
                     k => k.RettskildeId == node.RettskildeId && k.NodeEid == node.Eid && k.StartOffset == start, ct);
                 await OpprettEllerFinnAsync(tekst, kategori, node.RettskildeId, node.Eid, start, start + lengde, opprettetAv, ct);
-                if (forAntall == 0) antallNyeKandidater++;
+                if (forAntall == 0)
+                {
+                    antallNyeKandidater++;
+                    if (kategori == "rolle")
+                    {
+                        // Registrer umiddelbart, slik at en SENERE posisjon i samme sveip (samme
+                        // rettskilde, samme normaliserte term) også blir korrekt gjenkjent som dekket.
+                        if (!rolleKandidatTermerPerRettskilde.TryGetValue(node.RettskildeId, out var settForRettskilde))
+                        {
+                            settForRettskilde = new HashSet<string>(StringComparer.Ordinal);
+                            rolleKandidatTermerPerRettskilde[node.RettskildeId] = settForRettskilde;
+                        }
+                        settForRettskilde.Add(tekst);
+                    }
+                }
             }
         }
 
@@ -249,8 +399,162 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
             funnet.Add((m.Index, m.Length, "rolle"));
         }
 
+        // [Ny, kodegjennomgang 2026-08-30] Flerords-mønster (klassekommentarens punkt 4) — se
+        // FinnEgennavnForanInstitusjonsord/ErFlerordsKontekstTillatt for presisjonsvernet.
+        foreach (Match m in InstitusjonsordMønster.Matches(tekst))
+        {
+            var egennavn = FinnEgennavnForanInstitusjonsord(tekst, m.Index);
+            if (egennavn is null) continue; // ingen store-forbokstav-ord rett før — generisk forekomst
+                                             // (f.eks. "en fylkeskommune", "et statlig tilsyn"), ikke et navn.
+            var (navnStart, _) = egennavn.Value;
+            if (!ErFlerordsKontekstTillatt(tekst, navnStart)) continue;
+
+            funnet.Add((navnStart, m.Index + m.Length - navnStart, "virksomhet"));
+        }
+
         return funnet;
     }
+
+    /// <summary>
+    /// Skanner BAKOVER fra <paramref name="institusjonsordStart"/> og samler inntil 3 STOR-forbokstav-ord,
+    /// ev. med ETT av <see cref="TillatteBindeord"/> mellom to av dem (f.eks. "Møre og Romsdal" foran
+    /// "fylkeskommune"). Stopper ved skilletegn (<c>. , : ; ( )</c>), linjeskift, tekststart, eller et
+    /// ord som verken er stor forbokstav eller et tillatt bindeord. Returnerer <c>null</c> hvis INGEN
+    /// store-forbokstav-ord ble funnet rett før (den generiske "en fylkeskommune"/"et statlig
+    /// tilsyn"-casen — presisjonsvernet docs/13-backlog.md §9 krever) — et dinglende bindeord i hver
+    /// ende av det innsamlede spennet fjernes (bindeordet skal kun stå MELLOM to store-forbokstav-ord,
+    /// aldri innlede eller avslutte selve navnet), og et for langt spenn (mer enn 3 store-forbokstav-ord
+    /// eller mer enn ett bindeord — bør ikke kunne skje gitt filtreringen under, men sjekket eksplisitt
+    /// for lesbarhet/defensivt) forkastes HELT i stedet for å bli kappet vilkårlig — ingen gjettet
+    /// fallback for hvor navnet "egentlig" starter.
+    /// </summary>
+    private static (int Start, int Lengde)? FinnEgennavnForanInstitusjonsord(string tekst, int institusjonsordStart)
+    {
+        var tokens = new List<(int Start, int Lengde, bool StorForbokstav)>();
+        var posisjon = institusjonsordStart;
+        while (tokens.Count < 4) // maks 3 store-forbokstav-ord + ett bindeord
+        {
+            var j = posisjon - 1;
+            while (j >= 0 && (tekst[j] == ' ' || tekst[j] == '\t')) j--;
+            if (j < 0) break; // tekststart
+            if (tekst[j] is '.' or ',' or ':' or ';' or '(' or ')' or '\n' or '\r') break; // skilletegn/linjeskift
+            if (!char.IsLetter(tekst[j])) break; // ukjent tegn rett før (f.eks. et siffer) — stopp konservativt
+
+            var ordSlutt = j + 1;
+            var ordStart = j;
+            while (ordStart > 0 && char.IsLetter(tekst[ordStart - 1])) ordStart--;
+            var ord = tekst[ordStart..ordSlutt];
+
+            var erBindeord = TillatteBindeord.Contains(ord);
+            // [Ny, kodegjennomgang 2026-08-30] "AldriEgennavnOrd" — se den listens kommentar. Et
+            // determinativ/pronomen (f.eks. "Enhver", "Det") teller IKKE som et egennavn-ord selv om
+            // det er stor forbokstav (typisk kun fordi det tilfeldigvis åpner en node/setning).
+            var erStorForbokstav = char.IsUpper(ord[0]) && !AldriEgennavnOrd.Contains(ord);
+            if (!erStorForbokstav && !erBindeord) break; // hverken egennavn-ord eller tillatt bindeord
+
+            tokens.Add((ordStart, ord.Length, erStorForbokstav));
+            posisjon = ordStart;
+        }
+
+        tokens.Reverse(); // nå i lese-rekkefølge (venstre-til-høyre, nærmest institusjonsordet sist)
+
+        // Fjern et evt. dinglende bindeord i ENDENE — bindeordet skal kun stå MELLOM to
+        // store-forbokstav-ord, aldri innlede eller avslutte selve det fangede navnet.
+        while (tokens.Count > 0 && !tokens[0].StorForbokstav) tokens.RemoveAt(0);
+        while (tokens.Count > 0 && !tokens[^1].StorForbokstav) tokens.RemoveAt(tokens.Count - 1);
+
+        if (tokens.Count == 0) return null;
+        if (tokens.Count(t => t.StorForbokstav) > 3 || tokens.Count(t => !t.StorForbokstav) > 1) return null;
+
+        var forste = tokens[0];
+        var siste = tokens[^1];
+
+        // [Ny, kodegjennomgang 2026-08-30] Genitiv-vern, SNEVER: forkast HELE treffet KUN når ordet
+        // rett før institusjonsordet er [ET KJENT SUFFIKS-NAVN, se Suffikser] + genitiv-"s" — f.eks.
+        // "Finanstilsynets"="Finanstilsynet"+"s", "Oljedirektoratets"="Oljedirektoratet"+"s" (avdekket
+        // av samme korpusomfattende testsveip: ga falske positiver som "Finanstilsynets tilsyn",
+        // "Arbeidstilsynets tilsyn", "Oljedirektoratets tilsyn" — genitivsform AV en ALLEREDE navngitt
+        // institusjon + institusjonsordet, betyr "tilsynet TIL X", ikke et navn på en NY institusjon).
+        // <b>Bevisst IKKE "et hvilket som helst ord som ender på s"</b> — det FØRSTE forsøket testet
+        // nettopp det og brøt STRAKS to av mønsterets egne, ekte positive treff: "Akershus
+        // fylkeskommune" (Akershus ender på "s" av rene etymologiske grunner, ikke genitiv) og "Statens
+        // vegvesen" ("Statens" ER den faktiske, offisielle stavemåten — ikke en genitivkonstruksjon AV
+        // noe annet navngitt). Snevret inn til KUN suffiks+s-mønsteret over — dekker ikke enhver
+        // tenkelig genitivkonstruksjon (f.eks. en forkortelse som "NVEs tilsyn" slipper fortsatt
+        // gjennom), men unngår den brede kollateralskaden det første forsøket ga.
+        var sisteOrdSlutt = siste.Start + siste.Lengde;
+        var sisteOrdUtenGenitivS = tekst[sisteOrdSlutt - 1] is 's' or 'S'
+            ? tekst[siste.Start..(sisteOrdSlutt - 1)]
+            : null;
+        if (sisteOrdUtenGenitivS is not null
+            && Suffikser.Any(s => sisteOrdUtenGenitivS.EndsWith(s, StringComparison.OrdinalIgnoreCase)))
+        {
+            return null;
+        }
+
+        return (forste.Start, sisteOrdSlutt - forste.Start);
+    }
+
+    /// <summary>
+    /// Presisjonsvernet for flerords-mønsteret (analogt <see cref="ErSetningsstart"/> for
+    /// suffiksmønsteret, men IKKE identisk — se hvorfor under). Tillatt kontekst:
+    /// <list type="bullet">
+    /// <item>Midt i en setning (samme sjekk som <see cref="ErSetningsstart"/> — ikke rett etter et
+    /// setningsavsluttende tegn) — alltid tillatt.</item>
+    /// <item>ABSOLUTT start av teksten (<paramref name="tekst"/> begynner selv med navnet) — TILLATT
+    /// her, til forskjell fra suffiksmønsterets strengere "aldri ved setningsstart"-regel. Bekreftet i
+    /// live data (FOR-2019-09-30-1310 §2): AKN-listepunkter importeres HVER som sin EGEN
+    /// <c>RettskildeNode</c> uten noen tekstlig liste-markør i selve <c>Tekst</c> (bokstav-/tallmarkøren
+    /// er strukturell metadata, ikke en del av teksten) — "Østfold fylkeskommune: …" står derfor
+    /// bokstavelig på posisjon 0 av SIN node. Risikoen suffiksregelen verner mot (et vanlig substantiv
+    /// tilfeldigvis stort fordi det åpner en node, f.eks. "Departementet kan …") reduseres her av at
+    /// mønsteret i tillegg KREVER et spesifikt institusjonsord rett etter — en langt sterkere
+    /// bekreftelse enn stor forbokstav alene.</item>
+    /// <item>Rett etter et setningsavsluttende tegn, MEN kun hvis det tegnet faktisk er en
+    /// liste-linje-markør (bokstav/tall + punktum, f.eks. "a." eller "1.") ved starten av GJELDENDE
+    /// linje, ikke en ekte setningsslutt — se <see cref="ErListePrefiksVedLinjestart"/>. Uten dette
+    /// unntaket ville f.eks. "… se listen. a. Østfold fylkeskommune: …" (en annen importrute enn den
+    /// bekreftede AKN-punkt-per-node-varianten over, der liste-markøren ER en del av rå teksten) blitt
+    /// avvist som "tvetydig setningsstart".</item>
+    /// </list>
+    /// <para>
+    /// <b>[Ny, kodegjennomgang 2026-08-30] Dokumentert, GJENVÆRENDE begrensning (bevisst ikke fikset):</b>
+    /// den ABSOLUTTE tekststart-tillatelsen over kombinert med <see cref="FinnEgennavnForanInstitusjonsord"/>
+    /// slipper fortsatt gjennom et adjektiv/verb som tilfeldigvis åpner en node og er stor forbokstav —
+    /// f.eks. "Statlig tilsyn", "Overordnet departement", "Føre tilsyn" (funnet i samme korpusomfattende
+    /// testsveip som begrunner <see cref="AldriEgennavnOrd"/>/<see cref="TillatteBindeord"/>-innstrammingen
+    /// over). <see cref="AldriEgennavnOrd"/> fjerner determinativer/pronomen (grammatisk LUKKET ordklasse
+    /// i norsk), men adjektiv/verb er en ÅPEN ordklasse — en uttømmende liste er ikke mulig uten enten
+    /// et uholdbart stort ordforråd eller ekte POS-tagging (NLP/språkmodell, eksplisitt forbudt). Godtatt
+    /// som en bevisst presisjon/recall-avveining, samme filosofi som <see cref="ErSetningsstart"/>s
+    /// tilsvarende, dokumenterte begrensning for suffiksmønsteret — IKKE besluttet stilltiende, flagget
+    /// eksplisitt til Johann i samme PR som denne kommentaren.
+    /// </para>
+    /// </summary>
+    private static bool ErFlerordsKontekstTillatt(string tekst, int index)
+    {
+        var i = index - 1;
+        while (i >= 0 && char.IsWhiteSpace(tekst[i])) i--;
+        if (i < 0) return true; // absolutt tekststart — se metodekommentaren.
+        if (tekst[i] is '.' or '!' or '?') return ErListePrefiksVedLinjestart(tekst, index);
+        return true; // midt i en setning (ikke rett etter et setningsavsluttende tegn).
+    }
+
+    /// <summary>Er <paramref name="index"/> — etter at en evt. liste-markør er trukket fra — starten av
+    /// SIN linje? Ser på teksten fra siste linjeskift (eller tekststart) og fram til <paramref name="index"/>,
+    /// og krever at det ENTEN er tomt (rent linjeskift rett før) ELLER består av nøyaktig én kort
+    /// bokstav-/tallmarkør + punktum + mellomrom (f.eks. "a. ", "12. ") — IKKE en vilkårlig lengre
+    /// tekst som tilfeldigvis ender på et punktum (det ville vært en ekte setningsslutt, ikke en
+    /// liste-markør).</summary>
+    private static bool ErListePrefiksVedLinjestart(string tekst, int index)
+    {
+        var linjeStart = index;
+        while (linjeStart > 0 && tekst[linjeStart - 1] != '\n') linjeStart--;
+        var prefiks = tekst[linjeStart..index];
+        return ListePrefiksMønster.IsMatch(prefiks);
+    }
+
+    private static readonly Regex ListePrefiksMønster = new(@"^\s*[\p{L}0-9]{1,3}\.\s+$");
 
     /// <summary>
     /// Skanner bakover fra <paramref name="index"/>, hopper over whitespace, og ser på det første

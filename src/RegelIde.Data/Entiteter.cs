@@ -953,8 +953,15 @@ public sealed class NavnekandidatEntitet
 {
     public Guid Id { get; set; }
 
-    /// <summary>Selve teksten funnet ved sveipet — den faktiske strengen, ikke en normalisert form
-    /// (bevarer opprinnelig store/små bokstaver, avgjørende for <see cref="Kategori"/>s klassifiseringsregel).</summary>
+    /// <summary>Selve teksten funnet ved sveipet.
+    /// <para>
+    /// <b>[Rettet, kodegjennomgang 2026-08-30]</b> Store/små bokstaver bevares KUN for
+    /// <c>Kategori == "virksomhet"</c> (avgjørende for selve klassifiseringsregelen — et egennavn skal
+    /// beholde sin faktiske stavemåte). For <c>Kategori == "rolle"</c> er teksten derimot NORMALISERT
+    /// til små bokstaver FØR lagring (<see cref="NavnekandidatOppdagelseTjeneste.SveipAsync"/>) — en
+    /// rolle er per definisjon ikke et egennavn, så case er støy, ikke identitet (bekreftet i live data:
+    /// "statsforvalteren"/"Statsforvalteren" ga tidligere separate kandidater for samme rolle).
+    /// </para></summary>
     public required string ForeslattTekst { get; set; }
 
     /// <summary>`'virksomhet'` (ekte egennavn, suffiksmønster + stor forbokstav MIDT i en setning) eller
