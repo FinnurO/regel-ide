@@ -71,6 +71,26 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal("havnetilsynet", tekst.Substring(treff.Start, treff.Lengde));
     }
 
+    /// <summary>
+    /// [Ny, kodegjennomgang 2026-08-30] Regresjonstest for en reell falsk positiv: "fiskeriregelverket"
+    /// ble tidligere foreslått som en "virksomhet"-kandidat i live data (stor forbokstav midt i
+    /// setning + "verket"-suffiks), men er åpenbart ikke et egennavn — bare "regelverket for
+    /// fiskeri". Et ekte "verket"-institusjonsnavn ("Patentverket") skal fortsatt gi kandidat.
+    /// </summary>
+    [Fact]
+    public void Verket_denyliste_blokkerer_produktive_sammensetninger_men_ikke_ekte_institusjoner()
+    {
+        const string tekst = "Vedtak kan påklages til Fiskeriregelverket innen tre uker.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+        Assert.Empty(funn);
+
+        const string ektInstitusjon = "Vedtak kan påklages til Patentverket innen tre uker.";
+        var funnEkte = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(ektInstitusjon);
+        var treff = Assert.Single(funnEkte);
+        Assert.Equal("virksomhet", treff.Kategori);
+        Assert.Equal("Patentverket", ektInstitusjon.Substring(treff.Start, treff.Lengde));
+    }
+
     [Fact]
     public void Fast_liste_rollesubstantiv_gir_alltid_rolle_uansett_store_smaa_bokstaver()
     {

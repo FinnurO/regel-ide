@@ -145,6 +145,30 @@ export default function RettskildeDetalj() {
   const [lagrerMetadata, setLagrerMetadata] = useState(false);
   const [metadataFeil, setMetadataFeil] = useState<string | null>(null);
 
+  // Navnekandidat-fiks 3, del 2 (2026-08-30, docs/13-backlog.md §9) — manuell sveip-trigger for NØYAKTIG
+  // denne rettskilden. Fantes ikke noe sted i UI-et før nå (kun via NavnekandidaterListe.tsx sitt
+  // korpusomfattende/rettskilde-filtrerte sveip-panel, ikke herfra) — brukere som nettopp har
+  // (re)importert ELLER lagt merke til at en kjent lov mangler kandidater hadde ingen synlig måte å
+  // trigge det på uten å bytte side og lete opp riktig rettskilde i en nedtrekksliste der.
+  const [sveiper, setSveiper] = useState(false);
+  const [sveipFeil, setSveipFeil] = useState<string | null>(null);
+  const [sveipResultat, setSveipResultat] = useState<{ funnet: number; nye: number } | null>(null);
+
+  async function kjorSveip() {
+    if (!id) return;
+    setSveiper(true);
+    setSveipFeil(null);
+    setSveipResultat(null);
+    try {
+      const resultat = await api.sveipNavnekandidater({ rettskildeId: id });
+      setSveipResultat({ funnet: resultat.antallTreffFunnet, nye: resultat.antallNyeKandidater });
+    } catch (err) {
+      setSveipFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved sveip.');
+    } finally {
+      setSveiper(false);
+    }
+  }
+
   function startRedigerMetadata() {
     if (!detalj) return;
     setMetaKortnavn(detalj.kortnavn ?? '');
@@ -417,7 +441,10 @@ export default function RettskildeDetalj() {
     return kart;
   }, [detalj, tre]);
   const detaljSomSammendrag = useMemo(
-    () => (detalj ? [{ id: detalj.id, virksomhetId: detalj.virksomhetId, eli: detalj.eli, tittel: detalj.tittel, kortnavn: detalj.kortnavn, kildetype: detalj.kildetype }] : []),
+    () => (detalj ? [{
+      id: detalj.id, virksomhetId: detalj.virksomhetId, eli: detalj.eli, tittel: detalj.tittel,
+      kortnavn: detalj.kortnavn, kildetype: detalj.kildetype, ansvarligDepartement: detalj.ansvarligDepartement,
+    }] : []),
     [detalj],
   );
   function tilEidVisning(tilEid: string): string {
@@ -541,11 +568,21 @@ export default function RettskildeDetalj() {
         {detalj.tittel}
       </Heading>
 
-      <div style={{ display: 'flex', gap: '0.5rem', margin: '0.5rem 0 1rem', flexWrap: 'wrap' }}>
+      <div style={{ display: 'flex', gap: '0.5rem', margin: '0.5rem 0 1rem', flexWrap: 'wrap', alignItems: 'center' }}>
         <Tag data-color="info">{detalj.kildetype}</Tag>
         <Tag data-color={detalj.status === 'Gjeldende' ? 'success' : 'warning'}>{detalj.status}</Tag>
         <Tag data-color={detalj.virksomhetId ? 'success' : 'info'}>{visEier(detalj.virksomhetId)}</Tag>
+        <Button data-size="sm" variant="secondary" onClick={kjorSveip} disabled={sveiper}>
+          {sveiper ? 'Sveiper …' : 'Sveip etter navnekandidater'}
+        </Button>
       </div>
+      {sveipFeil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{sveipFeil}</Alert>}
+      {sveipResultat && (
+        <Alert data-color="info" style={{ marginBottom: '1rem' }}>
+          Fant {sveipResultat.funnet} treff, {sveipResultat.nye} nye kandidater lagt i køen.{' '}
+          <Link asChild><RouterLink to={`/navnekandidater?rettskildeId=${id}`}>Se navnekandidater ↗</RouterLink></Link>
+        </Alert>
+      )}
 
       {detalj.kildetype === 'Brukerveiledning' && (
         <div style={{ marginBottom: '1.5rem' }}>
@@ -663,6 +700,10 @@ export default function RettskildeDetalj() {
                 <Table.Row>
                   <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Utgiver</Table.Cell>
                   <Table.Cell>{detalj.utgiver ?? '—'}</Table.Cell>
+                </Table.Row>
+                <Table.Row>
+                  <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Ansvarlig departement</Table.Cell>
+                  <Table.Cell>{detalj.ansvarligDepartement ?? '—'}</Table.Cell>
                 </Table.Row>
               </Table.Body>
             </Table>

@@ -7,6 +7,8 @@ export interface RettskildeSammendrag {
   tittel: string;
   kortnavn: string | null;
   kildetype: string;
+  /** "Kommunal- og distriktsdepartementet" e.l. — NULL for alt som ikke er Lovdata-importert Lov/Forskrift. */
+  ansvarligDepartement: string | null;
 }
 
 export interface RettskildeDetalj {
@@ -20,6 +22,8 @@ export interface RettskildeDetalj {
   ikrafttredelse: string | null;
   konsolidertDato: string | null;
   utgiver: string | null;
+  /** "Kommunal- og distriktsdepartementet" e.l. (Lovdatas eget metadata) — NULL for alt som ikke er Lovdata-importert Lov/Forskrift. */
+  ansvarligDepartement: string | null;
   status: string;
   aknXml: string | null;
   /** ELI (over) er ALLTID skrivebeskyttet — disse fem er derimot redigerbare via oppdaterRettskildeMetadata. */

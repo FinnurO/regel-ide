@@ -34,6 +34,33 @@ public sealed class LovdataFullimportBakgrunnstjeneste(
             logger.LogInformation("Lovdata-fullimport starter i bakgrunnen (alle lover + sentrale forskrifter)...");
             var resultat = await tjeneste.KjorAsync(stoppingToken);
             logger.LogInformation("Lovdata-fullimport fullført: {Resultat}", resultat);
+
+            // [Ny, kodegjennomgang 2026-08-30] Navnekandidat-fiks 3 — verken enkelt-import eller denne
+            // fullimport-jobben trigget FØR NÅ noensinne NavnekandidatOppdagelseTjeneste.SveipAsync selv;
+            // POST /api/navnekandidater/sveip måtte kalles eksplisitt. Bekreftet i praksis: et manuelt
+            // sveip av kommuneloven (allerede importert i god tid) ga 301 helt NYE treff — beviset er at
+            // sveipet aldri hadde kjørt før, ikke at mønstrene ikke fanger noe der. Kjøres derfor her,
+            // ETTER at selve fullimporten er ferdig og committet, over HELE korpuset (rettskildeId=null)
+            // — idempotent (se NavnekandidatOppdagelseTjenesteTests), trygt å kjøre på nytt selv om noen
+            // rettskilder allerede er sveipet fra før. Egen try/catch: et sveip som feiler skal aldri få
+            // det til å SE UT som om selve fullimporten (som allerede er committet over) feilet.
+            try
+            {
+                var navnekandidatRegister = scope.ServiceProvider.GetRequiredService<NavnekandidatOppdagelseTjeneste>();
+                var sveipResultat = await navnekandidatRegister.SveipAsync(
+                    rettskildeId: null, LovdataFullimportTjeneste.SystemBruker, stoppingToken);
+                logger.LogInformation(
+                    "Navnekandidat-sveip etter fullimport fullført: {Funnet} treff totalt, {Nye} nye kandidater.",
+                    sveipResultat.AntallTreffFunnet, sveipResultat.AntallNyeKandidater);
+            }
+            catch (OperationCanceledException)
+            {
+                // Normal avslutning ved app-shutdown midt i sveipet — ikke en feil.
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Navnekandidat-sveip etter fullimport feilet uventet.");
+            }
         }
         catch (OperationCanceledException)
         {
