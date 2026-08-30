@@ -25,9 +25,9 @@ export default function BegrepDetalj() {
 
   function fyllSkjemaFra(b: BegrepDto) {
     setTerm(b.term);
-    setDefinisjon(b.definisjon);
+    setDefinisjon(b.definisjon ?? '');
     setLovreferanseEid(b.lovreferanseEid ?? '');
-    setBegrepstype(b.begrepstype);
+    setBegrepstype(b.begrepstype ?? 'faktabegrep');
   }
 
   useEffect(() => {

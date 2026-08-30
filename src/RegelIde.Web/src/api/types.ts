@@ -750,14 +750,14 @@ export interface AvhengighetsgrafDto {
 /** SKOS-begrep (docs/03-domenemodell.md §1.3). 'begrepstype': faktabegrep|handlingsbegrep. */
 export interface BegrepDto {
   id: string;
-  virksomhetId: string;
+  virksomhetId: string | null;
   term: string;
-  definisjon: string;
+  definisjon: string | null;
   lovreferanseEid: string | null;
   gjelderFor: string[];
   kodelisteReferanseId: string | null;
   skosUrl: string | null;
-  begrepstype: string;
+  begrepstype: string | null;
   status: string;
   versjon: number;
 }
