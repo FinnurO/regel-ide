@@ -77,8 +77,14 @@ export default function NavnekandidaterListe() {
   const [statusFilter, setStatusFilter] = useState<'Venter' | 'Godkjent' | 'Avvist' | 'Alle'>('Venter');
 
   // Klient-side filtre (se klassekommentaren) — virker på den allerede hentede `kandidater`-listen,
-  // ikke på serverspørringen.
-  const [rettskildeValgteFilter, setRettskildeValgteFilter] = useState<Set<string>>(new Set());
+  // ikke på serverspørringen. Forhåndsutfylt fra ?rettskildeId=... (RettskildeDetalj.tsx sin «Sveip
+  // etter navnekandidater»-lenke, navnekandidat-fiks 3 del 2) — kun en INITIAL verdi (useState-
+  // argumentet evalueres kun ved første render); brukeren kan fritt endre/utvide flervalgsfilteret
+  // videre via RettskildeFlervalg under, akkurat som uten lenken.
+  const [rettskildeValgteFilter, setRettskildeValgteFilter] = useState<Set<string>>(() => {
+    const forhandsvalgt = searchParams.get('rettskildeId');
+    return forhandsvalgt ? new Set([forhandsvalgt]) : new Set();
+  });
   const [filterForeslattTekst, setFilterForeslattTekst] = useState('');
 
   const [gruppering, setGruppering] = useState<Gruppering>('ingen');
