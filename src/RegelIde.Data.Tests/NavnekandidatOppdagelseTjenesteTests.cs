@@ -107,6 +107,164 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal("Departementet", tekst.Substring(treff.Start, treff.Lengde));
     }
 
+    // ---------- Del A2: flerords-mønster (egennavn + institusjonsord), docs/13-backlog.md §9 punkt 4 ----------
+
+    [Fact]
+    public void Flerords_monster_med_ett_egennavn_gir_virksomhet_kandidat()
+    {
+        // Ordrett fra live data, FOR-2019-09-30-1310 §2 andre ledd, punkt 1 — importert som SIN EGEN
+        // RettskildeNode uten noen tekstlig liste-markør (bokstav-/tallmarkøren er strukturell metadata,
+        // ikke en del av Tekst) — "Østfold fylkeskommune: …" står derfor bokstavelig på posisjon 0.
+        const string tekst = "Østfold fylkeskommune: Driftsområde Ytre Oslofjord Øst";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+
+        // Merk: bare "fylkeskommune" gir I TILLEGG en separat "rolle"-treff (Del 2s utvidede
+        // FasteRollesubstantiv, se egne tester under) — vi filtrerer her på "virksomhet" spesifikt.
+        var treff = Assert.Single(funn, f => f.Kategori == "virksomhet");
+        Assert.Equal("Østfold fylkeskommune", tekst.Substring(treff.Start, treff.Lengde));
+    }
+
+    [Fact]
+    public void Flerords_monster_med_bindeord_og_inkluderer_bindeordet_i_fanget_tekst()
+    {
+        // Ordrett fra samme rettskilde, punkt 7 — "og" MELLOM to store-forbokstav-ord skal være med i
+        // den fangede teksten, ikke bare det siste av dem.
+        const string tekst = "Møre og Romsdal fylkeskommune: Møre og Romsdal driftsområde";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+
+        var treff = Assert.Single(funn, f => f.Kategori == "virksomhet");
+        Assert.Equal("Møre og Romsdal fylkeskommune", tekst.Substring(treff.Start, treff.Lengde));
+    }
+
+    [Fact]
+    public void Flerords_monster_gir_ingen_virksomhet_kandidat_for_generisk_ubestemt_forekomst()
+    {
+        // "en fylkeskommune" — ordet RETT FØR institusjonsordet ("en") er IKKE stor forbokstav, altså
+        // ikke et egennavn. Presisjonskravet docs/13-backlog.md §9 eksplisitt advarer mot.
+        const string tekst = "Loven åpner for at en fylkeskommune samarbeider med andre.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+
+        Assert.DoesNotContain(funn, f => f.Kategori == "virksomhet");
+    }
+
+    [Fact]
+    public void Flerords_monster_gir_ingen_kandidat_i_det_hele_tatt_for_generisk_forekomst_uten_institusjonsord_i_fast_liste()
+    {
+        // "et statlig tilsyn" — "tilsyn" (ubestemt) er IKKE i FasteRollesubstantiv (kun kommune/
+        // fylkeskommune/departement/statsforvalter er utvidet dit, se Del 2), og "statlig" foran er
+        // ikke stor forbokstav — INGEN kandidat i det hele tatt forventes, verken virksomhet ELLER rolle.
+        const string tekst = "et statlig tilsyn kan gripe inn.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+
+        Assert.Empty(funn);
+    }
+
+    [Fact]
+    public void Flerords_monster_fanger_statens_vegvesen()
+    {
+        // "vegvesen" — lagt til Institusjonsord utover Johanns opprinnelige liste (se listens
+        // kommentar for begrunnelsen): til forskjell fra f.eks. "tilsyn"-institusjoner skrives denne
+        // reelt som to ord, og er lav-tvetydig alene.
+        const string tekst = "Ansvaret for vegen ligger hos Statens vegvesen i denne saken.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+
+        var treff = Assert.Single(funn, f => f.Kategori == "virksomhet");
+        Assert.Equal("Statens vegvesen", tekst.Substring(treff.Start, treff.Lengde));
+    }
+
+    [Fact]
+    public void Flerords_monster_tillater_liste_prefiks_markor_som_ikke_er_en_ekte_setningsslutt()
+    {
+        // Samme reelle liste som live-data-eksempelet over, men denne varianten har bokstav-listemarkører
+        // SOM DEL AV selve teksten (f.eks. fra en annen importrute enn AKN-punkt-per-node) — uten
+        // ErListePrefiksVedLinjestart-unntaket ville "a. "/"b. " blitt lest som en ekte setningsslutt
+        // (punktum) rett før, og begge blitt avvist som tvetydig setningsstart.
+        const string tekst = "Fylkeskommunale driftsområder:\n" +
+                              "a. Østfold fylkeskommune: Driftsområde Ytre Oslofjord Øst\n" +
+                              "b. Akershus fylkeskommune: Driftsområde Indre Oslofjord";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+
+        var virksomhetTreff = funn.Where(f => f.Kategori == "virksomhet").ToList();
+        Assert.Equal(2, virksomhetTreff.Count);
+        Assert.Contains(virksomhetTreff, f => tekst.Substring(f.Start, f.Lengde) == "Østfold fylkeskommune");
+        Assert.Contains(virksomhetTreff, f => tekst.Substring(f.Start, f.Lengde) == "Akershus fylkeskommune");
+    }
+
+    /// <summary>
+    /// Regresjonstester for konkrete falske positiver AVDEKKET av et faktisk korpusomfattende testsveip
+    /// mot den kjørende dev-databasen (se PR-beskrivelsen) — IKKE hypotetiske, alle observert i ekte
+    /// rettskildetekst FØR <see cref="AldriEgennavnOrd"/>/genitiv-vernet/den innstrammede
+    /// <see cref="TillatteBindeord"/> ble lagt til.
+    /// </summary>
+    [Theory]
+    [InlineData("Enhver fylkeskommune kan søke om unntak fra dette.")]
+    [InlineData("Hver kommune skal føre eget regnskap.")]
+    [InlineData("En kommune kan overføre oppgaver til en annen kommune.")]
+    [InlineData("Det departement som har ansvaret, avgjør saken.")]
+    public void Flerords_monster_gir_ingen_virksomhet_for_determinativ_pronomen_foran_institusjonsord(string tekst)
+    {
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+        Assert.DoesNotContain(funn, f => f.Kategori == "virksomhet");
+    }
+
+    [Fact]
+    public void Flerords_monster_gir_ingen_virksomhet_for_genitivsform_av_en_annen_institusjon()
+    {
+        // "Finanstilsynets tilsyn" = "tilsynet TIL Finanstilsynet", ikke et navn på en NY institusjon —
+        // ordet rett før institusjonsordet ender på genitiv-"s".
+        const string tekst = "Finanstilsynets tilsyn omfatter alle banker.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+        Assert.DoesNotContain(funn, f => f.Kategori == "virksomhet");
+    }
+
+    [Fact]
+    public void Flerords_monster_fanger_kun_selve_institusjonsnavnet_ikke_en_urelatert_preposisjonsfrase_foran()
+    {
+        // "Inntaksnemnda i Finnmark fylkeskommune" — "i" er her en EKTE preposisjon ("i [fylket]
+        // Finnmark"), ikke et navneinternt bindeord — derfor fjernet fra TillatteBindeord (se dens
+        // kommentar). Korrekt fanget tekst er KUN "Finnmark fylkeskommune", ikke hele frasen.
+        const string tekst = "Inntaksnemnda i Finnmark fylkeskommune behandler klagen.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+
+        var treff = Assert.Single(funn, f => f.Kategori == "virksomhet");
+        Assert.Equal("Finnmark fylkeskommune", tekst.Substring(treff.Start, treff.Lengde));
+    }
+
+    // ---------- Del A3: normaliserte bøyningsformer i FasteRollesubstantiv (docs/13-backlog.md §9, Del 2) ----------
+
+    [Fact]
+    public void Fast_liste_dekker_alle_fire_boyningsformer_av_kommune_og_fylkeskommune()
+    {
+        // Bekreftet i live data: "kommuneloven" har 71 forekomster av "kommuner" og 71 av
+        // "fylkeskommuner" (ubestemt flertall) som IKKE ble fanget før denne utvidelsen.
+        const string tekst = "Kommuneloven gjelder for kommune, kommunen, kommuner og kommunene, " +
+                              "samt fylkeskommune, fylkeskommunen, fylkeskommuner og fylkeskommunene.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+
+        Assert.Equal(8, funn.Count);
+        Assert.All(funn, f => Assert.Equal("rolle", f.Kategori));
+        foreach (var form in new[] { "kommune", "kommunen", "kommuner", "kommunene", "fylkeskommune", "fylkeskommunen", "fylkeskommuner", "fylkeskommunene" })
+        {
+            Assert.Contains(funn, f => tekst.Substring(f.Start, f.Lengde) == form);
+        }
+    }
+
+    [Fact]
+    public void Fast_liste_dekker_alle_fire_boyningsformer_av_statsforvalter_og_departement()
+    {
+        const string tekst = "En statsforvalter, flere statsforvaltere, Statsforvalteren og statsforvalterne " +
+                              "behandlet saken sammen med et departement, departementet, flere departementer og departementene.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+
+        Assert.Equal(8, funn.Count);
+        Assert.All(funn, f => Assert.Equal("rolle", f.Kategori));
+        foreach (var form in new[] { "statsforvalter", "statsforvaltere", "statsforvalterne", "departement", "departementet", "departementer", "departementene" })
+        {
+            Assert.Contains(funn, f => tekst.Substring(f.Start, f.Lengde) == form);
+        }
+        Assert.Contains(funn, f => tekst.Substring(f.Start, f.Lengde) == "Statsforvalteren");
+    }
+
     // ---------- Del B: sveip/godkjenning/avvisning mot ekte embedded Postgres ----------
 
     private static async Task<Guid> OpprettRettskildeMedNodeAsync(RegelIdeDbContext db, string tekst, string? eid = null)
@@ -374,5 +532,99 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.SveipAsync(Guid.NewGuid(), "test"));
+    }
+
+    // ---------- Del C: normalisering + term-basert dedup for "rolle" (docs/13-backlog.md §9, Del 2) ----------
+
+    [Fact]
+    public async Task Rollekandidat_lagres_med_normalisert_smaa_bokstaver_tekst_selv_om_treffet_var_stor_forbokstav()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Statsforvalteren skal påse at loven følges.");
+
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        await tjeneste.SveipAsync(rettskildeId, "test");
+
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
+        Assert.Equal("rolle", kandidat.Kategori);
+        // Selve teksten i noden har stor forbokstav ("Statsforvalteren") — lagret ForeslattTekst skal
+        // likevel være normalisert til små bokstaver, se klassekommentarens "Normalisering før
+        // lagring"-avsnitt.
+        Assert.Equal("statsforvalteren", kandidat.ForeslattTekst);
+    }
+
+    /// <summary>
+    /// Regresjonstest for det konkrete, bekreftede problemet: 68 forekomster av "statsforvalteren" og
+    /// 45 av "Statsforvalteren" ga tidligere separate kandidater (ren posisjonell idempotens fanget
+    /// ikke opp at det var samme term). Begge forekomster her er i SAMME node — dedupliseringen skjer
+    /// derfor INNENFOR samme sveip-kjøring (det in-memory settet oppdateres fortløpende i løkken).
+    /// </summary>
+    [Fact]
+    public async Task Rollekandidat_med_ulik_store_smaa_bokstaver_i_samme_node_dedupliseres_til_en_rad()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(
+            db, "Statsforvalteren skal føre tilsyn. I andre saker avgjør statsforvalteren selv.");
+
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
+
+        // Kun ÉN treff telles — den andre forekomsten er "alleredeDekketAvEksisterendeKandidat", samme
+        // prinsipp (og samme plassering FØR antallTreff++) som "alleredeDekket mot Begrep".
+        Assert.Equal(1, resultat.AntallTreffFunnet);
+        Assert.Equal(1, resultat.AntallNyeKandidater);
+
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
+        Assert.Equal("statsforvalteren", kandidat.ForeslattTekst);
+    }
+
+    /// <summary>
+    /// Samme regresjon som testen over, men på TVERS av to ulike noder i samme rettskilde — beviser at
+    /// dedupliseringen ikke er avhengig av at begge forekomstene behandles i samme indre løkke-iterasjon
+    /// (det forhåndslastede oppslaget ved sveipets start dekker dette like godt som den fortløpende
+    /// oppdateringen dekker duplikater innenfor én og samme node).
+    /// </summary>
+    [Fact]
+    public async Task Rollekandidat_med_ulik_store_smaa_bokstaver_pa_tvers_av_noder_dedupliseres_til_en_rad()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Kommunen skal føre tilsyn med dette.");
+        db.RettskildeNoder.Add(new RettskildeNodeEntitet
+        {
+            Id = Guid.NewGuid(), RettskildeId = rettskildeId, Eid = $"https://test/{Guid.NewGuid():N}/§2/ledd-1",
+            KildeId = "ledd-1", NodeType = "ledd", Tekst = "I andre saker avgjør kommunen selv.",
+        });
+        await db.SaveChangesAsync();
+
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
+
+        Assert.Equal(1, resultat.AntallTreffFunnet);
+        Assert.Equal(1, resultat.AntallNyeKandidater);
+        Assert.Equal(1, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeId));
+    }
+
+    /// <summary>
+    /// Kontrasttest: "virksomhet" er bevisst IKKE del av term-dedup-utvidelsen (se klassekommentaren —
+    /// case er signal, ikke støy, for et egennavn). To forekomster av SAMME virksomhetsnavn på ulike
+    /// posisjoner i samme rettskilde skal derfor fortsatt gi TO separate rader (ren posisjonell
+    /// idempotens, uendret oppførsel).
+    /// </summary>
+    [Fact]
+    public async Task Virksomhetskandidat_med_samme_term_pa_ulike_posisjoner_gir_fortsatt_to_separate_rader()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(
+            db, "Vedtak kan påklages til Sjøfartsdirektoratet, og Sjøfartsdirektoratet behandler klagen innen tre uker.");
+
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
+
+        Assert.Equal(2, resultat.AntallTreffFunnet);
+        Assert.Equal(2, resultat.AntallNyeKandidater);
+        var kandidater = await db.Navnekandidater.Where(k => k.RettskildeId == rettskildeId).ToListAsync();
+        Assert.Equal(2, kandidater.Count);
+        Assert.All(kandidater, k => Assert.Equal("Sjøfartsdirektoratet", k.ForeslattTekst));
+        Assert.Equal(2, kandidater.Select(k => k.StartOffset).Distinct().Count());
     }
 }
