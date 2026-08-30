@@ -73,7 +73,12 @@ import type {
   TjenesteavhengighetRequest,
   TjenesteTverrTenantTreffDto,
   TjenesteforslagDto,
+  TjenesteforslagBatchRequest,
+  TjenesteforslagBatchResultatDto,
+  TjenesteforslagSlettBatchResultatDto,
   MittForslagDto,
+  BegrepsforslagBatchRequest,
+  BegrepsforslagBatchResultatDto,
   HandbokRettskildeomfangDto,
   TjenesteRequest,
   UnntakDto,
@@ -94,6 +99,8 @@ import type {
   NavnekandidatDto,
   SveipNavnekandidaterRequest,
   SveipNavnekandidaterResultatDto,
+  NavnekandidatBatchRequest,
+  NavnekandidatBatchResultatDto,
   VisningsinnstillingInput,
 } from './types';
 
@@ -337,6 +344,20 @@ export const api = {
   avvisNavnekandidat: (id: string) =>
     kall<NavnekandidatDto>(`/api/navnekandidater/${id}/avvis`, { method: 'POST' }),
 
+  godkjennNavnekandidaterBatch: (request: NavnekandidatBatchRequest) =>
+    kall<NavnekandidatBatchResultatDto>('/api/navnekandidater/godkjenn-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  avvisNavnekandidaterBatch: (request: NavnekandidatBatchRequest) =>
+    kall<NavnekandidatBatchResultatDto>('/api/navnekandidater/avvis-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
   hentTaggKinds: () => kall<TaggKindKonfigurasjonDto[]>('/api/konfigurasjon/tagg-kinds'),
 
   importerFraLovdata: (datokode: string) =>
@@ -495,6 +516,31 @@ export const api = {
       body: JSON.stringify(request),
     }),
 
+  /** Massegodkjenning/-avvisning/-sletting av tjenesteforslag (store test-import-/-sveip-mengder) —
+   * server-side batch, per-rad-feilhåndtering, samme mønster som virksomhet-kandidater-batchen over.
+   * `slettTjenesteforslagBatch` dekker BÅDE «Ventende forslag» sin Slett OG «Mine forslag til andre
+   * virksomheter» sin Slett-alle-merkede — se backend-DTO-kommentaren for hvorfor ett endepunkt holder. */
+  godkjennTjenesteforslagBatch: (request: TjenesteforslagBatchRequest) =>
+    kall<TjenesteforslagBatchResultatDto>('/api/tjenester/forslag/godkjenn-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  avvisTjenesteforslagBatch: (request: TjenesteforslagBatchRequest) =>
+    kall<TjenesteforslagBatchResultatDto>('/api/tjenester/forslag/avvis-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  slettTjenesteforslagBatch: (request: TjenesteforslagBatchRequest) =>
+    kall<TjenesteforslagSlettBatchResultatDto>('/api/tjenester/forslag/slett-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
   // Omfang "full" (handlingsforslag-ki-omfang-runden) — samme endepunkt som over, men request.omfang
   // = 'full' gir en ANNEN responsform (Tjeneste + Handlinger per element) — egen typet klientmetode
   // i stedet for å overbelaste kjorTjenesteforslag sin returtype.
@@ -638,6 +684,21 @@ export const api = {
 
   kjorBegrepsforslag: (request: KjorForslagRequest) =>
     kall<KjorForslagResponsDto<BegrepDto>>('/api/begreper/forslag/kjor', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  /** Massegodkjenning/-avvisning av begrepsforslag — samme mønster som tjenesteforslag-batchen over. */
+  godkjennBegrepsforslagBatch: (request: BegrepsforslagBatchRequest) =>
+    kall<BegrepsforslagBatchResultatDto>('/api/begreper/forslag/godkjenn-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  avvisBegrepsforslagBatch: (request: BegrepsforslagBatchRequest) =>
+    kall<BegrepsforslagBatchResultatDto>('/api/begreper/forslag/avvis-batch', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),

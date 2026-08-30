@@ -135,4 +135,69 @@ public class NavnekandidaterEndepunktTests
             $"/api/navnekandidater?rettskildeId={rettskildeId}", JsonInnstillinger);
         Assert.Empty(ventendeSvar!);
     }
+
+    // ---------- Massehandling (2026-08-30) — se docs-kommentaren i NavnekandidaterListe.tsx ----------
+
+    [Fact]
+    public async Task Godkjenn_batch_behandler_bade_rolle_og_virksomhet_kategori_i_samme_kall()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(
+            "Alle skip skal melde fra til havnetilsynet, og vedtak kan påklages til Miljødirektoratet innen tre uker.");
+        await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/sveip", brukerId, new { RettskildeId = rettskildeId }));
+
+        var listeSvar = await _client.GetFromJsonAsync<List<NavnekandidatDto>>(
+            $"/api/navnekandidater?rettskildeId={rettskildeId}", JsonInnstillinger);
+        var kandidater = listeSvar!;
+        Assert.Contains(kandidater, k => k.Kategori == "rolle");
+        Assert.Contains(kandidater, k => k.Kategori == "virksomhet");
+
+        var batchSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/godkjenn-batch", brukerId,
+            new { Ider = kandidater.Select(k => k.Id) }));
+        Assert.Equal(HttpStatusCode.OK, batchSvar.StatusCode);
+        var resultat = await batchSvar.Content.ReadFromJsonAsync<NavnekandidatBatchResultatDto>(JsonInnstillinger);
+        Assert.Equal(kandidater.Count, resultat!.Rader.Count);
+        Assert.All(resultat.Rader, r => Assert.True(r.Ok, r.Feil));
+        Assert.All(resultat.Rader, r => Assert.Equal("Godkjent", r.Resultat!.Status));
+
+        // 'rolle'-raden skal ha opprettet et ekte rollebegrep (samme sjekk som enkeltrad-testen over) —
+        // batchen ruller IKKE bare status, den kaller den faktiske GodkjennAsync-forgreiningen per rad.
+        await using var db = _fixture.NyDbContext();
+        var rollebegrep = await db.Begreper.SingleOrDefaultAsync(
+            b => b.Begrepskategori == "rolle" && b.LovkildeId == rettskildeId && b.Term == "havnetilsynet");
+        Assert.NotNull(rollebegrep);
+    }
+
+    [Fact]
+    public async Task Avvis_batch_rapporterer_ukjent_id_som_feilet_rad_uten_a_rulle_tilbake_den_gyldige()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync("Vedtak kan påklages til Miljødirektoratet innen tre uker.");
+        await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/sveip", brukerId, new { RettskildeId = rettskildeId }));
+
+        var listeSvar = await _client.GetFromJsonAsync<List<NavnekandidatDto>>(
+            $"/api/navnekandidater?rettskildeId={rettskildeId}", JsonInnstillinger);
+        var gyldigId = Assert.Single(listeSvar!).Id;
+        var ukjentId = Guid.NewGuid();
+
+        var batchSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/avvis-batch", brukerId,
+            new { Ider = new[] { gyldigId, ukjentId } }));
+        Assert.Equal(HttpStatusCode.OK, batchSvar.StatusCode);
+        var resultat = await batchSvar.Content.ReadFromJsonAsync<NavnekandidatBatchResultatDto>(JsonInnstillinger);
+        Assert.Equal(2, resultat!.Rader.Count);
+
+        var gyldigRad = resultat.Rader.Single(r => r.Id == gyldigId);
+        Assert.True(gyldigRad.Ok);
+        Assert.Equal("Avvist", gyldigRad.Resultat!.Status);
+
+        var ukjentRad = resultat.Rader.Single(r => r.Id == ukjentId);
+        Assert.False(ukjentRad.Ok);
+        Assert.Contains(ukjentId.ToString(), ukjentRad.Feil);
+
+        // Bekreft at den gyldige raden faktisk ble oppdatert i databasen (ikke rullet tilbake pga.
+        // den andre radens feil) — nøyaktig den per-rad-, ikke-alt-eller-ingenting-oppførselen batchen skal ha.
+        var etterBatchSvar = await _client.GetFromJsonAsync<List<NavnekandidatDto>>(
+            $"/api/navnekandidater?rettskildeId={rettskildeId}&status=Alle", JsonInnstillinger);
+        Assert.Single(etterBatchSvar!, k => k.Id == gyldigId && k.Status == "Avvist");
+    }
 }

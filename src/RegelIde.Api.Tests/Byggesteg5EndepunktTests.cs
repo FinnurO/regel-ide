@@ -276,6 +276,78 @@ public class Byggesteg5EndepunktTests
         Assert.DoesNotContain(ko!, f => f.Begrep.Id == godkjent.Id);
     }
 
+    // ---------- Massehandling på begrepsforslag (2026-08-30) ----------
+
+    [Fact]
+    public async Task Godkjenn_og_avvis_batch_behandler_flere_begrepsforslag_i_samme_kall()
+    {
+        var bruker = await HentTestbrukerAsync();
+        var rettskildeId = await HentAlkohollovenIdAsync();
+
+        // To separate kjør-kall (stub-KI-en gir ett fast forslag per kall) — to DISTINKTE forslag-id-er
+        // å godkjenne sammen i én batch, for å bevise at batchen faktisk behandler FLERE rader.
+        var kjor1 = await (await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/begreper/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<KjorForslagResponsDto<BegrepDto>>(JsonInnstillinger);
+        var kjor2 = await (await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/begreper/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<KjorForslagResponsDto<BegrepDto>>(JsonInnstillinger);
+
+        var godkjennSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/begreper/forslag/godkjenn-batch", bruker.Id,
+            new { Ider = new[] { kjor1!.Forslag[0].Id, kjor2!.Forslag[0].Id } }));
+        Assert.Equal(HttpStatusCode.OK, godkjennSvar.StatusCode);
+        var godkjentResultat = await godkjennSvar.Content.ReadFromJsonAsync<BegrepsforslagBatchResultatDto>(JsonInnstillinger);
+        Assert.Equal(2, godkjentResultat!.Rader.Count);
+        Assert.All(godkjentResultat.Rader, r => Assert.True(r.Ok, r.Feil));
+        Assert.All(godkjentResultat.Rader, r => Assert.Equal("validert", r.Resultat!.Status));
+
+        // Begge er nå validert — bygg to NYE forslag for å teste avvis-batch uavhengig av de godkjente.
+        var kjor3 = await (await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/begreper/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<KjorForslagResponsDto<BegrepDto>>(JsonInnstillinger);
+        var kjor4 = await (await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/begreper/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<KjorForslagResponsDto<BegrepDto>>(JsonInnstillinger);
+
+        var avvisSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/begreper/forslag/avvis-batch", bruker.Id,
+            new { Ider = new[] { kjor3!.Forslag[0].Id, kjor4!.Forslag[0].Id } }));
+        Assert.Equal(HttpStatusCode.OK, avvisSvar.StatusCode);
+        var avvistResultat = await avvisSvar.Content.ReadFromJsonAsync<BegrepsforslagBatchResultatDto>(JsonInnstillinger);
+        Assert.Equal(2, avvistResultat!.Rader.Count);
+        Assert.All(avvistResultat.Rader, r => Assert.True(r.Ok, r.Feil));
+        Assert.All(avvistResultat.Rader, r => Assert.Equal("utkast", r.Resultat!.Status));
+
+        // Verken de godkjente eller de avviste skal fortsatt stå i "ventende forslag"-køen.
+        var koSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/begreper/forslag", bruker.Id));
+        var ko = await koSvar.Content.ReadFromJsonAsync<List<BegrepsforslagDto>>(JsonInnstillinger);
+        Assert.DoesNotContain(ko!, f => f.Begrep.Id == kjor1.Forslag[0].Id || f.Begrep.Id == kjor3.Forslag[0].Id);
+    }
+
+    [Fact]
+    public async Task Begrepsforslag_batch_rapporterer_ukjent_id_som_feilet_rad_uten_a_rulle_tilbake_den_gyldige()
+    {
+        var bruker = await HentTestbrukerAsync();
+        var rettskildeId = await HentAlkohollovenIdAsync();
+        var ukjentId = Guid.NewGuid();
+
+        var kjorGodkjenn = await (await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/begreper/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<KjorForslagResponsDto<BegrepDto>>(JsonInnstillinger);
+        var godkjennSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/begreper/forslag/godkjenn-batch", bruker.Id,
+            new { Ider = new[] { kjorGodkjenn!.Forslag[0].Id, ukjentId } }));
+        var godkjentResultat = await godkjennSvar.Content.ReadFromJsonAsync<BegrepsforslagBatchResultatDto>(JsonInnstillinger);
+        Assert.Equal(2, godkjentResultat!.Rader.Count);
+        Assert.True(godkjentResultat.Rader.Single(r => r.Id == kjorGodkjenn.Forslag[0].Id).Ok);
+        var feiletGodkjennRad = godkjentResultat.Rader.Single(r => r.Id == ukjentId);
+        Assert.False(feiletGodkjennRad.Ok);
+        Assert.Contains(ukjentId.ToString(), feiletGodkjennRad.Feil);
+
+        var kjorAvvis = await (await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/begreper/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<KjorForslagResponsDto<BegrepDto>>(JsonInnstillinger);
+        var avvisSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/begreper/forslag/avvis-batch", bruker.Id,
+            new { Ider = new[] { kjorAvvis!.Forslag[0].Id, ukjentId } }));
+        var avvistResultat = await avvisSvar.Content.ReadFromJsonAsync<BegrepsforslagBatchResultatDto>(JsonInnstillinger);
+        var gyldigAvvisRad = avvistResultat!.Rader.Single(r => r.Id == kjorAvvis.Forslag[0].Id);
+        Assert.True(gyldigAvvisRad.Ok);
+        Assert.Equal("utkast", gyldigAvvisRad.Resultat!.Status);
+        Assert.False(avvistResultat.Rader.Single(r => r.Id == ukjentId).Ok);
+    }
+
     // ---------- «Identifiser tjenester» ----------
 
     [Fact]
@@ -405,6 +477,122 @@ public class Byggesteg5EndepunktTests
         var koSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/tjenester/forslag", bruker.Id));
         var ko = await koSvar.Content.ReadFromJsonAsync<List<TjenesteforslagDto>>(JsonInnstillinger);
         Assert.DoesNotContain(ko!, f => f.Tjeneste.Id == godkjent.Id);
+    }
+
+    // ---------- Massehandling på tjenesteforslag (2026-08-30) ----------
+
+    [Fact]
+    public async Task Godkjenn_og_avvis_batch_behandler_flere_tjenesteforslag_i_samme_kall()
+    {
+        var bruker = await HentTestbrukerAsync();
+        var rettskildeId = await HentAlkohollovenIdAsync();
+
+        var kjor1 = await (await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<KjorForslagResponsDto<TjenesteDto>>(JsonInnstillinger);
+        var kjor2 = await (await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<KjorForslagResponsDto<TjenesteDto>>(JsonInnstillinger);
+
+        var godkjennSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/godkjenn-batch", bruker.Id,
+            new { Ider = new[] { kjor1!.Forslag[0].Id, kjor2!.Forslag[0].Id } }));
+        Assert.Equal(HttpStatusCode.OK, godkjennSvar.StatusCode);
+        var godkjentResultat = await godkjennSvar.Content.ReadFromJsonAsync<TjenesteforslagBatchResultatDto>(JsonInnstillinger);
+        Assert.Equal(2, godkjentResultat!.Rader.Count);
+        Assert.All(godkjentResultat.Rader, r => Assert.True(r.Ok, r.Feil));
+        Assert.All(godkjentResultat.Rader, r => Assert.Equal("validert", r.Resultat!.Status));
+
+        var kjor3 = await (await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<KjorForslagResponsDto<TjenesteDto>>(JsonInnstillinger);
+        var kjor4 = await (await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<KjorForslagResponsDto<TjenesteDto>>(JsonInnstillinger);
+
+        var avvisSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/avvis-batch", bruker.Id,
+            new { Ider = new[] { kjor3!.Forslag[0].Id, kjor4!.Forslag[0].Id } }));
+        Assert.Equal(HttpStatusCode.OK, avvisSvar.StatusCode);
+        var avvistResultat = await avvisSvar.Content.ReadFromJsonAsync<TjenesteforslagBatchResultatDto>(JsonInnstillinger);
+        Assert.Equal(2, avvistResultat!.Rader.Count);
+        Assert.All(avvistResultat.Rader, r => Assert.True(r.Ok, r.Feil));
+        Assert.All(avvistResultat.Rader, r => Assert.Equal("utkast", r.Resultat!.Status));
+
+        var koSvar = await _client.SendAsync(MedBruker(HttpMethod.Get, "/api/tjenester/forslag", bruker.Id));
+        var ko = await koSvar.Content.ReadFromJsonAsync<List<TjenesteforslagDto>>(JsonInnstillinger);
+        Assert.DoesNotContain(ko!, f => f.Tjeneste.Id == kjor1.Forslag[0].Id || f.Tjeneste.Id == kjor3.Forslag[0].Id);
+    }
+
+    [Fact]
+    public async Task Tjenesteforslag_godkjenn_avvis_og_slett_batch_rapporterer_ukjent_id_som_feilet_rad()
+    {
+        var bruker = await HentTestbrukerAsync();
+        var rettskildeId = await HentAlkohollovenIdAsync();
+        var ukjentId = Guid.NewGuid();
+
+        var kjorGodkjenn = await (await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<KjorForslagResponsDto<TjenesteDto>>(JsonInnstillinger);
+        var godkjennSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/godkjenn-batch", bruker.Id,
+            new { Ider = new[] { kjorGodkjenn!.Forslag[0].Id, ukjentId } }));
+        var godkjentResultat = await godkjennSvar.Content.ReadFromJsonAsync<TjenesteforslagBatchResultatDto>(JsonInnstillinger);
+        Assert.True(godkjentResultat!.Rader.Single(r => r.Id == kjorGodkjenn.Forslag[0].Id).Ok);
+        var feiletGodkjennRad = godkjentResultat.Rader.Single(r => r.Id == ukjentId);
+        Assert.False(feiletGodkjennRad.Ok);
+        Assert.Contains(ukjentId.ToString(), feiletGodkjennRad.Feil);
+
+        var kjorAvvis = await (await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<KjorForslagResponsDto<TjenesteDto>>(JsonInnstillinger);
+        var avvisSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/avvis-batch", bruker.Id,
+            new { Ider = new[] { kjorAvvis!.Forslag[0].Id, ukjentId } }));
+        var avvistResultat = await avvisSvar.Content.ReadFromJsonAsync<TjenesteforslagBatchResultatDto>(JsonInnstillinger);
+        var gyldigAvvisRad = avvistResultat!.Rader.Single(r => r.Id == kjorAvvis.Forslag[0].Id);
+        Assert.True(gyldigAvvisRad.Ok);
+        Assert.Equal("utkast", gyldigAvvisRad.Resultat!.Status);
+        Assert.False(avvistResultat.Rader.Single(r => r.Id == ukjentId).Ok);
+
+        var kjorSlett = await (await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/kjor", bruker.Id,
+            new KjorForslagRequest([rettskildeId])))).Content.ReadFromJsonAsync<KjorForslagResponsDto<TjenesteDto>>(JsonInnstillinger);
+        var slettSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/slett-batch", bruker.Id,
+            new { Ider = new[] { kjorSlett!.Forslag[0].Id, ukjentId } }));
+        var slettResultat = await slettSvar.Content.ReadFromJsonAsync<TjenesteforslagSlettBatchResultatDto>(JsonInnstillinger);
+        Assert.True(slettResultat!.Rader.Single(r => r.Id == kjorSlett.Forslag[0].Id).Ok);
+        Assert.False(slettResultat.Rader.Single(r => r.Id == ukjentId).Ok);
+
+        // Den slettede raden skal faktisk være borte (hard-slettet, ikke bare statusendret).
+        await using var db = _fixture.NyDbContext();
+        Assert.False(await db.Tjenester.AnyAsync(t => t.Id == kjorSlett.Forslag[0].Id));
+    }
+
+    /// <summary>
+    /// [Ny, 2026-08-30] Dekker slett-batch sin ANDRE bruker — «Mine forslag til andre virksomheter»-
+    /// seksjonen i TjenesteforslagKo.tsx. Samme endepunkt som over, men her er importøren IKKE eieren
+    /// av tjenesten (se OpprettForslagFraAnnenVirksomhetAsync og SlettForslagAsync sin
+    /// "opprinnelig foreslagsstiller"-tilgang, testet enkeltradsvis i "Foreslatt_av_meg …"-testen over).
+    /// </summary>
+    [Fact]
+    public async Task Slett_batch_lar_importoren_massesletter_egne_tverr_virksomhet_forslag_hos_malvirksomheten()
+    {
+        var importorBruker = await HentTestbrukerAsync();
+        Guid malVirksomhetId;
+        Guid tjeneste1Id;
+        Guid tjeneste2Id;
+        await using (var db = _fixture.NyDbContext())
+        {
+            malVirksomhetId = Guid.NewGuid();
+            db.Virksomheter.Add(new Virksomhet { Id = malVirksomhetId, Navn = "Nav (byggesteg 5-batch-test)" });
+            await db.SaveChangesAsync();
+            var importorVirksomhetId = (await db.Brukere.SingleAsync(b => b.Id == importorBruker.Id)).VirksomhetId;
+            var register = new TjenesteregisterTjeneste(db);
+            tjeneste1Id = (await register.OpprettForslagFraAnnenVirksomhetAsync(
+                malVirksomhetId, importorVirksomhetId, "Foreldrepenger (batch-test 1)", null, null, null, importorBruker.Navn)).Id;
+            tjeneste2Id = (await register.OpprettForslagFraAnnenVirksomhetAsync(
+                malVirksomhetId, importorVirksomhetId, "Foreldrepenger (batch-test 2)", null, null, null, importorBruker.Navn)).Id;
+        }
+
+        var slettSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/tjenester/forslag/slett-batch", importorBruker.Id,
+            new { Ider = new[] { tjeneste1Id, tjeneste2Id } }));
+        Assert.Equal(HttpStatusCode.OK, slettSvar.StatusCode);
+        var resultat = await slettSvar.Content.ReadFromJsonAsync<TjenesteforslagSlettBatchResultatDto>(JsonInnstillinger);
+        Assert.Equal(2, resultat!.Rader.Count);
+        Assert.All(resultat.Rader, r => Assert.True(r.Ok, r.Feil));
+
+        await using var db2 = _fixture.NyDbContext();
+        Assert.False(await db2.Tjenester.AnyAsync(t => t.Id == tjeneste1Id || t.Id == tjeneste2Id));
     }
 
     // ---------- Omfang (handlingsforslag-ki-omfang-runden) ----------
