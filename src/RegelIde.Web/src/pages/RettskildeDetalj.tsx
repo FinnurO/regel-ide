@@ -703,7 +703,19 @@ export default function RettskildeDetalj() {
                 </Table.Row>
                 <Table.Row>
                   <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Ansvarlig departement</Table.Cell>
-                  <Table.Cell>{detalj.ansvarligDepartement ?? '—'}</Table.Cell>
+                  <Table.Cell>
+                    {detalj.ansvarligDepartement ? (
+                      detalj.ansvarligDepartementVirksomhetId ? (
+                        <Link asChild>
+                          <RouterLink to={`/virksomheter/${detalj.ansvarligDepartementVirksomhetId}`}>{detalj.ansvarligDepartement}</RouterLink>
+                        </Link>
+                      ) : (
+                        detalj.ansvarligDepartement
+                      )
+                    ) : (
+                      '—'
+                    )}
+                  </Table.Cell>
                 </Table.Row>
               </Table.Body>
             </Table>

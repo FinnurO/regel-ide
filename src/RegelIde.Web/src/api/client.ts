@@ -251,6 +251,10 @@ export const api = {
   hentMyndighetstildelingerForVirksomhet: (virksomhetId: string) =>
     kall<MyndighetstildelingDto[]>(`/api/virksomheter/${virksomhetId}/myndighetstildelinger`),
 
+  /** Departement-virksomhet-lenke (2026-08-30) — gjeldende lover/forskrifter der AnsvarligDepartement eksakt matcher denne virksomhetens navn. */
+  hentRettskilderAnsvarligFor: (virksomhetId: string) =>
+    kall<RettskildeSammendrag[]>(`/api/virksomheter/${virksomhetId}/rettskilder-ansvarlig-for`),
+
   hentVentendeKandidater: (virksomhetId: string) =>
     kall<VirksomhetKandidatDto[]>(`/api/virksomhet-kandidater?virksomhetId=${virksomhetId}`),
 

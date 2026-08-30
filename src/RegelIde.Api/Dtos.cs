@@ -25,16 +25,24 @@ public sealed record RettskildeSammendrag(
 /// (§3.3, avklaringsrunde 2026-08-13) — vist her, men aldri en del av <see cref="OppdaterRettskildeMetadataRequest"/>.
 /// De seks feltene fra <see cref="InterntDokNr"/> til <see cref="GyldigTil"/> fantes allerede på
 /// <see cref="RettskildeEntitet"/> (håndbok-metadata, §3.3) men var før nå ikke UI-eksponert i det hele tatt.</summary>
+/// <summary>
+/// <paramref name="AnsvarligDepartement"/> er den rå strengen fra Lovdatas "ministry"-metadatafelt
+/// (departement-virksomhet-lenke, 2026-08-30). <paramref name="AnsvarligDepartementVirksomhetId"/> er
+/// et EKSAKT (case-insensitivt) navnetreff mot katalogen, løst server-side ved lesing (se
+/// <see cref="RettskildeRepository.FinnVirksomhetIdForNavnAsync"/>) — null når strengen ikke matcher
+/// noen <see cref="Virksomhet"/> eksakt («ingen gjettet fallback»); frontend viser da
+/// <see cref="AnsvarligDepartement"/> som ren tekst i stedet for en lenke.
+/// </summary>
 public sealed record RettskildeDetalj(
     Guid Id, Guid? VirksomhetId, string Doctype, string Kildetype, string Tittel, string? Kortnavn, string? Eli,
     DateOnly? Ikrafttredelse, DateOnly? KonsolidertDato, string? Utgiver, string? AnsvarligDepartement, string Status,
     string? AknXml, string? InterntDokNr, string? Revisjonsnr, string? VedtattAv, DateOnly? Vedtaksdato,
-    DateOnly? GyldigTil, string? Url)
+    DateOnly? GyldigTil, string? Url, Guid? AnsvarligDepartementVirksomhetId)
 {
-    public static RettskildeDetalj FraEntitet(RettskildeEntitet r) => new(
+    public static RettskildeDetalj FraEntitet(RettskildeEntitet r, Guid? ansvarligDepartementVirksomhetId = null) => new(
         r.Id, r.VirksomhetId, r.Doctype, r.Kildetype, r.Tittel, r.Kortnavn, r.Eli,
         r.Ikrafttredelse, r.KonsolidertDato, r.Utgiver, r.AnsvarligDepartement, r.Status, r.AknXml,
-        r.InterntDokNr, r.Revisjonsnr, r.VedtattAv, r.Vedtaksdato, r.GyldigTil, r.Url);
+        r.InterntDokNr, r.Revisjonsnr, r.VedtattAv, r.Vedtaksdato, r.GyldigTil, r.Url, ansvarligDepartementVirksomhetId);
 }
 
 /// <summary>Forespørsel for POST /api/rettskilder/lovdata.</summary>

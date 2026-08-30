@@ -166,9 +166,18 @@ public sealed class RettskildeEntitet
     /// vise HVILKET departement de faktisk gjaldt uten å åpne selve AKN-XML-blob-en. Additivt, nullable
     /// (samme mønster som <see cref="KildeReferanserJson"/>): NULL for alt som ikke er Lovdata-importert
     /// Lov/Forskrift (håndbøker, rundskriv, virksomhetsdokumenter, referanse-stubber) — fravær av data,
-    /// ikke en feil. BEVISST ingen FK til <see cref="Virksomhet"/> her — "ingen gjettet fallback": en
-    /// ekte kobling til en konkret virksomhets-rad krever fuzzy-matching/menneskelig bekreftelse og er en
-    /// egen, separat oppgave. Denne strengen vises som ren tekst i UI inntil den oppgaven gjøres.
+    /// ikke en feil.
+    /// <para>
+    /// [Utvidet, departement-virksomhet-lenke, 2026-08-30] Kobles til en ekte <see cref="Virksomhet"/>
+    /// KUN ved lesing, via et eksakt (case-insensitivt) navnematch mot <see cref="Virksomhet.Navn"/>
+    /// (se <c>RettskildeRepository.FinnVirksomhetIdForNavnAsync</c>/<c>RettskilderAnsvarligForAsync</c>)
+    /// — BEVISST ikke via Begrep/navnekandidat-mekanismen (den er for tekst-OPPDAGELSE av navn i
+    /// løpende lovtekst; her har vi allerede en strukturert, eksakt streng direkte fra Lovdatas
+    /// metadata, ingen oppdagelse trengs) og BEVISST ikke en lagret FK-kolonne her på selve feltet
+    /// (en ren navne-join ved lesing kan aldri bli utdatert av at katalogen endres — se
+    /// DepartementSeed.cs for hvilke Virksomhet-rader som faktisk finnes for departementene). Denne
+    /// strengen vises som ren tekst i UI når navnematchen ikke gir noe treff.
+    /// </para>
     /// </summary>
     public string? AnsvarligDepartement { get; set; }
 

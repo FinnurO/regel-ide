@@ -22,7 +22,7 @@ export interface RettskildeDetalj {
   ikrafttredelse: string | null;
   konsolidertDato: string | null;
   utgiver: string | null;
-  /** "Kommunal- og distriktsdepartementet" e.l. (Lovdatas eget metadata) — NULL for alt som ikke er Lovdata-importert Lov/Forskrift. */
+  /** Rå streng fra Lovdatas "ministry"-metadatafelt (departement-virksomhet-lenke, 2026-08-30). NULL for alt som ikke er Lov/Forskrift importert fra Lovdata. */
   ansvarligDepartement: string | null;
   status: string;
   aknXml: string | null;
@@ -34,6 +34,8 @@ export interface RettskildeDetalj {
   gyldigTil: string | null;
   /** Kildens opprinnelige URL — satt for Brukerveiledning (den hentede nettsidens URL) og noen håndbøker. */
   url: string | null;
+  /** Eksakt (case-insensitivt) navnetreff mot virksomhetskatalogen — NULL når departementet ikke finnes som egen Virksomhet-rad ("ingen gjettet fallback": vises da som ren tekst, ikke en lenke). */
+  ansvarligDepartementVirksomhetId: string | null;
 }
 
 export interface RettskildeNodeDto {
