@@ -5,7 +5,7 @@
 namespace RegelIde.Data.Migrasjoner
 {
     /// <inheritdoc />
-    public partial class LeggTilAnsvarligDepartement : Migration
+    public partial class LeggTilAnsvarligDepartementPaRettskilde : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

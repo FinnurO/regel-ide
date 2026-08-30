@@ -7,10 +7,18 @@ namespace RegelIde.Api;
 /// skjemaet (§2 i teknisk design) har ingen egen "datokode"-kolonne, kun (nullable) ELI, så Guid-en
 /// er den naturlige, alltid-URL-sikre nøkkelen for enkeltoppslag.
 /// </summary>
-public sealed record RettskildeSammendrag(Guid Id, Guid? VirksomhetId, string? Eli, string Tittel, string? Kortnavn, string Kildetype)
+/// <summary>
+/// <see cref="AnsvarligDepartement"/> lagt til (2026-08-30, navnekandidat-fiks 2) — NULL for alt som
+/// ikke er Lovdata-importert Lov/Forskrift, se <see cref="RettskildeEntitet.AnsvarligDepartement"/>.
+/// Med her (ikke bare på <see cref="RettskildeDetalj"/>) fordi Navnekandidater-listen slår opp
+/// departement via akkurat DENNE DTO-en (samme "allerede hentet rettskilde-lookup"-mønster som
+/// <c>visRettskilde</c> i NavnekandidaterListe.tsx allerede bruker for kortnavn/tittel).
+/// </summary>
+public sealed record RettskildeSammendrag(
+    Guid Id, Guid? VirksomhetId, string? Eli, string Tittel, string? Kortnavn, string Kildetype, string? AnsvarligDepartement)
 {
     public static RettskildeSammendrag FraEntitet(RettskildeEntitet r) =>
-        new(r.Id, r.VirksomhetId, r.Eli, r.Tittel, r.Kortnavn, r.Kildetype);
+        new(r.Id, r.VirksomhetId, r.Eli, r.Tittel, r.Kortnavn, r.Kildetype, r.AnsvarligDepartement);
 }
 
 /// <summary>Full rettskilde: metadata + kanonisk AKN-XML (§1 i teknisk design). ELI er ALLTID skrivebeskyttet
@@ -27,15 +35,14 @@ public sealed record RettskildeSammendrag(Guid Id, Guid? VirksomhetId, string? E
 /// </summary>
 public sealed record RettskildeDetalj(
     Guid Id, Guid? VirksomhetId, string Doctype, string Kildetype, string Tittel, string? Kortnavn, string? Eli,
-    DateOnly? Ikrafttredelse, DateOnly? KonsolidertDato, string? Utgiver, string Status, string? AknXml,
-    string? InterntDokNr, string? Revisjonsnr, string? VedtattAv, DateOnly? Vedtaksdato, DateOnly? GyldigTil,
-    string? Url, string? AnsvarligDepartement, Guid? AnsvarligDepartementVirksomhetId)
+    DateOnly? Ikrafttredelse, DateOnly? KonsolidertDato, string? Utgiver, string? AnsvarligDepartement, string Status,
+    string? AknXml, string? InterntDokNr, string? Revisjonsnr, string? VedtattAv, DateOnly? Vedtaksdato,
+    DateOnly? GyldigTil, string? Url, Guid? AnsvarligDepartementVirksomhetId)
 {
     public static RettskildeDetalj FraEntitet(RettskildeEntitet r, Guid? ansvarligDepartementVirksomhetId = null) => new(
         r.Id, r.VirksomhetId, r.Doctype, r.Kildetype, r.Tittel, r.Kortnavn, r.Eli,
-        r.Ikrafttredelse, r.KonsolidertDato, r.Utgiver, r.Status, r.AknXml,
-        r.InterntDokNr, r.Revisjonsnr, r.VedtattAv, r.Vedtaksdato, r.GyldigTil, r.Url,
-        r.AnsvarligDepartement, ansvarligDepartementVirksomhetId);
+        r.Ikrafttredelse, r.KonsolidertDato, r.Utgiver, r.AnsvarligDepartement, r.Status, r.AknXml,
+        r.InterntDokNr, r.Revisjonsnr, r.VedtattAv, r.Vedtaksdato, r.GyldigTil, r.Url, ansvarligDepartementVirksomhetId);
 }
 
 /// <summary>Forespørsel for POST /api/rettskilder/lovdata.</summary>

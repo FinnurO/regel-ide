@@ -13,8 +13,8 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    [Migration("20260830184716_LeggTilAnsvarligDepartement")]
-    partial class LeggTilAnsvarligDepartement
+    [Migration("20260830133346_LeggTilAnsvarligDepartementPaRettskilde")]
+    partial class LeggTilAnsvarligDepartementPaRettskilde
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
