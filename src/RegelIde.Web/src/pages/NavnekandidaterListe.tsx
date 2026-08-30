@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Button, Card, Field, Heading, Label, Link, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
 import type { NavnekandidatDto, RettskildeSammendrag } from '../api/types';
+import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 
@@ -165,37 +166,21 @@ export default function NavnekandidaterListe() {
           faktisk er importert, ikke alle norske lover/forskrifter.
         </Paragraph>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-          <Field style={{ minWidth: '20rem' }}>
-            <Label>Rettskilde (valgfritt)</Label>
-            <Select data-size="sm" value={sveipRettskildeId} onChange={(e) => setSveipRettskildeId(e.target.value)}>
-              <Select.Option value="">Hele korpuset</Select.Option>
-              {rettskilder.map((r) => (
-                <Select.Option key={r.id} value={r.id}>{r.kortnavn ?? r.tittel}</Select.Option>
-              ))}
-            </Select>
-          </Field>
+          <RettskildeVelger rettskilder={rettskilder} value={sveipRettskildeId} onChange={setSveipRettskildeId} label="Rettskilde (tomt = hele korpuset)" />
           <Button onClick={kjorSveip} disabled={sveiper}>
             {sveiper ? 'Sveiper …' : 'Kjør sveip'}
           </Button>
         </div>
-        {sveipFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{sveipFeil}</div>}
+        {sveipFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{sveipFeil}</Alert>}
         {sveipResultat && (
-          <div className="infomelding" style={{ marginTop: '0.5rem' }}>
+          <Alert data-color="info" style={{ marginTop: '0.5rem' }}>
             Fant {sveipResultat.funnet} treff totalt, {sveipResultat.nye} nye kandidater lagt i køen.
-          </div>
+          </Alert>
         )}
       </Card>
 
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '1rem' }}>
-        <Field style={{ minWidth: '18rem' }}>
-          <Label>Rettskilde</Label>
-          <Select data-size="sm" value={rettskildeFilter} onChange={(e) => setRettskildeFilter(e.target.value)}>
-            <Select.Option value="">Alle rettskilder</Select.Option>
-            {rettskilder.map((r) => (
-              <Select.Option key={r.id} value={r.id}>{r.kortnavn ?? r.tittel}</Select.Option>
-            ))}
-          </Select>
-        </Field>
+        <RettskildeVelger rettskilder={rettskilder} value={rettskildeFilter} onChange={setRettskildeFilter} label="Rettskilde (tomt = alle)" />
         <Field style={{ minWidth: '12rem' }}>
           <Label>Kategori</Label>
           <Select data-size="sm" value={kategoriFilter} onChange={(e) => setKategoriFilter(e.target.value as typeof kategoriFilter)}>
@@ -215,7 +200,7 @@ export default function NavnekandidaterListe() {
         </Field>
       </div>
 
-      {feil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{feil}</div>}
+      {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
       {laster && !kandidater && <Paragraph>Laster …</Paragraph>}
       {viste && viste.length === 0 && <Paragraph>Ingen kandidater matcher filteret.</Paragraph>}
 

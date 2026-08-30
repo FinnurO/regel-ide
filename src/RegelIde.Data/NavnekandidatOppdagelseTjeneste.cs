@@ -37,11 +37,19 @@ namespace RegelIde.Data;
 /// <b>Kjøres KUN mot allerede importerte rettskilde-noder</b> — samme datakilde som
 /// <see cref="VirksomhetKandidatSveipTjeneste"/> (<c>Entitetsstatus == "gjeldende" &amp;&amp; !Opphevet</c>),
 /// IKKE en ny, live skraping av Lovdata. Dekningen er derfor begrenset til det som faktisk ER importert
-/// — en reell begrensning, ikke noe denne klassen later som er komplett. I motsetning til
-/// virksomhet-kandidat-sveipet er dette IKKE scopet til delte+én virksomhets egne rettskilder (det
-/// sveipet er PER VIRKSOMHET; dette er et generelt, virksomhetsuavhengig søk etter UKJENTE navn på
-/// tvers av HELE korpuset) — <paramref name="rettskildeId"/> i <see cref="SveipAsync"/> er kun en
-/// valgfri innsnevring til én rettskilde, ikke et virksomhet-eierskaps-filter.
+/// — en reell begrensning, ikke noe denne klassen later som er komplett.
+/// </para>
+/// <para>
+/// <b>[Rettet, kodegjennomgang 2026-08-30]</b> Sveipet er scopet til KUN delt/nasjonal, gjeldende
+/// rettskilde (<c>Rettskilde.VirksomhetId == null &amp;&amp; Entitetsstatus == "gjeldende"</c>) — en
+/// tidligere versjon søkte uskjermet gjennom ALLE virksomheters rettskilder (inkl. private/lokale) og
+/// eksponerte tekstutdrag derfra til enhver bruker, samme klasse kryssvirksomhet-lekkasje som allerede
+/// ble funnet og fikset én gang i <see cref="VirksomhetKandidatSveipTjeneste"/> (Agder/Bergen,
+/// 2026-08-22). Dette er ikke en per-virksomhet-scoping (ingen <c>virksomhetId</c>-parameter finnes her,
+/// med vilje — «oppdag nye navn i lovkorpuset» er et generelt, ikke brukerspesifikt søk), men en
+/// synlighetsgrense: kun det som uansett er delt/nasjonalt innhold sveipes. <paramref name="rettskildeId"/>
+/// i <see cref="SveipAsync"/> er en valgfri innsnevring til ÉN slik delt rettskilde — å oppgi en
+/// virksomhets private rettskilde der kaster nå en tydelig feil i stedet for å sveipe den.
 /// </para>
 /// <para>
 /// <b>Filtrering av allerede DEKKEDE treff</b> (docs/13-backlog.md §9): et treff som samsvarer
@@ -60,10 +68,18 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
     /// <summary>Suffiksene fra Johanns liste (docs/13-backlog.md §9) — sortert lengst-først i den
     /// sammensatte alternasjonen (samme "unngå kortere delvis treff av en lengre streng"-prinsipp som
     /// <see cref="VirksomhetKandidatSveipTjeneste"/>), selv om ingen av dagens suffikser er substrenger
-    /// av hverandre — defensivt, ikke bevist nødvendig for akkurat denne listen.</summary>
+    /// av hverandre — defensivt, ikke bevist nødvendig for akkurat denne listen.
+    /// <para>
+    /// [Rettet, kodegjennomgang 2026-08-30] "departementet" fjernet herfra — det ER selve suffikset
+    /// (et sammensatt ord MED dette suffikset, f.eks. et fiktivt "xdepartementet", er ikke reelt norsk),
+    /// og hørte kun hjemme i <see cref="FasteRollesubstantiv"/>. Sto tidligere i BEGGE listene, som
+    /// motsa en eksisterende tests egen kommentar («'departementet' står IKKE i suffikslisten») — testen
+    /// besto likevel, ved en tilfeldighet (dette mønsteret er case-sensitivt, literalen er små bokstaver,
+    /// så stor forbokstav midt i en setning traff aldri suffiks-grenen) — ikke ved design.
+    /// </para></summary>
     private static readonly string[] Suffikser =
     [
-        "tilsynet", "direktoratet", "departementet", "nemnda", "nemnden",
+        "tilsynet", "direktoratet", "nemnda", "nemnden",
         "domstolen", "ombudet", "verket", "etaten", "banken",
     ];
 
@@ -89,16 +105,39 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
     /// </summary>
     public async Task<NavnekandidatSveipResultat> SveipAsync(Guid? rettskildeId, string opprettetAv, CancellationToken ct = default)
     {
-        if (rettskildeId is not null && !await db.Rettskilder.AnyAsync(r => r.Id == rettskildeId, ct))
+        // [Rettet, kodegjennomgang 2026-08-30] Krever delt/nasjonal OG gjeldende, se begrunnelsen på
+        // sveip-spørringen under — samme to vilkår, kontrollert her på forhånd for en presis feilmelding
+        // når EN bestemt rettskilde etterspørres eksplisitt (i stedet for at den bare gir 0 treff stille).
+        if (rettskildeId is not null && !await db.Rettskilder.AnyAsync(
+                r => r.Id == rettskildeId && r.VirksomhetId == null && r.Entitetsstatus == "gjeldende", ct))
         {
-            throw new ArgumentException($"Fant ingen rettskilde med id '{rettskildeId}'. Ingen gjettet fallback.");
+            throw new ArgumentException(
+                $"Fant ingen gjeldende, delt/nasjonal rettskilde med id '{rettskildeId}'. Ingen gjettet fallback.");
         }
 
         var noder = await db.RettskildeNoder
-            .Join(db.Rettskilder, n => n.RettskildeId, r => r.Id, (n, r) => n)
-            .Where(n => n.Tekst != null && !n.Opphevet && n.Entitetsstatus == "gjeldende"
-                        && (rettskildeId == null || n.RettskildeId == rettskildeId))
-            .Select(n => new { n.RettskildeId, n.Eid, n.Tekst })
+            .Join(db.Rettskilder, n => n.RettskildeId, r => r.Id, (n, r) => new { Node = n, r.VirksomhetId, RettskildeStatus = r.Entitetsstatus })
+            .Where(x => x.Node.Tekst != null && !x.Node.Opphevet && x.Node.Entitetsstatus == "gjeldende"
+                        // [Rettet, kodegjennomgang 2026-08-30] To reelle bugs fra samme forkastede join
+                        // (den forrige (n, r) => n brukte ALDRI r til noe): (1) manglet virksomhet-
+                        // eierskapsfilter — søsterklassen VirksomhetKandidatSveipTjeneste har akkurat
+                        // dette filteret etter en tidligere, reelt fikset kryssvirksomhet-lekkasje
+                        // (Agder/Bergen, 2026-08-22); et korpusomfattende sveip søkte ellers gjennom
+                        // ALLE virksomheters rettskilder, inkl. private/lokale, og eksponerte
+                        // tekstutdrag+nodelenke fra dem til enhver bruker via GET /api/navnekandidater,
+                        // som heller ikke filtrerer på virksomhet. (2) manglet filter på at selve
+                        // Rettskilden (ikke bare noden) er "gjeldende" — en reimportert lovs GAMLE
+                        // RettskildeEntitet blir 'erstattet', men dens RettskildeNoder forblir for alltid
+                        // 'gjeldende' (se RettskildeNodeEntitet), så "rolle"-kandidater derfra ble
+                        // opprettet men kunne ALDRI godkjennes (VirksomhetsbegrepTjeneste
+                        // .OpprettRollebegrepAsync krever eksplisitt at Rettskilden selv er gjeldende).
+                        // Løsning for begge: sveip KUN delt/nasjonal (VirksomhetId == null) OG gjeldende
+                        // rettskilde — dekker det som faktisk er formålet («oppdag nye navn i lovkorpuset»)
+                        // uten noensinne å eksponere en virksomhets private innhold, og uten å skape
+                        // permanent uga-odkjennbare kandidater.
+                        && x.VirksomhetId == null && x.RettskildeStatus == "gjeldende"
+                        && (rettskildeId == null || x.Node.RettskildeId == rettskildeId))
+            .Select(x => new { x.Node.RettskildeId, x.Node.Eid, x.Node.Tekst })
             .ToListAsync(ct);
 
         // Eksisterende Begrep-termer, forhåndslastet ÉN gang for hele sveipet (ikke ett spørring per
@@ -231,7 +270,23 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
             OpprettetTidspunkt = DateTimeOffset.UtcNow,
         };
         db.Navnekandidater.Add(kandidat);
-        await db.SaveChangesAsync(ct);
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateException)
+        {
+            // [Rettet, kodegjennomgang 2026-08-30] Sjekk-så-sett mot en unik DB-indeks
+            // (ux_navnekandidater_rettskilde_node_start) uten låsing — to overlappende sveip kan begge
+            // passere FirstOrDefaultAsync-sjekken over før noen av dem committer. I stedet for en
+            // ufanget 500 til klienten: den andre skriveren har allerede vunnet, hent OG returner DEN
+            // raden — samme idempotente utfall som om sjekken over hadde funnet den først.
+            db.Entry(kandidat).State = EntityState.Detached;
+            var vantLopet = await db.Navnekandidater.FirstOrDefaultAsync(
+                k => k.RettskildeId == rettskildeId && k.NodeEid == nodeEid && k.StartOffset == startOffset, ct);
+            if (vantLopet is not null) return vantLopet;
+            throw; // reelt uventet — verken vår rad eller en konkurrerende rad finnes, kast videre
+        }
         return kandidat;
     }
 

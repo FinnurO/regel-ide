@@ -177,6 +177,98 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.False(await db.Navnekandidater.AnyAsync(k => k.RettskildeId == rettskildeId));
     }
 
+    /// <summary>
+    /// [Ny, kodegjennomgang 2026-08-30] Regresjonstest for en reell kryssvirksomhet-lekkasje: et
+    /// tidligere sveip søkte uskjermet gjennom ALLE virksomheters rettskilder, inkl. private/lokale —
+    /// samme klasse bug som allerede ble funnet og fikset én gang i søsterklassen
+    /// <see cref="VirksomhetKandidatSveipTjeneste"/> (Agder/Bergen, 2026-08-22). Et korpusomfattende
+    /// sveip skal ALDRI opprette en kandidat fra en virksomhets private rettskilde.
+    /// </summary>
+    [Fact]
+    public async Task Sveip_hopper_over_en_virksomhets_private_rettskilde_selv_ved_korpusomfattende_sok()
+    {
+        await using var db = _fixture.NyDbContext();
+        var privatVirksomhetId = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = privatVirksomhetId, Navn = "Testkommunen (privat rettskilde-test)" });
+        var privatRettskildeId = Guid.NewGuid();
+        db.Rettskilder.Add(new RettskildeEntitet
+        {
+            Id = privatRettskildeId, VirksomhetId = privatVirksomhetId, Doctype = "doc", Kildetype = "Lov",
+            Status = "Gjeldende", Importrolle = "referanse", Tittel = "Privat testlov " + privatRettskildeId,
+            OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        var nodeEid = $"https://test/{Guid.NewGuid():N}/§1/ledd-1";
+        db.RettskildeNoder.Add(new RettskildeNodeEntitet
+        {
+            Id = Guid.NewGuid(), RettskildeId = privatRettskildeId, Eid = nodeEid, KildeId = "ledd-1",
+            NodeType = "ledd", Tekst = "Vedtak kan påklages til Havnetilsynet innen tre uker.",
+        });
+        await db.SaveChangesAsync();
+
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        // Korpusomfattende sveip (rettskildeId=null) — den reelle bug-scenarioen, IKKE et eksplisitt
+        // forsøk på å be om nettopp denne rettskilden (det dekkes av testen under). Merk: kan IKKE
+        // sjekke AntallTreffFunnet==0 her — samlingen deler embedded Postgres med andre tester i samme
+        // fil, som selv oppretter delte/nasjonale (VirksomhetId=null) testrettskilder DENNE sveipen
+        // legitimt også finner. Assert kun at DENNE private rettskilden ikke bidro noe.
+        await tjeneste.SveipAsync(null, "test");
+
+        Assert.False(await db.Navnekandidater.AnyAsync(k => k.RettskildeId == privatRettskildeId));
+    }
+
+    [Fact]
+    public async Task Sveip_nekter_eksplisitt_forespurt_privat_rettskilde()
+    {
+        await using var db = _fixture.NyDbContext();
+        var privatVirksomhetId = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = privatVirksomhetId, Navn = "Testkommunen (privat rettskilde-test 2)" });
+        var privatRettskildeId = Guid.NewGuid();
+        db.Rettskilder.Add(new RettskildeEntitet
+        {
+            Id = privatRettskildeId, VirksomhetId = privatVirksomhetId, Doctype = "doc", Kildetype = "Lov",
+            Status = "Gjeldende", Importrolle = "referanse", Tittel = "Privat testlov " + privatRettskildeId,
+            OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        await db.SaveChangesAsync();
+
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.SveipAsync(privatRettskildeId, "test"));
+    }
+
+    /// <summary>
+    /// [Ny, kodegjennomgang 2026-08-30] Regresjonstest: en rettskildes NODER forblir 'gjeldende' for
+    /// alltid selv etter at selve rettskilden er reimportert og merket 'erstattet' — uten dette filteret
+    /// ville sveipet opprettet en "rolle"-kandidat som ALDRI kan godkjennes
+    /// (<see cref="VirksomhetsbegrepTjeneste.OpprettRollebegrepAsync"/> krever eksplisitt at
+    /// rettskilden selv er gjeldende).
+    /// </summary>
+    [Fact]
+    public async Task Sveip_hopper_over_noder_fra_en_erstattet_rettskilde()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = Guid.NewGuid();
+        db.Rettskilder.Add(new RettskildeEntitet
+        {
+            Id = rettskildeId, Doctype = "doc", Kildetype = "Lov", Status = "Gjeldende", Importrolle = "referanse",
+            Entitetsstatus = "erstattet", Tittel = "Erstattet testlov " + rettskildeId,
+            OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        var nodeEid = $"https://test/{Guid.NewGuid():N}/§1/ledd-1";
+        db.RettskildeNoder.Add(new RettskildeNodeEntitet
+        {
+            Id = Guid.NewGuid(), RettskildeId = rettskildeId, Eid = nodeEid, KildeId = "ledd-1",
+            NodeType = "ledd", Tekst = "Klage sendes til Sjøfartsdirektoratet innen tre uker.",
+        });
+        await db.SaveChangesAsync();
+
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        // Samme merknad som testen over: ingen AntallTreffFunnet==0-sjekk mulig i en delt DB-samling.
+        await tjeneste.SveipAsync(null, "test");
+
+        Assert.False(await db.Navnekandidater.AnyAsync(k => k.RettskildeId == rettskildeId));
+    }
+
     [Fact]
     public async Task Rollekandidat_allerede_dekket_for_samme_lovkilde_filtreres_men_ikke_for_annen_lovkilde()
     {
