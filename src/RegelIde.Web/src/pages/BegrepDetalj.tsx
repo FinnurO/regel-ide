@@ -120,10 +120,18 @@ export default function BegrepDetalj() {
               Rollebegrep hjemlet i{' '}
               {(() => {
                 const lov = rettskilder.find((r) => r.id === begrep.lovkildeId);
-                return lov ? (
-                  <Link asChild><RouterLink to={`/rettskilder/${lov.id}`}>{lov.tittel}</RouterLink></Link>
-                ) : (
-                  <span>{begrep.lovkildeId}</span>
+                if (!lov) return <span>{begrep.lovkildeId}</span>;
+                // [Rettet, 2026-08-30] Lenk til NØYAKTIG paragrafen (via lovreferanseEid, satt
+                // automatisk ved godkjenning fra en navnekandidat, se OpprettRollebegrepAsync) når
+                // den finnes — en bar /rettskilder/{id}-lenke uten eid velger ingen node og lander
+                // på en tom side (Johann observerte nettopp dette for «Statsforvalteren»). Faller
+                // tilbake til en lenke til hele loven (uten valgt node) for eldre/manuelt opprettede
+                // rollebegrep uten kjent opprinnelsesparagraf.
+                const nodeHref = begrep.lovreferanseEid ? rettskildeLenke(begrep.lovreferanseEid, rettskilder) : null;
+                return (
+                  <Link asChild>
+                    <RouterLink to={nodeHref ?? `/rettskilder/${lov.id}`}>{lov.tittel}</RouterLink>
+                  </Link>
                 );
               })()}
             </Paragraph>
