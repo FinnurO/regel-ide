@@ -128,11 +128,14 @@ public class BegrepsregisterTjenesteTests
         // [Rettet, 2026-08-30] Regresjonstest for bugen beskrevet i OppdaterAsync sin XML-kommentar:
         // PUT /api/begreper/{id} skal ALDRI kunne forurense en virksomhet-/rolle-navneform med en
         // oppfunnet definisjon/begrepstype, uansett hva som sendes inn i requesten.
+        // [Rettet, 2026-08-30, testisolasjon] Bruker en syntetisk, garantert unik virksomhetsnavn —
+        // IKKE "Agder fylkeskommune"/"Testkommunen" (delte, navn-guardede fixtures fra andre
+        // testklasser i samme DataTestCollection-database, se OrganisasjonsregisterSeedTests sin
+        // klassekommentar) — en ekstra rad med et av disse navnene brøt
+        // OrganisasjonsregisterSeedTests sitt eget Single()-oppslag, avhengig av kjørerekkefølge.
         await using var db = _fixture.NyDbContext();
-        var virksomhet = Guid.NewGuid();
-        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
         var malVirksomhet = Guid.NewGuid();
-        db.Virksomheter.Add(new Virksomhet { Id = malVirksomhet, Navn = "Agder fylkeskommune" });
+        db.Virksomheter.Add(new Virksomhet { Id = malVirksomhet, Navn = $"Testvirksomhet {malVirksomhet:N}" });
         await db.SaveChangesAsync();
 
         var navneform = await new VirksomhetsbegrepTjeneste(db).OpprettVirksomhetsbegrepAsync(
