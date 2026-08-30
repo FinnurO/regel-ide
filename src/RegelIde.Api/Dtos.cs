@@ -400,6 +400,14 @@ public sealed record BegrepRequest(
     string Term, string Definisjon, string? LovreferanseEid, IReadOnlyList<string>? GjelderFor,
     Guid? KodelisteReferanseId, string? SkosUrl, string Begrepstype);
 
+/// <summary>Ett treff for GET /api/begreper/{id}/brukt-i-rettskilder — se
+/// <see cref="BegrepBruktIRettskilderTjeneste"/> for det ekte reverse-oppslaget dette speiler.</summary>
+public sealed record BegrepBruktIRettskildeDto(Guid RettskildeId, string NodeEid, string RettskildeTittel, string Snippet)
+{
+    public static BegrepBruktIRettskildeDto FraTreff(BegrepBruktIRettskildeTreff t) =>
+        new(t.RettskildeId, t.NodeEid, t.RettskildeTittel, t.Snippet);
+}
+
 // ---------- Virksomhetskatalog og rollemodell (docs/20) ----------
 
 public sealed record SettForvaltningsnivaRequest(string? Forvaltningsniva);

@@ -38,6 +38,7 @@ builder.Services.AddScoped<TekstTaggTjeneste>();
 builder.Services.AddScoped<HandbokForfatterTjeneste>();
 builder.Services.AddScoped<TjenesteregisterTjeneste>();
 builder.Services.AddScoped<BegrepsregisterTjeneste>();
+builder.Services.AddScoped<BegrepBruktIRettskilderTjeneste>();
 builder.Services.AddScoped<BrukerregisterTjeneste>();
 builder.Services.AddScoped<KodelisteregisterTjeneste>();
 builder.Services.AddScoped<VirksomhetsbegrepTjeneste>();
@@ -2124,6 +2125,13 @@ begreper.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, SettS
     })
     .WithName("SettBegrepStatus")
     .WithSummary("Endrer status (§3.1 i domenemodellen).");
+
+begreper.MapGet("/{id:guid}/brukt-i-rettskilder", async (Guid id, BegrepBruktIRettskilderTjeneste tjeneste, CancellationToken ct) =>
+        Results.Ok((await tjeneste.FinnAsync(id, ct)).Select(BegrepBruktIRettskildeDto.FraTreff)))
+    .WithName("HentBegrepBruktIRettskilder")
+    .WithSummary("Ekte reverse-oppslag: rettskilde-noder som faktisk NEVNER begrepets Term (ordgrense-avgrenset, " +
+                 $"case-insensitivt) i selve lovteksten — maks {BegrepBruktIRettskilderTjeneste.MaksAntallTreff} treff. " +
+                 "IKKE det samme som Begrep.LovreferanseEid (én manuelt satt referanse) — se BegrepBruktIRettskilderTjeneste.");
 
 // ---------- «Identifiser begrep» (byggesteg 5 runde 1, docs/06-veikart.md) — stub-KI ----------
 

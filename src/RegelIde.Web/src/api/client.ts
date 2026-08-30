@@ -1,5 +1,6 @@
 import type {
   ApiFeil,
+  BegrepBruktIRettskildeDto,
   BegrepDto,
   BegrepRequest,
   BrukerDto,
@@ -677,6 +678,10 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
     }),
+
+  /** Ekte reverse-oppslag — rettskilde-noder som faktisk NEVNER begrepets Term i lovteksten (ikke det
+   * samme som BegrepDto.lovreferanseEid, se BegrepBruktIRettskilderTjeneste på serveren). */
+  hentBegrepBruktIRettskilder: (id: string) => kall<BegrepBruktIRettskildeDto[]>(`/api/begreper/${id}/brukt-i-rettskilder`),
 
   // ---------- «Identifiser begrep» (byggesteg 5 runde 1, docs/06-veikart.md) — stub-KI ----------
 

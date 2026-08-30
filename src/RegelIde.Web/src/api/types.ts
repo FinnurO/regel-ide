@@ -772,6 +772,16 @@ export interface BegrepRequest {
   begrepstype: string;
 }
 
+/** Ett treff fra GET /api/begreper/{id}/brukt-i-rettskilder — se BegrepBruktIRettskilderTjeneste på
+ * serveren. IKKE det samme som BegrepDto.lovreferanseEid (én manuelt satt referanse): dette er et
+ * ekte reverse-oppslag av alle steder Term faktisk forekommer i importert lovtekst (maks 50 treff). */
+export interface BegrepBruktIRettskildeDto {
+  rettskildeId: string;
+  nodeEid: string;
+  rettskildeTittel: string;
+  snippet: string;
+}
+
 export interface KodelisteKodeDto {
   id: string;
   kode: string;
