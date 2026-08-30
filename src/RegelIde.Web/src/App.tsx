@@ -23,6 +23,7 @@ import BrukereListe from './pages/BrukereListe';
 import VirksomheterListe from './pages/VirksomheterListe';
 import VirksomhetDetalj from './pages/VirksomhetDetalj';
 import VirksomhetKandidaterListe from './pages/VirksomhetKandidaterListe';
+import NavnekandidaterListe from './pages/NavnekandidaterListe';
 import ImportWizard from './pages/ImportWizard';
 import Tjenestereise from './pages/Tjenestereise';
 
@@ -61,6 +62,7 @@ function App() {
           <Route path="/virksomheter" element={<VirksomheterListe />} />
           <Route path="/virksomheter/:id" element={<VirksomhetDetalj />} />
           <Route path="/virksomhet-kandidater" element={<VirksomhetKandidaterListe />} />
+          <Route path="/navnekandidater" element={<NavnekandidaterListe />} />
         </Routes>
       </main>
     </div>
