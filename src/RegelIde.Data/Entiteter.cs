@@ -157,6 +157,21 @@ public sealed class RettskildeEntitet
     public DateOnly? Ikrafttredelse { get; set; }
     public DateOnly? KonsolidertDato { get; set; }
     public string? Utgiver { get; set; }
+
+    /// <summary>
+    /// [Ny, kodegjennomgang 2026-08-30] "Kommunal- og distriktsdepartementet" e.l. — Lovdata oppgir
+    /// dette allerede i sin egen metadata for Lov/Forskrift, og verdien ble FØR NÅ kun skrevet inn i
+    /// <see cref="AknXml"/> (<c>regelIde:ansvarligDepartement</c>, se AknXmlSkriver.cs) og aldri parset
+    /// ut til noe eget, spørrbart felt — 1711 "departementet"-navnekandidater i køen kunne dermed ikke
+    /// vise HVILKET departement de faktisk gjaldt uten å åpne selve AKN-XML-blob-en. Additivt, nullable
+    /// (samme mønster som <see cref="KildeReferanserJson"/>): NULL for alt som ikke er Lovdata-importert
+    /// Lov/Forskrift (håndbøker, rundskriv, virksomhetsdokumenter, referanse-stubber) — fravær av data,
+    /// ikke en feil. BEVISST ingen FK til <see cref="Virksomhet"/> her — "ingen gjettet fallback": en
+    /// ekte kobling til en konkret virksomhets-rad krever fuzzy-matching/menneskelig bekreftelse og er en
+    /// egen, separat oppgave. Denne strengen vises som ren tekst i UI inntil den oppgaven gjøres.
+    /// </summary>
+    public string? AnsvarligDepartement { get; set; }
+
     public required string Status { get; set; } // 'Gjeldende' | 'Opphevet' | 'Utkast'
     public int Versjon { get; set; } = 1;
     public string Entitetsstatus { get; set; } = "gjeldende";

@@ -1,0 +1,28 @@
+﻿using Microsoft.EntityFrameworkCore.Migrations;
+
+#nullable disable
+
+namespace RegelIde.Data.Migrasjoner
+{
+    /// <inheritdoc />
+    public partial class LeggTilAnsvarligDepartementPaRettskilde : Migration
+    {
+        /// <inheritdoc />
+        protected override void Up(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.AddColumn<string>(
+                name: "ansvarlig_departement",
+                table: "rettskilder",
+                type: "text",
+                nullable: true);
+        }
+
+        /// <inheritdoc />
+        protected override void Down(MigrationBuilder migrationBuilder)
+        {
+            migrationBuilder.DropColumn(
+                name: "ansvarlig_departement",
+                table: "rettskilder");
+        }
+    }
+}

@@ -83,6 +83,37 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
         "domstolen", "ombudet", "verket", "etaten", "banken",
     ];
 
+    /// <summary>
+    /// [Rettet, kodegjennomgang 2026-08-30] Eksplisitt denyliste for "verket"-suffikset — bekreftet i
+    /// live data: "fiskeriregelverket" (stor forbokstav midt i setning) ble foreslått som en
+    /// <c>"virksomhet"</c>-kandidat, men er åpenbart ikke et egennavn. "verket" fanger ekte
+    /// institusjonsnavn ("Patentverket", "Sjøfartsverket", "Kartverket", "Kystverket" — se
+    /// <c>organisasjoner-norge.json</c>), men fanger UNNGÅELIG også helt vanlige norske PRODUKTIVE
+    /// sammensetninger av formen «(hvilket som helst substantiv +) regelverket/lovverket/avtaleverket/
+    /// rammeverket for noe» — ikke en institusjon, og ikke en lukket liste med egennavn å legge TIL
+    /// suffikslisten (hvilket som helst substantiv foran gir gyldig norsk, så det finnes ingen endelig
+    /// "uttømt" liste av sammensetninger å forby der).
+    /// <para>
+    /// Løsningen er derfor IKKE å fjerne "verket" fra <see cref="Suffikser"/> (det ville også miste de
+    /// ekte "Patentverket"/"Sjøfartsverket"/"Kartverket"-treffene), men en egen, eksplisitt, dokumentert
+    /// denyliste (samme "ingen gjettet fallback"-filosofi som resten av klassen) over de KJENTE
+    /// falske positivene — sjekket ved <c>EndsWith</c> (case-insensitivt), ikke eksakt likhet, nettopp
+    /// fordi disse er PRODUKTIVE sammensetninger: "fiskeriregelverket" må fanges av "regelverket" selv
+    /// om selve ordet aldri er nøyaktig "regelverket". Sveip av hele det lokale korpuset (docs/13-
+    /// backlog.md §9-tekster, seed-data, dokumentasjon) etter alle "*verket"-forekomster fant ingen
+    /// flere kandidater utover disse fire (Johanns egen liste) — "Kartverket"/"Kystverket" (ekte
+    /// institusjoner) og "Skatteverket" (kun nevnt som svensk sammenligning i docs/10, ikke en norsk
+    /// rettskildetekst) endte IKKE med noen av de fire ordene under, så de forblir upåvirket.
+    /// Gjelder KUN <c>"virksomhet"</c>-klassifiseringen (stor forbokstav midt i setning) — en
+    /// tilsvarende liten-forbokstav-forekomst gir uansett <c>"rolle"</c>, ikke <c>"virksomhet"</c>, og
+    /// var aldri det bekreftede problemet.
+    /// </para>
+    /// </summary>
+    private static readonly string[] VerketDenyliste =
+    [
+        "regelverket", "lovverket", "avtaleverket", "rammeverket",
+    ];
+
     /// <summary>Faste juridisk-aktør-substantiv UTEN suffiks (docs/13-backlog.md §9) — ALLTID
     /// <c>"rolle"</c>-kandidater, uansett store/små bokstaver. Lengst-først i alternasjonen, slik at
     /// "Kongen i statsråd" foretrekkes framfor et delvis treff på bare "Kongen".</summary>
@@ -198,8 +229,14 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
             var forsteBokstav = tekst[m.Index];
             if (char.IsUpper(forsteBokstav))
             {
-                if (!ErSetningsstart(tekst, m.Index)) funnet.Add((m.Index, m.Length, "virksomhet"));
-                // else: setningsstart — ambiguøst, ingen kandidat (se metodekommentaren).
+                var erDenylistetVerketSammensetning = VerketDenyliste.Any(
+                    ord => m.Value.EndsWith(ord, StringComparison.OrdinalIgnoreCase));
+                if (!ErSetningsstart(tekst, m.Index) && !erDenylistetVerketSammensetning)
+                {
+                    funnet.Add((m.Index, m.Length, "virksomhet"));
+                }
+                // else: setningsstart (ambiguøst) ELLER denylistet "verket"-sammensetning (se
+                // VerketDenyliste-kommentaren) — ingen kandidat i det hele tatt, verken tilfellet.
             }
             else
             {
