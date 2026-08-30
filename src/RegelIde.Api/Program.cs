@@ -2387,6 +2387,12 @@ app.MapGet("/api/rettskilder/{lovkildeId:guid}/rollebegrep", async (Guid lovkild
     .WithName("HentRollebegrepForLov")
     .WithSummary("Lister rollebegrep definert for denne loven.");
 
+app.MapGet("/api/rollebegrep", async (VirksomhetsbegrepTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.AlleRollebegrepAsync(ct)).Select(BegrepDto.FraEntitet)))
+    .WithOpenApi()
+    .WithName("HentAlleRollebegrep")
+    .WithSummary("Lister ALLE rollebegrep på tvers av lover — søk/velg-grunnlag for å opprette en myndighetstildeling (docs/13-backlog.md §8.1 punkt 1).");
+
 app.MapPost("/api/myndighetstildelinger", async (HttpRequest request, MyndighetstildelingRequest body,
         MyndighetstildelingTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {

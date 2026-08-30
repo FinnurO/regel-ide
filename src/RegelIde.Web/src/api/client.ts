@@ -92,6 +92,7 @@ import type {
   BrregEnhetDto,
   VirksomhetsbegrepDto,
   MyndighetstildelingDto,
+  ParagrafspennParDto,
   VirksomhetKandidatDto,
   SveipVirksomhetKandidaterRequest,
   SveipVirksomhetKandidaterResultatDto,
@@ -251,6 +252,19 @@ export const api = {
 
   hentMyndighetstildelingerForVirksomhet: (virksomhetId: string) =>
     kall<MyndighetstildelingDto[]>(`/api/virksomheter/${virksomhetId}/myndighetstildelinger`),
+
+  /** ALLE rollebegrep på tvers av lover — søk/velg-grunnlag for LeggTilMyndighetstildelingForm. */
+  hentRollebegrep: () => kall<VirksomhetsbegrepDto[]>('/api/rollebegrep'),
+
+  opprettMyndighetstildeling: (request: {
+    rolleBegrepId: string; virksomhetId: string; hjemmelRettskildeId: string;
+    paragrafspenn: ParagrafspennParDto[]; vilkaar: string | null;
+  }) =>
+    kall<MyndighetstildelingDto>('/api/myndighetstildelinger', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
 
   /** Departement-virksomhet-lenke (2026-08-30) — gjeldende lover/forskrifter der AnsvarligDepartement eksakt matcher denne virksomhetens navn. */
   hentRettskilderAnsvarligFor: (virksomhetId: string) =>
