@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
 import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { KodelisteDto, MyndighetstildelingDto, VirksomhetKandidatDto, VirksomhetsbegrepDto } from '../api/types';
+import type { KodelisteDto, MyndighetstildelingDto, RettskildeSammendrag, VirksomhetKandidatDto, VirksomhetsbegrepDto } from '../api/types';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 
 export default function VirksomhetDetalj() {
@@ -12,6 +12,9 @@ export default function VirksomhetDetalj() {
   const [begrep, setBegrep] = useState<VirksomhetsbegrepDto[] | null>(null);
   const [tildelinger, setTildelinger] = useState<MyndighetstildelingDto[] | null>(null);
   const [kandidater, setKandidater] = useState<VirksomhetKandidatDto[] | null>(null);
+  // Departement-virksomhet-lenke (2026-08-30) — ikke betinget på noen egen "er departement"-boolsk,
+  // se oppgavebeskrivelsen: lastes for ENHVER virksomhet, seksjonen skjules bare når listen er tom.
+  const [rettskilderAnsvarligFor, setRettskilderAnsvarligFor] = useState<RettskildeSammendrag[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
 
   const [nyTerm, setNyTerm] = useState('');
@@ -36,6 +39,7 @@ export default function VirksomhetDetalj() {
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av begrep.'));
     api.hentMyndighetstildelingerForVirksomhet(id).then(setTildelinger).catch(() => setTildelinger([]));
     api.hentVentendeKandidater(id).then(setKandidater).catch(() => setKandidater([]));
+    api.hentRettskilderAnsvarligFor(id).then(setRettskilderAnsvarligFor).catch(() => setRettskilderAnsvarligFor([]));
   }
 
   useEffect(lastAlt, [id]);
@@ -223,6 +227,38 @@ export default function VirksomhetDetalj() {
                       {t.paragrafspenn.map((p) => (p.tilEid ? `${p.fraEid}–${p.tilEid}` : p.fraEid)).join(', ')}
                     </Table.Cell>
                     <Table.Cell>{t.vilkaar ?? '—'}</Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table>
+          </Card>
+        )}
+      </section>
+
+      <section style={{ marginBottom: '2rem' }}>
+        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+          Ansvarlig for
+        </Heading>
+        <Paragraph style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
+          Gjeldende lover/forskrifter der Lovdata oppgir denne virksomheten som ansvarlig departement
+          (eksakt navnetreff, ingen fuzzy-matching — se rettskildens egen "Ansvarlig departement"-felt).
+        </Paragraph>
+        {!rettskilderAnsvarligFor && <Spinner aria-label="Laster …" data-size="sm" />}
+        {rettskilderAnsvarligFor && rettskilderAnsvarligFor.length === 0 && (
+          <Paragraph>Ingen rettskilder registrert med denne virksomheten som ansvarlig departement.</Paragraph>
+        )}
+        {rettskilderAnsvarligFor && rettskilderAnsvarligFor.length > 0 && (
+          <Card style={{ padding: 0, overflow: 'hidden' }}>
+            <Table>
+              <Table.Body>
+                {rettskilderAnsvarligFor.map((r) => (
+                  <Table.Row key={r.id}>
+                    <Table.Cell>
+                      <Link asChild>
+                        <RouterLink to={`/rettskilder/${r.id}`}>{r.kortnavn ?? r.tittel}</RouterLink>
+                      </Link>
+                    </Table.Cell>
+                    <Table.Cell>{r.kildetype}</Table.Cell>
                   </Table.Row>
                 ))}
               </Table.Body>

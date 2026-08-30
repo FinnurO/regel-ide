@@ -1,5 +1,5 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
-import { Link as RouterLink } from 'react-router';
+import { Link as RouterLink, useSearchParams } from 'react-router';
 import { Alert, Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Table, Tag, Textfield, ToggleGroup } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
@@ -70,6 +70,7 @@ const KATEGORI_FARGE: Record<string, 'info' | 'accent'> = {
  * ikke utvalg) — se `vekslGruppe`/`raderForMasterSjekkboks`.
  */
 export default function NavnekandidaterListe() {
+  const [searchParams] = useSearchParams();
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
 
   const [kategoriFilter, setKategoriFilter] = useState<'virksomhet' | 'rolle' | ''>('');
@@ -142,6 +143,13 @@ export default function NavnekandidaterListe() {
   const rettskilderPerId = useMemo(() => new Map(rettskilder.map((r) => [r.id, r] as const)), [rettskilder]);
   function visRettskilde(rettskildeId: string): string {
     return rettskilderPerId.get(rettskildeId)?.kortnavn ?? rettskilderPerId.get(rettskildeId)?.tittel ?? rettskildeId;
+  }
+  // Navnekandidat-fiks 2 (2026-08-30) — Lovdatas eget metadata for HVILKET departement en rettskilde
+  // faktisk gjelder (RettskildeEntitet.AnsvarligDepartement), slått opp via den allerede-hentede
+  // rettskildelisten (samme mønster som visRettskilde over) i stedet for et eget kall. Spesielt viktig
+  // for "departementet"/"Kongen i statsråd"-kandidater, som ellers ikke sier noe om HVILKET departement.
+  function visAnsvarligDepartement(rettskildeId: string): string | null {
+    return rettskilderPerId.get(rettskildeId)?.ansvarligDepartement ?? null;
   }
 
   async function kjorSveip() {
@@ -328,6 +336,19 @@ export default function NavnekandidaterListe() {
           })()}
         </Table.Cell>
         <Table.Cell>
+          {(() => {
+            const departement = visAnsvarligDepartement(k.rettskildeId);
+            // Spesielt synlig for "departementet"/"Kongen i statsråd"-kandidater (se
+            // metodekommentaren) — men vist for ALLE kategorier, siden feltet uansett bare
+            // sier hvilket departement som eier RETTSKILDEN, ikke bare denne enkelttermen.
+            return departement ? (
+              <Tag data-color="neutral" data-size="sm">{departement}</Tag>
+            ) : (
+              <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>—</span>
+            );
+          })()}
+        </Table.Cell>
+        <Table.Cell>
           <Tag data-color={STATUS_FARGE[k.status] ?? 'neutral'} data-size="sm">{k.status}</Tag>
         </Table.Cell>
         <Table.Cell>
@@ -499,6 +520,7 @@ export default function NavnekandidaterListe() {
                     </button>
                   </Table.HeaderCell>
                   <Table.HeaderCell>Node</Table.HeaderCell>
+                  <Table.HeaderCell>Ansvarlig departement</Table.HeaderCell>
                   <Table.HeaderCell>
                     <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('status')}>
                       Status{sorteringsindikator('status')}
@@ -520,7 +542,7 @@ export default function NavnekandidaterListe() {
                               onChange={(e) => vekslGruppe(g.rader, e.target.checked)}
                             />
                           </Table.Cell>
-                          <Table.Cell colSpan={6}>
+                          <Table.Cell colSpan={7}>
                             <button
                               type="button"
                               className="tabell-gruppe-knapp"

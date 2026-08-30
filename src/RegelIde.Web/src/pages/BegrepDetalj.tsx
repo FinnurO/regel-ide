@@ -3,6 +3,7 @@ import { Link as RouterLink, useParams } from 'react-router';
 import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
+import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import type { BegrepDto, RettskildeSammendrag, VilkarDto } from '../api/types';
 
 const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
@@ -13,7 +14,7 @@ export default function BegrepDetalj() {
   const [feil, setFeil] = useState<string | null>(null);
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
   const [bruktIVilkar, setBruktIVilkar] = useState<Array<{ vilkar: VilkarDto; rotnodeId: string | undefined }>>([]);
-  const [eierNavn, setEierNavn] = useState<string | null>(null);
+  const { visEier } = useVirksomheter();
 
   const [term, setTerm] = useState('');
   const [definisjon, setDefinisjon] = useState('');
@@ -25,9 +26,9 @@ export default function BegrepDetalj() {
 
   function fyllSkjemaFra(b: BegrepDto) {
     setTerm(b.term);
-    setDefinisjon(b.definisjon);
+    setDefinisjon(b.definisjon ?? '');
     setLovreferanseEid(b.lovreferanseEid ?? '');
-    setBegrepstype(b.begrepstype);
+    setBegrepstype(b.begrepstype ?? 'faktabegrep');
   }
 
   useEffect(() => {
@@ -35,7 +36,6 @@ export default function BegrepDetalj() {
     api.hentBegrep(id).then((b) => {
       setBegrep(b);
       fyllSkjemaFra(b);
-      api.hentVirksomheter().then((liste) => setEierNavn(liste.find((v) => v.id === b.virksomhetId)?.navn ?? null)).catch(() => setEierNavn(null));
     }).catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av begrep.'));
     api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
     // «Brukt i vilkår» — bevisst forenkling (kun ett vilkårstre finnes i dag, se plan «Sammenhengende navigasjon»):
@@ -95,10 +95,49 @@ export default function BegrepDetalj() {
       </Heading>
       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1.5rem' }}>
         <Tag data-color="info">{begrep.status}</Tag>
+        {begrep.begrepskategori === 'virksomhet' && <Tag data-color="success">Virksomhet-navneform</Tag>}
+        {begrep.begrepskategori === 'rolle' && <Tag data-color="success">Rollebegrep</Tag>}
         <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
-          Eier: {eierNavn ?? '—'}
+          Eier: {visEier(begrep.virksomhetId)}
         </span>
       </div>
+
+      {(begrep.begrepskategori === 'virksomhet' || begrep.begrepskategori === 'rolle') && (
+        <section style={{ marginBottom: '1.5rem' }}>
+          <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+            Lenket til
+          </Heading>
+          {begrep.begrepskategori === 'virksomhet' && begrep.virksomhetReferanseId && (
+            <Paragraph>
+              Navneform for{' '}
+              <Link asChild>
+                <RouterLink to={`/virksomheter/${begrep.virksomhetReferanseId}`}>{visEier(begrep.virksomhetReferanseId)}</RouterLink>
+              </Link>
+            </Paragraph>
+          )}
+          {begrep.begrepskategori === 'rolle' && begrep.lovkildeId && (
+            <Paragraph>
+              Rollebegrep hjemlet i{' '}
+              {(() => {
+                const lov = rettskilder.find((r) => r.id === begrep.lovkildeId);
+                if (!lov) return <span>{begrep.lovkildeId}</span>;
+                // [Rettet, 2026-08-30] Lenk til NØYAKTIG paragrafen (via lovreferanseEid, satt
+                // automatisk ved godkjenning fra en navnekandidat, se OpprettRollebegrepAsync) når
+                // den finnes — en bar /rettskilder/{id}-lenke uten eid velger ingen node og lander
+                // på en tom side (Johann observerte nettopp dette for «Statsforvalteren»). Faller
+                // tilbake til en lenke til hele loven (uten valgt node) for eldre/manuelt opprettede
+                // rollebegrep uten kjent opprinnelsesparagraf.
+                const nodeHref = begrep.lovreferanseEid ? rettskildeLenke(begrep.lovreferanseEid, rettskilder) : null;
+                return (
+                  <Link asChild>
+                    <RouterLink to={nodeHref ?? `/rettskilder/${lov.id}`}>{lov.tittel}</RouterLink>
+                  </Link>
+                );
+              })()}
+            </Paragraph>
+          )}
+        </section>
+      )}
 
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
@@ -106,10 +145,12 @@ export default function BegrepDetalj() {
         </Heading>
         <form onSubmit={lagre} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '40rem' }}>
           <Textfield label="Term" value={term} onChange={(e) => setTerm(e.target.value)} required />
-          <Field>
-            <Label>Definisjon</Label>
-            <Textarea value={definisjon} onChange={(e) => setDefinisjon(e.target.value)} rows={3} required />
-          </Field>
+          {begrep.begrepskategori !== 'virksomhet' && begrep.begrepskategori !== 'rolle' && (
+            <Field>
+              <Label>Definisjon</Label>
+              <Textarea value={definisjon} onChange={(e) => setDefinisjon(e.target.value)} rows={3} required />
+            </Field>
+          )}
           <Textfield label="Lovreferanse (eId)" value={lovreferanseEid} onChange={(e) => setLovreferanseEid(e.target.value)}
             style={{ fontFamily: 'monospace' }} />
           {begrep.lovreferanseEid && (
@@ -124,13 +165,15 @@ export default function BegrepDetalj() {
               })()}
             </Paragraph>
           )}
-          <Field>
-            <Label>Begrepstype</Label>
-            <Select value={begrepstype} onChange={(e) => setBegrepstype(e.target.value)}>
-              <Select.Option value="faktabegrep">Faktabegrep</Select.Option>
-              <Select.Option value="handlingsbegrep">Handlingsbegrep</Select.Option>
-            </Select>
-          </Field>
+          {begrep.begrepskategori !== 'virksomhet' && begrep.begrepskategori !== 'rolle' && (
+            <Field>
+              <Label>Begrepstype</Label>
+              <Select value={begrepstype} onChange={(e) => setBegrepstype(e.target.value)}>
+                <Select.Option value="faktabegrep">Faktabegrep</Select.Option>
+                <Select.Option value="handlingsbegrep">Handlingsbegrep</Select.Option>
+              </Select>
+            </Field>
+          )}
           {lagreFeil && <Alert data-color="danger">{lagreFeil}</Alert>}
           <div>
             <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>

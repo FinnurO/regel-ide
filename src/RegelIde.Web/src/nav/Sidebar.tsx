@@ -3,8 +3,10 @@ import { Dropdown, Label } from '@digdir/designsystemet-react';
 import { useBruker } from '../bruker/BrukerContext';
 
 /**
- * Gruppert sidemeny (2026-08-20, "Startside Alternativ 1c") — erstatter den tidligere flate
- * 11-punkts listen med tre grupper (Kilder / Arbeidsprodukt / Administrasjon) som speiler den
+ * Gruppert sidemeny (2026-08-20, "Startside Alternativ 1c"; regruppert til seks seksjoner
+ * 2026-08-30 — menyen vokste til 17 lenker under de opprinnelige tre gruppene, som ikke lenger
+ * ga et tydelig nok informasjonsarkitektur-hierarki). De seks gruppene (Kilder / Registre /
+ * Tjenestemodellering / Forslag og kandidater / Virksomhetskatalog / Administrasjon) speiler den
  * faktiske hierarkiske strukturen i domenet, i stedet for en alfabetisk/kronologisk flat liste.
  *
  * "Kommende" rader (i dag: kun Importer katalog) har ingen side bygget ennå — vist som en
@@ -33,34 +35,45 @@ const GRUPPER: Gruppe[] = [
     heading: 'Kilder',
     rader: [
       { kind: 'lenke', to: '/rettskilder', label: 'Rettskilder' },
-      { kind: 'lenke', to: '/begreper', label: 'Begreper' },
-      { kind: 'lenke', to: '/kodelister', label: 'Kodelister' },
-      { kind: 'lenke', to: '/datasett', label: 'Datasett' },
       { kind: 'lenke', to: '/importer', label: 'Importer rettskilder' },
       { kind: 'kommende', label: 'Importer katalog' },
     ],
   },
   {
-    heading: 'Arbeidsprodukt',
+    heading: 'Registre',
+    rader: [
+      { kind: 'lenke', to: '/begreper', label: 'Begreper' },
+      { kind: 'lenke', to: '/kodelister', label: 'Kodelister' },
+      { kind: 'lenke', to: '/datasett', label: 'Datasett' },
+    ],
+  },
+  {
+    heading: 'Tjenestemodellering',
     rader: [
       { kind: 'lenke', to: '/tjenester', label: 'Tjenester' },
       { kind: 'lenke', to: '/handlinger', label: 'Handlinger' },
       { kind: 'lenke', to: '/vilkarstre', label: 'Vilkårstre' },
       { kind: 'lenke', to: '/tjenestereise', label: 'Tjenestereise (graf)' },
       { kind: 'lenke', to: '/handboker/ny', label: 'Håndbøker' },
-      { kind: 'lenke', to: '/tjenester/forslag', label: 'KI-forslag tjenester' },
-      { kind: 'lenke', to: '/begreper/forslag', label: 'KI-forslag begrep' },
       { kind: 'lenke', to: '/importer/rettighetsmodell', label: 'Importer rettighetsmodell' },
     ],
   },
   {
-    heading: 'Administrasjon',
+    heading: 'Forslag og kandidater',
     rader: [
-      { kind: 'lenke', to: '/brukere', label: 'Brukere' },
-      { kind: 'lenke', to: '/virksomheter', label: 'Virksomheter' },
+      { kind: 'lenke', to: '/tjenester/forslag', label: 'KI-forslag tjenester' },
+      { kind: 'lenke', to: '/begreper/forslag', label: 'KI-forslag begrep' },
       { kind: 'lenke', to: '/virksomhet-kandidater', label: 'Virksomhetskandidater' },
       { kind: 'lenke', to: '/navnekandidater', label: 'Navnekandidater' },
     ],
+  },
+  {
+    heading: 'Virksomhetskatalog',
+    rader: [{ kind: 'lenke', to: '/virksomheter', label: 'Virksomheter' }],
+  },
+  {
+    heading: 'Administrasjon',
+    rader: [{ kind: 'lenke', to: '/brukere', label: 'Brukere' }],
   },
 ];
 
