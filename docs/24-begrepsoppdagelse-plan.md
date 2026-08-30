@@ -87,12 +87,24 @@ under en `Ledd`), M11 (paragraf-node hvis `Overskrift` er selve termen, første 
 definisjonssetningen) og M14 (flere søsken-`Ledd`-noder under samme `Paragraf` — `definisjon_spenn` blir
 naturlig en liste av `Ledd`-eId-er).
 
-**Hull 1 — verifisert, ikke nevnt i spesifikasjonen:** `data/kilder/raw-lovdata/` inneholder i dag 8
-faktisk importerte lover (alkoholloven, serveringsloven, forvaltningsloven, motorferdselloven,
-personopplysningsloven, tannhelsetjenesteloven, advokatloven, alkoholforskriften) — **verken
-FOR-2015-06-25-793 eller folketrygdloven** (spesifikasjonens egne §11-testdokumenter) finnes i korpuset.
-Siden sveipet per spesifikasjonens egen algoritme (§4) opererer på `RettskildeNode`-rader i databasen,
-ikke på rå HTML/PDF, MÅ disse to dokumentene importeres inn i korpuset før M1/M11 i det hele tatt kan
+**Hull 1 — RETTET 2026-08-30, opprinnelig finn her var feil.** Denne planens FØRSTE versjon påsto at
+verken FOR-2015-06-25-793 eller folketrygdloven fantes i korpuset, basert på at
+`data/kilder/raw-lovdata/` kun inneholder 8 lover (alkoholloven, serveringsloven, forvaltningsloven,
+motorferdselloven, personopplysningsloven, tannhelsetjenesteloven, advokatloven, alkoholforskriften).
+**Det var en feilslutning** — `data/kilder/raw-lovdata/` er eksplisitt dokumentert i sin egen README
+som «IKKE produksjonsdata», en liten, HÅNDPLUKKET fixture-mappe for spesifikke automatiserte tester
+(f.eks. `RundskrivReproduksjonTests.cs`), ikke den faktiske korpus-databasen. Verifisert direkte mot
+den KJØRENDE appens `/api/rettskilder`-endepunkt (2026-08-30): databasen har **5897 rettskilder**
+totalt, og **BEGGE** testdokumentene er der, fullt importert med ekte innhold:
+
+- **FOR-2015-06-25-793** — se presiseringen under («Referert lovkilde») for riktig identitet (IKKE
+  matinformasjonsforskriften, som en tidligere versjon av dette dokumentet feilaktig antok).
+- **Folketrygdloven** (`Lov om folketrygd (folketrygdloven)`, ELI
+  `https://lovdata.no/eli/lov/1997/02/28/19/nor`) — også fullt importert.
+
+Ingen import-steg trengs altså før M1/M11 kan valideres mot spesifikasjonens egne §11-testdokumenter —
+de er allerede klare å spørre mot i den kjørende databasen. Siden sveipet per spesifikasjonens egen
+algoritme (§4) uansett opererer på `RettskildeNode`-rader i databasen, ikke på rå HTML/PDF, er dette
 valideres mot ekte data slik spesifikasjonen selv foreskriver som testgrunnlag. Dette er et reelt,
 konkret første steg spesifikasjonen forutsetter uten å nevne det.
 
@@ -139,10 +151,16 @@ tabellcelles brødtekst er, sett fra `RettskildeNode.Tekst` sitt ståsted, bare 
 peke til, forutsatt at `NodeType.Vedlegg`-arbeidet (når det kommer) også gir tabellceller sin egen
 node-representasjon (`Tekst`-felt) å peke inn i — ikke noe nytt eget mekanisme-behov utover det.
 
-**Referert lovkilde bekreftet av Johann**: FOR-2015-06-25-793 § 1 —
-<https://lovdata.no/forskrift/2015-06-25-793/%C2%A71> (matinformasjonsforskriften — samme forskrift
-M8a-eksempelet over stammer fra). Fortsatt ikke importert i korpuset (se Hull 1 over) — dette er den
-konkrete, verifiserte URL-en å importere fra når byggerekkefølgens steg 1 gjennomføres.
+**Referert lovkilde bekreftet av Johann — RETTET 2026-08-30, feil identitet i forrige versjon.** FOR-2015-06-25-793
+(<https://lovdata.no/forskrift/2015-06-25-793/%C2%A71>) er **Forskrift om pasienters, ledsageres og
+pårørendes rett til dekning av utgifter ved reise til helsetjenester (pasientreiseforskriften)** — IKKE
+matinformasjonsforskriften, slik en tidligere versjon av dette dokumentet feilaktig antok (den var en
+antakelse, aldri faktisk verifisert mot selve URL-en). Allerede fullt importert i korpuset (se Hull 1
+over, rettet) — og viser seg å være et NÆRMEST PERFEKT M1-testcase: § 1 heter «Definisjoner», med
+teksten «I forskriften her menes med:» etterfulgt av en punktliste (`reisestønad`, `bosted`,
+`bostedskommune`, `bostedsregion`, `nære pårørende`, …) — nøyaktig strukturen M1 er spesifisert til å
+gjenkjenne. Ingen import nødvendig — kan brukes direkte som referansedokument når M1/M11-ekstraksjon
+faktisk bygges.
 
 **Mindre observasjon:** `LovdataHtmlParser.cs` sin kommentar ved `ParseChildPunkter` (linje ~848) bekrefter
 at punktlister kan nøstes vilkårlig dypt i ekte data (eksempel: alkoholforskriften § 6-2). M1s
@@ -290,13 +308,15 @@ Spesifikasjonen selv anbefaler å starte med M1 og M11 ("høyest konfidens, stru
 riktig retning, men to infrastruktur-steg må komme FØR eller SAMMEN MED det, som spesifikasjonen selv
 ikke nevner (funn fra §1.3):
 
-1. **Importer testgrunnlaget inn i korpuset.** Verken FOR-2015-06-25-793 eller folketrygdloven kapittel 1
-   finnes i `data/kilder/raw-lovdata/` i dag. Sveipet opererer på `RettskildeNode`-rader i databasen —
-   uten disse to dokumentene faktisk importert kan M1/M11 ikke valideres mot spesifikasjonens eget §11
-   testgrunnlag i det hele tatt.
+1. ~~Importer testgrunnlaget inn i korpuset~~ — **RETTET 2026-08-30: unødvendig, allerede gjort.**
+   Verifisert direkte mot den kjørende databasen: både FOR-2015-06-25-793 (pasientreiseforskriften) og
+   folketrygdloven er allerede fullt importert med ekte innhold (se Hull 1 og «Referert lovkilde» over,
+   begge rettet samme dag). Forrige versjon av dette punktet baserte seg på en feilsjekk mot
+   `data/kilder/raw-lovdata/` (en liten test-fixture-mappe) i stedet for selve databasen. Neste steg
+   under kan starte direkte mot disse to dokumentene uten noe importarbeid.
 2. **Skjemamigrasjon for `Begrepsforekomst`/`Begrepsrelasjon`** (§2 over) — selv en "kun-flagg"-første-
    iterasjon av M1/M11 trenger et sted å skrive resultater.
-3. **`klassifiser_paragraf` + ekstraksjon for M1 og M11**, validert mot de to importerte
+3. **`klassifiser_paragraf` + ekstraksjon for M1 og M11**, validert mot de to allerede importerte
    referansedokumentene — som spesifikasjonen selv anbefaler.
 4. **Godkjenningsflyt**: gjenbruk `VirksomhetKandidatTjeneste.GodkjennAsync`-mønsteret rått —
    revalider mot nodens dåværende tekst, opprett `TekstTaggEntitet`(kind="begrep"), koble/opprett
@@ -334,8 +354,10 @@ Egne funn fra kodebase-gjennomgangen, IKKE dekket av spesifikasjonen:
 - **M8 har ingen strukturell hjemmel i dagens skjema** (se §1.3, §4 pkt. 6) — verken `NodeType.Vedlegg`,
   parser-støtte for tabeller i vedlegg, eller AKN-serialisering for dette finnes. Reelt, ikke-trivielt
   forarbeid, ikke en "liten utvidelse".
-- **Testgrunnlaget (FOR-2015-06-25-793, folketrygdloven kap. 1) er ikke importert i korpuset ennå** (se
-  §1.3, §4 pkt. 1) — konkret blokkerende førstesteg spesifikasjonen selv forutsetter uten å si det.
+- ~~Testgrunnlaget er ikke importert i korpuset ennå~~ — **RETTET 2026-08-30: denne risikoen fantes
+  aldri.** Begge dokumentene (FOR-2015-06-25-793/pasientreiseforskriften, folketrygdloven) er allerede
+  fullt importert (se §1.3, §4 pkt. 1, begge rettet samme dag). Feilen kom av å sjekke en liten
+  test-fixture-mappe (`data/kilder/raw-lovdata/`) i stedet for selve databasen.
 - **Nøstede punktlister** (bekreftet i ekte data, alkoholforskriften § 6-2 via `LovdataHtmlParser.cs`)
   betyr at M1s "listepunkt → (term, forklaring)"-klassifisering må ta stilling til nøstede lister
   eksplisitt (er en nøstet liste under et definisjonspunkt en M16-vurderingsmomentliste, eller en
