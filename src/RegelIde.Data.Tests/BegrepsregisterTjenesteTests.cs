@@ -123,6 +123,34 @@ public class BegrepsregisterTjenesteTests
     }
 
     [Fact]
+    public async Task Oppdaterer_virksomhet_navneform_rorer_ikke_definisjon_eller_begrepstype()
+    {
+        // [Rettet, 2026-08-30] Regresjonstest for bugen beskrevet i OppdaterAsync sin XML-kommentar:
+        // PUT /api/begreper/{id} skal ALDRI kunne forurense en virksomhet-/rolle-navneform med en
+        // oppfunnet definisjon/begrepstype, uansett hva som sendes inn i requesten.
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Testkommunen" });
+        var malVirksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = malVirksomhet, Navn = "Agder fylkeskommune" });
+        await db.SaveChangesAsync();
+
+        var navneform = await new VirksomhetsbegrepTjeneste(db).OpprettVirksomhetsbegrepAsync(
+            malVirksomhet, "Fylkeskommune", "Kari Jurist");
+        Assert.Null(navneform.Definisjon);
+        Assert.Null(navneform.Begrepstype);
+
+        var register = new BegrepsregisterTjeneste(db);
+        var oppdatert = await register.OppdaterAsync(navneform.Id, "Fylkeskommune (rettet)", "en oppfunnet definisjon", null,
+            null, null, null, "faktabegrep", "Ola Fagansvarlig");
+
+        Assert.NotNull(oppdatert);
+        Assert.Equal("Fylkeskommune (rettet)", oppdatert!.Term);
+        Assert.Null(oppdatert.Definisjon);
+        Assert.Null(oppdatert.Begrepstype);
+    }
+
+    [Fact]
     public async Task Setter_status()
     {
         await using var db = _fixture.NyDbContext();

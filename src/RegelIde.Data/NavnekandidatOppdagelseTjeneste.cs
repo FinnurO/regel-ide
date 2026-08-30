@@ -651,7 +651,11 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
     /// <item><c>"rolle"</c> — oppretter et EKTE rollebegrep direkte
     /// (<see cref="VirksomhetsbegrepTjeneste.OpprettRollebegrepAsync"/>, <c>Term</c>=<see cref="NavnekandidatEntitet.ForeslattTekst"/>,
     /// <c>LovkildeId</c>=kandidatens <see cref="NavnekandidatEntitet.RettskildeId"/>) — alt godkjenningen
-    /// trenger er allerede kjent fra selve kandidaten.</item>
+    /// trenger er allerede kjent fra selve kandidaten. [Rettet, 2026-08-30] Sender også med
+    /// <see cref="NavnekandidatEntitet.NodeEid"/> som rollebegrepets <c>LovreferanseEid</c> — uten
+    /// dette var det umulig å se, fra selve paragrafen, at rollebegrepet stammer derfra (Johann
+    /// observerte at «Statsforvalteren» ikke viste seg tagget i vergemålsforskriften § 19 ledd 1,
+    /// der den faktisk ble funnet).</item>
     /// <item><c>"virksomhet"</c> — oppretter INGENTING. Godkjenning her betyr kun "reelt navn, verdt å
     /// følge opp" — selve koblingen til en konkret <see cref="Virksomhet"/> (ny eller eksisterende)
     /// krever et menneske og skjer via den eksisterende navneform-tilleggsflyten i
@@ -675,7 +679,8 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
 
         if (kandidat.Kategori == "rolle")
         {
-            await virksomhetsbegrep.OpprettRollebegrepAsync(kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, ct);
+            await virksomhetsbegrep.OpprettRollebegrepAsync(
+                kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
         }
         // "virksomhet": ingen entitet opprettes her — se metodekommentaren.
 

@@ -2361,7 +2361,7 @@ app.MapPost("/api/rollebegrep", async (HttpRequest request, RollebegrepRequest b
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         try
         {
-            var opprettet = await register.OpprettRollebegrepAsync(body.LovkildeId, body.Term, bruker.Navn, ct);
+            var opprettet = await register.OpprettRollebegrepAsync(body.LovkildeId, body.Term, bruker.Navn, ct: ct);
             return Results.Created($"/api/begreper/{opprettet.Id}", BegrepDto.FraEntitet(opprettet));
         }
         catch (ArgumentException ex)

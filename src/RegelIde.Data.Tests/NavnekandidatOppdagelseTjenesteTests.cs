@@ -506,6 +506,10 @@ public class NavnekandidatOppdagelseTjenesteTests
         var rollebegrep = await db.Begreper.SingleAsync(
             b => b.Begrepskategori == "rolle" && b.LovkildeId == rettskildeId && b.Term == "havnetilsynet");
         Assert.Equal("publisert", rollebegrep.Status);
+        // [Rettet, 2026-08-30] LovreferanseEid skal settes til NØYAKTIG kandidatens NodeEid ved
+        // godkjenning, slik at rollebegrepet kan spores tilbake til paragrafen det ble funnet i —
+        // se OpprettRollebegrepAsync sin XML-kommentar for konteksten (Johann-observert bug).
+        Assert.Equal(kandidat.NodeEid, rollebegrep.LovreferanseEid);
     }
 
     [Fact]
