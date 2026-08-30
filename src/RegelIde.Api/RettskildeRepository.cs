@@ -29,6 +29,50 @@ public sealed class RettskildeRepository(RegelIdeDbContext db)
     public Task<RettskildeEntitet?> FinnAsync(Guid id) =>
         db.Rettskilder.FirstOrDefaultAsync(r => r.Id == id && r.Status != UtkastStatus);
 
+    /// <summary>
+    /// [Ny, departement-virksomhet-lenke, 2026-08-30] Løser en rå <see cref="RettskildeEntitet.AnsvarligDepartement"/>-
+    /// streng (Lovdatas eget "ministry"-metadatafelt) til en EKTE <see cref="Virksomhet"/>-rad, ved
+    /// eksakt (case-insensitivt) navnematch — IKKE via Begrep/navnekandidat-mekanismen (den er for
+    /// tekst-OPPDAGELSE av navn i løpende lovtekst; her har vi allerede en strukturert, eksakt streng
+    /// direkte fra Lovdatas metadata, ingen oppdagelse trengs). Case-insensitivt fordi
+    /// <see cref="OrganisasjonsregisterSeed"/> selv matcher case-insensitivt ved backfill (samme
+    /// konvensjon, se dens klassekommentar: "eksisterende virksomhet med case-ufølsomt likt Navn").
+    /// <c>.ToLower()</c> på begge sider (i stedet for <c>StringComparison.OrdinalIgnoreCase</c>, som EF
+    /// Core ikke kan oversette til SQL) — oversettes til <c>LOWER(...)</c> og fungerer likt mot både
+    /// Postgres og SQLite.
+    /// <para>
+    /// Returnerer null uten treff — «ingen gjettet fallback»: et departement-navn som ikke finnes
+    /// eksakt i katalogen (f.eks. en skrivemåte Brreg/regjeringen.no ikke bruker) forblir ukoblet,
+    /// ALDRI koblet til nærmeste/mest sannsynlige treff.
+    /// </para>
+    /// </summary>
+    public Task<Guid?> FinnVirksomhetIdForNavnAsync(string navn)
+    {
+        var navnLower = navn.ToLower();
+        return db.Virksomheter.Where(v => v.Navn.ToLower() == navnLower).Select(v => (Guid?)v.Id).FirstOrDefaultAsync();
+    }
+
+    /// <summary>
+    /// Motsatt retning av <see cref="FinnVirksomhetIdForNavnAsync"/> — alle GJELDENDE rettskilder der
+    /// <see cref="RettskildeEntitet.AnsvarligDepartement"/> eksakt (case-insensitivt) matcher DENNE
+    /// virksomhetens eget navn. Brukt av "Ansvarlig for"-seksjonen på VirksomhetDetalj.tsx. Kun
+    /// <c>Entitetsstatus == "gjeldende"</c> filtrert (ikke <c>Importrolle</c>/<c>Status</c> i tillegg) —
+    /// referanse-stubber har uansett aldri <see cref="RettskildeEntitet.AnsvarligDepartement"/> satt
+    /// (opprettes med <c>Tittel = dokumentEli</c>, ingen metadata), så de faller bort av seg selv.
+    /// Returnerer tom liste (ikke feil) for en virksomhet uten navnetreff — samme "ingen gjettet
+    /// fallback"-prinsipp som <see cref="FinnVirksomhetIdForNavnAsync"/>.
+    /// </summary>
+    public async Task<List<RettskildeEntitet>> RettskilderAnsvarligForAsync(Guid virksomhetId)
+    {
+        var navn = await db.Virksomheter.Where(v => v.Id == virksomhetId).Select(v => v.Navn).FirstOrDefaultAsync();
+        if (navn is null) return [];
+
+        var navnLower = navn.ToLower();
+        return await db.Rettskilder
+            .Where(r => r.Entitetsstatus == "gjeldende" && r.AnsvarligDepartement != null && r.AnsvarligDepartement.ToLower() == navnLower)
+            .ToListAsync();
+    }
+
     // Filter på Entitetsstatus="gjeldende" lagt til 2026-07-26 (node-nivå versjonering, håndbok/rundskriv,
     // docs/08-byggesteg1-teknisk-design.md §2.1) — virkningsløst for Lov/Forskrift-noder (alltid
     // "gjeldende"), men nødvendig for håndbok-noder: en redigert kommentarseksjon har flere rader med

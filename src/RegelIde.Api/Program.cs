@@ -311,6 +311,11 @@ using (var scope = app.Services.CreateScope())
     // Testkommunen/Agder/Bærum+Tønsberg/Bergen faktisk finner de eksisterende radene i stedet for å
     // opprette duplikater.
     await OrganisasjonsregisterSeed.SeedAsync(db);
+
+    // Departement-virksomhet-lenke (2026-08-30, docs/ tilsvarende plan) — de resterende 13 av 17 norske
+    // departementer (4 fantes allerede via OrganisasjonsregisterSeed over). Kjøres ETTER den, slik at
+    // matching på Organisasjonsnummer faktisk finner de 4 eksisterende radene i stedet for å duplisere.
+    await DepartementSeed.SeedAsync(db);
 }
 
 // GUI-et spør om profilen for å vite om brukervelgeren skal vises i det hele tatt.
@@ -571,9 +576,14 @@ rettskilder.MapGet("/", async (Guid? virksomhetId, RettskildeRepository repo) =>
 rettskilder.MapGet("/{id:guid}", async (Guid id, RettskildeRepository repo) =>
     {
         var r = await repo.FinnAsync(id);
-        return r is null
-            ? Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." })
-            : Results.Ok(RettskildeDetalj.FraEntitet(r));
+        if (r is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
+
+        // Departement-virksomhet-lenke (2026-08-30) — løst her, ikke i DTO-en selv, siden den trenger
+        // et databaseoppslag (repo.FinnVirksomhetIdForNavnAsync er async).
+        var departementVirksomhetId = r.AnsvarligDepartement is null
+            ? null
+            : await repo.FinnVirksomhetIdForNavnAsync(r.AnsvarligDepartement);
+        return Results.Ok(RettskildeDetalj.FraEntitet(r, departementVirksomhetId));
     })
     .WithName("HentRettskilde")
     .WithSummary("Henter full metadata + kanonisk AKN-XML for én rettskilde.");
@@ -589,9 +599,12 @@ rettskilder.MapPatch("/{id:guid}/metadata", async (Guid id, HttpRequest request,
         var oppdatert = await repo.OppdaterMetadataAsync(
             id, body.Kortnavn, body.Utgiver, body.InterntDokNr, body.Revisjonsnr, body.VedtattAv,
             body.Vedtaksdato, body.GyldigTil, body.KonsolidertDato, bruker.Navn);
-        return oppdatert is null
-            ? Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." })
-            : Results.Ok(RettskildeDetalj.FraEntitet(oppdatert));
+        if (oppdatert is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
+
+        var departementVirksomhetId = oppdatert.AnsvarligDepartement is null
+            ? null
+            : await repo.FinnVirksomhetIdForNavnAsync(oppdatert.AnsvarligDepartement);
+        return Results.Ok(RettskildeDetalj.FraEntitet(oppdatert, departementVirksomhetId));
     })
     .WithName("OppdaterRettskildeMetadata")
     .WithSummary("Oppdaterer redigerbar metadata (Kortnavn/Utgiver/InterntDokNr/Revisjonsnr/VedtattAv/" +
@@ -2392,6 +2405,15 @@ app.MapGet("/api/virksomheter/{id:guid}/myndighetstildelinger", async (Guid id, 
     .WithOpenApi()
     .WithName("HentMyndighetstildelingerForVirksomhet")
     .WithSummary("Lister myndighetstildelinger denne virksomheten har.");
+
+app.MapGet("/api/virksomheter/{id:guid}/rettskilder-ansvarlig-for", async (Guid id, RettskildeRepository repo) =>
+        Results.Ok((await repo.RettskilderAnsvarligForAsync(id)).Select(RettskildeSammendrag.FraEntitet)))
+    .WithOpenApi()
+    .WithName("HentRettskilderAnsvarligForVirksomhet")
+    .WithSummary("Lister GJELDENDE lover/forskrifter der AnsvarligDepartement (Lovdatas eget 'ministry'-" +
+        "metadatafelt) eksakt (case-insensitivt) matcher denne virksomhetens navn (departement-" +
+        "virksomhet-lenke, 2026-08-30). Ingen fuzzy-matching — en virksomhet uten navnetreff i noen " +
+        "rettskildes AnsvarligDepartement gir tom liste, ikke en feil.");
 
 app.MapGet("/api/rollebegrep/{id:guid}/tildelinger", async (Guid id, MyndighetstildelingTjeneste register, CancellationToken ct) =>
         Results.Ok((await register.AlleForRolleBegrepAsync(id, ct)).Select(MyndighetstildelingDto.FraEntitet)))

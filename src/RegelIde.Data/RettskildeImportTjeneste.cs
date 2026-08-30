@@ -97,6 +97,7 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             eksisterende.Ikrafttredelse = m.Ikrafttredelse;
             eksisterende.KonsolidertDato = m.KonsolidertDato;
             eksisterende.Utgiver = m.Utgiver;
+            eksisterende.AnsvarligDepartement = m.AnsvarligDepartement;
             eksisterende.Status = m.Status;
             eksisterende.SistEndretAv = attribuertTil;
             eksisterende.SistEndretTidspunkt = DateTimeOffset.UtcNow;
@@ -120,6 +121,7 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 Ikrafttredelse = m.Ikrafttredelse,
                 KonsolidertDato = m.KonsolidertDato,
                 Utgiver = m.Utgiver,
+                AnsvarligDepartement = m.AnsvarligDepartement,
                 Status = m.Status,
                 OpprettetAv = attribuertTil,
                 OpprettetTidspunkt = DateTimeOffset.UtcNow,
@@ -226,6 +228,7 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             Ikrafttredelse = m.Ikrafttredelse,
             KonsolidertDato = m.KonsolidertDato,
             Utgiver = m.Utgiver,
+            AnsvarligDepartement = m.AnsvarligDepartement,
             Status = m.Status,
             Versjon = gammel.Versjon + 1,
             ErstatterId = gammel.Id,

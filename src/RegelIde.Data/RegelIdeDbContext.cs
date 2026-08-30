@@ -265,6 +265,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Ikrafttredelse).HasColumnName("ikrafttredelse");
             e.Property(x => x.KonsolidertDato).HasColumnName("konsolidert_dato");
             e.Property(x => x.Utgiver).HasColumnName("utgiver");
+            e.Property(x => x.AnsvarligDepartement).HasColumnName("ansvarlig_departement");
             e.Property(x => x.Status).HasColumnName("status");
             // Optimistic concurrency (05-arkitektur-og-nfk.md §2: "skal varsle og avvise en lagring
             // som ville overskrevet en endring gjort av en annen bruker") — konfigureres eksplisitt

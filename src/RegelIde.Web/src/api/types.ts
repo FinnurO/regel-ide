@@ -30,6 +30,10 @@ export interface RettskildeDetalj {
   gyldigTil: string | null;
   /** Kildens opprinnelige URL — satt for Brukerveiledning (den hentede nettsidens URL) og noen håndbøker. */
   url: string | null;
+  /** Rå streng fra Lovdatas "ministry"-metadatafelt (departement-virksomhet-lenke, 2026-08-30). NULL for alt som ikke er Lov/Forskrift importert fra Lovdata. */
+  ansvarligDepartement: string | null;
+  /** Eksakt (case-insensitivt) navnetreff mot virksomhetskatalogen — NULL når departementet ikke finnes som egen Virksomhet-rad ("ingen gjettet fallback": vises da som ren tekst, ikke en lenke). */
+  ansvarligDepartementVirksomhetId: string | null;
 }
 
 export interface RettskildeNodeDto {

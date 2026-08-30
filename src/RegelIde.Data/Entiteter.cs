@@ -176,6 +176,25 @@ public sealed class RettskildeEntitet
     /// <summary>Eksakt URL kilden ble hentet fra — finnes ikke for Lovdata-import (annen henteflyt).</summary>
     public string? Url { get; set; }
 
+    /// <summary>
+    /// [Ny, 2026-08-30, departement-virksomhet-lenke] Departementet Lovdata selv oppgir som ansvarlig
+    /// for en Lov/Forskrift — hentet direkte fra Lovdatas "ministry"-metadatafelt (samme streng som
+    /// allerede skrives til AKN-XML-en som <c>&lt;regelIde:ansvarligDepartement&gt;</c>, se
+    /// AknXmlSkriver.cs/LovdataHtmlParser.cs i RegelIde.Kildekonvertering), nå ALSO lagret som egen
+    /// kolonne slik at den kan spørres på (ikke bare vises fra rå XML). NULL for alt som ikke er
+    /// Lov/Forskrift importert fra Lovdata (håndbøker, brukerveiledninger, virksomhetsdokumenter).
+    /// <para>
+    /// Kobles til en ekte <see cref="Virksomhet"/> KUN ved lesing, via et eksakt (case-insensitivt)
+    /// navnematch mot <see cref="Virksomhet.Navn"/> (se <c>RettskildeRepository.FinnVirksomhetIdForNavnAsync</c>/
+    /// <c>RettskilderAnsvarligForAsync</c>) — BEVISST ikke via Begrep/navnekandidat-mekanismen (den er
+    /// for tekst-OPPDAGELSE av navn i løpende lovtekst; her har vi allerede en strukturert, eksakt
+    /// streng direkte fra Lovdatas metadata, ingen oppdagelse trengs) og BEVISST ikke en lagret FK-
+    /// kolonne (en ren navne-join ved lesing kan aldri bli utdatert av at katalogen endres — se
+    /// DepartementSeed.cs for hvilke Virksomhet-rader som faktisk finnes for departementene).
+    /// </para>
+    /// </summary>
+    public string? AnsvarligDepartement { get; set; }
+
     /// <summary>Bytea — uendret original (typisk PDF) for et hentet dokument. Distinkt fra
     /// <see cref="AknXml"/>, som er en AVLEDET serialisering, ikke originalen selv.</summary>
     public byte[]? Innhold { get; set; }
