@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams, useSearchParams } from 'react-router';
-import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Switch, Table, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type {
   DokumentReferanseDto,
@@ -145,6 +145,32 @@ export default function RettskildeDetalj() {
   const [lagrerMetadata, setLagrerMetadata] = useState(false);
   const [metadataFeil, setMetadataFeil] = useState<string | null>(null);
 
+  // Irrelevant-markering (2026-08-30) — header-nivå «marker som irrelevant for regel-ide» +
+  // fritekstkommentar. Toggelen er ALLTID synlig (ikke bak en «rediger»-knapp slik Metadata-
+  // seksjonen over er) — dette er én enkeltstående handling (sett/fjern markeringen), ikke en
+  // flerfelts skjemaredigering som trenger et eget redigeringsmodus.
+  const [irrelevantMarkert, setIrrelevantMarkert] = useState(false);
+  const [irrelevantKommentar, setIrrelevantKommentar] = useState('');
+  const [lagrerIrrelevant, setLagrerIrrelevant] = useState(false);
+  const [irrelevantFeil, setIrrelevantFeil] = useState<string | null>(null);
+
+  async function lagreIrrelevant() {
+    if (!id) return;
+    setIrrelevantFeil(null);
+    setLagrerIrrelevant(true);
+    try {
+      const oppdatert = await api.oppdaterRettskildeIrrelevant(id, {
+        erIrrelevant: irrelevantMarkert,
+        irrelevantKommentar: irrelevantKommentar.trim() || null,
+      });
+      setDetalj(oppdatert);
+    } catch (err) {
+      setIrrelevantFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved lagring av irrelevant-markering.');
+    } finally {
+      setLagrerIrrelevant(false);
+    }
+  }
+
   // Navnekandidat-fiks 3, del 2 (2026-08-30, docs/13-backlog.md §9) — manuell sveip-trigger for NØYAKTIG
   // denne rettskilden. Fantes ikke noe sted i UI-et før nå (kun via NavnekandidaterListe.tsx sitt
   // korpusomfattende/rettskilde-filtrerte sveip-panel, ikke herfra) — brukere som nettopp har
@@ -223,6 +249,8 @@ export default function RettskildeDetalj() {
         setDetalj(d);
         setTre(byggTre(noder));
         setTagger(egneTagger);
+        setIrrelevantMarkert(d.erIrrelevant);
+        setIrrelevantKommentar(d.irrelevantKommentar ?? '');
       })
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av rettskilden.'));
     api.hentReferertAvTjenester(id).then(setReferertAvTjenester).catch(() => setReferertAvTjenester([]));
@@ -444,6 +472,7 @@ export default function RettskildeDetalj() {
     () => (detalj ? [{
       id: detalj.id, virksomhetId: detalj.virksomhetId, eli: detalj.eli, tittel: detalj.tittel,
       kortnavn: detalj.kortnavn, kildetype: detalj.kildetype, ansvarligDepartement: detalj.ansvarligDepartement,
+      erIrrelevant: detalj.erIrrelevant,
     }] : []),
     [detalj],
   );
@@ -572,6 +601,7 @@ export default function RettskildeDetalj() {
         <Tag data-color="info">{detalj.kildetype}</Tag>
         <Tag data-color={detalj.status === 'Gjeldende' ? 'success' : 'warning'}>{detalj.status}</Tag>
         <Tag data-color={detalj.virksomhetId ? 'success' : 'info'}>{visEier(detalj.virksomhetId)}</Tag>
+        {detalj.erIrrelevant && <Tag data-color="warning">Irrelevant for regel-ide</Tag>}
         <Button data-size="sm" variant="secondary" onClick={kjorSveip} disabled={sveiper}>
           {sveiper ? 'Sveiper …' : 'Sveip etter navnekandidater'}
         </Button>
@@ -583,6 +613,36 @@ export default function RettskildeDetalj() {
           <Link asChild><RouterLink to={`/navnekandidater?rettskildeId=${id}`}>Se navnekandidater ↗</RouterLink></Link>
         </Alert>
       )}
+
+      <div
+        style={{
+          marginBottom: '1.5rem', padding: '0.75rem', borderRadius: 'var(--ds-border-radius-default)',
+          border: '1px solid var(--ds-color-neutral-border-subtle)',
+        }}
+      >
+        {detalj.erIrrelevant && (
+          <Alert data-color="warning" style={{ marginBottom: '0.75rem' }}>
+            Markert som irrelevant for regel-ide.{detalj.irrelevantKommentar ? ` ${detalj.irrelevantKommentar}` : ''}
+          </Alert>
+        )}
+        <Switch
+          label="Marker som irrelevant for regel-ide"
+          checked={irrelevantMarkert}
+          onChange={(e) => setIrrelevantMarkert(e.target.checked)}
+        />
+        {irrelevantMarkert && (
+          <Field style={{ marginTop: '0.5rem', maxWidth: '40rem' }}>
+            <Label>Kommentar (hvorfor er denne irrelevant?)</Label>
+            <Textarea value={irrelevantKommentar} onChange={(e) => setIrrelevantKommentar(e.target.value)} rows={2} />
+          </Field>
+        )}
+        <div style={{ marginTop: '0.5rem' }}>
+          <Button data-size="sm" onClick={lagreIrrelevant} disabled={lagrerIrrelevant}>
+            {lagrerIrrelevant ? 'Lagrer …' : 'Lagre'}
+          </Button>
+        </div>
+        {irrelevantFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{irrelevantFeil}</Alert>}
+      </div>
 
       {detalj.kildetype === 'Brukerveiledning' && (
         <div style={{ marginBottom: '1.5rem' }}>

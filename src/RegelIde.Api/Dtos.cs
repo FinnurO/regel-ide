@@ -14,11 +14,16 @@ namespace RegelIde.Api;
 /// departement via akkurat DENNE DTO-en (samme "allerede hentet rettskilde-lookup"-mønster som
 /// <c>visRettskilde</c> i NavnekandidaterListe.tsx allerede bruker for kortnavn/tittel).
 /// </summary>
+/// <summary>
+/// <see cref="ErIrrelevant"/> lagt til (2026-08-30, irrelevant-markering) — kompakt badge-verdi for
+/// listetabellen (RettskilderListe.tsx); selve kommentaren vises kun på detaljsiden, ikke her.
+/// </summary>
 public sealed record RettskildeSammendrag(
-    Guid Id, Guid? VirksomhetId, string? Eli, string Tittel, string? Kortnavn, string Kildetype, string? AnsvarligDepartement)
+    Guid Id, Guid? VirksomhetId, string? Eli, string Tittel, string? Kortnavn, string Kildetype,
+    string? AnsvarligDepartement, bool ErIrrelevant)
 {
     public static RettskildeSammendrag FraEntitet(RettskildeEntitet r) =>
-        new(r.Id, r.VirksomhetId, r.Eli, r.Tittel, r.Kortnavn, r.Kildetype, r.AnsvarligDepartement);
+        new(r.Id, r.VirksomhetId, r.Eli, r.Tittel, r.Kortnavn, r.Kildetype, r.AnsvarligDepartement, r.ErIrrelevant);
 }
 
 /// <summary>Full rettskilde: metadata + kanonisk AKN-XML (§1 i teknisk design). ELI er ALLTID skrivebeskyttet
@@ -37,12 +42,13 @@ public sealed record RettskildeDetalj(
     Guid Id, Guid? VirksomhetId, string Doctype, string Kildetype, string Tittel, string? Kortnavn, string? Eli,
     DateOnly? Ikrafttredelse, DateOnly? KonsolidertDato, string? Utgiver, string? AnsvarligDepartement, string Status,
     string? AknXml, string? InterntDokNr, string? Revisjonsnr, string? VedtattAv, DateOnly? Vedtaksdato,
-    DateOnly? GyldigTil, string? Url, Guid? AnsvarligDepartementVirksomhetId)
+    DateOnly? GyldigTil, string? Url, Guid? AnsvarligDepartementVirksomhetId, bool ErIrrelevant, string? IrrelevantKommentar)
 {
     public static RettskildeDetalj FraEntitet(RettskildeEntitet r, Guid? ansvarligDepartementVirksomhetId = null) => new(
         r.Id, r.VirksomhetId, r.Doctype, r.Kildetype, r.Tittel, r.Kortnavn, r.Eli,
         r.Ikrafttredelse, r.KonsolidertDato, r.Utgiver, r.AnsvarligDepartement, r.Status, r.AknXml,
-        r.InterntDokNr, r.Revisjonsnr, r.VedtattAv, r.Vedtaksdato, r.GyldigTil, r.Url, ansvarligDepartementVirksomhetId);
+        r.InterntDokNr, r.Revisjonsnr, r.VedtattAv, r.Vedtaksdato, r.GyldigTil, r.Url, ansvarligDepartementVirksomhetId,
+        r.ErIrrelevant, r.IrrelevantKommentar);
 }
 
 /// <summary>Forespørsel for POST /api/rettskilder/lovdata.</summary>
@@ -58,6 +64,15 @@ public sealed record LovdataImportRequest(string Datokode);
 public sealed record OppdaterRettskildeMetadataRequest(
     string? Kortnavn, string? Utgiver, string? InterntDokNr, string? Revisjonsnr, string? VedtattAv,
     DateOnly? Vedtaksdato, DateOnly? GyldigTil, DateOnly? KonsolidertDato);
+
+/// <summary>
+/// Forespørsel for PATCH /api/rettskilder/{id}/irrelevant (2026-08-30) — setter BEGGE feltene samtidig,
+/// ikke separate PATCH-er for flagg/kommentar (samme "ett skjema, én lagring"-mønster som
+/// <see cref="OppdaterRettskildeMetadataRequest"/>). <see cref="IrrelevantKommentar"/> er ikke
+/// obligatorisk selv når <see cref="ErIrrelevant"/> er <c>true</c> — håndheves ikke strengt server-side,
+/// se <see cref="RettskildeEntitet.IrrelevantKommentar"/>.
+/// </summary>
+public sealed record OppdaterRettskildeIrrelevantRequest(bool ErIrrelevant, string? IrrelevantKommentar);
 
 /// <summary>Én node i rettskildens tre (kapittel/underinndeling/paragraf/ledd/punkt), for tre-navigasjon.</summary>
 public sealed record RettskildeNodeDto(

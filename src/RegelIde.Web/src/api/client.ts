@@ -37,6 +37,7 @@ import type {
   LeggTilKodeRequest,
   LeggTilLenkeRequest,
   LeggTilVilkarInputRequest,
+  OppdaterRettskildeIrrelevantRequest,
   OppdaterRettskildeMetadataRequest,
   OppdaterUnntakRequest,
   OppdaterVilkarstreKommentarRequest,
@@ -159,8 +160,15 @@ async function kall<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  hentRettskilder: (virksomhetId?: string) =>
-    kall<RettskildeSammendrag[]>(`/api/rettskilder${virksomhetId ? `?virksomhetId=${virksomhetId}` : ''}`),
+  // ?inkluderIrrelevante=true (2026-08-30) — utelatt/false ekskluderer ErIrrelevant-markerte kilder
+  // stille fra standardvisningen, se RettskilderListe.tsx.
+  hentRettskilder: (virksomhetId?: string, inkluderIrrelevante?: boolean) => {
+    const params = new URLSearchParams();
+    if (virksomhetId) params.set('virksomhetId', virksomhetId);
+    if (inkluderIrrelevante) params.set('inkluderIrrelevante', 'true');
+    const query = params.toString();
+    return kall<RettskildeSammendrag[]>(`/api/rettskilder${query ? `?${query}` : ''}`);
+  },
 
   hentRettskilde: (id: string) => kall<RettskildeDetalj>(`/api/rettskilder/${id}`),
 
@@ -186,6 +194,13 @@ export const api = {
 
   oppdaterRettskildeMetadata: (id: string, request: OppdaterRettskildeMetadataRequest) =>
     kall<RettskildeDetalj>(`/api/rettskilder/${id}/metadata`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  oppdaterRettskildeIrrelevant: (id: string, request: OppdaterRettskildeIrrelevantRequest) =>
+    kall<RettskildeDetalj>(`/api/rettskilder/${id}/irrelevant`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),

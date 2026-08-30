@@ -20,10 +20,18 @@ public sealed class RettskildeRepository(RegelIdeDbContext db)
 {
     private const string UtkastStatus = "Utkast";
 
-    public Task<List<RettskildeEntitet>> AlleRettskilderAsync(Guid? virksomhetId = null) =>
+    /// <summary>
+    /// <paramref name="inkluderIrrelevante"/> (2026-08-30, irrelevant-markering) — default <c>false</c>:
+    /// rettskilder <see cref="RettskildeEntitet.ErIrrelevant"/>-merket ekskluderes stille fra
+    /// standardvisningen (RettskilderListe.tsx), samme "ikke skjul stille, gi et eksplisitt valg"-
+    /// prinsipp som <c>visIkkeImportert</c> der bruker for Lovdata-importstatus — eksplisitt
+    /// <c>true</c> tar dem med igjen.
+    /// </summary>
+    public Task<List<RettskildeEntitet>> AlleRettskilderAsync(Guid? virksomhetId = null, bool inkluderIrrelevante = false) =>
         db.Rettskilder
             .Where(r => r.Importrolle == "primaer" && r.Entitetsstatus == "gjeldende" && r.Status != UtkastStatus)
             .Where(r => virksomhetId == null || r.VirksomhetId == virksomhetId)
+            .Where(r => inkluderIrrelevante || !r.ErIrrelevant)
             .ToListAsync();
 
     public Task<RettskildeEntitet?> FinnAsync(Guid id) =>
@@ -125,6 +133,28 @@ public sealed class RettskildeRepository(RegelIdeDbContext db)
         rettskilde.SistEndretAv = endretAv;
         rettskilde.SistEndretTidspunkt = DateTimeOffset.UtcNow;
         rettskilde.Versjon++; // basemetadata §0: appens ansvar å øke ved faktisk endring
+        await db.SaveChangesAsync();
+        return rettskilde;
+    }
+
+    /// <summary>
+    /// Setter/fjerner header-nivå irrelevant-markeringen (2026-08-30) — se
+    /// <see cref="RettskildeEntitet.ErIrrelevant"/>. Setter BEGGE feltene samtidig, alltid (ikke bare
+    /// flagget) — <paramref name="irrelevantKommentar"/> lagres uendret selv om <paramref name="erIrrelevant"/>
+    /// er <c>false</c> (fjernes markeringen igjen, slettes IKKE kommentaren automatisk, se entitetens
+    /// klassekommentar). Returnerer null hvis rettskilden ikke finnes (kalleren mapper til 404).
+    /// </summary>
+    public async Task<RettskildeEntitet?> OppdaterIrrelevantAsync(
+        Guid id, bool erIrrelevant, string? irrelevantKommentar, string endretAv)
+    {
+        var rettskilde = await db.Rettskilder.FirstOrDefaultAsync(r => r.Id == id);
+        if (rettskilde is null) return null;
+
+        rettskilde.ErIrrelevant = erIrrelevant;
+        rettskilde.IrrelevantKommentar = irrelevantKommentar;
+        rettskilde.SistEndretAv = endretAv;
+        rettskilde.SistEndretTidspunkt = DateTimeOffset.UtcNow;
+        rettskilde.Versjon++;
         await db.SaveChangesAsync();
         return rettskilde;
     }

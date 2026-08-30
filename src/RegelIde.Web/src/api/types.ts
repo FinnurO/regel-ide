@@ -9,6 +9,8 @@ export interface RettskildeSammendrag {
   kildetype: string;
   /** "Kommunal- og distriktsdepartementet" e.l. — NULL for alt som ikke er Lovdata-importert Lov/Forskrift. */
   ansvarligDepartement: string | null;
+  /** Header-nivå «irrelevant for regel-ide»-markering (2026-08-30). Kompakt badge-verdi — se detaljsiden for kommentaren. */
+  erIrrelevant: boolean;
 }
 
 export interface RettskildeDetalj {
@@ -36,6 +38,10 @@ export interface RettskildeDetalj {
   url: string | null;
   /** Eksakt (case-insensitivt) navnetreff mot virksomhetskatalogen — NULL når departementet ikke finnes som egen Virksomhet-rad ("ingen gjettet fallback": vises da som ren tekst, ikke en lenke). */
   ansvarligDepartementVirksomhetId: string | null;
+  /** Header-nivå «irrelevant for regel-ide»-markering (2026-08-30) — menneskelig, eksplisitt valg, aldri utledet fra tittelmønster. */
+  erIrrelevant: boolean;
+  /** Fritekst — hvorfor. Kun meningsfullt når erIrrelevant er true, men slettes IKKE automatisk om markeringen fjernes igjen. */
+  irrelevantKommentar: string | null;
 }
 
 export interface RettskildeNodeDto {
@@ -335,6 +341,12 @@ export interface OppdaterRettskildeMetadataRequest {
   vedtaksdato?: string | null;
   gyldigTil?: string | null;
   konsolidertDato?: string | null;
+}
+
+/** PATCH /api/rettskilder/{id}/irrelevant (2026-08-30) — setter begge feltene samtidig. */
+export interface OppdaterRettskildeIrrelevantRequest {
+  erIrrelevant: boolean;
+  irrelevantKommentar: string | null;
 }
 
 export interface ApiFeil {

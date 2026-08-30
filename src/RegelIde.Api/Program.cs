@@ -568,11 +568,12 @@ app.MapGet("/api/konfigurasjon/tagg-kinds", async (RegelIdeDbContext db) =>
 
 var rettskilder = app.MapGroup("/api/rettskilder").WithOpenApi();
 
-rettskilder.MapGet("/", async (Guid? virksomhetId, RettskildeRepository repo) =>
-        (await repo.AlleRettskilderAsync(virksomhetId)).Select(RettskildeSammendrag.FraEntitet))
+rettskilder.MapGet("/", async (Guid? virksomhetId, bool? inkluderIrrelevante, RettskildeRepository repo) =>
+        (await repo.AlleRettskilderAsync(virksomhetId, inkluderIrrelevante ?? false)).Select(RettskildeSammendrag.FraEntitet))
     .WithName("HentAlleRettskilder")
     .WithSummary("Lister rettskilder (åpne data — kun Status != 'Utkast'). " +
-        "?virksomhetId snevrer inn til én virksomhets bidrag; utelatt viser alt (delt + alle virksomheter).");
+        "?virksomhetId snevrer inn til én virksomhets bidrag; utelatt viser alt (delt + alle virksomheter). " +
+        "?inkluderIrrelevante=true tar med ErIrrelevant-markerte rettskilder, som ellers ekskluderes stille.");
 
 rettskilder.MapGet("/{id:guid}", async (Guid id, RettskildeRepository repo) =>
     {
@@ -610,6 +611,26 @@ rettskilder.MapPatch("/{id:guid}/metadata", async (Guid id, HttpRequest request,
     .WithName("OppdaterRettskildeMetadata")
     .WithSummary("Oppdaterer redigerbar metadata (Kortnavn/Utgiver/InterntDokNr/Revisjonsnr/VedtattAv/" +
         "Vedtaksdato/GyldigTil/KonsolidertDato). Eli er ALLTID skrivebeskyttet, aldri i denne requesten.");
+
+rettskilder.MapPatch("/{id:guid}/irrelevant", async (Guid id, HttpRequest request, OppdaterRettskildeIrrelevantRequest body,
+        RettskildeRepository repo, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        var oppdatert = await repo.OppdaterIrrelevantAsync(id, body.ErIrrelevant, body.IrrelevantKommentar, bruker.Navn);
+        if (oppdatert is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
+
+        var departementVirksomhetId = oppdatert.AnsvarligDepartement is null
+            ? null
+            : await repo.FinnVirksomhetIdForNavnAsync(oppdatert.AnsvarligDepartement);
+        return Results.Ok(RettskildeDetalj.FraEntitet(oppdatert, departementVirksomhetId));
+    })
+    .WithName("OppdaterRettskildeIrrelevant")
+    .WithSummary("Setter/fjerner header-nivå «irrelevant for regel-ide»-markering + fritekstkommentar. " +
+        "Menneskelig, eksplisitt valg — ALDRI utledet fra tittelmønster e.l.");
 
 rettskilder.MapGet("/{id:guid}/noder", async (Guid id, RettskildeRepository repo) =>
     {
