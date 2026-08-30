@@ -2714,6 +2714,31 @@ navnekandidater.MapPost("/avvis-batch", async (HttpRequest request, Navnekandida
     .WithName("AvvisNavnekandidaterBatch")
     .WithSummary("Masseavvisning — server-side batch med per-rad-feilhåndtering.");
 
+// [Ny, 2026-08-30] Sletting — ekte, ikke soft-delete (se NavnekandidatOppdagelseTjeneste.SlettAsync for
+// hvorfor: ren oppdagelseskø, ingen Entitetsstatus/proveniens-kobling som ville tilsi mykslette).
+// Trengs fordi OpprettEllerFinnAsync sin posisjonsbaserte idempotens ellers hindrer et nytt sveip i
+// noensinne å re-evaluere allerede sveipet tekst mot nye/endrede mønsterregler uten ekte sletting her.
+
+navnekandidater.MapDelete("/{id:guid}", async (Guid id, NavnekandidatOppdagelseTjeneste register, CancellationToken ct) =>
+        await register.SlettAsync(id, ct)
+            ? Results.NoContent()
+            : Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }))
+    .WithName("SlettNavnekandidat")
+    .WithSummary("Ekte sletting av ÉN rad, uansett status — til forskjell fra /api/virksomhet-kandidater sin " +
+        "hardslett-KUN-'Avvist'-begrensning (docs/20 §2.6). Se NavnekandidatOppdagelseTjeneste.SlettAsync.");
+
+navnekandidater.MapDelete("/", async (string? status, string? kategori, Guid? rettskildeId,
+        NavnekandidatOppdagelseTjeneste register, CancellationToken ct) =>
+    {
+        var antallSlettet = await register.SlettAlleAsync(status, kategori, rettskildeId, ct);
+        return Results.Ok(new SlettNavnekandidaterResultatDto(antallSlettet));
+    })
+    .WithName("SlettAlleNavnekandidater")
+    .WithSummary("Massesletting, samme valgfrie filterparametre som GET / (status/kategori/rettskildeId) — " +
+        "MERK: her betyr utelatt status 'ingen statusfilter' (slett ALLE statuser), IKKE GET / sin " +
+        "'utelatt = kun Venter'-standard — klienten sender alltid eksplisitt status. Ekte, irreversibel " +
+        "sletting; klienten MÅ vise antall og be om bekreftelse FØR kallet.");
+
 // ---------- Datasett (docs/03-domenemodell.md §1.6) — byggesteg 4, minimal, kun lesing ----------
 
 app.MapGet("/api/datasett", async (RegelIdeDbContext db) =>

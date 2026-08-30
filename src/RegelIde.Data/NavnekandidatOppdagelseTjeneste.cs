@@ -706,6 +706,48 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
         await db.SaveChangesAsync(ct);
         return kandidat;
     }
+
+    /// <summary>
+    /// [Ny, 2026-08-30] Ekte sletting (<c>Remove</c>, IKKE soft-delete) av ÉN kandidatrad, uansett
+    /// status. Til forskjell fra <see cref="VirksomhetKandidatTjeneste.HardslettAvvistAsync"/> (som KUN
+    /// tillater hardsletting av <c>'Avvist'</c>-rader, docs/20 §2.6) er det HER ingen slik begrensning:
+    /// <see cref="NavnekandidatEntitet"/> har ingen Entitetsstatus/proveniens-kobling (se klassekommentaren
+    /// der) — den er en ren oppdagelseskø, ikke et revisjonsspor. Formålet med sletting (Johann, ytelsestest
+    /// av sortering/filtrering-UI-en + de nye flerords-mønsterreglene) krever nettopp å kunne tømme
+    /// KORPUSET, inkludert allerede godkjente/avviste rader — den posisjonsbaserte idempotensen i
+    /// <see cref="OpprettEllerFinnAsync"/> (<c>RettskildeId</c>, <c>NodeEid</c>, <c>StartOffset</c>) gir
+    /// ellers ALDRI en ny rad på en posisjon som allerede har en (selv avvist) kandidat, så et nytt sveip
+    /// kan aldri re-evaluere allerede sveipet tekst mot de nye reglene uten ekte sletting her.
+    /// </summary>
+    public async Task<bool> SlettAsync(Guid id, CancellationToken ct = default)
+    {
+        var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
+        if (kandidat is null) return false;
+        db.Navnekandidater.Remove(kandidat);
+        await db.SaveChangesAsync(ct);
+        return true;
+    }
+
+    /// <summary>
+    /// [Ny, 2026-08-30] Massesletting — samme valgfrie filter-signatur som <see cref="ListerAsync"/>
+    /// (status/kategori/rettskildeId, hver <c>null</c> betyr "ingen filtrering på DEN dimensjonen", samme
+    /// eksplisitte "ingen stille standard"-mønster). Lar Johann slette f.eks. kun kandidatene for ÉN
+    /// rettskilde (for et avgrenset ytelsestest-sveip på nytt), i stedet for kun "alt eller ingenting".
+    /// Ekte sletting, samme begrunnelse som <see cref="SlettAsync"/>. Returnerer antall slettede rader,
+    /// slik at klienten kan bekrefte at det faktiske antallet stemte med det som ble varslet før kallet.
+    /// </summary>
+    public async Task<int> SlettAlleAsync(
+        string? status = null, string? kategori = null, Guid? rettskildeId = null, CancellationToken ct = default)
+    {
+        var spørring = db.Navnekandidater.AsQueryable();
+        if (status is not null) spørring = spørring.Where(k => k.Status == status);
+        if (kategori is not null) spørring = spørring.Where(k => k.Kategori == kategori);
+        if (rettskildeId is not null) spørring = spørring.Where(k => k.RettskildeId == rettskildeId);
+        var rader = await spørring.ToListAsync(ct);
+        db.Navnekandidater.RemoveRange(rader);
+        await db.SaveChangesAsync(ct);
+        return rader.Count;
+    }
 }
 
 /// <summary>Oppsummering av ett sveip — <see cref="AntallTreffFunnet"/> teller ALLE mønstertreff (også

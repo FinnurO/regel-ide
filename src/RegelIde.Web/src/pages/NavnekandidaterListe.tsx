@@ -98,6 +98,11 @@ export default function NavnekandidaterListe() {
   const [massehandlingKjorer, setMassehandlingKjorer] = useState(false);
   const [massehandlingFeil, setMassehandlingFeil] = useState<string | null>(null);
 
+  // Sletting (2026-08-30) — se docs-kommentaren i NavnekandidatOppdagelseTjeneste.SlettAsync/
+  // SlettAlleAsync for hvorfor "avvis" alene ikke holder for ytelsestest-scenarioet.
+  const [sletterAlle, setSletterAlle] = useState(false);
+  const [slettAlleFeil, setSlettAlleFeil] = useState<string | null>(null);
+
   const [sveipRettskildeId, setSveipRettskildeId] = useState('');
   const [sveiper, setSveiper] = useState(false);
   const [sveipFeil, setSveipFeil] = useState<string | null>(null);
@@ -218,6 +223,55 @@ export default function NavnekandidaterListe() {
       if (ny.has(nokkel)) ny.delete(nokkel); else ny.add(nokkel);
       return ny;
     });
+  }
+
+  // Radene «Slett alle kandidater» faktisk vil ramme — samme (server-filtrerte) `kandidater`-liste som
+  // resten av siden viser (kategori/status er reelle serverfiltre, se lastKandidater), snevret inn av
+  // rettskilde-FLERVALGET (client-side, samme mengde som resten av filtreringen bruker). Bevisst IKKE
+  // filtrert av `filterForeslattTekst` — det finnes ingen tilsvarende serverfilter for fritekst i
+  // slett-endepunktet (kun status/kategori/rettskildeId, samme filterparametre som GET /), se
+  // advarselsteksten i "Slett kandidater"-kortet under.
+  const kandidaterForSletting = useMemo(
+    () => (kandidater ?? []).filter((k) => rettskildeValgteFilter.size === 0 || rettskildeValgteFilter.has(k.rettskildeId)),
+    [kandidater, rettskildeValgteFilter],
+  );
+
+  async function slettEnkelt(id: string) {
+    if (!window.confirm('Slette denne kandidaten permanent? Dette kan ikke angres.')) return;
+    try {
+      await api.slettNavnekandidat(id);
+      lastKandidater();
+    } catch (err) {
+      setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved sletting av kandidat.');
+    }
+  }
+
+  async function slettAlle() {
+    const antall = kandidaterForSletting.length;
+    if (antall === 0) return;
+    const tekstAdvarsel = filterForeslattTekst.trim()
+      ? ` («Foreslått tekst inneholder»-filteret påvirker IKKE denne slettingen — kun kategori/status/rettskilde gjør det)`
+      : '';
+    if (!window.confirm(`Slette ${antall} kandidat(er) permanent${tekstAdvarsel}? Dette kan ikke angres.`)) return;
+
+    setSletterAlle(true);
+    setSlettAlleFeil(null);
+    try {
+      const statusParam = statusFilter === 'Alle' ? undefined : statusFilter;
+      const kategoriParam = kategoriFilter || undefined;
+      // Backend-filteret tar KUN én rettskildeId av gangen (samme filter-signatur som ListerAsync) —
+      // flervalget her løses derfor med ett kall per valgt rettskilde (eller ett kall uten
+      // rettskildeId-filter, dvs. alle rettskilder, hvis ingen er valgt i flervalget).
+      const rettskildeIder = rettskildeValgteFilter.size > 0 ? [...rettskildeValgteFilter] : [undefined];
+      for (const rettskildeId of rettskildeIder) {
+        await api.slettAlleNavnekandidater({ status: statusParam, kategori: kategoriParam, rettskildeId });
+      }
+      lastKandidater();
+    } catch (err) {
+      setSlettAlleFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved massesletting.');
+    } finally {
+      setSletterAlle(false);
+    }
   }
 
   async function massehandling(handling: 'godkjenn' | 'avvis') {
@@ -358,23 +412,31 @@ export default function NavnekandidaterListe() {
           <Tag data-color={STATUS_FARGE[k.status] ?? 'neutral'} data-size="sm">{k.status}</Tag>
         </Table.Cell>
         <Table.Cell>
-          {k.status === 'Venter' ? (
-            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
-              <Button data-size="sm" onClick={() => enkelthandling(k.id, 'godkjenn')}>Godkjenn</Button>
-              <Button data-size="sm" variant="tertiary" onClick={() => enkelthandling(k.id, 'avvis')}>Avvis</Button>
-              {k.kategori === 'virksomhet' && (
-                <Link asChild>
-                  <RouterLink to={`/virksomheter?forslagNavn=${encodeURIComponent(k.foreslattTekst)}`} target="_blank">
-                    Finn/opprett virksomhet ↗
-                  </RouterLink>
-                </Link>
-              )}
-            </div>
-          ) : (
-            <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
-              {k.behandletAv ? `Behandlet av ${k.behandletAv}` : '—'}
-            </span>
-          )}
+          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            {k.status === 'Venter' ? (
+              <>
+                <Button data-size="sm" onClick={() => enkelthandling(k.id, 'godkjenn')}>Godkjenn</Button>
+                <Button data-size="sm" variant="tertiary" onClick={() => enkelthandling(k.id, 'avvis')}>Avvis</Button>
+                {k.kategori === 'virksomhet' && (
+                  <Link asChild>
+                    <RouterLink to={`/virksomheter?forslagNavn=${encodeURIComponent(k.foreslattTekst)}`} target="_blank">
+                      Finn/opprett virksomhet ↗
+                    </RouterLink>
+                  </Link>
+                )}
+              </>
+            ) : (
+              <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                {k.behandletAv ? `Behandlet av ${k.behandletAv}` : '—'}
+              </span>
+            )}
+            {/* Vist for ALLE statuser (ikke bare Venter) — formålet med sletting er full opprydding av
+                korpuset (også allerede godkjente/avviste rader), se NavnekandidatOppdagelseTjeneste
+                .SlettAsync sin kommentar for hvorfor. */}
+            <Button data-size="sm" variant="tertiary" data-color="danger" onClick={() => slettEnkelt(k.id)}>
+              Slett
+            </Button>
+          </div>
         </Table.Cell>
       </Table.Row>
     );
@@ -492,6 +554,28 @@ export default function NavnekandidaterListe() {
         </Button>
       </div>
       {massehandlingFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{massehandlingFeil}</div>}
+
+      <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
+        <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
+          Slett kandidater
+        </Heading>
+        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+          Ekte, irreversibel sletting av HELE korpuset eller et avgrenset delsett (kategori/status over,
+          rettskilder i flervalget over) — nyttig for å tømme køen før et nytt sveip med oppdaterte
+          mønsterregler (den posisjonsbaserte idempotensen hindrer ellers et nytt sveip i å re-evaluere
+          allerede sveipet tekst). Respekterer IKKE «Foreslått tekst inneholder»-filteret over — kun
+          kategori/status/rettskilde gjør det.
+        </Paragraph>
+        <Button
+          data-size="sm"
+          data-color="danger"
+          onClick={slettAlle}
+          disabled={kandidaterForSletting.length === 0 || sletterAlle}
+        >
+          {sletterAlle ? 'Sletter …' : `Slett alle kandidater (${kandidaterForSletting.length})`}
+        </Button>
+        {slettAlleFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{slettAlleFeil}</Alert>}
+      </Card>
 
       {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
       {laster && !kandidater && <Paragraph>Laster …</Paragraph>}
