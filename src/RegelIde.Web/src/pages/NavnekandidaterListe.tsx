@@ -418,7 +418,13 @@ export default function NavnekandidaterListe() {
                 <Button data-size="sm" variant="tertiary" onClick={() => enkelthandling(k.id, 'avvis')}>Avvis</Button>
                 {k.kategori === 'virksomhet' && (
                   <Link asChild>
-                    <RouterLink to={`/virksomheter?forslagNavn=${encodeURIComponent(k.foreslattTekst)}`} target="_blank">
+                    {/* `navnekandidatId` med (2026-08-30, "koble til eksisterende virksomhet"-veien) —
+                        lar landingssiden tilby å godkjenne DENNE kandidatraden i samme handling som å
+                        koble navneformen, se `KoblEksisterendeVirksomhetPanel` i VirksomheterListe.tsx. */}
+                    <RouterLink
+                      to={`/virksomheter?forslagNavn=${encodeURIComponent(k.foreslattTekst)}&navnekandidatId=${k.id}`}
+                      target="_blank"
+                    >
                       Finn/opprett virksomhet ↗
                     </RouterLink>
                   </Link>

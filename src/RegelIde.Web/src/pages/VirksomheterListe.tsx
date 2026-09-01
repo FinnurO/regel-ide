@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router';
-import { Alert, Button, Card, Heading, Link, Paragraph, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Checkbox, Heading, Link, Paragraph, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { BrregEnhetDto, VirksomhetDto } from '../api/types';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
@@ -24,6 +24,11 @@ export default function VirksomheterListe() {
   // (aktør uten egen Brreg-registrering), og vi vet ikke hvilket UTEN at brukeren faktisk ser etter.
   const [søkeparametre] = useSearchParams();
   const forhaandsutfyltNavn = søkeparametre.get('forslagNavn') ?? '';
+  // [Ny, 2026-08-30, docs/13-backlog.md §9 — "koble til eksisterende virksomhet"] Følger med samme
+  // lenke som `forslagNavn` (NavnekandidaterListe.tsx) — lar tredje panelet under tilby å godkjenne
+  // DENNE konkrete kandidatraden i samme handling som å koble navneformen. Kun til stede når
+  // landingen faktisk kom fra en navnekandidatrad; `null` ellers (f.eks. direkte navigering hit).
+  const navnekandidatId = søkeparametre.get('navnekandidatId');
   const [filterTekst, setFilterTekst] = useState('');
   const [sortKolonne, setSortKolonne] = useState<Sorteringskolonne>('navn');
   const [sortStigende, setSortStigende] = useState(true);
@@ -87,6 +92,11 @@ export default function VirksomheterListe() {
           forhaandsutfyltSok={forhaandsutfyltNavn}
         />
         <NavnKunPanel virksomheter={virksomheter} onOpprettet={oppdater} forhaandsutfyltNavn={forhaandsutfyltNavn} />
+        <KoblEksisterendeVirksomhetPanel
+          virksomheter={virksomheter}
+          forhaandsutfyltNavn={forhaandsutfyltNavn}
+          navnekandidatId={navnekandidatId}
+        />
       </div>
 
       <Textfield
@@ -326,6 +336,132 @@ function NavnKunPanel({
         )}
         <Button type="submit" disabled={oppretter || !navn.trim()}>
           {oppretter ? 'Oppretter …' : 'Opprett virksomhet'}
+        </Button>
+      </form>
+    </Card>
+  );
+}
+
+/**
+ * [Ny, 2026-08-30, oppgavebeskrivelse "koble til eksisterende virksomhet"] Tredje vei inn i denne
+ * landingen, VED SIDEN AV de to opprett-panelene over (ikke i stedet for — noen ganger ER det
+ * faktisk en helt ny virksomhet). Dekker Johanns konkrete eksempel: "Kredittilsynet er nå
+ * Finanstilsynet" — en navnekandidat av kategori `"virksomhet"` som IKKE er en ny aktør, men bare
+ * et gammelt navn på en virksomhet som allerede finnes i katalogen. Før dette panelet fantes det
+ * ingen vei hit fra godkjenningsflyten: brukeren måtte selv huske ekvivalensen, søke opp
+ * Finanstilsynet i den generelle listen, åpne detaljsiden, og bruke "Legg til navneform"-skjemaet
+ * der — helt frikoblet fra navnekandidat-raden som utløste det hele.
+ *
+ * Gjenbruker BEVISST eksisterende backend-kapasitet, ingen ny entitet/endepunkt:
+ * - `VirksomhetVelger` (samme Combobox-mønster som "Del av virksomhet" i NavnKunPanel over — samme
+ *   ~451-rader-"unngå render-alle-som-option"-begrunnelse gjelder identisk her, se den filens
+ *   kommentar).
+ * - `POST /api/virksomhetsbegrep` (samme endepunkt som "Legg til navneform"-skjemaet på
+ *   VirksomhetDetalj.tsx bruker, `api.opprettVirksomhetsbegrep`) — INGEN egen "koble"-entitet, en
+ *   navneform PEKENDE PÅ den valgte virksomheten er hele koblingen.
+ *
+ * Koblingen er ALDRI automatisk/gjettet — knappen er disabled til et menneske eksplisitt har valgt
+ * én virksomhet i velgeren.
+ *
+ * Godkjenning av selve navnekandidat-raden (kun når landingen kom fra en kandidatrad, se
+ * `navnekandidatId`) er en SEPARAT avkrysning, forhåndshuket men synlig og av-hukbar — bevisst ikke
+ * stille/automatisk (oppgavebeskrivelsens eksplisitte krav): brukeren skal se at "koble navneform"
+ * og "godkjenn kandidaten" er to ulike konsekvenser av samme trykk, ikke én skjult bivirkning.
+ */
+function KoblEksisterendeVirksomhetPanel({
+  virksomheter, forhaandsutfyltNavn, navnekandidatId,
+}: { virksomheter: VirksomhetDto[]; forhaandsutfyltNavn?: string; navnekandidatId?: string | null }) {
+  const [navn, setNavn] = useState(forhaandsutfyltNavn ?? '');
+  const [valgtVirksomhetId, setValgtVirksomhetId] = useState('');
+  const [godkjennKandidatOgsa, setGodkjennKandidatOgsa] = useState(true);
+  const [kobler, setKobler] = useState(false);
+  const [feil, setFeil] = useState<string | null>(null);
+  const [kandidatFeil, setKandidatFeil] = useState<string | null>(null);
+  const [suksess, setSuksess] = useState<{ navn: string; virksomhetId: string; virksomhetNavn: string; kandidatGodkjent: boolean } | null>(null);
+
+  async function koble(e: React.FormEvent) {
+    e.preventDefault();
+    if (!navn.trim() || !valgtVirksomhetId) return;
+    const virksomhet = virksomheter.find((v) => v.id === valgtVirksomhetId);
+    if (!virksomhet) return; // Skal ikke kunne skje — velgeren viser kun rader fra `virksomheter`.
+
+    setKobler(true);
+    setFeil(null);
+    setKandidatFeil(null);
+    setSuksess(null);
+    try {
+      await api.opprettVirksomhetsbegrep({ virksomhetId: valgtVirksomhetId, term: navn.trim(), skosUrl: null });
+
+      // Kandidatgodkjenningen er en SEPARAT handling mot et separat endepunkt — feiler den, skal
+      // ikke navneform-koblingen (som allerede lyktes) fremstå som mislykket. Vises i stedet som en
+      // egen feilmelding ved siden av suksessmeldingen for selve koblingen.
+      let kandidatGodkjent = false;
+      if (navnekandidatId && godkjennKandidatOgsa) {
+        try {
+          await api.godkjennNavnekandidat(navnekandidatId);
+          kandidatGodkjent = true;
+        } catch (err) {
+          setKandidatFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved godkjenning av navnekandidaten.');
+        }
+      }
+
+      setSuksess({ navn: navn.trim(), virksomhetId: valgtVirksomhetId, virksomhetNavn: virksomhet.navn, kandidatGodkjent });
+      setValgtVirksomhetId('');
+    } catch (err) {
+      setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved kobling av navneform.');
+    } finally {
+      setKobler(false);
+    }
+  }
+
+  return (
+    <Card style={{ padding: '1rem', maxWidth: '28rem', flex: '1 1 20rem' }}>
+      <Heading level={2} data-size="sm" style={{ marginBottom: '0.3rem' }}>
+        Er dette et nytt navn for en virksomhet som allerede finnes?
+      </Heading>
+      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+        For når det ikke er en ny virksomhet, men en ny navneform på én som allerede er i katalogen —
+        f.eks. «Kredittilsynet» som en eldre betegnelse på Finanstilsynet. Velg virksomheten under;
+        navnet legges til som navneform på DEN, ingen ny virksomhet opprettes.
+      </Paragraph>
+      <form onSubmit={koble}>
+        <Textfield
+          label="Navneform"
+          value={navn}
+          onChange={(e) => setNavn(e.target.value)}
+          style={{ marginBottom: '0.5rem' }}
+        />
+        <VirksomhetVelger
+          virksomheter={virksomheter}
+          value={valgtVirksomhetId}
+          onChange={setValgtVirksomhetId}
+          label="Er egentlig virksomheten"
+          tomValgTekst="Velg virksomhet …"
+          style={{ marginBottom: '0.75rem' }}
+        />
+        {navnekandidatId && (
+          <Checkbox
+            label="Godkjenn også navnekandidaten (markeres som «Godkjent» i stedet for «Venter»)"
+            checked={godkjennKandidatOgsa}
+            onChange={(e) => setGodkjennKandidatOgsa(e.target.checked)}
+            style={{ marginBottom: '0.75rem' }}
+          />
+        )}
+        {feil && <Alert data-color="danger" style={{ marginBottom: '0.5rem' }}>{feil}</Alert>}
+        {kandidatFeil && (
+          <Alert data-color="warning" style={{ marginBottom: '0.5rem' }}>
+            Navneformen ble koblet, men godkjenning av kandidaten feilet: {kandidatFeil}
+          </Alert>
+        )}
+        {suksess && !feil && (
+          <Alert data-color="success" style={{ marginBottom: '0.5rem' }}>
+            «{suksess.navn}» er nå lagt til som navneform for {suksess.virksomhetNavn}.
+            {suksess.kandidatGodkjent && ' Navnekandidaten er markert som godkjent.'}{' '}
+            <Link asChild><RouterLink to={`/virksomheter/${suksess.virksomhetId}`}>Se {suksess.virksomhetNavn} ↗</RouterLink></Link>
+          </Alert>
+        )}
+        <Button type="submit" disabled={kobler || !navn.trim() || !valgtVirksomhetId}>
+          {kobler ? 'Kobler …' : 'Legg til som navneform'}
         </Button>
       </form>
     </Card>
