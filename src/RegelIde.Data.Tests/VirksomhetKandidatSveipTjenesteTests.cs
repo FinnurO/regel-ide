@@ -49,7 +49,7 @@ public class VirksomhetKandidatSveipTjenesteTests
         var rettskildeId = await ImporterAdvokatlovenAsync(db);
         var virksomhet = await OpprettAdvokattilsynetMedNavneformerAsync(db);
 
-        var sveip = new VirksomhetKandidatSveipTjeneste(db, new VirksomhetKandidatTjeneste(db, new TekstTaggTjeneste(db)));
+        var sveip = new VirksomhetKandidatSveipTjeneste(db, new VirksomhetKandidatTjeneste(db, new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db))));
         var resultat = await sveip.SveipAsync(virksomhet.Id, "sveip");
 
         Assert.True(resultat.AntallTreffFunnet > 0);
@@ -77,7 +77,7 @@ public class VirksomhetKandidatSveipTjenesteTests
         var rettskildeId = await ImporterAdvokatlovenAsync(db);
         var virksomhet = await OpprettAdvokattilsynetMedNavneformerAsync(db);
 
-        var sveip = new VirksomhetKandidatSveipTjeneste(db, new VirksomhetKandidatTjeneste(db, new TekstTaggTjeneste(db)));
+        var sveip = new VirksomhetKandidatSveipTjeneste(db, new VirksomhetKandidatTjeneste(db, new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db))));
         await sveip.SveipAsync(virksomhet.Id, "sveip");
 
         var kandidater = await db.VirksomhetKandidater
@@ -97,7 +97,7 @@ public class VirksomhetKandidatSveipTjenesteTests
         await ImporterAdvokatlovenAsync(db);
         var virksomhet = await OpprettAdvokattilsynetMedNavneformerAsync(db);
 
-        var sveip = new VirksomhetKandidatSveipTjeneste(db, new VirksomhetKandidatTjeneste(db, new TekstTaggTjeneste(db)));
+        var sveip = new VirksomhetKandidatSveipTjeneste(db, new VirksomhetKandidatTjeneste(db, new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db))));
         var forste = await sveip.SveipAsync(virksomhet.Id, "sveip");
         var andre = await sveip.SveipAsync(virksomhet.Id, "sveip");
 
@@ -115,7 +115,7 @@ public class VirksomhetKandidatSveipTjenesteTests
         var rettskildeId = await ImporterAdvokatlovenAsync(db);
         var virksomhet = await OpprettAdvokattilsynetMedNavneformerAsync(db);
 
-        var kø = new VirksomhetKandidatTjeneste(db, new TekstTaggTjeneste(db));
+        var kø = new VirksomhetKandidatTjeneste(db, new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)));
         var sveip = new VirksomhetKandidatSveipTjeneste(db, kø);
         await sveip.SveipAsync(virksomhet.Id, "sveip");
 
@@ -159,7 +159,7 @@ public class VirksomhetKandidatSveipTjenesteTests
             LovdataKonverterer.Konverter(Testdata.LesAdvokatloven(), new DateOnly(2026, 8, 22)), enAnnenVirksomhet.Id);
         var virksomhet = await OpprettAdvokattilsynetMedNavneformerAsync(db);
 
-        var sveip = new VirksomhetKandidatSveipTjeneste(db, new VirksomhetKandidatTjeneste(db, new TekstTaggTjeneste(db)));
+        var sveip = new VirksomhetKandidatSveipTjeneste(db, new VirksomhetKandidatTjeneste(db, new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db))));
         await sveip.SveipAsync(virksomhet.Id, "sveip");
 
         var kandidaterIDenLokaleRettskilden = await db.VirksomhetKandidater
@@ -178,7 +178,7 @@ public class VirksomhetKandidatSveipTjenesteTests
         var rettskildeId = await new RettskildeImportTjeneste(db).ImporterAsync(
             LovdataKonverterer.Konverter(Testdata.LesAdvokatloven(), new DateOnly(2026, 8, 22)), virksomhet.Id);
 
-        var sveip = new VirksomhetKandidatSveipTjeneste(db, new VirksomhetKandidatTjeneste(db, new TekstTaggTjeneste(db)));
+        var sveip = new VirksomhetKandidatSveipTjeneste(db, new VirksomhetKandidatTjeneste(db, new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db))));
         await sveip.SveipAsync(virksomhet.Id, "sveip");
 
         var kandidaterIEgenRettskilde = await db.VirksomhetKandidater
@@ -196,7 +196,7 @@ public class VirksomhetKandidatSveipTjenesteTests
         db.Virksomheter.Add(virksomhet);
         await db.SaveChangesAsync();
 
-        var sveip = new VirksomhetKandidatSveipTjeneste(db, new VirksomhetKandidatTjeneste(db, new TekstTaggTjeneste(db)));
+        var sveip = new VirksomhetKandidatSveipTjeneste(db, new VirksomhetKandidatTjeneste(db, new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db))));
         await Assert.ThrowsAsync<ArgumentException>(() => sveip.SveipAsync(virksomhet.Id, "sveip"));
     }
 
@@ -206,7 +206,7 @@ public class VirksomhetKandidatSveipTjenesteTests
         await using var db = _fixture.NyDbContext();
         await ImporterAdvokatlovenAsync(db);
 
-        var sveip = new VirksomhetKandidatSveipTjeneste(db, new VirksomhetKandidatTjeneste(db, new TekstTaggTjeneste(db)));
+        var sveip = new VirksomhetKandidatSveipTjeneste(db, new VirksomhetKandidatTjeneste(db, new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db))));
         await Assert.ThrowsAsync<ArgumentException>(() => sveip.SveipAsync(Guid.NewGuid(), "sveip"));
     }
 }

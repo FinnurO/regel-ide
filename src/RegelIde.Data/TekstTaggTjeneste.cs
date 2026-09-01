@@ -8,13 +8,47 @@ namespace RegelIde.Data;
 /// eget arbeidsprodukt (§0.1) — to virksomheter kan tagge samme delte rettskilde-node helt ulikt, så
 /// alt her er scopet til den kallende brukerens virksomhet, aldri på tvers.
 /// </summary>
-public sealed class TekstTaggTjeneste(RegelIdeDbContext db)
+public sealed class TekstTaggTjeneste(RegelIdeDbContext db, VirksomhetOppslagTjeneste virksomhetOppslag)
 {
-    public Task<List<TekstTaggEntitet>> ListerForAsync(Guid rettskildeId, Guid virksomhetId, CancellationToken ct = default) =>
-        db.TekstTagger
-            .Where(t => t.RettskildeId == rettskildeId && t.VirksomhetId == virksomhetId && t.Entitetsstatus == "gjeldende")
+    /// <summary>
+    /// [Utvidet, tekst-tagg-departement-eierskap, 2026-08-31] Egne tagger for <paramref name="virksomhetId"/>
+    /// (uendret oppførsel — §0.1, aldri delt på tvers) PLUSS, hvis rettskilden faktisk har et kjent OG
+    /// oppløsbart <see cref="RettskildeEntitet.AnsvarligDepartement"/>, departementets EGNE tagger (se
+    /// <see cref="NavnekandidatOppdagelseTjeneste.GodkjennAsync"/>, som oppretter disse ved godkjenning
+    /// av et rolle-/virksomhet-navnetreff — Johanns eksplisitte designvalg: "det eies av ansvarlig
+    /// departement [...] men det skal jo være mulig å se taggene allikevel"). Uten dette tillegget var
+    /// GET-endepunktet (som alltid spør per KALLENDE brukers egen virksomhet) reelt begrenset til å vise
+    /// departementets egne tagger KUN til departementets egne innloggede brukere — selv om selve
+    /// rettskilden og navnetreffet er delt/nasjonalt innhold alle skal kunne se. Løses FERSK ved hvert
+    /// kall (samme "aldri lagret FK, alltid navnematch ved lesing"-designvalg som
+    /// <see cref="RettskildeEntitet.AnsvarligDepartement"/> selv), ikke en per-virksomhet skrivesperre —
+    /// en departement-virksomhet som selv kaller dette endepunktet for SIN EGEN VirksomhetId får
+    /// nøyaktig samme (allerede dekkede) rader fra begge leddene i OR-en, ingen dobling.
+    /// </summary>
+    public async Task<List<TekstTaggEntitet>> ListerForAsync(Guid rettskildeId, Guid virksomhetId, CancellationToken ct = default)
+    {
+        var departementVirksomhetId = await FinnDepartementVirksomhetIdAsync(rettskildeId, ct);
+        return await db.TekstTagger
+            .Where(t => t.RettskildeId == rettskildeId && t.Entitetsstatus == "gjeldende"
+                        && (t.VirksomhetId == virksomhetId
+                            || (departementVirksomhetId != null && t.VirksomhetId == departementVirksomhetId)))
             .OrderBy(t => t.NodeEid).ThenBy(t => t.StartOffset)
             .ToListAsync(ct);
+    }
+
+    /// <summary>Gjenbruker <see cref="VirksomhetOppslagTjeneste.FinnVirksomhetIdForNavnAsync"/> (samme
+    /// oppslagsmekanisme som <c>RettskildeRepository</c> bruker for "Ansvarlig for"-visningen) — ALDRI
+    /// en egen duplisert spørring. Returnerer null både når rettskilden ikke har noe kjent
+    /// <see cref="RettskildeEntitet.AnsvarligDepartement"/>, og når strengen ikke matcher noen ekte
+    /// <see cref="Virksomhet"/> — «ingen gjettet fallback» i begge tilfellene.</summary>
+    private async Task<Guid?> FinnDepartementVirksomhetIdAsync(Guid rettskildeId, CancellationToken ct)
+    {
+        var ansvarligDepartement = await db.Rettskilder
+            .Where(r => r.Id == rettskildeId)
+            .Select(r => r.AnsvarligDepartement)
+            .FirstOrDefaultAsync(ct);
+        return ansvarligDepartement is null ? null : await virksomhetOppslag.FinnVirksomhetIdForNavnAsync(ansvarligDepartement);
+    }
 
     /// <summary>
     /// Oppretter en ny tagg. Returnerer null hvis <paramref name="nodeEid"/> ikke finnes på rettskilden

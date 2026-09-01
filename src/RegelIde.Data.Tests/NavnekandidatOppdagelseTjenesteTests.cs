@@ -193,6 +193,55 @@ public class NavnekandidatOppdagelseTjenesteTests
     }
 
     [Fact]
+    public void Flerords_monster_fanger_navngitt_fagskole()
+    {
+        // "fagskole" — lagt til 2026-08-30 etter at Johann forventet skolenavn i navnekandidat-køen
+        // ("Fagskolen Essens") og de manglet — bekreftet i live data at korpuset inneholder mange
+        // navngitte fagskoler i selve rettskilde-teksten på nøyaktig denne formen (Nortrain fagskole,
+        // Nordland fagskole m.fl., se klassekommentaren på Institusjonsord).
+        const string tekst = "Studenter ved Nortrain fagskole har rett til klage på karaktervedtak.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+
+        var treff = Assert.Single(funn, f => f.Kategori == "virksomhet");
+        Assert.Equal("Nortrain fagskole", tekst.Substring(treff.Start, treff.Lengde));
+    }
+
+    [Fact]
+    public void Flerords_monster_gir_ingen_treff_for_generisk_ubestemt_fagskole()
+    {
+        // Samme presisjonskrav som for "en fylkeskommune" — ordet rett før institusjonsordet er ikke
+        // stor forbokstav, altså ikke et egennavn.
+        const string tekst = "Forskriften gjelder for enhver fagskole som tilbyr slik utdanning.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+        Assert.DoesNotContain(funn, f => f.Kategori == "virksomhet");
+    }
+
+    [Fact]
+    public void Flerords_monster_bevisst_utelater_bare_skole_uten_prefiks()
+    {
+        // "skole" alene er BEVISST utelatt fra Institusjonsord (se klassekommentaren — for produktivt
+        // brukt med ethvert stedsnavn/adjektiv til at en denyliste kunne blitt uttømmende, til
+        // forskjell fra "verket"). "Samisk skole" skal derfor IKKE gi noen kandidat i det hele tatt.
+        const string tekst = "Denne bestemmelsen gjelder også for Samisk skole i regionen.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+        Assert.DoesNotContain(funn, f => f.Kategori == "virksomhet");
+    }
+
+    [Theory]
+    [InlineData("Studenten har fullført nivå 5 i NKR og fagskole 1 tidligere.")]
+    [InlineData("Elevene går på SFO og skole hver dag.")]
+    public void Flerords_monster_forkaster_hele_treffet_ved_dinglende_bindeord_rett_for_institusjonsordet(string tekst)
+    {
+        // Regresjonstest for en bug avdekket ved korpusomfattende testsveip av skole-utvidelsen
+        // (2026-08-30): et bindeord ("og") UMIDDELBART FØR institusjonsordet ga tidligere en falsk
+        // kandidat ("NKR og fagskole"/"SFO og skole") fordi det dinglende bindeordet der ikke kan
+        // bare fjernes og falle tilbake til forrige token, slik det trygt kan i STARTEN av et treff
+        // — se metodekommentaren i selve koden for hvorfor. Hele treffet forkastes nå i stedet.
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+        Assert.DoesNotContain(funn, f => f.Kategori == "virksomhet");
+    }
+
+    [Fact]
     public void Flerords_monster_tillater_liste_prefiks_markor_som_ikke_er_en_ekte_setningsslutt()
     {
         // Samme reelle liste som live-data-eksempelet over, men denne varianten har bokstav-listemarkører
@@ -287,7 +336,8 @@ public class NavnekandidatOppdagelseTjenesteTests
 
     // ---------- Del B: sveip/godkjenning/avvisning mot ekte embedded Postgres ----------
 
-    private static async Task<Guid> OpprettRettskildeMedNodeAsync(RegelIdeDbContext db, string tekst, string? eid = null)
+    private static async Task<Guid> OpprettRettskildeMedNodeAsync(
+        RegelIdeDbContext db, string tekst, string? eid = null, string? ansvarligDepartement = null)
     {
         var rettskildeId = Guid.NewGuid();
         var nodeEid = eid ?? $"https://test/{Guid.NewGuid():N}/§1/ledd-1";
@@ -297,7 +347,8 @@ public class NavnekandidatOppdagelseTjenesteTests
             // referansekilde"-begrunnelse som RettsligStatusKontrastTests: ck_rettskilder_akn_xml
             // krever ellers akn_xml IS NOT NULL for Importrolle="primaer" (default).
             Id = rettskildeId, Doctype = "doc", Kildetype = "Lov", Status = "Gjeldende", Importrolle = "referanse",
-            Tittel = "Testlov " + rettskildeId, OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            Tittel = "Testlov " + rettskildeId, AnsvarligDepartement = ansvarligDepartement,
+            OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
         });
         db.RettskildeNoder.Add(new RettskildeNodeEntitet
         {
@@ -320,7 +371,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Fiskeridirektoratet innen tre uker.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
         Assert.Equal(1, resultat.AntallTreffFunnet);
@@ -347,7 +398,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
         await db.SaveChangesAsync();
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
         Assert.Equal(0, resultat.AntallTreffFunnet);
@@ -383,7 +434,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
         await db.SaveChangesAsync();
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
         // Korpusomfattende sveip (rettskildeId=null) — den reelle bug-scenarioen, IKKE et eksplisitt
         // forsøk på å be om nettopp denne rettskilden (det dekkes av testen under). Merk: kan IKKE
         // sjekke AntallTreffFunnet==0 her — samlingen deler embedded Postgres med andre tester i samme
@@ -409,7 +460,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
         await db.SaveChangesAsync();
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
 
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.SveipAsync(privatRettskildeId, "test"));
     }
@@ -440,7 +491,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
         await db.SaveChangesAsync();
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
         // Samme merknad som testen over: ingen AntallTreffFunnet==0-sjekk mulig i en delt DB-samling.
         await tjeneste.SveipAsync(null, "test");
 
@@ -463,7 +514,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
         await db.SaveChangesAsync();
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
         var forsteResultat = await tjeneste.SveipAsync(rettskildeId, "test");
         var andreResultat = await tjeneste.SveipAsync(enAnnenRettskildeId, "test");
 
@@ -478,7 +529,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Vegdirektoratet innen tre uker.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
         var forste = await tjeneste.SveipAsync(rettskildeId, "test");
         var andre = await tjeneste.SveipAsync(rettskildeId, "test");
 
@@ -494,7 +545,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Alle skip skal melde fra til havnetilsynet før anløp.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
         Assert.Equal("rolle", kandidat.Kategori);
@@ -518,7 +569,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Sjøfartsdirektoratet innen tre uker.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
         Assert.Equal("virksomhet", kandidat.Kategori);
@@ -536,7 +587,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Reindriftsdirektoratet innen tre uker.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
 
@@ -554,7 +605,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     public async Task Kaster_hvis_rettskilden_ikke_finnes()
     {
         await using var db = _fixture.NyDbContext();
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.SveipAsync(Guid.NewGuid(), "test"));
     }
 
@@ -566,7 +617,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Statsforvalteren skal påse at loven følges.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
         await tjeneste.SveipAsync(rettskildeId, "test");
 
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
@@ -590,7 +641,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
             db, "Statsforvalteren skal føre tilsyn. I andre saker avgjør statsforvalteren selv.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
         // Kun ÉN treff telles — den andre forekomsten er "alleredeDekketAvEksisterendeKandidat", samme
@@ -620,7 +671,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
         await db.SaveChangesAsync();
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
         Assert.Equal(1, resultat.AntallTreffFunnet);
@@ -641,7 +692,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
             db, "Vedtak kan påklages til Sjøfartsdirektoratet, og Sjøfartsdirektoratet behandler klagen innen tre uker.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
         Assert.Equal(2, resultat.AntallTreffFunnet);
@@ -661,7 +712,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     {
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Fiskeridirektoratet innen tre uker.");
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
 
@@ -681,7 +732,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     {
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Alle skip skal melde fra til havnetilsynet før anløp.");
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
         await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist");
@@ -696,7 +747,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     public async Task SlettAsync_med_ukjent_id_returnerer_false_uten_a_kaste()
     {
         await using var db = _fixture.NyDbContext();
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = NyTjeneste(db);
 
         var slettet = await tjeneste.SlettAsync(Guid.NewGuid());
 
@@ -711,7 +762,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeA = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Reindriftsdirektoratet innen tre uker.");
         var rettskildeB = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Kystdirektoratet innen tre uker.");
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(rettskildeA, "test");
         await tjeneste.SveipAsync(rettskildeB, "test");
         Assert.Equal(1, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeA));
@@ -732,7 +783,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
             db, "Alle skip skal melde fra til havnetilsynet, og vedtak kan påklages til Oljedirektoratet innen tre uker.");
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidater = await db.Navnekandidater.Where(k => k.RettskildeId == rettskildeId).ToListAsync();
         var rolleKandidat = kandidater.Single(k => k.Kategori == "rolle");
@@ -751,10 +802,138 @@ public class NavnekandidatOppdagelseTjenesteTests
     {
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Datatilsynet innen tre uker.");
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db));
+        var tjeneste = NyTjeneste(db);
 
         var antallSlettet = await tjeneste.SlettAlleAsync(status: "Avvist", rettskildeId: rettskildeId);
 
         Assert.Equal(0, antallSlettet);
+    }
+
+    // ---------- Del E: departement-eid tekst-tagg ved godkjenning (tekst-tagg-departement-eierskap, 2026-08-31) ----------
+
+    private static NavnekandidatOppdagelseTjeneste NyTjeneste(RegelIdeDbContext db) => new(
+        db, new VirksomhetsbegrepTjeneste(db),
+        new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
+
+    /// <summary>
+    /// Kjernescenariet fra Johanns designvalg: et rollebegrep er delt/nasjonalt (ingen egen eiende
+    /// virksomhet), men når rettskildens <see cref="RettskildeEntitet.AnsvarligDepartement"/> løser til
+    /// en ekte, kjent <see cref="Virksomhet"/>, skal godkjenningen OGSÅ opprette en ekte
+    /// <see cref="TekstTaggEntitet"/> (kind='begrep', RefId=det nye rollebegrepets id) eid av nettopp
+    /// den virksomheten — "opprett disse med virksomheten til departementet".
+    /// </summary>
+    [Fact]
+    public async Task Godkjenning_av_rollekandidat_med_kjent_departement_oppretter_tekst_tagg_eid_av_departementets_virksomhet()
+    {
+        await using var db = _fixture.NyDbContext();
+        var departementNavn = "Testdepartementet " + Guid.NewGuid();
+        var departementVirksomhetId = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = departementVirksomhetId, Navn = departementNavn });
+        await db.SaveChangesAsync();
+
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(
+            db, "Alle skip skal melde fra til havnetilsynet før anløp.", ansvarligDepartement: departementNavn);
+
+        var tjeneste = NyTjeneste(db);
+        await tjeneste.SveipAsync(rettskildeId, "test");
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
+        Assert.Equal("rolle", kandidat.Kategori);
+
+        var godkjent = await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist");
+        Assert.Equal("Godkjent", godkjent!.Status);
+
+        var rollebegrep = await db.Begreper.SingleAsync(
+            b => b.Begrepskategori == "rolle" && b.LovkildeId == rettskildeId && b.Term == "havnetilsynet");
+
+        var tagg = await db.TekstTagger.SingleAsync(t => t.RettskildeId == rettskildeId);
+        Assert.Equal(departementVirksomhetId, tagg.VirksomhetId);
+        Assert.Equal("begrep", tagg.Kind);
+        Assert.Equal(rollebegrep.Id, tagg.RefId);
+        Assert.Equal(kandidat.NodeEid, tagg.NodeEid);
+        Assert.Equal(kandidat.StartOffset, tagg.StartOffset);
+        Assert.Equal(kandidat.EndOffset, tagg.EndOffset);
+        Assert.Equal("gjeldende", tagg.Entitetsstatus);
+    }
+
+    /// <summary>
+    /// Motstykket — en rettskilde uten noe kjent <see cref="RettskildeEntitet.AnsvarligDepartement"/> i
+    /// det hele tatt (aldri satt ved import, f.eks. et rundskriv/håndbok) skal IKKE gi noen tagg. En
+    /// reell, dokumentert begrensning ("ingen gjettet fallback"), ikke en feil — selve
+    /// kandidatgodkjenningen (rollebegrepet) skal likevel lykkes helt normalt.
+    /// </summary>
+    [Fact]
+    public async Task Godkjenning_av_rollekandidat_uten_kjent_departement_oppretter_ingen_tagg()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Kommunen skal føre tilsyn i dette tilfellet.");
+
+        var tjeneste = NyTjeneste(db);
+        await tjeneste.SveipAsync(rettskildeId, "test");
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
+        Assert.Equal("rolle", kandidat.Kategori);
+
+        var godkjent = await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist");
+
+        Assert.Equal("Godkjent", godkjent!.Status); // kandidaten godkjennes fortsatt normalt …
+        Assert.NotNull(await db.Begreper.SingleOrDefaultAsync(
+            b => b.Begrepskategori == "rolle" && b.LovkildeId == rettskildeId)); // … rollebegrepet opprettes fortsatt …
+        Assert.False(await db.TekstTagger.AnyAsync(t => t.RettskildeId == rettskildeId)); // … men ingen tagg-siden-effekt.
+    }
+
+    /// <summary>
+    /// Variant av testen over: departementstrengen ER satt (ikke null), men matcher ingen ekte
+    /// <see cref="Virksomhet"/>-rad i katalogen — like reelt "ukjent" som når feltet mangler helt, se
+    /// <see cref="VirksomhetOppslagTjeneste.FinnVirksomhetIdForNavnAsync"/>s "ingen gjettet fallback".
+    /// </summary>
+    [Fact]
+    public async Task Godkjenning_av_rollekandidat_med_uopploselig_departementstreng_oppretter_ingen_tagg()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(
+            db, "Alle skip skal melde fra til havnetilsynet før anløp.",
+            ansvarligDepartement: "Et departement som ikke finnes " + Guid.NewGuid());
+
+        var tjeneste = NyTjeneste(db);
+        await tjeneste.SveipAsync(rettskildeId, "test");
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
+
+        var godkjent = await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist");
+
+        Assert.Equal("Godkjent", godkjent!.Status);
+        Assert.False(await db.TekstTagger.AnyAsync(t => t.RettskildeId == rettskildeId));
+    }
+
+    /// <summary>
+    /// Samme departement-eierskap gjelder for <c>"virksomhet"</c>-kategorien (steg 2 i oppgaven: BEGGE
+    /// kategorier skal kunne gi en tagg) — men siden <see cref="GodkjennAsync"/> ALDRI oppretter noen
+    /// <see cref="BegrepEntitet"/> for denne kategorien (se dens metodekommentar), er det ingen ekte id
+    /// for taggen å peke på: <see cref="TekstTaggEntitet.RefId"/> forblir <c>null</c> ("ingen gjettet
+    /// fallback" — ikke fabriker en Begrep-id).
+    /// </summary>
+    [Fact]
+    public async Task Godkjenning_av_virksomhetskandidat_med_kjent_departement_oppretter_tagg_uten_ref_id()
+    {
+        await using var db = _fixture.NyDbContext();
+        var departementNavn = "Testdepartementet " + Guid.NewGuid();
+        var departementVirksomhetId = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = departementVirksomhetId, Navn = departementNavn });
+        await db.SaveChangesAsync();
+
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(
+            db, "Vedtak kan påklages til Losdirektoratet innen tre uker.", ansvarligDepartement: departementNavn);
+
+        var tjeneste = NyTjeneste(db);
+        await tjeneste.SveipAsync(rettskildeId, "test");
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
+        Assert.Equal("virksomhet", kandidat.Kategori);
+
+        var godkjent = await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist");
+        Assert.Equal("Godkjent", godkjent!.Status);
+        Assert.False(await db.Begreper.AnyAsync(b => b.LovkildeId == rettskildeId)); // fortsatt ingen Begrep-rad, se metodekommentaren.
+
+        var tagg = await db.TekstTagger.SingleAsync(t => t.RettskildeId == rettskildeId);
+        Assert.Equal(departementVirksomhetId, tagg.VirksomhetId);
+        Assert.Equal("begrep", tagg.Kind);
+        Assert.Null(tagg.RefId);
     }
 }

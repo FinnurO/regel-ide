@@ -33,7 +33,7 @@ public class VirksomhetKandidatTjenesteTests
     }
 
     private static VirksomhetKandidatTjeneste NyTjeneste(RegelIdeDbContext db) =>
-        new(db, new TekstTaggTjeneste(db));
+        new(db, new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)));
 
     [Fact]
     public async Task Oppretter_kandidat_og_lister_i_ventende()

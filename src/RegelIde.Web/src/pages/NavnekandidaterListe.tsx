@@ -2,7 +2,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router';
 import { Alert, Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Table, Tag, Textfield, ToggleGroup } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import { rettskildeLenke } from '../api/eidLenker';
+import { rettskildeLenkeForId } from '../api/eidLenker';
 import type { NavnekandidatDto, RettskildeSammendrag } from '../api/types';
 import { RettskildeFlervalg } from '../rettskilde/RettskildeFlervalg';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
@@ -390,10 +390,9 @@ export default function NavnekandidaterListe() {
         <Table.Cell style={{ fontWeight: 500 }}>{k.foreslattTekst}</Table.Cell>
         <Table.Cell>{visRettskilde(k.rettskildeId)}</Table.Cell>
         <Table.Cell style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>
-          {(() => {
-            const href = rettskildeLenke(k.nodeEid, rettskilder);
-            return href ? <Link asChild><RouterLink to={href} target="_blank">{k.nodeEid} ↗</RouterLink></Link> : k.nodeEid;
-          })()}
+          <Link asChild>
+            <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{k.nodeEid} ↗</RouterLink>
+          </Link>
         </Table.Cell>
         <Table.Cell>
           {(() => {

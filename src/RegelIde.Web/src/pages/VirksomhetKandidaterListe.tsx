@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router';
 import { Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import { rettskildeLenke } from '../api/eidLenker';
+import { rettskildeLenkeForId } from '../api/eidLenker';
 import type { RettskildeNodeDto, RettskildeSammendrag, VirksomhetKandidatDto } from '../api/types';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
@@ -103,6 +103,25 @@ export default function VirksomhetKandidaterListe() {
   }
 
   useEffect(lastKandidater, [virksomhetFilter, rettskildeFilter, statusFilter]);
+
+  // [Rettet, 2026-08-30 — gjeninnført etter at et tidligere forsøk gikk tapt i en umerget
+  // grensammenslåing] «Virksomhet»-filteret brukte hele katalogen (~476 rader) i VirksomhetVelger —
+  // Johann observerte at feltet hang/var tregt å skrive i (bekreftet: kun 3 av 476 virksomheter har
+  // noen kandidat i det hele tatt). Egen, uavhengig forespørsel — scopet av rettskilde/status som
+  // resten av lista, men ALDRI av virksomhetFilter selv (ellers ville nedtrekkslisten krympe til kun
+  // ÉN virksomhet i det øyeblikket brukeren velger den).
+  const [virksomhetIderMedKandidater, setVirksomhetIderMedKandidater] = useState<Set<string> | null>(null);
+  useEffect(() => {
+    api
+      .hentVirksomhetKandidater({ rettskildeId: rettskildeFilter || undefined, status: statusFilter })
+      .then((liste) => setVirksomhetIderMedKandidater(new Set(liste.map((k) => k.virksomhetId))))
+      .catch(() => setVirksomhetIderMedKandidater(null));
+  }, [rettskildeFilter, statusFilter]);
+
+  const virksomheterMedKandidater = useMemo(
+    () => (virksomhetIderMedKandidater ? virksomheter.filter((v) => virksomhetIderMedKandidater.has(v.id)) : virksomheter),
+    [virksomheter, virksomhetIderMedKandidater],
+  );
 
   const rettskilderPerId = useMemo(() => new Map(rettskilder.map((r) => [r.id, r] as const)), [rettskilder]);
   function visRettskilde(rettskildeId: string): string {
@@ -261,7 +280,7 @@ export default function VirksomhetKandidaterListe() {
 
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '1rem' }}>
         <VirksomhetVelger
-          virksomheter={virksomheter}
+          virksomheter={virksomheterMedKandidater}
           value={virksomhetFilter}
           onChange={setVirksomhetFilter}
           label="Virksomhet"
@@ -352,13 +371,15 @@ export default function VirksomhetKandidaterListe() {
                     <Table.Cell>{visEier(k.virksomhetId)}</Table.Cell>
                     <Table.Cell>{visRettskilde(k.rettskildeId)}</Table.Cell>
                     <Table.Cell style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>
-                      {(() => {
-                        const href = rettskildeLenke(k.nodeEid, rettskilder);
-                        // Slik at bruker kan lese noden i sin fulle sammenheng FØR godkjenning
-                        // (Johanns tilbakemelding 2026-08-22) — åpner rettskildevisningen på nøyaktig
-                        // denne noden, samme ?eid=-mønster som resolveRef/rettskildeLenke ellers.
-                        return href ? <Link asChild><RouterLink to={href} target="_blank">{k.nodeEid} ↗</RouterLink></Link> : k.nodeEid;
-                      })()}
+                      {/* Slik at bruker kan lese noden i sin fulle sammenheng FØR godkjenning
+                          (Johanns tilbakemelding 2026-08-22) — åpner rettskildevisningen på nøyaktig
+                          denne noden. [Rettet, 2026-08-30] Bruker rettskildeLenkeForId (rettskildeId
+                          allerede kjent på raden) i stedet for rettskildeLenke sin ELI-prefiks-
+                          gjetting — den fant ingen treff for kap-/rom-/punkt-nummererte noder
+                          (LovdataIdentifikatorer.KapittelEid er bevisst ELI-uavhengig). */}
+                      <Link asChild>
+                        <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{k.nodeEid} ↗</RouterLink>
+                      </Link>
                     </Table.Cell>
                     <Table.Cell>
                       {(() => {
