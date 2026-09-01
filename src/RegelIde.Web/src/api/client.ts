@@ -101,6 +101,7 @@ import type {
   SveipVirksomhetKandidaterResultatDto,
   VirksomhetKandidatBatchRequest,
   VirksomhetKandidatBatchResultatDto,
+  HardslettVirksomhetKandidaterResultatDto,
   NavnekandidatDto,
   SveipNavnekandidaterRequest,
   SveipNavnekandidaterResultatDto,
@@ -328,6 +329,19 @@ export const api = {
 
   hardslettVirksomhetKandidat: (id: string) =>
     kall<void>(`/api/virksomhet-kandidater/${id}`, { method: 'DELETE' }),
+
+  /** [Ny] Massehardsletting — KUN 'Avvist'-rader rammes, uansett filter (backend tvinger dette, se
+   * VirksomhetKandidatTjeneste.HardslettAlleAvvisteAsync) — til forskjell fra slettAlleNavnekandidater
+   * under, som aksepterer et fritt statusfilter fordi den entiteten ikke har noen sidevirkning å
+   * beskytte. Status sendes derfor bevisst IKKE med her — klienten har ingen gyldig verdi å tilby utover
+   * det backend allerede tvinger. */
+  hardslettAlleAvvisteVirksomhetKandidater: (filter: { virksomhetId?: string; rettskildeId?: string }) => {
+    const parametre = new URLSearchParams();
+    if (filter.virksomhetId) parametre.set('virksomhetId', filter.virksomhetId);
+    if (filter.rettskildeId) parametre.set('rettskildeId', filter.rettskildeId);
+    const sok = parametre.toString();
+    return kall<HardslettVirksomhetKandidaterResultatDto>(`/api/virksomhet-kandidater${sok ? `?${sok}` : ''}`, { method: 'DELETE' });
+  },
 
   settVirksomhetForvaltningsniva: (id: string, forvaltningsniva: string | null) =>
     kall<VirksomhetDto>(`/api/virksomheter/${id}/forvaltningsniva`, {

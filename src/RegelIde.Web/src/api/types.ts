@@ -273,6 +273,12 @@ export interface VirksomhetKandidatBatchResultatDto {
   rader: VirksomhetKandidatBatchRadDto[];
 }
 
+/** Resultat av DELETE /api/virksomhet-kandidater (massehardsletting) — kun 'Avvist'-rader rammes, se
+ * backend-kommentaren (VirksomhetKandidatTjeneste.HardslettAlleAvvisteAsync). */
+export interface HardslettVirksomhetKandidaterResultatDto {
+  antallSlettet: number;
+}
+
 /** Oppdagelsesmekanismen (docs/13-backlog.md §9) — komplementær til VirksomhetKandidatDto over. */
 export interface NavnekandidatDto {
   id: string;
