@@ -318,6 +318,18 @@ using (var scope = app.Services.CreateScope())
     // departementer (4 fantes allerede via OrganisasjonsregisterSeed over). Kjøres ETTER den, slik at
     // matching på Organisasjonsnummer faktisk finner de 4 eksisterende radene i stedet for å duplisere.
     await DepartementSeed.SeedAsync(db);
+
+    // Engangs-tilbakefylling av RettskildeEntitet.AnsvarligDepartement (2026-08-30) — feltet fylles
+    // kun ut ved IMPORT (RettskildeImportTjeneste), så alle rettskilder importert FØR kolonnen fantes
+    // (bekreftet: alle ~5900 eksisterende) har den NULL selv om verdien hele tiden har ligget lagret i
+    // AknXml. Idempotent (se AnsvarligDepartementBackfillTjeneste.cs) — trygt å kjøre på hver oppstart,
+    // rører aldri rader som allerede har verdien satt. Kjøres ETTER DepartementSeed over (ren
+    // kolonne-tilbakefylling, avhenger ikke av Virksomhet-katalogen, men logisk hører den sammen med
+    // resten av departement-arbeidet fra samme dato).
+    var ansvarligDepartementAntall = await AnsvarligDepartementBackfillTjeneste.KjorAsync(db);
+    app.Logger.LogInformation(
+        "AnsvarligDepartement-tilbakefylling fullført: {Antall} rettskilder oppdatert fra allerede lagret AknXml.",
+        ansvarligDepartementAntall);
 }
 
 // GUI-et spør om profilen for å vite om brukervelgeren skal vises i det hele tatt.
