@@ -44,6 +44,17 @@ export default function VirksomhetKandidaterListe() {
   const [massehandlingKjorer, setMassehandlingKjorer] = useState(false);
   const [massehandlingFeil, setMassehandlingFeil] = useState<string | null>(null);
 
+  // Sletting — KUN 'Avvist'-rader kan hardslettes her (til forskjell fra navnekandidater, der ALLE
+  // statuser kan hardslettes): en 'Godkjent' rad har opprettet en ekte tekst-tagg (koblet til en
+  // navneform) som ikke kan fjernes i etterkant (TekstTaggTjeneste.SlettAsync nekter å fjerne en tagg
+  // med RefId satt), og en 'Venter'-rad skal behandles (godkjennes/avvises), ikke bare forsvinne. Se
+  // VirksomhetKandidatTjeneste.HardslettAlleAvvisteAsync for hele resonnementet. Antallet under hentes
+  // derfor UAVHENGIG av statusFilter over (som styrer hovedtabellen) — «Slett alle avviste»-knappen skal
+  // vise riktig antall selv når statusFilter='Venter'/'Godkjent'/'Alle' er valgt.
+  const [avvisteKandidater, setAvvisteKandidater] = useState<VirksomhetKandidatDto[] | null>(null);
+  const [sletterAlle, setSletterAlle] = useState(false);
+  const [slettAlleFeil, setSlettAlleFeil] = useState<string | null>(null);
+
   const [sveipVirksomhetId, setSveipVirksomhetId] = useState('');
   const [sveiper, setSveiper] = useState(false);
   const [sveipFeil, setSveipFeil] = useState<string | null>(null);
@@ -103,6 +114,15 @@ export default function VirksomhetKandidaterListe() {
   }
 
   useEffect(lastKandidater, [virksomhetFilter, rettskildeFilter, statusFilter]);
+
+  function lastAvvisteKandidater() {
+    api
+      .hentVirksomhetKandidater({ virksomhetId: virksomhetFilter || undefined, rettskildeId: rettskildeFilter || undefined, status: 'Avvist' })
+      .then(setAvvisteKandidater)
+      .catch(() => setAvvisteKandidater(null));
+  }
+
+  useEffect(lastAvvisteKandidater, [virksomhetFilter, rettskildeFilter]);
 
   // [Rettet, 2026-08-30 — gjeninnført etter at et tidligere forsøk gikk tapt i en umerget
   // grensammenslåing] «Virksomhet»-filteret brukte hele katalogen (~476 rader) i VirksomhetVelger —
@@ -189,6 +209,39 @@ export default function VirksomhetKandidaterListe() {
       lastKandidater();
     } catch (err) {
       setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved behandling av kandidat.');
+    }
+  }
+
+  // Sletting — kun tilgjengelig for 'Avvist'-rader, se state-kommentaren over for hvorfor.
+  async function slettEnkelt(id: string) {
+    if (!window.confirm('Slette denne kandidaten permanent? Dette kan ikke angres.')) return;
+    try {
+      await api.hardslettVirksomhetKandidat(id);
+      lastKandidater();
+      lastAvvisteKandidater();
+    } catch (err) {
+      setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved sletting av kandidat.');
+    }
+  }
+
+  async function slettAlle() {
+    const antall = avvisteKandidater?.length ?? 0;
+    if (antall === 0) return;
+    if (!window.confirm(`Slette ${antall} avvist(e) kandidat(er) permanent? Dette kan ikke angres.`)) return;
+
+    setSletterAlle(true);
+    setSlettAlleFeil(null);
+    try {
+      await api.hardslettAlleAvvisteVirksomhetKandidater({
+        virksomhetId: virksomhetFilter || undefined,
+        rettskildeId: rettskildeFilter || undefined,
+      });
+      lastKandidater();
+      lastAvvisteKandidater();
+    } catch (err) {
+      setSlettAlleFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved massesletting.');
+    } finally {
+      setSletterAlle(false);
     }
   }
 
@@ -321,6 +374,28 @@ export default function VirksomhetKandidaterListe() {
       </div>
       {massehandlingFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{massehandlingFeil}</div>}
 
+      <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
+        <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
+          Slett avviste kandidater
+        </Heading>
+        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+          Ekte, irreversibel sletting av 'Avvist'-kandidater — nyttig for å tømme køen før et nytt sveip
+          (den posisjonsbaserte idempotensen hindrer ellers et nytt sveip i noensinne å re-evaluere en
+          avvist posisjon på nytt). Respekterer virksomhet-/rettskildefilteret over, men IKKE statusfilteret
+          over — kun 'Avvist'-rader kan slettes: en 'Venter'-rad skal behandles (godkjennes/avvises), og en
+          'Godkjent'-rad har opprettet en ekte tekst-tagg som ikke kan fjernes i etterkant.
+        </Paragraph>
+        <Button
+          data-size="sm"
+          data-color="danger"
+          onClick={slettAlle}
+          disabled={!avvisteKandidater || avvisteKandidater.length === 0 || sletterAlle}
+        >
+          {sletterAlle ? 'Sletter …' : `Slett alle avviste kandidater (${avvisteKandidater?.length ?? 0})`}
+        </Button>
+        {slettAlleFeil && <div className="feilmelding" style={{ marginTop: '0.5rem' }}>{slettAlleFeil}</div>}
+      </Card>
+
       {feil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{feil}</div>}
       {laster && !kandidater && <Paragraph>Laster …</Paragraph>}
       {viste && viste.length === 0 && <Paragraph>Ingen kandidater matcher filteret.</Paragraph>}
@@ -395,16 +470,26 @@ export default function VirksomhetKandidaterListe() {
                       <Tag data-color={STATUS_FARGE[k.status] ?? 'neutral'} data-size="sm">{k.status}</Tag>
                     </Table.Cell>
                     <Table.Cell>
-                      {k.status === 'Venter' ? (
-                        <div style={{ display: 'flex', gap: '0.4rem' }}>
-                          <Button data-size="sm" onClick={() => enkelthandling(k.id, 'godkjenn')}>Godkjenn</Button>
-                          <Button data-size="sm" variant="tertiary" onClick={() => enkelthandling(k.id, 'avvis')}>Avvis</Button>
-                        </div>
-                      ) : (
-                        <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
-                          {k.behandletAv ? `Behandlet av ${k.behandletAv}` : '—'}
-                        </span>
-                      )}
+                      <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
+                        {k.status === 'Venter' ? (
+                          <>
+                            <Button data-size="sm" onClick={() => enkelthandling(k.id, 'godkjenn')}>Godkjenn</Button>
+                            <Button data-size="sm" variant="tertiary" onClick={() => enkelthandling(k.id, 'avvis')}>Avvis</Button>
+                          </>
+                        ) : (
+                          <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                            {k.behandletAv ? `Behandlet av ${k.behandletAv}` : '—'}
+                          </span>
+                        )}
+                        {/* KUN 'Avvist' — en 'Godkjent' rad har en ekte tekst-tagg som ikke kan fjernes i
+                            etterkant, og en 'Venter'-rad skal behandles, ikke bare forsvinne. Se
+                            VirksomhetKandidatTjeneste.HardslettAvvistAsync/HardslettAlleAvvisteAsync. */}
+                        {k.status === 'Avvist' && (
+                          <Button data-size="sm" variant="tertiary" data-color="danger" onClick={() => slettEnkelt(k.id)}>
+                            Slett
+                          </Button>
+                        )}
+                      </div>
                     </Table.Cell>
                   </Table.Row>
                 ))}

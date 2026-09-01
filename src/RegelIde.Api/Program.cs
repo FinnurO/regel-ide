@@ -2589,6 +2589,26 @@ virksomhetKandidater.MapDelete("/{id:guid}", async (Guid id, VirksomhetKandidatT
     .WithName("HardslettAvvistVirksomhetKandidat")
     .WithSummary("Kun 'Avvist'-rader kan hardslettes (docs/20 §2.6) — et eksplisitt unntak fra husstilens vanlige mykslette-mønster.");
 
+virksomhetKandidater.MapDelete("/", async (Guid? virksomhetId, Guid? rettskildeId, string? status,
+        VirksomhetKandidatTjeneste register, CancellationToken ct) =>
+    {
+        try
+        {
+            var antallSlettet = await register.HardslettAlleAvvisteAsync(virksomhetId, rettskildeId, status, ct);
+            return Results.Ok(new HardslettVirksomhetKandidaterResultatDto(antallSlettet));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("HardslettAlleAvvisteVirksomhetKandidater")
+    .WithSummary("Massehardsletting, valgfritt filtrert på virksomhet/rettskilde (samme filterparametre som GET /) — " +
+        "KUN 'Avvist'-rader rammes, uansett filter (docs/20 §2.6). 'Venter'/'Godkjent' er eksplisitt utelukket " +
+        "(status-parameteren aksepterer derfor kun utelatt eller 'Avvist', ellers 400) — se " +
+        "VirksomhetKandidatTjeneste.HardslettAlleAvvisteAsync for hvorfor 'Godkjent' ikke kan hardslettes " +
+        "(en ekte tekst-tagg som ikke kan fjernes i etterkant).");
+
 // ---------- Navnekandidater — oppdagelse av egennavn/juridiske aktører (docs/13-backlog.md §9) ----------
 // Komplementær til /api/virksomhet-kandidater over: DEN er en bekreftelsesmekanisme (krever en
 // allerede kjent navneform), DENNE er en oppdagelsesmekanisme (ren regex-mønstergjenkjenning, foreslår

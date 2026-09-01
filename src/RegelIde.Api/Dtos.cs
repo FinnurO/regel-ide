@@ -496,6 +496,11 @@ public sealed record VirksomhetKandidatBatchRadDto(Guid Id, bool Ok, string? Fei
 
 public sealed record VirksomhetKandidatBatchResultatDto(IReadOnlyList<VirksomhetKandidatBatchRadDto> Rader);
 
+/// <summary>Resultat av <c>DELETE /api/virksomhet-kandidater</c> (massehardsletting) — kun 'Avvist'-rader
+/// telles/slettes, se <see cref="VirksomhetKandidatTjeneste.HardslettAlleAvvisteAsync"/>. Lar klienten
+/// bekrefte at det faktiske antallet stemte med det som ble varslet i bekreftelsesdialogen FØR kallet.</summary>
+public sealed record HardslettVirksomhetKandidaterResultatDto(int AntallSlettet);
+
 // ---------- Navnekandidater — oppdagelse av egennavn/juridiske aktører (docs/13-backlog.md §9) ----------
 
 public sealed record NavnekandidatDto(
