@@ -55,7 +55,7 @@ public static class Byggesteg4VilkarstreSeed
         var regelnoderegister = new RegelnoderegisterTjeneste(db);
         var unntaksregister = new UnntaksregisterTjeneste(db);
         var tjenesteregister = new TjenesteregisterTjeneste(db);
-        var tekstTaggTjeneste = new TekstTaggTjeneste(db);
+        var tekstTaggTjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
 
         var vAlder = await vilkarregister.OpprettAsync(
             virksomhetId, "Aldersvilkår", "Styrer og stedfortreder må være over 20 år.", null, "materiell", "styrer/stedfortreder",

@@ -343,7 +343,7 @@ public class RettskildeImportTjenesteTests
         var forsteId = await importTjeneste.ImporterAsync(LovdataKonverterer.Konverter(LesIsolertAlkoholloven(), new DateOnly(2026, 7, 24)));
         var paragraf11Eid = $"https://lovdata.no/eli/lov/2099/01/01/999/nor/§1-1/ledd-1";
 
-        var taggTjeneste = new TekstTaggTjeneste(db);
+        var taggTjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
         var startIndeks = Paragraf11Tekst.IndexOf("alkoholholdig drikk", StringComparison.Ordinal);
         var tagg = await taggTjeneste.OpprettAsync(
             forsteId, virksomhet, "Kari Jurist", paragraf11Eid, startIndeks, startIndeks + "alkoholholdig drikk".Length,
@@ -373,7 +373,7 @@ public class RettskildeImportTjenesteTests
         var forsteId = await importTjeneste.ImporterAsync(LovdataKonverterer.Konverter(LesIsolertAlkoholloven(), new DateOnly(2026, 7, 24)));
         var paragraf11Eid = "https://lovdata.no/eli/lov/2099/01/01/999/nor/§1-1/ledd-1";
 
-        var taggTjeneste = new TekstTaggTjeneste(db);
+        var taggTjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
         var startIndeks = Paragraf11Tekst.IndexOf("drikkevarer.", StringComparison.Ordinal);
         var tagg = await taggTjeneste.OpprettAsync(
             forsteId, virksomhet, "Kari Jurist", paragraf11Eid, startIndeks, startIndeks + "drikkevarer.".Length,
@@ -402,7 +402,7 @@ public class RettskildeImportTjenesteTests
         var forsteId = await importTjeneste.ImporterAsync(LovdataKonverterer.Konverter(LesIsolertAlkoholloven(), new DateOnly(2026, 7, 24)));
         var paragraf11Eid = "https://lovdata.no/eli/lov/2099/01/01/999/nor/§1-1/ledd-1";
 
-        var taggTjeneste = new TekstTaggTjeneste(db);
+        var taggTjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
         const string sitat = "alkoholholdige drikkevarer";
         var startIndeks = Paragraf11Tekst.IndexOf(sitat, StringComparison.Ordinal);
         var tagg = await taggTjeneste.OpprettAsync(

@@ -31,6 +31,7 @@ builder.Services.LeggTilRegelIdeDatabase(builder.Configuration);
 // Testbruker-header som standard; Altinn-cookie kun når RegelIde:Autentisering sier det.
 // Se Autentiseringsoppsett.cs og docs/autentisering.md.
 builder.Services.LeggTilRegelIdeAutentisering(builder.Configuration);
+builder.Services.AddScoped<VirksomhetOppslagTjeneste>();
 builder.Services.AddScoped<RettskildeRepository>();
 builder.Services.AddScoped<VeiledningRepository>();
 builder.Services.AddScoped<RettskildeImportTjeneste>();
