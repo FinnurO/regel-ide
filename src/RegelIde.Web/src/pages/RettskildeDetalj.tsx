@@ -8,6 +8,8 @@ import type {
   NettsideLenkeMedMalDto,
   NettsideStiDto,
   RettskildeDetalj as RettskildeDetaljType,
+  RettskildeHjemletForDto,
+  RettskildeHjemmelDto,
   RettskildeNodeDto,
   RettskildeReferanseDto,
   RettskildeSammendrag,
@@ -21,7 +23,7 @@ import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { useKonfigurasjon } from '../konfigurasjon/KonfigurasjonContext';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { RaaTekstMedLenker } from '../rettskilde/RaaTekstMedLenker';
-import { eidVisningstekst } from '../api/eidLenker';
+import { eidVisningstekst, finnRettskildeForEid, rettskildeLenke } from '../api/eidLenker';
 
 const STITYPE_FARGE: Record<string, 'info' | 'success'> = { tematisk: 'info', organisatorisk: 'success' };
 
@@ -84,6 +86,14 @@ export default function RettskildeDetalj() {
   // Punkt 6/9 (avklaringsrunde 2026-08-13) — motsatt retning av Referanser under, men fra ANDRE
   // dokumenters (håndbok/rundskriv) noder, ikke fra en Tjeneste.
   const [referertAvDokumenter, setReferertAvDokumenter] = useState<DokumentReferanseDto[]>([]);
+
+  // Hjemmel (2026-08-30) — header-metadatafeltet <dt class="basedOn">, DOKUMENTNIVÅ og bevisst
+  // atskilt fra Referanser over (som er per-node løpetekst). Trygt å hente for ALLE doctyper/
+  // kildetyper (serveren returnerer tom liste når feltet mangler, bekreftet KUN forskrifter har det i
+  // dag) — samme "safe empty"-mønster som referertAvTjenester/-Dokumenter.
+  const [hjemler, setHjemler] = useState<RettskildeHjemmelDto[]>([]);
+  // Motsatt retning — kun ikke-tom for en LOV noe faktisk er hjemlet i.
+  const [hjemletFor, setHjemletFor] = useState<RettskildeHjemletForDto[]>([]);
 
   // Punkt 8 — kun ikke-tomme for kildetype='Brukerveiledning' (§3.4/§3.2). Trygt å hente for ALLE
   // doctyper (serveren returnerer tom liste for enhver annen), samme "safe empty"-mønster som
@@ -228,6 +238,8 @@ export default function RettskildeDetalj() {
     api.hentReferertAvTjenester(id).then(setReferertAvTjenester).catch(() => setReferertAvTjenester([]));
     api.hentReferertAvDokumenter(id).then(setReferertAvDokumenter).catch(() => setReferertAvDokumenter([]));
     api.hentReferanser(id).then(setReferanser).catch(() => setReferanser([]));
+    api.hentHjemmel(id).then(setHjemler).catch(() => setHjemler([]));
+    api.hentHjemmelFor(id).then(setHjemletFor).catch(() => setHjemletFor([]));
     api.hentRettskildeStier(id).then(setNettsideStier).catch(() => setNettsideStier([]));
     api.hentRettskildeNettsideLenker(id).then(setNettsideLenker).catch(() => setNettsideLenker([]));
     api.hentHandbokRettskildeomfang(id).then(setRettskildeomfang).catch(() => setRettskildeomfang([]));
@@ -777,6 +789,60 @@ export default function RettskildeDetalj() {
           </form>
         )}
       </div>
+
+      {hjemler.length > 0 && (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <Heading level={2} data-size="sm" style={{ marginBottom: '0.5rem' }}>
+            Hjemmel
+          </Heading>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            {hjemler.map((h) => {
+              const lov = finnRettskildeForEid(h.hjemmelEid, alleRettskilder);
+              const paragraf = h.hjemmelEid.slice(h.hjemmelEid.lastIndexOf('/') + 1);
+              const tekst = lov ? `${lov.kortnavn ?? lov.tittel} ${paragraf}` : h.hjemmelEid;
+              const lenke = rettskildeLenke(h.hjemmelEid, alleRettskilder);
+              return (
+                <Tag key={h.id} data-size="sm" data-color={lenke ? 'info' : 'neutral'}>
+                  {lenke ? (
+                    <Link asChild>
+                      <RouterLink to={lenke}>{tekst}</RouterLink>
+                    </Link>
+                  ) : (
+                    tekst
+                  )}
+                </Tag>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {hjemletFor.length > 0 && (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <Heading level={2} data-size="sm" style={{ marginBottom: '0.5rem' }}>
+            Hjemmel for
+          </Heading>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {Array.from(
+              hjemletFor.reduce((kart, h) => {
+                const liste = kart.get(h.forskriftId) ?? { tittel: h.forskriftTittel, eIder: [] as string[] };
+                liste.eIder.push(h.hjemmelEid);
+                kart.set(h.forskriftId, liste);
+                return kart;
+              }, new Map<string, { tittel: string; eIder: string[] }>()),
+            ).map(([forskriftId, { tittel, eIder }]) => (
+              <div key={forskriftId}>
+                <Link asChild>
+                  <RouterLink to={`/rettskilder/${forskriftId}`}>{tittel}</RouterLink>
+                </Link>
+                <div style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                  {eIder.map((eid) => eid.slice(eid.lastIndexOf('/') + 1)).join(', ')}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {referertAvTjenester.length > 0 && (
         <div style={{ marginBottom: '1.5rem' }}>

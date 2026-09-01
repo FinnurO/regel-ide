@@ -120,6 +120,29 @@ export interface RettskildeReferanseDto {
   tekstLengde: number | null;
 }
 
+/**
+ * Hjemmel-referanse (2026-08-30) — header-metadatafeltet `<dt class="basedOn">Hjemmel</dt>`: hvilken
+ * paragraf i hvilken lov denne rettskilden (typisk en forskrift) er hjemlet i. `hjemmelEid` er i SAMME
+ * eId-format som en vanlig paragraf-node (se eidLenker.ts) — gjenbruk `rettskildeLenke`/
+ * `finnRettskildeForEid` derfra i stedet for å bygge en egen lenke-oppslagslogikk.
+ * `hjemmelRettskildeId` peker ALLTID til en ekte rad (primær eller en referanse-stub som ennå ikke er
+ * synlig i den åpne rettskilde-lista) — «ingen gjettet fallback»: vis kun som lenke når
+ * `finnRettskildeForEid`/`rettskildeLenke` faktisk finner et treff i den allerede hentede listen.
+ */
+export interface RettskildeHjemmelDto {
+  id: string;
+  hjemmelEid: string;
+  hjemmelRettskildeId: string;
+  sorteringsrekkefolge: number;
+}
+
+/** Motsatt retning av RettskildeHjemmelDto — én forskrift som er hjemlet i DENNE loven. */
+export interface RettskildeHjemletForDto {
+  forskriftId: string;
+  forskriftTittel: string;
+  hjemmelEid: string;
+}
+
 export interface BrukerDto {
   id: string;
   navn: string;

@@ -107,11 +107,28 @@ public sealed record RettskildeMetadata
     public string Status { get; init; } = "Gjeldende";
 }
 
+/// <summary>
+/// Én rad i header-metadatafeltet <c>&lt;dt class="basedOn"&gt;Hjemmel&lt;/dt&gt;</c> (bekreftet ekte,
+/// data/kilder/raw-lovdata/alkoholforskriften-FOR-2005-06-08-538.html) — hvilken paragraf i hvilken
+/// lov dokumentet (typisk en forskrift) er hjemlet i. DOKUMENTNIVÅ-metadata, bevisst atskilt fra
+/// <see cref="RettskildeReferanse"/> (som er per-NODE løpetekst-kryssreferanser, §3.1 steg 6, en helt
+/// annen kilde/mekanisme — se LovdataHtmlParser sin ParseMetadata-kommentar for full begrunnelse).
+/// <para>
+/// <see cref="Eid"/> er i NØYAKTIG samme paragraf-eId-format som <see cref="RettskildeNode.Eid"/> og
+/// <see cref="RettskildeReferanse.TilEid"/> (<c>"{lov-eli}/§X-Y"</c>, se
+/// <see cref="LovdataIdentifikatorer.ParagrafEid"/>) — bevisst gjenbrukt format, ikke oppfunnet på
+/// nytt, slik at klientens allerede etablerte eId→lenke-oppslag (eidLenker.ts/rettskildeLenke)
+/// fungerer uendret for hjemmel-referanser også.
+/// </para>
+/// </summary>
+public sealed record RettskildeHjemmel(string Eid, int Sorteringsrekkefolge);
+
 public sealed record KonverteringResultat
 {
     public required RettskildeMetadata Metadata { get; init; }
     public required IReadOnlyList<RettskildeNode> Noder { get; init; }
     public required IReadOnlyList<RettskildeReferanse> Referanser { get; init; }
+    public required IReadOnlyList<RettskildeHjemmel> Hjemler { get; init; }
     public required string AknXml { get; init; }
     public required DateOnly ImportDato { get; init; }
 }

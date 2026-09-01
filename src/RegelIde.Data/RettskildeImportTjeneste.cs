@@ -202,6 +202,24 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 TekstLengde = r.TekstLengde,
             });
         }
+
+        // Hjemmel (2026-08-30, docs-kommentar RettskildeHjemmelEntitet) — DOKUMENTNIVÅ, ikke per-node
+        // som referansene over, derfor ingen FraNodeId-oppslag her. Samme stub-mekanisme som eksterne
+        // løpetekst-referanser: en lov som ikke (ennå) er importert får en referanse-stub opprettet
+        // (eller gjenbrukt), akkurat som FinnEllerOpprettReferanseStubAsync allerede gjør over — ingen
+        // egen, andre-gjettet kobling (§3.3) noe sted i denne stien.
+        foreach (var h in resultat.Hjemler)
+        {
+            var hjemmelRettskildeId = await FinnEllerOpprettReferanseStubAsync(h.Eid, ct);
+            db.RettskildeHjemler.Add(new RettskildeHjemmelEntitet
+            {
+                Id = Guid.NewGuid(),
+                RettskildeId = rettskildeId,
+                HjemmelEid = h.Eid,
+                HjemmelRettskildeId = hjemmelRettskildeId,
+                Sorteringsrekkefolge = h.Sorteringsrekkefolge,
+            });
+        }
     }
 
     /// <summary>
