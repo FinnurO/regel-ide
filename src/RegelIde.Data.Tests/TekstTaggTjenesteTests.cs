@@ -36,7 +36,7 @@ public class TekstTaggTjenesteTests
         var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
         var utdrag = node.Tekst![..8];
 
-        var tjeneste = new TekstTaggTjeneste(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
         var tagg = await tjeneste.OpprettAsync(
             rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 8, "", utdrag, node.Tekst[8..],  "begrep");
 
@@ -62,7 +62,7 @@ public class TekstTaggTjenesteTests
         await db.SaveChangesAsync();
 
         var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
-        var tjeneste = new TekstTaggTjeneste(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
 
         var tagg = await tjeneste.OpprettAsync(
             rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], kind);
@@ -80,7 +80,7 @@ public class TekstTaggTjenesteTests
         await db.SaveChangesAsync();
 
         var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
-        var tjeneste = new TekstTaggTjeneste(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
 
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(
             rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "tjenest"));
@@ -99,7 +99,7 @@ public class TekstTaggTjenesteTests
         await db.SaveChangesAsync();
 
         var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
-        var tjeneste = new TekstTaggTjeneste(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
 
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(
             rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "utgatt-kind"));
@@ -114,7 +114,7 @@ public class TekstTaggTjenesteTests
         await db.SaveChangesAsync();
 
         var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
-        var tjeneste = new TekstTaggTjeneste(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
 
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(
             rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", "helt feil tekst", node.Tekst![4..], "begrep"));
@@ -129,7 +129,7 @@ public class TekstTaggTjenesteTests
         await db.SaveChangesAsync();
 
         var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
-        var tjeneste = new TekstTaggTjeneste(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
 
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(
             rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, node.Tekst!.Length + 100, "", "uansett", "", "begrep"));
@@ -144,7 +144,7 @@ public class TekstTaggTjenesteTests
         await db.SaveChangesAsync();
 
         var (rettskildeId, _) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
-        var tjeneste = new TekstTaggTjeneste(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
 
         var resultat = await tjeneste.OpprettAsync(
             rettskildeId, virksomhet, "Kari Jurist", "finnes-ikke", 0, 4, "", "abcd", "", "begrep");
@@ -164,7 +164,7 @@ public class TekstTaggTjenesteTests
         await db.SaveChangesAsync();
 
         var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
-        var tjeneste = new TekstTaggTjeneste(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
 
         await tjeneste.OpprettAsync(rettskildeId, virksomhetA, "Bruker A", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "begrep");
         await tjeneste.OpprettAsync(rettskildeId, virksomhetB, "Bruker B", node.Eid, 0, 4, "", node.Tekst[..4], node.Tekst[4..], "vilkar");
@@ -184,7 +184,7 @@ public class TekstTaggTjenesteTests
         await db.SaveChangesAsync();
 
         var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
-        var tjeneste = new TekstTaggTjeneste(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
         var tagg = await tjeneste.OpprettAsync(
             rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "begrep");
 
@@ -209,7 +209,7 @@ public class TekstTaggTjenesteTests
         await db.SaveChangesAsync();
 
         var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
-        var tjeneste = new TekstTaggTjeneste(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
         var tagg = await tjeneste.OpprettAsync(
             rettskildeId, eier, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "begrep");
 
@@ -230,7 +230,7 @@ public class TekstTaggTjenesteTests
         await db.SaveChangesAsync();
 
         var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
-        var tjeneste = new TekstTaggTjeneste(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
         var tagg = await tjeneste.OpprettAsync(
             rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "begrep");
 
@@ -251,7 +251,7 @@ public class TekstTaggTjenesteTests
         await db.SaveChangesAsync();
 
         var (rettskildeId, _) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
-        var tjeneste = new TekstTaggTjeneste(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
 
         var resultat = await tjeneste.SlettAsync(rettskildeId, Guid.NewGuid(), virksomhet, "Noen");
 
@@ -267,7 +267,7 @@ public class TekstTaggTjenesteTests
         await db.SaveChangesAsync();
 
         var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
-        var tjeneste = new TekstTaggTjeneste(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
         var tagg = await tjeneste.OpprettAsync(
             rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "begrep");
 
@@ -289,7 +289,7 @@ public class TekstTaggTjenesteTests
         await db.SaveChangesAsync();
 
         var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
-        var tjeneste = new TekstTaggTjeneste(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
         var tagg = await tjeneste.OpprettAsync(
             rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "begrep");
 
@@ -310,7 +310,7 @@ public class TekstTaggTjenesteTests
         await db.SaveChangesAsync();
 
         var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
-        var tjeneste = new TekstTaggTjeneste(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
         var tagg = await tjeneste.OpprettAsync(
             rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "vilkar");
 
@@ -333,7 +333,7 @@ public class TekstTaggTjenesteTests
         await db.SaveChangesAsync();
 
         var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
-        var tjeneste = new TekstTaggTjeneste(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
         var tagg = await tjeneste.OpprettAsync(
             rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "regel");
 

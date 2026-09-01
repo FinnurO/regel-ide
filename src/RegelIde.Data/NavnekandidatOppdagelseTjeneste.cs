@@ -103,7 +103,9 @@ namespace RegelIde.Data;
 /// treffet).
 /// </para>
 /// </summary>
-public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, VirksomhetsbegrepTjeneste virksomhetsbegrep)
+public sealed class NavnekandidatOppdagelseTjeneste(
+    RegelIdeDbContext db, VirksomhetsbegrepTjeneste virksomhetsbegrep,
+    TekstTaggTjeneste tekstTaggTjeneste, VirksomhetOppslagTjeneste virksomhetOppslag)
 {
     /// <summary>Suffiksene fra Johanns liste (docs/13-backlog.md §9) — sortert lengst-først i den
     /// sammensatte alternasjonen (samme "unngå kortere delvis treff av en lengre streng"-prinsipp som
@@ -703,16 +705,36 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
     /// dette var det umulig å se, fra selve paragrafen, at rollebegrepet stammer derfra (Johann
     /// observerte at «Statsforvalteren» ikke viste seg tagget i vergemålsforskriften § 19 ledd 1,
     /// der den faktisk ble funnet).</item>
-    /// <item><c>"virksomhet"</c> — oppretter INGENTING. Godkjenning her betyr kun "reelt navn, verdt å
-    /// følge opp" — selve koblingen til en konkret <see cref="Virksomhet"/> (ny eller eksisterende)
-    /// krever et menneske og skjer via den eksisterende navneform-tilleggsflyten i
-    /// <c>VirksomhetDetalj.tsx</c>/<c>VirksomhetsbegrepTjeneste.OpprettVirksomhetsbegrepAsync</c>.</item>
+    /// <item><c>"virksomhet"</c> — oppretter INGEN <see cref="BegrepEntitet"/>. Godkjenning her betyr
+    /// kun "reelt navn, verdt å følge opp" — selve koblingen til en konkret <see cref="Virksomhet"/>
+    /// (ny eller eksisterende) krever et menneske og skjer via den eksisterende
+    /// navneform-tilleggsflyten i <c>VirksomhetDetalj.tsx</c>/<c>VirksomhetsbegrepTjeneste.OpprettVirksomhetsbegrepAsync</c>.</item>
     /// </list>
     /// Hvis rollebegrep-opprettelsen kaster (f.eks. en rad med samme (Term, LovkildeId) allerede finnes
     /// — <see cref="VirksomhetsbegrepTjeneste.OpprettRollebegrepAsync"/> sitt eget "ingen gjettet
     /// fallback"-vern), forblir kandidatens status <c>"Venter"</c> og feilen forplantes uendret —
     /// samme "ikke sett status før den faktiske handlingen lyktes"-prinsipp som
     /// <see cref="VirksomhetKandidatTjeneste.GodkjennAsync"/>.
+    /// <para>
+    /// <b>[Ny, tekst-tagg-departement-eierskap, 2026-08-31] Ekte <see cref="TekstTaggEntitet"/> for
+    /// BEGGE kategorier:</b> Johanns eksplisitte designvalg — et rollebegrep/navneform funnet her er
+    /// delt/nasjonalt (ingen eiende virksomhet på selve <see cref="BegrepEntitet"/>), men
+    /// <see cref="TekstTaggEntitet.VirksomhetId"/> er ikke-nullbar ("en tagg er alltid en virksomhets
+    /// eget arbeidsprodukt"). Løsningen: opprett taggen med <see cref="TekstTaggEntitet.VirksomhetId"/>
+    /// = virksomheten til rettskildens <see cref="RettskildeEntitet.AnsvarligDepartement"/> ("det eies
+    /// av ansvarlig departement [...] men det skal jo være mulig å se taggene allikevel — opprett
+    /// disse med virksomheten til departementet"). <see cref="TekstTaggEntitet.RefId"/> settes til det
+    /// NYE rollebegrepets id for <c>"rolle"</c> (samme <c>Kind="begrep"</c>-mønster som
+    /// <see cref="VirksomhetKandidatTjeneste.GodkjennAsync"/> allerede bruker for navneform-treff), og
+    /// forblir <c>null</c> for <c>"virksomhet"</c> (INGEN Begrep-rad opprettes for den kategorien i det
+    /// hele tatt her — "ingen gjettet fallback": ingen fabrikert id å peke på). Se
+    /// <see cref="OpprettDepartementTaggHvisMuligAsync"/> for selve implementasjonen, inkl. når INGEN
+    /// tagg opprettes (ukjent/uoppløsbart departement — en reell, dokumentert begrensning, ikke noe å
+    /// arbeide rundt). Denne siden-effekten kan ALDRI hindre selve godkjenningen: en stale
+    /// node/tekstposisjon (rettskilden endret siden sveipet) degraderer til "ingen tagg", ikke en kastet
+    /// feil — til forskjell fra <see cref="VirksomhetKandidatTjeneste.GodkjennAsync"/>, der taggen ER
+    /// selve hovedformålet med godkjenningen.
+    /// </para>
     /// </summary>
     public async Task<NavnekandidatEntitet?> GodkjennAsync(Guid id, string behandletAv, CancellationToken ct = default)
     {
@@ -724,18 +746,82 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
                 $"Kandidaten har status '{kandidat.Status}' — kan kun godkjenne kandidater med status 'Venter'.");
         }
 
+        Guid? refIdForTagg = null;
         if (kandidat.Kategori == "rolle")
         {
-            await virksomhetsbegrep.OpprettRollebegrepAsync(
+            var rollebegrep = await virksomhetsbegrep.OpprettRollebegrepAsync(
                 kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
+            refIdForTagg = rollebegrep.Id;
         }
-        // "virksomhet": ingen entitet opprettes her — se metodekommentaren.
+        // "virksomhet": ingen Begrep-entitet opprettes her — se metodekommentaren.
+
+        await OpprettDepartementTaggHvisMuligAsync(kandidat, refIdForTagg, behandletAv, ct);
 
         kandidat.Status = "Godkjent";
         kandidat.BehandletAv = behandletAv;
         kandidat.BehandletTidspunkt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync(ct);
         return kandidat;
+    }
+
+    /// <summary>
+    /// Oppretter den faktiske <see cref="TekstTaggEntitet"/>-forekomsten for en godkjent kandidat, eid
+    /// av virksomheten til rettskildens <see cref="RettskildeEntitet.AnsvarligDepartement"/> — se
+    /// <see cref="GodkjennAsync"/> sin metodekommentar for designvalget. Oppretter INGEN tagg (returnerer
+    /// stille) hvis:
+    /// <list type="bullet">
+    /// <item>rettskilden ikke har noe kjent <see cref="RettskildeEntitet.AnsvarligDepartement"/>, ELLER</item>
+    /// <item>departementstrengen ikke løser til noen ekte <see cref="Virksomhet"/>-rad
+    /// (<see cref="VirksomhetOppslagTjeneste.FinnVirksomhetIdForNavnAsync"/> — gjenbrukt, ikke duplisert,
+    /// samme mekanisme som <c>RettskildeRepository</c> bruker for "Ansvarlig for"-visningen), ELLER</item>
+    /// <item>noden/tekstintervallet ikke lenger er gyldig (rettskilden endret siden sveipet) — degraderer
+    /// til "ingen tagg" i stedet for å kaste, se <see cref="GodkjennAsync"/>s kommentar for hvorfor.</item>
+    /// </list>
+    /// <paramref name="refId"/> kobles inn via <see cref="TekstTaggTjeneste.KobleTilEntitetAsync"/> KUN
+    /// når den er satt (kun for <c>"rolle"</c> — se <see cref="GodkjennAsync"/>); for <c>"virksomhet"</c>
+    /// opprettes taggen med <c>RefId=null</c>, samme "ubundet inntil videre"-tilstand som
+    /// <see cref="TekstTaggTjeneste.OpprettAsync"/> selv dokumenterer.
+    /// </summary>
+    private async Task OpprettDepartementTaggHvisMuligAsync(
+        NavnekandidatEntitet kandidat, Guid? refId, string behandletAv, CancellationToken ct)
+    {
+        var ansvarligDepartement = await db.Rettskilder
+            .Where(r => r.Id == kandidat.RettskildeId)
+            .Select(r => r.AnsvarligDepartement)
+            .FirstOrDefaultAsync(ct);
+        if (ansvarligDepartement is null) return; // ukjent departement — ingen gjettet fallback.
+
+        var departementVirksomhetId = await virksomhetOppslag.FinnVirksomhetIdForNavnAsync(ansvarligDepartement);
+        if (departementVirksomhetId is null) return; // uoppløsbart departement — ingen gjettet fallback.
+
+        var node = await db.RettskildeNoder.FirstOrDefaultAsync(
+            n => n.RettskildeId == kandidat.RettskildeId && n.Eid == kandidat.NodeEid, ct);
+        var tekst = node?.Tekst;
+        if (tekst is null
+            || kandidat.StartOffset < 0 || kandidat.EndOffset > tekst.Length || kandidat.EndOffset <= kandidat.StartOffset)
+        {
+            // Noden finnes ikke lenger, eller intervallet er ikke lenger gyldig (rettskilden er
+            // reimportert/endret siden sveipet) — degraderer til "ingen tagg" i stedet for å kaste, se
+            // GodkjennAsync sin metodekommentar for hvorfor dette IKKE skal hindre selve godkjenningen.
+            return;
+        }
+
+        // Samme 30-tegns kontekstvindu som VirksomhetKandidatTjeneste.GodkjennAsync og klienten
+        // (RettskildeDetalj.tsx sin manuelle tagging) bruker for QuotePrefix/QuoteSuffix.
+        const int kontekstLengde = 30;
+        var quoteExact = tekst[kandidat.StartOffset..kandidat.EndOffset];
+        var quotePrefix = tekst[Math.Max(0, kandidat.StartOffset - kontekstLengde)..kandidat.StartOffset];
+        var quoteSuffix = tekst[kandidat.EndOffset..Math.Min(tekst.Length, kandidat.EndOffset + kontekstLengde)];
+
+        var tagg = await tekstTaggTjeneste.OpprettAsync(
+            kandidat.RettskildeId, departementVirksomhetId.Value, behandletAv, kandidat.NodeEid,
+            kandidat.StartOffset, kandidat.EndOffset, quotePrefix, quoteExact, quoteSuffix, "begrep", ct);
+        if (tagg is null) return; // racy sletting av node mellom sjekkene over — samme "degrader" som over.
+
+        if (refId is not null)
+        {
+            await tekstTaggTjeneste.KobleTilEntitetAsync(tagg.Id, refId.Value, behandletAv, ct);
+        }
     }
 
     public async Task<NavnekandidatEntitet?> AvvisAsync(Guid id, string behandletAv, CancellationToken ct = default)

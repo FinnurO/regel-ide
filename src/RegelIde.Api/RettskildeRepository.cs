@@ -16,7 +16,7 @@ namespace RegelIde.Api;
 /// vises alt som er synlig (delte/nasjonale kilder + alle virksomheters publiserte lokale kilder),
 /// akkurat som en nasjonal åpne-data-katalog aggregerer på tvers av alle bidragsytere.
 /// </summary>
-public sealed class RettskildeRepository(RegelIdeDbContext db)
+public sealed class RettskildeRepository(RegelIdeDbContext db, VirksomhetOppslagTjeneste virksomhetOppslag)
 {
     private const string UtkastStatus = "Utkast";
 
@@ -31,26 +31,16 @@ public sealed class RettskildeRepository(RegelIdeDbContext db)
 
     /// <summary>
     /// [Ny, departement-virksomhet-lenke, 2026-08-30] Løser en rå <see cref="RettskildeEntitet.AnsvarligDepartement"/>-
-    /// streng (Lovdatas eget "ministry"-metadatafelt) til en EKTE <see cref="Virksomhet"/>-rad, ved
-    /// eksakt (case-insensitivt) navnematch — IKKE via Begrep/navnekandidat-mekanismen (den er for
-    /// tekst-OPPDAGELSE av navn i løpende lovtekst; her har vi allerede en strukturert, eksakt streng
-    /// direkte fra Lovdatas metadata, ingen oppdagelse trengs). Case-insensitivt fordi
-    /// <see cref="OrganisasjonsregisterSeed"/> selv matcher case-insensitivt ved backfill (samme
-    /// konvensjon, se dens klassekommentar: "eksisterende virksomhet med case-ufølsomt likt Navn").
-    /// <c>.ToLower()</c> på begge sider (i stedet for <c>StringComparison.OrdinalIgnoreCase</c>, som EF
-    /// Core ikke kan oversette til SQL) — oversettes til <c>LOWER(...)</c> og fungerer likt mot både
-    /// Postgres og SQLite.
-    /// <para>
-    /// Returnerer null uten treff — «ingen gjettet fallback»: et departement-navn som ikke finnes
-    /// eksakt i katalogen (f.eks. en skrivemåte Brreg/regjeringen.no ikke bruker) forblir ukoblet,
-    /// ALDRI koblet til nærmeste/mest sannsynlige treff.
-    /// </para>
+    /// streng (Lovdatas eget "ministry"-metadatafelt) til en EKTE <see cref="Virksomhet"/>-rad.
+    /// [Flyttet, tekst-tagg-departement-eierskap, 2026-08-31] Selve oppslagslogikken bor nå i
+    /// <see cref="VirksomhetOppslagTjeneste"/> (i <c>RegelIde.Data</c>) — <see cref="NavnekandidatOppdagelseTjeneste"/>
+    /// og <see cref="TekstTaggTjeneste"/> trenger nøyaktig samme oppslag for å avgjøre hvilken
+    /// virksomhet en departement-eid tekst-tagg skal tilhøre, men <c>RegelIde.Data</c> kan ikke
+    /// referere <c>RegelIde.Api</c> (prosjektreferansen går kun én vei) — flyttet dit i stedet for
+    /// duplisert, denne metoden delegerer uendret videre. Se <see cref="VirksomhetOppslagTjeneste.FinnVirksomhetIdForNavnAsync"/>
+    /// for selve dokumentasjonen (case-insensitivitet, «ingen gjettet fallback» osv.).
     /// </summary>
-    public Task<Guid?> FinnVirksomhetIdForNavnAsync(string navn)
-    {
-        var navnLower = navn.ToLower();
-        return db.Virksomheter.Where(v => v.Navn.ToLower() == navnLower).Select(v => (Guid?)v.Id).FirstOrDefaultAsync();
-    }
+    public Task<Guid?> FinnVirksomhetIdForNavnAsync(string navn) => virksomhetOppslag.FinnVirksomhetIdForNavnAsync(navn);
 
     /// <summary>
     /// Motsatt retning av <see cref="FinnVirksomhetIdForNavnAsync"/> — alle GJELDENDE rettskilder der
