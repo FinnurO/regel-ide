@@ -531,6 +531,11 @@ public sealed record NavnekandidatBatchRadDto(Guid Id, bool Ok, string? Feil, Na
 
 public sealed record NavnekandidatBatchResultatDto(IReadOnlyList<NavnekandidatBatchRadDto> Rader);
 
+/// <summary>[Ny, 2026-08-30] Resultat av <c>DELETE /api/navnekandidater</c> (massesletting) —
+/// <see cref="AntallSlettet"/> lar klienten bekrefte at det faktiske antallet stemte med det som ble
+/// varslet i bekreftelsesdialogen FØR kallet (se NavnekandidaterListe.tsx).</summary>
+public sealed record SlettNavnekandidaterResultatDto(int AntallSlettet);
+
 // ---------- Kodeliste / verdidomene (docs/03-domenemodell.md §1.4) — byggesteg 2 ----------
 
 public sealed record KodelisteKodeDto(

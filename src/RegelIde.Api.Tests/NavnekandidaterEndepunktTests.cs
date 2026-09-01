@@ -200,4 +200,62 @@ public class NavnekandidaterEndepunktTests
             $"/api/navnekandidater?rettskildeId={rettskildeId}&status=Alle", JsonInnstillinger);
         Assert.Single(etterBatchSvar!, k => k.Id == gyldigId && k.Status == "Avvist");
     }
+
+    // ---------- Sletting (2026-08-30) — se docs-kommentaren i NavnekandidatOppdagelseTjeneste.SlettAsync/
+    // SlettAlleAsync for hvorfor "avvis" alene ikke holder for ytelsestest-scenarioet (posisjonsbasert
+    // idempotens). ----------
+
+    [Fact]
+    public async Task Slett_enkeltrad_fjerner_kandidaten_faktisk()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync("Vedtak kan påklages til Fiskeridirektoratet innen tre uker.");
+        await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/sveip", brukerId, new { RettskildeId = rettskildeId }));
+        var listeSvar = await _client.GetFromJsonAsync<List<NavnekandidatDto>>(
+            $"/api/navnekandidater?rettskildeId={rettskildeId}", JsonInnstillinger);
+        var kandidat = Assert.Single(listeSvar!);
+
+        await using (var db = _fixture.NyDbContext())
+        {
+            Assert.Equal(1, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeId));
+        }
+
+        var slettSvar = await _client.SendAsync(MedBruker(HttpMethod.Delete, $"/api/navnekandidater/{kandidat.Id}", brukerId));
+        Assert.Equal(HttpStatusCode.NoContent, slettSvar.StatusCode);
+
+        await using (var db = _fixture.NyDbContext())
+        {
+            Assert.Equal(0, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeId));
+        }
+    }
+
+    [Fact]
+    public async Task Slett_enkeltrad_med_ukjent_id_gir_404_ikke_ufanget_feil()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Delete, $"/api/navnekandidater/{Guid.NewGuid()}", brukerId));
+        Assert.Equal(HttpStatusCode.NotFound, svar.StatusCode);
+    }
+
+    /// <summary>Bulk-sletting filtrert på én rettskilde skal KUN slette den rettskildens kandidater —
+    /// en annen rettskildes kandidat (opprettet i samme testkjøring) skal forbli urørt.</summary>
+    [Fact]
+    public async Task Slett_alle_med_rettskildefilter_sletter_kun_matchende_rettskildes_rader()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var rettskildeA = await OpprettRettskildeMedNodeAsync("Vedtak kan påklages til Reindriftsdirektoratet innen tre uker.");
+        var rettskildeB = await OpprettRettskildeMedNodeAsync("Vedtak kan påklages til Kystdirektoratet innen tre uker.");
+        await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/sveip", brukerId, new { RettskildeId = rettskildeA }));
+        await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/sveip", brukerId, new { RettskildeId = rettskildeB }));
+
+        var slettSvar = await _client.SendAsync(
+            MedBruker(HttpMethod.Delete, $"/api/navnekandidater?rettskildeId={rettskildeA}", brukerId));
+        Assert.Equal(HttpStatusCode.OK, slettSvar.StatusCode);
+        var resultat = await slettSvar.Content.ReadFromJsonAsync<SlettNavnekandidaterResultatDto>(JsonInnstillinger);
+        Assert.Equal(1, resultat!.AntallSlettet);
+
+        await using var db = _fixture.NyDbContext();
+        Assert.Equal(0, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeA));
+        Assert.Equal(1, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeB)); // urørt.
+    }
 }

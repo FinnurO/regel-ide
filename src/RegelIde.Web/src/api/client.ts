@@ -103,6 +103,7 @@ import type {
   SveipNavnekandidaterResultatDto,
   NavnekandidatBatchRequest,
   NavnekandidatBatchResultatDto,
+  SlettNavnekandidaterResultatDto,
   VisningsinnstillingInput,
 } from './types';
 
@@ -376,6 +377,24 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
     }),
+
+  /** [Ny, 2026-08-30] Ekte sletting av ÉN rad, uansett status — se backend-kommentaren
+   * (NavnekandidatOppdagelseTjeneste.SlettAsync) for hvorfor. */
+  slettNavnekandidat: (id: string) =>
+    kall<void>(`/api/navnekandidater/${id}`, { method: 'DELETE' }),
+
+  /** [Ny, 2026-08-30] Massesletting, valgfritt filtrert (samme filterparametre som hentNavnekandidater
+   * over) — utelatt status betyr her "ingen statusfilter" (slett ALLE statuser), IKKE
+   * hentNavnekandidater sin "utelatt = kun Venter"-standard. Server-side RemoveRange, ikke N separate
+   * kall — nødvendig for ytelse ved tusenvis av kandidater (docs-kommentar i NavnekandidaterListe.tsx). */
+  slettAlleNavnekandidater: (filter: { status?: string; kategori?: string; rettskildeId?: string }) => {
+    const parametre = new URLSearchParams();
+    if (filter.status) parametre.set('status', filter.status);
+    if (filter.kategori) parametre.set('kategori', filter.kategori);
+    if (filter.rettskildeId) parametre.set('rettskildeId', filter.rettskildeId);
+    const sok = parametre.toString();
+    return kall<SlettNavnekandidaterResultatDto>(`/api/navnekandidater${sok ? `?${sok}` : ''}`, { method: 'DELETE' });
+  },
 
   hentTaggKinds: () => kall<TaggKindKonfigurasjonDto[]>('/api/konfigurasjon/tagg-kinds'),
 

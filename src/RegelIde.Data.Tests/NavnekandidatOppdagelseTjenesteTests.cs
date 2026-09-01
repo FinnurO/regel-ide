@@ -703,7 +703,113 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal(2, kandidater.Select(k => k.StartOffset).Distinct().Count());
     }
 
-    // ---------- Del D: departement-eid tekst-tagg ved godkjenning (tekst-tagg-departement-eierskap, 2026-08-31) ----------
+    // ---------- Del D: sletting (2026-08-30) — ytelsestest av sortering/filtrering-UI-en krever å kunne
+    // tømme køen (helt eller delvis) og sveipe på nytt, se NavnekandidatOppdagelseTjeneste.SlettAsync/
+    // SlettAlleAsync for hvorfor "avvis" alene ikke holder (posisjonsbasert idempotens). ----------
+
+    [Fact]
+    public async Task SlettAsync_fjerner_raden_faktisk()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Fiskeridirektoratet innen tre uker.");
+        var tjeneste = NyTjeneste(db);
+        await tjeneste.SveipAsync(rettskildeId, "test");
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
+
+        var antallFor = await db.Navnekandidater.CountAsync();
+        var slettet = await tjeneste.SlettAsync(kandidat.Id);
+
+        Assert.True(slettet);
+        Assert.Equal(antallFor - 1, await db.Navnekandidater.CountAsync());
+        Assert.False(await db.Navnekandidater.AnyAsync(k => k.Id == kandidat.Id));
+    }
+
+    /// <summary>Sletting skal fungere UANSETT status (til forskjell fra VirksomhetKandidatTjeneste sin
+    /// hardslett-KUN-'Avvist'-begrensning) — en 'Godkjent' rad skal også kunne slettes, se
+    /// SlettAsync-kommentaren for hvorfor dette er en bevisst, dokumentert forskjell.</summary>
+    [Fact]
+    public async Task SlettAsync_fungerer_ogsa_for_godkjent_status()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Alle skip skal melde fra til havnetilsynet før anløp.");
+        var tjeneste = NyTjeneste(db);
+        await tjeneste.SveipAsync(rettskildeId, "test");
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
+        await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist");
+
+        var slettet = await tjeneste.SlettAsync(kandidat.Id);
+
+        Assert.True(slettet);
+        Assert.False(await db.Navnekandidater.AnyAsync(k => k.Id == kandidat.Id));
+    }
+
+    [Fact]
+    public async Task SlettAsync_med_ukjent_id_returnerer_false_uten_a_kaste()
+    {
+        await using var db = _fixture.NyDbContext();
+        var tjeneste = NyTjeneste(db);
+
+        var slettet = await tjeneste.SlettAsync(Guid.NewGuid());
+
+        Assert.False(slettet);
+    }
+
+    /// <summary>Bulk-sletting filtrert på rettskilde skal KUN slette raden(e) for den ene rettskilden —
+    /// en annen rettskildes kandidater (opprettet i samme sveip-kjøring) skal forbli urørt.</summary>
+    [Fact]
+    public async Task SlettAlleAsync_med_rettskildefilter_sletter_kun_matchende_rettskildes_rader()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeA = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Reindriftsdirektoratet innen tre uker.");
+        var rettskildeB = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Kystdirektoratet innen tre uker.");
+        var tjeneste = NyTjeneste(db);
+        await tjeneste.SveipAsync(rettskildeA, "test");
+        await tjeneste.SveipAsync(rettskildeB, "test");
+        Assert.Equal(1, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeA));
+        Assert.Equal(1, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeB));
+
+        var antallSlettet = await tjeneste.SlettAlleAsync(rettskildeId: rettskildeA);
+
+        Assert.Equal(1, antallSlettet);
+        Assert.Equal(0, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeA));
+        Assert.Equal(1, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeB)); // urørt.
+    }
+
+    /// <summary>Bulk-sletting filtrert på status skal KUN slette rader med akkurat den statusen — en
+    /// 'Venter'-rad i samme rettskilde skal ikke rammes av et status='Avvist'-filter.</summary>
+    [Fact]
+    public async Task SlettAlleAsync_med_statusfilter_sletter_kun_matchende_status()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(
+            db, "Alle skip skal melde fra til havnetilsynet, og vedtak kan påklages til Oljedirektoratet innen tre uker.");
+        var tjeneste = NyTjeneste(db);
+        await tjeneste.SveipAsync(rettskildeId, "test");
+        var kandidater = await db.Navnekandidater.Where(k => k.RettskildeId == rettskildeId).ToListAsync();
+        var rolleKandidat = kandidater.Single(k => k.Kategori == "rolle");
+        var virksomhetKandidat = kandidater.Single(k => k.Kategori == "virksomhet");
+        await tjeneste.AvvisAsync(rolleKandidat.Id, "Kari Jurist"); // virksomhetKandidat forblir 'Venter'.
+
+        var antallSlettet = await tjeneste.SlettAlleAsync(status: "Avvist", rettskildeId: rettskildeId);
+
+        Assert.Equal(1, antallSlettet);
+        Assert.False(await db.Navnekandidater.AnyAsync(k => k.Id == rolleKandidat.Id));
+        Assert.True(await db.Navnekandidater.AnyAsync(k => k.Id == virksomhetKandidat.Id)); // urørt.
+    }
+
+    [Fact]
+    public async Task SlettAlleAsync_uten_treff_returnerer_null_uten_a_kaste()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Datatilsynet innen tre uker.");
+        var tjeneste = NyTjeneste(db);
+
+        var antallSlettet = await tjeneste.SlettAlleAsync(status: "Avvist", rettskildeId: rettskildeId);
+
+        Assert.Equal(0, antallSlettet);
+    }
+
+    // ---------- Del E: departement-eid tekst-tagg ved godkjenning (tekst-tagg-departement-eierskap, 2026-08-31) ----------
 
     private static NavnekandidatOppdagelseTjeneste NyTjeneste(RegelIdeDbContext db) => new(
         db, new VirksomhetsbegrepTjeneste(db),

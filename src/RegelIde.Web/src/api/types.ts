@@ -288,6 +288,11 @@ export interface NavnekandidatBatchResultatDto {
   rader: NavnekandidatBatchRadDto[];
 }
 
+/** [Ny, 2026-08-30] Resultat av DELETE /api/navnekandidater (massesletting, valgfritt filtrert). */
+export interface SlettNavnekandidaterResultatDto {
+  antallSlettet: number;
+}
+
 /** Ikke lenger en fast literal-union — kind-settet er konfigurasjonsstyrt (se TaggKindKonfigurasjonDto), ikke hardkodet. */
 export type TaggKind = string;
 
