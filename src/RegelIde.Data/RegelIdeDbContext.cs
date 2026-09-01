@@ -302,6 +302,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Saksnummer).HasColumnName("saksnummer");
             e.Property(x => x.HjemmelEid).HasColumnName("hjemmel_eid");
 
+            // Header-nivå irrelevant-markering (2026-08-30) — se RettskildeEntitet.ErIrrelevant.
+            e.Property(x => x.ErIrrelevant).HasColumnName("er_irrelevant").HasDefaultValue(false);
+            e.Property(x => x.IrrelevantKommentar).HasColumnName("irrelevant_kommentar");
+
             e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.ErstatterId);
             e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
 

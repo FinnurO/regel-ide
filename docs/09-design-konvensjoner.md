@@ -403,3 +403,16 @@ konkret, udekket layout-behov faktisk dukker opp (samme "ingen ny avhengighet ut
 holdning som fikk denne saken utsatt i utgangspunktet). CSS-importen (`@xyflow/react/dist/style.css`)
 er nødvendig — biblioteket styler IKKE via `--ds-*`-tokens, men egne noder/kanter i `Tjenestereise.tsx`
 bruker `--ds-*`-tokens for farge/border/radius der det er mulig (se `beregnPosisjoner`/`nodeLabel`).
+
+## 13. `Switch` — første bruk (2026-08-30, rettskilde-irrelevant-markering)
+
+`Switch` sto i §0-vokabularet som "finnes i biblioteket men aldri brukt ennå" — første reelle bruk er
+`RettskildeDetalj.tsx`s «Marker som irrelevant for regel-ide»-toggel. Valgt over `Checkbox` fordi dette
+er en RENDYRKET av/på-INNSTILLING for én rettskilde (ikke et flervalgsfilter i en liste, som resten av
+appens `Checkbox`-bruk faktisk er — f.eks. `kunMine`/`visIkkeImportert`/`visIrrelevante` i
+`RettskilderListe.tsx`). Samme props-mønster som `Checkbox` (`label`, `checked`, `onChange`), ingen
+`Field`/`Label`-wrapping nødvendig (encapsulerer selv, som `Combobox` gjør — se §9.2).
+
+Listesidens tilsvarende «vis også irrelevante»-toggel (`RettskilderListe.tsx`) bruker fortsatt
+`Checkbox`, BEVISST — det er et vanlig synlighetsfilter i en tabell, samme familie som de to andre
+checkboxene rett ved siden av, ikke en enkeltrettskildes av/på-innstilling.

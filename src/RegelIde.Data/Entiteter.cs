@@ -244,6 +244,33 @@ public sealed class RettskildeEntitet
     /// <summary>"alkoholloven/§1-7d".</summary>
     public string? HjemmelEid { get; set; }
 
+    /// <summary>
+    /// [Ny, 2026-08-30] Manuell header-nivå markering — av 5113 forskrifter i korpuset har 1133 en
+    /// tittel som starter med "Delegering"/"Meddelelse"/"Overgangsbestemmelser"/"Ikrafttredelse", rene
+    /// administrative/prosedyremessige dokumenter uten reelt rettighetsinnhold av den typen regel-ide
+    /// modellerer (tilsvarende har 108 av 758 lover "endring" i tittelen). Denne markeringen er BEVISST
+    /// et menneskelig, eksplisitt valg per rettskilde — IKKE utledet fra tittelmønster ved import eller
+    /// noe annet sted («ingen gjettet fallback», samme prinsipp brukt flere andre steder i denne
+    /// klassen, f.eks. <see cref="AnsvarligDepartement"/>s virksomhet-kobling). Default <c>false</c>
+    /// for alt eksisterende og alt nytt.
+    /// <para>
+    /// Ekskluderer BEVISST IKKE fra navnekandidat-/virksomhetskandidat-sveipet i denne runden (se
+    /// <see cref="NavnekandidatOppdagelseTjeneste"/>) — det er en egen avveining (skal en irrelevant-
+    /// markert rettskilde fortsatt bidra kandidater til den generelle sveipekøen?) som bevisst er utsatt
+    /// til Johann tar den eksplisitt, ikke noe denne markeringen stille skal avgjøre som et sideeffekt.
+    /// </para>
+    /// </summary>
+    public bool ErIrrelevant { get; set; } = false;
+
+    /// <summary>
+    /// Fritekst — hvorfor denne rettskilden er markert irrelevant. Kun meningsfullt når
+    /// <see cref="ErIrrelevant"/> er <c>true</c>, men IKKE håndhevet strengt: fjernes markeringen
+    /// igjen (satt tilbake til <c>false</c>), slettes IKKE kommentaren automatisk — den blir stående,
+    /// urørt, til noen eksplisitt endrer den, i tilfelle markeringen settes på igjen senere og samme
+    /// begrunnelse fortsatt er gyldig.
+    /// </summary>
+    public string? IrrelevantKommentar { get; set; }
+
     // §3.3s "GyldigTil" (2028-07-01) er BEVISST IKKE en ny kolonne — <see cref="GyldigTil"/> lenger
     // opp i denne klassen fantes allerede (nasjonale rettskilder) og gjenbrukes uendret, nøyaktig som
     // §3.3 selv ber om å sjekke ("Ikrafttredelse/KonsolidertDato finnes allerede ... sjekk om de kan

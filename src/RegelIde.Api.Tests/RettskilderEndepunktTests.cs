@@ -356,6 +356,120 @@ public class RettskilderEndepunktTests
         Assert.Equal(HttpStatusCode.NotFound, svar.StatusCode);
     }
 
+    // ---------- Irrelevant-markering (2026-08-30, header-nivå «irrelevant for regel-ide») ----------
+
+    /// <summary>
+    /// Egen fixture-rad per test her (ikke alkoholloven — den brukes/telles av mange andre tester i
+    /// denne og andre klasser i samme <see cref="ApiTestCollection"/>, en irrelevant-markering på DEN
+    /// ville vært et snikende sidesteg som ville forstyrret uavhengige tester som antar den er synlig).
+    /// </summary>
+    private async Task<Guid> OpprettEgenRettskildeAsync(bool erIrrelevant = false, string? irrelevantKommentar = null)
+    {
+        await using var db = _fixture.NyDbContext();
+        var id = Guid.NewGuid();
+        db.Rettskilder.Add(new RettskildeEntitet
+        {
+            Id = id,
+            Doctype = "act",
+            Kildetype = "Forskrift",
+            Tittel = $"Delegering av myndighet — irrelevant-test {id}",
+            Status = "Gjeldende",
+            AknXml = "<akomaNtoso/>",
+            OpprettetAv = "test",
+            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            ErIrrelevant = erIrrelevant,
+            IrrelevantKommentar = irrelevantKommentar,
+        });
+        await db.SaveChangesAsync();
+        return id;
+    }
+
+    [Fact]
+    public async Task Oppdater_irrelevant_uten_bruker_id_header_gir_400()
+    {
+        var id = await OpprettEgenRettskildeAsync();
+        var svar = await _client.PatchAsJsonAsync(
+            $"/api/rettskilder/{id}/irrelevant",
+            new OppdaterRettskildeIrrelevantRequest(true, "Ren delegeringsbeslutning, ingen realitet."));
+        Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
+    }
+
+    [Fact]
+    public async Task Oppdater_irrelevant_pa_ukjent_rettskilde_gir_404()
+    {
+        var bruker = await HentTestbrukerAsync();
+        using var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/rettskilder/{Guid.NewGuid()}/irrelevant")
+        {
+            Content = JsonContent.Create(new OppdaterRettskildeIrrelevantRequest(true, "X")),
+            Headers = { { GjeldendeBrukerTjeneste.HeaderNavn, bruker.Id.ToString() } },
+        };
+        var svar = await _client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.NotFound, svar.StatusCode);
+    }
+
+    [Fact]
+    public async Task Setter_irrelevant_markering_med_kommentar_og_kan_hente_den_igjen()
+    {
+        var id = await OpprettEgenRettskildeAsync();
+        var bruker = await HentTestbrukerAsync();
+
+        using var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/rettskilder/{id}/irrelevant")
+        {
+            Content = JsonContent.Create(new OppdaterRettskildeIrrelevantRequest(
+                true, "Rent prosedyremessig ikrafttredelsesvedtak, ingen egen rettighet.")),
+            Headers = { { GjeldendeBrukerTjeneste.HeaderNavn, bruker.Id.ToString() } },
+        };
+        var svar = await _client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+        var oppdatert = await svar.Content.ReadFromJsonAsync<RettskildeDetalj>(JsonInnstillinger);
+        Assert.True(oppdatert!.ErIrrelevant);
+        Assert.Equal("Rent prosedyremessig ikrafttredelsesvedtak, ingen egen rettighet.", oppdatert.IrrelevantKommentar);
+
+        var hentetPaNytt = await _client.GetFromJsonAsync<RettskildeDetalj>($"/api/rettskilder/{id}", JsonInnstillinger);
+        Assert.True(hentetPaNytt!.ErIrrelevant);
+        Assert.Equal("Rent prosedyremessig ikrafttredelsesvedtak, ingen egen rettighet.", hentetPaNytt.IrrelevantKommentar);
+    }
+
+    /// <summary>
+    /// Fjernes markeringen igjen (satt tilbake til <c>false</c>), skal kommentaren IKKE slettes
+    /// automatisk noe sted i denne flyten — se <see cref="RettskildeEntitet.IrrelevantKommentar"/>s
+    /// klassekommentar. Testet ved at kommentaren fortsatt kommer tilbake uendret når klienten selv
+    /// sender den med (samme oppførsel som skjemaet i RettskildeDetalj.tsx: teksten forblir i boksen).
+    /// </summary>
+    [Fact]
+    public async Task Fjerner_irrelevant_markering_lar_kommentaren_bli_staende_urort()
+    {
+        var id = await OpprettEgenRettskildeAsync(erIrrelevant: true, irrelevantKommentar: "Opprinnelig begrunnelse.");
+        var bruker = await HentTestbrukerAsync();
+
+        using var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/rettskilder/{id}/irrelevant")
+        {
+            Content = JsonContent.Create(new OppdaterRettskildeIrrelevantRequest(false, "Opprinnelig begrunnelse.")),
+            Headers = { { GjeldendeBrukerTjeneste.HeaderNavn, bruker.Id.ToString() } },
+        };
+        var svar = await _client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+        var oppdatert = await svar.Content.ReadFromJsonAsync<RettskildeDetalj>(JsonInnstillinger);
+        Assert.False(oppdatert!.ErIrrelevant);
+        Assert.Equal("Opprinnelig begrunnelse.", oppdatert.IrrelevantKommentar);
+    }
+
+    [Fact]
+    public async Task Liste_ekskluderer_irrelevant_markerte_som_standard_men_viser_dem_med_eksplisitt_flagg()
+    {
+        var id = await OpprettEgenRettskildeAsync(erIrrelevant: true, irrelevantKommentar: "Kun administrativ, ingen realitet.");
+
+        var standard = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>("/api/rettskilder", JsonInnstillinger);
+        Assert.DoesNotContain(standard!, r => r.Id == id);
+
+        var medIrrelevante = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>(
+            "/api/rettskilder?inkluderIrrelevante=true", JsonInnstillinger);
+        var rad = Assert.Single(medIrrelevante!, r => r.Id == id);
+        Assert.True(rad.ErIrrelevant);
+    }
+
     [Fact]
     public async Task Referert_av_tjenester_viser_alminnelig_skjenkebevilling()
     {
