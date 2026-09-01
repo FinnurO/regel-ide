@@ -197,10 +197,37 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
     /// skrives (til forskjell fra f.eks. "tilsyn"-institusjoner, som alltid er ETT sammensatt ord som
     /// "Datatilsynet") faktisk som to ord i virkelig bruk, og ordet har lav tvetydighetsrisiko alene
     /// (nesten utelukkende brukt om denne ene, spesifikke etaten).
+    /// <para>
+    /// <b>[Ny, kodegjennomgang 2026-08-30] Skole-relaterte ord</b> — bekreftet i live data (korpusomfattende
+    /// sveip + direkte tekstsøk mot den kjørende dev-databasen, se PR-beskrivelsen) at korpuset inneholder
+    /// MANGE navngitte fagskoler av nettopp formen "[Egennavn] fagskole" i selve rettskilde-TEKSTEN, ikke
+    /// bare i titler — f.eks. "Nortrain fagskole", "Nordland fagskole", "Noroff fagskole", "TISIP fagskole".
+    /// Lagt til: "fagskole", "høyskole", "høgskole", "høgskule" (BEGGE bokmål/nynorsk-stavemåter forekommer
+    /// i ekte navn, f.eks. "Høgskulen på Vestlandet" — "høgskule" er derfor tatt med selv om den ikke sto i
+    /// Johanns opprinnelige liste), "universitet", "barnehage".
+    /// </para>
+    /// <para>
+    /// <b>Bevisst UTELATT: "skole" alene</b> (uten fag-/høy-/høg-prefiks). Samme "verket"-fallgruve som
+    /// <see cref="VerketDenyliste"/> ble opprettet for: et korpusomfattende testsveip med "skole" i lista
+    /// ga et FLOM av falske positiver av formen "[Adjektiv/Stedsnavn] skole" der "skole" er en helt
+    /// generisk fellesbetegnelse, ikke del av et spesifikt egennavn — f.eks. "Denne skole", "Norsk skole",
+    /// "Samisk videregående skole" (her ville mønsteret uansett feilaktig fanget bare "Samisk" pga.
+    /// mellomrommet i "videregående skole", ikke hele den reelle institusjonsbetegnelsen) — i tillegg til at
+    /// "skole" i seg selv (til forskjell fra "fagskole"/"høyskole"/"barnehage"/"universitet", som er
+    /// LUKKEDE, spesifikke institusjonstyper) inngår produktivt i sammensetninger med ETHVERT stedsnavn/
+    /// skoletype-adjektiv ("kunstskole", "sykepleierskole", "sommerskole", osv.) — akkurat samme "ingen
+    /// endelig uttømt denyliste mulig" begrunnelse som <see cref="VerketDenyliste"/>s kommentar. Til
+    /// forskjell fra "verket" (der en denyliste FUNGERTE, fordi de produktive sammensetningene var få og
+    /// kjente — regelverket/lovverket/avtaleverket/rammeverket) er "skole"-sammensetningene for mange og
+    /// åpne til at en tilsvarende denyliste ville vært uttømmende. Løsning: utelatt helt, presisjon foran
+    /// recall — de sammensatte institusjonsordene ("fagskole" m.fl.) dekker likevel det STORE flertallet av
+    /// de bekreftede, navngitte skolene i korpuset (Nortrain fagskole, Nordland fagskole, osv.).
+    /// </para>
     /// </summary>
     private static readonly string[] Institusjonsord =
     [
         "fylkeskommune", "kommune", "direktorat", "tilsyn", "departement", "fylkesmannsembete", "vegvesen",
+        "fagskole", "høyskole", "høgskole", "høgskule", "universitet", "barnehage",
     ];
 
     private static readonly Regex InstitusjonsordMønster = new(
@@ -458,10 +485,30 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
 
         tokens.Reverse(); // nå i lese-rekkefølge (venstre-til-høyre, nærmest institusjonsordet sist)
 
-        // Fjern et evt. dinglende bindeord i ENDENE — bindeordet skal kun stå MELLOM to
-        // store-forbokstav-ord, aldri innlede eller avslutte selve det fangede navnet.
+        // Fjern et evt. dinglende bindeord i STARTEN — bindeordet skal kun stå MELLOM to
+        // store-forbokstav-ord, aldri innlede selve det fangede navnet. Trygt å bare fjerne og gå
+        // videre her: forkastet Start blir ganske enkelt neste (ekte) token, uten noen konsekvens for
+        // selve tekstspennet som caller (FinnKandidaterITekst) fanger, siden det spennet uansett
+        // begynner nøyaktig ved <see cref="forste"/>.Start.
         while (tokens.Count > 0 && !tokens[0].StorForbokstav) tokens.RemoveAt(0);
-        while (tokens.Count > 0 && !tokens[^1].StorForbokstav) tokens.RemoveAt(tokens.Count - 1);
+
+        // [Rettet, kodegjennomgang 2026-08-30] Et dinglende bindeord UMIDDELBART FØR institusjonsordet
+        // (dvs. det SISTE innsamlede tokenet, nærmest institusjonsordet) kan IKKE bare fjernes på samme
+        // måte som i starten — det må forkaste HELE treffet. Årsak: til forskjell fra starten, strekker
+        // callerens fangede tekstspenn (FinnKandidaterITekst) seg alltid fra <see cref="forste"/>.Start
+        // og HELT TIL institusjonsordets slutt (ikke til denne metodens returnerte Lengde) — å bare
+        // fjerne det dinglende bindeordet her og falle tilbake til et tidligere token ville derfor
+        // uansett re-inkludert bindeordet (og mellomrommet) i den fangede teksten, siden det ligger
+        // FYSISK MELLOM det gjenværende tokenet og institusjonsordet. Bekreftet i live data (dette
+        // sveipets skole-relaterte testing): "nivå 5 i NKR og fagskole 1" ga tidligere den falske
+        // kandidaten "NKR og fagskole" (der "NKR" er en forkortelse — nivåbetegnelse i det nasjonale
+        // kvalifikasjonsrammeverket — og "og" her er en ekte, urelatert setningskonjunksjon, ikke et
+        // navneinternt bindeord), og "SFO og skole" (samme mønster, "SFO" og "skole" er to separate
+        // generiske substantiv koordinert med "og", ikke ett institusjonsnavn). Denne bug'en fantes
+        // allerede før dagens skole-utvidelse (allerede i "Møre og Romsdal fylkeskommune"-mekanismen fra
+        // forrige runde), men ble aldri utløst da — ingen tidligere institusjonsord hadde et vanlig
+        // forkortelse+"og"-mønster rett foran seg i korpuset.
+        if (tokens.Count > 0 && !tokens[^1].StorForbokstav) return null;
 
         if (tokens.Count == 0) return null;
         if (tokens.Count(t => t.StorForbokstav) > 3 || tokens.Count(t => !t.StorForbokstav) > 1) return null;
