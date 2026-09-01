@@ -103,7 +103,9 @@ namespace RegelIde.Data;
 /// treffet).
 /// </para>
 /// </summary>
-public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, VirksomhetsbegrepTjeneste virksomhetsbegrep)
+public sealed class NavnekandidatOppdagelseTjeneste(
+    RegelIdeDbContext db, VirksomhetsbegrepTjeneste virksomhetsbegrep,
+    TekstTaggTjeneste tekstTaggTjeneste, VirksomhetOppslagTjeneste virksomhetOppslag)
 {
     /// <summary>Suffiksene fra Johanns liste (docs/13-backlog.md §9) — sortert lengst-først i den
     /// sammensatte alternasjonen (samme "unngå kortere delvis treff av en lengre streng"-prinsipp som
@@ -197,10 +199,37 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
     /// skrives (til forskjell fra f.eks. "tilsyn"-institusjoner, som alltid er ETT sammensatt ord som
     /// "Datatilsynet") faktisk som to ord i virkelig bruk, og ordet har lav tvetydighetsrisiko alene
     /// (nesten utelukkende brukt om denne ene, spesifikke etaten).
+    /// <para>
+    /// <b>[Ny, kodegjennomgang 2026-08-30] Skole-relaterte ord</b> — bekreftet i live data (korpusomfattende
+    /// sveip + direkte tekstsøk mot den kjørende dev-databasen, se PR-beskrivelsen) at korpuset inneholder
+    /// MANGE navngitte fagskoler av nettopp formen "[Egennavn] fagskole" i selve rettskilde-TEKSTEN, ikke
+    /// bare i titler — f.eks. "Nortrain fagskole", "Nordland fagskole", "Noroff fagskole", "TISIP fagskole".
+    /// Lagt til: "fagskole", "høyskole", "høgskole", "høgskule" (BEGGE bokmål/nynorsk-stavemåter forekommer
+    /// i ekte navn, f.eks. "Høgskulen på Vestlandet" — "høgskule" er derfor tatt med selv om den ikke sto i
+    /// Johanns opprinnelige liste), "universitet", "barnehage".
+    /// </para>
+    /// <para>
+    /// <b>Bevisst UTELATT: "skole" alene</b> (uten fag-/høy-/høg-prefiks). Samme "verket"-fallgruve som
+    /// <see cref="VerketDenyliste"/> ble opprettet for: et korpusomfattende testsveip med "skole" i lista
+    /// ga et FLOM av falske positiver av formen "[Adjektiv/Stedsnavn] skole" der "skole" er en helt
+    /// generisk fellesbetegnelse, ikke del av et spesifikt egennavn — f.eks. "Denne skole", "Norsk skole",
+    /// "Samisk videregående skole" (her ville mønsteret uansett feilaktig fanget bare "Samisk" pga.
+    /// mellomrommet i "videregående skole", ikke hele den reelle institusjonsbetegnelsen) — i tillegg til at
+    /// "skole" i seg selv (til forskjell fra "fagskole"/"høyskole"/"barnehage"/"universitet", som er
+    /// LUKKEDE, spesifikke institusjonstyper) inngår produktivt i sammensetninger med ETHVERT stedsnavn/
+    /// skoletype-adjektiv ("kunstskole", "sykepleierskole", "sommerskole", osv.) — akkurat samme "ingen
+    /// endelig uttømt denyliste mulig" begrunnelse som <see cref="VerketDenyliste"/>s kommentar. Til
+    /// forskjell fra "verket" (der en denyliste FUNGERTE, fordi de produktive sammensetningene var få og
+    /// kjente — regelverket/lovverket/avtaleverket/rammeverket) er "skole"-sammensetningene for mange og
+    /// åpne til at en tilsvarende denyliste ville vært uttømmende. Løsning: utelatt helt, presisjon foran
+    /// recall — de sammensatte institusjonsordene ("fagskole" m.fl.) dekker likevel det STORE flertallet av
+    /// de bekreftede, navngitte skolene i korpuset (Nortrain fagskole, Nordland fagskole, osv.).
+    /// </para>
     /// </summary>
     private static readonly string[] Institusjonsord =
     [
         "fylkeskommune", "kommune", "direktorat", "tilsyn", "departement", "fylkesmannsembete", "vegvesen",
+        "fagskole", "høyskole", "høgskole", "høgskule", "universitet", "barnehage",
     ];
 
     private static readonly Regex InstitusjonsordMønster = new(
@@ -458,10 +487,30 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
 
         tokens.Reverse(); // nå i lese-rekkefølge (venstre-til-høyre, nærmest institusjonsordet sist)
 
-        // Fjern et evt. dinglende bindeord i ENDENE — bindeordet skal kun stå MELLOM to
-        // store-forbokstav-ord, aldri innlede eller avslutte selve det fangede navnet.
+        // Fjern et evt. dinglende bindeord i STARTEN — bindeordet skal kun stå MELLOM to
+        // store-forbokstav-ord, aldri innlede selve det fangede navnet. Trygt å bare fjerne og gå
+        // videre her: forkastet Start blir ganske enkelt neste (ekte) token, uten noen konsekvens for
+        // selve tekstspennet som caller (FinnKandidaterITekst) fanger, siden det spennet uansett
+        // begynner nøyaktig ved <see cref="forste"/>.Start.
         while (tokens.Count > 0 && !tokens[0].StorForbokstav) tokens.RemoveAt(0);
-        while (tokens.Count > 0 && !tokens[^1].StorForbokstav) tokens.RemoveAt(tokens.Count - 1);
+
+        // [Rettet, kodegjennomgang 2026-08-30] Et dinglende bindeord UMIDDELBART FØR institusjonsordet
+        // (dvs. det SISTE innsamlede tokenet, nærmest institusjonsordet) kan IKKE bare fjernes på samme
+        // måte som i starten — det må forkaste HELE treffet. Årsak: til forskjell fra starten, strekker
+        // callerens fangede tekstspenn (FinnKandidaterITekst) seg alltid fra <see cref="forste"/>.Start
+        // og HELT TIL institusjonsordets slutt (ikke til denne metodens returnerte Lengde) — å bare
+        // fjerne det dinglende bindeordet her og falle tilbake til et tidligere token ville derfor
+        // uansett re-inkludert bindeordet (og mellomrommet) i den fangede teksten, siden det ligger
+        // FYSISK MELLOM det gjenværende tokenet og institusjonsordet. Bekreftet i live data (dette
+        // sveipets skole-relaterte testing): "nivå 5 i NKR og fagskole 1" ga tidligere den falske
+        // kandidaten "NKR og fagskole" (der "NKR" er en forkortelse — nivåbetegnelse i det nasjonale
+        // kvalifikasjonsrammeverket — og "og" her er en ekte, urelatert setningskonjunksjon, ikke et
+        // navneinternt bindeord), og "SFO og skole" (samme mønster, "SFO" og "skole" er to separate
+        // generiske substantiv koordinert med "og", ikke ett institusjonsnavn). Denne bug'en fantes
+        // allerede før dagens skole-utvidelse (allerede i "Møre og Romsdal fylkeskommune"-mekanismen fra
+        // forrige runde), men ble aldri utløst da — ingen tidligere institusjonsord hadde et vanlig
+        // forkortelse+"og"-mønster rett foran seg i korpuset.
+        if (tokens.Count > 0 && !tokens[^1].StorForbokstav) return null;
 
         if (tokens.Count == 0) return null;
         if (tokens.Count(t => t.StorForbokstav) > 3 || tokens.Count(t => !t.StorForbokstav) > 1) return null;
@@ -656,16 +705,36 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
     /// dette var det umulig å se, fra selve paragrafen, at rollebegrepet stammer derfra (Johann
     /// observerte at «Statsforvalteren» ikke viste seg tagget i vergemålsforskriften § 19 ledd 1,
     /// der den faktisk ble funnet).</item>
-    /// <item><c>"virksomhet"</c> — oppretter INGENTING. Godkjenning her betyr kun "reelt navn, verdt å
-    /// følge opp" — selve koblingen til en konkret <see cref="Virksomhet"/> (ny eller eksisterende)
-    /// krever et menneske og skjer via den eksisterende navneform-tilleggsflyten i
-    /// <c>VirksomhetDetalj.tsx</c>/<c>VirksomhetsbegrepTjeneste.OpprettVirksomhetsbegrepAsync</c>.</item>
+    /// <item><c>"virksomhet"</c> — oppretter INGEN <see cref="BegrepEntitet"/>. Godkjenning her betyr
+    /// kun "reelt navn, verdt å følge opp" — selve koblingen til en konkret <see cref="Virksomhet"/>
+    /// (ny eller eksisterende) krever et menneske og skjer via den eksisterende
+    /// navneform-tilleggsflyten i <c>VirksomhetDetalj.tsx</c>/<c>VirksomhetsbegrepTjeneste.OpprettVirksomhetsbegrepAsync</c>.</item>
     /// </list>
     /// Hvis rollebegrep-opprettelsen kaster (f.eks. en rad med samme (Term, LovkildeId) allerede finnes
     /// — <see cref="VirksomhetsbegrepTjeneste.OpprettRollebegrepAsync"/> sitt eget "ingen gjettet
     /// fallback"-vern), forblir kandidatens status <c>"Venter"</c> og feilen forplantes uendret —
     /// samme "ikke sett status før den faktiske handlingen lyktes"-prinsipp som
     /// <see cref="VirksomhetKandidatTjeneste.GodkjennAsync"/>.
+    /// <para>
+    /// <b>[Ny, tekst-tagg-departement-eierskap, 2026-08-31] Ekte <see cref="TekstTaggEntitet"/> for
+    /// BEGGE kategorier:</b> Johanns eksplisitte designvalg — et rollebegrep/navneform funnet her er
+    /// delt/nasjonalt (ingen eiende virksomhet på selve <see cref="BegrepEntitet"/>), men
+    /// <see cref="TekstTaggEntitet.VirksomhetId"/> er ikke-nullbar ("en tagg er alltid en virksomhets
+    /// eget arbeidsprodukt"). Løsningen: opprett taggen med <see cref="TekstTaggEntitet.VirksomhetId"/>
+    /// = virksomheten til rettskildens <see cref="RettskildeEntitet.AnsvarligDepartement"/> ("det eies
+    /// av ansvarlig departement [...] men det skal jo være mulig å se taggene allikevel — opprett
+    /// disse med virksomheten til departementet"). <see cref="TekstTaggEntitet.RefId"/> settes til det
+    /// NYE rollebegrepets id for <c>"rolle"</c> (samme <c>Kind="begrep"</c>-mønster som
+    /// <see cref="VirksomhetKandidatTjeneste.GodkjennAsync"/> allerede bruker for navneform-treff), og
+    /// forblir <c>null</c> for <c>"virksomhet"</c> (INGEN Begrep-rad opprettes for den kategorien i det
+    /// hele tatt her — "ingen gjettet fallback": ingen fabrikert id å peke på). Se
+    /// <see cref="OpprettDepartementTaggHvisMuligAsync"/> for selve implementasjonen, inkl. når INGEN
+    /// tagg opprettes (ukjent/uoppløsbart departement — en reell, dokumentert begrensning, ikke noe å
+    /// arbeide rundt). Denne siden-effekten kan ALDRI hindre selve godkjenningen: en stale
+    /// node/tekstposisjon (rettskilden endret siden sveipet) degraderer til "ingen tagg", ikke en kastet
+    /// feil — til forskjell fra <see cref="VirksomhetKandidatTjeneste.GodkjennAsync"/>, der taggen ER
+    /// selve hovedformålet med godkjenningen.
+    /// </para>
     /// </summary>
     public async Task<NavnekandidatEntitet?> GodkjennAsync(Guid id, string behandletAv, CancellationToken ct = default)
     {
@@ -677,18 +746,82 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
                 $"Kandidaten har status '{kandidat.Status}' — kan kun godkjenne kandidater med status 'Venter'.");
         }
 
+        Guid? refIdForTagg = null;
         if (kandidat.Kategori == "rolle")
         {
-            await virksomhetsbegrep.OpprettRollebegrepAsync(
+            var rollebegrep = await virksomhetsbegrep.OpprettRollebegrepAsync(
                 kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
+            refIdForTagg = rollebegrep.Id;
         }
-        // "virksomhet": ingen entitet opprettes her — se metodekommentaren.
+        // "virksomhet": ingen Begrep-entitet opprettes her — se metodekommentaren.
+
+        await OpprettDepartementTaggHvisMuligAsync(kandidat, refIdForTagg, behandletAv, ct);
 
         kandidat.Status = "Godkjent";
         kandidat.BehandletAv = behandletAv;
         kandidat.BehandletTidspunkt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync(ct);
         return kandidat;
+    }
+
+    /// <summary>
+    /// Oppretter den faktiske <see cref="TekstTaggEntitet"/>-forekomsten for en godkjent kandidat, eid
+    /// av virksomheten til rettskildens <see cref="RettskildeEntitet.AnsvarligDepartement"/> — se
+    /// <see cref="GodkjennAsync"/> sin metodekommentar for designvalget. Oppretter INGEN tagg (returnerer
+    /// stille) hvis:
+    /// <list type="bullet">
+    /// <item>rettskilden ikke har noe kjent <see cref="RettskildeEntitet.AnsvarligDepartement"/>, ELLER</item>
+    /// <item>departementstrengen ikke løser til noen ekte <see cref="Virksomhet"/>-rad
+    /// (<see cref="VirksomhetOppslagTjeneste.FinnVirksomhetIdForNavnAsync"/> — gjenbrukt, ikke duplisert,
+    /// samme mekanisme som <c>RettskildeRepository</c> bruker for "Ansvarlig for"-visningen), ELLER</item>
+    /// <item>noden/tekstintervallet ikke lenger er gyldig (rettskilden endret siden sveipet) — degraderer
+    /// til "ingen tagg" i stedet for å kaste, se <see cref="GodkjennAsync"/>s kommentar for hvorfor.</item>
+    /// </list>
+    /// <paramref name="refId"/> kobles inn via <see cref="TekstTaggTjeneste.KobleTilEntitetAsync"/> KUN
+    /// når den er satt (kun for <c>"rolle"</c> — se <see cref="GodkjennAsync"/>); for <c>"virksomhet"</c>
+    /// opprettes taggen med <c>RefId=null</c>, samme "ubundet inntil videre"-tilstand som
+    /// <see cref="TekstTaggTjeneste.OpprettAsync"/> selv dokumenterer.
+    /// </summary>
+    private async Task OpprettDepartementTaggHvisMuligAsync(
+        NavnekandidatEntitet kandidat, Guid? refId, string behandletAv, CancellationToken ct)
+    {
+        var ansvarligDepartement = await db.Rettskilder
+            .Where(r => r.Id == kandidat.RettskildeId)
+            .Select(r => r.AnsvarligDepartement)
+            .FirstOrDefaultAsync(ct);
+        if (ansvarligDepartement is null) return; // ukjent departement — ingen gjettet fallback.
+
+        var departementVirksomhetId = await virksomhetOppslag.FinnVirksomhetIdForNavnAsync(ansvarligDepartement);
+        if (departementVirksomhetId is null) return; // uoppløsbart departement — ingen gjettet fallback.
+
+        var node = await db.RettskildeNoder.FirstOrDefaultAsync(
+            n => n.RettskildeId == kandidat.RettskildeId && n.Eid == kandidat.NodeEid, ct);
+        var tekst = node?.Tekst;
+        if (tekst is null
+            || kandidat.StartOffset < 0 || kandidat.EndOffset > tekst.Length || kandidat.EndOffset <= kandidat.StartOffset)
+        {
+            // Noden finnes ikke lenger, eller intervallet er ikke lenger gyldig (rettskilden er
+            // reimportert/endret siden sveipet) — degraderer til "ingen tagg" i stedet for å kaste, se
+            // GodkjennAsync sin metodekommentar for hvorfor dette IKKE skal hindre selve godkjenningen.
+            return;
+        }
+
+        // Samme 30-tegns kontekstvindu som VirksomhetKandidatTjeneste.GodkjennAsync og klienten
+        // (RettskildeDetalj.tsx sin manuelle tagging) bruker for QuotePrefix/QuoteSuffix.
+        const int kontekstLengde = 30;
+        var quoteExact = tekst[kandidat.StartOffset..kandidat.EndOffset];
+        var quotePrefix = tekst[Math.Max(0, kandidat.StartOffset - kontekstLengde)..kandidat.StartOffset];
+        var quoteSuffix = tekst[kandidat.EndOffset..Math.Min(tekst.Length, kandidat.EndOffset + kontekstLengde)];
+
+        var tagg = await tekstTaggTjeneste.OpprettAsync(
+            kandidat.RettskildeId, departementVirksomhetId.Value, behandletAv, kandidat.NodeEid,
+            kandidat.StartOffset, kandidat.EndOffset, quotePrefix, quoteExact, quoteSuffix, "begrep", ct);
+        if (tagg is null) return; // racy sletting av node mellom sjekkene over — samme "degrader" som over.
+
+        if (refId is not null)
+        {
+            await tekstTaggTjeneste.KobleTilEntitetAsync(tagg.Id, refId.Value, behandletAv, ct);
+        }
     }
 
     public async Task<NavnekandidatEntitet?> AvvisAsync(Guid id, string behandletAv, CancellationToken ct = default)
@@ -705,6 +838,48 @@ public sealed class NavnekandidatOppdagelseTjeneste(RegelIdeDbContext db, Virkso
         kandidat.BehandletTidspunkt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync(ct);
         return kandidat;
+    }
+
+    /// <summary>
+    /// [Ny, 2026-08-30] Ekte sletting (<c>Remove</c>, IKKE soft-delete) av ÉN kandidatrad, uansett
+    /// status. Til forskjell fra <see cref="VirksomhetKandidatTjeneste.HardslettAvvistAsync"/> (som KUN
+    /// tillater hardsletting av <c>'Avvist'</c>-rader, docs/20 §2.6) er det HER ingen slik begrensning:
+    /// <see cref="NavnekandidatEntitet"/> har ingen Entitetsstatus/proveniens-kobling (se klassekommentaren
+    /// der) — den er en ren oppdagelseskø, ikke et revisjonsspor. Formålet med sletting (Johann, ytelsestest
+    /// av sortering/filtrering-UI-en + de nye flerords-mønsterreglene) krever nettopp å kunne tømme
+    /// KORPUSET, inkludert allerede godkjente/avviste rader — den posisjonsbaserte idempotensen i
+    /// <see cref="OpprettEllerFinnAsync"/> (<c>RettskildeId</c>, <c>NodeEid</c>, <c>StartOffset</c>) gir
+    /// ellers ALDRI en ny rad på en posisjon som allerede har en (selv avvist) kandidat, så et nytt sveip
+    /// kan aldri re-evaluere allerede sveipet tekst mot de nye reglene uten ekte sletting her.
+    /// </summary>
+    public async Task<bool> SlettAsync(Guid id, CancellationToken ct = default)
+    {
+        var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
+        if (kandidat is null) return false;
+        db.Navnekandidater.Remove(kandidat);
+        await db.SaveChangesAsync(ct);
+        return true;
+    }
+
+    /// <summary>
+    /// [Ny, 2026-08-30] Massesletting — samme valgfrie filter-signatur som <see cref="ListerAsync"/>
+    /// (status/kategori/rettskildeId, hver <c>null</c> betyr "ingen filtrering på DEN dimensjonen", samme
+    /// eksplisitte "ingen stille standard"-mønster). Lar Johann slette f.eks. kun kandidatene for ÉN
+    /// rettskilde (for et avgrenset ytelsestest-sveip på nytt), i stedet for kun "alt eller ingenting".
+    /// Ekte sletting, samme begrunnelse som <see cref="SlettAsync"/>. Returnerer antall slettede rader,
+    /// slik at klienten kan bekrefte at det faktiske antallet stemte med det som ble varslet før kallet.
+    /// </summary>
+    public async Task<int> SlettAlleAsync(
+        string? status = null, string? kategori = null, Guid? rettskildeId = null, CancellationToken ct = default)
+    {
+        var spørring = db.Navnekandidater.AsQueryable();
+        if (status is not null) spørring = spørring.Where(k => k.Status == status);
+        if (kategori is not null) spørring = spørring.Where(k => k.Kategori == kategori);
+        if (rettskildeId is not null) spørring = spørring.Where(k => k.RettskildeId == rettskildeId);
+        var rader = await spørring.ToListAsync(ct);
+        db.Navnekandidater.RemoveRange(rader);
+        await db.SaveChangesAsync(ct);
+        return rader.Count;
     }
 }
 

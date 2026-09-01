@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Alert, Button, Checkbox, Heading, Link, Paragraph, Spinner, Table, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Checkbox, Heading, Link, Paragraph, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { LovdataImportstatusDto, RettskildeSammendrag } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
@@ -15,6 +15,10 @@ export default function RettskilderListe() {
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
   const [kunMine, setKunMine] = useState(false);
+  // Irrelevant-markering (2026-08-30) — default false ekskluderer ErIrrelevant-markerte rettskilder
+  // stille fra standardvisningen, samme «ikke skjul stille, gi et eksplisitt valg»-prinsipp som
+  // visIkkeImportert lenger ned bruker for Lovdata-importstatus.
+  const [visIrrelevante, setVisIrrelevante] = useState(false);
   const [filterTekst, setFilterTekst] = useState('');
   const [sortKolonne, setSortKolonne] = useState<Sorteringskolonne>('tittel');
   const [sortStigende, setSortStigende] = useState(true);
@@ -39,7 +43,7 @@ export default function RettskilderListe() {
     setRettskilder(null);
     const virksomhetId = kunMine && gjeldendeBruker ? gjeldendeBruker.virksomhetId : undefined;
     api
-      .hentRettskilder(virksomhetId)
+      .hentRettskilder(virksomhetId, visIrrelevante)
       .then(setRettskilder)
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av rettskilder.'));
   }
@@ -47,7 +51,7 @@ export default function RettskilderListe() {
   useEffect(() => {
     lastRettskilder();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kunMine, gjeldendeBruker]);
+  }, [kunMine, gjeldendeBruker, visIrrelevante]);
 
   useEffect(() => {
     if (!visIkkeImportert || ikkeImportert !== null) return;
@@ -167,7 +171,8 @@ export default function RettskilderListe() {
       </Heading>
       <Paragraph style={{ marginBottom: '1rem' }}>
         Åpne data — delte/nasjonale kilder (Lov/Forskrift fra Lovdata) og alle virksomheters
-        publiserte lokale kilder. Kladder (status «Utkast») vises aldri her.
+        publiserte lokale kilder. Kladder (status «Utkast») vises aldri her, og kilder markert som
+        irrelevant for regel-ide er skjult som standard.
       </Paragraph>
 
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', marginBottom: '1rem', flexWrap: 'wrap' }}>
@@ -178,6 +183,11 @@ export default function RettskilderListe() {
             onChange={(e) => setKunMine(e.target.checked)}
           />
         )}
+        <Checkbox
+          label="Vis også kilder markert som irrelevant"
+          checked={visIrrelevante}
+          onChange={(e) => setVisIrrelevante(e.target.checked)}
+        />
         <Textfield
           label="Filtrer"
           placeholder="Tittel, kildetype eller eier"
@@ -213,6 +223,7 @@ export default function RettskilderListe() {
                   Eier{sorteringsindikator('eier')}
                 </button>
               </Table.HeaderCell>
+              <Table.HeaderCell></Table.HeaderCell>
             </Table.Row>
           </Table.Head>
           <Table.Body>
@@ -226,6 +237,7 @@ export default function RettskilderListe() {
                 <Table.Cell>{r.kildetype}</Table.Cell>
                 <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{r.eli ?? '—'}</Table.Cell>
                 <Table.Cell>{visEier(r.virksomhetId)}</Table.Cell>
+                <Table.Cell>{r.erIrrelevant && <Tag data-color="warning" data-size="sm">Irrelevant</Tag>}</Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>

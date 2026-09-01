@@ -59,7 +59,7 @@ public static class FasitRunde4Seed
         var begrepsregister = new BegrepsregisterTjeneste(db);
         var tjenesteregister = new TjenesteregisterTjeneste(db);
         var kommentarregister = new VilkarstreKommentarTjeneste(db);
-        var tekstTaggTjeneste = new TekstTaggTjeneste(db);
+        var tekstTaggTjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
 
         // §8: "kommunens skjønnsutøvelse" — skjønnsgrunnlaget for "Kommunal skjønnsvurdering" under.
         var skjonnsutovelseBegrep = await begrepsregister.OpprettAsync(

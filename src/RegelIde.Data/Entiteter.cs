@@ -244,6 +244,33 @@ public sealed class RettskildeEntitet
     /// <summary>"alkoholloven/§1-7d".</summary>
     public string? HjemmelEid { get; set; }
 
+    /// <summary>
+    /// [Ny, 2026-08-30] Manuell header-nivå markering — av 5113 forskrifter i korpuset har 1133 en
+    /// tittel som starter med "Delegering"/"Meddelelse"/"Overgangsbestemmelser"/"Ikrafttredelse", rene
+    /// administrative/prosedyremessige dokumenter uten reelt rettighetsinnhold av den typen regel-ide
+    /// modellerer (tilsvarende har 108 av 758 lover "endring" i tittelen). Denne markeringen er BEVISST
+    /// et menneskelig, eksplisitt valg per rettskilde — IKKE utledet fra tittelmønster ved import eller
+    /// noe annet sted («ingen gjettet fallback», samme prinsipp brukt flere andre steder i denne
+    /// klassen, f.eks. <see cref="AnsvarligDepartement"/>s virksomhet-kobling). Default <c>false</c>
+    /// for alt eksisterende og alt nytt.
+    /// <para>
+    /// Ekskluderer BEVISST IKKE fra navnekandidat-/virksomhetskandidat-sveipet i denne runden (se
+    /// <see cref="NavnekandidatOppdagelseTjeneste"/>) — det er en egen avveining (skal en irrelevant-
+    /// markert rettskilde fortsatt bidra kandidater til den generelle sveipekøen?) som bevisst er utsatt
+    /// til Johann tar den eksplisitt, ikke noe denne markeringen stille skal avgjøre som et sideeffekt.
+    /// </para>
+    /// </summary>
+    public bool ErIrrelevant { get; set; } = false;
+
+    /// <summary>
+    /// Fritekst — hvorfor denne rettskilden er markert irrelevant. Kun meningsfullt når
+    /// <see cref="ErIrrelevant"/> er <c>true</c>, men IKKE håndhevet strengt: fjernes markeringen
+    /// igjen (satt tilbake til <c>false</c>), slettes IKKE kommentaren automatisk — den blir stående,
+    /// urørt, til noen eksplisitt endrer den, i tilfelle markeringen settes på igjen senere og samme
+    /// begrunnelse fortsatt er gyldig.
+    /// </summary>
+    public string? IrrelevantKommentar { get; set; }
+
     // §3.3s "GyldigTil" (2028-07-01) er BEVISST IKKE en ny kolonne — <see cref="GyldigTil"/> lenger
     // opp i denne klassen fantes allerede (nasjonale rettskilder) og gjenbrukes uendret, nøyaktig som
     // §3.3 selv ber om å sjekke ("Ikrafttredelse/KonsolidertDato finnes allerede ... sjekk om de kan
@@ -387,6 +414,44 @@ public sealed class RettskildeReferanseEntitet
     /// </summary>
     public int? TekstStart { get; set; }
     public int? TekstLengde { get; set; }
+}
+
+/// <summary>
+/// Hjemmel-referanse (2026-08-30) — header-metadatafeltet &lt;dt class="basedOn"&gt;Hjemmel&lt;/dt&gt;
+/// i Lovdatas egen HTML: hvilken paragraf i hvilken lov <see cref="RettskildeId"/> (typisk en
+/// forskrift) er hjemlet i. DOKUMENTNIVÅ-metadata — bevisst en EGEN tabell, IKKE gjenbruk av
+/// <see cref="RettskildeReferanseEntitet"/>: den siste er per-NODE (FraNodeId er NOT NULL, en konkret
+/// paragraf/ledd/punkt i løpeteksten som lenker videre), mens en Hjemmel-referanse ikke har noen
+/// egen node å feste seg til — den gjelder DOKUMENTET som helhet (se
+/// <see cref="RegelIde.Kildekonvertering.RettskildeHjemmel"/> sin klassekommentar for full
+/// begrunnelse, inkl. hvorfor feltet bekreftet KUN forekommer på forskrifter i fixture-korpuset).
+/// <para>
+/// <see cref="HjemmelRettskildeId"/> løses/opprettes ved import med NØYAKTIG samme mekanisme som
+/// <see cref="RettskildeReferanseEntitet.TilRettskildeId"/> (§3.1 steg 6 — se
+/// RettskildeImportTjeneste.FinnEllerOpprettReferanseStubAsync): enten en allerede importert primær-
+/// rettskilde, eller en referanse-stub (importrolle='referanse', Status='Utkast') som senere
+/// forfremmes automatisk den dagen loven selv importeres. «Ingen gjettet fallback»: en stub er ALDRI
+/// synlig i den vanlige rettskilde-lista (Status != 'Utkast'-filteret i HentAlleRettskilder), og gir
+/// derfor ingen automatisk lenke/kobling i UI-et før loven faktisk er importert — <see cref="HjemmelEid"/>
+/// (ren tekst, samme paragraf-eId-format som <see cref="RettskildeNodeEntitet.Eid"/>) er uansett alltid
+/// lagret, uavhengig av om målet er importert ennå.
+/// </para>
+/// </summary>
+public sealed class RettskildeHjemmelEntitet
+{
+    public Guid Id { get; set; }
+
+    /// <summary>Dokumentet (typisk en forskrift) hvis header-metadata Hjemmel-feltet ble funnet i.</summary>
+    public required Guid RettskildeId { get; set; }
+
+    /// <summary>"{lov-eli}/§X-Y" — se klassekommentaren og LovdataIdentifikatorer.ParagrafEid.</summary>
+    public required string HjemmelEid { get; set; }
+
+    /// <summary>Loven (primær ELLER referanse-stub) — se klassekommentaren.</summary>
+    public required Guid HjemmelRettskildeId { get; set; }
+
+    /// <summary>Bevarer header-feltets egen rekkefølge (§1-2, §1-3, … i kildeorden), kun for visning.</summary>
+    public int Sorteringsrekkefolge { get; set; }
 }
 
 /// <summary>

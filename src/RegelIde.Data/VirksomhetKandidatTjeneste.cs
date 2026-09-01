@@ -208,4 +208,58 @@ public sealed class VirksomhetKandidatTjeneste(RegelIdeDbContext db, TekstTaggTj
         await db.SaveChangesAsync(ct);
         return true;
     }
+
+    /// <summary>
+    /// Massehardsletting — bulk-varianten av <see cref="HardslettAvvistAsync"/>, SAMME Avvist-only-
+    /// restriksjon, ikke en parallell/løsere mekanisme. Filtrerbar på virksomhet/rettskilde, samme
+    /// filterparametre som <see cref="ListerAsync"/>. <paramref name="status"/> er bevisst IKKE et fritt
+    /// filter (til forskjell fra <see cref="NavnekandidatOppdagelseTjeneste.SlettAlleAsync"/>, som
+    /// aksepterer ethvert statusfilter siden den entiteten ikke har noen sidevirkning å beskytte) —
+    /// spørringen tvinger uansett <c>Status == "Avvist"</c>, men en eksplisitt forespørsel om noe ANNET
+    /// enn 'Avvist' (eller utelatt) kastes som en tydelig feil i stedet for å stille returnere 0 slettet
+    /// uten forklaring.
+    /// <para>
+    /// <b>Hvorfor 'Godkjent' er UTELUKKET fra hardsletting (til forskjell fra navnekandidater, der ALLE
+    /// statuser kan hardslettes, se <see cref="NavnekandidatOppdagelseTjeneste.SlettAsync"/>):</b> en
+    /// 'Godkjent'-rad her har en REELL sidevirkning — <see cref="GodkjennAsync"/> oppretter en ekte
+    /// <see cref="TekstTaggEntitet"/> koblet til en navneform (<c>RefId</c> satt via
+    /// <see cref="TekstTaggTjeneste.KobleTilEntitetAsync"/>). <see cref="TekstTaggTjeneste.SlettAsync"/>
+    /// nekter EKSPLISITT å fjerne en tagg med <c>RefId</c> satt (returnerer <c>HarPublisertReferanse</c> —
+    /// "kun tagger uten publiserte referanser kan fjernes"). En godkjent kandidats tagg kan derfor ALDRI
+    /// fjernes gjennom noen eksisterende mekanisme i systemet i dag. Å likevel tillate sletting av
+    /// KANDIDATRADEN ville etterlate en permanent, ikke-fjernbar tagg uten noen kandidatrad igjen som
+    /// forklarer/sporer hvorfor den finnes — og et nytt sveip ville (posisjonen er ikke lenger "opptatt")
+    /// kunne legge en FRISK 'Venter'-kandidat på nøyaktig samme tegnintervall, som ved en senere
+    /// godkjenning ville opprette en ANDRE tagg for akkurat samme forekomst (<see cref="TekstTaggTjeneste.OpprettAsync"/>
+    /// har ingen dedup-sjekk mot eksisterende tagger på samme intervall). Fremfor å bygge en egen
+    /// "fjern kandidat OG tagg samtidig"-sti (som ville måtte omgå HarPublisertReferanse-vernet over —
+    /// et vern som finnes av gode grunner andre steder i systemet), er den enkleste og tryggeste linjen å
+    /// la 'Godkjent' rett og slett være utenfor hardsletting her, samme linje som docs/20 §2.6 allerede
+    /// trekker for enkeltrad-varianten.
+    /// </para>
+    /// <para>
+    /// <b>Hvorfor 'Venter' ER utelukket (samme som enkeltrad-varianten):</b> en rad som ikke er
+    /// ferdigbehandlet skal behandles (godkjennes/avvises), ikke bare forsvinne — se
+    /// <see cref="HardslettAvvistAsync"/> sin klassekommentar.
+    /// </para>
+    /// </summary>
+    public async Task<int> HardslettAlleAvvisteAsync(
+        Guid? virksomhetId = null, Guid? rettskildeId = null, string? status = null, CancellationToken ct = default)
+    {
+        if (status is not null && status != "Avvist")
+        {
+            throw new ArgumentException(
+                $"Massehardsletting kan kun rettes mot 'Avvist'-rader (status='{status}' er ikke tillatt) — " +
+                "'Venter' skal behandles, ikke forsvinne, og 'Godkjent' har en tagg som ikke kan fjernes i " +
+                "etterkant. Se HardslettAlleAvvisteAsync sin klassekommentar for hele resonnementet.");
+        }
+
+        var spørring = db.VirksomhetKandidater.Where(k => k.Status == "Avvist");
+        if (virksomhetId is not null) spørring = spørring.Where(k => k.VirksomhetId == virksomhetId);
+        if (rettskildeId is not null) spørring = spørring.Where(k => k.RettskildeId == rettskildeId);
+        var rader = await spørring.ToListAsync(ct);
+        db.VirksomhetKandidater.RemoveRange(rader);
+        await db.SaveChangesAsync(ct);
+        return rader.Count;
+    }
 }

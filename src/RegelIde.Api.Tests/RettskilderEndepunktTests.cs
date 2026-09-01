@@ -127,6 +127,83 @@ public class RettskilderEndepunktTests
         Assert.Contains(referanser!, r => r.FraNodeId == fraNodeId && r.TilEid == $"{AlkohollovenEli}/§1-5");
     }
 
+    // ---------- Hjemmel (2026-08-30) — header-metadatafeltet <dt class="basedOn">, se
+    // RettskildeHjemmelEntitet-kommentaren. Startup-seedingen importerer HELE data/kilder/raw-lovdata/
+    // i filnavnrekkefølge — "alkoholforskriften-..." kommer FØR "alkoholloven-..." alfabetisk, så
+    // dette dekker ende-til-ende at en referanse-stub opprettet under forskrift-importen faktisk
+    // forfremmes korrekt når alkoholloven importeres like etter, i samme seeding-kjøring. ----------
+
+    [Fact]
+    public async Task Hjemmel_for_alkoholforskriften_har_tjueen_referanser_til_den_virkelige_alkoholloven()
+    {
+        var sammendrag = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>("/api/rettskilder", JsonInnstillinger);
+        var forskriftId = sammendrag!.Single(r => r.Eli == "https://lovdata.no/eli/forskrift/2005/06/08/538/nor").Id;
+        var lovenId = await HentAlkohollovenIdAsync();
+
+        var hjemler = await _client.GetFromJsonAsync<List<RettskildeHjemmelDto>>(
+            $"/api/rettskilder/{forskriftId}/hjemmel", JsonInnstillinger);
+
+        Assert.NotNull(hjemler);
+        Assert.Equal(21, hjemler!.Count);
+        Assert.All(hjemler, h => Assert.Equal(lovenId, h.HjemmelRettskildeId));
+        Assert.Contains(hjemler, h => h.HjemmelEid == $"{AlkohollovenEli}/§1-2");
+        // Rekkefølgen fra kilde-HTML-en er bevart (0-indeksert Sorteringsrekkefolge).
+        Assert.Equal(0, hjemler.Single(h => h.HjemmelEid == $"{AlkohollovenEli}/§1-2").Sorteringsrekkefolge);
+    }
+
+    [Fact]
+    public async Task Hjemmel_for_alkoholloven_selv_er_tom_liste()
+    {
+        var id = await HentAlkohollovenIdAsync();
+        var hjemler = await _client.GetFromJsonAsync<List<RettskildeHjemmelDto>>($"/api/rettskilder/{id}/hjemmel", JsonInnstillinger);
+
+        Assert.NotNull(hjemler);
+        Assert.Empty(hjemler!);
+    }
+
+    [Fact]
+    public async Task Hjemmel_for_ukjent_rettskilde_gir_404()
+    {
+        var svar = await _client.GetAsync($"/api/rettskilder/{Guid.NewGuid()}/hjemmel");
+        Assert.Equal(HttpStatusCode.NotFound, svar.StatusCode);
+    }
+
+    [Fact]
+    public async Task HjemmelFor_pa_alkoholloven_viser_alkoholforskriften_som_hjemlet_forskrift()
+    {
+        var sammendrag = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>("/api/rettskilder", JsonInnstillinger);
+        var forskriftId = sammendrag!.Single(r => r.Eli == "https://lovdata.no/eli/forskrift/2005/06/08/538/nor").Id;
+        var lovenId = await HentAlkohollovenIdAsync();
+
+        var hjemletFor = await _client.GetFromJsonAsync<List<RettskildeHjemletForDto>>(
+            $"/api/rettskilder/{lovenId}/hjemmel-for", JsonInnstillinger);
+
+        Assert.NotNull(hjemletFor);
+        Assert.Equal(21, hjemletFor!.Count);
+        Assert.All(hjemletFor, r => Assert.Equal(forskriftId, r.ForskriftId));
+        Assert.Contains(hjemletFor, r => r.HjemmelEid == $"{AlkohollovenEli}/§1-2");
+    }
+
+    [Fact]
+    public async Task HjemmelFor_pa_alkoholforskriften_selv_er_tom_liste()
+    {
+        var sammendrag = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>("/api/rettskilder", JsonInnstillinger);
+        var forskriftId = sammendrag!.Single(r => r.Eli == "https://lovdata.no/eli/forskrift/2005/06/08/538/nor").Id;
+
+        var hjemletFor = await _client.GetFromJsonAsync<List<RettskildeHjemletForDto>>(
+            $"/api/rettskilder/{forskriftId}/hjemmel-for", JsonInnstillinger);
+
+        Assert.NotNull(hjemletFor);
+        Assert.Empty(hjemletFor!);
+    }
+
+    [Fact]
+    public async Task HjemmelFor_for_ukjent_rettskilde_gir_404()
+    {
+        var svar = await _client.GetAsync($"/api/rettskilder/{Guid.NewGuid()}/hjemmel-for");
+        Assert.Equal(HttpStatusCode.NotFound, svar.StatusCode);
+    }
+
     // ---------- Åpne data: statusfilter + valgfri virksomhet-parameter (2026-07-24) ----------
 
     [Fact]
@@ -277,6 +354,120 @@ public class RettskilderEndepunktTests
         };
         var svar = await _client.SendAsync(request);
         Assert.Equal(HttpStatusCode.NotFound, svar.StatusCode);
+    }
+
+    // ---------- Irrelevant-markering (2026-08-30, header-nivå «irrelevant for regel-ide») ----------
+
+    /// <summary>
+    /// Egen fixture-rad per test her (ikke alkoholloven — den brukes/telles av mange andre tester i
+    /// denne og andre klasser i samme <see cref="ApiTestCollection"/>, en irrelevant-markering på DEN
+    /// ville vært et snikende sidesteg som ville forstyrret uavhengige tester som antar den er synlig).
+    /// </summary>
+    private async Task<Guid> OpprettEgenRettskildeAsync(bool erIrrelevant = false, string? irrelevantKommentar = null)
+    {
+        await using var db = _fixture.NyDbContext();
+        var id = Guid.NewGuid();
+        db.Rettskilder.Add(new RettskildeEntitet
+        {
+            Id = id,
+            Doctype = "act",
+            Kildetype = "Forskrift",
+            Tittel = $"Delegering av myndighet — irrelevant-test {id}",
+            Status = "Gjeldende",
+            AknXml = "<akomaNtoso/>",
+            OpprettetAv = "test",
+            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            ErIrrelevant = erIrrelevant,
+            IrrelevantKommentar = irrelevantKommentar,
+        });
+        await db.SaveChangesAsync();
+        return id;
+    }
+
+    [Fact]
+    public async Task Oppdater_irrelevant_uten_bruker_id_header_gir_400()
+    {
+        var id = await OpprettEgenRettskildeAsync();
+        var svar = await _client.PatchAsJsonAsync(
+            $"/api/rettskilder/{id}/irrelevant",
+            new OppdaterRettskildeIrrelevantRequest(true, "Ren delegeringsbeslutning, ingen realitet."));
+        Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
+    }
+
+    [Fact]
+    public async Task Oppdater_irrelevant_pa_ukjent_rettskilde_gir_404()
+    {
+        var bruker = await HentTestbrukerAsync();
+        using var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/rettskilder/{Guid.NewGuid()}/irrelevant")
+        {
+            Content = JsonContent.Create(new OppdaterRettskildeIrrelevantRequest(true, "X")),
+            Headers = { { GjeldendeBrukerTjeneste.HeaderNavn, bruker.Id.ToString() } },
+        };
+        var svar = await _client.SendAsync(request);
+        Assert.Equal(HttpStatusCode.NotFound, svar.StatusCode);
+    }
+
+    [Fact]
+    public async Task Setter_irrelevant_markering_med_kommentar_og_kan_hente_den_igjen()
+    {
+        var id = await OpprettEgenRettskildeAsync();
+        var bruker = await HentTestbrukerAsync();
+
+        using var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/rettskilder/{id}/irrelevant")
+        {
+            Content = JsonContent.Create(new OppdaterRettskildeIrrelevantRequest(
+                true, "Rent prosedyremessig ikrafttredelsesvedtak, ingen egen rettighet.")),
+            Headers = { { GjeldendeBrukerTjeneste.HeaderNavn, bruker.Id.ToString() } },
+        };
+        var svar = await _client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+        var oppdatert = await svar.Content.ReadFromJsonAsync<RettskildeDetalj>(JsonInnstillinger);
+        Assert.True(oppdatert!.ErIrrelevant);
+        Assert.Equal("Rent prosedyremessig ikrafttredelsesvedtak, ingen egen rettighet.", oppdatert.IrrelevantKommentar);
+
+        var hentetPaNytt = await _client.GetFromJsonAsync<RettskildeDetalj>($"/api/rettskilder/{id}", JsonInnstillinger);
+        Assert.True(hentetPaNytt!.ErIrrelevant);
+        Assert.Equal("Rent prosedyremessig ikrafttredelsesvedtak, ingen egen rettighet.", hentetPaNytt.IrrelevantKommentar);
+    }
+
+    /// <summary>
+    /// Fjernes markeringen igjen (satt tilbake til <c>false</c>), skal kommentaren IKKE slettes
+    /// automatisk noe sted i denne flyten — se <see cref="RettskildeEntitet.IrrelevantKommentar"/>s
+    /// klassekommentar. Testet ved at kommentaren fortsatt kommer tilbake uendret når klienten selv
+    /// sender den med (samme oppførsel som skjemaet i RettskildeDetalj.tsx: teksten forblir i boksen).
+    /// </summary>
+    [Fact]
+    public async Task Fjerner_irrelevant_markering_lar_kommentaren_bli_staende_urort()
+    {
+        var id = await OpprettEgenRettskildeAsync(erIrrelevant: true, irrelevantKommentar: "Opprinnelig begrunnelse.");
+        var bruker = await HentTestbrukerAsync();
+
+        using var request = new HttpRequestMessage(HttpMethod.Patch, $"/api/rettskilder/{id}/irrelevant")
+        {
+            Content = JsonContent.Create(new OppdaterRettskildeIrrelevantRequest(false, "Opprinnelig begrunnelse.")),
+            Headers = { { GjeldendeBrukerTjeneste.HeaderNavn, bruker.Id.ToString() } },
+        };
+        var svar = await _client.SendAsync(request);
+
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+        var oppdatert = await svar.Content.ReadFromJsonAsync<RettskildeDetalj>(JsonInnstillinger);
+        Assert.False(oppdatert!.ErIrrelevant);
+        Assert.Equal("Opprinnelig begrunnelse.", oppdatert.IrrelevantKommentar);
+    }
+
+    [Fact]
+    public async Task Liste_ekskluderer_irrelevant_markerte_som_standard_men_viser_dem_med_eksplisitt_flagg()
+    {
+        var id = await OpprettEgenRettskildeAsync(erIrrelevant: true, irrelevantKommentar: "Kun administrativ, ingen realitet.");
+
+        var standard = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>("/api/rettskilder", JsonInnstillinger);
+        Assert.DoesNotContain(standard!, r => r.Id == id);
+
+        var medIrrelevante = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>(
+            "/api/rettskilder?inkluderIrrelevante=true", JsonInnstillinger);
+        var rad = Assert.Single(medIrrelevante!, r => r.Id == id);
+        Assert.True(rad.ErIrrelevant);
     }
 
     [Fact]

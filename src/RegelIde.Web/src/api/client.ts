@@ -37,6 +37,7 @@ import type {
   LeggTilKodeRequest,
   LeggTilLenkeRequest,
   LeggTilVilkarInputRequest,
+  OppdaterRettskildeIrrelevantRequest,
   OppdaterRettskildeMetadataRequest,
   OppdaterUnntakRequest,
   OppdaterVilkarstreKommentarRequest,
@@ -55,6 +56,8 @@ import type {
   NettsideLenkeMedMalDto,
   NettsideStiDto,
   RettskildeDetalj,
+  RettskildeHjemletForDto,
+  RettskildeHjemmelDto,
   RettskildeNodeDto,
   RettskildeReferanseDto,
   RettskildeSammendrag,
@@ -98,11 +101,13 @@ import type {
   SveipVirksomhetKandidaterResultatDto,
   VirksomhetKandidatBatchRequest,
   VirksomhetKandidatBatchResultatDto,
+  HardslettVirksomhetKandidaterResultatDto,
   NavnekandidatDto,
   SveipNavnekandidaterRequest,
   SveipNavnekandidaterResultatDto,
   NavnekandidatBatchRequest,
   NavnekandidatBatchResultatDto,
+  SlettNavnekandidaterResultatDto,
   VisningsinnstillingInput,
 } from './types';
 
@@ -159,14 +164,25 @@ async function kall<T>(path: string, init?: RequestInit): Promise<T> {
 }
 
 export const api = {
-  hentRettskilder: (virksomhetId?: string) =>
-    kall<RettskildeSammendrag[]>(`/api/rettskilder${virksomhetId ? `?virksomhetId=${virksomhetId}` : ''}`),
+  // ?inkluderIrrelevante=true (2026-08-30) — utelatt/false ekskluderer ErIrrelevant-markerte kilder
+  // stille fra standardvisningen, se RettskilderListe.tsx.
+  hentRettskilder: (virksomhetId?: string, inkluderIrrelevante?: boolean) => {
+    const params = new URLSearchParams();
+    if (virksomhetId) params.set('virksomhetId', virksomhetId);
+    if (inkluderIrrelevante) params.set('inkluderIrrelevante', 'true');
+    const query = params.toString();
+    return kall<RettskildeSammendrag[]>(`/api/rettskilder${query ? `?${query}` : ''}`);
+  },
 
   hentRettskilde: (id: string) => kall<RettskildeDetalj>(`/api/rettskilder/${id}`),
 
   hentNoder: (id: string) => kall<RettskildeNodeDto[]>(`/api/rettskilder/${id}/noder`),
 
   hentReferanser: (id: string) => kall<RettskildeReferanseDto[]>(`/api/rettskilder/${id}/referanser`),
+
+  hentHjemmel: (id: string) => kall<RettskildeHjemmelDto[]>(`/api/rettskilder/${id}/hjemmel`),
+
+  hentHjemmelFor: (id: string) => kall<RettskildeHjemletForDto[]>(`/api/rettskilder/${id}/hjemmel-for`),
 
   opprettNodeReferanse: (rettskildeId: string, nodeId: string, request: KobleLovreferanseRequest) =>
     kall<RettskildeReferanseDto>(`/api/rettskilder/${rettskildeId}/noder/${nodeId}/referanser`, {
@@ -186,6 +202,13 @@ export const api = {
 
   oppdaterRettskildeMetadata: (id: string, request: OppdaterRettskildeMetadataRequest) =>
     kall<RettskildeDetalj>(`/api/rettskilder/${id}/metadata`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  oppdaterRettskildeIrrelevant: (id: string, request: OppdaterRettskildeIrrelevantRequest) =>
+    kall<RettskildeDetalj>(`/api/rettskilder/${id}/irrelevant`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
@@ -307,6 +330,19 @@ export const api = {
   hardslettVirksomhetKandidat: (id: string) =>
     kall<void>(`/api/virksomhet-kandidater/${id}`, { method: 'DELETE' }),
 
+  /** [Ny] Massehardsletting — KUN 'Avvist'-rader rammes, uansett filter (backend tvinger dette, se
+   * VirksomhetKandidatTjeneste.HardslettAlleAvvisteAsync) — til forskjell fra slettAlleNavnekandidater
+   * under, som aksepterer et fritt statusfilter fordi den entiteten ikke har noen sidevirkning å
+   * beskytte. Status sendes derfor bevisst IKKE med her — klienten har ingen gyldig verdi å tilby utover
+   * det backend allerede tvinger. */
+  hardslettAlleAvvisteVirksomhetKandidater: (filter: { virksomhetId?: string; rettskildeId?: string }) => {
+    const parametre = new URLSearchParams();
+    if (filter.virksomhetId) parametre.set('virksomhetId', filter.virksomhetId);
+    if (filter.rettskildeId) parametre.set('rettskildeId', filter.rettskildeId);
+    const sok = parametre.toString();
+    return kall<HardslettVirksomhetKandidaterResultatDto>(`/api/virksomhet-kandidater${sok ? `?${sok}` : ''}`, { method: 'DELETE' });
+  },
+
   settVirksomhetForvaltningsniva: (id: string, forvaltningsniva: string | null) =>
     kall<VirksomhetDto>(`/api/virksomheter/${id}/forvaltningsniva`, {
       method: 'PUT',
@@ -376,6 +412,24 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
     }),
+
+  /** [Ny, 2026-08-30] Ekte sletting av ÉN rad, uansett status — se backend-kommentaren
+   * (NavnekandidatOppdagelseTjeneste.SlettAsync) for hvorfor. */
+  slettNavnekandidat: (id: string) =>
+    kall<void>(`/api/navnekandidater/${id}`, { method: 'DELETE' }),
+
+  /** [Ny, 2026-08-30] Massesletting, valgfritt filtrert (samme filterparametre som hentNavnekandidater
+   * over) — utelatt status betyr her "ingen statusfilter" (slett ALLE statuser), IKKE
+   * hentNavnekandidater sin "utelatt = kun Venter"-standard. Server-side RemoveRange, ikke N separate
+   * kall — nødvendig for ytelse ved tusenvis av kandidater (docs-kommentar i NavnekandidaterListe.tsx). */
+  slettAlleNavnekandidater: (filter: { status?: string; kategori?: string; rettskildeId?: string }) => {
+    const parametre = new URLSearchParams();
+    if (filter.status) parametre.set('status', filter.status);
+    if (filter.kategori) parametre.set('kategori', filter.kategori);
+    if (filter.rettskildeId) parametre.set('rettskildeId', filter.rettskildeId);
+    const sok = parametre.toString();
+    return kall<SlettNavnekandidaterResultatDto>(`/api/navnekandidater${sok ? `?${sok}` : ''}`, { method: 'DELETE' });
+  },
 
   hentTaggKinds: () => kall<TaggKindKonfigurasjonDto[]>('/api/konfigurasjon/tagg-kinds'),
 

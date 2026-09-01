@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RegelIde.Data;
@@ -12,9 +13,11 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    partial class RegelIdeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260830204754_LeggTilErIrrelevantPaRettskilde")]
+    partial class LeggTilErIrrelevantPaRettskilde
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1782,42 +1785,6 @@ namespace RegelIde.Data.Migrasjoner
                         });
                 });
 
-            modelBuilder.Entity("RegelIde.Data.RettskildeHjemmelEntitet", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("HjemmelEid")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("hjemmel_eid");
-
-                    b.Property<Guid>("HjemmelRettskildeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("hjemmel_rettskilde_id");
-
-                    b.Property<Guid>("RettskildeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("rettskilde_id");
-
-                    b.Property<int>("Sorteringsrekkefolge")
-                        .HasColumnType("integer")
-                        .HasColumnName("sorteringsrekkefolge");
-
-                    b.HasKey("Id")
-                        .HasName("rettskilde_hjemler_pkey");
-
-                    b.HasIndex("HjemmelRettskildeId")
-                        .HasDatabaseName("ix_rettskilde_hjemler_hjemmel_rettskilde");
-
-                    b.HasIndex("RettskildeId", "HjemmelEid")
-                        .IsUnique()
-                        .HasDatabaseName("ux_rettskilde_hjemler_rettskilde_id_hjemmel_eid");
-
-                    b.ToTable("rettskilde_hjemler", (string)null);
-                });
-
             modelBuilder.Entity("RegelIde.Data.RettskildeNodeEmbeddingEntitet", b =>
                 {
                     b.Property<Guid>("NodeId")
@@ -3264,21 +3231,6 @@ namespace RegelIde.Data.Migrasjoner
                     b.HasOne("RegelIde.Data.Virksomhet", null)
                         .WithMany()
                         .HasForeignKey("VirksomhetId");
-                });
-
-            modelBuilder.Entity("RegelIde.Data.RettskildeHjemmelEntitet", b =>
-                {
-                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
-                        .WithMany()
-                        .HasForeignKey("HjemmelRettskildeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
-                        .WithMany()
-                        .HasForeignKey("RettskildeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("RegelIde.Data.RettskildeNodeEmbeddingEntitet", b =>

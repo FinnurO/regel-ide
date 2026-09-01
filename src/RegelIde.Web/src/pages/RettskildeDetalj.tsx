@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams, useSearchParams } from 'react-router';
-import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Switch, Table, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type {
   DokumentReferanseDto,
@@ -8,6 +8,8 @@ import type {
   NettsideLenkeMedMalDto,
   NettsideStiDto,
   RettskildeDetalj as RettskildeDetaljType,
+  RettskildeHjemletForDto,
+  RettskildeHjemmelDto,
   RettskildeNodeDto,
   RettskildeReferanseDto,
   RettskildeSammendrag,
@@ -21,7 +23,7 @@ import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { useKonfigurasjon } from '../konfigurasjon/KonfigurasjonContext';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { RaaTekstMedLenker } from '../rettskilde/RaaTekstMedLenker';
-import { eidVisningstekst } from '../api/eidLenker';
+import { eidVisningstekst, finnRettskildeForEid, rettskildeLenke } from '../api/eidLenker';
 
 const STITYPE_FARGE: Record<string, 'info' | 'success'> = { tematisk: 'info', organisatorisk: 'success' };
 
@@ -85,6 +87,14 @@ export default function RettskildeDetalj() {
   // dokumenters (håndbok/rundskriv) noder, ikke fra en Tjeneste.
   const [referertAvDokumenter, setReferertAvDokumenter] = useState<DokumentReferanseDto[]>([]);
 
+  // Hjemmel (2026-08-30) — header-metadatafeltet <dt class="basedOn">, DOKUMENTNIVÅ og bevisst
+  // atskilt fra Referanser over (som er per-node løpetekst). Trygt å hente for ALLE doctyper/
+  // kildetyper (serveren returnerer tom liste når feltet mangler, bekreftet KUN forskrifter har det i
+  // dag) — samme "safe empty"-mønster som referertAvTjenester/-Dokumenter.
+  const [hjemler, setHjemler] = useState<RettskildeHjemmelDto[]>([]);
+  // Motsatt retning — kun ikke-tom for en LOV noe faktisk er hjemlet i.
+  const [hjemletFor, setHjemletFor] = useState<RettskildeHjemletForDto[]>([]);
+
   // Punkt 8 — kun ikke-tomme for kildetype='Brukerveiledning' (§3.4/§3.2). Trygt å hente for ALLE
   // doctyper (serveren returnerer tom liste for enhver annen), samme "safe empty"-mønster som
   // referertAvTjenester/-Dokumenter over.
@@ -144,6 +154,32 @@ export default function RettskildeDetalj() {
   const [metaKonsolidertDato, setMetaKonsolidertDato] = useState('');
   const [lagrerMetadata, setLagrerMetadata] = useState(false);
   const [metadataFeil, setMetadataFeil] = useState<string | null>(null);
+
+  // Irrelevant-markering (2026-08-30) — header-nivå «marker som irrelevant for regel-ide» +
+  // fritekstkommentar. Toggelen er ALLTID synlig (ikke bak en «rediger»-knapp slik Metadata-
+  // seksjonen over er) — dette er én enkeltstående handling (sett/fjern markeringen), ikke en
+  // flerfelts skjemaredigering som trenger et eget redigeringsmodus.
+  const [irrelevantMarkert, setIrrelevantMarkert] = useState(false);
+  const [irrelevantKommentar, setIrrelevantKommentar] = useState('');
+  const [lagrerIrrelevant, setLagrerIrrelevant] = useState(false);
+  const [irrelevantFeil, setIrrelevantFeil] = useState<string | null>(null);
+
+  async function lagreIrrelevant() {
+    if (!id) return;
+    setIrrelevantFeil(null);
+    setLagrerIrrelevant(true);
+    try {
+      const oppdatert = await api.oppdaterRettskildeIrrelevant(id, {
+        erIrrelevant: irrelevantMarkert,
+        irrelevantKommentar: irrelevantKommentar.trim() || null,
+      });
+      setDetalj(oppdatert);
+    } catch (err) {
+      setIrrelevantFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved lagring av irrelevant-markering.');
+    } finally {
+      setLagrerIrrelevant(false);
+    }
+  }
 
   // Navnekandidat-fiks 3, del 2 (2026-08-30, docs/13-backlog.md §9) — manuell sveip-trigger for NØYAKTIG
   // denne rettskilden. Fantes ikke noe sted i UI-et før nå (kun via NavnekandidaterListe.tsx sitt
@@ -223,11 +259,15 @@ export default function RettskildeDetalj() {
         setDetalj(d);
         setTre(byggTre(noder));
         setTagger(egneTagger);
+        setIrrelevantMarkert(d.erIrrelevant);
+        setIrrelevantKommentar(d.irrelevantKommentar ?? '');
       })
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av rettskilden.'));
     api.hentReferertAvTjenester(id).then(setReferertAvTjenester).catch(() => setReferertAvTjenester([]));
     api.hentReferertAvDokumenter(id).then(setReferertAvDokumenter).catch(() => setReferertAvDokumenter([]));
     api.hentReferanser(id).then(setReferanser).catch(() => setReferanser([]));
+    api.hentHjemmel(id).then(setHjemler).catch(() => setHjemler([]));
+    api.hentHjemmelFor(id).then(setHjemletFor).catch(() => setHjemletFor([]));
     api.hentRettskildeStier(id).then(setNettsideStier).catch(() => setNettsideStier([]));
     api.hentRettskildeNettsideLenker(id).then(setNettsideLenker).catch(() => setNettsideLenker([]));
     api.hentHandbokRettskildeomfang(id).then(setRettskildeomfang).catch(() => setRettskildeomfang([]));
@@ -444,6 +484,7 @@ export default function RettskildeDetalj() {
     () => (detalj ? [{
       id: detalj.id, virksomhetId: detalj.virksomhetId, eli: detalj.eli, tittel: detalj.tittel,
       kortnavn: detalj.kortnavn, kildetype: detalj.kildetype, ansvarligDepartement: detalj.ansvarligDepartement,
+      erIrrelevant: detalj.erIrrelevant,
     }] : []),
     [detalj],
   );
@@ -572,6 +613,7 @@ export default function RettskildeDetalj() {
         <Tag data-color="info">{detalj.kildetype}</Tag>
         <Tag data-color={detalj.status === 'Gjeldende' ? 'success' : 'warning'}>{detalj.status}</Tag>
         <Tag data-color={detalj.virksomhetId ? 'success' : 'info'}>{visEier(detalj.virksomhetId)}</Tag>
+        {detalj.erIrrelevant && <Tag data-color="warning">Irrelevant for regel-ide</Tag>}
         <Button data-size="sm" variant="secondary" onClick={kjorSveip} disabled={sveiper}>
           {sveiper ? 'Sveiper …' : 'Sveip etter navnekandidater'}
         </Button>
@@ -583,6 +625,36 @@ export default function RettskildeDetalj() {
           <Link asChild><RouterLink to={`/navnekandidater?rettskildeId=${id}`}>Se navnekandidater ↗</RouterLink></Link>
         </Alert>
       )}
+
+      <div
+        style={{
+          marginBottom: '1.5rem', padding: '0.75rem', borderRadius: 'var(--ds-border-radius-default)',
+          border: '1px solid var(--ds-color-neutral-border-subtle)',
+        }}
+      >
+        {detalj.erIrrelevant && (
+          <Alert data-color="warning" style={{ marginBottom: '0.75rem' }}>
+            Markert som irrelevant for regel-ide.{detalj.irrelevantKommentar ? ` ${detalj.irrelevantKommentar}` : ''}
+          </Alert>
+        )}
+        <Switch
+          label="Marker som irrelevant for regel-ide"
+          checked={irrelevantMarkert}
+          onChange={(e) => setIrrelevantMarkert(e.target.checked)}
+        />
+        {irrelevantMarkert && (
+          <Field style={{ marginTop: '0.5rem', maxWidth: '40rem' }}>
+            <Label>Kommentar (hvorfor er denne irrelevant?)</Label>
+            <Textarea value={irrelevantKommentar} onChange={(e) => setIrrelevantKommentar(e.target.value)} rows={2} />
+          </Field>
+        )}
+        <div style={{ marginTop: '0.5rem' }}>
+          <Button data-size="sm" onClick={lagreIrrelevant} disabled={lagrerIrrelevant}>
+            {lagrerIrrelevant ? 'Lagrer …' : 'Lagre'}
+          </Button>
+        </div>
+        {irrelevantFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{irrelevantFeil}</Alert>}
+      </div>
 
       {detalj.kildetype === 'Brukerveiledning' && (
         <div style={{ marginBottom: '1.5rem' }}>
@@ -777,6 +849,60 @@ export default function RettskildeDetalj() {
           </form>
         )}
       </div>
+
+      {hjemler.length > 0 && (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <Heading level={2} data-size="sm" style={{ marginBottom: '0.5rem' }}>
+            Hjemmel
+          </Heading>
+          <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+            {hjemler.map((h) => {
+              const lov = finnRettskildeForEid(h.hjemmelEid, alleRettskilder);
+              const paragraf = h.hjemmelEid.slice(h.hjemmelEid.lastIndexOf('/') + 1);
+              const tekst = lov ? `${lov.kortnavn ?? lov.tittel} ${paragraf}` : h.hjemmelEid;
+              const lenke = rettskildeLenke(h.hjemmelEid, alleRettskilder);
+              return (
+                <Tag key={h.id} data-size="sm" data-color={lenke ? 'info' : 'neutral'}>
+                  {lenke ? (
+                    <Link asChild>
+                      <RouterLink to={lenke}>{tekst}</RouterLink>
+                    </Link>
+                  ) : (
+                    tekst
+                  )}
+                </Tag>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {hjemletFor.length > 0 && (
+        <div style={{ marginBottom: '1.5rem' }}>
+          <Heading level={2} data-size="sm" style={{ marginBottom: '0.5rem' }}>
+            Hjemmel for
+          </Heading>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+            {Array.from(
+              hjemletFor.reduce((kart, h) => {
+                const liste = kart.get(h.forskriftId) ?? { tittel: h.forskriftTittel, eIder: [] as string[] };
+                liste.eIder.push(h.hjemmelEid);
+                kart.set(h.forskriftId, liste);
+                return kart;
+              }, new Map<string, { tittel: string; eIder: string[] }>()),
+            ).map(([forskriftId, { tittel, eIder }]) => (
+              <div key={forskriftId}>
+                <Link asChild>
+                  <RouterLink to={`/rettskilder/${forskriftId}`}>{tittel}</RouterLink>
+                </Link>
+                <div style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                  {eIder.map((eid) => eid.slice(eid.lastIndexOf('/') + 1)).join(', ')}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {referertAvTjenester.length > 0 && (
         <div style={{ marginBottom: '1.5rem' }}>

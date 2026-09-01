@@ -9,6 +9,8 @@ export interface RettskildeSammendrag {
   kildetype: string;
   /** "Kommunal- og distriktsdepartementet" e.l. — NULL for alt som ikke er Lovdata-importert Lov/Forskrift. */
   ansvarligDepartement: string | null;
+  /** Header-nivå «irrelevant for regel-ide»-markering (2026-08-30). Kompakt badge-verdi — se detaljsiden for kommentaren. */
+  erIrrelevant: boolean;
 }
 
 export interface RettskildeDetalj {
@@ -36,6 +38,10 @@ export interface RettskildeDetalj {
   url: string | null;
   /** Eksakt (case-insensitivt) navnetreff mot virksomhetskatalogen — NULL når departementet ikke finnes som egen Virksomhet-rad ("ingen gjettet fallback": vises da som ren tekst, ikke en lenke). */
   ansvarligDepartementVirksomhetId: string | null;
+  /** Header-nivå «irrelevant for regel-ide»-markering (2026-08-30) — menneskelig, eksplisitt valg, aldri utledet fra tittelmønster. */
+  erIrrelevant: boolean;
+  /** Fritekst — hvorfor. Kun meningsfullt når erIrrelevant er true, men slettes IKKE automatisk om markeringen fjernes igjen. */
+  irrelevantKommentar: string | null;
 }
 
 export interface RettskildeNodeDto {
@@ -118,6 +124,29 @@ export interface RettskildeReferanseDto {
   /** Posisjon (tegn-offset/lengde) for referansens synlige tekst i FraNode sin tekst — null for manuelle referanser og de fåtallige import-referansene uten entydig treff. */
   tekstStart: number | null;
   tekstLengde: number | null;
+}
+
+/**
+ * Hjemmel-referanse (2026-08-30) — header-metadatafeltet `<dt class="basedOn">Hjemmel</dt>`: hvilken
+ * paragraf i hvilken lov denne rettskilden (typisk en forskrift) er hjemlet i. `hjemmelEid` er i SAMME
+ * eId-format som en vanlig paragraf-node (se eidLenker.ts) — gjenbruk `rettskildeLenke`/
+ * `finnRettskildeForEid` derfra i stedet for å bygge en egen lenke-oppslagslogikk.
+ * `hjemmelRettskildeId` peker ALLTID til en ekte rad (primær eller en referanse-stub som ennå ikke er
+ * synlig i den åpne rettskilde-lista) — «ingen gjettet fallback»: vis kun som lenke når
+ * `finnRettskildeForEid`/`rettskildeLenke` faktisk finner et treff i den allerede hentede listen.
+ */
+export interface RettskildeHjemmelDto {
+  id: string;
+  hjemmelEid: string;
+  hjemmelRettskildeId: string;
+  sorteringsrekkefolge: number;
+}
+
+/** Motsatt retning av RettskildeHjemmelDto — én forskrift som er hjemlet i DENNE loven. */
+export interface RettskildeHjemletForDto {
+  forskriftId: string;
+  forskriftTittel: string;
+  hjemmelEid: string;
 }
 
 export interface BrukerDto {
@@ -244,6 +273,12 @@ export interface VirksomhetKandidatBatchResultatDto {
   rader: VirksomhetKandidatBatchRadDto[];
 }
 
+/** Resultat av DELETE /api/virksomhet-kandidater (massehardsletting) — kun 'Avvist'-rader rammes, se
+ * backend-kommentaren (VirksomhetKandidatTjeneste.HardslettAlleAvvisteAsync). */
+export interface HardslettVirksomhetKandidaterResultatDto {
+  antallSlettet: number;
+}
+
 /** Oppdagelsesmekanismen (docs/13-backlog.md §9) — komplementær til VirksomhetKandidatDto over. */
 export interface NavnekandidatDto {
   id: string;
@@ -286,6 +321,11 @@ export interface NavnekandidatBatchRadDto {
 
 export interface NavnekandidatBatchResultatDto {
   rader: NavnekandidatBatchRadDto[];
+}
+
+/** [Ny, 2026-08-30] Resultat av DELETE /api/navnekandidater (massesletting, valgfritt filtrert). */
+export interface SlettNavnekandidaterResultatDto {
+  antallSlettet: number;
 }
 
 /** Ikke lenger en fast literal-union — kind-settet er konfigurasjonsstyrt (se TaggKindKonfigurasjonDto), ikke hardkodet. */
@@ -335,6 +375,12 @@ export interface OppdaterRettskildeMetadataRequest {
   vedtaksdato?: string | null;
   gyldigTil?: string | null;
   konsolidertDato?: string | null;
+}
+
+/** PATCH /api/rettskilder/{id}/irrelevant (2026-08-30) — setter begge feltene samtidig. */
+export interface OppdaterRettskildeIrrelevantRequest {
+  erIrrelevant: boolean;
+  irrelevantKommentar: string | null;
 }
 
 export interface ApiFeil {

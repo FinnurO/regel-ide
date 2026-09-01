@@ -16,14 +16,22 @@ namespace RegelIde.Api;
 /// vises alt som er synlig (delte/nasjonale kilder + alle virksomheters publiserte lokale kilder),
 /// akkurat som en nasjonal åpne-data-katalog aggregerer på tvers av alle bidragsytere.
 /// </summary>
-public sealed class RettskildeRepository(RegelIdeDbContext db)
+public sealed class RettskildeRepository(RegelIdeDbContext db, VirksomhetOppslagTjeneste virksomhetOppslag)
 {
     private const string UtkastStatus = "Utkast";
 
-    public Task<List<RettskildeEntitet>> AlleRettskilderAsync(Guid? virksomhetId = null) =>
+    /// <summary>
+    /// <paramref name="inkluderIrrelevante"/> (2026-08-30, irrelevant-markering) — default <c>false</c>:
+    /// rettskilder <see cref="RettskildeEntitet.ErIrrelevant"/>-merket ekskluderes stille fra
+    /// standardvisningen (RettskilderListe.tsx), samme "ikke skjul stille, gi et eksplisitt valg"-
+    /// prinsipp som <c>visIkkeImportert</c> der bruker for Lovdata-importstatus — eksplisitt
+    /// <c>true</c> tar dem med igjen.
+    /// </summary>
+    public Task<List<RettskildeEntitet>> AlleRettskilderAsync(Guid? virksomhetId = null, bool inkluderIrrelevante = false) =>
         db.Rettskilder
             .Where(r => r.Importrolle == "primaer" && r.Entitetsstatus == "gjeldende" && r.Status != UtkastStatus)
             .Where(r => virksomhetId == null || r.VirksomhetId == virksomhetId)
+            .Where(r => inkluderIrrelevante || !r.ErIrrelevant)
             .ToListAsync();
 
     public Task<RettskildeEntitet?> FinnAsync(Guid id) =>
@@ -31,26 +39,16 @@ public sealed class RettskildeRepository(RegelIdeDbContext db)
 
     /// <summary>
     /// [Ny, departement-virksomhet-lenke, 2026-08-30] Løser en rå <see cref="RettskildeEntitet.AnsvarligDepartement"/>-
-    /// streng (Lovdatas eget "ministry"-metadatafelt) til en EKTE <see cref="Virksomhet"/>-rad, ved
-    /// eksakt (case-insensitivt) navnematch — IKKE via Begrep/navnekandidat-mekanismen (den er for
-    /// tekst-OPPDAGELSE av navn i løpende lovtekst; her har vi allerede en strukturert, eksakt streng
-    /// direkte fra Lovdatas metadata, ingen oppdagelse trengs). Case-insensitivt fordi
-    /// <see cref="OrganisasjonsregisterSeed"/> selv matcher case-insensitivt ved backfill (samme
-    /// konvensjon, se dens klassekommentar: "eksisterende virksomhet med case-ufølsomt likt Navn").
-    /// <c>.ToLower()</c> på begge sider (i stedet for <c>StringComparison.OrdinalIgnoreCase</c>, som EF
-    /// Core ikke kan oversette til SQL) — oversettes til <c>LOWER(...)</c> og fungerer likt mot både
-    /// Postgres og SQLite.
-    /// <para>
-    /// Returnerer null uten treff — «ingen gjettet fallback»: et departement-navn som ikke finnes
-    /// eksakt i katalogen (f.eks. en skrivemåte Brreg/regjeringen.no ikke bruker) forblir ukoblet,
-    /// ALDRI koblet til nærmeste/mest sannsynlige treff.
-    /// </para>
+    /// streng (Lovdatas eget "ministry"-metadatafelt) til en EKTE <see cref="Virksomhet"/>-rad.
+    /// [Flyttet, tekst-tagg-departement-eierskap, 2026-08-31] Selve oppslagslogikken bor nå i
+    /// <see cref="VirksomhetOppslagTjeneste"/> (i <c>RegelIde.Data</c>) — <see cref="NavnekandidatOppdagelseTjeneste"/>
+    /// og <see cref="TekstTaggTjeneste"/> trenger nøyaktig samme oppslag for å avgjøre hvilken
+    /// virksomhet en departement-eid tekst-tagg skal tilhøre, men <c>RegelIde.Data</c> kan ikke
+    /// referere <c>RegelIde.Api</c> (prosjektreferansen går kun én vei) — flyttet dit i stedet for
+    /// duplisert, denne metoden delegerer uendret videre. Se <see cref="VirksomhetOppslagTjeneste.FinnVirksomhetIdForNavnAsync"/>
+    /// for selve dokumentasjonen (case-insensitivitet, «ingen gjettet fallback» osv.).
     /// </summary>
-    public Task<Guid?> FinnVirksomhetIdForNavnAsync(string navn)
-    {
-        var navnLower = navn.ToLower();
-        return db.Virksomheter.Where(v => v.Navn.ToLower() == navnLower).Select(v => (Guid?)v.Id).FirstOrDefaultAsync();
-    }
+    public Task<Guid?> FinnVirksomhetIdForNavnAsync(string navn) => virksomhetOppslag.FinnVirksomhetIdForNavnAsync(navn);
 
     /// <summary>
     /// Motsatt retning av <see cref="FinnVirksomhetIdForNavnAsync"/> — alle GJELDENDE rettskilder der
@@ -98,6 +96,32 @@ public sealed class RettskildeRepository(RegelIdeDbContext db)
     }
 
     /// <summary>
+    /// Hjemmel-referansene FRA denne rettskilden (typisk en forskrift) — header-metadatafeltet
+    /// Hjemmel (2026-08-30, se RettskildeHjemmelEntitet-kommentaren). DOKUMENTNIVÅ, derfor intet
+    /// node-oppslag her (til forskjell fra <see cref="ReferanserForAsync"/>). Tom liste for enhver
+    /// rettskilde uten feltet (bekreftet KUN på forskrifter i fixture-korpuset, ikke en feil for andre
+    /// doctyper), i kildens egen rekkefølge.
+    /// </summary>
+    public Task<List<RettskildeHjemmelEntitet>> HjemlerForAsync(Guid rettskildeId) =>
+        db.RettskildeHjemler
+            .Where(h => h.RettskildeId == rettskildeId)
+            .OrderBy(h => h.Sorteringsrekkefolge)
+            .ToListAsync();
+
+    /// <summary>
+    /// Motsatt retning av <see cref="HjemlerForAsync"/> — hvilke ANDRE rettskilder (typisk forskrifter)
+    /// som er hjemlet i DENNE rettskilden (typisk en lov). Samme "reverse lookup"-mønster som
+    /// <see cref="ReferertAvAndreDokumenterAsync"/>, bare for Hjemmel i stedet for løpetekst-referanser.
+    /// </summary>
+    public Task<List<RettskildeHjemletForDto>> HjemletForAsync(Guid rettskildeId) =>
+        db.RettskildeHjemler
+            .Where(h => h.HjemmelRettskildeId == rettskildeId)
+            .Join(db.Rettskilder, h => h.RettskildeId, r => r.Id, (h, r) => new { h, r })
+            .OrderBy(x => x.r.Tittel).ThenBy(x => x.h.Sorteringsrekkefolge)
+            .Select(x => new RettskildeHjemletForDto(x.r.Id, x.r.Tittel, x.h.HjemmelEid))
+            .ToListAsync();
+
+    /// <summary>
     /// Oppdaterer redigerbar metadata på en allerede importert rettskilde — opprinnelig AK-3.3.6
     /// "bekreft/rediger metadata" (Kortnavn/Utgiver, i importbekreftelsen `Importer.tsx`), utvidet
     /// 2026-08-13 (avklaringsrunde) med de håndbok-metadatafeltene som allerede fantes på entiteten
@@ -125,6 +149,28 @@ public sealed class RettskildeRepository(RegelIdeDbContext db)
         rettskilde.SistEndretAv = endretAv;
         rettskilde.SistEndretTidspunkt = DateTimeOffset.UtcNow;
         rettskilde.Versjon++; // basemetadata §0: appens ansvar å øke ved faktisk endring
+        await db.SaveChangesAsync();
+        return rettskilde;
+    }
+
+    /// <summary>
+    /// Setter/fjerner header-nivå irrelevant-markeringen (2026-08-30) — se
+    /// <see cref="RettskildeEntitet.ErIrrelevant"/>. Setter BEGGE feltene samtidig, alltid (ikke bare
+    /// flagget) — <paramref name="irrelevantKommentar"/> lagres uendret selv om <paramref name="erIrrelevant"/>
+    /// er <c>false</c> (fjernes markeringen igjen, slettes IKKE kommentaren automatisk, se entitetens
+    /// klassekommentar). Returnerer null hvis rettskilden ikke finnes (kalleren mapper til 404).
+    /// </summary>
+    public async Task<RettskildeEntitet?> OppdaterIrrelevantAsync(
+        Guid id, bool erIrrelevant, string? irrelevantKommentar, string endretAv)
+    {
+        var rettskilde = await db.Rettskilder.FirstOrDefaultAsync(r => r.Id == id);
+        if (rettskilde is null) return null;
+
+        rettskilde.ErIrrelevant = erIrrelevant;
+        rettskilde.IrrelevantKommentar = irrelevantKommentar;
+        rettskilde.SistEndretAv = endretAv;
+        rettskilde.SistEndretTidspunkt = DateTimeOffset.UtcNow;
+        rettskilde.Versjon++;
         await db.SaveChangesAsync();
         return rettskilde;
     }

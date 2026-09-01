@@ -49,6 +49,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<RettskildeEntitet> Rettskilder => Set<RettskildeEntitet>();
     public DbSet<RettskildeNodeEntitet> RettskildeNoder => Set<RettskildeNodeEntitet>();
     public DbSet<RettskildeReferanseEntitet> RettskildeReferanser => Set<RettskildeReferanseEntitet>();
+    public DbSet<RettskildeHjemmelEntitet> RettskildeHjemler => Set<RettskildeHjemmelEntitet>();
     public DbSet<TekstTaggEntitet> TekstTagger => Set<TekstTaggEntitet>();
     public DbSet<TaggKindKonfigurasjonEntitet> TaggKindKonfigurasjoner => Set<TaggKindKonfigurasjonEntitet>();
     public DbSet<HandbokKommentarMetadataEntitet> HandbokKommentarMetadata => Set<HandbokKommentarMetadataEntitet>();
@@ -301,6 +302,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Saksnummer).HasColumnName("saksnummer");
             e.Property(x => x.HjemmelEid).HasColumnName("hjemmel_eid");
 
+            // Header-nivå irrelevant-markering (2026-08-30) — se RettskildeEntitet.ErIrrelevant.
+            e.Property(x => x.ErIrrelevant).HasColumnName("er_irrelevant").HasDefaultValue(false);
+            e.Property(x => x.IrrelevantKommentar).HasColumnName("irrelevant_kommentar");
+
             e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.ErstatterId);
             e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
 
@@ -416,6 +421,28 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 
             e.HasIndex(x => new { x.FraNodeId, x.TilRettskildeId, x.TilEid }).IsUnique()
                 .HasDatabaseName("rettskilde_referanser_fra_node_id_til_rettskilde_id_til_ei_key");
+        });
+
+        b.Entity<RettskildeHjemmelEntitet>(e =>
+        {
+            e.ToTable("rettskilde_hjemler");
+            e.HasKey(x => x.Id).HasName("rettskilde_hjemler_pkey");
+            e.Property(x => x.RettskildeId).HasColumnName("rettskilde_id");
+            e.Property(x => x.HjemmelEid).HasColumnName("hjemmel_eid");
+            e.Property(x => x.HjemmelRettskildeId).HasColumnName("hjemmel_rettskilde_id");
+            e.Property(x => x.Sorteringsrekkefolge).HasColumnName("sorteringsrekkefolge");
+
+            e.HasOne<RettskildeEntitet>().WithMany()
+                .HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<RettskildeEntitet>().WithMany()
+                .HasForeignKey(x => x.HjemmelRettskildeId);
+
+            // Samme "unngå duplikatimport av samme referanse"-begrunnelse som
+            // rettskilde_referanser_..._key over — en reimport av samme forskrift skriver til en NY
+            // RettskildeId hver gang (§2.1), så denne hindrer kun duplikater INNENFOR én og samme import.
+            e.HasIndex(x => new { x.RettskildeId, x.HjemmelEid }).IsUnique()
+                .HasDatabaseName("ux_rettskilde_hjemler_rettskilde_id_hjemmel_eid");
+            e.HasIndex(x => x.HjemmelRettskildeId).HasDatabaseName("ix_rettskilde_hjemler_hjemmel_rettskilde");
         });
 
         b.Entity<TekstTaggEntitet>(e =>

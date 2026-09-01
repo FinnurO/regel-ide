@@ -33,7 +33,36 @@ public class VirksomhetKandidatTjenesteTests
     }
 
     private static VirksomhetKandidatTjeneste NyTjeneste(RegelIdeDbContext db) =>
-        new(db, new TekstTaggTjeneste(db));
+        new(db, new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)));
+
+    /// <summary>
+    /// [Rettet, 2026-09-01] Fersk, syntetisk rettskilde med unik Guid — TIL FORSKJELL fra
+    /// <see cref="OpprettAlkohollovenMedParagrafAsync"/>, som er idempotent på ELI og derfor deler
+    /// SAMME rettskilde-rad med alle andre tester i denne DELTE DataTestCollection-databasen (se
+    /// RettskildeImportTjeneste). Det er trygt for tester som kun sjekker EKSISTENS av en spesifikk
+    /// kandidat-id, men et rettskilde-FILTRERT bulk-slett-antall (som i testen under) telles på tvers
+    /// av ALLE tester som noensinne har lagt en avvist kandidat på den delte alkoholloven-raden —
+    /// bekreftet ved en reell testfeil (forventet 1, fikk 4). Samme mønster som
+    /// <c>NavnekandidatOppdagelseTjenesteTests.OpprettRettskildeMedNodeAsync</c> løser dette med.
+    /// </summary>
+    private static async Task<(Guid RettskildeId, RettskildeNodeEntitet Node)> OpprettSyntetiskRettskildeAsync(RegelIdeDbContext db)
+    {
+        var rettskildeId = Guid.NewGuid();
+        var nodeEid = $"https://test/{rettskildeId:N}/§1/ledd-1";
+        db.Rettskilder.Add(new RettskildeEntitet
+        {
+            Id = rettskildeId, Doctype = "doc", Kildetype = "Lov", Status = "Gjeldende", Importrolle = "referanse",
+            Tittel = "Testlov " + rettskildeId, OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        var node = new RettskildeNodeEntitet
+        {
+            Id = Guid.NewGuid(), RettskildeId = rettskildeId, Eid = nodeEid, KildeId = "ledd-1",
+            NodeType = "ledd", Tekst = "Testtekst for slettetest.",
+        };
+        db.RettskildeNoder.Add(node);
+        await db.SaveChangesAsync();
+        return (rettskildeId, node);
+    }
 
     [Fact]
     public async Task Oppretter_kandidat_og_lister_i_ventende()
@@ -239,5 +268,100 @@ public class VirksomhetKandidatTjenesteTests
 
         await register.AvvisAsync(kandidat.Id, "Kari Jurist");
         Assert.True(await register.HardslettAvvistAsync(kandidat.Id));
+    }
+
+    // ---------- Massehardsletting (HardslettAlleAvvisteAsync) — samme Avvist-only-restriksjon som
+    // HardslettAvvistAsync over, nå som bulk-variant med filter. ----------
+
+    /// <summary>Massehardsletting filtrert på rettskilde skal KUN slette den ene rettskildens avviste
+    /// rad — en 'Venter'-rad i SAMME rettskilde, og en avvist rad i en ANNEN rettskilde, skal begge
+    /// forbli urørt (rammer verken feil status eller feil rettskilde).</summary>
+    [Fact]
+    public async Task HardslettAlleAvviste_med_rettskildefilter_rammer_kun_avviste_rader_i_valgt_rettskilde()
+    {
+        await using var db = _fixture.NyDbContext();
+        // Syntetisk, IKKE delt alkoholloven-fixturen — et rettskilde-filtrert antall må telles mot
+        // en rettskilde KUN denne testen bruker (se OpprettSyntetiskRettskildeAsync sin kommentar).
+        var (rettskildeIdA, nodeA) = await OpprettSyntetiskRettskildeAsync(db);
+        var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(virksomhet);
+        await db.SaveChangesAsync();
+
+        var register = NyTjeneste(db);
+        // To treff i SAMME rettskilde/node (ulike startOffset, se StartOffset-kommentaren) — én avvist,
+        // én fortsatt Venter.
+        var avvistKandidat = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeIdA, nodeA.Eid, 0, 4, "sveip");
+        var venterKandidat = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeIdA, nodeA.Eid, 5, 9, "sveip");
+        await register.AvvisAsync(avvistKandidat.Id, "Kari Jurist");
+
+        var antallSlettet = await register.HardslettAlleAvvisteAsync(rettskildeId: rettskildeIdA);
+
+        Assert.Equal(1, antallSlettet);
+        Assert.False(await db.VirksomhetKandidater.AnyAsync(k => k.Id == avvistKandidat.Id));
+        Assert.True(await db.VirksomhetKandidater.AnyAsync(k => k.Id == venterKandidat.Id)); // urørt — 'Venter'.
+    }
+
+    [Fact]
+    public async Task HardslettAlleAvviste_med_statusVenter_kaster_og_sletter_ingenting()
+    {
+        await using var db = _fixture.NyDbContext();
+        var (rettskildeId, node) = await OpprettAlkohollovenMedParagrafAsync(db);
+        var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(virksomhet);
+        await db.SaveChangesAsync();
+
+        var register = NyTjeneste(db);
+        var kandidat = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeId, node.Eid, 0, 4, "sveip");
+        await register.AvvisAsync(kandidat.Id, "Kari Jurist");
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => register.HardslettAlleAvvisteAsync(rettskildeId: rettskildeId, status: "Venter"));
+
+        Assert.True(await db.VirksomhetKandidater.AnyAsync(k => k.Id == kandidat.Id)); // ikke slettet.
+    }
+
+    /// <summary>Den definerende forskjellen fra navnekandidater: en 'Godkjent' rad kan ALDRI
+    /// hardslettes bulk-veien heller (i motsetning til NavnekandidatOppdagelseTjeneste.SlettAlleAsync,
+    /// som aksepterer status='Godkjent') — fordi taggen den opprettet ikke kan fjernes i etterkant
+    /// (TekstTaggTjeneste.SlettAsync nekter å fjerne en tagg med RefId satt).</summary>
+    [Fact]
+    public async Task HardslettAlleAvviste_med_statusGodkjent_kaster_og_sletter_ingenting()
+    {
+        await using var db = _fixture.NyDbContext();
+        var (rettskildeId, node) = await OpprettAlkohollovenMedParagrafAsync(db);
+        var begrepTerm = node.Tekst![..4];
+        var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(virksomhet);
+        db.Begreper.Add(new BegrepEntitet
+        {
+            Id = Guid.NewGuid(), Begrepskategori = "virksomhet", VirksomhetReferanseId = virksomhet.Id, VirksomhetId = null,
+            Term = begrepTerm, Status = "publisert", OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        await db.SaveChangesAsync();
+
+        var register = NyTjeneste(db);
+        var kandidat = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeId, node.Eid, 0, 4, "sveip");
+        await register.GodkjennAsync(kandidat.Id, "Kari Jurist");
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => register.HardslettAlleAvvisteAsync(rettskildeId: rettskildeId, status: "Godkjent"));
+
+        Assert.True(await db.VirksomhetKandidater.AnyAsync(k => k.Id == kandidat.Id)); // ikke slettet.
+        Assert.True(await db.TekstTagger.AnyAsync(t => t.RettskildeId == rettskildeId && t.VirksomhetId == virksomhet.Id)); // taggen består urørt.
+    }
+
+    [Fact]
+    public async Task HardslettAlleAvviste_uten_treff_returnerer_null_uten_a_kaste()
+    {
+        await using var db = _fixture.NyDbContext();
+        // Syntetisk, IKKE delt alkoholloven-fixturen — se OpprettSyntetiskRettskildeAsync sin
+        // kommentar: et rettskilde-filtrert "forventet 0 treff" holder ikke mot en rad andre tester
+        // også bruker.
+        var (rettskildeId, _) = await OpprettSyntetiskRettskildeAsync(db);
+
+        var register = NyTjeneste(db);
+        var antallSlettet = await register.HardslettAlleAvvisteAsync(rettskildeId: rettskildeId);
+
+        Assert.Equal(0, antallSlettet);
     }
 }

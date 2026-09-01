@@ -31,6 +31,7 @@ builder.Services.LeggTilRegelIdeDatabase(builder.Configuration);
 // Testbruker-header som standard; Altinn-cookie kun når RegelIde:Autentisering sier det.
 // Se Autentiseringsoppsett.cs og docs/autentisering.md.
 builder.Services.LeggTilRegelIdeAutentisering(builder.Configuration);
+builder.Services.AddScoped<VirksomhetOppslagTjeneste>();
 builder.Services.AddScoped<RettskildeRepository>();
 builder.Services.AddScoped<VeiledningRepository>();
 builder.Services.AddScoped<RettskildeImportTjeneste>();
@@ -317,6 +318,18 @@ using (var scope = app.Services.CreateScope())
     // departementer (4 fantes allerede via OrganisasjonsregisterSeed over). Kjøres ETTER den, slik at
     // matching på Organisasjonsnummer faktisk finner de 4 eksisterende radene i stedet for å duplisere.
     await DepartementSeed.SeedAsync(db);
+
+    // Engangs-tilbakefylling av RettskildeEntitet.AnsvarligDepartement (2026-08-30) — feltet fylles
+    // kun ut ved IMPORT (RettskildeImportTjeneste), så alle rettskilder importert FØR kolonnen fantes
+    // (bekreftet: alle ~5900 eksisterende) har den NULL selv om verdien hele tiden har ligget lagret i
+    // AknXml. Idempotent (se AnsvarligDepartementBackfillTjeneste.cs) — trygt å kjøre på hver oppstart,
+    // rører aldri rader som allerede har verdien satt. Kjøres ETTER DepartementSeed over (ren
+    // kolonne-tilbakefylling, avhenger ikke av Virksomhet-katalogen, men logisk hører den sammen med
+    // resten av departement-arbeidet fra samme dato).
+    var ansvarligDepartementAntall = await AnsvarligDepartementBackfillTjeneste.KjorAsync(db);
+    app.Logger.LogInformation(
+        "AnsvarligDepartement-tilbakefylling fullført: {Antall} rettskilder oppdatert fra allerede lagret AknXml.",
+        ansvarligDepartementAntall);
 }
 
 // GUI-et spør om profilen for å vite om brukervelgeren skal vises i det hele tatt.
@@ -568,11 +581,12 @@ app.MapGet("/api/konfigurasjon/tagg-kinds", async (RegelIdeDbContext db) =>
 
 var rettskilder = app.MapGroup("/api/rettskilder").WithOpenApi();
 
-rettskilder.MapGet("/", async (Guid? virksomhetId, RettskildeRepository repo) =>
-        (await repo.AlleRettskilderAsync(virksomhetId)).Select(RettskildeSammendrag.FraEntitet))
+rettskilder.MapGet("/", async (Guid? virksomhetId, bool? inkluderIrrelevante, RettskildeRepository repo) =>
+        (await repo.AlleRettskilderAsync(virksomhetId, inkluderIrrelevante ?? false)).Select(RettskildeSammendrag.FraEntitet))
     .WithName("HentAlleRettskilder")
     .WithSummary("Lister rettskilder (åpne data — kun Status != 'Utkast'). " +
-        "?virksomhetId snevrer inn til én virksomhets bidrag; utelatt viser alt (delt + alle virksomheter).");
+        "?virksomhetId snevrer inn til én virksomhets bidrag; utelatt viser alt (delt + alle virksomheter). " +
+        "?inkluderIrrelevante=true tar med ErIrrelevant-markerte rettskilder, som ellers ekskluderes stille.");
 
 rettskilder.MapGet("/{id:guid}", async (Guid id, RettskildeRepository repo) =>
     {
@@ -611,6 +625,26 @@ rettskilder.MapPatch("/{id:guid}/metadata", async (Guid id, HttpRequest request,
     .WithSummary("Oppdaterer redigerbar metadata (Kortnavn/Utgiver/InterntDokNr/Revisjonsnr/VedtattAv/" +
         "Vedtaksdato/GyldigTil/KonsolidertDato). Eli er ALLTID skrivebeskyttet, aldri i denne requesten.");
 
+rettskilder.MapPatch("/{id:guid}/irrelevant", async (Guid id, HttpRequest request, OppdaterRettskildeIrrelevantRequest body,
+        RettskildeRepository repo, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        var oppdatert = await repo.OppdaterIrrelevantAsync(id, body.ErIrrelevant, body.IrrelevantKommentar, bruker.Navn);
+        if (oppdatert is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
+
+        var departementVirksomhetId = oppdatert.AnsvarligDepartement is null
+            ? null
+            : await repo.FinnVirksomhetIdForNavnAsync(oppdatert.AnsvarligDepartement);
+        return Results.Ok(RettskildeDetalj.FraEntitet(oppdatert, departementVirksomhetId));
+    })
+    .WithName("OppdaterRettskildeIrrelevant")
+    .WithSummary("Setter/fjerner header-nivå «irrelevant for regel-ide»-markering + fritekstkommentar. " +
+        "Menneskelig, eksplisitt valg — ALDRI utledet fra tittelmønster e.l.");
+
 rettskilder.MapGet("/{id:guid}/noder", async (Guid id, RettskildeRepository repo) =>
     {
         if (await repo.FinnAsync(id) is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
@@ -641,6 +675,26 @@ rettskilder.MapGet("/{id:guid}/referanser", async (Guid id, RettskildeRepository
     })
     .WithName("HentRettskildeReferanser")
     .WithSummary("Henter kryssreferansene funnet i løpeteksten (interne og eksterne).");
+
+rettskilder.MapGet("/{id:guid}/hjemmel", async (Guid id, RettskildeRepository repo) =>
+    {
+        if (await repo.FinnAsync(id) is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
+        var hjemler = await repo.HjemlerForAsync(id);
+        return Results.Ok(hjemler.Select(RettskildeHjemmelDto.FraEntitet));
+    })
+    .WithName("HentRettskildeHjemmel")
+    .WithSummary("Henter Hjemmel-referansene fra header-metadatafeltet <dt class=\"basedOn\"> (2026-08-30) — " +
+        "hvilke(n) paragraf(er) i hvilken lov denne rettskilden (typisk en forskrift) er hjemlet i. " +
+        "Tom liste for enhver rettskilde uten feltet (bekreftet KUN forskrifter i fixture-korpuset).");
+
+rettskilder.MapGet("/{id:guid}/hjemmel-for", async (Guid id, RettskildeRepository repo) =>
+    {
+        if (await repo.FinnAsync(id) is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
+        return Results.Ok(await repo.HjemletForAsync(id));
+    })
+    .WithName("HentRettskildeHjemmelFor")
+    .WithSummary("Motsatt retning av /hjemmel — hvilke forskrifter er hjemlet i DENNE rettskilden (typisk en lov). " +
+        "Tom liste for en rettskilde ingen andre rettskilder er hjemlet i.");
 
 rettskilder.MapGet("/{id:guid}/referert-av-tjenester", async (Guid id, RettskildeRepository repo) =>
         Results.Ok(await repo.ReferertAvTjenesterAsync(id)))
@@ -2589,6 +2643,26 @@ virksomhetKandidater.MapDelete("/{id:guid}", async (Guid id, VirksomhetKandidatT
     .WithName("HardslettAvvistVirksomhetKandidat")
     .WithSummary("Kun 'Avvist'-rader kan hardslettes (docs/20 §2.6) — et eksplisitt unntak fra husstilens vanlige mykslette-mønster.");
 
+virksomhetKandidater.MapDelete("/", async (Guid? virksomhetId, Guid? rettskildeId, string? status,
+        VirksomhetKandidatTjeneste register, CancellationToken ct) =>
+    {
+        try
+        {
+            var antallSlettet = await register.HardslettAlleAvvisteAsync(virksomhetId, rettskildeId, status, ct);
+            return Results.Ok(new HardslettVirksomhetKandidaterResultatDto(antallSlettet));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("HardslettAlleAvvisteVirksomhetKandidater")
+    .WithSummary("Massehardsletting, valgfritt filtrert på virksomhet/rettskilde (samme filterparametre som GET /) — " +
+        "KUN 'Avvist'-rader rammes, uansett filter (docs/20 §2.6). 'Venter'/'Godkjent' er eksplisitt utelukket " +
+        "(status-parameteren aksepterer derfor kun utelatt eller 'Avvist', ellers 400) — se " +
+        "VirksomhetKandidatTjeneste.HardslettAlleAvvisteAsync for hvorfor 'Godkjent' ikke kan hardslettes " +
+        "(en ekte tekst-tagg som ikke kan fjernes i etterkant).");
+
 // ---------- Navnekandidater — oppdagelse av egennavn/juridiske aktører (docs/13-backlog.md §9) ----------
 // Komplementær til /api/virksomhet-kandidater over: DEN er en bekreftelsesmekanisme (krever en
 // allerede kjent navneform), DENNE er en oppdagelsesmekanisme (ren regex-mønstergjenkjenning, foreslår
@@ -2713,6 +2787,31 @@ navnekandidater.MapPost("/avvis-batch", async (HttpRequest request, Navnekandida
     })
     .WithName("AvvisNavnekandidaterBatch")
     .WithSummary("Masseavvisning — server-side batch med per-rad-feilhåndtering.");
+
+// [Ny, 2026-08-30] Sletting — ekte, ikke soft-delete (se NavnekandidatOppdagelseTjeneste.SlettAsync for
+// hvorfor: ren oppdagelseskø, ingen Entitetsstatus/proveniens-kobling som ville tilsi mykslette).
+// Trengs fordi OpprettEllerFinnAsync sin posisjonsbaserte idempotens ellers hindrer et nytt sveip i
+// noensinne å re-evaluere allerede sveipet tekst mot nye/endrede mønsterregler uten ekte sletting her.
+
+navnekandidater.MapDelete("/{id:guid}", async (Guid id, NavnekandidatOppdagelseTjeneste register, CancellationToken ct) =>
+        await register.SlettAsync(id, ct)
+            ? Results.NoContent()
+            : Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }))
+    .WithName("SlettNavnekandidat")
+    .WithSummary("Ekte sletting av ÉN rad, uansett status — til forskjell fra /api/virksomhet-kandidater sin " +
+        "hardslett-KUN-'Avvist'-begrensning (docs/20 §2.6). Se NavnekandidatOppdagelseTjeneste.SlettAsync.");
+
+navnekandidater.MapDelete("/", async (string? status, string? kategori, Guid? rettskildeId,
+        NavnekandidatOppdagelseTjeneste register, CancellationToken ct) =>
+    {
+        var antallSlettet = await register.SlettAlleAsync(status, kategori, rettskildeId, ct);
+        return Results.Ok(new SlettNavnekandidaterResultatDto(antallSlettet));
+    })
+    .WithName("SlettAlleNavnekandidater")
+    .WithSummary("Massesletting, samme valgfrie filterparametre som GET / (status/kategori/rettskildeId) — " +
+        "MERK: her betyr utelatt status 'ingen statusfilter' (slett ALLE statuser), IKKE GET / sin " +
+        "'utelatt = kun Venter'-standard — klienten sender alltid eksplisitt status. Ekte, irreversibel " +
+        "sletting; klienten MÅ vise antall og be om bekreftelse FØR kallet.");
 
 // ---------- Datasett (docs/03-domenemodell.md §1.6) — byggesteg 4, minimal, kun lesing ----------
 

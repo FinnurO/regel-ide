@@ -61,6 +61,28 @@ public sealed class LovdataFullimportBakgrunnstjeneste(
             {
                 logger.LogError(ex, "Navnekandidat-sveip etter fullimport feilet uventet.");
             }
+
+            // [Ny, 2026-08-30] Samme begrunnelse som navnekandidat-sveipet over: selve fullimporten
+            // setter AnsvarligDepartement direkte for radene den (opp)oppretter/oppdaterer, men denne
+            // idempotente tilbakefyllingen dekker likevel ev. rader som av andre grunner endte opp
+            // NULL — se AnsvarligDepartementBackfillTjeneste.cs. Egen try/catch av samme grunn: en
+            // feilet tilbakefylling skal aldri se ut som at selve fullimporten (allerede committet) feilet.
+            try
+            {
+                var dbForBackfill = scope.ServiceProvider.GetRequiredService<RegelIdeDbContext>();
+                var backfillAntall = await AnsvarligDepartementBackfillTjeneste.KjorAsync(dbForBackfill, stoppingToken);
+                logger.LogInformation(
+                    "AnsvarligDepartement-tilbakefylling etter fullimport fullført: {Antall} rettskilder oppdatert.",
+                    backfillAntall);
+            }
+            catch (OperationCanceledException)
+            {
+                // Normal avslutning ved app-shutdown midt i tilbakefyllingen — ikke en feil.
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "AnsvarligDepartement-tilbakefylling etter fullimport feilet uventet.");
+            }
         }
         catch (OperationCanceledException)
         {

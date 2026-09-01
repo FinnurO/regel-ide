@@ -14,11 +14,16 @@ namespace RegelIde.Api;
 /// departement via akkurat DENNE DTO-en (samme "allerede hentet rettskilde-lookup"-mønster som
 /// <c>visRettskilde</c> i NavnekandidaterListe.tsx allerede bruker for kortnavn/tittel).
 /// </summary>
+/// <summary>
+/// <see cref="ErIrrelevant"/> lagt til (2026-08-30, irrelevant-markering) — kompakt badge-verdi for
+/// listetabellen (RettskilderListe.tsx); selve kommentaren vises kun på detaljsiden, ikke her.
+/// </summary>
 public sealed record RettskildeSammendrag(
-    Guid Id, Guid? VirksomhetId, string? Eli, string Tittel, string? Kortnavn, string Kildetype, string? AnsvarligDepartement)
+    Guid Id, Guid? VirksomhetId, string? Eli, string Tittel, string? Kortnavn, string Kildetype,
+    string? AnsvarligDepartement, bool ErIrrelevant)
 {
     public static RettskildeSammendrag FraEntitet(RettskildeEntitet r) =>
-        new(r.Id, r.VirksomhetId, r.Eli, r.Tittel, r.Kortnavn, r.Kildetype, r.AnsvarligDepartement);
+        new(r.Id, r.VirksomhetId, r.Eli, r.Tittel, r.Kortnavn, r.Kildetype, r.AnsvarligDepartement, r.ErIrrelevant);
 }
 
 /// <summary>Full rettskilde: metadata + kanonisk AKN-XML (§1 i teknisk design). ELI er ALLTID skrivebeskyttet
@@ -37,12 +42,13 @@ public sealed record RettskildeDetalj(
     Guid Id, Guid? VirksomhetId, string Doctype, string Kildetype, string Tittel, string? Kortnavn, string? Eli,
     DateOnly? Ikrafttredelse, DateOnly? KonsolidertDato, string? Utgiver, string? AnsvarligDepartement, string Status,
     string? AknXml, string? InterntDokNr, string? Revisjonsnr, string? VedtattAv, DateOnly? Vedtaksdato,
-    DateOnly? GyldigTil, string? Url, Guid? AnsvarligDepartementVirksomhetId)
+    DateOnly? GyldigTil, string? Url, Guid? AnsvarligDepartementVirksomhetId, bool ErIrrelevant, string? IrrelevantKommentar)
 {
     public static RettskildeDetalj FraEntitet(RettskildeEntitet r, Guid? ansvarligDepartementVirksomhetId = null) => new(
         r.Id, r.VirksomhetId, r.Doctype, r.Kildetype, r.Tittel, r.Kortnavn, r.Eli,
         r.Ikrafttredelse, r.KonsolidertDato, r.Utgiver, r.AnsvarligDepartement, r.Status, r.AknXml,
-        r.InterntDokNr, r.Revisjonsnr, r.VedtattAv, r.Vedtaksdato, r.GyldigTil, r.Url, ansvarligDepartementVirksomhetId);
+        r.InterntDokNr, r.Revisjonsnr, r.VedtattAv, r.Vedtaksdato, r.GyldigTil, r.Url, ansvarligDepartementVirksomhetId,
+        r.ErIrrelevant, r.IrrelevantKommentar);
 }
 
 /// <summary>Forespørsel for POST /api/rettskilder/lovdata.</summary>
@@ -58,6 +64,15 @@ public sealed record LovdataImportRequest(string Datokode);
 public sealed record OppdaterRettskildeMetadataRequest(
     string? Kortnavn, string? Utgiver, string? InterntDokNr, string? Revisjonsnr, string? VedtattAv,
     DateOnly? Vedtaksdato, DateOnly? GyldigTil, DateOnly? KonsolidertDato);
+
+/// <summary>
+/// Forespørsel for PATCH /api/rettskilder/{id}/irrelevant (2026-08-30) — setter BEGGE feltene samtidig,
+/// ikke separate PATCH-er for flagg/kommentar (samme "ett skjema, én lagring"-mønster som
+/// <see cref="OppdaterRettskildeMetadataRequest"/>). <see cref="IrrelevantKommentar"/> er ikke
+/// obligatorisk selv når <see cref="ErIrrelevant"/> er <c>true</c> — håndheves ikke strengt server-side,
+/// se <see cref="RettskildeEntitet.IrrelevantKommentar"/>.
+/// </summary>
+public sealed record OppdaterRettskildeIrrelevantRequest(bool ErIrrelevant, string? IrrelevantKommentar);
 
 /// <summary>Én node i rettskildens tre (kapittel/underinndeling/paragraf/ledd/punkt), for tre-navigasjon.</summary>
 public sealed record RettskildeNodeDto(
@@ -108,6 +123,27 @@ public sealed record RettskildeReferanseDto(Guid Id, Guid FraNodeId, Guid TilRet
     public static RettskildeReferanseDto FraEntitet(RettskildeReferanseEntitet r) =>
         new(r.Id, r.FraNodeId, r.TilRettskildeId, r.TilEid, r.Opprinnelse, r.TekstStart, r.TekstLengde);
 }
+
+/// <summary>
+/// Hjemmel-referanse (2026-08-30, se RettskildeHjemmelEntitet-kommentaren) — header-metadatafeltet
+/// Hjemmel: hvilken paragraf i hvilken lov denne rettskilden (typisk en forskrift) er hjemlet i.
+/// <see cref="HjemmelRettskildeId"/> peker ALLTID til en ekte rad (primær ELLER referanse-stub, samme
+/// mekanisme som <see cref="RettskildeReferanseDto.TilRettskildeId"/>) — klienten slår denne opp mot
+/// den allerede hentede rettskilde-lista (samme "ingen egen oppslags-endepunkt"-prinsipp som
+/// eidLenker.ts sin <c>rettskildeLenke</c>) for å avgjøre om den er synlig/lenkbar ennå.
+/// </summary>
+public sealed record RettskildeHjemmelDto(Guid Id, string HjemmelEid, Guid HjemmelRettskildeId, int Sorteringsrekkefolge)
+{
+    public static RettskildeHjemmelDto FraEntitet(RettskildeHjemmelEntitet h) =>
+        new(h.Id, h.HjemmelEid, h.HjemmelRettskildeId, h.Sorteringsrekkefolge);
+}
+
+/// <summary>
+/// Motsatt retning av <see cref="RettskildeHjemmelDto"/> — én forskrift som er hjemlet i DENNE loven,
+/// til visning i lovens "Hjemmel for"-seksjon (samme "reverse lookup"-mønster som
+/// <see cref="DokumentReferanseDto"/> for de vanlige løpetekst-kryssreferansene).
+/// </summary>
+public sealed record RettskildeHjemletForDto(Guid ForskriftId, string ForskriftTittel, string HjemmelEid);
 
 /// <summary>Tekst-tag (§1.2 i domenemodellen, AK-3.3.1–3.3.4). `RefId` er alltid null i byggesteg 1.</summary>
 public sealed record TekstTaggDto(
@@ -496,6 +532,11 @@ public sealed record VirksomhetKandidatBatchRadDto(Guid Id, bool Ok, string? Fei
 
 public sealed record VirksomhetKandidatBatchResultatDto(IReadOnlyList<VirksomhetKandidatBatchRadDto> Rader);
 
+/// <summary>Resultat av <c>DELETE /api/virksomhet-kandidater</c> (massehardsletting) — kun 'Avvist'-rader
+/// telles/slettes, se <see cref="VirksomhetKandidatTjeneste.HardslettAlleAvvisteAsync"/>. Lar klienten
+/// bekrefte at det faktiske antallet stemte med det som ble varslet i bekreftelsesdialogen FØR kallet.</summary>
+public sealed record HardslettVirksomhetKandidaterResultatDto(int AntallSlettet);
+
 // ---------- Navnekandidater — oppdagelse av egennavn/juridiske aktører (docs/13-backlog.md §9) ----------
 
 public sealed record NavnekandidatDto(
@@ -530,6 +571,11 @@ public sealed record NavnekandidatBatchRequest(IReadOnlyList<Guid> Ider);
 public sealed record NavnekandidatBatchRadDto(Guid Id, bool Ok, string? Feil, NavnekandidatDto? Resultat);
 
 public sealed record NavnekandidatBatchResultatDto(IReadOnlyList<NavnekandidatBatchRadDto> Rader);
+
+/// <summary>[Ny, 2026-08-30] Resultat av <c>DELETE /api/navnekandidater</c> (massesletting) —
+/// <see cref="AntallSlettet"/> lar klienten bekrefte at det faktiske antallet stemte med det som ble
+/// varslet i bekreftelsesdialogen FØR kallet (se NavnekandidaterListe.tsx).</summary>
+public sealed record SlettNavnekandidaterResultatDto(int AntallSlettet);
 
 // ---------- Kodeliste / verdidomene (docs/03-domenemodell.md §1.4) — byggesteg 2 ----------
 
