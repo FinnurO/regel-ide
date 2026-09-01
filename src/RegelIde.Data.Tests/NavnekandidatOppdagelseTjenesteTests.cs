@@ -193,6 +193,55 @@ public class NavnekandidatOppdagelseTjenesteTests
     }
 
     [Fact]
+    public void Flerords_monster_fanger_navngitt_fagskole()
+    {
+        // "fagskole" — lagt til 2026-08-30 etter at Johann forventet skolenavn i navnekandidat-køen
+        // ("Fagskolen Essens") og de manglet — bekreftet i live data at korpuset inneholder mange
+        // navngitte fagskoler i selve rettskilde-teksten på nøyaktig denne formen (Nortrain fagskole,
+        // Nordland fagskole m.fl., se klassekommentaren på Institusjonsord).
+        const string tekst = "Studenter ved Nortrain fagskole har rett til klage på karaktervedtak.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+
+        var treff = Assert.Single(funn, f => f.Kategori == "virksomhet");
+        Assert.Equal("Nortrain fagskole", tekst.Substring(treff.Start, treff.Lengde));
+    }
+
+    [Fact]
+    public void Flerords_monster_gir_ingen_treff_for_generisk_ubestemt_fagskole()
+    {
+        // Samme presisjonskrav som for "en fylkeskommune" — ordet rett før institusjonsordet er ikke
+        // stor forbokstav, altså ikke et egennavn.
+        const string tekst = "Forskriften gjelder for enhver fagskole som tilbyr slik utdanning.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+        Assert.DoesNotContain(funn, f => f.Kategori == "virksomhet");
+    }
+
+    [Fact]
+    public void Flerords_monster_bevisst_utelater_bare_skole_uten_prefiks()
+    {
+        // "skole" alene er BEVISST utelatt fra Institusjonsord (se klassekommentaren — for produktivt
+        // brukt med ethvert stedsnavn/adjektiv til at en denyliste kunne blitt uttømmende, til
+        // forskjell fra "verket"). "Samisk skole" skal derfor IKKE gi noen kandidat i det hele tatt.
+        const string tekst = "Denne bestemmelsen gjelder også for Samisk skole i regionen.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+        Assert.DoesNotContain(funn, f => f.Kategori == "virksomhet");
+    }
+
+    [Theory]
+    [InlineData("Studenten har fullført nivå 5 i NKR og fagskole 1 tidligere.")]
+    [InlineData("Elevene går på SFO og skole hver dag.")]
+    public void Flerords_monster_forkaster_hele_treffet_ved_dinglende_bindeord_rett_for_institusjonsordet(string tekst)
+    {
+        // Regresjonstest for en bug avdekket ved korpusomfattende testsveip av skole-utvidelsen
+        // (2026-08-30): et bindeord ("og") UMIDDELBART FØR institusjonsordet ga tidligere en falsk
+        // kandidat ("NKR og fagskole"/"SFO og skole") fordi det dinglende bindeordet der ikke kan
+        // bare fjernes og falle tilbake til forrige token, slik det trygt kan i STARTEN av et treff
+        // — se metodekommentaren i selve koden for hvorfor. Hele treffet forkastes nå i stedet.
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+        Assert.DoesNotContain(funn, f => f.Kategori == "virksomhet");
+    }
+
+    [Fact]
     public void Flerords_monster_tillater_liste_prefiks_markor_som_ikke_er_en_ekte_setningsslutt()
     {
         // Samme reelle liste som live-data-eksempelet over, men denne varianten har bokstav-listemarkører
