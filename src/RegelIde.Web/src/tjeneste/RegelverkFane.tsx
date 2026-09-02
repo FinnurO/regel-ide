@@ -5,7 +5,7 @@ import { api } from '../api/client';
 import { eidVisningstekst, rettskildeLenke } from '../api/eidLenker';
 import type { RettskildeNodeDto, RettskildeSammendrag, TjenesteRegelverksreferanseDto } from '../api/types';
 import { KobleRegelverksreferanseForm } from '../rettskilde/KobleRegelverksreferanseForm';
-import type { DetaljVisning } from './detaljVisning';
+import type { DetaljVisning } from '../entitet/detaljVisning';
 
 export interface RegelverkFaneProps {
   tjenesteId: string;

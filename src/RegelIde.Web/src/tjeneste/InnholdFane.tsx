@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import {
-  Alert, Button, Details, Label, Paragraph, Select, Tag, Textarea, Textfield,
+  Alert, Button, Label, Paragraph, Select, Tag, Textarea, Textfield,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { GYLDIGE_RETTIGHETSTYPER } from '../api/types';
@@ -10,7 +10,8 @@ import type {
 } from '../api/types';
 import { ACCORDION_LABELER, feltnokkelForEgetInnhold } from '../api/tjenesteFelt';
 import { KobleRegelverksreferanseForm } from '../rettskilde/KobleRegelverksreferanseForm';
-import type { DetaljVisning } from './detaljVisning';
+import { Accordion } from '../entitet/Accordion';
+import type { DetaljVisning } from '../entitet/detaljVisning';
 
 // ---------- Felt-nivå regelverksreferanser (§-tagger) — delt av alle felt i denne fanen ----------
 
@@ -100,47 +101,8 @@ function Felt({ feltKey, label, spanFull, help, children }: { feltKey: string; l
   );
 }
 
-// ---------- Accordion-skallet (Details, opp/ned/åpen — styrt av useVisningsinnstillinger) ----------
-
-function Accordion({ apen, kanFlyttes, onToggle, onFlytt, tittelSuffiks, onFjern, tittel, onTittelChange, children }: {
-  apen: boolean;
-  kanFlyttes: { opp: boolean; ned: boolean };
-  onToggle: (apen: boolean) => void;
-  onFlytt: (retning: -1 | 1) => void;
-  tittelSuffiks?: string;
-  onFjern?: () => void;
-  tittel: string;
-  onTittelChange?: (t: string) => void;
-  children: ReactNode;
-}) {
-  return (
-    <Details open={apen} onToggle={(e) => onToggle((e.target as HTMLDetailsElement).open)} style={{ marginBottom: '0.6rem' }}>
-      <Details.Summary>
-        <span style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '0.5rem' }}>
-          {onTittelChange ? (
-            <Textfield
-              data-size="sm" value={tittel} onChange={(e) => onTittelChange(e.target.value)}
-              onClick={(e) => e.stopPropagation()} aria-label="Tittel på innholdselement"
-              style={{ maxWidth: '18rem', border: 'none', background: 'transparent', fontWeight: 600 }}
-            />
-          ) : (
-            <span style={{ fontWeight: 600 }}>
-              {tittel}{tittelSuffiks && <span style={{ fontWeight: 400, fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginLeft: '0.4rem' }}>{tittelSuffiks}</span>}
-            </span>
-          )}
-          <span style={{ display: 'flex', gap: '0.2rem' }} onClick={(e) => e.stopPropagation()}>
-            <Button variant="tertiary" data-size="sm" disabled={!kanFlyttes.opp} onClick={() => onFlytt(-1)} title="Flytt opp" style={{ minWidth: 0, padding: '0 0.3rem' }}>↑</Button>
-            <Button variant="tertiary" data-size="sm" disabled={!kanFlyttes.ned} onClick={() => onFlytt(1)} title="Flytt ned" style={{ minWidth: 0, padding: '0 0.3rem' }}>↓</Button>
-            {onFjern && <Button variant="tertiary" data-size="sm" data-color="danger" onClick={onFjern} title="Fjern innholdselement" style={{ minWidth: 0, padding: '0 0.3rem' }}>✕</Button>}
-          </span>
-        </span>
-      </Details.Summary>
-      <Details.Content>{children}</Details.Content>
-    </Details>
-  );
-}
-
 // ---------- Selve fanen ----------
+// Accordion-skallet (Details, opp/ned/åpen) er flyttet til `../entitet/Accordion` (docs/30 §4 punkt 1).
 
 export interface InnholdFaneProps {
   tjeneste: TjenesteDto;

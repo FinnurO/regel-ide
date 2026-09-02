@@ -3,7 +3,7 @@ import { Link as RouterLink } from 'react-router';
 import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { HendelseDto, TjenesteDto, TjenesteavhengighetDto, TjenesteTverrTenantTreffDto } from '../api/types';
-import type { DetaljVisning } from './detaljVisning';
+import type { DetaljVisning } from '../entitet/detaljVisning';
 
 /** 'for'/'avhengig_av'/'input_til' er de generelle relasjonene; de tre første har en presis
  * betydning (docs/03-domenemodell.md §1.5). Uendret fra tidligere TjenesteDetalj.tsx. */
