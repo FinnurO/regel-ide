@@ -1,13 +1,125 @@
 # Navnekandidat-presisjon — Johanns innspill (2026-09-02)
 
-**Status: RÅTT INNSPILL, IKKE BESLUTTET.** Ingenting i dette dokumentet er bygget eller vedtatt —
-det er en samlet nedtegnelse av observasjoner Johann gjorde etter å ha slettet hele
-navnekandidat-køen og kjørt et nytt korpusomfattende sveip (5881 kandidater, opp fra ~3990 før
-flerords-mønster/normalisering ble lagt til). Formålet med dette dokumentet er å ikke miste
-innspillene — prioritering og faktisk bygging er en egen, senere samtale.
+**Status: RÅTT INNSPILL, IKKE BESLUTTET** — MED ÉTT UNNTAK: se «Beslutning: datamodell for gruppe
+og relasjon» rett under, som ER besluttet (2026-09-02, etter en lengre samtale), men fortsatt IKKE
+bygget. Resten av dokumentet er fortsatt ren nedtegnelse av observasjoner Johann gjorde etter å ha
+slettet hele navnekandidat-køen og kjørt et nytt korpusomfattende sveip (5881 kandidater, opp fra
+~3990 før flerords-mønster/normalisering ble lagt til). Formålet er å ikke miste innspillene —
+prioritering og faktisk bygging av resten er en egen, senere samtale.
 
 Relatert: `docs/13-backlog.md` §9 (selve oppdagelsesmekanismen), `docs/20-*.md` (Begrep/Rollebegrep/
 Myndighetstildeling-modellen), `docs/24-begrepsoppdagelse-plan.md`.
+
+## Beslutning: datamodell for gruppe, relasjon og myndighetstildeling (2026-09-02)
+
+**Besluttet, IKKE bygget.** Oppstod fra §7 sine åpne modellspørsmål, presisert gjennom et konkret
+eksempel Johann selv fant (KNS/klagenemnder, se under) og videre skjerpet av Johanns egen
+motforestilling mot at «rolle» var feil navn. To mekanismer, ikke tre — se begrunnelse under hver.
+
+### Mekanisme 1 — «gruppe» (tidligere «rolle»): generisk term realisert av N virksomheter
+
+**Navneendring, ikke ny mekanisme.** `BegrepEntitet.Begrepskategori`-verdien `"rolle"` omdøpes til
+`"gruppe"`. Selve mekanismen (`Rollebegrep`/`Myndighetstildeling`, identitet `(Term, LovkildeId)`)
+er UENDRET.
+
+**Hvorfor navneendringen**: «rolle» er semantisk feil for mange av tilfellene den skal dekke — en
+rolle er en FUNKSJON/kapasitet noen utøver ("i sin rolle som klageinstans"), mens f.eks. et
+regionalt helseforetak ikke er en funksjon noen utøver, det ER organisasjonen. Å kalle begge for
+"rolle" er en kategorifeil, selv om det tekniske oppslaget (generisk term → N konkrete
+virksomheter) er identisk for begge. «Gruppe» er nøytralt — sier ikke noe om HVA slags ting det
+er, bare AT det er én term med flere konkrete realiseringer.
+
+**Verifisert, ikke gjettet**: «gruppe» er allerede etablert praksis for nøyaktig dette fenomenet i
+Forvaltningsdatabasen (Sikt) sin egen dokumentasjon — de bruker «gruppe-enheter» for å slå sammen
+flere parallelle enheter med samme funksjon til én representasjon (deres eksempel: ~90
+utenriksstasjoner telles som én gruppe), uavhengig av om det underliggende er en funksjon eller en
+organisasjonstype. Alternativet «samlebetegnelse»/«fellesbetegnelse» er et reelt, men mer generisk
+ordboksuttrykk uten samme etablerte forvaltningsbruk (bekreftet ved websøk 2026-09-02).
+
+**Ny utvidelse — tidsavgrenset medlemskap**: `MyndighetstildelingEntitet` får to nye, nullbare felt,
+`GyldigFra`/`GyldigTil` (`DateOnly?`). De aller fleste tildelinger setter ALDRI `GyldigTil`
+(permanent — Statsforvalter, regionale helseforetak, Riksvalgstyret/Fylkesvalgstyre). Situasjons-
+betinget medlemskap (Johanns «Vertskommune»-eksempel: en kommune er vertskommune KUN fordi den
+tilfeldigvis har et fengsel/mottak, og kan slutte å være det) setter `GyldigTil` den dagen
+forholdet opphører. **Ingen ny Gruppe-/Medlem-tabell** — dette var opprinnelig foreslått som en
+egen entitet, men Johanns eget spørsmål ("hvorfor ikke bare konsekvent bruke gruppefunksjonen?")
+avdekket at hver `Myndighetstildeling`-rad ALLEREDE ER et medlemskap i gruppen (rollebegrepet) —
+et tidsvindu var alt som manglet.
+
+**Eksempler som nå går i denne mekanismen, likt**: Statsforvalter, Vertskommune (for fengsel/mottak/
+vannkraftkonsesjon — situasjonsbetinget), Regionalt helseforetak (permanent, faste, navngitte),
+Riksvalgstyret/Distriktsvalgstyre/Fylkesvalgstyre/Valgstyre (permanent, én per nivå/fylke).
+
+### Mekanisme 2 — `VirksomhetRelasjon` (ny entitet): navngitt relasjon mellom to BESTEMTE virksomheter
+
+For relasjoner der begge parter er KONKRETE, navngitte virksomheter (ikke en generisk term realisert
+av mange) — f.eks. Advokatnemnda↔Advokatforeningen (sekretariat), en klagenemnd↔et departement
+(underlagt), PNR-enheten↔Politiet (enhet i). Konkret utløst av et reelt funn: Johann hadde koblet 6
+av 7 opprettede klagenemnder til KLAGENEMNDSSEKRETARIATET via «Del av virksomhet»
+(`OverordnetEnhetId`) — men skjemaet nullstiller det feltet etter hver opprettelse (samme linje som
+nullstiller navnefeltet), så kun den FØRSTE nemnda faktisk fikk koblingen lagret. Bekreftet mot det
+offentlige org-kartet (klagenemndssekretariatet.no/om-oss/organisasjon) at alle 6 faktisk skulle
+vært koblet — ikke rettet ennå, se §"Konkret, ikke rettet ennå" under.
+
+```
+VirksomhetRelasjonEntitet
+├── Id
+├── FraVirksomhetId       Guid   — f.eks. Advokatnemnda, PNR-enheten
+├── TilVirksomhetId       Guid   — f.eks. Advokatforeningen, Politiet
+├── RelasjonsType         string — konfigurasjonsstyrt liste (samme mønster som
+│                                  TaggKindKonfigurasjonEntitet — admin-redigerbar, ikke hardkodet
+│                                  enum), IKKE bare de fire under — ny type kan legges til av
+│                                  Johann selv uten kodeendring
+├── HjemmelRettskildeId?  Guid?  — nullbar: NÅR relasjonen er lovhjemlet
+├── HjemmelEid            string?
+├── Kommentar             string? — fritekst + kildehenvisning (f.eks. en lenke til et org-kart)
+│                                   når det IKKE finnes en formell hjemmel
+└── OpprettetAv / OpprettetTidspunkt / Entitetsstatus (samme provenance-mønster som ellers)
+```
+
+**Retningsvisning — lærdom fra `OverordnetEnhetId`-bugen**: `OverordnetEnhetId` vises i dag KUN fra
+barnets side («jeg er del av X») — det finnes ingen reversert liste på foreldrens side («disse N er
+del av meg»), noe som er nøyaktig hvorfor Johanns feilkoblede nemnder ikke ble oppdaget tidligere.
+`VirksomhetRelasjon` skal IKKE gjenta dette — hver `RelasjonsType` defineres med ETT lagret rad, men
+TO beregnede visningstekster (Fra-side/Til-side), samme mønster som `Tjenesteavhengighet` allerede
+bruker og har løst dette for (`Visningstekster`-ordboken i `TjenesteavhengighetregisterTjeneste.cs`).
+Kjente typer så langt (liste, ikke uttømmende — se over):
+
+| RelasjonsType | Fra-siden ser | Til-siden ser |
+|---|---|---|
+| `underlagt` | «er underlagt {0}» | «er eier/overordnet for {0}» |
+| `sekretariat` | «har sekretariat hos {0}» | «er sekretariat for {0}» |
+| `klageinstans` | «har klageinstans hos {0}» | «er klageinstans for {0}» |
+| `enhet_i` | «er enhet i {0}» | «har enhet {0}» |
+
+**`OverordnetEnhetId` beholdes uendret** — det er Brregs egen, automatiske hierarkidata, uten
+hjemmel å vise til. `VirksomhetRelasjon` dekker de manuelt kuraterte, ofte lovhjemlede koblingene.
+De to skal IKKE slås sammen — ulik kilde (automatisk vs. manuelt dokumentert), ulik pålitelighet.
+
+### Beslutningsregel — hvilken mekanisme for et nytt tilfelle?
+
+> «Realiserer dette en generisk term for mange virksomheter?» → mekanisme 1 (gruppe).
+> «Er dette en navngitt relasjon mellom to BESTEMTE virksomheter?» → mekanisme 2 (VirksomhetRelasjon).
+
+### Fullstendig eksempel (merkenemnd-hierarkiet, Johanns eget)
+
+```
+Lokal merkenemnd     --sekretariat-->    Statsforvalteren (den aktuelle)         [VirksomhetRelasjon]
+Lokal merkenemnd     --klageinstans-->   Sentral klagenemnd for merkesaker       [VirksomhetRelasjon]
+Sentral klagenemnd   --sekretariat-->    Landbruksdirektoratet                   [VirksomhetRelasjon]
+Sentral klagenemnd   --underlagt-->      Landbruks- og matdepartementet          [VirksomhetRelasjon]
+```
+(Om de lokale merkenemndene selv er «underlagt» departementet direkte eller Statsforvalteren, er
+ikke avklart — reelt åpent spørsmål som krever oppslag per nemnd, ikke noe modellen kan utlede.)
+
+### Konkret, ikke rettet ennå
+
+De 6 feilkoblede klagenemndene (Konkurranseklagenemnda, Medieklagenemnda, Stiftelsesklagenemnda,
+Energiklagenemnda, Finanstilsynsklagenemnda, Klagenemnda for godkjenning av utenlandsk utdanning)
+mangler fortsatt sin KNS-kobling i databasen, og 2 nemnder fra org-kartet
+(Frivillighetsregisternemnda, Lotterinemnda) finnes ikke i katalogen i det hele tatt. Selve
+UI-bugen (nullstiller «Del av virksomhet» etter hver opprettelse) er heller ikke rettet. Alt dette
+venter på eksplisitt "gjør det nå" fra Johann, samme som resten av dette dokumentet.
 
 ## Observert utgangspunkt
 
