@@ -107,6 +107,12 @@ export default function VirksomhetDetalj() {
 
   return (
     <>
+      <nav aria-label="Brødsmulesti" style={{ display: 'flex', gap: '0.4rem', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+        <Link asChild><RouterLink to="/virksomheter">Virksomheter</RouterLink></Link>
+        <span>/</span>
+        <span style={{ color: 'var(--ds-color-neutral-text-default)' }}>{virksomhet.navn}</span>
+      </nav>
+
       <Heading level={1} data-size="lg" style={{ marginBottom: '0.2rem' }}>
         {virksomhet.navn}
       </Heading>
@@ -180,10 +186,10 @@ export default function VirksomhetDetalj() {
         <Paragraph style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
           Alle navneformer under peker på samme virksomhet — synonymer (f.eks. «Fylkesmann»/«Statsforvalter») er bare flere rader, ingen egen mekanisme.
         </Paragraph>
-        {!begrep && <Spinner aria-label="Laster …" data-size="sm" />}
-        {begrep && begrep.length === 0 && <Paragraph>Ingen navneformer registrert ennå.</Paragraph>}
-        {begrep && begrep.length > 0 && (
-          <Card style={{ padding: 0, overflow: 'hidden', marginBottom: '0.75rem' }}>
+        <Card style={{ padding: begrep && begrep.length > 0 ? 0 : '1rem', overflow: 'hidden', marginBottom: '0.75rem' }}>
+          {!begrep && <Spinner aria-label="Laster …" data-size="sm" />}
+          {begrep && begrep.length === 0 && <Paragraph style={{ margin: 0 }}>Ingen navneformer registrert ennå.</Paragraph>}
+          {begrep && begrep.length > 0 && (
             <Table>
               <Table.Body>
                 {begrep.map((b) => (
@@ -193,8 +199,8 @@ export default function VirksomhetDetalj() {
                 ))}
               </Table.Body>
             </Table>
-          </Card>
-        )}
+          )}
+        </Card>
         <form onSubmit={leggTilBegrep} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
           <Textfield label="Ny navneform" placeholder="f.eks. Statsforvalter" value={nyTerm}
             onChange={(e) => setNyTerm(e.target.value)} required />
@@ -213,10 +219,10 @@ export default function VirksomhetDetalj() {
           Rollebegrep (f.eks. «forurensningsmyndighet») tildelt denne virksomheten gjennom en forskrift.
           Gyldighet arves fra hjemmelen, ingen egne datoer her.
         </Paragraph>
-        {!tildelinger && <Spinner aria-label="Laster …" data-size="sm" />}
-        {tildelinger && tildelinger.length === 0 && <Paragraph>Ingen myndighetstildelinger registrert.</Paragraph>}
-        {tildelinger && tildelinger.length > 0 && (
-          <Card style={{ padding: 0, overflow: 'hidden' }}>
+        <Card style={{ padding: tildelinger && tildelinger.length > 0 ? 0 : '1rem', overflow: 'hidden', marginBottom: '0.75rem' }}>
+          {!tildelinger && <Spinner aria-label="Laster …" data-size="sm" />}
+          {tildelinger && tildelinger.length === 0 && <Paragraph style={{ margin: 0 }}>Ingen myndighetstildelinger registrert.</Paragraph>}
+          {tildelinger && tildelinger.length > 0 && (
             <Table>
               <Table.Head>
                 <Table.Row>
@@ -235,8 +241,8 @@ export default function VirksomhetDetalj() {
                 ))}
               </Table.Body>
             </Table>
-          </Card>
-        )}
+          )}
+        </Card>
         <Button data-size="sm" variant="secondary" onClick={() => setVisLeggTilTildeling((v) => !v)}>
           {visLeggTilTildeling ? 'Skjul skjema' : 'Legg til myndighetstildeling'}
         </Button>
@@ -260,12 +266,12 @@ export default function VirksomhetDetalj() {
           Gjeldende lover/forskrifter der Lovdata oppgir denne virksomheten som ansvarlig departement
           (eksakt navnetreff, ingen fuzzy-matching — se rettskildens egen "Ansvarlig departement"-felt).
         </Paragraph>
-        {!rettskilderAnsvarligFor && <Spinner aria-label="Laster …" data-size="sm" />}
-        {rettskilderAnsvarligFor && rettskilderAnsvarligFor.length === 0 && (
-          <Paragraph>Ingen rettskilder registrert med denne virksomheten som ansvarlig departement.</Paragraph>
-        )}
-        {rettskilderAnsvarligFor && rettskilderAnsvarligFor.length > 0 && (
-          <Card style={{ padding: 0, overflow: 'hidden' }}>
+        <Card style={{ padding: rettskilderAnsvarligFor && rettskilderAnsvarligFor.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
+          {!rettskilderAnsvarligFor && <Spinner aria-label="Laster …" data-size="sm" />}
+          {rettskilderAnsvarligFor && rettskilderAnsvarligFor.length === 0 && (
+            <Paragraph style={{ margin: 0 }}>Ingen rettskilder registrert med denne virksomheten som ansvarlig departement.</Paragraph>
+          )}
+          {rettskilderAnsvarligFor && rettskilderAnsvarligFor.length > 0 && (
             <Table>
               <Table.Body>
                 {rettskilderAnsvarligFor.map((r) => (
@@ -280,8 +286,8 @@ export default function VirksomhetDetalj() {
                 ))}
               </Table.Body>
             </Table>
-          </Card>
-        )}
+          )}
+        </Card>
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
@@ -303,10 +309,10 @@ export default function VirksomhetDetalj() {
             Fant {sveipResultat.funnet} treff totalt, {sveipResultat.nye} nye kandidater lagt i køen.
           </Alert>
         )}
-        {!kandidater && <Spinner aria-label="Laster …" data-size="sm" />}
-        {kandidater && kandidater.length === 0 && <Paragraph>Ingen ventende kandidater.</Paragraph>}
-        {kandidater && kandidater.length > 0 && (
-          <Card style={{ padding: 0, overflow: 'hidden' }}>
+        <Card style={{ padding: kandidater && kandidater.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
+          {!kandidater && <Spinner aria-label="Laster …" data-size="sm" />}
+          {kandidater && kandidater.length === 0 && <Paragraph style={{ margin: 0 }}>Ingen ventende kandidater.</Paragraph>}
+          {kandidater && kandidater.length > 0 && (
             <Table>
               <Table.Head>
                 <Table.Row>
@@ -338,8 +344,8 @@ export default function VirksomhetDetalj() {
                 ))}
               </Table.Body>
             </Table>
-          </Card>
-        )}
+          )}
+        </Card>
       </section>
     </>
   );
