@@ -246,4 +246,131 @@ public class BegrepsforekomstTjenesteTests
         Assert.Equal(1, antallSlettet);
         Assert.False(await db.Begrepsforekomster.AnyAsync(f => f.Id == avvist.Id));
     }
+
+    // ---------- Fiks 1 (2026-09-02, Johann: "farlig last" brukes flere ganger utover definisjonen) ----------
+
+    [Fact]
+    public async Task Godkjenn_tagger_ogsa_andre_ekte_forekomster_av_samme_term_i_samme_rettskilde()
+    {
+        // Speiler "farlig last"-caset: definisjonen ligger i én node, men termen forekommer flere
+        // ganger til i SAMME rettskilde (både i definisjonsnoden selv og i en annen node) — alle skal
+        // få en TekstTagg koblet til det nye begrepet, ikke bare definisjonsforekomsten.
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = Guid.NewGuid();
+        db.Rettskilder.Add(new RettskildeEntitet
+        {
+            Id = rettskildeId, Doctype = "doc", Kildetype = "Forskrift", Status = "Gjeldende", Importrolle = "referanse",
+            Tittel = "Testforskrift " + rettskildeId, OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        // Definisjonsnoden: "testbegrep" forekommer to ganger — definisjonen (offset 0-10) og én gang til.
+        var definisjonNode = new RettskildeNodeEntitet
+        {
+            Id = Guid.NewGuid(), RettskildeId = rettskildeId, Eid = $"https://test/{rettskildeId:N}/§1/ledd-1",
+            KildeId = "ledd-1", NodeType = "ledd", Tekst = "testbegrep: en testdefinisjon. Se og nevn testbegrep her.",
+        };
+        // En annen node i SAMME rettskilde med to flere forekomster.
+        var annenNode = new RettskildeNodeEntitet
+        {
+            Id = Guid.NewGuid(), RettskildeId = rettskildeId, Eid = $"https://test/{rettskildeId:N}/§2/ledd-1",
+            KildeId = "ledd-1", NodeType = "ledd", Tekst = "Her nevnes testbegrep igjen, og testbegrep en gang til.",
+        };
+        // En opphevet node — skal IKKE tagges selv om termen forekommer der.
+        var opphevetNode = new RettskildeNodeEntitet
+        {
+            Id = Guid.NewGuid(), RettskildeId = rettskildeId, Eid = $"https://test/{rettskildeId:N}/§3/ledd-1",
+            KildeId = "ledd-1", NodeType = "ledd", Tekst = "testbegrep i en opphevet bestemmelse.", Opphevet = true,
+        };
+        // En ANNEN rettskilde med samme term — skal IKKE tagges (kun samme rettskilde som definisjonen).
+        var annenRettskildeId = Guid.NewGuid();
+        db.Rettskilder.Add(new RettskildeEntitet
+        {
+            Id = annenRettskildeId, Doctype = "doc", Kildetype = "Forskrift", Status = "Gjeldende", Importrolle = "referanse",
+            Tittel = "Annen testforskrift " + annenRettskildeId, OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        var nodeIAnnenRettskilde = new RettskildeNodeEntitet
+        {
+            Id = Guid.NewGuid(), RettskildeId = annenRettskildeId, Eid = $"https://test/{annenRettskildeId:N}/§1/ledd-1",
+            KildeId = "ledd-1", NodeType = "ledd", Tekst = "testbegrep nevnt i et helt annet dokument.",
+        };
+        db.RettskildeNoder.AddRange(definisjonNode, annenNode, opphevetNode, nodeIAnnenRettskilde);
+        var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(virksomhet);
+        await db.SaveChangesAsync();
+
+        var kø = NyTjeneste(db);
+        var forekomst = await kø.OpprettEllerFinnAsync(
+            rettskildeId, definisjonNode.Eid, "testbegrep", "testbegrep", "en testdefinisjon",
+            "eksplisitt_liste", "M1", "hoy", "hele_dokumentet", null, TestbegrepStart, TestbegrepEnd, "sveip");
+
+        var godkjent = await kø.GodkjennAsync(forekomst.Id, virksomhet.Id, "Kari Jurist");
+        Assert.NotNull(godkjent);
+        var begrepId = godkjent!.BegrepId!.Value;
+
+        var tagger = await db.TekstTagger
+            .Where(t => t.Kind == "begrep" && t.RefId == begrepId && t.Entitetsstatus == "gjeldende")
+            .ToListAsync();
+
+        // 1 (definisjon) + 1 (samme node) + 2 (annen node i samme rettskilde) = 4. IKKE noen fra den
+        // opphevede noden eller den andre rettskilden.
+        Assert.Equal(4, tagger.Count);
+        Assert.All(tagger, t => Assert.Equal(rettskildeId, t.RettskildeId));
+        Assert.All(tagger, t => Assert.Equal("testbegrep", t.QuoteExact));
+        Assert.DoesNotContain(tagger, t => t.NodeEid == opphevetNode.Eid);
+        Assert.DoesNotContain(tagger, t => t.RettskildeId == annenRettskildeId);
+        Assert.Equal(2, tagger.Count(t => t.NodeEid == definisjonNode.Eid));
+        Assert.Equal(2, tagger.Count(t => t.NodeEid == annenNode.Eid));
+    }
+
+    [Fact]
+    public async Task Godkjenn_dupliserer_ikke_tagg_for_forekomst_som_allerede_er_tagget()
+    {
+        // Idempotens: hvis en av "de andre forekomstene" allerede har en gjeldende tagg (f.eks. tagget
+        // manuelt fra før), skal godkjenning ikke opprette en ny/duplikat tagg for akkurat det stedet.
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = Guid.NewGuid();
+        db.Rettskilder.Add(new RettskildeEntitet
+        {
+            Id = rettskildeId, Doctype = "doc", Kildetype = "Forskrift", Status = "Gjeldende", Importrolle = "referanse",
+            Tittel = "Testforskrift " + rettskildeId, OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        var definisjonNode = new RettskildeNodeEntitet
+        {
+            Id = Guid.NewGuid(), RettskildeId = rettskildeId, Eid = $"https://test/{rettskildeId:N}/§1/ledd-1",
+            KildeId = "ledd-1", NodeType = "ledd", Tekst = "testbegrep: en testdefinisjon. Nevnes: testbegrep.",
+        };
+        db.RettskildeNoder.Add(definisjonNode);
+        var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(virksomhet);
+        await db.SaveChangesAsync();
+
+        // Den andre forekomsten ("testbegrep." nær slutten) er allerede manuelt tagget FØR godkjenning.
+        var andreForekomstStart = definisjonNode.Tekst!.LastIndexOf("testbegrep", StringComparison.Ordinal);
+        var manuellTagg = new TekstTaggEntitet
+        {
+            Id = Guid.NewGuid(), VirksomhetId = virksomhet.Id, RettskildeId = rettskildeId, NodeEid = definisjonNode.Eid,
+            StartOffset = andreForekomstStart, EndOffset = andreForekomstStart + "testbegrep".Length,
+            QuotePrefix = "Nevnes: ", QuoteExact = "testbegrep", QuoteSuffix = ".",
+            NodeTekstHash = "irrelevant-i-denne-testen", Kind = "begrep", RefId = null,
+            OpprettetAv = "manuell-bruker",
+        };
+        db.TekstTagger.Add(manuellTagg);
+        await db.SaveChangesAsync();
+
+        var kø = NyTjeneste(db);
+        var forekomst = await kø.OpprettEllerFinnAsync(
+            rettskildeId, definisjonNode.Eid, "testbegrep", "testbegrep", "en testdefinisjon",
+            "eksplisitt_liste", "M1", "hoy", "hele_dokumentet", null, TestbegrepStart, TestbegrepEnd, "sveip");
+        var godkjent = await kø.GodkjennAsync(forekomst.Id, virksomhet.Id, "Kari Jurist");
+        Assert.NotNull(godkjent);
+
+        var alleTagger = await db.TekstTagger
+            .Where(t => t.RettskildeId == rettskildeId && t.NodeEid == definisjonNode.Eid && t.Entitetsstatus == "gjeldende")
+            .ToListAsync();
+
+        // Fortsatt bare de to opprinnelige taggene (definisjon + den forhåndseksisterende manuelle) —
+        // ingen tredje, duplikat tagg for samme tegnintervall.
+        Assert.Equal(2, alleTagger.Count);
+        Assert.Single(alleTagger, t => t.Id == manuellTagg.Id);
+        Assert.Null(alleTagger.Single(t => t.Id == manuellTagg.Id).RefId); // uendret — ikke overskrevet.
+    }
 }

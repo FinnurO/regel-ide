@@ -2,9 +2,9 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
 import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Select, Spinner, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import { rettskildeLenke } from '../api/eidLenker';
+import { finnRettskildeForEid, rettskildeLenke, rettskildeLenkeForId } from '../api/eidLenker';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
-import type { BegrepBruktIRettskildeDto, BegrepDto, RettskildeSammendrag, VilkarDto } from '../api/types';
+import type { BegrepBruktIRettskildeDto, BegrepDto, BegrepTaggetForekomstDto, RettskildeSammendrag, VilkarDto } from '../api/types';
 import { StatusStepper } from '../entitet/StatusStepper';
 
 export default function BegrepDetalj() {
@@ -14,6 +14,7 @@ export default function BegrepDetalj() {
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
   const [bruktIVilkar, setBruktIVilkar] = useState<Array<{ vilkar: VilkarDto; rotnodeId: string | undefined }>>([]);
   const [bruktIRettskilder, setBruktIRettskilder] = useState<BegrepBruktIRettskildeDto[]>([]);
+  const [taggedeForekomster, setTaggedeForekomster] = useState<BegrepTaggetForekomstDto[]>([]);
   const { visEier } = useVirksomheter();
 
   const [term, setTerm] = useState('');
@@ -51,6 +52,7 @@ export default function BegrepDetalj() {
       })
       .catch(() => setBruktIVilkar([]));
     api.hentBegrepBruktIRettskilder(id).then(setBruktIRettskilder).catch(() => setBruktIRettskilder([]));
+    api.hentBegrepTaggedeForekomster(id).then(setTaggedeForekomster).catch(() => setTaggedeForekomster([]));
   }, [id]);
 
   async function lagre(e: FormEvent) {
@@ -161,13 +163,23 @@ export default function BegrepDetalj() {
           <Textfield label="Lovreferanse (eId)" value={lovreferanseEid} onChange={(e) => setLovreferanseEid(e.target.value)}
             style={{ fontFamily: 'monospace' }} />
           {begrep.lovreferanseEid && (
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '-0.5rem' }}>
+            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '-0.5rem', display: 'flex', gap: '0.4rem', alignItems: 'baseline', flexWrap: 'wrap' }}>
               {(() => {
+                // [Rettet, 2026-09-02] Vis rettskildens navn som lenketekst (mer interessant enn den
+                // rå eId-en, Johann) — eId-en beholdes fortsatt synlig, bare som liten metatekst ved
+                // siden av, for presis sporbarhet.
+                const rettskilde = finnRettskildeForEid(begrep.lovreferanseEid, rettskilder);
                 const href = rettskildeLenke(begrep.lovreferanseEid, rettskilder);
-                return href ? (
-                  <Link asChild><RouterLink to={href}>Åpne i rettskilden →</RouterLink></Link>
-                ) : (
-                  <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Fant ikke rettskilden for denne eId-en.</span>
+                if (!rettskilde || !href) {
+                  return <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Fant ikke rettskilden for denne eId-en.</span>;
+                }
+                return (
+                  <>
+                    <Link asChild><RouterLink to={href}>{rettskilde.kortnavn ?? rettskilde.tittel}</RouterLink></Link>
+                    <span style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                      ({begrep.lovreferanseEid})
+                    </span>
+                  </>
                 );
               })()}
             </Paragraph>
@@ -218,13 +230,54 @@ export default function BegrepDetalj() {
         </Card>
       </section>
 
+      <section style={{ marginBottom: '2rem' }}>
+        {(() => {
+          // [Ny, 2026-09-02, Fiks 1+2] EKTE, taggkoblede forekomster — opprettet automatisk ved
+          // godkjenning (BegrepsforekomstTjeneste.GodkjennAsync) for andre eksakte forekomster av
+          // termen i SAMME rettskilde som definisjonen. Til forskjell fra seksjonen under er dette
+          // strukturelle koblinger, ikke bare tekstlig sammenfall.
+          const definerendeRettskilde = begrep.lovreferanseEid ? finnRettskildeForEid(begrep.lovreferanseEid, rettskilder) : undefined;
+          const rettskildeNavn =
+            taggedeForekomster[0]?.rettskildeTittel ?? definerendeRettskilde?.kortnavn ?? definerendeRettskilde?.tittel;
+          return (
+            <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+              {rettskildeNavn ? `Forekomster i ${rettskildeNavn}` : 'Forekomster (taggkoblet)'}
+            </Heading>
+          );
+        })()}
+        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
+          Steder i den definerende rettskilden som er EKTE, bekreftede koblinger til akkurat dette begrepet (samme
+          tekstmerkings-mekanisme som resten av appen), ikke bare et tekstlig sammenfall.
+        </Paragraph>
+        <Card style={{ padding: taggedeForekomster.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
+          {taggedeForekomster.length === 0 ? (
+            <Paragraph style={{ margin: 0 }}>Ingen andre taggkoblede forekomster funnet i den definerende rettskilden ennå.</Paragraph>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.75rem' }}>
+              {taggedeForekomster.map((t) => (
+                <div key={t.taggId}>
+                  <Link asChild>
+                    <RouterLink to={rettskildeLenkeForId(t.rettskildeId, t.nodeEid)}>{t.rettskildeTittel}</RouterLink>
+                  </Link>
+                  <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', margin: 0 }}>
+                    {t.quotePrefix}<strong style={{ color: 'var(--ds-color-neutral-text-default)' }}>{t.quoteExact}</strong>{t.quoteSuffix}
+                  </Paragraph>
+                </div>
+              ))}
+            </div>
+          )}
+        </Card>
+      </section>
+
       <section>
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
-          Brukt i rettskilder
+          Andre steder ordet forekommer i korpuset
         </Heading>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
-          Steder i importert lovtekst der «{begrep.term}» faktisk forekommer — et ekte tekstsøk, ikke basert på lovreferansen over.
-        </Paragraph>
+        <Alert data-color="warning" data-size="sm" style={{ marginBottom: '0.75rem' }}>
+          Dette er IKKE bekreftede koblinger til dette begrepet — kun et rått tekstsøk etter «{begrep.term}» på tvers av
+          ALLE importerte rettskilder (ordgrense-avgrenset, case-insensitivt). Samme ord brukt et annet sted kan gjelde
+          et helt annet begrep. Se seksjonen over for de ekte, taggkoblede forekomstene.
+        </Alert>
         <Card style={{ padding: bruktIRettskilder.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
           {bruktIRettskilder.length === 0 ? (
             <Paragraph style={{ margin: 0 }}>Ingen forekomster funnet i importert lovtekst ennå.</Paragraph>

@@ -1,3 +1,4 @@
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 
 namespace RegelIde.Data;
@@ -179,6 +180,7 @@ public sealed class BegrepsforekomstTjeneste(
                 $"Fant ikke noden '{forekomst.NodeEid}' ved oppretting av tagg (racy sletting?). Ingen gjettet fallback.");
         }
         await tekstTaggTjeneste.KobleTilEntitetAsync(tagg.Id, begrep.Id, behandletAv, ct);
+        await TaggAndreForekomsterISammeRettskildeAsync(forekomst, begrep, virksomhetId, behandletAv, ct);
 
         forekomst.BegrepId = begrep.Id;
         forekomst.Status = "Godkjent";
@@ -186,6 +188,67 @@ public sealed class BegrepsforekomstTjeneste(
         forekomst.BehandletTidspunkt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync(ct);
         return forekomst;
+    }
+
+    /// <summary>
+    /// [Ny, 2026-09-02, Johann: "Ordet farlig last brukes 3 ganger utover definisjonen ... ser ikke at
+    /// de andre stedene er markert med knytning til begrepet"] Etter at selve definisjonsforekomsten er
+    /// tagget (over), søker denne gjennom RESTEN av SAMME rettskildes noder etter andre eksakte,
+    /// ordgrense-avgrensede forekomster av <paramref name="forekomst"/>.Begrep og oppretter en
+    /// <see cref="TekstTaggEntitet"/> (samme <c>Kind="begrep"</c>, koblet til samme
+    /// <paramref name="begrep"/>) for hver av dem — nøyaktig samme ordgrense-regex
+    /// (<c>\b...\b</c>, <see cref="RegexOptions.IgnoreCase"/>) som <c>BegrepBruktIRettskilderTjeneste</c>
+    /// allerede bruker for det rå fulltekstsøket, IKKE en ny fuzzy-mekanisme.
+    /// <para>
+    /// <b>Bevisst KUN innenfor samme rettskilde som definisjonen</b> — å tagge andre dokumenter ville
+    /// vært akkurat den sammenblandingen av "samme ord" og "samme begrep" Johann påpekte er feil (se
+    /// klassekommentaren til <c>BegrepBruktIRettskilderTjeneste</c>, som bevisst er et upartisk
+    /// KORPUS-søk og IKKE skal endres til å opprette tagger).
+    /// </para>
+    /// <para>
+    /// <b>Idempotent</b>: hopper over ethvert tegnintervall som allerede har en gjeldende tagg (uansett
+    /// hvilken entitet den peker på) — unngår dobbel-tagging av samme tekstbit hvis to uavhengige
+    /// forekomster av samme term begge godkjennes, eller hvis noen allerede har tagget stedet manuelt.
+    /// </para>
+    /// </summary>
+    private async Task TaggAndreForekomsterISammeRettskildeAsync(
+        BegrepsforekomstEntitet forekomst, BegrepEntitet begrep, Guid virksomhetId, string behandletAv, CancellationToken ct)
+    {
+        const int kontekstLengde = 30; // samme kontekstvindu som selve definisjonstaggen over.
+        var mønster = new Regex(@"\b" + Regex.Escape(forekomst.Begrep) + @"\b", RegexOptions.IgnoreCase);
+
+        var noder = await db.RettskildeNoder
+            .Where(n => n.RettskildeId == forekomst.RettskildeId && n.Tekst != null
+                        && !n.Opphevet && n.Entitetsstatus == "gjeldende")
+            .ToListAsync(ct);
+
+        foreach (var node in noder)
+        {
+            var tekst = node.Tekst!;
+            foreach (Match m in mønster.Matches(tekst))
+            {
+                // Selve definisjonsforekomsten er allerede tagget over — ikke dupliser den.
+                if (node.Eid == forekomst.NodeEid && m.Index == forekomst.StartOffset && m.Index + m.Length == forekomst.EndOffset)
+                {
+                    continue;
+                }
+
+                var alleredeTagget = await db.TekstTagger.AnyAsync(
+                    t => t.RettskildeId == forekomst.RettskildeId && t.NodeEid == node.Eid
+                         && t.StartOffset == m.Index && t.EndOffset == m.Index + m.Length
+                         && t.Entitetsstatus == "gjeldende", ct);
+                if (alleredeTagget) continue;
+
+                var quotePrefix = tekst[Math.Max(0, m.Index - kontekstLengde)..m.Index];
+                var quoteSuffix = tekst[(m.Index + m.Length)..Math.Min(tekst.Length, m.Index + m.Length + kontekstLengde)];
+
+                var nyTagg = await tekstTaggTjeneste.OpprettAsync(
+                    forekomst.RettskildeId, virksomhetId, behandletAv, node.Eid,
+                    m.Index, m.Index + m.Length, quotePrefix, m.Value, quoteSuffix, "begrep", ct);
+                if (nyTagg is null) continue; // noden ble fjernet mellom spørringen over og OpprettAsync — hopp over i stedet for å kaste.
+                await tekstTaggTjeneste.KobleTilEntitetAsync(nyTagg.Id, begrep.Id, behandletAv, ct);
+            }
+        }
     }
 
     public async Task<BegrepsforekomstEntitet?> AvvisAsync(Guid id, string behandletAv, CancellationToken ct = default)

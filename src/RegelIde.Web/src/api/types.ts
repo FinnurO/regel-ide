@@ -841,6 +841,19 @@ export interface BegrepBruktIRettskildeDto {
   snippet: string;
 }
 
+/** Ett treff fra GET /api/begreper/{id}/taggede-forekomster — EKTE, taggkoblede forekomster
+ * (TekstTaggEntitet.RefId == begrepets id), til forskjell fra BegrepBruktIRettskildeDto sitt rå
+ * fulltekstsøk. Se TekstTaggTjeneste.ListerForRefIdAsync på serveren. */
+export interface BegrepTaggetForekomstDto {
+  taggId: string;
+  rettskildeId: string;
+  nodeEid: string;
+  rettskildeTittel: string;
+  quotePrefix: string;
+  quoteExact: string;
+  quoteSuffix: string;
+}
+
 // ---------- Begrepsforekomster — begrepsoppdagelse (M1/M11), docs/24, speiler RegelIde.Api/Dtos.cs ----------
 
 /** Ett deterministisk (regex-basert) sveip-treff — arbeidskø, IKKE et register (docs/24 §1.1/§1.2).

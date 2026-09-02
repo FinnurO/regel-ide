@@ -4,6 +4,7 @@ import type {
   BegrepDto,
   BegrepRequest,
   BegrepsforekomstDto,
+  BegrepTaggetForekomstDto,
   SveipBegrepsforekomsterRequest,
   SveipBegrepsforekomsterResultatDto,
   GodkjennBegrepsforekomstRequest,
@@ -806,6 +807,10 @@ export const api = {
   /** Ekte reverse-oppslag — rettskilde-noder som faktisk NEVNER begrepets Term i lovteksten (ikke det
    * samme som BegrepDto.lovreferanseEid, se BegrepBruktIRettskilderTjeneste på serveren). */
   hentBegrepBruktIRettskilder: (id: string) => kall<BegrepBruktIRettskildeDto[]>(`/api/begreper/${id}/brukt-i-rettskilder`),
+
+  /** EKTE, taggkoblede forekomster (TekstTaggEntitet.RefId == id) — strukturelle koblinger, ikke et
+   * fulltekstsøk. Se TekstTaggTjeneste.ListerForRefIdAsync på serveren. */
+  hentBegrepTaggedeForekomster: (id: string) => kall<BegrepTaggetForekomstDto[]>(`/api/begreper/${id}/taggede-forekomster`),
 
   // ---------- «Identifiser begrep» (byggesteg 5 runde 1, docs/06-veikart.md) — stub-KI ----------
 
