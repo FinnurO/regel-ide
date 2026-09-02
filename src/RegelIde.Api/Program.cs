@@ -2213,6 +2213,14 @@ begreper.MapGet("/{id:guid}/brukt-i-rettskilder", async (Guid id, BegrepBruktIRe
                  $"case-insensitivt) i selve lovteksten — maks {BegrepBruktIRettskilderTjeneste.MaksAntallTreff} treff. " +
                  "IKKE det samme som Begrep.LovreferanseEid (én manuelt satt referanse) — se BegrepBruktIRettskilderTjeneste.");
 
+begreper.MapGet("/{id:guid}/taggede-forekomster", async (Guid id, TekstTaggTjeneste tekstTaggTjeneste, CancellationToken ct) =>
+        Results.Ok((await tekstTaggTjeneste.ListerForRefIdAsync("begrep", id, ct)).Select(BegrepTaggetForekomstDto.FraTagg)))
+    .WithName("HentBegrepTaggedeForekomster")
+    .WithSummary("EKTE, taggkoblede forekomster av begrepet (TekstTaggEntitet.RefId == id) — strukturelle koblinger, " +
+                 "IKKE et fulltekstsøk (se HentBegrepBruktIRettskilder for det). Se " +
+                 "BegrepsforekomstTjeneste.GodkjennAsync for hvordan disse opprettes automatisk for andre forekomster " +
+                 "av samme term i definerende rettskilde ved godkjenning.");
+
 // ---------- «Identifiser begrep» (byggesteg 5 runde 1, docs/06-veikart.md) — stub-KI ----------
 
 begreper.MapGet("/forslag", async (HttpRequest request, RegelIdeDbContext db, CancellationToken ct) =>

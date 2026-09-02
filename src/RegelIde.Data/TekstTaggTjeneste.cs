@@ -166,6 +166,27 @@ public sealed class TekstTaggTjeneste(RegelIdeDbContext db, VirksomhetOppslagTje
         return tagg;
     }
 
+    /// <summary>
+    /// [Ny, 2026-09-02, Begrepsdetalj-visningsfiks] Ekte, taggkoblede forekomster av en gitt entitet —
+    /// ALLE gjeldende tagger av <paramref name="kind"/> hvis <see cref="TekstTaggEntitet.RefId"/> peker
+    /// på <paramref name="refId"/>, uansett hvilken rettskilde de ligger i (metoden selv håndhever ingen
+    /// ett-dokument-begrensning — <see cref="BegrepsforekomstTjeneste.GodkjennAsync"/> sin automatiske
+    /// medforekomst-tagging er det som i praksis holder dette innenfor definerende rettskilde for et
+    /// "begrep"-koblet begrep, ikke denne spørringen).
+    /// <para>
+    /// Brukes av <c>BegrepDetalj.tsx</c> til å skille EKTE strukturelle koblinger (denne) fra det rå,
+    /// upartiske fulltekstsøket i <see cref="BegrepBruktIRettskilderTjeneste"/> — se den klassens
+    /// kommentar for hvorfor de to IKKE skal blandes sammen i visningen.
+    /// </para>
+    /// </summary>
+    public Task<List<TekstTaggMedRettskildeTittel>> ListerForRefIdAsync(string kind, Guid refId, CancellationToken ct = default) =>
+        db.TekstTagger
+            .Where(t => t.Kind == kind && t.RefId == refId && t.Entitetsstatus == "gjeldende")
+            .Join(db.Rettskilder, t => t.RettskildeId, r => r.Id,
+                (t, r) => new TekstTaggMedRettskildeTittel(t, r.Kortnavn ?? r.Tittel))
+            .OrderBy(x => x.Tagg.NodeEid).ThenBy(x => x.Tagg.StartOffset)
+            .ToListAsync(ct);
+
     public async Task<SlettResultat> SlettAsync(Guid rettskildeId, Guid taggId, Guid virksomhetId, string endretAv, CancellationToken ct = default)
     {
         var tagg = await db.TekstTagger.FirstOrDefaultAsync(
@@ -191,3 +212,8 @@ public sealed class TekstTaggTjeneste(RegelIdeDbContext db, VirksomhetOppslagTje
 }
 
 public enum SlettResultat { Ok, IkkeFunnet, TilhorerAnnenVirksomhet, HarPublisertReferanse }
+
+/// <summary>Ett resultat fra <see cref="TekstTaggTjeneste.ListerForRefIdAsync"/> — taggen pluss
+/// rettskildens visningstittel (kortnavn hvis satt, ellers full tittel — samme fallback som ellers i
+/// appen, f.eks. <see cref="BegrepBruktIRettskildeTreff"/>).</summary>
+public sealed record TekstTaggMedRettskildeTittel(TekstTaggEntitet Tagg, string RettskildeTittel);

@@ -489,6 +489,18 @@ public sealed record BegrepBruktIRettskildeDto(Guid RettskildeId, string NodeEid
         new(t.RettskildeId, t.NodeEid, t.RettskildeTittel, t.Snippet);
 }
 
+/// <summary>Ett treff for GET /api/begreper/{id}/taggede-forekomster — EKTE, taggkoblede forekomster
+/// (<see cref="TekstTaggEntitet.RefId"/> == begrepets id), til forskjell fra <see cref="BegrepBruktIRettskildeDto"/>
+/// sitt rå fulltekstsøk. Se <see cref="TekstTaggTjeneste.ListerForRefIdAsync"/>.</summary>
+public sealed record BegrepTaggetForekomstDto(
+    Guid TaggId, Guid RettskildeId, string NodeEid, string RettskildeTittel,
+    string QuotePrefix, string QuoteExact, string QuoteSuffix)
+{
+    public static BegrepTaggetForekomstDto FraTagg(TekstTaggMedRettskildeTittel t) => new(
+        t.Tagg.Id, t.Tagg.RettskildeId, t.Tagg.NodeEid, t.RettskildeTittel,
+        t.Tagg.QuotePrefix, t.Tagg.QuoteExact, t.Tagg.QuoteSuffix);
+}
+
 // ---------- Virksomhetskatalog og gruppemodell (docs/20) ----------
 
 public sealed record SettForvaltningsnivaRequest(string? Forvaltningsniva);
