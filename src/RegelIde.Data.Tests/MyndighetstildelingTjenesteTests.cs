@@ -5,7 +5,7 @@ namespace RegelIde.Data.Tests;
 
 /// <summary>
 /// <see cref="MyndighetstildelingTjeneste"/> (docs/20 §2.5) mot ekte embedded Postgres — kobler et
-/// rollebegrep til en konkret virksomhet, hjemlet i en forskrift. Gyldighet ARVES fra hjemmelen —
+/// gruppebegrep til en konkret virksomhet, hjemlet i en forskrift. Gyldighet ARVES fra hjemmelen —
 /// ingen egne datoer på tildelingen selv, se <see cref="MyndighetstildelingTjeneste.ErGjeldendeAsync"/>.
 /// </summary>
 [Collection(DataTestCollection.Navn)]
@@ -42,10 +42,10 @@ public class MyndighetstildelingTjenesteTests
         db.Virksomheter.Add(virksomhet);
         await db.SaveChangesAsync();
 
-        var rollebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettRollebegrepAsync(lovId, NyTerm("kontrollmyndighet"), "Kari Jurist");
+        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("kontrollmyndighet"), "Kari Jurist");
         var register = new MyndighetstildelingTjeneste(db);
         var tildeling = await register.OpprettAsync(
-            rollebegrep.Id, virksomhet.Id, forskrift, [new ParagrafspennPar(paragrafEid, null)], "kommunale avløpsanlegg", "Kari Jurist");
+            gruppebegrep.Id, virksomhet.Id, forskrift, [new ParagrafspennPar(paragrafEid, null)], "kommunale avløpsanlegg", "Kari Jurist");
 
         var lest = MyndighetstildelingTjeneste.LesParagrafspenn(tildeling);
         Assert.Single(lest);
@@ -67,11 +67,11 @@ public class MyndighetstildelingTjenesteTests
         var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
         db.Virksomheter.Add(virksomhet);
         await db.SaveChangesAsync();
-        var rollebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettRollebegrepAsync(lovId, NyTerm("kontrollmyndighet-tom"), "Kari Jurist");
+        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("kontrollmyndighet-tom"), "Kari Jurist");
 
         var register = new MyndighetstildelingTjeneste(db);
         await Assert.ThrowsAsync<ArgumentException>(
-            () => register.OpprettAsync(rollebegrep.Id, virksomhet.Id, forskrift, [], null, "Kari Jurist"));
+            () => register.OpprettAsync(gruppebegrep.Id, virksomhet.Id, forskrift, [], null, "Kari Jurist"));
     }
 
     [Fact]
@@ -84,11 +84,11 @@ public class MyndighetstildelingTjenesteTests
         var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
         db.Virksomheter.Add(virksomhet);
         await db.SaveChangesAsync();
-        var rollebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettRollebegrepAsync(lovId, NyTerm("kontrollmyndighet-ukjent"), "Kari Jurist");
+        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("kontrollmyndighet-ukjent"), "Kari Jurist");
 
         var register = new MyndighetstildelingTjeneste(db);
         await Assert.ThrowsAsync<ArgumentException>(() => register.OpprettAsync(
-            rollebegrep.Id, virksomhet.Id, forskrift, [new ParagrafspennPar("https://ukjent/eid", null)], null, "Kari Jurist"));
+            gruppebegrep.Id, virksomhet.Id, forskrift, [new ParagrafspennPar("https://ukjent/eid", null)], null, "Kari Jurist"));
     }
 
     [Fact]
@@ -101,11 +101,11 @@ public class MyndighetstildelingTjenesteTests
         var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
         db.Virksomheter.Add(virksomhet);
         await db.SaveChangesAsync();
-        var rollebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettRollebegrepAsync(lovId, NyTerm("kontrollmyndighet-opphevet"), "Kari Jurist");
+        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("kontrollmyndighet-opphevet"), "Kari Jurist");
 
         var register = new MyndighetstildelingTjeneste(db);
         var tildeling = await register.OpprettAsync(
-            rollebegrep.Id, virksomhet.Id, forskriftId, [new ParagrafspennPar(paragrafEid, null)], null, "Kari Jurist");
+            gruppebegrep.Id, virksomhet.Id, forskriftId, [new ParagrafspennPar(paragrafEid, null)], null, "Kari Jurist");
 
         Assert.True(await register.ErGjeldendeAsync(tildeling));
 

@@ -216,7 +216,7 @@ export default function VirksomhetDetalj() {
           Myndighetstildelinger
         </Heading>
         <Paragraph style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
-          Rollebegrep (f.eks. «forurensningsmyndighet») tildelt denne virksomheten gjennom en forskrift.
+          Gruppebegrep (f.eks. «forurensningsmyndighet») tildelt denne virksomheten gjennom en forskrift.
           Gyldighet arves fra hjemmelen, ingen egne datoer her.
         </Paragraph>
         <Card style={{ padding: tildelinger && tildelinger.length > 0 ? 0 : '1rem', overflow: 'hidden', marginBottom: '0.75rem' }}>

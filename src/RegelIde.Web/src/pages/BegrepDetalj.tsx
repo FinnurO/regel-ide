@@ -104,13 +104,13 @@ export default function BegrepDetalj() {
       <Paragraph style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', margin: '0.5rem 0 1.5rem' }}>
         <Tag data-color="info" data-size="sm">{begrep.status}</Tag>
         {begrep.begrepskategori === 'virksomhet' && <Tag data-color="success" data-size="sm">Virksomhet-navneform</Tag>}
-        {begrep.begrepskategori === 'rolle' && <Tag data-color="success" data-size="sm">Rollebegrep</Tag>}
+        {begrep.begrepskategori === 'gruppe' && <Tag data-color="success" data-size="sm">Gruppebegrep</Tag>}
         <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
           Eier: {visEier(begrep.virksomhetId)}
         </span>
       </Paragraph>
 
-      {(begrep.begrepskategori === 'virksomhet' || begrep.begrepskategori === 'rolle') && (
+      {(begrep.begrepskategori === 'virksomhet' || begrep.begrepskategori === 'gruppe') && (
         <section style={{ marginBottom: '1.5rem' }}>
           <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
             Lenket til
@@ -123,18 +123,18 @@ export default function BegrepDetalj() {
               </Link>
             </Paragraph>
           )}
-          {begrep.begrepskategori === 'rolle' && begrep.lovkildeId && (
+          {begrep.begrepskategori === 'gruppe' && begrep.lovkildeId && (
             <Paragraph>
-              Rollebegrep hjemlet i{' '}
+              Gruppebegrep hjemlet i{' '}
               {(() => {
                 const lov = rettskilder.find((r) => r.id === begrep.lovkildeId);
                 if (!lov) return <span>{begrep.lovkildeId}</span>;
                 // [Rettet, 2026-08-30] Lenk til NØYAKTIG paragrafen (via lovreferanseEid, satt
-                // automatisk ved godkjenning fra en navnekandidat, se OpprettRollebegrepAsync) når
+                // automatisk ved godkjenning fra en navnekandidat, se OpprettGruppebegrepAsync) når
                 // den finnes — en bar /rettskilder/{id}-lenke uten eid velger ingen node og lander
                 // på en tom side (Johann observerte nettopp dette for «Statsforvalteren»). Faller
                 // tilbake til en lenke til hele loven (uten valgt node) for eldre/manuelt opprettede
-                // rollebegrep uten kjent opprinnelsesparagraf.
+                // gruppebegrep uten kjent opprinnelsesparagraf.
                 const nodeHref = begrep.lovreferanseEid ? rettskildeLenke(begrep.lovreferanseEid, rettskilder) : null;
                 return (
                   <Link asChild>
@@ -153,7 +153,7 @@ export default function BegrepDetalj() {
         </Heading>
         <form onSubmit={lagre} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '40rem' }}>
           <Textfield label="Term" value={term} onChange={(e) => setTerm(e.target.value)} required />
-          {begrep.begrepskategori !== 'virksomhet' && begrep.begrepskategori !== 'rolle' && (
+          {begrep.begrepskategori !== 'virksomhet' && begrep.begrepskategori !== 'gruppe' && (
             <Field>
               <Label>Definisjon</Label>
               <Textarea value={definisjon} onChange={(e) => setDefinisjon(e.target.value)} rows={3} required />
@@ -173,7 +173,7 @@ export default function BegrepDetalj() {
               })()}
             </Paragraph>
           )}
-          {begrep.begrepskategori !== 'virksomhet' && begrep.begrepskategori !== 'rolle' && (
+          {begrep.begrepskategori !== 'virksomhet' && begrep.begrepskategori !== 'gruppe' && (
             <Field>
               <Label>Begrepstype</Label>
               <Select value={begrepstype} onChange={(e) => setBegrepstype(e.target.value)}>

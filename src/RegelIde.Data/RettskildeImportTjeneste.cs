@@ -1,3 +1,4 @@
+using System.Text;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using RegelIde.Kildekonvertering;
@@ -71,6 +72,25 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 NormaliserAknForSammenligning(eksisterende.AknXml) == NormaliserAknForSammenligning(resultat.AknXml);
             if (uendret)
             {
+                // KRITISK (del B punkt 3, lovdata-raa-metadata-runden 2026-09-02): en tidlig return HER
+                // uten å røre noen felt ville bety at en helt vanlig full-resynk ALDRI bakfyller
+                // Url/Innhold/InnholdsHash/Hentet (eller del A sine nye rå metadatafelt) på allerede
+                // importerte, uendrede rader — dette ER den eneste veien en helt vanlig resynk faktisk
+                // bakfyller EKSISTERENDE rader, uten en egen engangs-backfill-tjeneste. Bevisst IKKE en
+                // "reell endring": Versjon økes ikke, ingen ny Proveniens-rad opprettes — kun disse
+                // konkrete kolonnene på den eksisterende, gjeldende raden. Billig og idempotent: EF Core
+                // sitt change tracker-diff gjør SaveChangesAsync til en no-op når verdiene allerede
+                // stemmer (f.eks. andre, tredje, ... gangs resynk av samme uendrede dokument).
+                var (innholdUendret, innholdsHashUendret) = BeregnInnhold(resultat.RaaHtml);
+                eksisterende.Url = m.Eli;
+                eksisterende.Innhold = innholdUendret;
+                eksisterende.InnholdsHash = innholdsHashUendret;
+                eksisterende.Hentet = DateTimeOffset.UtcNow;
+                eksisterende.IkrafttredelseRaa = m.IkrafttredelseRaa;
+                eksisterende.KonsolidertDatoRaa = m.KonsolidertDatoRaa;
+                eksisterende.SistEndretVed = m.SistEndretVed;
+                await db.SaveChangesAsync(ct);
+
                 // allerede importert, ingen reell endring — ikke dupliser (§2.1)
                 return new RettskildeImportResultat(eksisterende.Id, RettskildeImportUtfall.Uendret);
             }
@@ -95,10 +115,23 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             eksisterende.Kortnavn = m.Kortnavn;
             eksisterende.AknXml = resultat.AknXml;
             eksisterende.Ikrafttredelse = m.Ikrafttredelse;
+            eksisterende.IkrafttredelseRaa = m.IkrafttredelseRaa;
             eksisterende.KonsolidertDato = m.KonsolidertDato;
+            eksisterende.KonsolidertDatoRaa = m.KonsolidertDatoRaa;
+            eksisterende.SistEndretVed = m.SistEndretVed;
             eksisterende.Utgiver = m.Utgiver;
             eksisterende.AnsvarligDepartement = m.AnsvarligDepartement;
             eksisterende.Status = m.Status;
+            // Del B (2026-09-02) — stubben har aldri hatt ekte HTML før nå (den ble opprettet av
+            // FinnEllerOpprettReferanseStubAsync, uten Innhold), så dette er FØRSTE gang disse feltene
+            // fylles ut for denne raden, akkurat som AknXml over.
+            {
+                var (innholdForfremmet, innholdsHashForfremmet) = BeregnInnhold(resultat.RaaHtml);
+                eksisterende.Url = m.Eli;
+                eksisterende.Innhold = innholdForfremmet;
+                eksisterende.InnholdsHash = innholdsHashForfremmet;
+                eksisterende.Hentet = DateTimeOffset.UtcNow;
+            }
             eksisterende.SistEndretAv = attribuertTil;
             eksisterende.SistEndretTidspunkt = DateTimeOffset.UtcNow;
             eksisterende.Versjon++; // basemetadata §0: "heltall, økende" -- appens ansvar å øke ved faktisk endring
@@ -107,6 +140,8 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
         else
         {
             rettskildeId = Guid.NewGuid();
+            var (innholdNy, innholdsHashNy) = BeregnInnhold(resultat.RaaHtml);
+            var naaNy = DateTimeOffset.UtcNow;
             db.Rettskilder.Add(new RettskildeEntitet
             {
                 Id = rettskildeId,
@@ -119,12 +154,19 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 Eli = m.Eli,
                 AknXml = resultat.AknXml,
                 Ikrafttredelse = m.Ikrafttredelse,
+                IkrafttredelseRaa = m.IkrafttredelseRaa,
                 KonsolidertDato = m.KonsolidertDato,
+                KonsolidertDatoRaa = m.KonsolidertDatoRaa,
+                SistEndretVed = m.SistEndretVed,
                 Utgiver = m.Utgiver,
                 AnsvarligDepartement = m.AnsvarligDepartement,
                 Status = m.Status,
+                Url = m.Eli,
+                Innhold = innholdNy,
+                InnholdsHash = innholdsHashNy,
+                Hentet = naaNy,
                 OpprettetAv = attribuertTil,
-                OpprettetTidspunkt = DateTimeOffset.UtcNow,
+                OpprettetTidspunkt = naaNy,
             });
             db.Proveniens.Add(ProveniensHjelper.NyRad("rettskilde", rettskildeId, virksomhetId, "opprettet", attribuertTil));
         }
@@ -220,6 +262,22 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 Sorteringsrekkefolge = h.Sorteringsrekkefolge,
             });
         }
+
+        // Endring (2026-09-02, docs-kommentar RettskildeEndringEntitet) — DOKUMENTNIVÅ, semantisk
+        // MOTSATT av Hjemmel over (denne rettskilden ENDRER target, ikke hjemlet i target), men
+        // NØYAKTIG samme stub-mekanisme.
+        foreach (var end in resultat.Endringer)
+        {
+            var endringRettskildeId = await FinnEllerOpprettReferanseStubAsync(end.Eid, ct);
+            db.RettskildeEndringer.Add(new RettskildeEndringEntitet
+            {
+                Id = Guid.NewGuid(),
+                RettskildeId = rettskildeId,
+                EndringEid = end.Eid,
+                EndringRettskildeId = endringRettskildeId,
+                Sorteringsrekkefolge = end.Sorteringsrekkefolge,
+            });
+        }
     }
 
     /// <summary>
@@ -232,6 +290,8 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
     {
         var m = resultat.Metadata;
         var nyRettskildeId = Guid.NewGuid();
+        var (innholdNyVersjon, innholdsHashNyVersjon) = BeregnInnhold(resultat.RaaHtml);
+        var naaNyVersjon = DateTimeOffset.UtcNow;
         db.Rettskilder.Add(new RettskildeEntitet
         {
             Id = nyRettskildeId,
@@ -244,14 +304,21 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             Eli = m.Eli,
             AknXml = resultat.AknXml,
             Ikrafttredelse = m.Ikrafttredelse,
+            IkrafttredelseRaa = m.IkrafttredelseRaa,
             KonsolidertDato = m.KonsolidertDato,
+            KonsolidertDatoRaa = m.KonsolidertDatoRaa,
+            SistEndretVed = m.SistEndretVed,
             Utgiver = m.Utgiver,
             AnsvarligDepartement = m.AnsvarligDepartement,
             Status = m.Status,
+            Url = m.Eli,
+            Innhold = innholdNyVersjon,
+            InnholdsHash = innholdsHashNyVersjon,
+            Hentet = naaNyVersjon,
             Versjon = gammel.Versjon + 1,
             ErstatterId = gammel.Id,
             OpprettetAv = attribuertTil,
-            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            OpprettetTidspunkt = naaNyVersjon,
         });
         gammel.Entitetsstatus = "erstattet";
         db.Proveniens.Add(ProveniensHjelper.NyRad("rettskilde", nyRettskildeId, virksomhetId, "endret", attribuertTil));
@@ -321,6 +388,18 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
     private static readonly Regex ImportDatoLinje = new("""<FRBRdate date="[^"]*" name="regel-ide-import"/>""", RegexOptions.Compiled);
 
     private static string NormaliserAknForSammenligning(string aknXml) => ImportDatoLinje.Replace(aknXml, "");
+
+    /// <summary>
+    /// Del B (lovdata-raa-metadata-runden, 2026-09-02): <see cref="RettskildeEntitet.Innhold"/> (rå
+    /// UTF-8-bytes, uendret original) + <see cref="RettskildeEntitet.InnholdsHash"/>. Hash-en gjenbruker
+    /// BEVISST <see cref="LovdataIdentifikatorer.BeregnTekstHash"/> — samme SHA-256-hex-funksjon som
+    /// allerede brukes for ALLE andre <c>InnholdsHash</c>-felt i kodebasen (EksternKildeEntitet via
+    /// AltinnRessursHenter/KommuneTjenesteHenter/OppgaveregisterHenter/TjenestelisteImporter — samtlige
+    /// hasher rå tekst direkte med denne, ikke en egen bytes-hash) — i stedet for å skrive en ny,
+    /// parallell hash-funksjon for nøyaktig samme formål.
+    /// </summary>
+    private static (byte[] Innhold, string InnholdsHash) BeregnInnhold(string raaHtml) =>
+        (Encoding.UTF8.GetBytes(raaHtml), LovdataIdentifikatorer.BeregnTekstHash(raaHtml));
 
     /// <summary>
     /// Finner en eksisterende rettskilde (primær eller stub) for en ekstern referansemål-ELI, eller

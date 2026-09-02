@@ -7,7 +7,7 @@ using RegelIde.Data;
 namespace RegelIde.Api.Tests;
 
 /// <summary>
-/// Integrasjonstester for `/api/rollebegrep` og `/api/myndighetstildelinger` (docs/20 §2.4/§2.5,
+/// Integrasjonstester for `/api/gruppebegrep` og `/api/myndighetstildelinger` (docs/20 §2.4/§2.5,
 /// docs/13-backlog.md §8.1 punkt 1) mot ekte embedded Postgres. Samme mønster som
 /// <see cref="NavnekandidaterEndepunktTests"/> — rettskilde+node settes opp direkte i DB-en i stedet
 /// for en ekte Lovdata-import, enklere å styre presist hvilken paragraf-eId testen refererer.
@@ -39,7 +39,7 @@ public class MyndighetstildelingEndepunktTests
         return request;
     }
 
-    /// <summary>Rettskilde med ÉN paragraf-node — brukt som både rollebegrepets lov og hjemmelen
+    /// <summary>Rettskilde med ÉN paragraf-node — brukt som både gruppebegrepets lov og hjemmelen
     /// (en ekte tildeling ville typisk hatt to ulike rettskilder, men det er irrelevant for det
     /// endepunktet her verifiserer — kun at kalleren MÅ oppgi ekte, eksisterende referanser).</summary>
     private async Task<(Guid RettskildeId, string ParagrafEid)> OpprettRettskildeMedParagrafAsync()
@@ -70,20 +70,20 @@ public class MyndighetstildelingEndepunktTests
     }
 
     [Fact]
-    public async Task Hent_alle_rollebegrep_inkluderer_nyopprettet_rollebegrep()
+    public async Task Hent_alle_gruppebegrep_inkluderer_nyopprettet_gruppebegrep()
     {
         var brukerId = await HentJuristIdAsync();
         var (lovId, _) = await OpprettRettskildeMedParagrafAsync();
         var term = $"kontrollmyndighet-{Guid.NewGuid():N}";
 
-        var opprettSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/rollebegrep", brukerId,
+        var opprettSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppebegrep", brukerId,
             new { LovkildeId = lovId, Term = term }));
         Assert.Equal(HttpStatusCode.Created, opprettSvar.StatusCode);
 
-        var alle = await _client.GetFromJsonAsync<List<BegrepDto>>("/api/rollebegrep", JsonInnstillinger);
-        var rollebegrep = Assert.Single(alle!, b => b.Term == term);
-        Assert.Equal("rolle", rollebegrep.Begrepskategori);
-        Assert.Equal(lovId, rollebegrep.LovkildeId);
+        var alle = await _client.GetFromJsonAsync<List<BegrepDto>>("/api/gruppebegrep", JsonInnstillinger);
+        var gruppebegrep = Assert.Single(alle!, b => b.Term == term);
+        Assert.Equal("gruppe", gruppebegrep.Begrepskategori);
+        Assert.Equal(lovId, gruppebegrep.LovkildeId);
     }
 
     [Fact]
@@ -94,13 +94,13 @@ public class MyndighetstildelingEndepunktTests
         var (hjemmelId, _) = await OpprettRettskildeMedParagrafAsync();
         var virksomhetId = await OpprettVirksomhetAsync();
 
-        var rollebegrepSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/rollebegrep", brukerId,
+        var gruppebegrepSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppebegrep", brukerId,
             new { LovkildeId = lovId, Term = $"forurensningsmyndighet-{Guid.NewGuid():N}" }));
-        var rollebegrep = await rollebegrepSvar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger);
+        var gruppebegrep = await gruppebegrepSvar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger);
 
         var tildelingSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/myndighetstildelinger", brukerId, new
         {
-            RolleBegrepId = rollebegrep!.Id,
+            GruppeBegrepId = gruppebegrep!.Id,
             VirksomhetId = virksomhetId,
             HjemmelRettskildeId = hjemmelId,
             Paragrafspenn = new[] { new { FraEid = paragrafEid, TilEid = (string?)null } },
@@ -119,7 +119,7 @@ public class MyndighetstildelingEndepunktTests
     }
 
     [Fact]
-    public async Task Avvises_med_ikke_eksisterende_rollebegrep_id()
+    public async Task Avvises_med_ikke_eksisterende_gruppebegrep_id()
     {
         var brukerId = await HentJuristIdAsync();
         var (_, paragrafEid) = await OpprettRettskildeMedParagrafAsync();
@@ -128,7 +128,7 @@ public class MyndighetstildelingEndepunktTests
 
         var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/myndighetstildelinger", brukerId, new
         {
-            RolleBegrepId = Guid.NewGuid(), // finnes ikke — ingen gjettet fallback
+            GruppeBegrepId = Guid.NewGuid(), // finnes ikke — ingen gjettet fallback
             VirksomhetId = virksomhetId,
             HjemmelRettskildeId = hjemmelId,
             Paragrafspenn = new[] { new { FraEid = paragrafEid, TilEid = (string?)null } },
@@ -150,13 +150,13 @@ public class MyndighetstildelingEndepunktTests
         var (lovId, paragrafEid) = await OpprettRettskildeMedParagrafAsync();
         var (hjemmelId, _) = await OpprettRettskildeMedParagrafAsync();
 
-        var rollebegrepSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/rollebegrep", brukerId,
+        var gruppebegrepSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppebegrep", brukerId,
             new { LovkildeId = lovId, Term = $"kontrollmyndighet-{Guid.NewGuid():N}" }));
-        var rollebegrep = await rollebegrepSvar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger);
+        var gruppebegrep = await gruppebegrepSvar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger);
 
         var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/myndighetstildelinger", brukerId, new
         {
-            RolleBegrepId = rollebegrep!.Id,
+            GruppeBegrepId = gruppebegrep!.Id,
             VirksomhetId = Guid.NewGuid(), // finnes ikke — ingen gjettet fallback
             HjemmelRettskildeId = hjemmelId,
             Paragrafspenn = new[] { new { FraEid = paragrafEid, TilEid = (string?)null } },

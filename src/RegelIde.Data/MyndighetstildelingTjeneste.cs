@@ -8,7 +8,7 @@ namespace RegelIde.Data;
 public sealed record ParagrafspennPar(string FraEid, string? TilEid);
 
 /// <summary>
-/// Register for <see cref="MyndighetstildelingEntitet"/> (docs/20 §2.5) — kobler et rollebegrep til en
+/// Register for <see cref="MyndighetstildelingEntitet"/> (docs/20 §2.5) — kobler et gruppebegrep til en
 /// konkret virksomhet, hjemlet i en forskrift/et delegeringsvedtak. Gyldighet er IKKE et eget felt her:
 /// den arves fra <see cref="MyndighetstildelingEntitet.HjemmelRettskildeId"/>s
 /// <see cref="RettskildeEntitet.Status"/>/<see cref="RettskildeEntitet.GyldigTil"/> — se
@@ -17,14 +17,14 @@ public sealed record ParagrafspennPar(string FraEid, string? TilEid);
 public sealed class MyndighetstildelingTjeneste(RegelIdeDbContext db)
 {
     public async Task<MyndighetstildelingEntitet> OpprettAsync(
-        Guid rolleBegrepId, Guid virksomhetId, Guid hjemmelRettskildeId, IReadOnlyList<ParagrafspennPar> paragrafspenn,
+        Guid gruppeBegrepId, Guid virksomhetId, Guid hjemmelRettskildeId, IReadOnlyList<ParagrafspennPar> paragrafspenn,
         string? vilkaar, string opprettetAv, CancellationToken ct = default)
     {
-        var rolleBegrep = await db.Begreper.FirstOrDefaultAsync(
-            b => b.Id == rolleBegrepId && b.Begrepskategori == "rolle" && b.Entitetsstatus == "gjeldende", ct);
-        if (rolleBegrep is null)
+        var gruppeBegrep = await db.Begreper.FirstOrDefaultAsync(
+            b => b.Id == gruppeBegrepId && b.Begrepskategori == "gruppe" && b.Entitetsstatus == "gjeldende", ct);
+        if (gruppeBegrep is null)
         {
-            throw new ArgumentException($"Fant ingen rollebegrep med id '{rolleBegrepId}'. Ingen gjettet fallback.");
+            throw new ArgumentException($"Fant ingen gruppebegrep med id '{gruppeBegrepId}'. Ingen gjettet fallback.");
         }
         if (!await db.Virksomheter.AnyAsync(v => v.Id == virksomhetId, ct))
         {
@@ -53,7 +53,7 @@ public sealed class MyndighetstildelingTjeneste(RegelIdeDbContext db)
         var tildeling = new MyndighetstildelingEntitet
         {
             Id = Guid.NewGuid(),
-            RolleBegrepId = rolleBegrepId,
+            GruppeBegrepId = gruppeBegrepId,
             VirksomhetId = virksomhetId,
             HjemmelRettskildeId = hjemmelRettskildeId,
             ParagrafspennJson = JsonSerializer.Serialize(paragrafspenn, JsonSerialiseringHjelper.Innstillinger),
@@ -64,14 +64,14 @@ public sealed class MyndighetstildelingTjeneste(RegelIdeDbContext db)
         db.Myndighetstildelinger.Add(tildeling);
         // Attribuert til den opprettende brukerens EGEN virksomhet (RBAC-prinsippet, docs/20 §0 pkt. 3)
         // — men KUN for Proveniens-sporing, ikke lagret på selve raden (myndighetstildelinger er delt,
-        // nasjonal referansedata, samme som rollebegrepet den peker på).
+        // nasjonal referansedata, samme som gruppebegrepet den peker på).
         db.Proveniens.Add(ProveniensHjelper.NyRad("myndighetstildeling", tildeling.Id, virksomhetId: null, "opprettet", opprettetAv));
         await db.SaveChangesAsync(ct);
         return tildeling;
     }
 
-    public Task<List<MyndighetstildelingEntitet>> AlleForRolleBegrepAsync(Guid rolleBegrepId, CancellationToken ct = default) =>
-        db.Myndighetstildelinger.Where(m => m.RolleBegrepId == rolleBegrepId).ToListAsync(ct);
+    public Task<List<MyndighetstildelingEntitet>> AlleForGruppeBegrepAsync(Guid gruppeBegrepId, CancellationToken ct = default) =>
+        db.Myndighetstildelinger.Where(m => m.GruppeBegrepId == gruppeBegrepId).ToListAsync(ct);
 
     public Task<List<MyndighetstildelingEntitet>> AlleForVirksomhetAsync(Guid virksomhetId, CancellationToken ct = default) =>
         db.Myndighetstildelinger.Where(m => m.VirksomhetId == virksomhetId).ToListAsync(ct);

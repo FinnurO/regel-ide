@@ -86,16 +86,67 @@ public sealed class BegrepsregisterTjeneste(RegelIdeDbContext db)
     }
 
     /// <summary>
+    /// [Ny, begrepsoppdagelse-runden, docs/24 §3 punkt 4] Oppretter en ordinær <see cref="BegrepEntitet"/>-
+    /// rad (<see cref="BegrepEntitet.Begrepskategori"/> = <c>null</c>) fra en GODKJENT
+    /// <see cref="BegrepsforekomstEntitet"/> — kalt av <see cref="BegrepsforekomstTjeneste.GodkjennAsync"/>,
+    /// samme "kopi av <see cref="OpprettAsync"/> med annen kontekst" -mønster som
+    /// <see cref="OpprettForslagFraKiAsync"/>. Til forskjell fra KI-forslaget er godkjenningen HER selve
+    /// menneskelige gjennomgangen (en bruker har allerede eksplisitt godkjent nøyaktig denne forekomsten)
+    /// — raden landes derfor med <c>Status="utkast"</c> og en vanlig "opprettet"-proveniensrad, IKKE
+    /// <c>"foreslatt_av_ai"</c> (som betyr "ikke ennå menneskelig gjennomgått").
+    /// <para>
+    /// <b>Alltid en NY rad, aldri en gjenbrukt/slått-sammen eksisterende <see cref="BegrepEntitet"/> med
+    /// samme <see cref="BegrepEntitet.Term"/>:</b> samme term kan lovlig ha ulike, delvis motstridende
+    /// forekomster på tvers av korpuset (docs/24 §1.1) — å GJETTE at to forekomster med samme term "er
+    /// det samme begrepet" og dermed slå dem sammen ville vært akkurat den typen juridiske avgjørelse
+    /// docs/24 eksplisitt sier sveipet/godkjenningen ikke skal ta stilling til (det er hva en fremtidig
+    /// <c>sveip_begrepskollisjoner</c>-visning skal SYNLIGGJØRE, ikke noe denne metoden skal avgjøre
+    /// stille).
+    /// </para>
+    /// <para>
+    /// <see cref="BegrepEntitet.Begrepstype"/> settes alltid til <c>"faktabegrep"</c> — M1/M11 er begge
+    /// rene definisjonsmønstre (beskriver en tilstand/et objekt, ikke en handling/prosess), og
+    /// forekomsten selv bærer intet signal som skiller faktabegrep fra handlingsbegrep.
+    /// </para>
+    /// </summary>
+    public async Task<BegrepEntitet> OpprettFraForekomstAsync(
+        Guid virksomhetId, string term, string definisjon, string lovreferanseEid, string opprettetAv, CancellationToken ct = default)
+    {
+        ValiderFelter(term, definisjon, "faktabegrep");
+        await ValiderLovreferanseAsync(lovreferanseEid, ct);
+
+        var begrep = new BegrepEntitet
+        {
+            Id = Guid.NewGuid(),
+            VirksomhetId = virksomhetId,
+            Term = term,
+            Definisjon = definisjon,
+            LovreferanseEid = lovreferanseEid,
+            GjelderFor = [],
+            KodelisteReferanseId = null,
+            SkosUrl = null,
+            Begrepstype = "faktabegrep",
+            Status = "utkast",
+            OpprettetAv = opprettetAv,
+            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        };
+        db.Begreper.Add(begrep);
+        db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", begrep.Id, virksomhetId, "opprettet", opprettetAv));
+        await db.SaveChangesAsync(ct);
+        return begrep;
+    }
+
+    /// <summary>
     /// [Rettet, 2026-08-30] Denne metoden ble skrevet FØR <see cref="BegrepEntitet.Begrepskategori"/>
     /// fantes (virksomhetskatalog-runden, 2026-08-22) og validerte/overskrev alltid
     /// <see cref="BegrepEntitet.Definisjon"/>/<see cref="BegrepEntitet.Begrepstype"/> ubetinget — disse
-    /// feltene er derimot dokumentert NULL for <c>Begrepskategori IN ('virksomhet','rolle')</c> (se
+    /// feltene er derimot dokumentert NULL for <c>Begrepskategori IN ('virksomhet','gruppe')</c> (se
     /// klassekommentaren på <see cref="BegrepEntitet"/>). Uten en kategori-bevisst sjekk her kunne PUT
-    /// /api/begreper/{id} stille forurense en virksomhet-/rolle-navneform med en oppfunnet
+    /// /api/begreper/{id} stille forurense en virksomhet-/gruppe-navneform med en oppfunnet
     /// "faktabegrep"/tom definisjon — reelt observert av Johann 2026-08-30 (frontend-krasjfiksen for
     /// null-felter satte ellers en fallback-verdi i redigeringsskjemaet som ville blitt lagret som ekte
     /// data ved første "Lagre"-klikk). Løsning: hent raden FØRST, og for
-    /// <c>Begrepskategori IN ('virksomhet','rolle')</c> rører vi ALDRI Definisjon/Begrepstype uansett
+    /// <c>Begrepskategori IN ('virksomhet','gruppe')</c> rører vi ALDRI Definisjon/Begrepstype uansett
     /// hva som sendes inn — kun Term/LovreferanseEid/GjelderFor/KodelisteReferanseId/SkosUrl er
     /// meningsfulle å endre for disse radene.
     /// </summary>
@@ -106,12 +157,12 @@ public sealed class BegrepsregisterTjeneste(RegelIdeDbContext db)
         var begrep = await db.Begreper.FirstOrDefaultAsync(b => b.Id == id && b.Entitetsstatus == "gjeldende", ct);
         if (begrep is null) return null;
 
-        var erVirksomhetEllerRolle = begrep.Begrepskategori is "virksomhet" or "rolle";
+        var erVirksomhetEllerGruppe = begrep.Begrepskategori is "virksomhet" or "gruppe";
         if (string.IsNullOrWhiteSpace(term))
         {
             throw new ArgumentException("Term kan ikke være tom. Ingen gjettet fallback.");
         }
-        if (!erVirksomhetEllerRolle)
+        if (!erVirksomhetEllerGruppe)
         {
             ValiderFelter(term, definisjon, begrepstype);
         }
@@ -119,7 +170,7 @@ public sealed class BegrepsregisterTjeneste(RegelIdeDbContext db)
         await ValiderKodelisteReferanseAsync(kodelisteReferanseId, ct);
 
         begrep.Term = term;
-        if (!erVirksomhetEllerRolle)
+        if (!erVirksomhetEllerGruppe)
         {
             begrep.Definisjon = definisjon;
             begrep.Begrepstype = begrepstype;

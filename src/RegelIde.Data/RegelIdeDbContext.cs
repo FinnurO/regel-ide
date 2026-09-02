@@ -44,12 +44,15 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<MyndighetstildelingEntitet> Myndighetstildelinger => Set<MyndighetstildelingEntitet>();
     public DbSet<VirksomhetKandidatEntitet> VirksomhetKandidater => Set<VirksomhetKandidatEntitet>();
     public DbSet<NavnekandidatEntitet> Navnekandidater => Set<NavnekandidatEntitet>();
+    public DbSet<BegrepsforekomstEntitet> Begrepsforekomster => Set<BegrepsforekomstEntitet>();
+    public DbSet<BegrepsrelasjonEntitet> Begrepsrelasjoner => Set<BegrepsrelasjonEntitet>();
     public DbSet<Bruker> Brukere => Set<Bruker>();
     public DbSet<BrukerVisningsinnstillingEntitet> BrukerVisningsinnstillinger => Set<BrukerVisningsinnstillingEntitet>();
     public DbSet<RettskildeEntitet> Rettskilder => Set<RettskildeEntitet>();
     public DbSet<RettskildeNodeEntitet> RettskildeNoder => Set<RettskildeNodeEntitet>();
     public DbSet<RettskildeReferanseEntitet> RettskildeReferanser => Set<RettskildeReferanseEntitet>();
     public DbSet<RettskildeHjemmelEntitet> RettskildeHjemler => Set<RettskildeHjemmelEntitet>();
+    public DbSet<RettskildeEndringEntitet> RettskildeEndringer => Set<RettskildeEndringEntitet>();
     public DbSet<TekstTaggEntitet> TekstTagger => Set<TekstTaggEntitet>();
     public DbSet<TaggKindKonfigurasjonEntitet> TaggKindKonfigurasjoner => Set<TaggKindKonfigurasjonEntitet>();
     public DbSet<HandbokKommentarMetadataEntitet> HandbokKommentarMetadata => Set<HandbokKommentarMetadataEntitet>();
@@ -138,7 +141,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
         {
             e.ToTable("myndighetstildelinger");
             e.HasKey(x => x.Id).HasName("myndighetstildelinger_pkey");
-            e.Property(x => x.RolleBegrepId).HasColumnName("rolle_begrep_id");
+            e.Property(x => x.GruppeBegrepId).HasColumnName("gruppe_begrep_id");
             e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
             e.Property(x => x.HjemmelRettskildeId).HasColumnName("hjemmel_rettskilde_id");
             e.Property(x => x.ParagrafspennJson).HasColumnName("paragrafspenn_json").HasDefaultValue("[]");
@@ -147,10 +150,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
             e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
-            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.RolleBegrepId);
+            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.GruppeBegrepId);
             e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
             e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.HjemmelRettskildeId);
-            e.HasIndex(x => x.RolleBegrepId).HasDatabaseName("ix_myndighetstildelinger_rolle_begrep");
+            e.HasIndex(x => x.GruppeBegrepId).HasDatabaseName("ix_myndighetstildelinger_gruppe_begrep");
             e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_myndighetstildelinger_virksomhet");
             e.HasIndex(x => x.HjemmelRettskildeId).HasDatabaseName("ix_myndighetstildelinger_hjemmel");
         });
@@ -191,7 +194,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.ToTable("navnekandidater", t =>
             {
                 t.HasCheckConstraint("ck_navnekandidater_status", "status IN ('Venter', 'Godkjent', 'Avvist')");
-                t.HasCheckConstraint("ck_navnekandidater_kategori", "kategori IN ('virksomhet', 'rolle')");
+                t.HasCheckConstraint("ck_navnekandidater_kategori", "kategori IN ('virksomhet', 'gruppe')");
             });
             e.HasKey(x => x.Id).HasName("navnekandidater_pkey");
             e.Property(x => x.ForeslattTekst).HasColumnName("foreslatt_tekst");
@@ -264,7 +267,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Eli).HasColumnName("eli");
             e.Property(x => x.AknXml).HasColumnName("akn_xml");
             e.Property(x => x.Ikrafttredelse).HasColumnName("ikrafttredelse");
+            e.Property(x => x.IkrafttredelseRaa).HasColumnName("ikrafttredelse_raa");
             e.Property(x => x.KonsolidertDato).HasColumnName("konsolidert_dato");
+            e.Property(x => x.KonsolidertDatoRaa).HasColumnName("konsolidert_dato_raa");
+            e.Property(x => x.SistEndretVed).HasColumnName("sist_endret_ved");
             e.Property(x => x.Utgiver).HasColumnName("utgiver");
             e.Property(x => x.AnsvarligDepartement).HasColumnName("ansvarlig_departement");
             e.Property(x => x.Status).HasColumnName("status");
@@ -443,6 +449,28 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasIndex(x => new { x.RettskildeId, x.HjemmelEid }).IsUnique()
                 .HasDatabaseName("ux_rettskilde_hjemler_rettskilde_id_hjemmel_eid");
             e.HasIndex(x => x.HjemmelRettskildeId).HasDatabaseName("ix_rettskilde_hjemler_hjemmel_rettskilde");
+        });
+
+        b.Entity<RettskildeEndringEntitet>(e =>
+        {
+            e.ToTable("rettskilde_endringer");
+            e.HasKey(x => x.Id).HasName("rettskilde_endringer_pkey");
+            e.Property(x => x.RettskildeId).HasColumnName("rettskilde_id");
+            e.Property(x => x.EndringEid).HasColumnName("endring_eid");
+            e.Property(x => x.EndringRettskildeId).HasColumnName("endring_rettskilde_id");
+            e.Property(x => x.Sorteringsrekkefolge).HasColumnName("sorteringsrekkefolge");
+
+            e.HasOne<RettskildeEntitet>().WithMany()
+                .HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<RettskildeEntitet>().WithMany()
+                .HasForeignKey(x => x.EndringRettskildeId);
+
+            // Samme "unngå duplikatimport av samme referanse"-begrunnelse som
+            // rettskilde_hjemler over — en reimport av samme rettskilde skriver til en NY
+            // RettskildeId hver gang (§2.1), så denne hindrer kun duplikater INNENFOR én og samme import.
+            e.HasIndex(x => new { x.RettskildeId, x.EndringEid }).IsUnique()
+                .HasDatabaseName("ux_rettskilde_endringer_rettskilde_id_endring_eid");
+            e.HasIndex(x => x.EndringRettskildeId).HasDatabaseName("ix_rettskilde_endringer_endring_rettskilde");
         });
 
         b.Entity<TekstTaggEntitet>(e =>
@@ -747,7 +775,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
         b.Entity<BegrepEntitet>(e =>
         {
             e.ToTable("begreper", t => t.HasCheckConstraint(
-                "ck_begreper_begrepskategori", "begrepskategori IS NULL OR begrepskategori IN ('virksomhet', 'rolle')"));
+                "ck_begreper_begrepskategori", "begrepskategori IS NULL OR begrepskategori IN ('virksomhet', 'gruppe')"));
             e.HasKey(x => x.Id).HasName("begreper_pkey");
             e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
             e.Property(x => x.Begrepskategori).HasColumnName("begrepskategori");
@@ -782,13 +810,86 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasOne<KodelisteEntitet>().WithMany().HasForeignKey(x => x.KodelisteReferanseId);
             e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_begreper_virksomhet");
             e.HasIndex(x => x.VirksomhetReferanseId).HasDatabaseName("ix_begreper_virksomhet_referanse");
-            // Rollebegrepets identitet er (Term, LovkildeId) sammen (docs/20 §2.4) — samme rollenavn i
-            // to ulike lover er to ulike rader, men samme rollenavn i SAMME lov skal ikke kunne
-            // dupliseres. Partiell (kun Begrepskategori='rolle') og Entitetsstatus-filtrert, samme
+            // Gruppebegrepets identitet er (Term, LovkildeId) sammen (docs/20 §2.4) — samme gruppenavn i
+            // to ulike lover er to ulike rader, men samme gruppenavn i SAMME lov skal ikke kunne
+            // dupliseres. Partiell (kun Begrepskategori='gruppe') og Entitetsstatus-filtrert, samme
             // mønster som andre "unik blant gjeldende"-indekser i denne filen.
             e.HasIndex(x => new { x.Term, x.LovkildeId }).IsUnique()
-                .HasFilter("begrepskategori = 'rolle' AND entitetsstatus = 'gjeldende'")
-                .HasDatabaseName("ux_begreper_rollebegrep_term_lovkilde");
+                .HasFilter("begrepskategori = 'gruppe' AND entitetsstatus = 'gjeldende'")
+                .HasDatabaseName("ux_begreper_gruppebegrep_term_lovkilde");
+        });
+
+        b.Entity<BegrepsforekomstEntitet>(e =>
+        {
+            e.ToTable("begrepsforekomster", t =>
+            {
+                t.HasCheckConstraint("ck_begrepsforekomster_status", "status IN ('Venter', 'Godkjent', 'Avvist')");
+                t.HasCheckConstraint("ck_begrepsforekomster_konfidens", "konfidens IN ('hoy', 'middels', 'lav', 'krever_oppslag')");
+                t.HasCheckConstraint("ck_begrepsforekomster_scope", "scope IN ('hele_dokumentet', 'kapittel', 'paragraf')");
+                t.HasCheckConstraint("ck_begrepsforekomster_kildetype",
+                    "kildetype IN ('eksplisitt_liste', 'egen_paragraf', 'inline_menes', 'skal_forstas_som', 'copula', " +
+                    "'heretter_kalt', 'ekstern_referanse', 'eos_referanse', 'vedleggstabell', 'distribuert')");
+                t.HasCheckConstraint("ck_begrepsforekomster_monster_id",
+                    "monster_id IN ('M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'M10', 'M11', 'M12', " +
+                    "'M13', 'M14', 'M15', 'M16', 'M17')");
+            });
+            e.HasKey(x => x.Id).HasName("begrepsforekomster_pkey");
+            e.Property(x => x.RettskildeId).HasColumnName("rettskilde_id");
+            e.Property(x => x.NodeEid).HasColumnName("node_eid");
+            e.Property(x => x.StartOffset).HasColumnName("start_offset");
+            e.Property(x => x.EndOffset).HasColumnName("end_offset");
+            e.Property(x => x.Begrep).HasColumnName("begrep");
+            e.Property(x => x.BegrepOriginal).HasColumnName("begrep_original");
+            e.Property(x => x.Definisjon).HasColumnName("definisjon");
+            e.Property(x => x.Kildetype).HasColumnName("kildetype");
+            e.Property(x => x.MonsterId).HasColumnName("monster_id");
+            e.Property(x => x.Konfidens).HasColumnName("konfidens");
+            e.Property(x => x.Scope).HasColumnName("scope");
+            e.Property(x => x.ScopeRefEid).HasColumnName("scope_ref_eid");
+            e.Property(x => x.HenvisningsMaal).HasColumnName("henvisnings_maal");
+            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("Venter");
+            e.Property(x => x.BegrepId).HasColumnName("begrep_id");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+            e.Property(x => x.BehandletAv).HasColumnName("behandlet_av");
+            e.Property(x => x.BehandletTidspunkt).HasColumnName("behandlet_tidspunkt");
+
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.BegrepId);
+            e.HasIndex(x => x.RettskildeId).HasDatabaseName("ix_begrepsforekomster_rettskilde");
+            e.HasIndex(x => x.Begrep).HasDatabaseName("ix_begrepsforekomster_begrep");
+            // Idempotens ved gjentatt sveip (docs/24 §4, siste punkt — flagget som nødvendig, ikke bygget
+            // av spesifikasjonen selv) — samme (RettskildeId, NodeEid, START-posisjon) -mønster som
+            // ux_virksomhet_kandidater_virksomhet_node_start/ux_navnekandidater_rettskilde_node_start,
+            // uansett status.
+            e.HasIndex(x => new { x.RettskildeId, x.NodeEid, x.StartOffset }).IsUnique()
+                .HasDatabaseName("ux_begrepsforekomster_rettskilde_node_start");
+        });
+
+        b.Entity<BegrepsrelasjonEntitet>(e =>
+        {
+            e.ToTable("begrepsrelasjoner", t =>
+            {
+                t.HasCheckConstraint("ck_begrepsrelasjoner_type", "relasjonstype IN ('avhenger_av', 'utelukker', 'unntak_fra')");
+                // Nøyaktig én av til_forekomst_id/til_term_fritekst (docs/24 §2.2/§1.5) — samme
+                // "aldri stol på DB-constrainten alene" -linje som ck_tjenesteavhengigheter_ett_mal.
+                t.HasCheckConstraint("ck_begrepsrelasjoner_ett_mal",
+                    "(til_forekomst_id IS NOT NULL AND til_term_fritekst IS NULL) OR " +
+                    "(til_forekomst_id IS NULL AND til_term_fritekst IS NOT NULL)");
+            });
+            e.HasKey(x => x.Id).HasName("begrepsrelasjoner_pkey");
+            e.Property(x => x.FraForekomstId).HasColumnName("fra_forekomst_id");
+            e.Property(x => x.TilForekomstId).HasColumnName("til_forekomst_id");
+            e.Property(x => x.TilTermFritekst).HasColumnName("til_term_fritekst");
+            e.Property(x => x.Relasjonstype).HasColumnName("relasjonstype");
+            e.Property(x => x.TilReferanseEid).HasColumnName("til_referanse_eid");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+
+            e.HasOne<BegrepsforekomstEntitet>().WithMany().HasForeignKey(x => x.FraForekomstId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<BegrepsforekomstEntitet>().WithMany().HasForeignKey(x => x.TilForekomstId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => x.FraForekomstId).HasDatabaseName("ix_begrepsrelasjoner_fra");
+            e.HasIndex(x => x.TilForekomstId).HasDatabaseName("ix_begrepsrelasjoner_til");
         });
 
         b.Entity<KodelisteEntitet>(e =>

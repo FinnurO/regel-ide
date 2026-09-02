@@ -13,17 +13,17 @@ export interface LeggTilMyndighetstildelingFormProps {
 /**
  * «Legg til myndighetstildeling»-skjema (docs/13-backlog.md §8.1 punkt 1 — det manglende
  * frontend-skjemaet for `POST /api/myndighetstildelinger`, som tidligere kun kunne kalles via
- * HTTP/Swagger). Kobler ETT eksisterende rollebegrep til DENNE virksomheten, hjemlet i en
+ * HTTP/Swagger). Kobler ETT eksisterende gruppebegrep til DENNE virksomheten, hjemlet i en
  * rettskilde brukeren velger — mennesket velger alltid eksplisitt, ingen gjettet/automatisk kobling.
  *
  * Paragrafspenn-byggeren gjenbruker MØNSTERET fra `KobleRegelverksreferanseForm` (paragraf-`Select`
- * sourced fra rollebegrepets EGEN lov + en «avansert/manuell» eId-`Textfield` som fallback), men
+ * sourced fra gruppebegrepets EGEN lov + en «avansert/manuell» eId-`Textfield` som fallback), men
  * bygger en LISTE av `{ FraEid, TilEid? }`-par (docs/20 §7.1) i stedet for én enkelt referanse —
  * `ParagrafspennJson` krever minst ett par, se `MyndighetstildelingTjeneste.OpprettAsync`.
  */
 export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOpprettet }: LeggTilMyndighetstildelingFormProps) {
-  const [rollebegrep, setRollebegrep] = useState<VirksomhetsbegrepDto[] | null>(null);
-  const [rollebegrepId, setRollebegrepId] = useState('');
+  const [gruppebegrep, setGruppebegrep] = useState<VirksomhetsbegrepDto[] | null>(null);
+  const [gruppebegrepId, setGruppebegrepId] = useState('');
   const [hjemmelRettskildeId, setHjemmelRettskildeId] = useState('');
   const [vilkaar, setVilkaar] = useState('');
 
@@ -36,12 +36,12 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
   const [feilmelding, setFeilmelding] = useState<string | null>(null);
 
   useEffect(() => {
-    api.hentRollebegrep().then(setRollebegrep).catch(() => setRollebegrep([]));
+    api.hentGruppebegrep().then(setGruppebegrep).catch(() => setGruppebegrep([]));
   }, []);
 
-  const valgtRollebegrep = rollebegrep?.find((r) => r.id === rollebegrepId);
-  const lovkildeId = valgtRollebegrep?.lovkildeId ?? null;
-  const lovForRollebegrep = lovkildeId ? rettskilder.find((r) => r.id === lovkildeId) : undefined;
+  const valgtGruppebegrep = gruppebegrep?.find((r) => r.id === gruppebegrepId);
+  const lovkildeId = valgtGruppebegrep?.lovkildeId ?? null;
+  const lovForGruppebegrep = lovkildeId ? rettskilder.find((r) => r.id === lovkildeId) : undefined;
 
   useEffect(() => {
     if (!lovkildeId || noderPerLov.has(lovkildeId)) return;
@@ -56,8 +56,8 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
     (n) => n.nodeType === 'side' || (n.nodeType !== 'kapittel' && n.nummer),
   ) ?? [];
 
-  function velgRollebegrep(id: string) {
-    setRollebegrepId(id);
+  function velgGruppebegrep(id: string) {
+    setGruppebegrepId(id);
     setParagrafspenn([]);
     setFraEid('');
     setTilEid('');
@@ -75,15 +75,15 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
   }
 
   async function opprett() {
-    if (!rollebegrepId || !hjemmelRettskildeId || paragrafspenn.length === 0) return;
+    if (!gruppebegrepId || !hjemmelRettskildeId || paragrafspenn.length === 0) return;
     setFeilmelding(null);
     setOppretter(true);
     try {
       const ny = await api.opprettMyndighetstildeling({
-        rolleBegrepId: rollebegrepId, virksomhetId, hjemmelRettskildeId, paragrafspenn, vilkaar: vilkaar.trim() || null,
+        gruppeBegrepId: gruppebegrepId, virksomhetId, hjemmelRettskildeId, paragrafspenn, vilkaar: vilkaar.trim() || null,
       });
       onOpprettet(ny);
-      setRollebegrepId('');
+      setGruppebegrepId('');
       setHjemmelRettskildeId('');
       setVilkaar('');
       setParagrafspenn([]);
@@ -97,10 +97,10 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
   return (
     <Card style={{ padding: '1rem', marginTop: '0.75rem' }}>
       <Field style={{ maxWidth: '30rem', marginBottom: '0.75rem' }}>
-        <Label>Rollebegrep</Label>
-        <Select data-size="sm" value={rollebegrepId} onChange={(e) => velgRollebegrep(e.target.value)} disabled={!rollebegrep}>
-          <Select.Option value="">{rollebegrep ? 'Velg rollebegrep …' : 'Laster …'}</Select.Option>
-          {rollebegrep?.map((r) => {
+        <Label>Gruppebegrep</Label>
+        <Select data-size="sm" value={gruppebegrepId} onChange={(e) => velgGruppebegrep(e.target.value)} disabled={!gruppebegrep}>
+          <Select.Option value="">{gruppebegrep ? 'Velg gruppebegrep …' : 'Laster …'}</Select.Option>
+          {gruppebegrep?.map((r) => {
             const lov = r.lovkildeId ? rettskilder.find((rk) => rk.id === r.lovkildeId) : undefined;
             return (
               <Select.Option key={r.id} value={r.id}>
@@ -109,9 +109,9 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
             );
           })}
         </Select>
-        {rollebegrep && rollebegrep.length === 0 && (
+        {gruppebegrep && gruppebegrep.length === 0 && (
           <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.2rem' }}>
-            Ingen rollebegrep opprettet ennå (opprettes via «Koble til …» i lovtekst-visningen, eller <code>POST /api/rollebegrep</code>).
+            Ingen gruppebegrep opprettet ennå (opprettes via «Koble til …» i lovtekst-visningen, eller <code>POST /api/gruppebegrep</code>).
           </Paragraph>
         )}
       </Field>
@@ -121,10 +121,10 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
           label="Hjemmel (forskrift/delegeringsvedtak)" />
       </div>
 
-      {rollebegrepId && (
+      {gruppebegrepId && (
         <div style={{ marginBottom: '0.75rem' }}>
           <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', fontWeight: 500, marginBottom: '0.4rem' }}>
-            Paragrafspenn i {lovForRollebegrep?.tittel ?? 'rollebegrepets lov'} — minst ett kreves
+            Paragrafspenn i {lovForGruppebegrep?.tittel ?? 'gruppebegrepets lov'} — minst ett kreves
           </Paragraph>
           {paragrafspenn.length > 0 && (
             <Card style={{ padding: 0, overflow: 'hidden', marginBottom: '0.5rem' }}>
@@ -186,7 +186,7 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
         onChange={(e) => setVilkaar(e.target.value)} style={{ maxWidth: '30rem', marginBottom: '0.75rem' }} />
 
       <Button type="button" onClick={opprett}
-        disabled={oppretter || !rollebegrepId || !hjemmelRettskildeId || paragrafspenn.length === 0}>
+        disabled={oppretter || !gruppebegrepId || !hjemmelRettskildeId || paragrafspenn.length === 0}>
         {oppretter ? 'Oppretter …' : 'Opprett myndighetstildeling'}
       </Button>
       {feilmelding && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{feilmelding}</Alert>}

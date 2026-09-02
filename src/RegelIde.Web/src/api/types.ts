@@ -226,7 +226,7 @@ export interface ParagrafspennParDto {
 
 export interface MyndighetstildelingDto {
   id: string;
-  rolleBegrepId: string;
+  gruppeBegrepId: string;
   virksomhetId: string;
   hjemmelRettskildeId: string;
   paragrafspenn: ParagrafspennParDto[];
@@ -283,7 +283,7 @@ export interface HardslettVirksomhetKandidaterResultatDto {
 export interface NavnekandidatDto {
   id: string;
   foreslattTekst: string;
-  kategori: 'virksomhet' | 'rolle';
+  kategori: 'virksomhet' | 'gruppe';
   rettskildeId: string;
   nodeEid: string;
   startOffset: number;
@@ -804,11 +804,11 @@ export interface BegrepDto {
   id: string;
   virksomhetId: string | null;
   /** null = ordinært begrep (faktabegrep/handlingsbegrep). 'virksomhet' = navneform for
-   * virksomhetReferanseId. 'rolle' = rollebegrep hjemlet i lovkildeId. Se docs/20 §2.3/§2.4. */
+   * virksomhetReferanseId. 'gruppe' = gruppebegrep hjemlet i lovkildeId. Se docs/20 §2.3/§2.4. */
   begrepskategori: string | null;
   /** Kun satt når begrepskategori === 'virksomhet' — hvilken virksomhet dette er en navneform for. */
   virksomhetReferanseId: string | null;
-  /** Kun satt når begrepskategori === 'rolle' — loven rollebegrepet er hjemlet i. */
+  /** Kun satt når begrepskategori === 'gruppe' — loven gruppebegrepet er hjemlet i. */
   lovkildeId: string | null;
   term: string;
   definisjon: string | null;

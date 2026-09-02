@@ -6,7 +6,7 @@ namespace RegelIde.Kildekonvertering;
 
 public sealed record ParseResultat(
     RettskildeMetadata Metadata, IReadOnlyList<RettskildeNode> Noder, IReadOnlyList<RettskildeReferanse> Referanser,
-    IReadOnlyList<RettskildeHjemmel> Hjemler);
+    IReadOnlyList<RettskildeHjemmel> Hjemler, IReadOnlyList<RettskildeEndring> Endringer);
 
 /// <summary>
 /// Steg 3-6 i konverteringspipelinen (docs/08-byggesteg1-teknisk-design.md §3.1): parse HTML til DOM,
@@ -28,6 +28,7 @@ public static partial class LovdataHtmlParser
             ?? throw new FormatException("Fant ikke <header class=\"documentHeader\"> — ikke et gjenkjennelig Lovdata-dokument.");
         var metadata = ParseMetadata(header);
         var hjemler = HentHjemler(header);
+        var endringer = HentEndringer(header);
         var kontekst = new ReferanseKontekst(metadata.Datokode, metadata.Eli);
 
         var body = doc.DocumentNode.SelectSingleNode("//main[contains(@class,'documentBody')]")
@@ -145,7 +146,7 @@ public static partial class LovdataHtmlParser
 
         foreach (var child in body.ChildNodes) HåndterDokumentBarn(child);
 
-        return new ParseResultat(metadata, noder, referanser, hjemler);
+        return new ParseResultat(metadata, noder, referanser, hjemler, endringer);
     }
 
     private sealed class SorteringsTeller
@@ -191,8 +192,18 @@ public static partial class LovdataHtmlParser
         var kortnavn = HentValgfritt("titleShort") is { } kn ? HtmlEntity.DeEntitize(kn) : null;
         var departement = HtmlEntity.DeEntitize(HentFelt("ministry"));
 
-        var ikrafttredelse = FørsteDato(HentValgfritt("dateInForce"));
-        var konsolidertDato = FørsteDato(HentValgfritt("lastChangeInForce"));
+        // Rå (utrunkert) verdi bevart ved siden av den trunkerte DateOnly? (§ IkrafttredelseRaa/
+        // KonsolidertDatoRaa i Modeller.cs) — FørsteDato beholder kun FØRSTE dato-treff, som stille
+        // trunkerer kompound-verdier som "01.06.2026, Kongen bestemmer". "UENDRET" (Del A punkt 1):
+        // ingen ekstra normalisering/entity-decoding utover det HentValgfritt allerede gjør.
+        var ikrafttredelseRaa = HentValgfritt("dateInForce");
+        var ikrafttredelse = FørsteDato(ikrafttredelseRaa);
+        var konsolidertDatoRaa = HentValgfritt("lastChangeInForce");
+        var konsolidertDato = FørsteDato(konsolidertDatoRaa);
+
+        // Nytt felt (2026-09-02) — "Sist endret ved", ikke fanget før nå. Rå tekst (typisk en lenkes
+        // synlige tekst, f.eks. "lov/2024-06-21-46") — se SistEndretVed sin doc-kommentar.
+        var sistEndretVed = HentValgfritt("lastChangedBy") is { } sev ? HtmlEntity.DeEntitize(sev) : null;
 
         var (frbrAuthorHref, frbrAuthorShowAs) = kildetype == Kildetype.Lov
             ? ("stortinget", "Stortinget")
@@ -206,7 +217,10 @@ public static partial class LovdataHtmlParser
             Eli = eli,
             Datokode = datokode,
             Ikrafttredelse = ikrafttredelse,
+            IkrafttredelseRaa = ikrafttredelseRaa,
             KonsolidertDato = konsolidertDato,
+            KonsolidertDatoRaa = konsolidertDatoRaa,
+            SistEndretVed = sistEndretVed,
             AnsvarligDepartement = departement,
             FrbrAuthorHref = frbrAuthorHref,
             FrbrAuthorShowAs = frbrAuthorShowAs,
@@ -266,6 +280,44 @@ public static partial class LovdataHtmlParser
             hjemler.Add(new RettskildeHjemmel(eid, sortering++));
         }
         return hjemler;
+    }
+
+    /// <summary>
+    /// Header-metadatafeltet <c>&lt;dt class="changesToDocuments"&gt;Endrer&lt;/dt&gt;</c> — hvilke(t)
+    /// andre dokument(er) DENNE rettskilden ENDRER (§ RettskildeEndring i Modeller.cs, se den
+    /// klassekommentaren for full begrunnelse). Strukturelt samme mønster som <see cref="HentHjemler"/>
+    /// (samme href-tolkning via <see cref="LovdataHrefTolker.TolkLøpetekstHref"/>, samme «ingen gjettet
+    /// fallback»-filosofi), men MOTSATT betingelse på paragrafnummeret: alle 5 bekreftede forekomster i
+    /// fixture-korpuset (gjennomgang 2026-09-02: alkoholforskriften/alkoholloven/personopplysningsloven/
+    /// serveringsloven/tannhelsetjenesteloven) er rene DOKUMENT-nivå-lenker uten paragrafnummer
+    /// ("lov/1927-04-05", "forskrift/1997-12-11-1292") — en (ubekreftet) Endrer-lenke MED
+    /// paragrafnummer kaster derfor her, i motsetning til Hjemmel-feltet der det motsatte gjelder.
+    /// </summary>
+    private static IReadOnlyList<RettskildeEndring> HentEndringer(HtmlNode header)
+    {
+        var dd = header.SelectSingleNode(".//dd[@class='changesToDocuments']");
+        if (dd is null) return [];
+
+        var endringer = new List<RettskildeEndring>();
+        var sortering = 0;
+        foreach (var a in dd.SelectNodes(".//a") ?? Enumerable.Empty<HtmlNode>())
+        {
+            var href = a.Attributes["href"]?.Value
+                ?? throw new FormatException("Endrer-lenke mangler href-attributt. Ingen gjettet fallback (§3.3).");
+            var tolket = LovdataHrefTolker.TolkLøpetekstHref(href)
+                ?? throw new FormatException(
+                    $"Endrer-lenke '{href}' matcher ikke kjent lov/forskrift-href-mønster. Ingen gjettet fallback (§3.3).");
+            if (tolket.Paragrafnummer is not null)
+            {
+                throw new FormatException(
+                    $"Endrer-lenke '{href}' har et paragrafnummer — «Endrer»-feltet er bekreftet ekte KUN " +
+                    "som en ren dokument-til-dokument-relasjon i fixture-korpuset. Ingen gjettet fallback (§3.3).");
+            }
+
+            var dokumentEli = LovdataIdentifikatorer.AvledEliFraDatokode(tolket.Datokode, out _);
+            endringer.Add(new RettskildeEndring(dokumentEli, sortering++));
+        }
+        return endringer;
     }
 
     private static DateOnly? FørsteDato(string? rått)

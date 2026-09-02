@@ -155,7 +155,24 @@ public sealed class RettskildeEntitet
     public string? Eli { get; set; }
     public string? AknXml { get; set; } // NULL for referanse-stubber
     public DateOnly? Ikrafttredelse { get; set; }
+
+    /// <summary>[Ny, 2026-09-02] Se <see cref="RegelIde.Kildekonvertering.RettskildeMetadata.IkrafttredelseRaa"/> —
+    /// rå, utrunkert verdi av Lovdatas <c>dateInForce</c>-header-felt, ved siden av den trunkerte <see cref="Ikrafttredelse"/>.</summary>
+    public string? IkrafttredelseRaa { get; set; }
+
     public DateOnly? KonsolidertDato { get; set; }
+
+    /// <summary>[Ny, 2026-09-02] Se <see cref="RegelIde.Kildekonvertering.RettskildeMetadata.KonsolidertDatoRaa"/> —
+    /// rå, utrunkert verdi av Lovdatas <c>lastChangeInForce</c>-header-felt.</summary>
+    public string? KonsolidertDatoRaa { get; set; }
+
+    /// <summary>[Ny, 2026-09-02] Lovdatas header-felt <c>lastChangedBy</c> ("Sist endret ved") — hvilken
+    /// lov/forskrift (og dato) som sist endret DETTE dokumentet. Rå tekst, ikke fanget før nå. Se
+    /// <see cref="RegelIde.Kildekonvertering.RettskildeMetadata.SistEndretVed"/> for hvorfor dette
+    /// bevisst IKKE er en strukturert kobling (i motsetning til <see cref="RettskildeEndringEntitet"/>,
+    /// som dekker den motsatte relasjonen).</summary>
+    public string? SistEndretVed { get; set; }
+
     public string? Utgiver { get; set; }
 
     /// <summary>
@@ -193,9 +210,12 @@ public sealed class RettskildeEntitet
     public DateTimeOffset? SistEndretTidspunkt { get; set; }
 
     // ---------- Lag 1 (docs/15-handbok-dokumentgraf-notat.md §2/§8 Trinn 1) — hentet, bitidentisk
-    // original + endringsdeteksjon for kilder som KUN finnes på et kommunalt nettsted. Alle nullable:
-    // irrelevante for delt/nasjonal Lovdata-import (Url/Innhold forblir NULL der, samme mønster som
-    // AknXml er NULL for referanse-stubber).
+    // original + endringsdeteksjon. Opprinnelig bygget for kilder som KUN finnes på et kommunalt
+    // nettsted, men fra og med 2026-09-02 (del B, lovdata-raa-metadata-runden) populeres disse feltene
+    // OGSÅ for Lovdata-importerte Lov/Forskrift (RettskildeImportTjeneste) — den rå HTML-en flyter nå
+    // helt gjennom KonverteringResultat.RaaHtml i stedet for å kastes rett etter parsing. Fortsatt
+    // nullable: forblir NULL kun for referanse-stubber (FinnEllerOpprettReferanseStubAsync, som ikke
+    // har noen ekte HTML å lagre — samme mønster som AknXml er NULL der).
 
     /// <summary>Eksakt URL kilden ble hentet fra — finnes ikke for Lovdata-import (annen henteflyt).</summary>
     public string? Url { get; set; }
@@ -451,6 +471,33 @@ public sealed class RettskildeHjemmelEntitet
     public required Guid HjemmelRettskildeId { get; set; }
 
     /// <summary>Bevarer header-feltets egen rekkefølge (§1-2, §1-3, … i kildeorden), kun for visning.</summary>
+    public int Sorteringsrekkefolge { get; set; }
+}
+
+/// <summary>
+/// Endring-referanse (2026-09-02) — header-metadatafeltet &lt;dt class="changesToDocuments"&gt;Endrer&lt;/dt&gt;
+/// i Lovdatas egen HTML: hvilke(t) andre dokument(er) <see cref="RettskildeId"/> ENDRER.
+/// DOKUMENTNIVÅ-metadata, strukturelt identisk med <see cref="RettskildeHjemmelEntitet"/> (samme
+/// stub-mekanisme via RettskildeImportTjeneste.FinnEllerOpprettReferanseStubAsync), men en EGEN,
+/// semantisk MOTSATT relasjon (Hjemmel = «hjemlet i», Endring = «endrer») — bevisst IKKE gjenbruk av
+/// samme tabell, se <see cref="RegelIde.Kildekonvertering.RettskildeEndring"/> sin klassekommentar for
+/// full begrunnelse, inkl. hvorfor <see cref="EndringEid"/> her ALLTID er en dokument-ELI, aldri en
+/// paragraf-eId (til forskjell fra <see cref="RettskildeHjemmelEntitet.HjemmelEid"/>).
+/// </summary>
+public sealed class RettskildeEndringEntitet
+{
+    public Guid Id { get; set; }
+
+    /// <summary>Dokumentet som ENDRER — header-metadata sitt "Endrer"-felt ble funnet i dette dokumentets header.</summary>
+    public required Guid RettskildeId { get; set; }
+
+    /// <summary>Dokument-ELI-en til dokumentet som blir endret — se klassekommentaren.</summary>
+    public required string EndringEid { get; set; }
+
+    /// <summary>Det endrede dokumentet (primær ELLER referanse-stub) — se klassekommentaren.</summary>
+    public required Guid EndringRettskildeId { get; set; }
+
+    /// <summary>Bevarer header-feltets egen rekkefølge i kildeorden, kun for visning.</summary>
     public int Sorteringsrekkefolge { get; set; }
 }
 
@@ -883,10 +930,10 @@ public sealed class HandbokRettskildeomfangEntitet
 /// [ENDRET — virksomhetskatalog-runden, 2026-08-22, docs/20 §2.3/§2.4] <see cref="Begrepskategori"/>
 /// er en ny, valgfri diskriminator: NULL betyr et ordinært fakta-/handlingsbegrep (opprinnelig, uendret
 /// betydning — <see cref="VirksomhetId"/>/<see cref="Definisjon"/>/<see cref="Begrepstype"/> er da
-/// fortsatt de facto påkrevd, validert i tjenestelaget, ikke en DB CHECK). `'virksomhet'` og `'rolle'`
+/// fortsatt de facto påkrevd, validert i tjenestelaget, ikke en DB CHECK). `'virksomhet'` og `'gruppe'`
 /// er de to nye kategoriene — DELT/nasjonal referansedata uten én eiende virksomhet, samme mønster som
 /// <see cref="KodelisteEntitet"/>s `Type='ekstern-referanse'`. Derfor er <see cref="VirksomhetId"/> nå
-/// NULLBAR (var påkrevd) — NULL for `Begrepskategori IN ('virksomhet','rolle')`, satt for alt annet.
+/// NULLBAR (var påkrevd) — NULL for `Begrepskategori IN ('virksomhet','gruppe')`, satt for alt annet.
 /// </para>
 /// </summary>
 public sealed class BegrepEntitet
@@ -894,24 +941,24 @@ public sealed class BegrepEntitet
     public Guid Id { get; set; }
 
     /// <summary>Påkrevd for ordinære fakta-/handlingsbegrep (§0.1 — et begrep er da virksomhetens eget
-    /// arbeidsprodukt). NULL for <see cref="Begrepskategori"/> `'virksomhet'`/`'rolle'` — delt,
+    /// arbeidsprodukt). NULL for <see cref="Begrepskategori"/> `'virksomhet'`/`'gruppe'` — delt,
     /// nasjonal referansedata uten én eiende virksomhet (docs/20 §2.3/§2.4).</summary>
     public Guid? VirksomhetId { get; set; }
 
     /// <summary>NULL = ordinært fakta-/handlingsbegrep (opprinnelig betydning, uendret). `'virksomhet'`
     /// = navneform brukt om en virksomhet i rettskildetekst (<see cref="Term"/> = navnet,
-    /// <see cref="VirksomhetReferanseId"/> = hvilken). `'rolle'` = et rollebegrep tildelt konkrete
-    /// virksomheter gjennom forskrift (<see cref="Term"/> = rollenavnet, <see cref="LovkildeId"/> =
-    /// hvilken lov — sammen utgjør de to rollebegrepets identitet, docs/20 §2.4).</summary>
+    /// <see cref="VirksomhetReferanseId"/> = hvilken). `'gruppe'` = et gruppebegrep tildelt konkrete
+    /// virksomheter gjennom forskrift (<see cref="Term"/> = gruppenavnet, <see cref="LovkildeId"/> =
+    /// hvilken lov — sammen utgjør de to gruppebegrepets identitet, docs/20 §2.4).</summary>
     public string? Begrepskategori { get; set; }
 
     /// <summary>Kun for <see cref="Begrepskategori"/> = `'virksomhet'` — hvilken virksomhet
     /// <see cref="Term"/> er en navneform for.</summary>
     public Guid? VirksomhetReferanseId { get; set; }
 
-    /// <summary>Kun for <see cref="Begrepskategori"/> = `'rolle'` — loven rollebegrepet hører til.
-    /// Del av rollebegrepets IDENTITET sammen med <see cref="Term"/>, ikke bare metadata (docs/20 §2.4):
-    /// samme rollenavn i to ulike lover er to ulike rader.</summary>
+    /// <summary>Kun for <see cref="Begrepskategori"/> = `'gruppe'` — loven gruppebegrepet hører til.
+    /// Del av gruppebegrepets IDENTITET sammen med <see cref="Term"/>, ikke bare metadata (docs/20 §2.4):
+    /// samme gruppenavn i to ulike lover er to ulike rader.</summary>
     public Guid? LovkildeId { get; set; }
 
     public required string Term { get; set; } // skos:prefLabel
@@ -934,8 +981,8 @@ public sealed class BegrepEntitet
 }
 
 /// <summary>
-/// [Ny, virksomhetskatalog-runden, docs/20 §2.5] Kobler et rollebegrep (<see cref="BegrepEntitet"/> med
-/// <see cref="BegrepEntitet.Begrepskategori"/> = `'rolle'`) til en konkret virksomhet, hjemlet i en
+/// [Ny, virksomhetskatalog-runden, docs/20 §2.5] Kobler et gruppebegrep (<see cref="BegrepEntitet"/> med
+/// <see cref="BegrepEntitet.Begrepskategori"/> = `'gruppe'`) til en konkret virksomhet, hjemlet i en
 /// forskrift/et delegeringsvedtak. INGEN egen <c>GyldigFra</c>/<c>GyldigTil</c> her — gyldighet arves
 /// fra <see cref="HjemmelRettskildeId"/> (allerede har <c>Status</c>/<c>GyldigFra</c>/<c>GyldigTil</c>
 /// som førsteklasses felt, docs/20 §2.5/§8 — ingen forutsetning måtte bygges for dette).
@@ -943,7 +990,7 @@ public sealed class BegrepEntitet
 public sealed class MyndighetstildelingEntitet
 {
     public Guid Id { get; set; }
-    public required Guid RolleBegrepId { get; set; }
+    public required Guid GruppeBegrepId { get; set; }
     public required Guid VirksomhetId { get; set; }
     public required Guid HjemmelRettskildeId { get; set; }
 
@@ -957,6 +1004,153 @@ public sealed class MyndighetstildelingEntitet
     public DateTimeOffset OpprettetTidspunkt { get; set; }
     public string? SistEndretAv { get; set; }
     public DateTimeOffset? SistEndretTidspunkt { get; set; }
+}
+
+/// <summary>
+/// [Ny, begrepsoppdagelse-runden, docs/24 §2.1] Arbeidskø for begreps-FOREKOMSTER oppdaget ved
+/// deterministisk (regex-basert) sveip av allerede importert rettskildetekst (M1 = eksplisitt
+/// definisjonsliste, M11 = egen definisjonsparagraf uten punktliste — se
+/// <see cref="RegelIde.Data.BegrepsoppdagelseSveipTjeneste"/>). Samme "egen tabell, egen kø" -avveining
+/// som <see cref="VirksomhetKandidatEntitet"/> (docs/24 §1.1/§1.2), IKKE en utvidelse av
+/// <see cref="BegrepEntitet"/>: samme term kan dukke opp som mange, delvis motstridende forekomster på
+/// tvers av korpuset (selve poenget med en fremtidig <c>sveip_begrepskollisjoner</c>-visning, docs/24
+/// §2.4), og de aller fleste forekomstene skal ALDRI bli en egen <see cref="BegrepEntitet"/>-rad uten
+/// eksplisitt enkeltvis godkjenning.
+/// <para>
+/// <b>Bevisst UTEN full <c>Entitetsstatus</c>/<c>Versjon</c>-versjonering</b> — samme lette
+/// arbeidskø-modell (<c>Status</c> = <c>'Venter'</c>/<c>'Godkjent'</c>/<c>'Avvist'</c>) som
+/// <see cref="VirksomhetKandidatEntitet"/>, av samme grunn: dette er en arbeidskø, ikke autoritativt
+/// rettskildeinnhold.
+/// </para>
+/// <para>
+/// <b><see cref="StartOffset"/>/<see cref="EndOffset"/> — IKKE i spesifikasjonens opprinnelige
+/// feltliste (docs/24 §2.1), lagt til her:</b> docs/24 §4 (siste punkt) flagger eksplisitt at
+/// idempotens ved gjentatt sveip ("denne forekomsten er allerede sett" vs. "dette er en ny
+/// forekomst") IKKE er adressert av spesifikasjonen selv, og at <see cref="BegrepsforekomstEntitet"/>
+/// derfor bør få "en unik nøkkel ... inkludert en form for tegn-intervall" FØR første
+/// sveip-implementasjon — nøyaktig samme mønster <see cref="VirksomhetKandidatEntitet.StartOffset"/>
+/// allerede løser for et identisk problem. Feltene brukes til (1) idempotens (unik indeks på
+/// <see cref="RettskildeId"/>/<see cref="NodeEid"/>/<see cref="StartOffset"/>, se
+/// RegelIdeDbContext), og (2) revalidering ved godkjenning — <see cref="BegrepsforekomstTjeneste.GodkjennAsync"/>
+/// leser noden på nytt og sjekker at <see cref="BegrepOriginal"/> fortsatt faktisk står i det lagrede
+/// intervallet, samme "matcher ikke → kast" -vern som <see cref="VirksomhetKandidatTjeneste.GodkjennAsync"/>.
+/// </para>
+/// <para>
+/// <b><see cref="Definisjon"/>-spennet er BEVISST IKKE en egen kolonne</b> (docs/24 §2.1, låst
+/// beslutning) — ved godkjenning opprettes i stedet en ekte <see cref="TekstTaggEntitet"/>
+/// (<c>Kind="begrep"</c>) pekende til <see cref="StartOffset"/>/<see cref="EndOffset"/>, samme
+/// gjenbruk av tekst-tagg-mekanismen som docs/24 §1.4 konkluderer med for AKN-tagging generelt.
+/// </para>
+/// </summary>
+public sealed class BegrepsforekomstEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid RettskildeId { get; set; }
+
+    /// <summary>Presis node-referanse — for M1 punktet (term:forklaring), for M11 paragrafens
+    /// FØRSTE ledd (der definisjonssetningen faktisk står — paragraf-noder har aldri egen
+    /// <see cref="RettskildeNodeEntitet.Tekst"/>).</summary>
+    public required string NodeEid { get; set; }
+
+    /// <summary>Tegn-intervall for selve TERMEN (ikke hele forklaringen) i nodens <c>Tekst</c> på
+    /// sveip-tidspunktet — se klassekommentaren for hvorfor disse feltene finnes.</summary>
+    public int StartOffset { get; set; }
+    public int EndOffset { get; set; }
+
+    /// <summary>Normalisert grunnform, lowercase (spesifikasjonens <c>begrep</c>) — dedup-/gruppering-
+    /// nøkkelen en fremtidig <c>sveip_begrepskollisjoner</c>-visning vil gruppere på.</summary>
+    public required string Begrep { get; set; }
+
+    /// <summary>Ordlyden slik den faktisk står i teksten (kan avvike i store/små bokstaver fra
+    /// <see cref="Begrep"/>) — det <see cref="TekstTaggEntitet.QuoteExact"/> valideres mot ved godkjenning.</summary>
+    public required string BegrepOriginal { get; set; }
+
+    /// <summary>Rå definisjonstekst. Alltid satt for M1/M11 (begge er eksplisitte
+    /// definisjonsmønstre) — <c>null</c> er reservert for fremtidige mønstre som <c>krever_oppslag</c>/
+    /// rene bruksdefinisjoner (utenfor scope denne runden, docs/24 §4).</summary>
+    public string? Definisjon { get; set; }
+
+    /// <summary>
+    /// 'eksplisitt_liste' (M1) | 'egen_paragraf' (M11) | 'inline_menes' | 'skal_forstas_som' | 'copula' |
+    /// 'heretter_kalt' | 'ekstern_referanse' | 'eos_referanse' | 'vedleggstabell' | 'distribuert'.
+    /// Kun de to FØRSTE produseres av koden denne runden (docs/24 byggerekkefølge steg 3/§3) — resten av
+    /// verdisettet står i CHECK-constrainten for fremtidig mønsterkatalog-utvidelse (M2/M3/M9/M5/M6/M14/
+    /// M4/M13/M17/M8, docs/24 §4 pkt. 5/6), ikke fordi koden i dag kan produsere dem.
+    /// </summary>
+    public required string Kildetype { get; set; }
+
+    /// <summary>"M1"–"M17" — hvilket mønster som traff (sporbarhet/tuning). Kun "M1"/"M11" produseres
+    /// denne runden.</summary>
+    public required string MonsterId { get; set; }
+
+    /// <summary>'hoy' | 'middels' | 'lav' | 'krever_oppslag'.</summary>
+    public required string Konfidens { get; set; }
+
+    /// <summary>'hele_dokumentet' | 'kapittel' | 'paragraf' — hvor bredt definisjonen gjelder.
+    /// M1/M11 produserer i praksis alltid <c>'hele_dokumentet'</c> (begge mønstrene er, per sin egen
+    /// tekst — "I forskriften/loven her/denne loven menes med" — eksplisitte heldokument-definisjoner;
+    /// en finere paragraf-/kapittel-scopet gjenkjenning er utenfor denne rundens mønsterkatalog).</summary>
+    public required string Scope { get; set; }
+
+    /// <summary>eId til kapittel/paragraf hvis <see cref="Scope"/> er begrenset. Alltid <c>null</c> for
+    /// M1/M11 denne runden, se <see cref="Scope"/>.</summary>
+    public string? ScopeRefEid { get; set; }
+
+    /// <summary>Kun ved <c>Kildetype</c> <c>'ekstern_referanse'</c>/<c>'eos_referanse'</c> — ikke brukt
+    /// av M1/M11.</summary>
+    public string? HenvisningsMaal { get; set; }
+
+    public string Status { get; set; } = "Venter"; // 'Venter' | 'Godkjent' | 'Avvist'
+
+    /// <summary>Satt når godkjent OG koblet til en (ny eller eksisterende) register-rad — se
+    /// <see cref="BegrepsforekomstTjeneste.GodkjennAsync"/>.</summary>
+    public Guid? BegrepId { get; set; }
+
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? BehandletAv { get; set; }
+    public DateTimeOffset? BehandletTidspunkt { get; set; }
+}
+
+/// <summary>
+/// [Ny, begrepsoppdagelse-runden, docs/24 §2.2] Typet, rettet kant mellom to begreps-FOREKOMSTER
+/// (avhengighet/utelukkelse/unntak, docs/24 §1.5/§6) — samme entitetsFORM som
+/// <see cref="TjenesteavhengighetEntitet"/> (typet <c>Rel</c>/<c>Relasjonstype</c> mellom to rader av
+/// samme slag), men en EGEN tabell (annen domeneentitet: begreper, ikke tjenester).
+/// <para>
+/// <b>Peker på FOREKOMST, ikke på <see cref="BegrepEntitet"/></b> (docs/24 §1.5s eksplisitte
+/// designvalg): mange <c>fra_term</c>/<c>til_term</c>-par oppdaget under sveip vil aldri ha noen
+/// <see cref="BegrepEntitet"/>-rad ennå (uapprovert forekomst, eller et begrep definert i en lov
+/// utenfor korpuset) — <see cref="TilForekomstId"/> er derfor nullable, med <see cref="TilTermFritekst"/>
+/// som fritekst-fallback når målbegrepet ikke er funnet av sveipet i det hele tatt. Nøyaktig én av de
+/// to skal være satt (samme "nøyaktig én av to referansefelt" -mønster som
+/// <see cref="TjenesteavhengighetEntitet.TilTjenesteId"/>/<see cref="TjenesteavhengighetEntitet.TilEksternReferanseId"/>).
+/// </para>
+/// <para>
+/// <b>Bygges KUN som skjema denne runden</b> (docs/24 byggerekkefølge §3 punkt 2) — M1/M11-
+/// ekstraksjonen produserer ikke relasjoner (det krever M9/M15-gjenkjenning, eksplisitt utenfor scope,
+/// docs/24 §1.5/§4), så denne tabellen står tom inntil et senere byggetrinn faktisk fyller den.
+/// </para>
+/// </summary>
+public sealed class BegrepsrelasjonEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid FraForekomstId { get; set; }
+
+    /// <summary>Nullable — nøyaktig én av denne og <see cref="TilTermFritekst"/> er satt, se klassekommentaren.</summary>
+    public Guid? TilForekomstId { get; set; }
+
+    /// <summary>Fallback når målbegrepet ikke er funnet av sveipet i det hele tatt, se klassekommentaren.</summary>
+    public string? TilTermFritekst { get; set; }
+
+    /// <summary>'avhenger_av' | 'utelukker' | 'unntak_fra'.</summary>
+    public required string Relasjonstype { get; set; }
+
+    /// <summary>Kildehenvisning (eId) relasjonen fremgår av.</summary>
+    public required string TilReferanseEid { get; set; }
+
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
 }
 
 /// <summary>
@@ -1016,7 +1210,7 @@ public sealed class VirksomhetKandidatEntitet
 /// </para>
 /// <para>
 /// <b>Kategori avgjør godkjenningsoppførsel</b> (se <see cref="NavnekandidatOppdagelseTjeneste.GodkjennAsync"/>):
-/// <c>"rolle"</c> kan opprettes DIREKTE som et ekte rollebegrep ved godkjenning (alt som trengs — streng
+/// <c>"gruppe"</c> kan opprettes DIREKTE som et ekte gruppebegrep ved godkjenning (alt som trengs — streng
 /// + hvilken lov — er allerede kjent fra selve kandidaten). <c>"virksomhet"</c> kan IKKE det — hvilken
 /// konkrete <see cref="Virksomhet"/>-rad et nytt egennavn faktisk viser til krever et menneske (kan være
 /// en helt ny virksomhet). Godkjenning der betyr kun "verdt å følge opp", selve koblingen skjer via den
@@ -1031,15 +1225,15 @@ public sealed class NavnekandidatEntitet
     /// <para>
     /// <b>[Rettet, kodegjennomgang 2026-08-30]</b> Store/små bokstaver bevares KUN for
     /// <c>Kategori == "virksomhet"</c> (avgjørende for selve klassifiseringsregelen — et egennavn skal
-    /// beholde sin faktiske stavemåte). For <c>Kategori == "rolle"</c> er teksten derimot NORMALISERT
+    /// beholde sin faktiske stavemåte). For <c>Kategori == "gruppe"</c> er teksten derimot NORMALISERT
     /// til små bokstaver FØR lagring (<see cref="NavnekandidatOppdagelseTjeneste.SveipAsync"/>) — en
-    /// rolle er per definisjon ikke et egennavn, så case er støy, ikke identitet (bekreftet i live data:
-    /// "statsforvalteren"/"Statsforvalteren" ga tidligere separate kandidater for samme rolle).
+    /// gruppe er per definisjon ikke et egennavn, så case er støy, ikke identitet (bekreftet i live data:
+    /// "statsforvalteren"/"Statsforvalteren" ga tidligere separate kandidater for samme gruppe).
     /// </para></summary>
     public required string ForeslattTekst { get; set; }
 
     /// <summary>`'virksomhet'` (ekte egennavn, suffiksmønster + stor forbokstav MIDT i en setning) eller
-    /// `'rolle'` (juridisk aktør-substantiv uten egennavn-status — fast liste, ELLER suffiksmønster med
+    /// `'gruppe'` (juridisk aktør-substantiv uten egennavn-status — fast liste, ELLER suffiksmønster med
     /// liten forbokstav). Se <see cref="NavnekandidatOppdagelseTjeneste"/> for selve klassifiseringslogikken.</summary>
     public required string Kategori { get; set; }
 

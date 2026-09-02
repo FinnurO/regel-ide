@@ -72,7 +72,7 @@ public class NavnekandidaterEndepunktTests
     }
 
     [Fact]
-    public async Task Sveip_godkjenning_og_avvisning_ende_til_ende_for_rollekandidat()
+    public async Task Sveip_godkjenning_og_avvisning_ende_til_ende_for_gruppekandidat()
     {
         var brukerId = await HentJuristIdAsync();
         var rettskildeId = await OpprettRettskildeMedNodeAsync("Alle skip skal melde fra til havnetilsynet før anløp.");
@@ -86,7 +86,7 @@ public class NavnekandidaterEndepunktTests
         var listeSvar = await _client.GetFromJsonAsync<List<NavnekandidatDto>>(
             $"/api/navnekandidater?rettskildeId={rettskildeId}", JsonInnstillinger);
         var kandidat = Assert.Single(listeSvar!);
-        Assert.Equal("rolle", kandidat.Kategori);
+        Assert.Equal("gruppe", kandidat.Kategori);
         Assert.Equal("havnetilsynet", kandidat.ForeslattTekst);
         Assert.Equal("Venter", kandidat.Status);
 
@@ -96,11 +96,11 @@ public class NavnekandidaterEndepunktTests
         var godkjent = await godkjennSvar.Content.ReadFromJsonAsync<NavnekandidatDto>(JsonInnstillinger);
         Assert.Equal("Godkjent", godkjent!.Status);
 
-        // Rollebegrepet skal nå faktisk finnes i databasen (docs/20 §2.4-identitet: Term+LovkildeId).
+        // Gruppebegrepet skal nå faktisk finnes i databasen (docs/20 §2.4-identitet: Term+LovkildeId).
         await using var db = _fixture.NyDbContext();
-        var rollebegrep = await db.Begreper.SingleOrDefaultAsync(
-            b => b.Begrepskategori == "rolle" && b.LovkildeId == rettskildeId && b.Term == "havnetilsynet");
-        Assert.NotNull(rollebegrep);
+        var gruppebegrep = await db.Begreper.SingleOrDefaultAsync(
+            b => b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId && b.Term == "havnetilsynet");
+        Assert.NotNull(gruppebegrep);
 
         // Kandidaten er allerede Godkjent — et nytt godkjenn-forsøk skal feile (kun 'Venter' kan behandles).
         var andreGodkjennSvar = await _client.SendAsync(
@@ -139,7 +139,7 @@ public class NavnekandidaterEndepunktTests
     // ---------- Massehandling (2026-08-30) — se docs-kommentaren i NavnekandidaterListe.tsx ----------
 
     [Fact]
-    public async Task Godkjenn_batch_behandler_bade_rolle_og_virksomhet_kategori_i_samme_kall()
+    public async Task Godkjenn_batch_behandler_bade_gruppe_og_virksomhet_kategori_i_samme_kall()
     {
         var brukerId = await HentJuristIdAsync();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
@@ -149,7 +149,7 @@ public class NavnekandidaterEndepunktTests
         var listeSvar = await _client.GetFromJsonAsync<List<NavnekandidatDto>>(
             $"/api/navnekandidater?rettskildeId={rettskildeId}", JsonInnstillinger);
         var kandidater = listeSvar!;
-        Assert.Contains(kandidater, k => k.Kategori == "rolle");
+        Assert.Contains(kandidater, k => k.Kategori == "gruppe");
         Assert.Contains(kandidater, k => k.Kategori == "virksomhet");
 
         var batchSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/godkjenn-batch", brukerId,
@@ -160,12 +160,12 @@ public class NavnekandidaterEndepunktTests
         Assert.All(resultat.Rader, r => Assert.True(r.Ok, r.Feil));
         Assert.All(resultat.Rader, r => Assert.Equal("Godkjent", r.Resultat!.Status));
 
-        // 'rolle'-raden skal ha opprettet et ekte rollebegrep (samme sjekk som enkeltrad-testen over) —
+        // 'gruppe'-raden skal ha opprettet et ekte gruppebegrep (samme sjekk som enkeltrad-testen over) —
         // batchen ruller IKKE bare status, den kaller den faktiske GodkjennAsync-forgreiningen per rad.
         await using var db = _fixture.NyDbContext();
-        var rollebegrep = await db.Begreper.SingleOrDefaultAsync(
-            b => b.Begrepskategori == "rolle" && b.LovkildeId == rettskildeId && b.Term == "havnetilsynet");
-        Assert.NotNull(rollebegrep);
+        var gruppebegrep = await db.Begreper.SingleOrDefaultAsync(
+            b => b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId && b.Term == "havnetilsynet");
+        Assert.NotNull(gruppebegrep);
     }
 
     [Fact]

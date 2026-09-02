@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RegelIde.Data;
@@ -12,9 +13,11 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    partial class RegelIdeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260902005035_LeggTilRaaHtmlOgEndringsfelt")]
+    partial class LeggTilRaaHtmlOgEndringsfelt
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -143,192 +146,12 @@ namespace RegelIde.Data.Migrasjoner
 
                     b.HasIndex("Term", "LovkildeId")
                         .IsUnique()
-                        .HasDatabaseName("ux_begreper_gruppebegrep_term_lovkilde")
-                        .HasFilter("begrepskategori = 'gruppe' AND entitetsstatus = 'gjeldende'");
+                        .HasDatabaseName("ux_begreper_rollebegrep_term_lovkilde")
+                        .HasFilter("begrepskategori = 'rolle' AND entitetsstatus = 'gjeldende'");
 
                     b.ToTable("begreper", null, t =>
                         {
-                            t.HasCheckConstraint("ck_begreper_begrepskategori", "begrepskategori IS NULL OR begrepskategori IN ('virksomhet', 'gruppe')");
-                        });
-                });
-
-            modelBuilder.Entity("RegelIde.Data.BegrepsforekomstEntitet", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Begrep")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("begrep");
-
-                    b.Property<Guid?>("BegrepId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("begrep_id");
-
-                    b.Property<string>("BegrepOriginal")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("begrep_original");
-
-                    b.Property<string>("BehandletAv")
-                        .HasColumnType("text")
-                        .HasColumnName("behandlet_av");
-
-                    b.Property<DateTimeOffset?>("BehandletTidspunkt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("behandlet_tidspunkt");
-
-                    b.Property<string>("Definisjon")
-                        .HasColumnType("text")
-                        .HasColumnName("definisjon");
-
-                    b.Property<int>("EndOffset")
-                        .HasColumnType("integer")
-                        .HasColumnName("end_offset");
-
-                    b.Property<string>("HenvisningsMaal")
-                        .HasColumnType("text")
-                        .HasColumnName("henvisnings_maal");
-
-                    b.Property<string>("Kildetype")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("kildetype");
-
-                    b.Property<string>("Konfidens")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("konfidens");
-
-                    b.Property<string>("MonsterId")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("monster_id");
-
-                    b.Property<string>("NodeEid")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("node_eid");
-
-                    b.Property<string>("OpprettetAv")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("opprettet_av");
-
-                    b.Property<DateTimeOffset>("OpprettetTidspunkt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("opprettet_tidspunkt")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<Guid>("RettskildeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("rettskilde_id");
-
-                    b.Property<string>("Scope")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("scope");
-
-                    b.Property<string>("ScopeRefEid")
-                        .HasColumnType("text")
-                        .HasColumnName("scope_ref_eid");
-
-                    b.Property<int>("StartOffset")
-                        .HasColumnType("integer")
-                        .HasColumnName("start_offset");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("Venter")
-                        .HasColumnName("status");
-
-                    b.HasKey("Id")
-                        .HasName("begrepsforekomster_pkey");
-
-                    b.HasIndex("Begrep")
-                        .HasDatabaseName("ix_begrepsforekomster_begrep");
-
-                    b.HasIndex("BegrepId");
-
-                    b.HasIndex("RettskildeId")
-                        .HasDatabaseName("ix_begrepsforekomster_rettskilde");
-
-                    b.HasIndex("RettskildeId", "NodeEid", "StartOffset")
-                        .IsUnique()
-                        .HasDatabaseName("ux_begrepsforekomster_rettskilde_node_start");
-
-                    b.ToTable("begrepsforekomster", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_begrepsforekomster_kildetype", "kildetype IN ('eksplisitt_liste', 'egen_paragraf', 'inline_menes', 'skal_forstas_som', 'copula', 'heretter_kalt', 'ekstern_referanse', 'eos_referanse', 'vedleggstabell', 'distribuert')");
-
-                            t.HasCheckConstraint("ck_begrepsforekomster_konfidens", "konfidens IN ('hoy', 'middels', 'lav', 'krever_oppslag')");
-
-                            t.HasCheckConstraint("ck_begrepsforekomster_monster_id", "monster_id IN ('M1', 'M2', 'M3', 'M4', 'M5', 'M6', 'M7', 'M8', 'M9', 'M10', 'M11', 'M12', 'M13', 'M14', 'M15', 'M16', 'M17')");
-
-                            t.HasCheckConstraint("ck_begrepsforekomster_scope", "scope IN ('hele_dokumentet', 'kapittel', 'paragraf')");
-
-                            t.HasCheckConstraint("ck_begrepsforekomster_status", "status IN ('Venter', 'Godkjent', 'Avvist')");
-                        });
-                });
-
-            modelBuilder.Entity("RegelIde.Data.BegrepsrelasjonEntitet", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<Guid>("FraForekomstId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("fra_forekomst_id");
-
-                    b.Property<string>("OpprettetAv")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("opprettet_av");
-
-                    b.Property<DateTimeOffset>("OpprettetTidspunkt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("opprettet_tidspunkt")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<string>("Relasjonstype")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("relasjonstype");
-
-                    b.Property<Guid?>("TilForekomstId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("til_forekomst_id");
-
-                    b.Property<string>("TilReferanseEid")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("til_referanse_eid");
-
-                    b.Property<string>("TilTermFritekst")
-                        .HasColumnType("text")
-                        .HasColumnName("til_term_fritekst");
-
-                    b.HasKey("Id")
-                        .HasName("begrepsrelasjoner_pkey");
-
-                    b.HasIndex("FraForekomstId")
-                        .HasDatabaseName("ix_begrepsrelasjoner_fra");
-
-                    b.HasIndex("TilForekomstId")
-                        .HasDatabaseName("ix_begrepsrelasjoner_til");
-
-                    b.ToTable("begrepsrelasjoner", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_begrepsrelasjoner_ett_mal", "(til_forekomst_id IS NOT NULL AND til_term_fritekst IS NULL) OR (til_forekomst_id IS NULL AND til_term_fritekst IS NOT NULL)");
-
-                            t.HasCheckConstraint("ck_begrepsrelasjoner_type", "relasjonstype IN ('avhenger_av', 'utelukker', 'unntak_fra')");
+                            t.HasCheckConstraint("ck_begreper_begrepskategori", "begrepskategori IS NULL OR begrepskategori IN ('virksomhet', 'rolle')");
                         });
                 });
 
@@ -1323,10 +1146,6 @@ namespace RegelIde.Data.Migrasjoner
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uuid");
 
-                    b.Property<Guid>("GruppeBegrepId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("gruppe_begrep_id");
-
                     b.Property<Guid>("HjemmelRettskildeId")
                         .HasColumnType("uuid")
                         .HasColumnName("hjemmel_rettskilde_id");
@@ -1349,6 +1168,10 @@ namespace RegelIde.Data.Migrasjoner
                         .HasDefaultValue("[]")
                         .HasColumnName("paragrafspenn_json");
 
+                    b.Property<Guid>("RolleBegrepId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("rolle_begrep_id");
+
                     b.Property<string>("SistEndretAv")
                         .HasColumnType("text")
                         .HasColumnName("sist_endret_av");
@@ -1368,11 +1191,11 @@ namespace RegelIde.Data.Migrasjoner
                     b.HasKey("Id")
                         .HasName("myndighetstildelinger_pkey");
 
-                    b.HasIndex("GruppeBegrepId")
-                        .HasDatabaseName("ix_myndighetstildelinger_gruppe_begrep");
-
                     b.HasIndex("HjemmelRettskildeId")
                         .HasDatabaseName("ix_myndighetstildelinger_hjemmel");
+
+                    b.HasIndex("RolleBegrepId")
+                        .HasDatabaseName("ix_myndighetstildelinger_rolle_begrep");
 
                     b.HasIndex("VirksomhetId")
                         .HasDatabaseName("ix_myndighetstildelinger_virksomhet");
@@ -1451,7 +1274,7 @@ namespace RegelIde.Data.Migrasjoner
 
                     b.ToTable("navnekandidater", null, t =>
                         {
-                            t.HasCheckConstraint("ck_navnekandidater_kategori", "kategori IN ('virksomhet', 'gruppe')");
+                            t.HasCheckConstraint("ck_navnekandidater_kategori", "kategori IN ('virksomhet', 'rolle')");
 
                             t.HasCheckConstraint("ck_navnekandidater_status", "status IN ('Venter', 'Godkjent', 'Avvist')");
                         });
@@ -3233,33 +3056,6 @@ namespace RegelIde.Data.Migrasjoner
                         .HasForeignKey("VirksomhetReferanseId");
                 });
 
-            modelBuilder.Entity("RegelIde.Data.BegrepsforekomstEntitet", b =>
-                {
-                    b.HasOne("RegelIde.Data.BegrepEntitet", null)
-                        .WithMany()
-                        .HasForeignKey("BegrepId");
-
-                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
-                        .WithMany()
-                        .HasForeignKey("RettskildeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("RegelIde.Data.BegrepsrelasjonEntitet", b =>
-                {
-                    b.HasOne("RegelIde.Data.BegrepsforekomstEntitet", null)
-                        .WithMany()
-                        .HasForeignKey("FraForekomstId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RegelIde.Data.BegrepsforekomstEntitet", null)
-                        .WithMany()
-                        .HasForeignKey("TilForekomstId")
-                        .OnDelete(DeleteBehavior.Restrict);
-                });
-
             modelBuilder.Entity("RegelIde.Data.Bruker", b =>
                 {
                     b.HasOne("RegelIde.Data.Virksomhet", null)
@@ -3427,15 +3223,15 @@ namespace RegelIde.Data.Migrasjoner
 
             modelBuilder.Entity("RegelIde.Data.MyndighetstildelingEntitet", b =>
                 {
-                    b.HasOne("RegelIde.Data.BegrepEntitet", null)
-                        .WithMany()
-                        .HasForeignKey("GruppeBegrepId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("RegelIde.Data.RettskildeEntitet", null)
                         .WithMany()
                         .HasForeignKey("HjemmelRettskildeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RegelIde.Data.BegrepEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("RolleBegrepId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

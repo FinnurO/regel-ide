@@ -47,6 +47,8 @@ builder.Services.AddScoped<MyndighetstildelingTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatSveipTjeneste>();
 builder.Services.AddScoped<NavnekandidatOppdagelseTjeneste>();
+builder.Services.AddScoped<BegrepsforekomstTjeneste>();
+builder.Services.AddScoped<BegrepsoppdagelseSveipTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
 builder.Services.AddScoped<RegelnoderegisterTjeneste>();
 builder.Services.AddScoped<UnntaksregisterTjeneste>();
@@ -2114,14 +2116,14 @@ begreper.MapGet("/", async (HttpRequest request, BegrepsregisterTjeneste begreps
         {
             return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
-        // Egne fakta-/handlingsbegrep + ALLE delte virksomhets-/rollebegrep (docs/20 §2.3/§2.4) —
+        // Egne fakta-/handlingsbegrep + ALLE delte virksomhets-/gruppebegrep (docs/20 §2.3/§2.4) —
         // uten det siste er de INVISIBLE i tagg-picker-en (se VirksomhetsbegrepTjeneste.AlleAsync).
         var egne = await begrepsregister.ListerForAsync(bruker.VirksomhetId, ct);
         var delte = await virksomhetsbegrepregister.AlleAsync(ct);
         return Results.Ok(egne.Concat(delte).Select(BegrepDto.FraEntitet));
     })
     .WithName("HentBegreper")
-    .WithSummary("Lister virksomhetens egne begreper (produktkrav kap. 3.8) + alle delte virksomhets-/rollebegrep (docs/20).");
+    .WithSummary("Lister virksomhetens egne begreper (produktkrav kap. 3.8) + alle delte virksomhets-/gruppebegrep (docs/20).");
 
 begreper.MapGet("/{id:guid}", async (Guid id, BegrepsregisterTjeneste begrepsregister, CancellationToken ct) =>
     {
@@ -2386,7 +2388,7 @@ kodelister.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, Set
     .WithName("SettKodelisteStatus")
     .WithSummary("Endrer status (§3.1 i domenemodellen) — avvises for ekstern-referanse.");
 
-// ---------- Virksomhetskatalog og rollemodell (docs/20) ----------
+// ---------- Virksomhetskatalog og gruppemodell (docs/20) ----------
 // RBAC (docs/20 §0 pkt. 3): skrivehandlinger attribueres til den innloggede brukerens EGEN
 // virksomhet/navn (bruker.Navn som opprettetAv/behandletAv) — ingen per-virksomhet skriveperre på
 // disse delte, nasjonale tabellene.
@@ -2416,14 +2418,14 @@ app.MapGet("/api/virksomheter/{id:guid}/begrep", async (Guid id, Virksomhetsbegr
     .WithName("HentVirksomhetsbegrepForVirksomhet")
     .WithSummary("Lister navneformer (inkl. synonymer) brukt om denne virksomheten i rettskildetekst.");
 
-app.MapPost("/api/rollebegrep", async (HttpRequest request, RollebegrepRequest body,
+app.MapPost("/api/gruppebegrep", async (HttpRequest request, GruppebegrepRequest body,
         VirksomhetsbegrepTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         try
         {
-            var opprettet = await register.OpprettRollebegrepAsync(body.LovkildeId, body.Term, bruker.Navn, ct: ct);
+            var opprettet = await register.OpprettGruppebegrepAsync(body.LovkildeId, body.Term, bruker.Navn, ct: ct);
             return Results.Created($"/api/begreper/{opprettet.Id}", BegrepDto.FraEntitet(opprettet));
         }
         catch (ArgumentException ex)
@@ -2432,20 +2434,20 @@ app.MapPost("/api/rollebegrep", async (HttpRequest request, RollebegrepRequest b
         }
     })
     .WithOpenApi()
-    .WithName("OpprettRollebegrep")
-    .WithSummary("Rollebegrep (docs/20 §2.4) — Term+LovkildeId er sammen begrepets identitet, f.eks. 'forurensningsmyndighet' i forurensningsloven.");
+    .WithName("OpprettGruppebegrep")
+    .WithSummary("Gruppebegrep (docs/20 §2.4) — Term+LovkildeId er sammen begrepets identitet, f.eks. 'forurensningsmyndighet' i forurensningsloven.");
 
-app.MapGet("/api/rettskilder/{lovkildeId:guid}/rollebegrep", async (Guid lovkildeId, VirksomhetsbegrepTjeneste register, CancellationToken ct) =>
-        Results.Ok((await register.AlleRollebegrepForLovAsync(lovkildeId, ct)).Select(BegrepDto.FraEntitet)))
+app.MapGet("/api/rettskilder/{lovkildeId:guid}/gruppebegrep", async (Guid lovkildeId, VirksomhetsbegrepTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.AlleGruppebegrepForLovAsync(lovkildeId, ct)).Select(BegrepDto.FraEntitet)))
     .WithOpenApi()
-    .WithName("HentRollebegrepForLov")
-    .WithSummary("Lister rollebegrep definert for denne loven.");
+    .WithName("HentGruppebegrepForLov")
+    .WithSummary("Lister gruppebegrep definert for denne loven.");
 
-app.MapGet("/api/rollebegrep", async (VirksomhetsbegrepTjeneste register, CancellationToken ct) =>
-        Results.Ok((await register.AlleRollebegrepAsync(ct)).Select(BegrepDto.FraEntitet)))
+app.MapGet("/api/gruppebegrep", async (VirksomhetsbegrepTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.AlleGruppebegrepAsync(ct)).Select(BegrepDto.FraEntitet)))
     .WithOpenApi()
-    .WithName("HentAlleRollebegrep")
-    .WithSummary("Lister ALLE rollebegrep på tvers av lover — søk/velg-grunnlag for å opprette en myndighetstildeling (docs/13-backlog.md §8.1 punkt 1).");
+    .WithName("HentAlleGruppebegrep")
+    .WithSummary("Lister ALLE gruppebegrep på tvers av lover — søk/velg-grunnlag for å opprette en myndighetstildeling (docs/13-backlog.md §8.1 punkt 1).");
 
 app.MapPost("/api/myndighetstildelinger", async (HttpRequest request, MyndighetstildelingRequest body,
         MyndighetstildelingTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
@@ -2456,7 +2458,7 @@ app.MapPost("/api/myndighetstildelinger", async (HttpRequest request, Myndighets
         {
             var paragrafspenn = body.Paragrafspenn.Select(p => new ParagrafspennPar(p.FraEid, p.TilEid)).ToList();
             var opprettet = await register.OpprettAsync(
-                body.RolleBegrepId, body.VirksomhetId, body.HjemmelRettskildeId, paragrafspenn, body.Vilkaar, bruker.Navn, ct);
+                body.GruppeBegrepId, body.VirksomhetId, body.HjemmelRettskildeId, paragrafspenn, body.Vilkaar, bruker.Navn, ct);
             return Results.Created($"/api/myndighetstildelinger/{opprettet.Id}", MyndighetstildelingDto.FraEntitet(opprettet));
         }
         catch (ArgumentException ex)
@@ -2466,7 +2468,7 @@ app.MapPost("/api/myndighetstildelinger", async (HttpRequest request, Myndighets
     })
     .WithOpenApi()
     .WithName("OpprettMyndighetstildeling")
-    .WithSummary("Kobler et rollebegrep til en konkret virksomhet, hjemlet i en forskrift (docs/20 §2.5). Gyldighet arves fra hjemmelen, ingen egne datoer her.");
+    .WithSummary("Kobler et gruppebegrep til en konkret virksomhet, hjemlet i en forskrift (docs/20 §2.5). Gyldighet arves fra hjemmelen, ingen egne datoer her.");
 
 app.MapGet("/api/virksomheter/{id:guid}/myndighetstildelinger", async (Guid id, MyndighetstildelingTjeneste register, CancellationToken ct) =>
         Results.Ok((await register.AlleForVirksomhetAsync(id, ct)).Select(MyndighetstildelingDto.FraEntitet)))
@@ -2483,11 +2485,11 @@ app.MapGet("/api/virksomheter/{id:guid}/rettskilder-ansvarlig-for", async (Guid 
         "virksomhet-lenke, 2026-08-30). Ingen fuzzy-matching — en virksomhet uten navnetreff i noen " +
         "rettskildes AnsvarligDepartement gir tom liste, ikke en feil.");
 
-app.MapGet("/api/rollebegrep/{id:guid}/tildelinger", async (Guid id, MyndighetstildelingTjeneste register, CancellationToken ct) =>
-        Results.Ok((await register.AlleForRolleBegrepAsync(id, ct)).Select(MyndighetstildelingDto.FraEntitet)))
+app.MapGet("/api/gruppebegrep/{id:guid}/tildelinger", async (Guid id, MyndighetstildelingTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.AlleForGruppeBegrepAsync(id, ct)).Select(MyndighetstildelingDto.FraEntitet)))
     .WithOpenApi()
-    .WithName("HentMyndighetstildelingerForRolleBegrep")
-    .WithSummary("Lister hvilke virksomheter et rollebegrep er tildelt til, og under hvilke hjemler.");
+    .WithName("HentMyndighetstildelingerForGruppeBegrep")
+    .WithSummary("Lister hvilke virksomheter et gruppebegrep er tildelt til, og under hvilke hjemler.");
 
 var virksomhetKandidater = app.MapGroup("/api/virksomhet-kandidater").WithOpenApi();
 
@@ -2717,7 +2719,7 @@ navnekandidater.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest reque
         }
     })
     .WithName("GodkjennNavnekandidat")
-    .WithSummary("'rolle': oppretter et ekte rollebegrep direkte. 'virksomhet': setter kun status — selve virksomhetskoblingen skjer manuelt via VirksomhetDetalj.");
+    .WithSummary("'gruppe': oppretter et ekte gruppebegrep direkte. 'virksomhet': setter kun status — selve virksomhetskoblingen skjer manuelt via VirksomhetDetalj.");
 
 navnekandidater.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
@@ -2760,7 +2762,7 @@ navnekandidater.MapPost("/godkjenn-batch", async (HttpRequest request, Navnekand
     })
     .WithName("GodkjennNavnekandidaterBatch")
     .WithSummary("Massegodkjenning (store test-sveip-mengder) — server-side batch med per-rad-feilhåndtering, " +
-        "samme mønster som /api/virksomhet-kandidater/godkjenn-batch. 'rolle' oppretter et ekte rollebegrep PER " +
+        "samme mønster som /api/virksomhet-kandidater/godkjenn-batch. 'gruppe' oppretter et ekte gruppebegrep PER " +
         "rad som lykkes; 'virksomhet' setter kun status — se GodkjennNavnekandidat-endepunktet over.");
 
 navnekandidater.MapPost("/avvis-batch", async (HttpRequest request, NavnekandidatBatchRequest body,
@@ -2812,6 +2814,114 @@ navnekandidater.MapDelete("/", async (string? status, string? kategori, Guid? re
         "MERK: her betyr utelatt status 'ingen statusfilter' (slett ALLE statuser), IKKE GET / sin " +
         "'utelatt = kun Venter'-standard — klienten sender alltid eksplisitt status. Ekte, irreversibel " +
         "sletting; klienten MÅ vise antall og be om bekreftelse FØR kallet.");
+
+// ---------- Begrepsforekomster — begrepsoppdagelse M1/M11 (docs/24) ----------
+// Arbeidskø for begreps-FOREKOMSTER funnet ved deterministisk sveip av allerede importert
+// rettskildetekst — se BegrepsforekomstTjeneste/BegrepsoppdagelseSveipTjeneste for hele resonnementet.
+// Samme formmessige mønster som /api/virksomhet-kandidater over, men uten en virksomhetId-parameter på
+// sveipet selv (M1/M11 er virksomhetsagnostiske strukturmønstre, ikke en bekreftelse mot en kjent
+// virksomhets navneformer) — virksomhetId oppgis først ved GODKJENNING (hvilket register begrepet skal
+// landes i).
+
+var begrepsforekomster = app.MapGroup("/api/begrepsforekomster").WithOpenApi();
+
+begrepsforekomster.MapGet("/", async (Guid? rettskildeId, string? monsterId, string? status,
+        BegrepsforekomstTjeneste register, CancellationToken ct) =>
+    {
+        // Samme eksplisitte "utelatt = kun Venter, 'Alle' = ingen filter"-mønster som
+        // /api/virksomhet-kandidater og /api/navnekandidater — se den endepunktkommentaren.
+        var effektivStatus = string.IsNullOrEmpty(status) ? "Venter" : status;
+        var statusFilter = effektivStatus == "Alle" ? null : effektivStatus;
+        return Results.Ok((await register.ListerAsync(rettskildeId, monsterId, statusFilter, ct)).Select(BegrepsforekomstDto.FraEntitet));
+    })
+    .WithName("HentBegrepsforekomster")
+    .WithSummary("Kandidatliste, valgfritt filtrert på rettskilde/mønster-id/status. status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter.");
+
+begrepsforekomster.MapPost("/sveip", async (HttpRequest request, SveipBegrepsforekomsterRequest body,
+        BegrepsoppdagelseSveipTjeneste sveip, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var resultat = await sveip.SveipAsync(body.RettskildeId, bruker.Navn, ct);
+            return Results.Ok(new SveipBegrepsforekomsterResultatDto(resultat.AntallTreffFunnet, resultat.AntallNyeForekomster));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SveipBegrepsforekomster")
+    .WithSummary("docs/24 §3 — M1 (eksplisitt definisjonsliste) og M11 (egen definisjonsparagraf) mot allerede " +
+        "importerte rettskilde-noder (RettskildeId=null: hele det delte/nasjonale korpuset, satt: kun én " +
+        "rettskilde). Idempotent (kjør flere ganger uten duplikater).");
+
+begrepsforekomster.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest request, GodkjennBegrepsforekomstRequest body,
+        BegrepsforekomstTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var oppdatert = await register.GodkjennAsync(id, body.VirksomhetId, bruker.Navn, ct);
+            return oppdatert is null ? Results.NotFound(new { feil = $"Ingen forekomst med id '{id}'." }) : Results.Ok(BegrepsforekomstDto.FraEntitet(oppdatert));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("GodkjennBegrepsforekomst")
+    .WithSummary("Oppretter et nytt Begrep i angitt virksomhets register OG en ekte TekstTagg (kind='begrep', RefId=det nye begrepet) — revaliderer mot nodens DÅVÆRENDE tekst FØR noe opprettes.");
+
+begrepsforekomster.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request,
+        BegrepsforekomstTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var oppdatert = await register.AvvisAsync(id, bruker.Navn, ct);
+            return oppdatert is null ? Results.NotFound(new { feil = $"Ingen forekomst med id '{id}'." }) : Results.Ok(BegrepsforekomstDto.FraEntitet(oppdatert));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("AvvisBegrepsforekomst");
+
+begrepsforekomster.MapDelete("/{id:guid}", async (Guid id, BegrepsforekomstTjeneste register, CancellationToken ct) =>
+    {
+        try
+        {
+            return await register.HardslettAvvistAsync(id, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen forekomst med id '{id}'." });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("HardslettAvvistBegrepsforekomst")
+    .WithSummary("Kun 'Avvist'-rader kan hardslettes (samme begrunnelse som /api/virksomhet-kandidater: en 'Godkjent' " +
+        "rad har en ekte tagg/et ekte begrep som ikke kan fjernes i etterkant).");
+
+begrepsforekomster.MapDelete("/", async (Guid? rettskildeId, string? status,
+        BegrepsforekomstTjeneste register, CancellationToken ct) =>
+    {
+        try
+        {
+            var antallSlettet = await register.HardslettAlleAvvisteAsync(rettskildeId, status, ct);
+            return Results.Ok(new HardslettBegrepsforekomsterResultatDto(antallSlettet));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("HardslettAlleAvvisteBegrepsforekomster")
+    .WithSummary("Massehardsletting, valgfritt filtrert på rettskilde (samme filterparametre som GET /) — KUN 'Avvist'-rader rammes.");
 
 // ---------- Datasett (docs/03-domenemodell.md §1.6) — byggesteg 4, minimal, kun lesing ----------
 
