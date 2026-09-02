@@ -204,7 +204,7 @@ export default function RettskilderListe() {
       {viste && viste.length === 0 && <Paragraph>Ingen rettskilder funnet.</Paragraph>}
 
       {viste && viste.length > 0 && (
-        <Table className="rettskilde-tabell" border>
+        <Table className="rettskilde-tabell" border data-density="compact">
           <Table.Head>
             <Table.Row>
               <Table.HeaderCell>
@@ -285,7 +285,7 @@ export default function RettskilderListe() {
                 )}
 
                 {visteIkkeImportert && visteIkkeImportert.length > 0 && (
-                  <Table border>
+                  <Table border data-density="compact">
                     <Table.Head>
                       <Table.Row>
                         <Table.HeaderCell>

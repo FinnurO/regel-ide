@@ -288,3 +288,19 @@ a.sidebar__item:hover {
   content: attr(data-placeholder);
   color: var(--ds-color-neutral-text-subtle);
 }
+
+/* Kompakt tabelltetthet (2026-09-02, docs/30 §3.6/§4 punkt 7 — saksbehandlertilpasningen) — for
+   store datasett (RettskilderListe, NavnekandidaterListe, VirksomhetKandidaterListe): reduserer
+   radpadding fra Designsystemets standard (~8px/12px) til ~4px/8px. KUN padding-verdien overstyres —
+   ingen `--ds-color-*`-tokens endres. Overstyrer `--dsc-table-padding` (custom property `.ds-table`
+   selv leser, verifisert mot installert designsystemet-css sin table.css) OG setter padding direkte
+   med tilstrekkelig spesifisitet til å vinne over `.rettskilde-tabell th/td` (en eldre, egen klasse
+   i denne fila med en FASTSATT `padding: var(--ds-size-2) var(--ds-size-3)`, ikke via samme
+   CSS-variabel — uten den direkte overstyringen her ville .rettskilde-tabells regel (høyere
+   spesifisitet enn kun variabel-overstyringen) fortsatt vunnet og feilaktig vist standard-tetthet). */
+.ds-table[data-density="compact"] {
+  --dsc-table-padding: 4px 8px;
+}
+.ds-table[data-density="compact"] > :is(thead, tbody, tfoot) > tr > :is(th, td) {
+  padding: 4px 8px;
+}

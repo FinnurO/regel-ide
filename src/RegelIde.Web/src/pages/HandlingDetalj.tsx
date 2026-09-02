@@ -30,8 +30,7 @@ import {
   type TjenesteDto,
 } from '../api/types';
 import { eidVisningstekst, rettskildeLenke } from '../api/eidLenker';
-
-const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
+import { StatusStepper } from '../entitet/StatusStepper';
 
 type Fane = 'egenskaper' | 'kanaler' | 'veiledning' | 'regelverk';
 const FANE_LABELER: Record<Fane, string> = {
@@ -501,9 +500,7 @@ export default function HandlingDetalj() {
 
           <section style={{ marginBottom: '2rem' }}>
             <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>Status</Heading>
-            <Select value={handling.status} disabled={statusEndres} onChange={(e) => endreStatus(e.target.value)} style={{ maxWidth: '16rem' }}>
-              {STATUSER.map((s) => <Select.Option key={s} value={s}>{s}</Select.Option>)}
-            </Select>
+            <StatusStepper status={handling.status} onChange={endreStatus} disabled={statusEndres} />
           </section>
 
           <section style={{ marginBottom: '2rem' }}>

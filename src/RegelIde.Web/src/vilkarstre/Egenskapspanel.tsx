@@ -21,8 +21,7 @@ import type {
   VilkarDto, VilkarstreKommentarDto,
 } from '../api/types';
 import { MinimalEditor } from '../handbok/MinimalEditor';
-
-const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
+import { StatusStepper } from '../entitet/StatusStepper';
 
 const VEILEDNINGSDOKUMENTTYPER = [
   { id: 'kommentar', label: 'Kommentar' },
@@ -525,12 +524,10 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, tjenester, feil
           <div style={{ marginTop: '0.75rem' }}>
             <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
-          <Field style={{ maxWidth: '16rem', marginTop: '1rem' }}>
-            <Label>Status</Label>
-            <Select value={vilkar.status} onChange={(e) => endreStatus(e.target.value)}>
-              {STATUSER.map((s) => <Select.Option key={s} value={s}>{s}</Select.Option>)}
-            </Select>
-          </Field>
+          <div style={{ marginTop: '1rem' }}>
+            <Label style={{ marginBottom: '0.4rem' }}>Status</Label>
+            <StatusStepper status={vilkar.status} onChange={endreStatus} />
+          </div>
           <Paragraph style={{ marginBottom: '0.25rem', marginTop: '1rem' }}>Input-datasett:</Paragraph>
           <InputDatasettAdministrasjon vilkarId={id} />
         </form>
@@ -674,12 +671,10 @@ function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndre
           <div style={{ marginTop: '0.75rem' }}>
             <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
-          <Field style={{ maxWidth: '16rem', marginTop: '1rem' }}>
-            <Label>Status</Label>
-            <Select value={regelnode.status} onChange={(e) => endreStatus(e.target.value)}>
-              {STATUSER.map((s) => <Select.Option key={s} value={s}>{s}</Select.Option>)}
-            </Select>
-          </Field>
+          <div style={{ marginTop: '1rem' }}>
+            <Label style={{ marginBottom: '0.4rem' }}>Status</Label>
+            <StatusStepper status={regelnode.status} onChange={endreStatus} />
+          </div>
         </form>
       )}
 
@@ -780,12 +775,10 @@ function UnntakPanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndret }
           <div style={{ marginTop: '0.75rem' }}>
             <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
-          <Field style={{ maxWidth: '16rem', marginTop: '1rem' }}>
-            <Label>Status</Label>
-            <Select value={unntak.status} onChange={(e) => endreStatus(e.target.value)}>
-              {STATUSER.map((s) => <Select.Option key={s} value={s}>{s}</Select.Option>)}
-            </Select>
-          </Field>
+          <div style={{ marginTop: '1rem' }}>
+            <Label style={{ marginBottom: '0.4rem' }}>Status</Label>
+            <StatusStepper status={unntak.status} onChange={endreStatus} />
+          </div>
         </form>
       )}
 
