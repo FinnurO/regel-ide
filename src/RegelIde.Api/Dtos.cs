@@ -460,7 +460,7 @@ public sealed record BegrepBruktIRettskildeDto(Guid RettskildeId, string NodeEid
         new(t.RettskildeId, t.NodeEid, t.RettskildeTittel, t.Snippet);
 }
 
-// ---------- Virksomhetskatalog og rollemodell (docs/20) ----------
+// ---------- Virksomhetskatalog og gruppemodell (docs/20) ----------
 
 public sealed record SettForvaltningsnivaRequest(string? Forvaltningsniva);
 
@@ -490,20 +490,20 @@ public sealed record OpprettVirksomhetFraBrregRequest(string Organisasjonsnummer
 public sealed record OpprettVirksomhetRequest(string Navn, Guid? OverordnetEnhetId);
 
 public sealed record VirksomhetsbegrepRequest(Guid VirksomhetId, string Term, string? SkosUrl);
-public sealed record RollebegrepRequest(Guid LovkildeId, string Term);
+public sealed record GruppebegrepRequest(Guid LovkildeId, string Term);
 
 public sealed record ParagrafspennParDto(string FraEid, string? TilEid);
 
 public sealed record MyndighetstildelingRequest(
-    Guid RolleBegrepId, Guid VirksomhetId, Guid HjemmelRettskildeId,
+    Guid GruppeBegrepId, Guid VirksomhetId, Guid HjemmelRettskildeId,
     IReadOnlyList<ParagrafspennParDto> Paragrafspenn, string? Vilkaar);
 
 public sealed record MyndighetstildelingDto(
-    Guid Id, Guid RolleBegrepId, Guid VirksomhetId, Guid HjemmelRettskildeId,
+    Guid Id, Guid GruppeBegrepId, Guid VirksomhetId, Guid HjemmelRettskildeId,
     IReadOnlyList<ParagrafspennParDto> Paragrafspenn, string? Vilkaar)
 {
     public static MyndighetstildelingDto FraEntitet(MyndighetstildelingEntitet m) => new(
-        m.Id, m.RolleBegrepId, m.VirksomhetId, m.HjemmelRettskildeId,
+        m.Id, m.GruppeBegrepId, m.VirksomhetId, m.HjemmelRettskildeId,
         MyndighetstildelingTjeneste.LesParagrafspenn(m).Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList(),
         m.Vilkaar);
 }

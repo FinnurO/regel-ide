@@ -276,11 +276,11 @@ export const api = {
   hentMyndighetstildelingerForVirksomhet: (virksomhetId: string) =>
     kall<MyndighetstildelingDto[]>(`/api/virksomheter/${virksomhetId}/myndighetstildelinger`),
 
-  /** ALLE rollebegrep på tvers av lover — søk/velg-grunnlag for LeggTilMyndighetstildelingForm. */
-  hentRollebegrep: () => kall<VirksomhetsbegrepDto[]>('/api/rollebegrep'),
+  /** ALLE gruppebegrep på tvers av lover — søk/velg-grunnlag for LeggTilMyndighetstildelingForm. */
+  hentGruppebegrep: () => kall<VirksomhetsbegrepDto[]>('/api/gruppebegrep'),
 
   opprettMyndighetstildeling: (request: {
-    rolleBegrepId: string; virksomhetId: string; hjemmelRettskildeId: string;
+    gruppeBegrepId: string; virksomhetId: string; hjemmelRettskildeId: string;
     paragrafspenn: ParagrafspennParDto[]; vilkaar: string | null;
   }) =>
     kall<MyndighetstildelingDto>('/api/myndighetstildelinger', {

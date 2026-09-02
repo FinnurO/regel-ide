@@ -126,7 +126,7 @@ public class BegrepsregisterTjenesteTests
     public async Task Oppdaterer_virksomhet_navneform_rorer_ikke_definisjon_eller_begrepstype()
     {
         // [Rettet, 2026-08-30] Regresjonstest for bugen beskrevet i OppdaterAsync sin XML-kommentar:
-        // PUT /api/begreper/{id} skal ALDRI kunne forurense en virksomhet-/rolle-navneform med en
+        // PUT /api/begreper/{id} skal ALDRI kunne forurense en virksomhet-/gruppe-navneform med en
         // oppfunnet definisjon/begrepstype, uansett hva som sendes inn i requesten.
         // [Rettet, 2026-08-30, testisolasjon] Bruker en syntetisk, garantert unik virksomhetsnavn —
         // IKKE "Agder fylkeskommune"/"Testkommunen" (delte, navn-guardede fixtures fra andre

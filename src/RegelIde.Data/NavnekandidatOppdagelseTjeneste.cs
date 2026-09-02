@@ -25,12 +25,12 @@ namespace RegelIde.Data;
 /// setning, se <see cref="ErSetningsstart"/> — er den avgjørende presisjonssiden: uten dette filteret
 /// ville et vanlig substantiv som tilfeldigvis er stort fordi det åpner en setning (f.eks.
 /// "Departementet kan …" i begynnelsen av et ledd) gitt et falskt "virksomhet"-treff.</item>
-/// <item>Suffiksmønster + LITEN forbokstav → <c>"rolle"</c> (beskrivelse av en funksjon, f.eks.
+/// <item>Suffiksmønster + LITEN forbokstav → <c>"gruppe"</c> (beskrivelse av en funksjon, f.eks.
 /// "forurensningsmyndighetene", ikke et egennavn) — posisjon i setningen er irrelevant her, siden
 /// liten forbokstav i seg selv allerede utelukker et egennavn.</item>
 /// <item>Fast liste juridisk-aktør-substantiv UTEN suffiks ("Kongen", "Kongen i statsråd", "Stortinget",
 /// "Regjeringen", samt BØYNINGSFORMENE av "statsforvalter"/"kommune"/"fylkeskommune"/"departement" —
-/// se <see cref="FasteRollesubstantiv"/>) → ALLTID <c>"rolle"</c>, uansett store/små bokstaver — disse
+/// se <see cref="FasteRollesubstantiv"/>) → ALLTID <c>"gruppe"</c>, uansett store/små bokstaver — disse
 /// er generiske rollesubstantiv, ikke navn på én bestemt institusjon, og posisjon i setningen endrer
 /// ikke det.</item>
 /// <item><b>[Ny, kodegjennomgang 2026-08-30]</b> Flerords-mønster: inntil 3 STOR-forbokstav-ord (ev.
@@ -38,7 +38,7 @@ namespace RegelIde.Data;
 /// etterfulgt av ett kjent institusjonsord i UBESTEMT FORM som eget, mellomromsdelt ord (se
 /// <see cref="Institusjonsord"/>, f.eks. "fylkeskommune", "kommune") → <c>"virksomhet"</c>. Fanger
 /// egennavn+institusjonsord-par som verken suffiksmønsteret (institusjonsordet er IKKE smeltet sammen
-/// med egennavnet, det er et eget ord) eller den faste rollelisten (som kun matcher institusjonsordet
+/// med egennavnet, det er et eget ord) eller den faste gruppelisten (som kun matcher institusjonsordet
 /// ALENE, uten et navn foran) dekker — bekreftet i live data, FOR-2019-09-30-1310 §2 andre ledd:
 /// "Østfold fylkeskommune: Driftsområde Ytre Oslofjord Øst", "Møre og Romsdal fylkeskommune: …", osv.
 /// Se <see cref="FinnEgennavnForanInstitusjonsord"/> og <see cref="ErFlerordsKontekstTillatt"/> for
@@ -46,30 +46,30 @@ namespace RegelIde.Data;
 /// fylkeskommune" eller "et statlig tilsyn" ville vært trygt).</item>
 /// </list>
 /// <para>
-/// <b>[Ny, kodegjennomgang 2026-08-30] Normalisering før lagring — KUN <c>"rolle"</c>:</b> for
-/// <c>"rolle"</c>-treff er selve store/små bokstaver-formen IKKE del av identiteten (en rolle er per
-/// definisjon ikke et egennavn — "statsforvalteren" og "Statsforvalteren" er samme rolle, kun ulik
+/// <b>[Ny, kodegjennomgang 2026-08-30] Normalisering før lagring — KUN <c>"gruppe"</c>:</b> for
+/// <c>"gruppe"</c>-treff er selve store/små bokstaver-formen IKKE del av identiteten (en gruppe er per
+/// definisjon ikke et egennavn — "statsforvalteren" og "Statsforvalteren" er samme gruppe, kun ulik
 /// forbokstav fordi den ene tilfeldigvis sto ved en setningsstart). Bekreftet i live data: 68
 /// forekomster av "statsforvalteren" og 45 av "Statsforvalteren" ga tidligere separate kandidater, ren
 /// posisjonell idempotens fanget aldri opp at det var samme term. Løsning: <see cref="SveipAsync"/>
-/// folder <c>"rolle"</c>-treffets tekst til små bokstaver (<see cref="string.ToLowerInvariant"/>) FØR
+/// folder <c>"gruppe"</c>-treffets tekst til små bokstaver (<see cref="string.ToLowerInvariant"/>) FØR
 /// den brukes som dedup-nøkkel og FØR den lagres som <see cref="NavnekandidatEntitet.ForeslattTekst"/>.
 /// <c>"virksomhet"</c>-treff (inkl. flerords-mønsteret over) er IKKE del av denne normaliseringen —
 /// der ER store/små bokstaver et reelt signal (et egennavn skal beholde sin faktiske stavemåte), så
 /// disse beholder rå tekst uendret.
 /// </para>
 /// <para>
-/// <b>[Ny, kodegjennomgang 2026-08-30] Term-basert dedup, i tillegg til posisjonell (KUN <c>"rolle"</c>):</b>
+/// <b>[Ny, kodegjennomgang 2026-08-30] Term-basert dedup, i tillegg til posisjonell (KUN <c>"gruppe"</c>):</b>
 /// idempotens var tidligere REN posisjon (<c>RettskildeId</c>, <c>NodeEid</c>, <c>StartOffset</c>) — to
 /// ulike posisjoner med (etter normalisering) SAMME tekst i SAMME rettskilde ga tidligere to separate
 /// <see cref="NavnekandidatEntitet"/>-rader (nettopp "statsforvalteren"/"Statsforvalteren"-caset over).
 /// Dette er en reell arkitekturendring, ikke bare en bugfiks: <see cref="SveipAsync"/> sjekker nå, FØR
-/// <see cref="OpprettEllerFinnAsync"/> kalles, om det ALLEREDE finnes en <c>"rolle"</c>-kandidatrad
+/// <see cref="OpprettEllerFinnAsync"/> kalles, om det ALLEREDE finnes en <c>"gruppe"</c>-kandidatrad
 /// (uansett status — Venter/Godkjent/Avvist — og uansett tekstposisjon) med samme normaliserte tekst
 /// for samme <c>RettskildeId</c> — samme prinsipp som den eksisterende "alleredeDekket mot godkjent
 /// Begrep"-filtreringen under, nå utvidet til Å OGSÅ dekke ikke-godkjente kandidater. Uten dette ville
 /// normaliseringen over kun forhindret NYE duplikater fra ETT sveip (samme treff, samme kjøring), ikke
-/// duplikater på TVERS av sveip/posisjoner — som var selve det bekreftede problemet. Kun <c>"rolle"</c>,
+/// duplikater på TVERS av sveip/posisjoner — som var selve det bekreftede problemet. Kun <c>"gruppe"</c>,
 /// av samme grunn som normaliseringen over er scopet dit (<c>"virksomhet"</c> har ingen normalisert
 /// term å slå opp mot — case er signal, ikke støy — der gjelder fortsatt ren posisjonell idempotens).
 /// </para>
@@ -97,9 +97,9 @@ namespace RegelIde.Data;
 /// <see cref="BegrepEntitet"/>-rad skal IKKE gi en ny kandidat — poenget er å oppdage NYE navn, ikke
 /// duplisere det <see cref="VirksomhetKandidatSveipTjeneste"/> allerede finner/kan finne. Scopet ulikt
 /// per kategori, siden identiteten er ulik (docs/20 §2.3 vs. §2.4): et <c>"virksomhet"</c>-treff sjekkes
-/// mot ALLE eksisterende virksomhet-navneformer (globalt delt, uansett rettskilde) — et <c>"rolle"</c>-treff
-/// sjekkes kun mot rollebegrep for NØYAKTIG DENNE rettskilden (rollebegrepets identitet er
-/// <c>(Term, LovkildeId)</c> sammen, samme rollenavn i en annen lov er en annen rad og dekker ikke dette
+/// mot ALLE eksisterende virksomhet-navneformer (globalt delt, uansett rettskilde) — et <c>"gruppe"</c>-treff
+/// sjekkes kun mot gruppebegrep for NØYAKTIG DENNE rettskilden (gruppebegrepets identitet er
+/// <c>(Term, LovkildeId)</c> sammen, samme gruppenavn i en annen lov er en annen rad og dekker ikke dette
 /// treffet).
 /// </para>
 /// </summary>
@@ -147,7 +147,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// institusjoner) og "Skatteverket" (kun nevnt som svensk sammenligning i docs/10, ikke en norsk
     /// rettskildetekst) endte IKKE med noen av de fire ordene under, så de forblir upåvirket.
     /// Gjelder KUN <c>"virksomhet"</c>-klassifiseringen (stor forbokstav midt i setning) — en
-    /// tilsvarende liten-forbokstav-forekomst gir uansett <c>"rolle"</c>, ikke <c>"virksomhet"</c>, og
+    /// tilsvarende liten-forbokstav-forekomst gir uansett <c>"gruppe"</c>, ikke <c>"virksomhet"</c>, og
     /// var aldri det bekreftede problemet.
     /// </para>
     /// </summary>
@@ -157,7 +157,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     ];
 
     /// <summary>Faste juridisk-aktør-substantiv UTEN suffiks (docs/13-backlog.md §9) — ALLTID
-    /// <c>"rolle"</c>-kandidater, uansett store/små bokstaver. Lengst-først i alternasjonen, slik at
+    /// <c>"gruppe"</c>-kandidater, uansett store/små bokstaver. Lengst-først i alternasjonen, slik at
     /// "Kongen i statsråd" foretrekkes framfor et delvis treff på bare "Kongen".
     /// <para>
     /// <b>[Ny, kodegjennomgang 2026-08-30]</b> "statsforvalter"/"kommune"/"fylkeskommune"/"departement"
@@ -187,7 +187,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     private static readonly Regex SuffiksMønster = new(
         @"\b\p{L}[\p{L}]*(?:" + string.Join('|', Suffikser) + @")\b");
 
-    private static readonly Regex FasteRollerMønster = new(
+    private static readonly Regex FasteGruppeMønster = new(
         @"\b(?:" + string.Join('|', FasteRollesubstantiv.OrderByDescending(s => s.Length).Select(Regex.Escape)) + @")\b",
         RegexOptions.IgnoreCase);
 
@@ -301,9 +301,9 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                         // som heller ikke filtrerer på virksomhet. (2) manglet filter på at selve
                         // Rettskilden (ikke bare noden) er "gjeldende" — en reimportert lovs GAMLE
                         // RettskildeEntitet blir 'erstattet', men dens RettskildeNoder forblir for alltid
-                        // 'gjeldende' (se RettskildeNodeEntitet), så "rolle"-kandidater derfra ble
+                        // 'gjeldende' (se RettskildeNodeEntitet), så "gruppe"-kandidater derfra ble
                         // opprettet men kunne ALDRI godkjennes (VirksomhetsbegrepTjeneste
-                        // .OpprettRollebegrepAsync krever eksplisitt at Rettskilden selv er gjeldende).
+                        // .OpprettGruppebegrepAsync krever eksplisitt at Rettskilden selv er gjeldende).
                         // Løsning for begge: sveip KUN delt/nasjonal (VirksomhetId == null) OG gjeldende
                         // rettskilde — dekker det som faktisk er formålet («oppdag nye navn i lovkorpuset»)
                         // uten noensinne å eksponere en virksomhets private innhold, og uten å skape
@@ -320,20 +320,20 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             await db.Begreper.Where(b => b.Begrepskategori == "virksomhet" && b.Entitetsstatus == "gjeldende")
                 .Select(b => b.Term).ToListAsync(ct),
             StringComparer.OrdinalIgnoreCase);
-        var rolleTermerPerLovkilde = (await db.Begreper
-                .Where(b => b.Begrepskategori == "rolle" && b.Entitetsstatus == "gjeldende" && b.LovkildeId != null)
+        var gruppeTermerPerLovkilde = (await db.Begreper
+                .Where(b => b.Begrepskategori == "gruppe" && b.Entitetsstatus == "gjeldende" && b.LovkildeId != null)
                 .Select(b => new { b.Term, b.LovkildeId }).ToListAsync(ct))
             .GroupBy(b => b.LovkildeId!.Value)
             .ToDictionary(g => g.Key, g => new HashSet<string>(g.Select(x => x.Term), StringComparer.OrdinalIgnoreCase));
 
         // [Ny, kodegjennomgang 2026-08-30] Forhåndslastet, ÉN gang for hele sveipet, samme "unngå N+1"
-        // -hensyn som mengdene over — normaliserte (små bokstaver) "rolle"-termer PER RettskildeId, fra
+        // -hensyn som mengdene over — normaliserte (små bokstaver) "gruppe"-termer PER RettskildeId, fra
         // EKSISTERENDE Navnekandidat-rader, uansett status. Brukes til å utvide "alleredeDekket"-sjekket
         // under til Å OGSÅ dekke ikke-godkjente kandidater, ikke bare godkjente Begrep-rader — se
         // klassekommentarens "Term-basert dedup"-avsnitt for hvorfor. Oppdateres fortløpende i løkken
         // under (samme sveip kan treffe samme normaliserte term flere ganger på ulike posisjoner).
-        var rolleKandidatTermerPerRettskilde = (await db.Navnekandidater
-                .Where(k => k.Kategori == "rolle")
+        var gruppeKandidatTermerPerRettskilde = (await db.Navnekandidater
+                .Where(k => k.Kategori == "gruppe")
                 .Select(k => new { k.RettskildeId, k.ForeslattTekst }).ToListAsync(ct))
             .GroupBy(k => k.RettskildeId)
             .ToDictionary(g => g.Key, g => new HashSet<string>(g.Select(x => x.ForeslattTekst.ToLowerInvariant()), StringComparer.Ordinal));
@@ -345,19 +345,19 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             foreach (var (start, lengde, kategori) in FinnKandidaterITekst(node.Tekst!))
             {
                 var raaTekst = node.Tekst![start..(start + lengde)];
-                // [Ny, kodegjennomgang 2026-08-30] Normaliser KUN "rolle" til små bokstaver — se
+                // [Ny, kodegjennomgang 2026-08-30] Normaliser KUN "gruppe" til små bokstaver — se
                 // klassekommentarens "Normalisering før lagring"-avsnitt. "virksomhet" beholder rå tekst
                 // (case er signal, ikke støy, for et egennavn).
-                var tekst = kategori == "rolle" ? raaTekst.ToLowerInvariant() : raaTekst;
+                var tekst = kategori == "gruppe" ? raaTekst.ToLowerInvariant() : raaTekst;
 
                 var alleredeDekketAvBegrep = kategori == "virksomhet"
                     ? virksomhetTermer.Contains(tekst)
-                    : rolleTermerPerLovkilde.TryGetValue(node.RettskildeId, out var rolleTermer) && rolleTermer.Contains(tekst);
+                    : gruppeTermerPerLovkilde.TryGetValue(node.RettskildeId, out var gruppeTermer) && gruppeTermer.Contains(tekst);
                 // [Ny, kodegjennomgang 2026-08-30] Term-basert dedup mot EKSISTERENDE, ikke-godkjente
-                // kandidater — kun "rolle" (se klassekommentaren). Uavhengig av tekstposisjon: samme
+                // kandidater — kun "gruppe" (se klassekommentaren). Uavhengig av tekstposisjon: samme
                 // normaliserte term i samme rettskilde skal ikke gi en ny rad, selv om posisjonen er ny.
-                var alleredeDekketAvEksisterendeKandidat = kategori == "rolle"
-                    && rolleKandidatTermerPerRettskilde.TryGetValue(node.RettskildeId, out var eksisterendeTermer)
+                var alleredeDekketAvEksisterendeKandidat = kategori == "gruppe"
+                    && gruppeKandidatTermerPerRettskilde.TryGetValue(node.RettskildeId, out var eksisterendeTermer)
                     && eksisterendeTermer.Contains(tekst);
                 if (alleredeDekketAvBegrep || alleredeDekketAvEksisterendeKandidat) continue;
 
@@ -368,14 +368,14 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 if (forAntall == 0)
                 {
                     antallNyeKandidater++;
-                    if (kategori == "rolle")
+                    if (kategori == "gruppe")
                     {
                         // Registrer umiddelbart, slik at en SENERE posisjon i samme sveip (samme
                         // rettskilde, samme normaliserte term) også blir korrekt gjenkjent som dekket.
-                        if (!rolleKandidatTermerPerRettskilde.TryGetValue(node.RettskildeId, out var settForRettskilde))
+                        if (!gruppeKandidatTermerPerRettskilde.TryGetValue(node.RettskildeId, out var settForRettskilde))
                         {
                             settForRettskilde = new HashSet<string>(StringComparer.Ordinal);
-                            rolleKandidatTermerPerRettskilde[node.RettskildeId] = settForRettskilde;
+                            gruppeKandidatTermerPerRettskilde[node.RettskildeId] = settForRettskilde;
                         }
                         settForRettskilde.Add(tekst);
                     }
@@ -394,8 +394,8 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// <b>"Midt i en setning"</b> (<see cref="ErSetningsstart"/>): et suffikstreff med STOR forbokstav
     /// som er setningens FØRSTE ord telles IKKE som et egennavn (ambiguøst — kunne bare være vanlig
     /// stor forbokstav ved setningsstart) og gir INGEN kandidat i det hele tatt (verken "virksomhet"
-    /// eller "rolle") — det faller ikke tilbake til "rolle", siden det fortsatt HAR stor forbokstav og
-    /// dermed ikke oppfyller "rolle"-regelens "liten forbokstav"-vilkår heller. Bevisst redusert recall
+    /// eller "gruppe") — det faller ikke tilbake til "gruppe", siden det fortsatt HAR stor forbokstav og
+    /// dermed ikke oppfyller "gruppe"-regelens "liten forbokstav"-vilkår heller. Bevisst redusert recall
     /// for økt presisjon, som spesifisert.
     /// </para>
     /// </summary>
@@ -419,13 +419,13 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             }
             else
             {
-                funnet.Add((m.Index, m.Length, "rolle"));
+                funnet.Add((m.Index, m.Length, "gruppe"));
             }
         }
 
-        foreach (Match m in FasteRollerMønster.Matches(tekst))
+        foreach (Match m in FasteGruppeMønster.Matches(tekst))
         {
-            funnet.Add((m.Index, m.Length, "rolle"));
+            funnet.Add((m.Index, m.Length, "gruppe"));
         }
 
         // [Ny, kodegjennomgang 2026-08-30] Flerords-mønster (klassekommentarens punkt 4) — se
@@ -631,9 +631,9 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             k => k.RettskildeId == rettskildeId && k.NodeEid == nodeEid && k.StartOffset == startOffset, ct);
         if (eksisterende is not null) return eksisterende;
 
-        if (kategori is not ("virksomhet" or "rolle"))
+        if (kategori is not ("virksomhet" or "gruppe"))
         {
-            throw new ArgumentException($"Ukjent kategori '{kategori}'. Gyldige verdier: 'virksomhet', 'rolle'.");
+            throw new ArgumentException($"Ukjent kategori '{kategori}'. Gyldige verdier: 'virksomhet', 'gruppe'.");
         }
         var node = await db.RettskildeNoder.FirstOrDefaultAsync(n => n.RettskildeId == rettskildeId && n.Eid == nodeEid, ct);
         if (node is null)
@@ -697,12 +697,12 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// Godkjenner kandidaten. Oppførsel avhenger av <see cref="NavnekandidatEntitet.Kategori"/> (se
     /// klassekommentaren på <see cref="NavnekandidatEntitet"/> for HVORFOR):
     /// <list type="bullet">
-    /// <item><c>"rolle"</c> — oppretter et EKTE rollebegrep direkte
-    /// (<see cref="VirksomhetsbegrepTjeneste.OpprettRollebegrepAsync"/>, <c>Term</c>=<see cref="NavnekandidatEntitet.ForeslattTekst"/>,
+    /// <item><c>"gruppe"</c> — oppretter et EKTE gruppebegrep direkte
+    /// (<see cref="VirksomhetsbegrepTjeneste.OpprettGruppebegrepAsync"/>, <c>Term</c>=<see cref="NavnekandidatEntitet.ForeslattTekst"/>,
     /// <c>LovkildeId</c>=kandidatens <see cref="NavnekandidatEntitet.RettskildeId"/>) — alt godkjenningen
     /// trenger er allerede kjent fra selve kandidaten. [Rettet, 2026-08-30] Sender også med
-    /// <see cref="NavnekandidatEntitet.NodeEid"/> som rollebegrepets <c>LovreferanseEid</c> — uten
-    /// dette var det umulig å se, fra selve paragrafen, at rollebegrepet stammer derfra (Johann
+    /// <see cref="NavnekandidatEntitet.NodeEid"/> som gruppebegrepets <c>LovreferanseEid</c> — uten
+    /// dette var det umulig å se, fra selve paragrafen, at gruppebegrepet stammer derfra (Johann
     /// observerte at «Statsforvalteren» ikke viste seg tagget i vergemålsforskriften § 19 ledd 1,
     /// der den faktisk ble funnet).</item>
     /// <item><c>"virksomhet"</c> — oppretter INGEN <see cref="BegrepEntitet"/>. Godkjenning her betyr
@@ -710,21 +710,21 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// (ny eller eksisterende) krever et menneske og skjer via den eksisterende
     /// navneform-tilleggsflyten i <c>VirksomhetDetalj.tsx</c>/<c>VirksomhetsbegrepTjeneste.OpprettVirksomhetsbegrepAsync</c>.</item>
     /// </list>
-    /// Hvis rollebegrep-opprettelsen kaster (f.eks. en rad med samme (Term, LovkildeId) allerede finnes
-    /// — <see cref="VirksomhetsbegrepTjeneste.OpprettRollebegrepAsync"/> sitt eget "ingen gjettet
+    /// Hvis gruppebegrep-opprettelsen kaster (f.eks. en rad med samme (Term, LovkildeId) allerede finnes
+    /// — <see cref="VirksomhetsbegrepTjeneste.OpprettGruppebegrepAsync"/> sitt eget "ingen gjettet
     /// fallback"-vern), forblir kandidatens status <c>"Venter"</c> og feilen forplantes uendret —
     /// samme "ikke sett status før den faktiske handlingen lyktes"-prinsipp som
     /// <see cref="VirksomhetKandidatTjeneste.GodkjennAsync"/>.
     /// <para>
     /// <b>[Ny, tekst-tagg-departement-eierskap, 2026-08-31] Ekte <see cref="TekstTaggEntitet"/> for
-    /// BEGGE kategorier:</b> Johanns eksplisitte designvalg — et rollebegrep/navneform funnet her er
+    /// BEGGE kategorier:</b> Johanns eksplisitte designvalg — et gruppebegrep/navneform funnet her er
     /// delt/nasjonalt (ingen eiende virksomhet på selve <see cref="BegrepEntitet"/>), men
     /// <see cref="TekstTaggEntitet.VirksomhetId"/> er ikke-nullbar ("en tagg er alltid en virksomhets
     /// eget arbeidsprodukt"). Løsningen: opprett taggen med <see cref="TekstTaggEntitet.VirksomhetId"/>
     /// = virksomheten til rettskildens <see cref="RettskildeEntitet.AnsvarligDepartement"/> ("det eies
     /// av ansvarlig departement [...] men det skal jo være mulig å se taggene allikevel — opprett
     /// disse med virksomheten til departementet"). <see cref="TekstTaggEntitet.RefId"/> settes til det
-    /// NYE rollebegrepets id for <c>"rolle"</c> (samme <c>Kind="begrep"</c>-mønster som
+    /// NYE gruppebegrepets id for <c>"gruppe"</c> (samme <c>Kind="begrep"</c>-mønster som
     /// <see cref="VirksomhetKandidatTjeneste.GodkjennAsync"/> allerede bruker for navneform-treff), og
     /// forblir <c>null</c> for <c>"virksomhet"</c> (INGEN Begrep-rad opprettes for den kategorien i det
     /// hele tatt her — "ingen gjettet fallback": ingen fabrikert id å peke på). Se
@@ -747,11 +747,11 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         }
 
         Guid? refIdForTagg = null;
-        if (kandidat.Kategori == "rolle")
+        if (kandidat.Kategori == "gruppe")
         {
-            var rollebegrep = await virksomhetsbegrep.OpprettRollebegrepAsync(
+            var gruppebegrep = await virksomhetsbegrep.OpprettGruppebegrepAsync(
                 kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
-            refIdForTagg = rollebegrep.Id;
+            refIdForTagg = gruppebegrep.Id;
         }
         // "virksomhet": ingen Begrep-entitet opprettes her — se metodekommentaren.
 
@@ -778,7 +778,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// til "ingen tagg" i stedet for å kaste, se <see cref="GodkjennAsync"/>s kommentar for hvorfor.</item>
     /// </list>
     /// <paramref name="refId"/> kobles inn via <see cref="TekstTaggTjeneste.KobleTilEntitetAsync"/> KUN
-    /// når den er satt (kun for <c>"rolle"</c> — se <see cref="GodkjennAsync"/>); for <c>"virksomhet"</c>
+    /// når den er satt (kun for <c>"gruppe"</c> — se <see cref="GodkjennAsync"/>); for <c>"virksomhet"</c>
     /// opprettes taggen med <c>RefId=null</c>, samme "ubundet inntil videre"-tilstand som
     /// <see cref="TekstTaggTjeneste.OpprettAsync"/> selv dokumenterer.
     /// </summary>

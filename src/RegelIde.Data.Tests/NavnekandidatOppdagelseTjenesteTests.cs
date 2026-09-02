@@ -44,7 +44,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     {
         // "Miljødirektoratet" er her selve setningens (og nodetekstens) FØRSTE ord — ambiguøst
         // (kunne bare være vanlig stor forbokstav ved setningsstart), gir bevisst INGEN kandidat i
-        // det hele tatt, verken "virksomhet" eller "rolle" (docs/13-backlog.md §9).
+        // det hele tatt, verken "virksomhet" eller "gruppe" (docs/13-backlog.md §9).
         const string tekst = "Miljødirektoratet skal føre tilsyn med at loven overholdes.";
         var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
         Assert.Empty(funn);
@@ -59,7 +59,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     }
 
     [Fact]
-    public void Suffiksmonster_med_liten_forbokstav_gir_rolle_kandidat()
+    public void Suffiksmonster_med_liten_forbokstav_gir_gruppe_kandidat()
     {
         // "havnetilsynet" — suffikset "-tilsynet" med liten forbokstav er en FUNKSJONSBESKRIVELSE,
         // ikke et egennavn (docs/13-backlog.md §9, samme prinsipp som "forurensningsmyndighetene").
@@ -67,7 +67,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
 
         var treff = Assert.Single(funn);
-        Assert.Equal("rolle", treff.Kategori);
+        Assert.Equal("gruppe", treff.Kategori);
         Assert.Equal("havnetilsynet", tekst.Substring(treff.Start, treff.Lengde));
     }
 
@@ -92,13 +92,13 @@ public class NavnekandidatOppdagelseTjenesteTests
     }
 
     [Fact]
-    public void Fast_liste_rollesubstantiv_gir_alltid_rolle_uansett_store_smaa_bokstaver()
+    public void Fast_liste_gruppesubstantiv_gir_alltid_gruppe_uansett_store_smaa_bokstaver()
     {
         const string tekst = "Kommunen skal sørge for dette, men kommunen kan òg pålegge en frist.";
         var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
 
         Assert.Equal(2, funn.Count);
-        Assert.All(funn, f => Assert.Equal("rolle", f.Kategori));
+        Assert.All(funn, f => Assert.Equal("gruppe", f.Kategori));
         Assert.Equal("Kommunen", tekst.Substring(funn[0].Start, funn[0].Lengde));
         Assert.Equal("kommunen", tekst.Substring(funn[1].Start, funn[1].Lengde));
     }
@@ -114,16 +114,16 @@ public class NavnekandidatOppdagelseTjenesteTests
     }
 
     [Fact]
-    public void Fast_liste_substantiv_uten_suffiks_klassifiseres_som_rolle_selv_stor_forbokstav_midt_i_setning()
+    public void Fast_liste_substantiv_uten_suffiks_klassifiseres_som_gruppe_selv_stor_forbokstav_midt_i_setning()
     {
         // "departementet" står IKKE i suffikslisten (det ER selve suffikset, ikke et sammensatt ord
-        // med suffikset) — dekkes utelukkende av den faste listen, alltid "rolle", også med stor
+        // med suffikset) — dekkes utelukkende av den faste listen, alltid "gruppe", også med stor
         // forbokstav midt i en setning (til forskjell fra suffiksmekanismens "virksomhet"-regel).
         const string tekst = "Klage sendes til Departementet innen tre uker.";
         var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
 
         var treff = Assert.Single(funn);
-        Assert.Equal("rolle", treff.Kategori);
+        Assert.Equal("gruppe", treff.Kategori);
         Assert.Equal("Departementet", tekst.Substring(treff.Start, treff.Lengde));
     }
 
@@ -138,7 +138,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         const string tekst = "Østfold fylkeskommune: Driftsområde Ytre Oslofjord Øst";
         var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
 
-        // Merk: bare "fylkeskommune" gir I TILLEGG en separat "rolle"-treff (Del 2s utvidede
+        // Merk: bare "fylkeskommune" gir I TILLEGG en separat "gruppe"-treff (Del 2s utvidede
         // FasteRollesubstantiv, se egne tester under) — vi filtrerer her på "virksomhet" spesifikt.
         var treff = Assert.Single(funn, f => f.Kategori == "virksomhet");
         Assert.Equal("Østfold fylkeskommune", tekst.Substring(treff.Start, treff.Lengde));
@@ -172,7 +172,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     {
         // "et statlig tilsyn" — "tilsyn" (ubestemt) er IKKE i FasteRollesubstantiv (kun kommune/
         // fylkeskommune/departement/statsforvalter er utvidet dit, se Del 2), og "statlig" foran er
-        // ikke stor forbokstav — INGEN kandidat i det hele tatt forventes, verken virksomhet ELLER rolle.
+        // ikke stor forbokstav — INGEN kandidat i det hele tatt forventes, verken virksomhet ELLER gruppe.
         const string tekst = "et statlig tilsyn kan gripe inn.";
         var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
 
@@ -311,7 +311,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
 
         Assert.Equal(8, funn.Count);
-        Assert.All(funn, f => Assert.Equal("rolle", f.Kategori));
+        Assert.All(funn, f => Assert.Equal("gruppe", f.Kategori));
         foreach (var form in new[] { "kommune", "kommunen", "kommuner", "kommunene", "fylkeskommune", "fylkeskommunen", "fylkeskommuner", "fylkeskommunene" })
         {
             Assert.Contains(funn, f => tekst.Substring(f.Start, f.Lengde) == form);
@@ -326,7 +326,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
 
         Assert.Equal(8, funn.Count);
-        Assert.All(funn, f => Assert.Equal("rolle", f.Kategori));
+        Assert.All(funn, f => Assert.Equal("gruppe", f.Kategori));
         foreach (var form in new[] { "statsforvalter", "statsforvaltere", "statsforvalterne", "departement", "departementet", "departementer", "departementene" })
         {
             Assert.Contains(funn, f => tekst.Substring(f.Start, f.Lengde) == form);
@@ -468,8 +468,8 @@ public class NavnekandidatOppdagelseTjenesteTests
     /// <summary>
     /// [Ny, kodegjennomgang 2026-08-30] Regresjonstest: en rettskildes NODER forblir 'gjeldende' for
     /// alltid selv etter at selve rettskilden er reimportert og merket 'erstattet' — uten dette filteret
-    /// ville sveipet opprettet en "rolle"-kandidat som ALDRI kan godkjennes
-    /// (<see cref="VirksomhetsbegrepTjeneste.OpprettRollebegrepAsync"/> krever eksplisitt at
+    /// ville sveipet opprettet en "gruppe"-kandidat som ALDRI kan godkjennes
+    /// (<see cref="VirksomhetsbegrepTjeneste.OpprettGruppebegrepAsync"/> krever eksplisitt at
     /// rettskilden selv er gjeldende).
     /// </summary>
     [Fact]
@@ -499,17 +499,17 @@ public class NavnekandidatOppdagelseTjenesteTests
     }
 
     [Fact]
-    public async Task Rollekandidat_allerede_dekket_for_samme_lovkilde_filtreres_men_ikke_for_annen_lovkilde()
+    public async Task Gruppekandidat_allerede_dekket_for_samme_lovkilde_filtreres_men_ikke_for_annen_lovkilde()
     {
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Alle skip skal melde fra til havnetilsynet før anløp.");
         var enAnnenRettskildeId = await OpprettRettskildeMedNodeAsync(db, "Meldeplikt gjelder også overfor havnetilsynet der.");
 
-        // Rollebegrep "havnetilsynet" finnes allerede — men KUN for rettskildeId, ikke for
-        // enAnnenRettskildeId (rollebegrepets identitet er (Term, LovkildeId) sammen, docs/20 §2.4).
+        // Gruppebegrep "havnetilsynet" finnes allerede — men KUN for rettskildeId, ikke for
+        // enAnnenRettskildeId (gruppebegrepets identitet er (Term, LovkildeId) sammen, docs/20 §2.4).
         db.Begreper.Add(new BegrepEntitet
         {
-            Id = Guid.NewGuid(), Begrepskategori = "rolle", LovkildeId = rettskildeId, VirksomhetId = null,
+            Id = Guid.NewGuid(), Begrepskategori = "gruppe", LovkildeId = rettskildeId, VirksomhetId = null,
             Term = "havnetilsynet", Status = "publisert", OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
         });
         await db.SaveChangesAsync();
@@ -540,7 +540,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     }
 
     [Fact]
-    public async Task Godkjenning_av_rollekandidat_oppretter_ekte_rollebegrep()
+    public async Task Godkjenning_av_gruppekandidat_oppretter_ekte_gruppebegrep()
     {
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Alle skip skal melde fra til havnetilsynet før anløp.");
@@ -548,19 +548,19 @@ public class NavnekandidatOppdagelseTjenesteTests
         var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
-        Assert.Equal("rolle", kandidat.Kategori);
+        Assert.Equal("gruppe", kandidat.Kategori);
 
         var godkjent = await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist");
         Assert.Equal("Godkjent", godkjent!.Status);
         Assert.Equal("Kari Jurist", godkjent.BehandletAv);
 
-        var rollebegrep = await db.Begreper.SingleAsync(
-            b => b.Begrepskategori == "rolle" && b.LovkildeId == rettskildeId && b.Term == "havnetilsynet");
-        Assert.Equal("publisert", rollebegrep.Status);
+        var gruppebegrep = await db.Begreper.SingleAsync(
+            b => b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId && b.Term == "havnetilsynet");
+        Assert.Equal("publisert", gruppebegrep.Status);
         // [Rettet, 2026-08-30] LovreferanseEid skal settes til NØYAKTIG kandidatens NodeEid ved
-        // godkjenning, slik at rollebegrepet kan spores tilbake til paragrafen det ble funnet i —
-        // se OpprettRollebegrepAsync sin XML-kommentar for konteksten (Johann-observert bug).
-        Assert.Equal(kandidat.NodeEid, rollebegrep.LovreferanseEid);
+        // godkjenning, slik at gruppebegrepet kan spores tilbake til paragrafen det ble funnet i —
+        // se OpprettGruppebegrepAsync sin XML-kommentar for konteksten (Johann-observert bug).
+        Assert.Equal(kandidat.NodeEid, gruppebegrep.LovreferanseEid);
     }
 
     [Fact]
@@ -609,10 +609,10 @@ public class NavnekandidatOppdagelseTjenesteTests
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.SveipAsync(Guid.NewGuid(), "test"));
     }
 
-    // ---------- Del C: normalisering + term-basert dedup for "rolle" (docs/13-backlog.md §9, Del 2) ----------
+    // ---------- Del C: normalisering + term-basert dedup for "gruppe" (docs/13-backlog.md §9, Del 2) ----------
 
     [Fact]
-    public async Task Rollekandidat_lagres_med_normalisert_smaa_bokstaver_tekst_selv_om_treffet_var_stor_forbokstav()
+    public async Task Gruppekandidat_lagres_med_normalisert_smaa_bokstaver_tekst_selv_om_treffet_var_stor_forbokstav()
     {
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Statsforvalteren skal påse at loven følges.");
@@ -621,7 +621,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await tjeneste.SveipAsync(rettskildeId, "test");
 
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
-        Assert.Equal("rolle", kandidat.Kategori);
+        Assert.Equal("gruppe", kandidat.Kategori);
         // Selve teksten i noden har stor forbokstav ("Statsforvalteren") — lagret ForeslattTekst skal
         // likevel være normalisert til små bokstaver, se klassekommentarens "Normalisering før
         // lagring"-avsnitt.
@@ -635,7 +635,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     /// derfor INNENFOR samme sveip-kjøring (det in-memory settet oppdateres fortløpende i løkken).
     /// </summary>
     [Fact]
-    public async Task Rollekandidat_med_ulik_store_smaa_bokstaver_i_samme_node_dedupliseres_til_en_rad()
+    public async Task Gruppekandidat_med_ulik_store_smaa_bokstaver_i_samme_node_dedupliseres_til_en_rad()
     {
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
@@ -660,7 +660,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     /// oppdateringen dekker duplikater innenfor én og samme node).
     /// </summary>
     [Fact]
-    public async Task Rollekandidat_med_ulik_store_smaa_bokstaver_pa_tvers_av_noder_dedupliseres_til_en_rad()
+    public async Task Gruppekandidat_med_ulik_store_smaa_bokstaver_pa_tvers_av_noder_dedupliseres_til_en_rad()
     {
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Kommunen skal føre tilsyn med dette.");
@@ -786,14 +786,14 @@ public class NavnekandidatOppdagelseTjenesteTests
         var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidater = await db.Navnekandidater.Where(k => k.RettskildeId == rettskildeId).ToListAsync();
-        var rolleKandidat = kandidater.Single(k => k.Kategori == "rolle");
+        var gruppeKandidat = kandidater.Single(k => k.Kategori == "gruppe");
         var virksomhetKandidat = kandidater.Single(k => k.Kategori == "virksomhet");
-        await tjeneste.AvvisAsync(rolleKandidat.Id, "Kari Jurist"); // virksomhetKandidat forblir 'Venter'.
+        await tjeneste.AvvisAsync(gruppeKandidat.Id, "Kari Jurist"); // virksomhetKandidat forblir 'Venter'.
 
         var antallSlettet = await tjeneste.SlettAlleAsync(status: "Avvist", rettskildeId: rettskildeId);
 
         Assert.Equal(1, antallSlettet);
-        Assert.False(await db.Navnekandidater.AnyAsync(k => k.Id == rolleKandidat.Id));
+        Assert.False(await db.Navnekandidater.AnyAsync(k => k.Id == gruppeKandidat.Id));
         Assert.True(await db.Navnekandidater.AnyAsync(k => k.Id == virksomhetKandidat.Id)); // urørt.
     }
 
@@ -816,14 +816,14 @@ public class NavnekandidatOppdagelseTjenesteTests
         new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
 
     /// <summary>
-    /// Kjernescenariet fra Johanns designvalg: et rollebegrep er delt/nasjonalt (ingen egen eiende
+    /// Kjernescenariet fra Johanns designvalg: et gruppebegrep er delt/nasjonalt (ingen egen eiende
     /// virksomhet), men når rettskildens <see cref="RettskildeEntitet.AnsvarligDepartement"/> løser til
     /// en ekte, kjent <see cref="Virksomhet"/>, skal godkjenningen OGSÅ opprette en ekte
-    /// <see cref="TekstTaggEntitet"/> (kind='begrep', RefId=det nye rollebegrepets id) eid av nettopp
+    /// <see cref="TekstTaggEntitet"/> (kind='begrep', RefId=det nye gruppebegrepets id) eid av nettopp
     /// den virksomheten — "opprett disse med virksomheten til departementet".
     /// </summary>
     [Fact]
-    public async Task Godkjenning_av_rollekandidat_med_kjent_departement_oppretter_tekst_tagg_eid_av_departementets_virksomhet()
+    public async Task Godkjenning_av_gruppekandidat_med_kjent_departement_oppretter_tekst_tagg_eid_av_departementets_virksomhet()
     {
         await using var db = _fixture.NyDbContext();
         var departementNavn = "Testdepartementet " + Guid.NewGuid();
@@ -837,18 +837,18 @@ public class NavnekandidatOppdagelseTjenesteTests
         var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
-        Assert.Equal("rolle", kandidat.Kategori);
+        Assert.Equal("gruppe", kandidat.Kategori);
 
         var godkjent = await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist");
         Assert.Equal("Godkjent", godkjent!.Status);
 
-        var rollebegrep = await db.Begreper.SingleAsync(
-            b => b.Begrepskategori == "rolle" && b.LovkildeId == rettskildeId && b.Term == "havnetilsynet");
+        var gruppebegrep = await db.Begreper.SingleAsync(
+            b => b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId && b.Term == "havnetilsynet");
 
         var tagg = await db.TekstTagger.SingleAsync(t => t.RettskildeId == rettskildeId);
         Assert.Equal(departementVirksomhetId, tagg.VirksomhetId);
         Assert.Equal("begrep", tagg.Kind);
-        Assert.Equal(rollebegrep.Id, tagg.RefId);
+        Assert.Equal(gruppebegrep.Id, tagg.RefId);
         Assert.Equal(kandidat.NodeEid, tagg.NodeEid);
         Assert.Equal(kandidat.StartOffset, tagg.StartOffset);
         Assert.Equal(kandidat.EndOffset, tagg.EndOffset);
@@ -859,10 +859,10 @@ public class NavnekandidatOppdagelseTjenesteTests
     /// Motstykket — en rettskilde uten noe kjent <see cref="RettskildeEntitet.AnsvarligDepartement"/> i
     /// det hele tatt (aldri satt ved import, f.eks. et rundskriv/håndbok) skal IKKE gi noen tagg. En
     /// reell, dokumentert begrensning ("ingen gjettet fallback"), ikke en feil — selve
-    /// kandidatgodkjenningen (rollebegrepet) skal likevel lykkes helt normalt.
+    /// kandidatgodkjenningen (gruppebegrepet) skal likevel lykkes helt normalt.
     /// </summary>
     [Fact]
-    public async Task Godkjenning_av_rollekandidat_uten_kjent_departement_oppretter_ingen_tagg()
+    public async Task Godkjenning_av_gruppekandidat_uten_kjent_departement_oppretter_ingen_tagg()
     {
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Kommunen skal føre tilsyn i dette tilfellet.");
@@ -870,13 +870,13 @@ public class NavnekandidatOppdagelseTjenesteTests
         var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
-        Assert.Equal("rolle", kandidat.Kategori);
+        Assert.Equal("gruppe", kandidat.Kategori);
 
         var godkjent = await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist");
 
         Assert.Equal("Godkjent", godkjent!.Status); // kandidaten godkjennes fortsatt normalt …
         Assert.NotNull(await db.Begreper.SingleOrDefaultAsync(
-            b => b.Begrepskategori == "rolle" && b.LovkildeId == rettskildeId)); // … rollebegrepet opprettes fortsatt …
+            b => b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId)); // … gruppebegrepet opprettes fortsatt …
         Assert.False(await db.TekstTagger.AnyAsync(t => t.RettskildeId == rettskildeId)); // … men ingen tagg-siden-effekt.
     }
 
@@ -886,7 +886,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     /// <see cref="VirksomhetOppslagTjeneste.FinnVirksomhetIdForNavnAsync"/>s "ingen gjettet fallback".
     /// </summary>
     [Fact]
-    public async Task Godkjenning_av_rollekandidat_med_uopploselig_departementstreng_oppretter_ingen_tagg()
+    public async Task Godkjenning_av_gruppekandidat_med_uopploselig_departementstreng_oppretter_ingen_tagg()
     {
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(

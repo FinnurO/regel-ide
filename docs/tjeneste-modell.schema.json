@@ -686,7 +686,7 @@
             "string",
             "null"
           ],
-          "description": "Fri tekst i dag — IKKE utledet fra rollebegrep/Myndighetstildeling ennå, se docs/13-backlog.md §8 (kjent, uløst gap: samme rollenavn kan i praksis være ulike virksomheter i ulike deler av samme rettskilde)."
+          "description": "Fri tekst i dag — IKKE utledet fra gruppebegrep/Myndighetstildeling ennå, se docs/13-backlog.md §8 (kjent, uløst gap: samme gruppenavn kan i praksis være ulike virksomheter i ulike deler av samme rettskilde)."
         },
         "status": {
           "type": "string",

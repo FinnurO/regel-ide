@@ -4,7 +4,7 @@ namespace RegelIde.Data;
 
 /// <summary>
 /// Register for de to nye <see cref="BegrepEntitet.Begrepskategori"/>-verdiene, `'virksomhet'` og
-/// `'rolle'` (docs/20 §2.3/§2.4) — delt/nasjonal referansedata, samme "ingen eiende virksomhet"-mønster
+/// `'gruppe'` (docs/20 §2.3/§2.4) — delt/nasjonal referansedata, samme "ingen eiende virksomhet"-mønster
 /// som <see cref="KodelisteregisterTjeneste"/>s `Type='ekstern-referanse'`. Skilt fra
 /// <see cref="BegrepsregisterTjeneste"/> (ordinære fakta-/handlingsbegrep, fortsatt virksomhetens eget
 /// arbeidsprodukt, uendret) — de to har ulik eier-semantikk og bør ikke dele valideringslogikk.
@@ -45,22 +45,22 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     }
 
     /// <summary>
-    /// Rollebegrep (docs/20 §2.4) — <paramref name="term"/> + <paramref name="lovkildeId"/> utgjør
-    /// SAMMEN identiteten (samme rollenavn i to ulike lover er to ulike rader; samme rollenavn i SAMME
+    /// Gruppebegrep (docs/20 §2.4) — <paramref name="term"/> + <paramref name="lovkildeId"/> utgjør
+    /// SAMMEN identiteten (samme gruppenavn i to ulike lover er to ulike rader; samme gruppenavn i SAMME
     /// lov skal ikke kunne dupliseres — se den unike partielle indeksen i RegelIdeDbContext).
     /// </summary>
     /// <param name="lovreferanseEid">
-    /// [Ny, 2026-08-30] Valgfri eId til NØYAKTIG den noden rollebegrepet ble oppdaget i (typisk
+    /// [Ny, 2026-08-30] Valgfri eId til NØYAKTIG den noden gruppebegrepet ble oppdaget i (typisk
     /// <see cref="NavnekandidatEntitet.NodeEid"/> fra godkjenningsflyten i
     /// <see cref="NavnekandidatOppdagelseTjeneste.GodkjennAsync"/>). Uten denne var det tidligere
-    /// umulig å se, fra selve paragrafen, at et rollebegrep var "tagget" der — Johann observerte at
-    /// et godkjent "Statsforvalteren"-rollebegrep verken viste seg som en tagg i
+    /// umulig å se, fra selve paragrafen, at et gruppebegrep var "tagget" der — Johann observerte at
+    /// et godkjent "Statsforvalteren"-gruppebegrep verken viste seg som en tagg i
     /// vergemålsforskriften § 19 ledd 1 (der det faktisk ble funnet), og at en lenke fra
     /// begrepssiden til loven (uten node) landet på en tom side (ingen node valgt). Fortsatt
-    /// valgfri (`null`) for manuelt opprettede rollebegrep via <c>POST /api/rollebegrep</c>, som
+    /// valgfri (`null`) for manuelt opprettede gruppebegrep via <c>POST /api/gruppebegrep</c>, som
     /// ikke har noen enkelt "opprinnelsesnode".
     /// </param>
-    public async Task<BegrepEntitet> OpprettRollebegrepAsync(
+    public async Task<BegrepEntitet> OpprettGruppebegrepAsync(
         Guid lovkildeId, string term, string opprettetAv, string? lovreferanseEid = null, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(term))
@@ -72,17 +72,17 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
             throw new ArgumentException($"Fant ingen rettskilde med id '{lovkildeId}'. Ingen gjettet fallback.");
         }
         if (await db.Begreper.AnyAsync(b =>
-                b.Begrepskategori == "rolle" && b.LovkildeId == lovkildeId && b.Term == term
+                b.Begrepskategori == "gruppe" && b.LovkildeId == lovkildeId && b.Term == term
                 && b.Entitetsstatus == "gjeldende", ct))
         {
-            throw new ArgumentException($"Rollebegrepet '{term}' finnes allerede for denne loven.");
+            throw new ArgumentException($"Gruppebegrepet '{term}' finnes allerede for denne loven.");
         }
 
         var begrep = new BegrepEntitet
         {
             Id = Guid.NewGuid(),
             VirksomhetId = null,
-            Begrepskategori = "rolle",
+            Begrepskategori = "gruppe",
             LovkildeId = lovkildeId,
             Term = term,
             LovreferanseEid = lovreferanseEid,
@@ -100,19 +100,19 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
         db.Begreper.Where(b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == virksomhetId
             && b.Entitetsstatus == "gjeldende").ToListAsync(ct);
 
-    public Task<List<BegrepEntitet>> AlleRollebegrepForLovAsync(Guid lovkildeId, CancellationToken ct = default) =>
-        db.Begreper.Where(b => b.Begrepskategori == "rolle" && b.LovkildeId == lovkildeId
+    public Task<List<BegrepEntitet>> AlleGruppebegrepForLovAsync(Guid lovkildeId, CancellationToken ct = default) =>
+        db.Begreper.Where(b => b.Begrepskategori == "gruppe" && b.LovkildeId == lovkildeId
             && b.Entitetsstatus == "gjeldende").ToListAsync(ct);
 
     /// <summary>
-    /// ALLE rollebegrep, uansett hvilken lov de hører til — til bruk i en søk/velg-picker for å
+    /// ALLE gruppebegrep, uansett hvilken lov de hører til — til bruk i en søk/velg-picker for å
     /// OPPRETTE en <see cref="MyndighetstildelingEntitet"/> (docs/13-backlog.md §8.1 punkt 1: fantes
     /// ingen frontend-skjema for dette, kun en read-only tildelings-tabell). Til forskjell fra
-    /// <see cref="AlleRollebegrepForLovAsync"/> (scoped til ÉN kjent lov, brukt i lovtekst-visningen)
+    /// <see cref="AlleGruppebegrepForLovAsync"/> (scoped til ÉN kjent lov, brukt i lovtekst-visningen)
     /// vet ikke denne kalleren på forhånd hvilken lov — brukeren skal kunne søke på tvers av alle.
     /// </summary>
-    public Task<List<BegrepEntitet>> AlleRollebegrepAsync(CancellationToken ct = default) =>
-        db.Begreper.Where(b => b.Begrepskategori == "rolle" && b.Entitetsstatus == "gjeldende")
+    public Task<List<BegrepEntitet>> AlleGruppebegrepAsync(CancellationToken ct = default) =>
+        db.Begreper.Where(b => b.Begrepskategori == "gruppe" && b.Entitetsstatus == "gjeldende")
             .OrderBy(b => b.Term)
             .ToListAsync(ct);
 
@@ -120,7 +120,7 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
         db.Begreper.FirstOrDefaultAsync(b => b.Id == id && b.Entitetsstatus == "gjeldende", ct);
 
     /// <summary>
-    /// ALLE virksomhets-/rollebegrep, uansett hvilken virksomhet/lov de tilhører — til bruk der en
+    /// ALLE virksomhets-/gruppebegrep, uansett hvilken virksomhet/lov de tilhører — til bruk der en
     /// bruker skal kunne tagge en forekomst i løpetekst med et virksomhetsbegrep (samme "Koble til …"-
     /// flyt som allerede finnes for ordinære fakta-/handlingsbegrep i RettskildeDetalj.tsx). Uten denne
     /// er virksomhetsbegrep INVISIBLE i den eksisterende tagg-picker-en: den vanlige
@@ -128,7 +128,7 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     /// VirksomhetId, og disse radene har bevisst VirksomhetId=NULL (delt, docs/20 §2.3/§2.4).
     /// </summary>
     public Task<List<BegrepEntitet>> AlleAsync(CancellationToken ct = default) =>
-        db.Begreper.Where(b => b.Begrepskategori == "virksomhet" || b.Begrepskategori == "rolle")
+        db.Begreper.Where(b => b.Begrepskategori == "virksomhet" || b.Begrepskategori == "gruppe")
             .Where(b => b.Entitetsstatus == "gjeldende")
             .OrderBy(b => b.Term)
             .ToListAsync(ct);

@@ -68,21 +68,21 @@ public class VirksomhetsbegrepTjenesteTests
     private static string NyTerm(string prefiks) => $"{prefiks}-{Guid.NewGuid():N}";
 
     [Fact]
-    public async Task Rollebegrep_samme_term_i_samme_lov_kastes()
+    public async Task Gruppebegrep_samme_term_i_samme_lov_kastes()
     {
         await using var db = _fixture.NyDbContext();
         var lovkildeId = await OpprettAlkohollovenAsync(db);
         var term = NyTerm("kontrollmyndighet");
 
         var register = new VirksomhetsbegrepTjeneste(db);
-        await register.OpprettRollebegrepAsync(lovkildeId, term, "Kari Jurist");
+        await register.OpprettGruppebegrepAsync(lovkildeId, term, "Kari Jurist");
 
         await Assert.ThrowsAsync<ArgumentException>(
-            () => register.OpprettRollebegrepAsync(lovkildeId, term, "Kari Jurist"));
+            () => register.OpprettGruppebegrepAsync(lovkildeId, term, "Kari Jurist"));
     }
 
     [Fact]
-    public async Task Rollebegrep_samme_term_i_ulik_lov_er_to_ulike_rader()
+    public async Task Gruppebegrep_samme_term_i_ulik_lov_er_to_ulike_rader()
     {
         await using var db = _fixture.NyDbContext();
         var alkoholloven = await OpprettAlkohollovenAsync(db);
@@ -91,8 +91,8 @@ public class VirksomhetsbegrepTjenesteTests
         var term = NyTerm("tilsynsmyndighet");
 
         var register = new VirksomhetsbegrepTjeneste(db);
-        var forsteRad = await register.OpprettRollebegrepAsync(alkoholloven, term, "Kari Jurist");
-        var andreRad = await register.OpprettRollebegrepAsync(forvaltningsloven, term, "Kari Jurist");
+        var forsteRad = await register.OpprettGruppebegrepAsync(alkoholloven, term, "Kari Jurist");
+        var andreRad = await register.OpprettGruppebegrepAsync(forvaltningsloven, term, "Kari Jurist");
 
         Assert.NotEqual(forsteRad.Id, andreRad.Id);
         Assert.Equal(alkoholloven, forsteRad.LovkildeId);

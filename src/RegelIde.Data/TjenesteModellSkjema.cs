@@ -288,8 +288,8 @@ public static class TjenesteModellSkjema
             ["livshendelser"] = StrArr("Livshendelser tjenesten er relevant for. Fri tekst, ikke koblet mot et eksternt vokabular ennå."),
             ["type"] = NullableEnumStr(TjenesteregisterTjeneste.GyldigeRettighetstyper, "Rettighetstype (myndighetsutøvelse/ytelse/...)."),
             ["kompetent_myndighet"] = NullableStr(
-                "Fri tekst i dag — IKKE utledet fra rollebegrep/Myndighetstildeling ennå, se " +
-                "docs/13-backlog.md §8 (kjent, uløst gap: samme rollenavn kan i praksis være ulike " +
+                "Fri tekst i dag — IKKE utledet fra gruppebegrep/Myndighetstildeling ennå, se " +
+                "docs/13-backlog.md §8 (kjent, uløst gap: samme gruppenavn kan i praksis være ulike " +
                 "virksomheter i ulike deler av samme rettskilde)."),
             ["status"] = EnumStr(TjenesteregisterTjeneste.GyldigeStatuser, "Rettighetens status i forfatterløpet."),
             ["malgruppe"] = StrArr("Hvem tjenesten retter seg mot."),

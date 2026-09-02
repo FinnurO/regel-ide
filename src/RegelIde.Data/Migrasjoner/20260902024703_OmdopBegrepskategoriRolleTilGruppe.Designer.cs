@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RegelIde.Data;
@@ -12,9 +13,11 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    partial class RegelIdeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260902024703_OmdopBegrepskategoriRolleTilGruppe")]
+    partial class OmdopBegrepskategoriRolleTilGruppe
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1583,42 +1586,6 @@ namespace RegelIde.Data.Migrasjoner
                         });
                 });
 
-            modelBuilder.Entity("RegelIde.Data.RettskildeEndringEntitet", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("EndringEid")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("endring_eid");
-
-                    b.Property<Guid>("EndringRettskildeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("endring_rettskilde_id");
-
-                    b.Property<Guid>("RettskildeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("rettskilde_id");
-
-                    b.Property<int>("Sorteringsrekkefolge")
-                        .HasColumnType("integer")
-                        .HasColumnName("sorteringsrekkefolge");
-
-                    b.HasKey("Id")
-                        .HasName("rettskilde_endringer_pkey");
-
-                    b.HasIndex("EndringRettskildeId")
-                        .HasDatabaseName("ix_rettskilde_endringer_endring_rettskilde");
-
-                    b.HasIndex("RettskildeId", "EndringEid")
-                        .IsUnique()
-                        .HasDatabaseName("ux_rettskilde_endringer_rettskilde_id_endring_eid");
-
-                    b.ToTable("rettskilde_endringer", (string)null);
-                });
-
             modelBuilder.Entity("RegelIde.Data.RettskildeEntitet", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1691,10 +1658,6 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("date")
                         .HasColumnName("ikrafttredelse");
 
-                    b.Property<string>("IkrafttredelseRaa")
-                        .HasColumnType("text")
-                        .HasColumnName("ikrafttredelse_raa");
-
                     b.Property<string>("Importrolle")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -1726,10 +1689,6 @@ namespace RegelIde.Data.Migrasjoner
                     b.Property<DateOnly?>("KonsolidertDato")
                         .HasColumnType("date")
                         .HasColumnName("konsolidert_dato");
-
-                    b.Property<string>("KonsolidertDatoRaa")
-                        .HasColumnType("text")
-                        .HasColumnName("konsolidert_dato_raa");
 
                     b.Property<string>("Kortnavn")
                         .HasColumnType("text")
@@ -1765,10 +1724,6 @@ namespace RegelIde.Data.Migrasjoner
                     b.Property<DateTimeOffset?>("SistEndretTidspunkt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("sist_endret_tidspunkt");
-
-                    b.Property<string>("SistEndretVed")
-                        .HasColumnType("text")
-                        .HasColumnName("sist_endret_ved");
 
                     b.Property<string>("Status")
                         .IsRequired()
@@ -3299,21 +3254,6 @@ namespace RegelIde.Data.Migrasjoner
                     b.HasOne("RegelIde.Data.Virksomhet", null)
                         .WithMany()
                         .HasForeignKey("VirksomhetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("RegelIde.Data.RettskildeEndringEntitet", b =>
-                {
-                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
-                        .WithMany()
-                        .HasForeignKey("EndringRettskildeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
-                        .WithMany()
-                        .HasForeignKey("RettskildeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });

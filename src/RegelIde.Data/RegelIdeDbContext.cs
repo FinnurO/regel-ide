@@ -139,7 +139,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
         {
             e.ToTable("myndighetstildelinger");
             e.HasKey(x => x.Id).HasName("myndighetstildelinger_pkey");
-            e.Property(x => x.RolleBegrepId).HasColumnName("rolle_begrep_id");
+            e.Property(x => x.GruppeBegrepId).HasColumnName("gruppe_begrep_id");
             e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
             e.Property(x => x.HjemmelRettskildeId).HasColumnName("hjemmel_rettskilde_id");
             e.Property(x => x.ParagrafspennJson).HasColumnName("paragrafspenn_json").HasDefaultValue("[]");
@@ -148,10 +148,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
             e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
-            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.RolleBegrepId);
+            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.GruppeBegrepId);
             e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
             e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.HjemmelRettskildeId);
-            e.HasIndex(x => x.RolleBegrepId).HasDatabaseName("ix_myndighetstildelinger_rolle_begrep");
+            e.HasIndex(x => x.GruppeBegrepId).HasDatabaseName("ix_myndighetstildelinger_gruppe_begrep");
             e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_myndighetstildelinger_virksomhet");
             e.HasIndex(x => x.HjemmelRettskildeId).HasDatabaseName("ix_myndighetstildelinger_hjemmel");
         });
@@ -192,7 +192,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.ToTable("navnekandidater", t =>
             {
                 t.HasCheckConstraint("ck_navnekandidater_status", "status IN ('Venter', 'Godkjent', 'Avvist')");
-                t.HasCheckConstraint("ck_navnekandidater_kategori", "kategori IN ('virksomhet', 'rolle')");
+                t.HasCheckConstraint("ck_navnekandidater_kategori", "kategori IN ('virksomhet', 'gruppe')");
             });
             e.HasKey(x => x.Id).HasName("navnekandidater_pkey");
             e.Property(x => x.ForeslattTekst).HasColumnName("foreslatt_tekst");
@@ -773,7 +773,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
         b.Entity<BegrepEntitet>(e =>
         {
             e.ToTable("begreper", t => t.HasCheckConstraint(
-                "ck_begreper_begrepskategori", "begrepskategori IS NULL OR begrepskategori IN ('virksomhet', 'rolle')"));
+                "ck_begreper_begrepskategori", "begrepskategori IS NULL OR begrepskategori IN ('virksomhet', 'gruppe')"));
             e.HasKey(x => x.Id).HasName("begreper_pkey");
             e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
             e.Property(x => x.Begrepskategori).HasColumnName("begrepskategori");
@@ -808,13 +808,13 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasOne<KodelisteEntitet>().WithMany().HasForeignKey(x => x.KodelisteReferanseId);
             e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_begreper_virksomhet");
             e.HasIndex(x => x.VirksomhetReferanseId).HasDatabaseName("ix_begreper_virksomhet_referanse");
-            // Rollebegrepets identitet er (Term, LovkildeId) sammen (docs/20 §2.4) — samme rollenavn i
-            // to ulike lover er to ulike rader, men samme rollenavn i SAMME lov skal ikke kunne
-            // dupliseres. Partiell (kun Begrepskategori='rolle') og Entitetsstatus-filtrert, samme
+            // Gruppebegrepets identitet er (Term, LovkildeId) sammen (docs/20 §2.4) — samme gruppenavn i
+            // to ulike lover er to ulike rader, men samme gruppenavn i SAMME lov skal ikke kunne
+            // dupliseres. Partiell (kun Begrepskategori='gruppe') og Entitetsstatus-filtrert, samme
             // mønster som andre "unik blant gjeldende"-indekser i denne filen.
             e.HasIndex(x => new { x.Term, x.LovkildeId }).IsUnique()
-                .HasFilter("begrepskategori = 'rolle' AND entitetsstatus = 'gjeldende'")
-                .HasDatabaseName("ux_begreper_rollebegrep_term_lovkilde");
+                .HasFilter("begrepskategori = 'gruppe' AND entitetsstatus = 'gjeldende'")
+                .HasDatabaseName("ux_begreper_gruppebegrep_term_lovkilde");
         });
 
         b.Entity<KodelisteEntitet>(e =>

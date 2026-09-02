@@ -2114,14 +2114,14 @@ begreper.MapGet("/", async (HttpRequest request, BegrepsregisterTjeneste begreps
         {
             return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         }
-        // Egne fakta-/handlingsbegrep + ALLE delte virksomhets-/rollebegrep (docs/20 §2.3/§2.4) —
+        // Egne fakta-/handlingsbegrep + ALLE delte virksomhets-/gruppebegrep (docs/20 §2.3/§2.4) —
         // uten det siste er de INVISIBLE i tagg-picker-en (se VirksomhetsbegrepTjeneste.AlleAsync).
         var egne = await begrepsregister.ListerForAsync(bruker.VirksomhetId, ct);
         var delte = await virksomhetsbegrepregister.AlleAsync(ct);
         return Results.Ok(egne.Concat(delte).Select(BegrepDto.FraEntitet));
     })
     .WithName("HentBegreper")
-    .WithSummary("Lister virksomhetens egne begreper (produktkrav kap. 3.8) + alle delte virksomhets-/rollebegrep (docs/20).");
+    .WithSummary("Lister virksomhetens egne begreper (produktkrav kap. 3.8) + alle delte virksomhets-/gruppebegrep (docs/20).");
 
 begreper.MapGet("/{id:guid}", async (Guid id, BegrepsregisterTjeneste begrepsregister, CancellationToken ct) =>
     {
@@ -2386,7 +2386,7 @@ kodelister.MapPost("/{id:guid}/status", async (Guid id, HttpRequest request, Set
     .WithName("SettKodelisteStatus")
     .WithSummary("Endrer status (§3.1 i domenemodellen) — avvises for ekstern-referanse.");
 
-// ---------- Virksomhetskatalog og rollemodell (docs/20) ----------
+// ---------- Virksomhetskatalog og gruppemodell (docs/20) ----------
 // RBAC (docs/20 §0 pkt. 3): skrivehandlinger attribueres til den innloggede brukerens EGEN
 // virksomhet/navn (bruker.Navn som opprettetAv/behandletAv) — ingen per-virksomhet skriveperre på
 // disse delte, nasjonale tabellene.
@@ -2416,14 +2416,14 @@ app.MapGet("/api/virksomheter/{id:guid}/begrep", async (Guid id, Virksomhetsbegr
     .WithName("HentVirksomhetsbegrepForVirksomhet")
     .WithSummary("Lister navneformer (inkl. synonymer) brukt om denne virksomheten i rettskildetekst.");
 
-app.MapPost("/api/rollebegrep", async (HttpRequest request, RollebegrepRequest body,
+app.MapPost("/api/gruppebegrep", async (HttpRequest request, GruppebegrepRequest body,
         VirksomhetsbegrepTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         try
         {
-            var opprettet = await register.OpprettRollebegrepAsync(body.LovkildeId, body.Term, bruker.Navn, ct: ct);
+            var opprettet = await register.OpprettGruppebegrepAsync(body.LovkildeId, body.Term, bruker.Navn, ct: ct);
             return Results.Created($"/api/begreper/{opprettet.Id}", BegrepDto.FraEntitet(opprettet));
         }
         catch (ArgumentException ex)
@@ -2432,20 +2432,20 @@ app.MapPost("/api/rollebegrep", async (HttpRequest request, RollebegrepRequest b
         }
     })
     .WithOpenApi()
-    .WithName("OpprettRollebegrep")
-    .WithSummary("Rollebegrep (docs/20 §2.4) — Term+LovkildeId er sammen begrepets identitet, f.eks. 'forurensningsmyndighet' i forurensningsloven.");
+    .WithName("OpprettGruppebegrep")
+    .WithSummary("Gruppebegrep (docs/20 §2.4) — Term+LovkildeId er sammen begrepets identitet, f.eks. 'forurensningsmyndighet' i forurensningsloven.");
 
-app.MapGet("/api/rettskilder/{lovkildeId:guid}/rollebegrep", async (Guid lovkildeId, VirksomhetsbegrepTjeneste register, CancellationToken ct) =>
-        Results.Ok((await register.AlleRollebegrepForLovAsync(lovkildeId, ct)).Select(BegrepDto.FraEntitet)))
+app.MapGet("/api/rettskilder/{lovkildeId:guid}/gruppebegrep", async (Guid lovkildeId, VirksomhetsbegrepTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.AlleGruppebegrepForLovAsync(lovkildeId, ct)).Select(BegrepDto.FraEntitet)))
     .WithOpenApi()
-    .WithName("HentRollebegrepForLov")
-    .WithSummary("Lister rollebegrep definert for denne loven.");
+    .WithName("HentGruppebegrepForLov")
+    .WithSummary("Lister gruppebegrep definert for denne loven.");
 
-app.MapGet("/api/rollebegrep", async (VirksomhetsbegrepTjeneste register, CancellationToken ct) =>
-        Results.Ok((await register.AlleRollebegrepAsync(ct)).Select(BegrepDto.FraEntitet)))
+app.MapGet("/api/gruppebegrep", async (VirksomhetsbegrepTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.AlleGruppebegrepAsync(ct)).Select(BegrepDto.FraEntitet)))
     .WithOpenApi()
-    .WithName("HentAlleRollebegrep")
-    .WithSummary("Lister ALLE rollebegrep på tvers av lover — søk/velg-grunnlag for å opprette en myndighetstildeling (docs/13-backlog.md §8.1 punkt 1).");
+    .WithName("HentAlleGruppebegrep")
+    .WithSummary("Lister ALLE gruppebegrep på tvers av lover — søk/velg-grunnlag for å opprette en myndighetstildeling (docs/13-backlog.md §8.1 punkt 1).");
 
 app.MapPost("/api/myndighetstildelinger", async (HttpRequest request, MyndighetstildelingRequest body,
         MyndighetstildelingTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
@@ -2456,7 +2456,7 @@ app.MapPost("/api/myndighetstildelinger", async (HttpRequest request, Myndighets
         {
             var paragrafspenn = body.Paragrafspenn.Select(p => new ParagrafspennPar(p.FraEid, p.TilEid)).ToList();
             var opprettet = await register.OpprettAsync(
-                body.RolleBegrepId, body.VirksomhetId, body.HjemmelRettskildeId, paragrafspenn, body.Vilkaar, bruker.Navn, ct);
+                body.GruppeBegrepId, body.VirksomhetId, body.HjemmelRettskildeId, paragrafspenn, body.Vilkaar, bruker.Navn, ct);
             return Results.Created($"/api/myndighetstildelinger/{opprettet.Id}", MyndighetstildelingDto.FraEntitet(opprettet));
         }
         catch (ArgumentException ex)
@@ -2466,7 +2466,7 @@ app.MapPost("/api/myndighetstildelinger", async (HttpRequest request, Myndighets
     })
     .WithOpenApi()
     .WithName("OpprettMyndighetstildeling")
-    .WithSummary("Kobler et rollebegrep til en konkret virksomhet, hjemlet i en forskrift (docs/20 §2.5). Gyldighet arves fra hjemmelen, ingen egne datoer her.");
+    .WithSummary("Kobler et gruppebegrep til en konkret virksomhet, hjemlet i en forskrift (docs/20 §2.5). Gyldighet arves fra hjemmelen, ingen egne datoer her.");
 
 app.MapGet("/api/virksomheter/{id:guid}/myndighetstildelinger", async (Guid id, MyndighetstildelingTjeneste register, CancellationToken ct) =>
         Results.Ok((await register.AlleForVirksomhetAsync(id, ct)).Select(MyndighetstildelingDto.FraEntitet)))
@@ -2483,11 +2483,11 @@ app.MapGet("/api/virksomheter/{id:guid}/rettskilder-ansvarlig-for", async (Guid 
         "virksomhet-lenke, 2026-08-30). Ingen fuzzy-matching — en virksomhet uten navnetreff i noen " +
         "rettskildes AnsvarligDepartement gir tom liste, ikke en feil.");
 
-app.MapGet("/api/rollebegrep/{id:guid}/tildelinger", async (Guid id, MyndighetstildelingTjeneste register, CancellationToken ct) =>
-        Results.Ok((await register.AlleForRolleBegrepAsync(id, ct)).Select(MyndighetstildelingDto.FraEntitet)))
+app.MapGet("/api/gruppebegrep/{id:guid}/tildelinger", async (Guid id, MyndighetstildelingTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.AlleForGruppeBegrepAsync(id, ct)).Select(MyndighetstildelingDto.FraEntitet)))
     .WithOpenApi()
-    .WithName("HentMyndighetstildelingerForRolleBegrep")
-    .WithSummary("Lister hvilke virksomheter et rollebegrep er tildelt til, og under hvilke hjemler.");
+    .WithName("HentMyndighetstildelingerForGruppeBegrep")
+    .WithSummary("Lister hvilke virksomheter et gruppebegrep er tildelt til, og under hvilke hjemler.");
 
 var virksomhetKandidater = app.MapGroup("/api/virksomhet-kandidater").WithOpenApi();
 
@@ -2717,7 +2717,7 @@ navnekandidater.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest reque
         }
     })
     .WithName("GodkjennNavnekandidat")
-    .WithSummary("'rolle': oppretter et ekte rollebegrep direkte. 'virksomhet': setter kun status — selve virksomhetskoblingen skjer manuelt via VirksomhetDetalj.");
+    .WithSummary("'gruppe': oppretter et ekte gruppebegrep direkte. 'virksomhet': setter kun status — selve virksomhetskoblingen skjer manuelt via VirksomhetDetalj.");
 
 navnekandidater.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
@@ -2760,7 +2760,7 @@ navnekandidater.MapPost("/godkjenn-batch", async (HttpRequest request, Navnekand
     })
     .WithName("GodkjennNavnekandidaterBatch")
     .WithSummary("Massegodkjenning (store test-sveip-mengder) — server-side batch med per-rad-feilhåndtering, " +
-        "samme mønster som /api/virksomhet-kandidater/godkjenn-batch. 'rolle' oppretter et ekte rollebegrep PER " +
+        "samme mønster som /api/virksomhet-kandidater/godkjenn-batch. 'gruppe' oppretter et ekte gruppebegrep PER " +
         "rad som lykkes; 'virksomhet' setter kun status — se GodkjennNavnekandidat-endepunktet over.");
 
 navnekandidater.MapPost("/avvis-batch", async (HttpRequest request, NavnekandidatBatchRequest body,
