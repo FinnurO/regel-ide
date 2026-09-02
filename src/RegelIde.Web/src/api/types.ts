@@ -279,7 +279,12 @@ export interface HardslettVirksomhetKandidaterResultatDto {
   antallSlettet: number;
 }
 
-/** Oppdagelsesmekanismen (docs/13-backlog.md §9) — komplementær til VirksomhetKandidatDto over. */
+/** Oppdagelsesmekanismen (docs/13-backlog.md §9) — komplementær til VirksomhetKandidatDto over.
+ * `oppdagelsesKilde`/`snl*`/`ssr*` (docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md) — kun satt
+ * for kandidater funnet via det nye "stor bokstav midt i setning"-mønsteret
+ * (`oppdagelsesKilde === 'stor-bokstav-snl-ssr'`); `null` for de opprinnelige, presise mønstrene.
+ * Berikelsen slås opp server-side fra en ekstern-oppslag-cache PÅ LESETIDSPUNKTET, ikke lagret på
+ * selve kandidatraden — se NavnekandidatDto på API-siden. */
 export interface NavnekandidatDto {
   id: string;
   foreslattTekst: string;
@@ -293,6 +298,12 @@ export interface NavnekandidatDto {
   opprettetTidspunkt: string;
   behandletAv: string | null;
   behandletTidspunkt: string | null;
+  oppdagelsesKilde: string | null;
+  snlUrl: string | null;
+  snlAlias: string[] | null;
+  snlOrganisasjonsnummer: string | null;
+  ssrBekreftetStedsnavn: boolean | null;
+  ssrObjektType: string | null;
 }
 
 /** rettskildeId=null sveiper hele det importerte korpuset, satt snevrer inn til én rettskilde. */

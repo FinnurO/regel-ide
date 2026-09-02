@@ -541,11 +541,20 @@ public sealed record HardslettVirksomhetKandidaterResultatDto(int AntallSlettet)
 
 public sealed record NavnekandidatDto(
     Guid Id, string ForeslattTekst, string Kategori, Guid RettskildeId, string NodeEid, int StartOffset, int EndOffset,
-    string Status, string OpprettetAv, DateTimeOffset OpprettetTidspunkt, string? BehandletAv, DateTimeOffset? BehandletTidspunkt)
+    string Status, string OpprettetAv, DateTimeOffset OpprettetTidspunkt, string? BehandletAv, DateTimeOffset? BehandletTidspunkt,
+    // [Ny, docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md] OppdagelsesKilde = null for de
+    // opprinnelige mønstrene. Berikelse-feltene (Snl*/Ssr*) er IKKE lagret på selve kandidatraden (se
+    // NavnekandidatEntitet.OppdagelsesKilde sin kommentar for hvorfor — kun cache-tabellen er ny) —
+    // NavnekandidaterEndepunktMapper.MedBerikelse under slår dem opp fra
+    // EksternNavneoppslagCacheEntitet PÅ LESETIDSPUNKTET, ved ForeslattTekst som oppslagsterm.
+    string? OppdagelsesKilde,
+    string? SnlUrl, IReadOnlyList<string>? SnlAlias, string? SnlOrganisasjonsnummer,
+    bool? SsrBekreftetStedsnavn, string? SsrObjektType)
 {
     public static NavnekandidatDto FraEntitet(NavnekandidatEntitet k) => new(
         k.Id, k.ForeslattTekst, k.Kategori, k.RettskildeId, k.NodeEid, k.StartOffset, k.EndOffset, k.Status,
-        k.OpprettetAv, k.OpprettetTidspunkt, k.BehandletAv, k.BehandletTidspunkt);
+        k.OpprettetAv, k.OpprettetTidspunkt, k.BehandletAv, k.BehandletTidspunkt, k.OppdagelsesKilde,
+        null, null, null, null, null);
 }
 
 /// <summary>Sveip-trigger — <see cref="RettskildeId"/> = <c>null</c> sveiper HELE det importerte

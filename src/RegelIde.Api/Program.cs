@@ -47,6 +47,10 @@ builder.Services.AddScoped<MyndighetstildelingTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatSveipTjeneste>();
 builder.Services.AddScoped<NavnekandidatOppdagelseTjeneste>();
+// docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md — to nøkkelfrie, ratelimit-udokumenterte
+// eksterne API-er (SNL/SSR), samme "AddHttpClient<T>() uten navn/konfig"-mønster som LovdataBulkHenter
+// m.fl. lenger ned i denne fila.
+builder.Services.AddHttpClient<EksternNavneoppslagTjeneste>();
 builder.Services.AddScoped<BegrepsforekomstTjeneste>();
 builder.Services.AddScoped<BegrepsoppdagelseSveipTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
@@ -2672,17 +2676,61 @@ virksomhetKandidater.MapDelete("/", async (Guid? virksomhetId, Guid? rettskildeI
 
 var navnekandidater = app.MapGroup("/api/navnekandidater").WithOpenApi();
 
+// [Ny, docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md §5 punkt 5] Berikelse (SNL-alias/URL/orgnr,
+// SSR-bekreftelse) er IKKE lagret på selve NavnekandidatEntitet-raden (se
+// NavnekandidatEntitet.OppdagelsesKilde sin kommentar — kun cache-tabellen er ny). Slås derfor opp HER,
+// på LESETIDSPUNKTET, fra EksternNavneoppslagCacheEntitet ved ForeslattTekst (normalisert) som term —
+// KUN for rader fra det nye mønsteret (OppdagelsesKilde-diskriminatoren), én batch-spørring for hele
+// lista (unngår N+1 mot cache-tabellen).
+static async Task<List<NavnekandidatDto>> BerikNavnekandidaterAsync(
+    IReadOnlyList<NavnekandidatEntitet> kandidater, RegelIdeDbContext db, CancellationToken ct)
+{
+    var termer = kandidater
+        .Where(k => k.OppdagelsesKilde == NavnekandidatOppdagelseTjeneste.StorBokstavOppdagelsesKilde)
+        .Select(k => k.ForeslattTekst.ToLowerInvariant())
+        .Distinct()
+        .ToList();
+    if (termer.Count == 0) return kandidater.Select(NavnekandidatDto.FraEntitet).ToList();
+
+    var cacheRader = await db.EksternNavneoppslagCache.Where(c => termer.Contains(c.Term)).ToListAsync(ct);
+    var snlPerTerm = cacheRader.Where(c => c.Kilde == "snl").ToDictionary(c => c.Term);
+    var ssrPerTerm = cacheRader.Where(c => c.Kilde == "ssr").ToDictionary(c => c.Term);
+
+    return kandidater.Select(k =>
+    {
+        var dto = NavnekandidatDto.FraEntitet(k);
+        if (k.OppdagelsesKilde != NavnekandidatOppdagelseTjeneste.StorBokstavOppdagelsesKilde) return dto;
+
+        snlPerTerm.TryGetValue(k.ForeslattTekst.ToLowerInvariant(), out var snl);
+        ssrPerTerm.TryGetValue(k.ForeslattTekst.ToLowerInvariant(), out var ssr);
+        var snlTreff = snl is { Treff: true };
+        var alias = snlTreff && snl!.AliasJson is not null
+            ? JsonSerializer.Deserialize<List<string>>(snl.AliasJson)
+            : null;
+        return dto with
+        {
+            SnlUrl = snlTreff ? snl!.EksternUrl : null,
+            SnlAlias = alias,
+            SnlOrganisasjonsnummer = snlTreff ? snl!.OrganisasjonsnummerFunnet : null,
+            SsrBekreftetStedsnavn = ssr?.Treff,
+            SsrObjektType = ssr is { Treff: true } ? ssr.TaksonomiKategori : null,
+        };
+    }).ToList();
+}
+
 navnekandidater.MapGet("/", async (string? status, string? kategori, Guid? rettskildeId,
-        NavnekandidatOppdagelseTjeneste register, CancellationToken ct) =>
+        NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
         // Samme eksplisitte "utelatt = kun Venter, 'Alle' = ingen filter"-mønster som
         // /api/virksomhet-kandidater — se den endepunktkommentaren.
         var effektivStatus = string.IsNullOrEmpty(status) ? "Venter" : status;
         var statusFilter = effektivStatus == "Alle" ? null : effektivStatus;
-        return Results.Ok((await register.ListerAsync(statusFilter, kategori, rettskildeId, ct)).Select(NavnekandidatDto.FraEntitet));
+        var kandidater = await register.ListerAsync(statusFilter, kategori, rettskildeId, ct);
+        return Results.Ok(await BerikNavnekandidaterAsync(kandidater, db, ct));
     })
     .WithName("HentNavnekandidater")
-    .WithSummary("Kandidatliste, valgfritt filtrert på status/kategori/rettskilde. status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter.");
+    .WithSummary("Kandidatliste, valgfritt filtrert på status/kategori/rettskilde. status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter. " +
+        "Kandidater fra det nye stor-bokstav+SNL/SSR-mønsteret (docs/31) beriket med SNL-alias/URL/orgnr og SSR-bekreftelse.");
 
 navnekandidater.MapPost("/sveip", async (HttpRequest request, SveipNavnekandidaterRequest body,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
@@ -2702,6 +2750,27 @@ navnekandidater.MapPost("/sveip", async (HttpRequest request, SveipNavnekandidat
     .WithName("SveipNavnekandidater")
     .WithSummary("docs/13-backlog.md §9 — regex-mønstergjenkjenning gjennom allerede importerte rettskilde-noder " +
         "(RettskildeId=null: hele korpuset, satt: kun én rettskilde). Idempotent (kjør flere ganger uten duplikater).");
+
+navnekandidater.MapPost("/sveip-storbokstav", async (HttpRequest request, SveipNavnekandidaterRequest body,
+        NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var resultat = await register.SveipStorBokstavAsync(body.RettskildeId, bruker.Navn, ct);
+            return Results.Ok(new SveipNavnekandidaterResultatDto(resultat.AntallTreffFunnet, resultat.AntallNyeKandidater));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SveipNavnekandidaterStorBokstav")
+    .WithSummary("docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md — det NYE, brede 'stor bokstav midt i " +
+        "setning'-mønsteret, klassifisert mot LEVENDE eksterne SNL/SSR-API-er (per-term, cachet). EGET " +
+        "endepunkt, atskilt fra /sveip — se docs/31 §6: kjør bevisst mot ETT/få RettskildeId først, ikke hele " +
+        "korpuset, siden ingen av de eksterne API-ene har dokumentert ratelimit.");
 
 navnekandidater.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest request,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
