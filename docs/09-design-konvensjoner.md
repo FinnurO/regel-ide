@@ -416,3 +416,44 @@ appens `Checkbox`-bruk faktisk er — f.eks. `kunMine`/`visIkkeImportert`/`visIr
 Listesidens tilsvarende «vis også irrelevante»-toggel (`RettskilderListe.tsx`) bruker fortsatt
 `Checkbox`, BEVISST — det er et vanlig synlighetsfilter i en tabell, samme familie som de to andre
 checkboxene rett ved siden av, ikke en enkeltrettskildes av/på-innstilling.
+
+## 14. Saksbehandlerverktøy, ikke informasjonsside (2026-09-02, `docs/30-saksbehandlertilpasning-bestilling.md`)
+
+> **SJEKK DENNE §14 FØR DU BYGGER ELLER ENDRER NOEN ENTITETSSIDE/LISTESIDE** — samme regel som §6, nå
+> utvidet til hele appens mønster, ikke bare typografidetaljer på én sidetype.
+
+**Prinsippet**: Regel-IDE ER et saksbehandler-/ekspertverktøy (5893 rettskilder, ~3990
+navnekandidater, dype vilkårstrær) — IKKE en informasjonsnettside, selv om Designsystemet (kap. 6,
+produktkrav) opprinnelig ble tatt i bruk med informasjonsside-mønstre (én ting av gangen, generøs
+luft, lange skjema nedover siden). Full diagnose, spesifikasjon og migreringsplan ligger i
+`docs/30-saksbehandlertilpasning-bestilling.md` — les DEN i sin helhet før du bygger noe av dette;
+denne §14 er kun den destillerte, bindende oppsummeringen.
+
+**Vi endrer MØNSTRE og TETTHET, ALDRI farger/fontfamilie/`--ds-*`-tokens** — §0-§13 over gjelder
+fortsatt uendret for selve verdiene. Det som endres er hvordan komponentene SETTES SAMMEN:
+
+| Dimensjon | Informasjonsside (unngå) | Saksbehandlerverktøy (mål) |
+|---|---|---|
+| Tetthet | Generøs luft, 18px brødtekst | `data-size="sm"` konsekvent i arbeidsflater (skjema/tabell/liste), IKKE ad-hoc `fontSize`-unntak per element |
+| Navigasjon | Én side av gangen, bar "← Tilbake" | Brødsmulesti + kontekstpanel + globalt søk, alltid vite hvor man er |
+| Relasjoner | Spredt i 3-6 separate `<section>`-er nedover siden | Samlet i ÉTT `KontekstPanel`-mønster (delt, entitetsuavhengig komponent) |
+| Redigering | Skjema → lagre → se resultat et annet sted | Inline der mulig, tydelig ulagret-indikator (`LagreStatusIndikator`) |
+| Status/flyt | Bar `<Select>`-dropdown | Egen `StatusStepper`-komponent (Tag/Badge-rekke, gjeldende steg fremhevet), `Dialog`-bekreftelse på kritiske overganger |
+| Tomme tilstander | `<Card>` kun rendret når data finnes → usynlig/flatt når tomt | `<Card>` ALLTID rendret, tom-tilstand er en `<Paragraph>` INNI kortet |
+| Lister | Bla side for side | Søk/filter/gruppering/massehandling som standard (samme investering som `NavnekandidaterListe.tsx` allerede har) |
+
+**Delt "Entitetsside"-mønster** (bygg ÉN gang, gjenbruk — ikke kopier per side): brødsmulesti +
+tittel/statuslinje + faner-eller-accordion for >4 seksjoner + generalisert `KontekstPanel` (tar en
+liste `{ heading, items }[]`, ikke hardkodet per entitetstype). `TjenesteDetalj.tsx`/
+`KontekstPanel.tsx` (§11) er allerede riktig retning og selve malen — resten av entitetssidene
+(`VirksomhetDetalj`, `BegrepDetalj`, `HandlingDetalj`, `RettskildeDetalj`, `VilkarstreDetalj`) skal
+migreres TIL dette mønsteret, ikke ha sitt eget.
+
+**Kompakt tabelltetthet** (`data-density="compact"`, kun padding-CSS, ingen nye farger) er standard
+for store datasett — `RettskilderListe`, `NavnekandidaterListe`, `VirksomhetKandidaterListe`.
+
+**Bygger du en HELT NY entitets- eller listeside**: følg dette mønsteret fra dag én — ikke bygg det
+gamle endimensjonale skjema-mønsteret og planlegg å migrere senere. Bygger du VIDERE på en side som
+ennå ikke er migrert (`docs/30` §4 har rekkefølgen): enten migrer siden til dette mønsteret som del
+av arbeidet ditt, eller flagg eksplisitt til Johann at du bevisst IKKE gjorde det og hvorfor — la det
+aldri stille forbli det gamle mønsteret uten et valg.
