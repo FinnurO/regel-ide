@@ -3,7 +3,7 @@ import { Link as RouterLink } from 'react-router';
 import { Alert, Button, Card, Dialog, Field, Heading, Label, Link, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
-import type { BegrepsforekomstDto, RettskildeSammendrag } from '../api/types';
+import type { BegrepsforekomstDto, RettskildeDetalj, RettskildeSammendrag } from '../api/types';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
@@ -81,6 +81,18 @@ export default function Begrepskandidater() {
   const [godkjenner, setGodkjenner] = useState(false);
   const [godkjennFeil, setGodkjennFeil] = useState<string | null>(null);
 
+  // Forhåndsutfylling av virksomhetsvalget fra rettskildens ansvarlige departement (Johanns forslag,
+  // 2026-09-02) — ALDRI en gjettet fallback: `RettskildeDetalj.ansvarligDepartementVirksomhetId` er
+  // enten et bekreftet, eksakt navnetreff mot virksomhetskatalogen (resolvert på serveren, se
+  // Program.cs GET /api/rettskilder/{id}) eller `null`, og feltet forblir da tomt akkurat som før.
+  // `RettskildeSammendrag` (allerede hentet over til `rettskilder`, brukt for `visRettskilde`) har
+  // KUN den rå departement-STRENGEN, ikke det resolverte virksomhet-id-et — det krever et eget kall
+  // mot detalj-endepunktet. Hentes LATIG (kun når godkjenn-dialogen faktisk åpnes, ikke for alle
+  // rader i lista) og bufres per rettskildeId slik at å åpne dialogen for flere kandidater fra SAMME
+  // rettskilde ikke gir gjentatte nettverkskall.
+  const [rettskildeDetaljerPerId, setRettskildeDetaljerPerId] = useState<Map<string, RettskildeDetalj>>(new Map());
+  const sisteRettskildeDetaljForesporsel = useRef(0);
+
   const [sortKolonne, setSortKolonne] = useState<Sorteringskolonne>('opprettet');
   const [sortStigende, setSortStigende] = useState(false);
 
@@ -149,8 +161,32 @@ export default function Begrepskandidater() {
 
   function apneGodkjennDialog(forekomst: BegrepsforekomstDto) {
     setGodkjennForekomst(forekomst);
-    setGodkjennVirksomhetId('');
     setGodkjennFeil(null);
+
+    const bufret = rettskildeDetaljerPerId.get(forekomst.rettskildeId);
+    if (bufret) {
+      setGodkjennVirksomhetId(bufret.ansvarligDepartementVirksomhetId ?? '');
+      return;
+    }
+
+    // Ingen gjettet fallback mens oppslaget pågår — feltet starter tomt, akkurat som om
+    // forhåndsutfylling ikke fantes, og brukeren kan søke opp virksomheten manuelt uansett utfall.
+    setGodkjennVirksomhetId('');
+    const denneForesporselen = ++sisteRettskildeDetaljForesporsel.current;
+    api
+      .hentRettskilde(forekomst.rettskildeId)
+      .then((detalj) => {
+        setRettskildeDetaljerPerId((forrige) => new Map(forrige).set(forekomst.rettskildeId, detalj));
+        // Kun forhåndsutfyll dersom godkjenn-dialogen fortsatt er den samme forespørselen utløste —
+        // vern mot at brukeren rakk å lukke/åpne dialogen for en ANNEN kandidat før dette svarte.
+        if (denneForesporselen === sisteRettskildeDetaljForesporsel.current) {
+          setGodkjennVirksomhetId(detalj.ansvarligDepartementVirksomhetId ?? '');
+        }
+      })
+      .catch(() => {
+        // Stille feil — forhåndsutfylling er en bekvemmelighet, ikke kritisk. Feltet forblir tomt og
+        // brukeren søker opp virksomheten manuelt via VirksomhetVelger, som før denne fiksen.
+      });
   }
 
   async function bekreftGodkjenn() {
