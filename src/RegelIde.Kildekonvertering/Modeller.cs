@@ -96,7 +96,33 @@ public sealed record RettskildeMetadata
 
     public required string Datokode { get; init; }
     public DateOnly? Ikrafttredelse { get; init; }
+
+    /// <summary>
+    /// [Ny, 2026-09-02] Rå, UTRUNKERT verdi av header-feltet <c>&lt;dt class="dateInForce"&gt;</c>,
+    /// ved siden av (ikke i stedet for) <see cref="Ikrafttredelse"/>. <see cref="Ikrafttredelse"/>
+    /// beholder kun FØRSTE dato-treff (LovdataHtmlParser.FørsteDato) — kompound-verdier som
+    /// "01.06.2026, Kongen bestemmer" eller "01.07.2026, 15.09.2026" trunkeres der stille til én dato.
+    /// Dette feltet bevarer HELE den opprinnelige strengen uendret, slik at den tapte informasjonen
+    /// (betingelse/andre datoer) ikke går tapt for godt.
+    /// </summary>
+    public string? IkrafttredelseRaa { get; init; }
+
     public DateOnly? KonsolidertDato { get; init; }
+
+    /// <summary>[Ny, 2026-09-02] Rå, UTRUNKERT verdi av header-feltet <c>&lt;dt class="lastChangeInForce"&gt;</c> —
+    /// samme begrunnelse som <see cref="IkrafttredelseRaa"/>, bare for <see cref="KonsolidertDato"/>.</summary>
+    public string? KonsolidertDatoRaa { get; init; }
+
+    /// <summary>
+    /// [Ny, 2026-09-02] Header-feltet <c>&lt;dt class="lastChangedBy"&gt;Sist endret ved&lt;/dt&gt;</c> —
+    /// hvilken lov/forskrift (og dato) som SIST endret DETTE dokumentet. Ikke fanget før nå. Rå tekst
+    /// (typisk en lenkes synlige tekst, f.eks. "lov/2024-06-21-46") — ingen strukturert kobling til en
+    /// annen rettskilde forsøkt her, i motsetning til <see cref="RettskildeEndring"/> (som ER
+    /// strukturert, men dekker den MOTSATTE relasjonen — hva DETTE dokumentet endrer, ikke hva som sist
+    /// endret det).
+    /// </summary>
+    public string? SistEndretVed { get; init; }
+
     public string Utgiver { get; init; } = "Lovdata";
     public required string AnsvarligDepartement { get; init; }
 
@@ -123,12 +149,47 @@ public sealed record RettskildeMetadata
 /// </summary>
 public sealed record RettskildeHjemmel(string Eid, int Sorteringsrekkefolge);
 
+/// <summary>
+/// Én rad i header-metadatafeltet <c>&lt;dt class="changesToDocuments"&gt;Endrer&lt;/dt&gt;</c> —
+/// hvilke(t) andre dokument(er) DENNE rettskilden ENDRER (2026-09-02). Strukturelt identisk med
+/// <see cref="RettskildeHjemmel"/> (samme href-tolkning, samme referanse-stub-mekanisme ved import),
+/// men en semantisk MOTSATT relasjon («hjemlet i» vs. «endrer») — derfor en egen type/tabell, ikke
+/// gjenbruk av <see cref="RettskildeHjemmel"/> selv.
+/// <para>
+/// <see cref="Eid"/> her er, TIL FORSKJELL FRA <see cref="RettskildeHjemmel.Eid"/>, ALLTID en
+/// dokument-ELI (aldri en paragraf-eId): «Endrer»-feltet er bekreftet ekte i 5 av 8 fixturer
+/// (alkoholforskriften/alkoholloven/personopplysningsloven/serveringsloven/tannhelsetjenesteloven,
+/// gjennomgang 2026-09-02), og ALLE bekreftede forekomster peker på et HELT dokument
+/// ("lov/1927-04-05", "forskrift/1997-12-11-1292"), aldri én bestemt paragraf i det — motsatt av
+/// Hjemmel-feltets ene bekreftede forekomst, som alltid HAR et paragrafnummer. Se
+/// LovdataHtmlParser.HentEndringer for hvorfor en (ubekreftet) Endrer-lenke MED paragrafnummer kaster
+/// i stedet for å gjette betydningen («ingen gjettet fallback», §3.3).
+/// </para>
+/// </summary>
+public sealed record RettskildeEndring(string Eid, int Sorteringsrekkefolge);
+
 public sealed record KonverteringResultat
 {
     public required RettskildeMetadata Metadata { get; init; }
     public required IReadOnlyList<RettskildeNode> Noder { get; init; }
     public required IReadOnlyList<RettskildeReferanse> Referanser { get; init; }
     public required IReadOnlyList<RettskildeHjemmel> Hjemler { get; init; }
+
+    /// <summary>[Ny, 2026-09-02] Se <see cref="RettskildeEndring"/> — dokumenter DENNE rettskilden endrer.</summary>
+    public required IReadOnlyList<RettskildeEndring> Endringer { get; init; }
+
     public required string AknXml { get; init; }
     public required DateOnly ImportDato { get; init; }
+
+    /// <summary>
+    /// [Ny, 2026-09-02, del B av lovdata-raa-metadata-runden] Den rå, UTF-8-dekodede kilde-HTML-en
+    /// <see cref="LovdataKonverterer.Konverter"/> selv mottok (samme streng som
+    /// <c>kildeHtmlUtf8</c>-parameteren), bevart uendret gjennom hele pipelinen. FØR denne runden ble
+    /// den rå HTML-en kastet umiddelbart etter parsing — ingen bit-identisk original ble noensinne
+    /// lagret for en Lovdata-importert rettskilde (til forskjell fra kommunal-nettside-sporet, se
+    /// RettskildeEntitet.Innhold). Konsumeres av RettskildeImportTjeneste til å populere
+    /// Url/Innhold/InnholdsHash/Hentet — se den klassens kommentarer for hvorfor disse ALLEREDE
+    /// eksisterende, men til nå Lovdata-bevisst-NULL-holdte feltene nå også fylles ut her.
+    /// </summary>
+    public required string RaaHtml { get; init; }
 }

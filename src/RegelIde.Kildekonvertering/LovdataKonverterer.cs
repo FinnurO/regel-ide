@@ -26,8 +26,10 @@ public static class LovdataKonverterer
             Noder = parsed.Noder,
             Referanser = parsed.Referanser,
             Hjemler = parsed.Hjemler,
+            Endringer = parsed.Endringer,
             AknXml = aknXml,
             ImportDato = dato,
+            RaaHtml = kildeHtmlUtf8,
         };
     }
 }

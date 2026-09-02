@@ -155,7 +155,24 @@ public sealed class RettskildeEntitet
     public string? Eli { get; set; }
     public string? AknXml { get; set; } // NULL for referanse-stubber
     public DateOnly? Ikrafttredelse { get; set; }
+
+    /// <summary>[Ny, 2026-09-02] Se <see cref="RegelIde.Kildekonvertering.RettskildeMetadata.IkrafttredelseRaa"/> —
+    /// rå, utrunkert verdi av Lovdatas <c>dateInForce</c>-header-felt, ved siden av den trunkerte <see cref="Ikrafttredelse"/>.</summary>
+    public string? IkrafttredelseRaa { get; set; }
+
     public DateOnly? KonsolidertDato { get; set; }
+
+    /// <summary>[Ny, 2026-09-02] Se <see cref="RegelIde.Kildekonvertering.RettskildeMetadata.KonsolidertDatoRaa"/> —
+    /// rå, utrunkert verdi av Lovdatas <c>lastChangeInForce</c>-header-felt.</summary>
+    public string? KonsolidertDatoRaa { get; set; }
+
+    /// <summary>[Ny, 2026-09-02] Lovdatas header-felt <c>lastChangedBy</c> ("Sist endret ved") — hvilken
+    /// lov/forskrift (og dato) som sist endret DETTE dokumentet. Rå tekst, ikke fanget før nå. Se
+    /// <see cref="RegelIde.Kildekonvertering.RettskildeMetadata.SistEndretVed"/> for hvorfor dette
+    /// bevisst IKKE er en strukturert kobling (i motsetning til <see cref="RettskildeEndringEntitet"/>,
+    /// som dekker den motsatte relasjonen).</summary>
+    public string? SistEndretVed { get; set; }
+
     public string? Utgiver { get; set; }
 
     /// <summary>
@@ -193,9 +210,12 @@ public sealed class RettskildeEntitet
     public DateTimeOffset? SistEndretTidspunkt { get; set; }
 
     // ---------- Lag 1 (docs/15-handbok-dokumentgraf-notat.md §2/§8 Trinn 1) — hentet, bitidentisk
-    // original + endringsdeteksjon for kilder som KUN finnes på et kommunalt nettsted. Alle nullable:
-    // irrelevante for delt/nasjonal Lovdata-import (Url/Innhold forblir NULL der, samme mønster som
-    // AknXml er NULL for referanse-stubber).
+    // original + endringsdeteksjon. Opprinnelig bygget for kilder som KUN finnes på et kommunalt
+    // nettsted, men fra og med 2026-09-02 (del B, lovdata-raa-metadata-runden) populeres disse feltene
+    // OGSÅ for Lovdata-importerte Lov/Forskrift (RettskildeImportTjeneste) — den rå HTML-en flyter nå
+    // helt gjennom KonverteringResultat.RaaHtml i stedet for å kastes rett etter parsing. Fortsatt
+    // nullable: forblir NULL kun for referanse-stubber (FinnEllerOpprettReferanseStubAsync, som ikke
+    // har noen ekte HTML å lagre — samme mønster som AknXml er NULL der).
 
     /// <summary>Eksakt URL kilden ble hentet fra — finnes ikke for Lovdata-import (annen henteflyt).</summary>
     public string? Url { get; set; }
@@ -451,6 +471,33 @@ public sealed class RettskildeHjemmelEntitet
     public required Guid HjemmelRettskildeId { get; set; }
 
     /// <summary>Bevarer header-feltets egen rekkefølge (§1-2, §1-3, … i kildeorden), kun for visning.</summary>
+    public int Sorteringsrekkefolge { get; set; }
+}
+
+/// <summary>
+/// Endring-referanse (2026-09-02) — header-metadatafeltet &lt;dt class="changesToDocuments"&gt;Endrer&lt;/dt&gt;
+/// i Lovdatas egen HTML: hvilke(t) andre dokument(er) <see cref="RettskildeId"/> ENDRER.
+/// DOKUMENTNIVÅ-metadata, strukturelt identisk med <see cref="RettskildeHjemmelEntitet"/> (samme
+/// stub-mekanisme via RettskildeImportTjeneste.FinnEllerOpprettReferanseStubAsync), men en EGEN,
+/// semantisk MOTSATT relasjon (Hjemmel = «hjemlet i», Endring = «endrer») — bevisst IKKE gjenbruk av
+/// samme tabell, se <see cref="RegelIde.Kildekonvertering.RettskildeEndring"/> sin klassekommentar for
+/// full begrunnelse, inkl. hvorfor <see cref="EndringEid"/> her ALLTID er en dokument-ELI, aldri en
+/// paragraf-eId (til forskjell fra <see cref="RettskildeHjemmelEntitet.HjemmelEid"/>).
+/// </summary>
+public sealed class RettskildeEndringEntitet
+{
+    public Guid Id { get; set; }
+
+    /// <summary>Dokumentet som ENDRER — header-metadata sitt "Endrer"-felt ble funnet i dette dokumentets header.</summary>
+    public required Guid RettskildeId { get; set; }
+
+    /// <summary>Dokument-ELI-en til dokumentet som blir endret — se klassekommentaren.</summary>
+    public required string EndringEid { get; set; }
+
+    /// <summary>Det endrede dokumentet (primær ELLER referanse-stub) — se klassekommentaren.</summary>
+    public required Guid EndringRettskildeId { get; set; }
+
+    /// <summary>Bevarer header-feltets egen rekkefølge i kildeorden, kun for visning.</summary>
     public int Sorteringsrekkefolge { get; set; }
 }
 
