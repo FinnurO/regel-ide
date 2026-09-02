@@ -247,11 +247,16 @@ public static partial class LovdataHtmlParser
     /// riktig helt uten videre arbeid, det er ingen antagelse om én-lov-per-dokument noe sted her.
     /// </para>
     /// <para>
-    /// Kaster på ethvert avvik fra dette ene bekreftede mønsteret (ukjent href-prefiks, eller en
-    /// hjemmel-lenke UTEN paragrafnummer — f.eks. en hjemmel til en hel lov, ikke én bestemt paragraf)
-    /// i stedet for å gjette en betydning — «ingen gjettet fallback» (§3.3), samme filosofi som resten
-    /// av parseren. Ikke bekreftet ekte i noen fixture ennå; skal undersøkes/utvides bevisst den dagen
-    /// det faktisk forekommer, ikke antas her.
+    /// Kaster på ukjent href-prefiks i stedet for å gjette en betydning — «ingen gjettet fallback»
+    /// (§3.3), samme filosofi som resten av parseren. En hjemmel-lenke UTEN paragrafnummer (f.eks. en
+    /// hjemmel til en hel lov/forskrift, ikke én bestemt paragraf — href <c>"forskrift/1969-06-13-3"</c>)
+    /// er derimot BEKREFTET ekte og OVERRASKENDE VANLIG, ikke et avvik: full korpusgjennomgang
+    /// 2026-09-02 (5882 dokumenter, alle lover + sentrale forskrifter) fant 1711 dokumenter med nettopp
+    /// dette mønsteret, dominerende blant delegeringsforskrifter (en kort forskrift som bare delegerer
+    /// myndighet videre, hjemlet i en HEL annen forskrift/kongelig resolusjon, ikke én bestemt paragraf
+    /// i den). Representeres som en DOKUMENT-nivå Hjemmel (<see cref="RettskildeHjemmel.Eid"/> er da
+    /// bare dokument-ELI-en, samme form som <see cref="RettskildeEndring.Eid"/> alltid har) i stedet for
+    /// å kaste — se <see cref="RettskildeHjemmel"/> sin klassekommentar for full begrunnelse.
     /// </para>
     /// </summary>
     private static IReadOnlyList<RettskildeHjemmel> HentHjemler(HtmlNode header)
@@ -268,15 +273,11 @@ public static partial class LovdataHtmlParser
             var tolket = LovdataHrefTolker.TolkLøpetekstHref(href)
                 ?? throw new FormatException(
                     $"Hjemmel-lenke '{href}' matcher ikke kjent lov/forskrift-href-mønster. Ingen gjettet fallback (§3.3).");
-            if (tolket.Paragrafnummer is null)
-            {
-                throw new FormatException(
-                    $"Hjemmel-lenke '{href}' mangler paragrafnummer (hjemmel til en HEL lov/forskrift, ikke én " +
-                    "bestemt paragraf) — ikke bekreftet ekte i noe fixture-korpus ennå. Ingen gjettet fallback (§3.3).");
-            }
 
-            var lovEli = LovdataIdentifikatorer.AvledEliFraDatokode(tolket.Datokode, out _);
-            var eid = LovdataIdentifikatorer.ParagrafEid(lovEli, tolket.Paragrafnummer);
+            var dokumentEli = LovdataIdentifikatorer.AvledEliFraDatokode(tolket.Datokode, out _);
+            var eid = tolket.Paragrafnummer is null
+                ? dokumentEli
+                : LovdataIdentifikatorer.ParagrafEid(dokumentEli, tolket.Paragrafnummer);
             hjemler.Add(new RettskildeHjemmel(eid, sortering++));
         }
         return hjemler;
