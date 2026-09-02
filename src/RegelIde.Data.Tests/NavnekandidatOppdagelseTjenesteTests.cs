@@ -1,3 +1,5 @@
+using System.Net;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 
 namespace RegelIde.Data.Tests;
@@ -371,7 +373,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Fiskeridirektoratet innen tre uker.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
         Assert.Equal(1, resultat.AntallTreffFunnet);
@@ -398,7 +400,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
         await db.SaveChangesAsync();
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
         Assert.Equal(0, resultat.AntallTreffFunnet);
@@ -434,7 +436,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
         await db.SaveChangesAsync();
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
         // Korpusomfattende sveip (rettskildeId=null) — den reelle bug-scenarioen, IKKE et eksplisitt
         // forsøk på å be om nettopp denne rettskilden (det dekkes av testen under). Merk: kan IKKE
         // sjekke AntallTreffFunnet==0 her — samlingen deler embedded Postgres med andre tester i samme
@@ -460,7 +462,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
         await db.SaveChangesAsync();
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
 
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.SveipAsync(privatRettskildeId, "test"));
     }
@@ -491,7 +493,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
         await db.SaveChangesAsync();
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
         // Samme merknad som testen over: ingen AntallTreffFunnet==0-sjekk mulig i en delt DB-samling.
         await tjeneste.SveipAsync(null, "test");
 
@@ -514,7 +516,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
         await db.SaveChangesAsync();
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
         var forsteResultat = await tjeneste.SveipAsync(rettskildeId, "test");
         var andreResultat = await tjeneste.SveipAsync(enAnnenRettskildeId, "test");
 
@@ -529,7 +531,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Vegdirektoratet innen tre uker.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
         var forste = await tjeneste.SveipAsync(rettskildeId, "test");
         var andre = await tjeneste.SveipAsync(rettskildeId, "test");
 
@@ -545,7 +547,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Alle skip skal melde fra til havnetilsynet før anløp.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
         Assert.Equal("gruppe", kandidat.Kategori);
@@ -569,7 +571,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Sjøfartsdirektoratet innen tre uker.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
         Assert.Equal("virksomhet", kandidat.Kategori);
@@ -587,7 +589,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Reindriftsdirektoratet innen tre uker.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
 
@@ -605,7 +607,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     public async Task Kaster_hvis_rettskilden_ikke_finnes()
     {
         await using var db = _fixture.NyDbContext();
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.SveipAsync(Guid.NewGuid(), "test"));
     }
 
@@ -617,7 +619,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Statsforvalteren skal påse at loven følges.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
         await tjeneste.SveipAsync(rettskildeId, "test");
 
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
@@ -641,7 +643,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
             db, "Statsforvalteren skal føre tilsyn. I andre saker avgjør statsforvalteren selv.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
         // Kun ÉN treff telles — den andre forekomsten er "alleredeDekketAvEksisterendeKandidat", samme
@@ -671,7 +673,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
         await db.SaveChangesAsync();
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
         Assert.Equal(1, resultat.AntallTreffFunnet);
@@ -692,7 +694,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
             db, "Vedtak kan påklages til Sjøfartsdirektoratet, og Sjøfartsdirektoratet behandler klagen innen tre uker.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
+        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
         Assert.Equal(2, resultat.AntallTreffFunnet);
@@ -813,7 +815,8 @@ public class NavnekandidatOppdagelseTjenesteTests
 
     private static NavnekandidatOppdagelseTjeneste NyTjeneste(RegelIdeDbContext db) => new(
         db, new VirksomhetsbegrepTjeneste(db),
-        new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db));
+        new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db),
+        new EksternNavneoppslagTjeneste(new HttpClient(), db));
 
     /// <summary>
     /// Kjernescenariet fra Johanns designvalg: et gruppebegrep er delt/nasjonalt (ingen egen eiende
@@ -935,5 +938,227 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal(departementVirksomhetId, tagg.VirksomhetId);
         Assert.Equal("begrep", tagg.Kind);
         Assert.Null(tagg.RefId);
+    }
+
+    // ---------- Del F: "stor bokstav midt i setning" + SNL/SSR-klassifisering (docs/31) ----------
+
+    [Fact]
+    public void StorBokstav_fanger_title_case_ord_midt_i_setning()
+    {
+        const string tekst = "Møtet ble avholdt hos Kvirrefjord uten videre varsel.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnStorBokstavKandidaterITekst(tekst);
+        var treff = Assert.Single(funn);
+        Assert.Equal("Kvirrefjord", treff.RaaTekst);
+    }
+
+    [Fact]
+    public void StorBokstav_ved_setningsstart_gir_ingen_treff()
+    {
+        const string tekst = "Kvirrefjord ligger langt unna alt annet.";
+        Assert.Empty(NavnekandidatOppdagelseTjeneste.FinnStorBokstavKandidaterITekst(tekst));
+    }
+
+    [Fact]
+    public void StorBokstav_ekskluderer_forkortelser_i_store_bokstaver()
+    {
+        const string tekst = "Nivå 5 i NKR og fagskole er noe annet enn SFO og skole.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnStorBokstavKandidaterITekst(tekst);
+        Assert.DoesNotContain(funn, f => f.RaaTekst is "NKR" or "SFO");
+    }
+
+    [Fact]
+    public void StorBokstav_ekskluderer_determinativer()
+    {
+        const string tekst = "Vedtaket gjelder Enhver Kvirrefjord som søker om dette.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnStorBokstavKandidaterITekst(tekst);
+        Assert.DoesNotContain(funn, f => f.RaaTekst == "Enhver");
+        Assert.Contains(funn, f => f.RaaTekst == "Kvirrefjord");
+    }
+
+    [Fact]
+    public void StorBokstav_ekskluderer_ord_som_allerede_dekkes_av_suffiks_faste_rolle_og_institusjonsord()
+    {
+        const string tekst = "Vedtak fattes av Miljødirektoratet, deretter av Kongen, og gjelder Kommune som sådan.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnStorBokstavKandidaterITekst(tekst);
+        Assert.Empty(funn); // alle tre dekkes ALLEREDE av eksisterende, mer presise mønstre.
+    }
+
+    // ---------- SveipStorBokstavAsync — DB-integrasjonstester med stubbet SNL/SSR ----------
+
+    private sealed class RutetHandler(Func<HttpRequestMessage, HttpResponseMessage> svar) : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct) =>
+            Task.FromResult(svar(request));
+    }
+
+    private static HttpResponseMessage Json(string body) =>
+        new(HttpStatusCode.OK) { Content = new StringContent(body, Encoding.UTF8, "application/json") };
+
+    /// <summary>Bygger en <see cref="NavnekandidatOppdagelseTjeneste"/> der <see cref="EksternNavneoppslagTjeneste"/>
+    /// er koblet til en STUBBET SNL/SSR — ingen ekte nettverkskall i disse testene.</summary>
+    private static NavnekandidatOppdagelseTjeneste NyTjenesteMedStubbetOppslag(
+        RegelIdeDbContext db, Func<HttpRequestMessage, HttpResponseMessage> svar) => new(
+        db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)),
+        new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(new RutetHandler(svar)), db));
+
+    [Fact]
+    public async Task SveipStorBokstav_snl_bekreftet_institusjon_gir_virksomhetskandidat_med_oppdagelseskilde()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Testrådet innen tre uker.");
+
+        var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
+        {
+            var url = req.RequestUri!.ToString();
+            if (url.Contains("api/v1/search"))
+            {
+                return Json("""
+                [{ "article_type_id": 16, "taxonomy_title": "Test-taksonomi",
+                   "article_url": "https://snl.no/Testradet", "article_url_json": "https://snl.no/Testradet.json" }]
+                """);
+            }
+            if (url.EndsWith("Testradet.json"))
+            {
+                return Json("""
+                { "headword": "Testrådet", "url": "https://snl.no/Testradet",
+                  "metadata": { "organization_name": "Testrådet", "organization_number": "111222333" } }
+                """);
+            }
+            throw new InvalidOperationException($"Uventet URL: {url}");
+        });
+
+        var resultat = await tjeneste.SveipStorBokstavAsync(rettskildeId, "test");
+
+        Assert.Equal(1, resultat.AntallTreffFunnet);
+        Assert.Equal(1, resultat.AntallNyeKandidater);
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
+        Assert.Equal("virksomhet", kandidat.Kategori);
+        Assert.Equal("Testrådet", kandidat.ForeslattTekst);
+        Assert.Equal(NavnekandidatOppdagelseTjeneste.StorBokstavOppdagelsesKilde, kandidat.OppdagelsesKilde);
+
+        var cacheRad = await db.EksternNavneoppslagCache.SingleAsync(c => c.Term == "testrådet" && c.Kilde == "snl");
+        Assert.True(cacheRad.Treff);
+        Assert.Equal("111222333", cacheRad.OrganisasjonsnummerFunnet);
+    }
+
+    [Fact]
+    public async Task SveipStorBokstav_ssr_bekreftet_stedsnavn_uten_institusjonsord_etter_forkastes()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(
+            db, "Reglene gjelder også i Bergsheia der lokale forhold tilsier det.");
+
+        var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
+        {
+            var url = req.RequestUri!.ToString();
+            if (url.Contains("api/v1/search")) return Json("[]"); // ingen SNL-treff.
+            if (url.Contains("stedsnavn")) return Json("""{ "navn": [ { "skrivemåte": "Bergsheia", "navneobjekttype": "Tettsted" } ] }""");
+            throw new InvalidOperationException($"Uventet URL: {url}");
+        });
+
+        var resultat = await tjeneste.SveipStorBokstavAsync(rettskildeId, "test");
+
+        Assert.Equal(1, resultat.AntallTreffFunnet);
+        Assert.Equal(0, resultat.AntallNyeKandidater); // forkastet — geografisk løpetekst-referanse.
+        Assert.False(await db.Navnekandidater.AnyAsync(k => k.RettskildeId == rettskildeId));
+    }
+
+    [Fact]
+    public async Task SveipStorBokstav_ssr_bekreftet_stedsnavn_med_institusjonsord_etter_beholdes()
+    {
+        // NB: "Lindholt" -- MÅ være forskjellig fra enhver annen (Term, Kilde)-cachet term i denne delte
+        // DataTestCollection-en (se EksternNavneoppslagTjenesteTests for samme forbehold) — samme
+        // (Term, Kilde)-nøkkel på tvers av tester ville latt den FØRST kjørte testens cache-svar
+        // feilaktig "vinne" for den andre.
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(
+            db, "Innbyggerne i Lindholt kommune har rett til å klage.");
+
+        var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
+        {
+            var url = req.RequestUri!.ToString();
+            if (url.Contains("api/v1/search")) return Json("[]");
+            if (url.Contains("stedsnavn")) return Json("""{ "navn": [ { "skrivemåte": "Lindholt", "navneobjekttype": "Tettsted" } ] }""");
+            throw new InvalidOperationException($"Uventet URL: {url}");
+        });
+
+        var resultat = await tjeneste.SveipStorBokstavAsync(rettskildeId, "test");
+
+        Assert.Equal(1, resultat.AntallNyeKandidater);
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
+        Assert.Equal("Lindholt", kandidat.ForeslattTekst);
+        Assert.Equal("virksomhet", kandidat.Kategori);
+    }
+
+    [Fact]
+    public async Task SveipStorBokstav_ukjent_i_begge_beholdes_som_lav_tillit_kandidat()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(
+            db, "Møtet ble avholdt hos Kvirrefjordsen uten videre varsel.");
+
+        var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
+        {
+            var url = req.RequestUri!.ToString();
+            if (url.Contains("api/v1/search")) return Json("[]");
+            if (url.Contains("stedsnavn")) return Json("""{ "navn": [] }""");
+            throw new InvalidOperationException($"Uventet URL: {url}");
+        });
+
+        var resultat = await tjeneste.SveipStorBokstavAsync(rettskildeId, "test");
+
+        Assert.Equal(1, resultat.AntallNyeKandidater); // "ingen gjettet fallback" — ikke forkastet.
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
+        Assert.Equal("Kvirrefjordsen", kandidat.ForeslattTekst);
+    }
+
+    /// <summary>
+    /// docs/31 §3 — et sveip skal ALDRI stoppe/krasje pga. en ekstern nettverksfeil. Simulerer at
+    /// SNL-kallet feiler (timeout/500) for én node, og verifiserer at sveipet likevel fullfører OG
+    /// fortsatt produserer en kandidat for treffet (degraderer til "ukjent" = lav-tillit, ikke en
+    /// kastet feil som stopper hele <see cref="NavnekandidatOppdagelseTjeneste.SveipStorBokstavAsync"/>).
+    /// </summary>
+    [Fact]
+    public async Task SveipStorBokstav_fortsetter_selv_om_ett_eksternt_kall_feiler()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(
+            db, "Møtet ble avholdt hos Kvirrefjelldalen uten videre varsel.");
+
+        var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
+        {
+            var url = req.RequestUri!.ToString();
+            if (url.Contains("api/v1/search")) throw new HttpRequestException("simulert 500 fra SNL");
+            if (url.Contains("stedsnavn")) return Json("""{ "navn": [] }""");
+            throw new InvalidOperationException($"Uventet URL: {url}");
+        });
+
+        var resultat = await tjeneste.SveipStorBokstavAsync(rettskildeId, "test");
+
+        Assert.Equal(1, resultat.AntallTreffFunnet);
+        Assert.Equal(1, resultat.AntallNyeKandidater); // sveipet fullførte OG produserte kandidaten likevel.
+        Assert.True(await db.Navnekandidater.AnyAsync(k => k.RettskildeId == rettskildeId && k.ForeslattTekst == "Kvirrefjelldalen"));
+    }
+
+    [Fact]
+    public async Task SveipStorBokstav_er_idempotent_ved_gjentatt_kjoring()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(
+            db, "Møtet ble avholdt hos Kvirrefjordtoppen uten videre varsel.");
+        var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
+        {
+            var url = req.RequestUri!.ToString();
+            if (url.Contains("api/v1/search")) return Json("[]");
+            if (url.Contains("stedsnavn")) return Json("""{ "navn": [] }""");
+            throw new InvalidOperationException($"Uventet URL: {url}");
+        });
+
+        var forste = await tjeneste.SveipStorBokstavAsync(rettskildeId, "test");
+        var andre = await tjeneste.SveipStorBokstavAsync(rettskildeId, "test");
+
+        Assert.Equal(1, forste.AntallNyeKandidater);
+        Assert.Equal(0, andre.AntallNyeKandidater); // allerede en kandidat på nøyaktig denne posisjonen.
+        Assert.Equal(1, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeId));
     }
 }

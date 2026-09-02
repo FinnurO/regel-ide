@@ -105,8 +105,14 @@ namespace RegelIde.Data;
 /// </summary>
 public sealed class NavnekandidatOppdagelseTjeneste(
     RegelIdeDbContext db, VirksomhetsbegrepTjeneste virksomhetsbegrep,
-    TekstTaggTjeneste tekstTaggTjeneste, VirksomhetOppslagTjeneste virksomhetOppslag)
+    TekstTaggTjeneste tekstTaggTjeneste, VirksomhetOppslagTjeneste virksomhetOppslag,
+    EksternNavneoppslagTjeneste eksternOppslag)
 {
+    /// <summary>Diskriminatorverdien skrevet til <see cref="NavnekandidatEntitet.OppdagelsesKilde"/> for
+    /// alle kandidater produsert av <see cref="SveipStorBokstavAsync"/> (docs/31) — se den entitetsfeltets
+    /// kommentar. Public (ikke internal): brukt av RegelIde.Api ved berikelse-oppslag på lesetidspunktet
+    /// (se NavnekandidatDto/Program.cs).</summary>
+    public const string StorBokstavOppdagelsesKilde = "stor-bokstav-snl-ssr";
     /// <summary>Suffiksene fra Johanns liste (docs/13-backlog.md §9) — sortert lengst-først i den
     /// sammensatte alternasjonen (samme "unngå kortere delvis treff av en lengre streng"-prinsipp som
     /// <see cref="VirksomhetKandidatSveipTjeneste"/>), selv om ingen av dagens suffikser er substrenger
@@ -273,14 +279,99 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     };
 
     /// <summary>
-    /// Kjører oppdagelsessveipet — enten mot ÉN rettskilde (<paramref name="rettskildeId"/> satt) eller
-    /// mot HELE det importerte korpuset (<paramref name="rettskildeId"/> = <c>null</c>).
+    /// [Ny, docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md] Det NYE, brede "stor bokstav midt i
+    /// en setning"-mønsteret (§5 punkt 2) — se <see cref="FinnStorBokstavKandidaterITekst"/> for selve
+    /// utløseren og <see cref="SveipStorBokstavAsync"/> for klassifiseringskjeden (§2) som skiller
+    /// ekte institusjonsnavn fra stedsnavn/personnavn/utenlandske ord via SNL/SSR.
+    /// <para>
+    /// <b>KUN Title-case ord</b> (stor forbokstav + ETT ELLER FLERE små bokstaver, ALDRI en ordform der
+    /// bokstav nummer to også er stor) — utelukker BEVISST forkortelser i store bokstaver ("NKR", "SFO",
+    /// "NVE") fra selve rå-utløseren. Disse er en KJENT, allerede dokumentert falsk-positiv-kilde i
+    /// denne klassen (se <see cref="FinnEgennavnForanInstitusjonsord"/>s "NKR og fagskole"/"SFO og
+    /// skole"-funn) — ingen av dem er reelle egennavn i seg selv, og SNL/SSR-oppslag mot en bar
+    /// forkortelse ville uansett aldri gitt et meningsfullt treff. Ren tegnbasert avgrensning, ikke en
+    /// forkortelsesordliste.
+    /// </para>
     /// </summary>
-    public async Task<NavnekandidatSveipResultat> SveipAsync(Guid? rettskildeId, string opprettetAv, CancellationToken ct = default)
+    private static readonly Regex StorBokstavOrdMønster = new(@"\b\p{Lu}\p{Ll}+\b");
+
+    /// <summary>Flate, case-insensitive oppslagsmengder av <see cref="FasteRollesubstantiv"/>/
+    /// <see cref="Institusjonsord"/> — brukt KUN av <see cref="FinnStorBokstavKandidaterITekst"/> til å
+    /// UNNGÅ å sende en term de EKSISTERENDE, presise mønstrene allerede dekker med høyere presisjon
+    /// videre til et kostbart eksternt SNL/SSR-oppslag (rent en ytelses-/høflighets-optimalisering mot
+    /// de eksterne API-ene — begge mønstrene kjører uansett uavhengig av hverandre, se
+    /// <see cref="SveipStorBokstavAsync"/>s metodekommentar for hvorfor duplikat-posisjoner likevel er
+    /// trygt idempotent på tvers av de to).</summary>
+    private static readonly HashSet<string> FasteRollesubstantivOrdSet = new(FasteRollesubstantiv, StringComparer.OrdinalIgnoreCase);
+    private static readonly HashSet<string> InstitusjonsordSet = new(Institusjonsord, StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    /// Ren, testbar funksjon uten DB/HTTP-avhengighet — selve rå-utløseren for det nye mønsteret,
+    /// separert fra <see cref="SveipStorBokstavAsync"/>s async SNL/SSR-klassifisering av samme grunn som
+    /// <see cref="FinnKandidaterITekst"/> er separert fra <see cref="SveipAsync"/>.
+    /// <para>
+    /// Ekskluderer (i tillegg til <see cref="ErSetningsstart"/>, samme "midt i en setning"-vern som
+    /// resten av klassen): <see cref="AldriEgennavnOrd"/> (determinativer/pronomen — grammatisk lukket
+    /// klasse, aldri egennavn), <see cref="FasteRollesubstantivOrdSet"/>/<see cref="InstitusjonsordSet"/>
+    /// (allerede dekket av presise, eksisterende mønstre — se feltkommentaren), og ord som ender på et
+    /// kjent <see cref="Suffikser"/>-suffiks (allerede dekket av <see cref="SuffiksMønster"/> med høyere
+    /// presisjon — INGEN grunn til å sende f.eks. "Miljødirektoratet" videre til et eksternt SNL-oppslag
+    /// når suffiksmønsteret allerede klassifiserer det som "virksomhet" med kjent, dokumentert presisjon).
+    /// </para>
+    /// </summary>
+    internal static List<(int Start, int Lengde, string RaaTekst)> FinnStorBokstavKandidaterITekst(string tekst)
     {
-        // [Rettet, kodegjennomgang 2026-08-30] Krever delt/nasjonal OG gjeldende, se begrunnelsen på
-        // sveip-spørringen under — samme to vilkår, kontrollert her på forhånd for en presis feilmelding
-        // når EN bestemt rettskilde etterspørres eksplisitt (i stedet for at den bare gir 0 treff stille).
+        var funnet = new List<(int, int, string)>();
+        foreach (Match m in StorBokstavOrdMønster.Matches(tekst))
+        {
+            if (ErSetningsstart(tekst, m.Index)) continue;
+            var ord = m.Value;
+            if (AldriEgennavnOrd.Contains(ord)) continue;
+            if (FasteRollesubstantivOrdSet.Contains(ord)) continue;
+            if (InstitusjonsordSet.Contains(ord)) continue;
+            if (Suffikser.Any(s => ord.EndsWith(s, StringComparison.OrdinalIgnoreCase))) continue;
+            funnet.Add((m.Index, m.Length, ord));
+        }
+        return funnet;
+    }
+
+    /// <summary>Det første hele ordet (bokstaver) som starter etter evt. mellomrom/tab fra
+    /// <paramref name="index"/> — brukt av <see cref="SveipStorBokstavAsync"/> til å sjekke om et
+    /// <see cref="Institusjonsord"/> står RETT ETTER et SSR-bekreftet stedsnavn (docs/31 §2 punkt 2).
+    /// Samme "kun mellomrom/tab, stopp på ALT annet"-restriktivitet som
+    /// <see cref="FinnEgennavnForanInstitusjonsord"/>s bakoverskanning (linjeskift/skilletegn teller
+    /// IKKE som "rett etter").</summary>
+    private static string? NesteOrdEtter(string tekst, int index)
+    {
+        var i = index;
+        while (i < tekst.Length && (tekst[i] == ' ' || tekst[i] == '\t')) i++;
+        if (i >= tekst.Length || !char.IsLetter(tekst[i])) return null;
+        var start = i;
+        while (i < tekst.Length && char.IsLetter(tekst[i])) i++;
+        return tekst[start..i];
+    }
+
+    /// <summary>Projeksjon brukt av BÅDE <see cref="SveipAsync"/> og <see cref="SveipStorBokstavAsync"/>
+    /// (se <see cref="HentSveipbareNoderAsync"/>) — <see cref="Tekst"/> er ALLTID non-null her (filtrert
+    /// i spørringen), til forskjell fra <see cref="RettskildeNodeEntitet.Tekst"/> selv.</summary>
+    private sealed record SveipbarNode(Guid RettskildeId, string Eid, string Tekst);
+
+    /// <summary>
+    /// Delt node-spørring for BEGGE sveipmetodene (<see cref="SveipAsync"/> og
+    /// <see cref="SveipStorBokstavAsync"/>) — samme "delt/nasjonal OG gjeldende"-scoping for begge, se de
+    /// utfyllende kommentarene som fantes her FØR denne ble faktorert ut (git-historikk, kodegjennomgang
+    /// 2026-08-30): (1) KUN <c>VirksomhetId == null</c> rettskilder — unngår kryssvirksomhet-lekkasje
+    /// (samme reelt fikset bug som <see cref="VirksomhetKandidatSveipTjeneste"/> hadde, Agder/Bergen
+    /// 2026-08-22), (2) KUN <c>Entitetsstatus == "gjeldende"</c> på BÅDE noden og selve
+    /// <see cref="RettskildeEntitet"/> (en reimportert lovs gamle rettskilde-rad blir 'erstattet', men
+    /// dens noder forblir for alltid 'gjeldende' på nodenivå — uten dette dobbeltfilteret ble kandidater
+    /// fra utdaterte rettskilder tidligere opprettet, men kunne ALDRI godkjennes).
+    /// </summary>
+    private async Task<List<SveipbarNode>> HentSveipbareNoderAsync(Guid? rettskildeId, CancellationToken ct)
+    {
+        // Krever delt/nasjonal OG gjeldende, se spørringen under — samme to vilkår, kontrollert her på
+        // forhånd for en presis feilmelding når EN bestemt rettskilde etterspørres eksplisitt (i stedet
+        // for at den bare gir 0 treff stille).
         if (rettskildeId is not null && !await db.Rettskilder.AnyAsync(
                 r => r.Id == rettskildeId && r.VirksomhetId == null && r.Entitetsstatus == "gjeldende", ct))
         {
@@ -288,30 +379,22 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 $"Fant ingen gjeldende, delt/nasjonal rettskilde med id '{rettskildeId}'. Ingen gjettet fallback.");
         }
 
-        var noder = await db.RettskildeNoder
+        return await db.RettskildeNoder
             .Join(db.Rettskilder, n => n.RettskildeId, r => r.Id, (n, r) => new { Node = n, r.VirksomhetId, RettskildeStatus = r.Entitetsstatus })
             .Where(x => x.Node.Tekst != null && !x.Node.Opphevet && x.Node.Entitetsstatus == "gjeldende"
-                        // [Rettet, kodegjennomgang 2026-08-30] To reelle bugs fra samme forkastede join
-                        // (den forrige (n, r) => n brukte ALDRI r til noe): (1) manglet virksomhet-
-                        // eierskapsfilter — søsterklassen VirksomhetKandidatSveipTjeneste har akkurat
-                        // dette filteret etter en tidligere, reelt fikset kryssvirksomhet-lekkasje
-                        // (Agder/Bergen, 2026-08-22); et korpusomfattende sveip søkte ellers gjennom
-                        // ALLE virksomheters rettskilder, inkl. private/lokale, og eksponerte
-                        // tekstutdrag+nodelenke fra dem til enhver bruker via GET /api/navnekandidater,
-                        // som heller ikke filtrerer på virksomhet. (2) manglet filter på at selve
-                        // Rettskilden (ikke bare noden) er "gjeldende" — en reimportert lovs GAMLE
-                        // RettskildeEntitet blir 'erstattet', men dens RettskildeNoder forblir for alltid
-                        // 'gjeldende' (se RettskildeNodeEntitet), så "gruppe"-kandidater derfra ble
-                        // opprettet men kunne ALDRI godkjennes (VirksomhetsbegrepTjeneste
-                        // .OpprettGruppebegrepAsync krever eksplisitt at Rettskilden selv er gjeldende).
-                        // Løsning for begge: sveip KUN delt/nasjonal (VirksomhetId == null) OG gjeldende
-                        // rettskilde — dekker det som faktisk er formålet («oppdag nye navn i lovkorpuset»)
-                        // uten noensinne å eksponere en virksomhets private innhold, og uten å skape
-                        // permanent uga-odkjennbare kandidater.
                         && x.VirksomhetId == null && x.RettskildeStatus == "gjeldende"
                         && (rettskildeId == null || x.Node.RettskildeId == rettskildeId))
-            .Select(x => new { x.Node.RettskildeId, x.Node.Eid, x.Node.Tekst })
+            .Select(x => new SveipbarNode(x.Node.RettskildeId, x.Node.Eid, x.Node.Tekst!))
             .ToListAsync(ct);
+    }
+
+    /// <summary>
+    /// Kjører oppdagelsessveipet — enten mot ÉN rettskilde (<paramref name="rettskildeId"/> satt) eller
+    /// mot HELE det importerte korpuset (<paramref name="rettskildeId"/> = <c>null</c>).
+    /// </summary>
+    public async Task<NavnekandidatSveipResultat> SveipAsync(Guid? rettskildeId, string opprettetAv, CancellationToken ct = default)
+    {
+        var noder = await HentSveipbareNoderAsync(rettskildeId, ct);
 
         // Eksisterende Begrep-termer, forhåndslastet ÉN gang for hele sveipet (ikke ett spørring per
         // treff) — samme "unngå N+1" -hensyn som ellers i kodebasen. To separate mengder, se
@@ -384,6 +467,94 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         }
 
         return new NavnekandidatSveipResultat(antallTreff, antallNyeKandidater);
+    }
+
+    /// <summary>
+    /// [Ny, docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md §5 punkt 2-3] Sveiper det NYE, brede
+    /// "stor bokstav midt i en setning"-mønsteret (<see cref="FinnStorBokstavKandidaterITekst"/>),
+    /// klassifisert mot SNL/SSR (<see cref="BeholdSomKandidatAsync"/>, docs/31 §2) — en HELT SEPARAT
+    /// metode fra <see cref="SveipAsync"/> (samme node-scoping, <see cref="HentSveipbareNoderAsync"/>,
+    /// men et uavhengig kjøretidspunkt/kall). Bevisst IKKE slått sammen med <see cref="SveipAsync"/> i
+    /// ett kall: docs/31 §6 ber EKSPLISITT om at et FØRSTE kall mot dette mønsteret skjer mot et
+    /// AVGRENSET delsett av korpuset (én/få rettskilder), ikke hele det importerte korpuset på én gang
+    /// — ingen av de to eksterne API-ene har dokumentert ratelimit, og et fullkorpussveip kan generere
+    /// svært mange unike SNL/SSR-oppslag. En egen metode/endepunkt gjør denne forsiktige, avgrensede
+    /// bruken enkel uten å risikere at noen ved en feil trigger den sammen med det etablerte,
+    /// veletablerte <see cref="SveipAsync"/>-sveipet.
+    /// <para>
+    /// <b>Overlapp med <see cref="SveipAsync"/> sine posisjoner er trygt</b> — samme
+    /// (RettskildeId, NodeEid, StartOffset)-idempotens som <see cref="OpprettEllerFinnAsync"/> allerede
+    /// garanterer uansett kilde/mønster: kjøres begge sveipene mot samme node, og begge mønstrene treffer
+    /// nøyaktig samme START-posisjon (f.eks. et suffiks-treff som "Miljødirektoratet", som òg er et
+    /// Title-case-ord), vinner den som kom FØRST — ingen duplikatrad, ingen krasj. Se også
+    /// <see cref="FasteRollesubstantivOrdSet"/>/<see cref="InstitusjonsordSet"/>/suffiks-sjekken i
+    /// <see cref="FinnStorBokstavKandidaterITekst"/> selv, som i tillegg proaktivt UNNGÅR å sende disse
+    /// allerede-dekkede posisjonene til et eksternt oppslag i utgangspunktet.
+    /// </para>
+    /// </summary>
+    public async Task<NavnekandidatSveipResultat> SveipStorBokstavAsync(Guid? rettskildeId, string opprettetAv, CancellationToken ct = default)
+    {
+        var noder = await HentSveipbareNoderAsync(rettskildeId, ct);
+
+        var antallTreff = 0;
+        var antallNyeKandidater = 0;
+        foreach (var node in noder)
+        {
+            foreach (var (start, lengde, raaTekst) in FinnStorBokstavKandidaterITekst(node.Tekst))
+            {
+                antallTreff++;
+
+                // Samme idempotens-nøkkel som OpprettEllerFinnAsync — sjekket HER, FØR det eksterne
+                // SNL/SSR-oppslaget, for å unngå et helt unødvendig (kostbart, nettverksavhengig) kall
+                // for en posisjon som allerede har en kandidat (fra ETT ELLER ANNET tidligere sveip,
+                // uansett mønster/kilde).
+                var eksisterendeAntall = await db.Navnekandidater.CountAsync(
+                    k => k.RettskildeId == node.RettskildeId && k.NodeEid == node.Eid && k.StartOffset == start, ct);
+                if (eksisterendeAntall > 0) continue;
+
+                var behold = await BeholdSomKandidatAsync(raaTekst, node.Tekst, start + lengde, ct);
+                if (!behold) continue; // SSR-bekreftet geografisk løpetekst-referanse — docs/31 §2 punkt 2.
+
+                await OpprettEllerFinnAsync(
+                    raaTekst, "virksomhet", node.RettskildeId, node.Eid, start, start + lengde, opprettetAv,
+                    ct, StorBokstavOppdagelsesKilde);
+                antallNyeKandidater++;
+            }
+        }
+
+        return new NavnekandidatSveipResultat(antallTreff, antallNyeKandidater);
+    }
+
+    /// <summary>
+    /// docs/31 §2 — selve klassifiseringskjeden for ETT rått "stor bokstav midt i setning"-treff.
+    /// Returnerer <c>true</c> hvis kandidaten skal BEHOLDES:
+    /// <list type="number">
+    /// <item>SNL-bekreftet institusjon (<see cref="EksternNavneoppslagTjeneste.SlaOppSnlAsync"/> gir
+    /// treff) — høy starttillit, positiv institusjonskandidat.</item>
+    /// <item>Ingen SNL-treff, MEN SSR-bekreftet stedsnavn MED et <see cref="Institusjonsord"/> RETT ETTER
+    /// i løpeteksten (<see cref="NesteOrdEtter"/>) — samme positive bekreftelsesrolle som når
+    /// <see cref="InstitusjonsordMønster"/> allerede finner "X kommune" et annet sted i klassen; SSR gir
+    /// en EKSTRA bekreftelse på at "X" er et reelt stedsnavn.</item>
+    /// <item>Ukjent i BEGGE (ingen SNL-treff, ingen SSR-treff) — lav-tillit, men IKKE forkastet ("ingen
+    /// gjettet fallback", samme filosofi som resten av mekanismen).</item>
+    /// </list>
+    /// Returnerer <c>false</c> (FORKAST) KUN i det ene tilfellet spesifikasjonen faktisk ber om å
+    /// forkaste: SSR-bekreftet stedsnavn UTEN institusjonsord rett etter — en ren geografisk
+    /// løpetekst-referanse, ikke et institusjonsnavn.
+    /// </summary>
+    private async Task<bool> BeholdSomKandidatAsync(string raaTekst, string tekst, int matchSlutt, CancellationToken ct)
+    {
+        var snl = await eksternOppslag.SlaOppSnlAsync(raaTekst, ct);
+        if (snl.Treff) return true;
+
+        var ssr = await eksternOppslag.SlaOppSsrAsync(raaTekst, ct);
+        if (ssr.Treff)
+        {
+            var nesteOrd = NesteOrdEtter(tekst, matchSlutt);
+            return nesteOrd is not null && InstitusjonsordMønster.IsMatch(nesteOrd);
+        }
+
+        return true; // ukjent i begge — lav-tillit, ikke forkastet.
     }
 
     /// <summary>
@@ -625,7 +796,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// for et duplikat, uansett status (samme mønster som <see cref="VirksomhetKandidatTjeneste.OpprettEllerFinnAsync"/>).</summary>
     public async Task<NavnekandidatEntitet> OpprettEllerFinnAsync(
         string foreslattTekst, string kategori, Guid rettskildeId, string nodeEid, int startOffset, int endOffset,
-        string opprettetAv, CancellationToken ct = default)
+        string opprettetAv, CancellationToken ct = default, string? oppdagelsesKilde = null)
     {
         var eksisterende = await db.Navnekandidater.FirstOrDefaultAsync(
             k => k.RettskildeId == rettskildeId && k.NodeEid == nodeEid && k.StartOffset == startOffset, ct);
@@ -658,6 +829,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             Status = "Venter",
             OpprettetAv = opprettetAv,
             OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            OppdagelsesKilde = oppdagelsesKilde,
         };
         db.Navnekandidater.Add(kandidat);
         try

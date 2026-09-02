@@ -1254,6 +1254,81 @@ public sealed class NavnekandidatEntitet
     public DateTimeOffset OpprettetTidspunkt { get; set; }
     public string? BehandletAv { get; set; }
     public DateTimeOffset? BehandletTidspunkt { get; set; }
+
+    /// <summary>
+    /// [Ny, docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md] Diskriminator for HVILKET
+    /// oppdagelsesmønster som produserte denne raden — <c>null</c> for de opprinnelige, presise
+    /// mønstrene (suffiks/faste rollesubstantiv/flerords-institusjonsord, se
+    /// <see cref="NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst"/>), satt til den faste strengen
+    /// <c>"stor-bokstav-snl-ssr"</c> for det NYE, brede "stor bokstav midt i en setning"-mønsteret
+    /// klassifisert mot SNL/SSR (se <see cref="NavnekandidatOppdagelseTjeneste.SveipStorBokstavAsync"/>).
+    /// Ingen slikt felt fantes her før — verifisert direkte i denne klassen/<c>NavnekandidatOppdagelseTjeneste.cs</c>
+    /// før bygging, per spesifikasjonens §4 — lagt til NULLBART i stedet for en egen ny tabell, nettopp
+    /// fordi radformen (arbeidskø, Venter/Godkjent/Avvist, samme GodkjennAsync-flyt) er strukturelt
+    /// UENDRET; kun HVORDAN raden ble oppdaget er nytt. Eksisterende rader (alle <c>null</c>) krever
+    /// derfor ingen datamigrering — kun et nytt, nullbart skjemafelt.
+    /// </summary>
+    public string? OppdagelsesKilde { get; set; }
+}
+
+/// <summary>
+/// [Ny, docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md §3] Lokal, per-term cache for de to
+/// LEVENDE, eksterne søk-API-ene (Store norske leksikon og Kartverkets Sentralt stadnamnregister)
+/// brukt til å klassifisere "stor bokstav midt i en setning"-treff
+/// (<see cref="NavnekandidatOppdagelseTjeneste.SveipStorBokstavAsync"/>). Bevisst IKKE en bulk-import
+/// av SSRs 1+ million rader eller et forsøk på å skrape hele SNL-taksonomien (§3: "begge API-ene
+/// støtter presist per-term-søk") — denne tabellen fylles KUN opp etter hvert som faktiske termer
+/// faktisk sveipes, aldri på forhånd.
+/// <para>
+/// Unik nøkkel <c>(Term, Kilde)</c> — se <see cref="RegelIdeDbContext"/>. <see cref="Term"/> er ALLTID
+/// normalisert til små bokstaver før lagring/oppslag (case er ikke del av identiteten for et
+/// institusjons-/stedsnavn-OPPSLAG, til forskjell fra <see cref="NavnekandidatEntitet.ForeslattTekst"/>
+/// sin "virksomhet"-kategori, der case ER signal — de to normaliseringsreglene styrer to ulike
+/// bekymringer og er ikke i konflikt: denne cachen normaliserer kun for treffsikkert OPPSLAG, den
+/// FAKTISKE <see cref="NavnekandidatEntitet.ForeslattTekst"/>-verdien som lagres på selve kandidaten
+/// beholder rå case uendret).
+/// </para>
+/// <para>
+/// <b>Ingen TTL-utløp i første versjon</b> (§3) — institusjons-/stedsnavn endres sjelden. Et
+/// NETTVERKSFEIL-oppslag (timeout, 5xx, DNS-feil osv.) skrives derimot ALDRI til denne tabellen som et
+/// permanent "ingen treff" — se <see cref="EksternNavneoppslagTjeneste"/>s klassekommentar for hvorfor:
+/// en forbigående feil ville ellers "forgiftet" cachen permanent (ingen utløp betyr ingen naturlig
+/// retry), stikk i strid med spesifikasjonens eget prinsipp om at eksterne feil aldri skal ha en
+/// varig, feilaktig konsekvens. Kun EKTE API-svar (enten et bekreftet treff eller et bekreftet
+/// "ingen treff fra API-et selv") skrives hit.
+/// </para>
+/// </summary>
+public sealed class EksternNavneoppslagCacheEntitet
+{
+    public Guid Id { get; set; }
+
+    /// <summary>Normalisert (små bokstaver) søketerm — se klassekommentaren.</summary>
+    public required string Term { get; set; }
+
+    /// <summary><c>"snl"</c> eller <c>"ssr"</c> — hvilket av de to eksterne API-ene dette oppslaget gjelder.</summary>
+    public required string Kilde { get; set; }
+
+    /// <summary>Om det eksterne API-et faktisk fant noe for denne termen (ekte API-svar, se
+    /// klassekommentaren — ALDRI satt fra et nettverksfeil-tilfelle).</summary>
+    public bool Treff { get; set; }
+
+    /// <summary>Kun ved <see cref="Treff"/>: for <c>"snl"</c> artikkelens taksonomititel (f.eks.
+    /// "Offentlige etater og direktorater"); for <c>"ssr"</c> stedsnavnets <c>navneobjekttype</c>
+    /// (f.eks. "Kommune", "Fylke").</summary>
+    public string? TaksonomiKategori { get; set; }
+
+    /// <summary>Kun <c>"snl"</c>, kun ved et BEKREFTET institusjonstreff (se
+    /// <see cref="EksternNavneoppslagTjeneste"/>): JSON-serialisert liste over artikkelens "også kjent
+    /// som"-alias (SNL-faktaboksens <c>alternative_form</c>-felt, HTML-tagger fjernet).</summary>
+    public string? AliasJson { get; set; }
+
+    /// <summary>Kun <c>"snl"</c>, kun når artikkelens faktaboks faktisk oppgir et organisasjonsnummer.</summary>
+    public string? OrganisasjonsnummerFunnet { get; set; }
+
+    /// <summary>Kun ved <see cref="Treff"/>: lenke til selve artikkelen/stedsnavn-oppslaget.</summary>
+    public string? EksternUrl { get; set; }
+
+    public DateTimeOffset SlaOppTidspunkt { get; set; }
 }
 
 /// <summary>

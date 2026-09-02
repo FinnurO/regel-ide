@@ -44,6 +44,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<MyndighetstildelingEntitet> Myndighetstildelinger => Set<MyndighetstildelingEntitet>();
     public DbSet<VirksomhetKandidatEntitet> VirksomhetKandidater => Set<VirksomhetKandidatEntitet>();
     public DbSet<NavnekandidatEntitet> Navnekandidater => Set<NavnekandidatEntitet>();
+    public DbSet<EksternNavneoppslagCacheEntitet> EksternNavneoppslagCache => Set<EksternNavneoppslagCacheEntitet>();
     public DbSet<BegrepsforekomstEntitet> Begrepsforekomster => Set<BegrepsforekomstEntitet>();
     public DbSet<BegrepsrelasjonEntitet> Begrepsrelasjoner => Set<BegrepsrelasjonEntitet>();
     public DbSet<Bruker> Brukere => Set<Bruker>();
@@ -208,6 +209,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.BehandletAv).HasColumnName("behandlet_av");
             e.Property(x => x.BehandletTidspunkt).HasColumnName("behandlet_tidspunkt");
+            // [Ny, docs/31] Nullbar diskriminator — se NavnekandidatEntitet.OppdagelsesKilde sin kommentar.
+            e.Property(x => x.OppdagelsesKilde).HasColumnName("oppdagelses_kilde");
             e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(x => x.RettskildeId).HasDatabaseName("ix_navnekandidater_rettskilde");
             // Samme idempotens-nøkkel-resonnement som ux_virksomhet_kandidater_virksomhet_node_start
@@ -216,6 +219,27 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // start-posisjonen, uansett status.
             e.HasIndex(x => new { x.RettskildeId, x.NodeEid, x.StartOffset }).IsUnique()
                 .HasDatabaseName("ux_navnekandidater_rettskilde_node_start");
+        });
+
+        // [Ny, docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md §3] Per-term cache for SNL/SSR-oppslag
+        // — se EksternNavneoppslagCacheEntitet sin klassekommentar.
+        b.Entity<EksternNavneoppslagCacheEntitet>(e =>
+        {
+            e.ToTable("ekstern_navneoppslag_cache", t => t.HasCheckConstraint(
+                "ck_ekstern_navneoppslag_cache_kilde", "kilde IN ('snl', 'ssr')"));
+            e.HasKey(x => x.Id).HasName("ekstern_navneoppslag_cache_pkey");
+            e.Property(x => x.Term).HasColumnName("term");
+            e.Property(x => x.Kilde).HasColumnName("kilde");
+            e.Property(x => x.Treff).HasColumnName("treff");
+            e.Property(x => x.TaksonomiKategori).HasColumnName("taksonomi_kategori");
+            e.Property(x => x.AliasJson).HasColumnName("alias_json");
+            e.Property(x => x.OrganisasjonsnummerFunnet).HasColumnName("organisasjonsnummer_funnet");
+            e.Property(x => x.EksternUrl).HasColumnName("ekstern_url");
+            e.Property(x => x.SlaOppTidspunkt).HasColumnName("slaopp_tidspunkt").StandardNaa(sqlite);
+            // Selve cache-nøkkelen — se klassekommentaren. Term er normalisert (små bokstaver) FØR
+            // lagring, så denne indeksen kan være en vanlig (case-sensitiv) unik indeks.
+            e.HasIndex(x => new { x.Term, x.Kilde }).IsUnique()
+                .HasDatabaseName("ux_ekstern_navneoppslag_cache_term_kilde");
         });
 
         b.Entity<Bruker>(e =>

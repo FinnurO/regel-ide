@@ -40,6 +40,43 @@ const KATEGORI_FARGE: Record<string, 'info' | 'accent'> = {
 };
 
 /**
+ * docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md §5 punkt 5 — berikelse for kandidater fra det
+ * NYE "stor bokstav midt i setning"-mønsteret (`oppdagelsesKilde === 'stor-bokstav-snl-ssr'`), vist som
+ * en liten detalj UNDER selve foreslått-tekst-cellen i EKSISTERENDE rader (ikke en ny kolonne/side —
+ * spesifikasjonen ber eksplisitt om gjenbruk av denne køen). Tre gjensidig utelukkende utfall,
+ * speiler klassifiseringskjeden i NavnekandidatOppdagelseTjeneste.SveipStorBokstavAsync (docs/31 §2):
+ * SNL-bekreftet institusjon (lenke + evt. orgnr/alias), SSR-bekreftet stedsnavn (kun mulig når
+ * kandidaten likevel ble beholdt, altså med et institusjonsord rett etter — se klassifiseringskjeden),
+ * eller ukjent i begge (lav-tillit, ingen berikelse å vise).
+ */
+function BerikelseVisning({ k }: { k: NavnekandidatDto }) {
+  return (
+    <div style={{ marginTop: '0.3rem', display: 'flex', gap: '0.35rem', flexWrap: 'wrap', alignItems: 'center' }}>
+      {k.snlUrl ? (
+        <>
+          <Link href={k.snlUrl} target="_blank" rel="noreferrer" data-size="sm">
+            <Tag data-color="success" data-size="sm">
+              SNL{k.snlOrganisasjonsnummer ? ` · org.nr. ${k.snlOrganisasjonsnummer}` : ''} ↗
+            </Tag>
+          </Link>
+          {k.snlAlias && k.snlAlias.length > 0 && (
+            <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+              også kjent som: {k.snlAlias.join(', ')}
+            </span>
+          )}
+        </>
+      ) : k.ssrBekreftetStedsnavn ? (
+        <Tag data-color="info" data-size="sm">
+          SSR-bekreftet stedsnavn{k.ssrObjektType ? ` (${k.ssrObjektType})` : ''}
+        </Tag>
+      ) : (
+        <Tag data-color="neutral" data-size="sm">Ukjent i SNL/SSR — lav tillit</Tag>
+      )}
+    </div>
+  );
+}
+
+/**
  * Oppdagelseskø (docs/13-backlog.md §9) — komplementær til `VirksomhetKandidaterListe.tsx`, samme
  * mønster tett fulgt (sveip-panel + filtrerbar tabell + godkjenn/avvis per rad). Den avgjørende
  * forskjellen fra virksomhetskandidatene er hva "godkjenn" faktisk gjør, se `kandidatHandlingTekst`:
@@ -420,7 +457,10 @@ export default function NavnekandidaterListe() {
         <Table.Cell>
           <Tag data-color={KATEGORI_FARGE[k.kategori] ?? 'neutral'} data-size="sm">{k.kategori}</Tag>
         </Table.Cell>
-        <Table.Cell style={{ fontWeight: 500 }}>{k.foreslattTekst}</Table.Cell>
+        <Table.Cell style={{ fontWeight: 500 }}>
+          {k.foreslattTekst}
+          {k.oppdagelsesKilde === 'stor-bokstav-snl-ssr' && <BerikelseVisning k={k} />}
+        </Table.Cell>
         <Table.Cell>{visRettskilde(k.rettskildeId)}</Table.Cell>
         <Table.Cell style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>
           <Link asChild>
