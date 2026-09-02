@@ -9,8 +9,12 @@ export interface RettskildeSammendrag {
   kildetype: string;
   /** "Kommunal- og distriktsdepartementet" e.l. — NULL for alt som ikke er Lovdata-importert Lov/Forskrift. */
   ansvarligDepartement: string | null;
-  /** Header-nivå «irrelevant for regel-ide»-markering (2026-08-30). Kompakt badge-verdi — se detaljsiden for kommentaren. */
+  /** Header-nivå «irrelevant for regel-ide»-markering (2026-08-30). Kompakt badge-verdi. */
   erIrrelevant: boolean;
+  /** [Ny, 2026-09-02, issue #114] Fritekst — hvorfor markert irrelevant. Kun meningsfullt når
+   * erIrrelevant er true. Flyttet hit fra kun RettskildeDetalj slik at «Utenfor korpuset»-fanen i
+   * RettskilderListe.tsx kan vise begrunnelsen direkte i tabellraden. */
+  irrelevantKommentar: string | null;
   /** [Ny, 2026-09-02] Rå, utrunket Lovdata-"dateInForce"-streng. Populert KUN for Lov/Forskrift — NULL
    * for andre kildetyper er forventet fravær av data, IKKE "ikke i kraft" (se RettskilderListe.tsx). */
   ikrafttredelseRaa: string | null;
@@ -1349,6 +1353,45 @@ export interface LovdataImportstatusDto {
   rettskildeId: string | null;
   feilmelding: string | null;
   sistForsoktTidspunkt: string;
+}
+
+/** Hvilken triggervei som startet en Lovdata-resynk-kjøring (administrasjon-Lovdata-resynk, GitHub-issue #104). */
+export type LovdataResynkUtlost = 'Oppstart' | 'Manuell' | 'Planlagt';
+
+export type LovdataResynkStatus = 'Pågår' | 'Fullført' | 'Feilet';
+
+/**
+ * Én rad i kjøre-historikken for Lovdata full-resynk — se LovdataResynkKjoringEntitet på serveren.
+ * `nyeVersjoner` er tallet issue #104 ba om å vise TYDELIG: hvor mange dokumenter som faktisk fikk
+ * endret INNHOLD ved denne kjøringen (til forskjell fra `nye`, som er nyoppdagede dokumenter) — det
+ * finnes i dag INGEN godkjenningskø for disse (bevisst IKKE besluttet avveining, se PR-beskrivelsen).
+ * Tellerne er alle `null` mens kjøringen fortsatt er `Pågår`, eller hvis den feilet HELT (Feilet) før
+ * noe ble behandlet.
+ */
+export interface LovdataResynkKjoringDto {
+  id: string;
+  utlost: LovdataResynkUtlost;
+  utlostAvBruker: string | null;
+  status: LovdataResynkStatus;
+  startetTidspunkt: string;
+  fullfortTidspunkt: string | null;
+  nye: number | null;
+  nyeVersjoner: number | null;
+  uendret: number | null;
+  feilet: number | null;
+  totaltBehandlet: number | null;
+  feilmelding: string | null;
+}
+
+/** `intervallTimer` null eller 0 = aldri automatisk (kun oppstart/manuell). */
+export interface LovdataResynkInnstillingDto {
+  intervallTimer: number | null;
+  sistEndretTidspunkt: string;
+  sistEndretAv: string | null;
+}
+
+export interface OppdaterLovdataResynkInnstillingRequest {
+  intervallTimer: number | null;
 }
 
 /**

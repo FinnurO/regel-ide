@@ -71,6 +71,12 @@ public sealed class EmbeddedPostgresApiFixture : IAsyncLifetime
         // LovdataFullimportBakgrunnstjeneste i RegelIde.Api.
         Environment.SetEnvironmentVariable("RegelIde__LovdataFullimport__AktivVedOppstart", "false");
 
+        // Samme resonnement som over, for den NYE periodiske planlagt-resynk-sjekken (administrasjon-
+        // Lovdata-resynk, GitHub-issue #104, LovdataResynkPlanleggerBakgrunnstjeneste) — uten dette
+        // ville hver test-kjøring av denne fixturen (levetid: en hel testklasse) risikert å treffe den
+        // første timelige sjekken og trigge en ekte, utilsiktet Lovdata-fullimport i bakgrunnen.
+        Environment.SetEnvironmentVariable("RegelIde__LovdataFullimport__PlanlagtResynkAktiv", "false");
+
         Factory = new WebApplicationFactory<Program>();
 
         // Trigger host-oppstart (migrasjon + seeding i Program.cs) nå, ikke ved første test.

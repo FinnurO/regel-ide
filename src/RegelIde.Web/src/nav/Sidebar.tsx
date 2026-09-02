@@ -75,7 +75,10 @@ const GRUPPER: Gruppe[] = [
   },
   {
     heading: 'Administrasjon',
-    rader: [{ kind: 'lenke', to: '/brukere', label: 'Brukere' }],
+    rader: [
+      { kind: 'lenke', to: '/brukere', label: 'Brukere' },
+      { kind: 'lenke', to: '/administrasjon/lovdata-resynk', label: 'Lovdata full-resynk' },
+    ],
   },
 ];
 

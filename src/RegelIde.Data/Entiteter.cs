@@ -1797,6 +1797,114 @@ public sealed class LovdataImportstatusEntitet
     public DateTimeOffset SistForsoktTidspunkt { get; set; }
 }
 
+/// <summary>Konstanter for <see cref="LovdataResynkKjoringEntitet.Utlost"/> — hvilken av de tre reelle
+/// triggerveiene (oppstart / manuell / planlagt, GitHub-issue #104) som startet kjøringen.</summary>
+public static class LovdataResynkUtlost
+{
+    public const string Oppstart = "Oppstart";
+    public const string Manuell = "Manuell";
+    public const string Planlagt = "Planlagt";
+}
+
+/// <summary>Konstanter for <see cref="LovdataResynkKjoringEntitet.Status"/>.</summary>
+public static class LovdataResynkStatus
+{
+    public const string Pagar = "Pågår";
+    public const string Fullfort = "Fullført";
+    public const string Feilet = "Feilet";
+}
+
+/// <summary>
+/// Kjøre-HISTORIKK for <see cref="LovdataFullimportTjeneste"/> (administrasjon-Lovdata-resynk, GitHub-
+/// issue #104) — én rad per faktisk KJØRING (til forskjell fra <see cref="LovdataImportstatusEntitet"/>,
+/// som er én rad per DOKUMENT og kun husker SISTE forsøk). Skrives av <see cref="LovdataResynkKjoringTjeneste"/>
+/// fra alle tre reelle triggerveier (<see cref="LovdataResynkUtlost"/>): appoppstart
+/// (<c>LovdataFullimportBakgrunnstjeneste</c>), en saksbehandler som trykker manuelt (administrasjonssiden),
+/// og den planlagte sjekken (<c>LovdataResynkPlanleggerTjeneste</c>/<c>LovdataResynkPlanleggerBakgrunnstjeneste</c>)
+/// basert på <see cref="LovdataResynkInnstillingEntitet"/>.
+/// <para>
+/// Raden opprettes med <see cref="Status"/>=<see cref="LovdataResynkStatus.Pagar"/> FØR selve
+/// <see cref="LovdataFullimportTjeneste.KjorAsync"/>-kallet (som kan ta flere minutter), slik at
+/// administrasjonssiden kan vise en pågående kjøring mens den fortsatt jobber — se
+/// <see cref="LovdataResynkKjoringTjeneste.StartKjoringAsync"/>/<c>FullforKjoringAsync</c>.
+/// </para>
+/// <para>
+/// Resultat-tellerne (<see cref="Nye"/> osv., speiler <see cref="LovdataFullimportResultat"/>) er
+/// bevisst NULLABLE — de er ukjente mens kjøringen pågår, og forblir null hvis kjøringen feiler totalt
+/// (f.eks. Lovdatas bulk-arkiv utilgjengelig) FØR noen dokumenter i det hele tatt ble behandlet.
+/// <see cref="NyeVersjoner"/> er den ene telleren issue #104 ba om å synliggjøre EKSTRA tydelig i UI-et:
+/// hvor mange dokumenter som faktisk fikk endret INNHOLD ved denne kjøringen (til forskjell fra
+/// <see cref="Nye"/>, som bare er nyoppdagede dokumenter) — se docs/13-backlog.md §6. En eventuell
+/// menneskelig godkjenningskø FØR slike <see cref="NyeVersjoner"/>-treff "gjelder" er en bevisst IKKE
+/// besluttet avveining (flagget i PR-en for #104) — denne tabellen gjør kun endringsomfanget SYNLIG,
+/// den bygger ingen godkjenningsflyt.
+/// </para>
+/// </summary>
+public sealed class LovdataResynkKjoringEntitet
+{
+    public required Guid Id { get; set; }
+
+    /// <summary>Én av <see cref="LovdataResynkUtlost"/>.</summary>
+    public required string Utlost { get; set; }
+
+    /// <summary>Navnet på brukeren som trykket manuelt — kun satt når <see cref="Utlost"/> er
+    /// <see cref="LovdataResynkUtlost.Manuell"/>. Null for Oppstart/Planlagt (ingen menneske involvert).</summary>
+    public string? UtlostAvBruker { get; set; }
+
+    /// <summary>Én av <see cref="LovdataResynkStatus"/>.</summary>
+    public required string Status { get; set; }
+
+    public required DateTimeOffset StartetTidspunkt { get; set; }
+
+    /// <summary>Satt når kjøringen er ferdig, uansett om den lyktes eller ikke (Status != Pågår).</summary>
+    public DateTimeOffset? FullfortTidspunkt { get; set; }
+
+    public int? Nye { get; set; }
+    public int? NyeVersjoner { get; set; }
+    public int? Uendret { get; set; }
+    public int? Feilet { get; set; }
+    public int? TotaltBehandlet { get; set; }
+
+    /// <summary>Satt kun ved TOTAL feil (Status=Feilet) — f.eks. Lovdatas bulk-arkiv utilgjengelig.
+    /// Feil på ENKELTDOKUMENTER innad i en ellers vellykket kjøring vises i stedet i <see cref="Feilet"/>
+    /// (telleren) og i <c>lovdata_importstatus</c> (<see cref="LovdataImportstatusEntitet"/>) — de stopper
+    /// aldri hele kjøringen, se <see cref="LovdataFullimportTjeneste.KjorAsync"/>.</summary>
+    public string? Feilmelding { get; set; }
+}
+
+/// <summary>
+/// DATABASE-lagret frekvensinnstilling for automatisk Lovdata-resynk (administrasjon-Lovdata-resynk,
+/// GitHub-issue #104) — erstatter/utvider IKKE <c>RegelIde:LovdataFullimport:AktivVedOppstart</c>
+/// (fortsatt appsettings, styrer KUN engangskjøringen ved appoppstart), men er den NYE, ekte
+/// frekvensstyringen brukeren ba om: "hvor OFTE resynk skal kjøre automatisk", endrbar fra
+/// administrasjonssiden UTEN redeploy. Singleton-rad (<see cref="Id"/> er alltid <c>1</c>, samme mønster
+/// som andre ett-rad-per-system-innstillinger ville brukt) — det finnes kun ÉN global frekvens, ikke én
+/// per virksomhet/bruker.
+/// <para>
+/// Enkel modell, bevisst IKKE cron: <see cref="IntervallTimer"/> null ELLER 0 betyr "aldri" (kun
+/// oppstart/manuell), ellers et fritt antall timer mellom hver planlagte kjøring. UI-et tilbyr
+/// "Daglig" (24) / "Ukentlig" (168) som snarveier over det samme feltet, pluss et fritt tall — se
+/// <see cref="LovdataResynkPlanlegging.SkalKjoreNaa"/> for selve avgjørelsen (siste kjørings
+/// <see cref="LovdataResynkKjoringEntitet.StartetTidspunkt"/> + dette intervallet, sjekket periodisk av
+/// <c>LovdataResynkPlanleggerBakgrunnstjeneste</c> — IKKE et fullverdig cron-bibliotek).
+/// </para>
+/// </summary>
+public sealed class LovdataResynkInnstillingEntitet
+{
+    /// <summary>Alltid <c>1</c> — singleton-rad, se klassekommentaren.</summary>
+    public required int Id { get; set; }
+
+    /// <summary>Null eller 0 = aldri automatisk (kun oppstart/manuell). Ellers antall timer mellom
+    /// hver planlagte kjøring.</summary>
+    public int? IntervallTimer { get; set; }
+
+    public DateTimeOffset SistEndretTidspunkt { get; set; }
+
+    /// <summary>Navnet på brukeren som sist endret innstillingen. Null hvis raden aldri er eksplisitt
+    /// lagret av en bruker ennå (kun opprettet med standardverdier av <c>HentAsync</c>).</summary>
+    public string? SistEndretAv { get; set; }
+}
+
 /// <summary>
 /// <c>NettsideSti</c> (§3.1/§3.4) — én av potensielt FLERE navigasjonsstier en nettside opptrer
 /// under. §3.4 er eksplisitt: "lagre ALLE stier en node opptrer under som separate rader. Å velge én

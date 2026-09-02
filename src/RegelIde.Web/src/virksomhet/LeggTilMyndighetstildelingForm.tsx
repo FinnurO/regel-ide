@@ -65,6 +65,22 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
     setTilEid('');
   }
 
+  // [Ny, 2026-09-02, issue #115] Menneskelesbar visning av en paragrafspenn-node — "§ nummer —
+  // overskrift" i stedet for rå eId, slått opp i den allerede hentede `noderPerLov`-lista (samme
+  // rettskilde for både fraEid og tilEid, siden et spenn per definisjon er innad i ÉN lov). Faller
+  // tilbake til rå eId når noden ikke er funnet (f.eks. en manuelt inntastet, ikke-paragrafnummerert
+  // eId via "avansert"-feltet under) — ingen gjettet fallback.
+  function visNodeKort(eid: string): string {
+    const node = (lovkildeId ? noderPerLov.get(lovkildeId) : undefined)?.find((n) => n.eid === eid);
+    if (!node) return eid;
+    if (node.nodeType === 'side') return 'Hele siden';
+    const paragraf = node.nummer ? `§ ${node.nummer}` : eid;
+    return node.overskrift ? `${paragraf} — ${node.overskrift}` : paragraf;
+  }
+  function visSpennTekst(p: ParagrafspennParDto): string {
+    return p.tilEid ? `${visNodeKort(p.fraEid)} – ${visNodeKort(p.tilEid)}` : visNodeKort(p.fraEid);
+  }
+
   function leggTilSpenn() {
     if (!fraEid.trim()) return;
     setParagrafspenn((forrige) => [...forrige, { fraEid: fraEid.trim(), tilEid: tilEid.trim() || null }]);
@@ -137,8 +153,8 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
                 <Table.Body>
                   {paragrafspenn.map((p, i) => (
                     <Table.Row key={i}>
-                      <Table.Cell style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>
-                        {p.tilEid ? `${p.fraEid} – ${p.tilEid}` : p.fraEid}
+                      <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                        {visSpennTekst(p)}
                       </Table.Cell>
                       <Table.Cell>
                         <Button data-size="sm" variant="tertiary" onClick={() => fjernSpenn(i)}>Fjern</Button>

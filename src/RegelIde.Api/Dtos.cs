@@ -16,7 +16,10 @@ namespace RegelIde.Api;
 /// </summary>
 /// <summary>
 /// <see cref="ErIrrelevant"/> lagt til (2026-08-30, irrelevant-markering) — kompakt badge-verdi for
-/// listetabellen (RettskilderListe.tsx); selve kommentaren vises kun på detaljsiden, ikke her.
+/// listetabellen (RettskilderListe.tsx). <see cref="IrrelevantKommentar"/> lagt til (2026-09-02,
+/// «utenfor korpuset»-fane, issue #114) — opprinnelig kun på <see cref="RettskildeDetalj"/> ("selve
+/// kommentaren vises kun på detaljsiden"), men Johanns "hvis da merknad"-krav for den nye fanen
+/// trenger den i listevisningen også, så feltet er flyttet hit uten noe annet endres.
 /// </summary>
 /// <summary>
 /// <see cref="IkrafttredelseRaa"/> lagt til (2026-09-02, listevisning-fiks) — samme rå,
@@ -28,11 +31,11 @@ namespace RegelIde.Api;
 /// </summary>
 public sealed record RettskildeSammendrag(
     Guid Id, Guid? VirksomhetId, string? Eli, string Tittel, string? Kortnavn, string Kildetype,
-    string? AnsvarligDepartement, bool ErIrrelevant, string? IkrafttredelseRaa)
+    string? AnsvarligDepartement, bool ErIrrelevant, string? IrrelevantKommentar, string? IkrafttredelseRaa)
 {
     public static RettskildeSammendrag FraEntitet(RettskildeEntitet r) =>
         new(r.Id, r.VirksomhetId, r.Eli, r.Tittel, r.Kortnavn, r.Kildetype, r.AnsvarligDepartement, r.ErIrrelevant,
-            r.IkrafttredelseRaa);
+            r.IrrelevantKommentar, r.IkrafttredelseRaa);
 }
 
 /// <summary>Full rettskilde: metadata + kanonisk AKN-XML (§1 i teknisk design). ELI er ALLTID skrivebeskyttet
@@ -898,6 +901,29 @@ public sealed record LovdataImportstatusDto(
     public static LovdataImportstatusDto FraEntitet(LovdataImportstatusEntitet e) => new(
         e.Datokode, e.Type, e.Tittel, e.Eli, e.Importert, e.RettskildeId, e.Feilmelding, e.SistForsoktTidspunkt);
 }
+
+/// <summary>Én rad i kjøre-historikken for Lovdata-resynk (administrasjon-Lovdata-resynk, GitHub-issue
+/// #104) — se <see cref="LovdataResynkKjoringEntitet"/>.</summary>
+public sealed record LovdataResynkKjoringDto(
+    Guid Id, string Utlost, string? UtlostAvBruker, string Status, DateTimeOffset StartetTidspunkt,
+    DateTimeOffset? FullfortTidspunkt, int? Nye, int? NyeVersjoner, int? Uendret, int? Feilet,
+    int? TotaltBehandlet, string? Feilmelding)
+{
+    public static LovdataResynkKjoringDto FraEntitet(LovdataResynkKjoringEntitet e) => new(
+        e.Id, e.Utlost, e.UtlostAvBruker, e.Status, e.StartetTidspunkt, e.FullfortTidspunkt,
+        e.Nye, e.NyeVersjoner, e.Uendret, e.Feilet, e.TotaltBehandlet, e.Feilmelding);
+}
+
+/// <summary>Database-lagret frekvensinnstilling for automatisk Lovdata-resynk — se
+/// <see cref="LovdataResynkInnstillingEntitet"/>.</summary>
+public sealed record LovdataResynkInnstillingDto(int? IntervallTimer, DateTimeOffset SistEndretTidspunkt, string? SistEndretAv)
+{
+    public static LovdataResynkInnstillingDto FraEntitet(LovdataResynkInnstillingEntitet e) =>
+        new(e.IntervallTimer, e.SistEndretTidspunkt, e.SistEndretAv);
+}
+
+/// <summary>Forespørsel for PUT /api/administrasjon/lovdata-resynk/innstilling — null eller 0 = aldri automatisk.</summary>
+public sealed record OppdaterLovdataResynkInnstillingRequest(int? IntervallTimer);
 
 /// <summary>
 /// Én høstet, rå kildepost (<see cref="EksternKildeEntitet"/>) — se den klassens kommentar for hvorfor

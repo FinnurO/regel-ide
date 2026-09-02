@@ -80,6 +80,19 @@ export default function VirksomhetKandidaterListe() {
     return node.tekst.slice(k.startOffset, k.endOffset);
   }
 
+  // [Ny, 2026-09-02, issue #115] Menneskelesbar "Node"-visning — "§ {nummer} — {overskrift}" i stedet
+  // for rå nodeEid, gjenbruker allerede-hentede `noderPerRettskilde` (samme node som
+  // `visNavneformFunnet` slår opp). Kilden vises allerede i egen "Lov/forskrift"-kolonne rett ved
+  // siden av, så vi bygger teksten direkte fra noden i stedet for å gå via `eidVisningstekst` (som
+  // ville dratt inn kortnavnet en gang til). Faller tilbake til rå eId når noden ikke er funnet ennå.
+  function visNodeTekst(k: VirksomhetKandidatDto): string {
+    const node = noderPerRettskilde.get(k.rettskildeId)?.find((n) => n.eid === k.nodeEid);
+    const paragraf = node?.nummer ? `§ ${node.nummer}` : null;
+    const overskrift = node?.overskrift ? `— ${node.overskrift}` : null;
+    const tekst = [paragraf, overskrift].filter((d): d is string => d !== null).join(' ');
+    return tekst || k.nodeEid;
+  }
+
   // Forespørsel-sekvensnummer (2026-08-22, Johanns tilbakemelding: kandidater for en virksomhet dukket
   // opp i lista mens et ANNET filter var valgt) — uten dette kunne en TREG, ELDRE forespørsel (f.eks.
   // fra filteret rett før brukeren byttet raskt til et nytt) svare ETTER en NYERE, og overskrive
@@ -221,6 +234,39 @@ export default function VirksomhetKandidaterListe() {
       lastAvvisteKandidater();
     } catch (err) {
       setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved sletting av kandidat.');
+    }
+  }
+
+  // «Slett valgte» — samme sted/mønster som Godkjenn/Avvis valgte (massehandling-raden), men kun
+  // 'Avvist'-rader kan faktisk slettes (se state-kommentaren over). Hopper stille over valgte rader
+  // som ikke er avvist i stedet for å feile hele handlingen — bekrefter tydelig i dialogen hvor mange
+  // som faktisk slettes vs. hoppes over.
+  async function slettValgte() {
+    if (valgte.size === 0) return;
+    const avvisteValgte = (kandidater ?? []).filter((k) => valgte.has(k.id) && k.status === 'Avvist').map((k) => k.id);
+    const hoppetOver = valgte.size - avvisteValgte.length;
+    if (avvisteValgte.length === 0) {
+      setMassehandlingFeil('Ingen av de valgte radene er avvist — kun avviste kandidater kan slettes her.');
+      return;
+    }
+    const advarsel = hoppetOver > 0
+      ? `${avvisteValgte.length} avvist(e) kandidat(er) slettes permanent. ${hoppetOver} valgte rad(er) er ikke avvist og hoppes over. Fortsette?`
+      : `Slette ${avvisteValgte.length} avvist(e) kandidat(er) permanent? Dette kan ikke angres.`;
+    if (!window.confirm(advarsel)) return;
+
+    setMassehandlingKjorer(true);
+    setMassehandlingFeil(null);
+    try {
+      for (const id of avvisteValgte) {
+        await api.hardslettVirksomhetKandidat(id);
+      }
+      setValgte(new Set());
+      lastKandidater();
+      lastAvvisteKandidater();
+    } catch (err) {
+      setMassehandlingFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved sletting av valgte kandidater.');
+    } finally {
+      setMassehandlingKjorer(false);
     }
   }
 
@@ -371,6 +417,9 @@ export default function VirksomhetKandidaterListe() {
         <Button data-size="sm" variant="secondary" onClick={() => massehandling('avvis')} disabled={valgte.size === 0 || massehandlingKjorer}>
           {massehandlingKjorer ? 'Avviser …' : 'Avvis valgte'}
         </Button>
+        <Button data-size="sm" data-color="danger" onClick={slettValgte} disabled={valgte.size === 0 || massehandlingKjorer}>
+          {massehandlingKjorer ? 'Sletter …' : 'Slett valgte'}
+        </Button>
       </div>
       {massehandlingFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{massehandlingFeil}</div>}
 
@@ -379,11 +428,13 @@ export default function VirksomhetKandidaterListe() {
           Slett avviste kandidater
         </Heading>
         <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
-          Ekte, irreversibel sletting av 'Avvist'-kandidater — nyttig for å tømme køen før et nytt sveip
+          «Slett valgte» over sletter et PRESIST utvalg (kun avviste blant de markerte radene). Dette
+          kortet er for STOR, filterbasert sletting: ekte, irreversibel sletting av ALLE 'Avvist'-
+          kandidater innenfor virksomhet-/rettskildefilteret — nyttig for å tømme køen før et nytt sveip
           (den posisjonsbaserte idempotensen hindrer ellers et nytt sveip i noensinne å re-evaluere en
-          avvist posisjon på nytt). Respekterer virksomhet-/rettskildefilteret over, men IKKE statusfilteret
-          over — kun 'Avvist'-rader kan slettes: en 'Venter'-rad skal behandles (godkjennes/avvises), og en
-          'Godkjent'-rad har opprettet en ekte tekst-tagg som ikke kan fjernes i etterkant.
+          avvist posisjon på nytt). Respekterer IKKE statusfilteret over — kun 'Avvist'-rader kan slettes
+          uansett metode: en 'Venter'-rad skal behandles (godkjennes/avvises), og en 'Godkjent'-rad har
+          opprettet en ekte tekst-tagg som ikke kan fjernes i etterkant.
         </Paragraph>
         <Button
           data-size="sm"
@@ -445,7 +496,9 @@ export default function VirksomhetKandidaterListe() {
                     </Table.Cell>
                     <Table.Cell>{visEier(k.virksomhetId)}</Table.Cell>
                     <Table.Cell>{visRettskilde(k.rettskildeId)}</Table.Cell>
-                    <Table.Cell style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>
+                    <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                      {/* [Rettet, 2026-09-02, issue #115] Viser nå "§ nummer — overskrift" (visNodeTekst)
+                          i stedet for rå nodeEid — monospace-stilen passet den rå eId-koden, ikke prosa. */}
                       {/* Slik at bruker kan lese noden i sin fulle sammenheng FØR godkjenning
                           (Johanns tilbakemelding 2026-08-22) — åpner rettskildevisningen på nøyaktig
                           denne noden. [Rettet, 2026-08-30] Bruker rettskildeLenkeForId (rettskildeId
@@ -453,7 +506,7 @@ export default function VirksomhetKandidaterListe() {
                           gjetting — den fant ingen treff for kap-/rom-/punkt-nummererte noder
                           (LovdataIdentifikatorer.KapittelEid er bevisst ELI-uavhengig). */}
                       <Link asChild>
-                        <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{k.nodeEid} ↗</RouterLink>
+                        <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{visNodeTekst(k)} ↗</RouterLink>
                       </Link>
                     </Table.Cell>
                     <Table.Cell>

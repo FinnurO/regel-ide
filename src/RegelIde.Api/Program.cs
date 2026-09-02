@@ -107,6 +107,16 @@ builder.Services.AddScoped<LovdataImportstatusTjeneste>();
 // Full Lovdata-synkronisering ved oppstart (docs/13-backlog.md §6) — se klassekommentaren for
 // hvorfor dette er en BackgroundService og ikke et synkront steg i oppstartsblokken under.
 builder.Services.AddHostedService<LovdataFullimportBakgrunnstjeneste>();
+// Administrasjon-Lovdata-resynk (GitHub-issue #104): manuell trigger + database-lagret frekvens +
+// kjøre-historikk. TimeProvider.System registrert her (i stedet for i RegelIde.Data, som er ASP.NET-fri)
+// slik at BÅDE LovdataResynkPlanleggerTjeneste (Data, scoped) og LovdataResynkPlanleggerBakgrunnstjeneste
+// (Api, singleton BackgroundService) kan injisere en ekte klokke — testene erstatter denne med en enkel
+// fake i stedet for å vente på ekte Task.Delay, se LovdataResynkPlanleggerTjenesteTests.
+builder.Services.AddSingleton(TimeProvider.System);
+builder.Services.AddScoped<LovdataResynkKjoringTjeneste>();
+builder.Services.AddScoped<LovdataResynkInnstillingTjeneste>();
+builder.Services.AddScoped<LovdataResynkPlanleggerTjeneste>();
+builder.Services.AddHostedService<LovdataResynkPlanleggerBakgrunnstjeneste>();
 builder.Services.AddHttpClient<OppgaveregisterHenter>();
 builder.Services.AddHttpClient<BrregKlient>();
 builder.Services.AddHttpClient<AltinnRessursHenter>();
@@ -613,7 +623,9 @@ rettskilder.MapGet("/", async (Guid? virksomhetId, bool? inkluderIrrelevante, Re
     .WithName("HentAlleRettskilder")
     .WithSummary("Lister rettskilder (åpne data — kun Status != 'Utkast'). " +
         "?virksomhetId snevrer inn til én virksomhets bidrag; utelatt viser alt (delt + alle virksomheter). " +
-        "?inkluderIrrelevante=true tar med ErIrrelevant-markerte rettskilder, som ellers ekskluderes stille.");
+        "?inkluderIrrelevante=true tar med ErIrrelevant-markerte rettskilder, som ellers ekskluderes stille.")
+    .WithDescription("IrrelevantKommentar er med i sammendraget (siden 2026-09-02, issue #114) slik at " +
+        "«Utenfor korpuset»-fanen i RettskilderListe.tsx kan vise begrunnelsen uten et ekstra oppslag per rad.");
 
 rettskilder.MapGet("/{id:guid}", async (Guid id, RettskildeRepository repo) =>
     {
@@ -1022,6 +1034,97 @@ app.MapGet("/api/lovdata-importstatus", async (bool? importert, RegelIdeDbContex
     .WithSummary("Siste kjente importforsøk per KJENT Lovdata-dokument (fra bulk-arkivet), skrevet av " +
         "LovdataFullimportTjeneste — inkl. dokumenter som IKKE lot seg AKN-importere (importert=false), " +
         "med tittel/ELI/feilmelding til triage. ?importert=false viser kun det som trengs å prioriteres.");
+
+// ---------- Administrasjon-Lovdata-resynk (GitHub-issue #104): manuell trigger, database-lagret ----------
+// ---------- frekvensstyring, og synlig kjøre-historikk for LovdataFullimportTjeneste.               ----------
+
+var lovdataResynk = app.MapGroup("/api/administrasjon/lovdata-resynk").WithOpenApi();
+
+lovdataResynk.MapGet("/", async (RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        // Nyeste først, inntil 500 rader -- klienten paginerer selv over denne listen (samme
+        // "hent alt, paginer på klienten"-mønster som NavnekandidaterListe/RettskilderListe m.fl., se
+        // docs/09-design-konvensjoner.md §9). Første rad ER "pågående/siste kjøring"-status i UI-et.
+        var kjoringer = await db.LovdataResynkKjoringer
+            .OrderByDescending(k => k.StartetTidspunkt)
+            .Take(500)
+            .ToListAsync(ct);
+        return Results.Ok(kjoringer.Select(LovdataResynkKjoringDto.FraEntitet));
+    })
+    .WithName("HentLovdataResynkHistorikk")
+    .WithSummary("Kjøre-historikk for Lovdata full-resynk (Oppstart/Manuell/Planlagt), nyeste først, " +
+        "inntil 500 rader. Første rad viser status for en evt. pågående kjøring.");
+
+lovdataResynk.MapPost("/", async (HttpRequest request, IServiceScopeFactory scopeFactory,
+        LovdataResynkKjoringTjeneste kjoretjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+
+        if (await kjoretjeneste.ErKjoringPagaendeAsync(ct))
+        {
+            return Results.Conflict(new { feil = "En Lovdata-resynk kjører allerede." });
+        }
+
+        // Raden opprettes SYNKRONT her (raskt, ingen nettverkskall) slik at svaret under kan returnere
+        // id-en umiddelbart -- selve arbeidet (kan ta flere minutter over hele korpuset) skjer i en EGEN
+        // DI-scope via Task.Run, samme mønster/begrunnelse som LovdataFullimportBakgrunnstjeneste ved
+        // oppstart. CancellationToken.None bevisst i Task.Run-en: requestens ct kanselleres når
+        // responsen er sendt, og skal ikke avbryte en jobb som akkurat har startet i bakgrunnen.
+        var kjoringId = await kjoretjeneste.StartKjoringAsync(LovdataResynkUtlost.Manuell, bruker.Navn, ct);
+
+        _ = Task.Run(async () =>
+        {
+            using var scope = scopeFactory.CreateScope();
+            var bgKjoretjeneste = scope.ServiceProvider.GetRequiredService<LovdataResynkKjoringTjeneste>();
+            var bgFullimport = scope.ServiceProvider.GetRequiredService<LovdataFullimportTjeneste>();
+            try
+            {
+                await bgKjoretjeneste.FullforKjoringAsync(kjoringId, bgFullimport.KjorAsync, CancellationToken.None);
+            }
+            catch
+            {
+                // Allerede logget (ILogger i LovdataFullimportTjeneste) og lagret som Feilet på raden
+                // (LovdataResynkKjoringTjeneste.FullforKjoringAsync) -- svelges her bevisst slik at et
+                // uobservert unntak fra denne detached Task.Run-en aldri velter prosessen.
+            }
+        });
+
+        var kjoring = await db.LovdataResynkKjoringer.SingleAsync(k => k.Id == kjoringId, ct);
+        return Results.Accepted(
+            $"/api/administrasjon/lovdata-resynk/{kjoringId}", LovdataResynkKjoringDto.FraEntitet(kjoring));
+    })
+    .WithName("StartLovdataResynk")
+    .WithSummary("Starter en full Lovdata-resynk i bakgrunnen (samme LovdataFullimportTjeneste som kjører " +
+        "automatisk ved oppstart/planlagt). Returnerer UMIDDELBART en 'Pågår'-kjøring uten å vente på " +
+        "hele runden (kan ta flere minutter) — poll GET / for status. 409 hvis en kjøring allerede pågår.");
+
+var lovdataResynkInnstilling = app.MapGroup("/api/administrasjon/lovdata-resynk/innstilling").WithOpenApi();
+
+lovdataResynkInnstilling.MapGet("/", async (LovdataResynkInnstillingTjeneste tjeneste, CancellationToken ct) =>
+        Results.Ok(LovdataResynkInnstillingDto.FraEntitet(await tjeneste.HentAsync(ct))))
+    .WithName("HentLovdataResynkInnstilling")
+    .WithSummary("Database-lagret frekvensinnstilling for automatisk Lovdata-resynk — IntervallTimer null/0 = aldri.");
+
+lovdataResynkInnstilling.MapPut("/", async (HttpRequest request, OppdaterLovdataResynkInnstillingRequest body,
+        LovdataResynkInnstillingTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+
+        try
+        {
+            var innstilling = await tjeneste.OppdaterAsync(body.IntervallTimer, bruker.Navn, ct);
+            return Results.Ok(LovdataResynkInnstillingDto.FraEntitet(innstilling));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OppdaterLovdataResynkInnstilling")
+    .WithSummary("Endrer hvor ofte Lovdata-resynk skal kjøre automatisk (LovdataResynkPlanleggerBakgrunnstjeneste " +
+        "sjekker denne hver time) — lagres i database, ikke appsettings, slik at det kan endres uten redeploy.");
 
 // ---------- Eksterne kilder — rått høstelag for skjema-/tjenestekatalog (docs/13-backlog.md), ----------
 // ---------- ENNÅ IKKE koblet til domenemodellen (docs/17/docs/18 fortsatt uavklart). Trigges på ----------

@@ -32,7 +32,14 @@ public sealed class LovdataFullimportBakgrunnstjeneste(
             using var scope = scopeFactory.CreateScope();
             var tjeneste = scope.ServiceProvider.GetRequiredService<LovdataFullimportTjeneste>();
             logger.LogInformation("Lovdata-fullimport starter i bakgrunnen (alle lover + sentrale forskrifter)...");
-            var resultat = await tjeneste.KjorAsync(stoppingToken);
+            // [Ny, administrasjon-Lovdata-resynk, GitHub-issue #104] Kjører+registrerer via
+            // LovdataResynkKjoringTjeneste (i stedet for et bart tjeneste.KjorAsync-kall) slik at denne
+            // oppstartskjøringen også havner i den synlige kjøre-historikken (Utlost=Oppstart) på
+            // administrasjonssiden, på lik linje med manuelle og planlagte kjøringer -- ellers ville
+            // historikken misvisende se ut som om ingenting kjørte ved hver app-restart.
+            var resynkKjoring = scope.ServiceProvider.GetRequiredService<LovdataResynkKjoringTjeneste>();
+            var resultat = await resynkKjoring.KjorOgRegistrerAsync(
+                LovdataResynkUtlost.Oppstart, utlostAvBruker: null, tjeneste.KjorAsync, stoppingToken);
             logger.LogInformation("Lovdata-fullimport fullført: {Resultat}", resultat);
 
             // [Ny, kodegjennomgang 2026-08-30] Navnekandidat-fiks 3 — verken enkelt-import eller denne
