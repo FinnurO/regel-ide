@@ -328,6 +328,19 @@ export interface SlettNavnekandidaterResultatDto {
   antallSlettet: number;
 }
 
+/** [Ny, «flytt Slett inn i massehandling-raden», 2026-09-02] Massesletting av et PRESIST avkrysset
+ * utvalg (POST /api/navnekandidater/slett-batch) — bruker NavnekandidatBatchRequest over for selve
+ * id-listen, men egen radform (ingen `resultat`-felt — en slettet rad har ingen ny DTO). */
+export interface NavnekandidatSlettBatchRadDto {
+  id: string;
+  ok: boolean;
+  feil: string | null;
+}
+
+export interface NavnekandidatSlettBatchResultatDto {
+  rader: NavnekandidatSlettBatchRadDto[];
+}
+
 /** Ikke lenger en fast literal-union — kind-settet er konfigurasjonsstyrt (se TaggKindKonfigurasjonDto), ikke hardkodet. */
 export type TaggKind = string;
 

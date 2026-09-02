@@ -2790,6 +2790,32 @@ navnekandidater.MapPost("/avvis-batch", async (HttpRequest request, Navnekandida
     .WithName("AvvisNavnekandidaterBatch")
     .WithSummary("Masseavvisning — server-side batch med per-rad-feilhåndtering.");
 
+// [Ny, «flytt Slett inn i massehandling-raden», 2026-09-02] Massesletting av et PRESIST avkrysset
+// utvalg — komplementær til DELETE / under (filter-basert, se DEN endepunktkommentaren for hvorfor
+// begge fortsatt finnes). Samme løkke-over-id-liste-mønster som /forslag/slett-batch
+// (TjenesteregisterTjeneste.SlettForslagAsync), her over den allerede eksisterende SlettAsync — ingen
+// egen batch-metode i tjenesten trengtes, samme "tynt endepunkt, tjenestemetoden gjør ett" -linje som
+// resten av navnekandidat-endepunktene. Ingen GjeldendeBrukerTjeneste-sjekk, samme som enkeltrad-
+// DELETE /{id:guid} under (SlettAsync har ingen "BehandletAv"-felt å fylle, til forskjell fra
+// Godkjenn/Avvis).
+navnekandidater.MapPost("/slett-batch", async (NavnekandidatBatchRequest body,
+        NavnekandidatOppdagelseTjeneste register, CancellationToken ct) =>
+    {
+        var rader = new List<NavnekandidatSlettBatchRadDto>();
+        foreach (var id in body.Ider)
+        {
+            var slettet = await register.SlettAsync(id, ct);
+            rader.Add(slettet
+                ? new NavnekandidatSlettBatchRadDto(id, true, null)
+                : new NavnekandidatSlettBatchRadDto(id, false, $"Ingen kandidat med id '{id}'."));
+        }
+        return Results.Ok(new NavnekandidatSlettBatchResultatDto(rader));
+    })
+    .WithName("SlettNavnekandidaterBatch")
+    .WithSummary("Massesletting av et PRESIST avkrysset utvalg (samme rad-utvalg som Godkjenn/Avvis " +
+        "valgte) — ekte sletting, uansett status, samme som enkeltrad-DELETE. Til forskjell fra " +
+        "DELETE / (filter-basert, treffer et helt filtrert delsett uavhengig av avkrysning).");
+
 // [Ny, 2026-08-30] Sletting — ekte, ikke soft-delete (se NavnekandidatOppdagelseTjeneste.SlettAsync for
 // hvorfor: ren oppdagelseskø, ingen Entitetsstatus/proveniens-kobling som ville tilsi mykslette).
 // Trengs fordi OpprettEllerFinnAsync sin posisjonsbaserte idempotens ellers hindrer et nytt sveip i
