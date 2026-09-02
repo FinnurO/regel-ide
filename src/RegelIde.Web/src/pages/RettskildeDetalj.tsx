@@ -347,6 +347,27 @@ export default function RettskildeDetalj() {
     api.hentRettskilder().then(setAlleRettskilder).catch(() => setAlleRettskilder([]));
   }, []);
 
+  // [Ny, 2026-09-02, issue #115] Nodene til hver rettskilde faktisk referert fra «Referanser»-
+  // seksjonen (kan peke til EN HVILKEN SOM HELST rettskilde, ikke bare denne — til forskjell fra
+  // `detaljNoderPerRettskilde` under som er avgrenset til `detalj.id`) — slik at `eidVisningstekst`
+  // kan vise målnodens tittel i stedet for den rå eId-en som lenketekst. Samme
+  // henteregister-mønster som `noderPerRettskilde`/`sikreNoderFor` i TjenesteDetalj.tsx.
+  const [referanseNoderPerRettskilde, setReferanseNoderPerRettskilde] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
+  useEffect(() => {
+    for (const rettskildeId of new Set(referanser.map((r) => r.tilRettskildeId))) {
+      if (referanseNoderPerRettskilde.has(rettskildeId)) continue;
+      api.hentNoder(rettskildeId)
+        .then((noder) => setReferanseNoderPerRettskilde((forrige) => new Map(forrige).set(rettskildeId, noder)))
+        .catch(() => {
+          // Ingen gjettet fallback — visningen faller tilbake til rå eId når nodene ikke lot seg hente.
+        });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [referanser]);
+  function referanseVisningstekst(r: RettskildeReferanseDto): string {
+    return eidVisningstekst(r.tilEid, alleRettskilder, referanseNoderPerRettskilde) ?? r.tilEid;
+  }
+
   // Registry for «Koble til …»-handlingen i tagg-listen (byggesteg 2) — kandidater for kind='begrep'/'tjeneste'.
   const [registry, setRegistry] = useState<Registry>({});
   // Kobler-visning for allerede-koblede tagger («resolveRef») — 2026-07-30, se TagTekst.tsx.
@@ -1045,6 +1066,7 @@ export default function RettskildeDetalj() {
                         mode="rediger"
                         node={valgtNode}
                         alleRettskilder={alleRettskilder}
+                        noderPerRettskilde={referanseNoderPerRettskilde}
                         alleVilkar={alleVilkarForReferanse}
                         alleTjenester={alleTjenesterForReferanse}
                         onLagret={(oppdatert) => refetchNoder(oppdatert.eid)}
@@ -1185,18 +1207,24 @@ export default function RettskildeDetalj() {
                       }
                       return (
                         <ul style={{ margin: '0 0 0.75rem', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
-                          {nodeReferanser.map((r) => (
-                            <li key={r.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--ds-font-size-1)' }}>
-                              <Link asChild>
-                                <RouterLink to={`/rettskilder/${r.tilRettskildeId}?eid=${encodeURIComponent(r.tilEid)}`}>{r.tilEid}</RouterLink>
-                              </Link>
-                              {r.opprinnelse === 'import' ? (
-                                <Tag data-color="neutral" data-size="sm">fra kilden</Tag>
-                              ) : (
-                                <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernReferanse(r.id)}>Fjern</Button>
-                              )}
-                            </li>
-                          ))}
+                          {nodeReferanser.map((r) => {
+                            const visningstekst = referanseVisningstekst(r);
+                            return (
+                              <li key={r.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--ds-font-size-1)' }}>
+                                <Link asChild>
+                                  <RouterLink to={`/rettskilder/${r.tilRettskildeId}?eid=${encodeURIComponent(r.tilEid)}`}>{visningstekst}</RouterLink>
+                                </Link>
+                                {visningstekst !== r.tilEid && (
+                                  <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>({r.tilEid})</span>
+                                )}
+                                {r.opprinnelse === 'import' ? (
+                                  <Tag data-color="neutral" data-size="sm">fra kilden</Tag>
+                                ) : (
+                                  <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernReferanse(r.id)}>Fjern</Button>
+                                )}
+                              </li>
+                            );
+                          })}
                           {nettsideLenkerForNode.map((l) => (
                             <li key={l.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--ds-font-size-1)' }}>
                               <Tag data-color={l.type === 'lovdatalenke' ? 'warning' : 'neutral'} data-size="sm">{l.type}</Tag>

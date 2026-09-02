@@ -3,7 +3,7 @@ import { Link as RouterLink } from 'react-router';
 import { Alert, Button, Card, Dialog, Field, Heading, Label, Link, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
-import type { BegrepsforekomstDto, RettskildeDetalj, RettskildeSammendrag } from '../api/types';
+import type { BegrepsforekomstDto, RettskildeDetalj, RettskildeNodeDto, RettskildeSammendrag } from '../api/types';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
@@ -284,6 +284,26 @@ export default function Begrepskandidater() {
 
   const paginering = usePaginering(viste ?? []);
 
+  // [Ny, 2026-09-02, issue #115] Node-tekst per rettskilde — samme lazy-per-rettskilde-mønster som
+  // VirksomhetKandidaterListe.tsx/NavnekandidaterListe.tsx, kun for rettskildene bak GJELDENDE SIDE.
+  const [noderPerRettskilde, setNoderPerRettskilde] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
+  useEffect(() => {
+    for (const rettskildeId of new Set(paginering.visteRader.map((f) => f.rettskildeId))) {
+      if (noderPerRettskilde.has(rettskildeId)) continue;
+      api.hentNoder(rettskildeId)
+        .then((noder) => setNoderPerRettskilde((forrige) => new Map(forrige).set(rettskildeId, noder)))
+        .catch(() => {}); // ingen gjettet fallback — viser rå node-eId når nodene ikke lot seg hente
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paginering.visteRader]);
+  function visNodeTekst(f: BegrepsforekomstDto): string {
+    const node = noderPerRettskilde.get(f.rettskildeId)?.find((n) => n.eid === f.nodeEid);
+    const paragraf = node?.nummer ? `§ ${node.nummer}` : null;
+    const overskrift = node?.overskrift ? `— ${node.overskrift}` : null;
+    const tekst = [paragraf, overskrift].filter((d): d is string => d !== null).join(' ');
+    return tekst || f.nodeEid;
+  }
+
   return (
     <>
       <Heading level={1} data-size="lg" style={{ marginBottom: '0.2rem' }}>
@@ -436,10 +456,10 @@ export default function Begrepskandidater() {
                       <Table.Cell>
                         <Tag data-color={KONFIDENS_FARGE[f.konfidens] ?? 'neutral'} data-size="sm">{f.konfidens}</Tag>
                       </Table.Cell>
-                      <Table.Cell style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>
+                      <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
                         <Link asChild>
                           <RouterLink to={rettskildeLenkeForId(f.rettskildeId, f.nodeEid)} target="_blank">
-                            {visRettskilde(f.rettskildeId)} — {f.nodeEid} ↗
+                            {visRettskilde(f.rettskildeId)} — {visNodeTekst(f)} ↗
                           </RouterLink>
                         </Link>
                       </Table.Cell>

@@ -3,7 +3,7 @@ import { Link as RouterLink, useSearchParams } from 'react-router';
 import { Alert, Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Table, Tag, Textfield, ToggleGroup } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
-import type { NavnekandidatDto, RettskildeSammendrag } from '../api/types';
+import type { NavnekandidatDto, RettskildeNodeDto, RettskildeSammendrag } from '../api/types';
 import { RettskildeFlervalg } from '../rettskilde/RettskildeFlervalg';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
@@ -115,6 +115,13 @@ function BerikelseVisning({ k }: { k: NavnekandidatDto }) {
 export default function NavnekandidaterListe() {
   const [searchParams] = useSearchParams();
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
+
+  // [Ny, 2026-09-02, issue #115] Node-tekst per rettskilde — samme lazy-per-rettskilde-mønster som
+  // VirksomhetKandidaterListe.tsx, slik at "Node"-kolonnen kan vise "§ nummer — overskrift" i stedet
+  // for rå nodeEid. Hentes KUN for rettskildene bak de faktisk SYNLIGE radene (se `synligeRader`
+  // under) — samme observerte perf-hensyn som der (én virksomhet/term kan ha kandidater spredt over
+  // hundrevis av ulike rettskilder samtidig).
+  const [noderPerRettskilde, setNoderPerRettskilde] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
 
   const [kategoriFilter, setKategoriFilter] = useState<'virksomhet' | 'gruppe' | ''>('');
   const [statusFilter, setStatusFilter] = useState<'Venter' | 'Godkjent' | 'Avvist' | 'Alle'>('Venter');
@@ -435,6 +442,35 @@ export default function NavnekandidaterListe() {
   // helhet.
   const raderForMasterSjekkboks = gruppering === 'ingen' ? paginering.visteRader : (viste ?? []);
 
+  // [Ny, 2026-09-02, issue #115] Radene FAKTISK synlig på skjermen akkurat nå — gjeldende side ved
+  // flat visning (som `paginering.visteRader`), men KUN radene i ÅPNE grupper ved gruppert visning
+  // (kollapsede grupper er ikke rendret, og skal derfor ikke trigge nodehenting for sine rettskilder).
+  const synligeRader = useMemo(() => {
+    if (gruppering === 'ingen') return paginering.visteRader;
+    if (!grupper) return [];
+    return grupper.filter((g) => gruppeApne.has(g.nokkel)).flatMap((g) => g.rader);
+  }, [gruppering, paginering.visteRader, grupper, gruppeApne]);
+
+  useEffect(() => {
+    for (const rettskildeId of new Set(synligeRader.map((k) => k.rettskildeId))) {
+      if (noderPerRettskilde.has(rettskildeId)) continue;
+      api.hentNoder(rettskildeId)
+        .then((noder) => setNoderPerRettskilde((forrige) => new Map(forrige).set(rettskildeId, noder)))
+        .catch(() => {}); // ingen gjettet fallback — viser rå node-eId når nodene ikke lot seg hente
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [synligeRader]);
+
+  // Samme "§ nummer — overskrift"-bygging som VirksomhetKandidaterListe.tsx sin visNodeTekst — kilden
+  // vises allerede i egen "Rettskilde"-kolonne rett ved siden av.
+  function visNodeTekst(k: NavnekandidatDto): string {
+    const node = noderPerRettskilde.get(k.rettskildeId)?.find((n) => n.eid === k.nodeEid);
+    const paragraf = node?.nummer ? `§ ${node.nummer}` : null;
+    const overskrift = node?.overskrift ? `— ${node.overskrift}` : null;
+    const tekst = [paragraf, overskrift].filter((d): d is string => d !== null).join(' ');
+    return tekst || k.nodeEid;
+  }
+
   function apneAlleGrupper() {
     if (grupper) setGruppeApne(new Set(grupper.map((g) => g.nokkel)));
   }
@@ -462,9 +498,9 @@ export default function NavnekandidaterListe() {
           {k.oppdagelsesKilde === 'stor-bokstav-snl-ssr' && <BerikelseVisning k={k} />}
         </Table.Cell>
         <Table.Cell>{visRettskilde(k.rettskildeId)}</Table.Cell>
-        <Table.Cell style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>
+        <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
           <Link asChild>
-            <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{k.nodeEid} ↗</RouterLink>
+            <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{visNodeTekst(k)} ↗</RouterLink>
           </Link>
         </Table.Cell>
         <Table.Cell>

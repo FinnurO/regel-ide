@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import { rettskildeLenke } from '../api/eidLenker';
+import { eidVisningstekst, rettskildeLenke } from '../api/eidLenker';
 import type { RettskildeNodeDto, RettskildeReferanseDto, RettskildeSammendrag } from '../api/types';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { MinimalEditor } from './MinimalEditor';
@@ -39,6 +39,10 @@ interface KommentarRedigeringProps {
   parentNodeId?: string;
   node?: RettskildeNodeDto;
   alleRettskilder: RettskildeSammendrag[];
+  /** [Ny, 2026-09-02, issue #115] Nodene til rettskildene lovreferansene under peker til — slik at
+   * "Lovreferanser"-lista kan vise "§ nummer — overskrift" (eidVisningstekst) i stedet for rå eId.
+   * Valgfri: uten den faller visningen tilbake til rå eId, akkurat som når noden ikke er hentet ennå. */
+  noderPerRettskilde?: Map<string, RettskildeNodeDto[]>;
   /** Referanse-kandidater ut over rettskilder (2026-07-31, docs/13-backlog.md §2.4) — kun en peker (kind+id), ingen tekst-fletting. */
   alleVilkar?: NavngittEntitet[];
   alleTjenester?: NavngittEntitet[];
@@ -57,6 +61,7 @@ export function KommentarRedigering({
   parentNodeId,
   node,
   alleRettskilder,
+  noderPerRettskilde,
   alleVilkar = [],
   alleTjenester = [],
   onLagret,
@@ -287,14 +292,22 @@ export function KommentarRedigering({
               <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 var(--ds-size-2)' }}>
                 {referanser.map((r) => {
                   const href = rettskildeLenke(r.tilEid, alleRettskilder);
+                  // [Ny, 2026-09-02, issue #115] Vis "§ nummer — overskrift" i stedet for rå eId når
+                  // nodene er kjent (kalleren sender med noderPerRettskilde) — samme mønster som
+                  // eidVisningstekst brukes andre steder i appen. Faller tilbake til rå eId når
+                  // kalleren ikke har sendt noden med, eller den ikke er funnet ennå.
+                  const visningstekst = eidVisningstekst(r.tilEid, alleRettskilder, noderPerRettskilde ?? new Map()) ?? r.tilEid;
                   return (
                     <li key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--ds-size-2)' }}>
                       {href ? (
-                        <Link asChild style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>
-                          <RouterLink to={href}>{r.tilEid}</RouterLink>
+                        <Link asChild style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                          <RouterLink to={href}>{visningstekst}</RouterLink>
                         </Link>
                       ) : (
-                        <span style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>{r.tilEid}</span>
+                        <span style={{ fontSize: 'var(--ds-font-size-1)' }}>{visningstekst}</span>
+                      )}
+                      {visningstekst !== r.tilEid && (
+                        <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>({r.tilEid})</span>
                       )}
                       <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernLovreferanse(r.id)}>
                         Fjern

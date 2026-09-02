@@ -80,6 +80,19 @@ export default function VirksomhetKandidaterListe() {
     return node.tekst.slice(k.startOffset, k.endOffset);
   }
 
+  // [Ny, 2026-09-02, issue #115] Menneskelesbar "Node"-visning — "§ {nummer} — {overskrift}" i stedet
+  // for rå nodeEid, gjenbruker allerede-hentede `noderPerRettskilde` (samme node som
+  // `visNavneformFunnet` slår opp). Kilden vises allerede i egen "Lov/forskrift"-kolonne rett ved
+  // siden av, så vi bygger teksten direkte fra noden i stedet for å gå via `eidVisningstekst` (som
+  // ville dratt inn kortnavnet en gang til). Faller tilbake til rå eId når noden ikke er funnet ennå.
+  function visNodeTekst(k: VirksomhetKandidatDto): string {
+    const node = noderPerRettskilde.get(k.rettskildeId)?.find((n) => n.eid === k.nodeEid);
+    const paragraf = node?.nummer ? `§ ${node.nummer}` : null;
+    const overskrift = node?.overskrift ? `— ${node.overskrift}` : null;
+    const tekst = [paragraf, overskrift].filter((d): d is string => d !== null).join(' ');
+    return tekst || k.nodeEid;
+  }
+
   // Forespørsel-sekvensnummer (2026-08-22, Johanns tilbakemelding: kandidater for en virksomhet dukket
   // opp i lista mens et ANNET filter var valgt) — uten dette kunne en TREG, ELDRE forespørsel (f.eks.
   // fra filteret rett før brukeren byttet raskt til et nytt) svare ETTER en NYERE, og overskrive
@@ -483,7 +496,9 @@ export default function VirksomhetKandidaterListe() {
                     </Table.Cell>
                     <Table.Cell>{visEier(k.virksomhetId)}</Table.Cell>
                     <Table.Cell>{visRettskilde(k.rettskildeId)}</Table.Cell>
-                    <Table.Cell style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>
+                    <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                      {/* [Rettet, 2026-09-02, issue #115] Viser nå "§ nummer — overskrift" (visNodeTekst)
+                          i stedet for rå nodeEid — monospace-stilen passet den rå eId-koden, ikke prosa. */}
                       {/* Slik at bruker kan lese noden i sin fulle sammenheng FØR godkjenning
                           (Johanns tilbakemelding 2026-08-22) — åpner rettskildevisningen på nøyaktig
                           denne noden. [Rettet, 2026-08-30] Bruker rettskildeLenkeForId (rettskildeId
@@ -491,7 +506,7 @@ export default function VirksomhetKandidaterListe() {
                           gjetting — den fant ingen treff for kap-/rom-/punkt-nummererte noder
                           (LovdataIdentifikatorer.KapittelEid er bevisst ELI-uavhengig). */}
                       <Link asChild>
-                        <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{k.nodeEid} ↗</RouterLink>
+                        <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{visNodeTekst(k)} ↗</RouterLink>
                       </Link>
                     </Table.Cell>
                     <Table.Cell>

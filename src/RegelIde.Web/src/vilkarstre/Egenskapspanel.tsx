@@ -103,10 +103,14 @@ function JuridiskGrunnlagRedigering({ grunnlag, rettskilder, onEndre }: {
             return (
               <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--ds-font-size-1)' }}>
                 {href ? (
-                  <Link asChild><RouterLink to={href}>{g.kilde} {g.eId}</RouterLink></Link>
+                  <Link asChild><RouterLink to={href}>{g.kilde}</RouterLink></Link>
                 ) : (
-                  <span>{g.kilde} {g.eId}</span>
+                  <span>{g.kilde}</span>
                 )}
+                {/* [Ny, 2026-09-02, issue #115] eId degradert til liten, sekundær metatekst — g.kilde er
+                    allerede rettskildens tittel (satt fra rettskilde.kortnavn/tittel i leggTil under),
+                    så den rå eId-en er ikke primærinformasjon i seg selv, kun sporbarhetsdetalj. */}
+                <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>({g.eId})</span>
                 <Button variant="tertiary" data-color="danger" data-size="sm" type="button"
                   onClick={() => onEndre(grunnlag.filter((_, j) => j !== i))}>
                   Fjern
