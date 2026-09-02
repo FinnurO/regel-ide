@@ -698,6 +698,17 @@ rettskilder.MapGet("/{id:guid}/hjemmel-for", async (Guid id, RettskildeRepositor
     .WithSummary("Motsatt retning av /hjemmel — hvilke forskrifter er hjemlet i DENNE rettskilden (typisk en lov). " +
         "Tom liste for en rettskilde ingen andre rettskilder er hjemlet i.");
 
+rettskilder.MapGet("/{id:guid}/endringer", async (Guid id, RettskildeRepository repo) =>
+    {
+        if (await repo.FinnAsync(id) is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
+        var endringer = await repo.EndringerForAsync(id);
+        return Results.Ok(endringer.Select(RettskildeEndringDto.FraEntitet));
+    })
+    .WithName("HentRettskildeEndringer")
+    .WithSummary("Henter Endring-referansene fra header-metadatafeltet <dt class=\"changesToDocuments\">Endrer</dt> " +
+        "(rettskildedetalj-fikser, 2026-09-02) — hvilke(t) andre dokument(er) DENNE rettskilden endrer. " +
+        "Tom liste for enhver rettskilde uten feltet.");
+
 rettskilder.MapGet("/{id:guid}/referert-av-tjenester", async (Guid id, RettskildeRepository repo) =>
         Results.Ok(await repo.ReferertAvTjenesterAsync(id)))
     .WithName("HentRettskildeReferertAvTjenester")

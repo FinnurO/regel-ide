@@ -122,6 +122,18 @@ public sealed class RettskildeRepository(RegelIdeDbContext db, VirksomhetOppslag
             .ToListAsync();
 
     /// <summary>
+    /// Endring-referansene FRA denne rettskilden (rettskildedetalj-fikser, 2026-09-02, punkt 5) — header-
+    /// metadatafeltet Endrer (<see cref="RettskildeEndringEntitet"/>): hvilke(t) andre dokument(er) DENNE
+    /// rettskilden endrer. Samme "ingen join, DOKUMENTNIVÅ"-mønster som <see cref="HjemlerForAsync"/>, i
+    /// kildens egen rekkefølge. Tom liste for enhver rettskilde uten feltet.
+    /// </summary>
+    public Task<List<RettskildeEndringEntitet>> EndringerForAsync(Guid rettskildeId) =>
+        db.RettskildeEndringer
+            .Where(e => e.RettskildeId == rettskildeId)
+            .OrderBy(e => e.Sorteringsrekkefolge)
+            .ToListAsync();
+
+    /// <summary>
     /// Oppdaterer redigerbar metadata på en allerede importert rettskilde — opprinnelig AK-3.3.6
     /// "bekreft/rediger metadata" (Kortnavn/Utgiver, i importbekreftelsen `Importer.tsx`), utvidet
     /// 2026-08-13 (avklaringsrunde) med de håndbok-metadatafeltene som allerede fantes på entiteten

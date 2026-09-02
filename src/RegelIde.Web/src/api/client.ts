@@ -61,6 +61,7 @@ import type {
   NettsideLenkeMedMalDto,
   NettsideStiDto,
   RettskildeDetalj,
+  RettskildeEndringDto,
   RettskildeHjemletForDto,
   RettskildeHjemmelDto,
   RettskildeNodeDto,
@@ -188,6 +189,8 @@ export const api = {
   hentHjemmel: (id: string) => kall<RettskildeHjemmelDto[]>(`/api/rettskilder/${id}/hjemmel`),
 
   hentHjemmelFor: (id: string) => kall<RettskildeHjemletForDto[]>(`/api/rettskilder/${id}/hjemmel-for`),
+
+  hentRettskildeEndringer: (id: string) => kall<RettskildeEndringDto[]>(`/api/rettskilder/${id}/endringer`),
 
   opprettNodeReferanse: (rettskildeId: string, nodeId: string, request: KobleLovreferanseRequest) =>
     kall<RettskildeReferanseDto>(`/api/rettskilder/${rettskildeId}/noder/${nodeId}/referanser`, {

@@ -42,6 +42,12 @@ export interface RettskildeDetalj {
   erIrrelevant: boolean;
   /** Fritekst — hvorfor. Kun meningsfullt når erIrrelevant er true, men slettes IKKE automatisk om markeringen fjernes igjen. */
   irrelevantKommentar: string | null;
+  /** [Ny, 2026-09-02] Rå, utrunkert verdi av Lovdatas dateInForce-header-felt, ved siden av den trunkerte ikrafttredelse. NULL for alt som ikke er Lovdata-importert. */
+  ikrafttredelseRaa: string | null;
+  /** [Ny, 2026-09-02] Rå, utrunkert verdi av Lovdatas lastChangeInForce-header-felt. */
+  konsolidertDatoRaa: string | null;
+  /** [Ny, 2026-09-02] Lovdatas header-felt "Sist endret ved" — rå tekst, ikke en strukturert kobling. */
+  sistEndretVed: string | null;
 }
 
 export interface RettskildeNodeDto {
@@ -147,6 +153,18 @@ export interface RettskildeHjemletForDto {
   forskriftId: string;
   forskriftTittel: string;
   hjemmelEid: string;
+}
+
+/**
+ * Endring-referanse (2026-09-02) — header-metadatafeltet `<dt class="changesToDocuments">Endrer</dt>`:
+ * hvilke(t) andre dokument(er) DENNE rettskilden endrer. Samme "ingen join, la klienten slå opp"-mønster
+ * som RettskildeHjemmelDto — slå `endringRettskildeId` opp mot den allerede hentede rettskilde-lista.
+ */
+export interface RettskildeEndringDto {
+  id: string;
+  endringEid: string;
+  endringRettskildeId: string;
+  sorteringsrekkefolge: number;
 }
 
 export interface BrukerDto {
