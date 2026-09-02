@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RegelIde.Data;
@@ -12,9 +13,11 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    partial class RegelIdeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260902180213_LeggTilGyldighetsperiodePaMyndighetstildeling")]
+    partial class LeggTilGyldighetsperiodePaMyndighetstildeling
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1372,94 +1375,6 @@ namespace RegelIde.Data.Migrasjoner
                     b.ToTable("lovdata_katalog_oppforinger", (string)null);
                 });
 
-            modelBuilder.Entity("RegelIde.Data.LovdataResynkInnstillingEntitet", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    b.Property<int?>("IntervallTimer")
-                        .HasColumnType("integer")
-                        .HasColumnName("intervall_timer");
-
-                    b.Property<string>("SistEndretAv")
-                        .HasColumnType("text")
-                        .HasColumnName("sist_endret_av");
-
-                    b.Property<DateTimeOffset>("SistEndretTidspunkt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("sist_endret_tidspunkt");
-
-                    b.HasKey("Id")
-                        .HasName("lovdata_resynk_innstilling_pkey");
-
-                    b.ToTable("lovdata_resynk_innstilling", (string)null);
-                });
-
-            modelBuilder.Entity("RegelIde.Data.LovdataResynkKjoringEntitet", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int?>("Feilet")
-                        .HasColumnType("integer")
-                        .HasColumnName("feilet");
-
-                    b.Property<string>("Feilmelding")
-                        .HasColumnType("text")
-                        .HasColumnName("feilmelding");
-
-                    b.Property<DateTimeOffset?>("FullfortTidspunkt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("fullfort_tidspunkt");
-
-                    b.Property<int?>("Nye")
-                        .HasColumnType("integer")
-                        .HasColumnName("nye");
-
-                    b.Property<int?>("NyeVersjoner")
-                        .HasColumnType("integer")
-                        .HasColumnName("nye_versjoner");
-
-                    b.Property<DateTimeOffset>("StartetTidspunkt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("startet_tidspunkt");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("status");
-
-                    b.Property<int?>("TotaltBehandlet")
-                        .HasColumnType("integer")
-                        .HasColumnName("totalt_behandlet");
-
-                    b.Property<int?>("Uendret")
-                        .HasColumnType("integer")
-                        .HasColumnName("uendret");
-
-                    b.Property<string>("Utlost")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("utlost");
-
-                    b.Property<string>("UtlostAvBruker")
-                        .HasColumnType("text")
-                        .HasColumnName("utlost_av_bruker");
-
-                    b.HasKey("Id")
-                        .HasName("lovdata_resynk_kjoringer_pkey");
-
-                    b.HasIndex("StartetTidspunkt")
-                        .HasDatabaseName("ix_lovdata_resynk_kjoringer_startet_tidspunkt");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("ix_lovdata_resynk_kjoringer_status");
-
-                    b.ToTable("lovdata_resynk_kjoringer", (string)null);
-                });
-
             modelBuilder.Entity("RegelIde.Data.MyndighetstildelingEntitet", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1916,47 +1831,6 @@ namespace RegelIde.Data.Migrasjoner
                         {
                             t.HasCheckConstraint("ck_regelnoder_barn_operator", "barn_operator IN ('OG', 'ELLER', 'IKKE')");
                         });
-                });
-
-            modelBuilder.Entity("RegelIde.Data.RelasjonsTypeKonfigurasjonEntitet", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<bool>("Aktiv")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("boolean")
-                        .HasDefaultValue(true)
-                        .HasColumnName("aktiv");
-
-                    b.Property<string>("FraVisningsmal")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("fra_visningsmal");
-
-                    b.Property<string>("Kode")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("kode");
-
-                    b.Property<int>("Sorteringsrekkefolge")
-                        .HasColumnType("integer")
-                        .HasColumnName("sorteringsrekkefolge");
-
-                    b.Property<string>("TilVisningsmal")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("til_visningsmal");
-
-                    b.HasKey("Id")
-                        .HasName("relasjonstype_konfigurasjon_pkey");
-
-                    b.HasIndex("Kode")
-                        .IsUnique()
-                        .HasDatabaseName("ux_relasjonstype_konfigurasjon_kode");
-
-                    b.ToTable("relasjonstype_konfigurasjon", (string)null);
                 });
 
             modelBuilder.Entity("RegelIde.Data.RettskildeEndringEntitet", b =>
@@ -3405,74 +3279,6 @@ namespace RegelIde.Data.Migrasjoner
                         });
                 });
 
-            modelBuilder.Entity("RegelIde.Data.VirksomhetRelasjonEntitet", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Entitetsstatus")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("gjeldende")
-                        .HasColumnName("entitetsstatus");
-
-                    b.Property<Guid>("FraVirksomhetId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("fra_virksomhet_id");
-
-                    b.Property<string>("HjemmelEid")
-                        .HasColumnType("text")
-                        .HasColumnName("hjemmel_eid");
-
-                    b.Property<Guid?>("HjemmelRettskildeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("hjemmel_rettskilde_id");
-
-                    b.Property<string>("Kommentar")
-                        .HasColumnType("text")
-                        .HasColumnName("kommentar");
-
-                    b.Property<string>("OpprettetAv")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("opprettet_av");
-
-                    b.Property<DateTimeOffset>("OpprettetTidspunkt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("opprettet_tidspunkt")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<string>("RelasjonsType")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("relasjons_type");
-
-                    b.Property<Guid>("TilVirksomhetId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("til_virksomhet_id");
-
-                    b.HasKey("Id")
-                        .HasName("virksomhet_relasjoner_pkey");
-
-                    b.HasIndex("FraVirksomhetId")
-                        .HasDatabaseName("ix_virksomhet_relasjoner_fra");
-
-                    b.HasIndex("HjemmelRettskildeId");
-
-                    b.HasIndex("TilVirksomhetId")
-                        .HasDatabaseName("ix_virksomhet_relasjoner_til");
-
-                    b.HasIndex("FraVirksomhetId", "TilVirksomhetId", "RelasjonsType")
-                        .IsUnique()
-                        .HasDatabaseName("ux_virksomhet_relasjoner_fra_til_type")
-                        .HasFilter("entitetsstatus = 'gjeldende'");
-
-                    b.ToTable("virksomhet_relasjoner", (string)null);
-                });
-
             modelBuilder.Entity("RegelIde.Data.BegrepEntitet", b =>
                 {
                     b.HasOne("RegelIde.Data.BegrepEntitet", null)
@@ -4045,25 +3851,6 @@ namespace RegelIde.Data.Migrasjoner
                         .WithMany()
                         .HasForeignKey("VirksomhetId")
                         .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("RegelIde.Data.VirksomhetRelasjonEntitet", b =>
-                {
-                    b.HasOne("RegelIde.Data.Virksomhet", null)
-                        .WithMany()
-                        .HasForeignKey("FraVirksomhetId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
-                        .WithMany()
-                        .HasForeignKey("HjemmelRettskildeId");
-
-                    b.HasOne("RegelIde.Data.Virksomhet", null)
-                        .WithMany()
-                        .HasForeignKey("TilVirksomhetId")
-                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
                 });
 

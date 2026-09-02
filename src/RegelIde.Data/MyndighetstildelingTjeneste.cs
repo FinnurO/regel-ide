@@ -9,16 +9,17 @@ public sealed record ParagrafspennPar(string FraEid, string? TilEid);
 
 /// <summary>
 /// Register for <see cref="MyndighetstildelingEntitet"/> (docs/20 §2.5) — kobler et gruppebegrep til en
-/// konkret virksomhet, hjemlet i en forskrift/et delegeringsvedtak. Gyldighet er IKKE et eget felt her:
-/// den arves fra <see cref="MyndighetstildelingEntitet.HjemmelRettskildeId"/>s
-/// <see cref="RettskildeEntitet.Status"/>/<see cref="RettskildeEntitet.GyldigTil"/> — se
-/// <see cref="ErGjeldendeAsync"/>.
+/// konkret virksomhet, hjemlet i en forskrift/et delegeringsvedtak. Gyldighet arves i utgangspunktet fra
+/// <see cref="MyndighetstildelingEntitet.HjemmelRettskildeId"/>s
+/// <see cref="RettskildeEntitet.Status"/>/<see cref="RettskildeEntitet.GyldigTil"/>, og kan i tillegg
+/// avgrenses av tildelingens egne <see cref="MyndighetstildelingEntitet.GyldigFra"/>/
+/// <see cref="MyndighetstildelingEntitet.GyldigTil"/> (docs/29 §Del B) — se <see cref="ErGjeldendeAsync"/>.
 /// </summary>
 public sealed class MyndighetstildelingTjeneste(RegelIdeDbContext db)
 {
     public async Task<MyndighetstildelingEntitet> OpprettAsync(
         Guid gruppeBegrepId, Guid virksomhetId, Guid hjemmelRettskildeId, IReadOnlyList<ParagrafspennPar> paragrafspenn,
-        string? vilkaar, string opprettetAv, CancellationToken ct = default)
+        string? vilkaar, string opprettetAv, DateOnly? gyldigFra = null, DateOnly? gyldigTil = null, CancellationToken ct = default)
     {
         var gruppeBegrep = await db.Begreper.FirstOrDefaultAsync(
             b => b.Id == gruppeBegrepId && b.Begrepskategori == "gruppe" && b.Entitetsstatus == "gjeldende", ct);
@@ -50,6 +51,11 @@ public sealed class MyndighetstildelingTjeneste(RegelIdeDbContext db)
             }
         }
 
+        if (gyldigFra is not null && gyldigTil is not null && gyldigFra.Value > gyldigTil.Value)
+        {
+            throw new ArgumentException("GyldigFra kan ikke være etter GyldigTil. Ingen gjettet fallback.");
+        }
+
         var tildeling = new MyndighetstildelingEntitet
         {
             Id = Guid.NewGuid(),
@@ -58,6 +64,8 @@ public sealed class MyndighetstildelingTjeneste(RegelIdeDbContext db)
             HjemmelRettskildeId = hjemmelRettskildeId,
             ParagrafspennJson = JsonSerializer.Serialize(paragrafspenn, JsonSerialiseringHjelper.Innstillinger),
             Vilkaar = vilkaar,
+            GyldigFra = gyldigFra,
+            GyldigTil = gyldigTil,
             OpprettetAv = opprettetAv,
             OpprettetTidspunkt = DateTimeOffset.UtcNow,
         };
@@ -70,11 +78,35 @@ public sealed class MyndighetstildelingTjeneste(RegelIdeDbContext db)
         return tildeling;
     }
 
-    public Task<List<MyndighetstildelingEntitet>> AlleForGruppeBegrepAsync(Guid gruppeBegrepId, CancellationToken ct = default) =>
-        db.Myndighetstildelinger.Where(m => m.GruppeBegrepId == gruppeBegrepId).ToListAsync(ct);
+    /// <summary>
+    /// <paramref name="kunGjeldende"/> = <c>true</c> filtrerer bort tildelinger som ikke er gjeldende
+    /// akkurat nå (docs/29 §Del B, punkt 2 — filteret må FAKTISK kobles inn, ikke bare finnes som et
+    /// informativt felt) — se <see cref="ErGjeldendeAsync"/> for hva «gjeldende» betyr.
+    /// </summary>
+    public async Task<List<MyndighetstildelingEntitet>> AlleForGruppeBegrepAsync(Guid gruppeBegrepId, bool kunGjeldende = false, CancellationToken ct = default)
+    {
+        var alle = await db.Myndighetstildelinger.Where(m => m.GruppeBegrepId == gruppeBegrepId).ToListAsync(ct);
+        if (!kunGjeldende) return alle;
+        var resultat = new List<MyndighetstildelingEntitet>();
+        foreach (var m in alle)
+        {
+            if (await ErGjeldendeAsync(m, ct: ct)) resultat.Add(m);
+        }
+        return resultat;
+    }
 
-    public Task<List<MyndighetstildelingEntitet>> AlleForVirksomhetAsync(Guid virksomhetId, CancellationToken ct = default) =>
-        db.Myndighetstildelinger.Where(m => m.VirksomhetId == virksomhetId).ToListAsync(ct);
+    /// <summary>Se <see cref="AlleForGruppeBegrepAsync"/> for <paramref name="kunGjeldende"/>-semantikken.</summary>
+    public async Task<List<MyndighetstildelingEntitet>> AlleForVirksomhetAsync(Guid virksomhetId, bool kunGjeldende = false, CancellationToken ct = default)
+    {
+        var alle = await db.Myndighetstildelinger.Where(m => m.VirksomhetId == virksomhetId).ToListAsync(ct);
+        if (!kunGjeldende) return alle;
+        var resultat = new List<MyndighetstildelingEntitet>();
+        foreach (var m in alle)
+        {
+            if (await ErGjeldendeAsync(m, ct: ct)) resultat.Add(m);
+        }
+        return resultat;
+    }
 
     /// <summary>Deserialiserer <see cref="MyndighetstildelingEntitet.ParagrafspennJson"/> til den
     /// strukturerte formen (docs/20 §7.1).</summary>
@@ -82,16 +114,22 @@ public sealed class MyndighetstildelingTjeneste(RegelIdeDbContext db)
         JsonSerializer.Deserialize<List<ParagrafspennPar>>(tildeling.ParagrafspennJson, JsonSerialiseringHjelper.Innstillinger) ?? [];
 
     /// <summary>
-    /// Gyldighet ARVES fra hjemmelen (docs/20 §2.5) — ingen egne datoer på tildelingen selv. En
-    /// tildeling er gjeldende når hjemmelen er det: <c>Status != 'Opphevet'</c> og (ingen
-    /// <c>GyldigTil</c>-dato, eller den ligger i fremtiden relativt til <paramref name="somDato"/>).
+    /// Gyldighet er en KOMBINASJON (docs/29 §Del B) av tildelingens EGEN
+    /// <see cref="MyndighetstildelingEntitet.GyldigFra"/>/<see cref="MyndighetstildelingEntitet.GyldigTil"/>
+    /// (de aller fleste tildelinger setter ALDRI disse) OG hjemmelens
+    /// <c>Status</c>/<c>GyldigTil</c> (docs/20 §2.5, uendret): en tildeling er gjeldende KUN når BEGGE
+    /// sier ja — <c>Status != 'Opphevet'</c> på hjemmelen, og <paramref name="somDato"/> ligger innenfor
+    /// BÅDE hjemmelens og tildelingens egne datoer (der satt).
     /// </summary>
     public async Task<bool> ErGjeldendeAsync(MyndighetstildelingEntitet tildeling, DateOnly? somDato = null, CancellationToken ct = default)
     {
+        var dato = somDato ?? DateOnly.FromDateTime(DateTime.UtcNow);
+        if (tildeling.GyldigFra is not null && tildeling.GyldigFra.Value > dato) return false;
+        if (tildeling.GyldigTil is not null && tildeling.GyldigTil.Value < dato) return false;
+
         var hjemmel = await db.Rettskilder.FirstOrDefaultAsync(r => r.Id == tildeling.HjemmelRettskildeId, ct);
         if (hjemmel is null) return false; // hjemmelen finnes ikke lenger — ingen gjettet fallback, bare ikke gjeldende.
         if (hjemmel.Status == "Opphevet") return false;
-        var dato = somDato ?? DateOnly.FromDateTime(DateTime.UtcNow);
         return hjemmel.GyldigTil is null || hjemmel.GyldigTil.Value >= dato;
     }
 }

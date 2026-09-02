@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RegelIde.Data;
@@ -12,9 +13,11 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    partial class RegelIdeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260902180501_LeggTilVirksomhetRelasjon")]
+    partial class LeggTilVirksomhetRelasjon
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1370,94 +1373,6 @@ namespace RegelIde.Data.Migrasjoner
                         .HasDatabaseName("ix_lovdata_katalog_oppforinger_sist_oppdatert");
 
                     b.ToTable("lovdata_katalog_oppforinger", (string)null);
-                });
-
-            modelBuilder.Entity("RegelIde.Data.LovdataResynkInnstillingEntitet", b =>
-                {
-                    b.Property<int>("Id")
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    b.Property<int?>("IntervallTimer")
-                        .HasColumnType("integer")
-                        .HasColumnName("intervall_timer");
-
-                    b.Property<string>("SistEndretAv")
-                        .HasColumnType("text")
-                        .HasColumnName("sist_endret_av");
-
-                    b.Property<DateTimeOffset>("SistEndretTidspunkt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("sist_endret_tidspunkt");
-
-                    b.HasKey("Id")
-                        .HasName("lovdata_resynk_innstilling_pkey");
-
-                    b.ToTable("lovdata_resynk_innstilling", (string)null);
-                });
-
-            modelBuilder.Entity("RegelIde.Data.LovdataResynkKjoringEntitet", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<int?>("Feilet")
-                        .HasColumnType("integer")
-                        .HasColumnName("feilet");
-
-                    b.Property<string>("Feilmelding")
-                        .HasColumnType("text")
-                        .HasColumnName("feilmelding");
-
-                    b.Property<DateTimeOffset?>("FullfortTidspunkt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("fullfort_tidspunkt");
-
-                    b.Property<int?>("Nye")
-                        .HasColumnType("integer")
-                        .HasColumnName("nye");
-
-                    b.Property<int?>("NyeVersjoner")
-                        .HasColumnType("integer")
-                        .HasColumnName("nye_versjoner");
-
-                    b.Property<DateTimeOffset>("StartetTidspunkt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("startet_tidspunkt");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("status");
-
-                    b.Property<int?>("TotaltBehandlet")
-                        .HasColumnType("integer")
-                        .HasColumnName("totalt_behandlet");
-
-                    b.Property<int?>("Uendret")
-                        .HasColumnType("integer")
-                        .HasColumnName("uendret");
-
-                    b.Property<string>("Utlost")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("utlost");
-
-                    b.Property<string>("UtlostAvBruker")
-                        .HasColumnType("text")
-                        .HasColumnName("utlost_av_bruker");
-
-                    b.HasKey("Id")
-                        .HasName("lovdata_resynk_kjoringer_pkey");
-
-                    b.HasIndex("StartetTidspunkt")
-                        .HasDatabaseName("ix_lovdata_resynk_kjoringer_startet_tidspunkt");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("ix_lovdata_resynk_kjoringer_status");
-
-                    b.ToTable("lovdata_resynk_kjoringer", (string)null);
                 });
 
             modelBuilder.Entity("RegelIde.Data.MyndighetstildelingEntitet", b =>

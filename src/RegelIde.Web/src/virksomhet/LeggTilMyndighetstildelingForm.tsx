@@ -26,6 +26,8 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
   const [gruppebegrepId, setGruppebegrepId] = useState('');
   const [hjemmelRettskildeId, setHjemmelRettskildeId] = useState('');
   const [vilkaar, setVilkaar] = useState('');
+  const [gyldigFra, setGyldigFra] = useState('');
+  const [gyldigTil, setGyldigTil] = useState('');
 
   const [noderPerLov, setNoderPerLov] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
   const [paragrafspenn, setParagrafspenn] = useState<ParagrafspennParDto[]>([]);
@@ -97,12 +99,15 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
     try {
       const ny = await api.opprettMyndighetstildeling({
         gruppeBegrepId: gruppebegrepId, virksomhetId, hjemmelRettskildeId, paragrafspenn, vilkaar: vilkaar.trim() || null,
+        gyldigFra: gyldigFra || null, gyldigTil: gyldigTil || null,
       });
       onOpprettet(ny);
       setGruppebegrepId('');
       setHjemmelRettskildeId('');
       setVilkaar('');
       setParagrafspenn([]);
+      setGyldigFra('');
+      setGyldigTil('');
     } catch (err) {
       setFeilmelding(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse av myndighetstildeling.');
     } finally {
@@ -200,6 +205,17 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
 
       <Textfield label="Vilkår (valgfritt)" placeholder="f.eks. kommunale avløpsanlegg" value={vilkaar}
         onChange={(e) => setVilkaar(e.target.value)} style={{ maxWidth: '30rem', marginBottom: '0.75rem' }} />
+
+      <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+        <Textfield data-size="sm" type="date" label="Gyldig fra (valgfritt)" value={gyldigFra}
+          onChange={(e) => setGyldigFra(e.target.value)} style={{ flex: 1, minWidth: '12rem' }} />
+        <Textfield data-size="sm" type="date" label="Gyldig til (valgfritt)" value={gyldigTil}
+          onChange={(e) => setGyldigTil(e.target.value)} style={{ flex: 1, minWidth: '12rem' }} />
+      </div>
+      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.4rem', marginBottom: '0.75rem' }}>
+        De aller fleste tildelinger er permanente og bør la begge datofeltene stå tomme — sett dem kun
+        for tidsavgrenset medlemskap (f.eks. en vertskommune som slutter å ha et fengsel/mottak).
+      </Paragraph>
 
       <Button type="button" onClick={opprett}
         disabled={oppretter || !gruppebegrepId || !hjemmelRettskildeId || paragrafspenn.length === 0}>
