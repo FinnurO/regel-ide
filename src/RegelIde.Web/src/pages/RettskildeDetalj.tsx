@@ -8,6 +8,7 @@ import type {
   NettsideLenkeMedMalDto,
   NettsideStiDto,
   RettskildeDetalj as RettskildeDetaljType,
+  RettskildeEndringDto,
   RettskildeHjemletForDto,
   RettskildeHjemmelDto,
   RettskildeNodeDto,
@@ -79,6 +80,22 @@ function finnNode(noder: TreNode[], eid: string): TreNode | null {
   return null;
 }
 
+/**
+ * Finner eId-ene til alle FORFEDRE av `eid` i treet (kapittel/underinndeling/paragraf-nivåene som må
+ * være åpne for at `eid` skal være synlig) — punkt 2, rettskildedetalj-fikser 2026-09-02. Ekskluderer
+ * selve `eid` (den trenger ikke være "åpen" for å være synlig, kun sine forfedre). Returnerer `null`
+ * når `eid` ikke finnes i treet ennå (data ikke lastet, eller ukjent eId) — kalleren faller da tilbake
+ * til en tom liste, «ingen gjettet fallback».
+ */
+function finnForfedrePath(noder: TreNode[], eid: string, sti: string[] = []): string[] | null {
+  for (const n of noder) {
+    if (n.eid === eid) return sti;
+    const funnet = finnForfedrePath(n.barn, eid, [...sti, n.eid]);
+    if (funnet) return funnet;
+  }
+  return null;
+}
+
 export default function RettskildeDetalj() {
   const { id } = useParams<{ id: string }>();
   const [searchParams] = useSearchParams();
@@ -102,6 +119,11 @@ export default function RettskildeDetalj() {
   // Motsatt retning — kun ikke-tom for en LOV noe faktisk er hjemlet i.
   const [hjemletFor, setHjemletFor] = useState<RettskildeHjemletForDto[]>([]);
 
+  // «Endrer» (rettskildedetalj-fikser, 2026-09-02, punkt 5) — header-metadatafeltet <dt
+  // class="changesToDocuments">Endrer</dt>, hvilke(t) andre dokument(er) DENNE rettskilden endrer.
+  // DOKUMENTNIVÅ, samme "safe empty"-mønster som hjemler/hjemletFor over.
+  const [endringer, setEndringer] = useState<RettskildeEndringDto[]>([]);
+
   // Punkt 8 — kun ikke-tomme for kildetype='Brukerveiledning' (§3.4/§3.2). Trygt å hente for ALLE
   // doctyper (serveren returnerer tom liste for enhver annen), samme "safe empty"-mønster som
   // referertAvTjenester/-Dokumenter over.
@@ -116,7 +138,9 @@ export default function RettskildeDetalj() {
   // / Relasjoner / Håndbok (sistnevnte kun for doctype='doc') — erstatter den tidligere endimensjonale
   // stabelen av <section>-er. INGEN endring i selve datainnhentingen/-logikken under, kun i hvordan den
   // vises.
-  const [fane, setFane] = useState<Fane>('metadata');
+  // Standard-fane «innhold» (rettskildedetalj-fikser, 2026-09-02, punkt 1) — de aller fleste brukere
+  // vil se selve lovteksten først, ikke Metadata-fanen (Johanns live-testfunn 1).
+  const [fane, setFane] = useState<Fane>('innhold');
 
   // Håndbok-forfatterflyt (2026-07-26) — kun relevant når kildetype='Rundskriv', se render under.
   const [alleRettskilder, setAlleRettskilder] = useState<RettskildeSammendrag[]>([]);
@@ -281,6 +305,7 @@ export default function RettskildeDetalj() {
     api.hentReferanser(id).then(setReferanser).catch(() => setReferanser([]));
     api.hentHjemmel(id).then(setHjemler).catch(() => setHjemler([]));
     api.hentHjemmelFor(id).then(setHjemletFor).catch(() => setHjemletFor([]));
+    api.hentRettskildeEndringer(id).then(setEndringer).catch(() => setEndringer([]));
     api.hentRettskildeStier(id).then(setNettsideStier).catch(() => setNettsideStier([]));
     api.hentRettskildeNettsideLenker(id).then(setNettsideLenker).catch(() => setNettsideLenker([]));
     api.hentHandbokRettskildeomfang(id).then(setRettskildeomfang).catch(() => setRettskildeomfang([]));
@@ -473,6 +498,18 @@ export default function RettskildeDetalj() {
   const treVm = useMemo(() => (tre ? tilTreVm(tre, taggAntallPerNode) : []), [tre, taggAntallPerNode]);
   const valgtNode = useMemo(() => (tre && selectedEid ? finnNode(tre, selectedEid) : null), [tre, selectedEid]);
 
+  // Punkt 2 (rettskildedetalj-fikser, 2026-09-02) — dyplenke via ?eid= skal åpne strukturen rundt
+  // treffet, ikke bare velge det. `eidFraUrl` (i motsetning til `selectedEid`) endres KUN ved reell
+  // navigasjon (URL-en, ikke brukerens manuelle klikk i treet — onSelect kaller kun setSelectedEid,
+  // aldri setSearchParams) — brukt som `key` på RettskildeTre under slik at treet kun remountes (og
+  // dermed re-initialiserer sin expanded-tilstand fra defaultExpanded) ved en faktisk dyplenke-
+  // navigasjon, ikke ved vanlig browsing i treet.
+  const eidFraUrl = searchParams.get('eid') ?? undefined;
+  const forfedrePath = useMemo(
+    () => (tre && eidFraUrl ? (finnForfedrePath(tre, eidFraUrl) ?? []) : []),
+    [tre, eidFraUrl],
+  );
+
   // Lesbar visning av "Referert fra håndbøker/andre dokumenter"s TilEid (funn 2, avklaringsrunde
   // 2026-08-13) — TilEid peker alltid på en node i DENNE rettskilden (det er nettopp derfor raden
   // dukker opp her), så vi slår den opp mot vår egen, allerede lastede nodeliste (flatet ut fra
@@ -657,6 +694,14 @@ export default function RettskildeDetalj() {
   const harIkkeTaggbarTekst = valgtNode && valgtNode.tekst && !kanTagges;
   const visHandbokFane = detalj.doctype === 'doc';
 
+  // Punkt 6 (rettskildedetalj-fikser, 2026-09-02) — ikke bland Lovdata- og egendefinerte metadata uten
+  // skille. Gjenbruker RettskildeEntitet.VirksomhetIds eget nasjonal/lokal-skille (se doc-kommentaren
+  // der): NULL = delt/nasjonal (Lovdata-importert Lov/Forskrift), satt = virksomhetens egen lokale kilde.
+  // `Eli` satt tas med som et ekstra, uavhengig signal på Lovdata-opprinnelse (samme «to tegn på samme
+  // ting»-mønster instruksjonen selv nevner) — ingen ny distinksjon oppfunnet.
+  const erLovdataImportert = detalj.eli != null || detalj.virksomhetId == null;
+  const erVirksomhetsEgen = detalj.virksomhetId != null;
+
   return (
     <>
       <nav aria-label="Brødsmulesti" style={{ display: 'flex', gap: '0.4rem', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
@@ -780,75 +825,122 @@ export default function RettskildeDetalj() {
               <>
                 {/* Funn 1 (avklaringsrunde 2026-08-13) — splittet i to grupper: «Fra Lovdata» (skrive-
                     beskyttet, kun populert for importerte Lov/Forskrift) og «Lokalt forvaltet» (redigerbar
-                    via «Rediger», populert for lokalt forfattede/kunngjorte kilder som håndbøker). Ren
-                    visuell gruppering — ingen API-/skjemaendring, feltene var allerede alle på samme DTO. */}
-                <Heading level={3} data-size="2xs" style={{ margin: '0 0 0.25rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
-                  Fra Lovdata
-                </Heading>
-                <Table style={{ marginBottom: '1rem' }}>
-                  <Table.Body>
-                    <Table.Row>
-                      <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>ELI</Table.Cell>
-                      <Table.Cell>{detalj.eli ?? '—'}</Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Kortnavn</Table.Cell>
-                      <Table.Cell>{detalj.kortnavn ?? '—'}</Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Konsolidert dato</Table.Cell>
-                      <Table.Cell>{detalj.konsolidertDato ?? '—'}</Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Utgiver</Table.Cell>
-                      <Table.Cell>{detalj.utgiver ?? '—'}</Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Ansvarlig departement</Table.Cell>
-                      <Table.Cell>
-                        {detalj.ansvarligDepartement ? (
-                          detalj.ansvarligDepartementVirksomhetId ? (
-                            <Link asChild>
-                              <RouterLink to={`/virksomheter/${detalj.ansvarligDepartementVirksomhetId}`}>{detalj.ansvarligDepartement}</RouterLink>
-                            </Link>
-                          ) : (
-                            detalj.ansvarligDepartement
-                          )
-                        ) : (
-                          '—'
-                        )}
-                      </Table.Cell>
-                    </Table.Row>
-                  </Table.Body>
-                </Table>
+                    via «Rediger», populert for lokalt forfattede/kunngjorte kilder som håndbøker). Punkt 6
+                    (rettskildedetalj-fikser, 2026-09-02) — hver gruppe vises nå KUN når den faktisk er
+                    relevant for DENNE rettskilden (erLovdataImportert/erVirksomhetsEgen), ikke begge
+                    alltid — ikke bland Lovdata- og egendefinerte metadata uten skille. */}
+                {erLovdataImportert && (
+                  <>
+                    <Heading level={3} data-size="2xs" style={{ margin: '0 0 0.25rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                      Fra Lovdata
+                    </Heading>
+                    <Table style={{ marginBottom: '1rem' }}>
+                      <Table.Body>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>ELI</Table.Cell>
+                          <Table.Cell>{detalj.eli ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Kortnavn</Table.Cell>
+                          <Table.Cell>{detalj.kortnavn ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Ikrafttredelse (rå)</Table.Cell>
+                          <Table.Cell>{detalj.ikrafttredelseRaa ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Konsolidert dato</Table.Cell>
+                          <Table.Cell>{detalj.konsolidertDato ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Konsolidert dato (rå)</Table.Cell>
+                          <Table.Cell>{detalj.konsolidertDatoRaa ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Sist endret ved</Table.Cell>
+                          <Table.Cell>{detalj.sistEndretVed ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Utgiver</Table.Cell>
+                          <Table.Cell>{detalj.utgiver ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Ansvarlig departement</Table.Cell>
+                          <Table.Cell>
+                            {detalj.ansvarligDepartement ? (
+                              detalj.ansvarligDepartementVirksomhetId ? (
+                                <Link asChild>
+                                  <RouterLink to={`/virksomheter/${detalj.ansvarligDepartementVirksomhetId}`}>{detalj.ansvarligDepartement}</RouterLink>
+                                </Link>
+                              ) : (
+                                detalj.ansvarligDepartement
+                              )
+                            ) : (
+                              '—'
+                            )}
+                          </Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Endrer</Table.Cell>
+                          <Table.Cell>
+                            {endringer.length === 0 ? (
+                              '—'
+                            ) : (
+                              <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.25rem' }}>
+                                {endringer.map((e) => {
+                                  const mal = alleRettskilder.find((r) => r.id === e.endringRettskildeId);
+                                  return (
+                                    <li key={e.id}>
+                                      {mal ? (
+                                        <Link asChild>
+                                          <RouterLink to={`/rettskilder/${mal.id}`}>{mal.kortnavn ?? mal.tittel}</RouterLink>
+                                        </Link>
+                                      ) : (
+                                        e.endringEid
+                                      )}
+                                    </li>
+                                  );
+                                })}
+                              </ul>
+                            )}
+                          </Table.Cell>
+                        </Table.Row>
+                      </Table.Body>
+                    </Table>
+                  </>
+                )}
 
-                <Heading level={3} data-size="2xs" style={{ margin: '0 0 0.25rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
-                  Lokalt forvaltet
-                </Heading>
-                <Table>
-                  <Table.Body>
-                    <Table.Row>
-                      <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Internt dok.nr</Table.Cell>
-                      <Table.Cell>{detalj.interntDokNr ?? '—'}</Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Revisjonsnr</Table.Cell>
-                      <Table.Cell>{detalj.revisjonsnr ?? '—'}</Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Vedtatt av</Table.Cell>
-                      <Table.Cell>{detalj.vedtattAv ?? '—'}</Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Vedtaksdato</Table.Cell>
-                      <Table.Cell>{detalj.vedtaksdato ?? '—'}</Table.Cell>
-                    </Table.Row>
-                    <Table.Row>
-                      <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Gyldig til</Table.Cell>
-                      <Table.Cell>{detalj.gyldigTil ?? '—'}</Table.Cell>
-                    </Table.Row>
-                  </Table.Body>
-                </Table>
+                {erVirksomhetsEgen && (
+                  <>
+                    <Heading level={3} data-size="2xs" style={{ margin: '0 0 0.25rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                      Lokalt forvaltet
+                    </Heading>
+                    <Table>
+                      <Table.Body>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Internt dok.nr</Table.Cell>
+                          <Table.Cell>{detalj.interntDokNr ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Revisjonsnr</Table.Cell>
+                          <Table.Cell>{detalj.revisjonsnr ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Vedtatt av</Table.Cell>
+                          <Table.Cell>{detalj.vedtattAv ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Vedtaksdato</Table.Cell>
+                          <Table.Cell>{detalj.vedtaksdato ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Gyldig til</Table.Cell>
+                          <Table.Cell>{detalj.gyldigTil ?? '—'}</Table.Cell>
+                        </Table.Row>
+                      </Table.Body>
+                    </Table>
+                  </>
+                )}
               </>
             ) : (
               <form onSubmit={lagreMetadata} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '40rem' }}>
@@ -920,10 +1012,12 @@ export default function RettskildeDetalj() {
               {treVm.length > 0 ? (
                 <div style={{ border: '1px solid var(--ds-color-neutral-border-subtle)', borderRadius: 'var(--ds-border-radius-lg)', maxHeight: '70vh', overflowY: 'auto' }}>
                   <RettskildeTre
+                    key={`${id ?? ''}:${eidFraUrl ?? ''}`}
                     nodes={treVm}
                     selectedEId={selectedEid}
                     onSelect={(eid) => setSelectedEid(eid)}
                     filter={filter}
+                    defaultExpanded={forfedrePath}
                   />
                 </div>
               ) : (

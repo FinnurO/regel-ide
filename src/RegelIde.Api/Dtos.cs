@@ -38,17 +38,24 @@ public sealed record RettskildeSammendrag(
 /// noen <see cref="Virksomhet"/> eksakt («ingen gjettet fallback»); frontend viser da
 /// <see cref="AnsvarligDepartement"/> som ren tekst i stedet for en lenke.
 /// </summary>
+/// <summary>
+/// <paramref name="IkrafttredelseRaa"/>/<paramref name="KonsolidertDatoRaa"/>/<paramref name="SistEndretVed"/>
+/// lagt til (rettskildedetalj-fikser, 2026-09-02, punkt 5) — se de likelydende XML-doc-kommentarene på
+/// <see cref="RettskildeEntitet"/> for hva de er. Fantes på entiteten siden [Ny, 2026-09-02]-runden men var
+/// ikke eksponert på denne DTO-en før nå.
+/// </summary>
 public sealed record RettskildeDetalj(
     Guid Id, Guid? VirksomhetId, string Doctype, string Kildetype, string Tittel, string? Kortnavn, string? Eli,
     DateOnly? Ikrafttredelse, DateOnly? KonsolidertDato, string? Utgiver, string? AnsvarligDepartement, string Status,
     string? AknXml, string? InterntDokNr, string? Revisjonsnr, string? VedtattAv, DateOnly? Vedtaksdato,
-    DateOnly? GyldigTil, string? Url, Guid? AnsvarligDepartementVirksomhetId, bool ErIrrelevant, string? IrrelevantKommentar)
+    DateOnly? GyldigTil, string? Url, Guid? AnsvarligDepartementVirksomhetId, bool ErIrrelevant, string? IrrelevantKommentar,
+    string? IkrafttredelseRaa, string? KonsolidertDatoRaa, string? SistEndretVed)
 {
     public static RettskildeDetalj FraEntitet(RettskildeEntitet r, Guid? ansvarligDepartementVirksomhetId = null) => new(
         r.Id, r.VirksomhetId, r.Doctype, r.Kildetype, r.Tittel, r.Kortnavn, r.Eli,
         r.Ikrafttredelse, r.KonsolidertDato, r.Utgiver, r.AnsvarligDepartement, r.Status, r.AknXml,
         r.InterntDokNr, r.Revisjonsnr, r.VedtattAv, r.Vedtaksdato, r.GyldigTil, r.Url, ansvarligDepartementVirksomhetId,
-        r.ErIrrelevant, r.IrrelevantKommentar);
+        r.ErIrrelevant, r.IrrelevantKommentar, r.IkrafttredelseRaa, r.KonsolidertDatoRaa, r.SistEndretVed);
 }
 
 /// <summary>Forespørsel for POST /api/rettskilder/lovdata.</summary>
@@ -144,6 +151,19 @@ public sealed record RettskildeHjemmelDto(Guid Id, string HjemmelEid, Guid Hjemm
 /// <see cref="DokumentReferanseDto"/> for de vanlige løpetekst-kryssreferansene).
 /// </summary>
 public sealed record RettskildeHjemletForDto(Guid ForskriftId, string ForskriftTittel, string HjemmelEid);
+
+/// <summary>
+/// Endring-referanse (rettskildedetalj-fikser, 2026-09-02, punkt 5) — DTO for <see cref="RettskildeEndringEntitet"/>,
+/// samme minimale "ikke join, la klienten slå opp"-mønster som <see cref="RettskildeHjemmelDto"/>:
+/// <see cref="EndringRettskildeId"/> peker ALLTID til en ekte rad (primær eller referanse-stub), og
+/// klienten slår denne opp mot den allerede hentede rettskilde-lista i stedet for at serveren joiner inn
+/// tittel her.
+/// </summary>
+public sealed record RettskildeEndringDto(Guid Id, string EndringEid, Guid EndringRettskildeId, int Sorteringsrekkefolge)
+{
+    public static RettskildeEndringDto FraEntitet(RettskildeEndringEntitet e) =>
+        new(e.Id, e.EndringEid, e.EndringRettskildeId, e.Sorteringsrekkefolge);
+}
 
 /// <summary>Tekst-tag (§1.2 i domenemodellen, AK-3.3.1–3.3.4). `RefId` er alltid null i byggesteg 1.</summary>
 public sealed record TekstTaggDto(
