@@ -592,7 +592,9 @@ rettskilder.MapGet("/", async (Guid? virksomhetId, bool? inkluderIrrelevante, Re
     .WithName("HentAlleRettskilder")
     .WithSummary("Lister rettskilder (åpne data — kun Status != 'Utkast'). " +
         "?virksomhetId snevrer inn til én virksomhets bidrag; utelatt viser alt (delt + alle virksomheter). " +
-        "?inkluderIrrelevante=true tar med ErIrrelevant-markerte rettskilder, som ellers ekskluderes stille.");
+        "?inkluderIrrelevante=true tar med ErIrrelevant-markerte rettskilder, som ellers ekskluderes stille.")
+    .WithDescription("IrrelevantKommentar er med i sammendraget (siden 2026-09-02, issue #114) slik at " +
+        "«Utenfor korpuset»-fanen i RettskilderListe.tsx kan vise begrunnelsen uten et ekstra oppslag per rad.");
 
 rettskilder.MapGet("/{id:guid}", async (Guid id, RettskildeRepository repo) =>
     {

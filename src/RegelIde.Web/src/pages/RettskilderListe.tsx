@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Alert, Button, Checkbox, Heading, Link, Paragraph, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Checkbox, Heading, Link, Paragraph, Spinner, Table, Tabs, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { LovdataImportstatusDto, RettskildeSammendrag } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
@@ -10,6 +10,10 @@ import { useVirksomheter } from '../virksomhet/useVirksomheter';
 
 type Sorteringskolonne = 'tittel' | 'kildetype' | 'eier';
 type ImportstatusSorteringskolonne = 'tittel' | 'datokode' | 'type';
+// To faner (2026-09-02, issue #114) — «Aktive rettskilder» var tidligere den eneste tabellen med to
+// gjemte "vis også ..."-avkrysningsbokser (irrelevant-markerte / ikke-trådt-i-kraft). Begge kategoriene
+// samles nå i «Utenfor korpuset» i stedet, se RettskilderListe-komponentens hoveddoc-kommentar under.
+type Fane = 'aktive' | 'utenfor-korpuset';
 
 // Ikrafttredelse-status (2026-09-02, listevisning-fiks) — samme dato-mønster som
 // LovdataHtmlParser.DatoMønster (FørsteDato) på serversiden: en gyldig åååå-MM-dd et sted i strengen.
@@ -28,14 +32,7 @@ export default function RettskilderListe() {
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
   const [kunMine, setKunMine] = useState(false);
-  // Irrelevant-markering (2026-08-30) — default false ekskluderer ErIrrelevant-markerte rettskilder
-  // stille fra standardvisningen, samme «ikke skjul stille, gi et eksplisitt valg»-prinsipp som
-  // visIkkeImportert lenger ned bruker for Lovdata-importstatus.
-  const [visIrrelevante, setVisIrrelevante] = useState(false);
-  // Utvidelse utover Johanns eksplisitte bestilling denne runden (kun selve "Ikke i kraft"-taggen var
-  // bedt om) — samme billige, allerede-eksisterende opt-in-mønster som visIrrelevante over, KUN
-  // klientsidefiltrert (ingen ny query-parameter til hentRettskilder, i motsetning til visIrrelevante).
-  const [visIkkeIKraft, setVisIkkeIKraft] = useState(false);
+  const [fane, setFane] = useState<Fane>('aktive');
   const [filterTekst, setFilterTekst] = useState('');
   const [sortKolonne, setSortKolonne] = useState<Sorteringskolonne>('tittel');
   const [sortStigende, setSortStigende] = useState(true);
@@ -59,8 +56,11 @@ export default function RettskilderListe() {
     setFeil(null);
     setRettskilder(null);
     const virksomhetId = kunMine && gjeldendeBruker ? gjeldendeBruker.virksomhetId : undefined;
+    // inkluderIrrelevante er alltid true nå (2026-09-02, issue #114) — begge fanene deler ett
+    // datasett; «Aktive rettskilder» filtrerer irrelevante/ikke-i-kraft-rader bort selv (se `viste`
+    // under), «Utenfor korpuset» trenger dem. Tidligere var dette et eget opt-in-toggle, se historikk.
     api
-      .hentRettskilder(virksomhetId, visIrrelevante)
+      .hentRettskilder(virksomhetId, true)
       .then(setRettskilder)
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av rettskilder.'));
   }
@@ -68,7 +68,7 @@ export default function RettskilderListe() {
   useEffect(() => {
     lastRettskilder();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kunMine, gjeldendeBruker, visIrrelevante]);
+  }, [kunMine, gjeldendeBruker]);
 
   useEffect(() => {
     if (!visIkkeImportert || ikkeImportert !== null) return;
@@ -119,7 +119,12 @@ export default function RettskilderListe() {
   const viste = useMemo(() => {
     if (!rettskilder) return null;
     const tekst = filterTekst.trim().toLowerCase();
-    const grunnlag = visIkkeIKraft ? rettskilder : rettskilder.filter((r) => !erIkkeTraadtIKraft(r));
+    // «Aktive rettskilder» = verken irrelevant-markert eller ikke-i-kraft. «Utenfor korpuset» = minst
+    // én av de to (en rad kan i prinsippet ha begge samtidig — se Grunn-kolonnen i den fanen).
+    const grunnlag =
+      fane === 'aktive'
+        ? rettskilder.filter((r) => !r.erIrrelevant && !erIkkeTraadtIKraft(r))
+        : rettskilder.filter((r) => r.erIrrelevant || erIkkeTraadtIKraft(r));
     const filtrert = tekst
       ? grunnlag.filter(
           (r) =>
@@ -141,7 +146,7 @@ export default function RettskilderListe() {
       const cmp = sortnokkel(a).localeCompare(sortnokkel(b), 'nb');
       return sortStigende ? cmp : -cmp;
     });
-  }, [rettskilder, filterTekst, sortKolonne, sortStigende, visEier, visIkkeIKraft]);
+  }, [rettskilder, filterTekst, sortKolonne, sortStigende, visEier, fane]);
 
   const visteIkkeImportert = useMemo(() => {
     if (!ikkeImportert) return null;
@@ -189,10 +194,17 @@ export default function RettskilderListe() {
       </Heading>
       <Paragraph style={{ marginBottom: '1rem' }}>
         Åpne data — delte/nasjonale kilder (Lov/Forskrift fra Lovdata) og alle virksomheters
-        publiserte lokale kilder. Kladder (status «Utkast») vises aldri her, kilder markert som
-        irrelevant for regel-ide er skjult som standard, og det samme gjelder Lov/Forskrift som ennå
-        ikke er trådt i kraft.
+        publiserte lokale kilder. Kladder (status «Utkast») vises aldri her. Kilder markert som
+        irrelevant for regel-ide og Lov/Forskrift som ennå ikke er trådt i kraft holdes utenfor
+        «Aktive rettskilder» — se fanen «Utenfor korpuset» for begge kategoriene.
       </Paragraph>
+
+      <Tabs value={fane} onChange={(v) => setFane(v as Fane)} style={{ marginBottom: '1rem' }}>
+        <Tabs.List>
+          <Tabs.Tab value="aktive">Aktive rettskilder</Tabs.Tab>
+          <Tabs.Tab value="utenfor-korpuset">Utenfor korpuset</Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
 
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', marginBottom: '1rem', flexWrap: 'wrap' }}>
         {gjeldendeBruker && (
@@ -202,16 +214,6 @@ export default function RettskilderListe() {
             onChange={(e) => setKunMine(e.target.checked)}
           />
         )}
-        <Checkbox
-          label="Vis også kilder markert som irrelevant"
-          checked={visIrrelevante}
-          onChange={(e) => setVisIrrelevante(e.target.checked)}
-        />
-        <Checkbox
-          label="Vis også kilder som ikke er trådt i kraft"
-          checked={visIkkeIKraft}
-          onChange={(e) => setVisIkkeIKraft(e.target.checked)}
-        />
         <Textfield
           label="Filtrer"
           placeholder="Tittel, kildetype eller eier"
@@ -225,9 +227,13 @@ export default function RettskilderListe() {
 
       {!rettskilder && !feil && <Spinner aria-label="Laster …" data-size="sm" />}
 
-      {viste && viste.length === 0 && <Paragraph>Ingen rettskilder funnet.</Paragraph>}
+      {viste && viste.length === 0 && (
+        <Paragraph>
+          {fane === 'aktive' ? 'Ingen rettskilder funnet.' : 'Ingen rettskilder utenfor korpuset funnet.'}
+        </Paragraph>
+      )}
 
-      {viste && viste.length > 0 && (
+      {viste && viste.length > 0 && fane === 'aktive' && (
         <Table className="rettskilde-tabell" border data-density="compact">
           <Table.Head>
             <Table.Row>
@@ -246,7 +252,56 @@ export default function RettskilderListe() {
                   Eier{sorteringsindikator('eier')}
                 </button>
               </Table.HeaderCell>
-              <Table.HeaderCell></Table.HeaderCell>
+            </Table.Row>
+          </Table.Head>
+          <Table.Body>
+            {paginering.visteRader.map((r) => (
+              <Table.Row key={r.id}>
+                <Table.Cell>
+                  <Link asChild>
+                    <RouterLink to={`/rettskilder/${r.id}`}>{r.tittel}</RouterLink>
+                  </Link>
+                  {r.kortnavn && (
+                    <span
+                      style={{
+                        marginLeft: '0.5rem',
+                        fontSize: 'var(--ds-font-size-1)',
+                        color: 'var(--ds-color-neutral-text-subtle)',
+                      }}
+                    >
+                      {r.kortnavn}
+                    </span>
+                  )}
+                </Table.Cell>
+                <Table.Cell>{r.kildetype}</Table.Cell>
+                <Table.Cell>{visEier(r.virksomhetId)}</Table.Cell>
+              </Table.Row>
+            ))}
+          </Table.Body>
+        </Table>
+      )}
+
+      {viste && viste.length > 0 && fane === 'utenfor-korpuset' && (
+        <Table className="rettskilde-tabell" border data-density="compact">
+          <Table.Head>
+            <Table.Row>
+              <Table.HeaderCell>
+                <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('tittel')}>
+                  Tittel{sorteringsindikator('tittel')}
+                </button>
+              </Table.HeaderCell>
+              <Table.HeaderCell>
+                <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('kildetype')}>
+                  Kildetype{sorteringsindikator('kildetype')}
+                </button>
+              </Table.HeaderCell>
+              <Table.HeaderCell>
+                <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('eier')}>
+                  Eier{sorteringsindikator('eier')}
+                </button>
+              </Table.HeaderCell>
+              <Table.HeaderCell>Grunn</Table.HeaderCell>
+              <Table.HeaderCell>Merknad</Table.HeaderCell>
             </Table.Row>
           </Table.Head>
           <Table.Body>
@@ -273,6 +328,9 @@ export default function RettskilderListe() {
                 <Table.Cell style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
                   {r.erIrrelevant && <Tag data-color="warning" data-size="sm">Irrelevant</Tag>}
                   {erIkkeTraadtIKraft(r) && <Tag data-color="warning" data-size="sm">Ikke i kraft</Tag>}
+                </Table.Cell>
+                <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)', maxWidth: '24rem' }}>
+                  {r.erIrrelevant && r.irrelevantKommentar ? r.irrelevantKommentar : '—'}
                 </Table.Cell>
               </Table.Row>
             ))}

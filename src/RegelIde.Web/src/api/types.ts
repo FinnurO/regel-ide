@@ -9,8 +9,12 @@ export interface RettskildeSammendrag {
   kildetype: string;
   /** "Kommunal- og distriktsdepartementet" e.l. — NULL for alt som ikke er Lovdata-importert Lov/Forskrift. */
   ansvarligDepartement: string | null;
-  /** Header-nivå «irrelevant for regel-ide»-markering (2026-08-30). Kompakt badge-verdi — se detaljsiden for kommentaren. */
+  /** Header-nivå «irrelevant for regel-ide»-markering (2026-08-30). Kompakt badge-verdi. */
   erIrrelevant: boolean;
+  /** [Ny, 2026-09-02, issue #114] Fritekst — hvorfor markert irrelevant. Kun meningsfullt når
+   * erIrrelevant er true. Flyttet hit fra kun RettskildeDetalj slik at «Utenfor korpuset»-fanen i
+   * RettskilderListe.tsx kan vise begrunnelsen direkte i tabellraden. */
+  irrelevantKommentar: string | null;
   /** [Ny, 2026-09-02] Rå, utrunket Lovdata-"dateInForce"-streng. Populert KUN for Lov/Forskrift — NULL
    * for andre kildetyper er forventet fravær av data, IKKE "ikke i kraft" (se RettskilderListe.tsx). */
   ikrafttredelseRaa: string | null;
