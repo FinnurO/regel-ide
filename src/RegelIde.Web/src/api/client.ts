@@ -3,6 +3,11 @@ import type {
   BegrepBruktIRettskildeDto,
   BegrepDto,
   BegrepRequest,
+  BegrepsforekomstDto,
+  SveipBegrepsforekomsterRequest,
+  SveipBegrepsforekomsterResultatDto,
+  GodkjennBegrepsforekomstRequest,
+  HardslettBegrepsforekomsterResultatDto,
   BrukerDto,
   OppdaterBrukerRequest,
   OpprettBrukerRequest,
@@ -429,6 +434,53 @@ export const api = {
     if (filter.rettskildeId) parametre.set('rettskildeId', filter.rettskildeId);
     const sok = parametre.toString();
     return kall<SlettNavnekandidaterResultatDto>(`/api/navnekandidater${sok ? `?${sok}` : ''}`, { method: 'DELETE' });
+  },
+
+  // ---------- Begrepsforekomster — begrepsoppdagelse (M1/M11), docs/24 ----------
+
+  /** Kandidatliste — utelatt status betyr her (som på serveren) "kun 'Venter'", 'Alle' fjerner statusfiltreringen helt. */
+  hentBegrepsforekomster: (filter: { rettskildeId?: string; monsterId?: string; status?: string }) => {
+    const parametre = new URLSearchParams();
+    if (filter.rettskildeId) parametre.set('rettskildeId', filter.rettskildeId);
+    if (filter.monsterId) parametre.set('monsterId', filter.monsterId);
+    if (filter.status) parametre.set('status', filter.status);
+    const sok = parametre.toString();
+    return kall<BegrepsforekomstDto[]>(`/api/begrepsforekomster${sok ? `?${sok}` : ''}`);
+  },
+
+  /** rettskildeId=null sveiper hele det importerte korpuset, satt snevrer inn til én rettskilde. */
+  sveipBegrepsforekomster: (rettskildeId: string | null) =>
+    kall<SveipBegrepsforekomsterResultatDto>('/api/begrepsforekomster/sveip', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rettskildeId } satisfies SveipBegrepsforekomsterRequest),
+    }),
+
+  /** Oppretter/kobler et Begrep i angitt virksomhets register OG en ekte TekstTagg — se
+   * BegrepsforekomstTjeneste-kommentaren for hvorfor virksomheten må velges eksplisitt her. */
+  godkjennBegrepsforekomst: (id: string, virksomhetId: string) =>
+    kall<BegrepsforekomstDto>(`/api/begrepsforekomster/${id}/godkjenn`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ virksomhetId } satisfies GodkjennBegrepsforekomstRequest),
+    }),
+
+  avvisBegrepsforekomst: (id: string) =>
+    kall<BegrepsforekomstDto>(`/api/begrepsforekomster/${id}/avvis`, { method: 'POST' }),
+
+  /** Hardsletting av ÉN rad — kun 'Avvist'-rader kan slettes (se backend-kommentaren:
+   * en 'Godkjent' rad har en ekte tekst-tagg/et ekte begrep som ikke kan fjernes i etterkant). */
+  slettBegrepsforekomst: (id: string) =>
+    kall<void>(`/api/begrepsforekomster/${id}`, { method: 'DELETE' }),
+
+  /** Massehardsletting, valgfritt filtrert på rettskilde (samme filterparametre som GET /) — KUN
+   * 'Avvist'-rader rammes uansett (backend tvinger dette), samme mønster som
+   * hardslettAlleAvvisteVirksomhetKandidater over. */
+  slettAlleAvvisteBegrepsforekomster: (filter: { rettskildeId?: string }) => {
+    const parametre = new URLSearchParams();
+    if (filter.rettskildeId) parametre.set('rettskildeId', filter.rettskildeId);
+    const sok = parametre.toString();
+    return kall<HardslettBegrepsforekomsterResultatDto>(`/api/begrepsforekomster${sok ? `?${sok}` : ''}`, { method: 'DELETE' });
   },
 
   hentTaggKinds: () => kall<TaggKindKonfigurasjonDto[]>('/api/konfigurasjon/tagg-kinds'),

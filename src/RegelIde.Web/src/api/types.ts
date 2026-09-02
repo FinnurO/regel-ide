@@ -841,6 +841,57 @@ export interface BegrepBruktIRettskildeDto {
   snippet: string;
 }
 
+// ---------- Begrepsforekomster — begrepsoppdagelse (M1/M11), docs/24, speiler RegelIde.Api/Dtos.cs ----------
+
+/** Ett deterministisk (regex-basert) sveip-treff — arbeidskø, IKKE et register (docs/24 §1.1/§1.2).
+ * 'kildetype': eksplisitt_liste|egen_paragraf|inline_menes|skal_forstas_som|copula|heretter_kalt|
+ * ekstern_referanse|eos_referanse|vedleggstabell|distribuert. 'monsterId': "M1"|"M11" i praksis i dag.
+ * 'konfidens': hoy|middels|lav|krever_oppslag. 'scope': hele_dokumentet|kapittel|paragraf.
+ * 'status': Venter|Godkjent|Avvist (samme lette arbeidskø-modell som VirksomhetKandidatDto/NavnekandidatDto). */
+export interface BegrepsforekomstDto {
+  id: string;
+  rettskildeId: string;
+  nodeEid: string;
+  startOffset: number;
+  endOffset: number;
+  begrep: string;
+  begrepOriginal: string;
+  definisjon: string | null;
+  kildetype: string;
+  monsterId: string;
+  konfidens: string;
+  scope: string;
+  scopeRefEid: string | null;
+  henvisningsMaal: string | null;
+  status: string;
+  begrepId: string | null;
+  opprettetAv: string;
+  opprettetTidspunkt: string;
+  behandletAv: string | null;
+  behandletTidspunkt: string | null;
+}
+
+/** rettskildeId=null sveiper HELE det importerte (delte/nasjonale) korpuset, satt snevrer inn til én rettskilde. */
+export interface SveipBegrepsforekomsterRequest {
+  rettskildeId: string | null;
+}
+
+export interface SveipBegrepsforekomsterResultatDto {
+  antallTreffFunnet: number;
+  antallNyeForekomster: number;
+}
+
+/** Godkjenning krever et eksplisitt valg av HVILKEN virksomhets register begrepet skal landes i — en
+ * forekomst er delt/objektiv, men et Begrep-register krever en eier (se Dtos.cs/BegrepsforekomstTjeneste). */
+export interface GodkjennBegrepsforekomstRequest {
+  virksomhetId: string;
+}
+
+/** Resultat av DELETE /api/begrepsforekomster (massehardsletting) — kun 'Avvist'-rader rammes. */
+export interface HardslettBegrepsforekomsterResultatDto {
+  antallSlettet: number;
+}
+
 export interface KodelisteKodeDto {
   id: string;
   kode: string;
