@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router';
 import { Dropdown, Label } from '@digdir/designsystemet-react';
 import { useBruker } from '../bruker/BrukerContext';
+import { GlobaltSok } from '../sok/GlobaltSok';
 
 /**
  * Gruppert sidemeny (2026-08-20, "Startside Alternativ 1c"; regruppert til seks seksjoner
@@ -111,6 +112,10 @@ export function Sidebar() {
           <span className="sidebar__brand-navn">Forvaltningsverktøy</span>
           <span className="sidebar__brand-undertekst">for digitale tjenester</span>
         </span>
+      </div>
+
+      <div style={{ padding: '0 var(--ds-size-4) var(--ds-size-2)' }}>
+        <GlobaltSok />
       </div>
 
       <nav className="sidebar__nav">
