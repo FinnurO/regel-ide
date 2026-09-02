@@ -1,22 +1,21 @@
 import { useState } from 'react';
-import { Alert, Card, Heading, Paragraph, Select, Tag } from '@digdir/designsystemet-react';
+import { Alert, Card, Heading, Paragraph } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { TjenesteDto } from '../api/types';
-
-const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
+import { StatusStepper } from '../entitet/StatusStepper';
 
 export interface StatusFaneProps {
   tjeneste: TjenesteDto;
   onTjenesteOppdatert: (t: TjenesteDto) => void;
 }
 
-/** Samme redigeringsfunksjon som tidligere, pluss en ren visuell pipeline over de 6 statusene
- * (Tjenestedetalj-redesignrunden 2026-08-27) — ingen nye data, kun tydeligere fremstilling av det
- * allerede eksisterende statusløpet (docs/03-domenemodell.md §3.1). */
+/** Samme redigeringsfunksjon som tidligere, nå via den delte `StatusStepper` (docs/30 §3.3/§4 punkt 7
+ * — saksbehandlertilpasningen 2026-09-02) i stedet for en ren visnings-pipeline + separat `<Select>`
+ * ved siden av: klikk på et steg i selve pipelinen ER handlingen nå (med Dialog-bekreftelse på
+ * publisert→tilbaketrukket/arkivert), ingen data-/API-endring. */
 export function StatusFane({ tjeneste, onTjenesteOppdatert }: StatusFaneProps) {
   const [statusEndres, setStatusEndres] = useState(false);
   const [feil, setFeil] = useState<string | null>(null);
-  const gjeldendeIndeks = STATUSER.indexOf(tjeneste.status);
 
   async function endreStatus(nyStatus: string) {
     setStatusEndres(true);
@@ -33,19 +32,7 @@ export function StatusFane({ tjeneste, onTjenesteOppdatert }: StatusFaneProps) {
   return (
     <Card style={{ maxWidth: '640px', padding: '1rem 1.25rem' }}>
       <Heading level={2} data-size="xs" style={{ marginBottom: '0.6rem' }}>Status</Heading>
-      <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem', marginBottom: '1rem', flexWrap: 'wrap' }}>
-        {STATUSER.map((s, i) => (
-          <span key={s} style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-            <Tag data-size="sm" data-color={i === gjeldendeIndeks ? 'info' : 'neutral'} variant={i === gjeldendeIndeks ? 'default' : 'outline'}>
-              {s}
-            </Tag>
-            {i < STATUSER.length - 1 && <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>→</span>}
-          </span>
-        ))}
-      </div>
-      <Select data-size="sm" value={tjeneste.status} disabled={statusEndres} onChange={(e) => endreStatus(e.target.value)} style={{ maxWidth: '16rem' }}>
-        {STATUSER.map((s) => <Select.Option key={s} value={s}>{s}</Select.Option>)}
-      </Select>
+      <StatusStepper status={tjeneste.status} onChange={endreStatus} disabled={statusEndres} />
       {feil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{feil}</Alert>}
       <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.6rem' }}>
         Å sette status til «publisert» gjør tjenesten synlig i innbyggerveiledningen.

@@ -5,8 +5,7 @@ import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import type { BegrepBruktIRettskildeDto, BegrepDto, RettskildeSammendrag, VilkarDto } from '../api/types';
-
-const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
+import { StatusStepper } from '../entitet/StatusStepper';
 
 export default function BegrepDetalj() {
   const { id } = useParams<{ id: string }>();
@@ -193,11 +192,7 @@ export default function BegrepDetalj() {
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Status
         </Heading>
-        <Select value={begrep.status} disabled={statusEndres} onChange={(e) => endreStatus(e.target.value)} style={{ maxWidth: '16rem' }}>
-          {STATUSER.map((s) => (
-            <Select.Option key={s} value={s}>{s}</Select.Option>
-          ))}
-        </Select>
+        <StatusStepper status={begrep.status} onChange={endreStatus} disabled={statusEndres} />
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
