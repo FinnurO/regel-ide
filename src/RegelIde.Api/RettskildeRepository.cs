@@ -179,11 +179,24 @@ public sealed class RettskildeRepository(RegelIdeDbContext db, VirksomhetOppslag
     /// Byggesteg 4 (2026-07-30) — motsatt retning av <see cref="TjenesteRegelverksreferanseEntitet"/>:
     /// hvilke tjenester som faktisk refererer denne rettskilden. Brukt til å vise "Brukt i tjenester"
     /// på rettskilde-siden, slik at koblingen kan navigeres begge veier, ikke bare fra Tjeneste-siden.
+    ///
+    /// Bugfiks 2026-09-02 (levende gjennomgang): <c>Distinct()</c> lagt til. Én tjeneste kan lovlig
+    /// koble SAMME (rettskilde, eId) flere ganger — én gang på den flate listen (<c>Felt IS NULL</c>)
+    /// og i tillegg på ett eller flere enkeltfelt (<c>Felt IS NOT NULL</c>), se de to partial-unike
+    /// indeksene i <c>RegelIdeDbContext.cs</c> og kommentaren i
+    /// <see cref="TjenesteregisterTjeneste.KobleRegelverksreferanseAsync"/>. <see cref="TjenesteReferanseDto"/>
+    /// bærer bevisst ikke Felt (denne visningen svarer kun "bruker tjenesten X denne eId-en?", ikke
+    /// hvilket felt) — uten Distinct ga det React-nøkkelkollisjon i KontekstPanel (samme
+    /// tjeneste+eId flere ganger i "Brukt i tjenester") så snart én tjeneste hadde både en flat- og
+    /// en feltnivå-referanse til samme paragraf. Ikke en datafeil (ingen duplikate rader i tabellen —
+    /// radene er forskjellige på Felt), men en projeksjon som slapp gjennom en reell mangfoldighet
+    /// denne visningen ikke bryr seg om.
     /// </summary>
     public Task<List<TjenesteReferanseDto>> ReferertAvTjenesterAsync(Guid rettskildeId) =>
         db.TjenesteRegelverksreferanser
             .Where(r => r.TilRettskildeId == rettskildeId)
             .Join(db.Tjenester, r => r.TjenesteId, t => t.Id, (r, t) => new TjenesteReferanseDto(t.Id, t.Tittel, r.TilEid))
+            .Distinct()
             .ToListAsync();
 
     /// <summary>

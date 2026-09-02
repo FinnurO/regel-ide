@@ -485,6 +485,42 @@ public class RettskilderEndepunktTests
         Assert.True(referanser!.Count(r => r.TjenesteTittel == "Alminnelig skjenkebevilling") >= 7);
     }
 
+    /// <summary>
+    /// Bugfiks 2026-09-02 (levende gjennomgang, live-test av Relasjoner-fanen i RettskildeDetalj.tsx) —
+    /// React klaget over duplikat nøkkel for "Alminnelig skjenkebevilling"+§4-1 i "Brukt i tjenester".
+    /// Ikke duplikate rader i databasen: tjenesten hadde allerede den flate (Felt IS NULL) referansen
+    /// fra Byggesteg 2-seedingen, og denne testen kobler i tillegg ETT enkeltfelt til SAMME paragraf
+    /// (lovlig per de to partial-unike indeksene, se <see cref="TjenesteregisterTjeneste.KobleRegelverksreferanseAsync"/>)
+    /// — <see cref="TjenesteReferanseDto"/> bærer ikke Felt, så uten Distinct() i
+    /// <see cref="RettskildeRepository.ReferertAvTjenesterAsync"/> ga dette to identiske DTO-er.
+    /// </summary>
+    [Fact]
+    public async Task Referert_av_tjenester_slar_sammen_flat_og_feltnivareferanse_til_samme_paragraf()
+    {
+        var alkoholovenId = await HentAlkohollovenIdAsync();
+        var bruker = await HentTestbrukerAsync();
+
+        // GET /api/tjenester krever bruker-header (se GjeldendeBrukerTjeneste) — bruk samme
+        // request-oppskrift som resten av filen i stedet for GetFromJsonAsync uten header.
+        using var tjenesterRequest = new HttpRequestMessage(HttpMethod.Get, "/api/tjenester")
+        {
+            Headers = { { GjeldendeBrukerTjeneste.HeaderNavn, bruker.Id.ToString() } },
+        };
+        var tjenesterSvar = await _client.SendAsync(tjenesterRequest);
+        var alleTjenester = await tjenesterSvar.Content.ReadFromJsonAsync<List<TjenesteDto>>(JsonInnstillinger);
+        var skjenkebevilling = alleTjenester!.Single(t => t.Tittel == "Alminnelig skjenkebevilling");
+
+        var koblingSvar = await _client.PostAsJsonAsync(
+            $"/api/tjenester/{skjenkebevilling.Id}/regelverksreferanser",
+            new KobleRegelverksreferanseRequest(alkoholovenId, $"{AlkohollovenEli}/§4-1", "kompetentMyndighet"));
+        Assert.Equal(HttpStatusCode.Created, koblingSvar.StatusCode);
+
+        var referertAv = await _client.GetFromJsonAsync<List<TjenesteReferanseDto>>(
+            $"/api/rettskilder/{alkoholovenId}/referert-av-tjenester", JsonInnstillinger);
+
+        Assert.Single(referertAv!, r => r.TjenesteId == skjenkebevilling.Id && r.TilEid == $"{AlkohollovenEli}/§4-1");
+    }
+
     [Fact]
     public async Task Referert_av_tjenester_for_ukjent_rettskilde_gir_tom_liste()
     {
