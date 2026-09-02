@@ -2,7 +2,7 @@ import { useState, type Dispatch, type FormEvent, type SetStateAction } from 're
 import { Alert, Button, Field, Heading, Label, Paragraph, Select, Spinner, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { HendelseDto } from '../api/types';
-import type { DetaljVisning } from './detaljVisning';
+import type { DetaljVisning } from '../entitet/detaljVisning';
 
 export interface HendelserFaneProps {
   tjenesteId: string;

@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
 import { Alert, Button, Link, Paragraph, Spinner, Tabs, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api, apiUrl } from '../api/client';
+import { eidVisningstekst } from '../api/eidLenker';
 import type {
   HandlingDto, HendelseDto, RegelnodeDto, RettskildeNodeDto, RettskildeSammendrag, TjenesteavhengighetDto,
   TjenesteDto, TjenesteRegelverksreferanseDto,
@@ -16,8 +17,8 @@ import { RegelverkFane } from '../tjeneste/RegelverkFane';
 import { HendelserFane } from '../tjeneste/HendelserFane';
 import { HandlingerFane } from '../tjeneste/HandlingerFane';
 import { AvhengigheterFane } from '../tjeneste/AvhengigheterFane';
-import { KontekstPanel } from '../tjeneste/KontekstPanel';
-import type { DetaljVisning } from '../tjeneste/detaljVisning';
+import { KontekstPanel, type KontekstPanelGruppe } from '../entitet/KontekstPanel';
+import type { DetaljVisning } from '../entitet/detaljVisning';
 
 /**
  * Tjeneste-siden — redesignet (2026-08-27) fra ett 1253-linjers, endimensjonalt skjema
@@ -114,6 +115,47 @@ export default function TjenesteDetalj() {
   }
 
   const flateReferanser = useMemo(() => (referanser ?? []).filter((r) => r.felt === null), [referanser]);
+
+  function visReferanseDetalj(r: TjenesteRegelverksreferanseDto) {
+    const rettskilde = rettskilder.find((rk) => rk.id === r.tilRettskildeId);
+    const node = noderPerRettskilde.get(r.tilRettskildeId)?.find((n) => n.eid === r.tilEid);
+    setSelectedDetail({
+      title: eidVisningstekst(r.tilEid, rettskilder, noderPerRettskilde) ?? r.tilEid,
+      meta: rettskilde ? (rettskilde.kortnavn ?? rettskilde.tittel) : 'Regelverksreferanse',
+      body: node?.tekst ?? null,
+    });
+    setRightTab('detaljer');
+  }
+
+  // Generalisert KontekstPanel (docs/30 §4 punkt 1) — Tjeneste-siden bygger selv opp gruppene og hva
+  // hvert klikk skal vise; ingen visuell endring i seg selv, kun samme 3 grupper som før flyttet hit.
+  const kontekstGrupper: KontekstPanelGruppe[] = useMemo(() => [
+    {
+      heading: 'Regelverksreferanser',
+      items: flateReferanser.map((r) => ({
+        key: r.id,
+        label: eidVisningstekst(r.tilEid, rettskilder, noderPerRettskilde) ?? r.tilEid,
+        onClick: () => visReferanseDetalj(r),
+      })),
+    },
+    {
+      heading: 'Hendelser',
+      items: (hendelser ?? []).map((h) => ({
+        key: h.id,
+        label: h.navn,
+        onClick: () => { setSelectedDetail({ title: h.navn, meta: `Hendelse · ${h.type}`, body: h.beskrivelse }); setRightTab('detaljer'); },
+      })),
+    },
+    {
+      heading: 'Avhengigheter',
+      items: (avhengigheter ?? []).map((a) => ({
+        key: a.id,
+        label: a.visningstekst,
+        onClick: () => { setSelectedDetail({ title: a.visningstekst, meta: `Avhengighet · ${a.rel}`, body: a.beskrivelse }); setRightTab('detaljer'); },
+      })),
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  ], [flateReferanser, rettskilder, noderPerRettskilde, hendelser, avhengigheter]);
 
   if (feil) return <Alert data-color="danger">{feil}</Alert>;
   if (!tjeneste || !id) return <Spinner aria-label="Laster …" data-size="sm" />;
@@ -265,10 +307,8 @@ export default function TjenesteDetalj() {
       <KontekstPanel
         collapsed={rightCollapsed} onToggleCollapsed={() => setRightCollapsed((v) => !v)}
         rightTab={rightTab} setRightTab={setRightTab}
-        flateReferanser={flateReferanser} rettskilder={rettskilder} noderPerRettskilde={noderPerRettskilde}
-        hendelser={hendelser ?? []} avhengigheter={avhengigheter ?? []}
+        grupper={kontekstGrupper}
         selectedDetail={selectedDetail}
-        onSelectDetail={(v) => { setSelectedDetail(v); setRightTab('detaljer'); }}
         onClearDetail={() => setSelectedDetail(null)}
       />
     </div>
