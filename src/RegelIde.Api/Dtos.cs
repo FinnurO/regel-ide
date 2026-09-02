@@ -877,6 +877,29 @@ public sealed record LovdataImportstatusDto(
         e.Datokode, e.Type, e.Tittel, e.Eli, e.Importert, e.RettskildeId, e.Feilmelding, e.SistForsoktTidspunkt);
 }
 
+/// <summary>Én rad i kjøre-historikken for Lovdata-resynk (administrasjon-Lovdata-resynk, GitHub-issue
+/// #104) — se <see cref="LovdataResynkKjoringEntitet"/>.</summary>
+public sealed record LovdataResynkKjoringDto(
+    Guid Id, string Utlost, string? UtlostAvBruker, string Status, DateTimeOffset StartetTidspunkt,
+    DateTimeOffset? FullfortTidspunkt, int? Nye, int? NyeVersjoner, int? Uendret, int? Feilet,
+    int? TotaltBehandlet, string? Feilmelding)
+{
+    public static LovdataResynkKjoringDto FraEntitet(LovdataResynkKjoringEntitet e) => new(
+        e.Id, e.Utlost, e.UtlostAvBruker, e.Status, e.StartetTidspunkt, e.FullfortTidspunkt,
+        e.Nye, e.NyeVersjoner, e.Uendret, e.Feilet, e.TotaltBehandlet, e.Feilmelding);
+}
+
+/// <summary>Database-lagret frekvensinnstilling for automatisk Lovdata-resynk — se
+/// <see cref="LovdataResynkInnstillingEntitet"/>.</summary>
+public sealed record LovdataResynkInnstillingDto(int? IntervallTimer, DateTimeOffset SistEndretTidspunkt, string? SistEndretAv)
+{
+    public static LovdataResynkInnstillingDto FraEntitet(LovdataResynkInnstillingEntitet e) =>
+        new(e.IntervallTimer, e.SistEndretTidspunkt, e.SistEndretAv);
+}
+
+/// <summary>Forespørsel for PUT /api/administrasjon/lovdata-resynk/innstilling — null eller 0 = aldri automatisk.</summary>
+public sealed record OppdaterLovdataResynkInnstillingRequest(int? IntervallTimer);
+
 /// <summary>
 /// Én høstet, rå kildepost (<see cref="EksternKildeEntitet"/>) — se den klassens kommentar for hvorfor
 /// den bevisst IKKE er koblet til domenemodellen ennå. <see cref="RaaJson"/> er hele kildeobjektet,
