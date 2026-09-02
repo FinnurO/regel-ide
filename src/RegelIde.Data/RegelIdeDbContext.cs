@@ -50,6 +50,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<RettskildeNodeEntitet> RettskildeNoder => Set<RettskildeNodeEntitet>();
     public DbSet<RettskildeReferanseEntitet> RettskildeReferanser => Set<RettskildeReferanseEntitet>();
     public DbSet<RettskildeHjemmelEntitet> RettskildeHjemler => Set<RettskildeHjemmelEntitet>();
+    public DbSet<RettskildeEndringEntitet> RettskildeEndringer => Set<RettskildeEndringEntitet>();
     public DbSet<TekstTaggEntitet> TekstTagger => Set<TekstTaggEntitet>();
     public DbSet<TaggKindKonfigurasjonEntitet> TaggKindKonfigurasjoner => Set<TaggKindKonfigurasjonEntitet>();
     public DbSet<HandbokKommentarMetadataEntitet> HandbokKommentarMetadata => Set<HandbokKommentarMetadataEntitet>();
@@ -264,7 +265,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Eli).HasColumnName("eli");
             e.Property(x => x.AknXml).HasColumnName("akn_xml");
             e.Property(x => x.Ikrafttredelse).HasColumnName("ikrafttredelse");
+            e.Property(x => x.IkrafttredelseRaa).HasColumnName("ikrafttredelse_raa");
             e.Property(x => x.KonsolidertDato).HasColumnName("konsolidert_dato");
+            e.Property(x => x.KonsolidertDatoRaa).HasColumnName("konsolidert_dato_raa");
+            e.Property(x => x.SistEndretVed).HasColumnName("sist_endret_ved");
             e.Property(x => x.Utgiver).HasColumnName("utgiver");
             e.Property(x => x.AnsvarligDepartement).HasColumnName("ansvarlig_departement");
             e.Property(x => x.Status).HasColumnName("status");
@@ -443,6 +447,28 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasIndex(x => new { x.RettskildeId, x.HjemmelEid }).IsUnique()
                 .HasDatabaseName("ux_rettskilde_hjemler_rettskilde_id_hjemmel_eid");
             e.HasIndex(x => x.HjemmelRettskildeId).HasDatabaseName("ix_rettskilde_hjemler_hjemmel_rettskilde");
+        });
+
+        b.Entity<RettskildeEndringEntitet>(e =>
+        {
+            e.ToTable("rettskilde_endringer");
+            e.HasKey(x => x.Id).HasName("rettskilde_endringer_pkey");
+            e.Property(x => x.RettskildeId).HasColumnName("rettskilde_id");
+            e.Property(x => x.EndringEid).HasColumnName("endring_eid");
+            e.Property(x => x.EndringRettskildeId).HasColumnName("endring_rettskilde_id");
+            e.Property(x => x.Sorteringsrekkefolge).HasColumnName("sorteringsrekkefolge");
+
+            e.HasOne<RettskildeEntitet>().WithMany()
+                .HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<RettskildeEntitet>().WithMany()
+                .HasForeignKey(x => x.EndringRettskildeId);
+
+            // Samme "unngå duplikatimport av samme referanse"-begrunnelse som
+            // rettskilde_hjemler over — en reimport av samme rettskilde skriver til en NY
+            // RettskildeId hver gang (§2.1), så denne hindrer kun duplikater INNENFOR én og samme import.
+            e.HasIndex(x => new { x.RettskildeId, x.EndringEid }).IsUnique()
+                .HasDatabaseName("ux_rettskilde_endringer_rettskilde_id_endring_eid");
+            e.HasIndex(x => x.EndringRettskildeId).HasDatabaseName("ix_rettskilde_endringer_endring_rettskilde");
         });
 
         b.Entity<TekstTaggEntitet>(e =>
