@@ -11,6 +11,19 @@ import { useVirksomheter } from '../virksomhet/useVirksomheter';
 type Sorteringskolonne = 'tittel' | 'kildetype' | 'eier';
 type ImportstatusSorteringskolonne = 'tittel' | 'datokode' | 'type';
 
+// Ikrafttredelse-status (2026-09-02, listevisning-fiks) — samme dato-mønster som
+// LovdataHtmlParser.DatoMønster (FørsteDato) på serversiden: en gyldig åååå-MM-dd et sted i strengen.
+// Kun meningsfullt for Lov/Forskrift (RettskildeSammendrag.ikrafttredelseRaa er KUN populert for disse
+// to kildetypene — se Dtos.cs) — andre kildetyper skal ALDRI vises som "ikke i kraft" bare fordi feltet
+// er null der (det er da forventet fravær av data, ikke et "Kongen bestemmer"-tilfelle).
+const IKRAFTTREDELSE_DATO_MONSTER = /\d{4}-\d{2}-\d{2}/;
+const KILDETYPER_MED_IKRAFTTREDELSESDATO = new Set(['Lov', 'Forskrift']);
+
+function erIkkeTraadtIKraft(r: RettskildeSammendrag): boolean {
+  if (!KILDETYPER_MED_IKRAFTTREDELSESDATO.has(r.kildetype)) return false;
+  return !r.ikrafttredelseRaa || !IKRAFTTREDELSE_DATO_MONSTER.test(r.ikrafttredelseRaa);
+}
+
 export default function RettskilderListe() {
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
@@ -19,6 +32,10 @@ export default function RettskilderListe() {
   // stille fra standardvisningen, samme «ikke skjul stille, gi et eksplisitt valg»-prinsipp som
   // visIkkeImportert lenger ned bruker for Lovdata-importstatus.
   const [visIrrelevante, setVisIrrelevante] = useState(false);
+  // Utvidelse utover Johanns eksplisitte bestilling denne runden (kun selve "Ikke i kraft"-taggen var
+  // bedt om) — samme billige, allerede-eksisterende opt-in-mønster som visIrrelevante over, KUN
+  // klientsidefiltrert (ingen ny query-parameter til hentRettskilder, i motsetning til visIrrelevante).
+  const [visIkkeIKraft, setVisIkkeIKraft] = useState(false);
   const [filterTekst, setFilterTekst] = useState('');
   const [sortKolonne, setSortKolonne] = useState<Sorteringskolonne>('tittel');
   const [sortStigende, setSortStigende] = useState(true);
@@ -102,19 +119,20 @@ export default function RettskilderListe() {
   const viste = useMemo(() => {
     if (!rettskilder) return null;
     const tekst = filterTekst.trim().toLowerCase();
+    const grunnlag = visIkkeIKraft ? rettskilder : rettskilder.filter((r) => !erIkkeTraadtIKraft(r));
     const filtrert = tekst
-      ? rettskilder.filter(
+      ? grunnlag.filter(
           (r) =>
             r.tittel.toLowerCase().includes(tekst) ||
             (r.kortnavn?.toLowerCase().includes(tekst) ?? false) ||
             r.kildetype.toLowerCase().includes(tekst) ||
             visEier(r.virksomhetId).toLowerCase().includes(tekst),
         )
-      : rettskilder;
+      : grunnlag;
 
     const sortnokkel = (r: RettskildeSammendrag) =>
       sortKolonne === 'tittel'
-        ? (r.kortnavn ?? r.tittel)
+        ? r.tittel
         : sortKolonne === 'kildetype'
           ? r.kildetype
           : visEier(r.virksomhetId);
@@ -123,7 +141,7 @@ export default function RettskilderListe() {
       const cmp = sortnokkel(a).localeCompare(sortnokkel(b), 'nb');
       return sortStigende ? cmp : -cmp;
     });
-  }, [rettskilder, filterTekst, sortKolonne, sortStigende, visEier]);
+  }, [rettskilder, filterTekst, sortKolonne, sortStigende, visEier, visIkkeIKraft]);
 
   const visteIkkeImportert = useMemo(() => {
     if (!ikkeImportert) return null;
@@ -171,8 +189,9 @@ export default function RettskilderListe() {
       </Heading>
       <Paragraph style={{ marginBottom: '1rem' }}>
         Åpne data — delte/nasjonale kilder (Lov/Forskrift fra Lovdata) og alle virksomheters
-        publiserte lokale kilder. Kladder (status «Utkast») vises aldri her, og kilder markert som
-        irrelevant for regel-ide er skjult som standard.
+        publiserte lokale kilder. Kladder (status «Utkast») vises aldri her, kilder markert som
+        irrelevant for regel-ide er skjult som standard, og det samme gjelder Lov/Forskrift som ennå
+        ikke er trådt i kraft.
       </Paragraph>
 
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', marginBottom: '1rem', flexWrap: 'wrap' }}>
@@ -187,6 +206,11 @@ export default function RettskilderListe() {
           label="Vis også kilder markert som irrelevant"
           checked={visIrrelevante}
           onChange={(e) => setVisIrrelevante(e.target.checked)}
+        />
+        <Checkbox
+          label="Vis også kilder som ikke er trådt i kraft"
+          checked={visIkkeIKraft}
+          onChange={(e) => setVisIkkeIKraft(e.target.checked)}
         />
         <Textfield
           label="Filtrer"
@@ -217,7 +241,6 @@ export default function RettskilderListe() {
                   Kildetype{sorteringsindikator('kildetype')}
                 </button>
               </Table.HeaderCell>
-              <Table.HeaderCell>ELI</Table.HeaderCell>
               <Table.HeaderCell>
                 <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('eier')}>
                   Eier{sorteringsindikator('eier')}
@@ -231,13 +254,26 @@ export default function RettskilderListe() {
               <Table.Row key={r.id}>
                 <Table.Cell>
                   <Link asChild>
-                    <RouterLink to={`/rettskilder/${r.id}`}>{r.kortnavn ?? r.tittel}</RouterLink>
+                    <RouterLink to={`/rettskilder/${r.id}`}>{r.tittel}</RouterLink>
                   </Link>
+                  {r.kortnavn && (
+                    <span
+                      style={{
+                        marginLeft: '0.5rem',
+                        fontSize: 'var(--ds-font-size-1)',
+                        color: 'var(--ds-color-neutral-text-subtle)',
+                      }}
+                    >
+                      {r.kortnavn}
+                    </span>
+                  )}
                 </Table.Cell>
                 <Table.Cell>{r.kildetype}</Table.Cell>
-                <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{r.eli ?? '—'}</Table.Cell>
                 <Table.Cell>{visEier(r.virksomhetId)}</Table.Cell>
-                <Table.Cell>{r.erIrrelevant && <Tag data-color="warning" data-size="sm">Irrelevant</Tag>}</Table.Cell>
+                <Table.Cell style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                  {r.erIrrelevant && <Tag data-color="warning" data-size="sm">Irrelevant</Tag>}
+                  {erIkkeTraadtIKraft(r) && <Tag data-color="warning" data-size="sm">Ikke i kraft</Tag>}
+                </Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>
