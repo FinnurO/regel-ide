@@ -66,6 +66,7 @@ const GRUPPER: Gruppe[] = [
       { kind: 'lenke', to: '/begreper/forslag', label: 'KI-forslag begrep' },
       { kind: 'lenke', to: '/virksomhet-kandidater', label: 'Virksomhetskandidater' },
       { kind: 'lenke', to: '/navnekandidater', label: 'Navnekandidater' },
+      { kind: 'lenke', to: '/begrepskandidater', label: 'Begrepskandidater' },
     ],
   },
   {
