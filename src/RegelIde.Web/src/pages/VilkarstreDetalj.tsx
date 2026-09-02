@@ -233,9 +233,12 @@ export default function VilkarstreDetalj() {
 
   return (
     <>
-      <Link asChild>
-        <RouterLink to="/vilkarstre">← Tilbake til listen</RouterLink>
-      </Link>
+      <nav aria-label="Brødsmulesti" style={{ display: 'flex', gap: '0.4rem', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+        <Link asChild><RouterLink to="/vilkarstre">Vilkårstre</RouterLink></Link>
+        <span>/</span>
+        <span style={{ color: 'var(--ds-color-neutral-text-default)' }}>{tre.tittel}</span>
+      </nav>
+
       <Heading level={1} data-size="lg" style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
         {tre.tittel}
       </Heading>
