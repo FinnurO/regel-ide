@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
 import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { KodelisteDto, MyndighetstildelingDto, RettskildeSammendrag, VirksomhetKandidatDto, VirksomhetsbegrepDto } from '../api/types';
+import type { KodelisteDto, MyndighetstildelingDto, RettskildeNodeDto, RettskildeSammendrag, VirksomhetKandidatDto, VirksomhetsbegrepDto } from '../api/types';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { LeggTilMyndighetstildelingForm } from '../virksomhet/LeggTilMyndighetstildelingForm';
 
@@ -36,6 +36,24 @@ export default function VirksomhetDetalj() {
   // og lar den overstyre hook-verdien i visningen under, i stedet for å endre den delte hooken.
   const [forvaltningsnivaOverstyrt, setForvaltningsnivaOverstyrt] = useState<string | null | undefined>(undefined);
 
+  // [Ny, 2026-09-02, issue #115] Node-tekst per rettskilde — samme lazy-per-rettskilde-mønster som
+  // VirksomhetKandidaterListe.tsx/LeggTilMyndighetstildelingForm.tsx, slik at "Paragrafspenn"- og
+  // "Node"-kolonnene under kan vise "§ nummer — overskrift" i stedet for rå eId.
+  const [noderPerRettskilde, setNoderPerRettskilde] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
+  function sikreNoderFor(rettskildeId: string) {
+    if (!rettskildeId || noderPerRettskilde.has(rettskildeId)) return;
+    api.hentNoder(rettskildeId)
+      .then((noder) => setNoderPerRettskilde((forrige) => new Map(forrige).set(rettskildeId, noder)))
+      .catch(() => {}); // ingen gjettet fallback — viser rå eId når nodene ikke lot seg hente
+  }
+  function visNodeKort(rettskildeId: string, eid: string): string {
+    const node = noderPerRettskilde.get(rettskildeId)?.find((n) => n.eid === eid);
+    if (!node) return eid;
+    if (node.nodeType === 'side') return 'Hele siden';
+    const paragraf = node.nummer ? `§ ${node.nummer}` : eid;
+    return node.overskrift ? `${paragraf} — ${node.overskrift}` : paragraf;
+  }
+
   function lastAlt() {
     if (!id) return;
     api.hentVirksomhetsbegrep(id).then(setBegrep)
@@ -46,6 +64,14 @@ export default function VirksomhetDetalj() {
   }
 
   useEffect(lastAlt, [id]);
+  useEffect(() => {
+    for (const t of tildelinger ?? []) sikreNoderFor(t.hjemmelRettskildeId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tildelinger]);
+  useEffect(() => {
+    for (const rettskildeId of new Set((kandidater ?? []).map((k) => k.rettskildeId))) sikreNoderFor(rettskildeId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [kandidater]);
   useEffect(() => {
     api.hentKodelister()
       .then((liste) => setForvaltningsnivaKodeliste(liste.find((k) => k.kode === 'KL-FORVALTNINGSNIVA') ?? null))
@@ -233,8 +259,14 @@ export default function VirksomhetDetalj() {
               <Table.Body>
                 {tildelinger.map((t) => (
                   <Table.Row key={t.id}>
-                    <Table.Cell style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>
-                      {t.paragrafspenn.map((p) => (p.tilEid ? `${p.fraEid}–${p.tilEid}` : p.fraEid)).join(', ')}
+                    <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                      {t.paragrafspenn
+                        .map((p) =>
+                          p.tilEid
+                            ? `${visNodeKort(t.hjemmelRettskildeId, p.fraEid)} – ${visNodeKort(t.hjemmelRettskildeId, p.tilEid)}`
+                            : visNodeKort(t.hjemmelRettskildeId, p.fraEid),
+                        )
+                        .join(', ')}
                     </Table.Cell>
                     <Table.Cell>{t.vilkaar ?? '—'}</Table.Cell>
                   </Table.Row>
@@ -323,7 +355,16 @@ export default function VirksomhetDetalj() {
               <Table.Body>
                 {kandidater.map((k) => (
                   <Table.Row key={k.id}>
-                    <Table.Cell style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>{k.nodeEid}</Table.Cell>
+                    <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                      {/* [Rettet, 2026-09-02, issue #115] "Node"-kolonnen er den ENESTE plassen i
+                          denne tabellen som viser hvilken rettskilde treffet gjelder (ingen egen
+                          "Rettskilde"-kolonne) — derfor kilde OG paragraf her, ikke bare paragrafen. */}
+                      {(() => {
+                        const rettskilde = rettskilder.find((r) => r.id === k.rettskildeId);
+                        const kildeNavn = rettskilde ? (rettskilde.kortnavn ?? rettskilde.tittel) : k.rettskildeId;
+                        return `${kildeNavn} — ${visNodeKort(k.rettskildeId, k.nodeEid)}`;
+                      })()}
+                    </Table.Cell>
                     <Table.Cell style={{ display: 'flex', gap: '0.5rem' }}>
                       <Button
                         data-size="sm"
