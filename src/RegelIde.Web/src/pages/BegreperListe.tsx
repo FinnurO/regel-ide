@@ -65,7 +65,7 @@ export default function BegreperListe() {
         )
       : begreper;
 
-    // b.begrepstype er null for virksomhet-/rolle-kategori-begreper (kun faktabegrep/handlingsbegrep
+    // b.begrepstype er null for virksomhet-/gruppe-kategori-begreper (kun faktabegrep/handlingsbegrep
     // har en reell begrepstype) — falt til '' før localeCompare, ellers krasjer sortering/filtrering
     // på akkurat disse radene (bug funnet av Johann 2026-08-30: skriving i filterfeltet krasjet HELE
     // siden fordi begrepstype.toLowerCase() ble kalt på null).

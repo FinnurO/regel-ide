@@ -36,14 +36,14 @@ const STATUS_FARGE: Record<string, 'neutral' | 'warning' | 'success' | 'danger'>
 
 const KATEGORI_FARGE: Record<string, 'info' | 'accent'> = {
   virksomhet: 'accent',
-  rolle: 'info',
+  gruppe: 'info',
 };
 
 /**
  * Oppdagelseskø (docs/13-backlog.md §9) — komplementær til `VirksomhetKandidaterListe.tsx`, samme
  * mønster tett fulgt (sveip-panel + filtrerbar tabell + godkjenn/avvis per rad). Den avgjørende
  * forskjellen fra virksomhetskandidatene er hva "godkjenn" faktisk gjør, se `kandidatHandlingTekst`:
- * for `"rolle"` opprettes et EKTE rollebegrep direkte (serversiden har alt den trenger), for
+ * for `"gruppe"` opprettes et EKTE gruppebegrep direkte (serversiden har alt den trenger), for
  * `"virksomhet"` settes kun status — selve virksomhetskoblingen (ny ELLER eksisterende virksomhet)
  * krever et menneske og skjer via Brreg-søket/"opprett med bare navn"-skjemaet på `/virksomheter`
  * (lenken under sender med `?forslagNavn=` som forhåndsutfyller begge der).
@@ -73,7 +73,7 @@ export default function NavnekandidaterListe() {
   const [searchParams] = useSearchParams();
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
 
-  const [kategoriFilter, setKategoriFilter] = useState<'virksomhet' | 'rolle' | ''>('');
+  const [kategoriFilter, setKategoriFilter] = useState<'virksomhet' | 'gruppe' | ''>('');
   const [statusFilter, setStatusFilter] = useState<'Venter' | 'Godkjent' | 'Avvist' | 'Alle'>('Venter');
 
   // Klient-side filtre (se klassekommentaren) — virker på den allerede hentede `kandidater`-listen,
@@ -457,7 +457,7 @@ export default function NavnekandidaterListe() {
         rettskildetekst (docs/13-backlog.md §9) — ren tekstanalyse, ikke KI. Komplementær til{' '}
         <Link asChild><RouterLink to="/virksomhet-kandidater">Virksomhetskandidater</RouterLink></Link>,
         som bekrefter FLERE forekomster av allerede kjente navn; dette er en oppdagelseskø for HELT NYE
-        navn ingen registrert navneform/rollebegrep dekker ennå.
+        navn ingen registrert navneform/gruppebegrep dekker ennå.
       </Paragraph>
 
       <Card style={{ padding: '1rem', marginBottom: '1.5rem' }}>
@@ -488,7 +488,7 @@ export default function NavnekandidaterListe() {
           <Select data-size="sm" value={kategoriFilter} onChange={(e) => setKategoriFilter(e.target.value as typeof kategoriFilter)}>
             <Select.Option value="">Alle kategorier</Select.Option>
             <Select.Option value="virksomhet">Virksomhet</Select.Option>
-            <Select.Option value="rolle">Rolle</Select.Option>
+            <Select.Option value="gruppe">Gruppe</Select.Option>
           </Select>
         </Field>
         <Field style={{ minWidth: '10rem' }}>

@@ -15,7 +15,7 @@ public sealed class TekstTaggTjeneste(RegelIdeDbContext db, VirksomhetOppslagTje
     /// (uendret oppførsel — §0.1, aldri delt på tvers) PLUSS, hvis rettskilden faktisk har et kjent OG
     /// oppløsbart <see cref="RettskildeEntitet.AnsvarligDepartement"/>, departementets EGNE tagger (se
     /// <see cref="NavnekandidatOppdagelseTjeneste.GodkjennAsync"/>, som oppretter disse ved godkjenning
-    /// av et rolle-/virksomhet-navnetreff — Johanns eksplisitte designvalg: "det eies av ansvarlig
+    /// av et gruppe-/virksomhet-navnetreff — Johanns eksplisitte designvalg: "det eies av ansvarlig
     /// departement [...] men det skal jo være mulig å se taggene allikevel"). Uten dette tillegget var
     /// GET-endepunktet (som alltid spør per KALLENDE brukers egen virksomhet) reelt begrenset til å vise
     /// departementets egne tagger KUN til departementets egne innloggede brukere — selv om selve

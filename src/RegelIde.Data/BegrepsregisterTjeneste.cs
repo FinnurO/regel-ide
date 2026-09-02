@@ -89,13 +89,13 @@ public sealed class BegrepsregisterTjeneste(RegelIdeDbContext db)
     /// [Rettet, 2026-08-30] Denne metoden ble skrevet FØR <see cref="BegrepEntitet.Begrepskategori"/>
     /// fantes (virksomhetskatalog-runden, 2026-08-22) og validerte/overskrev alltid
     /// <see cref="BegrepEntitet.Definisjon"/>/<see cref="BegrepEntitet.Begrepstype"/> ubetinget — disse
-    /// feltene er derimot dokumentert NULL for <c>Begrepskategori IN ('virksomhet','rolle')</c> (se
+    /// feltene er derimot dokumentert NULL for <c>Begrepskategori IN ('virksomhet','gruppe')</c> (se
     /// klassekommentaren på <see cref="BegrepEntitet"/>). Uten en kategori-bevisst sjekk her kunne PUT
-    /// /api/begreper/{id} stille forurense en virksomhet-/rolle-navneform med en oppfunnet
+    /// /api/begreper/{id} stille forurense en virksomhet-/gruppe-navneform med en oppfunnet
     /// "faktabegrep"/tom definisjon — reelt observert av Johann 2026-08-30 (frontend-krasjfiksen for
     /// null-felter satte ellers en fallback-verdi i redigeringsskjemaet som ville blitt lagret som ekte
     /// data ved første "Lagre"-klikk). Løsning: hent raden FØRST, og for
-    /// <c>Begrepskategori IN ('virksomhet','rolle')</c> rører vi ALDRI Definisjon/Begrepstype uansett
+    /// <c>Begrepskategori IN ('virksomhet','gruppe')</c> rører vi ALDRI Definisjon/Begrepstype uansett
     /// hva som sendes inn — kun Term/LovreferanseEid/GjelderFor/KodelisteReferanseId/SkosUrl er
     /// meningsfulle å endre for disse radene.
     /// </summary>
@@ -106,12 +106,12 @@ public sealed class BegrepsregisterTjeneste(RegelIdeDbContext db)
         var begrep = await db.Begreper.FirstOrDefaultAsync(b => b.Id == id && b.Entitetsstatus == "gjeldende", ct);
         if (begrep is null) return null;
 
-        var erVirksomhetEllerRolle = begrep.Begrepskategori is "virksomhet" or "rolle";
+        var erVirksomhetEllerGruppe = begrep.Begrepskategori is "virksomhet" or "gruppe";
         if (string.IsNullOrWhiteSpace(term))
         {
             throw new ArgumentException("Term kan ikke være tom. Ingen gjettet fallback.");
         }
-        if (!erVirksomhetEllerRolle)
+        if (!erVirksomhetEllerGruppe)
         {
             ValiderFelter(term, definisjon, begrepstype);
         }
@@ -119,7 +119,7 @@ public sealed class BegrepsregisterTjeneste(RegelIdeDbContext db)
         await ValiderKodelisteReferanseAsync(kodelisteReferanseId, ct);
 
         begrep.Term = term;
-        if (!erVirksomhetEllerRolle)
+        if (!erVirksomhetEllerGruppe)
         {
             begrep.Definisjon = definisjon;
             begrep.Begrepstype = begrepstype;

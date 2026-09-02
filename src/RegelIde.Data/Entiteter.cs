@@ -883,10 +883,10 @@ public sealed class HandbokRettskildeomfangEntitet
 /// [ENDRET — virksomhetskatalog-runden, 2026-08-22, docs/20 §2.3/§2.4] <see cref="Begrepskategori"/>
 /// er en ny, valgfri diskriminator: NULL betyr et ordinært fakta-/handlingsbegrep (opprinnelig, uendret
 /// betydning — <see cref="VirksomhetId"/>/<see cref="Definisjon"/>/<see cref="Begrepstype"/> er da
-/// fortsatt de facto påkrevd, validert i tjenestelaget, ikke en DB CHECK). `'virksomhet'` og `'rolle'`
+/// fortsatt de facto påkrevd, validert i tjenestelaget, ikke en DB CHECK). `'virksomhet'` og `'gruppe'`
 /// er de to nye kategoriene — DELT/nasjonal referansedata uten én eiende virksomhet, samme mønster som
 /// <see cref="KodelisteEntitet"/>s `Type='ekstern-referanse'`. Derfor er <see cref="VirksomhetId"/> nå
-/// NULLBAR (var påkrevd) — NULL for `Begrepskategori IN ('virksomhet','rolle')`, satt for alt annet.
+/// NULLBAR (var påkrevd) — NULL for `Begrepskategori IN ('virksomhet','gruppe')`, satt for alt annet.
 /// </para>
 /// </summary>
 public sealed class BegrepEntitet
@@ -894,24 +894,24 @@ public sealed class BegrepEntitet
     public Guid Id { get; set; }
 
     /// <summary>Påkrevd for ordinære fakta-/handlingsbegrep (§0.1 — et begrep er da virksomhetens eget
-    /// arbeidsprodukt). NULL for <see cref="Begrepskategori"/> `'virksomhet'`/`'rolle'` — delt,
+    /// arbeidsprodukt). NULL for <see cref="Begrepskategori"/> `'virksomhet'`/`'gruppe'` — delt,
     /// nasjonal referansedata uten én eiende virksomhet (docs/20 §2.3/§2.4).</summary>
     public Guid? VirksomhetId { get; set; }
 
     /// <summary>NULL = ordinært fakta-/handlingsbegrep (opprinnelig betydning, uendret). `'virksomhet'`
     /// = navneform brukt om en virksomhet i rettskildetekst (<see cref="Term"/> = navnet,
-    /// <see cref="VirksomhetReferanseId"/> = hvilken). `'rolle'` = et rollebegrep tildelt konkrete
-    /// virksomheter gjennom forskrift (<see cref="Term"/> = rollenavnet, <see cref="LovkildeId"/> =
-    /// hvilken lov — sammen utgjør de to rollebegrepets identitet, docs/20 §2.4).</summary>
+    /// <see cref="VirksomhetReferanseId"/> = hvilken). `'gruppe'` = et gruppebegrep tildelt konkrete
+    /// virksomheter gjennom forskrift (<see cref="Term"/> = gruppenavnet, <see cref="LovkildeId"/> =
+    /// hvilken lov — sammen utgjør de to gruppebegrepets identitet, docs/20 §2.4).</summary>
     public string? Begrepskategori { get; set; }
 
     /// <summary>Kun for <see cref="Begrepskategori"/> = `'virksomhet'` — hvilken virksomhet
     /// <see cref="Term"/> er en navneform for.</summary>
     public Guid? VirksomhetReferanseId { get; set; }
 
-    /// <summary>Kun for <see cref="Begrepskategori"/> = `'rolle'` — loven rollebegrepet hører til.
-    /// Del av rollebegrepets IDENTITET sammen med <see cref="Term"/>, ikke bare metadata (docs/20 §2.4):
-    /// samme rollenavn i to ulike lover er to ulike rader.</summary>
+    /// <summary>Kun for <see cref="Begrepskategori"/> = `'gruppe'` — loven gruppebegrepet hører til.
+    /// Del av gruppebegrepets IDENTITET sammen med <see cref="Term"/>, ikke bare metadata (docs/20 §2.4):
+    /// samme gruppenavn i to ulike lover er to ulike rader.</summary>
     public Guid? LovkildeId { get; set; }
 
     public required string Term { get; set; } // skos:prefLabel
@@ -934,8 +934,8 @@ public sealed class BegrepEntitet
 }
 
 /// <summary>
-/// [Ny, virksomhetskatalog-runden, docs/20 §2.5] Kobler et rollebegrep (<see cref="BegrepEntitet"/> med
-/// <see cref="BegrepEntitet.Begrepskategori"/> = `'rolle'`) til en konkret virksomhet, hjemlet i en
+/// [Ny, virksomhetskatalog-runden, docs/20 §2.5] Kobler et gruppebegrep (<see cref="BegrepEntitet"/> med
+/// <see cref="BegrepEntitet.Begrepskategori"/> = `'gruppe'`) til en konkret virksomhet, hjemlet i en
 /// forskrift/et delegeringsvedtak. INGEN egen <c>GyldigFra</c>/<c>GyldigTil</c> her — gyldighet arves
 /// fra <see cref="HjemmelRettskildeId"/> (allerede har <c>Status</c>/<c>GyldigFra</c>/<c>GyldigTil</c>
 /// som førsteklasses felt, docs/20 §2.5/§8 — ingen forutsetning måtte bygges for dette).
@@ -943,7 +943,7 @@ public sealed class BegrepEntitet
 public sealed class MyndighetstildelingEntitet
 {
     public Guid Id { get; set; }
-    public required Guid RolleBegrepId { get; set; }
+    public required Guid GruppeBegrepId { get; set; }
     public required Guid VirksomhetId { get; set; }
     public required Guid HjemmelRettskildeId { get; set; }
 
@@ -1016,7 +1016,7 @@ public sealed class VirksomhetKandidatEntitet
 /// </para>
 /// <para>
 /// <b>Kategori avgjør godkjenningsoppførsel</b> (se <see cref="NavnekandidatOppdagelseTjeneste.GodkjennAsync"/>):
-/// <c>"rolle"</c> kan opprettes DIREKTE som et ekte rollebegrep ved godkjenning (alt som trengs — streng
+/// <c>"gruppe"</c> kan opprettes DIREKTE som et ekte gruppebegrep ved godkjenning (alt som trengs — streng
 /// + hvilken lov — er allerede kjent fra selve kandidaten). <c>"virksomhet"</c> kan IKKE det — hvilken
 /// konkrete <see cref="Virksomhet"/>-rad et nytt egennavn faktisk viser til krever et menneske (kan være
 /// en helt ny virksomhet). Godkjenning der betyr kun "verdt å følge opp", selve koblingen skjer via den
@@ -1031,15 +1031,15 @@ public sealed class NavnekandidatEntitet
     /// <para>
     /// <b>[Rettet, kodegjennomgang 2026-08-30]</b> Store/små bokstaver bevares KUN for
     /// <c>Kategori == "virksomhet"</c> (avgjørende for selve klassifiseringsregelen — et egennavn skal
-    /// beholde sin faktiske stavemåte). For <c>Kategori == "rolle"</c> er teksten derimot NORMALISERT
+    /// beholde sin faktiske stavemåte). For <c>Kategori == "gruppe"</c> er teksten derimot NORMALISERT
     /// til små bokstaver FØR lagring (<see cref="NavnekandidatOppdagelseTjeneste.SveipAsync"/>) — en
-    /// rolle er per definisjon ikke et egennavn, så case er støy, ikke identitet (bekreftet i live data:
-    /// "statsforvalteren"/"Statsforvalteren" ga tidligere separate kandidater for samme rolle).
+    /// gruppe er per definisjon ikke et egennavn, så case er støy, ikke identitet (bekreftet i live data:
+    /// "statsforvalteren"/"Statsforvalteren" ga tidligere separate kandidater for samme gruppe).
     /// </para></summary>
     public required string ForeslattTekst { get; set; }
 
     /// <summary>`'virksomhet'` (ekte egennavn, suffiksmønster + stor forbokstav MIDT i en setning) eller
-    /// `'rolle'` (juridisk aktør-substantiv uten egennavn-status — fast liste, ELLER suffiksmønster med
+    /// `'gruppe'` (juridisk aktør-substantiv uten egennavn-status — fast liste, ELLER suffiksmønster med
     /// liten forbokstav). Se <see cref="NavnekandidatOppdagelseTjeneste"/> for selve klassifiseringslogikken.</summary>
     public required string Kategori { get; set; }
 
