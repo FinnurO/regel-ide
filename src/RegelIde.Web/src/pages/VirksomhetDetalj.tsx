@@ -2,19 +2,22 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
 import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { KodelisteDto, MyndighetstildelingDto, RettskildeSammendrag, VirksomhetKandidatDto, VirksomhetsbegrepDto } from '../api/types';
+import type { KodelisteDto, MyndighetstildelingDto, RettskildeSammendrag, VirksomhetKandidatDto, VirksomhetRelasjonDto, VirksomhetsbegrepDto } from '../api/types';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { LeggTilMyndighetstildelingForm } from '../virksomhet/LeggTilMyndighetstildelingForm';
+import { LeggTilVirksomhetRelasjonForm } from '../virksomhet/LeggTilVirksomhetRelasjonForm';
 
 export default function VirksomhetDetalj() {
   const { id } = useParams<{ id: string }>();
-  const { virksomheterPerId, laster: virksomheterLaster } = useVirksomheter();
+  const { virksomheter, virksomheterPerId, laster: virksomheterLaster } = useVirksomheter();
 
   const [begrep, setBegrep] = useState<VirksomhetsbegrepDto[] | null>(null);
   const [tildelinger, setTildelinger] = useState<MyndighetstildelingDto[] | null>(null);
   const [kandidater, setKandidater] = useState<VirksomhetKandidatDto[] | null>(null);
+  const [relasjoner, setRelasjoner] = useState<VirksomhetRelasjonDto[] | null>(null);
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
   const [visLeggTilTildeling, setVisLeggTilTildeling] = useState(false);
+  const [visLeggTilRelasjon, setVisLeggTilRelasjon] = useState(false);
   // Departement-virksomhet-lenke (2026-08-30) — ikke betinget på noen egen "er departement"-boolsk,
   // se oppgavebeskrivelsen: lastes for ENHVER virksomhet, seksjonen skjules bare når listen er tom.
   const [rettskilderAnsvarligFor, setRettskilderAnsvarligFor] = useState<RettskildeSammendrag[] | null>(null);
@@ -43,6 +46,7 @@ export default function VirksomhetDetalj() {
     api.hentMyndighetstildelingerForVirksomhet(id).then(setTildelinger).catch(() => setTildelinger([]));
     api.hentVentendeKandidater(id).then(setKandidater).catch(() => setKandidater([]));
     api.hentRettskilderAnsvarligFor(id).then(setRettskilderAnsvarligFor).catch(() => setRettskilderAnsvarligFor([]));
+    api.hentVirksomhetRelasjoner(id).then(setRelasjoner).catch(() => setRelasjoner([]));
   }
 
   useEffect(lastAlt, [id]);
@@ -181,6 +185,63 @@ export default function VirksomhetDetalj() {
 
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+          Relasjoner til andre virksomheter
+        </Heading>
+        <Paragraph style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
+          Navngitte relasjoner til BESTEMTE, konkrete virksomheter (f.eks. «underlagt», «sekretariat for»)
+          — til forskjell fra «Overordnet enhet» i Grunndata over, som er automatisk Brreg-avledet uten
+          hjemmel. Listen viser relasjoner i BEGGE retninger fra denne virksomhetens ståsted — samme rad
+          kan altså vises med ulik tekst på motpartens side.
+        </Paragraph>
+        <Card style={{ padding: relasjoner && relasjoner.length > 0 ? 0 : '1rem', overflow: 'hidden', marginBottom: '0.75rem' }}>
+          {!relasjoner && <Spinner aria-label="Laster …" data-size="sm" />}
+          {relasjoner && relasjoner.length === 0 && <Paragraph style={{ margin: 0 }}>Ingen relasjoner registrert.</Paragraph>}
+          {relasjoner && relasjoner.length > 0 && (
+            <Table>
+              <Table.Head>
+                <Table.Row>
+                  <Table.HeaderCell>Relasjon</Table.HeaderCell>
+                  <Table.HeaderCell>Hjemmel/kommentar</Table.HeaderCell>
+                </Table.Row>
+              </Table.Head>
+              <Table.Body>
+                {relasjoner.map((r) => (
+                  <Table.Row key={r.id}>
+                    <Table.Cell>
+                      {r.visningstekst}{' '}
+                      <Link asChild>
+                        <RouterLink to={`/virksomheter/${r.motpartVirksomhetId}`}>({r.motpartNavn})</RouterLink>
+                      </Link>
+                    </Table.Cell>
+                    <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                      {r.hjemmelEid || r.kommentar
+                        ? [r.hjemmelEid, r.kommentar].filter(Boolean).join(' — ')
+                        : '—'}
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table>
+          )}
+        </Card>
+        <Button data-size="sm" variant="secondary" onClick={() => setVisLeggTilRelasjon((v) => !v)}>
+          {visLeggTilRelasjon ? 'Skjul skjema' : 'Legg til relasjon'}
+        </Button>
+        {visLeggTilRelasjon && id && (
+          <LeggTilVirksomhetRelasjonForm
+            virksomhetId={id}
+            virksomheter={virksomheter}
+            rettskilder={rettskilder}
+            onOpprettet={(nye) => {
+              setRelasjoner(nye);
+              setVisLeggTilRelasjon(false);
+            }}
+          />
+        )}
+      </section>
+
+      <section style={{ marginBottom: '2rem' }}>
+        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Navneformer i rettskildetekst
         </Heading>
         <Paragraph style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
@@ -217,7 +278,8 @@ export default function VirksomhetDetalj() {
         </Heading>
         <Paragraph style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
           Gruppebegrep (f.eks. «forurensningsmyndighet») tildelt denne virksomheten gjennom en forskrift.
-          Gyldighet arves fra hjemmelen, ingen egne datoer her.
+          Gyldighet arves fra hjemmelen, og kan i tillegg avgrenses av en egen gyldighetsperiode under
+          (de aller fleste tildelinger er permanente og viser ingen periode).
         </Paragraph>
         <Card style={{ padding: tildelinger && tildelinger.length > 0 ? 0 : '1rem', overflow: 'hidden', marginBottom: '0.75rem' }}>
           {!tildelinger && <Spinner aria-label="Laster …" data-size="sm" />}
@@ -228,6 +290,7 @@ export default function VirksomhetDetalj() {
                 <Table.Row>
                   <Table.HeaderCell>Paragrafspenn</Table.HeaderCell>
                   <Table.HeaderCell>Vilkår</Table.HeaderCell>
+                  <Table.HeaderCell>Gyldighetsperiode</Table.HeaderCell>
                 </Table.Row>
               </Table.Head>
               <Table.Body>
@@ -237,6 +300,7 @@ export default function VirksomhetDetalj() {
                       {t.paragrafspenn.map((p) => (p.tilEid ? `${p.fraEid}–${p.tilEid}` : p.fraEid)).join(', ')}
                     </Table.Cell>
                     <Table.Cell>{t.vilkaar ?? '—'}</Table.Cell>
+                    <Table.Cell>{t.gyldigFra || t.gyldigTil ? `${t.gyldigFra ?? ''}–${t.gyldigTil ?? ''}` : '—'}</Table.Cell>
                   </Table.Row>
                 ))}
               </Table.Body>

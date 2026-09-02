@@ -252,6 +252,8 @@ export interface MyndighetstildelingDto {
   hjemmelRettskildeId: string;
   paragrafspenn: ParagrafspennParDto[];
   vilkaar: string | null;
+  gyldigFra: string | null;
+  gyldigTil: string | null;
 }
 
 export interface VirksomhetKandidatDto {
@@ -809,6 +811,39 @@ export interface TjenesteavhengighetRequest {
   tilOrganisasjonsnummer?: string | null;
   tilNavn?: string | null;
   tilUrl?: string | null;
+}
+
+/** Konfigurerbar relasjonstype for VirksomhetRelasjon (docs/29 §Del C) — GET /api/konfigurasjon/relasjonstyper. */
+export interface RelasjonsTypeKonfigurasjonDto {
+  kode: string;
+  fraVisningsmal: string;
+  tilVisningsmal: string;
+}
+
+/**
+ * Én VirksomhetRelasjon sett fra den spurte virksomhetens ståsted — retning+visningstekst er ferdig
+ * beregnet server-side (docs/28, docs/29 §Del C). SAMME lagrede rad gir ULIK visningstekst avhengig av
+ * hvilken virksomhet man spør fra — se `retning`.
+ */
+export interface VirksomhetRelasjonDto {
+  id: string;
+  relasjonsType: string;
+  retning: 'fra' | 'til';
+  visningstekst: string;
+  motpartVirksomhetId: string;
+  motpartNavn: string;
+  hjemmelRettskildeId: string | null;
+  hjemmelEid: string | null;
+  kommentar: string | null;
+}
+
+/** POST /api/virksomheter/{id}/relasjoner — {id} blir alltid FraVirksomhetId. */
+export interface VirksomhetRelasjonRequest {
+  tilVirksomhetId: string;
+  relasjonsType: string;
+  hjemmelRettskildeId: string | null;
+  hjemmelEid: string | null;
+  kommentar: string | null;
 }
 
 /** Ett cross-tenant søketreff (GET /api/tjenester/sok-tverr-tenant) — kun publiserte tjenester fra ALLE virksomheter. */

@@ -118,6 +118,53 @@ public class MyndighetstildelingEndepunktTests
         Assert.Single(forVirksomhet!, t => t.Id == tildeling.Id);
     }
 
+    /// <summary>docs/29 §Del B, §Steg 4 punkt 2 — <c>?gjeldende=true</c> må faktisk ekskludere en
+    /// tildeling med utløpt egen GyldigTil, ikke bare returnere alt uansett.</summary>
+    [Fact]
+    public async Task Gjeldende_query_param_ekskluderer_tildeling_med_utlopt_gyldig_til()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var (lovId, paragrafEid) = await OpprettRettskildeMedParagrafAsync();
+        var (hjemmelId, _) = await OpprettRettskildeMedParagrafAsync();
+        var virksomhetId = await OpprettVirksomhetAsync();
+
+        var gruppebegrepSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppebegrep", brukerId,
+            new { LovkildeId = lovId, Term = $"vertskommune-{Guid.NewGuid():N}" }));
+        var gruppebegrep = await gruppebegrepSvar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger);
+
+        var utloptSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/myndighetstildelinger", brukerId, new
+        {
+            GruppeBegrepId = gruppebegrep!.Id,
+            VirksomhetId = virksomhetId,
+            HjemmelRettskildeId = hjemmelId,
+            Paragrafspenn = new[] { new { FraEid = paragrafEid, TilEid = (string?)null } },
+            Vilkaar = (string?)null,
+            GyldigFra = new DateOnly(2020, 1, 1),
+            GyldigTil = new DateOnly(2021, 12, 31),
+        }));
+        Assert.Equal(HttpStatusCode.Created, utloptSvar.StatusCode);
+        var utlopt = await utloptSvar.Content.ReadFromJsonAsync<MyndighetstildelingDto>(JsonInnstillinger);
+
+        var permanentSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/myndighetstildelinger", brukerId, new
+        {
+            GruppeBegrepId = gruppebegrep.Id,
+            VirksomhetId = virksomhetId,
+            HjemmelRettskildeId = hjemmelId,
+            Paragrafspenn = new[] { new { FraEid = paragrafEid, TilEid = (string?)null } },
+            Vilkaar = "permanent",
+        }));
+        var permanent = await permanentSvar.Content.ReadFromJsonAsync<MyndighetstildelingDto>(JsonInnstillinger);
+
+        var alle = await _client.GetFromJsonAsync<List<MyndighetstildelingDto>>(
+            $"/api/virksomheter/{virksomhetId}/myndighetstildelinger", JsonInnstillinger);
+        Assert.Equal(2, alle!.Count);
+
+        var kunGjeldende = await _client.GetFromJsonAsync<List<MyndighetstildelingDto>>(
+            $"/api/virksomheter/{virksomhetId}/myndighetstildelinger?gjeldende=true", JsonInnstillinger);
+        Assert.Single(kunGjeldende!, t => t.Id == permanent!.Id);
+        Assert.DoesNotContain(kunGjeldende!, t => t.Id == utlopt!.Id);
+    }
+
     [Fact]
     public async Task Avvises_med_ikke_eksisterende_gruppebegrep_id()
     {

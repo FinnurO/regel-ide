@@ -82,6 +82,9 @@ import type {
   TjenesteRegelverksreferanseDto,
   TjenesteavhengighetDto,
   TjenesteavhengighetRequest,
+  RelasjonsTypeKonfigurasjonDto,
+  VirksomhetRelasjonDto,
+  VirksomhetRelasjonRequest,
   TjenesteTverrTenantTreffDto,
   TjenesteforslagDto,
   TjenesteforslagBatchRequest,
@@ -283,8 +286,9 @@ export const api = {
       body: JSON.stringify(request),
     }),
 
-  hentMyndighetstildelingerForVirksomhet: (virksomhetId: string) =>
-    kall<MyndighetstildelingDto[]>(`/api/virksomheter/${virksomhetId}/myndighetstildelinger`),
+  /** `kunGjeldende` filtrerer bort tildelinger som ikke er gjeldende akkurat nå (docs/29 §Del B). */
+  hentMyndighetstildelingerForVirksomhet: (virksomhetId: string, kunGjeldende = false) =>
+    kall<MyndighetstildelingDto[]>(`/api/virksomheter/${virksomhetId}/myndighetstildelinger${kunGjeldende ? '?gjeldende=true' : ''}`),
 
   /** ALLE gruppebegrep på tvers av lover — søk/velg-grunnlag for LeggTilMyndighetstildelingForm. */
   hentGruppebegrep: () => kall<VirksomhetsbegrepDto[]>('/api/gruppebegrep'),
@@ -292,6 +296,7 @@ export const api = {
   opprettMyndighetstildeling: (request: {
     gruppeBegrepId: string; virksomhetId: string; hjemmelRettskildeId: string;
     paragrafspenn: ParagrafspennParDto[]; vilkaar: string | null;
+    gyldigFra?: string | null; gyldigTil?: string | null;
   }) =>
     kall<MyndighetstildelingDto>('/api/myndighetstildelinger', {
       method: 'POST',
@@ -772,6 +777,23 @@ export const api = {
 
   slettTjenesteavhengighet: (avhengighetId: string) =>
     kall<void>(`/api/tjenester/avhengigheter/${avhengighetId}`, { method: 'DELETE' }),
+
+  // ---------- VirksomhetRelasjon (docs/28, docs/29 §Del C) ----------
+
+  hentRelasjonstyper: () => kall<RelasjonsTypeKonfigurasjonDto[]>('/api/konfigurasjon/relasjonstyper'),
+
+  hentVirksomhetRelasjoner: (virksomhetId: string) =>
+    kall<VirksomhetRelasjonDto[]>(`/api/virksomheter/${virksomhetId}/relasjoner`),
+
+  opprettVirksomhetRelasjon: (virksomhetId: string, request: VirksomhetRelasjonRequest) =>
+    kall<VirksomhetRelasjonDto[]>(`/api/virksomheter/${virksomhetId}/relasjoner`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  slettVirksomhetRelasjon: (relasjonId: string) =>
+    kall<void>(`/api/virksomhet-relasjoner/${relasjonId}`, { method: 'DELETE' }),
 
   // ---------- Import-wizard (2026-08-28) — modelleksport-JSON → ekte tjenester/handlinger ----------
 

@@ -68,6 +68,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<TjenesteHendelseEntitet> TjenesteHendelser => Set<TjenesteHendelseEntitet>();
     public DbSet<TjenesteavhengighetEntitet> Tjenesteavhengigheter => Set<TjenesteavhengighetEntitet>();
     public DbSet<EksternTjenestereferanseEntitet> EksterneTjenestereferanser => Set<EksternTjenestereferanseEntitet>();
+    public DbSet<VirksomhetRelasjonEntitet> VirksomhetRelasjoner => Set<VirksomhetRelasjonEntitet>();
+    public DbSet<RelasjonsTypeKonfigurasjonEntitet> RelasjonsTypeKonfigurasjoner => Set<RelasjonsTypeKonfigurasjonEntitet>();
     public DbSet<HandbokRettskildeomfangEntitet> HandbokRettskildeomfang => Set<HandbokRettskildeomfangEntitet>();
     public DbSet<KunnskapsbibliotekLenkeEntitet> KunnskapsbibliotekLenker => Set<KunnskapsbibliotekLenkeEntitet>();
     public DbSet<KunnskapsbibliotekFilEntitet> KunnskapsbibliotekFiler => Set<KunnskapsbibliotekFilEntitet>();
@@ -147,6 +149,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.HjemmelRettskildeId).HasColumnName("hjemmel_rettskilde_id");
             e.Property(x => x.ParagrafspennJson).HasColumnName("paragrafspenn_json").HasDefaultValue("[]");
             e.Property(x => x.Vilkaar).HasColumnName("vilkaar");
+            e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
+            e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
             e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
@@ -763,6 +767,42 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasIndex(x => x.FraTjenesteId).HasDatabaseName("ix_tjenesteavhengigheter_fra");
             e.HasIndex(x => x.TilTjenesteId).HasDatabaseName("ix_tjenesteavhengigheter_til");
             e.HasIndex(x => x.TilEksternReferanseId).HasDatabaseName("ix_tjenesteavhengigheter_til_ekstern");
+        });
+
+        b.Entity<VirksomhetRelasjonEntitet>(e =>
+        {
+            e.ToTable("virksomhet_relasjoner");
+            e.HasKey(x => x.Id).HasName("virksomhet_relasjoner_pkey");
+            e.Property(x => x.FraVirksomhetId).HasColumnName("fra_virksomhet_id");
+            e.Property(x => x.TilVirksomhetId).HasColumnName("til_virksomhet_id");
+            e.Property(x => x.RelasjonsType).HasColumnName("relasjons_type");
+            e.Property(x => x.HjemmelRettskildeId).HasColumnName("hjemmel_rettskilde_id");
+            e.Property(x => x.HjemmelEid).HasColumnName("hjemmel_eid");
+            e.Property(x => x.Kommentar).HasColumnName("kommentar");
+            e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.FraVirksomhetId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.TilVirksomhetId).OnDelete(DeleteBehavior.Restrict);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.HjemmelRettskildeId);
+            e.HasIndex(x => x.FraVirksomhetId).HasDatabaseName("ix_virksomhet_relasjoner_fra");
+            e.HasIndex(x => x.TilVirksomhetId).HasDatabaseName("ix_virksomhet_relasjoner_til");
+            e.HasIndex(x => new { x.FraVirksomhetId, x.TilVirksomhetId, x.RelasjonsType }).IsUnique()
+                .HasFilter("entitetsstatus = 'gjeldende'")
+                .HasDatabaseName("ux_virksomhet_relasjoner_fra_til_type");
+        });
+
+        b.Entity<RelasjonsTypeKonfigurasjonEntitet>(e =>
+        {
+            e.ToTable("relasjonstype_konfigurasjon");
+            e.HasKey(x => x.Id).HasName("relasjonstype_konfigurasjon_pkey");
+            e.Property(x => x.Kode).HasColumnName("kode");
+            e.Property(x => x.FraVisningsmal).HasColumnName("fra_visningsmal");
+            e.Property(x => x.TilVisningsmal).HasColumnName("til_visningsmal");
+            e.Property(x => x.Sorteringsrekkefolge).HasColumnName("sorteringsrekkefolge");
+            e.Property(x => x.Aktiv).HasColumnName("aktiv").HasDefaultValue(true);
+            e.HasIndex(x => x.Kode).IsUnique().HasDatabaseName("ux_relasjonstype_konfigurasjon_kode");
         });
 
         b.Entity<EksternTjenestereferanseEntitet>(e =>

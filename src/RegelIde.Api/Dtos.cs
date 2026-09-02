@@ -398,6 +398,29 @@ public sealed record TjenesteavhengighetRequest(
     Guid? TilTjenesteId, string Rel, Guid? HendelseId, string? Beskrivelse,
     string? TilOrganisasjonsnummer = null, string? TilNavn = null, string? TilUrl = null);
 
+/// <summary>Konfigurerbare relasjonstyper (docs/29 §Del C, samme mønster som <see cref="TaggKindKonfigurasjonDto"/>).</summary>
+public sealed record RelasjonsTypeKonfigurasjonDto(string Kode, string FraVisningsmal, string TilVisningsmal)
+{
+    public static RelasjonsTypeKonfigurasjonDto FraEntitet(RelasjonsTypeKonfigurasjonEntitet k) => new(k.Kode, k.FraVisningsmal, k.TilVisningsmal);
+}
+
+/// <summary>Én <see cref="VirksomhetRelasjonEntitet"/> sett fra én bestemt virksomhets ståsted — se
+/// <see cref="VirksomhetRelasjonVisning"/> for hva feltene betyr.</summary>
+public sealed record VirksomhetRelasjonDto(
+    Guid Id, string RelasjonsType, string Retning, string Visningstekst,
+    Guid MotpartVirksomhetId, string MotpartNavn,
+    Guid? HjemmelRettskildeId, string? HjemmelEid, string? Kommentar)
+{
+    public static VirksomhetRelasjonDto FraVisning(VirksomhetRelasjonVisning v) => new(
+        v.Id, v.RelasjonsType, v.Retning, v.Visningstekst, v.MotpartVirksomhetId, v.MotpartNavn,
+        v.HjemmelRettskildeId, v.HjemmelEid, v.Kommentar);
+}
+
+/// <summary>Forespørsel for POST /api/virksomheter/{id}/relasjoner — {id} blir alltid FraVirksomhetId
+/// (samme «{id} er alltid Fra-siden»-konvensjon som POST /api/tjenester/{id}/avhengigheter).</summary>
+public sealed record VirksomhetRelasjonRequest(
+    Guid TilVirksomhetId, string RelasjonsType, Guid? HjemmelRettskildeId, string? HjemmelEid, string? Kommentar);
+
 /// <summary>Ett cross-tenant søketreff for GET /api/tjenester/sok-tverr-tenant — se <see cref="TjenesteTverrTenantTreff"/>.</summary>
 public sealed record TjenesteTverrTenantTreffDto(Guid Id, string Tittel, string? Beskrivelse, Guid VirksomhetId, string VirksomhetNavn)
 {
@@ -537,16 +560,18 @@ public sealed record ParagrafspennParDto(string FraEid, string? TilEid);
 
 public sealed record MyndighetstildelingRequest(
     Guid GruppeBegrepId, Guid VirksomhetId, Guid HjemmelRettskildeId,
-    IReadOnlyList<ParagrafspennParDto> Paragrafspenn, string? Vilkaar);
+    IReadOnlyList<ParagrafspennParDto> Paragrafspenn, string? Vilkaar,
+    DateOnly? GyldigFra = null, DateOnly? GyldigTil = null);
 
 public sealed record MyndighetstildelingDto(
     Guid Id, Guid GruppeBegrepId, Guid VirksomhetId, Guid HjemmelRettskildeId,
-    IReadOnlyList<ParagrafspennParDto> Paragrafspenn, string? Vilkaar)
+    IReadOnlyList<ParagrafspennParDto> Paragrafspenn, string? Vilkaar,
+    DateOnly? GyldigFra, DateOnly? GyldigTil)
 {
     public static MyndighetstildelingDto FraEntitet(MyndighetstildelingEntitet m) => new(
         m.Id, m.GruppeBegrepId, m.VirksomhetId, m.HjemmelRettskildeId,
         MyndighetstildelingTjeneste.LesParagrafspenn(m).Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList(),
-        m.Vilkaar);
+        m.Vilkaar, m.GyldigFra, m.GyldigTil);
 }
 
 public sealed record VirksomhetKandidatRequest(Guid VirksomhetId, Guid RettskildeId, string NodeEid, int StartOffset, int EndOffset);

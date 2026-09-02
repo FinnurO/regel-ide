@@ -858,6 +858,63 @@ public sealed class TjenesteavhengighetEntitet
 }
 
 /// <summary>
+/// [Ny] Navngitt relasjon mellom to BESTEMTE, konkrete virksomheter (docs/28, «Beslutning: datamodell
+/// for gruppe, relasjon og myndighetstildeling», mekanisme 2) — til forskjell fra gruppe-mekanismen
+/// (docs/29 §Del A), som dekker en GENERISK term realisert av MANGE virksomheter. Samme "ett lagret rad,
+/// to beregnede visningstekster (Fra-side/Til-side)"-mønster som <see cref="TjenesteavhengighetEntitet"/>
+/// (se <see cref="RelasjonsTypeKonfigurasjonEntitet"/> for hvor visningstekstene faktisk lagres — DE
+/// er konfigurerbare, i motsetning til Tjenesteavhengighets kompilerte Dictionary).
+/// <see cref="Virksomhet.OverordnetEnhetId"/> beholdes UENDRET ved siden av dette — automatisk,
+/// Brreg-avledet hierarki uten hjemmel, ulik kilde/pålitelighet fra denne manuelt kuraterte tabellen.
+/// De to slås BEVISST ikke sammen.
+/// </summary>
+public sealed class VirksomhetRelasjonEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid FraVirksomhetId { get; set; }
+    public required Guid TilVirksomhetId { get; set; }
+
+    /// <summary>Konfigurasjonsstyrt kode — FK (logisk, ikke DB-håndhevet) til
+    /// <see cref="RelasjonsTypeKonfigurasjonEntitet.Kode"/>. Kjente verdier per i dag: 'underlagt',
+    /// 'sekretariat', 'klageinstans', 'enhet_i' — IKKE en uttømmende liste, ny type kan legges til uten
+    /// kodeendring.</summary>
+    public required string RelasjonsType { get; set; }
+
+    /// <summary>Nullbar — satt NÅR relasjonen er lovhjemlet.</summary>
+    public Guid? HjemmelRettskildeId { get; set; }
+    public string? HjemmelEid { get; set; }
+
+    /// <summary>Fritekst + kildehenvisning (f.eks. en lenke til et org-kart) når det IKKE finnes en
+    /// formell hjemmel — se docs/28s Klagenemndssekretariatet-eksempel.</summary>
+    public string? Kommentar { get; set; }
+
+    /// <summary>Finnes for konsistens med husstilen (samme presedens som
+    /// <see cref="TjenesteavhengighetEntitet.Entitetsstatus"/>) — men <c>SlettAsync</c> gjør en EKTE
+    /// <c>Remove</c>, ikke en soft-delete via dette feltet. Se
+    /// <see cref="VirksomhetRelasjonregisterTjeneste.SlettAsync"/>.</summary>
+    public string Entitetsstatus { get; set; } = "gjeldende";
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+}
+
+/// <summary>
+/// Global konfigurasjon av gyldige <see cref="VirksomhetRelasjonEntitet.RelasjonsType"/>-koder og deres
+/// to retningsavhengige visningstekst-MALER (docs/29 §Del C). Samme, verifiserte driftsmønster som
+/// <see cref="TaggKindKonfigurasjonEntitet"/>: seedes ved oppstart hvis tom, ÉN read-only GET-endepunkt,
+/// INGEN admin-CRUD-UI i denne runden (verken tagg-kinds eller denne har det i dag — «admin-redigerbar»
+/// betyr her «redigerbar med rå SQL av Johann uten kodeendring+redeploy», ikke en UI).
+/// </summary>
+public sealed class RelasjonsTypeKonfigurasjonEntitet
+{
+    public Guid Id { get; set; }
+    public required string Kode { get; set; } // 'underlagt' | 'sekretariat' | 'klageinstans' | 'enhet_i' | ... (utvidbart)
+    public required string FraVisningsmal { get; set; } // "er underlagt {0}"
+    public required string TilVisningsmal { get; set; } // "er eier/overordnet for {0}"
+    public int Sorteringsrekkefolge { get; set; }
+    public bool Aktiv { get; set; } = true;
+}
+
+/// <summary>
 /// Plassholder-referanse til en tjeneste som IKKE finnes som en ekte <see cref="TjenesteEntitet"/>-rad
 /// (2026-08-19, `feature/tjenesteavhengighet-ekstern-referanse`) — enten fordi den eiende organisasjonen
 /// ikke er onboardet til Regel-IDE, eller fordi den ikke har modellert nettopp denne tjenesten ennå
@@ -983,9 +1040,12 @@ public sealed class BegrepEntitet
 /// <summary>
 /// [Ny, virksomhetskatalog-runden, docs/20 §2.5] Kobler et gruppebegrep (<see cref="BegrepEntitet"/> med
 /// <see cref="BegrepEntitet.Begrepskategori"/> = `'gruppe'`) til en konkret virksomhet, hjemlet i en
-/// forskrift/et delegeringsvedtak. INGEN egen <c>GyldigFra</c>/<c>GyldigTil</c> her — gyldighet arves
-/// fra <see cref="HjemmelRettskildeId"/> (allerede har <c>Status</c>/<c>GyldigFra</c>/<c>GyldigTil</c>
-/// som førsteklasses felt, docs/20 §2.5/§8 — ingen forutsetning måtte bygges for dette).
+/// forskrift/et delegeringsvedtak. Gyldighet arves fra <see cref="HjemmelRettskildeId"/> (som har
+/// <c>Status</c>/<c>GyldigFra</c>/<c>GyldigTil</c>), OG kan i tillegg avgrenses av tildelingens EGNE
+/// <see cref="GyldigFra"/>/<see cref="GyldigTil"/> under (docs/28/docs/29 §Del B — «tidsavgrenset
+/// medlemskap», f.eks. en vertskommune som slutter å ha et fengsel/mottak uten at selve hjemmelen
+/// endres). De aller fleste tildelinger setter ALDRI disse — permanent tildeling er normaltilfellet, se
+/// <see cref="RegelIde.Data.MyndighetstildelingTjeneste.ErGjeldendeAsync"/> for kombinasjonslogikken.
 /// </summary>
 public sealed class MyndighetstildelingEntitet
 {
@@ -1000,6 +1060,12 @@ public sealed class MyndighetstildelingEntitet
     public string ParagrafspennJson { get; set; } = "[]";
 
     public string? Vilkaar { get; set; }
+
+    /// <summary>Nullbar, tidsavgrenset medlemskap (docs/29 §Del B). Satt KUN når tildelingen selv har en
+    /// egen gyldighetsperiode utover hjemmelens — de aller fleste tildelinger lar begge stå tomme.</summary>
+    public DateOnly? GyldigFra { get; set; }
+    public DateOnly? GyldigTil { get; set; }
+
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }
     public string? SistEndretAv { get; set; }

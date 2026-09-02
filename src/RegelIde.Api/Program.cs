@@ -60,6 +60,7 @@ builder.Services.AddScoped<DatasettregisterTjeneste>();
 builder.Services.AddScoped<VilkarstreKommentarTjeneste>();
 builder.Services.AddScoped<HendelseregisterTjeneste>();
 builder.Services.AddScoped<TjenesteavhengighetregisterTjeneste>();
+builder.Services.AddScoped<VirksomhetRelasjonregisterTjeneste>();
 builder.Services.AddScoped<HandlingregisterTjeneste>();
 builder.Services.AddScoped<HandlingTjenesteregisterTjeneste>();
 builder.Services.AddScoped<BrukerVisningsinnstillingTjeneste>();
@@ -267,6 +268,19 @@ using (var scope = app.Services.CreateScope())
             new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "tjeneste", Navn = "Tjeneste", Farge = "info", Sorteringsrekkefolge = 1 },
             new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "vilkar", Navn = "Vilkår", Farge = "warning", Sorteringsrekkefolge = 2 },
             new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "regel", Navn = "Regel", Farge = "success", Sorteringsrekkefolge = 3 });
+        await db.SaveChangesAsync();
+    }
+
+    // Relasjonstype-konfigurasjon (docs/29 §Del C, §C.2) — samme verifiserte driftsmønster som
+    // tag-kind-konfigurasjonen over: seed-ved-oppstart-hvis-tom, ÉN read-only GET-endepunkt, ingen
+    // admin-CRUD-UI (det finnes heller ikke for tag-kinds i dag).
+    if (!await db.RelasjonsTypeKonfigurasjoner.AnyAsync())
+    {
+        db.RelasjonsTypeKonfigurasjoner.AddRange(
+            new RelasjonsTypeKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "underlagt", FraVisningsmal = "er underlagt {0}", TilVisningsmal = "er eier/overordnet for {0}", Sorteringsrekkefolge = 0 },
+            new RelasjonsTypeKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "sekretariat", FraVisningsmal = "har sekretariat hos {0}", TilVisningsmal = "er sekretariat for {0}", Sorteringsrekkefolge = 1 },
+            new RelasjonsTypeKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "klageinstans", FraVisningsmal = "har klageinstans hos {0}", TilVisningsmal = "er klageinstans for {0}", Sorteringsrekkefolge = 2 },
+            new RelasjonsTypeKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "enhet_i", FraVisningsmal = "er enhet i {0}", TilVisningsmal = "har enhet {0}", Sorteringsrekkefolge = 3 });
         await db.SaveChangesAsync();
     }
 
@@ -584,6 +598,13 @@ app.MapGet("/api/konfigurasjon/tagg-kinds", async (RegelIdeDbContext db) =>
     .WithOpenApi()
     .WithName("HentTaggKindKonfigurasjon")
     .WithSummary("Lister aktive tag-kinds (2026-07-25, erstatter en tidligere hardkodet liste i frontend/backend).");
+
+app.MapGet("/api/konfigurasjon/relasjonstyper", async (RegelIdeDbContext db) =>
+        (await db.RelasjonsTypeKonfigurasjoner.Where(k => k.Aktiv).OrderBy(k => k.Sorteringsrekkefolge).ToListAsync())
+            .Select(RelasjonsTypeKonfigurasjonDto.FraEntitet))
+    .WithOpenApi()
+    .WithName("HentRelasjonsTypeKonfigurasjon")
+    .WithSummary("Lister aktive relasjonstyper for VirksomhetRelasjon (docs/29 §Del C) — samme mønster som GET /api/konfigurasjon/tagg-kinds.");
 
 var rettskilder = app.MapGroup("/api/rettskilder").WithOpenApi();
 
@@ -2481,7 +2502,8 @@ app.MapPost("/api/myndighetstildelinger", async (HttpRequest request, Myndighets
         {
             var paragrafspenn = body.Paragrafspenn.Select(p => new ParagrafspennPar(p.FraEid, p.TilEid)).ToList();
             var opprettet = await register.OpprettAsync(
-                body.GruppeBegrepId, body.VirksomhetId, body.HjemmelRettskildeId, paragrafspenn, body.Vilkaar, bruker.Navn, ct);
+                body.GruppeBegrepId, body.VirksomhetId, body.HjemmelRettskildeId, paragrafspenn, body.Vilkaar,
+                bruker.Navn, body.GyldigFra, body.GyldigTil, ct);
             return Results.Created($"/api/myndighetstildelinger/{opprettet.Id}", MyndighetstildelingDto.FraEntitet(opprettet));
         }
         catch (ArgumentException ex)
@@ -2491,13 +2513,16 @@ app.MapPost("/api/myndighetstildelinger", async (HttpRequest request, Myndighets
     })
     .WithOpenApi()
     .WithName("OpprettMyndighetstildeling")
-    .WithSummary("Kobler et gruppebegrep til en konkret virksomhet, hjemlet i en forskrift (docs/20 §2.5). Gyldighet arves fra hjemmelen, ingen egne datoer her.");
+    .WithSummary("Kobler et gruppebegrep til en konkret virksomhet, hjemlet i en forskrift (docs/20 §2.5). " +
+        "Gyldighet arves fra hjemmelen, og kan i tillegg avgrenses av valgfrie egne GyldigFra/GyldigTil (docs/29 §Del B).");
 
-app.MapGet("/api/virksomheter/{id:guid}/myndighetstildelinger", async (Guid id, MyndighetstildelingTjeneste register, CancellationToken ct) =>
-        Results.Ok((await register.AlleForVirksomhetAsync(id, ct)).Select(MyndighetstildelingDto.FraEntitet)))
+app.MapGet("/api/virksomheter/{id:guid}/myndighetstildelinger", async (Guid id, bool? gjeldende, MyndighetstildelingTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.AlleForVirksomhetAsync(id, gjeldende ?? false, ct)).Select(MyndighetstildelingDto.FraEntitet)))
     .WithOpenApi()
     .WithName("HentMyndighetstildelingerForVirksomhet")
-    .WithSummary("Lister myndighetstildelinger denne virksomheten har.");
+    .WithSummary("Lister myndighetstildelinger denne virksomheten har. ?gjeldende=true filtrerer bort " +
+        "tildelinger som ikke er gjeldende akkurat nå (hjemmel opphevet/utløpt, eller tildelingens egen " +
+        "GyldigFra/GyldigTil utenfor dagens dato — docs/29 §Del B).");
 
 app.MapGet("/api/virksomheter/{id:guid}/rettskilder-ansvarlig-for", async (Guid id, RettskildeRepository repo) =>
         Results.Ok((await repo.RettskilderAnsvarligForAsync(id)).Select(RettskildeSammendrag.FraEntitet)))
@@ -2508,11 +2533,48 @@ app.MapGet("/api/virksomheter/{id:guid}/rettskilder-ansvarlig-for", async (Guid 
         "virksomhet-lenke, 2026-08-30). Ingen fuzzy-matching — en virksomhet uten navnetreff i noen " +
         "rettskildes AnsvarligDepartement gir tom liste, ikke en feil.");
 
-app.MapGet("/api/gruppebegrep/{id:guid}/tildelinger", async (Guid id, MyndighetstildelingTjeneste register, CancellationToken ct) =>
-        Results.Ok((await register.AlleForGruppeBegrepAsync(id, ct)).Select(MyndighetstildelingDto.FraEntitet)))
+app.MapGet("/api/gruppebegrep/{id:guid}/tildelinger", async (Guid id, bool? gjeldende, MyndighetstildelingTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.AlleForGruppeBegrepAsync(id, gjeldende ?? false, ct)).Select(MyndighetstildelingDto.FraEntitet)))
     .WithOpenApi()
     .WithName("HentMyndighetstildelingerForGruppeBegrep")
-    .WithSummary("Lister hvilke virksomheter et gruppebegrep er tildelt til, og under hvilke hjemler.");
+    .WithSummary("Lister hvilke virksomheter et gruppebegrep er tildelt til, og under hvilke hjemler. " +
+        "?gjeldende=true filtrerer bort tildelinger som ikke er gjeldende akkurat nå (docs/29 §Del B).");
+
+// ---------- VirksomhetRelasjon (docs/28, docs/29 §Del C) ----------
+
+app.MapGet("/api/virksomheter/{id:guid}/relasjoner", async (Guid id, VirksomhetRelasjonregisterTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.HentForVirksomhetAsync(id, ct)).Select(VirksomhetRelasjonDto.FraVisning)))
+    .WithOpenApi()
+    .WithName("HentVirksomhetRelasjoner")
+    .WithSummary(
+        "Lister virksomhetens relasjoner til andre virksomheter i BEGGE retninger (der den er Fra, og der " +
+        "den er Til) med ferdig beregnet visningstekst — ett rettet kant per relasjon, ingen duplisert lagring.");
+
+app.MapPost("/api/virksomheter/{id:guid}/relasjoner", async (Guid id, HttpRequest request, VirksomhetRelasjonRequest body,
+        VirksomhetRelasjonregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            await register.OpprettAsync(
+                id, body.TilVirksomhetId, body.RelasjonsType, body.HjemmelRettskildeId, body.HjemmelEid, body.Kommentar, bruker.Navn, ct);
+            return Results.Ok((await register.HentForVirksomhetAsync(id, ct)).Select(VirksomhetRelasjonDto.FraVisning));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("OpprettVirksomhetRelasjon")
+    .WithSummary("Oppretter en rettet relasjon FRA denne virksomheten TIL en annen (docs/29 §Del C).");
+
+app.MapDelete("/api/virksomhet-relasjoner/{relasjonId:guid}", async (Guid relasjonId, VirksomhetRelasjonregisterTjeneste register, CancellationToken ct) =>
+        await register.SlettAsync(relasjonId, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen relasjon med id '{relasjonId}'." }))
+    .WithOpenApi()
+    .WithName("SlettVirksomhetRelasjon")
+    .WithSummary("Sletter en virksomhet-relasjon.");
 
 var virksomhetKandidater = app.MapGroup("/api/virksomhet-kandidater").WithOpenApi();
 
