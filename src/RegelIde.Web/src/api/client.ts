@@ -40,6 +40,9 @@ import type {
   KunnskapsbibliotekLenkeDto,
   LovdataImportstatusDto,
   LovdataKatalogTreffDto,
+  LovdataResynkKjoringDto,
+  LovdataResynkInnstillingDto,
+  OppdaterLovdataResynkInnstillingRequest,
   LeggTilKodeRequest,
   LeggTilLenkeRequest,
   LeggTilVilkarInputRequest,
@@ -513,6 +516,22 @@ export const api = {
 
   hentLovdataImportstatus: (importert?: boolean) =>
     kall<LovdataImportstatusDto[]>(`/api/lovdata-importstatus${importert !== undefined ? `?importert=${importert}` : ''}`),
+
+  // ---------- Administrasjon-Lovdata-resynk (GitHub-issue #104) ----------
+
+  hentLovdataResynkHistorikk: () => kall<LovdataResynkKjoringDto[]>('/api/administrasjon/lovdata-resynk'),
+
+  startLovdataResynk: () => kall<LovdataResynkKjoringDto>('/api/administrasjon/lovdata-resynk', { method: 'POST' }),
+
+  hentLovdataResynkInnstilling: () =>
+    kall<LovdataResynkInnstillingDto>('/api/administrasjon/lovdata-resynk/innstilling'),
+
+  oppdaterLovdataResynkInnstilling: (request: OppdaterLovdataResynkInnstillingRequest) =>
+    kall<LovdataResynkInnstillingDto>('/api/administrasjon/lovdata-resynk/innstilling', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
 
   importerFraFil: (fil: File, virksomhetId?: string) => {
     const skjema = new FormData();

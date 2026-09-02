@@ -73,6 +73,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<KunnskapsbibliotekFilEntitet> KunnskapsbibliotekFiler => Set<KunnskapsbibliotekFilEntitet>();
     public DbSet<LovdataKatalogOppforingEntitet> LovdataKatalogOppforinger => Set<LovdataKatalogOppforingEntitet>();
     public DbSet<LovdataImportstatusEntitet> LovdataImportstatuser => Set<LovdataImportstatusEntitet>();
+    public DbSet<LovdataResynkKjoringEntitet> LovdataResynkKjoringer => Set<LovdataResynkKjoringEntitet>();
+    public DbSet<LovdataResynkInnstillingEntitet> LovdataResynkInnstillinger => Set<LovdataResynkInnstillingEntitet>();
     public DbSet<EksternKildeEntitet> EksterneKilder => Set<EksternKildeEntitet>();
     public DbSet<NettsideStiEntitet> NettsideStier => Set<NettsideStiEntitet>();
     public DbSet<NettsideLenkeEntitet> NettsideLenker => Set<NettsideLenkeEntitet>();
@@ -1223,6 +1225,39 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // Hovedbruken (docs/13-backlog.md §6): "vis meg alt som IKKE er importert" — filtrert indeks
             // siden det er akkurat den delmengden (i dag ~93 % av korpuset) som faktisk søkes i for triage.
             e.HasIndex(x => x.Importert).HasDatabaseName("ix_lovdata_importstatus_importert");
+        });
+
+        b.Entity<LovdataResynkKjoringEntitet>(e =>
+        {
+            e.ToTable("lovdata_resynk_kjoringer");
+            e.HasKey(x => x.Id).HasName("lovdata_resynk_kjoringer_pkey");
+            e.Property(x => x.Utlost).HasColumnName("utlost");
+            e.Property(x => x.UtlostAvBruker).HasColumnName("utlost_av_bruker");
+            e.Property(x => x.Status).HasColumnName("status");
+            e.Property(x => x.StartetTidspunkt).HasColumnName("startet_tidspunkt");
+            e.Property(x => x.FullfortTidspunkt).HasColumnName("fullfort_tidspunkt");
+            e.Property(x => x.Nye).HasColumnName("nye");
+            e.Property(x => x.NyeVersjoner).HasColumnName("nye_versjoner");
+            e.Property(x => x.Uendret).HasColumnName("uendret");
+            e.Property(x => x.Feilet).HasColumnName("feilet");
+            e.Property(x => x.TotaltBehandlet).HasColumnName("totalt_behandlet");
+            e.Property(x => x.Feilmelding).HasColumnName("feilmelding");
+
+            // Historikklisten (GET /api/administrasjon/lovdata-resynk) sorterer alltid nyeste først --
+            // og ErKjoringPagaendeAsync/SisteKjoringAsync filtrerer på Status ved hver planlagt-sjekk
+            // (hver time, se LovdataResynkPlanleggerBakgrunnstjeneste) og ved hver manuell trigger.
+            e.HasIndex(x => x.StartetTidspunkt).HasDatabaseName("ix_lovdata_resynk_kjoringer_startet_tidspunkt");
+            e.HasIndex(x => x.Status).HasDatabaseName("ix_lovdata_resynk_kjoringer_status");
+        });
+
+        b.Entity<LovdataResynkInnstillingEntitet>(e =>
+        {
+            e.ToTable("lovdata_resynk_innstilling");
+            e.HasKey(x => x.Id).HasName("lovdata_resynk_innstilling_pkey");
+            e.Property(x => x.Id).HasColumnName("id").ValueGeneratedNever(); // singleton-rad, alltid Id=1 -- se klassekommentaren
+            e.Property(x => x.IntervallTimer).HasColumnName("intervall_timer");
+            e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
+            e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
         });
 
         b.Entity<EksternKildeEntitet>(e =>

@@ -27,6 +27,7 @@ import NavnekandidaterListe from './pages/NavnekandidaterListe';
 import Begrepskandidater from './pages/Begrepskandidater';
 import ImportWizard from './pages/ImportWizard';
 import Tjenestereise from './pages/Tjenestereise';
+import AdministrasjonLovdataResynk from './pages/AdministrasjonLovdataResynk';
 
 function App() {
   return (
@@ -60,6 +61,7 @@ function App() {
           <Route path="/datasett/:id" element={<DatasettDetalj />} />
           <Route path="/tjenester/:id/veiledning" element={<TjenesteVeiledning />} />
           <Route path="/brukere" element={<BrukereListe />} />
+          <Route path="/administrasjon/lovdata-resynk" element={<AdministrasjonLovdataResynk />} />
           <Route path="/virksomheter" element={<VirksomheterListe />} />
           <Route path="/virksomheter/:id" element={<VirksomhetDetalj />} />
           <Route path="/virksomhet-kandidater" element={<VirksomhetKandidaterListe />} />

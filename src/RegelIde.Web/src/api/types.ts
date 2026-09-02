@@ -1316,6 +1316,45 @@ export interface LovdataImportstatusDto {
   sistForsoktTidspunkt: string;
 }
 
+/** Hvilken triggervei som startet en Lovdata-resynk-kjøring (administrasjon-Lovdata-resynk, GitHub-issue #104). */
+export type LovdataResynkUtlost = 'Oppstart' | 'Manuell' | 'Planlagt';
+
+export type LovdataResynkStatus = 'Pågår' | 'Fullført' | 'Feilet';
+
+/**
+ * Én rad i kjøre-historikken for Lovdata full-resynk — se LovdataResynkKjoringEntitet på serveren.
+ * `nyeVersjoner` er tallet issue #104 ba om å vise TYDELIG: hvor mange dokumenter som faktisk fikk
+ * endret INNHOLD ved denne kjøringen (til forskjell fra `nye`, som er nyoppdagede dokumenter) — det
+ * finnes i dag INGEN godkjenningskø for disse (bevisst IKKE besluttet avveining, se PR-beskrivelsen).
+ * Tellerne er alle `null` mens kjøringen fortsatt er `Pågår`, eller hvis den feilet HELT (Feilet) før
+ * noe ble behandlet.
+ */
+export interface LovdataResynkKjoringDto {
+  id: string;
+  utlost: LovdataResynkUtlost;
+  utlostAvBruker: string | null;
+  status: LovdataResynkStatus;
+  startetTidspunkt: string;
+  fullfortTidspunkt: string | null;
+  nye: number | null;
+  nyeVersjoner: number | null;
+  uendret: number | null;
+  feilet: number | null;
+  totaltBehandlet: number | null;
+  feilmelding: string | null;
+}
+
+/** `intervallTimer` null eller 0 = aldri automatisk (kun oppstart/manuell). */
+export interface LovdataResynkInnstillingDto {
+  intervallTimer: number | null;
+  sistEndretTidspunkt: string;
+  sistEndretAv: string | null;
+}
+
+export interface OppdaterLovdataResynkInnstillingRequest {
+  intervallTimer: number | null;
+}
+
 /**
  * `omfang` (handlingsforslag-ki-omfang-runden) brukes KUN av POST /api/tjenester/forslag/kjor —
  * "tjeneste" (default, uendret oppførsel) eller "full" (Tjeneste + Handlinger i samme kall).
