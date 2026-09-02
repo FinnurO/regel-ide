@@ -258,4 +258,42 @@ public class NavnekandidaterEndepunktTests
         Assert.Equal(0, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeA));
         Assert.Equal(1, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeB)); // urørt.
     }
+
+    /// <summary>[Ny, «flytt Slett inn i massehandling-raden», 2026-09-02] Sletting av et PRESIST
+    /// avkrysset utvalg (POST /slett-batch) — komplementær til filter-baserte Slett_alle-testen over.
+    /// Samme "ukjent id rapporteres som feilet rad, gyldig rad rulles IKKE tilbake"-mønster som
+    /// Avvis_batch-testen over.</summary>
+    [Fact]
+    public async Task Slett_batch_sletter_presist_valgte_rader_og_rapporterer_ukjent_id_som_feilet()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var rettskildeA = await OpprettRettskildeMedNodeAsync("Vedtak kan påklages til Reindriftsdirektoratet innen tre uker.");
+        var rettskildeB = await OpprettRettskildeMedNodeAsync("Vedtak kan påklages til Kystdirektoratet innen tre uker.");
+        await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/sveip", brukerId, new { RettskildeId = rettskildeA }));
+        await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/sveip", brukerId, new { RettskildeId = rettskildeB }));
+
+        var listeA = await _client.GetFromJsonAsync<List<NavnekandidatDto>>(
+            $"/api/navnekandidater?rettskildeId={rettskildeA}", JsonInnstillinger);
+        var kandidatA = Assert.Single(listeA!);
+        var ukjentId = Guid.NewGuid();
+
+        var batchSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/slett-batch", brukerId,
+            new { Ider = new[] { kandidatA.Id, ukjentId } }));
+        Assert.Equal(HttpStatusCode.OK, batchSvar.StatusCode);
+        var resultat = await batchSvar.Content.ReadFromJsonAsync<NavnekandidatSlettBatchResultatDto>(JsonInnstillinger);
+        Assert.Equal(2, resultat!.Rader.Count);
+
+        var gyldigRad = resultat.Rader.Single(r => r.Id == kandidatA.Id);
+        Assert.True(gyldigRad.Ok);
+        var ukjentRad = resultat.Rader.Single(r => r.Id == ukjentId);
+        Assert.False(ukjentRad.Ok);
+        Assert.Contains(ukjentId.ToString(), ukjentRad.Feil);
+
+        // Kun den valgte raden (rettskilde A) er faktisk borte — rettskilde B, som ALDRI var med i
+        // batchen, skal forbli urørt (nøyaktig det som skiller "Slett valgte" fra det filter-baserte
+        // "Slett alle kandidater").
+        await using var db = _fixture.NyDbContext();
+        Assert.Equal(0, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeA));
+        Assert.Equal(1, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeB));
+    }
 }

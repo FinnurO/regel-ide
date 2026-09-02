@@ -114,6 +114,7 @@ import type {
   SveipNavnekandidaterResultatDto,
   NavnekandidatBatchRequest,
   NavnekandidatBatchResultatDto,
+  NavnekandidatSlettBatchResultatDto,
   SlettNavnekandidaterResultatDto,
   VisningsinnstillingInput,
 } from './types';
@@ -426,6 +427,17 @@ export const api = {
    * (NavnekandidatOppdagelseTjeneste.SlettAsync) for hvorfor. */
   slettNavnekandidat: (id: string) =>
     kall<void>(`/api/navnekandidater/${id}`, { method: 'DELETE' }),
+
+  /** [Ny, «flytt Slett inn i massehandling-raden», 2026-09-02] Sletting av et PRESIST avkrysset utvalg
+   * — komplementær til slettAlleNavnekandidater under (filter-basert). Samme «ider»-request-form som
+   * godkjenn-/avvisNavnekandidaterBatch over (NavnekandidatBatchRequest), men egen resultat-DTO uten
+   * `resultat`-felt (en slettet rad har ingen ny DTO å returnere). */
+  slettNavnekandidaterBatch: (request: NavnekandidatBatchRequest) =>
+    kall<NavnekandidatSlettBatchResultatDto>('/api/navnekandidater/slett-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
 
   /** [Ny, 2026-08-30] Massesletting, valgfritt filtrert (samme filterparametre som hentNavnekandidater
    * over) — utelatt status betyr her "ingen statusfilter" (slett ALLE statuser), IKKE

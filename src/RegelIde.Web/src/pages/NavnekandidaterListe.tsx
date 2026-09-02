@@ -48,12 +48,18 @@ const KATEGORI_FARGE: Record<string, 'info' | 'accent'> = {
  * krever et menneske og skjer via Brreg-søket/"opprett med bare navn"-skjemaet på `/virksomheter`
  * (lenken under sender med `?forslagNavn=` som forhåndsutfyller begge der).
  *
- * Massehandling (avkrysningsbokser + «Godkjenn valgte»/«Avvis valgte», 2026-08-30) — store
- * test-sveip gjennom hele det importerte korpuset kan legge svært mange kandidater i køen samtidig,
- * og enkeltrad-behandling skalerer ikke da. Samme UX/backend-mønster som
- * VirksomhetKandidaterListe.tsx (se den filens kommentarer for hele resonnementet) — batchen
- * håndterer BEGGE kategoriene korrekt i samme kall siden serveren uansett kaller samme
- * GodkjennAsync/AvvisAsync per rad, ikke en egen batch-spesifikk forgrening.
+ * Massehandling (avkrysningsbokser + «Godkjenn valgte»/«Avvis valgte»/«Slett valgte», 2026-08-30,
+ * sletting flyttet inn 2026-09-02) — store test-sveip gjennom hele det importerte korpuset kan legge
+ * svært mange kandidater i køen samtidig, og enkeltrad-behandling skalerer ikke da. Samme
+ * UX/backend-mønster som VirksomhetKandidaterListe.tsx (se den filens kommentarer for hele
+ * resonnementet) — batchen håndterer BEGGE kategoriene korrekt i samme kall siden serveren uansett
+ * kaller samme GodkjennAsync/AvvisAsync/SlettAsync per rad, ikke en egen batch-spesifikk forgrening.
+ *
+ * TO separate slette-veier, med vilje (Johann: «kan du flytte "Slette" inn på samme sted og funksjon
+ * som Godkjenn og Avvis?») — se `slettValgte` (denne raden, presist avkrysset utvalg) vs. `slettAlle`
+ * (eget kort under, filter-basert delsett UAVHENGIG av avkrysning — løser et annet, reelt problem:
+ * tømme et stort/hele korpuset før et nytt sveip, se det kortets egen kommentar). IKKE fjernet/slått
+ * sammen til én mekanisme uten et eksplisitt valg fra Johann — flagget i PR-beskrivelsen.
  *
  * Sortering/gruppering/filtrering (2026-08-30) — med ~3990 kandidater i én flat, rettskilde-ordnet
  * liste ba Johann eksplisitt (to ganger) om bedre oversikt: "sortere på foreslått tekst ... gruppere/
@@ -271,6 +277,33 @@ export default function NavnekandidaterListe() {
       setSlettAlleFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved massesletting.');
     } finally {
       setSletterAlle(false);
+    }
+  }
+
+  // [Ny, «flytt Slett inn i massehandling-raden», 2026-09-02] Sletting av PRESIST det avkryssede
+  // utvalget (samme `valgte`-sett som Godkjenn/Avvis over) — komplementær til `slettAlle` under, som
+  // virker på et FILTRERT delsett uavhengig av avkrysning. Samme lastekjøre-/feil-state
+  // (massehandlingKjorer/massehandlingFeil) som Godkjenn/Avvis, siden knappen sitter i samme rad og
+  // følger samme mønster (Johann: «kan du flytte "Slette" inn på samme sted og funksjon som Godkjenn
+  // og Avvis?»).
+  async function slettValgte() {
+    if (valgte.size === 0) return;
+    if (!window.confirm(`Slette ${valgte.size} valgt${valgte.size === 1 ? '' : 'e'} kandidat(er) permanent? Dette kan ikke angres.`)) return;
+    setMassehandlingKjorer(true);
+    setMassehandlingFeil(null);
+    try {
+      const resultat = await api.slettNavnekandidaterBatch({ ider: [...valgte] });
+      const feilede = resultat.rader.filter((r) => !r.ok);
+      if (feilede.length > 0) {
+        setMassehandlingFeil(
+          `${feilede.length} av ${resultat.rader.length} rad(er) feilet: ${feilede.map((r) => r.feil).join('; ')}`,
+        );
+      }
+      lastKandidater();
+    } catch (err) {
+      setMassehandlingFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved sletting av valgte.');
+    } finally {
+      setMassehandlingKjorer(false);
     }
   }
 
@@ -557,19 +590,31 @@ export default function NavnekandidaterListe() {
         <Button data-size="sm" variant="secondary" onClick={() => massehandling('avvis')} disabled={valgte.size === 0 || massehandlingKjorer}>
           {massehandlingKjorer ? 'Avviser …' : 'Avvis valgte'}
         </Button>
+        {/* [Ny, «flytt Slett inn i massehandling-raden», 2026-09-02] Samme sted/mønster som Godkjenn/
+            Avvis over (samme `valgte`-sett, samme disabled-betingelse) — presist utvalg, til forskjell
+            fra «Slett kandidater»-kortet under (filter-basert, uavhengig av avkrysning). */}
+        <Button
+          data-size="sm"
+          data-color="danger"
+          onClick={slettValgte}
+          disabled={valgte.size === 0 || massehandlingKjorer}
+        >
+          {massehandlingKjorer ? 'Sletter …' : 'Slett valgte'}
+        </Button>
       </div>
       {massehandlingFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{massehandlingFeil}</div>}
 
       <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
-          Slett kandidater
+          Slett stort, filtrert delsett
         </Heading>
         <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
-          Ekte, irreversibel sletting av HELE korpuset eller et avgrenset delsett (kategori/status over,
-          rettskilder i flervalget over) — nyttig for å tømme køen før et nytt sveip med oppdaterte
-          mønsterregler (den posisjonsbaserte idempotensen hindrer ellers et nytt sveip i å re-evaluere
-          allerede sveipet tekst). Respekterer IKKE «Foreslått tekst inneholder»-filteret over — kun
-          kategori/status/rettskilde gjør det.
+          For å tømme HELE korpuset eller et stort filtrert delsett (kategori/status over, rettskilder i
+          flervalget over) UAVHENGIG av hvilke rader som tilfeldigvis er avkrysset — nyttig f.eks. før et
+          nytt sveip med oppdaterte mønsterregler (den posisjonsbaserte idempotensen hindrer ellers et
+          nytt sveip i å re-evaluere allerede sveipet tekst). Respekterer IKKE «Foreslått tekst
+          inneholder»-filteret over — kun kategori/status/rettskilde gjør det. Skal du derimot slette et
+          PRESIST utvalg rader, bruk «Slett valgte» i raden over i stedet.
         </Paragraph>
         <Button
           data-size="sm"

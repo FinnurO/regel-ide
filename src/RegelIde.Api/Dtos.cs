@@ -618,6 +618,19 @@ public sealed record NavnekandidatBatchResultatDto(IReadOnlyList<NavnekandidatBa
 /// varslet i bekreftelsesdialogen FØR kallet (se NavnekandidaterListe.tsx).</summary>
 public sealed record SlettNavnekandidaterResultatDto(int AntallSlettet);
 
+/// <summary>
+/// [Ny, «flytt Slett inn i massehandling-raden», 2026-09-02] Sletting av et PRESIST utvalg (avkryssede
+/// rader), til forskjell fra <see cref="SlettNavnekandidaterResultatDto"/> sin filter-baserte
+/// massesletting over. Samme "egen, parallell DTO-familie"-linje som
+/// <see cref="TjenesteforslagSlettBatchRadDto"/>/<see cref="TjenesteforslagSlettBatchResultatDto"/>
+/// (se den familiens kommentar) — enklere form enn <see cref="NavnekandidatBatchRadDto"/> (ingen
+/// <c>Resultat</c>-felt, en slettet rad har ingen ny DTO å returnere). Gjenbruker
+/// <see cref="NavnekandidatBatchRequest"/> for selve id-listen (strukturelt identisk behov).
+/// </summary>
+public sealed record NavnekandidatSlettBatchRadDto(Guid Id, bool Ok, string? Feil);
+
+public sealed record NavnekandidatSlettBatchResultatDto(IReadOnlyList<NavnekandidatSlettBatchRadDto> Rader);
+
 // ---------- Begrepsforekomster — begrepsoppdagelse (M1/M11), docs/24 ----------
 
 public sealed record BegrepsforekomstDto(

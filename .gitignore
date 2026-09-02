@@ -7,3 +7,9 @@ appsettings.Local.json
 
 # Personlige Claude Code-innstillinger (tillatelsesregler o.l.) — ikke team-delt.
 .claude/settings.local.json
+
+# Lokale SQLite-databasefiler generert ved manuell/egen-port dev-server-kjøring under bakgrunnsagent-
+# verifisering — aldri ment å versjoneres (samme rolle som en lokal .db-cache).
+*.db
+*.db-shm
+*.db-wal
