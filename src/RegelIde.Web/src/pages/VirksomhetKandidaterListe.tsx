@@ -403,7 +403,7 @@ export default function VirksomhetKandidaterListe() {
       {viste && viste.length > 0 && (
         <Card style={{ padding: 0, overflow: 'hidden' }}>
           <div style={{ overflowX: 'auto' }}>
-            <Table>
+            <Table data-density="compact">
               <Table.Head>
                 <Table.Row>
                   <Table.HeaderCell>
