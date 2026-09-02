@@ -55,19 +55,46 @@ public class HjemmelKonverteringTests
     }
 
     [Fact]
-    public void Hjemmellenke_uten_paragrafnummer_kaster_i_stedet_for_a_gjette()
+    public void Hjemmellenke_uten_paragrafnummer_gir_dokumentnivaa_hjemmel()
     {
-        // Syntetisk: en hjemmel til en HEL lov (ingen §-suffiks på href-en) — ikke bekreftet ekte i
-        // noe fixture-korpus, se HentHjemler-kommentaren. Konstruert ved målrettet endring av den ekte
-        // alkoholforskriften-HTML-en (samme mønster som EdgeCaseTests.cs), ikke fritt oppdiktet markup.
+        // Syntetisk: en hjemmel til en HEL lov (ingen §-suffiks på href-en) — bekreftet ekte og
+        // OVERRASKENDE VANLIG (1711 av 5882 dokumenter, full korpusgjennomgang 2026-09-02, dominerende
+        // blant delegeringsforskrifter — se HentHjemler-kommentaren), ikke et avvik. Konstruert ved
+        // målrettet endring av den ekte alkoholforskriften-HTML-en (samme mønster som
+        // EdgeCaseTests.cs), ikke fritt oppdiktet markup.
         var html = Testdata.LesAlkoholforskriften()
             .Replace(
                 "<li><a href=\"lov/1989-06-02-27/§1-2\">lov/1989-06-02-27/§1-2</a></li>",
                 "<li><a href=\"lov/1989-06-02-27\">lov/1989-06-02-27</a></li>");
 
-        var ex = Assert.Throws<FormatException>(() => LovdataKonverterer.Konverter(html));
-        Assert.Contains("paragrafnummer", ex.Message);
-        Assert.Contains("Ingen gjettet fallback", ex.Message);
+        var resultat = LovdataKonverterer.Konverter(html);
+
+        // Samme dokument-ELI-format som RettskildeEndring.Eid alltid har (ingen paragraf-suffiks) —
+        // erstatter den ene fjernede paragraf-spesifikke hjemmelen 1:1, resten uendret.
+        Assert.Equal(21, resultat.Hjemler.Count);
+        Assert.Equal(AlkohollovenEli, resultat.Hjemler[0].Eid);
+        Assert.Equal(0, resultat.Hjemler[0].Sorteringsrekkefolge);
+    }
+
+    [Fact]
+    public void Hjemmellenke_til_hel_forskrift_uten_paragrafnummer_gir_dokumentnivaa_hjemmel()
+    {
+        // Minimal, målrettet regresjonstest for det EKTE, tidligere blokkerte tilfellet: import av
+        // "Forskrift om skipsmedisin" (FOR-2001-03-09-439) feiler fordi dens ekte Hjemmel-felt har
+        // <a href="forskrift/1969-06-13-3">forskrift/1969-06-13-3</a> — en hjemmel til en HEL forskrift
+        // (til forskjell fra testen over, som dekker en hel LOV). Samme mekanisme
+        // (LovdataHrefTolker/AvledEliFraDatokode) er kildetype-uavhengig, men denne testen dekker
+        // forskrift-grenen eksplisitt i stedet for å anta at lov-testen over dekker begge.
+        var html = Testdata.LesAlkoholforskriften()
+            .Replace(
+                "<li><a href=\"lov/1989-06-02-27/§1-2\">lov/1989-06-02-27/§1-2</a></li>",
+                "<li><a href=\"forskrift/1969-06-13-3\">forskrift/1969-06-13-3</a></li>");
+
+        var resultat = LovdataKonverterer.Konverter(html);
+
+        Assert.Equal(21, resultat.Hjemler.Count);
+        Assert.Equal("https://lovdata.no/eli/forskrift/1969/06/13/3/nor", resultat.Hjemler[0].Eid);
+        Assert.Equal(0, resultat.Hjemler[0].Sorteringsrekkefolge);
     }
 
     [Fact]

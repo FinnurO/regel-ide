@@ -146,6 +146,15 @@ public sealed record RettskildeMetadata
 /// nytt, slik at klientens allerede etablerte eId→lenke-oppslag (eidLenker.ts/rettskildeLenke)
 /// fungerer uendret for hjemmel-referanser også.
 /// </para>
+/// <para>
+/// UNNTAK (bekreftet ekte, full korpusgjennomgang 2026-09-02: 1711 av 5882 dokumenter, dominerende
+/// blant delegeringsforskrifter): en Hjemmel-lenke kan mangle paragrafnummer helt — hjemmel til en
+/// HEL lov/forskrift, ikke én bestemt paragraf (f.eks. href <c>"forskrift/1969-06-13-3"</c>). <see
+/// cref="Eid"/> er da i stedet BARE dokument-ELI-en, samme form som <see cref="RettskildeEndring.Eid"/>
+/// alltid har — <see cref="LovdataHtmlParser.HentHjemler"/> gjør ingen antagelse om at Eid alltid har
+/// et paragraf-suffiks, og <c>RettskildeImportTjeneste.FinnEllerOpprettReferanseStubAsync</c> (via
+/// <c>DokumentEliFra</c>) håndterer begge formene allerede uendret.
+/// </para>
 /// </summary>
 public sealed record RettskildeHjemmel(string Eid, int Sorteringsrekkefolge);
 
