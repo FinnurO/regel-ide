@@ -18,12 +18,21 @@ namespace RegelIde.Api;
 /// <see cref="ErIrrelevant"/> lagt til (2026-08-30, irrelevant-markering) — kompakt badge-verdi for
 /// listetabellen (RettskilderListe.tsx); selve kommentaren vises kun på detaljsiden, ikke her.
 /// </summary>
+/// <summary>
+/// <see cref="IkrafttredelseRaa"/> lagt til (2026-09-02, listevisning-fiks) — samme rå,
+/// utrunkerte streng som <see cref="RettskildeEntitet.IkrafttredelseRaa"/>. Kun listetabellen
+/// trenger den, til å avgjøre om kilden aldri har trådt i kraft (fravær av en gyldig
+/// <c>åååå-MM-dd</c>-dato i strengen — se RettskilderListe.tsx). Populert KUN for Lovdata-importerte
+/// Lov/Forskrift (se <see cref="RegelIde.Kildekonvertering.Kildetype"/>) — NULL for alle andre
+/// kildetyper er forventet fravær av data, ikke "ikke i kraft".
+/// </summary>
 public sealed record RettskildeSammendrag(
     Guid Id, Guid? VirksomhetId, string? Eli, string Tittel, string? Kortnavn, string Kildetype,
-    string? AnsvarligDepartement, bool ErIrrelevant)
+    string? AnsvarligDepartement, bool ErIrrelevant, string? IkrafttredelseRaa)
 {
     public static RettskildeSammendrag FraEntitet(RettskildeEntitet r) =>
-        new(r.Id, r.VirksomhetId, r.Eli, r.Tittel, r.Kortnavn, r.Kildetype, r.AnsvarligDepartement, r.ErIrrelevant);
+        new(r.Id, r.VirksomhetId, r.Eli, r.Tittel, r.Kortnavn, r.Kildetype, r.AnsvarligDepartement, r.ErIrrelevant,
+            r.IkrafttredelseRaa);
 }
 
 /// <summary>Full rettskilde: metadata + kanonisk AKN-XML (§1 i teknisk design). ELI er ALLTID skrivebeskyttet

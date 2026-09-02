@@ -534,7 +534,7 @@ export default function RettskildeDetalj() {
     () => (detalj ? [{
       id: detalj.id, virksomhetId: detalj.virksomhetId, eli: detalj.eli, tittel: detalj.tittel,
       kortnavn: detalj.kortnavn, kildetype: detalj.kildetype, ansvarligDepartement: detalj.ansvarligDepartement,
-      erIrrelevant: detalj.erIrrelevant,
+      erIrrelevant: detalj.erIrrelevant, ikrafttredelseRaa: null,
     }] : []),
     [detalj],
   );

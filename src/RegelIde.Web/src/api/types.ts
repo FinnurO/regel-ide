@@ -11,6 +11,9 @@ export interface RettskildeSammendrag {
   ansvarligDepartement: string | null;
   /** Header-nivå «irrelevant for regel-ide»-markering (2026-08-30). Kompakt badge-verdi — se detaljsiden for kommentaren. */
   erIrrelevant: boolean;
+  /** [Ny, 2026-09-02] Rå, utrunket Lovdata-"dateInForce"-streng. Populert KUN for Lov/Forskrift — NULL
+   * for andre kildetyper er forventet fravær av data, IKKE "ikke i kraft" (se RettskilderListe.tsx). */
+  ikrafttredelseRaa: string | null;
 }
 
 export interface RettskildeDetalj {
