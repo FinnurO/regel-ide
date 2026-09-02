@@ -874,9 +874,51 @@ public static partial class LovdataHtmlParser
             }
             else if (child.Name == "article" && ErAvsnittKlasse(klasse))
             {
-                // Merknad/kommentar på PARAGRAF-nivå (bekreftet ekte, personopplysningsloven §34) —
-                // samme rolle som den allerede håndterte dokumentnivå-varianten i Parse-metoden
-                // (metainformasjon, ikke selve rettskilde-teksten/leddene).
+                // To ULIKE, bekreftede ekte former for et "defaultP" (§ AvsnittKlasser: per Lovdatas
+                // egen offisielle klassedokumentasjon formelt "ikke et juridisk ledd") som DIREKTE
+                // barn av en paragraf:
+                //
+                // 1) Et elidert-innhold-plassholder — bekreftet ekte, personopplysningsloven § 34
+                //    "Endringer i andre lover": ledd-1 er en ordinær legalP, etterfulgt av
+                //    <article class="defaultP">– – –</article> (kun tankestreker). Den konsoliderte
+                //    ("gjeldende") teksten viser IKKE selve endringslisten (allerede utført/historisk),
+                //    bare denne plassholderen — ren metainformasjon, ikke rettskildetekst. Fortsatt
+                //    korrekt å hoppe over, som før denne endringen.
+                //
+                // 2) Et FAKTISK, substansielt ledd Lovdata av ukjent årsak IKKE har tagget som "legalP"
+                //    — bekreftet ekte, FOR-2001-03-09-439 (forskrift om skipsmedisin) § 4
+                //    "Fartøygrupper": ledd-1 ("Med fartøygrupper menes:") er en ordinær legalP MED
+                //    id-attributt, men de tre påfølgende definisjonsavsnittene ("Fartøygruppe A:"/"B:"/
+                //    "C:" …) er defaultP UTEN NOE id-attributt overhodet. Innholdsmessig er de like
+                //    fullt ledd 2/3/4 (bekreftet ordrett mot lovdata.no/forskrift/2001-03-09-439/§4) —
+                //    å hoppe over dem som "metainformasjon" mistet reelt rettskildeinnhold (bekreftet
+                //    manuelt av Johann via /begrepskandidater-siden).
+                //
+                // Skillet mellom de to: er avsnittets tekst UTELUKKENDE tankestrek(er)/mellomrom (case 1,
+                // ErEliderPlassholderTekst) eller ikke (case 2, reelt innhold). Verifisert på ALLE 8
+                // fixturene i data/kilder/raw-lovdata: dette er de ENESTE to bekreftede paragraf-nivå
+                // defaultP-mønstrene i korpuset så langt — et helt ukjent TREDJE mønster ville likevel
+                // IKKE kastet en tydelig "ukjent struktur"-feil lenger etter denne endringen (det havner
+                // stille i case 2), men det er en bevisst avveining: siden case 1 er presist
+                // gjenkjennbart (kun tankestreker), er "har avsnittet noe ANNET enn det" en presis nok
+                // beslutningsregel til å slå fast at det er reelt innhold — ikke en løs gjetning slik
+                // §3.3 advarer mot.
+                var avsnittSegmenter = HentSegmenter(child, kontekst);
+                var avsnittTekst = KollapsDobleMellomrom(string.Concat(avsnittSegmenter.Select(s => s.Tekst))).Trim();
+                if (!ErEliderPlassholderTekst(avsnittTekst))
+                {
+                    leddIndeks++;
+                    var leddEid = GjørEidUnik(LovdataIdentifikatorer.LeddEid(eid, leddIndeks), noder);
+                    // child mangler (bekreftet) id-attributt i case 2 — se LeggTilLeddEllerPunktNodes
+                    // kildeIdNårIdMangler-parameter. Syntetisert fra paragrafens EGEN kildeId (alltid
+                    // til stede, sjekket over) + løpenummer, deterministisk og globalt unikt innenfor
+                    // paragrafen på samme måte som eId'en over.
+                    var syntetiskKildeId = $"{kildeId}-avsnitt-{leddIndeks}";
+                    LeggTilLeddEllerPunktNode(
+                        child, leddEid, eid, NodeType.Ledd, kontekst, noder, referanser, sortering,
+                        leddIndeks.ToString(), kildeIdNårIdMangler: syntetiskKildeId);
+                    ParseChildPunkter([child], leddEid, kontekst, noder, referanser, sortering);
+                }
             }
             else if (child.Name == "footer" && klasse.Contains("footnotes"))
             {
@@ -1071,9 +1113,16 @@ public static partial class LovdataHtmlParser
     /// </summary>
     private static void LeggTilLeddEllerPunktNode(
         HtmlNode legalP, string eid, string? parentEid, NodeType nodeType, ReferanseKontekst kontekst,
-        List<RettskildeNode> noder, List<RettskildeReferanse> referanser, SorteringsTeller sortering, string? nummer = null)
+        List<RettskildeNode> noder, List<RettskildeReferanse> referanser, SorteringsTeller sortering,
+        string? nummer = null, string? kildeIdNårIdMangler = null)
     {
+        // kildeIdNårIdMangler brukes KUN av det bekreftede "defaultP-som-ledd"-tilfellet i
+        // HåndterParagrafBarn (se der) — et ekte, substansielt ledd Lovdata av ukjent årsak ikke har
+        // gitt noe id-attributt i det hele tatt (FOR-2001-03-09-439 § 4, "Fartøygruppe A/B/C"). Alle
+        // ANDRE kallesteder lar denne stå null, slik at et manglende id-attributt fortsatt kaster
+        // akkurat som før (§3.3) — ingen ny stille fallback for legalP-ledd/punkt generelt.
         var kildeId = legalP.Attributes["id"]?.Value
+            ?? kildeIdNårIdMangler
             ?? throw new FormatException($"{nodeType} {eid} mangler id-attributt.");
         var segmenter = HentSegmenter(legalP, kontekst);
         var plainTekst = KollapsDobleMellomrom(string.Concat(segmenter.Select(s => s.Tekst))).Trim();
@@ -1145,6 +1194,18 @@ public static partial class LovdataHtmlParser
 
     [GeneratedRegex(" {2,}")]
     private static partial Regex DobbeltMellomromMønster();
+
+    /// <summary>Lovdatas konvensjon for et "elidert" ledd-plassholder-avsnitt (et defaultP direkte i en
+    /// paragraf, i stedet for et vanlig ledd) — bekreftet ekte, personopplysningsloven § 34 "Endringer i
+    /// andre lover": teksten er UTELUKKENDE tankestrek(er) ("– – –", U+2013 gjentatt, mellomromsseparert)
+    /// og bærer ikke noe reelt rettskildeinnhold. Tomt avsnitt (ingen tekst i det hele tatt) regnes også
+    /// som plassholder — ikke bekreftet ekte, men det finnes uansett intet reelt innhold å tape ved å
+    /// hoppe over. Se bruken i HåndterParagrafBarn (ParseParagraf) for hvordan dette skiller en ekte
+    /// "defaultP-som-ledd" (FOR-2001-03-09-439 § 4) fra denne plassholder-varianten.</summary>
+    [GeneratedRegex(@"^[\s\-‐‑‒–—―]*$")]
+    private static partial Regex EliderPlassholderMønster();
+
+    private static bool ErEliderPlassholderTekst(string tekst) => EliderPlassholderMønster().IsMatch(tekst);
 
     // ---------- Inline tekst-/referanse-ekstraksjon ----------
 
