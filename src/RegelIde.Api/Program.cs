@@ -47,6 +47,8 @@ builder.Services.AddScoped<MyndighetstildelingTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatSveipTjeneste>();
 builder.Services.AddScoped<NavnekandidatOppdagelseTjeneste>();
+builder.Services.AddScoped<BegrepsforekomstTjeneste>();
+builder.Services.AddScoped<BegrepsoppdagelseSveipTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
 builder.Services.AddScoped<RegelnoderegisterTjeneste>();
 builder.Services.AddScoped<UnntaksregisterTjeneste>();
@@ -2812,6 +2814,114 @@ navnekandidater.MapDelete("/", async (string? status, string? kategori, Guid? re
         "MERK: her betyr utelatt status 'ingen statusfilter' (slett ALLE statuser), IKKE GET / sin " +
         "'utelatt = kun Venter'-standard — klienten sender alltid eksplisitt status. Ekte, irreversibel " +
         "sletting; klienten MÅ vise antall og be om bekreftelse FØR kallet.");
+
+// ---------- Begrepsforekomster — begrepsoppdagelse M1/M11 (docs/24) ----------
+// Arbeidskø for begreps-FOREKOMSTER funnet ved deterministisk sveip av allerede importert
+// rettskildetekst — se BegrepsforekomstTjeneste/BegrepsoppdagelseSveipTjeneste for hele resonnementet.
+// Samme formmessige mønster som /api/virksomhet-kandidater over, men uten en virksomhetId-parameter på
+// sveipet selv (M1/M11 er virksomhetsagnostiske strukturmønstre, ikke en bekreftelse mot en kjent
+// virksomhets navneformer) — virksomhetId oppgis først ved GODKJENNING (hvilket register begrepet skal
+// landes i).
+
+var begrepsforekomster = app.MapGroup("/api/begrepsforekomster").WithOpenApi();
+
+begrepsforekomster.MapGet("/", async (Guid? rettskildeId, string? monsterId, string? status,
+        BegrepsforekomstTjeneste register, CancellationToken ct) =>
+    {
+        // Samme eksplisitte "utelatt = kun Venter, 'Alle' = ingen filter"-mønster som
+        // /api/virksomhet-kandidater og /api/navnekandidater — se den endepunktkommentaren.
+        var effektivStatus = string.IsNullOrEmpty(status) ? "Venter" : status;
+        var statusFilter = effektivStatus == "Alle" ? null : effektivStatus;
+        return Results.Ok((await register.ListerAsync(rettskildeId, monsterId, statusFilter, ct)).Select(BegrepsforekomstDto.FraEntitet));
+    })
+    .WithName("HentBegrepsforekomster")
+    .WithSummary("Kandidatliste, valgfritt filtrert på rettskilde/mønster-id/status. status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter.");
+
+begrepsforekomster.MapPost("/sveip", async (HttpRequest request, SveipBegrepsforekomsterRequest body,
+        BegrepsoppdagelseSveipTjeneste sveip, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var resultat = await sveip.SveipAsync(body.RettskildeId, bruker.Navn, ct);
+            return Results.Ok(new SveipBegrepsforekomsterResultatDto(resultat.AntallTreffFunnet, resultat.AntallNyeForekomster));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SveipBegrepsforekomster")
+    .WithSummary("docs/24 §3 — M1 (eksplisitt definisjonsliste) og M11 (egen definisjonsparagraf) mot allerede " +
+        "importerte rettskilde-noder (RettskildeId=null: hele det delte/nasjonale korpuset, satt: kun én " +
+        "rettskilde). Idempotent (kjør flere ganger uten duplikater).");
+
+begrepsforekomster.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest request, GodkjennBegrepsforekomstRequest body,
+        BegrepsforekomstTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var oppdatert = await register.GodkjennAsync(id, body.VirksomhetId, bruker.Navn, ct);
+            return oppdatert is null ? Results.NotFound(new { feil = $"Ingen forekomst med id '{id}'." }) : Results.Ok(BegrepsforekomstDto.FraEntitet(oppdatert));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("GodkjennBegrepsforekomst")
+    .WithSummary("Oppretter et nytt Begrep i angitt virksomhets register OG en ekte TekstTagg (kind='begrep', RefId=det nye begrepet) — revaliderer mot nodens DÅVÆRENDE tekst FØR noe opprettes.");
+
+begrepsforekomster.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request,
+        BegrepsforekomstTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var oppdatert = await register.AvvisAsync(id, bruker.Navn, ct);
+            return oppdatert is null ? Results.NotFound(new { feil = $"Ingen forekomst med id '{id}'." }) : Results.Ok(BegrepsforekomstDto.FraEntitet(oppdatert));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("AvvisBegrepsforekomst");
+
+begrepsforekomster.MapDelete("/{id:guid}", async (Guid id, BegrepsforekomstTjeneste register, CancellationToken ct) =>
+    {
+        try
+        {
+            return await register.HardslettAvvistAsync(id, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen forekomst med id '{id}'." });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("HardslettAvvistBegrepsforekomst")
+    .WithSummary("Kun 'Avvist'-rader kan hardslettes (samme begrunnelse som /api/virksomhet-kandidater: en 'Godkjent' " +
+        "rad har en ekte tagg/et ekte begrep som ikke kan fjernes i etterkant).");
+
+begrepsforekomster.MapDelete("/", async (Guid? rettskildeId, string? status,
+        BegrepsforekomstTjeneste register, CancellationToken ct) =>
+    {
+        try
+        {
+            var antallSlettet = await register.HardslettAlleAvvisteAsync(rettskildeId, status, ct);
+            return Results.Ok(new HardslettBegrepsforekomsterResultatDto(antallSlettet));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("HardslettAlleAvvisteBegrepsforekomster")
+    .WithSummary("Massehardsletting, valgfritt filtrert på rettskilde (samme filterparametre som GET /) — KUN 'Avvist'-rader rammes.");
 
 // ---------- Datasett (docs/03-domenemodell.md §1.6) — byggesteg 4, minimal, kun lesing ----------
 
