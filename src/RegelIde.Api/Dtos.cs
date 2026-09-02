@@ -577,6 +577,33 @@ public sealed record NavnekandidatBatchResultatDto(IReadOnlyList<NavnekandidatBa
 /// varslet i bekreftelsesdialogen FØR kallet (se NavnekandidaterListe.tsx).</summary>
 public sealed record SlettNavnekandidaterResultatDto(int AntallSlettet);
 
+// ---------- Begrepsforekomster — begrepsoppdagelse (M1/M11), docs/24 ----------
+
+public sealed record BegrepsforekomstDto(
+    Guid Id, Guid RettskildeId, string NodeEid, int StartOffset, int EndOffset,
+    string Begrep, string BegrepOriginal, string? Definisjon, string Kildetype, string MonsterId,
+    string Konfidens, string Scope, string? ScopeRefEid, string? HenvisningsMaal, string Status, Guid? BegrepId,
+    string OpprettetAv, DateTimeOffset OpprettetTidspunkt, string? BehandletAv, DateTimeOffset? BehandletTidspunkt)
+{
+    public static BegrepsforekomstDto FraEntitet(BegrepsforekomstEntitet f) => new(
+        f.Id, f.RettskildeId, f.NodeEid, f.StartOffset, f.EndOffset, f.Begrep, f.BegrepOriginal, f.Definisjon,
+        f.Kildetype, f.MonsterId, f.Konfidens, f.Scope, f.ScopeRefEid, f.HenvisningsMaal, f.Status, f.BegrepId,
+        f.OpprettetAv, f.OpprettetTidspunkt, f.BehandletAv, f.BehandletTidspunkt);
+}
+
+/// <summary>Sveip-trigger (docs/24 §3 punkt 3) — <see cref="RettskildeId"/> = <c>null</c> sveiper HELE
+/// det importerte (delte/nasjonale, gjeldende) korpuset, satt snevrer inn til én rettskilde.</summary>
+public sealed record SveipBegrepsforekomsterRequest(Guid? RettskildeId);
+
+public sealed record SveipBegrepsforekomsterResultatDto(int AntallTreffFunnet, int AntallNyeForekomster);
+
+/// <summary>Godkjenning krever et eksplisitt valg av HVILKEN virksomhets register begrepet skal landes
+/// i — se <see cref="BegrepsforekomstTjeneste"/> sin klassekommentar for hvorfor dette ikke utledes
+/// automatisk.</summary>
+public sealed record GodkjennBegrepsforekomstRequest(Guid VirksomhetId);
+
+public sealed record HardslettBegrepsforekomsterResultatDto(int AntallSlettet);
+
 // ---------- Kodeliste / verdidomene (docs/03-domenemodell.md §1.4) — byggesteg 2 ----------
 
 public sealed record KodelisteKodeDto(

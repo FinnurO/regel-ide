@@ -960,6 +960,153 @@ public sealed class MyndighetstildelingEntitet
 }
 
 /// <summary>
+/// [Ny, begrepsoppdagelse-runden, docs/24 §2.1] Arbeidskø for begreps-FOREKOMSTER oppdaget ved
+/// deterministisk (regex-basert) sveip av allerede importert rettskildetekst (M1 = eksplisitt
+/// definisjonsliste, M11 = egen definisjonsparagraf uten punktliste — se
+/// <see cref="RegelIde.Data.BegrepsoppdagelseSveipTjeneste"/>). Samme "egen tabell, egen kø" -avveining
+/// som <see cref="VirksomhetKandidatEntitet"/> (docs/24 §1.1/§1.2), IKKE en utvidelse av
+/// <see cref="BegrepEntitet"/>: samme term kan dukke opp som mange, delvis motstridende forekomster på
+/// tvers av korpuset (selve poenget med en fremtidig <c>sveip_begrepskollisjoner</c>-visning, docs/24
+/// §2.4), og de aller fleste forekomstene skal ALDRI bli en egen <see cref="BegrepEntitet"/>-rad uten
+/// eksplisitt enkeltvis godkjenning.
+/// <para>
+/// <b>Bevisst UTEN full <c>Entitetsstatus</c>/<c>Versjon</c>-versjonering</b> — samme lette
+/// arbeidskø-modell (<c>Status</c> = <c>'Venter'</c>/<c>'Godkjent'</c>/<c>'Avvist'</c>) som
+/// <see cref="VirksomhetKandidatEntitet"/>, av samme grunn: dette er en arbeidskø, ikke autoritativt
+/// rettskildeinnhold.
+/// </para>
+/// <para>
+/// <b><see cref="StartOffset"/>/<see cref="EndOffset"/> — IKKE i spesifikasjonens opprinnelige
+/// feltliste (docs/24 §2.1), lagt til her:</b> docs/24 §4 (siste punkt) flagger eksplisitt at
+/// idempotens ved gjentatt sveip ("denne forekomsten er allerede sett" vs. "dette er en ny
+/// forekomst") IKKE er adressert av spesifikasjonen selv, og at <see cref="BegrepsforekomstEntitet"/>
+/// derfor bør få "en unik nøkkel ... inkludert en form for tegn-intervall" FØR første
+/// sveip-implementasjon — nøyaktig samme mønster <see cref="VirksomhetKandidatEntitet.StartOffset"/>
+/// allerede løser for et identisk problem. Feltene brukes til (1) idempotens (unik indeks på
+/// <see cref="RettskildeId"/>/<see cref="NodeEid"/>/<see cref="StartOffset"/>, se
+/// RegelIdeDbContext), og (2) revalidering ved godkjenning — <see cref="BegrepsforekomstTjeneste.GodkjennAsync"/>
+/// leser noden på nytt og sjekker at <see cref="BegrepOriginal"/> fortsatt faktisk står i det lagrede
+/// intervallet, samme "matcher ikke → kast" -vern som <see cref="VirksomhetKandidatTjeneste.GodkjennAsync"/>.
+/// </para>
+/// <para>
+/// <b><see cref="Definisjon"/>-spennet er BEVISST IKKE en egen kolonne</b> (docs/24 §2.1, låst
+/// beslutning) — ved godkjenning opprettes i stedet en ekte <see cref="TekstTaggEntitet"/>
+/// (<c>Kind="begrep"</c>) pekende til <see cref="StartOffset"/>/<see cref="EndOffset"/>, samme
+/// gjenbruk av tekst-tagg-mekanismen som docs/24 §1.4 konkluderer med for AKN-tagging generelt.
+/// </para>
+/// </summary>
+public sealed class BegrepsforekomstEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid RettskildeId { get; set; }
+
+    /// <summary>Presis node-referanse — for M1 punktet (term:forklaring), for M11 paragrafens
+    /// FØRSTE ledd (der definisjonssetningen faktisk står — paragraf-noder har aldri egen
+    /// <see cref="RettskildeNodeEntitet.Tekst"/>).</summary>
+    public required string NodeEid { get; set; }
+
+    /// <summary>Tegn-intervall for selve TERMEN (ikke hele forklaringen) i nodens <c>Tekst</c> på
+    /// sveip-tidspunktet — se klassekommentaren for hvorfor disse feltene finnes.</summary>
+    public int StartOffset { get; set; }
+    public int EndOffset { get; set; }
+
+    /// <summary>Normalisert grunnform, lowercase (spesifikasjonens <c>begrep</c>) — dedup-/gruppering-
+    /// nøkkelen en fremtidig <c>sveip_begrepskollisjoner</c>-visning vil gruppere på.</summary>
+    public required string Begrep { get; set; }
+
+    /// <summary>Ordlyden slik den faktisk står i teksten (kan avvike i store/små bokstaver fra
+    /// <see cref="Begrep"/>) — det <see cref="TekstTaggEntitet.QuoteExact"/> valideres mot ved godkjenning.</summary>
+    public required string BegrepOriginal { get; set; }
+
+    /// <summary>Rå definisjonstekst. Alltid satt for M1/M11 (begge er eksplisitte
+    /// definisjonsmønstre) — <c>null</c> er reservert for fremtidige mønstre som <c>krever_oppslag</c>/
+    /// rene bruksdefinisjoner (utenfor scope denne runden, docs/24 §4).</summary>
+    public string? Definisjon { get; set; }
+
+    /// <summary>
+    /// 'eksplisitt_liste' (M1) | 'egen_paragraf' (M11) | 'inline_menes' | 'skal_forstas_som' | 'copula' |
+    /// 'heretter_kalt' | 'ekstern_referanse' | 'eos_referanse' | 'vedleggstabell' | 'distribuert'.
+    /// Kun de to FØRSTE produseres av koden denne runden (docs/24 byggerekkefølge steg 3/§3) — resten av
+    /// verdisettet står i CHECK-constrainten for fremtidig mønsterkatalog-utvidelse (M2/M3/M9/M5/M6/M14/
+    /// M4/M13/M17/M8, docs/24 §4 pkt. 5/6), ikke fordi koden i dag kan produsere dem.
+    /// </summary>
+    public required string Kildetype { get; set; }
+
+    /// <summary>"M1"–"M17" — hvilket mønster som traff (sporbarhet/tuning). Kun "M1"/"M11" produseres
+    /// denne runden.</summary>
+    public required string MonsterId { get; set; }
+
+    /// <summary>'hoy' | 'middels' | 'lav' | 'krever_oppslag'.</summary>
+    public required string Konfidens { get; set; }
+
+    /// <summary>'hele_dokumentet' | 'kapittel' | 'paragraf' — hvor bredt definisjonen gjelder.
+    /// M1/M11 produserer i praksis alltid <c>'hele_dokumentet'</c> (begge mønstrene er, per sin egen
+    /// tekst — "I forskriften/loven her/denne loven menes med" — eksplisitte heldokument-definisjoner;
+    /// en finere paragraf-/kapittel-scopet gjenkjenning er utenfor denne rundens mønsterkatalog).</summary>
+    public required string Scope { get; set; }
+
+    /// <summary>eId til kapittel/paragraf hvis <see cref="Scope"/> er begrenset. Alltid <c>null</c> for
+    /// M1/M11 denne runden, se <see cref="Scope"/>.</summary>
+    public string? ScopeRefEid { get; set; }
+
+    /// <summary>Kun ved <c>Kildetype</c> <c>'ekstern_referanse'</c>/<c>'eos_referanse'</c> — ikke brukt
+    /// av M1/M11.</summary>
+    public string? HenvisningsMaal { get; set; }
+
+    public string Status { get; set; } = "Venter"; // 'Venter' | 'Godkjent' | 'Avvist'
+
+    /// <summary>Satt når godkjent OG koblet til en (ny eller eksisterende) register-rad — se
+    /// <see cref="BegrepsforekomstTjeneste.GodkjennAsync"/>.</summary>
+    public Guid? BegrepId { get; set; }
+
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? BehandletAv { get; set; }
+    public DateTimeOffset? BehandletTidspunkt { get; set; }
+}
+
+/// <summary>
+/// [Ny, begrepsoppdagelse-runden, docs/24 §2.2] Typet, rettet kant mellom to begreps-FOREKOMSTER
+/// (avhengighet/utelukkelse/unntak, docs/24 §1.5/§6) — samme entitetsFORM som
+/// <see cref="TjenesteavhengighetEntitet"/> (typet <c>Rel</c>/<c>Relasjonstype</c> mellom to rader av
+/// samme slag), men en EGEN tabell (annen domeneentitet: begreper, ikke tjenester).
+/// <para>
+/// <b>Peker på FOREKOMST, ikke på <see cref="BegrepEntitet"/></b> (docs/24 §1.5s eksplisitte
+/// designvalg): mange <c>fra_term</c>/<c>til_term</c>-par oppdaget under sveip vil aldri ha noen
+/// <see cref="BegrepEntitet"/>-rad ennå (uapprovert forekomst, eller et begrep definert i en lov
+/// utenfor korpuset) — <see cref="TilForekomstId"/> er derfor nullable, med <see cref="TilTermFritekst"/>
+/// som fritekst-fallback når målbegrepet ikke er funnet av sveipet i det hele tatt. Nøyaktig én av de
+/// to skal være satt (samme "nøyaktig én av to referansefelt" -mønster som
+/// <see cref="TjenesteavhengighetEntitet.TilTjenesteId"/>/<see cref="TjenesteavhengighetEntitet.TilEksternReferanseId"/>).
+/// </para>
+/// <para>
+/// <b>Bygges KUN som skjema denne runden</b> (docs/24 byggerekkefølge §3 punkt 2) — M1/M11-
+/// ekstraksjonen produserer ikke relasjoner (det krever M9/M15-gjenkjenning, eksplisitt utenfor scope,
+/// docs/24 §1.5/§4), så denne tabellen står tom inntil et senere byggetrinn faktisk fyller den.
+/// </para>
+/// </summary>
+public sealed class BegrepsrelasjonEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid FraForekomstId { get; set; }
+
+    /// <summary>Nullable — nøyaktig én av denne og <see cref="TilTermFritekst"/> er satt, se klassekommentaren.</summary>
+    public Guid? TilForekomstId { get; set; }
+
+    /// <summary>Fallback når målbegrepet ikke er funnet av sveipet i det hele tatt, se klassekommentaren.</summary>
+    public string? TilTermFritekst { get; set; }
+
+    /// <summary>'avhenger_av' | 'utelukker' | 'unntak_fra'.</summary>
+    public required string Relasjonstype { get; set; }
+
+    /// <summary>Kildehenvisning (eId) relasjonen fremgår av.</summary>
+    public required string TilReferanseEid { get; set; }
+
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+}
+
+/// <summary>
 /// [Ny, virksomhetskatalog-runden, docs/20 §2.6] Arbeidskø for godkjenning av virksomhetsforekomster
 /// funnet ved tekstsøk. Bevisst UTEN full <c>Entitetsstatus</c>/<c>Versjon</c>-versjonering som resten
 /// av rettskildeinnholdet (docs/20 §2.6) — dette er en arbeidskø, ikke autoritativt rettskildeinnhold.
