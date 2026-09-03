@@ -79,7 +79,7 @@ export function GlobaltSok() {
   const alleTreff = useMemo<SokTreff[]>(() => {
     const items: SokTreff[] = [];
     for (const r of rettskilder ?? []) {
-      items.push({ type: 'rettskilde', id: r.id, label: r.kortnavn ?? r.tittel, meta: r.kildetype, href: `/rettskilder/${r.id}` });
+      items.push({ type: 'rettskilde', id: r.id, label: r.tittel, meta: r.kildetype, href: `/rettskilder/${r.id}` });
     }
     for (const t of tjenester ?? []) {
       items.push({ type: 'tjeneste', id: t.id, label: t.tittel, meta: t.status, href: `/tjenester/${t.id}` });

@@ -263,7 +263,7 @@ export function KommentarRedigering({
           value={tekstHtml}
           onChange={(html) => setTekstHtml(html)}
           referanser={[
-            ...alleRettskilder.map((r) => ({ kind: 'rettskilde', id: r.id, label: r.kortnavn ?? r.tittel })),
+            ...alleRettskilder.map((r) => ({ kind: 'rettskilde', id: r.id, label: r.tittel })),
             ...alleVilkar.map((v) => ({ kind: 'vilkar', id: v.id, label: v.label })),
             ...alleTjenester.map((t) => ({ kind: 'tjeneste', id: t.id, label: t.label })),
           ]}

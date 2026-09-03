@@ -140,7 +140,7 @@ export default function Begrepskandidater() {
 
   const rettskilderPerId = useMemo(() => new Map(rettskilder.map((r) => [r.id, r] as const)), [rettskilder]);
   function visRettskilde(rettskildeId: string): string {
-    return rettskilderPerId.get(rettskildeId)?.kortnavn ?? rettskilderPerId.get(rettskildeId)?.tittel ?? rettskildeId;
+    return rettskilderPerId.get(rettskildeId)?.tittel ?? rettskildeId;
   }
 
   async function kjorSveip() {

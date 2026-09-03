@@ -175,7 +175,7 @@ export default function BegrepDetalj() {
                 }
                 return (
                   <>
-                    <Link asChild><RouterLink to={href}>{rettskilde.kortnavn ?? rettskilde.tittel}</RouterLink></Link>
+                    <Link asChild><RouterLink to={href}>{rettskilde.tittel}</RouterLink></Link>
                     <span style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
                       ({begrep.lovreferanseEid})
                     </span>
@@ -238,7 +238,7 @@ export default function BegrepDetalj() {
           // strukturelle koblinger, ikke bare tekstlig sammenfall.
           const definerendeRettskilde = begrep.lovreferanseEid ? finnRettskildeForEid(begrep.lovreferanseEid, rettskilder) : undefined;
           const rettskildeNavn =
-            taggedeForekomster[0]?.rettskildeTittel ?? definerendeRettskilde?.kortnavn ?? definerendeRettskilde?.tittel;
+            taggedeForekomster[0]?.rettskildeTittel ?? definerendeRettskilde?.tittel;
           return (
             <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
               {rettskildeNavn ? `Forekomster i ${rettskildeNavn}` : 'Forekomster (taggkoblet)'}

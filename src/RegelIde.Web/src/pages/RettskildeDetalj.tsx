@@ -453,7 +453,7 @@ export default function RettskildeDetalj() {
       const nyttVilkar = await api.opprettVilkar({
         tittel: nyVilkarTittel.trim(), beskrivelse: null, generiskMal: null, vilkarstype: 'formell',
         gjelderRolle: null,
-        juridiskGrunnlag: detalj ? [{ kilde: detalj.kortnavn ?? detalj.tittel, eId: tagg.nodeEid }] : null,
+        juridiskGrunnlag: detalj ? [{ kilde: detalj.tittel, eId: tagg.nodeEid }] : null,
         begrepId: null, vurderingstype: 'regelbasert', parametreJson: null, skjonnsgrunnlagBegrepId: null,
         skjonnsmomenter: null, kreverDokumentasjon: false, eskaleringsrolle: null, veiledningTilBruker: null,
         veiledningTilSaksbehandler: null, erFormel: false, formelBeskrivelse: null,
@@ -671,7 +671,7 @@ export default function RettskildeDetalj() {
       items: hjemler.map((h) => {
         const lov = finnRettskildeForEid(h.hjemmelEid, alleRettskilder);
         const paragraf = h.hjemmelEid.slice(h.hjemmelEid.lastIndexOf('/') + 1);
-        const tekst = lov ? `${lov.kortnavn ?? lov.tittel} ${paragraf}` : h.hjemmelEid;
+        const tekst = lov ? `${lov.tittel} ${paragraf}` : h.hjemmelEid;
         const lenke = rettskildeLenke(h.hjemmelEid, alleRettskilder);
         return { key: h.id, label: tekst, onClick: () => { if (lenke) navigate(lenke); } };
       }),
@@ -914,7 +914,7 @@ export default function RettskildeDetalj() {
                                     <li key={e.id}>
                                       {mal ? (
                                         <Link asChild>
-                                          <RouterLink to={`/rettskilder/${mal.id}`}>{mal.kortnavn ?? mal.tittel}</RouterLink>
+                                          <RouterLink to={`/rettskilder/${mal.id}`}>{mal.tittel}</RouterLink>
                                         </Link>
                                       ) : (
                                         e.endringEid
@@ -1286,7 +1286,7 @@ export default function RettskildeDetalj() {
                     <Table.Row key={o.id}>
                       <Table.Cell>
                         <Link asChild>
-                          <RouterLink to={`/rettskilder/${o.tilRettskildeId}`}>{rk?.kortnavn ?? rk?.tittel ?? o.tilRettskildeId}</RouterLink>
+                          <RouterLink to={`/rettskilder/${o.tilRettskildeId}`}>{rk?.tittel ?? o.tilRettskildeId}</RouterLink>
                         </Link>
                       </Table.Cell>
                       <Table.Cell>{rk?.kildetype ?? '—'}</Table.Cell>

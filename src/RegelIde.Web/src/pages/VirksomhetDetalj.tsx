@@ -374,7 +374,7 @@ export default function VirksomhetDetalj() {
                   <Table.Row key={r.id}>
                     <Table.Cell>
                       <Link asChild>
-                        <RouterLink to={`/rettskilder/${r.id}`}>{r.kortnavn ?? r.tittel}</RouterLink>
+                        <RouterLink to={`/rettskilder/${r.id}`}>{r.tittel}</RouterLink>
                       </Link>
                     </Table.Cell>
                     <Table.Cell>{r.kildetype}</Table.Cell>
@@ -425,7 +425,7 @@ export default function VirksomhetDetalj() {
                           "Rettskilde"-kolonne) — derfor kilde OG paragraf her, ikke bare paragrafen. */}
                       {(() => {
                         const rettskilde = rettskilder.find((r) => r.id === k.rettskildeId);
-                        const kildeNavn = rettskilde ? (rettskilde.kortnavn ?? rettskilde.tittel) : k.rettskildeId;
+                        const kildeNavn = rettskilde ? rettskilde.tittel : k.rettskildeId;
                         return `${kildeNavn} — ${visNodeKort(k.rettskildeId, k.nodeEid)}`;
                       })()}
                     </Table.Cell>

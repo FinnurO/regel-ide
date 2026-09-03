@@ -43,7 +43,7 @@ function FeltReferanser({ feltKey }: { feltKey: string }) {
     const node = ctx!.noderPerRettskilde.get(r.tilRettskildeId)?.find((n) => n.eid === r.tilEid);
     ctx!.onSelectDetail({
       title: node?.overskrift ?? node?.nummer ?? r.tilEid,
-      meta: rettskilde ? (rettskilde.kortnavn ?? rettskilde.tittel) : 'Regelverksreferanse',
+      meta: rettskilde ? rettskilde.tittel : 'Regelverksreferanse',
       body: node?.tekst ?? null,
     });
   }
@@ -53,11 +53,16 @@ function FeltReferanser({ feltKey }: { feltKey: string }) {
       {koblede.map((r) => {
         const rettskilde = ctx.rettskilder.find((rk) => rk.id === r.tilRettskildeId);
         const node = ctx.noderPerRettskilde.get(r.tilRettskildeId)?.find((n) => n.eid === r.tilEid);
-        const merkelapp = node?.nummer ? `§ ${node.nummer}` : (rettskilde?.kortnavn ?? r.tilEid);
+        // Full tittel (issue #151) i stedet for kortnavn — kan bli lang når noden mangler et §-nummer
+        // (hele-dokument-referanse); trunkeres visuelt med ellipsis i stedet for å falle tilbake til
+        // kortnavn, full tittel er fortsatt tilgjengelig i title-attributten (hover) og i detaljpanelet.
+        const merkelapp = node?.nummer ? `§ ${node.nummer}` : (rettskilde?.tittel ?? r.tilEid);
         return (
-          <Tag key={r.id} data-size="sm" variant="outline" style={{ cursor: 'pointer' }} onClick={() => visDetalj(r)}
-            title="Vis detaljer">
-            {merkelapp}
+          <Tag key={r.id} data-size="sm" variant="outline" style={{ cursor: 'pointer', maxWidth: '16rem' }} onClick={() => visDetalj(r)}
+            title={node?.nummer ? 'Vis detaljer' : `${merkelapp} — Vis detaljer`}>
+            <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', maxWidth: '13rem' }}>
+              {merkelapp}
+            </span>
             <button type="button" onClick={(e) => { e.stopPropagation(); fjern(r.id); }}
               aria-label="Fjern referanse"
               style={{ marginLeft: '0.3rem', background: 'none', border: 'none', padding: 0, cursor: 'pointer', font: 'inherit' }}>
