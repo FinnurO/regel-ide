@@ -112,4 +112,25 @@ public class AknXmlSkjemaValideringTests
         var feil = Valider(resultat.AknXml);
         Assert.True(feil.Count == 0, $"{feil.Count} skjemafeil:\n{string.Join("\n", feil)}");
     }
+
+    /// <summary>
+    /// [Ny, fler-verdi-departement, 2026-09-04] AknXmlSkriver skriver nå ETT <c>&lt;regelIde:ansvarligDepartement&gt;</c>-
+    /// element PER departement (se klassens kommentar i AknXmlSkriver.cs) — verifiserer her, mot den
+    /// EKTE offisielle skjemaen (ikke bare en antagelse), at flere gjentatte elementer av samme navn
+    /// inni &lt;proprietary&gt; faktisk er skjemalovlig («ingen gjettet fallback» — samme prinsipp som
+    /// resten av denne testklassen).
+    /// </summary>
+    [Fact]
+    public void AknXml_med_flere_ansvarligDepartement_elementer_validerer_mot_skjemaet()
+    {
+        var html = Testdata.LesAlkoholloven().Replace(
+            "<dd class=\"ministry\"><ul><li>Helse- og omsorgsdepartementet</li></ul></dd>",
+            "<dd class=\"ministry\"><ul><li>Helse- og omsorgsdepartementet</li><li>Nærings- og fiskeridepartementet</li></ul></dd>");
+        var resultat = LovdataKonverterer.Konverter(html, new DateOnly(2026, 9, 4));
+
+        Assert.Equal(2, resultat.AknXml.Split("<regelIde:ansvarligDepartement>").Length - 1);
+
+        var feil = Valider(resultat.AknXml);
+        Assert.True(feil.Count == 0, $"{feil.Count} skjemafeil:\n{string.Join("\n", feil)}");
+    }
 }

@@ -109,7 +109,16 @@ public static class AknXmlSkriver
         sb.Append($"<regelIde:eli>{Escape(m.Eli)}</regelIde:eli>");
         sb.Append($"<regelIde:kildetype>{Escape(m.Kildetype.ToString())}</regelIde:kildetype>");
         sb.Append($"<regelIde:status>{Escape(m.Status)}</regelIde:status>");
-        sb.Append($"<regelIde:ansvarligDepartement>{Escape(m.AnsvarligDepartement)}</regelIde:ansvarligDepartement>");
+        // [ENDRET, fler-verdi-departement, 2026-09-04] Ett <regelIde:ansvarligDepartement>-element PER
+        // departement — Lovdata kan oppgi flere ved delt ansvar (RettskildeMetadata.AnsvarligDepartement
+        // er nå en liste, ikke en kommaseparert streng). Skjemaet setter ingen maks-forekomst-grense på
+        // regelIde:-elementer (anyAttribute/##other-mekanismen gjelder attributter, ikke selve
+        // proprietary-barnelisten, som allerede tillater vilkårlig mange elementer). Se
+        // AnsvarligDepartementBackfillTjeneste for tilsvarende lese-siden.
+        foreach (var departement in m.AnsvarligDepartement)
+        {
+            sb.Append($"<regelIde:ansvarligDepartement>{Escape(departement)}</regelIde:ansvarligDepartement>");
+        }
         sb.Append("</proprietary>");
 
         sb.Append("</meta>");

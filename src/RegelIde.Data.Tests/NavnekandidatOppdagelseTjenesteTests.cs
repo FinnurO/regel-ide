@@ -410,7 +410,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     // ---------- Del B: sveip/godkjenning/avvisning mot ekte embedded Postgres ----------
 
     private static async Task<Guid> OpprettRettskildeMedNodeAsync(
-        RegelIdeDbContext db, string tekst, string? eid = null, string? ansvarligDepartement = null)
+        RegelIdeDbContext db, string tekst, string? eid = null, List<string>? ansvarligDepartement = null)
     {
         var rettskildeId = Guid.NewGuid();
         var nodeEid = eid ?? $"https://test/{Guid.NewGuid():N}/§1/ledd-1";
@@ -1061,7 +1061,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await db.SaveChangesAsync();
 
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
-            db, "Kommunen skal føre tilsyn med dette.", ansvarligDepartement: departementNavn);
+            db, "Kommunen skal føre tilsyn med dette.", ansvarligDepartement: [departementNavn]);
 
         var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(rettskildeId, "test");
@@ -1121,7 +1121,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
             db, "Kommunen skal føre tilsyn i denne saken.",
-            ansvarligDepartement: "Et departement som ikke finnes " + Guid.NewGuid());
+            ansvarligDepartement: ["Et departement som ikke finnes " + Guid.NewGuid()]);
 
         var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(rettskildeId, "test");
@@ -1152,7 +1152,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await db.SaveChangesAsync();
 
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
-            db, "Vedtak kan påklages til Losdirektoratet innen tre uker.", ansvarligDepartement: departementNavn);
+            db, "Vedtak kan påklages til Losdirektoratet innen tre uker.", ansvarligDepartement: [departementNavn]);
 
         var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
         {

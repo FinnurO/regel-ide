@@ -124,7 +124,14 @@ public sealed record RettskildeMetadata
     public string? SistEndretVed { get; init; }
 
     public string Utgiver { get; init; } = "Lovdata";
-    public required string AnsvarligDepartement { get; init; }
+
+    /// <summary>
+    /// [ENDRET, fler-verdi-departement, 2026-09-04] Lovdatas "ministry"-metadatafelt kan ha FLERE
+    /// verdier (delt departementsansvar) — se <see cref="LovdataHtmlParser.HentSammensattTekstListe"/>.
+    /// Alltid minst ett element (feltet er påkrevd i header, § HentFelt/ParseMetadata) — aldri en
+    /// kommaseparert streng lenger (den formen var kun et mellomsteg, issue #152/#127).
+    /// </summary>
+    public required IReadOnlyList<string> AnsvarligDepartement { get; init; }
 
     /// <summary>FRBRauthor-href: 'stortinget' for Lov, avledet fra departement for Forskrift (Vedlegg A.1).</summary>
     public required string FrbrAuthorHref { get; init; }

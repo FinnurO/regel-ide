@@ -185,18 +185,30 @@ public sealed class RettskildeEntitet
     /// Lov/Forskrift (håndbøker, rundskriv, virksomhetsdokumenter, referanse-stubber) — fravær av data,
     /// ikke en feil.
     /// <para>
-    /// [Utvidet, departement-virksomhet-lenke, 2026-08-30] Kobles til en ekte <see cref="Virksomhet"/>
-    /// KUN ved lesing, via et eksakt (case-insensitivt) navnematch mot <see cref="Virksomhet.Navn"/>
-    /// (se <c>RettskildeRepository.FinnVirksomhetIdForNavnAsync</c>/<c>RettskilderAnsvarligForAsync</c>)
+    /// [ENDRET, fler-verdi-departement, 2026-09-04] Ekte Postgres <c>text[]</c> (native array-kolonne,
+    /// samme mønster som <see cref="TjenesteEntitet.Malgruppe"/>/<see cref="TjenesteEntitet.Kanaler"/>),
+    /// IKKE lenger en kommaseparert streng — Lovdata har ekte rettskilder med FLERE ansvarlige
+    /// departementer (delt ansvar), og en lov/forskrift med 2+ departementer skal havne under BEGGE/
+    /// ALLE i departement→lov→forskrift-hierarkiet (issue #193, <c>RettskilderHierarki.tsx</c>), samt
+    /// matches presist på ETT enkelt departement ved filtrering — ikke en delstreng-sammenligning mot
+    /// en sammenlimt streng. <c>NULL</c> beholder samme betydning som før (ikke Lovdata-importert
+    /// Lov/Forskrift); en ikke-NULL liste har alltid minst ett element for et faktisk importert
+    /// Lov/Forskrift-dokument (se <see cref="RegelIde.Kildekonvertering.LovdataHtmlParser.ParseMetadata"/>).
+    /// </para>
+    /// <para>
+    /// [Utvidet, departement-virksomhet-lenke, 2026-08-30] Hvert element kobles til en ekte
+    /// <see cref="Virksomhet"/> KUN ved lesing, via et eksakt (case-insensitivt) navnematch mot
+    /// <see cref="Virksomhet.Navn"/> (se <c>VirksomhetOppslagTjeneste.FinnVirksomhetIdForNavnAsync</c>/
+    /// <c>RettskildeRepository.RettskilderAnsvarligForAsync</c>)
     /// — BEVISST ikke via Begrep/navnekandidat-mekanismen (den er for tekst-OPPDAGELSE av navn i
     /// løpende lovtekst; her har vi allerede en strukturert, eksakt streng direkte fra Lovdatas
     /// metadata, ingen oppdagelse trengs) og BEVISST ikke en lagret FK-kolonne her på selve feltet
     /// (en ren navne-join ved lesing kan aldri bli utdatert av at katalogen endres — se
-    /// DepartementSeed.cs for hvilke Virksomhet-rader som faktisk finnes for departementene). Denne
-    /// strengen vises som ren tekst i UI når navnematchen ikke gir noe treff.
+    /// DepartementSeed.cs for hvilke Virksomhet-rader som faktisk finnes for departementene). Et element
+    /// vises som ren tekst i UI når navnematchen ikke gir noe treff.
     /// </para>
     /// </summary>
-    public string? AnsvarligDepartement { get; set; }
+    public List<string>? AnsvarligDepartement { get; set; }
 
     // ---------- [Ny, 2026-09-03, issue #127] De resterende 10 av 15 bekreftede Lovdata header-
     // metadatafelt — se RegelIde.Kildekonvertering.RettskildeMetadata sine likelydende felt for hva

@@ -199,7 +199,15 @@ public static partial class LovdataHtmlParser
         var eli = LovdataIdentifikatorer.AvledEliFraDatokode(datokode, out var kildetype);
         var tittel = HtmlEntity.DeEntitize(HentFelt("title"));
         var kortnavn = HentValgfritt("titleShort");
-        var departement = HentFelt("ministry");
+
+        // [ENDRET, fler-verdi-departement, 2026-09-04] "ministry" hentes nå som en EKTE liste (§
+        // HentSammensattTekstListe), ikke lenger den kommaseparerte streng-mellomformen issue #152
+        // innførte — se RettskildeMetadata.AnsvarligDepartement/RettskildeEntitet.AnsvarligDepartement
+        // for hvorfor. Fortsatt «ingen gjettet fallback»: feltet er påkrevd, mangler <dd class="ministry">
+        // helt kastes det, akkurat som HentFelt gjorde før.
+        var departementListe = header.SelectSingleNode(".//dd[@class='ministry']") is { } ministryDd
+            ? HentSammensattTekstListe(ministryDd)
+            : throw new FormatException("Påkrevd metadatafelt 'ministry' mangler i header. Ingen gjettet fallback (§3.3).");
 
         // Rå (utrunkert) verdi bevart ved siden av den trunkerte DateOnly? (§ IkrafttredelseRaa/
         // KonsolidertDatoRaa i Modeller.cs) — FørsteDato beholder kun FØRSTE dato-treff, som stille
@@ -228,9 +236,15 @@ public static partial class LovdataHtmlParser
         var annetOmDokumentet = HentValgfritt("miscInformation");
         var sisteRettelse = HentValgfritt("lastupdated");
 
+        // FRBRauthor er ETT enkelt element (skjemaet tillater ikke flere per FRBR-nivå her, se
+        // AknXmlSkriver.SkrivMeta) — bruker FØRSTE departement i kildens egen rekkefølge som "primær"
+        // forfatter-organisasjon for Forskrift. Regresjonsfritt for det store flertallet (ett
+        // departement): identisk med før. Alle departementer skrives uansett hver for seg som egne
+        // <regelIde:ansvarligDepartement>-elementer i selve AKN-XML-en (AknXmlSkriver), uavhengig av
+        // hvilket som ble valgt her.
         var (frbrAuthorHref, frbrAuthorShowAs) = kildetype == Kildetype.Lov
             ? ("stortinget", "Stortinget")
-            : (Slugifiser(departement), departement);
+            : (Slugifiser(departementListe[0]), departementListe[0]);
 
         return new RettskildeMetadata
         {
@@ -244,7 +258,7 @@ public static partial class LovdataHtmlParser
             KonsolidertDato = konsolidertDato,
             KonsolidertDatoRaa = konsolidertDatoRaa,
             SistEndretVed = sistEndretVed,
-            AnsvarligDepartement = departement,
+            AnsvarligDepartement = departementListe,
             FrbrAuthorHref = frbrAuthorHref,
             FrbrAuthorShowAs = frbrAuthorShowAs,
             Kunngjort = kunngjort,
@@ -320,6 +334,35 @@ public static partial class LovdataHtmlParser
         }
         FlushGjeldende();
         return string.Join("\n", deler);
+    }
+
+    /// <summary>
+    /// [Ny, fler-verdi-departement, 2026-09-04] Variant av <see cref="HentSammensattTekst"/> som
+    /// returnerer de INDIVIDUELLE verdiene som en ekte liste, i stedet for én ", "-sammensatt streng —
+    /// brukt for "ministry" (<see cref="RettskildeMetadata.AnsvarligDepartement"/>), som Lovdata kan
+    /// oppgi med FLERE departementer (delt ansvar). Gjenbruker nøyaktig samme &lt;ul&gt;/&lt;li&gt;-struktur-
+    /// gjenkjenning som <see cref="HentSammensattTekst"/> sin (1)-gren (§ den metodens doc-kommentar) —
+    /// "ministry" er ALLTID en liste i kildedataen (bekreftet ekte, selv med kun ett element).
+    /// <para>
+    /// Fallback uten &lt;ul&gt; (ikke bekreftet ekte for "ministry" i noen fixture, men "ingen gjettet
+    /// fallback" tilsier at et fremtidig, avvikende dokument fortsatt skal gi noe fornuftig i stedet for
+    /// å kaste): hele feltets sammensatte tekst behandles da som ÉN enkelt verdi, samme resultat som
+    /// før denne fler-verdi-runden ga for et slikt dokument.
+    /// </para>
+    /// </summary>
+    private static IReadOnlyList<string> HentSammensattTekstListe(HtmlNode dd)
+    {
+        var ul = dd.SelectSingleNode("./ul");
+        if (ul is not null)
+        {
+            return (ul.SelectNodes("./li") ?? Enumerable.Empty<HtmlNode>())
+                .Select(li => HtmlEntity.DeEntitize(li.InnerText).Trim())
+                .Where(v => v.Length > 0)
+                .ToList();
+        }
+
+        var enkelt = HentSammensattTekst(dd);
+        return string.IsNullOrEmpty(enkelt) ? [] : [enkelt];
     }
 
     /// <summary>

@@ -1,19 +1,22 @@
 namespace RegelIde.Kildekonvertering.Tests;
 
 /// <summary>
-/// Issue #152 — <c>HentFelt("ministry")</c> brukte tidligere rått <c>.InnerText.Trim()</c> på
-/// <c>&lt;dd class="ministry"&gt;&lt;ul&gt;&lt;li&gt;…&lt;/li&gt;&lt;li&gt;…&lt;/li&gt;&lt;/ul&gt;&lt;/dd&gt;</c>
+/// Issue #152 (opprinnelig) — <c>HentFelt("ministry")</c> brukte tidligere rått <c>.InnerText.Trim()</c>
+/// på <c>&lt;dd class="ministry"&gt;&lt;ul&gt;&lt;li&gt;…&lt;/li&gt;&lt;li&gt;…&lt;/li&gt;&lt;/ul&gt;&lt;/dd&gt;</c>
 /// — for et dokument med FLERE ansvarlige departementer limte dette sammen navnene UTEN skilletegn
 /// ("Landbruks- og matdepartementetNærings- og fiskeridepartementet", bekreftet ekte for 103 av 5899
 /// rettskilder, live-hentet HTML for cbe34f67-a029-4bb3-861e-c825e596a585 "Forskrift om
-/// næringsmessig transport av dyr"). Testes her ved å utvide alkoholloven-fixturens ENKELT-
-/// departement-&lt;dd&gt; til to &lt;li&gt;-elementer, samme "targeted fixture-injeksjon"-mønster som
-/// EdgeCaseTests.cs/RaaMetadataKonverteringTests.cs allerede bruker for andre header-felt.
+/// næringsmessig transport av dyr"). [ENDRET, fler-verdi-departement, 2026-09-04] Den opprinnelige
+/// fiksen produserte en ", "-sammensatt STRENG som mellomsteg — <see cref="RettskildeMetadata.AnsvarligDepartement"/>
+/// er nå en EKTE liste (§ HentSammensattTekstListe), så disse testene verifiserer nå listeformen, ikke
+/// lenger kommaseparering. Testes ved å utvide alkoholloven-fixturens ENKELT-departement-&lt;dd&gt; til
+/// to &lt;li&gt;-elementer, samme "targeted fixture-injeksjon"-mønster som EdgeCaseTests.cs/
+/// RaaMetadataKonverteringTests.cs allerede bruker for andre header-felt.
 /// </summary>
 public class FlereVerdierIHeaderfeltKonverteringTests
 {
     [Fact]
-    public void Ministry_med_flere_departementer_skilles_med_kommategn_ikke_sammenlimt()
+    public void Ministry_med_flere_departementer_gir_egen_liste_ikke_sammenlimt()
     {
         var html = Testdata.LesAlkoholloven().Replace(
             "<dd class=\"ministry\"><ul><li>Helse- og omsorgsdepartementet</li></ul></dd>",
@@ -22,19 +25,19 @@ public class FlereVerdierIHeaderfeltKonverteringTests
         var resultat = LovdataKonverterer.Konverter(html, new DateOnly(2026, 9, 2));
 
         Assert.Equal(
-            "Helse- og omsorgsdepartementet, Nærings- og fiskeridepartementet",
+            ["Helse- og omsorgsdepartementet", "Nærings- og fiskeridepartementet"],
             resultat.Metadata.AnsvarligDepartement);
     }
 
     [Fact]
-    public void Ministry_med_ett_departement_er_uendret_bit_for_bit()
+    public void Ministry_med_ett_departement_gir_ettelements_liste()
     {
         // Regresjonsvern: den langt vanligste, IKKE-berørte formen (ett <li> i lista, som ALLE 8
-        // fixturene i data/kilder/raw-lovdata/ faktisk har) skal fortsatt gi nøyaktig samme streng som
-        // før denne fiksen — ingen ekstra mellomrom/tegn lagt til for en enkelt verdi.
+        // fixturene i data/kilder/raw-lovdata/ faktisk har) skal fortsatt gi nøyaktig samme ETT-elements
+        // liste som før denne fler-verdi-runden.
         var resultat = LovdataKonverterer.Konverter(Testdata.LesAlkoholloven(), new DateOnly(2026, 9, 2));
 
-        Assert.Equal("Helse- og omsorgsdepartementet", resultat.Metadata.AnsvarligDepartement);
+        Assert.Equal(["Helse- og omsorgsdepartementet"], resultat.Metadata.AnsvarligDepartement);
     }
 
     [Fact]

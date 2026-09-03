@@ -16,7 +16,7 @@ public class AnsvarligDepartementBackfillTjenesteTests
         _fixture = fixture;
     }
 
-    private static RettskildeEntitet NyRettskilde(string tittel, string? aknXml, string? ansvarligDepartement = null) => new()
+    private static RettskildeEntitet NyRettskilde(string tittel, string? aknXml, List<string>? ansvarligDepartement = null) => new()
     {
         Id = Guid.NewGuid(),
         Doctype = "act",
@@ -42,6 +42,16 @@ public class AnsvarligDepartementBackfillTjenesteTests
         "<regelIde:eli>https://lovdata.no/eli/lov/2026/01/01/2/nor</regelIde:eli>" +
         "</proprietary></meta></act></akomaNtoso>"; // gammel XML skrevet FØR AknXmlSkriver fikk elementet.
 
+    /// <summary>[Ny, fler-verdi-departement, 2026-09-04] TO <c>&lt;regelIde:ansvarligDepartement&gt;</c>-
+    /// elementer (delt ansvar) — se AknXmlSkriver.SkrivMeta, som nå skriver ett element per departement.</summary>
+    private const string AknXmlMedToDepartementer =
+        "<akomaNtoso xmlns=\"http://docs.oasis-open.org/legaldocml/ns/akn/3.0\" xmlns:regelIde=\"https://regel-ide.no/ns/akn-utvidelse/1.0\">" +
+        "<act name=\"lov\"><meta><proprietary source=\"#regel-ide\">" +
+        "<regelIde:eli>https://lovdata.no/eli/lov/2026/01/01/3/nor</regelIde:eli>" +
+        "<regelIde:ansvarligDepartement>Klima- og miljødepartementet</regelIde:ansvarligDepartement>" +
+        "<regelIde:ansvarligDepartement>Landbruks- og matdepartementet</regelIde:ansvarligDepartement>" +
+        "</proprietary></meta></act></akomaNtoso>";
+
     [Fact]
     public async Task Tilbakefyller_fra_ansvarligDepartement_element_i_lagret_AknXml()
     {
@@ -54,7 +64,24 @@ public class AnsvarligDepartementBackfillTjenesteTests
 
         Assert.Equal(1, antall);
         var lagret = await db.Rettskilder.SingleAsync(r => r.Id == rettskilde.Id);
-        Assert.Equal("Klima- og miljødepartementet", lagret.AnsvarligDepartement);
+        Assert.Equal(["Klima- og miljødepartementet"], lagret.AnsvarligDepartement);
+    }
+
+    /// <summary>[Ny, fler-verdi-departement, 2026-09-04] Flere <c>&lt;regelIde:ansvarligDepartement&gt;</c>-
+    /// elementer i samme AKN-XML samles i ÉN liste (kildens egen rekkefølge), ikke bare den første.</summary>
+    [Fact]
+    public async Task Tilbakefyller_alle_departementer_nar_AknXml_har_flere_elementer()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskilde = NyRettskilde("En lov med to departementer i AKN-XML", AknXmlMedToDepartementer);
+        db.Rettskilder.Add(rettskilde);
+        await db.SaveChangesAsync();
+
+        var antall = await AnsvarligDepartementBackfillTjeneste.KjorAsync(db);
+
+        Assert.Equal(1, antall);
+        var lagret = await db.Rettskilder.SingleAsync(r => r.Id == rettskilde.Id);
+        Assert.Equal(["Klima- og miljødepartementet", "Landbruks- og matdepartementet"], lagret.AnsvarligDepartement);
     }
 
     [Fact]
@@ -96,7 +123,7 @@ public class AnsvarligDepartementBackfillTjenesteTests
         // engang blir sett på (WHERE AnsvarligDepartement IS NULL), ikke bare at verdien tilfeldigvis
         // stemmer overens.
         var alleredeSatt = NyRettskilde(
-            "Allerede tilbakefylt/importert rad", AknXmlMedDepartement, ansvarligDepartement: "Et helt annet departement");
+            "Allerede tilbakefylt/importert rad", AknXmlMedDepartement, ansvarligDepartement: ["Et helt annet departement"]);
         db.Rettskilder.Add(alleredeSatt);
         await db.SaveChangesAsync();
 
@@ -104,7 +131,7 @@ public class AnsvarligDepartementBackfillTjenesteTests
 
         Assert.Equal(0, antall);
         var lagret = await db.Rettskilder.SingleAsync(r => r.Id == alleredeSatt.Id);
-        Assert.Equal("Et helt annet departement", lagret.AnsvarligDepartement);
+        Assert.Equal(["Et helt annet departement"], lagret.AnsvarligDepartement);
     }
 
     [Fact]
@@ -121,6 +148,6 @@ public class AnsvarligDepartementBackfillTjenesteTests
         Assert.Equal(1, forsteKjoring);
         Assert.Equal(0, andreKjoring); // raden er allerede fylt ut, matcher ikke lenger WHERE-filteret.
         var lagret = await db.Rettskilder.SingleAsync(r => r.Id == rettskilde.Id);
-        Assert.Equal("Klima- og miljødepartementet", lagret.AnsvarligDepartement);
+        Assert.Equal(["Klima- og miljødepartementet"], lagret.AnsvarligDepartement);
     }
 }

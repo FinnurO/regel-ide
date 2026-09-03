@@ -40,17 +40,27 @@ public sealed class RettskildeRepository(RegelIdeDbContext db, VirksomhetOppslag
     /// <summary>
     /// [Ny, issue #193] Distinkte <see cref="RettskildeEntitet.AnsvarligDepartement"/>-verdier fra
     /// samme korpus som <see cref="AlleRettskilderAsync"/> sin standardvisning (ekskl. irrelevant-
-    /// markerte, kladder og referanse-stubber) — grunnlaget for departement-filterets nedtrekksliste i
-    /// RettskilderListe.tsx. Bevisst AVLEDET FRA FAKTISKE DATA, ikke en hardkodet kodeliste (samme
-    /// "ingen ny kodeliste"-holdning appen bruker andre steder for ufaste felt, jf. issuen). Sortert
-    /// alfabetisk (nb-uavhengig <c>string.Compare</c> holder her — departementnavnene er alle norske
-    /// ASCII+æøå-strenger uten spesialtegn som ville trengt ekte kultur-sensitiv sortering server-side).
+    /// markerte, kladder og referanse-stubber). Ikke lenger brukt av noen nedtrekksliste i
+    /// RettskilderListe.tsx (fjernet, Johanns eksplisitte designvalg — hierarki-fanen ER
+    /// navigasjonsmekanismen på departement-nivå), men beholdt som et generelt API-endepunkt
+    /// (GET /api/rettskilder/departementer) — bevisst AVLEDET FRA FAKTISKE DATA, ikke en hardkodet
+    /// kodeliste (samme "ingen ny kodeliste"-holdning appen bruker andre steder for ufaste felt).
+    /// <para>
+    /// [ENDRET, fler-verdi-departement, 2026-09-04] <c>AnsvarligDepartement</c> er nå en Postgres
+    /// <c>text[]</c>-kolonne (én rad kan ha flere departementer) — <c>SelectMany</c> over den EGNE
+    /// listen oversettes av Npgsql EF Core-provideren til <c>unnest(...)</c> (verifisert mot ekte
+    /// embedded Postgres, se RettskilderEndepunktTests.cs), slik at hvert enkelt departement telles
+    /// separat i stedet for at en flerverdi-rad ville gitt én sammensatt "streng" som aldri matchet noe.
+    /// </para>
+    /// Sortert alfabetisk (nb-uavhengig <c>string.Compare</c> holder her — departementnavnene er alle
+    /// norske ASCII+æøå-strenger uten spesialtegn som ville trengt ekte kultur-sensitiv sortering
+    /// server-side).
     /// </summary>
     public async Task<List<string>> DistinkteDepartementerAsync() =>
         (await db.Rettskilder
             .Where(r => r.Importrolle == "primaer" && r.Entitetsstatus == "gjeldende" && r.Status != UtkastStatus && !r.ErIrrelevant)
             .Where(r => r.AnsvarligDepartement != null)
-            .Select(r => r.AnsvarligDepartement!)
+            .SelectMany(r => r.AnsvarligDepartement!)
             .Distinct()
             .ToListAsync())
         .OrderBy(d => d, StringComparer.OrdinalIgnoreCase)
@@ -71,8 +81,10 @@ public sealed class RettskildeRepository(RegelIdeDbContext db, VirksomhetOppslag
 
     /// <summary>
     /// Motsatt retning av <see cref="FinnVirksomhetIdForNavnAsync"/> — alle GJELDENDE rettskilder der
-    /// <see cref="RettskildeEntitet.AnsvarligDepartement"/> eksakt (case-insensitivt) matcher DENNE
-    /// virksomhetens eget navn. Brukt av "Ansvarlig for"-seksjonen på VirksomhetDetalj.tsx. Kun
+    /// MINST ETT element i <see cref="RettskildeEntitet.AnsvarligDepartement"/> eksakt (case-insensitivt)
+    /// matcher DENNE virksomhetens eget navn (§ ENDRET, fler-verdi-departement, 2026-09-04 — var før en
+    /// enkelt streng-sammenligning, nå et <c>Any(...)</c>-predikat over listen, siden en rad kan ha flere
+    /// departementer). Brukt av "Ansvarlig for"-seksjonen på VirksomhetDetalj.tsx. Kun
     /// <c>Entitetsstatus == "gjeldende"</c> filtrert (ikke <c>Importrolle</c>/<c>Status</c> i tillegg) —
     /// referanse-stubber har uansett aldri <see cref="RettskildeEntitet.AnsvarligDepartement"/> satt
     /// (opprettes med <c>Tittel = dokumentEli</c>, ingen metadata), så de faller bort av seg selv.
@@ -86,7 +98,8 @@ public sealed class RettskildeRepository(RegelIdeDbContext db, VirksomhetOppslag
 
         var navnLower = navn.ToLower();
         return await db.Rettskilder
-            .Where(r => r.Entitetsstatus == "gjeldende" && r.AnsvarligDepartement != null && r.AnsvarligDepartement.ToLower() == navnLower)
+            .Where(r => r.Entitetsstatus == "gjeldende" && r.AnsvarligDepartement != null
+                        && r.AnsvarligDepartement!.Any(d => d.ToLower() == navnLower))
             .ToListAsync();
     }
 

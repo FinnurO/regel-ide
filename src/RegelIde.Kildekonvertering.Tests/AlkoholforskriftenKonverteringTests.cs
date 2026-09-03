@@ -18,7 +18,7 @@ public class AlkoholforskriftenKonverteringTests
         Assert.Equal(ForskriftEli, Resultat.Metadata.Eli);
         Assert.Equal("Forskrift om omsetning av alkoholholdig drikk mv. (alkoholforskriften)", Resultat.Metadata.Tittel);
         Assert.Equal("Alkoholforskriften", Resultat.Metadata.Kortnavn);
-        Assert.Equal("Helse- og omsorgsdepartementet", Resultat.Metadata.AnsvarligDepartement);
+        Assert.Equal(["Helse- og omsorgsdepartementet"], Resultat.Metadata.AnsvarligDepartement);
         // Forskrift: FRBRauthor er departementet, ikke Stortinget (Vedlegg A.1)
         Assert.Equal("helse-og-omsorgsdepartementet", Resultat.Metadata.FrbrAuthorHref);
     }

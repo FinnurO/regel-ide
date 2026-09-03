@@ -48,10 +48,10 @@ public static class AnsvarligDepartementBackfillTjeneste
         var antallOppdatert = 0;
         foreach (var rettskilde in kandidater)
         {
-            var departement = LesAnsvarligDepartementFraAknXml(rettskilde.AknXml!);
-            if (string.IsNullOrEmpty(departement)) continue; // elementet manglet eller var tomt — ingen gjettet fallback, se klassekommentaren.
+            var departementer = LesAnsvarligDepartementFraAknXml(rettskilde.AknXml!);
+            if (departementer is null) continue; // elementet(ene) manglet eller var tomme — ingen gjettet fallback, se klassekommentaren.
 
-            rettskilde.AnsvarligDepartement = departement;
+            rettskilde.AnsvarligDepartement = departementer;
             antallOppdatert++;
         }
 
@@ -60,17 +60,23 @@ public static class AnsvarligDepartementBackfillTjeneste
     }
 
     /// <summary>
-    /// Parser <c>&lt;regelIde:ansvarligDepartement&gt;</c> ut av en allerede lagret AKN-XML-blob.
-    /// Returnerer null (ikke en unntaksvelting av hele backfillen) både når elementet mangler og når
-    /// selve XML-en er korrupt/ufullstendig — begge tilfeller skal behandles som "ingen data", akkurat
-    /// som når AknXml-feltet er NULL.
+    /// Parser ALLE <c>&lt;regelIde:ansvarligDepartement&gt;</c>-elementer ut av en allerede lagret
+    /// AKN-XML-blob — [ENDRET, fler-verdi-departement, 2026-09-04] AknXmlSkriver skriver nå ett element
+    /// PER departement (samme dokument kan ha flere ved delt ansvar), så alle forekomster samles i én
+    /// liste i stedet for kun den første. Returnerer null (ikke en unntaksvelting av hele backfillen)
+    /// både når elementet mangler helt/er tomt og når selve XML-en er korrupt/ufullstendig — begge
+    /// tilfeller skal behandles som "ingen data", akkurat som når AknXml-feltet er NULL.
     /// </summary>
-    private static string? LesAnsvarligDepartementFraAknXml(string aknXml)
+    private static List<string>? LesAnsvarligDepartementFraAknXml(string aknXml)
     {
         try
         {
             var dokument = XDocument.Parse(aknXml);
-            return dokument.Descendants(RegelIdeNs + "ansvarligDepartement").FirstOrDefault()?.Value;
+            var verdier = dokument.Descendants(RegelIdeNs + "ansvarligDepartement")
+                .Select(e => e.Value)
+                .Where(v => !string.IsNullOrEmpty(v))
+                .ToList();
+            return verdier.Count > 0 ? verdier : null;
         }
         catch (XmlException)
         {

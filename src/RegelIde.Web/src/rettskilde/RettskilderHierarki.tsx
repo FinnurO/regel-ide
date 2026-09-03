@@ -40,8 +40,10 @@ const UKJENT_DEPARTEMENT = 'Ukjent departement';
  * (opptil noen hundre `<Details>`, gruppert under ~15-20 departement-overskrifter) mountes direkte —
  * langt under de dokumenterte render-timeout-terskelverdiene (451/5893 FLATE options i ÉN liste). De
  * langt tallrikere FORSKRIFTENE under hver lov mountes derimot IKKE før brukeren faktisk åpner den
- * aktuelle lovens `<Details>` (kontrollert `open`-state per lov, se `LovRad` under) — département-
- * filteret i RettskilderListe.tsx er i tillegg en innebygd ytelses-/fokuseringsventil for store korpus.
+ * aktuelle lovens `<Details>` (kontrollert `open`-state per lov, se `LovRad` under).
+ *
+ * [ENDRET, fler-verdi-departement, 2026-09-04] En lov med FLERE ansvarlige departementer (delt ansvar)
+ * vises nå under HVERT departement den tilhører, ikke bare det første — se grupperingen under.
  */
 export function RettskilderHierarki({ rettskilder, hjemmelrelasjoner, filterTekst }: RettskilderHierarkiProps) {
   const grupper = useMemo<DepartementGruppe[]>(() => {
@@ -63,11 +65,17 @@ export function RettskilderHierarki({ rettskilder, hjemmelrelasjoner, filterTeks
     const perDepartement = new Map<string, LovMedForskrifter[]>();
     for (const r of rettskilder) {
       if (r.kildetype !== 'Lov') continue;
-      const departement = r.ansvarligDepartement ?? UKJENT_DEPARTEMENT;
+      // [ENDRET, fler-verdi-departement, 2026-09-04] En lov med FLERE ansvarlige departementer (delt
+      // ansvar) skal havne under HVERT av dem, ikke bare det første — samme lov/forskrifter-objekt
+      // (samme referanse) i flere grener av treet, ikke en kopi.
+      const departementer =
+        r.ansvarligDepartement && r.ansvarligDepartement.length > 0 ? r.ansvarligDepartement : [UKJENT_DEPARTEMENT];
       const forskrifter = (forskrifterPerLov.get(r.id) ?? []).sort((a, b) => a.tittel.localeCompare(b.tittel, 'nb'));
-      const liste = perDepartement.get(departement) ?? [];
-      liste.push({ lov: r, forskrifter });
-      perDepartement.set(departement, liste);
+      for (const departement of departementer) {
+        const liste = perDepartement.get(departement) ?? [];
+        liste.push({ lov: r, forskrifter });
+        perDepartement.set(departement, liste);
+      }
     }
 
     let resultat: DepartementGruppe[] = [...perDepartement.entries()].map(([departement, lover]) => ({

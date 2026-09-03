@@ -7,8 +7,9 @@ export interface RettskildeSammendrag {
   tittel: string;
   kortnavn: string | null;
   kildetype: string;
-  /** "Kommunal- og distriktsdepartementet" e.l. — NULL for alt som ikke er Lovdata-importert Lov/Forskrift. */
-  ansvarligDepartement: string | null;
+  /** ["Kommunal- og distriktsdepartementet", ...] — flere ved delt departementsansvar (fler-verdi-
+   * departement, 2026-09-04). NULL for alt som ikke er Lovdata-importert Lov/Forskrift. */
+  ansvarligDepartement: string[] | null;
   /** Header-nivå «irrelevant for regel-ide»-markering (2026-08-30). Kompakt badge-verdi. */
   erIrrelevant: boolean;
   /** [Ny, 2026-09-02, issue #114] Fritekst — hvorfor markert irrelevant. Kun meningsfullt når
@@ -18,6 +19,13 @@ export interface RettskildeSammendrag {
   /** [Ny, 2026-09-02] Rå, utrunket Lovdata-"dateInForce"-streng. Populert KUN for Lov/Forskrift — NULL
    * for andre kildetyper er forventet fravær av data, IKKE "ikke i kraft" (se RettskilderListe.tsx). */
   ikrafttredelseRaa: string | null;
+}
+
+/** [Ny, fler-verdi-departement, 2026-09-04] Ett departement fra RettskildeDetalj.ansvarligDepartement
+ * sammen med dets løste Virksomhet-id (eller null). */
+export interface AnsvarligDepartementLenke {
+  departement: string;
+  virksomhetId: string | null;
 }
 
 export interface RettskildeDetalj {
@@ -31,8 +39,10 @@ export interface RettskildeDetalj {
   ikrafttredelse: string | null;
   konsolidertDato: string | null;
   utgiver: string | null;
-  /** Rå streng fra Lovdatas "ministry"-metadatafelt (departement-virksomhet-lenke, 2026-08-30). NULL for alt som ikke er Lov/Forskrift importert fra Lovdata. */
-  ansvarligDepartement: string | null;
+  /** Rå strenger fra Lovdatas "ministry"-metadatafelt (departement-virksomhet-lenke, 2026-08-30) — FLERE
+   * ved delt departementsansvar (fler-verdi-departement, 2026-09-04). NULL for alt som ikke er
+   * Lov/Forskrift importert fra Lovdata. */
+  ansvarligDepartement: string[] | null;
   status: string;
   aknXml: string | null;
   /** ELI (over) er ALLTID skrivebeskyttet — disse fem er derimot redigerbare via oppdaterRettskildeMetadata. */
@@ -43,8 +53,11 @@ export interface RettskildeDetalj {
   gyldigTil: string | null;
   /** Kildens opprinnelige URL — satt for Brukerveiledning (den hentede nettsidens URL) og noen håndbøker. */
   url: string | null;
-  /** Eksakt (case-insensitivt) navnetreff mot virksomhetskatalogen — NULL når departementet ikke finnes som egen Virksomhet-rad ("ingen gjettet fallback": vises da som ren tekst, ikke en lenke). */
-  ansvarligDepartementVirksomhetId: string | null;
+  /** [ENDRET, fler-verdi-departement, 2026-09-04] Ett element PER departement i ansvarligDepartement
+   * (samme rekkefølge) — erstatter den tidligere enkeltstående ansvarligDepartementVirksomhetId, som kun
+   * ga mening da feltet var én streng. virksomhetId er null når nettopp DET departementet ikke finnes
+   * som egen Virksomhet-rad ("ingen gjettet fallback": vises da som ren tekst, ikke en lenke). */
+  ansvarligDepartementLenker: AnsvarligDepartementLenke[];
   /** Header-nivå «irrelevant for regel-ide»-markering (2026-08-30) — menneskelig, eksplisitt valg, aldri utledet fra tittelmønster. */
   erIrrelevant: boolean;
   /** Fritekst — hvorfor. Kun meningsfullt når erIrrelevant er true, men slettes IKKE automatisk om markeringen fjernes igjen. */

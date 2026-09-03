@@ -27,6 +27,14 @@ const KONFIDENS_FARGE: Record<string, 'neutral' | 'warning' | 'success' | 'dange
 
 const DEFINISJON_AVKORT_LENGDE = 100;
 
+// [Ny, fler-verdi-departement, 2026-09-04] En rettskilde kan ha FLERE ansvarlige departementer —
+// forhåndsutfyllingen under trenger ÉN virksomhet, så det FØRSTE departementet i kildens egen rekkefølge
+// som faktisk løser til en ekte Virksomhet brukes (samme "primær eier"-valg som andre steder i denne
+// runden, se NavnekandidatOppdagelseTjeneste.OpprettDepartementTaggHvisMuligAsync).
+function forsteAnsvarligDepartementVirksomhetId(detalj: RettskildeDetalj): string | null {
+  return detalj.ansvarligDepartementLenker.find((l) => l.virksomhetId != null)?.virksomhetId ?? null;
+}
+
 /**
  * Arbeidskø for `BegrepsforekomstEntitet` (M1/M11-begrepsoppdagelse, docs/24) — deterministisk
  * (regex-basert) sveip av rettskildetekst, HELT egen kø fra dagens KI-drevne «Identifiser
@@ -82,9 +90,13 @@ export default function Begrepskandidater() {
   const [godkjennFeil, setGodkjennFeil] = useState<string | null>(null);
 
   // Forhåndsutfylling av virksomhetsvalget fra rettskildens ansvarlige departement (Johanns forslag,
-  // 2026-09-02) — ALDRI en gjettet fallback: `RettskildeDetalj.ansvarligDepartementVirksomhetId` er
-  // enten et bekreftet, eksakt navnetreff mot virksomhetskatalogen (resolvert på serveren, se
-  // Program.cs GET /api/rettskilder/{id}) eller `null`, og feltet forblir da tomt akkurat som før.
+  // 2026-09-02) — ALDRI en gjettet fallback: `RettskildeDetalj.ansvarligDepartementLenker` inneholder
+  // ett bekreftet, eksakt navnetreff PER departement (resolvert på serveren, se Program.cs
+  // GET /api/rettskilder/{id}), og feltet forblir tomt når INGEN av dem løste, akkurat som før.
+  // [ENDRET, fler-verdi-departement, 2026-09-04] En rettskilde kan ha flere departementer — det FØRSTE
+  // som faktisk løser til en ekte Virksomhet brukes til forhåndsutfyllingen (se
+  // forsteAnsvarligDepartementVirksomhetId under), samme "primær eier"-valg som andre steder i denne
+  // runden (NavnekandidatOppdagelseTjeneste.OpprettDepartementTaggHvisMuligAsync).
   // `RettskildeSammendrag` (allerede hentet over til `rettskilder`, brukt for `visRettskilde`) har
   // KUN den rå departement-STRENGEN, ikke det resolverte virksomhet-id-et — det krever et eget kall
   // mot detalj-endepunktet. Hentes LATIG (kun når godkjenn-dialogen faktisk åpnes, ikke for alle
@@ -165,7 +177,7 @@ export default function Begrepskandidater() {
 
     const bufret = rettskildeDetaljerPerId.get(forekomst.rettskildeId);
     if (bufret) {
-      setGodkjennVirksomhetId(bufret.ansvarligDepartementVirksomhetId ?? '');
+      setGodkjennVirksomhetId(forsteAnsvarligDepartementVirksomhetId(bufret) ?? '');
       return;
     }
 
@@ -180,7 +192,7 @@ export default function Begrepskandidater() {
         // Kun forhåndsutfyll dersom godkjenn-dialogen fortsatt er den samme forespørselen utløste —
         // vern mot at brukeren rakk å lukke/åpne dialogen for en ANNEN kandidat før dette svarte.
         if (denneForesporselen === sisteRettskildeDetaljForesporsel.current) {
-          setGodkjennVirksomhetId(detalj.ansvarligDepartementVirksomhetId ?? '');
+          setGodkjennVirksomhetId(forsteAnsvarligDepartementVirksomhetId(detalj) ?? '');
         }
       })
       .catch(() => {
