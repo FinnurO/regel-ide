@@ -28,6 +28,26 @@ interface Kandidatgruppe {
   rader: NavnekandidatDto[];
 }
 
+/**
+ * [Ny, 2026-09-04] Fem faner, ikke fire — Johann: «Avvist er jo noe man aktivt gjør som person.
+ * Avvist (automatisk) er jo noe helt annet og må ha sin egen tab!» «Avvist» alene dekket TO reelt
+ * ulike ting: en rad SNL/SSR-klassifiseringen selv avviste ved sveip (BehandletAv aldri satt) og en
+ * rad en saksbehandler aktivt avviste (BehandletAv satt) — se backend-kommentaren
+ * (NavnekandidatOppdagelseTjeneste.ListerAsync) for hele resonnementet. `AvvistAutomatisk`/
+ * `AvvistManuelt` deler samme underliggende Status="Avvist" server-side, kun skilt av
+ * `behandletAutomatisk`-parameteren — se `serverFilter` under.
+ */
+type Fane = 'Venter' | 'Godkjent' | 'AvvistAutomatisk' | 'AvvistManuelt' | 'Alle';
+
+/** Oversetter en fane til de faktiske server-spørringsparametrene (status + behandletAutomatisk). */
+function serverFilter(fane: Fane): { status: string; behandletAutomatisk?: boolean } {
+  switch (fane) {
+    case 'AvvistAutomatisk': return { status: 'Avvist', behandletAutomatisk: true };
+    case 'AvvistManuelt': return { status: 'Avvist', behandletAutomatisk: false };
+    default: return { status: fane };
+  }
+}
+
 const STATUS_FARGE: Record<string, 'neutral' | 'warning' | 'success' | 'danger'> = {
   Venter: 'warning',
   Godkjent: 'success',
@@ -125,7 +145,7 @@ export default function NavnekandidaterListe() {
   const [noderPerRettskilde, setNoderPerRettskilde] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
 
   const [kategoriFilter, setKategoriFilter] = useState<'virksomhet' | 'gruppe' | ''>('');
-  const [statusFilter, setStatusFilter] = useState<'Venter' | 'Godkjent' | 'Avvist' | 'Alle'>('Venter');
+  const [statusFilter, setStatusFilter] = useState<Fane>('Venter');
 
   // Klient-side filtre (se klassekommentaren) — virker på den allerede hentede `kandidater`-listen,
   // ikke på serverspørringen. Forhåndsutfylt fra ?rettskildeId=... (RettskildeDetalj.tsx sin «Sveip
@@ -178,7 +198,7 @@ export default function NavnekandidaterListe() {
     api
       .hentNavnekandidater({
         kategori: kategoriFilter || undefined,
-        status: statusFilter,
+        ...serverFilter(statusFilter),
       })
       .then((liste) => {
         if (denneForesporselen !== sisteForesporsel.current) return;
@@ -308,14 +328,18 @@ export default function NavnekandidaterListe() {
     setSletterAlle(true);
     setSlettAlleFeil(null);
     try {
-      const statusParam = statusFilter === 'Alle' ? undefined : statusFilter;
+      // Slett-alle-endepunktet har en ANNEN "utelatt"-standard enn GET / (utelatt status = ALLE
+      // statuser, ikke kun Venter — se backend-kommentaren) — 'Alle'-fanens serverFilter()-verdi
+      // ('Alle' som literal streng) må derfor oversettes til undefined her, ikke sendes rått videre.
+      const { status: faneStatus, behandletAutomatisk } = serverFilter(statusFilter);
+      const statusParam = faneStatus === 'Alle' ? undefined : faneStatus;
       const kategoriParam = kategoriFilter || undefined;
       // Backend-filteret tar KUN én rettskildeId av gangen (samme filter-signatur som ListerAsync) —
       // flervalget her løses derfor med ett kall per valgt rettskilde (eller ett kall uten
       // rettskildeId-filter, dvs. alle rettskilder, hvis ingen er valgt i flervalget).
       const rettskildeIder = rettskildeValgteFilter.size > 0 ? [...rettskildeValgteFilter] : [undefined];
       for (const rettskildeId of rettskildeIder) {
-        await api.slettAlleNavnekandidater({ status: statusParam, kategori: kategoriParam, rettskildeId });
+        await api.slettAlleNavnekandidater({ status: statusParam, kategori: kategoriParam, rettskildeId, behandletAutomatisk });
       }
       lastKandidater();
     } catch (err) {
@@ -602,17 +626,19 @@ export default function NavnekandidaterListe() {
         )}
       </Card>
 
-      {/* [Ny, 2026-09-03] Faner i stedet for en Status-nedtrekksliste — Johanns eksplisitte instruks
-          for SNL/SSR-restruktureringen: "hvis treff i en tab og hvis hva som ble avvist i en annen
-          tab". Samme Tabs-mønster som RettskilderListe.tsx sine "Aktive rettskilder"/"Utenfor
-          korpuset"-faner. Speiler statusFilter-state UENDRET (kun presentasjonen endres) — "Alle"
-          beholdes som fane siden filtreringslogikken allerede støtter den og noen fortsatt vil ha
-          full oversikt uavhengig av status. */}
-      <Tabs value={statusFilter} onChange={(v) => setStatusFilter(v as typeof statusFilter)} style={{ marginBottom: '1rem' }}>
+      {/* [Ny, 2026-09-03, utvidet 2026-09-04] Faner i stedet for en Status-nedtrekksliste — Johanns
+          eksplisitte instruks for SNL/SSR-restruktureringen: "hvis treff i en tab og hvis hva som ble
+          avvist i en annen tab". Samme Tabs-mønster som RettskilderListe.tsx sine "Aktive
+          rettskilder"/"Utenfor korpuset"-faner. Fem faner, ikke fire (2026-09-04) — "Avvist" ble
+          splittet i "Avvist automatisk" (SNL/SSR selv) og "Avvist (manuelt)" (en saksbehandler), se
+          Fane-typens doc-kommentar. "Alle" beholdes som egen fane for full oversikt uavhengig av
+          status/behandlingsmåte. */}
+      <Tabs value={statusFilter} onChange={(v) => setStatusFilter(v as Fane)} style={{ marginBottom: '1rem' }}>
         <Tabs.List>
           <Tabs.Tab value="Venter">Venter</Tabs.Tab>
           <Tabs.Tab value="Godkjent">Godkjent</Tabs.Tab>
-          <Tabs.Tab value="Avvist">Avvist</Tabs.Tab>
+          <Tabs.Tab value="AvvistAutomatisk">Avvist automatisk</Tabs.Tab>
+          <Tabs.Tab value="AvvistManuelt">Avvist (manuelt)</Tabs.Tab>
           <Tabs.Tab value="Alle">Alle</Tabs.Tab>
         </Tabs.List>
       </Tabs>

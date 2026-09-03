@@ -440,11 +440,17 @@ export const api = {
     kall<VirksomhetKandidatDto>(`/api/virksomhet-kandidater/${id}/avvis`, { method: 'POST' }),
 
   /** [Ny, docs/13-backlog.md §9] Oppdagelsesmekanismen — komplementær til virksomhet-kandidatene over. */
-  hentNavnekandidater: (filter: { rettskildeId?: string; status?: string; kategori?: string }) => {
+  hentNavnekandidater: (filter: {
+    rettskildeId?: string; status?: string; kategori?: string; behandletAutomatisk?: boolean;
+  }) => {
     const parametre = new URLSearchParams();
     if (filter.rettskildeId) parametre.set('rettskildeId', filter.rettskildeId);
     if (filter.status) parametre.set('status', filter.status);
     if (filter.kategori) parametre.set('kategori', filter.kategori);
+    // [Ny, 2026-09-04] Skiller "Avvist automatisk" (SNL/SSR selv, BehandletAv tom) fra "Avvist manuelt"
+    // (en saksbehandler, BehandletAv satt) — kun meningsfullt sammen med status='Avvist', se backend-
+    // kommentaren (NavnekandidatOppdagelseTjeneste.ListerAsync).
+    if (filter.behandletAutomatisk !== undefined) parametre.set('behandletAutomatisk', String(filter.behandletAutomatisk));
     const sok = parametre.toString();
     return kall<NavnekandidatDto[]>(`/api/navnekandidater${sok ? `?${sok}` : ''}`);
   },
@@ -496,11 +502,16 @@ export const api = {
    * over) — utelatt status betyr her "ingen statusfilter" (slett ALLE statuser), IKKE
    * hentNavnekandidater sin "utelatt = kun Venter"-standard. Server-side RemoveRange, ikke N separate
    * kall — nødvendig for ytelse ved tusenvis av kandidater (docs-kommentar i NavnekandidaterListe.tsx). */
-  slettAlleNavnekandidater: (filter: { status?: string; kategori?: string; rettskildeId?: string }) => {
+  slettAlleNavnekandidater: (filter: {
+    status?: string; kategori?: string; rettskildeId?: string; behandletAutomatisk?: boolean;
+  }) => {
     const parametre = new URLSearchParams();
     if (filter.status) parametre.set('status', filter.status);
     if (filter.kategori) parametre.set('kategori', filter.kategori);
     if (filter.rettskildeId) parametre.set('rettskildeId', filter.rettskildeId);
+    // Samme skille som hentNavnekandidater over — uten dette ville "Slett alle" på "Avvist automatisk"-
+    // fanen stille også slettet manuelt avviste rader den ikke viser (begge deler Status="Avvist").
+    if (filter.behandletAutomatisk !== undefined) parametre.set('behandletAutomatisk', String(filter.behandletAutomatisk));
     const sok = parametre.toString();
     return kall<SlettNavnekandidaterResultatDto>(`/api/navnekandidater${sok ? `?${sok}` : ''}`, { method: 'DELETE' });
   },

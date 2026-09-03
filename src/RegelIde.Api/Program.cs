@@ -3033,18 +3033,19 @@ static async Task<List<NavnekandidatDto>> BerikNavnekandidaterAsync(
     }).ToList();
 }
 
-navnekandidater.MapGet("/", async (string? status, string? kategori, Guid? rettskildeId,
+navnekandidater.MapGet("/", async (string? status, string? kategori, Guid? rettskildeId, bool? behandletAutomatisk,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
         // Samme eksplisitte "utelatt = kun Venter, 'Alle' = ingen filter"-mønster som
         // /api/virksomhet-kandidater — se den endepunktkommentaren.
         var effektivStatus = string.IsNullOrEmpty(status) ? "Venter" : status;
         var statusFilter = effektivStatus == "Alle" ? null : effektivStatus;
-        var kandidater = await register.ListerAsync(statusFilter, kategori, rettskildeId, ct);
+        var kandidater = await register.ListerAsync(statusFilter, kategori, rettskildeId, behandletAutomatisk, ct);
         return Results.Ok(await BerikNavnekandidaterAsync(kandidater, db, ct));
     })
     .WithName("HentNavnekandidater")
-    .WithSummary("Kandidatliste, valgfritt filtrert på status/kategori/rettskilde. status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter. " +
+    .WithSummary("Kandidatliste, valgfritt filtrert på status/kategori/rettskilde/behandletAutomatisk. status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter. " +
+        "behandletAutomatisk (kun meningsfullt sammen med status='Avvist'): true = KUN SNL/SSR-selv-avviste rader (BehandletAv tom), false = KUN manuelt avviste rader (BehandletAv satt). " +
         "'virksomhet'-kandidater (uansett oppdagelsesmønster, se issue #117) beriket med SNL-alias/URL/orgnr og SSR-bekreftelse når SNL/SSR-cachen har et treff for teksten.");
 
 navnekandidater.MapPost("/sveip", async (HttpRequest request, SveipNavnekandidaterRequest body,
@@ -3197,14 +3198,14 @@ navnekandidater.MapDelete("/{id:guid}", async (Guid id, NavnekandidatOppdagelseT
     .WithSummary("Ekte sletting av ÉN rad, uansett status — til forskjell fra /api/virksomhet-kandidater sin " +
         "hardslett-KUN-'Avvist'-begrensning (docs/20 §2.6). Se NavnekandidatOppdagelseTjeneste.SlettAsync.");
 
-navnekandidater.MapDelete("/", async (string? status, string? kategori, Guid? rettskildeId,
+navnekandidater.MapDelete("/", async (string? status, string? kategori, Guid? rettskildeId, bool? behandletAutomatisk,
         NavnekandidatOppdagelseTjeneste register, CancellationToken ct) =>
     {
-        var antallSlettet = await register.SlettAlleAsync(status, kategori, rettskildeId, ct);
+        var antallSlettet = await register.SlettAlleAsync(status, kategori, rettskildeId, behandletAutomatisk, ct);
         return Results.Ok(new SlettNavnekandidaterResultatDto(antallSlettet));
     })
     .WithName("SlettAlleNavnekandidater")
-    .WithSummary("Massesletting, samme valgfrie filterparametre som GET / (status/kategori/rettskildeId) — " +
+    .WithSummary("Massesletting, samme valgfrie filterparametre som GET / (status/kategori/rettskildeId/behandletAutomatisk) — " +
         "MERK: her betyr utelatt status 'ingen statusfilter' (slett ALLE statuser), IKKE GET / sin " +
         "'utelatt = kun Venter'-standard — klienten sender alltid eksplisitt status. Ekte, irreversibel " +
         "sletting; klienten MÅ vise antall og be om bekreftelse FØR kallet.");
