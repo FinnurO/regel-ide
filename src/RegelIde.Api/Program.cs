@@ -2864,13 +2864,22 @@ var navnekandidater = app.MapGroup("/api/navnekandidater").WithOpenApi();
 // SSR-bekreftelse) er IKKE lagret på selve NavnekandidatEntitet-raden (se
 // NavnekandidatEntitet.OppdagelsesKilde sin kommentar — kun cache-tabellen er ny). Slås derfor opp HER,
 // på LESETIDSPUNKTET, fra EksternNavneoppslagCacheEntitet ved ForeslattTekst (normalisert) som term —
-// KUN for rader fra det nye mønsteret (OppdagelsesKilde-diskriminatoren), én batch-spørring for hele
-// lista (unngår N+1 mot cache-tabellen).
+// én batch-spørring for hele lista (unngår N+1 mot cache-tabellen).
+// <para>
+// [Rettet, issue #117] Gatingen her var TIDLIGERE på OppdagelsesKilde (kun det nye "stor bokstav"-
+// mønsteret) — nå på Kategori == "virksomhet". Grunn: NavnekandidatOppdagelseTjeneste.SveipAsync (de
+// eldre suffiks-/flerords-mønstrene) kjører NÅ også kandidater gjennom SAMME SNL/SSR-klassifiseringskjede
+// (se den metodens kommentar), og skriver dermed til NØYAKTIG samme cache-tabell — en "virksomhet"-rad
+// derfra kan derfor ha en reell cache-treff å vise, uavhengig av HVILKET mønster som oppdaget den.
+// OppdagelsesKilde forblir uendret som diskriminator for UI-visning av selve oppdagelsesKILDEN — kun
+// selve berikelse-OPPSLAGET er nå bredere. "gruppe"-kandidater slås aldri opp (de sendes aldri til
+// SNL/SSR i utgangspunktet, se SveipAsync sin "scopet til virksomhet"-begrunnelse).
+// </para>
 static async Task<List<NavnekandidatDto>> BerikNavnekandidaterAsync(
     IReadOnlyList<NavnekandidatEntitet> kandidater, RegelIdeDbContext db, CancellationToken ct)
 {
     var termer = kandidater
-        .Where(k => k.OppdagelsesKilde == NavnekandidatOppdagelseTjeneste.StorBokstavOppdagelsesKilde)
+        .Where(k => k.Kategori == "virksomhet")
         .Select(k => k.ForeslattTekst.ToLowerInvariant())
         .Distinct()
         .ToList();
@@ -2883,7 +2892,7 @@ static async Task<List<NavnekandidatDto>> BerikNavnekandidaterAsync(
     return kandidater.Select(k =>
     {
         var dto = NavnekandidatDto.FraEntitet(k);
-        if (k.OppdagelsesKilde != NavnekandidatOppdagelseTjeneste.StorBokstavOppdagelsesKilde) return dto;
+        if (k.Kategori != "virksomhet") return dto;
 
         snlPerTerm.TryGetValue(k.ForeslattTekst.ToLowerInvariant(), out var snl);
         ssrPerTerm.TryGetValue(k.ForeslattTekst.ToLowerInvariant(), out var ssr);
@@ -2914,7 +2923,7 @@ navnekandidater.MapGet("/", async (string? status, string? kategori, Guid? retts
     })
     .WithName("HentNavnekandidater")
     .WithSummary("Kandidatliste, valgfritt filtrert på status/kategori/rettskilde. status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter. " +
-        "Kandidater fra det nye stor-bokstav+SNL/SSR-mønsteret (docs/31) beriket med SNL-alias/URL/orgnr og SSR-bekreftelse.");
+        "'virksomhet'-kandidater (uansett oppdagelsesmønster, se issue #117) beriket med SNL-alias/URL/orgnr og SSR-bekreftelse når SNL/SSR-cachen har et treff for teksten.");
 
 navnekandidater.MapPost("/sveip", async (HttpRequest request, SveipNavnekandidaterRequest body,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>

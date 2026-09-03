@@ -132,3 +132,39 @@ suffiks-/rolleordsmønstrene — ikke bland dem sammen usynlig.
   institusjonsbekreftelser.
 - Ordbokene kan bli aktuell igjen senere hvis SNL+SSR-restmengden i praksis viser seg større enn
   forventet — ikke steng den muligheten permanent, bare utsett den.
+
+## 7. [Ny, issue #117] Utvidet til de eldre, etablerte mønstrene også
+
+§5s byggerekkefølge over beskriver KUN det opprinnelige, NYE "stor bokstav midt i setning"-mønsteret
+(`SveipStorBokstavAsync`). Issue #117 (Johann, 2026-09-03) bekreftet at de eldre, presise mønstrene —
+suffiksmønsteret og flerords-institusjonsord-mønsteret (`SveipAsync`) — aldri ble koblet til denne
+klassifiseringskjeden, slik at kjente falske positiver derfra (typeeksempelet "regelverket"/
+"avtaleverket") kun ble luket ut av den manuelle `VerketDenyliste`, uten noen SNL/SSR-validering i det
+hele tatt.
+
+**Løsning**: `SveipAsync` kaller nå samme `BeholdSomKandidatAsync`-kjede (§2) og samme cache
+(`EksternNavneoppslagCacheEntitet`) som `SveipStorBokstavAsync` — ingen ny, parallell mekanisme. Se
+`NavnekandidatOppdagelseTjeneste.SveipAsync`s metodekommentar for full begrunnelse, inkludert:
+
+- **Scopet til KUN `"virksomhet"`** — `"gruppe"`-kandidater (fast rollesubstantiv-liste + suffiksmønsterets
+  liten-forbokstav-gren) sendes ALDRI til SNL/SSR: de er en lukket liste generiske rollesubstantiv, ikke
+  institusjons-EGENNAVN, og spørsmålet SNL/SSR svarer på ("er dette en kjent institusjon/et kjent
+  stedsnavn") gir ikke mening for dem.
+- **Gjenbruk, ikke en ny, skreddersydd variant**: klassifiseringen kalles med HELE den fangede
+  kandidatteksten (f.eks. "Miljødirektoratet", "Statens vegvesen") som term — til forskjell fra
+  "stor bokstav"-mønsteret, der termen er ETT bart, ukvalifisert ord. SSR-forkastingsgrenen (§2 punkt 2)
+  trigges derfor i praksis sjelden for disse to mønstrene (institusjonsordet/-suffikset er allerede en
+  del av den fangede teksten), så nettoeffekten her er hovedsakelig SNL-bekreftelse/berikelse — ikke en
+  ny presisjonsmekanisme som erstatter `VerketDenyliste` (den forblir uendret).
+- **"Ingen gjettet fallback" gjelder fortsatt**: en term SNL/SSR ikke kjenner igjen ("ukjent i begge",
+  §2 punkt 3) forkastes IKKE automatisk — den beholdes som lav-tillit-kandidat, akkurat som før denne
+  utvidelsen og akkurat som `SveipStorBokstavAsync` allerede gjør. Dette er en BEVISST, IKKE endret
+  presisjon/recall-avveining: Johanns kommentar på issue #117 antydet at "For tilsyn"/"Konkret tilsyn"
+  (issue #149, et separat root cause — manglende `ErSetningsstart`-sjekk, fikset uavhengig) "også ville
+  vært luket bort" av SNL/SSR, men en generell "forkast alt SNL/SSR ikke kjenner igjen"-regel for disse
+  mønstrene ville også forkastet ekte, men ennå ikke SNL/SSR-katalogiserte institusjoner — en vesentlig
+  presisjon/recall-produktbeslutning som IKKE er tatt stilltiende her. Flagget eksplisitt til Johann i
+  PR-en for issue #117 som en mulig, separat oppfølging dersom han faktisk vil ha strengere forkasting.
+- **Berikelse ved lesetidspunkt** (`RegelIde.Api`s `BerikNavnekandidaterAsync`) er utvidet FRA "kun rader
+  med `OppdagelsesKilde == StorBokstavOppdagelsesKilde`" TIL "alle `Kategori == 'virksomhet'`-rader" —
+  samme cache-tabell kan nå ha treff for en kandidat uansett hvilket mønster som oppdaget den.

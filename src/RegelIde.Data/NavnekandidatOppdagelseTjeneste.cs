@@ -124,11 +124,23 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// motsa en eksisterende tests egen kommentar («'departementet' står IKKE i suffikslisten») — testen
     /// besto likevel, ved en tilfeldighet (dette mønsteret er case-sensitivt, literalen er små bokstaver,
     /// så stor forbokstav midt i en setning traff aldri suffiks-grenen) — ikke ved design.
+    /// </para>
+    /// <para>
+    /// [Ny, issue #150 del 1] "utvalget"/"enheten" lagt til — Johann forventet vesentlig flere forslag
+    /// i navnekandidat-køen, bl.a. eksemplifisert med "EOS-utvalget"/"PNR-enheten", og disse to stammene
+    /// manglet HELT fra begge ordlistene (bekreftet i koden, ikke bare i eksemplene). Samme
+    /// bestemt-entall-form som de øvrige suffiksene, for å fange fremtidige, IKKE bindestrek-forkortede
+    /// sammensatte navn av nøyaktig samme melted-word-form som "Datatilsynet"/"Miljødirektoratet", f.eks.
+    /// et tenkt "Personvernutvalget"/"Etterretningsenheten". <b>Fanger IKKE selve "EOS-utvalget"/
+    /// "PNR-enheten"</b> — bindestreken bryter dette mønsterets sammenhengende ord-regex
+    /// (<c>\b\p{L}[\p{L}]*(?:…)\b</c>), se issue #150 del 2 (bevisst IKKE bygget her — krever et helt
+    /// nytt, fjerde mønster, et produktbeslutning-spørsmål til Johann).
     /// </para></summary>
     private static readonly string[] Suffikser =
     [
         "tilsynet", "direktoratet", "nemnda", "nemnden",
         "domstolen", "ombudet", "verket", "etaten", "banken",
+        "utvalget", "enheten",
     ];
 
     /// <summary>
@@ -231,11 +243,21 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// recall — de sammensatte institusjonsordene ("fagskole" m.fl.) dekker likevel det STORE flertallet av
     /// de bekreftede, navngitte skolene i korpuset (Nortrain fagskole, Nordland fagskole, osv.).
     /// </para>
+    /// <para>
+    /// [Ny, issue #150 del 1] "utvalg"/"enhet" lagt til — samme manglende dekning som begrunner
+    /// <see cref="Suffikser"/>s "utvalget"/"enheten"-tillegg (se den kommentaren for Johanns
+    /// "EOS-utvalget"/"PNR-enheten"-eksempler). Fanger et flerords egennavn+institusjonsord-par av
+    /// nøyaktig samme form som "Statens vegvesen"/"Møre og Romsdal fylkeskommune", f.eks. et tenkt
+    /// "Klageutvalget for X" ELLER "[Egennavn] utvalg"/"[Egennavn] enhet" der institusjonsordet står som
+    /// eget, mellomromsdelt ord. Fanger, som resten av denne listen, IKKE bindestrek-forkortelsen
+    /// "EOS-utvalget"/"PNR-enheten" selv (se <see cref="Suffikser"/>s kommentar — issue #150 del 2, ikke
+    /// bygget her).
+    /// </para>
     /// </summary>
     private static readonly string[] Institusjonsord =
     [
         "fylkeskommune", "kommune", "direktorat", "tilsyn", "departement", "fylkesmannsembete", "vegvesen",
-        "fagskole", "høyskole", "høgskole", "høgskule", "universitet", "barnehage",
+        "fagskole", "høyskole", "høgskole", "høgskule", "universitet", "barnehage", "utvalg", "enhet",
     ];
 
     private static readonly Regex InstitusjonsordMønster = new(
@@ -391,6 +413,54 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// <summary>
     /// Kjører oppdagelsessveipet — enten mot ÉN rettskilde (<paramref name="rettskildeId"/> satt) eller
     /// mot HELE det importerte korpuset (<paramref name="rettskildeId"/> = <c>null</c>).
+    /// <para>
+    /// <b>[Ny, issue #117] SNL/SSR-klassifisering utvidet til DETTE sveipet også.</b> Fram til denne
+    /// rettelsen var <see cref="BeholdSomKandidatAsync"/> (docs/31 §2) KUN koblet inn i
+    /// <see cref="SveipStorBokstavAsync"/> — de eldre, presise mønstrene her (suffiks + flerords-
+    /// institusjonsord, se <see cref="FinnKandidaterITekst"/>) fikk INGEN slik validering i det hele
+    /// tatt, til tross for at de kan produsere false-positive "virksomhet"-kandidater av nøyaktig samme
+    /// grunnform som "stor bokstav"-mønsteret (typeeksempelet er "regelverket"/"lovverket" osv. —
+    /// hittil KUN luket ut manuelt via <see cref="VerketDenyliste"/>, se den listens kommentar).
+    /// Samme klassifiseringskjede, SAMME cache (<see cref="EksternNavneoppslagTjeneste"/>/
+    /// <c>EksternNavneoppslagCacheEntitet</c>) gjenbrukes uendret her — ingen ny, parallell mekanisme.
+    /// </para>
+    /// <para>
+    /// <b>Scopet til KUN <c>"virksomhet"</c> — bevisst, ikke en stilltiende innsnevring:</b>
+    /// <c>"gruppe"</c>-treff (både <see cref="FasteGruppeMønster"/> og suffiksmønsterets liten-forbokstav-
+    /// gren) sendes ALDRI til SNL/SSR. Begrunnelse: <see cref="FasteRollesubstantiv"/>s klassekommentar
+    /// sier eksplisitt at disse er en LUKKET liste over generiske, juridiske rollesubstantiv ("Kongen",
+    /// "Stortinget", bøyningsformer av "kommune"/"departement" osv.) — ALLTID korrekte som "gruppe" per
+    /// design, uansett kontekst, ikke kandidater for et institusjons-EGENNAVN-oppslag i utgangspunktet
+    /// (SNL/SSR svarer på "er DETTE en kjent institusjon/et kjent stedsnavn", et spørsmål som ikke gir
+    /// mening for et rent rollesubstantiv). Samme resonnement gjelder suffiksmønsterets "gruppe"-gren
+    /// (liten forbokstav i seg selv utelukker allerede at det er et egennavn, se
+    /// <see cref="FinnKandidaterITekst"/>s metodekommentar) — begge er derfor eksplisitt UTENFOR scopet
+    /// her, ikke glemt.
+    /// </para>
+    /// <para>
+    /// <b>Reuse-mekanikk, IKKE en ny SSR-forkastingsregel for disse mønstrene:</b> klassifiseringen
+    /// kalles med HELE den fangede kandidatteksten (f.eks. "Miljødirektoratet", "Statens vegvesen") som
+    /// <c>raaTekst</c> — til forskjell fra <see cref="SveipStorBokstavAsync"/>, der <c>raaTekst</c> er ETT
+    /// bart, ukvalifisert stor-forbokstav-ord. Følgen: SNL-grenen (docs/31 §2 punkt 1) er den
+    /// meningsfulle sjekken her — bekrefter/beriker en ekte institusjon (og fyller cachen for senere
+    /// lesetidspunkt-berikelse i RegelIde.Api, se <c>BerikNavnekandidaterAsync</c>). SSR-grenen (punkt 2)
+    /// derimot forkaster KUN når det ETTERFØLGENDE ordet (rett etter HELE kandidaten, altså etter selve
+    /// institusjonsordet/-suffikset som allerede er en del av teksten) IKKE er et nytt institusjonsord —
+    /// en situasjon disse to mønstrene strukturelt sjelden/aldri havner i (de MATCHET jo nettopp FORDI et
+    /// institusjonsord/-suffiks allerede er en del av den fangede teksten), så denne grenen forkaster i
+    /// praksis nesten aldri noe her — det er en akseptert konsekvens av å gjenbruke samme, uendrede
+    /// kjede/metode fremfor å bygge en ny, skreddersydd variant KUN for disse to mønstrene. Punkt 3
+    /// ("ukjent i begge" → behold, lav tillit) er derfor det vanligste utfallet for en term SNL ikke
+    /// kjenner igjen — helt konsistent med resten av klassens "ingen gjettet fallback"-filosofi: dette
+    /// er IKKE ment å erstatte <see cref="VerketDenyliste"/> (den blir stående uendret), kun et nytt LAG
+    /// av berikelse/dokumentert klassifiseringsforsøk oppå den eksisterende presisjonen.
+    /// </para>
+    /// <para>
+    /// <b>Nettverkskall unngås når mulig</b> (samme hensyn som <see cref="SveipStorBokstavAsync"/>):
+    /// klassifiseringen kalles KUN når posisjonen [<c>RettskildeId</c>, <c>NodeEid</c>, <c>StartOffset</c>]
+    /// IKKE allerede har en eksisterende <see cref="NavnekandidatEntitet"/>-rad (<c>forAntall == 0</c>
+    /// under) — et gjentatt sveip over samme tekst re-klassifiserer ikke en allerede oppdaget kandidat.
+    /// </para>
     /// </summary>
     public async Task<NavnekandidatSveipResultat> SveipAsync(Guid? rettskildeId, string opprettetAv, CancellationToken ct = default)
     {
@@ -447,6 +517,18 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 antallTreff++;
                 var forAntall = await db.Navnekandidater.CountAsync(
                     k => k.RettskildeId == node.RettskildeId && k.NodeEid == node.Eid && k.StartOffset == start, ct);
+
+                // [Ny, issue #117] SNL/SSR-klassifisering (docs/31 §2) — se metodekommentaren over for
+                // hele resonnementet (scoping til "virksomhet", gjenbruk av samme kjede/cache som
+                // SveipStorBokstavAsync, og hvorfor SSR-forkastingsgrenen i praksis sjelden trigges her).
+                // KUN når posisjonen er NY (forAntall == 0) — unngår et unødvendig eksternt kall for en
+                // posisjon som allerede har en kandidat.
+                if (kategori == "virksomhet" && forAntall == 0)
+                {
+                    var behold = await BeholdSomKandidatAsync(tekst, node.Tekst!, start + lengde, ct);
+                    if (!behold) continue; // SSR-bekreftet geografisk løpetekst-referanse, ikke en institusjon.
+                }
+
                 await OpprettEllerFinnAsync(tekst, kategori, node.RettskildeId, node.Eid, start, start + lengde, opprettetAv, ct);
                 if (forAntall == 0)
                 {
@@ -526,8 +608,11 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     }
 
     /// <summary>
-    /// docs/31 §2 — selve klassifiseringskjeden for ETT rått "stor bokstav midt i setning"-treff.
-    /// Returnerer <c>true</c> hvis kandidaten skal BEHOLDES:
+    /// docs/31 §2 — selve klassifiseringskjeden for ETT rått kandidattreff. Opprinnelig bygget KUN for
+    /// "stor bokstav midt i setning"-mønsteret (<see cref="SveipStorBokstavAsync"/>), gjenbrukt UENDRET
+    /// [Ny, issue #117] av <see cref="SveipAsync"/> for "virksomhet"-kandidater fra suffiks-/flerords-
+    /// mønstrene også — se den metodens kommentar for scoping/resonnement. Returnerer <c>true</c> hvis
+    /// kandidaten skal BEHOLDES:
     /// <list type="number">
     /// <item>SNL-bekreftet institusjon (<see cref="EksternNavneoppslagTjeneste.SlaOppSnlAsync"/> gir
     /// treff) — høy starttillit, positiv institusjonskandidat.</item>
@@ -721,41 +806,54 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// <list type="bullet">
     /// <item>Midt i en setning (samme sjekk som <see cref="ErSetningsstart"/> — ikke rett etter et
     /// setningsavsluttende tegn) — alltid tillatt.</item>
-    /// <item>ABSOLUTT start av teksten (<paramref name="tekst"/> begynner selv med navnet) — TILLATT
-    /// her, til forskjell fra suffiksmønsterets strengere "aldri ved setningsstart"-regel. Bekreftet i
-    /// live data (FOR-2019-09-30-1310 §2): AKN-listepunkter importeres HVER som sin EGEN
-    /// <c>RettskildeNode</c> uten noen tekstlig liste-markør i selve <c>Tekst</c> (bokstav-/tallmarkøren
-    /// er strukturell metadata, ikke en del av teksten) — "Østfold fylkeskommune: …" står derfor
-    /// bokstavelig på posisjon 0 av SIN node. Risikoen suffiksregelen verner mot (et vanlig substantiv
-    /// tilfeldigvis stort fordi det åpner en node, f.eks. "Departementet kan …") reduseres her av at
-    /// mønsteret i tillegg KREVER et spesifikt institusjonsord rett etter — en langt sterkere
-    /// bekreftelse enn stor forbokstav alene.</item>
     /// <item>Rett etter et setningsavsluttende tegn, MEN kun hvis det tegnet faktisk er en
     /// liste-linje-markør (bokstav/tall + punktum, f.eks. "a." eller "1.") ved starten av GJELDENDE
     /// linje, ikke en ekte setningsslutt — se <see cref="ErListePrefiksVedLinjestart"/>. Uten dette
-    /// unntaket ville f.eks. "… se listen. a. Østfold fylkeskommune: …" (en annen importrute enn den
-    /// bekreftede AKN-punkt-per-node-varianten over, der liste-markøren ER en del av rå teksten) blitt
-    /// avvist som "tvetydig setningsstart".</item>
+    /// unntaket ville f.eks. "… se listen. a. Østfold fylkeskommune: …" blitt avvist som "tvetydig
+    /// setningsstart".</item>
     /// </list>
     /// <para>
-    /// <b>[Ny, kodegjennomgang 2026-08-30] Dokumentert, GJENVÆRENDE begrensning (bevisst ikke fikset):</b>
-    /// den ABSOLUTTE tekststart-tillatelsen over kombinert med <see cref="FinnEgennavnForanInstitusjonsord"/>
-    /// slipper fortsatt gjennom et adjektiv/verb som tilfeldigvis åpner en node og er stor forbokstav —
-    /// f.eks. "Statlig tilsyn", "Overordnet departement", "Føre tilsyn" (funnet i samme korpusomfattende
-    /// testsveip som begrunner <see cref="AldriEgennavnOrd"/>/<see cref="TillatteBindeord"/>-innstrammingen
-    /// over). <see cref="AldriEgennavnOrd"/> fjerner determinativer/pronomen (grammatisk LUKKET ordklasse
-    /// i norsk), men adjektiv/verb er en ÅPEN ordklasse — en uttømmende liste er ikke mulig uten enten
-    /// et uholdbart stort ordforråd eller ekte POS-tagging (NLP/språkmodell, eksplisitt forbudt). Godtatt
-    /// som en bevisst presisjon/recall-avveining, samme filosofi som <see cref="ErSetningsstart"/>s
-    /// tilsvarende, dokumenterte begrensning for suffiksmønsteret — IKKE besluttet stilltiende, flagget
-    /// eksplisitt til Johann i samme PR som denne kommentaren.
+    /// <b>[Rettet, issue #149] ABSOLUTT start av teksten er IKKE lenger tillatt her.</b> Tidligere (fra
+    /// kodegjennomgang 2026-08-30 og fram til denne rettelsen) var <paramref name="tekst"/> som begynner
+    /// selv med det fangede egennavnet BEVISST tillatt — begrunnet med at AKN-listepunkter importeres
+    /// HVER som sin EGEN <c>RettskildeNode</c> uten noen tekstlig liste-markør i selve <c>Tekst</c>
+    /// (bokstav-/tallmarkøren er strukturell metadata), slik at "Østfold fylkeskommune: …" står
+    /// bokstavelig på posisjon 0 av SIN node (FOR-2019-09-30-1310 §2). Johann bekreftet (issue #149,
+    /// full korpus-resveip, ETTER SNL/SSR-berikelsen i PR #97) at nøyaktig DENNE tillatelsen slapp
+    /// gjennom et helt annet, uønsket mønster: et vanlig, ikke-egennavn ord som TILFELDIGVIS er første
+    /// ord i SIN EGEN node/setning, RETT FØR et institusjonsord — "For tilsyn med at reglene
+    /// overholdes, skal …" og "Konkret tilsyn kan gjennomføres når …" ga begge falske
+    /// "virksomhet"-kandidater ("For tilsyn", "Konkret tilsyn"), av nøyaktig samme grunn som
+    /// suffiksmønsterets <see cref="ErSetningsstart"/>-vern eksisterer i utgangspunktet: et institusjonsord
+    /// rett etter er et sterkt signal på at INSTITUSJONSORDET er ekte, men sier INGENTING om hvorvidt
+    /// ORDET FORAN det er et egennavn eller bare tilfeldigvis stor forbokstav ved en setningsåpning —
+    /// nøyaktig den ambiguiteten <see cref="ErSetningsstart"/> allerede finnes for å luke ut andre steder
+    /// i klassen. Ordet er her, til forskjell fra <see cref="AldriEgennavnOrd"/>s determinativer/pronomen
+    /// (lukket ordklasse) OG docs/28s enumererte, men ufullstendige eksempelliste ("For tilsyn", "Ved
+    /// tilsyn", "Konkret tilsyn" m.fl. — «Stedlig tilsyn», «Statlig tilsyn» er ÅPEN ordklasse, adjektiv),
+    /// IKKE begrenset til en lukket, uttømmelig ordliste — se den forrige (nå fjernede) "GJENVÆRENDE
+    /// begrensning"-kommentaren her, som eksplisitt flagget nettopp DENNE svakheten til Johann uten å
+    /// fikse den. En ren posisjonsbasert sjekk (som her) løser BEGGE de konkrete, rapporterte eksemplene
+    /// uten en ordliste i det hele tatt.
+    /// </para>
+    /// <para>
+    /// <b>Dokumentert, akseptert recall-tap som følge av dette</b>: et EKTE flerords-institusjonsnavn
+    /// som (som i FOR-2019-09-30-1310 §2) står bokstavelig som det ALLERFØRSTE i sin egen
+    /// <c>RettskildeNode</c> — f.eks. "Østfold fylkeskommune: …" helt uten noen tekstlig liste-markør
+    /// foran — fanges IKKE lenger av DETTE mønsteret (samme presisjon-foran-recall-avveining som resten
+    /// av klassen, se f.eks. <see cref="VerketDenyliste"/>/<see cref="ErSetningsstart"/>s tilsvarende,
+    /// aksepterte begrensninger). Bevisst, ikke stilltiende: flagget eksplisitt til Johann i PR-en for
+    /// issue #149 — et slikt navn kan fortsatt fanges via en AKN-import som beholder selve
+    /// liste-markøren i teksten (se <see cref="ErListePrefiksVedLinjestart"/>-grenen over, uendret), via
+    /// <see cref="SveipStorBokstavAsync"/>s "stor bokstav midt i setning"-mønster hvis navnet også
+    /// forekommer et annet, IKKE-setningsinnledende sted i korpuset, eller ved manuell gjennomgang.
     /// </para>
     /// </summary>
     private static bool ErFlerordsKontekstTillatt(string tekst, int index)
     {
         var i = index - 1;
         while (i >= 0 && char.IsWhiteSpace(tekst[i])) i--;
-        if (i < 0) return true; // absolutt tekststart — se metodekommentaren.
+        if (i < 0) return false; // [Rettet, issue #149] absolutt tekststart — se metodekommentaren.
         if (tekst[i] is '.' or '!' or '?') return ErListePrefiksVedLinjestart(tekst, index);
         return true; // midt i en setning (ikke rett etter et setningsavsluttende tegn).
     }
