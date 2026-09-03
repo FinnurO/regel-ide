@@ -23,9 +23,30 @@ type Fane = 'aktive' | 'utenfor-korpuset';
 const IKRAFTTREDELSE_DATO_MONSTER = /\d{4}-\d{2}-\d{2}/;
 const KILDETYPER_MED_IKRAFTTREDELSESDATO = new Set(['Lov', 'Forskrift']);
 
+// [Rettet, 2026-09-03, issue #126] `ikrafttredelseRaa == null` ble FØR behandlet identisk med "feltet
+// finnes, men inneholder ingen gyldig dato" — begge ga `true` ("ikke i kraft"). Det er FEIL: null her
+// betyr «ikke bakfylt ennå» (feltet populeres KUN ved (re)import — se RettskildeSammendrag sin
+// doc-kommentar), ikke «Kongen bestemmer»/en reell "ikke trådt i kraft"-status. Koden hadde allerede en
+// kommentar (se historikken på denne fila) som advarte MOT nøyaktig denne feilslutningen for andre
+// kildetyper (håndbøker/rundskriv, der feltet aldri populeres) — men samme feilslutning rammet
+// Lov/Forskrift like hardt når feltet rett og slett ikke var bakfylt ennå (bekreftet direkte mot
+// kjørende dev-database: 5873 av 5873 Lov/Forskrift-rader hadde `ikrafttredelseRaa=null` FØR en full
+// resynk hadde kjørt siden PR #84 — «Utenfor korpuset»-fanen viste da nesten HELE korpuset).
+// Tre eksplisitte tilstander i stedet for to: 'ukjent' (null — ikke bakfylt, IKKE en ekskluderings-
+// grunn) skilt fra 'ikke-i-kraft' (feltet ER satt, men inneholder ingen gyldig dato — en REELL "Kongen
+// bestemmer uten dato ennå"-status). Kun 'ikke-i-kraft' skal telle som en "Utenfor korpuset"-grunn —
+// 'ukjent' havner i «Aktive rettskilder» (samme sted den ville havnet om feltet var korrekt bakfylt til
+// en gyldig dato, «gi tvilen fordelen» fremfor å feilklassifisere som ekskludert).
+type Ikrafttredelsesstatus = 'ukjent' | 'ikke-i-kraft' | 'i-kraft';
+
+function ikrafttredelsesstatus(r: RettskildeSammendrag): Ikrafttredelsesstatus {
+  if (!KILDETYPER_MED_IKRAFTTREDELSESDATO.has(r.kildetype)) return 'i-kraft'; // ikke relevant for denne kildetypen — aldri en ekskluderingsgrunn.
+  if (r.ikrafttredelseRaa == null) return 'ukjent';
+  return IKRAFTTREDELSE_DATO_MONSTER.test(r.ikrafttredelseRaa) ? 'i-kraft' : 'ikke-i-kraft';
+}
+
 function erIkkeTraadtIKraft(r: RettskildeSammendrag): boolean {
-  if (!KILDETYPER_MED_IKRAFTTREDELSESDATO.has(r.kildetype)) return false;
-  return !r.ikrafttredelseRaa || !IKRAFTTREDELSE_DATO_MONSTER.test(r.ikrafttredelseRaa);
+  return ikrafttredelsesstatus(r) === 'ikke-i-kraft';
 }
 
 export default function RettskilderListe() {
