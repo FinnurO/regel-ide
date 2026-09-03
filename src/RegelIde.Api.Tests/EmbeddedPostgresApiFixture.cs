@@ -1,3 +1,4 @@
+using System.Linq;
 using System.Net.Http;
 using System.Text;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -80,47 +81,93 @@ public sealed class EmbeddedPostgresApiFixture : IAsyncLifetime
         // første timelige sjekken og trigge en ekte, utilsiktet Lovdata-fullimport i bakgrunnen.
         Environment.SetEnvironmentVariable("RegelIde__LovdataFullimport__PlanlagtResynkAktiv", "false");
 
-        // [Ny, issue #117] Standard, DEFAULT-stubbet SNL/SSR-oppslag for HELE denne DELTE fixturen
-        // (samme "aldri ekte, utilsiktede nettverkskall i en testkjøring"-hensyn som Stub-KI-leverandøren
-        // og deaktivert Lovdata-fullimport over). Uten dette ville NavnekandidatOppdagelseTjeneste.SveipAsync
-        // (nå utvidet til å kjøre "virksomhet"-kandidater fra suffiks-/flerords-mønstrene gjennom
-        // EksternNavneoppslagTjeneste, se den klassens kommentar) gjort EKTE, langsomme/uforutsigbare
-        // HTTP-kall mot snl.no/ws.geonorge.no fra ENHVER test i denne collection-en som (utilsiktet)
-        // treffer et "virksomhet"-mønster (flere gjør det allerede, f.eks.
-        // NavnekandidaterEndepunktTests' "Miljødirektoratet"/"Fiskeridirektoratet"-tekster). Svarer "ingen
-        // treff" for BEGGE kildene — samme nøytrale, IKKE-forkastende "ukjent i begge"-gren (docs/31 §2
-        // punkt 3) som resten av klassen allerede bygger for en term som verken bekreftes eller avkreftes.
-        // Enkelttester som faktisk vil teste SNL/SSR-klassifiseringen via API-et overstyrer dette per test
-        // med sin EGEN WithWebHostBuilder-avledede klient (samme mønster som BrregEndepunktTests bruker
-        // for BrregKlient) — de rører ikke denne delte standarden.
+        // [Ny, issue #117; restrukturert 2026-09-03] Standard, DEFAULT-stubbet SNL/SSR-oppslag for HELE
+        // denne DELTE fixturen (samme "aldri ekte, utilsiktede nettverkskall i en testkjøring"-hensyn som
+        // Stub-KI-leverandøren og deaktivert Lovdata-fullimport over). Uten dette ville
+        // NavnekandidatOppdagelseTjeneste.SveipAsync (som kjører ALLE "virksomhet"-kandidater — flerords-
+        // OG det brede stor-bokstav-mønsteret, se den klassens kommentar — gjennom EksternNavneoppslagTjeneste)
+        // gjort EKTE, langsomme/uforutsigbare HTTP-kall mot snl.no/ws.geonorge.no fra ENHVER test i denne
+        // collection-en som (utilsiktet) treffer et "virksomhet"-mønster (flere gjør det allerede, f.eks.
+        // NavnekandidaterEndepunktTests' "Miljødirektoratet"/"Fiskeridirektoratet"-tekster).
+        // <para>
+        // [Restrukturert, 2026-09-03] Svarte TIDLIGERE "ingen treff" for BEGGE kildene — under den NYE
+        // to-utfalls klassifiseringen (se NavnekandidatOppdagelseTjeneste.KlassifiserAsync sin kommentar)
+        // ville det latt ENHVER "virksomhet"-kandidat i denne DELTE fixturen opprettes DIREKTE som
+        // Status="Avvist" i stedet for "Venter", og brutt praktisk talt ALLE eksisterende
+        // NavnekandidaterEndepunktTests-tester som forutsetter en godkjennbar/avvisbar "virksomhet"-kandidat
+        // (default-listingen viser kun 'Venter'). Denne delte standard-stubben SNL-BEKREFTER derfor nå
+        // ETHVERT søkt navn (ekko av selve søketermen tilbake som artikkelens headword/organisasjonsnavn)
+        // — en bevisst forenkling KUN for denne delte fixturen (selve SNL/SSR-KLASSIFISERINGSLOGIKKEN
+        // testes presist, med spesifikke treff/ikke-treff-scenarioer, i RegelIde.Data.Tests'
+        // NavnekandidatOppdagelseTjenesteTests, ikke her). SSR svarer fortsatt "ingen treff" (ubrukt av
+        // disse API-testene). Enkelttester som faktisk vil teste SNL/SSR-KLASSIFISERINGEN via API-et
+        // overstyrer dette per test med sin EGEN WithWebHostBuilder-avledede klient (samme mønster som
+        // BrregEndepunktTests bruker for BrregKlient) — de rører ikke denne delte standarden.
+        // </para>
         Factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
             builder.ConfigureServices(services =>
                 services.AddHttpClient<EksternNavneoppslagTjeneste>()
-                    .ConfigurePrimaryHttpMessageHandler(() => new IngenEksternTreffHandler())));
+                    .ConfigurePrimaryHttpMessageHandler(() => new AltErInstitusjonHandler())));
 
         // Trigger host-oppstart (migrasjon + seeding i Program.cs) nå, ikke ved første test.
         using var warmup = Factory.CreateClient();
         await warmup.GetAsync("/api/rettskilder");
     }
 
-    /// <summary>Default-stub for <see cref="EksternNavneoppslagTjeneste"/> i denne DELTE fixturen — svarer
-    /// "ingen treff" (tomt JSON-svar i riktig form) uansett hvilken av de to kildene (SNL-søk eller
-    /// SSR-stedsnavn-søk) som spørres. Se <see cref="InitializeAsync"/> for hvorfor dette må stå på selve
-    /// <see cref="Factory"/>, ikke bare per-test (denne fixturen deles av HELE RegelIde.Api.Tests-samlingen,
-    /// se <see cref="ApiTestCollection"/>).</summary>
-    private sealed class IngenEksternTreffHandler : HttpMessageHandler
+    /// <summary>
+    /// [Restrukturert, 2026-09-03, tidligere "IngenEksternTreffHandler"] Default-stub for
+    /// <see cref="EksternNavneoppslagTjeneste"/> i denne DELTE fixturen — se <see cref="InitializeAsync"/>
+    /// for hvorfor dette må stå på selve <see cref="Factory"/>, ikke bare per-test (denne fixturen deles
+    /// av HELE RegelIde.Api.Tests-samlingen, se <see cref="ApiTestCollection"/>).
+    /// <para>
+    /// SNL-søket (<c>api/v1/search</c>) svarer med ETT treff som SNL-BEKREFTER den faktisk spurte termen
+    /// (leser <c>query</c>-parameteren fra selve forespørselen og ekkoer den tilbake som artikkelens
+    /// <c>headword</c>/<c>organization_name</c> — via en artikkel-URL som selv koder inn termen, slik at
+    /// det andre kallet (artikkel-JSON-oppslaget) kan dekode den ut igjen). SSR-stedsnavn-søket svarer
+    /// fortsatt "ingen treff" (tomt).
+    /// </para>
+    /// </summary>
+    private sealed class AltErInstitusjonHandler : HttpMessageHandler
     {
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
         {
             var url = request.RequestUri!.ToString();
-            var body = url.Contains("stedsnavn", StringComparison.OrdinalIgnoreCase)
-                ? """{ "navn": [] }"""
-                : "[]"; // SNL-søket (api/v1/search) svarer med en flat treffliste.
-            return Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+            if (url.Contains("stedsnavn", StringComparison.OrdinalIgnoreCase))
             {
-                Content = new StringContent(body, Encoding.UTF8, "application/json"),
-            });
+                return Task.FromResult(Json("""{ "navn": [] }"""));
+            }
+            if (url.Contains("api/v1/search", StringComparison.OrdinalIgnoreCase))
+            {
+                var term = HentSpørreparameter(request.RequestUri!, "query");
+                var kodetTerm = Uri.EscapeDataString(term);
+                return Task.FromResult(Json($$"""
+                [{ "article_type_id": 16, "taxonomy_title": "Test-taksonomi",
+                   "article_url": "https://snl.no/{{kodetTerm}}",
+                   "article_url_json": "https://snl.no/{{kodetTerm}}.json" }]
+                """));
+            }
+            // Artikkel-JSON-oppslaget (article_url_json over) — termen er kodet inn i selve URL-en.
+            var termFraUrl = Uri.UnescapeDataString(url[(url.LastIndexOf('/') + 1)..^".json".Length]);
+            return Task.FromResult(Json($$"""
+            { "headword": "{{termFraUrl}}", "url": "{{url[..^".json".Length]}}",
+              "metadata": { "organization_name": "{{termFraUrl}}" } }
+            """));
         }
+
+        private static string HentSpørreparameter(Uri uri, string navn)
+        {
+            foreach (var par in uri.Query.TrimStart('?').Split('&', StringSplitOptions.RemoveEmptyEntries))
+            {
+                var deler = par.Split('=', 2);
+                if (deler[0] == navn) return Uri.UnescapeDataString(deler.ElementAtOrDefault(1) ?? "");
+            }
+            return "";
+        }
+
+        private static HttpResponseMessage Json(string body) => new(System.Net.HttpStatusCode.OK)
+        {
+            Content = new StringContent(body, Encoding.UTF8, "application/json"),
+        };
     }
 
     public Task DisposeAsync()

@@ -2867,13 +2867,14 @@ var navnekandidater = app.MapGroup("/api/navnekandidater").WithOpenApi();
 // én batch-spørring for hele lista (unngår N+1 mot cache-tabellen).
 // <para>
 // [Rettet, issue #117] Gatingen her var TIDLIGERE på OppdagelsesKilde (kun det nye "stor bokstav"-
-// mønsteret) — nå på Kategori == "virksomhet". Grunn: NavnekandidatOppdagelseTjeneste.SveipAsync (de
-// eldre suffiks-/flerords-mønstrene) kjører NÅ også kandidater gjennom SAMME SNL/SSR-klassifiseringskjede
-// (se den metodens kommentar), og skriver dermed til NØYAKTIG samme cache-tabell — en "virksomhet"-rad
-// derfra kan derfor ha en reell cache-treff å vise, uavhengig av HVILKET mønster som oppdaget den.
-// OppdagelsesKilde forblir uendret som diskriminator for UI-visning av selve oppdagelsesKILDEN — kun
-// selve berikelse-OPPSLAGET er nå bredere. "gruppe"-kandidater slås aldri opp (de sendes aldri til
-// SNL/SSR i utgangspunktet, se SveipAsync sin "scopet til virksomhet"-begrunnelse).
+// mønsteret) — nå på Kategori == "virksomhet". Grunn: ALLE "virksomhet"-kandidater (uansett hvilket av
+// de to gjenværende mønstrene — flerords-institusjonsord ELLER det brede stor-bokstav-mønsteret — som
+// oppdaget dem, se NavnekandidatOppdagelseTjeneste.SveipAsync sin klassekommentar) klassifiseres nå
+// gjennom SAMME SNL/SSR-klassifiseringskjede og skriver dermed til NØYAKTIG samme cache-tabell. En
+// "virksomhet"-rad kan derfor ha en reell cache-treff å vise, uavhengig av HVILKET mønster som
+// oppdaget den. OppdagelsesKilde forblir uendret som diskriminator for UI-visning av selve
+// oppdagelsesKILDEN — kun selve berikelse-OPPSLAGET er nå bredere. "gruppe"-kandidater slås aldri opp
+// (de sendes aldri til SNL/SSR i utgangspunktet, se SveipAsync sin "scopet til virksomhet"-begrunnelse).
 // </para>
 static async Task<List<NavnekandidatDto>> BerikNavnekandidaterAsync(
     IReadOnlyList<NavnekandidatEntitet> kandidater, RegelIdeDbContext db, CancellationToken ct)
@@ -2942,28 +2943,12 @@ navnekandidater.MapPost("/sveip", async (HttpRequest request, SveipNavnekandidat
     })
     .WithName("SveipNavnekandidater")
     .WithSummary("docs/13-backlog.md §9 — regex-mønstergjenkjenning gjennom allerede importerte rettskilde-noder " +
-        "(RettskildeId=null: hele korpuset, satt: kun én rettskilde). Idempotent (kjør flere ganger uten duplikater).");
-
-navnekandidater.MapPost("/sveip-storbokstav", async (HttpRequest request, SveipNavnekandidaterRequest body,
-        NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
-    {
-        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
-        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
-        try
-        {
-            var resultat = await register.SveipStorBokstavAsync(body.RettskildeId, bruker.Navn, ct);
-            return Results.Ok(new SveipNavnekandidaterResultatDto(resultat.AntallTreffFunnet, resultat.AntallNyeKandidater));
-        }
-        catch (ArgumentException ex)
-        {
-            return Results.BadRequest(new { feil = ex.Message });
-        }
-    })
-    .WithName("SveipNavnekandidaterStorBokstav")
-    .WithSummary("docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md — det NYE, brede 'stor bokstav midt i " +
-        "setning'-mønsteret, klassifisert mot LEVENDE eksterne SNL/SSR-API-er (per-term, cachet). EGET " +
-        "endepunkt, atskilt fra /sveip — se docs/31 §6: kjør bevisst mot ETT/få RettskildeId først, ikke hele " +
-        "korpuset, siden ingen av de eksterne API-ene har dokumentert ratelimit.");
+        "(RettskildeId=null: hele korpuset, satt: kun én rettskilde). Idempotent (kjør flere ganger uten duplikater). " +
+        "[Restrukturert, 2026-09-03] Dette er nå det ENESTE sveipendepunktet — dekker faste gruppe-/rollesubstantiv, " +
+        "flerords-institusjonsord OG det brede 'stor bokstav midt i setning'-mønsteret (tidligere et eget " +
+        "/sveip-storbokstav-endepunkt, docs/31 §6, nå fjernet — se NavnekandidatOppdagelseTjeneste.SveipAsync " +
+        "sin klassekommentar). 'virksomhet'-kandidater fra det brede mønsteret klassifiseres mot LEVENDE eksterne " +
+        "SNL/SSR-API-er (per unikt navn i sveipet, cachet på tvers av sveip).");
 
 navnekandidater.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest request,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
