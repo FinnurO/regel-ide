@@ -93,6 +93,23 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal("Patentverket", ektInstitusjon.Substring(treff.Start, treff.Lengde));
     }
 
+    /// <summary>
+    /// [Ny, issue #150 del 1] "utvalget"/"enheten" manglet helt fra <see cref="NavnekandidatOppdagelseTjeneste"/>s
+    /// suffikslister — Johann forventet vesentlig flere forslag i navnekandidat-køen (eksemplifisert med
+    /// "EOS-utvalget"/"PNR-enheten", selve bindestrek-forkortelsen er bevisst IKKE dekket her, se
+    /// Suffikser-feltets kommentar). Disse testene dekker den ikke-bindestrek-forkortede formen
+    /// (ETT sammensmeltet ord, samme mønster som "Datatilsynet"/"Miljødirektoratet").
+    /// </summary>
+    [Theory]
+    [InlineData("Klager fra publikum behandles av Personvernutvalget i første instans.", "Personvernutvalget")]
+    [InlineData("Sluttrapporten oversendes Etterretningsenheten for videre behandling.", "Etterretningsenheten")]
+    public void Suffiksmonster_fanger_utvalget_og_enheten_som_smeltet_sammensatt_ord(string tekst, string forventet)
+    {
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+        var treff = Assert.Single(funn, f => f.Kategori == "virksomhet");
+        Assert.Equal(forventet, tekst.Substring(treff.Start, treff.Lengde));
+    }
+
     [Fact]
     public void Fast_liste_gruppesubstantiv_gir_alltid_gruppe_uansett_store_smaa_bokstaver()
     {
@@ -134,10 +151,12 @@ public class NavnekandidatOppdagelseTjenesteTests
     [Fact]
     public void Flerords_monster_med_ett_egennavn_gir_virksomhet_kandidat()
     {
-        // Ordrett fra live data, FOR-2019-09-30-1310 §2 andre ledd, punkt 1 — importert som SIN EGEN
-        // RettskildeNode uten noen tekstlig liste-markør (bokstav-/tallmarkøren er strukturell metadata,
-        // ikke en del av Tekst) — "Østfold fylkeskommune: …" står derfor bokstavelig på posisjon 0.
-        const string tekst = "Østfold fylkeskommune: Driftsområde Ytre Oslofjord Øst";
+        // Basert på live data, FOR-2019-09-30-1310 §2 andre ledd, punkt 1 ("Østfold fylkeskommune:
+        // Driftsområde Ytre Oslofjord Øst") — MEN med en kort, urelatert lead-in-setning foran, slik at
+        // treffet ikke lenger står ved ABSOLUTT tekststart (se
+        // Flerords_monster_gir_ingen_kandidat_for_egennavn_som_star_bokstavelig_forst_i_egen_node under
+        // for nøyaktig DEN varianten, og hvorfor den nå bevisst IKKE lenger gir noen kandidat, issue #149).
+        const string tekst = "Fylkeskommunale driftsområder er inndelt slik: Østfold fylkeskommune: Driftsområde Ytre Oslofjord Øst";
         var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
 
         // Merk: bare "fylkeskommune" gir I TILLEGG en separat "gruppe"-treff (Del 2s utvidede
@@ -149,13 +168,48 @@ public class NavnekandidatOppdagelseTjenesteTests
     [Fact]
     public void Flerords_monster_med_bindeord_og_inkluderer_bindeordet_i_fanget_tekst()
     {
-        // Ordrett fra samme rettskilde, punkt 7 — "og" MELLOM to store-forbokstav-ord skal være med i
-        // den fangede teksten, ikke bare det siste av dem.
-        const string tekst = "Møre og Romsdal fylkeskommune: Møre og Romsdal driftsområde";
+        // Basert på samme rettskilde, punkt 7 ("Møre og Romsdal fylkeskommune: …") — "og" MELLOM to
+        // store-forbokstav-ord skal være med i den fangede teksten, ikke bare det siste av dem. Samme
+        // lead-in-tilpasning som testen over (issue #149 — se den testens kommentar).
+        const string tekst = "Fylkeskommunale driftsområder er inndelt slik: Møre og Romsdal fylkeskommune: Møre og Romsdal driftsområde";
         var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
 
         var treff = Assert.Single(funn, f => f.Kategori == "virksomhet");
         Assert.Equal("Møre og Romsdal fylkeskommune", tekst.Substring(treff.Start, treff.Lengde));
+    }
+
+    /// <summary>
+    /// [Ny, issue #149] Regresjonstest for selve fiksen: det fangede egennavn-ordet FØRST i
+    /// flerords-treffet skal IKKE telle som et egennavn når det står ved en (tvetydig) setningsstart —
+    /// samme prinsipp som <see cref="ErSetningsstart"/> allerede håndhever for suffiksmønsteret og
+    /// <see cref="FinnStorBokstavKandidaterITekst"/>. "For"/"Konkret" er her IKKE egennavn — de er kun
+    /// stor forbokstav fordi de tilfeldigvis åpner sin egen setning/node, nøyaktig Johanns to rapporterte
+    /// eksempler (issue #149).
+    /// </summary>
+    [Theory]
+    [InlineData("For tilsyn med at reglene overholdes, skal Statsforvalteren føre kontroll.")]
+    [InlineData("Konkret tilsyn kan gjennomføres når det er nødvendig.")]
+    public void Flerords_monster_gir_ingen_virksomhet_for_ord_som_kun_er_stor_forbokstav_ved_setningsstart(string tekst)
+    {
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+        Assert.DoesNotContain(funn, f => f.Kategori == "virksomhet");
+    }
+
+    /// <summary>
+    /// [Ny, issue #149] Dokumentert, AKSEPTERT recall-tap som direkte følge av fiksen over: et EKTE
+    /// flerords-institusjonsnavn som (som i FOR-2019-09-30-1310 §2) står bokstavelig som det ALLERFØRSTE
+    /// i sin egen <see cref="RettskildeNodeEntitet"/> (AKN-listepunkt-per-node-import, ingen tekstlig
+    /// liste-markør i selve Tekst) fanges IKKE lenger av dette mønsteret — se
+    /// <see cref="ErFlerordsKontekstTillatt"/>s metodekommentar for hvorfor dette er en bevisst,
+    /// eksplisitt flagget avveining (samme mekanisme kan ikke skille "Østfold" fra "For"/"Konkret" uten
+    /// en ordklasse-/NLP-analyse, som er eksplisitt forbudt i denne klassen).
+    /// </summary>
+    [Fact]
+    public void Flerords_monster_gir_ingen_kandidat_for_egennavn_som_star_bokstavelig_forst_i_egen_node()
+    {
+        const string tekst = "Østfold fylkeskommune: Driftsområde Ytre Oslofjord Øst";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+        Assert.DoesNotContain(funn, f => f.Kategori == "virksomhet");
     }
 
     [Fact]
@@ -192,6 +246,23 @@ public class NavnekandidatOppdagelseTjenesteTests
 
         var treff = Assert.Single(funn, f => f.Kategori == "virksomhet");
         Assert.Equal("Statens vegvesen", tekst.Substring(treff.Start, treff.Lengde));
+    }
+
+    /// <summary>
+    /// [Ny, issue #150 del 1] "utvalg"/"enhet" — lagt til <see cref="Institusjonsord"/> som eget,
+    /// mellomromsdelt ord etter et egennavn, samme flerords-form som "Statens vegvesen"/"Møre og
+    /// Romsdal fylkeskommune" (til forskjell fra det MELTEDE "utvalget"/"enheten"-suffikset, se
+    /// Suffiksmonster-testene over). Fanger ikke bindestrek-forkortelsen "EOS-utvalget"/"PNR-enheten"
+    /// (issue #150 del 2, bevisst ikke bygget her).
+    /// </summary>
+    [Theory]
+    [InlineData("Klagesaker om personvern behandles av Telemark utvalg innen tre uker.", "Telemark utvalg")]
+    [InlineData("Bistand til politiet ytes av Vestfold enhet i denne typen saker.", "Vestfold enhet")]
+    public void Flerords_monster_fanger_utvalg_og_enhet_som_eget_ord_etter_egennavn(string tekst, string forventet)
+    {
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+        var treff = Assert.Single(funn, f => f.Kategori == "virksomhet");
+        Assert.Equal(forventet, tekst.Substring(treff.Start, treff.Lengde));
     }
 
     [Fact]
@@ -373,7 +444,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Fiskeridirektoratet innen tre uker.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
+        var tjeneste = NyTjeneste(db);
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
         Assert.Equal(1, resultat.AntallTreffFunnet);
@@ -400,7 +471,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
         await db.SaveChangesAsync();
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
+        var tjeneste = NyTjeneste(db);
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
         Assert.Equal(0, resultat.AntallTreffFunnet);
@@ -436,7 +507,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
         await db.SaveChangesAsync();
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
+        var tjeneste = NyTjeneste(db);
         // Korpusomfattende sveip (rettskildeId=null) — den reelle bug-scenarioen, IKKE et eksplisitt
         // forsøk på å be om nettopp denne rettskilden (det dekkes av testen under). Merk: kan IKKE
         // sjekke AntallTreffFunnet==0 her — samlingen deler embedded Postgres med andre tester i samme
@@ -462,7 +533,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
         await db.SaveChangesAsync();
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
+        var tjeneste = NyTjeneste(db);
 
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.SveipAsync(privatRettskildeId, "test"));
     }
@@ -493,7 +564,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
         await db.SaveChangesAsync();
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
+        var tjeneste = NyTjeneste(db);
         // Samme merknad som testen over: ingen AntallTreffFunnet==0-sjekk mulig i en delt DB-samling.
         await tjeneste.SveipAsync(null, "test");
 
@@ -516,7 +587,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
         await db.SaveChangesAsync();
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
+        var tjeneste = NyTjeneste(db);
         var forsteResultat = await tjeneste.SveipAsync(rettskildeId, "test");
         var andreResultat = await tjeneste.SveipAsync(enAnnenRettskildeId, "test");
 
@@ -531,7 +602,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Vegdirektoratet innen tre uker.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
+        var tjeneste = NyTjeneste(db);
         var forste = await tjeneste.SveipAsync(rettskildeId, "test");
         var andre = await tjeneste.SveipAsync(rettskildeId, "test");
 
@@ -547,7 +618,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Alle skip skal melde fra til havnetilsynet før anløp.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
+        var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
         Assert.Equal("gruppe", kandidat.Kategori);
@@ -571,7 +642,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Sjøfartsdirektoratet innen tre uker.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
+        var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
         Assert.Equal("virksomhet", kandidat.Kategori);
@@ -589,7 +660,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Reindriftsdirektoratet innen tre uker.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
+        var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
 
@@ -607,7 +678,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     public async Task Kaster_hvis_rettskilden_ikke_finnes()
     {
         await using var db = _fixture.NyDbContext();
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
+        var tjeneste = NyTjeneste(db);
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.SveipAsync(Guid.NewGuid(), "test"));
     }
 
@@ -619,7 +690,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Statsforvalteren skal påse at loven følges.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
+        var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(rettskildeId, "test");
 
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
@@ -643,7 +714,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
             db, "Statsforvalteren skal føre tilsyn. I andre saker avgjør statsforvalteren selv.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
+        var tjeneste = NyTjeneste(db);
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
         // Kun ÉN treff telles — den andre forekomsten er "alleredeDekketAvEksisterendeKandidat", samme
@@ -673,7 +744,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         });
         await db.SaveChangesAsync();
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
+        var tjeneste = NyTjeneste(db);
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
         Assert.Equal(1, resultat.AntallTreffFunnet);
@@ -694,7 +765,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
             db, "Vedtak kan påklages til Sjøfartsdirektoratet, og Sjøfartsdirektoratet behandler klagen innen tre uker.");
 
-        var tjeneste = new NavnekandidatOppdagelseTjeneste(db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(), db));
+        var tjeneste = NyTjeneste(db);
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
         Assert.Equal(2, resultat.AntallTreffFunnet);
@@ -813,10 +884,26 @@ public class NavnekandidatOppdagelseTjenesteTests
 
     // ---------- Del E: departement-eid tekst-tagg ved godkjenning (tekst-tagg-departement-eierskap, 2026-08-31) ----------
 
-    private static NavnekandidatOppdagelseTjeneste NyTjeneste(RegelIdeDbContext db) => new(
-        db, new VirksomhetsbegrepTjeneste(db),
-        new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)), new VirksomhetOppslagTjeneste(db),
-        new EksternNavneoppslagTjeneste(new HttpClient(), db));
+    /// <summary>
+    /// [Rettet, issue #117] <see cref="EksternNavneoppslagTjeneste"/> her fikk TIDLIGERE en helt
+    /// utstubbet <see cref="HttpClient"/> (ingen <see cref="HttpMessageHandler"/> overstyrt i det hele
+    /// tatt) — trygt DEN gang, siden <see cref="NavnekandidatOppdagelseTjeneste.SveipAsync"/> aldri
+    /// kalte <see cref="EksternNavneoppslagTjeneste"/> uansett. Nå som <c>SveipAsync</c> også kjører
+    /// "virksomhet"-kandidater gjennom SNL/SSR-klassifiseringskjeden (se den metodens kommentar), ville
+    /// den ekte, ustubbede klienten gjort EKTE nettverkskall mot snl.no/ws.geonorge.no fra so godt som
+    /// ALLE <c>SveipAsync</c>-testene i denne klassen (mange av dem sveiper nettopp en "virksomhet"-tekst,
+    /// f.eks. "Fiskeridirektoratet"/"Miljødirektoratet"). Svarer nå "ingen treff" for BEGGE kildene —
+    /// samme nøytrale docs/31 §2 punkt 3-gren ("ukjent i begge" → behold, lav tillit) som resten av
+    /// klassen uansett bygger for en ukjent term, så INGEN av disse testenes eksisterende assertions
+    /// endres av dette — kun selve NETTVERKSAVHENGIGHETEN fjernes. Tester som faktisk vil øve på
+    /// SNL/SSR-KLASSIFISERINGEN via <c>SveipAsync</c> bygger sin egen tjeneste med
+    /// <see cref="NyTjenesteMedStubbetOppslag"/> (samme hjelpemetode <see cref="SveipStorBokstavAsync"/>-
+    /// testene under allerede bruker), ikke denne default-hjelpemetoden.
+    /// </summary>
+    private static NavnekandidatOppdagelseTjeneste NyTjeneste(RegelIdeDbContext db) => NyTjenesteMedStubbetOppslag(db, req =>
+        Json(req.RequestUri!.ToString().Contains("stedsnavn", StringComparison.OrdinalIgnoreCase)
+            ? """{ "navn": [] }"""
+            : "[]"));
 
     /// <summary>
     /// Kjernescenariet fra Johanns designvalg: et gruppebegrep er delt/nasjonalt (ingen egen eiende
@@ -1160,5 +1247,161 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal(1, forste.AntallNyeKandidater);
         Assert.Equal(0, andre.AntallNyeKandidater); // allerede en kandidat på nøyaktig denne posisjonen.
         Assert.Equal(1, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeId));
+    }
+
+    // ---------- Del G: SNL/SSR-klassifisering utvidet til SveipAsync (issue #117) ----------
+    //
+    // Fram til denne rettelsen var SveipAsync (suffiks-/flerords-mønstrene) og SveipStorBokstavAsync
+    // helt uavhengige av hverandre m.h.t. SNL/SSR — kun sistnevnte klassifiserte i det hele tatt. Disse
+    // testene dekker den NYE koblingen (se SveipAsync sin metodekommentar for hele resonnementet, inkl.
+    // hvorfor "gruppe" er eksplisitt utenfor scopet og hvorfor SSR-forkastingsgrenen sjelden trigges for
+    // disse to mønstrene). Samme klassifiseringskjede (BeholdSomKandidatAsync) og samme cache som
+    // Del F over — ingen ny, parallell mekanisme.
+
+    [Fact]
+    public async Task SveipAsync_suffiksmonster_snl_bekreftet_institusjon_beholdes_og_cacher_treff()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Kvirsetilsynet innen tre uker.");
+
+        var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
+        {
+            var url = req.RequestUri!.ToString();
+            if (url.Contains("api/v1/search"))
+            {
+                return Json("""
+                [{ "article_type_id": 16, "taxonomy_title": "Test-taksonomi",
+                   "article_url": "https://snl.no/Kvirsetilsynet", "article_url_json": "https://snl.no/Kvirsetilsynet.json" }]
+                """);
+            }
+            if (url.EndsWith("Kvirsetilsynet.json"))
+            {
+                return Json("""
+                { "headword": "Kvirsetilsynet", "url": "https://snl.no/Kvirsetilsynet",
+                  "metadata": { "organization_name": "Kvirsetilsynet", "organization_number": "999888777" } }
+                """);
+            }
+            throw new InvalidOperationException($"Uventet URL: {url}");
+        });
+
+        var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
+
+        Assert.Equal(1, resultat.AntallTreffFunnet);
+        Assert.Equal(1, resultat.AntallNyeKandidater);
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
+        Assert.Equal("virksomhet", kandidat.Kategori);
+        Assert.Equal("Kvirsetilsynet", kandidat.ForeslattTekst);
+        // Til forskjell fra SveipStorBokstavAsync: OppdagelsesKilde forblir null — dette er FORTSATT det
+        // opprinnelige, presise suffiksmønsteret som oppdaget kandidaten, kun VALIDERINGEN er ny (se
+        // NavnekandidatEntitet.OppdagelsesKilde sin kommentar).
+        Assert.Null(kandidat.OppdagelsesKilde);
+
+        var cacheRad = await db.EksternNavneoppslagCache.SingleAsync(c => c.Term == "kvirsetilsynet" && c.Kilde == "snl");
+        Assert.True(cacheRad.Treff);
+        Assert.Equal("999888777", cacheRad.OrganisasjonsnummerFunnet);
+    }
+
+    [Fact]
+    public async Task SveipAsync_ukjent_i_snl_og_ssr_beholdes_fortsatt_som_lav_tillit_kandidat()
+    {
+        // "Ingen gjettet fallback" (docs/31 §2 punkt 3) — en term SNL/SSR ikke kjenner igjen skal IKKE
+        // forkastes bare fordi den nå faktisk BLIR slått opp (til forskjell fra før denne rettelsen, da
+        // suffiksmønsteret aldri ble slått opp mot noe som helst).
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Kvirsedirektoratet innen tre uker.");
+
+        var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
+        {
+            var url = req.RequestUri!.ToString();
+            if (url.Contains("api/v1/search")) return Json("[]");
+            if (url.Contains("stedsnavn")) return Json("""{ "navn": [] }""");
+            throw new InvalidOperationException($"Uventet URL: {url}");
+        });
+
+        var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
+
+        Assert.Equal(1, resultat.AntallNyeKandidater);
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
+        Assert.Equal("Kvirsedirektoratet", kandidat.ForeslattTekst);
+    }
+
+    [Fact]
+    public async Task SveipAsync_flerordsmonster_ssr_bekreftet_uten_institusjonsord_rett_etter_forkastes()
+    {
+        // Viser at gjenbruken av BeholdSomKandidatAsync FAKTISK kan forkaste noe også for flerords-
+        // mønsteret, ikke bare gi ren berikelse — riktignok en sjelden situasjon i praksis (se SveipAsync
+        // sin metodekommentar om hvorfor), men mekanismen skal fungere identisk uansett kilde-mønster.
+        // "Myrvang kommune" er selve den fangede "virksomhet"-kandidaten (flerords: "Myrvang" + "kommune"
+        // som eget institusjonsord) — ordet RETT ETTER hele kandidaten i løpeteksten ("deretter") er
+        // ikke et institusjonsord, så et SSR-"treff" på nøyaktig "Myrvang kommune" skal forkastes.
+        // <b>To treff totalt, ikke ett</b>: "kommune" alene gir I TILLEGG en separat "gruppe"-kandidat
+        // (FasteRollesubstantiv sine bøyningsformer, se den listens kommentar og
+        // Flerords_monster_med_ett_egennavn_gir_virksomhet_kandidat over for samme, allerede dokumenterte
+        // dobbelttreff) — DEN sendes aldri til SNL/SSR (scopet til "virksomhet", se SveipAsync sin
+        // metodekommentar) og forkastes derfor IKKE av denne testens SSR-stub.
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(
+            db, "Alle henvendelser rettes til Myrvang kommune deretter i sakens anledning.");
+
+        var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
+        {
+            var url = req.RequestUri!.ToString();
+            if (url.Contains("api/v1/search")) return Json("[]"); // ingen SNL-treff.
+            if (url.Contains("stedsnavn")) return Json("""{ "navn": [ { "skrivemåte": "Myrvang kommune", "navneobjekttype": "Tettsted" } ] }""");
+            throw new InvalidOperationException($"Uventet URL: {url}");
+        });
+
+        var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
+
+        Assert.Equal(2, resultat.AntallTreffFunnet); // "Myrvang kommune" (virksomhet) + "kommune" alene (gruppe).
+        Assert.Equal(1, resultat.AntallNyeKandidater); // KUN "kommune"-gruppekandidaten — virksomhet-treffet ble forkastet.
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
+        Assert.Equal("gruppe", kandidat.Kategori);
+        Assert.Equal("kommune", kandidat.ForeslattTekst);
+        Assert.False(await db.Navnekandidater.AnyAsync(k => k.RettskildeId == rettskildeId && k.Kategori == "virksomhet"));
+    }
+
+    [Fact]
+    public async Task SveipAsync_gruppekandidat_sendes_aldri_til_snl_ssr()
+    {
+        // Scoping-beslutningen (se SveipAsync sin metodekommentar) — "gruppe" (her: suffiksmønsterets
+        // LITEN forbokstav-gren, "kommunen" med liten k) skal ALDRI treffe et eksternt oppslag. Stubben
+        // kaster hvis den i det hele tatt kalles — testen feiler dermed tydelig (ikke stille) om scopingen
+        // noensinne brytes.
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Det er kommunen som har ansvaret her.");
+
+        var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
+            throw new InvalidOperationException($"Uventet eksternt SNL/SSR-kall for en 'gruppe'-kandidat: {req.RequestUri}"));
+
+        var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
+
+        Assert.Equal(1, resultat.AntallNyeKandidater);
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
+        Assert.Equal("gruppe", kandidat.Kategori);
+    }
+
+    [Fact]
+    public async Task SveipAsync_fortsetter_selv_om_snl_oppslag_feiler_for_suffiksmonster_kandidat()
+    {
+        // Samme docs/31 §3-garanti ("et sveip skal ALDRI stoppe/krasje pga. en ekstern nettverksfeil")
+        // som SveipStorBokstav_fortsetter_selv_om_ett_eksternt_kall_feiler over, nå bekreftet for
+        // SveipAsync også.
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak kan påklages til Kvirseombudet innen tre uker.");
+
+        var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
+        {
+            var url = req.RequestUri!.ToString();
+            if (url.Contains("api/v1/search")) throw new HttpRequestException("simulert 500 fra SNL");
+            if (url.Contains("stedsnavn")) return Json("""{ "navn": [] }""");
+            throw new InvalidOperationException($"Uventet URL: {url}");
+        });
+
+        var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
+
+        Assert.Equal(1, resultat.AntallTreffFunnet);
+        Assert.Equal(1, resultat.AntallNyeKandidater); // sveipet fullførte OG produserte kandidaten likevel.
+        Assert.True(await db.Navnekandidater.AnyAsync(k => k.RettskildeId == rettskildeId && k.ForeslattTekst == "Kvirseombudet"));
     }
 }

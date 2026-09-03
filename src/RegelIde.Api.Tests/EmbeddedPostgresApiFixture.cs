@@ -1,5 +1,8 @@
+using System.Net.Http;
+using System.Text;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 using MysticMind.PostgresEmbed;
 using Npgsql;
 using RegelIde.Data;
@@ -77,11 +80,47 @@ public sealed class EmbeddedPostgresApiFixture : IAsyncLifetime
         // første timelige sjekken og trigge en ekte, utilsiktet Lovdata-fullimport i bakgrunnen.
         Environment.SetEnvironmentVariable("RegelIde__LovdataFullimport__PlanlagtResynkAktiv", "false");
 
-        Factory = new WebApplicationFactory<Program>();
+        // [Ny, issue #117] Standard, DEFAULT-stubbet SNL/SSR-oppslag for HELE denne DELTE fixturen
+        // (samme "aldri ekte, utilsiktede nettverkskall i en testkjøring"-hensyn som Stub-KI-leverandøren
+        // og deaktivert Lovdata-fullimport over). Uten dette ville NavnekandidatOppdagelseTjeneste.SveipAsync
+        // (nå utvidet til å kjøre "virksomhet"-kandidater fra suffiks-/flerords-mønstrene gjennom
+        // EksternNavneoppslagTjeneste, se den klassens kommentar) gjort EKTE, langsomme/uforutsigbare
+        // HTTP-kall mot snl.no/ws.geonorge.no fra ENHVER test i denne collection-en som (utilsiktet)
+        // treffer et "virksomhet"-mønster (flere gjør det allerede, f.eks.
+        // NavnekandidaterEndepunktTests' "Miljødirektoratet"/"Fiskeridirektoratet"-tekster). Svarer "ingen
+        // treff" for BEGGE kildene — samme nøytrale, IKKE-forkastende "ukjent i begge"-gren (docs/31 §2
+        // punkt 3) som resten av klassen allerede bygger for en term som verken bekreftes eller avkreftes.
+        // Enkelttester som faktisk vil teste SNL/SSR-klassifiseringen via API-et overstyrer dette per test
+        // med sin EGEN WithWebHostBuilder-avledede klient (samme mønster som BrregEndepunktTests bruker
+        // for BrregKlient) — de rører ikke denne delte standarden.
+        Factory = new WebApplicationFactory<Program>().WithWebHostBuilder(builder =>
+            builder.ConfigureServices(services =>
+                services.AddHttpClient<EksternNavneoppslagTjeneste>()
+                    .ConfigurePrimaryHttpMessageHandler(() => new IngenEksternTreffHandler())));
 
         // Trigger host-oppstart (migrasjon + seeding i Program.cs) nå, ikke ved første test.
         using var warmup = Factory.CreateClient();
         await warmup.GetAsync("/api/rettskilder");
+    }
+
+    /// <summary>Default-stub for <see cref="EksternNavneoppslagTjeneste"/> i denne DELTE fixturen — svarer
+    /// "ingen treff" (tomt JSON-svar i riktig form) uansett hvilken av de to kildene (SNL-søk eller
+    /// SSR-stedsnavn-søk) som spørres. Se <see cref="InitializeAsync"/> for hvorfor dette må stå på selve
+    /// <see cref="Factory"/>, ikke bare per-test (denne fixturen deles av HELE RegelIde.Api.Tests-samlingen,
+    /// se <see cref="ApiTestCollection"/>).</summary>
+    private sealed class IngenEksternTreffHandler : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
+        {
+            var url = request.RequestUri!.ToString();
+            var body = url.Contains("stedsnavn", StringComparison.OrdinalIgnoreCase)
+                ? """{ "navn": [] }"""
+                : "[]"; // SNL-søket (api/v1/search) svarer med en flat treffliste.
+            return Task.FromResult(new HttpResponseMessage(System.Net.HttpStatusCode.OK)
+            {
+                Content = new StringContent(body, Encoding.UTF8, "application/json"),
+            });
+        }
     }
 
     public Task DisposeAsync()
