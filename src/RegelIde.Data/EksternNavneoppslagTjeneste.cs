@@ -132,7 +132,7 @@ public sealed class EksternNavneoppslagTjeneste(
             c => c.Term == normalisertTerm && c.Kilde == kilde, ct);
         if (rad is null) return null;
         var alias = rad.AliasJson is null ? null : JsonSerializer.Deserialize<List<string>>(rad.AliasJson);
-        return new EksternOppslagResultat(rad.Treff, rad.TaksonomiKategori, rad.EksternUrl, alias, rad.OrganisasjonsnummerFunnet);
+        return new EksternOppslagResultat(rad.Treff, rad.TaksonomiKategori, rad.EksternUrl, alias, rad.OrganisasjonsnummerFunnet, rad.BekreftetNavn);
     }
 
     private async Task SkrivTilCacheAsync(string normalisertTerm, string kilde, EksternOppslagResultat resultat, CancellationToken ct)
@@ -147,6 +147,7 @@ public sealed class EksternNavneoppslagTjeneste(
             AliasJson = resultat.Alias is null ? null : JsonSerializer.Serialize(resultat.Alias),
             OrganisasjonsnummerFunnet = resultat.Organisasjonsnummer,
             EksternUrl = resultat.EksternUrl,
+            BekreftetNavn = resultat.BekreftetNavn,
             SlaOppTidspunkt = DateTimeOffset.UtcNow,
         };
         db.EksternNavneoppslagCache.Add(rad);
@@ -183,12 +184,19 @@ public sealed class EksternNavneoppslagTjeneste(
                 .Concat(alias);
             if (!kandidatnavn.Any(n => string.Equals(n, term, StringComparison.OrdinalIgnoreCase))) continue;
 
+            // BekreftetNavn: SNLs egen, normalt skrevne form av navnet (til forskjell fra `term`,
+            // som er den rå, evt. VERSALE strengen kalleren slo opp) — brukt av #158 til å
+            // foreslå en navneform ved Brreg-import. Headword foretrekkes (artikkelens tittel);
+            // organization_name er fallback for artikler uten et rent institusjonsnavn som headword.
+            var bekreftetNavn = !string.IsNullOrWhiteSpace(artikkel!.Headword) ? artikkel.Headword : metadata.OrganizationName;
+
             return new EksternOppslagResultat(
                 Treff: true,
                 TaksonomiKategori: treff.TaxonomyTitle,
                 EksternUrl: artikkel.Url ?? treff.ArticleUrl,
                 Alias: alias.Count == 0 ? null : alias,
-                Organisasjonsnummer: metadata.OrganizationNumber);
+                Organisasjonsnummer: metadata.OrganizationNumber,
+                BekreftetNavn: bekreftetNavn);
         }
 
         return EksternOppslagResultat.IngenTreff;
@@ -275,8 +283,15 @@ public sealed class EksternNavneoppslagTjeneste(
 /// ikke her) skiller dem, ved at et nettverksfeil-resultat rett og slett aldri når frem til
 /// cache-skrivingen.
 /// </summary>
+/// <param name="BekreftetNavn">
+/// Kun <c>"snl"</c>, kun ved et bekreftet treff (#158): artikkelens egen, normalt skrevne form av
+/// navnet (headword, evt. organization_name-fallback) — TIL FORSKJELL FRA søketermen som ble slått
+/// opp, som kan ha vært en rå/VERSAL Brreg-streng. Brukt til å foreslå en navneform ved
+/// Brreg-import, ALDRI til å overskrive den autoritative, rå Brreg-formen i selve Virksomhet.Navn.
+/// </param>
 public sealed record EksternOppslagResultat(
-    bool Treff, string? TaksonomiKategori, string? EksternUrl, IReadOnlyList<string>? Alias, string? Organisasjonsnummer)
+    bool Treff, string? TaksonomiKategori, string? EksternUrl, IReadOnlyList<string>? Alias, string? Organisasjonsnummer,
+    string? BekreftetNavn = null)
 {
-    public static readonly EksternOppslagResultat IngenTreff = new(false, null, null, null, null);
+    public static readonly EksternOppslagResultat IngenTreff = new(false, null, null, null, null, null);
 }

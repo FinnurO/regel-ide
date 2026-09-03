@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RegelIde.Data;
@@ -12,9 +13,11 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    partial class RegelIdeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260903100723_LeggTilBekreftetNavnPaEksternNavneoppslag")]
+    partial class LeggTilBekreftetNavnPaEksternNavneoppslag
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -2009,10 +2012,6 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("akn_xml");
 
-                    b.Property<string>("AnnetOmDokumentet")
-                        .HasColumnType("text")
-                        .HasColumnName("annet_om_dokumentet");
-
                     b.Property<string>("AnsvarligDepartement")
                         .HasColumnType("text")
                         .HasColumnName("ansvarlig_departement");
@@ -2021,10 +2020,6 @@ namespace RegelIde.Data.Migrasjoner
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("doctype");
-
-                    b.Property<string>("DokumentId")
-                        .HasColumnType("text")
-                        .HasColumnName("dokument_id");
 
                     b.Property<string>("Eli")
                         .HasColumnType("text")
@@ -2047,21 +2042,9 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("uuid")
                         .HasColumnName("erstatter_id");
 
-                    b.Property<string>("Etat")
-                        .HasColumnType("text")
-                        .HasColumnName("etat");
-
-                    b.Property<string>("EuEosHenvisning")
-                        .HasColumnType("text")
-                        .HasColumnName("eu_eos_henvisning");
-
                     b.Property<string>("FunksjonellRolle")
                         .HasColumnType("text")
                         .HasColumnName("funksjonell_rolle");
-
-                    b.Property<string>("GjelderFor")
-                        .HasColumnType("text")
-                        .HasColumnName("gjelder_for");
 
                     b.Property<DateOnly?>("GyldigFra")
                         .HasColumnType("date")
@@ -2135,10 +2118,6 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("kortnavn");
 
-                    b.Property<string>("Kunngjort")
-                        .HasColumnType("text")
-                        .HasColumnName("kunngjort");
-
                     b.Property<string>("NormativVirkning")
                         .HasColumnType("text")
                         .HasColumnName("normativ_virkning");
@@ -2153,18 +2132,6 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("opprettet_tidspunkt")
                         .HasDefaultValueSql("now()");
-
-                    b.Property<string>("PublisertI")
-                        .HasColumnType("text")
-                        .HasColumnName("publisert_i");
-
-                    b.Property<string>("RefId")
-                        .HasColumnType("text")
-                        .HasColumnName("ref_id");
-
-                    b.Property<string>("Rettsomrade")
-                        .HasColumnType("text")
-                        .HasColumnName("rettsomrade");
 
                     b.Property<string>("Revisjonsnr")
                         .HasColumnType("text")
@@ -2185,10 +2152,6 @@ namespace RegelIde.Data.Migrasjoner
                     b.Property<string>("SistEndretVed")
                         .HasColumnType("text")
                         .HasColumnName("sist_endret_ved");
-
-                    b.Property<string>("SisteRettelse")
-                        .HasColumnType("text")
-                        .HasColumnName("siste_rettelse");
 
                     b.Property<string>("Status")
                         .IsRequired()

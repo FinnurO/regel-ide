@@ -105,6 +105,7 @@ import type {
   VilkarstreKommentarDto,
   VirksomhetDto,
   OpprettVirksomhetRequest,
+  VirksomhetSlettOversiktDto,
   BrregEnhetDto,
   VirksomhetsbegrepDto,
   MyndighetstildelingDto,
@@ -412,6 +413,17 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ organisasjonsnummer }),
     }),
+
+  /** [Ny, issue #157] Oversikt over ALT som rammes av en kaskadesletting — hentes FØR bekreftelsesdialogen vises. */
+  hentVirksomhetSlettOversikt: (id: string) =>
+    kall<VirksomhetSlettOversiktDto>(`/api/virksomheter/${id}/slett-oversikt`),
+
+  /** [Ny, issue #157] Kaskadesletter virksomheten og ALT tilknyttet. `bekreft` MÅ være `true` — uten
+   * det (default) svarer backend 400 med oversikten i stedet for å slette noe ("ingen stille
+   * destruksjon"), men frontend skal ALLTID ha vist `hentVirksomhetSlettOversikt` og fått et eksplisitt
+   * klikk fra brukeren FØR dette kalles i det hele tatt. */
+  slettVirksomhet: (id: string) =>
+    kall<void>(`/api/virksomheter/${id}?bekreft=true`, { method: 'DELETE' }),
 
   godkjennVirksomhetKandidat: (id: string) =>
     kall<VirksomhetKandidatDto>(`/api/virksomhet-kandidater/${id}/godkjenn`, { method: 'POST' }),

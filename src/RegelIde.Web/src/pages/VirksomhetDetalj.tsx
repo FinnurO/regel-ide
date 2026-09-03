@@ -1,14 +1,40 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Link as RouterLink, useParams } from 'react-router';
-import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Link as RouterLink, useNavigate, useParams } from 'react-router';
+import { Alert, Button, Card, Dialog, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { KodelisteDto, MyndighetstildelingDto, RettskildeNodeDto, RettskildeSammendrag, VirksomhetKandidatDto, VirksomhetRelasjonDto, VirksomhetsbegrepDto } from '../api/types';
+import type { KodelisteDto, MyndighetstildelingDto, RettskildeNodeDto, RettskildeSammendrag, VirksomhetKandidatDto, VirksomhetRelasjonDto, VirksomhetSlettOversiktDto, VirksomhetsbegrepDto } from '../api/types';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { LeggTilMyndighetstildelingForm } from '../virksomhet/LeggTilMyndighetstildelingForm';
 import { LeggTilVirksomhetRelasjonForm } from '../virksomhet/LeggTilVirksomhetRelasjonForm';
 
+/** [Ny, issue #157] Rad-etiketter for bekreftelsesdialogen — KUN de feltene som faktisk kan være > 0
+ * for en reell virksomhet vises (0-rader skjules, se `SlettVirksomhetSeksjon` under). Rekkefølgen her
+ * er visningsrekkefølgen. */
+const SLETT_OVERSIKT_ETIKETTER: [key: keyof VirksomhetSlettOversiktDto, etikett: string][] = [
+  ['tjenester', 'Tjenester'],
+  ['rettskilder', 'Egne (lokale) rettskilder'],
+  ['begreper', 'Begreper (arbeidsprodukt)'],
+  ['navneformer', 'Navneformer'],
+  ['brukere', 'Brukere'],
+  ['myndighetstildelinger', 'Myndighetstildelinger'],
+  ['virksomhetKandidater', 'Navnekandidater i kø'],
+  ['virksomhetRelasjoner', 'Relasjoner til andre virksomheter'],
+  ['virksomhetNettsider', 'Nettsider'],
+  ['kodelister', 'Kodelister'],
+  ['datasett', 'Datasett'],
+  ['vilkar', 'Vilkår'],
+  ['regelnoder', 'Regelnoder'],
+  ['unntak', 'Unntak'],
+  ['vilkarstreKommentarer', 'Vilkårstre-kommentarer'],
+  ['tekstTagger', 'Tekst-tagger'],
+  ['hendelser', 'Hendelser'],
+  ['kunnskapsbibliotekLenker', 'Kunnskapsbibliotek-lenker'],
+  ['kunnskapsbibliotekFiler', 'Kunnskapsbibliotek-filer'],
+];
+
 export default function VirksomhetDetalj() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { virksomheter, virksomheterPerId, laster: virksomheterLaster } = useVirksomheter();
 
   const [begrep, setBegrep] = useState<VirksomhetsbegrepDto[] | null>(null);
@@ -452,6 +478,128 @@ export default function VirksomhetDetalj() {
           )}
         </Card>
       </section>
+
+      <SlettVirksomhetSeksjon
+        virksomhetId={id!}
+        virksomhetNavn={virksomhet.navn}
+        onSlettet={() => navigate('/virksomheter')}
+      />
     </>
+  );
+}
+
+/**
+ * [Ny, issue #157] Kaskadesletting — ingen `DELETE`-vei fantes for `Virksomhet` tidligere. "Ingen
+ * stille destruksjon" (samme holdning som resten av appen): et klikk på «Slett virksomhet» henter
+ * FØRST oversikten (`GET .../slett-oversikt`, sletter ingenting selv) og viser den i en `Dialog` —
+ * selve slettingen (`DELETE .../{id}?bekreft=true`) skjer KUN etter et eksplisitt andre klikk på
+ * «Bekreft sletting» i dialogen. Blokkert (av en publisert tekst-tagg-referanse, eller en uforutsett
+ * referanse fra en annen virksomhets data) vises som en tydelig feilmelding i stedet for en disabled
+ * knapp uten forklaring — bekreftelsesforsøket er det som avdekker blokkeringen.
+ */
+function SlettVirksomhetSeksjon({
+  virksomhetId, virksomhetNavn, onSlettet,
+}: { virksomhetId: string; virksomhetNavn: string; onSlettet: () => void }) {
+  const [oversikt, setOversikt] = useState<VirksomhetSlettOversiktDto | null>(null);
+  const [henterOversikt, setHenterOversikt] = useState(false);
+  const [dialogApen, setDialogApen] = useState(false);
+  const [sletter, setSletter] = useState(false);
+  const [feil, setFeil] = useState<string | null>(null);
+
+  async function apneDialog() {
+    setFeil(null);
+    setHenterOversikt(true);
+    try {
+      setOversikt(await api.hentVirksomhetSlettOversikt(virksomhetId));
+      setDialogApen(true);
+    } catch (err) {
+      setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved henting av slett-oversikt.');
+    } finally {
+      setHenterOversikt(false);
+    }
+  }
+
+  async function bekreftSletting() {
+    setSletter(true);
+    setFeil(null);
+    try {
+      await api.slettVirksomhet(virksomhetId);
+      setDialogApen(false);
+      onSlettet();
+    } catch (err) {
+      // Blokkert (publisert referanse / uforutsett referanse fra en annen virksomhet) eller en annen
+      // feil — dialogen blir stående åpen med feilmeldingen, ingenting ble slettet på backend-siden.
+      setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved sletting.');
+    } finally {
+      setSletter(false);
+    }
+  }
+
+  const synligeRader = oversikt
+    ? SLETT_OVERSIKT_ETIKETTER.filter(([nokkel]) => (oversikt[nokkel] as number) > 0)
+    : [];
+  const underliggende = oversikt?.underliggendeVirksomheter ?? 0;
+
+  return (
+    <section style={{ marginBottom: '2rem' }}>
+      <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+        Farlig sone
+      </Heading>
+      <Card style={{ padding: '1rem', borderColor: 'var(--ds-color-danger-border-default)' }}>
+        <Paragraph style={{ marginBottom: '0.75rem', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+          Sletter virksomheten og ALT tilknyttet innhold den eier (tjenester, rettskilder, begreper,
+          brukere m.fl.) — ingen tilbakestilling. Du får se nøyaktig hva som rammes før du bekrefter.
+        </Paragraph>
+        {feil && <Alert data-color="danger" style={{ marginBottom: '0.75rem' }}>{feil}</Alert>}
+        <Button data-size="sm" data-color="danger" variant="secondary" onClick={apneDialog} disabled={henterOversikt}>
+          {henterOversikt ? 'Henter oversikt …' : 'Slett virksomhet'}
+        </Button>
+      </Card>
+
+      <Dialog open={dialogApen} onClose={() => setDialogApen(false)} closeButton="Avbryt" style={{ maxWidth: '32rem' }}>
+        <Dialog.Block>
+          <Heading level={3} data-size="xs" style={{ marginBottom: '0.5rem' }}>
+            Slette «{virksomhetNavn}»?
+          </Heading>
+          {oversikt && synligeRader.length === 0 && underliggende === 0 && (
+            <Paragraph style={{ margin: 0 }}>Ingen tilknyttede rader — kan slettes uten videre konsekvenser.</Paragraph>
+          )}
+          {oversikt && (synligeRader.length > 0 || underliggende > 0) && (
+            <>
+              <Paragraph style={{ marginBottom: '0.5rem' }}>Dette sletter i tillegg:</Paragraph>
+              <Table style={{ marginBottom: underliggende > 0 ? '0.5rem' : 0 }}>
+                <Table.Body>
+                  {synligeRader.map(([nokkel, etikett]) => (
+                    <Table.Row key={nokkel}>
+                      <Table.HeaderCell style={{ fontWeight: 'normal' }}>{etikett}</Table.HeaderCell>
+                      <Table.Cell style={{ textAlign: 'right' }}>{oversikt[nokkel] as number}</Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+              {underliggende > 0 && (
+                <Paragraph style={{ margin: 0, fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                  {underliggende} underliggende virksomhet{underliggende === 1 ? '' : 'er'} mister koblingen til denne som
+                  overordnet enhet (slettes IKKE selv).
+                </Paragraph>
+              )}
+            </>
+          )}
+          {oversikt && !oversikt.kanSlettes && (
+            <Alert data-color="danger" style={{ marginTop: '0.75rem' }}>
+              {oversikt.tekstTaggerMedPublisertReferanse} tekst-tagg(er) har en publisert referanse og
+              blokkerer slettingen — se «Bekreft sletting» for detaljer, eller fjern referansene først.
+            </Alert>
+          )}
+          {feil && <Alert data-color="danger" style={{ marginTop: '0.75rem' }}>{feil}</Alert>}
+        </Dialog.Block>
+        <Dialog.Block style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+          <Button data-size="sm" variant="secondary" onClick={() => setDialogApen(false)}>Avbryt</Button>
+          <Button data-size="sm" data-color="danger" onClick={bekreftSletting} disabled={sletter || oversikt?.kanSlettes === false}>
+            {sletter ? 'Sletter …' : 'Bekreft sletting'}
+          </Button>
+        </Dialog.Block>
+      </Dialog>
+    </section>
   );
 }

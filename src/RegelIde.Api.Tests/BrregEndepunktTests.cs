@@ -175,4 +175,110 @@ public class BrregEndepunktTests
 
         Assert.Equal(HttpStatusCode.NotFound, svar.StatusCode);
     }
+
+    /// <summary>
+    /// [Ny, issue #158] "Alle virksomheter må jo ha en navneform" (Johann) — ved et BEKREFTET SNL-treff
+    /// skal <c>fra-brreg</c> automatisk opprette en navneform (<see cref="BegrepEntitet"/>,
+    /// Begrepskategori="virksomhet") med SNLs egen normalt skrevne form, MENS selve
+    /// <see cref="Virksomhet.Navn"/> beholder Brregs rå VERSAL-form UENDRET (den er autoritativ —
+    /// Johanns egen korreksjon i issuets kommentarfelt, IKKE en feil å rette).
+    /// </summary>
+    [Fact]
+    public async Task Fra_brreg_oppretter_automatisk_en_navneform_ved_bekreftet_snl_treff()
+    {
+        const string orgnr = "912340101";
+        var enhetJson = StatpedJson.Replace("974761084", orgnr).Replace("STATPED", "MILJØDIREKTORATET");
+
+        var factoryMedStub = _fixture.Factory.WithWebHostBuilder(builder =>
+            builder.ConfigureServices(services =>
+            {
+                services.AddHttpClient<BrregKlient>().ConfigurePrimaryHttpMessageHandler(() => new RutetStubHandler(
+                    new Dictionary<string, (HttpStatusCode Status, string Body)>
+                    {
+                        [$"/enheter/{orgnr}"] = (HttpStatusCode.OK, enhetJson),
+                    }));
+                services.AddHttpClient<EksternNavneoppslagTjeneste>().ConfigurePrimaryHttpMessageHandler(() => new SnlTreffHandler());
+            }));
+        using var klient = factoryMedStub.CreateClient();
+
+        var svar = await klient.PostAsJsonAsync("/api/virksomheter/fra-brreg", new OpprettVirksomhetFraBrregRequest(orgnr));
+        Assert.Equal(HttpStatusCode.Created, svar.StatusCode);
+        var opprettet = await svar.Content.ReadFromJsonAsync<VirksomhetDto>(JsonInnstillinger);
+
+        // Navn UENDRET i Brregs rå VERSAL-form — LÅST prinsipp, se Program.cs-kommentaren på endepunktet.
+        Assert.Equal("MILJØDIREKTORATET", opprettet!.Navn);
+
+        await using var db = _fixture.NyDbContext();
+        var navneform = await db.Begreper.SingleOrDefaultAsync(
+            b => b.VirksomhetReferanseId == opprettet.Id && b.Begrepskategori == "virksomhet");
+        Assert.NotNull(navneform);
+        Assert.Equal("Miljødirektoratet", navneform!.Term);
+        Assert.Equal("brreg-import", navneform.OpprettetAv);
+    }
+
+    /// <summary>[Ny, issue #158] Motsatt gren: ingen SNL-bekreftelse ⇒ INGEN navneform opprettes — ingen
+    /// gjettet/algoritmisk versalisering av Brreg-strengen som fallback (Johanns eksplisitte krav).</summary>
+    [Fact]
+    public async Task Fra_brreg_oppretter_ingen_navneform_uten_bekreftet_snl_treff()
+    {
+        const string orgnr = "912340102";
+        var enhetJson = StatpedJson.Replace("974761084", orgnr).Replace("STATPED", "HELT UKJENT VIRKSOMHET AS");
+
+        var factoryMedStub = _fixture.Factory.WithWebHostBuilder(builder =>
+            builder.ConfigureServices(services =>
+            {
+                services.AddHttpClient<BrregKlient>().ConfigurePrimaryHttpMessageHandler(() => new RutetStubHandler(
+                    new Dictionary<string, (HttpStatusCode Status, string Body)>
+                    {
+                        [$"/enheter/{orgnr}"] = (HttpStatusCode.OK, enhetJson),
+                    }));
+                // Standardstubben på selve Factory-en (IngenEksternTreffHandler) svarer allerede "ingen
+                // treff" — ingen egen SNL-overstyring nødvendig her, akkurat poenget med denne testen.
+            }));
+        using var klient = factoryMedStub.CreateClient();
+
+        var svar = await klient.PostAsJsonAsync("/api/virksomheter/fra-brreg", new OpprettVirksomhetFraBrregRequest(orgnr));
+        Assert.Equal(HttpStatusCode.Created, svar.StatusCode);
+        var opprettet = await svar.Content.ReadFromJsonAsync<VirksomhetDto>(JsonInnstillinger);
+
+        await using var db = _fixture.NyDbContext();
+        var navneform = await db.Begreper.SingleOrDefaultAsync(
+            b => b.VirksomhetReferanseId == opprettet!.Id && b.Begrepskategori == "virksomhet");
+        Assert.Null(navneform);
+    }
+
+    /// <summary>Stub for <see cref="EksternNavneoppslagTjeneste"/> — ETT bekreftet organisasjonstreff
+    /// ("Miljødirektoratet", samme eksempel som EksternNavneoppslagTjeneste sin egen klassekommentar
+    /// bruker for SNLs <c>article_type_id 16</c>), uansett hvilken term som faktisk slås opp.</summary>
+    private sealed class SnlTreffHandler : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
+        {
+            var url = request.RequestUri!.ToString();
+            string body;
+            if (url.Contains("/api/v1/search"))
+            {
+                body = """
+                [{ "article_type_id": 16, "taxonomy_title": "Offentlige etater og direktorater",
+                   "article_url": "https://snl.no/Miljodirektoratet",
+                   "article_url_json": "https://snl.no/Miljodirektoratet.json" }]
+                """;
+            }
+            else if (url.EndsWith("Miljodirektoratet.json"))
+            {
+                body = """
+                { "headword": "Miljødirektoratet", "url": "https://snl.no/Miljodirektoratet",
+                  "metadata": { "organization_name": "Miljødirektoratet" } }
+                """;
+            }
+            else
+            {
+                body = "[]";
+            }
+            return Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent(body, Encoding.UTF8, "application/json"),
+            });
+        }
+    }
 }

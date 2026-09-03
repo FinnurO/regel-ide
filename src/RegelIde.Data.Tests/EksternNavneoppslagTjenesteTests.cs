@@ -93,9 +93,54 @@ public class EksternNavneoppslagTjenesteTests
         Assert.Equal("https://snl.no/Den_Norske_Advokatforening", resultat.EksternUrl);
         Assert.Equal("936575668", resultat.Organisasjonsnummer);
         Assert.Contains("Advokatforeningen", resultat.Alias!);
+        // [Ny, #158] BekreftetNavn er artikkelens EGEN normalt skrevne headword — IKKE søketermen
+        // ("Advokatforeningen", alias) som ble slått opp. Brukt til å foreslå en navneform ved
+        // Brreg-import (POST /api/virksomheter/fra-brreg) uten en gjettet versalisering.
+        Assert.Equal("Den Norske Advokatforening", resultat.BekreftetNavn);
         // KUN organisasjonstype-treffet (article_type_id 16) skal ha blitt hentet i fullt — det andre
         // (article_type_id 1, "advokatforening" generisk ordforklaring) skal ALDRI trigge et ekstra kall.
         Assert.Equal(2, handler.AntallKall); // 1 søk + 1 artikkel-JSON
+    }
+
+    /// <summary>[Ny, #158] Cache-hit-veien (<see cref="EksternNavneoppslagTjeneste"/> leser fra
+    /// <see cref="EksternNavneoppslagCacheEntitet"/> før noe nettverkskall) må bevare
+    /// <see cref="EksternOppslagResultat.BekreftetNavn"/> på samme måte som de andre feltene — ellers
+    /// ville et cache-hit for et allerede slått opp navn stille miste navneform-forslaget andre gang.</summary>
+    [Fact]
+    public async Task SlaOppSnlAsync_bevarer_bekreftet_navn_pa_cache_hit()
+    {
+        var handler = new RutetHandler(req =>
+        {
+            var url = req.RequestUri!.ToString();
+            if (url.Contains("/api/v1/search"))
+            {
+                return Json("""
+                [{ "article_type_id": 16, "taxonomy_title": "Offentlige etater og direktorater",
+                   "article_url": "https://snl.no/Miljodirektoratet",
+                   "article_url_json": "https://snl.no/Miljodirektoratet.json" }]
+                """);
+            }
+            if (url.EndsWith("Miljodirektoratet.json"))
+            {
+                return Json("""{ "headword": "Miljødirektoratet", "url": "https://snl.no/Miljodirektoratet" }""");
+            }
+            throw new InvalidOperationException($"Uventet URL i test: {url}");
+        });
+
+        await using var db = _fixture.NyDbContext();
+        var forsteKall = await new EksternNavneoppslagTjeneste(new HttpClient(handler), db)
+            .SlaOppSnlAsync("MILJØDIREKTORATET");
+        Assert.Equal("Miljødirektoratet", forsteKall.BekreftetNavn);
+
+        // Nytt DbContext + en handler som ville kastet på ethvert nettverkskall — cache-hit MÅ unngå det.
+        var kasterHandler = new RutetHandler(_ => throw new InvalidOperationException("Skulle vært cache-hit."));
+        await using var db2 = _fixture.NyDbContext();
+        var andreKall = await new EksternNavneoppslagTjeneste(new HttpClient(kasterHandler), db2)
+            .SlaOppSnlAsync("MILJØDIREKTORATET");
+
+        Assert.True(andreKall.Treff);
+        Assert.Equal("Miljødirektoratet", andreKall.BekreftetNavn);
+        Assert.Equal(0, kasterHandler.AntallKall);
     }
 
     [Fact]

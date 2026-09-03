@@ -61,6 +61,7 @@ builder.Services.AddScoped<VilkarstreKommentarTjeneste>();
 builder.Services.AddScoped<HendelseregisterTjeneste>();
 builder.Services.AddScoped<TjenesteavhengighetregisterTjeneste>();
 builder.Services.AddScoped<VirksomhetRelasjonregisterTjeneste>();
+builder.Services.AddScoped<VirksomhetSlettTjeneste>();
 builder.Services.AddScoped<HandlingregisterTjeneste>();
 builder.Services.AddScoped<HandlingTjenesteregisterTjeneste>();
 builder.Services.AddScoped<BrukerVisningsinnstillingTjeneste>();
@@ -556,7 +557,9 @@ app.MapGet("/api/virksomheter/brreg-sok", async (string? q, BrregKlient klient, 
     .WithName("SokBrreg")
     .WithSummary("Fritekstsøk mot Brønnøysundregistrenes Enhetsregister — for å finne virksomheter som mangler i katalogen (docs/13-backlog.md §9).");
 
-app.MapPost("/api/virksomheter/fra-brreg", async (OpprettVirksomhetFraBrregRequest body, BrregKlient klient, RegelIdeDbContext db, CancellationToken ct) =>
+app.MapPost("/api/virksomheter/fra-brreg", async (
+    OpprettVirksomhetFraBrregRequest body, BrregKlient klient, RegelIdeDbContext db,
+    EksternNavneoppslagTjeneste eksternOppslag, VirksomhetsbegrepTjeneste virksomhetsbegrep, CancellationToken ct) =>
     {
         var rentOrgnr = body.Organisasjonsnummer.Replace(" ", "");
         if (await db.Virksomheter.AnyAsync(v => v.Organisasjonsnummer == rentOrgnr, ct))
@@ -572,6 +575,10 @@ app.MapPost("/api/virksomheter/fra-brreg", async (OpprettVirksomhetFraBrregReque
         // [LÅST, docs/20 §4/§7.2] Forvaltningsniva settes ALDRI ut fra Brreg-data (orgForm/sektorkode)
         // — starter blankt, Johann fyller inn manuelt. Samme regel som gjelder katalogseeding, nå
         // også for enkeltopprettelse via dette endepunktet.
+        //
+        // [LÅST, issue #158] Navn beholdes UENDRET i Brregs egen (ofte VERSALE) rå form — det ER den
+        // korrekte, autoritative registreringen, IKKE en feil å normalisere. Se navneform-oppslaget
+        // under i stedet.
         var virksomhet = new Virksomhet
         {
             Id = Guid.NewGuid(),
@@ -596,11 +603,73 @@ app.MapPost("/api/virksomheter/fra-brreg", async (OpprettVirksomhetFraBrregReque
             });
         }
         await db.SaveChangesAsync(ct);
+
+        // [Ny, issue #158] "Alle virksomheter må jo ha en navneform" (Johann) — slå opp Brreg-navnet i
+        // SNL (samme mekanisme som navnekandidat-klassifiseringen bruker, docs/31 — IKKE en ny,
+        // parallell SNL-klient) og, KUN ved et bekreftet institusjonstreff, opprett en navneform med
+        // SNLs egen normalt skrevne form. Ingen gjettet/algoritmisk versalisering av Brreg-strengen som
+        // fallback hvis SNL ikke bekrefter — raden står da uten auto-opprettet navneform.
+        var snl = await eksternOppslag.SlaOppSnlAsync(enhet.Navn, ct);
+        if (snl.Treff && !string.IsNullOrWhiteSpace(snl.BekreftetNavn))
+        {
+            await virksomhetsbegrep.OpprettVirksomhetsbegrepAsync(
+                virksomhet.Id, snl.BekreftetNavn, "brreg-import", snl.EksternUrl, ct);
+        }
+
         return Results.Created($"/api/virksomheter/{virksomhet.Id}", VirksomhetDto.FraEntitet(virksomhet));
     })
     .WithOpenApi()
     .WithName("OpprettVirksomhetFraBrreg")
-    .WithSummary("Oppretter en ny Virksomhet-rad fra et Brreg-oppslag på organisasjonsnummer (docs/13-backlog.md §9).");
+    .WithSummary(
+        "Oppretter en ny Virksomhet-rad fra et Brreg-oppslag på organisasjonsnummer (docs/13-backlog.md §9). " +
+        "Navn beholdes i Brregs rå form (#158); foreslår automatisk en navneform fra SNL ved bekreftet treff.");
+
+app.MapGet("/api/virksomheter/{id:guid}/slett-oversikt", async (Guid id, VirksomhetSlettTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var oversikt = await tjeneste.HentOversiktAsync(id, ct);
+        return oversikt is null
+            ? Results.NotFound(new { feil = $"Ingen virksomhet med id '{id}'." })
+            : Results.Ok(oversikt);
+    })
+    .WithOpenApi()
+    .WithName("HentVirksomhetSlettOversikt")
+    .WithSummary(
+        "issue #157 — oversikt over ALT som rammes av en kaskadesletting av denne virksomheten (antall " +
+        "per entitetstype), til bekreftelsesdialogen FØR selve DELETE-kallet. Sletter ingenting selv.");
+
+app.MapDelete("/api/virksomheter/{id:guid}", async (Guid id, bool? bekreft, VirksomhetSlettTjeneste tjeneste, CancellationToken ct) =>
+    {
+        // [LÅST, issue #157] "Ingen stille destruksjon" — uten et eksplisitt ?bekreft=true fra brukeren
+        // (etter at frontend har vist HentVirksomhetSlettOversikt) skjer INGEN sletting her, uansett om
+        // virksomheten har koblinger eller ikke. Samme prinsipp som resten av appen (docs/13-backlog.md).
+        if (bekreft != true)
+        {
+            var oversikt = await tjeneste.HentOversiktAsync(id, ct);
+            return oversikt is null
+                ? Results.NotFound(new { feil = $"Ingen virksomhet med id '{id}'." })
+                : Results.BadRequest(new
+                {
+                    feil = "Bekreftelse mangler — kall med ?bekreft=true etter at brukeren har sett oversikten.",
+                    oversikt,
+                });
+        }
+
+        var resultat = await tjeneste.SlettAsync(id, ct);
+        return resultat.Utfall switch
+        {
+            VirksomhetSlettUtfall.Slettet => Results.NoContent(),
+            VirksomhetSlettUtfall.FinnesIkke => Results.NotFound(new { feil = $"Ingen virksomhet med id '{id}'." }),
+            VirksomhetSlettUtfall.BlokkertAvPublisertReferanse => Results.Conflict(new { feil = resultat.Detalj }),
+            VirksomhetSlettUtfall.BlokkertAvUkjentReferanse => Results.Conflict(new { feil = resultat.Detalj }),
+            _ => Results.Problem("Ukjent utfall."),
+        };
+    })
+    .WithOpenApi()
+    .WithName("SlettVirksomhet")
+    .WithSummary(
+        "issue #157 — kaskadesletter en virksomhet og ALT tilknyttet (tjenester, rettskilder, begreper, " +
+        "brukere, m.fl.), men KUN når ?bekreft=true er satt eksplisitt. Blokkerer (uten å slette noe) " +
+        "ved publiserte tekst-tagg-referanser eller en uforutsett referanse fra en annen virksomhets data.");
 
 app.MapGet("/api/konfigurasjon/tagg-kinds", async (RegelIdeDbContext db) =>
         (await db.TaggKindKonfigurasjoner.Where(k => k.Aktiv).OrderBy(k => k.Sorteringsrekkefolge).ToListAsync())
