@@ -210,9 +210,15 @@ public sealed class EksternNavneoppslagTjeneste(
 
             // BekreftetNavn: SNLs egen, normalt skrevne form av navnet (til forskjell fra `term`,
             // som er den rå, evt. VERSALE strengen kalleren slo opp) — brukt av #158 til å
-            // foreslå en navneform ved Brreg-import. Headword foretrekkes (artikkelens tittel);
-            // organization_name er fallback for artikler uten et rent institusjonsnavn som headword.
-            var bekreftetNavn = !string.IsNullOrWhiteSpace(artikkel!.Headword) ? artikkel.Headword : metadata.OrganizationName;
+            // foreslå en navneform ved Brreg-import.
+            // [Rettet, 2026-09-03] Brukte tidligere KUN artikkel.Headword (alltid null live, se
+            // metodekommentaren) → OrganizationName (ofte fraværende for rene statlige etater) —
+            // samme, nå fikset feil som kandidatnavn-listen over hadde. Samme prioriterte kjede som
+            // der: treff.Headword (søketreff-nivå, bekreftet alltid korrekt) → artikkel.Title
+            // (artikkelens FAKTISKE toppnivå-tittelfelt) → artikkel.Headword (harmløs, alltid null
+            // live, beholdt i tilfelle et framtidig API-svar faktisk har det) → OrganizationName.
+            var bekreftetNavn = new[] { treff.Headword, artikkel!.Title, artikkel.Headword, metadata.OrganizationName }
+                .FirstOrDefault(n => !string.IsNullOrWhiteSpace(n));
 
             return new EksternOppslagResultat(
                 Treff: true,

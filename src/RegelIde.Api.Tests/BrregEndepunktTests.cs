@@ -232,8 +232,11 @@ public class BrregEndepunktTests
                     {
                         [$"/enheter/{orgnr}"] = (HttpStatusCode.OK, enhetJson),
                     }));
-                // Standardstubben på selve Factory-en (IngenEksternTreffHandler) svarer allerede "ingen
-                // treff" — ingen egen SNL-overstyring nødvendig her, akkurat poenget med denne testen.
+                // [Rettet, 2026-09-03] Standardstubben på selve Factory-en (nå "AltErInstitusjonHandler",
+                // restrukturert samme dag — se EmbeddedPostgresApiFixture sin kommentar) svarer IKKE
+                // lenger "ingen treff" som default — den BEKREFTER nå ethvert navn. Denne testen trenger
+                // derfor en EGEN, eksplisitt "ingen treff"-overstyring for akkurat dette å bety noe.
+                services.AddHttpClient<EksternNavneoppslagTjeneste>().ConfigurePrimaryHttpMessageHandler(() => new IngenSnlTreffHandler());
             }));
         using var klient = factoryMedStub.CreateClient();
 
@@ -280,5 +283,20 @@ public class BrregEndepunktTests
                 Content = new StringContent(body, Encoding.UTF8, "application/json"),
             });
         }
+    }
+
+    /// <summary>
+    /// [Ny, 2026-09-03] Eksplisitt "ingen treff"-stub for <see cref="EksternNavneoppslagTjeneste"/> —
+    /// trengs nå at Factory-ens EGEN standardstub (<c>AltErInstitusjonHandler</c>) bekrefter ethvert
+    /// navn som standard (restrukturert samme dag, se EmbeddedPostgresApiFixture sin kommentar). Tomt
+    /// SNL-søketreff for enhver term — samme "ingen gjettet fallback"-scenario testen selv beskriver.
+    /// </summary>
+    private sealed class IngenSnlTreffHandler : HttpMessageHandler
+    {
+        protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct) =>
+            Task.FromResult(new HttpResponseMessage(HttpStatusCode.OK)
+            {
+                Content = new StringContent("[]", Encoding.UTF8, "application/json"),
+            });
     }
 }

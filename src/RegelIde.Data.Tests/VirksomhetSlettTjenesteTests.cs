@@ -38,6 +38,9 @@ public class VirksomhetSlettTjenesteTests
         {
             Id = Guid.NewGuid(), VirksomhetId = virksomhetId, Doctype = "doc", Kildetype = "Virksomhetsdokument",
             Tittel = "Testdokument", Status = "Gjeldende", OpprettetAv = "test",
+            // ck_rettskilder_akn_xml krever enten AknXml satt ELLER Importrolle="referanse" — testen
+            // trenger ikke ekte AKN-innhold, så "referanse" er riktig i stedet for defaultverdien "primaer".
+            Importrolle = "referanse",
         });
         db.Begreper.Add(new BegrepEntitet
         {
@@ -99,6 +102,7 @@ public class VirksomhetSlettTjenesteTests
             {
                 Id = Guid.NewGuid(), VirksomhetId = virksomhetId, Doctype = "doc", Kildetype = "Virksomhetsdokument",
                 Tittel = "Testdokument", Status = "Gjeldende", OpprettetAv = "test",
+                Importrolle = "referanse", // ck_rettskilder_akn_xml — se kommentar lenger opp i filen.
             };
             db.Rettskilder.Add(rettskilde);
             rettskildeId = rettskilde.Id;
@@ -175,6 +179,7 @@ public class VirksomhetSlettTjenesteTests
             {
                 Id = Guid.NewGuid(), VirksomhetId = null, Doctype = "doc", Kildetype = "Lov",
                 Tittel = "Testlov", Status = "Gjeldende", OpprettetAv = "test",
+                Importrolle = "referanse", // ck_rettskilder_akn_xml — se kommentar lenger opp i filen.
             };
             db.Rettskilder.Add(rettskilde);
             rettskildeId = rettskilde.Id;

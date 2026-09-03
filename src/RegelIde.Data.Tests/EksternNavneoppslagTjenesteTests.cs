@@ -122,7 +122,11 @@ public class EksternNavneoppslagTjenesteTests
             }
             if (url.EndsWith("Miljodirektoratet.json"))
             {
-                return Json("""{ "headword": "Miljødirektoratet", "url": "https://snl.no/Miljodirektoratet" }""");
+                // [Rettet, 2026-09-03] "title" (ikke "headword") er artikkelens FAKTISKE toppnivå-
+                // tittelfelt live — og "metadata" må være til stede (om enn tom/uten organization_name,
+                // som for en ren statlig etat uten AS-registrering) for at koden i det hele tatt skal
+                // vurdere treffet — se SlaOppSnlAsync sin kommentar.
+                return Json("""{ "title": "Miljødirektoratet", "url": "https://snl.no/Miljodirektoratet", "metadata": {} }""");
             }
             throw new InvalidOperationException($"Uventet URL i test: {url}");
         });

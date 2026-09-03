@@ -117,7 +117,7 @@ public class NavnekandidaterEndepunktTests
     public async Task Sveip_og_avvisning_av_virksomhetskandidat_oppretter_intet_begrep()
     {
         var brukerId = await HentJuristIdAsync();
-        var rettskildeId = await OpprettRettskildeMedNodeAsync("Vedtak kan påklages til Miljødirektoratet innen tre uker.");
+        var rettskildeId = await OpprettRettskildeMedNodeAsync("Vedtak kan påklages til Fiskeridirektoratet innen tre uker.");
 
         await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/sveip", brukerId, new { RettskildeId = rettskildeId }));
         var listeSvar = await _client.GetFromJsonAsync<List<NavnekandidatDto>>(
@@ -150,7 +150,7 @@ public class NavnekandidaterEndepunktTests
         // [Restrukturert, 2026-09-03] "Kommunen" i stedet for det gamle suffiksmønsterets "havnetilsynet"
         // — se Sveip_godkjenning_og_avvisning_ende_til_ende_for_gruppekandidat sin kommentar.
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
-            "Kommunen skal føre tilsyn, og vedtak kan påklages til Miljødirektoratet innen tre uker.");
+            "Kommunen skal føre tilsyn, og vedtak kan påklages til Fiskeridirektoratet innen tre uker.");
         await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/sveip", brukerId, new { RettskildeId = rettskildeId }));
 
         var listeSvar = await _client.GetFromJsonAsync<List<NavnekandidatDto>>(
@@ -179,7 +179,7 @@ public class NavnekandidaterEndepunktTests
     public async Task Avvis_batch_rapporterer_ukjent_id_som_feilet_rad_uten_a_rulle_tilbake_den_gyldige()
     {
         var brukerId = await HentJuristIdAsync();
-        var rettskildeId = await OpprettRettskildeMedNodeAsync("Vedtak kan påklages til Miljødirektoratet innen tre uker.");
+        var rettskildeId = await OpprettRettskildeMedNodeAsync("Vedtak kan påklages til Fiskeridirektoratet innen tre uker.");
         await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/sveip", brukerId, new { RettskildeId = rettskildeId }));
 
         var listeSvar = await _client.GetFromJsonAsync<List<NavnekandidatDto>>(
