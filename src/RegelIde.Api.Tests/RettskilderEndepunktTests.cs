@@ -226,6 +226,38 @@ public class RettskilderEndepunktTests
         Assert.Equal(HttpStatusCode.NotFound, svar.StatusCode);
     }
 
+    // ---------- Departement-filter + hierarkisk visning (issue #193) ----------
+
+    [Fact]
+    public async Task Departementer_inneholder_helse_og_omsorgsdepartementet_uten_duplikater_eller_null()
+    {
+        var departementer = await _client.GetFromJsonAsync<List<string>>("/api/rettskilder/departementer", JsonInnstillinger);
+
+        Assert.NotNull(departementer);
+        Assert.Contains("Helse- og omsorgsdepartementet", departementer!);
+        Assert.DoesNotContain(null!, departementer!);
+        Assert.Equal(departementer!.Distinct(StringComparer.OrdinalIgnoreCase).Count(), departementer.Count);
+        // Sortert alfabetisk.
+        Assert.Equal(departementer.OrderBy(d => d, StringComparer.OrdinalIgnoreCase), departementer);
+    }
+
+    [Fact]
+    public async Task Hjemmelrelasjoner_inneholder_alle_tjueen_alkoholforskrift_referanser_til_alkoholloven()
+    {
+        var sammendrag = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>("/api/rettskilder", JsonInnstillinger);
+        var forskriftId = sammendrag!.Single(r => r.Eli == "https://lovdata.no/eli/forskrift/2005/06/08/538/nor").Id;
+        var lovenId = await HentAlkohollovenIdAsync();
+
+        var relasjoner = await _client.GetFromJsonAsync<List<RettskildeHjemmelRelasjonDto>>(
+            "/api/rettskilder/hjemmelrelasjoner", JsonInnstillinger);
+
+        Assert.NotNull(relasjoner);
+        var alkoholforskriftRelasjoner = relasjoner!.Where(r => r.ForskriftId == forskriftId).ToList();
+        Assert.Equal(21, alkoholforskriftRelasjoner.Count);
+        Assert.All(alkoholforskriftRelasjoner, r => Assert.Equal(lovenId, r.LovId));
+        Assert.Contains(alkoholforskriftRelasjoner, r => r.HjemmelEid == $"{AlkohollovenEli}/§1-2");
+    }
+
     // ---------- Åpne data: statusfilter + valgfri virksomhet-parameter (2026-07-24) ----------
 
     [Fact]

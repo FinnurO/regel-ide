@@ -38,6 +38,25 @@ public sealed class RettskildeRepository(RegelIdeDbContext db, VirksomhetOppslag
         db.Rettskilder.FirstOrDefaultAsync(r => r.Id == id && r.Status != UtkastStatus);
 
     /// <summary>
+    /// [Ny, issue #193] Distinkte <see cref="RettskildeEntitet.AnsvarligDepartement"/>-verdier fra
+    /// samme korpus som <see cref="AlleRettskilderAsync"/> sin standardvisning (ekskl. irrelevant-
+    /// markerte, kladder og referanse-stubber) — grunnlaget for departement-filterets nedtrekksliste i
+    /// RettskilderListe.tsx. Bevisst AVLEDET FRA FAKTISKE DATA, ikke en hardkodet kodeliste (samme
+    /// "ingen ny kodeliste"-holdning appen bruker andre steder for ufaste felt, jf. issuen). Sortert
+    /// alfabetisk (nb-uavhengig <c>string.Compare</c> holder her — departementnavnene er alle norske
+    /// ASCII+æøå-strenger uten spesialtegn som ville trengt ekte kultur-sensitiv sortering server-side).
+    /// </summary>
+    public async Task<List<string>> DistinkteDepartementerAsync() =>
+        (await db.Rettskilder
+            .Where(r => r.Importrolle == "primaer" && r.Entitetsstatus == "gjeldende" && r.Status != UtkastStatus && !r.ErIrrelevant)
+            .Where(r => r.AnsvarligDepartement != null)
+            .Select(r => r.AnsvarligDepartement!)
+            .Distinct()
+            .ToListAsync())
+        .OrderBy(d => d, StringComparer.OrdinalIgnoreCase)
+        .ToList();
+
+    /// <summary>
     /// [Ny, departement-virksomhet-lenke, 2026-08-30] Løser en rå <see cref="RettskildeEntitet.AnsvarligDepartement"/>-
     /// streng (Lovdatas eget "ministry"-metadatafelt) til en EKTE <see cref="Virksomhet"/>-rad.
     /// [Flyttet, tekst-tagg-departement-eierskap, 2026-08-31] Selve oppslagslogikken bor nå i
@@ -120,6 +139,28 @@ public sealed class RettskildeRepository(RegelIdeDbContext db, VirksomhetOppslag
             .OrderBy(x => x.r.Tittel).ThenBy(x => x.h.Sorteringsrekkefolge)
             .Select(x => new RettskildeHjemletForDto(x.r.Id, x.r.Tittel, x.h.HjemmelEid))
             .ToListAsync();
+
+    /// <summary>
+    /// [Ny, issue #193] Bulk-variant av <see cref="HjemletForAsync"/> — ALLE (forskrift, lov)-
+    /// hjemmelrelasjoner i korpuset i ETT kall, i stedet for ett <see cref="HjemletForAsync"/>-kall per
+    /// lov (N+1 mot RettskilderListe.tsx sin departement→lov→forskrift-fane, som ellers måtte slå opp
+    /// hjemmel-for hver enkelt lov separat). Samme underliggende <see cref="RettskildeHjemmelEntitet"/>-
+    /// tabell/relasjon som <see cref="HjemletForAsync"/> — ingen ny relasjonsmodell. Begge sider av
+    /// relasjonen filtreres til det samme synlige korpuset som <see cref="AlleRettskilderAsync"/> sin
+    /// standardvisning (primær, gjeldende, ikke kladd, ikke irrelevant-markert) — en forskrift eller lov
+    /// som er filtrert bort fra selve listen skal ikke likevel dukke opp som en gren i hierarkiet.
+    /// </summary>
+    public Task<List<RettskildeHjemmelRelasjonDto>> AlleHjemmelrelasjonerAsync()
+    {
+        var synlig = db.Rettskilder.Where(r =>
+            r.Importrolle == "primaer" && r.Entitetsstatus == "gjeldende" && r.Status != UtkastStatus && !r.ErIrrelevant);
+
+        return db.RettskildeHjemler
+            .Join(synlig, h => h.RettskildeId, r => r.Id, (h, forskrift) => h)
+            .Join(synlig, h => h.HjemmelRettskildeId, r => r.Id, (h, lov) => h)
+            .Select(h => new RettskildeHjemmelRelasjonDto(h.RettskildeId, h.HjemmelRettskildeId, h.HjemmelEid))
+            .ToListAsync();
+    }
 
     /// <summary>
     /// Endring-referansene FRA denne rettskilden (rettskildedetalj-fikser, 2026-09-02, punkt 5) — header-

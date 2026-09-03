@@ -68,6 +68,7 @@ import type {
   RettskildeEndringDto,
   RettskildeHjemletForDto,
   RettskildeHjemmelDto,
+  RettskildeHjemmelRelasjonDto,
   RettskildeNodeDto,
   RettskildeReferanseDto,
   RettskildeSammendrag,
@@ -223,6 +224,13 @@ export const api = {
   hentHjemmel: (id: string) => kall<RettskildeHjemmelDto[]>(`/api/rettskilder/${id}/hjemmel`),
 
   hentHjemmelFor: (id: string) => kall<RettskildeHjemletForDto[]>(`/api/rettskilder/${id}/hjemmel-for`),
+
+  // [Ny, issue #193] Departement-filterets nedtrekksliste — avledet fra faktiske data server-side.
+  hentDepartementer: () => kall<string[]>('/api/rettskilder/departementer'),
+
+  // [Ny, issue #193] Bulk-hjemmelrelasjoner for departement→lov→forskrift-hierarkiet (tredje fane i
+  // RettskilderListe.tsx) — ett kall for HELE korpuset i stedet for ett /hjemmel-for-kall per lov.
+  hentHjemmelrelasjoner: () => kall<RettskildeHjemmelRelasjonDto[]>('/api/rettskilder/hjemmelrelasjoner'),
 
   hentRettskildeEndringer: (id: string) => kall<RettskildeEndringDto[]>(`/api/rettskilder/${id}/endringer`),
 

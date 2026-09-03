@@ -188,6 +188,19 @@ export interface RettskildeHjemletForDto {
 }
 
 /**
+ * [Ny, issue #193] Bulk-variant av RettskildeHjemletForDto — én rad per (forskrift, lov)-
+ * hjemmelrelasjon for HELE korpuset i ett kall, brukt av RettskilderListe.tsx sin
+ * departement→lov→forskrift-fane til å bygge hierarkiet uten ett /hjemmel-for-kall per lov.
+ * Ingen tittel/sorteringsrekkefølge — slå forskriftId/lovId opp mot den allerede hentede
+ * RettskildeSammendrag-lista.
+ */
+export interface RettskildeHjemmelRelasjonDto {
+  forskriftId: string;
+  lovId: string;
+  hjemmelEid: string;
+}
+
+/**
  * Endring-referanse (2026-09-02) — header-metadatafeltet `<dt class="changesToDocuments">Endrer</dt>`:
  * hvilke(t) andre dokument(er) DENNE rettskilden endrer. Samme "ingen join, la klienten slå opp"-mønster
  * som RettskildeHjemmelDto — slå `endringRettskildeId` opp mot den allerede hentede rettskilde-lista.
