@@ -1,6 +1,6 @@
 import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router';
-import { Alert, Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Table, Tag, Textfield, ToggleGroup } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Table, Tabs, Tag, Textfield, ToggleGroup } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
 import type { NavnekandidatDto, RettskildeNodeDto, RettskildeSammendrag } from '../api/types';
@@ -592,6 +592,21 @@ export default function NavnekandidaterListe() {
         )}
       </Card>
 
+      {/* [Ny, 2026-09-03] Faner i stedet for en Status-nedtrekksliste — Johanns eksplisitte instruks
+          for SNL/SSR-restruktureringen: "hvis treff i en tab og hvis hva som ble avvist i en annen
+          tab". Samme Tabs-mønster som RettskilderListe.tsx sine "Aktive rettskilder"/"Utenfor
+          korpuset"-faner. Speiler statusFilter-state UENDRET (kun presentasjonen endres) — "Alle"
+          beholdes som fane siden filtreringslogikken allerede støtter den og noen fortsatt vil ha
+          full oversikt uavhengig av status. */}
+      <Tabs value={statusFilter} onChange={(v) => setStatusFilter(v as typeof statusFilter)} style={{ marginBottom: '1rem' }}>
+        <Tabs.List>
+          <Tabs.Tab value="Venter">Venter</Tabs.Tab>
+          <Tabs.Tab value="Godkjent">Godkjent</Tabs.Tab>
+          <Tabs.Tab value="Avvist">Avvist</Tabs.Tab>
+          <Tabs.Tab value="Alle">Alle</Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
+
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '1rem' }}>
         <Field style={{ minWidth: '12rem' }}>
           <Label>Kategori</Label>
@@ -599,15 +614,6 @@ export default function NavnekandidaterListe() {
             <Select.Option value="">Alle kategorier</Select.Option>
             <Select.Option value="virksomhet">Virksomhet</Select.Option>
             <Select.Option value="gruppe">Gruppe</Select.Option>
-          </Select>
-        </Field>
-        <Field style={{ minWidth: '10rem' }}>
-          <Label>Status</Label>
-          <Select data-size="sm" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value as typeof statusFilter)}>
-            <Select.Option value="Venter">Venter</Select.Option>
-            <Select.Option value="Godkjent">Godkjent</Select.Option>
-            <Select.Option value="Avvist">Avvist</Select.Option>
-            <Select.Option value="Alle">Alle</Select.Option>
           </Select>
         </Field>
       </div>
