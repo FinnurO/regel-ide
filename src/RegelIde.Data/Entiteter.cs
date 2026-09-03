@@ -1394,6 +1394,14 @@ public sealed class EksternNavneoppslagCacheEntitet
     /// <summary>Kun ved <see cref="Treff"/>: lenke til selve artikkelen/stedsnavn-oppslaget.</summary>
     public string? EksternUrl { get; set; }
 
+    /// <summary>
+    /// [Ny, #158] Kun <c>"snl"</c>, kun ved et bekreftet treff: artikkelens egen, normalt skrevne form
+    /// av navnet — TIL FORSKJELL FRA <see cref="Term"/>, som er den normaliserte (lowercase)
+    /// cache-nøkkelen, ikke en visningsform. Brukt til å foreslå en navneform ved Brreg-import
+    /// (<c>POST /api/virksomheter/fra-brreg</c>) uten en ny, parallell SNL-oppslagsmekanisme.
+    /// </summary>
+    public string? BekreftetNavn { get; set; }
+
     public DateTimeOffset SlaOppTidspunkt { get; set; }
 }
 

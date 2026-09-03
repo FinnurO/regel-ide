@@ -556,7 +556,9 @@ app.MapGet("/api/virksomheter/brreg-sok", async (string? q, BrregKlient klient, 
     .WithName("SokBrreg")
     .WithSummary("Fritekstsøk mot Brønnøysundregistrenes Enhetsregister — for å finne virksomheter som mangler i katalogen (docs/13-backlog.md §9).");
 
-app.MapPost("/api/virksomheter/fra-brreg", async (OpprettVirksomhetFraBrregRequest body, BrregKlient klient, RegelIdeDbContext db, CancellationToken ct) =>
+app.MapPost("/api/virksomheter/fra-brreg", async (
+    OpprettVirksomhetFraBrregRequest body, BrregKlient klient, RegelIdeDbContext db,
+    EksternNavneoppslagTjeneste eksternOppslag, VirksomhetsbegrepTjeneste virksomhetsbegrep, CancellationToken ct) =>
     {
         var rentOrgnr = body.Organisasjonsnummer.Replace(" ", "");
         if (await db.Virksomheter.AnyAsync(v => v.Organisasjonsnummer == rentOrgnr, ct))
@@ -572,6 +574,10 @@ app.MapPost("/api/virksomheter/fra-brreg", async (OpprettVirksomhetFraBrregReque
         // [LÅST, docs/20 §4/§7.2] Forvaltningsniva settes ALDRI ut fra Brreg-data (orgForm/sektorkode)
         // — starter blankt, Johann fyller inn manuelt. Samme regel som gjelder katalogseeding, nå
         // også for enkeltopprettelse via dette endepunktet.
+        //
+        // [LÅST, issue #158] Navn beholdes UENDRET i Brregs egen (ofte VERSALE) rå form — det ER den
+        // korrekte, autoritative registreringen, IKKE en feil å normalisere. Se navneform-oppslaget
+        // under i stedet.
         var virksomhet = new Virksomhet
         {
             Id = Guid.NewGuid(),
@@ -596,11 +602,26 @@ app.MapPost("/api/virksomheter/fra-brreg", async (OpprettVirksomhetFraBrregReque
             });
         }
         await db.SaveChangesAsync(ct);
+
+        // [Ny, issue #158] "Alle virksomheter må jo ha en navneform" (Johann) — slå opp Brreg-navnet i
+        // SNL (samme mekanisme som navnekandidat-klassifiseringen bruker, docs/31 — IKKE en ny,
+        // parallell SNL-klient) og, KUN ved et bekreftet institusjonstreff, opprett en navneform med
+        // SNLs egen normalt skrevne form. Ingen gjettet/algoritmisk versalisering av Brreg-strengen som
+        // fallback hvis SNL ikke bekrefter — raden står da uten auto-opprettet navneform.
+        var snl = await eksternOppslag.SlaOppSnlAsync(enhet.Navn, ct);
+        if (snl.Treff && !string.IsNullOrWhiteSpace(snl.BekreftetNavn))
+        {
+            await virksomhetsbegrep.OpprettVirksomhetsbegrepAsync(
+                virksomhet.Id, snl.BekreftetNavn, "brreg-import", snl.EksternUrl, ct);
+        }
+
         return Results.Created($"/api/virksomheter/{virksomhet.Id}", VirksomhetDto.FraEntitet(virksomhet));
     })
     .WithOpenApi()
     .WithName("OpprettVirksomhetFraBrreg")
-    .WithSummary("Oppretter en ny Virksomhet-rad fra et Brreg-oppslag på organisasjonsnummer (docs/13-backlog.md §9).");
+    .WithSummary(
+        "Oppretter en ny Virksomhet-rad fra et Brreg-oppslag på organisasjonsnummer (docs/13-backlog.md §9). " +
+        "Navn beholdes i Brregs rå form (#158); foreslår automatisk en navneform fra SNL ved bekreftet treff.");
 
 app.MapGet("/api/konfigurasjon/tagg-kinds", async (RegelIdeDbContext db) =>
         (await db.TaggKindKonfigurasjoner.Where(k => k.Aktiv).OrderBy(k => k.Sorteringsrekkefolge).ToListAsync())

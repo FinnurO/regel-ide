@@ -241,6 +241,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.AliasJson).HasColumnName("alias_json");
             e.Property(x => x.OrganisasjonsnummerFunnet).HasColumnName("organisasjonsnummer_funnet");
             e.Property(x => x.EksternUrl).HasColumnName("ekstern_url");
+            e.Property(x => x.BekreftetNavn).HasColumnName("bekreftet_navn");
             e.Property(x => x.SlaOppTidspunkt).HasColumnName("slaopp_tidspunkt").StandardNaa(sqlite);
             // Selve cache-nøkkelen — se klassekommentaren. Term er normalisert (små bokstaver) FØR
             // lagring, så denne indeksen kan være en vanlig (case-sensitiv) unik indeks.
