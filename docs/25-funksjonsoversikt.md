@@ -183,6 +183,13 @@ organisasjonsform/sektorkode automatisk), eller opprett en virksomhet med KUN na
 egen Brreg-registrering, f.eks. Kystvakten som del av Forsvaret — kan knyttes til en overordnet
 enhet).
 
+Begge opprettelsesveiene slår automatisk opp navnet mot Store norske leksikon (synkront, del av
+samme kall) og oppretter en bekreftet navneform ved treff — ingen gjettet/algoritmisk fallback hvis
+SNL ikke bekrefter, virksomheten opprettes uansett, bare uten navneform. En bekreftet navneform vises
+med en «SNL ↗»-lenke til selve artikkelen (i opprettelsesbekreftelsen for «kun navn»-panelet, og i
+navneform-tabellen på virksomhetens detaljside) — saksbehandler kan alltid åpne og selv verifisere
+SNL-teksten (issue #194, samme mekanisme som Brreg-opprettelsen fikk i #158).
+
 *Hvor:* «Virksomheter» (`/virksomheter`, `/virksomheter/:id`).
 
 ### Virksomhetskandidater

@@ -308,6 +308,17 @@ export default function VirksomhetDetalj() {
                 {begrep.map((b) => (
                   <Table.Row key={b.id}>
                     <Table.Cell>{b.term}</Table.Cell>
+                    <Table.Cell>
+                      {/* [Ny, issue #194] Samme SNL-lenke-mønster som NavnekandidaterListe.tsx sin
+                       * BerikelseVisning — saksbehandler skal kunne åpne og selv verifisere
+                       * SNL-artikkelen bak en auto-opprettet navneform (Brreg-import ELLER manuell
+                       * "kun navn"-opprettelse, begge går nå gjennom samme SNL-oppslag). */}
+                      {b.skosUrl && (
+                        <Link href={b.skosUrl} target="_blank" rel="noopener noreferrer" data-size="sm">
+                          <Tag data-color="success" data-size="sm">SNL ↗</Tag>
+                        </Link>
+                      )}
+                    </Table.Cell>
                   </Table.Row>
                 ))}
               </Table.Body>

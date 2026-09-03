@@ -287,6 +287,10 @@ function NavnKunPanel({
   const [oppretter, setOppretter] = useState(false);
   const [feil, setFeil] = useState<string | null>(null);
   const [sistOpprettetNavn, setSistOpprettetNavn] = useState<string | null>(null);
+  const [sistOpprettetId, setSistOpprettetId] = useState<string | null>(null);
+  // [Ny, issue #194] SNL-lenken for navneformen som (eventuelt) ble auto-opprettet ved dette kallet —
+  // `undefined` = ikke sjekket ennå, `null` = sjekket, ingen bekreftet SNL-treff.
+  const [sistOpprettetSnlUrl, setSistOpprettetSnlUrl] = useState<string | null | undefined>(undefined);
 
   async function opprett(e: React.FormEvent) {
     e.preventDefault();
@@ -294,11 +298,22 @@ function NavnKunPanel({
     setOppretter(true);
     setFeil(null);
     try {
-      await api.opprettVirksomhet({ navn: navn.trim(), overordnetEnhetId: overordnetEnhetId || null });
+      const opprettet = await api.opprettVirksomhet({ navn: navn.trim(), overordnetEnhetId: overordnetEnhetId || null });
       setSistOpprettetNavn(navn.trim());
+      setSistOpprettetId(opprettet.id);
+      setSistOpprettetSnlUrl(undefined);
       setNavn('');
       setOverordnetEnhetId('');
       onOpprettet();
+      // Backend gjorde nettopp et synkront SNL-oppslag (#194, samme mekanisme som fra-brreg) — hent
+      // navneformene på nytt for å vise en eventuell bekreftet SNL-lenke med én gang, til
+      // verifisering, i stedet for å tvinge saksbehandler til å navigere til detaljsiden for å se den.
+      try {
+        const begrep = await api.hentVirksomhetsbegrep(opprettet.id);
+        setSistOpprettetSnlUrl(begrep.find((b) => b.skosUrl)?.skosUrl ?? null);
+      } catch {
+        setSistOpprettetSnlUrl(null);
+      }
     } catch (err) {
       setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse.');
     } finally {
@@ -313,7 +328,8 @@ function NavnKunPanel({
       </Heading>
       <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
         For aktører uten egen Brreg-registrering, f.eks. Kystvakten (del av Forsvaret) — «del av
-        virksomhet» er valgfri.
+        virksomhet» er valgfri. Navnet slås automatisk opp mot Store norske leksikon; en bekreftet
+        artikkel gir en ferdig navneform du kan verifisere under.
       </Paragraph>
       <form onSubmit={opprett}>
         <Textfield
@@ -332,7 +348,24 @@ function NavnKunPanel({
         />
         {feil && <Alert data-color="danger" style={{ marginBottom: '0.5rem' }}>{feil}</Alert>}
         {sistOpprettetNavn && !feil && (
-          <Alert data-color="success" style={{ marginBottom: '0.5rem' }}>«{sistOpprettetNavn}» opprettet.</Alert>
+          <Alert data-color="success" style={{ marginBottom: '0.5rem' }}>
+            <span style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+              «{sistOpprettetNavn}» opprettet.
+              {sistOpprettetId && (
+                <Link asChild data-size="sm">
+                  <RouterLink to={`/virksomheter/${sistOpprettetId}`}>Åpne virksomheten</RouterLink>
+                </Link>
+              )}
+              {sistOpprettetSnlUrl && (
+                <Link href={sistOpprettetSnlUrl} target="_blank" rel="noopener noreferrer" data-size="sm">
+                  <Tag data-color="success" data-size="sm">SNL-bekreftet navneform opprettet ↗</Tag>
+                </Link>
+              )}
+              {sistOpprettetSnlUrl === null && (
+                <Tag data-color="neutral" data-size="sm">Ingen SNL-treff — ingen navneform auto-opprettet</Tag>
+              )}
+            </span>
+          </Alert>
         )}
         <Button type="submit" disabled={oppretter || !navn.trim()}>
           {oppretter ? 'Oppretter …' : 'Opprett virksomhet'}

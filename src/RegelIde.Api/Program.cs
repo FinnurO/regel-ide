@@ -487,7 +487,9 @@ app.MapGet("/api/virksomheter", async (RegelIdeDbContext db) =>
     .WithName("HentVirksomheter")
     .WithSummary("Lister virksomheter — hele virksomhetskatalogen (docs/20), ikke bare aktive tenanter.");
 
-app.MapPost("/api/virksomheter", async (OpprettVirksomhetRequest body, RegelIdeDbContext db, CancellationToken ct) =>
+app.MapPost("/api/virksomheter", async (
+    OpprettVirksomhetRequest body, RegelIdeDbContext db,
+    EksternNavneoppslagTjeneste eksternOppslag, VirksomhetsbegrepTjeneste virksomhetsbegrep, CancellationToken ct) =>
     {
         if (string.IsNullOrWhiteSpace(body.Navn))
         {
@@ -509,13 +511,27 @@ app.MapPost("/api/virksomheter", async (OpprettVirksomhetRequest body, RegelIdeD
         };
         db.Virksomheter.Add(virksomhet);
         await db.SaveChangesAsync(ct);
+
+        // [Ny, issue #194] Samme "alle virksomheter må jo ha en navneform"-mekanisme som
+        // fra-brreg-veien (#158, se kommentaren der) — nå OGSÅ for den manuelle "kun navn"-opprettelsen,
+        // som tidligere ikke gjorde noe SNL-oppslag i det hele tatt. Synkront (blokkerer opprettelsen til
+        // svaret er mottatt), samme mønster som fra-brreg. Ingen gjettet fallback hvis SNL ikke bekrefter
+        // — virksomheten opprettes uansett, bare uten auto-opprettet navneform.
+        var snl = await eksternOppslag.SlaOppSnlAsync(virksomhet.Navn, ct);
+        if (snl.Treff && !string.IsNullOrWhiteSpace(snl.BekreftetNavn))
+        {
+            await virksomhetsbegrep.OpprettVirksomhetsbegrepAsync(
+                virksomhet.Id, snl.BekreftetNavn, "manuell-opprettelse", snl.EksternUrl, ct);
+        }
+
         return Results.Created($"/api/virksomheter/{virksomhet.Id}", VirksomhetDto.FraEntitet(virksomhet));
     })
     .WithOpenApi()
     .WithName("OpprettVirksomhet")
     .WithSummary(
         "Oppretter en virksomhet med KUN navn, ingen organisasjonsnummer — for aktører uten egen " +
-        "Brreg-registrering (f.eks. Kystvakten som del av Forsvaret), se OpprettVirksomhetRequest.");
+        "Brreg-registrering (f.eks. Kystvakten som del av Forsvaret), se OpprettVirksomhetRequest. " +
+        "Foreslår automatisk en navneform fra SNL ved bekreftet treff (#194, samme mekanisme som fra-brreg).");
 
 app.MapPut("/api/virksomheter/{id:guid}/forvaltningsniva", async (Guid id, SettForvaltningsnivaRequest body, RegelIdeDbContext db, CancellationToken ct) =>
     {

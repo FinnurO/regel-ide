@@ -298,6 +298,10 @@ export interface VirksomhetsbegrepDto {
   lovkildeId: string | null;
   term: string;
   definisjon: string | null;
+  /** [Ny, issue #194] SNL-artikkelens URL når navneformen stammer fra et bekreftet SNL-oppslag
+   * (auto-opprettet ved Brreg- eller manuell virksomhetsopprettelse) — `null` for manuelt lagt til
+   * navneformer uten en slik kilde. Samme felt/mønster som `NavnekandidatDto.snlUrl`. */
+  skosUrl: string | null;
   status: string;
 }
 
