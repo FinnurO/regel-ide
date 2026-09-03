@@ -315,7 +315,15 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
     /// </summary>
     private async Task SettInnHjemlerAsync(Guid rettskildeId, IReadOnlyList<RettskildeHjemmel> hjemler, CancellationToken ct)
     {
-        foreach (var h in hjemler)
+        // [Ny, 2026-09-04] Bekreftet ekte, live (ikke bare teoretisk): "Instruks om utstedelse av
+        // sertifikater for levende dyr og animalske næringsmidler mv." parses til to Hjemmel-treff med
+        // NØYAKTIG samme Eid — uten denne dedupliseringen kastet SaveChangesAsync en
+        // PostgresException (23505, ux_rettskilde_hjemler_rettskilde_id_hjemmel_eid), som gjorde HELE
+        // importen av dokumentet feile (ingen av dets øvrige felt — inkl. AnsvarligDepartement — ble
+        // lagret heller, siden hele transaksjonen rulles tilbake). DISTINCT på Eid ALENE (ikke hele
+        // RettskildeHjemmel-recorden) — (RettskildeId, HjemmelEid) ER unikhets-nøkkelen, samme par kan
+        // aldri lovlig forekomme to ganger uansett hvilken Sorteringsrekkefolge det andre treffet hadde.
+        foreach (var h in hjemler.DistinctBy(h => h.Eid))
         {
             var hjemmelRettskildeId = await FinnEllerOpprettReferanseStubAsync(h.Eid, ct);
             db.RettskildeHjemler.Add(new RettskildeHjemmelEntitet
@@ -336,7 +344,11 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
     /// </summary>
     private async Task SettInnEndringerAsync(Guid rettskildeId, IReadOnlyList<RettskildeEndring> endringer, CancellationToken ct)
     {
-        foreach (var end in endringer)
+        // Samme dedupliseringsbehov som SettInnHjemlerAsync over (ux_rettskilde_endringer_rettskilde_id_
+        // endring_eid er samme slags (RettskildeId, Eid)-unikhet) — forebyggende her, ikke bekreftet
+        // ekte truffet ennå for Endring-siden, men samme parsing-form (samme Eid kan i prinsippet
+        // forekomme flere ganger i kildeteksten) gjør den like sårbar.
+        foreach (var end in endringer.DistinctBy(end => end.Eid))
         {
             var endringRettskildeId = await FinnEllerOpprettReferanseStubAsync(end.Eid, ct);
             db.RettskildeEndringer.Add(new RettskildeEndringEntitet
