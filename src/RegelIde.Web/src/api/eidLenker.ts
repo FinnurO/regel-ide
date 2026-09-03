@@ -29,8 +29,10 @@ export function rettskildeLenkeForId(rettskildeId: string, eid: string): string 
 }
 
 /**
- * Menneskelesbar visningstekst for en eId (punkt 7, avklaringsrunde 2026-08-13) —
- * `"{kortnavn ?? tittel} § {nummer} — {overskrift}"`, eller så mye av den formen som faktisk finnes
+ * Menneskelesbar visningstekst for en eId (punkt 7, avklaringsrunde 2026-08-13; RETTET 2026-09-03,
+ * issue #151 — brukte tidligere `kortnavn ?? tittel`, Johann ønsker ALLTID den fulle `tittel`, aldri
+ * den forkortede `kortnavn`) —
+ * `"{tittel} § {nummer} — {overskrift}"`, eller så mye av den formen som faktisk finnes
  * (nummer/overskrift utelates hver for seg når noden ikke har dem). Slår opp rettskilden via
  * {@link finnRettskildeForEid}, deretter noden med akkurat denne eId-en i kallerens (allerede
  * hentede) node-liste FOR DEN rettskilden — `noderPerRettskilde` er et Map fra rettskilde-id til
@@ -51,7 +53,7 @@ export function eidVisningstekst(
   const node = noderPerRettskilde.get(rettskilde.id)?.find((n) => n.eid === eid);
   if (!node) return undefined;
 
-  const kilde = rettskilde.kortnavn ?? rettskilde.tittel;
+  const kilde = rettskilde.tittel;
   const paragraf = node.nummer ? `§ ${node.nummer}` : null;
   const overskrift = node.overskrift ? `— ${node.overskrift}` : null;
   return [kilde, paragraf, overskrift].filter((del): del is string => del !== null).join(' ');

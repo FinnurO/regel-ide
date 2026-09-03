@@ -90,7 +90,7 @@ export default function TjenesteDetalj() {
   }, [tjeneste?.rotnodeId]);
 
   // Nodene til hver rettskilde faktisk referert i lista — slik at eidVisningstekst kan vise
-  // "{kortnavn} § {nummer} — {overskrift}" i stedet for rå eId, i alle faner/panelet som viser referanser.
+  // "{tittel} § {nummer} — {overskrift}" i stedet for rå eId, i alle faner/panelet som viser referanser.
   useEffect(() => {
     if (!referanser) return;
     for (const rettskildeId of new Set(referanser.map((r) => r.tilRettskildeId))) {
@@ -121,7 +121,7 @@ export default function TjenesteDetalj() {
     const node = noderPerRettskilde.get(r.tilRettskildeId)?.find((n) => n.eid === r.tilEid);
     setSelectedDetail({
       title: eidVisningstekst(r.tilEid, rettskilder, noderPerRettskilde) ?? r.tilEid,
-      meta: rettskilde ? (rettskilde.kortnavn ?? rettskilde.tittel) : 'Regelverksreferanse',
+      meta: rettskilde ? rettskilde.tittel : 'Regelverksreferanse',
       body: node?.tekst ?? null,
     });
     setRightTab('detaljer');

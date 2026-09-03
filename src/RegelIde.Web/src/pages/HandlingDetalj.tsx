@@ -699,12 +699,12 @@ export default function HandlingDetalj() {
                   // Oppgaveregister-seeden matcher i dag kun på DOKUMENT-nivå (r.tilEid = rettskildens
                   // egen Eli, ikke en paragraf-eid — se OppgaveregisterHandlingSeed sin klassekommentar).
                   // eidVisningstekst finner da ingen node (nodene ligger under dokumentet, ikke PÅ det) og
-                  // faller tilbake til rå eId — vis i stedet rettskildens tittel/kortnavn + en tydelig
+                  // faller tilbake til rå eId — vis i stedet rettskildens tittel + en tydelig
                   // markør, siden vi her VET (eksakt strenglikhet, ikke gjettet) at referansen gjelder hele
                   // dokumentet.
                   const rettskilde = rettskilder.find((rk) => rk.eli === r.tilEid);
                   const visningstekst = rettskilde
-                    ? `${rettskilde.kortnavn ?? rettskilde.tittel} (hele dokumentet)`
+                    ? `${rettskilde.tittel} (hele dokumentet)`
                     : eidVisningstekst(r.tilEid, rettskilder, noderPerRettskilde);
                   const href = rettskildeLenke(r.tilEid, rettskilder);
                   return (

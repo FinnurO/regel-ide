@@ -203,7 +203,7 @@ export default function NavnekandidaterListe() {
 
   const rettskilderPerId = useMemo(() => new Map(rettskilder.map((r) => [r.id, r] as const)), [rettskilder]);
   function visRettskilde(rettskildeId: string): string {
-    return rettskilderPerId.get(rettskildeId)?.kortnavn ?? rettskilderPerId.get(rettskildeId)?.tittel ?? rettskildeId;
+    return rettskilderPerId.get(rettskildeId)?.tittel ?? rettskildeId;
   }
   // Navnekandidat-fiks 2 (2026-08-30) — Lovdatas eget metadata for HVILKET departement en rettskilde
   // faktisk gjelder (RettskildeEntitet.AnsvarligDepartement), slått opp via den allerede-hentede

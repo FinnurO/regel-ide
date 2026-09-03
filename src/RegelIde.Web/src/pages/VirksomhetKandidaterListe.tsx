@@ -158,7 +158,7 @@ export default function VirksomhetKandidaterListe() {
 
   const rettskilderPerId = useMemo(() => new Map(rettskilder.map((r) => [r.id, r] as const)), [rettskilder]);
   function visRettskilde(rettskildeId: string): string {
-    return rettskilderPerId.get(rettskildeId)?.kortnavn ?? rettskilderPerId.get(rettskildeId)?.tittel ?? rettskildeId;
+    return rettskilderPerId.get(rettskildeId)?.tittel ?? rettskildeId;
   }
 
   async function kjorSveip() {
@@ -391,7 +391,7 @@ export default function VirksomhetKandidaterListe() {
           <Select data-size="sm" value={rettskildeFilter} onChange={(e) => setRettskildeFilter(e.target.value)}>
             <Select.Option value="">Alle rettskilder</Select.Option>
             {rettskilder.map((r) => (
-              <Select.Option key={r.id} value={r.id}>{r.kortnavn ?? r.tittel}</Select.Option>
+              <Select.Option key={r.id} value={r.id}>{r.tittel}</Select.Option>
             ))}
           </Select>
         </Field>

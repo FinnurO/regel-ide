@@ -85,7 +85,7 @@ function JuridiskGrunnlagRedigering({ grunnlag, rettskilder, onEndre }: {
   function leggTil() {
     const rettskilde = rettskilder.find((r) => r.id === nyRettskildeId);
     if (!rettskilde || !nyEid.trim()) return;
-    onEndre([...grunnlag, { kilde: rettskilde.kortnavn ?? rettskilde.tittel, eId: nyEid.trim() }]);
+    onEndre([...grunnlag, { kilde: rettskilde.tittel, eId: nyEid.trim() }]);
     setNyRettskildeId('');
     setNyEid('');
   }
@@ -108,7 +108,7 @@ function JuridiskGrunnlagRedigering({ grunnlag, rettskilder, onEndre }: {
                   <span>{g.kilde}</span>
                 )}
                 {/* [Ny, 2026-09-02, issue #115] eId degradert til liten, sekundær metatekst — g.kilde er
-                    allerede rettskildens tittel (satt fra rettskilde.kortnavn/tittel i leggTil under),
+                    allerede rettskildens tittel (satt fra rettskilde.tittel i leggTil under),
                     så den rå eId-en er ikke primærinformasjon i seg selv, kun sporbarhetsdetalj. */}
                 <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>({g.eId})</span>
                 <Button variant="tertiary" data-color="danger" data-size="sm" type="button"

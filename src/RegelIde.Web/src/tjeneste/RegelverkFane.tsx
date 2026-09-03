@@ -45,7 +45,7 @@ export function RegelverkFane({
     const node = noderPerRettskilde.get(r.tilRettskildeId)?.find((n) => n.eid === r.tilEid);
     onSelectDetail({
       title: eidVisningstekst(r.tilEid, rettskilder, noderPerRettskilde) ?? r.tilEid,
-      meta: rettskilde ? (rettskilde.kortnavn ?? rettskilde.tittel) : 'Regelverksreferanse',
+      meta: rettskilde ? rettskilde.tittel : 'Regelverksreferanse',
       body: node?.tekst ?? null,
     });
   }
@@ -62,7 +62,7 @@ export function RegelverkFane({
             return (
               <div key={tilRettskildeId}>
                 <Heading level={3} data-size="xs" style={{ marginBottom: '0.3rem' }}>
-                  {rettskilde ? (rettskilde.kortnavn ?? rettskilde.tittel) : tilRettskildeId}
+                  {rettskilde ? rettskilde.tittel : tilRettskildeId}
                 </Heading>
                 <ul style={{ margin: 0, paddingLeft: '1.25rem' }}>
                   {rader.map((r) => {

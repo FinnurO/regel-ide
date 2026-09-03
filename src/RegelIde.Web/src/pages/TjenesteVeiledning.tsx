@@ -62,7 +62,7 @@ function VeiledningNode({ node, dybde, rettskilder }: { node: VeiledningNodeDto;
                 {href ? <Link asChild><RouterLink to={href}>{g.kilde}</RouterLink></Link> : g.kilde}
                 {/* [Ny, 2026-09-02, issue #115] eId degradert til liten, sekundær metatekst — g.kilde er
                     allerede rettskildens tittel, se Egenskapspanel.tsx sin JuridiskGrunnlagRedigering
-                    der feltet fylles ut fra rettskilde.kortnavn/tittel. */}
+                    der feltet fylles ut fra rettskilde.tittel. */}
                 {' '}<span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>({g.eId})</span>
               </span>
             );
