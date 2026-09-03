@@ -178,6 +178,18 @@ public sealed record RettskildeHjemmelDto(Guid Id, string HjemmelEid, Guid Hjemm
 public sealed record RettskildeHjemletForDto(Guid ForskriftId, string ForskriftTittel, string HjemmelEid);
 
 /// <summary>
+/// [Ny, issue #193] Bulk-variant av <see cref="RettskildeHjemletForDto"/> — én rad per (forskrift, lov)-
+/// hjemmelrelasjon for HELE korpuset i ett kall, i stedet for ett <c>/hjemmel-for</c>-kall per lov
+/// (N+1). Brukes KUN til å bygge departement→lov→forskrift-hierarkiet i RettskilderListe.tsx sin
+/// tredje fane — samme underliggende <see cref="RettskildeHjemmelEntitet"/>-tabell og relasjon som
+/// <see cref="RettskildeHjemmelDto"/>/<see cref="RettskildeHjemletForDto"/> allerede dekker per
+/// rettskilde, IKKE en ny relasjonsmodell. Bærer verken tittel (klienten har allerede
+/// <see cref="RettskildeSammendrag"/> for alle involverte rettskilder) eller sorteringsrekkefølge
+/// (hierarkiet grupperer, det viser ikke Hjemmel-feltets kildeorden).
+/// </summary>
+public sealed record RettskildeHjemmelRelasjonDto(Guid ForskriftId, Guid LovId, string HjemmelEid);
+
+/// <summary>
 /// Endring-referanse (rettskildedetalj-fikser, 2026-09-02, punkt 5) — DTO for <see cref="RettskildeEndringEntitet"/>,
 /// samme minimale "ikke join, la klienten slå opp"-mønster som <see cref="RettskildeHjemmelDto"/>:
 /// <see cref="EndringRettskildeId"/> peker ALLTID til en ekte rad (primær eller referanse-stub), og

@@ -20,7 +20,11 @@ er samme inndeling appens egen sidemeny og utviklingsrekkefølge følger.
 
 Katalog over alle åpne rettskilder — delte/nasjonale kilder (lover og forskrifter fra Lovdata) og
 virksomheters egne, lokale kilder (forskrifter, rundskriv/håndbøker, brukerveiledninger/nettsider).
-Kladder vises aldri i listen. Filtrerbar/sorterbar på tittel, kildetype og eier.
+Kladder vises aldri i listen. Filtrerbar/sorterbar på tittel, kildetype, ansvarlig departement og
+eier — departement-nedtrekkslisten er avledet fra faktiske verdier i korpuset, ikke en hardkodet
+kodeliste. En tredje fane («Departement → lov → forskrift», ved siden av den flate listen) grupperer
+lover under sitt ansvarlige departement og viser hvilke forskrifter som er hjemlet i hver lov —
+samme hjemmel-relasjon som allerede vises på detaljsiden, kun i en aggregert, klikkbar trevisning.
 
 Detaljsiden er den store arbeidsflaten for én rettskilde: metadata (kortnavn, utgiver, vedtaksdato
 osv. — «Fra Lovdata»-felt er skrivebeskyttet, «Lokalt forvaltet»-felt er redigerbare), en trevisning

@@ -696,6 +696,20 @@ rettskilder.MapGet("/", async (Guid? virksomhetId, bool? inkluderIrrelevante, Re
     .WithDescription("IrrelevantKommentar er med i sammendraget (siden 2026-09-02, issue #114) slik at " +
         "«Utenfor korpuset»-fanen i RettskilderListe.tsx kan vise begrunnelsen uten et ekstra oppslag per rad.");
 
+rettskilder.MapGet("/departementer", async (RettskildeRepository repo) => await repo.DistinkteDepartementerAsync())
+    .WithName("HentDistinkteDepartementer")
+    .WithSummary("Distinkte AnsvarligDepartement-verdier fra korpuset (samme synlighetsfilter som GET /, " +
+        "ekskl. irrelevant-markerte/kladder/referanse-stubber), sortert alfabetisk.")
+    .WithDescription("[Ny, issue #193] Grunnlaget for departement-filterets nedtrekksliste i RettskilderListe.tsx — " +
+        "avledet fra faktiske data, ikke en hardkodet kodeliste.");
+
+rettskilder.MapGet("/hjemmelrelasjoner", async (RettskildeRepository repo) => await repo.AlleHjemmelrelasjonerAsync())
+    .WithName("HentAlleHjemmelrelasjoner")
+    .WithSummary("Bulk-variant av /{id}/hjemmel-for — ALLE (forskrift, lov)-hjemmelrelasjoner i korpuset i ett kall.")
+    .WithDescription("[Ny, issue #193] For departement→lov→forskrift-hierarkiet i RettskilderListe.tsx — unngår " +
+        "ett /hjemmel-for-kall per lov (N+1). Samme RettskildeHjemmelEntitet-tabell/-relasjon som " +
+        "/{id}/hjemmel og /{id}/hjemmel-for allerede eksponerer per rettskilde, ingen ny relasjonsmodell.");
+
 rettskilder.MapGet("/{id:guid}", async (Guid id, RettskildeRepository repo) =>
     {
         var r = await repo.FinnAsync(id);
