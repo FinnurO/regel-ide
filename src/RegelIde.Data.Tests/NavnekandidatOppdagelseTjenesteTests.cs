@@ -94,6 +94,27 @@ public class NavnekandidatOppdagelseTjenesteTests
     }
 
     /// <summary>
+    /// [Ny, 2026-09-03] Regresjonstest for en reell, live-bekreftet feil: VerketDenyliste ble tidligere
+    /// KUN sjekket i stor-forbokstav-grenen (dvs. kun for "virksomhet"-kandidater) — "regelverket" med
+    /// LITEN forbokstav (den ordinære, nesten alltid forekommende skrivemåten i løpende juridisk tekst)
+    /// havnet i "gruppe"-grenen HELT UTEN denyliste-sjekk. Johann rapporterte (03.09.2026) at
+    /// "regelverket" fortsatt dukket opp som kandidat til tross for gjentatt avvisning — bekreftet i
+    /// live data: 346 "regelverket"-rader med kategori="gruppe" alene fra én enkelt full-korpus-sveip.
+    /// </summary>
+    [Fact]
+    public void Verket_denyliste_blokkerer_ogsaa_liten_forbokstav_gruppe_kandidater()
+    {
+        const string tekst = "Vedtak skal fattes i henhold til regelverket for området.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+        Assert.Empty(funn);
+
+        const string ektGruppe = "Vedtak skal fattes i henhold til miljødirektoratet for området.";
+        var funnEkte = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(ektGruppe);
+        var treff = Assert.Single(funnEkte);
+        Assert.Equal("gruppe", treff.Kategori);
+    }
+
+    /// <summary>
     /// [Ny, issue #150 del 1] "utvalget"/"enheten" manglet helt fra <see cref="NavnekandidatOppdagelseTjeneste"/>s
     /// suffikslister — Johann forventet vesentlig flere forslag i navnekandidat-køen (eksemplifisert med
     /// "EOS-utvalget"/"PNR-enheten", selve bindestrek-forkortelsen er bevisst IKKE dekket her, se
