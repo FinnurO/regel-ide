@@ -642,6 +642,28 @@ rettskilder.MapGet("/{id:guid}", async (Guid id, RettskildeRepository repo) =>
     .WithName("HentRettskilde")
     .WithSummary("Henter full metadata + kanonisk AKN-XML for én rettskilde.");
 
+rettskilder.MapGet("/{id:guid}/kilde", async (Guid id, RettskildeRepository repo) =>
+    {
+        var r = await repo.FinnAsync(id);
+        if (r is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
+        if (r.Innhold is null)
+        {
+            // Bekreftet forventet, ikke en feil — se RettskildeEntitet.Innhold sin doc-kommentar:
+            // KUN populert for dokumenter (re)importert siden PR #84/del B (2026-09-02). En rad som
+            // ikke har vært gjennom en Ny/NyVersjon/Uendret-import etter det har ennå ingen rå kilde
+            // lagret — 404 (ikke 200 med tom streng) slik at klienten kan skille "ingen kilde ennå" fra
+            // "kilden er en tom fil".
+            return Results.NotFound(new { feil = "Ingen rå kilde-HTML lagret for denne rettskilden ennå (importert før PR #84, eller en referanse-stub)." });
+        }
+        // Samme UTF-8-antagelse som resten av Lovdata-pipelinen (LovdataKonverterer/RaaHtml) — kilde-
+        // HTML-en ble allerede dekodet til UTF-8 FØR den ble lagret, se KonverteringResultat.RaaHtml.
+        return Results.Text(Encoding.UTF8.GetString(r.Innhold), "text/html; charset=utf-8");
+    })
+    .WithName("HentRettskildeKilde")
+    .WithSummary("«Vis kilde» (issue #131) — returnerer den rå, uendrede Lovdata-HTML-en (evt. annen " +
+        "originalkilde) rettskilden ble importert fra, som tekst. 404 når RettskildeEntitet.Innhold " +
+        "ikke er satt (ikke resynket siden PR #84, eller en referanse-stub).");
+
 rettskilder.MapPatch("/{id:guid}/metadata", async (Guid id, HttpRequest request, OppdaterRettskildeMetadataRequest body,
         RettskildeRepository repo, RegelIdeDbContext db, CancellationToken ct) =>
     {

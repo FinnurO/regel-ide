@@ -24,6 +24,7 @@ import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { useKonfigurasjon } from '../konfigurasjon/KonfigurasjonContext';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { RaaTekstMedLenker } from '../rettskilde/RaaTekstMedLenker';
+import { forsokFormaterXml } from '../rettskilde/formaterXml';
 import { eidVisningstekst, finnRettskildeForEid, rettskildeLenke } from '../api/eidLenker';
 import { KontekstPanel, type KontekstPanelGruppe } from '../entitet/KontekstPanel';
 
@@ -131,6 +132,16 @@ export default function RettskildeDetalj() {
   const [nettsideLenker, setNettsideLenker] = useState<NettsideLenkeMedMalDto[]>([]);
   const [filter, setFilter] = useState('');
   const [visAknXml, setVisAknXml] = useState(false);
+
+  // «Vis kilde» (2026-09-03, issue #131) — original Lovdata-HTML-en (RettskildeEntitet.Innhold),
+  // hentet lazy (kun ved klikk, ikke ved sidelast — samme "ikke tving frem en stor payload alle
+  // besøk"-begrunnelse som visIkkeImportert i RettskilderListe.tsx) og kun for rettskildens levetid i
+  // denne fanen (nullstilles ikke eksplisitt ved id-bytte siden komponenten remountes av React Router).
+  const [visKilde, setVisKilde] = useState(false);
+  const [kildeHtml, setKildeHtml] = useState<string | null>(null);
+  const [kildeLaster, setKildeLaster] = useState(false);
+  const [kildeFeil, setKildeFeil] = useState<string | null>(null);
+
   const [feil, setFeil] = useState<string | null>(null);
   const [taggFeil, setTaggFeil] = useState<string | null>(null);
 
@@ -596,6 +607,25 @@ export default function RettskildeDetalj() {
     [referertAvDokumenter, valgtNode],
   );
 
+  // «Vis kilde» (issue #131) — henter kun ved FØRSTE klikk (kildeHtml er null inntil da), etterfølgende
+  // toggles gjenbruker det allerede hentede svaret uten et nytt kall (samme lazy-men-cachet mønster som
+  // resten av siden allerede bruker for f.eks. Håndbok-fanens data).
+  async function apneVisKilde() {
+    const nyVerdi = !visKilde;
+    setVisKilde(nyVerdi);
+    if (!nyVerdi || kildeHtml !== null || !id) return;
+    setKildeLaster(true);
+    setKildeFeil(null);
+    try {
+      const tekst = await api.hentRettskildeKilde(id);
+      setKildeHtml(tekst); // null er en gyldig, forventet verdi ("ingen kilde lagret ennå") — se client.ts.
+    } catch (e) {
+      setKildeFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av kilde.');
+    } finally {
+      setKildeLaster(false);
+    }
+  }
+
   async function handleTag(
     nodeEid: string,
     nodeTekst: string,
@@ -748,6 +778,11 @@ export default function RettskildeDetalj() {
           <Button data-size="sm" variant="secondary" onClick={() => setVisAknXml((v) => !v)}>
             {visAknXml ? 'Skjul' : 'Vis'} AKN-XML
           </Button>
+          {detalj.harKilde && (
+            <Button data-size="sm" variant="secondary" onClick={apneVisKilde}>
+              {visKilde ? 'Skjul' : 'Vis'} kilde
+            </Button>
+          )}
         </div>
       </div>
 
@@ -759,9 +794,29 @@ export default function RettskildeDetalj() {
         </Alert>
       )}
       {visAknXml && (
+        // Formatert klientside (issue #130) — den lagrede akn_xml-strengen er selv ÉN ubrutt linje
+        // (AknXmlSkriver bruker ren strengsammenslåing uten innrykk), se formaterXml.ts sin
+        // klassekommentar for hvorfor dette gjøres her og ikke server-/lagringssiden.
         <pre style={{ overflow: 'auto', maxHeight: '400px', background: 'var(--ds-color-neutral-surface-tinted)', padding: '1rem', fontSize: 'var(--ds-font-size-1)', marginBottom: '1rem' }}>
-          {detalj.aknXml}
+          {detalj.aknXml ? forsokFormaterXml(detalj.aknXml) : '—'}
         </pre>
+      )}
+      {visKilde && (
+        <div style={{ marginBottom: '1rem' }}>
+          {kildeLaster && <Spinner aria-label="Laster kilde …" data-size="sm" />}
+          {kildeFeil && <Alert data-color="danger">{kildeFeil}</Alert>}
+          {!kildeLaster && !kildeFeil && kildeHtml === null && (
+            <Alert data-color="info">
+              Ingen rå kilde lagret for denne rettskilden ennå — kun dokumenter (re)importert siden en
+              nyere Lovdata-resynk har dette. Kjør en resynk fra Administrasjon-siden for å bakfylle den.
+            </Alert>
+          )}
+          {kildeHtml !== null && (
+            <pre style={{ overflow: 'auto', maxHeight: '400px', background: 'var(--ds-color-neutral-surface-tinted)', padding: '1rem', fontSize: 'var(--ds-font-size-1)' }}>
+              {kildeHtml}
+            </pre>
+          )}
+        </div>
       )}
 
       <Tabs value={fane} onChange={(v) => setFane(v as Fane)} style={{ marginBottom: '1rem' }}>
@@ -884,6 +939,49 @@ export default function RettskildeDetalj() {
                         <Table.Row>
                           <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Utgiver</Table.Cell>
                           <Table.Cell>{detalj.utgiver ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        {/* [Ny, 2026-09-03, issue #127] De resterende 10 av 15 bekreftede Lovdata
+                            header-metadatafelt — samme "Fra Lovdata"-tabell, samme "—" for fravær-mønster
+                            som feltene rundt. */}
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Kunngjort</Table.Cell>
+                          <Table.Cell>{detalj.kunngjort ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Rettsområde</Table.Cell>
+                          <Table.Cell>{detalj.rettsomrade ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>EU/EØS-henvisning</Table.Cell>
+                          <Table.Cell style={{ whiteSpace: 'pre-line' }}>{detalj.euEosHenvisning ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>DokumentID</Table.Cell>
+                          <Table.Cell>{detalj.dokumentId ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>RefID</Table.Cell>
+                          <Table.Cell>{detalj.refId ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Gjelder for</Table.Cell>
+                          <Table.Cell>{detalj.gjelderFor ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Etat</Table.Cell>
+                          <Table.Cell>{detalj.etat ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Publisert i</Table.Cell>
+                          <Table.Cell>{detalj.publisertI ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Annet om dokumentet</Table.Cell>
+                          <Table.Cell style={{ whiteSpace: 'pre-line' }}>{detalj.annetOmDokumentet ?? '—'}</Table.Cell>
+                        </Table.Row>
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Siste rettelse</Table.Cell>
+                          <Table.Cell>{detalj.sisteRettelse ?? '—'}</Table.Cell>
                         </Table.Row>
                         <Table.Row>
                           <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Ansvarlig departement</Table.Cell>

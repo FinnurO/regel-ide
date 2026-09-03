@@ -177,6 +177,29 @@ async function kall<T>(path: string, init?: RequestInit): Promise<T> {
   return (await svar.json()) as T;
 }
 
+/**
+ * [Ny, 2026-09-03, issue #131] «Vis kilde» — GET /api/rettskilder/{id}/kilde returnerer den rå
+ * kilde-HTML-en som ren tekst (`text/html`), IKKE json — kan derfor ikke gå via `kall<T>` over, som
+ * alltid `.json()`-parser svaret. Returnerer `null` (ikke en kastet ApiError) for en bekreftet
+ * forventet 404 ("ingen rå kilde lagret ennå", se endepunktets doc-kommentar i Program.cs) — kalleren
+ * skal vise "ingen kilde tilgjengelig", ikke en feilmelding, for dette tilfellet spesifikt.
+ */
+async function hentRettskildeKildeTekst(id: string): Promise<string | null> {
+  const svar = await fetch(apiUrl(`/api/rettskilder/${id}/kilde`));
+  if (svar.status === 404) return null;
+  if (!svar.ok) {
+    let melding = `${svar.status} ${svar.statusText}`;
+    try {
+      const feil = (await svar.json()) as ApiFeil;
+      if (feil?.feil) melding = feil.feil;
+    } catch {
+      // ikke JSON — behold statusteksten
+    }
+    throw new ApiError(melding, svar.status);
+  }
+  return svar.text();
+}
+
 export const api = {
   // ?inkluderIrrelevante=true (2026-08-30) — utelatt/false ekskluderer ErIrrelevant-markerte kilder
   // stille fra standardvisningen, se RettskilderListe.tsx.
@@ -189,6 +212,8 @@ export const api = {
   },
 
   hentRettskilde: (id: string) => kall<RettskildeDetalj>(`/api/rettskilder/${id}`),
+
+  hentRettskildeKilde: hentRettskildeKildeTekst,
 
   hentNoder: (id: string) => kall<RettskildeNodeDto[]>(`/api/rettskilder/${id}/noder`),
 
