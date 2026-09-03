@@ -66,7 +66,7 @@ public sealed class EksternNavneoppslagTjeneste(
     /// mot. <c>article_type_id</c> er dessuten en LUKKET, liten kodeliste (artikkel-TYPE), mens
     /// taksonomi-kategorier er et åpent, stort og voksende tre — samme "lukket signal fremfor et
     /// uttømmende, sprekkfylt utvalg"-begrunnelse som resten av denne kodebasen bruker på lignende valg
-    /// (jf. <c>Institusjonsord</c>/<c>VerketDenyliste</c> i <see cref="NavnekandidatOppdagelseTjeneste"/>).
+    /// (jf. <c>Institusjonsord</c> i <see cref="NavnekandidatOppdagelseTjeneste"/>).
     /// </summary>
     private const int SnlOrganisasjonsArtikkeltype = 16;
 
@@ -80,8 +80,28 @@ public sealed class EksternNavneoppslagTjeneste(
     /// er derimot artikkelens eget "også kjent som"-alias). Løsning: for HVERT søketreff med
     /// <see cref="SnlOrganisasjonsArtikkeltype"/>, hent selve artikkelens faktaboks (ett ekstra kall, KUN
     /// for organisasjonstype-treff — ikke for hvert søketreff) og godkjenn som ekte match hvis
-    /// <paramref name="term"/> case-insensitivt tilsvarer artikkelens <c>headword</c>,
-    /// <c>organization_name</c>, ELLER et av de utpakkede alias-navnene fra <c>alternative_form</c>.
+    /// <paramref name="term"/> case-insensitivt tilsvarer NOEN AV: selve søketreffets eget <c>headword</c>,
+    /// artikkelens toppnivå-<c>title</c>, faktaboksens <c>organization_name</c>, ELLER et av de utpakkede
+    /// alias-navnene fra <c>alternative_form</c>.
+    /// </para>
+    /// <para>
+    /// <b>[Rettet, 2026-09-03, live-verifisering under navnekandidat-restruktureringen]</b> Artikkel-JSON-
+    /// et sitt eget toppnivåfelt heter i PRAKSIS <c>title</c>, IKKE <c>headword</c> som opprinnelig antatt
+    /// (verifisert live mot <c>snl.no/Miljødirektoratet.json</c>, <c>snl.no/Nasjonalarkivet.json</c> OG
+    /// <c>snl.no/Den_Norske_Advokatforening.json</c> — INGEN av de tre har et toppnivå-<c>headword</c>-felt
+    /// i det hele tatt). Konsekvens: <c>artikkel.Headword</c> var ALLTID <c>null</c> live, og
+    /// <c>metadata.organization_name</c> (som fungerte for "Den Norske Advokatforening", en forening) er
+    /// FRAVÆRENDE for rene statlige etater/direktorater som "Miljødirektoratet"/"Nasjonalarkivet" (bekreftet
+    /// live) — disse to matche-kandidatene sviktet dermed BEGGE for akkurat den vanligste institusjonstypen
+    /// navnekandidat-sveipet leter etter, og et SNL-bekreftet treff ble derfor aldri gjenkjent som treff i
+    /// praksis for slike etater, uansett hvor presist selve søket/taksonomien identifiserte dem korrekt.
+    /// Rettet ved å (a) lese <c>title</c> fra selve artikkel-JSON-et (ikke det ikke-eksisterende <c>headword</c>),
+    /// og (b) i TILLEGG bruke selve SØKETREFFETS EGET <c>headword</c>-felt (som FAKTISK finnes og er korrekt
+    /// i søkesvaret, selv der artikkelens egne felt mangler/er utdaterte — bekreftet: Nasjonalarkivet-søket
+    /// ga <c>"headword":"Nasjonalarkivet"</c> i selve treffet, mens artikkelens NESTEDE <c>metadata.headword</c>
+    /// fortsatt sa det gamle navnet "Arkivverket" pga. en fersk 2026-omdøping — et STALE-felt, IKKE brukt her
+    /// av samme grunn). <c>artikkel.Headword</c> (toppnivå) beholdes likevel som en ekstra, harmløs
+    /// kandidat — koster ingenting å sjekke selv om live data aldri har fylt den ut.
     /// </para>
     /// </summary>
     public Task<EksternOppslagResultat> SlaOppSnlAsync(string term, CancellationToken ct = default) =>
@@ -178,7 +198,11 @@ public sealed class EksternNavneoppslagTjeneste(
             if (metadata is null) continue;
 
             var alias = ParseAlias(metadata.AlternativeForm);
-            var kandidatnavn = new[] { artikkel!.Headword, metadata.OrganizationName }
+            // [Rettet, 2026-09-03] treff.Headword (selve søketreffet) OG artikkel.Title (toppnivå-feltet
+            // som FAKTISK heter "title" i live-JSON) lagt til — se metodekommentaren for hvorfor de to
+            // opprinnelige kandidatene (artikkel.Headword/metadata.OrganizationName) BEGGE sviktet live
+            // for rene statlige etater/direktorater.
+            var kandidatnavn = new[] { treff.Headword, artikkel!.Title, artikkel.Headword, metadata.OrganizationName }
                 .Where(n => !string.IsNullOrWhiteSpace(n))
                 .Concat(alias);
             if (!kandidatnavn.Any(n => string.Equals(n, term, StringComparison.OrdinalIgnoreCase))) continue;
@@ -231,6 +255,11 @@ public sealed class EksternNavneoppslagTjeneste(
 
     private sealed class SnlSokeTreff
     {
+        // [Ny, 2026-09-03] "headword" på selve SØKETREFFET (til forskjell fra artikkel-JSON-ets EGET,
+        // ikke-eksisterende toppnivåfelt med samme navn, se SlaOppSnlAsync sin kommentar) — verifisert
+        // live å alltid være til stede og KORREKT, selv for en artikkel der andre navnefelt mangler/er
+        // utdaterte (Nasjonalarkivet-caset).
+        [JsonPropertyName("headword")] public string? Headword { get; set; }
         [JsonPropertyName("article_type_id")] public int ArticleTypeId { get; set; }
         [JsonPropertyName("taxonomy_title")] public string? TaxonomyTitle { get; set; }
         [JsonPropertyName("article_url")] public string? ArticleUrl { get; set; }
@@ -239,7 +268,11 @@ public sealed class EksternNavneoppslagTjeneste(
 
     private sealed class SnlArtikkel
     {
+        // [Rettet, 2026-09-03] Artikkel-JSON-ets FAKTISKE toppnivå-tittelfelt heter "title" — "headword"
+        // beholdes likevel (harmløst, alltid null live) i tilfelle et framtidig API-svar faktisk har det,
+        // se SlaOppSnlAsync sin kommentar for hele funnet.
         [JsonPropertyName("headword")] public string? Headword { get; set; }
+        [JsonPropertyName("title")] public string? Title { get; set; }
         [JsonPropertyName("url")] public string? Url { get; set; }
         [JsonPropertyName("metadata")] public SnlArtikkelMetadata? Metadata { get; set; }
     }
