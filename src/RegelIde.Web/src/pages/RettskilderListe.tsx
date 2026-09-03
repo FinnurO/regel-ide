@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 import {
-  Alert, Button, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tabs, Tag, Textfield,
+  Alert, Button, Checkbox, Heading, Link, Paragraph, Spinner, Table, Tabs, Tag, Textfield,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { LovdataImportstatusDto, RettskildeHjemmelRelasjonDto, RettskildeSammendrag } from '../api/types';
@@ -11,7 +11,9 @@ import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 
-// 'departement' lagt til (issue #193) — se DistinkteDepartementerAsync/AnsvarligDepartement.
+// 'departement' lagt til (issue #193) — se AnsvarligDepartement. Sorteringsnøkkelen for en rad med
+// FLERE departementer (fler-verdi-departement, 2026-09-04) er den alfabetisk LAVESTE av dem, se
+// departementSorteringsnokkel under.
 type Sorteringskolonne = 'tittel' | 'kildetype' | 'departement' | 'eier';
 type ImportstatusSorteringskolonne = 'tittel' | 'datokode' | 'type';
 // Tre faner: to opprinnelige (2026-09-02, issue #114) — «Aktive rettskilder» var tidligere den eneste
@@ -62,6 +64,16 @@ function erAktivRettskilde(r: RettskildeSammendrag): boolean {
   return !r.erIrrelevant && !erIkkeTraadtIKraft(r);
 }
 
+// [ENDRET, fler-verdi-departement, 2026-09-04] ansvarligDepartement er nå en liste (en rad kan ha flere
+// departementer ved delt ansvar) — sorteringsnøkkelen er den alfabetisk LAVESTE av dem, Johanns
+// eksplisitte valg («sorter på f.eks. første/alfabetisk laveste departement i listen»). Tom streng (sorterer
+// FØRST) for en rad uten noe kjent departement, samme «ukjent sorterer øverst»-idé som annen kode i denne
+// fila (se ikrafttredelsesstatus).
+function departementSorteringsnokkel(r: RettskildeSammendrag): string {
+  if (!r.ansvarligDepartement || r.ansvarligDepartement.length === 0) return '';
+  return [...r.ansvarligDepartement].sort((a, b) => a.localeCompare(b, 'nb'))[0];
+}
+
 export default function RettskilderListe() {
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
@@ -72,17 +84,6 @@ export default function RettskilderListe() {
   const [sortStigende, setSortStigende] = useState(true);
   const { gjeldendeBruker } = useBruker();
   const { visEier } = useVirksomheter();
-
-  // ---------- Departement-filter (issue #193) — nedtrekksliste avledet fra faktiske data, ikke en
-  // hardkodet kodeliste. Hentes én gang ved montering (ikke lazy — filteret skal være klart så snart
-  // brukeren åpner «Aktive rettskilder», samme som departement-KOLONNEN som allerede er med i den
-  // allerede hentede RettskildeSammendrag-lista). ----------
-  const [departementer, setDepartementer] = useState<string[]>([]);
-  const [departementFilter, setDepartementFilter] = useState('');
-
-  useEffect(() => {
-    api.hentDepartementer().then(setDepartementer).catch(() => setDepartementer([]));
-  }, []);
 
   // ---------- Hjemmelrelasjoner for departement→lov→forskrift-hierarkiet (issue #193) — lazy, samme
   // "ikke tving frem et ekstra kall på hver sidelast"-mønster som visIkkeImportert/ikkeImportert under:
@@ -189,21 +190,15 @@ export default function RettskilderListe() {
     // Grunn-kolonnen i den fanen).
     const grunnlag =
       fane === 'aktive' ? rettskilder.filter(erAktivRettskilde) : rettskilder.filter((r) => !erAktivRettskilde(r));
-    // Departement-filter (issue #193) — nedtrekksliste, tomt valg ('') betyr «alle departementer».
-    // Anvendt FØR fritekstfilteret, samme rekkefølge som gir riktigst intuisjon når begge er aktive
-    // samtidig (departement snevrer korpuset inn, fritekst søker i det innsnevrede resultatet).
-    const departementFiltrert = departementFilter
-      ? grunnlag.filter((r) => r.ansvarligDepartement === departementFilter)
-      : grunnlag;
     const filtrert = tekst
-      ? departementFiltrert.filter(
+      ? grunnlag.filter(
           (r) =>
             r.tittel.toLowerCase().includes(tekst) ||
             (r.kortnavn?.toLowerCase().includes(tekst) ?? false) ||
             r.kildetype.toLowerCase().includes(tekst) ||
             visEier(r.virksomhetId).toLowerCase().includes(tekst),
         )
-      : departementFiltrert;
+      : grunnlag;
 
     const sortnokkel = (r: RettskildeSammendrag) =>
       sortKolonne === 'tittel'
@@ -211,25 +206,26 @@ export default function RettskilderListe() {
         : sortKolonne === 'kildetype'
           ? r.kildetype
           : sortKolonne === 'departement'
-            ? (r.ansvarligDepartement ?? '')
+            ? departementSorteringsnokkel(r)
             : visEier(r.virksomhetId);
 
     return [...filtrert].sort((a, b) => {
       const cmp = sortnokkel(a).localeCompare(sortnokkel(b), 'nb');
       return sortStigende ? cmp : -cmp;
     });
-  }, [rettskilder, filterTekst, departementFilter, sortKolonne, sortStigende, visEier, fane]);
+  }, [rettskilder, filterTekst, sortKolonne, sortStigende, visEier, fane]);
 
   // [Ny, issue #193] Grunnlaget for departement→lov→forskrift-hierarkiet — SAMME «aktiv»-avgrensning
-  // og departement-filter som 'aktive'-fanens flate liste (erAktivRettskilde/departementFilter over),
-  // slik at hierarkiet og listevisningen alltid viser samme korpus, bare gruppert ulikt. Fritekstfilteret
-  // (filterTekst) anvendes IKKE her — RettskilderHierarki filtrerer selv på lov-/forskriftstittel, siden
-  // hierarkiet må beholde en lovs grener selv om treffet kun er i en forskrift under den (se komponenten).
+  // som 'aktive'-fanens flate liste (erAktivRettskilde over), slik at hierarkiet og listevisningen alltid
+  // viser samme korpus, bare gruppert ulikt. Fritekstfilteret (filterTekst) anvendes IKKE her —
+  // RettskilderHierarki filtrerer selv på lov-/forskriftstittel, siden hierarkiet må beholde en lovs
+  // grener selv om treffet kun er i en forskrift under den (se komponenten). Departement-filteret som
+  // fantes her er FJERNET (fler-verdi-departement-runden, 2026-09-04, Johanns eksplisitte designvalg) —
+  // hierarki-fanen ER navigasjonsmekanismen på departement-nivå.
   const hierarkiGrunnlag = useMemo(() => {
     if (!rettskilder) return null;
-    const aktive = rettskilder.filter(erAktivRettskilde);
-    return departementFilter ? aktive.filter((r) => r.ansvarligDepartement === departementFilter) : aktive;
-  }, [rettskilder, departementFilter]);
+    return rettskilder.filter(erAktivRettskilde);
+  }, [rettskilder]);
 
   const visteIkkeImportert = useMemo(() => {
     if (!ikkeImportert) return null;
@@ -305,19 +301,6 @@ export default function RettskilderListe() {
           onChange={(e) => setFilterTekst(e.target.value)}
           style={{ maxWidth: '20rem' }}
         />
-        {/* [Ny, issue #193] Departement-filter — nedtrekksliste avledet fra faktiske verdier i korpuset
-            (GET /api/rettskilder/departementer), ikke en hardkodet kodeliste. Gjelder alle tre faner. */}
-        <Field style={{ maxWidth: '18rem' }}>
-          <Label>Departement</Label>
-          <Select value={departementFilter} onChange={(e) => setDepartementFilter(e.target.value)}>
-            <Select.Option value="">Alle departementer</Select.Option>
-            {departementer.map((d) => (
-              <Select.Option key={d} value={d}>
-                {d}
-              </Select.Option>
-            ))}
-          </Select>
-        </Field>
       </div>
 
       {feil && <Alert data-color="danger">{feil}</Alert>}
@@ -390,7 +373,7 @@ export default function RettskilderListe() {
                   )}
                 </Table.Cell>
                 <Table.Cell>{r.kildetype}</Table.Cell>
-                <Table.Cell>{r.ansvarligDepartement ?? '—'}</Table.Cell>
+                <Table.Cell>{r.ansvarligDepartement?.join(', ') || '—'}</Table.Cell>
                 <Table.Cell>{visEier(r.virksomhetId)}</Table.Cell>
               </Table.Row>
             ))}
@@ -446,7 +429,7 @@ export default function RettskilderListe() {
                   )}
                 </Table.Cell>
                 <Table.Cell>{r.kildetype}</Table.Cell>
-                <Table.Cell>{r.ansvarligDepartement ?? '—'}</Table.Cell>
+                <Table.Cell>{r.ansvarligDepartement?.join(', ') || '—'}</Table.Cell>
                 <Table.Cell>{visEier(r.virksomhetId)}</Table.Cell>
                 <Table.Cell style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
                   {r.erIrrelevant && <Tag data-color="warning" data-size="sm">Irrelevant</Tag>}

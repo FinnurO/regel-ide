@@ -991,14 +991,26 @@ export default function RettskildeDetalj() {
                         <Table.Row>
                           <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Ansvarlig departement</Table.Cell>
                           <Table.Cell>
-                            {detalj.ansvarligDepartement ? (
-                              detalj.ansvarligDepartementVirksomhetId ? (
-                                <Link asChild>
-                                  <RouterLink to={`/virksomheter/${detalj.ansvarligDepartementVirksomhetId}`}>{detalj.ansvarligDepartement}</RouterLink>
-                                </Link>
-                              ) : (
-                                detalj.ansvarligDepartement
-                              )
+                            {/* [ENDRET, fler-verdi-departement, 2026-09-04] Flere departementer ved delt
+                                ansvar vises kommaseparert, hvert med sin EGEN lenke-oppløsning (se
+                                ansvarligDepartementLenker — én rad kan ha noen departementer som matcher
+                                en ekte Virksomhet og andre som ikke gjør det). */}
+                            {detalj.ansvarligDepartement && detalj.ansvarligDepartement.length > 0 ? (
+                              detalj.ansvarligDepartement.map((d, i) => {
+                                const virksomhetId = detalj.ansvarligDepartementLenker.find((l) => l.departement === d)?.virksomhetId;
+                                return (
+                                  <span key={d}>
+                                    {virksomhetId ? (
+                                      <Link asChild>
+                                        <RouterLink to={`/virksomheter/${virksomhetId}`}>{d}</RouterLink>
+                                      </Link>
+                                    ) : (
+                                      d
+                                    )}
+                                    {i < detalj.ansvarligDepartement!.length - 1 ? ', ' : ''}
+                                  </span>
+                                );
+                              })
                             ) : (
                               '—'
                             )}

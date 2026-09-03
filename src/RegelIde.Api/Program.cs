@@ -701,6 +701,24 @@ app.MapGet("/api/konfigurasjon/relasjonstyper", async (RegelIdeDbContext db) =>
     .WithName("HentRelasjonsTypeKonfigurasjon")
     .WithSummary("Lister aktive relasjonstyper for VirksomhetRelasjon (docs/29 §Del C) — samme mønster som GET /api/konfigurasjon/tagg-kinds.");
 
+// [Ny, fler-verdi-departement, 2026-09-04] Løser HVER streng i en rettskildes AnsvarligDepartement-liste
+// til sin egen AnsvarligDepartementLenkeDto (departement + løst Virksomhet-id, eller null — «ingen
+// gjettet fallback») — erstatter det tidligere ENKELT-oppslaget (repo.FinnVirksomhetIdForNavnAsync ble
+// før kalt maks én gang per rettskilde, siden feltet var én streng). Brukt av GET/PATCH-endepunktene
+// under som returnerer RettskildeDetalj. Tom liste for r.AnsvarligDepartement == null (uendret "ingen
+// data"-betydning).
+static async Task<List<AnsvarligDepartementLenkeDto>> LosAnsvarligDepartementLenkerAsync(
+    List<string>? departementer, RettskildeRepository repo)
+{
+    if (departementer is null) return [];
+    var resultat = new List<AnsvarligDepartementLenkeDto>(departementer.Count);
+    foreach (var departement in departementer)
+    {
+        resultat.Add(new AnsvarligDepartementLenkeDto(departement, await repo.FinnVirksomhetIdForNavnAsync(departement)));
+    }
+    return resultat;
+}
+
 var rettskilder = app.MapGroup("/api/rettskilder").WithOpenApi();
 
 rettskilder.MapGet("/", async (Guid? virksomhetId, bool? inkluderIrrelevante, RettskildeRepository repo) =>
@@ -715,9 +733,12 @@ rettskilder.MapGet("/", async (Guid? virksomhetId, bool? inkluderIrrelevante, Re
 rettskilder.MapGet("/departementer", async (RettskildeRepository repo) => await repo.DistinkteDepartementerAsync())
     .WithName("HentDistinkteDepartementer")
     .WithSummary("Distinkte AnsvarligDepartement-verdier fra korpuset (samme synlighetsfilter som GET /, " +
-        "ekskl. irrelevant-markerte/kladder/referanse-stubber), sortert alfabetisk.")
-    .WithDescription("[Ny, issue #193] Grunnlaget for departement-filterets nedtrekksliste i RettskilderListe.tsx — " +
-        "avledet fra faktiske data, ikke en hardkodet kodeliste.");
+        "ekskl. irrelevant-markerte/kladder/referanse-stubber), sortert alfabetisk. Én verdi per departement — " +
+        "en rad med flere departementer (delt ansvar) bidrar med ETT element per departement, ikke én sammensatt streng.")
+    .WithDescription("[Ny, issue #193] Opprinnelig grunnlaget for departement-filterets nedtrekksliste i " +
+        "RettskilderListe.tsx — den nedtrekkslisten er FJERNET (fler-verdi-departement-runden, 2026-09-04, " +
+        "Johanns eksplisitte designvalg: departement→lov→forskrift-hierarki-fanen ER navigasjonsmekanismen på " +
+        "departement-nivå), men endepunktet selv er beholdt (avledet fra faktiske data, ikke en hardkodet kodeliste).");
 
 rettskilder.MapGet("/hjemmelrelasjoner", async (RettskildeRepository repo) => await repo.AlleHjemmelrelasjonerAsync())
     .WithName("HentAlleHjemmelrelasjoner")
@@ -731,12 +752,8 @@ rettskilder.MapGet("/{id:guid}", async (Guid id, RettskildeRepository repo) =>
         var r = await repo.FinnAsync(id);
         if (r is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
 
-        // Departement-virksomhet-lenke (2026-08-30) — løst her, ikke i DTO-en selv, siden den trenger
-        // et databaseoppslag (repo.FinnVirksomhetIdForNavnAsync er async).
-        var departementVirksomhetId = r.AnsvarligDepartement is null
-            ? null
-            : await repo.FinnVirksomhetIdForNavnAsync(r.AnsvarligDepartement);
-        return Results.Ok(RettskildeDetalj.FraEntitet(r, departementVirksomhetId));
+        var departementLenker = await LosAnsvarligDepartementLenkerAsync(r.AnsvarligDepartement, repo);
+        return Results.Ok(RettskildeDetalj.FraEntitet(r, departementLenker));
     })
     .WithName("HentRettskilde")
     .WithSummary("Henter full metadata + kanonisk AKN-XML for én rettskilde.");
@@ -776,10 +793,8 @@ rettskilder.MapPatch("/{id:guid}/metadata", async (Guid id, HttpRequest request,
             body.Vedtaksdato, body.GyldigTil, body.KonsolidertDato, bruker.Navn);
         if (oppdatert is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
 
-        var departementVirksomhetId = oppdatert.AnsvarligDepartement is null
-            ? null
-            : await repo.FinnVirksomhetIdForNavnAsync(oppdatert.AnsvarligDepartement);
-        return Results.Ok(RettskildeDetalj.FraEntitet(oppdatert, departementVirksomhetId));
+        var departementLenker = await LosAnsvarligDepartementLenkerAsync(oppdatert.AnsvarligDepartement, repo);
+        return Results.Ok(RettskildeDetalj.FraEntitet(oppdatert, departementLenker));
     })
     .WithName("OppdaterRettskildeMetadata")
     .WithSummary("Oppdaterer redigerbar metadata (Kortnavn/Utgiver/InterntDokNr/Revisjonsnr/VedtattAv/" +
@@ -796,10 +811,8 @@ rettskilder.MapPatch("/{id:guid}/irrelevant", async (Guid id, HttpRequest reques
         var oppdatert = await repo.OppdaterIrrelevantAsync(id, body.ErIrrelevant, body.IrrelevantKommentar, bruker.Navn);
         if (oppdatert is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
 
-        var departementVirksomhetId = oppdatert.AnsvarligDepartement is null
-            ? null
-            : await repo.FinnVirksomhetIdForNavnAsync(oppdatert.AnsvarligDepartement);
-        return Results.Ok(RettskildeDetalj.FraEntitet(oppdatert, departementVirksomhetId));
+        var departementLenker = await LosAnsvarligDepartementLenkerAsync(oppdatert.AnsvarligDepartement, repo);
+        return Results.Ok(RettskildeDetalj.FraEntitet(oppdatert, departementLenker));
     })
     .WithName("OppdaterRettskildeIrrelevant")
     .WithSummary("Setter/fjerner header-nivå «irrelevant for regel-ide»-markering + fritekstkommentar. " +

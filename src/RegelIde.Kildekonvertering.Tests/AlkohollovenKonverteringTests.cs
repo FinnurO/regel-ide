@@ -18,7 +18,7 @@ public class AlkohollovenKonverteringTests
         Assert.Equal(Kildetype.Lov, Resultat.Metadata.Kildetype);
         Assert.Equal(LovEli, Resultat.Metadata.Eli);
         Assert.Equal("Lov om omsetning av alkoholholdig drikk m.v. (alkoholloven)", Resultat.Metadata.Tittel);
-        Assert.Equal("Helse- og omsorgsdepartementet", Resultat.Metadata.AnsvarligDepartement);
+        Assert.Equal(["Helse- og omsorgsdepartementet"], Resultat.Metadata.AnsvarligDepartement);
         Assert.Equal("stortinget", Resultat.Metadata.FrbrAuthorHref);
     }
 

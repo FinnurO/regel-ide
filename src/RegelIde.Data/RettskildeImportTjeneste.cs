@@ -92,7 +92,7 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 // §152: (re)backfiller ALLTID fra den ferskt parsede metadataen, ikke bare når NULL fra
                 // før — den tidligere sammenslåingsbugen kan ha skrevet en feil (sammenlimt) verdi inn
                 // allerede, og en rad med feil verdi ville ellers aldri blitt rettet av en vanlig resynk.
-                eksisterende.AnsvarligDepartement = m.AnsvarligDepartement;
+                eksisterende.AnsvarligDepartement = m.AnsvarligDepartement.ToList();
                 // [Ny, 2026-09-03, issue #127] — samme "backfill selv når uendret AKN"-begrunnelse som
                 // feltene over: disse 10 feltene fantes ikke da de fleste rader sist gikk gjennom denne
                 // metodens Ny/NyVersjon-gren, og AknXml (sammenligningsgrunnlaget for "uendret" rett
@@ -154,7 +154,7 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             eksisterende.KonsolidertDatoRaa = m.KonsolidertDatoRaa;
             eksisterende.SistEndretVed = m.SistEndretVed;
             eksisterende.Utgiver = m.Utgiver;
-            eksisterende.AnsvarligDepartement = m.AnsvarligDepartement;
+            eksisterende.AnsvarligDepartement = m.AnsvarligDepartement.ToList();
             eksisterende.Kunngjort = m.Kunngjort;
             eksisterende.Rettsomrade = m.Rettsomrade;
             eksisterende.EuEosHenvisning = m.EuEosHenvisning;
@@ -203,7 +203,7 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 KonsolidertDatoRaa = m.KonsolidertDatoRaa,
                 SistEndretVed = m.SistEndretVed,
                 Utgiver = m.Utgiver,
-                AnsvarligDepartement = m.AnsvarligDepartement,
+                AnsvarligDepartement = m.AnsvarligDepartement.ToList(),
                 Kunngjort = m.Kunngjort,
                 Rettsomrade = m.Rettsomrade,
                 EuEosHenvisning = m.EuEosHenvisning,
@@ -412,7 +412,7 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             KonsolidertDatoRaa = m.KonsolidertDatoRaa,
             SistEndretVed = m.SistEndretVed,
             Utgiver = m.Utgiver,
-            AnsvarligDepartement = m.AnsvarligDepartement,
+            AnsvarligDepartement = m.AnsvarligDepartement.ToList(),
             Kunngjort = m.Kunngjort,
             Rettsomrade = m.Rettsomrade,
             EuEosHenvisning = m.EuEosHenvisning,

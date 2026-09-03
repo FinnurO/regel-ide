@@ -27,27 +27,37 @@ public sealed class TekstTaggTjeneste(RegelIdeDbContext db, VirksomhetOppslagTje
     /// </summary>
     public async Task<List<TekstTaggEntitet>> ListerForAsync(Guid rettskildeId, Guid virksomhetId, CancellationToken ct = default)
     {
-        var departementVirksomhetId = await FinnDepartementVirksomhetIdAsync(rettskildeId, ct);
+        var departementVirksomhetIder = await FinnDepartementVirksomhetIderAsync(rettskildeId, ct);
         return await db.TekstTagger
             .Where(t => t.RettskildeId == rettskildeId && t.Entitetsstatus == "gjeldende"
-                        && (t.VirksomhetId == virksomhetId
-                            || (departementVirksomhetId != null && t.VirksomhetId == departementVirksomhetId)))
+                        && (t.VirksomhetId == virksomhetId || departementVirksomhetIder.Contains(t.VirksomhetId)))
             .OrderBy(t => t.NodeEid).ThenBy(t => t.StartOffset)
             .ToListAsync(ct);
     }
 
     /// <summary>Gjenbruker <see cref="VirksomhetOppslagTjeneste.FinnVirksomhetIdForNavnAsync"/> (samme
     /// oppslagsmekanisme som <c>RettskildeRepository</c> bruker for "Ansvarlig for"-visningen) — ALDRI
-    /// en egen duplisert spørring. Returnerer null både når rettskilden ikke har noe kjent
-    /// <see cref="RettskildeEntitet.AnsvarligDepartement"/>, og når strengen ikke matcher noen ekte
-    /// <see cref="Virksomhet"/> — «ingen gjettet fallback» i begge tilfellene.</summary>
-    private async Task<Guid?> FinnDepartementVirksomhetIdAsync(Guid rettskildeId, CancellationToken ct)
+    /// en egen duplisert spørring. [ENDRET, fler-verdi-departement, 2026-09-04] Returnerer nå EN
+    /// (potensielt tom) liste — én rettskilde kan ha FLERE ansvarlige departementer (delt ansvar), og
+    /// tagger fra ALLE av dem skal være synlige her, ikke bare det første. Tom liste både når
+    /// rettskilden ikke har noe kjent <see cref="RettskildeEntitet.AnsvarligDepartement"/>, og når INGEN
+    /// av elementene matcher noen ekte <see cref="Virksomhet"/> — «ingen gjettet fallback» i begge
+    /// tilfellene.</summary>
+    private async Task<List<Guid>> FinnDepartementVirksomhetIderAsync(Guid rettskildeId, CancellationToken ct)
     {
-        var ansvarligDepartement = await db.Rettskilder
+        var ansvarligDepartementer = await db.Rettskilder
             .Where(r => r.Id == rettskildeId)
             .Select(r => r.AnsvarligDepartement)
             .FirstOrDefaultAsync(ct);
-        return ansvarligDepartement is null ? null : await virksomhetOppslag.FinnVirksomhetIdForNavnAsync(ansvarligDepartement);
+        if (ansvarligDepartementer is null) return [];
+
+        var resultat = new List<Guid>();
+        foreach (var departement in ansvarligDepartementer)
+        {
+            var virksomhetId = await virksomhetOppslag.FinnVirksomhetIdForNavnAsync(departement);
+            if (virksomhetId is not null) resultat.Add(virksomhetId.Value);
+        }
+        return resultat;
     }
 
     /// <summary>

@@ -1080,14 +1080,26 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     private async Task OpprettDepartementTaggHvisMuligAsync(
         NavnekandidatEntitet kandidat, Guid? refId, string behandletAv, CancellationToken ct)
     {
-        var ansvarligDepartement = await db.Rettskilder
+        var ansvarligDepartementer = await db.Rettskilder
             .Where(r => r.Id == kandidat.RettskildeId)
             .Select(r => r.AnsvarligDepartement)
             .FirstOrDefaultAsync(ct);
-        if (ansvarligDepartement is null) return; // ukjent departement — ingen gjettet fallback.
+        if (ansvarligDepartementer is null) return; // ukjent departement — ingen gjettet fallback.
 
-        var departementVirksomhetId = await virksomhetOppslag.FinnVirksomhetIdForNavnAsync(ansvarligDepartement);
-        if (departementVirksomhetId is null) return; // uoppløsbart departement — ingen gjettet fallback.
+        // [ENDRET, fler-verdi-departement, 2026-09-04] En rettskilde kan ha FLERE ansvarlige
+        // departementer (delt ansvar) — taggen kan bare eies av ÉN virksomhet (TekstTaggEntitet.VirksomhetId
+        // er ikke-nullbar, ikke en liste), så det FØRSTE departementet i kildens egen rekkefølge som
+        // faktisk løser til en ekte Virksomhet velges. Ikke "gjettet" i §3.3-forstand: dette er et bevisst,
+        // dokumentert valg av "primær eier" for et allerede eksisterende én-eier-konsept, ikke en antagelse
+        // om SELVE departementstilhørigheten. Se TekstTaggTjeneste.ListerForAsync for lese-siden, som i
+        // stedet viser taggen for ALLE departementenes virksomheter (ikke bare denne ene).
+        Guid? departementVirksomhetId = null;
+        foreach (var departement in ansvarligDepartementer)
+        {
+            departementVirksomhetId = await virksomhetOppslag.FinnVirksomhetIdForNavnAsync(departement);
+            if (departementVirksomhetId is not null) break;
+        }
+        if (departementVirksomhetId is null) return; // uoppløsbart departement (ingen av dem) — ingen gjettet fallback.
 
         var node = await db.RettskildeNoder.FirstOrDefaultAsync(
             n => n.RettskildeId == kandidat.RettskildeId && n.Eid == kandidat.NodeEid, ct);

@@ -29,9 +29,15 @@ namespace RegelIde.Api;
 /// Lov/Forskrift (se <see cref="RegelIde.Kildekonvertering.Kildetype"/>) — NULL for alle andre
 /// kildetyper er forventet fravær av data, ikke "ikke i kraft".
 /// </summary>
+/// <summary>
+/// [ENDRET, fler-verdi-departement, 2026-09-04] <see cref="AnsvarligDepartement"/> er nå en liste
+/// (<c>string[]</c> i JSON) — Lovdata har ekte rettskilder med FLERE ansvarlige departementer (delt
+/// ansvar), se <see cref="RegelIde.Data.RettskildeEntitet.AnsvarligDepartement"/>. Fortsatt NULL for
+/// alt som ikke er Lovdata-importert Lov/Forskrift.
+/// </summary>
 public sealed record RettskildeSammendrag(
     Guid Id, Guid? VirksomhetId, string? Eli, string Tittel, string? Kortnavn, string Kildetype,
-    string? AnsvarligDepartement, bool ErIrrelevant, string? IrrelevantKommentar, string? IkrafttredelseRaa)
+    IReadOnlyList<string>? AnsvarligDepartement, bool ErIrrelevant, string? IrrelevantKommentar, string? IkrafttredelseRaa)
 {
     public static RettskildeSammendrag FraEntitet(RettskildeEntitet r) =>
         new(r.Id, r.VirksomhetId, r.Eli, r.Tittel, r.Kortnavn, r.Kildetype, r.AnsvarligDepartement, r.ErIrrelevant,
@@ -43,12 +49,15 @@ public sealed record RettskildeSammendrag(
 /// De seks feltene fra <see cref="InterntDokNr"/> til <see cref="GyldigTil"/> fantes allerede på
 /// <see cref="RettskildeEntitet"/> (håndbok-metadata, §3.3) men var før nå ikke UI-eksponert i det hele tatt.</summary>
 /// <summary>
-/// <paramref name="AnsvarligDepartement"/> er den rå strengen fra Lovdatas "ministry"-metadatafelt
-/// (departement-virksomhet-lenke, 2026-08-30). <paramref name="AnsvarligDepartementVirksomhetId"/> er
-/// et EKSAKT (case-insensitivt) navnetreff mot katalogen, løst server-side ved lesing (se
-/// <see cref="RettskildeRepository.FinnVirksomhetIdForNavnAsync"/>) — null når strengen ikke matcher
-/// noen <see cref="Virksomhet"/> eksakt («ingen gjettet fallback»); frontend viser da
-/// <see cref="AnsvarligDepartement"/> som ren tekst i stedet for en lenke.
+/// <paramref name="AnsvarligDepartement"/> er de rå strengene fra Lovdatas "ministry"-metadatafelt
+/// (departement-virksomhet-lenke, 2026-08-30) — [ENDRET, fler-verdi-departement, 2026-09-04] nå en
+/// LISTE (Lovdata kan oppgi flere ved delt ansvar), ikke lenger én enkelt streng.
+/// <paramref name="AnsvarligDepartementLenker"/> er ETT EKSAKT (case-insensitivt) navnetreff mot
+/// katalogen PER element i <paramref name="AnsvarligDepartement"/> (samme rekkefølge), løst server-side
+/// ved lesing (se <see cref="RettskildeRepository.FinnVirksomhetIdForNavnAsync"/>) —
+/// <see cref="AnsvarligDepartementLenkeDto.VirksomhetId"/> er null for et element som ikke matcher noen
+/// <see cref="Virksomhet"/> eksakt («ingen gjettet fallback»); frontend viser da DET departementet som
+/// ren tekst i stedet for en lenke, uavhengig av om andre departementer i samme liste matchet.
 /// </summary>
 /// <summary>
 /// <paramref name="IkrafttredelseRaa"/>/<paramref name="KonsolidertDatoRaa"/>/<paramref name="SistEndretVed"/>
@@ -65,23 +74,32 @@ public sealed record RettskildeSammendrag(
 /// </summary>
 public sealed record RettskildeDetalj(
     Guid Id, Guid? VirksomhetId, string Doctype, string Kildetype, string Tittel, string? Kortnavn, string? Eli,
-    DateOnly? Ikrafttredelse, DateOnly? KonsolidertDato, string? Utgiver, string? AnsvarligDepartement, string Status,
+    DateOnly? Ikrafttredelse, DateOnly? KonsolidertDato, string? Utgiver, IReadOnlyList<string>? AnsvarligDepartement, string Status,
     string? AknXml, string? InterntDokNr, string? Revisjonsnr, string? VedtattAv, DateOnly? Vedtaksdato,
-    DateOnly? GyldigTil, string? Url, Guid? AnsvarligDepartementVirksomhetId, bool ErIrrelevant, string? IrrelevantKommentar,
+    DateOnly? GyldigTil, string? Url, IReadOnlyList<AnsvarligDepartementLenkeDto> AnsvarligDepartementLenker, bool ErIrrelevant, string? IrrelevantKommentar,
     string? IkrafttredelseRaa, string? KonsolidertDatoRaa, string? SistEndretVed,
     string? Kunngjort, string? Rettsomrade, string? EuEosHenvisning, string? DokumentId, string? RefId,
     string? GjelderFor, string? Etat, string? PublisertI, string? AnnetOmDokumentet, string? SisteRettelse,
     bool HarKilde)
 {
-    public static RettskildeDetalj FraEntitet(RettskildeEntitet r, Guid? ansvarligDepartementVirksomhetId = null) => new(
+    public static RettskildeDetalj FraEntitet(
+        RettskildeEntitet r, IReadOnlyList<AnsvarligDepartementLenkeDto>? ansvarligDepartementLenker = null) => new(
         r.Id, r.VirksomhetId, r.Doctype, r.Kildetype, r.Tittel, r.Kortnavn, r.Eli,
         r.Ikrafttredelse, r.KonsolidertDato, r.Utgiver, r.AnsvarligDepartement, r.Status, r.AknXml,
-        r.InterntDokNr, r.Revisjonsnr, r.VedtattAv, r.Vedtaksdato, r.GyldigTil, r.Url, ansvarligDepartementVirksomhetId,
+        r.InterntDokNr, r.Revisjonsnr, r.VedtattAv, r.Vedtaksdato, r.GyldigTil, r.Url, ansvarligDepartementLenker ?? [],
         r.ErIrrelevant, r.IrrelevantKommentar, r.IkrafttredelseRaa, r.KonsolidertDatoRaa, r.SistEndretVed,
         r.Kunngjort, r.Rettsomrade, r.EuEosHenvisning, r.DokumentId, r.RefId,
         r.GjelderFor, r.Etat, r.PublisertI, r.AnnetOmDokumentet, r.SisteRettelse,
         r.Innhold is not null);
 }
+
+/// <summary>
+/// [Ny, fler-verdi-departement, 2026-09-04] Ett departement fra <see cref="RettskildeDetalj.AnsvarligDepartement"/>
+/// sammen med dets løste <see cref="Virksomhet"/>-id (eller null — «ingen gjettet fallback», se
+/// <see cref="RettskildeDetalj"/> sin doc-kommentar). Erstatter den tidligere ENKELTSTÅENDE
+/// <c>AnsvarligDepartementVirksomhetId</c> (som kun ga mening da feltet var én streng).
+/// </summary>
+public sealed record AnsvarligDepartementLenkeDto(string Departement, Guid? VirksomhetId);
 
 /// <summary>Forespørsel for POST /api/rettskilder/lovdata.</summary>
 public sealed record LovdataImportRequest(string Datokode);

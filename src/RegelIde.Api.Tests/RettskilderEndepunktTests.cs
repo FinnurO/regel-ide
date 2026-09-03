@@ -241,6 +241,50 @@ public class RettskilderEndepunktTests
         Assert.Equal(departementer.OrderBy(d => d, StringComparer.OrdinalIgnoreCase), departementer);
     }
 
+    /// <summary>
+    /// [Ny, fler-verdi-departement, 2026-09-04] En rettskilde med TO ansvarlige departementer (delt
+    /// ansvar) skal telles med under BEGGE i departement-oversikten (Postgres-<c>unnest</c>-oversettelsen
+    /// i <see cref="RettskildeRepository.DistinkteDepartementerAsync"/>) — og selve raden skal eksponere
+    /// begge departementene i sammendrags-lista, som er nøyaktig dataen departement→lov→forskrift-
+    /// hierarkiet (RettskilderHierarki.tsx) grupperer på klientsiden. Beviser dermed at en slik rettskilde
+    /// faktisk vises under BEGGE grenene i hierarkiet, uten at et frontend-testoppsett trengs (ingen
+    /// finnes i denne appen — se package.json). Bruker Samferdsels-/Kunnskapsdepartementet (IKKE Klima-/
+    /// Landbruksdepartementet, som DepartementVirksomhetLenkeEndepunktTests.cs forventer et EKSAKT antall
+    /// rader for i samme delte ApiTestCollection-database).
+    /// </summary>
+    [Fact]
+    public async Task Rettskilde_med_to_departementer_telles_under_begge_i_departementoversikten()
+    {
+        Guid toDepartementerId;
+        const string departementA = "Samferdselsdepartementet";
+        const string departementB = "Kunnskapsdepartementet";
+        await using (var db = _fixture.NyDbContext())
+        {
+            toDepartementerId = Guid.NewGuid();
+            db.Rettskilder.Add(new RettskildeEntitet
+            {
+                Id = toDepartementerId,
+                Doctype = "act",
+                Kildetype = "Lov",
+                Tittel = "En lov med delt departementsansvar (fler-verdi-departement-test)",
+                Status = "Gjeldende",
+                AknXml = "<akomaNtoso/>",
+                AnsvarligDepartement = [departementA, departementB],
+                OpprettetAv = "test",
+                OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            });
+            await db.SaveChangesAsync();
+        }
+
+        var departementer = await _client.GetFromJsonAsync<List<string>>("/api/rettskilder/departementer", JsonInnstillinger);
+        Assert.Contains(departementA, departementer!);
+        Assert.Contains(departementB, departementer!);
+
+        var sammendrag = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>("/api/rettskilder", JsonInnstillinger);
+        var rad = sammendrag!.Single(r => r.Id == toDepartementerId);
+        Assert.Equal([departementA, departementB], rad.AnsvarligDepartement);
+    }
+
     [Fact]
     public async Task Hjemmelrelasjoner_inneholder_alle_tjueen_alkoholforskrift_referanser_til_alkoholloven()
     {

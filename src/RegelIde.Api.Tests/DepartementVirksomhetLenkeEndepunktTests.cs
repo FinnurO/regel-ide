@@ -43,11 +43,13 @@ public class DepartementVirksomhetLenkeEndepunktTests
 
         var detalj = await _client.GetFromJsonAsync<RettskildeDetalj>($"/api/rettskilder/{alkohollovenId}", JsonInnstillinger);
 
-        Assert.Equal("Helse- og omsorgsdepartementet", detalj!.AnsvarligDepartement);
-        Assert.NotNull(detalj.AnsvarligDepartementVirksomhetId);
+        Assert.Equal(["Helse- og omsorgsdepartementet"], detalj!.AnsvarligDepartement);
+        var lenke = Assert.Single(detalj.AnsvarligDepartementLenker);
+        Assert.Equal("Helse- og omsorgsdepartementet", lenke.Departement);
+        Assert.NotNull(lenke.VirksomhetId);
 
         var helseId = await HentVirksomhetIdAsync("Helse- og omsorgsdepartementet");
-        Assert.Equal(helseId, detalj.AnsvarligDepartementVirksomhetId);
+        Assert.Equal(helseId, lenke.VirksomhetId);
     }
 
     [Fact]
@@ -103,6 +105,50 @@ public class DepartementVirksomhetLenkeEndepunktTests
     }
 
     /// <summary>
+    /// [Ny, fler-verdi-departement, 2026-09-04] En rettskilde med TO ansvarlige departementer (delt
+    /// ansvar) skal telles med i "Ansvarlig for"-lista til BEGGE — beviser at
+    /// <see cref="RettskildeRepository.RettskilderAnsvarligForAsync"/> sitt <c>Any(...)</c>-predikat over
+    /// den nye <c>text[]</c>-kolonnen faktisk oversettes og matcher riktig (verifisert mot ekte embedded
+    /// Postgres), ikke bare den forrige enkelt-streng-sammenligningen. Bruker Samferdsels-/
+    /// Kunnskapsdepartementet (IKKE Klima-/Landbruksdepartementet, som andre tester i denne fila
+    /// forventer et EKSAKT antall rader for — en ekstra gjeldende rad her ville brutt dem, siden denne
+    /// testklassens database deles av HELE ApiTestCollection-en).
+    /// </summary>
+    [Fact]
+    public async Task Rettskilde_med_to_departementer_er_ansvarlig_for_begge()
+    {
+        var samferdselId = await HentVirksomhetIdAsync("Samferdselsdepartementet");
+        var kunnskapId = await HentVirksomhetIdAsync("Kunnskapsdepartementet");
+
+        Guid toDepartementerId;
+        await using (var db = _fixture.NyDbContext())
+        {
+            toDepartementerId = Guid.NewGuid();
+            db.Rettskilder.Add(new RettskildeEntitet
+            {
+                Id = toDepartementerId,
+                Doctype = "act",
+                Kildetype = "Lov",
+                Tittel = "En annen lov med delt departementsansvar (fler-verdi-departement-test)",
+                Status = "Gjeldende",
+                AknXml = "<akomaNtoso/>",
+                AnsvarligDepartement = ["Samferdselsdepartementet", "Kunnskapsdepartementet"],
+                OpprettetAv = "test",
+                OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            });
+            await db.SaveChangesAsync();
+        }
+
+        var samferdselAnsvarligFor = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>(
+            $"/api/virksomheter/{samferdselId}/rettskilder-ansvarlig-for", JsonInnstillinger);
+        var kunnskapAnsvarligFor = await _client.GetFromJsonAsync<List<RettskildeSammendrag>>(
+            $"/api/virksomheter/{kunnskapId}/rettskilder-ansvarlig-for", JsonInnstillinger);
+
+        Assert.Contains(samferdselAnsvarligFor!, r => r.Id == toDepartementerId);
+        Assert.Contains(kunnskapAnsvarligFor!, r => r.Id == toDepartementerId);
+    }
+
+    /// <summary>
     /// En 'erstattet' rad (§2.1-versjonering — samme AnsvarligDepartement som den nye, gjeldende
     /// raden) skal IKKE telles med — kun Entitetsstatus == "gjeldende" er i listen (oppgavekravet).
     /// Satt opp direkte mot databasen (ikke via en reell reimport) for å isolere nøyaktig dette ene
@@ -124,7 +170,7 @@ public class DepartementVirksomhetLenkeEndepunktTests
                 AknXml = "<akomaNtoso/>",
                 Status = "Gjeldende",
                 Entitetsstatus = "erstattet",
-                AnsvarligDepartement = "Klima- og miljødepartementet",
+                AnsvarligDepartement = ["Klima- og miljødepartementet"],
                 OpprettetAv = "test",
                 OpprettetTidspunkt = DateTimeOffset.UtcNow,
             });

@@ -198,7 +198,7 @@ public class RettskildeRaaInnholdImportTests
         rad.PublisertI = null;
         rad.AnnetOmDokumentet = null;
         rad.SisteRettelse = null;
-        rad.AnsvarligDepartement = "EtSammenlimtFeilNavnSomAldriSkalOverleveEnResynk";
+        rad.AnsvarligDepartement = ["EtSammenlimtFeilNavnSomAldriSkalOverleveEnResynk"];
         await db.SaveChangesAsync();
 
         var resynkResultat = await tjeneste.ImporterMedUtfallAsync(
@@ -214,7 +214,7 @@ public class RettskildeRaaInnholdImportTests
         Assert.NotNull(etterResynk.SisteRettelse);
         Assert.NotNull(etterResynk.AnnetOmDokumentet);
         Assert.NotNull(etterResynk.RefId);
-        Assert.Equal("Helse- og omsorgsdepartementet", etterResynk.AnsvarligDepartement);
+        Assert.Equal(["Helse- og omsorgsdepartementet"], etterResynk.AnsvarligDepartement);
     }
 
     [Fact]

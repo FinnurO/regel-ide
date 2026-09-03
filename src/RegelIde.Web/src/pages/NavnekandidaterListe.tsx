@@ -226,11 +226,13 @@ export default function NavnekandidaterListe() {
   function visRettskilde(rettskildeId: string): string {
     return rettskilderPerId.get(rettskildeId)?.tittel ?? rettskildeId;
   }
-  // Navnekandidat-fiks 2 (2026-08-30) — Lovdatas eget metadata for HVILKET departement en rettskilde
-  // faktisk gjelder (RettskildeEntitet.AnsvarligDepartement), slått opp via den allerede-hentede
-  // rettskildelisten (samme mønster som visRettskilde over) i stedet for et eget kall. Spesielt viktig
-  // for "departementet"/"Kongen i statsråd"-kandidater, som ellers ikke sier noe om HVILKET departement.
-  function visAnsvarligDepartement(rettskildeId: string): string | null {
+  // Navnekandidat-fiks 2 (2026-08-30) — Lovdatas eget metadata for HVILKET(E) departement(er) en
+  // rettskilde faktisk gjelder (RettskildeEntitet.AnsvarligDepartement), slått opp via den allerede-
+  // hentede rettskildelisten (samme mønster som visRettskilde over) i stedet for et eget kall. Spesielt
+  // viktig for "departementet"/"Kongen i statsråd"-kandidater, som ellers ikke sier noe om HVILKET
+  // departement. [ENDRET, fler-verdi-departement, 2026-09-04] Returnerer nå en liste — en rettskilde kan
+  // ha flere ansvarlige departementer ved delt ansvar.
+  function visAnsvarligDepartement(rettskildeId: string): string[] | null {
     return rettskilderPerId.get(rettskildeId)?.ansvarligDepartement ?? null;
   }
 
@@ -530,12 +532,17 @@ export default function NavnekandidaterListe() {
         </Table.Cell>
         <Table.Cell>
           {(() => {
-            const departement = visAnsvarligDepartement(k.rettskildeId);
+            const departementer = visAnsvarligDepartement(k.rettskildeId);
             // Spesielt synlig for "departementet"/"Kongen i statsråd"-kandidater (se
             // metodekommentaren) — men vist for ALLE kategorier, siden feltet uansett bare
-            // sier hvilket departement som eier RETTSKILDEN, ikke bare denne enkelttermen.
-            return departement ? (
-              <Tag data-color="neutral" data-size="sm">{departement}</Tag>
+            // sier hvilket(e) departement(er) som eier RETTSKILDEN, ikke bare denne enkelttermen.
+            // [ENDRET, fler-verdi-departement, 2026-09-04] Én Tag per departement (kan være flere).
+            return departementer && departementer.length > 0 ? (
+              <span style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
+                {departementer.map((d) => (
+                  <Tag key={d} data-color="neutral" data-size="sm">{d}</Tag>
+                ))}
+              </span>
             ) : (
               <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>—</span>
             );
