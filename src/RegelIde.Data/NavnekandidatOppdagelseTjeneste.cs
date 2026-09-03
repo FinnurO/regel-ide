@@ -135,12 +135,26 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// "PNR-enheten"</b> — bindestreken bryter dette mønsterets sammenhengende ord-regex
     /// (<c>\b\p{L}[\p{L}]*(?:…)\b</c>), se issue #150 del 2 (bevisst IKKE bygget her — krever et helt
     /// nytt, fjerde mønster, et produktbeslutning-spørsmål til Johann).
+    /// </para>
+    /// <para>
+    /// [Ny, 2026-09-03] "arkivet" lagt til — Johann rapporterte at "Nasjonalarkivet" (Lov om
+    /// dokumentasjon og arkiv, LOV-2025-06-20-96 § 4, 31 forekomster i teksten) ikke ble oppdaget.
+    /// "arkivet"/"arkiv" manglet HELT fra begge ordlistene, samme klasse hull som "utvalget"/"enheten"
+    /// over — dekker også fremtidige "Riksarkivet"/"Statsarkivet"-lignende navn.
+    /// </para>
+    /// <para>
+    /// [Ny, 2026-09-03] "nemnd" (UBESTEMT form) lagt til — kun "nemnda"/"nemnden" (BESTEMT form) fantes
+    /// fra før. Johann bekreftet et konkret, reelt tapt tilfelle: FOR-2011-06-21-617 § 9 ledd 2 bruker
+    /// "merkenemnd" (ubestemt), til forskjell fra de tre andre reindrifts-rettskildene i samme klynge
+    /// (LOV-2007-06-15-40, FOR-2022-08-29-1504, FOR-2008-07-04-791) som alle bruker bestemt form og
+    /// derfor allerede ble fanget. Samme "flere bøyningsformer av samme stamme"-begrunnelse som
+    /// FasteRollesubstantiv allerede bruker for kommune/departement/statsforvalter.
     /// </para></summary>
     private static readonly string[] Suffikser =
     [
-        "tilsynet", "direktoratet", "nemnda", "nemnden",
+        "tilsynet", "direktoratet", "nemnda", "nemnden", "nemnd",
         "domstolen", "ombudet", "verket", "etaten", "banken",
-        "utvalget", "enheten",
+        "utvalget", "enheten", "arkivet",
     ];
 
     /// <summary>
@@ -257,7 +271,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     private static readonly string[] Institusjonsord =
     [
         "fylkeskommune", "kommune", "direktorat", "tilsyn", "departement", "fylkesmannsembete", "vegvesen",
-        "fagskole", "høyskole", "høgskole", "høgskule", "universitet", "barnehage", "utvalg", "enhet",
+        "fagskole", "høyskole", "høgskole", "høgskule", "universitet", "barnehage", "utvalg", "enhet", "arkiv",
     ];
 
     private static readonly Regex InstitusjonsordMønster = new(
@@ -518,12 +532,18 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 var forAntall = await db.Navnekandidater.CountAsync(
                     k => k.RettskildeId == node.RettskildeId && k.NodeEid == node.Eid && k.StartOffset == start, ct);
 
-                // [Ny, issue #117] SNL/SSR-klassifisering (docs/31 §2) — se metodekommentaren over for
-                // hele resonnementet (scoping til "virksomhet", gjenbruk av samme kjede/cache som
-                // SveipStorBokstavAsync, og hvorfor SSR-forkastingsgrenen i praksis sjelden trigges her).
-                // KUN når posisjonen er NY (forAntall == 0) — unngår et unødvendig eksternt kall for en
-                // posisjon som allerede har en kandidat.
-                if (kategori == "virksomhet" && forAntall == 0)
+                // [Ny, issue #117; utvidet 2026-09-03 etter Johanns rapport om "beliggenheten"/
+                // "byggverket"] SNL/SSR-klassifisering (docs/31 §2) — se metodekommentaren over for
+                // hele resonnementet (gjenbruk av samme kjede/cache som SveipStorBokstavAsync).
+                // Opprinnelig scopet til KUN "virksomhet" — men "gruppe"-treff fra SuffiksMønsterets
+                // LITEN-forbokstav-gren er IKKE en lukket liste (samme åpne, produktive
+                // norsk-sammensetning-risiko som "virksomhet"-grenen, se ErSuffiksAvledetGruppe) og
+                // trenger derfor SAMME validering. "gruppe"-treff fra FasteGruppeMønster/
+                // FasteRollesubstantiv (Kongen, Stortinget, bøyningsformer av kommune/departement) er
+                // DERIMOT fortsatt en ekte lukket, hånd-kuratert liste — disse sendes IKKE til SNL/SSR
+                // (se ErSuffiksAvledetGruppe for skillet). KUN når posisjonen er NY (forAntall == 0) —
+                // unngår et unødvendig eksternt kall for en posisjon som allerede har en kandidat.
+                if (forAntall == 0 && (kategori == "virksomhet" || (kategori == "gruppe" && ErSuffiksAvledetGruppe(tekst))))
                 {
                     var behold = await BeholdSomKandidatAsync(tekst, node.Tekst!, start + lengde, ct);
                     if (!behold) continue; // SSR-bekreftet geografisk løpetekst-referanse, ikke en institusjon.
@@ -643,6 +663,28 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     }
 
     /// <summary>
+    /// [Ny, 2026-09-03] Skiller de TO strukturelt ulike kildene til en <c>"gruppe"</c>-kandidat, slik
+    /// <see cref="SveipAsync"/> kan avgjøre om SNL/SSR-validering trengs:
+    /// <list type="bullet">
+    /// <item><see cref="FasteGruppeMønster"/>/<see cref="FasteRollesubstantiv"/> — en LUKKET,
+    /// hånd-kuratert liste ("Kongen", "Stortinget", bøyningsformer av kommune/departement) —
+    /// ALLTID korrekt per design, trenger ALDRI SNL/SSR.</item>
+    /// <item><see cref="SuffiksMønster"/>s liten-forbokstav-gren — samme ÅPNE, produktive
+    /// norsk-sammensetning-regex som <c>"virksomhet"</c>-grenen (kun forskjell: stor/liten forbokstav)
+    /// — like utsatt for tilfeldige, ikke-institusjonelle sammensetninger som "beliggenheten"
+    /// ("belig" + "enheten") eller "byggverket" ("bygg" + "verket"), bekreftet i live data
+    /// (Johann, 03.09.2026) — trenger SAMME validering som "virksomhet".</item>
+    /// </list>
+    /// Ren tekstsjekk (ender kandidatteksten på et kjent suffiks?) — samme teknikk som
+    /// <see cref="VerketDenyliste"/>s egen sjekk, ikke en ny kildesporing i selve
+    /// <see cref="FinnKandidaterITekst"/>s returtype (som ville krevd en større omskriving for lite
+    /// gevinst, siden denne enkle etterprøvingen er tilstrekkelig presis: FasteRollesubstantiv-formene
+    /// slutter aldri tilfeldigvis på et Suffikser-ord).
+    /// </summary>
+    private static bool ErSuffiksAvledetGruppe(string kandidatTekst) =>
+        Suffikser.Any(s => kandidatTekst.EndsWith(s, StringComparison.OrdinalIgnoreCase));
+
+    /// <summary>
     /// Ren, testbar funksjon uten DB-avhengighet — selve mønstergjenkjenningen (docs/13-backlog.md §9),
     /// separert fra sveipets DB-orkestrering slik at klassifiseringslogikken kan enhetstestes direkte
     /// mot en tekststreng, uten en hel rettskilde-node/embedded Postgres.
@@ -661,17 +703,26 @@ public sealed class NavnekandidatOppdagelseTjeneste(
 
         foreach (Match m in SuffiksMønster.Matches(tekst))
         {
+            // [Rettet, 2026-09-03] VerketDenyliste ble tidligere KUN sjekket i stor-forbokstav-grenen
+            // under (dvs. kun for "virksomhet"-kandidater) — men "regelverket"/"lovverket"/"avtaleverket"/
+            // "rammeverket" opptrer i praksis nesten ALLTID med liten forbokstav i løpende juridisk tekst
+            // ("i henhold til regelverket", "dette regelverket gjelder for …"), som havnet i
+            // "gruppe"-grenen UTEN noen denyliste-sjekk i det hele tatt. Bekreftet i live data
+            // (03.09.2026): 346 "regelverket"-kandidater med kategori="gruppe" alene, til tross for at
+            // ordet står EKSPLISITT i denylisten — fordi sjekken aldri kjørte for denne grenen. Flyttet
+            // hit, FØR store/små-bokstav-forgreningen, slik at denylisten gjelder BEGGE kategoriene.
+            var erDenylistetVerketSammensetning = VerketDenyliste.Any(
+                ord => m.Value.EndsWith(ord, StringComparison.OrdinalIgnoreCase));
+            if (erDenylistetVerketSammensetning) continue; // ingen kandidat i det hele tatt, verken kategori.
+
             var forsteBokstav = tekst[m.Index];
             if (char.IsUpper(forsteBokstav))
             {
-                var erDenylistetVerketSammensetning = VerketDenyliste.Any(
-                    ord => m.Value.EndsWith(ord, StringComparison.OrdinalIgnoreCase));
-                if (!ErSetningsstart(tekst, m.Index) && !erDenylistetVerketSammensetning)
+                if (!ErSetningsstart(tekst, m.Index))
                 {
                     funnet.Add((m.Index, m.Length, "virksomhet"));
                 }
-                // else: setningsstart (ambiguøst) ELLER denylistet "verket"-sammensetning (se
-                // VerketDenyliste-kommentaren) — ingen kandidat i det hele tatt, verken tilfellet.
+                // else: setningsstart (ambiguøst) — ingen kandidat.
             }
             else
             {
