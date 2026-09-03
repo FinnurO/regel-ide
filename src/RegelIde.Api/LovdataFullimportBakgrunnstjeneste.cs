@@ -10,9 +10,22 @@ namespace RegelIde.Api;
 /// "endret siden sist"-tidsstempel) — appen skal svare på helsesjekk/requests umiddelbart, ikke stå
 /// og vente på at hele Lovdata-korpuset er gjennomgått.
 ///
-/// Gated bak <c>RegelIde:LovdataFullimport:AktivVedOppstart</c> (default PÅ) slik at tester og lokal
-/// rask iterasjon kan slå den av uten kodeendring — se <c>RegelIde__LovdataFullimport__AktivVedOppstart</c>
-/// i EmbeddedPostgresApiFixture (samme miljøvariabel-mønster som tvinger IKiAgentKlient til Stub der).
+/// Gated bak <c>RegelIde:LovdataFullimport:AktivVedOppstart</c> — se
+/// <c>RegelIde__LovdataFullimport__AktivVedOppstart</c> i EmbeddedPostgresApiFixture (samme
+/// miljøvariabel-mønster som tvinger IKiAgentKlient til Stub der) for hvordan tester slår den PÅ når de
+/// faktisk trenger den.
+/// <para>
+/// [Endret, 2026-09-03, issue #132] Default ENDRET fra PÅ til AV. Denne mekanismen ble bygget FØR
+/// Administrasjon-sidens egen, bevisst styrte resynk-mekanisme fantes (PR #123/#104:
+/// <see cref="LovdataResynkPlanleggerBakgrunnstjeneste"/>, database-styrt frekvenssjekk + manuell
+/// trigger) — den ERSTATTER i praksis behovet for en hardkodet oppstartstrigger under aktiv utvikling,
+/// men den gamle mekanismen ble aldri deaktivert som en del av den runden. Konsekvens observert i
+/// praksis: en HELT vanlig API-restart (f.eks. for å hente inn en usammenhengende kodeendring) trigget
+/// en full, uoppfordret resynk mot Lovdatas bulk-arkiv — flere ganger per time i perioder med aktiv
+/// utvikling. Selve flagget/mekanismen beholdes (satt til <c>true</c> i konfig ved behov, f.eks. første
+/// oppstart av en helt ny installasjon uten noen rader i det hele tatt) — kun STANDARDVERDIEN er endret,
+/// ikke funksjonaliteten fjernet.
+/// </para>
 /// </summary>
 public sealed class LovdataFullimportBakgrunnstjeneste(
     IServiceScopeFactory scopeFactory, IConfiguration konfig, ILogger<LovdataFullimportBakgrunnstjeneste> logger)
@@ -20,7 +33,7 @@ public sealed class LovdataFullimportBakgrunnstjeneste(
 {
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
-        if (!konfig.GetValue("RegelIde:LovdataFullimport:AktivVedOppstart", defaultValue: true))
+        if (!konfig.GetValue("RegelIde:LovdataFullimport:AktivVedOppstart", defaultValue: false))
         {
             logger.LogInformation(
                 "Lovdata-fullimport ved oppstart er avslått (RegelIde:LovdataFullimport:AktivVedOppstart=false).");
