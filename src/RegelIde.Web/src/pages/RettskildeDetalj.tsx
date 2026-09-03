@@ -25,6 +25,7 @@ import { useKonfigurasjon } from '../konfigurasjon/KonfigurasjonContext';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { RaaTekstMedLenker } from '../rettskilde/RaaTekstMedLenker';
 import { forsokFormaterXml } from '../rettskilde/formaterXml';
+import { forsokFormaterHtml } from '../rettskilde/formaterHtml';
 import { eidVisningstekst, finnRettskildeForEid, rettskildeLenke } from '../api/eidLenker';
 import { KontekstPanel, type KontekstPanelGruppe } from '../entitet/KontekstPanel';
 
@@ -812,8 +813,12 @@ export default function RettskildeDetalj() {
             </Alert>
           )}
           {kildeHtml !== null && (
+            // [Ny, 2026-09-03] Formatert på samme måte som "Vis AKN-XML" over (forsokFormaterXml) —
+            // Johann påpekte at rå kilde-HTML uten struktur er nøyaktig samme problem issue #130 allerede
+            // løste for AKN-XML, bare ufikset her. Egen HTML-variant (forsokFormaterHtml), ikke
+            // forsokFormaterXml selv — ekte Lovdata-HTML er ikke nødvendigvis velformet XML.
             <pre style={{ overflow: 'auto', maxHeight: '400px', background: 'var(--ds-color-neutral-surface-tinted)', padding: '1rem', fontSize: 'var(--ds-font-size-1)' }}>
-              {kildeHtml}
+              {forsokFormaterHtml(kildeHtml)}
             </pre>
           )}
         </div>

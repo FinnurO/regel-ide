@@ -518,7 +518,17 @@ export default function NavnekandidaterListe() {
           })()}
         </Table.Cell>
         <Table.Cell>
-          <Tag data-color={STATUS_FARGE[k.status] ?? 'neutral'} data-size="sm">{k.status}</Tag>
+          {/* [Ny, 2026-09-03] "Avvist" dekker nå TO ulike ting siden SNL/SSR-restruktureringen: en
+              rad SNL/SSR selv luket bort automatisk ved sveip (BehandletAv aldri satt — se
+              OpprettEllerFinnAsync), ELLER en rad en saksbehandler eksplisitt avviste manuelt
+              (BehandletAv satt). Johann ba eksplisitt om å se den FØRSTE typen synlig atskilt —
+              "kandidater du identifiserte, men som ble avvist i etterfølgende kontroller" (f.eks.
+              "Vernepliktsverket", som SNL ikke typer som organisasjonsartikkel). Skiller de to her,
+              i selve status-taggen, i stedet for en egen fane — samme rad, samme Avvist-fane, bare
+              tydeligere HVORFOR/HVEM som avviste den. */}
+          <Tag data-color={STATUS_FARGE[k.status] ?? 'neutral'} data-size="sm">
+            {k.status === 'Avvist' && !k.behandletAv ? 'Avvist (automatisk)' : k.status}
+          </Tag>
         </Table.Cell>
         <Table.Cell>
           <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
