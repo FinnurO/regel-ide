@@ -44,6 +44,14 @@ const UKJENT_DEPARTEMENT = 'Ukjent departement';
  *
  * [ENDRET, fler-verdi-departement, 2026-09-04] En lov med FLERE ansvarlige departementer (delt ansvar)
  * vises nå under HVERT departement den tilhører, ikke bare det første — se grupperingen under.
+ *
+ * [Rettet, 2026-09-04] Departement-NIVÅET manglet et kollaps-nivå — med ~20 departementer og opptil
+ * ~70 lover under ett enkelt departement rendret siden en uendelig, uoversiktlig liste av lov-rader
+ * for ALLE departementer samtidig (kun selve loven kunne kollapses, ikke gruppen den sto i). Johann:
+ * "det holder ikke å fjerne dropdown. departementet må være mulig å kollapse, nå blir det en uendelig
+ * lang liste som er umulig å forholde seg til." Departement-gruppen er nå SELV en `<Details>` (samme
+ * kollapset-som-standard-mønster som `LovRad`), se `DepartementGruppeRad` under — siden med ~20
+ * departementer viser nå kun 20 rader ved åpning, ikke flere hundre.
  */
 export function RettskilderHierarki({ rettskilder, hjemmelrelasjoner, filterTekst }: RettskilderHierarkiProps) {
   const grupper = useMemo<DepartementGruppe[]>(() => {
@@ -112,22 +120,43 @@ export function RettskilderHierarki({ rettskilder, hjemmelrelasjoner, filterTeks
     return <Paragraph>Ingen lover funnet{filterTekst.trim() ? ' for gjeldende filter' : ''}.</Paragraph>;
   }
 
+  const filterAktiv = filterTekst.trim().length > 0;
+
   return (
     <div>
       {grupper.map((gruppe) => (
-        <section key={gruppe.departement} style={{ marginBottom: '1.5rem' }}>
-          <Heading level={2} data-size="sm" style={{ marginBottom: '0.5rem' }}>
-            {gruppe.departement}{' '}
-            <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', fontWeight: 400 }}>
-              ({gruppe.lover.length} {gruppe.lover.length === 1 ? 'lov' : 'lover'})
-            </span>
-          </Heading>
-          {gruppe.lover.map(({ lov, forskrifter }) => (
-            <LovRad key={lov.id} lov={lov} forskrifter={forskrifter} />
-          ))}
-        </section>
+        <DepartementGruppeRad key={gruppe.departement} gruppe={gruppe} filterAktiv={filterAktiv} />
       ))}
     </div>
+  );
+}
+
+/** Ett departement, kollapset som standard — samme «ikke mount alt samtidig»-begrunnelse som `LovRad`,
+ * bare ett nivå opp: lov-RADENE under et departement rendres kun når brukeren faktisk åpner DET
+ * departementet (i tillegg til at hver enkelt lovs forskrifter fortsatt krever et eget klikk). Uten
+ * dette viste siden alle lover for alle ~20 departementer samtidig — «en uendelig lang liste som er
+ * umulig å forholde seg til» (Johann).
+ * `filterAktiv` (fritekstfilteret over har et treff) tvinger gruppen åpen uansett manuell
+ * kollaps-state — grupper som allerede har blitt filtrert ned til KUN matchende lover (se `grupper`
+ * sin useMemo) skal vises umiddelbart, ikke gjemmes bak enda et klikk oppå selve filtreringen. */
+function DepartementGruppeRad({ gruppe, filterAktiv }: { gruppe: DepartementGruppe; filterAktiv: boolean }) {
+  const [manueltApen, setManueltApen] = useState(false);
+  const apen = filterAktiv || manueltApen;
+
+  return (
+    <Details open={apen} onToggle={(e) => setManueltApen((e.target as HTMLDetailsElement).open)} style={{ marginBottom: '0.75rem' }}>
+      <Details.Summary>
+        <Heading level={2} data-size="sm" style={{ display: 'inline', margin: 0 }}>
+          {gruppe.departement}{' '}
+          <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', fontWeight: 400 }}>
+            ({gruppe.lover.length} {gruppe.lover.length === 1 ? 'lov' : 'lover'})
+          </span>
+        </Heading>
+      </Details.Summary>
+      <Details.Content>
+        {apen && gruppe.lover.map(({ lov, forskrifter }) => <LovRad key={lov.id} lov={lov} forskrifter={forskrifter} />)}
+      </Details.Content>
+    </Details>
   );
 }
 
