@@ -41,12 +41,13 @@ const KATEGORI_FARGE: Record<string, 'info' | 'accent'> = {
 
 /**
  * docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md §5 punkt 5 — berikelse for kandidater fra det
- * NYE "stor bokstav midt i setning"-mønsteret (`oppdagelsesKilde === 'stor-bokstav-snl-ssr'`), vist som
+ * brede "stor bokstav midt i setning"-mønsteret (`oppdagelsesKilde === 'stor-bokstav-snl-ssr'`), vist som
  * en liten detalj UNDER selve foreslått-tekst-cellen i EKSISTERENDE rader (ikke en ny kolonne/side —
  * spesifikasjonen ber eksplisitt om gjenbruk av denne køen). Tre gjensidig utelukkende utfall,
- * speiler klassifiseringskjeden i NavnekandidatOppdagelseTjeneste.SveipStorBokstavAsync (docs/31 §2):
+ * speiler klassifiseringskjeden i NavnekandidatOppdagelseTjeneste.SveipAsync (docs/31 §2, restrukturert
+ * 2026-09-03 — se den klassens kommentar for hvorfor dette nå er ETT, samlet sveip):
  * SNL-bekreftet institusjon (lenke + evt. orgnr/alias), SSR-bekreftet stedsnavn (kun mulig når
- * kandidaten likevel ble beholdt, altså med et institusjonsord rett etter — se klassifiseringskjeden),
+ * kandidaten likevel ble beholdt/'Venter', altså med et institusjonsord rett etter — se klassifiseringskjeden),
  * eller ukjent i begge (lav-tillit, ingen berikelse å vise).
  */
 function BerikelseVisning({ k }: { k: NavnekandidatDto }) {

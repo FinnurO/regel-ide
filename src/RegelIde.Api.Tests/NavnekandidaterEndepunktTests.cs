@@ -71,11 +71,16 @@ public class NavnekandidaterEndepunktTests
         Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
     }
 
+    /// <summary>[Restrukturert, 2026-09-03] Brukte TIDLIGERE "havnetilsynet" (det nå slettede
+    /// suffiksmønsterets liten-forbokstav-gren) som "gruppe"-kandidat-kilde — under DENNE arkitekturen
+    /// gir en liten-forbokstav-forekomst uten suffiksmønster INGEN kandidat i det hele tatt (se
+    /// NavnekandidatOppdagelseTjeneste sin klassekommentar). Bruker i stedet "Kommunen" — en
+    /// FasteRollesubstantiv-bøyningsform, UENDRET mekanisme.</summary>
     [Fact]
     public async Task Sveip_godkjenning_og_avvisning_ende_til_ende_for_gruppekandidat()
     {
         var brukerId = await HentJuristIdAsync();
-        var rettskildeId = await OpprettRettskildeMedNodeAsync("Alle skip skal melde fra til havnetilsynet før anløp.");
+        var rettskildeId = await OpprettRettskildeMedNodeAsync("Kommunen skal føre tilsyn med dette.");
 
         var sveipSvar = await _client.SendAsync(
             MedBruker(HttpMethod.Post, "/api/navnekandidater/sveip", brukerId, new { RettskildeId = rettskildeId }));
@@ -87,7 +92,7 @@ public class NavnekandidaterEndepunktTests
             $"/api/navnekandidater?rettskildeId={rettskildeId}", JsonInnstillinger);
         var kandidat = Assert.Single(listeSvar!);
         Assert.Equal("gruppe", kandidat.Kategori);
-        Assert.Equal("havnetilsynet", kandidat.ForeslattTekst);
+        Assert.Equal("kommunen", kandidat.ForeslattTekst);
         Assert.Equal("Venter", kandidat.Status);
 
         var godkjennSvar = await _client.SendAsync(
@@ -99,7 +104,7 @@ public class NavnekandidaterEndepunktTests
         // Gruppebegrepet skal nå faktisk finnes i databasen (docs/20 §2.4-identitet: Term+LovkildeId).
         await using var db = _fixture.NyDbContext();
         var gruppebegrep = await db.Begreper.SingleOrDefaultAsync(
-            b => b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId && b.Term == "havnetilsynet");
+            b => b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId && b.Term == "kommunen");
         Assert.NotNull(gruppebegrep);
 
         // Kandidaten er allerede Godkjent — et nytt godkjenn-forsøk skal feile (kun 'Venter' kan behandles).
@@ -142,8 +147,10 @@ public class NavnekandidaterEndepunktTests
     public async Task Godkjenn_batch_behandler_bade_gruppe_og_virksomhet_kategori_i_samme_kall()
     {
         var brukerId = await HentJuristIdAsync();
+        // [Restrukturert, 2026-09-03] "Kommunen" i stedet for det gamle suffiksmønsterets "havnetilsynet"
+        // — se Sveip_godkjenning_og_avvisning_ende_til_ende_for_gruppekandidat sin kommentar.
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
-            "Alle skip skal melde fra til havnetilsynet, og vedtak kan påklages til Miljødirektoratet innen tre uker.");
+            "Kommunen skal føre tilsyn, og vedtak kan påklages til Miljødirektoratet innen tre uker.");
         await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/sveip", brukerId, new { RettskildeId = rettskildeId }));
 
         var listeSvar = await _client.GetFromJsonAsync<List<NavnekandidatDto>>(
@@ -164,7 +171,7 @@ public class NavnekandidaterEndepunktTests
         // batchen ruller IKKE bare status, den kaller den faktiske GodkjennAsync-forgreiningen per rad.
         await using var db = _fixture.NyDbContext();
         var gruppebegrep = await db.Begreper.SingleOrDefaultAsync(
-            b => b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId && b.Term == "havnetilsynet");
+            b => b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId && b.Term == "kommunen");
         Assert.NotNull(gruppebegrep);
     }
 

@@ -31,6 +31,32 @@ public class EksternNavneoppslagTjenesteLiveTests(EmbeddedPostgresFixture fixtur
         Assert.Contains("Den_Norske_Advokatforening", resultat.EksternUrl);
     }
 
+    /// <summary>
+    /// [Ny, 2026-09-03, regresjonstest for et reelt funn under navnekandidat-restruktureringens
+    /// live-verifisering] "Miljødirektoratet" (og "Nasjonalarkivet", samme feil) manglet BEGGE de to
+    /// opprinnelige match-kandidatene live: artikkel-JSON-ets toppnivåfelt heter faktisk <c>title</c>,
+    /// ikke <c>headword</c> (så <c>artikkel.Headword</c> var alltid <c>null</c>), OG
+    /// <c>metadata.organization_name</c> finnes rett og slett IKKE for rene statlige etater/direktorater
+    /// (kun bekreftet til stede for foreningstypen "Den Norske Advokatforening" over) — et SNL-bekreftet
+    /// treff ble derfor ALDRI gjenkjent for denne, den klart vanligste institusjonstypen
+    /// navnekandidat-sveipet leter etter, uansett hvor presist selve søket fant den. Se
+    /// <see cref="EksternNavneoppslagTjeneste.SlaOppSnlAsync"/> sin metodekommentar for hele funnet/fiksen
+    /// (bruker nå i tillegg <c>artikkel.Title</c> og selve søketreffets EGET <c>headword</c>-felt).
+    /// </summary>
+    [Fact]
+    public async Task SlaOppSnlAsync_Miljodirektoratet_gir_bekreftet_institusjon_selv_uten_organization_name_felt()
+    {
+        using var http = new HttpClient();
+        await using var db = fixture.NyDbContext();
+        var tjeneste = new EksternNavneoppslagTjeneste(http, db);
+
+        var resultat = await tjeneste.SlaOppSnlAsync("Miljødirektoratet");
+
+        Assert.True(resultat.Treff);
+        Assert.NotNull(resultat.EksternUrl);
+        Assert.Contains("direktoratet", resultat.EksternUrl, StringComparison.OrdinalIgnoreCase);
+    }
+
     [Fact]
     public async Task SlaOppSsrAsync_Bergen_gir_bekreftet_stedsnavn()
     {
