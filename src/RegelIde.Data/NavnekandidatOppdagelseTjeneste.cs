@@ -17,34 +17,70 @@ namespace RegelIde.Data;
 /// samme gevinst her.
 /// </para>
 /// <para>
-/// <b>Mønstre (docs/13-backlog.md §9, Johanns liste, ikke uttømmende):</b>
-/// </para>
+/// <b>[Restrukturert, 2026-09-03 — Johanns eksplisitte instruks etter tre patch-PR-er (#188/#189) på
+/// den gamle arkitekturen]</b> Den gamle arkitekturen hadde TRE separate mønstre (suffiksmønster +
+/// flerords-mønster + faste-gruppe-mønster), der suffiksmønsteret var en hånd-kuratert, stadig voksende
+/// ordliste (<c>Suffikser</c>) som produserte gjentatte runder med falske positiver/negativer
+/// ("regelverket" slapp gjennom, "beliggenheten"/"byggverket" ble nye falske positiver fra et suffiks
+/// nettopp lagt til, "Nasjonalarkivet"/"merkenemnd" ble oversett til et nytt suffiks ble lagt til) — et
+/// reelt whack-a-mole-mønster. Johanns instruks, verbatim: «Jeg vil at du tar alle ting som starter med
+/// stor bokstav, unntatt som første ord, samler de opp og sjekker mot SSR og SNL. hvis treff i en tab
+/// og hvis hva som ble avvist i en annen tab» — og videre, presisert: «kommer i tillegg til faste
+/// mønstre/roller. men dropp suffiks, men behold flerords logikken, vi må sende over hele navnet.»
+/// Konkret betyr dette:
 /// <list type="number">
-/// <item>Suffiksmønster + STOR forbokstav MIDT i en setning → <c>"virksomhet"</c> (ekte egennavn, f.eks.
-/// "Miljødirektoratet", "Datatilsynet"). "Midt i en setning" — ikke bare fordi ordet står først i en
-/// setning, se <see cref="ErSetningsstart"/> — er den avgjørende presisjonssiden: uten dette filteret
-/// ville et vanlig substantiv som tilfeldigvis er stort fordi det åpner en setning (f.eks.
-/// "Departementet kan …" i begynnelsen av et ledd) gitt et falskt "virksomhet"-treff.</item>
-/// <item>Suffiksmønster + LITEN forbokstav → <c>"gruppe"</c> (beskrivelse av en funksjon, f.eks.
-/// "forurensningsmyndighetene", ikke et egennavn) — posisjon i setningen er irrelevant her, siden
-/// liten forbokstav i seg selv allerede utelukker et egennavn.</item>
-/// <item>Fast liste juridisk-aktør-substantiv UTEN suffiks ("Kongen", "Kongen i statsråd", "Stortinget",
-/// "Regjeringen", samt BØYNINGSFORMENE av "statsforvalter"/"kommune"/"fylkeskommune"/"departement" —
-/// se <see cref="FasteRollesubstantiv"/>) → ALLTID <c>"gruppe"</c>, uansett store/små bokstaver — disse
-/// er generiske rollesubstantiv, ikke navn på én bestemt institusjon, og posisjon i setningen endrer
-/// ikke det.</item>
-/// <item><b>[Ny, kodegjennomgang 2026-08-30]</b> Flerords-mønster: inntil 3 STOR-forbokstav-ord (ev.
-/// med bindeordet "og" MELLOM to av dem, f.eks. "Møre og Romsdal"), UMIDDELBART
-/// etterfulgt av ett kjent institusjonsord i UBESTEMT FORM som eget, mellomromsdelt ord (se
-/// <see cref="Institusjonsord"/>, f.eks. "fylkeskommune", "kommune") → <c>"virksomhet"</c>. Fanger
-/// egennavn+institusjonsord-par som verken suffiksmønsteret (institusjonsordet er IKKE smeltet sammen
-/// med egennavnet, det er et eget ord) eller den faste gruppelisten (som kun matcher institusjonsordet
-/// ALENE, uten et navn foran) dekker — bekreftet i live data, FOR-2019-09-30-1310 §2 andre ledd:
-/// "Østfold fylkeskommune: Driftsområde Ytre Oslofjord Øst", "Møre og Romsdal fylkeskommune: …", osv.
-/// Se <see cref="FinnEgennavnForanInstitusjonsord"/> og <see cref="ErFlerordsKontekstTillatt"/> for
-/// presisjonsvernet (krever stor forbokstav rett før institusjonsordet — ellers hverken "en
-/// fylkeskommune" eller "et statlig tilsyn" ville vært trygt).</item>
+/// <item><see cref="FasteGruppeMønster"/>/<see cref="FasteRollesubstantiv"/> — UENDRET. Lukket,
+/// hånd-kuratert liste (Kongen, Stortinget, bøyningsformer av kommune/fylkeskommune/departement/
+/// statsforvalter) → ALLTID <c>"gruppe"</c>, aldri sendt til SNL/SSR.</item>
+/// <item>Flerords-mønsteret (<see cref="InstitusjonsordMønster"/>/<see cref="FinnEgennavnForanInstitusjonsord"/>/
+/// <see cref="ErFlerordsKontekstTillatt"/>) — UENDRET utløser-/fangelogikk (fanger allerede HELE navnet,
+/// f.eks. "Statens vegvesen", "Møre og Romsdal fylkeskommune"). Det som ER nytt: <c>"virksomhet"</c>-
+/// treffet herfra går nå gjennom SAMME samle-så-klassifiser-pipeline (se punkt 4-5 under) som resten av
+/// <c>"virksomhet"</c>-treff, i stedet for å klassifiseres ETT ETT per posisjon slik det gamle
+/// <c>SveipAsync</c> gjorde.</item>
+/// <item><b>Suffiksmønsteret ER SLETTET</b> — <c>SuffiksMønster</c>, <c>Suffikser</c>,
+/// <c>VerketDenyliste</c>, <c>ErSuffiksAvledetGruppe</c> finnes ikke lenger noe sted i denne klassen.
+/// En STOR forbokstav midt i en setning (uansett suffiks) blir i stedet fanget av det brede
+/// "stor bokstav"-mønsteret under (punkt 4) og strukturelt validert mot SNL/SSR i stedet for en
+/// hånd-vedlikeholdt, evig ufullstendig ordliste — samme strukturelle løsning erstatter behovet for
+/// <c>VerketDenyliste</c> også: "regelverket"/"lovverket" m.fl. (LITEN forbokstav) produserer nå INGEN
+/// kandidat i det hele tatt (verken suffiksmønsteret som fanget dem, eller det brede mønsteret, som
+/// KUN trigges på stor forbokstav) — strukturelt umulig å reprodusere, ikke lenger avhengig av en
+/// denyliste å holde oppdatert.</item>
+/// <item>Det tidligere separate, sjeldent-kjørte <see cref="SveipStorBokstavAsync"/>-endepunktet
+/// (docs/31, opprinnelig scopet forsiktig til et lite delsett av korpuset — se historisk merknad ved
+/// <see cref="SveipAsync"/>) er nå SLÅTT SAMMEN inn i <see cref="SveipAsync"/>, som primær-, standard-
+/// og eneste sveipemetode. Ett sveip, én metode, som dekker faste mønstre/roller + flerords-mønsteret +
+/// det brede "stor bokstav"-mønsteret sammen. docs/31 §6s opprinnelige forsiktighet (kjør først mot et
+/// avgrenset delsett, siden ingen av de eksterne API-ene har dokumentert ratelimit) er ERSTATTET, ikke
+/// fjernet stille: kostnaden er nå håndtert strukturelt via samle-så-klassifiser (punkt 5 under) —
+/// ANTALL unike eksterne oppslag per sveip er nå <c>antall unike navn</c>, ikke <c>antall forekomster</c>.</item>
+/// <item><b>Samle-så-klassifiser, ikke klassifiser-per-posisjon</b> — den egentlige arkitekturendringen.
+/// <see cref="SveipAsync"/> er nå strukturert i tre faser: (a) en REN, rask fase uten nettverkskall som
+/// skanner alle sveipbare noder og samler ALLE rå kandidatforekomster (både faste-gruppe-, flerords- og
+/// stor-bokstav-mønster-treff), og anvender den EKSISTERENDE dedup-/idempotens-logikken (posisjonsbasert
+/// per <c>(RettskildeId, NodeEid, StartOffset)</c>, termbasert for <c>"gruppe"</c>, allerede-dekket-av-
+/// Begrep-filtrering) FØR noe sendes til klassifisering; (b) en fase som grupperer alt som trenger
+/// klassifisering (<c>"virksomhet"</c>-treff, ALDRI <c>"gruppe"</c>) på NORMALISERT (case-insensitiv)
+/// tekst og kaller <see cref="EksternNavneoppslagTjeneste"/> NØYAKTIG ÉN gang per unikt navn i DENNE
+/// kjøringen (et internt <c>Dictionary&lt;string, bool&gt;</c> — i tillegg til den eksisterende
+/// databasecachen, som forhindrer duplikate HTTP-kall på TVERS av kjøringer, forhindrer dette duplikate
+/// CACHE-oppslag INNENFOR samme kjøring for et navn nevnt mange ganger); (c) en fase som materialiserer
+/// én <see cref="NavnekandidatEntitet"/>-rad per samlet forekomst, med status avgjort av navnets
+/// klassifiseringsresultat fra fase (b). Se selve <see cref="SveipAsync"/>s metodekommentar for detaljene.</item>
+/// <item><b>To-utfalls klassifisering, ikke tre</b> — en reell, bevisst endring i selve
+/// klassifiseringen (<see cref="KlassifiserAsync"/>, tidligere <c>BeholdSomKandidatAsync</c>). Den
+/// gamle kjeden hadde en "ingen gjettet fallback"-standard der et navn UKJENT i BÅDE SNL og SSR ble
+/// BEHOLDT som en lav-tillit <c>"Venter"</c>-kandidat — Johanns instruks beskriver eksplisitt KUN to
+/// utfall («hvis treff i en tab og hvis hva som ble avvist i en annen tab»), ikke tre. SNL-bekreftet
+/// institusjon ELLER SSR-bekreftet stedsnavn MED institusjonsord rett etter → <c>"Venter"</c> (en ekte
+/// kandidat, klar for saksbehandler-vurdering, akkurat som før). ALT ANNET — SSR-bekreftet stedsnavn
+/// UTEN institusjonsord rett etter, ELLER ukjent i begge kildene → <c>"Avvist"</c> DIREKTE ved
+/// opprettelse. Avgjørende: raden opprettes FORTSATT (synlig, revisjonsbar, filtrerbar i UI-et via
+/// eksisterende status-filter) — den forkastes ikke stille lenger slik den gamle SSR-uten-institusjonsord-
+/// grenen gjorde (som ikke opprettet noen rad i det hele tatt).</item>
 /// </list>
+/// </para>
 /// <para>
 /// <b>[Ny, kodegjennomgang 2026-08-30] Normalisering før lagring — KUN <c>"gruppe"</c>:</b> for
 /// <c>"gruppe"</c>-treff er selve store/små bokstaver-formen IKKE del av identiteten (en gruppe er per
@@ -54,9 +90,9 @@ namespace RegelIde.Data;
 /// posisjonell idempotens fanget aldri opp at det var samme term. Løsning: <see cref="SveipAsync"/>
 /// folder <c>"gruppe"</c>-treffets tekst til små bokstaver (<see cref="string.ToLowerInvariant"/>) FØR
 /// den brukes som dedup-nøkkel og FØR den lagres som <see cref="NavnekandidatEntitet.ForeslattTekst"/>.
-/// <c>"virksomhet"</c>-treff (inkl. flerords-mønsteret over) er IKKE del av denne normaliseringen —
-/// der ER store/små bokstaver et reelt signal (et egennavn skal beholde sin faktiske stavemåte), så
-/// disse beholder rå tekst uendret.
+/// <c>"virksomhet"</c>-treff (inkl. flerords- og stor-bokstav-mønsteret) er IKKE del av denne
+/// normaliseringen — der ER store/små bokstaver et reelt signal (et egennavn skal beholde sin faktiske
+/// stavemåte), så disse beholder rå tekst uendret.
 /// </para>
 /// <para>
 /// <b>[Ny, kodegjennomgang 2026-08-30] Term-basert dedup, i tillegg til posisjonell (KUN <c>"gruppe"</c>):</b>
@@ -71,7 +107,9 @@ namespace RegelIde.Data;
 /// normaliseringen over kun forhindret NYE duplikater fra ETT sveip (samme treff, samme kjøring), ikke
 /// duplikater på TVERS av sveip/posisjoner — som var selve det bekreftede problemet. Kun <c>"gruppe"</c>,
 /// av samme grunn som normaliseringen over er scopet dit (<c>"virksomhet"</c> har ingen normalisert
-/// term å slå opp mot — case er signal, ikke støy — der gjelder fortsatt ren posisjonell idempotens).
+/// term å slå opp mot for BEGREP-dekning — case er signal, ikke støy — der gjelder fortsatt ren
+/// posisjonell idempotens for selve RADENE, selv om selve KLASSIFISERINGEN nå er termbasert-memoisert
+/// innenfor ett sveip, se punkt 5 over).
 /// </para>
 /// <para>
 /// <b>Kjøres KUN mot allerede importerte rettskilde-noder</b> — samme datakilde som
@@ -97,10 +135,10 @@ namespace RegelIde.Data;
 /// <see cref="BegrepEntitet"/>-rad skal IKKE gi en ny kandidat — poenget er å oppdage NYE navn, ikke
 /// duplisere det <see cref="VirksomhetKandidatSveipTjeneste"/> allerede finner/kan finne. Scopet ulikt
 /// per kategori, siden identiteten er ulik (docs/20 §2.3 vs. §2.4): et <c>"virksomhet"</c>-treff sjekkes
-/// mot ALLE eksisterende virksomhet-navneformer (globalt delt, uansett rettskilde) — et <c>"gruppe"</c>-treff
-/// sjekkes kun mot gruppebegrep for NØYAKTIG DENNE rettskilden (gruppebegrepets identitet er
-/// <c>(Term, LovkildeId)</c> sammen, samme gruppenavn i en annen lov er en annen rad og dekker ikke dette
-/// treffet).
+/// mot ALLE eksisterende virksomhet-navneformer (globalt delt, uansett rettskilde) — uansett hvilket av
+/// de to mønstrene (flerords eller stor-bokstav) som fant det — et <c>"gruppe"</c>-treff sjekkes kun mot
+/// gruppebegrep for NØYAKTIG DENNE rettskilden (gruppebegrepets identitet er <c>(Term, LovkildeId)</c>
+/// sammen, samme gruppenavn i en annen lov er en annen rad og dekker ikke dette treffet).
 /// </para>
 /// </summary>
 public sealed class NavnekandidatOppdagelseTjeneste(
@@ -109,84 +147,18 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     EksternNavneoppslagTjeneste eksternOppslag)
 {
     /// <summary>Diskriminatorverdien skrevet til <see cref="NavnekandidatEntitet.OppdagelsesKilde"/> for
-    /// alle kandidater produsert av <see cref="SveipStorBokstavAsync"/> (docs/31) — se den entitetsfeltets
-    /// kommentar. Public (ikke internal): brukt av RegelIde.Api ved berikelse-oppslag på lesetidspunktet
-    /// (se NavnekandidatDto/Program.cs).</summary>
-    public const string StorBokstavOppdagelsesKilde = "stor-bokstav-snl-ssr";
-    /// <summary>Suffiksene fra Johanns liste (docs/13-backlog.md §9) — sortert lengst-først i den
-    /// sammensatte alternasjonen (samme "unngå kortere delvis treff av en lengre streng"-prinsipp som
-    /// <see cref="VirksomhetKandidatSveipTjeneste"/>), selv om ingen av dagens suffikser er substrenger
-    /// av hverandre — defensivt, ikke bevist nødvendig for akkurat denne listen.
+    /// alle kandidater produsert av det brede "stor bokstav"-mønsteret (<see cref="FinnStorBokstavKandidaterITekst"/>,
+    /// docs/31) — se den entitetsfeltets kommentar. <c>null</c> for kandidater fra de eldre, presise
+    /// mønstrene (faste gruppe-/rollesubstantiv, flerords-institusjonsord). Public (ikke internal): brukt
+    /// av RegelIde.Api ved berikelse-oppslag på lesetidspunktet (se NavnekandidatDto/Program.cs).
     /// <para>
-    /// [Rettet, kodegjennomgang 2026-08-30] "departementet" fjernet herfra — det ER selve suffikset
-    /// (et sammensatt ord MED dette suffikset, f.eks. et fiktivt "xdepartementet", er ikke reelt norsk),
-    /// og hørte kun hjemme i <see cref="FasteRollesubstantiv"/>. Sto tidligere i BEGGE listene, som
-    /// motsa en eksisterende tests egen kommentar («'departementet' står IKKE i suffikslisten») — testen
-    /// besto likevel, ved en tilfeldighet (dette mønsteret er case-sensitivt, literalen er små bokstaver,
-    /// så stor forbokstav midt i en setning traff aldri suffiks-grenen) — ikke ved design.
-    /// </para>
-    /// <para>
-    /// [Ny, issue #150 del 1] "utvalget"/"enheten" lagt til — Johann forventet vesentlig flere forslag
-    /// i navnekandidat-køen, bl.a. eksemplifisert med "EOS-utvalget"/"PNR-enheten", og disse to stammene
-    /// manglet HELT fra begge ordlistene (bekreftet i koden, ikke bare i eksemplene). Samme
-    /// bestemt-entall-form som de øvrige suffiksene, for å fange fremtidige, IKKE bindestrek-forkortede
-    /// sammensatte navn av nøyaktig samme melted-word-form som "Datatilsynet"/"Miljødirektoratet", f.eks.
-    /// et tenkt "Personvernutvalget"/"Etterretningsenheten". <b>Fanger IKKE selve "EOS-utvalget"/
-    /// "PNR-enheten"</b> — bindestreken bryter dette mønsterets sammenhengende ord-regex
-    /// (<c>\b\p{L}[\p{L}]*(?:…)\b</c>), se issue #150 del 2 (bevisst IKKE bygget her — krever et helt
-    /// nytt, fjerde mønster, et produktbeslutning-spørsmål til Johann).
-    /// </para>
-    /// <para>
-    /// [Ny, 2026-09-03] "arkivet" lagt til — Johann rapporterte at "Nasjonalarkivet" (Lov om
-    /// dokumentasjon og arkiv, LOV-2025-06-20-96 § 4, 31 forekomster i teksten) ikke ble oppdaget.
-    /// "arkivet"/"arkiv" manglet HELT fra begge ordlistene, samme klasse hull som "utvalget"/"enheten"
-    /// over — dekker også fremtidige "Riksarkivet"/"Statsarkivet"-lignende navn.
-    /// </para>
-    /// <para>
-    /// [Ny, 2026-09-03] "nemnd" (UBESTEMT form) lagt til — kun "nemnda"/"nemnden" (BESTEMT form) fantes
-    /// fra før. Johann bekreftet et konkret, reelt tapt tilfelle: FOR-2011-06-21-617 § 9 ledd 2 bruker
-    /// "merkenemnd" (ubestemt), til forskjell fra de tre andre reindrifts-rettskildene i samme klynge
-    /// (LOV-2007-06-15-40, FOR-2022-08-29-1504, FOR-2008-07-04-791) som alle bruker bestemt form og
-    /// derfor allerede ble fanget. Samme "flere bøyningsformer av samme stamme"-begrunnelse som
-    /// FasteRollesubstantiv allerede bruker for kommune/departement/statsforvalter.
+    /// [Restrukturert, 2026-09-03] Feltet levde tidligere ved siden av et eget <see cref="SveipStorBokstavAsync"/>-
+    /// endepunkt — det endepunktet finnes ikke lenger (slått sammen inn i <see cref="SveipAsync"/>, se
+    /// klassekommentaren), men selve diskriminatorverdien er fortsatt meningsfull og uendret: den skiller
+    /// FORTSATT "hvilket mønster oppdaget denne raden" for UI-visning, uavhengig av at begge mønstrene nå
+    /// kjøres av samme metode/kall.
     /// </para></summary>
-    private static readonly string[] Suffikser =
-    [
-        "tilsynet", "direktoratet", "nemnda", "nemnden", "nemnd",
-        "domstolen", "ombudet", "verket", "etaten", "banken",
-        "utvalget", "enheten", "arkivet",
-    ];
-
-    /// <summary>
-    /// [Rettet, kodegjennomgang 2026-08-30] Eksplisitt denyliste for "verket"-suffikset — bekreftet i
-    /// live data: "fiskeriregelverket" (stor forbokstav midt i setning) ble foreslått som en
-    /// <c>"virksomhet"</c>-kandidat, men er åpenbart ikke et egennavn. "verket" fanger ekte
-    /// institusjonsnavn ("Patentverket", "Sjøfartsverket", "Kartverket", "Kystverket" — se
-    /// <c>organisasjoner-norge.json</c>), men fanger UNNGÅELIG også helt vanlige norske PRODUKTIVE
-    /// sammensetninger av formen «(hvilket som helst substantiv +) regelverket/lovverket/avtaleverket/
-    /// rammeverket for noe» — ikke en institusjon, og ikke en lukket liste med egennavn å legge TIL
-    /// suffikslisten (hvilket som helst substantiv foran gir gyldig norsk, så det finnes ingen endelig
-    /// "uttømt" liste av sammensetninger å forby der).
-    /// <para>
-    /// Løsningen er derfor IKKE å fjerne "verket" fra <see cref="Suffikser"/> (det ville også miste de
-    /// ekte "Patentverket"/"Sjøfartsverket"/"Kartverket"-treffene), men en egen, eksplisitt, dokumentert
-    /// denyliste (samme "ingen gjettet fallback"-filosofi som resten av klassen) over de KJENTE
-    /// falske positivene — sjekket ved <c>EndsWith</c> (case-insensitivt), ikke eksakt likhet, nettopp
-    /// fordi disse er PRODUKTIVE sammensetninger: "fiskeriregelverket" må fanges av "regelverket" selv
-    /// om selve ordet aldri er nøyaktig "regelverket". Sveip av hele det lokale korpuset (docs/13-
-    /// backlog.md §9-tekster, seed-data, dokumentasjon) etter alle "*verket"-forekomster fant ingen
-    /// flere kandidater utover disse fire (Johanns egen liste) — "Kartverket"/"Kystverket" (ekte
-    /// institusjoner) og "Skatteverket" (kun nevnt som svensk sammenligning i docs/10, ikke en norsk
-    /// rettskildetekst) endte IKKE med noen av de fire ordene under, så de forblir upåvirket.
-    /// Gjelder KUN <c>"virksomhet"</c>-klassifiseringen (stor forbokstav midt i setning) — en
-    /// tilsvarende liten-forbokstav-forekomst gir uansett <c>"gruppe"</c>, ikke <c>"virksomhet"</c>, og
-    /// var aldri det bekreftede problemet.
-    /// </para>
-    /// </summary>
-    private static readonly string[] VerketDenyliste =
-    [
-        "regelverket", "lovverket", "avtaleverket", "rammeverket",
-    ];
+    public const string StorBokstavOppdagelsesKilde = "stor-bokstav-snl-ssr";
 
     /// <summary>Faste juridisk-aktør-substantiv UTEN suffiks (docs/13-backlog.md §9) — ALLTID
     /// <c>"gruppe"</c>-kandidater, uansett store/små bokstaver. Lengst-først i alternasjonen, slik at
@@ -199,6 +171,11 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// "kommuner" og 71 av "fylkeskommuner" (ubestemt flertall) som IKKE ble fanget i det hele tatt før
     /// denne utvidelsen. Bevisst en LUKKET liste over kjente stammer + et lite, begrenset sett
     /// bøyningsendelser — IKKE en generell lemmatizer/språkmodell (eksplisitt forbudt, ren regex).
+    /// </para>
+    /// <para>
+    /// [Restrukturert, 2026-09-03] Denne listen/mønsteret er UENDRET av dagens restrukturering (se
+    /// klassekommentaren) — den er allerede en lukket, hånd-kuratert liste per design, ALDRI sendt til
+    /// SNL/SSR, og var derfor aldri en del av «whack-a-mole»-problemet suffiksmønsteret ble slettet for.
     /// </para></summary>
     private static readonly string[] FasteRollesubstantiv =
     [
@@ -216,9 +193,6 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     private static string[] Bøyningsformer(string stamme, string bestemtEntallEndelse, string ubestemtFlertallEndelse, string bestemtFlertallEndelse) =>
         [stamme, stamme + bestemtEntallEndelse, stamme + ubestemtFlertallEndelse, stamme + bestemtFlertallEndelse];
 
-    private static readonly Regex SuffiksMønster = new(
-        @"\b\p{L}[\p{L}]*(?:" + string.Join('|', Suffikser) + @")\b");
-
     private static readonly Regex FasteGruppeMønster = new(
         @"\b(?:" + string.Join('|', FasteRollesubstantiv.OrderByDescending(s => s.Length).Select(Regex.Escape)) + @")\b",
         RegexOptions.IgnoreCase);
@@ -226,11 +200,11 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// <summary>
     /// Kjente institusjonsord i UBESTEMT FORM (docs/13-backlog.md §9, Johanns liste — ikke uttømmende)
     /// brukt av flerords-mønsteret (<see cref="FinnEgennavnForanInstitusjonsord"/>) — MÅ stå som eget,
-    /// mellomromsdelt ord etter et egennavn (til forskjell fra <see cref="Suffikser"/>, som er smeltet
-    /// sammen med stammen). "vegvesen" lagt til utover Johanns opprinnelige liste — "Statens vegvesen"
-    /// skrives (til forskjell fra f.eks. "tilsyn"-institusjoner, som alltid er ETT sammensatt ord som
-    /// "Datatilsynet") faktisk som to ord i virkelig bruk, og ordet har lav tvetydighetsrisiko alene
-    /// (nesten utelukkende brukt om denne ene, spesifikke etaten).
+    /// mellomromsdelt ord etter et egennavn (til forskjell fra det tidligere, nå slettede suffiksmønsteret,
+    /// som var smeltet sammen med stammen — se klassekommentaren). "vegvesen" lagt til utover Johanns
+    /// opprinnelige liste — "Statens vegvesen" skrives (til forskjell fra f.eks. "tilsyn"-institusjoner,
+    /// som alltid er ETT sammensatt ord som "Datatilsynet") faktisk som to ord i virkelig bruk, og ordet
+    /// har lav tvetydighetsrisiko alene (nesten utelukkende brukt om denne ene, spesifikke etaten).
     /// <para>
     /// <b>[Ny, kodegjennomgang 2026-08-30] Skole-relaterte ord</b> — bekreftet i live data (korpusomfattende
     /// sveip + direkte tekstsøk mot den kjørende dev-databasen, se PR-beskrivelsen) at korpuset inneholder
@@ -241,31 +215,30 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// Johanns opprinnelige liste), "universitet", "barnehage".
     /// </para>
     /// <para>
-    /// <b>Bevisst UTELATT: "skole" alene</b> (uten fag-/høy-/høg-prefiks). Samme "verket"-fallgruve som
-    /// <see cref="VerketDenyliste"/> ble opprettet for: et korpusomfattende testsveip med "skole" i lista
-    /// ga et FLOM av falske positiver av formen "[Adjektiv/Stedsnavn] skole" der "skole" er en helt
-    /// generisk fellesbetegnelse, ikke del av et spesifikt egennavn — f.eks. "Denne skole", "Norsk skole",
-    /// "Samisk videregående skole" (her ville mønsteret uansett feilaktig fanget bare "Samisk" pga.
-    /// mellomrommet i "videregående skole", ikke hele den reelle institusjonsbetegnelsen) — i tillegg til at
-    /// "skole" i seg selv (til forskjell fra "fagskole"/"høyskole"/"barnehage"/"universitet", som er
-    /// LUKKEDE, spesifikke institusjonstyper) inngår produktivt i sammensetninger med ETHVERT stedsnavn/
-    /// skoletype-adjektiv ("kunstskole", "sykepleierskole", "sommerskole", osv.) — akkurat samme "ingen
-    /// endelig uttømt denyliste mulig" begrunnelse som <see cref="VerketDenyliste"/>s kommentar. Til
-    /// forskjell fra "verket" (der en denyliste FUNGERTE, fordi de produktive sammensetningene var få og
-    /// kjente — regelverket/lovverket/avtaleverket/rammeverket) er "skole"-sammensetningene for mange og
-    /// åpne til at en tilsvarende denyliste ville vært uttømmende. Løsning: utelatt helt, presisjon foran
-    /// recall — de sammensatte institusjonsordene ("fagskole" m.fl.) dekker likevel det STORE flertallet av
-    /// de bekreftede, navngitte skolene i korpuset (Nortrain fagskole, Nordland fagskole, osv.).
+    /// <b>Bevisst UTELATT: "skole" alene</b> (uten fag-/høy-/høg-prefiks). Et korpusomfattende testsveip
+    /// med "skole" i lista ga et FLOM av falske positiver av formen "[Adjektiv/Stedsnavn] skole" der
+    /// "skole" er en helt generisk fellesbetegnelse, ikke del av et spesifikt egennavn — f.eks. "Denne
+    /// skole", "Norsk skole", "Samisk videregående skole". "skole" inngår produktivt i sammensetninger med
+    /// ETHVERT stedsnavn/skoletype-adjektiv ("kunstskole", "sykepleierskole", "sommerskole", osv.), til
+    /// forskjell fra "fagskole"/"høyskole"/"barnehage"/"universitet", som er LUKKEDE, spesifikke
+    /// institusjonstyper. Løsning: utelatt helt, presisjon foran recall — de sammensatte institusjonsordene
+    /// ("fagskole" m.fl.) dekker likevel det STORE flertallet av de bekreftede, navngitte skolene i korpuset.
     /// </para>
     /// <para>
-    /// [Ny, issue #150 del 1] "utvalg"/"enhet" lagt til — samme manglende dekning som begrunner
-    /// <see cref="Suffikser"/>s "utvalget"/"enheten"-tillegg (se den kommentaren for Johanns
-    /// "EOS-utvalget"/"PNR-enheten"-eksempler). Fanger et flerords egennavn+institusjonsord-par av
-    /// nøyaktig samme form som "Statens vegvesen"/"Møre og Romsdal fylkeskommune", f.eks. et tenkt
-    /// "Klageutvalget for X" ELLER "[Egennavn] utvalg"/"[Egennavn] enhet" der institusjonsordet står som
-    /// eget, mellomromsdelt ord. Fanger, som resten av denne listen, IKKE bindestrek-forkortelsen
-    /// "EOS-utvalget"/"PNR-enheten" selv (se <see cref="Suffikser"/>s kommentar — issue #150 del 2, ikke
-    /// bygget her).
+    /// [Ny, issue #150 del 1] "utvalg"/"enhet" lagt til — Johann forventet vesentlig flere forslag i
+    /// navnekandidat-køen enn den gamle arkitekturen ga, bl.a. eksemplifisert med "EOS-utvalget"/
+    /// "PNR-enheten". Fanger et flerords egennavn+institusjonsord-par av nøyaktig samme form som "Statens
+    /// vegvesen"/"Møre og Romsdal fylkeskommune", f.eks. et tenkt "Klageutvalget for X" ELLER "[Egennavn]
+    /// utvalg"/"[Egennavn] enhet" der institusjonsordet står som eget, mellomromsdelt ord. Fanger IKKE
+    /// bindestrek-forkortelsen "EOS-utvalget"/"PNR-enheten" selv (issue #150 del 2, ikke bygget her).
+    /// </para>
+    /// <para>
+    /// [Ny, 2026-09-03] "arkiv" lagt til — samme klasse hull som "utvalg"/"enhet" over, bekreftet ved at
+    /// "Nasjonalarkivet" (LOV-2025-06-20-96 § 4) manglet fra oppdagelsen. Under den GAMLE arkitekturen ble
+    /// dette løst ved å legge "arkivet" til det (nå slettede) suffiksmønsteret — under DENNE arkitekturen
+    /// fanges "Nasjonalarkivet" i stedet strukturelt av det brede "stor bokstav"-mønsteret (se
+    /// <see cref="FinnStorBokstavKandidaterITekst"/>), og "arkiv" legges her KUN for å dekke det
+    /// FLERORDS-formede tilfellet ("[Egennavn] arkiv" som to ord), samme begrunnelse som "utvalg"/"enhet".
     /// </para>
     /// </summary>
     private static readonly string[] Institusjonsord =
@@ -297,9 +270,9 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// [Ny, kodegjennomgang 2026-08-30] Lukket liste over norske determinativer/kvantorer/pronomen som
     /// ALDRI skal telle som et egennavn-ord i flerords-mønsteret, SELV OM de er stor forbokstav (de er
     /// det typisk KUN fordi de tilfeldigvis åpner en node/setning — nøyaktig samme tvetydighet som
-    /// begrunner <see cref="ErSetningsstart"/> for suffiksmønsteret). Avdekket av samme korpusomfattende
-    /// testsveip som begrunner <see cref="TillatteBindeord"/>-innstrammingen: uten denne lista ga
-    /// mønsteret falske positiver som "Enhver fylkeskommune", "En kommune", "Hver kommune",
+    /// begrunner <see cref="ErSetningsstart"/> for det brede stor-bokstav-mønsteret). Avdekket av samme
+    /// korpusomfattende testsveip som begrunner <see cref="TillatteBindeord"/>-innstrammingen: uten denne
+    /// lista ga mønsteret falske positiver som "Enhver fylkeskommune", "En kommune", "Hver kommune",
     /// "Det departement" — generiske funksjonsord, ikke navn. En LUKKET liste (determinativer/pronomen
     /// er en grammatisk lukket ordklasse i norsk, til forskjell fra f.eks. adjektiv) — IKKE et forsøk på
     /// å luke ut ALLE tenkelige falske positiver (et adjektiv som "Statlig tilsyn" ville fortsatt sluppet
@@ -315,10 +288,11 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     };
 
     /// <summary>
-    /// [Ny, docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md] Det NYE, brede "stor bokstav midt i
-    /// en setning"-mønsteret (§5 punkt 2) — se <see cref="FinnStorBokstavKandidaterITekst"/> for selve
-    /// utløseren og <see cref="SveipStorBokstavAsync"/> for klassifiseringskjeden (§2) som skiller
-    /// ekte institusjonsnavn fra stedsnavn/personnavn/utenlandske ord via SNL/SSR.
+    /// [Restrukturert, 2026-09-03 — nå den PRIMÆRE utløseren for <c>"virksomhet"</c>-treff som ikke
+    /// allerede fanges av flerords-mønsteret, se klassekommentaren] Det brede "stor bokstav midt i en
+    /// setning"-mønsteret (docs/31 §5 punkt 2) — se <see cref="FinnStorBokstavKandidaterITekst"/> for
+    /// selve utløseren og <see cref="KlassifiserAsync"/> for klassifiseringskjeden (docs/31 §2) som
+    /// skiller ekte institusjonsnavn fra stedsnavn/personnavn/utenlandske ord via SNL/SSR.
     /// <para>
     /// <b>KUN Title-case ord</b> (stor forbokstav + ETT ELLER FLERE små bokstaver, ALDRI en ordform der
     /// bokstav nummer to også er stor) — utelukker BEVISST forkortelser i store bokstaver ("NKR", "SFO",
@@ -335,24 +309,32 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// <see cref="Institusjonsord"/> — brukt KUN av <see cref="FinnStorBokstavKandidaterITekst"/> til å
     /// UNNGÅ å sende en term de EKSISTERENDE, presise mønstrene allerede dekker med høyere presisjon
     /// videre til et kostbart eksternt SNL/SSR-oppslag (rent en ytelses-/høflighets-optimalisering mot
-    /// de eksterne API-ene — begge mønstrene kjører uansett uavhengig av hverandre, se
-    /// <see cref="SveipStorBokstavAsync"/>s metodekommentar for hvorfor duplikat-posisjoner likevel er
-    /// trygt idempotent på tvers av de to).</summary>
+    /// de eksterne API-ene). <see cref="SveipAsync"/> anvender i tillegg sin egen, in-memory
+    /// posisjonssjekk PER NODE (se den metodens kommentar) som en ekstra, komplementær beskyttelse mot
+    /// at samme START-posisjon behandles av BEGGE mønstrene innenfor ETT sveip (f.eks. det første ordet
+    /// i et flerords-treff, som også isolert er et Title-case-ord) — de to mekanismene dekker altså to
+    /// litt ulike ting: denne sjekker TERM-identitet mot kjente, presise ordlister, posisjonssjekken i
+    /// <see cref="SveipAsync"/> sjekker ren POSISJONS-identitet mot det andre mønsterets EGET treff.</summary>
     private static readonly HashSet<string> FasteRollesubstantivOrdSet = new(FasteRollesubstantiv, StringComparer.OrdinalIgnoreCase);
     private static readonly HashSet<string> InstitusjonsordSet = new(Institusjonsord, StringComparer.OrdinalIgnoreCase);
 
     /// <summary>
-    /// Ren, testbar funksjon uten DB/HTTP-avhengighet — selve rå-utløseren for det nye mønsteret,
-    /// separert fra <see cref="SveipStorBokstavAsync"/>s async SNL/SSR-klassifisering av samme grunn som
-    /// <see cref="FinnKandidaterITekst"/> er separert fra <see cref="SveipAsync"/>.
+    /// Ren, testbar funksjon uten DB/HTTP-avhengighet — selve rå-utløseren for det brede
+    /// stor-bokstav-mønsteret, separert fra <see cref="SveipAsync"/>s async DB-/SNL/SSR-orkestrering av
+    /// samme grunn som <see cref="FinnKandidaterITekst"/> er separert fra <see cref="SveipAsync"/>.
     /// <para>
     /// Ekskluderer (i tillegg til <see cref="ErSetningsstart"/>, samme "midt i en setning"-vern som
     /// resten av klassen): <see cref="AldriEgennavnOrd"/> (determinativer/pronomen — grammatisk lukket
-    /// klasse, aldri egennavn), <see cref="FasteRollesubstantivOrdSet"/>/<see cref="InstitusjonsordSet"/>
-    /// (allerede dekket av presise, eksisterende mønstre — se feltkommentaren), og ord som ender på et
-    /// kjent <see cref="Suffikser"/>-suffiks (allerede dekket av <see cref="SuffiksMønster"/> med høyere
-    /// presisjon — INGEN grunn til å sende f.eks. "Miljødirektoratet" videre til et eksternt SNL-oppslag
-    /// når suffiksmønsteret allerede klassifiserer det som "virksomhet" med kjent, dokumentert presisjon).
+    /// klasse, aldri egennavn) og <see cref="FasteRollesubstantivOrdSet"/>/<see cref="InstitusjonsordSet"/>
+    /// (allerede dekket av presise, eksisterende mønstre — se feltkommentaren).
+    /// </para>
+    /// <para>
+    /// [Restrukturert, 2026-09-03] Ekskluderte TIDLIGERE også ord som endte på et kjent suffiks
+    /// (<c>Suffikser</c>), for å unngå å sende en term det gamle, presise suffiksmønsteret allerede
+    /// klassifiserte med høyere presisjon videre til et eksternt SNL-oppslag. Suffiksmønsteret (og
+    /// dermed HELE denne sjekken) er slettet i denne restruktureringen — se klassekommentaren. Et ord som
+    /// "Miljødirektoratet" fanges nå UTELUKKENDE av DETTE mønsteret og valideres strukturelt mot SNL/SSR
+    /// i stedet for mot en hånd-vedlikeholdt suffiksliste.
     /// </para>
     /// </summary>
     internal static List<(int Start, int Lengde, string RaaTekst)> FinnStorBokstavKandidaterITekst(string tekst)
@@ -365,14 +347,13 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             if (AldriEgennavnOrd.Contains(ord)) continue;
             if (FasteRollesubstantivOrdSet.Contains(ord)) continue;
             if (InstitusjonsordSet.Contains(ord)) continue;
-            if (Suffikser.Any(s => ord.EndsWith(s, StringComparison.OrdinalIgnoreCase))) continue;
             funnet.Add((m.Index, m.Length, ord));
         }
         return funnet;
     }
 
     /// <summary>Det første hele ordet (bokstaver) som starter etter evt. mellomrom/tab fra
-    /// <paramref name="index"/> — brukt av <see cref="SveipStorBokstavAsync"/> til å sjekke om et
+    /// <paramref name="index"/> — brukt av <see cref="KlassifiserAsync"/> til å sjekke om et
     /// <see cref="Institusjonsord"/> står RETT ETTER et SSR-bekreftet stedsnavn (docs/31 §2 punkt 2).
     /// Samme "kun mellomrom/tab, stopp på ALT annet"-restriktivitet som
     /// <see cref="FinnEgennavnForanInstitusjonsord"/>s bakoverskanning (linjeskift/skilletegn teller
@@ -387,21 +368,35 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         return tekst[start..i];
     }
 
-    /// <summary>Projeksjon brukt av BÅDE <see cref="SveipAsync"/> og <see cref="SveipStorBokstavAsync"/>
-    /// (se <see cref="HentSveipbareNoderAsync"/>) — <see cref="Tekst"/> er ALLTID non-null her (filtrert
-    /// i spørringen), til forskjell fra <see cref="RettskildeNodeEntitet.Tekst"/> selv.</summary>
+    /// <summary>Projeksjon brukt av <see cref="SveipAsync"/> (se <see cref="HentSveipbareNoderAsync"/>) —
+    /// <see cref="Tekst"/> er ALLTID non-null her (filtrert i spørringen), til forskjell fra
+    /// <see cref="RettskildeNodeEntitet.Tekst"/> selv.</summary>
     private sealed record SveipbarNode(Guid RettskildeId, string Eid, string Tekst);
 
     /// <summary>
-    /// Delt node-spørring for BEGGE sveipmetodene (<see cref="SveipAsync"/> og
-    /// <see cref="SveipStorBokstavAsync"/>) — samme "delt/nasjonal OG gjeldende"-scoping for begge, se de
-    /// utfyllende kommentarene som fantes her FØR denne ble faktorert ut (git-historikk, kodegjennomgang
-    /// 2026-08-30): (1) KUN <c>VirksomhetId == null</c> rettskilder — unngår kryssvirksomhet-lekkasje
-    /// (samme reelt fikset bug som <see cref="VirksomhetKandidatSveipTjeneste"/> hadde, Agder/Bergen
-    /// 2026-08-22), (2) KUN <c>Entitetsstatus == "gjeldende"</c> på BÅDE noden og selve
-    /// <see cref="RettskildeEntitet"/> (en reimportert lovs gamle rettskilde-rad blir 'erstattet', men
-    /// dens noder forblir for alltid 'gjeldende' på nodenivå — uten dette dobbeltfilteret ble kandidater
-    /// fra utdaterte rettskilder tidligere opprettet, men kunne ALDRI godkjennes).
+    /// Én kandidatforekomst av kategori <c>"virksomhet"</c> samlet i FASE 1 av <see cref="SveipAsync"/>
+    /// (samle-så-klassifiser, se klassekommentaren) — venter på klassifisering i FASE 2, materialiseres
+    /// i FASE 3. <see cref="NormalisertTerm"/> er nøkkelen fase 2 grupperer/memoiserer klassifiseringen
+    /// på (case-insensitiv — <see cref="RaaTekst"/> beholder derimot den FAKTISKE stavemåten, brukt som
+    /// selve <see cref="NavnekandidatEntitet.ForeslattTekst"/>-verdien ved opprettelse).
+    /// </summary>
+    private sealed record VentendeVirksomhetTreff(
+        SveipbarNode Node, int Start, int Lengde, string RaaTekst, string NormalisertTerm, int MatchSlutt, string? OppdagelsesKilde);
+
+    /// <summary>
+    /// Node-spørring for <see cref="SveipAsync"/> — se de utfyllende kommentarene som fantes her FØR
+    /// denne ble faktorert ut (git-historikk, kodegjennomgang 2026-08-30): (1) KUN <c>VirksomhetId == null</c>
+    /// rettskilder — unngår kryssvirksomhet-lekkasje (samme reelt fikset bug som
+    /// <see cref="VirksomhetKandidatSveipTjeneste"/> hadde, Agder/Bergen 2026-08-22), (2) KUN
+    /// <c>Entitetsstatus == "gjeldende"</c> på BÅDE noden og selve <see cref="RettskildeEntitet"/> (en
+    /// reimportert lovs gamle rettskilde-rad blir 'erstattet', men dens noder forblir for alltid
+    /// 'gjeldende' på nodenivå — uten dette dobbeltfilteret ble kandidater fra utdaterte rettskilder
+    /// tidligere opprettet, men kunne ALDRI godkjennes).
+    /// <para>
+    /// [Restrukturert, 2026-09-03] Het tidligere "delt for BEGGE sveipmetodene" (<c>SveipAsync</c> OG
+    /// <c>SveipStorBokstavAsync</c>) — nå kun én caller, <see cref="SveipAsync"/>, etter at de to
+    /// metodene ble slått sammen (se klassekommentaren). Selve spørringen/scopingen er UENDRET.
+    /// </para>
     /// </summary>
     private async Task<List<SveipbarNode>> HentSveipbareNoderAsync(Guid? rettskildeId, CancellationToken ct)
     {
@@ -426,54 +421,55 @@ public sealed class NavnekandidatOppdagelseTjeneste(
 
     /// <summary>
     /// Kjører oppdagelsessveipet — enten mot ÉN rettskilde (<paramref name="rettskildeId"/> satt) eller
-    /// mot HELE det importerte korpuset (<paramref name="rettskildeId"/> = <c>null</c>).
+    /// mot HELE det importerte korpuset (<paramref name="rettskildeId"/> = <c>null</c>). Den ENESTE
+    /// sveipemetoden i klassen — dekker faste gruppe-/rollesubstantiv, flerords-institusjonsord OG det
+    /// brede "stor bokstav"-mønsteret sammen, se klassekommentarens restruktureringsavsnitt for
+    /// bakgrunnen (tidligere to separate metoder/endepunkt).
     /// <para>
-    /// <b>[Ny, issue #117] SNL/SSR-klassifisering utvidet til DETTE sveipet også.</b> Fram til denne
-    /// rettelsen var <see cref="BeholdSomKandidatAsync"/> (docs/31 §2) KUN koblet inn i
-    /// <see cref="SveipStorBokstavAsync"/> — de eldre, presise mønstrene her (suffiks + flerords-
-    /// institusjonsord, se <see cref="FinnKandidaterITekst"/>) fikk INGEN slik validering i det hele
-    /// tatt, til tross for at de kan produsere false-positive "virksomhet"-kandidater av nøyaktig samme
-    /// grunnform som "stor bokstav"-mønsteret (typeeksempelet er "regelverket"/"lovverket" osv. —
-    /// hittil KUN luket ut manuelt via <see cref="VerketDenyliste"/>, se den listens kommentar).
-    /// Samme klassifiseringskjede, SAMME cache (<see cref="EksternNavneoppslagTjeneste"/>/
-    /// <c>EksternNavneoppslagCacheEntitet</c>) gjenbrukes uendret her — ingen ny, parallell mekanisme.
+    /// <b>Tre faser — samle, klassifiser, materialiser (samle-så-klassifiser, ikke klassifiser-per-posisjon):</b>
+    /// <list type="number">
+    /// <item><b>Fase 1 (ren, rask, DB-dedup, INGEN nettverkskall):</b> for hver sveipbar node, kjør
+    /// <see cref="FinnKandidaterITekst"/> (faste-gruppe- + flerords-mønster) og
+    /// <see cref="FinnStorBokstavKandidaterITekst"/> (det brede mønsteret), og anvend umiddelbart:
+    /// <c>"gruppe"</c>-treff opprettes DIREKTE her (ingen klassifisering trengs, se punkt 2 under) etter
+    /// samme "allerede dekket av Begrep/eksisterende kandidat"-filtrering som før.
+    /// <c>"virksomhet"</c>-treff (fra BEGGE de to gjenværende mønstrene) filtreres mot eksisterende
+    /// <see cref="BegrepEntitet"/>-navneformer og mot allerede eksisterende kandidatposisjoner
+    /// (<c>(RettskildeId, NodeEid, StartOffset)</c>), og samles i en <see cref="VentendeVirksomhetTreff"/>-
+    /// liste for fase 2 — INGEN <see cref="EksternNavneoppslagTjeneste"/>-kall skjer i denne fasen.
+    /// Én ekstra, NY beskyttelse her (mulig først nå som begge mønstrene kjøres i SAMME metode/kall): et
+    /// <c>HashSet&lt;int&gt;</c> per node av allerede behandlede START-posisjoner hindrer at samme
+    /// posisjon behandles av BEGGE mønstrene (f.eks. det første ordet i "Møre og Romsdal fylkeskommune" —
+    /// "Møre" — som isolert også er et gyldig Title-case-ord for det brede mønsteret; flerords-mønsteret
+    /// kjøres FØRST og "vinner" posisjonen, konsistent med at det er det mer PRESISE av de to).</item>
+    /// <item><b>Fase 2 (klassifiser HVERT UNIKE navn nøyaktig ÉN gang):</b> grupperer ALT samlet i fase 1
+    /// på normalisert (case-insensitiv) tekst, og kaller <see cref="KlassifiserAsync"/> (docs/31 §2) KUN
+    /// for hvert UNIKE navn i DENNE kjøringen — resultatet memoiseres i et lokalt
+    /// <c>Dictionary&lt;string, bool&gt;</c>. Den eksisterende <see cref="EksternNavneoppslagTjeneste"/>-
+    /// cachen (databasetabell) forhindrer allerede duplikate HTTP-kall PÅ TVERS av sveip/kjøringer for
+    /// samme term — dette dictionary-et forhindrer i tillegg duplikate CACHE-OPPSLAG INNENFOR samme
+    /// kjøring for et navn nevnt mange ganger (f.eks. et institusjonsnavn nevnt 5 ganger i samme lov gir
+    /// nå ÉN klassifisering, ikke 5, selv om alle 5 uansett ville truffet samme cache-rad).</item>
+    /// <item><b>Fase 3 (materialiser):</b> for hver <see cref="VentendeVirksomhetTreff"/> fra fase 1,
+    /// slå opp navnets klassifiseringsresultat fra fase 2 og opprett raden med riktig INITIAL status —
+    /// se <see cref="KlassifiserAsync"/>s kommentar for selve to-utfalls-avgjørelsen (SNL-/kvalifisert-
+    /// SSR-bekreftelse → <c>"Venter"</c>, alt annet → <c>"Avvist"</c> direkte, men ALLTID opprettet).</item>
+    /// </list>
     /// </para>
     /// <para>
-    /// <b>Scopet til KUN <c>"virksomhet"</c> — bevisst, ikke en stilltiende innsnevring:</b>
-    /// <c>"gruppe"</c>-treff (både <see cref="FasteGruppeMønster"/> og suffiksmønsterets liten-forbokstav-
-    /// gren) sendes ALDRI til SNL/SSR. Begrunnelse: <see cref="FasteRollesubstantiv"/>s klassekommentar
-    /// sier eksplisitt at disse er en LUKKET liste over generiske, juridiske rollesubstantiv ("Kongen",
+    /// <b>Scopet til KUN <c>"virksomhet"</c> for selve klassifiseringen — bevisst, ikke en stilltiende
+    /// innsnevring:</b> <c>"gruppe"</c>-treff (<see cref="FasteGruppeMønster"/>/<see cref="FasteRollesubstantiv"/>)
+    /// sendes ALDRI til SNL/SSR. Begrunnelse: <see cref="FasteRollesubstantiv"/>s klassekommentar sier
+    /// eksplisitt at disse er en LUKKET liste over generiske, juridiske rollesubstantiv ("Kongen",
     /// "Stortinget", bøyningsformer av "kommune"/"departement" osv.) — ALLTID korrekte som "gruppe" per
     /// design, uansett kontekst, ikke kandidater for et institusjons-EGENNAVN-oppslag i utgangspunktet
     /// (SNL/SSR svarer på "er DETTE en kjent institusjon/et kjent stedsnavn", et spørsmål som ikke gir
-    /// mening for et rent rollesubstantiv). Samme resonnement gjelder suffiksmønsterets "gruppe"-gren
-    /// (liten forbokstav i seg selv utelukker allerede at det er et egennavn, se
-    /// <see cref="FinnKandidaterITekst"/>s metodekommentar) — begge er derfor eksplisitt UTENFOR scopet
-    /// her, ikke glemt.
+    /// mening for et rent rollesubstantiv).
     /// </para>
     /// <para>
-    /// <b>Reuse-mekanikk, IKKE en ny SSR-forkastingsregel for disse mønstrene:</b> klassifiseringen
-    /// kalles med HELE den fangede kandidatteksten (f.eks. "Miljødirektoratet", "Statens vegvesen") som
-    /// <c>raaTekst</c> — til forskjell fra <see cref="SveipStorBokstavAsync"/>, der <c>raaTekst</c> er ETT
-    /// bart, ukvalifisert stor-forbokstav-ord. Følgen: SNL-grenen (docs/31 §2 punkt 1) er den
-    /// meningsfulle sjekken her — bekrefter/beriker en ekte institusjon (og fyller cachen for senere
-    /// lesetidspunkt-berikelse i RegelIde.Api, se <c>BerikNavnekandidaterAsync</c>). SSR-grenen (punkt 2)
-    /// derimot forkaster KUN når det ETTERFØLGENDE ordet (rett etter HELE kandidaten, altså etter selve
-    /// institusjonsordet/-suffikset som allerede er en del av teksten) IKKE er et nytt institusjonsord —
-    /// en situasjon disse to mønstrene strukturelt sjelden/aldri havner i (de MATCHET jo nettopp FORDI et
-    /// institusjonsord/-suffiks allerede er en del av den fangede teksten), så denne grenen forkaster i
-    /// praksis nesten aldri noe her — det er en akseptert konsekvens av å gjenbruke samme, uendrede
-    /// kjede/metode fremfor å bygge en ny, skreddersydd variant KUN for disse to mønstrene. Punkt 3
-    /// ("ukjent i begge" → behold, lav tillit) er derfor det vanligste utfallet for en term SNL ikke
-    /// kjenner igjen — helt konsistent med resten av klassens "ingen gjettet fallback"-filosofi: dette
-    /// er IKKE ment å erstatte <see cref="VerketDenyliste"/> (den blir stående uendret), kun et nytt LAG
-    /// av berikelse/dokumentert klassifiseringsforsøk oppå den eksisterende presisjonen.
-    /// </para>
-    /// <para>
-    /// <b>Nettverkskall unngås når mulig</b> (samme hensyn som <see cref="SveipStorBokstavAsync"/>):
-    /// klassifiseringen kalles KUN når posisjonen [<c>RettskildeId</c>, <c>NodeEid</c>, <c>StartOffset</c>]
-    /// IKKE allerede har en eksisterende <see cref="NavnekandidatEntitet"/>-rad (<c>forAntall == 0</c>
-    /// under) — et gjentatt sveip over samme tekst re-klassifiserer ikke en allerede oppdaget kandidat.
+    /// <b>Nettverkskall unngås når mulig</b>: klassifiseringen kalles KUN for et navn hvis MINST ÉN av
+    /// forekomstene har en posisjon som IKKE allerede har en eksisterende <see cref="NavnekandidatEntitet"/>-
+    /// rad — et gjentatt sveip over samme tekst re-klassifiserer ikke allerede oppdagede kandidater.
     /// </para>
     /// </summary>
     public async Task<NavnekandidatSveipResultat> SveipAsync(Guid? rettskildeId, string opprettetAv, CancellationToken ct = default)
@@ -507,10 +503,20 @@ public sealed class NavnekandidatOppdagelseTjeneste(
 
         var antallTreff = 0;
         var antallNyeKandidater = 0;
+
+        // ---------- Fase 1: samle, rent + DB-dedup, ingen nettverkskall ----------
+        var trengerKlassifisering = new List<VentendeVirksomhetTreff>();
+
         foreach (var node in noder)
         {
+            // Posisjoner allerede behandlet i DENNE noden i DETTE sveipet — hindrer at det brede
+            // stor-bokstav-mønsteret dobbeltbehandler en posisjon flerords-mønsteret allerede fanget
+            // (se metodekommentarens fase 1-avsnitt).
+            var behandledeStartposisjoner = new HashSet<int>();
+
             foreach (var (start, lengde, kategori) in FinnKandidaterITekst(node.Tekst!))
             {
+                behandledeStartposisjoner.Add(start);
                 var raaTekst = node.Tekst![start..(start + lengde)];
                 // [Ny, kodegjennomgang 2026-08-30] Normaliser KUN "gruppe" til små bokstaver — se
                 // klassekommentarens "Normalisering før lagring"-avsnitt. "virksomhet" beholder rå tekst
@@ -520,9 +526,6 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 var alleredeDekketAvBegrep = kategori == "virksomhet"
                     ? virksomhetTermer.Contains(tekst)
                     : gruppeTermerPerLovkilde.TryGetValue(node.RettskildeId, out var gruppeTermer) && gruppeTermer.Contains(tekst);
-                // [Ny, kodegjennomgang 2026-08-30] Term-basert dedup mot EKSISTERENDE, ikke-godkjente
-                // kandidater — kun "gruppe" (se klassekommentaren). Uavhengig av tekstposisjon: samme
-                // normaliserte term i samme rettskilde skal ikke gi en ny rad, selv om posisjonen er ny.
                 var alleredeDekketAvEksisterendeKandidat = kategori == "gruppe"
                     && gruppeKandidatTermerPerRettskilde.TryGetValue(node.RettskildeId, out var eksisterendeTermer)
                     && eksisterendeTermer.Contains(tekst);
@@ -532,29 +535,14 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 var forAntall = await db.Navnekandidater.CountAsync(
                     k => k.RettskildeId == node.RettskildeId && k.NodeEid == node.Eid && k.StartOffset == start, ct);
 
-                // [Ny, issue #117; utvidet 2026-09-03 etter Johanns rapport om "beliggenheten"/
-                // "byggverket"] SNL/SSR-klassifisering (docs/31 §2) — se metodekommentaren over for
-                // hele resonnementet (gjenbruk av samme kjede/cache som SveipStorBokstavAsync).
-                // Opprinnelig scopet til KUN "virksomhet" — men "gruppe"-treff fra SuffiksMønsterets
-                // LITEN-forbokstav-gren er IKKE en lukket liste (samme åpne, produktive
-                // norsk-sammensetning-risiko som "virksomhet"-grenen, se ErSuffiksAvledetGruppe) og
-                // trenger derfor SAMME validering. "gruppe"-treff fra FasteGruppeMønster/
-                // FasteRollesubstantiv (Kongen, Stortinget, bøyningsformer av kommune/departement) er
-                // DERIMOT fortsatt en ekte lukket, hånd-kuratert liste — disse sendes IKKE til SNL/SSR
-                // (se ErSuffiksAvledetGruppe for skillet). KUN når posisjonen er NY (forAntall == 0) —
-                // unngår et unødvendig eksternt kall for en posisjon som allerede har en kandidat.
-                if (forAntall == 0 && (kategori == "virksomhet" || (kategori == "gruppe" && ErSuffiksAvledetGruppe(tekst))))
+                if (kategori == "gruppe")
                 {
-                    var behold = await BeholdSomKandidatAsync(tekst, node.Tekst!, start + lengde, ct);
-                    if (!behold) continue; // SSR-bekreftet geografisk løpetekst-referanse, ikke en institusjon.
-                }
-
-                await OpprettEllerFinnAsync(tekst, kategori, node.RettskildeId, node.Eid, start, start + lengde, opprettetAv, ct);
-                if (forAntall == 0)
-                {
-                    antallNyeKandidater++;
-                    if (kategori == "gruppe")
+                    // Faste rollesubstantiv — en lukket, hånd-kuratert liste, ALLTID korrekt som
+                    // "gruppe" per design (se klassekommentaren). Ingen klassifisering, opprett direkte.
+                    await OpprettEllerFinnAsync(tekst, "gruppe", node.RettskildeId, node.Eid, start, start + lengde, opprettetAv, ct);
+                    if (forAntall == 0)
                     {
+                        antallNyeKandidater++;
                         // Registrer umiddelbart, slik at en SENERE posisjon i samme sveip (samme
                         // rettskilde, samme normaliserte term) også blir korrekt gjenkjent som dekket.
                         if (!gruppeKandidatTermerPerRettskilde.TryGetValue(node.RettskildeId, out var settForRettskilde))
@@ -565,89 +553,86 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                         settForRettskilde.Add(tekst);
                     }
                 }
+                else
+                {
+                    // "virksomhet" fra flerords-mønsteret — HELE det fangede navnet sendes til
+                    // klassifisering i fase 2, se metodekommentaren.
+                    if (forAntall > 0) continue; // allerede en kandidat her — trenger ikke reklassifiseres.
+                    trengerKlassifisering.Add(new VentendeVirksomhetTreff(
+                        node, start, lengde, raaTekst, raaTekst.ToLowerInvariant(), start + lengde, OppdagelsesKilde: null));
+                }
             }
-        }
 
-        return new NavnekandidatSveipResultat(antallTreff, antallNyeKandidater);
-    }
-
-    /// <summary>
-    /// [Ny, docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md §5 punkt 2-3] Sveiper det NYE, brede
-    /// "stor bokstav midt i en setning"-mønsteret (<see cref="FinnStorBokstavKandidaterITekst"/>),
-    /// klassifisert mot SNL/SSR (<see cref="BeholdSomKandidatAsync"/>, docs/31 §2) — en HELT SEPARAT
-    /// metode fra <see cref="SveipAsync"/> (samme node-scoping, <see cref="HentSveipbareNoderAsync"/>,
-    /// men et uavhengig kjøretidspunkt/kall). Bevisst IKKE slått sammen med <see cref="SveipAsync"/> i
-    /// ett kall: docs/31 §6 ber EKSPLISITT om at et FØRSTE kall mot dette mønsteret skjer mot et
-    /// AVGRENSET delsett av korpuset (én/få rettskilder), ikke hele det importerte korpuset på én gang
-    /// — ingen av de to eksterne API-ene har dokumentert ratelimit, og et fullkorpussveip kan generere
-    /// svært mange unike SNL/SSR-oppslag. En egen metode/endepunkt gjør denne forsiktige, avgrensede
-    /// bruken enkel uten å risikere at noen ved en feil trigger den sammen med det etablerte,
-    /// veletablerte <see cref="SveipAsync"/>-sveipet.
-    /// <para>
-    /// <b>Overlapp med <see cref="SveipAsync"/> sine posisjoner er trygt</b> — samme
-    /// (RettskildeId, NodeEid, StartOffset)-idempotens som <see cref="OpprettEllerFinnAsync"/> allerede
-    /// garanterer uansett kilde/mønster: kjøres begge sveipene mot samme node, og begge mønstrene treffer
-    /// nøyaktig samme START-posisjon (f.eks. et suffiks-treff som "Miljødirektoratet", som òg er et
-    /// Title-case-ord), vinner den som kom FØRST — ingen duplikatrad, ingen krasj. Se også
-    /// <see cref="FasteRollesubstantivOrdSet"/>/<see cref="InstitusjonsordSet"/>/suffiks-sjekken i
-    /// <see cref="FinnStorBokstavKandidaterITekst"/> selv, som i tillegg proaktivt UNNGÅR å sende disse
-    /// allerede-dekkede posisjonene til et eksternt oppslag i utgangspunktet.
-    /// </para>
-    /// </summary>
-    public async Task<NavnekandidatSveipResultat> SveipStorBokstavAsync(Guid? rettskildeId, string opprettetAv, CancellationToken ct = default)
-    {
-        var noder = await HentSveipbareNoderAsync(rettskildeId, ct);
-
-        var antallTreff = 0;
-        var antallNyeKandidater = 0;
-        foreach (var node in noder)
-        {
-            foreach (var (start, lengde, raaTekst) in FinnStorBokstavKandidaterITekst(node.Tekst))
+            foreach (var (start, lengde, raaTekst) in FinnStorBokstavKandidaterITekst(node.Tekst!))
             {
+                if (!behandledeStartposisjoner.Add(start)) continue; // samme posisjon allerede dekket over.
+
+                if (virksomhetTermer.Contains(raaTekst)) continue; // allerede dekket av eksisterende Begrep.
+
                 antallTreff++;
-
-                // Samme idempotens-nøkkel som OpprettEllerFinnAsync — sjekket HER, FØR det eksterne
-                // SNL/SSR-oppslaget, for å unngå et helt unødvendig (kostbart, nettverksavhengig) kall
-                // for en posisjon som allerede har en kandidat (fra ETT ELLER ANNET tidligere sveip,
-                // uansett mønster/kilde).
-                var eksisterendeAntall = await db.Navnekandidater.CountAsync(
+                var forAntall = await db.Navnekandidater.CountAsync(
                     k => k.RettskildeId == node.RettskildeId && k.NodeEid == node.Eid && k.StartOffset == start, ct);
-                if (eksisterendeAntall > 0) continue;
+                if (forAntall > 0) continue;
 
-                var behold = await BeholdSomKandidatAsync(raaTekst, node.Tekst, start + lengde, ct);
-                if (!behold) continue; // SSR-bekreftet geografisk løpetekst-referanse — docs/31 §2 punkt 2.
-
-                await OpprettEllerFinnAsync(
-                    raaTekst, "virksomhet", node.RettskildeId, node.Eid, start, start + lengde, opprettetAv,
-                    ct, StorBokstavOppdagelsesKilde);
-                antallNyeKandidater++;
+                trengerKlassifisering.Add(new VentendeVirksomhetTreff(
+                    node, start, lengde, raaTekst, raaTekst.ToLowerInvariant(), start + lengde, StorBokstavOppdagelsesKilde));
             }
+        }
+
+        // ---------- Fase 2: klassifiser hvert unike navn nøyaktig én gang ----------
+        var klassifiseringPerTerm = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+        foreach (var treff in trengerKlassifisering)
+        {
+            if (klassifiseringPerTerm.ContainsKey(treff.NormalisertTerm)) continue;
+            klassifiseringPerTerm[treff.NormalisertTerm] =
+                await KlassifiserAsync(treff.RaaTekst, treff.Node.Tekst, treff.MatchSlutt, ct);
+        }
+
+        // ---------- Fase 3: materialiser ----------
+        foreach (var treff in trengerKlassifisering)
+        {
+            var erTreff = klassifiseringPerTerm[treff.NormalisertTerm];
+            await OpprettEllerFinnAsync(
+                treff.RaaTekst, "virksomhet", treff.Node.RettskildeId, treff.Node.Eid, treff.Start, treff.Start + treff.Lengde,
+                opprettetAv, ct, treff.OppdagelsesKilde, initialStatus: erTreff ? "Venter" : "Avvist");
+            antallNyeKandidater++; // forAntall==0 ble allerede bekreftet for denne posisjonen i fase 1.
         }
 
         return new NavnekandidatSveipResultat(antallTreff, antallNyeKandidater);
     }
 
     /// <summary>
-    /// docs/31 §2 — selve klassifiseringskjeden for ETT rått kandidattreff. Opprinnelig bygget KUN for
-    /// "stor bokstav midt i setning"-mønsteret (<see cref="SveipStorBokstavAsync"/>), gjenbrukt UENDRET
-    /// [Ny, issue #117] av <see cref="SveipAsync"/> for "virksomhet"-kandidater fra suffiks-/flerords-
-    /// mønstrene også — se den metodens kommentar for scoping/resonnement. Returnerer <c>true</c> hvis
-    /// kandidaten skal BEHOLDES:
+    /// docs/31 §2 — selve klassifiseringskjeden for ETT unikt kandidatnavn (kalt fra fase 2 i
+    /// <see cref="SveipAsync"/>, én gang per unikt navn i sveipet, se metodekommentaren der). Het
+    /// tidligere <c>BeholdSomKandidatAsync</c> og returnerte <c>bool Behold</c> ("skal raden i det hele
+    /// tatt opprettes"); heter nå <c>KlassifiserAsync</c> og returnerer <c>bool ErTreff</c> ("skal raden
+    /// opprettes som <c>Venter</c> (<c>true</c>) eller <c>Avvist</c> (<c>false</c>) — raden opprettes NÅ
+    /// ALLTID, se <see cref="SveipAsync"/>s fase 3).
+    /// <para>
+    /// <b>[Restrukturert, 2026-09-03] To-utfalls klassifisering, ikke tre</b> — Johanns instruks,
+    /// verbatim: «sjekker mot SSR og SNL. hvis treff i en tab og hvis hva som ble avvist i en annen
+    /// tab». Den gamle kjeden hadde en tredje, "ingen gjettet fallback"-gren (ukjent i BEGGE kildene →
+    /// behold som lav-tillit <c>"Venter"</c>-kandidat) — denne grenen er fjernet. Selve MATCH-LOGIKKEN
+    /// er ellers UENDRET fra før (se punktlisten under) — kun HVA hvert utfall BETYR er endret:
+    /// </para>
     /// <list type="number">
     /// <item>SNL-bekreftet institusjon (<see cref="EksternNavneoppslagTjeneste.SlaOppSnlAsync"/> gir
-    /// treff) — høy starttillit, positiv institusjonskandidat.</item>
-    /// <item>Ingen SNL-treff, MEN SSR-bekreftet stedsnavn MED et <see cref="Institusjonsord"/> RETT ETTER
-    /// i løpeteksten (<see cref="NesteOrdEtter"/>) — samme positive bekreftelsesrolle som når
-    /// <see cref="InstitusjonsordMønster"/> allerede finner "X kommune" et annet sted i klassen; SSR gir
-    /// en EKSTRA bekreftelse på at "X" er et reelt stedsnavn.</item>
-    /// <item>Ukjent i BEGGE (ingen SNL-treff, ingen SSR-treff) — lav-tillit, men IKKE forkastet ("ingen
-    /// gjettet fallback", samme filosofi som resten av mekanismen).</item>
+    /// treff) → <c>true</c> ("Venter") — høy starttillit, positiv institusjonskandidat.</item>
+    /// <item>Ingen SNL-treff, MEN SSR-bekreftet stedsnavn (<see cref="EksternNavneoppslagTjeneste.SlaOppSsrAsync"/>)
+    /// MED et <see cref="Institusjonsord"/> RETT ETTER i løpeteksten (<see cref="NesteOrdEtter"/>) →
+    /// <c>true</c> ("Venter") — samme positive bekreftelsesrolle som når <see cref="InstitusjonsordMønster"/>
+    /// allerede finner "X kommune" et annet sted i klassen; SSR gir en EKSTRA bekreftelse på at "X" er et
+    /// reelt stedsnavn. SSR-bekreftet stedsnavn UTEN institusjonsord rett etter → <c>false</c> ("Avvist")
+    /// — en ren geografisk løpetekst-referanse, ikke et institusjonsnavn. [Restrukturert, 2026-09-03]
+    /// Denne grenen opprettet TIDLIGERE ingen rad i det hele tatt (stille forkastet) — den oppretter nå
+    /// en <c>"Avvist"</c>-rad, se klassekommentaren.</item>
+    /// <item>Ukjent i BEGGE (ingen SNL-treff, ingen SSR-treff) → <c>false</c> ("Avvist").
+    /// [Restrukturert, 2026-09-03] Ga TIDLIGERE <c>true</c> ("ingen gjettet fallback" — behold som
+    /// lav-tillit) — gir nå <c>false</c>, se klassekommentaren for begrunnelsen (Johanns to-tabs-instruks
+    /// tillater ikke en tredje, ubestemt bøtte).</item>
     /// </list>
-    /// Returnerer <c>false</c> (FORKAST) KUN i det ene tilfellet spesifikasjonen faktisk ber om å
-    /// forkaste: SSR-bekreftet stedsnavn UTEN institusjonsord rett etter — en ren geografisk
-    /// løpetekst-referanse, ikke et institusjonsnavn.
     /// </summary>
-    private async Task<bool> BeholdSomKandidatAsync(string raaTekst, string tekst, int matchSlutt, CancellationToken ct)
+    private async Task<bool> KlassifiserAsync(string raaTekst, string tekst, int matchSlutt, CancellationToken ct)
     {
         var snl = await eksternOppslag.SlaOppSnlAsync(raaTekst, ct);
         if (snl.Treff) return true;
@@ -659,76 +644,37 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             return nesteOrd is not null && InstitusjonsordMønster.IsMatch(nesteOrd);
         }
 
-        return true; // ukjent i begge — lav-tillit, ikke forkastet.
+        return false; // ukjent i begge — se metodekommentaren, gir nå Avvist (ikke lenger "behold").
     }
 
     /// <summary>
-    /// [Ny, 2026-09-03] Skiller de TO strukturelt ulike kildene til en <c>"gruppe"</c>-kandidat, slik
-    /// <see cref="SveipAsync"/> kan avgjøre om SNL/SSR-validering trengs:
-    /// <list type="bullet">
-    /// <item><see cref="FasteGruppeMønster"/>/<see cref="FasteRollesubstantiv"/> — en LUKKET,
-    /// hånd-kuratert liste ("Kongen", "Stortinget", bøyningsformer av kommune/departement) —
-    /// ALLTID korrekt per design, trenger ALDRI SNL/SSR.</item>
-    /// <item><see cref="SuffiksMønster"/>s liten-forbokstav-gren — samme ÅPNE, produktive
-    /// norsk-sammensetning-regex som <c>"virksomhet"</c>-grenen (kun forskjell: stor/liten forbokstav)
-    /// — like utsatt for tilfeldige, ikke-institusjonelle sammensetninger som "beliggenheten"
-    /// ("belig" + "enheten") eller "byggverket" ("bygg" + "verket"), bekreftet i live data
-    /// (Johann, 03.09.2026) — trenger SAMME validering som "virksomhet".</item>
-    /// </list>
-    /// Ren tekstsjekk (ender kandidatteksten på et kjent suffiks?) — samme teknikk som
-    /// <see cref="VerketDenyliste"/>s egen sjekk, ikke en ny kildesporing i selve
-    /// <see cref="FinnKandidaterITekst"/>s returtype (som ville krevd en større omskriving for lite
-    /// gevinst, siden denne enkle etterprøvingen er tilstrekkelig presis: FasteRollesubstantiv-formene
-    /// slutter aldri tilfeldigvis på et Suffikser-ord).
-    /// </summary>
-    private static bool ErSuffiksAvledetGruppe(string kandidatTekst) =>
-        Suffikser.Any(s => kandidatTekst.EndsWith(s, StringComparison.OrdinalIgnoreCase));
-
-    /// <summary>
-    /// Ren, testbar funksjon uten DB-avhengighet — selve mønstergjenkjenningen (docs/13-backlog.md §9),
+    /// Ren, testbar funksjon uten DB-avhengighet — selve mønstergjenkjenningen for de TO gjenværende,
+    /// presise mønstrene (docs/13-backlog.md §9: faste juridisk-aktør-substantiv + flerords-institusjonsord),
     /// separert fra sveipets DB-orkestrering slik at klassifiseringslogikken kan enhetstestes direkte
     /// mot en tekststreng, uten en hel rettskilde-node/embedded Postgres.
     /// <para>
-    /// <b>"Midt i en setning"</b> (<see cref="ErSetningsstart"/>): et suffikstreff med STOR forbokstav
-    /// som er setningens FØRSTE ord telles IKKE som et egennavn (ambiguøst — kunne bare være vanlig
-    /// stor forbokstav ved setningsstart) og gir INGEN kandidat i det hele tatt (verken "virksomhet"
-    /// eller "gruppe") — det faller ikke tilbake til "gruppe", siden det fortsatt HAR stor forbokstav og
-    /// dermed ikke oppfyller "gruppe"-regelens "liten forbokstav"-vilkår heller. Bevisst redusert recall
-    /// for økt presisjon, som spesifisert.
+    /// [Restrukturert, 2026-09-03] Kjørte TIDLIGERE ETT TREDJE mønster her også — et hånd-kuratert
+    /// suffiksmønster (STOR forbokstav + kjent suffiks → <c>"virksomhet"</c>; LITEN forbokstav + kjent
+    /// suffiks → <c>"gruppe"</c>) — se klassekommentarens restruktureringsavsnitt for HVORFOR dette er
+    /// slettet (whack-a-mole-mønster fra en stadig voksende, aldri uttømmende ordliste). Konsekvensen:
+    /// et STOR-forbokstav-navn som "Miljødirektoratet" fanges IKKE lenger her — det fanges i stedet av
+    /// det brede stor-bokstav-mønsteret i <see cref="SveipAsync"/> (<see cref="FinnStorBokstavKandidaterITekst"/>)
+    /// og valideres strukturelt mot SNL/SSR. Et LITEN-forbokstav-navn som tidligere fikk suffiksmønsterets
+    /// "gruppe"-gren (f.eks. "havnetilsynet", "regelverket") gir nå <b>INGEN kandidat i det hele tatt</b>
+    /// — verken denne funksjonen (som aldri hadde noe treff for det) eller det brede mønsteret (som KUN
+    /// trigges på stor forbokstav) fanger det. Dette er en bevisst, dokumentert recall-reduksjon,
+    /// eksplisitt akseptert som del av restruktureringen (samme "presisjon foran uttømmende recall"-linje
+    /// klassen allerede fulgte for f.eks. "skole" alene) — IKKE noe som skal "fikses" ved å legge
+    /// suffiksmønsteret til igjen.
+    /// </para>
+    /// <para>
+    /// <b>"Midt i en setning"</b> (<see cref="ErSetningsstart"/>, videreført av <see cref="ErFlerordsKontekstTillatt"/>
+    /// for flerords-mønsteret): se de respektive metodekommentarene for presisjonsbegrunnelsen.
     /// </para>
     /// </summary>
     internal static List<(int Start, int Lengde, string Kategori)> FinnKandidaterITekst(string tekst)
     {
         var funnet = new List<(int, int, string)>();
-
-        foreach (Match m in SuffiksMønster.Matches(tekst))
-        {
-            // [Rettet, 2026-09-03] VerketDenyliste ble tidligere KUN sjekket i stor-forbokstav-grenen
-            // under (dvs. kun for "virksomhet"-kandidater) — men "regelverket"/"lovverket"/"avtaleverket"/
-            // "rammeverket" opptrer i praksis nesten ALLTID med liten forbokstav i løpende juridisk tekst
-            // ("i henhold til regelverket", "dette regelverket gjelder for …"), som havnet i
-            // "gruppe"-grenen UTEN noen denyliste-sjekk i det hele tatt. Bekreftet i live data
-            // (03.09.2026): 346 "regelverket"-kandidater med kategori="gruppe" alene, til tross for at
-            // ordet står EKSPLISITT i denylisten — fordi sjekken aldri kjørte for denne grenen. Flyttet
-            // hit, FØR store/små-bokstav-forgreningen, slik at denylisten gjelder BEGGE kategoriene.
-            var erDenylistetVerketSammensetning = VerketDenyliste.Any(
-                ord => m.Value.EndsWith(ord, StringComparison.OrdinalIgnoreCase));
-            if (erDenylistetVerketSammensetning) continue; // ingen kandidat i det hele tatt, verken kategori.
-
-            var forsteBokstav = tekst[m.Index];
-            if (char.IsUpper(forsteBokstav))
-            {
-                if (!ErSetningsstart(tekst, m.Index))
-                {
-                    funnet.Add((m.Index, m.Length, "virksomhet"));
-                }
-                // else: setningsstart (ambiguøst) — ingen kandidat.
-            }
-            else
-            {
-                funnet.Add((m.Index, m.Length, "gruppe"));
-            }
-        }
 
         foreach (Match m in FasteGruppeMønster.Matches(tekst))
         {
@@ -763,6 +709,22 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// eller mer enn ett bindeord — bør ikke kunne skje gitt filtreringen under, men sjekket eksplisitt
     /// for lesbarhet/defensivt) forkastes HELT i stedet for å bli kappet vilkårlig — ingen gjettet
     /// fallback for hvor navnet "egentlig" starter.
+    /// <para>
+    /// [Restrukturert, 2026-09-03] Hadde TIDLIGERE i tillegg et snevert genitiv-vern her («Finanstilsynets
+    /// tilsyn», «Oljedirektoratets tilsyn» — genitivsform AV en allerede navngitt institusjon, ikke et
+    /// navn på en NY institusjon, forkastet HELE treffet når ordet rett før institusjonsordet var [et
+    /// KJENT SUFFIKS-NAVN] + genitiv-"s"). Dette vernet avhang av det nå SLETTEDE suffiksmønsterets
+    /// ordliste (<c>Suffikser</c>) for å avgjøre hva som var "et kjent institusjonsnavn" — uten den
+    /// ordlisten finnes det ikke lenger noe strukturelt signal HER til å skille "Finanstilsynets" (ekte
+    /// genitiv av en institusjon) fra "Statens"/"Akershus" (ekte navn som tilfeldigvis ender på "s") uten
+    /// å gjeninnføre nøyaktig den typen hånd-kuraterte ordliste restruktureringen fjerner (se
+    /// klassekommentaren). Løsning: vernet er fjernet HERFRA — en genitivfrase som "Finanstilsynets
+    /// tilsyn" fanges nå som et <c>"virksomhet"</c>-treff av flerords-mønsteret, men blir i praksis
+    /// <c>"Avvist"</c> nedstrøms av <see cref="KlassifiserAsync"/> (SNL har ingen artikkel med
+    /// headword/alias "Finanstilsynets tilsyn") — presisjonen er FLYTTET til klassifiseringskjeden, ikke
+    /// tapt, og raden er nå synlig/revisjonsbar i stedet for stille forkastet FØR den i det hele tatt ble
+    /// et forslag.
+    /// </para>
     /// </summary>
     private static (int Start, int Lengde)? FinnEgennavnForanInstitusjonsord(string tekst, int institusjonsordStart)
     {
@@ -824,36 +786,14 @@ public sealed class NavnekandidatOppdagelseTjeneste(
 
         var forste = tokens[0];
         var siste = tokens[^1];
-
-        // [Ny, kodegjennomgang 2026-08-30] Genitiv-vern, SNEVER: forkast HELE treffet KUN når ordet
-        // rett før institusjonsordet er [ET KJENT SUFFIKS-NAVN, se Suffikser] + genitiv-"s" — f.eks.
-        // "Finanstilsynets"="Finanstilsynet"+"s", "Oljedirektoratets"="Oljedirektoratet"+"s" (avdekket
-        // av samme korpusomfattende testsveip: ga falske positiver som "Finanstilsynets tilsyn",
-        // "Arbeidstilsynets tilsyn", "Oljedirektoratets tilsyn" — genitivsform AV en ALLEREDE navngitt
-        // institusjon + institusjonsordet, betyr "tilsynet TIL X", ikke et navn på en NY institusjon).
-        // <b>Bevisst IKKE "et hvilket som helst ord som ender på s"</b> — det FØRSTE forsøket testet
-        // nettopp det og brøt STRAKS to av mønsterets egne, ekte positive treff: "Akershus
-        // fylkeskommune" (Akershus ender på "s" av rene etymologiske grunner, ikke genitiv) og "Statens
-        // vegvesen" ("Statens" ER den faktiske, offisielle stavemåten — ikke en genitivkonstruksjon AV
-        // noe annet navngitt). Snevret inn til KUN suffiks+s-mønsteret over — dekker ikke enhver
-        // tenkelig genitivkonstruksjon (f.eks. en forkortelse som "NVEs tilsyn" slipper fortsatt
-        // gjennom), men unngår den brede kollateralskaden det første forsøket ga.
         var sisteOrdSlutt = siste.Start + siste.Lengde;
-        var sisteOrdUtenGenitivS = tekst[sisteOrdSlutt - 1] is 's' or 'S'
-            ? tekst[siste.Start..(sisteOrdSlutt - 1)]
-            : null;
-        if (sisteOrdUtenGenitivS is not null
-            && Suffikser.Any(s => sisteOrdUtenGenitivS.EndsWith(s, StringComparison.OrdinalIgnoreCase)))
-        {
-            return null;
-        }
 
         return (forste.Start, sisteOrdSlutt - forste.Start);
     }
 
     /// <summary>
-    /// Presisjonsvernet for flerords-mønsteret (analogt <see cref="ErSetningsstart"/> for
-    /// suffiksmønsteret, men IKKE identisk — se hvorfor under). Tillatt kontekst:
+    /// Presisjonsvernet for flerords-mønsteret (analogt <see cref="ErSetningsstart"/> for det brede
+    /// stor-bokstav-mønsteret, men IKKE identisk — se hvorfor under). Tillatt kontekst:
     /// <list type="bullet">
     /// <item>Midt i en setning (samme sjekk som <see cref="ErSetningsstart"/> — ikke rett etter et
     /// setningsavsluttende tegn) — alltid tillatt.</item>
@@ -875,7 +815,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// ord i SIN EGEN node/setning, RETT FØR et institusjonsord — "For tilsyn med at reglene
     /// overholdes, skal …" og "Konkret tilsyn kan gjennomføres når …" ga begge falske
     /// "virksomhet"-kandidater ("For tilsyn", "Konkret tilsyn"), av nøyaktig samme grunn som
-    /// suffiksmønsterets <see cref="ErSetningsstart"/>-vern eksisterer i utgangspunktet: et institusjonsord
+    /// <see cref="ErSetningsstart"/>-vernet eksisterer i utgangspunktet: et institusjonsord
     /// rett etter er et sterkt signal på at INSTITUSJONSORDET er ekte, men sier INGENTING om hvorvidt
     /// ORDET FORAN det er et egennavn eller bare tilfeldigvis stor forbokstav ved en setningsåpning —
     /// nøyaktig den ambiguiteten <see cref="ErSetningsstart"/> allerede finnes for å luke ut andre steder
@@ -892,12 +832,11 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// som (som i FOR-2019-09-30-1310 §2) står bokstavelig som det ALLERFØRSTE i sin egen
     /// <c>RettskildeNode</c> — f.eks. "Østfold fylkeskommune: …" helt uten noen tekstlig liste-markør
     /// foran — fanges IKKE lenger av DETTE mønsteret (samme presisjon-foran-recall-avveining som resten
-    /// av klassen, se f.eks. <see cref="VerketDenyliste"/>/<see cref="ErSetningsstart"/>s tilsvarende,
-    /// aksepterte begrensninger). Bevisst, ikke stilltiende: flagget eksplisitt til Johann i PR-en for
-    /// issue #149 — et slikt navn kan fortsatt fanges via en AKN-import som beholder selve
-    /// liste-markøren i teksten (se <see cref="ErListePrefiksVedLinjestart"/>-grenen over, uendret), via
-    /// <see cref="SveipStorBokstavAsync"/>s "stor bokstav midt i setning"-mønster hvis navnet også
-    /// forekommer et annet, IKKE-setningsinnledende sted i korpuset, eller ved manuell gjennomgang.
+    /// av klassen). Bevisst, ikke stilltiende: flagget eksplisitt til Johann i PR-en for issue #149 — et
+    /// slikt navn kan fortsatt fanges via en AKN-import som beholder selve liste-markøren i teksten (se
+    /// <see cref="ErListePrefiksVedLinjestart"/>-grenen over, uendret), via det brede stor-bokstav-
+    /// mønsteret hvis navnet også forekommer et annet, IKKE-setningsinnledende sted i korpuset, eller ved
+    /// manuell gjennomgang.
     /// </para>
     /// </summary>
     private static bool ErFlerordsKontekstTillatt(string tekst, int index)
@@ -942,10 +881,18 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     }
 
     /// <summary>Idempotent — samme (rettskilde, node, START-posisjon) gir samme rad tilbake i stedet
-    /// for et duplikat, uansett status (samme mønster som <see cref="VirksomhetKandidatTjeneste.OpprettEllerFinnAsync"/>).</summary>
+    /// for et duplikat, uansett status (samme mønster som <see cref="VirksomhetKandidatTjeneste.OpprettEllerFinnAsync"/>).
+    /// <para>
+    /// [Ny, 2026-09-03] <paramref name="initialStatus"/> — default <c>"Venter"</c>, samme implisitte
+    /// standard som FØR denne parameteren fantes (alle eksisterende kallere er derfor uendret). Lagt til
+    /// for <see cref="SveipAsync"/>s to-utfalls klassifisering (se <see cref="KlassifiserAsync"/>):
+    /// et <c>"virksomhet"</c>-treff SNL/SSR ikke bekrefter skal opprettes DIREKTE med
+    /// <c>Status = "Avvist"</c> — synlig/revisjonsbart i køen, ikke stille forkastet FØR raden i det
+    /// hele tatt eksisterte. Validert mot samme lukkede statusmengde som resten av klassen bruker.
+    /// </para></summary>
     public async Task<NavnekandidatEntitet> OpprettEllerFinnAsync(
         string foreslattTekst, string kategori, Guid rettskildeId, string nodeEid, int startOffset, int endOffset,
-        string opprettetAv, CancellationToken ct = default, string? oppdagelsesKilde = null)
+        string opprettetAv, CancellationToken ct = default, string? oppdagelsesKilde = null, string initialStatus = "Venter")
     {
         var eksisterende = await db.Navnekandidater.FirstOrDefaultAsync(
             k => k.RettskildeId == rettskildeId && k.NodeEid == nodeEid && k.StartOffset == startOffset, ct);
@@ -954,6 +901,10 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         if (kategori is not ("virksomhet" or "gruppe"))
         {
             throw new ArgumentException($"Ukjent kategori '{kategori}'. Gyldige verdier: 'virksomhet', 'gruppe'.");
+        }
+        if (initialStatus is not ("Venter" or "Avvist"))
+        {
+            throw new ArgumentException($"Ugyldig initialStatus '{initialStatus}'. Gyldige verdier: 'Venter', 'Avvist'. Ingen gjettet fallback.");
         }
         var node = await db.RettskildeNoder.FirstOrDefaultAsync(n => n.RettskildeId == rettskildeId && n.Eid == nodeEid, ct);
         if (node is null)
@@ -975,7 +926,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             NodeEid = nodeEid,
             StartOffset = startOffset,
             EndOffset = endOffset,
-            Status = "Venter",
+            Status = initialStatus,
             OpprettetAv = opprettetAv,
             OpprettetTidspunkt = DateTimeOffset.UtcNow,
             OppdagelsesKilde = oppdagelsesKilde,
@@ -1036,6 +987,15 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// fallback"-vern), forblir kandidatens status <c>"Venter"</c> og feilen forplantes uendret —
     /// samme "ikke sett status før den faktiske handlingen lyktes"-prinsipp som
     /// <see cref="VirksomhetKandidatTjeneste.GodkjennAsync"/>.
+    /// <para>
+    /// [Ny, 2026-09-03] Kun rader med <c>Status == "Venter"</c> kan godkjennes (uendret vern, se under)
+    /// — en rad <see cref="SveipAsync"/> opprettet DIREKTE som <c>"Avvist"</c> (SNL/SSR bekreftet den
+    /// ikke, se <see cref="KlassifiserAsync"/>) kan derfor IKKE godkjennes her uten videre. Dette er en
+    /// reell, dokumentert begrensning (ingen "gjenåpne"-endepunkt finnes i denne runden) — en
+    /// saksbehandler som er UENIG i en automatisk avvisning kan slette raden (<see cref="SlettAsync"/>,
+    /// fungerer uansett status) og eventuelt legge navnet til manuelt via den eksisterende
+    /// navneform-tilleggsflyten. Ikke løst her — utenfor denne restruktureringens scope.
+    /// </para>
     /// <para>
     /// <b>[Ny, tekst-tagg-departement-eierskap, 2026-08-31] Ekte <see cref="TekstTaggEntitet"/> for
     /// BEGGE kategorier:</b> Johanns eksplisitte designvalg — et gruppebegrep/navneform funnet her er
@@ -1208,5 +1168,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
 /// de som allerede fantes som kandidat fra et tidligere sveip, eller som ble filtrert bort fordi de
 /// allerede er dekket av et eksisterende Begrep — se <see cref="NavnekandidatOppdagelseTjeneste.SveipAsync"/>
 /// for at "dekket"-filtreringen skjer FØR denne telles opp, altså telles et dekket treff IKKE med her),
-/// <see cref="AntallNyeKandidater"/> kun de som faktisk ble en NY rad i køen denne kjøringen.</summary>
+/// <see cref="AntallNyeKandidater"/> kun de som faktisk ble en NY rad i køen denne kjøringen — uavhengig
+/// av om den nye raden ble opprettet som <c>"Venter"</c> eller <c>"Avvist"</c> (se
+/// <see cref="NavnekandidatOppdagelseTjeneste.KlassifiserAsync"/>).</summary>
 public sealed record NavnekandidatSveipResultat(int AntallTreffFunnet, int AntallNyeKandidater);

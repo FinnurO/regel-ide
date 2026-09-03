@@ -168,3 +168,54 @@ hele tatt.
 - **Berikelse ved lesetidspunkt** (`RegelIde.Api`s `BerikNavnekandidaterAsync`) er utvidet FRA "kun rader
   med `OppdagelsesKilde == StorBokstavOppdagelsesKilde`" TIL "alle `Kategori == 'virksomhet'`-rader" —
   samme cache-tabell kan nå ha treff for en kandidat uansett hvilket mønster som oppdaget den.
+
+## 8. [Ny, restrukturert 2026-09-03] Suffiksmønsteret droppet, ett samlet sveip, to-utfalls klassifisering
+
+Etter §7 fulgte en dag med rask, gjentatt patching av suffiksmønsteret (PR #188/#189 — "regelverket"
+slapp fortsatt gjennom, "beliggenheten"/"byggverket" ble nye falske positiver fra et suffiks nettopp
+lagt til, "Nasjonalarkivet"/"merkenemnd" ble oversett til enda et suffiks ble lagt til). Johann ga
+deretter en eksplisitt, endelig arkitekturinstruks i stedet for enda en patch, verbatim: «Jeg vil at du
+tar alle ting som starter med stor bokstav, unntatt som første ord, samler de opp og sjekker mot SSR og
+SNL. hvis treff i en tab og hvis hva som ble avvist i en annen tab» — presisert til: «kommer i tillegg
+til faste mønstre/roller. men dropp suffiks, men behold flerords logikken, vi må sende over hele navnet.»
+
+Endringene (se `NavnekandidatOppdagelseTjeneste`s klassekommentar for den fulle, kodenære
+begrunnelsen):
+
+1. **Suffiksmønsteret ER SLETTET** — `SuffiksMønster`/`Suffikser`/`VerketDenyliste`/`ErSuffiksAvledetGruppe`
+   finnes ikke lenger. En liten-forbokstav-forekomst som tidligere fikk suffiksmønsterets "gruppe"-gren
+   (f.eks. "regelverket"/"havnetilsynet") gir nå INGEN kandidat i det hele tatt — en bevisst, dokumentert
+   recall-reduksjon (strukturelt umulig å reprodusere `VerketDenyliste`s ~540 polluterte "gruppe"-rader
+   fra denne veien lenger, se punkt 5 under).
+2. **Faste gruppe-/rollesubstantiv-mønsteret og flerords-mønsteret er UENDRET** (§7s "behold flerords
+   logikken" — HELE det fangede navnet sendes fortsatt til klassifisering, ikke bare et fragment).
+3. **`SveipStorBokstavAsync` er slått sammen inn i `SveipAsync`** — ETT, samlet sveip dekker faste
+   mønstre + flerords + det brede stor-bokstav-mønsteret. §6s opprinnelige forsiktighet (kjør først mot
+   et avgrenset delsett siden ingen av API-ene har dokumentert ratelimit) er erstattet av en
+   samle-så-klassifiser-struktur (se punkt 4) i stedet for fjernet stille.
+4. **Samle-så-klassifiser, ikke klassifiser-per-posisjon**: sveipet er nå tre faser — (a) én rask,
+   nettverksfri fase samler ALLE rå kandidatforekomster fra hele korpuset/rettskilden og anvender
+   eksisterende DB-dedup, (b) én fase klassifiserer HVERT UNIKE navn (case-insensitivt) NØYAKTIG ÉN gang
+   i denne kjøringen (nytt, in-memory memoiserings-dictionary — i tillegg til, ikke i stedet for, den
+   eksisterende databasecachen), (c) én fase materialiserer én rad per samlet forekomst.
+5. **To-utfalls klassifisering, ikke tre**: `BeholdSomKandidatAsync` (nå `KlassifiserAsync`) hadde en
+   "ingen gjettet fallback"-standard der "ukjent i begge kilder" ble BEHOLDT som en lav-tillit
+   `"Venter"`-kandidat. Under Johanns to-tabs-instruks blir "ukjent i begge" og "SSR-bekreftet stedsnavn
+   UTEN institusjonsord rett etter" nå i stedet `"Avvist"` DIREKTE ved opprettelse — men raden opprettes
+   FORTSATT (synlig/revisjonsbar i UI-ets eksisterende status-filter), IKKE lenger stille forkastet slik
+   SSR-uten-institusjonsord-grenen gjorde før. SNL-bekreftelse (og SSR-bekreftelse MED institusjonsord
+   rett etter, uendret fra §2 punkt 2) gir fortsatt `"Venter"`.
+6. **DB-opprydding**: ~540 `Status='Venter'`, `Kategori='gruppe'`-rader produsert av det nå slettede
+   suffiksmønsteret (matchende `VerketDenyliste`s fire ord + deres produktive sammensetninger, f.eks.
+   "fiskeriregelverket", "kvalifikasjonsrammeverket") ble slettet fra dev-databasen én gang ved denne
+   restruktureringen — ren historisk støy som aldri kan gjenskapes av den nye arkitekturen.
+
+**[Ny, funnet under live-verifisering av denne restruktureringen]** `EksternNavneoppslagTjeneste`s
+SNL-matchelogikk hadde en reell, live bekreftet bug UAVHENGIG av selve navnekandidat-arkitekturen: en
+artikkel-JSON har toppnivåfeltet `title`, IKKE `headword` som koden antok (verifisert mot
+`Miljødirektoratet`/`Nasjonalarkivet`/`Den Norske Advokatforening` sine faktiske, levende
+`.json`-endepunkt), OG `metadata.organization_name` mangler HELT for rene statlige etater/direktorater
+(kun bekreftet til stede for foreningstypen "Den Norske Advokatforening"). Et SNL-bekreftet treff ble
+derfor i praksis ALDRI gjenkjent for den vanligste institusjonstypen dette sveipet leter etter — rettet
+i samme PR (se `SlaOppSnlAsync`s metodekommentar), siden §5s "SNL hit → Venter"-gren ellers ville vært
+strukturelt dødt kode live, selv om selve navnekandidat-restruktureringen over var korrekt bygget.
