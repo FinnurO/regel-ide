@@ -110,6 +110,36 @@ public class RettskildeHjemmelImportTests
         Assert.Equal(0, antall);
     }
 
+    /// <summary>
+    /// [Ny, 2026-09-04] Bekreftet ekte, live: "Instruks om utstedelse av sertifikater for levende dyr og
+    /// animalske næringsmidler mv." parses til to Hjemmel-treff med NØYAKTIG samme Eid — uten
+    /// deduplisering kastet <c>SaveChangesAsync</c> en <c>PostgresException</c> (23505,
+    /// <c>ux_rettskilde_hjemler_rettskilde_id_hjemmel_eid</c>), som veltet HELE importen av dokumentet
+    /// (ingen av dets øvrige felt — inkl. <c>AnsvarligDepartement</c> — ble lagret heller, siden hele
+    /// transaksjonen rulles tilbake). Konstruerer scenarioet direkte via <c>with</c> (dupliserer et ekte
+    /// Hjemmel-treff fra alkoholforskriften) i stedet for en ny fixture-fil — samme duplikat-ELEMENT,
+    /// ikke bare duplikat-VERDI, siden det er (RettskildeId, Eid)-PARET som er den faktiske
+    /// unikhetsnøkkelen.
+    /// </summary>
+    [Fact]
+    public async Task Duplikat_hjemmel_eid_i_samme_dokument_lagres_kun_en_gang_uten_a_kaste()
+    {
+        const string datokodeSuffiks = "2097-09-24-745";
+
+        await using var db = _fixture.NyDbContext();
+        var tjeneste = new RettskildeImportTjeneste(db);
+        var resultat = LovdataKonverterer.Konverter(
+            LesAlkoholforskriftMedIsolertHjemmel(datokodeSuffiks, "2098-04-14-904"), new DateOnly(2026, 8, 30));
+        Assert.True(resultat.Hjemler.Count > 0); // forutsetning for at duplisering under er meningsfull.
+        var medDuplikat = resultat with { Hjemler = [.. resultat.Hjemler, resultat.Hjemler[0]] };
+
+        var forskriftId = await tjeneste.ImporterAsync(medDuplikat);
+
+        var hjemler = await db.RettskildeHjemler.Where(h => h.RettskildeId == forskriftId).ToListAsync();
+        Assert.Equal(resultat.Hjemler.Count, hjemler.Count); // ikke 21+1 — duplikatet ble filtrert bort.
+        Assert.Equal(hjemler.Select(h => h.HjemmelEid).Distinct().Count(), hjemler.Count); // ingen duplikate Eid-er lagret.
+    }
+
     [Fact]
     public async Task Hjemmelrekkefolge_bevares_i_lagrede_rader()
     {
