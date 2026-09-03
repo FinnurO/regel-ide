@@ -115,6 +115,21 @@ public class NavnekandidatOppdagelseTjenesteTests
     }
 
     /// <summary>
+    /// [Ny, 2026-09-03] Regresjonstest: "arkivet"/"arkiv" manglet helt fra Suffikser/Institusjonsord.
+    /// Johann rapporterte at "Nasjonalarkivet" (LOV-2025-06-20-96 § 4, 31 forekomster) ikke ble
+    /// oppdaget — samme klasse hull som "utvalget"/"enheten" (issue #150 del 1).
+    /// </summary>
+    [Fact]
+    public void Arkivet_suffiks_fanger_nasjonalarkivet()
+    {
+        const string tekst = "Når Nasjonalarkivet ber om det, skal organa uhindra av teieplikt gi opplysningar.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+        var treff = Assert.Single(funn);
+        Assert.Equal("virksomhet", treff.Kategori);
+        Assert.Equal("Nasjonalarkivet", tekst.Substring(treff.Start, treff.Lengde));
+    }
+
+    /// <summary>
     /// [Ny, issue #150 del 1] "utvalget"/"enheten" manglet helt fra <see cref="NavnekandidatOppdagelseTjeneste"/>s
     /// suffikslister — Johann forventet vesentlig flere forslag i navnekandidat-køen (eksemplifisert med
     /// "EOS-utvalget"/"PNR-enheten", selve bindestrek-forkortelsen er bevisst IKKE dekket her, se

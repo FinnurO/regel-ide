@@ -135,12 +135,26 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// "PNR-enheten"</b> — bindestreken bryter dette mønsterets sammenhengende ord-regex
     /// (<c>\b\p{L}[\p{L}]*(?:…)\b</c>), se issue #150 del 2 (bevisst IKKE bygget her — krever et helt
     /// nytt, fjerde mønster, et produktbeslutning-spørsmål til Johann).
+    /// </para>
+    /// <para>
+    /// [Ny, 2026-09-03] "arkivet" lagt til — Johann rapporterte at "Nasjonalarkivet" (Lov om
+    /// dokumentasjon og arkiv, LOV-2025-06-20-96 § 4, 31 forekomster i teksten) ikke ble oppdaget.
+    /// "arkivet"/"arkiv" manglet HELT fra begge ordlistene, samme klasse hull som "utvalget"/"enheten"
+    /// over — dekker også fremtidige "Riksarkivet"/"Statsarkivet"-lignende navn.
+    /// </para>
+    /// <para>
+    /// [Ny, 2026-09-03] "nemnd" (UBESTEMT form) lagt til — kun "nemnda"/"nemnden" (BESTEMT form) fantes
+    /// fra før. Johann bekreftet et konkret, reelt tapt tilfelle: FOR-2011-06-21-617 § 9 ledd 2 bruker
+    /// "merkenemnd" (ubestemt), til forskjell fra de tre andre reindrifts-rettskildene i samme klynge
+    /// (LOV-2007-06-15-40, FOR-2022-08-29-1504, FOR-2008-07-04-791) som alle bruker bestemt form og
+    /// derfor allerede ble fanget. Samme "flere bøyningsformer av samme stamme"-begrunnelse som
+    /// FasteRollesubstantiv allerede bruker for kommune/departement/statsforvalter.
     /// </para></summary>
     private static readonly string[] Suffikser =
     [
-        "tilsynet", "direktoratet", "nemnda", "nemnden",
+        "tilsynet", "direktoratet", "nemnda", "nemnden", "nemnd",
         "domstolen", "ombudet", "verket", "etaten", "banken",
-        "utvalget", "enheten",
+        "utvalget", "enheten", "arkivet",
     ];
 
     /// <summary>
@@ -257,7 +271,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     private static readonly string[] Institusjonsord =
     [
         "fylkeskommune", "kommune", "direktorat", "tilsyn", "departement", "fylkesmannsembete", "vegvesen",
-        "fagskole", "høyskole", "høgskole", "høgskule", "universitet", "barnehage", "utvalg", "enhet",
+        "fagskole", "høyskole", "høgskole", "høgskule", "universitet", "barnehage", "utvalg", "enhet", "arkiv",
     ];
 
     private static readonly Regex InstitusjonsordMønster = new(
