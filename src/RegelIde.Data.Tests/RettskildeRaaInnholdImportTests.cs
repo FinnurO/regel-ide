@@ -172,6 +172,52 @@ public class RettskildeRaaInnholdImportTests
     }
 
     [Fact]
+    public async Task Uendret_reimport_bakfyller_de_ti_resterende_metadatafeltene_og_retter_feil_ansvarligDepartement()
+    {
+        // Issue #127 (10 nye felt) + issue #152 (AnsvarligDepartement-sammenlimingsbug) — begge deler
+        // samme "Uendret-grenen backfiller ALLTID fra fersk parsing"-mekanisme som del B-feltene over
+        // (samme test-scenario, se den forrige testens kommentar).
+        var html = LesIsolertAlkoholloven(NyIsolertDatokode());
+
+        await using var db = _fixture.NyDbContext();
+        var tjeneste = new RettskildeImportTjeneste(db);
+        var forsteId = await tjeneste.ImporterAsync(LovdataKonverterer.Konverter(html, new DateOnly(2026, 9, 2)));
+
+        // Simuler en rad importert med (a) den gamle parseren, som ALDRI fylte ut de ti nye feltene, og
+        // (b) den bekreftede #152-bugen -- et AnsvarligDepartement som ble feilaktig sammenlimt uten
+        // skilletegn ved en tidligere import (rammer aldri alkoholloven selv, kun et flere-departement-
+        // dokument -- men Uendret-grenen skal rette VERDIEN uansett hva den tilfeldigvis var før).
+        var rad = await db.Rettskilder.SingleAsync(r => r.Id == forsteId);
+        rad.Kunngjort = null;
+        rad.Rettsomrade = null;
+        rad.EuEosHenvisning = null;
+        rad.DokumentId = null;
+        rad.RefId = null;
+        rad.GjelderFor = null;
+        rad.Etat = null;
+        rad.PublisertI = null;
+        rad.AnnetOmDokumentet = null;
+        rad.SisteRettelse = null;
+        rad.AnsvarligDepartement = "EtSammenlimtFeilNavnSomAldriSkalOverleveEnResynk";
+        await db.SaveChangesAsync();
+
+        var resynkResultat = await tjeneste.ImporterMedUtfallAsync(
+            LovdataKonverterer.Konverter(html, new DateOnly(2026, 9, 3)));
+        Assert.Equal(RettskildeImportUtfall.Uendret, resynkResultat.Utfall);
+
+        var etterResynk = await db.Rettskilder.SingleAsync(r => r.Id == forsteId);
+        // Kun de feltene alkoholloven-fixturen FAKTISK har (se ResterendeMetadatafeltKonverteringTests
+        // sin klassekommentar for hvilke 6 av 10 det er) forventes non-null her.
+        Assert.NotNull(etterResynk.DokumentId);
+        Assert.NotNull(etterResynk.EuEosHenvisning);
+        Assert.NotNull(etterResynk.Rettsomrade);
+        Assert.NotNull(etterResynk.SisteRettelse);
+        Assert.NotNull(etterResynk.AnnetOmDokumentet);
+        Assert.NotNull(etterResynk.RefId);
+        Assert.Equal("Helse- og omsorgsdepartementet", etterResynk.AnsvarligDepartement);
+    }
+
+    [Fact]
     public async Task InnholdsHash_er_deterministisk_for_samme_html()
     {
         var html = LesIsolertAlkoholloven(NyIsolertDatokode());

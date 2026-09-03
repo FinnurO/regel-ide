@@ -89,6 +89,40 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 eksisterende.IkrafttredelseRaa = m.IkrafttredelseRaa;
                 eksisterende.KonsolidertDatoRaa = m.KonsolidertDatoRaa;
                 eksisterende.SistEndretVed = m.SistEndretVed;
+                // §152: (re)backfiller ALLTID fra den ferskt parsede metadataen, ikke bare når NULL fra
+                // før — den tidligere sammenslåingsbugen kan ha skrevet en feil (sammenlimt) verdi inn
+                // allerede, og en rad med feil verdi ville ellers aldri blitt rettet av en vanlig resynk.
+                eksisterende.AnsvarligDepartement = m.AnsvarligDepartement;
+                // [Ny, 2026-09-03, issue #127] — samme "backfill selv når uendret AKN"-begrunnelse som
+                // feltene over: disse 10 feltene fantes ikke da de fleste rader sist gikk gjennom denne
+                // metodens Ny/NyVersjon-gren, og AknXml (sammenligningsgrunnlaget for "uendret" rett
+                // over) inneholder INGEN av dem — uten denne backfillen ville de aldri blitt fylt ut for
+                // et allerede importert, tekstlig uendret dokument, uansett hvor mange ganger det resynkes.
+                eksisterende.Kunngjort = m.Kunngjort;
+                eksisterende.Rettsomrade = m.Rettsomrade;
+                eksisterende.EuEosHenvisning = m.EuEosHenvisning;
+                eksisterende.DokumentId = m.DokumentId;
+                eksisterende.RefId = m.RefId;
+                eksisterende.GjelderFor = m.GjelderFor;
+                eksisterende.Etat = m.Etat;
+                eksisterende.PublisertI = m.PublisertI;
+                eksisterende.AnnetOmDokumentet = m.AnnetOmDokumentet;
+                eksisterende.SisteRettelse = m.SisteRettelse;
+
+                // [Ny, 2026-09-03, issue #159] Hjemmel/Endring (RettskildeHjemmelEntitet/
+                // RettskildeEndringEntitet) settes KUN inn i SettInnNoderOgReferanserAsync, som denne
+                // "uendret AKN"-grenen bevisst IKKE kaller (den grenen regenererer aldri noder — §2.1).
+                // Men AknXml (sammenligningsgrunnlaget for "uendret" over) inneholder ALDRI hjemmel-/
+                // endringsinformasjon (AknXmlSkriver skriver ingen av delene) — en rettskilde hvis
+                // Hjemler/Endringer-parsing ble lagt til/rettet ETTER dokumentets siste Ny/NyVersjon-
+                // import ville derfor ALDRI fått dem satt inn, uansett hvor mange ganger den resynkes
+                // (bekreftet ekte, issue #159: 0 av 24 stikkprøvde "Lov om endringer"-dokumenter hadde
+                // noen endringer-rad til tross for at Lovdatas egen HTML for et av dem bekreftet
+                // inneholder et korrekt parsbart <dt class="changesToDocuments">). Idempotent og trygt å
+                // gjøre ubetinget her: kun når raden IKKE allerede har noen (unngår duplikater ved
+                // gjentatte resynker av en rad som allerede fikk sine hjemler/endringer satt inn via en
+                // ordinær Ny/NyVersjon-import).
+                await BackfillHjemlerOgEndringerAsync(eksisterende.Id, resultat, ct);
                 await db.SaveChangesAsync(ct);
 
                 // allerede importert, ingen reell endring — ikke dupliser (§2.1)
@@ -121,6 +155,16 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             eksisterende.SistEndretVed = m.SistEndretVed;
             eksisterende.Utgiver = m.Utgiver;
             eksisterende.AnsvarligDepartement = m.AnsvarligDepartement;
+            eksisterende.Kunngjort = m.Kunngjort;
+            eksisterende.Rettsomrade = m.Rettsomrade;
+            eksisterende.EuEosHenvisning = m.EuEosHenvisning;
+            eksisterende.DokumentId = m.DokumentId;
+            eksisterende.RefId = m.RefId;
+            eksisterende.GjelderFor = m.GjelderFor;
+            eksisterende.Etat = m.Etat;
+            eksisterende.PublisertI = m.PublisertI;
+            eksisterende.AnnetOmDokumentet = m.AnnetOmDokumentet;
+            eksisterende.SisteRettelse = m.SisteRettelse;
             eksisterende.Status = m.Status;
             // Del B (2026-09-02) — stubben har aldri hatt ekte HTML før nå (den ble opprettet av
             // FinnEllerOpprettReferanseStubAsync, uten Innhold), så dette er FØRSTE gang disse feltene
@@ -160,6 +204,16 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 SistEndretVed = m.SistEndretVed,
                 Utgiver = m.Utgiver,
                 AnsvarligDepartement = m.AnsvarligDepartement,
+                Kunngjort = m.Kunngjort,
+                Rettsomrade = m.Rettsomrade,
+                EuEosHenvisning = m.EuEosHenvisning,
+                DokumentId = m.DokumentId,
+                RefId = m.RefId,
+                GjelderFor = m.GjelderFor,
+                Etat = m.Etat,
+                PublisertI = m.PublisertI,
+                AnnetOmDokumentet = m.AnnetOmDokumentet,
+                SisteRettelse = m.SisteRettelse,
                 Status = m.Status,
                 Url = m.Eli,
                 Innhold = innholdNy,
@@ -245,12 +299,23 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             });
         }
 
-        // Hjemmel (2026-08-30, docs-kommentar RettskildeHjemmelEntitet) — DOKUMENTNIVÅ, ikke per-node
-        // som referansene over, derfor ingen FraNodeId-oppslag her. Samme stub-mekanisme som eksterne
-        // løpetekst-referanser: en lov som ikke (ennå) er importert får en referanse-stub opprettet
-        // (eller gjenbrukt), akkurat som FinnEllerOpprettReferanseStubAsync allerede gjør over — ingen
-        // egen, andre-gjettet kobling (§3.3) noe sted i denne stien.
-        foreach (var h in resultat.Hjemler)
+        // Hjemmel/Endring — se de to dedikerte metodene under (utledet ut i egne metoder 2026-09-03,
+        // issue #159, slik at RettskildeImportTjeneste.ImporterMedUtfallAsync sin "uendret AKN"-gren
+        // også kan kalle dem, se BackfillHjemlerOgEndringerAsync).
+        await SettInnHjemlerAsync(rettskildeId, resultat.Hjemler, ct);
+        await SettInnEndringerAsync(rettskildeId, resultat.Endringer, ct);
+    }
+
+    /// <summary>
+    /// Hjemmel (2026-08-30, docs-kommentar RettskildeHjemmelEntitet) — DOKUMENTNIVÅ, ikke per-node som
+    /// løpetekst-referansene, derfor ingen FraNodeId-oppslag her. Samme stub-mekanisme som eksterne
+    /// løpetekst-referanser: en lov som ikke (ennå) er importert får en referanse-stub opprettet (eller
+    /// gjenbrukt), akkurat som FinnEllerOpprettReferanseStubAsync allerede gjør — ingen egen,
+    /// andre-gjettet kobling (§3.3) noe sted i denne stien.
+    /// </summary>
+    private async Task SettInnHjemlerAsync(Guid rettskildeId, IReadOnlyList<RettskildeHjemmel> hjemler, CancellationToken ct)
+    {
+        foreach (var h in hjemler)
         {
             var hjemmelRettskildeId = await FinnEllerOpprettReferanseStubAsync(h.Eid, ct);
             db.RettskildeHjemler.Add(new RettskildeHjemmelEntitet
@@ -262,11 +327,16 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 Sorteringsrekkefolge = h.Sorteringsrekkefolge,
             });
         }
+    }
 
-        // Endring (2026-09-02, docs-kommentar RettskildeEndringEntitet) — DOKUMENTNIVÅ, semantisk
-        // MOTSATT av Hjemmel over (denne rettskilden ENDRER target, ikke hjemlet i target), men
-        // NØYAKTIG samme stub-mekanisme.
-        foreach (var end in resultat.Endringer)
+    /// <summary>
+    /// Endring (2026-09-02, docs-kommentar RettskildeEndringEntitet) — DOKUMENTNIVÅ, semantisk MOTSATT
+    /// av Hjemmel over (denne rettskilden ENDRER target, ikke hjemlet i target), men NØYAKTIG samme
+    /// stub-mekanisme.
+    /// </summary>
+    private async Task SettInnEndringerAsync(Guid rettskildeId, IReadOnlyList<RettskildeEndring> endringer, CancellationToken ct)
+    {
+        foreach (var end in endringer)
         {
             var endringRettskildeId = await FinnEllerOpprettReferanseStubAsync(end.Eid, ct);
             db.RettskildeEndringer.Add(new RettskildeEndringEntitet
@@ -277,6 +347,27 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 EndringRettskildeId = endringRettskildeId,
                 Sorteringsrekkefolge = end.Sorteringsrekkefolge,
             });
+        }
+    }
+
+    /// <summary>
+    /// [Ny, 2026-09-03, issue #159] Backfiller Hjemler/Endringer for en rettskilde hvis "uendret AKN"-
+    /// gren i <see cref="ImporterMedUtfallAsync"/> tok — se kallstedets kommentar for hvorfor dette er
+    /// den ENESTE veien disse noensinne blir satt inn for en rad som ble Ny/NyVersjon-importert FØR
+    /// Hjemmel-/Endring-parsingen fantes eller hadde en bug som hindret et konkret treff. Betinget på
+    /// "ingen eksisterende rader ennå" (ikke ubetinget alltid-slett-og-sett-inn-på-nytt): en rad som
+    /// allerede FIKK sine hjemler/endringer satt inn via en ordinær import skal ikke få dem duplisert
+    /// ved en senere, uendret resynk.
+    /// </summary>
+    private async Task BackfillHjemlerOgEndringerAsync(Guid rettskildeId, KonverteringResultat resultat, CancellationToken ct)
+    {
+        if (resultat.Hjemler.Count > 0 && !await db.RettskildeHjemler.AnyAsync(h => h.RettskildeId == rettskildeId, ct))
+        {
+            await SettInnHjemlerAsync(rettskildeId, resultat.Hjemler, ct);
+        }
+        if (resultat.Endringer.Count > 0 && !await db.RettskildeEndringer.AnyAsync(e => e.RettskildeId == rettskildeId, ct))
+        {
+            await SettInnEndringerAsync(rettskildeId, resultat.Endringer, ct);
         }
     }
 
@@ -310,6 +401,16 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             SistEndretVed = m.SistEndretVed,
             Utgiver = m.Utgiver,
             AnsvarligDepartement = m.AnsvarligDepartement,
+            Kunngjort = m.Kunngjort,
+            Rettsomrade = m.Rettsomrade,
+            EuEosHenvisning = m.EuEosHenvisning,
+            DokumentId = m.DokumentId,
+            RefId = m.RefId,
+            GjelderFor = m.GjelderFor,
+            Etat = m.Etat,
+            PublisertI = m.PublisertI,
+            AnnetOmDokumentet = m.AnnetOmDokumentet,
+            SisteRettelse = m.SisteRettelse,
             Status = m.Status,
             Url = m.Eli,
             Innhold = innholdNyVersjon,

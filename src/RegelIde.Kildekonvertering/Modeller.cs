@@ -131,6 +131,43 @@ public sealed record RettskildeMetadata
     public required string FrbrAuthorShowAs { get; init; }
 
     public string Status { get; init; } = "Gjeldende";
+
+    // ---------- [Ny, 2026-09-03, issue #127] De resterende 10 av 15 bekreftede Lovdata header-
+    // metadatafelt (<dt class="…">) som til nå ALDRI ble fanget — kun 4 av de gjenstående feltene
+    // (IkrafttredelseRaa/KonsolidertDatoRaa/SistEndretVed/Endringer) ble bygget i forrige runde, i strid
+    // med Johanns eksplisitte, gjentatte instruks om å lagre/vise ALLE metadata Lovdata oppgir. Alle
+    // nullable: fravær er forventet for enhver kildetype/dokument uten det aktuelle feltet i kilde-HTML-
+    // en («ingen gjettet fallback», §3.3) — se LovdataHtmlParser.ParseMetadata for hvordan de leses.
+
+    /// <summary>Header-feltet <c>&lt;dt class="dateOfPublication"&gt;Kunngjort&lt;/dt&gt;</c> — rå tekst (typisk "åååå-MM-dd TT:mm").</summary>
+    public string? Kunngjort { get; init; }
+
+    /// <summary>Header-feltet <c>&lt;dt class="legalArea"&gt;Rettsområde&lt;/dt&gt;</c> — kan ha flere verdier (§ HentSammensattTekst).</summary>
+    public string? Rettsomrade { get; init; }
+
+    /// <summary>Header-feltet <c>&lt;dt class="eeaReferences"&gt;EU/EØS-henvisning&lt;/dt&gt;</c> — rik, flerlinjes tekst (§ HentSammensattTekst).</summary>
+    public string? EuEosHenvisning { get; init; }
+
+    /// <summary>Header-feltet <c>&lt;dt class="dokid"&gt;DokumentID&lt;/dt&gt;</c> — Lovdatas interne dokument-id (f.eks. "NL/lov/2013-06-21-63"), distinkt fra <see cref="Datokode"/>/<see cref="Eli"/>.</summary>
+    public string? DokumentId { get; init; }
+
+    /// <summary>Header-feltet <c>&lt;dt class="refid"&gt;RefID&lt;/dt&gt;</c>.</summary>
+    public string? RefId { get; init; }
+
+    /// <summary>Header-feltet <c>&lt;dt class="appliesTo"&gt;Gjelder for&lt;/dt&gt;</c> (typisk "Norge").</summary>
+    public string? GjelderFor { get; init; }
+
+    /// <summary>Header-feltet <c>&lt;dt class="subunit"&gt;Etat&lt;/dt&gt;</c> — kan ha flere verdier, samme struktur som <see cref="AnsvarligDepartement"/> (§ HentSammensattTekst).</summary>
+    public string? Etat { get; init; }
+
+    /// <summary>Header-feltet <c>&lt;dt class="publishedIn"&gt;Publisert i&lt;/dt&gt;</c> (typisk "I 2012 hefte 4").</summary>
+    public string? PublisertI { get; init; }
+
+    /// <summary>Header-feltet <c>&lt;dt class="miscInformation"&gt;Annet om dokumentet&lt;/dt&gt;</c> — rik, flerlinjes fritekst (§ HentSammensattTekst).</summary>
+    public string? AnnetOmDokumentet { get; init; }
+
+    /// <summary>Header-feltet <c>&lt;dt class="lastupdated"&gt;Siste rettelse&lt;/dt&gt;</c>.</summary>
+    public string? SisteRettelse { get; init; }
 }
 
 /// <summary>

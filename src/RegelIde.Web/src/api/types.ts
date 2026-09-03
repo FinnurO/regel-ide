@@ -55,6 +55,31 @@ export interface RettskildeDetalj {
   konsolidertDatoRaa: string | null;
   /** [Ny, 2026-09-02] Lovdatas header-felt "Sist endret ved" — rå tekst, ikke en strukturert kobling. */
   sistEndretVed: string | null;
+  // ---------- [Ny, 2026-09-03, issue #127] De resterende 10 av 15 bekreftede Lovdata header-
+  // metadatafelt. NULL for alt som ikke er Lovdata-importert Lov/Forskrift, samme mønster som
+  // ansvarligDepartement over.
+  /** Header-feltet "Kunngjort" (dateOfPublication). */
+  kunngjort: string | null;
+  /** Header-feltet "Rettsområde" (legalArea) — kan ha flere verdier, skilt med ", ". */
+  rettsomrade: string | null;
+  /** Header-feltet "EU/EØS-henvisning" (eeaReferences) — kan ha flere linjer, skilt med linjeskift. */
+  euEosHenvisning: string | null;
+  /** Header-feltet "DokumentID" (dokid) — Lovdatas interne dokument-id, distinkt fra eli. */
+  dokumentId: string | null;
+  /** Header-feltet "RefID" (refid). */
+  refId: string | null;
+  /** Header-feltet "Gjelder for" (appliesTo, typisk "Norge"). */
+  gjelderFor: string | null;
+  /** Header-feltet "Etat" (subunit) — kan ha flere verdier, skilt med ", ". */
+  etat: string | null;
+  /** Header-feltet "Publisert i" (publishedIn). */
+  publisertI: string | null;
+  /** Header-feltet "Annet om dokumentet" (miscInformation) — kan ha flere linjer, skilt med linjeskift. */
+  annetOmDokumentet: string | null;
+  /** Header-feltet "Siste rettelse" (lastupdated). */
+  sisteRettelse: string | null;
+  /** [Ny, 2026-09-03, issue #131] true når RettskildeEntitet.Innhold (rå kilde-HTML) er lagret — styrer om «Vis kilde»-knappen vises. */
+  harKilde: boolean;
 }
 
 export interface RettskildeNodeDto {

@@ -106,6 +106,57 @@ public class RettskildeEndringImportTests
     }
 
     [Fact]
+    public async Task Uendret_reimport_backfiller_endringsrader_som_manglet_fra_en_tidligere_import()
+    {
+        // Issue #159 — bekreftet ekte: 0 av 24 stikkprøvde "Lov om endringer"-dokumenter hadde noen
+        // endringer-rad i den delte dev-databasen, TIL TROSS for at Lovdatas egen HTML for et av dem
+        // (barnevernloven-endringsloven, eli/lov/2013/06/21/63) bekreftet inneholder et korrekt
+        // parsbart <dt class="changesToDocuments">. Rotårsak: SettInnNoderOgReferanserAsync (der
+        // Hjemler/Endringer settes inn) kalles KUN fra Ny/ForfremmetStub/NyVersjon-grenene — en rad
+        // hvis AknXml er bit-identisk ved en senere resynk («Uendret») fikk ALDRI disse satt inn, fordi
+        // AknXml (sammenligningsgrunnlaget) ikke inneholder hjemmel-/endringsinformasjon i det hele
+        // tatt (AknXmlSkriver skriver ingen av delene). Simulert her ved å SLETTE endringsraden en
+        // ordinær import nettopp satte inn (samme "rader fra FØR mekanismen fantes"-idé som del B-
+        // testene over) og verifisere at en bit-identisk reimport bakfyller den.
+        var egenDatokode = NyIsolertDatokode();
+        var maalDatokode = NyIsolertDatokode();
+        var maalEli = LovdataIdentifikatorer.AvledEliFraDatokode(maalDatokode, out _);
+        // Forenklet til ETT mål (ikke to, som den andre testen i denne klassen bruker) — kun
+        // backfill-mekanismen testes her, ikke selve multi-verdi-parsingen (dekket av
+        // Import_lagrer_endringsrader_og_oppretter_stub_for_uimportert_endret_dokument over).
+        var html = Testdata.LesAlkoholloven()
+            .Replace("LOV-1989-06-02-27", egenDatokode)
+            .Replace(
+                "<dd class=\"changesToDocuments\"><ul><li><a href=\"lov/1927-04-05\">lov/1927-04-05</a></li>" +
+                "<li><a href=\"lov/1900-05-31-5\">lov/1900-05-31-5</a></li></ul></dd>",
+                $"<dd class=\"changesToDocuments\"><ul><li><a href=\"lov/{maalDatokode[4..]}\">x</a></li></ul></dd>");
+
+        await using var db = _fixture.NyDbContext();
+        var tjeneste = new RettskildeImportTjeneste(db);
+        var forsteId = await tjeneste.ImporterAsync(LovdataKonverterer.Konverter(html, new DateOnly(2026, 9, 2)));
+
+        var forImport = await db.RettskildeEndringer.CountAsync(e => e.RettskildeId == forsteId);
+        Assert.Equal(1, forImport); // sanity — importen satte den inn som forventet (den kjente, allerede fungerende stien).
+
+        db.RettskildeEndringer.RemoveRange(db.RettskildeEndringer.Where(e => e.RettskildeId == forsteId));
+        await db.SaveChangesAsync();
+        Assert.Equal(0, await db.RettskildeEndringer.CountAsync(e => e.RettskildeId == forsteId));
+
+        var resynkResultat = await tjeneste.ImporterMedUtfallAsync(
+            LovdataKonverterer.Konverter(html, new DateOnly(2026, 9, 3)));
+        Assert.Equal(RettskildeImportUtfall.Uendret, resynkResultat.Utfall);
+
+        var etterResynk = await db.RettskildeEndringer.Where(e => e.RettskildeId == forsteId).ToListAsync();
+        Assert.Single(etterResynk);
+        Assert.Equal(maalEli, etterResynk[0].EndringEid);
+
+        // Idempotent -- en ANDRE bit-identisk resynk skal IKKE duplisere raden (kun backfilles når
+        // tabellen faktisk er tom for denne rettskilden, se BackfillHjemlerOgEndringerAsync).
+        await tjeneste.ImporterMedUtfallAsync(LovdataKonverterer.Konverter(html, new DateOnly(2026, 9, 4)));
+        Assert.Equal(1, await db.RettskildeEndringer.CountAsync(e => e.RettskildeId == forsteId));
+    }
+
+    [Fact]
     public async Task Dokument_uten_changesToDocuments_innhold_lagrer_ingen_endringsrader()
     {
         var egenDatokode = NyIsolertDatokode();

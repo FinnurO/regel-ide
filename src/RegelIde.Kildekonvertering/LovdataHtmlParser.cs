@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 using System.Text.RegularExpressions;
 using HtmlAgilityPack;
 
@@ -179,18 +180,26 @@ public static partial class LovdataHtmlParser
     {
         // Eksakt klassematch, ikke contains(): Lovdatas "title" og "titleShort" er begge egne
         // dd-klasser der den ene er en delstreng av den andre — contains() ville plukket feil felt.
+        //
+        // BEGGE varianter (HentFelt/HentValgfritt) henter nå den SAMMENSATTE teksten via
+        // HentSammensattTekst i stedet for rått .InnerText.Trim() (issue #152/#127, 2026-09-03) —
+        // se den metodens doc-kommentar for hvorfor et rått InnerText-kall er en bekreftet
+        // datakorrupsjonsbug for ethvert felt Lovdata strukturerer som en liste eller med
+        // <br/>-linjeskift internt (103 av 5899 rettskilder hadde flere departementsnavn limt sammen
+        // uten skilletegn, f.eks. "Landbruks- og matdepartementetNærings- og fiskeridepartementet").
         string HentFelt(string cssClass) =>
-            header.SelectSingleNode($".//dd[@class='{cssClass}']")?.InnerText.Trim()
-                ?? throw new FormatException($"Påkrevd metadatafelt '{cssClass}' mangler i header. Ingen gjettet fallback (§3.3).");
+            header.SelectSingleNode($".//dd[@class='{cssClass}']") is { } dd
+                ? HentSammensattTekst(dd)
+                : throw new FormatException($"Påkrevd metadatafelt '{cssClass}' mangler i header. Ingen gjettet fallback (§3.3).");
 
         string? HentValgfritt(string cssClass) =>
-            header.SelectSingleNode($".//dd[@class='{cssClass}']")?.InnerText.Trim();
+            header.SelectSingleNode($".//dd[@class='{cssClass}']") is { } dd ? HentSammensattTekst(dd) : null;
 
         var datokode = HtmlEntity.DeEntitize(HentFelt("legacyID"));
         var eli = LovdataIdentifikatorer.AvledEliFraDatokode(datokode, out var kildetype);
         var tittel = HtmlEntity.DeEntitize(HentFelt("title"));
-        var kortnavn = HentValgfritt("titleShort") is { } kn ? HtmlEntity.DeEntitize(kn) : null;
-        var departement = HtmlEntity.DeEntitize(HentFelt("ministry"));
+        var kortnavn = HentValgfritt("titleShort");
+        var departement = HentFelt("ministry");
 
         // Rå (utrunkert) verdi bevart ved siden av den trunkerte DateOnly? (§ IkrafttredelseRaa/
         // KonsolidertDatoRaa i Modeller.cs) — FørsteDato beholder kun FØRSTE dato-treff, som stille
@@ -203,7 +212,21 @@ public static partial class LovdataHtmlParser
 
         // Nytt felt (2026-09-02) — "Sist endret ved", ikke fanget før nå. Rå tekst (typisk en lenkes
         // synlige tekst, f.eks. "lov/2024-06-21-46") — se SistEndretVed sin doc-kommentar.
-        var sistEndretVed = HentValgfritt("lastChangedBy") is { } sev ? HtmlEntity.DeEntitize(sev) : null;
+        var sistEndretVed = HentValgfritt("lastChangedBy");
+
+        // [Ny, 2026-09-03, issue #127] De resterende 10 av 15 bekreftede header-metadatafelt — se
+        // RettskildeMetadata sin doc-kommentar for hva hver enkelt betyr/hvor de er bekreftet ekte
+        // (full gjennomgang av data/kilder/raw-lovdata/ + tre live-hentede dokumenter 2026-09-03).
+        var kunngjort = HentValgfritt("dateOfPublication");
+        var rettsomrade = HentValgfritt("legalArea");
+        var euEosHenvisning = HentValgfritt("eeaReferences");
+        var dokumentId = HentValgfritt("dokid");
+        var refId = HentValgfritt("refid");
+        var gjelderFor = HentValgfritt("appliesTo");
+        var etat = HentValgfritt("subunit");
+        var publisertI = HentValgfritt("publishedIn");
+        var annetOmDokumentet = HentValgfritt("miscInformation");
+        var sisteRettelse = HentValgfritt("lastupdated");
 
         var (frbrAuthorHref, frbrAuthorShowAs) = kildetype == Kildetype.Lov
             ? ("stortinget", "Stortinget")
@@ -224,7 +247,79 @@ public static partial class LovdataHtmlParser
             AnsvarligDepartement = departement,
             FrbrAuthorHref = frbrAuthorHref,
             FrbrAuthorShowAs = frbrAuthorShowAs,
+            Kunngjort = kunngjort,
+            Rettsomrade = rettsomrade,
+            EuEosHenvisning = euEosHenvisning,
+            DokumentId = dokumentId,
+            RefId = refId,
+            GjelderFor = gjelderFor,
+            Etat = etat,
+            PublisertI = publisertI,
+            AnnetOmDokumentet = annetOmDokumentet,
+            SisteRettelse = sisteRettelse,
         };
+    }
+
+    /// <summary>
+    /// Henter teksten til et header-metadatafelts <c>&lt;dd&gt;</c>-node, korrekt for de TO bekreftede
+    /// ekte "flere verdier i ett felt"-strukturene Lovdata bruker (§152, full HTML-gjennomgang
+    /// 2026-09-03 av et bekreftet berørt dokument, cbe34f67-a029-4bb3-861e-c825e596a585) — i stedet for
+    /// et rått <c>.InnerText.Trim()</c>-kall, som stille limer sammen flere verdier UTEN skilletegn
+    /// (bekreftet ekte datakorrupsjon: 103 av 5899 rettskilder fikk
+    /// "Landbruks- og matdepartementetNærings- og fiskeridepartementet" i stedet for to atskilte navn).
+    /// <para>
+    /// 1) <c>&lt;dd&gt;&lt;ul&gt;&lt;li&gt;verdi1&lt;/li&gt;&lt;li&gt;verdi2&lt;/li&gt;&lt;/ul&gt;&lt;/dd&gt;</c>
+    /// — bekreftet ekte for "ministry"/"subunit"/"legalArea" (ALLTID en liste, selv med kun étt
+    /// element — se fixture-korpuset i data/kilder/raw-lovdata/, ingen av de 8 har en bar streng her).
+    /// Hvert &lt;li&gt; sin egen InnerText hentes og skilletegnes med ", ".
+    /// </para>
+    /// <para>
+    /// 2) Et enkelt &lt;dd&gt; med &lt;br/&gt;-elementer som logiske linjeskift internt — bekreftet ekte
+    /// for "miscInformation"/"eeaReferences" (f.eks. "…(i kraft 7 april 2020).&lt;br/&gt;&lt;strong&gt;
+    /// Endret&lt;/strong&gt; ved …" — INGEN mellomrom mellom punktum og &lt;br/&gt;, samme rå-sammen-
+    /// limings-bug som ministry-feltet ville gitt her også). &lt;br/&gt; skrives eksplisitt om til et
+    /// linjeskift FØR tekstnodene rundt konkateneres, i stedet for InnerText (som ignorerer &lt;br/&gt;
+    /// som om den ikke fantes).
+    /// </para>
+    /// <para>
+    /// Et felt uten NOEN av disse to strukturene (det store flertallet — enkle ett-verdi-felt som
+    /// "title"/"dokid"/"refid" osv.) faller trygt tilbake til (2)-løypa, som for et &lt;dd&gt; uten
+    /// &lt;br/&gt;-barn i det hele tatt er bit-identisk med et rått InnerText-kall — ingen atferdsendring
+    /// for disse.
+    /// </para>
+    /// </summary>
+    private static string HentSammensattTekst(HtmlNode dd)
+    {
+        var ul = dd.SelectSingleNode("./ul");
+        if (ul is not null)
+        {
+            var verdier = (ul.SelectNodes("./li") ?? Enumerable.Empty<HtmlNode>())
+                .Select(li => HtmlEntity.DeEntitize(li.InnerText).Trim())
+                .Where(v => v.Length > 0);
+            return string.Join(", ", verdier);
+        }
+
+        var deler = new List<string>();
+        var gjeldende = new StringBuilder();
+        void FlushGjeldende()
+        {
+            var trimmet = gjeldende.ToString().Trim();
+            if (trimmet.Length > 0) deler.Add(KollapsDobleMellomrom(trimmet));
+            gjeldende.Clear();
+        }
+        foreach (var barn in dd.ChildNodes)
+        {
+            if (barn.Name == "br")
+            {
+                FlushGjeldende();
+            }
+            else
+            {
+                gjeldende.Append(HtmlEntity.DeEntitize(barn.InnerText));
+            }
+        }
+        FlushGjeldende();
+        return string.Join("\n", deler);
     }
 
     /// <summary>
