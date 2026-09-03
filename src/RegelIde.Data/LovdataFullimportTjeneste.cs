@@ -111,7 +111,7 @@ public sealed class LovdataFullimportTjeneste(
                 // kunne velte runden videre dersom NOE uventet skjer med den også.
                 try
                 {
-                    await importstatusTjeneste.OppdaterAsync(datokode, type, tittel, eli, importert: false, rettskildeId: null, ex.Message, ct);
+                    await importstatusTjeneste.OppdaterAsync(datokode, type, tittel, eli, importert: false, rettskildeId: null, BeskrivFeilKjede(ex), ct);
                 }
                 catch (Exception statusEx) when (statusEx is not OperationCanceledException)
                 {
@@ -129,5 +129,27 @@ public sealed class LovdataFullimportTjeneste(
         }
 
         return new LovdataFullimportResultat(nye, nyeVersjoner, uendret, feilet, totalt);
+    }
+
+    /// <summary>
+    /// [Ny, 2026-09-04] `ex.Message` ALENE er ubrukelig for EF Cores <c>DbUpdateException</c> — den sier
+    /// alltid bare "An error occurred while saving the entity changes. See the inner exception for
+    /// details." uansett faktisk årsak (bekreftet ekte: en <c>DbUpdateException</c> under dagens resynk
+    /// ble lagret med akkurat denne tomme teksten i <c>lovdata_importstatus.feilmelding</c>, mens den
+    /// FAKTISKE Postgres-feilen — synlig live i konsoll-loggen via <c>_logger.LogWarning(ex, ...)</c> over
+    /// — aldri kom med i den PERSISTERTE feilmeldingen, og dermed var uigjenkallelig tapt så snart
+    /// konsollens ring-buffer rullet forbi). Kjeder ALLE <see cref="Exception.InnerException"/>-nivåer inn
+    /// i én streng, slik at den ekte rotårsaken (f.eks. et Postgres-CHECK-/FK-brudd) er synlig i
+    /// «Kjøre-historikk»/importstatus-visningen selv lenge etter at kjøringen er ferdig, ikke bare i et
+    /// forbigående konsollvindu.
+    /// </summary>
+    private static string BeskrivFeilKjede(Exception ex)
+    {
+        var deler = new List<string>();
+        for (var nivå = (Exception?)ex; nivå is not null; nivå = nivå.InnerException)
+        {
+            deler.Add(nivå.Message);
+        }
+        return string.Join(" → ", deler);
     }
 }

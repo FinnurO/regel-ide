@@ -954,14 +954,28 @@ public sealed class NavnekandidatOppdagelseTjeneste(
 
     /// <summary>Full liste, valgfritt filtrert på status og/eller kategori. <paramref name="status"/> =
     /// <c>null</c> betyr ALLE statuser (samme eksplisitte "ingen stille standard"-mønster som
-    /// <see cref="VirksomhetKandidatTjeneste.ListerAsync"/>).</summary>
+    /// <see cref="VirksomhetKandidatTjeneste.ListerAsync"/>).
+    /// <paramref name="behandletAutomatisk"/> [Ny, 2026-09-04] — skiller "Avvist"-status i to reelt ulike
+    /// ting (Johann: «Avvist er jo noe man aktivt gjør som person. Avvist (automatisk) er jo noe helt
+    /// annet»): <c>true</c> = KUN rader ingen menneske har rørt (<see cref="NavnekandidatEntitet.BehandletAv"/>
+    /// tom — SNL/SSR-klassifiseringen avviste den selv ved sveip, se <c>OpprettEllerFinnAsync</c>),
+    /// <c>false</c> = KUN rader en saksbehandler faktisk avviste manuelt (BehandletAv satt), <c>null</c>
+    /// (standard) = ingen filtrering på dette — uendret oppførsel. Meningsløs (men ufarlig, gir bare et
+    /// tomt resultat) utenfor status="Avvist" — BehandletAv settes ALDRI ved Godkjenn (kun ved Avvis, se
+    /// Godkjenn-/Avvis-handlerne), så en "Venter"/"Godkjent"-rad har uansett aldri BehandletAv=null vs.
+    /// satt som et meningsfullt skille.</summary>
     public Task<List<NavnekandidatEntitet>> ListerAsync(
-        string? status = null, string? kategori = null, Guid? rettskildeId = null, CancellationToken ct = default)
+        string? status = null, string? kategori = null, Guid? rettskildeId = null, bool? behandletAutomatisk = null,
+        CancellationToken ct = default)
     {
         var spørring = db.Navnekandidater.AsQueryable();
         if (status is not null) spørring = spørring.Where(k => k.Status == status);
         if (kategori is not null) spørring = spørring.Where(k => k.Kategori == kategori);
         if (rettskildeId is not null) spørring = spørring.Where(k => k.RettskildeId == rettskildeId);
+        if (behandletAutomatisk is { } automatisk)
+        {
+            spørring = automatisk ? spørring.Where(k => k.BehandletAv == null) : spørring.Where(k => k.BehandletAv != null);
+        }
         return spørring.OrderBy(k => k.RettskildeId).ThenBy(k => k.NodeEid).ThenBy(k => k.StartOffset).ToListAsync(ct);
     }
 
@@ -1151,12 +1165,20 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// slik at klienten kan bekrefte at det faktiske antallet stemte med det som ble varslet før kallet.
     /// </summary>
     public async Task<int> SlettAlleAsync(
-        string? status = null, string? kategori = null, Guid? rettskildeId = null, CancellationToken ct = default)
+        string? status = null, string? kategori = null, Guid? rettskildeId = null, bool? behandletAutomatisk = null,
+        CancellationToken ct = default)
     {
         var spørring = db.Navnekandidater.AsQueryable();
         if (status is not null) spørring = spørring.Where(k => k.Status == status);
         if (kategori is not null) spørring = spørring.Where(k => k.Kategori == kategori);
         if (rettskildeId is not null) spørring = spørring.Where(k => k.RettskildeId == rettskildeId);
+        // Samme "Avvist automatisk vs. manuelt"-skille som ListerAsync (2026-09-04) — UTEN dette ville
+        // "Slett alle" på f.eks. "Avvist automatisk"-fanen stille også slettet manuelt avviste rader den
+        // ikke viser, siden begge deler samme underliggende Status="Avvist".
+        if (behandletAutomatisk is { } automatisk)
+        {
+            spørring = automatisk ? spørring.Where(k => k.BehandletAv == null) : spørring.Where(k => k.BehandletAv != null);
+        }
         var rader = await spørring.ToListAsync(ct);
         db.Navnekandidater.RemoveRange(rader);
         await db.SaveChangesAsync(ct);

@@ -725,6 +725,47 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal("Avvist", (await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId)).Status);
     }
 
+    /// <summary>
+    /// [Ny, 2026-09-04, issue "Avvist (automatisk)"] Johann: «Avvist er jo noe man aktivt gjør som
+    /// person. Avvist (automatisk) er jo noe helt annet.» — <see cref="NavnekandidatOppdagelseTjeneste.ListerAsync"/>s
+    /// nye <c>behandletAutomatisk</c>-parameter må faktisk skille de to: en "virksomhet"-kandidat uten
+    /// SNL/SSR-treff opprettes DIREKTE som Status="Avvist" med <see cref="NavnekandidatEntitet.BehandletAv"/>
+    /// ALDRI satt (se <c>KlassifiserAsync</c>/<c>OpprettEllerFinnAsync</c>), mens en "gruppe"-kandidat en
+    /// saksbehandler eksplisitt avviser via <see cref="NavnekandidatOppdagelseTjeneste.AvvisAsync"/> FÅR
+    /// BehandletAv satt — begge lander på nøyaktig samme Status="Avvist", kun BehandletAv skiller dem.
+    /// </summary>
+    [Fact]
+    public async Task ListerAsync_behandletAutomatisk_skiller_SNL_SSR_selv_avvist_fra_manuelt_avvist()
+    {
+        await using var db = _fixture.NyDbContext();
+        var autoRettskildeId = await OpprettRettskildeMedNodeAsync(
+            db, "Vedtak kan påklages til Utlendingsdirektoratet innen tre uker.");
+        var manueltRettskildeId = await OpprettRettskildeMedNodeAsync(db, "Klage sendes til Departementet innen tre uker.");
+
+        var tjeneste = NyTjeneste(db); // "ingen treff i SNL/SSR"-stub — se NyTjeneste sin doc-kommentar.
+        await tjeneste.SveipAsync(autoRettskildeId, "test");
+        var autoAvvist = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == autoRettskildeId);
+        Assert.Equal("Avvist", autoAvvist.Status);
+        Assert.Null(autoAvvist.BehandletAv); // aldri rørt av et menneske
+
+        await tjeneste.SveipAsync(manueltRettskildeId, "test");
+        var venterKandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == manueltRettskildeId);
+        await tjeneste.AvvisAsync(venterKandidat.Id, "Kari Jurist");
+
+        var automatiske = await tjeneste.ListerAsync(status: "Avvist", behandletAutomatisk: true);
+        Assert.Contains(automatiske, k => k.Id == autoAvvist.Id);
+        Assert.DoesNotContain(automatiske, k => k.Id == venterKandidat.Id);
+
+        var manuelle = await tjeneste.ListerAsync(status: "Avvist", behandletAutomatisk: false);
+        Assert.Contains(manuelle, k => k.Id == venterKandidat.Id);
+        Assert.DoesNotContain(manuelle, k => k.Id == autoAvvist.Id);
+
+        // Uten behandletAutomatisk-filteret: begge med, samme "Avvist"-status.
+        var alleAvvist = await tjeneste.ListerAsync(status: "Avvist");
+        Assert.Contains(alleAvvist, k => k.Id == autoAvvist.Id);
+        Assert.Contains(alleAvvist, k => k.Id == venterKandidat.Id);
+    }
+
     [Fact]
     public async Task Kaster_hvis_rettskilden_ikke_finnes()
     {
@@ -941,6 +982,34 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal(1, antallSlettet);
         Assert.False(await db.Navnekandidater.AnyAsync(k => k.Id == virksomhetKandidat.Id));
         Assert.True(await db.Navnekandidater.AnyAsync(k => k.Id == gruppeKandidat.Id)); // urørt.
+    }
+
+    /// <summary>[Ny, 2026-09-04] Uten <c>behandletAutomatisk</c>-filteret i SlettAlleAsync ville "Slett
+    /// alle" på f.eks. "Avvist automatisk"-fanen i UI-et stille også slettet den manuelt avviste raden
+    /// den ikke engang viser — begge deler Status="Avvist". Samme scenario-oppsett som ListerAsync-testen
+    /// over.</summary>
+    [Fact]
+    public async Task SlettAlleAsync_behandletAutomatisk_rammer_kun_den_ene_undertypen()
+    {
+        await using var db = _fixture.NyDbContext();
+        var autoRettskildeId = await OpprettRettskildeMedNodeAsync(
+            db, "Vedtak kan påklages til Utlendingsdirektoratet innen tre uker.");
+        var manueltRettskildeId = await OpprettRettskildeMedNodeAsync(db, "Klage sendes til Departementet innen tre uker.");
+        var tjeneste = NyTjeneste(db);
+        await tjeneste.SveipAsync(autoRettskildeId, "test");
+        var autoAvvist = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == autoRettskildeId);
+        await tjeneste.SveipAsync(manueltRettskildeId, "test");
+        var venterKandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == manueltRettskildeId);
+        await tjeneste.AvvisAsync(venterKandidat.Id, "Kari Jurist");
+
+        // rettskildeId-scoping her (samme mønster som SlettAlleAsync_med_statusfilter_...-testen over) —
+        // DB-en er DELT mellom alle tester i denne samlingen, så uten dette ville behandletAutomatisk:true
+        // også truffet ethvert annet auto-avvist "virksomhet"-funn fra ANDRE tester i samme kjøring.
+        var antallSlettet = await tjeneste.SlettAlleAsync(status: "Avvist", rettskildeId: autoRettskildeId, behandletAutomatisk: true);
+
+        Assert.Equal(1, antallSlettet);
+        Assert.False(await db.Navnekandidater.AnyAsync(k => k.Id == autoAvvist.Id));
+        Assert.True(await db.Navnekandidater.AnyAsync(k => k.Id == venterKandidat.Id)); // manuelt avvist, urørt.
     }
 
     [Fact]
