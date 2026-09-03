@@ -222,6 +222,38 @@ export interface OpprettVirksomhetRequest {
   overordnetEnhetId: string | null;
 }
 
+/**
+ * [Ny, issue #157] Oversikt over ALT som rammes av en kaskadesletting av virksomheten — grunnlaget for
+ * bekreftelsesdialogen FØR selve `DELETE /api/virksomheter/{id}?bekreft=true`-kallet. Se
+ * `GET /api/virksomheter/{id}/slett-oversikt`.
+ */
+export interface VirksomhetSlettOversiktDto {
+  virksomhetId: string;
+  virksomhetNavn: string;
+  tjenester: number;
+  rettskilder: number;
+  begreper: number;
+  navneformer: number;
+  brukere: number;
+  myndighetstildelinger: number;
+  virksomhetKandidater: number;
+  virksomhetRelasjoner: number;
+  virksomhetNettsider: number;
+  kodelister: number;
+  datasett: number;
+  vilkar: number;
+  regelnoder: number;
+  unntak: number;
+  vilkarstreKommentarer: number;
+  tekstTagger: number;
+  hendelser: number;
+  kunnskapsbibliotekLenker: number;
+  kunnskapsbibliotekFiler: number;
+  underliggendeVirksomheter: number;
+  tekstTaggerMedPublisertReferanse: number;
+  kanSlettes: boolean;
+}
+
 /** [Ny, 2026-08-29, docs/13-backlog.md §9] Ett søketreff fra Brønnøysundregisterets Enhetsregister —
  * se GET /api/virksomheter/brreg-sok. */
 export interface BrregEnhetDto {
