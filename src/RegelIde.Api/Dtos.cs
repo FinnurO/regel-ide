@@ -56,18 +56,31 @@ public sealed record RettskildeSammendrag(
 /// <see cref="RettskildeEntitet"/> for hva de er. Fantes på entiteten siden [Ny, 2026-09-02]-runden men var
 /// ikke eksponert på denne DTO-en før nå.
 /// </summary>
+/// <summary>
+/// <paramref name="Kunngjort"/> gjennom <paramref name="SisteRettelse"/> (2026-09-03, issue #127) — de
+/// resterende 10 av 15 bekreftede Lovdata header-metadatafelt, se de likelydende feltene på
+/// <see cref="RettskildeEntitet"/>/<see cref="RegelIde.Kildekonvertering.RettskildeMetadata"/> for hva
+/// hver enkelt betyr. NULL for alt som ikke er Lovdata-importert Lov/Forskrift, samme mønster som
+/// <see cref="AnsvarligDepartement"/>.
+/// </summary>
 public sealed record RettskildeDetalj(
     Guid Id, Guid? VirksomhetId, string Doctype, string Kildetype, string Tittel, string? Kortnavn, string? Eli,
     DateOnly? Ikrafttredelse, DateOnly? KonsolidertDato, string? Utgiver, string? AnsvarligDepartement, string Status,
     string? AknXml, string? InterntDokNr, string? Revisjonsnr, string? VedtattAv, DateOnly? Vedtaksdato,
     DateOnly? GyldigTil, string? Url, Guid? AnsvarligDepartementVirksomhetId, bool ErIrrelevant, string? IrrelevantKommentar,
-    string? IkrafttredelseRaa, string? KonsolidertDatoRaa, string? SistEndretVed)
+    string? IkrafttredelseRaa, string? KonsolidertDatoRaa, string? SistEndretVed,
+    string? Kunngjort, string? Rettsomrade, string? EuEosHenvisning, string? DokumentId, string? RefId,
+    string? GjelderFor, string? Etat, string? PublisertI, string? AnnetOmDokumentet, string? SisteRettelse,
+    bool HarKilde)
 {
     public static RettskildeDetalj FraEntitet(RettskildeEntitet r, Guid? ansvarligDepartementVirksomhetId = null) => new(
         r.Id, r.VirksomhetId, r.Doctype, r.Kildetype, r.Tittel, r.Kortnavn, r.Eli,
         r.Ikrafttredelse, r.KonsolidertDato, r.Utgiver, r.AnsvarligDepartement, r.Status, r.AknXml,
         r.InterntDokNr, r.Revisjonsnr, r.VedtattAv, r.Vedtaksdato, r.GyldigTil, r.Url, ansvarligDepartementVirksomhetId,
-        r.ErIrrelevant, r.IrrelevantKommentar, r.IkrafttredelseRaa, r.KonsolidertDatoRaa, r.SistEndretVed);
+        r.ErIrrelevant, r.IrrelevantKommentar, r.IkrafttredelseRaa, r.KonsolidertDatoRaa, r.SistEndretVed,
+        r.Kunngjort, r.Rettsomrade, r.EuEosHenvisning, r.DokumentId, r.RefId,
+        r.GjelderFor, r.Etat, r.PublisertI, r.AnnetOmDokumentet, r.SisteRettelse,
+        r.Innhold is not null);
 }
 
 /// <summary>Forespørsel for POST /api/rettskilder/lovdata.</summary>

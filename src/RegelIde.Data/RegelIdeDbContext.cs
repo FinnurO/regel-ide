@@ -303,6 +303,17 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.SistEndretVed).HasColumnName("sist_endret_ved");
             e.Property(x => x.Utgiver).HasColumnName("utgiver");
             e.Property(x => x.AnsvarligDepartement).HasColumnName("ansvarlig_departement");
+            // [Ny, 2026-09-03, issue #127] — se RettskildeEntitet sine likelydende felt.
+            e.Property(x => x.Kunngjort).HasColumnName("kunngjort");
+            e.Property(x => x.Rettsomrade).HasColumnName("rettsomrade");
+            e.Property(x => x.EuEosHenvisning).HasColumnName("eu_eos_henvisning");
+            e.Property(x => x.DokumentId).HasColumnName("dokument_id");
+            e.Property(x => x.RefId).HasColumnName("ref_id");
+            e.Property(x => x.GjelderFor).HasColumnName("gjelder_for");
+            e.Property(x => x.Etat).HasColumnName("etat");
+            e.Property(x => x.PublisertI).HasColumnName("publisert_i");
+            e.Property(x => x.AnnetOmDokumentet).HasColumnName("annet_om_dokumentet");
+            e.Property(x => x.SisteRettelse).HasColumnName("siste_rettelse");
             e.Property(x => x.Status).HasColumnName("status");
             // Optimistic concurrency (05-arkitektur-og-nfk.md §2: "skal varsle og avvise en lagring
             // som ville overskrevet en endring gjort av en annen bruker") — konfigureres eksplisitt

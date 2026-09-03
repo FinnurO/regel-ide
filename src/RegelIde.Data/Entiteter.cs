@@ -198,6 +198,22 @@ public sealed class RettskildeEntitet
     /// </summary>
     public string? AnsvarligDepartement { get; set; }
 
+    // ---------- [Ny, 2026-09-03, issue #127] De resterende 10 av 15 bekreftede Lovdata header-
+    // metadatafelt — se RegelIde.Kildekonvertering.RettskildeMetadata sine likelydende felt for hva
+    // hver enkelt betyr og hvor Lovdatas eget <dt class="…">-navn er bekreftet ekte. Samme "NULL for
+    // alt som ikke er Lovdata-importert Lov/Forskrift, additivt"-mønster som AnsvarligDepartement over.
+
+    public string? Kunngjort { get; set; }
+    public string? Rettsomrade { get; set; }
+    public string? EuEosHenvisning { get; set; }
+    public string? DokumentId { get; set; }
+    public string? RefId { get; set; }
+    public string? GjelderFor { get; set; }
+    public string? Etat { get; set; }
+    public string? PublisertI { get; set; }
+    public string? AnnetOmDokumentet { get; set; }
+    public string? SisteRettelse { get; set; }
+
     public required string Status { get; set; } // 'Gjeldende' | 'Opphevet' | 'Utkast'
     public int Versjon { get; set; } = 1;
     public string Entitetsstatus { get; set; } = "gjeldende";

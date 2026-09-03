@@ -69,6 +69,28 @@ public class RettskilderEndepunktTests
         Assert.Equal(HttpStatusCode.NotFound, svar.StatusCode);
     }
 
+    /// <summary>Issue #131 — «Vis kilde»: GET .../kilde returnerer den rå Lovdata-HTML-en som tekst.</summary>
+    [Fact]
+    public async Task Henter_ra_kilde_html_for_importert_dokument()
+    {
+        var id = await HentAlkohollovenIdAsync();
+        var detalj = await _client.GetFromJsonAsync<RettskildeDetalj>($"/api/rettskilder/{id}", JsonInnstillinger);
+        Assert.True(detalj!.HarKilde);
+
+        var svar = await _client.GetAsync($"/api/rettskilder/{id}/kilde");
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+        var kilde = await svar.Content.ReadAsStringAsync();
+        Assert.Contains("documentHeader", kilde);
+        Assert.Contains("Helse- og omsorgsdepartementet", kilde);
+    }
+
+    [Fact]
+    public async Task Kilde_for_ukjent_id_gir_404()
+    {
+        var svar = await _client.GetAsync($"/api/rettskilder/{Guid.NewGuid()}/kilde");
+        Assert.Equal(HttpStatusCode.NotFound, svar.StatusCode);
+    }
+
     [Fact]
     public async Task Henter_nodetre_og_finner_paragraf_1_1()
     {
