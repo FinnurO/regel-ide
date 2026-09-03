@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { api } from '../api/client';
 import type { VirksomhetDto } from '../api/types';
 
@@ -45,13 +45,22 @@ export function useVirksomheter(): VirksomheterVerdi {
 
   useEffect(hent, []);
 
-  const virksomheterPerId = new Map(virksomheter.map((v) => [v.id, v] as const));
+  // Memoisert/stabilisert (ikke gjenoppbygd på hver render) — se usePaginering.ts sin
+  // reset-til-side-1-effekt, som nullstiller siden når `viste`-arrayen (bygget med disse i
+  // dependency-arrayet hos forbrukere) får ny referanse. Se GitHub-issue #145.
+  const virksomheterPerId = useMemo(
+    () => new Map(virksomheter.map((v) => [v.id, v] as const)),
+    [virksomheter],
+  );
 
-  function visEier(virksomhetId: string | null | undefined): string {
-    if (!virksomhetId) return 'Delt / nasjonal';
-    if (laster) return '…';
-    return virksomheterPerId.get(virksomhetId)?.navn ?? virksomhetId;
-  }
+  const visEier = useCallback(
+    (virksomhetId: string | null | undefined): string => {
+      if (!virksomhetId) return 'Delt / nasjonal';
+      if (laster) return '…';
+      return virksomheterPerId.get(virksomhetId)?.navn ?? virksomhetId;
+    },
+    [virksomheterPerId, laster],
+  );
 
   return { virksomheter, virksomheterPerId, laster, visEier, oppdater: hent };
 }
