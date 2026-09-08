@@ -5208,18 +5208,6 @@
     "kildeAbonnementslisteId": null
   },
   {
-    "organisasjonsnummer": "892518572",
-    "navn": "NTL BRØNNØYSUNDREGISTRENE",
-    "brregNavn": "NTL BRØNNØYSUNDREGISTRENE",
-    "type": "organization",
-    "orgForm": "FLI",
-    "postnummer": "8910",
-    "poststed": "BRØNNØYSUND",
-    "coAdresse": null,
-    "kildeMålgruppeId": 42,
-    "kildeAbonnementslisteId": null
-  },
-  {
     "organisasjonsnummer": "974761467",
     "navn": "DATATILSYNET",
     "brregNavn": "Datatilsynet",
@@ -5244,36 +5232,12 @@
     "kildeAbonnementslisteId": null
   },
   {
-    "organisasjonsnummer": "915411770",
-    "navn": "NTL DOMSTOLENE",
-    "brregNavn": "NTL DOMSTOLENE",
-    "type": "organization",
-    "orgForm": "FLI",
-    "postnummer": null,
-    "poststed": null,
-    "coAdresse": null,
-    "kildeMålgruppeId": 42,
-    "kildeAbonnementslisteId": null
-  },
-  {
     "organisasjonsnummer": "933024091",
     "navn": "DIREKTORATET FOR EKSPORTKONTROLL OG SANKSJONER",
     "brregNavn": "DIREKTORATET FOR EKSPORTKONTROLL OG SANKSJONER",
     "type": "organization",
     "orgForm": "ORGL",
     "postnummer": "0030",
-    "poststed": "OSLO",
-    "coAdresse": null,
-    "kildeMålgruppeId": 42,
-    "kildeAbonnementslisteId": null
-  },
-  {
-    "organisasjonsnummer": "919483741",
-    "navn": "NTL DIREKTORATET FOR E-HELSE",
-    "brregNavn": "NTL DIREKTORATET FOR E-HELSE",
-    "type": "organization",
-    "orgForm": "FLI",
-    "postnummer": "0130",
     "poststed": "OSLO",
     "coAdresse": null,
     "kildeMålgruppeId": 42,
@@ -5371,18 +5335,6 @@
     "orgForm": "STAT",
     "postnummer": null,
     "poststed": null,
-    "coAdresse": null,
-    "kildeMålgruppeId": 42,
-    "kildeAbonnementslisteId": null
-  },
-  {
-    "organisasjonsnummer": "896349422",
-    "navn": "KARTVERKET BEDRIFTSIDRETTSLAG (BIL)",
-    "brregNavn": "KARTVERKET BEDRIFTSIDRETTSLAG (BIL)",
-    "type": "organization",
-    "orgForm": "FLI",
-    "postnummer": "3507",
-    "poststed": "HØNEFOSS",
     "coAdresse": null,
     "kildeMålgruppeId": 42,
     "kildeAbonnementslisteId": null

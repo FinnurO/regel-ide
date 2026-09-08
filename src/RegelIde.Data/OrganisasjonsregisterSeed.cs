@@ -30,14 +30,18 @@ namespace RegelIde.Data;
 /// </para>
 ///
 /// <para>
-/// **Navneformatering, v1-forenkling** (samme prinsipp som
-/// <c>BrukerveiledningImportTjeneste.MinimalAknPlassholder</c>s dokumenterte forenkling): kildenavnene
-/// er rene ASCII/Unicode-VERSALER ("AGDER FYLKESKOMMUNE", en del med samisk dobbeltnavn, skråstreker,
-/// "OG"-konnektorer). Ekte norsk tittel-kasing av disse pålitelig er ikke noe man kan gjøre
-/// algoritmisk uten å garantert bomme på noen — derfor IKKE forsøkt. I stedet: stor forbokstav, resten
-/// small caps ("AGDER FYLKESKOMMUNE" → "Agder fylkeskommune") — nøyaktig samme kasing det eksisterende
-/// "Agder fylkeskommune"-navnet fra <see cref="AgderFylkeskommuneSeed"/> allerede har, så et JSON-treff
-/// på den raden aldri ville trengt reformatering uansett.
+/// **Navneformatering: ingen.** [ENDRET — registernavn-runden, 2026-09-08] <see cref="Virksomhet.Navn"/>
+/// settes til kildefilens streng ORDRETT, uten noen omskriving. Tidligere kjørte den gjennom en
+/// <c>FormaterNavnEnkelt</c> som lowercaset alt og hevet forbokstaven per <c>" / "</c>-ledd
+/// ("AGDER FYLKESKOMMUNE" → "Agder fylkeskommune"). Den er FJERNET: navnet er registerets
+/// (issue #158), og den lesbare formen bæres av NAVNEFORMER i stedet, hentet fra Kartverkets SSR for
+/// kommunene og fra SNL/en godkjent liste for resten — se
+/// <see cref="VirksomhetRegisternavnSynkTjeneste"/>.
+/// <para>
+/// Johanns beslutning ordrett (2026-09-08): «navnet tas fra Brreg. Alternative skrivemåter legges til i
+/// navneformer.» Den gamle veien kunne heller ikke løst det som utløste runden — de tre kommunenavnene
+/// uten skilletegn i det hele tatt — og den ØDELA i tillegg rader som alt sto riktig i kilden:
+/// "Statsforvalteren i Innlandet" ble "Statsforvalteren i innlandet", og "(NVE)"/"(DSB)" ble "(nve)"/"(dsb)".
 /// </para>
 ///
 /// <para>
@@ -119,7 +123,7 @@ public static class OrganisasjonsregisterSeed
                 match = new Virksomhet
                 {
                     Id = Guid.NewGuid(),
-                    Navn = FormaterNavnEnkelt(entry.Navn),
+                    Navn = entry.Navn,
                     Organisasjonsnummer = entry.Organisasjonsnummer,
                     Forvaltningsniva = forvaltningsniva,
                     Aktiv = skalAlltidVaereAktiv, // false for alle nye, sovende kommuner/fylkeskommuner — se klassekommentaren.
@@ -201,57 +205,4 @@ public static class OrganisasjonsregisterSeed
             new Bruker { Id = Guid.NewGuid(), Navn = "Jonas Saksbehandler", VirksomhetId = bergen.Id, Rolle = "Saksbehandler" });
         await db.SaveChangesAsync(ct);
     }
-
-    /// <summary>
-    /// Skilletegnet mellom to likestilte navneledd i kildefilen — nøyaktig <c>" / "</c> med mellomrom
-    /// på begge sider, verifisert mot alle 7 forekomstene i <c>organisasjoner-norge.json</c>
-    /// ("DEANU GIELDA / TANA KOMMUNE", "KARASJOGA GIELDA / KARASJOK KOMMUNE", …). Ikke en bar
-    /// <c>'/'</c>: et skråstrek-tegn UTEN mellomrom rundt er ikke et navneledd-skille i denne kilden.
-    /// </summary>
-    internal const string LeddSkille = " / ";
-
-    /// <summary>
-    /// Stor forbokstav, resten small caps — se klassekommentarens "Navneformatering, v1-forenkling".
-    ///
-    /// <para>
-    /// [FIKSET — navneform-kjede-runden, 2026-09-08] Gjorde tidligere <c>ToLowerInvariant()</c> på HELE
-    /// strengen og satte så stor forbokstav på KUN tegn 0. For de 7 samiske dobbeltnavnene i kildefilen,
-    /// som består av to LIKESTILTE navneledd skilt med <see cref="LeddSkille"/>, ga det et synlig feil
-    /// navn: "KARASJOGA GIELDA / KARASJOK KOMMUNE" ble «Karasjoga gielda / karasjok kommune» — det andre
-    /// leddet, som er et fullverdig egennavn i seg selv, mistet forbokstaven. Johann oppdaget dette på
-    /// virksomhetssiden for Karasjok ("Det siste navnet antar jeg er feil, ref til store bokstaver fra
-    /// Brreg"). Nå får HVERT ledd stor forbokstav ⇒ «Karasjoga gielda / Karasjok kommune».
-    /// </para>
-    ///
-    /// <para>
-    /// Fortsatt IKKE et forsøk på generell norsk tittelkasing — kun ledd-splitting på
-    /// <see cref="LeddSkille"/>. Klassekommentarens begrunnelse står uendret: en algoritme som prøvde å
-    /// kase hvert ORD ville bommet garantert, f.eks. ved å gjøre «Nærings- og fiskeridepartementet» til
-    /// «Nærings- Og Fiskeridepartementet» (og dermed brekke departement-koblingen, som krever et EKSAKT
-    /// treff mot Lovdatas "ministry"-felt — se <see cref="DepartementSeed"/>s navnekommentar). Navn uten
-    /// <see cref="LeddSkille"/> får derfor nøyaktig samme resultat som før denne fiksen.
-    /// </para>
-    /// </summary>
-    internal static string FormaterNavnEnkelt(string kildeNavn)
-    {
-        var lav = kildeNavn.ToLowerInvariant();
-        return lav.Length == 0 ? lav : StorForbokstavPerLedd(lav);
-    }
-
-    /// <summary>
-    /// Stor forbokstav på HVERT <see cref="LeddSkille"/>-skilte ledd, alt annet ordrett uendret (ingen
-    /// lowercasing). Delt med <see cref="VirksomhetNavnKasusBackfillTjeneste"/>, som må bruke NØYAKTIG
-    /// samme regel på allerede lagrede rader som seeden bruker på nye — to kopier ville kunnet drifte
-    /// fra hverandre og gi to ulike navn for samme kilderad.
-    ///
-    /// <para>
-    /// Split/join på det EKSAKTE skilletegnet bevarer mellomromsformen ordrett — ingen normalisering av
-    /// kildens egen formatering utover selve forbokstavene.
-    /// </para>
-    /// </summary>
-    internal static string StorForbokstavPerLedd(string navn) =>
-        string.Join(LeddSkille, navn.Split(LeddSkille).Select(StorForbokstav));
-
-    private static string StorForbokstav(string ledd) =>
-        ledd.Length == 0 ? ledd : char.ToUpperInvariant(ledd[0]) + ledd[1..];
 }

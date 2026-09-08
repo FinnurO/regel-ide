@@ -36,6 +36,23 @@ public sealed class VirksomhetRelasjonregisterTjeneste(RegelIdeDbContext db)
         var motpartIder = rader.SelectMany(r => new[] { r.FraVirksomhetId, r.TilVirksomhetId }).Distinct().ToList();
         var navn = await db.Virksomheter.Where(v => motpartIder.Contains(v.Id)).ToDictionaryAsync(v => v.Id, v => v.Navn, ct);
 
+        // [ENDRET, registernavn-runden, 2026-09-08] Motpartens navn flettes inn i en VISNINGSMAL
+        // («… er underlagt {0}»), så det må være den lesbare formen — ikke registerets VERSAL-form.
+        // Slås opp her i stedet for via VirksomhetVisningsnavnTjeneste for å unngå en ny avhengighet
+        // i konstruktøren: spørringen er den samme, avgrenset til motpartene vi alt har id-ene til.
+        var visningsnavn = await db.Begreper
+            .Where(b => b.Begrepskategori == "virksomhet"
+                        && b.Navneformgrunn == VirksomhetVisningsnavnTjeneste.VisningsGrunn
+                        && b.Entitetsstatus == "gjeldende"
+                        && b.VirksomhetReferanseId != null
+                        && motpartIder.Contains(b.VirksomhetReferanseId.Value))
+            .Select(b => new { VirksomhetId = b.VirksomhetReferanseId!.Value, b.Term })
+            .ToListAsync(ct);
+        foreach (var g in visningsnavn.GroupBy(x => x.VirksomhetId))
+        {
+            navn[g.Key] = g.Select(x => x.Term).OrderBy(t => t, StringComparer.Ordinal).First();
+        }
+
         var typeKoder = rader.Select(r => r.RelasjonsType).Distinct().ToList();
         var typer = await db.RelasjonsTypeKonfigurasjoner
             .Where(k => typeKoder.Contains(k.Kode))

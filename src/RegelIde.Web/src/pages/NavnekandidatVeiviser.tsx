@@ -366,7 +366,7 @@ export default function NavnekandidatVeiviser() {
           virksomhetId: valgtVirksomhetId,
           navneformgrunn,
         });
-      const virksomhetNavn = virksomheter.find((v) => v.id === valgtVirksomhetId)?.navn ?? 'virksomheten';
+      const virksomhetNavn = virksomheter.find((v) => v.id === valgtVirksomhetId)?.visningsnavn ?? 'virksomheten';
       setFerdig({
         tittel: `«${resultat.navneform.term}» er nå en navneform for ${virksomhetNavn}.`,
         detaljer: [

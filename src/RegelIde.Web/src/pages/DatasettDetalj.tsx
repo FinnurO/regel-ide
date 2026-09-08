@@ -77,7 +77,7 @@ export default function DatasettDetalj() {
   if (feil) return <Alert data-color="danger">{feil}</Alert>;
   if (!datasett || verdier === null) return <Spinner aria-label="Laster …" data-size="sm" />;
 
-  const virksomhetNavn = new Map(virksomheter.map((v) => [v.id, v.navn]));
+  const virksomhetNavn = new Map(virksomheter.map((v) => [v.id, v.visningsnavn]));
   const standardverdi = verdier.find((v) => v.virksomhetId === null);
   const kommuneverdier = verdier.filter((v) => v.virksomhetId !== null);
   // Kun aktive virksomheter i "Legg til"-velgeren — dette LEGGER TIL en ny kommunal verdi (nytt
@@ -137,7 +137,7 @@ export default function DatasettDetalj() {
             <Label>Virksomhet</Label>
             <Select data-size="sm" value={nyVirksomhetId} onChange={(e) => setNyVirksomhetId(e.target.value)}>
               <Select.Option value="">(nasjonal standardverdi)</Select.Option>
-              {virksomheterUtenVerdi.map((v) => <Select.Option key={v.id} value={v.id}>{v.navn}</Select.Option>)}
+              {virksomheterUtenVerdi.map((v) => <Select.Option key={v.id} value={v.id}>{v.visningsnavn}</Select.Option>)}
             </Select>
           </Field>
           <Textfield data-size="sm" label="Verdi" value={nyVerdi} onChange={(e) => setNyVerdi(e.target.value)} />

@@ -290,7 +290,26 @@ export interface OppdaterBrukerRequest {
 
 export interface VirksomhetDto {
   id: string;
+  /**
+   * REGISTERETS egen form av navnet (issue #158) — for Brreg-synkroniserte rader betyr det VERSALER,
+   * og for tospråklige kommuner en konkatenering uten skilletegn:
+   * «GAIVUONA SUOHKAN KÅFJORD KOMMUNE KAIVUONON KOMUUNI».
+   *
+   * IKKE dette feltet i UI. Bruk `visningsnavn` — se dens egen kommentar. Dette feltet vises kun der
+   * poenget ER registreringen (grunndata-raden «Registrert i Enhetsregisteret» på VirksomhetDetalj).
+   */
   navn: string;
+  /**
+   * [Ny, registernavn-runden, 2026-09-08] Navnet som skal VISES: virksomhetens navneform med grunn
+   * `'gjeldende'` når den finnes, ellers `navn`. Aldri null — backend faller alltid tilbake på `navn`
+   * (se `VirksomhetDto.FraEntitet` og `VirksomhetVisningsnavnTjeneste` i backend).
+   *
+   * Bakgrunn: Johann rapporterte «Gaivuona suohkan kåfjord kommune kaivuonon komuuni» i tagg-listen
+   * under forskrift 2005-06-17-657 § 1. Løsningen var å slutte å regne på navnet og i stedet hente
+   * den lesbare formen fra Kartverkets SSR (som også har de diakritiske tegnene Brreg mangler:
+   * «Kárášjoga gielda»), med `navn` beholdt som registerets form.
+   */
+  visningsnavn: string;
   organisasjonsnummer: string | null;
   /**
    * Gater om virksomheten skal kunne VELGES for nytt arbeid (opprett/tilordne bruker, ny kommunal
@@ -477,7 +496,7 @@ export interface HardslettVirksomhetKandidaterResultatDto {
  * MERK skillet: dette forklarer en LEGITIM streng som faktisk står i lovteksten. En regex-ARTEFAKT
  * («Ø Suldal kommune») er et annet problem, som rettes med PATCH /api/navnekandidater/{id}.
  */
-export type Navneformgrunn = 'gjeldende' | 'utgatt' | 'kortform' | 'feilskriving';
+export type Navneformgrunn = 'gjeldende' | 'utgatt' | 'kortform' | 'feilskriving' | 'parallellnavn';
 
 /** [Ny, navnekandidat-wizard-runden, 2026-09-07] PATCH /api/navnekandidater/{id} — utelatt/undefined
  * felt betyr «la stå uendret». Kun for REGEX-ARTEFAKTER i teksten, se `Navneformgrunn` sitt skille. */

@@ -43,6 +43,9 @@ builder.Services.AddScoped<BegrepBruktIRettskilderTjeneste>();
 builder.Services.AddScoped<BrukerregisterTjeneste>();
 builder.Services.AddScoped<KodelisteregisterTjeneste>();
 builder.Services.AddScoped<VirksomhetsbegrepTjeneste>();
+// [Ny, registernavn-runden, 2026-09-08] Løser visningsnavnet (navneform med grunn 'gjeldende', ellers
+// Virksomhet.Navn) — se klassekommentaren for hvorfor de to formene er forskjellige.
+builder.Services.AddScoped<VirksomhetVisningsnavnTjeneste>();
 builder.Services.AddScoped<MyndighetstildelingTjeneste>();
 builder.Services.AddScoped<VirksomhetWhereUsedTjeneste>();
 builder.Services.AddScoped<GruppeMedlemskapTjeneste>();
@@ -122,6 +125,12 @@ builder.Services.AddScoped<LovdataResynkPlanleggerTjeneste>();
 builder.Services.AddHostedService<LovdataResynkPlanleggerBakgrunnstjeneste>();
 builder.Services.AddHttpClient<OppgaveregisterHenter>();
 builder.Services.AddHttpClient<BrregKlient>();
+// [Ny, registernavn-runden, 2026-09-08] Setter Virksomhet.Navn til Brregs egen form for alle rader i
+// katalogfila, og oppretter navneformene visningen bruker (SSR for kommuner, SNL/godkjent liste for
+// resten). BackgroundService og ikke et steg i oppstartsblokken: første kjøring gjør inntil 447
+// Brreg-kall pluss inntil 402 SSR/SNL-kall — samme begrunnelse som LovdataFullimportBakgrunnstjeneste.
+builder.Services.AddScoped<VirksomhetRegisternavnSynkTjeneste>();
+builder.Services.AddHostedService<VirksomhetRegisternavnSynkBakgrunnstjeneste>();
 builder.Services.AddHttpClient<AltinnRessursHenter>();
 // info.altinn.no returnerer 403 uten en nettleserlignende User-Agent (bekreftet ved live-verifisering
 // av testfixturene i src/RegelIde.Data.Tests/Testdata/AltinnHosting/, samme header Johanns
@@ -386,18 +395,11 @@ using (var scope = app.Services.CreateScope())
         "AnsvarligDepartement-tilbakefylling fullført: {Antall} rettskilder oppdatert fra allerede lagret AknXml.",
         ansvarligDepartementAntall);
 
-    // [Ny, navneform-kjede-runden, 2026-09-08] Retter ledd-kasingen på seedede virksomhetsnavn
-    // («Karasjoga gielda / karasjok kommune» → «… / Karasjok kommune»), se
-    // OrganisasjonsregisterSeed.FormaterNavnEnkelt sin [FIKSET]-kommentar. Rører aldri en
-    // Brreg-synkronisert rad (#158). Idempotent.
-    var navnRettinger = await VirksomhetNavnKasusBackfillTjeneste.KjorAsync(db);
-    app.Logger.LogInformation(
-        "Virksomhetsnavn ledd-kasus-tilbakefylling: {Antall} navn rettet.", navnRettinger.Count);
-    foreach (var rettet in navnRettinger)
-    {
-        app.Logger.LogInformation(
-            "Rettet virksomhetsnavn {VirksomhetId}: «{Fra}» → «{Til}».", rettet.VirksomhetId, rettet.Fra, rettet.Til);
-    }
+    // [FJERNET — registernavn-runden, 2026-09-08] Her sto VirksomhetNavnKasusBackfillTjeneste, som
+    // hevet forbokstaven i hvert " / "-skilte navneledd. Den er slettet: navnet er nå registerets egen
+    // form (#158), og den lesbare formen bæres av navneformer hentet fra Kartverkets SSR / SNL / en
+    // godkjent liste. Se VirksomhetRegisternavnSynkBakgrunnstjeneste, som er registrert som
+    // BackgroundService lenger opp — den kan ikke stå her, siden den gjør hundrevis av eksterne kall.
 
     // [Ny, navneform-kjede-runden, 2026-09-08] Flytter eksisterende 'virksomhet'-taggers RefId fra
     // Virksomhet-raden til NAVNEFORM-raden — se TekstTaggEntitet.RefId og tjenestens klassekommentar.
@@ -461,7 +463,9 @@ app.MapGet("/api/oppsett", () => Results.Ok(new { autentisering = autentiserings
     .WithSummary("Forteller klienten hvilken autentiseringsprofil serveren kjører.");
 
 // Hvem er jeg — den eneste kilden til gjeldende bruker under Altinn-profilen.
-app.MapGet("/api/meg", async (HttpRequest request, RegelIdeDbContext db, CancellationToken ct) =>
+app.MapGet("/api/meg", async (
+        HttpRequest request, RegelIdeDbContext db, VirksomhetVisningsnavnTjeneste visningsnavn,
+        CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         // IkkeInnloggetSvar, ikke Results.Unauthorized(): den siste har ingen kropp, og klienten
@@ -469,7 +473,11 @@ app.MapGet("/api/meg", async (HttpRequest request, RegelIdeDbContext db, Cancell
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
 
         var virksomhet = await db.Virksomheter.FirstAsync(v => v.Id == bruker.VirksomhetId, ct);
-        return Results.Ok(new BrukerDto(bruker.Id, bruker.Navn, virksomhet.Id, virksomhet.Navn, bruker.Rolle, bruker.AltinnBrukerId != null));
+        // [ENDRET, registernavn-runden, 2026-09-08] Visningsnavn: identitetsbrikken i sidepanelet er
+        // alltid synlig, og «BERGEN KOMMUNE» der ville vært en synlig forverring av at Navn nå er
+        // registerets form. Faller tilbake på Navn, som overalt ellers.
+        var visning = await visningsnavn.ForAsync(virksomhet.Id, ct) ?? virksomhet.Navn;
+        return Results.Ok(new BrukerDto(bruker.Id, bruker.Navn, virksomhet.Id, visning, bruker.Rolle, bruker.AltinnBrukerId != null));
     })
     .WithOpenApi()
     .WithName("HentMeg")
@@ -489,32 +497,40 @@ if (autentiseringsprofil is Autentiseringsprofil.Altinn
         .WithSummary("Diagnostikk for tt02-oppkobling. Krever RegelIde:Altinn:VisClaims=true.");
 }
 
-app.MapGet("/api/brukere", async (RegelIdeDbContext db) =>
+app.MapGet("/api/brukere", async (RegelIdeDbContext db, VirksomhetVisningsnavnTjeneste visningsnavn) =>
     {
         // Lister ALLE brukere (testbrukere OG ekte Altinn-brukere, se ErAltinnBruker) — brukt av to
         // ulike GUI-flater: brukervelgeren i identitetsbrikken (kun under testbruker-profilen, og
         // klienten filtrerer der bort ErAltinnBruker-rader selv, se BrukerContext.tsx) og den nye
         // brukerhåndteringssiden (/brukere), som skal vise alt uansett profil.
-        var brukere = await db.Brukere
+        var rader = await db.Brukere
             .Join(db.Virksomheter, b => b.VirksomhetId, v => v.Id, (b, v) => new { b, v })
             .OrderBy(x => x.b.Navn)
-            .Select(x => new BrukerDto(x.b.Id, x.b.Navn, x.v.Id, x.v.Navn, x.b.Rolle, x.b.AltinnBrukerId != null))
+            .Select(x => new { x.b.Id, x.b.Navn, VirksomhetId = x.v.Id, VirksomhetNavn = x.v.Navn, x.b.Rolle, ErAltinn = x.b.AltinnBrukerId != null })
             .ToListAsync();
+        // [ENDRET, registernavn-runden, 2026-09-08] Visningsnavn, ett oppslag for hele katalogen.
+        var visning = await visningsnavn.AlleAsync();
+        var brukere = rader.Select(r => new BrukerDto(
+            r.Id, r.Navn, r.VirksomhetId,
+            visning.GetValueOrDefault(r.VirksomhetId) ?? r.VirksomhetNavn, r.Rolle, r.ErAltinn));
         return Results.Ok(brukere);
     })
     .WithOpenApi()
     .WithName("HentBrukere")
     .WithSummary("Lister alle brukere (testbrukere og ekte Altinn-brukere) for GUI-ets brukervelger og brukerhåndteringssiden.");
 
-app.MapPost("/api/brukere", async (OpprettBrukerRequest body, BrukerregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+app.MapPost("/api/brukere", async (
+        OpprettBrukerRequest body, BrukerregisterTjeneste register, RegelIdeDbContext db,
+        VirksomhetVisningsnavnTjeneste visningsnavn, CancellationToken ct) =>
     {
         try
         {
             var bruker = await register.OpprettAsync(body.Navn, body.Rolle, body.VirksomhetId, ct);
             var virksomhet = await db.Virksomheter.FirstAsync(v => v.Id == bruker.VirksomhetId, ct);
+            var visning = await visningsnavn.ForAsync(virksomhet.Id, ct) ?? virksomhet.Navn;
             return Results.Created(
                 $"/api/brukere/{bruker.Id}",
-                new BrukerDto(bruker.Id, bruker.Navn, virksomhet.Id, virksomhet.Navn, bruker.Rolle, false));
+                new BrukerDto(bruker.Id, bruker.Navn, virksomhet.Id, visning, bruker.Rolle, false));
         }
         catch (ArgumentException ex)
         {
@@ -525,7 +541,9 @@ app.MapPost("/api/brukere", async (OpprettBrukerRequest body, BrukerregisterTjen
     .WithName("OpprettBruker")
     .WithSummary("Oppretter en ny testbruker og tilordner den til en virksomhet (brukerhåndteringssiden).");
 
-app.MapPut("/api/brukere/{id:guid}", async (Guid id, OppdaterBrukerRequest body, BrukerregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+app.MapPut("/api/brukere/{id:guid}", async (
+        Guid id, OppdaterBrukerRequest body, BrukerregisterTjeneste register, RegelIdeDbContext db,
+        VirksomhetVisningsnavnTjeneste visningsnavn, CancellationToken ct) =>
     {
         try
         {
@@ -533,7 +551,8 @@ app.MapPut("/api/brukere/{id:guid}", async (Guid id, OppdaterBrukerRequest body,
             if (bruker is null) return Results.NotFound(new { feil = $"Ingen bruker med id '{id}'." });
 
             var virksomhet = await db.Virksomheter.FirstAsync(v => v.Id == bruker.VirksomhetId, ct);
-            return Results.Ok(new BrukerDto(bruker.Id, bruker.Navn, virksomhet.Id, virksomhet.Navn, bruker.Rolle, bruker.AltinnBrukerId != null));
+            var visning = await visningsnavn.ForAsync(virksomhet.Id, ct) ?? virksomhet.Navn;
+            return Results.Ok(new BrukerDto(bruker.Id, bruker.Navn, virksomhet.Id, visning, bruker.Rolle, bruker.AltinnBrukerId != null));
         }
         catch (ArgumentException ex)
         {
@@ -572,11 +591,21 @@ app.MapPut("/api/brukere/meg/tjeneste-visning", async (HttpRequest request, Visn
     .WithName("LagreTjenesteVisningsinnstillinger")
     .WithSummary("Lagrer innlogget brukers visningsinnstillinger for Tjeneste-siden (helt-erstatning, ikke inkrementell).");
 
-app.MapGet("/api/virksomheter", async (RegelIdeDbContext db) =>
-        (await db.Virksomheter.ToListAsync()).Select(VirksomhetDto.FraEntitet))
+app.MapGet("/api/virksomheter", async (
+        RegelIdeDbContext db, VirksomhetVisningsnavnTjeneste visningsnavnTjeneste, CancellationToken ct) =>
+    {
+        // [ENDRET, registernavn-runden, 2026-09-08] Fyller visningsnavn. ETT ekstra spørsmål for hele
+        // katalogen (ikke ett per rad) — dette er den delte kilden useVirksomheter.ts leser, så alle
+        // eier-kolonner, velgere og taggetiketter får den lesbare formen fra samme sted.
+        var visningsnavn = await visningsnavnTjeneste.AlleAsync(ct);
+        var virksomheter = await db.Virksomheter.ToListAsync(ct);
+        return virksomheter.Select(v => VirksomhetDto.FraEntitet(v, visningsnavn));
+    })
     .WithOpenApi()
     .WithName("HentVirksomheter")
-    .WithSummary("Lister virksomheter — hele virksomhetskatalogen (docs/20), ikke bare aktive tenanter.");
+    .WithSummary(
+        "Lister virksomheter — hele virksomhetskatalogen (docs/20), ikke bare aktive tenanter. "
+        + "'navn' er registerets egen form (#158); 'visningsnavn' er den lesbare formen UI-et skal vise.");
 
 app.MapPost("/api/virksomheter", async (
     OpprettVirksomhetRequest body, RegelIdeDbContext db,

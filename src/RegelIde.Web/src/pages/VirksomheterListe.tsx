@@ -47,6 +47,10 @@ export default function VirksomheterListe() {
     const filtrert = tekst
       ? virksomheter.filter(
           (v) =>
+            // [ENDRET, registernavn-runden, 2026-09-08] Søker i BEGGE navneformene, ikke bare den
+            // viste: kolonnen viser «Kåfjord kommune», men noen kan lime inn registerstrengen fra
+            // Brreg og forvente treff. Å søke i bare én av dem ville gjort den andre usynlig.
+            v.visningsnavn.toLowerCase().includes(tekst) ||
             v.navn.toLowerCase().includes(tekst) ||
             (v.organisasjonsnummer?.includes(tekst) ?? false) ||
             (v.forvaltningsniva?.toLowerCase().includes(tekst) ?? false),
@@ -55,7 +59,8 @@ export default function VirksomheterListe() {
 
     const sortnokkel = (v: (typeof virksomheter)[number]) =>
       sortKolonne === 'navn'
-        ? v.navn
+        ? v.visningsnavn // sorter på det som VISES, ellers hopper radene i forhold til kolonnen
+
         : sortKolonne === 'organisasjonsnummer'
           ? (v.organisasjonsnummer ?? '')
           : sortKolonne === 'forvaltningsniva'
@@ -145,7 +150,7 @@ export default function VirksomheterListe() {
                   <Table.Row key={v.id}>
                     <Table.Cell>
                       <Link asChild>
-                        <RouterLink to={`/virksomheter/${v.id}`}>{v.navn}</RouterLink>
+                        <RouterLink to={`/virksomheter/${v.id}`}>{v.visningsnavn}</RouterLink>
                       </Link>
                     </Table.Cell>
                     <Table.Cell style={{ fontFamily: 'monospace' }}>{v.organisasjonsnummer ?? '—'}</Table.Cell>
@@ -445,7 +450,7 @@ function KoblEksisterendeVirksomhetPanel({
         }
       }
 
-      setSuksess({ navn: navn.trim(), virksomhetId: valgtVirksomhetId, virksomhetNavn: virksomhet.navn, kandidatGodkjent });
+      setSuksess({ navn: navn.trim(), virksomhetId: valgtVirksomhetId, virksomhetNavn: virksomhet.visningsnavn, kandidatGodkjent });
       setValgtVirksomhetId('');
       setNavneformgrunn(null);
     } catch (err) {

@@ -100,7 +100,7 @@ public class OrganisasjonsregisterSeedTests
 
         // En reell, sovende kommune fra kildefilen — opprettet av seeden, IKKE aktiv (Johann ba kun om
         // Bergen/Agder/Testkommunen), og uten oppfunnet kommunenummer (kildefilen har ikke det feltet).
-        var oslo = await db.Virksomheter.SingleAsync(v => v.Navn == "Oslo kommune");
+        var oslo = await db.Virksomheter.SingleAsync(v => v.Navn == "OSLO KOMMUNE");
         Assert.Equal("958935420", oslo.Organisasjonsnummer);
         Assert.Equal("kommune", oslo.Forvaltningsniva);
         Assert.Null(oslo.Kommunenummer);
@@ -108,15 +108,18 @@ public class OrganisasjonsregisterSeedTests
 
         // [ENDRET, docs/20 §4 `[LÅST]`] Andre organisasjonstyper (STAT/ORGL/SF/STI/FLI/AS/ANNA/SÆR)
         // seedes nå OGSÅ — ingen filtrering, ingen navnebasert gjetting av Forvaltningsniva.
-        // FormaterNavnEnkelt small-caps'er ALT unntatt aller første bokstav — "Statsforvalteren i
-        // agder", ikke "Agder" (kildenavnet var allerede blandet kasus, men funksjonen normaliserer
-        // uansett, se FormaterNavnEnkelt).
-        var statsforvalteren = await db.Virksomheter.SingleAsync(v => v.Navn == "Statsforvalteren i agder");
+        //
+        // [ENDRET, registernavn-runden, 2026-09-08] Navnet seedes ORDRETT fra kildefilen. Tidligere
+        // gikk det gjennom FormaterNavnEnkelt, som lowercaset alt og hevet kun første tegn — den
+        // ØDELA nettopp denne raden ("Statsforvalteren i Agder" → "Statsforvalteren i agder"), og er
+        // fjernet. Den lesbare formen ligger nå i en navneform i stedet, se
+        // VirksomhetNavneformOverstyringer og VirksomhetRegisternavnSynkTjeneste.
+        var statsforvalteren = await db.Virksomheter.SingleAsync(v => v.Navn == "Statsforvalteren i Agder");
         Assert.Equal("974762994", statsforvalteren.Organisasjonsnummer);
         Assert.Null(statsforvalteren.Forvaltningsniva); // ikke gjettet, selv om "statsforvalter" ville vært opplagt riktig.
         Assert.False(statsforvalteren.Aktiv);
 
-        var mattilsynet = await db.Virksomheter.SingleAsync(v => v.Navn == "Mattilsynet");
+        var mattilsynet = await db.Virksomheter.SingleAsync(v => v.Navn == "MATTILSYNET");
         Assert.Equal("985399077", mattilsynet.Organisasjonsnummer);
         Assert.Null(mattilsynet.Forvaltningsniva);
     }
@@ -132,7 +135,13 @@ public class OrganisasjonsregisterSeedTests
         // Egen sentinel-kommune (Trondheim), ADSKILT fra Oslo som den andre testen i denne klassen
         // asserterer på — samme delte DataTestCollection-database, så en manuell Aktiv-mutasjon her
         // må ikke kunne bløe over i en annen tests forventninger om startverdien.
-        var trondheimForste = await db.Virksomheter.SingleAsync(v => v.Navn == "Trondheim kommune");
+        //
+        // [ENDRET, registernavn-runden, 2026-09-08] VERSALER: raden opprettes AV seeden, som nå
+        // skriver kildefilens streng ordrett. Bergen/Agder/Testkommunen under står derimot i blandet
+        // kasus, fordi de opprettes av sine EGNE seeds og bare MATCHES her (seeden overskriver aldri
+        // navnet på en rad den finner) — det skillet er hele grunnen til at de to formene lever side
+        // om side i denne testen.
+        var trondheimForste = await db.Virksomheter.SingleAsync(v => v.Navn == "TRONDHEIM KOMMUNE");
         Assert.False(trondheimForste.Aktiv);
 
         // Simulerer en fremtidig manuell aktivering (ingen admin-UI for dette bygget ennå, se
@@ -143,7 +152,7 @@ public class OrganisasjonsregisterSeedTests
         await OrganisasjonsregisterSeed.SeedAsync(db);
 
         Assert.Equal(antallForste, await db.Virksomheter.CountAsync()); // ingen duplikater
-        var trondheimAndre = await db.Virksomheter.SingleAsync(v => v.Navn == "Trondheim kommune");
+        var trondheimAndre = await db.Virksomheter.SingleAsync(v => v.Navn == "TRONDHEIM KOMMUNE");
         Assert.True(trondheimAndre.Aktiv); // IKKE nullstilt av den andre kjøringen
 
         // Bergen/Agder forblir tvunget aktive, uendret av gjentatt kjøring.

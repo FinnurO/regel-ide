@@ -1540,7 +1540,17 @@ public sealed class EksternNavneoppslagCacheEntitet
     /// <summary>Normalisert (små bokstaver) søketerm — se klassekommentaren.</summary>
     public required string Term { get; set; }
 
-    /// <summary><c>"snl"</c> eller <c>"ssr"</c> — hvilket av de to eksterne API-ene dette oppslaget gjelder.</summary>
+    /// <summary>
+    /// <c>"snl"</c>, <c>"ssr"</c> eller <c>"ssr-sted"</c> — hvilket eksternt oppslag denne raden gjelder.
+    /// <para>
+    /// [Ny verdi, registernavn-runden, 2026-09-08] <c>"ssr-sted"</c> er et ANNET spørsmål mot samme API
+    /// som <c>"ssr"</c>, ikke en variant av det: <c>"ssr"</c> spør «finnes dette stedsnavnet?» (ja/nei,
+    /// nøklet på en NAVNETERM), <c>"ssr-sted"</c> henter ALLE språkmerkede skrivemåter for ETT
+    /// stedsobjekt (nøklet på <c>knr:&lt;kommunenummer&gt;</c>, se
+    /// <see cref="EksternNavneoppslagTjeneste.SlaOppSsrStedAsync"/>). To ulike spørsmål må ha to
+    /// cache-rader — med samme <see cref="Kilde"/> ville det ene svaret maskert det andre.
+    /// </para>
+    /// </summary>
     public required string Kilde { get; set; }
 
     /// <summary>Om det eksterne API-et faktisk fant noe for denne termen (ekte API-svar, se
@@ -1570,6 +1580,15 @@ public sealed class EksternNavneoppslagCacheEntitet
     /// (<c>POST /api/virksomheter/fra-brreg</c>) uten en ny, parallell SNL-oppslagsmekanisme.
     /// </summary>
     public string? BekreftetNavn { get; set; }
+
+    /// <summary>
+    /// [Ny, registernavn-runden, 2026-09-08] Kun <c>"ssr-sted"</c>: JSON-serialisert liste over stedets
+    /// SPRÅKMERKEDE skrivemåter — <c>[{"skrivemate","sprak","skrivematestatus","navnestatus"}]</c>, se
+    /// <see cref="SsrSkrivemate"/>. Bevisst et EGET felt og ikke <see cref="AliasJson"/>: den er
+    /// de-facto låst til en flat <c>List&lt;string&gt;</c> av tre eksisterende (de)serialiseringspunkter
+    /// (inkl. <c>NavnekandidatDto.SnlAlias</c>), og et språk/status-merket objekt der ville brukket dem.
+    /// </summary>
+    public string? SkrivemateJson { get; set; }
 
     public DateTimeOffset SlaOppTidspunkt { get; set; }
 }

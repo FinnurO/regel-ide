@@ -58,7 +58,7 @@ const TOM_VALG_SENTINEL = '__ingen_virksomhet_valgt__';
 export function VirksomhetVelger({ virksomheter, value, onChange, label, tomValgTekst, hideLabel, style }: VirksomhetVelgerProps) {
   const valgtVirksomhet = virksomheter.find((v) => v.id === value);
   const selected: SuggestionItem | null = valgtVirksomhet
-    ? { label: valgtVirksomhet.navn, value: valgtVirksomhet.id }
+    ? { label: valgtVirksomhet.visningsnavn, value: valgtVirksomhet.id }
     : null;
 
   return (
@@ -78,7 +78,11 @@ export function VirksomhetVelger({ virksomheter, value, onChange, label, tomValg
           <Suggestion.Option value={TOM_VALG_SENTINEL}>{tomValgTekst}</Suggestion.Option>
           {virksomheter.map((v) => (
             <Suggestion.Option key={v.id} value={v.id}>
-              {v.navn}
+              {/* [ENDRET, registernavn-runden, 2026-09-08] visningsnavn, ikke navn — se
+                  VirksomhetDto i types.ts. Søket i Suggestion filtrerer på den viste teksten, så
+                  saksbehandleren finner «Kåfjord kommune» ved å skrive «Kåfjord», ikke ved å måtte
+                  treffe registerstrengen. */}
+              {v.visningsnavn}
             </Suggestion.Option>
           ))}
         </Suggestion.List>
