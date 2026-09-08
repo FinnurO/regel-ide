@@ -245,11 +245,14 @@ tilgjengelig **uansett status** — også for rader som alt er godkjent eller av
    settes den tilbake til «Venter» når en rettet tekst lagres, slik at den kan behandles på nytt —
    den eneste veien tilbake fra «Avvist». En godkjent rad beholder bevisst sin status. Er navnet
    derimot legitimt slik det står, skal teksten stå, og forklares med en grunn i steg 4 i stedet.
-3. **Hva slags ting er dette?** — konkret virksomhet, gruppe som defineres her (samme resultat som
-   den gamle Godkjenn-knappen: gruppebegrep hjemlet i loven + koblet tagg), eller ikke relevant
-   (raden avvises).
+3. **Hva slags ting er dette?** — konkret virksomhet; **konkret virksomhet navngitt som medlem av en
+   gruppe** [NYTT, 2026-09-08]; gruppe som defineres her (samme resultat som den gamle
+   Godkjenn-knappen: gruppebegrep hjemlet i loven + koblet tagg); eller ikke relevant (raden avvises).
 4. **Hvilken virksomhet?** — velg fra katalogen, eller opprett underveis fra Brreg eller med bare
-   navn. Her velges også **grunnen** til at navneformen peker dit (se «Virksomheter» over).
+   navn. Her velges også **grunnen** til at navneformen peker dit (se «Virksomheter» over). På
+   gruppemedlem-veien velges i tillegg **hvilken gruppe** teksten navngir virksomheten som medlem av;
+   gruppen må finnes som gruppebegrep fra før, siden den er definert i en LOV mens denne rettskilden
+   bare navngir medlemmene.
 5. **Bekreft** — en oppsummering av hva som blir opprettet eller endret, før man fullfører.
 
 Fullføring **lukker kjeden** for en virksomhet-kandidat: navneformen opprettes (eller gjenbrukes) med
@@ -261,8 +264,16 @@ mangler et ansvarlig departement som finnes i virksomhetskatalogen (en tagg må 
 fordi tegnposisjonene ikke lenger stemmer etter en reimport, **sies det eksplisitt** i
 bekreftelsen — navneformkoblingen lykkes uansett.
 
-*Kjent begrensning / bevisst utenfor denne runden:* «administrativ inndeling» og «medlem av en
-eksisterende gruppe» er ikke egne utfall ennå — velg «Ikke relevant» og ta det opp separat.
+Gruppemedlem-veien gjør alt det over, og legger til **én ting**: en myndighetstildeling som gjør
+virksomheten medlem av gruppen, hjemlet i **kandidatens egen rettskilde** — det er der navnet står,
+og hjemmelen er derfor ikke et valg saksbehandleren kan sette til noe annet. Bekreftelsen lenker
+videre til gruppens side, der medlemslisten nå inneholder virksomheten. Veien er idempotent: å kjøre
+den to ganger for samme par gir ikke to tildelinger.
+
+*Kjent begrensning / bevisst utenfor denne runden:* «administrativ inndeling» er ikke et eget utfall
+ennå — velg «Ikke relevant» og ta det opp separat. Å opprette et nytt gruppebegrep og samtidig gjøre
+det medlem av en annen gruppe (gruppe-av-gruppe **fra veiviseren**) er heller ikke med; det
+registreres separat, se «Gruppe av gruppe» under.
 
 *Hvor:* «Navnekandidater» (`/navnekandidater`, `/navnekandidater/:id/behandle`).
 
@@ -273,8 +284,55 @@ to ulike lover er to ulike begrep. En myndighetstildeling kobler ett rollebegrep
 virksomhet, hjemlet i en forskrift og avgrenset til et paragrafspenn. Gyldighet arves fra hjemmelens
 egen status — ingen egne datoer.
 
-*Hvor:* read-only tabell på en virksomhets detaljside. **Ingen frontend-skjema for å opprette disse
-ennå** — kun via API/Swagger i dag (`docs/13-backlog.md` §8).
+*Hvor:* read-only tabell på en virksomhets detaljside, og — [NYTT, 2026-09-08] — den motsatte veien:
+hele medlemslisten på gruppebegrepets egen side, se «Gruppe av gruppe» under. **Ingen generelt
+frontend-skjema for å opprette en tildeling fra bunnen ennå** — men navnekandidat-veiviserens
+gruppemedlem-vei oppretter dem nå fra saksbehandlerflyten (`docs/13-backlog.md` §8).
+
+### Gruppe av gruppe, og drill-through til medlemmene [NYTT, 2026-09-08]
+
+Et gruppebegrep kan selv være **medlem av** et annet gruppebegrep. Medlemskapet er en egen entitet
+(`GruppeMedlemskapEntitet`) og ikke en kolonne på begrepet, fordi det er en egen påstand med sin egen
+**hjemmel**: det er en forskrift som sier at «språkutviklingskommuner» inngår i
+«forvaltningsområdet for samiske språk», mens selve gruppebegrepene er hjemlet i loven. Samme
+feltsett som en myndighetstildeling — de to er de to nivåene i det samme hierarkiet, ikke to
+konkurrerende mekanismer. Et medlemskap er **idempotent på paret** (én opplysning uansett hvor mange
+hjemler som gjentar den), og **sirkulære kjeder avvises** med en feilmelding som navngir hele kjeden,
+slik at man ser hvilken registrering som må rettes. En gruppe kan lovlig være medlem av flere grupper
+— grafen er en DAG, ikke et tre.
+
+**Gruppebegrepets detaljside** viser nå tre lister, som er tre ulike påstander og derfor ikke slått
+sammen til én:
+
+- **Medlemsgrupper** — grupper som selv er medlem av denne, ett nivå ned (ikke transitivt).
+- **Virksomheter i gruppen** — de konkrete, navngitte organene (myndighetstildelingene).
+- **Medlem av** — motsatt retning, slik at man kan navigere opp igjen etter å ha gått ned.
+
+Hjemmelen står **per rad**, ikke per liste, og lenker til nøyaktig paragrafen medlemskapet står i —
+to medlemmer kan komme fra to ulike forskrifter, og en felles «hjemlet i …»-setning over tabellen
+ville da vært en påstand som ikke stemmer.
+
+**Tagger i lovteksten er navigerbare** [NYTT, 2026-09-08]. En markering i løpeteksten var tidligere
+bare en farget `<mark>` med et tooltip som viste en rå GUID; eneste vei videre gikk via tagg-listen
+under teksten. Er taggen koblet, er markeringen nå selv en lenke: «språkutviklingskommuner» i
+sameloven går til gruppebegrepet og dermed til medlemslisten, og «Karasjok» i forskriften går til
+virksomheten «Karasjoga gielda / karasjok kommune» — altså til *virksomheten*, ikke til strengen.
+Fargen er uendret (den bærer allerede betydning: hvilket tagg-lag), og seleksjon for å opprette nye
+tagger virker fortsatt over og rundt taggede ord.
+
+**Ekte eksempeldata.** Forvaltningsområdet for samiske språk seedes ved oppstart
+(`SamiskSprakforvaltningSeed`): de fire gruppebegrepene hjemlet i sameloven § 3-1, de tre
+kommunekategoriene som medlemsgrupper av forvaltningsområdet, og kommunene forskriften § 1 navngir
+som konkrete medlemmer — med «Karasjok» som en `kortform`-navneform for «Karasjoga gielda / karasjok
+kommune». Seeden går gjennom de **generelle tjenestene**, samme kodevei en saksbehandler utløser fra
+veiviseren, slik at den også er en verifikasjon av at mekanismen virker. Den er idempotent, og
+**oppfinner ingenting**: mangler rettskildene, nodene eller kommunene i miljøet, hoppes det som
+mangler over og rapporteres i oppstartsloggen i stedet for at en rettskilde eller virksomhet
+opprettes for å få eksempelet til å se komplett ut.
+
+*Hvor:* gruppebegrepets detaljside (`/begreper/:id` for et begrep med kategori «gruppe»);
+`POST /api/gruppemedlemskap`, `GET /api/gruppebegrep/{id}/medlemsgrupper`,
+`GET /api/gruppebegrep/{id}/overordnede-grupper`, `GET /api/gruppebegrep/{id}/tildelinger`.
 
 ---
 

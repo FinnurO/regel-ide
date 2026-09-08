@@ -144,7 +144,7 @@ namespace RegelIde.Data;
 public sealed class NavnekandidatOppdagelseTjeneste(
     RegelIdeDbContext db, VirksomhetsbegrepTjeneste virksomhetsbegrep,
     TekstTaggTjeneste tekstTaggTjeneste, VirksomhetOppslagTjeneste virksomhetOppslag,
-    EksternNavneoppslagTjeneste eksternOppslag)
+    EksternNavneoppslagTjeneste eksternOppslag, MyndighetstildelingTjeneste myndighetstildeling)
 {
     /// <summary>Diskriminatorverdien skrevet til <see cref="NavnekandidatEntitet.OppdagelsesKilde"/> for
     /// alle kandidater produsert av det brede "stor bokstav"-mønsteret (<see cref="FinnStorBokstavKandidaterITekst"/>,
@@ -1265,6 +1265,68 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         // fast i blindveien med en ubundet tagg — å nekte den her ville gjort de eksisterende,
         // halvbehandlede radene umulige å redde, som er hele poenget med denne runden. Kallet er
         // idempotent (se OpprettEllerKobleVirksomhetTaggAsync), så en gjentakelse er ufarlig.
+        return await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct);
+    }
+
+    /// <summary>
+    /// [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] LUKKER KJEDEN for en
+    /// <c>"virksomhet"</c>-kandidat som er navngitt som MEDLEM av et eksisterende gruppebegrep — den
+    /// veien wizarden tidligere eksplisitt sa til saksbehandleren at ikke var bygget.
+    /// <para>
+    /// Gjør ALT <see cref="KoblTilVirksomhetAsync"/> gjør (navneform med grunn, status
+    /// <c>"Godkjent"</c>, en <see cref="TekstTaggEntitet"/> med <c>Kind="virksomhet"</c> som peker på
+    /// virksomheten) — det er nøyaktig samme private
+    /// <see cref="LukkKjedenMotVirksomhetAsync"/> som kjøres, ikke en parallell kopi — OG i tillegg en
+    /// <see cref="MyndighetstildelingEntitet"/> som knytter virksomheten til gruppebegrepet, hjemlet i
+    /// KANDIDATENS EGEN rettskilde. At hjemmelen er kandidatens egen rettskilde er selve poenget:
+    /// det er forskriften der navnet står som navngir medlemskapet, ikke loven som definerte gruppen
+    /// (issue #164 sitt «gruppe av gruppe»-skille).
+    /// </para>
+    /// <para>
+    /// <b>Rekkefølgen er bevisst:</b> myndighetstildelingen opprettes FØRST. Feiler den (ukjent
+    /// gruppebegrep, en node-eId som ikke finnes), er INGENTING endret — kandidaten står fortsatt
+    /// ubehandlet og kan forsøkes på nytt. Motsatt rekkefølge ville etterlatt en godkjent kandidat med
+    /// navneform og tagg, men uten det medlemskapet som var hele hensikten, og saksbehandleren ville
+    /// ikke lenger hatt en «Venter»-rad å gå tilbake til.
+    /// </para>
+    /// <para>
+    /// <b>Idempotent</b> som <see cref="KoblTilVirksomhetAsync"/>: finnes tildelingen allerede for
+    /// samme (gruppe, virksomhet, hjemmel), gjenbrukes den i stedet for at en duplikat legges inn —
+    /// <see cref="MyndighetstildelingTjeneste.OpprettAsync"/> har ingen egen duplikatsperre, så
+    /// sjekken må stå her.
+    /// </para>
+    /// </summary>
+    public async Task<NavnekandidatGruppemedlemskapResultat?> KoblTilGruppemedlemskapAsync(
+        Guid id, Guid virksomhetId, Guid gruppeBegrepId, string? navneformgrunn, string behandletAv,
+        CancellationToken ct = default)
+    {
+        var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
+        if (kandidat is null) return null;
+        if (kandidat.Kategori != "virksomhet")
+        {
+            throw new ArgumentException(
+                $"Kandidaten har kategori '{kandidat.Kategori}' — kun 'virksomhet'-kandidater kan knyttes "
+                + "som medlem av en gruppe. En 'gruppe'-kandidat er selv et gruppebegrep; bruk "
+                + "godkjenn-veien for den, og registrer eventuelt gruppe-av-gruppe-medlemskap etterpå.");
+        }
+        ValiderNavneformgrunn(navneformgrunn);
+
+        // Steg 1 (se metodekommentaren om rekkefølgen): medlemskapet.
+        var tildeling = await db.Myndighetstildelinger.FirstOrDefaultAsync(
+            m => m.GruppeBegrepId == gruppeBegrepId && m.VirksomhetId == virksomhetId
+                 && m.HjemmelRettskildeId == kandidat.RettskildeId, ct);
+        tildeling ??= await myndighetstildeling.OpprettAsync(
+            gruppeBegrepId, virksomhetId, kandidat.RettskildeId,
+            [new ParagrafspennPar(kandidat.NodeEid, null)], vilkaar: null, behandletAv, ct: ct);
+
+        // Steg 2: nøyaktig samme kjedelukking som virksomhet-veien.
+        var kobling = await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct);
+        return new NavnekandidatGruppemedlemskapResultat(
+            kobling!.Kandidat, kobling.Navneform, kobling.TaggId, kobling.NodeEid, tildeling);
+    }
+
+    private static void ValiderNavneformgrunn(string? navneformgrunn)
+    {
         if (!VirksomhetsbegrepTjeneste.ErGyldigNavneformgrunn(navneformgrunn))
         {
             throw new ArgumentException(
@@ -1272,6 +1334,21 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 + $"{string.Join(", ", VirksomhetsbegrepTjeneste.Navneformgrunner)} (eller utelat feltet). "
                 + "Ingen gjettet fallback.");
         }
+    }
+
+    /// <summary>
+    /// [Utskilt, gruppemedlemskap-runden, 2026-09-08] Den DELTE kjedelukkingen bak både
+    /// <see cref="KoblTilVirksomhetAsync"/> og <see cref="KoblTilGruppemedlemskapAsync"/>: navneform
+    /// (med grunn), tagg som peker på virksomheten, og status <c>"Godkjent"</c>. Skilt ut nettopp for
+    /// at gruppemedlemskaps-veien IKKE skal bli en parallell kopi som kan komme i utakt — hele
+    /// forskjellen mellom de to veiene er den ene ekstra <c>MyndighetstildelingEntitet</c>-raden.
+    /// Innholdet er uendret fra <see cref="KoblTilVirksomhetAsync"/> før utskillingen.
+    /// </summary>
+    private async Task<NavnekandidatKoblingResultat?> LukkKjedenMotVirksomhetAsync(
+        NavnekandidatEntitet kandidat, Guid virksomhetId, string? navneformgrunn, string behandletAv,
+        CancellationToken ct)
+    {
+        ValiderNavneformgrunn(navneformgrunn);
 
         // Navneformen: gjenbruk en identisk, gjeldende rad hvis den alt finnes (samme term MOT SAMME
         // virksomhet) — å opprette en duplikat-navneform ved en ny forekomst av samme navn er ikke en
@@ -1456,3 +1533,15 @@ public sealed record NavnekandidatSveipResultat(int AntallTreffFunnet, int Antal
 /// <param name="NodeEid">eId-en for noden taggen står i — klientens «Se i rettskilden ↗»-lenke.</param>
 public sealed record NavnekandidatKoblingResultat(
     NavnekandidatEntitet Kandidat, BegrepEntitet Navneform, Guid? TaggId, string NodeEid);
+
+/// <summary>
+/// [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] Utfallet av
+/// <see cref="NavnekandidatOppdagelseTjeneste.KoblTilGruppemedlemskapAsync"/>. Identisk med
+/// <see cref="NavnekandidatKoblingResultat"/> pluss selve medlemskapsraden — klienten trenger dens
+/// felt (hjemmel + paragrafspenn) for å kunne SI hva som ble opprettet i sin
+/// «dette skjedde»-oppsummering, uten et nytt oppslag (docs/09 §15).
+/// </summary>
+/// <param name="Tildeling">Myndighetstildelingen som ble opprettet ELLER gjenbrukt.</param>
+public sealed record NavnekandidatGruppemedlemskapResultat(
+    NavnekandidatEntitet Kandidat, BegrepEntitet Navneform, Guid? TaggId, string NodeEid,
+    MyndighetstildelingEntitet Tildeling);

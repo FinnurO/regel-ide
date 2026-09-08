@@ -349,6 +349,29 @@ export interface MyndighetstildelingDto {
   gyldigTil: string | null;
 }
 
+/** [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] «Gruppe av gruppe» — `underordnetGruppeBegrepId`
+ * er MEDLEM av `overordnetGruppeBegrepId`, hjemlet i `hjemmelRettskildeId` (typisk en forskrift, ikke
+ * den loven som definerer gruppene). Samme form som `MyndighetstildelingDto`, som er den tilsvarende
+ * kanten ned til en konkret virksomhet. */
+export interface GruppeMedlemskapDto {
+  id: string;
+  overordnetGruppeBegrepId: string;
+  underordnetGruppeBegrepId: string;
+  hjemmelRettskildeId: string;
+  paragrafspenn: ParagrafspennParDto[];
+  gyldigFra: string | null;
+  gyldigTil: string | null;
+}
+
+export interface GruppeMedlemskapRequest {
+  overordnetGruppeBegrepId: string;
+  underordnetGruppeBegrepId: string;
+  hjemmelRettskildeId: string;
+  paragrafspenn: ParagrafspennParDto[];
+  gyldigFra?: string | null;
+  gyldigTil?: string | null;
+}
+
 export interface VirksomhetKandidatDto {
   id: string;
   virksomhetId: string;
@@ -439,6 +462,24 @@ export interface NavnekandidatKoblingResultatDto {
   taggId: string | null;
   rettskildeId: string;
   nodeEid: string;
+}
+
+/** [Ny, gruppemedlemskap-runden, 2026-09-08] POST /api/navnekandidater/{id}/kobl-til-gruppemedlemskap.
+ * Hjemmelen sendes IKKE — den er alltid kandidatens egen rettskilde (det er der navnet står). */
+export interface KoblNavnekandidatTilGruppemedlemskapRequest {
+  virksomhetId: string;
+  gruppeBegrepId: string;
+  navneformgrunn: Navneformgrunn | null;
+}
+
+/** Som `NavnekandidatKoblingResultatDto`, pluss selve medlemskapsraden. */
+export interface NavnekandidatGruppemedlemskapResultatDto {
+  kandidat: NavnekandidatDto;
+  navneform: BegrepDto;
+  taggId: string | null;
+  rettskildeId: string;
+  nodeEid: string;
+  tildeling: MyndighetstildelingDto;
 }
 
 export interface NavnekandidatDto {

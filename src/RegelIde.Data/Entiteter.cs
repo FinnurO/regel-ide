@@ -1133,6 +1133,61 @@ public sealed class MyndighetstildelingEntitet
 }
 
 /// <summary>
+/// [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] «Gruppe av gruppe» — en selvrefererende kant
+/// mellom TO gruppebegrep (<see cref="BegrepEntitet"/> med
+/// <see cref="BegrepEntitet.Begrepskategori"/> = `'gruppe'`), der
+/// <see cref="UnderordnetGruppeBegrepId"/> er MEDLEM av <see cref="OverordnetGruppeBegrepId"/>.
+/// <para>
+/// <b>Hvorfor en egen entitet og ikke en <c>OverordnetGruppeBegrepId</c>-kolonne på
+/// <see cref="BegrepEntitet"/></b> (Johanns eksplisitte valg (b), issue #164): medlemskapet er en
+/// egen PÅSTAND med egen HJEMMEL — det er forskriften som sier at «språkutviklingskommuner» inngår i
+/// «forvaltningsområdet for samiske språk», mens selve gruppebegrepet er hjemlet i loven
+/// (<see cref="BegrepEntitet.LovkildeId"/>). En kolonne på begrepet kunne ikke båret
+/// <see cref="HjemmelRettskildeId"/>, og ville dessuten låst hver gruppe til ÉN overordnet gruppe.
+/// Samme modellvalg og samme feltsett som <see cref="MyndighetstildelingEntitet"/>, som er den
+/// tilsvarende kanten ned til en konkret <see cref="Virksomhet"/> — de to entitetene er de to
+/// nivåene i det samme hierarkiet, ikke to konkurrerende mekanismer.
+/// </para>
+/// <para>
+/// <b>Sykler avvises</b> (Johanns eksplisitte valg): både selv-medlemskap (håndhevet av
+/// sjekkskranken <c>ck_gruppe_medlemskap_ikke_selv</c> i databasen) og lengre sirkulære kjeder
+/// (håndhevet i <see cref="RegelIde.Data.GruppeMedlemskapTjeneste.OpprettAsync"/>, som traverserer
+/// eksisterende kanter før innsetting). En sirkulær kjede er ikke en opplysning om verden — den er
+/// alltid en registreringsfeil, og skal stoppes med en tydelig feilmelding i stedet for å legges inn
+/// og velte enhver senere traversering.
+/// </para>
+/// </summary>
+public sealed class GruppeMedlemskapEntitet
+{
+    public Guid Id { get; set; }
+
+    /// <summary>Gruppen som INNEHOLDER den andre — «forvaltningsområdet for samiske språk».</summary>
+    public required Guid OverordnetGruppeBegrepId { get; set; }
+
+    /// <summary>Gruppen som ER MEDLEM — «språkutviklingskommuner».</summary>
+    public required Guid UnderordnetGruppeBegrepId { get; set; }
+
+    /// <summary>Hvilken rettskilde som NAVNGIR selve medlemskapet — typisk en forskrift, ikke den
+    /// loven som definerer gruppebegrepene. Se klassekommentaren.</summary>
+    public required Guid HjemmelRettskildeId { get; set; }
+
+    /// <summary>Samme strukturerte form som <see cref="MyndighetstildelingEntitet.ParagrafspennJson"/>
+    /// (docs/20 §7.1) — JSON-serialisert liste av <c>{ FraEid, TilEid? }</c>-par, altså HVOR i
+    /// hjemmelen medlemskapet står.</summary>
+    public string ParagrafspennJson { get; set; } = "[]";
+
+    /// <summary>Nullbar, tidsavgrenset medlemskap — samme sjeldne unntakstilfelle som
+    /// <see cref="MyndighetstildelingEntitet.GyldigFra"/>.</summary>
+    public DateOnly? GyldigFra { get; set; }
+    public DateOnly? GyldigTil { get; set; }
+
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? SistEndretAv { get; set; }
+    public DateTimeOffset? SistEndretTidspunkt { get; set; }
+}
+
+/// <summary>
 /// [Ny, begrepsoppdagelse-runden, docs/24 §2.1] Arbeidskø for begreps-FOREKOMSTER oppdaget ved
 /// deterministisk (regex-basert) sveip av allerede importert rettskildetekst (M1 = eksplisitt
 /// definisjonsliste, M11 = egen definisjonsparagraf uten punktliste — se

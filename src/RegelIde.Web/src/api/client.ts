@@ -114,6 +114,10 @@ import type {
   BrregEnhetDto,
   VirksomhetsbegrepDto,
   MyndighetstildelingDto,
+  GruppeMedlemskapDto,
+  GruppeMedlemskapRequest,
+  KoblNavnekandidatTilGruppemedlemskapRequest,
+  NavnekandidatGruppemedlemskapResultatDto,
   ParagrafspennParDto,
   VirksomhetKandidatDto,
   SveipVirksomhetKandidaterRequest,
@@ -348,6 +352,28 @@ export const api = {
       body: JSON.stringify(request),
     }),
 
+  /** [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] Hvilke VIRKSOMHETER som er medlem av et
+   * gruppebegrep, og under hvilke hjemler — drill-through fra en gruppetagg til medlemslisten.
+   * Endepunktet fantes fra før, men ingen klient kalte det. */
+  hentMyndighetstildelingerForGruppebegrep: (gruppeBegrepId: string, kunGjeldende = false) =>
+    kall<MyndighetstildelingDto[]>(
+      `/api/gruppebegrep/${gruppeBegrepId}/tildelinger${kunGjeldende ? '?gjeldende=true' : ''}`),
+
+  /** Gruppene som selv er MEDLEM av dette gruppebegrepet — ett nivå ned, ikke transitivt. */
+  hentMedlemsgrupper: (gruppeBegrepId: string) =>
+    kall<GruppeMedlemskapDto[]>(`/api/gruppebegrep/${gruppeBegrepId}/medlemsgrupper`),
+
+  /** Gruppene dette gruppebegrepet selv er MEDLEM av — motsatt retning. */
+  hentOverordnedeGrupper: (gruppeBegrepId: string) =>
+    kall<GruppeMedlemskapDto[]>(`/api/gruppebegrep/${gruppeBegrepId}/overordnede-grupper`),
+
+  opprettGruppeMedlemskap: (request: GruppeMedlemskapRequest) =>
+    kall<GruppeMedlemskapDto>('/api/gruppemedlemskap', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
   /** Departement-virksomhet-lenke (2026-08-30) — gjeldende lover/forskrifter der AnsvarligDepartement eksakt matcher denne virksomhetens navn. */
   hentRettskilderAnsvarligFor: (virksomhetId: string) =>
     kall<RettskildeSammendrag[]>(`/api/virksomheter/${virksomhetId}/rettskilder-ansvarlig-for`),
@@ -486,6 +512,16 @@ export const api = {
    * status 'Godkjent' + en TekstTagg som faktisk peker på virksomheten. */
   koblNavnekandidatTilVirksomhet: (id: string, request: KoblNavnekandidatTilVirksomhetRequest) =>
     kall<NavnekandidatKoblingResultatDto>(`/api/navnekandidater/${id}/kobl-til-virksomhet`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  /** [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] Som `koblNavnekandidatTilVirksomhet`, pluss
+   * en myndighetstildeling som gjør virksomheten medlem av gruppebegrepet — hjemlet i kandidatens
+   * EGEN rettskilde. Idempotent. */
+  koblNavnekandidatTilGruppemedlemskap: (id: string, request: KoblNavnekandidatTilGruppemedlemskapRequest) =>
+    kall<NavnekandidatGruppemedlemskapResultatDto>(`/api/navnekandidater/${id}/kobl-til-gruppemedlemskap`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
