@@ -17,12 +17,13 @@ namespace RegelIde.Api;
 /// </para>
 ///
 /// <para>
-/// <b>Ikke gated bak et konfigflagg</b>, til forskjell fra Lovdata-fullimporten. Den er dyr OG
-/// gjentakende (hele Lovdata-korpuset, hver restart, derav issue #132); denne er dyr KUN første gang:
-/// andre kjøring gjør null skrivinger og null HTTP-kall, siden radene alt har
+/// <b>Gated bak <c>RegelIde:Virksomhetsnavn:SynkVedOppstart</c></b> (standard PÅ), samme mønster som
+/// Lovdata-fullimporten. Kostnaden er ikke grunnen — synken er dyr KUN første gang, andre kjøring gjør
+/// null skrivinger og null HTTP-kall siden radene alt har
 /// <see cref="Virksomhet.SistBrregSynkronisert"/> satt og SSR/SNL-svarene ligger i
-/// <c>ekstern_navneoppslag_cache</c>. En vanlig restart koster derfor ingenting, og da er et flagg som
-/// må huskes verre enn ingen flagg — navnene skal bare være riktige.
+/// <c>ekstern_navneoppslag_cache</c>. Grunnen er at HVER testkjøring er en «første gang»: en fersk
+/// embedded-Postgres per fixture betyr ekte Brreg- og SSR/SNL-kall fra testene, og skrivinger til
+/// testdatabasen mens seedene kjører. Se <see cref="AktivNokkel"/>.
 /// </para>
 ///
 /// <para>
@@ -34,11 +35,31 @@ namespace RegelIde.Api;
 /// </para>
 /// </summary>
 public sealed class VirksomhetRegisternavnSynkBakgrunnstjeneste(
-    IServiceScopeFactory scopeFactory, ILogger<VirksomhetRegisternavnSynkBakgrunnstjeneste> logger)
+    IServiceScopeFactory scopeFactory, IConfiguration konfigurasjon,
+    ILogger<VirksomhetRegisternavnSynkBakgrunnstjeneste> logger)
     : BackgroundService
 {
+    /// <summary>
+    /// [Ny, 2026-09-08] Av-bryter, samme mønster og samme begrunnelse som
+    /// <c>RegelIde:LovdataFullimport:AktivVedOppstart</c> og <c>RegelIde:KiAgent:Leverandor=Stub</c>:
+    /// ingen ekte, utilsiktede nettverkskall i en testkjøring. Uten denne kjørte synken også under
+    /// <c>WebApplicationFactory&lt;Program&gt;</c> i <c>RegelIde.Api.Tests</c> — inntil 447 EKTE
+    /// Brreg-kall pluss inntil 402 SSR/SNL-kall per verts-oppstart, mot en delt fixture som reiser
+    /// verten flere ganger. Den skrev i tillegg til testdatabasen (omdøpte Virksomhet.Navn), som er
+    /// hvordan <c>BergenKorpusSeed</c> sin navnebaserte idempotens-vakt ble brutt. Standard er
+    /// PÅ — produksjon skal synke; fixturen setter den til false.
+    /// </summary>
+    private const string AktivNokkel = "RegelIde:Virksomhetsnavn:SynkVedOppstart";
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
+        if (!konfigurasjon.GetValue(AktivNokkel, true))
+        {
+            logger.LogInformation(
+                "Registernavn-synk ved oppstart er avslått ({Nokkel}=false).", AktivNokkel);
+            return;
+        }
+
         try
         {
             using var scope = scopeFactory.CreateScope();

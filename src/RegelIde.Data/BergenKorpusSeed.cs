@@ -37,6 +37,12 @@ public static class BergenKorpusSeed
 {
     private const string SeedBruker = "Kari Jurist";
 
+    /// <summary>Bergens organisasjonsnummer — den STABILE nøkkelen (docs/15 §3.3, LÅST), brukt av
+    /// idempotens-vakten i <see cref="SeedAsync"/>. Samme verdi som
+    /// <c>OrganisasjonsregisterSeed.BergenOrgnr</c>; bevisst duplisert som konstant her framfor å
+    /// gjøre den andre seeden til en avhengighet for én streng.</summary>
+    private const string BergenOrgnr = "964338531";
+
     private static readonly string[] AlleUnderliggendeNettsideFiler =
     [
         "bevillingsgebyr-salgsog-skjenkebevillinger-20252026-frist-er-17februar-2026.txt",
@@ -69,7 +75,14 @@ public static class BergenKorpusSeed
     /// i Program.cs, siden containeren ikke har repoets mappestruktur rundt seg.</param>
     public static async Task SeedAsync(RegelIdeDbContext db, string dataKilderRotmappe, CancellationToken ct = default)
     {
-        if (await db.Virksomheter.AnyAsync(v => v.Navn == "Bergen kommune", ct)) return;
+        // [RETTET, registernavn-runden, 2026-09-08] Vakten sjekket NAVNET («Bergen kommune»). Navn er
+        // ikke lenger stabilt: VirksomhetRegisternavnSynkTjeneste setter Navn til Brregs egen form
+        // («BERGEN KOMMUNE»), og da traff vakten ikke ved neste oppstart — seeden satte inn Bergen på
+        // nytt og traff ux_virksomheter_organisasjonsnummer (23505). Det veltet hele oppstarten, og
+        // dermed HELE ApiTestCollection (245 kaskadefeil), fordi WebApplicationFactory ikke fikk reist
+        // verten. Organisasjonsnummer er den STABILE nøkkelen (docs/15 §3.3, LÅST) — som kommentaren
+        // rett under denne raden alltid har sagt. Vakten følger nå den regelen.
+        if (await db.Virksomheter.AnyAsync(v => v.Organisasjonsnummer == BergenOrgnr, ct)) return;
         if (!Directory.Exists(dataKilderRotmappe)) return; // container uten repoets kildefiler — samme skip som Program.cs' egen raw-lovdata-import.
 
         var bergen = new Virksomhet
