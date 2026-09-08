@@ -34,7 +34,7 @@
  *     entitet) er derfor byttet med en direkte «Ny tagg»-handling som committer
  *     ref:null med én gang — det finnes ingen entitet å opprette ennå.
  */
-import { useCallback, useMemo, useRef, useState } from 'react';
+import { useCallback, useMemo, useRef, useState, type CSSProperties } from 'react';
 import { Link as RouterLink } from 'react-router';
 import { ToggleGroup, Tag, Button, Link } from '@digdir/designsystemet-react';
 
@@ -199,6 +199,53 @@ function selectionOffsets(container: HTMLElement): { start: number; end: number;
   return { start: pre.toString().length, end: post.toString().length, text };
 }
 
+/**
+ * [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] Ett tagget segment i LØPETEKSTEN.
+ *
+ * <p>Er taggen koblet til noe `resolveRef` kan gi en lenke for, er markeringen selv navigerbar.
+ * Før dette var den bare en `<mark>` med et `title`-tooltip som viste en rå GUID, og den ENESTE
+ * veien videre gikk via tagg-listen under teksten. Johanns krav er nettopp den veien: se «Karasjok»
+ * merket i forskriften og gå derfra til Karasjok kommune — og se «språkutviklingskommuner» merket i
+ * sameloven og gå derfra til gruppen for å se hva den inneholder. Det er markeringen i teksten man
+ * peker på når man leser, ikke en liste lenger ned.</p>
+ *
+ * <p><b>`draggable={false}` er ikke pynt.</b> En `<a>` i teksten gjør at museklikk-og-dra starter en
+ * lenke-DRAGGING i stedet for en tekst-SELEKSJON, og seleksjon er nøyaktig hvordan man oppretter en
+ * ny tagg (`selectionOffsets`). Uten dette ville det å gjøre tagger navigerbare ha ødelagt taggingen
+ * over og rundt allerede taggede ord.</p>
+ *
+ * <p>Fargen og understrekingen er uendret fra den ikke-lenkede markeringen, og lenken arver
+ * `color: inherit`: en tagg skal se ut som en tagg, ikke som en blå lenke midt i lovteksten. At den
+ * er klikkbar formidles av `cursor: pointer` og `title`, ikke av at fargekoden brytes — fargen bærer
+ * allerede en egen betydning (hvilket tagg-lag).</p>
+ */
+function TaggetSegment({
+  tekst, etikett, farge, lenke,
+}: {
+  tekst: string;
+  etikett: string;
+  farge: string | undefined;
+  lenke: { label: string; href: string } | undefined;
+}) {
+  const stil: CSSProperties = {
+    background: `var(--ds-color-${farge}-surface-tinted)`,
+    color: `var(--ds-color-${farge}-text-default)`,
+    borderBottom: `2px solid var(--ds-color-${farge}-border-default)`,
+    borderRadius: 'var(--ds-border-radius-sm)',
+    padding: '0 2px',
+  };
+  if (!lenke) {
+    return <mark title={etikett} style={stil}>{tekst}</mark>;
+  }
+  return (
+    <mark title={`${etikett} → ${lenke.label} (åpne)`} style={{ ...stil, cursor: 'pointer' }}>
+      <Link asChild>
+        <RouterLink to={lenke.href} draggable={false} style={{ color: 'inherit' }}>{tekst}</RouterLink>
+      </Link>
+    </mark>
+  );
+}
+
 /* --------------------------- komponent --------------------------- */
 
 export function TagTekst({
@@ -339,19 +386,13 @@ export function TagTekst({
               <RouterLink to={s.href}>{s.text}</RouterLink>
             </Link>
           ) : s.kind ? (
-            <mark
+            <TaggetSegment
               key={i}
-              title={`${kindById[s.kind]?.label ?? s.kind}${s.ref ? `: ${s.ref}` : ''}`}
-              style={{
-                background: `var(--ds-color-${kindById[s.kind]?.color}-surface-tinted)`,
-                color: `var(--ds-color-${kindById[s.kind]?.color}-text-default)`,
-                borderBottom: `2px solid var(--ds-color-${kindById[s.kind]?.color}-border-default)`,
-                borderRadius: 'var(--ds-border-radius-sm)',
-                padding: '0 2px',
-              }}
-            >
-              {s.text}
-            </mark>
+              tekst={s.text}
+              etikett={`${kindById[s.kind]?.label ?? s.kind}${s.ref ? `: ${s.ref}` : ''}`}
+              farge={kindById[s.kind]?.color}
+              lenke={s.ref ? resolveRef?.(s.kind, s.ref) : undefined}
+            />
           ) : (
             <span key={i}>{s.text}</span>
           ),

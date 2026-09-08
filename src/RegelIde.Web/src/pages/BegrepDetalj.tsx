@@ -3,6 +3,7 @@ import { Link as RouterLink, useParams } from 'react-router';
 import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Select, Spinner, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { NavneformgrunnTag } from '../virksomhet/Navneformgrunn';
+import { GruppeMedlemmer } from '../virksomhet/GruppeMedlemmer';
 import { finnRettskildeForEid, rettskildeLenke, rettskildeLenkeForId } from '../api/eidLenker';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import type { BegrepBruktIRettskildeDto, BegrepDto, BegrepTaggetForekomstDto, RettskildeSammendrag, VilkarDto } from '../api/types';
@@ -151,6 +152,14 @@ export default function BegrepDetalj() {
             </Paragraph>
           )}
         </section>
+      )}
+
+      {/* [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] Drill-through fra gruppebegrepet til
+        * det gruppen faktisk INNEHOLDER — begge nivåene (medlemsgrupper og konkrete virksomheter) og
+        * retningen oppover. Uten denne var et gruppebegrep en blindvei: siden viste hva gruppen ER
+        * hjemlet i, men aldri hvem som er i den. Se `GruppeMedlemmer` for hvorfor det er tre lister. */}
+      {begrep.begrepskategori === 'gruppe' && id && (
+        <GruppeMedlemmer gruppeBegrepId={id} rettskilder={rettskilder} />
       )}
 
       <section style={{ marginBottom: '2rem' }}>

@@ -493,3 +493,45 @@ forveksles med det offisielle navnet. En uspesifisert (NULL) grunn gir som stand
 (tom celle) i tabeller, siden de aller fleste eksisterende radene mangler grunn og en
 «Uspesifisert»-merkelapp på hver av dem ville vært ren støy; `visUspesifisert` slås på der fraværet
 er selve poenget. En verdi komponenten ikke kjenner vises RÅ i stedet for å skjules.
+
+---
+
+## 16. Navigerbare tagger i løpetekst + medlemslister på et gruppebegrep (2026-09-08, issue #164)
+
+**En koblet tagg i løpeteksten SKAL være en lenke.** `TagTekst` rendret tidligere hver markering som
+en bar `<mark>` med et `title`-tooltip som viste taggens rå GUID; den eneste veien fra en markering
+til entiteten den peker på gikk via tagg-listen UNDER teksten. Det er markeringen i teksten man peker
+på når man leser en lovtekst, ikke en liste lenger ned. Er `resolveRef` i stand til å gi en lenke for
+taggens `ref`, er markeringen derfor selv navigerbar (`TaggetSegment`).
+
+Tre bindende detaljer, alle tre av samme grunn — markeringen skal bli klikkbar UTEN å bli noe annet:
+
+- **`draggable={false}` på lenken.** En `<a>` inne i tekstflaten gjør at klikk-og-dra starter en
+  lenke-dragging i stedet for en tekst-SELEKSJON, og seleksjon er nøyaktig hvordan en ny tagg
+  opprettes (`selectionOffsets`). Uten dette ville navigerbare tagger ha ødelagt taggingen over og
+  rundt allerede taggede ord. Dette er ikke pynt, og skal ikke fjernes.
+- **`color: inherit` på lenken, uendret markeringsfarge.** Taggfargen bærer allerede en egen
+  betydning (hvilket tagg-lag), og skal ikke overstyres av lenkefargen. At markeringen er klikkbar
+  formidles av `cursor: pointer` og `title`, ikke ved å bryte fargekoden.
+- **Ingen ny `kind` for grupper.** Et gruppebegrep i løpetekst er en `begrep`-tagg hvis `refId` peker
+  på et begrep med kategori `'gruppe'`. Drill-through skiller seg derfor på REFERANSEMÅLET, ikke på
+  taggens `kind` — legg aldri til en `gruppe`-kind for å slippe det oppslaget.
+
+**Tre lister på et gruppebegrep, ikke én** (`GruppeMedlemmer`, vist av `BegrepDetalj` for kategori
+`'gruppe'`): «Medlemsgrupper» (gruppe-av-gruppe, ett nivå ned), «Virksomheter i gruppen»
+(myndighetstildelingene) og «Medlem av» (retningen oppover). De er tre ULIKE påstander, og en
+sammenslått «medlemmer»-liste ville skjult nettopp det som er poenget — at en kommune kan få plikter
+INDIREKTE, gjennom en gruppe som selv er medlem av en gruppe. «Medlem av» er ikke valgfri pynt: uten
+den er drill-throughen en enveiskjørt gate.
+
+**Hjemmel per RAD, aldri per liste.** Hvert medlemskap har sin egen hjemmel med sitt eget
+paragrafspenn — det er hele grunnen til at medlemskapet er en egen entitet. Lenken går til nøyaktig
+paragrafen (`rettskildeLenkeForId`), ikke bare til rettskilden. En felles «hjemlet i …»-setning over
+tabellen er feil så snart to medlemmer kommer fra to ulike forskrifter.
+
+**Bevisst IKKE gjort, eksplisitt flagget etter §14 sin migreringsplikt:** `BegrepDetalj` er fortsatt
+ikke migrert til det delte `KontekstPanel`-mønsteret. Å migrere hele siden er et større, selvstendig
+grep enn å lukke gruppe-drill-throughen, og de to hører ikke i samme endring. De nye seksjonene
+følger derfor sidens eksisterende seksjonsmønster — men de følger §14 og §15 på alt annet: `Card`
+ALLTID rendret med tom-tilstand som `Paragraph` inni, `null` = laster ⇒ `Spinner`,
+`data-density="compact"` på tabellene, og `Link asChild` rundt react-router sin `Link`.

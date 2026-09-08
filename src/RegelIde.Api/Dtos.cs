@@ -627,6 +627,24 @@ public sealed record MyndighetstildelingDto(
         m.Vilkaar, m.GyldigFra, m.GyldigTil);
 }
 
+// [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] «Gruppe av gruppe» — se
+// GruppeMedlemskapEntitet. Formen speiler MyndighetstildelingRequest/-Dto over, som er den
+// tilsvarende kanten ned til en konkret virksomhet.
+public sealed record GruppeMedlemskapRequest(
+    Guid OverordnetGruppeBegrepId, Guid UnderordnetGruppeBegrepId, Guid HjemmelRettskildeId,
+    IReadOnlyList<ParagrafspennParDto> Paragrafspenn,
+    DateOnly? GyldigFra = null, DateOnly? GyldigTil = null);
+
+public sealed record GruppeMedlemskapDto(
+    Guid Id, Guid OverordnetGruppeBegrepId, Guid UnderordnetGruppeBegrepId, Guid HjemmelRettskildeId,
+    IReadOnlyList<ParagrafspennParDto> Paragrafspenn, DateOnly? GyldigFra, DateOnly? GyldigTil)
+{
+    public static GruppeMedlemskapDto FraEntitet(GruppeMedlemskapEntitet m) => new(
+        m.Id, m.OverordnetGruppeBegrepId, m.UnderordnetGruppeBegrepId, m.HjemmelRettskildeId,
+        GruppeMedlemskapTjeneste.LesParagrafspenn(m).Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList(),
+        m.GyldigFra, m.GyldigTil);
+}
+
 public sealed record VirksomhetKandidatRequest(Guid VirksomhetId, Guid RettskildeId, string NodeEid, int StartOffset, int EndOffset);
 
 public sealed record VirksomhetKandidatDto(
@@ -704,6 +722,30 @@ public sealed record NavnekandidatKoblingResultatDto(
     public static NavnekandidatKoblingResultatDto FraResultat(NavnekandidatKoblingResultat r) => new(
         NavnekandidatDto.FraEntitet(r.Kandidat), BegrepDto.FraEntitet(r.Navneform), r.TaggId,
         r.Kandidat.RettskildeId, r.NodeEid);
+}
+
+/// <summary>
+/// [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] Wizardens nye vei: kandidaten peker på en
+/// virksomhet SOM ER MEDLEM av et eksisterende gruppebegrep. Samme felt som
+/// <see cref="KoblNavnekandidatTilVirksomhetRequest"/> pluss gruppen — hjemmelen sendes IKKE, den er
+/// alltid kandidatens egen rettskilde (se
+/// <see cref="NavnekandidatOppdagelseTjeneste.KoblTilGruppemedlemskapAsync"/>) og skal ikke kunne
+/// settes til noe annet av en klient.
+/// </summary>
+public sealed record KoblNavnekandidatTilGruppemedlemskapRequest(
+    Guid VirksomhetId, Guid GruppeBegrepId, string? Navneformgrunn);
+
+/// <summary>
+/// [Ny, gruppemedlemskap-runden, 2026-09-08] Som <see cref="NavnekandidatKoblingResultatDto"/>, pluss
+/// medlemskapsraden — klienten trenger den for «dette skjedde»-oppsummeringen (docs/09 §15).
+/// </summary>
+public sealed record NavnekandidatGruppemedlemskapResultatDto(
+    NavnekandidatDto Kandidat, BegrepDto Navneform, Guid? TaggId, Guid RettskildeId, string NodeEid,
+    MyndighetstildelingDto Tildeling)
+{
+    public static NavnekandidatGruppemedlemskapResultatDto FraResultat(NavnekandidatGruppemedlemskapResultat r) => new(
+        NavnekandidatDto.FraEntitet(r.Kandidat), BegrepDto.FraEntitet(r.Navneform), r.TaggId,
+        r.Kandidat.RettskildeId, r.NodeEid, MyndighetstildelingDto.FraEntitet(r.Tildeling));
 }
 
 public sealed record SveipNavnekandidaterRequest(Guid? RettskildeId);

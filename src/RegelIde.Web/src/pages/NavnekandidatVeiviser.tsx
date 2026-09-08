@@ -7,9 +7,10 @@ import {
 import { ApiError, api } from '../api/client';
 import type {
   BrregEnhetDto, NavnekandidatDto, Navneformgrunn, RettskildeDetalj as RettskildeDetaljDto,
-  RettskildeNodeDto,
+  RettskildeNodeDto, VirksomhetsbegrepDto,
 } from '../api/types';
 import { BerikelseVisning } from '../virksomhet/BerikelseVisning';
+import { GruppebegrepVelger } from '../virksomhet/GruppebegrepVelger';
 import { NavneformgrunnVelger } from '../virksomhet/Navneformgrunn';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
@@ -30,11 +31,23 @@ import { useVirksomheter } from '../virksomhet/useVirksomheter';
  * i lovteksten («Suldal», «Matilsynet», «Arkivverket») — de skal beholdes ordrett, ikke skrives om.
  * Se `Navneformgrunn.tsx` og `NavnekandidatOppdagelseTjeneste.OppdaterAsync`.
  *
+ * <h3>[Utvidet, gruppemedlemskap-runden, 2026-09-08, issue #164] «Medlem av eksisterende gruppe»</h3>
+ * Denne veien SA tidligere eksplisitt til saksbehandleren at den ikke var bygget. Den er nå bygget,
+ * og er den fjerde `Slag`-verdien: kandidaten «Karasjok» i forskriften er ikke et nytt gruppebegrep
+ * og ikke bare en virksomhet — den er «Karasjok kommune» I EGENSKAP AV å være navngitt medlem av
+ * «språkutviklingskommuner». Veien gjenbruker HELE steg 4-maskineriet (katalogsøk/Brreg/kun navn +
+ * navneformgrunn) og legger ett felt til: hvilken gruppe. Utfallet er alt virksomhet-veien gir,
+ * pluss en `MyndighetstildelingEntitet` hjemlet i KANDIDATENS EGEN rettskilde — det er forskriften
+ * der navnet står som navngir medlemskapet, ikke loven som definerte gruppen.
+ *
  * <h3>Bevisst UTENFOR denne runden</h3>
- * Kategoriene «administrativ inndeling» og «medlem av eksisterende gruppe» er ikke bygget, og har
- * bevisst ingen stubber som ser byggbare ut — en halvferdig vei i en veiviser er verre enn ingen.
- * Korreksjonsregel-tabellen (issue #203 pkt. 4) kommer separat; steg 1 retter ÉN rad, og lærer ikke
- * et mønster som kan brukes på nye sveip.
+ * Kategorien «administrativ inndeling» er fortsatt ikke bygget, og har bevisst ingen stubb som ser
+ * byggbar ut — en halvferdig vei i en veiviser er verre enn ingen. Å OPPRETTE et nytt gruppebegrep
+ * og samtidig gjøre det medlem av en annen gruppe (gruppe-av-gruppe fra veiviseren) er heller ikke
+ * med: `GruppeMedlemskapEntitet` finnes og har eget endepunkt, men veiviserens gruppe-vei oppretter
+ * i dag kun selve gruppebegrepet, og medlemskapet mellom to grupper registreres separat (slik
+ * `SamiskSprakforvaltningSeed` gjør det). Korreksjonsregel-tabellen (issue #203 pkt. 4) kommer
+ * separat; steg 1 retter ÉN rad, og lærer ikke et mønster som kan brukes på nye sveip.
  *
  * <h3>Designmønster</h3>
  * Ny side, så den følger saksbehandler-mønsteret fra dag én (docs/09 §14): brødsmulesti,
@@ -43,19 +56,33 @@ import { useVirksomheter } from '../virksomhet/useVirksomheter';
  * til den 6-trinns entitets-statusmodellen og passer ikke her).
  */
 
-/** Steg 2 sitt valg. `null` = ikke valgt ennå. */
-type Slag = 'virksomhet' | 'gruppe' | 'irrelevant';
+/** Steg 2 sitt valg. `null` = ikke valgt ennå. `gruppemedlem` er
+ * [ny, gruppemedlemskap-runden, 2026-09-08] — se filkommentaren. */
+type Slag = 'virksomhet' | 'gruppemedlem' | 'gruppe' | 'irrelevant';
+
+/** De to `Slag`-verdiene som går videre til steg 4 (virksomhetsvalget). Skilt ut som en egen
+ * predikatfunksjon fordi den brukes på fire steder — steg-tittelen, steg 3s «Neste»-knapp, steg 4s
+ * og steg 5s synlighet — og en glemt oppdatering av ÉN av dem gir en veiviser som halvveis åpner en
+ * vei. */
+function harVirksomhetssteg(slag: Slag | null): boolean {
+  return slag === 'virksomhet' || slag === 'gruppemedlem';
+}
+
+/** Steg-titlene. Steg 4 sin tittel avhenger av `Slag`: gruppemedlem-veien velger BÅDE virksomhet og
+ * gruppe i det steget, og en tittel som bare sa «Hvilken virksomhet?» ville underrapportert hva
+ * steget faktisk krever av saksbehandleren. */
+function stegTitler(slag: Slag | null): readonly string[] {
+  return [
+    'Kontekst',
+    'Er teksten riktig?',
+    'Hva slags ting er dette?',
+    slag === 'gruppemedlem' ? 'Hvilken virksomhet og gruppe?' : 'Hvilken virksomhet?',
+    'Bekreft',
+  ];
+}
 
 /** Steg 3 sin gren: koble til en som finnes, eller opprette en ny (fra Brreg, eller kun navn). */
 type VirksomhetVei = 'eksisterende' | 'brreg' | 'kunNavn';
-
-const STEG_TITLER = [
-  'Kontekst',
-  'Er teksten riktig?',
-  'Hva slags ting er dette?',
-  'Hvilken virksomhet?',
-  'Bekreft',
-] as const;
 
 /**
  * Setningen fra rettskilden med treffet markert. Bygget på nøyaktig de samme offsetene og det samme
@@ -127,6 +154,17 @@ export default function NavnekandidatVeiviser() {
   const [nyttNavn, setNyttNavn] = useState('');
   const [oppretterVirksomhet, setOppretterVirksomhet] = useState(false);
 
+  // Steg 3, gruppemedlem-veien (gruppemedlemskap-runden). `null` = ikke lastet ennå — brukes for å
+  // skille «laster» fra «ingen gruppebegrep finnes» (docs/09 §15: den negative påstanden er
+  // reservert for et faktisk tomt svar).
+  const [gruppebegrep, setGruppebegrep] = useState<VirksomhetsbegrepDto[] | null>(null);
+  const [valgtGruppeBegrepId, setValgtGruppeBegrepId] = useState('');
+  /** Tittelen på loven det VALGTE gruppebegrepet er hjemlet i. Hentes for ÉN rettskilde etter at
+   * valget er gjort — bevisst ikke ved å laste hele rettskildelista for å kunne merke lista på
+   * forhånd: korpuset er ~5900 rettskilder, og docs/09 §10 er tydelig på at slike lister ikke skal
+   * lastes for å pynte på et valg. `null` mens den lastes eller når loven ikke kunne hentes. */
+  const [valgtGruppeLovTittel, setValgtGruppeLovTittel] = useState<string | null>(null);
+
   // Steg 4 / avslutning
   const [fullfører, setFullfører] = useState(false);
   const [feil, setFeil] = useState<string | null>(null);
@@ -140,6 +178,10 @@ export default function NavnekandidatVeiviser() {
      * ikke stemmer, og laget er nettopp det man må velge for å SE markeringen. */
     taggLag: string | null;
     virksomhetLenke: string | null;
+    /** [Ny, gruppemedlemskap-runden] Gruppebegrepets detaljside, satt kun på gruppemedlem-veien.
+     * Det er nettopp den drill-throughen medlemskapet ble registrert FOR: derfra ser man hele
+     * medlemslista gruppen nå inneholder. */
+    gruppeLenke: string | null;
     advarsel: string | null;
   } | null>(null);
 
@@ -179,6 +221,34 @@ export default function NavnekandidatVeiviser() {
       ? { start: funnet, slutt: funnet + kandidat.foreslattTekst.length }
       : { start: kandidat.startOffset, slutt: kandidat.endOffset };
   }, [kandidat, node]);
+
+  /** Gruppebegrepene lastes FØRST når gruppemedlem-veien faktisk er valgt — ikke ved sidelast.
+   * De aller fleste kandidatene går virksomhet- eller gruppe-veien, og et kall ingen av dem trenger
+   * er et kall som ikke skal gjøres. */
+  useEffect(() => {
+    if (slag !== 'gruppemedlem' || gruppebegrep !== null) return;
+    api.hentGruppebegrep()
+      .then(setGruppebegrep)
+      .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Kunne ikke laste gruppebegrepene.'));
+  }, [slag, gruppebegrep]);
+
+  /** Loven det VALGTE gruppebegrepet er hjemlet i — ÉN rettskilde, hentet etter valget. Se
+   * kommentaren på `valgtGruppeLovTittel` for hvorfor ikke hele rettskildelista lastes på forhånd. */
+  useEffect(() => {
+    setValgtGruppeLovTittel(null);
+    if (!valgtGruppeBegrepId) return;
+    const lovkildeId = gruppebegrep?.find((g) => g.id === valgtGruppeBegrepId)?.lovkildeId;
+    if (!lovkildeId) return;
+    let avbrutt = false;
+    api.hentRettskilde(lovkildeId)
+      .then((r) => { if (!avbrutt) setValgtGruppeLovTittel(r.tittel); })
+      // Lovtittelen er PYNT på et valg som allerede er gjort — mangler den, vises termen alene
+      // heller enn at hele steget feiler på den.
+      .catch(() => { /* stille: se over */ });
+    return () => { avbrutt = true; };
+  }, [valgtGruppeBegrepId, gruppebegrep]);
+
+  const valgtGruppe = gruppebegrep?.find((g) => g.id === valgtGruppeBegrepId) ?? null;
 
   async function lagreTekst() {
     if (!id || !kandidat) return;
@@ -255,6 +325,7 @@ export default function NavnekandidatVeiviser() {
           // IKKE «Virksomhet». Se GodkjennAsync.
           taggLag: 'Begrep',
           virksomhetLenke: null,
+          gruppeLenke: null,
           advarsel: null,
         });
       } else {
@@ -265,6 +336,7 @@ export default function NavnekandidatVeiviser() {
           rettskildeLenke: null,
           taggLag: null,
           virksomhetLenke: null,
+          gruppeLenke: null,
           advarsel: null,
         });
       }
@@ -275,16 +347,25 @@ export default function NavnekandidatVeiviser() {
     }
   }
 
-  /** Steg 4: lukker kjeden. */
+  /** Steg 4: lukker kjeden. Gruppemedlem-veien går til et ANNET endepunkt som i tillegg oppretter
+   * myndighetstildelingen — se `KoblTilGruppemedlemskapAsync`. Resten av utfallet er identisk, og
+   * behandles derfor felles under. */
   async function fullførVirksomhet() {
     if (!id || !kandidat || !valgtVirksomhetId) return;
+    if (slag === 'gruppemedlem' && !valgtGruppeBegrepId) return;
     setFullfører(true);
     setFeil(null);
     try {
-      const resultat = await api.koblNavnekandidatTilVirksomhet(id, {
-        virksomhetId: valgtVirksomhetId,
-        navneformgrunn,
-      });
+      const resultat = slag === 'gruppemedlem'
+        ? await api.koblNavnekandidatTilGruppemedlemskap(id, {
+          virksomhetId: valgtVirksomhetId,
+          gruppeBegrepId: valgtGruppeBegrepId,
+          navneformgrunn,
+        })
+        : await api.koblNavnekandidatTilVirksomhet(id, {
+          virksomhetId: valgtVirksomhetId,
+          navneformgrunn,
+        });
       const virksomhetNavn = virksomheter.find((v) => v.id === valgtVirksomhetId)?.navn ?? 'virksomheten';
       setFerdig({
         tittel: `«${resultat.navneform.term}» er nå en navneform for ${virksomhetNavn}.`,
@@ -292,6 +373,12 @@ export default function NavnekandidatVeiviser() {
           navneformgrunn
             ? `Begrunnelsen er lagret som «${navneformgrunn}».`
             : 'Ingen begrunnelse er satt (uspesifisert) — den kan settes senere på virksomhetens side.',
+          ...(slag === 'gruppemedlem' && valgtGruppe
+            ? [
+              `${virksomhetNavn} er registrert som medlem av «${valgtGruppe.term}», hjemlet i `
+              + 'denne rettskilden — det er her navnet står.',
+            ]
+            : []),
           'Navnekandidaten er satt til «Godkjent».',
           resultat.taggId
             ? 'Tekst-taggen for forekomsten peker nå på virksomheten, og er synlig i rettskilden under laget «Virksomhet».'
@@ -302,6 +389,7 @@ export default function NavnekandidatVeiviser() {
           : null,
         taggLag: resultat.taggId ? 'Virksomhet' : null,
         virksomhetLenke: `/virksomheter/${valgtVirksomhetId}`,
+        gruppeLenke: slag === 'gruppemedlem' && valgtGruppeBegrepId ? `/begreper/${valgtGruppeBegrepId}` : null,
         // Den dokumenterte degraderingen skal VISES, ikke skjules.
         advarsel: resultat.taggId
           ? null
@@ -329,6 +417,11 @@ export default function NavnekandidatVeiviser() {
 
   const valgtVirksomhet = virksomheter.find((v) => v.id === valgtVirksomhetId) ?? null;
 
+  /** Steg 4 er ferdig når virksomheten er valgt — OG, på gruppemedlem-veien, gruppen også. Ett felt
+   * som mangler skal stoppe «Neste», ikke bli en 400 fra endepunktet ved fullføring. */
+  const steg4Klart = valgtVirksomhetId !== ''
+    && (slag !== 'gruppemedlem' || valgtGruppeBegrepId !== '');
+
   return (
     <>
       <Breadcrumbs data-size="sm" style={{ marginBottom: '0.75rem' }}>
@@ -355,7 +448,7 @@ export default function NavnekandidatVeiviser() {
       {/* Steg-indikator — samme Tag-rekke-idiom som StatusStepper (docs/09 §14), men egen, siden
         * StatusStepper er bundet til den 6-trinns entitets-statusmodellen. */}
       <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center', marginBottom: '1rem' }}>
-        {STEG_TITLER.map((tittel, i) => (
+        {stegTitler(slag).map((tittel, i) => (
           <Tag
             key={tittel}
             data-size="sm"
@@ -388,6 +481,11 @@ export default function NavnekandidatVeiviser() {
             {ferdig.virksomhetLenke && (
               <Button data-size="sm" variant="secondary" asChild>
                 <RouterLink to={ferdig.virksomhetLenke}>Se virksomheten ↗</RouterLink>
+              </Button>
+            )}
+            {ferdig.gruppeLenke && (
+              <Button data-size="sm" variant="secondary" asChild>
+                <RouterLink to={ferdig.gruppeLenke}>Se gruppen og medlemmene ↗</RouterLink>
               </Button>
             )}
             <Button data-size="sm" variant="tertiary" onClick={() => navigate('/navnekandidater')}>
@@ -515,8 +613,8 @@ export default function NavnekandidatVeiviser() {
             <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
               <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>3. Hva slags ting er dette?</Heading>
               <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
-                «Administrativ inndeling» og «medlem av en eksisterende gruppe» er bevisst ikke med i
-                denne runden — velg «Ikke relevant» hvis treffet er ett av dem, og ta det opp separat.
+                «Administrativ inndeling» er bevisst ikke med i denne runden — velg «Ikke relevant»
+                hvis treffet er det, og ta det opp separat.
               </Paragraph>
               <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
                 <Radio
@@ -526,6 +624,18 @@ export default function NavnekandidatVeiviser() {
                   value="virksomhet"
                   checked={slag === 'virksomhet'}
                   onChange={() => setSlag('virksomhet')}
+                  disabled={steg !== 2}
+                />
+                {/* [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] Johanns eget eksempel står i
+                  * beskrivelsen: det er nettopp «Karasjok i forskriften» som ikke lot seg behandle før
+                  * denne veien fantes — den er en virksomhet OG et gruppemedlemskap, ikke ett av dem. */}
+                <Radio
+                  name="slag"
+                  label="Konkret virksomhet, navngitt som medlem av en gruppe"
+                  description="Teksten navngir en virksomhet i egenskap av å tilhøre en gruppe loven har definert — f.eks. «Karasjok» som språkutviklingskommune. Oppretter både navneformen og medlemskapet."
+                  value="gruppemedlem"
+                  checked={slag === 'gruppemedlem'}
+                  onChange={() => setSlag('gruppemedlem')}
                   disabled={steg !== 2}
                 />
                 <Radio
@@ -549,7 +659,7 @@ export default function NavnekandidatVeiviser() {
               </Field>
               {steg === 2 && (
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-                  {slag === 'virksomhet' && (
+                  {harVirksomhetssteg(slag) && (
                     <Button data-size="sm" onClick={() => setSteg(3)}>Neste</Button>
                   )}
                   {slag === 'gruppe' && (
@@ -571,10 +681,14 @@ export default function NavnekandidatVeiviser() {
           {/* ---------------- Steg 3: Hvilken virksomhet? ---------------- */}
           {steg >= 3 && (
             <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
-              <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>4. Hvilken virksomhet?</Heading>
+              <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>
+                4. {stegTitler(slag)[3]}
+              </Heading>
               <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
                 Finn virksomheten i katalogen, eller opprett den — fra Brønnøysundregisteret hvis den
                 er registrert der, ellers med bare navnet.
+                {slag === 'gruppemedlem'
+                  && ' Velg deretter hvilken gruppe teksten navngir den som medlem av.'}
               </Paragraph>
 
               <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
@@ -676,6 +790,47 @@ export default function NavnekandidatVeiviser() {
                 </Alert>
               )}
 
+              {/* ----- Gruppemedlem-veiens ENE ekstra felt (gruppemedlemskap-runden, issue #164) ----- */}
+              {slag === 'gruppemedlem' && (
+                <>
+                  <Divider style={{ margin: '0.75rem 0' }} />
+                  <Heading level={3} data-size="xs" style={{ marginBottom: '0.35rem' }}>
+                    Hvilken gruppe navngir teksten den som medlem av?
+                  </Heading>
+                  <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
+                    Gruppen må finnes som gruppebegrep fra før — den er definert i en LOV, mens denne
+                    rettskilden bare navngir medlemmene. Mangler gruppen, må den opprettes fra
+                    lovteksten som definerer den først.
+                  </Paragraph>
+                  {/* docs/09 §15: «ingen gruppebegrep finnes» er en påstand, og skal ikke vises mens
+                    * lista fortsatt lastes. */}
+                  {gruppebegrep === null ? (
+                    <Spinner aria-label="Laster gruppebegrepene …" data-size="sm" />
+                  ) : gruppebegrep.length === 0 ? (
+                    <Alert data-color="warning" data-size="sm" style={{ marginBottom: '0.75rem' }}>
+                      Det finnes ingen gruppebegrep ennå. Opprett gruppen fra den lovteksten som
+                      definerer den — via «Gruppe som defineres her» på den kandidaten — og kom
+                      tilbake hit etterpå.
+                    </Alert>
+                  ) : (
+                    <GruppebegrepVelger
+                      gruppebegrep={gruppebegrep}
+                      value={valgtGruppeBegrepId}
+                      onChange={setValgtGruppeBegrepId}
+                      label="Gruppe"
+                      tomValgTekst="Velg gruppe …"
+                      style={{ marginBottom: '0.75rem', maxWidth: '28rem' }}
+                    />
+                  )}
+                  {valgtGruppe && (
+                    <Alert data-color="info" data-size="sm" style={{ marginBottom: '0.75rem' }}>
+                      Valgt gruppe: <strong>{valgtGruppe.term}</strong>
+                      {valgtGruppeLovTittel ? <> — definert i {valgtGruppeLovTittel}</> : null}
+                    </Alert>
+                  )}
+                </>
+              )}
+
               <Divider style={{ margin: '0.75rem 0' }} />
 
               <Heading level={3} data-size="xs" style={{ marginBottom: '0.35rem' }}>
@@ -694,7 +849,7 @@ export default function NavnekandidatVeiviser() {
 
               {steg === 3 && (
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <Button data-size="sm" onClick={() => setSteg(4)} disabled={!valgtVirksomhetId}>Neste</Button>
+                  <Button data-size="sm" onClick={() => setSteg(4)} disabled={!steg4Klart}>Neste</Button>
                   <Button data-size="sm" variant="tertiary" onClick={() => setSteg(2)}>Tilbake</Button>
                 </div>
               )}
@@ -718,6 +873,19 @@ export default function NavnekandidatVeiviser() {
                     <Table.HeaderCell scope="row">Peker på virksomhet</Table.HeaderCell>
                     <Table.Cell>{valgtVirksomhet?.navn ?? '—'}</Table.Cell>
                   </Table.Row>
+                  {slag === 'gruppemedlem' && (
+                    <Table.Row>
+                      <Table.HeaderCell scope="row">Medlem av gruppe</Table.HeaderCell>
+                      <Table.Cell>
+                        {valgtGruppe ? `«${valgtGruppe.term}»` : '—'}
+                        {/* Hjemmelen er ikke et valg, og skal derfor STÅ her, ikke velges: den er
+                          * alltid kandidatens egen rettskilde. Se KoblTilGruppemedlemskapAsync. */}
+                        <span style={{ display: 'block', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                          Hjemlet i {rettskilde?.tittel ?? 'denne rettskilden'} — det er her navnet står.
+                        </span>
+                      </Table.Cell>
+                    </Table.Row>
+                  )}
                   <Table.Row>
                     <Table.HeaderCell scope="row">Begrunnelse</Table.HeaderCell>
                     <Table.Cell>{navneformgrunn ?? 'Uspesifisert'}</Table.Cell>
@@ -736,7 +904,7 @@ export default function NavnekandidatVeiviser() {
                 </Table.Body>
               </Table>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <Button data-size="sm" onClick={fullførVirksomhet} disabled={fullfører || !valgtVirksomhetId}>
+                <Button data-size="sm" onClick={fullførVirksomhet} disabled={fullfører || !steg4Klart}>
                   {fullfører ? 'Fullfører …' : 'Fullfør'}
                 </Button>
                 <Button data-size="sm" variant="tertiary" onClick={() => setSteg(3)}>Tilbake</Button>

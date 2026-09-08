@@ -44,6 +44,7 @@ builder.Services.AddScoped<BrukerregisterTjeneste>();
 builder.Services.AddScoped<KodelisteregisterTjeneste>();
 builder.Services.AddScoped<VirksomhetsbegrepTjeneste>();
 builder.Services.AddScoped<MyndighetstildelingTjeneste>();
+builder.Services.AddScoped<GruppeMedlemskapTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatSveipTjeneste>();
 builder.Services.AddScoped<NavnekandidatOppdagelseTjeneste>();
@@ -383,6 +384,29 @@ using (var scope = app.Services.CreateScope())
     app.Logger.LogInformation(
         "AnsvarligDepartement-tilbakefylling fullført: {Antall} rettskilder oppdatert fra allerede lagret AknXml.",
         ansvarligDepartementAntall);
+
+    // [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] «Gruppe av gruppe»-eksempelet
+    // (forvaltningsområdet for samiske språk) som ekte data. Kjøres SIST av alle seedene: den er
+    // avhengig av at BÅDE kommunene (OrganisasjonsregisterSeed) OG departementene (DepartementSeed,
+    // som eier taggene) finnes, OG av at AnsvarligDepartement-tilbakefyllingen over har satt feltet
+    // på de to rettskildene — uten det ville taggene ikke hatt noen eier å opprettes under.
+    // Idempotent; hopper stille over det som mangler og RAPPORTERER det (se seedens klassekommentar).
+    var samiskSeed = await SamiskSprakforvaltningSeed.SeedAsync(
+        db,
+        scope.ServiceProvider.GetRequiredService<VirksomhetsbegrepTjeneste>(),
+        scope.ServiceProvider.GetRequiredService<GruppeMedlemskapTjeneste>(),
+        scope.ServiceProvider.GetRequiredService<MyndighetstildelingTjeneste>(),
+        scope.ServiceProvider.GetRequiredService<TekstTaggTjeneste>(),
+        scope.ServiceProvider.GetRequiredService<VirksomhetOppslagTjeneste>());
+    app.Logger.LogInformation(
+        "Samisk språkforvaltning-seed: {Gruppebegrep} gruppebegrep, {Medlemskap} gruppemedlemskap, "
+        + "{Tildelinger} myndighetstildelinger, {Navneformer} navneformer, {Tagger} tagger.",
+        samiskSeed.AntallGruppebegrep, samiskSeed.AntallGruppemedlemskap,
+        samiskSeed.AntallMyndighetstildelinger, samiskSeed.AntallNavneformer, samiskSeed.AntallTagger);
+    foreach (var hoppet in samiskSeed.HoppetOver)
+    {
+        app.Logger.LogWarning("Samisk språkforvaltning-seed hoppet over: {Grunn}", hoppet);
+    }
 }
 
 // GUI-et spør om profilen for å vite om brukervelgeren skal vises i det hele tatt.
@@ -2809,6 +2833,47 @@ app.MapGet("/api/gruppebegrep/{id:guid}/tildelinger", async (Guid id, bool? gjel
     .WithSummary("Lister hvilke virksomheter et gruppebegrep er tildelt til, og under hvilke hjemler. " +
         "?gjeldende=true filtrerer bort tildelinger som ikke er gjeldende akkurat nå (docs/29 §Del B).");
 
+// ---------- Gruppemedlemskap: «gruppe av gruppe» (issue #164) ----------
+// [Ny, gruppemedlemskap-runden, 2026-09-08] Det YTTERSTE nivået i gruppehierarkiet: en gruppe kan
+// selv være medlem av en gruppe. Nivået under — gruppe → konkret virksomhet — er
+// /api/myndighetstildelinger over. Se GruppeMedlemskapEntitet for hvorfor dette er en egen entitet.
+
+app.MapPost("/api/gruppemedlemskap", async (HttpRequest request, GruppeMedlemskapRequest body,
+        GruppeMedlemskapTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var paragrafspenn = body.Paragrafspenn.Select(p => new ParagrafspennPar(p.FraEid, p.TilEid)).ToList();
+            var opprettet = await register.OpprettAsync(
+                body.OverordnetGruppeBegrepId, body.UnderordnetGruppeBegrepId, body.HjemmelRettskildeId,
+                paragrafspenn, bruker.Navn, body.GyldigFra, body.GyldigTil, ct);
+            return Results.Created($"/api/gruppemedlemskap/{opprettet.Id}", GruppeMedlemskapDto.FraEntitet(opprettet));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("OpprettGruppeMedlemskap")
+    .WithSummary("Registrerer at ett gruppebegrep er MEDLEM av et annet, hjemlet i en rettskilde (issue #164). " +
+        "Idempotent på paret. Sirkulære kjeder avvises med 400 og hele kjeden navngitt i feilmeldingen.");
+
+app.MapGet("/api/gruppebegrep/{id:guid}/medlemsgrupper", async (Guid id, GruppeMedlemskapTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.MedlemsgrupperForAsync(id, ct)).Select(GruppeMedlemskapDto.FraEntitet)))
+    .WithOpenApi()
+    .WithName("HentMedlemsgrupperForGruppeBegrep")
+    .WithSummary("Gruppene som er MEDLEM av dette gruppebegrepet — ett nivå ned, ikke transitivt. " +
+        "Tom liste for et gruppebegrep som bare har konkrete virksomheter som medlemmer.");
+
+app.MapGet("/api/gruppebegrep/{id:guid}/overordnede-grupper", async (Guid id, GruppeMedlemskapTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.OverordnedeGrupperForAsync(id, ct)).Select(GruppeMedlemskapDto.FraEntitet)))
+    .WithOpenApi()
+    .WithName("HentOverordnedeGrupperForGruppeBegrep")
+    .WithSummary("Gruppene dette gruppebegrepet selv er MEDLEM av — motsatt retning av /medlemsgrupper.");
+
 // ---------- VirksomhetRelasjon (docs/28, docs/29 §Del C) ----------
 
 app.MapGet("/api/virksomheter/{id:guid}/relasjoner", async (Guid id, VirksomhetRelasjonregisterTjeneste register, CancellationToken ct) =>
@@ -3215,6 +3280,33 @@ navnekandidater.MapPost("/{id:guid}/kobl-til-virksomhet", async (Guid id, HttpRe
     })
     .WithName("KoblNavnekandidatTilVirksomhet")
     .WithSummary("Oppretter/gjenbruker navneformen med navneformgrunn, godkjenner raden, og kobler tekst-taggen til virksomheten.");
+
+// [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] Wizardens nye vei: kandidaten peker på en
+// virksomhet som er navngitt som MEDLEM av et eksisterende gruppebegrep. Gjør alt
+// /kobl-til-virksomhet gjør, pluss en MyndighetstildelingEntitet hjemlet i KANDIDATENS EGEN
+// rettskilde — se NavnekandidatOppdagelseTjeneste.KoblTilGruppemedlemskapAsync.
+navnekandidater.MapPost("/{id:guid}/kobl-til-gruppemedlemskap", async (Guid id, HttpRequest request,
+        KoblNavnekandidatTilGruppemedlemskapRequest body, NavnekandidatOppdagelseTjeneste register,
+        RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var resultat = await register.KoblTilGruppemedlemskapAsync(
+                id, body.VirksomhetId, body.GruppeBegrepId, body.Navneformgrunn, bruker.Navn, ct);
+            return resultat is null
+                ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." })
+                : Results.Ok(NavnekandidatGruppemedlemskapResultatDto.FraResultat(resultat));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KoblNavnekandidatTilGruppemedlemskap")
+    .WithSummary("Som /kobl-til-virksomhet, pluss en myndighetstildeling som gjør virksomheten medlem av " +
+        "gruppebegrepet — hjemlet i kandidatens EGEN rettskilde (det er der navnet står). Idempotent.");
 
 navnekandidater.MapPost("/godkjenn-batch", async (HttpRequest request, NavnekandidatBatchRequest body,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>

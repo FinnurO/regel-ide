@@ -42,6 +42,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<Virksomhet> Virksomheter => Set<Virksomhet>();
     public DbSet<VirksomhetNettsideEntitet> VirksomhetNettsider => Set<VirksomhetNettsideEntitet>();
     public DbSet<MyndighetstildelingEntitet> Myndighetstildelinger => Set<MyndighetstildelingEntitet>();
+    public DbSet<GruppeMedlemskapEntitet> GruppeMedlemskap => Set<GruppeMedlemskapEntitet>();
     public DbSet<VirksomhetKandidatEntitet> VirksomhetKandidater => Set<VirksomhetKandidatEntitet>();
     public DbSet<NavnekandidatEntitet> Navnekandidater => Set<NavnekandidatEntitet>();
     public DbSet<EksternNavneoppslagCacheEntitet> EksternNavneoppslagCache => Set<EksternNavneoppslagCacheEntitet>();
@@ -163,6 +164,40 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasIndex(x => x.GruppeBegrepId).HasDatabaseName("ix_myndighetstildelinger_gruppe_begrep");
             e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_myndighetstildelinger_virksomhet");
             e.HasIndex(x => x.HjemmelRettskildeId).HasDatabaseName("ix_myndighetstildelinger_hjemmel");
+        });
+
+        // [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] Se GruppeMedlemskapEntitet for hvorfor
+        // dette er en egen entitet og ikke en kolonne på BegrepEntitet. Den unike indeksen på PARET
+        // (ikke på paret + hjemmel) er det som gjør både SamiskSprakforvaltningSeed og
+        // GruppeMedlemskapTjeneste.OpprettAsync idempotente: ett medlemskap mellom to grupper er ÉN
+        // opplysning, uansett hvor mange hjemler som gjentar den.
+        b.Entity<GruppeMedlemskapEntitet>(e =>
+        {
+            e.ToTable("gruppe_medlemskap", t =>
+                t.HasCheckConstraint(
+                    "ck_gruppe_medlemskap_ikke_selv",
+                    "overordnet_gruppe_begrep_id <> underordnet_gruppe_begrep_id"));
+            e.HasKey(x => x.Id).HasName("gruppe_medlemskap_pkey");
+            e.Property(x => x.OverordnetGruppeBegrepId).HasColumnName("overordnet_gruppe_begrep_id");
+            e.Property(x => x.UnderordnetGruppeBegrepId).HasColumnName("underordnet_gruppe_begrep_id");
+            e.Property(x => x.HjemmelRettskildeId).HasColumnName("hjemmel_rettskilde_id");
+            e.Property(x => x.ParagrafspennJson).HasColumnName("paragrafspenn_json").HasDefaultValue("[]");
+            e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
+            e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+            e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
+            e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
+            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.OverordnetGruppeBegrepId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.UnderordnetGruppeBegrepId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.HjemmelRettskildeId)
+                .OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => new { x.OverordnetGruppeBegrepId, x.UnderordnetGruppeBegrepId })
+                .IsUnique().HasDatabaseName("ux_gruppe_medlemskap_par");
+            e.HasIndex(x => x.UnderordnetGruppeBegrepId).HasDatabaseName("ix_gruppe_medlemskap_underordnet");
+            e.HasIndex(x => x.HjemmelRettskildeId).HasDatabaseName("ix_gruppe_medlemskap_hjemmel");
         });
 
         b.Entity<VirksomhetKandidatEntitet>(e =>
