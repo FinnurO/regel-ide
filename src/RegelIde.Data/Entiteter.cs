@@ -565,8 +565,62 @@ public sealed class TekstTaggEntitet
     public required string QuoteExact { get; set; }
     public required string QuoteSuffix { get; set; }
     public required string NodeTekstHash { get; set; }
-    public required string Kind { get; set; } // 'begrep' | 'tjeneste' | 'vilkar' | 'regel'
-    public Guid? RefId { get; set; } // nullable inntil byggesteg 2/4
+    /// <summary>
+    /// Tagg-LAGET markeringen hører til — brukerens lagvelger over lovteksten. Verdisettet er
+    /// data-styrt via <see cref="TaggKindKonfigurasjonEntitet"/> (seedet i Program.cs), ikke hardkodet:
+    /// <c>'begrep'</c> | <c>'tjeneste'</c> | <c>'vilkar'</c> | <c>'regel'</c> | <c>'virksomhet'</c>.
+    /// </summary>
+    public required string Kind { get; set; }
+
+    /// <summary>
+    /// Entiteten taggen peker på. NULL inntil noe faktisk er koblet (byggesteg 2/4 — se
+    /// docs/06-veikart.md). Hvilken TABELL iden ligger i bestemmes av <see cref="Kind"/>, og
+    /// <see cref="TekstTaggTjeneste.KobleTilEntitetAsync"/> er den ENE autoritative kilden for den
+    /// avbildningen:
+    /// <list type="bullet">
+    ///   <item><c>'begrep'</c> → <see cref="BegrepEntitet"/></item>
+    ///   <item><c>'tjeneste'</c> → <see cref="TjenesteEntitet"/></item>
+    ///   <item><c>'vilkar'</c> → <see cref="VilkarEntitet"/></item>
+    ///   <item><c>'regel'</c> → <see cref="RegelnodeEntitet"/></item>
+    ///   <item><c>'virksomhet'</c> → <see cref="BegrepEntitet"/> med
+    ///     <see cref="BegrepEntitet.Begrepskategori"/> = <c>'virksomhet'</c> — altså NAVNEFORMEN, se under</item>
+    /// </list>
+    ///
+    /// <para>
+    /// <b>[ENDRET — navneform-kjede-runden, 2026-09-08] <c>Kind='virksomhet'</c> peker nå på
+    /// NAVNEFORMEN, ikke på <see cref="Virksomhet"/>.</b> Runden før (#204) lot RefId peke DIREKTE på
+    /// <c>Virksomhet.Id</c>. Johann så resultatet live og pekte på at mellomleddet manglet: han
+    /// «hadde forventet at navneform "Karasjok" vises som Tagg og refererer til navneform "Karasjok
+    /// kommune" som igjen er koblet til virksomhet». Kjeden skal være
+    /// <c>tagget tekst «Karasjok» → navneform → virksomhet</c>, fordi det er NAVNEFORMEN som bærer
+    /// <see cref="BegrepEntitet.Navneformgrunn"/> (<c>'kortform'</c> her): at «Karasjok» er en kortform
+    /// og ikke virksomhetens offisielle navn er en opplysning om selve navnet, ikke om virksomheten.
+    /// </para>
+    ///
+    /// <para>
+    /// Med RefId rett på virksomheten var mellomleddet ikke gjenfinnbart fra taggen uten et gjettet
+    /// oppslag på <c>QuoteExact == navneform.Term</c> — og et slikt oppslag er tvetydig i nettopp det
+    /// tilfellet navneformer finnes for: SYNONYMER. Flere navneformer kan peke på samme virksomhet
+    /// («Fylkesmann»/«Statsforvalter»), og da kan man ikke lese ut av en virksomhet-peker HVILKEN
+    /// navneform teksten faktisk brukte. Nå er det eksplisitt i raden.
+    /// </para>
+    ///
+    /// <para>
+    /// <b><see cref="Kind"/> heter fortsatt <c>'virksomhet'</c></b>, bevisst: det er navnet på
+    /// tagg-LAGET i brukerens lagvelger (innført i #204, og det laget kjenner saksbehandleren igjen).
+    /// Betydningen er nå «denne teksten er en NAVNEFORM FOR en virksomhet» i stedet for «denne teksten
+    /// peker rett på en virksomhet». Dette følger samme prinsipp som docs/09 §16 låser for grupper —
+    /// «ingen ny <c>kind</c>»: hva en tagg egentlig sikter til avgjøres av REFERANSEMÅLET, ikke ved å
+    /// oppfinne et nytt lag. Virksomheten nås fortsatt i ett hopp videre, via navneformens
+    /// <see cref="BegrepEntitet.VirksomhetReferanseId"/>.
+    /// </para>
+    ///
+    /// <para>
+    /// Eksisterende rader ble flyttet av <see cref="VirksomhetTaggNavneformBackfillTjeneste"/> (kjøres
+    /// ved oppstart) — den dokumenterer også hva som skjer med en rad som ikke lar seg flytte.
+    /// </para>
+    /// </summary>
+    public Guid? RefId { get; set; }
     public string Entitetsstatus { get; set; } = "gjeldende";
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }

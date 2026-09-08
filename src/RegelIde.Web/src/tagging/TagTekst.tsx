@@ -34,7 +34,7 @@
  *     entitet) er derfor byttet med en direkte «Ny tagg»-handling som committer
  *     ref:null med én gang — det finnes ingen entitet å opprette ennå.
  */
-import { useCallback, useMemo, useRef, useState, type CSSProperties } from 'react';
+import { useCallback, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link as RouterLink } from 'react-router';
 import { ToggleGroup, Tag, Button, Link } from '@digdir/designsystemet-react';
 
@@ -97,8 +97,22 @@ export interface TagTekstProps {
    * Slår opp en menneskelesbar lenke for en koblet tagg sin `ref` — 2026-07-30, fikser at
    * koblede tagger kun viste sin rå GUID/eId. `undefined` betyr «ingen lenke tilgjengelig ennå»
    * (f.eks. treffet mangler i den ferdiglastede listen), og faller da tilbake til rå tekst.
+   *
+   * <p>[UTVIDET, navneform-kjede-runden, 2026-09-08] `mellomledd` lar kalleren vise et LEDD MELLOM
+   * sitatet og lenken, slik at tagg-listen kan vise hele kjeden i stedet for bare endepunktet:
+   * `«Karasjok» → [Kortform] → Karasjoga gielda / Karasjok kommune`. Det er kalleren, ikke denne
+   * komponenten, som vet hva mellomleddet ER — `TagTekst` er bevisst domene-agnostisk (den kjenner
+   * ikke navneformer), og `NavneformgrunnTag` skal etter docs/09 §15 ha ÉN delt kilde, brukt av
+   * kalleren. Derfor en ferdig `ReactNode` inn, ikke et navneform-felt.</p>
+   *
+   * <p>`mellomleddTekst` er den samme opplysningen som REN TEKST, til `title`-tooltipet på selve
+   * markeringen i løpeteksten — et `title`-attributt kan ikke bære en `ReactNode`. Begge er
+   * valgfrie; utelates de, ser visningen ut nøyaktig som før.</p>
    */
-  resolveRef?: (kind: TagKindId, ref: string) => { label: string; href: string } | undefined;
+  resolveRef?: (
+    kind: TagKindId,
+    ref: string,
+  ) => { label: string; href: string; mellomledd?: ReactNode; mellomleddTekst?: string } | undefined;
   /** Hvilket lag som vises (én type om gangen — radio). Ukontrollert hvis utelatt. */
   activeKind?: TagKindId;
   onActiveKindChange?: (id: TagKindId) => void;
@@ -225,7 +239,7 @@ function TaggetSegment({
   tekst: string;
   etikett: string;
   farge: string | undefined;
-  lenke: { label: string; href: string } | undefined;
+  lenke: { label: string; href: string; mellomleddTekst?: string } | undefined;
 }) {
   const stil: CSSProperties = {
     background: `var(--ds-color-${farge}-surface-tinted)`,
@@ -237,8 +251,13 @@ function TaggetSegment({
   if (!lenke) {
     return <mark title={etikett} style={stil}>{tekst}</mark>;
   }
+  // Samme kjede som tagg-listen viser, men som ren tekst — et `title`-attributt kan ikke bære en
+  // ReactNode, så mellomleddet kommer som `mellomleddTekst`. Se `resolveRef`-propens kommentar.
+  const kjede = lenke.mellomleddTekst
+    ? `${etikett} → ${lenke.mellomleddTekst} → ${lenke.label} (åpne)`
+    : `${etikett} → ${lenke.label} (åpne)`;
   return (
-    <mark title={`${etikett} → ${lenke.label} (åpne)`} style={{ ...stil, cursor: 'pointer' }}>
+    <mark title={kjede} style={{ ...stil, cursor: 'pointer' }}>
       <Link asChild>
         <RouterLink to={lenke.href} draggable={false} style={{ color: 'inherit' }}>{tekst}</RouterLink>
       </Link>
@@ -429,15 +448,24 @@ export function TagTekst({
                   {t.ref &&
                     (() => {
                       const lenke = resolveRef?.(t.kind, t.ref);
-                      return lenke ? (
+                      if (!lenke) return ` → ${t.ref}`;
+                      return (
                         <>
+                          {/* [Ny, navneform-kjede-runden, 2026-09-08] Hele kjeden, ikke bare
+                            * endepunktet: «Karasjok» → [Kortform] → Karasjoga gielda / Karasjok
+                            * kommune. Mellomleddet er en ferdig ReactNode fra kalleren — se
+                            * `resolveRef`-propens kommentar for hvorfor det ikke bygges her. */}
+                          {lenke.mellomledd && (
+                            <>
+                              {' → '}
+                              {lenke.mellomledd}
+                            </>
+                          )}
                           {' → '}
                           <Link asChild>
                             <RouterLink to={lenke.href}>{lenke.label}</RouterLink>
                           </Link>
                         </>
-                      ) : (
-                        ` → ${t.ref}`
                       );
                     })()}
                 </span>

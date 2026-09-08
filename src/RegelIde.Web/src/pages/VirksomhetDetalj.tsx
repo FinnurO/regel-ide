@@ -2,7 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router';
 import { Alert, Button, Card, Dialog, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { KodelisteDto, MyndighetstildelingDto, Navneformgrunn, RettskildeNodeDto, RettskildeSammendrag, VirksomhetKandidatDto, VirksomhetRelasjonDto, VirksomhetSlettOversiktDto, VirksomhetsbegrepDto } from '../api/types';
+import type { KodelisteDto, MyndighetstildelingDto, Navneformgrunn, RettskildeNodeDto, RettskildeSammendrag, VirksomhetKandidatDto, VirksomhetRelasjonDto, VirksomhetSlettOversiktDto, VirksomhetsbegrepDto, VirksomhetWhereUsedDto } from '../api/types';
 import { NavneformgrunnTag, NavneformgrunnVelger } from '../virksomhet/Navneformgrunn';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { LeggTilMyndighetstildelingForm } from '../virksomhet/LeggTilMyndighetstildelingForm';
@@ -48,6 +48,10 @@ export default function VirksomhetDetalj() {
   // Departement-virksomhet-lenke (2026-08-30) — ikke betinget på noen egen "er departement"-boolsk,
   // se oppgavebeskrivelsen: lastes for ENHVER virksomhet, seksjonen skjules bare når listen er tom.
   const [rettskilderAnsvarligFor, setRettskilderAnsvarligFor] = useState<RettskildeSammendrag[] | null>(null);
+  // [Ny, navneform-kjede-runden, 2026-09-08] «Where used» — ETT kall som dekker ALLE navneformene
+  // (hvor de er tagget) OG hvilket gruppebegrep hver myndighetstildeling gjelder. Se
+  // VirksomhetWhereUsedTjeneste for hvorfor det er ett samlet oppslag og ikke ett per navneform.
+  const [whereUsed, setWhereUsed] = useState<VirksomhetWhereUsedDto | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
 
   const [nyTerm, setNyTerm] = useState('');
@@ -95,6 +99,10 @@ export default function VirksomhetDetalj() {
     api.hentVentendeKandidater(id).then(setKandidater).catch(() => setKandidater([]));
     api.hentRettskilderAnsvarligFor(id).then(setRettskilderAnsvarligFor).catch(() => setRettskilderAnsvarligFor([]));
     api.hentVirksomhetRelasjoner(id).then(setRelasjoner).catch(() => setRelasjoner([]));
+    // Tom-ved-feil, samme mønster som de andre valgfrie seksjonene over: en virksomhet uten
+    // koblinger er et helt normalt svar, ikke en feil som fortjener en banner.
+    api.hentVirksomhetWhereUsed(id).then(setWhereUsed)
+      .catch(() => setWhereUsed({ navneformForekomster: [], gruppetildelinger: [] }));
   }
 
   useEffect(lastAlt, [id]);
@@ -102,6 +110,15 @@ export default function VirksomhetDetalj() {
     for (const t of tildelinger ?? []) sikreNoderFor(t.hjemmelRettskildeId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tildelinger]);
+  // [Ny, navneform-kjede-runden, 2026-09-08] Nodene for rettskildene navneformene er TAGGET i, slik
+  // at «Brukt i»-kolonnen kan vise «§ 1 — overskrift» i stedet for en rå eId — samme lazy-per-
+  // rettskilde-mønster som tildelinger over.
+  useEffect(() => {
+    for (const rettskildeId of new Set((whereUsed?.navneformForekomster ?? []).map((f) => f.rettskildeId))) {
+      sikreNoderFor(rettskildeId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [whereUsed]);
   useEffect(() => {
     for (const rettskildeId of new Set((kandidater ?? []).map((k) => k.rettskildeId))) sikreNoderFor(rettskildeId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -305,12 +322,21 @@ export default function VirksomhetDetalj() {
         </Heading>
         <Paragraph style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
           Alle navneformer under peker på samme virksomhet — synonymer (f.eks. «Fylkesmann»/«Statsforvalter») er bare flere rader, ingen egen mekanisme.
+          «Brukt i» viser hvor navneformen faktisk er tagget i en rettskildetekst, med lenke til paragrafen.
         </Paragraph>
         <Card style={{ padding: begrep && begrep.length > 0 ? 0 : '1rem', overflow: 'hidden', marginBottom: '0.75rem' }}>
           {!begrep && <Spinner aria-label="Laster …" data-size="sm" />}
           {begrep && begrep.length === 0 && <Paragraph style={{ margin: 0 }}>Ingen navneformer registrert ennå.</Paragraph>}
           {begrep && begrep.length > 0 && (
-            <Table>
+            <Table data-density="compact">
+              <Table.Head>
+                <Table.Row>
+                  <Table.HeaderCell>Navneform</Table.HeaderCell>
+                  <Table.HeaderCell>Grunn</Table.HeaderCell>
+                  <Table.HeaderCell>Kilde</Table.HeaderCell>
+                  <Table.HeaderCell>Brukt i</Table.HeaderCell>
+                </Table.Row>
+              </Table.Head>
               <Table.Body>
                 {begrep.map((b) => (
                   <Table.Row key={b.id}>
@@ -330,6 +356,41 @@ export default function VirksomhetDetalj() {
                           <Tag data-color="success" data-size="sm">SNL ↗</Tag>
                         </Link>
                       )}
+                    </Table.Cell>
+                    {/* [Ny, navneform-kjede-runden, 2026-09-08] «Where used» per navneform — svarer
+                      * på Johanns «jeg hadde forventet at man ser koblinger fra Virksomheten» og
+                      * «at det er rettskildekoblinger til navneformene». Lenken går til nøyaktig
+                      * NODEN (?eid=…), ikke bare til rettskilden — samme «hjemmel per RAD»-prinsipp
+                      * som docs/09 §16 låser for gruppemedlemskap: en navneform kan være tagget i
+                      * flere paragrafer, og da er en lenke til dokumentet for grov.
+                      *
+                      * `null` = laster ⇒ Spinner. «Ikke brukt ennå» skal ALDRI vises mens data
+                      * fortsatt lastes (docs/09 §15) — da er svaret ikke tomt, bare ikke kommet. */}
+                    <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                      {!whereUsed && <Spinner aria-label="Laster …" data-size="xs" />}
+                      {whereUsed && (() => {
+                        const forekomster = whereUsed.navneformForekomster.filter((f) => f.navneformId === b.id);
+                        if (forekomster.length === 0) {
+                          return <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Ikke tagget i noen rettskildetekst</span>;
+                        }
+                        return (
+                          <ul style={{ margin: 0, paddingLeft: '1rem' }}>
+                            {/* Offsetene MÅ med i nøkkelen under: samme navneform kan være tagget to
+                              * steder i samme ledd, og (rettskilde, node) alene ga da to rader med
+                              * IDENTISK key — React advarte, og radene kunne bli duplisert eller
+                              * utelatt. Se `startOffset` i types.ts. */}
+                            {forekomster.map((f) => (
+                              <li key={`${f.rettskildeId}-${f.nodeEid}-${f.startOffset}`}>
+                                <Link asChild>
+                                  <RouterLink to={`/rettskilder/${f.rettskildeId}?eid=${encodeURIComponent(f.nodeEid)}`}>
+                                    {f.rettskildeTittel} — {visNodeKort(f.rettskildeId, f.nodeEid)}
+                                  </RouterLink>
+                                </Link>
+                              </li>
+                            ))}
+                          </ul>
+                        );
+                      })()}
                     </Table.Cell>
                   </Table.Row>
                 ))}
@@ -367,9 +428,10 @@ export default function VirksomhetDetalj() {
           {!tildelinger && <Spinner aria-label="Laster …" data-size="sm" />}
           {tildelinger && tildelinger.length === 0 && <Paragraph style={{ margin: 0 }}>Ingen myndighetstildelinger registrert.</Paragraph>}
           {tildelinger && tildelinger.length > 0 && (
-            <Table>
+            <Table data-density="compact">
               <Table.Head>
                 <Table.Row>
+                  <Table.HeaderCell>Gruppe</Table.HeaderCell>
                   <Table.HeaderCell>Paragrafspenn</Table.HeaderCell>
                   <Table.HeaderCell>Vilkår</Table.HeaderCell>
                   <Table.HeaderCell>Gyldighetsperiode</Table.HeaderCell>
@@ -378,6 +440,24 @@ export default function VirksomhetDetalj() {
               <Table.Body>
                 {tildelinger.map((t) => (
                   <Table.Row key={t.id}>
+                    {/* [Ny, navneform-kjede-runden, 2026-09-08] HVILKEN gruppe tildelingen gjelder.
+                      * Ingressen over lovet «Gruppebegrep … tildelt denne virksomheten», men tabellen
+                      * viste bare paragrafspenn/vilkår/gyldighet — gruppens navn sto ingensteds. Det er
+                      * nettopp den opplysningen Johann ba om for Karasjok («språkutviklingskommuner»).
+                      * Kommer fra where-used-oppslaget, nøklet på tildelingens id.
+                      * `null` = laster ⇒ Spinner, ikke en påstand om at gruppen er ukjent (§15). */}
+                    <Table.Cell>
+                      {!whereUsed && <Spinner aria-label="Laster …" data-size="xs" />}
+                      {whereUsed && (() => {
+                        const gruppe = whereUsed.gruppetildelinger.find((g) => g.tildelingId === t.id);
+                        if (!gruppe) return <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>—</span>;
+                        return (
+                          <Link asChild>
+                            <RouterLink to={`/begreper/${gruppe.gruppeBegrepId}`}>{gruppe.gruppeTerm}</RouterLink>
+                          </Link>
+                        );
+                      })()}
+                    </Table.Cell>
                     <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
                       {t.paragrafspenn
                         .map((p) =>

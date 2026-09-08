@@ -214,6 +214,47 @@ Merk skillet: grunnen forklarer en LEGITIM streng som faktisk står i lovteksten
 treffet et regex-artefakt («Ø Suldal kommune», der Ø er limt inn fra en koordinat rett foran), er det
 teksten som skal rettes — se «Navnekandidater» under.
 
+[NYTT, navneform-kjede, 2026-09-08] **Navneformen er mellomleddet mellom lovteksten og
+virksomheten — og kjeden er nå synlig hele veien.** En `virksomhet`-tagg i lovteksten peker på
+NAVNEFORMEN, ikke direkte på virksomheten. Det er navneformen som bærer navneformgrunnen, så det er
+den som kan forklare HVORFOR nettopp denne strengen betyr denne virksomheten — og ved synonymer
+(«Fylkesmann»/«Statsforvalter») er det bare navneformen som forteller hvilket navn teksten faktisk
+brukte. I tagg-listen under lovteksten vises derfor hele kjeden i stedet for bare endepunktet:
+
+> «Karasjok» → [Kortform] → Karasjoga gielda / Karasjok kommune
+
+Samme kjede ligger i tooltipet på selve markeringen i løpeteksten. Lenken går til virksomheten (det
+er dit saksbehandleren skal), mens merkelappen i midten gjør det synlig AT «Karasjok» bare er en
+kortform og ikke virksomhetens offisielle navn.
+
+[NYTT, navneform-kjede, 2026-09-08] **«Where used» på virksomhetens detaljside.** Navneform-tabellen
+har fått en «Brukt i»-kolonne som viser hvor navneformen faktisk er tagget i en rettskildetekst, med
+lenke til NØYAKTIG paragraf/ledd (ikke bare til dokumentet — en navneform kan være tagget i flere
+paragrafer). Er navneformen ikke tagget noe sted, står det uttrykkelig «Ikke tagget i noen
+rettskildetekst»; mens data lastes vises en spinner, aldri en påstand om at koblingen mangler.
+Myndighetstildelings-tabellen har samtidig fått en **Gruppe**-kolonne: ingressen lovet «gruppebegrep
+tildelt denne virksomheten», men selve gruppens navn sto ingensteds — for Karasjok vises nå
+«språkutviklingskommuner», med lenke til gruppebegrepet. Alt dette hentes i ETT kall
+(`GET /api/virksomheter/{id}/where-used`) som dekker alle virksomhetens navneformer, framfor ett kall
+per navneform.
+
+Virksomhetsrelasjoner er bevisst IKKE del av dette oppslaget — de vises allerede i sin helhet i
+«Relasjoner til andre virksomheter» på samme side, og to kilder til samme tabell ville kunne komme i
+utakt.
+
+[FIKSET, 2026-09-08] Seedede virksomhetsnavn med to likestilte navneledd skilt med « / » fikk stor
+forbokstav på bare det FØRSTE leddet: «Karasjoga gielda / karasjok kommune». Nå får hvert ledd stor
+forbokstav. Dette er ikke generell norsk tittelkasing — bare ledd-splitting — nettopp for ikke å
+ødelegge navn som «Nærings- og fiskeridepartementet» (som må matche Lovdatas departementsnavn
+eksakt). Navn hentet fra Brønnøysundregisteret røres ikke: de beholdes i registerets egen form
+(VERSALER, f.eks. «SAMEDIGGI / SAMETINGET»), slik issue #158 låser.
+
+[FIKSET, 2026-09-08] Seksjonen «Forekomster i \<definerende rettskilde\>» på et begreps detaljside
+sto tom for ALLE begreper: endepunktet bak den svarte 500, og siden svelget feilen og viste
+«ingen forekomster funnet» — et tomt svar var ikke til å skille fra en feil. Den viser nå de ekte,
+taggkoblede forekomstene, også for en navneform (der den tidligere var tom i tillegg fordi taggen
+ikke pekte på navneformen).
+
 *Hvor:* «Virksomheter» (`/virksomheter`, `/virksomheter/:id`).
 
 ### Virksomhetskandidater
@@ -256,9 +297,13 @@ tilgjengelig **uansett status** — også for rader som alt er godkjent eller av
 5. **Bekreft** — en oppsummering av hva som blir opprettet eller endret, før man fullfører.
 
 Fullføring **lukker kjeden** for en virksomhet-kandidat: navneformen opprettes (eller gjenbrukes) med
-sin grunn, kandidaten settes til «Godkjent», og tekst-taggen for forekomsten peker nå på selve
-virksomheten og er synlig i rettskildeteksten under et eget, valgbart lag «Virksomhet» i
-tagg-velgeren. Fantes det alt en ubundet tagg på samme sted (etterlatt av en tidligere godkjenning),
+sin grunn, kandidaten settes til «Godkjent», og tekst-taggen for forekomsten peker nå på
+**navneformen** — som i sin tur peker på virksomheten — og er synlig i rettskildeteksten under et
+eget, valgbart lag «Virksomhet» i tagg-velgeren, der hele kjeden vises
+(«Karasjok» → [Kortform] → virksomhetsnavnet, se «Virksomheter» over).
+[ENDRET, navneform-kjede, 2026-09-08: taggen pekte tidligere direkte på virksomheten, slik at
+mellomleddet — og dermed navneformgrunnen — ikke var gjenfinnbart fra taggen.]
+Fantes det alt en ubundet tagg på samme sted (etterlatt av en tidligere godkjenning),
 er det DEN som kobles — ingen ny, overlappende tagg. Kan ingen tagg opprettes fordi rettskilden
 mangler et ansvarlig departement som finnes i virksomhetskatalogen (en tagg må eies av noen), eller
 fordi tegnposisjonene ikke lenger stemmer etter en reimport, **sies det eksplisitt** i

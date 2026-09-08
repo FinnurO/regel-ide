@@ -113,6 +113,7 @@ import type {
   VirksomhetSlettOversiktDto,
   BrregEnhetDto,
   VirksomhetsbegrepDto,
+  VirksomhetWhereUsedDto,
   MyndighetstildelingDto,
   GruppeMedlemskapDto,
   GruppeMedlemskapRequest,
@@ -323,6 +324,13 @@ export const api = {
 
   hentVirksomhetsbegrep: (virksomhetId: string) =>
     kall<VirksomhetsbegrepDto[]>(`/api/virksomheter/${virksomhetId}/begrep`),
+
+  /** [Ny, navneform-kjede-runden, 2026-09-08] «Where used» for én virksomhet i ETT kall — hvor
+   * navneformene er tagget, og hvilket gruppebegrep hver myndighetstildeling gjelder. Bulk framfor ett
+   * /api/begreper/{id}/taggede-forekomster-kall per navneform, samme prinsipp som
+   * `hentHjemmelrelasjoner`. */
+  hentVirksomhetWhereUsed: (virksomhetId: string) =>
+    kall<VirksomhetWhereUsedDto>(`/api/virksomheter/${virksomhetId}/where-used`),
 
   /** `navneformgrunn` er valgfri (utelatt/null = uspesifisert) — se `Navneformgrunn` i types.ts. */
   opprettVirksomhetsbegrep: (request: {

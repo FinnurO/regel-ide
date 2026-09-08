@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 'react';
 import { Link as RouterLink, useNavigate, useParams, useSearchParams } from 'react-router';
 import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Switch, Table, Tabs, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type {
+  BegrepDto,
   DokumentReferanseDto,
   HandbokRettskildeomfangDto,
   NettsideLenkeMedMalDto,
@@ -23,6 +24,7 @@ import { KommentarRedigering } from '../handbok/KommentarRedigering';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { useKonfigurasjon } from '../konfigurasjon/KonfigurasjonContext';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
+import { NavneformgrunnTag } from '../virksomhet/Navneformgrunn';
 import { RaaTekstMedLenker } from '../rettskilde/RaaTekstMedLenker';
 import { forsokFormaterXml } from '../rettskilde/formaterXml';
 import { forsokFormaterHtml } from '../rettskilde/formaterHtml';
@@ -391,6 +393,10 @@ export default function RettskildeDetalj() {
   // tagg-laget (se taggkind-seeden i Program.cs). Uten dette ville en koblet virksomhet-tagg vist
   // en rå GUID i tagg-listen i stedet for virksomhetens navn.
   const [virksomhetPerId, setVirksomhetPerId] = useState<Map<string, string>>(new Map());
+  // [Ny, navneform-kjede-runden, 2026-09-08] Navneformene (Begrepskategori='virksomhet'), nøklet på
+  // sin egen id — det ER en virksomhet-taggs `refId` etter denne runden. Brukes både til å resolve
+  // kjeden (`resolveRef`) og som kandidatliste for «Koble til …» i virksomhet-laget.
+  const [navneformPerId, setNavneformPerId] = useState<Map<string, BegrepDto>>(new Map());
   const [rotnodeId, setRotnodeId] = useState<string | undefined>(undefined);
   useEffect(() => {
     Promise.all([
@@ -398,13 +404,27 @@ export default function RettskildeDetalj() {
       api.hentVirksomheter(),
     ])
       .then(([begreper, tjenester, vilkarListe, regelnoder, virksomheter]) => {
+        // [Ny, navneform-kjede-runden, 2026-09-08] Navneformene, altså begrep med kategori
+        // 'virksomhet'. Skilles ut her fordi de er referansemålet for virksomhet-tagger.
+        const navneformer = begreper.filter((b) => b.begrepskategori === 'virksomhet');
+        const virksomhetNavnPerId = new Map(virksomheter.map((v) => [v.id, v.navn]));
         setRegistry({
           begrep: begreper.map((b) => ({ ref: b.id, label: b.term })),
           tjeneste: tjenester.map((t) => ({ ref: t.id, label: t.tittel })),
-          // Gjør «Koble til …» tilgjengelig for det nye virksomhet-laget, samme som begrep/tjeneste.
-          virksomhet: virksomheter.map((v) => ({ ref: v.id, label: v.navn })),
+          // [ENDRET, navneform-kjede-runden, 2026-09-08] Kandidatene for virksomhet-laget er nå
+          // NAVNEFORMER, ikke virksomheter — en virksomhet-taggs RefId må peke på en navneform, så en
+          // virksomhet-id her ville blitt AVVIST av KobleTilEntitetAsync. Etiketten viser begge ledd
+          // («Karasjok — Karasjoga gielda / Karasjok kommune»), siden en bar term ikke er nok til å
+          // velge riktig når flere virksomheter har samme kortform.
+          virksomhet: navneformer.map((b) => ({
+            ref: b.id,
+            label: b.virksomhetReferanseId && virksomhetNavnPerId.has(b.virksomhetReferanseId)
+              ? `${b.term} — ${virksomhetNavnPerId.get(b.virksomhetReferanseId)}`
+              : b.term,
+          })),
         });
-        setVirksomhetPerId(new Map(virksomheter.map((v) => [v.id, v.navn])));
+        setNavneformPerId(new Map(navneformer.map((b) => [b.id, b])));
+        setVirksomhetPerId(virksomhetNavnPerId);
         setBegrepPerId(new Map(begreper.map((b) => [b.id, b.term])));
         setTjenestePerId(new Map(tjenester.map((t) => [t.id, t.tittel])));
         setVilkarPerId(new Map(vilkarListe.map((v) => [v.id, v.tittel])));
@@ -427,7 +447,10 @@ export default function RettskildeDetalj() {
     [tjenestePerId],
   );
 
-  function resolveRef(kind: TagKindId, ref: string): { label: string; href: string } | undefined {
+  function resolveRef(
+    kind: TagKindId,
+    ref: string,
+  ): { label: string; href: string; mellomledd?: ReactNode; mellomleddTekst?: string } | undefined {
     if (kind === 'begrep' && begrepPerId.has(ref)) return { label: begrepPerId.get(ref)!, href: `/begreper/${ref}` };
     if (kind === 'tjeneste' && tjenestePerId.has(ref)) return { label: tjenestePerId.get(ref)!, href: `/tjenester/${ref}` };
     if (kind === 'vilkar' && vilkarPerId.has(ref) && rotnodeId) {
@@ -436,11 +459,27 @@ export default function RettskildeDetalj() {
     if (kind === 'regel' && regelnodePerId.has(ref) && rotnodeId) {
       return { label: regelnodePerId.get(ref)!, href: `/vilkarstre/${rotnodeId}?fokusVilkar=${ref}` };
     }
-    // [Ny, navnekandidat-wizard-runden, 2026-09-07] Virksomhet-tagger peker DIREKTE på
-    // virksomhetskatalogen (ikke via en navneform-rad) — se
-    // NavnekandidatOppdagelseTjeneste.KoblTilVirksomhetAsync for begrunnelsen.
-    if (kind === 'virksomhet' && virksomhetPerId.has(ref)) {
-      return { label: virksomhetPerId.get(ref)!, href: `/virksomheter/${ref}` };
+    // [ENDRET, navneform-kjede-runden, 2026-09-08] En virksomhet-taggs `ref` er NAVNEFORMENS id, ikke
+    // virksomhetens — se TekstTaggEntitet.RefId. Vi resolver derfor hele kjeden:
+    //   tagget tekst «Karasjok» → navneformen (som bærer navneformgrunnen) → virksomheten.
+    // Lenken går fortsatt til VIRKSOMHETEN (det er destinasjonen saksbehandleren vil til), men
+    // navneformgrunnen vises som et mellomledd, slik at det er synlig AT «Karasjok» bare er en
+    // kortform og ikke virksomhetens offisielle navn.
+    if (kind === 'virksomhet') {
+      const navneform = navneformPerId.get(ref);
+      if (!navneform?.virksomhetReferanseId) return undefined;
+      const virksomhetNavn = virksomhetPerId.get(navneform.virksomhetReferanseId);
+      if (!virksomhetNavn) return undefined;
+      return {
+        label: virksomhetNavn,
+        href: `/virksomheter/${navneform.virksomhetReferanseId}`,
+        // NavneformgrunnTag er ÉN delt kilde for visning av navneformgrunn (docs/09 §15) — bygget her
+        // i kalleren, siden TagTekst bevisst ikke kjenner navneform-domenet.
+        mellomledd: <NavneformgrunnTag grunn={navneform.navneformgrunn} />,
+        mellomleddTekst: navneform.navneformgrunn
+          ? `${navneform.term} (${navneform.navneformgrunn})`
+          : navneform.term,
+      };
     }
     return undefined;
   }

@@ -163,16 +163,23 @@ public sealed class TekstTaggTjeneste(RegelIdeDbContext db, VirksomhetOppslagTje
             // RegelnodeEntitet (samme "regelnode ikke regel"-navnekonvensjon som resten av byggesteg 4).
             "vilkar" => await db.Vilkar.AnyAsync(v => v.Id == refId && v.Entitetsstatus == "gjeldende", ct),
             "regel" => await db.Regelnoder.AnyAsync(r => r.Id == refId && r.Entitetsstatus == "gjeldende", ct),
-            // [Ny, navnekandidat-wizard-runden, 2026-09-07] 'virksomhet'-tagger peker DIREKTE på
-            // Virksomhet-katalogen, slik at en navnekandidat kan behandles hele veien til en synlig,
-            // koblet tagg i rettskildeteksten (se NavnekandidatOppdagelseTjeneste.KoblTilVirksomhetAsync
-            // — den dokumenterer også hvorfor dette bevisst avviker fra 2026-08-22-valget om å tagge
-            // slike omtaler som Kind='begrep' mot navneform-raden). MERK: Virksomhet har INGEN
-            // Entitetsstatus-kolonne (til forskjell fra Begrep/Tjeneste/Vilkår/Regelnode over) — den
-            // har `Aktiv`, som er en helt annen akse (nedlagt virksomhet, ikke arkivert rad). En
-            // nedlagt virksomhet skal fortsatt kunne bære en tagg: lovteksten nevner den jo, og det
-            // er nettopp da 'utgatt' som navneformgrunn blir interessant. Derfor ingen Aktiv-filtrering.
-            "virksomhet" => await db.Virksomheter.AnyAsync(v => v.Id == refId, ct),
+            // [ENDRET, navneform-kjede-runden, 2026-09-08] 'virksomhet'-tagger peker på NAVNEFORMEN
+            // (et BegrepEntitet med Begrepskategori='virksomhet'), IKKE lenger direkte på
+            // Virksomhet-raden. Se TekstTaggEntitet.RefId sin kommentar for hele begrunnelsen og for
+            // hvorfor Kind fortsatt heter 'virksomhet'. Kort: kjeden Johann forventer er
+            // tagget tekst «Karasjok» → navneform (som BÆRER Navneformgrunn='kortform') → virksomhet
+            // «Karasjoga gielda / Karasjok kommune». Med RefId rett på virksomheten var mellomleddet
+            // — og dermed navneformgrunnen — ikke gjenfinnbart fra taggen uten et gjettet
+            // Term/QuoteExact-oppslag.
+            //
+            // Navneformen HAR Entitetsstatus (til forskjell fra Virksomhet), så her filtreres det på
+            // 'gjeldende' som for begrep/tjeneste/vilkar/regel over. Merk at det tidligere
+            // Aktiv-argumentet ikke forsvinner: en NEDLAGT virksomhet skal fortsatt kunne bære en
+            // tagg (lovteksten nevner den jo, og det er nettopp da 'utgatt' som navneformgrunn blir
+            // interessant) — det er fortsatt tilfellet, siden Virksomhet.Aktiv aldri sjekkes her,
+            // verken før eller nå. Det er navneformens arkivstatus som gater, ikke virksomhetens.
+            "virksomhet" => await db.Begreper.AnyAsync(
+                b => b.Id == refId && b.Begrepskategori == "virksomhet" && b.Entitetsstatus == "gjeldende", ct),
             _ => throw new ArgumentException($"Tagger av type '{tagg.Kind}' kan ikke kobles til en entitet ennå."),
         };
         if (!finnesMatchende)
@@ -199,12 +206,24 @@ public sealed class TekstTaggTjeneste(RegelIdeDbContext db, VirksomhetOppslagTje
     /// kommentar for hvorfor de to IKKE skal blandes sammen i visningen.
     /// </para>
     /// </summary>
+    // [FIKSET, navneform-kjede-runden, 2026-09-08] Spørringen kastet InvalidOperationException («could
+    // not be translated») og endepunktet svarte 500 — for ALLE kategorier, ikke bare navneformer.
+    // Feilen var eldre enn denne runden, men usynlig: BegrepDetalj.tsx svelger feilen og viser «Ingen
+    // andre taggkoblede forekomster funnet», så en 500 så ut som et tomt, legitimt svar. Den ble synlig
+    // her fordi runden nettopp gjør at en NAVNEFORM skal ha treff å vise.
+    //
+    // Årsak: OrderBy lå over den KONSTRUERTE recorden (`x.Tagg.NodeEid` der `x` er en
+    // TekstTaggMedRettskildeTittel fra Join-ens resultSelector). EF kan ikke se gjennom en
+    // record-konstruktør og klarer derfor ikke oversette sorteringen. Løsningen er mønsteret
+    // VirksomhetWhereUsedTjeneste alt dokumenterer: join til en ANONYM type (som EF ser gjennom),
+    // sorter på de UNDERLIGGENDE kolonnene, og projiser til recorden helt til sist.
     public Task<List<TekstTaggMedRettskildeTittel>> ListerForRefIdAsync(string kind, Guid refId, CancellationToken ct = default) =>
         db.TekstTagger
             .Where(t => t.Kind == kind && t.RefId == refId && t.Entitetsstatus == "gjeldende")
             .Join(db.Rettskilder, t => t.RettskildeId, r => r.Id,
-                (t, r) => new TekstTaggMedRettskildeTittel(t, r.Kortnavn ?? r.Tittel))
+                (t, r) => new { Tagg = t, RettskildeTittel = r.Kortnavn ?? r.Tittel })
             .OrderBy(x => x.Tagg.NodeEid).ThenBy(x => x.Tagg.StartOffset)
+            .Select(x => new TekstTaggMedRettskildeTittel(x.Tagg, x.RettskildeTittel))
             .ToListAsync(ct);
 
     public async Task<SlettResultat> SlettAsync(Guid rettskildeId, Guid taggId, Guid virksomhetId, string endretAv, CancellationToken ct = default)

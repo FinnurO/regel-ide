@@ -345,4 +345,179 @@ public class TekstTaggTjenesteTests
         Assert.NotNull(oppdatert);
         Assert.Equal(regelnode.Id, oppdatert!.RefId);
     }
+
+    // ── RefId-validering per Kind for 'virksomhet' (navneform-kjede-runden, 2026-09-08) ──────────
+    // Se TekstTaggEntitet.RefId: en 'virksomhet'-tagg peker på NAVNEFORMEN, ikke på Virksomhet-raden.
+
+    /// <summary>Kjernen i Del 1: en 'virksomhet'-tagg kan kobles til en NAVNEFORM.</summary>
+    [Fact]
+    public async Task Kobler_virksomhet_tagg_til_navneformen()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Kjedetest kommune" });
+        await db.SaveChangesAsync();
+
+        var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
+        var tagg = await tjeneste.OpprettAsync(
+            rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "virksomhet");
+
+        var navneform = await new VirksomhetsbegrepTjeneste(db).OpprettVirksomhetsbegrepAsync(
+            virksomhet, node.Tekst[..4], "Kari Jurist", skosUrl: null, navneformgrunn: "kortform");
+
+        var oppdatert = await tjeneste.KobleTilEntitetAsync(tagg!.Id, navneform.Id, "Kari Jurist");
+
+        Assert.NotNull(oppdatert);
+        Assert.Equal(navneform.Id, oppdatert!.RefId);
+
+        // Kjeden videre: navneformen bærer grunnen OG peker på virksomheten.
+        var lagret = await db.Begreper.SingleAsync(b => b.Id == oppdatert.RefId!.Value);
+        Assert.Equal("kortform", lagret.Navneformgrunn);
+        Assert.Equal(virksomhet, lagret.VirksomhetReferanseId);
+    }
+
+    /// <summary>
+    /// Regresjonsvernet for selve skiftet: en VIRKSOMHET-id er nå et UGYLDIG referansemål for en
+    /// 'virksomhet'-tagg. Uten denne testen kunne valideringen stille falt tilbake til den gamle
+    /// oppførselen uten at noe slo ut.
+    /// </summary>
+    [Fact]
+    public async Task Virksomhet_tagg_kan_IKKE_lenger_kobles_direkte_til_en_virksomhet()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Kjedetest direkte kommune" });
+        await db.SaveChangesAsync();
+
+        var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
+        var tagg = await tjeneste.OpprettAsync(
+            rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "virksomhet");
+
+        // Virksomheten FINNES — det er referansemålets TYPE som avvises, ikke en manglende rad.
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => tjeneste.KobleTilEntitetAsync(tagg!.Id, virksomhet, "Kari Jurist"));
+    }
+
+    /// <summary>Et vanlig begrep (kategori NULL) er ikke en navneform, og skal avvises for
+    /// 'virksomhet'-laget — ellers ville «navneform» i praksis betydd «hvilket som helst begrep».</summary>
+    [Fact]
+    public async Task Virksomhet_tagg_kan_ikke_kobles_til_et_vanlig_begrep()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Kjedetest vanlig begrep kommune" });
+        await db.SaveChangesAsync();
+
+        var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
+        var tagg = await tjeneste.OpprettAsync(
+            rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "virksomhet");
+
+        var vanligBegrep = await new BegrepsregisterTjeneste(db).OpprettAsync(
+            virksomhet, "kjedetest vanlig begrep", "Definisjon", null, null, null, null, "faktabegrep", "Kari Jurist");
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => tjeneste.KobleTilEntitetAsync(tagg!.Id, vanligBegrep.Id, "Kari Jurist"));
+    }
+
+    /// <summary>Motsatt retning: en 'begrep'-tagg skal fortsatt kunne peke på en navneform-rad
+    /// (den ER et BegrepEntitet). Bekrefter at endringen ikke strammet inn 'begrep'-laget.</summary>
+    [Fact]
+    public async Task Begrep_tagg_kan_fortsatt_kobles_til_en_navneform()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Kjedetest begreplag kommune" });
+        await db.SaveChangesAsync();
+
+        var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
+        var tagg = await tjeneste.OpprettAsync(
+            rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "begrep");
+
+        var navneform = await new VirksomhetsbegrepTjeneste(db).OpprettVirksomhetsbegrepAsync(
+            virksomhet, "Kjedetest begreplag navneform", "Kari Jurist");
+
+        var oppdatert = await tjeneste.KobleTilEntitetAsync(tagg!.Id, navneform.Id, "Kari Jurist");
+
+        Assert.Equal(navneform.Id, oppdatert!.RefId);
+    }
+
+    /// <summary>
+    /// <see cref="TekstTaggTjeneste.ListerForRefIdAsync"/> — «hvor er denne entiteten tagget».
+    ///
+    /// <para>
+    /// Denne metoden hadde INGEN test, og var derfor i praksis ødelagt: OrderBy lå over en konstruert
+    /// record, EF klarte ikke oversette spørringen, og <c>GET /api/begreper/{id}/taggede-forekomster</c>
+    /// svarte 500 for ALLE begreper. <c>BegrepDetalj.tsx</c> svelger feilen og viser «Ingen andre
+    /// taggkoblede forekomster funnet», så feilen var usynlig i GUI-et. Testen kjører spørringen mot
+    /// EKTE Postgres — det er nettopp oversettingen som må bevises, og den kan ikke fanges uten en
+    /// faktisk database. Sorteringen asserteres også, siden det var sorteringen som veltet.
+    /// </para>
+    /// </summary>
+    [Fact]
+    public async Task Lister_forekomster_for_refId_sortert_og_med_rettskildetittel()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Refid-liste kommune" });
+        await db.SaveChangesAsync();
+
+        var resultat = LovdataKonverterer.Konverter(Testdata.LesAlkoholloven(), new DateOnly(2026, 7, 24));
+        var rettskildeId = await new RettskildeImportTjeneste(db).ImporterAsync(resultat);
+        // TO ulike ledd, slik at sorteringen på NodeEid faktisk har noe å sortere.
+        var noder = await db.RettskildeNoder
+            .Where(n => n.RettskildeId == rettskildeId && n.NodeType == "ledd" && n.Tekst != null && n.Tekst.Length > 10)
+            .OrderBy(n => n.Eid).Take(2).ToListAsync();
+        Assert.Equal(2, noder.Count);
+
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
+        var navneform = await new VirksomhetsbegrepTjeneste(db).OpprettVirksomhetsbegrepAsync(
+            virksomhet, "Refid-liste navneform", "Kari Jurist", skosUrl: null, navneformgrunn: "kortform");
+
+        foreach (var node in noder)
+        {
+            var tagg = await tjeneste.OpprettAsync(
+                rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4,
+                "", node.Tekst![..4], node.Tekst[4..], "virksomhet");
+            await tjeneste.KobleTilEntitetAsync(tagg!.Id, navneform.Id, "Kari Jurist");
+        }
+
+        var forekomster = await tjeneste.ListerForRefIdAsync("virksomhet", navneform.Id);
+
+        Assert.Equal(2, forekomster.Count);
+        Assert.All(forekomster, f => Assert.Equal(navneform.Id, f.Tagg.RefId));
+        // Rettskildetittelen er JOINet inn — det var joinen sorteringen ikke overlevde.
+        Assert.All(forekomster, f => Assert.False(string.IsNullOrWhiteSpace(f.RettskildeTittel)));
+        Assert.Equal(
+            forekomster.Select(f => f.Tagg.NodeEid).OrderBy(e => e, StringComparer.Ordinal).ToArray(),
+            forekomster.Select(f => f.Tagg.NodeEid).ToArray());
+    }
+
+    /// <summary>Et annet <c>kind</c> med samme RefId skal ikke lekke inn — kind-et er en del av
+    /// oppslaget, ikke bare pynt (det er nettopp derfor endepunktet må velge kind fra begrepets
+    /// kategori, se HentBegrepTaggedeForekomster).</summary>
+    [Fact]
+    public async Task Lister_for_refId_skiller_paa_kind()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhet, Navn = "Refid-kind kommune" });
+        await db.SaveChangesAsync();
+
+        var (rettskildeId, node) = await ImporterAlkoholovenOgFinnForsteLeddAsync(db);
+        var tjeneste = new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db));
+        var navneform = await new VirksomhetsbegrepTjeneste(db).OpprettVirksomhetsbegrepAsync(
+            virksomhet, "Refid-kind navneform", "Kari Jurist");
+
+        // Samme RefId, men lagt i 'begrep'-laget.
+        var tagg = await tjeneste.OpprettAsync(
+            rettskildeId, virksomhet, "Kari Jurist", node.Eid, 0, 4, "", node.Tekst![..4], node.Tekst[4..], "begrep");
+        await tjeneste.KobleTilEntitetAsync(tagg!.Id, navneform.Id, "Kari Jurist");
+
+        Assert.Single(await tjeneste.ListerForRefIdAsync("begrep", navneform.Id));
+        Assert.Empty(await tjeneste.ListerForRefIdAsync("virksomhet", navneform.Id));
+    }
 }

@@ -380,8 +380,13 @@ export default function NavnekandidatVeiviser() {
             ]
             : []),
           'Navnekandidaten er satt til «Godkjent».',
+          // [ENDRET, navneform-kjede-runden, 2026-09-08] Sa tidligere at taggen «peker nå på
+          // virksomheten». Det er ikke lenger sant, og docs/09 §15 er eksplisitt om at påstandene i
+          // denne oppsummeringen må FØLGE utfallet: taggen peker på NAVNEFORMEN, og virksomheten nås
+          // gjennom den. Se TekstTaggEntitet.RefId.
           resultat.taggId
-            ? 'Tekst-taggen for forekomsten peker nå på virksomheten, og er synlig i rettskilden under laget «Virksomhet».'
+            ? `Tekst-taggen for forekomsten peker nå på navneformen «${resultat.navneform.term}», som `
+              + `igjen peker på ${virksomhetNavn}. Hele kjeden er synlig i rettskilden under laget «Virksomhet».`
             : 'Ingen tekst-tagg ble opprettet — se advarselen under.',
         ],
         rettskildeLenke: resultat.taggId
@@ -896,9 +901,15 @@ export default function NavnekandidatVeiviser() {
                   </Table.Row>
                   <Table.Row>
                     <Table.HeaderCell scope="row">Tagg i rettskilden</Table.HeaderCell>
+                    {/* [ENDRET, navneform-kjede-runden, 2026-09-08] Sa «Kobles til virksomheten».
+                      * Det er ikke lenger sant — taggen kobles til NAVNEFORMEN (se
+                      * TekstTaggEntitet.RefId), og docs/09 §15 krever at det veiviseren LOVER her
+                      * stemmer med det den faktisk gjør. Oppsummeringen ETTER fullføring var alt
+                      * rettet; denne forhåndsvisningen sto igjen med den gamle påstanden. */}
                     <Table.Cell>
-                      Kobles til virksomheten, i laget «Virksomhet». En eventuell ubundet tagg på
-                      samme sted gjenbrukes i stedet for at en ny opprettes.
+                      Kobles til navneformen over, i laget «Virksomhet» — virksomheten nås gjennom
+                      den. En eventuell ubundet tagg på samme sted gjenbrukes i stedet for at en ny
+                      opprettes.
                     </Table.Cell>
                   </Table.Row>
                 </Table.Body>

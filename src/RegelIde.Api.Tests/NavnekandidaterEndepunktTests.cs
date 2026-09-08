@@ -498,7 +498,13 @@ public class NavnekandidaterEndepunktTests
     /// <summary>
     /// AK1 + AK2 samlet — HELE kjeden for en 'virksomhet'-kandidat, verifisert i DB:
     /// navneform med Navneformgrunn satt, kandidat 'Godkjent', og en TekstTagg med
-    /// Kind='virksomhet' og RefId = VIRKSOMHETEN (ikke null).
+    /// Kind='virksomhet' og RefId = NAVNEFORMEN (ikke null).
+    ///
+    /// <para>
+    /// [ENDRET, navneform-kjede-runden, 2026-09-08] Asserterte tidligere RefId = VIRKSOMHETEN. Se
+    /// <see cref="TekstTaggEntitet.RefId"/>: kjeden går nå tagg → navneform → virksomhet, fordi det er
+    /// navneformen som bærer Navneformgrunn.
+    /// </para>
     /// </summary>
     [Fact]
     public async Task Kobl_til_virksomhet_lukker_kjeden_med_navneformgrunn_og_koblet_tagg()
@@ -528,15 +534,21 @@ public class NavnekandidaterEndepunktTests
         Assert.Equal(scene.Navn, navneform.Term);
         Assert.Null(navneform.VirksomhetId); // delt/nasjonal referansedata (docs/20 §2.3).
 
-        // AK2: taggen har Kind='virksomhet' og RefId = virksomheten, ikke null.
+        // AK2: taggen har Kind='virksomhet' og RefId = NAVNEFORMEN, ikke virksomheten og ikke null.
         var tagg = await db.TekstTagger.SingleAsync(t => t.Id == resultat.TaggId!.Value);
         Assert.Equal("virksomhet", tagg.Kind);
-        Assert.Equal(scene.MaalVirksomhetId, tagg.RefId);
+        Assert.Equal(resultat.Navneform.Id, tagg.RefId);
+        Assert.NotEqual(scene.MaalVirksomhetId, tagg.RefId); // eksplisitt: IKKE lenger virksomheten.
         Assert.Equal(scene.RettskildeId, tagg.RettskildeId);
         Assert.Equal(scene.NodeEid, tagg.NodeEid);
-        // Taggen dekker NØYAKTIG navnet i teksten — det er denne strengen som knytter taggen tilbake
-        // til navneformen (og dermed til navneformgrunnen), se KoblTilVirksomhetAsync sin kommentar.
+        // Taggen dekker NØYAKTIG navnet i teksten, som ER navneformens Term.
         Assert.Equal(scene.Navn, tagg.QuoteExact);
+        Assert.Equal(navneform.Term, tagg.QuoteExact);
+
+        // Kjeden videre: navneformen peker på virksomheten, altså tagg → navneform → virksomhet.
+        var viaNavneformen = await db.Begreper.SingleAsync(b => b.Id == tagg.RefId!.Value);
+        Assert.Equal("virksomhet", viaNavneformen.Begrepskategori);
+        Assert.Equal(scene.MaalVirksomhetId, viaNavneformen.VirksomhetReferanseId);
 
         var lagretKandidat = await db.Navnekandidater.SingleAsync(k => k.Id == scene.KandidatId);
         Assert.Equal("Godkjent", lagretKandidat.Status);
@@ -594,7 +606,7 @@ public class NavnekandidaterEndepunktTests
             var tagg = Assert.Single(tagger); // ingen ny, overlappende tagg ved siden av den gamle.
             Assert.Equal(ubundetTaggId, tagg.Id);
             Assert.Equal("virksomhet", tagg.Kind); // flippet fra 'begrep'.
-            Assert.Equal(scene.MaalVirksomhetId, tagg.RefId);
+            Assert.Equal(resultat.Navneform.Id, tagg.RefId); // navneformen, ikke virksomheten.
         }
     }
 
