@@ -627,6 +627,36 @@ public sealed record MyndighetstildelingDto(
         m.Vilkaar, m.GyldigFra, m.GyldigTil);
 }
 
+// [Ny, navneform-kjede-runden, 2026-09-08] «Where used» for én virksomhet, se
+// VirksomhetWhereUsedTjeneste. Flat form per forekomst (navneformens felt gjentas) etter samme
+// minimalitetsprinsipp som RettskildeHjemmelRelasjonDto — klienten grupperer selv på navneformId.
+// StartOffset/EndOffset er RADENS IDENTITET, ikke pynt: samme navneform kan være tagget to steder i
+// samme ledd, og da er (navneform, rettskilde, node) ikke unikt — se «Én rad per FOREKOMST»-avsnittet
+// i VirksomhetWhereUsedTjeneste.
+public sealed record VirksomhetNavneformForekomstDto(
+    Guid NavneformId, string Term, string? Navneformgrunn,
+    Guid RettskildeId, string RettskildeTittel, string NodeEid, string QuoteExact,
+    int StartOffset, int EndOffset);
+
+/// <summary>Én myndighetstildeling med GRUPPEBEGREPET navngitt — nøklet på tildelingens egen id, slik
+/// at klienten kan slå gruppenavnet inn i den myndighetstildelings-tabellen den allerede viser.</summary>
+public sealed record VirksomhetGruppetildelingDto(Guid TildelingId, Guid GruppeBegrepId, string GruppeTerm);
+
+public sealed record VirksomhetWhereUsedDto(
+    IReadOnlyList<VirksomhetNavneformForekomstDto> NavneformForekomster,
+    IReadOnlyList<VirksomhetGruppetildelingDto> Gruppetildelinger)
+{
+    public static VirksomhetWhereUsedDto FraResultat(VirksomhetWhereUsedTjeneste.Resultat r) => new(
+        r.NavneformForekomster
+            .Select(f => new VirksomhetNavneformForekomstDto(
+                f.NavneformId, f.Term, f.Navneformgrunn, f.RettskildeId, f.RettskildeTittel, f.NodeEid, f.QuoteExact,
+                f.StartOffset, f.EndOffset))
+            .ToList(),
+        r.Gruppetildelinger
+            .Select(g => new VirksomhetGruppetildelingDto(g.TildelingId, g.GruppeBegrepId, g.GruppeTerm))
+            .ToList());
+}
+
 // [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] «Gruppe av gruppe» — se
 // GruppeMedlemskapEntitet. Formen speiler MyndighetstildelingRequest/-Dto over, som er den
 // tilsvarende kanten ned til en konkret virksomhet.

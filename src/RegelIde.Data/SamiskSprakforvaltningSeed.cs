@@ -70,7 +70,7 @@ public static class SamiskSprakforvaltningSeed
 
     /// <param name="Kortform">Navnet slik det STÅR i forskriftsteksten — det er denne strengen som
     /// tagges, og den er nettopp derfor en <c>'kortform'</c>-navneform: «Karasjok» er ikke
-    /// virksomhetens offisielle navn («Karasjoga gielda / karasjok kommune»).</param>
+    /// virksomhetens offisielle navn («Karasjoga gielda / Karasjok kommune»).</param>
     /// <param name="Organisasjonsnummer">Oppslagsnøkkelen mot <see cref="Virksomhet"/>. Bevisst orgnr
     /// og ikke navn: de offisielle kommunenavnene er tospråklige og skrives ulikt i ulike kilder, så et
     /// navneoppslag ville vært skjørt. Orgnr er stabilt.</param>
@@ -187,8 +187,9 @@ public static class SamiskSprakforvaltningSeed
                 continue;
             }
 
-            // Navneformen: «Karasjok» → «Karasjoga gielda / karasjok kommune», med grunn 'kortform'.
-            await SorgForNavneformAsync(db, virksomhetsbegrep, virksomhet.Id, kommune.Kortform, ct);
+            // Navneformen: «Karasjok» → «Karasjoga gielda / Karasjok kommune», med grunn 'kortform'.
+            var navneform = await SorgForNavneformAsync(
+                db, virksomhetsbegrep, virksomhet.Id, kommune.Kortform, ct);
             antallNavneformer++;
 
             var gruppe = gruppebegrepPerTerm[kommune.Kategori];
@@ -203,9 +204,13 @@ public static class SamiskSprakforvaltningSeed
             antallTildelinger++;
 
             if (forskriftEier is null) continue; // rapportert samlet under.
+            // [ENDRET, navneform-kjede-runden, 2026-09-08] Taggen peker på NAVNEFORMEN, ikke på
+            // virksomheten — se TekstTaggEntitet.RefId. Kjeden blir da den Johann forventet:
+            // «Karasjok» (tagget tekst) → navneformen (grunn 'kortform') → «Karasjoga gielda /
+            // Karasjok kommune».
             var truffet = await SorgForTaggAsync(
                 db, tekstTagg, forskrift.Id, forskriftEier.Value, medlemNode, kommune.Kortform,
-                "virksomhet", virksomhet.Id, ct);
+                "virksomhet", navneform.Id, ct);
             if (truffet) antallTagger++;
             else hoppetOver.Add($"Fant ikke «{kommune.Kortform}» som eget ord i {MedlemNodeEid} — ingen tagg.");
         }
@@ -268,7 +273,12 @@ public static class SamiskSprakforvaltningSeed
         return await virksomhetsbegrep.OpprettGruppebegrepAsync(lovkildeId, term, SeedBruker, lovreferanseEid, ct);
     }
 
-    private static async Task SorgForNavneformAsync(
+    /// <returns>
+    /// [ENDRET, navneform-kjede-runden, 2026-09-08] Returnerer nå selve navneform-raden i stedet for
+    /// <c>void</c> — taggen skal peke på DEN (se <see cref="TekstTaggEntitet.RefId"/>), så kalleren
+    /// trenger iden. Ingen endring i hva metoden gjør.
+    /// </returns>
+    private static async Task<BegrepEntitet> SorgForNavneformAsync(
         RegelIdeDbContext db, VirksomhetsbegrepTjeneste virksomhetsbegrep,
         Guid virksomhetId, string term, CancellationToken ct)
     {
@@ -284,9 +294,9 @@ public static class SamiskSprakforvaltningSeed
                 eksisterende.SistEndretTidspunkt = DateTimeOffset.UtcNow;
                 await db.SaveChangesAsync(ct);
             }
-            return;
+            return eksisterende;
         }
-        await virksomhetsbegrep.OpprettVirksomhetsbegrepAsync(
+        return await virksomhetsbegrep.OpprettVirksomhetsbegrepAsync(
             virksomhetId, term, SeedBruker, skosUrl: null, navneformgrunn: "kortform", ct);
     }
 

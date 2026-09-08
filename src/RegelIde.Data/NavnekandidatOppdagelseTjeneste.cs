@@ -1239,14 +1239,20 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// overlappende tagg opprettes ved siden av den gamle.
     /// </para>
     /// <para>
-    /// <b>MERK — bevisst avvik fra et tidligere valg:</b> <c>Program.cs</c> sin seed-kommentar
-    /// (2026-08-22) sier at en løpetekst-omtale av en virksomhet skal tagges som <c>Kind="begrep"</c>
-    /// mot navneform-RADEN, og at en femte <c>"virksomhet"</c>-kind ble lagt til og reversert den
-    /// gangen. Denne runden gjeninnfører den bevisst, fordi bestillingen eksplisitt krever at taggen
-    /// peker på VIRKSOMHETEN (så «Se i rettskilden» kan vise et eget virksomhet-lag). Koblingen
-    /// tagg → navneform → grunn er fortsatt gjenfinnbar: taggens <c>QuoteExact</c> ER navneformens
-    /// <c>Term</c>, og navneformens <see cref="BegrepEntitet.VirksomhetReferanseId"/> ER taggens
-    /// <c>RefId</c>. Skal dette valget omgjøres, er det DENNE metoden og taggkind-seeden som endres.
+    /// <b>[ENDRET — navneform-kjede-runden, 2026-09-08] Taggen peker nå på NAVNEFORMEN.</b>
+    /// Kommentaren her sa tidligere at taggen peker på VIRKSOMHETEN, og at kjeden
+    /// tagg → navneform → grunn likevel var «gjenfinnbar» fordi <c>QuoteExact</c> er navneformens
+    /// <c>Term</c>. Johann så resultatet live og avviste nettopp det: mellomleddet var ikke synlig, og
+    /// det gjenfinnbare oppslaget er dessuten tvetydig ved SYNONYMER (flere navneformer på samme
+    /// virksomhet). Nå settes <see cref="TekstTaggEntitet.RefId"/> til navneformens id — se det feltets
+    /// kommentar for hele begrunnelsen, og for hvorfor <c>Kind</c> fortsatt heter <c>"virksomhet"</c>
+    /// (det er tagg-LAGETS navn, ikke en påstand om referansemålets tabell).
+    /// </para>
+    /// <para>
+    /// Dette er samtidig en tilbakevending til 2026-08-22-valget om å peke mot navneform-RADEN — men
+    /// UTEN å gi opp det eget virksomhet-laget #204 innførte, som var hele grunnen til at det valget
+    /// ble forlatt. Begge behovene er dekket samtidig: eget lag (<c>Kind</c>) og navneform som mål
+    /// (<c>RefId</c>).
     /// </para>
     /// </summary>
     public async Task<NavnekandidatKoblingResultat?> KoblTilVirksomhetAsync(
@@ -1369,7 +1375,11 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             navneform.SistEndretTidspunkt = DateTimeOffset.UtcNow;
         }
 
-        var tagg = await OpprettEllerKobleVirksomhetTaggAsync(kandidat, virksomhetId, behandletAv, ct);
+        // [ENDRET, navneform-kjede-runden, 2026-09-08] Taggen kobles til NAVNEFORMEN, ikke til
+        // virksomheten — se TekstTaggEntitet.RefId. At navneformen opprettes/gjenbrukes FØR taggen
+        // (rett over) er nettopp det som gjør dette mulig uten noen ny rekkefølge her: vi har alt
+        // raden taggen skal peke på.
+        var tagg = await OpprettEllerKobleVirksomhetTaggAsync(kandidat, navneform.Id, behandletAv, ct);
 
         kandidat.Status = "Godkjent";
         kandidat.BehandletAv = behandletAv;
@@ -1387,8 +1397,13 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// en node/tekstposisjon som ikke lenger stemmer fordi rettskilden er endret siden sveipet. Dette
     /// skal ALDRI hindre selve koblingen av navneformen.
     /// </summary>
+    /// <param name="navneformId">
+    /// [ENDRET, navneform-kjede-runden, 2026-09-08] Var virksomhetens id; er nå NAVNEFORMENS id
+    /// (<see cref="BegrepEntitet"/>, kategori <c>'virksomhet'</c>) — det taggens
+    /// <see cref="TekstTaggEntitet.RefId"/> skal peke på. Se det feltets kommentar.
+    /// </param>
     private async Task<TekstTaggEntitet?> OpprettEllerKobleVirksomhetTaggAsync(
-        NavnekandidatEntitet kandidat, Guid virksomhetId, string behandletAv, CancellationToken ct)
+        NavnekandidatEntitet kandidat, Guid navneformId, string behandletAv, CancellationToken ct)
     {
         // Steg 1: se på ALLE gjeldende tagger som alt står på nøyaktig denne posisjonen.
         var paaPosisjonen = await db.TekstTagger
@@ -1402,7 +1417,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         // indeksen tekst_tagger_unik_tagg (VirksomhetId, RettskildeId, NodeEid, Start, End, Kind, RefId),
         // som ville gitt en ufanget DbUpdateException i stedet for et idempotent svar.
         var alleredeKoblet = paaPosisjonen.FirstOrDefault(
-            t => t.Kind == "virksomhet" && t.RefId == virksomhetId);
+            t => t.Kind == "virksomhet" && t.RefId == navneformId);
         if (alleredeKoblet is not null) return alleredeKoblet;
 
         // 1b: finnes det en UBUNDET tagg her (typisk laget av en tidligere GodkjennAsync, som
@@ -1412,7 +1427,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         if (ubundet is not null)
         {
             ubundet.Kind = "virksomhet";
-            ubundet.RefId = virksomhetId;
+            ubundet.RefId = navneformId;
             db.Proveniens.Add(ProveniensHjelper.NyRad(
                 "tekst_tagg", ubundet.Id, ubundet.VirksomhetId, "endret", behandletAv));
             return ubundet;
@@ -1453,7 +1468,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             kandidat.StartOffset, kandidat.EndOffset, quotePrefix, quoteExact, quoteSuffix, "virksomhet", ct);
         if (tagg is null) return null;
 
-        await tekstTaggTjeneste.KobleTilEntitetAsync(tagg.Id, virksomhetId, behandletAv, ct);
+        await tekstTaggTjeneste.KobleTilEntitetAsync(tagg.Id, navneformId, behandletAv, ct);
         return tagg;
     }
 

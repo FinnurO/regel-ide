@@ -202,9 +202,56 @@ public static class OrganisasjonsregisterSeed
         await db.SaveChangesAsync(ct);
     }
 
-    private static string FormaterNavnEnkelt(string kildeNavn)
+    /// <summary>
+    /// Skilletegnet mellom to likestilte navneledd i kildefilen — nøyaktig <c>" / "</c> med mellomrom
+    /// på begge sider, verifisert mot alle 7 forekomstene i <c>organisasjoner-norge.json</c>
+    /// ("DEANU GIELDA / TANA KOMMUNE", "KARASJOGA GIELDA / KARASJOK KOMMUNE", …). Ikke en bar
+    /// <c>'/'</c>: et skråstrek-tegn UTEN mellomrom rundt er ikke et navneledd-skille i denne kilden.
+    /// </summary>
+    internal const string LeddSkille = " / ";
+
+    /// <summary>
+    /// Stor forbokstav, resten small caps — se klassekommentarens "Navneformatering, v1-forenkling".
+    ///
+    /// <para>
+    /// [FIKSET — navneform-kjede-runden, 2026-09-08] Gjorde tidligere <c>ToLowerInvariant()</c> på HELE
+    /// strengen og satte så stor forbokstav på KUN tegn 0. For de 7 samiske dobbeltnavnene i kildefilen,
+    /// som består av to LIKESTILTE navneledd skilt med <see cref="LeddSkille"/>, ga det et synlig feil
+    /// navn: "KARASJOGA GIELDA / KARASJOK KOMMUNE" ble «Karasjoga gielda / karasjok kommune» — det andre
+    /// leddet, som er et fullverdig egennavn i seg selv, mistet forbokstaven. Johann oppdaget dette på
+    /// virksomhetssiden for Karasjok ("Det siste navnet antar jeg er feil, ref til store bokstaver fra
+    /// Brreg"). Nå får HVERT ledd stor forbokstav ⇒ «Karasjoga gielda / Karasjok kommune».
+    /// </para>
+    ///
+    /// <para>
+    /// Fortsatt IKKE et forsøk på generell norsk tittelkasing — kun ledd-splitting på
+    /// <see cref="LeddSkille"/>. Klassekommentarens begrunnelse står uendret: en algoritme som prøvde å
+    /// kase hvert ORD ville bommet garantert, f.eks. ved å gjøre «Nærings- og fiskeridepartementet» til
+    /// «Nærings- Og Fiskeridepartementet» (og dermed brekke departement-koblingen, som krever et EKSAKT
+    /// treff mot Lovdatas "ministry"-felt — se <see cref="DepartementSeed"/>s navnekommentar). Navn uten
+    /// <see cref="LeddSkille"/> får derfor nøyaktig samme resultat som før denne fiksen.
+    /// </para>
+    /// </summary>
+    internal static string FormaterNavnEnkelt(string kildeNavn)
     {
         var lav = kildeNavn.ToLowerInvariant();
-        return lav.Length == 0 ? lav : char.ToUpperInvariant(lav[0]) + lav[1..];
+        return lav.Length == 0 ? lav : StorForbokstavPerLedd(lav);
     }
+
+    /// <summary>
+    /// Stor forbokstav på HVERT <see cref="LeddSkille"/>-skilte ledd, alt annet ordrett uendret (ingen
+    /// lowercasing). Delt med <see cref="VirksomhetNavnKasusBackfillTjeneste"/>, som må bruke NØYAKTIG
+    /// samme regel på allerede lagrede rader som seeden bruker på nye — to kopier ville kunnet drifte
+    /// fra hverandre og gi to ulike navn for samme kilderad.
+    ///
+    /// <para>
+    /// Split/join på det EKSAKTE skilletegnet bevarer mellomromsformen ordrett — ingen normalisering av
+    /// kildens egen formatering utover selve forbokstavene.
+    /// </para>
+    /// </summary>
+    internal static string StorForbokstavPerLedd(string navn) =>
+        string.Join(LeddSkille, navn.Split(LeddSkille).Select(StorForbokstav));
+
+    private static string StorForbokstav(string ledd) =>
+        ledd.Length == 0 ? ledd : char.ToUpperInvariant(ledd[0]) + ledd[1..];
 }

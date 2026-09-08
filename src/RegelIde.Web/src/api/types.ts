@@ -214,6 +214,45 @@ export interface RettskildeHjemmelRelasjonDto {
 }
 
 /**
+ * [Ny, navneform-kjede-runden, 2026-09-08] Én forekomst av en navneform i en rettskildetekst — altså
+ * én `virksomhet`-tagg som peker på navneformen. Svarer på Johanns «where used»: hvor er navneformen
+ * faktisk brukt?
+ *
+ * Flat form (navneformens `term`/`navneformgrunn` gjentas per forekomst), samme minimalitetsprinsipp
+ * som `RettskildeHjemmelRelasjonDto` — grupper selv på `navneformId`.
+ */
+export interface VirksomhetNavneformForekomstDto {
+  navneformId: string;
+  term: string;
+  navneformgrunn: Navneformgrunn | null;
+  rettskildeId: string;
+  rettskildeTittel: string;
+  nodeEid: string;
+  quoteExact: string;
+  /** Tegnposisjonen i noden. RADENS IDENTITET — samme navneform kan være tagget to steder i samme
+   * ledd, så `(rettskildeId, nodeEid)` alene er IKKE unikt og duger ikke som React-`key`. Selve
+   * lenken peker på noden; offsetene skiller forekomstene fra hverandre. */
+  startOffset: number;
+  endOffset: number;
+}
+
+/** Én myndighetstildeling med GRUPPEBEGREPET navngitt, nøklet på tildelingens egen id — slå den inn i
+ * myndighetstildelings-tabellen, som viser tildelingene men ikke hvilken gruppe de gjelder. */
+export interface VirksomhetGruppetildelingDto {
+  tildelingId: string;
+  gruppeBegrepId: string;
+  gruppeTerm: string;
+}
+
+/** `GET /api/virksomheter/{id}/where-used` — ETT kall for alle virksomhetens navneformer (ikke ett per
+ * navneform). Virksomhetsrelasjoner er bevisst IKKE med: de vises allerede i sin helhet i egen
+ * seksjon, se `VirksomhetWhereUsedTjeneste` sin klassekommentar. */
+export interface VirksomhetWhereUsedDto {
+  navneformForekomster: VirksomhetNavneformForekomstDto[];
+  gruppetildelinger: VirksomhetGruppetildelingDto[];
+}
+
+/**
  * Endring-referanse (2026-09-02) — header-metadatafeltet `<dt class="changesToDocuments">Endrer</dt>`:
  * hvilke(t) andre dokument(er) DENNE rettskilden endrer. Samme "ingen join, la klienten slå opp"-mønster
  * som RettskildeHjemmelDto — slå `endringRettskildeId` opp mot den allerede hentede rettskilde-lista.

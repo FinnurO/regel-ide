@@ -44,6 +44,7 @@ builder.Services.AddScoped<BrukerregisterTjeneste>();
 builder.Services.AddScoped<KodelisteregisterTjeneste>();
 builder.Services.AddScoped<VirksomhetsbegrepTjeneste>();
 builder.Services.AddScoped<MyndighetstildelingTjeneste>();
+builder.Services.AddScoped<VirksomhetWhereUsedTjeneste>();
 builder.Services.AddScoped<GruppeMedlemskapTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatSveipTjeneste>();
@@ -384,6 +385,50 @@ using (var scope = app.Services.CreateScope())
     app.Logger.LogInformation(
         "AnsvarligDepartement-tilbakefylling fullført: {Antall} rettskilder oppdatert fra allerede lagret AknXml.",
         ansvarligDepartementAntall);
+
+    // [Ny, navneform-kjede-runden, 2026-09-08] Retter ledd-kasingen på seedede virksomhetsnavn
+    // («Karasjoga gielda / karasjok kommune» → «… / Karasjok kommune»), se
+    // OrganisasjonsregisterSeed.FormaterNavnEnkelt sin [FIKSET]-kommentar. Rører aldri en
+    // Brreg-synkronisert rad (#158). Idempotent.
+    var navnRettinger = await VirksomhetNavnKasusBackfillTjeneste.KjorAsync(db);
+    app.Logger.LogInformation(
+        "Virksomhetsnavn ledd-kasus-tilbakefylling: {Antall} navn rettet.", navnRettinger.Count);
+    foreach (var rettet in navnRettinger)
+    {
+        app.Logger.LogInformation(
+            "Rettet virksomhetsnavn {VirksomhetId}: «{Fra}» → «{Til}».", rettet.VirksomhetId, rettet.Fra, rettet.Til);
+    }
+
+    // [Ny, navneform-kjede-runden, 2026-09-08] Flytter eksisterende 'virksomhet'-taggers RefId fra
+    // Virksomhet-raden til NAVNEFORM-raden — se TekstTaggEntitet.RefId og tjenestens klassekommentar.
+    //
+    // MÅ kjøres FØR SamiskSprakforvaltningSeed under, ikke etter: seeden gjenkjenner en eksisterende
+    // tagg på (Kind, RefId), og med RefId nå = navneformens id ser den IKKE en gammel rad som peker på
+    // virksomheten — den ville opprettet en dublett ved siden av hver gamle (observert: 14 dubletter).
+    // Migreres FØRST, finner seeden radene som allerede riktige og gjør ingenting. Tjenestens
+    // klassekommentar dokumenterer dette eksplisitt. Idempotent — trygt på hver oppstart.
+    var taggMigrering = await VirksomhetTaggNavneformBackfillTjeneste.KjorAsync(db);
+    app.Logger.LogInformation(
+        "Navneform-kjede-migrering: {Flyttet} 'virksomhet'-tagger flyttet fra virksomhet til navneform, "
+        + "{Allerede} pekte allerede riktig, {Arkiverte} foreldede dubletter arkivert, "
+        + "{Uflyttbare} kunne ikke flyttes.",
+        taggMigrering.Flyttet.Count, taggMigrering.AlleredeFlyttet,
+        taggMigrering.ArkiverteDubletter.Count, taggMigrering.Uflyttbare.Count);
+    foreach (var arkivert in taggMigrering.ArkiverteDubletter)
+    {
+        app.Logger.LogInformation(
+            "Navneform-kjede-migrering arkiverte foreldet dublett-tagg {TaggId} («{QuoteExact}») — "
+            + "posisjonen er allerede tagget mot navneform {NavneformId}.",
+            arkivert.TaggId, arkivert.QuoteExact, arkivert.NavneformId);
+    }
+    foreach (var uflyttbar in taggMigrering.Uflyttbare)
+    {
+        // LogWarning, ikke Information: en urørt rad er en tagg UI-et ikke klarer å resolve, og skal
+        // være synlig — ikke stilltiende akseptert. Samme holdning som samiskSeed.HoppetOver.
+        app.Logger.LogWarning(
+            "Navneform-kjede-migrering kunne ikke flytte tagg {TaggId} («{QuoteExact}», RefId {RefId}): {Grunn}",
+            uflyttbar.TaggId, uflyttbar.QuoteExact, uflyttbar.RefId, uflyttbar.Grunn);
+    }
 
     // [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] «Gruppe av gruppe»-eksempelet
     // (forvaltningsområdet for samiske språk) som ekte data. Kjøres SIST av alle seedene: den er
@@ -2530,11 +2575,24 @@ begreper.MapGet("/{id:guid}/brukt-i-rettskilder", async (Guid id, BegrepBruktIRe
                  $"case-insensitivt) i selve lovteksten — maks {BegrepBruktIRettskilderTjeneste.MaksAntallTreff} treff. " +
                  "IKKE det samme som Begrep.LovreferanseEid (én manuelt satt referanse) — se BegrepBruktIRettskilderTjeneste.");
 
-begreper.MapGet("/{id:guid}/taggede-forekomster", async (Guid id, TekstTaggTjeneste tekstTaggTjeneste, CancellationToken ct) =>
-        Results.Ok((await tekstTaggTjeneste.ListerForRefIdAsync("begrep", id, ct)).Select(BegrepTaggetForekomstDto.FraTagg)))
+// [FIKSET, navneform-kjede-runden, 2026-09-08] Kind var HARDKODET til "begrep", så endepunktet
+// returnerte ALLTID tom liste for en NAVNEFORM (Begrepskategori='virksomhet') — og BegrepDetalj.tsx
+// kaller det for hvert begrep, navneformer inkludert. Før denne runden var det uunngåelig: en
+// virksomhet-taggs RefId var virksomhetens id, ikke navneformens, så ingen tagg kunne noensinne matche
+// en navneform. Nå PEKER taggen på navneformen (se TekstTaggEntitet.RefId), og da er det riktige
+// kind-et for en navneform 'virksomhet'. Slås opp fra begrepets egen kategori i stedet for å gjette:
+// et vanlig fakta-/handlingsbegrep tagges fortsatt med 'begrep', et gruppebegrep likeså (docs/09 §16 —
+// grupper har bevisst ingen egen kind).
+begreper.MapGet("/{id:guid}/taggede-forekomster", async (Guid id, RegelIdeDbContext db, TekstTaggTjeneste tekstTaggTjeneste, CancellationToken ct) =>
+    {
+        var kategori = await db.Begreper.Where(b => b.Id == id).Select(b => b.Begrepskategori).FirstOrDefaultAsync(ct);
+        var kind = kategori == "virksomhet" ? "virksomhet" : "begrep";
+        return Results.Ok((await tekstTaggTjeneste.ListerForRefIdAsync(kind, id, ct)).Select(BegrepTaggetForekomstDto.FraTagg));
+    })
     .WithName("HentBegrepTaggedeForekomster")
     .WithSummary("EKTE, taggkoblede forekomster av begrepet (TekstTaggEntitet.RefId == id) — strukturelle koblinger, " +
-                 "IKKE et fulltekstsøk (se HentBegrepBruktIRettskilder for det). Se " +
+                 "IKKE et fulltekstsøk (se HentBegrepBruktIRettskilder for det). Tagg-kind velges fra begrepets " +
+                 "kategori: 'virksomhet' for en navneform, ellers 'begrep'. Se " +
                  "BegrepsforekomstTjeneste.GodkjennAsync for hvordan disse opprettes automatisk for andre forekomster " +
                  "av samme term i definerende rettskilde ved godkjenning.");
 
@@ -2816,6 +2874,20 @@ app.MapGet("/api/virksomheter/{id:guid}/myndighetstildelinger", async (Guid id, 
     .WithSummary("Lister myndighetstildelinger denne virksomheten har. ?gjeldende=true filtrerer bort " +
         "tildelinger som ikke er gjeldende akkurat nå (hjemmel opphevet/utløpt, eller tildelingens egen " +
         "GyldigFra/GyldigTil utenfor dagens dato — docs/29 §Del B).");
+
+// [Ny, navneform-kjede-runden, 2026-09-08] «Where used» for én virksomhet — se
+// VirksomhetWhereUsedTjeneste for hvorfor dette er ETT samlet oppslag og ikke ett kall per navneform,
+// og for hvorfor virksomhetsrelasjoner bevisst IKKE er med (de vises allerede i sin helhet).
+app.MapGet("/api/virksomheter/{id:guid}/where-used", async (Guid id, VirksomhetWhereUsedTjeneste tjeneste, CancellationToken ct) =>
+        Results.Ok(VirksomhetWhereUsedDto.FraResultat(await tjeneste.HentAsync(id, ct))))
+    .WithOpenApi()
+    .WithName("HentVirksomhetWhereUsed")
+    .WithSummary("Hvor er denne virksomheten koblet inn: hvilke rettskildetekster navneformene hennes er " +
+        "tagget i, og hvilket gruppebegrep hver myndighetstildeling gjelder.")
+    .WithDescription("[Ny, navneform-kjede-runden] Bulk-oppslag: ett kall dekker ALLE virksomhetens " +
+        "navneformer, i stedet for ett /api/begreper/{id}/taggede-forekomster-kall per navneform (N+1). " +
+        "Samme bulk-prinsipp som /api/rettskilder/hjemmelrelasjoner (issue #193). Forutsetter at en " +
+        "'virksomhet'-taggs RefId peker på NAVNEFORMEN — se TekstTaggEntitet.RefId.");
 
 app.MapGet("/api/virksomheter/{id:guid}/rettskilder-ansvarlig-for", async (Guid id, RettskildeRepository repo) =>
         Results.Ok((await repo.RettskilderAnsvarligForAsync(id)).Select(RettskildeSammendrag.FraEntitet)))
