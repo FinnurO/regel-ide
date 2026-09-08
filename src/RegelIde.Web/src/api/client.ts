@@ -80,6 +80,10 @@ import type {
   SettRotnodeRequest,
   SettStatusRequest,
   TaggKindKonfigurasjonDto,
+  Navneformgrunn,
+  OppdaterNavnekandidatRequest,
+  KoblNavnekandidatTilVirksomhetRequest,
+  NavnekandidatKoblingResultatDto,
   TekstTaggDto,
   TjenesteDto,
   TjenesteReferanseDto,
@@ -316,7 +320,10 @@ export const api = {
   hentVirksomhetsbegrep: (virksomhetId: string) =>
     kall<VirksomhetsbegrepDto[]>(`/api/virksomheter/${virksomhetId}/begrep`),
 
-  opprettVirksomhetsbegrep: (request: { virksomhetId: string; term: string; skosUrl: string | null }) =>
+  /** `navneformgrunn` er valgfri (utelatt/null = uspesifisert) — se `Navneformgrunn` i types.ts. */
+  opprettVirksomhetsbegrep: (request: {
+    virksomhetId: string; term: string; skosUrl: string | null; navneformgrunn?: Navneformgrunn | null;
+  }) =>
     kall<VirksomhetsbegrepDto>('/api/virksomhetsbegrep', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -457,6 +464,28 @@ export const api = {
 
   sveipNavnekandidater: (request: SveipNavnekandidaterRequest) =>
     kall<SveipNavnekandidaterResultatDto>('/api/navnekandidater/sveip', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  /** [Ny, navnekandidat-wizard-runden, 2026-09-07] ÉN kandidatrad, uansett status — wizarden er en
+   * dypt lenkbar egen side og skal ikke hente hele køen for å finne én rad. */
+  hentNavnekandidat: (id: string) => kall<NavnekandidatDto>(`/api/navnekandidater/${id}`),
+
+  /** [Ny, navnekandidat-wizard-runden, 2026-09-07] Retter teksten/kategorien. Virker UANSETT status,
+   * og setter en 'Avvist' rad tilbake til 'Venter' (issue #203 pkt. 1). */
+  oppdaterNavnekandidat: (id: string, request: OppdaterNavnekandidatRequest) =>
+    kall<NavnekandidatDto>(`/api/navnekandidater/${id}`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  /** [Ny, navnekandidat-wizard-runden, 2026-09-07] Lukker kjeden: navneform (med navneformgrunn) +
+   * status 'Godkjent' + en TekstTagg som faktisk peker på virksomheten. */
+  koblNavnekandidatTilVirksomhet: (id: string, request: KoblNavnekandidatTilVirksomhetRequest) =>
+    kall<NavnekandidatKoblingResultatDto>(`/api/navnekandidater/${id}/kobl-til-virksomhet`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),

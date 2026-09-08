@@ -199,6 +199,21 @@ med en «SNL ↗»-lenke til selve artikkelen (i opprettelsesbekreftelsen for «
 navneform-tabellen på virksomhetens detaljside) — saksbehandler kan alltid åpne og selv verifisere
 SNL-teksten (issue #194, samme mekanisme som Brreg-opprettelsen fikk i #158).
 
+[NYTT, navneformgrunn, 2026-09-07] Hver navneform kan bære en **grunn** til at den peker på nettopp
+denne virksomheten: «gjeldende navn» (det offisielle navnet, normaltilfellet), «utgått navn» (et
+historisk navn som fortsatt STÅR i lovteksten, f.eks. «Arkivverket», nå Nasjonalarkivet),
+«kortform» (kontekstavhengig kortform — «Suldal» betyr Suldal kommune her), eller «feilskriving»
+(skrivefeil i kildeteksten, f.eks. «Matilsynet» med bare én t). Grunnen er **valgfri**: alle
+navneformer som fantes før denne runden står som uspesifisert, og ingen verdi blir gjettet for dem.
+I navneform-tabellen vises grunnen som en farget merkelapp med tre tydelig ulike roller — grønn for
+«gjeldende», oransje for «utgått», rød for «feilskriving» — nettopp fordi et utgått eller feilskrevet
+navn aldri skal kunne forveksles med det offisielle. Uspesifisert grunn gir ingen merkelapp (tom
+celle), for ikke å fylle tabellen med støy.
+
+Merk skillet: grunnen forklarer en LEGITIM streng som faktisk står i lovteksten. Er derimot selve
+treffet et regex-artefakt («Ø Suldal kommune», der Ø er limt inn fra en koordinat rett foran), er det
+teksten som skal rettes — se «Navnekandidater» under.
+
 *Hvor:* «Virksomheter» (`/virksomheter`, `/virksomheter/:id`).
 
 ### Virksomhetskandidater
@@ -212,13 +227,44 @@ navneformen allerede er registrert). Filtrerbar, med massegodkjenning/-avvisning
 ### Navnekandidater
 
 Komplementær oppdagelseskø: i stedet for å bekrefte forekomster av KJENTE navn, leter denne etter
-HELT NYE, ukjente egennavn/juridiske aktører i rettskildeteksten via regex-mønstre (aldri KI) —
-suffiksmønstre («-tilsynet», «-direktoratet» osv.) og en fast liste juridiske aktør-substantiv
-(«Kongen», «departementet» osv.). Godkjenning av en «rolle»-kandidat oppretter et ekte rollebegrep
-direkte; en «virksomhet»-kandidat krever et menneske til å koble den til en faktisk virksomhet (via
-Brreg-søket eller «opprett med bare navn» over).
+HELT NYE, ukjente egennavn/juridiske aktører i rettskildeteksten via regex-mønstre (aldri KI). Ett
+samlet sveip dekker en fast liste juridiske aktør-substantiv («Kongen», «Stortinget», bøyningsformer
+av kommune/fylkeskommune/departement/statsforvalter), et flerords-mønster som fanger hele navn
+(«Statens vegvesen», «Møre og Romsdal fylkeskommune»), og et bredt «stor forbokstav midt i
+setningen»-mønster der hvert unike navn valideres strukturelt mot Store norske leksikon og
+Sentralt stedsnavnregister i stedet for mot en hånd-vedlikeholdt ordliste. Køen har fem faner
+(Venter / Godkjent / Avvist automatisk / Avvist manuelt / Alle).
 
-*Hvor:* «Navnekandidater» (`/navnekandidater`).
+**Veiviser for å behandle én kandidat** [NYTT, 2026-09-07]. «Behandle …» på en kandidatrad åpner en
+egen, dypt lenkbar side som tar saksbehandleren gjennom hele kjeden i fem steg, og som er
+tilgjengelig **uansett status** — også for rader som alt er godkjent eller avvist:
+
+1. **Kontekst** — rettskilden, noden, ansvarlig departement, SNL/SSR-berikelsen, og hele setningen
+   fra lovteksten med treffet uthevet, slik at man kan lese den og selv vurdere avgrensningen.
+2. **Er teksten riktig?** — retting av regex-artefakter («Ø Suldal kommune»). Er raden **avvist**,
+   settes den tilbake til «Venter» når en rettet tekst lagres, slik at den kan behandles på nytt —
+   den eneste veien tilbake fra «Avvist». En godkjent rad beholder bevisst sin status. Er navnet
+   derimot legitimt slik det står, skal teksten stå, og forklares med en grunn i steg 4 i stedet.
+3. **Hva slags ting er dette?** — konkret virksomhet, gruppe som defineres her (samme resultat som
+   den gamle Godkjenn-knappen: gruppebegrep hjemlet i loven + koblet tagg), eller ikke relevant
+   (raden avvises).
+4. **Hvilken virksomhet?** — velg fra katalogen, eller opprett underveis fra Brreg eller med bare
+   navn. Her velges også **grunnen** til at navneformen peker dit (se «Virksomheter» over).
+5. **Bekreft** — en oppsummering av hva som blir opprettet eller endret, før man fullfører.
+
+Fullføring **lukker kjeden** for en virksomhet-kandidat: navneformen opprettes (eller gjenbrukes) med
+sin grunn, kandidaten settes til «Godkjent», og tekst-taggen for forekomsten peker nå på selve
+virksomheten og er synlig i rettskildeteksten under et eget, valgbart lag «Virksomhet» i
+tagg-velgeren. Fantes det alt en ubundet tagg på samme sted (etterlatt av en tidligere godkjenning),
+er det DEN som kobles — ingen ny, overlappende tagg. Kan ingen tagg opprettes fordi rettskilden
+mangler et ansvarlig departement som finnes i virksomhetskatalogen (en tagg må eies av noen), eller
+fordi tegnposisjonene ikke lenger stemmer etter en reimport, **sies det eksplisitt** i
+bekreftelsen — navneformkoblingen lykkes uansett.
+
+*Kjent begrensning / bevisst utenfor denne runden:* «administrativ inndeling» og «medlem av en
+eksisterende gruppe» er ikke egne utfall ennå — velg «Ikke relevant» og ta det opp separat.
+
+*Hvor:* «Navnekandidater» (`/navnekandidater`, `/navnekandidater/:id/behandle`).
 
 ### Rollebegrep og myndighetstildeling
 

@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 
 namespace RegelIde.Data;
@@ -1148,6 +1148,239 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     }
 
     /// <summary>
+    /// [Ny, navnekandidat-wizard-runden, 2026-09-07] ÉN kandidatrad, uansett status. Wizarden er en
+    /// egen, dypt lenkbar side (<c>/navnekandidater/:id/behandle</c>) — uten dette måtte den hentet
+    /// HELE køen (~3990 rader) og lett etter én id klientside.
+    /// </summary>
+    public Task<NavnekandidatEntitet?> FinnAsync(Guid id, CancellationToken ct = default) =>
+        db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
+
+    /// <summary>
+    /// [Ny, navnekandidat-wizard-runden, 2026-09-07] Retter en kandidatrads <c>ForeslattTekst</c>
+    /// og/eller <c>Kategori</c> — steg 1 i wizarden («Er teksten riktig?»).
+    /// <para>
+    /// Dette finnes UTELUKKENDE for REGEX-ARTEFAKTER: treff der sveipets mønster har limt med seg
+    /// tegn som ikke hører til navnet, f.eks. «Ø Suldal kommune» der en ledende «Ø» kommer fra en
+    /// koordinat i teksten rett foran. Da er teksten FEIL og skal rettes.
+    /// </para>
+    /// <para>
+    /// Det er IKKE mekanismen for et LEGITIMT navn som faktisk står slik i lovteksten («Suldal»,
+    /// «Matilsynet», «Arkivverket») — de skal beholdes ordrett som navneform og i stedet forklares
+    /// med <see cref="BegrepEntitet.Navneformgrunn"/> (`'kortform'`/`'feilskriving'`/`'utgatt'`).
+    /// To ulike problemer, to ulike mekanismer — ikke bland dem.
+    /// </para>
+    /// <para>
+    /// Virker UANSETT status (til forskjell fra <see cref="GodkjennAsync"/>/<see cref="AvvisAsync"/>,
+    /// som krever <c>"Venter"</c>), og setter status TILBAKE til <c>"Venter"</c> hvis raden var
+    /// <c>"Avvist"</c> — Johanns eksplisitt avklarte valg (issue #203 punkt 1): en rad som ble
+    /// (typisk automatisk) avvist fordi den forvanskede teksten ikke ga SNL/SSR-treff, skal kunne
+    /// behandles på nytt når teksten er rettet. Dette er den ENESTE veien tilbake fra <c>"Avvist"</c>
+    /// til <c>"Venter"</c> i systemet; <see cref="GodkjennAsync"/> sin metodekommentar dokumenterer at
+    /// det tidligere ikke fantes noen.
+    /// </para>
+    /// <para>
+    /// En <c>"Godkjent"</c> rad beholder BEVISST sin status ved en tekstretting — den har allerede
+    /// fått sine følge-entiteter (gruppebegrep/navneform/tagg), og å stille sette den tilbake til
+    /// <c>"Venter"</c> ville skjult at de fortsatt finnes. Ingen gjettet opprydding.
+    /// </para>
+    /// </summary>
+    /// <param name="foreslattTekst">Ny tekst, eller <c>null</c> for å la den stå uendret.</param>
+    /// <param name="kategori">Ny kategori (`'virksomhet'`/`'gruppe'`), eller <c>null</c> for uendret.</param>
+    public async Task<NavnekandidatEntitet?> OppdaterAsync(
+        Guid id, string? foreslattTekst, string? kategori, string behandletAv, CancellationToken ct = default)
+    {
+        var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
+        if (kandidat is null) return null;
+
+        if (foreslattTekst is not null)
+        {
+            if (string.IsNullOrWhiteSpace(foreslattTekst))
+            {
+                throw new ArgumentException("Foreslått tekst kan ikke være tom. Ingen gjettet fallback.");
+            }
+            kandidat.ForeslattTekst = foreslattTekst.Trim();
+        }
+
+        if (kategori is not null)
+        {
+            if (kategori is not ("virksomhet" or "gruppe"))
+            {
+                throw new ArgumentException(
+                    $"Ugyldig kategori '{kategori}'. Gyldige verdier: virksomhet, gruppe. Ingen gjettet fallback.");
+            }
+            kandidat.Kategori = kategori;
+        }
+
+        // Avvist -> Venter (issue #203 pkt. 1). "Godkjent" beholder sin status, se metodekommentaren.
+        if (kandidat.Status == "Avvist")
+        {
+            kandidat.Status = "Venter";
+            kandidat.BehandletAv = null;
+            kandidat.BehandletTidspunkt = null;
+        }
+
+        await db.SaveChangesAsync(ct);
+        return kandidat;
+    }
+
+    /// <summary>
+    /// [Ny, navnekandidat-wizard-runden, 2026-09-07] LUKKER KJEDEN for en <c>"virksomhet"</c>-kandidat:
+    /// oppretter/gjenbruker navneformen, setter kandidaten til <c>"Godkjent"</c>, og sørger for at
+    /// <see cref="TekstTaggEntitet"/>-en for forekomsten faktisk PEKER på virksomheten.
+    /// <para>
+    /// Før denne runden endte <see cref="GodkjennAsync"/> for <c>"virksomhet"</c> i en blindvei: en
+    /// tagg ble opprettet med <see cref="TekstTaggEntitet.RefId"/> = <c>null</c> og ble ALDRI koblet,
+    /// og «Finn/opprett virksomhet»-lenken forsvant så snart status ikke var <c>"Venter"</c> lenger.
+    /// </para>
+    /// <para>
+    /// <b>Gjenbruker en eksisterende UBUNDET tagg</b> (<c>RefId == null</c>) på nøyaktig samme
+    /// posisjon hvis en tidligere <see cref="GodkjennAsync"/> alt har laget en — den får da
+    /// <c>Kind</c> endret til <c>"virksomhet"</c> og <c>RefId</c> satt, i stedet for at en ny,
+    /// overlappende tagg opprettes ved siden av den gamle.
+    /// </para>
+    /// <para>
+    /// <b>MERK — bevisst avvik fra et tidligere valg:</b> <c>Program.cs</c> sin seed-kommentar
+    /// (2026-08-22) sier at en løpetekst-omtale av en virksomhet skal tagges som <c>Kind="begrep"</c>
+    /// mot navneform-RADEN, og at en femte <c>"virksomhet"</c>-kind ble lagt til og reversert den
+    /// gangen. Denne runden gjeninnfører den bevisst, fordi bestillingen eksplisitt krever at taggen
+    /// peker på VIRKSOMHETEN (så «Se i rettskilden» kan vise et eget virksomhet-lag). Koblingen
+    /// tagg → navneform → grunn er fortsatt gjenfinnbar: taggens <c>QuoteExact</c> ER navneformens
+    /// <c>Term</c>, og navneformens <see cref="BegrepEntitet.VirksomhetReferanseId"/> ER taggens
+    /// <c>RefId</c>. Skal dette valget omgjøres, er det DENNE metoden og taggkind-seeden som endres.
+    /// </para>
+    /// </summary>
+    public async Task<NavnekandidatKoblingResultat?> KoblTilVirksomhetAsync(
+        Guid id, Guid virksomhetId, string? navneformgrunn, string behandletAv, CancellationToken ct = default)
+    {
+        var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
+        if (kandidat is null) return null;
+        if (kandidat.Kategori != "virksomhet")
+        {
+            throw new ArgumentException(
+                $"Kandidaten har kategori '{kandidat.Kategori}' — kun 'virksomhet'-kandidater kan kobles til en virksomhet. "
+                + "Bruk godkjenn-veien for 'gruppe'.");
+        }
+        // BEVISST ingen status-sperre her (til forskjell fra GodkjennAsync/AvvisAsync, som krever
+        // "Venter"): en rad som ALLEREDE er "Godkjent" via den gamle veien er nettopp den som står
+        // fast i blindveien med en ubundet tagg — å nekte den her ville gjort de eksisterende,
+        // halvbehandlede radene umulige å redde, som er hele poenget med denne runden. Kallet er
+        // idempotent (se OpprettEllerKobleVirksomhetTaggAsync), så en gjentakelse er ufarlig.
+        if (!VirksomhetsbegrepTjeneste.ErGyldigNavneformgrunn(navneformgrunn))
+        {
+            throw new ArgumentException(
+                $"Ugyldig navneformgrunn '{navneformgrunn}'. Gyldige verdier: "
+                + $"{string.Join(", ", VirksomhetsbegrepTjeneste.Navneformgrunner)} (eller utelat feltet). "
+                + "Ingen gjettet fallback.");
+        }
+
+        // Navneformen: gjenbruk en identisk, gjeldende rad hvis den alt finnes (samme term MOT SAMME
+        // virksomhet) — å opprette en duplikat-navneform ved en ny forekomst av samme navn er ikke en
+        // ny opplysning. Grunnen oppdateres da bare hvis den var uspesifisert (NULL), slik at et
+        // menneskes tidligere, eksplisitte valg aldri overskrives stille.
+        var navneform = await db.Begreper.FirstOrDefaultAsync(
+            b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == virksomhetId
+                 && b.Term == kandidat.ForeslattTekst && b.Entitetsstatus == "gjeldende", ct);
+        if (navneform is null)
+        {
+            navneform = await virksomhetsbegrep.OpprettVirksomhetsbegrepAsync(
+                virksomhetId, kandidat.ForeslattTekst, behandletAv, null, navneformgrunn, ct);
+        }
+        else if (navneform.Navneformgrunn is null && navneformgrunn is not null)
+        {
+            navneform.Navneformgrunn = navneformgrunn;
+            navneform.SistEndretAv = behandletAv;
+            navneform.SistEndretTidspunkt = DateTimeOffset.UtcNow;
+        }
+
+        var tagg = await OpprettEllerKobleVirksomhetTaggAsync(kandidat, virksomhetId, behandletAv, ct);
+
+        kandidat.Status = "Godkjent";
+        kandidat.BehandletAv = behandletAv;
+        kandidat.BehandletTidspunkt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync(ct);
+
+        return new NavnekandidatKoblingResultat(kandidat, navneform, tagg?.Id, kandidat.NodeEid);
+    }
+
+    /// <summary>
+    /// Taggsiden av <see cref="KoblTilVirksomhetAsync"/>. Returnerer <c>null</c> når ingen tagg kunne
+    /// opprettes — nøyaktig samme dokumenterte degradering som
+    /// <see cref="OpprettDepartementTaggHvisMuligAsync"/>: ukjent/uoppløsbart ansvarlig departement
+    /// (taggens <see cref="TekstTaggEntitet.VirksomhetId"/> er ikke-nullbar og må eies av NOEN), eller
+    /// en node/tekstposisjon som ikke lenger stemmer fordi rettskilden er endret siden sveipet. Dette
+    /// skal ALDRI hindre selve koblingen av navneformen.
+    /// </summary>
+    private async Task<TekstTaggEntitet?> OpprettEllerKobleVirksomhetTaggAsync(
+        NavnekandidatEntitet kandidat, Guid virksomhetId, string behandletAv, CancellationToken ct)
+    {
+        // Steg 1: se på ALLE gjeldende tagger som alt står på nøyaktig denne posisjonen.
+        var paaPosisjonen = await db.TekstTagger
+            .Where(t => t.RettskildeId == kandidat.RettskildeId && t.NodeEid == kandidat.NodeEid
+                        && t.StartOffset == kandidat.StartOffset && t.EndOffset == kandidat.EndOffset
+                        && t.Entitetsstatus == "gjeldende")
+            .ToListAsync(ct);
+
+        // 1a: er kjeden ALLEREDE lukket mot nøyaktig denne virksomheten? Da er kallet en no-op.
+        // Uten denne grenen ville et gjentatt kall falt ned i "opprett ny" under og brutt den unike
+        // indeksen tekst_tagger_unik_tagg (VirksomhetId, RettskildeId, NodeEid, Start, End, Kind, RefId),
+        // som ville gitt en ufanget DbUpdateException i stedet for et idempotent svar.
+        var alleredeKoblet = paaPosisjonen.FirstOrDefault(
+            t => t.Kind == "virksomhet" && t.RefId == virksomhetId);
+        if (alleredeKoblet is not null) return alleredeKoblet;
+
+        // 1b: finnes det en UBUNDET tagg her (typisk laget av en tidligere GodkjennAsync, som
+        // etterlot Kind='begrep' med RefId=null)? Da skal DEN kobles, ikke dupliseres — bestillingens
+        // eksplisitte krav, og nettopp radene som står fast i blindveien i dag.
+        var ubundet = paaPosisjonen.FirstOrDefault(t => t.RefId is null);
+        if (ubundet is not null)
+        {
+            ubundet.Kind = "virksomhet";
+            ubundet.RefId = virksomhetId;
+            db.Proveniens.Add(ProveniensHjelper.NyRad(
+                "tekst_tagg", ubundet.Id, ubundet.VirksomhetId, "endret", behandletAv));
+            return ubundet;
+        }
+
+        // Steg 2: ingen ubundet tagg — opprett en ny, eid av ansvarlig departement (samme
+        // "en tagg må eies av noen"-løsning som OpprettDepartementTaggHvisMuligAsync).
+        var ansvarligDepartementer = await db.Rettskilder
+            .Where(r => r.Id == kandidat.RettskildeId)
+            .Select(r => r.AnsvarligDepartement)
+            .FirstOrDefaultAsync(ct);
+        if (ansvarligDepartementer is null) return null;
+
+        Guid? eierVirksomhetId = null;
+        foreach (var departement in ansvarligDepartementer)
+        {
+            eierVirksomhetId = await virksomhetOppslag.FinnVirksomhetIdForNavnAsync(departement);
+            if (eierVirksomhetId is not null) break;
+        }
+        if (eierVirksomhetId is null) return null;
+
+        var node = await db.RettskildeNoder.FirstOrDefaultAsync(
+            n => n.RettskildeId == kandidat.RettskildeId && n.Eid == kandidat.NodeEid, ct);
+        var tekst = node?.Tekst;
+        if (tekst is null
+            || kandidat.StartOffset < 0 || kandidat.EndOffset > tekst.Length || kandidat.EndOffset <= kandidat.StartOffset)
+        {
+            return null;
+        }
+
+        const int kontekstLengde = 30; // samme vindu som OpprettDepartementTaggHvisMuligAsync og klienten.
+        var quoteExact = tekst[kandidat.StartOffset..kandidat.EndOffset];
+        var quotePrefix = tekst[Math.Max(0, kandidat.StartOffset - kontekstLengde)..kandidat.StartOffset];
+        var quoteSuffix = tekst[kandidat.EndOffset..Math.Min(tekst.Length, kandidat.EndOffset + kontekstLengde)];
+
+        var tagg = await tekstTaggTjeneste.OpprettAsync(
+            kandidat.RettskildeId, eierVirksomhetId.Value, behandletAv, kandidat.NodeEid,
+            kandidat.StartOffset, kandidat.EndOffset, quotePrefix, quoteExact, quoteSuffix, "virksomhet", ct);
+        if (tagg is null) return null;
+
+        await tekstTaggTjeneste.KobleTilEntitetAsync(tagg.Id, virksomhetId, behandletAv, ct);
+        return tagg;
+    }
+
+    /// <summary>
     /// [Ny, 2026-08-30] Ekte sletting (<c>Remove</c>, IKKE soft-delete) av ÉN kandidatrad, uansett
     /// status. Til forskjell fra <see cref="VirksomhetKandidatTjeneste.HardslettAvvistAsync"/> (som KUN
     /// tillater hardsletting av <c>'Avvist'</c>-rader, docs/20 §2.6) er det HER ingen slik begrensning:
@@ -1206,3 +1439,20 @@ public sealed class NavnekandidatOppdagelseTjeneste(
 /// av om den nye raden ble opprettet som <c>"Venter"</c> eller <c>"Avvist"</c> (se
 /// <see cref="NavnekandidatOppdagelseTjeneste.KlassifiserAsync"/>).</summary>
 public sealed record NavnekandidatSveipResultat(int AntallTreffFunnet, int AntallNyeKandidater);
+
+/// <summary>
+/// [Ny, navnekandidat-wizard-runden, 2026-09-07] Utfallet av
+/// <see cref="NavnekandidatOppdagelseTjeneste.KoblTilVirksomhetAsync"/> — hele den lukkede kjeden i
+/// ett returobjekt, slik at klienten kan bekrefte HVA som faktisk skjedde uten et nytt oppslag.
+/// </summary>
+/// <param name="Kandidat">Kandidatraden, nå <c>"Godkjent"</c>.</param>
+/// <param name="Navneform">Navneformen som ble opprettet ELLER gjenbrukt (<c>Begrepskategori='virksomhet'</c>).</param>
+/// <param name="TaggId">
+/// Taggen som nå peker på virksomheten, eller <c>null</c> når ingen tagg kunne opprettes — ukjent/
+/// uoppløsbart ansvarlig departement, eller en tekstposisjon som ikke lenger stemmer. En reell,
+/// dokumentert begrensning som klienten skal VISE, ikke skjule (se
+/// <see cref="NavnekandidatOppdagelseTjeneste.KoblTilVirksomhetAsync"/>).
+/// </param>
+/// <param name="NodeEid">eId-en for noden taggen står i — klientens «Se i rettskilden ↗»-lenke.</param>
+public sealed record NavnekandidatKoblingResultat(
+    NavnekandidatEntitet Kandidat, BegrepEntitet Navneform, Guid? TaggId, string NodeEid);

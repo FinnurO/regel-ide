@@ -2,10 +2,11 @@ import { useMemo, useState } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router';
 import { Alert, Button, Card, Checkbox, Heading, Link, Paragraph, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { BrregEnhetDto, VirksomhetDto } from '../api/types';
+import type { BrregEnhetDto, Navneformgrunn, VirksomhetDto } from '../api/types';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
+import { NavneformgrunnVelger } from '../virksomhet/Navneformgrunn';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 
 type Sorteringskolonne = 'navn' | 'organisasjonsnummer' | 'forvaltningsniva' | 'aktiv';
@@ -406,6 +407,10 @@ function KoblEksisterendeVirksomhetPanel({
 }: { virksomheter: VirksomhetDto[]; forhaandsutfyltNavn?: string; navnekandidatId?: string | null }) {
   const [navn, setNavn] = useState(forhaandsutfyltNavn ?? '');
   const [valgtVirksomhetId, setValgtVirksomhetId] = useState('');
+  // [Ny, navneformgrunn-runden, 2026-09-07] Default er BEVISST null (uspesifisert), ikke 'gjeldende':
+  // det vanligste tilfellet for nettopp DETTE panelet er «Kredittilsynet er nå Finanstilsynet», altså
+  // et UTGÅTT navn — å forhåndsvelge 'gjeldende' ville gjettet feil, og gjettet i det hele tatt.
+  const [navneformgrunn, setNavneformgrunn] = useState<Navneformgrunn | null>(null);
   const [godkjennKandidatOgsa, setGodkjennKandidatOgsa] = useState(true);
   const [kobler, setKobler] = useState(false);
   const [feil, setFeil] = useState<string | null>(null);
@@ -423,7 +428,9 @@ function KoblEksisterendeVirksomhetPanel({
     setKandidatFeil(null);
     setSuksess(null);
     try {
-      await api.opprettVirksomhetsbegrep({ virksomhetId: valgtVirksomhetId, term: navn.trim(), skosUrl: null });
+      await api.opprettVirksomhetsbegrep({
+        virksomhetId: valgtVirksomhetId, term: navn.trim(), skosUrl: null, navneformgrunn,
+      });
 
       // Kandidatgodkjenningen er en SEPARAT handling mot et separat endepunkt — feiler den, skal
       // ikke navneform-koblingen (som allerede lyktes) fremstå som mislykket. Vises i stedet som en
@@ -440,6 +447,7 @@ function KoblEksisterendeVirksomhetPanel({
 
       setSuksess({ navn: navn.trim(), virksomhetId: valgtVirksomhetId, virksomhetNavn: virksomhet.navn, kandidatGodkjent });
       setValgtVirksomhetId('');
+      setNavneformgrunn(null);
     } catch (err) {
       setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved kobling av navneform.');
     } finally {
@@ -470,6 +478,11 @@ function KoblEksisterendeVirksomhetPanel({
           onChange={setValgtVirksomhetId}
           label="Er egentlig virksomheten"
           tomValgTekst="Velg virksomhet …"
+          style={{ marginBottom: '0.75rem' }}
+        />
+        <NavneformgrunnVelger
+          value={navneformgrunn}
+          onChange={setNavneformgrunn}
           style={{ marginBottom: '0.75rem' }}
         />
         {navnekandidatId && (

@@ -329,6 +329,8 @@ export interface VirksomhetsbegrepDto {
    * navneformer uten en slik kilde. Samme felt/mønster som `NavnekandidatDto.snlUrl`. */
   skosUrl: string | null;
   status: string;
+  /** Se `Navneformgrunn`. `null` = uspesifisert. */
+  navneformgrunn: Navneformgrunn | null;
 }
 
 export interface ParagrafspennParDto {
@@ -399,6 +401,46 @@ export interface HardslettVirksomhetKandidaterResultatDto {
  * (`oppdagelsesKilde === 'stor-bokstav-snl-ssr'`); `null` for de opprinnelige, presise mønstrene.
  * Berikelsen slås opp server-side fra en ekstern-oppslag-cache PÅ LESETIDSPUNKTET, ikke lagret på
  * selve kandidatraden — se NavnekandidatDto på API-siden. */
+/**
+ * [Ny, navneformgrunn-runden, 2026-09-07] BEGRUNNELSEN for at en navneform peker på virksomheten sin
+ * — kun meningsfull for `begrepskategori === 'virksomhet'`. `null` = uspesifisert (alle rader som
+ * fantes før denne runden). Lukket vokabular, speilet av CHECK-constrainten `ck_begreper_navneformgrunn`
+ * og av `VirksomhetsbegrepTjeneste.Navneformgrunner` i backend — hold de tre i takt.
+ *
+ * - `gjeldende`    gjeldende, offisielt navn (normaltilfellet)
+ * - `utgatt`       historisk/avløst navn som fortsatt STÅR i lovtekst (Arkivverket -> Nasjonalarkivet)
+ * - `kortform`     kontekstavhengig kortform («Suldal» betyr Suldal kommune her)
+ * - `feilskriving` skrivefeil i KILDETEKSTEN («Matilsynet» med én t)
+ *
+ * MERK skillet: dette forklarer en LEGITIM streng som faktisk står i lovteksten. En regex-ARTEFAKT
+ * («Ø Suldal kommune») er et annet problem, som rettes med PATCH /api/navnekandidater/{id}.
+ */
+export type Navneformgrunn = 'gjeldende' | 'utgatt' | 'kortform' | 'feilskriving';
+
+/** [Ny, navnekandidat-wizard-runden, 2026-09-07] PATCH /api/navnekandidater/{id} — utelatt/undefined
+ * felt betyr «la stå uendret». Kun for REGEX-ARTEFAKTER i teksten, se `Navneformgrunn` sitt skille. */
+export interface OppdaterNavnekandidatRequest {
+  foreslattTekst?: string;
+  kategori?: 'virksomhet' | 'gruppe';
+}
+
+/** [Ny, navnekandidat-wizard-runden, 2026-09-07] POST /api/navnekandidater/{id}/kobl-til-virksomhet. */
+export interface KoblNavnekandidatTilVirksomhetRequest {
+  virksomhetId: string;
+  navneformgrunn: Navneformgrunn | null;
+}
+
+/** Svaret fra kobl-til-virksomhet — hele den lukkede kjeden. */
+export interface NavnekandidatKoblingResultatDto {
+  kandidat: NavnekandidatDto;
+  navneform: BegrepDto;
+  /** `null` når ingen tagg kunne opprettes (ukjent/uoppløsbart ansvarlig departement, eller en
+   * tekstposisjon som ikke lenger stemmer). Skal VISES som en begrensning, ikke skjules. */
+  taggId: string | null;
+  rettskildeId: string;
+  nodeEid: string;
+}
+
 export interface NavnekandidatDto {
   id: string;
   foreslattTekst: string;
@@ -990,6 +1032,8 @@ export interface BegrepDto {
   begrepstype: string | null;
   status: string;
   versjon: number;
+  /** Kun meningsfull når begrepskategori === 'virksomhet'. Se `Navneformgrunn`. */
+  navneformgrunn: Navneformgrunn | null;
 }
 
 export interface BegrepRequest {

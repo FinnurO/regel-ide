@@ -387,14 +387,24 @@ export default function RettskildeDetalj() {
   const [tjenestePerId, setTjenestePerId] = useState<Map<string, string>>(new Map());
   const [vilkarPerId, setVilkarPerId] = useState<Map<string, string>>(new Map());
   const [regelnodePerId, setRegelnodePerId] = useState<Map<string, string>>(new Map());
+  // [Ny, navnekandidat-wizard-runden, 2026-09-07] Navn per virksomhet, for det nye 'virksomhet'-
+  // tagg-laget (se taggkind-seeden i Program.cs). Uten dette ville en koblet virksomhet-tagg vist
+  // en rå GUID i tagg-listen i stedet for virksomhetens navn.
+  const [virksomhetPerId, setVirksomhetPerId] = useState<Map<string, string>>(new Map());
   const [rotnodeId, setRotnodeId] = useState<string | undefined>(undefined);
   useEffect(() => {
-    Promise.all([api.hentBegreper(), api.hentTjenester(), api.hentVilkarListe(), api.hentRegelnodeListe()])
-      .then(([begreper, tjenester, vilkarListe, regelnoder]) => {
+    Promise.all([
+      api.hentBegreper(), api.hentTjenester(), api.hentVilkarListe(), api.hentRegelnodeListe(),
+      api.hentVirksomheter(),
+    ])
+      .then(([begreper, tjenester, vilkarListe, regelnoder, virksomheter]) => {
         setRegistry({
           begrep: begreper.map((b) => ({ ref: b.id, label: b.term })),
           tjeneste: tjenester.map((t) => ({ ref: t.id, label: t.tittel })),
+          // Gjør «Koble til …» tilgjengelig for det nye virksomhet-laget, samme som begrep/tjeneste.
+          virksomhet: virksomheter.map((v) => ({ ref: v.id, label: v.navn })),
         });
+        setVirksomhetPerId(new Map(virksomheter.map((v) => [v.id, v.navn])));
         setBegrepPerId(new Map(begreper.map((b) => [b.id, b.term])));
         setTjenestePerId(new Map(tjenester.map((t) => [t.id, t.tittel])));
         setVilkarPerId(new Map(vilkarListe.map((v) => [v.id, v.tittel])));
@@ -425,6 +435,12 @@ export default function RettskildeDetalj() {
     }
     if (kind === 'regel' && regelnodePerId.has(ref) && rotnodeId) {
       return { label: regelnodePerId.get(ref)!, href: `/vilkarstre/${rotnodeId}?fokusVilkar=${ref}` };
+    }
+    // [Ny, navnekandidat-wizard-runden, 2026-09-07] Virksomhet-tagger peker DIREKTE på
+    // virksomhetskatalogen (ikke via en navneform-rad) — se
+    // NavnekandidatOppdagelseTjeneste.KoblTilVirksomhetAsync for begrunnelsen.
+    if (kind === 'virksomhet' && virksomhetPerId.has(ref)) {
+      return { label: virksomhetPerId.get(ref)!, href: `/virksomheter/${ref}` };
     }
     return undefined;
   }

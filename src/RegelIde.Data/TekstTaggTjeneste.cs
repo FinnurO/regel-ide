@@ -163,6 +163,16 @@ public sealed class TekstTaggTjeneste(RegelIdeDbContext db, VirksomhetOppslagTje
             // RegelnodeEntitet (samme "regelnode ikke regel"-navnekonvensjon som resten av byggesteg 4).
             "vilkar" => await db.Vilkar.AnyAsync(v => v.Id == refId && v.Entitetsstatus == "gjeldende", ct),
             "regel" => await db.Regelnoder.AnyAsync(r => r.Id == refId && r.Entitetsstatus == "gjeldende", ct),
+            // [Ny, navnekandidat-wizard-runden, 2026-09-07] 'virksomhet'-tagger peker DIREKTE på
+            // Virksomhet-katalogen, slik at en navnekandidat kan behandles hele veien til en synlig,
+            // koblet tagg i rettskildeteksten (se NavnekandidatOppdagelseTjeneste.KoblTilVirksomhetAsync
+            // — den dokumenterer også hvorfor dette bevisst avviker fra 2026-08-22-valget om å tagge
+            // slike omtaler som Kind='begrep' mot navneform-raden). MERK: Virksomhet har INGEN
+            // Entitetsstatus-kolonne (til forskjell fra Begrep/Tjeneste/Vilkår/Regelnode over) — den
+            // har `Aktiv`, som er en helt annen akse (nedlagt virksomhet, ikke arkivert rad). En
+            // nedlagt virksomhet skal fortsatt kunne bære en tagg: lovteksten nevner den jo, og det
+            // er nettopp da 'utgatt' som navneformgrunn blir interessant. Derfor ingen Aktiv-filtrering.
+            "virksomhet" => await db.Virksomheter.AnyAsync(v => v.Id == refId, ct),
             _ => throw new ArgumentException($"Tagger av type '{tagg.Kind}' kan ikke kobles til en entitet ennå."),
         };
         if (!finnesMatchende)

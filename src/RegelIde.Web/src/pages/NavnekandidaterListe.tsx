@@ -2,6 +2,7 @@ import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router';
 import { Alert, Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Table, Tabs, Tag, Textfield, ToggleGroup } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
+import { BerikelseVisning } from '../virksomhet/BerikelseVisning';
 import { rettskildeLenkeForId } from '../api/eidLenker';
 import type { NavnekandidatDto, RettskildeNodeDto, RettskildeSammendrag } from '../api/types';
 import { RettskildeFlervalg } from '../rettskilde/RettskildeFlervalg';
@@ -59,43 +60,6 @@ const KATEGORI_FARGE: Record<string, 'info' | 'accent'> = {
   gruppe: 'info',
 };
 
-/**
- * docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md §5 punkt 5 — berikelse for kandidater fra det
- * brede "stor bokstav midt i setning"-mønsteret (`oppdagelsesKilde === 'stor-bokstav-snl-ssr'`), vist som
- * en liten detalj UNDER selve foreslått-tekst-cellen i EKSISTERENDE rader (ikke en ny kolonne/side —
- * spesifikasjonen ber eksplisitt om gjenbruk av denne køen). Tre gjensidig utelukkende utfall,
- * speiler klassifiseringskjeden i NavnekandidatOppdagelseTjeneste.SveipAsync (docs/31 §2, restrukturert
- * 2026-09-03 — se den klassens kommentar for hvorfor dette nå er ETT, samlet sveip):
- * SNL-bekreftet institusjon (lenke + evt. orgnr/alias), SSR-bekreftet stedsnavn (kun mulig når
- * kandidaten likevel ble beholdt/'Venter', altså med et institusjonsord rett etter — se klassifiseringskjeden),
- * eller ukjent i begge (lav-tillit, ingen berikelse å vise).
- */
-function BerikelseVisning({ k }: { k: NavnekandidatDto }) {
-  return (
-    <div style={{ marginTop: '0.3rem', display: 'flex', gap: '0.35rem', flexWrap: 'wrap', alignItems: 'center' }}>
-      {k.snlUrl ? (
-        <>
-          <Link href={k.snlUrl} target="_blank" rel="noreferrer" data-size="sm">
-            <Tag data-color="success" data-size="sm">
-              SNL{k.snlOrganisasjonsnummer ? ` · org.nr. ${k.snlOrganisasjonsnummer}` : ''} ↗
-            </Tag>
-          </Link>
-          {k.snlAlias && k.snlAlias.length > 0 && (
-            <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
-              også kjent som: {k.snlAlias.join(', ')}
-            </span>
-          )}
-        </>
-      ) : k.ssrBekreftetStedsnavn ? (
-        <Tag data-color="info" data-size="sm">
-          SSR-bekreftet stedsnavn{k.ssrObjektType ? ` (${k.ssrObjektType})` : ''}
-        </Tag>
-      ) : (
-        <Tag data-color="neutral" data-size="sm">Ukjent i SNL/SSR — lav tillit</Tag>
-      )}
-    </div>
-  );
-}
 
 /**
  * Oppdagelseskø (docs/13-backlog.md §9) — komplementær til `VirksomhetKandidaterListe.tsx`, samme
@@ -563,23 +527,23 @@ export default function NavnekandidaterListe() {
         </Table.Cell>
         <Table.Cell>
           <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
+            {/* [Ny, navnekandidat-wizard-runden, 2026-09-07] «Behandle» er tilgjengelig UANSETT status.
+                Det er bevisst: en `virksomhet`-rad som alt er godkjent via hurtig-Godkjenn står fast
+                i blindveien med en ubundet tagg, og en avvist rad kan ha blitt avvist nettopp fordi
+                teksten var et regex-artefakt — begge må kunne åpnes og fullføres. Se
+                `NavnekandidatVeiviser.tsx` og `KoblTilVirksomhetAsync`. */}
+            <Button data-size="sm" variant={k.status === 'Venter' ? 'secondary' : 'primary'} asChild>
+              <RouterLink to={`/navnekandidater/${k.id}/behandle`}>Behandle …</RouterLink>
+            </Button>
             {k.status === 'Venter' ? (
               <>
-                <Button data-size="sm" onClick={() => enkelthandling(k.id, 'godkjenn')}>Godkjenn</Button>
-                <Button data-size="sm" variant="tertiary" onClick={() => enkelthandling(k.id, 'avvis')}>Avvis</Button>
-                {k.kategori === 'virksomhet' && (
-                  <Link asChild>
-                    {/* `navnekandidatId` med (2026-08-30, "koble til eksisterende virksomhet"-veien) —
-                        lar landingssiden tilby å godkjenne DENNE kandidatraden i samme handling som å
-                        koble navneformen, se `KoblEksisterendeVirksomhetPanel` i VirksomheterListe.tsx. */}
-                    <RouterLink
-                      to={`/virksomheter?forslagNavn=${encodeURIComponent(k.foreslattTekst)}&navnekandidatId=${k.id}`}
-                      target="_blank"
-                    >
-                      Finn/opprett virksomhet ↗
-                    </RouterLink>
-                  </Link>
+                {/* Hurtig-Godkjenn beholdes for `gruppe`, der den FUNGERER (oppretter gruppebegrep +
+                    koblet tagg i én handling). For `virksomhet` er den fjernet: den satte bare status
+                    og etterlot en tagg som aldri ble koblet — nettopp blindveien wizarden erstatter. */}
+                {k.kategori === 'gruppe' && (
+                  <Button data-size="sm" onClick={() => enkelthandling(k.id, 'godkjenn')}>Godkjenn</Button>
                 )}
+                <Button data-size="sm" variant="tertiary" onClick={() => enkelthandling(k.id, 'avvis')}>Avvis</Button>
               </>
             ) : (
               <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>

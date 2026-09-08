@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using Microsoft.Data.Sqlite;
 using Microsoft.Extensions.Configuration;
 using Microsoft.EntityFrameworkCore;
@@ -282,7 +282,9 @@ public sealed class SqliteProfilTests : IAsyncLifetime
             new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "begrep", Navn = "Begrep", Farge = "accent", Sorteringsrekkefolge = 0 },
             new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "tjeneste", Navn = "Tjeneste", Farge = "info", Sorteringsrekkefolge = 1 },
             new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "vilkar", Navn = "Vilkår", Farge = "warning", Sorteringsrekkefolge = 2 },
-            new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "regel", Navn = "Regel", Farge = "success", Sorteringsrekkefolge = 3 });
+            new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "regel", Navn = "Regel", Farge = "success", Sorteringsrekkefolge = 3 },
+            // [Ny, navnekandidat-wizard-runden, 2026-09-07] Femte kind, se Program.cs-seeden.
+            new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "virksomhet", Navn = "Virksomhet", Farge = "brand1", Sorteringsrekkefolge = 4 });
         await db.SaveChangesAsync();
 
         // Rekkefølgen er den samme som i Program.cs' oppstartsseeding.

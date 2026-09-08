@@ -852,12 +852,23 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 
         b.Entity<BegrepEntitet>(e =>
         {
-            e.ToTable("begreper", t => t.HasCheckConstraint(
-                "ck_begreper_begrepskategori", "begrepskategori IS NULL OR begrepskategori IN ('virksomhet', 'gruppe')"));
+            e.ToTable("begreper", t =>
+            {
+                t.HasCheckConstraint(
+                    "ck_begreper_begrepskategori", "begrepskategori IS NULL OR begrepskategori IN ('virksomhet', 'gruppe')");
+                // [Ny, navneformgrunn-runden, 2026-09-07] Samme lukkede-vokabular-mønster som
+                // ck_begreper_begrepskategori rett over. NULL er BEVISST gyldig: alle rader som fantes
+                // før denne runden beholder NULL (ingen datamigrering, ingen gjettet verdi) — se
+                // BegrepEntitet.Navneformgrunn sin kommentar.
+                t.HasCheckConstraint(
+                    "ck_begreper_navneformgrunn",
+                    "navneformgrunn IS NULL OR navneformgrunn IN ('gjeldende', 'utgatt', 'kortform', 'feilskriving')");
+            });
             e.HasKey(x => x.Id).HasName("begreper_pkey");
             e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
             e.Property(x => x.Begrepskategori).HasColumnName("begrepskategori");
             e.Property(x => x.VirksomhetReferanseId).HasColumnName("virksomhet_referanse_id");
+            e.Property(x => x.Navneformgrunn).HasColumnName("navneformgrunn");
             e.Property(x => x.LovkildeId).HasColumnName("lovkilde_id");
             e.Property(x => x.Term).HasColumnName("term");
             e.Property(x => x.Definisjon).HasColumnName("definisjon");
