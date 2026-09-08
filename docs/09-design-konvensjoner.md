@@ -535,3 +535,56 @@ grep enn å lukke gruppe-drill-throughen, og de to hører ikke i samme endring. 
 følger derfor sidens eksisterende seksjonsmønster — men de følger §14 og §15 på alt annet: `Card`
 ALLTID rendret med tom-tilstand som `Paragraph` inni, `null` = laster ⇒ `Spinner`,
 `data-density="compact"` på tabellene, og `Link asChild` rundt react-router sin `Link`.
+
+---
+
+## 17. Aktivt tagg-lag følger DATAENE + appens første frontend-tester (2026-09-08, `tagg-synlig-og-navneformkjede`)
+
+**En visning som viser ETT lag av flere må velge lag etter hva noden faktisk inneholder.**
+`TagTekst`/`RettskildeDetalj` forhåndsvalgte det første konfigurerte laget («Begrep») uten å se på
+nodens tagger. Forskrift 2005-06-17-657 § 1 ledd-1 har kun `virksomhet`-tagger, så siden åpnet med
+14 taggrader listet under teksten og teksten HELT umarkert — for en leser ser det ut som taggingen
+ikke virker. Bindende regel, og den gjelder alle framtidige lag-/fane-/filtervelgere:
+
+- **Defaulten deriveres av innholdet** (`velgAktivtLag` i `src/tagging/lagvalg.ts`): første lag i
+  konfigurasjonsrekkefølgen som HAR minst én tagg, ellers `kinds[0]`. Rekkefølgen i konfigurasjonen
+  brukes bare til å bryte likhet, aldri som svar i seg selv.
+- **Brukerens eget valg vinner alltid** over defaulten, også når det valgte laget er tomt — da er
+  tom markering det riktige svaret, for brukeren spurte om det laget. «Ikke valgt ennå» må derfor
+  være en EGEN tilstand (`null`/tom streng), ikke representert ved en forhåndsvalgt verdi. Et
+  kontrollerende forelder-komponent starter på `''` og setter først en verdi når brukeren velger.
+- **Defaulten hører i komponenten som ser dataene**, ikke i forelderen. `activeKind` er
+  sidenivå-tilstand mens taggene varierer per node; en `useEffect` i forelderen som «fyller inn» en
+  default kan ikke følge noden som vises. Det var nettopp en slik effekt som var feilen.
+
+**En liste og en markering skal aldri kunne motsi hverandre.** Tagg-listen under teksten viser ALLE
+lag, teksten markerer ett. Løsningen er ikke å filtrere listen — da skjules at noden har arbeid i
+andre lag, og det er en dårligere feil. Listen står komplett, og raden ER veien til markeringen: et
+klikk på lag-merkelappen eller sitatet aktiverer radens eget lag og ruller markeringen inn i
+synsfeltet (`data-tagg-id` på `<mark>` er ankeret). Rader utenfor aktivt lag er dempet
+(`opacity: 0.6`) og forklarer seg selv i `title` — uoverensstemmelsen vises og forklares framfor å
+skjules.
+
+**Hovedledd vs. hover: det leddet brukeren leser kjeden gjennom skal være det domenet mener, ikke
+det registeret heter.** En virksomhet-taggs kjede viser
+`«Karasjok» → [Kortform] → «Karasjok kommune»`, der siste ledd er den `gjeldende` NAVNEFORMEN —
+ikke virksomhetens tospråklige registernavn («Karasjoga gielda / Karasjok kommune»), som sto der før
+og var Johanns innvending. Registernavnet er fortsatt sant og nyttig og er derfor flyttet til
+`title` (`titleTillegg`), ikke fjernet: en opplysning som ikke skal være hovedledd, skal degraderes
+til hover framfor å forsvinne. Finnes ingen `gjeldende` navneform, faller hovedleddet tilbake til
+registernavnet — det som FAKTISK finnes, aldri et navn utledet av kortformen.
+
+**Kjeden løses i visningen, ikke i datamodellen** (`src/virksomhet/navneformKjede.ts`): begge
+navneformene peker på samme virksomhet, og mellomleddet finnes ved å slå opp den `gjeldende`
+navneformen for den virksomheten. Det er et bevisst, dokumentert valg — en navneform→navneform-FK
+ville kostet en migrasjon, et felt å holde konsistent og en ny syklusrisiko (A → B → A) uten å gi
+noen opplysning modellen ikke alt har. Revurderes den dagen én virksomhet trenger FLERE gjeldende
+navneformer (f.eks. én per målform).
+
+**Appens første frontend-tester.** Det fantes ingen JS/TS-test-runner i repoet før dette; gaten var
+`tsc -b --noEmit` + `npm run build` + en faktisk rendring. `vitest` er lagt til som ENESTE nye
+devDependency (`npm test` → `vitest run`), og bevisst UTEN `@testing-library`/jsdom: det som testes
+er rene funksjoner (`lagvalg.ts`, `navneformKjede.ts`), ikke rendret DOM. Regelen som følger av det
+er verdt å ta med videre — **er en regel viktig nok å teste, skal den bo i en ren modul uten
+React-avhengigheter**, slik at testen ikke krever et rendringsoppsett. `tsc -b --noEmit` dekker
+`*.test.ts` også, siden de ligger under `src`.

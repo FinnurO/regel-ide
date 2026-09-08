@@ -71,30 +71,46 @@ public static class SamiskSprakforvaltningSeed
     /// <param name="Kortform">Navnet slik det STÅR i forskriftsteksten — det er denne strengen som
     /// tagges, og den er nettopp derfor en <c>'kortform'</c>-navneform: «Karasjok» er ikke
     /// virksomhetens offisielle navn («Karasjoga gielda / Karasjok kommune»).</param>
+    /// <param name="GjeldendeNavn">
+    /// [Ny, tagg-synlig-runden, 2026-09-08] Den alminnelige norske navneformen — «Karasjok kommune».
+    /// Seedes som en EGEN navneform med <c>Navneformgrunn='gjeldende'</c> ved siden av kortformen,
+    /// fordi kjeden Johann forventer har tre ledd: tagget tekst «Karasjok» → navneformen «Karasjok
+    /// kommune» → virksomheten. Uten denne raden fantes bare kortformen, og visningen måtte hoppe
+    /// rett til virksomhetens tospråklige REGISTERNAVN («Karasjoga gielda / Karasjok kommune») som
+    /// hovedledd — nettopp det Johann påpekte som feil.
+    /// <para>
+    /// Verdiene står EKSPLISITT her, som innsjekket data, i stedet for å utledes av registernavnet
+    /// ved å f.eks. splitte på «/» og velge den norske halvdelen. En slik utledning ville vært
+    /// gjetting forkledd som logikk: de tospråklige registernavnene har ulik form og ulikt antall
+    /// ledd («Kárášjoga gielda / Karasjok kommune», «Gáivuotna - Kåfjord - Kaivuono»), og et navn
+    /// den utledningen tok feil av ville blitt seedet som «gjeldende» og dermed sett offisielt ut.
+    /// Er en kommunes virksomhet ikke i katalogen, hoppes den over som før — ingenting oppfinnes.
+    /// </para>
+    /// </param>
     /// <param name="Organisasjonsnummer">Oppslagsnøkkelen mot <see cref="Virksomhet"/>. Bevisst orgnr
     /// og ikke navn: de offisielle kommunenavnene er tospråklige og skrives ulikt i ulike kilder, så et
     /// navneoppslag ville vært skjørt. Orgnr er stabilt.</param>
-    private sealed record Kommune(string Kortform, string Organisasjonsnummer, string Kategori);
+    private sealed record Kommune(string Kortform, string GjeldendeNavn, string Organisasjonsnummer, string Kategori);
 
     /// <summary>Nøyaktig de kommunene forskriften § 1 navngir, i tekstens egen rekkefølge.</summary>
     private static readonly Kommune[] Kommuner =
     [
-        new("Karasjok", "963376030", Sprakutvikling),
-        new("Kautokeino", "945475056", Sprakutvikling),
-        new("Nesseby", "839953062", Sprakutvikling),
-        new("Tana", "943505527", Sprakutvikling),
+        new("Karasjok", "Karasjok kommune", "963376030", Sprakutvikling),
+        new("Kautokeino", "Kautokeino kommune", "945475056", Sprakutvikling),
+        new("Nesseby", "Nesseby kommune", "839953062", Sprakutvikling),
+        new("Tana", "Tana kommune", "943505527", Sprakutvikling),
 
-        new("Porsanger", "959411735", Sprakvitalisering),
-        new("Kåfjord", "940363586", Sprakvitalisering),
-        new("Lavangen", "959469881", Sprakvitalisering),
-        new("Tjeldsund", "959469326", Sprakvitalisering),
-        new("Hattfjelldal", "944716904", Sprakvitalisering),
-        new("Hamarøy", "970542507", Sprakvitalisering),
-        new("Røyrvik", "964982120", Sprakvitalisering),
-        new("Røros", "939898743", Sprakvitalisering),
-        new("Snåsa", "964982031", Sprakvitalisering),
+        new("Porsanger", "Porsanger kommune", "959411735", Sprakvitalisering),
+        new("Kåfjord", "Kåfjord kommune", "940363586", Sprakvitalisering),
+        new("Lavangen", "Lavangen kommune", "959469881", Sprakvitalisering),
+        new("Tjeldsund", "Tjeldsund kommune", "959469326", Sprakvitalisering),
+        new("Hattfjelldal", "Hattfjelldal kommune", "944716904", Sprakvitalisering),
+        new("Hamarøy", "Hamarøy kommune", "970542507", Sprakvitalisering),
+        new("Røyrvik", "Røyrvik kommune", "964982120", Sprakvitalisering),
+        new("Røros", "Røros kommune", "939898743", Sprakvitalisering),
+        new("Snåsa", "Snåsa kommune", "964982031", Sprakvitalisering),
 
-        new("Saltdal", "972417734", Sprakstimulering),
+        new("Saltdal", "Saltdal kommune", "972417734", Sprakstimulering),
     ];
 
     public static async Task<SamiskSprakforvaltningSeedResultat> SeedAsync(
@@ -187,9 +203,18 @@ public static class SamiskSprakforvaltningSeed
                 continue;
             }
 
-            // Navneformen: «Karasjok» → «Karasjoga gielda / Karasjok kommune», med grunn 'kortform'.
+            // TO navneformer per kommune, ikke én (se Kommune.GjeldendeNavn):
+            //   'kortform'  — «Karasjok», strengen som faktisk står i forskriftsteksten og tagges.
+            //   'gjeldende' — «Karasjok kommune», den alminnelige norske navneformen, som er
+            //                 MELLOMLEDDET visningen resolver til i stedet for registernavnet.
+            // Begge peker på SAMME virksomhet. Det er bevisst ingen navneform→navneform-kobling i
+            // datamodellen (se resolveRef i RettskildeDetalj.tsx for hvorfor kjeden løses i
+            // visningen); rekkefølgen her er derfor uten betydning.
             var navneform = await SorgForNavneformAsync(
-                db, virksomhetsbegrep, virksomhet.Id, kommune.Kortform, ct);
+                db, virksomhetsbegrep, virksomhet.Id, kommune.Kortform, "kortform", ct);
+            antallNavneformer++;
+            await SorgForNavneformAsync(
+                db, virksomhetsbegrep, virksomhet.Id, kommune.GjeldendeNavn, "gjeldende", ct);
             antallNavneformer++;
 
             var gruppe = gruppebegrepPerTerm[kommune.Kategori];
@@ -278,18 +303,24 @@ public static class SamiskSprakforvaltningSeed
     /// <c>void</c> — taggen skal peke på DEN (se <see cref="TekstTaggEntitet.RefId"/>), så kalleren
     /// trenger iden. Ingen endring i hva metoden gjør.
     /// </returns>
+    /// <param name="navneformgrunn">
+    /// [Ny parameter, tagg-synlig-runden, 2026-09-08] Var hardkodet <c>"kortform"</c> — nå seedes to
+    /// navneformer per kommune med ulik grunn, så grunnen må komme fra kalleren.
+    /// </param>
     private static async Task<BegrepEntitet> SorgForNavneformAsync(
         RegelIdeDbContext db, VirksomhetsbegrepTjeneste virksomhetsbegrep,
-        Guid virksomhetId, string term, CancellationToken ct)
+        Guid virksomhetId, string term, string navneformgrunn, CancellationToken ct)
     {
         var eksisterende = await db.Begreper.FirstOrDefaultAsync(
             b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == virksomhetId
                  && b.Term == term && b.Entitetsstatus == "gjeldende", ct);
         if (eksisterende is not null)
         {
+            // Fylles bare inn når grunnen MANGLER — et menneskes eget, avvikende valg skal aldri
+            // overskrives stille (samme regel som SorgForGruppebegrepAsync sin LovreferanseEid).
             if (eksisterende.Navneformgrunn is null)
             {
-                eksisterende.Navneformgrunn = "kortform";
+                eksisterende.Navneformgrunn = navneformgrunn;
                 eksisterende.SistEndretAv = SeedBruker;
                 eksisterende.SistEndretTidspunkt = DateTimeOffset.UtcNow;
                 await db.SaveChangesAsync(ct);
@@ -297,7 +328,7 @@ public static class SamiskSprakforvaltningSeed
             return eksisterende;
         }
         return await virksomhetsbegrep.OpprettVirksomhetsbegrepAsync(
-            virksomhetId, term, SeedBruker, skosUrl: null, navneformgrunn: "kortform", ct);
+            virksomhetId, term, SeedBruker, skosUrl: null, navneformgrunn: navneformgrunn, ct);
     }
 
     /// <summary>

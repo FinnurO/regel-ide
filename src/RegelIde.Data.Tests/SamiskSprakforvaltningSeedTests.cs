@@ -170,6 +170,46 @@ public class SamiskSprakforvaltningSeedTests
         Assert.Equal(forutsetninger.ForskriftId, tildeling.HjemmelRettskildeId);
     }
 
+    /// <summary>
+    /// [Ny, tagg-synlig-runden, 2026-09-08] Kjeden Johann forventet har TRE ledd: tagget tekst
+    /// «Karasjok» → navneformen «Karasjok kommune» → virksomheten. Da må BEGGE navneformene finnes,
+    /// og de må ha ulik grunn — kortformen er den som står i forskriftsteksten og bærer taggen, den
+    /// gjeldende er mellomleddet visningen resolver til i stedet for virksomhetens tospråklige
+    /// registernavn («Karasjoga gielda / Karasjok kommune»).
+    /// <para>
+    /// Testen dekker samtidig idempotensen for det NYE tilfellet: to navneformer per kommune skal
+    /// fortsatt være to etter en gjentatt kjøring, ikke fire. (<see
+    /// cref="Idempotent_ved_gjentatt_kall"/> sammenligner delta mellom to kjøringer og ville derfor
+    /// ikke fanget at ANTALLET per kommune var galt fra første kjøring.)
+    /// </para>
+    /// </summary>
+    [Fact]
+    public async Task Karasjok_far_bade_kortform_og_gjeldende_navneform_og_taggen_peker_pa_kortformen()
+    {
+        await using var db = _fixture.NyDbContext();
+        var forutsetninger = await SorgForForutsetningerAsync(db);
+        await KjorSeedAsync(db);
+        await KjorSeedAsync(db); // gjentatt kjøring: fortsatt to navneformer, ikke fire.
+
+        var navneformer = await db.Begreper
+            .Where(b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == forutsetninger.KarasjokId
+                        && b.Entitetsstatus == "gjeldende")
+            .OrderBy(b => b.Term)
+            .ToListAsync();
+
+        Assert.Equal(
+            [("Karasjok", "kortform"), ("Karasjok kommune", "gjeldende")],
+            navneformer.Select(b => (b.Term, b.Navneformgrunn)));
+
+        // Taggen i forskriftsteksten skal peke på KORTFORMEN — det er den strengen som faktisk står
+        // der. Peker den på den gjeldende navneformen, er første ledd i kjeden feil.
+        var kortform = navneformer.Single(b => b.Term == "Karasjok");
+        var tagg = await db.TekstTagger.SingleAsync(
+            t => t.RettskildeId == forutsetninger.ForskriftId && t.Kind == "virksomhet"
+                 && t.RefId == kortform.Id && t.Entitetsstatus == "gjeldende");
+        Assert.Equal("Karasjok", tagg.QuoteExact);
+    }
+
     // ---------- Hjelpere ----------
 
     private static Task<SamiskSprakforvaltningSeedResultat> KjorSeedAsync(RegelIdeDbContext db)
