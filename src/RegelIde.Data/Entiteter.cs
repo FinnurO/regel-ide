@@ -1041,6 +1041,38 @@ public sealed class BegrepEntitet
     /// <see cref="Term"/> er en navneform for.</summary>
     public Guid? VirksomhetReferanseId { get; set; }
 
+    /// <summary>
+    /// [Ny, navneformgrunn-runden, 2026-09-07] BEGRUNNELSEN for at denne navneformen peker på
+    /// <see cref="VirksomhetReferanseId"/> — kun meningsfull når <see cref="Begrepskategori"/> =
+    /// `'virksomhet'`. Johanns bestilling ordrett: «når man kobler en navneform til en virksomhet så
+    /// må det være mulig å angi grunnen til at det er der».
+    /// <para>
+    /// Lukket vokabular, håndhevet BÅDE av CHECK-constrainten `ck_begreper_navneformgrunn` (samme
+    /// mønster som `ck_begreper_begrepskategori`) og av tjenestelaget
+    /// (<see cref="VirksomhetsbegrepTjeneste.OpprettVirksomhetsbegrepAsync"/>):
+    /// </para>
+    /// <list type="bullet">
+    /// <item><c>'gjeldende'</c> — gjeldende, offisielt navn (normaltilfellet).</item>
+    /// <item><c>'utgatt'</c> — historisk/avløst navn som fortsatt STÅR i lovtekst (Arkivverket →
+    /// Nasjonalarkivet, Vernepliktsverket → Forsvarets personell- og vernepliktssenter).</item>
+    /// <item><c>'kortform'</c> — kontekstavhengig kortform («Suldal» betyr Suldal kommune her).</item>
+    /// <item><c>'feilskriving'</c> — skrivefeil i KILDETEKSTEN («Matilsynet» med én t).</item>
+    /// </list>
+    /// <para>
+    /// NULL = uspesifisert, og er en fullt gyldig verdi: alle rader som fantes før denne runden
+    /// beholder NULL — ingen datamigrering, ingen gjettet verdi for historiske rader (samme «ikke
+    /// funnet ≠ oppfunnet»-holdning som resten av kodebasen).
+    /// </para>
+    /// <para>
+    /// VIKTIG SKILLE: dette feltet forklarer hvorfor en LEGITIM streng i lovteksten («Suldal»,
+    /// «Matilsynet», «Arkivverket») peker der den peker — teksten skal IKKE skrives om. En
+    /// regex-ARTEFAKT («Ø Suldal kommune», der en ledende Ø er limt inn fra en koordinat) er et helt
+    /// annet problem, som løses ved å RETTE teksten via
+    /// <c>PATCH /api/navnekandidater/{id}</c>. Ikke bland de to mekanismene.
+    /// </para>
+    /// </summary>
+    public string? Navneformgrunn { get; set; }
+
     /// <summary>Kun for <see cref="Begrepskategori"/> = `'gruppe'` — loven gruppebegrepet hører til.
     /// Del av gruppebegrepets IDENTITET sammen med <see cref="Term"/>, ikke bare metadata (docs/20 §2.4):
     /// samme gruppenavn i to ulike lover er to ulike rader.</summary>

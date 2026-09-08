@@ -1,4 +1,4 @@
-using RegelIde.Data;
+﻿using RegelIde.Data;
 
 namespace RegelIde.Api;
 
@@ -537,12 +537,13 @@ public sealed record DokumentReferanseDto(
 public sealed record BegrepDto(
     Guid Id, Guid? VirksomhetId, string? Begrepskategori, Guid? VirksomhetReferanseId, Guid? LovkildeId,
     string Term, string? Definisjon, string? LovreferanseEid, IReadOnlyList<string> GjelderFor,
-    Guid? KodelisteReferanseId, string? SkosUrl, string? Begrepstype, string Status, int Versjon)
+    Guid? KodelisteReferanseId, string? SkosUrl, string? Begrepstype, string Status, int Versjon,
+    string? Navneformgrunn)
 {
     public static BegrepDto FraEntitet(BegrepEntitet b) => new(
         b.Id, b.VirksomhetId, b.Begrepskategori, b.VirksomhetReferanseId, b.LovkildeId, b.Term,
         b.Definisjon, b.LovreferanseEid, b.GjelderFor, b.KodelisteReferanseId, b.SkosUrl, b.Begrepstype,
-        b.Status, b.Versjon);
+        b.Status, b.Versjon, b.Navneformgrunn);
 }
 
 /// <summary>Forespørsel for POST/PUT /api/begreper.</summary>
@@ -599,7 +600,13 @@ public sealed record OpprettVirksomhetFraBrregRequest(string Organisasjonsnummer
 /// </summary>
 public sealed record OpprettVirksomhetRequest(string Navn, Guid? OverordnetEnhetId);
 
-public sealed record VirksomhetsbegrepRequest(Guid VirksomhetId, string Term, string? SkosUrl);
+/// <param name="Navneformgrunn">
+/// [Ny, navneformgrunn-runden, 2026-09-07] Hvorfor navneformen peker på denne virksomheten —
+/// `'gjeldende'`/`'utgatt'`/`'kortform'`/`'feilskriving'`, eller utelatt/null for uspesifisert. Se
+/// <see cref="BegrepEntitet.Navneformgrunn"/>. Valgfri: eksisterende klienter som ikke sender feltet
+/// får NULL, uendret oppførsel.
+/// </param>
+public sealed record VirksomhetsbegrepRequest(Guid VirksomhetId, string Term, string? SkosUrl, string? Navneformgrunn);
 public sealed record GruppebegrepRequest(Guid LovkildeId, string Term);
 
 public sealed record ParagrafspennParDto(string FraEid, string? TilEid);
@@ -669,8 +676,36 @@ public sealed record NavnekandidatDto(
         null, null, null, null, null);
 }
 
-/// <summary>Sveip-trigger — <see cref="RettskildeId"/> = <c>null</c> sveiper HELE det importerte
-/// korpuset, satt snevrer inn til én rettskilde.</summary>
+/// <summary>
+/// [Ny, navnekandidat-wizard-runden, 2026-09-07] Forespørsel for PATCH /api/navnekandidater/{id}.
+/// Begge felt er valgfrie — <c>null</c> betyr «la stå uendret», ikke «sett til null» (raden har ingen
+/// nullbare varianter av disse to feltene, så det er ingen tvetydighet å løse).
+/// </summary>
+public sealed record OppdaterNavnekandidatRequest(string? ForeslattTekst, string? Kategori);
+
+/// <summary>[Ny, navnekandidat-wizard-runden, 2026-09-07] Forespørsel for
+/// POST /api/navnekandidater/{id}/kobl-til-virksomhet. <c>Navneformgrunn</c> er valgfri (null =
+/// uspesifisert) — se <see cref="BegrepEntitet.Navneformgrunn"/>.</summary>
+public sealed record KoblNavnekandidatTilVirksomhetRequest(Guid VirksomhetId, string? Navneformgrunn);
+
+/// <summary>
+/// [Ny, navnekandidat-wizard-runden, 2026-09-07] Svaret fra
+/// POST /api/navnekandidater/{id}/kobl-til-virksomhet — hele den lukkede kjeden, slik at wizardens
+/// bekreftelsessteg kan vise HVA som faktisk skjedde uten et nytt oppslag.
+/// </summary>
+/// <param name="TaggId">
+/// <c>null</c> når ingen tagg kunne opprettes (ukjent/uoppløsbart ansvarlig departement, eller en
+/// tekstposisjon som ikke lenger stemmer). Klienten skal VISE dette som en begrensning, ikke skjule
+/// det — navneformkoblingen lyktes uansett.
+/// </param>
+public sealed record NavnekandidatKoblingResultatDto(
+    NavnekandidatDto Kandidat, BegrepDto Navneform, Guid? TaggId, Guid RettskildeId, string NodeEid)
+{
+    public static NavnekandidatKoblingResultatDto FraResultat(NavnekandidatKoblingResultat r) => new(
+        NavnekandidatDto.FraEntitet(r.Kandidat), BegrepDto.FraEntitet(r.Navneform), r.TaggId,
+        r.Kandidat.RettskildeId, r.NodeEid);
+}
+
 public sealed record SveipNavnekandidaterRequest(Guid? RettskildeId);
 
 public sealed record SveipNavnekandidaterResultatDto(int AntallTreffFunnet, int AntallNyeKandidater);

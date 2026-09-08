@@ -2,7 +2,8 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router';
 import { Alert, Button, Card, Dialog, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { KodelisteDto, MyndighetstildelingDto, RettskildeNodeDto, RettskildeSammendrag, VirksomhetKandidatDto, VirksomhetRelasjonDto, VirksomhetSlettOversiktDto, VirksomhetsbegrepDto } from '../api/types';
+import type { KodelisteDto, MyndighetstildelingDto, Navneformgrunn, RettskildeNodeDto, RettskildeSammendrag, VirksomhetKandidatDto, VirksomhetRelasjonDto, VirksomhetSlettOversiktDto, VirksomhetsbegrepDto } from '../api/types';
+import { NavneformgrunnTag, NavneformgrunnVelger } from '../virksomhet/Navneformgrunn';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { LeggTilMyndighetstildelingForm } from '../virksomhet/LeggTilMyndighetstildelingForm';
 import { LeggTilVirksomhetRelasjonForm } from '../virksomhet/LeggTilVirksomhetRelasjonForm';
@@ -50,6 +51,9 @@ export default function VirksomhetDetalj() {
   const [feil, setFeil] = useState<string | null>(null);
 
   const [nyTerm, setNyTerm] = useState('');
+  // [Ny, navneformgrunn-runden, 2026-09-07] Default null (uspesifisert) — se
+  // NavneformgrunnVelger sin kommentar for hvorfor ingen verdi forhåndsvelges.
+  const [nyNavneformgrunn, setNyNavneformgrunn] = useState<Navneformgrunn | null>(null);
   const [leggerTil, setLeggerTil] = useState(false);
   const [leggTilFeil, setLeggTilFeil] = useState<string | null>(null);
 
@@ -129,8 +133,11 @@ export default function VirksomhetDetalj() {
     setLeggTilFeil(null);
     setLeggerTil(true);
     try {
-      await api.opprettVirksomhetsbegrep({ virksomhetId: id, term: nyTerm.trim(), skosUrl: null });
+      await api.opprettVirksomhetsbegrep({
+        virksomhetId: id, term: nyTerm.trim(), skosUrl: null, navneformgrunn: nyNavneformgrunn,
+      });
       setNyTerm('');
+      setNyNavneformgrunn(null);
       lastAlt();
     } catch (err) {
       setLeggTilFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse av navneform.');
@@ -308,6 +315,11 @@ export default function VirksomhetDetalj() {
                 {begrep.map((b) => (
                   <Table.Row key={b.id}>
                     <Table.Cell>{b.term}</Table.Cell>
+                    {/* [Ny, navneformgrunn-runden, 2026-09-07] Grunnen til at navneformen peker hit.
+                      * En utgått/feilskrevet navneform skal ALDRI se ut som det offisielle navnet —
+                      * se Navneformgrunn.tsx for fargevalget. Tom celle for uspesifisert grunn
+                      * (de fleste eksisterende radene), bevisst i stedet for «Uspesifisert»-støy. */}
+                    <Table.Cell><NavneformgrunnTag grunn={b.navneformgrunn} /></Table.Cell>
                     <Table.Cell>
                       {/* [Ny, issue #194] Samme SNL-lenke-mønster som NavnekandidaterListe.tsx sin
                        * BerikelseVisning — saksbehandler skal kunne åpne og selv verifisere
@@ -325,10 +337,17 @@ export default function VirksomhetDetalj() {
             </Table>
           )}
         </Card>
-        <form onSubmit={leggTilBegrep} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
-          <Textfield label="Ny navneform" placeholder="f.eks. Statsforvalter" value={nyTerm}
+        <form onSubmit={leggTilBegrep} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+          <Textfield data-size="sm" label="Ny navneform" placeholder="f.eks. Statsforvalter" value={nyTerm}
             onChange={(e) => setNyTerm(e.target.value)} required />
-          <Button type="submit" disabled={leggerTil || !nyTerm.trim()}>
+          <NavneformgrunnVelger
+            value={nyNavneformgrunn}
+            onChange={setNyNavneformgrunn}
+            label="Grunn"
+            visHjelp={false}
+            style={{ minWidth: '12rem' }}
+          />
+          <Button data-size="sm" type="submit" disabled={leggerTil || !nyTerm.trim()}>
             {leggerTil ? 'Legger til …' : 'Legg til'}
           </Button>
         </form>

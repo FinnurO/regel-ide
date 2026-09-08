@@ -44,6 +44,70 @@ public class VirksomhetsbegrepTjenesteTests
         Assert.Single(alle);
     }
 
+    /// <summary>
+    /// [Ny, navneformgrunn-runden, 2026-09-07] Det lukkede vokabularet for
+    /// <see cref="BegrepEntitet.Navneformgrunn"/>, håndhevet i TJENESTELAGET (CHECK-constrainten
+    /// `ck_begreper_navneformgrunn` er andre forsvarslinje). NULL er bevisst gyldig — uspesifisert.
+    /// Johanns tre konkrete eksempler er dekket eksplisitt: Arkivverket (`utgatt`), «Suldal» som
+    /// kortform for Suldal kommune (`kortform`), «Matilsynet» med én t (`feilskriving`).
+    /// </summary>
+    [Theory]
+    [InlineData("gjeldende")]
+    [InlineData("utgatt")]
+    [InlineData("kortform")]
+    [InlineData("feilskriving")]
+    [InlineData(null)]
+    public async Task Godtar_hele_navneformgrunn_vokabularet_og_null(string? grunn)
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-Navneformgrunn-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(virksomhet);
+        await db.SaveChangesAsync();
+
+        var begrep = await new VirksomhetsbegrepTjeneste(db).OpprettVirksomhetsbegrepAsync(
+            virksomhet.Id, NyTerm("Navneform"), "Kari Jurist", navneformgrunn: grunn);
+
+        Assert.Equal(grunn, begrep.Navneformgrunn);
+
+        // Faktisk PERSISTERT (ikke bare satt på det returnerte objektet) — CHECK-constrainten ville
+        // ellers kunne avvise verdien ved lagring uten at testen merket det.
+        await using var friskDb = _fixture.NyDbContext();
+        Assert.Equal(grunn, (await friskDb.Begreper.SingleAsync(b => b.Id == begrep.Id)).Navneformgrunn);
+    }
+
+    [Theory]
+    [InlineData("utdatert")]      // nær 'utgatt', men ikke i vokabularet.
+    [InlineData("Gjeldende")]     // feil kasus — vokabularet er ordinalt, ikke case-insensitivt.
+    [InlineData("")]              // tom streng normaliseres BEVISST ikke stille til NULL.
+    [InlineData("kort form")]
+    public async Task Avviser_navneformgrunn_utenfor_vokabularet(string grunn)
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-Ugyldiggrunn-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(virksomhet);
+        await db.SaveChangesAsync();
+
+        var register = new VirksomhetsbegrepTjeneste(db);
+        var feil = await Assert.ThrowsAsync<ArgumentException>(() => register.OpprettVirksomhetsbegrepAsync(
+            virksomhet.Id, NyTerm("Navneform"), "Kari Jurist", navneformgrunn: grunn));
+        Assert.Contains("navneformgrunn", feil.Message, StringComparison.OrdinalIgnoreCase);
+
+        // Ingen halvveis opprettet rad etter en avvist verdi.
+        Assert.Empty(await register.AlleVirksomhetsbegrepForAsync(virksomhet.Id));
+    }
+
+    /// <summary>Grunnen er kun meningsfull for navneformer — et GRUPPEbegrep har ingen, og skal
+    /// fortsatt kunne opprettes (feltet er nullbart, ikke påkrevd noe sted).</summary>
+    [Fact]
+    public async Task Gruppebegrep_har_ingen_navneformgrunn()
+    {
+        await using var db = _fixture.NyDbContext();
+        var lovId = await OpprettAlkohollovenAsync(db);
+        var gruppe = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(
+            lovId, NyTerm("kontrollmyndighet"), "Kari Jurist");
+        Assert.Null(gruppe.Navneformgrunn);
+    }
+
     [Fact]
     public async Task Synonymer_er_bare_flere_rader_mot_samme_virksomhet()
     {

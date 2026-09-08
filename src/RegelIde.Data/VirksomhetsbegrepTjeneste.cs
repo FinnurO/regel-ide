@@ -11,15 +11,45 @@ namespace RegelIde.Data;
 /// </summary>
 public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
 {
+    /// <summary>
+    /// [Ny, navneformgrunn-runden, 2026-09-07] Det lukkede vokabularet for
+    /// <see cref="BegrepEntitet.Navneformgrunn"/> — ÉN kilde, speilet av CHECK-constrainten
+    /// `ck_begreper_navneformgrunn` i <see cref="RegelIdeDbContext"/>. Endres den ene, må den andre
+    /// endres i samme migrasjon. NULL (uspesifisert) er gyldig og står bevisst IKKE i dette settet —
+    /// se <see cref="ErGyldigNavneformgrunn"/>.
+    /// </summary>
+    public static readonly IReadOnlySet<string> Navneformgrunner =
+        new HashSet<string>(StringComparer.Ordinal) { "gjeldende", "utgatt", "kortform", "feilskriving" };
+
+    /// <summary>NULL er gyldig (uspesifisert — normaltilfellet for historiske rader); enhver annen
+    /// verdi må stå i <see cref="Navneformgrunner"/>. Tom/blank streng er IKKE stille normalisert til
+    /// NULL — en kaller som sender "" har en feil, og skal få vite det ("ingen gjettet fallback").</summary>
+    public static bool ErGyldigNavneformgrunn(string? navneformgrunn) =>
+        navneformgrunn is null || Navneformgrunner.Contains(navneformgrunn);
+
     /// <summary>Navneform brukt om en virksomhet i rettskildetekst (docs/20 §2.3) — f.eks.
     /// "Mattilsynet", "Statsforvalter". Synonymi (f.eks. "Fylkesmann"/"Statsforvalter") løses med
     /// flere rader mot samme <paramref name="virksomhetId"/> — ingen egen mekanisme.</summary>
+    /// <param name="navneformgrunn">
+    /// [Ny, navneformgrunn-runden, 2026-09-07] Hvorfor navneformen peker på denne virksomheten —
+    /// `'gjeldende'`/`'utgatt'`/`'kortform'`/`'feilskriving'`, eller NULL for uspesifisert. Se
+    /// <see cref="BegrepEntitet.Navneformgrunn"/>. Bevisst IKKE påkrevd og med NULL som default:
+    /// alle eksisterende kallsteder (Brreg-import, SNL-oppslag, manuell "Legg til navneform") skal
+    /// fortsette å virke uendret uten å måtte gjette en verdi.
+    /// </param>
     public async Task<BegrepEntitet> OpprettVirksomhetsbegrepAsync(
-        Guid virksomhetId, string term, string opprettetAv, string? skosUrl = null, CancellationToken ct = default)
+        Guid virksomhetId, string term, string opprettetAv, string? skosUrl = null,
+        string? navneformgrunn = null, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(term))
         {
             throw new ArgumentException("Term kan ikke være tom. Ingen gjettet fallback.");
+        }
+        if (!ErGyldigNavneformgrunn(navneformgrunn))
+        {
+            throw new ArgumentException(
+                $"Ugyldig navneformgrunn '{navneformgrunn}'. Gyldige verdier: {string.Join(", ", Navneformgrunner)} "
+                + "(eller utelat feltet for uspesifisert). Ingen gjettet fallback.");
         }
         if (!await db.Virksomheter.AnyAsync(v => v.Id == virksomhetId, ct))
         {
@@ -32,6 +62,7 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
             VirksomhetId = null, // delt/nasjonal referansedata (docs/20 §2.3) — ikke virksomhetens eget arbeidsprodukt.
             Begrepskategori = "virksomhet",
             VirksomhetReferanseId = virksomhetId,
+            Navneformgrunn = navneformgrunn,
             Term = term,
             SkosUrl = skosUrl,
             Status = "publisert", // samme "intet publiseringssteg, alltid gjeldende"-begrunnelse som Kodelistes ekstern-referanse.

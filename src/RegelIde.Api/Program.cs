@@ -1,4 +1,4 @@
-using System.Text;
+﻿using System.Text;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using Microsoft.EntityFrameworkCore;
@@ -267,18 +267,40 @@ using (var scope = app.Services.CreateScope())
 
     // Tag-kind-konfigurasjon (2026-07-25) — global, ikke virksomhets-scopet. Erstatter en tidligere
     // hardkodet liste; se TaggKindKonfigurasjonEntitet-kommentaren i RegelIde.Data/Entiteter.cs.
-    // (2026-08-22: en femte "virksomhet"-kind ble kort lagt til her og reverdert samme runde —
-    // en løpetekst-omtale av en virksomhet tagges som 'begrep' mot en navneform-rad
-    // (Begrepskategori='virksomhet', docs/20 §2.3), IKKE direkte mot Virksomhet-katalogen. Se
-    // VirksomhetsbegrepTjeneste/GET /api/begreper for hvordan navneformer allerede flettes inn i
-    // 'begrep'-registeret.)
-    if (!await db.TaggKindKonfigurasjoner.AnyAsync())
+    //
+    // (2026-08-22: en femte "virksomhet"-kind ble kort lagt til her og reverdert samme runde — en
+    // løpetekst-omtale av en virksomhet skulle tagges som 'begrep' mot en navneform-rad
+    // (Begrepskategori='virksomhet', docs/20 §2.3), IKKE direkte mot Virksomhet-katalogen.)
+    //
+    // [OMGJORT, navnekandidat-wizard-runden, 2026-09-07] "virksomhet" er nå tilbake, BEVISST: uten
+    // en egen kind kan ikke en behandlet navnekandidat vises som et EGET, valgbart lag i
+    // rettskildeteksten (lag-velgeren i TagTekst.tsx er nettopp denne tabellen), og bestillingen
+    // krever at taggen peker på selve virksomheten. Kjeden tagg → navneform → navneformgrunn er
+    // fortsatt gjenfinnbar (taggens QuoteExact ER navneformens Term). Se
+    // NavnekandidatOppdagelseTjeneste.KoblTilVirksomhetAsync for den fulle begrunnelsen, og
+    // TekstTaggTjeneste.KobleTilEntitetAsync for valideringsgrenen.
+    //
+    // Seeden er PER KODE idempotent, ikke "hopp over alt hvis tabellen har rader": et eksisterende
+    // miljø har allerede de fire opprinnelige radene, så en "!AnyAsync()"-guard rundt HELE blokken
+    // (som den var) ville aldri lagt til den femte der — bare i en fersk database. Det var nettopp
+    // dette som gjorde en ny kind til en manuell SQL-jobb i drift.
+    var onskedeTaggKinds = new[]
     {
-        db.TaggKindKonfigurasjoner.AddRange(
-            new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "begrep", Navn = "Begrep", Farge = "accent", Sorteringsrekkefolge = 0 },
-            new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "tjeneste", Navn = "Tjeneste", Farge = "info", Sorteringsrekkefolge = 1 },
-            new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "vilkar", Navn = "Vilkår", Farge = "warning", Sorteringsrekkefolge = 2 },
-            new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "regel", Navn = "Regel", Farge = "success", Sorteringsrekkefolge = 3 });
+        new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "begrep", Navn = "Begrep", Farge = "accent", Sorteringsrekkefolge = 0 },
+        new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "tjeneste", Navn = "Tjeneste", Farge = "info", Sorteringsrekkefolge = 1 },
+        new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "vilkar", Navn = "Vilkår", Farge = "warning", Sorteringsrekkefolge = 2 },
+        new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "regel", Navn = "Regel", Farge = "success", Sorteringsrekkefolge = 3 },
+        // 'brand1' er verifisert mot installert digdir.css (base-default/surface-tinted/text-default/
+        // border-default finnes alle) — de tre siste er nettopp de TagTekst.tsx interpolerer. Ikke gjettet.
+        new TaggKindKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "virksomhet", Navn = "Virksomhet", Farge = "brand1", Sorteringsrekkefolge = 4 },
+    };
+    var eksisterendeTaggKindKoder = await db.TaggKindKonfigurasjoner.Select(k => k.Kode).ToListAsync();
+    var manglendeTaggKinds = onskedeTaggKinds.Where(k => !eksisterendeTaggKindKoder.Contains(k.Kode)).ToList();
+    if (manglendeTaggKinds.Count > 0)
+    {
+        // Kun MANGLENDE koder legges til. En kode som alt finnes røres ikke — Navn/Farge/
+        // Sorteringsrekkefolge kan være endret bevisst i drift, og skal ikke overskrives ved oppstart.
+        db.TaggKindKonfigurasjoner.AddRange(manglendeTaggKinds);
         await db.SaveChangesAsync();
     }
 
@@ -520,8 +542,14 @@ app.MapPost("/api/virksomheter", async (
         var snl = await eksternOppslag.SlaOppSnlAsync(virksomhet.Navn, ct);
         if (snl.Treff && !string.IsNullOrWhiteSpace(snl.BekreftetNavn))
         {
+            // [navneformgrunn-runden, 2026-09-07] `'gjeldende'` er her et EKTE signal, ikke en gjetning:
+            // SNL har nettopp BEKREFTET at dette er virksomhetens normalt skrevne, gjeldende navn
+            // (snl.Treff && BekreftetNavn) — nøyaktig det `'gjeldende'` betyr. Rader som ble opprettet
+            // FØR denne runden får fortsatt ingen verdi (NULL = uspesifisert), det er kun nye,
+            // SNL-bekreftede navneformer som merkes.
             await virksomhetsbegrep.OpprettVirksomhetsbegrepAsync(
-                virksomhet.Id, snl.BekreftetNavn, "manuell-opprettelse", snl.EksternUrl, ct);
+                virksomhet.Id, snl.BekreftetNavn, "manuell-opprettelse", snl.EksternUrl,
+                navneformgrunn: "gjeldende", ct: ct);
         }
 
         return Results.Created($"/api/virksomheter/{virksomhet.Id}", VirksomhetDto.FraEntitet(virksomhet));
@@ -628,8 +656,11 @@ app.MapPost("/api/virksomheter/fra-brreg", async (
         var snl = await eksternOppslag.SlaOppSnlAsync(enhet.Navn, ct);
         if (snl.Treff && !string.IsNullOrWhiteSpace(snl.BekreftetNavn))
         {
+            // Samme «SNL bekreftet = gjeldende, ikke gjettet»-resonnement som i den manuelle
+            // opprettelsesveien over.
             await virksomhetsbegrep.OpprettVirksomhetsbegrepAsync(
-                virksomhet.Id, snl.BekreftetNavn, "brreg-import", snl.EksternUrl, ct);
+                virksomhet.Id, snl.BekreftetNavn, "brreg-import", snl.EksternUrl,
+                navneformgrunn: "gjeldende", ct: ct);
         }
 
         return Results.Created($"/api/virksomheter/{virksomhet.Id}", VirksomhetDto.FraEntitet(virksomhet));
@@ -2681,7 +2712,8 @@ app.MapPost("/api/virksomhetsbegrep", async (HttpRequest request, Virksomhetsbeg
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         try
         {
-            var opprettet = await register.OpprettVirksomhetsbegrepAsync(body.VirksomhetId, body.Term, bruker.Navn, body.SkosUrl, ct);
+            var opprettet = await register.OpprettVirksomhetsbegrepAsync(
+                body.VirksomhetId, body.Term, bruker.Navn, body.SkosUrl, body.Navneformgrunn, ct);
             return Results.Created($"/api/begreper/{opprettet.Id}", BegrepDto.FraEntitet(opprettet));
         }
         catch (ArgumentException ex)
@@ -3119,6 +3151,70 @@ navnekandidater.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request,
         }
     })
     .WithName("AvvisNavnekandidat");
+
+// [Ny, navnekandidat-wizard-runden, 2026-09-07] ÉN kandidatrad — wizarden er en dypt lenkbar egen
+// side og skal ikke hente hele køen for å finne én rad. Beriket på samme måte som listen (SNL/SSR),
+// slik at wizardens kontekst-steg viser nøyaktig det samme som listeraden gjorde.
+navnekandidater.MapGet("/{id:guid}", async (Guid id, NavnekandidatOppdagelseTjeneste register,
+        RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var kandidat = await register.FinnAsync(id, ct);
+        if (kandidat is null) return Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." });
+        var beriket = await BerikNavnekandidaterAsync([kandidat], db, ct);
+        return Results.Ok(beriket[0]);
+    })
+    .WithName("HentNavnekandidat")
+    .WithSummary("Én kandidatrad, uansett status — beriket med SNL/SSR som listen.");
+
+// [Ny, navnekandidat-wizard-runden, 2026-09-07, issue #203 pkt. 1] Retting av en kandidatrads TEKST
+// (og eventuelt kategori) — steg 1 i wizarden. Eneste skrivende navnekandidat-endepunkt som virker
+// UANSETT status, og den eneste veien tilbake fra "Avvist" til "Venter". Se
+// NavnekandidatOppdagelseTjeneste.OppdaterAsync for hvorfor dette KUN er for regex-artefakter
+// («Ø Suldal kommune»), ikke for legitime navn som skal forklares med en navneformgrunn i stedet.
+navnekandidater.MapPatch("/{id:guid}", async (Guid id, HttpRequest request, OppdaterNavnekandidatRequest body,
+        NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var oppdatert = await register.OppdaterAsync(id, body.ForeslattTekst, body.Kategori, bruker.Navn, ct);
+            return oppdatert is null
+                ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." })
+                : Results.Ok(NavnekandidatDto.FraEntitet(oppdatert));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OppdaterNavnekandidat")
+    .WithSummary("Retter foreslått tekst/kategori. Virker uansett status; en 'Avvist' rad settes tilbake til 'Venter'.");
+
+// [Ny, navnekandidat-wizard-runden, 2026-09-07] LUKKER KJEDEN for en 'virksomhet'-kandidat: navneform
+// (med navneformgrunn) + status Godkjent + en TekstTagg som FAKTISK peker på virksomheten. Erstatter
+// den tidligere blindveien der 'virksomhet'-godkjenning etterlot en tagg med RefId=null for alltid.
+navnekandidater.MapPost("/{id:guid}/kobl-til-virksomhet", async (Guid id, HttpRequest request,
+        KoblNavnekandidatTilVirksomhetRequest body, NavnekandidatOppdagelseTjeneste register,
+        RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var resultat = await register.KoblTilVirksomhetAsync(
+                id, body.VirksomhetId, body.Navneformgrunn, bruker.Navn, ct);
+            return resultat is null
+                ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." })
+                : Results.Ok(NavnekandidatKoblingResultatDto.FraResultat(resultat));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KoblNavnekandidatTilVirksomhet")
+    .WithSummary("Oppretter/gjenbruker navneformen med navneformgrunn, godkjenner raden, og kobler tekst-taggen til virksomheten.");
 
 navnekandidater.MapPost("/godkjenn-batch", async (HttpRequest request, NavnekandidatBatchRequest body,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>

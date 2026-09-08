@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
 import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Select, Spinner, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
+import { NavneformgrunnTag } from '../virksomhet/Navneformgrunn';
 import { finnRettskildeForEid, rettskildeLenke, rettskildeLenkeForId } from '../api/eidLenker';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import type { BegrepBruktIRettskildeDto, BegrepDto, BegrepTaggetForekomstDto, RettskildeSammendrag, VilkarDto } from '../api/types';
@@ -105,6 +106,10 @@ export default function BegrepDetalj() {
       <Paragraph style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', margin: '0.5rem 0 1.5rem' }}>
         <Tag data-color="info" data-size="sm">{begrep.status}</Tag>
         {begrep.begrepskategori === 'virksomhet' && <Tag data-color="success" data-size="sm">Virksomhet-navneform</Tag>}
+        {/* [Ny, navneformgrunn-runden, 2026-09-07] Grunnen står PÅ statuslinjen rett under H1 (docs/09
+          * §6-mønsteret: Paragraph som wrapper med Tag-er inni) — for en navneform er «hvorfor peker
+          * dette hit» like viktig identitetsinformasjon som selve kategorien ved siden av. */}
+        {begrep.begrepskategori === 'virksomhet' && <NavneformgrunnTag grunn={begrep.navneformgrunn} visUspesifisert />}
         {begrep.begrepskategori === 'gruppe' && <Tag data-color="success" data-size="sm">Gruppebegrep</Tag>}
         <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
           Eier: {visEier(begrep.virksomhetId)}

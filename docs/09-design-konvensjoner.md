@@ -457,3 +457,39 @@ gamle endimensjonale skjema-mønsteret og planlegg å migrere senere. Bygger du 
 ennå ikke er migrert (`docs/30` §4 har rekkefølgen): enten migrer siden til dette mønsteret som del
 av arbeidet ditt, eller flagg eksplisitt til Johann at du bevisst IKKE gjorde det og hvorfor — la det
 aldri stille forbli det gamle mønsteret uten et valg.
+
+---
+
+## 15. Veiviser-mønsteret (2026-09-07, `NavnekandidatVeiviser.tsx`) + `NavneformgrunnTag`/`NavneformgrunnVelger`
+
+Appens FØRSTE fler-stegs veiviser for å behandle ÉN rad ende til ende (til forskjell fra
+`ImportWizard`, som er en engangs-importflyt). Bygget etter §14 fra dag én. Bindende for neste
+veiviser:
+
+- **Egen, dypt lenkbar rute** (`/navnekandidater/:id/behandle`) med et eget GET-endepunkt for ÉN rad
+  — ikke en modal over lista, og ikke "hent hele køen og finn iden klientside".
+- **Steg-indikator som `Tag`-rekke** øverst: gjeldende steg `data-color="accent"`, ferdige steg
+  `neutral` fylt, kommende steg `neutral` + `variant="outline"`. Samme visuelle idiom som
+  `StatusStepper` (§14-tabellen), men en egen komponent — `StatusStepper` er bundet til den 6-trinns
+  ENTITETS-statusmodellen og skal ikke gjenbrukes for veiviser-steg.
+- **Progressiv avdekking, ikke utbytting**: hvert steg er et `Card` som blir stående synlig når man
+  går videre (`{steg >= n && …}`), med feltene satt `readOnly`/`disabled` når steget ikke er aktivt.
+  Saksbehandleren skal kunne lese hele beslutningskjeden sin på én skjerm, ikke huske steg 1.
+- **Avsluttende bekreftelse er en «dette skjedde»-oppsummering**, ikke bare en suksess-`Alert`:
+  hva som ble opprettet/endret, direktelenker til resultatet, og en `warning`-`Alert` når en
+  dokumentert degradering slo inn. Påstander i denne oppsummeringen må FØLGE utfallet, ikke være
+  hardkodet — f.eks. hvilket tagg-lag taggen faktisk havnet i («Virksomhet» for virksomhet-veien,
+  «Begrep» for gruppe-veien). Å sende saksbehandleren til feil lag er en påstand som ikke stemmer.
+- **«Ikke kjent»/«ingen treff» skal ALDRI vises mens data fortsatt lastes** — da er svaret ikke
+  ukjent, bare ikke kommet ennå. Bruk `Spinner` på `null`-tilstanden og reserver den negative
+  påstanden for faktisk tomt svar (samme «ikke funnet ≠ oppfunnet»-holdning som datalaget).
+
+**`NavneformgrunnTag` / `NavneformgrunnVelger`** (`src/virksomhet/Navneformgrunn.tsx`) er ÉN delt
+kilde for både visning og valg av `BegrepDto.navneformgrunn`, brukt av `VirksomhetDetalj`,
+`VirksomheterListe`, `BegrepDetalj` og veiviseren — legg aldri en fjerde, lokal variant ved siden av.
+Fargevalget er et KRAV, ikke pynt: `success` kun for `gjeldende`, `warning` for `utgatt`, `danger`
+for `feilskriving`, `info` for `kortform` — en utgått eller feilskrevet navneform skal aldri kunne
+forveksles med det offisielle navnet. En uspesifisert (NULL) grunn gir som standard INGEN merkelapp
+(tom celle) i tabeller, siden de aller fleste eksisterende radene mangler grunn og en
+«Uspesifisert»-merkelapp på hver av dem ville vært ren støy; `visUspesifisert` slås på der fraværet
+er selve poenget. En verdi komponenten ikke kjenner vises RÅ i stedet for å skjules.
