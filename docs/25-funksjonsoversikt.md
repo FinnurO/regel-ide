@@ -221,11 +221,33 @@ den som kan forklare HVORFOR nettopp denne strengen betyr denne virksomheten —
 («Fylkesmann»/«Statsforvalter») er det bare navneformen som forteller hvilket navn teksten faktisk
 brukte. I tagg-listen under lovteksten vises derfor hele kjeden i stedet for bare endepunktet:
 
-> «Karasjok» → [Kortform] → Karasjoga gielda / Karasjok kommune
+> «Karasjok» → [Kortform] → «Karasjok kommune»
 
 Samme kjede ligger i tooltipet på selve markeringen i løpeteksten. Lenken går til virksomheten (det
 er dit saksbehandleren skal), mens merkelappen i midten gjør det synlig AT «Karasjok» bare er en
 kortform og ikke virksomhetens offisielle navn.
+
+[ENDRET, tagg-synlig, 2026-09-08] **Siste ledd er den gjeldende NAVNEFORMEN, ikke registernavnet.**
+Kjeden endte tidligere i virksomhetens tospråklige registernavn («Karasjoga gielda / Karasjok
+kommune»), altså i det Enhetsregisteret kaller virksomheten, og ikke i en navneform. Nå slås den
+`gjeldende` navneformen for samme virksomhet opp og brukes som hovedledd — begge navneformene peker
+på samme virksomhet, og mellomleddet finnes derfor uten noen navneform→navneform-kobling i
+datamodellen (et bevisst valg: ingen migrasjon, ingen ny syklusrisiko). Registernavnet er ikke
+borte, men degradert til hover: det står i `title` på lenken («Registernavn: …»), fordi det er en
+sann og nyttig opplysning som bare ikke skal være HOVEDleddet. Finnes ingen gjeldende navneform,
+faller hovedleddet tilbake til registernavnet — det som faktisk finnes; ingenting utledes av
+kortformen.
+
+[FIKSET, tagg-synlig, 2026-09-08] **Teksten er faktisk markert når siden åpnes.** Aktivt tagg-lag
+ble forhåndsvalgt til det første konfigurerte laget («Begrep») uten å se på nodens innhold. Åpnet
+man forskrift 2005-06-17-657 § 1 ledd-1, som kun har `virksomhet`-tagger, listet tagg-tabellen 14
+rader mens teksten sto helt umarkert — det ser ut som taggingen ikke virker. Aktivt lag defaulter nå
+til et lag som FAKTISK har tagger på noden som vises (begge veier: en node med bare
+`begrep`-tagger åpner i Begrep-laget), mens brukerens eget lagvalg alltid overstyrer defaulten og
+blir stående. Samtidig er tagg-listen gjort koherent med markeringen: den lister fortsatt alle lag
+— å skjule at noden har arbeid i et annet lag ville vært en dårligere feil — men rader utenfor
+aktivt lag er dempet og forklarer seg selv, og et klikk på en rad aktiverer radens eget lag og
+ruller markeringen inn i synsfeltet.
 
 [NYTT, navneform-kjede, 2026-09-08] **«Where used» på virksomhetens detaljside.** Navneform-tabellen
 har fått en «Brukt i»-kolonne som viser hvor navneformen faktisk er tagget i en rettskildetekst, med
@@ -369,7 +391,13 @@ tagger virker fortsatt over og rundt taggede ord.
 (`SamiskSprakforvaltningSeed`): de fire gruppebegrepene hjemlet i sameloven § 3-1, de tre
 kommunekategoriene som medlemsgrupper av forvaltningsområdet, og kommunene forskriften § 1 navngir
 som konkrete medlemmer — med «Karasjok» som en `kortform`-navneform for «Karasjoga gielda / karasjok
-kommune». Seeden går gjennom de **generelle tjenestene**, samme kodevei en saksbehandler utløser fra
+kommune». [UTVIDET, tagg-synlig, 2026-09-08] Hver kommune får nå **to** navneformer: kortformen som
+står i forskriftsteksten («Karasjok», grunn `kortform`, den taggen peker på) og den alminnelige
+norske navneformen («Karasjok kommune», grunn `gjeldende`), som er mellomleddet visningen resolver
+til. De gjeldende navnene står som eksplisitt innsjekket data i seeden framfor å utledes av
+registernavnet ved strengmanipulasjon — de tospråklige registernavnene har ulik form, og et navn en
+slik utledning tok feil av ville blitt seedet som «gjeldende» og dermed sett offisielt ut.
+Seeden går gjennom de **generelle tjenestene**, samme kodevei en saksbehandler utløser fra
 veiviseren, slik at den også er en verifikasjon av at mekanismen virker. Den er idempotent, og
 **oppfinner ingenting**: mangler rettskildene, nodene eller kommunene i miljøet, hoppes det som
 mangler over og rapporteres i oppstartsloggen i stedet for at en rettskilde eller virksomhet

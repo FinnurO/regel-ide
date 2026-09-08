@@ -25,6 +25,7 @@ import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { useKonfigurasjon } from '../konfigurasjon/KonfigurasjonContext';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { NavneformgrunnTag } from '../virksomhet/Navneformgrunn';
+import { finnHovedledd } from '../virksomhet/navneformKjede';
 import { RaaTekstMedLenker } from '../rettskilde/RaaTekstMedLenker';
 import { forsokFormaterXml } from '../rettskilde/formaterXml';
 import { forsokFormaterHtml } from '../rettskilde/formaterHtml';
@@ -295,9 +296,17 @@ export default function RettskildeDetalj() {
     }
   }
 
-  useEffect(() => {
-    if (!activeKind && taggKinds.length > 0) setActiveKind(taggKinds[0].id);
-  }, [taggKinds, activeKind]);
+  // [FJERNET, tagg-synlig-runden, 2026-09-08] Her sto:
+  //     if (!activeKind && taggKinds.length > 0) setActiveKind(taggKinds[0].id);
+  // Det var DEN feilen Johann så: aktivt lag ble forhåndsvalgt til det første konfigurerte laget
+  // («Begrep») uten å se på hvilke lag noden faktisk har tagger i. Åpner man forskrift
+  // 2005-06-17-657 § 1 ledd-1, som kun har `virksomhet`-tagger, viste tagg-listen 14 rader mens
+  // teksten sto helt umarkert — det ser ut som taggingen ikke virker.
+  //
+  // `activeKind` er nå TOM til brukeren faktisk velger et lag, og `TagTekst` deriverer visningen
+  // fra nodens egne tagger så lenge den er tom (se `velgAktivtLag`). Defaulten må ligge DER og ikke
+  // her, fordi den skal følge noden som vises: `activeKind` er sidenivå-tilstand, mens taggene
+  // varierer per node. Setter brukeren et lag selv, står valget — også når han bytter node.
 
   useEffect(() => {
     if (!id) return;
@@ -450,7 +459,9 @@ export default function RettskildeDetalj() {
   function resolveRef(
     kind: TagKindId,
     ref: string,
-  ): { label: string; href: string; mellomledd?: ReactNode; mellomleddTekst?: string } | undefined {
+  ):
+    | { label: string; href: string; mellomledd?: ReactNode; mellomleddTekst?: string; titleTillegg?: string }
+    | undefined {
     if (kind === 'begrep' && begrepPerId.has(ref)) return { label: begrepPerId.get(ref)!, href: `/begreper/${ref}` };
     if (kind === 'tjeneste' && tjenestePerId.has(ref)) return { label: tjenestePerId.get(ref)!, href: `/tjenester/${ref}` };
     if (kind === 'vilkar' && vilkarPerId.has(ref) && rotnodeId) {
@@ -468,10 +479,20 @@ export default function RettskildeDetalj() {
     if (kind === 'virksomhet') {
       const navneform = navneformPerId.get(ref);
       if (!navneform?.virksomhetReferanseId) return undefined;
-      const virksomhetNavn = virksomhetPerId.get(navneform.virksomhetReferanseId);
-      if (!virksomhetNavn) return undefined;
+      // [ENDRET, tagg-synlig-runden, 2026-09-08] Hovedleddet er den GJELDENDE NAVNEFORMEN («Karasjok
+      // kommune»), ikke virksomhetens tospråklige registernavn («Karasjoga gielda / Karasjok
+      // kommune») — kjeden blir `«Karasjok» → [Kortform] → «Karasjok kommune»`. Registernavnet er
+      // fortsatt sant og nyttig, men er flyttet til hover (`titleTillegg`) framfor å være
+      // hovedleddet. Se `finnHovedledd` for HVORFOR mellomleddet slås opp i visningen i stedet for å
+      // være en navneform→navneform-kobling i datamodellen.
+      const kjede = finnHovedledd(
+        navneform.virksomhetReferanseId,
+        [...navneformPerId.values()],
+        virksomhetPerId.get(navneform.virksomhetReferanseId),
+      );
+      if (!kjede) return undefined;
       return {
-        label: virksomhetNavn,
+        label: kjede.hovedledd,
         href: `/virksomheter/${navneform.virksomhetReferanseId}`,
         // NavneformgrunnTag er ÉN delt kilde for visning av navneformgrunn (docs/09 §15) — bygget her
         // i kalleren, siden TagTekst bevisst ikke kjenner navneform-domenet.
@@ -479,6 +500,7 @@ export default function RettskildeDetalj() {
         mellomleddTekst: navneform.navneformgrunn
           ? `${navneform.term} (${navneform.navneformgrunn})`
           : navneform.term,
+        titleTillegg: kjede.registernavn && `Registernavn: ${kjede.registernavn}`,
       };
     }
     return undefined;

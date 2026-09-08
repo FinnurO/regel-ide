@@ -37,6 +37,8 @@
 import { useCallback, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { Link as RouterLink } from 'react-router';
 import { ToggleGroup, Tag, Button, Link } from '@digdir/designsystemet-react';
+// [Ny, tagg-synlig-runden, 2026-09-08] Lagvalget ligger i en egen, ren modul — se lagvalg.ts.
+import { velgAktivtLag } from './lagvalg';
 
 /* ------------------------------ typer ------------------------------ */
 
@@ -112,8 +114,30 @@ export interface TagTekstProps {
   resolveRef?: (
     kind: TagKindId,
     ref: string,
-  ) => { label: string; href: string; mellomledd?: ReactNode; mellomleddTekst?: string } | undefined;
-  /** Hvilket lag som vises (én type om gangen — radio). Ukontrollert hvis utelatt. */
+  ) => {
+    label: string;
+    href: string;
+    mellomledd?: ReactNode;
+    mellomleddTekst?: string;
+    /**
+     * <p>[Ny, tagg-synlig-runden, 2026-09-08] En opplysning som hører til lenkemålet, men som IKKE
+     * skal være hovedleddet i kjeden — vises kun som `title` (hover) på lenken. Konkret grunn:
+     * virksomhetens offisielle REGISTERNAVN («Karasjoga gielda / Karasjok kommune») sto tidligere
+     * som selve lenketeksten, og Johanns innvending var at hovedleddet skal være navneformen
+     * («Karasjok kommune»). Opplysningen er fortsatt sann og nyttig, så den flyttes til hover
+     * framfor å fjernes.</p>
+     */
+    titleTillegg?: string;
+  } | undefined;
+  /**
+   * Hvilket lag som vises (én type om gangen — radio). Ukontrollert hvis utelatt.
+   *
+   * <p>[PRESISERT, tagg-synlig-runden, 2026-09-08] En TOM/utelatt verdi betyr «brukeren har ikke
+   * valgt lag ennå», og komponenten deriverer da selv hvilket lag som skal vises (se
+   * `finnStandardLag`). En kontrollerende forelder skal derfor starte på `''` og først sette en
+   * verdi når `onActiveKindChange` fyrer — ikke forhåndsvelge `kinds[0]`, som var nettopp feilen
+   * denne runden retter.</p>
+   */
   activeKind?: TagKindId;
   onActiveKindChange?: (id: TagKindId) => void;
   /** Vis tagg-listen med Fjern under teksten. Default true. */
@@ -234,12 +258,15 @@ function selectionOffsets(container: HTMLElement): { start: number; end: number;
  * allerede en egen betydning (hvilket tagg-lag).</p>
  */
 function TaggetSegment({
-  tekst, etikett, farge, lenke,
+  tekst, etikett, farge, lenke, taggId,
 }: {
   tekst: string;
   etikett: string;
   farge: string | undefined;
-  lenke: { label: string; href: string; mellomleddTekst?: string } | undefined;
+  lenke: { label: string; href: string; mellomleddTekst?: string; titleTillegg?: string } | undefined;
+  /** [Ny, tagg-synlig-runden, 2026-09-08] Ankeret taggraden under teksten ruller til — se
+   *  `visTaggITeksten`. Rent DOM-anker, ingen visuell effekt. */
+  taggId: string | undefined;
 }) {
   const stil: CSSProperties = {
     background: `var(--ds-color-${farge}-surface-tinted)`,
@@ -249,15 +276,20 @@ function TaggetSegment({
     padding: '0 2px',
   };
   if (!lenke) {
-    return <mark title={etikett} style={stil}>{tekst}</mark>;
+    return <mark data-tagg-id={taggId} title={etikett} style={stil}>{tekst}</mark>;
   }
   // Samme kjede som tagg-listen viser, men som ren tekst — et `title`-attributt kan ikke bære en
   // ReactNode, så mellomleddet kommer som `mellomleddTekst`. Se `resolveRef`-propens kommentar.
-  const kjede = lenke.mellomleddTekst
-    ? `${etikett} → ${lenke.mellomleddTekst} → ${lenke.label} (åpne)`
-    : `${etikett} → ${lenke.label} (åpne)`;
+  // `titleTillegg` er opplysningen som IKKE skal være hovedledd (registernavnet) — den henger på
+  // enden av hover-kjeden i stedet for å forsvinne.
+  const kjede =
+    (lenke.mellomleddTekst
+      ? `${etikett} → ${lenke.mellomleddTekst} → ${lenke.label}`
+      : `${etikett} → ${lenke.label}`) +
+    (lenke.titleTillegg ? ` (${lenke.titleTillegg})` : '') +
+    ' — åpne';
   return (
-    <mark title={kjede} style={{ ...stil, cursor: 'pointer' }}>
+    <mark data-tagg-id={taggId} title={kjede} style={{ ...stil, cursor: 'pointer' }}>
       <Link asChild>
         <RouterLink to={lenke.href} draggable={false} style={{ color: 'inherit' }}>{tekst}</RouterLink>
       </Link>
@@ -272,8 +304,14 @@ export function TagTekst({
   activeKind, onActiveKindChange, showTagList = true, readOnly = false, references,
 }: TagTekstProps) {
   const containerRef = useRef<HTMLDivElement>(null);
-  const [internalKind, setInternalKind] = useState<TagKindId>(kinds[0]?.id);
-  const active = activeKind ?? internalKind;
+  // [ENDRET, tagg-synlig-runden, 2026-09-08] `null` = brukeren har ikke valgt lag ennå (var
+  // `kinds[0]?.id`, som gjorde at teksten sto umarkert på en node uten begrep-tagger). Selve
+  // defaulten kommer fra `finnStandardLag`, som ser på nodens faktiske tagger — og den slår inn KUN
+  // så lenge brukeren ikke har valgt selv, slik at et manuelt lagvalg står.
+  const [internalKind, setInternalKind] = useState<TagKindId | null>(null);
+  // Tom streng fra en kontrollerende forelder betyr også «ikke valgt» — se `activeKind`-propen.
+  const brukervalg = activeKind ?? internalKind;
+  const active = useMemo(() => velgAktivtLag(brukervalg, tags, kinds), [brukervalg, tags, kinds]);
   const setActive = onActiveKindChange ?? setInternalKind;
 
   const [sel, setSel] = useState<{ start: number; end: number; text: string } | null>(null);
@@ -309,6 +347,33 @@ export function TagTekst({
     [sel, onTag, tags, setActive],
   );
 
+  /**
+   * [Ny, tagg-synlig-runden, 2026-09-08] Gjør taggraden UNDER teksten koherent med markeringen I
+   * teksten: aktiverer radens eget lag og ruller markeringen inn i synsfeltet.
+   *
+   * <p><b>Valget som er tatt, og hvorfor.</b> Tagg-listen lister ALLE tagger uansett aktivt lag,
+   * mens teksten bare markerer ett lag. De to kunne motsi hverandre (14 rader listet, ingenting
+   * markert). Alternativet var å FILTRERE listen til aktivt lag, men da forsvinner den eneste
+   * antydningen om at noden har tagger i andre lag i det hele tatt — og å skjule at det finnes
+   * arbeid i et annet lag er en dårligere feil enn å vise en rad som ikke er markert akkurat nå.
+   * Listen beholdes derfor komplett, og motsigelsen løses ved at raden ER veien til markeringen:
+   * ett klikk bytter lag og ruller markeringen fram. Rader i et annet lag enn det aktive er
+   * samtidig dempet og forklarer seg selv i `title`, så uoverensstemmelsen er synlig og
+   * forklart framfor skjult.</p>
+   */
+  const visTaggITeksten = useCallback(
+    (t: TextTag) => {
+      if (t.kind !== active) setActive(t.kind);
+      // Markeringen finnes først etter at lagbyttet er rendret — derfor på neste frame.
+      requestAnimationFrame(() => {
+        containerRef.current
+          ?.querySelector(`[data-tagg-id="${t.id}"]`)
+          ?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
+      });
+    },
+    [active, setActive],
+  );
+
   const clearSelection = useCallback(() => {
     setSel(null);
     setPendingKind(null);
@@ -319,7 +384,7 @@ export function TagTekst({
     <div>
       {/* Lag-velger — Designsystemet ToggleGroup (single, radio): ett lag vises av gangen */}
       <ToggleGroup
-        value={active}
+        value={active ?? ''}
         onChange={setActive}
         data-size="sm"
         data-toggle-group="Vis tagger"
@@ -405,13 +470,23 @@ export function TagTekst({
               <RouterLink to={s.href}>{s.text}</RouterLink>
             </Link>
           ) : s.kind ? (
-            <TaggetSegment
-              key={i}
-              tekst={s.text}
-              etikett={`${kindById[s.kind]?.label ?? s.kind}${s.ref ? `: ${s.ref}` : ''}`}
-              farge={kindById[s.kind]?.color}
-              lenke={s.ref ? resolveRef?.(s.kind, s.ref) : undefined}
-            />
+            (() => {
+              const lenke = s.ref ? resolveRef?.(s.kind, s.ref) : undefined;
+              const lagNavn = kindById[s.kind]?.label ?? s.kind;
+              return (
+                <TaggetSegment
+                  key={i}
+                  taggId={s.tagId}
+                  tekst={s.text}
+                  // [ENDRET, tagg-synlig-runden, 2026-09-08] Den rå `ref`-GUIDen står bare i
+                  // hover-teksten når kjeden IKKE kunne resolves. Kan den resolves, er GUIDen ren
+                  // støy foran et lesbart navn («Virksomhet: 9ea6cbe2-… → Karasjok → …»).
+                  etikett={`${lagNavn}${s.ref && !lenke ? `: ${s.ref}` : ''}`}
+                  farge={kindById[s.kind]?.color}
+                  lenke={lenke}
+                />
+              );
+            })()
           ) : (
             <span key={i}>{s.text}</span>
           ),
@@ -428,10 +503,38 @@ export function TagTekst({
           }}
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ds-size-2)' }}>
-            {tags.map((t) => (
-              <div key={t.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--ds-size-2)' }}>
-                <Tag data-color={kindById[t.kind]?.color} data-size="sm">
-                  {kindById[t.kind]?.label}
+            {tags.map((t) => {
+              // [Ny, tagg-synlig-runden, 2026-09-08] Rader i et ANNET lag enn det som vises er
+              // dempet og forklarer seg selv — de er ikke markert i teksten akkurat nå, og det skal
+              // være synlig framfor forvirrende. Se `visTaggITeksten` for hvorfor listen likevel
+              // beholdes komplett.
+              const iAktivtLag = t.kind === active;
+              const lagNavn = kindById[t.kind]?.label ?? t.kind;
+              return (
+              <div
+                key={t.id}
+                style={{ display: 'flex', alignItems: 'center', gap: 'var(--ds-size-2)', opacity: iAktivtLag ? 1 : 0.6 }}
+              >
+                <Tag
+                  data-color={kindById[t.kind]?.color}
+                  data-size="sm"
+                  role="button"
+                  tabIndex={0}
+                  title={
+                    iAktivtLag
+                      ? `Rull markeringen i teksten inn i synsfeltet (laget «${lagNavn}» vises)`
+                      : `Vises ikke i teksten nå — klikk for å vise laget «${lagNavn}»`
+                  }
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => visTaggITeksten(t)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      visTaggITeksten(t);
+                    }
+                  }}
+                >
+                  {lagNavn}
                 </Tag>
                 {t.kreverGjennomgang && (
                   <Tag data-color="danger" data-size="sm" title="Fant ikke et entydig treff ved reimport av rettskilden — sitatet må sjekkes manuelt.">
@@ -444,7 +547,28 @@ export function TagTekst({
                     overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap',
                   }}
                 >
-                  «{text.slice(t.start, t.end)}»
+                  {/* Sitatet er selv en klikkflate til markeringen i teksten — samme handling som
+                    * lag-merkelappen til venstre. Bevisst IKKE lagt på hele raden: raden inneholder
+                    * lenken videre til entiteten, og et klikk der skal navigere, ikke bytte lag. */}
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    title={
+                      iAktivtLag
+                        ? 'Rull markeringen i teksten inn i synsfeltet'
+                        : `Vises ikke i teksten nå — klikk for å vise laget «${lagNavn}»`
+                    }
+                    style={{ cursor: 'pointer' }}
+                    onClick={() => visTaggITeksten(t)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        visTaggITeksten(t);
+                      }
+                    }}
+                  >
+                    «{text.slice(t.start, t.end)}»
+                  </span>
                   {t.ref &&
                     (() => {
                       const lenke = resolveRef?.(t.kind, t.ref);
@@ -463,7 +587,11 @@ export function TagTekst({
                           )}
                           {' → '}
                           <Link asChild>
-                            <RouterLink to={lenke.href}>{lenke.label}</RouterLink>
+                            {/* `titleTillegg` på hover, ikke i lenketeksten: opplysningen hører til
+                              * målet, men skal ikke være hovedleddet i kjeden — se propen. */}
+                            <RouterLink to={lenke.href} title={lenke.titleTillegg}>
+                              {lenke.label}
+                            </RouterLink>
                           </Link>
                         </>
                       );
@@ -499,7 +627,8 @@ export function TagTekst({
                   </Button>
                 )}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
       )}
