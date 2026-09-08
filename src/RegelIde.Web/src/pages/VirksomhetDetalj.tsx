@@ -190,11 +190,14 @@ export default function VirksomhetDetalj() {
       <nav aria-label="Brødsmulesti" style={{ display: 'flex', gap: '0.4rem', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
         <Link asChild><RouterLink to="/virksomheter">Virksomheter</RouterLink></Link>
         <span>/</span>
-        <span style={{ color: 'var(--ds-color-neutral-text-default)' }}>{virksomhet.navn}</span>
+        <span style={{ color: 'var(--ds-color-neutral-text-default)' }}>{virksomhet.visningsnavn}</span>
       </nav>
 
+      {/* [ENDRET, registernavn-runden, 2026-09-08] visningsnavn i brødsmule og H1; registerets egen
+          form står i grunndata-tabellen under («Registrert navn (Brreg)»). Se VirksomhetDto i
+          types.ts for hvorfor de to er forskjellige. */}
       <Heading level={1} data-size="lg" style={{ marginBottom: '0.2rem' }}>
-        {virksomhet.navn}
+        {virksomhet.visningsnavn}
       </Heading>
       <Paragraph style={{ marginBottom: '0.75rem', display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
         <Tag data-color={forvaltningsniva ? 'info' : 'neutral'} data-size="sm">
@@ -214,6 +217,22 @@ export default function VirksomhetDetalj() {
         <Card style={{ padding: '1rem' }}>
           <Table>
             <Table.Body>
+              {/* [Ny, registernavn-runden, 2026-09-08] Registerets egen form, vist ORDRETT. Vises
+                  bare når den skiller seg fra visningsnavnet — for de fleste radene er de like, og en
+                  rad som gjentar overskriften ville vært ren støy. Ikke monospace: dette er prosa,
+                  ikke en kode (docs/09 §0 — monospace kun for kode/eId/organisasjonsnummer). */}
+              {virksomhet.navn !== virksomhet.visningsnavn && (
+                <Table.Row>
+                  <Table.HeaderCell>Registrert navn (Brreg)</Table.HeaderCell>
+                  <Table.Cell>
+                    {virksomhet.navn}
+                    <span style={{ display: 'block', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                      Beholdes i registerets egen form (issue #158). Navnet som vises ellers i appen er
+                      virksomhetens gjeldende navneform.
+                    </span>
+                  </Table.Cell>
+                </Table.Row>
+              )}
               <Table.Row>
                 <Table.HeaderCell>Organisasjonsnummer</Table.HeaderCell>
                 <Table.Cell style={{ fontFamily: 'monospace' }}>{virksomhet.organisasjonsnummer ?? '—'}</Table.Cell>
@@ -246,7 +265,7 @@ export default function VirksomhetDetalj() {
                 <Table.HeaderCell>Overordnet enhet</Table.HeaderCell>
                 <Table.Cell>
                   {virksomhet.overordnetEnhetId
-                    ? virksomheterPerId.get(virksomhet.overordnetEnhetId)?.navn ?? virksomhet.overordnetEnhetId
+                    ? virksomheterPerId.get(virksomhet.overordnetEnhetId)?.visningsnavn ?? virksomhet.overordnetEnhetId
                     : '—'}
                 </Table.Cell>
               </Table.Row>
@@ -591,7 +610,7 @@ export default function VirksomhetDetalj() {
 
       <SlettVirksomhetSeksjon
         virksomhetId={id!}
-        virksomhetNavn={virksomhet.navn}
+        virksomhetNavn={virksomhet.visningsnavn}
         onSlettet={() => navigate('/virksomheter')}
       />
     </>

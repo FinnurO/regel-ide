@@ -119,6 +119,44 @@ public sealed class EksternNavneoppslagTjeneste(
     public Task<EksternOppslagResultat> SlaOppSsrAsync(string term, CancellationToken ct = default) =>
         SlaOppAsync(term, "ssr", () => SlaOppSsrLiveAsync(term.Trim(), ct), ct);
 
+    /// <summary>
+    /// [Ny, registernavn-runden, 2026-09-08] Henter ALLE språkmerkede skrivemåter for ETT stedsobjekt,
+    /// nøklet på kommunenummer — grunnlaget for å opprette en virksomhets navneformer fra en autoritativ
+    /// kilde i stedet for å regne dem ut fra Brreg-strengen.
+    ///
+    /// <para>
+    /// <b>Hvorfor kommunenummer og ikke navn</b>: Brregs navn for en tospråklig kommune er de
+    /// likestilte navneleddene KONKATENERT, og skilletegnet er ofte tapt på veien — «GAIVUONA SUOHKAN
+    /// KÅFJORD KOMMUNE KAIVUONON KOMUUNI» har ingen skilletegn i det hele tatt (verifisert live mot
+    /// Brreg 2026-09-08). Et navnesøk mot SSR på den strengen treffer derfor ingenting, og å gjette
+    /// leddgrensene er nøyaktig det ordnivå-gjettet #206 låste bort. Brregs
+    /// <c>forretningsadresse.kommunenummer</c> gir i stedet en EKSAKT nøkkel: for en kommune er den
+    /// kommunens eget nummer, og SSRs <c>knr</c>-filter tar samme verdi. Verifisert å gi nøyaktig ETT
+    /// treff for 5540/5512/5518/5610/4601/0301.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>Kun for kommuner.</b> <paramref name="navneobjekttype"/> er <c>"kommune"</c> (SSRs
+    /// navneobjekttypeKODE, små bokstaver — «Kommune» med stor K gir 0 treff på dette endepunktet, i
+    /// motsetning til på <c>/navn</c>). For en FYLKESKOMMUNE er
+    /// <c>forretningsadresse.kommunenummer</c> fylkeshovedstadens kommune (Agder fylkeskommune → 4204
+    /// Kristiansand), ikke fylket — og SSRs fylkesobjekt heter dessuten «Agder fylke», som er FYLKET og
+    /// ikke fylkeskommunen. Kalleren skal derfor ikke bruke denne for <c>orgForm=FYLK</c>; se
+    /// <see cref="VirksomhetNavneformOverstyringer"/>.
+    /// </para>
+    ///
+    /// <para>
+    /// Cachet under <see cref="EksternNavneoppslagCacheEntitet.Kilde"/> <c>"ssr-sted"</c> med
+    /// <c>Term = "knr:&lt;kommunenummer&gt;"</c> — en egen kilde, se feltets egen kommentar for hvorfor
+    /// den ikke kan dele <c>"ssr"</c>.
+    /// </para>
+    /// </summary>
+    public Task<EksternOppslagResultat> SlaOppSsrStedAsync(
+        string kommunenummer, string navneobjekttype = "kommune", CancellationToken ct = default) =>
+        SlaOppAsync(
+            $"knr:{kommunenummer.Trim()}", "ssr-sted",
+            () => SlaOppSsrStedLiveAsync(kommunenummer.Trim(), navneobjekttype, ct), ct);
+
     /// <summary>Delt cache-først/live-ved-miss/aldri-krasj-orkestrering for begge kildene — se
     /// klassekommentaren.</summary>
     private async Task<EksternOppslagResultat> SlaOppAsync(
@@ -152,7 +190,12 @@ public sealed class EksternNavneoppslagTjeneste(
             c => c.Term == normalisertTerm && c.Kilde == kilde, ct);
         if (rad is null) return null;
         var alias = rad.AliasJson is null ? null : JsonSerializer.Deserialize<List<string>>(rad.AliasJson);
-        return new EksternOppslagResultat(rad.Treff, rad.TaksonomiKategori, rad.EksternUrl, alias, rad.OrganisasjonsnummerFunnet, rad.BekreftetNavn);
+        var skrivemater = rad.SkrivemateJson is null
+            ? null
+            : JsonSerializer.Deserialize<List<SsrSkrivemate>>(rad.SkrivemateJson);
+        return new EksternOppslagResultat(
+            rad.Treff, rad.TaksonomiKategori, rad.EksternUrl, alias, rad.OrganisasjonsnummerFunnet,
+            rad.BekreftetNavn, skrivemater);
     }
 
     private async Task SkrivTilCacheAsync(string normalisertTerm, string kilde, EksternOppslagResultat resultat, CancellationToken ct)
@@ -168,6 +211,7 @@ public sealed class EksternNavneoppslagTjeneste(
             OrganisasjonsnummerFunnet = resultat.Organisasjonsnummer,
             EksternUrl = resultat.EksternUrl,
             BekreftetNavn = resultat.BekreftetNavn,
+            SkrivemateJson = resultat.Skrivemater is null ? null : JsonSerializer.Serialize(resultat.Skrivemater),
             SlaOppTidspunkt = DateTimeOffset.UtcNow,
         };
         db.EksternNavneoppslagCache.Add(rad);
@@ -246,6 +290,46 @@ public sealed class EksternNavneoppslagTjeneste(
     }
 
     /// <summary>
+    /// Live-kallet bak <see cref="SlaOppSsrStedAsync"/>. <c>/sted</c> (ikke <c>/navn</c>): kun
+    /// <c>/sted</c> returnerer stedets NESTEDE <c>stedsnavn[]</c>-liste med ett innslag per språk —
+    /// <c>/navn</c> flater ut til én skrivemåte per rad og mister koblingen mellom dem.
+    /// <para>
+    /// Ingen <c>utkoordsys</c>/geometri hentes: vi bruker ingen koordinater, og
+    /// <c>filtrer</c>-parameteren holder svaret nede.
+    /// </para>
+    /// </summary>
+    private async Task<EksternOppslagResultat> SlaOppSsrStedLiveAsync(
+        string kommunenummer, string navneobjekttype, CancellationToken ct)
+    {
+        var url = $"{SsrBaseUrl}/sted?knr={Uri.EscapeDataString(kommunenummer)}"
+            + $"&navneobjekttype={Uri.EscapeDataString(navneobjekttype)}&treffPerSide=10"
+            + "&filtrer=navn.stedsnummer,navn.navneobjekttype,navn.stedstatus,navn.stedsnavn";
+        var svar = await http.GetFromJsonAsync<SsrStedSvar>(url, ct);
+
+        // Nøyaktig ETT aktivt stedsobjekt forventes for (kommunenummer, "kommune"). Er det flere eller
+        // ingen, er forutsetningen brutt og vi finner oss IKKE i å velge en av dem — «ingen gjettet
+        // fallback». Kalleren logger da at raden ikke fikk navneformer.
+        var aktive = (svar?.Navn ?? []).Where(n => n.Stedstatus is null or "aktiv").ToList();
+        if (aktive.Count != 1) return EksternOppslagResultat.IngenTreff;
+
+        var sted = aktive[0];
+        var skrivemater = (sted.Stedsnavn ?? [])
+            .Where(sn => !string.IsNullOrWhiteSpace(sn.Skrivemate))
+            .Select(sn => new SsrSkrivemate(sn.Skrivemate!.Trim(), sn.Sprak, sn.Skrivematestatus, sn.Navnestatus))
+            .ToList();
+        if (skrivemater.Count == 0) return EksternOppslagResultat.IngenTreff;
+
+        return new EksternOppslagResultat(
+            Treff: true,
+            TaksonomiKategori: sted.Navneobjekttype,
+            EksternUrl: null,
+            Alias: null,
+            Organisasjonsnummer: null,
+            BekreftetNavn: null,
+            Skrivemater: skrivemater);
+    }
+
+    /// <summary>
     /// Pakker ut SNL-faktaboksens <c>alternative_form</c> ("også kjent som") — HTML-fragment, f.eks.
     /// <c>"&lt;p&gt;Advokatforeningen&lt;/p&gt;"</c> — til en flat liste med rene navn. Fjerner
     /// HTML-tagger, HTML-dekoder entiteter, og splitter deretter på komma/semikolon (heuristikk: feltet
@@ -307,6 +391,31 @@ public sealed class EksternNavneoppslagTjeneste(
         [JsonPropertyName("navn")] public List<SsrNavn>? Navn { get; set; }
     }
 
+    /// <summary>Svaret fra <c>/sted</c> — se <see cref="SlaOppSsrStedLiveAsync"/>. Kun feltene vi
+    /// bruker; verifisert live mot ws.geonorge.no/stedsnavn/v1/sted 2026-09-08.</summary>
+    private sealed class SsrStedSvar
+    {
+        [JsonPropertyName("navn")] public List<SsrSted>? Navn { get; set; }
+    }
+
+    private sealed class SsrSted
+    {
+        [JsonPropertyName("stedsnummer")] public long Stedsnummer { get; set; }
+        [JsonPropertyName("navneobjekttype")] public string? Navneobjekttype { get; set; }
+        [JsonPropertyName("stedstatus")] public string? Stedstatus { get; set; }
+
+        /// <summary>Ett innslag PER SPRÅK for samme sted — det er dette nivået <c>/navn</c> ikke har.</summary>
+        [JsonPropertyName("stedsnavn")] public List<SsrStedsnavn>? Stedsnavn { get; set; }
+    }
+
+    private sealed class SsrStedsnavn
+    {
+        [JsonPropertyName("skrivemåte")] public string? Skrivemate { get; set; }
+        [JsonPropertyName("språk")] public string? Sprak { get; set; }
+        [JsonPropertyName("skrivemåtestatus")] public string? Skrivematestatus { get; set; }
+        [JsonPropertyName("navnestatus")] public string? Navnestatus { get; set; }
+    }
+
     private sealed class SsrNavn
     {
         [JsonPropertyName("skrivemåte")] public string? Skrivemate { get; set; }
@@ -328,9 +437,31 @@ public sealed class EksternNavneoppslagTjeneste(
 /// opp, som kan ha vært en rå/VERSAL Brreg-streng. Brukt til å foreslå en navneform ved
 /// Brreg-import, ALDRI til å overskrive den autoritative, rå Brreg-formen i selve Virksomhet.Navn.
 /// </param>
+/// <param name="Skrivemater">
+/// [Ny, registernavn-runden, 2026-09-08] Kun <c>"ssr-sted"</c>: stedets språkmerkede skrivemåter, ETT
+/// innslag PER SPRÅK — grunnlaget for å opprette navneformer med en grunn som er LEST fra kilden
+/// (<c>språk</c> + <c>skrivemåtestatus</c>) i stedet for regnet ut fra Brreg-strengen. Se
+/// <see cref="VirksomhetRegisternavnSynkTjeneste.GrunnFor"/> for avbildningen til navneformgrunn.
+/// </param>
 public sealed record EksternOppslagResultat(
     bool Treff, string? TaksonomiKategori, string? EksternUrl, IReadOnlyList<string>? Alias, string? Organisasjonsnummer,
-    string? BekreftetNavn = null)
+    string? BekreftetNavn = null, IReadOnlyList<SsrSkrivemate>? Skrivemater = null)
 {
-    public static readonly EksternOppslagResultat IngenTreff = new(false, null, null, null, null, null);
+    public static readonly EksternOppslagResultat IngenTreff = new(false, null, null, null, null, null, null);
 }
+
+/// <summary>
+/// [Ny, registernavn-runden, 2026-09-08] Én språkmerket skrivemåte fra Kartverkets SSR, slik registeret
+/// selv oppgir den. Feltnavnene er SSRs egne (fornorsket til ASCII-identifikatorer), og verdiene lagres
+/// ORDRETT — ingen normalisering: «Gáivuona suohkan» har diakritiske tegn Brreg-strengen mangler helt,
+/// og det er hele grunnen til at denne kilden brukes.
+/// </summary>
+/// <param name="Skrivemate">Selve navnet, f.eks. «Kárášjoga gielda».</param>
+/// <param name="Sprak">SSRs språk, f.eks. «Norsk», «Nordsamisk», «Kvensk», «Lulesamisk», «Sørsamisk».</param>
+/// <param name="Skrivematestatus">
+/// SSRs vedtaksstatus: «vedtatt», «godkjent og prioritert», «godkjent», «foreslått». Skiller det
+/// offisielle navnet fra en godkjent kortform — se <c>GrunnFor</c>.
+/// </param>
+/// <param name="Navnestatus">«hovednavn» eller «undernavn» (undernavn er typisk en kortform).</param>
+public sealed record SsrSkrivemate(
+    string Skrivemate, string? Sprak, string? Skrivematestatus, string? Navnestatus);

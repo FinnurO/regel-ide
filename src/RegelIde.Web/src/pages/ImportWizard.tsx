@@ -42,7 +42,14 @@ interface RettighetTilstand {
 function nyTilstand(raa: RaaRettighet, virksomheter: VirksomhetDto[], egenVirksomhetId: string): RettighetTilstand {
   const gjettetNavn = gjettVirksomhetSokeord(raa.kompetent_myndighet).toLowerCase();
   const gjettetTreff = gjettetNavn
-    ? virksomheter.find((v) => v.navn.toLowerCase().includes(gjettetNavn) || gjettetNavn.includes(v.navn.toLowerCase()))
+    // [ENDRET, registernavn-runden, 2026-09-08] Matcher mot BEGGE navneformene: importkilden kan
+    // skrive «Kåfjord kommune» (som nå er visningsnavnet) eller registerets VERSAL-form. Å matche
+    // bare én av dem ville gjort halvparten av treffene usynlige.
+    ? virksomheter.find((v) =>
+        [v.visningsnavn, v.navn].some(
+          (n) => n.toLowerCase().includes(gjettetNavn) || gjettetNavn.includes(n.toLowerCase()),
+        ),
+      )
     : undefined;
   return {
     malVirksomhetId: gjettetTreff?.id ?? egenVirksomhetId,

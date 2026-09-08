@@ -17,7 +17,12 @@ public static class AgderFylkeskommuneSeed
 {
     public static async Task SeedAsync(RegelIdeDbContext db, CancellationToken ct = default)
     {
-        if (await db.Virksomheter.AnyAsync(v => v.Navn == "Agder fylkeskommune", ct)) return;
+        // [RETTET, registernavn-runden, 2026-09-08] Vakten sammenlignet navnet EKSAKT. Navn er ikke
+        // lenger stabilt — VirksomhetRegisternavnSynkTjeneste setter Navn til Brregs VERSAL-form — og en
+        // vakt som ikke traff ville laget en STILLE duplikatrad her (denne raden har ingen
+        // organisasjonsnummer, så ingen skranke stopper den, i motsetning til Bergen som krasjet synlig).
+        // Case-ufølsom match, samme mønster som OrganisasjonsregisterSeed sin egen navnematching.
+        if (await db.Virksomheter.AnyAsync(v => v.Navn.ToLower() == "Agder fylkeskommune".ToLower(), ct)) return;
 
         var agder = new Virksomhet { Id = Guid.NewGuid(), Navn = "Agder fylkeskommune", OpprettetTidspunkt = DateTimeOffset.UtcNow };
         db.Virksomheter.Add(agder);

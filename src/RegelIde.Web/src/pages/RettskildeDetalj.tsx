@@ -416,7 +416,10 @@ export default function RettskildeDetalj() {
         // [Ny, navneform-kjede-runden, 2026-09-08] Navneformene, altså begrep med kategori
         // 'virksomhet'. Skilles ut her fordi de er referansemålet for virksomhet-tagger.
         const navneformer = begreper.filter((b) => b.begrepskategori === 'virksomhet');
-        const virksomhetNavnPerId = new Map(virksomheter.map((v) => [v.id, v.navn]));
+        // [ENDRET, registernavn-runden, 2026-09-08] visningsnavn, ikke navn. Dette kartet mater BÅDE
+        // kandidat-etiketten i taggvelgeren og selve taggetiketten i løpeteksten (resolveRef under) —
+        // det var nettopp her Johann så «Gaivuona suohkan kåfjord kommune kaivuonon komuuni».
+        const virksomhetNavnPerId = new Map(virksomheter.map((v) => [v.id, v.visningsnavn]));
         setRegistry({
           begrep: begreper.map((b) => ({ ref: b.id, label: b.term })),
           tjeneste: tjenester.map((t) => ({ ref: t.id, label: t.tittel })),

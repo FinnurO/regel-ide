@@ -19,7 +19,7 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     /// se <see cref="ErGyldigNavneformgrunn"/>.
     /// </summary>
     public static readonly IReadOnlySet<string> Navneformgrunner =
-        new HashSet<string>(StringComparer.Ordinal) { "gjeldende", "utgatt", "kortform", "feilskriving" };
+        new HashSet<string>(StringComparer.Ordinal) { "gjeldende", "utgatt", "kortform", "feilskriving", "parallellnavn" };
 
     /// <summary>NULL er gyldig (uspesifisert — normaltilfellet for historiske rader); enhver annen
     /// verdi må stå i <see cref="Navneformgrunner"/>. Tom/blank streng er IKKE stille normalisert til

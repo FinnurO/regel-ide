@@ -239,7 +239,7 @@ export function GruppeMedlemmer({ gruppeBegrepId, rettskilder }: GruppeMedlemmer
                     <Table.Cell>
                       <Link asChild>
                         <RouterLink to={`/virksomheter/${t.virksomhetId}`}>
-                          {virksomheter.find((v) => v.id === t.virksomhetId)?.navn ?? visEier(t.virksomhetId)}
+                          {virksomheter.find((v) => v.id === t.virksomhetId)?.visningsnavn ?? visEier(t.virksomhetId)}
                         </RouterLink>
                       </Link>
                     </Table.Cell>

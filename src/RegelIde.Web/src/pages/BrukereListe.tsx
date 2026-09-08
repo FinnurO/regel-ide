@@ -130,7 +130,7 @@ export default function BrukereListe() {
           <Select value={nyVirksomhetId} onChange={(e) => setNyVirksomhetId(e.target.value)} disabled={lasterVirksomheter}>
             {aktiveVirksomheter.map((v) => (
               <Select.Option key={v.id} value={v.id}>
-                {v.navn}
+                {v.visningsnavn}
               </Select.Option>
             ))}
           </Select>
@@ -173,7 +173,7 @@ export default function BrukereListe() {
                       >
                         {aktiveVirksomheter.map((v) => (
                           <Select.Option key={v.id} value={v.id}>
-                            {v.navn}
+                            {v.visningsnavn}
                           </Select.Option>
                         ))}
                       </Select>

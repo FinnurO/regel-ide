@@ -48,14 +48,44 @@ public sealed record BrukerDto(Guid Id, string Navn, Guid VirksomhetId, string V
 /// <summary>[Utvidet, virksomhetskatalog-runden, docs/20 §2.1] De nye feltene har defaultverdier slik
 /// at eksisterende konstruksjonssteder ikke må endres — kun HentVirksomhetskatalog-endepunktet fyller
 /// dem inn.</summary>
+/// <param name="Visningsnavn">
+/// [Ny, registernavn-runden, 2026-09-08] Navnet UI-et skal VISE: virksomhetens navneform med grunn
+/// <c>'gjeldende'</c> når den finnes, ellers <paramref name="Navn"/>. Se
+/// <see cref="VirksomhetVisningsnavnTjeneste"/> for hvorfor de to er forskjellige — kort: fra denne
+/// runden er <paramref name="Navn"/> registerets egen form (VERSALER fra Brreg, og for tospråklige
+/// kommuner en konkatenering uten skilletegn), mens visningsnavnet er den lesbare formen hentet fra
+/// Kartverkets SSR / SNL / en godkjent liste.
+/// <para>
+/// Aldri <c>null</c>: faller tilbake på <paramref name="Navn"/>. Klienter som ikke kjenner feltet
+/// fortsetter derfor å virke uendret ved å lese <paramref name="Navn"/> — men BØR bytte, ellers viser
+/// de «GAIVUONA SUOHKAN KÅFJORD KOMMUNE KAIVUONON KOMUUNI» der brukeren forventer «Kåfjord kommune».
+/// </para>
+/// <para>
+/// Defaultverdien <c>null</c> i konstruktøren er en KONSTRUKSJONS-bekvemmelighet for de mange
+/// kallstedene som lager en DTO uten å ha navneformene for hånden (<see cref="FraEntitet"/>); den
+/// serialiserte verdien er da <paramref name="Navn"/>, satt av fabrikkmetodene under.
+/// </para>
+/// </param>
 public sealed record VirksomhetDto(
     Guid Id, string Navn, string? Organisasjonsnummer, bool Aktiv,
     string? Forvaltningsniva = null, string? OrganisasjonsformKode = null, string? Sektorkode = null,
-    Guid? OverordnetEnhetId = null, DateOnly? SistBrregSynkronisert = null)
+    Guid? OverordnetEnhetId = null, DateOnly? SistBrregSynkronisert = null, string? Visningsnavn = null)
 {
+    /// <summary>Uten navneformer for hånden — <c>visningsnavn</c> settes da lik <c>navn</c>, aldri
+    /// null. Brukes av endepunkt som returnerer ÉN nyopprettet/nyendret rad, der en ekstra spørring
+    /// for å hente navneformen ikke er verdt det.</summary>
     public static VirksomhetDto FraEntitet(Virksomhet v) => new(
         v.Id, v.Navn, v.Organisasjonsnummer, v.Aktiv, v.Forvaltningsniva, v.OrganisasjonsformKode,
-        v.Sektorkode, v.OverordnetEnhetId, v.SistBrregSynkronisert);
+        v.Sektorkode, v.OverordnetEnhetId, v.SistBrregSynkronisert, v.Navn);
+
+    /// <summary>Med visningsnavn slått opp — brukes av katalogendepunktet, som henter alle
+    /// navneformene i ett spørsmål (<see cref="VirksomhetVisningsnavnTjeneste.AlleAsync"/>).
+    /// Faller tilbake på <see cref="Virksomhet.Navn"/> for rader uten
+    /// <c>'gjeldende'</c>-navneform.</summary>
+    public static VirksomhetDto FraEntitet(Virksomhet v, IReadOnlyDictionary<Guid, string> visningsnavn) => new(
+        v.Id, v.Navn, v.Organisasjonsnummer, v.Aktiv, v.Forvaltningsniva, v.OrganisasjonsformKode,
+        v.Sektorkode, v.OverordnetEnhetId, v.SistBrregSynkronisert,
+        visningsnavn.GetValueOrDefault(v.Id) ?? v.Navn);
 }
 
 /// <summary>Brukerhåndteringssiden — se BrukerregisterTjeneste.GyldigeRoller for gyldige verdier.</summary>

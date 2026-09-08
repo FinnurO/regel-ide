@@ -266,8 +266,13 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
         // — se EksternNavneoppslagCacheEntitet sin klassekommentar.
         b.Entity<EksternNavneoppslagCacheEntitet>(e =>
         {
+            // [ENDRET, registernavn-runden, 2026-09-08] 'ssr-sted' lagt til som tredje kilde. Den er
+            // et ANNET oppslag enn 'ssr': 'ssr' spør «finnes dette stedsnavnet?» (ja/nei-filter på en
+            // TERM), mens 'ssr-sted' henter ALLE språkmerkede skrivemåter for ETT stedsobjekt, nøklet
+            // på kommunenummer i stedet for på et navn. To ulike spørsmål mot samme API må ha to
+            // cache-rader, ellers ville det ene svaret maskert det andre for samme nøkkel.
             e.ToTable("ekstern_navneoppslag_cache", t => t.HasCheckConstraint(
-                "ck_ekstern_navneoppslag_cache_kilde", "kilde IN ('snl', 'ssr')"));
+                "ck_ekstern_navneoppslag_cache_kilde", "kilde IN ('snl', 'ssr', 'ssr-sted')"));
             e.HasKey(x => x.Id).HasName("ekstern_navneoppslag_cache_pkey");
             e.Property(x => x.Term).HasColumnName("term");
             e.Property(x => x.Kilde).HasColumnName("kilde");
@@ -277,6 +282,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.OrganisasjonsnummerFunnet).HasColumnName("organisasjonsnummer_funnet");
             e.Property(x => x.EksternUrl).HasColumnName("ekstern_url");
             e.Property(x => x.BekreftetNavn).HasColumnName("bekreftet_navn");
+            e.Property(x => x.SkrivemateJson).HasColumnName("skrivemate_json");
             e.Property(x => x.SlaOppTidspunkt).HasColumnName("slaopp_tidspunkt").StandardNaa(sqlite);
             // Selve cache-nøkkelen — se klassekommentaren. Term er normalisert (små bokstaver) FØR
             // lagring, så denne indeksen kan være en vanlig (case-sensitiv) unik indeks.
@@ -895,9 +901,14 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                 // ck_begreper_begrepskategori rett over. NULL er BEVISST gyldig: alle rader som fantes
                 // før denne runden beholder NULL (ingen datamigrering, ingen gjettet verdi) — se
                 // BegrepEntitet.Navneformgrunn sin kommentar.
+                // [ENDRET, registernavn-runden, 2026-09-08] 'parallellnavn' lagt til — et likestilt
+                // offisielt navn på et ANNET SPRÅK for samme virksomhet, hentet fra Kartverkets SSR
+                // (f.eks. «Gáivuona suohkan» ved siden av «Kåfjord kommune»). Se
+                // VirksomhetRegisternavnSynkTjeneste for hvordan SSRs språkfelt avgjør grunnen.
                 t.HasCheckConstraint(
                     "ck_begreper_navneformgrunn",
-                    "navneformgrunn IS NULL OR navneformgrunn IN ('gjeldende', 'utgatt', 'kortform', 'feilskriving')");
+                    "navneformgrunn IS NULL OR navneformgrunn IN "
+                    + "('gjeldende', 'utgatt', 'kortform', 'feilskriving', 'parallellnavn')");
             });
             e.HasKey(x => x.Id).HasName("begreper_pkey");
             e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");

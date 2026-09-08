@@ -113,4 +113,20 @@ public sealed class BrregAdresse
 {
     public List<string>? Adresse { get; set; }
     public string? Poststed { get; set; }
+
+    /// <summary>
+    /// [Ny, registernavn-runden, 2026-09-08] Firesifret kommunenummer. For en KOMMUNE er dette
+    /// kommunens EGET nummer (verifisert live: 940363586 → 5540, 963376030 → 5610, 964338531 → 4601),
+    /// og det er den deterministiske nøkkelen inn i Kartverkets SSR — se
+    /// <see cref="EksternNavneoppslagTjeneste.SlaOppSsrStedAsync"/> for hvorfor et navnesøk ikke kan
+    /// brukes i stedet.
+    /// <para>
+    /// MERK at det for andre organisasjonsformer er FORRETNINGSADRESSENS kommune, ikke enhetens eget
+    /// geografiske virkeområde: Agder fylkeskommune (921707134) gir 4204 Kristiansand, ikke fylket.
+    /// Skal derfor ikke brukes som SSR-nøkkel for annet enn <c>orgForm=KOMM</c>, og lagres bevisst
+    /// ikke i <see cref="Virksomhet.Kommunenummer"/> — se feltets egen kommentar om at det ALDRI
+    /// gjettes.
+    /// </para>
+    /// </summary>
+    public string? Kommunenummer { get; set; }
 }

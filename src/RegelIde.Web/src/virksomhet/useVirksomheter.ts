@@ -57,7 +57,11 @@ export function useVirksomheter(): VirksomheterVerdi {
     (virksomhetId: string | null | undefined): string => {
       if (!virksomhetId) return 'Delt / nasjonal';
       if (laster) return '…';
-      return virksomheterPerId.get(virksomhetId)?.navn ?? virksomhetId;
+      // [ENDRET, registernavn-runden, 2026-09-08] `visningsnavn`, ikke `navn`: fra denne runden er
+      // `navn` registerets egen form (VERSALER fra Brreg), og en eier-kolonne full av
+      // «AGDER FYLKESKOMMUNE» er ikke lesbar. Backend garanterer at feltet aldri er null — det faller
+      // tilbake på `navn` for rader uten 'gjeldende'-navneform. Se VirksomhetDto i types.ts.
+      return virksomheterPerId.get(virksomhetId)?.visningsnavn ?? virksomhetId;
     },
     [virksomheterPerId, laster],
   );

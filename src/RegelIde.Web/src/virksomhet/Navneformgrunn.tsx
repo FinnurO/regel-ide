@@ -14,14 +14,23 @@ import type { Navneformgrunn } from '../api/types';
  *
  * FARGEVALGET er et krav, ikke pynt: en UTGÅTT eller FEILSKREVET navneform skal aldri kunne
  * forveksles med det offisielle navnet. Derfor `success` (grønn) kun for `gjeldende`, `warning`
- * (oransje) for `utgatt` og `danger` (rød) for `feilskriving` — tre tydelig ulike semantiske roller
+ * (oransje) for `utgatt` og `danger` (rød) for `feilskriving` — tydelig ulike semantiske roller
  * fra Designsystemet, ingen egne farger (docs/09 §4: kun `--ds-*`-roller).
+ *
+ * [Ny verdi, registernavn-runden, 2026-09-08] `parallellnavn` = et LIKESTILT offisielt navn på et
+ * annet språk («Gáivuona suohkan» ved siden av «Kåfjord kommune»), hentet fra Kartverkets SSR.
+ * Fargen er `accent`, og valget er tvunget: docs/09 §15 låser `success` til `gjeldende` ALENE, og
+ * `warning`/`danger`/`info` er tatt av utgatt/feilskriving/kortform. `neutral` var det eneste andre
+ * ledige, men den er allerede «Uspesifisert grunn» (nederst i denne filen) — to nøytrale merkelapper
+ * som bare skilles av `variant="outline"` er ikke en lesbar forskjell. `accent` er dessuten riktig
+ * SEMANTISK: et parallellnavn er ikke en advarsel og ikke en feil, men det er heller ikke DEN
+ * gjeldende formen visningen plukker, så det skal ikke være grønt.
  */
 export const NAVNEFORMGRUNN_VALG: ReadonlyArray<{
   verdi: Navneformgrunn;
   label: string;
-  /** Designsystemets fargerolle — se klassekommentaren for hvorfor disse tre er ulike. */
-  farge: 'success' | 'info' | 'warning' | 'danger';
+  /** Designsystemets fargerolle — se klassekommentaren for hvorfor disse er ulike. */
+  farge: 'success' | 'info' | 'warning' | 'danger' | 'accent';
   /** Kort forklaring vist i velgerens hjelpetekst — Johanns egne eksempler, ikke oppdiktede. */
   hjelp: string;
 }> = [
@@ -29,6 +38,14 @@ export const NAVNEFORMGRUNN_VALG: ReadonlyArray<{
   { verdi: 'utgatt', label: 'Utgått navn', farge: 'warning', hjelp: 'Historisk navn som fortsatt står i lovteksten, f.eks. «Arkivverket» (nå Nasjonalarkivet).' },
   { verdi: 'kortform', label: 'Kortform', farge: 'info', hjelp: 'Kontekstavhengig kortform, f.eks. «Suldal» som i denne sammenhengen betyr Suldal kommune.' },
   { verdi: 'feilskriving', label: 'Feilskriving', farge: 'danger', hjelp: 'Skrivefeil i kildeteksten, f.eks. «Matilsynet» med bare én t.' },
+  // [Ny, registernavn-runden, 2026-09-08] Se klassekommentarens avsnitt om fargevalget for hvorfor
+  // denne må være `accent` og ikke `success`.
+  {
+    verdi: 'parallellnavn',
+    label: 'Parallellnavn',
+    farge: 'accent',
+    hjelp: 'Likestilt offisielt navn på et annet språk, f.eks. «Gáivuona suohkan» for Kåfjord kommune.',
+  },
 ];
 
 const PER_VERDI = new Map(NAVNEFORMGRUNN_VALG.map((v) => [v.verdi, v]));

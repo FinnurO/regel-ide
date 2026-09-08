@@ -81,6 +81,15 @@ public sealed class EmbeddedPostgresApiFixture : IAsyncLifetime
         // første timelige sjekken og trigge en ekte, utilsiktet Lovdata-fullimport i bakgrunnen.
         Environment.SetEnvironmentVariable("RegelIde__LovdataFullimport__PlanlagtResynkAktiv", "false");
 
+        // [Ny, 2026-09-08] Samme resonnement, for registernavn-synken
+        // (VirksomhetRegisternavnSynkBakgrunnstjeneste). Uten dette gjorde HVER verts-oppstart i denne
+        // DELTE fixturen inntil 447 EKTE Brreg-kall pluss inntil 402 SSR/SNL-kall — BrregKlient er, i
+        // motsetning til EksternNavneoppslagTjeneste, IKKE HTTP-stubbet her. Verre enn tregheten: synken
+        // SKRIVER til testdatabasen (omdøper Virksomhet.Navn til Brregs form) samtidig som seedene
+        // kjører, og det var det som brøt BergenKorpusSeed sin dengang navnebaserte idempotens-vakt og
+        // veltet hele collection-en med 245 feil (2026-09-08).
+        Environment.SetEnvironmentVariable("RegelIde__Virksomhetsnavn__SynkVedOppstart", "false");
+
         // [Ny, issue #117; restrukturert 2026-09-03] Standard, DEFAULT-stubbet SNL/SSR-oppslag for HELE
         // denne DELTE fixturen (samme "aldri ekte, utilsiktede nettverkskall i en testkjøring"-hensyn som
         // Stub-KI-leverandøren og deaktivert Lovdata-fullimport over). Uten dette ville
