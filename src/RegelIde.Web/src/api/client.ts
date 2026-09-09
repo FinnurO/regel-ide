@@ -937,6 +937,14 @@ export const api = {
     kall<VirksomhetRelasjonDto[]>(`/api/virksomheter/${virksomhetId}/relasjoner`),
   /** [Ny, nemnd/sekretariat-runden, 2026-09-09] Motstykket sett fra rettskilden: hvilke
    * virksomhetsrelasjoner er hjemlet HER. Relasjoner uten hjemmel er ikke med. */
+  /** [Ny, 2026-09-09, issue #135] Sletter én navneform OG tekst-taggene som peker på den — ekte
+   * sletting, ikke statusendring. Returnerer hvor mange tagger som forsvant, slik at UI-et kan si
+   * hva som faktisk skjedde. Se VirksomhetsbegrepTjeneste.SlettVirksomhetsbegrepAsync. */
+  slettVirksomhetsbegrep: (begrepId: string) =>
+    kall<{ slettet: boolean; antallTaggerSlettet: number }>(`/api/virksomhetsbegrep/${begrepId}`, {
+      method: 'DELETE',
+    }),
+
   hentVirksomhetsrelasjonerForRettskilde: (rettskildeId: string) =>
     kall<VirksomhetRelasjonHjemletDto[]>(`/api/rettskilder/${rettskildeId}/virksomhetsrelasjoner`),
 

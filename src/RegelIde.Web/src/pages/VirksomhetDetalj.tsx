@@ -63,6 +63,31 @@ export default function VirksomhetDetalj() {
   const [leggerTil, setLeggerTil] = useState(false);
   const [leggTilFeil, setLeggTilFeil] = useState<string | null>(null);
 
+  // [Ny, 2026-09-09, issue #135] Sletting av én navneform. Egen dialog framfor en rå knapp: å
+  // slette en navneform sletter OGSÅ tekst-taggene som peker på den (se
+  // VirksomhetsbegrepTjeneste.SlettVirksomhetsbegrepAsync — en tagg mot en navneform som ikke finnes
+  // lenger er en markering i lovteksten som ikke kan følges noe sted). Saksbehandleren skal se HVOR
+  // MANGE forekomster som forsvinner FØR hun bekrefter, samme prinsipp som slett-virksomhet-dialogen
+  // nederst på siden: «du får se nøyaktig hva som rammes før du bekrefter».
+  const [navneformTilSletting, setNavneformTilSletting] = useState<VirksomhetsbegrepDto | null>(null);
+  const [sletterNavneform, setSletterNavneform] = useState(false);
+  const [slettNavneformFeil, setSlettNavneformFeil] = useState<string | null>(null);
+
+  async function bekreftSlettNavneform() {
+    if (!navneformTilSletting) return;
+    setSletterNavneform(true);
+    setSlettNavneformFeil(null);
+    try {
+      await api.slettVirksomhetsbegrep(navneformTilSletting.id);
+      setNavneformTilSletting(null);
+      lastAlt(); // navneformer, «Brukt i» og whereUsed må alle hentes på nytt.
+    } catch (e) {
+      setSlettNavneformFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved sletting av navneform.');
+    } finally {
+      setSletterNavneform(false);
+    }
+  }
+
   const [sveiper, setSveiper] = useState(false);
   const [sveipFeil, setSveipFeil] = useState<string | null>(null);
   const [sveipResultat, setSveipResultat] = useState<{ funnet: number; nye: number } | null>(null);
@@ -404,6 +429,7 @@ export default function VirksomhetDetalj() {
                   <Table.HeaderCell>Grunn</Table.HeaderCell>
                   <Table.HeaderCell>Kilde</Table.HeaderCell>
                   <Table.HeaderCell>Brukt i</Table.HeaderCell>
+                  <Table.HeaderCell>Handling</Table.HeaderCell>
                 </Table.Row>
               </Table.Head>
               <Table.Body>
@@ -461,12 +487,73 @@ export default function VirksomhetDetalj() {
                         );
                       })()}
                     </Table.Cell>
+                    {/* [Ny, 2026-09-09, issue #135] Fjern navneform. Åpner en dialog framfor å slette
+                      * direkte: sletting tar med tekst-taggene som peker på navneformen, og antallet
+                      * står i «Brukt i»-kolonnen rett til venstre — men det skal SIES, ikke leses ut
+                      * av en tabell. Samme «du får se hva som rammes»-prinsipp som
+                      * slett-virksomhet-dialogen nederst på siden. */}
+                    <Table.Cell>
+                      <Button
+                        data-size="sm"
+                        variant="tertiary"
+                        data-color="danger"
+                        onClick={() => { setSlettNavneformFeil(null); setNavneformTilSletting(b); }}
+                      >
+                        Fjern
+                      </Button>
+                    </Table.Cell>
                   </Table.Row>
                 ))}
               </Table.Body>
             </Table>
           )}
         </Card>
+      {/* [Ny, 2026-09-09, issue #135] Bekreftelse for sletting av ÉN navneform. Egen dialog, ikke
+        * gjenbruk av slett-virksomhet-dialogen under: den handler om en helt annen entitet og har sin
+        * egen «kanSlettes»-blokkering. Konsekvensen som må fram er hvor mange TAGGER som forsvinner,
+        * og at visningsnavnet endres hvis man sletter den gjeldende navneformen. */}
+      <Dialog
+        open={navneformTilSletting !== null}
+        onClose={() => setNavneformTilSletting(null)}
+        closeButton="Avbryt"
+        style={{ maxWidth: '32rem' }}
+      >
+        <Dialog.Block>
+          <Heading level={3} data-size="xs" style={{ marginBottom: '0.5rem' }}>
+            Fjerne navneformen «{navneformTilSletting?.term}»?
+          </Heading>
+          {navneformTilSletting && (() => {
+            const antallTagger = (whereUsed?.navneformForekomster ?? [])
+              .filter((f) => f.navneformId === navneformTilSletting.id).length;
+            const erGjeldende = navneformTilSletting.navneformgrunn === 'gjeldende';
+            return (
+              <>
+                <Paragraph style={{ marginBottom: antallTagger > 0 || erGjeldende ? '0.5rem' : 0 }}>
+                  {antallTagger === 0
+                    ? 'Navneformen er ikke tagget i noen rettskildetekst. Ingenting annet forsvinner.'
+                    : `Dette fjerner samtidig ${antallTagger} markering${antallTagger === 1 ? '' : 'er'} i `
+                      + 'rettskildetekst. Markeringene forsvinner fra lovteksten — de kan ikke gjenopprettes, '
+                      + 'men et nytt virksomhetssveip vil finne forekomstene på nytt hvis navneformen legges inn igjen.'}
+                </Paragraph>
+                {erGjeldende && (
+                  <Alert data-color="warning" style={{ marginBottom: 0 }}>
+                    Dette er virksomhetens GJELDENDE navneform. Uten den faller visningsnavnet tilbake
+                    til registernavnet fra Brreg.
+                  </Alert>
+                )}
+              </>
+            );
+          })()}
+          {slettNavneformFeil && <Alert data-color="danger" style={{ marginTop: '0.75rem' }}>{slettNavneformFeil}</Alert>}
+        </Dialog.Block>
+        <Dialog.Block style={{ display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
+          <Button data-size="sm" variant="secondary" onClick={() => setNavneformTilSletting(null)}>Avbryt</Button>
+          <Button data-size="sm" data-color="danger" onClick={bekreftSlettNavneform} disabled={sletterNavneform}>
+            {sletterNavneform ? 'Fjerner …' : 'Bekreft fjerning'}
+          </Button>
+        </Dialog.Block>
+      </Dialog>
+
         <form onSubmit={leggTilBegrep} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
           <Textfield data-size="sm" label="Ny navneform" placeholder="f.eks. Statsforvalter" value={nyTerm}
             onChange={(e) => setNyTerm(e.target.value)} required />
