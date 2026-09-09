@@ -208,6 +208,27 @@ cd src/RegelIde.Web && node -e "console.log(require('postcss/package.json').vers
 Merk at `npm ci` feiler med «file already in use» hvis vite-serveren kjører — stopp den først, og
 start den igjen etterpå.
 
+## 12. Avbrudd kan komme uten forvarsel — gjør tilstanden varig underveis
+
+En økt kan stoppe midt i arbeidet (tokenkvote, sesjonsgrense). Da er alt som bare finnes i
+konteksten tapt. Regelen er derfor: **commit og push underveis, ikke til slutt**, og hold
+`ARBEIDSSTATUS.md` i repo-roten oppdatert etter hvert steg.
+
+`ARBEIDSSTATUS.md` beskriver arbeid som er I GANG: branches i luften og hva som mangler på hver,
+hva som er verifisert kontra bare kompilert, køen videre, og beslutninger Johann har tatt som binder
+det gjenstående arbeidet. Er alt landet, SLETT fila — den skal ikke bli et arkiv. Varige
+arbeidsregler hører her i CLAUDE.md, varige designbeslutninger i `docs/09-design-konvensjoner.md`.
+
+**Skriv HVA som er verifisert og HVORDAN, aldri bare «ferdig».** «Kompilerer» er ikke «testet», og
+«testet» er ikke «åpnet kaldt i nettleseren» (§9). Neste økt må kunne stole på statusen uten å
+gjenta arbeidet.
+
+Brutt 2026-09-09: tre agenter i egne worktrees døde på SAMME sesjonsgrense, midt i arbeidet, uten å
+ha committet noe — 1065 linjer kode og tester lå bare i arbeidskopiene. Worktreene hindret
+filkonflikter, men tokenbudsjettet er DELT: parallellitet flerdobler forbruket og gir ingen
+beskyttelse mot at kvoten tar slutt. Får du agenter til å jobbe parallelt, instruer dem eksplisitt
+om å committe og pushe underveis.
+
 ## Nyttige kommandoer
 
 Kjør appen (Browser-panelet, aldri `dotnet run` via Bash) — konfigurasjonene heter `regel-ide-api` og
