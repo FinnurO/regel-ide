@@ -234,8 +234,8 @@ export default function VirksomhetKandidaterListe() {
     }
   }
 
-  // «Slett valg.valgte» — samme sted/mønster som Godkjenn/Avvis valg.valgte (massehandling-raden), men kun
-  // 'Avvist'-rader kan faktisk slettes (se state-kommentaren over). Hopper stille over valg.valgte rader
+  // «Slett valgte» — samme sted/mønster som Godkjenn/Avvis valgte (massehandling-raden), men kun
+  // 'Avvist'-rader kan faktisk slettes (se state-kommentaren over). Hopper stille over valgte rader
   // som ikke er avvist i stedet for å feile hele handlingen — bekrefter tydelig i dialogen hvor mange
   // som faktisk slettes vs. hoppes over.
   async function slettValgte() {
@@ -243,11 +243,11 @@ export default function VirksomhetKandidaterListe() {
     const avvisteValgte = (kandidater ?? []).filter((k) => valg.erValgt(k.id) && k.status === 'Avvist').map((k) => k.id);
     const hoppetOver = valg.antall - avvisteValgte.length;
     if (avvisteValgte.length === 0) {
-      setMassehandlingFeil('Ingen av de valg.valgte radene er avvist — kun avviste kandidater kan slettes her.');
+      setMassehandlingFeil('Ingen av de valgte radene er avvist — kun avviste kandidater kan slettes her.');
       return;
     }
     const advarsel = hoppetOver > 0
-      ? `${avvisteValgte.length} avvist(e) kandidat(er) slettes permanent. ${hoppetOver} valg.valgte rad(er) er ikke avvist og hoppes over. Fortsette?`
+      ? `${avvisteValgte.length} avvist(e) kandidat(er) slettes permanent. ${hoppetOver} valgte rad(er) er ikke avvist og hoppes over. Fortsette?`
       : `Slette ${avvisteValgte.length} avvist(e) kandidat(er) permanent? Dette kan ikke angres.`;
     if (!window.confirm(advarsel)) return;
 
@@ -261,7 +261,7 @@ export default function VirksomhetKandidaterListe() {
       lastKandidater();
       lastAvvisteKandidater();
     } catch (err) {
-      setMassehandlingFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved sletting av valg.valgte kandidater.');
+      setMassehandlingFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved sletting av valgte kandidater.');
     } finally {
       setMassehandlingKjorer(false);
     }
@@ -399,13 +399,13 @@ export default function VirksomhetKandidaterListe() {
           {rettskildeFilter ? ' — filtrert til én lov/forskrift' : ''}
         </Paragraph>
         <Button data-size="sm" onClick={() => massehandling('godkjenn')} disabled={valg.antall === 0 || massehandlingKjorer}>
-          {massehandlingKjorer ? 'Godkjenner …' : 'Godkjenn valg.valgte'}
+          {massehandlingKjorer ? 'Godkjenner …' : 'Godkjenn valgte'}
         </Button>
         <Button data-size="sm" variant="secondary" onClick={() => massehandling('avvis')} disabled={valg.antall === 0 || massehandlingKjorer}>
-          {massehandlingKjorer ? 'Avviser …' : 'Avvis valg.valgte'}
+          {massehandlingKjorer ? 'Avviser …' : 'Avvis valgte'}
         </Button>
         <Button data-size="sm" data-color="danger" onClick={slettValgte} disabled={valg.antall === 0 || massehandlingKjorer}>
-          {massehandlingKjorer ? 'Sletter …' : 'Slett valg.valgte'}
+          {massehandlingKjorer ? 'Sletter …' : 'Slett valgte'}
         </Button>
       </div>
       {massehandlingFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{massehandlingFeil}</div>}
@@ -415,7 +415,7 @@ export default function VirksomhetKandidaterListe() {
           Slett avviste kandidater
         </Heading>
         <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
-          «Slett valg.valgte» over sletter et PRESIST utvalg (kun avviste blant de markerte radene). Dette
+          «Slett valgte» over sletter et PRESIST utvalg (kun avviste blant de markerte radene). Dette
           kortet er for STOR, filterbasert sletting: ekte, irreversibel sletting av ALLE 'Avvist'-
           kandidater innenfor virksomhet-/rettskildefilteret — nyttig for å tømme køen før et nytt sveip
           (den posisjonsbaserte idempotensen hindrer ellers et nytt sveip i noensinne å re-evaluere en

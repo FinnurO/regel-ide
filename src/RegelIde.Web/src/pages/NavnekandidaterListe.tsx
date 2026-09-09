@@ -74,7 +74,7 @@ const KATEGORI_FARGE: Record<string, 'info' | 'accent'> = {
  * krever et menneske og skjer via Brreg-søket/"opprett med bare navn"-skjemaet på `/virksomheter`
  * (lenken under sender med `?forslagNavn=` som forhåndsutfyller begge der).
  *
- * Massehandling (avkrysningsbokser + «Godkjenn valg.valgte»/«Avvis valg.valgte»/«Slett valg.valgte», 2026-08-30,
+ * Massehandling (avkrysningsbokser + «Godkjenn valgte»/«Avvis valgte»/«Slett valgte», 2026-08-30,
  * sletting flyttet inn 2026-09-02) — store test-sveip gjennom hele det importerte korpuset kan legge
  * svært mange kandidater i køen samtidig, og enkeltrad-behandling skalerer ikke da. Samme
  * UX/backend-mønster som VirksomhetKandidaterListe.tsx (se den filens kommentarer for hele
@@ -310,7 +310,7 @@ export default function NavnekandidaterListe() {
   }
 
   // [Ny, «flytt Slett inn i massehandling-raden», 2026-09-02] Sletting av PRESIST det avkryssede
-  // utvalget (samme `valg.valgte`-sett som Godkjenn/Avvis over) — komplementær til `slettAlle` under, som
+  // utvalget (samme `valgte`-sett som Godkjenn/Avvis over) — komplementær til `slettAlle` under, som
   // virker på et FILTRERT delsett uavhengig av avkrysning. Samme lastekjøre-/feil-state
   // (massehandlingKjorer/massehandlingFeil) som Godkjenn/Avvis, siden knappen sitter i samme rad og
   // følger samme mønster (Johann: «kan du flytte "Slette" inn på samme sted og funksjon som Godkjenn
@@ -676,13 +676,13 @@ export default function NavnekandidaterListe() {
           {valg.antall} valgt{valg.antall === 1 ? '' : 'e'}
         </Paragraph>
         <Button data-size="sm" onClick={() => massehandling('godkjenn')} disabled={valg.antall === 0 || massehandlingKjorer}>
-          {massehandlingKjorer ? 'Godkjenner …' : 'Godkjenn valg.valgte'}
+          {massehandlingKjorer ? 'Godkjenner …' : 'Godkjenn valgte'}
         </Button>
         <Button data-size="sm" variant="secondary" onClick={() => massehandling('avvis')} disabled={valg.antall === 0 || massehandlingKjorer}>
-          {massehandlingKjorer ? 'Avviser …' : 'Avvis valg.valgte'}
+          {massehandlingKjorer ? 'Avviser …' : 'Avvis valgte'}
         </Button>
         {/* [Ny, «flytt Slett inn i massehandling-raden», 2026-09-02] Samme sted/mønster som Godkjenn/
-            Avvis over (samme `valg.valgte`-sett, samme disabled-betingelse) — presist utvalg, til forskjell
+            Avvis over (samme `valgte`-sett, samme disabled-betingelse) — presist utvalg, til forskjell
             fra «Slett kandidater»-kortet under (filter-basert, uavhengig av avkrysning). */}
         <Button
           data-size="sm"
@@ -690,7 +690,7 @@ export default function NavnekandidaterListe() {
           onClick={slettValgte}
           disabled={valg.antall === 0 || massehandlingKjorer}
         >
-          {massehandlingKjorer ? 'Sletter …' : 'Slett valg.valgte'}
+          {massehandlingKjorer ? 'Sletter …' : 'Slett valgte'}
         </Button>
       </div>
       {massehandlingFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{massehandlingFeil}</div>}
@@ -705,7 +705,7 @@ export default function NavnekandidaterListe() {
           nytt sveip med oppdaterte mønsterregler (den posisjonsbaserte idempotensen hindrer ellers et
           nytt sveip i å re-evaluere allerede sveipet tekst). Respekterer IKKE «Foreslått tekst
           inneholder»-filteret over — kun kategori/status/rettskilde gjør det. Skal du derimot slette et
-          PRESIST utvalg rader, bruk «Slett valg.valgte» i raden over i stedet.
+          PRESIST utvalg rader, bruk «Slett valgte» i raden over i stedet.
         </Paragraph>
         <Button
           data-size="sm"
