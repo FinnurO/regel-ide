@@ -94,18 +94,28 @@ public sealed class BegrepsforekomstTjeneste(
     /// <summary>Kun <c>'Venter'</c>-rader — se <see cref="ListerAsync"/> for full liste med status=<c>null</c>.</summary>
     public Task<List<BegrepsforekomstEntitet>> ListerVentendeAsync(
         Guid? rettskildeId = null, string? monsterId = null, CancellationToken ct = default) =>
-        ListerAsync(rettskildeId, monsterId, "Venter", ct);
+        ListerAsync(rettskildeId, monsterId, "Venter", null, ct);
 
-    /// <summary>Full liste, valgfritt filtrert på rettskilde/mønster/status. <paramref name="status"/> =
-    /// <c>null</c> betyr ALLE statuser (samme eksplisitte "ingen stille standard" -mønster som
-    /// <see cref="VirksomhetKandidatTjeneste.ListerAsync"/>).</summary>
+    /// <summary>Full liste, valgfritt filtrert på rettskilde/mønster/status/konfidens.
+    /// <paramref name="status"/> = <c>null</c> betyr ALLE statuser (samme eksplisitte "ingen stille
+    /// standard" -mønster som <see cref="VirksomhetKandidatTjeneste.ListerAsync"/>).
+    /// <para>
+    /// [Ny, definisjonsmønster-runden, 2026-09-09, issue #214 akseptansekriterium 3]
+    /// <paramref name="konfidens"/> — samme filter-parameter <c>/api/navnekandidater</c> alt har etter
+    /// konfidens-runden (docs/31 §9). Nødvendig her fordi konfidensen nå er DET som skiller M11s to
+    /// markørklasser fra hverandre: <c>'hoy'</c> = «menes/forstås/regnes», <c>'lav'</c> =
+    /// «beregnes/angir» (se <see cref="BegrepsoppdagelseSveipTjeneste"/> for hvorfor de deler
+    /// <c>MonsterId</c>).
+    /// </para></summary>
     public Task<List<BegrepsforekomstEntitet>> ListerAsync(
-        Guid? rettskildeId = null, string? monsterId = null, string? status = null, CancellationToken ct = default)
+        Guid? rettskildeId = null, string? monsterId = null, string? status = null, string? konfidens = null,
+        CancellationToken ct = default)
     {
         var spørring = db.Begrepsforekomster.AsQueryable();
         if (status is not null) spørring = spørring.Where(k => k.Status == status);
         if (rettskildeId is not null) spørring = spørring.Where(k => k.RettskildeId == rettskildeId);
         if (monsterId is not null) spørring = spørring.Where(k => k.MonsterId == monsterId);
+        if (konfidens is not null) spørring = spørring.Where(k => k.Konfidens == konfidens);
         return spørring.OrderBy(k => k.RettskildeId).ThenBy(k => k.NodeEid).ThenBy(k => k.StartOffset).ToListAsync(ct);
     }
 
