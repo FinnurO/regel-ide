@@ -14,6 +14,21 @@ function StatKort({ etikett, verdi, onClick }: { etikett: string; verdi: number;
 
 export interface OversiktFaneProps {
   tjeneste: TjenesteDto;
+  /**
+   * [Ny, 2026-09-09, issue #138] Visningsnavnet til virksomheten som EIER tjenesten
+   * (`tjeneste.virksomhetId`), hentet fra `useVirksomheter().visEier` — som ALDRI finner opp et
+   * navn: er iden ukjent, får vi den rå GUID-en tilbake. `null` betyr «lister fortsatt», og skal
+   * ikke vises som et svar (docs/09 §15: en påstand skal ikke vises mens data lastes).
+   *
+   * <p>Johann: «hvor er koblingen til en virksomhet (med eller uten org.nummer)? kompetent
+   * myndighet er fritekst.» Koblingen FINNES — `TjenesteEntitet.VirksomhetId` er ikke-nullbar og
+   * peker på eier-virksomheten — den ble bare ikke vist noe sted. Det er «Kompetent myndighet»
+   * som er fritekst, og den skal FORTSATT være det: en FK-konvertering av det feltet er bevisst
+   * utsatt (docs/13-backlog.md §8, docs/23 §6), fordi kompetent myndighet i en importert
+   * rettighetsmodell ofte er et organ vi ikke har i katalogen. To ulike ting, som issuet selv
+   * påpeker — eieren er en FK, myndigheten er tekst.</p>
+   */
+  eierNavn: string | null;
   rotnode: RegelnodeDto | null;
   antallReferanser: number;
   antallHendelser: number;
@@ -28,14 +43,35 @@ export interface OversiktFaneProps {
  * lesevisning — alt data er allerede hentet av siden, ingen egne API-kall her.
  */
 export function OversiktFane({
-  tjeneste, rotnode, antallReferanser, antallHendelser, antallHandlinger, antallAvhengigheter, onGaTilFane,
+  tjeneste, eierNavn, rotnode, antallReferanser, antallHendelser, antallHandlinger, antallAvhengigheter, onGaTilFane,
 }: OversiktFaneProps) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '900px' }}>
       <Card style={{ padding: '1rem 1.25rem' }}>
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.6rem' }}>Metadata</Heading>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem 1.5rem', fontSize: 'var(--ds-font-size-1)' }}>
-          <div><div style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Kompetent myndighet</div><div>{tjeneste.kompetentMyndighet ?? '—'}</div></div>
+          {/* [Ny, 2026-09-09, issue #138] Eier-virksomheten, ØVERST og med lenke: det er den
+            * faktiske koblingen til katalogen, og den avgjør hvem som ser og kan endre tjenesten.
+            * Står før «Kompetent myndighet» nettopp fordi de to blandes — se `eierNavn`. */}
+          <div>
+            <div style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Eier (virksomhet)</div>
+            <div>
+              {eierNavn === null
+                ? <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Laster …</span>
+                : (
+                  <Link asChild>
+                    <RouterLink to={`/virksomheter/${tjeneste.virksomhetId}`}>
+                      {eierNavn} ↗
+                    </RouterLink>
+                  </Link>
+                )}
+            </div>
+          </div>
+          <div>
+            <div style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Kompetent myndighet</div>
+            {/* Fritekst, bevisst — se `eierNavn`-kommentaren. Skal ikke forveksles med eieren over. */}
+            <div>{tjeneste.kompetentMyndighet ?? '—'}</div>
+          </div>
           <div><div style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Rettighetstype</div><div>{tjeneste.type ?? '—'}</div></div>
           <div><div style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Tjenesteområde</div><div>{tjeneste.tjenesteomrade ?? '—'}</div></div>
           <div><div style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Behandlingstid</div><div>{tjeneste.behandlingstid ?? '—'}</div></div>
