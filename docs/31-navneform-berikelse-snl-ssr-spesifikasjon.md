@@ -219,3 +219,61 @@ artikkel-JSON har toppnivåfeltet `title`, IKKE `headword` som koden antok (veri
 derfor i praksis ALDRI gjenkjent for den vanligste institusjonstypen dette sveipet leter etter — rettet
 i samme PR (se `SlaOppSnlAsync`s metodekommentar), siden §5s "SNL hit → Venter"-gren ellers ville vært
 strukturelt dødt kode live, selv om selve navnekandidat-restruktureringen over var korrekt bygget.
+
+## 9. [Ny, konfidens-runden 2026-09-09] Høy/Lav konfidens erstatter automatisk avvisning
+
+§8 punkt 5 innførte «to-utfalls klassifisering»: et `virksomhet`-treff SNL/SSR ikke bekreftet ble
+opprettet DIREKTE med `Status = "Avvist"`. Det er reversert. Johann 2026-09-09, ordrett:
+
+> vi kan ikke automatisk avvise disse p.g.a. manglende SNL/SSR. Kan vi innføre Høy/Lav konfidens
+> fremfor å avvise dem?
+
+**Hva som gikk galt i praksis.** Forskrift om Energiklagenemnda § 1 første ledd nevner to helt
+sentrale forvaltningsorganer: Energiklagenemnda og Reguleringsmyndigheten for energi. Begge lå som
+«Avvist (automatisk)» — SNL har ingen artikler om dem. Køen viste 2 rader, og de to viktigste navnene
+i forskriften var ikke blant dem. Antakelsen bak §8 var at SNL-dekning er et rimelig mål på om noe er
+en institusjon. Den holder ikke for norsk forvaltning: nettopp de organene som «er skjult og kun
+synlig på nettsider» (docs/32 §2) er de SNL ikke skriver om.
+
+**Modellen nå.** `NavnekandidatEntitet.Konfidens` (`'hoy'`/`'lav'`) + `KonfidensGrunn` (lukket
+kodesett). Klassifiseringen setter konfidens; STATUS settes aldri av den. Alle treff opprettes som
+`"Venter"`:
+
+| Utfall i kjeden (§2, uendret) | Konfidens | Grunn |
+|---|---|---|
+| SNL-bekreftet institusjon | `hoy` | `snl_treff` |
+| SSR-bekreftet stedsnavn MED institusjonsord rett etter | `hoy` | `ssr_med_institusjonsord` |
+| SSR-bekreftet stedsnavn UTEN institusjonsord etter | `lav` | `ssr_uten_institusjonsord` |
+| Ukjent i begge | `lav` | `ukjent_i_snl_og_ssr` |
+
+Selve match-logikken er altså UENDRET fra §2/§8 — kun hva utfallet BETYR er endret. `'gruppe'`-
+kandidater har fortsatt `Konfidens = null`: de sendes aldri til SNL/SSR.
+
+**Grunnen er lagret, ikke bare konfidensen.** «Lav» alene er ikke handlingsrettet: «ukjent i SNL og
+SSR» er ofte et ekte, lite omtalt organ, mens «SSR-bekreftet stedsnavn uten institusjonsord etter»
+oftest er en geografisk referanse i løpetekst. Samme konfidens, to helt ulike vurderinger.
+
+**En nettverksfeil kan ikke lenger avvise et navn.** Degraderingen ved et feilende SNL-kall (§3) ga
+tidligere `"Avvist"`. Nå gir den lav konfidens, og et nytt sveip kan gi høy konfidens når SNL svarer
+igjen.
+
+**«Avvist (automatisk)»-fanen** i UI-et beskriver nå bare historiske rader. Migrasjonen
+`LeggTilKonfidensPaNavnekandidat` hentet de 37 auto-avviste radene tilbake til `"Venter"` med lav
+konfidens — avgrenset til `kategori='virksomhet' AND status='Avvist' AND behandlet_av IS NULL`, altså
+nøyaktig signaturen til auto-avvisningen. Rader et menneske faktisk avviste står urørt.
+
+**Avkuttede treff rettes i veiviseren, og posisjonene følger.** Mønsteret fanget
+«Reguleringsmyndigheten» uten «for energi» (flerords-mønsteret dekker ikke «[Egennavn] for [noe]», og
+«myndighet» står ikke i `Institusjonsord`). Johann: «At vi fanger "Reguleringsmyndigheten" og kan
+utvide det til "Reguleringsmyndigheten for energi" er jo nettopp et steg i veiviseren.»
+`OppdaterAsync` flytter derfor `StartOffset`/`EndOffset` til den nye teksten når den finnes i noden —
+den overlappende forekomsten hvis det finnes en, ellers den nærmeste. Finnes den nye teksten IKKE i
+noden («Matilsynet» → «Mattilsynet»), står posisjonene urørt: da er navneformgrunn `'feilskriving'`
+mekanismen, ikke en flyttet posisjon. Uten dette ville taggen sitert 22 tegn mens navneformen hadde
+33.
+
+**Det som IKKE er gjort.** Mønstrene selv er uendret. «Energiklagenemnda» ved SETNINGSSTART fanges
+fortsatt ikke i det hele tatt (`ErSetningsstart`), og genitiven «Energiklagenemndas» blir en egen
+kandidat. Å utvide mønstrene er den whack-a-molen §8 slettet suffiksmønsteret for, og bør bestilles
+som en egen runde.
+

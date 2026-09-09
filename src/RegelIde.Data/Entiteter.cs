@@ -1504,6 +1504,41 @@ public sealed class NavnekandidatEntitet
     /// derfor ingen datamigrering — kun et nytt, nullbart skjemafelt.
     /// </summary>
     public string? OppdagelsesKilde { get; set; }
+
+    /// <summary>
+    /// [Ny, konfidens-runden, 2026-09-09] <c>'hoy'</c> | <c>'lav'</c>, eller <c>null</c> for rader som
+    /// aldri gikk gjennom SNL/SSR-klassifisering (alle <c>'gruppe'</c>-kandidater, og rader opprettet
+    /// før dette feltet fantes).
+    /// <para>
+    /// <b>Erstatter automatisk avvisning.</b> Et <c>'virksomhet'</c>-treff som SNL/SSR ikke bekreftet
+    /// fikk tidligere <c>Status = "Avvist"</c> direkte fra sveipet. Det skjulte reelle organer: både
+    /// «Reguleringsmyndigheten» og «Energiklagenemndas» — to helt sentrale forvaltningsorganer — lå
+    /// som automatisk avvist i køen fordi SNL ikke har artikler om dem. Johann 2026-09-09: «vi kan
+    /// ikke automatisk avvise disse p.g.a. manglende SNL/SSR. Kan vi innføre Høy/Lav konfidens fremfor
+    /// å avvise dem?»
+    /// </para>
+    /// <para>
+    /// Konfidens er en påstand om HVOR GODT BEKREFTET treffet er, ikke om det er riktig. Alle treff
+    /// får nå <c>Status = "Venter"</c>; det er mennesket som avviser. «Avvist (automatisk)»-fanen i
+    /// UI-et beskriver derfor bare historiske rader.
+    /// </para>
+    /// </summary>
+    public string? Konfidens { get; set; }
+
+    /// <summary>
+    /// [Ny, konfidens-runden, 2026-09-09] HVORFOR konfidensen ble som den ble — lukket kodesett, ikke
+    /// fritekst: <c>'snl_treff'</c>, <c>'ssr_med_institusjonsord'</c>,
+    /// <c>'ssr_uten_institusjonsord'</c>, <c>'ukjent_i_snl_og_ssr'</c>. <c>null</c> når konfidens er
+    /// null, og for rader migrert fra den gamle auto-avvisningen (der grunnen ikke ble lagret og ikke
+    /// kan utledes i ettertid — ingen gjettet verdi).
+    /// <para>
+    /// Finnes fordi «Lav» alene ikke er handlingsrettet. «Ukjent i SNL og SSR» betyr ofte et ekte,
+    /// men lite omtalt organ; «SSR-bekreftet stedsnavn uten institusjonsord etter» betyr oftest en
+    /// geografisk referanse i løpetekst. Samme rad, samme konfidens, to helt ulike vurderinger for
+    /// saksbehandleren.
+    /// </para>
+    /// </summary>
+    public string? KonfidensGrunn { get; set; }
 }
 
 /// <summary>

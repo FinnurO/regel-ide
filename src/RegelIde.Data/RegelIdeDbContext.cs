@@ -237,6 +237,14 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             {
                 t.HasCheckConstraint("ck_navnekandidater_status", "status IN ('Venter', 'Godkjent', 'Avvist')");
                 t.HasCheckConstraint("ck_navnekandidater_kategori", "kategori IN ('virksomhet', 'gruppe')");
+                // [Ny, konfidens-runden, 2026-09-09] Samme lukkede-vokabular-mønster som de to over.
+                // NULL er gyldig: 'gruppe'-kandidater sendes aldri til SNL/SSR, og rader fra før
+                // feltet fantes har ingen konfidens å oppgi. Se NavnekandidatEntitet.Konfidens.
+                t.HasCheckConstraint("ck_navnekandidater_konfidens", "konfidens IS NULL OR konfidens IN ('hoy', 'lav')");
+                t.HasCheckConstraint(
+                    "ck_navnekandidater_konfidens_grunn",
+                    "konfidens_grunn IS NULL OR konfidens_grunn IN "
+                    + "('snl_treff', 'ssr_med_institusjonsord', 'ssr_uten_institusjonsord', 'ukjent_i_snl_og_ssr')");
             });
             e.HasKey(x => x.Id).HasName("navnekandidater_pkey");
             e.Property(x => x.ForeslattTekst).HasColumnName("foreslatt_tekst");
@@ -252,6 +260,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.BehandletTidspunkt).HasColumnName("behandlet_tidspunkt");
             // [Ny, docs/31] Nullbar diskriminator — se NavnekandidatEntitet.OppdagelsesKilde sin kommentar.
             e.Property(x => x.OppdagelsesKilde).HasColumnName("oppdagelses_kilde");
+            // [Ny, konfidens-runden, 2026-09-09] Se NavnekandidatEntitet.Konfidens/KonfidensGrunn.
+            e.Property(x => x.Konfidens).HasColumnName("konfidens");
+            e.Property(x => x.KonfidensGrunn).HasColumnName("konfidens_grunn");
             e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);
             e.HasIndex(x => x.RettskildeId).HasDatabaseName("ix_navnekandidater_rettskilde");
             // Samme idempotens-nøkkel-resonnement som ux_virksomhet_kandidater_virksomhet_node_start

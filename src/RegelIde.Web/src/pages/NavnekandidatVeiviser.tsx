@@ -14,6 +14,7 @@ import { GruppebegrepVelger } from '../virksomhet/GruppebegrepVelger';
 import { NavneformgrunnVelger } from '../virksomhet/Navneformgrunn';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
+import { KonfidensTag, konfidensGrunnTekst } from '../kandidater/KonfidensTag';
 
 /**
  * [Ny, navnekandidat-wizard-runden, 2026-09-07] Behandling av ÉN navnekandidat, ende til ende.
@@ -627,6 +628,26 @@ export default function NavnekandidatVeiviser() {
                   <Table.HeaderCell scope="row">Ekstern berikelse</Table.HeaderCell>
                   <Table.Cell><BerikelseVisning k={kandidat} /></Table.Cell>
                 </Table.Row>
+                {/* [Ny, konfidens-runden, 2026-09-09] Konfidensen ER grunnen til at raden ligger
+                  * her og ikke er avvist. Grunnen skrives ut i klartekst, ikke bare som en
+                  * merkelapp med hover: «Lav» uten hvorfor er ikke handlingsrettet. */}
+                <Table.Row>
+                  <Table.HeaderCell scope="row">Konfidens</Table.HeaderCell>
+                  <Table.Cell>
+                    {kandidat.konfidens ? (
+                      <span style={{ display: 'flex', gap: '0.5rem', alignItems: 'baseline', flexWrap: 'wrap' }}>
+                        <KonfidensTag konfidens={kandidat.konfidens} grunn={kandidat.konfidensGrunn} />
+                        <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                          {konfidensGrunnTekst(kandidat.konfidensGrunn)}
+                        </span>
+                      </span>
+                    ) : (
+                      <span style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
+                        Ikke klassifisert — gruppe-kandidater sendes aldri til SNL/SSR.
+                      </span>
+                    )}
+                  </Table.Cell>
+                </Table.Row>
               </Table.Body>
             </Table>
 
@@ -649,12 +670,21 @@ export default function NavnekandidatVeiviser() {
           {/* ---------------- Steg 1: Er teksten riktig? ---------------- */}
           {steg >= 1 && (
             <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
-              <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>2. Er teksten riktig?</Heading>
+              <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>1. Er teksten riktig?</Heading>
               <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
-                Rett bare teksten hvis sveipet har tatt med tegn som ikke hører til navnet — f.eks.
-                «Ø Suldal kommune», der Ø kommer fra en koordinat rett foran. Er navnet derimot
-                LEGITIMT slik det står («Suldal», «Matilsynet», «Arkivverket»), la det stå: du
-                forklarer det med en begrunnelse i stedet, senere i veiviseren.
+                Rett teksten når sveipet har tatt med tegn som ikke hører til navnet («Ø Suldal
+                kommune», der Ø kommer fra en koordinat rett foran), eller når mønsteret har KUTTET
+                navnet for kort — «Reguleringsmyndigheten» der loven skriver «Reguleringsmyndigheten
+                for energi». Begge er artefakter fra mønsteret, ikke opplysninger om navnet.
+              </Paragraph>
+              {/* [Ny, konfidens-runden, 2026-09-09] Dette er ikke en detalj: uten at posisjonene
+                * følger teksten ville taggen sitert de opprinnelige 22 tegnene mens navneformen
+                * hadde 33. Se ReankreTilNyTekstAsync. */}
+              <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+                Skriver du en tekst som FINNES i setningen over, flyttes tegnposisjonene dit, slik at
+                taggen dekker hele navnet. Retter du en skrivemåte som ikke står slik i loven
+                («Matilsynet» → «Mattilsynet»), står posisjonene igjen på det som faktisk står — og da
+                er en begrunnelse («feilskriving») den riktige mekanismen, ikke en rettet tekst.
               </Paragraph>
               <Textfield
                 data-size="sm"
@@ -684,7 +714,7 @@ export default function NavnekandidatVeiviser() {
           {/* ---------------- Steg 2: Hva slags ting er dette? ---------------- */}
           {steg >= 2 && (
             <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
-              <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>3. Hva slags ting er dette?</Heading>
+              <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>2. Hva slags ting er dette?</Heading>
               <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
                 «Administrativ inndeling» er bevisst ikke med i denne runden — velg «Ikke relevant»
                 hvis treffet er det, og ta det opp separat.
@@ -755,7 +785,7 @@ export default function NavnekandidatVeiviser() {
           {steg >= 3 && (
             <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
               <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>
-                4. {stegTitler(slag)[3]}
+                3. {stegTitler(slag)[3]}
               </Heading>
               <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
                 Finn virksomheten i katalogen, eller opprett den — fra Brønnøysundregisteret hvis den
@@ -932,7 +962,7 @@ export default function NavnekandidatVeiviser() {
           {/* ---------------- Steg 4: Bekreft ---------------- */}
           {steg >= 4 && (
             <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
-              <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>5. Bekreft</Heading>
+              <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>4. Bekreft</Heading>
               <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
                 Dette blir opprettet eller endret når du fullfører:
               </Paragraph>

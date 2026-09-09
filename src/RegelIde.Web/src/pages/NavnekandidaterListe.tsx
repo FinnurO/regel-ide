@@ -10,6 +10,7 @@ import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 import { KandidatflytForklaring } from '../kandidater/KandidatflytForklaring';
+import { KonfidensTag } from '../kandidater/KonfidensTag';
 
 type Sorteringskolonne = 'foreslattTekst' | 'kategori' | 'rettskilde' | 'status' | 'opprettet';
 
@@ -110,6 +111,10 @@ export default function NavnekandidaterListe() {
   const [noderPerRettskilde, setNoderPerRettskilde] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
 
   const [kategoriFilter, setKategoriFilter] = useState<'virksomhet' | 'gruppe' | ''>('');
+  // [Ny, konfidens-runden, 2026-09-09] '' = alle. 'ingen' = radene som ikke er klassifisert
+  // (alle 'gruppe'-kandidater) — se ListerAsync sin konfidens-parameter for hvorfor det er en egen
+  // verdi og ikke bare et tomt filter.
+  const [konfidensFilter, setKonfidensFilter] = useState<'hoy' | 'lav' | 'ingen' | ''>('');
   const [statusFilter, setStatusFilter] = useState<Fane>('Venter');
 
   // Klient-side filtre (se klassekommentaren) — virker på den allerede hentede `kandidater`-listen,
@@ -163,6 +168,7 @@ export default function NavnekandidaterListe() {
     api
       .hentNavnekandidater({
         kategori: kategoriFilter || undefined,
+        konfidens: konfidensFilter || undefined,
         ...serverFilter(statusFilter),
       })
       .then((liste) => {
@@ -179,7 +185,7 @@ export default function NavnekandidaterListe() {
       });
   }
 
-  useEffect(lastKandidater, [kategoriFilter, statusFilter]);
+  useEffect(lastKandidater, [kategoriFilter, statusFilter, konfidensFilter]);
 
   // Nytt grupperingsvalg — forrige åpne/lukkede grupper gjelder ikke lenger (andre nøkler: rettskilde-
   // id-er vs. foreslått-tekst-strenger).
@@ -485,6 +491,9 @@ export default function NavnekandidaterListe() {
         <Table.Cell>
           <Tag data-color={KATEGORI_FARGE[k.kategori] ?? 'neutral'} data-size="sm">{k.kategori}</Tag>
         </Table.Cell>
+        {/* [Ny, konfidens-runden, 2026-09-09] Hvor godt bekreftet treffet er — erstatter automatisk
+          * avvisning, se KonfidensTag. Tom celle for 'gruppe'-kandidater, som aldri klassifiseres. */}
+        <Table.Cell><KonfidensTag konfidens={k.konfidens} grunn={k.konfidensGrunn} /></Table.Cell>
         <Table.Cell style={{ fontWeight: 500 }}>
           {k.foreslattTekst}
           {k.oppdagelsesKilde === 'stor-bokstav-snl-ssr' && <BerikelseVisning k={k} />}
@@ -607,7 +616,12 @@ export default function NavnekandidaterListe() {
         <Tabs.List>
           <Tabs.Tab value="Venter">Venter</Tabs.Tab>
           <Tabs.Tab value="Godkjent">Godkjent</Tabs.Tab>
-          <Tabs.Tab value="AvvistAutomatisk">Avvist automatisk</Tabs.Tab>
+          {/* [Ny merknad, konfidens-runden, 2026-09-09] Automatisk avvisning finnes ikke lenger:
+            * et ubekreftet treff får LAV KONFIDENS og blir stående som «Venter». Fanen viser derfor
+            * bare rader fra før omleggingen — beholdt fordi de fortsatt må kunne ryddes. */}
+          <Tabs.Tab value="AvvistAutomatisk" title="Historisk: automatisk avvisning er erstattet av lav konfidens (2026-09-09)">
+            Avvist automatisk (historisk)
+          </Tabs.Tab>
           <Tabs.Tab value="AvvistManuelt">Avvist (manuelt)</Tabs.Tab>
           <Tabs.Tab value="Alle">Alle</Tabs.Tab>
         </Tabs.List>
@@ -620,6 +634,18 @@ export default function NavnekandidaterListe() {
             <Select.Option value="">Alle kategorier</Select.Option>
             <Select.Option value="virksomhet">Virksomhet</Select.Option>
             <Select.Option value="gruppe">Gruppe</Select.Option>
+          </Select>
+        </Field>
+        {/* [Ny, konfidens-runden, 2026-09-09] «Lav konfidens» er der de reelle, men lite omtalte
+          * organene ligger — de som før ble automatisk avvist. Derfor et eget filter, ikke bare en
+          * kolonne: den listen er en arbeidsliste i seg selv. */}
+        <Field style={{ minWidth: '14rem' }}>
+          <Label>Konfidens</Label>
+          <Select data-size="sm" value={konfidensFilter} onChange={(e) => setKonfidensFilter(e.target.value as typeof konfidensFilter)}>
+            <Select.Option value="">All konfidens</Select.Option>
+            <Select.Option value="hoy">Høy — bekreftet i SNL/SSR</Select.Option>
+            <Select.Option value="lav">Lav — ikke bekreftet</Select.Option>
+            <Select.Option value="ingen">Ikke klassifisert (gruppe)</Select.Option>
           </Select>
         </Field>
       </div>
@@ -738,6 +764,7 @@ export default function NavnekandidaterListe() {
                       Kategori{sorteringsindikator('kategori')}
                     </button>
                   </Table.HeaderCell>
+                  <Table.HeaderCell>Konfidens</Table.HeaderCell>
                   <Table.HeaderCell>
                     <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('foreslattTekst')}>
                       Foreslått tekst{sorteringsindikator('foreslattTekst')}
@@ -771,7 +798,8 @@ export default function NavnekandidaterListe() {
                               onChange={(e) => vekslGruppe(g.rader, e.target.checked)}
                             />
                           </Table.Cell>
-                          <Table.Cell colSpan={7}>
+                          {/* 8, ikke 7: konfidens-kolonnen kom til 2026-09-09. */}
+                          <Table.Cell colSpan={8}>
                             <button
                               type="button"
                               className="tabell-gruppe-knapp"

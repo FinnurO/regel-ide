@@ -3296,18 +3296,22 @@ static async Task<List<NavnekandidatDto>> BerikNavnekandidaterAsync(
 }
 
 navnekandidater.MapGet("/", async (string? status, string? kategori, Guid? rettskildeId, bool? behandletAutomatisk,
-        NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+        string? konfidens, NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
         // Samme eksplisitte "utelatt = kun Venter, 'Alle' = ingen filter"-mønster som
         // /api/virksomhet-kandidater — se den endepunktkommentaren.
         var effektivStatus = string.IsNullOrEmpty(status) ? "Venter" : status;
         var statusFilter = effektivStatus == "Alle" ? null : effektivStatus;
-        var kandidater = await register.ListerAsync(statusFilter, kategori, rettskildeId, behandletAutomatisk, ct);
+        var kandidater = await register.ListerAsync(
+            statusFilter, kategori, rettskildeId, behandletAutomatisk,
+            string.IsNullOrEmpty(konfidens) || konfidens == "Alle" ? null : konfidens, ct);
         return Results.Ok(await BerikNavnekandidaterAsync(kandidater, db, ct));
     })
     .WithName("HentNavnekandidater")
-    .WithSummary("Kandidatliste, valgfritt filtrert på status/kategori/rettskilde/behandletAutomatisk. status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter. " +
-        "behandletAutomatisk (kun meningsfullt sammen med status='Avvist'): true = KUN SNL/SSR-selv-avviste rader (BehandletAv tom), false = KUN manuelt avviste rader (BehandletAv satt). " +
+    .WithSummary("Kandidatliste, valgfritt filtrert på status/kategori/rettskilde/behandletAutomatisk/konfidens. status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter. " +
+        "konfidens: 'hoy'/'lav', eller 'ingen' for rader som ikke er SNL/SSR-klassifisert (alle 'gruppe'-kandidater). " +
+        "behandletAutomatisk (kun meningsfullt sammen med status='Avvist'): true = KUN rader ingen har rørt (BehandletAv tom), false = KUN manuelt avviste rader (BehandletAv satt). " +
+        "Merk at automatisk avvisning IKKE lenger finnes (konfidens-runden 2026-09-09) — behandletAutomatisk=true beskriver derfor historiske rader. " +
         "'virksomhet'-kandidater (uansett oppdagelsesmønster, se issue #117) beriket med SNL-alias/URL/orgnr og SSR-bekreftelse når SNL/SSR-cachen har et treff for teksten.");
 
 navnekandidater.MapPost("/sveip", async (HttpRequest request, SveipNavnekandidaterRequest body,

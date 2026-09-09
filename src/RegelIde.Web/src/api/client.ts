@@ -483,11 +483,14 @@ export const api = {
   /** [Ny, docs/13-backlog.md §9] Oppdagelsesmekanismen — komplementær til virksomhet-kandidatene over. */
   hentNavnekandidater: (filter: {
     rettskildeId?: string; status?: string; kategori?: string; behandletAutomatisk?: boolean;
+    /** [Ny, konfidens-runden, 2026-09-09] 'hoy' | 'lav' | 'ingen' (ikke klassifisert). */
+    konfidens?: string;
   }) => {
     const parametre = new URLSearchParams();
     if (filter.rettskildeId) parametre.set('rettskildeId', filter.rettskildeId);
     if (filter.status) parametre.set('status', filter.status);
     if (filter.kategori) parametre.set('kategori', filter.kategori);
+    if (filter.konfidens) parametre.set('konfidens', filter.konfidens);
     // [Ny, 2026-09-04] Skiller "Avvist automatisk" (SNL/SSR selv, BehandletAv tom) fra "Avvist manuelt"
     // (en saksbehandler, BehandletAv satt) — kun meningsfullt sammen med status='Avvist', se backend-
     // kommentaren (NavnekandidatOppdagelseTjeneste.ListerAsync).

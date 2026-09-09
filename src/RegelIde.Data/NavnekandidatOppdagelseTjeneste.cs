@@ -580,7 +580,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         }
 
         // ---------- Fase 2: klassifiser hvert unike navn nøyaktig én gang ----------
-        var klassifiseringPerTerm = new Dictionary<string, bool>(StringComparer.OrdinalIgnoreCase);
+        var klassifiseringPerTerm = new Dictionary<string, Klassifisering>(StringComparer.OrdinalIgnoreCase);
         foreach (var treff in trengerKlassifisering)
         {
             if (klassifiseringPerTerm.ContainsKey(treff.NormalisertTerm)) continue;
@@ -589,12 +589,15 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         }
 
         // ---------- Fase 3: materialiser ----------
+        // [ENDRET, konfidens-runden, 2026-09-09] ALLE rader opprettes som "Venter". Klassifiseringen
+        // setter KONFIDENS, ikke status — se NavnekandidatEntitet.Konfidens.
         foreach (var treff in trengerKlassifisering)
         {
-            var erTreff = klassifiseringPerTerm[treff.NormalisertTerm];
+            var klassifisering = klassifiseringPerTerm[treff.NormalisertTerm];
             await OpprettEllerFinnAsync(
                 treff.RaaTekst, "virksomhet", treff.Node.RettskildeId, treff.Node.Eid, treff.Start, treff.Start + treff.Lengde,
-                opprettetAv, ct, treff.OppdagelsesKilde, initialStatus: erTreff ? "Venter" : "Avvist");
+                opprettetAv, ct, treff.OppdagelsesKilde,
+                konfidens: klassifisering.Konfidens, konfidensGrunn: klassifisering.Grunn);
             antallNyeKandidater++; // forAntall==0 ble allerede bekreftet for denne posisjonen i fase 1.
         }
 
@@ -632,20 +635,29 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// tillater ikke en tredje, ubestemt bøtte).</item>
     /// </list>
     /// </summary>
-    private async Task<bool> KlassifiserAsync(string raaTekst, string tekst, int matchSlutt, CancellationToken ct)
+    private async Task<Klassifisering> KlassifiserAsync(string raaTekst, string tekst, int matchSlutt, CancellationToken ct)
     {
         var snl = await eksternOppslag.SlaOppSnlAsync(raaTekst, ct);
-        if (snl.Treff) return true;
+        if (snl.Treff) return new Klassifisering("hoy", "snl_treff");
 
         var ssr = await eksternOppslag.SlaOppSsrAsync(raaTekst, ct);
         if (ssr.Treff)
         {
             var nesteOrd = NesteOrdEtter(tekst, matchSlutt);
-            return nesteOrd is not null && InstitusjonsordMønster.IsMatch(nesteOrd);
+            return nesteOrd is not null && InstitusjonsordMønster.IsMatch(nesteOrd)
+                ? new Klassifisering("hoy", "ssr_med_institusjonsord")
+                : new Klassifisering("lav", "ssr_uten_institusjonsord");
         }
 
-        return false; // ukjent i begge — se metodekommentaren, gir nå Avvist (ikke lenger "behold").
+        return new Klassifisering("lav", "ukjent_i_snl_og_ssr");
     }
+
+    /// <summary>
+    /// [Ny, konfidens-runden, 2026-09-09] Utfallet av <see cref="KlassifiserAsync"/>: hvor godt
+    /// bekreftet treffet er, og hvorfor. Erstatter <c>bool ErTreff</c>, som avgjorde STATUS
+    /// (Venter/Avvist) — se <see cref="NavnekandidatEntitet.Konfidens"/> for hvorfor det var galt.
+    /// </summary>
+    private sealed record Klassifisering(string Konfidens, string Grunn);
 
     /// <summary>
     /// Ren, testbar funksjon uten DB-avhengighet — selve mønstergjenkjenningen for de TO gjenværende,
@@ -880,19 +892,69 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         return i < 0 || tekst[i] is '.' or '!' or '?';
     }
 
+    /// <summary>
+    /// [Ny, konfidens-runden, 2026-09-09] Flytter kandidatens tegnposisjoner slik at de dekker den
+    /// NYE teksten, når den nye teksten faktisk står i noden.
+    ///
+    /// <para>
+    /// Hvorfor: sveipet fanget «Reguleringsmyndigheten» avkuttet — det fulle navnet i teksten er
+    /// «Reguleringsmyndigheten for energi». Johann 2026-09-09: «At vi fanger "Reguleringsmyndigheten"
+    /// og kan utvide det til "Reguleringsmyndigheten for energi" er jo nettopp et steg i veiviseren.»
+    /// Uten denne flyttingen ville <see cref="OppdaterAsync"/> endret teksten men latt
+    /// <see cref="NavnekandidatEntitet.StartOffset"/>/<see cref="NavnekandidatEntitet.EndOffset"/>
+    /// stå igjen på de opprinnelige 22 tegnene — og taggen som lages ved godkjenning ville sitert
+    /// «Reguleringsmyndigheten» mens navneformen het «Reguleringsmyndigheten for energi». En kjede
+    /// som ikke stemmer med teksten den peker på er verre enn ingen kjede.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>Hvilken forekomst?</b> Den som OVERLAPPER den gamle posisjonen, hvis noen gjør det — det er
+    /// den saksbehandleren faktisk ser på i veiviseren. Ellers den NÆRMESTE, målt fra gammel
+    /// startposisjon. Finnes den nye teksten ikke i noden i det hele tatt, står posisjonene urørt:
+    /// da er dette ikke en utvidelse av et treff, men en retting av en skrivemåte som ikke står slik
+    /// i loven (f.eks. «Matilsynet» → «Mattilsynet»), og for dem er navneformgrunn
+    /// <c>'feilskriving'</c> mekanismen — ikke en flyttet posisjon. Ingen gjettet plassering.
+    /// </para>
+    /// </summary>
+    private async Task ReankreTilNyTekstAsync(NavnekandidatEntitet kandidat, string nyTekst, CancellationToken ct)
+    {
+        var node = await db.RettskildeNoder.FirstOrDefaultAsync(
+            n => n.RettskildeId == kandidat.RettskildeId && n.Eid == kandidat.NodeEid, ct);
+        var tekst = node?.Tekst;
+        if (string.IsNullOrEmpty(tekst)) return;
+
+        var forekomster = new List<int>();
+        for (var i = tekst.IndexOf(nyTekst, StringComparison.Ordinal); i >= 0;
+             i = tekst.IndexOf(nyTekst, i + 1, StringComparison.Ordinal))
+        {
+            forekomster.Add(i);
+        }
+        if (forekomster.Count == 0) return;
+
+        var overlappende = forekomster.FirstOrDefault(
+            i => i < kandidat.EndOffset && i + nyTekst.Length > kandidat.StartOffset, -1);
+        var valgt = overlappende >= 0
+            ? overlappende
+            : forekomster.OrderBy(i => Math.Abs(i - kandidat.StartOffset)).First();
+
+        kandidat.StartOffset = valgt;
+        kandidat.EndOffset = valgt + nyTekst.Length;
+    }
+
     /// <summary>Idempotent — samme (rettskilde, node, START-posisjon) gir samme rad tilbake i stedet
     /// for et duplikat, uansett status (samme mønster som <see cref="VirksomhetKandidatTjeneste.OpprettEllerFinnAsync"/>).
     /// <para>
-    /// [Ny, 2026-09-03] <paramref name="initialStatus"/> — default <c>"Venter"</c>, samme implisitte
-    /// standard som FØR denne parameteren fantes (alle eksisterende kallere er derfor uendret). Lagt til
-    /// for <see cref="SveipAsync"/>s to-utfalls klassifisering (se <see cref="KlassifiserAsync"/>):
-    /// et <c>"virksomhet"</c>-treff SNL/SSR ikke bekrefter skal opprettes DIREKTE med
-    /// <c>Status = "Avvist"</c> — synlig/revisjonsbart i køen, ikke stille forkastet FØR raden i det
-    /// hele tatt eksisterte. Validert mot samme lukkede statusmengde som resten av klassen bruker.
+    /// [ENDRET, konfidens-runden, 2026-09-09] Hadde tidligere en <c>initialStatus</c>-parameter som
+    /// <see cref="SveipAsync"/> satte til <c>"Avvist"</c> når SNL/SSR ikke bekreftet navnet. Den er
+    /// erstattet av <paramref name="konfidens"/>/<paramref name="konfidensGrunn"/>: raden opprettes
+    /// ALLTID som <c>"Venter"</c>, og klassifiseringen uttrykkes som konfidens i stedet for som en
+    /// avgjørelse. Se <see cref="NavnekandidatEntitet.Konfidens"/> for hvorfor — kort: automatisk
+    /// avvisning skjulte reelle organer SNL ikke har artikler om.
     /// </para></summary>
     public async Task<NavnekandidatEntitet> OpprettEllerFinnAsync(
         string foreslattTekst, string kategori, Guid rettskildeId, string nodeEid, int startOffset, int endOffset,
-        string opprettetAv, CancellationToken ct = default, string? oppdagelsesKilde = null, string initialStatus = "Venter")
+        string opprettetAv, CancellationToken ct = default, string? oppdagelsesKilde = null,
+        string? konfidens = null, string? konfidensGrunn = null)
     {
         var eksisterende = await db.Navnekandidater.FirstOrDefaultAsync(
             k => k.RettskildeId == rettskildeId && k.NodeEid == nodeEid && k.StartOffset == startOffset, ct);
@@ -902,9 +964,13 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         {
             throw new ArgumentException($"Ukjent kategori '{kategori}'. Gyldige verdier: 'virksomhet', 'gruppe'.");
         }
-        if (initialStatus is not ("Venter" or "Avvist"))
+        if (konfidens is not (null or "hoy" or "lav"))
         {
-            throw new ArgumentException($"Ugyldig initialStatus '{initialStatus}'. Gyldige verdier: 'Venter', 'Avvist'. Ingen gjettet fallback.");
+            throw new ArgumentException($"Ugyldig konfidens '{konfidens}'. Gyldige verdier: 'hoy', 'lav' (eller null). Ingen gjettet fallback.");
+        }
+        if (konfidensGrunn is not (null or "snl_treff" or "ssr_med_institusjonsord" or "ssr_uten_institusjonsord" or "ukjent_i_snl_og_ssr"))
+        {
+            throw new ArgumentException($"Ugyldig konfidensgrunn '{konfidensGrunn}'. Ingen gjettet fallback.");
         }
         var node = await db.RettskildeNoder.FirstOrDefaultAsync(n => n.RettskildeId == rettskildeId && n.Eid == nodeEid, ct);
         if (node is null)
@@ -926,10 +992,12 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             NodeEid = nodeEid,
             StartOffset = startOffset,
             EndOffset = endOffset,
-            Status = initialStatus,
+            Status = "Venter",
             OpprettetAv = opprettetAv,
             OpprettetTidspunkt = DateTimeOffset.UtcNow,
             OppdagelsesKilde = oppdagelsesKilde,
+            Konfidens = konfidens,
+            KonfidensGrunn = konfidensGrunn,
         };
         db.Navnekandidater.Add(kandidat);
         try
@@ -964,14 +1032,27 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// tomt resultat) utenfor status="Avvist" — BehandletAv settes ALDRI ved Godkjenn (kun ved Avvis, se
     /// Godkjenn-/Avvis-handlerne), så en "Venter"/"Godkjent"-rad har uansett aldri BehandletAv=null vs.
     /// satt som et meningsfullt skille.</summary>
+    /// <param name="konfidens">
+    /// [Ny, konfidens-runden, 2026-09-09] <c>'hoy'</c>/<c>'lav'</c> filtrerer på
+    /// <see cref="NavnekandidatEntitet.Konfidens"/>; <c>'ingen'</c> gir radene som ikke er klassifisert
+    /// i det hele tatt (alle <c>'gruppe'</c>-kandidater, og rader fra før feltet fantes). <c>null</c> =
+    /// ingen filtrering. Egen <c>'ingen'</c>-verdi fordi «ikke klassifisert» og «lav konfidens» er to
+    /// forskjellige ting, og et NULL-filter ellers ikke kan uttrykkes i en spørrestreng.
+    /// </param>
     public Task<List<NavnekandidatEntitet>> ListerAsync(
         string? status = null, string? kategori = null, Guid? rettskildeId = null, bool? behandletAutomatisk = null,
-        CancellationToken ct = default)
+        string? konfidens = null, CancellationToken ct = default)
     {
         var spørring = db.Navnekandidater.AsQueryable();
         if (status is not null) spørring = spørring.Where(k => k.Status == status);
         if (kategori is not null) spørring = spørring.Where(k => k.Kategori == kategori);
         if (rettskildeId is not null) spørring = spørring.Where(k => k.RettskildeId == rettskildeId);
+        if (konfidens is not null)
+        {
+            spørring = konfidens == "ingen"
+                ? spørring.Where(k => k.Konfidens == null)
+                : spørring.Where(k => k.Konfidens == konfidens);
+        }
         if (behandletAutomatisk is { } automatisk)
         {
             spørring = automatisk ? spørring.Where(k => k.BehandletAv == null) : spørring.Where(k => k.BehandletAv != null);
@@ -1198,7 +1279,12 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             {
                 throw new ArgumentException("Foreslått tekst kan ikke være tom. Ingen gjettet fallback.");
             }
-            kandidat.ForeslattTekst = foreslattTekst.Trim();
+            var ny = foreslattTekst.Trim();
+            if (ny != kandidat.ForeslattTekst)
+            {
+                await ReankreTilNyTekstAsync(kandidat, ny, ct);
+            }
+            kandidat.ForeslattTekst = ny;
         }
 
         if (kategori is not null)

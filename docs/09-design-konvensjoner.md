@@ -662,3 +662,30 @@ tagger, ble hver godkjente kandidat en tagg ingen kunne se — organene i katalo
 Retningslinje: enhver ny skrivevei til `TekstTagg` må ta eieren fra den innloggede brukeren, ikke fra
 dataene den behandler.
 
+## 21. Konfidens, ikke avvisning (2026-09-09)
+
+**Systemet klassifiserer; mennesket avgjør.** En navnekandidat SNL/SSR ikke bekrefter får LAV
+KONFIDENS og blir stående som «Venter» — den avvises ikke. Se `docs/31` §9 for hvorfor: de organene
+som er «skjult og kun synlig på nettsider» er nettopp dem SNL ikke skriver om, så SNL-dekning kan
+ikke brukes som en avgjørelse.
+
+`KonfidensTag` (`src/kandidater/KonfidensTag.tsx`) er ÉN delt kilde for visningen, brukt av
+listesiden og veiviseren. Fargevalget er et krav, samme prinsipp som `NavneformgrunnTag` (§15):
+`success` for høy, `neutral` for lav. Lav er BEVISST ikke `warning`/`danger` — det er ingen feil og
+ingen advarsel, bare fravær av bekreftelse, og en rød lapp ville gjenskapt avvisningen vi fjernet.
+Ingen lapp for `null` (ikke klassifisert).
+
+**Grunnen skrives ut, ikke bare konfidensen.** I tabellen som `title` under merkelappen, i veiviseren
+som hel setning i kontekstkortet. «Lav» uten hvorfor er ikke handlingsrettet — se
+`konfidensGrunnTekst` for de fire kodene, inkludert `null`-tilfellet («grunn ikke registrert»), som er
+en ekte, dokumentert tilstand for rader migrert fra den gamle auto-avvisningen.
+
+**Et filter, ikke bare en kolonne.** «Lav konfidens» er der de reelle, men lite omtalte organene
+ligger; den listen er en arbeidsliste i seg selv.
+
+**Når data flytter seg, må lagvalget følge.** `finnStandardLag` valgte det FØRSTE laget med minst én
+tagg. Da gruppebegrepene ble tagget i forskrift 2005-06-17-657 § 1 fikk noden 7 `begrep`-tagger ved
+siden av 14 `virksomhet`-tagger, og defaulten skjulte de 14 kommunenavnene bak en fane. Regelen er nå
+«laget med FLEST tagger», med `kinds`-rekkefølgen som likhetsbryter. Prinsippet: en default som
+bestemmer hva brukeren SER ved kald åpning skal vise mest mulig av det som faktisk er markert.
+

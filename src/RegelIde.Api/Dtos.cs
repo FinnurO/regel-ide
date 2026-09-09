@@ -731,12 +731,16 @@ public sealed record NavnekandidatDto(
     // EksternNavneoppslagCacheEntitet PÅ LESETIDSPUNKTET, ved ForeslattTekst som oppslagsterm.
     string? OppdagelsesKilde,
     string? SnlUrl, IReadOnlyList<string>? SnlAlias, string? SnlOrganisasjonsnummer,
-    bool? SsrBekreftetStedsnavn, string? SsrObjektType)
+    bool? SsrBekreftetStedsnavn, string? SsrObjektType,
+    // [Ny, konfidens-runden, 2026-09-09] 'hoy'/'lav'/null — se NavnekandidatEntitet.Konfidens.
+    // Erstatter automatisk avvisning: raden venter uansett, konfidensen sier hvor godt bekreftet
+    // treffet er, og KonfidensGrunn sier hvorfor.
+    string? Konfidens, string? KonfidensGrunn)
 {
     public static NavnekandidatDto FraEntitet(NavnekandidatEntitet k) => new(
         k.Id, k.ForeslattTekst, k.Kategori, k.RettskildeId, k.NodeEid, k.StartOffset, k.EndOffset, k.Status,
         k.OpprettetAv, k.OpprettetTidspunkt, k.BehandletAv, k.BehandletTidspunkt, k.OppdagelsesKilde,
-        null, null, null, null, null);
+        null, null, null, null, null, k.Konfidens, k.KonfidensGrunn);
 }
 
 /// <summary>
