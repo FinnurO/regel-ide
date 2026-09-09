@@ -31,6 +31,8 @@ import { forsokFormaterHtml } from '../rettskilde/formaterHtml';
 import { eidVisningstekst, finnRettskildeForEid, rettskildeLenke } from '../api/eidLenker';
 import { paragrafEtikett } from '../rettskilde/paragrafEtikett';
 import { KontekstPanel, type KontekstPanelGruppe } from '../entitet/KontekstPanel';
+import { PUNKTMERKE_FORKLARING, harTekstEtterListen, underordnedePunkter } from '../rettskilde/punktliste';
+import type { PunktVisning } from '../rettskilde/punktliste';
 
 const STITYPE_FARGE: Record<string, 'info' | 'success'> = { tematisk: 'info', organisatorisk: 'success' };
 
@@ -41,6 +43,48 @@ const FANE_LABELER: Record<Fane, string> = {
 
 interface TreNode extends RettskildeNodeDto {
   barn: TreNode[];
+}
+
+/**
+ * [Ny, punktliste-runden, 2026-09-09, issue #213] Punktlista under et ledd.
+ *
+ * <p>
+ * Feilen dette retter: et definisjonsledd ble vist som BARE innledningen. «(1) Med personkjøretøy
+ * menes» — og så ingenting. Punkt 1–8 lå i basen hele tiden, men visningen rendret kun den valgte
+ * nodens egen `Tekst`. En avkuttet definisjon ser komplett ut, og det er verre enn en tom skjerm.
+ * </p>
+ *
+ * <p>
+ * Punktene er IKKE taggbare her. Hvert punkt er sin egen node med sin egen eId og sine egne
+ * tegnposisjoner, og en tagg må lagres mot NODEN teksten står i — ikke mot leddet over. Derfor er
+ * hvert punkt en knapp som VELGER punktnoden, slik at man tagger den der man alltid har gjort det.
+ * Alternativet, å tagge inline mot punktets offsets fra leddvisningen, ville krevd at hele
+ * tagg-flyten kjente to noder samtidig; det er en større endring enn denne buggen fortjener.
+ * </p>
+ */
+function Punktliste({ punkter, onVelgNode }: { punkter: PunktVisning[]; onVelgNode: (eid: string) => void }) {
+  if (punkter.length === 0) return null;
+  return (
+    <ol style={{ margin: '0.5rem 0 0', paddingLeft: '1.5rem', display: 'flex', flexDirection: 'column', gap: '0.35rem' }}>
+      {punkter.map((punkt) => (
+        <li key={punkt.eid} value={Number(punkt.merke) || undefined}>
+          <button
+            type="button"
+            onClick={() => onVelgNode(punkt.eid)}
+            title="Åpne punktet for å tagge det"
+            style={{
+              background: 'none', border: 'none', padding: 0, margin: 0, font: 'inherit', color: 'inherit',
+              textAlign: 'left', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted',
+              textUnderlineOffset: '0.2em',
+            }}
+          >
+            {punkt.tekst}
+          </button>
+          <Punktliste punkter={punkt.punkter} onVelgNode={onVelgNode} />
+        </li>
+      ))}
+    </ol>
+  );
 }
 
 function byggTre(noder: RettskildeNodeDto[]): TreNode[] {
@@ -614,6 +658,8 @@ export default function RettskildeDetalj() {
 
   const treVm = useMemo(() => (tre ? tilTreVm(tre, taggAntallPerNode) : []), [tre, taggAntallPerNode]);
   const valgtNode = useMemo(() => (tre && selectedEid ? finnNode(tre, selectedEid) : null), [tre, selectedEid]);
+  // [Ny, punktliste-runden, 2026-09-09, issue #213] Underordnede punkt-noder til den valgte noden.
+  const punkterUnderValgt = useMemo(() => (valgtNode ? underordnedePunkter(valgtNode) : []), [valgtNode]);
 
   // Punkt 2 (rettskildedetalj-fikser, 2026-09-02) — dyplenke via ?eid= skal åpne strukturen rundt
   // treffet, ikke bare velge det. `eidFraUrl` (i motsetning til `selectedEid`) endres KUN ved reell
@@ -1381,6 +1427,36 @@ export default function RettskildeDetalj() {
                     <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
                       Denne noden har ingen egen løpetekst — velg et ledd eller punkt under den for å tagge.
                     </Paragraph>
+                  )}
+
+                  {/* [Ny, punktliste-runden, 2026-09-09, issue #213] Punktlista hører til leddet og
+                    * må vises SAMMEN med det: uten den står «Med personkjøretøy menes» alene, og
+                    * definisjonen mangler. Se Punktliste for hvorfor punktene ikke er taggbare her. */}
+                  {punkterUnderValgt.length > 0 && (
+                    <>
+                      <Punktliste punkter={punkterUnderValgt} onVelgNode={setSelectedEid} />
+                      {/* Listen kan stå MIDT i en setning: merverdiavgiftsforskriften § 1-3-2 andre
+                        * ledd fortsetter etter punktene, og leddteksten over leses da som én
+                        * sammenhengende — og gal — setning. Vi kan ikke rekonstruere flyten (vi vet
+                        * ikke hvor i teksten listen sto), men vi kan si at noe står imellom framfor
+                        * å la leseren tro at setningen er hel. */}
+                      {harTekstEtterListen(valgtNode.tekst, punkterUnderValgt.length) && (
+                        <Paragraph
+                          data-size="sm"
+                          style={{ marginTop: '0.5rem', color: 'var(--ds-color-neutral-text-subtle)' }}
+                        >
+                          Merk: leddets tekst over fortsetter etter punktlista. Rekkefølgen mellom
+                          tekst og punkter er ikke bevart i importen, så les leddet i kilden hvis
+                          setningen henger dårlig sammen.
+                        </Paragraph>
+                      )}
+                      <Paragraph
+                        data-size="sm"
+                        style={{ marginTop: '0.35rem', color: 'var(--ds-color-neutral-text-subtle)' }}
+                      >
+                        {PUNKTMERKE_FORKLARING}
+                      </Paragraph>
+                    </>
                   )}
 
                   {(referertAvTjenesterForNode.length > 0 || referertAvDokumenterForNode.length > 0) && (
