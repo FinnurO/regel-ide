@@ -9,6 +9,8 @@ import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { KandidatflytForklaring } from '../kandidater/KandidatflytForklaring';
+import { useSortering } from '../kandidater/useSortering';
+import { useKandidatvalg } from '../kandidater/useKandidatvalg';
 
 type Sorteringskolonne = 'virksomhet' | 'rettskilde' | 'status' | 'opprettet';
 
@@ -41,7 +43,10 @@ export default function VirksomhetKandidaterListe() {
   const [feil, setFeil] = useState<string | null>(null);
   const [laster, setLaster] = useState(false);
 
-  const [valgte, setValgte] = useState<Set<string>>(new Set());
+  // [ENDRET, kandidatside-runden, 2026-09-09, issue #216] Delt hook. Merk at «alle viste»
+  // NULLSTILLER hele utvalget ved avhukning, mens «velg gruppe» bare rører gruppens egne
+  // rader — den forskjellen er en avgjørelse, og den bor nå ett sted. Se useKandidatvalg.
+  const valg = useKandidatvalg();
   const [massehandlingKjorer, setMassehandlingKjorer] = useState(false);
   const [massehandlingFeil, setMassehandlingFeil] = useState<string | null>(null);
 
@@ -61,8 +66,9 @@ export default function VirksomhetKandidaterListe() {
   const [sveipFeil, setSveipFeil] = useState<string | null>(null);
   const [sveipResultat, setSveipResultat] = useState<{ funnet: number; nye: number } | null>(null);
 
-  const [sortKolonne, setSortKolonne] = useState<Sorteringskolonne>('opprettet');
-  const [sortStigende, setSortStigende] = useState(false);
+  // [ENDRET, kandidatside-runden, 2026-09-09, issue #216] Delt hook — de tre kandidatsidene hadde
+  // hver sin identiske kopi av sorteringstilstanden og de to hjelpefunksjonene.
+  const sortering = useSortering<Sorteringskolonne>('opprettet', false);
 
   useEffect(() => {
     api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
@@ -116,7 +122,7 @@ export default function VirksomhetKandidaterListe() {
       .then((liste) => {
         if (denneForesporselen !== sisteForesporsel.current) return; // en nyere forespørsel er allerede i gang/ferdig
         setKandidater(liste);
-        setValgte(new Set()); // Nytt filter/ny liste — forrige utvalg gjelder ikke lenger.
+        valg.nullstill(); // Nytt filter/ny liste — forrige utvalg gjelder ikke lenger.
       })
       .catch((e) => {
         if (denneForesporselen !== sisteForesporsel.current) return;
@@ -178,27 +184,17 @@ export default function VirksomhetKandidaterListe() {
     }
   }
 
-  function vekslValgt(id: string, valgt: boolean) {
-    setValgte((forrige) => {
-      const ny = new Set(forrige);
-      if (valgt) ny.add(id); else ny.delete(id);
-      return ny;
-    });
-  }
 
   // Merk: "alle viste" betyr alle på GJELDENDE SIDE, ikke hele det filtrerte treffsettet — samme
   // avgrensning som checkbox-etiketten "Velg alle viste" allerede antydet før paginering fantes,
   // nå bare eksplisitt riktig i og med at "viste" er per side.
-  function vekslAlleViste(valgt: boolean) {
-    setValgte(valgt ? new Set(paginering.visteRader.map((k) => k.id)) : new Set());
-  }
 
   async function massehandling(handling: 'godkjenn' | 'avvis') {
-    if (valgte.size === 0) return;
+    if (valg.antall === 0) return;
     setMassehandlingKjorer(true);
     setMassehandlingFeil(null);
     try {
-      const request = { ider: [...valgte] };
+      const request = { ider: [...valg.valgte] };
       const resultat = handling === 'godkjenn'
         ? await api.godkjennVirksomhetKandidaterBatch(request)
         : await api.avvisVirksomhetKandidaterBatch(request);
@@ -238,20 +234,20 @@ export default function VirksomhetKandidaterListe() {
     }
   }
 
-  // «Slett valgte» — samme sted/mønster som Godkjenn/Avvis valgte (massehandling-raden), men kun
-  // 'Avvist'-rader kan faktisk slettes (se state-kommentaren over). Hopper stille over valgte rader
+  // «Slett valg.valgte» — samme sted/mønster som Godkjenn/Avvis valg.valgte (massehandling-raden), men kun
+  // 'Avvist'-rader kan faktisk slettes (se state-kommentaren over). Hopper stille over valg.valgte rader
   // som ikke er avvist i stedet for å feile hele handlingen — bekrefter tydelig i dialogen hvor mange
   // som faktisk slettes vs. hoppes over.
   async function slettValgte() {
-    if (valgte.size === 0) return;
-    const avvisteValgte = (kandidater ?? []).filter((k) => valgte.has(k.id) && k.status === 'Avvist').map((k) => k.id);
-    const hoppetOver = valgte.size - avvisteValgte.length;
+    if (valg.antall === 0) return;
+    const avvisteValgte = (kandidater ?? []).filter((k) => valg.erValgt(k.id) && k.status === 'Avvist').map((k) => k.id);
+    const hoppetOver = valg.antall - avvisteValgte.length;
     if (avvisteValgte.length === 0) {
-      setMassehandlingFeil('Ingen av de valgte radene er avvist — kun avviste kandidater kan slettes her.');
+      setMassehandlingFeil('Ingen av de valg.valgte radene er avvist — kun avviste kandidater kan slettes her.');
       return;
     }
     const advarsel = hoppetOver > 0
-      ? `${avvisteValgte.length} avvist(e) kandidat(er) slettes permanent. ${hoppetOver} valgte rad(er) er ikke avvist og hoppes over. Fortsette?`
+      ? `${avvisteValgte.length} avvist(e) kandidat(er) slettes permanent. ${hoppetOver} valg.valgte rad(er) er ikke avvist og hoppes over. Fortsette?`
       : `Slette ${avvisteValgte.length} avvist(e) kandidat(er) permanent? Dette kan ikke angres.`;
     if (!window.confirm(advarsel)) return;
 
@@ -261,11 +257,11 @@ export default function VirksomhetKandidaterListe() {
       for (const id of avvisteValgte) {
         await api.hardslettVirksomhetKandidat(id);
       }
-      setValgte(new Set());
+      valg.nullstill();
       lastKandidater();
       lastAvvisteKandidater();
     } catch (err) {
-      setMassehandlingFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved sletting av valgte kandidater.');
+      setMassehandlingFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved sletting av valg.valgte kandidater.');
     } finally {
       setMassehandlingKjorer(false);
     }
@@ -292,34 +288,23 @@ export default function VirksomhetKandidaterListe() {
     }
   }
 
-  function bytteSortering(kolonne: Sorteringskolonne) {
-    if (sortKolonne === kolonne) setSortStigende((s) => !s);
-    else {
-      setSortKolonne(kolonne);
-      setSortStigende(true);
-    }
-  }
-  function sorteringsindikator(kolonne: Sorteringskolonne) {
-    if (sortKolonne !== kolonne) return '';
-    return sortStigende ? ' ▲' : ' ▼';
-  }
 
   const viste = useMemo(() => {
     if (!kandidater) return null;
     const sortnokkel = (k: VirksomhetKandidatDto) =>
-      sortKolonne === 'virksomhet'
+      sortering.kolonne === 'virksomhet'
         ? visEier(k.virksomhetId)
-        : sortKolonne === 'rettskilde'
+        : sortering.kolonne === 'rettskilde'
           ? visRettskilde(k.rettskildeId)
-          : sortKolonne === 'status'
+          : sortering.kolonne === 'status'
             ? k.status
             : k.opprettetTidspunkt;
     return [...kandidater].sort((a, b) => {
       const cmp = sortnokkel(a).localeCompare(sortnokkel(b), 'nb');
-      return sortStigende ? cmp : -cmp;
+      return sortering.stigende ? cmp : -cmp;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kandidater, sortKolonne, sortStigende, visEier, rettskilderPerId]);
+  }, [kandidater, sortering.kolonne, sortering.stigende, visEier, rettskilderPerId]);
 
   const paginering = usePaginering(viste ?? []);
 
@@ -410,17 +395,17 @@ export default function VirksomhetKandidaterListe() {
 
       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
         <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0 }}>
-          {valgte.size} valgt{valgte.size === 1 ? '' : 'e'}
+          {valg.antall} valgt{valg.antall === 1 ? '' : 'e'}
           {rettskildeFilter ? ' — filtrert til én lov/forskrift' : ''}
         </Paragraph>
-        <Button data-size="sm" onClick={() => massehandling('godkjenn')} disabled={valgte.size === 0 || massehandlingKjorer}>
-          {massehandlingKjorer ? 'Godkjenner …' : 'Godkjenn valgte'}
+        <Button data-size="sm" onClick={() => massehandling('godkjenn')} disabled={valg.antall === 0 || massehandlingKjorer}>
+          {massehandlingKjorer ? 'Godkjenner …' : 'Godkjenn valg.valgte'}
         </Button>
-        <Button data-size="sm" variant="secondary" onClick={() => massehandling('avvis')} disabled={valgte.size === 0 || massehandlingKjorer}>
-          {massehandlingKjorer ? 'Avviser …' : 'Avvis valgte'}
+        <Button data-size="sm" variant="secondary" onClick={() => massehandling('avvis')} disabled={valg.antall === 0 || massehandlingKjorer}>
+          {massehandlingKjorer ? 'Avviser …' : 'Avvis valg.valgte'}
         </Button>
-        <Button data-size="sm" data-color="danger" onClick={slettValgte} disabled={valgte.size === 0 || massehandlingKjorer}>
-          {massehandlingKjorer ? 'Sletter …' : 'Slett valgte'}
+        <Button data-size="sm" data-color="danger" onClick={slettValgte} disabled={valg.antall === 0 || massehandlingKjorer}>
+          {massehandlingKjorer ? 'Sletter …' : 'Slett valg.valgte'}
         </Button>
       </div>
       {massehandlingFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{massehandlingFeil}</div>}
@@ -430,7 +415,7 @@ export default function VirksomhetKandidaterListe() {
           Slett avviste kandidater
         </Heading>
         <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
-          «Slett valgte» over sletter et PRESIST utvalg (kun avviste blant de markerte radene). Dette
+          «Slett valg.valgte» over sletter et PRESIST utvalg (kun avviste blant de markerte radene). Dette
           kortet er for STOR, filterbasert sletting: ekte, irreversibel sletting av ALLE 'Avvist'-
           kandidater innenfor virksomhet-/rettskildefilteret — nyttig for å tømme køen før et nytt sveip
           (den posisjonsbaserte idempotensen hindrer ellers et nytt sveip i noensinne å re-evaluere en
@@ -462,25 +447,25 @@ export default function VirksomhetKandidaterListe() {
                   <Table.HeaderCell>
                     <Checkbox
                       aria-label="Velg alle viste"
-                      checked={paginering.visteRader.length > 0 && paginering.visteRader.every((k) => valgte.has(k.id))}
-                      onChange={(e) => vekslAlleViste(e.target.checked)}
+                      checked={paginering.visteRader.length > 0 && paginering.visteRader.every((k) => valg.erValgt(k.id))}
+                      onChange={(e) => valg.velgAlleViste(paginering.visteRader, e.target.checked)}
                     />
                   </Table.HeaderCell>
                   <Table.HeaderCell>
-                    <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('virksomhet')}>
-                      Virksomhet{sorteringsindikator('virksomhet')}
+                    <button type="button" className="tabell-sorter-knapp" onClick={() => sortering.bytt('virksomhet')}>
+                      Virksomhet{sortering.indikator('virksomhet')}
                     </button>
                   </Table.HeaderCell>
                   <Table.HeaderCell>
-                    <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('rettskilde')}>
-                      Lov/forskrift{sorteringsindikator('rettskilde')}
+                    <button type="button" className="tabell-sorter-knapp" onClick={() => sortering.bytt('rettskilde')}>
+                      Lov/forskrift{sortering.indikator('rettskilde')}
                     </button>
                   </Table.HeaderCell>
                   <Table.HeaderCell>Node</Table.HeaderCell>
                   <Table.HeaderCell>Navneform funnet</Table.HeaderCell>
                   <Table.HeaderCell>
-                    <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('status')}>
-                      Status{sorteringsindikator('status')}
+                    <button type="button" className="tabell-sorter-knapp" onClick={() => sortering.bytt('status')}>
+                      Status{sortering.indikator('status')}
                     </button>
                   </Table.HeaderCell>
                   <Table.HeaderCell>Handling</Table.HeaderCell>
@@ -492,8 +477,8 @@ export default function VirksomhetKandidaterListe() {
                     <Table.Cell>
                       <Checkbox
                         aria-label={`Velg kandidat ${k.id}`}
-                        checked={valgte.has(k.id)}
-                        onChange={(e) => vekslValgt(k.id, e.target.checked)}
+                        checked={valg.erValgt(k.id)}
+                        onChange={(e) => valg.veksl(k.id, e.target.checked)}
                       />
                     </Table.Cell>
                     <Table.Cell>{visEier(k.virksomhetId)}</Table.Cell>

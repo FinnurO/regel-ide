@@ -9,6 +9,7 @@ import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
+import { useSortering } from '../kandidater/useSortering';
 
 type Sorteringskolonne = 'begrep' | 'monster' | 'rettskilde' | 'status' | 'opprettet';
 
@@ -105,8 +106,9 @@ export default function Begrepskandidater() {
   const [rettskildeDetaljerPerId, setRettskildeDetaljerPerId] = useState<Map<string, RettskildeDetalj>>(new Map());
   const sisteRettskildeDetaljForesporsel = useRef(0);
 
-  const [sortKolonne, setSortKolonne] = useState<Sorteringskolonne>('opprettet');
-  const [sortStigende, setSortStigende] = useState(false);
+  // [ENDRET, kandidatside-runden, 2026-09-09, issue #216] Delt hook — de tre kandidatsidene hadde
+  // hver sin identiske kopi av sorteringstilstanden og de to hjelpefunksjonene.
+  const sortering = useSortering<Sorteringskolonne>('opprettet', false);
 
   useEffect(() => {
     api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
@@ -255,17 +257,6 @@ export default function Begrepskandidater() {
     }
   }
 
-  function bytteSortering(kolonne: Sorteringskolonne) {
-    if (sortKolonne === kolonne) setSortStigende((s) => !s);
-    else {
-      setSortKolonne(kolonne);
-      setSortStigende(true);
-    }
-  }
-  function sorteringsindikator(kolonne: Sorteringskolonne) {
-    if (sortKolonne !== kolonne) return '';
-    return sortStigende ? ' ▲' : ' ▼';
-  }
 
   function vekslUtvidet(id: string) {
     setUtvidet((forrige) => {
@@ -278,21 +269,21 @@ export default function Begrepskandidater() {
   const viste = useMemo(() => {
     if (!forekomster) return null;
     const sortnokkel = (f: BegrepsforekomstDto) =>
-      sortKolonne === 'begrep'
+      sortering.kolonne === 'begrep'
         ? f.begrep
-        : sortKolonne === 'monster'
+        : sortering.kolonne === 'monster'
           ? f.monsterId
-          : sortKolonne === 'rettskilde'
+          : sortering.kolonne === 'rettskilde'
             ? visRettskilde(f.rettskildeId)
-            : sortKolonne === 'status'
+            : sortering.kolonne === 'status'
               ? f.status
               : f.opprettetTidspunkt;
     return [...forekomster].sort((a, b) => {
       const cmp = sortnokkel(a).localeCompare(sortnokkel(b), 'nb');
-      return sortStigende ? cmp : -cmp;
+      return sortering.stigende ? cmp : -cmp;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [forekomster, sortKolonne, sortStigende, rettskilderPerId]);
+  }, [forekomster, sortering.kolonne, sortering.stigende, rettskilderPerId]);
 
   const paginering = usePaginering(viste ?? []);
 
@@ -406,25 +397,25 @@ export default function Begrepskandidater() {
               <Table.Head>
                 <Table.Row>
                   <Table.HeaderCell>
-                    <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('begrep')}>
-                      Begrep{sorteringsindikator('begrep')}
+                    <button type="button" className="tabell-sorter-knapp" onClick={() => sortering.bytt('begrep')}>
+                      Begrep{sortering.indikator('begrep')}
                     </button>
                   </Table.HeaderCell>
                   <Table.HeaderCell>Definisjon</Table.HeaderCell>
                   <Table.HeaderCell>
-                    <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('monster')}>
-                      Mønster{sorteringsindikator('monster')}
+                    <button type="button" className="tabell-sorter-knapp" onClick={() => sortering.bytt('monster')}>
+                      Mønster{sortering.indikator('monster')}
                     </button>
                   </Table.HeaderCell>
                   <Table.HeaderCell>Konfidens</Table.HeaderCell>
                   <Table.HeaderCell>
-                    <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('rettskilde')}>
-                      Rettskilde{sorteringsindikator('rettskilde')}
+                    <button type="button" className="tabell-sorter-knapp" onClick={() => sortering.bytt('rettskilde')}>
+                      Rettskilde{sortering.indikator('rettskilde')}
                     </button>
                   </Table.HeaderCell>
                   <Table.HeaderCell>
-                    <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('status')}>
-                      Status{sorteringsindikator('status')}
+                    <button type="button" className="tabell-sorter-knapp" onClick={() => sortering.bytt('status')}>
+                      Status{sortering.indikator('status')}
                     </button>
                   </Table.HeaderCell>
                   <Table.HeaderCell>Handling</Table.HeaderCell>
