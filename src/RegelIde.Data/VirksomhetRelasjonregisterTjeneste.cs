@@ -16,6 +16,22 @@ public sealed record VirksomhetRelasjonVisning(
     Guid? HjemmelRettskildeId, string? HjemmelEid, string? Kommentar);
 
 /// <summary>
+/// [Ny, nemnd/sekretariat-runden, 2026-09-09] Én relasjon sett fra RETTSKILDENS ståsted i stedet for
+/// fra en virksomhets. Her finnes ingen «motpart» og ingen retning å velge mellom: begge partene er
+/// like relevante, og <see cref="Visningstekst"/> er derfor alltid Fra-malen («Konkurransetilsynet
+/// har klageinstans hos Konkurranseklagenemnda»).
+/// <para>
+/// Hvorfor dette trengs: relasjonene var bare synlige fra virksomhetssiden. Spørsmålet «hvem forvalter
+/// denne loven, og i hvilken egenskap» (docs/32 §3 S1/S2) stilles like ofte fra loven — og en hjemmel
+/// som ikke kan leses tilbake fra bestemmelsen den står i, er ikke etterprøvbar i praksis.
+/// </para>
+/// </summary>
+public sealed record VirksomhetRelasjonHjemletVisning(
+    Guid Id, string RelasjonsType, string Visningstekst,
+    Guid FraVirksomhetId, string FraNavn, Guid TilVirksomhetId, string TilNavn,
+    string? HjemmelEid, string? Kommentar);
+
+/// <summary>
 /// Register for <see cref="VirksomhetRelasjonEntitet"/> (docs/28/docs/29 §Del C) — navngitte relasjoner
 /// mellom to BESTEMTE, konkrete virksomheter (til forskjell fra gruppe-mekanismen i docs/29 §Del A, som
 /// dekker en generisk term realisert av mange virksomheter). Modellert på
@@ -33,30 +49,7 @@ public sealed class VirksomhetRelasjonregisterTjeneste(RegelIdeDbContext db)
             .ToListAsync(ct);
         if (rader.Count == 0) return [];
 
-        var motpartIder = rader.SelectMany(r => new[] { r.FraVirksomhetId, r.TilVirksomhetId }).Distinct().ToList();
-        var navn = await db.Virksomheter.Where(v => motpartIder.Contains(v.Id)).ToDictionaryAsync(v => v.Id, v => v.Navn, ct);
-
-        // [ENDRET, registernavn-runden, 2026-09-08] Motpartens navn flettes inn i en VISNINGSMAL
-        // («… er underlagt {0}»), så det må være den lesbare formen — ikke registerets VERSAL-form.
-        // Slås opp her i stedet for via VirksomhetVisningsnavnTjeneste for å unngå en ny avhengighet
-        // i konstruktøren: spørringen er den samme, avgrenset til motpartene vi alt har id-ene til.
-        var visningsnavn = await db.Begreper
-            .Where(b => b.Begrepskategori == "virksomhet"
-                        && b.Navneformgrunn == VirksomhetVisningsnavnTjeneste.VisningsGrunn
-                        && b.Entitetsstatus == "gjeldende"
-                        && b.VirksomhetReferanseId != null
-                        && motpartIder.Contains(b.VirksomhetReferanseId.Value))
-            .Select(b => new { VirksomhetId = b.VirksomhetReferanseId!.Value, b.Term })
-            .ToListAsync(ct);
-        foreach (var g in visningsnavn.GroupBy(x => x.VirksomhetId))
-        {
-            navn[g.Key] = g.Select(x => x.Term).OrderBy(t => t, StringComparer.Ordinal).First();
-        }
-
-        var typeKoder = rader.Select(r => r.RelasjonsType).Distinct().ToList();
-        var typer = await db.RelasjonsTypeKonfigurasjoner
-            .Where(k => typeKoder.Contains(k.Kode))
-            .ToDictionaryAsync(k => k.Kode, k => k, ct);
+        var (navn, typer) = await NavnOgTyperAsync(rader, ct);
 
         return rader.Select(r =>
         {
@@ -71,6 +64,74 @@ public sealed class VirksomhetRelasjonregisterTjeneste(RegelIdeDbContext db)
                 r.Id, r.RelasjonsType, erFra ? "fra" : "til", visningstekst,
                 motpartId, motpartNavn, r.HjemmelRettskildeId, r.HjemmelEid, r.Kommentar);
         }).ToList();
+    }
+
+    /// <summary>
+    /// [Ny, nemnd/sekretariat-runden, 2026-09-09] Relasjonene som er HJEMLET i én rettskilde. Svarer
+    /// docs/32 §3 S1/S2 fra lovens side: hvilke organrelasjoner gir denne loven?
+    /// <para>
+    /// Bare rader med <c>HjemmelRettskildeId</c> satt kan treffe — en relasjon som bare har
+    /// <c>Kommentar</c> (org-kart som kilde, ingen hjemmel) hører per definisjon ikke til noen
+    /// rettskilde, og skal ikke dukke opp her. Det er hele poenget med skillet.
+    /// </para>
+    /// </summary>
+    public async Task<List<VirksomhetRelasjonHjemletVisning>> HentForHjemmelRettskildeAsync(
+        Guid rettskildeId, CancellationToken ct = default)
+    {
+        var rader = await db.VirksomhetRelasjoner
+            .Where(r => r.Entitetsstatus == "gjeldende" && r.HjemmelRettskildeId == rettskildeId)
+            .ToListAsync(ct);
+        if (rader.Count == 0) return [];
+
+        var (navn, typer) = await NavnOgTyperAsync(rader, ct);
+        return rader.Select(r =>
+        {
+            var fraNavn = navn.GetValueOrDefault(r.FraVirksomhetId, "(ukjent virksomhet)");
+            var tilNavn = navn.GetValueOrDefault(r.TilVirksomhetId, "(ukjent virksomhet)");
+            var mal = typer.TryGetValue(r.RelasjonsType, out var type)
+                ? type.FraVisningsmal
+                : "(ukjent relasjonstype) {0}";
+            return new VirksomhetRelasjonHjemletVisning(
+                r.Id, r.RelasjonsType, $"{fraNavn} {string.Format(mal, tilNavn)}",
+                r.FraVirksomhetId, fraNavn, r.TilVirksomhetId, tilNavn, r.HjemmelEid, r.Kommentar);
+        })
+        .OrderBy(v => v.Visningstekst, StringComparer.Ordinal)
+        .ToList();
+    }
+
+    /// <summary>
+    /// Lesbare navn for alle virksomheter som er nevnt i <paramref name="rader"/>, pluss
+    /// visningsmalene for relasjonstypene de bruker.
+    /// <para>
+    /// [ENDRET, registernavn-runden, 2026-09-08] Navnet flettes inn i en VISNINGSMAL («… er underlagt
+    /// {0}»), så det må være den lesbare formen — ikke registerets VERSAL-form. Slås opp her i stedet
+    /// for via <see cref="VirksomhetVisningsnavnTjeneste"/> for å unngå en ny avhengighet i
+    /// konstruktøren: spørringen er den samme, avgrenset til id-ene vi alt har.
+    /// </para>
+    /// </summary>
+    private async Task<(Dictionary<Guid, string> Navn, Dictionary<string, RelasjonsTypeKonfigurasjonEntitet> Typer)>
+        NavnOgTyperAsync(List<VirksomhetRelasjonEntitet> rader, CancellationToken ct)
+    {
+        var ider = rader.SelectMany(r => new[] { r.FraVirksomhetId, r.TilVirksomhetId }).Distinct().ToList();
+        var navn = await db.Virksomheter.Where(v => ider.Contains(v.Id)).ToDictionaryAsync(v => v.Id, v => v.Navn, ct);
+        var visningsnavn = await db.Begreper
+            .Where(b => b.Begrepskategori == "virksomhet"
+                        && b.Navneformgrunn == VirksomhetVisningsnavnTjeneste.VisningsGrunn
+                        && b.Entitetsstatus == "gjeldende"
+                        && b.VirksomhetReferanseId != null
+                        && ider.Contains(b.VirksomhetReferanseId.Value))
+            .Select(b => new { VirksomhetId = b.VirksomhetReferanseId!.Value, b.Term })
+            .ToListAsync(ct);
+        foreach (var g in visningsnavn.GroupBy(x => x.VirksomhetId))
+        {
+            navn[g.Key] = g.Select(x => x.Term).OrderBy(t => t, StringComparer.Ordinal).First();
+        }
+
+        var typeKoder = rader.Select(r => r.RelasjonsType).Distinct().ToList();
+        var typer = await db.RelasjonsTypeKonfigurasjoner
+            .Where(k => typeKoder.Contains(k.Kode))
+            .ToDictionaryAsync(k => k.Kode, k => k, ct);
+        return (navn, typer);
     }
 
     /// <summary>

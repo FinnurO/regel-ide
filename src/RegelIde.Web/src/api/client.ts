@@ -133,7 +133,7 @@ import type {
   NavnekandidatBatchResultatDto,
   NavnekandidatSlettBatchResultatDto,
   SlettNavnekandidaterResultatDto,
-  VisningsinnstillingInput,
+  VisningsinnstillingInput, VirksomhetRelasjonHjemletDto,
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5187';
@@ -932,6 +932,10 @@ export const api = {
 
   hentVirksomhetRelasjoner: (virksomhetId: string) =>
     kall<VirksomhetRelasjonDto[]>(`/api/virksomheter/${virksomhetId}/relasjoner`),
+  /** [Ny, nemnd/sekretariat-runden, 2026-09-09] Motstykket sett fra rettskilden: hvilke
+   * virksomhetsrelasjoner er hjemlet HER. Relasjoner uten hjemmel er ikke med. */
+  hentVirksomhetsrelasjonerForRettskilde: (rettskildeId: string) =>
+    kall<VirksomhetRelasjonHjemletDto[]>(`/api/rettskilder/${rettskildeId}/virksomhetsrelasjoner`),
 
   opprettVirksomhetRelasjon: (virksomhetId: string, request: VirksomhetRelasjonRequest) =>
     kall<VirksomhetRelasjonDto[]>(`/api/virksomheter/${virksomhetId}/relasjoner`, {

@@ -1009,6 +1009,18 @@ rettskilder.MapGet("/{id:guid}/endringer", async (Guid id, RettskildeRepository 
         "(rettskildedetalj-fikser, 2026-09-02) — hvilke(t) andre dokument(er) DENNE rettskilden endrer. " +
         "Tom liste for enhver rettskilde uten feltet.");
 
+// [Ny, nemnd/sekretariat-runden, 2026-09-09] Motstykket til
+// GET /api/virksomheter/{id}/relasjoner: hvilke virksomhetsrelasjoner er HJEMLET i denne rettskilden.
+// Uten dette var en hjemmel bare synlig fra virksomhetssiden, og docs/32 §3 S1 («hvem forvalter loven,
+// og i hvilken egenskap») kunne ikke stilles fra bestemmelsen den står i.
+rettskilder.MapGet("/{id:guid}/virksomhetsrelasjoner", async (Guid id, VirksomhetRelasjonregisterTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.HentForHjemmelRettskildeAsync(id, ct)).Select(VirksomhetRelasjonHjemletDto.FraVisning)))
+    .WithOpenApi()
+    .WithName("HentVirksomhetsrelasjonerHjemletIRettskilde")
+    .WithSummary("Relasjoner mellom virksomheter (sekretariat, klageinstans, underlagt) som denne " +
+        "rettskilden er oppgitt som hjemmel for. Relasjoner uten hjemmel (kun kommentar) er ikke med — " +
+        "de hører per definisjon ikke til noen rettskilde.");
+
 rettskilder.MapGet("/{id:guid}/referert-av-tjenester", async (Guid id, RettskildeRepository repo) =>
         Results.Ok(await repo.ReferertAvTjenesterAsync(id)))
     .WithName("HentRettskildeReferertAvTjenester")

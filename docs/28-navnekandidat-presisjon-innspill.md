@@ -112,14 +112,39 @@ Sentral klagenemnd   --underlagt-->      Landbruks- og matdepartementet         
 (Om de lokale merkenemndene selv er «underlagt» departementet direkte eller Statsforvalteren, er
 ikke avklart — reelt åpent spørsmål som krever oppslag per nemnd, ikke noe modellen kan utlede.)
 
-### Konkret, ikke rettet ennå
+### Konkret — status etter nemnd/sekretariat-runden (2026-09-09)
 
-De 6 feilkoblede klagenemndene (Konkurranseklagenemnda, Medieklagenemnda, Stiftelsesklagenemnda,
-Energiklagenemnda, Finanstilsynsklagenemnda, Klagenemnda for godkjenning av utenlandsk utdanning)
-mangler fortsatt sin KNS-kobling i databasen, og 2 nemnder fra org-kartet
-(Frivillighetsregisternemnda, Lotterinemnda) finnes ikke i katalogen i det hele tatt. Selve
-UI-bugen (nullstiller «Del av virksomhet» etter hver opprettelse) er heller ikke rettet. Alt dette
-venter på eksplisitt "gjør det nå" fra Johann, samme som resten av dette dokumentet.
+**Gjort.** Fire nemnder har nå sin KNS-kobling, opprettet med hjemmel der loven faktisk har en
+sekretariatsbestemmelse — og bevisst UTEN hjemmel der den ikke har det:
+
+| Nemnd | `sekretariat`-hjemmel | Verifisert tekst |
+|---|---|---|
+| Konkurranseklagenemnda | konkurranseloven § 36 sjette ledd | «Konkurranseklagenemndas sekretariat skal utføre de oppgavene som lederen pålegger …» |
+| Energiklagenemnda | forskrift om Energiklagenemnda § 2 femte ledd | «Energiklagenemndas sekretariat skal utføre de oppgavene som lederen pålegger …» |
+| Stiftelsesklagenemnda | stiftelsesloven § 7 a tredje ledd | «Stiftelsesklagenemnda skal ha et sekretariat som foretar saksforberedelse.» |
+| Klagenemnd for godkjenning av utenlandsk utdanning og yrkesgodkjenning | **ingen** | forskrift om enkelte klagenemnder på Kunnskapsdepartementets område kap. 3 §§ 6–9 regulerer bare oppgaver, oppnevning, vedtaksførhet og delegering |
+
+Den siste raden er poenget, ikke et hull: at KNS er sekretariat der er bekreftet mot
+organisasjonskartet på klagenemndssekretariatet.no, ikke mot en rettskilde. Den ligger derfor inne
+med `Kommentar` og uten `HjemmelRettskildeId`, og vises med en «Ingen hjemmel»-merkelapp. En
+gjettet paragraf hadde vært den samme feilen som resten av dette dokumentet advarer mot.
+
+I tillegg er to `klageinstans`-relasjoner opprettet, begge hjemlet: Konkurransetilsynet →
+Konkurranseklagenemnda (konkurranseloven § 35 første ledd) og Energiklagenemnda →
+Energidepartementet (forskrift om Energiklagenemnda § 1 andre ledd).
+
+Navneformene «Konkurranseklagenemnda», «Konkurransetilsynet», «Energiklagenemnda»,
+«Stiftelsesklagenemnda» og «Klagenemnd for godkjenning av utenlandsk utdanning og yrkesgodkjenning»
+er tagget i bestemmelsene de står i. Merk den siste: LOVEN skriver «Klagenemnd», registeret
+«Klagenemnda». Navneformen følger loven, og er derfor også det UI-et viser.
+
+**Ikke gjort ennå.** Medieklagenemnda, Finanstilsynsklagenemnda, Lotterinemnda og
+Frivillighetsregisternemnda mangler fortsatt KNS-koblingen (de tre siste finnes nå i katalogen, i
+motsetning til da dette ble skrevet). `underlagt`-relasjoner er bevisst IKKE opprettet for noen av
+nemndene: flere av dem er eksplisitt uavhengige i egen hjemmel (f.eks. forskrift om
+Energiklagenemnda § 1 tredje ledd), og «oppnevnes av departementet» er ikke det samme som
+«underlagt». Selve UI-bugen (nullstiller «Del av virksomhet» etter hver opprettelse) er heller ikke
+rettet.
 
 ## Observert utgangspunkt
 

@@ -146,6 +146,101 @@ public class VirksomhetRelasjonregisterTjenesteTests
         Assert.Equal(merkenemnd, visningTil.MotpartVirksomhetId);
     }
 
+    private static async Task<Guid> NyRettskildeAsync(RegelIdeDbContext db, string tittel)
+    {
+        var id = Guid.NewGuid();
+        db.Rettskilder.Add(new RettskildeEntitet
+        {
+            Id = id, Doctype = "doc", Kildetype = "Lov", Status = "Gjeldende", Importrolle = "referanse",
+            Tittel = $"{tittel}-{id:N}", OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        await db.SaveChangesAsync();
+        return id;
+    }
+
+    /// <summary>
+    /// [Ny, nemnd/sekretariat-runden, 2026-09-09] Lovens side av relasjonen: nemnd-/sekretariat-caset
+    /// (konkurranseloven § 36 sjette ledd) skal kunne leses tilbake FRA bestemmelsen, ikke bare fra
+    /// virksomheten — docs/32 §3 S1/S2.
+    /// </summary>
+    [Fact]
+    public async Task Henter_relasjoner_hjemlet_i_en_rettskilde_med_begge_parter_navngitt()
+    {
+        await using var db = _fixture.NyDbContext();
+        var (nemnd, nemndNavn) = await NyVirksomhetMedNavnAsync(db, "Konkurranseklagenemnda");
+        var (kns, knsNavn) = await NyVirksomhetMedNavnAsync(db, "Klagenemndssekretariatet");
+        var type = await NyRelasjonsTypeAsync(db, fraMal: "har sekretariat hos {0}", tilMal: "er sekretariat for {0}");
+        var lov = await NyRettskildeAsync(db, "Konkurranseloven");
+        var eid = "https://lovdata.no/eli/lov/2004/03/05/12/nor/§36/ledd-6";
+
+        var register = new VirksomhetRelasjonregisterTjeneste(db);
+        await register.OpprettAsync(nemnd, kns, type, lov, eid, null, "Kari Jurist");
+
+        var hjemlet = await register.HentForHjemmelRettskildeAsync(lov);
+
+        var rad = Assert.Single(hjemlet);
+        // Fra-malen brukes ALLTID fra lovens ståsted — det finnes ingen «motpart» her å velge retning ut fra.
+        Assert.Equal($"{nemndNavn} har sekretariat hos {knsNavn}", rad.Visningstekst);
+        Assert.Equal(nemnd, rad.FraVirksomhetId);
+        Assert.Equal(nemndNavn, rad.FraNavn);
+        Assert.Equal(kns, rad.TilVirksomhetId);
+        Assert.Equal(knsNavn, rad.TilNavn);
+        Assert.Equal(eid, rad.HjemmelEid);
+    }
+
+    /// <summary>
+    /// Kontrasten som gjør skillet verdt noe: KNS er sekretariat for Klagenemnda for godkjenning av
+    /// utenlandsk utdanning, men INGEN bestemmelse sier det — bare organisasjonskartet. En slik relasjon
+    /// hører per definisjon ikke til noen rettskilde, og skal ikke kunne dukke opp under en lov.
+    /// </summary>
+    [Fact]
+    public async Task Relasjon_uten_hjemmel_dukker_ikke_opp_under_noen_rettskilde()
+    {
+        await using var db = _fixture.NyDbContext();
+        var nemnd = await NyVirksomhetAsync(db, "Klagenemnda");
+        var kns = await NyVirksomhetAsync(db, "Klagenemndssekretariatet");
+        var type = await NyRelasjonsTypeAsync(db, fraMal: "har sekretariat hos {0}", tilMal: "er sekretariat for {0}");
+        var lov = await NyRettskildeAsync(db, "Forskrift om enkelte klagenemnder");
+
+        var register = new VirksomhetRelasjonregisterTjeneste(db);
+        await register.OpprettAsync(nemnd, kns, type, null, null, "Bekreftet mot organisasjonskartet, ikke mot rettskilde.", "Kari Jurist");
+
+        Assert.Empty(await register.HentForHjemmelRettskildeAsync(lov));
+        // …men relasjonen finnes fortsatt, sett fra virksomheten.
+        Assert.Single(await register.HentForVirksomhetAsync(nemnd));
+    }
+
+    /// <summary>
+    /// Navneformen («Klagenemnd for godkjenning …», slik LOVEN skriver den) skal vinne over registerets
+    /// VERSAL-form også fra lovens side — samme regel som visningen fra virksomhetssiden alt følger.
+    /// Johann 2026-09-08: «Virksomhet, org.nummer og brreg er strengt tatt bare attributter på det som
+    /// er definert av lov.»
+    /// </summary>
+    [Fact]
+    public async Task Bruker_navneformen_ikke_registernavnet_i_visningsteksten()
+    {
+        await using var db = _fixture.NyDbContext();
+        var fra = await NyVirksomhetAsync(db, "KONKURRANSEKLAGENEMNDA");
+        var (til, _) = await NyVirksomhetMedNavnAsync(db, "KLAGENEMNDSSEKRETARIATET (KNS)");
+        var navneform = $"Klagenemndssekretariatet-{Guid.NewGuid():N}";
+        db.Begreper.Add(new BegrepEntitet
+        {
+            Id = Guid.NewGuid(), Term = navneform, Begrepskategori = "virksomhet", Status = "gjeldende",
+            VirksomhetReferanseId = til, Navneformgrunn = VirksomhetVisningsnavnTjeneste.VisningsGrunn,
+            Entitetsstatus = "gjeldende", OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        await db.SaveChangesAsync();
+        var type = await NyRelasjonsTypeAsync(db, fraMal: "har sekretariat hos {0}", tilMal: "er sekretariat for {0}");
+        var lov = await NyRettskildeAsync(db, "Konkurranseloven");
+
+        var register = new VirksomhetRelasjonregisterTjeneste(db);
+        await register.OpprettAsync(fra, til, type, lov, "https://lovdata.no/eli/lov/2004/03/05/12/nor/§36/ledd-6", null, "Kari Jurist");
+
+        var rad = Assert.Single(await register.HentForHjemmelRettskildeAsync(lov));
+        Assert.Equal(navneform, rad.TilNavn);
+        Assert.DoesNotContain("KLAGENEMNDSSEKRETARIATET", rad.Visningstekst);
+    }
+
     [Fact]
     public async Task Sletter_relasjon()
     {

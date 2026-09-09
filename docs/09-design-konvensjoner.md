@@ -588,3 +588,37 @@ er rene funksjoner (`lagvalg.ts`, `navneformKjede.ts`), ikke rendret DOM. Regele
 er verdt å ta med videre — **er en regel viktig nok å teste, skal den bo i en ren modul uten
 React-avhengigheter**, slik at testen ikke krever et rendringsoppsett. `tsc -b --noEmit` dekker
 `*.test.ts` også, siden de ligger under `src`.
+
+## 18. Hjemmel i en tabellrad: paragrafen, ikke eId-en (2026-09-09, nemnd/sekretariat-runden)
+
+**En hjemmel vises som BESTEMMELSEN den er, med lenke til noden.** «§ 36 sjette ledd» — ikke en rå
+`https://lovdata.no/eli/lov/2004/03/05/12/nor/§36/ledd-6`, som var det relasjonstabellen på
+`VirksomhetDetalj` viste før. Rettskildens navn tas med når raden IKKE alt står under den
+rettskilden (relasjonene på én virksomhet peker på ulike lover), og utelates når man alt er på lovens
+egen side.
+
+**Paragrafnummeret hentes ALLTID via `src/rettskilde/paragrafEtikett.ts`, aldri fra nodens eget
+`nummer`.** Hjemler peker på LEDD, og et ledds `nummer` er leddnummeret: en tagg i konkurranseloven
+§ 35 første ledd ble vist som «§ 1», og en hjemmel i § 36 sjette ledd som «§ 6». Feil paragraf er
+verre enn en rå eId — den ser riktig ut. Hjelperen klatrer opp til paragrafnoden via `parentNodeId`,
+og håndterer at Lovdata-importen legger «§» inn i paragrafnodens nummer men ikke i leddets (rå
+strengbygging ga «§ § 36»). Den returnerer `undefined` når nodene ikke er hentet — kalleren viser rå
+eId, ingen gjettet etikett. Ti tester i `paragrafEtikett.test.ts` låser dette, inkludert
+sirkulær-forelder og manglende paragrafnode.
+
+**«Ingen hjemmel» er en egen, synlig tilstand**, ikke en tom celle: `Tag` med `warning` pluss
+kommentaren som sier hvor opplysningen kommer fra i stedet. Et forhold som bare er bekreftet mot et
+organisasjonskart skal ikke kunne forveksles med et som står i en bestemmelse — det er samme skille
+som `NavneformgrunnTag` håndhever for navneformer (§15).
+
+**Relasjoner leses fra BEGGE sider.** «Organrelasjoner hjemlet her» ligger øverst i
+`RettskildeDetalj`s Relasjoner-fane, før dokument-til-dokument-gruppene, fordi det er svaret på
+«hvem forvalter loven, og i hvilken egenskap» (docs/32 §3 S1/S2). En hjemmel som bare er synlig fra
+virksomhetssiden er ikke etterprøvbar fra bestemmelsen den står i. Fra lovens ståsted brukes ALLTID
+Fra-malen («X har sekretariat hos Y») — det finnes ingen «motpart» å velge retning ut fra der.
+
+**Motpartens navn lenkes der det alt står i visningsteksten**
+(`src/virksomhet/RelasjonstekstMedLenke.tsx`). Malen fra `RelasjonsTypeKonfigurasjon` inneholder
+navnet, så en påhengt «({navn})»-lenke ga «er sekretariat for Konkurranseklagenemnda
+(Konkurranseklagenemnda)».
+

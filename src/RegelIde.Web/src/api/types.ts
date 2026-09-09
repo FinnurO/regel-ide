@@ -1751,3 +1751,18 @@ export interface VisningsinnstillingInput {
   /** Åpen/lukket per fast accordion-nøkkel. */
   accordionApne: Record<string, boolean>;
 }
+
+/** [Ny, nemnd/sekretariat-runden, 2026-09-09] Én virksomhetsrelasjon hjemlet i én rettskilde —
+ * GET /api/rettskilder/{id}/virksomhetsrelasjoner. `visningstekst` er ferdig satt sammen fra
+ * relasjonstypens Fra-mal («Konkurransetilsynet har klageinstans hos Konkurranseklagenemnda»). */
+export interface VirksomhetRelasjonHjemletDto {
+  id: string;
+  relasjonsType: string;
+  visningstekst: string;
+  fraVirksomhetId: string;
+  fraNavn: string;
+  tilVirksomhetId: string;
+  tilNavn: string;
+  hjemmelEid: string | null;
+  kommentar: string | null;
+}

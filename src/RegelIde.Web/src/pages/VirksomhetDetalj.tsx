@@ -6,6 +6,8 @@ import type { KodelisteDto, MyndighetstildelingDto, Navneformgrunn, RettskildeNo
 import { NavneformgrunnTag, NavneformgrunnVelger } from '../virksomhet/Navneformgrunn';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { LeggTilMyndighetstildelingForm } from '../virksomhet/LeggTilMyndighetstildelingForm';
+import { RelasjonstekstMedLenke } from '../virksomhet/RelasjonstekstMedLenke';
+import { paragrafEtikett } from '../rettskilde/paragrafEtikett';
 import { LeggTilVirksomhetRelasjonForm } from '../virksomhet/LeggTilVirksomhetRelasjonForm';
 
 /** [Ny, issue #157] Rad-etiketter for bekreftelsesdialogen — KUN de feltene som faktisk kan være > 0
@@ -83,12 +85,33 @@ export default function VirksomhetDetalj() {
       .then((noder) => setNoderPerRettskilde((forrige) => new Map(forrige).set(rettskildeId, noder)))
       .catch(() => {}); // ingen gjettet fallback — viser rå eId når nodene ikke lot seg hente
   }
+  // [ENDRET, nemnd/sekretariat-runden, 2026-09-09] Går via `paragrafEtikett`, som klatrer opp til
+  // PARAGRAFEN. To feil ble rettet med det: en eId som peker på et ledd viste leddnummeret som
+  // paragraf («§ 1» for en tagg i konkurranseloven § 35 første ledd), og en eId som peker på
+  // paragrafnoden selv ga «§ § 36», siden Lovdata-importen alt har «§» i paragrafnodens nummer.
   function visNodeKort(rettskildeId: string, eid: string): string {
-    const node = noderPerRettskilde.get(rettskildeId)?.find((n) => n.eid === eid);
+    const noder = noderPerRettskilde.get(rettskildeId);
+    const node = noder?.find((n) => n.eid === eid);
     if (!node) return eid;
     if (node.nodeType === 'side') return 'Hele siden';
-    const paragraf = node.nummer ? `§ ${node.nummer}` : eid;
-    return node.overskrift ? `${paragraf} — ${node.overskrift}` : paragraf;
+    const etikett = paragrafEtikett(noder, eid);
+    if (etikett) return etikett.overskrift ? `${etikett.tekst} — ${etikett.overskrift}` : etikett.tekst;
+    return node.nummer ?? eid;
+  }
+
+  // [Ny, nemnd/sekretariat-runden, 2026-09-09] Etikett for en relasjonshjemmel:
+  // «Konkurranseloven – krrl § 36 sjette ledd». Rettskildenavnet må med fordi relasjonene på ÉN
+  // virksomhet peker på ULIKE lover — til forskjell fra tildelingstabellen, der rettskilden står i
+  // egen kolonne og `visNodeKort` derfor holder. Selve paragrafdelen kommer fra den delte
+  // `paragrafEtikett` (som klatrer opp fra leddnoden), ikke fra `visNodeKort`.
+  function hjemmelEtikett(rettskildeId: string, eid: string | null): { tekst: string; tittel?: string } {
+    const kilde = rettskilder.find((k) => k.id === rettskildeId);
+    const kildenavn = kilde?.kortnavn ?? kilde?.tittel ?? 'Rettskilde';
+    if (!eid) return { tekst: kildenavn };
+    const etikett = paragrafEtikett(noderPerRettskilde.get(rettskildeId), eid);
+    // Ikke hentet ennå, eller ukjent eId: rå eId-hale, ingen gjettet paragrafetikett.
+    if (!etikett) return { tekst: `${kildenavn} ${eid.split('/nor/').pop() ?? eid}` };
+    return { tekst: `${kildenavn} ${etikett.tekst}`, tittel: etikett.overskrift ?? undefined };
   }
 
   function lastAlt() {
@@ -110,6 +133,12 @@ export default function VirksomhetDetalj() {
     for (const t of tildelinger ?? []) sikreNoderFor(t.hjemmelRettskildeId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tildelinger]);
+  // [Ny, nemnd/sekretariat-runden, 2026-09-09] Samme for relasjonenes hjemler, slik at
+  // «Hjemmel»-kolonnen viser «Konkurranseloven § 36 — …» i stedet for en rå lovdata-URL.
+  useEffect(() => {
+    for (const r of relasjoner ?? []) if (r.hjemmelRettskildeId) sikreNoderFor(r.hjemmelRettskildeId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [relasjoner]);
   // [Ny, navneform-kjede-runden, 2026-09-08] Nodene for rettskildene navneformene er TAGGET i, slik
   // at «Brukt i»-kolonnen kan vise «§ 1 — overskrift» i stedet for en rå eId — samme lazy-per-
   // rettskilde-mønster som tildelinger over.
@@ -303,15 +332,36 @@ export default function VirksomhetDetalj() {
                 {relasjoner.map((r) => (
                   <Table.Row key={r.id}>
                     <Table.Cell>
-                      {r.visningstekst}{' '}
-                      <Link asChild>
-                        <RouterLink to={`/virksomheter/${r.motpartVirksomhetId}`}>({r.motpartNavn})</RouterLink>
-                      </Link>
+                      <RelasjonstekstMedLenke
+                        visningstekst={r.visningstekst}
+                        motpartNavn={r.motpartNavn}
+                        motpartVirksomhetId={r.motpartVirksomhetId}
+                      />
                     </Table.Cell>
                     <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
-                      {r.hjemmelEid || r.kommentar
-                        ? [r.hjemmelEid, r.kommentar].filter(Boolean).join(' — ')
-                        : '—'}
+                      {r.hjemmelRettskildeId ? (
+                        <>
+                          <Link asChild>
+                            <RouterLink
+                              to={
+                                `/rettskilder/${r.hjemmelRettskildeId}` +
+                                (r.hjemmelEid ? `?eid=${encodeURIComponent(r.hjemmelEid)}` : '')
+                              }
+                              title={hjemmelEtikett(r.hjemmelRettskildeId, r.hjemmelEid).tittel}
+                            >
+                              {hjemmelEtikett(r.hjemmelRettskildeId, r.hjemmelEid).tekst}
+                            </RouterLink>
+                          </Link>
+                          {r.kommentar ? ` — ${r.kommentar}` : ''}
+                        </>
+                      ) : r.kommentar ? (
+                        <>
+                          <Tag data-size="sm" data-color="warning">Ingen hjemmel</Tag>{' '}
+                          {r.kommentar}
+                        </>
+                      ) : (
+                        '—'
+                      )}
                     </Table.Cell>
                   </Table.Row>
                 ))}

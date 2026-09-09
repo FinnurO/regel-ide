@@ -462,6 +462,18 @@ public sealed record VirksomhetRelasjonDto(
         v.HjemmelRettskildeId, v.HjemmelEid, v.Kommentar);
 }
 
+/// <summary>[Ny, nemnd/sekretariat-runden, 2026-09-09] Én relasjon hjemlet i én rettskilde — se
+/// <see cref="VirksomhetRelasjonHjemletVisning"/> for hvorfor lovens side trenger sin egen form.</summary>
+public sealed record VirksomhetRelasjonHjemletDto(
+    Guid Id, string RelasjonsType, string Visningstekst,
+    Guid FraVirksomhetId, string FraNavn, Guid TilVirksomhetId, string TilNavn,
+    string? HjemmelEid, string? Kommentar)
+{
+    public static VirksomhetRelasjonHjemletDto FraVisning(VirksomhetRelasjonHjemletVisning v) => new(
+        v.Id, v.RelasjonsType, v.Visningstekst, v.FraVirksomhetId, v.FraNavn, v.TilVirksomhetId, v.TilNavn,
+        v.HjemmelEid, v.Kommentar);
+}
+
 /// <summary>Forespørsel for POST /api/virksomheter/{id}/relasjoner — {id} blir alltid FraVirksomhetId
 /// (samme «{id} er alltid Fra-siden»-konvensjon som POST /api/tjenester/{id}/avhengigheter).</summary>
 public sealed record VirksomhetRelasjonRequest(
