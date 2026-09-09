@@ -407,6 +407,164 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal("Miljødirektoratet", treff.RaaTekst);
     }
 
+    // ---------- Del A5: [Ny, recall-runden, 2026-09-09, issue #150 del 2] bindestrek-forkortelse +
+    // institusjonsord i bestemt entall, ren funksjon (NavnekandidatOppdagelseTjeneste.ForkortelseBindestrekMønster) ----------
+
+    /// <summary>
+    /// De to navnene Johann eksplisitt etterspurte i issue #150 («jeg hadde også forventet vesentlig flere
+    /// forslag, f.eks EOS-utvalget, PNR-enheten etc.»). Begge er ekte forvaltningsorganer i det importerte
+    /// korpuset ("EOS-utvalget" 32 forekomster, "PNR-enheten" 12, målt 2026-09-09) og ga FØR denne runden
+    /// null kandidater — dev-basen hadde 0 navnekandidatrader med bindestrek i det hele tatt.
+    /// </summary>
+    [Fact]
+    public void ForkortelseBindestrek_fanger_hele_navnet_som_virksomhet()
+    {
+        const string tekst = "Kontrollen utføres av EOS-utvalget, og opplysninger deles med PNR-enheten ved behov.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+
+        Assert.Equal(2, funn.Count);
+        Assert.All(funn, f => Assert.Equal("virksomhet", f.Kategori));
+        Assert.Equal("EOS-utvalget", tekst.Substring(funn[0].Start, funn[0].Lengde));
+        Assert.Equal("PNR-enheten", tekst.Substring(funn[1].Start, funn[1].Lengde));
+    }
+
+    /// <summary>
+    /// Presisjonsvernet: BESTEMT ENTALL. Den ubestemte formen og flertall betegner en TYPE, ikke ett
+    /// navngitt organ — "KBO-enhet(er)" er en type medlem i Kraftforsyningens beredskapsorganisasjon, og
+    /// "SI-enheter" er måleenheter (Système international). Disse to var blant de mest frekvente treffene
+    /// da mønsteret ble målt UTEN bøyningskravet ("KBO-enheter" 46 forekomster, "SI-enheter"/"SI-enhetene"
+    /// 18) — se <c>ForkortelseBindestrekMønster</c> for hele målingen og de forkastede alternativene.
+    /// </summary>
+    [Fact]
+    public void ForkortelseBindestrek_krever_bestemt_entall_og_hopper_over_ubestemt_og_flertall()
+    {
+        const string tekst = "Enhver KBO-enhet skal varsle, og alle KBO-enheter og SI-enhetene omregnes.";
+        Assert.Empty(NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst));
+    }
+
+    /// <summary>
+    /// Genitiv er BEVISST med (<c>s?</c>): "HK-direktoratets" er den ENESTE formen Direktoratet for høyere
+    /// utdanning og kompetanse opptrer i i korpuset, så uten genitiv forsvinner det treffet helt. Samme
+    /// linje som det brede stor-bokstav-mønsteret, som alt fanger genitiver ("Energiklagenemndas",
+    /// docs/31 §9) — veiviseren retter formen, og <c>ReankreTilNyTekstAsync</c> flytter posisjonene med.
+    /// </summary>
+    [Fact]
+    public void ForkortelseBindestrek_fanger_genitiv()
+    {
+        const string tekst = "Kravet går frem av HK-direktoratets godkjenningsordning.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+        var treff = Assert.Single(funn);
+        Assert.Equal("virksomhet", treff.Kategori);
+        Assert.Equal("HK-direktoratets", tekst.Substring(treff.Start, treff.Lengde));
+    }
+
+    /// <summary>
+    /// ErSetningsstart anvendes BEVISST IKKE på dette mønsteret — begrunnelsen står i
+    /// <see cref="NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst"/>: tvetydigheten vernet finnes for
+    /// (et vanlig ord med stor forbokstav bare fordi det åpner en setning) kan ikke oppstå for en
+    /// ALL-CAPS-forkortelse. Det er dessuten nettopp den DEFINERENDE setningen om et organ som begynner
+    /// med organets navn — samme hull docs/31 §9 beskriver for "Energiklagenemnda". Målt: 13 av 73
+    /// korpusforekomster står ved setningsstart, 11 av dem ekte.
+    /// </summary>
+    [Fact]
+    public void ForkortelseBindestrek_fanges_ogsaa_ved_setningsstart_og_helt_foerst_i_teksten()
+    {
+        const string tekstStart = "EOS-utvalget skal føre kontroll med tjenestene.";
+        Assert.Equal("EOS-utvalget", Førstetreff(tekstStart));
+
+        const string etterPunktum = "Reglene gjelder også her. PNR-enheten kan behandle opplysningene.";
+        Assert.Equal("PNR-enheten", Førstetreff(etterPunktum));
+
+        static string Førstetreff(string tekst)
+        {
+            var treff = Assert.Single(NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst));
+            return tekst.Substring(treff.Start, treff.Lengde);
+        }
+    }
+
+    /// <summary>
+    /// Institusjonsord-kravet er selve grensen mot resten av bindestrek-universet. Uten det ville de
+    /// hyppigste treffene i korpuset vært "EØS-avtalen" (2258 forekomster), "CE-merkingen" (197) og
+    /// "ID-kort" (119) — avtaler, merkeordninger og dokumenttyper, ikke organer.
+    /// </summary>
+    [Fact]
+    public void ForkortelseBindestrek_krever_kjent_institusjonsord_ikke_bare_en_bindestrek()
+    {
+        const string tekst = "Plikten følger av EØS-avtalen, og CE-merkingen skal vises på ID-kortet.";
+        Assert.Empty(NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst));
+    }
+
+    /// <summary>
+    /// To rene regex-avgrensninger, begge bekreftet mot ekte korpusdata: (1) "EU-utvalgte" er et ADJEKTIV
+    /// som slapp gjennom da endelsen var fritt <c>[a-zæøå]*</c> — den lukkede endelsesmengden stopper det;
+    /// (2) én enkelt stor bokstav + bindestrek er en leddmarkør ("A-utvalget"), ikke en forkortelse, og
+    /// forkortelsen må være i STORE bokstaver ("Eos-utvalget" er ikke en forkortelse).
+    /// </summary>
+    [Fact]
+    public void ForkortelseBindestrek_avgrensninger_endelse_og_forkortelsesform()
+    {
+        Assert.Empty(NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst("Dette gjelder EU-utvalgte varer."));
+        Assert.Empty(NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst("Saken ligger hos A-utvalget nå."));
+        Assert.Empty(NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst("Saken ligger hos Eos-utvalget nå."));
+    }
+
+    /// <summary>
+    /// Mønstrene må ikke dobbeltfange samme tekstspenn. Den UBESTEMTE formen etter en bindestrek
+    /// ("KBO-enhet") treffer faktisk <c>InstitusjonsordMønster</c> (bindestreken ER en ordgrense), men
+    /// <c>FinnEgennavnForanInstitusjonsord</c> stopper på bindestreken og forkaster treffet — mens den
+    /// BESTEMTE formen ("EOS-utvalget") ikke treffer institusjonsord-regexen i det hele ("utvalget" ≠
+    /// <c>\butvalg\b</c>). Nettopp derfor kan de to mønstrene ikke kollidere, og derfor trengte
+    /// <c>SveipAsync</c> ingen endring i denne runden. Testen låser den antakelsen.
+    /// </summary>
+    [Fact]
+    public void ForkortelseBindestrek_kolliderer_ikke_med_flerordsmoensteret()
+    {
+        // "Statens vegvesen" som flerords-eksempel, IKKE "… fylkeskommune": "fylkeskommune" står også i
+        // FasteRollesubstantiv og ville gitt en tredje, urelatert "gruppe"-kandidat i samme tekst (se
+        // ForkortelseBindestrek_dekker_hele_institusjonsordlisten for den overlappen).
+        const string tekst = "Både EOS-utvalget og en KBO-enhet er nevnt hos Statens vegvesen her.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+
+        Assert.Equal(2, funn.Count);
+        var tekster = funn.Select(f => tekst.Substring(f.Start, f.Lengde)).ToList();
+        Assert.Contains("EOS-utvalget", tekster);
+        Assert.Contains("Statens vegvesen", tekster);
+        Assert.DoesNotContain(funn, f => tekst.Substring(f.Start, f.Lengde).Contains("KBO"));
+    }
+
+    /// <summary>
+    /// Mønsteret gjenbruker HELE <c>Institusjonsord</c>-listen som vokabular — det er ikke en ny ordliste,
+    /// og det er hele grunnen til at det ikke er en gjeninnføring av det slettede suffiksmønsteret (se
+    /// klassekommentaren). Formene under finnes ikke i korpuset i dag; testen dokumenterer rekkevidden,
+    /// inkludert at "fylkeskommune" foretrekkes framfor det kortere "kommune" og at e-stammene får riktig
+    /// bestemt entall ("-n"/"-t", ikke "-en"/"-et").
+    /// <para>
+    /// Merk hvorfor dette er <c>Assert.Contains</c> og ikke <c>Assert.Single</c>: for de stammene som ALT
+    /// står i <c>FasteRollesubstantiv</c> ("kommune", "fylkeskommune", "departement", "statsforvalter")
+    /// treffer <c>FasteGruppeMønster</c> også, på DELSPENNET etter bindestreken ("NN-kommunen" gir i
+    /// tillegg en "gruppe"-kandidat på "kommunen", siden bindestreken er en ordgrense). Det er ikke nytt
+    /// oppførsel innført her — "Oslo-kommunen" ga den samme "gruppe"-kandidaten før denne runden — og det
+    /// har NULL utslag på ekte korpusdata: alle de 10 formene mønsteret faktisk treffer i korpuset har
+    /// stammen "utvalg"/"enhet"/"tilsyn"/"direktorat", som ingen av dem står i
+    /// <c>FasteRollesubstantiv</c>. Bevisst ikke undertrykt: <c>SveipAsync</c> deduperer på STARTposisjon,
+    /// og de to treffene starter ulike steder, så en undertrykking ville krevd ny spenn-logikk på tvers av
+    /// mønstre for et tilfelle som ikke forekommer.
+    /// </para>
+    /// </summary>
+    [Theory]
+    [InlineData("NN-fylkeskommunen")]
+    [InlineData("NN-kommunen")]
+    [InlineData("NN-departementet")]
+    [InlineData("NN-høgskolen")]
+    [InlineData("NN-arkivet")]
+    [InlineData("NN-fylkesmannsembetet")]
+    public void ForkortelseBindestrek_dekker_hele_institusjonsordlisten(string navn)
+    {
+        var tekst = $"Saken behandles av {navn} etter reglene her.";
+        var funn = NavnekandidatOppdagelseTjeneste.FinnKandidaterITekst(tekst);
+        Assert.Contains(funn, f => f.Kategori == "virksomhet" && tekst.Substring(f.Start, f.Lengde) == navn);
+    }
+
     // ---------- Del B: sveip/godkjenning/avvisning mot ekte embedded Postgres ----------
 
     private static async Task<Guid> OpprettRettskildeMedNodeAsync(

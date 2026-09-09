@@ -82,6 +82,19 @@ namespace RegelIde.Data;
 /// </list>
 /// </para>
 /// <para>
+/// <b>[Ny, recall-runden, 2026-09-09, issue #150 del 2] Et FJERDE mønster: bindestrek-forkortelse +
+/// institusjonsord i bestemt entall</b> — <see cref="ForkortelseBindestrekMønster"/>, "EOS-utvalget",
+/// "PNR-enheten", "HK-direktoratets". Johann rapporterte at han «hadde også forventet vesentlig flere
+/// forslag, f.eks EOS-utvalget, PNR-enheten etc.», og hullet var strukturelt: ingen av de tre mønstrene
+/// over kan treffe denne formen (forkortelsen er utelukket fra det brede mønsteret, institusjonsordet står
+/// i bestemt form og er sammensmeltet over en bindestrek — hele resonnementet, og korpusmålingen bak
+/// avgrensningen, står ved selve regexen). Dette er IKKE en gjeninnføring av suffiksmønsteret: mønsteret
+/// får sitt vokabular fra den ALLEREDE eksisterende <see cref="Institusjonsord"/>-listen (ingen ny
+/// ordliste), presisjonsvernet er GRAMMATISK (bestemt entall — et navn er bestemt, en typebetegnelse
+/// opptrer ubestemt/i flertall), og de falske positivene mønsteret gir får ingen denyliste, de går til
+/// SNL/SSR-klassifisering og et menneske, slik docs/31 §9 nå krever.
+/// </para>
+/// <para>
 /// <b>[Ny, kodegjennomgang 2026-08-30] Normalisering før lagring — KUN <c>"gruppe"</c>:</b> for
 /// <c>"gruppe"</c>-treff er selve store/små bokstaver-formen IKKE del av identiteten (en gruppe er per
 /// definisjon ikke et egennavn — "statsforvalteren" og "Statsforvalteren" er samme gruppe, kun ulik
@@ -149,7 +162,9 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// <summary>Diskriminatorverdien skrevet til <see cref="NavnekandidatEntitet.OppdagelsesKilde"/> for
     /// alle kandidater produsert av det brede "stor bokstav"-mønsteret (<see cref="FinnStorBokstavKandidaterITekst"/>,
     /// docs/31) — se den entitetsfeltets kommentar. <c>null</c> for kandidater fra de eldre, presise
-    /// mønstrene (faste gruppe-/rollesubstantiv, flerords-institusjonsord). Public (ikke internal): brukt
+    /// mønstrene (faste gruppe-/rollesubstantiv, flerords-institusjonsord — og, fra recall-runden
+    /// 2026-09-09, <see cref="ForkortelseBindestrekMønster"/>, som er presist på samme måte og derfor
+    /// bevisst ikke fikk en egen diskriminatorverdi, se <see cref="FinnKandidaterITekst"/>). Public (ikke internal): brukt
     /// av RegelIde.Api ved berikelse-oppslag på lesetidspunktet (se NavnekandidatDto/Program.cs).
     /// <para>
     /// [Restrukturert, 2026-09-03] Feltet levde tidligere ved siden av et eget <see cref="SveipStorBokstavAsync"/>-
@@ -233,6 +248,15 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// bindestrek-forkortelsen "EOS-utvalget"/"PNR-enheten" selv (issue #150 del 2, ikke bygget her).
     /// </para>
     /// <para>
+    /// [ENDRET, recall-runden, 2026-09-09] Setningen rett over gjelder fortsatt for DENNE listen og
+    /// flerords-mønsteret, men "issue #150 del 2, ikke bygget her" er ikke lenger sant for KLASSEN:
+    /// bindestrek-formen dekkes nå av <see cref="ForkortelseBindestrekMønster"/>, som gjenbruker
+    /// NØYAKTIG denne listen som sitt vokabular (ingen ny ordliste — se den regexens kommentar).
+    /// Verifisert samtidig, mot den kjørende dev-basen 2026-09-09, at issue #150 DEL 1 alt var landet
+    /// (rapporten i issuet er skrevet mot koden FØR 2026-09-03 og lister både "utvalg"/"enhet" og et
+    /// <c>Suffikser</c>-felt som ikke finnes lenger): "utvalg", "enhet" og "arkiv" står i listen over.
+    /// </para>
+    /// <para>
     /// [Ny, 2026-09-03] "arkiv" lagt til — samme klasse hull som "utvalg"/"enhet" over, bekreftet ved at
     /// "Nasjonalarkivet" (LOV-2025-06-20-96 § 4) manglet fra oppdagelsen. Under den GAMLE arkitekturen ble
     /// dette løst ved å legge "arkivet" til det (nå slettede) suffiksmønsteret — under DENNE arkitekturen
@@ -249,6 +273,110 @@ public sealed class NavnekandidatOppdagelseTjeneste(
 
     private static readonly Regex InstitusjonsordMønster = new(
         @"\b(?:" + string.Join('|', Institusjonsord.OrderByDescending(s => s.Length).Select(Regex.Escape)) + @")\b");
+
+    /// <summary>
+    /// [Ny, recall-runden, 2026-09-09, issue #150 del 2] Endelsene for BESTEMT ENTALL av et
+    /// <see cref="Institusjonsord"/>, brukt KUN av <see cref="ForkortelseBindestrekMønster"/>. En
+    /// grammatisk, LUKKET endelsesmengde (norsk bestemt entall: nøytrum <c>-et</c>, maskulinum/femininum
+    /// <c>-en</c>, femininum <c>-a</c>, og <c>-n</c>/<c>-t</c> for de stammene som alt ender på <c>-e</c>,
+    /// f.eks. "kommune" → "kommunen", "fylkesmannsembete" → "fylkesmannsembetet") — IKKE en ordliste, og
+    /// derfor ikke samme whack-a-mole-problem som det slettede suffiksmønsteret (se klassekommentaren):
+    /// den vokser ikke med nye institusjoner, bare med norsk grammatikk, som ikke endrer seg.
+    /// <para>
+    /// Mengden er BEVISST over-generøs per stamme (den bryr seg ikke om kjønnet til den enkelte stammen,
+    /// så den beskriver også former som "utvalgen"/"tilsynt" som ikke finnes i norsk). Vurdert og forkastet:
+    /// å oppgi riktig endelse per stamme, slik <see cref="Bøyningsformer"/> gjør for
+    /// <see cref="FasteRollesubstantiv"/>. Over-generering koster INGENTING her — en form som ikke finnes i
+    /// norsk står heller ikke i lovteksten, så den kan ikke produsere et falskt positiv — mens per-stamme-
+    /// tabellen ville vært én ny ting å holde korrekt hver gang <see cref="Institusjonsord"/> utvides.
+    /// </para>
+    /// <para>
+    /// <b>UBESTEMT form og FLERTALL er bevisst utelatt</b> — det er hele presisjonsvernet i dette mønsteret,
+    /// se <see cref="ForkortelseBindestrekMønster"/>.
+    /// </para></summary>
+    private static readonly string[] BestemtEntallEndelser = ["et", "en", "a", "n", "t"];
+
+    /// <summary>
+    /// [Ny, recall-runden, 2026-09-09, issue #150 del 2] Det FJERDE mønsteret: FORKORTELSE I STORE
+    /// BOKSTAVER + bindestrek + et <see cref="Institusjonsord"/> i BESTEMT ENTALL — "EOS-utvalget",
+    /// "PNR-enheten", "HK-direktoratet". Johann, verbatim (issue #150): «jeg hadde også forventet
+    /// vesentlig flere forslag, f.eks EOS-utvalget, PNR-enheten etc.»
+    /// <para>
+    /// <b>Hvorfor ingen av de tre andre mønstrene fanget dette</b> (bekreftet ved lesing, og ved at
+    /// dev-basen 2026-09-09 hadde <c>0</c> navnekandidatrader med bindestrek i <c>ForeslattTekst</c>):
+    /// <see cref="StorBokstavOrdMønster"/> er <c>\b\p{Lu}\p{Ll}+\b</c> og treffer verken "EOS" (ingen
+    /// små bokstaver — bevisst, se den regexens kommentar om "NKR"/"SFO") eller "utvalget" (liten
+    /// forbokstav). <see cref="InstitusjonsordMønster"/> krever institusjonsordet i UBESTEMT form som
+    /// eget ord, så "utvalget"/"enheten" treffer ikke i det hele tatt; og selv der den UBESTEMTE formen
+    /// står etter en bindestrek ("KBO-enhet" — <c>\benhet\b</c> treffer, siden bindestreken er en
+    /// ordgrense), stopper <see cref="FinnEgennavnForanInstitusjonsord"/> umiddelbart på bindestreken
+    /// (den er ikke en bokstav) og returnerer <c>null</c>. Hullet var altså strukturelt, ikke et
+    /// randtilfelle.
+    /// </para>
+    /// <para>
+    /// <b>Presisjonsvernet er BESTEMT ENTALL, ikke en ordliste.</b> Et navn er i seg selv bestemt —
+    /// organet HETER "EOS-utvalget" — mens den ubestemte formen og flertall betegner en TYPE, ikke ett
+    /// organ. Målt over hele det importerte, delte, gjeldende korpuset (916 683 noder, direkte
+    /// SQL-uttrekk mot dev-basen 2026-09-09):
+    /// <list type="bullet">
+    /// <item>Uten noe institusjonsord-krav i det hele tatt (<c>FORKORTELSE-[småbokstavord]</c>) er de
+    /// hyppigste treffene "EØS-avtalen" (2258), "EØS-stat" (1000), "CE-merkingen" (197), "ID-kort" (119)
+    /// — nesten utelukkende avtaler, merkeordninger, koder og dokumenttyper. Forkastet: helt uten
+    /// institusjonsord-kravet er mønsteret ubrukelig.</item>
+    /// <item>Med institusjonsord-kravet, men UANSETT bøyning (<c>FORKORTELSE-institusjonsord[a-zæøå]*</c>):
+    /// 31 ulike former / ca. 176 forekomster, hvorav 3 ekte organer. Mest av alt måleenheter og generiske
+    /// typebetegnelser — "SI-enheter" (Système international!), "ICUMSA-enheter", "KBO-enheter" (46, en
+    /// TYPE medlem i Kraftforsyningens beredskapsorganisasjon, ikke ett organ), "AFIS-enhet",
+    /// "MLC-tilsyn"/"HMS-tilsyn" (en tilsyns-HANDLING, ikke et tilsynsorgan) — pluss det rene
+    /// regex-uhellet "EU-utvalgte" (adjektiv, fanget fordi "utvalg" er et prefiks av "utvalgte").
+    /// Forkastet: ca. 10 % presisjon.</item>
+    /// <item>Med bestemt entall (+ genitiv), altså mønsteret slik det står her: <b>10 ulike former / 73
+    /// forekomster</b>, hvorav <b>4 former / 48 forekomster er ekte, navngitte organer</b> —
+    /// "EOS-utvalget" (32), "EOS-utvalgets" (3), "PNR-enheten" (12), "HK-direktoratets" (1, altså
+    /// Direktoratet for høyere utdanning og kompetanse, som IKKE var etterspurt og som ingen andre
+    /// mønstre fanget). De 6 gjenværende formene / 25 forekomstene er falske positiver: "SI-enheten" (8,
+    /// måleenhet), "STM-enheten" (7, «Specific Transmission Module», teknisk utstyr på tog),
+    /// "KBO-enheten"/"KBO-enhetens" (8), "MLC-tilsynet" (1), "HMS-tilsynet" (1).</item>
+    /// </list>
+    /// Valgt linje: 66 % presisjon per forekomst, 40 % per unike form, og BEGGE navnene Johann etterspurte
+    /// fanges. Konsistent med «presisjon foran uttømmende recall» ellers i klassen (jf. hvorfor "skole"
+    /// alene er utelatt fra <see cref="Institusjonsord"/>).
+    /// </para>
+    /// <para>
+    /// <b>De 6 falske positivene får IKKE en denyliste.</b> Det ville vært nøyaktig
+    /// <c>VerketDenyliste</c>-mekanismen restruktureringen 2026-09-03 slettet. De blir kandidater, klassifiseres
+    /// mot SNL/SSR som alt annet, og et menneske avgjør — som docs/31 §9 nå krever (ingen automatisk
+    /// avvisning finnes).
+    /// </para>
+    /// <para>
+    /// <b>GENITIV er tatt med</b> (<c>s?</c> til slutt) — "EOS-utvalgets", "HK-direktoratets". Konsistent
+    /// med at <see cref="StorBokstavOrdMønster"/> alt fanger genitiver ("Energiklagenemndas", docs/31 §9),
+    /// og nødvendig: "HK-direktoratets" er den ENESTE formen HK-dir opptrer i i korpuset, så uten genitiv
+    /// forsvinner det ene ekte funnet vi ikke visste om. Kostnaden er én falsk positiv ("KBO-enhetens").
+    /// Veiviseren retter en genitiv til grunnformen, og <see cref="ReankreTilNyTekstAsync"/>
+    /// flytter posisjonene med.
+    /// </para>
+    /// <para>
+    /// <b><see cref="ErSetningsstart"/> anvendes BEVISST IKKE på dette mønsteret</b> — se
+    /// <see cref="FinnKandidaterITekst"/> der mønsteret kjøres, for begrunnelsen og målingen.
+    /// </para>
+    /// <para>
+    /// Vurdert og forkastet, for å presse presisjonen høyere: «foreslå bare når forkortelsen ALDRI opptrer
+    /// med ubestemt/flertallsform i korpuset» (et navn er unikt, en typebetegnelse opptrer i flertall).
+    /// Den regelen ville tatt "KBO"/"SI"/"AFIS" — men også drept "PNR-enheten", som står ved siden av
+    /// "PNR-enheter" (3) og "PNR-enhet" (1) i samme korpus, altså ett av Johanns to navngitte eksempler.
+    /// Den ville dessuten krevd korpus-global tilstand inne i en ren, per-tekst funksjon.
+    /// </para>
+    /// <para>
+    /// Forkortelsen er 2–8 store bokstaver. Nedre grense 2: én bokstav + bindestrek er en leddmarkør
+    /// ("a-utvalget"), ikke en forkortelse. Øvre grense 8 er romslig satt over den lengste formen som
+    /// finnes i korpuset ("ICUMSA", 6) — den er der bare for at et helt ALL-CAPS-satt ord i en overskrift
+    /// ikke skal kunne bli en forkortelse. Ingen sifre (ingen "G20-utvalget"-form finnes i korpuset).
+    /// </para></summary>
+    private static readonly Regex ForkortelseBindestrekMønster = new(
+        @"\b\p{Lu}{2,8}-(?:"
+        + string.Join('|', Institusjonsord.OrderByDescending(s => s.Length).Select(Regex.Escape))
+        + @")(?:" + string.Join('|', BestemtEntallEndelser.OrderByDescending(s => s.Length)) + @")s?\b");
 
     /// <summary>
     /// Det ENESTE bindeordet flerords-mønsteret tillater MELLOM to store-forbokstav-ord (f.eks. "Møre
@@ -683,6 +811,20 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// <b>"Midt i en setning"</b> (<see cref="ErSetningsstart"/>, videreført av <see cref="ErFlerordsKontekstTillatt"/>
     /// for flerords-mønsteret): se de respektive metodekommentarene for presisjonsbegrunnelsen.
     /// </para>
+    /// <para>
+    /// [Ny, recall-runden, 2026-09-09, issue #150 del 2] Kjører nå ETT MØNSTER MER — bindestrek-forkortelse
+    /// + institusjonsord i bestemt entall (<see cref="ForkortelseBindestrekMønster"/>, "EOS-utvalget"/
+    /// "PNR-enheten"). Lagt HER, sammen med de to andre presise mønstrene, og ikke som en egen funksjon ved
+    /// siden av <see cref="FinnStorBokstavKandidaterITekst"/>: mønsteret er presist (det krever et kjent
+    /// <see cref="Institusjonsord"/>), ikke bredt-og-så-validert, og skal derfor ha samme
+    /// <see cref="NavnekandidatEntitet.OppdagelsesKilde"/> (<c>null</c>) som de to andre presise mønstrene.
+    /// Konsekvensen av valget er at <see cref="SveipAsync"/> og <see cref="StorBokstavOppdagelsesKilde"/>
+    /// ikke trengte å endres i det hele tatt. Merk den kjente UI-følgen, som IKKE er rettet her:
+    /// <c>NavnekandidaterListe.tsx</c> viser berikelsesdetaljene (SNL-alias/URL/orgnr) kun for rader med
+    /// <c>oppdagelsesKilde === 'stor-bokstav-snl-ssr'</c>, mens API-et etter issue #117 returnerer dem for
+    /// ALLE 'virksomhet'-rader — konfidens-taggen vises uansett. Det gjelder like fullt for flerords-treff
+    /// i dag, og er en egen frontend-sak, ikke en del av dette mønsteret.
+    /// </para>
     /// </summary>
     internal static List<(int Start, int Lengde, string Kategori)> FinnKandidaterITekst(string tekst)
     {
@@ -704,6 +846,32 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             if (!ErFlerordsKontekstTillatt(tekst, navnStart)) continue;
 
             funnet.Add((navnStart, m.Index + m.Length - navnStart, "virksomhet"));
+        }
+
+        // [Ny, recall-runden, 2026-09-09, issue #150 del 2] Bindestrek-forkortelse + institusjonsord i
+        // bestemt entall ("EOS-utvalget", "PNR-enheten") — se ForkortelseBindestrekMønster for hele
+        // begrunnelsen og korpusmålingen. Kjøres SIST av de tre mønstrene her, av samme grunn som
+        // flerords-mønsteret kjøres før det brede i SveipAsync: den som er MEST presis om et gitt
+        // tekstspenn skal "vinne" startposisjonen. I praksis kan de tre ikke kollidere — dette mønsteret
+        // starter alltid på en ALL-CAPS-forkortelse, som verken FasteGruppeMønster (lukket ordliste, alle
+        // med små bokstaver etter første) eller FinnEgennavnForanInstitusjonsord (stopper på bindestreken)
+        // noen gang begynner et treff på — men rekkefølgen er skrevet ned her, ikke overlatt til tilfeldighet.
+        //
+        // ErSetningsstart anvendes BEVISST IKKE. Hele begrunnelsen for det vernet (se ErSetningsstart og
+        // ErFlerordsKontekstTillatt) er at et VANLIG ord med stor forbokstav ved en setningsåpning er
+        // tvetydig — "For tilsyn med at reglene overholdes …" gir "For tilsyn". Den tvetydigheten finnes
+        // IKKE her: formen FORKORTELSE-institusjonsord er aldri et vanlig norsk ord som tilfeldigvis er
+        // blitt stor forbokstav fordi det åpner en setning; forkortelsen er i store bokstaver UANSETT hvor
+        // i setningen den står. Å arve vernet hit ville derfor ikke fjernet en tvetydighet, bare recall.
+        // Målt over korpuset (SQL mot dev-basen 2026-09-09): 13 av de 73 forekomstene står ved
+        // setningsstart (eller helt først i sin node) — 11 ekte ("EOS-utvalget" 9, "PNR-enheten" 2) og 2
+        // falske ("STM-enheten"). Nettopp den setningen som DEFINERER et organ («EOS-utvalget skal …»)
+        // begynner typisk med organets navn, som er selve hullet docs/31 §9 siste avsnitt beskriver for
+        // "Energiklagenemnda". Dette mønsteret lukker det hullet for SIN form; det brede stor-bokstav-
+        // mønsteret har det fortsatt (se rapporten for issue #150 — ikke løst her).
+        foreach (Match m in ForkortelseBindestrekMønster.Matches(tekst))
+        {
+            funnet.Add((m.Index, m.Length, "virksomhet"));
         }
 
         return funnet;
