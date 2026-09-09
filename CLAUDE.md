@@ -174,10 +174,46 @@ Brutt 2026-09-08 (begge deler samme kveld): to oppgaver redigerte `RettskildeDet
 `until ... ; sleep`-løkke jeg selv startet lå igjen og gikk i bakgrunnen til Johann spurte hva den var.
 Stopp det du starter, og skriv aldri at Johann startet en oppgave du foreslo.
 
+## 11. Avhengighets-PR-er: sjekk diffstørrelsen før du merger
+
+En dependabot-PR er en GENERERT lockfil, ikke en endring som kan rebases meningsfullt. Har den ligget
+en stund, er den bygget på en gammel `master`, og da bærer den med seg alt som er kommet TIL siden —
+som slettinger.
+
+**Regel: se på diffstatistikken i `package-lock.json` før du merger.** En lockfil-PR som legger til en
+oppgradering skal ha en liten, symmetrisk diff. Hundrevis av slettinger er ikke en fiks, det er en
+stale branch.
+
+Brutt 2026-09-09: `#187` («Bump postcss from 8.5.22 to 8.5.26») var bygget på en master fra FØR vitest
+ble lagt inn. Diffen mot dagens master var 11 innsettinger og **315 slettinger** — den ville fjernet
+vitest og hele avhengighetstreet, altså landet sårbarhetsfiksen og fjernet frontend-testene i samme
+merge. Løsningen er å gjøre bumpen på nytt på dagens master (`npm update <pakke>
+--package-lock-only`), åpne en PR som erstatter, og LUKKE dependabot-PR-en med begrunnelsen skrevet
+inn i den, slik at neste person ser hvorfor.
+
+**En transitiv avhengighet skal forbli transitiv.** `npm install <pakke>@versjon` legger den inn i
+`package.json` som direkte avhengighet — det gjør oss ansvarlige for å vedlikeholde en versjon vi ikke
+bruker selv. Bruk `npm update <pakke>` for noe som kommer inn via en annen pakke (`vite` → `postcss`),
+og la `package.json` være urørt.
+
+**Verifiser med `npm ci`, ikke `npm install`.** `--package-lock-only` endrer bare lockfila, og et
+etterfølgende `npm install` kan svare «up to date» og la den gamle versjonen ligge i `node_modules` —
+da har du verifisert ingenting. `npm ci` river `node_modules` og installerer fra lockfila, som er det
+som faktisk beviser at lockfila er konsistent. Sjekk deretter den installerte versjonen:
+
+```bash
+cd src/RegelIde.Web && node -e "console.log(require('postcss/package.json').version)"
+```
+
+Merk at `npm ci` feiler med «file already in use» hvis vite-serveren kjører — stopp den først, og
+start den igjen etterpå.
+
 ## Nyttige kommandoer
 
-Kjør appen (Browser-panelet, aldri `dotnet run` via Bash) — konfigurasjonene heter `virksomhet-api` og
-`virksomhet-web` i `.claude/launch.json`.
+Kjør appen (Browser-panelet, aldri `dotnet run` via Bash) — konfigurasjonene heter `regel-ide-api` og
+`regel-ide-web` i `.claude/launch.json`. (Sto tidligere som `virksomhet-api`/`virksomhet-web` her;
+rettet 2026-09-09 etter at `preview_start` feilet på de navnene. Fila inneholder mange andre
+konfigurasjoner fra tidligere runder — les den framfor å gjette.)
 
 Ny migrasjon — merk at `--startup-project` må være `RegelIde.Data`, ikke `RegelIde.Api` (bare Data har
 `Microsoft.EntityFrameworkCore.Design`):
