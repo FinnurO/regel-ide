@@ -32,6 +32,19 @@ public class VirksomhetKandidatTjenesteTests
         return (rettskildeId, ledd);
     }
 
+    /// <summary>
+    /// [Ny, 2026-09-09] Virksomheten som EIER taggen — den som godkjenner kandidaten. Bevisst en ANNEN
+    /// virksomhet enn den som blir tagget, slik at en forveksling av de to (den feilen som ble rettet
+    /// her) faktisk feiler i testen. Se <see cref="VirksomhetKandidatTjeneste.GodkjennAsync"/>.
+    /// </summary>
+    private static async Task<Guid> NyVirksomhetAsync(RegelIdeDbContext db, string navn)
+    {
+        var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"{navn}-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(virksomhet);
+        await db.SaveChangesAsync();
+        return virksomhet.Id;
+    }
+
     private static VirksomhetKandidatTjeneste NyTjeneste(RegelIdeDbContext db) =>
         new(db, new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)));
 
@@ -74,6 +87,12 @@ public class VirksomhetKandidatTjenesteTests
         await db.SaveChangesAsync();
 
         var register = NyTjeneste(db);
+
+        // [Ny 2026-09-09] Taggen eies av den som GODKJENNER, ikke av organet som er tagget —
+
+        // se GodkjennAsync sin eierVirksomhetId-parameter.
+
+        var eier = await NyVirksomhetAsync(db, "Godkjennende-virksomhet");
         var kandidat = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeId, node.Eid, 0, 4, "sveip");
 
         Assert.Equal("Venter", kandidat.Status);
@@ -93,6 +112,12 @@ public class VirksomhetKandidatTjenesteTests
         await db.SaveChangesAsync();
 
         var register = NyTjeneste(db);
+
+        // [Ny 2026-09-09] Taggen eies av den som GODKJENNER, ikke av organet som er tagget —
+
+        // se GodkjennAsync sin eierVirksomhetId-parameter.
+
+        var eier = await NyVirksomhetAsync(db, "Godkjennende-virksomhet");
         var forste = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeId, node.Eid, 0, 4, "sveip");
         var andre = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeId, node.Eid, 0, 4, "sveip");
 
@@ -112,6 +137,12 @@ public class VirksomhetKandidatTjenesteTests
         await db.SaveChangesAsync();
 
         var register = NyTjeneste(db);
+
+        // [Ny 2026-09-09] Taggen eies av den som GODKJENNER, ikke av organet som er tagget —
+
+        // se GodkjennAsync sin eierVirksomhetId-parameter.
+
+        var eier = await NyVirksomhetAsync(db, "Godkjennende-virksomhet");
         var forste = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeId, node.Eid, 0, 4, "sveip");
         var andre = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeId, node.Eid, 5, 9, "sveip");
 
@@ -129,6 +160,12 @@ public class VirksomhetKandidatTjenesteTests
         await db.SaveChangesAsync();
 
         var register = NyTjeneste(db);
+
+        // [Ny 2026-09-09] Taggen eies av den som GODKJENNER, ikke av organet som er tagget —
+
+        // se GodkjennAsync sin eierVirksomhetId-parameter.
+
+        var eier = await NyVirksomhetAsync(db, "Godkjennende-virksomhet");
         var kandidat = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeId, node.Eid, 0, 4, "sveip");
         await register.AvvisAsync(kandidat.Id, "Kari Jurist");
 
@@ -150,6 +187,12 @@ public class VirksomhetKandidatTjenesteTests
         await db.SaveChangesAsync();
 
         var register = NyTjeneste(db);
+
+        // [Ny 2026-09-09] Taggen eies av den som GODKJENNER, ikke av organet som er tagget —
+
+        // se GodkjennAsync sin eierVirksomhetId-parameter.
+
+        var eier = await NyVirksomhetAsync(db, "Godkjennende-virksomhet");
         var kandidat = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeId, node.Eid, 0, 4, "sveip");
         await register.AvvisAsync(kandidat.Id, "Kari Jurist");
 
@@ -172,8 +215,14 @@ public class VirksomhetKandidatTjenesteTests
         await db.SaveChangesAsync();
 
         var register = NyTjeneste(db);
+
+        // [Ny 2026-09-09] Taggen eies av den som GODKJENNER, ikke av organet som er tagget —
+
+        // se GodkjennAsync sin eierVirksomhetId-parameter.
+
+        var eier = await NyVirksomhetAsync(db, "Godkjennende-virksomhet");
         var kandidat = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeId, node.Eid, 0, 4, "sveip");
-        var godkjent = await register.GodkjennAsync(kandidat.Id, "Kari Jurist");
+        var godkjent = await register.GodkjennAsync(kandidat.Id, "Kari Jurist", eier);
 
         Assert.NotNull(godkjent);
         Assert.Equal("Godkjent", godkjent!.Status);
@@ -181,12 +230,55 @@ public class VirksomhetKandidatTjenesteTests
         Assert.NotNull(godkjent.BehandletTidspunkt);
     }
 
+    /// <summary>
+    /// [Ny, nemnd/sekretariat-runden, 2026-09-09] Sveipet matcher case-insensitivt (Johanns instruks
+    /// 2026-08-22, se <see cref="VirksomhetKandidatSveipTjeneste"/>), så godkjenningen må også gjøre
+    /// det. Reell feil: 519 forekomster av «Reguleringsmyndigheten for energi» ble godkjent, mens
+    /// «reguleringsmyndigheten for energi» med liten forbokstav midt i en setning ble nektet med «Fant
+    /// ingen navneform-begrep …». Taggen skal likevel sitere teksten slik den STÅR, ikke navneformens
+    /// skrivemåte.
+    /// </summary>
     [Fact]
-    public async Task Godkjenn_oppretter_ekte_teksttagg_med_kind_begrep_og_refid_navneform()
+    public async Task Godkjenn_finner_navneformen_uavhengig_av_kasus_og_siterer_teksten_som_den_star()
+    {
+        await using var db = _fixture.NyDbContext();
+        var (rettskildeId, node) = await OpprettAlkohollovenMedParagrafAsync(db);
+        var utdragILoven = node.Tekst![..4];
+        var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(virksomhet);
+        db.Begreper.Add(new BegrepEntitet
+        {
+            Id = Guid.NewGuid(), Begrepskategori = "virksomhet", VirksomhetReferanseId = virksomhet.Id, VirksomhetId = null,
+            // Navneformen er lagret med ANNET kasus enn teksten i loven.
+            Term = utdragILoven.ToUpperInvariant(), Status = "publisert", OpprettetAv = "test",
+            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        await db.SaveChangesAsync();
+
+        var register = NyTjeneste(db);
+
+        // [Ny 2026-09-09] Taggen eies av den som GODKJENNER, ikke av organet som er tagget —
+
+        // se GodkjennAsync sin eierVirksomhetId-parameter.
+
+        var eier = await NyVirksomhetAsync(db, "Godkjennende-virksomhet");
+        var kandidat = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeId, node.Eid, 0, 4, "sveip");
+        await register.GodkjennAsync(kandidat.Id, "Kari Jurist", eier);
+
+        var tagg = await db.TekstTagger.SingleAsync(
+            t => t.RettskildeId == rettskildeId && t.NodeEid == node.Eid && t.VirksomhetId == eier);
+        Assert.Equal(utdragILoven, tagg.QuoteExact);
+        Assert.Equal("virksomhet", tagg.Kind);
+    }
+
+    [Fact]
+    public async Task Godkjenn_oppretter_ekte_teksttagg_med_kind_virksomhet_og_refid_navneform()
     {
         // Kravspek §4.2 pkt. 5 + den låste regelen (kandidatsøk-og-godkjenning-runden): en godkjent
-        // kandidat skal produsere en RIKTIG TekstTagg — kind="begrep", RefId = navneform-Begrep-raden,
-        // IKKE en egen "virksomhet"-kind som peker direkte på Virksomhet.
+        // kandidat skal produsere en RIKTIG TekstTagg med RefId = navneform-Begrep-raden, ALDRI en tagg
+        // som peker direkte på Virksomhet. [ENDRET 2026-09-09] Kind er «virksomhet» — se
+        // VirksomhetKandidatTjeneste.GodkjennAsync: det er laget navnekandidat-veiviseren også tagger i,
+        // og RefId peker fortsatt på navneformen. Låsen gjaldt RefId, ikke kind.
         await using var db = _fixture.NyDbContext();
         var (rettskildeId, node) = await OpprettAlkohollovenMedParagrafAsync(db);
         var begrepTerm = node.Tekst![..4];
@@ -201,16 +293,22 @@ public class VirksomhetKandidatTjenesteTests
         await db.SaveChangesAsync();
 
         var register = NyTjeneste(db);
+
+        // [Ny 2026-09-09] Taggen eies av den som GODKJENNER, ikke av organet som er tagget —
+
+        // se GodkjennAsync sin eierVirksomhetId-parameter.
+
+        var eier = await NyVirksomhetAsync(db, "Godkjennende-virksomhet");
         var kandidat = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeId, node.Eid, 0, 4, "sveip");
-        await register.GodkjennAsync(kandidat.Id, "Kari Jurist");
+        await register.GodkjennAsync(kandidat.Id, "Kari Jurist", eier);
 
         // Filtrert på VirksomhetId (fersk Guid per test) — DB-en er DELT mellom alle tester i
         // samlingen (ICollectionFixture), og alkoholloven-importen er idempotent per ELI, så samme
         // node kan ha tagger fra andre testmetoder liggende fra før.
-        var tagg = await db.TekstTagger.SingleAsync(t => t.RettskildeId == rettskildeId && t.NodeEid == node.Eid && t.VirksomhetId == virksomhet.Id);
-        Assert.Equal("begrep", tagg.Kind);
+        var tagg = await db.TekstTagger.SingleAsync(t => t.RettskildeId == rettskildeId && t.NodeEid == node.Eid && t.VirksomhetId == eier);
+        Assert.Equal("virksomhet", tagg.Kind);
         Assert.Equal(navneform.Id, tagg.RefId);
-        Assert.Equal(virksomhet.Id, tagg.VirksomhetId);
+        Assert.Equal(eier, tagg.VirksomhetId); // eier = den som godkjente, ikke det taggede organet
         Assert.Equal(0, tagg.StartOffset);
         Assert.Equal(4, tagg.EndOffset);
         Assert.Equal(begrepTerm, tagg.QuoteExact);
@@ -229,9 +327,15 @@ public class VirksomhetKandidatTjenesteTests
         await db.SaveChangesAsync(); // Ingen navneform-Begrep registrert for denne virksomheten.
 
         var register = NyTjeneste(db);
+
+        // [Ny 2026-09-09] Taggen eies av den som GODKJENNER, ikke av organet som er tagget —
+
+        // se GodkjennAsync sin eierVirksomhetId-parameter.
+
+        var eier = await NyVirksomhetAsync(db, "Godkjennende-virksomhet");
         var kandidat = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeId, node.Eid, 0, 4, "sveip");
 
-        await Assert.ThrowsAsync<ArgumentException>(() => register.GodkjennAsync(kandidat.Id, "Kari Jurist"));
+        await Assert.ThrowsAsync<ArgumentException>(() => register.GodkjennAsync(kandidat.Id, "Kari Jurist", eier));
         var uendret = await db.VirksomhetKandidater.FindAsync(kandidat.Id);
         Assert.Equal("Venter", uendret!.Status); // Status skal IKKE flippes til Godkjent når tagg-oppretting feiler.
     }
@@ -246,10 +350,16 @@ public class VirksomhetKandidatTjenesteTests
         await db.SaveChangesAsync();
 
         var register = NyTjeneste(db);
+
+        // [Ny 2026-09-09] Taggen eies av den som GODKJENNER, ikke av organet som er tagget —
+
+        // se GodkjennAsync sin eierVirksomhetId-parameter.
+
+        var eier = await NyVirksomhetAsync(db, "Godkjennende-virksomhet");
         var kandidat = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeId, node.Eid, 0, 4, "sveip");
         await register.AvvisAsync(kandidat.Id, "Kari Jurist");
 
-        await Assert.ThrowsAsync<ArgumentException>(() => register.GodkjennAsync(kandidat.Id, "Kari Jurist"));
+        await Assert.ThrowsAsync<ArgumentException>(() => register.GodkjennAsync(kandidat.Id, "Kari Jurist", eier));
     }
 
     [Fact]
@@ -262,6 +372,12 @@ public class VirksomhetKandidatTjenesteTests
         await db.SaveChangesAsync();
 
         var register = NyTjeneste(db);
+
+        // [Ny 2026-09-09] Taggen eies av den som GODKJENNER, ikke av organet som er tagget —
+
+        // se GodkjennAsync sin eierVirksomhetId-parameter.
+
+        var eier = await NyVirksomhetAsync(db, "Godkjennende-virksomhet");
         var kandidat = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeId, node.Eid, 0, 4, "sveip");
 
         await Assert.ThrowsAsync<ArgumentException>(() => register.HardslettAvvistAsync(kandidat.Id));
@@ -288,6 +404,12 @@ public class VirksomhetKandidatTjenesteTests
         await db.SaveChangesAsync();
 
         var register = NyTjeneste(db);
+
+        // [Ny 2026-09-09] Taggen eies av den som GODKJENNER, ikke av organet som er tagget —
+
+        // se GodkjennAsync sin eierVirksomhetId-parameter.
+
+        var eier = await NyVirksomhetAsync(db, "Godkjennende-virksomhet");
         // To treff i SAMME rettskilde/node (ulike startOffset, se StartOffset-kommentaren) — én avvist,
         // én fortsatt Venter.
         var avvistKandidat = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeIdA, nodeA.Eid, 0, 4, "sveip");
@@ -311,6 +433,12 @@ public class VirksomhetKandidatTjenesteTests
         await db.SaveChangesAsync();
 
         var register = NyTjeneste(db);
+
+        // [Ny 2026-09-09] Taggen eies av den som GODKJENNER, ikke av organet som er tagget —
+
+        // se GodkjennAsync sin eierVirksomhetId-parameter.
+
+        var eier = await NyVirksomhetAsync(db, "Godkjennende-virksomhet");
         var kandidat = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeId, node.Eid, 0, 4, "sveip");
         await register.AvvisAsync(kandidat.Id, "Kari Jurist");
 
@@ -340,14 +468,20 @@ public class VirksomhetKandidatTjenesteTests
         await db.SaveChangesAsync();
 
         var register = NyTjeneste(db);
+
+        // [Ny 2026-09-09] Taggen eies av den som GODKJENNER, ikke av organet som er tagget —
+
+        // se GodkjennAsync sin eierVirksomhetId-parameter.
+
+        var eier = await NyVirksomhetAsync(db, "Godkjennende-virksomhet");
         var kandidat = await register.OpprettEllerFinnAsync(virksomhet.Id, rettskildeId, node.Eid, 0, 4, "sveip");
-        await register.GodkjennAsync(kandidat.Id, "Kari Jurist");
+        await register.GodkjennAsync(kandidat.Id, "Kari Jurist", eier);
 
         await Assert.ThrowsAsync<ArgumentException>(
             () => register.HardslettAlleAvvisteAsync(rettskildeId: rettskildeId, status: "Godkjent"));
 
         Assert.True(await db.VirksomhetKandidater.AnyAsync(k => k.Id == kandidat.Id)); // ikke slettet.
-        Assert.True(await db.TekstTagger.AnyAsync(t => t.RettskildeId == rettskildeId && t.VirksomhetId == virksomhet.Id)); // taggen består urørt.
+        Assert.True(await db.TekstTagger.AnyAsync(t => t.RettskildeId == rettskildeId && t.VirksomhetId == eier)); // taggen består urørt.
     }
 
     [Fact]
@@ -360,6 +494,12 @@ public class VirksomhetKandidatTjenesteTests
         var (rettskildeId, _) = await OpprettSyntetiskRettskildeAsync(db);
 
         var register = NyTjeneste(db);
+
+        // [Ny 2026-09-09] Taggen eies av den som GODKJENNER, ikke av organet som er tagget —
+
+        // se GodkjennAsync sin eierVirksomhetId-parameter.
+
+        var eier = await NyVirksomhetAsync(db, "Godkjennende-virksomhet");
         var antallSlettet = await register.HardslettAlleAvvisteAsync(rettskildeId: rettskildeId);
 
         Assert.Equal(0, antallSlettet);

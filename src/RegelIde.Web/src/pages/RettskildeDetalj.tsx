@@ -16,8 +16,7 @@ import type {
   RettskildeReferanseDto,
   RettskildeSammendrag,
   TekstTaggDto,
-  TjenesteReferanseDto,
-} from '../api/types';
+  TjenesteReferanseDto, VirksomhetRelasjonHjemletDto } from '../api/types';
 import { TagTekst, type Registry, type TagKindId, type TextTag } from '../tagging/TagTekst';
 import { RettskildeTre, type RettskildeNode as TreNodeVm } from '../tre/RettskildeTre';
 import { KommentarRedigering } from '../handbok/KommentarRedigering';
@@ -30,6 +29,7 @@ import { RaaTekstMedLenker } from '../rettskilde/RaaTekstMedLenker';
 import { forsokFormaterXml } from '../rettskilde/formaterXml';
 import { forsokFormaterHtml } from '../rettskilde/formaterHtml';
 import { eidVisningstekst, finnRettskildeForEid, rettskildeLenke } from '../api/eidLenker';
+import { paragrafEtikett } from '../rettskilde/paragrafEtikett';
 import { KontekstPanel, type KontekstPanelGruppe } from '../entitet/KontekstPanel';
 
 const STITYPE_FARGE: Record<string, 'info' | 'success'> = { tematisk: 'info', organisatorisk: 'success' };
@@ -123,6 +123,9 @@ export default function RettskildeDetalj() {
   const [hjemler, setHjemler] = useState<RettskildeHjemmelDto[]>([]);
   // Motsatt retning — kun ikke-tom for en LOV noe faktisk er hjemlet i.
   const [hjemletFor, setHjemletFor] = useState<RettskildeHjemletForDto[]>([]);
+  // [Ny, nemnd/sekretariat-runden, 2026-09-09] Organrelasjonene denne rettskilden hjemler — se
+  // GET /api/rettskilder/{id}/virksomhetsrelasjoner.
+  const [virksomhetsrelasjoner, setVirksomhetsrelasjoner] = useState<VirksomhetRelasjonHjemletDto[]>([]);
 
   // «Endrer» (rettskildedetalj-fikser, 2026-09-02, punkt 5) — header-metadatafeltet <dt
   // class="changesToDocuments">Endrer</dt>, hvilke(t) andre dokument(er) DENNE rettskilden endrer.
@@ -328,6 +331,7 @@ export default function RettskildeDetalj() {
     api.hentReferanser(id).then(setReferanser).catch(() => setReferanser([]));
     api.hentHjemmel(id).then(setHjemler).catch(() => setHjemler([]));
     api.hentHjemmelFor(id).then(setHjemletFor).catch(() => setHjemletFor([]));
+    api.hentVirksomhetsrelasjonerForRettskilde(id).then(setVirksomhetsrelasjoner).catch(() => setVirksomhetsrelasjoner([]));
     api.hentRettskildeEndringer(id).then(setEndringer).catch(() => setEndringer([]));
     api.hentRettskildeStier(id).then(setNettsideStier).catch(() => setNettsideStier([]));
     api.hentRettskildeNettsideLenker(id).then(setNettsideLenker).catch(() => setNettsideLenker([]));
@@ -777,6 +781,26 @@ export default function RettskildeDetalj() {
   // (samme mål som de opprinnelige <Link>-radene pekte på), det finnes ingen "Detaljer"-forhåndsvisning
   // å bytte til her.
   const kontekstGrupper: KontekstPanelGruppe[] = [
+    {
+      // [Ny, nemnd/sekretariat-runden, 2026-09-09] Øverst med vilje: dette er svaret på «hvem
+      // forvalter loven, og i hvilken egenskap» (docs/32 §3 S1/S2), mens gruppene under er
+      // dokument-til-dokument- og tjeneste-koblinger. Paragrafen står i etiketten fordi hjemmelen er
+      // en BESTEMMELSE, ikke bare «denne loven et sted».
+      heading: 'Organrelasjoner hjemlet her',
+      items: virksomhetsrelasjoner.map((r) => ({
+        key: r.id,
+        // Paragrafen alene, ikke `tilEidVisning`: vi ER på denne lovens side, så lovtittelen er
+        // støy — og `eidVisningstekst` ville dessuten gitt leddnummeret som paragrafnummer.
+        label: r.hjemmelEid
+          ? `${r.visningstekst} — ${paragrafEtikett(detaljNoderPerRettskilde.get(id ?? ''), r.hjemmelEid)?.tekst ?? r.hjemmelEid.split('/nor/').pop() ?? r.hjemmelEid}`
+          : r.visningstekst,
+        onClick: () => navigate(
+          r.hjemmelEid
+            ? `/rettskilder/${id}?eid=${encodeURIComponent(r.hjemmelEid)}`
+            : `/virksomheter/${r.fraVirksomhetId}`,
+        ),
+      })),
+    },
     {
       heading: 'Hjemmel',
       items: hjemler.map((h) => {

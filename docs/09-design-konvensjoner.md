@@ -588,3 +588,104 @@ er rene funksjoner (`lagvalg.ts`, `navneformKjede.ts`), ikke rendret DOM. Regele
 er verdt å ta med videre — **er en regel viktig nok å teste, skal den bo i en ren modul uten
 React-avhengigheter**, slik at testen ikke krever et rendringsoppsett. `tsc -b --noEmit` dekker
 `*.test.ts` også, siden de ligger under `src`.
+
+## 18. Hjemmel i en tabellrad: paragrafen, ikke eId-en (2026-09-09, nemnd/sekretariat-runden)
+
+**En hjemmel vises som BESTEMMELSEN den er, med lenke til noden.** «§ 36 sjette ledd» — ikke en rå
+`https://lovdata.no/eli/lov/2004/03/05/12/nor/§36/ledd-6`, som var det relasjonstabellen på
+`VirksomhetDetalj` viste før. Rettskildens navn tas med når raden IKKE alt står under den
+rettskilden (relasjonene på én virksomhet peker på ulike lover), og utelates når man alt er på lovens
+egen side.
+
+**Paragrafnummeret hentes ALLTID via `src/rettskilde/paragrafEtikett.ts`, aldri fra nodens eget
+`nummer`.** Hjemler peker på LEDD, og et ledds `nummer` er leddnummeret: en tagg i konkurranseloven
+§ 35 første ledd ble vist som «§ 1», og en hjemmel i § 36 sjette ledd som «§ 6». Feil paragraf er
+verre enn en rå eId — den ser riktig ut. Hjelperen klatrer opp til paragrafnoden via `parentNodeId`,
+og håndterer at Lovdata-importen legger «§» inn i paragrafnodens nummer men ikke i leddets (rå
+strengbygging ga «§ § 36»). Den returnerer `undefined` når nodene ikke er hentet — kalleren viser rå
+eId, ingen gjettet etikett. Ti tester i `paragrafEtikett.test.ts` låser dette, inkludert
+sirkulær-forelder og manglende paragrafnode.
+
+**«Ingen hjemmel» er en egen, synlig tilstand**, ikke en tom celle: `Tag` med `warning` pluss
+kommentaren som sier hvor opplysningen kommer fra i stedet. Et forhold som bare er bekreftet mot et
+organisasjonskart skal ikke kunne forveksles med et som står i en bestemmelse — det er samme skille
+som `NavneformgrunnTag` håndhever for navneformer (§15).
+
+**Relasjoner leses fra BEGGE sider.** «Organrelasjoner hjemlet her» ligger øverst i
+`RettskildeDetalj`s Relasjoner-fane, før dokument-til-dokument-gruppene, fordi det er svaret på
+«hvem forvalter loven, og i hvilken egenskap» (docs/32 §3 S1/S2). En hjemmel som bare er synlig fra
+virksomhetssiden er ikke etterprøvbar fra bestemmelsen den står i. Fra lovens ståsted brukes ALLTID
+Fra-malen («X har sekretariat hos Y») — det finnes ingen «motpart» å velge retning ut fra der.
+
+**Motpartens navn lenkes der det alt står i visningsteksten**
+(`src/virksomhet/RelasjonstekstMedLenke.tsx`). Malen fra `RelasjonsTypeKonfigurasjon` inneholder
+navnet, så en påhengt «({navn})»-lenke ga «er sekretariat for Konkurranseklagenemnda
+(Konkurranseklagenemnda)».
+
+## 19. De to kandidatkøene skal forklares der de brukes (2026-09-09, nemnd/sekretariat-runden)
+
+Navnekandidater og virksomhetskandidater går i MOTSATT retning, og det var ikke synlig noe sted i
+UI-et: begge heter «kandidater», begge har Venter/Godkjent/Avvist, begge utløses av en knapp som
+heter «Kjør sveip». Johann 2026-09-09: «her flyter det litt sammen».
+
+- **Navnekandidater** — fra TEKST til nytt navn. Leser ÉN rettskilde, foreslår navn vi ikke kjenner.
+  Utfall: virksomhet/gruppebegrep + navneform + ÉN tagg (forekomsten kandidaten ble funnet i).
+- **Virksomhetskandidater** — fra KJENT navn til alle tekstene. Tar navneformene til én virksomhet og
+  leter gjennom hele korpuset. Utfall: én tagg per godkjent forekomst, massegodkjenning tagger alle.
+
+Forklaringen bor i ÉN delt komponent (`src/kandidater/KandidatflytForklaring.tsx`), brukt av begge
+listesidene — ikke tre lokale avsnitt som kommer i utakt. Den aktive køen utheves med `fontWeight`,
+ikke med farge: begge er like gyldige, dette er «du er her», ikke en tilstand.
+
+**Veiviseren skal tilby NESTE handling, ikke bare vise at den er ferdig.** Etter at en navnekandidat
+er behandlet er ÉN forekomst tagget; oppsummeringen tilbyr derfor «Kjør virksomhetssveip» for den
+virksomheten, med treff/nye-tall rett i skjermbildet og en lenke inn i den andre køen. En
+saksbehandler skal ikke måtte vite at det finnes en annen kø for resten av jobben.
+
+**Et steg uten en beslutning er ikke et steg.** Veiviserens gamle steg 0 («Kontekst») viste bare
+setningen fra rettskilden og krevde et «Neste»-klikk. Kortet vises fortsatt, alltid, øverst — men
+steg-rekken starter nå på den første faktiske beslutningen («Er teksten riktig?»). Fem steg ble
+fire. Gjelder for neste veiviser også: tell beslutninger, ikke skjermbilder.
+
+## 20. Én oppdagelse, ett lag (2026-09-09)
+
+De to køene skal produsere det SAMME når de sier det samme. Godkjenning av en virksomhetskandidat
+lagde taggen med `kind = 'begrep'`, mens navnekandidat-veiviseren lagde den med
+`kind = 'virksomhet'` — samme påstand om samme organ i to ulike lag, i samme paragraf, avhengig av
+hvilken vei den kom fra. Begge lager nå `'virksomhet'`, og en migrasjon flyttet de eksisterende
+radene (`OmklassifiserNavneformTaggerTilVirksomhetslaget`). Gruppebegrep-tagger forblir `'begrep'` —
+de ER begreper.
+
+**`TekstTagg.VirksomhetId` er EIERSKAP, aldri «hvem taggen handler om».** Godkjenningen satte den til
+det TAGGEDE organet, og siden `GET /api/rettskilder/{id}/tagger` bare viser innlogget virksomhets egne
+tagger, ble hver godkjente kandidat en tagg ingen kunne se — organene i katalogen har ingen brukere.
+Retningslinje: enhver ny skrivevei til `TekstTagg` må ta eieren fra den innloggede brukeren, ikke fra
+dataene den behandler.
+
+## 21. Konfidens, ikke avvisning (2026-09-09)
+
+**Systemet klassifiserer; mennesket avgjør.** En navnekandidat SNL/SSR ikke bekrefter får LAV
+KONFIDENS og blir stående som «Venter» — den avvises ikke. Se `docs/31` §9 for hvorfor: de organene
+som er «skjult og kun synlig på nettsider» er nettopp dem SNL ikke skriver om, så SNL-dekning kan
+ikke brukes som en avgjørelse.
+
+`KonfidensTag` (`src/kandidater/KonfidensTag.tsx`) er ÉN delt kilde for visningen, brukt av
+listesiden og veiviseren. Fargevalget er et krav, samme prinsipp som `NavneformgrunnTag` (§15):
+`success` for høy, `neutral` for lav. Lav er BEVISST ikke `warning`/`danger` — det er ingen feil og
+ingen advarsel, bare fravær av bekreftelse, og en rød lapp ville gjenskapt avvisningen vi fjernet.
+Ingen lapp for `null` (ikke klassifisert).
+
+**Grunnen skrives ut, ikke bare konfidensen.** I tabellen som `title` under merkelappen, i veiviseren
+som hel setning i kontekstkortet. «Lav» uten hvorfor er ikke handlingsrettet — se
+`konfidensGrunnTekst` for de fire kodene, inkludert `null`-tilfellet («grunn ikke registrert»), som er
+en ekte, dokumentert tilstand for rader migrert fra den gamle auto-avvisningen.
+
+**Et filter, ikke bare en kolonne.** «Lav konfidens» er der de reelle, men lite omtalte organene
+ligger; den listen er en arbeidsliste i seg selv.
+
+**Når data flytter seg, må lagvalget følge.** `finnStandardLag` valgte det FØRSTE laget med minst én
+tagg. Da gruppebegrepene ble tagget i forskrift 2005-06-17-657 § 1 fikk noden 7 `begrep`-tagger ved
+siden av 14 `virksomhet`-tagger, og defaulten skjulte de 14 kommunenavnene bak en fane. Regelen er nå
+«laget med FLEST tagger», med `kinds`-rekkefølgen som likhetsbryter. Prinsippet: en default som
+bestemmer hva brukeren SER ved kald åpning skal vise mest mulig av det som faktisk er markert.
+

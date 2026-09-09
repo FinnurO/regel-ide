@@ -34,8 +34,27 @@ describe('finnStandardLag', () => {
     expect(finnStandardLag([tagg('begrep')], kinds)).toBe('begrep');
   });
 
-  it('bryter likhet på kinds-rekkefølgen når noden har tagger i flere lag', () => {
+  it('bryter likhet på kinds-rekkefølgen når lagene har LIKE MANGE tagger', () => {
     expect(finnStandardLag([tagg('virksomhet'), tagg('vilkar')], kinds)).toBe('vilkar');
+  });
+
+  it('velger laget med FLEST tagger, ikke det første med minst én', () => {
+    // Forskrift 2005-06-17-657 § 1 ledd-1 etter at gruppebegrepene ble tagget (2026-09-09): 7
+    // begrep-tagger og 14 virksomhet-tagger på samme node. «Første med minst én» ga Begrep, som
+    // skjulte de 14 kommunenavnene bak en fane.
+    const tags = [
+      ...Array.from({ length: 7 }, (_, i) => tagg('begrep', `b-${i}`)),
+      ...Array.from({ length: 14 }, (_, i) => tagg('virksomhet', `v-${i}`)),
+    ];
+    expect(finnStandardLag(tags, kinds)).toBe('virksomhet');
+  });
+
+  it('velger fortsatt begrep når begrep har flest', () => {
+    const tags = [
+      ...Array.from({ length: 3 }, (_, i) => tagg('begrep', `b-${i}`)),
+      tagg('virksomhet', 'v-0'),
+    ];
+    expect(finnStandardLag(tags, kinds)).toBe('begrep');
   });
 
   it('faller tilbake til første lag når noden ikke har tagger i det hele tatt', () => {

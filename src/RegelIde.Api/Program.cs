@@ -1009,6 +1009,18 @@ rettskilder.MapGet("/{id:guid}/endringer", async (Guid id, RettskildeRepository 
         "(rettskildedetalj-fikser, 2026-09-02) — hvilke(t) andre dokument(er) DENNE rettskilden endrer. " +
         "Tom liste for enhver rettskilde uten feltet.");
 
+// [Ny, nemnd/sekretariat-runden, 2026-09-09] Motstykket til
+// GET /api/virksomheter/{id}/relasjoner: hvilke virksomhetsrelasjoner er HJEMLET i denne rettskilden.
+// Uten dette var en hjemmel bare synlig fra virksomhetssiden, og docs/32 §3 S1 («hvem forvalter loven,
+// og i hvilken egenskap») kunne ikke stilles fra bestemmelsen den står i.
+rettskilder.MapGet("/{id:guid}/virksomhetsrelasjoner", async (Guid id, VirksomhetRelasjonregisterTjeneste register, CancellationToken ct) =>
+        Results.Ok((await register.HentForHjemmelRettskildeAsync(id, ct)).Select(VirksomhetRelasjonHjemletDto.FraVisning)))
+    .WithOpenApi()
+    .WithName("HentVirksomhetsrelasjonerHjemletIRettskilde")
+    .WithSummary("Relasjoner mellom virksomheter (sekretariat, klageinstans, underlagt) som denne " +
+        "rettskilden er oppgitt som hjemmel for. Relasjoner uten hjemmel (kun kommentar) er ikke med — " +
+        "de hører per definisjon ikke til noen rettskilde.");
+
 rettskilder.MapGet("/{id:guid}/referert-av-tjenester", async (Guid id, RettskildeRepository repo) =>
         Results.Ok(await repo.ReferertAvTjenesterAsync(id)))
     .WithName("HentRettskildeReferertAvTjenester")
@@ -2842,6 +2854,45 @@ app.MapGet("/api/virksomheter/{id:guid}/begrep", async (Guid id, Virksomhetsbegr
     .WithName("HentVirksomhetsbegrepForVirksomhet")
     .WithSummary("Lister navneformer (inkl. synonymer) brukt om denne virksomheten i rettskildetekst.");
 
+// [Ny, nemnd/sekretariat-runden, 2026-09-09] Sett grunnen på en EKSISTERENDE navneform — se
+// VirksomhetsbegrepTjeneste.SettNavneformgrunnAsync for hvorfor dette manglet.
+app.MapPost("/api/virksomhetsbegrep/{id:guid}/navneformgrunn", async (Guid id, HttpRequest request,
+        SettNavneformgrunnRequest body, VirksomhetsbegrepTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            return await register.SettNavneformgrunnAsync(id, body.Navneformgrunn, bruker.Navn, ct)
+                ? Results.Ok(new { oppdatert = true })
+                : Results.NotFound(new { feil = $"Ingen navneform med id '{id}'." });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("SettNavneformgrunn")
+    .WithSummary("Setter eller fjerner grunnen (gjeldende/utgatt/kortform/feilskriving/parallellnavn) på en navneform.");
+
+// [Ny, nemnd/sekretariat-runden, 2026-09-09] Sletting av én navneform. Fantes ikke i det hele tatt før
+// dette — en dublett-navneform kunne opprettes, men ikke fjernes. Sletter taggene som peker på den i
+// samme operasjon, se VirksomhetsbegrepTjeneste.SlettVirksomhetsbegrepAsync.
+app.MapDelete("/api/virksomhetsbegrep/{id:guid}", async (Guid id, HttpRequest request,
+        VirksomhetsbegrepTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var antallTagger = await register.SlettVirksomhetsbegrepAsync(id, bruker.Navn, ct);
+        return antallTagger is null
+            ? Results.NotFound(new { feil = $"Ingen navneform med id '{id}'." })
+            : Results.Ok(new { slettet = true, antallTaggerSlettet = antallTagger.Value });
+    })
+    .WithOpenApi()
+    .WithName("SlettVirksomhetsbegrep")
+    .WithSummary("Sletter en navneform og tekst-taggene som peker på den. Ekte sletting, ikke statusendring.");
+
 app.MapPost("/api/gruppebegrep", async (HttpRequest request, GruppebegrepRequest body,
         VirksomhetsbegrepTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
@@ -3073,7 +3124,7 @@ virksomhetKandidater.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest 
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         try
         {
-            var oppdatert = await register.GodkjennAsync(id, bruker.Navn, ct);
+            var oppdatert = await register.GodkjennAsync(id, bruker.Navn, bruker.VirksomhetId, ct);
             return oppdatert is null ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }) : Results.Ok(VirksomhetKandidatDto.FraEntitet(oppdatert));
         }
         catch (ArgumentException ex)
@@ -3111,7 +3162,7 @@ virksomhetKandidater.MapPost("/godkjenn-batch", async (HttpRequest request, Virk
         {
             try
             {
-                var oppdatert = await register.GodkjennAsync(id, bruker.Navn, ct);
+                var oppdatert = await register.GodkjennAsync(id, bruker.Navn, bruker.VirksomhetId, ct);
                 rader.Add(oppdatert is null
                     ? new VirksomhetKandidatBatchRadDto(id, false, $"Ingen kandidat med id '{id}'.", null)
                     : new VirksomhetKandidatBatchRadDto(id, true, null, VirksomhetKandidatDto.FraEntitet(oppdatert)));
@@ -3245,18 +3296,22 @@ static async Task<List<NavnekandidatDto>> BerikNavnekandidaterAsync(
 }
 
 navnekandidater.MapGet("/", async (string? status, string? kategori, Guid? rettskildeId, bool? behandletAutomatisk,
-        NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+        string? konfidens, NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
         // Samme eksplisitte "utelatt = kun Venter, 'Alle' = ingen filter"-mønster som
         // /api/virksomhet-kandidater — se den endepunktkommentaren.
         var effektivStatus = string.IsNullOrEmpty(status) ? "Venter" : status;
         var statusFilter = effektivStatus == "Alle" ? null : effektivStatus;
-        var kandidater = await register.ListerAsync(statusFilter, kategori, rettskildeId, behandletAutomatisk, ct);
+        var kandidater = await register.ListerAsync(
+            statusFilter, kategori, rettskildeId, behandletAutomatisk,
+            string.IsNullOrEmpty(konfidens) || konfidens == "Alle" ? null : konfidens, ct);
         return Results.Ok(await BerikNavnekandidaterAsync(kandidater, db, ct));
     })
     .WithName("HentNavnekandidater")
-    .WithSummary("Kandidatliste, valgfritt filtrert på status/kategori/rettskilde/behandletAutomatisk. status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter. " +
-        "behandletAutomatisk (kun meningsfullt sammen med status='Avvist'): true = KUN SNL/SSR-selv-avviste rader (BehandletAv tom), false = KUN manuelt avviste rader (BehandletAv satt). " +
+    .WithSummary("Kandidatliste, valgfritt filtrert på status/kategori/rettskilde/behandletAutomatisk/konfidens. status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter. " +
+        "konfidens: 'hoy'/'lav', eller 'ingen' for rader som ikke er SNL/SSR-klassifisert (alle 'gruppe'-kandidater). " +
+        "behandletAutomatisk (kun meningsfullt sammen med status='Avvist'): true = KUN rader ingen har rørt (BehandletAv tom), false = KUN manuelt avviste rader (BehandletAv satt). " +
+        "Merk at automatisk avvisning IKKE lenger finnes (konfidens-runden 2026-09-09) — behandletAutomatisk=true beskriver derfor historiske rader. " +
         "'virksomhet'-kandidater (uansett oppdagelsesmønster, se issue #117) beriket med SNL-alias/URL/orgnr og SSR-bekreftelse når SNL/SSR-cachen har et treff for teksten.");
 
 navnekandidater.MapPost("/sveip", async (HttpRequest request, SveipNavnekandidaterRequest body,

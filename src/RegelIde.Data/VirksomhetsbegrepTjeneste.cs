@@ -55,6 +55,30 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
         {
             throw new ArgumentException($"Fant ingen virksomhet med id '{virksomhetId}'. Ingen gjettet fallback.");
         }
+        // [Ny, nemnd/sekretariat-runden, 2026-09-09] Samme navneform TO ganger mot samme virksomhet er
+        // ikke en ny opplysning — det er en dublett, og den forplanter seg: hver av de to radene kan bli
+        // pekt på av sine egne tagger, og lovteksten viser da samme organnavn markert to ganger i samme
+        // setning (observert konkret for «Energiklagenemnda» og «Konkurransetilsynet» 2026-09-09).
+        // Gruppebegrep har alt en unik partiell indeks for nettopp dette (se
+        // OpprettGruppebegrepAsync); navneformer hadde ingen tilsvarende vakt. Case-insensitivt fordi
+        // sveipet også er det (VirksomhetKandidatSveipTjeneste) — «Fylkeskommune» og «fylkeskommune»
+        // mot samme virksomhet er samme navneform, ikke to.
+        // <para>
+        // Merk at NavnekandidatOppdagelseTjeneste sin kjedelukking GJENBRUKER en eksisterende rad i
+        // stedet for å kalle hit; denne vakten dekker de direkte kallene (POST /api/virksomhetsbegrep,
+        // Brreg-opprettelsen) som ikke gikk gjennom noen slik sjekk.
+        // </para>
+        var finnesAlt = await db.Begreper
+            .Where(b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == virksomhetId
+                        && b.Entitetsstatus == "gjeldende")
+            .Select(b => b.Term)
+            .ToListAsync(ct);
+        if (finnesAlt.Any(t => string.Equals(t, term.Trim(), StringComparison.OrdinalIgnoreCase)))
+        {
+            throw new ArgumentException(
+                $"Virksomheten har allerede navneformen '{term.Trim()}'. Bruk den eksisterende raden "
+                + "(eller endre grunnen på den) i stedet for å opprette en dublett. Ingen gjettet fallback.");
+        }
 
         var begrep = new BegrepEntitet
         {
@@ -73,6 +97,66 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
         db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", begrep.Id, virksomhetId: null, "opprettet", opprettetAv));
         await db.SaveChangesAsync(ct);
         return begrep;
+    }
+
+    /// <summary>
+    /// [Ny, nemnd/sekretariat-runden, 2026-09-09] Setter (eller fjerner) grunnen på en eksisterende
+    /// navneform. Fantes ikke før: grunnen kunne bare settes VED opprettelse, eller av veiviseren når
+    /// den var NULL. En navneform opprettet av Brreg-/katalogimporten (uten grunn) kunne derfor ikke
+    /// merkes som gjeldende/utgått i etterkant uten å lage en dublett — som er nøyaktig dubletten
+    /// vakten i <see cref="OpprettVirksomhetsbegrepAsync"/> nå nekter.
+    /// </summary>
+    /// <returns><c>false</c> hvis iden ikke finnes eller ikke er en navneform.</returns>
+    public async Task<bool> SettNavneformgrunnAsync(
+        Guid id, string? navneformgrunn, string endretAv, CancellationToken ct = default)
+    {
+        if (!ErGyldigNavneformgrunn(navneformgrunn))
+        {
+            throw new ArgumentException(
+                $"Ugyldig navneformgrunn '{navneformgrunn}'. Gyldige verdier: {string.Join(", ", Navneformgrunner)} "
+                + "(eller null for uspesifisert). Ingen gjettet fallback.");
+        }
+        var navneform = await db.Begreper.FirstOrDefaultAsync(
+            b => b.Id == id && b.Begrepskategori == "virksomhet", ct);
+        if (navneform is null) return false;
+        navneform.Navneformgrunn = navneformgrunn;
+        navneform.SistEndretAv = endretAv;
+        navneform.SistEndretTidspunkt = DateTimeOffset.UtcNow;
+        db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", id, virksomhetId: null, "endret", endretAv));
+        await db.SaveChangesAsync(ct);
+        return true;
+    }
+
+    /// <summary>
+    /// [Ny, nemnd/sekretariat-runden, 2026-09-09] Sletter én navneform, sammen med tekst-taggene som
+    /// peker på den. EKTE sletting (<c>Remove</c>), ikke en status — samme prinsipp Johann låste for
+    /// virksomhetsrelasjoner («det skal være mulig å slette, ikke sette status 'slettes'»).
+    /// <para>
+    /// Taggene MÅ med: en tagg med <c>RefId</c> mot en navneform som ikke finnes lenger er en
+    /// markering i lovteksten som ikke kan følges noe sted — verre enn ingen markering, fordi den ser
+    /// ut som en lukket kjede. De slettes derfor i samme operasjon, og antallet returneres slik at
+    /// kalleren kan si hva som faktisk forsvant.
+    /// </para>
+    /// <para>
+    /// Bakgrunn: dublett-navneformer (samme term to ganger mot samme virksomhet) fantes i basen og
+    /// ga dobbelt markering av samme organnavn i samme setning. Vakten i
+    /// <see cref="OpprettVirksomhetsbegrepAsync"/> hindrer NYE; denne finnes for å kunne rydde de
+    /// gamle, siden det ikke fantes noen vei til å fjerne en navneform i det hele tatt.
+    /// </para>
+    /// </summary>
+    /// <returns><c>null</c> hvis iden ikke finnes eller ikke er en navneform; ellers antall tagger som ble slettet med.</returns>
+    public async Task<int?> SlettVirksomhetsbegrepAsync(Guid id, string slettetAv, CancellationToken ct = default)
+    {
+        var navneform = await db.Begreper.FirstOrDefaultAsync(
+            b => b.Id == id && b.Begrepskategori == "virksomhet", ct);
+        if (navneform is null) return null;
+
+        var tagger = await db.TekstTagger.Where(t => t.RefId == id).ToListAsync(ct);
+        db.TekstTagger.RemoveRange(tagger);
+        db.Begreper.Remove(navneform);
+        db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", id, virksomhetId: null, "slettet", slettetAv));
+        await db.SaveChangesAsync(ct);
+        return tagger.Count;
     }
 
     /// <summary>

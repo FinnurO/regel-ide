@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RegelIde.Data;
@@ -12,9 +13,11 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    partial class RegelIdeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260909014950_OmklassifiserNavneformTaggerTilVirksomhetslaget")]
+    partial class OmklassifiserNavneformTaggerTilVirksomhetslaget
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1644,14 +1647,6 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("kategori");
 
-                    b.Property<string>("Konfidens")
-                        .HasColumnType("text")
-                        .HasColumnName("konfidens");
-
-                    b.Property<string>("KonfidensGrunn")
-                        .HasColumnType("text")
-                        .HasColumnName("konfidens_grunn");
-
                     b.Property<string>("NodeEid")
                         .IsRequired()
                         .HasColumnType("text")
@@ -1700,10 +1695,6 @@ namespace RegelIde.Data.Migrasjoner
                     b.ToTable("navnekandidater", null, t =>
                         {
                             t.HasCheckConstraint("ck_navnekandidater_kategori", "kategori IN ('virksomhet', 'gruppe')");
-
-                            t.HasCheckConstraint("ck_navnekandidater_konfidens", "konfidens IS NULL OR konfidens IN ('hoy', 'lav')");
-
-                            t.HasCheckConstraint("ck_navnekandidater_konfidens_grunn", "konfidens_grunn IS NULL OR konfidens_grunn IN ('snl_treff', 'ssr_med_institusjonsord', 'ssr_uten_institusjonsord', 'ukjent_i_snl_og_ssr')");
 
                             t.HasCheckConstraint("ck_navnekandidater_status", "status IN ('Venter', 'Godkjent', 'Avvist')");
                         });

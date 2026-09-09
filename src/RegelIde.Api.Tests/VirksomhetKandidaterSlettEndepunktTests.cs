@@ -166,6 +166,10 @@ public class VirksomhetKandidaterSlettEndepunktTests
 
         await using var db = _fixture.NyDbContext();
         Assert.True(await db.VirksomhetKandidater.AnyAsync(k => k.Id == kandidat.Id)); // ikke slettet.
-        Assert.True(await db.TekstTagger.AnyAsync(t => t.RettskildeId == rettskildeId && t.VirksomhetId == virksomhetId)); // taggen består.
+        // [ENDRET 2026-09-09] Filtrerer IKKE på VirksomhetId lenger: taggen eies av den som GODKJENTE
+        // (juristens egen virksomhet), ikke av organet som ble tagget — se
+        // VirksomhetKandidatTjeneste.GodkjennAsync sin eierVirksomhetId-parameter. Poenget her er at
+        // taggen BESTÅR, og det er rettskilden som identifiserer den i denne testen.
+        Assert.True(await db.TekstTagger.AnyAsync(t => t.RettskildeId == rettskildeId)); // taggen består.
     }
 }

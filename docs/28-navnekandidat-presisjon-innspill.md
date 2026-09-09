@@ -112,14 +112,74 @@ Sentral klagenemnd   --underlagt-->      Landbruks- og matdepartementet         
 (Om de lokale merkenemndene selv er «underlagt» departementet direkte eller Statsforvalteren, er
 ikke avklart — reelt åpent spørsmål som krever oppslag per nemnd, ikke noe modellen kan utlede.)
 
-### Konkret, ikke rettet ennå
+### Konkret — status etter nemnd/sekretariat-runden (2026-09-09)
 
-De 6 feilkoblede klagenemndene (Konkurranseklagenemnda, Medieklagenemnda, Stiftelsesklagenemnda,
-Energiklagenemnda, Finanstilsynsklagenemnda, Klagenemnda for godkjenning av utenlandsk utdanning)
-mangler fortsatt sin KNS-kobling i databasen, og 2 nemnder fra org-kartet
-(Frivillighetsregisternemnda, Lotterinemnda) finnes ikke i katalogen i det hele tatt. Selve
-UI-bugen (nullstiller «Del av virksomhet» etter hver opprettelse) er heller ikke rettet. Alt dette
-venter på eksplisitt "gjør det nå" fra Johann, samme som resten av dette dokumentet.
+**Gjort.** Fire nemnder har nå sin KNS-kobling, opprettet med hjemmel der loven faktisk har en
+sekretariatsbestemmelse — og bevisst UTEN hjemmel der den ikke har det:
+
+| Nemnd | `sekretariat`-hjemmel | Verifisert tekst |
+|---|---|---|
+| Konkurranseklagenemnda | konkurranseloven § 36 sjette ledd | «Konkurranseklagenemndas sekretariat skal utføre de oppgavene som lederen pålegger …» |
+| Energiklagenemnda | forskrift om Energiklagenemnda § 2 femte ledd | «Energiklagenemndas sekretariat skal utføre de oppgavene som lederen pålegger …» |
+| Stiftelsesklagenemnda | stiftelsesloven § 7 a tredje ledd | «Stiftelsesklagenemnda skal ha et sekretariat som foretar saksforberedelse.» |
+| Klagenemnd for godkjenning av utenlandsk utdanning og yrkesgodkjenning | **ingen** | forskrift om enkelte klagenemnder på Kunnskapsdepartementets område kap. 3 §§ 6–9 regulerer bare oppgaver, oppnevning, vedtaksførhet og delegering |
+
+Den siste raden er poenget, ikke et hull: at KNS er sekretariat der er bekreftet mot
+organisasjonskartet på klagenemndssekretariatet.no, ikke mot en rettskilde. Den ligger derfor inne
+med `Kommentar` og uten `HjemmelRettskildeId`, og vises med en «Ingen hjemmel»-merkelapp. En
+gjettet paragraf hadde vært den samme feilen som resten av dette dokumentet advarer mot.
+
+I tillegg er to `klageinstans`-relasjoner opprettet, begge hjemlet: Konkurransetilsynet →
+Konkurranseklagenemnda (konkurranseloven § 35 første ledd) og Energiklagenemnda →
+Energidepartementet (forskrift om Energiklagenemnda § 1 andre ledd).
+
+Navneformene «Konkurranseklagenemnda», «Konkurransetilsynet», «Energiklagenemnda»,
+«Stiftelsesklagenemnda» og «Klagenemnd for godkjenning av utenlandsk utdanning og yrkesgodkjenning»
+er tagget i bestemmelsene de står i. Merk den siste: LOVEN skriver «Klagenemnd», registeret
+«Klagenemnda». Navneformen følger loven, og er derfor også det UI-et viser.
+
+**Ikke gjort ennå.** Medieklagenemnda, Finanstilsynsklagenemnda, Lotterinemnda og
+Frivillighetsregisternemnda mangler fortsatt KNS-koblingen (de tre siste finnes nå i katalogen, i
+motsetning til da dette ble skrevet). `underlagt`-relasjoner er bevisst IKKE opprettet for noen av
+nemndene: flere av dem er eksplisitt uavhengige i egen hjemmel (f.eks. forskrift om
+Energiklagenemnda § 1 tredje ledd), og «oppnevnes av departementet» er ikke det samme som
+«underlagt». Selve UI-bugen (nullstiller «Del av virksomhet» etter hver opprettelse) er heller ikke
+rettet.
+
+### RME-kjeden (2026-09-09) — det generiske begrepet, organet og klageveien
+
+Johann pekte på forskrift om Energiklagenemnda § 1 og spurte hvorfor «Reguleringsmyndigheten for
+energi» ikke kom opp som navnekandidat. Tre grunner, alle reelle:
+
+1. Det brede stor-bokstav-mønsteret fanget «Reguleringsmyndigheten» AVKUTTET (uten «for energi») —
+   flerords-mønsteret dekker ikke «[Egennavn] for [noe]», og «myndighet» står ikke i
+   `Institusjonsord`.
+2. Kandidaten ble deretter AUTOMATISK AVVIST fordi SNL/SSR ikke kjenner den. Raden finnes, men bare
+   under «Avvist automatisk».
+3. «Energiklagenemnda» i samme setning ble hoppet over helt: den står ved SETNINGSSTART, som
+   `ErSetningsstart` filtrerer bort. Formen som FANTES i andre ledd var genitiven
+   «Energiklagenemndas».
+
+Modellen som ble lagt inn, med verifisert korpustekst bak hver rad:
+
+| Påstand | Hjemmel |
+|---|---|
+| «reguleringsmyndighet» er et gruppebegrep (kompetansenorm) i energiloven | energiloven § 2-5 første ledd: «Departementet utpeker en reguleringsmyndighet og klagenemnd …» |
+| Samme term, egen rad, i naturgassloven | naturgassloven § 4 første ledd, samme ordlyd |
+| RME ER den reguleringsmyndigheten (myndighetstildeling) | naturgassforskriften § 1-4 første ledd: «Reguleringsmyndigheten for energi (RME) er reguleringsmyndighet for omsetning av naturgass, jf. naturgassloven § 4.» |
+| RME har klageinstans hos Energiklagenemnda | forskrift om Energiklagenemnda § 1 første ledd (og naturgassforskriften § 1-4 tredje ledd sier det samme eksplisitt) |
+| Energiklagenemnda har klageinstans hos Energidepartementet | forskrift om Energiklagenemnda § 1 andre ledd |
+| RME er en enhet i NVE | **ingen** — organisatorisk. Delegeringsvedtaket til NVE sier tvert imot at «myndighet tillagt reguleringsmyndigheten og klagenemnden … omfattes ikke av delegeringsvedtaket her» (kap. I). Plasseringen er administrativ, myndigheten er RMEs egen. Ligger inne med kommentar, uten hjemmel. |
+
+Merk at loven bruker den GENERISKE termen. Det er derfor to lag: gruppebegrepet «reguleringsmyndighet»
+hører til loven, og at nettopp RME er den, står i forskriften. Å tagge organnavnet direkte i
+energiloven § 2-5 ville vært en gjetning — der står det ikke.
+
+Navneformer: «Reguleringsmyndigheten for energi» (gjeldende) og «RME» (kortform). Virksomhetssveipet
+ga 522 treff: 518 på det fulle navnet, 4 på kortformen. To av de fire var FALSKE — «HFO ISO 8217 RME
+til RMK» er en drivstoffkvalitet i en CO2-faktortabell, ikke et organ. 520 godkjent, 2 avvist. Det er
+grunnen til at køen krever et menneske: en kortform på tre bokstaver er tvetydig, og systemet skal
+ikke late som noe annet.
 
 ## Observert utgangspunkt
 

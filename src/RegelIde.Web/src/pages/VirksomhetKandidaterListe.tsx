@@ -8,6 +8,7 @@ import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
+import { KandidatflytForklaring } from '../kandidater/KandidatflytForklaring';
 
 type Sorteringskolonne = 'virksomhet' | 'rettskilde' | 'status' | 'opprettet';
 
@@ -343,10 +344,11 @@ export default function VirksomhetKandidaterListe() {
       <Heading level={1} data-size="lg" style={{ marginBottom: '0.2rem' }}>
         Virksomhetskandidater
       </Heading>
-      <Paragraph style={{ marginBottom: '1.25rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
+      <Paragraph style={{ marginBottom: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
         Forekomster av virksomheters navneformer funnet ved tekstsøk i rettskilder — godkjenn for å
         opprette en faktisk tekst-tagg, avvis for å fjerne fra køen.
       </Paragraph>
+      <KandidatflytForklaring aktiv="virksomhet" />
 
       <Card style={{ padding: '1rem', marginBottom: '1.5rem' }}>
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>

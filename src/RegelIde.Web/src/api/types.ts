@@ -559,6 +559,15 @@ export interface NavnekandidatDto {
   snlOrganisasjonsnummer: string | null;
   ssrBekreftetStedsnavn: boolean | null;
   ssrObjektType: string | null;
+  /** [Ny, konfidens-runden, 2026-09-09] `'hoy'` | `'lav'` | `null` (ikke klassifisert — alle
+   * `gruppe`-kandidater, og rader fra før feltet fantes). Erstatter automatisk avvisning: et treff
+   * SNL/SSR ikke bekreftet venter nå på et menneske med LAV konfidens, i stedet for å bli avvist av
+   * systemet. Johann 2026-09-09. */
+  konfidens: string | null;
+  /** Hvorfor konfidensen ble som den ble — `'snl_treff'` | `'ssr_med_institusjonsord'` |
+   * `'ssr_uten_institusjonsord'` | `'ukjent_i_snl_og_ssr'`, eller `null`. «Lav» alene er ikke
+   * handlingsrettet; grunnen er det. */
+  konfidensGrunn: string | null;
 }
 
 /** rettskildeId=null sveiper hele det importerte korpuset, satt snevrer inn til én rettskilde. */
@@ -1750,4 +1759,19 @@ export interface VisningsinnstillingInput {
   accordionRekkefolge: string[];
   /** Åpen/lukket per fast accordion-nøkkel. */
   accordionApne: Record<string, boolean>;
+}
+
+/** [Ny, nemnd/sekretariat-runden, 2026-09-09] Én virksomhetsrelasjon hjemlet i én rettskilde —
+ * GET /api/rettskilder/{id}/virksomhetsrelasjoner. `visningstekst` er ferdig satt sammen fra
+ * relasjonstypens Fra-mal («Konkurransetilsynet har klageinstans hos Konkurranseklagenemnda»). */
+export interface VirksomhetRelasjonHjemletDto {
+  id: string;
+  relasjonsType: string;
+  visningstekst: string;
+  fraVirksomhetId: string;
+  fraNavn: string;
+  tilVirksomhetId: string;
+  tilNavn: string;
+  hjemmelEid: string | null;
+  kommentar: string | null;
 }

@@ -462,6 +462,18 @@ public sealed record VirksomhetRelasjonDto(
         v.HjemmelRettskildeId, v.HjemmelEid, v.Kommentar);
 }
 
+/// <summary>[Ny, nemnd/sekretariat-runden, 2026-09-09] Én relasjon hjemlet i én rettskilde — se
+/// <see cref="VirksomhetRelasjonHjemletVisning"/> for hvorfor lovens side trenger sin egen form.</summary>
+public sealed record VirksomhetRelasjonHjemletDto(
+    Guid Id, string RelasjonsType, string Visningstekst,
+    Guid FraVirksomhetId, string FraNavn, Guid TilVirksomhetId, string TilNavn,
+    string? HjemmelEid, string? Kommentar)
+{
+    public static VirksomhetRelasjonHjemletDto FraVisning(VirksomhetRelasjonHjemletVisning v) => new(
+        v.Id, v.RelasjonsType, v.Visningstekst, v.FraVirksomhetId, v.FraNavn, v.TilVirksomhetId, v.TilNavn,
+        v.HjemmelEid, v.Kommentar);
+}
+
 /// <summary>Forespørsel for POST /api/virksomheter/{id}/relasjoner — {id} blir alltid FraVirksomhetId
 /// (samme «{id} er alltid Fra-siden»-konvensjon som POST /api/tjenester/{id}/avhengigheter).</summary>
 public sealed record VirksomhetRelasjonRequest(
@@ -607,6 +619,9 @@ public sealed record OpprettVirksomhetRequest(string Navn, Guid? OverordnetEnhet
 /// får NULL, uendret oppførsel.
 /// </param>
 public sealed record VirksomhetsbegrepRequest(Guid VirksomhetId, string Term, string? SkosUrl, string? Navneformgrunn);
+
+/// <summary>[Ny, 2026-09-09] Kropp for POST /api/virksomhetsbegrep/{id}/navneformgrunn. Null = uspesifisert.</summary>
+public sealed record SettNavneformgrunnRequest(string? Navneformgrunn);
 public sealed record GruppebegrepRequest(Guid LovkildeId, string Term);
 
 public sealed record ParagrafspennParDto(string FraEid, string? TilEid);
@@ -716,12 +731,16 @@ public sealed record NavnekandidatDto(
     // EksternNavneoppslagCacheEntitet PÅ LESETIDSPUNKTET, ved ForeslattTekst som oppslagsterm.
     string? OppdagelsesKilde,
     string? SnlUrl, IReadOnlyList<string>? SnlAlias, string? SnlOrganisasjonsnummer,
-    bool? SsrBekreftetStedsnavn, string? SsrObjektType)
+    bool? SsrBekreftetStedsnavn, string? SsrObjektType,
+    // [Ny, konfidens-runden, 2026-09-09] 'hoy'/'lav'/null — se NavnekandidatEntitet.Konfidens.
+    // Erstatter automatisk avvisning: raden venter uansett, konfidensen sier hvor godt bekreftet
+    // treffet er, og KonfidensGrunn sier hvorfor.
+    string? Konfidens, string? KonfidensGrunn)
 {
     public static NavnekandidatDto FraEntitet(NavnekandidatEntitet k) => new(
         k.Id, k.ForeslattTekst, k.Kategori, k.RettskildeId, k.NodeEid, k.StartOffset, k.EndOffset, k.Status,
         k.OpprettetAv, k.OpprettetTidspunkt, k.BehandletAv, k.BehandletTidspunkt, k.OppdagelsesKilde,
-        null, null, null, null, null);
+        null, null, null, null, null, k.Konfidens, k.KonfidensGrunn);
 }
 
 /// <summary>

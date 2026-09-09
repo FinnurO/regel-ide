@@ -438,11 +438,15 @@ public class NavnekandidatOppdagelseTjenesteTests
     /// "ukjent i begge" beholdes som en lav-tillit "Venter"-kandidat). Under DENNE arkitekturen fanges
     /// "Fiskeridirektoratet" av det brede stor-bokstav-mønsteret og klassifiseres — default-stubben
     /// (<see cref="NyTjeneste"/>) svarer "ingen treff" for BEGGE eksterne kilder, så det nye to-utfalls-
-    /// resultatet er <c>"Avvist"</c> (se <c>KlassifiserAsync</c>s kommentar) — MEN raden opprettes
-    /// FORTSATT (synlig, revisjonsbar), ikke stille forkastet.
+    /// resultatet er LAV KONFIDENS (se <c>KlassifiserAsync</c>s kommentar).
+    /// <para>
+    /// [ENDRET, konfidens-runden, 2026-09-09] Ga tidligere <c>Status = "Avvist"</c> direkte. Nå
+    /// <c>"Venter"</c> med <c>Konfidens = "lav"</c>: automatisk avvisning skjulte reelle organer SNL
+    /// ikke har artikler om — se <see cref="NavnekandidatEntitet.Konfidens"/>.
+    /// </para>
     /// </summary>
     [Fact]
-    public async Task Sveip_ukjent_virksomhetskandidat_via_stor_bokstav_monster_opprettes_direkte_som_avvist()
+    public async Task Sveip_ukjent_virksomhetskandidat_via_stor_bokstav_monster_far_lav_konfidens()
     {
         // Merk: hver "virksomhet"-kategori-DB-test under bruker sitt EGET, unike institusjonsnavn
         // (ikke gjenbruk av samme navn på tvers av flere tester) — bevisst, siden "allerede dekket"-
@@ -460,7 +464,10 @@ public class NavnekandidatOppdagelseTjenesteTests
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
         Assert.Equal("virksomhet", kandidat.Kategori);
         Assert.Equal("Fiskeridirektoratet", kandidat.ForeslattTekst);
-        Assert.Equal("Avvist", kandidat.Status);
+        Assert.Equal("Venter", kandidat.Status);
+        Assert.Equal("lav", kandidat.Konfidens);
+        Assert.Equal("ukjent_i_snl_og_ssr", kandidat.KonfidensGrunn);
+        Assert.Null(kandidat.BehandletAv); // ingen har avvist den — den venter på et menneske.
         Assert.Equal(NavnekandidatOppdagelseTjeneste.StorBokstavOppdagelsesKilde, kandidat.OppdagelsesKilde);
     }
 
@@ -653,9 +660,9 @@ public class NavnekandidatOppdagelseTjenesteTests
     /// <summary>
     /// [Restrukturert, 2026-09-03] Under den GAMLE arkitekturen fikk ETHVERT "virksomhet"-treff
     /// Status="Venter" uansett SNL/SSR — under DENNE arkitekturen krever <see cref="NavnekandidatOppdagelseTjeneste.GodkjennAsync"/>
-    /// fortsatt <c>Status == "Venter"</c>, så testen må nå bruke en STUBBET SNL-bekreftelse (i stedet for
-    /// standard-stubben, som svarer "ingen treff" for begge kilder og dermed ville gitt Status="Avvist"
-    /// direkte, se <c>KlassifiserAsync</c>) for å faktisk få en godkjennbar kandidat.
+    /// fortsatt <c>Status == "Venter"</c>. [ENDRET, konfidens-runden, 2026-09-09] Standard-stubben gir
+    /// nå også "Venter" (bare med lav konfidens), så SNL-stubben her er ikke lenger strengt nødvendig
+    /// for å få en godkjennbar kandidat — den beholdes fordi testen skal dekke HØY-konfidens-veien.
     /// </summary>
     [Fact]
     public async Task Godkjenning_av_virksomhetskandidat_oppretter_ikke_noe_begrep()
@@ -697,12 +704,66 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal(antallBegrepFor, await db.Begreper.CountAsync()); // ingen ny rad — se metodekommentaren.
     }
 
+    /// <summary>
+    /// [Ny, konfidens-runden, 2026-09-09] Johanns eksempel, ordrett: sveipet fanget
+    /// «Reguleringsmyndigheten» avkuttet, og veiviseren skal kunne utvide det til
+    /// «Reguleringsmyndigheten for energi». Da MÅ tegnposisjonene følge teksten — ellers siterer
+    /// taggen 22 tegn mens navneformen har 33.
+    /// </summary>
+    [Fact]
+    public async Task Oppdater_utvidet_tekst_flytter_tegnposisjonene_til_den_nye_teksten()
+    {
+        await using var db = _fixture.NyDbContext();
+        const string tekst = "Energiklagenemnda behandler klager over vedtak truffet av Reguleringsmyndigheten for energi.";
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, tekst);
+        var node = await db.RettskildeNoder.FirstAsync(n => n.RettskildeId == rettskildeId && n.Tekst == tekst);
+        var tjeneste = NyTjeneste(db);
+        var avkuttetStart = tekst.IndexOf("Reguleringsmyndigheten", StringComparison.Ordinal);
+        var kandidat = await tjeneste.OpprettEllerFinnAsync(
+            "Reguleringsmyndigheten", "virksomhet", rettskildeId, node.Eid,
+            avkuttetStart, avkuttetStart + "Reguleringsmyndigheten".Length, "sveip");
+
+        var oppdatert = await tjeneste.OppdaterAsync(
+            kandidat.Id, "Reguleringsmyndigheten for energi", null, "Kari Jurist");
+
+        Assert.Equal("Reguleringsmyndigheten for energi", oppdatert!.ForeslattTekst);
+        Assert.Equal(avkuttetStart, oppdatert.StartOffset);
+        Assert.Equal(avkuttetStart + "Reguleringsmyndigheten for energi".Length, oppdatert.EndOffset);
+        // Selve poenget: utdraget i noden er nå NØYAKTIG den nye teksten.
+        Assert.Equal("Reguleringsmyndigheten for energi", tekst[oppdatert.StartOffset..oppdatert.EndOffset]);
+    }
+
+    /// <summary>
+    /// [Ny, konfidens-runden, 2026-09-09] Motstykket: en rettet SKRIVEMÅTE som ikke står slik i loven
+    /// («Matilsynet» → «Mattilsynet») finnes ikke i teksten, og da skal posisjonene stå urørt. Å flytte
+    /// dem til «nærmeste noe» ville pekt taggen på en annen streng enn den som ble funnet. For slike
+    /// navn er navneformgrunn 'feilskriving' mekanismen — se OppdaterAsync sin kommentar.
+    /// </summary>
+    [Fact]
+    public async Task Oppdater_til_tekst_som_ikke_finnes_i_noden_lar_tegnposisjonene_sta()
+    {
+        await using var db = _fixture.NyDbContext();
+        const string tekst = "Tilsyn føres av Matilsynet etter denne forskriften.";
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, tekst);
+        var node = await db.RettskildeNoder.FirstAsync(n => n.RettskildeId == rettskildeId && n.Tekst == tekst);
+        var tjeneste = NyTjeneste(db);
+        var start = tekst.IndexOf("Matilsynet", StringComparison.Ordinal);
+        var kandidat = await tjeneste.OpprettEllerFinnAsync(
+            "Matilsynet", "virksomhet", rettskildeId, node.Eid, start, start + "Matilsynet".Length, "sveip");
+
+        var oppdatert = await tjeneste.OppdaterAsync(kandidat.Id, "Mattilsynet", null, "Kari Jurist");
+
+        Assert.Equal("Mattilsynet", oppdatert!.ForeslattTekst);
+        Assert.Equal(start, oppdatert.StartOffset);
+        Assert.Equal(start + "Matilsynet".Length, oppdatert.EndOffset);
+    }
+
     /// <summary>[Restrukturert, 2026-09-03] Bruker nå en "gruppe"-kandidat (FasteRollesubstantiv,
-    /// "Departementet") i stedet for en "virksomhet"-kandidat fra det gamle suffiksmønsteret — en
-    /// "virksomhet"-kandidat fra standard-stubben (ingen treff i SNL/SSR) opprettes nå DIREKTE som
-    /// "Avvist" (se <c>KlassifiserAsync</c>), og kan derfor ikke lenger "avvises" via <see cref="NavnekandidatOppdagelseTjeneste.AvvisAsync"/>
-    /// (som krever Status=="Venter") — "gruppe" er derimot alltid "Venter" ved opprettelse (aldri
-    /// klassifisert), og demonstrerer akkurat samme idempotens-poeng.</summary>
+    /// "Departementet") i stedet for en "virksomhet"-kandidat fra det gamle suffiksmønsteret.
+    /// [ENDRET, konfidens-runden, 2026-09-09] Begrunnelsen var at en ukjent "virksomhet"-kandidat ble
+    /// auto-avvist og derfor ikke kunne avvises manuelt; nå er ALLE "Venter" ved opprettelse, så
+    /// begge kategoriene ville fungert her. Testen beholdes som den er — den demonstrerer
+    /// idempotens-poenget like godt.</summary>
     [Fact]
     public async Task Avvisning_setter_status_avvist_og_hindrer_ikke_ny_sveip_i_a_gjenskape_den()
     {
@@ -728,11 +789,17 @@ public class NavnekandidatOppdagelseTjenesteTests
     /// <summary>
     /// [Ny, 2026-09-04, issue "Avvist (automatisk)"] Johann: «Avvist er jo noe man aktivt gjør som
     /// person. Avvist (automatisk) er jo noe helt annet.» — <see cref="NavnekandidatOppdagelseTjeneste.ListerAsync"/>s
-    /// nye <c>behandletAutomatisk</c>-parameter må faktisk skille de to: en "virksomhet"-kandidat uten
-    /// SNL/SSR-treff opprettes DIREKTE som Status="Avvist" med <see cref="NavnekandidatEntitet.BehandletAv"/>
-    /// ALDRI satt (se <c>KlassifiserAsync</c>/<c>OpprettEllerFinnAsync</c>), mens en "gruppe"-kandidat en
-    /// saksbehandler eksplisitt avviser via <see cref="NavnekandidatOppdagelseTjeneste.AvvisAsync"/> FÅR
-    /// BehandletAv satt — begge lander på nøyaktig samme Status="Avvist", kun BehandletAv skiller dem.
+    /// nye <c>behandletAutomatisk</c>-parameter må faktisk skille de to: en rad ingen har rørt
+    /// (<see cref="NavnekandidatEntitet.BehandletAv"/> aldri satt) fra en rad en saksbehandler
+    /// eksplisitt avviste via <see cref="NavnekandidatOppdagelseTjeneste.AvvisAsync"/> — begge lander
+    /// på nøyaktig samme Status="Avvist", kun BehandletAv skiller dem.
+    /// <para>
+    /// [ENDRET, konfidens-runden, 2026-09-09] Den auto-avviste raden ble tidligere laget av sveipet
+    /// selv (SNL/SSR-miss ga Status="Avvist" direkte). Automatisk avvisning finnes ikke lenger — se
+    /// <see cref="NavnekandidatEntitet.Konfidens"/> — så testen setter nå opp raden direkte. Filteret
+    /// er fortsatt meningsfullt: rader fra FØR omleggingen har nettopp denne formen, og
+    /// «Avvist (automatisk)»-fanen i UI-et viser dem.
+    /// </para>
     /// </summary>
     [Fact]
     public async Task ListerAsync_behandletAutomatisk_skiller_SNL_SSR_selv_avvist_fra_manuelt_avvist()
@@ -745,7 +812,9 @@ public class NavnekandidatOppdagelseTjenesteTests
         var tjeneste = NyTjeneste(db); // "ingen treff i SNL/SSR"-stub — se NyTjeneste sin doc-kommentar.
         await tjeneste.SveipAsync(autoRettskildeId, "test");
         var autoAvvist = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == autoRettskildeId);
-        Assert.Equal("Avvist", autoAvvist.Status);
+        // Formen en rad fra FØR konfidens-omleggingen har: Avvist uten at noen har rørt den.
+        autoAvvist.Status = "Avvist";
+        await db.SaveChangesAsync();
         Assert.Null(autoAvvist.BehandletAv); // aldri rørt av et menneske
 
         await tjeneste.SveipAsync(manueltRettskildeId, "test");
@@ -878,7 +947,9 @@ public class NavnekandidatOppdagelseTjenesteTests
         var kandidater = await db.Navnekandidater.Where(k => k.RettskildeId == rettskildeId).ToListAsync();
         Assert.Equal(2, kandidater.Count);
         Assert.All(kandidater, k => Assert.Equal("Sjøfartsdirektoratet", k.ForeslattTekst));
-        Assert.All(kandidater, k => Assert.Equal("Avvist", k.Status)); // ukjent i begge -> Avvist, se KlassifiserAsync.
+        // [ENDRET, konfidens-runden, 2026-09-09] ukjent i begge -> Venter med LAV konfidens (var Avvist).
+        Assert.All(kandidater, k => Assert.Equal("Venter", k.Status));
+        Assert.All(kandidater, k => Assert.Equal("lav", k.Konfidens));
         Assert.Equal(2, kandidater.Select(k => k.StartOffset).Distinct().Count());
 
         Assert.Equal(1, antallSnlKall); // samle-så-klassifiser: ÉN klassifisering for BEGGE posisjonene.
@@ -958,11 +1029,10 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal(1, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeB)); // urørt.
     }
 
-    /// <summary>Bulk-sletting filtrert på status skal KUN slette rader med akkurat den statusen. [Restrukturert,
-    /// 2026-09-03] Demonstrerer nå det NYE to-utfalls-klassifiseringsresultatet direkte: "gruppe"-kandidaten
-    /// ("Kommunen") er Venter ved opprettelse (aldri klassifisert), "virksomhet"-kandidaten ("Oljedirektoratet")
-    /// er Avvist DIREKTE ved opprettelse (standard-stubben svarer ingen treff i SNL/SSR) — ingen manuell
-    /// AvvisAsync-kall trengs lenger for å sette opp scenarioet.</summary>
+    /// <summary>Bulk-sletting filtrert på status skal KUN slette rader med akkurat den statusen.
+    /// [ENDRET, konfidens-runden, 2026-09-09] Begge kandidatene opprettes nå som "Venter" —
+    /// automatisk avvisning finnes ikke lenger (se <see cref="NavnekandidatEntitet.Konfidens"/>) — så
+    /// scenarioet settes opp med et eksplisitt <c>AvvisAsync</c>-kall igjen.</summary>
     [Fact]
     public async Task SlettAlleAsync_med_statusfilter_sletter_kun_matchende_status()
     {
@@ -975,7 +1045,11 @@ public class NavnekandidatOppdagelseTjenesteTests
         var gruppeKandidat = kandidater.Single(k => k.Kategori == "gruppe");
         var virksomhetKandidat = kandidater.Single(k => k.Kategori == "virksomhet");
         Assert.Equal("Venter", gruppeKandidat.Status);
-        Assert.Equal("Avvist", virksomhetKandidat.Status);
+        Assert.Equal("Venter", virksomhetKandidat.Status);
+        Assert.Equal("lav", virksomhetKandidat.Konfidens); // ukjent i SNL/SSR = lav konfidens, ikke avvisning.
+        // [ENDRET, konfidens-runden, 2026-09-09] Auto-avvisning finnes ikke lenger; en
+        // Avvist-rad må derfor settes opp med et eksplisitt AvvisAsync-kall.
+        await tjeneste.AvvisAsync(virksomhetKandidat.Id, "Kari Jurist");
 
         var antallSlettet = await tjeneste.SlettAlleAsync(status: "Avvist", rettskildeId: rettskildeId);
 
@@ -998,6 +1072,9 @@ public class NavnekandidatOppdagelseTjenesteTests
         var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(autoRettskildeId, "test");
         var autoAvvist = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == autoRettskildeId);
+        // Formen en rad fra FØR konfidens-omleggingen har: Avvist uten at noen har rørt den.
+        autoAvvist.Status = "Avvist";
+        await db.SaveChangesAsync();
         await tjeneste.SveipAsync(manueltRettskildeId, "test");
         var venterKandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == manueltRettskildeId);
         await tjeneste.AvvisAsync(venterKandidat.Id, "Kari Jurist");
@@ -1031,11 +1108,11 @@ public class NavnekandidatOppdagelseTjenesteTests
     /// utstubbet <see cref="HttpClient"/> (ingen <see cref="HttpMessageHandler"/> overstyrt i det hele
     /// tatt) — trygt DEN gang, siden <see cref="NavnekandidatOppdagelseTjeneste.SveipAsync"/> aldri
     /// kalte <see cref="EksternNavneoppslagTjeneste"/> uansett. Svarer nå "ingen treff" for BEGGE
-    /// kildene — [Restrukturert, 2026-09-03] under den NYE to-utfalls-klassifiseringen betyr det at
-    /// ENHVER "virksomhet"-kandidat denne default-hjelpemetoden sveiper opp opprettes DIREKTE med
-    /// Status="Avvist" (se <c>KlassifiserAsync</c>). Tester som trenger en Status="Venter"-
-    /// "virksomhet"-kandidat (for å teste godkjenningsflyten) bygger sin egen tjeneste med
-    /// <see cref="NyTjenesteMedStubbetOppslag"/> og en SNL-bekreftende stub i stedet.
+    /// kildene — [ENDRET, konfidens-runden, 2026-09-09] det betyr nå at ENHVER "virksomhet"-kandidat
+    /// denne default-hjelpemetoden sveiper opp får <c>Konfidens = "lav"</c>, men fortsatt
+    /// <c>Status = "Venter"</c> og er dermed godkjennbar (se <c>KlassifiserAsync</c>). Tester som
+    /// trenger HØY konfidens bygger sin egen tjeneste med <see cref="NyTjenesteMedStubbetOppslag"/>
+    /// og en SNL-bekreftende stub.
     /// </summary>
     private static NavnekandidatOppdagelseTjeneste NyTjeneste(RegelIdeDbContext db) => NyTjenesteMedStubbetOppslag(db, req =>
         Json(req.RequestUri!.ToString().Contains("stedsnavn", StringComparison.OrdinalIgnoreCase)
@@ -1252,11 +1329,14 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal("111222333", cacheRad.OrganisasjonsnummerFunnet);
     }
 
-    /// <summary>[Restrukturert, 2026-09-03] Ga TIDLIGERE ingen rad i det hele tatt (stille forkastet) —
-    /// gir nå en <c>"Avvist"</c>-rad (synlig, revisjonsbar), se klassekommentarens "To-utfalls
-    /// klassifisering"-avsnitt.</summary>
+    /// <summary>[ENDRET, konfidens-runden, 2026-09-09] Ga først ingen rad (stille forkastet), deretter
+    /// en <c>"Avvist"</c>-rad. Gir nå en <c>"Venter"</c>-rad med LAV konfidens og grunnen
+    /// <c>ssr_uten_institusjonsord</c>: et SSR-bekreftet stedsnavn uten institusjonsord etter er
+    /// oftest en geografisk referanse i løpetekst — men «oftest» er ikke «alltid», og systemet skal
+    /// ikke avgjøre det selv. Grunnen er lagret nettopp slik at saksbehandleren ser HVORFOR
+    /// konfidensen er lav.</summary>
     [Fact]
-    public async Task Sveip_ssr_bekreftet_stedsnavn_uten_institusjonsord_etter_gir_avvist_men_synlig_kandidat()
+    public async Task Sveip_ssr_bekreftet_stedsnavn_uten_institusjonsord_etter_gir_lav_konfidens()
     {
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
@@ -1273,10 +1353,12 @@ public class NavnekandidatOppdagelseTjenesteTests
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
         Assert.Equal(1, resultat.AntallTreffFunnet);
-        Assert.Equal(1, resultat.AntallNyeKandidater); // [Restrukturert] raden opprettes NÅ, som Avvist.
+        Assert.Equal(1, resultat.AntallNyeKandidater);
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
         Assert.Equal("Bergsheia", kandidat.ForeslattTekst);
-        Assert.Equal("Avvist", kandidat.Status);
+        Assert.Equal("Venter", kandidat.Status);
+        Assert.Equal("lav", kandidat.Konfidens);
+        Assert.Equal("ssr_uten_institusjonsord", kandidat.KonfidensGrunn);
     }
 
     /// <summary>
@@ -1318,11 +1400,12 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal("Venter", kandidat.Status);
     }
 
-    /// <summary>[Restrukturert, 2026-09-03] Ga TIDLIGERE Status="Venter" ("ingen gjettet fallback" —
-    /// behold som lav-tillit). Gir nå Status="Avvist" DIREKTE — Johanns to-tabs-instruks tillater ikke
-    /// en tredje, ubestemt bøtte (se klassekommentaren) — men raden opprettes FORTSATT.</summary>
+    /// <summary>[ENDRET, konfidens-runden, 2026-09-09] Ga først Status="Venter" (lav tillit), så
+    /// Status="Avvist" direkte. Er nå «Venter med lav konfidens» — altså den lav-tillit-bøtta som en
+    /// gang ble fjernet, men denne gangen EKSPLISITT modellert og synlig i UI-et, ikke implisitt.
+    /// Johann 2026-09-09: «vi kan ikke automatisk avvise disse p.g.a. manglende SNL/SSR».</summary>
     [Fact]
-    public async Task Sveip_ukjent_i_begge_gir_avvist_kandidat_direkte()
+    public async Task Sveip_ukjent_i_begge_gir_venter_med_lav_konfidens()
     {
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
@@ -1338,17 +1421,25 @@ public class NavnekandidatOppdagelseTjenesteTests
 
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
-        Assert.Equal(1, resultat.AntallNyeKandidater); // raden opprettes uansett — bare med Avvist status.
+        Assert.Equal(1, resultat.AntallNyeKandidater);
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
         Assert.Equal("Kvirrefjordsen", kandidat.ForeslattTekst);
-        Assert.Equal("Avvist", kandidat.Status);
+        Assert.Equal("Venter", kandidat.Status);
+        Assert.Equal("lav", kandidat.Konfidens);
+        Assert.Equal("ukjent_i_snl_og_ssr", kandidat.KonfidensGrunn);
     }
 
     /// <summary>
     /// docs/31 §3 — et sveip skal ALDRI stoppe/krasje pga. en ekstern nettverksfeil. Simulerer at
     /// SNL-kallet feiler (timeout/500) for én node, og verifiserer at sveipet likevel fullfører OG
-    /// fortsatt produserer en kandidat for treffet (degraderer til "ukjent" = Avvist, ikke en kastet
-    /// feil som stopper hele <see cref="NavnekandidatOppdagelseTjeneste.SveipAsync"/>).
+    /// fortsatt produserer en kandidat for treffet (degraderer til "ukjent" = LAV KONFIDENS, ikke en
+    /// kastet feil som stopper hele <see cref="NavnekandidatOppdagelseTjeneste.SveipAsync"/>).
+    /// <para>
+    /// [ENDRET, konfidens-runden, 2026-09-09] Degraderingen ga tidligere Status="Avvist". At en
+    /// NETTVERKSFEIL kunne avvise et navn er nettopp problemet med å la klassifiseringen bestemme
+    /// status — nå står raden som "Venter" med lav konfidens, og et nytt sveip kan gi den høy
+    /// konfidens når SNL svarer igjen.
+    /// </para>
     /// </summary>
     [Fact]
     public async Task Sveip_fortsetter_selv_om_ett_eksternt_kall_feiler()
@@ -1370,7 +1461,8 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal(1, resultat.AntallTreffFunnet);
         Assert.Equal(1, resultat.AntallNyeKandidater); // sveipet fullførte OG produserte kandidaten likevel.
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId && k.ForeslattTekst == "Kvirrefjelldalen");
-        Assert.Equal("Avvist", kandidat.Status);
+        Assert.Equal("Venter", kandidat.Status);
+        Assert.Equal("lav", kandidat.Konfidens);
     }
 
     [Fact]
@@ -1409,7 +1501,7 @@ public class NavnekandidatOppdagelseTjenesteTests
     /// I TILLEGG en separat "gruppe"-kandidat (FasteRollesubstantiv sine bøyningsformer) — DEN sendes
     /// aldri til SNL/SSR (scopet til "virksomhet") og er derfor Status="Venter".</summary>
     [Fact]
-    public async Task SveipAsync_flerordsmonster_ssr_bekreftet_uten_institusjonsord_rett_etter_gir_avvist_men_synlig_kandidat()
+    public async Task SveipAsync_flerordsmonster_ssr_bekreftet_uten_institusjonsord_rett_etter_gir_lav_konfidens()
     {
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(
@@ -1426,11 +1518,14 @@ public class NavnekandidatOppdagelseTjenesteTests
         var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
 
         Assert.Equal(2, resultat.AntallTreffFunnet); // "Myrvang kommune" (virksomhet) + "kommune" alene (gruppe).
-        Assert.Equal(2, resultat.AntallNyeKandidater); // [Restrukturert] BEGGE opprettes nå — bare med ulik status.
+        Assert.Equal(2, resultat.AntallNyeKandidater);
 
         var virksomhetKandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId && k.Kategori == "virksomhet");
         Assert.Equal("Myrvang kommune", virksomhetKandidat.ForeslattTekst);
-        Assert.Equal("Avvist", virksomhetKandidat.Status);
+        // [ENDRET, konfidens-runden, 2026-09-09] Var "Avvist"; er nå Venter med lav konfidens.
+        Assert.Equal("Venter", virksomhetKandidat.Status);
+        Assert.Equal("lav", virksomhetKandidat.Konfidens);
+        Assert.Equal("ssr_uten_institusjonsord", virksomhetKandidat.KonfidensGrunn);
 
         var gruppeKandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId && k.Kategori == "gruppe");
         Assert.Equal("kommune", gruppeKandidat.ForeslattTekst);
