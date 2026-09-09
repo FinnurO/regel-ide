@@ -30,10 +30,10 @@ skal kunne fortsette uten å utlede alt på nytt. **Oppdater den etter hvert ste
 
 | Branch | Innhold | Tilstand | Neste steg |
 |---|---|---|---|
-| `tjeneste-eier` | #138 eier-virksomhet på tjenestens Oversikt-fane | **Ferdig og verifisert** i nettleseren. tsc + vitest grønt. | Åpne PR og merge. |
-| `navnekandidat-recall` | #150 (recall: bindestrek-forkortelser m.m.) + #121 (synonym/alias) | Kode + tester skrevet av avbrutt agent. `RegelIde.Data` og `Data.Tests` **kompilerer rent**. Tester IKKE kjørt. Diff IKKE gjennomgått. | 1) Les diffen (327 linjer). 2) `dotnet test src/RegelIde.Data.Tests`. 3) Krev MÅLTE tall for ny recall vs. falske positiver — mangler i leveransen. |
-| `begrepsoppdagelse` | #168 (fnutter i term) + #214 (mønsteret «beregnes/angir») | Som over: **kompilerer rent** (Data, Data.Tests, Api). Tester IKKE kjørt. Diff IKKE gjennomgått. | 1) Les diffen (738 linjer). 2) Kjør Data.Tests. 3) Sjekk at de TO falske positivene i #214 (byggteknisk § 14-1 og § 14-2) er dekket eksplisitt. |
-| `rettskilde-visning` | #213 (punktliste vises ikke) + #128 (departement-kolonne) | **Halvferdig.** Agenten lagde `punktliste.ts` og `departementLenke.ts` med tester, og endret `TagTekst.tsx`, men rakk ALDRI å ta dem i bruk i `RettskildeDetalj.tsx`/rettskildelisten. Ikke typesjekket. | Enten fullfør koblingen, eller forkast og gjør #213 på nytt. Vurder om de nye modulene er verdt å beholde. |
+| `rettskilde-visning` | #213 (punktliste vises ikke) + #128 (departement-kolonne) | **Halvferdig.** Agenten lagde `punktliste.ts` og `departementLenke.ts` med tester, og endret `TagTekst.tsx`, men rakk ALDRI å ta dem i bruk i `RettskildeDetalj.tsx`/rettskildelisten. Ikke typesjekket, ikke kjørt. Basert på gammel master — må rebases. | Les de nye modulene. Enten fullfør koblingen inn i sidene, eller forkast og gjør #213 på nytt. #213 er en bug med høy prioritet. |
+
+Landet siden forrige oppdatering: `tjeneste-eier` (PR #220), `navnekandidat-recall` (PR #221),
+`begrepsoppdagelse` (PR #222). Worktreene for de to siste kan ryddes med `git worktree remove`.
 
 Worktreene ligger i `C:\Users\jsf\source\ri-wt\<branch>`. Alle fire branches er pushet til origin,
 så ingenting er tapt om worktreene ryddes (`git worktree remove`).
@@ -44,10 +44,12 @@ så ingenting er tapt om worktreene ryddes (`git worktree remove`).
 
 Merget til master: **#208** (registernavn-synk gated + seed-vakter), **#209** (nemnd/sekretariat/RME,
 konfidens erstatter auto-avvisning), **#210** (postcss), **#211** (CLAUDE.md §11), **#218** (#135
-slett navneform).
+slett navneform), **#220** (#138 eier-virksomhet + denne fila), **#221** (#150 bindestrek-
+forkortelser), **#222** (#168 hermetegn + #214 verbmarkør).
 
 Lukket etter undersøkelse — sjekk kommentaren i hvert issue for hva som faktisk ble målt:
-**#118**, **#120**, **#129**, **#133**, **#135**, **#154**, **#155**, **#161**, **#194**.
+**#118**, **#120**, **#129**, **#133**, **#135**, **#138**, **#150**, **#154**, **#155**, **#161**,
+**#168**, **#194**, **#214**.
 
 Nye issues, alle med målte tall og akseptansekriterier: **#212** (dupliserte definisjoner),
 **#213** (punktliste), **#214** (beregnes/angir), **#215** («Fastsatt av» → organ), **#216**
@@ -58,8 +60,8 @@ relasjon).
 
 ## Kø: hva jeg ville tatt neste gang, i denne rekkefølgen
 
-1. **Land det som ligger** — `tjeneste-eier` (klar), deretter de tre WIP-branchene etter
-   gjennomgang + testkjøring. Ikke start nytt før dette er ryddet.
+1. **`rettskilde-visning`** — den siste WIP-branchen, og den eneste som er halvferdig. #213 er en
+   bug med høy prioritet: definisjoner vises avkuttet. Ta den før noe nytt.
 2. **#134 Advokatbevillingsnemnden** — ferdig undersøkt, modellen er beskrevet i issue-kommentaren
    (advokatloven § 73 syvende/åttende ledd splitter organets saker mellom Advokatnemnda og
    Advokattilsynet). Trenger en ny relasjonstype `oppgaver_overfort_til`, som er en SEED- og
