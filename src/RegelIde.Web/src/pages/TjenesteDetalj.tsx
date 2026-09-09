@@ -19,6 +19,7 @@ import { HandlingerFane } from '../tjeneste/HandlingerFane';
 import { AvhengigheterFane } from '../tjeneste/AvhengigheterFane';
 import { KontekstPanel, type KontekstPanelGruppe } from '../entitet/KontekstPanel';
 import type { DetaljVisning } from '../entitet/detaljVisning';
+import { useVirksomheter } from '../virksomhet/useVirksomheter';
 
 /**
  * Tjeneste-siden — redesignet (2026-08-27) fra ett 1253-linjers, endimensjonalt skjema
@@ -31,6 +32,14 @@ import type { DetaljVisning } from '../entitet/detaljVisning';
  */
 export default function TjenesteDetalj() {
   const { id } = useParams<{ id: string }>();
+
+  // [Ny, 2026-09-09, issue #138] Eier-virksomhetens navn til Oversikt-fanen. Samme delte hook
+
+  // som BegrepDetalj/DatasettDetalj bruker — den henter listen én gang og har allerede den
+
+  // dokumenterte «ingen gjettet fallback»-oppførselen for en ukjent id.
+
+  const { visEier, laster: virksomheterLaster } = useVirksomheter();
 
   const [tjeneste, setTjeneste] = useState<TjenesteDto | null>(null);
   const [referanser, setReferanser] = useState<TjenesteRegelverksreferanseDto[] | null>(null);
@@ -258,6 +267,7 @@ export default function TjenesteDetalj() {
           {section === 'oversikt' && (
             <OversiktFane
               tjeneste={tjeneste} rotnode={rotnode}
+              eierNavn={virksomheterLaster ? null : visEier(tjeneste.virksomhetId)}
               antallReferanser={flateReferanser.length} antallHendelser={(hendelser ?? []).length}
               antallHandlinger={(handlinger ?? []).length} antallAvhengigheter={(avhengigheter ?? []).length}
               onGaTilFane={setSection}
