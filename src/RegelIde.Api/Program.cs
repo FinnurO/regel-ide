@@ -316,15 +316,49 @@ using (var scope = app.Services.CreateScope())
     }
 
     // Relasjonstype-konfigurasjon (docs/29 §Del C, §C.2) — samme verifiserte driftsmønster som
-    // tag-kind-konfigurasjonen over: seed-ved-oppstart-hvis-tom, ÉN read-only GET-endepunkt, ingen
+    // tag-kind-konfigurasjonen over: seed-ved-oppstart, ÉN read-only GET-endepunkt, ingen
     // admin-CRUD-UI (det finnes heller ikke for tag-kinds i dag).
-    if (!await db.RelasjonsTypeKonfigurasjoner.AnyAsync())
+    //
+    // [ENDRET, etterfølgelse-runden, 2026-09-09] Vakten sjekker nå PER KODE, ikke «er hele tabellen
+    // tom». Den gamle formen (`if (!await db.RelasjonsTypeKonfigurasjoner.AnyAsync())`) brøt i det
+    // øyeblikket migrasjonen `LeggTilRelasjonstypeOppgaverOverfortTil` la inn sin rad: i en FERSK
+    // base kjører migrasjonene FØR denne seeden, tabellen var dermed ikke lenger tom, og de fire
+    // opprinnelige typene ble aldri seedet i det hele tatt. Tre API-tester fanget det.
+    //
+    // Samme feilklasse som CLAUDE.md §4 beskriver for seed-vakter: vakten må sjekke den STABILE
+    // NØKKELEN for raden den beskytter, ikke en egenskap ved hele tabellen.
+    var kjenteRelasjonstyper = new (string Kode, string FraMal, string TilMal, int Rekkefolge)[]
     {
-        db.RelasjonsTypeKonfigurasjoner.AddRange(
-            new RelasjonsTypeKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "underlagt", FraVisningsmal = "er underlagt {0}", TilVisningsmal = "er eier/overordnet for {0}", Sorteringsrekkefolge = 0 },
-            new RelasjonsTypeKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "sekretariat", FraVisningsmal = "har sekretariat hos {0}", TilVisningsmal = "er sekretariat for {0}", Sorteringsrekkefolge = 1 },
-            new RelasjonsTypeKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "klageinstans", FraVisningsmal = "har klageinstans hos {0}", TilVisningsmal = "er klageinstans for {0}", Sorteringsrekkefolge = 2 },
-            new RelasjonsTypeKonfigurasjonEntitet { Id = Guid.NewGuid(), Kode = "enhet_i", FraVisningsmal = "er enhet i {0}", TilVisningsmal = "har enhet {0}", Sorteringsrekkefolge = 3 });
+        ("underlagt", "er underlagt {0}", "er eier/overordnet for {0}", 0),
+        ("sekretariat", "har sekretariat hos {0}", "er sekretariat for {0}", 1),
+        ("klageinstans", "har klageinstans hos {0}", "er klageinstans for {0}", 2),
+        ("enhet_i", "er enhet i {0}", "har enhet {0}", 3),
+        // [Ny, etterfølgelse-runden, 2026-09-09, issue #134] Rettslig ETTERFØLGELSE — «oppgavene til
+        // X behandles nå av Y». De fire over sier alle noe om organer som eksisterer SAMTIDIG; ingen
+        // av dem uttrykker at et organ er avviklet og oppgavene overtatt.
+        //
+        // Utløst av advokatloven § 73, som splitter Advokatbevillingsnemndens saker mellom TO
+        // etterfølgere: klagesakene til Advokatnemnda (syvende ledd), alle andre saker til
+        // Advokattilsynet (åttende ledd). Modellert som navneform på Advokattilsynet påsto katalogen
+        // at de to var samme organ under to navn — noe loven direkte motsier.
+        //
+        // Delvis overføring uttrykkes i Kommentar (sakstypen), siden VirksomhetRelasjonEntitet ikke
+        // har et Vilkaar-felt slik MyndighetstildelingEntitet har. Det gjør avgrensningen
+        // etterprøvbar, men ikke spørrbar — en bevisst, dokumentert begrensning, se issue #134.
+        ("oppgaver_overfort_til", "fikk oppgavene overført til {0}", "overtok oppgavene til {0}", 4),
+    };
+    var finnesAlt = await db.RelasjonsTypeKonfigurasjoner.Select(k => k.Kode).ToListAsync();
+    var manglende = kjenteRelasjonstyper.Where(t => !finnesAlt.Contains(t.Kode)).ToList();
+    if (manglende.Count > 0)
+    {
+        db.RelasjonsTypeKonfigurasjoner.AddRange(manglende.Select(t => new RelasjonsTypeKonfigurasjonEntitet
+        {
+            Id = Guid.NewGuid(),
+            Kode = t.Kode,
+            FraVisningsmal = t.FraMal,
+            TilVisningsmal = t.TilMal,
+            Sorteringsrekkefolge = t.Rekkefolge,
+        }));
         await db.SaveChangesAsync();
     }
 
