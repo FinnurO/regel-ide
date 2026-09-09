@@ -10,6 +10,7 @@ import { RettskilderHierarki } from '../rettskilde/RettskilderHierarki';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
+import { byggDepartementOppslag, departementVirksomhetId } from '../virksomhet/departementLenke';
 
 // 'departement' lagt til (issue #193) — se AnsvarligDepartement. Sorteringsnøkkelen for en rad med
 // FLERE departementer (fler-verdi-departement, 2026-09-04) er den alfabetisk LAVESTE av dem, se
@@ -83,7 +84,13 @@ export default function RettskilderListe() {
   const [sortKolonne, setSortKolonne] = useState<Sorteringskolonne>('tittel');
   const [sortStigende, setSortStigende] = useState(true);
   const { gjeldendeBruker } = useBruker();
-  const { visEier } = useVirksomheter();
+  const { virksomheter, visEier } = useVirksomheter();
+  // [Ny, 2026-09-09, issue #128] Departementsnavnet fra Lovdata er en STRENG. Slå den opp
+  // mot katalogen så kolonnen blir navigerbar: fra en lov til departementet som svarer for
+  // den (docs/32 §3 S1). Oppslaget er eksakt navnetreff, case-insensitivt — finnes ikke
+  // navnet i katalogen, står teksten uten lenke. Ingen fuzzy-matching, ingen gjettet
+  // virksomhet.
+  const departementOppslag = useMemo(() => byggDepartementOppslag(virksomheter), [virksomheter]);
 
   // ---------- Hjemmelrelasjoner for departement→lov→forskrift-hierarkiet (issue #193) — lazy, samme
   // "ikke tving frem et ekstra kall på hver sidelast"-mønster som visIkkeImportert/ikkeImportert under:
@@ -373,7 +380,25 @@ export default function RettskilderListe() {
                   )}
                 </Table.Cell>
                 <Table.Cell>{r.kildetype}</Table.Cell>
-                <Table.Cell>{r.ansvarligDepartement?.join(', ') || '—'}</Table.Cell>
+                <Table.Cell>
+                  {!r.ansvarligDepartement || r.ansvarligDepartement.length === 0
+                    ? '—'
+                    : r.ansvarligDepartement.map((dep, i) => {
+                      const virksomhetId = departementVirksomhetId(dep, departementOppslag);
+                      return (
+                        <span key={dep}>
+                          {i > 0 && ', '}
+                          {virksomhetId
+                            ? (
+                              <Link asChild>
+                                <RouterLink to={`/virksomheter/${virksomhetId}`}>{dep}</RouterLink>
+                              </Link>
+                            )
+                            : dep}
+                        </span>
+                      );
+                    })}
+                </Table.Cell>
                 <Table.Cell>{visEier(r.virksomhetId)}</Table.Cell>
               </Table.Row>
             ))}
@@ -429,7 +454,25 @@ export default function RettskilderListe() {
                   )}
                 </Table.Cell>
                 <Table.Cell>{r.kildetype}</Table.Cell>
-                <Table.Cell>{r.ansvarligDepartement?.join(', ') || '—'}</Table.Cell>
+                <Table.Cell>
+                  {!r.ansvarligDepartement || r.ansvarligDepartement.length === 0
+                    ? '—'
+                    : r.ansvarligDepartement.map((dep, i) => {
+                      const virksomhetId = departementVirksomhetId(dep, departementOppslag);
+                      return (
+                        <span key={dep}>
+                          {i > 0 && ', '}
+                          {virksomhetId
+                            ? (
+                              <Link asChild>
+                                <RouterLink to={`/virksomheter/${virksomhetId}`}>{dep}</RouterLink>
+                              </Link>
+                            )
+                            : dep}
+                        </span>
+                      );
+                    })}
+                </Table.Cell>
                 <Table.Cell>{visEier(r.virksomhetId)}</Table.Cell>
                 <Table.Cell style={{ display: 'flex', gap: '0.25rem', flexWrap: 'wrap' }}>
                   {r.erIrrelevant && <Tag data-color="warning" data-size="sm">Irrelevant</Tag>}

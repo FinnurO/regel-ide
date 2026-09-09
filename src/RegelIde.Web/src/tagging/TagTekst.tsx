@@ -73,7 +73,16 @@ export interface TagTekstProps {
   /** Hvilke tagtyper som finnes. */
   kinds: TagKind[];
   /** Opprett ny tag. */
-  onTag: (t: { start: number; end: number; kind: TagKindId; ref: string | null }) => void;
+  /**
+   * Opprett ny tag.
+   *
+   * <p>[ENDRET, punktliste-runden, 2026-09-09, issue #213] Andre argument er NØKKELEN til
+   * tekstblokken markeringen ble gjort i: `null` for hovedteksten (`text`), ellers `nokkel` fra den
+   * {@link Tekstblokk} det gjelder. Offsettene er ALLTID relative til DEN blokkens egen tekst.
+   * Uten dette leddet ville en tagg i punkt 3 blitt lagret mot leddets eId og leddets tegnposisjoner
+   * — altså en sporbarhetspåstand om et helt annet sted i teksten (akseptansekriterium 3 i #213).</p>
+   */
+  onTag: (t: { start: number; end: number; kind: TagKindId; ref: string | null }, blokkNokkel: string | null) => void;
   onRemoveTag: (id: string) => void;
   /** Kandidater for «knytt til eksisterende» — utelatt/tom i byggesteg 1. */
   registry?: Registry;
@@ -150,6 +159,64 @@ export interface TagTekstProps {
    * `text`, samme koordinatsystem som `tags`.
    */
   references?: { start: number; end: number; href: string }[];
+  /**
+   * [Ny, punktliste-runden, 2026-09-09, issue #213] UNDERORDNEDE tekstblokker som hører til samme
+   * bestemmelse som `text`, men som er egne noder med egne eId-er og egne tegnposisjoner — i praksis
+   * punkt-nodene under et ledd.
+   *
+   * <p><b>Hvorfor de bor inni denne komponenten og ikke som N søsken-`TagTekst` i kalleren.</b> En
+   * `TagTekst` per punkt ville gitt åtte lag-velgere, åtte tagg-linjer og åtte tagg-lister på skjermen
+   * for én definisjon. Verre: lag-valget (`velgAktivtLag`, `docs/09` §17/§21) skal se på ALT som vises
+   * samtidig — er de eneste taggene i punkt 3, må laget som velges ved kald åpning være DET laget.
+   * Åtte uavhengige komponenter kan ikke ta det valget. Én komponent med flere tekstflater kan.</p>
+   *
+   * <p>Hver blokk har sin egen tekstflate med sin egen seleksjons-container, slik at offsettene som
+   * sendes til `onTag` er relative til blokkens EGEN tekst. Blokkene kan nøstes (`underblokker`) —
+   * punkt-i-punkt finnes i ekte data.</p>
+   */
+  underblokker?: Tekstblokk[];
+  /**
+   * [Ny, punktliste-runden, 2026-09-09] Fotnote rendret rett UNDER underblokk-lista, f.eks. hva
+   * listemerkene faktisk er. En ferdig `ReactNode` fra kalleren, av samme grunn som `mellomledd` i
+   * `resolveRef`: denne komponenten er domene-agnostisk og vet ikke hva et punktnummer i en norsk
+   * forskrift betyr. Vises kun når det finnes underblokker.
+   */
+  underblokkerFotnote?: ReactNode;
+}
+
+/**
+ * [Ny, punktliste-runden, 2026-09-09, issue #213] Én underordnet tekstblokk — se
+ * {@link TagTekstProps.underblokker}.
+ */
+export interface Tekstblokk {
+  /** Blokkens identitet i kallerens verden (nodens eId). Sendes tilbake i `onTag`. */
+  nokkel: string;
+  /** Listemerket som vises foran teksten. Utelates det, vises ingen merking. */
+  merke?: string;
+  /** `title` på merket — kallerens forklaring av hva merket ER. Se `underblokkerFotnote`. */
+  merkeForklaring?: string;
+  tekst: string;
+  tags: TextTag[];
+  references?: { start: number; end: number; href: string }[];
+  underblokker?: Tekstblokk[];
+}
+
+/** Blokkene flatet ut, til bokkføring (lagvalg, tagg-liste) — visningen rekurserer i stedet, se `BlokkListe`. */
+interface FlatBlokk {
+  /** `null` = hovedteksten (`text`-propen). */
+  nokkel: string | null;
+  merke?: string;
+  tekst: string;
+  tags: TextTag[];
+  references?: { start: number; end: number; href: string }[];
+}
+
+function flatUtBlokker(blokker: Tekstblokk[] | undefined): FlatBlokk[] {
+  if (!blokker) return [];
+  return blokker.flatMap((b) => [
+    { nokkel: b.nokkel, merke: b.merke, tekst: b.tekst, tags: b.tags, references: b.references },
+    ...flatUtBlokker(b.underblokker),
+  ]);
 }
 
 /* --------------------------- hjelpere --------------------------- */
@@ -297,13 +364,142 @@ function TaggetSegment({
   );
 }
 
+/* ----------------------- tekstflate (én blokk) ----------------------- */
+
+/**
+ * [Ny, punktliste-runden, 2026-09-09, issue #213] Selve tekstflaten for ÉN tekstblokk, utskilt fra
+ * `TagTekst` sin render.
+ *
+ * <p>Grunnen den er en egen komponent: `selectionOffsets` måler offsettene mot sin CONTAINER, og en
+ * tagg skal lagres mot noden teksten faktisk står i. Hver blokk må derfor ha sin egen container-ref
+ * — hovedteksten og hvert punkt hver sin. Lå alt i én container ville en markering i punkt 3 fått
+ * offsett målt fra starten av leddet, altså en sporbarhetspåstand om et sted i teksten der det ikke
+ * står noe slikt.</p>
+ */
+function Tekstflate({
+  blokk, segmenter, kindById, resolveRef, readOnly, onSelection,
+}: {
+  blokk: FlatBlokk;
+  segmenter: Seg[];
+  kindById: Record<string, TagKind>;
+  resolveRef: TagTekstProps['resolveRef'];
+  readOnly: boolean;
+  onSelection: (nokkel: string | null, off: { start: number; end: number; text: string } | null) => void;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const fang = useCallback(() => {
+    if (readOnly || !ref.current) return;
+    onSelection(blokk.nokkel, selectionOffsets(ref.current));
+  }, [readOnly, onSelection, blokk.nokkel]);
+
+  return (
+    <div
+      ref={ref}
+      onMouseUp={fang}
+      onKeyUp={fang}
+      style={{
+        fontSize: 'var(--ds-font-size-4)',
+        lineHeight: 'var(--ds-line-height-lg)',
+        userSelect: 'text',
+      }}
+    >
+      {segmenter.map((s, i) =>
+        s.href ? (
+          <Link asChild key={i}>
+            <RouterLink to={s.href}>{s.text}</RouterLink>
+          </Link>
+        ) : s.kind ? (
+          (() => {
+            const lenke = s.ref ? resolveRef?.(s.kind, s.ref) : undefined;
+            const lagNavn = kindById[s.kind]?.label ?? s.kind;
+            return (
+              <TaggetSegment
+                key={i}
+                taggId={s.tagId}
+                tekst={s.text}
+                // [ENDRET, tagg-synlig-runden, 2026-09-08] Den rå `ref`-GUIDen står bare i
+                // hover-teksten når kjeden IKKE kunne resolves. Kan den resolves, er GUIDen ren
+                // støy foran et lesbart navn («Virksomhet: 9ea6cbe2-… → Karasjok → …»).
+                etikett={`${lagNavn}${s.ref && !lenke ? `: ${s.ref}` : ''}`}
+                farge={kindById[s.kind]?.color}
+                lenke={lenke}
+              />
+            );
+          })()
+        ) : (
+          <span key={i}>{s.text}</span>
+        ),
+      )}
+    </div>
+  );
+}
+
+/**
+ * [Ny, punktliste-runden, 2026-09-09, issue #213] Underblokk-lista, rekursivt.
+ *
+ * <p>En ekte `<ol>` med `<li>` fordi det ER en liste — akseptansekriterium 2 i #213: leseren skal se
+ * at det er en liste, ikke løpetekst limt sammen, og en skjermleser skal få det samme («liste med 8
+ * elementer»). `listStyle: 'none'` fordi merket rendres selv: nettleserens egen nummerering ville
+ * lagt et ANDRE, konkurrerende tall ved siden av vårt (og en `<ol>` teller alltid 1, 2, 3 uansett hva
+ * nodene faktisk heter). Innrykket er `paddingInlineStart` på lista, slik at punktene står visuelt
+ * UNDERORDNET innledningen framfor å flyte i samme venstremarg.</p>
+ */
+function BlokkListe({
+  blokker, rendreBlokk,
+}: {
+  blokker: Tekstblokk[];
+  rendreBlokk: (blokk: Tekstblokk) => ReactNode;
+}) {
+  return (
+    <ol
+      style={{
+        listStyle: 'none',
+        margin: 'var(--ds-size-2) 0 0',
+        paddingInlineStart: 'var(--ds-size-6)',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 'var(--ds-size-2)',
+      }}
+    >
+      {blokker.map((b) => (
+        <li key={b.nokkel} style={{ display: 'flex', gap: 'var(--ds-size-3)', alignItems: 'flex-start' }}>
+          {b.merke && (
+            <span
+              title={b.merkeForklaring}
+              style={{
+                flex: '0 0 auto',
+                minWidth: '1.6rem',
+                fontSize: 'var(--ds-font-size-1)',
+                color: 'var(--ds-color-neutral-text-subtle)',
+                lineHeight: 'var(--ds-line-height-lg)',
+              }}
+            >
+              {b.merke}
+            </span>
+          )}
+          <div style={{ flex: 1, minWidth: 0 }}>
+            {rendreBlokk(b)}
+            {b.underblokker && b.underblokker.length > 0 && (
+              <BlokkListe blokker={b.underblokker} rendreBlokk={rendreBlokk} />
+            )}
+          </div>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
 /* --------------------------- komponent --------------------------- */
 
 export function TagTekst({
   text, tags, kinds, onTag, onRemoveTag, registry, onLinkTag, onOpprettFraTag, opprettFraTagKinds, resolveRef,
   activeKind, onActiveKindChange, showTagList = true, readOnly = false, references,
+  underblokker, underblokkerFotnote,
 }: TagTekstProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
+  // [ENDRET, punktliste-runden, 2026-09-09] Ref-en er flyttet til `Tekstflate` (én per blokk, siden
+  // offsettene måles mot containeren). Denne ref-en er nå bare ROT-noden, brukt av `visTaggITeksten`
+  // til å finne `[data-tagg-id]` uansett hvilken blokk markeringen står i.
+  const rotRef = useRef<HTMLDivElement>(null);
   // [ENDRET, tagg-synlig-runden, 2026-09-08] `null` = brukeren har ikke valgt lag ennå (var
   // `kinds[0]?.id`, som gjorde at teksten sto umarkert på en node uten begrep-tagger). Selve
   // defaulten kommer fra `finnStandardLag`, som ser på nodens faktiske tagger — og den slår inn KUN
@@ -311,40 +507,74 @@ export function TagTekst({
   const [internalKind, setInternalKind] = useState<TagKindId | null>(null);
   // Tom streng fra en kontrollerende forelder betyr også «ikke valgt» — se `activeKind`-propen.
   const brukervalg = activeKind ?? internalKind;
-  const active = useMemo(() => velgAktivtLag(brukervalg, tags, kinds), [brukervalg, tags, kinds]);
+
+  // [Ny, punktliste-runden, 2026-09-09] Hovedteksten og underblokkene som ÉN flat liste, til all
+  // bokkføring: lagvalg, tagg-liste og overlapp-sjekk. Visningen rekurserer i stedet (`BlokkListe`),
+  // siden en liste skal rendres som en liste.
+  const flateBlokker = useMemo<FlatBlokk[]>(
+    () => [{ nokkel: null, tekst: text, tags, references }, ...flatUtBlokker(underblokker)],
+    [text, tags, references, underblokker],
+  );
+  // [ENDRET, punktliste-runden, 2026-09-09] Lagvalget ser på taggene i ALT som vises, ikke bare i
+  // hovedteksten. Ellers ville en definisjon der de eneste taggene ligger i punkt 3 åpnet i et tomt
+  // lag — samme feilklasse som `docs/09` §17/§21 dokumenterer: «en default som bestemmer hva brukeren
+  // SER ved kald åpning skal vise mest mulig av det som faktisk er markert».
+  const alleTagger = useMemo(() => flateBlokker.flatMap((b) => b.tags), [flateBlokker]);
+  const active = useMemo(() => velgAktivtLag(brukervalg, alleTagger, kinds), [brukervalg, alleTagger, kinds]);
   const setActive = onActiveKindChange ?? setInternalKind;
 
-  const [sel, setSel] = useState<{ start: number; end: number; text: string } | null>(null);
+  // [ENDRET, punktliste-runden, 2026-09-09] Seleksjonen bærer nå BLOKKEN den ble gjort i (`nokkel`),
+  // slik at `commit` lagrer taggen mot riktig node. `null` = hovedteksten.
+  const [sel, setSel] = useState<{ nokkel: string | null; start: number; end: number; text: string } | null>(null);
   const [pendingKind, setPendingKind] = useState<TagKindId | null>(null);
 
   const kindById = useMemo(() => Object.fromEntries(kinds.map((k) => [k.id, k])), [kinds]);
-  const shownTags = useMemo(() => tags.filter((t) => t.kind === active), [tags, active]);
-  const segments = useMemo(() => splitByReferences(text, references, shownTags), [text, references, shownTags]);
+  // Segmentene beregnes per blokk — hver blokk har sin egen tekst, sine egne tagger og sine egne
+  // referanse-offsett, alle i blokkens eget koordinatsystem.
+  const segmenterPerBlokk = useMemo(() => {
+    const kart = new Map<string | null, Seg[]>();
+    for (const b of flateBlokker) {
+      kart.set(b.nokkel, splitByReferences(b.tekst, b.references, b.tags.filter((t) => t.kind === active)));
+    }
+    return kart;
+  }, [flateBlokker, active]);
 
-  const captureSelection = useCallback(() => {
-    if (readOnly || !containerRef.current) return;
-    const off = selectionOffsets(containerRef.current);
-    setSel(off);
-    setPendingKind(null);
-  }, [readOnly]);
+  // Tagg-listen under teksten viser ALLE tagger fra ALLE blokker (samme «listen står komplett»-valg
+  // som `docs/09` §17 begrunner for lag) — hver rad bærer med seg blokken sin, slik at sitatet kan
+  // klippes fra RIKTIG tekst og radens plassering (hvilket punkt) kan vises.
+  const taggrader = useMemo(
+    () => flateBlokker.flatMap((b) => b.tags.map((t) => ({ tagg: t, blokk: b }))),
+    [flateBlokker],
+  );
+
+  const haandterSeleksjon = useCallback(
+    (nokkel: string | null, off: { start: number; end: number; text: string } | null) => {
+      setSel(off ? { nokkel, ...off } : null);
+      setPendingKind(null);
+    },
+    [],
+  );
 
   const commit = useCallback(
     (kind: TagKindId, ref: string | null) => {
       if (!sel) return;
-      // Overlapp lov på tvers av kinds, men ikke innen samme kind.
-      if (overlapsSameKind(tags, sel.start, sel.end, kind)) {
+      // Overlapp lov på tvers av kinds, men ikke innen samme kind — sjekket mot taggene i DEN blokken
+      // markeringen står i, ikke mot alle blokkene: offsettene er blokk-lokale, så en tagg i punkt 2
+      // og en i punkt 5 kan ha samme tallverdier uten å overlappe i det hele tatt.
+      const blokk = flateBlokker.find((b) => b.nokkel === sel.nokkel);
+      if (blokk && overlapsSameKind(blokk.tags, sel.start, sel.end, kind)) {
         setSel(null);
         setPendingKind(null);
         window.getSelection()?.removeAllRanges();
         return;
       }
-      onTag({ start: sel.start, end: sel.end, kind, ref });
+      onTag({ start: sel.start, end: sel.end, kind, ref }, sel.nokkel);
       setActive(kind); // vis laget man nettopp tagget i
       setSel(null);
       setPendingKind(null);
       window.getSelection()?.removeAllRanges();
     },
-    [sel, onTag, tags, setActive],
+    [sel, onTag, flateBlokker, setActive],
   );
 
   /**
@@ -352,7 +582,7 @@ export function TagTekst({
    * teksten: aktiverer radens eget lag og ruller markeringen inn i synsfeltet.
    *
    * <p><b>Valget som er tatt, og hvorfor.</b> Tagg-listen lister ALLE tagger uansett aktivt lag,
-   * mens teksten bare markerer ett lag. De to kunne motsi hverandre (14 rader listet, ingenting
+   * mens teksten bare markerer ett. De to kunne motsi hverandre (14 rader listet, ingenting
    * markert). Alternativet var å FILTRERE listen til aktivt lag, men da forsvinner den eneste
    * antydningen om at noden har tagger i andre lag i det hele tatt — og å skjule at det finnes
    * arbeid i et annet lag er en dårligere feil enn å vise en rad som ikke er markert akkurat nå.
@@ -360,13 +590,16 @@ export function TagTekst({
    * ett klikk bytter lag og ruller markeringen fram. Rader i et annet lag enn det aktive er
    * samtidig dempet og forklarer seg selv i `title`, så uoverensstemmelsen er synlig og
    * forklart framfor skjult.</p>
+   *
+   * <p>[ENDRET, punktliste-runden, 2026-09-09] Søket går fra ROT-noden, ikke fra én tekstflate —
+   * markeringen kan stå i et punkt under leddet.</p>
    */
   const visTaggITeksten = useCallback(
     (t: TextTag) => {
       if (t.kind !== active) setActive(t.kind);
       // Markeringen finnes først etter at lagbyttet er rendret — derfor på neste frame.
       requestAnimationFrame(() => {
-        containerRef.current
+        rotRef.current
           ?.querySelector(`[data-tagg-id="${t.id}"]`)
           ?.scrollIntoView({ block: 'nearest', inline: 'nearest' });
       });
@@ -380,8 +613,27 @@ export function TagTekst({
     window.getSelection()?.removeAllRanges();
   }, []);
 
+  /** Én tekstflate for en underblokk — slår opp de ferdig beregnede segmentene på blokkens nøkkel. */
+  const rendreUnderblokk = useCallback(
+    (b: Tekstblokk): ReactNode => {
+      const flat = flateBlokker.find((f) => f.nokkel === b.nokkel);
+      if (!flat) return null;
+      return (
+        <Tekstflate
+          blokk={flat}
+          segmenter={segmenterPerBlokk.get(b.nokkel) ?? []}
+          kindById={kindById}
+          resolveRef={resolveRef}
+          readOnly={readOnly}
+          onSelection={haandterSeleksjon}
+        />
+      );
+    },
+    [flateBlokker, segmenterPerBlokk, kindById, resolveRef, readOnly, haandterSeleksjon],
+  );
+
   return (
-    <div>
+    <div ref={rotRef}>
       {/* Lag-velger — Designsystemet ToggleGroup (single, radio): ett lag vises av gangen */}
       <ToggleGroup
         value={active ?? ''}
@@ -398,7 +650,10 @@ export function TagTekst({
       </ToggleGroup>
 
       {/* TAG-LINJE — fast handlingslinje rett over teksten. Erstatter flytende
-          meny: ingen posisjonering, ingen kollisjon, alltid synlig i flyten. */}
+          meny: ingen posisjonering, ingen kollisjon, alltid synlig i flyten.
+          [PRESISERT, punktliste-runden, 2026-09-09] ÉN linje for alle blokkene, ikke én per punkt:
+          åtte tagg-linjer under hverandre for én definisjon er ikke et verktøy. Linjen viser hvilken
+          blokk markeringen står i via sitatet, og `commit` lagrer mot den blokken. */}
       {!readOnly && (
         <div
           role="toolbar"
@@ -453,48 +708,30 @@ export function TagTekst({
         </div>
       )}
 
-      {/* Tekstflate — egen markeringslogikk */}
-      <div
-        ref={containerRef}
-        onMouseUp={captureSelection}
-        onKeyUp={captureSelection}
-        style={{
-          fontSize: 'var(--ds-font-size-4)',
-          lineHeight: 'var(--ds-line-height-lg)',
-          userSelect: 'text',
-        }}
-      >
-        {segments.map((s, i) =>
-          s.href ? (
-            <Link asChild key={i}>
-              <RouterLink to={s.href}>{s.text}</RouterLink>
-            </Link>
-          ) : s.kind ? (
-            (() => {
-              const lenke = s.ref ? resolveRef?.(s.kind, s.ref) : undefined;
-              const lagNavn = kindById[s.kind]?.label ?? s.kind;
-              return (
-                <TaggetSegment
-                  key={i}
-                  taggId={s.tagId}
-                  tekst={s.text}
-                  // [ENDRET, tagg-synlig-runden, 2026-09-08] Den rå `ref`-GUIDen står bare i
-                  // hover-teksten når kjeden IKKE kunne resolves. Kan den resolves, er GUIDen ren
-                  // støy foran et lesbart navn («Virksomhet: 9ea6cbe2-… → Karasjok → …»).
-                  etikett={`${lagNavn}${s.ref && !lenke ? `: ${s.ref}` : ''}`}
-                  farge={kindById[s.kind]?.color}
-                  lenke={lenke}
-                />
-              );
-            })()
-          ) : (
-            <span key={i}>{s.text}</span>
-          ),
-        )}
-      </div>
+      {/* Tekstflate — egen markeringslogikk. Hovedteksten først, deretter underblokkene som liste. */}
+      <Tekstflate
+        blokk={flateBlokker[0]}
+        segmenter={segmenterPerBlokk.get(null) ?? []}
+        kindById={kindById}
+        resolveRef={resolveRef}
+        readOnly={readOnly}
+        onSelection={haandterSeleksjon}
+      />
+
+      {underblokker && underblokker.length > 0 && (
+        <>
+          <BlokkListe blokker={underblokker} rendreBlokk={rendreUnderblokk} />
+          {/* Metatekst etter `docs/09` §6: font-size-1 KOMBINERT med neutral-text-subtle, ikke opacity. */}
+          {underblokkerFotnote && (
+            <div style={{ marginTop: 'var(--ds-size-2)', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+              {underblokkerFotnote}
+            </div>
+          )}
+        </>
+      )}
 
       {/* Tagg-liste med Fjern — Designsystemet Tag + Button */}
-      {showTagList && tags.length > 0 && (
+      {showTagList && taggrader.length > 0 && (
         <div
           style={{
             marginTop: 'var(--ds-size-4)',
@@ -503,7 +740,7 @@ export function TagTekst({
           }}
         >
           <div style={{ display: 'flex', flexDirection: 'column', gap: 'var(--ds-size-2)' }}>
-            {tags.map((t) => {
+            {taggrader.map(({ tagg: t, blokk }) => {
               // [Ny, tagg-synlig-runden, 2026-09-08] Rader i et ANNET lag enn det som vises er
               // dempet og forklarer seg selv — de er ikke markert i teksten akkurat nå, og det skal
               // være synlig framfor forvirrende. Se `visTaggITeksten` for hvorfor listen likevel
@@ -536,6 +773,15 @@ export function TagTekst({
                 >
                   {lagNavn}
                 </Tag>
+                {/* [Ny, punktliste-runden, 2026-09-09] HVOR taggen står, når den ikke står i
+                  * hovedteksten. Uten dette leddet ville tagg-listen under et ledd med åtte punkter
+                  * vist åtte sitater uten å si hvilket punkt hvert av dem hører til — og et sitat er
+                  * ikke en posisjon. */}
+                {blokk.nokkel !== null && blokk.merke && (
+                  <Tag data-color="neutral" data-size="sm" title={`Taggen står i punkt ${blokk.merke}, med punktets egen eId (${blokk.nokkel})`}>
+                    punkt {blokk.merke}
+                  </Tag>
+                )}
                 {t.kreverGjennomgang && (
                   <Tag data-color="danger" data-size="sm" title="Fant ikke et entydig treff ved reimport av rettskilden — sitatet må sjekkes manuelt.">
                     Krever gjennomgang
@@ -567,7 +813,10 @@ export function TagTekst({
                       }
                     }}
                   >
-                    «{text.slice(t.start, t.end)}»
+                    {/* [ENDRET, punktliste-runden, 2026-09-09] Sitatet klippes fra taggens EGEN
+                      * blokk, ikke fra hovedteksten: en tagg i punkt 3 har offsett i punktets tekst,
+                      * og `text.slice(...)` ville gitt et vilkårlig utsnitt av leddet i stedet. */}
+                    «{blokk.tekst.slice(t.start, t.end)}»
                   </span>
                   {t.ref &&
                     (() => {
