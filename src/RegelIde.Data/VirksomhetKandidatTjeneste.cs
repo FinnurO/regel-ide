@@ -111,7 +111,20 @@ public sealed class VirksomhetKandidatTjeneste(RegelIdeDbContext db, TekstTaggTj
     /// docs/20 §0 pkt. 3 ellers bruker.
     /// </para>
     /// </summary>
-    public async Task<VirksomhetKandidatEntitet?> GodkjennAsync(Guid id, string behandletAv, CancellationToken ct = default)
+    /// <param name="eierVirksomhetId">
+    /// [Ny, nemnd/sekretariat-runden, 2026-09-09] Virksomheten taggen skal EIES av — den som godkjenner,
+    /// altså den innloggede brukerens egen virksomhet.
+    /// <para>
+    /// Sto tidligere til <c>kandidat.VirksomhetId</c>, som er det TAGGEDE organet. Det er en annen
+    /// ting: <see cref="TekstTaggEntitet.VirksomhetId"/> er «virksomhetens eget arbeidsprodukt» (se
+    /// feltets kommentar), og <c>GET /api/rettskilder/{id}/tagger</c> viser kun innlogget virksomhets
+    /// egne tagger. Konsekvensen var at hver godkjente kandidat lagde en tagg eid av organet den
+    /// handlet OM — 562 tagger som ikke var synlige for noen, siden organene ikke har brukere. Johann
+    /// 2026-09-09: forventer at «alle disse tagges/merkes når man har godkjent koblingen».
+    /// </para>
+    /// </param>
+    public async Task<VirksomhetKandidatEntitet?> GodkjennAsync(
+        Guid id, string behandletAv, Guid eierVirksomhetId, CancellationToken ct = default)
     {
         var kandidat = await db.VirksomhetKandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
         if (kandidat is null) return null;
@@ -138,9 +151,21 @@ public sealed class VirksomhetKandidatTjeneste(RegelIdeDbContext db, TekstTaggTj
         }
 
         var faktiskUtdrag = tekst[kandidat.StartOffset..kandidat.EndOffset];
-        var navneform = await db.Begreper.FirstOrDefaultAsync(b =>
-            b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == kandidat.VirksomhetId
-            && b.Entitetsstatus == "gjeldende" && b.Term == faktiskUtdrag, ct);
+        // [ENDRET, nemnd/sekretariat-runden, 2026-09-09] Oppslaget er case-INSENSITIVT, fordi
+        // VirksomhetKandidatSveipTjeneste sitt eget mønster er det (RegexOptions.IgnoreCase, Johanns
+        // instruks 2026-08-22 — se den klassens kommentar). Med et case-SENSITIVT oppslag her kunne
+        // sveipet lage en kandidat som godkjenningen deretter nektet å ta imot: konkret falt
+        // «reguleringsmyndigheten for energi» (liten forbokstav midt i en setning) ut med «Fant ingen
+        // navneform-begrep …», mens 519 forekomster med stor forbokstav gikk gjennom. De to
+        // kontraktene MÅ være enige — ellers er kandidatkøen full av rader som ikke kan behandles.
+        // QuoteExact settes fortsatt til det FAKTISKE utdraget (`faktiskUtdrag`), ikke til
+        // navneformens skrivemåte: taggen skal sitere teksten slik den står.
+        var navneformer = await db.Begreper
+            .Where(b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == kandidat.VirksomhetId
+                        && b.Entitetsstatus == "gjeldende")
+            .ToListAsync(ct);
+        var navneform = navneformer.FirstOrDefault(b =>
+            string.Equals(b.Term, faktiskUtdrag, StringComparison.OrdinalIgnoreCase));
         if (navneform is null)
         {
             throw new ArgumentException(
@@ -155,9 +180,16 @@ public sealed class VirksomhetKandidatTjeneste(RegelIdeDbContext db, TekstTaggTj
         var quotePrefix = tekst[Math.Max(0, kandidat.StartOffset - kontekstLengde)..kandidat.StartOffset];
         var quoteSuffix = tekst[kandidat.EndOffset..Math.Min(tekst.Length, kandidat.EndOffset + kontekstLengde)];
 
+        // [ENDRET, nemnd/sekretariat-runden, 2026-09-09] Kind er "virksomhet", ikke "begrep".
+        // Den låste regelen under gjelder RefId — at taggen skal peke på NAVNEFORMEN og aldri direkte
+        // på Virksomhet — og den er uendret. Selve tagg-KINDEN «virksomhet» fantes ikke da regelen ble
+        // skrevet; den ble lagt til senere (Program.cs' tagg-kind-seed) og peker nettopp på navneformen.
+        // Uten denne endringen havnet de to oppdagelsesveiene i ULIKE lag: navnekandidat-veiviseren
+        // tagger i «Virksomhet», mens en godkjent virksomhetskandidat tagget i «Begrep» — samme påstand
+        // om samme organ, i to lag, i samme paragraf. Johann 2026-09-09: «her flyter det litt sammen».
         var tagg = await tekstTaggTjeneste.OpprettAsync(
-            kandidat.RettskildeId, kandidat.VirksomhetId, behandletAv, kandidat.NodeEid,
-            kandidat.StartOffset, kandidat.EndOffset, quotePrefix, faktiskUtdrag, quoteSuffix, "begrep", ct);
+            kandidat.RettskildeId, eierVirksomhetId, behandletAv, kandidat.NodeEid,
+            kandidat.StartOffset, kandidat.EndOffset, quotePrefix, faktiskUtdrag, quoteSuffix, "virksomhet", ct);
         if (tagg is null)
         {
             throw new ArgumentException(

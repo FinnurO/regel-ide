@@ -9,6 +9,7 @@ import { RettskildeFlervalg } from '../rettskilde/RettskildeFlervalg';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
+import { KandidatflytForklaring } from '../kandidater/KandidatflytForklaring';
 
 type Sorteringskolonne = 'foreslattTekst' | 'kategori' | 'rettskilde' | 'status' | 'opprettet';
 
@@ -567,13 +568,11 @@ export default function NavnekandidaterListe() {
       <Heading level={1} data-size="lg" style={{ marginBottom: '0.2rem' }}>
         Navnekandidater
       </Heading>
-      <Paragraph style={{ marginBottom: '1.25rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
+      <Paragraph style={{ marginBottom: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
         Egennavn/juridiske aktører oppdaget ved regex-mønstergjenkjenning i allerede importert
-        rettskildetekst (docs/13-backlog.md §9) — ren tekstanalyse, ikke KI. Komplementær til{' '}
-        <Link asChild><RouterLink to="/virksomhet-kandidater">Virksomhetskandidater</RouterLink></Link>,
-        som bekrefter FLERE forekomster av allerede kjente navn; dette er en oppdagelseskø for HELT NYE
-        navn ingen registrert navneform/gruppebegrep dekker ennå.
+        rettskildetekst (docs/13-backlog.md §9) — ren tekstanalyse, ikke KI.
       </Paragraph>
+      <KandidatflytForklaring aktiv="navn" />
 
       <Card style={{ padding: '1rem', marginBottom: '1.5rem' }}>
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>

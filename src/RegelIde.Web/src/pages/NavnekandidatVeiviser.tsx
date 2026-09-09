@@ -72,8 +72,9 @@ function harVirksomhetssteg(slag: Slag | null): boolean {
  * gruppe i det steget, og en tittel som bare sa «Hvilken virksomhet?» ville underrapportert hva
  * steget faktisk krever av saksbehandleren. */
 function stegTitler(slag: Slag | null): readonly string[] {
+  // [ENDRET 2026-09-09] «Kontekst» er ikke lenger et steg — se `steg`-tilstanden i komponenten.
+  // Indeks i denne listen er derfor steg-nummer MINUS 1.
   return [
-    'Kontekst',
     'Er teksten riktig?',
     'Hva slags ting er dette?',
     slag === 'gruppemedlem' ? 'Hvilken virksomhet og gruppe?' : 'Hvilken virksomhet?',
@@ -135,7 +136,12 @@ export default function NavnekandidatVeiviser() {
   const [noder, setNoder] = useState<RettskildeNodeDto[] | null>(null);
   const [lasteFeil, setLasteFeil] = useState<string | null>(null);
 
-  const [steg, setSteg] = useState(0);
+  // [ENDRET, nemnd/sekretariat-runden, 2026-09-09] Starter på steg 1, ikke 0. Steg 0 («Kontekst»)
+  // inneholder ingen beslutning — bare setningen fra rettskilden og hvor den står — og et
+  // «Neste»-klikk gjennom en ren leseskjerm er friksjon uten innhold. Kortet vises fortsatt, alltid,
+  // øverst; det er bare ikke lenger et steg man må klikke seg gjennom. Johann 2026-09-09: «her må
+  // wizarden være enklere».
+  const [steg, setSteg] = useState(1);
 
   // Steg 1
   const [tekst, setTekst] = useState('');
@@ -178,12 +184,39 @@ export default function NavnekandidatVeiviser() {
      * ikke stemmer, og laget er nettopp det man må velge for å SE markeringen. */
     taggLag: string | null;
     virksomhetLenke: string | null;
+    /** [Ny, nemnd/sekretariat-runden, 2026-09-09] Virksomheten kjeden ble lukket mot, slik at
+     * oppsummeringen kan tilby NESTE handling: et virksomhetssveip som finner de ØVRIGE
+     * forekomstene av navnet i korpuset. Uten dette stoppet flyten etter én tagg, og
+     * saksbehandleren måtte selv vite at det finnes en annen kø som gjør resten (Johann
+     * 2026-09-09: «her flyter det litt sammen»). `null` på gruppe-/irrelevant-veiene, som ikke
+     * ender i en virksomhet. */
+    virksomhetForSveip: { id: string; navn: string } | null;
     /** [Ny, gruppemedlemskap-runden] Gruppebegrepets detaljside, satt kun på gruppemedlem-veien.
      * Det er nettopp den drill-throughen medlemskapet ble registrert FOR: derfra ser man hele
      * medlemslista gruppen nå inneholder. */
     gruppeLenke: string | null;
     advarsel: string | null;
   } | null>(null);
+
+  // [Ny, nemnd/sekretariat-runden, 2026-09-09] Sveipet som tilbys i oppsummeringen — se
+  // `virksomhetForSveip`. Egen tilstand, ikke gjenbruk av veiviser-stegene: dette skjer ETTER at
+  // kandidaten er ferdig behandlet, og skal ikke kunne rulle veiviseren tilbake.
+  const [sveiper, setSveiper] = useState(false);
+  const [sveipResultat, setSveipResultat] = useState<{ funnet: number; nye: number } | null>(null);
+  const [sveipFeil, setSveipFeil] = useState<string | null>(null);
+
+  async function kjorVirksomhetssveip(virksomhetId: string) {
+    setSveiper(true);
+    setSveipFeil(null);
+    try {
+      const r = await api.sveipVirksomhetKandidater({ virksomhetId });
+      setSveipResultat({ funnet: r.antallTreffFunnet, nye: r.antallNyeKandidater });
+    } catch (e) {
+      setSveipFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved sveip.');
+    } finally {
+      setSveiper(false);
+    }
+  }
 
   useEffect(() => {
     if (!id) return;
@@ -325,6 +358,7 @@ export default function NavnekandidatVeiviser() {
           // IKKE «Virksomhet». Se GodkjennAsync.
           taggLag: 'Begrep',
           virksomhetLenke: null,
+          virksomhetForSveip: null,
           gruppeLenke: null,
           advarsel: null,
         });
@@ -336,6 +370,7 @@ export default function NavnekandidatVeiviser() {
           rettskildeLenke: null,
           taggLag: null,
           virksomhetLenke: null,
+          virksomhetForSveip: null,
           gruppeLenke: null,
           advarsel: null,
         });
@@ -394,6 +429,7 @@ export default function NavnekandidatVeiviser() {
           : null,
         taggLag: resultat.taggId ? 'Virksomhet' : null,
         virksomhetLenke: `/virksomheter/${valgtVirksomhetId}`,
+        virksomhetForSveip: { id: valgtVirksomhetId, navn: virksomhetNavn },
         gruppeLenke: slag === 'gruppemedlem' && valgtGruppeBegrepId ? `/begreper/${valgtGruppeBegrepId}` : null,
         // Den dokumenterte degraderingen skal VISES, ikke skjules.
         advarsel: resultat.taggId
@@ -457,8 +493,8 @@ export default function NavnekandidatVeiviser() {
           <Tag
             key={tittel}
             data-size="sm"
-            data-color={i === steg ? 'accent' : 'neutral'}
-            variant={i > steg ? 'outline' : 'default'}
+            data-color={i + 1 === steg ? 'accent' : 'neutral'}
+            variant={i + 1 > steg ? 'outline' : 'default'}
           >
             {i + 1}. {tittel}
           </Tag>
@@ -497,6 +533,44 @@ export default function NavnekandidatVeiviser() {
               Tilbake til navnekandidater
             </Button>
           </div>
+
+          {/* [Ny, nemnd/sekretariat-runden, 2026-09-09] Neste handling, ikke bare en lenke: denne
+            * veiviseren har tagget ÉN forekomst — den kandidaten ble funnet i. De øvrige
+            * forekomstene av samme navn i korpuset er den ANDRE køens jobb, og det er ikke rimelig
+            * å forvente at saksbehandleren vet det. Se KandidatflytForklaring for skillet. */}
+          {ferdig.virksomhetForSveip && (
+            <Card style={{ padding: '0.85rem', marginTop: '1rem' }}>
+              <Heading level={2} data-size="xs" style={{ marginBottom: '0.35rem' }}>
+                Neste: finn de øvrige forekomstene
+              </Heading>
+              <Paragraph data-size="sm" style={{ marginBottom: '0.6rem' }}>
+                Nå er ÉN forekomst tagget — den kandidaten ble funnet i. Et virksomhetssveip leter
+                gjennom hele korpuset etter alle navneformene til {ferdig.virksomhetForSveip.navn} og
+                legger hvert treff i virksomhetskandidat-køen, der du kan massegodkjenne dem.
+              </Paragraph>
+              {sveipFeil && <Alert data-color="danger" style={{ marginBottom: '0.6rem' }}>{sveipFeil}</Alert>}
+              {sveipResultat && (
+                <Alert data-color="info" style={{ marginBottom: '0.6rem' }}>
+                  {sveipResultat.funnet} treff funnet, {sveipResultat.nye} nye kandidater lagt i køen.
+                  {sveipResultat.nye === 0 && ' Ingen nye betyr at treffene alt er behandlet tidligere.'}
+                </Alert>
+              )}
+              <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
+                <Button
+                  data-size="sm"
+                  disabled={sveiper}
+                  onClick={() => kjorVirksomhetssveip(ferdig.virksomhetForSveip!.id)}
+                >
+                  {sveiper ? 'Sveiper …' : 'Kjør virksomhetssveip'}
+                </Button>
+                <Button data-size="sm" variant="secondary" asChild>
+                  <RouterLink to={`/virksomhet-kandidater?virksomhetId=${ferdig.virksomhetForSveip.id}`}>
+                    Åpne virksomhetskandidater ↗
+                  </RouterLink>
+                </Button>
+              </div>
+            </Card>
+          )}
           {ferdig.rettskildeLenke && ferdig.taggLag && (
             <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.75rem', marginBottom: 0 }}>
               Taggen ligger i laget «{ferdig.taggLag}» i tagg-velgeren over lovteksten — velg det
@@ -508,7 +582,7 @@ export default function NavnekandidatVeiviser() {
         <>
           {/* ---------------- Steg 0: Kontekst ---------------- */}
           <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
-            <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>1. Kontekst</Heading>
+            <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>Slik står treffet</Heading>
             <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
               Slik står treffet i rettskilden. Les setningen før du bestemmer deg — er treffet feil
               avgrenset, rettes teksten i neste steg.
@@ -570,12 +644,6 @@ export default function NavnekandidatVeiviser() {
                   )}
             </Card>
 
-            {steg === 0 && (
-              <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1rem' }}>
-                <Button data-size="sm" onClick={() => setSteg(1)}>Neste</Button>
-                <Button data-size="sm" variant="tertiary" onClick={() => navigate('/navnekandidater')}>Avbryt</Button>
-              </div>
-            )}
           </Card>
 
           {/* ---------------- Steg 1: Er teksten riktig? ---------------- */}
@@ -607,7 +675,7 @@ export default function NavnekandidatVeiviser() {
                   <Button data-size="sm" onClick={lagreTekst} disabled={lagrerTekst || !tekst.trim()}>
                     {lagrerTekst ? 'Lagrer …' : tekst.trim() === kandidat.foreslattTekst ? 'Teksten er riktig — neste' : 'Lagre rettet tekst'}
                   </Button>
-                  <Button data-size="sm" variant="tertiary" onClick={() => setSteg(0)}>Tilbake</Button>
+                  <Button data-size="sm" variant="tertiary" onClick={() => navigate('/navnekandidater')}>Avbryt</Button>
                 </div>
               )}
             </Card>

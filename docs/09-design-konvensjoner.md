@@ -622,3 +622,43 @@ Fra-malen («X har sekretariat hos Y») — det finnes ingen «motpart» å velg
 navnet, så en påhengt «({navn})»-lenke ga «er sekretariat for Konkurranseklagenemnda
 (Konkurranseklagenemnda)».
 
+## 19. De to kandidatkøene skal forklares der de brukes (2026-09-09, nemnd/sekretariat-runden)
+
+Navnekandidater og virksomhetskandidater går i MOTSATT retning, og det var ikke synlig noe sted i
+UI-et: begge heter «kandidater», begge har Venter/Godkjent/Avvist, begge utløses av en knapp som
+heter «Kjør sveip». Johann 2026-09-09: «her flyter det litt sammen».
+
+- **Navnekandidater** — fra TEKST til nytt navn. Leser ÉN rettskilde, foreslår navn vi ikke kjenner.
+  Utfall: virksomhet/gruppebegrep + navneform + ÉN tagg (forekomsten kandidaten ble funnet i).
+- **Virksomhetskandidater** — fra KJENT navn til alle tekstene. Tar navneformene til én virksomhet og
+  leter gjennom hele korpuset. Utfall: én tagg per godkjent forekomst, massegodkjenning tagger alle.
+
+Forklaringen bor i ÉN delt komponent (`src/kandidater/KandidatflytForklaring.tsx`), brukt av begge
+listesidene — ikke tre lokale avsnitt som kommer i utakt. Den aktive køen utheves med `fontWeight`,
+ikke med farge: begge er like gyldige, dette er «du er her», ikke en tilstand.
+
+**Veiviseren skal tilby NESTE handling, ikke bare vise at den er ferdig.** Etter at en navnekandidat
+er behandlet er ÉN forekomst tagget; oppsummeringen tilbyr derfor «Kjør virksomhetssveip» for den
+virksomheten, med treff/nye-tall rett i skjermbildet og en lenke inn i den andre køen. En
+saksbehandler skal ikke måtte vite at det finnes en annen kø for resten av jobben.
+
+**Et steg uten en beslutning er ikke et steg.** Veiviserens gamle steg 0 («Kontekst») viste bare
+setningen fra rettskilden og krevde et «Neste»-klikk. Kortet vises fortsatt, alltid, øverst — men
+steg-rekken starter nå på den første faktiske beslutningen («Er teksten riktig?»). Fem steg ble
+fire. Gjelder for neste veiviser også: tell beslutninger, ikke skjermbilder.
+
+## 20. Én oppdagelse, ett lag (2026-09-09)
+
+De to køene skal produsere det SAMME når de sier det samme. Godkjenning av en virksomhetskandidat
+lagde taggen med `kind = 'begrep'`, mens navnekandidat-veiviseren lagde den med
+`kind = 'virksomhet'` — samme påstand om samme organ i to ulike lag, i samme paragraf, avhengig av
+hvilken vei den kom fra. Begge lager nå `'virksomhet'`, og en migrasjon flyttet de eksisterende
+radene (`OmklassifiserNavneformTaggerTilVirksomhetslaget`). Gruppebegrep-tagger forblir `'begrep'` —
+de ER begreper.
+
+**`TekstTagg.VirksomhetId` er EIERSKAP, aldri «hvem taggen handler om».** Godkjenningen satte den til
+det TAGGEDE organet, og siden `GET /api/rettskilder/{id}/tagger` bare viser innlogget virksomhets egne
+tagger, ble hver godkjente kandidat en tagg ingen kunne se — organene i katalogen har ingen brukere.
+Retningslinje: enhver ny skrivevei til `TekstTagg` må ta eieren fra den innloggede brukeren, ikke fra
+dataene den behandler.
+

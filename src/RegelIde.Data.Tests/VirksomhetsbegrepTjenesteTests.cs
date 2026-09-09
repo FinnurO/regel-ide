@@ -25,6 +25,85 @@ public class VirksomhetsbegrepTjenesteTests
         return resultat;
     }
 
+    /// <summary>
+    /// [Ny, nemnd/sekretariat-runden, 2026-09-09] Dublett-navneformer fantes i basen og ga dobbelt
+    /// markering av samme organnavn i samme setning (observert for «Energiklagenemnda» og
+    /// «Konkurransetilsynet»). Case-insensitivt fordi sveipet er det.
+    /// </summary>
+    [Fact]
+    public async Task Nekter_samme_navneform_to_ganger_mot_samme_virksomhet()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-nemnd-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(virksomhet);
+        await db.SaveChangesAsync();
+        var register = new VirksomhetsbegrepTjeneste(db);
+        await register.OpprettVirksomhetsbegrepAsync(virksomhet.Id, "Energiklagenemnda", "Kari Jurist");
+
+        var feil = await Assert.ThrowsAsync<ArgumentException>(() =>
+            register.OpprettVirksomhetsbegrepAsync(virksomhet.Id, "energiklagenemnda", "Kari Jurist"));
+        Assert.Contains("allerede navneformen", feil.Message);
+
+        // …men samme term mot en ANNEN virksomhet er en helt annen opplysning og skal gå gjennom.
+        var annen = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-annen-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(annen);
+        await db.SaveChangesAsync();
+        Assert.NotNull(await register.OpprettVirksomhetsbegrepAsync(annen.Id, "Energiklagenemnda", "Kari Jurist"));
+    }
+
+    /// <summary>
+    /// [Ny, 2026-09-09] Grunnen kunne før bare settes VED opprettelse — en navneform fra
+    /// katalogimporten kunne derfor ikke merkes i etterkant uten å lage en dublett.
+    /// </summary>
+    [Fact]
+    public async Task Setter_navneformgrunn_pa_eksisterende_navneform()
+    {
+        await using var db = _fixture.NyDbContext();
+        var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-nemnd-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(virksomhet);
+        await db.SaveChangesAsync();
+        var register = new VirksomhetsbegrepTjeneste(db);
+        var navneform = await register.OpprettVirksomhetsbegrepAsync(virksomhet.Id, "Nemnda", "Kari Jurist");
+        Assert.Null(navneform.Navneformgrunn);
+
+        Assert.True(await register.SettNavneformgrunnAsync(navneform.Id, "gjeldende", "Kari Jurist"));
+        Assert.Equal("gjeldende", (await db.Begreper.SingleAsync(b => b.Id == navneform.Id)).Navneformgrunn);
+
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            register.SettNavneformgrunnAsync(navneform.Id, "tullball", "Kari Jurist"));
+        Assert.False(await register.SettNavneformgrunnAsync(Guid.NewGuid(), "gjeldende", "Kari Jurist"));
+    }
+
+    /// <summary>
+    /// [Ny, 2026-09-09] Taggene MÅ følge med: en tagg som peker på en navneform som ikke finnes lenger
+    /// er en markering i lovteksten som ikke kan følges noe sted.
+    /// </summary>
+    [Fact]
+    public async Task Sletter_navneform_og_taggene_som_peker_pa_den()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettAlkohollovenAsync(db);
+        var node = await db.RettskildeNoder.FirstAsync(n => n.RettskildeId == rettskildeId && n.Tekst != null);
+        var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-nemnd-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(virksomhet);
+        await db.SaveChangesAsync();
+        var register = new VirksomhetsbegrepTjeneste(db);
+        var navneform = await register.OpprettVirksomhetsbegrepAsync(virksomhet.Id, node.Tekst![..5], "Kari Jurist");
+        db.TekstTagger.Add(new TekstTaggEntitet
+        {
+            Id = Guid.NewGuid(), VirksomhetId = virksomhet.Id, RettskildeId = rettskildeId, NodeEid = node.Eid,
+            StartOffset = 0, EndOffset = 5, QuotePrefix = "", QuoteExact = node.Tekst![..5], QuoteSuffix = "",
+            NodeTekstHash = "hash", Kind = "virksomhet", RefId = navneform.Id,
+            OpprettetAv = "Kari Jurist", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        await db.SaveChangesAsync();
+
+        Assert.Equal(1, await register.SlettVirksomhetsbegrepAsync(navneform.Id, "Kari Jurist"));
+        Assert.False(await db.Begreper.AnyAsync(b => b.Id == navneform.Id));
+        Assert.False(await db.TekstTagger.AnyAsync(t => t.RefId == navneform.Id));
+        Assert.Null(await register.SlettVirksomhetsbegrepAsync(navneform.Id, "Kari Jurist"));
+    }
+
     [Fact]
     public async Task Oppretter_virksomhetsbegrep_uten_eiende_virksomhet()
     {

@@ -619,6 +619,9 @@ public sealed record OpprettVirksomhetRequest(string Navn, Guid? OverordnetEnhet
 /// får NULL, uendret oppførsel.
 /// </param>
 public sealed record VirksomhetsbegrepRequest(Guid VirksomhetId, string Term, string? SkosUrl, string? Navneformgrunn);
+
+/// <summary>[Ny, 2026-09-09] Kropp for POST /api/virksomhetsbegrep/{id}/navneformgrunn. Null = uspesifisert.</summary>
+public sealed record SettNavneformgrunnRequest(string? Navneformgrunn);
 public sealed record GruppebegrepRequest(Guid LovkildeId, string Term);
 
 public sealed record ParagrafspennParDto(string FraEid, string? TilEid);

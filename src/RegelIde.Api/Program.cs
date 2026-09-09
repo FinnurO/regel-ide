@@ -2854,6 +2854,45 @@ app.MapGet("/api/virksomheter/{id:guid}/begrep", async (Guid id, Virksomhetsbegr
     .WithName("HentVirksomhetsbegrepForVirksomhet")
     .WithSummary("Lister navneformer (inkl. synonymer) brukt om denne virksomheten i rettskildetekst.");
 
+// [Ny, nemnd/sekretariat-runden, 2026-09-09] Sett grunnen på en EKSISTERENDE navneform — se
+// VirksomhetsbegrepTjeneste.SettNavneformgrunnAsync for hvorfor dette manglet.
+app.MapPost("/api/virksomhetsbegrep/{id:guid}/navneformgrunn", async (Guid id, HttpRequest request,
+        SettNavneformgrunnRequest body, VirksomhetsbegrepTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            return await register.SettNavneformgrunnAsync(id, body.Navneformgrunn, bruker.Navn, ct)
+                ? Results.Ok(new { oppdatert = true })
+                : Results.NotFound(new { feil = $"Ingen navneform med id '{id}'." });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("SettNavneformgrunn")
+    .WithSummary("Setter eller fjerner grunnen (gjeldende/utgatt/kortform/feilskriving/parallellnavn) på en navneform.");
+
+// [Ny, nemnd/sekretariat-runden, 2026-09-09] Sletting av én navneform. Fantes ikke i det hele tatt før
+// dette — en dublett-navneform kunne opprettes, men ikke fjernes. Sletter taggene som peker på den i
+// samme operasjon, se VirksomhetsbegrepTjeneste.SlettVirksomhetsbegrepAsync.
+app.MapDelete("/api/virksomhetsbegrep/{id:guid}", async (Guid id, HttpRequest request,
+        VirksomhetsbegrepTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var antallTagger = await register.SlettVirksomhetsbegrepAsync(id, bruker.Navn, ct);
+        return antallTagger is null
+            ? Results.NotFound(new { feil = $"Ingen navneform med id '{id}'." })
+            : Results.Ok(new { slettet = true, antallTaggerSlettet = antallTagger.Value });
+    })
+    .WithOpenApi()
+    .WithName("SlettVirksomhetsbegrep")
+    .WithSummary("Sletter en navneform og tekst-taggene som peker på den. Ekte sletting, ikke statusendring.");
+
 app.MapPost("/api/gruppebegrep", async (HttpRequest request, GruppebegrepRequest body,
         VirksomhetsbegrepTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
@@ -3085,7 +3124,7 @@ virksomhetKandidater.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest 
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         try
         {
-            var oppdatert = await register.GodkjennAsync(id, bruker.Navn, ct);
+            var oppdatert = await register.GodkjennAsync(id, bruker.Navn, bruker.VirksomhetId, ct);
             return oppdatert is null ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }) : Results.Ok(VirksomhetKandidatDto.FraEntitet(oppdatert));
         }
         catch (ArgumentException ex)
@@ -3123,7 +3162,7 @@ virksomhetKandidater.MapPost("/godkjenn-batch", async (HttpRequest request, Virk
         {
             try
             {
-                var oppdatert = await register.GodkjennAsync(id, bruker.Navn, ct);
+                var oppdatert = await register.GodkjennAsync(id, bruker.Navn, bruker.VirksomhetId, ct);
                 rader.Add(oppdatert is null
                     ? new VirksomhetKandidatBatchRadDto(id, false, $"Ingen kandidat med id '{id}'.", null)
                     : new VirksomhetKandidatBatchRadDto(id, true, null, VirksomhetKandidatDto.FraEntitet(oppdatert)));

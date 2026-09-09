@@ -125,15 +125,22 @@ public class VirksomhetKandidatSveipTjenesteTests
         var kandidat = await db.VirksomhetKandidater.SingleAsync(
             k => k.VirksomhetId == virksomhet.Id && k.NodeEid == paragraf4Ledd1.Eid && k.StartOffset == forventetStart);
 
-        var godkjent = await kø.GodkjennAsync(kandidat.Id, "Kari Jurist");
+        // [Ny 2026-09-09] Taggen eies av den som GODKJENNER, ikke av organet som er tagget — se
+        // VirksomhetKandidatTjeneste.GodkjennAsync sin eierVirksomhetId-parameter.
+        var eier = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Godkjennende-virksomhet-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(eier);
+        await db.SaveChangesAsync();
+        var godkjent = await kø.GodkjennAsync(kandidat.Id, "Kari Jurist", eier.Id);
         Assert.Equal("Godkjent", godkjent!.Status);
 
         // Filtrert på VirksomhetId (fersk Guid per test) — DB-en er DELT mellom alle tester i
         // samlingen (ICollectionFixture), og advokatloven-importen er idempotent per ELI, så samme
         // node kan ha tagger fra andre testmetoder (f.eks. andre virksomheter) liggende fra før.
         var tagg = await db.TekstTagger.SingleAsync(
-            t => t.RettskildeId == rettskildeId && t.NodeEid == paragraf4Ledd1.Eid && t.VirksomhetId == virksomhet.Id);
-        Assert.Equal("begrep", tagg.Kind);
+            t => t.RettskildeId == rettskildeId && t.NodeEid == paragraf4Ledd1.Eid && t.VirksomhetId == eier.Id);
+        // [ENDRET 2026-09-09] «virksomhet», ikke «begrep» — se VirksomhetKandidatTjeneste.GodkjennAsync
+        // for hvorfor de to oppdagelsesveiene nå tagger i samme lag.
+        Assert.Equal("virksomhet", tagg.Kind);
         Assert.Equal("Advokattilsynet", tagg.QuoteExact);
         Assert.NotNull(tagg.RefId);
         var navneform = await db.Begreper.SingleAsync(b => b.Id == tagg.RefId);

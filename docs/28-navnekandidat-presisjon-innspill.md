@@ -146,6 +146,41 @@ Energiklagenemnda § 1 tredje ledd), og «oppnevnes av departementet» er ikke d
 «underlagt». Selve UI-bugen (nullstiller «Del av virksomhet» etter hver opprettelse) er heller ikke
 rettet.
 
+### RME-kjeden (2026-09-09) — det generiske begrepet, organet og klageveien
+
+Johann pekte på forskrift om Energiklagenemnda § 1 og spurte hvorfor «Reguleringsmyndigheten for
+energi» ikke kom opp som navnekandidat. Tre grunner, alle reelle:
+
+1. Det brede stor-bokstav-mønsteret fanget «Reguleringsmyndigheten» AVKUTTET (uten «for energi») —
+   flerords-mønsteret dekker ikke «[Egennavn] for [noe]», og «myndighet» står ikke i
+   `Institusjonsord`.
+2. Kandidaten ble deretter AUTOMATISK AVVIST fordi SNL/SSR ikke kjenner den. Raden finnes, men bare
+   under «Avvist automatisk».
+3. «Energiklagenemnda» i samme setning ble hoppet over helt: den står ved SETNINGSSTART, som
+   `ErSetningsstart` filtrerer bort. Formen som FANTES i andre ledd var genitiven
+   «Energiklagenemndas».
+
+Modellen som ble lagt inn, med verifisert korpustekst bak hver rad:
+
+| Påstand | Hjemmel |
+|---|---|
+| «reguleringsmyndighet» er et gruppebegrep (kompetansenorm) i energiloven | energiloven § 2-5 første ledd: «Departementet utpeker en reguleringsmyndighet og klagenemnd …» |
+| Samme term, egen rad, i naturgassloven | naturgassloven § 4 første ledd, samme ordlyd |
+| RME ER den reguleringsmyndigheten (myndighetstildeling) | naturgassforskriften § 1-4 første ledd: «Reguleringsmyndigheten for energi (RME) er reguleringsmyndighet for omsetning av naturgass, jf. naturgassloven § 4.» |
+| RME har klageinstans hos Energiklagenemnda | forskrift om Energiklagenemnda § 1 første ledd (og naturgassforskriften § 1-4 tredje ledd sier det samme eksplisitt) |
+| Energiklagenemnda har klageinstans hos Energidepartementet | forskrift om Energiklagenemnda § 1 andre ledd |
+| RME er en enhet i NVE | **ingen** — organisatorisk. Delegeringsvedtaket til NVE sier tvert imot at «myndighet tillagt reguleringsmyndigheten og klagenemnden … omfattes ikke av delegeringsvedtaket her» (kap. I). Plasseringen er administrativ, myndigheten er RMEs egen. Ligger inne med kommentar, uten hjemmel. |
+
+Merk at loven bruker den GENERISKE termen. Det er derfor to lag: gruppebegrepet «reguleringsmyndighet»
+hører til loven, og at nettopp RME er den, står i forskriften. Å tagge organnavnet direkte i
+energiloven § 2-5 ville vært en gjetning — der står det ikke.
+
+Navneformer: «Reguleringsmyndigheten for energi» (gjeldende) og «RME» (kortform). Virksomhetssveipet
+ga 522 treff: 518 på det fulle navnet, 4 på kortformen. To av de fire var FALSKE — «HFO ISO 8217 RME
+til RMK» er en drivstoffkvalitet i en CO2-faktortabell, ikke et organ. 520 godkjent, 2 avvist. Det er
+grunnen til at køen krever et menneske: en kortform på tre bokstaver er tvetydig, og systemet skal
+ikke late som noe annet.
+
 ## Observert utgangspunkt
 
 Et faktisk, korpusomfattende sveip etter dagens flerords-mønster + normalisering ga 5881 kandidater
