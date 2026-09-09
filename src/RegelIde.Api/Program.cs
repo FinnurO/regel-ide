@@ -3577,17 +3577,25 @@ navnekandidater.MapDelete("/", async (string? status, string? kategori, Guid? re
 
 var begrepsforekomster = app.MapGroup("/api/begrepsforekomster").WithOpenApi();
 
-begrepsforekomster.MapGet("/", async (Guid? rettskildeId, string? monsterId, string? status,
+begrepsforekomster.MapGet("/", async (Guid? rettskildeId, string? monsterId, string? status, string? konfidens,
         BegrepsforekomstTjeneste register, CancellationToken ct) =>
     {
         // Samme eksplisitte "utelatt = kun Venter, 'Alle' = ingen filter"-mønster som
         // /api/virksomhet-kandidater og /api/navnekandidater — se den endepunktkommentaren.
         var effektivStatus = string.IsNullOrEmpty(status) ? "Venter" : status;
         var statusFilter = effektivStatus == "Alle" ? null : effektivStatus;
-        return Results.Ok((await register.ListerAsync(rettskildeId, monsterId, statusFilter, ct)).Select(BegrepsforekomstDto.FraEntitet));
+        // [Ny, definisjonsmønster-runden, 2026-09-09, issue #214 akseptansekriterium 3] konfidens-filter,
+        // samme "'Alle'/utelatt = ingen filter"-form som /api/navnekandidater sitt. Merk forskjellen fra
+        // status: konfidens har INGEN standardverdi — utelates den, vises alle konfidensnivåer, siden lav
+        // konfidens er en synlig, behandlingsbar tilstand og ikke en skjult tilstand (docs/31 §9).
+        var konfidensFilter = string.IsNullOrEmpty(konfidens) || konfidens == "Alle" ? null : konfidens;
+        return Results.Ok((await register.ListerAsync(rettskildeId, monsterId, statusFilter, konfidensFilter, ct))
+            .Select(BegrepsforekomstDto.FraEntitet));
     })
     .WithName("HentBegrepsforekomster")
-    .WithSummary("Kandidatliste, valgfritt filtrert på rettskilde/mønster-id/status. status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter.");
+    .WithSummary("Kandidatliste, valgfritt filtrert på rettskilde/mønster-id/status/konfidens. status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter. " +
+        "konfidens: 'hoy'/'middels'/'lav'/'krever_oppslag', eller utelatt/'Alle' = ingen konfidensfilter. " +
+        "Innenfor M11 skiller konfidensen markørklassene: 'hoy' = «Med X menes/forstås/regnes», 'lav' = «X beregnes/angir» (issue #214).");
 
 begrepsforekomster.MapPost("/sveip", async (HttpRequest request, SveipBegrepsforekomsterRequest body,
         BegrepsoppdagelseSveipTjeneste sveip, RegelIdeDbContext db, CancellationToken ct) =>
