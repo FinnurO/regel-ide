@@ -9,6 +9,8 @@
  * krevd @testing-library, som bevisst ikke er en avhengighet her.</p>
  */
 import { describe, expect, it } from 'vitest';
+import type { RettskildeNodeDto } from '../api/types';
+import { nodeEtikett } from './useNodeEtiketter';
 
 /** Speiler `useSortering.bytt` — samme regel, uten useState. */
 function bytt<T extends string>(
@@ -103,5 +105,47 @@ describe('kandidatvalg', () => {
     expect(alleVisteErValgt(new Set(), [])).toBe(false);
     expect(alleVisteErValgt(new Set(['a', 'b', 'c']), viste)).toBe(true);
     expect(alleVisteErValgt(new Set(['a']), viste)).toBe(false);
+  });
+});
+
+// ---- node-etikett (#216 punkt 5) ----
+
+/**
+ * Regresjonen som var LIK i alle tre kandidatsidene: de bygde etiketten som `§ ${node.nummer}`, og
+ * et ledds nummer er LEDDNUMMERET. Konkurranseloven § 36 sjette ledd ble derfor «§ 6» — feil
+ * paragraf, og verre enn rå eId fordi den ser riktig ut.
+ */
+function node(over: Partial<RettskildeNodeDto> & Pick<RettskildeNodeDto, 'id' | 'eid' | 'nodeType'>): RettskildeNodeDto {
+  return {
+    nummer: null, overskrift: null, tekst: null, parentNodeId: null, rekkefolge: 0,
+    ...over,
+  } as RettskildeNodeDto;
+}
+
+describe('nodeEtikett', () => {
+  const paragraf = node({ id: 'p', eid: 'par_36', nodeType: 'paragraf', nummer: '§ 36', overskrift: 'Nemndas sammensetning' });
+  const ledd = node({ id: 'l', eid: 'par_36/ledd_6', nodeType: 'ledd', nummer: '6', parentNodeId: 'p' });
+
+  it('viser paragrafen leddet HØRER TIL, ikke leddnummeret', () => {
+    expect(nodeEtikett([paragraf, ledd], 'par_36/ledd_6'))
+      .toBe('§ 36 sjette ledd — Nemndas sammensetning');
+  });
+
+  it('dobler ikke «§» når Lovdata alt har lagt det i nummeret', () => {
+    expect(nodeEtikett([paragraf], 'par_36')).toBe('§ 36 — Nemndas sammensetning');
+  });
+
+  it('faller tilbake til rå eId når nodene ikke er hentet ennå', () => {
+    expect(nodeEtikett(undefined, 'par_36/ledd_6')).toBe('par_36/ledd_6');
+  });
+
+  it('faller tilbake til rå eId når det ikke finnes noen paragraf over noden', () => {
+    const løsRevet = node({ id: 'x', eid: 'kap_2', nodeType: 'kapittel', nummer: '2' });
+    expect(nodeEtikett([løsRevet], 'kap_2')).toBe('kap_2');
+  });
+
+  it('utelater overskriften når paragrafen ikke har noen', () => {
+    const utenOverskrift = node({ id: 'p2', eid: 'par_1', nodeType: 'paragraf', nummer: '§ 1' });
+    expect(nodeEtikett([utenOverskrift], 'par_1')).toBe('§ 1');
   });
 });

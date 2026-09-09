@@ -3,7 +3,7 @@ import { Link as RouterLink, useSearchParams } from 'react-router';
 import { Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
-import type { RettskildeNodeDto, RettskildeSammendrag, VirksomhetKandidatDto } from '../api/types';
+import type { RettskildeSammendrag, VirksomhetKandidatDto } from '../api/types';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
@@ -11,6 +11,7 @@ import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { KandidatflytForklaring } from '../kandidater/KandidatflytForklaring';
 import { useSortering } from '../kandidater/useSortering';
 import { useKandidatvalg } from '../kandidater/useKandidatvalg';
+import { useNodeEtiketter, useRettskildeoppslag } from '../kandidater/useNodeEtiketter';
 
 type Sorteringskolonne = 'virksomhet' | 'rettskilde' | 'status' | 'opprettet';
 
@@ -79,26 +80,18 @@ export default function VirksomhetKandidaterListe() {
   // skåret ut av nodens Tekst), ikke bare den rå node-eId-en. Uten dette er det ikke synlig i lista
   // OM det var "Advokattilsynet" eller en annen navneform (f.eks. "Tilsynsrådet for advokatvirksomhet")
   // som ga treffet.
-  const [noderPerRettskilde, setNoderPerRettskilde] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
 
   function visNavneformFunnet(k: VirksomhetKandidatDto): string | null {
-    const node = noderPerRettskilde.get(k.rettskildeId)?.find((n) => n.eid === k.nodeEid);
+    const node = nodeEtiketter.node(k.rettskildeId, k.nodeEid);
     if (!node?.tekst) return null;
     return node.tekst.slice(k.startOffset, k.endOffset);
   }
 
   // [Ny, 2026-09-02, issue #115] Menneskelesbar "Node"-visning — "§ {nummer} — {overskrift}" i stedet
-  // for rå nodeEid, gjenbruker allerede-hentede `noderPerRettskilde` (samme node som
+  // for rå nodeEid, gjenbruker de allerede hentede nodene (samme node som
   // `visNavneformFunnet` slår opp). Kilden vises allerede i egen "Lov/forskrift"-kolonne rett ved
   // siden av, så vi bygger teksten direkte fra noden i stedet for å gå via `eidVisningstekst` (som
   // ville dratt inn kortnavnet en gang til). Faller tilbake til rå eId når noden ikke er funnet ennå.
-  function visNodeTekst(k: VirksomhetKandidatDto): string {
-    const node = noderPerRettskilde.get(k.rettskildeId)?.find((n) => n.eid === k.nodeEid);
-    const paragraf = node?.nummer ? `§ ${node.nummer}` : null;
-    const overskrift = node?.overskrift ? `— ${node.overskrift}` : null;
-    const tekst = [paragraf, overskrift].filter((d): d is string => d !== null).join(' ');
-    return tekst || k.nodeEid;
-  }
 
   // Forespørsel-sekvensnummer (2026-08-22, Johanns tilbakemelding: kandidater for en virksomhet dukket
   // opp i lista mens et ANNET filter var valgt) — uten dette kunne en TREG, ELDRE forespørsel (f.eks.
@@ -163,10 +156,7 @@ export default function VirksomhetKandidaterListe() {
     [virksomheter, virksomhetIderMedKandidater],
   );
 
-  const rettskilderPerId = useMemo(() => new Map(rettskilder.map((r) => [r.id, r] as const)), [rettskilder]);
-  function visRettskilde(rettskildeId: string): string {
-    return rettskilderPerId.get(rettskildeId)?.tittel ?? rettskildeId;
-  }
+  const rettskildeOppslag = useRettskildeoppslag(rettskilder);
 
   async function kjorSveip() {
     if (!sveipVirksomhetId) return;
@@ -295,7 +285,7 @@ export default function VirksomhetKandidaterListe() {
       sortering.kolonne === 'virksomhet'
         ? visEier(k.virksomhetId)
         : sortering.kolonne === 'rettskilde'
-          ? visRettskilde(k.rettskildeId)
+          ? rettskildeOppslag.tittel(k.rettskildeId)
           : sortering.kolonne === 'status'
             ? k.status
             : k.opprettetTidspunkt;
@@ -304,7 +294,7 @@ export default function VirksomhetKandidaterListe() {
       return sortering.stigende ? cmp : -cmp;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kandidater, sortering.kolonne, sortering.stigende, visEier, rettskilderPerId]);
+  }, [kandidater, sortering.kolonne, sortering.stigende, visEier, rettskildeOppslag.perId]);
 
   const paginering = usePaginering(viste ?? []);
 
@@ -314,15 +304,10 @@ export default function VirksomhetKandidaterListe() {
   // på tvers av store deler av lovverket) — å hente noder for ALLE av dem samtidig var en reell,
   // observert render-treg/timeout-regresjon. Paginering gjør denne mengden avgrenset og forutsigbar
   // (maks ett `hentNoder`-kall per DISTINKT rettskilde blant de viste radene, ikke per rad).
-  useEffect(() => {
-    for (const rettskildeId of new Set(paginering.visteRader.map((k) => k.rettskildeId))) {
-      if (noderPerRettskilde.has(rettskildeId)) continue;
-      api.hentNoder(rettskildeId)
-        .then((noder) => setNoderPerRettskilde((forrige) => new Map(forrige).set(rettskildeId, noder)))
-        .catch(() => {}); // ingen gjettet fallback — viser rå node-eId under når nodene ikke lot seg hente
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paginering.visteRader]);
+  // [ENDRET, kandidatside-runden, 2026-09-09, issue #216] Delt hook: sen node-henting per
+  // rettskilde for de VISTE radene, og etiketten via paragrafEtikett. Den lokale kopien her
+  // bygde «§ {node.nummer}», som for et LEDD ga leddnummeret — «§ 6» for § 36 sjette ledd.
+  const nodeEtiketter = useNodeEtiketter(paginering.visteRader);
 
   return (
     <>
@@ -482,7 +467,7 @@ export default function VirksomhetKandidaterListe() {
                       />
                     </Table.Cell>
                     <Table.Cell>{visEier(k.virksomhetId)}</Table.Cell>
-                    <Table.Cell>{visRettskilde(k.rettskildeId)}</Table.Cell>
+                    <Table.Cell>{rettskildeOppslag.tittel(k.rettskildeId)}</Table.Cell>
                     <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
                       {/* [Rettet, 2026-09-02, issue #115] Viser nå "§ nummer — overskrift" (visNodeTekst)
                           i stedet for rå nodeEid — monospace-stilen passet den rå eId-koden, ikke prosa. */}
@@ -493,7 +478,7 @@ export default function VirksomhetKandidaterListe() {
                           gjetting — den fant ingen treff for kap-/rom-/punkt-nummererte noder
                           (LovdataIdentifikatorer.KapittelEid er bevisst ELI-uavhengig). */}
                       <Link asChild>
-                        <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{visNodeTekst(k)} ↗</RouterLink>
+                        <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{nodeEtiketter.etikett(k.rettskildeId, k.nodeEid)} ↗</RouterLink>
                       </Link>
                     </Table.Cell>
                     <Table.Cell>

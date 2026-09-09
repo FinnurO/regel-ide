@@ -4,7 +4,7 @@ import { Alert, Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, 
 import { ApiError, api } from '../api/client';
 import { BerikelseVisning } from '../virksomhet/BerikelseVisning';
 import { rettskildeLenkeForId } from '../api/eidLenker';
-import type { NavnekandidatDto, RettskildeNodeDto, RettskildeSammendrag } from '../api/types';
+import type { NavnekandidatDto, RettskildeSammendrag } from '../api/types';
 import { RettskildeFlervalg } from '../rettskilde/RettskildeFlervalg';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
@@ -13,6 +13,7 @@ import { KandidatflytForklaring } from '../kandidater/KandidatflytForklaring';
 import { KonfidensTag } from '../kandidater/KonfidensTag';
 import { useSortering } from '../kandidater/useSortering';
 import { useKandidatvalg } from '../kandidater/useKandidatvalg';
+import { useNodeEtiketter, useRettskildeoppslag } from '../kandidater/useNodeEtiketter';
 
 type Sorteringskolonne = 'foreslattTekst' | 'kategori' | 'rettskilde' | 'status' | 'opprettet';
 
@@ -110,7 +111,6 @@ export default function NavnekandidaterListe() {
   // for rå nodeEid. Hentes KUN for rettskildene bak de faktisk SYNLIGE radene (se `synligeRader`
   // under) — samme observerte perf-hensyn som der (én virksomhet/term kan ha kandidater spredt over
   // hundrevis av ulike rettskilder samtidig).
-  const [noderPerRettskilde, setNoderPerRettskilde] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
 
   const [kategoriFilter, setKategoriFilter] = useState<'virksomhet' | 'gruppe' | ''>('');
   // [Ny, konfidens-runden, 2026-09-09] '' = alle. 'ingen' = radene som ikke er klassifisert
@@ -199,19 +199,13 @@ export default function NavnekandidaterListe() {
     setGruppeApne(new Set());
   }, [gruppering]);
 
-  const rettskilderPerId = useMemo(() => new Map(rettskilder.map((r) => [r.id, r] as const)), [rettskilder]);
-  function visRettskilde(rettskildeId: string): string {
-    return rettskilderPerId.get(rettskildeId)?.tittel ?? rettskildeId;
-  }
+  const rettskildeOppslag = useRettskildeoppslag(rettskilder);
   // Navnekandidat-fiks 2 (2026-08-30) — Lovdatas eget metadata for HVILKET(E) departement(er) en
   // rettskilde faktisk gjelder (RettskildeEntitet.AnsvarligDepartement), slått opp via den allerede-
   // hentede rettskildelisten (samme mønster som visRettskilde over) i stedet for et eget kall. Spesielt
   // viktig for "departementet"/"Kongen i statsråd"-kandidater, som ellers ikke sier noe om HVILKET
   // departement. [ENDRET, fler-verdi-departement, 2026-09-04] Returnerer nå en liste — en rettskilde kan
   // ha flere ansvarlige departementer ved delt ansvar.
-  function visAnsvarligDepartement(rettskildeId: string): string[] | null {
-    return rettskilderPerId.get(rettskildeId)?.ansvarligDepartement ?? null;
-  }
 
   async function kjorSveip() {
     setSveiper(true);
@@ -374,7 +368,7 @@ export default function NavnekandidaterListe() {
         : sortering.kolonne === 'kategori'
           ? k.kategori
           : sortering.kolonne === 'rettskilde'
-            ? visRettskilde(k.rettskildeId)
+            ? rettskildeOppslag.tittel(k.rettskildeId)
             : sortering.kolonne === 'status'
               ? k.status
               : k.opprettetTidspunkt;
@@ -383,7 +377,7 @@ export default function NavnekandidaterListe() {
       return sortering.stigende ? cmp : -cmp;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kandidater, rettskildeValgteFilter, filterForeslattTekst, sortering.kolonne, sortering.stigende, rettskilderPerId]);
+  }, [kandidater, rettskildeValgteFilter, filterForeslattTekst, sortering.kolonne, sortering.stigende, rettskildeOppslag.perId]);
 
   const paginering = usePaginering(viste ?? []);
 
@@ -403,12 +397,12 @@ export default function NavnekandidaterListe() {
     return [...perNokkel.entries()]
       .map(([nokkel, rader]): Kandidatgruppe => ({
         nokkel,
-        visningsnavn: gruppering === 'rettskilde' ? visRettskilde(nokkel) : nokkel,
+        visningsnavn: gruppering === 'rettskilde' ? rettskildeOppslag.tittel(nokkel) : nokkel,
         rader,
       }))
       .sort((a, b) => b.rader.length - a.rader.length || a.visningsnavn.localeCompare(b.visningsnavn, 'nb'));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viste, gruppering, rettskilderPerId]);
+  }, [viste, gruppering, rettskildeOppslag.perId]);
 
   // Radene «velg alle»-toppboksen (og av-huking) skal virke på: gjeldende SIDE ved flat visning
   // (samme avgrensning som før), men HELE det filtrerte settet ved gruppering — der finnes det ingen
@@ -425,25 +419,13 @@ export default function NavnekandidaterListe() {
     return grupper.filter((g) => gruppeApne.has(g.nokkel)).flatMap((g) => g.rader);
   }, [gruppering, paginering.visteRader, grupper, gruppeApne]);
 
-  useEffect(() => {
-    for (const rettskildeId of new Set(synligeRader.map((k) => k.rettskildeId))) {
-      if (noderPerRettskilde.has(rettskildeId)) continue;
-      api.hentNoder(rettskildeId)
-        .then((noder) => setNoderPerRettskilde((forrige) => new Map(forrige).set(rettskildeId, noder)))
-        .catch(() => {}); // ingen gjettet fallback — viser rå node-eId når nodene ikke lot seg hente
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [synligeRader]);
+  // [ENDRET, kandidatside-runden, 2026-09-09, issue #216] Delt hook: sen node-henting per
+  // rettskilde for de VISTE radene, og etiketten via paragrafEtikett. Den lokale kopien her
+  // bygde «§ {node.nummer}», som for et LEDD ga leddnummeret — «§ 6» for § 36 sjette ledd.
+  const nodeEtiketter = useNodeEtiketter(synligeRader);
 
   // Samme "§ nummer — overskrift"-bygging som VirksomhetKandidaterListe.tsx sin visNodeTekst — kilden
   // vises allerede i egen "Rettskilde"-kolonne rett ved siden av.
-  function visNodeTekst(k: NavnekandidatDto): string {
-    const node = noderPerRettskilde.get(k.rettskildeId)?.find((n) => n.eid === k.nodeEid);
-    const paragraf = node?.nummer ? `§ ${node.nummer}` : null;
-    const overskrift = node?.overskrift ? `— ${node.overskrift}` : null;
-    const tekst = [paragraf, overskrift].filter((d): d is string => d !== null).join(' ');
-    return tekst || k.nodeEid;
-  }
 
   function apneAlleGrupper() {
     if (grupper) setGruppeApne(new Set(grupper.map((g) => g.nokkel)));
@@ -474,15 +456,15 @@ export default function NavnekandidaterListe() {
           {k.foreslattTekst}
           {k.oppdagelsesKilde === 'stor-bokstav-snl-ssr' && <BerikelseVisning k={k} />}
         </Table.Cell>
-        <Table.Cell>{visRettskilde(k.rettskildeId)}</Table.Cell>
+        <Table.Cell>{rettskildeOppslag.tittel(k.rettskildeId)}</Table.Cell>
         <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
           <Link asChild>
-            <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{visNodeTekst(k)} ↗</RouterLink>
+            <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{nodeEtiketter.etikett(k.rettskildeId, k.nodeEid)} ↗</RouterLink>
           </Link>
         </Table.Cell>
         <Table.Cell>
           {(() => {
-            const departementer = visAnsvarligDepartement(k.rettskildeId);
+            const departementer = rettskildeOppslag.ansvarligDepartement(k.rettskildeId);
             // Spesielt synlig for "departementet"/"Kongen i statsråd"-kandidater (se
             // metodekommentaren) — men vist for ALLE kategorier, siden feltet uansett bare
             // sier hvilket(e) departement(er) som eier RETTSKILDEN, ikke bare denne enkelttermen.
