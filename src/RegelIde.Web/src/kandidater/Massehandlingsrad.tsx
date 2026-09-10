@@ -49,8 +49,12 @@ export function Massehandlingsrad({
   const ingenting = antallValgte === 0;
   return (
     <>
-      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0 }}>
+      {/* `flex-end`, ikke `center`: når raden har et `children`-felt med egen Label (begrepskandidat-
+          siden) er det feltet høyere enn knappene, og sentrering løftet både telleren og knappene opp
+          til midten av labelen. Bunnjustering setter dem på samme linje som selve velgeren. Uten
+          children har alle elementene samme høyde, og det ser identisk ut med før. */}
+      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '1rem', flexWrap: 'wrap' }}>
+        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0, paddingBottom: '0.4rem' }}>
           {antallValgte} valgt{antallValgte === 1 ? '' : 'e'}
           {merknad ?? ''}
         </Paragraph>
