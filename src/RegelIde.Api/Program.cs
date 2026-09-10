@@ -1512,6 +1512,86 @@ lovdataResynk.MapPost("/", async (HttpRequest request, IServiceScopeFactory scop
         "automatisk ved oppstart/planlagt). Returnerer UMIDDELBART en 'Pågår'-kjøring uten å vente på " +
         "hele runden (kan ta flere minutter) — poll GET / for status. 409 hvis en kjøring allerede pågår.");
 
+// [Ny, feillogg-runden, 2026-09-10, issue #201 del A] Se LovdataImportstatusHistorikkEntitet for hele
+// resonnementet — dette er "en feillogg pr. synk som kan klikkes inn på", også for HISTORISKE kjøringer
+// (ikke bare den siste, til forskjell fra lovdata_importstatus sin upsert).
+lovdataResynk.MapGet("/{kjoringId:guid}/feilede-dokumenter", async (Guid kjoringId, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        if (!await db.LovdataResynkKjoringer.AnyAsync(k => k.Id == kjoringId, ct))
+        {
+            return Results.NotFound(new { feil = $"Fant ingen Lovdata-resynk-kjøring med id '{kjoringId}'." });
+        }
+
+        var rader = await db.LovdataImportstatusHistorikk
+            .Where(h => h.KjoringId == kjoringId)
+            .OrderBy(h => h.Datokode)
+            .ToListAsync(ct);
+        return Results.Ok(rader.Select(LovdataImportstatusHistorikkDto.FraEntitet));
+    })
+    .WithName("HentLovdataResynkFeiledeDokumenter")
+    .WithSummary("Feilloggen for ÉN kjøring (issue #201 del A) — datokode/tittel/eli/feilmelding for hvert " +
+        "dokument som feilet AKN-importen i akkurat denne kjøringen, uansett hvor langt tilbake i tid den " +
+        "er. 404 hvis kjoringId ikke finnes. Tom liste (ikke 404) hvis kjøringen fant 0 feil.");
+
+// [Ny, aksjonskrok-runden, 2026-09-10, issue #201 del B] Bekreftelsesknappen — Johanns EKSPLISITTE valg
+// (kommentar på issue #201, 2026-09-10) var et BEKREFTELSESSTEG FØR selve navnekandidat-sveipet, MOTSATT
+// av issuets egen opprinnelige "fullautomatisk"-anbefaling. Kaller derfor IKKE SveipAsync fra selve
+// KjorAsync-løkken (se LovdataFullimportTjeneste) — kun herfra, når en saksbehandler faktisk trykker.
+lovdataResynk.MapPost("/{kjoringId:guid}/navnekandidat-sveip", async (Guid kjoringId, HttpRequest request,
+        RegelIdeDbContext db, NavnekandidatOppdagelseTjeneste navnekandidatRegister, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+
+        var kjoring = await db.LovdataResynkKjoringer.SingleOrDefaultAsync(k => k.Id == kjoringId, ct);
+        if (kjoring is null) return Results.NotFound(new { feil = $"Fant ingen Lovdata-resynk-kjøring med id '{kjoringId}'." });
+
+        if (kjoring.NyeRettskildeIder.Count == 0)
+        {
+            return Results.BadRequest(new { feil = "Denne kjøringen oppdaget ingen helt nye rettskilder — ingenting å sveipe." });
+        }
+
+        var forsokt = 0;
+        var hoppetOver = 0;
+        var antallTreffFunnet = 0;
+        var antallNyeKandidater = 0;
+        foreach (var rettskildeId in kjoring.NyeRettskildeIder)
+        {
+            forsokt++;
+            try
+            {
+                var resultat = await navnekandidatRegister.SveipAsync(rettskildeId, bruker.Navn, ct);
+                antallTreffFunnet += resultat.AntallTreffFunnet;
+                antallNyeKandidater += resultat.AntallNyeKandidater;
+            }
+            catch (ArgumentException)
+            {
+                // Rettskilden var gjeldende/delt/nasjonal DA den ble oppdaget som "Ny" i denne kjøringen,
+                // men kan i MELLOMTIDEN (før noen trykket bekreft-knappen) ha blitt erstattet av en
+                // senere resynk (SveipAsync kaster da en tydelig ArgumentException — "ingen gjettet
+                // fallback", §8 i CLAUDE.md). Ett slikt tilfelle skal ikke stoppe sveipet for RESTEN av
+                // de nye kildene i samme kjøring.
+                hoppetOver++;
+            }
+        }
+
+        // Skjuler varslingsraden i UI-et etterpå (uansett om sveipet fant kandidater eller ikke — det er
+        // OPPFØLGINGEN som er gjort, se LovdataResynkKjoringEntitet.NyeKilderSveipUtfortTidspunkt).
+        // Attribuert til DEN FAKTISKE brukeren som trykket, ikke en systembruker-konstant -- til forskjell
+        // fra selve fullimporten er dette nå en eksplisitt menneskelig handling (Johanns beslutning).
+        kjoring.NyeKilderSveipUtfortTidspunkt = DateTimeOffset.UtcNow;
+        kjoring.NyeKilderSveipUtfortAv = bruker.Navn;
+        await db.SaveChangesAsync(ct);
+
+        return Results.Ok(new KjorNyeKilderSveipResultatDto(forsokt, hoppetOver, antallTreffFunnet, antallNyeKandidater));
+    })
+    .WithName("KjorLovdataResynkNyeKilderSveip")
+    .WithSummary("Bekreftelsesknappen for aksjonskroken (issue #201 del B, Johanns eksplisitte valg — " +
+        "BEKREFTELSESSTEG før sveip, ikke fullautomatisk): kaller NavnekandidatOppdagelseTjeneste.SveipAsync " +
+        "for nøyaktig de rettskildene som fikk utfall 'Ny' i denne kjøringen, og attribuerer treffene til " +
+        "den innloggede brukeren. Idempotent å trykke flere ganger (selve sveipet er det). 404 ukjent " +
+        "kjøring, 400 hvis kjøringen ikke oppdaget noen nye kilder.");
+
 var lovdataResynkInnstilling = app.MapGroup("/api/administrasjon/lovdata-resynk/innstilling").WithOpenApi();
 
 lovdataResynkInnstilling.MapGet("/", async (LovdataResynkInnstillingTjeneste tjeneste, CancellationToken ct) =>

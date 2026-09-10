@@ -47,9 +47,11 @@ import type {
   KildefeilDto,
   KildefeilRegistreringDto,
   LovdataImportstatusDto,
+  LovdataImportstatusHistorikkDto,
   LovdataKatalogTreffDto,
   LovdataResynkKjoringDto,
   LovdataResynkInnstillingDto,
+  KjorNyeKilderSveipResultatDto,
   OppdaterLovdataResynkInnstillingRequest,
   LeggTilKodeRequest,
   LeggTilLenkeRequest,
@@ -692,6 +694,14 @@ export const api = {
   hentLovdataResynkHistorikk: () => kall<LovdataResynkKjoringDto[]>('/api/administrasjon/lovdata-resynk'),
 
   startLovdataResynk: () => kall<LovdataResynkKjoringDto>('/api/administrasjon/lovdata-resynk', { method: 'POST' }),
+
+  // [Ny, feillogg-runden, 2026-09-10, issue #201 del A]
+  hentLovdataResynkFeiledeDokumenter: (kjoringId: string) =>
+    kall<LovdataImportstatusHistorikkDto[]>(`/api/administrasjon/lovdata-resynk/${kjoringId}/feilede-dokumenter`),
+
+  // [Ny, aksjonskrok-runden, 2026-09-10, issue #201 del B] Bekreftelsesknappen -- kjører IKKE automatisk.
+  kjorLovdataResynkNyeKilderSveip: (kjoringId: string) =>
+    kall<KjorNyeKilderSveipResultatDto>(`/api/administrasjon/lovdata-resynk/${kjoringId}/navnekandidat-sveip`, { method: 'POST' }),
 
   hentLovdataResynkInnstilling: () =>
     kall<LovdataResynkInnstillingDto>('/api/administrasjon/lovdata-resynk/innstilling'),

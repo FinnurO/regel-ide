@@ -216,4 +216,186 @@ public class AdministrasjonLovdataResynkEndepunktTests
             "/api/administrasjon/lovdata-resynk/innstilling", new OppdaterLovdataResynkInnstillingRequest(24), JsonInnstillinger);
         Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
     }
+
+    // ---------- Del A (issue #201): feillogg pr. kjøring, GET .../{kjoringId}/feilede-dokumenter ----------
+
+    private static async Task<Guid> NyFullfortKjoringAsync(RegelIdeDbContext db)
+    {
+        var kjoring = new LovdataResynkKjoringEntitet
+        {
+            Id = Guid.NewGuid(),
+            Utlost = LovdataResynkUtlost.Manuell,
+            UtlostAvBruker = "Kari Saksbehandler",
+            Status = LovdataResynkStatus.Fullfort,
+            StartetTidspunkt = DateTimeOffset.UtcNow,
+            FullfortTidspunkt = DateTimeOffset.UtcNow,
+        };
+        db.LovdataResynkKjoringer.Add(kjoring);
+        await db.SaveChangesAsync();
+        return kjoring.Id;
+    }
+
+    [Fact]
+    public async Task FeiledeDokumenter_gir_404_for_ukjent_kjoringId()
+    {
+        var klient = _fixture.Factory.CreateClient();
+        var svar = await klient.GetAsync($"/api/administrasjon/lovdata-resynk/{Guid.NewGuid()}/feilede-dokumenter");
+        Assert.Equal(HttpStatusCode.NotFound, svar.StatusCode);
+    }
+
+    [Fact]
+    public async Task FeiledeDokumenter_returnerer_kun_rader_for_DENNE_kjoringen_ikke_andre()
+    {
+        await using var db = _fixture.NyDbContext();
+        var forsteKjoringId = await NyFullfortKjoringAsync(db);
+        var andreKjoringId = await NyFullfortKjoringAsync(db);
+        var datokode = $"LOV-TEST-{Guid.NewGuid():N}";
+
+        db.LovdataImportstatusHistorikk.Add(new LovdataImportstatusHistorikkEntitet
+        {
+            Id = Guid.NewGuid(), KjoringId = forsteKjoringId, Datokode = datokode, Type = "lov",
+            Tittel = "Testlov", Eli = "https://lovdata.no/eli/lov/test", Feilmelding = "Feil i kjøring 1.",
+            ForsoktTidspunkt = DateTimeOffset.UtcNow,
+        });
+        db.LovdataImportstatusHistorikk.Add(new LovdataImportstatusHistorikkEntitet
+        {
+            Id = Guid.NewGuid(), KjoringId = andreKjoringId, Datokode = datokode, Type = "lov",
+            Tittel = "Testlov", Eli = "https://lovdata.no/eli/lov/test", Feilmelding = "Feil i kjøring 2.",
+            ForsoktTidspunkt = DateTimeOffset.UtcNow,
+        });
+        await db.SaveChangesAsync();
+
+        var klient = _fixture.Factory.CreateClient();
+        var svar = await klient.GetAsync($"/api/administrasjon/lovdata-resynk/{forsteKjoringId}/feilede-dokumenter");
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+
+        var rader = await svar.Content.ReadFromJsonAsync<List<LovdataImportstatusHistorikkDto>>(JsonInnstillinger);
+        var raden = Assert.Single(rader!);
+        Assert.Equal("Feil i kjøring 1.", raden.Feilmelding); // IKKE kjøring 2 sin feilmelding
+    }
+
+    [Fact]
+    public async Task FeiledeDokumenter_er_tom_liste_for_kjoring_uten_feil()
+    {
+        await using var db = _fixture.NyDbContext();
+        var kjoringId = await NyFullfortKjoringAsync(db);
+
+        var klient = _fixture.Factory.CreateClient();
+        var svar = await klient.GetAsync($"/api/administrasjon/lovdata-resynk/{kjoringId}/feilede-dokumenter");
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+
+        var rader = await svar.Content.ReadFromJsonAsync<List<LovdataImportstatusHistorikkDto>>(JsonInnstillinger);
+        Assert.NotNull(rader);
+        Assert.Empty(rader!);
+    }
+
+    // ---------- Del B (issue #201): aksjonskrok-bekreftelse, POST .../{kjoringId}/navnekandidat-sveip ----------
+    // Johanns eksplisitte valg (kommentar på #201, 2026-09-10): BEKREFTELSESSTEG før selve sveipet,
+    // MOTSATT av issuets egen "fullautomatisk"-anbefaling — se Program.cs-endepunktets kommentar.
+
+    /// <summary>Seeder én delt/nasjonal, gjeldende rettskilde med tekst som treffer det FASTE
+    /// gruppe-mønsteret ("Stortinget", se NavnekandidatOppdagelseTjeneste.FasteRollesubstantiv) —
+    /// "gruppe"-treff klassifiseres ALDRI mot SNL/SSR (se den klassens kommentar), så sveipet gir et
+    /// deterministisk, nettverksfritt resultat i testen.</summary>
+    private static async Task<Guid> NyGjeldendeRettskildeMedGruppetreffAsync(RegelIdeDbContext db)
+    {
+        var rettskildeId = Guid.NewGuid();
+        db.Rettskilder.Add(new RettskildeEntitet
+        {
+            Id = rettskildeId, Doctype = "doc", Kildetype = "Lov", Status = "Gjeldende", Importrolle = "referanse",
+            Tittel = "Testlov " + rettskildeId, OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        db.RettskildeNoder.Add(new RettskildeNodeEntitet
+        {
+            Id = Guid.NewGuid(), RettskildeId = rettskildeId, Eid = $"https://test/{rettskildeId:N}/§1/ledd-1",
+            KildeId = "ledd-1", NodeType = "ledd", Tekst = "Loven forvaltes av Stortinget.",
+        });
+        await db.SaveChangesAsync();
+        return rettskildeId;
+    }
+
+    private static async Task<Guid> NyFullfortKjoringMedNyeRettskilderAsync(RegelIdeDbContext db, params Guid[] nyeRettskildeIder)
+    {
+        var kjoring = new LovdataResynkKjoringEntitet
+        {
+            Id = Guid.NewGuid(),
+            Utlost = LovdataResynkUtlost.Manuell,
+            UtlostAvBruker = "Kari Saksbehandler",
+            Status = LovdataResynkStatus.Fullfort,
+            StartetTidspunkt = DateTimeOffset.UtcNow,
+            FullfortTidspunkt = DateTimeOffset.UtcNow,
+            Nye = nyeRettskildeIder.Length,
+            NyeRettskildeIder = nyeRettskildeIder.ToList(),
+        };
+        db.LovdataResynkKjoringer.Add(kjoring);
+        await db.SaveChangesAsync();
+        return kjoring.Id;
+    }
+
+    [Fact]
+    public async Task NavnekandidatSveip_uten_bruker_header_gir_400()
+    {
+        await using var db = _fixture.NyDbContext();
+        var kjoringId = await NyFullfortKjoringAsync(db);
+
+        var klient = _fixture.Factory.CreateClient();
+        var svar = await klient.PostAsync($"/api/administrasjon/lovdata-resynk/{kjoringId}/navnekandidat-sveip", content: null);
+        Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
+    }
+
+    [Fact]
+    public async Task NavnekandidatSveip_gir_404_for_ukjent_kjoringId()
+    {
+        var klient = _fixture.Factory.CreateClient();
+        var brukerId = await HentEnBrukerIdAsync(klient);
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"/api/administrasjon/lovdata-resynk/{Guid.NewGuid()}/navnekandidat-sveip");
+        request.Headers.Add(GjeldendeBrukerTjeneste.HeaderNavn, brukerId.ToString());
+        var svar = await klient.SendAsync(request);
+        Assert.Equal(HttpStatusCode.NotFound, svar.StatusCode);
+    }
+
+    [Fact]
+    public async Task NavnekandidatSveip_gir_400_nar_kjoringen_ikke_oppdaget_noen_nye_kilder()
+    {
+        await using var db = _fixture.NyDbContext();
+        var kjoringId = await NyFullfortKjoringAsync(db); // NyeRettskildeIder er tom liste (standard)
+
+        var klient = _fixture.Factory.CreateClient();
+        var brukerId = await HentEnBrukerIdAsync(klient);
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"/api/administrasjon/lovdata-resynk/{kjoringId}/navnekandidat-sveip");
+        request.Headers.Add(GjeldendeBrukerTjeneste.HeaderNavn, brukerId.ToString());
+        var svar = await klient.SendAsync(request);
+        Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
+    }
+
+    [Fact]
+    public async Task NavnekandidatSveip_kjorer_sveip_for_nye_rettskilder_og_markerer_kjoringen_som_behandlet()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await NyGjeldendeRettskildeMedGruppetreffAsync(db);
+        var kjoringId = await NyFullfortKjoringMedNyeRettskilderAsync(db, rettskildeId);
+
+        var klient = _fixture.Factory.CreateClient();
+        var brukerId = await HentEnBrukerIdAsync(klient);
+
+        using var request = new HttpRequestMessage(HttpMethod.Post, $"/api/administrasjon/lovdata-resynk/{kjoringId}/navnekandidat-sveip");
+        request.Headers.Add(GjeldendeBrukerTjeneste.HeaderNavn, brukerId.ToString());
+        var svar = await klient.SendAsync(request);
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+
+        var resultat = await svar.Content.ReadFromJsonAsync<KjorNyeKilderSveipResultatDto>(JsonInnstillinger);
+        Assert.Equal(1, resultat!.AntallRettskilderForsokt);
+        Assert.Equal(0, resultat.AntallRettskilderHoppetOver);
+        Assert.True(resultat.AntallTreffFunnet > 0, "'Stortinget' skulle vært funnet av det faste gruppe-mønsteret.");
+        Assert.True(resultat.AntallNyeKandidater > 0);
+
+        // GET / (historikklisten) skal nå vise varslingsraden som BEHANDLET -- se AdministrasjonLovdataResynk.tsx.
+        var historikkSvar = await klient.GetFromJsonAsync<List<LovdataResynkKjoringDto>>(
+            "/api/administrasjon/lovdata-resynk", JsonInnstillinger);
+        var raden = historikkSvar!.Single(k => k.Id == kjoringId);
+        Assert.Equal(1, raden.AntallNyeKilderOppdaget);
+        Assert.NotNull(raden.NyeKilderSveipUtfortTidspunkt);
+    }
 }

@@ -9,13 +9,26 @@ namespace RegelIde.Data;
 /// <see cref="LovdataResynkPlanleggerTjeneste"/> (Planlagt).
 /// <para>
 /// Selve <see cref="LovdataFullimportTjeneste.KjorAsync"/>-kallet er BEVISST IKKE en konstruktør-
-/// avhengighet her, men et parameter (<c>Func&lt;CancellationToken, Task&lt;LovdataFullimportResultat&gt;&gt;</c>)
+/// avhengighet her, men et parameter (<c>Func&lt;Guid, CancellationToken, Task&lt;LovdataFullimportResultat&gt;&gt;</c>
+/// — <c>Guid</c>-parameteret er selve kjøringens id, se [Endret]-merknaden under)
 /// på <see cref="FullforKjoringAsync"/>/<see cref="KjorOgRegistrerAsync"/> — to grunner: (1) det lar
 /// alle bokførings-metodene testes uten et ekte, tregt nettverkskall mot Lovdata (se
 /// LovdataResynkKjoringTjenesteTests, som sender inn en enkel lambda), og (2) det manuelle
 /// trigger-endepunktet trenger å opprette raden SYNKRONT i request-scopen (for å returnere id-en
 /// umiddelbart) men kjøre selve arbeidet i en SEPARAT DI-scope (se Program.cs) — <see cref="StartKjoringAsync"/>
 /// og <see cref="FullforKjoringAsync"/> er derfor delt i to separate metoder nettopp for å støtte det.
+/// </para>
+/// <para>
+/// [Endret, aksjonskrok-/feillogg-runden, 2026-09-10, issue #201] <c>kjorAsync</c>-delegatet fikk et
+/// ekstra <c>Guid kjoringId</c>-parameter (før: kun <c>CancellationToken</c>) — <see cref="LovdataFullimportTjeneste.KjorAsync"/>
+/// kjente tidligere ikke sin egen kjørings-id, og kunne derfor verken (del A) knytte et feilet
+/// enkeltdokument-forsøk til RIKTIG kjøring i <c>lovdata_importstatus_historikk</c>, eller (del B)
+/// vite hvilke <see cref="RettskildeImportUtfall.Ny"/>-treff som hørte til DENNE kjøringen. Ingen
+/// produksjonskode måtte endres ut over selve typen: alle tre ekte kallerne (oppstart, planlagt sjekk,
+/// manuell trigger) sender <c>tjeneste.KjorAsync</c> som en ren METODEGRUPPE, som C# binder om til den
+/// nye delegattypen automatisk siden <see cref="LovdataFullimportTjeneste.KjorAsync"/>s signatur ble
+/// endret til å matche. Kun de RENE LAMBDA-ene i testene (som ikke bryr seg om selve id-en) måtte
+/// oppdateres til å ta imot (og ignorere) det ekstra parameteret.
 /// </para>
 /// </summary>
 public sealed class LovdataResynkKjoringTjeneste(RegelIdeDbContext db)
@@ -61,11 +74,11 @@ public sealed class LovdataResynkKjoringTjeneste(RegelIdeDbContext db)
     /// unntak, slik at eksisterende kalleres egen try/catch-logging (LovdataFullimportBakgrunnstjeneste,
     /// BackgroundService-loopen) er uendret.</summary>
     public async Task<LovdataFullimportResultat> FullforKjoringAsync(
-        Guid kjoringId, Func<CancellationToken, Task<LovdataFullimportResultat>> kjorAsync, CancellationToken ct = default)
+        Guid kjoringId, Func<Guid, CancellationToken, Task<LovdataFullimportResultat>> kjorAsync, CancellationToken ct = default)
     {
         try
         {
-            var resultat = await kjorAsync(ct);
+            var resultat = await kjorAsync(kjoringId, ct);
             await RegistrerFullfortAsync(kjoringId, resultat, ct);
             return resultat;
         }
@@ -83,7 +96,7 @@ public sealed class LovdataResynkKjoringTjeneste(RegelIdeDbContext db)
     /// kall — riktig når ingen andre trenger id-en FØR arbeidet er ferdig (appoppstart, planlagt sjekk).
     /// Det manuelle trigger-endepunktet bruker IKKE denne (se klassekommentaren).</summary>
     public async Task<LovdataFullimportResultat> KjorOgRegistrerAsync(
-        string utlost, string? utlostAvBruker, Func<CancellationToken, Task<LovdataFullimportResultat>> kjorAsync,
+        string utlost, string? utlostAvBruker, Func<Guid, CancellationToken, Task<LovdataFullimportResultat>> kjorAsync,
         CancellationToken ct = default)
     {
         var kjoringId = await StartKjoringAsync(utlost, utlostAvBruker, ct);
@@ -102,6 +115,9 @@ public sealed class LovdataResynkKjoringTjeneste(RegelIdeDbContext db)
         kjoring.Uendret = resultat.Uendret;
         kjoring.Feilet = resultat.Feilet;
         kjoring.TotaltBehandlet = resultat.TotaltBehandlet;
+        // [Ny, aksjonskrok-runden, 2026-09-10, issue #201 del B] Grunnlaget for varslingsraden på
+        // administrasjonssiden — se LovdataResynkKjoringEntitet.NyeRettskildeIder-kommentaren.
+        kjoring.NyeRettskildeIder = resultat.NyeRettskildeIder.ToList();
         await db.SaveChangesAsync(ct);
     }
 

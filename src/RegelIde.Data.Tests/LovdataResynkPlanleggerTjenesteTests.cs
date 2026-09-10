@@ -32,8 +32,9 @@ public class LovdataResynkPlanleggerTjenesteTests
         public override DateTimeOffset GetUtcNow() => naa;
     }
 
-    private static Task<LovdataFullimportResultat> FastResultat(CancellationToken _) =>
-        Task.FromResult(new LovdataFullimportResultat(Nye: 1, NyeVersjoner: 0, Uendret: 5, Feilet: 0, TotaltBehandlet: 6));
+    private static Task<LovdataFullimportResultat> FastResultat(Guid kjoringId, CancellationToken ct) =>
+        Task.FromResult(new LovdataFullimportResultat(
+            Nye: 1, NyeVersjoner: 0, Uendret: 5, Feilet: 0, TotaltBehandlet: 6, NyeRettskildeIder: []));
 
     private static LovdataResynkPlanleggerTjeneste NyPlanlegger(RegelIdeDbContext db, DateTimeOffset naa) =>
         new(new LovdataResynkInnstillingTjeneste(db), new LovdataResynkKjoringTjeneste(db), new FakeKlokke(naa));
@@ -46,7 +47,7 @@ public class LovdataResynkPlanleggerTjenesteTests
         var planlegger = NyPlanlegger(db, DateTimeOffset.UtcNow);
 
         var kaltMedArbeid = false;
-        var startet = await planlegger.KjorHvisPaaTideAsync(ct => { kaltMedArbeid = true; return FastResultat(ct); });
+        var startet = await planlegger.KjorHvisPaaTideAsync((kjoringId, ct) => { kaltMedArbeid = true; return FastResultat(kjoringId, ct); });
 
         Assert.False(startet);
         Assert.False(kaltMedArbeid);
@@ -119,7 +120,7 @@ public class LovdataResynkPlanleggerTjenesteTests
         var planlegger = NyPlanlegger(db, naa);
 
         var kaltMedArbeid = false;
-        var startet = await planlegger.KjorHvisPaaTideAsync(ct => { kaltMedArbeid = true; return FastResultat(ct); });
+        var startet = await planlegger.KjorHvisPaaTideAsync((kjoringId, ct) => { kaltMedArbeid = true; return FastResultat(kjoringId, ct); });
 
         Assert.False(startet);
         Assert.False(kaltMedArbeid);
@@ -135,7 +136,7 @@ public class LovdataResynkPlanleggerTjenesteTests
         var planlegger = NyPlanlegger(db, DateTimeOffset.UtcNow);
 
         await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            planlegger.KjorHvisPaaTideAsync(_ => throw new InvalidOperationException("Lovdata utilgjengelig")));
+            planlegger.KjorHvisPaaTideAsync((_, _) => throw new InvalidOperationException("Lovdata utilgjengelig")));
 
         var rad = await db.LovdataResynkKjoringer.SingleAsync();
         Assert.Equal(LovdataResynkStatus.Feilet, rad.Status);

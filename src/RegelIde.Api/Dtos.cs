@@ -1148,17 +1148,41 @@ public sealed record LovdataImportstatusDto(
         e.Datokode, e.Type, e.Tittel, e.Eli, e.Importert, e.RettskildeId, e.Feilmelding, e.SistForsoktTidspunkt);
 }
 
+/// <summary>[Ny, feillogg-runden, 2026-09-10, issue #201 del A] Ett FEILET importforsøk i historikken
+/// for ÉN kjøring — se <see cref="LovdataImportstatusHistorikkEntitet"/>. Motstykket til
+/// <see cref="LovdataImportstatusDto"/>, som kun viser SISTE kjente forsøk uansett kjøring.</summary>
+public sealed record LovdataImportstatusHistorikkDto(
+    Guid Id, string Datokode, string Type, string? Tittel, string Eli, string? Feilmelding, DateTimeOffset ForsoktTidspunkt)
+{
+    public static LovdataImportstatusHistorikkDto FraEntitet(LovdataImportstatusHistorikkEntitet e) => new(
+        e.Id, e.Datokode, e.Type, e.Tittel, e.Eli, e.Feilmelding, e.ForsoktTidspunkt);
+}
+
 /// <summary>Én rad i kjøre-historikken for Lovdata-resynk (administrasjon-Lovdata-resynk, GitHub-issue
-/// #104) — se <see cref="LovdataResynkKjoringEntitet"/>.</summary>
+/// #104) — se <see cref="LovdataResynkKjoringEntitet"/>. <see cref="AntallNyeKilderOppdaget"/>/
+/// <see cref="NyeKilderSveipUtfortTidspunkt"/> [Ny, aksjonskrok-runden, 2026-09-10, issue #201 del B] —
+/// grunnlaget for varslingsraden på administrasjonssiden. Rettskilde-ID-ene selv
+/// (<c>NyeRettskildeIder</c> på entiteten) sendes IKKE til klienten — den trenger kun TALLET for
+/// varselteksten, selve sveipet skjer server-side (<c>POST .../navnekandidat-sveip</c>) uten at
+/// klienten må sende noen id-er tilbake.</summary>
 public sealed record LovdataResynkKjoringDto(
     Guid Id, string Utlost, string? UtlostAvBruker, string Status, DateTimeOffset StartetTidspunkt,
     DateTimeOffset? FullfortTidspunkt, int? Nye, int? NyeVersjoner, int? Uendret, int? Feilet,
-    int? TotaltBehandlet, string? Feilmelding)
+    int? TotaltBehandlet, string? Feilmelding, int AntallNyeKilderOppdaget, DateTimeOffset? NyeKilderSveipUtfortTidspunkt)
 {
     public static LovdataResynkKjoringDto FraEntitet(LovdataResynkKjoringEntitet e) => new(
         e.Id, e.Utlost, e.UtlostAvBruker, e.Status, e.StartetTidspunkt, e.FullfortTidspunkt,
-        e.Nye, e.NyeVersjoner, e.Uendret, e.Feilet, e.TotaltBehandlet, e.Feilmelding);
+        e.Nye, e.NyeVersjoner, e.Uendret, e.Feilet, e.TotaltBehandlet, e.Feilmelding,
+        e.NyeRettskildeIder.Count, e.NyeKilderSveipUtfortTidspunkt);
 }
+
+/// <summary>[Ny, aksjonskrok-runden, 2026-09-10, issue #201 del B] Svar fra
+/// <c>POST /api/administrasjon/lovdata-resynk/{kjoringId}/navnekandidat-sveip</c> — bekreftelsesknappens
+/// resultat. <see cref="AntallRettskilderHoppetOver"/> teller rettskilder som var "Ny" DA kjøringen
+/// oppdaget dem, men som en SENERE resynk (før noen trykket bekreft) erstattet med en ny versjon —
+/// se selve endepunktets kommentar i Program.cs.</summary>
+public sealed record KjorNyeKilderSveipResultatDto(
+    int AntallRettskilderForsokt, int AntallRettskilderHoppetOver, int AntallTreffFunnet, int AntallNyeKandidater);
 
 /// <summary>Database-lagret frekvensinnstilling for automatisk Lovdata-resynk — se
 /// <see cref="LovdataResynkInnstillingEntitet"/>.</summary>

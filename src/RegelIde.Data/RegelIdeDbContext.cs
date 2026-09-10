@@ -79,6 +79,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<KunnskapsbibliotekFilEntitet> KunnskapsbibliotekFiler => Set<KunnskapsbibliotekFilEntitet>();
     public DbSet<LovdataKatalogOppforingEntitet> LovdataKatalogOppforinger => Set<LovdataKatalogOppforingEntitet>();
     public DbSet<LovdataImportstatusEntitet> LovdataImportstatuser => Set<LovdataImportstatusEntitet>();
+    public DbSet<LovdataImportstatusHistorikkEntitet> LovdataImportstatusHistorikk => Set<LovdataImportstatusHistorikkEntitet>();
     public DbSet<LovdataResynkKjoringEntitet> LovdataResynkKjoringer => Set<LovdataResynkKjoringEntitet>();
     public DbSet<LovdataResynkInnstillingEntitet> LovdataResynkInnstillinger => Set<LovdataResynkInnstillingEntitet>();
     public DbSet<EksternKildeEntitet> EksterneKilder => Set<EksternKildeEntitet>();
@@ -1411,6 +1412,29 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasIndex(x => x.Importert).HasDatabaseName("ix_lovdata_importstatus_importert");
         });
 
+        // [Ny, feillogg-runden, 2026-09-10, issue #201 del A] Se LovdataImportstatusHistorikkEntitet for
+        // hvorfor denne finnes VED SIDEN AV lovdata_importstatus (upsert vs. historikk).
+        b.Entity<LovdataImportstatusHistorikkEntitet>(e =>
+        {
+            e.ToTable("lovdata_importstatus_historikk");
+            e.HasKey(x => x.Id).HasName("lovdata_importstatus_historikk_pkey");
+            e.Property(x => x.KjoringId).HasColumnName("kjoring_id");
+            e.Property(x => x.Datokode).HasColumnName("datokode");
+            e.Property(x => x.Type).HasColumnName("type");
+            e.Property(x => x.Tittel).HasColumnName("tittel");
+            e.Property(x => x.Eli).HasColumnName("eli");
+            e.Property(x => x.Feilmelding).HasColumnName("feilmelding");
+            e.Property(x => x.ForsoktTidspunkt).HasColumnName("forsokt_tidspunkt");
+
+            // Kaskade: en historikkrad gir ikke mening uten kjøringen den skjedde i -- samme begrunnelse
+            // som de andre kjøring-eide radene i denne modellen (RettskildeNoder mot Rettskilder m.fl.).
+            e.HasOne<LovdataResynkKjoringEntitet>().WithMany()
+                .HasForeignKey(x => x.KjoringId).OnDelete(DeleteBehavior.Cascade);
+
+            // Hovedbruken (GET .../{kjoringId}/feilede-dokumenter): alle rader for ÉN kjøring.
+            e.HasIndex(x => x.KjoringId).HasDatabaseName("ix_lovdata_importstatus_historikk_kjoring_id");
+        });
+
         b.Entity<LovdataResynkKjoringEntitet>(e =>
         {
             e.ToTable("lovdata_resynk_kjoringer");
@@ -1426,6 +1450,11 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Feilet).HasColumnName("feilet");
             e.Property(x => x.TotaltBehandlet).HasColumnName("totalt_behandlet");
             e.Property(x => x.Feilmelding).HasColumnName("feilmelding");
+            // [Ny, aksjonskrok-runden, 2026-09-10, issue #201 del B] Se LovdataResynkKjoringEntitet.NyeRettskildeIder-
+            // kommentaren for hele resonnementet (bekreftelsessteg FØR sveip, Johanns beslutning).
+            e.Property(x => x.NyeRettskildeIder).HasColumnName("nye_rettskilde_ider");
+            e.Property(x => x.NyeKilderSveipUtfortTidspunkt).HasColumnName("nye_kilder_sveip_utfort_tidspunkt");
+            e.Property(x => x.NyeKilderSveipUtfortAv).HasColumnName("nye_kilder_sveip_utfort_av");
 
             // Historikklisten (GET /api/administrasjon/lovdata-resynk) sorterer alltid nyeste først --
             // og ErKjoringPagaendeAsync/SisteKjoringAsync filtrerer på Status ved hver planlagt-sjekk

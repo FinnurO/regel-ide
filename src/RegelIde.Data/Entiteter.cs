@@ -2196,6 +2196,49 @@ public sealed class LovdataImportstatusEntitet
     public DateTimeOffset SistForsoktTidspunkt { get; set; }
 }
 
+/// <summary>
+/// [Ny, feillogg-runden, 2026-09-10, GitHub-issue #201 del A, alternativ (b)] Én rad PER FEILET
+/// importforsøk, knyttet til KJØRINGEN (<see cref="KjoringId"/>) forsøket skjedde i — motstykket til
+/// <see cref="LovdataImportstatusEntitet"/>, som er en UPSERT (kun ÉTT siste forsøk per dokument, se
+/// den klassens kommentar) og derfor ikke kan svare "hvilke dokumenter feilet i kjøring N" for en
+/// kjøring N som senere er overskrevet av et nyere forsøk (kjøring N+5) på samme dokument.
+/// <para>
+/// Johann (issue #201, 2026-09-04): «Det er interessant om du kan lage en liste over de objektene
+/// som feiler slik at vi er transparente. Altså en feillog pr.synk som kan klikke seg inn på.»
+/// Alternativ (b) fra issuets undersøkelse ble valgt FRAMFOR en nullable FK-kolonne på
+/// <see cref="LovdataImportstatusEntitet"/> selv (alternativ (a)) nettopp fordi (a) også kun ville
+/// husket SISTE forsøk per dokument — samme begrensning som selve UPSERT-tabellen har i dag.
+/// </para>
+/// <para>
+/// Skrevet KUN ved feil (<see cref="LovdataFullimportTjeneste.KjorAsync"/>s catch-gren, via
+/// <see cref="LovdataImportstatusTjeneste.OppdaterAsync"/>s <c>kjoringId</c>-parameter) — ALDRI ved
+/// suksess. Holder tabellen liten (~25 av 5871 dokumenter i kveldens kjøring, se issue #201) og
+/// unngår å duplisere det <see cref="LovdataImportstatusEntitet"/> allerede dekker for vellykkede
+/// forsøk. Skrives KUN når <c>kjoringId</c> er oppgitt — enkeltimport via
+/// <c>POST /api/rettskilder/lovdata</c> (samme <see cref="LovdataImportstatusTjeneste"/>-metode, men
+/// UTENFOR en Lovdata-resynk-kjøring) har ingen kjøring å knytte forsøket til, og skal derfor ikke
+/// skrive hit.
+/// </para>
+/// </summary>
+public sealed class LovdataImportstatusHistorikkEntitet
+{
+    public required Guid Id { get; set; }
+
+    /// <summary>FK til <see cref="LovdataResynkKjoringEntitet.Id"/> — HVILKEN kjøring forsøket skjedde i.</summary>
+    public required Guid KjoringId { get; set; }
+
+    public required string Datokode { get; set; }
+    public required string Type { get; set; } // 'lov' | 'forskrift'
+    public string? Tittel { get; set; }
+    public required string Eli { get; set; }
+
+    /// <summary>Den faktiske, feilkjedede unntaksmeldingen (<c>BeskrivFeilKjede</c>) — samme innhold som
+    /// hadde havnet i <see cref="LovdataImportstatusEntitet.Feilmelding"/> for dette forsøket.</summary>
+    public string? Feilmelding { get; set; }
+
+    public required DateTimeOffset ForsoktTidspunkt { get; set; }
+}
+
 /// <summary>Konstanter for <see cref="LovdataResynkKjoringEntitet.Utlost"/> — hvilken av de tre reelle
 /// triggerveiene (oppstart / manuell / planlagt, GitHub-issue #104) som startet kjøringen.</summary>
 public static class LovdataResynkUtlost
@@ -2269,6 +2312,35 @@ public sealed class LovdataResynkKjoringEntitet
     /// (telleren) og i <c>lovdata_importstatus</c> (<see cref="LovdataImportstatusEntitet"/>) — de stopper
     /// aldri hele kjøringen, se <see cref="LovdataFullimportTjeneste.KjorAsync"/>.</summary>
     public string? Feilmelding { get; set; }
+
+    /// <summary>
+    /// [Ny, aksjonskrok-runden, 2026-09-10, GitHub-issue #201 del B] Rettskilde-ID-ene som fikk utfall
+    /// <see cref="RettskildeImportUtfall.Ny"/> (STRENGT dette, IKKE <see cref="RettskildeImportUtfall.ForfremmetStub"/>
+    /// — se <see cref="LovdataFullimportTjeneste.KjorAsync"/>s kommentar for hvorfor de to holdes atskilt
+    /// her selv om de begge teller inn i <see cref="Nye"/>) i DENNE kjøringen — helt NYE rettskilder,
+    /// aldri sett før. Grunnlaget for varslingsraden på administrasjonssiden ("N nye kilder oppdaget i
+    /// kjøring X — kjør navnekandidat-sveip?") og for selve sveipet når noen trykker bekreft-knappen
+    /// (<c>POST .../navnekandidat-sveip</c>) — se den klassens kommentar.
+    /// <para>
+    /// <b>[LÅST, Johann 2026-09-10, kommentar på issue #201]</b> Bevisst IKKE fullautomatisk sveip ved
+    /// oppdagelse (motsatt av issuets EGEN opprinnelige anbefaling) — et menneske må trykke bekreft
+    /// FØR selve sveipet kjøres. Denne listen er derfor mellomlagring mellom "kjøringen oppdaget noe
+    /// nytt" og "noen bekreftet", ikke en kø som tømmes automatisk.
+    /// </para>
+    /// </summary>
+    public List<Guid> NyeRettskildeIder { get; set; } = [];
+
+    /// <summary>Satt når bekreft-knappen er trykket og navnekandidat-sveipet for <see cref="NyeRettskildeIder"/>
+    /// er utført — null inntil da. Skjuler varslingsraden i UI-et etter at den er behandlet (uansett om
+    /// sveipet faktisk fant noen kandidater eller ikke — poenget er at OPPFØLGINGEN er gjort).</summary>
+    public DateTimeOffset? NyeKilderSveipUtfortTidspunkt { get; set; }
+
+    /// <summary>Navnet på brukeren som trykket bekreft-knappen — ALDRI en systembruker-konstant, siden
+    /// dette (til forskjell fra selve fullimporten) er en eksplisitt menneskelig handling (Johanns
+    /// bekreftelsessteg-beslutning over). Samme <c>opprettetAv</c>-verdi sendes videre til
+    /// <see cref="NavnekandidatOppdagelseTjeneste.SveipAsync"/>, så hver opprettet
+    /// <see cref="NavnekandidatEntitet.OpprettetAv"/> viser den samme personen.</summary>
+    public string? NyeKilderSveipUtfortAv { get; set; }
 }
 
 /// <summary>

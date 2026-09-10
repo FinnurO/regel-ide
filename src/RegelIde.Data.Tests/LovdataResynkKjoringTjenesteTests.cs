@@ -31,8 +31,9 @@ public class LovdataResynkKjoringTjenesteTests
     private static Task RyddAsync(RegelIdeDbContext db) =>
         db.Database.ExecuteSqlRawAsync("DELETE FROM lovdata_resynk_kjoringer;");
 
-    private static Task<LovdataFullimportResultat> FastResultat(CancellationToken _) =>
-        Task.FromResult(new LovdataFullimportResultat(Nye: 3, NyeVersjoner: 2, Uendret: 100, Feilet: 1, TotaltBehandlet: 106));
+    private static Task<LovdataFullimportResultat> FastResultat(Guid kjoringId, CancellationToken ct) =>
+        Task.FromResult(new LovdataFullimportResultat(
+            Nye: 3, NyeVersjoner: 2, Uendret: 100, Feilet: 1, TotaltBehandlet: 106, NyeRettskildeIder: []));
 
     [Fact]
     public async Task StartKjoringAsync_oppretter_en_pagaende_rad()
@@ -90,6 +91,33 @@ public class LovdataResynkKjoringTjenesteTests
         Assert.Null(rad.Feilmelding);
     }
 
+    /// <summary>[Ny, aksjonskrok-runden, 2026-09-10, issue #201 del B] Beviser at
+    /// <see cref="LovdataFullimportResultat.NyeRettskildeIder"/> faktisk havner på
+    /// <see cref="LovdataResynkKjoringEntitet.NyeRettskildeIder"/> — grunnlaget for
+    /// varslingsraden/bekreftelsesknappen på administrasjonssiden. <see cref="LovdataResynkKjoringEntitet.NyeKilderSveipUtfortTidspunkt"/>
+    /// skal forbli null her (ingen har trykket bekreft-knappen ennå — det er en SEPARAT handling, se
+    /// AdministrasjonLovdataResynkEndepunktTests i RegelIde.Api.Tests).</summary>
+    [Fact]
+    public async Task FullforKjoringAsync_ved_suksess_lagrer_nye_rettskilde_ider_fra_del_b()
+    {
+        await using var db = _fixture.NyDbContext();
+        await RyddAsync(db);
+        var tjeneste = new LovdataResynkKjoringTjeneste(db);
+
+        var nyeIder = new[] { Guid.NewGuid(), Guid.NewGuid() };
+        Task<LovdataFullimportResultat> ResultatMedNyeKilder(Guid _, CancellationToken _2) =>
+            Task.FromResult(new LovdataFullimportResultat(
+                Nye: 2, NyeVersjoner: 0, Uendret: 0, Feilet: 0, TotaltBehandlet: 2, NyeRettskildeIder: nyeIder));
+
+        var kjoringId = await tjeneste.StartKjoringAsync(LovdataResynkUtlost.Manuell, "Kari Saksbehandler");
+        await tjeneste.FullforKjoringAsync(kjoringId, ResultatMedNyeKilder);
+
+        var rad = await db.LovdataResynkKjoringer.SingleAsync(k => k.Id == kjoringId);
+        Assert.Equal(nyeIder, rad.NyeRettskildeIder);
+        Assert.Null(rad.NyeKilderSveipUtfortTidspunkt);
+        Assert.Null(rad.NyeKilderSveipUtfortAv);
+    }
+
     [Fact]
     public async Task FullforKjoringAsync_ved_feil_registrerer_feilet_og_kaster_videre()
     {
@@ -100,7 +128,7 @@ public class LovdataResynkKjoringTjenesteTests
         var kjoringId = await tjeneste.StartKjoringAsync(LovdataResynkUtlost.Manuell, "Kari Saksbehandler");
 
         var unntak = await Assert.ThrowsAsync<InvalidOperationException>(() =>
-            tjeneste.FullforKjoringAsync(kjoringId, _ => throw new InvalidOperationException("Lovdata utilgjengelig")));
+            tjeneste.FullforKjoringAsync(kjoringId, (_, _) => throw new InvalidOperationException("Lovdata utilgjengelig")));
         Assert.Equal("Lovdata utilgjengelig", unntak.Message);
 
         var rad = await db.LovdataResynkKjoringer.SingleAsync(k => k.Id == kjoringId);
@@ -120,7 +148,7 @@ public class LovdataResynkKjoringTjenesteTests
         var kjoringId = await tjeneste.StartKjoringAsync(LovdataResynkUtlost.Oppstart, utlostAvBruker: null);
 
         await Assert.ThrowsAsync<OperationCanceledException>(() =>
-            tjeneste.FullforKjoringAsync(kjoringId, _ => throw new OperationCanceledException()));
+            tjeneste.FullforKjoringAsync(kjoringId, (_, _) => throw new OperationCanceledException()));
 
         var rad = await db.LovdataResynkKjoringer.SingleAsync(k => k.Id == kjoringId);
         Assert.Equal(LovdataResynkStatus.Feilet, rad.Status);

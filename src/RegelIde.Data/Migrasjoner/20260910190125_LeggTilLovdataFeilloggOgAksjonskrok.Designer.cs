@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RegelIde.Data;
@@ -12,9 +13,11 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    partial class RegelIdeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260910190125_LeggTilLovdataFeilloggOgAksjonskrok")]
+    partial class LeggTilLovdataFeilloggOgAksjonskrok
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1244,72 +1247,6 @@ namespace RegelIde.Data.Migrasjoner
                         .HasDatabaseName("ix_hendelser_virksomhet");
 
                     b.ToTable("hendelser", (string)null);
-                });
-
-            modelBuilder.Entity("RegelIde.Data.KildefeilEntitet", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Beskrivelse")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("beskrivelse");
-
-                    b.Property<string>("FunnetAvMekanisme")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("funnet_av_mekanisme");
-
-                    b.Property<string>("OpprettetAv")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("opprettet_av");
-
-                    b.Property<DateTimeOffset>("OpprettetTidspunkt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("opprettet_tidspunkt")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<string>("RettskildeEid")
-                        .HasColumnType("text")
-                        .HasColumnName("rettskilde_eid");
-
-                    b.Property<Guid>("RettskildeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("rettskilde_id");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("Ny")
-                        .HasColumnName("status");
-
-                    b.Property<string>("Type")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("type");
-
-                    b.HasKey("Id")
-                        .HasName("kildefeil_pkey");
-
-                    b.HasIndex("RettskildeId")
-                        .HasDatabaseName("ix_kildefeil_rettskilde");
-
-                    b.HasIndex("Status")
-                        .HasDatabaseName("ix_kildefeil_status");
-
-                    b.HasIndex("RettskildeId", "RettskildeEid", "Type", "FunnetAvMekanisme")
-                        .IsUnique()
-                        .HasDatabaseName("ux_kildefeil_rettskilde_eid_type_mekanisme");
-
-                    b.ToTable("kildefeil", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_kildefeil_status", "status IN ('Ny', 'Kjent', 'Rettet-hos-oss', 'Venter-på-Lovdata')");
-                        });
                 });
 
             modelBuilder.Entity("RegelIde.Data.KodelisteEntitet", b =>
@@ -4080,15 +4017,6 @@ namespace RegelIde.Data.Migrasjoner
                     b.HasOne("RegelIde.Data.Virksomhet", null)
                         .WithMany()
                         .HasForeignKey("VirksomhetId");
-                });
-
-            modelBuilder.Entity("RegelIde.Data.KildefeilEntitet", b =>
-                {
-                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
-                        .WithMany()
-                        .HasForeignKey("RettskildeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("RegelIde.Data.KodelisteEntitet", b =>

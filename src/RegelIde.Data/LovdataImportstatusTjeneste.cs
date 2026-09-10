@@ -17,10 +17,19 @@ public sealed class LovdataImportstatusTjeneste(RegelIdeDbContext db)
     /// Upsert på <see cref="LovdataImportstatusEntitet.Datokode"/> — kalles etter ETT importforsøk
     /// (enten fra <see cref="LovdataFullimportTjeneste"/>s runde over ALLE dokumenter, eller fra en
     /// enkeltimport av nøyaktig ett), uansett om forsøket lyktes eller ikke.
+    /// <para>
+    /// <paramref name="kjoringId"/> [Ny, feillogg-runden, 2026-09-10, issue #201 del A] — når oppgitt
+    /// OG <paramref name="importert"/> er <c>false</c>, skriver denne i SAMME <c>SaveChangesAsync</c>-
+    /// kall også en rad til <c>lovdata_importstatus_historikk</c> (se
+    /// <see cref="LovdataImportstatusHistorikkEntitet"/> for hvorfor det trengs ved siden av selve
+    /// upsert-raden over). <c>null</c> (standardverdien) for enkeltimport via
+    /// <c>POST /api/rettskilder/lovdata</c> — den har ingen Lovdata-resynk-kjøring å knytte forsøket
+    /// til, og skal derfor ALDRI havne i historikk-tabellen (som eksplisitt er "per kjøring").
+    /// </para>
     /// </summary>
     public async Task OppdaterAsync(
         string datokode, string type, string? tittel, string eli, bool importert, Guid? rettskildeId,
-        string? feilmelding, CancellationToken ct = default)
+        string? feilmelding, CancellationToken ct = default, Guid? kjoringId = null)
     {
         var rad = await db.LovdataImportstatuser.FindAsync([datokode], ct);
         if (rad is null)
@@ -36,6 +45,22 @@ public sealed class LovdataImportstatusTjeneste(RegelIdeDbContext db)
         rad.RettskildeId = rettskildeId;
         rad.Feilmelding = feilmelding;
         rad.SistForsoktTidspunkt = DateTimeOffset.UtcNow;
+
+        if (!importert && kjoringId is not null)
+        {
+            db.LovdataImportstatusHistorikk.Add(new LovdataImportstatusHistorikkEntitet
+            {
+                Id = Guid.NewGuid(),
+                KjoringId = kjoringId.Value,
+                Datokode = datokode,
+                Type = type,
+                Tittel = tittel,
+                Eli = eli,
+                Feilmelding = feilmelding,
+                ForsoktTidspunkt = DateTimeOffset.UtcNow,
+            });
+        }
+
         await db.SaveChangesAsync(ct);
     }
 }
