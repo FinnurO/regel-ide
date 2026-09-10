@@ -367,6 +367,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.PublisertI).HasColumnName("publisert_i");
             e.Property(x => x.AnnetOmDokumentet).HasColumnName("annet_om_dokumentet");
             e.Property(x => x.SisteRettelse).HasColumnName("siste_rettelse");
+            // [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Fastsetteren. Se entitetskommentaren
+            // for hvorfor dette IKKE er virksomhet_id, og hvorfor etat-feltet ikke kan brukes.
+            e.Property(x => x.FastsattAv).HasColumnName("fastsatt_av");
+            e.Property(x => x.FastsattAvOrgannavn).HasColumnName("fastsatt_av_organnavn");
             e.Property(x => x.Status).HasColumnName("status");
             // Optimistic concurrency (05-arkitektur-og-nfk.md §2: "skal varsle og avvise en lagring
             // som ville overskrevet en endring gjort av en annen bruker") — konfigureres eksplisitt

@@ -93,6 +93,20 @@ export interface RettskildeDetalj {
   sisteRettelse: string | null;
   /** [Ny, 2026-09-03, issue #131] true når RettskildeEntitet.Innhold (rå kilde-HTML) er lagret — styrer om «Vis kilde»-knappen vises. */
   harKilde: boolean;
+  /** [Ny, issue #215] Organet som FASTSATTE forskriften, utledet av hjemmelslinja. null når kilden
+   * ikke har frasen. Se FastsattAvDto — dette er IKKE virksomhetId (eierskap), og det står ved siden
+   * av ansvarligDepartement, ikke i stedet for. */
+  fastsattAv: FastsattAvDto | null;
+}
+
+/** [Ny, issue #215] `tekst` er frasen som den STÅR i kilden («styret ved …») og er det som vises.
+ * `organnavn` er navnet som slås opp i katalogen (institusjonen, ikke styret) — null for «kgl.res»,
+ * siden Kongen i statsråd er et gruppebegrep og ikke en virksomhet. `virksomhetId` løses ved lesing
+ * og er null når navnet ikke gav ETT entydig treff; teksten vises da uten lenke. */
+export interface FastsattAvDto {
+  tekst: string;
+  organnavn: string | null;
+  virksomhetId: string | null;
 }
 
 export interface RettskildeNodeDto {

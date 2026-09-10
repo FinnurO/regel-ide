@@ -80,18 +80,46 @@ public sealed record RettskildeDetalj(
     string? IkrafttredelseRaa, string? KonsolidertDatoRaa, string? SistEndretVed,
     string? Kunngjort, string? Rettsomrade, string? EuEosHenvisning, string? DokumentId, string? RefId,
     string? GjelderFor, string? Etat, string? PublisertI, string? AnnetOmDokumentet, string? SisteRettelse,
-    bool HarKilde)
+    bool HarKilde, FastsattAvDto? FastsattAv)
 {
     public static RettskildeDetalj FraEntitet(
-        RettskildeEntitet r, IReadOnlyList<AnsvarligDepartementLenkeDto>? ansvarligDepartementLenker = null) => new(
+        RettskildeEntitet r,
+        IReadOnlyList<AnsvarligDepartementLenkeDto>? ansvarligDepartementLenker = null,
+        Guid? fastsattAvVirksomhetId = null) => new(
         r.Id, r.VirksomhetId, r.Doctype, r.Kildetype, r.Tittel, r.Kortnavn, r.Eli,
         r.Ikrafttredelse, r.KonsolidertDato, r.Utgiver, r.AnsvarligDepartement, r.Status, r.AknXml,
         r.InterntDokNr, r.Revisjonsnr, r.VedtattAv, r.Vedtaksdato, r.GyldigTil, r.Url, ansvarligDepartementLenker ?? [],
         r.ErIrrelevant, r.IrrelevantKommentar, r.IkrafttredelseRaa, r.KonsolidertDatoRaa, r.SistEndretVed,
         r.Kunngjort, r.Rettsomrade, r.EuEosHenvisning, r.DokumentId, r.RefId,
         r.GjelderFor, r.Etat, r.PublisertI, r.AnnetOmDokumentet, r.SisteRettelse,
-        r.Innhold is not null);
+        r.Innhold is not null,
+        r.FastsattAv is null ? null : new FastsattAvDto(r.FastsattAv, r.FastsattAvOrgannavn, fastsattAvVirksomhetId));
 }
+
+/// <summary>
+/// [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Organet som fastsatte forskriften.
+///
+/// <para>
+/// <paramref name="Tekst"/> er frasen som den STÅR i kilden («styret ved Norges
+/// teknisk-naturvitenskapelige universitet (NTNU)», «Mattilsynet», «kgl.res.») og er det som skal
+/// VISES. <paramref name="Organnavn"/> er navnet som slås opp i katalogen — for «styret ved X» er det
+/// X, siden styret er organet innad og institusjonen er den som finnes i katalogen. <c>null</c> for
+/// kgl.res: Kongen i statsråd er et gruppebegrep, ikke en virksomhet.
+/// </para>
+///
+/// <para>
+/// <paramref name="VirksomhetId"/> løses ved LESING (samme mønster som
+/// <see cref="AnsvarligDepartementLenkeDto"/>), og er <c>null</c> når navnet ikke gav ETT entydig
+/// treff. Frontend viser da teksten uten lenke — den skal vises, ikke skjules: at en forskrift ble
+/// fastsatt av et nedlagt departement er en sann opplysning.
+/// </para>
+///
+/// <para>
+/// Dette er IKKE <see cref="RettskildeDetalj.VirksomhetId"/>. Den betyr «virksomhetens eget, private
+/// dokument»; denne sier bare hvem som fastsatte forskriften. Rettskilden forblir delt/nasjonal.
+/// </para>
+/// </summary>
+public sealed record FastsattAvDto(string Tekst, string? Organnavn, Guid? VirksomhetId);
 
 /// <summary>
 /// [Ny, fler-verdi-departement, 2026-09-04] Ett departement fra <see cref="RettskildeDetalj.AnsvarligDepartement"/>
