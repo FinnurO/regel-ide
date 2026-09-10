@@ -5,12 +5,14 @@ import {
 import { Link as RouterLink } from 'react-router';
 import { ApiError, api } from '../api/client';
 import type {
-  RettskildeSammendrag, TjenesteTverrTenantTreffDto, VirksomhetDto,
+  RettskildeNodeDto, RettskildeSammendrag, TjenesteTverrTenantTreffDto, VirksomhetDto,
 } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
-import { gjettRettskildeSokeord, gjettVirksomhetSokeord, konverterRettighet } from '../import/konverterModelleksport';
+import {
+  finnEntydigRettskilde, finnParagrafNode, gjettRettskildeSokeord, gjettVirksomhetSokeord, konverterRettighet,
+} from '../import/konverterModelleksport';
 import { tolkModelleksportJson, type RaaAvhengighet, type RaaRettighet } from '../import/modelleksportTyper';
 import { FELTVISNING_DEFAULT, type FeltvisningValg, type GrafKantLik, type GrafNodeLik } from '../graf/grafFelles';
 import { TjenesteGrafCanvas } from '../graf/TjenesteGrafCanvas';
@@ -39,7 +41,9 @@ interface RettighetTilstand {
   sletterForslag: boolean;
 }
 
-function nyTilstand(raa: RaaRettighet, virksomheter: VirksomhetDto[], egenVirksomhetId: string): RettighetTilstand {
+function nyTilstand(
+  raa: RaaRettighet, virksomheter: VirksomhetDto[], egenVirksomhetId: string, rettskilder: RettskildeSammendrag[],
+): RettighetTilstand {
   const gjettetNavn = gjettVirksomhetSokeord(raa.kompetent_myndighet).toLowerCase();
   const gjettetTreff = gjettetNavn
     // [ENDRET, registernavn-runden, 2026-09-08] Matcher mot BEGGE navneformene: importkilden kan
@@ -57,8 +61,14 @@ function nyTilstand(raa: RaaRettighet, virksomheter: VirksomhetDto[], egenVirkso
     tverrTenantTreff: [],
     sokerTverrTenant: false,
     koblerTilEksisterendeId: null,
+    // [ENDRET, #143, 2026-09-10] Nivå 1 av referanse-prefill — se `finnEntydigRettskilde` i
+    // konverterModelleksport.ts. `rettskildeId` var FØR alltid tom (issue #143 root cause): ingen
+    // forsøk på å matche `lov`-teksten mot en ekte rettskilde. Paragraf-eId (nivå 2) kan IKKE settes
+    // her — den krever nodene til den funnede rettskilden, hentet asynkront (se `sikreNoderFor`-effekten
+    // under i ImportWizard).
     referanser: raa.regelverksreferanser.map((r) => ({
-      lov: r.lov, henvisning: r.henvisning, felt: r.felt, rettskildeId: '', eid: '', utelatt: false,
+      lov: r.lov, henvisning: r.henvisning, felt: r.felt,
+      rettskildeId: finnEntydigRettskilde(r.lov, rettskilder)?.id ?? '', eid: '', utelatt: false,
     })),
     opprettetTjenesteId: null,
     advarsler: [],
@@ -91,6 +101,21 @@ export default function ImportWizard() {
   const [virksomheter, setVirksomheter] = useState<VirksomhetDto[]>([]);
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
 
+  // [Ny, #143, 2026-09-10] Nivå 2 av referanse-prefill — samme henteregister-mønster som
+  // `noderPerRettskilde`/`sikreNoderFor` i TjenesteDetalj.tsx (maks ett `hentNoder`-kall per DISTINKT
+  // rettskilde, uansett hvor mange referanser/rettigheter som peker på samme lov).
+  const [noderPerRettskilde, setNoderPerRettskilde] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
+  async function sikreNoderFor(rettskildeId: string) {
+    if (!rettskildeId || noderPerRettskilde.has(rettskildeId)) return;
+    try {
+      const noder = await api.hentNoder(rettskildeId);
+      setNoderPerRettskilde((forrige) => new Map(forrige).set(rettskildeId, noder));
+    } catch {
+      // Ingen gjettet fallback — paragraf-dropdownen står tom, treffer kun nivå 2 (nivå 1-rettskilden
+      // er allerede satt og importerbar uansett).
+    }
+  }
+
   const [bulkKjorer, setBulkKjorer] = useState(false);
   const [bulkFremdrift, setBulkFremdrift] = useState<{ ferdig: number; totalt: number } | null>(null);
   /** [Ny, 2026-08-29] Navnet på rettigheten som importeres AKKURAT NÅ — separat fra tallet i
@@ -119,6 +144,37 @@ export default function ImportWizard() {
     api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
   }, []);
 
+  /** [Ny, #143, 2026-09-10] Nivå 2 av referanse-prefill, del 1: hent nodene for hver DISTINKTE
+   * rettskilde som nivå 1 (i `nyTilstand`) allerede fant et entydig treff for, men som ennå mangler en
+   * eid — kun da er et paragraf-oppslag i det hele tatt mulig. Kjører på `tilstander`, ikke bare rett
+   * etter tolking: en rettskilde brukeren MANUELT velger i en rad (etter at siden er tolket) får samme
+   * node-henting, ikke bare de nivå-1-gjettede radene. */
+  useEffect(() => {
+    const rettskildeIder = new Set(
+      tilstander.flatMap((t) => t.referanser.filter((r) => r.rettskildeId && !r.eid).map((r) => r.rettskildeId)),
+    );
+    rettskildeIder.forEach((id) => sikreNoderFor(id));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tilstander]);
+
+  /** [Ny, #143, 2026-09-10] Nivå 2 av referanse-prefill, del 2: så snart nodene for en rettskilde er
+   * hentet, forsøk å slå opp paragrafnummeret trukket ut av `henvisning` mot en EKTE paragraf-node (se
+   * `finnParagrafNode`). Kjører KUN på `noderPerRettskilde` (ikke `tilstander`) — `setTilstander` under
+   * ville ellers trigget seg selv i en løkke. Trygt: hver referanse fylles kun én gang (`!r.eid`-sjekken
+   * i map'et under gjør påfølgende kjøringer et no-op for allerede utfylte rader), og fyller ALDRI over
+   * et menneskes eget valg eller manuelt innslag i eId-feltet. */
+  useEffect(() => {
+    if (noderPerRettskilde.size === 0) return;
+    setTilstander((forrige) => forrige.map((t) => ({
+      ...t,
+      referanser: t.referanser.map((r) => {
+        if (!r.rettskildeId || r.eid) return r;
+        const node = finnParagrafNode(r.henvisning, noderPerRettskilde.get(r.rettskildeId));
+        return node ? { ...r, eid: node.eid } : r;
+      }),
+    })));
+  }, [noderPerRettskilde]);
+
   const [tolker, setTolker] = useState(false);
 
   /** Selve tolkningen er synkron og rask, men med en 245 KB-fil (88 rettigheter) er den ALDRI
@@ -132,7 +188,7 @@ export default function ImportWizard() {
       try {
         const parset = tolkModelleksportJson(raaTekst);
         setRettigheter(parset);
-        setTilstander(parset.map((r) => nyTilstand(r, virksomheter, gjeldendeBruker?.virksomhetId ?? '')));
+        setTilstander(parset.map((r) => nyTilstand(r, virksomheter, gjeldendeBruker?.virksomhetId ?? '', rettskilder)));
         setApnetIndekser(new Set());
         setBulkOppsummering(null);
       } catch (err) {

@@ -1,6 +1,6 @@
 import type {
   EgetInnholdselementInput, HandlingArsakInput, HandlingRequest, HandlingVedleggInput, HandlingVeiledningstekstInput,
-  TjenesteInnholdInput, TjenesteRequest,
+  RettskildeNodeDto, RettskildeSammendrag, TjenesteInnholdInput, TjenesteRequest,
 } from '../api/types';
 import type { RaaHandling, RaaHjemmel, RaaInnhold, RaaRettighet } from './modelleksportTyper';
 
@@ -157,4 +157,77 @@ export function gjettRettskildeSokeord(lovTekst: string | null): string {
 export function gjettVirksomhetSokeord(kompetentMyndighet: string | null): string {
   if (!kompetentMyndighet) return '';
   return kompetentMyndighet.split(/[–(,]/)[0]?.trim() ?? kompetentMyndighet;
+}
+
+/**
+ * [Ny, #143, 2026-09-10] Nivå 1 av referanse-prefill: forhåndsvelger en rettskilde i stedet for
+ * bare å foreslå et søkeord (som `gjettRettskildeSokeord` allerede gjorde uten noen forbruker).
+ * Forhåndsvelger KUN ved nøyaktig ett treff — flere eller null treff returnerer `null`, ALDRI det
+ * mest sannsynlige (CLAUDE.md §8 "ingen gjettet fallback"). Root cause i issue #143: denne
+ * funksjonen fantes ikke, så `rettskildeId` startet alltid tom.
+ *
+ * [ENDRET, #143, 2026-09-10, verifisert live mot ekte korpus 5899 rettskilder] Prøver FØRST
+ * Lovdatas egen navnekonvensjon «Lov om X (kortnavn)» — tittelen slutter på `(sokeord)`. Faller
+ * tilbake til ren substreng-inkludering (opprinnelig, eneste forsøk) BARE når suffiks-forsøket selv
+ * ikke gir nøyaktig ett treff. Årsak: ren substreng-inkludering alene var for svak på ekte data —
+ * en lov har typisk flere endringslover/forskrifter/delegeringsvedtak som OGSÅ nevner morlovens
+ * kortnavn i sin egen tittel. Målt på et reelt importeksempel (`gifte-seg-reise.modelleksport.json`,
+ * ikke opplæringslova-eksempelet fra selve issue #143): av 6 distinkte lover kun ÉN («lov om tros- og
+ * livssynssamfunn») hadde nøyaktig ett substreng-treff — «ekteskapsloven» hadde 5, «navneloven» 3,
+ * «utlendingsloven» 21, «passloven» 5, «folketrygdloven» 39. Suffiks-mønsteret alene ga derimot
+ * nøyaktig ett treff for alle 6 — fortsatt ALDRI et gjettet nærmeste-treff, bare en STRUKTURELT
+ * strengere (ikke svakere) match først.
+ */
+export function finnEntydigRettskilde(
+  lovTekst: string | null,
+  rettskilder: RettskildeSammendrag[],
+): RettskildeSammendrag | null {
+  const sokeord = gjettRettskildeSokeord(lovTekst).toLowerCase();
+  if (!sokeord) return null;
+
+  const suffiks = `(${sokeord})`;
+  const suffiksTreff = rettskilder.filter((r) => r.tittel.toLowerCase().trim().endsWith(suffiks));
+  if (suffiksTreff.length === 1) return suffiksTreff[0];
+
+  const treff = rettskilder.filter((r) => r.tittel.toLowerCase().includes(sokeord));
+  return treff.length === 1 ? treff[0] : null;
+}
+
+/**
+ * [Ny, #143, 2026-09-10] Nivå 2 av referanse-prefill: trekker ut paragrafnummeret fra kildefilens
+ * `henvisning`-URL med en EGEN regex — IKKE en antagelse om at formatet er likt appens eId-er. Issue
+ * #143 bekrefter de er ULIKE: kilden skriver f.eks. `https://lovdata.no/lov/2023-06-09-30/§22-1`,
+ * appens node-eId-er `https://lovdata.no/eli/lov/2023/06/09/30/nor/§22-1` — samme paragrafnummer-del
+ * («§22-1»), ulik dokumentdel foran. Matcher derfor kun selve paragrafsuffikset (tall, ev. bokstav,
+ * ev. bindestrek+tall/bokstav — «§8», «§8a», «§22-1»), ikke hele strengen. Returnerer `null` når
+ * ingen «§»-del finnes — IKKE en gjettet verdi.
+ */
+export function trekkUtParagrafnummer(henvisning: string | null): string | null {
+  if (!henvisning) return null;
+  const treff = henvisning.match(/§\s*(\d+[a-zA-Z]?(?:-\d+[a-zA-Z]?)?)/);
+  return treff ? treff[1] : null;
+}
+
+/** Normaliserer en nodes `nummer` («§ 22-1», se LovdataHtmlParser.ParseParagraf) til samme form som
+ * `trekkUtParagrafnummer` returnerer («22-1») — kun paragraftegn/mellomrom skiller dem. */
+function normaliserNodeParagrafnummer(nummer: string | null): string | null {
+  if (!nummer) return null;
+  return nummer.replace(/^§\s*/, '').trim();
+}
+
+/**
+ * [Ny, #143, 2026-09-10] Slår opp paragrafnummeret trukket ut av `henvisning` (se
+ * `trekkUtParagrafnummer`) mot EKTE noder i den allerede (nivå 1) funnede rettskilden. Forhåndsvelger
+ * KUN ved nøyaktig ett treff blant PARAGRAF-noder — finner den ikke en matchende node (feil paragraf i
+ * kilden, loven omstrukturert siden, eller nodene ikke hentet ennå), returneres `null` og
+ * paragraf-dropdownen står tom i stedet for å vise et uverifisert gjettet valg (CLAUDE.md §8).
+ */
+export function finnParagrafNode(
+  henvisning: string | null,
+  noder: RettskildeNodeDto[] | undefined,
+): RettskildeNodeDto | null {
+  const paragrafnummer = trekkUtParagrafnummer(henvisning);
+  if (!paragrafnummer || !noder) return null;
+  const treff = noder.filter((n) => n.nodeType === 'paragraf' && normaliserNodeParagrafnummer(n.nummer) === paragrafnummer);
+  return treff.length === 1 ? treff[0] : null;
 }
