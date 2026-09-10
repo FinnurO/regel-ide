@@ -1,8 +1,8 @@
 /*!
- * Delte hjelpefunksjoner for regel-ide-showcasen. Ingen avhengigheter, ingen
+ * Delte hjelpefunksjoner for DigRett-showcasen. Ingen avhengigheter, ingen
  * byggesteg — lastes rått i nettleseren på alle sider.
  */
-var RegelIdeSite = (function () {
+var DigRettSite = (function () {
   'use strict';
 
   /** Finner riktig relativ sti til nettside/-roten fra en gitt side, basert på <html data-root>. */

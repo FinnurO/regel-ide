@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Om — Regel-IDE showcase</title>
-<meta name="description" content="Om digital-rettsstat-økosystemet, hva regel-ide er, og hvorfor denne showcasen finnes nå — mens applikasjonen selv kun kjører i lokal test.">
+<title>Om — DigRett showcase</title>
+<meta name="description" content="Om digital-rettsstat-økosystemet, hva DigRett er, og hvorfor denne showcasen finnes nå — mens applikasjonen selv kun kjører i lokal test.">
 <link rel="canonical" href="https://finnuro.github.io/regel-ide/om/">
 <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
 <link rel="stylesheet" href="../assets/css/fonts.css">
@@ -25,9 +25,9 @@
 <header class="site-header">
   <div class="wrap">
     <a class="brand plain" href="../">
-      <span class="brand__mark" aria-hidden="true">RI</span>
+      <span class="brand__mark" aria-hidden="true">DR</span>
       <span class="brand__text">
-        <span class="brand__title">Regel-IDE</span>
+        <span class="brand__title">DigRett</span>
         <span class="brand__subtitle">Digital rettsstat — showcase</span>
       </span>
     </a>
@@ -45,17 +45,17 @@
 
 <main id="main">
   <div class="wrap page-head">
-    <span class="eyebrow">Om regel-ide og denne siden</span>
+    <span class="eyebrow">Om DigRett og denne siden</span>
     <h1>Digital rettsstat, gjort spørrbar</h1>
-    <p class="lead">Regel-ide er et forsøk på å gjøre den samme jobben en jurist gjør — lese en lovtekst og finne ut nøyaktig hvem den forplikter og hvorfor — til noe et system kan gjøre gjentakelig og etterprøvbart. Denne siden forklarer hva regel-ide er, hvorfor denne showcasen finnes akkurat nå, og hvor langt arbeidet er kommet.</p>
+    <p class="lead">DigRett er et forsøk på å gjøre den samme jobben en jurist gjør — lese en lovtekst og finne ut nøyaktig hvem den forplikter og hvorfor — til noe et system kan gjøre gjentakelig og etterprøvbart. Denne siden forklarer hva DigRett er, hvorfor denne showcasen finnes akkurat nå, og hvor langt arbeidet er kommet.</p>
   </div>
 
   <section class="section">
     <div class="wrap">
       <div class="section-head">
-        <span class="kicker">Hva regel-ide er</span>
+        <span class="kicker">Hva DigRett er</span>
         <h2>En referanseimplementasjon av én kjede</h2>
-        <p>Regel-ide bygger ut kjeden <strong>rettskilde → regel → data → tjeneste</strong> som et sammenhengende hele, ikke som fire separate systemer som må stemmes overens i etterkant. Poenget er at hvert ledd i kjeden bærer sin egen sporbarhet fra første stund — sporbarhet er ikke noe som legges til etterpå med et eget system for det.</p>
+        <p>DigRett bygger ut kjeden <strong>rettskilde → regel → data → tjeneste</strong> som et sammenhengende hele, ikke som fire separate systemer som må stemmes overens i etterkant. Poenget er at hvert ledd i kjeden bærer sin egen sporbarhet fra første stund — sporbarhet er ikke noe som legges til etterpå med et eget system for det.</p>
       </div>
       <ol class="layer-list">
         <li>
@@ -83,7 +83,7 @@
       <div class="section-head">
         <span class="kicker">Hvorfor denne siden finnes nå</span>
         <h2>En midlertidig fasade, ikke produktet</h2>
-        <p>Selve regel-ide-applikasjonen kjører i dag kun i lokal test — det finnes ingen driftsatt, offentlig instans ennå. I mellomtiden er det verdifullt å kunne vise fram konkrete svar systemet allerede kan gi, uten å vente på full drift av applikasjonen. Denne nettsiden er akkurat det og ikke noe mer: en 100&nbsp;% statisk fasade uten kjøretidsavhengighet til noe API, bygget etter samme mønster som <a href="https://github.com/FinnurO/tjenestedesign-no" target="_blank" rel="noopener">FinnurO/tjenestedesign-no</a>. Alt av tall og innhold på sidene er lest via <code>fetch()</code> fra faste JSON-øyeblikksbilder under <a href="../data/README.md" target="_blank" rel="noopener"><code>nettside/data/</code></a>, eksportert fra en kjørende lokal instans av <code>RegelIde.Api</code> på et gitt tidspunkt — ikke sanntidsdata. Når en driftsatt instans av selve applikasjonen blir tilgjengelig, er denne sidens jobb gjort, og den byttes ut eller fjernes.</p>
+        <p>Selve DigRett-applikasjonen kjører i dag kun i lokal test — det finnes ingen driftsatt, offentlig instans ennå. I mellomtiden er det verdifullt å kunne vise fram konkrete svar systemet allerede kan gi, uten å vente på full drift av applikasjonen. Denne nettsiden er akkurat det og ikke noe mer: en 100&nbsp;% statisk fasade uten kjøretidsavhengighet til noe API, bygget etter samme mønster som <a href="https://github.com/FinnurO/tjenestedesign-no" target="_blank" rel="noopener">FinnurO/tjenestedesign-no</a>. Alt av tall og innhold på sidene er lest via <code>fetch()</code> fra faste JSON-øyeblikksbilder under <a href="../data/README.md" target="_blank" rel="noopener"><code>nettside/data/</code></a>, eksportert fra en kjørende lokal instans av <code>RegelIde.Api</code> på et gitt tidspunkt — ikke sanntidsdata. Når en driftsatt instans av selve applikasjonen blir tilgjengelig, er denne sidens jobb gjort, og den byttes ut eller fjernes.</p>
       </div>
     </div>
   </section>
@@ -109,7 +109,7 @@
       <div class="section-head">
         <span class="kicker">Hva denne siden ikke er</span>
         <h2>Ingen kjøretidsavhengighet, ingen skrivetilgang</h2>
-        <p>Denne showcasen kan ikke endre noe i regel-ide — den bare leser eksporterte øyeblikksbilder. Den erstatter ikke selve applikasjonen, og den viser ikke hele datamengden regel-ide kjenner til: detaljvisningene er et bevisst lite utvalg av eksempler (Karasjok kommune, forvaltningsområdet for samiske språk, et lite knippe alkohollov-begreper), valgt fordi de illustrerer kjeden tydelig — ikke fordi de er de eneste eller de mest representative dataene i systemet. Full katalog vises der det gir mening (rettskilder og virksomheter), men uten fulltekst eller navngitte enkeltpersoners kontaktinformasjon — se personvernavsnittet i <a href="https://github.com/FinnurO/regel-ide/blob/main/nettside/data/README.md" target="_blank" rel="noopener">datakontrakten</a>.</p>
+        <p>Denne showcasen kan ikke endre noe i DigRett — den bare leser eksporterte øyeblikksbilder. Den erstatter ikke selve applikasjonen, og den viser ikke hele datamengden DigRett kjenner til: detaljvisningene er et bevisst lite utvalg av eksempler (Karasjok kommune, forvaltningsområdet for samiske språk, et lite knippe alkohollov-begreper), valgt fordi de illustrerer kjeden tydelig — ikke fordi de er de eneste eller de mest representative dataene i systemet. Full katalog vises der det gir mening (rettskilder og virksomheter), men uten fulltekst eller navngitte enkeltpersoners kontaktinformasjon — se personvernavsnittet i <a href="https://github.com/FinnurO/regel-ide/blob/main/nettside/data/README.md" target="_blank" rel="noopener">datakontrakten</a>.</p>
       </div>
     </div>
   </section>
@@ -119,7 +119,7 @@
   <div class="wrap">
     <div>
       <h3>Om nettstedet</h3>
-      <p style="font-size:var(--ds-body-sm-font-size); color:var(--ds-color-text-subtle); max-width:32ch; margin:0;">Midlertidig showcase av <a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">regel-ide</a>, ikke selve produktet.</p>
+      <p style="font-size:var(--ds-body-sm-font-size); color:var(--ds-color-text-subtle); max-width:32ch; margin:0;">Midlertidig showcase av <strong>DigRett</strong>, ikke selve produktet. Kildekode: <a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">regel-ide</a>.</p>
     </div>
     <div>
       <h3>Sider</h3>
@@ -172,10 +172,10 @@
     tile.classList.remove('is-loading');
     tile.querySelector('.n').textContent = n.toLocaleString('nb-NO');
   }
-  RegelIdeSite.fetchData('rettskilder/katalog.json').then(function (d) { setStat('rettskilder', d.antall); }).catch(function () {});
-  RegelIdeSite.fetchData('virksomheter/katalog.json').then(function (d) { setStat('virksomheter', d.antall); }).catch(function () {});
-  RegelIdeSite.fetchData('grupper/register.json').then(function (d) { setStat('gruppebegrep', d.antall); }).catch(function () {});
-  RegelIdeSite.fetchData('begreper/oversikt.json').then(function (d) { setStat('begreper', d.antallTotaltIRegisteret != null ? d.antallTotaltIRegisteret : d.antall); }).catch(function () {});
+  DigRettSite.fetchData('rettskilder/katalog.json').then(function (d) { setStat('rettskilder', d.antall); }).catch(function () {});
+  DigRettSite.fetchData('virksomheter/katalog.json').then(function (d) { setStat('virksomheter', d.antall); }).catch(function () {});
+  DigRettSite.fetchData('grupper/register.json').then(function (d) { setStat('gruppebegrep', d.antall); }).catch(function () {});
+  DigRettSite.fetchData('begreper/oversikt.json').then(function (d) { setStat('begreper', d.antallTotaltIRegisteret != null ? d.antallTotaltIRegisteret : d.antall); }).catch(function () {});
 })();
 </script>
 </body>

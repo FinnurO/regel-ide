@@ -1,6 +1,6 @@
 /* Redaksjonelt CSS-lag for dette nettstedet. Bygger utelukkende på ds-tokens fra vendor/designsystemet*.css.
    Basert på mønsteret fra FinnurO/tjenestedesign-no (samme forfatter) — grunnstilene over stammer
-   derfra; seksjonene nedenfor («Data-drevet innhold») er nye, lagt til for regel-ide-showcasen. */
+   derfra; seksjonene nedenfor («Data-drevet innhold») er nye, lagt til for DigRett-showcasen. */
 :root{
   --site-font-body: 'Inter', ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --site-font-display: 'Source Serif 4', ui-serif, Georgia, serif;
@@ -236,7 +236,7 @@ table.ds-table caption{ text-align:left; font-size: var(--ds-body-sm-font-size);
 .feedback-actions{ display:flex; justify-content:flex-end; gap:var(--ds-size-3); flex-wrap:wrap; }
 
 /* =========================================================================
-   Data-drevet innhold — nytt for regel-ide-showcasen (ikke fra referansen)
+   Data-drevet innhold — nytt for DigRett-showcasen (ikke fra referansen)
    ========================================================================= */
 
 /* ---------- Stat-tiles (nøkkeltall fra katalogfilene) ---------- */
