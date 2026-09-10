@@ -26,11 +26,17 @@ Svar på tre spørsmål jeg stilte etter gjennomgang av kravspesifikasjonen:
 
 ## 1. Formål
 
-Uendret fra kravspesifikasjonen: en katalog over virksomheter (identifisert ved organisasjonsnummer),
-kobling til begrep brukt om dem i rettskildetekst, håndtering av **rollebegrep** som tildeles konkrete
-virksomheter gjennom forskrift/delegeringsvedtak (ofte ulikt fordelt per paragraf), en arbeidsflyt for
-å godkjenne kandidatkoblinger, og aggregerte oversikter beregnet fra koblingene — ikke lagret som egen
-fakta.
+**Hvorfor, ikke bare hva:** se `docs/32-formal-roller-og-sporsmal.md` §2 — forvaltningsapparatet er i
+praksis skjult, fordi ingen kan lese hele rettskildekorpuset. Katalogen, rollebegrepene og
+myndighetstildelingene under er ikke datamodellering for sin egen del; de er mekanismen som gjør det
+skjulte apparatet spørrbart og etterprøvbart mot kilden. Konkret svarer de på S1/S2/S3/S5/S6 i
+`docs/32` §3.
+
+Mekanisk beskrevet (uendret fra kravspesifikasjonen): en katalog over virksomheter (identifisert ved
+organisasjonsnummer), kobling til begrep brukt om dem i rettskildetekst, håndtering av
+**rollebegrep** som tildeles konkrete virksomheter gjennom forskrift/delegeringsvedtak (ofte ulikt
+fordelt per paragraf), en arbeidsflyt for å godkjenne kandidatkoblinger, og aggregerte oversikter
+beregnet fra koblingene — ikke lagret som egen fakta.
 
 **Avgrenset bort:** en generisk aktør-modell (fysiske personer, "arbeidsgiver"/"innbygger"-roller,
 internasjonale organisasjoner). Strengt virksomheter identifisert ved org.nummer denne runden.
