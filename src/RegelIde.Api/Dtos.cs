@@ -612,6 +612,36 @@ public sealed record BegrepTaggetForekomstDto(
         t.Tagg.QuotePrefix, t.Tagg.QuoteExact, t.Tagg.QuoteSuffix);
 }
 
+/// <summary>[Ny, #212, 2026-09-10] Ett foreslått («definert likt som»-kandidat-)par for kandidatkøen
+/// GET /api/begrep-definisjon-relasjoner — bærer BEGGE de underliggende forekomstene join'et inn (se
+/// <see cref="BegrepDefinisjonRelasjonTjeneste.ListerMedForekomsterAsync"/>) slik at klienten kan vise
+/// ordlyden fra begge rettskilder uten et ekstra kall per rad (AC2/AC3: «ingen ugjennomsiktig score
+/// alene»).</summary>
+public sealed record BegrepDefinisjonRelasjonKandidatDto(
+    Guid Id, string NormalisertDefinisjon, string Status,
+    string OpprettetAv, DateTimeOffset OpprettetTidspunkt, string? BehandletAv, DateTimeOffset? BehandletTidspunkt,
+    BegrepsforekomstDto Fra, BegrepsforekomstDto Til)
+{
+    public static BegrepDefinisjonRelasjonKandidatDto FraEntitet(
+        BegrepDefinisjonRelasjonKandidatEntitet k, BegrepsforekomstEntitet fra, BegrepsforekomstEntitet til) => new(
+        k.Id, k.NormalisertDefinisjon, k.Status, k.OpprettetAv, k.OpprettetTidspunkt, k.BehandletAv, k.BehandletTidspunkt,
+        BegrepsforekomstDto.FraEntitet(fra), BegrepsforekomstDto.FraEntitet(til));
+}
+
+public sealed record BegrepDefinisjonRelasjonSveipResultatDto(int AntallGrupperFunnet, int AntallNyeKandidater);
+
+/// <summary>[Ny, #212, 2026-09-10] Én bekreftet relasjon vist FRA et gitt begrep (BegrepDetalj, AC5 —
+/// «også definert i N andre rettskilder»). Bærer det RELATERTE begrepets egne, allerede kjente felt
+/// (Term/LovreferanseEid/VirksomhetId) — klienten lenker til paragrafen med samme
+/// <c>finnRettskildeForEid</c>/<c>rettskildeLenke</c>-mekanisme siden alt allerede bruker for
+/// <c>begrep.lovreferanseEid</c>, ikke en ny lenke-mekanisme.</summary>
+public sealed record BegrepDefinisjonRelasjonDto(
+    Guid RelatertBegrepId, string RelatertTerm, string? RelatertLovreferanseEid, Guid? RelatertVirksomhetId, string Kilde)
+{
+    public static BegrepDefinisjonRelasjonDto FraEntitet(BegrepDefinisjonRelasjonEntitet r, BegrepEntitet relatert) => new(
+        relatert.Id, relatert.Term, relatert.LovreferanseEid, relatert.VirksomhetId, r.Kilde);
+}
+
 // ---------- Virksomhetskatalog og gruppemodell (docs/20) ----------
 
 public sealed record SettForvaltningsnivaRequest(string? Forvaltningsniva);

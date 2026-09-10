@@ -48,6 +48,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<EksternNavneoppslagCacheEntitet> EksternNavneoppslagCache => Set<EksternNavneoppslagCacheEntitet>();
     public DbSet<BegrepsforekomstEntitet> Begrepsforekomster => Set<BegrepsforekomstEntitet>();
     public DbSet<BegrepsrelasjonEntitet> Begrepsrelasjoner => Set<BegrepsrelasjonEntitet>();
+    // [Ny, #212, 2026-09-10]
+    public DbSet<BegrepDefinisjonRelasjonKandidatEntitet> BegrepDefinisjonRelasjonKandidater => Set<BegrepDefinisjonRelasjonKandidatEntitet>();
+    public DbSet<BegrepDefinisjonRelasjonEntitet> BegrepDefinisjonRelasjoner => Set<BegrepDefinisjonRelasjonEntitet>();
     public DbSet<Bruker> Brukere => Set<Bruker>();
     public DbSet<BrukerVisningsinnstillingEntitet> BrukerVisningsinnstillinger => Set<BrukerVisningsinnstillingEntitet>();
     public DbSet<RettskildeEntitet> Rettskilder => Set<RettskildeEntitet>();
@@ -1043,6 +1046,58 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasOne<BegrepsforekomstEntitet>().WithMany().HasForeignKey(x => x.TilForekomstId).OnDelete(DeleteBehavior.Restrict);
             e.HasIndex(x => x.FraForekomstId).HasDatabaseName("ix_begrepsrelasjoner_fra");
             e.HasIndex(x => x.TilForekomstId).HasDatabaseName("ix_begrepsrelasjoner_til");
+        });
+
+        // [Ny, #212, 2026-09-10] Se Entiteter.cs sin klassekommentar for hele resonnementet.
+        b.Entity<BegrepDefinisjonRelasjonKandidatEntitet>(e =>
+        {
+            e.ToTable("begrep_definisjon_relasjon_kandidater", t =>
+            {
+                t.HasCheckConstraint("ck_begrep_def_rel_kandidater_status", "status IN ('Venter', 'Godkjent', 'Avvist')");
+                // Et par kan ikke relatere en forekomst til seg selv — samme "sirkel er alltid en
+                // registreringsfeil" -holdning som ck_gruppe_medlemskap_ikke_selv.
+                t.HasCheckConstraint("ck_begrep_def_rel_kandidater_ikke_selv", "fra_forekomst_id <> til_forekomst_id");
+            });
+            e.HasKey(x => x.Id).HasName("begrep_definisjon_relasjon_kandidater_pkey");
+            e.Property(x => x.FraForekomstId).HasColumnName("fra_forekomst_id");
+            e.Property(x => x.TilForekomstId).HasColumnName("til_forekomst_id");
+            e.Property(x => x.NormalisertDefinisjon).HasColumnName("normalisert_definisjon");
+            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("Venter");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+            e.Property(x => x.BehandletAv).HasColumnName("behandlet_av");
+            e.Property(x => x.BehandletTidspunkt).HasColumnName("behandlet_tidspunkt");
+
+            e.HasOne<BegrepsforekomstEntitet>().WithMany().HasForeignKey(x => x.FraForekomstId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<BegrepsforekomstEntitet>().WithMany().HasForeignKey(x => x.TilForekomstId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => x.TilForekomstId).HasDatabaseName("ix_begrep_def_rel_kandidater_til");
+            // Idempotens (AC4 — «et nytt sveip lager ikke dubletter»): paret canonicaliseres i tjenesten
+            // (FraForekomstId < TilForekomstId) FØR innsetting, så denne enkle, ikke-kommutative
+            // unik-indeksen er nok — se OpprettEllerFinnKandidatAsync.
+            e.HasIndex(x => new { x.FraForekomstId, x.TilForekomstId }).IsUnique()
+                .HasDatabaseName("ux_begrep_def_rel_kandidater_par");
+        });
+
+        b.Entity<BegrepDefinisjonRelasjonEntitet>(e =>
+        {
+            e.ToTable("begrep_definisjon_relasjoner", t =>
+            {
+                t.HasCheckConstraint("ck_begrep_def_relasjoner_kilde", "kilde IN ('sveip', 'manuell')");
+                t.HasCheckConstraint("ck_begrep_def_relasjoner_ikke_selv", "fra_begrep_id <> til_begrep_id");
+            });
+            e.HasKey(x => x.Id).HasName("begrep_definisjon_relasjoner_pkey");
+            e.Property(x => x.FraBegrepId).HasColumnName("fra_begrep_id");
+            e.Property(x => x.TilBegrepId).HasColumnName("til_begrep_id");
+            e.Property(x => x.Kilde).HasColumnName("kilde");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+
+            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.FraBegrepId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.TilBegrepId).OnDelete(DeleteBehavior.Cascade);
+            // Symmetrisk lagret som to rader (Fra=A,Til=B) og (Fra=B,Til=A) — se klassekommentaren. Denne
+            // indeksen fanger dubletter PER RETNING; GodkjennAsync sjekker begge retninger før innsetting.
+            e.HasIndex(x => new { x.FraBegrepId, x.TilBegrepId }).IsUnique()
+                .HasDatabaseName("ux_begrep_def_relasjoner_fra_til");
         });
 
         b.Entity<KodelisteEntitet>(e =>
