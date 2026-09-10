@@ -40,10 +40,35 @@ merges med `gh pr merge <nr> --squash --delete-branch` (CLAUDE.md §13).
 - **`hjemmel-ledd-presisjon` → PR #227** — lukker #217. Hjemmelen peker nå på leddet kilden
   presiserer. 416 av 22 262 hjemmelrader oppgradert på ekte korpus. Kildekonvertering 115/115,
   Api 294/294, Data 715/715.
+- **`fastsatt-av-organ` → PR #230** — lukker #215. Stablet PÅ #227 (PR-basen er satt til den
+  grenen), fordi migrasjonen er generert oppå den andre. Merges #227 først, går denne automatisk mot
+  master. 4701 av 5565 rettskilder fikk en fastsetter; `virksomhet_id` uendret for alle 5565.
+  Kildekonvertering 131/131, Api 294/294, Data 721/721, vitest 62/62.
 
-**Utført på Johanns base (ikke reverserbart uten ny kjøring):**
-`POST /api/administrasjon/hjemmel-presisjon-etterfylling` er kjørt én gang, 2026-09-10. Den er
-idempotent, så en ny kjøring er trygg — og verdt å gjenta etter at flere lover er importert.
+**Utført på Johanns base (begge idempotente, trygge å gjenta):**
+- `POST /api/administrasjon/hjemmel-presisjon-etterfylling` — kjørt én gang 2026-09-10. Verdt å
+  gjenta etter at flere lover er importert: en presisering som ikke kunne løses fordi loven manglet,
+  løses da.
+- `POST /api/administrasjon/fastsatt-av-etterfylling` — kjørt to ganger 2026-09-10 (andre kjøring
+  fylte de 16 radene med de nye resolusjonsformene, og bekreftet idempotensen på ekte data). Verdt å
+  gjenta når nye rettskilder er importert. Selve KOBLINGEN til virksomhet løses ved lesing, så nye
+  virksomheter/navneformer kobler seg av seg selv uten ny kjøring.
+
+**Gjort på Johanns base etter hans klarsignal (org.nr 974 767 880):** NTNU opprettet via
+`POST /api/virksomheter/fra-brreg` — Kunnskapsdepartementet ble morenhet automatisk, og SNL bekreftet
+navneformen `NTNU`. Lovdatas skrivemåte «Norges teknisk-naturvitenskapelige universitet (NTNU)» er
+lagt inn som navneform, og koblingen løste seg umiddelbart uten ny etterfylling (lesetids-oppløsning).
+NTNUs side viser nå seks forskrifter. #215 kriterium 6 er dermed oppfylt.
+
+**To åpne spørsmål til Johann:**
+1. NTNU har nå TO navneformer med grunn `gjeldende`: `NTNU` (auto fra SNL) og den fulle formen. Bare
+   én kan være det gjeldende navnet — den fulle ER navnet, `NTNU` er en kortform. Ikke endret, fordi
+   det er en modelleringsavgjørelse på hans katalog, og det styrer visningsnavnet (i dag `NTNU`).
+   Kan være verdt en CHECK-constraint: én `gjeldende` per virksomhet.
+2. #231 (nytt): navnekandidat-sveipet var den tenkte veien til NTNU-navneformen, men fanget «Norges»
+   i stedet for hele navnet — bakoverskanningen stopper på tankestreken i
+   «teknisk–naturvitenskapelig». Kodens egen kommentar bekrefter mekanismen. Samme sveip viste også
+   at «nemnd» mangler i `Institusjonsord`, så «Felles klagenemnd» blir «Felles».
 
 **Til Johann, blokkert for meg:** 56 fjerngrener med merget PR ligger igjen på origin.
 `git push origin --delete …` blir konsekvent avslått av auto-modus-klassifiseringen. Lokalt er det

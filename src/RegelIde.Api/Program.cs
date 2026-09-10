@@ -61,6 +61,9 @@ builder.Services.AddScoped<BegrepsforekomstTjeneste>();
 // som ble importert før presisjonen ble lest — parser den ALLEREDE LAGREDE rå-HTML-en, henter
 // ingenting fra Lovdata.
 builder.Services.AddScoped<HjemmelPresisjonEtterfyllingTjeneste>();
+// [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Etterfylling av «Fastsatt av» — reparser feltet
+// annet_om_dokumentet, som har vært lagret hele tiden. Henter ingenting eksternt.
+builder.Services.AddScoped<FastsattAvEtterfyllingTjeneste>();
 builder.Services.AddScoped<BegrepsoppdagelseSveipTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
 builder.Services.AddScoped<RegelnoderegisterTjeneste>();
@@ -886,6 +889,14 @@ static async Task<List<AnsvarligDepartementLenkeDto>> LosAnsvarligDepartementLen
     return resultat;
 }
 
+// [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Løser «Fastsatt av»-organnavnet til en virksomhet
+// ved LESING, samme mønster som departement-lenkene over. Går via navneformene i tillegg til
+// registernavnet: Brreg-formen kan ha en parentes («NORGES VASSDRAGS- OG ENERGIDIREKTORAT (NVE)») som
+// Lovdatas skrivemåte ikke har. null når navnet ikke gir ETT entydig treff — teksten vises da uten
+// lenke, aldri koblet til nærmeste treff.
+static Task<Guid?> LosFastsattAvVirksomhetAsync(string? organnavn, VirksomhetOppslagTjeneste oppslag, CancellationToken ct)
+    => organnavn is null ? Task.FromResult<Guid?>(null) : oppslag.FinnVirksomhetIdForNavnEllerNavneformAsync(organnavn, ct);
+
 var rettskilder = app.MapGroup("/api/rettskilder").WithOpenApi();
 
 rettskilder.MapGet("/", async (Guid? virksomhetId, bool? inkluderIrrelevante, RettskildeRepository repo) =>
@@ -914,13 +925,15 @@ rettskilder.MapGet("/hjemmelrelasjoner", async (RettskildeRepository repo) => aw
         "ett /hjemmel-for-kall per lov (N+1). Samme RettskildeHjemmelEntitet-tabell/-relasjon som " +
         "/{id}/hjemmel og /{id}/hjemmel-for allerede eksponerer per rettskilde, ingen ny relasjonsmodell.");
 
-rettskilder.MapGet("/{id:guid}", async (Guid id, RettskildeRepository repo) =>
+rettskilder.MapGet("/{id:guid}", async (Guid id, RettskildeRepository repo,
+        VirksomhetOppslagTjeneste virksomhetOppslag, CancellationToken ct) =>
     {
         var r = await repo.FinnAsync(id);
         if (r is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
 
         var departementLenker = await LosAnsvarligDepartementLenkerAsync(r.AnsvarligDepartement, repo);
-        return Results.Ok(RettskildeDetalj.FraEntitet(r, departementLenker));
+        var fastsattAv = await LosFastsattAvVirksomhetAsync(r.FastsattAvOrgannavn, virksomhetOppslag, ct);
+        return Results.Ok(RettskildeDetalj.FraEntitet(r, departementLenker, fastsattAv));
     })
     .WithName("HentRettskilde")
     .WithSummary("Henter full metadata + kanonisk AKN-XML for én rettskilde.");
@@ -948,7 +961,7 @@ rettskilder.MapGet("/{id:guid}/kilde", async (Guid id, RettskildeRepository repo
         "ikke er satt (ikke resynket siden PR #84, eller en referanse-stub).");
 
 rettskilder.MapPatch("/{id:guid}/metadata", async (Guid id, HttpRequest request, OppdaterRettskildeMetadataRequest body,
-        RettskildeRepository repo, RegelIdeDbContext db, CancellationToken ct) =>
+        RettskildeRepository repo, RegelIdeDbContext db, VirksomhetOppslagTjeneste virksomhetOppslag, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
@@ -961,14 +974,15 @@ rettskilder.MapPatch("/{id:guid}/metadata", async (Guid id, HttpRequest request,
         if (oppdatert is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
 
         var departementLenker = await LosAnsvarligDepartementLenkerAsync(oppdatert.AnsvarligDepartement, repo);
-        return Results.Ok(RettskildeDetalj.FraEntitet(oppdatert, departementLenker));
+        var fastsattAv = await LosFastsattAvVirksomhetAsync(oppdatert.FastsattAvOrgannavn, virksomhetOppslag, ct);
+        return Results.Ok(RettskildeDetalj.FraEntitet(oppdatert, departementLenker, fastsattAv));
     })
     .WithName("OppdaterRettskildeMetadata")
     .WithSummary("Oppdaterer redigerbar metadata (Kortnavn/Utgiver/InterntDokNr/Revisjonsnr/VedtattAv/" +
         "Vedtaksdato/GyldigTil/KonsolidertDato). Eli er ALLTID skrivebeskyttet, aldri i denne requesten.");
 
 rettskilder.MapPatch("/{id:guid}/irrelevant", async (Guid id, HttpRequest request, OppdaterRettskildeIrrelevantRequest body,
-        RettskildeRepository repo, RegelIdeDbContext db, CancellationToken ct) =>
+        RettskildeRepository repo, RegelIdeDbContext db, VirksomhetOppslagTjeneste virksomhetOppslag, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null)
@@ -979,7 +993,8 @@ rettskilder.MapPatch("/{id:guid}/irrelevant", async (Guid id, HttpRequest reques
         if (oppdatert is null) return Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." });
 
         var departementLenker = await LosAnsvarligDepartementLenkerAsync(oppdatert.AnsvarligDepartement, repo);
-        return Results.Ok(RettskildeDetalj.FraEntitet(oppdatert, departementLenker));
+        var fastsattAv = await LosFastsattAvVirksomhetAsync(oppdatert.FastsattAvOrgannavn, virksomhetOppslag, ct);
+        return Results.Ok(RettskildeDetalj.FraEntitet(oppdatert, departementLenker, fastsattAv));
     })
     .WithName("OppdaterRettskildeIrrelevant")
     .WithSummary("Setter/fjerner header-nivå «irrelevant for regel-ide»-markering + fritekstkommentar. " +
@@ -1361,6 +1376,17 @@ app.MapPost("/api/administrasjon/hjemmel-presisjon-etterfylling",
     .WithName("EtterfyllHjemmelPresisjon")
     .WithSummary("Oppgraderer hjemmelrader fra paragraf- til ledd-nivå ved å reparse den lagrede rå " +
                  "Lovdata-HTML-en (issue #217). Henter ingenting eksternt. Rapporterer tall per utgang.")
+    .WithOpenApi();
+
+// [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Etterfyller «Fastsatt av» for rader importert før
+// feltet fantes. Reparser annet_om_dokumentet, som har vært lagret hele tiden — ingenting hentes
+// eksternt. Idempotent. Rapporterer også at virksomhet_id er uendret for hver rad (kriterium 7).
+app.MapPost("/api/administrasjon/fastsatt-av-etterfylling",
+        async (FastsattAvEtterfyllingTjeneste tjeneste, CancellationToken ct) =>
+            Results.Ok(await tjeneste.KjorAsync(ct)))
+    .WithName("EtterfyllFastsattAv")
+    .WithSummary("Fyller fastsatt_av/fastsatt_av_organnavn ved å reparse hjemmelslinja (issue #215). " +
+                 "Rører ALDRI virksomhet_id — og teller at den er uendret, i stedet for å anta det.")
     .WithOpenApi();
 
 var lovdataResynk = app.MapGroup("/api/administrasjon/lovdata-resynk").WithOpenApi();
@@ -3027,6 +3053,17 @@ app.MapGet("/api/virksomheter/{id:guid}/rettskilder-ansvarlig-for", async (Guid 
         "metadatafelt) eksakt (case-insensitivt) matcher denne virksomhetens navn (departement-" +
         "virksomhet-lenke, 2026-08-30). Ingen fuzzy-matching — en virksomhet uten navnetreff i noen " +
         "rettskildes AnsvarligDepartement gir tom liste, ikke en feil.");
+
+// [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Motstykket til «ansvarlig for» over, og et annet
+// spørsmål: Kunnskapsdepartementet har departementsansvaret for NTNUs ph.d.-forskrift, NTNU har
+// FASTSATT den. Begge er sanne samtidig, og forskriften er fortsatt delt/nasjonal.
+app.MapGet("/api/virksomheter/{id:guid}/rettskilder-fastsatt-av", async (Guid id, RettskildeRepository repo, CancellationToken ct) =>
+        Results.Ok((await repo.RettskilderFastsattAvAsync(id, ct)).Select(RettskildeSammendrag.FraEntitet)))
+    .WithOpenApi()
+    .WithName("HentRettskilderFastsattAvVirksomhet")
+    .WithSummary("Lister GJELDENDE rettskilder der «Fastsatt av»-frasen i hjemmelslinja peker på denne " +
+        "virksomheten — matchet mot registernavnet OG virksomhetens navneformer (issue #215). Ingen " +
+        "fuzzy-matching: et organnavn uten treff gir tom liste, ikke en feil.");
 
 app.MapGet("/api/gruppebegrep/{id:guid}/tildelinger", async (Guid id, bool? gjeldende, MyndighetstildelingTjeneste register, CancellationToken ct) =>
         Results.Ok((await register.AlleForGruppeBegrepAsync(id, gjeldende ?? false, ct)).Select(MyndighetstildelingDto.FraEntitet)))
