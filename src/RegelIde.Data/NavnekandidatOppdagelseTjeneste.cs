@@ -1205,6 +1205,28 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             ? overlappende
             : forekomster.OrderBy(i => Math.Abs(i - kandidat.StartOffset)).First();
 
+        // [Rettet, orkestrator-verifisering, 2026-09-11] `ux_navnekandidater_rettskilde_node_start`
+        // (RettskildeId, NodeEid, StartOffset) er unik — en utvidelse BAKOVER (f.eks. "Gauldal" →
+        // "Midtre Gauldal") kan flytte StartOffset til NØYAKTIG posisjonen en ANNEN, separat kandidat
+        // allerede står på (her: "Midtre" alene, fanget som eget stor-bokstav-treff av samme sveip).
+        // Krasjet FØR denne rettingen med en rå 500 (DbUpdateException, ufanget) — bekreftet live med
+        // nøyaktig dette eksempelet fra issuens egen «Gauldal»-illustrasjon.
+        //
+        // Den andre raden er nå strengt REDUNDANT (samme tekstforekomst, kun en kortere fangst av den)
+        // — slett den i stedet for å la den henge igjen som en forvirrende dublett, MEN kun når den
+        // fortsatt er "Venter" (ubehandlet, trygt å fjerne). En allerede "Godkjent"/"Avvist" rad har en
+        // menneskelig beslutning bak seg som ikke skal viskes bort automatisk — da hopper vi i stedet
+        // over selve flyttingen (kandidaten beholder sin gamle posisjon, samme "ingen gjettet
+        // plassering"-holdning som når teksten ikke finnes i noden i det hele tatt).
+        var kolliderende = await db.Navnekandidater.FirstOrDefaultAsync(
+            k => k.Id != kandidat.Id && k.RettskildeId == kandidat.RettskildeId && k.NodeEid == kandidat.NodeEid
+                 && k.StartOffset == valgt, ct);
+        if (kolliderende is not null)
+        {
+            if (kolliderende.Status != "Venter") return; // ikke rør en behandlet rad — la posisjonen stå urørt.
+            db.Navnekandidater.Remove(kolliderende);
+        }
+
         kandidat.StartOffset = valgt;
         kandidat.EndOffset = valgt + nyTekst.Length;
     }

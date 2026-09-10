@@ -1920,6 +1920,82 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal("Per Saksbehandler", korreksjon.SistEndretAv);
     }
 
+    /// <summary>
+    /// [Rettet, orkestrator-verifisering, 2026-09-11] Reproduserer issuens eget «Gauldal» →
+    /// «Midtre Gauldal»-eksempel: en utvidelse BAKOVER kan flytte StartOffset til nøyaktig posisjonen
+    /// en ANNEN, separat kandidat («Midtre» alene, samme sveip sitt stor-bokstav-mønster) allerede
+    /// står på. Krasjet FØR rettingen med en rå <c>DbUpdateException</c>
+    /// (`ux_navnekandidater_rettskilde_node_start`), bekreftet live. Den andre raden er strengt
+    /// redundant etter utvidelsen og skal fjernes, IKKE krasje transaksjonen.
+    /// </summary>
+    [Fact]
+    public async Task OppdaterAsync_som_utvider_bakover_fjerner_redundant_kolliderende_kandidat()
+    {
+        await using var db = _fixture.NyDbContext();
+        const string tekst = "i kommunene Meldal, Midtre Gauldal, Oppdal og Rennebu.";
+        var privatVirksomhetId = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = privatVirksomhetId, Navn = "Testkommunen (Gauldal-kollisjon, privat)" });
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, tekst, eid: "ledd-2", virksomhetId: privatVirksomhetId);
+        var midtreStart = tekst.IndexOf("Midtre", StringComparison.Ordinal);
+        var gauldalStart = tekst.IndexOf("Gauldal", StringComparison.Ordinal);
+
+        var register = NyTjenesteMedStubbetOppslag(
+            db, _ => throw new InvalidOperationException("Uventet eksternt kall — verken opprettelse eller OppdaterAsync kaller SNL/SSR."));
+        // To SEPARATE kandidater, akkurat som et ekte sveip ville produsert: "Midtre" (for kort til å
+        // treffe flerords-mønsteret alene siden "Gauldal" ikke er et institusjonsord) og "Gauldal" hver
+        // for seg.
+        var midtreKandidat = await register.OpprettEllerFinnAsync(
+            "Midtre", "virksomhet", rettskildeId, "ledd-2", midtreStart, midtreStart + "Midtre".Length, "test");
+        var gauldalKandidat = await register.OpprettEllerFinnAsync(
+            "Gauldal", "virksomhet", rettskildeId, "ledd-2", gauldalStart, gauldalStart + "Gauldal".Length, "test");
+
+        // Skulle IKKE kaste — dette er selve regresjonen (ufanget DbUpdateException før rettingen).
+        var oppdatert = await register.OppdaterAsync(gauldalKandidat.Id, "Midtre Gauldal", null, "Kari Jurist");
+
+        Assert.Equal("Midtre Gauldal", oppdatert!.ForeslattTekst);
+        Assert.Equal(midtreStart, oppdatert.StartOffset); // reforankret til der "Midtre Gauldal" faktisk starter.
+        Assert.Equal(midtreStart + "Midtre Gauldal".Length, oppdatert.EndOffset);
+
+        // Den nå-redundante "Midtre"-raden er borte, ikke stående igjen som en forvirrende dublett.
+        Assert.False(await db.Navnekandidater.AnyAsync(k => k.Id == midtreKandidat.Id));
+        // Selve "Gauldal"-raden (nå "Midtre Gauldal") finnes fortsatt, som den eneste for dette spennet.
+        Assert.Single(await db.Navnekandidater.Where(k => k.RettskildeId == rettskildeId).ToListAsync());
+    }
+
+    /// <summary>
+    /// Speilbildet av testen over: raden som ville blitt overskrevet er allerede <c>"Godkjent"</c> —
+    /// en menneskelig beslutning står bak den, og den skal IKKE fjernes automatisk. Reposisjoneringen
+    /// hoppes i stedet over (kandidaten beholder sin gamle posisjon) — samme "ingen gjettet
+    /// plassering"-holdning som når den nye teksten ikke finnes i noden i det hele tatt.
+    /// </summary>
+    [Fact]
+    public async Task OppdaterAsync_som_ville_kollidert_med_godkjent_rad_hopper_over_reposisjonering()
+    {
+        await using var db = _fixture.NyDbContext();
+        const string tekst = "i kommunene Meldal, Midtre Gauldal, Oppdal og Rennebu.";
+        var privatVirksomhetId = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = privatVirksomhetId, Navn = "Testkommunen (Gauldal-kollisjon 2, privat)" });
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, tekst, eid: "ledd-2", virksomhetId: privatVirksomhetId);
+        var midtreStart = tekst.IndexOf("Midtre", StringComparison.Ordinal);
+        var gauldalStart = tekst.IndexOf("Gauldal", StringComparison.Ordinal);
+
+        var register = NyTjenesteMedStubbetOppslag(
+            db, _ => throw new InvalidOperationException("Uventet eksternt kall — verken opprettelse eller OppdaterAsync kaller SNL/SSR."));
+        var midtreKandidat = await register.OpprettEllerFinnAsync(
+            "Midtre", "virksomhet", rettskildeId, "ledd-2", midtreStart, midtreStart + "Midtre".Length, "test");
+        midtreKandidat.Status = "Godkjent"; // en menneskelig beslutning tatt FØR "Gauldal" rettes.
+        await db.SaveChangesAsync();
+        var gauldalKandidat = await register.OpprettEllerFinnAsync(
+            "Gauldal", "virksomhet", rettskildeId, "ledd-2", gauldalStart, gauldalStart + "Gauldal".Length, "test");
+
+        var oppdatert = await register.OppdaterAsync(gauldalKandidat.Id, "Midtre Gauldal", null, "Kari Jurist");
+
+        Assert.Equal("Midtre Gauldal", oppdatert!.ForeslattTekst); // teksten oppdateres uansett.
+        Assert.Equal(gauldalStart, oppdatert.StartOffset); // MEN posisjonen står urørt — ikke flyttet.
+        Assert.Equal(gauldalStart + "Gauldal".Length, oppdatert.EndOffset);
+        Assert.True(await db.Navnekandidater.AnyAsync(k => k.Id == midtreKandidat.Id && k.Status == "Godkjent")); // uendret, ikke fjernet.
+    }
+
     /// <summary>Ende-til-ende for pkt. 4s kjerneformål: et SENERE sveip over TILSVARENDE rå tekst i
     /// SAMME rettskilde skal bruke den lærte korreksjonen FØR materialisering — ikke gjenskape
     /// artefakten. Verifiserer samtidig at posisjonen re-forankres til der den KORRIGERTE teksten
