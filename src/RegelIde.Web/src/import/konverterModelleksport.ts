@@ -160,12 +160,23 @@ export function gjettVirksomhetSokeord(kompetentMyndighet: string | null): strin
 }
 
 /**
- * [Ny, #143, 2026-09-10] Nivå 1 av referanse-prefill: samme søkemekanisme som `useRettskildeSok.ts`
- * (kun `tittel`-feltet, substrengsøk, case-insensitiv) — brukt her til å AUTOMATISK forhåndsvelge en
- * rettskilde i stedet for bare å foreslå et søkeord (som `gjettRettskildeSokeord` allerede gjorde uten
- * noen forbruker). Forhåndsvelger KUN ved nøyaktig ett treff — flere eller null treff returnerer
- * `null`, ALDRI det mest sannsynlige (CLAUDE.md §8 "ingen gjettet fallback"). Root cause i issue #143:
- * denne funksjonen fantes ikke, så `rettskildeId` startet alltid tom.
+ * [Ny, #143, 2026-09-10] Nivå 1 av referanse-prefill: forhåndsvelger en rettskilde i stedet for
+ * bare å foreslå et søkeord (som `gjettRettskildeSokeord` allerede gjorde uten noen forbruker).
+ * Forhåndsvelger KUN ved nøyaktig ett treff — flere eller null treff returnerer `null`, ALDRI det
+ * mest sannsynlige (CLAUDE.md §8 "ingen gjettet fallback"). Root cause i issue #143: denne
+ * funksjonen fantes ikke, så `rettskildeId` startet alltid tom.
+ *
+ * [ENDRET, #143, 2026-09-10, verifisert live mot ekte korpus 5899 rettskilder] Prøver FØRST
+ * Lovdatas egen navnekonvensjon «Lov om X (kortnavn)» — tittelen slutter på `(sokeord)`. Faller
+ * tilbake til ren substreng-inkludering (opprinnelig, eneste forsøk) BARE når suffiks-forsøket selv
+ * ikke gir nøyaktig ett treff. Årsak: ren substreng-inkludering alene var for svak på ekte data —
+ * en lov har typisk flere endringslover/forskrifter/delegeringsvedtak som OGSÅ nevner morlovens
+ * kortnavn i sin egen tittel. Målt på et reelt importeksempel (`gifte-seg-reise.modelleksport.json`,
+ * ikke opplæringslova-eksempelet fra selve issue #143): av 6 distinkte lover kun ÉN («lov om tros- og
+ * livssynssamfunn») hadde nøyaktig ett substreng-treff — «ekteskapsloven» hadde 5, «navneloven» 3,
+ * «utlendingsloven» 21, «passloven» 5, «folketrygdloven» 39. Suffiks-mønsteret alene ga derimot
+ * nøyaktig ett treff for alle 6 — fortsatt ALDRI et gjettet nærmeste-treff, bare en STRUKTURELT
+ * strengere (ikke svakere) match først.
  */
 export function finnEntydigRettskilde(
   lovTekst: string | null,
@@ -173,6 +184,11 @@ export function finnEntydigRettskilde(
 ): RettskildeSammendrag | null {
   const sokeord = gjettRettskildeSokeord(lovTekst).toLowerCase();
   if (!sokeord) return null;
+
+  const suffiks = `(${sokeord})`;
+  const suffiksTreff = rettskilder.filter((r) => r.tittel.toLowerCase().trim().endsWith(suffiks));
+  if (suffiksTreff.length === 1) return suffiksTreff[0];
+
   const treff = rettskilder.filter((r) => r.tittel.toLowerCase().includes(sokeord));
   return treff.length === 1 ? treff[0] : null;
 }

@@ -49,7 +49,7 @@ const OPPLARINGSLOVA = rettskilde({
 });
 
 describe('finnEntydigRettskilde', () => {
-  it('forhåndsvelger ved nøyaktig ett substrengtreff mot tittel (opplæringslova-eksempelet fra #143)', () => {
+  it('forhåndsvelger via suffiks-mønsteret «(kortnavn)» (opplæringslova-eksempelet fra #143)', () => {
     const treff = finnEntydigRettskilde('Opplæringslova – oppll', [
       OPPLARINGSLOVA,
       rettskilde({ id: 'annen', tittel: 'Lov om barnehager (barnehageloven)' }),
@@ -57,14 +57,54 @@ describe('finnEntydigRettskilde', () => {
     expect(treff?.id).toBe(OPPLARINGSLOVA.id);
   });
 
-  it('gjetter IKKE ved null treff', () => {
+  /**
+   * [Ny, #143, 2026-09-10] Reproduserer et FUNN gjort ved live-verifisering mot det ekte korpuset
+   * (5899 rettskilder, ikke konstruert utvalg): «Ekteskapsloven» som ren substreng traff 5 titler
+   * (selve loven + 4 endringslover/forskrifter som også nevner kortnavnet i sin egen tittel) — ren
+   * substreng-inkludering ville ha returnert `null` her, selv om loven FAKTISK finnes entydig i
+   * korpuset. Suffiks-mønsteret løser nettopp dette: kun morloven har «(ekteskapsloven)» til slutt.
+   */
+  it('forhåndsvelger via suffiks selv når ren substreng ville vært flertydig (ekteskapsloven-funnet)', () => {
+    const morlov = rettskilde({ id: 'morlov', tittel: 'Lov om ekteskap (ekteskapsloven)' });
+    const endringslov = rettskilde({
+      id: 'endringslov',
+      tittel: 'Lov om endringer i ekteskapsloven (bedre notoritet ved prøving av ekteskapsvilkår)',
+    });
+    const forskrift = rettskilde({
+      id: 'forskrift',
+      tittel: 'Forskrift om rentesats etter ekteskapsloven',
+    });
+    const treff = finnEntydigRettskilde('Ekteskapsloven – ekteskl (LOV-1991-07-04-47)', [
+      morlov, endringslov, forskrift,
+    ]);
+    expect(treff?.id).toBe(morlov.id);
+  });
+
+  it('faller tilbake til substreng-inkludering når suffiks-mønsteret ikke gir noe treff', () => {
+    // Ingen tittel slutter på «(rundskrivet)» her, men nøyaktig én inneholder ordet et annet sted.
+    const treff = finnEntydigRettskilde('Rundskrivet – rundskr', [
+      rettskilde({ id: 'r1', tittel: 'Rundskrivet om saksbehandling' }),
+      OPPLARINGSLOVA,
+    ]);
+    expect(treff?.id).toBe('r1');
+  });
+
+  it('gjetter IKKE ved null treff (verken suffiks eller substreng)', () => {
     const treff = finnEntydigRettskilde('Ekteskapsloven – ekteskl', [OPPLARINGSLOVA]);
     expect(treff).toBeNull();
   });
 
-  it('gjetter IKKE ved flere treff', () => {
-    const dublett = rettskilde({ id: 'dublett', tittel: 'Forskrift om opplæringslova sitt verkeområde' });
+  it('gjetter IKKE når selv suffiks-mønsteret gir flere treff', () => {
+    // Konstruert, usannsynlig, men prinsipielt: to titler ender begge på «(opplæringslova)».
+    const dublett = rettskilde({ id: 'dublett', tittel: 'Lov om noe helt annet (opplæringslova)' });
     const treff = finnEntydigRettskilde('Opplæringslova', [OPPLARINGSLOVA, dublett]);
+    expect(treff).toBeNull();
+  });
+
+  it('gjetter IKKE ved flere treff på substreng-nivå (ingen av dem har suffiks-mønsteret)', () => {
+    const dublett = rettskilde({ id: 'dublett', tittel: 'Forskrift om opplæringslova sitt verkeområde' });
+    const original = rettskilde({ id: 'original', tittel: 'Forskrift til opplæringslova, del 2' });
+    const treff = finnEntydigRettskilde('Opplæringslova', [dublett, original]);
     expect(treff).toBeNull();
   });
 
