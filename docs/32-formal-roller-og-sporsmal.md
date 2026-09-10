@@ -1,6 +1,9 @@
 # 32. Formål, roller og spørsmålene modellen skal besvare
 
-**Status:** utkast til gjennomgang med Johann (2026-09-08) · **Gjelder:** all utvikling i Regel-IDE
+**Status:** bekreftet (2026-09-10 — Johann gjenga samme grunnkonsept, «hidden apparatus»-innsikten,
+taggingskriteriet i §5 og S1–S7-tabellen uendret i en egen samtale, uavhengig av dette dokumentet —
+lest som bekreftelse, ikke ny bestilling) · **Gjelder:** all utvikling i Regel-IDE, inkl. den
+offentlige showcase-nettsiden (DigRett, `nettside/`) som nå speiler §1–§3 direkte, side for side.
 
 Dette dokumentet finnes fordi utviklingen begynte å drive: funksjoner ble bygget riktig etter
 instruks, men uten å tjene formålet, og måtte korrigeres gang på gang. Formålet står spredt i
