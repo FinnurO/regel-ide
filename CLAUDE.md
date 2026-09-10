@@ -1,8 +1,13 @@
 # Arbeidsregler for regel-ide
 
 Reglene under er skrevet fordi de er brutt i praksis. Hver av dem har en konkret hendelse bak seg.
-Kodebasen er tungt kommentert og `docs/` har 30+ dokumenter — dette er ikke en oversikt over dem, det
+Kodebasen er tungt kommentert og `docs/` har 35 dokumenter — dette er ikke en oversikt over dem, det
 er en liste over de tingene som faktisk går galt.
+
+**Start her:** `docs/README.md` er kartet over de 35 dokumentene, med et statusvokabular som sier
+hvilke som BINDER arbeidet og hvilke som er øyeblikksbilder. Les det før du åpner noe i `docs/` —
+ellers behandles et referat som en spesifikasjon. `ARBEIDSSTATUS.md` sier hva som er kjørt mot
+databasen og hva som er målt; er den tom, slett den.
 
 ## 0. Formålet — bær det inn i hver runde
 
@@ -271,6 +276,70 @@ tellerne og sorteringspilene, ikke knappenavnene.
 
 Etter et slikt bytte: `find`/`read_page` på knappetekstene, og et grep etter
 det nye navnet i kommentar-/strengposisjon.
+
+## 15. Arbeid fra issues — GitHub ER backloggen
+
+**Én sak → én gren → én PR → merge med `--delete-branch`.** Ikke flere saker i samme gren, og ikke
+arbeid uten en sak.
+
+`docs/13-backlog.md` §2/§4 ser ut som en backlog, men er utdatert og konkurrerer med de åpne issuene.
+To backlogger er verre enn én: den ene blir lest, den andre blir gal. Splittingen er meldt som egen
+sak — inntil den er gjort, er **GitHub** kilden.
+
+Slik en runde skal gå:
+
+1. **Les saken helt**, inkludert akseptansekriteriene. Er de formulert som «feltet finnes», omformuler
+   til spørsmål modellen skal kunne besvare (§0).
+2. **Mål premissene før du bygger** (§16). En sak kan være riktig i sak og feil i premiss.
+3. **Skriv målingene INN i saken** som kommentar. Da overlever de økten. Tallene fra i dag —
+   4701 av 5565 fastsettere, 77,3 % gyldige hjemler, 416 oppgraderte ledd — er verdiløse hvis de bare
+   står i en chat.
+4. **Funn utenfor omfanget blir NYE saker**, ikke inline-arbeid. Fem slike ble meldt 2026-09-10
+   (#231, #233, #239 m.fl.); ingen av dem hørte i den runden de ble funnet i.
+5. **PR-beskrivelsen skal si hva som ble MÅLT**, ikke hva som ble endret. Diffen viser endringen;
+   PR-en skal vise at den virker.
+6. **Merge:** `gh pr merge <nr> --squash --delete-branch`.
+
+**Ikke stable PR-er.** Brutt 2026-09-10: #230 ble tatt ut fra `hjemmel-ledd-presisjon` fordi
+migrasjonen var generert oppå den. Da #227 ble merget med `--delete-branch`, forsvant basegrenen og
+**GitHub lukket #230 automatisk** — arbeidet måtte rebases og åpnes på nytt som #232. Trenger to saker
+samme migrasjonssnapshot: land den første helt først, eller si det til Johann og la ham velge.
+
+## 16. Mål det, ikke anta det — og korriger deg selv når målingen sier noe annet
+
+Dette er den regelen som ga mest 2026-09-10, og den ble brutt tre ganger samme dag av meg selv:
+
+- **Issue #217 hadde feil premiss.** Saken (som jeg selv skrev) antok at ledd-presisjonen bare fantes
+  i prosa, og at ordenstall måtte tolkes ut av tekst. Målingen viste at Lovdata oppgir den som
+  STRUKTUR, i et header-felt vi ikke leste — 38 av 1712 lenker hadde `/ledd/4` i href-en, og NULL
+  hadde ordenstall i teksten uten at href-en også hadde det. Arbeidet ble enklere og mer presist enn
+  saken beskrev.
+- **«Fem dokumenter har foreldede påstander» var galt.** Jeg grep'et etter fraser som «ikke bygget
+  ennå» og rapporterte fem. Da jeg sjekket koden var TRE av dem sanne — Presedensregisteret er reelt
+  ikke bygget, `PraksisJson` er alltid `[]`. Et grep finner formuleringer, ikke sannheter.
+- **kgl.res var ikke et problem i det hele tatt.** Jeg presenterte 1588 «ukoblede» rettskilder som en
+  mangel. Johann spurte hva som skiller Jan Mayen-forskriften fra andre, og svaret var «ingenting»:
+  departementet er koblet, hjemmelen er på plass. Jeg hadde latt en tom kobling se ut som et hull.
+
+Regelen: **en påstand om korpuset skal ha et tall bak seg, og tallet skal komme fra en spørring — ikke
+fra et grep etter formuleringer.** Og når målingen motsier det du nettopp sa, si det rett ut i samme
+melding. Johanns tid går ikke til å oppdage at forrige avsnitt var feil.
+
+## 17. Verifiser før du sletter — også når du «vet» at det er merget
+
+Brutt 2026-09-10, minutter etter at §13 var skrevet: jeg slettet den siste lokale grenen med
+`git branch -D` (tvungen) uten å sjekke om den var merget. `git branch -d` ville nektet; `-D` gjør det
+uansett. Etterpå viste det seg at commiten ikke var forfar av master — som ser ut som tapt arbeid —
+men PR #236 var merget og innholdet lå i master som squash-commit.
+
+Det gikk bra, men ikke fordi jeg hadde sjekket. Squash-merge er nettopp grunnen til at git IKKE kan
+brukes som eneste sjekk (§13), og det er ikke en unnskyldning for å hoppe over sjekken helt.
+Rekkefølgen er: verifiser at PR-en er merget, så slett.
+
+Merk også: grensletting krever en tillatelsesregel. `.claude/settings.local.json` (gitignorert) har nå
+`Bash(git push origin --delete*)` og `Bash(git branch -d*|-D*)` ved siden av `Bash(gh pr merge*)`. Uten
+disse blir bulk-sletting av grener avslått av auto-modus-klassifiseringen, mens
+`gh pr merge --delete-branch` går gjennom — det var forklaringen på at 56 grener lå igjen i ukevis.
 
 ## Nyttige kommandoer
 
