@@ -799,10 +799,15 @@ export default function NavnekandidaterListe() {
       </Card>
 
       {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
-      {laster && !kandidater && <Paragraph>Laster …</Paragraph>}
-      {viste && viste.length === 0 && <Paragraph>Ingen kandidater matcher filteret.</Paragraph>}
 
-      {viste && viste.length > 0 && (
+      {/* Card ALLTID rendret (docs/09 §14 / docs/30 §3.1 pkt. 5, samme mønster som
+          Begrepskandidater.tsx og VirksomhetKandidaterListe.tsx, issue #265) — tom-/laste-tilstand
+          er en Paragraph INNI kortet, aldri et betinget-rendret kort utenfor. */}
+      {laster && !kandidater ? (
+        <Card style={{ padding: 0, overflow: 'hidden' }}><Paragraph style={{ padding: '1rem', margin: 0 }}>Laster …</Paragraph></Card>
+      ) : viste && viste.length === 0 ? (
+        <Card style={{ padding: 0, overflow: 'hidden' }}><Paragraph style={{ padding: '1rem', margin: 0 }}>Ingen kandidater matcher filteret.</Paragraph></Card>
+      ) : viste && viste.length > 0 && (
         <Card style={{ padding: 0, overflow: 'hidden' }}>
           <div style={{ overflowX: 'auto' }}>
             <Table data-density="compact">
