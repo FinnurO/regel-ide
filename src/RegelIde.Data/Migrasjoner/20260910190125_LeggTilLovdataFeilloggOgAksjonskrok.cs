@@ -24,11 +24,19 @@ namespace RegelIde.Data.Migrasjoner
                 type: "timestamp with time zone",
                 nullable: true);
 
+            // [Rettet, orkestrator-verifisering, 2026-09-10] defaultValueSql lagt til: uten den feiler
+            // migrasjonen med "column contains null values" mot en database som ALT har rader i
+            // lovdata_resynk_kjoringer (enhver ekte dev-/prod-database — embedded-test-fixturen starter
+            // alltid fra tom base, så dette ble aldri fanget av testene). Tomt array er riktig verdi for
+            // eksisterende kjøringer: de fant ingen "nye rettskilder" i DENNE forstanden (kolonnen
+            // fantes ikke da de kjørte), ikke en gjettet verdi — se HjemmelValideringTjeneste-mønsteret
+            // for samme "ingen gjettet fallback"-holdning.
             migrationBuilder.AddColumn<List<Guid>>(
                 name: "nye_rettskilde_ider",
                 table: "lovdata_resynk_kjoringer",
                 type: "uuid[]",
-                nullable: false);
+                nullable: false,
+                defaultValueSql: "'{}'");
 
             migrationBuilder.CreateTable(
                 name: "lovdata_importstatus_historikk",
