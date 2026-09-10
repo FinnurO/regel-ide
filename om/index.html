@@ -53,6 +53,45 @@
   <section class="section">
     <div class="wrap">
       <div class="section-head">
+        <span class="kicker">Grunnkonseptet</span>
+        <h2>Loven er ustrukturert. Hele formålet er å gjøre den maskinlesbar.</h2>
+        <p>Det følger én bindende konsekvens av det: <strong>strukturering skal skje uten gjetting.</strong> En maskinlesbar lov som er feil er verre enn en som mangler — en feil kobling ser like autoritativ ut som en riktig, og forplanter seg til alt som bygger på den. Der DigRett ikke vet, skal det vises fram at det ikke vet, aldri fylles inn noe plausibelt.</p>
+      </div>
+      <p style="max-width:var(--site-content-max); margin:0 0 var(--ds-size-6);">Forvaltningsapparatet er i praksis <strong>skjult</strong>. Hvem som forvalter en lov, hvem som fatter vedtak, hvem som er klageinstans, hvem som fører tilsyn, hvem loven gjelder for — alt dette står i lovtekst og forskrifter, men ingen kan lese hele korpuset. Derfor lever kunnskapen i stedet på nettsider, i rundskriv, i hodene til folk — ikke etterprøvbart mot kilden. Navneformer, grupperinger og myndighetstildelinger er derfor ikke datamodellering for sin egen del: de er mekanismen som gjør et usynlig apparat spørrbart.</p>
+      <blockquote class="quote-block" style="max-width:var(--site-content-max);">Kriteriet for om noe er verdt å tagge er ikke «er dette et egennavn» — det er om taggen bidrar til å besvare et av spørsmålene under. «Karasjok» i forskrift om forvaltningsområdet for samiske språk besvarer <strong>hvem blir berørt</strong> og <strong>hva gjelder for denne aktøren</strong> — den binder kommunen til en gruppe med plikter. «Karasjok» i en fredningsforskrift besvarer ingenting; der er det bare et stedsnavn, og skal ikke tagges.<cite>docs/32 §5, Regel-IDE</cite></blockquote>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">De sju spørsmålene</span>
+        <h2>Dette er den operative delen — alt annet tjener disse</h2>
+        <p>Hver leveranse i DigRett skal kunne peke på hvilket av disse sju spørsmålene den flytter. Status viser hvor langt hvert spørsmål faktisk er kommet i dag — ikke en visjon, men en ærlig stand.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table">
+          <thead>
+            <tr><th scope="col">#</th><th scope="col">Spørsmål</th><th scope="col">Hva som må være strukturert</th><th scope="col">Status i dag</th></tr>
+          </thead>
+          <tbody>
+            <tr><td><strong>S1</strong></td><td>Hvem forvalter loven, og hvordan?</td><td>Ansvarlig departement; organer som utøver myndighet etter bestemte paragrafer; i hvilken egenskap</td><td><span class="pill" data-tone="warning">Delvis</span></td></tr>
+            <tr><td><strong>S2</strong></td><td>Hvem har ansvaret?</td><td>Rollen et organ har under en gitt bestemmelse — ikke bare at det er nevnt</td><td><span class="pill" data-tone="warning">Delvis</span></td></tr>
+            <tr><td><strong>S3</strong></td><td>Hvem blir berørt?</td><td>Plikt- og rettighetssubjekter: hvem loven gjelder for, direkte eller via gruppemedlemskap</td><td><span class="pill" data-tone="success">Bygget</span></td></tr>
+            <tr><td><strong>S4</strong></td><td>Hvilke tjenester og oppgaver gir loven?</td><td>Tjenester og handlinger loven hjemler, koblet til bestemmelsen som hjemler dem</td><td><span class="pill" data-tone="warning">Svakest dekket</span></td></tr>
+            <tr><td><strong>S5</strong></td><td>Hva er de faktiske navnene og betegnelsene?</td><td>Alle navneformer et organ opptrer under i lovtekst — gjeldende, utgåtte, kortformer, feilskrivinger</td><td><span class="pill" data-tone="success">Bygget</span></td></tr>
+            <tr><td><strong>S6</strong></td><td>Hva gjelder for denne konkrete aktøren?</td><td>Oppslag fra en virksomhet til bestemmelsene som treffer den, inkludert indirekte via gruppe</td><td><span class="pill" data-tone="success">Bygget</span></td></tr>
+            <tr><td><strong>S7</strong></td><td>Hva skjer hvis denne bestemmelsen endres?</td><td>Påvirkningsanalyse: hvilke aktører, tjenester og regler henger i den</td><td><span class="pill" data-tone="danger">Ikke svarbart ennå</span></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p style="font-size:var(--ds-body-xs-font-size); color:var(--ds-color-text-subtle); margin-top:var(--ds-size-4);">Se <a href="https://github.com/FinnurO/regel-ide/blob/main/docs/32-formal-roller-og-sporsmal.md" target="_blank" rel="noopener">docs/32 i kildekoden</a> for roller/inngangsvinkler og full begrunnelse per spørsmål.</p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
         <span class="kicker">Hva DigRett er</span>
         <h2>En referanseimplementasjon av én kjede</h2>
         <p>DigRett bygger ut kjeden <strong>rettskilde → regel → data → tjeneste</strong> som et sammenhengende hele, ikke som fire separate systemer som må stemmes overens i etterkant. Poenget er at hvert ledd i kjeden bærer sin egen sporbarhet fra første stund — sporbarhet er ikke noe som legges til etterpå med et eget system for det.</p>
