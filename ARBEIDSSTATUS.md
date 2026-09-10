@@ -40,10 +40,24 @@ merges med `gh pr merge <nr> --squash --delete-branch` (CLAUDE.md §13).
 - **`hjemmel-ledd-presisjon` → PR #227** — lukker #217. Hjemmelen peker nå på leddet kilden
   presiserer. 416 av 22 262 hjemmelrader oppgradert på ekte korpus. Kildekonvertering 115/115,
   Api 294/294, Data 715/715.
+- **`fastsatt-av-organ` → PR #230** — lukker #215. Stablet PÅ #227 (PR-basen er satt til den
+  grenen), fordi migrasjonen er generert oppå den andre. Merges #227 først, går denne automatisk mot
+  master. 4701 av 5565 rettskilder fikk en fastsetter; `virksomhet_id` uendret for alle 5565.
+  Kildekonvertering 131/131, Api 294/294, Data 721/721, vitest 62/62.
 
-**Utført på Johanns base (ikke reverserbart uten ny kjøring):**
-`POST /api/administrasjon/hjemmel-presisjon-etterfylling` er kjørt én gang, 2026-09-10. Den er
-idempotent, så en ny kjøring er trygg — og verdt å gjenta etter at flere lover er importert.
+**Utført på Johanns base (begge idempotente, trygge å gjenta):**
+- `POST /api/administrasjon/hjemmel-presisjon-etterfylling` — kjørt én gang 2026-09-10. Verdt å
+  gjenta etter at flere lover er importert: en presisering som ikke kunne løses fordi loven manglet,
+  løses da.
+- `POST /api/administrasjon/fastsatt-av-etterfylling` — kjørt to ganger 2026-09-10 (andre kjøring
+  fylte de 16 radene med de nye resolusjonsformene, og bekreftet idempotensen på ekte data). Verdt å
+  gjenta når nye rettskilder er importert. Selve KOBLINGEN til virksomhet løses ved lesing, så nye
+  virksomheter/navneformer kobler seg av seg selv uten ny kjøring.
+
+**Åpent spørsmål til Johann:** NTNU finnes ikke i virksomhetskatalogen, så #215 kriterium 6
+(«NTNUs side skal vise ph.d.-forskriften») kan ikke oppfylles ennå. Frasen er parset riktig, men
+står ukoblet — som kriterium 2 krever. Riktig vei inn er navnekandidat-køen, siden navnet står i
+forskriftens egen tekst. Venter på klarsignal før jeg oppretter organer i katalogen hans.
 
 **Til Johann, blokkert for meg:** 56 fjerngrener med merget PR ligger igjen på origin.
 `git push origin --delete …` blir konsekvent avslått av auto-modus-klassifiseringen. Lokalt er det
