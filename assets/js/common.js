@@ -81,6 +81,28 @@ var DigRettSite = (function () {
     });
   }
 
+  /**
+   * Gjør en Lovdata-ELI-eid (f.eks. "https://lovdata.no/eli/lov/1989/06/02/27/nor/§4-4",
+   * evt. med /ledd-N/punkt-N etter paragrafen) om til en lenke som faktisk viser lovteksten.
+   *
+   * Bekreftet manuelt mot lovdata.no (2026-09-10, se issue om «lenken peker på en Eli-side»):
+   * ELI-registerformen (lovdata.no/eli/...) er en maskinlesbar metadata-oppføring UTEN synlig
+   * lovtekst — bare felter som Type/Title/Realizes/Publisher. Den faktiske, leselige teksten
+   * ligger på det «moderne» dokumentformatet (lovdata.no/dokument/{NL|SF}/{lov|forskrift}/{dato}),
+   * som støtter et paragraf-nivå anker (/§X-Y) og lander på riktig kapittel/paragraf. Ledd-/punkt-
+   * nivå ("/ledd-1", "/punkt-2") har ingen tilsvarende anker der, så de segmentene kuttes bort —
+   * paragrafen er det peneste treffet vi kan love.
+   */
+  function lovdataLenke(eid) {
+    if (!eid) return null;
+    var m = /^https:\/\/lovdata\.no\/eli\/(lov|forskrift)\/(\d{4})\/(\d{2})\/(\d{2})(?:\/(\d+))?\/nor(\/§[^/]+)?/.exec(eid);
+    if (!m) return eid; // ukjent format — bruk originalen uendret, ingen gjettet omforming
+    var type = m[1], aar = m[2], maaned = m[3], dag = m[4], lopenr = m[5], paragraf = m[6] || '';
+    var mappe = type === 'lov' ? 'NL' : 'SF';
+    var dato = aar + '-' + maaned + '-' + dag + (lopenr ? '-' + lopenr : '');
+    return 'https://lovdata.no/dokument/' + mappe + '/' + type + '/' + dato + paragraf;
+  }
+
   function debounce(fn, ms) {
     var t;
     return function () {
@@ -98,6 +120,7 @@ var DigRettSite = (function () {
     renderError: renderError,
     matches: matches,
     norm: norm,
+    lovdataLenke: lovdataLenke,
     makeSortableTable: makeSortableTable,
     debounce: debounce
   };
