@@ -35,10 +35,13 @@ public class OppgaveregisterHandlingSeedTests
     private static int _teller;
     private static string NyOrgnr() => (910_000_000 + Interlocked.Increment(ref _teller)).ToString();
     private static string NyLovDatokode() => $"LOV-2031-01-01-{Interlocked.Increment(ref _teller)}";
+    private static string NyForskriftDatokode() => $"FOR-2031-01-01-{Interlocked.Increment(ref _teller)}";
+
+    private static string JsonStreng(string? verdi) => verdi is null ? "null" : $"\"{verdi}\"";
 
     private static string SkjemaJson(
         string guid, string navn, string orgnr, string etatsnavn, string bruksomraadeNavn, string? lovDatokode,
-        string? ekstraBruksomraadeNavn = null) =>
+        string? ekstraBruksomraadeNavn = null, string? henvisning = "§ 1") =>
         $$"""
         {
           "guid": "{{guid}}",
@@ -49,7 +52,23 @@ public class OppgaveregisterHandlingSeedTests
             { "navn": "{{bruksomraadeNavn}}" }
             {{(ekstraBruksomraadeNavn is null ? "" : $$""", { "navn": "{{ekstraBruksomraadeNavn}}" }""")}}
           ],
-          "lovhjemler": {{(lovDatokode is null ? "[]" : $$"""[{ "dato": "{{lovDatokode}}", "henvisning": "§ 1", "forskrifter": [] }]""")}}
+          "lovhjemler": {{(lovDatokode is null ? "[]" : $$"""[{ "dato": "{{lovDatokode}}", "henvisning": {{JsonStreng(henvisning)}}, "forskrifter": [] }]""")}}
+        }
+        """;
+
+    /// <summary>Lav-nivå variant som tar den RÅ <c>lovhjemler</c>-JSON-arrayen direkte — brukt av tester
+    /// som trenger nøstede <c>forskrifter[]</c> (med sin EGEN, uavhengige <c>henvisning</c>, se
+    /// <see cref="OppgaveregisterHandlingSeed"/>s klassekommentar punkt (c)) eller flere lovhjemler-
+    /// oppføringer, noe <see cref="SkjemaJson"/> over ikke uttrykker.</summary>
+    private static string SkjemaJsonMedRaaLovhjemler(string guid, string navn, string orgnr, string etatsnavn, string raaLovhjemlerJson) =>
+        $$"""
+        {
+          "guid": "{{guid}}",
+          "navn": "{{navn}}",
+          "eier": { "organisasjonsnummer": {{long.Parse(orgnr)}}, "etatsnavn": "{{etatsnavn}}" },
+          "formaal": { "fritekst": "Formål for {{navn}}." },
+          "bruksomraader": [ { "navn": "Hendelsesrapportering" } ],
+          "lovhjemler": {{raaLovhjemlerJson}}
         }
         """;
 
@@ -71,6 +90,22 @@ public class OppgaveregisterHandlingSeedTests
         db.Rettskilder.Add(r);
         await db.SaveChangesAsync();
         return r;
+    }
+
+    /// <summary>Legger til en ekte paragraf-node med Eid konstruert AKKURAT slik
+    /// <see cref="LovdataIdentifikatorer.ParagrafEid"/> (og dermed HTML-parseren selv) gjør — den
+    /// bekreftelsen <see cref="OppgaveregisterHandlingSeed"/>s tiltak 2 krever før en regex-ekstrahert
+    /// paragrafkandidat får lov til å styre <see cref="HandlingRegelverksreferanseEntitet.TilEid"/>.</summary>
+    private static async Task<RettskildeNodeEntitet> LeggTilParagrafNodeAsync(RegelIdeDbContext db, Guid rettskildeId, string eli, string paragrafnummer)
+    {
+        var node = new RettskildeNodeEntitet
+        {
+            Id = Guid.NewGuid(), RettskildeId = rettskildeId, Eid = LovdataIdentifikatorer.ParagrafEid(eli, paragrafnummer),
+            KildeId = "test-kilde-" + Guid.NewGuid(), NodeType = "paragraf", Nummer = paragrafnummer,
+        };
+        db.RettskildeNoder.Add(node);
+        await db.SaveChangesAsync();
+        return node;
     }
 
     /// <summary>Wiper KUN sitt eget kildetype-scope, ikke hele tabellen — se klassekommentaren.
@@ -279,5 +314,188 @@ public class OppgaveregisterHandlingSeedTests
         var handling = await db.Handlinger.SingleAsync(h => h.EksternKildeId == kilde.Id);
         Assert.Equal("hendelsesrapportering", handling.Bruksomraade);
         Assert.Equal("rapportere", handling.Handlingstype);
+    }
+
+    // ---------- issue #147: tiltak 1 (KildeHenvisningFritekst) + tiltak 2 (paragraf-ekstraksjon) ----------
+    // Henvisning-eksemplene under ("§ 42", "§§ 1 til 5", "§ 96-97") er ALLE bekreftet ekte, faktiske
+    // former hentet fra den seedede dev-databasens EksternKildeEntitet.RaaJson 2026-09-10 (se PR-
+    // beskrivelsen for målingene mot hele korpuset) — ikke oppdiktede eksempler, jf. CLAUDE.md §8.
+
+    [Fact]
+    public async Task Enkel_paragrafhenvisning_persisteres_og_loses_til_ekte_paragrafnode_naar_den_finnes()
+    {
+        await using var db = _fixture.NyDbContext();
+
+        var orgnr = NyOrgnr();
+        var lovDatokode = NyLovDatokode();
+        var eli = LovdataIdentifikatorer.AvledEliFraDatokode(lovDatokode, out _);
+        await LeggTilVirksomhetAsync(db, "Testetaten " + orgnr, orgnr);
+        var rettskilde = await LeggTilRettskildeAsync(db, eli);
+        await LeggTilParagrafNodeAsync(db, rettskilde.Id, eli, "§42");
+        var kilde = await NyKildeAsync(db, "T-" + orgnr, SkjemaJson(
+            "T-" + orgnr, "Testskjema paragraf", orgnr, "TESTETATEN", "Periodisk rapportering", lovDatokode,
+            henvisning: "§ 42"));
+
+        var resultat = await KjorSeedIsolertAsync(db, kilde.EksternId);
+
+        Assert.Equal(1, resultat.HenvisningerFunnet);
+        Assert.Equal(1, resultat.ParagrafmatcherFunnet);
+
+        var handling = await db.Handlinger.SingleAsync(h => h.EksternKildeId == kilde.Id);
+        var referanse = await db.HandlingRegelverksreferanser.SingleAsync(r => r.HandlingId == handling.Id);
+        Assert.Equal("§ 42", referanse.KildeHenvisningFritekst); // verbatim, ikke normalisert (tiltak 1)
+        Assert.Equal($"{eli}/§42", referanse.TilEid); // paragraf-nivå, ikke dokument-nivå (tiltak 2)
+        Assert.Equal(rettskilde.Id, referanse.TilRettskildeId);
+    }
+
+    [Fact]
+    public async Task Enkel_paragrafhenvisning_persisteres_men_faller_tilbake_til_dokumentniva_uten_bekreftet_node()
+    {
+        await using var db = _fixture.NyDbContext();
+
+        var orgnr = NyOrgnr();
+        var lovDatokode = NyLovDatokode();
+        var eli = LovdataIdentifikatorer.AvledEliFraDatokode(lovDatokode, out _);
+        await LeggTilVirksomhetAsync(db, "Testetaten " + orgnr, orgnr);
+        await LeggTilRettskildeAsync(db, eli); // MERK: ingen RettskildeNodeEntitet lagt til for "§42".
+        var kilde = await NyKildeAsync(db, "T-" + orgnr, SkjemaJson(
+            "T-" + orgnr, "Testskjema paragraf uten node", orgnr, "TESTETATEN", "Periodisk rapportering", lovDatokode,
+            henvisning: "§ 42"));
+
+        var resultat = await KjorSeedIsolertAsync(db, kilde.EksternId);
+
+        Assert.Equal(1, resultat.HenvisningerFunnet); // fritekst ER funnet ...
+        Assert.Equal(0, resultat.ParagrafmatcherFunnet); // ... men IKKE bekreftet mot noen ekte node.
+
+        var handling = await db.Handlinger.SingleAsync(h => h.EksternKildeId == kilde.Id);
+        var referanse = await db.HandlingRegelverksreferanser.SingleAsync(r => r.HandlingId == handling.Id);
+        Assert.Equal("§ 42", referanse.KildeHenvisningFritekst); // tiltak 1: bevart uansett.
+        Assert.Equal(eli, referanse.TilEid); // tiltak 2 IKKE forsøkt gjettet — dagens dokumentnivå-oppførsel.
+    }
+
+    [Fact]
+    public async Task Plural_paragraftegn_med_spenn_loses_aldri_til_enkelt_node_selv_om_en_av_dem_finnes()
+    {
+        await using var db = _fixture.NyDbContext();
+
+        var orgnr = NyOrgnr();
+        var lovDatokode = NyLovDatokode();
+        var eli = LovdataIdentifikatorer.AvledEliFraDatokode(lovDatokode, out _);
+        await LeggTilVirksomhetAsync(db, "Testetaten " + orgnr, orgnr);
+        var rettskilde = await LeggTilRettskildeAsync(db, eli);
+        // §1 finnes faktisk som ekte node — beviser at "§§ 1 til 5" IKKE feilaktig delvis-matcher den.
+        await LeggTilParagrafNodeAsync(db, rettskilde.Id, eli, "§1");
+        var kilde = await NyKildeAsync(db, "T-" + orgnr, SkjemaJson(
+            "T-" + orgnr, "Testskjema spenn", orgnr, "TESTETATEN", "Periodisk rapportering", lovDatokode,
+            henvisning: "§§ 1 til 5")); // bekreftet ekte formvariant i korpuset (jf. "§§ 1-3" m.fl.).
+
+        var resultat = await KjorSeedIsolertAsync(db, kilde.EksternId);
+
+        Assert.Equal(1, resultat.HenvisningerFunnet);
+        Assert.Equal(0, resultat.ParagrafmatcherFunnet); // "§§" er alltid flertall — aldri forsøkt løst.
+
+        var handling = await db.Handlinger.SingleAsync(h => h.EksternKildeId == kilde.Id);
+        var referanse = await db.HandlingRegelverksreferanser.SingleAsync(r => r.HandlingId == handling.Id);
+        Assert.Equal("§§ 1 til 5", referanse.KildeHenvisningFritekst);
+        Assert.Equal(eli, referanse.TilEid);
+    }
+
+    [Fact]
+    public async Task Tvetydig_bindestrekform_bekreftes_mot_ekte_node_ikke_gjettet_som_spenn()
+    {
+        await using var db = _fixture.NyDbContext();
+
+        // "§ 96-97" (bekreftet ekte i korpuset) er tvetydig: KAN være lovens egen sammensatte
+        // paragrafnummerform (som "§ 4-1"), eller et spenn "§96 til §97" — se
+        // OppgaveregisterHandlingSeed sin klassekommentar punkt (c). Her finnes en EKTE node med
+        // akkurat denne Eid-en, så resolusjon SKAL skje (bekreftet, ikke gjettet).
+        var orgnr = NyOrgnr();
+        var lovDatokode = NyLovDatokode();
+        var eli = LovdataIdentifikatorer.AvledEliFraDatokode(lovDatokode, out _);
+        await LeggTilVirksomhetAsync(db, "Testetaten " + orgnr, orgnr);
+        var rettskilde = await LeggTilRettskildeAsync(db, eli);
+        await LeggTilParagrafNodeAsync(db, rettskilde.Id, eli, "§96-97");
+        var kilde = await NyKildeAsync(db, "T-" + orgnr, SkjemaJson(
+            "T-" + orgnr, "Testskjema bindestrek", orgnr, "TESTETATEN", "Periodisk rapportering", lovDatokode,
+            henvisning: "§96-97"));
+
+        var resultat = await KjorSeedIsolertAsync(db, kilde.EksternId);
+
+        Assert.Equal(1, resultat.ParagrafmatcherFunnet);
+        var handling = await db.Handlinger.SingleAsync(h => h.EksternKildeId == kilde.Id);
+        var referanse = await db.HandlingRegelverksreferanser.SingleAsync(r => r.HandlingId == handling.Id);
+        Assert.Equal($"{eli}/§96-97", referanse.TilEid);
+    }
+
+    [Fact]
+    public async Task Null_henvisning_gir_ingen_fritekst_og_telles_ikke_som_funnet()
+    {
+        await using var db = _fixture.NyDbContext();
+
+        var orgnr = NyOrgnr();
+        var lovDatokode = NyLovDatokode();
+        var eli = LovdataIdentifikatorer.AvledEliFraDatokode(lovDatokode, out _);
+        await LeggTilVirksomhetAsync(db, "Testetaten " + orgnr, orgnr);
+        await LeggTilRettskildeAsync(db, eli);
+        var kilde = await NyKildeAsync(db, "T-" + orgnr, SkjemaJson(
+            "T-" + orgnr, "Testskjema uten henvisning", orgnr, "TESTETATEN", "Periodisk rapportering", lovDatokode,
+            henvisning: null));
+
+        var resultat = await KjorSeedIsolertAsync(db, kilde.EksternId);
+
+        Assert.Equal(0, resultat.HenvisningerFunnet);
+        Assert.Equal(0, resultat.ParagrafmatcherFunnet);
+
+        var handling = await db.Handlinger.SingleAsync(h => h.EksternKildeId == kilde.Id);
+        var referanse = await db.HandlingRegelverksreferanser.SingleAsync(r => r.HandlingId == handling.Id);
+        Assert.Null(referanse.KildeHenvisningFritekst);
+        Assert.Equal(eli, referanse.TilEid);
+    }
+
+    [Fact]
+    public async Task Forskrift_har_egen_henvisning_uavhengig_av_lovhjemmelens_egen()
+    {
+        await using var db = _fixture.NyDbContext();
+
+        // Bekreftet ekte struktur 2026-09-10: en nøstet forskrift kan ha en HELT ANNEN henvisning enn
+        // loven den er hjemlet i — begge skal persisteres, hver med sin EGEN fritekst, ikke loven sin
+        // gjenbrukt for forskriften (se SkjemaForskriftJson sin doc-kommentar).
+        var orgnr = NyOrgnr();
+        var lovDatokode = NyLovDatokode();
+        var forskriftDatokode = NyForskriftDatokode();
+        var lovEli = LovdataIdentifikatorer.AvledEliFraDatokode(lovDatokode, out _);
+        var forskriftEli = LovdataIdentifikatorer.AvledEliFraDatokode(forskriftDatokode, out _);
+        await LeggTilVirksomhetAsync(db, "Testetaten " + orgnr, orgnr);
+        await LeggTilRettskildeAsync(db, lovEli);
+        var forskrift = await LeggTilRettskildeAsync(db, forskriftEli);
+        await LeggTilParagrafNodeAsync(db, forskrift.Id, forskriftEli, "§3");
+
+        var raaLovhjemler = $$"""
+        [
+          {
+            "dato": "{{lovDatokode}}",
+            "henvisning": "Kapittel 5",
+            "forskrifter": [ { "dato": "{{forskriftDatokode}}", "henvisning": "§ 3" } ]
+          }
+        ]
+        """;
+        var kilde = await NyKildeAsync(db, "T-" + orgnr, SkjemaJsonMedRaaLovhjemler(
+            "T-" + orgnr, "Testskjema lov og forskrift", orgnr, "TESTETATEN", raaLovhjemler));
+
+        var resultat = await KjorSeedIsolertAsync(db, kilde.EksternId);
+
+        Assert.Equal(2, resultat.LovhjemlerTotalt); // loven selv + den nøstede forskriften.
+        Assert.Equal(2, resultat.HenvisningerFunnet);
+        Assert.Equal(1, resultat.ParagrafmatcherFunnet); // kun forskriftens "§ 3" er entydig løsbar.
+
+        var handling = await db.Handlinger.SingleAsync(h => h.EksternKildeId == kilde.Id);
+        var referanser = await db.HandlingRegelverksreferanser.Where(r => r.HandlingId == handling.Id).ToListAsync();
+        Assert.Equal(2, referanser.Count);
+
+        var lovReferanse = Assert.Single(referanser, r => r.TilEid == lovEli);
+        Assert.Equal("Kapittel 5", lovReferanse.KildeHenvisningFritekst);
+
+        var forskriftReferanse = Assert.Single(referanser, r => r.TilEid == $"{forskriftEli}/§3");
+        Assert.Equal("§ 3", forskriftReferanse.KildeHenvisningFritekst);
     }
 }

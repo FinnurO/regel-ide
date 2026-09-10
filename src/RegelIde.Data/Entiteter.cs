@@ -901,11 +901,15 @@ public sealed class TjenesteRegelverksreferanseEntitet
 /// [Ny, 2026-08-22, <see cref="OppgaveregisterHandlingSeed"/>] Regelverksreferanse fra en Handling til
 /// en rettskilde — EKSAKT samme form/rolle som <see cref="TjenesteRegelverksreferanseEntitet"/>, egen
 /// tabell siden kilden her er en Handling, ikke en Tjeneste (en handling kan ha en annen, mer spesifikk
-/// hjemmel enn den overordnede rettighetens egen). <see cref="TilEid"/> er her ALLTID rettskildens eget
-/// <see cref="RettskildeEntitet.Eli"/> (dokument-nivå, ikke paragraf-nivå) — se
-/// <see cref="OppgaveregisterHandlingSeed"/>s klassekommentar for hvorfor paragraf-nivå-oppløsning
-/// bevisst ikke er forsøkt (Oppgaveregisterets <c>henvisning</c>-fritekst er for variert til å tolkes
-/// uten å gjette).
+/// hjemmel enn den overordnede rettighetens egen). <see cref="TilEid"/> er som HOVEDREGEL rettskildens
+/// eget <see cref="RettskildeEntitet.Eli"/> (dokument-nivå — Oppgaveregisterets <c>henvisning</c>-fritekst
+/// er for variert til å tolkes trygt i det generelle tilfellet, se <see cref="OppgaveregisterHandlingSeed"/>s
+/// klassekommentar punkt (c)), men kan [ENDRET, issue #147, 2026-09-10] være en ekte paragraf-nodes
+/// <see cref="RettskildeNodeEntitet.Eid"/> når <see cref="KildeHenvisningFritekst"/> lot seg trekke ut OG
+/// bekrefte mot en faktisk importert node (punkt (c), tiltak 2) — samme "verifisert mot ekte struktur,
+/// aldri gjettet"-prinsipp som resten av kodebasen. Frontend (<c>HandlingDetalj.tsx</c>) håndterer begge
+/// formene allerede via <c>eidVisningstekst</c> (samme mekanisme som <see cref="TjenesteRegelverksreferanseEntitet"/>
+/// alltid har brukt) — ingen frontend-endring var nødvendig for denne runden.
 /// </summary>
 public sealed class HandlingRegelverksreferanseEntitet
 {
@@ -913,6 +917,20 @@ public sealed class HandlingRegelverksreferanseEntitet
     public Guid HandlingId { get; set; }
     public Guid TilRettskildeId { get; set; }
     public required string TilEid { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #147, 2026-09-10] Oppgaveregisterets rå <c>lovhjemler[].henvisning</c>- (eller nøstet
+    /// <c>forskrifter[].henvisning</c>-)fritekst som ga opphav til denne referansen — f.eks. "§ 42",
+    /// "§§ 21-4, 22-3", "Kapittel 5". Bevart VERBATIM (kun <c>Trim()</c>et) ved siden av <see cref="TilEid"/>
+    /// selv når <see cref="TilEid"/> forble på dokument-nivå fordi fritekst ikke lot seg tolke trygt til
+    /// én bestemt paragraf — se <see cref="OppgaveregisterHandlingSeed"/>s klassekommentar punkt (c),
+    /// tiltak 1. Målt 2026-09-10 mot seedet dev-database: 838 av 1760 vellykkede dokument-koblinger
+    /// hadde en slik fritekst som FØR denne runden ikke ble persistert noe sted i domenemodellen (kun
+    /// i <see cref="EksternKildeEntitet.RaaJson"/>, ikke søkbar/visbar knyttet til selve raden). <c>null</c>
+    /// når kildens <c>henvisning</c>-felt selv var <c>null</c> eller blank — IKKE en indikasjon på at
+    /// noe gikk galt, kun at Oppgaveregisteret ikke oppga noen paragrafhenvisning for dette dokumentet.
+    /// </summary>
+    public string? KildeHenvisningFritekst { get; set; }
 }
 
 /// <summary>
