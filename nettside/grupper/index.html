@@ -199,7 +199,11 @@
 
     var regRows = (register.gruppebegrep || []).slice().sort(function (a, b) { return a.term.localeCompare(b.term, 'nb'); });
     document.getElementById('register-tbody').innerHTML = regRows.map(function (g) {
-      return '<tr><td>' + S.esc(g.term) + '</td><td><span class="pill" data-tone="' + (g.status === 'publisert' ? 'success' : 'neutral') + '">' + S.esc(g.status) + '</span></td><td>' + S.esc(g.lovreferanseEid || '—') + '</td></tr>';
+      var lenke = S.lovdataLenke(g.lovreferanseEid);
+      var hjemmelCelle = lenke
+        ? '<a href="' + S.esc(lenke) + '" target="_blank" rel="noopener">' + S.esc(g.lovreferanseEid) + '</a>'
+        : '—';
+      return '<tr><td>' + S.esc(g.term) + '</td><td><span class="pill" data-tone="' + (g.status === 'publisert' ? 'success' : 'neutral') + '">' + S.esc(g.status) + '</span></td><td>' + hjemmelCelle + '</td></tr>';
     }).join('');
   }).catch(function (err) {
     S.renderError(document.getElementById('gruppe-tree'), err);

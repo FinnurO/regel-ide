@@ -96,7 +96,7 @@
       <div class="section-head">
         <span class="kicker">Hvordan begreper oppdages</span>
         <h2>Ikke ren manuell tagging</h2>
-        <p>Begrepsregisteret fylles ikke bare ved at noen skriver inn en term for hånd. Regel-ide har mekanismer for å <em>oppdage</em> kandidatbegrep i importert lovtekst — blant annet ved å se etter definisjonsmønstre som følger et verb («X <em>beregnes</em> som …», «Y <em>angir</em> …») rett etter en kandidatterm, og ved å rense bort omkringliggende hermetegn og annen tegnsetting fra selve termen før den lagres. Alle begrepene i registeret under går uansett gjennom manuell kvalitetssikring før de settes til status «publisert» — se statusfeltet i tabellen. De eksporterte JSON-filene i denne showcasen inneholder ikke selve oppdagelsesmekanismens mellomsteg (bare sluttresultatet: term, definisjon, lovreferanse), så det gjengis her i tekst framfor med tall som ikke finnes i de eksporterte dataene.</p>
+        <p>Begrepsregisteret fylles ikke bare ved at noen skriver inn en term for hånd. DigRett har mekanismer for å <em>oppdage</em> kandidatbegrep i importert lovtekst — blant annet ved å se etter definisjonsmønstre som følger et verb («X <em>beregnes</em> som …», «Y <em>angir</em> …») rett etter en kandidatterm, og ved å rense bort omkringliggende hermetegn og annen tegnsetting fra selve termen før den lagres. Alle begrepene i registeret under går uansett gjennom manuell kvalitetssikring før de settes til status «publisert» — se statusfeltet i tabellen. De eksporterte JSON-filene i denne showcasen inneholder ikke selve oppdagelsesmekanismens mellomsteg (bare sluttresultatet: term, definisjon, lovreferanse), så det gjengis her i tekst framfor med tall som ikke finnes i de eksporterte dataene.</p>
       </div>
     </div>
   </section>
@@ -194,8 +194,9 @@
     }
     tbody.innerHTML = rows.map(function (b) {
       var label = lovLabel(b.lovreferanseEid);
+      var lenke = S.lovdataLenke(b.lovreferanseEid);
       var hjemmel = label
-        ? '<a href="' + S.esc(b.lovreferanseEid) + '" target="_blank" rel="noopener">' + S.esc(label) + '</a>'
+        ? '<a href="' + S.esc(lenke) + '" target="_blank" rel="noopener">' + S.esc(label) + '</a>'
         : '—';
       var hasDetail = DETAIL_IDS.indexOf(b.id) !== -1;
       return '<tr>' +
@@ -222,8 +223,9 @@
 
   function renderDetailCard(b) {
     var label = lovLabel(b.lovreferanseEid);
+    var lenke = S.lovdataLenke(b.lovreferanseEid);
     var lovreferanse = label
-      ? '<a href="' + S.esc(b.lovreferanseEid) + '" target="_blank" rel="noopener">' + S.esc(label) + '</a>'
+      ? '<a href="' + S.esc(lenke) + '" target="_blank" rel="noopener">' + S.esc(label) + '</a>'
       : 'Ingen lovreferanse registrert';
 
     var grupper = groupByRettskilde(b.bruktIRettskilder);
