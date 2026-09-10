@@ -765,6 +765,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.HandlingId).HasColumnName("handling_id");
             e.Property(x => x.TilRettskildeId).HasColumnName("til_rettskilde_id");
             e.Property(x => x.TilEid).HasColumnName("til_eid");
+            e.Property(x => x.KildeHenvisningFritekst).HasColumnName("kilde_henvisning_fritekst");
 
             e.HasOne<HandlingEntitet>().WithMany().HasForeignKey(x => x.HandlingId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.TilRettskildeId);

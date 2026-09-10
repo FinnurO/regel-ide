@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using RegelIde.Kildekonvertering;
 
@@ -50,19 +51,40 @@ namespace RegelIde.Data;
 /// </para>
 ///
 /// <para>
-/// **(c) Rettskilde-matching, KUN dokumentnivå** — <c>lovhjemler[].henvisning</c> (og forskriftenes
-/// tilsvarende felt) er ustrukturert fritekst i vidt varierende form (enkeltparagraf, kommaseparerte
-/// lister, spenn, "jfr."-kryssreferanser, romertall/kapittelbetegnelser, eller <c>null</c>) — å tolke
-/// dette til en spesifikk <see cref="RettskildeNodeEntitet.Eid"/> uten å gjette er IKKE gjort (samme
-/// "ingen gjettet fallback"-prinsipp som <see cref="LovdataUrlTolker"/>s dokumenterte begrensning).
-/// I stedet matches KUN på selve loven/forskriften: <c>dato</c> → <see cref="LovdataIdentifikatorer.AvledEliFraDatokode"/>
-/// → eksakt streng-match mot en EKSISTERENDE, gjeldende <see cref="RettskildeEntitet.Eli"/>. Ingen treff
-/// (loven/forskriften er ikke importert i DENNE kjørende instansen) ⇒ hoppes over stille, telles i
+/// **(c) Rettskilde-matching, dokumentnivå + best-effort paragrafnivå [ENDRET, issue #147, 2026-09-10]**
+/// — <c>lovhjemler[].henvisning</c> (og forskriftenes eget, UAVHENGIGE <c>henvisning</c>-felt, bekreftet
+/// distinkt fra lovhjemmelens ved faktisk inspeksjon av kilden 2026-09-10) er ustrukturert fritekst i
+/// vidt varierende form (enkeltparagraf "§ 42"/"§4-1", kommaseparerte lister, "§§"-spenn, "jfr."-
+/// kryssreferanser, romertall/kapittelbetegnelser, eller <c>null</c>). Matching skjer i to steg:
+/// <list type="number">
+/// <item>Dokumentnivå (uendret siden opprinnelig runde): <c>dato</c> →
+/// <see cref="LovdataIdentifikatorer.AvledEliFraDatokode"/> → eksakt streng-match mot en EKSISTERENDE,
+/// gjeldende <see cref="RettskildeEntitet.Eli"/>. Ingen treff (loven/forskriften er ikke importert i
+/// DENNE kjørende instansen) ⇒ hoppes over stille, telles i
 /// <see cref="OppgaveregisterHandlingSeedResultat.RettskildematcherIkkeFunnet"/> — IKKE en feil, kun et
 /// mål på hvor mye av Lovdata-korpuset som faktisk er importert akkurat nå (på-forespørsel, se
-/// <c>LovdataKatalogTjeneste</c>). Reelle koblinger lagres som <see cref="HandlingRegelverksreferanseEntitet"/>
-/// (samme rolle for Handling som <see cref="TjenesteRegelverksreferanseEntitet"/> har for Tjeneste),
-/// <see cref="HandlingRegelverksreferanseEntitet.TilEid"/> = rettskildens egen Eli (dokumentnivå, se over).
+/// <c>LovdataKatalogTjeneste</c>).</item>
+/// <item>Paragrafnivå (tiltak 2, NY): <c>henvisning</c>-strengen bevares ALLTID verbatim på
+/// <see cref="HandlingRegelverksreferanseEntitet.KildeHenvisningFritekst"/> (tiltak 1 — se den
+/// entitetens klassekommentar). I TILLEGG forsøkes en regex-ekstraksjon
+/// (<see cref="TrekkUtEnkeltParagraf"/>) for KUN de enkleste, entydige formene ("§ 42", "§4-1") — en
+/// streng som starter med "§§" (plural — ALLTID flere paragrafer, f.eks. "§§ 1 til 5") eller har mer
+/// enn én paragraf/noe tekst utover selve nummeret, matcher bevisst ALDRI dette mønsteret og faller
+/// automatisk gjennom til dokumentnivå, ingen egen kode trengs for å utelukke dem. Selv en vellykket
+/// regex-ekstraksjon er IKKE nok alene: kandidat-paragrafeIDen (<see cref="LovdataIdentifikatorer.ParagrafEid"/>,
+/// samme konstruksjon som HTML-parseren selv bruker) må i tillegg BEKREFTES mot en faktisk importert
+/// <see cref="RettskildeNodeEntitet"/> (<c>NodeType="paragraf"</c>) for AKKURAT den rettskilden — dette
+/// er hva som gjør ekstraksjonen trygg for tvetydige former som "§ 96-97" (kan enten være lovens EGEN
+/// bindestrek-paragrafnummerform, f.eks. arbeidsmiljøloven § 4-1, ELLER et spenn "§96 til §97" — vi
+/// GJETTER ALDRI hvilket: bekreftelsen mot ekte, allerede innhentet struktur avgjør, ikke antagelse).
+/// Ingen bekreftet node ⇒ faller tilbake til dokumentnivå (samme oppførsel som før denne runden),
+/// <see cref="HandlingRegelverksreferanseEntitet.KildeHenvisningFritekst"/> er uansett persistert.
+/// Telles i <see cref="OppgaveregisterHandlingSeedResultat.HenvisningerFunnet"/> (ikke-null fritekst på
+/// et dokument-nivå-treff) og <see cref="OppgaveregisterHandlingSeedResultat.ParagrafmatcherFunnet"/>
+/// (delmengde — faktisk bekreftet mot en ekte node).</item>
+/// </list>
+/// Reelle koblinger lagres som <see cref="HandlingRegelverksreferanseEntitet"/> (samme rolle for
+/// Handling som <see cref="TjenesteRegelverksreferanseEntitet"/> har for Tjeneste).
 /// </para>
 ///
 /// <para>
@@ -87,7 +109,7 @@ namespace RegelIde.Data;
 /// allerede har kjørt (leser <see cref="EksternKildeEntitet"/>, henter ALDRI selv over nett).
 /// </para>
 /// </summary>
-public static class OppgaveregisterHandlingSeed
+public static partial class OppgaveregisterHandlingSeed
 {
     private static readonly JsonSerializerOptions JsonInnstillinger = new() { PropertyNameCaseInsensitive = true };
 
@@ -116,7 +138,15 @@ public static class OppgaveregisterHandlingSeed
         [property: JsonPropertyName("henvisning")] string? Henvisning,
         [property: JsonPropertyName("forskrifter")] List<SkjemaForskriftJson>? Forskrifter);
 
-    private sealed record SkjemaForskriftJson([property: JsonPropertyName("dato")] string? Dato);
+    /// <summary>[UTVIDET, issue #147, 2026-09-10] <c>Henvisning</c> lest inn her nå — bekreftet ekte og
+    /// UAVHENGIG av den omsluttende lovhjemmelens eget <c>henvisning</c>-felt ved faktisk inspeksjon av
+    /// kilden (517 av 759 nøstede forskrift-oppføringer i korpuset har sin EGEN, forskjellige
+    /// paragrafhenvisning inn i FORSKRIFTEN, ikke loven) — før denne runden ble feltet ikke deserialisert
+    /// i det hele tatt for forskrift-nivå, se <see cref="OppgaveregisterHandlingSeed"/>s klassekommentar
+    /// punkt (c).</summary>
+    private sealed record SkjemaForskriftJson(
+        [property: JsonPropertyName("dato")] string? Dato,
+        [property: JsonPropertyName("henvisning")] string? Henvisning);
 
     /// <summary>De tre eneste kjente <c>bruksomraader[].navn</c>-verdiene, se klassekommentaren punkt (d).
     /// Ukjent verdi ⇒ <c>null</c> — ingen gjettet fallback.</summary>
@@ -159,6 +189,17 @@ public static class OppgaveregisterHandlingSeed
             .Where(r => r.Eli != null && r.Entitetsstatus == "gjeldende")
             .ToDictionaryAsync(r => r.Eli!, r => r.Id, StringComparer.Ordinal, ct);
 
+        // [Ny, issue #147, 2026-09-10, tiltak 2] ALLE kjente paragraf-eIDer, uansett rettskilde — brukt
+        // til å BEKREFTE en regex-ekstrahert paragrafkandidat mot ekte, allerede importert struktur, se
+        // klassekommentaren punkt (c). Eid-formen (<see cref="LovdataIdentifikatorer.ParagrafEid"/>,
+        // "{lov-eli}/§X-Y") er global-unik i seg selv (den bærer dokumentets EGEN Eli som prefiks), så
+        // ETT flatt sett holder — ingen egen rettskilde-scoping trengs. Målt størrelse 2026-09-10:
+        // 151 606 paragraf-noder i korpuset — akseptabel engangskostnad for denne på-forespørsel-
+        // trigde, ~900-skjema-jobben (IKKE en per-request-sti).
+        var paragrafEidSett = new HashSet<string>(
+            await db.RettskildeNoder.Where(n => n.NodeType == "paragraf").Select(n => n.Eid).ToListAsync(ct),
+            StringComparer.Ordinal);
+
         // Aggregert Tjeneste-cache per virksomhet — se klassekommentaren punkt (b). Forhåndslest for å
         // unngå én "finnes den allerede"-spørring per skjema.
         var aggregertTjenestePerVirksomhet = await db.Tjenester
@@ -183,6 +224,8 @@ public static class OppgaveregisterHandlingSeed
         var lovhjemlerTotalt = 0;
         var rettskildematcherFunnet = 0;
         var rettskildematcherIkkeFunnet = 0;
+        var henvisningerFunnet = 0;
+        var paragrafmatcherFunnet = 0;
 
         foreach (var kilderad in kildeRader)
         {
@@ -254,8 +297,9 @@ public static class OppgaveregisterHandlingSeed
                 nyeHandlinger++;
             }
 
-            // Se klassekommentaren punkt (c) — kun dokumentnivå, kun eksakt Eli-match.
-            foreach (var eli in AlleDokumentEli(skjema.Lovhjemler))
+            // Se klassekommentaren punkt (c) — dokumentnivå-match (uendret), + best-effort paragrafnivå
+            // (tiltak 2) og alltid-bevart fritekst (tiltak 1).
+            foreach (var (eli, henvisning) in AlleDokumentEliMedHenvisning(skjema.Lovhjemler))
             {
                 lovhjemlerTotalt++;
                 if (!rettskilderPerEli.TryGetValue(eli, out var rettskildeId))
@@ -265,12 +309,34 @@ public static class OppgaveregisterHandlingSeed
                 }
                 rettskildematcherFunnet++;
 
-                var nokkel = (handling.Id, rettskildeId, eli);
-                if (!regelverksreferanseNokler.Add(nokkel)) continue; // allerede koblet i en tidligere kjøring.
+                var kildeHenvisningFritekst = string.IsNullOrWhiteSpace(henvisning) ? null : henvisning.Trim();
+                if (kildeHenvisningFritekst is not null) henvisningerFunnet++;
+
+                // Tiltak 2 — fall tilbake til dokumentnivå (eli) med mindre BÅDE ekstraksjonen lykkes OG
+                // kandidaten bekreftes mot en ekte, allerede importert paragraf-node. Se klassekommentaren
+                // punkt (c) for hvorfor bekreftelsen er obligatorisk, ikke valgfri.
+                var tilEid = eli;
+                if (kildeHenvisningFritekst is not null && TrekkUtEnkeltParagraf(kildeHenvisningFritekst, out var paragrafnummer))
+                {
+                    var paragrafKandidat = LovdataIdentifikatorer.ParagrafEid(eli, paragrafnummer);
+                    if (paragrafEidSett.Contains(paragrafKandidat))
+                    {
+                        tilEid = paragrafKandidat;
+                        paragrafmatcherFunnet++;
+                    }
+                }
+
+                var nokkel = (handling.Id, rettskildeId, tilEid);
+                if (!regelverksreferanseNokler.Add(nokkel)) continue; // allerede koblet i en tidligere kjøring
+                    // (eller — se klassekommentaren på KildeHenvisningFritekst — et sjeldent tilfelle der
+                    // SAMME dokument nevnes to ganger i samme skjema med ulik fritekst: kun den FØRSTE
+                    // henvisningen persisteres da, målt 3 av 903 skjema 2026-09-10, samme "første vinner"-
+                    // oppførsel denne nøkkelen alt hadde for dokumentnivå-koblinger før denne runden).
 
                 db.HandlingRegelverksreferanser.Add(new HandlingRegelverksreferanseEntitet
                 {
-                    Id = Guid.NewGuid(), HandlingId = handling.Id, TilRettskildeId = rettskildeId, TilEid = eli,
+                    Id = Guid.NewGuid(), HandlingId = handling.Id, TilRettskildeId = rettskildeId, TilEid = tilEid,
+                    KildeHenvisningFritekst = kildeHenvisningFritekst,
                 });
             }
         }
@@ -279,22 +345,27 @@ public static class OppgaveregisterHandlingSeed
 
         return new OppgaveregisterHandlingSeedResultat(
             kildeRader.Count, nyeHandlinger, oppdaterteHandlinger, uendretHandlinger, hoppetOverUsikkerVirksomhet,
-            nyeTjenester, lovhjemlerTotalt, rettskildematcherFunnet, rettskildematcherIkkeFunnet);
+            nyeTjenester, lovhjemlerTotalt, rettskildematcherFunnet, rettskildematcherIkkeFunnet,
+            henvisningerFunnet, paragrafmatcherFunnet);
     }
 
-    /// <summary>Alle datokoder som kan representere et EKTE dokumentnivå-Eli-kandidat for dette skjemaet
-    /// — selve lovhjemmelen OG dens nøstede forskrifter (begge bruker samme LOV|FOR-datokodeform, se
-    /// <see cref="LovdataIdentifikatorer.AvledEliFraDatokode"/>). Ugyldig/uventet datokodeform kastes IKKE
-    /// videre her (skulle i teorien aldri skje, se klassens JSON-form-verifisering) — behandles som "ingen
-    /// kandidat" i stedet for å velte hele kjøringen, samme forsvarslinje som resten av høstelaget.</summary>
-    private static IEnumerable<string> AlleDokumentEli(List<SkjemaLovhjemmelJson>? lovhjemler)
+    /// <summary>Alle (datokode, henvisning)-par som kan representere et EKTE dokumentnivå-Eli-kandidat
+    /// for dette skjemaet — selve lovhjemmelen OG dens nøstede forskrifter (begge bruker samme LOV|FOR-
+    /// datokodeform, se <see cref="LovdataIdentifikatorer.AvledEliFraDatokode"/>), HVER med sin EGEN
+    /// <c>henvisning</c>-fritekst [ENDRET, issue #147, 2026-09-10] — en nøstet forskrift har et
+    /// uavhengig <c>henvisning</c>-felt fra sin omsluttende lovhjemmel, se
+    /// <see cref="SkjemaForskriftJson"/>s doc-kommentar, IKKE den samme strengen gjenbrukt for begge.
+    /// Ugyldig/uventet datokodeform kastes IKKE videre her (skulle i teorien aldri skje, se klassens
+    /// JSON-form-verifisering) — behandles som "ingen kandidat" i stedet for å velte hele kjøringen,
+    /// samme forsvarslinje som resten av høstelaget.</summary>
+    private static IEnumerable<(string Eli, string? Henvisning)> AlleDokumentEliMedHenvisning(List<SkjemaLovhjemmelJson>? lovhjemler)
     {
         foreach (var lovhjemmel in lovhjemler ?? [])
         {
-            if (TryAvledEli(lovhjemmel.Dato, out var eli)) yield return eli;
+            if (TryAvledEli(lovhjemmel.Dato, out var eli)) yield return (eli, lovhjemmel.Henvisning);
             foreach (var forskrift in lovhjemmel.Forskrifter ?? [])
             {
-                if (TryAvledEli(forskrift.Dato, out var forskriftEli)) yield return forskriftEli;
+                if (TryAvledEli(forskrift.Dato, out var forskriftEli)) yield return (forskriftEli, forskrift.Henvisning);
             }
         }
     }
@@ -313,6 +384,35 @@ public static class OppgaveregisterHandlingSeed
             return false; // uventet datokodeform — ingen gjettet fallback, se klassekommentaren.
         }
     }
+
+    /// <summary>
+    /// [Ny, issue #147, 2026-09-10, tiltak 2] Matcher KUN en henvisning som — etter trim — IKKE er noe
+    /// annet enn "§" + ett paragrafnummer (rent tall, evt. med ÉN bindestrek-del, f.eks. "4-1" — samme
+    /// form Lovdatas EGEN URL-struktur bruker for sammensatte paragrafnumre, se
+    /// <c>LovdataHtmlParser.ParseParagraf</c>), med et valgfritt avsluttende punktum. Bevisst IKKE noe
+    /// forsøk på å tolke "§§" (plural — ALLTID flere paragrafer, f.eks. "§§ 1 til 5" fra issue #147),
+    /// komma-/"og"-lister, "jf."-kryssreferanser, ledd/bokstav-presiseringer eller tittel-suffikser
+    /// (f.eks. "§ 41 Dispensasjon") — disse matcher rett og slett ikke mønsteret under og faller derfor
+    /// AUTOMATISK tilbake til dokumentnivå i kalleren, uten egen unntakslogikk her.
+    /// <para>
+    /// Et resultat herfra er BEVISST ikke nok alene til å sette <see cref="HandlingRegelverksreferanseEntitet.TilEid"/>
+    /// til paragrafnivå — kalleren MÅ i tillegg bekrefte kandidaten mot en ekte importert
+    /// <see cref="RettskildeNodeEntitet"/> (se klassekommentaren punkt (c)). Uten den bekreftelsen ville
+    /// f.eks. "§ 96-97" (funnet i det ekte korpuset 2026-09-10) vært en gjetning: bindestreken KAN være
+    /// lovens egen paragrafnummerform (som "§ 4-1"), eller den kan bety spennet "§96 til §97" — hvilket
+    /// det ER, avgjøres IKKE her, kun av om noen faktisk het akkurat det i den konkrete, allerede
+    /// importerte rettskilden.
+    /// </para>
+    /// </summary>
+    [GeneratedRegex(@"^§\s*(\d+(?:-\d+)?)\.?$")]
+    private static partial Regex EnkeltParagrafMønster();
+
+    private static bool TrekkUtEnkeltParagraf(string henvisning, out string paragrafnummer)
+    {
+        var m = EnkeltParagrafMønster().Match(henvisning.Trim());
+        paragrafnummer = m.Success ? "§" + m.Groups[1].Value : "";
+        return m.Success;
+    }
 }
 
 /// <summary>Sammendrag av én <see cref="OppgaveregisterHandlingSeed.SeedAsync"/>-kjøring — se
@@ -328,4 +428,14 @@ public sealed record OppgaveregisterHandlingSeedResultat(
     int NyeTjenester,
     int LovhjemlerTotalt,
     int RettskildematcherFunnet,
-    int RettskildematcherIkkeFunnet);
+    int RettskildematcherIkkeFunnet,
+    // [Ny, issue #147, 2026-09-10] Antall dokumentnivå-treff (delmengde av RettskildematcherFunnet) som
+    // hadde en ikke-null/ikke-blank henvisning-fritekst — alle disse får nå
+    // HandlingRegelverksreferanseEntitet.KildeHenvisningFritekst satt (tiltak 1), uansett om
+    // ParagrafmatcherFunnet i tillegg lyktes for dem.
+    int HenvisningerFunnet,
+    // [Ny, issue #147, 2026-09-10] Delmengde av HenvisningerFunnet der fritekstens paragrafnummer i
+    // TILLEGG lot seg ekstrahere OG bekrefte mot en ekte, allerede importert paragraf-node (tiltak 2) —
+    // for disse peker HandlingRegelverksreferanseEntitet.TilEid nå på paragraf-noden selv, ikke bare
+    // dokumentet.
+    int ParagrafmatcherFunnet);
