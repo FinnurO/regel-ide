@@ -22,6 +22,12 @@ Metodisk: alle konklusjoner under er verifisert mot `src/RegelIde.Data/Entiteter
 `RegelIdeDbContext.cs`, relevante `*RegisterTjeneste.cs`-filer og `docs/13-backlog.md`/
 `docs/20-virksomhetskatalog-og-rollemodell.md` — ikke antatt.
 
+**[Tillegg 2026-09-10]** `docs/32-formal-roller-og-sporsmal.md` §3 destillerte disse 13 kategoriene
+ned til sju operative spørsmål (S1–S7) etter denne vurderingen — S1/S10/S11 herfra tilsvarer S1 der,
+S2 tilsvarer S2, S3/S13 tilsvarer S3/S4, osv. Bruk `docs/32` for den korte, spørsmåls-navngitte
+versjonen i det daglige arbeidet; denne filen for den fulle, kodebase-forankrede begrunnelsen bak
+hver konklusjon.
+
 ---
 
 ## 1. Begrepskonsistens på tvers av regelverk
