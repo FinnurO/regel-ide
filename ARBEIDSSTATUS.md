@@ -54,10 +54,21 @@ merges med `gh pr merge <nr> --squash --delete-branch` (CLAUDE.md §13).
   gjenta når nye rettskilder er importert. Selve KOBLINGEN til virksomhet løses ved lesing, så nye
   virksomheter/navneformer kobler seg av seg selv uten ny kjøring.
 
-**Åpent spørsmål til Johann:** NTNU finnes ikke i virksomhetskatalogen, så #215 kriterium 6
-(«NTNUs side skal vise ph.d.-forskriften») kan ikke oppfylles ennå. Frasen er parset riktig, men
-står ukoblet — som kriterium 2 krever. Riktig vei inn er navnekandidat-køen, siden navnet står i
-forskriftens egen tekst. Venter på klarsignal før jeg oppretter organer i katalogen hans.
+**Gjort på Johanns base etter hans klarsignal (org.nr 974 767 880):** NTNU opprettet via
+`POST /api/virksomheter/fra-brreg` — Kunnskapsdepartementet ble morenhet automatisk, og SNL bekreftet
+navneformen `NTNU`. Lovdatas skrivemåte «Norges teknisk-naturvitenskapelige universitet (NTNU)» er
+lagt inn som navneform, og koblingen løste seg umiddelbart uten ny etterfylling (lesetids-oppløsning).
+NTNUs side viser nå seks forskrifter. #215 kriterium 6 er dermed oppfylt.
+
+**To åpne spørsmål til Johann:**
+1. NTNU har nå TO navneformer med grunn `gjeldende`: `NTNU` (auto fra SNL) og den fulle formen. Bare
+   én kan være det gjeldende navnet — den fulle ER navnet, `NTNU` er en kortform. Ikke endret, fordi
+   det er en modelleringsavgjørelse på hans katalog, og det styrer visningsnavnet (i dag `NTNU`).
+   Kan være verdt en CHECK-constraint: én `gjeldende` per virksomhet.
+2. #231 (nytt): navnekandidat-sveipet var den tenkte veien til NTNU-navneformen, men fanget «Norges»
+   i stedet for hele navnet — bakoverskanningen stopper på tankestreken i
+   «teknisk–naturvitenskapelig». Kodens egen kommentar bekrefter mekanismen. Samme sveip viste også
+   at «nemnd» mangler i `Institusjonsord`, så «Felles klagenemnd» blir «Felles».
 
 **Til Johann, blokkert for meg:** 56 fjerngrener med merget PR ligger igjen på origin.
 `git push origin --delete …` blir konsekvent avslått av auto-modus-klassifiseringen. Lokalt er det
