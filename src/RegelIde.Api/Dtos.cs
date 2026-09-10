@@ -389,11 +389,17 @@ public sealed record HandlingRegelverksreferanseDto(Guid Id, Guid HandlingId, Gu
 public sealed record OppgaveregisterHandlingSeedResultatDto(
     int SkjemaTotalt, int NyeHandlinger, int OppdaterteHandlinger, int UendretHandlinger,
     int HoppetOverUsikkerVirksomhet, int NyeTjenester, int LovhjemlerTotalt,
-    int RettskildematcherFunnet, int RettskildematcherIkkeFunnet)
+    int RettskildematcherFunnet, int RettskildematcherIkkeFunnet,
+    // [ENDRET, issue #147, 2026-09-10, rettet ved orkestrator-verifisering] Disse to fantes allerede på
+    // RegelIde.Data.OppgaveregisterHandlingSeedResultat, men var ALDRI koblet gjennom til DTO-en/
+    // FraResultat under — selve §16-målingen (§147 sitt akseptansekriterium) var altså usynlig for
+    // enhver som faktisk kaller endepunktet, kun tilgjengelig ved å lese kildekoden.
+    int HenvisningerFunnet, int ParagrafmatcherFunnet)
 {
     public static OppgaveregisterHandlingSeedResultatDto FraResultat(RegelIde.Data.OppgaveregisterHandlingSeedResultat r) =>
         new(r.SkjemaTotalt, r.NyeHandlinger, r.OppdaterteHandlinger, r.UendretHandlinger, r.HoppetOverUsikkerVirksomhet,
-            r.NyeTjenester, r.LovhjemlerTotalt, r.RettskildematcherFunnet, r.RettskildematcherIkkeFunnet);
+            r.NyeTjenester, r.LovhjemlerTotalt, r.RettskildematcherFunnet, r.RettskildematcherIkkeFunnet,
+            r.HenvisningerFunnet, r.ParagrafmatcherFunnet);
 }
 
 /// <summary>Håndbok-nivå rettskildeomfang (docs/12-fasit-handbok-leveranse.md, 2026-07-31).</summary>

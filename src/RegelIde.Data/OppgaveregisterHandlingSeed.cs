@@ -210,11 +210,29 @@ public static partial class OppgaveregisterHandlingSeed
         var eksisterendeHandlinger = await db.Handlinger
             .Where(h => h.EksternKildeId != null && h.Entitetsstatus == "gjeldende")
             .ToDictionaryAsync(h => h.EksternKildeId!.Value, ct);
-        var eksisterendeRegelverksreferanser = await db.HandlingRegelverksreferanser
-            .Select(r => new { r.HandlingId, r.TilRettskildeId, r.TilEid })
-            .ToListAsync(ct);
-        var regelverksreferanseNokler = new HashSet<(Guid HandlingId, Guid TilRettskildeId, string TilEid)>(
-            eksisterendeRegelverksreferanser.Select(r => (r.HandlingId, r.TilRettskildeId, r.TilEid)));
+        // [ENDRET, issue #147, 2026-09-10, rettet ved orkestrator-verifisering] Var tidligere en HashSet
+        // av (HandlingId, TilRettskildeId, TilEid) — nøkkelen inkluderte TilEid, så et GJENTATT kall etter
+        // at tiltak 2 fant et paragrafnummer for en rad som FØR kun var dokumentnivå, ble aldri gjenkjent
+        // som "samme kobling" (TilEid er nå en annen streng) og satte inn en NY, andre rad ved siden av
+        // den gamle — én handling endte da med BÅDE en doc-nivå- og en paragraf-nivå-referanse til SAMME
+        // rettskilde. Bekreftet live mot en ekte seedet database (2026-09-10): «Egenerklæring med
+        // revisoruttalelse» fikk nøyaktig dette — to rader mot samme lov, én mot §42, én mot loven som
+        // helhet. Nøkkelen er nå (HandlingId, TilRettskildeId) ALENE, og en eksisterende doc-nivå-rad
+        // OPPGRADERES i stedet for å få en søsterrad — se løkken under.
+        var eksisterendeReferansePerPar = new Dictionary<(Guid HandlingId, Guid TilRettskildeId), HandlingRegelverksreferanseEntitet>();
+        foreach (var r in await db.HandlingRegelverksreferanser.ToListAsync(ct))
+        {
+            var par = (r.HandlingId, r.TilRettskildeId);
+            // Tolerant mot en duplikat SOM ALLEREDE FANTES (f.eks. fra et kjørt-før-denne-rettingen
+            // kall, se kommentaren over) — behold den MEST PRESISE (lengst TilEid, dvs. paragrafnivå
+            // fremfor rent dokumentnivå) som representant denne kjøringen reasonerer om. Sletter ALDRI
+            // en eksisterende rad her — en gjenværende duplikat fra før er ute av scope for denne
+            // rettingen, kun at FLERE ikke skal oppstå.
+            if (!eksisterendeReferansePerPar.TryGetValue(par, out var forrige) || r.TilEid.Length > forrige.TilEid.Length)
+            {
+                eksisterendeReferansePerPar[par] = r;
+            }
+        }
 
         var nyeHandlinger = 0;
         var oppdaterteHandlinger = 0;
@@ -326,18 +344,37 @@ public static partial class OppgaveregisterHandlingSeed
                     }
                 }
 
-                var nokkel = (handling.Id, rettskildeId, tilEid);
-                if (!regelverksreferanseNokler.Add(nokkel)) continue; // allerede koblet i en tidligere kjøring
-                    // (eller — se klassekommentaren på KildeHenvisningFritekst — et sjeldent tilfelle der
-                    // SAMME dokument nevnes to ganger i samme skjema med ulik fritekst: kun den FØRSTE
-                    // henvisningen persisteres da, målt 3 av 903 skjema 2026-09-10, samme "første vinner"-
-                    // oppførsel denne nøkkelen alt hadde for dokumentnivå-koblinger før denne runden).
+                var par = (handling.Id, rettskildeId);
+                if (eksisterendeReferansePerPar.TryGetValue(par, out var eksisterendeReferanse))
+                {
+                    // [ENDRET, issue #147, 2026-09-10] Oppgrader EN EKSISTERENDE dokumentnivå-rad til
+                    // paragrafnivå i stedet for å sette inn en søsterrad — se dictionary-kommentaren over
+                    // for hvorfor (bekreftet live: to rader mot samme lov, én upresis, én presis, var
+                    // konsekvensen av den gamle nøkkelen). Oppgraderer KUN når raden fortsatt står på ren
+                    // dokumentnivå (TilEid == eli) OG denne runden faktisk fant noe mer presist — rører
+                    // ALDRI en rad som allerede er paragrafnivå eller som en saksbehandler kan ha justert
+                    // manuelt via Regelverksreferanser-fanen (samme "ikke overskriv et menneskes arbeid"-
+                    // holdning som resten av kodebasen).
+                    if (eksisterendeReferanse.TilEid == eli && tilEid != eli)
+                    {
+                        eksisterendeReferanse.TilEid = tilEid;
+                    }
+                    // Fritekst (tiltak 1) ettermonteres uansett på en allerede eksisterende rad — den
+                    // fantes ikke som felt før denne runden, så ENHVER eksisterende rad mangler den.
+                    eksisterendeReferanse.KildeHenvisningFritekst ??= kildeHenvisningFritekst;
+                    continue; // ingen ny rad — se over.
+                }
 
-                db.HandlingRegelverksreferanser.Add(new HandlingRegelverksreferanseEntitet
+                var ny = new HandlingRegelverksreferanseEntitet
                 {
                     Id = Guid.NewGuid(), HandlingId = handling.Id, TilRettskildeId = rettskildeId, TilEid = tilEid,
                     KildeHenvisningFritekst = kildeHenvisningFritekst,
-                });
+                };
+                db.HandlingRegelverksreferanser.Add(ny);
+                eksisterendeReferansePerPar[par] = ny; // synlig for en evt. NESTE lovhjemmel i SAMME
+                    // skjema som peker på samme (handling, rettskilde) — «første vinner»-oppførsel for
+                    // en sjelden dobbel-oppføring i kilden (målt 3 av 903 skjema 2026-09-10), samme
+                    // prinsipp som før denne rettingen.
             }
         }
 
