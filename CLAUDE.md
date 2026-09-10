@@ -345,6 +345,20 @@ Merk også: grensletting krever en tillatelsesregel. `.claude/settings.local.jso
 disse blir bulk-sletting av grener avslått av auto-modus-klassifiseringen, mens
 `gh pr merge --delete-branch` går gjennom — det var forklaringen på at 56 grener lå igjen i ukevis.
 
+## 18. Avklaringer stilles som konkrete spørsmål i verktøyet, ikke begravet i lang tekst
+
+Brutt 2026-09-10: issue #249 ble skrevet med et prisatt A/B-valg («egen `Kildefeil`-tabell» vs. «ren
+visning av eksisterende spørring») formulert som prosa under en overskrift i issue-teksten, i stedet
+for å faktisk spørre. Johann måtte lete opp spørsmålet selv og svare i fritekst — treigere og mer
+feilutsatt enn nødvendig, når et verktøy for nettopp dette allerede finnes.
+
+Regel: når en beslutning jeg ikke kan ta selv (arkitekturvalg, prioritering, omfangsgrense,
+A/B-alternativ) skal legges fram for Johann — bruk spørsmålsverktøyet MED DET SAMME, ikke bare skriv
+den ned og vent på neste melding. Gjelder også når spørsmålet SKAL stå skriftlig et sted for
+sporbarhet (f.eks. i selve GitHub-issuen) — skriv det ned der, men still det også som et ekte
+spørsmål samtidig, ikke i stedet for. Etter svar: skriv beslutningen inn i issuen/saken som en
+kommentar (samme «varig nedtegnelse»-prinsipp som §15/§16), ikke bare la den stå i chat-historikken.
+
 ## Nyttige kommandoer
 
 Kjør appen (Browser-panelet, aldri `dotnet run` via Bash) — konfigurasjonene heter `regel-ide-api` og
