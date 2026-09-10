@@ -1,0 +1,19 @@
+{
+  "id": "0fe408ce-125b-480c-a17d-b04b44bc70cc",
+  "virksomhetId": "fad7e5fd-2f18-4990-81c0-c16dc289d9e2",
+  "begrepskategori": null,
+  "virksomhetReferanseId": null,
+  "lovkildeId": null,
+  "term": "kommunens skjønnsutøvelse ved bevilling",
+  "definisjon": "Kommunestyrets frie skjønn til å innvilge eller avslå en søknad ut fra en konkret vurdering av stedets karakter, beliggenhet, målgruppe, trafikk- og ordensmessige forhold, næringspolitiske hensyn og hensynet til lokalmiljøet, jf. alkoholloven § 1-7a.",
+  "lovreferanseEid": "https://lovdata.no/eli/lov/1989/06/02/27/nor/§1-7a",
+  "gjelderFor": [],
+  "kodelisteReferanseId": null,
+  "skosUrl": null,
+  "begrepstype": "handlingsbegrep",
+  "status": "utkast",
+  "versjon": 1,
+  "navneformgrunn": null,
+  "_kilde": "GET /api/begreper/{id} + /brukt-i-rettskilder for id=0fe408ce-125b-480c-a17d-b04b44bc70cc — eksportert 2026-09-09T22:15:57Z",
+  "bruktIRettskilder": []
+}

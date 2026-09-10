@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="nb" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Virksomheter — Regel-IDE showcase</title>
+<meta name="description" content="Søkbar katalog over alle virksomheter i regel-ide, med navneform- og «brukt i»-detaljvisning for utvalgte virksomheter.">
+<link rel="canonical" href="https://finnuro.github.io/regel-ide/virksomheter/">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/fonts.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet-theme.css">
+<link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body>
+
+<a class="ds-link skip-to-content" href="#main">Hopp til innhold</a>
+
+<div class="disclaimer-bar">
+  <div class="wrap">
+    <span>📎 <strong>Midlertidig showcase</strong> — statisk fasade, ikke selve applikasjonen.</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand plain" href="../">
+      <span class="brand__mark" aria-hidden="true">RI</span>
+      <span class="brand__text">
+        <span class="brand__title">Regel-IDE</span>
+        <span class="brand__subtitle">Digital rettsstat — showcase</span>
+      </span>
+    </a>
+    <nav class="main-nav" aria-label="Hovedmeny">
+      <a href="../">Forside</a>
+      <a href="../rettskilder/">Rettskilder</a>
+      <a href="../virksomheter/" aria-current="page">Virksomheter</a>
+      <a href="../grupper/">Grupper</a>
+      <a href="../koblinger/">Koblinger</a>
+      <a href="../begreper/">Begreper</a>
+      <a href="../om/">Om</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap page-head">
+    <span class="eyebrow">Virksomhetskatalog og rollemodell</span>
+    <h1>Virksomheter</h1>
+    <p class="lead">Alle virksomheter regel-ide kjenner til, identifisert ved organisasjonsnummer der de har en. En virksomhet trenger ikke ha egne brukere i systemet for å stå i katalogen.</p>
+  </div>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="stat-row" id="stat-row">
+        <div class="stat-tile is-loading" data-stat="total"><span class="n">–</span><span class="l">virksomheter i katalogen</span></div>
+        <div class="stat-tile is-loading" data-stat="aktive"><span class="n">–</span><span class="l">aktive</span></div>
+        <div class="stat-tile is-loading" data-stat="medorgnr"><span class="n">–</span><span class="l">med organisasjonsnummer</span></div>
+        <div class="stat-tile" data-stat="detalj"><span class="n">1</span><span class="l">med egen detaljvisning her</span></div>
+      </div>
+
+      <div class="filter-bar">
+        <input type="search" class="filter-input" id="q" placeholder="Søk på navn eller organisasjonsnummer …" aria-label="Søk i virksomheter">
+        <select class="filter-select" id="f-niva" aria-label="Filtrer på forvaltningsnivå">
+          <option value="">Alle forvaltningsnivå</option>
+        </select>
+        <span class="filter-count" id="result-count"></span>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table data-table" id="virksomhet-table">
+          <thead>
+            <tr>
+              <th scope="col" data-sort-key="visningsnavn" aria-sort="ascending">Navn</th>
+              <th scope="col" data-sort-key="organisasjonsnummer">Org.nummer</th>
+              <th scope="col" data-sort-key="forvaltningsniva">Forvaltningsnivå</th>
+              <th scope="col" data-sort-key="aktivSort">Status</th>
+              <th scope="col">Detaljvisning</th>
+            </tr>
+          </thead>
+          <tbody id="virksomhet-tbody">
+            <tr><td colspan="5" class="loading-note">Laster virksomheter …</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="filter-count" id="truncation-note" style="margin-top:var(--ds-size-3);"></p>
+    </div>
+  </section>
+
+  <section class="section" id="karasjok-section" style="border-bottom:none;">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Eksempel med full detaljvisning</span>
+        <h2>Karasjok kommune</h2>
+        <p>Den eneste virksomheten i denne showcasen med en eksportert detaljfil — <code>GET /api/virksomheter/{id}/where-used</code> hentet i sin helhet. Se en full sporbarhetskjede for samme eksempel på <a href="../koblinger/">koblinger-siden</a>.</p>
+      </div>
+      <div id="karasjok-detail" class="loading-note">Laster detaljdata …</div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <h3>Om nettstedet</h3>
+      <p style="font-size:var(--ds-body-sm-font-size); color:var(--ds-color-text-subtle); max-width:32ch; margin:0;">Midlertidig showcase av <a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">regel-ide</a>, ikke selve produktet.</p>
+    </div>
+    <div>
+      <h3>Sider</h3>
+      <ul>
+        <li><a href="../rettskilder/">Rettskilder</a></li>
+        <li><a href="../grupper/">Grupper</a></li>
+        <li><a href="../koblinger/">Koblinger</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Kildekode</h3>
+      <ul>
+        <li><a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">FinnurO/regel-ide</a></li>
+        <li><a href="https://github.com/FinnurO/regel-ide/blob/main/nettside/data/README.md" target="_blank" rel="noopener">Datakontrakt</a></li>
+      </ul>
+    </div>
+    <p class="fine">Data eksportert fra en kjørende lokal instans på et gitt tidspunkt — ikke sanntid.</p>
+  </div>
+</footer>
+
+<button type="button" class="ds-button feedback-fab" data-color="accent" id="feedback-open-btn" aria-haspopup="dialog">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+  <span class="btn-label">Gi tilbakemelding</span>
+</button>
+
+<dialog class="feedback-dialog" id="feedback-dialog" aria-labelledby="feedback-dialog-title">
+  <div class="feedback-dialog__body">
+    <h2 id="feedback-dialog-title">Gi tilbakemelding</h2>
+    <p class="lead">Sendes som et innspill på GitHub — du logger inn med (eller oppretter) en gratis GitHub-konto for å fullføre innsendingen der.</p>
+    <p class="feedback-hint">Vi tar automatisk med hvilke seksjoner du har åpnet på siden. Vil du sitere en bestemt setning: lukk dette vinduet, marker teksten på siden, og trykk «Gi tilbakemelding» på nytt.</p>
+    <div class="feedback-context" id="feedback-context"></div>
+    <div class="feedback-field">
+      <label for="feedback-text">Hva vil du si noe om?</label>
+      <textarea id="feedback-text" placeholder="Skriv tilbakemeldingen din her …"></textarea>
+    </div>
+    <div class="feedback-actions">
+      <button type="button" class="ds-button" data-variant="tertiary" data-color="neutral" id="feedback-cancel-btn">Avbryt</button>
+      <button type="button" class="ds-button" data-color="accent" id="feedback-submit-btn">Send inn på GitHub →</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/feedback.js"></script>
+<script>
+(function () {
+  var S = RegelIdeSite;
+  var MAX_ROWS = 400;
+  var KARASJOK_ID = '455d90bf-3b8e-4d75-a735-b6b2768d17fa';
+  var allRows = [];
+
+  function renderRows(rows) {
+    var tbody = document.getElementById('virksomhet-tbody');
+    var shown = rows.slice(0, MAX_ROWS);
+    if (!shown.length) {
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">Ingen virksomheter matcher søket.</div></td></tr>';
+    } else {
+      tbody.innerHTML = shown.map(function (v) {
+        var hasDetail = v.id === KARASJOK_ID;
+        return '<tr>' +
+          '<td><strong>' + S.esc(v.visningsnavn || v.navn) + '</strong></td>' +
+          '<td>' + S.esc(v.organisasjonsnummer || '—') + '</td>' +
+          '<td>' + S.esc(v.forvaltningsniva || '—') + '</td>' +
+          '<td>' + (v.aktiv ? '<span class="pill" data-tone="success">Aktiv</span>' : '<span class="pill" data-tone="neutral">Inaktiv</span>') + '</td>' +
+          '<td>' + (hasDetail ? '<a class="ds-link" href="#karasjok-section">Se under ↓</a>' : '<span style="color:var(--ds-color-text-subtle);">—</span>') + '</td>' +
+          '</tr>';
+      }).join('');
+    }
+    document.getElementById('result-count').textContent = rows.length.toLocaleString('nb-NO') + ' treff';
+    document.getElementById('truncation-note').textContent = rows.length > MAX_ROWS
+      ? 'Viser de første ' + MAX_ROWS + ' av ' + rows.length.toLocaleString('nb-NO') + ' treff — snevre inn søket for å se flere.'
+      : '';
+  }
+
+  function currentFiltered() {
+    var q = document.getElementById('q').value.trim();
+    var niva = document.getElementById('f-niva').value;
+    return allRows.filter(function (v) {
+      if (niva && v.forvaltningsniva !== niva) return false;
+      if (q && !S.matches(q, [v.navn, v.visningsnavn, v.organisasjonsnummer])) return false;
+      return true;
+    });
+  }
+  function applyFilters() { renderRows(currentFiltered()); }
+
+  function renderKarasjokDetail(detail) {
+    var el = document.getElementById('karasjok-detail');
+    if (S.isSkeleton(detail)) {
+      el.innerHTML = S.skeletonBanner(detail);
+      return;
+    }
+    var navneformRows = (detail.navneformer || []).map(function (n) {
+      var grunnTone = n.navneformgrunn === 'gjeldende' ? 'success' : n.navneformgrunn === 'kortform' ? 'accent' : n.navneformgrunn === 'feilskriving' ? 'danger' : 'neutral';
+      return '<li><span><strong>' + S.esc(n.term) + '</strong>' +
+        (n.navneformgrunn ? ' <span class="pill" data-tone="' + grunnTone + '">' + S.esc(n.navneformgrunn) + '</span>' : '') +
+        '</span></li>';
+    }).join('');
+
+    var navneformForekomster = (detail.whereUsed && detail.whereUsed.navneformForekomster) || [];
+    var forekomstRows = navneformForekomster.map(function (f) {
+      return '<li><span>«' + S.esc(f.term) + '» i <em>' + S.esc(f.rettskildeTittel) + '</em></span>' +
+        '<span class="hjemmel">' + S.esc(f.nodeEid.split('/').slice(-2).join(' ')) + '</span></li>';
+    }).join('');
+
+    var gruppetildelinger = (detail.whereUsed && detail.whereUsed.gruppetildelinger) || [];
+    var gruppeRows = gruppetildelinger.map(function (g) {
+      return '<li><span>Medlem av <a href="../grupper/#' + S.esc(g.gruppeBegrepId) + '"><strong>' + S.esc(g.gruppeTerm) + '</strong></a></span></li>';
+    }).join('');
+
+    el.innerHTML =
+      '<div class="detail-grid">' +
+        '<div>' +
+          '<h3 style="margin-top:0;">Navneformer</h3>' +
+          '<ul class="member-list">' + (navneformRows || '<li>Ingen navneformer registrert.</li>') + '</ul>' +
+          '<h3>Hvor navneformer er tagget i lovtekst</h3>' +
+          (forekomstRows
+            ? '<ul class="member-list">' + forekomstRows + '</ul>'
+            : '<p class="empty-state">Ikke tagget i noen rettskildetekst.</p>') +
+        '</div>' +
+        '<div>' +
+          '<h3 style="margin-top:0;">Gruppetildelinger</h3>' +
+          '<ul class="member-list">' + (gruppeRows || '<li>Ingen gruppetildelinger.</li>') + '</ul>' +
+          '<p style="font-size:var(--ds-body-xs-font-size); color:var(--ds-color-text-subtle);">Org.nr ' + S.esc(detail.organisasjonsnummer) + '</p>' +
+        '</div>' +
+      '</div>';
+  }
+
+  Promise.all([
+    S.fetchData('virksomheter/katalog.json'),
+    S.fetchData('virksomheter/' + KARASJOK_ID + '.json')
+  ]).then(function (results) {
+    var virksomheterData = results[0];
+    allRows = virksomheterData.virksomheter;
+
+    function setStat(key, n) {
+      var tile = document.querySelector('.stat-tile[data-stat="' + key + '"]');
+      tile.classList.remove('is-loading');
+      tile.querySelector('.n').textContent = n.toLocaleString('nb-NO');
+    }
+    setStat('total', allRows.length);
+    setStat('aktive', allRows.filter(function (v) { return v.aktiv; }).length);
+    setStat('medorgnr', allRows.filter(function (v) { return !!v.organisasjonsnummer; }).length);
+
+    var nivaer = Array.from(new Set(allRows.map(function (v) { return v.forvaltningsniva; }).filter(Boolean))).sort();
+    var sel = document.getElementById('f-niva');
+    nivaer.forEach(function (n) {
+      var opt = document.createElement('option'); opt.value = n; opt.textContent = n; sel.appendChild(opt);
+    });
+
+    allRows.forEach(function (v) { v.aktivSort = v.aktiv ? 1 : 0; });
+    applyFilters();
+
+    document.getElementById('q').addEventListener('input', S.debounce(applyFilters, 120));
+    document.getElementById('f-niva').addEventListener('change', applyFilters);
+    var theadRow = document.querySelector('#virksomhet-table thead tr');
+    S.makeSortableTable(theadRow, currentFiltered, renderRows);
+
+    renderKarasjokDetail(results[1]);
+  }).catch(function (err) {
+    S.renderError(document.getElementById('virksomhet-tbody').parentElement.parentElement, err);
+    S.renderError(document.getElementById('karasjok-detail'), err);
+  });
+})();
+</script>
+</body>
+</html>

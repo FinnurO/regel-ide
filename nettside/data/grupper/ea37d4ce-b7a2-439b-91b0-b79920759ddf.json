@@ -1,0 +1,162 @@
+{
+  "_kilde": "GET /api/gruppebegrep/{id}/medlemsgrupper + /overordnede-grupper + /tildelinger for id=ea37d4ce-b7a2-439b-91b0-b79920759ddf — eksportert 2026-09-09T22:15:57Z",
+  "id": "ea37d4ce-b7a2-439b-91b0-b79920759ddf",
+  "term": "språkvitaliseringskommuner",
+  "status": "publisert",
+  "lovkildeId": "b2b2bc4b-f2a3-44e8-a665-ea491a2185b7",
+  "lovreferanseEid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-1/ledd-1/punkt-1",
+  "medlemsgrupper": [],
+  "overordnedeGrupper": [
+    {
+      "id": "b669938d-0070-4a4e-9a70-89c2e4d51a6a",
+      "overordnetGruppeBegrepId": "7057ff4b-bc2e-4d23-af7b-c681a082ea32",
+      "underordnetGruppeBegrepId": "ea37d4ce-b7a2-439b-91b0-b79920759ddf",
+      "hjemmelRettskildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "paragrafspenn": [
+        {
+          "fraEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+          "tilEid": null
+        }
+      ],
+      "gyldigFra": null,
+      "gyldigTil": null
+    }
+  ],
+  "tildelinger": [
+    {
+      "id": "3a301a9c-d205-49c2-997e-e79281928096",
+      "gruppeBegrepId": "ea37d4ce-b7a2-439b-91b0-b79920759ddf",
+      "virksomhetId": "20f81372-7e60-4584-b5d6-134ed9cd40bb",
+      "hjemmelRettskildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "paragrafspenn": [
+        {
+          "fraEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+          "tilEid": null
+        }
+      ],
+      "vilkaar": null,
+      "gyldigFra": null,
+      "gyldigTil": null
+    },
+    {
+      "id": "170e8aa0-9f3e-4b12-9d51-11b4b11ebe6c",
+      "gruppeBegrepId": "ea37d4ce-b7a2-439b-91b0-b79920759ddf",
+      "virksomhetId": "0f20d5ca-0b81-434f-b4db-0b627d63a9b2",
+      "hjemmelRettskildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "paragrafspenn": [
+        {
+          "fraEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+          "tilEid": null
+        }
+      ],
+      "vilkaar": null,
+      "gyldigFra": null,
+      "gyldigTil": null
+    },
+    {
+      "id": "ffe65642-9aa1-4f29-ae8d-e809a37cb73a",
+      "gruppeBegrepId": "ea37d4ce-b7a2-439b-91b0-b79920759ddf",
+      "virksomhetId": "08188eaf-273c-4b9b-b726-be921a958270",
+      "hjemmelRettskildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "paragrafspenn": [
+        {
+          "fraEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+          "tilEid": null
+        }
+      ],
+      "vilkaar": null,
+      "gyldigFra": null,
+      "gyldigTil": null
+    },
+    {
+      "id": "11c7a344-daf2-4983-b9ee-cd11b6aa846a",
+      "gruppeBegrepId": "ea37d4ce-b7a2-439b-91b0-b79920759ddf",
+      "virksomhetId": "8883e223-ba1b-400f-bf8b-0b37bde7deb7",
+      "hjemmelRettskildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "paragrafspenn": [
+        {
+          "fraEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+          "tilEid": null
+        }
+      ],
+      "vilkaar": null,
+      "gyldigFra": null,
+      "gyldigTil": null
+    },
+    {
+      "id": "ed72414b-ebf3-4e98-b57d-491c4a48fdad",
+      "gruppeBegrepId": "ea37d4ce-b7a2-439b-91b0-b79920759ddf",
+      "virksomhetId": "31e9c975-b931-4f1a-83ef-7bd6fe1c1392",
+      "hjemmelRettskildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "paragrafspenn": [
+        {
+          "fraEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+          "tilEid": null
+        }
+      ],
+      "vilkaar": null,
+      "gyldigFra": null,
+      "gyldigTil": null
+    },
+    {
+      "id": "9ba7f6c8-534f-4bc6-8444-1638676ce19f",
+      "gruppeBegrepId": "ea37d4ce-b7a2-439b-91b0-b79920759ddf",
+      "virksomhetId": "a1392576-d098-4f9c-9df8-5ca77c0392e9",
+      "hjemmelRettskildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "paragrafspenn": [
+        {
+          "fraEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+          "tilEid": null
+        }
+      ],
+      "vilkaar": null,
+      "gyldigFra": null,
+      "gyldigTil": null
+    },
+    {
+      "id": "d6c961da-08c9-462c-8f2c-417bbaedca6f",
+      "gruppeBegrepId": "ea37d4ce-b7a2-439b-91b0-b79920759ddf",
+      "virksomhetId": "6344028d-3b2e-4cd3-b6a9-85bf339a3299",
+      "hjemmelRettskildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "paragrafspenn": [
+        {
+          "fraEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+          "tilEid": null
+        }
+      ],
+      "vilkaar": null,
+      "gyldigFra": null,
+      "gyldigTil": null
+    },
+    {
+      "id": "fbb699b8-bf81-44bb-a49a-ec10d57e3693",
+      "gruppeBegrepId": "ea37d4ce-b7a2-439b-91b0-b79920759ddf",
+      "virksomhetId": "cbbc2bc0-346f-451f-acba-334c94e5a08c",
+      "hjemmelRettskildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "paragrafspenn": [
+        {
+          "fraEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+          "tilEid": null
+        }
+      ],
+      "vilkaar": null,
+      "gyldigFra": null,
+      "gyldigTil": null
+    },
+    {
+      "id": "e002befb-a46f-4b20-9724-ad6eff83a571",
+      "gruppeBegrepId": "ea37d4ce-b7a2-439b-91b0-b79920759ddf",
+      "virksomhetId": "49f2dd96-b403-48e0-9658-8b8650ba0564",
+      "hjemmelRettskildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "paragrafspenn": [
+        {
+          "fraEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+          "tilEid": null
+        }
+      ],
+      "vilkaar": null,
+      "gyldigFra": null,
+      "gyldigTil": null
+    }
+  ]
+}

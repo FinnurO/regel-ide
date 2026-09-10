@@ -1,0 +1,74 @@
+{
+  "id": "a7fbcd03-96c4-4216-82c6-60d602bf0543",
+  "virksomhetId": "fad7e5fd-2f18-4990-81c0-c16dc289d9e2",
+  "begrepskategori": null,
+  "virksomhetReferanseId": null,
+  "lovkildeId": null,
+  "term": "styrer og stedfortreder",
+  "definisjon": "Personene som reelt innehar ansvaret for den daglige driften av salgs- eller skjenkestedet, jf. alkoholloven § 1-7c.",
+  "lovreferanseEid": "https://lovdata.no/eli/lov/1989/06/02/27/nor/§1-7c",
+  "gjelderFor": [],
+  "kodelisteReferanseId": null,
+  "skosUrl": null,
+  "begrepstype": "faktabegrep",
+  "status": "utkast",
+  "versjon": 1,
+  "navneformgrunn": null,
+  "_kilde": "GET /api/begreper/{id} + /brukt-i-rettskilder for id=a7fbcd03-96c4-4216-82c6-60d602bf0543 — eksportert 2026-09-09T22:15:57Z",
+  "bruktIRettskilder": [
+    {
+      "rettskildeId": "088993a1-8219-4ad6-a8a3-da8c0fd6acc9",
+      "nodeEid": "https://lovdata.no/eli/forskrift/2005/06/08/538/nor/§10-3/ledd-3/punkt-5",
+      "rettskildeTittel": "Alkoholforskriften",
+      "snippet": "brudd på krav om styrer og stedfortreder, jf. alkoholloven § 1-7c"
+    },
+    {
+      "rettskildeId": "088993a1-8219-4ad6-a8a3-da8c0fd6acc9",
+      "nodeEid": "https://lovdata.no/eli/forskrift/2005/06/08/538/nor/§9-2/ledd-1",
+      "rettskildeTittel": "Alkoholforskriften",
+      "snippet": "… råd og veiledning til bevillingshaver, styrer og stedfortreder, slik at omsetningen av alkohol kan skj…"
+    },
+    {
+      "rettskildeId": "3cfac531-4183-4aad-98bf-0d9511d6d12f",
+      "nodeEid": "https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/godkjenning-av-ny-styrer-stedfortreder-og-daglig-leder-i-bevillinger",
+      "rettskildeTittel": "Godkjenning av ny styrer, stedfortreder og daglig leder i bevillinger",
+      "snippet": "…uker.\n\nAlkoholloven har bestemmelser om styrer og stedfortreder i § 1-7c. Serveringsloven har\nbestemmel…"
+    },
+    {
+      "rettskildeId": "64b5f3a2-1c57-4e1e-8343-8cee75c77873",
+      "nodeEid": "https://lovdata.no/eli/lov/1989/06/02/27/nor/§1-4c/ledd-2",
+      "rettskildeTittel": "Alkoholloven – alkhl",
+      "snippet": "…en enkelt bestemt anledning, med mindre styrer og stedfortreder har dokumentert kunnskap om alkohollove…"
+    },
+    {
+      "rettskildeId": "64b5f3a2-1c57-4e1e-8343-8cee75c77873",
+      "nodeEid": "https://lovdata.no/eli/lov/1989/06/02/27/nor/§1-7c/ledd-1",
+      "rettskildeTittel": "Alkoholloven – alkhl",
+      "snippet": "…ler skjenkestedets størrelse. Kravet om styrer og stedfortreder gjelder ikke for bevilling til AS Vinmo…"
+    },
+    {
+      "rettskildeId": "64b5f3a2-1c57-4e1e-8343-8cee75c77873",
+      "nodeEid": "https://lovdata.no/eli/lov/1989/06/02/27/nor/§1-7c/ledd-2",
+      "rettskildeTittel": "Alkoholloven – alkhl",
+      "snippet": "Styrer og stedfortreder må være ansatt på salgs- eller skjenkes…"
+    },
+    {
+      "rettskildeId": "64b5f3a2-1c57-4e1e-8343-8cee75c77873",
+      "nodeEid": "https://lovdata.no/eli/lov/1989/06/02/27/nor/§1-7c/ledd-3",
+      "rettskildeTittel": "Alkoholloven – alkhl",
+      "snippet": "Styrer og stedfortreder må være over 20 år og ha dokumentert ku…"
+    },
+    {
+      "rettskildeId": "64b5f3a2-1c57-4e1e-8343-8cee75c77873",
+      "nodeEid": "https://lovdata.no/eli/lov/1989/06/02/27/nor/§1-7c/ledd-4",
+      "rettskildeTittel": "Alkoholloven – alkhl",
+      "snippet": "Styrer og stedfortreder må ha utvist uklanderlig vandel i forho…"
+    },
+    {
+      "rettskildeId": "64b5f3a2-1c57-4e1e-8343-8cee75c77873",
+      "nodeEid": "https://lovdata.no/eli/lov/1989/06/02/27/nor/§1-7c/ledd-6",
+      "rettskildeTittel": "Alkoholloven – alkhl",
+      "snippet": "…anmodning fra bevillingsmyndigheten har styrer og stedfortreder plikt til å legitimere seg."
+    }
+  ]
+}

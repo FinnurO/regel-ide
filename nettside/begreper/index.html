@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="nb" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Begreper — Regel-IDE showcase</title>
+<meta name="description" content="Begrepsregister i regel-ide etter SKOS-mønster: term, definisjon og lovreferanse, med reverseoppslag «brukt i rettskilder» for utvalgte begreper.">
+<link rel="canonical" href="https://finnuro.github.io/regel-ide/begreper/">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/fonts.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet-theme.css">
+<link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body>
+
+<a class="ds-link skip-to-content" href="#main">Hopp til innhold</a>
+
+<div class="disclaimer-bar">
+  <div class="wrap">
+    <span>📎 <strong>Midlertidig showcase</strong> — statisk fasade, ikke selve applikasjonen.</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand plain" href="../">
+      <span class="brand__mark" aria-hidden="true">RI</span>
+      <span class="brand__text">
+        <span class="brand__title">Regel-IDE</span>
+        <span class="brand__subtitle">Digital rettsstat — showcase</span>
+      </span>
+    </a>
+    <nav class="main-nav" aria-label="Hovedmeny">
+      <a href="../">Forside</a>
+      <a href="../rettskilder/">Rettskilder</a>
+      <a href="../virksomheter/">Virksomheter</a>
+      <a href="../grupper/">Grupper</a>
+      <a href="../koblinger/">Koblinger</a>
+      <a href="../begreper/" aria-current="page">Begreper</a>
+      <a href="../om/">Om</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap page-head">
+    <span class="eyebrow">Begrepsregister · SKOS-mønster</span>
+    <h1>Begreper</h1>
+    <p class="lead">Et begrep i regel-ide er et <strong>term + definisjon + lovreferanse</strong>-trippel, etter samme mønster som SKOS (Simple Knowledge Organization System): én autoritativ term, en definisjon med hjemmel i lovteksten, og — der det finnes — et reverseoppslag på hvor termen faktisk er brukt i andre rettskilder. Registeret under viser <strong>faktabegrep</strong> (ting), <strong>handlingsbegrep</strong> (handlinger) og <strong>gruppebegrep</strong> (aktørgrupper). Virksomheters egne navneformer hører til den enkelte virksomhetens side, ikke her.</p>
+  </div>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="stat-row" id="stat-row">
+        <div class="stat-tile is-loading" data-stat="total"><span class="n">–</span><span class="l">begreper totalt i registeret</span></div>
+        <div class="stat-tile is-loading" data-stat="vist"><span class="n">–</span><span class="l">vist her (fakta-/handlings-/gruppebegrep)</span></div>
+        <div class="stat-tile is-loading" data-stat="publisert"><span class="n">–</span><span class="l">med status «publisert»</span></div>
+        <div class="stat-tile" data-stat="detalj"><span class="n">4</span><span class="l">med full detaljvisning under</span></div>
+      </div>
+
+      <div class="table-scroll">
+        <table class="ds-table data-table" id="begrep-table">
+          <thead>
+            <tr>
+              <th scope="col">Term</th>
+              <th scope="col">Type</th>
+              <th scope="col">Status</th>
+              <th scope="col">Hjemlet i (lovreferanse)</th>
+              <th scope="col">Detaljvisning</th>
+            </tr>
+          </thead>
+          <tbody id="begrep-tbody">
+            <tr><td colspan="5" class="loading-note">Laster begrepsregister …</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Fire eksempler i dybden</span>
+        <h2>Definisjon og reverseoppslag «brukt i rettskilder»</h2>
+        <p>De fire begrepene under har egne eksporterte detaljfiler (<code>GET /api/begreper/{id}</code> + <code>/brukt-i-rettskilder</code>), hentet i sin helhet fra en kjørende instans. Reverseoppslaget viser hvilke andre rettskilder — forskrifter, retningslinjer, kommunale nettsider — som faktisk bruker termen, gruppert per rettskilde.</p>
+      </div>
+      <div id="begrep-details">
+        <div class="loading-note">Laster detaljvisninger …</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="border-bottom:none;">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Hvordan begreper oppdages</span>
+        <h2>Ikke ren manuell tagging</h2>
+        <p>Begrepsregisteret fylles ikke bare ved at noen skriver inn en term for hånd. Regel-ide har mekanismer for å <em>oppdage</em> kandidatbegrep i importert lovtekst — blant annet ved å se etter definisjonsmønstre som følger et verb («X <em>beregnes</em> som …», «Y <em>angir</em> …») rett etter en kandidatterm, og ved å rense bort omkringliggende hermetegn og annen tegnsetting fra selve termen før den lagres. Alle begrepene i registeret under går uansett gjennom manuell kvalitetssikring før de settes til status «publisert» — se statusfeltet i tabellen. De eksporterte JSON-filene i denne showcasen inneholder ikke selve oppdagelsesmekanismens mellomsteg (bare sluttresultatet: term, definisjon, lovreferanse), så det gjengis her i tekst framfor med tall som ikke finnes i de eksporterte dataene.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <h3>Om nettstedet</h3>
+      <p style="font-size:var(--ds-body-sm-font-size); color:var(--ds-color-text-subtle); max-width:32ch; margin:0;">Midlertidig showcase av <a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">regel-ide</a>, ikke selve produktet.</p>
+    </div>
+    <div>
+      <h3>Sider</h3>
+      <ul>
+        <li><a href="../rettskilder/">Rettskilder</a></li>
+        <li><a href="../grupper/">Grupper</a></li>
+        <li><a href="../koblinger/">Koblinger</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Kildekode</h3>
+      <ul>
+        <li><a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">FinnurO/regel-ide</a></li>
+        <li><a href="https://github.com/FinnurO/regel-ide/blob/main/nettside/data/README.md" target="_blank" rel="noopener">Datakontrakt</a></li>
+      </ul>
+    </div>
+    <p class="fine">Data eksportert fra en kjørende lokal instans på et gitt tidspunkt — ikke sanntid. Se «_kilde»-felt i <a href="../data/begreper/oversikt.json" target="_blank" rel="noopener">oversikt.json</a>.</p>
+  </div>
+</footer>
+
+<button type="button" class="ds-button feedback-fab" data-color="accent" id="feedback-open-btn" aria-haspopup="dialog">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+  <span class="btn-label">Gi tilbakemelding</span>
+</button>
+
+<dialog class="feedback-dialog" id="feedback-dialog" aria-labelledby="feedback-dialog-title">
+  <div class="feedback-dialog__body">
+    <h2 id="feedback-dialog-title">Gi tilbakemelding</h2>
+    <p class="lead">Sendes som et innspill på GitHub — du logger inn med (eller oppretter) en gratis GitHub-konto for å fullføre innsendingen der.</p>
+    <p class="feedback-hint">Vi tar automatisk med hvilke seksjoner du har åpnet på siden. Vil du sitere en bestemt setning: lukk dette vinduet, marker teksten på siden, og trykk «Gi tilbakemelding» på nytt.</p>
+    <div class="feedback-context" id="feedback-context"></div>
+    <div class="feedback-field">
+      <label for="feedback-text">Hva vil du si noe om?</label>
+      <textarea id="feedback-text" placeholder="Skriv tilbakemeldingen din her …"></textarea>
+    </div>
+    <div class="feedback-actions">
+      <button type="button" class="ds-button" data-variant="tertiary" data-color="neutral" id="feedback-cancel-btn">Avbryt</button>
+      <button type="button" class="ds-button" data-color="accent" id="feedback-submit-btn">Send inn på GitHub →</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/feedback.js"></script>
+<script>
+(function () {
+  var S = RegelIdeSite;
+  var DETAIL_IDS = [
+    '0fe408ce-125b-480c-a17d-b04b44bc70cc', // kommunens skjønnsutøvelse ved bevilling
+    'c98ed4b3-fb01-4159-ae14-fe4cbd9a378d', // skjenketid
+    'a7fbcd03-96c4-4216-82c6-60d602bf0543', // styrer og stedfortreder
+    'e9c77642-1c56-4152-bf60-477ea598d7b1'  // uklanderlig vandel
+  ];
+
+  /** Gjør en lovdata-eid ("…/nor/§4-4" eller "…/nor/§3-1/ledd-1/punkt-1") om til en lesbar hjemmelstekst. */
+  function lovLabel(eid) {
+    if (!eid) return null;
+    var i = eid.indexOf('nor/');
+    var rest = i >= 0 ? eid.slice(i + 4) : eid;
+    var parts = rest.split('/').filter(Boolean);
+    if (!parts.length) return null;
+    return parts.map(function (p) {
+      return p.charAt(0) === '§' ? p.replace(/^§/, '§ ') : p.replace(/-/g, ' ');
+    }).join(' ');
+  }
+
+  function typeLabel(b) {
+    if (b.begrepskategori === 'gruppe') return 'Gruppebegrep';
+    if (b.begrepstype === 'faktabegrep') return 'Faktabegrep';
+    if (b.begrepstype === 'handlingsbegrep') return 'Handlingsbegrep';
+    return '—';
+  }
+
+  function statusPill(status) {
+    var tone = status === 'publisert' ? 'success' : status === 'utkast' ? 'neutral' : 'neutral';
+    return '<span class="pill" data-tone="' + tone + '">' + S.esc(status || 'ukjent') + '</span>';
+  }
+
+  function renderRegister(oversikt) {
+    var tbody = document.getElementById('begrep-tbody');
+    var rows = (oversikt.begreper || []).slice().sort(function (a, b) { return a.term.localeCompare(b.term, 'nb'); });
+    if (!rows.length) {
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">Ingen begreper i registeret.</div></td></tr>';
+      return;
+    }
+    tbody.innerHTML = rows.map(function (b) {
+      var label = lovLabel(b.lovreferanseEid);
+      var hjemmel = label
+        ? '<a href="' + S.esc(b.lovreferanseEid) + '" target="_blank" rel="noopener">' + S.esc(label) + '</a>'
+        : '—';
+      var hasDetail = DETAIL_IDS.indexOf(b.id) !== -1;
+      return '<tr>' +
+        '<td><strong>' + S.esc(b.term) + '</strong></td>' +
+        '<td>' + S.esc(typeLabel(b)) + '</td>' +
+        '<td>' + statusPill(b.status) + '</td>' +
+        '<td>' + hjemmel + '</td>' +
+        '<td>' + (hasDetail ? '<a class="ds-link" href="#begrep-' + S.esc(b.id) + '">Se under ↓</a>' : '<span style="color:var(--ds-color-text-subtle);">—</span>') + '</td>' +
+        '</tr>';
+    }).join('');
+  }
+
+  function groupByRettskilde(list) {
+    var byId = {}, order = [];
+    (list || []).forEach(function (item) {
+      if (!byId[item.rettskildeId]) {
+        byId[item.rettskildeId] = { tittel: item.rettskildeTittel, occurrences: [] };
+        order.push(item.rettskildeId);
+      }
+      byId[item.rettskildeId].occurrences.push(item);
+    });
+    return order.map(function (id) { return byId[id]; });
+  }
+
+  function renderDetailCard(b) {
+    var label = lovLabel(b.lovreferanseEid);
+    var lovreferanse = label
+      ? '<a href="' + S.esc(b.lovreferanseEid) + '" target="_blank" rel="noopener">' + S.esc(label) + '</a>'
+      : 'Ingen lovreferanse registrert';
+
+    var grupper = groupByRettskilde(b.bruktIRettskilder);
+    var bruktHtml = grupper.length
+      ? '<ul class="tree" style="gap:var(--ds-size-3);">' + grupper.map(function (g) {
+          var occHtml = g.occurrences.map(function (o) {
+            return '<li><span>' + S.esc(o.snippet || '') + '</span></li>';
+          }).join('');
+          return '<li><div class="tree-node">' +
+            '<div class="tree-node__head">' + S.esc(g.tittel) + ' <span class="pill" data-tone="neutral">' + g.occurrences.length + ' forekomst' + (g.occurrences.length === 1 ? '' : 'er') + '</span></div>' +
+            '<ul class="member-list" style="margin-top:var(--ds-size-2);">' + occHtml + '</ul>' +
+            '</div></li>';
+        }).join('') + '</ul>'
+      : '<p class="empty-state">Ikke funnet brukt i noen annen rettskildetekst i denne showcasen.</p>';
+
+    return '<div class="ds-card" id="begrep-' + S.esc(b.id) + '" style="margin-bottom:var(--ds-size-6);">' +
+      '<div style="padding:var(--ds-size-2);">' +
+        '<div style="display:flex; align-items:center; gap:var(--ds-size-3); flex-wrap:wrap; margin-bottom:var(--ds-size-3);">' +
+          '<h3 style="margin:0;">' + S.esc(b.term) + '</h3>' +
+          '<span class="pill" data-tone="accent">' + S.esc(typeLabel(b)) + '</span>' +
+          statusPill(b.status) +
+        '</div>' +
+        '<blockquote class="quote-block" style="margin:0 0 var(--ds-size-5);">' + S.esc(b.definisjon || 'Ingen definisjon registrert.') + '<cite>Hjemlet i ' + lovreferanse + '</cite></blockquote>' +
+        '<h4 style="font-size:var(--ds-body-xs-font-size); text-transform:uppercase; letter-spacing:.03em; color:var(--ds-color-text-subtle); margin:0 0 var(--ds-size-2);">Brukt i rettskilder (reverseoppslag)</h4>' +
+        bruktHtml +
+      '</div>' +
+    '</div>';
+  }
+
+  Promise.all(
+    [S.fetchData('begreper/oversikt.json')].concat(
+      DETAIL_IDS.map(function (id) { return S.fetchData('begreper/' + id + '.json'); })
+    )
+  ).then(function (results) {
+    var oversikt = results[0];
+    var detaljer = results.slice(1);
+
+    if (S.isSkeleton(oversikt)) {
+      document.getElementById('begrep-tbody').innerHTML = '<tr><td colspan="5">' + S.skeletonBanner(oversikt) + '</td></tr>';
+      document.getElementById('begrep-details').innerHTML = S.skeletonBanner(oversikt);
+    } else {
+      function setStat(key, n) {
+        var tile = document.querySelector('.stat-tile[data-stat="' + key + '"]');
+        if (!tile) return;
+        tile.classList.remove('is-loading');
+        tile.querySelector('.n').textContent = n.toLocaleString('nb-NO');
+      }
+      setStat('total', oversikt.antallTotaltIRegisteret != null ? oversikt.antallTotaltIRegisteret : oversikt.antall);
+      setStat('vist', (oversikt.begreper || []).length);
+      setStat('publisert', (oversikt.begreper || []).filter(function (b) { return b.status === 'publisert'; }).length);
+
+      renderRegister(oversikt);
+      document.getElementById('begrep-details').innerHTML = detaljer.map(renderDetailCard).join('');
+    }
+  }).catch(function (err) {
+    S.renderError(document.getElementById('begrep-tbody').parentElement.parentElement, err);
+    S.renderError(document.getElementById('begrep-details'), err);
+  });
+})();
+</script>
+</body>
+</html>

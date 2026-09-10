@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="nb" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Grupper — Regel-IDE showcase</title>
+<meta name="description" content="Gruppebegrep og gruppemedlemskap i regel-ide, med forvaltningsområdet for samiske språk (sameloven § 3-1) som gjennomgående eksempel.">
+<link rel="canonical" href="https://finnuro.github.io/regel-ide/grupper/">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/fonts.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet-theme.css">
+<link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body>
+
+<a class="ds-link skip-to-content" href="#main">Hopp til innhold</a>
+
+<div class="disclaimer-bar">
+  <div class="wrap">
+    <span>📎 <strong>Midlertidig showcase</strong> — statisk fasade, ikke selve applikasjonen.</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand plain" href="../">
+      <span class="brand__mark" aria-hidden="true">RI</span>
+      <span class="brand__text">
+        <span class="brand__title">Regel-IDE</span>
+        <span class="brand__subtitle">Digital rettsstat — showcase</span>
+      </span>
+    </a>
+    <nav class="main-nav" aria-label="Hovedmeny">
+      <a href="../">Forside</a>
+      <a href="../rettskilder/">Rettskilder</a>
+      <a href="../virksomheter/">Virksomheter</a>
+      <a href="../grupper/" aria-current="page">Grupper</a>
+      <a href="../koblinger/">Koblinger</a>
+      <a href="../begreper/">Begreper</a>
+      <a href="../om/">Om</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap page-head">
+    <span class="eyebrow">Gruppe av gruppe · drill-through til medlemmene</span>
+    <h1>Grupper</h1>
+    <p class="lead">Et gruppebegrep kan selv være medlem av et annet gruppebegrep — grafen er en DAG, ikke et tre. Hovedeksempelet er <strong>forvaltningsområdet for samiske språk</strong> (sameloven § 3-1): loven definerer tre kommunekategorier som medlemsgrupper, mens en egen forskrift navngir hvilke kommuner som konkret er medlemmer av hver kategori.</p>
+  </div>
+
+  <section class="section" style="border-bottom:none;">
+    <div class="wrap">
+      <div id="gruppe-tree" class="loading-note">Laster gruppehierarki …</div>
+
+      <div class="section-head" style="margin-top:var(--ds-size-14);">
+        <span class="kicker">Alle gruppebegrep</span>
+        <h2>Fullstendig register</h2>
+        <p>Alle gruppebegrep regel-ide kjenner til, ikke bare de fire i eksempelet over.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table data-table">
+          <thead><tr><th scope="col">Term</th><th scope="col">Status</th><th scope="col">Hjemlet i (lovreferanse)</th></tr></thead>
+          <tbody id="register-tbody"><tr><td colspan="3" class="loading-note">Laster …</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <h3>Om nettstedet</h3>
+      <p style="font-size:var(--ds-body-sm-font-size); color:var(--ds-color-text-subtle); max-width:32ch; margin:0;">Midlertidig showcase av <a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">regel-ide</a>, ikke selve produktet.</p>
+    </div>
+    <div>
+      <h3>Sider</h3>
+      <ul>
+        <li><a href="../virksomheter/">Virksomheter</a></li>
+        <li><a href="../koblinger/">Koblinger (flaggskip)</a></li>
+        <li><a href="../begreper/">Begreper</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Kildekode</h3>
+      <ul>
+        <li><a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">FinnurO/regel-ide</a></li>
+        <li><a href="https://github.com/FinnurO/regel-ide/blob/main/nettside/data/README.md" target="_blank" rel="noopener">Datakontrakt</a></li>
+      </ul>
+    </div>
+    <p class="fine">Data eksportert fra en kjørende lokal instans på et gitt tidspunkt — ikke sanntid.</p>
+  </div>
+</footer>
+
+<button type="button" class="ds-button feedback-fab" data-color="accent" id="feedback-open-btn" aria-haspopup="dialog">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+  <span class="btn-label">Gi tilbakemelding</span>
+</button>
+
+<dialog class="feedback-dialog" id="feedback-dialog" aria-labelledby="feedback-dialog-title">
+  <div class="feedback-dialog__body">
+    <h2 id="feedback-dialog-title">Gi tilbakemelding</h2>
+    <p class="lead">Sendes som et innspill på GitHub — du logger inn med (eller oppretter) en gratis GitHub-konto for å fullføre innsendingen der.</p>
+    <p class="feedback-hint">Vi tar automatisk med hvilke seksjoner du har åpnet på siden. Vil du sitere en bestemt setning: lukk dette vinduet, marker teksten på siden, og trykk «Gi tilbakemelding» på nytt.</p>
+    <div class="feedback-context" id="feedback-context"></div>
+    <div class="feedback-field">
+      <label for="feedback-text">Hva vil du si noe om?</label>
+      <textarea id="feedback-text" placeholder="Skriv tilbakemeldingen din her …"></textarea>
+    </div>
+    <div class="feedback-actions">
+      <button type="button" class="ds-button" data-variant="tertiary" data-color="neutral" id="feedback-cancel-btn">Avbryt</button>
+      <button type="button" class="ds-button" data-color="accent" id="feedback-submit-btn">Send inn på GitHub →</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/feedback.js"></script>
+<script>
+(function () {
+  var S = RegelIdeSite;
+  var FORV = '7057ff4b-bc2e-4d23-af7b-c681a082ea32';
+  var KATEGORIER = [
+    '52dcc48d-d228-42d6-8bb1-d9397e29b734', // språkutviklingskommuner
+    'ea37d4ce-b7a2-439b-91b0-b79920759ddf', // språkvitaliseringskommuner
+    '86eefdfb-3c5f-46e4-80ec-95ea5dc51dd8'  // språkstimuleringskommuner
+  ];
+
+  function hjemmelLabel(rettskildeId, paragrafspenn, rettskilder) {
+    var r = rettskilder && rettskilder[rettskildeId];
+    var navn = r ? (r.kortnavn || r.tittel) : rettskildeId;
+    var eid = (paragrafspenn && paragrafspenn[0] && paragrafspenn[0].fraEid) || '';
+    var m = eid.match(/§[^/]+(\/[a-zæøå-]+-\d+)*/i);
+    var paragraf = m ? m[0].replace(/\//g, ' ') : '';
+    return S.esc(navn) + (paragraf ? ' ' + S.esc(paragraf) : '');
+  }
+
+  function virksomhetLink(id, navnMap) {
+    var navn = navnMap[id] || id;
+    return '<a href="../virksomheter/#' + S.esc(id) + '">' + S.esc(navn) + '</a>';
+  }
+
+  Promise.all([
+    S.fetchData('grupper/' + FORV + '.json'),
+    S.fetchData('grupper/' + KATEGORIER[0] + '.json'),
+    S.fetchData('grupper/' + KATEGORIER[1] + '.json'),
+    S.fetchData('grupper/' + KATEGORIER[2] + '.json'),
+    S.fetchData('grupper/register.json'),
+    S.fetchData('virksomheter/katalog.json'),
+    S.fetchData('rettskilder/katalog.json')
+  ]).then(function (r) {
+    var forv = r[0], kategoriData = [r[1], r[2], r[3]], register = r[4], virksomheterData = r[5], rettskilderData = r[6];
+
+    if (S.isSkeleton(forv)) {
+      document.getElementById('gruppe-tree').innerHTML = S.skeletonBanner(forv);
+    } else {
+      var navnMap = {};
+      (virksomheterData.virksomheter || []).forEach(function (v) { navnMap[v.id] = v.visningsnavn || v.navn; });
+      var rettskilderMap = {};
+      (rettskilderData.rettskilder || []).forEach(function (rk) { rettskilderMap[rk.id] = rk; });
+
+      var direkteVirksomheter = (forv.tildelinger || []).map(function (t) {
+        return '<li><span>' + virksomhetLink(t.virksomhetId, navnMap) + ' <span class="pill" data-tone="accent">direkte i gruppen</span></span>' +
+          '<span class="hjemmel">' + hjemmelLabel(t.hjemmelRettskildeId, t.paragrafspenn, rettskilderMap) + '</span></li>';
+      }).join('');
+
+      var kategoriHtml = kategoriData.map(function (kat) {
+        var medlemmer = (kat.tildelinger || []).map(function (t) {
+          return '<li><span>' + virksomhetLink(t.virksomhetId, navnMap) + '</span>' +
+            '<span class="hjemmel">' + hjemmelLabel(t.hjemmelRettskildeId, t.paragrafspenn, rettskilderMap) + '</span></li>';
+        }).join('');
+        // hjemmel for selve medlemskapet (kategori er medlem av forvaltningsområdet)
+        var medlemskap = (forv.medlemsgrupper || []).find(function (m) { return m.underordnetGruppeBegrepId === kat.id; });
+        var medlemskapHjemmel = medlemskap ? hjemmelLabel(medlemskap.hjemmelRettskildeId, medlemskap.paragrafspenn, rettskilderMap) : '';
+        return '<li class="tree">' +
+          '<div class="tree-node">' +
+            '<div class="tree-node__head"><a href="../begreper/#' + S.esc(kat.id) + '">' + S.esc(kat.term) + '</a> <span class="pill" data-tone="neutral">medlemsgruppe</span></div>' +
+            (medlemskapHjemmel ? '<div class="tree-node__hjemmel">Medlemskap hjemlet i ' + medlemskapHjemmel + '</div>' : '') +
+            '<h4 style="font-size:var(--ds-body-xs-font-size); text-transform:uppercase; letter-spacing:.03em; color:var(--ds-color-text-subtle); margin:var(--ds-size-3) 0 var(--ds-size-1);">Virksomheter i gruppen (' + (kat.tildelinger || []).length + ')</h4>' +
+            '<ul class="member-list">' + (medlemmer || '<li>Ingen registrert.</li>') + '</ul>' +
+          '</div>' +
+        '</li>';
+      }).join('');
+
+      document.getElementById('gruppe-tree').innerHTML =
+        '<ul class="tree">' +
+          '<li>' +
+            '<div class="tree-node">' +
+              '<div class="tree-node__head"><a href="../begreper/#' + S.esc(forv.id) + '">' + S.esc(forv.term) + '</a> <span class="pill" data-tone="accent">overordnet gruppe</span></div>' +
+              '<div class="tree-node__hjemmel">Definert i ' + hjemmelLabel(forv.lovkildeId, [{ fraEid: forv.lovreferanseEid }], rettskilderMap) + '</div>' +
+              (direkteVirksomheter ? '<h4 style="font-size:var(--ds-body-xs-font-size); text-transform:uppercase; letter-spacing:.03em; color:var(--ds-color-text-subtle); margin:var(--ds-size-3) 0 var(--ds-size-1);">Direkte medlemmer (uten mellomliggende kategori)</h4><ul class="member-list">' + direkteVirksomheter + '</ul>' : '') +
+            '</div>' +
+            '<ul class="tree">' + kategoriHtml + '</ul>' +
+          '</li>' +
+        '</ul>';
+    }
+
+    var regRows = (register.gruppebegrep || []).slice().sort(function (a, b) { return a.term.localeCompare(b.term, 'nb'); });
+    document.getElementById('register-tbody').innerHTML = regRows.map(function (g) {
+      return '<tr><td>' + S.esc(g.term) + '</td><td><span class="pill" data-tone="' + (g.status === 'publisert' ? 'success' : 'neutral') + '">' + S.esc(g.status) + '</span></td><td>' + S.esc(g.lovreferanseEid || '—') + '</td></tr>';
+    }).join('');
+  }).catch(function (err) {
+    S.renderError(document.getElementById('gruppe-tree'), err);
+  });
+})();
+</script>
+</body>
+</html>
