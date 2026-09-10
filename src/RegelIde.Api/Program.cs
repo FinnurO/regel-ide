@@ -57,6 +57,10 @@ builder.Services.AddScoped<NavnekandidatOppdagelseTjeneste>();
 // m.fl. lenger ned i denne fila.
 builder.Services.AddHttpClient<EksternNavneoppslagTjeneste>();
 builder.Services.AddScoped<BegrepsforekomstTjeneste>();
+// [Ny, hjemmel-presisjon-runden, 2026-09-10, issue #217] Etterfylling av ledd-presisjon på hjemler
+// som ble importert før presisjonen ble lest — parser den ALLEREDE LAGREDE rå-HTML-en, henter
+// ingenting fra Lovdata.
+builder.Services.AddScoped<HjemmelPresisjonEtterfyllingTjeneste>();
 builder.Services.AddScoped<BegrepsoppdagelseSveipTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
 builder.Services.AddScoped<RegelnoderegisterTjeneste>();
@@ -1346,6 +1350,18 @@ app.MapGet("/api/lovdata-importstatus", async (bool? importert, RegelIdeDbContex
 
 // ---------- Administrasjon-Lovdata-resynk (GitHub-issue #104): manuell trigger, database-lagret ----------
 // ---------- frekvensstyring, og synlig kjøre-historikk for LovdataFullimportTjeneste.               ----------
+
+// [Ny, hjemmel-presisjon-runden, 2026-09-10, issue #217] Engangs-/gjentakbar etterfylling: peker
+// eksisterende hjemmelrader på den noden kilden faktisk presiserer («§ 13-1 fjerde ledd» →
+// …/§13-1/ledd-4). Idempotent, og verdt å kjøre på nytt etter at flere lover er importert — en
+// presisering som ikke kunne løses fordi loven manglet, løses da.
+app.MapPost("/api/administrasjon/hjemmel-presisjon-etterfylling",
+        async (HjemmelPresisjonEtterfyllingTjeneste tjeneste, CancellationToken ct) =>
+            Results.Ok(await tjeneste.KjorAsync(ct)))
+    .WithName("EtterfyllHjemmelPresisjon")
+    .WithSummary("Oppgraderer hjemmelrader fra paragraf- til ledd-nivå ved å reparse den lagrede rå " +
+                 "Lovdata-HTML-en (issue #217). Henter ingenting eksternt. Rapporterer tall per utgang.")
+    .WithOpenApi();
 
 var lovdataResynk = app.MapGroup("/api/administrasjon/lovdata-resynk").WithOpenApi();
 

@@ -110,4 +110,68 @@ public class HjemmelKonverteringTests
         var ex = Assert.Throws<FormatException>(() => LovdataKonverterer.Konverter(html));
         Assert.Contains("Ingen gjettet fallback", ex.Message);
     }
+
+    // ---------- Ledd-presisjon (issue #217, 2026-09-10) ----------
+
+    [Fact]
+    public void Hjemmel_med_ledd_i_kilden_barer_presiseringen_videre()
+    {
+        // NTNUs ph.d.-forskrift: «§ 13-1 fjerde ledd». basedOn har BARE paragrafen, miscInformation har
+        // ledd-et. Uten sammenstillingen av de to feltene forsvinner «fjerde ledd» — det var issue #217.
+        var resultat = LovdataKonverterer.Konverter(Testdata.LesNtnuPhdForskriften(), new DateOnly(2026, 9, 10));
+
+        var hjemmel = Assert.Single(resultat.Hjemler);
+        Assert.Equal("https://lovdata.no/eli/lov/2024/03/08/9/nor/§13-1", hjemmel.Eid);
+        Assert.Equal("ledd/4", hjemmel.Presisering);
+    }
+
+    [Fact]
+    public void Hjemmel_uten_presisering_i_kilden_far_ingen_presisering()
+    {
+        // Alkoholforskriftens 21 hjemler har ingen presisering noe sted — paragrafnivå er da RIKTIG,
+        // ikke en mangel (issue #217 «ingen gjettet ledd-presisjon»). Denne testen er vakten mot at
+        // sammenstillingen skulle finne på å tilordne en presisering til nærmeste paragraf.
+        var resultat = LovdataKonverterer.Konverter(Testdata.LesAlkoholforskriften(), new DateOnly(2026, 7, 23));
+
+        Assert.All(resultat.Hjemler, h => Assert.Null(h.Presisering));
+    }
+
+    [Fact]
+    public void Presisering_hentes_bare_fra_hjemmelslinja_ikke_fra_andre_metadatalinjer()
+    {
+        // «Annet om dokumentet» rommer flere linjer. En ledd-lenke i en linje som IKKE er hjemmelslinja
+        // skal ikke leses som hjemmelens presisering — her flyttes ledd-lenken til en «Endres av»-linje,
+        // og presiseringen skal da forsvinne helt.
+        var html = Testdata.LesNtnuPhdForskriften()
+            .Replace("<strong>Hjemmel:</strong>", "<strong>Endres av:</strong>");
+
+        var resultat = LovdataKonverterer.Konverter(html, new DateOnly(2026, 9, 10));
+
+        Assert.Null(Assert.Single(resultat.Hjemler).Presisering);
+    }
+
+    [Fact]
+    public void Presiseringsoppslaget_fra_raa_html_finner_samme_ledd_som_parsingen()
+    {
+        // Etterfyllingstjenesten (HjemmelPresisjonEtterfyllingTjeneste) går denne veien inn, mot rå
+        // HTML lagret ved import — den skal se NØYAKTIG det samme som en fersk import ser.
+        var oppslag = LovdataHtmlParser.TolkHjemmelPresiseringer(Testdata.LesNtnuPhdForskriften());
+
+        Assert.Equal("ledd/4", oppslag["https://lovdata.no/eli/lov/2024/03/08/9/nor/§13-1"]);
+    }
+
+    [Fact]
+    public void Presiseringsoppslaget_ignorerer_eu_og_avtale_lenker()
+    {
+        // Hjemmelslinja inneholder målt 756 eu/- og 53 avtale/-lenker på tvers av korpuset. De er ikke
+        // norske rettskilder, og oppslaget her er for PRESISERING av hjemler basedOn alt har funnet —
+        // ikke en ny hjemmelskilde. De skal falle stille ut, ikke kaste.
+        var html = Testdata.LesNtnuPhdForskriften()
+            .Replace("<strong>Hjemmel:</strong>",
+                "<strong>Hjemmel:</strong> <a href=\"eu/32007l0045\">2007/45/EF</a>");
+
+        var oppslag = LovdataHtmlParser.TolkHjemmelPresiseringer(html);
+
+        Assert.Equal("ledd/4", Assert.Single(oppslag).Value);
+    }
 }

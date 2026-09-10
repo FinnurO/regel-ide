@@ -8,6 +8,19 @@ internal static class Testdata
     public static string LesAlkoholforskriften() =>
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "alkoholforskriften-FOR-2005-06-08-538.html"));
 
+    /// <summary>
+    /// [Ny, hjemmel-presisjon-runden, 2026-09-10, issue #217] Ekte, ubearbeidet Lovdata-HTML — den
+    /// forskriften Johann pekte på: hjemmelen er «§ 13-1 fjerde ledd», og dokumentet har presisjonen
+    /// i ÉN href («miscInformation»: <c>lov/2024-03-08-9/§13-1/ledd/4</c>) men ikke i den andre
+    /// («basedOn»: <c>lov/2024-03-08-9/§13-1</c>). Den ENESTE fixturen som viser de to feltene sprike,
+    /// og derfor grunnlaget for hele runden.
+    ///
+    /// <para>Hentet fra vår egen base 2026-09-10 (rettskilde 5a1f2d39, rå kilde lagret ved import) —
+    /// bitidentisk med det vi faktisk importerte, ikke en ny henting fra Lovdata.</para>
+    /// </summary>
+    public static string LesNtnuPhdForskriften() =>
+        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "ntnu-phd-forskriften-FOR-2026-02-03-387.html"));
+
     public static string LesForvaltningsloven() =>
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "forvaltningsloven-LOV-1967-02-10.html"));
 

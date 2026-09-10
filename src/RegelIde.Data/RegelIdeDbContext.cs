@@ -531,6 +531,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.HjemmelEid).HasColumnName("hjemmel_eid");
             e.Property(x => x.HjemmelRettskildeId).HasColumnName("hjemmel_rettskilde_id");
             e.Property(x => x.Sorteringsrekkefolge).HasColumnName("sorteringsrekkefolge");
+            // [Ny, hjemmel-presisjon-runden, 2026-09-10, issue #217] Se entitetskommentaren for hvorfor
+            // en ULØST presisering lagres i stedet for å forsvinne.
+            e.Property(x => x.UlostPresisering).HasColumnName("ulost_presisering");
 
             e.HasOne<RettskildeEntitet>().WithMany()
                 .HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);

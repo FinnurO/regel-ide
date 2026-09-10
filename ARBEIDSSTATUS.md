@@ -31,7 +31,23 @@ skal kunne fortsette uten å utlede alt på nytt. **Oppdater den etter hvert ste
 
 ## Branches i luften
 
-**Ingen.** Alt som var i gang er landet, og worktreene under `ri-wt/` er ryddet.
+Begge er **ferdige og verifiserte**, og venter kun på Johanns gjennomgang/merge. Merges de, skal de
+merges med `gh pr merge <nr> --squash --delete-branch` (CLAUDE.md §13).
+
+- **`kandidatsider-delt` → PR #226** — lukker #216 og #167. Fire commits: delt sortering/avkryssing,
+  delt node-etikett (rettet feil paragraf på alle tre sidene), massehandling på begrepskandidatsiden
+  med nye batch-endepunkter, og bunnjustering av raden. Api 294/294, Data 710/710, vitest 62/62.
+- **`hjemmel-ledd-presisjon` → PR #227** — lukker #217. Hjemmelen peker nå på leddet kilden
+  presiserer. 416 av 22 262 hjemmelrader oppgradert på ekte korpus. Kildekonvertering 115/115,
+  Api 294/294, Data 715/715.
+
+**Utført på Johanns base (ikke reverserbart uten ny kjøring):**
+`POST /api/administrasjon/hjemmel-presisjon-etterfylling` er kjørt én gang, 2026-09-10. Den er
+idempotent, så en ny kjøring er trygg — og verdt å gjenta etter at flere lover er importert.
+
+**Til Johann, blokkert for meg:** 56 fjerngrener med merget PR ligger igjen på origin.
+`git push origin --delete …` blir konsekvent avslått av auto-modus-klassifiseringen. Lokalt er det
+ryddet (21 → 3). Kommandoen med full grenliste står i økt-loggen.
 
 ---
 

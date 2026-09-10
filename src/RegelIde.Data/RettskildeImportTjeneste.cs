@@ -326,15 +326,68 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
         foreach (var h in hjemler.DistinctBy(h => h.Eid))
         {
             var hjemmelRettskildeId = await FinnEllerOpprettReferanseStubAsync(h.Eid, ct);
+            var (eid, ulost) = await LosPresiseringAsync(h, hjemmelRettskildeId, ct);
             db.RettskildeHjemler.Add(new RettskildeHjemmelEntitet
             {
                 Id = Guid.NewGuid(),
                 RettskildeId = rettskildeId,
-                HjemmelEid = h.Eid,
+                HjemmelEid = eid,
                 HjemmelRettskildeId = hjemmelRettskildeId,
                 Sorteringsrekkefolge = h.Sorteringsrekkefolge,
+                UlostPresisering = ulost,
             });
         }
+    }
+
+    /// <summary>
+    /// [Ny, hjemmel-presisjon-runden, 2026-09-10, issue #217] Peker hjemmelen på den noden kilden
+    /// faktisk presiserer — «§ 13-1 fjerde ledd» blir <c>…/§13-1/ledd-4</c>, ikke <c>…/§13-1</c>.
+    ///
+    /// <para>
+    /// En hjemmel ER en bestemmelse. Fjerde ledd er en annen regel enn første, og en modelløren som
+    /// følger en paragrafnivå-hjemmel må selv finne ut hvilket ledd som ga myndigheten.
+    /// </para>
+    ///
+    /// <para>
+    /// Oppløsningen går mot EKTE noder, aldri mot en konstruert eId: finnes ikke ledd-noden i den
+    /// refererte loven, beholdes paragrafnivået (som er upresist, men riktig) og presiseringen lagres i
+    /// <see cref="RettskildeHjemmelEntitet.UlostPresisering"/> slik at tapet er synlig. Det er også
+    /// utfallet for en referanse-stub, som per definisjon ikke har noder.
+    /// </para>
+    ///
+    /// <para>
+    /// Lovdatas form er «ledd/4», nodenes er «ledd-4». Presiseringen prøves fra DYPEST til grunnest
+    /// («ledd/3/bokstav/a» → først <c>ledd-3/bokstav-a</c>, så <c>ledd-3</c>): nodetreet har målt bare
+    /// paragraf/ledd/punkt/kapittel, så bokstav-nivået faller av seg selv tilbake til leddet uten at
+    /// noe gjettes, og den dagen bokstav-noder finnes vil samme kode treffe dem.
+    /// </para>
+    /// </summary>
+    private async Task<(string Eid, string? UlostPresisering)> LosPresiseringAsync(
+        RettskildeHjemmel hjemmel, Guid hjemmelRettskildeId, CancellationToken ct)
+    {
+        if (string.IsNullOrEmpty(hjemmel.Presisering)) return (hjemmel.Eid, null);
+
+        var ledd = hjemmel.Presisering.Split('/');
+        // Par sammen ("ledd", "4") → "ledd-4"; en ujevn hale ignoreres i stedet for å gjettes.
+        var segmenter = new List<string>();
+        for (var i = 0; i + 1 < ledd.Length; i += 2)
+        {
+            segmenter.Add($"{ledd[i]}-{ledd[i + 1]}");
+        }
+
+        for (var dybde = segmenter.Count; dybde > 0; dybde--)
+        {
+            var kandidat = $"{hjemmel.Eid}/{string.Join('/', segmenter.Take(dybde))}";
+            if (await db.RettskildeNoder.AnyAsync(n => n.RettskildeId == hjemmelRettskildeId && n.Eid == kandidat, ct))
+            {
+                // Løste vi bare deler av presiseringen, er resten fortsatt et tap som skal være synlig.
+                var rest = dybde == segmenter.Count ? null : string.Join('/', segmenter.Skip(dybde));
+                return (kandidat, rest);
+            }
+        }
+        // Ingenting løste. Presiseringen lagres i NODEFORM («ledd-4»), samme form som den
+        // delvis-løste resten over — feltet skal ha én form, ikke to avhengig av hvor langt vi kom.
+        return (hjemmel.Eid, segmenter.Count > 0 ? string.Join('/', segmenter) : hjemmel.Presisering);
     }
 
     /// <summary>

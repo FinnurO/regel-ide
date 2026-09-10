@@ -425,7 +425,15 @@ export default function RettskildeDetalj() {
   // henteregister-mønster som `noderPerRettskilde`/`sikreNoderFor` i TjenesteDetalj.tsx.
   const [referanseNoderPerRettskilde, setReferanseNoderPerRettskilde] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
   useEffect(() => {
-    for (const rettskildeId of new Set(referanser.map((r) => r.tilRettskildeId))) {
+    // [ENDRET, hjemmel-presisjon-runden, 2026-09-10, issue #217] Hjemlenes MÅL-lover hentes med i
+    // samme register. Fra og med #217 kan en hjemmel peke på en ledd-node («…/§13-1/ledd-4»), og en
+    // etikett for den kan bare bygges fra nodene i den refererte loven — det er nettopp det
+    // `paragrafEtikett` gjør når den klatrer opp til paragrafen.
+    const maal = new Set([
+      ...referanser.map((r) => r.tilRettskildeId),
+      ...hjemler.map((h) => h.hjemmelRettskildeId),
+    ]);
+    for (const rettskildeId of maal) {
       if (referanseNoderPerRettskilde.has(rettskildeId)) continue;
       api.hentNoder(rettskildeId)
         .then((noder) => setReferanseNoderPerRettskilde((forrige) => new Map(forrige).set(rettskildeId, noder)))
@@ -434,7 +442,7 @@ export default function RettskildeDetalj() {
         });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [referanser]);
+  }, [referanser, hjemler]);
   function referanseVisningstekst(r: RettskildeReferanseDto): string {
     return eidVisningstekst(r.tilEid, alleRettskilder, referanseNoderPerRettskilde) ?? r.tilEid;
   }
@@ -851,8 +859,18 @@ export default function RettskildeDetalj() {
       heading: 'Hjemmel',
       items: hjemler.map((h) => {
         const lov = finnRettskildeForEid(h.hjemmelEid, alleRettskilder);
-        const paragraf = h.hjemmelEid.slice(h.hjemmelEid.lastIndexOf('/') + 1);
-        const tekst = lov ? `${lov.tittel} ${paragraf}` : h.hjemmelEid;
+        // [ENDRET, hjemmel-presisjon-runden, 2026-09-10, issue #217] Går via paragrafEtikett i stedet
+        // for `slice(lastIndexOf('/'))`. Den gamle formen tok siste segment, og etter #217 er det
+        // segmentet «ledd-4» for en presis hjemmel — «universitets- og høyskoleloven ledd-4» sier
+        // ingenting om hvilken paragraf. paragrafEtikett klatrer opp til paragrafnoden og gir
+        // «§ 13-1 fjerde ledd», som er nøyaktig det kilden sa.
+        const etikett = paragrafEtikett(referanseNoderPerRettskilde.get(h.hjemmelRettskildeId), h.hjemmelEid);
+        const bestemmelse = etikett?.tekst ?? h.hjemmelEid.slice(h.hjemmelEid.lastIndexOf('/') + 1);
+        // En uløst presisering vises, den skjules ikke: kilden sa «fjerde ledd», vi fant ikke noden,
+        // og da skal det stå — ikke se ut som om paragrafnivået var alt kilden oppgav (issue #217
+        // kriterium 2). Se RettskildeHjemmelEntitet.UlostPresisering for de to legitime grunnene.
+        const uklart = h.ulostPresisering ? ` (kilden presiserer ${h.ulostPresisering}, ikke funnet)` : '';
+        const tekst = lov ? `${lov.tittel} ${bestemmelse}${uklart}` : `${h.hjemmelEid}${uklart}`;
         const lenke = rettskildeLenke(h.hjemmelEid, alleRettskilder);
         return { key: h.id, label: tekst, onClick: () => { if (lenke) navigate(lenke); } };
       }),
