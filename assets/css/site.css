@@ -318,7 +318,7 @@ table.ds-table caption{ text-align:left; font-size: var(--ds-body-sm-font-size);
 .chain-arrow{ display:flex; align-items:center; justify-content:center; padding: 0 var(--ds-size-2); color: var(--ds-color-text-subtle); flex:0 0 auto; font-size: 1.25rem; }
 @media (max-width: 760px){ .chain{ flex-direction:column; } .chain-arrow{ transform:rotate(90deg); padding: var(--ds-size-1) 0; } }
 
-.quote-block{ border-left:3px solid var(--ds-color-accent-base-default); background: var(--ds-color-accent-surface-tinted); border-radius: 0 var(--ds-border-radius-md) var(--ds-border-radius-md) 0; padding: var(--ds-size-4) var(--ds-size-5); font-family: var(--site-font-display); font-size: var(--ds-body-md-font-size); }
+.quote-block{ max-width: var(--site-content-max); border-left:3px solid var(--ds-color-accent-base-default); background: var(--ds-color-accent-surface-tinted); border-radius: 0 var(--ds-border-radius-md) var(--ds-border-radius-md) 0; padding: var(--ds-size-4) var(--ds-size-5); font-family: var(--site-font-display); font-size: var(--ds-body-md-font-size); }
 .quote-block cite{ display:block; margin-top: var(--ds-size-2); font-family: var(--site-font-body); font-style:normal; font-size: var(--ds-body-xs-font-size); color: var(--ds-color-text-subtle); }
 .quote-block mark{ background: var(--ds-color-accent-surface-default, #fde68a); color:inherit; border-radius: 3px; padding:0 .15em; }
 
@@ -341,7 +341,7 @@ table.ds-table caption{ text-align:left; font-size: var(--ds-body-sm-font-size);
 .purpose-box a{ font-weight:500; }
 
 /* ---------- Om-siden: rolle/lag-visning ---------- */
-.layer-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap: var(--ds-size-3); counter-reset: layer; }
+.layer-list{ max-width: var(--site-content-max); list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap: var(--ds-size-3); counter-reset: layer; }
 .layer-list li{ counter-increment: layer; display:grid; grid-template-columns: 2.5rem 1fr; gap: var(--ds-size-4); padding: var(--ds-size-4); border:1px solid var(--ds-color-border-subtle); border-radius: var(--ds-border-radius-lg); }
 .layer-list li::before{ content: counter(layer); font-family: var(--site-font-display); font-weight:600; font-size: var(--ds-body-lg-font-size); color: var(--ds-color-accent-text-default); background: var(--ds-color-accent-surface-tinted); width:2.5rem; height:2.5rem; border-radius:50%; display:grid; place-items:center; }
 .layer-list h4{ margin:0 0 .3em; font-size: var(--ds-body-md-font-size); font-weight:600; }
