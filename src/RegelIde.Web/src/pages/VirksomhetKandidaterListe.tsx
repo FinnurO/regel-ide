@@ -93,7 +93,7 @@ export default function VirksomhetKandidaterListe() {
       setRettskilder([]);
       return;
     }
-    api.hentRettskilder(undefined, undefined, [...rettskildeIderMedKandidater])
+    api.hentRettskilderForIder([...rettskildeIderMedKandidater])
       .then(setRettskilder)
       .catch(() => setRettskilder([]));
   }, [rettskildeIderMedKandidater]);

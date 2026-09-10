@@ -224,17 +224,25 @@ async function hentRettskildeKildeTekst(id: string): Promise<string | null> {
 export const api = {
   // ?inkluderIrrelevante=true (2026-08-30) — utelatt/false ekskluderer ErIrrelevant-markerte kilder
   // stille fra standardvisningen, se RettskilderListe.tsx.
-  // [ENDRET, issue #256, 2026-09-10] `ider` — snevrer inn til et konkret sett rettskilder (repeterte
-  // ?ider=-parametre) i stedet for å hente hele det synlige korpuset (5899 rader, 2,6 MB, 1,9 s målt
-  // 2026-09-10) — for sider som allerede kjenner IDene fra en annen kilde og bare trenger titler.
-  hentRettskilder: (virksomhetId?: string, inkluderIrrelevante?: boolean, ider?: readonly string[]) => {
+  hentRettskilder: (virksomhetId?: string, inkluderIrrelevante?: boolean) => {
     const params = new URLSearchParams();
     if (virksomhetId) params.set('virksomhetId', virksomhetId);
     if (inkluderIrrelevante) params.set('inkluderIrrelevante', 'true');
-    ider?.forEach((id) => params.append('ider', id));
     const query = params.toString();
     return kall<RettskildeSammendrag[]>(`/api/rettskilder${query ? `?${query}` : ''}`);
   },
+
+  // [Ny, issue #256, 2026-09-10] Batch-oppslag for et KONKRET sett IDer — i stedet for å hente hele
+  // det synlige korpuset (5899 rader, 2,6 MB, 1,9 s målt live) bare for titler til et lite utvalg.
+  // POST (ikke GET+querystring) — et forsøk med repeterte ?ider=-parametre feilet live når settet ble
+  // stort (190+ distinkte rettskilder i én kandidatkø): Kestrel avviste den lange querystringen med
+  // `net::ERR_FAILED`, ingen HTTP-statuskode i det hele tatt.
+  hentRettskilderForIder: (ider: readonly string[]) =>
+    kall<RettskildeSammendrag[]>('/api/rettskilder/oppslag', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ider }),
+    }),
 
   hentRettskilde: (id: string) => kall<RettskildeDetalj>(`/api/rettskilder/${id}`),
 

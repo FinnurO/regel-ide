@@ -44,6 +44,10 @@ public sealed record RettskildeSammendrag(
             r.IrrelevantKommentar, r.IkrafttredelseRaa);
 }
 
+/// <summary>[Ny, issue #256, 2026-09-10] Body for POST /api/rettskilder/oppslag — se endepunktkommentaren
+/// for hvorfor dette er POST (body) og ikke GET (querystring).</summary>
+public sealed record RettskildeIderRequest(IReadOnlyList<Guid> Ider);
+
 /// <summary>Full rettskilde: metadata + kanonisk AKN-XML (§1 i teknisk design). ELI er ALLTID skrivebeskyttet
 /// (§3.3, avklaringsrunde 2026-08-13) — vist her, men aldri en del av <see cref="OppdaterRettskildeMetadataRequest"/>.
 /// De seks feltene fra <see cref="InterntDokNr"/> til <see cref="GyldigTil"/> fantes allerede på
