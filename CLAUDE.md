@@ -359,6 +359,26 @@ sporbarhet (f.eks. i selve GitHub-issuen) — skriv det ned der, men still det o
 spørsmål samtidig, ikke i stedet for. Etter svar: skriv beslutningen inn i issuen/saken som en
 kommentar (samme «varig nedtegnelse»-prinsipp som §15/§16), ikke bare la den stå i chat-historikken.
 
+## 19. Før merge og lukking: legg fram tolkningen som et spørsmål, ikke som en påstand i lukkekommentaren
+
+Johann (2026-09-11), etter å ha sett mønsteret over flere runder: «jeg har oppdaget at du ofte
+lukker issues med noen kommentarer på hvordan du har løst det og hva du ikke har gjort. dette er da
+dine tolkninger av om oppgaven er løst... det skjer for ofte at du ikke løser saken men er fornøyd
+med å kode "noe" og lukke issuet.»
+
+§15 pkt. 6–7 sa «merge, så lukk selv med tallene» — det er nå IKKE nok. Lukkekommentaren har vært
+MIN ferdigskrevne tolkning av hva som ble løst og hva som bevisst ble utelatt, presentert etter at
+avgjørelsen (merge + lukk) allerede var tatt. Det gjør Johann til leser av en konklusjon, ikke til
+den som faktisk bekrefter at saken er løst.
+
+Regel: **FØR en PR merges og saken lukkes**, legg fram tolkningen — hva er løst, hva er bevisst
+utelatt/utsatt og hvorfor, hva er målt — og **bruk spørsmålsverktøyet (§18) for å få den bekreftet**,
+ikke bare skriv den ned i en kommentar og gå videre til merge. Bekreftelsen kan gjelde flere saker
+samlet når de er bygget i samme runde (ikke ett spørsmål per issue nødvendigvis), men skal skje FØR
+`gh pr merge`/`gh issue close`, ikke etterpå. Målingene (§16) skrives fortsatt inn i saken som
+kommentar ved lukking — det endrer seg ikke — men selve lukke-handlingen skal ikke lenger være noe
+jeg gjør alene og så rapporterer.
+
 ## Nyttige kommandoer
 
 Kjør appen (Browser-panelet, aldri `dotnet run` via Bash) — konfigurasjonene heter `regel-ide-api` og
