@@ -1165,9 +1165,13 @@ public sealed class HandbokRettskildeomfangEntitet
 /// er en ny, valgfri diskriminator: NULL betyr et ordinært fakta-/handlingsbegrep (opprinnelig, uendret
 /// betydning — <see cref="VirksomhetId"/>/<see cref="Definisjon"/>/<see cref="Begrepstype"/> er da
 /// fortsatt de facto påkrevd, validert i tjenestelaget, ikke en DB CHECK). `'virksomhet'` og `'gruppe'`
-/// er de to nye kategoriene — DELT/nasjonal referansedata uten én eiende virksomhet, samme mønster som
-/// <see cref="KodelisteEntitet"/>s `Type='ekstern-referanse'`. Derfor er <see cref="VirksomhetId"/> nå
-/// NULLBAR (var påkrevd) — NULL for `Begrepskategori IN ('virksomhet','gruppe')`, satt for alt annet.
+/// er de to opprinnelige nye kategoriene — DELT/nasjonal referansedata uten én eiende virksomhet, samme
+/// mønster som <see cref="KodelisteEntitet"/>s `Type='ekstern-referanse'`. Derfor er
+/// <see cref="VirksomhetId"/> nå NULLBAR (var påkrevd) — NULL for
+/// `Begrepskategori IN ('virksomhet','gruppe','administrativ_inndeling')`, satt for alt annet.
+/// [Ny, issue #203 pkt. 2] `'administrativ_inndeling'` er en TREDJE slik kategori, lagt til i denne
+/// runden — se <see cref="Begrepskategori"/> sin egen kommentar for hva den betyr og hvordan den
+/// scopes.
 /// </para>
 /// </summary>
 public sealed class BegrepEntitet
@@ -1183,7 +1187,18 @@ public sealed class BegrepEntitet
     /// = navneform brukt om en virksomhet i rettskildetekst (<see cref="Term"/> = navnet,
     /// <see cref="VirksomhetReferanseId"/> = hvilken). `'gruppe'` = et gruppebegrep tildelt konkrete
     /// virksomheter gjennom forskrift (<see cref="Term"/> = gruppenavnet, <see cref="LovkildeId"/> =
-    /// hvilken lov — sammen utgjør de to gruppebegrepets identitet, docs/20 §2.4).</summary>
+    /// hvilken lov — sammen utgjør de to gruppebegrepets identitet, docs/20 §2.4).
+    /// <para>
+    /// [Ny, issue #203 pkt. 2] `'administrativ_inndeling'` — et nasjonalt/fylkes-/kommunenivå
+    /// (SSR-bekreftet, se <see cref="NavnekandidatOppdagelseTjeneste.KlassifiserAsync"/>), IKKE en
+    /// institusjon/juridisk aktør. Samme scoping som `'gruppe'`: (<see cref="Term"/>,
+    /// <see cref="LovkildeId"/>) sammen utgjør identiteten — besluttet med Johann 2026-09-10 (issue
+    /// #203-kommentar), IKKE bare <see cref="Term"/> nasjonalt, fordi samme navn ("Østfold") kan opptre
+    /// i flere ulike lover uavhengig av hverandre, akkurat som et gruppebegrep. Opprettes direkte ved
+    /// godkjenning av en navnekandidat (<see cref="NavnekandidatOppdagelseTjeneste.GodkjennAsync"/>,
+    /// gren parallell til `'gruppe'`), samme mekanisme som
+    /// <see cref="VirksomhetsbegrepTjeneste.OpprettGruppebegrepAsync"/>.
+    /// </para></summary>
     public string? Begrepskategori { get; set; }
 
     /// <summary>Kun for <see cref="Begrepskategori"/> = `'virksomhet'` — hvilken virksomhet
@@ -1222,9 +1237,10 @@ public sealed class BegrepEntitet
     /// </summary>
     public string? Navneformgrunn { get; set; }
 
-    /// <summary>Kun for <see cref="Begrepskategori"/> = `'gruppe'` — loven gruppebegrepet hører til.
-    /// Del av gruppebegrepets IDENTITET sammen med <see cref="Term"/>, ikke bare metadata (docs/20 §2.4):
-    /// samme gruppenavn i to ulike lover er to ulike rader.</summary>
+    /// <summary>Kun for <see cref="Begrepskategori"/> = `'gruppe'` ELLER `'administrativ_inndeling'`
+    /// (issue #203 pkt. 2) — loven begrepet hører til. Del av begrepets IDENTITET sammen med
+    /// <see cref="Term"/>, ikke bare metadata (docs/20 §2.4): samme navn i to ulike lover er to ulike
+    /// rader.</summary>
     public Guid? LovkildeId { get; set; }
 
     public required string Term { get; set; } // skos:prefLabel
@@ -1653,9 +1669,11 @@ public sealed class NavnekandidatEntitet
     /// </para></summary>
     public required string ForeslattTekst { get; set; }
 
-    /// <summary>`'virksomhet'` (ekte egennavn, suffiksmønster + stor forbokstav MIDT i en setning) eller
+    /// <summary>`'virksomhet'` (ekte egennavn, suffiksmønster + stor forbokstav MIDT i en setning),
     /// `'gruppe'` (juridisk aktør-substantiv uten egennavn-status — fast liste, ELLER suffiksmønster med
-    /// liten forbokstav). Se <see cref="NavnekandidatOppdagelseTjeneste"/> for selve klassifiseringslogikken.</summary>
+    /// liten forbokstav), eller `'administrativ_inndeling'` (nasjon/fylke/kommune — [Ny, issue #203 pkt.
+    /// 2/3], SSR-bekreftet ved klassifisering, se <see cref="NavnekandidatOppdagelseTjeneste.KlassifiserAsync"/>).
+    /// Se <see cref="NavnekandidatOppdagelseTjeneste"/> for selve klassifiseringslogikken.</summary>
     public required string Kategori { get; set; }
 
     public required Guid RettskildeId { get; set; }
@@ -1725,6 +1743,61 @@ public sealed class NavnekandidatEntitet
     /// </para>
     /// </summary>
     public string? KonfidensGrunn { get; set; }
+}
+
+/// <summary>
+/// [Ny, issue #203 pkt. 4] Korreksjonsregel `(RettskildeId, opprinnelig tekst) → korrigert tekst` —
+/// Johann: «endringer i foreslått tekst bør inngå som en transparent regel i søket slik at det ikke må
+/// gjøres for hver gang» og «i kombinasjonen rettskilde pluss navn så peker man på et annet navn».
+/// <para>
+/// Læres AUTOMATISK: en redigering av <see cref="NavnekandidatEntitet.ForeslattTekst"/> via
+/// <see cref="NavnekandidatOppdagelseTjeneste.OppdaterAsync"/> som endrer teksten BORT fra det sveipet
+/// opprinnelig fant, lagrer (upsert) én rad her — se den metodens kommentar. Ingen egen admin-UI for å
+/// redigere reglene direkte i denne runden (Johanns eksplisitte avgrensning) — kun automatisk
+/// lagring+anvendelse.
+/// </para>
+/// <para>
+/// Brukes av <see cref="NavnekandidatOppdagelseTjeneste.SveipAsync"/>s fase 1 (samle) — FØR
+/// materialisering, altså FØR et regex-treff blir en <see cref="NavnekandidatEntitet"/>-rad: er det en
+/// korreksjonsrad for (RettskildeId, rå-treffet), brukes <see cref="KorrigertTekst"/> i stedet for den
+/// rå teksten. Samme "ett oppslag for alle unike par i sveipet"-ytelsesprinsipp som
+/// SNL/SSR-klassifiseringen allerede bruker (klassekommentaren på <see cref="NavnekandidatOppdagelseTjeneste"/>).
+/// </para>
+/// <para>
+/// EKSPLISITT scopet til (<see cref="RettskildeId"/>, <see cref="OpprinneligTekst"/>)-PARET, IKKE et
+/// globalt tekstmønster — samme streng funnet i en ANNEN rettskilde skal IKKE automatisk rettes (Johann,
+/// verbatim: «i kombinasjonen rettskilde pluss navn så peker man på et annet navn»). Unik på nettopp
+/// dette paret (se <see cref="RegelIdeDbContext"/>).
+/// </para>
+/// <para>
+/// <b>IKKE en «utgått»/«erstattet»-mekanisme</b> — «Hedmark» (slått sammen til Innlandet i 2020) er
+/// bevisst IKKE en korreksjonsrad her: «Innlandet» er ikke samme sted som «Hedmark», så det ville vært
+/// en faktisk feil retting, ikke en artefakt-fiks. Den saken er en egen, uavklart avgrensning (issue
+/// #203s kommentarfelt) — ikke løst av denne tabellen.
+/// </para>
+/// </summary>
+public sealed class NavnekandidatKorreksjonEntitet
+{
+    public Guid Id { get; set; }
+
+    public required Guid RettskildeId { get; set; }
+
+    /// <summary>Den rå teksten sveipet faktisk fant — regex-ARTEFAKTEN («Ø Suldal kommune»), ikke det
+    /// rettede navnet. Sammen med <see cref="RettskildeId"/> selve oppslagsnøkkelen.</summary>
+    public required string OpprinneligTekst { get; set; }
+
+    /// <summary>Teksten en saksbehandler rettet den til — brukes av <see cref="NavnekandidatOppdagelseTjeneste.SveipAsync"/>
+    /// i stedet for <see cref="OpprinneligTekst"/> ved et treff på et SENERE sveip.</summary>
+    public required string KorrigertTekst { get; set; }
+
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+
+    /// <summary>Satt ved en senere oppdatering av en eksisterende regel (samme
+    /// <see cref="RettskildeId"/>/<see cref="OpprinneligTekst"/>-par rettet på nytt) — <c>null</c> hvis
+    /// regelen aldri er endret siden opprettelsen.</summary>
+    public string? SistEndretAv { get; set; }
+    public DateTimeOffset? SistEndretTidspunkt { get; set; }
 }
 
 /// <summary>

@@ -517,10 +517,11 @@ export interface HardslettVirksomhetKandidaterResultatDto {
 export type Navneformgrunn = 'gjeldende' | 'utgatt' | 'kortform' | 'feilskriving' | 'parallellnavn';
 
 /** [Ny, navnekandidat-wizard-runden, 2026-09-07] PATCH /api/navnekandidater/{id} — utelatt/undefined
- * felt betyr «la stå uendret». Kun for REGEX-ARTEFAKTER i teksten, se `Navneformgrunn` sitt skille. */
+ * felt betyr «la stå uendret». Kun for REGEX-ARTEFAKTER i teksten, se `Navneformgrunn` sitt skille.
+ * [ENDRET, issue #203 pkt. 2] 'administrativ_inndeling' lagt til. */
 export interface OppdaterNavnekandidatRequest {
   foreslattTekst?: string;
-  kategori?: 'virksomhet' | 'gruppe';
+  kategori?: 'virksomhet' | 'gruppe' | 'administrativ_inndeling';
 }
 
 /** [Ny, navnekandidat-wizard-runden, 2026-09-07] POST /api/navnekandidater/{id}/kobl-til-virksomhet. */
@@ -561,7 +562,9 @@ export interface NavnekandidatGruppemedlemskapResultatDto {
 export interface NavnekandidatDto {
   id: string;
   foreslattTekst: string;
-  kategori: 'virksomhet' | 'gruppe';
+  // [ENDRET, issue #203 pkt. 2/3] 'administrativ_inndeling' lagt til — nasjon/fylke/kommune,
+  // SSR-bekreftet ved klassifisering (KlassifiserAsync), ikke satt av mønstergjenkjenningen selv.
+  kategori: 'virksomhet' | 'gruppe' | 'administrativ_inndeling';
   rettskildeId: string;
   nodeEid: string;
   startOffset: number;

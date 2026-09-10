@@ -3520,8 +3520,13 @@ var navnekandidater = app.MapGroup("/api/navnekandidater").WithOpenApi();
 static async Task<List<NavnekandidatDto>> BerikNavnekandidaterAsync(
     IReadOnlyList<NavnekandidatEntitet> kandidater, RegelIdeDbContext db, CancellationToken ct)
 {
+    // [ENDRET, issue #203 pkt. 2/3] "administrativ_inndeling" lagt til ved siden av "virksomhet" —
+    // begge kategoriene går gjennom NØYAKTIG samme SNL/SSR-klassifiseringskjede (KlassifiserAsync), en
+    // "administrativ_inndeling"-rad har derfor akkurat samme cache-treff å vise (typisk SSR-bekreftelse
+    // med SsrObjektType «Nasjon»/«Fylke»/«Kommune» — selve grunnen den ble klassifisert dit i
+    // utgangspunktet). "gruppe" sendes fortsatt ALDRI til SNL/SSR, se SveipAsync.
     var termer = kandidater
-        .Where(k => k.Kategori == "virksomhet")
+        .Where(k => k.Kategori is "virksomhet" or "administrativ_inndeling")
         .Select(k => k.ForeslattTekst.ToLowerInvariant())
         .Distinct()
         .ToList();
@@ -3534,7 +3539,7 @@ static async Task<List<NavnekandidatDto>> BerikNavnekandidaterAsync(
     return kandidater.Select(k =>
     {
         var dto = NavnekandidatDto.FraEntitet(k);
-        if (k.Kategori != "virksomhet") return dto;
+        if (k.Kategori is not ("virksomhet" or "administrativ_inndeling")) return dto;
 
         snlPerTerm.TryGetValue(k.ForeslattTekst.ToLowerInvariant(), out var snl);
         ssrPerTerm.TryGetValue(k.ForeslattTekst.ToLowerInvariant(), out var ssr);
@@ -3593,8 +3598,9 @@ navnekandidater.MapPost("/sveip", async (HttpRequest request, SveipNavnekandidat
         "[Restrukturert, 2026-09-03] Dette er nå det ENESTE sveipendepunktet — dekker faste gruppe-/rollesubstantiv, " +
         "flerords-institusjonsord OG det brede 'stor bokstav midt i setning'-mønsteret (tidligere et eget " +
         "/sveip-storbokstav-endepunkt, docs/31 §6, nå fjernet — se NavnekandidatOppdagelseTjeneste.SveipAsync " +
-        "sin klassekommentar). 'virksomhet'-kandidater fra det brede mønsteret klassifiseres mot LEVENDE eksterne " +
-        "SNL/SSR-API-er (per unikt navn i sveipet, cachet på tvers av sveip).");
+        "sin klassekommentar). Klassifiseres mot LEVENDE eksterne SNL/SSR-API-er (per unikt navn i sveipet, cachet " +
+        "på tvers av sveip) — SSR-bekreftet 'Nasjon'/'Fylke'/'Kommune' gir 'administrativ_inndeling' i stedet for " +
+        "'virksomhet' (issue #203 pkt. 3). Slår opp lærte korreksjonsregler (issue #203 pkt. 4) FØR materialisering.");
 
 navnekandidater.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest request,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
@@ -3612,7 +3618,8 @@ navnekandidater.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest reque
         }
     })
     .WithName("GodkjennNavnekandidat")
-    .WithSummary("'gruppe': oppretter et ekte gruppebegrep direkte. 'virksomhet': setter kun status — selve virksomhetskoblingen skjer manuelt via VirksomhetDetalj.");
+    .WithSummary("'gruppe'/'administrativ_inndeling': oppretter et ekte begrep direkte (samme mekanisme, ulik Begrepskategori). " +
+        "'virksomhet': setter kun status — selve virksomhetskoblingen skjer manuelt via VirksomhetDetalj.");
 
 navnekandidater.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>

@@ -241,4 +241,79 @@ public class VirksomhetsbegrepTjenesteTests
         Assert.Equal(alkoholloven, forsteRad.LovkildeId);
         Assert.Equal(forvaltningsloven, andreRad.LovkildeId);
     }
+
+    // ---------- [Ny, issue #203 pkt. 2] Administrativ inndeling — samme (Term, LovkildeId)-scoping som
+    // gruppebegrep over (besluttet med Johann 2026-09-10), egen Begrepskategori-verdi og egen metode
+    // (OpprettAdministrativInndelingAsync) — se den metodens kommentar for hvorfor ikke slått sammen
+    // med OpprettGruppebegrepAsync til én parameterisert metode. ----------
+
+    [Fact]
+    public async Task Administrativ_inndeling_far_riktig_begrepskategori_og_ingen_navneformgrunn()
+    {
+        await using var db = _fixture.NyDbContext();
+        var lovId = await OpprettAlkohollovenAsync(db);
+        var inndeling = await new VirksomhetsbegrepTjeneste(db).OpprettAdministrativInndelingAsync(
+            lovId, NyTerm("Suldal kommune"), "Kari Jurist");
+
+        Assert.Equal("administrativ_inndeling", inndeling.Begrepskategori);
+        Assert.Equal(lovId, inndeling.LovkildeId);
+        Assert.Null(inndeling.VirksomhetId);
+        Assert.Null(inndeling.Navneformgrunn);
+        Assert.Equal("publisert", inndeling.Status);
+    }
+
+    [Fact]
+    public async Task Administrativ_inndeling_samme_term_i_samme_lov_kastes()
+    {
+        await using var db = _fixture.NyDbContext();
+        var lovkildeId = await OpprettAlkohollovenAsync(db);
+        var term = NyTerm("Hedmark fylke");
+
+        var register = new VirksomhetsbegrepTjeneste(db);
+        await register.OpprettAdministrativInndelingAsync(lovkildeId, term, "Kari Jurist");
+
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => register.OpprettAdministrativInndelingAsync(lovkildeId, term, "Kari Jurist"));
+    }
+
+    [Fact]
+    public async Task Administrativ_inndeling_samme_term_i_ulik_lov_er_to_ulike_rader()
+    {
+        await using var db = _fixture.NyDbContext();
+        var alkoholloven = await OpprettAlkohollovenAsync(db);
+        var forvaltningsloven = await new RettskildeImportTjeneste(db).ImporterAsync(
+            LovdataKonverterer.Konverter(Testdata.LesForvaltningsloven(), new DateOnly(2026, 8, 22)));
+        var term = NyTerm("Østfold fylke");
+
+        var register = new VirksomhetsbegrepTjeneste(db);
+        var forsteRad = await register.OpprettAdministrativInndelingAsync(alkoholloven, term, "Kari Jurist");
+        var andreRad = await register.OpprettAdministrativInndelingAsync(forvaltningsloven, term, "Kari Jurist");
+
+        Assert.NotEqual(forsteRad.Id, andreRad.Id);
+        Assert.Equal(alkoholloven, forsteRad.LovkildeId);
+        Assert.Equal(forvaltningsloven, andreRad.LovkildeId);
+    }
+
+    /// <summary>Samme term (Term, LovkildeId) er OK på tvers av de to ULIKE kategoriene — de to unike
+    /// partielle indeksene (ux_begreper_gruppebegrep_term_lovkilde/ux_begreper_administrativ_inndeling_
+    /// term_lovkilde) er hver filtrert på SIN EGEN Begrepskategori, se RegelIdeDbContext. Dekker
+    /// samtidig regresjonen som oppsto da migrasjonen først ble generert (EF slo de to identiske
+    /// (Term, LovkildeId)-HasIndex-kallene sammen til ÉN og mistet gruppebegrep-indeksen stille — se
+    /// PR-beskrivelsen) — hadde den regresjonen ikke vært rettet, ville enten denne testen eller
+    /// Gruppebegrep_samme_term_i_samme_lov_kastes feilet.</summary>
+    [Fact]
+    public async Task Samme_term_og_lov_er_ok_for_gruppe_og_administrativ_inndeling_samtidig()
+    {
+        await using var db = _fixture.NyDbContext();
+        var lovkildeId = await OpprettAlkohollovenAsync(db);
+        var term = NyTerm("delt-navn");
+
+        var register = new VirksomhetsbegrepTjeneste(db);
+        var gruppe = await register.OpprettGruppebegrepAsync(lovkildeId, term, "Kari Jurist");
+        var inndeling = await register.OpprettAdministrativInndelingAsync(lovkildeId, term, "Kari Jurist");
+
+        Assert.NotEqual(gruppe.Id, inndeling.Id);
+        Assert.Equal("gruppe", gruppe.Begrepskategori);
+        Assert.Equal("administrativ_inndeling", inndeling.Begrepskategori);
+    }
 }

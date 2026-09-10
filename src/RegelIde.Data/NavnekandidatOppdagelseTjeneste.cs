@@ -599,6 +599,18 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// forekomstene har en posisjon som IKKE allerede har en eksisterende <see cref="NavnekandidatEntitet"/>-
     /// rad — et gjentatt sveip over samme tekst re-klassifiserer ikke allerede oppdagede kandidater.
     /// </para>
+    /// <para>
+    /// <b>[Ny, issue #203 pkt. 4] Korreksjonsoppslag i fase 1, FØR alt annet i hver løkke-iterasjon:</b>
+    /// for hvert regex-treff (BÅDE de faste/flerords-mønstrene og det brede stor-bokstav-mønsteret)
+    /// slås (RettskildeId, rå/normalisert treff-tekst) opp mot <see cref="NavnekandidatKorreksjonEntitet"/>
+    /// FØR resten av fase 1 (dedup mot eksisterende Begrep/kandidater, materialisering for "gruppe",
+    /// kø for klassifisering) kjører — ved treff brukes <c>KorrigertTekst</c> (med posisjonen
+    /// re-forankret via <see cref="FinnKorrigertIntervall"/>) i stedet for den rå teksten resten av
+    /// veien. Samme "ett oppslag forhåndslastet for HELE sveipet, ikke ett per treff"-ytelsesprinsipp
+    /// som SNL/SSR-klassifiseringen (fase 2). Se <see cref="NavnekandidatKorreksjonEntitet"/> og
+    /// <see cref="NavnekandidatOppdagelseTjeneste.OppdaterAsync"/> (der regelen læres) for resten av
+    /// korreksjonsmekanismen.
+    /// </para>
     /// </summary>
     public async Task<NavnekandidatSveipResultat> SveipAsync(Guid? rettskildeId, string opprettetAv, CancellationToken ct = default)
     {
@@ -629,6 +641,13 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             .GroupBy(k => k.RettskildeId)
             .ToDictionary(g => g.Key, g => new HashSet<string>(g.Select(x => x.ForeslattTekst.ToLowerInvariant()), StringComparer.Ordinal));
 
+        // [Ny, issue #203 pkt. 4] Korreksjonsregler, forhåndslastet ÉN gang for hele sveipet — samme
+        // "unngå N+1"-hensyn som mengdene over. Nøklet på (RettskildeId, rå/opprinnelig tekst), anvendt
+        // FØR materialisering i begge løkkene under — se NavnekandidatKorreksjonEntitet sin
+        // klassekommentar og FinnKorrigertIntervall.
+        var korreksjoner = (await db.NavnekandidatKorreksjoner.ToListAsync(ct))
+            .ToDictionary(k => (k.RettskildeId, k.OpprinneligTekst), k => k.KorrigertTekst);
+
         var antallTreff = 0;
         var antallNyeKandidater = 0;
 
@@ -637,18 +656,44 @@ public sealed class NavnekandidatOppdagelseTjeneste(
 
         foreach (var node in noder)
         {
-            // Posisjoner allerede behandlet i DENNE noden i DETTE sveipet — hindrer at det brede
-            // stor-bokstav-mønsteret dobbeltbehandler en posisjon flerords-mønsteret allerede fanget
-            // (se metodekommentarens fase 1-avsnitt).
-            var behandledeStartposisjoner = new HashSet<int>();
+            // Spenn (start, slutt) allerede behandlet i DENNE noden i DETTE sveipet — hindrer at det
+            // brede stor-bokstav-mønsteret dobbeltbehandler en DEL AV et spenn flerords-/faste-mønsteret
+            // allerede fanget (se metodekommentarens fase 1-avsnitt).
+            // [ENDRET, issue #203 pkt. 4] Var tidligere en HashSet<int> av kun STARTPOSISJONER — det
+            // fanget ikke tilfellet der flerords-fangsten starter på et ord det brede mønsteret ikke
+            // selv treffer alene (f.eks. en enkeltbokstav-regex-artefakt limt foran et egennavn, «Ø
+            // Suldal kommune»): flerords-fangsten starter på «Ø» (StorBokstavOrdMønster krever minst én
+            // liten bokstav ETTER den store, så «Ø» alene gir ikke egen match), mens det brede mønsteret
+            // uavhengig treffer «Suldal» midt inni SAMME spenn — ulik startposisjon, samme tekstbit,
+            // dermed dobbelt klassifisert og dobbelt (og ukoordinert) sendt til SNL/SSR. Oppdaget ved at
+            // korreksjonsregel-sveipet av nettopp dette eksemplet ga 3 kandidater der 1 var ventet — se
+            // testene i NavnekandidatOppdagelseTjenesteTests.cs. Sjekker nå OVERLAPP mot hele spennet,
+            // ikke likhet på startposisjonen alene.
+            var behandledeSpenn = new List<(int Start, int Slutt)>();
 
-            foreach (var (start, lengde, kategori) in FinnKandidaterITekst(node.Tekst!))
+            foreach (var (matchStart, matchLengde, kategori) in FinnKandidaterITekst(node.Tekst!))
             {
-                behandledeStartposisjoner.Add(start);
-                var raaTekst = node.Tekst![start..(start + lengde)];
+                behandledeSpenn.Add((matchStart, matchStart + matchLengde));
+                var raaMatchTekst = node.Tekst![matchStart..(matchStart + matchLengde)];
                 // [Ny, kodegjennomgang 2026-08-30] Normaliser KUN "gruppe" til små bokstaver — se
                 // klassekommentarens "Normalisering før lagring"-avsnitt. "virksomhet" beholder rå tekst
                 // (case er signal, ikke støy, for et egennavn).
+                var matchTekst = kategori == "gruppe" ? raaMatchTekst.ToLowerInvariant() : raaMatchTekst;
+
+                // [Ny, issue #203 pkt. 4] Korreksjonsoppslag FØR alt annet i denne løkken — se
+                // NavnekandidatKorreksjonEntitet sin klassekommentar. Nøkkelen er nøyaktig det som VILLE
+                // blitt lagret som ForeslattTekst (matchTekst — allerede normalisert for "gruppe"), siden
+                // det er nøyaktig det en tidligere redigering husket som "opprinnelig tekst".
+                int start; int lengde; string raaTekst;
+                if (korreksjoner.TryGetValue((node.RettskildeId, matchTekst), out var korrigertTekst1))
+                {
+                    (start, lengde) = FinnKorrigertIntervall(node.Tekst!, matchStart, matchLengde, korrigertTekst1);
+                    raaTekst = korrigertTekst1;
+                }
+                else
+                {
+                    (start, lengde, raaTekst) = (matchStart, matchLengde, raaMatchTekst);
+                }
                 var tekst = kategori == "gruppe" ? raaTekst.ToLowerInvariant() : raaTekst;
 
                 var alleredeDekketAvBegrep = kategori == "virksomhet"
@@ -691,9 +736,27 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 }
             }
 
-            foreach (var (start, lengde, raaTekst) in FinnStorBokstavKandidaterITekst(node.Tekst!))
+            foreach (var (matchStart, matchLengde, raaMatchTekst) in FinnStorBokstavKandidaterITekst(node.Tekst!))
             {
-                if (!behandledeStartposisjoner.Add(start)) continue; // samme posisjon allerede dekket over.
+                // [ENDRET, issue #203 pkt. 4] Overlapp mot HELE spennet, ikke likhet på startposisjonen
+                // alene — se behandledeSpenn sin kommentar over for hvorfor.
+                var matchSlutt = matchStart + matchLengde;
+                if (behandledeSpenn.Any(s => matchStart < s.Slutt && matchSlutt > s.Start)) continue; // overlapper et spenn allerede dekket over.
+                behandledeSpenn.Add((matchStart, matchSlutt));
+
+                // [Ny, issue #203 pkt. 4] Samme korreksjonsoppslag som i løkken over — se den løkkens
+                // kommentar. "Gauldal" → "Midtre Gauldal" (issue #203s eget eksempel) går nettopp via
+                // DETTE mønsteret (ett enkeltord uten institusjonsord rett etter).
+                int start; int lengde; string raaTekst;
+                if (korreksjoner.TryGetValue((node.RettskildeId, raaMatchTekst), out var korrigertTekst2))
+                {
+                    (start, lengde) = FinnKorrigertIntervall(node.Tekst!, matchStart, matchLengde, korrigertTekst2);
+                    raaTekst = korrigertTekst2;
+                }
+                else
+                {
+                    (start, lengde, raaTekst) = (matchStart, matchLengde, raaMatchTekst);
+                }
 
                 if (virksomhetTermer.Contains(raaTekst)) continue; // allerede dekket av eksisterende Begrep.
 
@@ -722,8 +785,10 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         foreach (var treff in trengerKlassifisering)
         {
             var klassifisering = klassifiseringPerTerm[treff.NormalisertTerm];
+            // [ENDRET, issue #203 pkt. 3] klassifisering.Kategori i stedet for det tidligere hardkodede
+            // "virksomhet" — se Klassifisering.Kategori sin kommentar.
             await OpprettEllerFinnAsync(
-                treff.RaaTekst, "virksomhet", treff.Node.RettskildeId, treff.Node.Eid, treff.Start, treff.Start + treff.Lengde,
+                treff.RaaTekst, klassifisering.Kategori, treff.Node.RettskildeId, treff.Node.Eid, treff.Start, treff.Start + treff.Lengde,
                 opprettetAv, ct, treff.OppdagelsesKilde,
                 konfidens: klassifisering.Konfidens, konfidensGrunn: klassifisering.Grunn);
             antallNyeKandidater++; // forAntall==0 ble allerede bekreftet for denne posisjonen i fase 1.
@@ -763,29 +828,64 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// tillater ikke en tredje, ubestemt bøtte).</item>
     /// </list>
     /// </summary>
+    /// <summary>
+    /// [Ny, issue #203 pkt. 3] De SSR <c>navneobjekttype</c>-verdiene som gjør et treff til
+    /// <c>"administrativ_inndeling"</c> i stedet for <c>"virksomhet"</c> — Johanns eksplisitte,
+    /// AVGRENSEDE liste ("Nasjon" ELLER en fylke/kommune-type), IKKE alle SSR-typer. EKSAKTE
+    /// streng-verdiene er VERIFISERT LIVE mot <c>ws.geonorge.no/stedsnavn/v1/navn</c> under denne
+    /// byggerunden (ikke antatt) — søk på "Norge" ga <c>"navneobjekttype":"Nasjon"</c>, søk på
+    /// "Rogaland"/"Innlandet fylke" ga <c>"Fylke"</c>, søk på "Suldal kommune"/"Midtre Gauldal kommune"
+    /// ga <c>"Kommune"</c> — alle med stor forbokstav, ingen av dem slik en naiv antagelse om engelsk-
+    /// stil "kommune"/"fylke" (liten forbokstav) ville gjettet. De øvrige SSR-typene observert i live
+    /// sveip (Tettsted/Bygdelag/Poststed/Bruk/Fjellområde m.fl.) er EKSPLISITT UTENFOR dette settet —
+    /// Johanns egne ord: "de lokale tingene du fant er ikke reelle" — og forblir <c>"virksomhet"</c>,
+    /// UENDRET.
+    /// </summary>
+    private static readonly HashSet<string> SsrAdministrativInndelingTyper =
+        new(StringComparer.Ordinal) { "Nasjon", "Fylke", "Kommune" };
+
+    /// <summary>
+    /// [ENDRET, issue #203 pkt. 3] Returnerer nå ALLTID en <see cref="Klassifisering.Kategori"/> i
+    /// tillegg til konfidens/grunn — se <see cref="SsrAdministrativInndelingTyper"/>. Et SSR-bekreftet
+    /// treff av en av disse typene blir <c>"administrativ_inndeling"</c> UANSETT om institusjonsordet
+    /// rett etter finnes (den sjekken avgjør fortsatt KUN konfidens, uendret) — "Norge"/"Rogaland
+    /// fylke"/"Suldal kommune" er administrative inndelinger enten de står alene i løpeteksten eller
+    /// ikke. Et SNL-bekreftet treff, eller et SSR-treff av en ANNEN type, forblir <c>"virksomhet"</c>
+    /// (uendret oppførsel for alt annet enn de tre nye typene).
+    /// </summary>
     private async Task<Klassifisering> KlassifiserAsync(string raaTekst, string tekst, int matchSlutt, CancellationToken ct)
     {
         var snl = await eksternOppslag.SlaOppSnlAsync(raaTekst, ct);
-        if (snl.Treff) return new Klassifisering("hoy", "snl_treff");
+        if (snl.Treff) return new Klassifisering("hoy", "snl_treff", "virksomhet");
 
         var ssr = await eksternOppslag.SlaOppSsrAsync(raaTekst, ct);
         if (ssr.Treff)
         {
+            var kategori = ssr.TaksonomiKategori is not null && SsrAdministrativInndelingTyper.Contains(ssr.TaksonomiKategori)
+                ? "administrativ_inndeling"
+                : "virksomhet";
             var nesteOrd = NesteOrdEtter(tekst, matchSlutt);
             return nesteOrd is not null && InstitusjonsordMønster.IsMatch(nesteOrd)
-                ? new Klassifisering("hoy", "ssr_med_institusjonsord")
-                : new Klassifisering("lav", "ssr_uten_institusjonsord");
+                ? new Klassifisering("hoy", "ssr_med_institusjonsord", kategori)
+                : new Klassifisering("lav", "ssr_uten_institusjonsord", kategori);
         }
 
-        return new Klassifisering("lav", "ukjent_i_snl_og_ssr");
+        return new Klassifisering("lav", "ukjent_i_snl_og_ssr", "virksomhet");
     }
 
     /// <summary>
     /// [Ny, konfidens-runden, 2026-09-09] Utfallet av <see cref="KlassifiserAsync"/>: hvor godt
     /// bekreftet treffet er, og hvorfor. Erstatter <c>bool ErTreff</c>, som avgjorde STATUS
     /// (Venter/Avvist) — se <see cref="NavnekandidatEntitet.Konfidens"/> for hvorfor det var galt.
+    /// <para>
+    /// [Ny felt, issue #203 pkt. 3] <see cref="Kategori"/> — <c>"virksomhet"</c> eller
+    /// <c>"administrativ_inndeling"</c> (ALDRI <c>"gruppe"</c>, som aldri klassifiseres her, se
+    /// <see cref="SveipAsync"/> sin "scopet til virksomhet"-begrunnelse). Erstatter det tidligere
+    /// hardkodede <c>"virksomhet"</c>-literalet i <see cref="SveipAsync"/>s fase 3 — se
+    /// <see cref="SsrAdministrativInndelingTyper"/> for HVA som avgjør den.
+    /// </para>
     /// </summary>
-    private sealed record Klassifisering(string Konfidens, string Grunn);
+    private sealed record Klassifisering(string Konfidens, string Grunn, string Kategori);
 
     /// <summary>
     /// Ren, testbar funksjon uten DB-avhengighet — selve mønstergjenkjenningen for de TO gjenværende,
@@ -1109,6 +1209,86 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         kandidat.EndOffset = valgt + nyTekst.Length;
     }
 
+    /// <summary>
+    /// [Ny, issue #203 pkt. 4] Upsert av korreksjonsregelen (<see cref="RettskildeId"/>,
+    /// <paramref name="opprinneligTekst"/>) → <paramref name="korrigertTekst"/> — kalt fra
+    /// <see cref="OppdaterAsync"/> HVER GANG en redigering faktisk endrer <c>ForeslattTekst</c>. Se
+    /// <see cref="NavnekandidatKorreksjonEntitet"/> sin klassekommentar for HVORFOR (transparent,
+    /// automatisk læring i stedet for manuell retting hver gang samme artefakt dukker opp igjen).
+    /// <para>
+    /// Kalles KUN her, aldri direkte fra API-laget — <see cref="OppdaterAsync"/> er den ENESTE veien
+    /// <c>ForeslattTekst</c> kan endres på (utenom selve sveipets FØRSTEGANGS-opprettelse, som per
+    /// definisjon ikke er en "endring"), så dette er det RETTE og eneste stedet en korreksjonsregel kan
+    /// oppstå.
+    /// </para>
+    /// <para>
+    /// <b>Upsert, ikke alltid-ny-rad</b>: retter en saksbehandler SAMME opprinnelige artefakt-tekst i
+    /// SAMME rettskilde på nytt (f.eks. første gang til feil ny tekst, så korrigert igjen), oppdateres
+    /// den EKSISTERENDE regelen i stedet for å opprette en duplikat som ville brutt den unike
+    /// (RettskildeId, OpprinneligTekst)-indeksen.
+    /// </para>
+    /// <para>
+    /// SaveChanges kalles IKKE her — <see cref="OppdaterAsync"/> gjør ett samlet
+    /// <c>SaveChangesAsync</c> for hele redigeringen (tekst + evt. kategori + korreksjonsregel), samme
+    /// "ett lagringskall per handling"-mønster som resten av tjenesten.
+    /// </para>
+    /// </summary>
+    private async Task LagreKorreksjonAsync(
+        Guid rettskildeId, string opprinneligTekst, string korrigertTekst, string endretAv, CancellationToken ct)
+    {
+        var eksisterende = await db.NavnekandidatKorreksjoner.FirstOrDefaultAsync(
+            k => k.RettskildeId == rettskildeId && k.OpprinneligTekst == opprinneligTekst, ct);
+        if (eksisterende is not null)
+        {
+            eksisterende.KorrigertTekst = korrigertTekst;
+            eksisterende.SistEndretAv = endretAv;
+            eksisterende.SistEndretTidspunkt = DateTimeOffset.UtcNow;
+            return;
+        }
+        db.NavnekandidatKorreksjoner.Add(new NavnekandidatKorreksjonEntitet
+        {
+            Id = Guid.NewGuid(),
+            RettskildeId = rettskildeId,
+            OpprinneligTekst = opprinneligTekst,
+            KorrigertTekst = korrigertTekst,
+            OpprettetAv = endretAv,
+            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+    }
+
+    /// <summary>
+    /// [Ny, issue #203 pkt. 4] Finn hvor <paramref name="korrigertTekst"/> FAKTISK står i
+    /// <paramref name="tekst"/>, nærmest/overlappende det opprinnelige regex-treffets posisjon — brukt
+    /// av <see cref="SveipAsync"/>s fase 1 til å anvende en korreksjonsregel FØR materialisering. Samme
+    /// "nærmeste/overlappende forekomst vinner, ellers uendret intervall"-logikk som
+    /// <see cref="ReankreTilNyTekstAsync"/> (se den for hvorfor: en kort erstatningstekst som "Suldal
+    /// kommune" kan forekomme flere steder i samme node-tekst, og treffet nærmest det RÅ regex-treffet
+    /// er det treffet korreksjonen faktisk gjelder). Til forskjell fra <see cref="ReankreTilNyTekstAsync"/>
+    /// er dette en REN funksjon (ingen DB/entitet) — <see cref="SveipAsync"/> har ikke opprettet noen
+    /// <see cref="NavnekandidatEntitet"/> ennå på dette tidspunktet i fase 1.
+    /// <para>
+    /// Faller tilbake til det RÅ intervallet (<paramref name="raaStart"/>, <paramref name="raaLengde"/>)
+    /// hvis korreksjonsteksten ikke finnes i noden i det hele tatt (f.eks. korreksjonen ble laget for en
+    /// eldre versjon av teksten, siden reimportert) — ingen gjettet plassering.
+    /// </para>
+    /// </summary>
+    private static (int Start, int Lengde) FinnKorrigertIntervall(
+        string tekst, int raaStart, int raaLengde, string korrigertTekst)
+    {
+        var forekomster = new List<int>();
+        for (var i = tekst.IndexOf(korrigertTekst, StringComparison.Ordinal); i >= 0;
+             i = tekst.IndexOf(korrigertTekst, i + 1, StringComparison.Ordinal))
+        {
+            forekomster.Add(i);
+        }
+        if (forekomster.Count == 0) return (raaStart, raaLengde);
+
+        var raaSlutt = raaStart + raaLengde;
+        var overlappende = forekomster.FirstOrDefault(i => i < raaSlutt && i + korrigertTekst.Length > raaStart, -1);
+        var valgt = overlappende >= 0 ? overlappende : forekomster.OrderBy(i => Math.Abs(i - raaStart)).First();
+        return (valgt, korrigertTekst.Length);
+    }
+
     /// <summary>Idempotent — samme (rettskilde, node, START-posisjon) gir samme rad tilbake i stedet
     /// for et duplikat, uansett status (samme mønster som <see cref="VirksomhetKandidatTjeneste.OpprettEllerFinnAsync"/>).
     /// <para>
@@ -1128,9 +1308,10 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             k => k.RettskildeId == rettskildeId && k.NodeEid == nodeEid && k.StartOffset == startOffset, ct);
         if (eksisterende is not null) return eksisterende;
 
-        if (kategori is not ("virksomhet" or "gruppe"))
+        if (kategori is not ("virksomhet" or "gruppe" or "administrativ_inndeling"))
         {
-            throw new ArgumentException($"Ukjent kategori '{kategori}'. Gyldige verdier: 'virksomhet', 'gruppe'.");
+            throw new ArgumentException(
+                $"Ukjent kategori '{kategori}'. Gyldige verdier: 'virksomhet', 'gruppe', 'administrativ_inndeling'.");
         }
         if (konfidens is not (null or "hoy" or "lav"))
         {
@@ -1244,6 +1425,9 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// kun "reelt navn, verdt å følge opp" — selve koblingen til en konkret <see cref="Virksomhet"/>
     /// (ny eller eksisterende) krever et menneske og skjer via den eksisterende
     /// navneform-tilleggsflyten i <c>VirksomhetDetalj.tsx</c>/<c>VirksomhetsbegrepTjeneste.OpprettVirksomhetsbegrepAsync</c>.</item>
+    /// <item>[Ny, issue #203 pkt. 2] <c>"administrativ_inndeling"</c> — oppretter et EKTE begrep direkte,
+    /// SAMME mønster som <c>"gruppe"</c> over (<see cref="VirksomhetsbegrepTjeneste.OpprettAdministrativInndelingAsync"/>,
+    /// samme (Term, LovkildeId)-scoping, besluttet med Johann 2026-09-10).</item>
     /// </list>
     /// Hvis gruppebegrep-opprettelsen kaster (f.eks. en rad med samme (Term, LovkildeId) allerede finnes
     /// — <see cref="VirksomhetsbegrepTjeneste.OpprettGruppebegrepAsync"/> sitt eget "ingen gjettet
@@ -1296,6 +1480,17 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             var gruppebegrep = await virksomhetsbegrep.OpprettGruppebegrepAsync(
                 kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
             refIdForTagg = gruppebegrep.Id;
+        }
+        else if (kandidat.Kategori == "administrativ_inndeling")
+        {
+            // [Ny, issue #203 pkt. 2] Gren PARALLELL til "gruppe" over — samme mekanisme
+            // (OpprettAdministrativInndelingAsync er strukturelt identisk med OpprettGruppebegrepAsync,
+            // se den metodens kommentar for hvorfor det likevel er en egen metode), samme
+            // (Term, LovkildeId)-scoping, samme "gruppe"-taggkobling (Kind="begrep", RefId=det nye
+            // begrepets id).
+            var administrativInndeling = await virksomhetsbegrep.OpprettAdministrativInndelingAsync(
+                kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
+            refIdForTagg = administrativInndeling.Id;
         }
         // "virksomhet": ingen Begrep-entitet opprettes her — se metodekommentaren.
 
@@ -1450,6 +1645,10 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             var ny = foreslattTekst.Trim();
             if (ny != kandidat.ForeslattTekst)
             {
+                // [Ny, issue #203 pkt. 4] Lagre korreksjonsregelen FØR selve teksten skrives over — se
+                // LagreKorreksjonAsync sin kommentar. kandidat.ForeslattTekst er her fortsatt den GAMLE
+                // (rå, evt. artefakt-fylte) teksten, nøyaktig det vi vil huske "peker på" den nye.
+                await LagreKorreksjonAsync(kandidat.RettskildeId, kandidat.ForeslattTekst, ny, behandletAv, ct);
                 await ReankreTilNyTekstAsync(kandidat, ny, ct);
             }
             kandidat.ForeslattTekst = ny;
@@ -1457,10 +1656,11 @@ public sealed class NavnekandidatOppdagelseTjeneste(
 
         if (kategori is not null)
         {
-            if (kategori is not ("virksomhet" or "gruppe"))
+            if (kategori is not ("virksomhet" or "gruppe" or "administrativ_inndeling"))
             {
                 throw new ArgumentException(
-                    $"Ugyldig kategori '{kategori}'. Gyldige verdier: virksomhet, gruppe. Ingen gjettet fallback.");
+                    $"Ugyldig kategori '{kategori}'. Gyldige verdier: virksomhet, gruppe, administrativ_inndeling. "
+                    + "Ingen gjettet fallback.");
             }
             kandidat.Kategori = kategori;
         }

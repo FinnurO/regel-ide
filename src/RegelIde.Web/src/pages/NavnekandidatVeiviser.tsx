@@ -41,9 +41,19 @@ import { KonfidensTag, konfidensGrunnTekst } from '../kandidater/KonfidensTag';
  * pluss en `MyndighetstildelingEntitet` hjemlet i KANDIDATENS EGEN rettskilde — det er forskriften
  * der navnet står som navngir medlemskapet, ikke loven som definerte gruppen.
  *
+ * <h3>[ENDRET, issue #203 pkt. 2] «Administrativ inndeling» er nå en ekte kategori — men IKKE i DENNE
+ * veiviseren</h3>
+ * Kategorien finnes nå (`NavnekandidatDto.kategori === 'administrativ_inndeling'`, satt av SSR-basert
+ * klassifisering ved sveip, se `NavnekandidatOppdagelseTjeneste.KlassifiserAsync`), men godkjennes
+ * IKKE via denne veiviseren — den følger nøyaktig samme mekanisme som «Gruppe som defineres her»
+ * (oppretter begrepet direkte, ingen virksomhetskobling å velge), og har derfor sin egen
+ * hurtig-«Godkjenn»-knapp på `NavnekandidaterListe.tsx` i stedet, akkurat som gruppe. Steg 2 sin
+ * radio-liste under er derfor BEVISST uendret (ingen ny «administrativ inndeling»-radio her) — en
+ * kandidat SSR alt har klassifisert dit trenger ingen ekstra menneskelig kategorivalg i en veiviser
+ * bygget for den mer kompliserte virksomhets-koblingsflyten.
+ *
  * <h3>Bevisst UTENFOR denne runden</h3>
- * Kategorien «administrativ inndeling» er fortsatt ikke bygget, og har bevisst ingen stubb som ser
- * byggbar ut — en halvferdig vei i en veiviser er verre enn ingen. Å OPPRETTE et nytt gruppebegrep
+ * Å OPPRETTE et nytt gruppebegrep
  * og samtidig gjøre det medlem av en annen gruppe (gruppe-av-gruppe fra veiviseren) er heller ikke
  * med: `GruppeMedlemskapEntitet` finnes og har eget endepunkt, men veiviserens gruppe-vei oppretter
  * i dag kun selve gruppebegrepet, og medlemskapet mellom to grupper registreres separat (slik

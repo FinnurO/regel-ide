@@ -157,7 +157,11 @@ public sealed class BegrepsregisterTjeneste(RegelIdeDbContext db)
         var begrep = await db.Begreper.FirstOrDefaultAsync(b => b.Id == id && b.Entitetsstatus == "gjeldende", ct);
         if (begrep is null) return null;
 
-        var erVirksomhetEllerGruppe = begrep.Begrepskategori is "virksomhet" or "gruppe";
+        // [ENDRET, issue #203 pkt. 2] 'administrativ_inndeling' lagt til — samme "Definisjon/Begrepstype
+        // er NULL, ikke redigerbare"-regel gjelder for den som for virksomhet/gruppe (se BegrepEntitet
+        // sin klassekommentar). Variabelnavnet er beholdt uendret (kun tre-veis nå) for å holde diffen
+        // liten — betydningen er fortsatt "har IKKE Definisjon/Begrepstype-feltene".
+        var erVirksomhetEllerGruppe = begrep.Begrepskategori is "virksomhet" or "gruppe" or "administrativ_inndeling";
         if (string.IsNullOrWhiteSpace(term))
         {
             throw new ArgumentException("Term kan ikke være tom. Ingen gjettet fallback.");
