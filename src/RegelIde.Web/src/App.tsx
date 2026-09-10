@@ -26,6 +26,7 @@ import VirksomhetKandidaterListe from './pages/VirksomhetKandidaterListe';
 import NavnekandidaterListe from './pages/NavnekandidaterListe';
 import NavnekandidatVeiviser from './pages/NavnekandidatVeiviser';
 import Begrepskandidater from './pages/Begrepskandidater';
+import BegrepDefinisjonRelasjonKo from './pages/BegrepDefinisjonRelasjonKo';
 import ImportWizard from './pages/ImportWizard';
 import Tjenestereise from './pages/Tjenestereise';
 import AdministrasjonLovdataResynk from './pages/AdministrasjonLovdataResynk';
@@ -70,6 +71,7 @@ function App() {
           {/* [Ny, navnekandidat-wizard-runden, 2026-09-07] Behandling av ÉN kandidat, ende til ende. */}
           <Route path="/navnekandidater/:id/behandle" element={<NavnekandidatVeiviser />} />
           <Route path="/begrepskandidater" element={<Begrepskandidater />} />
+          <Route path="/begrep-definisjon-relasjoner" element={<BegrepDefinisjonRelasjonKo />} />
         </Routes>
       </main>
     </div>
