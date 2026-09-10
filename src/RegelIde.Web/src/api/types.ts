@@ -1207,6 +1207,30 @@ export interface BegrepsforekomstDto {
   behandletTidspunkt: string | null;
 }
 
+/** [Ny, kandidatside-runden, 2026-09-09, issue #216] Massegodkjenning/-avvisning av
+ * begrepsforekomster. `virksomhetId` gjelder HELE utvalget — hvilken virksomhets register begrepet
+ * landes i kan ikke utledes, og et utvalg fra samme definisjonsparagraf hører til samme register.
+ * Skal to begreper til ULIKE registre, er det to utvalg. Se backend-DTO-kommentaren. */
+export interface GodkjennBegrepsforekomsterBatchRequest {
+  ider: string[];
+  virksomhetId: string;
+}
+
+export interface BegrepsforekomstBatchRequest {
+  ider: string[];
+}
+
+export interface BegrepsforekomstBatchRadDto {
+  id: string;
+  ok: boolean;
+  feil: string | null;
+  resultat: BegrepsforekomstDto | null;
+}
+
+export interface BegrepsforekomstBatchResultatDto {
+  rader: BegrepsforekomstBatchRadDto[];
+}
+
 /** rettskildeId=null sveiper HELE det importerte (delte/nasjonale) korpuset, satt snevrer inn til én rettskilde. */
 export interface SveipBegrepsforekomsterRequest {
   rettskildeId: string | null;

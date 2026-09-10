@@ -864,6 +864,24 @@ public sealed record GodkjennBegrepsforekomstRequest(Guid VirksomhetId);
 
 public sealed record HardslettBegrepsforekomsterResultatDto(int AntallSlettet);
 
+/// <summary>[Ny, kandidatside-runden, 2026-09-09, issue #216] Massegodkjenning/-avvisning av
+/// begrepsforekomster — samme server-side batch med per-rad-feilhåndtering som de to andre
+/// kandidatkøene har hatt siden §4.2 pkt. 4. Begrepskandidatsiden var den eneste uten, og ÉN rad om
+/// gangen er ikke en arbeidsflate når et M1-sveip på én forskrift gir tjue definisjoner i samme
+/// definisjonsparagraf.
+///
+/// <para>Godkjenning bærer <c>VirksomhetId</c> for HELE utvalget, ikke per rad. Det er et bevisst
+/// valg, ikke en forenkling: hvilken virksomhets register begrepet landes i kan ikke utledes
+/// (se <see cref="BegrepsforekomstTjeneste"/>), og et utvalg fra samme definisjonsparagraf hører per
+/// definisjon til samme register. Skal to begreper til ULIKE registre, er det to utvalg.</para></summary>
+public sealed record GodkjennBegrepsforekomsterBatchRequest(IReadOnlyList<Guid> Ider, Guid VirksomhetId);
+
+public sealed record BegrepsforekomstBatchRequest(IReadOnlyList<Guid> Ider);
+
+public sealed record BegrepsforekomstBatchRadDto(Guid Id, bool Ok, string? Feil, BegrepsforekomstDto? Resultat);
+
+public sealed record BegrepsforekomstBatchResultatDto(IReadOnlyList<BegrepsforekomstBatchRadDto> Rader);
+
 // ---------- Kodeliste / verdidomene (docs/03-domenemodell.md §1.4) — byggesteg 2 ----------
 
 public sealed record KodelisteKodeDto(

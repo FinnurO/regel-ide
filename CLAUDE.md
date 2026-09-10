@@ -229,6 +229,49 @@ filkonflikter, men tokenbudsjettet er DELT: parallellitet flerdobler forbruket o
 beskyttelse mot at kvoten tar slutt. Får du agenter til å jobbe parallelt, instruer dem eksplisitt
 om å committe og pushe underveis.
 
+## 13. Slett grenen med én gang PR-en er merget
+
+Johann fant 57 grener på repoet. Alle unntatt den aktive hadde en MERGET PR — de
+hadde ligget igjen fordi ingen ryddet etter seg, én runde om gangen, i ukevis.
+
+Regelen: rett etter at en PR er merget, slett grenen både på origin og lokalt.
+Det er en del av å merge, ikke en oppgave for senere.
+
+```
+gh pr merge <nr> --squash --delete-branch
+```
+
+`--delete-branch` fjerner både fjern- og lokalgrenen i samme steg, og er derfor
+den formen som skal brukes. Merger du via nettsiden eller uten flagget, rydd med
+`git push origin --delete <gren>` + `git branch -d <gren>` med en gang.
+
+Merk at squash-merge gjør at grenen IKKE ser merget ut for `git branch --merged`
+— innholdet ligger i master som én ny commit, ikke som grenens egne commits.
+Sjekk PR-tilstanden i stedet, ellers ser 56 ryddeklare grener ut som 56 grener
+med uferdig arbeid:
+
+```
+git branch -r | sed 's|  origin/||' | while read b; do gh pr list --head "$b" --state all --json number,state -q ".[]|\"$b #\(.number) \(.state)\""; done
+```
+
+Sletting av grener er dessuten en av handlingene auto-modus blokkerer, så det
+kan hende kommandoen må kjøres av Johann selv — desto større grunn til å bruke
+`--delete-branch` mens PR-en merges.
+
+## 14. Regex som bytter et identifikatornavn i .tsx treffer også prosaen
+
+Da de tre kandidatsidene ble koblet til `useKandidatvalg`, byttet skriptet
+`valgte` → `valg.valgte` litt for grådig: regexen traff JSX-TEKST og strenger,
+ikke bare uttrykk. Resultatet var seks synlige knapper som sa «Godkjenn
+valg.valgte», pluss en feilmelding og en bekreftelsesdialog med samme lekkasje.
+
+`tsc` og testene var grønne hele veien — det er ikke en type- eller logikkfeil,
+det er tekst. Nettleserkontrollen fanget den heller ikke, fordi den sjekket
+tellerne og sorteringspilene, ikke knappenavnene.
+
+Etter et slikt bytte: `find`/`read_page` på knappetekstene, og et grep etter
+det nye navnet i kommentar-/strengposisjon.
+
 ## Nyttige kommandoer
 
 Kjør appen (Browser-panelet, aldri `dotnet run` via Bash) — konfigurasjonene heter `regel-ide-api` og

@@ -4,13 +4,17 @@ import { Alert, Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, 
 import { ApiError, api } from '../api/client';
 import { BerikelseVisning } from '../virksomhet/BerikelseVisning';
 import { rettskildeLenkeForId } from '../api/eidLenker';
-import type { NavnekandidatDto, RettskildeNodeDto, RettskildeSammendrag } from '../api/types';
+import type { NavnekandidatDto, RettskildeSammendrag } from '../api/types';
 import { RettskildeFlervalg } from '../rettskilde/RettskildeFlervalg';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 import { KandidatflytForklaring } from '../kandidater/KandidatflytForklaring';
 import { KonfidensTag } from '../kandidater/KonfidensTag';
+import { useSortering } from '../kandidater/useSortering';
+import { useKandidatvalg } from '../kandidater/useKandidatvalg';
+import { Massehandlingsrad } from '../kandidater/Massehandlingsrad';
+import { useNodeEtiketter, useRettskildeoppslag } from '../kandidater/useNodeEtiketter';
 
 type Sorteringskolonne = 'foreslattTekst' | 'kategori' | 'rettskilde' | 'status' | 'opprettet';
 
@@ -108,7 +112,6 @@ export default function NavnekandidaterListe() {
   // for rå nodeEid. Hentes KUN for rettskildene bak de faktisk SYNLIGE radene (se `synligeRader`
   // under) — samme observerte perf-hensyn som der (én virksomhet/term kan ha kandidater spredt over
   // hundrevis av ulike rettskilder samtidig).
-  const [noderPerRettskilde, setNoderPerRettskilde] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
 
   const [kategoriFilter, setKategoriFilter] = useState<'virksomhet' | 'gruppe' | ''>('');
   // [Ny, konfidens-runden, 2026-09-09] '' = alle. 'ingen' = radene som ikke er klassifisert
@@ -135,7 +138,10 @@ export default function NavnekandidaterListe() {
   const [feil, setFeil] = useState<string | null>(null);
   const [laster, setLaster] = useState(false);
 
-  const [valgte, setValgte] = useState<Set<string>>(new Set());
+  // [ENDRET, kandidatside-runden, 2026-09-09, issue #216] Delt hook. Merk at «alle viste»
+  // NULLSTILLER hele utvalget ved avhukning, mens «velg gruppe» bare rører gruppens egne
+  // rader — den forskjellen er en avgjørelse, og den bor nå ett sted. Se useKandidatvalg.
+  const valg = useKandidatvalg();
   const [massehandlingKjorer, setMassehandlingKjorer] = useState(false);
   const [massehandlingFeil, setMassehandlingFeil] = useState<string | null>(null);
 
@@ -149,8 +155,9 @@ export default function NavnekandidaterListe() {
   const [sveipFeil, setSveipFeil] = useState<string | null>(null);
   const [sveipResultat, setSveipResultat] = useState<{ funnet: number; nye: number } | null>(null);
 
-  const [sortKolonne, setSortKolonne] = useState<Sorteringskolonne>('opprettet');
-  const [sortStigende, setSortStigende] = useState(false);
+  // [ENDRET, kandidatside-runden, 2026-09-09, issue #216] Delt hook — de tre kandidatsidene hadde
+  // hver sin identiske kopi av sorteringstilstanden og de to hjelpefunksjonene.
+  const sortering = useSortering<Sorteringskolonne>('opprettet', false);
 
   useEffect(() => {
     api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
@@ -174,7 +181,7 @@ export default function NavnekandidaterListe() {
       .then((liste) => {
         if (denneForesporselen !== sisteForesporsel.current) return;
         setKandidater(liste);
-        setValgte(new Set()); // Nytt filter/ny liste — forrige utvalg gjelder ikke lenger.
+        valg.nullstill(); // Nytt filter/ny liste — forrige utvalg gjelder ikke lenger.
       })
       .catch((e) => {
         if (denneForesporselen !== sisteForesporsel.current) return;
@@ -193,19 +200,13 @@ export default function NavnekandidaterListe() {
     setGruppeApne(new Set());
   }, [gruppering]);
 
-  const rettskilderPerId = useMemo(() => new Map(rettskilder.map((r) => [r.id, r] as const)), [rettskilder]);
-  function visRettskilde(rettskildeId: string): string {
-    return rettskilderPerId.get(rettskildeId)?.tittel ?? rettskildeId;
-  }
+  const rettskildeOppslag = useRettskildeoppslag(rettskilder);
   // Navnekandidat-fiks 2 (2026-08-30) — Lovdatas eget metadata for HVILKET(E) departement(er) en
   // rettskilde faktisk gjelder (RettskildeEntitet.AnsvarligDepartement), slått opp via den allerede-
   // hentede rettskildelisten (samme mønster som visRettskilde over) i stedet for et eget kall. Spesielt
   // viktig for "departementet"/"Kongen i statsråd"-kandidater, som ellers ikke sier noe om HVILKET
   // departement. [ENDRET, fler-verdi-departement, 2026-09-04] Returnerer nå en liste — en rettskilde kan
   // ha flere ansvarlige departementer ved delt ansvar.
-  function visAnsvarligDepartement(rettskildeId: string): string[] | null {
-    return rettskilderPerId.get(rettskildeId)?.ansvarligDepartement ?? null;
-  }
 
   async function kjorSveip() {
     setSveiper(true);
@@ -232,34 +233,15 @@ export default function NavnekandidaterListe() {
     }
   }
 
-  function vekslValgt(id: string, valgt: boolean) {
-    setValgte((forrige) => {
-      const ny = new Set(forrige);
-      if (valgt) ny.add(id); else ny.delete(id);
-      return ny;
-    });
-  }
 
   // "Alle viste" = alle på GJELDENDE SIDE ved 'ingen' gruppering (samme avgrensning som
   // VirksomhetKandidaterListe.tsx), MEN hele det filtrerte settet ved gruppering (ingen paginering da
   // — se `raderForMasterSjekkboks`).
-  function vekslAlleViste(valgt: boolean) {
-    setValgte(valgt ? new Set(raderForMasterSjekkboks.map((k) => k.id)) : new Set());
-  }
 
   // Gruppens EGEN avkrysningsboks — velger/fjerner ALLE radene i gruppen (uansett om gruppen er
   // kollapset, jf. Johanns krav om at «velg alle»-lignende kontroller skal treffe hele gruppen, ikke
   // bare det synlige) uten å nullstille resten av utvalget (i motsetning til `vekslAlleViste`, som
   // bevisst nullstiller alt ved avhukning — samme mønster videreført herfra).
-  function vekslGruppe(rader: NavnekandidatDto[], valgt: boolean) {
-    setValgte((forrige) => {
-      const ny = new Set(forrige);
-      for (const k of rader) {
-        if (valgt) ny.add(k.id); else ny.delete(k.id);
-      }
-      return ny;
-    });
-  }
 
   function vekslGruppeApen(nokkel: string) {
     setGruppeApne((forrige) => {
@@ -329,12 +311,12 @@ export default function NavnekandidaterListe() {
   // følger samme mønster (Johann: «kan du flytte "Slette" inn på samme sted og funksjon som Godkjenn
   // og Avvis?»).
   async function slettValgte() {
-    if (valgte.size === 0) return;
-    if (!window.confirm(`Slette ${valgte.size} valgt${valgte.size === 1 ? '' : 'e'} kandidat(er) permanent? Dette kan ikke angres.`)) return;
+    if (valg.antall === 0) return;
+    if (!window.confirm(`Slette ${valg.antall} valgt${valg.antall === 1 ? '' : 'e'} kandidat(er) permanent? Dette kan ikke angres.`)) return;
     setMassehandlingKjorer(true);
     setMassehandlingFeil(null);
     try {
-      const resultat = await api.slettNavnekandidaterBatch({ ider: [...valgte] });
+      const resultat = await api.slettNavnekandidaterBatch({ ider: [...valg.valgte] });
       const feilede = resultat.rader.filter((r) => !r.ok);
       if (feilede.length > 0) {
         setMassehandlingFeil(
@@ -350,11 +332,11 @@ export default function NavnekandidaterListe() {
   }
 
   async function massehandling(handling: 'godkjenn' | 'avvis') {
-    if (valgte.size === 0) return;
+    if (valg.antall === 0) return;
     setMassehandlingKjorer(true);
     setMassehandlingFeil(null);
     try {
-      const request = { ider: [...valgte] };
+      const request = { ider: [...valg.valgte] };
       const resultat = handling === 'godkjenn'
         ? await api.godkjennNavnekandidaterBatch(request)
         : await api.avvisNavnekandidaterBatch(request);
@@ -372,17 +354,6 @@ export default function NavnekandidaterListe() {
     }
   }
 
-  function bytteSortering(kolonne: Sorteringskolonne) {
-    if (sortKolonne === kolonne) setSortStigende((s) => !s);
-    else {
-      setSortKolonne(kolonne);
-      setSortStigende(true);
-    }
-  }
-  function sorteringsindikator(kolonne: Sorteringskolonne) {
-    if (sortKolonne !== kolonne) return '';
-    return sortStigende ? ' ▲' : ' ▼';
-  }
 
   const viste = useMemo(() => {
     if (!kandidater) return null;
@@ -393,27 +364,27 @@ export default function NavnekandidaterListe() {
       return true;
     });
     const sortnokkel = (k: NavnekandidatDto) =>
-      sortKolonne === 'foreslattTekst'
+      sortering.kolonne === 'foreslattTekst'
         ? k.foreslattTekst
-        : sortKolonne === 'kategori'
+        : sortering.kolonne === 'kategori'
           ? k.kategori
-          : sortKolonne === 'rettskilde'
-            ? visRettskilde(k.rettskildeId)
-            : sortKolonne === 'status'
+          : sortering.kolonne === 'rettskilde'
+            ? rettskildeOppslag.tittel(k.rettskildeId)
+            : sortering.kolonne === 'status'
               ? k.status
               : k.opprettetTidspunkt;
     return [...filtrert].sort((a, b) => {
       const cmp = sortnokkel(a).localeCompare(sortnokkel(b), 'nb');
-      return sortStigende ? cmp : -cmp;
+      return sortering.stigende ? cmp : -cmp;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kandidater, rettskildeValgteFilter, filterForeslattTekst, sortKolonne, sortStigende, rettskilderPerId]);
+  }, [kandidater, rettskildeValgteFilter, filterForeslattTekst, sortering.kolonne, sortering.stigende, rettskildeOppslag.perId]);
 
   const paginering = usePaginering(viste ?? []);
 
   // Gruppert visning (se `Gruppering`-kommentaren over) — bygget OVENPÅ det allerede filtrerte og
   // sorterte `viste`-settet, altså inkluderer den samme klient-filtreringen/sorteringen som den flate
-  // visningen. Radrekkefølgen INNI hver gruppe arver dermed `sortKolonne`/`sortStigende`; selve
+  // visningen. Radrekkefølgen INNI hver gruppe arver dermed `sortering.kolonne`/`sortering.stigende`; selve
   // GRUPPENE sorteres etter antall (flest først, jf. Johanns "se forslagene i sammenheng" — de mest
   // gjentatte forslagene er det mest interessante å se samlet), med alfabetisk (nb) som tiebreak.
   const grupper = useMemo<Kandidatgruppe[] | null>(() => {
@@ -427,12 +398,12 @@ export default function NavnekandidaterListe() {
     return [...perNokkel.entries()]
       .map(([nokkel, rader]): Kandidatgruppe => ({
         nokkel,
-        visningsnavn: gruppering === 'rettskilde' ? visRettskilde(nokkel) : nokkel,
+        visningsnavn: gruppering === 'rettskilde' ? rettskildeOppslag.tittel(nokkel) : nokkel,
         rader,
       }))
       .sort((a, b) => b.rader.length - a.rader.length || a.visningsnavn.localeCompare(b.visningsnavn, 'nb'));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viste, gruppering, rettskilderPerId]);
+  }, [viste, gruppering, rettskildeOppslag.perId]);
 
   // Radene «velg alle»-toppboksen (og av-huking) skal virke på: gjeldende SIDE ved flat visning
   // (samme avgrensning som før), men HELE det filtrerte settet ved gruppering — der finnes det ingen
@@ -449,25 +420,13 @@ export default function NavnekandidaterListe() {
     return grupper.filter((g) => gruppeApne.has(g.nokkel)).flatMap((g) => g.rader);
   }, [gruppering, paginering.visteRader, grupper, gruppeApne]);
 
-  useEffect(() => {
-    for (const rettskildeId of new Set(synligeRader.map((k) => k.rettskildeId))) {
-      if (noderPerRettskilde.has(rettskildeId)) continue;
-      api.hentNoder(rettskildeId)
-        .then((noder) => setNoderPerRettskilde((forrige) => new Map(forrige).set(rettskildeId, noder)))
-        .catch(() => {}); // ingen gjettet fallback — viser rå node-eId når nodene ikke lot seg hente
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [synligeRader]);
+  // [ENDRET, kandidatside-runden, 2026-09-09, issue #216] Delt hook: sen node-henting per
+  // rettskilde for de VISTE radene, og etiketten via paragrafEtikett. Den lokale kopien her
+  // bygde «§ {node.nummer}», som for et LEDD ga leddnummeret — «§ 6» for § 36 sjette ledd.
+  const nodeEtiketter = useNodeEtiketter(synligeRader);
 
   // Samme "§ nummer — overskrift"-bygging som VirksomhetKandidaterListe.tsx sin visNodeTekst — kilden
   // vises allerede i egen "Rettskilde"-kolonne rett ved siden av.
-  function visNodeTekst(k: NavnekandidatDto): string {
-    const node = noderPerRettskilde.get(k.rettskildeId)?.find((n) => n.eid === k.nodeEid);
-    const paragraf = node?.nummer ? `§ ${node.nummer}` : null;
-    const overskrift = node?.overskrift ? `— ${node.overskrift}` : null;
-    const tekst = [paragraf, overskrift].filter((d): d is string => d !== null).join(' ');
-    return tekst || k.nodeEid;
-  }
 
   function apneAlleGrupper() {
     if (grupper) setGruppeApne(new Set(grupper.map((g) => g.nokkel)));
@@ -484,8 +443,8 @@ export default function NavnekandidaterListe() {
         <Table.Cell>
           <Checkbox
             aria-label={`Velg kandidat ${k.id}`}
-            checked={valgte.has(k.id)}
-            onChange={(e) => vekslValgt(k.id, e.target.checked)}
+            checked={valg.erValgt(k.id)}
+            onChange={(e) => valg.veksl(k.id, e.target.checked)}
           />
         </Table.Cell>
         <Table.Cell>
@@ -498,15 +457,15 @@ export default function NavnekandidaterListe() {
           {k.foreslattTekst}
           {k.oppdagelsesKilde === 'stor-bokstav-snl-ssr' && <BerikelseVisning k={k} />}
         </Table.Cell>
-        <Table.Cell>{visRettskilde(k.rettskildeId)}</Table.Cell>
+        <Table.Cell>{rettskildeOppslag.tittel(k.rettskildeId)}</Table.Cell>
         <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
           <Link asChild>
-            <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{visNodeTekst(k)} ↗</RouterLink>
+            <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{nodeEtiketter.etikett(k.rettskildeId, k.nodeEid)} ↗</RouterLink>
           </Link>
         </Table.Cell>
         <Table.Cell>
           {(() => {
-            const departementer = visAnsvarligDepartement(k.rettskildeId);
+            const departementer = rettskildeOppslag.ansvarligDepartement(k.rettskildeId);
             // Spesielt synlig for "departementet"/"Kongen i statsråd"-kandidater (se
             // metodekommentaren) — men vist for ALLE kategorier, siden feltet uansett bare
             // sier hvilket(e) departement(er) som eier RETTSKILDEN, ikke bare denne enkelttermen.
@@ -695,29 +654,17 @@ export default function NavnekandidaterListe() {
         </div>
       </Card>
 
-      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0 }}>
-          {valgte.size} valgt{valgte.size === 1 ? '' : 'e'}
-        </Paragraph>
-        <Button data-size="sm" onClick={() => massehandling('godkjenn')} disabled={valgte.size === 0 || massehandlingKjorer}>
-          {massehandlingKjorer ? 'Godkjenner …' : 'Godkjenn valgte'}
-        </Button>
-        <Button data-size="sm" variant="secondary" onClick={() => massehandling('avvis')} disabled={valgte.size === 0 || massehandlingKjorer}>
-          {massehandlingKjorer ? 'Avviser …' : 'Avvis valgte'}
-        </Button>
-        {/* [Ny, «flytt Slett inn i massehandling-raden», 2026-09-02] Samme sted/mønster som Godkjenn/
-            Avvis over (samme `valgte`-sett, samme disabled-betingelse) — presist utvalg, til forskjell
-            fra «Slett kandidater»-kortet under (filter-basert, uavhengig av avkrysning). */}
-        <Button
-          data-size="sm"
-          data-color="danger"
-          onClick={slettValgte}
-          disabled={valgte.size === 0 || massehandlingKjorer}
-        >
-          {massehandlingKjorer ? 'Sletter …' : 'Slett valgte'}
-        </Button>
-      </div>
-      {massehandlingFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{massehandlingFeil}</div>}
+      {/* [ENDRET, kandidatside-runden, 2026-09-09, issue #216] Delt komponent. «Slett valgte» sitter
+          fortsatt HER, i samme rad som Godkjenn/Avvis og på samme utvalg — til forskjell fra
+          «Slett stort, filtrert delsett»-kortet under, som er filterbasert og uavhengig av avkrysning. */}
+      <Massehandlingsrad
+        antallValgte={valg.antall}
+        kjorer={massehandlingKjorer}
+        feil={massehandlingFeil}
+        onGodkjenn={() => massehandling('godkjenn')}
+        onAvvis={() => massehandling('avvis')}
+        onSlett={slettValgte}
+      />
 
       <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
@@ -755,31 +702,31 @@ export default function NavnekandidaterListe() {
                   <Table.HeaderCell>
                     <Checkbox
                       aria-label="Velg alle viste"
-                      checked={raderForMasterSjekkboks.length > 0 && raderForMasterSjekkboks.every((k) => valgte.has(k.id))}
-                      onChange={(e) => vekslAlleViste(e.target.checked)}
+                      checked={raderForMasterSjekkboks.length > 0 && raderForMasterSjekkboks.every((k) => valg.erValgt(k.id))}
+                      onChange={(e) => valg.velgAlleViste(raderForMasterSjekkboks, e.target.checked)}
                     />
                   </Table.HeaderCell>
                   <Table.HeaderCell>
-                    <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('kategori')}>
-                      Kategori{sorteringsindikator('kategori')}
+                    <button type="button" className="tabell-sorter-knapp" onClick={() => sortering.bytt('kategori')}>
+                      Kategori{sortering.indikator('kategori')}
                     </button>
                   </Table.HeaderCell>
                   <Table.HeaderCell>Konfidens</Table.HeaderCell>
                   <Table.HeaderCell>
-                    <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('foreslattTekst')}>
-                      Foreslått tekst{sorteringsindikator('foreslattTekst')}
+                    <button type="button" className="tabell-sorter-knapp" onClick={() => sortering.bytt('foreslattTekst')}>
+                      Foreslått tekst{sortering.indikator('foreslattTekst')}
                     </button>
                   </Table.HeaderCell>
                   <Table.HeaderCell>
-                    <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('rettskilde')}>
-                      Lov/forskrift{sorteringsindikator('rettskilde')}
+                    <button type="button" className="tabell-sorter-knapp" onClick={() => sortering.bytt('rettskilde')}>
+                      Lov/forskrift{sortering.indikator('rettskilde')}
                     </button>
                   </Table.HeaderCell>
                   <Table.HeaderCell>Node</Table.HeaderCell>
                   <Table.HeaderCell>Ansvarlig departement</Table.HeaderCell>
                   <Table.HeaderCell>
-                    <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('status')}>
-                      Status{sorteringsindikator('status')}
+                    <button type="button" className="tabell-sorter-knapp" onClick={() => sortering.bytt('status')}>
+                      Status{sortering.indikator('status')}
                     </button>
                   </Table.HeaderCell>
                   <Table.HeaderCell>Handling</Table.HeaderCell>
@@ -794,8 +741,8 @@ export default function NavnekandidaterListe() {
                           <Table.Cell>
                             <Checkbox
                               aria-label={`Velg alle i gruppen ${g.visningsnavn}`}
-                              checked={g.rader.every((k) => valgte.has(k.id))}
-                              onChange={(e) => vekslGruppe(g.rader, e.target.checked)}
+                              checked={g.rader.every((k) => valg.erValgt(k.id))}
+                              onChange={(e) => valg.vekslGruppe(g.rader, e.target.checked)}
                             />
                           </Table.Cell>
                           {/* 8, ikke 7: konfidens-kolonnen kom til 2026-09-09. */}

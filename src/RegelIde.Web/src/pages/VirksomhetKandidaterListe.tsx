@@ -3,12 +3,16 @@ import { Link as RouterLink, useSearchParams } from 'react-router';
 import { Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
-import type { RettskildeNodeDto, RettskildeSammendrag, VirksomhetKandidatDto } from '../api/types';
+import type { RettskildeSammendrag, VirksomhetKandidatDto } from '../api/types';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { KandidatflytForklaring } from '../kandidater/KandidatflytForklaring';
+import { useSortering } from '../kandidater/useSortering';
+import { useKandidatvalg } from '../kandidater/useKandidatvalg';
+import { Massehandlingsrad } from '../kandidater/Massehandlingsrad';
+import { useNodeEtiketter, useRettskildeoppslag } from '../kandidater/useNodeEtiketter';
 
 type Sorteringskolonne = 'virksomhet' | 'rettskilde' | 'status' | 'opprettet';
 
@@ -41,7 +45,10 @@ export default function VirksomhetKandidaterListe() {
   const [feil, setFeil] = useState<string | null>(null);
   const [laster, setLaster] = useState(false);
 
-  const [valgte, setValgte] = useState<Set<string>>(new Set());
+  // [ENDRET, kandidatside-runden, 2026-09-09, issue #216] Delt hook. Merk at «alle viste»
+  // NULLSTILLER hele utvalget ved avhukning, mens «velg gruppe» bare rører gruppens egne
+  // rader — den forskjellen er en avgjørelse, og den bor nå ett sted. Se useKandidatvalg.
+  const valg = useKandidatvalg();
   const [massehandlingKjorer, setMassehandlingKjorer] = useState(false);
   const [massehandlingFeil, setMassehandlingFeil] = useState<string | null>(null);
 
@@ -61,8 +68,9 @@ export default function VirksomhetKandidaterListe() {
   const [sveipFeil, setSveipFeil] = useState<string | null>(null);
   const [sveipResultat, setSveipResultat] = useState<{ funnet: number; nye: number } | null>(null);
 
-  const [sortKolonne, setSortKolonne] = useState<Sorteringskolonne>('opprettet');
-  const [sortStigende, setSortStigende] = useState(false);
+  // [ENDRET, kandidatside-runden, 2026-09-09, issue #216] Delt hook — de tre kandidatsidene hadde
+  // hver sin identiske kopi av sorteringstilstanden og de to hjelpefunksjonene.
+  const sortering = useSortering<Sorteringskolonne>('opprettet', false);
 
   useEffect(() => {
     api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
@@ -73,26 +81,18 @@ export default function VirksomhetKandidaterListe() {
   // skåret ut av nodens Tekst), ikke bare den rå node-eId-en. Uten dette er det ikke synlig i lista
   // OM det var "Advokattilsynet" eller en annen navneform (f.eks. "Tilsynsrådet for advokatvirksomhet")
   // som ga treffet.
-  const [noderPerRettskilde, setNoderPerRettskilde] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
 
   function visNavneformFunnet(k: VirksomhetKandidatDto): string | null {
-    const node = noderPerRettskilde.get(k.rettskildeId)?.find((n) => n.eid === k.nodeEid);
+    const node = nodeEtiketter.node(k.rettskildeId, k.nodeEid);
     if (!node?.tekst) return null;
     return node.tekst.slice(k.startOffset, k.endOffset);
   }
 
   // [Ny, 2026-09-02, issue #115] Menneskelesbar "Node"-visning — "§ {nummer} — {overskrift}" i stedet
-  // for rå nodeEid, gjenbruker allerede-hentede `noderPerRettskilde` (samme node som
+  // for rå nodeEid, gjenbruker de allerede hentede nodene (samme node som
   // `visNavneformFunnet` slår opp). Kilden vises allerede i egen "Lov/forskrift"-kolonne rett ved
   // siden av, så vi bygger teksten direkte fra noden i stedet for å gå via `eidVisningstekst` (som
   // ville dratt inn kortnavnet en gang til). Faller tilbake til rå eId når noden ikke er funnet ennå.
-  function visNodeTekst(k: VirksomhetKandidatDto): string {
-    const node = noderPerRettskilde.get(k.rettskildeId)?.find((n) => n.eid === k.nodeEid);
-    const paragraf = node?.nummer ? `§ ${node.nummer}` : null;
-    const overskrift = node?.overskrift ? `— ${node.overskrift}` : null;
-    const tekst = [paragraf, overskrift].filter((d): d is string => d !== null).join(' ');
-    return tekst || k.nodeEid;
-  }
 
   // Forespørsel-sekvensnummer (2026-08-22, Johanns tilbakemelding: kandidater for en virksomhet dukket
   // opp i lista mens et ANNET filter var valgt) — uten dette kunne en TREG, ELDRE forespørsel (f.eks.
@@ -116,7 +116,7 @@ export default function VirksomhetKandidaterListe() {
       .then((liste) => {
         if (denneForesporselen !== sisteForesporsel.current) return; // en nyere forespørsel er allerede i gang/ferdig
         setKandidater(liste);
-        setValgte(new Set()); // Nytt filter/ny liste — forrige utvalg gjelder ikke lenger.
+        valg.nullstill(); // Nytt filter/ny liste — forrige utvalg gjelder ikke lenger.
       })
       .catch((e) => {
         if (denneForesporselen !== sisteForesporsel.current) return;
@@ -157,10 +157,7 @@ export default function VirksomhetKandidaterListe() {
     [virksomheter, virksomhetIderMedKandidater],
   );
 
-  const rettskilderPerId = useMemo(() => new Map(rettskilder.map((r) => [r.id, r] as const)), [rettskilder]);
-  function visRettskilde(rettskildeId: string): string {
-    return rettskilderPerId.get(rettskildeId)?.tittel ?? rettskildeId;
-  }
+  const rettskildeOppslag = useRettskildeoppslag(rettskilder);
 
   async function kjorSveip() {
     if (!sveipVirksomhetId) return;
@@ -178,27 +175,17 @@ export default function VirksomhetKandidaterListe() {
     }
   }
 
-  function vekslValgt(id: string, valgt: boolean) {
-    setValgte((forrige) => {
-      const ny = new Set(forrige);
-      if (valgt) ny.add(id); else ny.delete(id);
-      return ny;
-    });
-  }
 
   // Merk: "alle viste" betyr alle på GJELDENDE SIDE, ikke hele det filtrerte treffsettet — samme
   // avgrensning som checkbox-etiketten "Velg alle viste" allerede antydet før paginering fantes,
   // nå bare eksplisitt riktig i og med at "viste" er per side.
-  function vekslAlleViste(valgt: boolean) {
-    setValgte(valgt ? new Set(paginering.visteRader.map((k) => k.id)) : new Set());
-  }
 
   async function massehandling(handling: 'godkjenn' | 'avvis') {
-    if (valgte.size === 0) return;
+    if (valg.antall === 0) return;
     setMassehandlingKjorer(true);
     setMassehandlingFeil(null);
     try {
-      const request = { ider: [...valgte] };
+      const request = { ider: [...valg.valgte] };
       const resultat = handling === 'godkjenn'
         ? await api.godkjennVirksomhetKandidaterBatch(request)
         : await api.avvisVirksomhetKandidaterBatch(request);
@@ -243,9 +230,9 @@ export default function VirksomhetKandidaterListe() {
   // som ikke er avvist i stedet for å feile hele handlingen — bekrefter tydelig i dialogen hvor mange
   // som faktisk slettes vs. hoppes over.
   async function slettValgte() {
-    if (valgte.size === 0) return;
-    const avvisteValgte = (kandidater ?? []).filter((k) => valgte.has(k.id) && k.status === 'Avvist').map((k) => k.id);
-    const hoppetOver = valgte.size - avvisteValgte.length;
+    if (valg.antall === 0) return;
+    const avvisteValgte = (kandidater ?? []).filter((k) => valg.erValgt(k.id) && k.status === 'Avvist').map((k) => k.id);
+    const hoppetOver = valg.antall - avvisteValgte.length;
     if (avvisteValgte.length === 0) {
       setMassehandlingFeil('Ingen av de valgte radene er avvist — kun avviste kandidater kan slettes her.');
       return;
@@ -261,7 +248,7 @@ export default function VirksomhetKandidaterListe() {
       for (const id of avvisteValgte) {
         await api.hardslettVirksomhetKandidat(id);
       }
-      setValgte(new Set());
+      valg.nullstill();
       lastKandidater();
       lastAvvisteKandidater();
     } catch (err) {
@@ -292,34 +279,23 @@ export default function VirksomhetKandidaterListe() {
     }
   }
 
-  function bytteSortering(kolonne: Sorteringskolonne) {
-    if (sortKolonne === kolonne) setSortStigende((s) => !s);
-    else {
-      setSortKolonne(kolonne);
-      setSortStigende(true);
-    }
-  }
-  function sorteringsindikator(kolonne: Sorteringskolonne) {
-    if (sortKolonne !== kolonne) return '';
-    return sortStigende ? ' ▲' : ' ▼';
-  }
 
   const viste = useMemo(() => {
     if (!kandidater) return null;
     const sortnokkel = (k: VirksomhetKandidatDto) =>
-      sortKolonne === 'virksomhet'
+      sortering.kolonne === 'virksomhet'
         ? visEier(k.virksomhetId)
-        : sortKolonne === 'rettskilde'
-          ? visRettskilde(k.rettskildeId)
-          : sortKolonne === 'status'
+        : sortering.kolonne === 'rettskilde'
+          ? rettskildeOppslag.tittel(k.rettskildeId)
+          : sortering.kolonne === 'status'
             ? k.status
             : k.opprettetTidspunkt;
     return [...kandidater].sort((a, b) => {
       const cmp = sortnokkel(a).localeCompare(sortnokkel(b), 'nb');
-      return sortStigende ? cmp : -cmp;
+      return sortering.stigende ? cmp : -cmp;
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [kandidater, sortKolonne, sortStigende, visEier, rettskilderPerId]);
+  }, [kandidater, sortering.kolonne, sortering.stigende, visEier, rettskildeOppslag.perId]);
 
   const paginering = usePaginering(viste ?? []);
 
@@ -329,15 +305,10 @@ export default function VirksomhetKandidaterListe() {
   // på tvers av store deler av lovverket) — å hente noder for ALLE av dem samtidig var en reell,
   // observert render-treg/timeout-regresjon. Paginering gjør denne mengden avgrenset og forutsigbar
   // (maks ett `hentNoder`-kall per DISTINKT rettskilde blant de viste radene, ikke per rad).
-  useEffect(() => {
-    for (const rettskildeId of new Set(paginering.visteRader.map((k) => k.rettskildeId))) {
-      if (noderPerRettskilde.has(rettskildeId)) continue;
-      api.hentNoder(rettskildeId)
-        .then((noder) => setNoderPerRettskilde((forrige) => new Map(forrige).set(rettskildeId, noder)))
-        .catch(() => {}); // ingen gjettet fallback — viser rå node-eId under når nodene ikke lot seg hente
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [paginering.visteRader]);
+  // [ENDRET, kandidatside-runden, 2026-09-09, issue #216] Delt hook: sen node-henting per
+  // rettskilde for de VISTE radene, og etiketten via paragrafEtikett. Den lokale kopien her
+  // bygde «§ {node.nummer}», som for et LEDD ga leddnummeret — «§ 6» for § 36 sjette ledd.
+  const nodeEtiketter = useNodeEtiketter(paginering.visteRader);
 
   return (
     <>
@@ -408,22 +379,17 @@ export default function VirksomhetKandidaterListe() {
         </Field>
       </div>
 
-      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0 }}>
-          {valgte.size} valgt{valgte.size === 1 ? '' : 'e'}
-          {rettskildeFilter ? ' — filtrert til én lov/forskrift' : ''}
-        </Paragraph>
-        <Button data-size="sm" onClick={() => massehandling('godkjenn')} disabled={valgte.size === 0 || massehandlingKjorer}>
-          {massehandlingKjorer ? 'Godkjenner …' : 'Godkjenn valgte'}
-        </Button>
-        <Button data-size="sm" variant="secondary" onClick={() => massehandling('avvis')} disabled={valgte.size === 0 || massehandlingKjorer}>
-          {massehandlingKjorer ? 'Avviser …' : 'Avvis valgte'}
-        </Button>
-        <Button data-size="sm" data-color="danger" onClick={slettValgte} disabled={valgte.size === 0 || massehandlingKjorer}>
-          {massehandlingKjorer ? 'Sletter …' : 'Slett valgte'}
-        </Button>
-      </div>
-      {massehandlingFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{massehandlingFeil}</div>}
+      {/* [ENDRET, kandidatside-runden, 2026-09-09, issue #216] Delt komponent — samme rad på alle tre
+          kandidatsidene, inkludert begrepskandidatsiden som tidligere ikke hadde massehandling. */}
+      <Massehandlingsrad
+        antallValgte={valg.antall}
+        kjorer={massehandlingKjorer}
+        feil={massehandlingFeil}
+        merknad={rettskildeFilter ? ' — filtrert til én lov/forskrift' : undefined}
+        onGodkjenn={() => massehandling('godkjenn')}
+        onAvvis={() => massehandling('avvis')}
+        onSlett={slettValgte}
+      />
 
       <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
@@ -462,25 +428,25 @@ export default function VirksomhetKandidaterListe() {
                   <Table.HeaderCell>
                     <Checkbox
                       aria-label="Velg alle viste"
-                      checked={paginering.visteRader.length > 0 && paginering.visteRader.every((k) => valgte.has(k.id))}
-                      onChange={(e) => vekslAlleViste(e.target.checked)}
+                      checked={paginering.visteRader.length > 0 && paginering.visteRader.every((k) => valg.erValgt(k.id))}
+                      onChange={(e) => valg.velgAlleViste(paginering.visteRader, e.target.checked)}
                     />
                   </Table.HeaderCell>
                   <Table.HeaderCell>
-                    <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('virksomhet')}>
-                      Virksomhet{sorteringsindikator('virksomhet')}
+                    <button type="button" className="tabell-sorter-knapp" onClick={() => sortering.bytt('virksomhet')}>
+                      Virksomhet{sortering.indikator('virksomhet')}
                     </button>
                   </Table.HeaderCell>
                   <Table.HeaderCell>
-                    <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('rettskilde')}>
-                      Lov/forskrift{sorteringsindikator('rettskilde')}
+                    <button type="button" className="tabell-sorter-knapp" onClick={() => sortering.bytt('rettskilde')}>
+                      Lov/forskrift{sortering.indikator('rettskilde')}
                     </button>
                   </Table.HeaderCell>
                   <Table.HeaderCell>Node</Table.HeaderCell>
                   <Table.HeaderCell>Navneform funnet</Table.HeaderCell>
                   <Table.HeaderCell>
-                    <button type="button" className="tabell-sorter-knapp" onClick={() => bytteSortering('status')}>
-                      Status{sorteringsindikator('status')}
+                    <button type="button" className="tabell-sorter-knapp" onClick={() => sortering.bytt('status')}>
+                      Status{sortering.indikator('status')}
                     </button>
                   </Table.HeaderCell>
                   <Table.HeaderCell>Handling</Table.HeaderCell>
@@ -492,12 +458,12 @@ export default function VirksomhetKandidaterListe() {
                     <Table.Cell>
                       <Checkbox
                         aria-label={`Velg kandidat ${k.id}`}
-                        checked={valgte.has(k.id)}
-                        onChange={(e) => vekslValgt(k.id, e.target.checked)}
+                        checked={valg.erValgt(k.id)}
+                        onChange={(e) => valg.veksl(k.id, e.target.checked)}
                       />
                     </Table.Cell>
                     <Table.Cell>{visEier(k.virksomhetId)}</Table.Cell>
-                    <Table.Cell>{visRettskilde(k.rettskildeId)}</Table.Cell>
+                    <Table.Cell>{rettskildeOppslag.tittel(k.rettskildeId)}</Table.Cell>
                     <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
                       {/* [Rettet, 2026-09-02, issue #115] Viser nå "§ nummer — overskrift" (visNodeTekst)
                           i stedet for rå nodeEid — monospace-stilen passet den rå eId-koden, ikke prosa. */}
@@ -508,7 +474,7 @@ export default function VirksomhetKandidaterListe() {
                           gjetting — den fant ingen treff for kap-/rom-/punkt-nummererte noder
                           (LovdataIdentifikatorer.KapittelEid er bevisst ELI-uavhengig). */}
                       <Link asChild>
-                        <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{visNodeTekst(k)} ↗</RouterLink>
+                        <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{nodeEtiketter.etikett(k.rettskildeId, k.nodeEid)} ↗</RouterLink>
                       </Link>
                     </Table.Cell>
                     <Table.Cell>
