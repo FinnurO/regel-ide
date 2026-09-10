@@ -3,7 +3,7 @@ name: Deploy nettside til gh-pages
 on:
   push:
     branches:
-      - main
+      - master
     paths:
       - "nettside/**"
   # Lar Johann trigge en redeploy manuelt uten å måtte gjøre en tom endring i nettside/**
