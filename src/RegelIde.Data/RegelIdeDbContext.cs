@@ -45,6 +45,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<GruppeMedlemskapEntitet> GruppeMedlemskap => Set<GruppeMedlemskapEntitet>();
     public DbSet<VirksomhetKandidatEntitet> VirksomhetKandidater => Set<VirksomhetKandidatEntitet>();
     public DbSet<NavnekandidatEntitet> Navnekandidater => Set<NavnekandidatEntitet>();
+    // [Ny, issue #203 pkt. 4] Korreksjonsregler (RettskildeId, opprinnelig tekst) → korrigert tekst.
+    public DbSet<NavnekandidatKorreksjonEntitet> NavnekandidatKorreksjoner => Set<NavnekandidatKorreksjonEntitet>();
     public DbSet<EksternNavneoppslagCacheEntitet> EksternNavneoppslagCache => Set<EksternNavneoppslagCacheEntitet>();
     public DbSet<BegrepsforekomstEntitet> Begrepsforekomster => Set<BegrepsforekomstEntitet>();
     public DbSet<BegrepsrelasjonEntitet> Begrepsrelasjoner => Set<BegrepsrelasjonEntitet>();
@@ -242,7 +244,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.ToTable("navnekandidater", t =>
             {
                 t.HasCheckConstraint("ck_navnekandidater_status", "status IN ('Venter', 'Godkjent', 'Avvist')");
-                t.HasCheckConstraint("ck_navnekandidater_kategori", "kategori IN ('virksomhet', 'gruppe')");
+                // [ENDRET, issue #203 pkt. 2] 'administrativ_inndeling' lagt til — se BegrepEntitet.Begrepskategori.
+                t.HasCheckConstraint(
+                    "ck_navnekandidater_kategori", "kategori IN ('virksomhet', 'gruppe', 'administrativ_inndeling')");
                 // [Ny, konfidens-runden, 2026-09-09] Samme lukkede-vokabular-mønster som de to over.
                 // NULL er gyldig: 'gruppe'-kandidater sendes aldri til SNL/SSR, og rader fra før
                 // feltet fantes har ingen konfidens å oppgi. Se NavnekandidatEntitet.Konfidens.
@@ -277,6 +281,24 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // start-posisjonen, uansett status.
             e.HasIndex(x => new { x.RettskildeId, x.NodeEid, x.StartOffset }).IsUnique()
                 .HasDatabaseName("ux_navnekandidater_rettskilde_node_start");
+        });
+
+        // [Ny, issue #203 pkt. 4] Korreksjonsregler — se NavnekandidatKorreksjonEntitet sin klassekommentar.
+        b.Entity<NavnekandidatKorreksjonEntitet>(e =>
+        {
+            e.ToTable("navnekandidat_korreksjoner");
+            e.HasKey(x => x.Id).HasName("navnekandidat_korreksjoner_pkey");
+            e.Property(x => x.RettskildeId).HasColumnName("rettskilde_id");
+            e.Property(x => x.OpprinneligTekst).HasColumnName("opprinnelig_tekst");
+            e.Property(x => x.KorrigertTekst).HasColumnName("korrigert_tekst");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+            e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
+            e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);
+            // Selve regelnøkkelen — se klassekommentaren for hvorfor paret, ikke bare teksten alene.
+            e.HasIndex(x => new { x.RettskildeId, x.OpprinneligTekst }).IsUnique()
+                .HasDatabaseName("ux_navnekandidat_korreksjoner_rettskilde_opprinnelig");
         });
 
         // [Ny, docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md §3] Per-term cache for SNL/SSR-oppslag
@@ -920,8 +942,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
         {
             e.ToTable("begreper", t =>
             {
+                // [ENDRET, issue #203 pkt. 2] 'administrativ_inndeling' lagt til — se BegrepEntitet.Begrepskategori.
                 t.HasCheckConstraint(
-                    "ck_begreper_begrepskategori", "begrepskategori IS NULL OR begrepskategori IN ('virksomhet', 'gruppe')");
+                    "ck_begreper_begrepskategori",
+                    "begrepskategori IS NULL OR begrepskategori IN ('virksomhet', 'gruppe', 'administrativ_inndeling')");
                 // [Ny, navneformgrunn-runden, 2026-09-07] Samme lukkede-vokabular-mønster som
                 // ck_begreper_begrepskategori rett over. NULL er BEVISST gyldig: alle rader som fantes
                 // før denne runden beholder NULL (ingen datamigrering, ingen gjettet verdi) — se
@@ -974,9 +998,22 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // to ulike lover er to ulike rader, men samme gruppenavn i SAMME lov skal ikke kunne
             // dupliseres. Partiell (kun Begrepskategori='gruppe') og Entitetsstatus-filtrert, samme
             // mønster som andre "unik blant gjeldende"-indekser i denne filen.
-            e.HasIndex(x => new { x.Term, x.LovkildeId }).IsUnique()
-                .HasFilter("begrepskategori = 'gruppe' AND entitetsstatus = 'gjeldende'")
-                .HasDatabaseName("ux_begreper_gruppebegrep_term_lovkilde");
+            // [Rettet, issue #203 pkt. 2] To filtrerte unik-indekser over NØYAKTIG samme kolonnepar
+            // (Term, LovkildeId) — én per kategori som scopes slik. EF Core identifiserer en indeks på
+            // PROPERTY-LISTEN alene når HasIndex kalles uten et eksplisitt navn i selve kallet; et andre
+            // HasIndex-kall med samme property-liste rekonfigurerer da BARE den samme indeksen i stedet
+            // for å opprette en ny (bekreftet ved en generert migrasjon som stille MISTET
+            // ux_begreper_gruppebegrep_term_lovkilde — se PR-beskrivelsen). Løsningen er å gi navnet
+            // ALLEREDE i selve HasIndex-kallet (overloaden som tar `name`), som EF bruker som del av
+            // indeksens IDENTITET, ikke bare som DB-navn — det er det som faktisk skiller de to fra
+            // hverandre i modellen.
+            e.HasIndex(x => new { x.Term, x.LovkildeId }, "ux_begreper_gruppebegrep_term_lovkilde").IsUnique()
+                .HasFilter("begrepskategori = 'gruppe' AND entitetsstatus = 'gjeldende'");
+            // [Ny, issue #203 pkt. 2] Samme (Term, LovkildeId)-scoping som gruppebegrep over — besluttet
+            // med Johann 2026-09-10 (issue-kommentar): en administrativ inndeling er IKKE nasjonalt
+            // scopet til bare Term, den er hjemlet per lov akkurat som et gruppebegrep.
+            e.HasIndex(x => new { x.Term, x.LovkildeId }, "ux_begreper_administrativ_inndeling_term_lovkilde").IsUnique()
+                .HasFilter("begrepskategori = 'administrativ_inndeling' AND entitetsstatus = 'gjeldende'");
         });
 
         b.Entity<BegrepsforekomstEntitet>(e =>

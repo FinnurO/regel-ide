@@ -211,6 +211,56 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
         return begrep;
     }
 
+    /// <summary>
+    /// [Ny, issue #203 pkt. 2] Administrativ inndeling (nasjon/fylke/kommune) — nøyaktig samme mønster
+    /// som <see cref="OpprettGruppebegrepAsync"/> rett over (samme (Term, LovkildeId)-scoping, samme
+    /// unike-partielle-indeks-vern, samme <paramref name="lovreferanseEid"/>-formål), men egen metode
+    /// og egen <see cref="BegrepEntitet.Begrepskategori"/>-verdi: en administrativ inndeling er IKKE en
+    /// juridisk-aktør-rolle («gruppe»), den er et geografisk/administrativt nivå SSR har bekreftet (se
+    /// <see cref="NavnekandidatOppdagelseTjeneste.KlassifiserAsync"/>). Ikke slått sammen med
+    /// <see cref="OpprettGruppebegrepAsync"/> til én parameterisert metode: de to har ulik
+    /// KILDE-begrunnelse for scopingen (gruppe er en juridisk rolle definert AV loven; administrativ
+    /// inndeling er et geografisk faktum SSR bekrefter, som loven bare NEVNER) selv om selve koden
+    /// tilfeldigvis blir strukturelt lik i dag — samme "egen, parallell metode fremfor en generisk
+    /// kategori-parameter"-linje som resten av denne klassen (jf. OpprettVirksomhetsbegrepAsync vs.
+    /// OpprettGruppebegrepAsync).
+    /// </summary>
+    public async Task<BegrepEntitet> OpprettAdministrativInndelingAsync(
+        Guid lovkildeId, string term, string opprettetAv, string? lovreferanseEid = null, CancellationToken ct = default)
+    {
+        if (string.IsNullOrWhiteSpace(term))
+        {
+            throw new ArgumentException("Term kan ikke være tom. Ingen gjettet fallback.");
+        }
+        if (!await db.Rettskilder.AnyAsync(r => r.Id == lovkildeId && r.Entitetsstatus == "gjeldende", ct))
+        {
+            throw new ArgumentException($"Fant ingen rettskilde med id '{lovkildeId}'. Ingen gjettet fallback.");
+        }
+        if (await db.Begreper.AnyAsync(b =>
+                b.Begrepskategori == "administrativ_inndeling" && b.LovkildeId == lovkildeId && b.Term == term
+                && b.Entitetsstatus == "gjeldende", ct))
+        {
+            throw new ArgumentException($"Den administrative inndelingen '{term}' finnes allerede for denne loven.");
+        }
+
+        var begrep = new BegrepEntitet
+        {
+            Id = Guid.NewGuid(),
+            VirksomhetId = null,
+            Begrepskategori = "administrativ_inndeling",
+            LovkildeId = lovkildeId,
+            Term = term,
+            LovreferanseEid = lovreferanseEid,
+            Status = "publisert",
+            OpprettetAv = opprettetAv,
+            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        };
+        db.Begreper.Add(begrep);
+        db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", begrep.Id, virksomhetId: null, "opprettet", opprettetAv));
+        await db.SaveChangesAsync(ct);
+        return begrep;
+    }
+
     public Task<List<BegrepEntitet>> AlleVirksomhetsbegrepForAsync(Guid virksomhetId, CancellationToken ct = default) =>
         db.Begreper.Where(b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == virksomhetId
             && b.Entitetsstatus == "gjeldende").ToListAsync(ct);
@@ -242,8 +292,11 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     /// <see cref="BegrepsregisterTjeneste.ListerForAsync"/> filtrerer på brukerens EGEN
     /// VirksomhetId, og disse radene har bevisst VirksomhetId=NULL (delt, docs/20 §2.3/§2.4).
     /// </summary>
+    // [ENDRET, issue #203 pkt. 2] 'administrativ_inndeling' lagt til i OR-en — ellers usynlig i
+    // tagg-picker-en for nøyaktig samme grunn som gruppebegrep opprinnelig var det, se klassekommentaren.
     public Task<List<BegrepEntitet>> AlleAsync(CancellationToken ct = default) =>
-        db.Begreper.Where(b => b.Begrepskategori == "virksomhet" || b.Begrepskategori == "gruppe")
+        db.Begreper.Where(b => b.Begrepskategori == "virksomhet" || b.Begrepskategori == "gruppe"
+            || b.Begrepskategori == "administrativ_inndeling")
             .Where(b => b.Entitetsstatus == "gjeldende")
             .OrderBy(b => b.Term)
             .ToListAsync(ct);

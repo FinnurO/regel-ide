@@ -116,12 +116,15 @@ export default function BegrepDetalj() {
           * dette hit» like viktig identitetsinformasjon som selve kategorien ved siden av. */}
         {begrep.begrepskategori === 'virksomhet' && <NavneformgrunnTag grunn={begrep.navneformgrunn} visUspesifisert />}
         {begrep.begrepskategori === 'gruppe' && <Tag data-color="success" data-size="sm">Gruppebegrep</Tag>}
+        {/* [Ny, issue #203 pkt. 2] */}
+        {begrep.begrepskategori === 'administrativ_inndeling' && <Tag data-color="success" data-size="sm">Administrativ inndeling</Tag>}
         <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
           Eier: {visEier(begrep.virksomhetId)}
         </span>
       </Paragraph>
 
-      {(begrep.begrepskategori === 'virksomhet' || begrep.begrepskategori === 'gruppe') && (
+      {(begrep.begrepskategori === 'virksomhet' || begrep.begrepskategori === 'gruppe'
+        || begrep.begrepskategori === 'administrativ_inndeling') && (
         <section style={{ marginBottom: '1.5rem' }}>
           <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
             Lenket til
@@ -134,9 +137,11 @@ export default function BegrepDetalj() {
               </Link>
             </Paragraph>
           )}
-          {begrep.begrepskategori === 'gruppe' && begrep.lovkildeId && (
+          {/* [Ny, issue #203 pkt. 2] Samme visning/lenkevalg som gruppebegrep under — administrativ
+            * inndeling har nøyaktig samme (Term, LovkildeId)-scoping og samme LovreferanseEid-mønster. */}
+          {(begrep.begrepskategori === 'gruppe' || begrep.begrepskategori === 'administrativ_inndeling') && begrep.lovkildeId && (
             <Paragraph>
-              Gruppebegrep hjemlet i{' '}
+              {begrep.begrepskategori === 'gruppe' ? 'Gruppebegrep hjemlet i' : 'Administrativ inndeling hjemlet i'}{' '}
               {(() => {
                 const lov = rettskilder.find((r) => r.id === begrep.lovkildeId);
                 if (!lov) return <span>{begrep.lovkildeId}</span>;
@@ -172,7 +177,8 @@ export default function BegrepDetalj() {
         </Heading>
         <form onSubmit={lagre} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '40rem' }}>
           <Textfield label="Term" value={term} onChange={(e) => setTerm(e.target.value)} required />
-          {begrep.begrepskategori !== 'virksomhet' && begrep.begrepskategori !== 'gruppe' && (
+          {begrep.begrepskategori !== 'virksomhet' && begrep.begrepskategori !== 'gruppe'
+            && begrep.begrepskategori !== 'administrativ_inndeling' && (
             <Field>
               <Label>Definisjon</Label>
               <Textarea value={definisjon} onChange={(e) => setDefinisjon(e.target.value)} rows={3} required />
@@ -202,7 +208,8 @@ export default function BegrepDetalj() {
               })()}
             </Paragraph>
           )}
-          {begrep.begrepskategori !== 'virksomhet' && begrep.begrepskategori !== 'gruppe' && (
+          {begrep.begrepskategori !== 'virksomhet' && begrep.begrepskategori !== 'gruppe'
+            && begrep.begrepskategori !== 'administrativ_inndeling' && (
             <Field>
               <Label>Begrepstype</Label>
               <Select value={begrepstype} onChange={(e) => setBegrepstype(e.target.value)}>

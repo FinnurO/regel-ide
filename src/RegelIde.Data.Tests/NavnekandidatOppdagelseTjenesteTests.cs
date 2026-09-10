@@ -568,7 +568,8 @@ public class NavnekandidatOppdagelseTjenesteTests
     // ---------- Del B: sveip/godkjenning/avvisning mot ekte embedded Postgres ----------
 
     private static async Task<Guid> OpprettRettskildeMedNodeAsync(
-        RegelIdeDbContext db, string tekst, string? eid = null, List<string>? ansvarligDepartement = null)
+        RegelIdeDbContext db, string tekst, string? eid = null, List<string>? ansvarligDepartement = null,
+        Guid? virksomhetId = null)
     {
         var rettskildeId = Guid.NewGuid();
         var nodeEid = eid ?? $"https://test/{Guid.NewGuid():N}/§1/ledd-1";
@@ -577,8 +578,19 @@ public class NavnekandidatOppdagelseTjenesteTests
             // Importrolle="referanse" — samme "ingen AKN-XML nødvendig for en hentet/forfattet
             // referansekilde"-begrunnelse som RettsligStatusKontrastTests: ck_rettskilder_akn_xml
             // krever ellers akn_xml IS NOT NULL for Importrolle="primaer" (default).
+            // [Ny parameter, issue #203 pkt. 4] virksomhetId — se HentSveipbareNoderAsync sin egen
+            // "VirksomhetId == null"-filtrering (samme mekanisme som Sveip_hopper_over_en_virksomhets_
+            // private_rettskilde-testen over): satt (ikke null) gjør rettskilden USYNLIG for ETHVERT
+            // korpusomfattende sveip (rettskildeId=null) i EN ANNEN test i denne delte DataTestCollection
+            // -en. Brukes av korreksjonstester som selv ALDRI kaller SveipAsync på egen rettskilde (kun
+            // OpprettEllerFinnAsync/OppdaterAsync direkte) — uten dette kan en senere, urelatert
+            // korpusomfattende sveip-test gjenoppdage samme rå artefakt-tekst, anvende korreksjonsregelen
+            // (fortsatt gyldig, samme RettskildeId) på en posisjon som IKKE stemmer med den allerede
+            // lagrede kandidatens (mulig re-forankret annerledes), klassifisere den PÅ NYTT med SIN EGEN,
+            // urelaterte SNL/SSR-stub, og forgifte den DELTE cachen for et tema en helt annen test i
+            // filen forventer et spesifikt svar på.
             Id = rettskildeId, Doctype = "doc", Kildetype = "Lov", Status = "Gjeldende", Importrolle = "referanse",
-            Tittel = "Testlov " + rettskildeId, AnsvarligDepartement = ansvarligDepartement,
+            Tittel = "Testlov " + rettskildeId, AnsvarligDepartement = ansvarligDepartement, VirksomhetId = virksomhetId,
             OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
         });
         db.RettskildeNoder.Add(new RettskildeNodeEntitet
@@ -1709,5 +1721,382 @@ public class NavnekandidatOppdagelseTjenesteTests
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
         Assert.Equal("gruppe", kandidat.Kategori);
         Assert.Equal("Venter", kandidat.Status);
+    }
+
+    // ================= [Ny, issue #203] pkt. 2/3: administrativ_inndeling + SSR-basert klassifisering =================
+    // SSR navneobjekttype-verdiene ("Nasjon"/"Fylke"/"Kommune") er VERIFISERT LIVE mot
+    // ws.geonorge.no/stedsnavn/v1/navn under denne byggerunden (se KlassifiserAsync sin kommentar) —
+    // stor forbokstav, ikke antatt.
+
+    /// <summary>SSR-bekreftet "Nasjon" via det BREDE stor-bokstav-mønsteret (ett enkeltord) skal gi
+    /// "administrativ_inndeling", ikke "virksomhet" — selve kjernen i issue #203 pkt. 3.</summary>
+    [Fact]
+    public async Task Sveip_ssr_nasjon_gir_administrativ_inndeling_kategori()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Avtalen gjelder også utenfor Testlandia sine grenser.");
+
+        var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
+        {
+            var url = req.RequestUri!.ToString();
+            if (url.Contains("api/v1/search")) return Json("[]");
+            if (url.Contains("stedsnavn")) return Json("""{ "navn": [ { "skrivemåte": "Testlandia", "navneobjekttype": "Nasjon" } ] }""");
+            throw new InvalidOperationException($"Uventet URL: {url}");
+        });
+
+        await tjeneste.SveipAsync(rettskildeId, "test");
+
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
+        Assert.Equal("Testlandia", kandidat.ForeslattTekst);
+        Assert.Equal("administrativ_inndeling", kandidat.Kategori);
+        Assert.Equal("Venter", kandidat.Status);
+        // Uten institusjonsord rett etter — konfidensen (uendret regel) er fortsatt "lav", KUN
+        // kategorien er ny. De to avgjørelsene er uavhengige, se KlassifiserAsync sin kommentar.
+        Assert.Equal("lav", kandidat.Konfidens);
+        Assert.Equal("ssr_uten_institusjonsord", kandidat.KonfidensGrunn);
+    }
+
+    /// <summary>SSR-bekreftet "Fylke" via FLERORDS-mønsteret ("X fylkeskommune" — hele fangsten
+    /// sendes til SSR, og <see cref="EksternNavneoppslagTjeneste"/>s live-oppslag krever et EKSAKT
+    /// (case-insensitivt) treff på hele det søkte navnet — se <c>SlaOppSsrLiveAsync</c> — derfor må
+    /// stubbens <c>skrivemåte</c> være HELE flerords-fangsten "Østerdalen fylkeskommune", ikke bare
+    /// "Østerdalen"). Institusjonsord-etter-sjekken (<see cref="NavnekandidatOppdagelseTjeneste.
+    /// KlassifiserAsync"/>) ser på ordet RETT ETTER HELE fangsten («Lindholt kommune arkiv»-mønsteret,
+    /// se den eksisterende testens kommentar) — «fylkeskommune» er allerede INNI fangsten, så
+    /// institusjonsordet som trigger høy-konfidens-grenen («tilsyn») må stå som et EKSTRA ord ETTER,
+    /// ikke gjenbruke selve institusjonsordet fangsten allerede endte på.</summary>
+    [Fact]
+    public async Task Sveip_ssr_fylke_med_institusjonsord_etter_gir_administrativ_inndeling_hoy_konfidens()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Reglene gjelder for Østerdalen fylkeskommune tilsyn med sakene.");
+
+        var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
+        {
+            var url = req.RequestUri!.ToString();
+            if (url.Contains("api/v1/search")) return Json("[]");
+            if (url.Contains("stedsnavn")) return Json("""{ "navn": [ { "skrivemåte": "Østerdalen fylkeskommune", "navneobjekttype": "Fylke" } ] }""");
+            throw new InvalidOperationException($"Uventet URL: {url}");
+        });
+
+        await tjeneste.SveipAsync(rettskildeId, "test");
+
+        // "Østerdalen fylkeskommune" er flerords-mønsterets HELE fangst (fylkeskommune er et kjent
+        // Institusjonsord) — samme term sendes til SSR, se KlassifiserAsync-kallet i fase 2.
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId && k.Kategori == "administrativ_inndeling");
+        Assert.Equal("Østerdalen fylkeskommune", kandidat.ForeslattTekst);
+        Assert.Equal("hoy", kandidat.Konfidens);
+        Assert.Equal("ssr_med_institusjonsord", kandidat.KonfidensGrunn);
+    }
+
+    /// <summary>SSR-bekreftet "Kommune" via flerords-mønsteret ("X kommune") — kontrastert direkte mot
+    /// den eksisterende "Lindholt kommune"-testen over (samme mønster, men "Tettsted" der gir
+    /// "virksomhet" uendret). Dekker samtidig at GODKJENNING av en slik rad oppretter et EKTE
+    /// "administrativ_inndeling"-begrep, parallelt til "gruppe" (issue #203 pkt. 2).</summary>
+    [Fact]
+    public async Task Sveip_og_godkjenning_ssr_kommune_via_flerordsmonster_gir_administrativ_inndeling_begrep()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Reglene gjelder i Vindalen kommune inntil videre.");
+
+        var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
+        {
+            var url = req.RequestUri!.ToString();
+            if (url.Contains("api/v1/search")) return Json("[]");
+            if (url.Contains("stedsnavn")) return Json("""{ "navn": [ { "skrivemåte": "Vindalen kommune", "navneobjekttype": "Kommune" } ] }""");
+            throw new InvalidOperationException($"Uventet URL: {url}");
+        });
+
+        await tjeneste.SveipAsync(rettskildeId, "test");
+        // "kommune" alene er OGSÅ i FasteRollesubstantiv (se der) — gir en SEPARAT "gruppe"-treff ved
+        // siden av flerords-fangsten, samme mønster som "Østerdalen fylkeskommune"-testen over. Filtrer
+        // derfor eksplisitt på "administrativ_inndeling", samme som den eksisterende
+        // "Lindholt kommune"-testen filtrerer på "virksomhet" av nøyaktig samme grunn.
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId && k.Kategori == "administrativ_inndeling");
+        Assert.Equal("Vindalen kommune", kandidat.ForeslattTekst);
+        Assert.Equal("Venter", kandidat.Status);
+
+        var godkjent = await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist");
+        Assert.Equal("Godkjent", godkjent!.Status);
+
+        var begrep = await db.Begreper.SingleAsync(
+            b => b.Begrepskategori == "administrativ_inndeling" && b.LovkildeId == rettskildeId && b.Term == "Vindalen kommune");
+        Assert.Equal("publisert", begrep.Status);
+        Assert.Equal(kandidat.NodeEid, begrep.LovreferanseEid);
+    }
+
+    /// <summary>De øvrige SSR-typene (her: "Tettsted", samme type som den EKSISTERENDE
+    /// "Lindholt kommune"-testen bruker) skal FORBLI "virksomhet", UENDRET — issue #203 pkt. 3s
+    /// eksplisitte avgrensning ("de lokale tingene du fant er ikke reelle").</summary>
+    [Fact]
+    public async Task Sveip_ssr_poststed_forblir_virksomhet_uendret()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Post sendes til Kirkeby poststed innen fristen.");
+
+        var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
+        {
+            var url = req.RequestUri!.ToString();
+            if (url.Contains("api/v1/search")) return Json("[]");
+            if (url.Contains("stedsnavn")) return Json("""{ "navn": [ { "skrivemåte": "Kirkeby", "navneobjekttype": "Poststed" } ] }""");
+            throw new InvalidOperationException($"Uventet URL: {url}");
+        });
+
+        await tjeneste.SveipAsync(rettskildeId, "test");
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
+        Assert.Equal("virksomhet", kandidat.Kategori);
+    }
+
+    // ================= [Ny, issue #203] pkt. 4: korreksjonsregel =================
+
+    /// <summary>Kjernen i pkt. 4: en redigering som endrer ForeslattTekst lagrer AUTOMATISK en
+    /// korreksjonsregel (RettskildeId, gammel tekst) → ny tekst.</summary>
+    [Fact]
+    public async Task OppdaterAsync_som_endrer_tekst_lagrer_korreksjonsregel()
+    {
+        await using var db = _fixture.NyDbContext();
+        const string tekst = "Vedtak treffes av Ø Suldal kommune innen fristen.";
+        // [Rettet] privatVirksomhetId — se OpprettRettskildeMedNodeAsync sin kommentar om virksomhetId:
+        // denne testen kaller ALDRI SveipAsync på egen rettskilde (kun OpprettEllerFinnAsync/
+        // OppdaterAsync direkte), og rettskildens rå tekst/korreksjonsregel må derfor være USYNLIG for
+        // et SENERE, korpusomfattende sveip i en ANNEN test — ellers forgiftes den delte SNL/SSR-cachen.
+        var privatVirksomhetId = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = privatVirksomhetId, Navn = "Testkommunen (korreksjon-test, privat)" });
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, tekst, eid: "ledd-1", virksomhetId: privatVirksomhetId);
+        var start = tekst.IndexOf("Ø Suldal kommune", StringComparison.Ordinal);
+
+        var tjeneste = NyTjenesteMedStubbetOppslag(
+            db, _ => throw new InvalidOperationException("Uventet eksternt kall — verken opprettelse eller OppdaterAsync kaller SNL/SSR."));
+        var kandidat = await tjeneste.OpprettEllerFinnAsync(
+            "Ø Suldal kommune", "virksomhet", rettskildeId, "ledd-1", start, start + "Ø Suldal kommune".Length, "test");
+
+        var oppdatert = await tjeneste.OppdaterAsync(kandidat.Id, "Suldal kommune", null, "Kari Jurist");
+        Assert.Equal("Suldal kommune", oppdatert!.ForeslattTekst);
+
+        var korreksjon = await db.NavnekandidatKorreksjoner.SingleAsync(k => k.RettskildeId == rettskildeId);
+        Assert.Equal("Ø Suldal kommune", korreksjon.OpprinneligTekst);
+        Assert.Equal("Suldal kommune", korreksjon.KorrigertTekst);
+        Assert.Equal("Kari Jurist", korreksjon.OpprettetAv);
+        Assert.Null(korreksjon.SistEndretAv);
+    }
+
+    /// <summary>
+    /// To ULIKE kandidatrader (to separate forekomster av SAMME regex-artefakt i samme rettskilde —
+    /// realistisk: samme forvanskede stedsnavn nevnt to steder i loven) rettet HVER FOR SEG til samme
+    /// tekst, skal begge OPPDATERE den samme, EKSISTERENDE korreksjonsregelen (samme
+    /// (RettskildeId, OpprinneligTekst)-par) — upsert, ikke en ny rad som ville brutt den unike
+    /// (RettskildeId, OpprinneligTekst)-indeksen. Dette er realistisk der en enkelt kandidatrads
+    /// EGEN OppdaterAsync-historie ikke er (kandidat.ForeslattTekst er den forrige verdien, ikke den
+    /// aller første — se LagreKorreksjonAsync sin kommentar).
+    /// </summary>
+    [Fact]
+    public async Task OppdaterAsync_retter_samme_opprinnelige_tekst_pa_nytt_oppdaterer_eksisterende_korreksjon()
+    {
+        await using var db = _fixture.NyDbContext();
+        const string artefakt = "Ø Suldal kommune";
+        const string tekst = "Vedtak treffes av Ø Suldal kommune, jf. også Ø Suldal kommune § 4.";
+        // [Rettet] Samme privatVirksomhetId-begrunnelse som OppdaterAsync_som_endrer_tekst_lagrer_
+        // korreksjonsregel over — denne testen kaller heller aldri SveipAsync på egen rettskilde.
+        var privatVirksomhetId = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = privatVirksomhetId, Navn = "Testkommunen (korreksjon-test 2, privat)" });
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, tekst, eid: "ledd-1", virksomhetId: privatVirksomhetId);
+        var forsteStart = tekst.IndexOf(artefakt, StringComparison.Ordinal);
+        var andreStart = tekst.IndexOf(artefakt, forsteStart + 1, StringComparison.Ordinal);
+
+        var register = NyTjenesteMedStubbetOppslag(
+            db, _ => throw new InvalidOperationException("Uventet eksternt kall — verken opprettelse eller OppdaterAsync kaller SNL/SSR."));
+        var forsteKandidat = await register.OpprettEllerFinnAsync(
+            artefakt, "virksomhet", rettskildeId, "ledd-1", forsteStart, forsteStart + artefakt.Length, "test");
+        var andreKandidat = await register.OpprettEllerFinnAsync(
+            artefakt, "virksomhet", rettskildeId, "ledd-1", andreStart, andreStart + artefakt.Length, "test");
+
+        await register.OppdaterAsync(forsteKandidat.Id, "Suldal kommunen", null, "Kari Jurist"); // første, litt feil, retting
+        await register.OppdaterAsync(andreKandidat.Id, "Suldal kommune", null, "Per Saksbehandler"); // rettet på nytt
+
+        var korreksjon = await db.NavnekandidatKorreksjoner.SingleAsync(
+            k => k.RettskildeId == rettskildeId && k.OpprinneligTekst == artefakt);
+        Assert.Equal("Suldal kommune", korreksjon.KorrigertTekst);
+        Assert.Equal("Kari Jurist", korreksjon.OpprettetAv); // uendret — OPPRETTET er fortsatt den første.
+        Assert.Equal("Per Saksbehandler", korreksjon.SistEndretAv);
+    }
+
+    /// <summary>
+    /// [Rettet, orkestrator-verifisering, 2026-09-11] Reproduserer issuens eget «Gauldal» →
+    /// «Midtre Gauldal»-eksempel: en utvidelse BAKOVER kan flytte StartOffset til nøyaktig posisjonen
+    /// en ANNEN, separat kandidat («Midtre» alene, samme sveip sitt stor-bokstav-mønster) allerede
+    /// står på. Krasjet FØR rettingen med en rå <c>DbUpdateException</c>
+    /// (`ux_navnekandidater_rettskilde_node_start`), bekreftet live. Den andre raden er strengt
+    /// redundant etter utvidelsen og skal fjernes, IKKE krasje transaksjonen.
+    /// </summary>
+    [Fact]
+    public async Task OppdaterAsync_som_utvider_bakover_fjerner_redundant_kolliderende_kandidat()
+    {
+        await using var db = _fixture.NyDbContext();
+        const string tekst = "i kommunene Meldal, Midtre Gauldal, Oppdal og Rennebu.";
+        var privatVirksomhetId = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = privatVirksomhetId, Navn = "Testkommunen (Gauldal-kollisjon, privat)" });
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, tekst, eid: "ledd-2", virksomhetId: privatVirksomhetId);
+        var midtreStart = tekst.IndexOf("Midtre", StringComparison.Ordinal);
+        var gauldalStart = tekst.IndexOf("Gauldal", StringComparison.Ordinal);
+
+        var register = NyTjenesteMedStubbetOppslag(
+            db, _ => throw new InvalidOperationException("Uventet eksternt kall — verken opprettelse eller OppdaterAsync kaller SNL/SSR."));
+        // To SEPARATE kandidater, akkurat som et ekte sveip ville produsert: "Midtre" (for kort til å
+        // treffe flerords-mønsteret alene siden "Gauldal" ikke er et institusjonsord) og "Gauldal" hver
+        // for seg.
+        var midtreKandidat = await register.OpprettEllerFinnAsync(
+            "Midtre", "virksomhet", rettskildeId, "ledd-2", midtreStart, midtreStart + "Midtre".Length, "test");
+        var gauldalKandidat = await register.OpprettEllerFinnAsync(
+            "Gauldal", "virksomhet", rettskildeId, "ledd-2", gauldalStart, gauldalStart + "Gauldal".Length, "test");
+
+        // Skulle IKKE kaste — dette er selve regresjonen (ufanget DbUpdateException før rettingen).
+        var oppdatert = await register.OppdaterAsync(gauldalKandidat.Id, "Midtre Gauldal", null, "Kari Jurist");
+
+        Assert.Equal("Midtre Gauldal", oppdatert!.ForeslattTekst);
+        Assert.Equal(midtreStart, oppdatert.StartOffset); // reforankret til der "Midtre Gauldal" faktisk starter.
+        Assert.Equal(midtreStart + "Midtre Gauldal".Length, oppdatert.EndOffset);
+
+        // Den nå-redundante "Midtre"-raden er borte, ikke stående igjen som en forvirrende dublett.
+        Assert.False(await db.Navnekandidater.AnyAsync(k => k.Id == midtreKandidat.Id));
+        // Selve "Gauldal"-raden (nå "Midtre Gauldal") finnes fortsatt, som den eneste for dette spennet.
+        Assert.Single(await db.Navnekandidater.Where(k => k.RettskildeId == rettskildeId).ToListAsync());
+    }
+
+    /// <summary>
+    /// Speilbildet av testen over: raden som ville blitt overskrevet er allerede <c>"Godkjent"</c> —
+    /// en menneskelig beslutning står bak den, og den skal IKKE fjernes automatisk. Reposisjoneringen
+    /// hoppes i stedet over (kandidaten beholder sin gamle posisjon) — samme "ingen gjettet
+    /// plassering"-holdning som når den nye teksten ikke finnes i noden i det hele tatt.
+    /// </summary>
+    [Fact]
+    public async Task OppdaterAsync_som_ville_kollidert_med_godkjent_rad_hopper_over_reposisjonering()
+    {
+        await using var db = _fixture.NyDbContext();
+        const string tekst = "i kommunene Meldal, Midtre Gauldal, Oppdal og Rennebu.";
+        var privatVirksomhetId = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = privatVirksomhetId, Navn = "Testkommunen (Gauldal-kollisjon 2, privat)" });
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, tekst, eid: "ledd-2", virksomhetId: privatVirksomhetId);
+        var midtreStart = tekst.IndexOf("Midtre", StringComparison.Ordinal);
+        var gauldalStart = tekst.IndexOf("Gauldal", StringComparison.Ordinal);
+
+        var register = NyTjenesteMedStubbetOppslag(
+            db, _ => throw new InvalidOperationException("Uventet eksternt kall — verken opprettelse eller OppdaterAsync kaller SNL/SSR."));
+        var midtreKandidat = await register.OpprettEllerFinnAsync(
+            "Midtre", "virksomhet", rettskildeId, "ledd-2", midtreStart, midtreStart + "Midtre".Length, "test");
+        midtreKandidat.Status = "Godkjent"; // en menneskelig beslutning tatt FØR "Gauldal" rettes.
+        await db.SaveChangesAsync();
+        var gauldalKandidat = await register.OpprettEllerFinnAsync(
+            "Gauldal", "virksomhet", rettskildeId, "ledd-2", gauldalStart, gauldalStart + "Gauldal".Length, "test");
+
+        var oppdatert = await register.OppdaterAsync(gauldalKandidat.Id, "Midtre Gauldal", null, "Kari Jurist");
+
+        Assert.Equal("Midtre Gauldal", oppdatert!.ForeslattTekst); // teksten oppdateres uansett.
+        Assert.Equal(gauldalStart, oppdatert.StartOffset); // MEN posisjonen står urørt — ikke flyttet.
+        Assert.Equal(gauldalStart + "Gauldal".Length, oppdatert.EndOffset);
+        Assert.True(await db.Navnekandidater.AnyAsync(k => k.Id == midtreKandidat.Id && k.Status == "Godkjent")); // uendret, ikke fjernet.
+    }
+
+    /// <summary>Ende-til-ende for pkt. 4s kjerneformål: et SENERE sveip over TILSVARENDE rå tekst i
+    /// SAMME rettskilde skal bruke den lærte korreksjonen FØR materialisering — ikke gjenskape
+    /// artefakten. Verifiserer samtidig at posisjonen re-forankres til der den KORRIGERTE teksten
+    /// faktisk står (FinnKorrigertIntervall), og at pkt. 3s SSR-klassifisering kjører på den KORRIGERTE
+    /// teksten, ikke den rå artefakten (Johanns eget eksempel: "Ø Suldal kommune" → "Suldal kommune").</summary>
+    [Fact]
+    public async Task SveipAsync_bruker_laert_korreksjon_for_materialisering()
+    {
+        await using var db = _fixture.NyDbContext();
+        // NB: samme node-TEKST som en tidligere kandidat allerede ble funnet i (simulerer at det
+        // opprinnelige sveipet + rettingen skjedde, og at rettskilden nå sveipes PÅ NYTT — f.eks. etter
+        // en reimport, eller ganske enkelt et andre-gangs sveip som ikke lenger finner en eksisterende
+        // rad fordi den forrige ble slettet). Korreksjonsregelen alene skal være nok.
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak treffes av Ø Suldal kommune innen fristen.");
+        db.NavnekandidatKorreksjoner.Add(new NavnekandidatKorreksjonEntitet
+        {
+            Id = Guid.NewGuid(), RettskildeId = rettskildeId, OpprinneligTekst = "Ø Suldal kommune",
+            KorrigertTekst = "Suldal kommune", OpprettetAv = "Kari Jurist", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        await db.SaveChangesAsync();
+
+        var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
+        {
+            var url = req.RequestUri!.ToString();
+            if (url.Contains("api/v1/search")) return Json("[]");
+            // Stubben svarer KUN på et EKSAKT `sok=`-treff på "Suldal kommune" (den KORRIGERTE teksten)
+            // — kaster for alt annet, inkl. den rå "Ø Suldal kommune" (hvis korreksjonen IKKE ble
+            // anvendt). Merk: `req.RequestUri!.ToString()` AVKODER prosentescaping der det er praktisk
+            // mulig (docs for System.Uri) — den faktiske requesten bruker Uri.EscapeDataString internt
+            // (EksternNavneoppslagTjeneste), men `url` her viser et bokstavelig mellomrom, ikke "%20".
+            // En enkel url.Contains("Suldal kommune") ville likevel IKKE fanget regresjonen — det
+            // AVKODEDE "Ø Suldal kommune" INNEHOLDER "Suldal kommune" som substreng — derfor sjekkes
+            // eksakt `sok=`-parameterverdien (avsluttet med `&`, ikke bare et treff midt i strengen).
+            if (url.Contains("stedsnavn") && url.Contains("sok=Suldal kommune&"))
+            {
+                return Json("""{ "navn": [ { "skrivemåte": "Suldal kommune", "navneobjekttype": "Kommune" } ] }""");
+            }
+            throw new InvalidOperationException($"Uventet URL (forventet oppslag på nøyaktig KORRIGERT tekst): {url}");
+        });
+
+        var resultat = await tjeneste.SveipAsync(rettskildeId, "test");
+        // 2, ikke 1: "kommune" ALENE er OGSÅ i FasteRollesubstantiv og gir en SEPARAT "gruppe"-treff
+        // ved siden av flerords-fangsten — samme "to treff, to mønstre"-mønster som
+        // Sveip_og_godkjenning_ssr_kommune_via_flerordsmonster-testen over. Filtrer derfor eksplisitt
+        // på ForeslattTekst under, av samme grunn som den testen filtrerer på Kategori.
+        Assert.Equal(2, resultat.AntallNyeKandidater);
+
+        var kandidat = await db.Navnekandidater.SingleAsync(
+            k => k.RettskildeId == rettskildeId && k.ForeslattTekst == "Suldal kommune");
+        Assert.Equal("administrativ_inndeling", kandidat.Kategori); // pkt. 3-klassifiseringen kjørte på den korrigerte teksten.
+
+        // Posisjonen skal peke på der "Suldal kommune" FAKTISK står i noden (rett etter "Ø "), ikke på
+        // det opprinnelige regex-treffets [start, start+lengde) — se FinnKorrigertIntervall.
+        var node = await db.RettskildeNoder.SingleAsync(n => n.RettskildeId == rettskildeId);
+        Assert.Equal("Suldal kommune", node.Tekst!.Substring(kandidat.StartOffset, kandidat.EndOffset - kandidat.StartOffset));
+    }
+
+    /// <summary>Korreksjonsoppslaget er scopet til (RettskildeId, tekst) — SAMME rå artefakt-tekst i en
+    /// ANNEN rettskilde skal IKKE bli rettet automatisk (Johann, verbatim: «i kombinasjonen rettskilde
+    /// pluss navn så peker man på et annet navn»).</summary>
+    [Fact]
+    public async Task SveipAsync_korreksjon_gjelder_kun_egen_rettskilde()
+    {
+        await using var db = _fixture.NyDbContext();
+        // Må være en EKTE rettskilde (FK_navnekandidat_korreksjoner_rettskilder_rettskilde_id) — en
+        // vilkårlig Guid.NewGuid() uten tilhørende rettskilde-rad brøt den nylig lagte fremmednøkkelen.
+        // [Rettet] To uavhengige vern mot at et SENERE, korpusomfattende sveip i en ANNEN test
+        // (rettskildeId=null, f.eks. Sveip_hopper_over_noder_fra_en_erstattet_rettskilde) gjenoppdager
+        // denne rettskilden, anvender korreksjonsregelen rett under (den er reell, scopet nettopp til
+        // DENNE rettskilden) på nytt, og cachet SSR/SNL for "suldal kommune" med SIN EGEN, urelaterte
+        // stub — og dermed forgifter den DELTE cachen for denne testfilens andre tester (delt Postgres
+        // på tvers av hele DataTestCollection): (1) node-TEKSTEN er nøytral (ingen store forbokstaver,
+        // ingen institusjonsord) — finnes kun for at fremmednøkkelen under skal peke på en ekte rad; (2)
+        // privatVirksomhetId gjør rettskilden USYNLIG for ethvert korpusomfattende sveip i det hele tatt
+        // (samme mekanisme som Sveip_hopper_over_en_virksomhets_private_rettskilde-testen).
+        var privatVirksomhetId = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = privatVirksomhetId, Navn = "Testkommunen (korreksjon-scope-test, privat)" });
+        var annenRettskildeId = await OpprettRettskildeMedNodeAsync(
+            db, "en annen rettskilde uten noe sveipbart innhold.", virksomhetId: privatVirksomhetId);
+        db.NavnekandidatKorreksjoner.Add(new NavnekandidatKorreksjonEntitet
+        {
+            Id = Guid.NewGuid(), RettskildeId = annenRettskildeId, OpprinneligTekst = "Ø Suldal kommune",
+            KorrigertTekst = "Suldal kommune", OpprettetAv = "Kari Jurist", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Vedtak treffes av Ø Suldal kommune innen fristen.");
+        await db.SaveChangesAsync();
+
+        var tjeneste = NyTjenesteMedStubbetOppslag(db, req =>
+        {
+            var url = req.RequestUri!.ToString();
+            if (url.Contains("api/v1/search")) return Json("[]");
+            if (url.Contains("stedsnavn")) return Json("""{ "navn": [] }"""); // ingen SSR-treff for den urettede teksten.
+            throw new InvalidOperationException($"Uventet URL: {url}");
+        });
+
+        await tjeneste.SveipAsync(rettskildeId, "test");
+        // Filtrer på ForeslattTekst — "kommune" ALENE er OGSÅ i FasteRollesubstantiv og gir en SEPARAT
+        // "gruppe"-treff ved siden av flerords-fangsten, se SveipAsync_bruker_laert_korreksjon_for_
+        // materialisering sin kommentar for samme mønster.
+        var kandidat = await db.Navnekandidater.SingleAsync(
+            k => k.RettskildeId == rettskildeId && k.ForeslattTekst == "Ø Suldal kommune");
+        Assert.Equal("Ø Suldal kommune", kandidat.ForeslattTekst); // UENDRET — korreksjonen i den ANDRE rettskilden gjelder ikke her.
     }
 }

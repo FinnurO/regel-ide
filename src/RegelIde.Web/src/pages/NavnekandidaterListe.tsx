@@ -61,9 +61,12 @@ const STATUS_FARGE: Record<string, 'neutral' | 'warning' | 'success' | 'danger'>
   Avvist: 'danger',
 };
 
-const KATEGORI_FARGE: Record<string, 'info' | 'accent'> = {
+// [ENDRET, issue #203 pkt. 2] 'administrativ_inndeling' lagt til — egen farge ('success', ikke i bruk
+// av de to andre) slik at kategorien er visuelt skilt fra både virksomhet og gruppe i tabellen/filteret.
+const KATEGORI_FARGE: Record<string, 'info' | 'accent' | 'success'> = {
   virksomhet: 'accent',
   gruppe: 'info',
+  administrativ_inndeling: 'success',
 };
 
 
@@ -113,7 +116,8 @@ export default function NavnekandidaterListe() {
   // under) — samme observerte perf-hensyn som der (én virksomhet/term kan ha kandidater spredt over
   // hundrevis av ulike rettskilder samtidig).
 
-  const [kategoriFilter, setKategoriFilter] = useState<'virksomhet' | 'gruppe' | ''>('');
+  // [ENDRET, issue #203 pkt. 2] 'administrativ_inndeling' lagt til i filteret.
+  const [kategoriFilter, setKategoriFilter] = useState<'virksomhet' | 'gruppe' | 'administrativ_inndeling' | ''>('');
   // [Ny, konfidens-runden, 2026-09-09] '' = alle. 'ingen' = radene som ikke er klassifisert
   // (alle 'gruppe'-kandidater) — se ListerAsync sin konfidens-parameter for hvorfor det er en egen
   // verdi og ikke bare et tomt filter.
@@ -230,6 +234,52 @@ export default function NavnekandidaterListe() {
       lastKandidater();
     } catch (err) {
       setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved behandling av kandidat.');
+    }
+  }
+
+  // [Ny, issue #203 pkt. 1] Rediger ForeslattTekst/Kategori direkte i tabellraden, UANSETT status —
+  // se `PATCH /api/navnekandidater/{id}` (NavnekandidatOppdagelseTjeneste.OppdaterAsync, alt bygget i
+  // en tidligere runde for selve veiviseren). Dette er den samme mekanismen, bare eksponert som en
+  // rask inline-redigering her i listen — for kjappe artefakt-rettelser («Ø Suldal kommune») uten å
+  // åpne hele wizarden. Kun ÉN rad redigerbar om gangen (redigerId), samme "ett skjema av gangen"-
+  // enkelhet som resten av tabellen.
+  const [redigerId, setRedigerId] = useState<string | null>(null);
+  const [redigerTekst, setRedigerTekst] = useState('');
+  const [redigerKategori, setRedigerKategori] = useState<'virksomhet' | 'gruppe' | 'administrativ_inndeling'>('virksomhet');
+  const [redigerLagrer, setRedigerLagrer] = useState(false);
+  const [redigerFeil, setRedigerFeil] = useState<string | null>(null);
+
+  function startRediger(k: NavnekandidatDto) {
+    setRedigerId(k.id);
+    setRedigerTekst(k.foreslattTekst);
+    setRedigerKategori(k.kategori);
+    setRedigerFeil(null);
+  }
+
+  function avbrytRediger() {
+    setRedigerId(null);
+    setRedigerFeil(null);
+  }
+
+  async function lagreRediger(k: NavnekandidatDto) {
+    const nyTekst = redigerTekst.trim();
+    if (!nyTekst) {
+      setRedigerFeil('Foreslått tekst kan ikke være tom.');
+      return;
+    }
+    setRedigerLagrer(true);
+    setRedigerFeil(null);
+    try {
+      await api.oppdaterNavnekandidat(k.id, {
+        foreslattTekst: nyTekst === k.foreslattTekst ? undefined : nyTekst,
+        kategori: redigerKategori === k.kategori ? undefined : redigerKategori,
+      });
+      setRedigerId(null);
+      lastKandidater();
+    } catch (err) {
+      setRedigerFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved lagring.');
+    } finally {
+      setRedigerLagrer(false);
     }
   }
 
@@ -448,14 +498,44 @@ export default function NavnekandidaterListe() {
           />
         </Table.Cell>
         <Table.Cell>
-          <Tag data-color={KATEGORI_FARGE[k.kategori] ?? 'neutral'} data-size="sm">{k.kategori}</Tag>
+          {/* [Ny, issue #203 pkt. 1] Kategori-cellen blir en Select mens raden redigeres — se
+            * startRediger/lagreRediger og Handling-cellen sin «Rediger»-knapp. */}
+          {redigerId === k.id ? (
+            <Select
+              data-size="sm"
+              aria-label="Kategori"
+              value={redigerKategori}
+              onChange={(e) => setRedigerKategori(e.target.value as typeof redigerKategori)}
+            >
+              <Select.Option value="virksomhet">virksomhet</Select.Option>
+              <Select.Option value="gruppe">gruppe</Select.Option>
+              <Select.Option value="administrativ_inndeling">administrativ_inndeling</Select.Option>
+            </Select>
+          ) : (
+            <Tag data-color={KATEGORI_FARGE[k.kategori] ?? 'neutral'} data-size="sm">{k.kategori}</Tag>
+          )}
         </Table.Cell>
         {/* [Ny, konfidens-runden, 2026-09-09] Hvor godt bekreftet treffet er — erstatter automatisk
           * avvisning, se KonfidensTag. Tom celle for 'gruppe'-kandidater, som aldri klassifiseres. */}
         <Table.Cell><KonfidensTag konfidens={k.konfidens} grunn={k.konfidensGrunn} /></Table.Cell>
         <Table.Cell style={{ fontWeight: 500 }}>
-          {k.foreslattTekst}
-          {k.oppdagelsesKilde === 'stor-bokstav-snl-ssr' && <BerikelseVisning k={k} />}
+          {/* [Ny, issue #203 pkt. 1] ForeslattTekst blir en Textfield mens raden redigeres — samme
+            * PATCH-endepunkt som wizardens steg 1 (NavnekandidatOppdagelseTjeneste.OppdaterAsync), her
+            * eksponert direkte i tabellen for raske artefakt-rettelser uten å åpne hele veiviseren. */}
+          {redigerId === k.id ? (
+            <Textfield
+              data-size="sm"
+              aria-label="Foreslått tekst"
+              value={redigerTekst}
+              onChange={(e) => setRedigerTekst(e.target.value)}
+              style={{ minWidth: '14rem' }}
+            />
+          ) : (
+            <>
+              {k.foreslattTekst}
+              {k.oppdagelsesKilde === 'stor-bokstav-snl-ssr' && <BerikelseVisning k={k} />}
+            </>
+          )}
         </Table.Cell>
         <Table.Cell>{rettskildeOppslag.tittel(k.rettskildeId)}</Table.Cell>
         <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
@@ -495,37 +575,64 @@ export default function NavnekandidaterListe() {
           </Tag>
         </Table.Cell>
         <Table.Cell>
-          <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
-            {/* [Ny, navnekandidat-wizard-runden, 2026-09-07] «Behandle» er tilgjengelig UANSETT status.
-                Det er bevisst: en `virksomhet`-rad som alt er godkjent via hurtig-Godkjenn står fast
-                i blindveien med en ubundet tagg, og en avvist rad kan ha blitt avvist nettopp fordi
-                teksten var et regex-artefakt — begge må kunne åpnes og fullføres. Se
-                `NavnekandidatVeiviser.tsx` og `KoblTilVirksomhetAsync`. */}
-            <Button data-size="sm" variant={k.status === 'Venter' ? 'secondary' : 'primary'} asChild>
-              <RouterLink to={`/navnekandidater/${k.id}/behandle`}>Behandle …</RouterLink>
-            </Button>
-            {k.status === 'Venter' ? (
-              <>
-                {/* Hurtig-Godkjenn beholdes for `gruppe`, der den FUNGERER (oppretter gruppebegrep +
-                    koblet tagg i én handling). For `virksomhet` er den fjernet: den satte bare status
-                    og etterlot en tagg som aldri ble koblet — nettopp blindveien wizarden erstatter. */}
-                {k.kategori === 'gruppe' && (
-                  <Button data-size="sm" onClick={() => enkelthandling(k.id, 'godkjenn')}>Godkjenn</Button>
-                )}
-                <Button data-size="sm" variant="tertiary" onClick={() => enkelthandling(k.id, 'avvis')}>Avvis</Button>
-              </>
-            ) : (
-              <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
-                {k.behandletAv ? `Behandlet av ${k.behandletAv}` : '—'}
-              </span>
-            )}
-            {/* Vist for ALLE statuser (ikke bare Venter) — formålet med sletting er full opprydding av
-                korpuset (også allerede godkjente/avviste rader), se NavnekandidatOppdagelseTjeneste
-                .SlettAsync sin kommentar for hvorfor. */}
-            <Button data-size="sm" variant="tertiary" data-color="danger" onClick={() => slettEnkelt(k.id)}>
-              Slett
-            </Button>
-          </div>
+          {redigerId === k.id ? (
+            // [Ny, issue #203 pkt. 1] Lagre/Avbryt for inline-redigeringen — erstatter resten av
+            // handlingsraden mens raden er åpen for redigering, samme "ett skjema av gangen"-idiom.
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
+              <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap' }}>
+                <Button data-size="sm" onClick={() => lagreRediger(k)} disabled={redigerLagrer}>
+                  {redigerLagrer ? 'Lagrer …' : 'Lagre'}
+                </Button>
+                <Button data-size="sm" variant="tertiary" onClick={avbrytRediger} disabled={redigerLagrer}>
+                  Avbryt
+                </Button>
+              </div>
+              {k.status === 'Avvist' && (
+                <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                  Lagring setter status tilbake til «Venter».
+                </span>
+              )}
+              {redigerFeil && <Alert data-color="danger" data-size="sm">{redigerFeil}</Alert>}
+            </div>
+          ) : (
+            <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>
+              {/* [Ny, issue #203 pkt. 1] «Rediger» er tilgjengelig UANSETT status — samme «uansett
+                  status»-prinsipp som «Behandle …» rett ved siden av, men for en RASK retting av
+                  ForeslattTekst/Kategori uten å gå via hele wizarden (PATCH /api/navnekandidater/{id}). */}
+              <Button data-size="sm" variant="tertiary" onClick={() => startRediger(k)}>Rediger</Button>
+              {/* [Ny, navnekandidat-wizard-runden, 2026-09-07] «Behandle» er tilgjengelig UANSETT status.
+                  Det er bevisst: en `virksomhet`-rad som alt er godkjent via hurtig-Godkjenn står fast
+                  i blindveien med en ubundet tagg, og en avvist rad kan ha blitt avvist nettopp fordi
+                  teksten var et regex-artefakt — begge må kunne åpnes og fullføres. Se
+                  `NavnekandidatVeiviser.tsx` og `KoblTilVirksomhetAsync`. */}
+              <Button data-size="sm" variant={k.status === 'Venter' ? 'secondary' : 'primary'} asChild>
+                <RouterLink to={`/navnekandidater/${k.id}/behandle`}>Behandle …</RouterLink>
+              </Button>
+              {k.status === 'Venter' ? (
+                <>
+                  {/* Hurtig-Godkjenn beholdes for `gruppe` OG [ENDRET, issue #203 pkt. 2]
+                      `administrativ_inndeling`, der den FUNGERER (oppretter begrepet + koblet tagg i én
+                      handling, samme GodkjennAsync-gren). For `virksomhet` er den fjernet: den satte bare
+                      status og etterlot en tagg som aldri ble koblet — nettopp blindveien wizarden
+                      erstatter. */}
+                  {(k.kategori === 'gruppe' || k.kategori === 'administrativ_inndeling') && (
+                    <Button data-size="sm" onClick={() => enkelthandling(k.id, 'godkjenn')}>Godkjenn</Button>
+                  )}
+                  <Button data-size="sm" variant="tertiary" onClick={() => enkelthandling(k.id, 'avvis')}>Avvis</Button>
+                </>
+              ) : (
+                <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                  {k.behandletAv ? `Behandlet av ${k.behandletAv}` : '—'}
+                </span>
+              )}
+              {/* Vist for ALLE statuser (ikke bare Venter) — formålet med sletting er full opprydding av
+                  korpuset (også allerede godkjente/avviste rader), se NavnekandidatOppdagelseTjeneste
+                  .SlettAsync sin kommentar for hvorfor. */}
+              <Button data-size="sm" variant="tertiary" data-color="danger" onClick={() => slettEnkelt(k.id)}>
+                Slett
+              </Button>
+            </div>
+          )}
         </Table.Cell>
       </Table.Row>
     );
@@ -593,6 +700,8 @@ export default function NavnekandidaterListe() {
             <Select.Option value="">Alle kategorier</Select.Option>
             <Select.Option value="virksomhet">Virksomhet</Select.Option>
             <Select.Option value="gruppe">Gruppe</Select.Option>
+            {/* [Ny, issue #203 pkt. 2] */}
+            <Select.Option value="administrativ_inndeling">Administrativ inndeling</Select.Option>
           </Select>
         </Field>
         {/* [Ny, konfidens-runden, 2026-09-09] «Lav konfidens» er der de reelle, men lite omtalte
