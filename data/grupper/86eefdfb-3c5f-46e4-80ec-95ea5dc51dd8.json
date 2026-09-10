@@ -1,0 +1,42 @@
+{
+  "_kilde": "GET /api/gruppebegrep/{id}/medlemsgrupper + /overordnede-grupper + /tildelinger for id=86eefdfb-3c5f-46e4-80ec-95ea5dc51dd8 — eksportert 2026-09-09T22:15:57Z",
+  "id": "86eefdfb-3c5f-46e4-80ec-95ea5dc51dd8",
+  "term": "språkstimuleringskommuner",
+  "status": "publisert",
+  "lovkildeId": "b2b2bc4b-f2a3-44e8-a665-ea491a2185b7",
+  "lovreferanseEid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-1/ledd-1/punkt-1",
+  "medlemsgrupper": [],
+  "overordnedeGrupper": [
+    {
+      "id": "757aa3ac-191e-4081-96f2-0dc54f63f71f",
+      "overordnetGruppeBegrepId": "7057ff4b-bc2e-4d23-af7b-c681a082ea32",
+      "underordnetGruppeBegrepId": "86eefdfb-3c5f-46e4-80ec-95ea5dc51dd8",
+      "hjemmelRettskildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "paragrafspenn": [
+        {
+          "fraEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+          "tilEid": null
+        }
+      ],
+      "gyldigFra": null,
+      "gyldigTil": null
+    }
+  ],
+  "tildelinger": [
+    {
+      "id": "92ff8aa0-3561-434f-9f4c-52c1e38301c9",
+      "gruppeBegrepId": "86eefdfb-3c5f-46e4-80ec-95ea5dc51dd8",
+      "virksomhetId": "9da2c92e-1de5-4ab5-b064-89c6faf0b8c6",
+      "hjemmelRettskildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "paragrafspenn": [
+        {
+          "fraEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+          "tilEid": null
+        }
+      ],
+      "vilkaar": null,
+      "gyldigFra": null,
+      "gyldigTil": null
+    }
+  ]
+}

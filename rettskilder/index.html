@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="nb" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Rettskilder — DigRett showcase</title>
+<meta name="description" content="Søkbar katalog over alle rettskilder i DigRett: delt/nasjonale kilder fra Lovdata og virksomheters egne, lokale kilder.">
+<link rel="canonical" href="https://finnuro.github.io/regel-ide/rettskilder/">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/fonts.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet-theme.css">
+<link rel="stylesheet" href="../assets/css/site.css">
+</head>
+<body>
+
+<a class="ds-link skip-to-content" href="#main">Hopp til innhold</a>
+
+<div class="disclaimer-bar">
+  <div class="wrap">
+    <span>📎 <strong>Midlertidig showcase</strong> — statisk fasade, ikke selve applikasjonen.</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand plain" href="../">
+      <span class="brand__mark" aria-hidden="true">DR</span>
+      <span class="brand__text">
+        <span class="brand__title">DigRett</span>
+        <span class="brand__subtitle">Digital rettsstat — showcase</span>
+      </span>
+    </a>
+    <nav class="main-nav" aria-label="Hovedmeny">
+      <a href="../">Forside</a>
+      <a href="../rettskilder/" aria-current="page">Rettskilder</a>
+      <a href="../virksomheter/">Virksomheter</a>
+      <a href="../grupper/">Grupper</a>
+      <a href="../koblinger/">Koblinger</a>
+      <a href="../begreper/">Begreper</a>
+      <a href="../om/">Om</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap page-head">
+    <span class="eyebrow">Byggestein 1 · rettskildebibliotek</span>
+    <h1>Rettskilder</h1>
+    <p class="lead">Alle rettskilder DigRett kjenner til — delte/nasjonale kilder (lover og forskrifter fra Lovdata) og virksomheters egne, lokale kilder (forskrifter, rundskriv/håndbøker, brukerveiledninger). Kladder vises aldri her.</p>
+  </div>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="stat-row" id="stat-row">
+        <div class="stat-tile is-loading" data-stat="total"><span class="n">–</span><span class="l">rettskilder totalt</span></div>
+        <div class="stat-tile is-loading" data-stat="delt"><span class="n">–</span><span class="l">delt / nasjonalt (Lovdata)</span></div>
+        <div class="stat-tile is-loading" data-stat="virksomhetseid"><span class="n">–</span><span class="l">virksomhetseide, lokale kilder</span></div>
+        <div class="stat-tile is-loading" data-stat="departementer"><span class="n">–</span><span class="l">ansvarlige departementer</span></div>
+      </div>
+
+      <div class="view-tabs" role="tablist" aria-label="Visning">
+        <button type="button" role="tab" aria-selected="true" data-view="flat">Flat liste</button>
+        <button type="button" role="tab" aria-selected="false" data-view="departement">Departement → lov → forskrift</button>
+      </div>
+
+      <div id="view-flat" class="view">
+        <div class="filter-bar">
+          <input type="search" class="filter-input" id="q" placeholder="Søk i tittel eller kortnavn …" aria-label="Søk i rettskilder">
+          <select class="filter-select" id="f-kildetype" aria-label="Filtrer på kildetype">
+            <option value="">Alle kildetyper</option>
+          </select>
+          <select class="filter-select" id="f-eier" aria-label="Filtrer på eierskap">
+            <option value="">Delt og virksomhetseid</option>
+            <option value="delt">Kun delt / nasjonalt</option>
+            <option value="virksomhet">Kun virksomhetseid</option>
+          </select>
+          <span class="filter-count" id="result-count"></span>
+        </div>
+        <div class="table-scroll">
+          <table class="ds-table data-table" id="rettskilde-table">
+            <thead>
+              <tr>
+                <th scope="col" data-sort-key="tittel" aria-sort="ascending">Tittel</th>
+                <th scope="col" data-sort-key="kildetype">Kildetype</th>
+                <th scope="col" data-sort-key="departementSort">Ansvarlig departement</th>
+                <th scope="col" data-sort-key="eierSort">Eier</th>
+                <th scope="col" data-sort-key="ikrafttredelseRaa">I kraft fra</th>
+              </tr>
+            </thead>
+            <tbody id="rettskilde-tbody">
+              <tr><td colspan="5" class="loading-note">Laster rettskilder …</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="filter-count" id="truncation-note" style="margin-top:var(--ds-size-3);"></p>
+      </div>
+
+      <div id="view-departement" class="view" hidden>
+        <p style="color:var(--ds-color-text-subtle); font-size:var(--ds-body-sm-font-size); max-width:60ch;">Lover gruppert under hvert ansvarlig departement. En lov med delt ansvar vises under alle sine departementer. Klikk et departement for å se lovene under det.</p>
+        <div id="departement-tree"></div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <h3>Om nettstedet</h3>
+      <p style="font-size:var(--ds-body-sm-font-size); color:var(--ds-color-text-subtle); max-width:32ch; margin:0;">Midlertidig showcase av <strong>DigRett</strong>, ikke selve produktet. Kildekode: <a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">regel-ide</a>.</p>
+    </div>
+    <div>
+      <h3>Sider</h3>
+      <ul>
+        <li><a href="../virksomheter/">Virksomheter</a></li>
+        <li><a href="../koblinger/">Koblinger</a></li>
+        <li><a href="../begreper/">Begreper</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Kildekode</h3>
+      <ul>
+        <li><a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">FinnurO/regel-ide</a></li>
+        <li><a href="https://github.com/FinnurO/regel-ide/blob/main/nettside/data/README.md" target="_blank" rel="noopener">Datakontrakt</a></li>
+      </ul>
+    </div>
+    <p class="fine">Data eksportert fra en kjørende lokal instans på et gitt tidspunkt — ikke sanntid. Se «_kilde»-felt i <a href="../data/rettskilder/katalog.json" target="_blank" rel="noopener">katalog.json</a>.</p>
+  </div>
+</footer>
+
+<button type="button" class="ds-button feedback-fab" data-color="accent" id="feedback-open-btn" aria-haspopup="dialog">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+  <span class="btn-label">Gi tilbakemelding</span>
+</button>
+
+<dialog class="feedback-dialog" id="feedback-dialog" aria-labelledby="feedback-dialog-title">
+  <div class="feedback-dialog__body">
+    <h2 id="feedback-dialog-title">Gi tilbakemelding</h2>
+    <p class="lead">Sendes som et innspill på GitHub — du logger inn med (eller oppretter) en gratis GitHub-konto for å fullføre innsendingen der.</p>
+    <p class="feedback-hint">Vi tar automatisk med hvilke seksjoner du har åpnet på siden. Vil du sitere en bestemt setning: lukk dette vinduet, marker teksten på siden, og trykk «Gi tilbakemelding» på nytt.</p>
+    <div class="feedback-context" id="feedback-context"></div>
+    <div class="feedback-field">
+      <label for="feedback-text">Hva vil du si noe om?</label>
+      <textarea id="feedback-text" placeholder="Skriv tilbakemeldingen din her …"></textarea>
+    </div>
+    <div class="feedback-actions">
+      <button type="button" class="ds-button" data-variant="tertiary" data-color="neutral" id="feedback-cancel-btn">Avbryt</button>
+      <button type="button" class="ds-button" data-color="accent" id="feedback-submit-btn">Send inn på GitHub →</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/feedback.js"></script>
+<script>
+(function () {
+  var S = DigRettSite;
+  var MAX_ROWS = 400;
+  var allRows = [];
+  var virksomhetNavn = {};
+
+  function eierLabel(row) {
+    if (!row.virksomhetId) return 'Delt / nasjonalt';
+    return virksomhetNavn[row.virksomhetId] || 'Virksomhetseid';
+  }
+
+  function departementText(row) {
+    return (row.ansvarligDepartement || []).join(', ') || '—';
+  }
+
+  function renderRows(rows) {
+    var tbody = document.getElementById('rettskilde-tbody');
+    var shown = rows.slice(0, MAX_ROWS);
+    if (!shown.length) {
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state">Ingen rettskilder matcher søket.</div></td></tr>';
+    } else {
+      tbody.innerHTML = shown.map(function (r) {
+        var href = '#'; // ingen egen detaljfil er eksportert for vilkårlige rettskilder i denne showcasen
+        return '<tr>' +
+          '<td><strong>' + S.esc(r.tittel) + '</strong>' + (r.kortnavn ? '<br><span style="color:var(--ds-color-text-subtle); font-size:var(--ds-body-xs-font-size);">' + S.esc(r.kortnavn) + '</span>' : '') + '</td>' +
+          '<td>' + S.esc(r.kildetype) + '</td>' +
+          '<td>' + S.esc(departementText(r)) + '</td>' +
+          '<td>' + (r.virksomhetId ? S.esc(eierLabel(r)) : '<span class="pill" data-tone="accent">Delt / nasjonalt</span>') + '</td>' +
+          '<td>' + S.esc(r.ikrafttredelseRaa || '—') + '</td>' +
+          '</tr>';
+      }).join('');
+    }
+    var countEl = document.getElementById('result-count');
+    countEl.textContent = rows.length.toLocaleString('nb-NO') + ' treff';
+    var truncEl = document.getElementById('truncation-note');
+    truncEl.textContent = rows.length > MAX_ROWS
+      ? 'Viser de første ' + MAX_ROWS + ' av ' + rows.length.toLocaleString('nb-NO') + ' treff — snevre inn søket for å se flere.'
+      : '';
+  }
+
+  function currentFiltered() {
+    var q = document.getElementById('q').value.trim();
+    var kildetype = document.getElementById('f-kildetype').value;
+    var eier = document.getElementById('f-eier').value;
+    return allRows.filter(function (r) {
+      if (kildetype && r.kildetype !== kildetype) return false;
+      if (eier === 'delt' && r.virksomhetId) return false;
+      if (eier === 'virksomhet' && !r.virksomhetId) return false;
+      if (q && !S.matches(q, [r.tittel, r.kortnavn])) return false;
+      return true;
+    });
+  }
+
+  function applyFilters() { renderRows(currentFiltered()); }
+
+  function buildDepartementTree() {
+    var byDept = {};
+    allRows.forEach(function (r) {
+      if (r.kildetype !== 'Lov') return;
+      (r.ansvarligDepartement || ['(uten ansvarlig departement)']).forEach(function (d) {
+        byDept[d] = byDept[d] || [];
+        byDept[d].push(r);
+      });
+    });
+    var depts = Object.keys(byDept).sort(function (a, b) { return a.localeCompare(b, 'nb'); });
+    var forskrifterByLov = {};
+    // Grovt hjemmelsuttrekk: forskrifter uten egen eli mangler kobling i katalogfilen; vi kobler
+    // derfor kun på departement-nivå her (samme lister), IKKE en full hjemmel-trevisning —
+    // det finnes på koblinger-siden for det konkrete Karasjok-eksempelet.
+    var html = depts.map(function (d) {
+      var lover = byDept[d].sort(function (a, b) { return a.tittel.localeCompare(b.tittel, 'nb'); });
+      return '<details class="ds-details">' +
+        '<summary>' + S.esc(d) + ' <span class="filter-count">(' + lover.length + ' lov' + (lover.length === 1 ? '' : 'er') + ')</span></summary>' +
+        '<ul class="member-list">' + lover.map(function (l) {
+          return '<li><span>' + S.esc(l.tittel) + '</span></li>';
+        }).join('') + '</ul>' +
+        '</details>';
+    }).join('');
+    document.getElementById('departement-tree').innerHTML = html || '<div class="empty-state">Ingen lover funnet.</div>';
+  }
+
+  Promise.all([
+    S.fetchData('rettskilder/katalog.json'),
+    S.fetchData('virksomheter/katalog.json')
+  ]).then(function (results) {
+    var rettskilderData = results[0];
+    var virksomheterData = results[1];
+    allRows = rettskilderData.rettskilder;
+    (virksomheterData.virksomheter || []).forEach(function (v) { virksomhetNavn[v.id] = v.visningsnavn || v.navn; });
+
+    // Stat-tiles
+    var delt = allRows.filter(function (r) { return !r.virksomhetId; }).length;
+    var virksomhetseid = allRows.length - delt;
+    var deptSet = {};
+    allRows.forEach(function (r) { (r.ansvarligDepartement || []).forEach(function (d) { deptSet[d] = true; }); });
+    function setStat(key, n) {
+      var tile = document.querySelector('.stat-tile[data-stat="' + key + '"]');
+      tile.classList.remove('is-loading');
+      tile.querySelector('.n').textContent = n.toLocaleString('nb-NO');
+    }
+    setStat('total', allRows.length);
+    setStat('delt', delt);
+    setStat('virksomhetseid', virksomhetseid);
+    setStat('departementer', Object.keys(deptSet).length);
+
+    // Kildetype-filter
+    var kildetyper = Array.from(new Set(allRows.map(function (r) { return r.kildetype; }))).sort();
+    var sel = document.getElementById('f-kildetype');
+    kildetyper.forEach(function (k) {
+      var opt = document.createElement('option');
+      opt.value = k; opt.textContent = k;
+      sel.appendChild(opt);
+    });
+
+    applyFilters();
+    buildDepartementTree();
+
+    document.getElementById('q').addEventListener('input', S.debounce(applyFilters, 120));
+    document.getElementById('f-kildetype').addEventListener('change', applyFilters);
+    document.getElementById('f-eier').addEventListener('change', applyFilters);
+
+    var theadRow = document.querySelector('#rettskilde-table thead tr');
+    allRows.forEach(function (r) {
+      r.departementSort = departementText(r);
+      r.eierSort = eierLabel(r);
+    });
+    S.makeSortableTable(theadRow, currentFiltered, renderRows);
+  }).catch(function (err) {
+    S.renderError(document.getElementById('rettskilde-tbody').parentElement.parentElement, err);
+  });
+
+  // View-tabs
+  Array.prototype.forEach.call(document.querySelectorAll('.view-tabs button'), function (btn) {
+    btn.addEventListener('click', function () {
+      Array.prototype.forEach.call(document.querySelectorAll('.view-tabs button'), function (b) { b.setAttribute('aria-selected', 'false'); });
+      btn.setAttribute('aria-selected', 'true');
+      var view = btn.getAttribute('data-view');
+      document.getElementById('view-flat').hidden = view !== 'flat';
+      document.getElementById('view-departement').hidden = view !== 'departement';
+    });
+  });
+})();
+</script>
+</body>
+</html>

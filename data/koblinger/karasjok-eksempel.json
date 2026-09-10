@@ -1,0 +1,76 @@
+{
+  "_kilde": "Sammensatt av GET /api/rettskilder/{id}/noder/oppslag (samelov + forskrift), GET /api/virksomheter/{id}/where-used, GET /api/virksomheter/{id}/begrep og GET /api/virksomheter/{id}/myndighetstildelinger for Karasjok kommune — eksportert 2026-09-09T22:23:46Z",
+  "_merk": "Støttefil spesifikt for koblinger-siden (flaggskipet) — samler de eksakte paragraftekstene og id-ene som utgjør Karasjok/sameloven-eksempelet, slik at siden ikke hardkoder noe i HTML.",
+  "rettskilder": {
+    "samelov": {
+      "id": "b2b2bc4b-f2a3-44e8-a665-ea491a2185b7",
+      "tittel": "Lov om Sametinget og andre samiske rettsforhold (sameloven)",
+      "kortnavn": "Sameloven – samel",
+      "eli": "https://lovdata.no/eli/lov/1987/06/12/56/nor"
+    },
+    "forskrift": {
+      "id": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "tittel": "Forskrift om forvaltningsområdet for samiske språk",
+      "eli": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor"
+    }
+  },
+  "definisjonNode": {
+    "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-1/ledd-1/punkt-1",
+    "paragrafLabel": "sameloven § 3-1 første ledd punkt 1",
+    "tekst": "forvaltningsområdet for samiske språk: kommuner inndelt i kategoriene språkutviklingskommuner, språkvitaliseringskommuner og språkstimuleringskommuner, og fylkeskommuner, som Kongen i forskrift har fastsatt at skal inngå i forvaltningsområdet for samiske språk,",
+    "fremhevTerm": "språkutviklingskommuner"
+  },
+  "medlemNode": {
+    "eid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+    "paragrafLabel": "forskriften § 1 første ledd",
+    "tekst": "Forvaltningsområdet for samiske språk består av alle språkutviklingskommuner, språkvitaliseringskommuner og språkstimuleringskommuner. Karasjok, Kautokeino, Nesseby og Tana er språkutviklingskommuner. Porsanger, Kåfjord, Lavangen, Tjeldsund, Hattfjelldal, Hamarøy, Røyrvik, Røros og Snåsa er språkvitaliseringskommuner. Saltdal er språkstimuleringskommune.",
+    "fremhevTerm": "Karasjok",
+    "taggetSpenn": {
+      "startOffset": 135,
+      "endOffset": 143
+    }
+  },
+  "kjede1LovtekstTilVirksomhet": {
+    "taggetTekst": "Karasjok",
+    "navneformKortform": {
+      "id": "9ea6cbe2-0614-4bea-81d6-201b8a8b1c42",
+      "term": "Karasjok",
+      "navneformgrunn": "kortform"
+    },
+    "navneformGjeldende": {
+      "id": "6dc58a74-3fdf-496f-a257-9fbcc1efef9b",
+      "term": "Karasjok kommune",
+      "navneformgrunn": "gjeldende"
+    },
+    "navneformParallell": {
+      "id": "e50396b7-4cd5-43d0-8d0a-11632fc886a5",
+      "term": "Kárášjoga gielda",
+      "navneformgrunn": "parallellnavn"
+    },
+    "virksomhet": {
+      "id": "455d90bf-3b8e-4d75-a735-b6b2768d17fa",
+      "registernavn": "Karasjoga gielda / Karasjok kommune",
+      "organisasjonsnummer": "963376030"
+    },
+    "hjemmel": "forskriften § 1 første ledd"
+  },
+  "kjede2GruppebegrepTilVirksomhet": {
+    "gruppebegrepOverordnet": {
+      "id": "7057ff4b-bc2e-4d23-af7b-c681a082ea32",
+      "term": "forvaltningsområdet for samiske språk"
+    },
+    "gruppebegrepMedlem": {
+      "id": "52dcc48d-d228-42d6-8bb1-d9397e29b734",
+      "term": "språkutviklingskommuner"
+    },
+    "medlemskapHjemmel": "forskriften § 1 første ledd",
+    "myndighetstildeling": {
+      "id": "73faabd8-2f47-4346-8285-ff7ddfeb84c5",
+      "hjemmel": "forskriften § 1 første ledd"
+    },
+    "virksomhet": {
+      "id": "455d90bf-3b8e-4d75-a735-b6b2768d17fa",
+      "visningsnavn": "Karasjok kommune"
+    }
+  }
+}

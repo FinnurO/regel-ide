@@ -1,0 +1,100 @@
+{
+  "_kilde": "GET /api/virksomheter/{id}/where-used + /myndighetstildelinger + /begrep for id=455d90bf-3b8e-4d75-a735-b6b2768d17fa — eksportert 2026-09-09T22:15:57Z",
+  "id": "455d90bf-3b8e-4d75-a735-b6b2768d17fa",
+  "navn": "KARASJOGA GIELDA / KARASJOK KOMMUNE",
+  "visningsnavn": "Karasjok kommune",
+  "organisasjonsnummer": "963376030",
+  "forvaltningsniva": "kommune",
+  "whereUsed": {
+    "navneformForekomster": [
+      {
+        "navneformId": "9ea6cbe2-0614-4bea-81d6-201b8a8b1c42",
+        "term": "Karasjok",
+        "navneformgrunn": "kortform",
+        "rettskildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+        "rettskildeTittel": "Forskrift om forvaltningsområdet for samiske språk",
+        "nodeEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+        "quoteExact": "Karasjok",
+        "startOffset": 135,
+        "endOffset": 143
+      }
+    ],
+    "gruppetildelinger": [
+      {
+        "tildelingId": "73faabd8-2f47-4346-8285-ff7ddfeb84c5",
+        "gruppeBegrepId": "52dcc48d-d228-42d6-8bb1-d9397e29b734",
+        "gruppeTerm": "språkutviklingskommuner"
+      }
+    ]
+  },
+  "myndighetstildelinger": [
+    {
+      "id": "73faabd8-2f47-4346-8285-ff7ddfeb84c5",
+      "gruppeBegrepId": "52dcc48d-d228-42d6-8bb1-d9397e29b734",
+      "virksomhetId": "455d90bf-3b8e-4d75-a735-b6b2768d17fa",
+      "hjemmelRettskildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "paragrafspenn": [
+        {
+          "fraEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+          "tilEid": null
+        }
+      ],
+      "vilkaar": null,
+      "gyldigFra": null,
+      "gyldigTil": null
+    }
+  ],
+  "navneformer": [
+    {
+      "id": "9ea6cbe2-0614-4bea-81d6-201b8a8b1c42",
+      "virksomhetId": null,
+      "begrepskategori": "virksomhet",
+      "virksomhetReferanseId": "455d90bf-3b8e-4d75-a735-b6b2768d17fa",
+      "lovkildeId": null,
+      "term": "Karasjok",
+      "definisjon": null,
+      "lovreferanseEid": null,
+      "gjelderFor": [],
+      "kodelisteReferanseId": null,
+      "skosUrl": null,
+      "begrepstype": null,
+      "status": "publisert",
+      "versjon": 1,
+      "navneformgrunn": "kortform"
+    },
+    {
+      "id": "6dc58a74-3fdf-496f-a257-9fbcc1efef9b",
+      "virksomhetId": null,
+      "begrepskategori": "virksomhet",
+      "virksomhetReferanseId": "455d90bf-3b8e-4d75-a735-b6b2768d17fa",
+      "lovkildeId": null,
+      "term": "Karasjok kommune",
+      "definisjon": null,
+      "lovreferanseEid": null,
+      "gjelderFor": [],
+      "kodelisteReferanseId": null,
+      "skosUrl": null,
+      "begrepstype": null,
+      "status": "publisert",
+      "versjon": 1,
+      "navneformgrunn": "gjeldende"
+    },
+    {
+      "id": "e50396b7-4cd5-43d0-8d0a-11632fc886a5",
+      "virksomhetId": null,
+      "begrepskategori": "virksomhet",
+      "virksomhetReferanseId": "455d90bf-3b8e-4d75-a735-b6b2768d17fa",
+      "lovkildeId": null,
+      "term": "Kárášjoga gielda",
+      "definisjon": null,
+      "lovreferanseEid": null,
+      "gjelderFor": [],
+      "kodelisteReferanseId": null,
+      "skosUrl": null,
+      "begrepstype": null,
+      "status": "publisert",
+      "versjon": 1,
+      "navneformgrunn": "parallellnavn"
+    }
+  ]
+}

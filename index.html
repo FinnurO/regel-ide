@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="nb" data-root="./">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DigRett — digital rettsstat, en showcase</title>
+<meta name="description" content="Showcase av DigRett: konkrete svar systemet allerede kan gi om rettskilder, virksomheter, grupper og begreper, med full sporbarhet tilbake til lovteksten.">
+<link rel="canonical" href="https://finnuro.github.io/regel-ide/">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="assets/css/fonts.css">
+<link rel="stylesheet" href="assets/css/vendor/designsystemet.css">
+<link rel="stylesheet" href="assets/css/vendor/designsystemet-theme.css">
+<link rel="stylesheet" href="assets/css/site.css">
+<meta property="og:title" content="DigRett — digital rettsstat, en showcase">
+<meta property="og:description" content="Konkrete svar DigRett allerede kan gi om rettskilder, virksomheter, grupper og begreper — med full sporbarhet tilbake til lovteksten.">
+<meta property="og:type" content="website">
+</head>
+<body>
+
+<a class="ds-link skip-to-content" href="#main">Hopp til innhold</a>
+
+<div class="disclaimer-bar">
+  <div class="wrap">
+    <span>📎 <strong>Midlertidig showcase</strong> — dette er en statisk fasade som viser fram noen svar DigRett allerede kan gi. Selve applikasjonen er foreløpig kun tilgjengelig i lokal test, ikke her.</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand plain" href="./">
+      <span class="brand__mark" aria-hidden="true">DR</span>
+      <span class="brand__text">
+        <span class="brand__title">DigRett</span>
+        <span class="brand__subtitle">Digital rettsstat — showcase</span>
+      </span>
+    </a>
+    <nav class="main-nav" aria-label="Hovedmeny">
+      <a href="./" aria-current="page">Forside</a>
+      <a href="rettskilder/">Rettskilder</a>
+      <a href="virksomheter/">Virksomheter</a>
+      <a href="grupper/">Grupper</a>
+      <a href="koblinger/">Koblinger</a>
+      <a href="begreper/">Begreper</a>
+      <a href="om/">Om</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <span class="eyebrow">Referanseimplementasjon · digital rettsstat</span>
+        <h1>Loven er ustrukturert. DigRett gjør den spørrbar.</h1>
+        <p class="lead">DigRett er en referanseimplementasjon av kjeden <strong>rettskilde → regel → data → tjeneste</strong>, med sporbarhet innebygd i hvert ledd — ikke lagt på i etterkant. Denne siden viser fram noen konkrete spørsmål systemet allerede kan svare på, hentet fra en kjørende instans.</p>
+        <div class="cta-row">
+          <a class="ds-button" data-color="accent" href="koblinger/">Se sporbarhetskjeden →</a>
+          <a class="ds-button" data-variant="secondary" data-color="accent" href="rettskilder/">Utforsk rettskildene</a>
+        </div>
+      </div>
+      <aside class="hero-panel">
+        <h2>Kjeden, ledd for ledd</h2>
+        <ul class="source-list">
+          <li><span class="dot" aria-hidden="true"></span><span><strong>Rettskilde</strong><span class="desc">Lov/forskrift, importert med paragraf/ledd-struktur bevart.</span></span></li>
+          <li><span class="dot" aria-hidden="true"></span><span><strong>Navneform / gruppebegrep</strong><span class="desc">Mellomleddet som forklarer HVORFOR en tekststreng peker på en bestemt aktør.</span></span></li>
+          <li><span class="dot" aria-hidden="true"></span><span><strong>Virksomhet</strong><span class="desc">Den konkrete, navngitte aktøren — knyttet til Brønnøysundregisteret der den finnes.</span></span></li>
+          <li><span class="dot" aria-hidden="true"></span><span><strong>Hjemmelsparagraf</strong><span class="desc">Synlig på hvert eneste ledd, aldri underforstått.</span></span></li>
+        </ul>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Tallene er ekte</span>
+        <h2>Alt under er lest live fra eksporterte katalogfiler</h2>
+        <p>Ingen av tallene nedenfor er skrevet inn i HTML-en — de leses med <code>fetch()</code> fra JSON-filene under <code>data/</code>, som igjen er eksportert fra en kjørende lokal instans av <code>RegelIde.Api</code>. Se <a href="https://github.com/FinnurO/regel-ide/blob/main/nettside/data/README.md" target="_blank" rel="noopener">datakontrakten</a>.</p>
+      </div>
+      <div class="stat-row" id="stat-row">
+        <div class="stat-tile is-loading" data-stat="rettskilder"><span class="n">–</span><span class="l">rettskilder i katalogen</span></div>
+        <div class="stat-tile is-loading" data-stat="virksomheter"><span class="n">–</span><span class="l">virksomheter i katalogen</span></div>
+        <div class="stat-tile is-loading" data-stat="gruppebegrep"><span class="n">–</span><span class="l">gruppebegrep registrert</span></div>
+        <div class="stat-tile is-loading" data-stat="begreper"><span class="n">–</span><span class="l">begreper i registeret</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Hvorfor denne siden finnes nå</span>
+        <h2>En midlertidig fasade, ikke produktet</h2>
+        <p>DigRett selv kjører foreløpig kun i lokal test — ingen driftsatt, offentlig instans finnes ennå. I mellomtiden er det verdifullt å kunne <em>vise</em> noen konkrete svar systemet allerede kan gi, uten å vente på full drift. Denne nettsiden er akkurat det: en 100 % statisk fasade (ingen kjøretidsavhengighet til API-et for visning), bygget etter samme mønster som <a href="https://github.com/FinnurO/tjenestedesign-no" target="_blank" rel="noopener">FinnurO/tjenestedesign-no</a>, med data eksportert i faste øyeblikksbilder. Når selve appen blir tilgjengelig, er denne sidens jobb gjort.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="border-bottom:none;">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Utforsk</span>
+        <h2>Seks innganger til de samme dataene</h2>
+        <p>Hver side viser et annet snitt gjennom den samme underliggende modellen — fra full katalog til ett gjennomgående eksempel.</p>
+      </div>
+      <div class="card-grid">
+        <div class="ds-card">
+          <div class="pillar">
+            <span class="num">01</span>
+            <h3>Rettskilder</h3>
+            <p>Søkbar/filtrerbar liste over alle rettskilder — delt/nasjonalt vs. virksomhetseid.</p>
+            <a class="ds-link" href="rettskilder/">Åpne →</a>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="pillar">
+            <span class="num">02</span>
+            <h3>Virksomheter</h3>
+            <p>Katalog over alle virksomheter, med navneform og «brukt i»-oppslag for utvalgte.</p>
+            <a class="ds-link" href="virksomheter/">Åpne →</a>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="pillar">
+            <span class="num">03</span>
+            <h3>Grupper</h3>
+            <p>Gruppebegrep og gruppemedlemskap — forvaltningsområdet for samiske språk som hovedeksempel.</p>
+            <a class="ds-link" href="grupper/">Åpne →</a>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="pillar">
+            <span class="num">04</span>
+            <h3>Koblinger <span class="pill" data-tone="accent">Flaggskip</span></h3>
+            <p>Hele sporbarhetskjeden, eksplisitt: lovtekst → navneform → virksomhet, med hjemmel på hvert ledd.</p>
+            <a class="ds-link" href="koblinger/">Åpne →</a>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="pillar">
+            <span class="num">05</span>
+            <h3>Begreper</h3>
+            <p>Begrepsregister med definisjon, lovreferanse og reverseoppslag «brukt i rettskilder».</p>
+            <a class="ds-link" href="begreper/">Åpne →</a>
+          </div>
+        </div>
+        <div class="ds-card">
+          <div class="pillar">
+            <span class="num">06</span>
+            <h3>Om</h3>
+            <p>Om digital-rettsstat-økosystemet, denne sidens status, og hva som kommer videre.</p>
+            <a class="ds-link" href="om/">Åpne →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <h3>Om nettstedet</h3>
+      <p style="font-size:var(--ds-body-sm-font-size); color:var(--ds-color-text-subtle); max-width:32ch; margin:0;">
+        En midlertidig, 100&nbsp;% statisk showcase av <strong>DigRett</strong> (kildekode: <a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">regel-ide</a>) — ikke selve produktet. Data er eksportert i faste øyeblikksbilder fra en lokal utviklingsinstans, ikke live. Bygget med
+        <a href="https://designsystemet.no/" target="_blank" rel="noopener">designsystemet.no</a>, etter mønsteret fra
+        <a href="https://github.com/FinnurO/tjenestedesign-no" target="_blank" rel="noopener">tjenestedesign-no</a>.
+      </p>
+    </div>
+    <div>
+      <h3>Sider</h3>
+      <ul>
+        <li><a href="rettskilder/">Rettskilder</a></li>
+        <li><a href="virksomheter/">Virksomheter</a></li>
+        <li><a href="grupper/">Grupper</a></li>
+        <li><a href="koblinger/">Koblinger</a></li>
+        <li><a href="begreper/">Begreper</a></li>
+        <li><a href="om/">Om</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Kildekode</h3>
+      <ul>
+        <li><a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">FinnurO/regel-ide</a></li>
+        <li><a href="https://github.com/FinnurO/regel-ide/tree/main/nettside" target="_blank" rel="noopener">Denne sidens kildekode</a></li>
+        <li><a href="https://github.com/FinnurO/regel-ide/blob/main/nettside/data/README.md" target="_blank" rel="noopener">Datakontrakt</a></li>
+      </ul>
+    </div>
+    <p class="fine">
+      Dette er en <strong>midlertidig showcase</strong>, ikke selve DigRett-produktet — appen kjører i dag kun i lokal test. Innholdet her er data eksportert fra en kjørende lokal instans på et gitt tidspunkt (se «_kilde»-felt i hver datafil), ikke sanntidsdata. Siden erstattes eller fjernes når en driftsatt instans blir tilgjengelig.
+    </p>
+  </div>
+</footer>
+
+<button type="button" class="ds-button feedback-fab" data-color="accent" id="feedback-open-btn" aria-haspopup="dialog">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+  <span class="btn-label">Gi tilbakemelding</span>
+</button>
+
+<dialog class="feedback-dialog" id="feedback-dialog" aria-labelledby="feedback-dialog-title">
+  <div class="feedback-dialog__body">
+    <h2 id="feedback-dialog-title">Gi tilbakemelding</h2>
+    <p class="lead">Sendes som et innspill på GitHub — du logger inn med (eller oppretter) en gratis GitHub-konto for å fullføre innsendingen der.</p>
+    <p class="feedback-hint">Vi tar automatisk med hvilke seksjoner du har åpnet på siden (se under). Vil du sitere en bestemt setning: lukk dette vinduet, marker teksten på siden, og trykk «Gi tilbakemelding» på nytt — da blir den sitert her også.</p>
+    <div class="feedback-context" id="feedback-context"></div>
+    <div class="feedback-field">
+      <label for="feedback-text">Hva vil du si noe om?</label>
+      <textarea id="feedback-text" placeholder="Skriv tilbakemeldingen din her …"></textarea>
+    </div>
+    <div class="feedback-actions">
+      <button type="button" class="ds-button" data-variant="tertiary" data-color="neutral" id="feedback-cancel-btn">Avbryt</button>
+      <button type="button" class="ds-button" data-color="accent" id="feedback-submit-btn">Send inn på GitHub →</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="assets/js/common.js"></script>
+<script src="assets/js/feedback.js"></script>
+<script>
+(function () {
+  function setStat(key, n) {
+    var tile = document.querySelector('.stat-tile[data-stat="' + key + '"]');
+    if (!tile) return;
+    tile.classList.remove('is-loading');
+    tile.querySelector('.n').textContent = n.toLocaleString('nb-NO');
+  }
+  DigRettSite.fetchData('rettskilder/katalog.json').then(function (d) { setStat('rettskilder', d.antall); }).catch(function () {});
+  DigRettSite.fetchData('virksomheter/katalog.json').then(function (d) { setStat('virksomheter', d.antall); }).catch(function () {});
+  DigRettSite.fetchData('grupper/register.json').then(function (d) { setStat('gruppebegrep', d.antall); }).catch(function () {});
+  DigRettSite.fetchData('begreper/oversikt.json').then(function (d) { setStat('begreper', d.antallTotaltIRegisteret != null ? d.antallTotaltIRegisteret : d.antall); }).catch(function () {});
+})();
+</script>
+</body>
+</html>
