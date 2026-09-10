@@ -906,12 +906,15 @@ static Task<Guid?> LosFastsattAvVirksomhetAsync(string? organnavn, VirksomhetOpp
 
 var rettskilder = app.MapGroup("/api/rettskilder").WithOpenApi();
 
-rettskilder.MapGet("/", async (Guid? virksomhetId, bool? inkluderIrrelevante, RettskildeRepository repo) =>
-        (await repo.AlleRettskilderAsync(virksomhetId, inkluderIrrelevante ?? false)).Select(RettskildeSammendrag.FraEntitet))
+rettskilder.MapGet("/", async (Guid? virksomhetId, bool? inkluderIrrelevante, Guid[]? ider, RettskildeRepository repo) =>
+        (await repo.AlleRettskilderAsync(virksomhetId, inkluderIrrelevante ?? false, ider))
+            .Select(RettskildeSammendrag.FraEntitet))
     .WithName("HentAlleRettskilder")
     .WithSummary("Lister rettskilder (åpne data — kun Status != 'Utkast'). " +
         "?virksomhetId snevrer inn til én virksomhets bidrag; utelatt viser alt (delt + alle virksomheter). " +
-        "?inkluderIrrelevante=true tar med ErIrrelevant-markerte rettskilder, som ellers ekskluderes stille.")
+        "?inkluderIrrelevante=true tar med ErIrrelevant-markerte rettskilder, som ellers ekskluderes stille. " +
+        "?ider (gjenta parameteren, ?ider=a&ider=b) snevrer inn til et konkret sett — for sider som kjenner " +
+        "IDene fra en annen kilde (f.eks. en kandidatliste) og ikke trenger hele korpuset, se issue #256.")
     .WithDescription("IrrelevantKommentar er med i sammendraget (siden 2026-09-02, issue #114) slik at " +
         "«Utenfor korpuset»-fanen i RettskilderListe.tsx kan vise begrunnelsen uten et ekstra oppslag per rad.");
 

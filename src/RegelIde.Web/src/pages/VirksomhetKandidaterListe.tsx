@@ -72,9 +72,31 @@ export default function VirksomhetKandidaterListe() {
   // hver sin identiske kopi av sorteringstilstanden og de to hjelpefunksjonene.
   const sortering = useSortering<Sorteringskolonne>('opprettet', false);
 
+  // [ENDRET, issue #256, 2026-09-10] Var tidligere `api.hentRettskilder()` UTEN filter — hele det
+  // synlige korpuset (5899 rader, 2,6 MB, 1,9 s målt live) bare for å fylle «Lov/forskrift»-
+  // nedtrekket og slå opp titler i tabellen. Samme feilklasse som «Virksomhet»-dropdownen hadde
+  // (se `virksomhetIderMedKandidater`-kommentaren under, 2026-08-30) — løst her på samme måte:
+  // hent FØRST hvilke rettskilde-IDer som faktisk har en kandidat under gjeldende virksomhet-/
+  // statusfilter (IKKE rettskildeFilter selv — ellers ville nedtrekket krympet til kun ÉN rettskilde
+  // i det øyeblikket brukeren velger den), og hent titlene KUN for DEM.
+  const [rettskildeIderMedKandidater, setRettskildeIderMedKandidater] = useState<Set<string> | null>(null);
   useEffect(() => {
-    api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
-  }, []);
+    api
+      .hentVirksomhetKandidater({ virksomhetId: virksomhetFilter || undefined, status: statusFilter })
+      .then((liste) => setRettskildeIderMedKandidater(new Set(liste.map((k) => k.rettskildeId))))
+      .catch(() => setRettskildeIderMedKandidater(null));
+  }, [virksomhetFilter, statusFilter]);
+
+  useEffect(() => {
+    if (rettskildeIderMedKandidater === null) return; // ikke lastet ennå — vent, ikke hent alt som fallback.
+    if (rettskildeIderMedKandidater.size === 0) {
+      setRettskilder([]);
+      return;
+    }
+    api.hentRettskilder(undefined, undefined, [...rettskildeIderMedKandidater])
+      .then(setRettskilder)
+      .catch(() => setRettskilder([]));
+  }, [rettskildeIderMedKandidater]);
 
   // Node-tekst per rettskilde (2026-08-22, samme lazy-per-rettskilde-mønster som TjenesteDetalj/
   // HandlingDetalj) — brukt til å vise selve NAVNEFORM-TEKSTEN treffet fant (StartOffset/EndOffset

@@ -224,10 +224,14 @@ async function hentRettskildeKildeTekst(id: string): Promise<string | null> {
 export const api = {
   // ?inkluderIrrelevante=true (2026-08-30) — utelatt/false ekskluderer ErIrrelevant-markerte kilder
   // stille fra standardvisningen, se RettskilderListe.tsx.
-  hentRettskilder: (virksomhetId?: string, inkluderIrrelevante?: boolean) => {
+  // [ENDRET, issue #256, 2026-09-10] `ider` — snevrer inn til et konkret sett rettskilder (repeterte
+  // ?ider=-parametre) i stedet for å hente hele det synlige korpuset (5899 rader, 2,6 MB, 1,9 s målt
+  // 2026-09-10) — for sider som allerede kjenner IDene fra en annen kilde og bare trenger titler.
+  hentRettskilder: (virksomhetId?: string, inkluderIrrelevante?: boolean, ider?: readonly string[]) => {
     const params = new URLSearchParams();
     if (virksomhetId) params.set('virksomhetId', virksomhetId);
     if (inkluderIrrelevante) params.set('inkluderIrrelevante', 'true');
+    ider?.forEach((id) => params.append('ider', id));
     const query = params.toString();
     return kall<RettskildeSammendrag[]>(`/api/rettskilder${query ? `?${query}` : ''}`);
   },
