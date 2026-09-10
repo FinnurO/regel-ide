@@ -160,6 +160,39 @@ public class HjemmelKonverteringTests
         Assert.Equal("ledd/4", oppslag["https://lovdata.no/eli/lov/2024/03/08/9/nor/§13-1"]);
     }
 
+    // ---------- Setningstegn i hjemmel-href (issue #233, 2026-09-10) ----------
+
+    [Fact]
+    public void Avsluttende_punktum_i_kildens_href_blir_ikke_en_del_av_eid_en()
+    {
+        // Det EKTE tilfellet, Johann fant det: fiskerisone-forskriften ved Jan Mayen har
+        // <a href="lov/1976-12-17-91/§1."> — punktumet avslutter den VISTE «Hjemmel:»-strengen, men
+        // havnet i eId-en. Noden heter «§1», så referansen kunne aldri følges.
+        //
+        // Trygt å trimme, ikke gjettet: 0 av 5070 paragrafnoder i 120 lover har punktum i nummeret
+        // (målt 2026-09-10).
+        var html = Testdata.LesAlkoholforskriften()
+            .Replace(
+                "<li><a href=\"lov/1989-06-02-27/§1-2\">lov/1989-06-02-27/§1-2</a></li>",
+                "<li><a href=\"lov/1989-06-02-27/§1-2.\">lov/1989-06-02-27/§1-2.</a></li>");
+
+        var resultat = LovdataKonverterer.Konverter(html);
+
+        Assert.Equal($"{AlkohollovenEli}/§1-2", resultat.Hjemler[0].Eid);
+        Assert.DoesNotContain(resultat.Hjemler, h => h.Eid.EndsWith("."));
+    }
+
+    [Fact]
+    public void Paragrafnummer_uten_setningstegn_endres_ikke()
+    {
+        // Vakten mot en for grådig trimming: alkoholforskriftens 21 hjemler har ingen setningstegn,
+        // og skal komme ut bit-identiske.
+        var resultat = LovdataKonverterer.Konverter(Testdata.LesAlkoholforskriften(), new DateOnly(2026, 7, 23));
+
+        Assert.Equal($"{AlkohollovenEli}/§1-2", resultat.Hjemler[0].Eid);
+        Assert.Equal($"{AlkohollovenEli}/§10-5", resultat.Hjemler[^1].Eid);
+    }
+
     [Fact]
     public void Presiseringsoppslaget_ignorerer_eu_og_avtale_lenker()
     {

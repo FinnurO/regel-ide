@@ -64,6 +64,9 @@ builder.Services.AddScoped<HjemmelPresisjonEtterfyllingTjeneste>();
 // [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Etterfylling av «Fastsatt av» — reparser feltet
 // annet_om_dokumentet, som har vært lagret hele tiden. Henter ingenting eksternt.
 builder.Services.AddScoped<FastsattAvEtterfyllingTjeneste>();
+// [Ny, hjemmel-validering-runden, 2026-09-10, issue #233] Kontroll av at hjemmelrelasjonene peker på
+// bestemmelser som finnes. Ren lesing, ingenting eksternt.
+builder.Services.AddScoped<HjemmelValideringTjeneste>();
 builder.Services.AddScoped<BegrepsoppdagelseSveipTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
 builder.Services.AddScoped<RegelnoderegisterTjeneste>();
@@ -1387,6 +1390,27 @@ app.MapPost("/api/administrasjon/fastsatt-av-etterfylling",
     .WithName("EtterfyllFastsattAv")
     .WithSummary("Fyller fastsatt_av/fastsatt_av_organnavn ved å reparse hjemmelslinja (issue #215). " +
                  "Rører ALDRI virksomhet_id — og teller at den er uendret, i stedet for å anta det.")
+    .WithOpenApi();
+
+// [Ny, hjemmel-validering-runden, 2026-09-10, issue #233] Peker hjemmelrelasjonene på bestemmelser
+// som FINNES? Fire utfall, og bare ETT av dem er en feil — se HjemmelValideringTjeneste for hvorfor
+// et enkelt gyldig/ugyldig-tall ville vært ubrukelig som kvalitetsmål.
+app.MapGet("/api/administrasjon/hjemmel-validering",
+        async (int? maksFeilrader, HjemmelValideringTjeneste tjeneste, CancellationToken ct) =>
+            Results.Ok(await tjeneste.ValiderAsync(maksFeilrader ?? 200, ct)))
+    .WithName("ValiderHjemmelrelasjoner")
+    .WithSummary("Teller hjemmelrelasjoner som treffer en ekte node vs. dokumentnivå (legitimt) vs. " +
+                 "mål ikke importert (legitimt) vs. node finnes ikke (ekte feil), og lister feilradene.")
+    .WithOpenApi();
+
+// [Ny, hjemmel-validering-runden, 2026-09-10, issue #233] Retter LAGREDE hjemmel-eId-er som har fått
+// et setningstegn med fra kildens href («…/§1.»). Parseren gjør det samme for nye importer.
+app.MapPost("/api/administrasjon/hjemmel-setningstegn-rettelse",
+        async (HjemmelValideringTjeneste tjeneste, CancellationToken ct) =>
+            Results.Ok(await tjeneste.RettSetningstegnAsync(ct)))
+    .WithName("RettHjemmelSetningstegn")
+    .WithSummary("Fjerner avsluttende punktum/komma/semikolon fra lagrede hjemmel-eId-er (issue #233) " +
+                 "og rapporterer hvor mange som deretter treffer en ekte node. Idempotent.")
     .WithOpenApi();
 
 var lovdataResynk = app.MapGroup("/api/administrasjon/lovdata-resynk").WithOpenApi();

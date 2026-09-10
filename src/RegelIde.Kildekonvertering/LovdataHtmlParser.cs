@@ -416,7 +416,7 @@ public static partial class LovdataHtmlParser
             var dokumentEli = LovdataIdentifikatorer.AvledEliFraDatokode(tolket.Datokode, out _);
             var eid = tolket.Paragrafnummer is null
                 ? dokumentEli
-                : LovdataIdentifikatorer.ParagrafEid(dokumentEli, tolket.BareParagrafnummer!);
+                : LovdataIdentifikatorer.ParagrafEid(dokumentEli, UtenSetningstegn(tolket.BareParagrafnummer!));
 
             // Presiseringen hentes fra det ANDRE feltet, se HentHjemmelPresiseringer. Slår bare til når
             // basedOn-lenken selv ikke hadde en (den har det aldri i praksis, men om Lovdata skulle
@@ -430,6 +430,35 @@ public static partial class LovdataHtmlParser
         }
         return hjemler;
     }
+
+    /// <summary>
+    /// [Ny, hjemmel-validering-runden, 2026-09-10, issue #233] Fjerner avsluttende SETNINGSTEGN fra
+    /// et paragrafnummer i en hjemmelslenke.
+    ///
+    /// <para>
+    /// Lovdatas <c>basedOn</c>-href gjentar den VISTE «Hjemmel:»-strengen, punktum og alt:
+    /// <c>lov/1976-12-17-91/§1.</c> for fiskerisone-forskriften ved Jan Mayen. Punktumet avslutter
+    /// setningen i visningen, men havnet i eId-en — og noden heter <c>§1</c>, så referansen kunne
+    /// aldri følges. Samme dokument har <c>lov/2001-06-15-79/§35</c> UTEN punktum, så kilden er
+    /// inkonsekvent på nettopp dette.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>Trygt, ikke gjettet:</b> ingen norsk paragraf har punktum i nummeret. Målt 2026-09-10 over
+    /// 5070 paragrafnoder i 120 lover: <c>0</c> har punktum i <c>Nummer</c>. Et avsluttende punktum er
+    /// derfor alltid setningstegn.
+    /// </para>
+    ///
+    /// <para>
+    /// Gjøres HER og ikke i <see cref="LovdataHrefTolker"/>: kryssreferansene i løpeteksten har ikke
+    /// problemet (målt: 0 av 8544 med avsluttende tegn), fordi de er ekte lenker og ikke en gjentatt
+    /// visningsstreng. En endring i den delte tolkeren ville rørt data som er riktige i dag.
+    /// </para>
+    ///
+    /// <para>Komma og semikolon trimmes også. Bare punktum er observert — de to andre er samme
+    /// klasse tegn, og et paragrafnummer kan ikke slutte på noen av dem.</para>
+    /// </summary>
+    private static string UtenSetningstegn(string paragrafnummer) => paragrafnummer.TrimEnd('.', ',', ';');
 
     /// <summary>
     /// [Ny, hjemmel-presisjon-runden, 2026-09-10, issue #217] Ledd-/bokstav-presiseringen til
