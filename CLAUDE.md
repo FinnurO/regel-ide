@@ -299,6 +299,10 @@ Slik en runde skal gå:
 5. **PR-beskrivelsen skal si hva som ble MÅLT**, ikke hva som ble endret. Diffen viser endringen;
    PR-en skal vise at den virker.
 6. **Merge:** `gh pr merge <nr> --squash --delete-branch`.
+7. **Lukk saken selv, med tallene.** «Lukker #N» er IKKE et GitHub-nøkkelord — bare engelske
+   (`Closes`/`Fixes`) lukker automatisk. Fem saker sto åpne 2026-09-10 med merget PR fordi
+   PR-beskrivelsene sa «Lukker #215» på norsk. Lukk med `gh issue close <nr> -c "..."` og legg
+   MÅLINGENE i kommentaren — det er den varige nedtegnelsen av at saken faktisk ble løst.
 
 **Ikke stable PR-er.** Brutt 2026-09-10: #230 ble tatt ut fra `hjemmel-ledd-presisjon` fordi
 migrasjonen var generert oppå den. Da #227 ble merget med `--delete-branch`, forsvant basegrenen og
