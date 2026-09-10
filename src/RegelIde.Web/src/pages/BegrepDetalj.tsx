@@ -6,7 +6,7 @@ import { NavneformgrunnTag } from '../virksomhet/Navneformgrunn';
 import { GruppeMedlemmer } from '../virksomhet/GruppeMedlemmer';
 import { finnRettskildeForEid, rettskildeLenke, rettskildeLenkeForId } from '../api/eidLenker';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
-import type { BegrepBruktIRettskildeDto, BegrepDto, BegrepTaggetForekomstDto, RettskildeSammendrag, VilkarDto } from '../api/types';
+import type { BegrepBruktIRettskildeDto, BegrepDefinisjonRelasjonDto, BegrepDto, BegrepTaggetForekomstDto, RettskildeSammendrag, VilkarDto } from '../api/types';
 import { StatusStepper } from '../entitet/StatusStepper';
 
 export default function BegrepDetalj() {
@@ -17,6 +17,7 @@ export default function BegrepDetalj() {
   const [bruktIVilkar, setBruktIVilkar] = useState<Array<{ vilkar: VilkarDto; rotnodeId: string | undefined }>>([]);
   const [bruktIRettskilder, setBruktIRettskilder] = useState<BegrepBruktIRettskildeDto[]>([]);
   const [taggedeForekomster, setTaggedeForekomster] = useState<BegrepTaggetForekomstDto[]>([]);
+  const [definisjonsrelasjoner, setDefinisjonsrelasjoner] = useState<BegrepDefinisjonRelasjonDto[]>([]);
   const { visEier } = useVirksomheter();
 
   const [term, setTerm] = useState('');
@@ -55,6 +56,9 @@ export default function BegrepDetalj() {
       .catch(() => setBruktIVilkar([]));
     api.hentBegrepBruktIRettskilder(id).then(setBruktIRettskilder).catch(() => setBruktIRettskilder([]));
     api.hentBegrepTaggedeForekomster(id).then(setTaggedeForekomster).catch(() => setTaggedeForekomster([]));
+    // [Ny, #212] Bekreftede «definert likt som»-relasjoner — se seksjonen «Også definert i andre
+    // rettskilder» under. Egen try/catch-fallback (tom liste) som resten av siden, ikke en global feil.
+    api.hentBegrepDefinisjonsrelasjoner(id).then(setDefinisjonsrelasjoner).catch(() => setDefinisjonsrelasjoner([]));
   }, [id]);
 
   async function lagre(e: FormEvent) {
@@ -282,6 +286,46 @@ export default function BegrepDetalj() {
           )}
         </Card>
       </section>
+
+      {/* [Ny, #212, 2026-09-10] AC5 — «også definert i N andre rettskilder». Kjernebeslutningen (Johann
+        * 2026-09-09): ett begrep per forskrift, ALDRI slått sammen til én rad (NTNUs og MFs definisjon
+        * er to ulike tekster med ulik hjemmel og ulik fastsetter) — denne seksjonen gjør likheten
+        * SPØRRBAR (docs/32 §3 S5/S6) uten å late som forskjellen forsvinner: hver relatert rad er et
+        * eget, selvstendig begrep med sin egen lenke, ikke et sammenslått felt. */}
+      {definisjonsrelasjoner.length > 0 && (
+        <section style={{ marginBottom: '2rem' }}>
+          <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+            Også definert i {definisjonsrelasjoner.length} {definisjonsrelasjoner.length === 1 ? 'annen rettskilde' : 'andre rettskilder'}
+          </Heading>
+          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
+            Samme definisjonstekst (eksakt lik etter normalisering) funnet i en ANNEN forskrift, bekreftet av en
+            saksbehandler — se det relaterte begrepet for dets egen ordlyd og hjemmel. Ikke slått sammen til ett
+            begrep her (issue #212).
+          </Paragraph>
+          <Card style={{ padding: 0, overflow: 'hidden' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.75rem' }}>
+              {definisjonsrelasjoner.map((r) => {
+                const href = r.relatertLovreferanseEid ? rettskildeLenke(r.relatertLovreferanseEid, rettskilder) : null;
+                return (
+                  <div key={r.relatertBegrepId}>
+                    <Link asChild>
+                      <RouterLink to={`/begreper/${r.relatertBegrepId}`}>«{r.relatertTerm}»</RouterLink>
+                    </Link>
+                    {href && (
+                      <>
+                        {' — '}
+                        <Link asChild>
+                          <RouterLink to={href}>{finnRettskildeForEid(r.relatertLovreferanseEid ?? '', rettskilder)?.tittel ?? 'paragraf'}</RouterLink>
+                        </Link>
+                      </>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        </section>
+      )}
 
       <section>
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>

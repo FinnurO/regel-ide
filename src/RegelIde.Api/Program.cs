@@ -57,6 +57,8 @@ builder.Services.AddScoped<NavnekandidatOppdagelseTjeneste>();
 // m.fl. lenger ned i denne fila.
 builder.Services.AddHttpClient<EksternNavneoppslagTjeneste>();
 builder.Services.AddScoped<BegrepsforekomstTjeneste>();
+// [Ny, #212, 2026-09-10] Deteksjon/kø/bekreftelse for «definert likt som»-relasjoner mellom begreper.
+builder.Services.AddScoped<BegrepDefinisjonRelasjonTjeneste>();
 // [Ny, hjemmel-presisjon-runden, 2026-09-10, issue #217] Etterfylling av ledd-presisjon på hjemler
 // som ble importert før presisjonen ble lest — parser den ALLEREDE LAGREDE rå-HTML-en, henter
 // ingenting fra Lovdata.
@@ -2737,6 +2739,21 @@ begreper.MapGet("/{id:guid}/taggede-forekomster", async (Guid id, RegelIdeDbCont
                  "BegrepsforekomstTjeneste.GodkjennAsync for hvordan disse opprettes automatisk for andre forekomster " +
                  "av samme term i definerende rettskilde ved godkjenning.");
 
+// [Ny, #212, 2026-09-10] AC5 — «også definert i N andre rettskilder», lenke til hver paragraf.
+begreper.MapGet("/{id:guid}/definisjonsrelasjoner", async (Guid id, RegelIdeDbContext db,
+        BegrepDefinisjonRelasjonTjeneste relasjoner, CancellationToken ct) =>
+    {
+        var rader = await relasjoner.ListerRelasjonerForBegrepAsync(id, ct);
+        var relaterteIder = rader.Select(r => r.TilBegrepId).ToList();
+        var relaterte = await db.Begreper.Where(b => relaterteIder.Contains(b.Id)).ToDictionaryAsync(b => b.Id, ct);
+        return Results.Ok(rader
+            .Where(r => relaterte.ContainsKey(r.TilBegrepId)) // ingen gjettet fallback hvis raden er slettet i mellomtiden
+            .Select(r => BegrepDefinisjonRelasjonDto.FraEntitet(r, relaterte[r.TilBegrepId])));
+    })
+    .WithName("HentBegrepDefinisjonsrelasjoner")
+    .WithSummary("Bekreftede «definert likt som»-relasjoner FRA dette begrepet — andre BegrepEntitet-rader " +
+        "med (nesten) samme ordlyd i en ANNEN rettskilde, se issue #212. Ett begrep per forskrift, aldri slått sammen.");
+
 // ---------- «Identifiser begrep» (byggesteg 5 runde 1, docs/06-veikart.md) — stub-KI ----------
 
 begreper.MapGet("/forslag", async (HttpRequest request, RegelIdeDbContext db, CancellationToken ct) =>
@@ -3847,6 +3864,76 @@ begrepsforekomster.MapDelete("/", async (Guid? rettskildeId, string? status,
     })
     .WithName("HardslettAlleAvvisteBegrepsforekomster")
     .WithSummary("Massehardsletting, valgfritt filtrert på rettskilde (samme filterparametre som GET /) — KUN 'Avvist'-rader rammes.");
+
+// ---------- Begrep-definisjon-relasjoner — «definert likt som» på tvers av forskrifter (issue #212) ----------
+// Arbeidskø for FORESLÅTTE relasjoner mellom to begreps-FOREKOMSTER hvis definisjonstekst er eksakt lik
+// etter normalisering (Johann, 2026-09-10) — se BegrepDefinisjonRelasjonTjeneste for hele resonnementet
+// og den målte treffraten mot ekte M11-data. Samme kø-form (Venter/Godkjent/Avvist) som
+// /api/begrepsforekomster over, men selve BEKREFTELSEN oppretter en rad i den ANDRE, bekreftede tabellen
+// (BegrepDefinisjonRelasjonEntitet, mellom to BegrepEntitet-rader) — se GodkjennAsync.
+
+var begrepDefinisjonRelasjoner = app.MapGroup("/api/begrep-definisjon-relasjoner").WithOpenApi();
+
+begrepDefinisjonRelasjoner.MapGet("/", async (string? status, BegrepDefinisjonRelasjonTjeneste tjeneste, CancellationToken ct) =>
+    {
+        // Samme eksplisitte "utelatt = kun Venter, 'Alle' = ingen filter"-mønster som /api/begrepsforekomster.
+        var effektivStatus = string.IsNullOrEmpty(status) ? "Venter" : status;
+        var statusFilter = effektivStatus == "Alle" ? null : effektivStatus;
+        var rader = await tjeneste.ListerMedForekomsterAsync(statusFilter, ct);
+        return Results.Ok(rader.Select(r => BegrepDefinisjonRelasjonKandidatDto.FraEntitet(r.Kandidat, r.Fra, r.Til)));
+    })
+    .WithName("HentBegrepDefinisjonRelasjonKandidater")
+    .WithSummary("Kandidatkø for «definert likt som»-forslag, med begge underliggende forekomster join'et inn. " +
+        "status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter.");
+
+begrepDefinisjonRelasjoner.MapPost("/sveip", async (HttpRequest request,
+        BegrepDefinisjonRelasjonTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var resultat = await tjeneste.SveipAsync(bruker.Navn, ct: ct);
+        return Results.Ok(new BegrepDefinisjonRelasjonSveipResultatDto(resultat.AntallGrupperFunnet, resultat.AntallNyeKandidater));
+    })
+    .WithName("SveipBegrepDefinisjonRelasjoner")
+    .WithSummary("Grupperer alle Begrepsforekomster med satt Definisjon på eksakt normalisert tekst (issue #212) " +
+        "og foreslår ett kandidatpar per par innenfor en gruppe som spenner over MER ENN ÉN rettskilde. Idempotent.");
+
+begrepDefinisjonRelasjoner.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest request,
+        BegrepDefinisjonRelasjonTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var oppdatert = await tjeneste.GodkjennAsync(id, bruker.Navn, ct);
+            return oppdatert is null ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }) : Results.Ok(new { oppdatert.Id, oppdatert.Status });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("GodkjennBegrepDefinisjonRelasjon")
+    .WithSummary("Bekrefter relasjonen — krever at BEGGE underliggende forekomster allerede er godkjent til et " +
+        "Begrep (se /api/begrepsforekomster/{id}/godkjenn). Oppretter den bekreftede relasjonen for BEGGE " +
+        "retninger, idempotent (issue #212 akseptansekriterium 4).");
+
+begrepDefinisjonRelasjoner.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request,
+        BegrepDefinisjonRelasjonTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var oppdatert = await tjeneste.AvvisAsync(id, bruker.Navn, ct);
+            return oppdatert is null ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }) : Results.Ok(new { oppdatert.Id, oppdatert.Status });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("AvvisBegrepDefinisjonRelasjon");
 
 // ---------- Datasett (docs/03-domenemodell.md §1.6) — byggesteg 4, minimal, kun lesing ----------
 

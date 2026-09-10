@@ -1270,6 +1270,38 @@ export interface HardslettBegrepsforekomsterResultatDto {
   antallSlettet: number;
 }
 
+// ---------- Begrep-definisjon-relasjoner — «definert likt som» på tvers av forskrifter (issue #212) ----------
+
+/** Ett foreslått par i kandidatkøen GET /api/begrep-definisjon-relasjoner — bærer begge underliggende
+ * forekomster join'et inn (se BegrepDefinisjonRelasjonKandidatDto på serveren) slik at ordlyden fra
+ * begge rettskilder kan vises uten et ekstra kall per rad. */
+export interface BegrepDefinisjonRelasjonKandidatDto {
+  id: string;
+  normalisertDefinisjon: string;
+  status: string;
+  opprettetAv: string;
+  opprettetTidspunkt: string;
+  behandletAv: string | null;
+  behandletTidspunkt: string | null;
+  fra: BegrepsforekomstDto;
+  til: BegrepsforekomstDto;
+}
+
+export interface BegrepDefinisjonRelasjonSveipResultatDto {
+  antallGrupperFunnet: number;
+  antallNyeKandidater: number;
+}
+
+/** Én bekreftet relasjon vist FRA et gitt begrep (BegrepDetalj — «også definert i N andre rettskilder»,
+ * issue #212 akseptansekriterium 5). 'kilde': 'sveip' | 'manuell'. */
+export interface BegrepDefinisjonRelasjonDto {
+  relatertBegrepId: string;
+  relatertTerm: string;
+  relatertLovreferanseEid: string | null;
+  relatertVirksomhetId: string | null;
+  kilde: string;
+}
+
 export interface KodelisteKodeDto {
   id: string;
   kode: string;

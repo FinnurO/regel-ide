@@ -1466,6 +1466,97 @@ public sealed class BegrepsrelasjonEntitet
 }
 
 /// <summary>
+/// [Ny, #212, 2026-09-10] Arbeidskø for FORESLÅTTE «definert likt som»-koblinger mellom to
+/// begreps-FOREKOMSTER (<see cref="BegrepsforekomstEntitet"/>) — issue #212 (16 uavhengige forekomster av
+/// "fellesgrader" på tvers av forskrifter uten noen kobling mellom dem). Kjernebeslutningen (Johann
+/// 2026-09-09): ETT begrep per forskrift, ALDRI slått sammen til én rad (NTNUs og MFs definisjon er to
+/// ulike TEKSTER med ulik hjemmel og ulik fastsetter) — i stedet en eksplisitt, bekreftbar RELASJON, se
+/// <see cref="BegrepDefinisjonRelasjonEntitet"/> for selve den bekreftede kanten.
+/// <para>
+/// <b>Deteksjonsregelen (Johann, kommentar på #212, 2026-09-10 — ERSTATTER en tidligere skissert
+/// ord-for-ord-scoring):</b> «eksakt lik etter normalisering». To definisjoner er samme definisjon når
+/// teksten er identisk etter at mellomrom, store/små bokstaver og tegnsetting er normalisert bort
+/// (<see cref="BegrepDefinisjonRelasjonTjeneste.NormaliserDefinisjon"/>) — deterministisk, ingen terskel å
+/// tune, ingen falske positive. To definisjoner som skiller seg med ETT ord (f.eks. «doktorgradsstudenter»
+/// vs. «ph.d.-kandidat(er)») er ULIKE og foreslås IKKE automatisk.
+/// </para>
+/// <para>
+/// Peker BEVISST på FOREKOMST, ikke direkte på <see cref="BegrepEntitet"/> — samme designvalg
+/// <see cref="BegrepsrelasjonEntitet"/> gjør for M9/M15 (docs/24 §1.5/§2.2), og av samme grunn: på
+/// deteksjonstidspunktet er de fleste M11/M1-treffene fortsatt uapproverte forekomster (målt 2026-09-10:
+/// samtlige 170 M11-forekomster sto som 'Venter', null godkjent til noe Begrep ennå), ikke registerrader.
+/// <see cref="BegrepDefinisjonRelasjonTjeneste.GodkjennAsync"/> krever likevel at BEGGE forekomstene ER
+/// godkjent til et <see cref="BegrepEntitet"/> FØR selve relasjonen kan bekreftes — ingen gjettet
+/// virksomhet/register å opprette den i (§8), og selve Kjernebeslutningen er eksplisitt om
+/// <see cref="BegrepEntitet"/>-rader, ikke rå forekomster.
+/// </para>
+/// <para>
+/// Samme lette Venter/Godkjent/Avvist-arbeidskømodell (ikke full <c>Entitetsstatus</c>/<c>Versjon</c>) som
+/// <see cref="BegrepsforekomstEntitet"/> selv — maskinen foreslår, mennesket bekrefter (docs/32 §1,
+/// samme forslag-og-bekreft-mønster som <see cref="NavnekandidatOppdagelseTjeneste"/> og
+/// <c>TjenesteforslagKo.tsx</c> på frontend).
+/// </para>
+/// </summary>
+public sealed class BegrepDefinisjonRelasjonKandidatEntitet
+{
+    public Guid Id { get; set; }
+
+    /// <summary>Canonicalisert slik at <c>FraForekomstId &lt; TilForekomstId</c> (Guid-sammenligning) ved
+    /// opprettelse — se <see cref="BegrepDefinisjonRelasjonTjeneste.OpprettEllerFinnKandidatAsync"/>. Gjør
+    /// paret om til én kanonisk retning FØR lagring, slik at unik-indeksen fanger dubletter uansett hvilken
+    /// rekkefølge sveipet fant de to forekomstene i.</summary>
+    public required Guid FraForekomstId { get; set; }
+    public required Guid TilForekomstId { get; set; }
+
+    /// <summary>Definisjonsteksten normalisert til den formen som gjorde de to forekomstene like — LAGRET
+    /// (ikke bare beregnet) for etterprøvbarhet: AC3 på #212 krever at saksbehandleren kan se HVA som
+    /// faktisk ble sammenlignet, «ingen ugjennomsiktig score alene». Siden matchen per definisjon er
+    /// EKSAKT (se klassekommentaren), er selve den normaliserte teksten identisk for begge sider — dette
+    /// feltet ER derfor «diffen»: null forskjell er nettopp hvorfor paret ble foreslått.</summary>
+    public required string NormalisertDefinisjon { get; set; }
+
+    public string Status { get; set; } = "Venter";
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? BehandletAv { get; set; }
+    public DateTimeOffset? BehandletTidspunkt { get; set; }
+}
+
+/// <summary>
+/// [Ny, #212, 2026-09-10] BEKREFTET «definert likt som»-relasjon mellom to <see cref="BegrepEntitet"/>-rader
+/// — svarer på S5/S6 (docs/32-formal-roller-og-sporsmal.md §3: «hvilke andre rettskilder definerer det
+/// samme, og hvor avviker ordlyden?») uten å slå de to definisjonene sammen til én rad (Kjernebeslutningen,
+/// se <see cref="BegrepDefinisjonRelasjonKandidatEntitet"/>).
+/// <para>
+/// <b>Symmetrisk, lagret som TO rader</b> (issue #212 akseptansekriterium 4 — «oppretter den for BEGGE
+/// retninger og er idempotent») — én (Fra=A, Til=B) og én (Fra=B, Til=A) — fremfor én udirected rad en
+/// spørring alltid må huske å lese begge veier fra. <c>GET /api/begreper/{id}/definisjonsrelasjoner</c>
+/// forblir dermed et rent <c>WHERE fra_begrep_id = @id</c>-oppslag.
+/// </para>
+/// <para>
+/// Opprettes UTELUKKENDE via <see cref="BegrepDefinisjonRelasjonTjeneste.GodkjennAsync"/> i denne runden
+/// — <see cref="Kilde"/> er derfor alltid <c>'sveip'</c> i praksis i dag. Feltet finnes for å svare på
+/// akseptansekriterium 1 («kilde for hvorfor koblingen finnes — automatisk foreslått vs.
+/// menneskebekreftet»/rom for en FREMTIDIG manuell opprettelse uten forutgående deteksjon) — den manuelle
+/// veien er ikke bygget nå, ingen UI/endepunkt oppretter <c>'manuell'</c> ennå.
+/// </para>
+/// </summary>
+public sealed class BegrepDefinisjonRelasjonEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid FraBegrepId { get; set; }
+    public required Guid TilBegrepId { get; set; }
+
+    /// <summary>'sveip' (automatisk foreslått, deretter menneskebekreftet via kandidatkøen — eneste verdi
+    /// denne runden produserer) | 'manuell' (reservert for en fremtidig direkte opprettelse, se
+    /// klassekommentaren — ikke bygget).</summary>
+    public required string Kilde { get; set; }
+
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+}
+
+/// <summary>
 /// [Ny, virksomhetskatalog-runden, docs/20 §2.6] Arbeidskø for godkjenning av virksomhetsforekomster
 /// funnet ved tekstsøk. Bevisst UTEN full <c>Entitetsstatus</c>/<c>Versjon</c>-versjonering som resten
 /// av rettskildeinnholdet (docs/20 §2.6) — dette er en arbeidskø, ikke autoritativt rettskildeinnhold.

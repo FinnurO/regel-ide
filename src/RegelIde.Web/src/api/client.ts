@@ -5,6 +5,9 @@ import type {
   BegrepRequest,
   BegrepsforekomstDto,
   BegrepTaggetForekomstDto,
+  BegrepDefinisjonRelasjonDto,
+  BegrepDefinisjonRelasjonKandidatDto,
+  BegrepDefinisjonRelasjonSveipResultatDto,
   SveipBegrepsforekomsterRequest,
   SveipBegrepsforekomsterResultatDto,
   GodkjennBegrepsforekomstRequest,
@@ -1039,6 +1042,25 @@ export const api = {
   /** EKTE, taggkoblede forekomster (TekstTaggEntitet.RefId == id) — strukturelle koblinger, ikke et
    * fulltekstsøk. Se TekstTaggTjeneste.ListerForRefIdAsync på serveren. */
   hentBegrepTaggedeForekomster: (id: string) => kall<BegrepTaggetForekomstDto[]>(`/api/begreper/${id}/taggede-forekomster`),
+
+  /** [Ny, #212] Bekreftede «definert likt som»-relasjoner FRA dette begrepet — andre BegrepEntitet-rader
+   * med (nesten) samme ordlyd i en ANNEN rettskilde. Ett begrep per forskrift, aldri slått sammen. */
+  hentBegrepDefinisjonsrelasjoner: (id: string) => kall<BegrepDefinisjonRelasjonDto[]>(`/api/begreper/${id}/definisjonsrelasjoner`),
+
+  // ---------- Begrep-definisjon-relasjoner — kandidatkø (issue #212) ----------
+
+  /** status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter — samme mønster som begrepsforekomster. */
+  hentBegrepDefinisjonRelasjonKandidater: (status?: string) =>
+    kall<BegrepDefinisjonRelasjonKandidatDto[]>(`/api/begrep-definisjon-relasjoner${status ? `?status=${encodeURIComponent(status)}` : ''}`),
+
+  sveipBegrepDefinisjonRelasjoner: () =>
+    kall<BegrepDefinisjonRelasjonSveipResultatDto>('/api/begrep-definisjon-relasjoner/sveip', { method: 'POST' }),
+
+  godkjennBegrepDefinisjonRelasjon: (id: string) =>
+    kall<{ id: string; status: string }>(`/api/begrep-definisjon-relasjoner/${id}/godkjenn`, { method: 'POST' }),
+
+  avvisBegrepDefinisjonRelasjon: (id: string) =>
+    kall<{ id: string; status: string }>(`/api/begrep-definisjon-relasjoner/${id}/avvis`, { method: 'POST' }),
 
   // ---------- «Identifiser begrep» (byggesteg 5 runde 1, docs/06-veikart.md) — stub-KI ----------
 
