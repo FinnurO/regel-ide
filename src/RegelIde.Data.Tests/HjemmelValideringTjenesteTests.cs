@@ -169,4 +169,78 @@ public class HjemmelValideringTjenesteTests(EmbeddedPostgresFixture fixture)
         var eider = await db.RettskildeHjemler.Where(h => h.RettskildeId == forskriftId).Select(h => h.HjemmelEid).ToListAsync();
         Assert.Equal([$"{lovEli}/§1"], eider);
     }
+
+    /// <summary>
+    /// [Ny, issue #249, 2026-09-10] Kobling til det varige Kildefeil-registeret — se
+    /// HjemmelValideringTjeneste.RegistrerKildefeilAsync. Kun NodeFinnesIkke-utfallet skal skrive en
+    /// rad; de tre legitime utfallene skal aldri havne i registeret som en feil.
+    /// </summary>
+    [Fact]
+    public async Task RegistrerKildefeilAsync_skriver_kun_NodeFinnesIkke_til_registeret()
+    {
+        await using var db = fixture.NyDbContext();
+        var (forskriftMedFeil, _, _) = await OpprettAsync(db, "/§1."); // NodeFinnesIkke
+        var (forskriftGyldig, _, _) = await OpprettAsync(db, "/§1"); // Gyldig
+        var (forskriftDokniva, _, _) = await OpprettAsync(db, ""); // Dokumentniva
+        var (forskriftIkkeImportert, _, _) = await OpprettAsync(db, "/§1", medNoder: false); // MaaletIkkeImportert
+        var hjemmelValidering = new HjemmelValideringTjeneste(db);
+        var kildefeil = new KildefeilTjeneste(db);
+
+        var registrering = await hjemmelValidering.RegistrerKildefeilAsync(kildefeil, "test");
+
+        // [Merk] Databasen er DELT på tvers av testmetodene i denne collection-en (se
+        // DataTestCollection) — andre tester kan alt ha registrert egne "hjemmel-validering"-rader.
+        // Derfor sammenlignes ikke NyeRegistrert mot et eksakt TotaltRegistrertForMekanismen-tall her;
+        // se den EGNE, isolerte raden for DENNE testens rettskilde under i stedet.
+        Assert.True(registrering.NyeRegistrert >= 1);
+        Assert.True(registrering.TotaltRegistrertForMekanismen >= registrering.NyeRegistrert);
+
+        var radForFeil = await db.Kildefeil.SingleAsync(k => k.RettskildeId == forskriftMedFeil);
+        Assert.Equal("hjemmel_node_mangler", radForFeil.Type);
+        Assert.Equal("hjemmel-validering", radForFeil.FunnetAvMekanisme);
+        Assert.Equal("Ny", radForFeil.Status);
+        Assert.Equal("test", radForFeil.OpprettetAv);
+        Assert.Contains(radForFeil.RettskildeEid!, radForFeil.Beskrivelse);
+
+        Assert.False(await db.Kildefeil.AnyAsync(k => k.RettskildeId == forskriftGyldig));
+        Assert.False(await db.Kildefeil.AnyAsync(k => k.RettskildeId == forskriftDokniva));
+        Assert.False(await db.Kildefeil.AnyAsync(k => k.RettskildeId == forskriftIkkeImportert));
+    }
+
+    [Fact]
+    public async Task RegistrerKildefeilAsync_er_idempotent_andre_kjoring_registrerer_null_nye()
+    {
+        await using var db = fixture.NyDbContext();
+        await OpprettAsync(db, "/§1.");
+        var hjemmelValidering = new HjemmelValideringTjeneste(db);
+        var kildefeil = new KildefeilTjeneste(db);
+
+        var forste = await hjemmelValidering.RegistrerKildefeilAsync(kildefeil, "test");
+        var andre = await hjemmelValidering.RegistrerKildefeilAsync(kildefeil, "test");
+
+        Assert.True(forste.NyeRegistrert >= 1);
+        Assert.Equal(0, andre.NyeRegistrert);
+        Assert.Equal(forste.TotaltRegistrertForMekanismen, andre.TotaltRegistrertForMekanismen);
+    }
+
+    /// <summary>En rad et menneske alt har triagert ("Kjent") skal IKKE tilbakestilles til "Ny" bare
+    /// fordi det samme funnet dukker opp igjen i en senere kjøring.</summary>
+    [Fact]
+    public async Task RegistrerKildefeilAsync_rorer_ikke_status_pa_allerede_triagert_rad()
+    {
+        await using var db = fixture.NyDbContext();
+        await OpprettAsync(db, "/§1.");
+        var hjemmelValidering = new HjemmelValideringTjeneste(db);
+        var kildefeil = new KildefeilTjeneste(db);
+        await hjemmelValidering.RegistrerKildefeilAsync(kildefeil, "test");
+
+        var rad = await db.Kildefeil.SingleAsync(k => k.FunnetAvMekanisme == "hjemmel-validering");
+        rad.Status = "Kjent";
+        await db.SaveChangesAsync();
+
+        await hjemmelValidering.RegistrerKildefeilAsync(kildefeil, "test");
+
+        var radEtter = await db.Kildefeil.SingleAsync(k => k.Id == rad.Id);
+        Assert.Equal("Kjent", radEtter.Status);
+    }
 }

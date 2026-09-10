@@ -69,6 +69,8 @@ builder.Services.AddScoped<FastsattAvEtterfyllingTjeneste>();
 // [Ny, hjemmel-validering-runden, 2026-09-10, issue #233] Kontroll av at hjemmelrelasjonene peker på
 // bestemmelser som finnes. Ren lesing, ingenting eksternt.
 builder.Services.AddScoped<HjemmelValideringTjeneste>();
+// [Ny, issue #249, 2026-09-10] Det varige, generiske kildefeil-registeret — se KildefeilEntitet.
+builder.Services.AddScoped<KildefeilTjeneste>();
 builder.Services.AddScoped<BegrepsoppdagelseSveipTjeneste>();
 builder.Services.AddScoped<VilkarregisterTjeneste>();
 builder.Services.AddScoped<RegelnoderegisterTjeneste>();
@@ -1414,6 +1416,40 @@ app.MapPost("/api/administrasjon/hjemmel-setningstegn-rettelse",
     .WithSummary("Fjerner avsluttende punktum/komma/semikolon fra lagrede hjemmel-eId-er (issue #233) " +
                  "og rapporterer hvor mange som deretter treffer en ekte node. Idempotent.")
     .WithOpenApi();
+
+// [Ny, issue #249, 2026-09-10] Kobler hjemmel-valideringen (issue #233) til det VARIGE
+// Kildefeil-registeret — se HjemmelValideringTjeneste.RegistrerKildefeilAsync/KildefeilTjeneste.
+// Idempotent: gjentatt kjøring finner de samme feilradene, men skriver ikke duplikater.
+app.MapPost("/api/administrasjon/hjemmel-validering/registrer-kildefeil",
+        async (HttpRequest request, HjemmelValideringTjeneste hjemmelValidering, KildefeilTjeneste kildefeil,
+            RegelIdeDbContext db, CancellationToken ct) =>
+        {
+            var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+            if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+
+            var resultat = await hjemmelValidering.RegistrerKildefeilAsync(kildefeil, bruker.Navn, ct);
+            return Results.Ok(KildefeilRegistreringDto.FraResultat(resultat));
+        })
+    .WithName("RegistrerKildefeilFraHjemmelValidering")
+    .WithSummary("Kjører hjemmel-valideringen (issue #233) på nytt og skriver hvert 'node finnes ikke'-" +
+                 "funn inn i det varige Kildefeil-registeret (issue #249) via den generiske " +
+                 "KildefeilTjeneste.OpprettEllerFinnAsync — idempotent, kan kjøres på nytt uten duplikater.")
+    .WithOpenApi();
+
+// ---------- Kildefeil (issue #249) — varig, søkbart register over feil funnet i selve KILDEN. ----------
+// Skrivesiden er GENERISK (KildefeilTjeneste, se klassekommentaren) — dette er kun lesesiden mot
+// UI-ets liste-/søkeside. Selve skrivingen skjer fra det enkelte sveipet/den enkelte valideringen som
+// FINNER feilen (i dag: kun /api/administrasjon/hjemmel-validering/registrer-kildefeil over).
+var kildefeil = app.MapGroup("/api/kildefeil").WithOpenApi();
+
+kildefeil.MapGet("/", async (string? status, Guid? rettskildeId, KildefeilTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var rader = await tjeneste.ListerAsync(status, rettskildeId, ct);
+        return Results.Ok(rader.Select(KildefeilDto.FraEntitet));
+    })
+    .WithName("HentKildefeil")
+    .WithSummary("Hele kildefeil-registeret, valgfritt filtrert på status ('Ny'/'Kjent'/'Rettet-hos-oss'/" +
+                 "'Venter-på-Lovdata') og/eller rettskilde. Utelatt status = alle statuser. Nyeste funn først.");
 
 var lovdataResynk = app.MapGroup("/api/administrasjon/lovdata-resynk").WithOpenApi();
 

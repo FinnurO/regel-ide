@@ -30,6 +30,7 @@ import BegrepDefinisjonRelasjonKo from './pages/BegrepDefinisjonRelasjonKo';
 import ImportWizard from './pages/ImportWizard';
 import Tjenestereise from './pages/Tjenestereise';
 import AdministrasjonLovdataResynk from './pages/AdministrasjonLovdataResynk';
+import KildefeilListe from './pages/KildefeilListe';
 
 function App() {
   return (
@@ -64,6 +65,7 @@ function App() {
           <Route path="/tjenester/:id/veiledning" element={<TjenesteVeiledning />} />
           <Route path="/brukere" element={<BrukereListe />} />
           <Route path="/administrasjon/lovdata-resynk" element={<AdministrasjonLovdataResynk />} />
+          <Route path="/kildefeil" element={<KildefeilListe />} />
           <Route path="/virksomheter" element={<VirksomheterListe />} />
           <Route path="/virksomheter/:id" element={<VirksomhetDetalj />} />
           <Route path="/virksomhet-kandidater" element={<VirksomhetKandidaterListe />} />
