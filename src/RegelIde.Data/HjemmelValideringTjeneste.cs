@@ -202,6 +202,59 @@ public sealed class HjemmelValideringTjeneste(RegelIdeDbContext db)
         return new Rettelse(undersokt, rettet, loserNa, slettet);
     }
 
+    /// <param name="TotaltFunnet">Antall NodeFinnesIkke-feilrader denne kjøringen av <see cref="ValiderAsync"/> fant.</param>
+    /// <param name="NyeRegistrert">Hvor mange av dem som IKKE alt lå i <see cref="KildefeilEntitet"/>-registeret
+    /// fra en tidligere kjøring — den faktiske gevinsten av DENNE kjøringen.</param>
+    /// <param name="TotaltRegistrertForMekanismen">Totalt antall rader i registeret for
+    /// <c>funnetAvMekanisme = "hjemmel-validering"</c> etter denne kjøringen (inkl. rader fra tidligere
+    /// kjøringer) — tallet PR-beskrivelsen/issue #249 akseptansekriterium 4 skal oppgi.</param>
+    public sealed record KildefeilRegistrering(int TotaltFunnet, int NyeRegistrert, int TotaltRegistrertForMekanismen);
+
+    /// <summary>
+    /// [Ny, issue #249, 2026-09-10] Kobler denne (LESENDE) valideringen til det VARIGE
+    /// <see cref="KildefeilEntitet"/>-registeret (issue #249, Alternativ B) — kjører
+    /// <see cref="ValiderAsync"/> på nytt (uten den vanlige <c>maksFeilrader</c>-begrensningen, se
+    /// under) og skriver hver <see cref="Utfall.NodeFinnesIkke"/>-feilrad inn via den GENERISKE
+    /// <see cref="KildefeilTjeneste.OpprettEllerFinnAsync"/> — se den klassens kommentar for hvorfor
+    /// selve skrivemekanismen ikke kjenner til hjemmel-validering i det hele tatt (akseptansekriterium 3).
+    /// <para>
+    /// <b>Idempotent</b>: en rad som alt er registrert fra en tidligere kjøring gjenskapes ikke, og
+    /// beholder sin eksisterende <see cref="KildefeilEntitet.Status"/> uendret (en "Kjent"/
+    /// "Rettet-hos-oss"-rad tilbakestilles ikke til "Ny" av at samme funn dukker opp igjen).
+    /// </para>
+    /// <para>
+    /// <c>maksFeilrader: int.MaxValue</c> med vilje, til forskjell fra <see cref="ValiderAsync"/>s
+    /// vanlige forhåndsvisnings-standard (200) — her skal ALLE ekte funn registreres, ikke bare et
+    /// utvalg til triage-visning.
+    /// </para>
+    /// </summary>
+    public async Task<KildefeilRegistrering> RegistrerKildefeilAsync(
+        KildefeilTjeneste kildefeilTjeneste, string opprettetAv, CancellationToken ct = default)
+    {
+        const string mekanisme = "hjemmel-validering";
+        const string type = "hjemmel_node_mangler";
+
+        var forAntall = await kildefeilTjeneste.AntallAsync(mekanisme, ct);
+
+        var resultat = await ValiderAsync(maksFeilrader: int.MaxValue, ct);
+        foreach (var rad in resultat.Feilrader)
+        {
+            await kildefeilTjeneste.OpprettEllerFinnAsync(
+                rettskildeId: rad.RettskildeId,
+                rettskildeEid: rad.HjemmelEid,
+                type: type,
+                beskrivelse: $"Hjemmelen «{rad.HjemmelEid}» i «{rad.RettskildeTittel}» peker på en " +
+                             "node som ikke finnes i den refererte rettskilden (kildens egen feil, " +
+                             "bekreftet mot rå lagret HTML — se issue #233).",
+                funnetAvMekanisme: mekanisme,
+                opprettetAv: opprettetAv,
+                ct: ct);
+        }
+
+        var etterAntall = await kildefeilTjeneste.AntallAsync(mekanisme, ct);
+        return new KildefeilRegistrering(resultat.NodeFinnesIkke, etterAntall - forAntall, etterAntall);
+    }
+
     /// <summary>
     /// Er eId-en dokumentets egen ELI, uten paragrafdel? Sjekken er «finnes det noe etter /nor», ikke
     /// et mønster på paragrafnummeret — dokument-ELI-er forekommer også UTEN <c>/nor</c> (målt: alle

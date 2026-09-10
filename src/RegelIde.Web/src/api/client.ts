@@ -44,6 +44,8 @@ import type {
   TjenesteMedHandlingerDto,
   KunnskapsbibliotekFilDto,
   KunnskapsbibliotekLenkeDto,
+  KildefeilDto,
+  KildefeilRegistreringDto,
   LovdataImportstatusDto,
   LovdataKatalogTreffDto,
   LovdataResynkKjoringDto,
@@ -700,6 +702,22 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
     }),
+
+  // ---------- Kildefeil (issue #249) — varig register over feil funnet i selve kilden ----------
+
+  /** Utelatt status = alle statuser (samme "utelatt = ingen filter"-form som hentNavnekandidater). */
+  hentKildefeil: (filter: { status?: string; rettskildeId?: string }) => {
+    const parametre = new URLSearchParams();
+    if (filter.status) parametre.set('status', filter.status);
+    if (filter.rettskildeId) parametre.set('rettskildeId', filter.rettskildeId);
+    const sok = parametre.toString();
+    return kall<KildefeilDto[]>(`/api/kildefeil${sok ? `?${sok}` : ''}`);
+  },
+
+  /** Kjører hjemmel-valideringen (issue #233) på nytt og skriver hvert nye funn inn i registeret —
+   * idempotent, se HjemmelValideringTjeneste.RegistrerKildefeilAsync. */
+  registrerKildefeilFraHjemmelValidering: () =>
+    kall<KildefeilRegistreringDto>('/api/administrasjon/hjemmel-validering/registrer-kildefeil', { method: 'POST' }),
 
   importerFraFil: (fil: File, virksomhetId?: string) => {
     const skjema = new FormData();

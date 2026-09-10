@@ -82,6 +82,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<LovdataResynkKjoringEntitet> LovdataResynkKjoringer => Set<LovdataResynkKjoringEntitet>();
     public DbSet<LovdataResynkInnstillingEntitet> LovdataResynkInnstillinger => Set<LovdataResynkInnstillingEntitet>();
     public DbSet<EksternKildeEntitet> EksterneKilder => Set<EksternKildeEntitet>();
+    // [Ny, issue #249, 2026-09-10] Varig register over feil funnet i selve KILDEN — se KildefeilEntitet.
+    public DbSet<KildefeilEntitet> Kildefeil => Set<KildefeilEntitet>();
     public DbSet<NettsideStiEntitet> NettsideStier => Set<NettsideStiEntitet>();
     public DbSet<NettsideLenkeEntitet> NettsideLenker => Set<NettsideLenkeEntitet>();
     public DbSet<BegrepEntitet> Begreper => Set<BegrepEntitet>();
@@ -1496,6 +1498,37 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 
             e.HasIndex(x => new { x.FraNodeId, x.RaaHref }).HasDatabaseName("ix_nettside_lenker_fra_href");
             e.HasIndex(x => x.TilRettskildeId).HasDatabaseName("ix_nettside_lenker_til_rettskilde");
+        });
+
+        // [Ny, issue #249, 2026-09-10] Varig register over feil funnet i selve KILDEN — se
+        // KildefeilEntitet for hele resonnementet (Alternativ B, besluttet med Johann 2026-09-10).
+        b.Entity<KildefeilEntitet>(e =>
+        {
+            e.ToTable("kildefeil", t => t.HasCheckConstraint(
+                "ck_kildefeil_status", "status IN ('Ny', 'Kjent', 'Rettet-hos-oss', 'Venter-på-Lovdata')"));
+            e.HasKey(x => x.Id).HasName("kildefeil_pkey");
+            e.Property(x => x.RettskildeId).HasColumnName("rettskilde_id");
+            e.Property(x => x.RettskildeEid).HasColumnName("rettskilde_eid");
+            e.Property(x => x.Type).HasColumnName("type");
+            e.Property(x => x.Beskrivelse).HasColumnName("beskrivelse");
+            e.Property(x => x.FunnetAvMekanisme).HasColumnName("funnet_av_mekanisme");
+            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("Ny");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.RettskildeId).OnDelete(DeleteBehavior.Cascade);
+            e.HasIndex(x => x.RettskildeId).HasDatabaseName("ix_kildefeil_rettskilde");
+            e.HasIndex(x => x.Status).HasDatabaseName("ix_kildefeil_status");
+
+            // Idempotens-nøkkelen KildefeilTjeneste.OpprettEllerFinnAsync matcher på — samme
+            // "opprett-eller-finn"-mønster som ux_virksomhet_kandidater_.../ux_navnekandidater_...
+            // (se de indeksenes kommentarer). MERK: Postgres behandler NULL != NULL, så to rader med
+            // samme (RettskildeId, Type, FunnetAvMekanisme) og BEGGE RettskildeEid=NULL (dokumentnivå-
+            // funn) dedupliseres IKKE av denne indeksen alene — KildefeilTjeneste.OpprettEllerFinnAsync
+            // sjekker derfor eksplisitt i APPLIKASJONEN før insert, ikke kun via denne indeksen (samme
+            // "databasen er siste skanse, ikke eneste vakt"-mønster som resten av kø-tabellene).
+            e.HasIndex(x => new { x.RettskildeId, x.RettskildeEid, x.Type, x.FunnetAvMekanisme }).IsUnique()
+                .HasDatabaseName("ux_kildefeil_rettskilde_eid_type_mekanisme");
         });
     }
 }

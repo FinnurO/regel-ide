@@ -1185,6 +1185,24 @@ public sealed record EksternKildeDto(Guid Id, string Kildetype, string EksternId
 /// <summary>Rotobjektet for GET /api/eksterne-kilder — paginert.</summary>
 public sealed record EksternKildeListeDto(int Totalt, IReadOnlyList<EksternKildeDto> Kilder);
 
+/// <summary>Én rad i det varige kildefeil-registeret (issue #249) — se <see cref="KildefeilEntitet"/>.</summary>
+public sealed record KildefeilDto(
+    Guid Id, Guid RettskildeId, string? RettskildeEid, string Type, string Beskrivelse,
+    string FunnetAvMekanisme, string Status, string OpprettetAv, DateTimeOffset OpprettetTidspunkt)
+{
+    public static KildefeilDto FraEntitet(KildefeilEntitet k) => new(
+        k.Id, k.RettskildeId, k.RettskildeEid, k.Type, k.Beskrivelse, k.FunnetAvMekanisme, k.Status,
+        k.OpprettetAv, k.OpprettetTidspunkt);
+}
+
+/// <summary>Svaret fra POST /api/administrasjon/hjemmel-validering/registrer-kildefeil — se
+/// <see cref="HjemmelValideringTjeneste.RegistrerKildefeilAsync"/>.</summary>
+public sealed record KildefeilRegistreringDto(int TotaltFunnet, int NyeRegistrert, int TotaltRegistrertForMekanismen)
+{
+    public static KildefeilRegistreringDto FraResultat(HjemmelValideringTjeneste.KildefeilRegistrering r) =>
+        new(r.TotaltFunnet, r.NyeRegistrert, r.TotaltRegistrertForMekanismen);
+}
+
 /// <summary>Sammendrag returnert av POST /api/eksterne-kilder/oppgaveregister/hent.</summary>
 public sealed record EksternKildeHostingResultatDto(int Nye, int Oppdaterte, int Uendret);
 

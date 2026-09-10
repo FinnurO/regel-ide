@@ -1707,6 +1707,33 @@ export interface OppdaterLovdataResynkInnstillingRequest {
   intervallTimer: number | null;
 }
 
+/** DENNE sakens fire tilstander (issue #249) — IKKE navnekandidat-/virksomhetkandidat-mønsterets
+ * Venter/Godkjent/Avvist. En kildefeil forblir en feil om den godkjennes eller ei; statusen her
+ * beskriver OPPFØLGING, ikke godkjenning. Se KildefeilEntitet.Status på serveren. */
+export type KildefeilStatus = 'Ny' | 'Kjent' | 'Rettet-hos-oss' | 'Venter-på-Lovdata';
+
+/** Én rad i det varige kildefeil-registeret — se KildefeilEntitet på serveren. `type`/
+ * `funnetAvMekanisme` er fri tekst (ikke et lukket sett i klienten heller), nettopp fordi et
+ * FREMTIDIG sveip skal kunne skrive nye verdier uten en frontend-endring her (akseptansekriterium 3). */
+export interface KildefeilDto {
+  id: string;
+  rettskildeId: string;
+  rettskildeEid: string | null;
+  type: string;
+  beskrivelse: string;
+  funnetAvMekanisme: string;
+  status: KildefeilStatus;
+  opprettetAv: string;
+  opprettetTidspunkt: string;
+}
+
+/** Svaret fra POST /api/administrasjon/hjemmel-validering/registrer-kildefeil. */
+export interface KildefeilRegistreringDto {
+  totaltFunnet: number;
+  nyeRegistrert: number;
+  totaltRegistrertForMekanismen: number;
+}
+
 /**
  * `omfang` (handlingsforslag-ki-omfang-runden) brukes KUN av POST /api/tjenester/forslag/kjor —
  * "tjeneste" (default, uendret oppførsel) eller "full" (Tjeneste + Handlinger i samme kall).

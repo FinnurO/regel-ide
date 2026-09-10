@@ -79,6 +79,7 @@ const GRUPPER: Gruppe[] = [
     rader: [
       { kind: 'lenke', to: '/brukere', label: 'Brukere' },
       { kind: 'lenke', to: '/administrasjon/lovdata-resynk', label: 'Lovdata full-resynk' },
+      { kind: 'lenke', to: '/kildefeil', label: 'Kildefeil' },
     ],
   },
 ];

@@ -2459,3 +2459,83 @@ public sealed class EksternKildeEntitet
     /// <summary>Tidspunktet raden sist faktisk ble opprettet/endret av en høsting — IKKE tidspunktet for siste kjøring hvis den kjøringen ikke endret noe.</summary>
     public DateTimeOffset HentetTidspunkt { get; set; }
 }
+
+/// <summary>
+/// [Ny, issue #249, 2026-09-10] Synlig, VARIG register over feil vi finner i selve KILDEN (typisk
+/// Lovdata) — ikke vår parsing, ikke vår import, men feil i kildens egen publiserte tekst. Johann:
+/// «vi må ha tilgjengelige lister på feil vi finner i lovdata. dersom det er feil i referanser i
+/// kilden så må vi vite om det.»
+/// <para>
+/// <b>Alternativ B, besluttet med Johann 2026-09-10</b> (issue #249, kommentar): en egen tabell, IKKE
+/// en ren visning av <c>GET /api/administrasjon/hjemmel-validering</c> sitt spørreresultat. Begrunnelse
+/// for hvorfor Alternativ A (ren visning) ble forkastet: ingen historikk (er dette et NYTT eller et
+/// KJENT funn?), og hvert NYE funn-mønster (issue #249 nevner selv #147/#153 som beslektede, ikke
+/// bygde eksempler) måtte bygge sin egen spørring/side fra bunnen — se akseptansekriterium 3.
+/// </para>
+/// <para>
+/// <b>Generisk, ikke hardkodet mot hjemmel-validering</b> (akseptansekriterium 3): <see cref="Type"/>
+/// og <see cref="FunnetAvMekanisme"/> er FRI TEKST, bevisst UTEN <c>CHECK</c>-lukket vokabular (til
+/// forskjell fra <see cref="Status"/> under, og til forskjell fra f.eks.
+/// <see cref="NavnekandidatEntitet.Kategori"/>) — et FREMTIDIG sveip/en fremtidig validering (som de
+/// #249 selv nevner: #147 sin manglende paragraf-henvisning-persistering, #153 sin
+/// <c>KAPITTEL_6-1-1</c>-mangel) skal kunne skrive en HELT NY <see cref="Type"/>/
+/// <see cref="FunnetAvMekanisme"/>-verdi via <see cref="KildefeilTjeneste.OpprettEllerFinnAsync"/> UTEN
+/// en migrasjon for å utvide et lukket sett. Verdiene <see cref="HjemmelValideringTjeneste"/> faktisk
+/// produserer i denne runden er dokumentert på <see cref="KildefeilTjeneste"/>, ikke håndhevet av skjemaet.
+/// </para>
+/// <para>
+/// <b>Status — DENNE sakens fire tilstander</b> (issue #249, ikke navnekandidat-/virksomhetkandidat-
+/// mønsterets Venter/Godkjent/Avvist — de beskriver en GODKJENNINGSKØ, denne tabellen beskriver en
+/// OPPFØLGINGSTILSTAND for en KILDEFEIL som uansett forblir en feil om den godkjennes eller ei):
+/// <list type="bullet">
+/// <item><c>Ny</c> — standardverdien ved opprettelse. Ingen har vurdert funnet ennå.</item>
+/// <item><c>Kjent</c> — vurdert og akseptert som en varig, ikke-hastende kildefeil (typisk: for liten
+/// til å følge opp, eller Lovdata forventes aldri å rette den).</item>
+/// <item><c>Rettet-hos-oss</c> — vi har kompensert på vår side (f.eks. en lokal korreksjon som
+/// <see cref="HjemmelValideringTjeneste.RettSetningstegnAsync"/>), selv om KILDEN fortsatt har feilen.</item>
+/// <item><c>Venter-på-Lovdata</c> — meldt til Lovdata (utenfor denne appen — se #249 "Ikke i denne
+/// saken": selve rapporteringsveien er IKKE bygget her), venter på at KILDEN rettes.</item>
+/// </list>
+/// Ingen egen endepunkt for å ENDRE status er bygget i denne runden (issue #249s akseptansekriterier
+/// krever kun at feltet finnes og at lista kan FILTRERES på det) — feltet er likevel med fra start,
+/// ikke lagt til som en senere migrasjon, nettopp fordi hele poenget med tabellen (i motsetning til
+/// Alternativ A) er å skille et NYTT funn fra et allerede TRIAGERT ett.
+/// </para>
+/// <para>
+/// <b>Idempotent, samme "opprett-eller-finn"-mønster som <see cref="VirksomhetKandidatTjeneste"/> og
+/// <see cref="NavnekandidatOppdagelseTjeneste"/></b>: gjentatt kjøring av samme sveip/validering skal
+/// IKKE duplisere raden for samme (<see cref="RettskildeId"/>, <see cref="RettskildeEid"/>,
+/// <see cref="Type"/>, <see cref="FunnetAvMekanisme"/>) — se den unike indeksen i
+/// <see cref="RegelIdeDbContext"/> og <see cref="KildefeilTjeneste.OpprettEllerFinnAsync"/>.
+/// </para>
+/// </summary>
+public sealed class KildefeilEntitet
+{
+    public Guid Id { get; set; }
+
+    /// <summary>Rettskilden feilen ble funnet i (f.eks. forskriften hjemmelen står i for
+    /// hjemmel-valideringens <c>NodeFinnesIkke</c>-utfall).</summary>
+    public required Guid RettskildeId { get; set; }
+
+    /// <summary>Den presise node-/paragraf-referansen (eId) som mangler/er feil, når funnet PEKER på én
+    /// bestemt bestemmelse (f.eks. hjemmel-eId-en som ikke treffer noen node). <c>null</c> når feilen
+    /// er på DOKUMENT-nivå og ingen enkelt eId er meningsfull (ingen gjettet fallback).</summary>
+    public string? RettskildeEid { get; set; }
+
+    /// <summary>Fri tekst — hvilken KATEGORI kildefeil dette er, f.eks. <c>"hjemmel_node_mangler"</c>
+    /// (se klassekommentaren for hvorfor dette IKKE er et <c>CHECK</c>-lukket sett).</summary>
+    public required string Type { get; set; }
+
+    /// <summary>Menneskelesbar beskrivelse av DETTE konkrete funnet, til triage uten flere oppslag —
+    /// samme «les raden uten å måtte slå opp mer»-hensyn som <see cref="HjemmelValideringTjeneste.Rad.RettskildeTittel"/>.</summary>
+    public required string Beskrivelse { get; set; }
+
+    /// <summary>Fri tekst — hvilket sveip/hvilken validering som fant feilen, f.eks.
+    /// <c>"hjemmel-validering"</c> (issue #233s endepunkt). Se klassekommentaren for hvorfor dette IKKE
+    /// er et lukket sett.</summary>
+    public required string FunnetAvMekanisme { get; set; }
+
+    public string Status { get; set; } = "Ny"; // 'Ny' | 'Kjent' | 'Rettet-hos-oss' | 'Venter-på-Lovdata'
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+}
