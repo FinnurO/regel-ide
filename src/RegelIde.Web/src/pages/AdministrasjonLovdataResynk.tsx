@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { Alert, Button, Card, Field, Heading, Label, Paragraph, Select, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Dialog, Field, Heading, Label, Link, Paragraph, Select, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { LovdataResynkKjoringDto, LovdataResynkUtlost } from '../api/types';
+import type { LovdataImportstatusHistorikkDto, LovdataResynkKjoringDto, LovdataResynkUtlost } from '../api/types';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 
@@ -64,6 +64,17 @@ export default function AdministrasjonLovdataResynk() {
 
   const [starter, setStarter] = useState(false);
   const [startFeil, setStartFeil] = useState<string | null>(null);
+
+  // [Ny, feillogg-runden, 2026-09-10, issue #201 del A] «Feilet (dok.)»-cellen åpner denne dialogen —
+  // feilFor er selve KJØRINGEN (for tittel/kontekst i dialogen), feiledeDokumenter er listen for DEN.
+  const [feilFor, setFeilFor] = useState<LovdataResynkKjoringDto | null>(null);
+  const [feiledeDokumenter, setFeiledeDokumenter] = useState<LovdataImportstatusHistorikkDto[] | null>(null);
+  const [feiledeDokumenterFeil, setFeiledeDokumenterFeil] = useState<string | null>(null);
+
+  // [Ny, aksjonskrok-runden, 2026-09-10, issue #201 del B] Bekreftelsesknappen for varslingsraden —
+  // Johanns eksplisitte valg (BEKREFTELSESSTEG før sveip, IKKE fullautomatisk, se kommentar på #201).
+  const [sveiper, setSveiper] = useState(false);
+  const [sveipFeil, setSveipFeil] = useState<string | null>(null);
 
   const [preset, setPreset] = useState<FrekvensPreset>('aldri');
   const [egendefinertTimer, setEgendefinertTimer] = useState('');
@@ -133,6 +144,32 @@ export default function AdministrasjonLovdataResynk() {
       );
     } finally {
       setStarter(false);
+    }
+  }
+
+  function apneFeiledeDokumenter(k: LovdataResynkKjoringDto) {
+    setFeilFor(k);
+    setFeiledeDokumenter(null);
+    setFeiledeDokumenterFeil(null);
+    api
+      .hentLovdataResynkFeiledeDokumenter(k.id)
+      .then(setFeiledeDokumenter)
+      .catch((e) => setFeiledeDokumenterFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av feilede dokumenter.'));
+  }
+
+  async function kjorNyeKilderSveip() {
+    if (!siste) return;
+    setSveipFeil(null);
+    setSveiper(true);
+    try {
+      await api.kjorLovdataResynkNyeKilderSveip(siste.id);
+      // Enkleste vei til korrekt UI-tilstand etterpå (nyeKilderSveipUtfortTidspunkt satt, skjuler
+      // varslingsraden) -- samme "hent på nytt istedenfor å prøve å patche lokalt" som resten av siden.
+      await hentHistorikk();
+    } catch (err) {
+      setSveipFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved kjøring av navnekandidat-sveip.');
+    } finally {
+      setSveiper(false);
     }
   }
 
@@ -207,6 +244,30 @@ export default function AdministrasjonLovdataResynk() {
           </Alert>
         )}
       </Card>
+
+      {/* [Ny, aksjonskrok-runden, 2026-09-10, issue #201 del B] Varslingsraden — Johanns eksplisitte
+          BEKREFTELSESSTEG-valg (motsatt av issuets egen "fullautomatisk"-anbefaling). Vises KUN for den
+          NYESTE kjøringen (samme "siste"-variabel som Kjør nå-kortet over) — en gammel varslingsrad for
+          en kjøring langt tilbake i tid er ikke lenger handlingsrelevant på samme måte. Forsvinner selv
+          når noen trykker (nyeKilderSveipUtfortTidspunkt blir satt av serveren). */}
+      {siste && siste.antallNyeKilderOppdaget > 0 && !siste.nyeKilderSveipUtfortTidspunkt && (
+        <Card style={{ padding: '1rem', marginBottom: '1rem' }} data-size="sm">
+          <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap', justifyContent: 'space-between' }}>
+            <Paragraph style={{ margin: 0 }}>
+              {siste.antallNyeKilderOppdaget} {siste.antallNyeKilderOppdaget === 1 ? 'ny kilde' : 'nye kilder'} oppdaget i
+              kjøring {formaterTidspunkt(siste.startetTidspunkt)} — kjør navnekandidat-sveip?
+            </Paragraph>
+            <Button data-size="sm" onClick={kjorNyeKilderSveip} disabled={sveiper}>
+              {sveiper ? 'Sveiper …' : 'Kjør navnekandidat-sveip'}
+            </Button>
+          </div>
+          {sveipFeil && (
+            <Alert data-color="danger" data-size="sm" style={{ marginTop: '0.75rem' }}>
+              {sveipFeil}
+            </Alert>
+          )}
+        </Card>
+      )}
 
       <Card style={{ padding: '1rem', marginBottom: '1rem' }} data-size="sm">
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
@@ -314,7 +375,18 @@ export default function AdministrasjonLovdataResynk() {
                       )}
                     </Table.Cell>
                     <Table.Cell>{k.uendret ?? '—'}</Table.Cell>
-                    <Table.Cell>{k.feilet ?? '—'}</Table.Cell>
+                    <Table.Cell>
+                      {/* [Ny, feillogg-runden, 2026-09-10, issue #201 del A] Klikkbar KUN når det faktisk
+                          er noe å vise — åpner feilloggen for AKKURAT DENNE kjøringen (også historiske,
+                          ikke bare siste), se apneFeiledeDokumenter. */}
+                      {k.feilet !== null && k.feilet > 0 ? (
+                        <Button data-size="sm" variant="tertiary" onClick={() => apneFeiledeDokumenter(k)}>
+                          {k.feilet}
+                        </Button>
+                      ) : (
+                        (k.feilet ?? '—')
+                      )}
+                    </Table.Cell>
                     <Table.Cell>{k.totaltBehandlet ?? '—'}</Table.Cell>
                     <Table.Cell style={{ maxWidth: '20rem', whiteSpace: 'normal' }}>{k.feilmelding ?? '—'}</Table.Cell>
                   </Table.Row>
@@ -334,6 +406,53 @@ export default function AdministrasjonLovdataResynk() {
           totaltAntallRader={paginering.totaltAntallRader}
         />
       )}
+
+      {/* [Ny, feillogg-runden, 2026-09-10, issue #201 del A] Feilloggen for ÉN kjøring — åpnes fra den
+          klikkbare «Feilet (dok.)»-cellen over, også for HISTORISKE kjøringer (ikke bare siste). */}
+      <Dialog open={feilFor !== null} onClose={() => setFeilFor(null)} closeButton="Lukk" style={{ maxWidth: '50rem' }}>
+        <Dialog.Block>
+          <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
+            Feilede dokumenter — kjøring {feilFor ? formaterTidspunkt(feilFor.startetTidspunkt) : ''}
+          </Heading>
+          {feiledeDokumenterFeil && (
+            <Alert data-color="danger" data-size="sm" style={{ marginBottom: '0.75rem' }}>
+              {feiledeDokumenterFeil}
+            </Alert>
+          )}
+          {!feiledeDokumenter && !feiledeDokumenterFeil && <Paragraph style={{ margin: 0 }}>Laster …</Paragraph>}
+          {feiledeDokumenter && feiledeDokumenter.length === 0 && (
+            <Paragraph style={{ margin: 0 }}>Ingen feilede dokumenter registrert for denne kjøringen.</Paragraph>
+          )}
+          {feiledeDokumenter && feiledeDokumenter.length > 0 && (
+            <div style={{ overflowX: 'auto', maxHeight: '28rem', overflowY: 'auto' }}>
+              <Table data-density="compact">
+                <Table.Head>
+                  <Table.Row>
+                    <Table.HeaderCell>Datokode</Table.HeaderCell>
+                    <Table.HeaderCell>Tittel</Table.HeaderCell>
+                    <Table.HeaderCell>Eli</Table.HeaderCell>
+                    <Table.HeaderCell>Feilmelding</Table.HeaderCell>
+                  </Table.Row>
+                </Table.Head>
+                <Table.Body>
+                  {feiledeDokumenter.map((d) => (
+                    <Table.Row key={d.id}>
+                      <Table.Cell>{d.datokode}</Table.Cell>
+                      <Table.Cell>{d.tittel ?? '—'}</Table.Cell>
+                      <Table.Cell>
+                        <Link href={d.eli} target="_blank" rel="noopener noreferrer">
+                          {d.eli}
+                        </Link>
+                      </Table.Cell>
+                      <Table.Cell style={{ maxWidth: '24rem', whiteSpace: 'normal' }}>{d.feilmelding ?? '—'}</Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+            </div>
+          )}
+        </Dialog.Block>
+      </Dialog>
     </>
   );
 }

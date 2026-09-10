@@ -38,7 +38,8 @@ public class LovdataFullimportTjenesteTests
         var tjeneste = new LovdataFullimportTjeneste(
             new LovdataBulkHenter(http), new RettskildeImportTjeneste(db), db, new LovdataImportstatusTjeneste(db));
 
-        var forsteRunde = await tjeneste.KjorAsync();
+        var forsteKjoringId = Guid.NewGuid();
+        var forsteRunde = await tjeneste.KjorAsync(forsteKjoringId);
         Assert.True(forsteRunde.TotaltBehandlet > 100, "Forventet et stort antall lover+forskrifter i bulk-arkivene.");
         Assert.True(forsteRunde.Nye + forsteRunde.NyeVersjoner > 0, "Forventet at (de fleste av) disse ikke fantes fra før.");
 
@@ -73,16 +74,35 @@ public class LovdataFullimportTjenesteTests
         Assert.NotNull(grunnlovenStatus.Feilmelding);
         Assert.Equal("https://lovdata.no/eli/lov/1931/06/12/1/nor", grunnlovenStatus.Eli);
 
+        // [Ny, feillogg-runden, 2026-09-10, issue #201 del A] Samme feilede forsøk skal ALSO ha havnet i
+        // historikk-tabellen, knyttet til DENNE kjøringen -- se LovdataImportstatusHistorikkEntitet.
+        var grunnlovenHistorikk = await db.LovdataImportstatusHistorikk.SingleOrDefaultAsync(
+            h => h.Datokode == "LOV-1931-06-12-1" && h.KjoringId == forsteKjoringId);
+        Assert.NotNull(grunnlovenHistorikk);
+        Assert.Equal(grunnlovenStatus.Feilmelding, grunnlovenHistorikk!.Feilmelding);
+        Assert.Equal("https://lovdata.no/eli/lov/1931/06/12/1/nor", grunnlovenHistorikk.Eli);
+
+        // [Ny, aksjonskrok-runden, 2026-09-10, issue #201 del B] Forvaltningsloven fantes ikke fra før
+        // (tom database) -- STRENGT Utfall.Ny, skal derfor stå i NyeRettskildeIder for denne kjøringen.
+        Assert.Contains(forvaltningsloven.Id, forsteRunde.NyeRettskildeIder);
+
         // Selve delta-analysen: en andre runde mot samme, nå-fylte database skal ikke opprette noe
         // nytt -- alt som ikke reelt har endret seg siden forrige runde klassifiseres som Uendret.
-        var andreRunde = await tjeneste.KjorAsync();
+        var andreKjoringId = Guid.NewGuid();
+        var andreRunde = await tjeneste.KjorAsync(andreKjoringId);
         Assert.Equal(forsteRunde.TotaltBehandlet, andreRunde.TotaltBehandlet);
         Assert.Equal(0, andreRunde.Nye);
         Assert.Equal(0, andreRunde.NyeVersjoner);
         Assert.True(andreRunde.Uendret > 100, "Andre runde skal finne alt fra første runde uendret.");
+        Assert.Empty(andreRunde.NyeRettskildeIder); // ingenting er nytt andre gang -- alt var der fra runde 1
 
         // Importstatus-raden oppdateres (ikke dupliseres) ved reimport -- fortsatt én rad per datokode.
         var antallStatusraderForForvaltningsloven = await db.LovdataImportstatuser.CountAsync(s => s.Datokode == "LOV-1967-02-10");
         Assert.Equal(1, antallStatusraderForForvaltningsloven);
+
+        // Historikk-tabellen derimot får en NY rad for andre runde sitt forsøk (samme dokument feiler
+        // fortsatt) -- den er en LOGG, ikke en upsert. To rader totalt for datokoden nå, én per kjøring.
+        var antallHistorikkraderForGrunnloven = await db.LovdataImportstatusHistorikk.CountAsync(h => h.Datokode == "LOV-1931-06-12-1");
+        Assert.Equal(2, antallHistorikkraderForGrunnloven);
     }
 }

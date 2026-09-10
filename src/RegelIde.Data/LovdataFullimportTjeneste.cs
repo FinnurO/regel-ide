@@ -4,8 +4,15 @@ using RegelIde.Kildekonvertering;
 
 namespace RegelIde.Data;
 
-/// <summary>Oppsummering av én <see cref="LovdataFullimportTjeneste.KjorAsync"/>-kjøring.</summary>
-public sealed record LovdataFullimportResultat(int Nye, int NyeVersjoner, int Uendret, int Feilet, int TotaltBehandlet)
+/// <summary>Oppsummering av én <see cref="LovdataFullimportTjeneste.KjorAsync"/>-kjøring.
+/// <see cref="NyeRettskildeIder"/> [Ny, aksjonskrok-runden, 2026-09-10, issue #201 del B] — se
+/// <see cref="LovdataResynkKjoringEntitet.NyeRettskildeIder"/> for hele resonnementet: rettskilde-
+/// ID-ene med STRENGT utfall <see cref="RettskildeImportUtfall.Ny"/> (ikke <c>ForfremmetStub</c>) i
+/// denne kjøringen, grunnlaget for aksjonskrokens bekreftelsesrad. Et eksplisitt (ikke default-verdi)
+/// konstruktørargument — «ingen gjettet fallback» (§8) gjelder også egne resultattyper, ikke bare
+/// domenedata: en kaller som glemmer denne skal få en kompileringsfeil, ikke en stille tom liste.</summary>
+public sealed record LovdataFullimportResultat(
+    int Nye, int NyeVersjoner, int Uendret, int Feilet, int TotaltBehandlet, IReadOnlyList<Guid> NyeRettskildeIder)
 {
     public override string ToString() =>
         $"{TotaltBehandlet} behandlet: {Nye} nye, {NyeVersjoner} nye versjoner, {Uendret} uendret, {Feilet} feilet.";
@@ -45,10 +52,25 @@ public sealed class LovdataFullimportTjeneste(
     /// samme begrunnelse som det eksisterende <c>ImporterFraLovdata</c>-endepunktet.
     /// En feil på ETT dokument (uventet HTML-avvik parseren ikke kjenner, §3.3) stopper ikke resten
     /// av runden — logges og telles som «feilet», ingen gjettet fallback for det enkelte dokumentet.
+    /// <para>
+    /// <paramref name="kjoringId"/> [Ny, feillogg-/aksjonskrok-runden, 2026-09-10, issue #201] — DENNE
+    /// kjøringens egen id i <c>lovdata_resynk_kjoringer</c>, som runden tidligere IKKE kjente til (den
+    /// ble kalt som en anonym <c>Func&lt;CancellationToken, …&gt;</c>-lambda fra
+    /// <see cref="LovdataResynkKjoringTjeneste"/>, se den klassens klassekommentar). Trengs til to ting
+    /// her: (1) hvert FEILET forsøk knyttes til kjøringen i <c>lovdata_importstatus_historikk</c> (del
+    /// A, se <see cref="LovdataImportstatusTjeneste.OppdaterAsync"/>s <c>kjoringId</c>-parameter), og
+    /// (2) selve kjøringen (ikke denne metoden) skriver <see cref="LovdataFullimportResultat.NyeRettskildeIder"/>
+    /// til <see cref="LovdataResynkKjoringEntitet.NyeRettskildeIder"/> etterpå (del B) — parameteren
+    /// flyter ikke videre til noen skriving her, men er nødvendig for (1).
+    /// </para>
     /// </summary>
-    public async Task<LovdataFullimportResultat> KjorAsync(CancellationToken ct = default)
+    public async Task<LovdataFullimportResultat> KjorAsync(Guid kjoringId, CancellationToken ct = default)
     {
         int nye = 0, nyeVersjoner = 0, uendret = 0, feilet = 0, totalt = 0;
+        // [Ny, aksjonskrok-runden, 2026-09-10, issue #201 del B] KUN Utfall.Ny (ikke ForfremmetStub) —
+        // se LovdataFullimportResultat.NyeRettskildeIder-kommentaren for hvorfor de to er atskilt her
+        // selv om begge teller inn i den kombinerte `nye`-telleren under.
+        var nyeRettskildeIder = new List<Guid>();
 
         await foreach (var (datokode, type, html) in bulkHenter.HentAlleDokumenterAsync(ct))
         {
@@ -69,6 +91,10 @@ public sealed class LovdataFullimportTjeneste(
                 {
                     case RettskildeImportUtfall.Ny or RettskildeImportUtfall.ForfremmetStub:
                         nye++;
+                        // Kun STRENGT Ny (issue #201 del B, Johanns beslutning) -- en ForfremmetStub
+                        // (en allerede eksisterende referanse-stub som nå fikk fullt AKN-innhold) er
+                        // ikke en «helt ny kilde» i den forstand aksjonskroken bryr seg om.
+                        if (resultat.Utfall == RettskildeImportUtfall.Ny) nyeRettskildeIder.Add(resultat.RettskildeId);
                         break;
                     case RettskildeImportUtfall.NyVersjon:
                         nyeVersjoner++;
@@ -111,7 +137,8 @@ public sealed class LovdataFullimportTjeneste(
                 // kunne velte runden videre dersom NOE uventet skjer med den også.
                 try
                 {
-                    await importstatusTjeneste.OppdaterAsync(datokode, type, tittel, eli, importert: false, rettskildeId: null, BeskrivFeilKjede(ex), ct);
+                    await importstatusTjeneste.OppdaterAsync(
+                        datokode, type, tittel, eli, importert: false, rettskildeId: null, BeskrivFeilKjede(ex), ct, kjoringId);
                 }
                 catch (Exception statusEx) when (statusEx is not OperationCanceledException)
                 {
@@ -128,7 +155,7 @@ public sealed class LovdataFullimportTjeneste(
             }
         }
 
-        return new LovdataFullimportResultat(nye, nyeVersjoner, uendret, feilet, totalt);
+        return new LovdataFullimportResultat(nye, nyeVersjoner, uendret, feilet, totalt, nyeRettskildeIder);
     }
 
     /// <summary>

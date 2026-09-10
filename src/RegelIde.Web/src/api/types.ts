@@ -1680,6 +1680,11 @@ export type LovdataResynkStatus = 'Pågår' | 'Fullført' | 'Feilet';
  * finnes i dag INGEN godkjenningskø for disse (bevisst IKKE besluttet avveining, se PR-beskrivelsen).
  * Tellerne er alle `null` mens kjøringen fortsatt er `Pågår`, eller hvis den feilet HELT (Feilet) før
  * noe ble behandlet.
+ *
+ * `antallNyeKilderOppdaget`/`nyeKilderSveipUtfortTidspunkt` [Ny, aksjonskrok-runden, 2026-09-10, issue
+ * #201 del B] — grunnlaget for varslingsraden ("N nye kilder oppdaget i kjøring X — kjør navnekandidat-
+ * sveip?"). `antallNyeKilderOppdaget` teller KUN utfall 'Ny' (ikke 'ForfremmetStub'), til forskjell fra
+ * `nye` over som slår sammen begge — se serverens LovdataFullimportTjeneste-kommentar.
  */
 export interface LovdataResynkKjoringDto {
   id: string;
@@ -1694,6 +1699,29 @@ export interface LovdataResynkKjoringDto {
   feilet: number | null;
   totaltBehandlet: number | null;
   feilmelding: string | null;
+  antallNyeKilderOppdaget: number;
+  nyeKilderSveipUtfortTidspunkt: string | null;
+}
+
+/** [Ny, feillogg-runden, 2026-09-10, issue #201 del A] Ett feilet importforsøk i feilloggen for ÉN
+ * kjøring — se GET /api/administrasjon/lovdata-resynk/{kjoringId}/feilede-dokumenter. */
+export interface LovdataImportstatusHistorikkDto {
+  id: string;
+  datokode: string;
+  type: string;
+  tittel: string | null;
+  eli: string;
+  feilmelding: string | null;
+  forsoktTidspunkt: string;
+}
+
+/** [Ny, aksjonskrok-runden, 2026-09-10, issue #201 del B] Svar fra bekreftelsesknappens
+ * POST .../{kjoringId}/navnekandidat-sveip. */
+export interface KjorNyeKilderSveipResultatDto {
+  antallRettskilderForsokt: number;
+  antallRettskilderHoppetOver: number;
+  antallTreffFunnet: number;
+  antallNyeKandidater: number;
 }
 
 /** `intervallTimer` null eller 0 = aldri automatisk (kun oppstart/manuell). */

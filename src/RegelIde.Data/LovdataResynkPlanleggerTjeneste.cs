@@ -21,7 +21,7 @@ public sealed class LovdataResynkPlanleggerTjeneste(
     /// <summary>Kjører+registrerer en ny planlagt kjøring hvis intervallet er utløpt OG ingen annen
     /// kjøring allerede pågår. Returnerer true hvis en kjøring faktisk ble startet.</summary>
     public async Task<bool> KjorHvisPaaTideAsync(
-        Func<CancellationToken, Task<LovdataFullimportResultat>> kjorAsync, CancellationToken ct = default)
+        Func<Guid, CancellationToken, Task<LovdataFullimportResultat>> kjorAsync, CancellationToken ct = default)
     {
         // Sjekket FØR innstilling/siste-kjøring under: en kjøring som allerede pågår (manuelt trigget,
         // eller forrige planlagte runde som ennå ikke er ferdig) skal ALDRI overlappes av en ny.
