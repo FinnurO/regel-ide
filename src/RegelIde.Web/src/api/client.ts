@@ -389,6 +389,11 @@ export const api = {
   hentRettskilderAnsvarligFor: (virksomhetId: string) =>
     kall<RettskildeSammendrag[]>(`/api/virksomheter/${virksomhetId}/rettskilder-ansvarlig-for`),
 
+  /** [Ny, issue #215] Motstykket til «ansvarlig for», og et ANNET spørsmål: KD har
+   * departementsansvaret for NTNUs ph.d.-forskrift, NTNU har fastsatt den. */
+  hentRettskilderFastsattAv: (virksomhetId: string) =>
+    kall<RettskildeSammendrag[]>(`/api/virksomheter/${virksomhetId}/rettskilder-fastsatt-av`),
+
   hentVentendeKandidater: (virksomhetId: string) =>
     kall<VirksomhetKandidatDto[]>(`/api/virksomhet-kandidater?virksomhetId=${virksomhetId}`),
 

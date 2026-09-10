@@ -221,10 +221,68 @@ public sealed class RettskildeEntitet
     public string? DokumentId { get; set; }
     public string? RefId { get; set; }
     public string? GjelderFor { get; set; }
+
+    /// <summary>
+    /// Lovdatas «Etat»-felt, fri tekst. [Merknad, fastsatt-av-runden, 2026-09-10, issue #215]
+    /// Feltet SER ut som organet som fastsatte forskriften, men er det ikke — og skal ikke kobles mot
+    /// virksomhetskatalogen. Målt på 60 forskrifter: 56 hadde <c>Etat</c> satt, men bare 6 matchet en
+    /// virksomhet. Resten er departementets egen AVDELING («Barnehageavd.», «Skattelovavd.»,
+    /// «Klimaavdelingen», «Veg-, by- og trafikksikkerhetsavdelingen»). En kobling herfra ville gitt et
+    /// galt svar i 50 av 56 tilfeller. Fastsetteren står i stedet i <see cref="FastsattAv"/>, hentet
+    /// fra hjemmelslinja. Ikke prøv dette feltet på nytt.
+    /// </summary>
     public string? Etat { get; set; }
     public string? PublisertI { get; set; }
     public string? AnnetOmDokumentet { get; set; }
     public string? SisteRettelse { get; set; }
+
+    /// <summary>
+    /// [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Organet som FASTSATTE forskriften, slik det
+    /// STÅR i hjemmelslinja — «styret ved Norges teknisk-naturvitenskapelige universitet (NTNU)»,
+    /// «Mattilsynet», «kgl.res.».
+    ///
+    /// <para>
+    /// Dette er <c>docs/32</c> §3 S1 sett fra dokumentsiden: hvem forvalter regelen, og i hvilken
+    /// egenskap. En forskrift fastsatt av et organ — ikke av departementet — hadde ingen kobling til
+    /// det organet, og var derfor usynlig fra organets egen virksomhetsside.
+    /// </para>
+    ///
+    /// <para>
+    /// Teksten lagres selv om den ikke kunne kobles: 138 av 331 målte fastsettere finnes ikke i
+    /// katalogen, og flertallet av dem er organer som ikke lenger eksisterer
+    /// («Sosialdepartementet», «Fiskeridepartementet», «Miljøverndepartementet»). At en forskrift ble
+    /// fastsatt av et nedlagt departement er en SANN opplysning, og skal vises — ikke forkastes fordi
+    /// katalogen ikke har rad for organet.
+    /// </para>
+    /// </summary>
+    public string? FastsattAv { get; set; }
+
+    /// <summary>
+    /// [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Navnet som skal slås opp i katalogen, skilt
+    /// fra <see cref="FastsattAv"/>: for «styret ved NTNU» er dette «Norges teknisk-naturvitenskapelige
+    /// universitet (NTNU)». Styret er organet INNAD, institusjonen er den som finnes i katalogen — og
+    /// presiseringen skal bevares i teksten, ikke kastes fordi oppslaget bruker en annen streng.
+    /// <c>null</c> for «kgl.res» (Kongen i statsråd er et gruppebegrep, ikke en virksomhet).
+    ///
+    /// <para>
+    /// <b>Selve koblingen lagres ikke.</b> Den løses ved LESING, samme mønster som
+    /// <see cref="AnsvarligDepartement"/> har brukt siden 2026-08-30 (se
+    /// <c>Program.LosAnsvarligDepartementLenkerAsync</c>). Det gir to ting gratis: en virksomhet som
+    /// legges inn i katalogen SENERE kobler seg umiddelbart, og det finnes ingen lagret kobling som
+    /// kan bli foreldet.
+    /// </para>
+    ///
+    /// <para>
+    /// Merk at ingen av disse feltene er <see cref="VirksomhetId"/>, og de må ikke forveksles med
+    /// den: <see cref="VirksomhetId"/> betyr «virksomhetens eget, private dokument», og å sette den
+    /// for en nasjonal forskrift ville skjult forskriften for alle andre og for sveipene. En
+    /// fastsetter sier bare hvem som fastsatte den; forskriften forblir delt/nasjonal. Besluttet med
+    /// Johann 2026-09-09. Fastsettelsen er dessuten bevisst IKKE en
+    /// <see cref="VirksomhetRelasjonEntitet"/> av sekretariat-/klageinstans-typen: det er
+    /// dokumentmetadata, ikke en organrelasjon.
+    /// </para>
+    /// </summary>
+    public string? FastsattAvOrgannavn { get; set; }
 
     public required string Status { get; set; } // 'Gjeldende' | 'Opphevet' | 'Utkast'
     public int Versjon { get; set; } = 1;

@@ -108,6 +108,9 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 eksisterende.PublisertI = m.PublisertI;
                 eksisterende.AnnetOmDokumentet = m.AnnetOmDokumentet;
                 eksisterende.SisteRettelse = m.SisteRettelse;
+                // [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Utledet av hjemmelslinja over, ikke
+                // et eget kildefelt — se FastsattAvTolker for hvorfor etat-feltet ikke kan brukes.
+                SettFastsattAv(eksisterende, m.AnnetOmDokumentet);
 
                 // [Ny, 2026-09-03, issue #159] Hjemmel/Endring (RettskildeHjemmelEntitet/
                 // RettskildeEndringEntitet) settes KUN inn i SettInnNoderOgReferanserAsync, som denne
@@ -165,6 +168,7 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             eksisterende.PublisertI = m.PublisertI;
             eksisterende.AnnetOmDokumentet = m.AnnetOmDokumentet;
             eksisterende.SisteRettelse = m.SisteRettelse;
+            SettFastsattAv(eksisterende, m.AnnetOmDokumentet); // issue #215, se SettFastsattAv
             eksisterende.Status = m.Status;
             // Del B (2026-09-02) — stubben har aldri hatt ekte HTML før nå (den ble opprettet av
             // FinnEllerOpprettReferanseStubAsync, uten Innhold), så dette er FØRSTE gang disse feltene
@@ -214,6 +218,9 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
                 PublisertI = m.PublisertI,
                 AnnetOmDokumentet = m.AnnetOmDokumentet,
                 SisteRettelse = m.SisteRettelse,
+                // issue #215 — utledet av hjemmelslinja, se SettFastsattAv/FastsattAvTolker.
+                FastsattAv = FastsattAvTolker.Tolk(m.AnnetOmDokumentet)?.Tekst,
+                FastsattAvOrgannavn = FastsattAvTolker.Tolk(m.AnnetOmDokumentet)?.Organnavn,
                 Status = m.Status,
                 Url = m.Eli,
                 Innhold = innholdNy,
@@ -476,6 +483,9 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
             PublisertI = m.PublisertI,
             AnnetOmDokumentet = m.AnnetOmDokumentet,
             SisteRettelse = m.SisteRettelse,
+            // issue #215 — utledet av hjemmelslinja, se SettFastsattAv/FastsattAvTolker.
+            FastsattAv = FastsattAvTolker.Tolk(m.AnnetOmDokumentet)?.Tekst,
+            FastsattAvOrgannavn = FastsattAvTolker.Tolk(m.AnnetOmDokumentet)?.Organnavn,
             Status = m.Status,
             Url = m.Eli,
             Innhold = innholdNyVersjon,
@@ -604,6 +614,20 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
         // hvem som utløste importen som fant referansen.
         db.Proveniens.Add(ProveniensHjelper.NyRad("rettskilde", stubId, virksomhetId: null, "opprettet", SystemBruker));
         return stubId;
+    }
+
+    /// <summary>
+    /// [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Fastsetteren utledes av hjemmelslinja, som er
+    /// ETT kildefelt — begge kolonnene settes derfor sammen, av ÉN tolkning. Skrevet som en metode og
+    /// ikke gjentatt inline fordi importen har fire steder som skriver metadatafeltene (ny, ny versjon,
+    /// uendret AKN, og stubbe-forfremmelse), og et felt satt på tre av fire steder er nøyaktig den
+    /// slags stille hull som er vanskelig å oppdage etterpå.
+    /// </summary>
+    private static void SettFastsattAv(RettskildeEntitet entitet, string? annetOmDokumentet)
+    {
+        var fastsatt = FastsattAvTolker.Tolk(annetOmDokumentet);
+        entitet.FastsattAv = fastsatt?.Tekst;
+        entitet.FastsattAvOrgannavn = fastsatt?.Organnavn;
     }
 
     /// <summary>Trunkerer en eId (som kan ha et paragraf-/ledd-/punkt-suffiks) til dokumentets egen ELI, ved "/nor".</summary>

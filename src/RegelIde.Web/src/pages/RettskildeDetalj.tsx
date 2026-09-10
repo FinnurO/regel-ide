@@ -1184,6 +1184,31 @@ export default function RettskildeDetalj() {
                             )}
                           </Table.Cell>
                         </Table.Row>
+                        {/* [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Fastsetteren står VED SIDEN
+                            AV Ansvarlig departement, ikke i stedet for: Kunnskapsdepartementet har
+                            departementsansvaret for NTNUs ph.d.-forskrift, NTNUs styre har fastsatt
+                            den, og begge er sanne samtidig.
+
+                            Teksten vises også når den ikke kunne kobles — flertallet av de ukoblede er
+                            organer som ikke lenger eksisterer («Sosialdepartementet»,
+                            «Miljøverndepartementet»), og at en forskrift ble fastsatt av et nedlagt
+                            departement er en sann opplysning. */}
+                        <Table.Row>
+                          <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Fastsatt av</Table.Cell>
+                          <Table.Cell>
+                            {detalj.fastsattAv === null || detalj.fastsattAv === undefined ? (
+                              '—'
+                            ) : detalj.fastsattAv.virksomhetId ? (
+                              <Link asChild>
+                                <RouterLink to={`/virksomheter/${detalj.fastsattAv.virksomhetId}`}>
+                                  {detalj.fastsattAv.tekst}
+                                </RouterLink>
+                              </Link>
+                            ) : (
+                              detalj.fastsattAv.tekst
+                            )}
+                          </Table.Cell>
+                        </Table.Row>
                         <Table.Row>
                           <Table.Cell style={{ paddingRight: '1rem', color: 'var(--ds-color-neutral-text-subtle)' }}>Endrer</Table.Cell>
                           <Table.Cell>

@@ -50,6 +50,8 @@ export default function VirksomhetDetalj() {
   // Departement-virksomhet-lenke (2026-08-30) — ikke betinget på noen egen "er departement"-boolsk,
   // se oppgavebeskrivelsen: lastes for ENHVER virksomhet, seksjonen skjules bare når listen er tom.
   const [rettskilderAnsvarligFor, setRettskilderAnsvarligFor] = useState<RettskildeSammendrag[] | null>(null);
+  // [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Et ANNET spørsmål enn ansvarligFor over.
+  const [rettskilderFastsattAv, setRettskilderFastsattAv] = useState<RettskildeSammendrag[] | null>(null);
   // [Ny, navneform-kjede-runden, 2026-09-08] «Where used» — ETT kall som dekker ALLE navneformene
   // (hvor de er tagget) OG hvilket gruppebegrep hver myndighetstildeling gjelder. Se
   // VirksomhetWhereUsedTjeneste for hvorfor det er ett samlet oppslag og ikke ett per navneform.
@@ -146,6 +148,7 @@ export default function VirksomhetDetalj() {
     api.hentMyndighetstildelingerForVirksomhet(id).then(setTildelinger).catch(() => setTildelinger([]));
     api.hentVentendeKandidater(id).then(setKandidater).catch(() => setKandidater([]));
     api.hentRettskilderAnsvarligFor(id).then(setRettskilderAnsvarligFor).catch(() => setRettskilderAnsvarligFor([]));
+    api.hentRettskilderFastsattAv(id).then(setRettskilderFastsattAv).catch(() => setRettskilderFastsattAv([]));
     api.hentVirksomhetRelasjoner(id).then(setRelasjoner).catch(() => setRelasjoner([]));
     // Tom-ved-feil, samme mønster som de andre valgfrie seksjonene over: en virksomhet uten
     // koblinger er et helt normalt svar, ikke en feil som fortjener en banner.
@@ -663,6 +666,43 @@ export default function VirksomhetDetalj() {
             <Table>
               <Table.Body>
                 {rettskilderAnsvarligFor.map((r) => (
+                  <Table.Row key={r.id}>
+                    <Table.Cell>
+                      <Link asChild>
+                        <RouterLink to={`/rettskilder/${r.id}`}>{r.tittel}</RouterLink>
+                      </Link>
+                    </Table.Cell>
+                    <Table.Cell>{r.kildetype}</Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table>
+          )}
+        </Card>
+      </section>
+
+      {/* [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Motstykket til «Ansvarlig for» over, og et
+          ANNET spørsmål: Kunnskapsdepartementet har departementsansvaret for NTNUs ph.d.-forskrift,
+          NTNUs styre har FASTSATT den. Uten denne seksjonen var forskriften usynlig fra NTNUs egen
+          side, selv om dokumentet sier rett ut hvem som fastsatte den. */}
+      <section style={{ marginBottom: '2rem' }}>
+        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+          Fastsatt av denne virksomheten
+        </Heading>
+        <Paragraph style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
+          Gjeldende rettskilder der «Fastsatt av»-frasen i hjemmelslinja peker på denne virksomheten —
+          matchet mot registernavnet og virksomhetens navneformer. «Fastsatt av styret ved X» regnes
+          som fastsatt av X: styret er organet innad, institusjonen er den katalogen kjenner.
+        </Paragraph>
+        <Card style={{ padding: rettskilderFastsattAv && rettskilderFastsattAv.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
+          {!rettskilderFastsattAv && <Spinner aria-label="Laster …" data-size="sm" />}
+          {rettskilderFastsattAv && rettskilderFastsattAv.length === 0 && (
+            <Paragraph style={{ margin: 0 }}>Ingen rettskilder er registrert som fastsatt av denne virksomheten.</Paragraph>
+          )}
+          {rettskilderFastsattAv && rettskilderFastsattAv.length > 0 && (
+            <Table>
+              <Table.Body>
+                {rettskilderFastsattAv.map((r) => (
                   <Table.Row key={r.id}>
                     <Table.Cell>
                       <Link asChild>

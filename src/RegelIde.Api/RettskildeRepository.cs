@@ -91,6 +91,49 @@ public sealed class RettskildeRepository(RegelIdeDbContext db, VirksomhetOppslag
     /// Returnerer tom liste (ikke feil) for en virksomhet uten navnetreff — samme "ingen gjettet
     /// fallback"-prinsipp som <see cref="FinnVirksomhetIdForNavnAsync"/>.
     /// </summary>
+    /// <summary>
+    /// [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Rettskildene DENNE virksomheten FASTSATTE —
+    /// motstykket til <see cref="RettskilderAnsvarligForAsync"/> over, og et annet spørsmål: KD har
+    /// departementsansvaret for NTNUs ph.d.-forskrift, NTNU har fastsatt den, og begge er sanne
+    /// samtidig.
+    ///
+    /// <para>
+    /// Matcher <see cref="RettskildeEntitet.FastsattAvOrgannavn"/> mot virksomhetens registernavn OG
+    /// mot alle dens navneformer — samme oppslagsregel som
+    /// <see cref="VirksomhetOppslagTjeneste.FinnVirksomhetIdForNavnEllerNavneformAsync"/> bruker i
+    /// motsatt retning, slik at de to veiene ikke kan svare ulikt. Registernavnet alene ville f.eks.
+    /// ikke funnet «Norges vassdrags- og energidirektorat», siden Brreg-formen har «(NVE)» i seg.
+    /// </para>
+    ///
+    /// <para>
+    /// Bruker <c>FastsattAvOrgannavn</c>, ikke <c>FastsattAv</c>: den første er navnet som skal slås
+    /// opp, den andre er frasen som skal vises («styret ved …»). Å matche på visningsteksten ville
+    /// mistet alle «styret ved»-tilfellene — altså nettopp NTNU-saken.
+    /// </para>
+    /// </summary>
+    public async Task<List<RettskildeEntitet>> RettskilderFastsattAvAsync(Guid virksomhetId, CancellationToken ct = default)
+    {
+        var registernavn = await db.Virksomheter
+            .Where(v => v.Id == virksomhetId)
+            .Select(v => v.Navn)
+            .FirstOrDefaultAsync(ct);
+        if (registernavn is null) return [];
+
+        var navneformer = await db.Begreper
+            .Where(b => b.Begrepskategori == "virksomhet"
+                        && b.Entitetsstatus == "gjeldende"
+                        && b.VirksomhetReferanseId == virksomhetId)
+            .Select(b => b.Term)
+            .ToListAsync(ct);
+
+        var navn = navneformer.Append(registernavn).Select(n => n.ToLower()).Distinct().ToList();
+        return await db.Rettskilder
+            .Where(r => r.Entitetsstatus == "gjeldende"
+                        && r.FastsattAvOrgannavn != null
+                        && navn.Contains(r.FastsattAvOrgannavn!.ToLower()))
+            .ToListAsync(ct);
+    }
+
     public async Task<List<RettskildeEntitet>> RettskilderAnsvarligForAsync(Guid virksomhetId)
     {
         var navn = await db.Virksomheter.Where(v => v.Id == virksomhetId).Select(v => v.Navn).FirstOrDefaultAsync();
