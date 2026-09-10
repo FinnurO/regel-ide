@@ -1,6 +1,16 @@
 # Teknisk design — Byggesteg 1 (Rettskildebibliotek)
 
-*Dekker AKN-skjema, databasetabeller og konverteringspipeline. Frontend-komponentstruktur er utelatt — overlatt til samme verktøy som produserte den opprinnelige interaktive prototypen (`Regel-IDE.dc.html`). Dette dokumentet er underlag til ekstern kvalitetssikring; ingen kode er skrevet mot det ennå. En interaktiv mockup som implementerer dette designet visuelt finnes i [`../prototyper/Byggesteg1-Rettskilder.dc.html`](../prototyper/Byggesteg1-Rettskilder.dc.html) — verdt å sammenligne mot hvis noe under endres videre.*
+> **Status: LEVERT og i drift.** [Oppdatert 2026-09-10] Dokumentet er beholdt som designgrunnlaget
+> byggesteg 1 faktisk ble bygget etter, ikke som en plan. Setningen «ingen kode er skrevet mot det
+> ennå» sto her fra juli 2026 og var da riktig; den er nå gal og erstattet av denne statuslinjen.
+>
+> Det som er bygget: `src/RegelIde.Kildekonvertering/` (10 filer — Lovdata-HTML-parser,
+> AKN-XML-skriver, href-tolker), `RettskildeImportTjeneste` i `RegelIde.Data`, og
+> rettskilde-skjermene i `RegelIde.Web`. Korpuset i dev-basen er 5899 rettskilder med noder,
+> kryssreferanser og hjemmelrelasjoner. Avvik mellom dette designet og koden skal derfor leses som
+> «koden har rett» — se `docs/25-funksjonsoversikt.md` for hva som faktisk finnes i dag.
+
+*Dekker AKN-skjema, databasetabeller og konverteringspipeline. Frontend-komponentstruktur er utelatt — overlatt til samme verktøy som produserte den opprinnelige interaktive prototypen (`Regel-IDE.dc.html`). Dette dokumentet var underlag til ekstern kvalitetssikring. En interaktiv mockup som implementerer dette designet visuelt finnes i [`../prototyper/Byggesteg1-Rettskilder.dc.html`](../prototyper/Byggesteg1-Rettskilder.dc.html) — verdt å sammenligne mot hvis noe under endres videre.*
 
 *Begrunnelsene bak designvalgene er samlet i **Vedlegg A**, ikke gjentatt i hoveddokumentet — hver seksjon under peker dit med én kort referanse. Tre runder ekstern kvalitetssikring er gjennomført og innarbeidet (2026-07); status og de to gjenstående spørsmålene står i §6.*
 

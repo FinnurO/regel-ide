@@ -251,7 +251,14 @@ Regel-IDE, `forklaringsmodell-api` og `digital-rettsstat` er skrevet uavhengig a
 
 ## 5. Ontologien: Vilkår, Regel og Unntak (låst 2026-07-23)
 
-*Dette var markert som en åpen beslutning som trengte flere iterasjoner. Den er nå låst som en formell modelleringsøvelse — mot fire konkrete alkoholloven-eksempler — uavhengig av at ingen kode er skrevet ennå. Se `docs/00-endringslogg-v0.2.md` for hva som endret seg fra forrige utkast. §5.7 lister de gjenværende spørsmålene som fortsatt er implementasjonsdetaljer, ikke ontologi.*
+*Dette var markert som en åpen beslutning som trengte flere iterasjoner. Den ble låst 2026-07-23 som
+en formell modelleringsøvelse — mot fire konkrete alkoholloven-eksempler — og var på det tidspunktet
+låst uavhengig av kode, siden ingen var skrevet ennå. [Oppdatert 2026-09-10] Ontologien ER nå
+implementert: `VilkarEntitet`, `RegelnodeEntitet` og `UnntakEntitet` finnes i
+`src/RegelIde.Data/Entiteter.cs`, med vilkårstre-editor i frontend. Låsingen holdt altså gjennom
+implementasjonen — den ble ikke revidert underveis. Se `docs/00-endringslogg-v0.2.md` for hva som
+endret seg fra forrige utkast. §5.7 lister de gjenværende spørsmålene som fortsatt er
+implementasjonsdetaljer, ikke ontologi.*
 
 ### 5.1 Problemet (uendret fra forrige utkast)
 
