@@ -13,6 +13,7 @@ import { KandidatflytForklaring } from '../kandidater/KandidatflytForklaring';
 import { KonfidensTag } from '../kandidater/KonfidensTag';
 import { useSortering } from '../kandidater/useSortering';
 import { useKandidatvalg } from '../kandidater/useKandidatvalg';
+import { Massehandlingsrad } from '../kandidater/Massehandlingsrad';
 import { useNodeEtiketter, useRettskildeoppslag } from '../kandidater/useNodeEtiketter';
 
 type Sorteringskolonne = 'foreslattTekst' | 'kategori' | 'rettskilde' | 'status' | 'opprettet';
@@ -653,29 +654,17 @@ export default function NavnekandidaterListe() {
         </div>
       </Card>
 
-      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0 }}>
-          {valg.antall} valgt{valg.antall === 1 ? '' : 'e'}
-        </Paragraph>
-        <Button data-size="sm" onClick={() => massehandling('godkjenn')} disabled={valg.antall === 0 || massehandlingKjorer}>
-          {massehandlingKjorer ? 'Godkjenner …' : 'Godkjenn valgte'}
-        </Button>
-        <Button data-size="sm" variant="secondary" onClick={() => massehandling('avvis')} disabled={valg.antall === 0 || massehandlingKjorer}>
-          {massehandlingKjorer ? 'Avviser …' : 'Avvis valgte'}
-        </Button>
-        {/* [Ny, «flytt Slett inn i massehandling-raden», 2026-09-02] Samme sted/mønster som Godkjenn/
-            Avvis over (samme `valgte`-sett, samme disabled-betingelse) — presist utvalg, til forskjell
-            fra «Slett kandidater»-kortet under (filter-basert, uavhengig av avkrysning). */}
-        <Button
-          data-size="sm"
-          data-color="danger"
-          onClick={slettValgte}
-          disabled={valg.antall === 0 || massehandlingKjorer}
-        >
-          {massehandlingKjorer ? 'Sletter …' : 'Slett valgte'}
-        </Button>
-      </div>
-      {massehandlingFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{massehandlingFeil}</div>}
+      {/* [ENDRET, kandidatside-runden, 2026-09-09, issue #216] Delt komponent. «Slett valgte» sitter
+          fortsatt HER, i samme rad som Godkjenn/Avvis og på samme utvalg — til forskjell fra
+          «Slett stort, filtrert delsett»-kortet under, som er filterbasert og uavhengig av avkrysning. */}
+      <Massehandlingsrad
+        antallValgte={valg.antall}
+        kjorer={massehandlingKjorer}
+        feil={massehandlingFeil}
+        onGodkjenn={() => massehandling('godkjenn')}
+        onAvvis={() => massehandling('avvis')}
+        onSlett={slettValgte}
+      />
 
       <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>

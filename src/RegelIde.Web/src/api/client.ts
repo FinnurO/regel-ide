@@ -8,6 +8,9 @@ import type {
   SveipBegrepsforekomsterRequest,
   SveipBegrepsforekomsterResultatDto,
   GodkjennBegrepsforekomstRequest,
+  GodkjennBegrepsforekomsterBatchRequest,
+  BegrepsforekomstBatchRequest,
+  BegrepsforekomstBatchResultatDto,
   HardslettBegrepsforekomsterResultatDto,
   BrukerDto,
   OppdaterBrukerRequest,
@@ -595,11 +598,15 @@ export const api = {
   // ---------- Begrepsforekomster — begrepsoppdagelse (M1/M11), docs/24 ----------
 
   /** Kandidatliste — utelatt status betyr her (som på serveren) "kun 'Venter'", 'Alle' fjerner statusfiltreringen helt. */
-  hentBegrepsforekomster: (filter: { rettskildeId?: string; monsterId?: string; status?: string }) => {
+  hentBegrepsforekomster: (filter: { rettskildeId?: string; monsterId?: string; status?: string; konfidens?: string }) => {
     const parametre = new URLSearchParams();
     if (filter.rettskildeId) parametre.set('rettskildeId', filter.rettskildeId);
     if (filter.monsterId) parametre.set('monsterId', filter.monsterId);
     if (filter.status) parametre.set('status', filter.status);
+    // [Ny, kandidatside-runden, 2026-09-09, issue #167] Serverfilteret har ligget i endepunktet siden
+    // #222 uten at noen klient sendte parameteren — det er nettopp M11-radene med lav konfidens som
+    // er en arbeidsliste i seg selv, se filterkommentaren i Begrepskandidater.tsx.
+    if (filter.konfidens) parametre.set('konfidens', filter.konfidens);
     const sok = parametre.toString();
     return kall<BegrepsforekomstDto[]>(`/api/begrepsforekomster${sok ? `?${sok}` : ''}`);
   },
@@ -623,6 +630,22 @@ export const api = {
 
   avvisBegrepsforekomst: (id: string) =>
     kall<BegrepsforekomstDto>(`/api/begrepsforekomster/${id}/avvis`, { method: 'POST' }),
+
+  /** [Ny, kandidatside-runden, 2026-09-09, issue #216] Massegodkjenning — server-side batch med
+   * per-rad-feilhåndtering, ikke N separate kall. `virksomhetId` gjelder hele utvalget. */
+  godkjennBegrepsforekomsterBatch: (request: GodkjennBegrepsforekomsterBatchRequest) =>
+    kall<BegrepsforekomstBatchResultatDto>('/api/begrepsforekomster/godkjenn-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  avvisBegrepsforekomsterBatch: (request: BegrepsforekomstBatchRequest) =>
+    kall<BegrepsforekomstBatchResultatDto>('/api/begrepsforekomster/avvis-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
 
   /** Hardsletting av ÉN rad — kun 'Avvist'-rader kan slettes (se backend-kommentaren:
    * en 'Godkjent' rad har en ekte tekst-tagg/et ekte begrep som ikke kan fjernes i etterkant). */

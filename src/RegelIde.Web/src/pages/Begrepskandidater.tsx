@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Alert, Button, Card, Dialog, Field, Heading, Label, Link, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Checkbox, Dialog, Field, Heading, Label, Link, Paragraph, Select, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
 import type { BegrepsforekomstDto, RettskildeDetalj, RettskildeSammendrag } from '../api/types';
@@ -10,7 +10,9 @@ import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { useSortering } from '../kandidater/useSortering';
+import { useKandidatvalg } from '../kandidater/useKandidatvalg';
 import { useNodeEtiketter, useRettskildeoppslag } from '../kandidater/useNodeEtiketter';
+import { Massehandlingsrad } from '../kandidater/Massehandlingsrad';
 
 type Sorteringskolonne = 'begrep' | 'monster' | 'rettskilde' | 'status' | 'opprettet';
 
@@ -25,6 +27,19 @@ const KONFIDENS_FARGE: Record<string, 'neutral' | 'warning' | 'success' | 'dange
   middels: 'warning',
   lav: 'danger',
   krever_oppslag: 'info',
+};
+
+/**
+ * [Ny, kandidatside-runden, 2026-09-09, issue #167] Kolonnen viste den rå koden («hoy»). Kodene er et
+ * lukket vokabular med CHECK-constraint i basen, og oversettelsen hører i visningen — samme
+ * arbeidsdeling som `KonfidensTag` gjør for navnekandidatene. Ukjente koder vises som de er, ikke
+ * gjettet om til noe annet.
+ */
+const KONFIDENS_TEKST: Record<string, string> = {
+  hoy: 'Høy',
+  middels: 'Middels',
+  lav: 'Lav',
+  krever_oppslag: 'Krever oppslag',
 };
 
 const DEFINISJON_AVKORT_LENGDE = 100;
@@ -64,6 +79,10 @@ export default function Begrepskandidater() {
   const [rettskildeFilter, setRettskildeFilter] = useState('');
   const [monsterFilter, setMonsterFilter] = useState<'' | 'M1' | 'M11'>('');
   const [statusFilter, setStatusFilter] = useState<'Venter' | 'Godkjent' | 'Avvist' | 'Alle'>('Venter');
+  // [Ny, kandidatside-runden, 2026-09-09, issue #167] Konfidensfilteret. Serverfilteret kom i #222,
+  // men ingen klient sendte parameteren — se filterkortet i JSX for hvorfor dette er et FILTER og
+  // ikke bare en kolonne.
+  const [konfidensFilter, setKonfidensFilter] = useState<'' | 'hoy' | 'middels' | 'lav' | 'krever_oppslag'>('');
 
   const [forekomster, setForekomster] = useState<BegrepsforekomstDto[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
@@ -111,6 +130,18 @@ export default function Begrepskandidater() {
   // hver sin identiske kopi av sorteringstilstanden og de to hjelpefunksjonene.
   const sortering = useSortering<Sorteringskolonne>('opprettet', false);
 
+  // [Ny, kandidatside-runden, 2026-09-09, issue #216] Avkryssing + massehandling. Samme delte hook og
+  // samme delte rad som de to andre kandidatsidene; denne siden hadde ingen av dem.
+  //
+  // Virksomheten holdes SEPARAT fra `godkjennVirksomhetId` (enkeltrad-dialogen) med vilje: dialogen
+  // forhåndsutfylles fra rettskildens ansvarlige departement per rad, mens massevalget gjelder et
+  // utvalg som kan spenne flere rettskilder. Å dele feltet ville latt en forhåndsutfylling fra ÉN rad
+  // bestemme registeret for tjue andre — nøyaktig den slags gjetting applikasjonen ikke skal gjøre.
+  const valg = useKandidatvalg();
+  const [masseVirksomhetId, setMasseVirksomhetId] = useState('');
+  const [massehandlingKjorer, setMassehandlingKjorer] = useState(false);
+  const [massehandlingFeil, setMassehandlingFeil] = useState<string | null>(null);
+
   useEffect(() => {
     api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
   }, []);
@@ -128,6 +159,7 @@ export default function Begrepskandidater() {
         rettskildeId: rettskildeFilter || undefined,
         monsterId: monsterFilter || undefined,
         status: statusFilter,
+        konfidens: konfidensFilter || undefined,
       })
       .then((liste) => {
         if (denneForesporselen !== sisteForesporsel.current) return;
@@ -142,7 +174,7 @@ export default function Begrepskandidater() {
       });
   }
 
-  useEffect(lastForekomster, [rettskildeFilter, monsterFilter, statusFilter]);
+  useEffect(lastForekomster, [rettskildeFilter, monsterFilter, statusFilter, konfidensFilter]);
 
   function lastAvvisteForekomster() {
     api
@@ -223,6 +255,97 @@ export default function Begrepskandidater() {
       lastAvvisteForekomster();
     } catch (err) {
       setFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved avvisning.');
+    }
+  }
+
+  // ---------- Massehandling (#216) ----------
+
+  /** Felles etterbehandling: samme per-rad-feilrapportering som de to andre køene. */
+  function rapporterBatch(rader: { ok: boolean; feil: string | null }[]) {
+    const feilede = rader.filter((r) => !r.ok);
+    if (feilede.length > 0) {
+      setMassehandlingFeil(
+        `${feilede.length} av ${rader.length} rad(er) feilet: ${feilede.map((r) => r.feil).join('; ')}`,
+      );
+    }
+    lastForekomster();
+    lastAvvisteForekomster();
+  }
+
+  async function massegodkjenn() {
+    if (valg.antall === 0) return;
+    // Ingen gjettet virksomhet. Dette er den ene forutsetningen godkjenning her har som de to andre
+    // køene ikke har, og den skal sies rett ut i stedet for å utledes fra f.eks. første rads
+    // departement.
+    if (!masseVirksomhetId) {
+      setMassehandlingFeil('Velg hvilket register begrepene skal landes i før du godkjenner.');
+      return;
+    }
+    setMassehandlingKjorer(true);
+    setMassehandlingFeil(null);
+    try {
+      const resultat = await api.godkjennBegrepsforekomsterBatch({
+        ider: [...valg.valgte],
+        virksomhetId: masseVirksomhetId,
+      });
+      rapporterBatch(resultat.rader);
+      valg.nullstill();
+    } catch (err) {
+      setMassehandlingFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved massegodkjenning.');
+    } finally {
+      setMassehandlingKjorer(false);
+    }
+  }
+
+  async function massavvis() {
+    if (valg.antall === 0) return;
+    setMassehandlingKjorer(true);
+    setMassehandlingFeil(null);
+    try {
+      const resultat = await api.avvisBegrepsforekomsterBatch({ ider: [...valg.valgte] });
+      rapporterBatch(resultat.rader);
+      valg.nullstill();
+    } catch (err) {
+      setMassehandlingFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved masseavvisning.');
+    } finally {
+      setMassehandlingKjorer(false);
+    }
+  }
+
+  /**
+   * Presis sletting av de avkryssede radene — kun 'Avvist' kan slettes, akkurat som enkeltrad-
+   * slettingen. Hopper stille over de valgte radene som ikke er avvist i stedet for å feile hele
+   * handlingen, og sier i dialogen hvor mange som faktisk slettes vs. hoppes over. Samme oppførsel
+   * som VirksomhetKandidaterListe — det er den siden brukeren nettopp kom fra.
+   */
+  async function slettValgte() {
+    if (valg.antall === 0) return;
+    const avvisteValgte = (forekomster ?? []).filter((f) => valg.erValgt(f.id) && f.status === 'Avvist').map((f) => f.id);
+    const hoppetOver = valg.antall - avvisteValgte.length;
+    if (avvisteValgte.length === 0) {
+      setMassehandlingFeil('Ingen av de valgte radene er avvist — kun avviste kandidater kan slettes her.');
+      return;
+    }
+    const advarsel = hoppetOver > 0
+      ? `${avvisteValgte.length} avvist(e) kandidat(er) slettes permanent. ${hoppetOver} valgte rad(er) er ikke avvist og hoppes over. Fortsette?`
+      : `Slette ${avvisteValgte.length} avvist(e) kandidat(er) permanent? Dette kan ikke angres.`;
+    if (!window.confirm(advarsel)) return;
+
+    setMassehandlingKjorer(true);
+    setMassehandlingFeil(null);
+    try {
+      // Ingen batch-DELETE finnes for denne køen — N kall, men bare for de radene som faktisk kan
+      // slettes. Samme løsning som VirksomhetKandidaterListe, med samme begrensning.
+      for (const id of avvisteValgte) {
+        await api.slettBegrepsforekomst(id);
+      }
+      valg.nullstill();
+      lastForekomster();
+      lastAvvisteForekomster();
+    } catch (err) {
+      setMassehandlingFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved sletting av valgte kandidater.');
+    } finally {
+      setMassehandlingKjorer(false);
     }
   }
 
@@ -346,7 +469,51 @@ export default function Begrepskandidater() {
             <Select.Option value="Alle">Alle</Select.Option>
           </Select>
         </Field>
+
+        {/* [Ny, kandidatside-runden, 2026-09-09, issue #167] Konfidens som FILTER, ikke bare kolonne.
+            Serverfilteret kom i #222; her sendes det først. Grunnen til at det trengs: M11-mønstrene
+            «beregnes»/«angir» ble lagt til på konfidens 'lav' nettopp fordi de treffer bredere enn de
+            eksplisitte definisjonsmønstrene. Å kunne se KUN de lave radene er å kunne kvalitetssikre
+            det mønstervalget — og å kunne se kun de høye er å kunne massegodkjenne trygt. */}
+        <Field style={{ minWidth: '13rem' }}>
+          <Label>Konfidens</Label>
+          <Select data-size="sm" value={konfidensFilter} onChange={(e) => setKonfidensFilter(e.target.value as typeof konfidensFilter)}>
+            <Select.Option value="">All konfidens</Select.Option>
+            <Select.Option value="hoy">Høy</Select.Option>
+            <Select.Option value="middels">Middels</Select.Option>
+            <Select.Option value="lav">Lav</Select.Option>
+            <Select.Option value="krever_oppslag">Krever oppslag</Select.Option>
+          </Select>
+        </Field>
       </div>
+
+      {/* [Ny, kandidatside-runden, 2026-09-09, issue #216] Massehandling — den eneste kandidatkøen som
+          ikke hadde det. Et M1-sveip på én definisjonsparagraf gir tjue rader i samme paragraf, og én
+          rad om gangen er ikke en arbeidsflate.
+
+          Virksomhetsvelgeren står INNI raden fordi godkjenning her ikke kan utledes: en forekomst er
+          delt/objektiv, men et begrepsregister har en eier (se klassekommentaren). Den gjelder hele
+          utvalget — rader fra samme definisjonsparagraf hører til samme register; skal to begreper til
+          ULIKE registre, er det to utvalg. */}
+      <Massehandlingsrad
+        antallValgte={valg.antall}
+        kjorer={massehandlingKjorer}
+        feil={massehandlingFeil}
+        merknad={rettskildeFilter ? ' — filtrert til én rettskilde' : undefined}
+        onGodkjenn={massegodkjenn}
+        onAvvis={massavvis}
+        onSlett={slettValgte}
+      >
+        <div style={{ minWidth: '18rem' }}>
+          <VirksomhetVelger
+            virksomheter={virksomheter}
+            value={masseVirksomhetId}
+            onChange={setMasseVirksomhetId}
+            label="Registeret begrepene landes i"
+            tomValgTekst="Velg virksomhet …"
+          />
+        </div>
+      </Massehandlingsrad>
 
       <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
@@ -381,6 +548,15 @@ export default function Begrepskandidater() {
             <Table data-density="compact" data-size="sm">
               <Table.Head>
                 <Table.Row>
+                  {/* [Ny, #216] Samme hovedbryter som de to andre kandidatsidene: «alle viste» gjelder
+                      GJELDENDE SIDE, og avhukning nullstiller hele utvalget (se useKandidatvalg). */}
+                  <Table.HeaderCell>
+                    <Checkbox
+                      aria-label="Velg alle viste"
+                      checked={valg.alleVisteErValgt(paginering.visteRader)}
+                      onChange={(e) => valg.velgAlleViste(paginering.visteRader, e.target.checked)}
+                    />
+                  </Table.HeaderCell>
                   <Table.HeaderCell>
                     <button type="button" className="tabell-sorter-knapp" onClick={() => sortering.bytt('begrep')}>
                       Begrep{sortering.indikator('begrep')}
@@ -413,6 +589,13 @@ export default function Begrepskandidater() {
                   const erUtvidet = utvidet.has(f.id);
                   return (
                     <Table.Row key={f.id}>
+                      <Table.Cell>
+                        <Checkbox
+                          aria-label={`Velg ${f.begrepOriginal}`}
+                          checked={valg.erValgt(f.id)}
+                          onChange={(e) => valg.veksl(f.id, e.target.checked)}
+                        />
+                      </Table.Cell>
                       <Table.Cell style={{ fontWeight: 500 }}>
                         {f.begrepOriginal}
                         {f.begrepOriginal.toLowerCase() !== f.begrep.toLowerCase() && (
@@ -442,7 +625,9 @@ export default function Begrepskandidater() {
                         <Tag data-color="accent" data-size="sm">{f.monsterId}</Tag>
                       </Table.Cell>
                       <Table.Cell>
-                        <Tag data-color={KONFIDENS_FARGE[f.konfidens] ?? 'neutral'} data-size="sm">{f.konfidens}</Tag>
+                        <Tag data-color={KONFIDENS_FARGE[f.konfidens] ?? 'neutral'} data-size="sm">
+                          {KONFIDENS_TEKST[f.konfidens] ?? f.konfidens}
+                        </Tag>
                       </Table.Cell>
                       <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
                         <Link asChild>

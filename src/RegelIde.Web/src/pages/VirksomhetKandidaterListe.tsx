@@ -11,6 +11,7 @@ import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { KandidatflytForklaring } from '../kandidater/KandidatflytForklaring';
 import { useSortering } from '../kandidater/useSortering';
 import { useKandidatvalg } from '../kandidater/useKandidatvalg';
+import { Massehandlingsrad } from '../kandidater/Massehandlingsrad';
 import { useNodeEtiketter, useRettskildeoppslag } from '../kandidater/useNodeEtiketter';
 
 type Sorteringskolonne = 'virksomhet' | 'rettskilde' | 'status' | 'opprettet';
@@ -378,22 +379,17 @@ export default function VirksomhetKandidaterListe() {
         </Field>
       </div>
 
-      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '1rem', flexWrap: 'wrap' }}>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0 }}>
-          {valg.antall} valgt{valg.antall === 1 ? '' : 'e'}
-          {rettskildeFilter ? ' — filtrert til én lov/forskrift' : ''}
-        </Paragraph>
-        <Button data-size="sm" onClick={() => massehandling('godkjenn')} disabled={valg.antall === 0 || massehandlingKjorer}>
-          {massehandlingKjorer ? 'Godkjenner …' : 'Godkjenn valgte'}
-        </Button>
-        <Button data-size="sm" variant="secondary" onClick={() => massehandling('avvis')} disabled={valg.antall === 0 || massehandlingKjorer}>
-          {massehandlingKjorer ? 'Avviser …' : 'Avvis valgte'}
-        </Button>
-        <Button data-size="sm" data-color="danger" onClick={slettValgte} disabled={valg.antall === 0 || massehandlingKjorer}>
-          {massehandlingKjorer ? 'Sletter …' : 'Slett valgte'}
-        </Button>
-      </div>
-      {massehandlingFeil && <div className="feilmelding" style={{ marginBottom: '1rem' }}>{massehandlingFeil}</div>}
+      {/* [ENDRET, kandidatside-runden, 2026-09-09, issue #216] Delt komponent — samme rad på alle tre
+          kandidatsidene, inkludert begrepskandidatsiden som tidligere ikke hadde massehandling. */}
+      <Massehandlingsrad
+        antallValgte={valg.antall}
+        kjorer={massehandlingKjorer}
+        feil={massehandlingFeil}
+        merknad={rettskildeFilter ? ' — filtrert til én lov/forskrift' : undefined}
+        onGodkjenn={() => massehandling('godkjenn')}
+        onAvvis={() => massehandling('avvis')}
+        onSlett={slettValgte}
+      />
 
       <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>

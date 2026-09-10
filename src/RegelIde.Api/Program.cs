@@ -3686,6 +3686,60 @@ begrepsforekomster.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest reque
     })
     .WithName("AvvisBegrepsforekomst");
 
+// [Ny, kandidatside-runden, 2026-09-09, issue #216] Massegodkjenning/-avvisning — samme form som
+// navnekandidater og virksomhetskandidater har hatt: server-side batch, per-rad-feilhåndtering, én
+// ugyldig id stopper ikke resten. Begrepskandidatsiden var den eneste kandidatkøen uten.
+//
+// VirksomhetId gjelder HELE utvalget. Se DTO-kommentaren for hvorfor det ikke er per rad.
+begrepsforekomster.MapPost("/godkjenn-batch", async (HttpRequest request, GodkjennBegrepsforekomsterBatchRequest body,
+        BegrepsforekomstTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var rader = new List<BegrepsforekomstBatchRadDto>();
+        foreach (var id in body.Ider)
+        {
+            try
+            {
+                var oppdatert = await register.GodkjennAsync(id, body.VirksomhetId, bruker.Navn, ct);
+                rader.Add(oppdatert is null
+                    ? new BegrepsforekomstBatchRadDto(id, false, $"Ingen forekomst med id '{id}'.", null)
+                    : new BegrepsforekomstBatchRadDto(id, true, null, BegrepsforekomstDto.FraEntitet(oppdatert)));
+            }
+            catch (ArgumentException ex)
+            {
+                rader.Add(new BegrepsforekomstBatchRadDto(id, false, ex.Message, null));
+            }
+        }
+        return Results.Ok(new BegrepsforekomstBatchResultatDto(rader));
+    })
+    .WithName("GodkjennBegrepsforekomsterBatch")
+    .WithSummary("Massegodkjenning (#216) — oppretter ett begrep + én tagg per rad i ANGITT virksomhets register, med per-rad-feilhåndtering.");
+
+begrepsforekomster.MapPost("/avvis-batch", async (HttpRequest request, BegrepsforekomstBatchRequest body,
+        BegrepsforekomstTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var rader = new List<BegrepsforekomstBatchRadDto>();
+        foreach (var id in body.Ider)
+        {
+            try
+            {
+                var oppdatert = await register.AvvisAsync(id, bruker.Navn, ct);
+                rader.Add(oppdatert is null
+                    ? new BegrepsforekomstBatchRadDto(id, false, $"Ingen forekomst med id '{id}'.", null)
+                    : new BegrepsforekomstBatchRadDto(id, true, null, BegrepsforekomstDto.FraEntitet(oppdatert)));
+            }
+            catch (ArgumentException ex)
+            {
+                rader.Add(new BegrepsforekomstBatchRadDto(id, false, ex.Message, null));
+            }
+        }
+        return Results.Ok(new BegrepsforekomstBatchResultatDto(rader));
+    })
+    .WithName("AvvisBegrepsforekomsterBatch");
+
 begrepsforekomster.MapDelete("/{id:guid}", async (Guid id, BegrepsforekomstTjeneste register, CancellationToken ct) =>
     {
         try
