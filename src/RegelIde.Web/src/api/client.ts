@@ -232,6 +232,18 @@ export const api = {
     return kall<RettskildeSammendrag[]>(`/api/rettskilder${query ? `?${query}` : ''}`);
   },
 
+  // [Ny, issue #256, 2026-09-10] Batch-oppslag for et KONKRET sett IDer — i stedet for å hente hele
+  // det synlige korpuset (5899 rader, 2,6 MB, 1,9 s målt live) bare for titler til et lite utvalg.
+  // POST (ikke GET+querystring) — et forsøk med repeterte ?ider=-parametre feilet live når settet ble
+  // stort (190+ distinkte rettskilder i én kandidatkø): Kestrel avviste den lange querystringen med
+  // `net::ERR_FAILED`, ingen HTTP-statuskode i det hele tatt.
+  hentRettskilderForIder: (ider: readonly string[]) =>
+    kall<RettskildeSammendrag[]>('/api/rettskilder/oppslag', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ider }),
+    }),
+
   hentRettskilde: (id: string) => kall<RettskildeDetalj>(`/api/rettskilder/${id}`),
 
   hentRettskildeKilde: hentRettskildeKildeTekst,

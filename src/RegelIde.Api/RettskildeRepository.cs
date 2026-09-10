@@ -27,10 +27,18 @@ public sealed class RettskildeRepository(RegelIdeDbContext db, VirksomhetOppslag
     /// prinsipp som <c>visIkkeImportert</c> der bruker for Lovdata-importstatus — eksplisitt
     /// <c>true</c> tar dem med igjen.
     /// </summary>
-    public Task<List<RettskildeEntitet>> AlleRettskilderAsync(Guid? virksomhetId = null, bool inkluderIrrelevante = false) =>
+    // [Ny, issue #256, 2026-09-10] `ider` — snevrer inn til et konkret sett rettskilder. Brukt av
+    // sider som trenger TITTEL på et lite, allerede kjent utvalg (f.eks. rettskildene bak en
+    // kandidatlistes synlige/filtrerte rader) uten å hente hele det synlige korpuset (5899 rader,
+    // 2,6 MB — se issue #256 for målingen som utløste dette). `null` betyr uendret oppførsel (alt),
+    // en TOM liste ville derimot gitt en spørring som aldri traff noe — kalleren skiller de to
+    // bevisst, se `RettskilderMapGet`-endepunktet.
+    public Task<List<RettskildeEntitet>> AlleRettskilderAsync(
+        Guid? virksomhetId = null, bool inkluderIrrelevante = false, IReadOnlyCollection<Guid>? ider = null) =>
         db.Rettskilder
             .Where(r => r.Importrolle == "primaer" && r.Entitetsstatus == "gjeldende" && r.Status != UtkastStatus)
             .Where(r => virksomhetId == null || r.VirksomhetId == virksomhetId)
+            .Where(r => ider == null || ider.Contains(r.Id))
             .Where(r => inkluderIrrelevante || !r.ErIrrelevant)
             .ToListAsync();
 

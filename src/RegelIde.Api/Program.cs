@@ -907,13 +907,27 @@ static Task<Guid?> LosFastsattAvVirksomhetAsync(string? organnavn, VirksomhetOpp
 var rettskilder = app.MapGroup("/api/rettskilder").WithOpenApi();
 
 rettskilder.MapGet("/", async (Guid? virksomhetId, bool? inkluderIrrelevante, RettskildeRepository repo) =>
-        (await repo.AlleRettskilderAsync(virksomhetId, inkluderIrrelevante ?? false)).Select(RettskildeSammendrag.FraEntitet))
+        (await repo.AlleRettskilderAsync(virksomhetId, inkluderIrrelevante ?? false))
+            .Select(RettskildeSammendrag.FraEntitet))
     .WithName("HentAlleRettskilder")
     .WithSummary("Lister rettskilder (åpne data — kun Status != 'Utkast'). " +
         "?virksomhetId snevrer inn til én virksomhets bidrag; utelatt viser alt (delt + alle virksomheter). " +
         "?inkluderIrrelevante=true tar med ErIrrelevant-markerte rettskilder, som ellers ekskluderes stille.")
     .WithDescription("IrrelevantKommentar er med i sammendraget (siden 2026-09-02, issue #114) slik at " +
         "«Utenfor korpuset»-fanen i RettskilderListe.tsx kan vise begrunnelsen uten et ekstra oppslag per rad.");
+
+// [Ny, issue #256, 2026-09-10, RETTET etter live-verifisering] Batch-oppslag for et KONKRET sett IDer
+// — for sider som allerede kjenner IDene fra en annen kilde (f.eks. en kandidatliste) og bare trenger
+// titler, uten å hente hele det synlige korpuset (5899 rader, 2,6 MB, 1,9 s målt live). Forsøkt FØRST
+// som en GET med repeterte ?ider=-parametre — feilet live: virksomhet-kandidatsidens Venter-kø alene
+// spenner over 190+ DISTINKTE rettskilder, og querystringen ble lang nok til at Kestrel avviste
+// forespørselen (`net::ERR_FAILED`, ingen ordentlig HTTP-statuskode i det hele tatt — verifisert i
+// nettleserpanelet). POST med ID-ene i body har ingen slik lengdegrense.
+rettskilder.MapPost("/oppslag", async (RettskildeIderRequest body, RettskildeRepository repo) =>
+        (await repo.AlleRettskilderAsync(ider: body.Ider)).Select(RettskildeSammendrag.FraEntitet))
+    .WithName("HentRettskilderForIder")
+    .WithSummary("Batch-oppslag: rettskilde-sammendrag for nøyaktig de oppgitte IDene, ingen andre. " +
+        "POST (ikke GET) fordi settet kan bli for stort for en querystring — se issue #256.");
 
 rettskilder.MapGet("/departementer", async (RettskildeRepository repo) => await repo.DistinkteDepartementerAsync())
     .WithName("HentDistinkteDepartementer")
