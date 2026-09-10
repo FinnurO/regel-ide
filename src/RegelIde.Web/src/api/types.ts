@@ -188,9 +188,13 @@ export interface RettskildeReferanseDto {
  */
 export interface RettskildeHjemmelDto {
   id: string;
+  /** Paragraf-eId — eller, fra issue #217, en ledd-eId («…/§13-1/ledd-4») når kilden presiserer. */
   hjemmelEid: string;
   hjemmelRettskildeId: string;
   sorteringsrekkefolge: number;
+  /** [Ny, issue #217] Presiseringen kilden oppgav som IKKE kunne løses til en node («bokstav-a»).
+   * Skal VISES, ikke skjules — se backend-kommentaren (RettskildeHjemmelEntitet.UlostPresisering). */
+  ulostPresisering: string | null;
 }
 
 /** Motsatt retning av RettskildeHjemmelDto — én forskrift som er hjemlet i DENNE loven. */

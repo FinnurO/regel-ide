@@ -492,7 +492,9 @@ public sealed class RettskildeHjemmelEntitet
     /// <summary>Dokumentet (typisk en forskrift) hvis header-metadata Hjemmel-feltet ble funnet i.</summary>
     public required Guid RettskildeId { get; set; }
 
-    /// <summary>"{lov-eli}/§X-Y" — se klassekommentaren og LovdataIdentifikatorer.ParagrafEid.</summary>
+    /// <summary>"{lov-eli}/§X-Y" — eller, fra 2026-09-10 (issue #217), "{lov-eli}/§X-Y/ledd-N" når
+    /// kilden presiserer et ledd OG den ledd-noden finnes i den refererte loven. Se klassekommentaren
+    /// og LovdataIdentifikatorer.ParagrafEid.</summary>
     public required string HjemmelEid { get; set; }
 
     /// <summary>Loven (primær ELLER referanse-stub) — se klassekommentaren.</summary>
@@ -500,6 +502,23 @@ public sealed class RettskildeHjemmelEntitet
 
     /// <summary>Bevarer header-feltets egen rekkefølge (§1-2, §1-3, … i kildeorden), kun for visning.</summary>
     public int Sorteringsrekkefolge { get; set; }
+
+    /// <summary>
+    /// [Ny, hjemmel-presisjon-runden, 2026-09-10, issue #217] Den delen av presiseringen kilden oppgav
+    /// som IKKE kunne løses til en ekte node, i nodeform («ledd-4», «bokstav-a») — ellers <c>null</c>,
+    /// fordi presisjonen da ligger i <see cref="HjemmelEid"/> selv.
+    ///
+    /// <para>
+    /// Feltet finnes for at et tap skal være SYNLIG i stedet for stille (issue #217 kriterium 2). To
+    /// grunner til at en presisering ikke løses, og begge er legitime: loven er ikke importert ennå
+    /// (hjemmelen peker på en referanse-stub uten noder), eller kilden presiserer dypere enn
+    /// nodetreet vårt går. Nodetreet har målt <c>paragraf</c>, <c>ledd</c>, <c>punkt</c> og
+    /// <c>kapittel</c> — det finnes INGEN <c>bokstav</c>- eller <c>setning</c>-noder, så
+    /// «ledd/3/bokstav/a» løses til ledd-noden og «bokstav/a» blir stående her. Det er en dokumentert
+    /// avgrensning for denne runden, ikke en uavklart mangel.
+    /// </para>
+    /// </summary>
+    public string? UlostPresisering { get; set; }
 }
 
 /// <summary>

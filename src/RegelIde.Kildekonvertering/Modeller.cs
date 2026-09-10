@@ -200,7 +200,7 @@ public sealed record RettskildeMetadata
 /// <c>DokumentEliFra</c>) håndterer begge formene allerede uendret.
 /// </para>
 /// </summary>
-public sealed record RettskildeHjemmel(string Eid, int Sorteringsrekkefolge);
+public sealed record RettskildeHjemmel(string Eid, int Sorteringsrekkefolge, string? Presisering = null);
 
 /// <summary>
 /// Én rad i header-metadatafeltet <c>&lt;dt class="changesToDocuments"&gt;Endrer&lt;/dt&gt;</c> —

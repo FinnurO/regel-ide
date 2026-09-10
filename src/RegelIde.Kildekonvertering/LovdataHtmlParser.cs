@@ -402,6 +402,7 @@ public static partial class LovdataHtmlParser
         var dd = header.SelectSingleNode(".//dd[@class='basedOn']");
         if (dd is null) return [];
 
+        var presiseringer = HentHjemmelPresiseringer(header);
         var hjemler = new List<RettskildeHjemmel>();
         var sortering = 0;
         foreach (var a in dd.SelectNodes(".//a") ?? Enumerable.Empty<HtmlNode>())
@@ -415,10 +416,90 @@ public static partial class LovdataHtmlParser
             var dokumentEli = LovdataIdentifikatorer.AvledEliFraDatokode(tolket.Datokode, out _);
             var eid = tolket.Paragrafnummer is null
                 ? dokumentEli
-                : LovdataIdentifikatorer.ParagrafEid(dokumentEli, tolket.Paragrafnummer);
-            hjemler.Add(new RettskildeHjemmel(eid, sortering++));
+                : LovdataIdentifikatorer.ParagrafEid(dokumentEli, tolket.BareParagrafnummer!);
+
+            // Presiseringen hentes fra det ANDRE feltet, se HentHjemmelPresiseringer. Slår bare til når
+            // basedOn-lenken selv ikke hadde en (den har det aldri i praksis, men om Lovdata skulle
+            // begynne med det, skal kildens egen href vinne over oppslaget).
+            var presisering = tolket.Presisering;
+            if (presisering is null && tolket.Paragrafnummer is not null)
+            {
+                presiseringer.TryGetValue(eid, out presisering);
+            }
+            hjemler.Add(new RettskildeHjemmel(eid, sortering++, presisering));
         }
         return hjemler;
+    }
+
+    /// <summary>
+    /// [Ny, hjemmel-presisjon-runden, 2026-09-10, issue #217] Ledd-/bokstav-presiseringen til
+    /// hjemmelen, hentet fra <c>&lt;dd class="miscInformation"&gt;</c> («Annet om dokumentet» →
+    /// <c>&lt;strong&gt;Hjemmel:&lt;/strong&gt;</c>) — et ANNET felt enn <c>basedOn</c>, i samme header.
+    ///
+    /// <para>
+    /// Hvorfor to felt for samme sak: <c>basedOn</c> er Lovdatas maskinliste over hjemmelsparagrafer og
+    /// har ALDRI et ledd i href-en. Prosalinja under «Annet om dokumentet» har den samme hjemmelen som
+    /// en lenke, og DEN href-en bærer presiseringen. NTNUs ph.d.-forskrift har
+    /// <c>basedOn: lov/2024-03-08-9/§13-1</c> og
+    /// <c>miscInformation: lov/2024-03-08-9/§13-1/ledd/4</c> for én og samme hjemmel — det er hele
+    /// grunnlaget for issue #217: presisjonen fantes i kilden, vi leste bare det feltet som ikke har
+    /// den.
+    /// </para>
+    ///
+    /// <para>
+    /// Målt i korpuset 2026-09-10 (400 forskrifter): 38 av 1712 paragrafnivå-lenker i dette feltet har
+    /// «/ledd/N», og NULL lenke har et ordenstall i lenketeksten uten at href-en også har det. Derfor
+    /// leses href-en, og ordenstall-tabellen i <c>paragrafEtikett.ts</c> forblir en VISNINGS-tabell —
+    /// ingen tekst tolkes her, ingenting gjettes (§3.3).
+    /// </para>
+    ///
+    /// <para>
+    /// Feltet inneholder også lenker som IKKE er norske rettskilder (målt: 756 <c>eu/</c>-,
+    /// 53 <c>avtale/</c>- og 1 <c>forarbeid/</c>-lenke). De hoppes stille over: dette er et OPPSLAG for
+    /// presisering av hjemler <c>basedOn</c> allerede har funnet, ikke en ny hjemmelskilde. Å legge
+    /// EU-direktiver inn som hjemmelsrelasjoner er en egen avgjørelse, ikke en bieffekt av denne.
+    /// </para>
+    /// </summary>
+    private static Dictionary<string, string> HentHjemmelPresiseringer(HtmlNode header)
+    {
+        var treff = new Dictionary<string, string>(StringComparer.Ordinal);
+        foreach (var dd in header.SelectNodes(".//dd[@class='miscInformation']") ?? Enumerable.Empty<HtmlNode>())
+        {
+            // «Annet om dokumentet» rommer flere metadatalinjer (Hjemmel, Endres av, Kunngjort …).
+            // Uten denne sjekken kunne en ledd-lenke fra en HELT annen linje bli lest som en
+            // presisering av hjemmelen.
+            if (!dd.InnerHtml.Contains("Hjemmel:", StringComparison.Ordinal)) continue;
+
+            foreach (var a in dd.SelectNodes(".//a") ?? Enumerable.Empty<HtmlNode>())
+            {
+                var href = a.Attributes["href"]?.Value;
+                if (href is null) continue;
+                var tolket = LovdataHrefTolker.TolkLøpetekstHref(href);
+                if (tolket?.Presisering is null || tolket.BareParagrafnummer is null) continue;
+                var dokumentEli = LovdataIdentifikatorer.AvledEliFraDatokode(tolket.Datokode, out _);
+                treff[LovdataIdentifikatorer.ParagrafEid(dokumentEli, tolket.BareParagrafnummer)] = tolket.Presisering;
+            }
+        }
+        return treff;
+    }
+
+    /// <summary>
+    /// [Ny, hjemmel-presisjon-runden, 2026-09-10, issue #217] Samme oppslag som
+    /// <see cref="HentHjemmelPresiseringer(HtmlNode)"/>, men fra rå HTML — for å etterfylle presisjonen
+    /// på hjemmelrader som ble importert FØR denne runden, uten å hente dokumentene fra Lovdata på
+    /// nytt (den rå HTML-en er lagret siden PR #84, se <c>RettskildeEntitet.Innhold</c>).
+    ///
+    /// <para>Nøkkelen er hjemmelens paragraf-eId, verdien presiseringen i Lovdatas egen form
+    /// («ledd/4»). Tom ordbok når dokumentet ikke har en hjemmelslinje med presisering — det er det
+    /// normale, ikke en feil.</para>
+    /// </summary>
+    public static IReadOnlyDictionary<string, string> TolkHjemmelPresiseringer(string raaHtml)
+    {
+        var dok = new HtmlDocument();
+        dok.LoadHtml(raaHtml);
+        // Hele dokumentet, ikke et gjettet header-selektor: oppslaget leter uansett etter
+        // dd[@class='miscInformation'] som INNEHOLDER «Hjemmel:», og det finnes bare i headeren.
+        return HentHjemmelPresiseringer(dok.DocumentNode);
     }
 
     /// <summary>

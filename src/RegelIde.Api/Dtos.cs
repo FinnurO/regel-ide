@@ -182,10 +182,11 @@ public sealed record RettskildeReferanseDto(Guid Id, Guid FraNodeId, Guid TilRet
 /// den allerede hentede rettskilde-lista (samme "ingen egen oppslags-endepunkt"-prinsipp som
 /// eidLenker.ts sin <c>rettskildeLenke</c>) for å avgjøre om den er synlig/lenkbar ennå.
 /// </summary>
-public sealed record RettskildeHjemmelDto(Guid Id, string HjemmelEid, Guid HjemmelRettskildeId, int Sorteringsrekkefolge)
+public sealed record RettskildeHjemmelDto(
+    Guid Id, string HjemmelEid, Guid HjemmelRettskildeId, int Sorteringsrekkefolge, string? UlostPresisering)
 {
     public static RettskildeHjemmelDto FraEntitet(RettskildeHjemmelEntitet h) =>
-        new(h.Id, h.HjemmelEid, h.HjemmelRettskildeId, h.Sorteringsrekkefolge);
+        new(h.Id, h.HjemmelEid, h.HjemmelRettskildeId, h.Sorteringsrekkefolge, h.UlostPresisering);
 }
 
 /// <summary>
