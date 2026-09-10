@@ -1,0 +1,29 @@
+name: Deploy nettside til gh-pages
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - "nettside/**"
+  # Lar Johann trigge en redeploy manuelt uten å måtte gjøre en tom endring i nettside/**
+  workflow_dispatch: {}
+
+# Unngå at to deploy kjører samtidig og krasjer i hverandre
+concurrency:
+  group: nettside-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # nettside/ er allerede ferdig statisk HTML/CSS/JS — ingen bygg-steg,
+      # bare kopier INNHOLDET i nettside/ (ikke hele repoet) til gh-pages-branchens rot.
+      - uses: JamesIves/github-pages-deploy-action@v4
+        with:
+          folder: nettside
+          branch: gh-pages
+          force: false

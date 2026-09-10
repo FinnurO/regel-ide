@@ -1,0 +1,170 @@
+{
+  "id": "c98ed4b3-fb01-4159-ae14-fe4cbd9a378d",
+  "virksomhetId": "fad7e5fd-2f18-4990-81c0-c16dc289d9e2",
+  "begrepskategori": null,
+  "virksomhetReferanseId": null,
+  "lovkildeId": null,
+  "term": "skjenketid",
+  "definisjon": "Tidsrommet på døgnet det er tillatt å skjenke alkoholholdig drikk, jf. alkoholloven § 4-4.",
+  "lovreferanseEid": "https://lovdata.no/eli/lov/1989/06/02/27/nor/§4-4",
+  "gjelderFor": [],
+  "kodelisteReferanseId": null,
+  "skosUrl": null,
+  "begrepstype": "faktabegrep",
+  "status": "utkast",
+  "versjon": 1,
+  "navneformgrunn": null,
+  "_kilde": "GET /api/begreper/{id} + /brukt-i-rettskilder for id=c98ed4b3-fb01-4159-ae14-fe4cbd9a378d — eksportert 2026-09-09T22:15:57Z",
+  "bruktIRettskilder": [
+    {
+      "rettskildeId": "6209f69b-0891-47c7-b4f8-936b67938b40",
+      "nodeEid": "https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser",
+      "rettskildeTittel": "Bevilling og tillatelser",
+      "snippet": "…latelser/salgsbevilling-for-alkohol)\n- [Skjenketid ved overgang til sommertid og vintertid…"
+    },
+    {
+      "rettskildeId": "6209f69b-0891-47c7-b4f8-936b67938b40",
+      "nodeEid": "https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser",
+      "rettskildeTittel": "Bevilling og tillatelser",
+      "snippet": "…ffelser/naring/bevilling-og-tillatelser/skjenketid-ved-overgang-til-sommertid-og-vintertid…"
+    },
+    {
+      "rettskildeId": "3fc73d63-6a4b-41e3-85eb-27d44ff44909",
+      "nodeEid": "https://lovdata.no/eli/forskrift/1994/11/22/1057/nor/ledd-1",
+      "rettskildeTittel": "Delegering etter alkohollovens § 5-3",
+      "snippet": "…m.v. til å behandle søknader om utvidet skjenketid for en enkelt anledning og til å fastse…"
+    },
+    {
+      "rettskildeId": "aab1fc77-afb7-41c6-a606-83394f67f8bb",
+      "nodeEid": "https://lovdata.no/eli/forskrift/1998/12/11/1300/nor/§3-3/ledd-3",
+      "rettskildeTittel": "Forskrift om alkoholordningen for Svalbard",
+      "snippet": "Fastsatt skjenketid kan utvides for en enkelt anledning."
+    },
+    {
+      "rettskildeId": "21a41329-37f9-49fb-8b8d-6099bfbaded0",
+      "nodeEid": "kap2/pkt2.2/pkt2.2.1",
+      "rettskildeTittel": "Forskrift om salgs-, skjenke- og åpningstider i Bergen kommune for perioden 2024 – 2028",
+      "snippet": "Alminnelig skjenketid for alkoholholdig drikk gruppe 1 - 3, e…"
+    },
+    {
+      "rettskildeId": "21a41329-37f9-49fb-8b8d-6099bfbaded0",
+      "nodeEid": "kap2/pkt2.2/pkt2.2.2",
+      "rettskildeTittel": "Forskrift om salgs-, skjenke- og åpningstider i Bergen kommune for perioden 2024 – 2028",
+      "snippet": "Utvidet skjenketid for alkoholholdig drikk gruppe 1 - 3 ti…"
+    },
+    {
+      "rettskildeId": "21a41329-37f9-49fb-8b8d-6099bfbaded0",
+      "nodeEid": "kap2/pkt2.2/pkt2.2.2",
+      "rettskildeTittel": "Forskrift om salgs-, skjenke- og åpningstider i Bergen kommune for perioden 2024 – 2028",
+      "snippet": "…rgen. Ved byomfattende arrangementer er skjenketid til 03:00 uavhengig av antall ansatte m…"
+    },
+    {
+      "rettskildeId": "21a41329-37f9-49fb-8b8d-6099bfbaded0",
+      "nodeEid": "kap2/pkt2.2/pkt2.2.3",
+      "rettskildeTittel": "Forskrift om salgs-, skjenke- og åpningstider i Bergen kommune for perioden 2024 – 2028",
+      "snippet": "Utvidet skjenketid kan utøves på studentsteder der minst t…"
+    },
+    {
+      "rettskildeId": "21a41329-37f9-49fb-8b8d-6099bfbaded0",
+      "nodeEid": "kap2/pkt2.2/pkt2.2.4",
+      "rettskildeTittel": "Forskrift om salgs-, skjenke- og åpningstider i Bergen kommune for perioden 2024 – 2028",
+      "snippet": "…tet til klokken 01:00. Det kan søkes om skjenketid ute lik skjenketid inne, og dette skal …"
+    },
+    {
+      "rettskildeId": "21a41329-37f9-49fb-8b8d-6099bfbaded0",
+      "nodeEid": "kap2/pkt2.2/pkt2.2.4",
+      "rettskildeTittel": "Forskrift om salgs-, skjenke- og åpningstider i Bergen kommune for perioden 2024 – 2028",
+      "snippet": "…00. Det kan søkes om skjenketid ute lik skjenketid inne, og dette skal normalt innvilges f…"
+    },
+    {
+      "rettskildeId": "2241c3c6-3d09-4dfe-be07-618811d410db",
+      "nodeEid": "https://www.bergen.kommune.no/omkommunen/avdelinger/kontor-for-skjenkesaker/innbyggerhjelp",
+      "rettskildeTittel": "Innbyggerhjelp",
+      "snippet": "…mheter-med-salgsog-skjenkebevilling)\n- [Skjenketid ved overgang til sommertid og vintertid…"
+    },
+    {
+      "rettskildeId": "2241c3c6-3d09-4dfe-be07-618811d410db",
+      "nodeEid": "https://www.bergen.kommune.no/omkommunen/avdelinger/kontor-for-skjenkesaker/innbyggerhjelp",
+      "rettskildeTittel": "Innbyggerhjelp",
+      "snippet": "…ffelser/naring/bevilling-og-tillatelser/skjenketid-ved-overgang-til-sommertid-og-vintertid…"
+    },
+    {
+      "rettskildeId": "052053dd-3a86-42db-86e7-a10a7862294a",
+      "nodeEid": "https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/kurs-i-ansvarlig-alkoholhandtering-2026",
+      "rettskildeTittel": "Kurs i ansvarlig alkoholhåndtering 2026",
+      "snippet": "…alle steder som skal\npraktisere utvidet skjenketid. Kurset består av to deler: (1) fysisk …"
+    },
+    {
+      "rettskildeId": "052053dd-3a86-42db-86e7-a10a7862294a",
+      "nodeEid": "https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/kurs-i-ansvarlig-alkoholhandtering-2026",
+      "rettskildeTittel": "Kurs i ansvarlig alkoholhåndtering 2026",
+      "snippet": "…rskriften, gjengitt på siden): \"Utvidet skjenketid for alkoholholdig\ndrikk gruppe 1 - 3 ti…"
+    },
+    {
+      "rettskildeId": "64b5f3a2-1c57-4e1e-8343-8cee75c77873",
+      "nodeEid": "https://lovdata.no/eli/lov/1989/06/02/27/nor/§4-4/ledd-3",
+      "rettskildeTittel": "Alkoholloven – alkhl",
+      "snippet": "Fastsatt skjenketid kan utvides for en enkelt anledning."
+    },
+    {
+      "rettskildeId": "b68e3123-9318-4135-a4ef-e2ca983e8501",
+      "nodeEid": "https://lovdata.no/eli/lov/1997/06/13/55/nor/§15/ledd-4",
+      "rettskildeTittel": "Serveringsloven",
+      "snippet": "…villing får innvilget søknad om utvidet skjenketid ved enkeltanledninger etter alkohollove…"
+    },
+    {
+      "rettskildeId": "2f595fee-beda-4624-989c-617809d36540",
+      "nodeEid": "kap9/pkt9.2",
+      "rettskildeTittel": "Retningslinjer for tildeling av salgs- og skjenkebevillinger i Bergen kommune for perioden 2024-2028",
+      "snippet": "…lomsetning, 18- års aldersgrense og med skjenketid ut over kl. 02.00, kan i stor grad få a…"
+    },
+    {
+      "rettskildeId": "2f595fee-beda-4624-989c-617809d36540",
+      "nodeEid": "kap9/pkt9.2",
+      "rettskildeTittel": "Retningslinjer for tildeling av salgs- og skjenkebevillinger i Bergen kommune for perioden 2024-2028",
+      "snippet": "…elser for gjester og skjenkepersonale ▪ skjenketid/åpningstid ▪ eventuelt forbud mot skjen…"
+    },
+    {
+      "rettskildeId": "1beb9174-9958-4945-834c-2ddd0889d81f",
+      "nodeEid": "https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/skjenketider-i-forbindelse-med-fotball-vm-2026-perioden-11-juni-til-19-juli-2026",
+      "rettskildeTittel": "Skjenketider i forbindelse med fotball VM 2026 - perioden 11. juni til 19. juli 2026",
+      "snippet": "Beskriver midlertidig utvidet skjenketid for utesteder som viser VM-kamper i Ber…"
+    },
+    {
+      "rettskildeId": "1beb9174-9958-4945-834c-2ddd0889d81f",
+      "nodeEid": "https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/skjenketider-i-forbindelse-med-fotball-vm-2026-perioden-11-juni-til-19-juli-2026",
+      "rettskildeTittel": "Skjenketider i forbindelse med fotball VM 2026 - perioden 11. juni til 19. juli 2026",
+      "snippet": "…direkte VM-kamper, allerede har utvidet\nskjenketid til kl. 03.00, og oppfyller bemanningsk…"
+    },
+    {
+      "rettskildeId": "d46f87d3-4279-424d-8c19-3cd607ba29bf",
+      "nodeEid": "https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/skjenketid-ved-overgang-til-sommertid-og-vintertid",
+      "rettskildeTittel": "Skjenketid ved overgang til sommertid og vintertid",
+      "snippet": "…lles fra 02.00 til 03.00, må steder med skjenketid til\nkl. 02.00 eller senere stenge skjen…"
+    },
+    {
+      "rettskildeId": "d46f87d3-4279-424d-8c19-3cd607ba29bf",
+      "nodeEid": "https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/skjenketid-ved-overgang-til-sommertid-og-vintertid",
+      "rettskildeTittel": "Skjenketid ved overgang til sommertid og vintertid",
+      "snippet": "…tilles fra 03.00 til 02.00, utløper all skjenketid når\nklokken viser 03.00 den natten — de…"
+    },
+    {
+      "rettskildeId": "ae97e70f-48af-437c-9442-1bab69a003f4",
+      "nodeEid": "https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/utvidet-skjenkeog-apningstid-for-en-enkelt-anledning",
+      "rettskildeTittel": "Utvidet skjenke- og åpningstid for en enkelt anledning",
+      "snippet": "…dninger.\nLukkede private selskap kan få skjenketid til kl. 02.00 og stengetid kl. 02.30; å…"
+    },
+    {
+      "rettskildeId": "ae97e70f-48af-437c-9442-1bab69a003f4",
+      "nodeEid": "https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/utvidet-skjenkeog-apningstid-for-en-enkelt-anledning",
+      "rettskildeTittel": "Utvidet skjenke- og åpningstid for en enkelt anledning",
+      "snippet": "…g spesielle anledninger som UKEN kan få skjenketid til kl. 02.30 og\nstengetid kl. 03.00.\n\n…"
+    },
+    {
+      "rettskildeId": "ae97e70f-48af-437c-9442-1bab69a003f4",
+      "nodeEid": "https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/utvidet-skjenkeog-apningstid-for-en-enkelt-anledning",
+      "rettskildeTittel": "Utvidet skjenke- og åpningstid for en enkelt anledning",
+      "snippet": "…t, Nattjazz og Festspillene får utvidet skjenketid til kl. 03.00\ninnenfor bomringen i fest…"
+    }
+  ]
+}

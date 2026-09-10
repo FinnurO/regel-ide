@@ -1,0 +1,70 @@
+{
+  "_kilde": "GET /api/gruppebegrep/{id}/medlemsgrupper + /overordnede-grupper + /tildelinger for id=7057ff4b-bc2e-4d23-af7b-c681a082ea32 — eksportert 2026-09-09T22:15:57Z",
+  "id": "7057ff4b-bc2e-4d23-af7b-c681a082ea32",
+  "term": "forvaltningsområdet for samiske språk",
+  "status": "publisert",
+  "lovkildeId": "b2b2bc4b-f2a3-44e8-a665-ea491a2185b7",
+  "lovreferanseEid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-1/ledd-1/punkt-1",
+  "medlemsgrupper": [
+    {
+      "id": "72c95ad2-b5a7-4149-bf88-02745de09f9e",
+      "overordnetGruppeBegrepId": "7057ff4b-bc2e-4d23-af7b-c681a082ea32",
+      "underordnetGruppeBegrepId": "52dcc48d-d228-42d6-8bb1-d9397e29b734",
+      "hjemmelRettskildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "paragrafspenn": [
+        {
+          "fraEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+          "tilEid": null
+        }
+      ],
+      "gyldigFra": null,
+      "gyldigTil": null
+    },
+    {
+      "id": "b669938d-0070-4a4e-9a70-89c2e4d51a6a",
+      "overordnetGruppeBegrepId": "7057ff4b-bc2e-4d23-af7b-c681a082ea32",
+      "underordnetGruppeBegrepId": "ea37d4ce-b7a2-439b-91b0-b79920759ddf",
+      "hjemmelRettskildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "paragrafspenn": [
+        {
+          "fraEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+          "tilEid": null
+        }
+      ],
+      "gyldigFra": null,
+      "gyldigTil": null
+    },
+    {
+      "id": "757aa3ac-191e-4081-96f2-0dc54f63f71f",
+      "overordnetGruppeBegrepId": "7057ff4b-bc2e-4d23-af7b-c681a082ea32",
+      "underordnetGruppeBegrepId": "86eefdfb-3c5f-46e4-80ec-95ea5dc51dd8",
+      "hjemmelRettskildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "paragrafspenn": [
+        {
+          "fraEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-1",
+          "tilEid": null
+        }
+      ],
+      "gyldigFra": null,
+      "gyldigTil": null
+    }
+  ],
+  "overordnedeGrupper": [],
+  "tildelinger": [
+    {
+      "id": "ede846d5-9b70-472a-ab62-d59a04da4e2e",
+      "gruppeBegrepId": "7057ff4b-bc2e-4d23-af7b-c681a082ea32",
+      "virksomhetId": "bc6cdba6-bcd5-4d79-ba98-7a3657c4de2b",
+      "hjemmelRettskildeId": "894b7cc1-5297-4181-ac92-f2d756ccc75d",
+      "paragrafspenn": [
+        {
+          "fraEid": "https://lovdata.no/eli/forskrift/2005/06/17/657/nor/§1/ledd-2",
+          "tilEid": null
+        }
+      ],
+      "vilkaar": null,
+      "gyldigFra": null,
+      "gyldigTil": null
+    }
+  ]
+}

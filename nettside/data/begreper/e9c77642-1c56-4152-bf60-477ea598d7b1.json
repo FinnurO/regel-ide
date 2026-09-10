@@ -1,0 +1,68 @@
+{
+  "id": "e9c77642-1c56-4152-bf60-477ea598d7b1",
+  "virksomhetId": "fad7e5fd-2f18-4990-81c0-c16dc289d9e2",
+  "begrepskategori": null,
+  "virksomhetReferanseId": null,
+  "lovkildeId": null,
+  "term": "uklanderlig vandel",
+  "definisjon": "Et krav om at bevillingshaver og personer med vesentlig innflytelse på virksomheten ikke har utvist forhold som gir grunn til å anta at bevillingen vil bli misbrukt, jf. alkoholloven § 1-7b.",
+  "lovreferanseEid": "https://lovdata.no/eli/lov/1989/06/02/27/nor/§1-7b",
+  "gjelderFor": [],
+  "kodelisteReferanseId": "709137d0-3126-459a-9355-8a21cbf989a7",
+  "skosUrl": null,
+  "begrepstype": "handlingsbegrep",
+  "status": "utkast",
+  "versjon": 1,
+  "navneformgrunn": null,
+  "_kilde": "GET /api/begreper/{id} + /brukt-i-rettskilder for id=e9c77642-1c56-4152-bf60-477ea598d7b1 — eksportert 2026-09-09T22:15:57Z",
+  "bruktIRettskilder": [
+    {
+      "rettskildeId": "30ec0293-fd23-493a-af3c-05a376e90ba2",
+      "nodeEid": "https://lovdata.no/eli/forskrift/2001/12/11/1451/nor/§5-3/ledd-3",
+      "rettskildeTittel": "Forskrift om særavgifter",
+      "snippet": "…entlig innflytelse på den, må ha utvist uklanderlig vandel i forhold til lovgivning av betydning f…"
+    },
+    {
+      "rettskildeId": "64b5f3a2-1c57-4e1e-8343-8cee75c77873",
+      "nodeEid": "https://lovdata.no/eli/lov/1989/06/02/27/nor/§1-7b/ledd-1",
+      "rettskildeTittel": "Alkoholloven – alkhl",
+      "snippet": "…nflytelse på virksomheten, må ha utvist uklanderlig vandel i forhold til alkohollovgivningen og be…"
+    },
+    {
+      "rettskildeId": "64b5f3a2-1c57-4e1e-8343-8cee75c77873",
+      "nodeEid": "https://lovdata.no/eli/lov/1989/06/02/27/nor/§1-7c/ledd-4",
+      "rettskildeTittel": "Alkoholloven – alkhl",
+      "snippet": "Styrer og stedfortreder må ha utvist uklanderlig vandel i forhold til alkohollovgivningen og be…"
+    },
+    {
+      "rettskildeId": "64b5f3a2-1c57-4e1e-8343-8cee75c77873",
+      "nodeEid": "https://lovdata.no/eli/lov/1989/06/02/27/nor/§6-2/ledd-1/punkt-1",
+      "rettskildeTittel": "Alkoholloven – alkhl",
+      "snippet": "…esentlig innflytelse på den, har utvist uklanderlig vandel i forhold til lovgivning av betydning f…"
+    },
+    {
+      "rettskildeId": "b68e3123-9318-4135-a4ef-e2ca983e8501",
+      "nodeEid": "https://lovdata.no/eli/lov/1997/06/13/55/nor/§6/ledd-1",
+      "rettskildeTittel": "Serveringsloven",
+      "snippet": "…nflytelse på virksomheten, må ha utvist uklanderlig vandel i forhold til straffelovgivningen, skat…"
+    },
+    {
+      "rettskildeId": "63bf1b7b-2ad6-44fa-aec3-35ba9b5e1d0f",
+      "nodeEid": "https://lovdata.no/eli/lov/1973/03/09/14/nor/§11/ledd-1",
+      "rettskildeTittel": "Tobakksskadeloven – tobskl",
+      "snippet": "…nflytelse på virksomheten, må ha utvist uklanderlig vandel med hensyn til lovgivningen nevnt i § 9…"
+    },
+    {
+      "rettskildeId": "0a328fd0-be4b-47c0-999f-f7c2a250b81d",
+      "nodeEid": "https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/salgsbevilling-for-alkohol",
+      "rettskildeTittel": "Salgsbevilling for alkohol",
+      "snippet": "…nflytelse på virksomheten, må ha utvist\nuklanderlig vandel. For hver bevilling må virksomheten utp…"
+    },
+    {
+      "rettskildeId": "5c89784f-0fdd-4d64-a588-1a56f4941c05",
+      "nodeEid": "https://www.bergen.kommune.no/innbyggerhjelpen/naring-avgifter-og-anskaffelser/naring/bevilling-og-tillatelser/soknad-om-skjenkebevilling-for-alkohol-og-endringer-i-eksisterende-bevilling-f-eks-soknad-om-uteservering",
+      "rettskildeTittel": "Søknad om skjenkebevilling for alkohol og endringer i eksisterende bevilling f. eks søknad om uteservering.",
+      "snippet": "…nflytelse på virksomheten, må ha utvist\nuklanderlig vandel. Styrer må i tillegg ha bestått etabler…"
+    }
+  ]
+}
