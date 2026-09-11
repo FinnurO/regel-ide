@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react';
 import { Link as RouterLink, useSearchParams } from 'react-router';
-import { Alert, Button, Card, Checkbox, Heading, Link, Paragraph, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Checkbox, Dialog, Heading, Link, Paragraph, Spinner, Table, Tabs, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { BrregEnhetDto, Navneformgrunn, VirksomhetDto } from '../api/types';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
@@ -11,6 +11,7 @@ import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { Metatekst } from '../entitet/Metatekst';
 
 type Sorteringskolonne = 'navn' | 'organisasjonsnummer' | 'forvaltningsniva' | 'aktiv';
+type LeggTilFane = 'brreg' | 'navn' | 'koble';
 
 /** Samme "ikke gjett, vis tomt tydelig"-holdning som resten av appen (docs/20 §4/§7.2) — de fleste
  * radene har ingen Forvaltningsniva satt ennå, og det skal se annerledes ut enn en reell verdi. */
@@ -34,6 +35,14 @@ export default function VirksomheterListe() {
   const [filterTekst, setFilterTekst] = useState('');
   const [sortKolonne, setSortKolonne] = useState<Sorteringskolonne>('navn');
   const [sortStigende, setSortStigende] = useState(true);
+
+  // [ENDRET, issue #268, 2026-09-11] De tre opprett-veiene var tidligere tre permanente kort ØVER
+  // katalogen — saksbehandleren måtte scrolle forbi alle tre bare for å FINNE en virksomhet, hver
+  // gang. Nå bak "+ Legg til virksomhet", som faner i én dialog (docs/30 §3.1 pkt. 3: faner når
+  // >~4 seksjoner konkurrerer om plassen — her var det 3 skjema + filter + tabell). Ingen av de tre
+  // veiene er fjernet, kun ikke lenger alltid synlige. Se docs/design-canvas/VirksomheterListe.dc.html.
+  const [leggTilApen, setLeggTilApen] = useState(!!forhaandsutfyltNavn);
+  const [leggTilFane, setLeggTilFane] = useState<LeggTilFane>('brreg');
 
   function bytteSortering(kolonne: Sorteringskolonne) {
     if (sortKolonne === kolonne) setSortStigende((s) => !s);
@@ -83,42 +92,37 @@ export default function VirksomheterListe() {
 
   return (
     <>
-      <Heading level={1} data-size="lg" style={{ marginBottom: '0.2rem' }}>
-        Virksomheter
-      </Heading>
-      <Paragraph style={{ marginBottom: '1.25rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
-        Katalog over virksomheter identifisert ved organisasjonsnummer (docs/20) — både aktive tenanter
-        i Regel-IDE og virksomheter som bare forekommer i rettskildetekst. En virksomhet trenger ikke
-        ha brukere for å stå her.
-      </Paragraph>
+      <Card style={{ padding: 0, overflow: 'hidden', marginBottom: '0.75rem' }}>
+        <div
+          style={{
+            padding: '0.9rem 1rem', borderBottom: '1px solid var(--ds-color-neutral-border-subtle)',
+            display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '1rem', flexWrap: 'wrap',
+          }}
+        >
+          <div>
+            <Heading level={1} data-size="lg" style={{ margin: 0 }}>Virksomheter</Heading>
+            <Metatekst style={{ marginTop: '0.15rem' }}>
+              Katalog over virksomheter identifisert ved organisasjonsnummer (docs/20) — både aktive
+              tenanter i Regel-IDE og virksomheter som bare forekommer i rettskildetekst.
+            </Metatekst>
+          </div>
+          <Button data-size="sm" onClick={() => setLeggTilApen(true)}>+ Legg til virksomhet</Button>
+        </div>
 
-      <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap', marginBottom: '1.25rem' }}>
-        <BrregSokPanel
-          eksisterendeOrgnr={new Set(virksomheter.map((v) => v.organisasjonsnummer).filter((n): n is string => !!n))}
-          onOpprettet={oppdater}
-          forhaandsutfyltSok={forhaandsutfyltNavn}
-        />
-        <NavnKunPanel virksomheter={virksomheter} onOpprettet={oppdater} forhaandsutfyltNavn={forhaandsutfyltNavn} />
-        <KoblEksisterendeVirksomhetPanel
-          virksomheter={virksomheter}
-          forhaandsutfyltNavn={forhaandsutfyltNavn}
-          navnekandidatId={navnekandidatId}
-        />
-      </div>
+        <div style={{ padding: '0.75rem 1rem', borderBottom: '1px solid var(--ds-color-neutral-border-subtle)' }}>
+          <Textfield
+            label="Filtrer"
+            placeholder="Navn, organisasjonsnummer eller forvaltningsnivå"
+            value={filterTekst}
+            onChange={(e) => setFilterTekst(e.target.value)}
+            style={{ maxWidth: '20rem' }}
+          />
+        </div>
 
-      <Textfield
-        label="Filtrer"
-        placeholder="Navn, organisasjonsnummer eller forvaltningsnivå"
-        value={filterTekst}
-        onChange={(e) => setFilterTekst(e.target.value)}
-        style={{ maxWidth: '20rem', marginBottom: '1rem' }}
-      />
+        {laster && <div style={{ padding: '1rem' }}><Spinner aria-label="Laster …" data-size="sm" /></div>}
+        {!laster && viste.length === 0 && <Paragraph style={{ padding: '1rem', margin: 0 }}>Ingen virksomheter funnet.</Paragraph>}
 
-      {laster && <Spinner aria-label="Laster …" data-size="sm" />}
-      {!laster && viste.length === 0 && <Paragraph>Ingen virksomheter funnet.</Paragraph>}
-
-      {!laster && viste.length > 0 && (
-        <Card style={{ padding: 0, overflow: 'hidden' }}>
+        {!laster && viste.length > 0 && (
           <Table data-density="compact">
             <Table.Head>
               <Table.Row>
@@ -166,9 +170,39 @@ export default function VirksomheterListe() {
               })}
             </Table.Body>
           </Table>
-        </Card>
-      )}
+        )}
+      </Card>
       {!laster && viste.length > 0 && <Pagineringskontroll {...paginering} />}
+
+      <Dialog open={leggTilApen} onClose={() => setLeggTilApen(false)} closeButton="Lukk" style={{ maxWidth: '40rem' }}>
+        <Dialog.Block>
+          <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>Legg til virksomhet</Heading>
+          <Tabs value={leggTilFane} onChange={(v) => setLeggTilFane(v as LeggTilFane)} style={{ marginBottom: '1rem' }}>
+            <Tabs.List>
+              <Tabs.Tab value="brreg">Søk i Brreg</Tabs.Tab>
+              <Tabs.Tab value="navn">Kun navn</Tabs.Tab>
+              <Tabs.Tab value="koble">Koble til eksisterende</Tabs.Tab>
+            </Tabs.List>
+          </Tabs>
+          {leggTilFane === 'brreg' && (
+            <BrregSokPanel
+              eksisterendeOrgnr={new Set(virksomheter.map((v) => v.organisasjonsnummer).filter((n): n is string => !!n))}
+              onOpprettet={oppdater}
+              forhaandsutfyltSok={forhaandsutfyltNavn}
+            />
+          )}
+          {leggTilFane === 'navn' && (
+            <NavnKunPanel virksomheter={virksomheter} onOpprettet={oppdater} forhaandsutfyltNavn={forhaandsutfyltNavn} />
+          )}
+          {leggTilFane === 'koble' && (
+            <KoblEksisterendeVirksomhetPanel
+              virksomheter={virksomheter}
+              forhaandsutfyltNavn={forhaandsutfyltNavn}
+              navnekandidatId={navnekandidatId}
+            />
+          )}
+        </Dialog.Block>
+      </Dialog>
     </>
   );
 }
@@ -219,11 +253,8 @@ function BrregSokPanel({
   }
 
   return (
-    <Card style={{ padding: '1rem', marginBottom: '1.25rem', maxWidth: '40rem' }}>
-      <Heading level={2} data-size="sm" style={{ marginBottom: '0.3rem' }}>
-        Søk i Brreg og opprett virksomhet
-      </Heading>
-      <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+    <>
+      <Metatekst style={{ marginBottom: '0.75rem' }}>
         For virksomheter som mangler i katalogen over — søk på navn eller organisasjonsnummer i
         Brønnøysundregisterets Enhetsregister, og opprett den direkte herfra.
       </Metatekst>
@@ -276,7 +307,7 @@ function BrregSokPanel({
           })}
         </ul>
       )}
-    </Card>
+    </>
   );
 }
 
@@ -329,11 +360,8 @@ function NavnKunPanel({
   }
 
   return (
-    <Card style={{ padding: '1rem', maxWidth: '28rem', flex: '1 1 20rem' }}>
-      <Heading level={2} data-size="sm" style={{ marginBottom: '0.3rem' }}>
-        Opprett virksomhet med bare navn
-      </Heading>
-      <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+    <>
+      <Metatekst style={{ marginBottom: '0.75rem' }}>
         For aktører uten egen Brreg-registrering, f.eks. Kystvakten (del av Forsvaret) — «del av
         virksomhet» er valgfri. Navnet slås automatisk opp mot Store norske leksikon; en bekreftet
         artikkel gir en ferdig navneform du kan verifisere under.
@@ -378,7 +406,7 @@ function NavnKunPanel({
           {oppretter ? 'Oppretter …' : 'Opprett virksomhet'}
         </Button>
       </form>
-    </Card>
+    </>
   );
 }
 
@@ -462,11 +490,8 @@ function KoblEksisterendeVirksomhetPanel({
   }
 
   return (
-    <Card style={{ padding: '1rem', maxWidth: '28rem', flex: '1 1 20rem' }}>
-      <Heading level={2} data-size="sm" style={{ marginBottom: '0.3rem' }}>
-        Er dette et nytt navn for en virksomhet som allerede finnes?
-      </Heading>
-      <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+    <>
+      <Metatekst style={{ marginBottom: '0.75rem' }}>
         For når det ikke er en ny virksomhet, men en ny navneform på én som allerede er i katalogen —
         f.eks. «Kredittilsynet» som en eldre betegnelse på Finanstilsynet. Velg virksomheten under;
         navnet legges til som navneform på DEN, ingen ny virksomhet opprettes.
@@ -516,6 +541,6 @@ function KoblEksisterendeVirksomhetPanel({
           {kobler ? 'Kobler …' : 'Legg til som navneform'}
         </Button>
       </form>
-    </Card>
+    </>
   );
 }
