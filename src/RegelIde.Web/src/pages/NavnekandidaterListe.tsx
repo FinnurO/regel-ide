@@ -652,7 +652,7 @@ export default function NavnekandidaterListe() {
         </Paragraph>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
           <RettskildeVelger rettskilder={rettskilder} value={sveipRettskildeId} onChange={setSveipRettskildeId} label="Rettskilde (tomt = hele korpuset)" />
-          <Button onClick={kjorSveip} disabled={sveiper}>
+          <Button data-size="sm" onClick={kjorSveip} disabled={sveiper}>
             {sveiper ? 'Sveiper …' : 'Kjør sveip'}
           </Button>
         </div>

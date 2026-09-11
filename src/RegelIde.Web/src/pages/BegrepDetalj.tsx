@@ -220,7 +220,7 @@ export default function BegrepDetalj() {
           )}
           {lagreFeil && <Alert data-color="danger">{lagreFeil}</Alert>}
           <div>
-            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+            <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
         </form>
       </section>

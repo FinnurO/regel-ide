@@ -494,7 +494,7 @@ export default function HandlingDetalj() {
                 <Textarea value={merknad} onChange={(e) => setMerknad(e.target.value)} rows={2} />
               </Field>
               {lagreFeil && <Alert data-color="danger">{lagreFeil}</Alert>}
-              <div><Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button></div>
+              <div><Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button></div>
             </form>
           </section>
 

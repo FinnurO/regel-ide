@@ -128,7 +128,7 @@ export default function TjenesterListe() {
       <form onSubmit={opprett} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '1.5rem' }}>
         <Textfield label="Ny tjeneste" placeholder="f.eks. Alminnelig skjenkebevilling" value={nyTittel}
           onChange={(e) => setNyTittel(e.target.value)} required />
-        <Button type="submit" disabled={oppretter || !nyTittel.trim()}>
+        <Button data-size="sm" type="submit" disabled={oppretter || !nyTittel.trim()}>
           {oppretter ? 'Oppretter …' : 'Opprett'}
         </Button>
       </form>

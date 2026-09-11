@@ -72,7 +72,7 @@ export default function HandbokOpprett() {
         )}
 
         <div>
-          <Button type="submit" disabled={laster || !tittel.trim()}>
+          <Button data-size="sm" type="submit" disabled={laster || !tittel.trim()}>
             {laster ? 'Oppretter …' : 'Opprett'}
           </Button>
         </div>

@@ -135,7 +135,7 @@ export default function BrukereListe() {
             ))}
           </Select>
         </Field>
-        <Button type="submit" disabled={oppretter || !nyttNavn.trim() || !nyVirksomhetId}>
+        <Button data-size="sm" type="submit" disabled={oppretter || !nyttNavn.trim() || !nyVirksomhetId}>
           {oppretter ? 'Oppretter …' : 'Opprett bruker'}
         </Button>
       </form>

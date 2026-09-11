@@ -217,7 +217,7 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
         for tidsavgrenset medlemskap (f.eks. en vertskommune som slutter å ha et fengsel/mottak).
       </Paragraph>
 
-      <Button type="button" onClick={opprett}
+      <Button data-size="sm" type="button" onClick={opprett}
         disabled={oppretter || !gruppebegrepId || !hjemmelRettskildeId || paragrafspenn.length === 0}>
         {oppretter ? 'Oppretter …' : 'Opprett myndighetstildeling'}
       </Button>

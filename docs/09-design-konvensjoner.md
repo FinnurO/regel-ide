@@ -815,13 +815,22 @@ Handlinger og Virksomheter — de seks andre listesidene har for få rader til a
 problem, og skal IKKE tvinges inn i samme mønster kun for konsistensens skyld (jf. §16, «mål det,
 ikke anta det»).
 
-## 27. `data-size` på knapper — konvensjon, ikke automatikk (issue #267, 2026-09-11)
+## 27. `data-size="sm"` på ALLE knapper — appens faktiske, unntaksfrie konvensjon (issue #267, 2026-09-11, bygget samme dag)
 
-`Button`/`data-size="sm"` skal brukes i kompakte arbeidsflater (tabellrader, inline-handlinger ved
-siden av skjemafelt, verktøylinjer) — standardstørrelsen er for åpne sider, ikke for tette rader.
-Ved gjennomgangen manglet 57 av 241 knapp-forekomster i koden en eksplisitt `data-size` der
-konteksten tilsa `sm`. Retting rulles ut sammen med resten av issue #267, ikke som en egen runde —
-den henger sammen med tabelltetthet-arbeidet i §26 (samme tette rader).
+**Rettet ved bygging**: det opprinnelige anslaget («57 av 241 mangler») var telt med en linjebasert
+`grep`, som teller `<Button` og `data-size` per linje hver for seg — en `<Button` skrevet over flere
+linjer (attributtene på egne linjer, et vanlig mønster i denne kodebasen) blir dermed en falsk
+positiv når `data-size` står på en ANNEN linje enn `<Button` selv. Et skript som følger hele
+åpne-tag-spennet (til den balanserte `>`, ikke bare linjen) ga et annet, korrekt tall: **kun 36 av
+243** manglet reelt `data-size`. Rettet i denne runden (§27-implementeringen).
+
+**Det finnes ingen `Button`-forekomst i hele appen med en annen `data-size`-verdi enn `sm`** — alle
+243 (etter rettingen) er `sm`, null er `md`/`lg`/`xs`. Det er ikke «bruk `sm` i tette kontekster,
+standard ellers» slik denne seksjonen opprinnelig antok (før noen faktisk telte) — appens etablerte,
+eksepsjonsfrie konvensjon er ganske enkelt **`sm` alltid**, på enhver knapp, uansett kontekst. De 36
+manglende var rene forglemmelser, ikke bevisste standardstørrelse-valg — bekreftet ved at samme
+skjema-mønster (f.eks. et inline `type="submit"`-skjema i en detaljside) allerede hadde `sm` andre
+steder i SAMME fil (`HandlingDetalj.tsx`, `VilkarstreDetalj.tsx`, `RettskildeDetalj.tsx` m.fl.).
 
 ## 28. Liste- og detaljsidemal — generisk mønster for alle 14 + 8 sider (issue #266/#267, 2026-09-11)
 

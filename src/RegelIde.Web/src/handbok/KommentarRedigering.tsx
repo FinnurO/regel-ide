@@ -272,11 +272,11 @@ export function KommentarRedigering({
 
       {feil && <Alert data-color="danger">{feil}</Alert>}
       <div style={{ display: 'flex', gap: 'var(--ds-size-2)' }}>
-        <Button onClick={lagre} disabled={lagrer}>
+        <Button data-size="sm" onClick={lagre} disabled={lagrer}>
           {lagrer ? 'Lagrer …' : mode === 'ny' ? 'Opprett' : 'Lagre (ny versjon)'}
         </Button>
         {onAvbryt && (
-          <Button variant="tertiary" onClick={onAvbryt}>
+          <Button data-size="sm" variant="tertiary" onClick={onAvbryt}>
             Avbryt
           </Button>
         )}

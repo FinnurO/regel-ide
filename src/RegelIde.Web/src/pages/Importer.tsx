@@ -168,10 +168,10 @@ export default function Importer() {
 
         {metadataFeil && <Alert data-color="danger">{metadataFeil}</Alert>}
         <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <Button onClick={bekreftOgLagre} disabled={lagrerMetadata}>
+          <Button data-size="sm" onClick={bekreftOgLagre} disabled={lagrerMetadata}>
             {lagrerMetadata ? 'Lagrer …' : 'Bekreft og lagre'}
           </Button>
-          <Button variant="tertiary" onClick={() => navigate(`/rettskilder/${importertId}`)}>
+          <Button data-size="sm" variant="tertiary" onClick={() => navigate(`/rettskilder/${importertId}`)}>
             Hopp over
           </Button>
         </div>
@@ -249,7 +249,7 @@ export default function Importer() {
             onChange={(e) => setErVirksomhetensEgen(e.target.checked)}
             style={{ margin: '0.75rem 0' }}
           />
-          <Button type="submit" disabled={filLaster || !fil}>
+          <Button data-size="sm" type="submit" disabled={filLaster || !fil}>
             {filLaster ? 'Importerer …' : 'Last opp og importer'}
           </Button>
         </form>

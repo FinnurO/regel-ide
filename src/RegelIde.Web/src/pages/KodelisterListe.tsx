@@ -64,7 +64,7 @@ export default function KodelisterListe() {
             <Select.Option value="ekstern-referanse">Ekstern-referanse</Select.Option>
           </Select>
         </Field>
-        <Button type="submit" disabled={oppretter || !nyKode.trim() || !nyNavn.trim()}>
+        <Button data-size="sm" type="submit" disabled={oppretter || !nyKode.trim() || !nyNavn.trim()}>
           {oppretter ? 'Oppretter …' : 'Opprett'}
         </Button>
       </form>

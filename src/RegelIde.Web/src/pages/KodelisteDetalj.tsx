@@ -132,7 +132,7 @@ export default function KodelisteDetalj() {
         <form onSubmit={leggTilKode} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
           <Textfield label="Ny kode" value={nyKode} onChange={(e) => setNyKode(e.target.value)} required />
           <Textfield label="Term" value={nyTerm} onChange={(e) => setNyTerm(e.target.value)} required />
-          <Button type="submit" disabled={leggerTilKode || !nyKode.trim() || !nyTerm.trim()}>
+          <Button data-size="sm" type="submit" disabled={leggerTilKode || !nyKode.trim() || !nyTerm.trim()}>
             {leggerTilKode ? 'Legger til …' : 'Ny kode'}
           </Button>
         </form>

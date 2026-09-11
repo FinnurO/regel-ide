@@ -234,7 +234,7 @@ function BrregSokPanel({
           onChange={(e) => setSokTekst(e.target.value)}
           style={{ maxWidth: '20rem' }}
         />
-        <Button type="submit" disabled={soker || !sokTekst.trim()}>
+        <Button data-size="sm" type="submit" disabled={soker || !sokTekst.trim()}>
           {soker ? 'Søker …' : 'Søk i Brreg'}
         </Button>
       </form>
@@ -373,7 +373,7 @@ function NavnKunPanel({
             </span>
           </Alert>
         )}
-        <Button type="submit" disabled={oppretter || !navn.trim()}>
+        <Button data-size="sm" type="submit" disabled={oppretter || !navn.trim()}>
           {oppretter ? 'Oppretter …' : 'Opprett virksomhet'}
         </Button>
       </form>
@@ -511,7 +511,7 @@ function KoblEksisterendeVirksomhetPanel({
             <Link asChild><RouterLink to={`/virksomheter/${suksess.virksomhetId}`}>Se {suksess.virksomhetNavn} ↗</RouterLink></Link>
           </Alert>
         )}
-        <Button type="submit" disabled={kobler || !navn.trim() || !valgtVirksomhetId}>
+        <Button data-size="sm" type="submit" disabled={kobler || !navn.trim() || !valgtVirksomhetId}>
           {kobler ? 'Kobler …' : 'Legg til som navneform'}
         </Button>
       </form>

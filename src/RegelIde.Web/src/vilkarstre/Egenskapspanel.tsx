@@ -484,7 +484,7 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, tjenester, feil
             </>
           )}
           <div>
-            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+            <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
         </form>
       )}
@@ -500,7 +500,7 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, tjenester, feil
             <Textarea value={veiledningSaksbehandler} onChange={(e) => setVeiledningSaksbehandler(e.target.value)} rows={3} />
           </Field>
           <div>
-            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+            <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
         </form>
       )}
@@ -511,7 +511,7 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, tjenester, feil
           <Paragraph style={{ marginBottom: '0.25rem' }}>Juridisk grunnlag:</Paragraph>
           <JuridiskGrunnlagRedigering grunnlag={juridiskGrunnlag} rettskilder={rettskilder} onEndre={setJuridiskGrunnlag} />
           <div style={{ marginTop: '0.75rem' }}>
-            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+            <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
           <div style={{ marginTop: '1rem' }}>
             <Label style={{ marginBottom: '0.4rem' }}>Status</Label>
@@ -631,7 +631,7 @@ function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndre
             Utdata: {regelnode.utdataNavn} ({regelnode.utdataType})
           </Paragraph>
           <div>
-            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+            <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
         </form>
       )}
@@ -647,7 +647,7 @@ function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndre
             <Textarea value={avslagTekst} onChange={(e) => setAvslagTekst(e.target.value)} rows={3} />
           </Field>
           <div>
-            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+            <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
         </form>
       )}
@@ -658,7 +658,7 @@ function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndre
           <Paragraph style={{ marginBottom: '0.25rem' }}>Juridisk grunnlag:</Paragraph>
           <JuridiskGrunnlagRedigering grunnlag={juridiskGrunnlag} rettskilder={rettskilder} onEndre={setJuridiskGrunnlag} />
           <div style={{ marginTop: '0.75rem' }}>
-            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+            <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
           <div style={{ marginTop: '1rem' }}>
             <Label style={{ marginBottom: '0.4rem' }}>Status</Label>
@@ -747,7 +747,7 @@ function UnntakPanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndret }
             gjelder_regel og betingelse settes ved opprettelse (INV-3/INV-4) og endres ikke her.
           </Paragraph>
           <div>
-            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+            <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
         </form>
       )}
@@ -762,7 +762,7 @@ function UnntakPanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndret }
           <Paragraph style={{ marginBottom: '0.25rem' }}>Juridisk grunnlag:</Paragraph>
           <JuridiskGrunnlagRedigering grunnlag={juridiskGrunnlag} rettskilder={rettskilder} onEndre={setJuridiskGrunnlag} />
           <div style={{ marginTop: '0.75rem' }}>
-            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+            <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
           <div style={{ marginTop: '1rem' }}>
             <Label style={{ marginBottom: '0.4rem' }}>Status</Label>
