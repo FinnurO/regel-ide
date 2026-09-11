@@ -889,17 +889,34 @@ ved full gjennomgang av hver enkelt fil — ikke antatt fra noen få eksempler:
   ved nærmere sjekk — den viser alltid sin standardverdi-rad med «—»-fallback, en annen, allerede
   korrekt løsning for en fast rad som alltid finnes (ikke en liste som kan være tom).
 
-## 29. VirksomheterListe/VirksomhetDetalj — foreslått, IKKE besluttet omstrukturering (issue #268)
+## 29. VirksomheterListe/VirksomhetDetalj — omstrukturert (issue #268, bygget 2026-09-11)
 
-**Dette er et forslag i canvasen, ikke en vedtatt endring** — i motsetning til §24–27, som er
-Johanns faktiske beslutninger. Forslaget: `VirksomheterListe` har i dag tre fullt synlige
+**Bygget, etter Johanns eksplisitte "gjør deg ferdig".** `VirksomheterListe` hadde tre fullt synlige
 opprett-skjema (søk i Brreg / opprett med navn / koble eksisterende navn) alltid synlig over selve
-katalogen, slik at katalogen (hovedsaken) først blir synlig etter scroll. Alle tre skjemaene har
-individuelt god begrunnelse — problemet som foreslås løst er at de er flate, ikke at de finnes.
-Forslaget samler dem bak én «+ Legg til virksomhet»-inngang som faner i ett panel (progressiv
-avdekking, ingen funksjon fjernet), og tilsvarende slår `VirksomhetDetalj` sine 8 flate seksjoner
-sammen til faner, der «Myndighet & relasjoner» slår sammen 3 tidligere seksjoner. Bygges kun hvis/
-når issue #268 tas videre — ikke gjør denne endringen ut fra denne seksjonen alene.
+katalogen — katalogen (hovedsaken) ble først synlig etter scroll. Alle tre skjemaene har individuelt
+god begrunnelse — problemet var at de var flate, ikke at de fantes. Samlet nå bak én «+ Legg til
+virksomhet»-knapp i sidens topplinje, som åpner en `Dialog` med de tre skjemaene som `Tabs`
+(«Søk i Brreg» / «Kun navn» / «Koble til eksisterende») — ingen funksjon fjernet, kun progressiv
+avdekking. Dialogen åpnes automatisk når siden nås med `?forslagNavn=` (fra en navnekandidat-rad),
+slik at deep-linken fortsatt fungerer uten en ekstra klikk.
+
+`VirksomhetDetalj` sine 8 flate seksjoner er samlet i 6 faner, gruppert etter hva seksjonen FAKTISK
+svarer på (docs/32 §3 S1–S7), ikke bare for å redusere antallet:
+- **Grunndata** — uendret (registrert navn/orgnr/forvaltningsnivå/overordnet enhet).
+- **Navneformer** — uendret («Navneformer i rettskildetekst»).
+- **Myndighet & relasjoner** — slår sammen tre tidligere seksjoner som alle svarer «hva styrer denne
+  virksomheten»: Relasjoner til andre virksomheter, Myndighetstildelinger, Ansvarlig for. Hver
+  beholder sin egen `<Heading level={3}>` inni fanen, siden de fortsatt er tre distinkte spørsmål.
+- **Rettskilder** — «Fastsatt av denne virksomheten», bevisst IKKE slått sammen med Myndighet &
+  relasjoner: «hvem styrer virksomheten» og «hvilke rettskilder den selv har fastsatt» er to ulike
+  spørsmål (samme presisering som lå i canvaset).
+- **Kandidater** — «Ventende kandidater», uendret.
+- **Farlig sone** — uendret.
+
+Verifisert: `tsc -b --noEmit` 0 feil, og kald visuell sjekk i nettleser av alle faner på begge
+sidene — matcher docs/design-canvas/VirksomheterListe.dc.html og VirksomhetDetalj.dc.html sin
+struktur (topplinje med tittel+knapp, søk/filter under, katalog synlig med én gang; brødsmulesti →
+tittel+tagger → fanebar → faneinnhold).
 
 ## 30. Andre fontstørrelser enn 12px — reelle, dokumenterte mønstre, ikke tilfeldighet (issue #266, kriterium 4, 2026-09-11)
 

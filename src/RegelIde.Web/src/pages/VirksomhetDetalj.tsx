@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router';
-import { Alert, Button, Card, Dialog, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Dialog, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tabs, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
 import type { KodelisteDto, MyndighetstildelingDto, Navneformgrunn, RettskildeNodeDto, RettskildeSammendrag, VirksomhetKandidatDto, VirksomhetRelasjonDto, VirksomhetSlettOversiktDto, VirksomhetsbegrepDto, VirksomhetWhereUsedDto } from '../api/types';
@@ -37,10 +37,20 @@ const SLETT_OVERSIKT_ETIKETTER: [key: keyof VirksomhetSlettOversiktDto, etikett:
   ['kunnskapsbibliotekFiler', 'Kunnskapsbibliotek-filer'],
 ];
 
+/**
+ * [Ny, issue #268, 2026-09-11] Fanegruppering — de tidligere 8 flate seksjonene var dobbelt så mange
+ * som docs/30 §3.1 pkt. 3 sin egen "faner ved >~4 seksjoner"-grense. Gruppert etter hva seksjonene
+ * FAKTISK svarer på (docs/32 §3 S1–S7), ikke bare for å redusere antallet — "Myndighet & relasjoner"
+ * og "Rettskilder" er to ulike spørsmål (hvem styrer virksomheten vs. hvilke rettskilder den selv har
+ * fastsatt), holdt adskilt. Se docs/design-canvas/VirksomhetDetalj.dc.html.
+ */
+type Fane = 'grunndata' | 'navneformer' | 'myndighet' | 'rettskilder' | 'kandidater' | 'farligSone';
+
 export default function VirksomhetDetalj() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { virksomheter, virksomheterPerId, laster: virksomheterLaster } = useVirksomheter();
+  const [fane, setFane] = useState<Fane>('grunndata');
 
   const [begrep, setBegrep] = useState<VirksomhetsbegrepDto[] | null>(null);
   const [tildelinger, setTildelinger] = useState<MyndighetstildelingDto[] | null>(null);
@@ -269,10 +279,19 @@ export default function VirksomhetDetalj() {
 
       {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
 
+      <Tabs value={fane} onChange={(v) => setFane(v as Fane)} style={{ marginBottom: '1rem' }}>
+        <Tabs.List>
+          <Tabs.Tab value="grunndata">Grunndata</Tabs.Tab>
+          <Tabs.Tab value="navneformer">Navneformer</Tabs.Tab>
+          <Tabs.Tab value="myndighet">Myndighet &amp; relasjoner</Tabs.Tab>
+          <Tabs.Tab value="rettskilder">Rettskilder</Tabs.Tab>
+          <Tabs.Tab value="kandidater">Kandidater</Tabs.Tab>
+          <Tabs.Tab value="farligSone">Farlig sone</Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
+
+      {fane === 'grunndata' && (
       <section style={{ marginBottom: '2rem' }}>
-        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
-          Grunndata
-        </Heading>
         <Card style={{ padding: '1rem' }}>
           <Table>
             <Table.Body>
@@ -336,9 +355,11 @@ export default function VirksomhetDetalj() {
           </Table>
         </Card>
       </section>
+      )}
 
+      {fane === 'myndighet' && (
       <section style={{ marginBottom: '2rem' }}>
-        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+        <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
           Relasjoner til andre virksomheter
         </Heading>
         <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
@@ -415,7 +436,9 @@ export default function VirksomhetDetalj() {
           />
         )}
       </section>
+      )}
 
+      {fane === 'navneformer' && (
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Navneformer i rettskildetekst
@@ -576,9 +599,11 @@ export default function VirksomhetDetalj() {
         </form>
         {leggTilFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{leggTilFeil}</Alert>}
       </section>
+      )}
 
+      {fane === 'myndighet' && (
       <section style={{ marginBottom: '2rem' }}>
-        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+        <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
           Myndighetstildelinger
         </Heading>
         <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
@@ -651,9 +676,11 @@ export default function VirksomhetDetalj() {
           />
         )}
       </section>
+      )}
 
+      {fane === 'myndighet' && (
       <section style={{ marginBottom: '2rem' }}>
-        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+        <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
           Ansvarlig for
         </Heading>
         <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
@@ -683,11 +710,15 @@ export default function VirksomhetDetalj() {
           )}
         </Card>
       </section>
+      )}
 
       {/* [Ny, fastsatt-av-runden, 2026-09-10, issue #215] Motstykket til «Ansvarlig for» over, og et
           ANNET spørsmål: Kunnskapsdepartementet har departementsansvaret for NTNUs ph.d.-forskrift,
           NTNUs styre har FASTSATT den. Uten denne seksjonen var forskriften usynlig fra NTNUs egen
-          side, selv om dokumentet sier rett ut hvem som fastsatte den. */}
+          side, selv om dokumentet sier rett ut hvem som fastsatte den.
+          [ENDRET, issue #268] Egen fane «Rettskilder» — et ANNET spørsmål enn «Myndighet &
+          relasjoner» (hvilke rettskilder virksomheten selv har fastsatt, ikke hvem som styrer den). */}
+      {fane === 'rettskilder' && (
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Fastsatt av denne virksomheten
@@ -720,7 +751,9 @@ export default function VirksomhetDetalj() {
           )}
         </Card>
       </section>
+      )}
 
+      {fane === 'kandidater' && (
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Ventende kandidater
@@ -787,12 +820,15 @@ export default function VirksomhetDetalj() {
           )}
         </Card>
       </section>
+      )}
 
-      <SlettVirksomhetSeksjon
-        virksomhetId={id!}
-        virksomhetNavn={virksomhet.visningsnavn}
-        onSlettet={() => navigate('/virksomheter')}
-      />
+      {fane === 'farligSone' && (
+        <SlettVirksomhetSeksjon
+          virksomhetId={id!}
+          virksomhetNavn={virksomhet.visningsnavn}
+          onSlettet={() => navigate('/virksomheter')}
+        />
+      )}
     </>
   );
 }
