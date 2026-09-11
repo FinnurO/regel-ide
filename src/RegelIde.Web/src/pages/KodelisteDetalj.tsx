@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
-import { Alert, Button, Heading, Link, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Heading, Link, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
 import type { KodelisteDto, RettskildeSammendrag } from '../api/types';
@@ -102,32 +102,34 @@ export default function KodelisteDetalj() {
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Koder
         </Heading>
-        {kodeliste.koder.length === 0 ? (
-          <Paragraph>Ingen koder registrert ennå.</Paragraph>
-        ) : (
-          <Table border style={{ marginBottom: '1rem' }}>
-            <Table.Head>
-              <Table.Row>
-                <Table.HeaderCell>Kode</Table.HeaderCell>
-                <Table.HeaderCell>Term</Table.HeaderCell>
-                <Table.HeaderCell>Definisjon</Table.HeaderCell>
-                <Table.HeaderCell></Table.HeaderCell>
-              </Table.Row>
-            </Table.Head>
-            <Table.Body>
-              {kodeliste.koder.map((k) => (
-                <Table.Row key={k.id}>
-                  <Table.Cell style={{ fontFamily: 'monospace' }}>{k.kode}</Table.Cell>
-                  <Table.Cell>{k.term}</Table.Cell>
-                  <Table.Cell>{k.definisjon ?? '—'}</Table.Cell>
-                  <Table.Cell>
-                    <Button variant="tertiary" data-size="sm" onClick={() => fjernKode(k.id)}>Fjern</Button>
-                  </Table.Cell>
+        <Card style={{ padding: kodeliste.koder.length > 0 ? 0 : '1rem', overflow: 'hidden', marginBottom: '1rem' }}>
+          {kodeliste.koder.length === 0 ? (
+            <Paragraph style={{ margin: 0 }}>Ingen koder registrert ennå.</Paragraph>
+          ) : (
+            <Table>
+              <Table.Head>
+                <Table.Row>
+                  <Table.HeaderCell>Kode</Table.HeaderCell>
+                  <Table.HeaderCell>Term</Table.HeaderCell>
+                  <Table.HeaderCell>Definisjon</Table.HeaderCell>
+                  <Table.HeaderCell></Table.HeaderCell>
                 </Table.Row>
-              ))}
-            </Table.Body>
-          </Table>
-        )}
+              </Table.Head>
+              <Table.Body>
+                {kodeliste.koder.map((k) => (
+                  <Table.Row key={k.id}>
+                    <Table.Cell style={{ fontFamily: 'monospace' }}>{k.kode}</Table.Cell>
+                    <Table.Cell>{k.term}</Table.Cell>
+                    <Table.Cell>{k.definisjon ?? '—'}</Table.Cell>
+                    <Table.Cell>
+                      <Button variant="tertiary" data-size="sm" onClick={() => fjernKode(k.id)}>Fjern</Button>
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>
+            </Table>
+          )}
+        </Card>
 
         <form onSubmit={leggTilKode} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end' }}>
           <Textfield label="Ny kode" value={nyKode} onChange={(e) => setNyKode(e.target.value)} required />
