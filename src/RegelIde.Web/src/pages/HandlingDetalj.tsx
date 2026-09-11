@@ -31,6 +31,7 @@ import {
 } from '../api/types';
 import { eidVisningstekst, rettskildeLenke } from '../api/eidLenker';
 import { StatusStepper } from '../entitet/StatusStepper';
+import { Metatekst } from '../entitet/Metatekst';
 
 type Fane = 'egenskaper' | 'kanaler' | 'veiledning' | 'regelverk';
 const FANE_LABELER: Record<Fane, string> = {
@@ -425,13 +426,13 @@ export default function HandlingDetalj() {
 
   return (
     <>
-      <nav aria-label="Brødsmulesti" style={{ display: 'flex', gap: '0.4rem', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+      <Metatekst as="nav" aria-label="Brødsmulesti" style={{ display: 'flex', gap: '0.4rem', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
         <Link asChild><RouterLink to="/tjenester">Tjenester</RouterLink></Link>
         <span>/</span>
         <Link asChild><RouterLink to={`/tjenester/${tjenesteId}`}>{tjeneste?.tittel ?? '…'}</RouterLink></Link>
         <span>/</span>
         <span style={{ color: 'var(--ds-color-neutral-text-default)' }}>{handling.navn}</span>
-      </nav>
+      </Metatekst>
 
       <Heading level={1} data-size="lg" style={{ margin: 0 }}>{handling.navn}</Heading>
       <Paragraph style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', margin: '0.5rem 0 1.25rem' }}>
@@ -451,11 +452,11 @@ export default function HandlingDetalj() {
         <>
           <section style={{ marginBottom: '2rem' }}>
             <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>Tilhørende rettighet</Heading>
-            <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)', marginBottom: '0.75rem' }}>
+            <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
               Nå under <strong>{tjeneste?.tittel ?? '…'}</strong>. Handlinger seedet fra en automatisk kilde
               (f.eks. Oppgaveregisteret) lander i en grov samle-plassholder — flytt til en reell, redigert
               rettighet når en fagperson har vurdert den.
-            </Paragraph>
+            </Metatekst>
             <form onSubmit={flyttTilTjeneste} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
               <Field style={{ minWidth: '20rem' }}>
                 <Label>Flytt til rettighet</Label>
@@ -630,7 +631,7 @@ export default function HandlingDetalj() {
                         <strong>{v.overskrift}</strong>
                         <VisHjemmel hjemmel={v.hjemmel} />
                       </div>
-                      {v.innhold && <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '0.2rem' }}>{v.innhold}</Paragraph>}
+                      {v.innhold && <Metatekst style={{ marginTop: '0.2rem' }}>{v.innhold}</Metatekst>}
                     </div>
                     <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernVeiledning(i)}>Fjern</Button>
                   </div>
@@ -654,9 +655,9 @@ export default function HandlingDetalj() {
 
           <section style={{ marginBottom: '2rem' }}>
             <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>Årsaker til bortfall/tilbaketrekking</Heading>
-            <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)', marginBottom: '0.75rem' }}>
+            <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
               Kun relevant for handlinger som representerer at rettigheten faller bort eller trekkes tilbake.
-            </Paragraph>
+            </Metatekst>
             {handling.arsaker.length === 0 && <Paragraph>Ingen årsaker registrert ennå.</Paragraph>}
             {handling.arsaker.length > 0 && (
               <ul>
@@ -684,11 +685,11 @@ export default function HandlingDetalj() {
         <>
           <section style={{ marginBottom: '2rem' }}>
             <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>Regelverksreferanser</Heading>
-            <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)', marginBottom: '0.75rem' }}>
+            <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
               Kun lesing her ennå — disse settes i dag automatisk av Oppgaveregister-seeden
               (lovhjemmel-feltet fra Brønnøysundregistrenes skjemakatalog), det finnes ingen koble til/fjern-
               knapp for én handling ennå (se Regelverksreferanser på rettigheten selv for det).
-            </Paragraph>
+            </Metatekst>
             {regelverksreferanser === null && <Spinner aria-label="Laster …" data-size="sm" />}
             {regelverksreferanser && regelverksreferanser.length === 0 && (
               <Paragraph>Ingen regelverksreferanser koblet.</Paragraph>
@@ -708,13 +709,13 @@ export default function HandlingDetalj() {
                     : eidVisningstekst(r.tilEid, rettskilder, noderPerRettskilde);
                   const href = rettskildeLenke(r.tilEid, rettskilder);
                   return (
-                    <li key={r.id} style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                    <Metatekst as="li" key={r.id}>
                       {href ? (
                         <Link asChild><RouterLink to={href}>{visningstekst ?? r.tilEid}</RouterLink></Link>
                       ) : (
                         <span style={visningstekst ? undefined : { fontFamily: 'monospace' }}>{visningstekst ?? r.tilEid}</span>
                       )}
-                    </li>
+                    </Metatekst>
                   );
                 })}
               </ul>
@@ -723,10 +724,10 @@ export default function HandlingDetalj() {
 
           <section style={{ marginBottom: '2rem' }}>
             <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>Rotnode (overstyring)</Heading>
-            <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)', marginBottom: '0.75rem' }}>
+            <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
               Kobler denne ENE handlingens saksbehandling til en egen rotnode i vilkårstreet — mangler den,
               brukes rettighetens egen rotnode ({tjeneste?.rotnodeId ? 'satt' : 'ikke satt'}).
-            </Paragraph>
+            </Metatekst>
             {handling.rotnodeId ? (
               <Paragraph style={{ marginBottom: '0.75rem' }}>
                 Rotnode: <strong>{rotnode?.tittel ?? '…'}</strong>{' '}

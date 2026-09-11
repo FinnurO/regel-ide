@@ -6,6 +6,7 @@ import { eidVisningstekst, rettskildeLenke } from '../api/eidLenker';
 import type { RettskildeNodeDto, RettskildeSammendrag, TjenesteRegelverksreferanseDto } from '../api/types';
 import { KobleRegelverksreferanseForm } from '../rettskilde/KobleRegelverksreferanseForm';
 import type { DetaljVisning } from '../entitet/detaljVisning';
+import { Metatekst } from '../entitet/Metatekst';
 
 export interface RegelverkFaneProps {
   tjenesteId: string;
@@ -69,14 +70,14 @@ export function RegelverkFane({
                     const visningstekst = eidVisningstekst(r.tilEid, rettskilder, noderPerRettskilde);
                     const href = rettskildeLenke(r.tilEid, rettskilder);
                     return (
-                      <li key={r.id} style={{ fontSize: 'var(--ds-font-size-1)', display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <Metatekst as="li" key={r.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
                         <button type="button" onClick={() => visDetalj(r, rettskilde)}
                           style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', color: 'var(--ds-color-accent-text-default)', cursor: 'pointer', textAlign: 'left' }}>
                           {visningstekst ?? r.tilEid}
                         </button>
-                        {href && <Link asChild style={{ fontSize: 'var(--ds-font-size-1)' }}><RouterLink to={href}>↗</RouterLink></Link>}
+                        {href && <Metatekst as={Link} asChild><RouterLink to={href}>↗</RouterLink></Metatekst>}
                         <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjern(r.id)}>Fjern</Button>
-                      </li>
+                      </Metatekst>
                     );
                   })}
                 </ul>

@@ -6,6 +6,7 @@ import { eidVisningstekst, rettskildeLenke } from '../api/eidLenker';
 import type { RettskildeNodeDto, RettskildeReferanseDto, RettskildeSammendrag } from '../api/types';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { MinimalEditor } from './MinimalEditor';
+import { Metatekst } from '../entitet/Metatekst';
 
 const DOKUMENTTYPER = [
   { id: 'kommentar', label: 'Kommentar' },
@@ -300,14 +301,14 @@ export function KommentarRedigering({
                   return (
                     <li key={r.id} style={{ display: 'flex', alignItems: 'center', gap: 'var(--ds-size-2)' }}>
                       {href ? (
-                        <Link asChild style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                        <Metatekst as={Link} asChild>
                           <RouterLink to={href}>{visningstekst}</RouterLink>
-                        </Link>
+                        </Metatekst>
                       ) : (
-                        <span style={{ fontSize: 'var(--ds-font-size-1)' }}>{visningstekst}</span>
+                        <Metatekst as="span">{visningstekst}</Metatekst>
                       )}
                       {visningstekst !== r.tilEid && (
-                        <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>({r.tilEid})</span>
+                        <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>({r.tilEid})</Metatekst>
                       )}
                       <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernLovreferanse(r.id)}>
                         Fjern
@@ -370,10 +371,10 @@ export function KommentarRedigering({
             {versjoner && (
               <ul style={{ listStyle: 'none', padding: 0, margin: 'var(--ds-size-2) 0 0' }}>
                 {versjoner.map((v) => (
-                  <li key={v.id} style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                  <Metatekst as="li" key={v.id} style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
                     Versjon {v.versjon} — {v.overskrift ?? '(uten tittel)'}
                     {v.id === node.id && ' (gjeldende)'}
-                  </li>
+                  </Metatekst>
                 ))}
               </ul>
             )}

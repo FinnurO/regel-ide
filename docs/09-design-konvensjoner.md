@@ -755,7 +755,7 @@ canvasen fant og Johann besluttet, er destillert til §24–28 under; det er DE 
 bindende, på samme måte som resten av dette dokumentet. Der canvasen viser et forslag som ikke er
 besluttet ennå (VirksomhetDetalj-omstruktureringen, §28), sier §28 det eksplisitt.
 
-## 24. Metatekst — en delt komponent for 12px hjelpetekst (issue #266, 2026-09-11)
+## 24. Metatekst — en delt komponent for 12px hjelpetekst (issue #266, 2026-09-11, bygget samme dag)
 
 **231 steder i koden bruker `--ds-font-size-1` (12px) direkte i en inline-stil**, fordi
 `Paragraph`-komponentens egen `data-size`-skala aldri når ned dit (`xs` = 14px, `sm` = 16px, `md`
@@ -766,6 +766,44 @@ den dagen 12px-verdien endres, og ingen enkelt kilde å lese kontrakten fra.
 sekundærtekst) skal gå gjennom én delt `Metatekst`-komponent, ikke en ny inline `fontSize`/
 `--ds-font-size-1`-referanse. Komponenten er ren presentasjon (ingen egen logikk) — poenget er
 étt sted å style om fra, ikke ny funksjonalitet.
+
+**Bygget** (`entitet/Metatekst.tsx`): polymorf via en `as`-prop (default `Paragraph`, ellers
+`as="span"`/`as="div"`/`as={Link}` osv.) — de 231 stedene var IKKE alle `Paragraph` i utgangspunktet
+(mange var `span`, `div`, `li`, `nav`, `td`, `pre`, `ul`, `Link`, `Table.Cell`, `Textarea`, `button`,
+`select` — en semantisk endring til `<p>` ville vært feil i f.eks. en `<nav>`-brødsmulesti eller en
+tabellcelle). `style` spres ETTER komponentens egen default, slik at en eksplisitt `color` i kallerens
+`style` fortsatt vinner — dette var selve mekanismen som rettet de resterende 52 % (120 av 231
+opprinnelige forekomster) som manglet fargeparingen §6 krever: de fikk den nå gratis, uten at noen
+måtte gå gjennom og legge den til manuelt.
+
+**223 av 231 reelle bruksted migrert** mekanisk (et TypeScript-AST-basert skript i
+`RegelIde.Web/scratch-transform.mjs`, kjørt og deretter slettet — se PR-historikken — fant hvert
+JSX-element med `fontSize: 'var(--ds-font-size-1)'` i en INLINE `style={{...}}`, fjernet den
+egenskapen, og omdøpte taggen). Verifisert med `tsc -b --noEmit` (0 feil) — en feil sammenkobling av
+åpne-/lukketagger ville ha vist seg som en kompileringsfeil, ikke bare visuelt.
+
+**8 steder IKKE mekanisk migrert** — samme farge/størrelse, men verdien kommer fra en TS-funksjon
+som returnerer et style-objekt, ikke en bokstavelig inline `style={{...}}`:
+- `entitet/KontekstPanel.tsx` sin `RAD_STIL`-konstant (én delt modulvariabel, brukt av
+  KontekstPanel-radenes klikkbare knapp) — bevisst UTEN fargeparing: dette er en klikkbar
+  lenke-rad, ikke dempet hjelpetekst, og skal ikke lyses ned med `neutral-text-subtle`.
+- `tre/RettskildeTre.tsx` sine `rowType`/`markStyle`-funksjoner (7 forekomster) — se §30.
+
+Begge er allerede DRY (én funksjon/konstant, ikke kopiert), bare via en annen mekanisme enn en
+React-komponent — ikke tvunget om til `Metatekst` uten grunn.
+
+**De to rå, ikke-token-baserte verdiene** (issue-kriterium 6): `Importer.tsx:133` (`0.75rem`,
+samme pikseltall som `--ds-font-size-1`) migrert til `Metatekst` som resten. `index.css:129`
+(`.sidebar__badge`, 10px) beholdt rå — det finnes ingen token under `--ds-font-size-1` (12px,
+skalaens bunn), og det er en énslig, unik forekomst (et lite "kommer"-merke), ikke et gjentatt
+mønster. Kommentert i selve CSS-en.
+
+**Én reell, ubegrunnet inkonsekvens funnet og rettet** (issue-kriterium 5, kategori c):
+`TjenesteDetalj.tsx` sin sidetittel var en rå `<h1 className="h1" style={{ fontSize:
+'var(--ds-font-size-7)' }}>` — `className="h1"` pekte på en CSS-klasse som ikke finnes noe sted i
+kodebasen (død), og `-7` (30px) var mindre enn de andre 7 detaljsidenes tittel (`Heading level={1}
+data-size="lg"`, 36px) uten noen dokumentert grunn. Rettet til samme `Heading`-mønster som
+BegrepDetalj/VirksomhetDetalj/HandlingDetalj/KodelisteDetalj allerede bruker.
 
 ## 25. Statusfarge-konsolidering — fire ulike domener, ikke én generisk funksjon (issue #267, 2026-09-11, bygget samme dag)
 
@@ -862,4 +900,45 @@ Forslaget samler dem bak én «+ Legg til virksomhet»-inngang som faner i ett p
 avdekking, ingen funksjon fjernet), og tilsvarende slår `VirksomhetDetalj` sine 8 flate seksjoner
 sammen til faner, der «Myndighet & relasjoner» slår sammen 3 tidligere seksjoner. Bygges kun hvis/
 når issue #268 tas videre — ikke gjør denne endringen ut fra denne seksjonen alene.
+
+## 30. Andre fontstørrelser enn 12px — reelle, dokumenterte mønstre, ikke tilfeldighet (issue #266, kriterium 4, 2026-09-11)
+
+De 13 forekomstene av `--ds-font-size-2` til `-7` (utenom Metatekst/Heading) ble gjennomgått hver
+for seg (§16 — ikke anta at «annerledes enn -1» betyr «galt»). Alle er reelle, gjentatte mønstre,
+ikke tilfeldige enkeltvalg:
+
+- **KPI-tall i et statistikk-kort** (`--ds-font-size-5` + `fontWeight: 600`): `TjenesterListe.tsx`
+  sin `KpiKort` og `tjeneste/OversiktFane.tsx` sin `StatKort` — to lokale, ETT-fils-avgrensede
+  hjelpefunksjoner med identisk tall-typografi, men ulik ramme (`StatKort` er klikkbar, `KpiKort`
+  ikke; paddingen er ørlite ulik). Ikke slått sammen til én delt komponent — de er allerede DRY
+  hver for seg (én funksjon, ikke kopiert kode inni selve funksjonen), og de to bruksstedene er
+  reelt distinkte nok (klikkbar vs. ikke) at en tvungen felles komponent ville trengt en
+  `onClick?`-forgrening uten særlig gevinst. Selve TALL-TYPOGRAFIEN (`-5` + `600`) er likevel
+  konvensjonen for et KPI-tall i denne appen — bruk den, ikke en ny verdi, om et tredje sted trenger
+  det samme.
+- **Kommentar-/veiledningstekst rendret fra rå HTML** (`--ds-font-size-2`,
+  `dangerouslySetInnerHTML`): `TjenesteVeiledning.tsx` (×2) og `vilkarstre/Egenskapspanel.tsx` (×1)
+  — ekte, lesbart INNHOLD (forfattet i håndboken), ikke en hjelpetekst — riktig at det er ett hakk
+  større enn metatekst (14px mot 12px). Konsekvent alle tre steder.
+- **`tagging/TagTekst.tsx` sine to størrelser, nå forklart** (issue-teksten selv flagget disse som
+  udokumenterte): `-4` (18px) er selve LESETEKSTEN — rettskildeteksten man tagger i, bevisst større
+  for lesbarhet i en flate man bruker lenge. `-2` (14px) er tagge-VERKTØYETS EGNE hint-tekster
+  («Marker tekst for å tagge den», valgt-utdrag-forhåndsvisning) — mindre, fordi det er UI-krom
+  rundt leseteksten, ikke selve innholdet. To reelt ulike roller, ikke en tilfeldig forskjell —
+  ingen endring gjort.
+- **Rik-tekst-editorens skriveflate** (`--ds-font-size-3`, 16px): `handbok/MinimalEditor.tsx` sin
+  `contentEditable`-overflate — samme størrelse som `Paragraph`s `sm`, et bevisst valg for en
+  komfortabel skriveopplevelse (samme størrelsesfamilie som det ferdig-rendrede resultatet vises i,
+  jf. punktet over).
+- **Tolket struktur-forhåndsvisning** (`--ds-font-size-2`): `Importer.tsx` sin liste over tolkede
+  noder (`{n.nummer} — {n.overskrift}`) — reelt innhold i en forhåndsvisning, ikke en hjelpetekst,
+  derfor ingen fargedemping og ikke `Metatekst`.
+- **Graf-node-etiketter** (`0.75rem`/`0.85rem`, betinget på nodetype): `graf/TjenesteGrafCanvas.tsx`
+  — egen visuell kontekst (SVG-aktig node-canvas), samme prinsipp som RettskildeTre under.
+- **RettskildeTre sitt 5-nivå typografiske system** (`rowType`/`markStyle`, `tre/RettskildeTre.tsx`):
+  kapittel/underinndeling/paragraf/ledd/punkt har hver sin bevisste kombinasjon av størrelse
+  (`-1`/`-2`), vekt og farge — allerede innholdsverifisert og dokumentert i
+  `docs/design-canvas/RettskildeLesing.dc.html`. Beregnet i to rene funksjoner (ikke JSX-inline),
+  derfor ikke mekanisk migrert til `Metatekst` (§24) — samme "allerede DRY via en annen mekanisme"-
+  begrunnelse som `KontekstPanel`s `RAD_STIL`.
 

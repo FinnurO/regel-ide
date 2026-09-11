@@ -126,6 +126,10 @@ a.sidebar__item:hover {
 }
 
 .sidebar__badge {
+  /* [issue #266, 2026-09-11] Bevisst rå px, ikke en --ds-font-size-*-token: dette er et lite
+   * "kommer"-merke i sidemenyen, mindre enn selv --ds-font-size-1 (12px, skalaens minste). Ingen
+   * token dekker det — én, unik forekomst i hele appen, ikke et gjentatt mønster å bygge en egen
+   * token for. */
   font-size: 10px;
   font-weight: 700;
   padding: 1px 7px;

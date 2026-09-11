@@ -16,6 +16,7 @@ import { useSortering } from '../kandidater/useSortering';
 import { useKandidatvalg } from '../kandidater/useKandidatvalg';
 import { Massehandlingsrad } from '../kandidater/Massehandlingsrad';
 import { useNodeEtiketter, useRettskildeoppslag } from '../kandidater/useNodeEtiketter';
+import { Metatekst } from '../entitet/Metatekst';
 
 type Sorteringskolonne = 'foreslattTekst' | 'kategori' | 'rettskilde' | 'status' | 'opprettet';
 
@@ -533,11 +534,11 @@ export default function NavnekandidaterListe() {
           )}
         </Table.Cell>
         <Table.Cell>{rettskildeOppslag.tittel(k.rettskildeId)}</Table.Cell>
-        <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
+        <Metatekst as={Table.Cell}>
           <Link asChild>
             <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{nodeEtiketter.etikett(k.rettskildeId, k.nodeEid)} ↗</RouterLink>
           </Link>
-        </Table.Cell>
+        </Metatekst>
         <Table.Cell>
           {(() => {
             const departementer = rettskildeOppslag.ansvarligDepartement(k.rettskildeId);
@@ -581,9 +582,9 @@ export default function NavnekandidaterListe() {
                 </Button>
               </div>
               {k.status === 'Avvist' && (
-                <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
                   Lagring setter status tilbake til «Venter».
-                </span>
+                </Metatekst>
               )}
               {redigerFeil && <Alert data-color="danger" data-size="sm">{redigerFeil}</Alert>}
             </div>
@@ -614,9 +615,9 @@ export default function NavnekandidaterListe() {
                   <Button data-size="sm" variant="tertiary" onClick={() => enkelthandling(k.id, 'avvis')}>Avvis</Button>
                 </>
               ) : (
-                <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
                   {k.behandletAv ? `Behandlet av ${k.behandletAv}` : '—'}
-                </span>
+                </Metatekst>
               )}
               {/* Vist for ALLE statuser (ikke bare Venter) — formålet med sletting er full opprydding av
                   korpuset (også allerede godkjente/avviste rader), se NavnekandidatOppdagelseTjeneste
@@ -646,10 +647,10 @@ export default function NavnekandidaterListe() {
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
           Kjør sveip
         </Heading>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.5rem' }}>
+        <Metatekst style={{ marginBottom: '0.5rem' }}>
           Ingen rettskilde valgt = hele det importerte korpuset. Dekningen er begrenset til det som
           faktisk er importert, ikke alle norske lover/forskrifter.
-        </Paragraph>
+        </Metatekst>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
           <RettskildeVelger rettskilder={rettskilder} value={sveipRettskildeId} onChange={setSveipRettskildeId} label="Rettskilde (tomt = hele korpuset)" />
           <Button data-size="sm" onClick={kjorSveip} disabled={sveiper}>
@@ -715,11 +716,11 @@ export default function NavnekandidaterListe() {
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
           Filtrer og grupper
         </Heading>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
           Virker på listen som allerede er hentet (kategori/status over styrer selve
           serverspørringen) — nyttig for å se f.eks. samme foreslåtte tekst på tvers av mange
           rettskilder i sammenheng, i stedet for spredt ut over hundrevis av enkeltrader.
-        </Paragraph>
+        </Metatekst>
         <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
           <RettskildeFlervalg
             rettskilder={rettskilder}
@@ -772,14 +773,14 @@ export default function NavnekandidaterListe() {
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
           Slett stort, filtrert delsett
         </Heading>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
           For å tømme HELE korpuset eller et stort filtrert delsett (kategori/status over, rettskilder i
           flervalget over) UAVHENGIG av hvilke rader som tilfeldigvis er avkrysset — nyttig f.eks. før et
           nytt sveip med oppdaterte mønsterregler (den posisjonsbaserte idempotensen hindrer ellers et
           nytt sveip i å re-evaluere allerede sveipet tekst). Respekterer IKKE «Foreslått tekst
           inneholder»-filteret over — kun kategori/status/rettskilde gjør det. Skal du derimot slette et
           PRESIST utvalg rader, bruk «Slett valgte» i raden over i stedet.
-        </Paragraph>
+        </Metatekst>
         <Button
           data-size="sm"
           data-color="danger"

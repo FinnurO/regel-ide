@@ -5,6 +5,7 @@ import { ApiError, api } from '../api/client';
 import type { BegrepsforslagDto, RettskildeSammendrag } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
 import { RettskildeFlervalg } from '../rettskilde/RettskildeFlervalg';
+import { Metatekst } from '../entitet/Metatekst';
 
 /**
  * «Identifiser begrep» (byggesteg 5 runde 1, docs/06-veikart.md) — rent rettskilde-drevet, ingen
@@ -138,9 +139,9 @@ export default function BegrepsforslagKo() {
             <Alert data-color="info" style={{ marginBottom: '0.3rem' }}>{sisteKjoring.melding}</Alert>
           )}
           {(sisteKjoring.inputTokens !== null || sisteKjoring.outputTokens !== null) && (
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+            <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
               Siste KI-kall: {sisteKjoring.inputTokens ?? '—'} input-tokens, {sisteKjoring.outputTokens ?? '—'} output-tokens.
-            </Paragraph>
+            </Metatekst>
           )}
         </div>
       )}
@@ -153,9 +154,9 @@ export default function BegrepsforslagKo() {
       {ko && ko.length > 0 && (
         <>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0 }}>
+            <Metatekst style={{ margin: 0 }}>
               {valgte.size} valgt{valgte.size === 1 ? '' : 'e'}
-            </Paragraph>
+            </Metatekst>
             <Button data-size="sm" onClick={() => massehandling('godkjenn')} disabled={valgte.size === 0 || massehandlingKjorer}>
               {massehandlingKjorer ? 'Godkjenner …' : 'Godkjenn valgte'}
             </Button>
@@ -195,8 +196,8 @@ export default function BegrepsforslagKo() {
                     <Link asChild><RouterLink to={`/begreper/${f.begrep.id}`}>{f.begrep.term}</RouterLink></Link>
                   </Table.Cell>
                   <Table.Cell>{f.begrep.begrepstype}</Table.Cell>
-                  <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{f.begrep.definisjon}</Table.Cell>
-                  <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{f.aiForslagVersjon ?? '—'}</Table.Cell>
+                  <Metatekst as={Table.Cell}>{f.begrep.definisjon}</Metatekst>
+                  <Metatekst as={Table.Cell}>{f.aiForslagVersjon ?? '—'}</Metatekst>
                   <Table.Cell>
                     <div style={{ display: 'flex', gap: '0.4rem' }}>
                       <Button variant="tertiary" data-size="sm" onClick={() => avvis(f.begrep.id)}>Avvis</Button>
@@ -211,11 +212,11 @@ export default function BegrepsforslagKo() {
         </>
       )}
 
-      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '1.5rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
+      <Metatekst style={{ marginTop: '1.5rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
         Byggesteg 5 runde 1: KI-klienten er en stub (KiAgentKlientStub) — den returnerer ett fast
         eksempelforslag for å bevise kø-/godkjenningsmekanismen, ikke ekte språkmodell-resonnering.
         Ekte leverandørvalg er en egen, senere beslutning.
-      </Paragraph>
+      </Metatekst>
     </>
   );
 }

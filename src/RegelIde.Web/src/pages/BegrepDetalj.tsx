@@ -8,6 +8,7 @@ import { finnRettskildeForEid, rettskildeLenke, rettskildeLenkeForId } from '../
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import type { BegrepBruktIRettskildeDto, BegrepDefinisjonRelasjonDto, BegrepDto, BegrepTaggetForekomstDto, RettskildeSammendrag, VilkarDto } from '../api/types';
 import { StatusStepper } from '../entitet/StatusStepper';
+import { Metatekst } from '../entitet/Metatekst';
 
 export default function BegrepDetalj() {
   const { id } = useParams<{ id: string }>();
@@ -99,11 +100,11 @@ export default function BegrepDetalj() {
 
   return (
     <>
-      <nav aria-label="Brødsmulesti" style={{ display: 'flex', gap: '0.4rem', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+      <Metatekst as="nav" aria-label="Brødsmulesti" style={{ display: 'flex', gap: '0.4rem', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
         <Link asChild><RouterLink to="/begreper">Begreper</RouterLink></Link>
         <span>/</span>
         <span style={{ color: 'var(--ds-color-neutral-text-default)' }}>«{begrep.term}»</span>
-      </nav>
+      </Metatekst>
 
       <Heading level={1} data-size="lg">
         «{begrep.term}»
@@ -118,9 +119,9 @@ export default function BegrepDetalj() {
         {begrep.begrepskategori === 'gruppe' && <Tag data-color="success" data-size="sm">Gruppebegrep</Tag>}
         {/* [Ny, issue #203 pkt. 2] */}
         {begrep.begrepskategori === 'administrativ_inndeling' && <Tag data-color="success" data-size="sm">Administrativ inndeling</Tag>}
-        <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+        <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
           Eier: {visEier(begrep.virksomhetId)}
-        </span>
+        </Metatekst>
       </Paragraph>
 
       {(begrep.begrepskategori === 'virksomhet' || begrep.begrepskategori === 'gruppe'
@@ -187,7 +188,7 @@ export default function BegrepDetalj() {
           <Textfield label="Lovreferanse (eId)" value={lovreferanseEid} onChange={(e) => setLovreferanseEid(e.target.value)}
             style={{ fontFamily: 'monospace' }} />
           {begrep.lovreferanseEid && (
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '-0.5rem', display: 'flex', gap: '0.4rem', alignItems: 'baseline', flexWrap: 'wrap' }}>
+            <Metatekst style={{ marginTop: '-0.5rem', display: 'flex', gap: '0.4rem', alignItems: 'baseline', flexWrap: 'wrap' }}>
               {(() => {
                 // [Rettet, 2026-09-02] Vis rettskildens navn som lenketekst (mer interessant enn den
                 // rå eId-en, Johann) — eId-en beholdes fortsatt synlig, bare som liten metatekst ved
@@ -200,13 +201,13 @@ export default function BegrepDetalj() {
                 return (
                   <>
                     <Link asChild><RouterLink to={href}>{rettskilde.tittel}</RouterLink></Link>
-                    <span style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                    <Metatekst as="span" style={{ fontFamily: 'monospace', color: 'var(--ds-color-neutral-text-subtle)' }}>
                       ({begrep.lovreferanseEid})
-                    </span>
+                    </Metatekst>
                   </>
                 );
               })()}
-            </Paragraph>
+            </Metatekst>
           )}
           {begrep.begrepskategori !== 'virksomhet' && begrep.begrepskategori !== 'gruppe'
             && begrep.begrepskategori !== 'administrativ_inndeling' && (
@@ -270,10 +271,10 @@ export default function BegrepDetalj() {
             </Heading>
           );
         })()}
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
           Steder i den definerende rettskilden som er EKTE, bekreftede koblinger til akkurat dette begrepet (samme
           tekstmerkings-mekanisme som resten av appen), ikke bare et tekstlig sammenfall.
-        </Paragraph>
+        </Metatekst>
         <Card style={{ padding: taggedeForekomster.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
           {taggedeForekomster.length === 0 ? (
             <Paragraph style={{ margin: 0 }}>Ingen andre taggkoblede forekomster funnet i den definerende rettskilden ennå.</Paragraph>
@@ -284,9 +285,9 @@ export default function BegrepDetalj() {
                   <Link asChild>
                     <RouterLink to={rettskildeLenkeForId(t.rettskildeId, t.nodeEid)}>{t.rettskildeTittel}</RouterLink>
                   </Link>
-                  <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', margin: 0 }}>
+                  <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', margin: 0 }}>
                     {t.quotePrefix}<strong style={{ color: 'var(--ds-color-neutral-text-default)' }}>{t.quoteExact}</strong>{t.quoteSuffix}
-                  </Paragraph>
+                  </Metatekst>
                 </div>
               ))}
             </div>
@@ -304,11 +305,11 @@ export default function BegrepDetalj() {
           <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
             Også definert i {definisjonsrelasjoner.length} {definisjonsrelasjoner.length === 1 ? 'annen rettskilde' : 'andre rettskilder'}
           </Heading>
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
+          <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
             Samme definisjonstekst (eksakt lik etter normalisering) funnet i en ANNEN forskrift, bekreftet av en
             saksbehandler — se det relaterte begrepet for dets egen ordlyd og hjemmel. Ikke slått sammen til ett
             begrep her (issue #212).
-          </Paragraph>
+          </Metatekst>
           <Card style={{ padding: 0, overflow: 'hidden' }}>
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.75rem' }}>
               {definisjonsrelasjoner.map((r) => {
@@ -353,9 +354,9 @@ export default function BegrepDetalj() {
                   <Link asChild>
                     <RouterLink to={rettskildeLenkeForId(r.rettskildeId, r.nodeEid)}>{r.rettskildeTittel}</RouterLink>
                   </Link>
-                  <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', margin: 0 }}>
+                  <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', margin: 0 }}>
                     {r.snippet}
-                  </Paragraph>
+                  </Metatekst>
                 </div>
               ))}
             </div>

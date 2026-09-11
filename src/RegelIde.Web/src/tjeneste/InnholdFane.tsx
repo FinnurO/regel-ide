@@ -1,6 +1,6 @@
 import { createContext, useContext, useState, type Dispatch, type ReactNode, type SetStateAction } from 'react';
 import {
-  Alert, Button, Label, Paragraph, Select, Tag, Textarea, Textfield,
+  Alert, Button, Label, Select, Tag, Textarea, Textfield,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { GYLDIGE_RETTIGHETSTYPER } from '../api/types';
@@ -12,6 +12,7 @@ import { ACCORDION_LABELER, feltnokkelForEgetInnhold } from '../api/tjenesteFelt
 import { KobleRegelverksreferanseForm } from '../rettskilde/KobleRegelverksreferanseForm';
 import { Accordion } from '../entitet/Accordion';
 import type { DetaljVisning } from '../entitet/detaljVisning';
+import { Metatekst } from '../entitet/Metatekst';
 
 // ---------- Felt-nivå regelverksreferanser (§-tagger) — delt av alle felt i denne fanen ----------
 
@@ -101,7 +102,7 @@ function Felt({ feltKey, label, spanFull, help, children }: { feltKey: string; l
         <FeltReferanser feltKey={feltKey} />
       </div>
       {children}
-      {help && <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.2rem' }}>{help}</Paragraph>}
+      {help && <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.2rem' }}>{help}</Metatekst>}
     </div>
   );
 }
@@ -304,9 +305,9 @@ export function InnholdFane({
     <Ctx.Provider value={ctxValue}>
       <div style={{ maxWidth: '780px' }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: '0.5rem', marginBottom: '0.75rem' }}>
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', margin: 0 }}>
+          <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', margin: 0 }}>
             Alle tjenester har de faste seksjonene. Legg til egne innholdselementer nederst ved behov.
-          </Paragraph>
+          </Metatekst>
           <div style={{ display: 'flex', gap: '0.5rem', flex: '0 0 auto' }}>
             <Button type="button" variant="secondary" data-size="sm" onClick={() => apneAlleAccordions(true)}>Åpne alle</Button>
             <Button type="button" variant="secondary" data-size="sm" onClick={() => apneAlleAccordions(false)}>Lukk alle</Button>

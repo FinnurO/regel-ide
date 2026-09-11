@@ -16,6 +16,7 @@ import { NavneformgrunnVelger } from '../virksomhet/Navneformgrunn';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { KonfidensTag, konfidensGrunnTekst } from '../kandidater/KonfidensTag';
+import { Metatekst } from '../entitet/Metatekst';
 
 /**
  * [Ny, navnekandidat-wizard-runden, 2026-09-07] Behandling av ÉN navnekandidat, ende til ende.
@@ -522,7 +523,7 @@ export default function NavnekandidatVeiviser() {
           <Heading level={2} data-size="xs" style={{ marginBottom: '0.35rem' }}>Dette skjedde</Heading>
           <ul style={{ margin: '0 0 1rem 1.1rem', padding: 0 }}>
             {ferdig.detaljer.map((d) => (
-              <li key={d} style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>{d}</li>
+              <Metatekst as="li" key={d} style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>{d}</Metatekst>
             ))}
           </ul>
           <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
@@ -584,10 +585,10 @@ export default function NavnekandidatVeiviser() {
             </Card>
           )}
           {ferdig.rettskildeLenke && ferdig.taggLag && (
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.75rem', marginBottom: 0 }}>
+            <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.75rem', marginBottom: 0 }}>
               Taggen ligger i laget «{ferdig.taggLag}» i tagg-velgeren over lovteksten — velg det
               laget for å se markeringen.
-            </Paragraph>
+            </Metatekst>
           )}
         </Card>
       ) : (
@@ -595,10 +596,10 @@ export default function NavnekandidatVeiviser() {
           {/* ---------------- Steg 0: Kontekst ---------------- */}
           <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
             <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>Slik står treffet</Heading>
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+            <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
               Slik står treffet i rettskilden. Les setningen før du bestemmer deg — er treffet feil
               avgrenset, rettes teksten i neste steg.
-            </Paragraph>
+            </Metatekst>
 
             <Table data-size="sm" style={{ marginBottom: '0.75rem', width: '100%' }}>
               <Table.Body>
@@ -617,9 +618,9 @@ export default function NavnekandidatVeiviser() {
                 <Table.Row>
                   <Table.HeaderCell scope="row">Node</Table.HeaderCell>
                   <Table.Cell>
-                    <span style={{ fontFamily: 'var(--ds-font-family-mono, monospace)', fontSize: 'var(--ds-font-size-1)' }}>
+                    <Metatekst as="span" style={{ fontFamily: 'var(--ds-font-family-mono, monospace)' }}>
                       {kandidat.nodeEid}
-                    </span>
+                    </Metatekst>
                   </Table.Cell>
                 </Table.Row>
                 <Table.Row>
@@ -648,14 +649,14 @@ export default function NavnekandidatVeiviser() {
                     {kandidat.konfidens ? (
                       <span style={{ display: 'flex', gap: '0.5rem', alignItems: 'baseline', flexWrap: 'wrap' }}>
                         <KonfidensTag konfidens={kandidat.konfidens} grunn={kandidat.konfidensGrunn} />
-                        <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                        <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
                           {konfidensGrunnTekst(kandidat.konfidensGrunn)}
-                        </span>
+                        </Metatekst>
                       </span>
                     ) : (
-                      <span style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
+                      <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
                         Ikke klassifisert — gruppe-kandidater sendes aldri til SNL/SSR.
-                      </span>
+                      </Metatekst>
                     )}
                   </Table.Cell>
                 </Table.Row>
@@ -682,21 +683,21 @@ export default function NavnekandidatVeiviser() {
           {steg >= 1 && (
             <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
               <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>1. Er teksten riktig?</Heading>
-              <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+              <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
                 Rett teksten når sveipet har tatt med tegn som ikke hører til navnet («Ø Suldal
                 kommune», der Ø kommer fra en koordinat rett foran), eller når mønsteret har KUTTET
                 navnet for kort — «Reguleringsmyndigheten» der loven skriver «Reguleringsmyndigheten
                 for energi». Begge er artefakter fra mønsteret, ikke opplysninger om navnet.
-              </Paragraph>
+              </Metatekst>
               {/* [Ny, konfidens-runden, 2026-09-09] Dette er ikke en detalj: uten at posisjonene
                 * følger teksten ville taggen sitert de opprinnelige 22 tegnene mens navneformen
                 * hadde 33. Se ReankreTilNyTekstAsync. */}
-              <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+              <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
                 Skriver du en tekst som FINNES i setningen over, flyttes tegnposisjonene dit, slik at
                 taggen dekker hele navnet. Retter du en skrivemåte som ikke står slik i loven
                 («Matilsynet» → «Mattilsynet»), står posisjonene igjen på det som faktisk står — og da
                 er en begrunnelse («feilskriving») den riktige mekanismen, ikke en rettet tekst.
-              </Paragraph>
+              </Metatekst>
               <Textfield
                 data-size="sm"
                 label="Foreslått tekst"
@@ -726,10 +727,10 @@ export default function NavnekandidatVeiviser() {
           {steg >= 2 && (
             <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
               <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>2. Hva slags ting er dette?</Heading>
-              <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+              <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
                 «Administrativ inndeling» er bevisst ikke med i denne runden — velg «Ikke relevant»
                 hvis treffet er det, og ta det opp separat.
-              </Paragraph>
+              </Metatekst>
               <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
                 <Radio
                   name="slag"
@@ -798,12 +799,12 @@ export default function NavnekandidatVeiviser() {
               <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>
                 3. {stegTitler(slag)[3]}
               </Heading>
-              <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+              <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
                 Finn virksomheten i katalogen, eller opprett den — fra Brønnøysundregisteret hvis den
                 er registrert der, ellers med bare navnet.
                 {slag === 'gruppemedlem'
                   && ' Velg deretter hvilken gruppe teksten navngir den som medlem av.'}
-              </Paragraph>
+              </Metatekst>
 
               <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
                 <Radio name="vei" label="Velg fra katalogen" value="eksisterende"
@@ -911,11 +912,11 @@ export default function NavnekandidatVeiviser() {
                   <Heading level={3} data-size="xs" style={{ marginBottom: '0.35rem' }}>
                     Hvilken gruppe navngir teksten den som medlem av?
                   </Heading>
-                  <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
+                  <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
                     Gruppen må finnes som gruppebegrep fra før — den er definert i en LOV, mens denne
                     rettskilden bare navngir medlemmene. Mangler gruppen, må den opprettes fra
                     lovteksten som definerer den først.
-                  </Paragraph>
+                  </Metatekst>
                   {/* docs/09 §15: «ingen gruppebegrep finnes» er en påstand, og skal ikke vises mens
                     * lista fortsatt lastes. */}
                   {gruppebegrep === null ? (
@@ -950,10 +951,10 @@ export default function NavnekandidatVeiviser() {
               <Heading level={3} data-size="xs" style={{ marginBottom: '0.35rem' }}>
                 Hvorfor peker «{kandidat.foreslattTekst}» på denne virksomheten?
               </Heading>
-              <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
+              <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
                 Dette er stedet for legitime strenger som ikke er det offisielle navnet — et utgått
                 navn, en kortform, eller en skrivefeil i kildeteksten. Kan stå tom.
-              </Paragraph>
+              </Metatekst>
               <NavneformgrunnVelger
                 value={navneformgrunn}
                 onChange={setNavneformgrunn}
@@ -974,9 +975,9 @@ export default function NavnekandidatVeiviser() {
           {steg >= 4 && (
             <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
               <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>4. Bekreft</Heading>
-              <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+              <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
                 Dette blir opprettet eller endret når du fullfører:
-              </Paragraph>
+              </Metatekst>
               <Table data-size="sm" style={{ marginBottom: '1rem', width: '100%' }}>
                 <Table.Body>
                   <Table.Row>
@@ -994,9 +995,9 @@ export default function NavnekandidatVeiviser() {
                         {valgtGruppe ? `«${valgtGruppe.term}»` : '—'}
                         {/* Hjemmelen er ikke et valg, og skal derfor STÅ her, ikke velges: den er
                           * alltid kandidatens egen rettskilde. Se KoblTilGruppemedlemskapAsync. */}
-                        <span style={{ display: 'block', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                        <Metatekst as="span" style={{ display: 'block', color: 'var(--ds-color-neutral-text-subtle)' }}>
                           Hjemlet i {rettskilde?.tittel ?? 'denne rettskilden'} — det er her navnet står.
-                        </span>
+                        </Metatekst>
                       </Table.Cell>
                     </Table.Row>
                   )}

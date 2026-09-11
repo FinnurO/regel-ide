@@ -39,6 +39,7 @@ import { Link as RouterLink } from 'react-router';
 import { ToggleGroup, Tag, Button, Link } from '@digdir/designsystemet-react';
 // [Ny, tagg-synlig-runden, 2026-09-08] Lagvalget ligger i en egen, ren modul — se lagvalg.ts.
 import { velgAktivtLag } from './lagvalg';
+import { Metatekst } from '../entitet/Metatekst';
 
 /* ------------------------------ typer ------------------------------ */
 
@@ -464,18 +465,17 @@ function BlokkListe({
       {blokker.map((b) => (
         <li key={b.nokkel} style={{ display: 'flex', gap: 'var(--ds-size-3)', alignItems: 'flex-start' }}>
           {b.merke && (
-            <span
+            <Metatekst as="span"
               title={b.merkeForklaring}
               style={{
                 flex: '0 0 auto',
                 minWidth: '1.6rem',
-                fontSize: 'var(--ds-font-size-1)',
                 color: 'var(--ds-color-neutral-text-subtle)',
                 lineHeight: 'var(--ds-line-height-lg)',
               }}
-            >
+>
               {b.merke}
-            </span>
+            </Metatekst>
           )}
           <div style={{ flex: 1, minWidth: 0 }}>
             {rendreBlokk(b)}
@@ -723,9 +723,9 @@ export function TagTekst({
           <BlokkListe blokker={underblokker} rendreBlokk={rendreUnderblokk} />
           {/* Metatekst etter `docs/09` §6: font-size-1 KOMBINERT med neutral-text-subtle, ikke opacity. */}
           {underblokkerFotnote && (
-            <div style={{ marginTop: 'var(--ds-size-2)', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+            <Metatekst as="div" style={{ marginTop: 'var(--ds-size-2)', color: 'var(--ds-color-neutral-text-subtle)' }}>
               {underblokkerFotnote}
-            </div>
+            </Metatekst>
           )}
         </>
       )}
@@ -847,13 +847,13 @@ export function TagTekst({
                     })()}
                 </span>
                 {!readOnly && !t.ref && onLinkTag && (registry?.[t.kind]?.length ?? 0) > 0 && (
-                  <select
+                  <Metatekst as="select"
                     aria-label={`Koble tagg til eksisterende ${kindById[t.kind]?.label ?? t.kind}`}
                     defaultValue=""
                     onChange={(e) => {
                       if (e.target.value) onLinkTag(t.id, e.target.value);
                     }}
-                    style={{ fontSize: 'var(--ds-font-size-1)' }}
+                    
                   >
                     <option value="" disabled>
                       Koble til …
@@ -863,7 +863,7 @@ export function TagTekst({
                         {cand.label}
                       </option>
                     ))}
-                  </select>
+                  </Metatekst>
                 )}
                 {!readOnly && !t.ref && onOpprettFraTag && (opprettFraTagKinds ?? []).includes(t.kind) && (
                   <Button variant="tertiary" data-size="sm" onClick={() => onOpprettFraTag(t.id, t.kind)}>

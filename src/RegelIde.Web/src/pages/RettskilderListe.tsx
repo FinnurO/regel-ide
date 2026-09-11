@@ -11,6 +11,7 @@ import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { byggDepartementOppslag, departementVirksomhetId } from '../virksomhet/departementLenke';
+import { Metatekst } from '../entitet/Metatekst';
 
 // 'departement' lagt til (issue #193) — se AnsvarligDepartement. Sorteringsnøkkelen for en rad med
 // FLERE departementer (fler-verdi-departement, 2026-09-04) er den alfabetisk LAVESTE av dem, se
@@ -368,15 +369,14 @@ export default function RettskilderListe() {
                     <RouterLink to={`/rettskilder/${r.id}`}>{r.tittel}</RouterLink>
                   </Link>
                   {r.kortnavn && (
-                    <span
+                    <Metatekst as="span"
                       style={{
                         marginLeft: '0.5rem',
-                        fontSize: 'var(--ds-font-size-1)',
                         color: 'var(--ds-color-neutral-text-subtle)',
                       }}
-                    >
+>
                       {r.kortnavn}
-                    </span>
+                    </Metatekst>
                   )}
                 </Table.Cell>
                 <Table.Cell>{r.kildetype}</Table.Cell>
@@ -442,15 +442,14 @@ export default function RettskilderListe() {
                     <RouterLink to={`/rettskilder/${r.id}`}>{r.tittel}</RouterLink>
                   </Link>
                   {r.kortnavn && (
-                    <span
+                    <Metatekst as="span"
                       style={{
                         marginLeft: '0.5rem',
-                        fontSize: 'var(--ds-font-size-1)',
                         color: 'var(--ds-color-neutral-text-subtle)',
                       }}
-                    >
+>
                       {r.kortnavn}
-                    </span>
+                    </Metatekst>
                   )}
                 </Table.Cell>
                 <Table.Cell>{r.kildetype}</Table.Cell>
@@ -478,9 +477,9 @@ export default function RettskilderListe() {
                   {r.erIrrelevant && <Tag data-color="warning" data-size="sm">Irrelevant</Tag>}
                   {erIkkeTraadtIKraft(r) && <Tag data-color="warning" data-size="sm">Ikke i kraft</Tag>}
                 </Table.Cell>
-                <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)', maxWidth: '24rem' }}>
+                <Metatekst as={Table.Cell} style={{ maxWidth: '24rem' }}>
                   {r.erIrrelevant && r.irrelevantKommentar ? r.irrelevantKommentar : '—'}
-                </Table.Cell>
+                </Metatekst>
               </Table.Row>
             ))}
           </Table.Body>
@@ -567,16 +566,16 @@ export default function RettskilderListe() {
                       {importstatusPaginering.visteRader.map((s) => (
                         <Table.Row key={s.datokode}>
                           <Table.Cell>{s.tittel ?? '—'}</Table.Cell>
-                          <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{s.datokode}</Table.Cell>
+                          <Metatekst as={Table.Cell}>{s.datokode}</Metatekst>
                           <Table.Cell>{s.type}</Table.Cell>
-                          <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                          <Metatekst as={Table.Cell}>
                             <Link href={s.eli} target="_blank" rel="noopener noreferrer">
                               {s.eli}
                             </Link>
-                          </Table.Cell>
-                          <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)', maxWidth: '24rem' }}>
+                          </Metatekst>
+                          <Metatekst as={Table.Cell} style={{ maxWidth: '24rem' }}>
                             {s.feilmelding ?? '—'}
-                          </Table.Cell>
+                          </Metatekst>
                           <Table.Cell>
                             <Button
                               data-size="sm"

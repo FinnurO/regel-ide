@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
-import { Button, Paragraph } from '@digdir/designsystemet-react';
+import { Button } from '@digdir/designsystemet-react';
+import { Metatekst } from '../entitet/Metatekst';
 
 /**
  * [Ny, kandidatside-runden, 2026-09-09, issue #216] Massehandlingsraden over en kandidattabell:
@@ -54,10 +55,10 @@ export function Massehandlingsrad({
           til midten av labelen. Bunnjustering setter dem på samme linje som selve velgeren. Uten
           children har alle elementene samme høyde, og det ser identisk ut med før. */}
       <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '1rem', flexWrap: 'wrap' }}>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0, paddingBottom: '0.4rem' }}>
+        <Metatekst style={{ margin: 0, paddingBottom: '0.4rem' }}>
           {antallValgte} valgt{antallValgte === 1 ? '' : 'e'}
           {merknad ?? ''}
-        </Paragraph>
+        </Metatekst>
         {children}
         <Button data-size="sm" onClick={onGodkjenn} disabled={ingenting || kjorer}>
           {kjorer ? 'Godkjenner …' : 'Godkjenn valgte'}

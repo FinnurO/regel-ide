@@ -16,6 +16,7 @@ import {
 import { tolkModelleksportJson, type RaaAvhengighet, type RaaRettighet } from '../import/modelleksportTyper';
 import { FELTVISNING_DEFAULT, type FeltvisningValg, type GrafKantLik, type GrafNodeLik } from '../graf/grafFelles';
 import { TjenesteGrafCanvas } from '../graf/TjenesteGrafCanvas';
+import { Metatekst } from '../entitet/Metatekst';
 
 interface ReferanseTilstand {
   lov: string | null;
@@ -414,17 +415,17 @@ export default function ImportWizard() {
           />
           <Field>
             <Label>… eller lim inn JSON-en direkte</Label>
-            <Textarea
+            <Metatekst as={Textarea}
               value={raaTekst}
               onChange={(e) => setRaaTekst(e.target.value)}
               rows={12}
-              style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}
+              style={{ fontFamily: 'monospace' }}
             />
           </Field>
           {raaTekst.length > 0 && (
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.3rem' }}>
+            <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.3rem' }}>
               {raaTekst.length.toLocaleString('nb')} tegn lastet inn.
-            </Paragraph>
+            </Metatekst>
           )}
           {parseFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{parseFeil}</Alert>}
           <Button data-size="sm" style={{ marginTop: '0.75rem' }} onClick={lastOpp} disabled={!raaTekst.trim() || tolker}>
@@ -463,9 +464,9 @@ export default function ImportWizard() {
               behandles akkurat nå, ikke bare en tellerposisjon. */}
           {bulkKjorer && bulkFremdrift && (
             <div style={{ marginBottom: '1rem', maxWidth: '32rem' }}>
-              <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.3rem' }}>
+              <Metatekst style={{ marginBottom: '0.3rem' }}>
                 «{bulkGjeldendeNavn}» … ({bulkFremdrift.ferdig}/{bulkFremdrift.totalt})
-              </Paragraph>
+              </Metatekst>
               <div style={{ height: '0.4rem', borderRadius: '999px', overflow: 'hidden', background: 'var(--ds-color-neutral-surface-active)' }}>
                 <div
                   style={{
@@ -487,11 +488,11 @@ export default function ImportWizard() {
 
           {visGraf && inMemoryGraf && (
             <div style={{ marginBottom: '1.5rem' }}>
-              <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
+              <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
                 In-memory forhåndsvisning av HELE den opplastede filen (kun batch-interne
                 tjeneste↔tjeneste-avhengigheter — eksterne referanser og ikke-navngitte treff vises
                 ikke her). Ingenting er lagret ennå.
-              </Paragraph>
+              </Metatekst>
               <Checkbox
                 label="Inkluder handlinger"
                 checked={grafInkludererHandlinger}
@@ -521,9 +522,9 @@ export default function ImportWizard() {
                   {ferdig && <Tag data-color="success" data-size="sm">{t.opprettetTjenesteId ? 'Opprettet' : 'Koblet til eksisterende'}</Tag>}
                 </Details.Summary>
                 <Details.Content>
-                  <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                  <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
                     {raa.formal ?? '(ingen formålstekst)'} — kompetent myndighet (fritekst, uendret): «{raa.kompetent_myndighet ?? '—'}»
-                  </Paragraph>
+                  </Metatekst>
 
                   {t.opprettetTjenesteId && (
                     <>
@@ -539,11 +540,11 @@ export default function ImportWizard() {
                   )}
 
                   {!ferdig && !apnet && (
-                    <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                    <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
                       Åpne raden for å velge mål-virksomhet manuelt eller koble referanser — «Importer
                       alle N gjenstående» over bruker det forhåndsgjettede/forvalgte uten at du trenger
                       å åpne noen rad.
-                    </Paragraph>
+                    </Metatekst>
                   )}
                   {!ferdig && apnet && (
                     <>
@@ -556,9 +557,9 @@ export default function ImportWizard() {
                           tomValgTekst="Velg virksomhet …"
                         />
                         {gjeldendeBruker && t.malVirksomhetId && t.malVirksomhetId !== gjeldendeBruker.virksomhetId && (
-                          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-warning-text-default)' }}>
+                          <Metatekst style={{ color: 'var(--ds-color-warning-text-default)' }}>
                             Lander som forslag i denne virksomhetens kø — ikke direkte gjeldende.
-                          </Paragraph>
+                          </Metatekst>
                         )}
                       </div>
 
@@ -585,14 +586,14 @@ export default function ImportWizard() {
 
                       {t.referanser.length > 0 && (
                         <div style={{ marginBottom: '0.75rem' }}>
-                          <Paragraph style={{ fontWeight: 'var(--ds-font-weight-medium)', fontSize: 'var(--ds-font-size-1)' }}>
+                          <Metatekst style={{ fontWeight: 'var(--ds-font-weight-medium)' }}>
                             Regelverksreferanser
-                          </Paragraph>
+                          </Metatekst>
                           {t.referanser.map((r, j) => (
                             <div key={j} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
-                              <span style={{ fontSize: 'var(--ds-font-size-1)', minWidth: '12rem' }}>
+                              <Metatekst as="span" style={{ minWidth: '12rem' }}>
                                 «{r.lov ?? '—'}» {r.henvisning ? `→ ${r.henvisning}` : ''}{r.felt ? ` (felt: ${r.felt})` : ''}
-                              </span>
+                              </Metatekst>
                               {!r.utelatt && (
                                 <>
                                   <RettskildeVelgerForsokFylt
@@ -654,9 +655,9 @@ function RettskildeVelgerForsokFylt({
     <div style={{ display: 'flex', gap: '0.4rem', alignItems: 'center' }}>
       <RettskildeVelger rettskilder={rettskilder} value={value} onChange={onChange} label="Rettskilde" />
       {gjettSokeord && !value && (
-        <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+        <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
           (forslag: søk «{gjettSokeord}»)
-        </span>
+        </Metatekst>
       )}
     </div>
   );
@@ -826,9 +827,9 @@ function AvhengigheterSeksjon({ rettigheter, navnTilId }: { rettigheter: RaaRett
         const trengerManueltValg = k.malType === 'tjeneste' && !k.tilId && !manueltValgtId.get(k.key);
         return (
           <div key={k.key} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap', marginBottom: '0.4rem' }}>
-            <span style={{ fontSize: 'var(--ds-font-size-1)', minWidth: '28rem' }}>
+            <Metatekst as="span" style={{ minWidth: '28rem' }}>
               «{k.fraNavn}» — {k.rel} → «{k.tilNavn}»{k.malType === 'ekstern_referanse' ? ' (ekstern referanse)' : ''}
-            </span>
+            </Metatekst>
             {trengerManueltValg && !erOpprettet && (
               <>
                 <Textfield
@@ -851,7 +852,7 @@ function AvhengigheterSeksjon({ rettigheter, navnTilId }: { rettigheter: RaaRett
               </Button>
             )}
             {erOpprettet && <Tag data-color="success" data-size="sm">Opprettet</Tag>}
-            {feil && <span style={{ color: 'var(--ds-color-danger-text-default)', fontSize: 'var(--ds-font-size-1)' }}>{feil}</span>}
+            {feil && <Metatekst as="span" style={{ color: 'var(--ds-color-danger-text-default)' }}>{feil}</Metatekst>}
           </div>
         );
       })}

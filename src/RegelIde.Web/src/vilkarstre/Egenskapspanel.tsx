@@ -23,6 +23,7 @@ import type {
 import { MinimalEditor } from '../handbok/MinimalEditor';
 import { StatusStepper } from '../entitet/StatusStepper';
 import { DokumenttypeTag, VEILEDNINGSDOKUMENTTYPER } from '../handbok/DokumenttypeTag';
+import { Metatekst } from '../entitet/Metatekst';
 
 export type EgenskapspanelNode = { kind: 'vilkar' | 'regelnode' | 'unntak'; id: string };
 
@@ -80,15 +81,15 @@ function JuridiskGrunnlagRedigering({ grunnlag, rettskilder, onEndre }: {
   return (
     <div>
       {grunnlag.length === 0 ? (
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
           Ingen juridisk grunnlag lagt til.
-        </Paragraph>
+        </Metatekst>
       ) : (
         <ul style={{ margin: '0 0 0.5rem', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
           {grunnlag.map((g, i) => {
             const href = rettskildeLenke(g.eId, rettskilder);
             return (
-              <li key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--ds-font-size-1)' }}>
+              <Metatekst as="li" key={i} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 {href ? (
                   <Link asChild><RouterLink to={href}>{g.kilde}</RouterLink></Link>
                 ) : (
@@ -102,7 +103,7 @@ function JuridiskGrunnlagRedigering({ grunnlag, rettskilder, onEndre }: {
                   onClick={() => onEndre(grunnlag.filter((_, j) => j !== i))}>
                   Fjern
                 </Button>
-              </li>
+              </Metatekst>
             );
           })}
         </ul>
@@ -170,19 +171,19 @@ function InputDatasettAdministrasjon({ vilkarId }: { vilkarId: string }) {
     <div>
       {feil && <Alert data-color="danger" style={{ marginBottom: '0.5rem' }}>{feil}</Alert>}
       {input.length === 0 ? (
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
           Ingen input-datasett koblet.
-        </Paragraph>
+        </Metatekst>
       ) : (
         <ul style={{ margin: '0 0 0.5rem', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
           {input.map((d) => (
-            <li key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--ds-font-size-1)' }}>
+            <Metatekst as="li" key={d.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
               <Link asChild>
                 <RouterLink to={`/datasett/${d.id}`} style={{ fontFamily: 'monospace' }}>{d.prop}</RouterLink>
               </Link>
               <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>({d.felt})</span>
               <Button variant="tertiary" data-color="danger" data-size="sm" type="button" onClick={() => fjern(d.id)}>Fjern</Button>
-            </li>
+            </Metatekst>
           ))}
         </ul>
       )}
@@ -268,9 +269,9 @@ function VeiledningskommentarAdministrasjon({ malType, malId, setFane, onOpprett
       </div>
       {feil && <Alert data-color="danger" style={{ marginBottom: '0.5rem' }}>{feil}</Alert>}
       {kommentarer.length === 0 ? (
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
           Ingen veiledningskommentarer lagt til.
-        </Paragraph>
+        </Metatekst>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '1rem' }}>
           {kommentarer.map((k, i) => (
@@ -310,9 +311,9 @@ function Historikk({ liste }: { liste: ProveniensDto[] | null }) {
   return (
     <ul>
       {liste.map((p) => (
-        <li key={p.id} style={{ fontSize: 'var(--ds-font-size-1)' }}>
+        <Metatekst as="li" key={p.id}>
           {new Date(p.dato).toLocaleString('nb-NO')} — {p.handling} ({p.endretAv})
-        </li>
+        </Metatekst>
       ))}
     </ul>
   );
@@ -446,9 +447,9 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, tjenester, feil
               <Select.Option value="">(ikke identifisert for noen tjeneste ennå)</Select.Option>
               {tjenester.map((t) => <Select.Option key={t.id} value={t.id}>{t.tittel}</Select.Option>)}
             </Select>
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', margin: '0.25rem 0 0' }}>
+            <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', margin: '0.25rem 0 0' }}>
               Hvilken tjeneste vilkåret er identifisert for — atskilt fra om det faktisk er koblet inn i vilkårstreet.
-            </Paragraph>
+            </Metatekst>
           </Field>
           <Field>
             <Label>Begrep</Label>
@@ -458,9 +459,9 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, tjenester, feil
             </Select>
           </Field>
           {begrep && (
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '-0.5rem' }}>
+            <Metatekst style={{ marginTop: '-0.5rem' }}>
               <Link asChild><RouterLink to={`/begreper/${begrep.id}`}>Åpne begrep →</RouterLink></Link>
-            </Paragraph>
+            </Metatekst>
           )}
           {(vurderingstype === 'skjonnsbasert' || vurderingstype === 'hybrid') && (
             <>
@@ -472,13 +473,13 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, tjenester, feil
                 </Select>
               </Field>
               {skjonnsgrunnlag && (
-                <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '-0.5rem' }}>
+                <Metatekst style={{ marginTop: '-0.5rem' }}>
                   <Link asChild><RouterLink to={`/begreper/${skjonnsgrunnlag.id}`}>Åpne begrep →</RouterLink></Link>
-                </Paragraph>
+                </Metatekst>
               )}
               {vilkar.skjonnsmomenter.length > 0 && (
                 <ul style={{ margin: 0 }}>
-                  {vilkar.skjonnsmomenter.map((m, i) => <li key={i} style={{ fontSize: 'var(--ds-font-size-1)' }}>{m.navn}</li>)}
+                  {vilkar.skjonnsmomenter.map((m, i) => <Metatekst as="li" key={i}>{m.navn}</Metatekst>)}
                 </ul>
               )}
             </>
@@ -627,9 +628,9 @@ function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndre
               <Select.Option value="IKKE">IKKE</Select.Option>
             </Select>
           </Field>
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>
+          <Metatekst>
             Utdata: {regelnode.utdataNavn} ({regelnode.utdataType})
-          </Paragraph>
+          </Metatekst>
           <div>
             <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
@@ -743,9 +744,9 @@ function UnntakPanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndret }
             <Label>Beskrivelse</Label>
             <Textarea value={beskrivelse} onChange={(e) => setBeskrivelse(e.target.value)} rows={2} />
           </Field>
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+          <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
             gjelder_regel og betingelse settes ved opprettelse (INV-3/INV-4) og endres ikke her.
-          </Paragraph>
+          </Metatekst>
           <div>
             <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>

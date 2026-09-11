@@ -1,5 +1,6 @@
-import { Field, Label, Pagination, Paragraph, Select, usePagination as useDsPaginering } from '@digdir/designsystemet-react';
+import { Field, Label, Pagination, Select, usePagination as useDsPaginering } from '@digdir/designsystemet-react';
 import { SIDESTORRELSER, type Sidestorrelse } from './usePaginering';
+import { Metatekst } from '../entitet/Metatekst';
 
 export interface PagineringskontrollProps {
   side: number;
@@ -63,9 +64,9 @@ export function Pagineringskontroll({
             ))}
           </Select>
         </Field>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', margin: 0 }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', margin: 0 }}>
           Viser {fra}–{til} av {totaltAntallRader}
-        </Paragraph>
+        </Metatekst>
       </div>
 
       {sidestorrelse !== 'alle' && totaltAntallSider > 1 && (

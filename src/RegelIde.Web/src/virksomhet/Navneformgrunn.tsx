@@ -1,5 +1,6 @@
 import { Field, Label, Select, Tag } from '@digdir/designsystemet-react';
 import type { Navneformgrunn } from '../api/types';
+import { Metatekst } from '../entitet/Metatekst';
 
 /**
  * [Ny, navneformgrunn-runden, 2026-09-07] Delt presentasjon av `BegrepDto.navneformgrunn` — ÉN kilde
@@ -106,9 +107,9 @@ export function NavneformgrunnVelger({
       {visHjelp && valgtHjelp && (
         // Metatekst: BÅDE mindre størrelse og subtil farge (docs/09 §6 — kun fargen alene er den
         // dokumenterte feilen som er begått før). Aldri `opacity` (docs/09 §7).
-        <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+        <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
           {valgtHjelp}
-        </span>
+        </Metatekst>
       )}
     </Field>
   );

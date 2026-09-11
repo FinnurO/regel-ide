@@ -4,6 +4,7 @@ import { Alert, Button, Checkbox, Heading, Paragraph, Spinner, Textfield } from 
 import { ApiError, api } from '../api/client';
 import type { LovdataKatalogTreffDto, RettskildeDetalj, RettskildeNodeDto } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
+import { Metatekst } from '../entitet/Metatekst';
 
 export default function Importer() {
   const navigate = useNavigate();
@@ -123,17 +124,18 @@ export default function Importer() {
               Kildetekst
             </Heading>
             {kildetekst ? (
-              <pre
+              <Metatekst
+                as="pre"
                 style={{
                   maxHeight: '50vh', overflow: 'auto', margin: 0, padding: '0.75rem',
                   background: 'var(--ds-color-neutral-surface-default)',
                   border: '1px solid var(--ds-color-neutral-border-subtle)',
                   borderRadius: 'var(--ds-border-radius-md)',
-                  fontSize: '0.75rem', whiteSpace: 'pre-wrap', wordBreak: 'break-word',
+                  whiteSpace: 'pre-wrap', wordBreak: 'break-word',
                 }}
               >
                 {kildetekst}
-              </pre>
+              </Metatekst>
             ) : (
               <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
                 Kildetekst er ikke tilgjengelig her for Lovdata-import (hentet server-side) — kun for filopplasting.
@@ -205,16 +207,16 @@ export default function Importer() {
           onChange={(e) => setSokestreng(e.target.value)}
           style={{ maxWidth: '30rem', marginBottom: '0.75rem' }}
         />
-        {sokerLaster && <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Søker …</Paragraph>}
+        {sokerLaster && <Metatekst>Søker …</Metatekst>}
         {!sokerLaster && sokestreng.trim() && treff.length === 0 && (
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Ingen treff.</Paragraph>
+          <Metatekst>Ingen treff.</Metatekst>
         )}
         {treff.length > 0 && (
           <ul style={{ maxHeight: '20rem', overflow: 'auto' }}>
             {treff.map((t) => (
               <li key={t.datokode} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.3rem' }}>
                 <span style={{ flex: 1 }}>
-                  {t.tittel} <span style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>({t.datokode}, {t.type})</span>
+                  {t.tittel} <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>({t.datokode}, {t.type})</Metatekst>
                 </span>
                 <Button data-size="sm" disabled={lovdataLaster} onClick={() => importerFraLovdata(t.datokode)}>
                   {lovdataLaster ? 'Importerer …' : 'Importer'}

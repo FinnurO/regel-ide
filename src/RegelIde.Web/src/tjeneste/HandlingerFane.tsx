@@ -4,6 +4,7 @@ import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Select, Sp
 import { ApiError, api } from '../api/client';
 import { GYLDIGE_HANDLINGSTYPER, GYLDIGE_UTFORT_AV } from '../api/types';
 import type { HandlingDto, TjenesteRegelverksreferanseDto } from '../api/types';
+import { Metatekst } from '../entitet/Metatekst';
 
 export interface HandlingerFaneProps {
   tjenesteId: string;
@@ -110,10 +111,10 @@ export function HandlingerFane({ tjenesteId, handlinger, setHandlinger, referans
   return (
     <div style={{ maxWidth: '900px' }}>
       <Heading level={2} data-size="xs" style={{ marginBottom: '0.75rem' }}>Handlinger</Heading>
-      <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)', marginBottom: '0.75rem' }}>
+      <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
         Konkrete, tidsavgrensede interaksjoner knyttet til denne rettigheten (søknad, melding, klage …) —
         de den EIER pluss de den er sekundært koblet til (en handling kan gjenbrukes fra en annen tjeneste).
-      </Paragraph>
+      </Metatekst>
       <div style={{ marginBottom: '0.75rem' }}>
         <Button variant="secondary" data-size="sm" onClick={foreslaHandlinger} disabled={handlingsforslagKjorer}
           title="Bruker tjenestens koblede regelverksreferanser som KI-kontekst">
@@ -128,16 +129,16 @@ export function HandlingerFane({ tjenesteId, handlinger, setHandlinger, referans
       {handlinger && handlinger.length > 0 && (
         <div style={{ border: '1px solid var(--ds-color-neutral-border-subtle)', borderRadius: 'var(--ds-border-radius-md)', overflow: 'hidden', marginBottom: '1.25rem' }}>
           {handlinger.map((h) => (
-            <div key={h.id} style={{
+            <Metatekst as="div" key={h.id} style={{
               display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '0.5rem', alignItems: 'center',
-              padding: '0.6rem 0.9rem', borderBottom: '1px solid var(--ds-color-neutral-border-subtle)', fontSize: 'var(--ds-font-size-1)',
+              padding: '0.6rem 0.9rem', borderBottom: '1px solid var(--ds-color-neutral-border-subtle)',
             }}>
               {/* h.tjenesteId er ALLTID handlingens EIENDE tjeneste (uendret av en sekundær kobling), se HandlingTjenesteEntitet. */}
               <Link asChild><RouterLink to={`/tjenester/${h.tjenesteId}/handlinger/${h.id}`}>{h.navn}</RouterLink></Link>
               <Tag data-color="info" data-size="sm">{h.handlingstype}</Tag>
               <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>{h.utfortAv ?? '—'}</span>
               <Tag data-color="neutral" data-size="sm">{h.status}</Tag>
-            </div>
+            </Metatekst>
           ))}
         </div>
       )}
@@ -154,17 +155,17 @@ export function HandlingerFane({ tjenesteId, handlinger, setHandlinger, referans
           <>
             <Textfield data-size="sm" label="Søk blant egen virksomhets handlinger" value={sok}
               onChange={(e) => sokEtterHandling(e.target.value)} style={{ marginBottom: '0.5rem' }} />
-            {sokerLaster && <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Søker …</Paragraph>}
+            {sokerLaster && <Metatekst>Søker …</Metatekst>}
             {!sokerLaster && sok.trim() && sokTreff.length === 0 && (
-              <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Ingen treff.</Paragraph>
+              <Metatekst>Ingen treff.</Metatekst>
             )}
             {sokTreff.length > 0 && (
               <ul style={{ maxHeight: '12rem', overflow: 'auto', marginBottom: '0.5rem' }}>
                 {sokTreff.map((h) => (
                   <li key={h.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.2rem' }}>
-                    <span style={{ flex: 1, fontSize: 'var(--ds-font-size-1)' }}>
+                    <Metatekst as="span" style={{ flex: 1 }}>
                       {h.navn} <Tag data-color="info" data-size="sm">{h.handlingstype}</Tag>
-                    </span>
+                    </Metatekst>
                     <Button data-size="sm" variant="tertiary" onClick={() => koble(h.id)}>Koble</Button>
                   </li>
                 ))}

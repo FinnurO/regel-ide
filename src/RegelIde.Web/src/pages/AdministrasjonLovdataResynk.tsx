@@ -4,6 +4,7 @@ import { ApiError, api } from '../api/client';
 import type { LovdataImportstatusHistorikkDto, LovdataResynkKjoringDto, LovdataResynkUtlost } from '../api/types';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
+import { Metatekst } from '../entitet/Metatekst';
 
 const UTLOST_TEKST: Record<LovdataResynkUtlost, string> = {
   Oppstart: 'Ved oppstart',
@@ -211,10 +212,10 @@ export default function AdministrasjonLovdataResynk() {
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
           Kjør nå
         </Heading>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
           Starter en full runde i bakgrunnen — kan ta flere minutter over hele korpuset. Siden venter ikke
           på at kjøringen er ferdig; status oppdateres automatisk under mens den pågår.
-        </Paragraph>
+        </Metatekst>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <Button data-size="sm" onClick={start} disabled={starter || pagaende !== null}>
             {starter ? 'Starter …' : 'Kjør full resynk'}
@@ -225,17 +226,17 @@ export default function AdministrasjonLovdataResynk() {
             </Tag>
           )}
           {!pagaende && siste && (
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0, color: 'var(--ds-color-neutral-text-subtle)' }}>
+            <Metatekst style={{ margin: 0, color: 'var(--ds-color-neutral-text-subtle)' }}>
               Siste kjøring: {formaterTidspunkt(siste.startetTidspunkt)} ({UTLOST_TEKST[siste.utlost]}) —{' '}
               <Tag data-color={STATUS_FARGE[siste.status]} data-size="sm">
                 {siste.status}
               </Tag>
-            </Paragraph>
+            </Metatekst>
           )}
           {!pagaende && !siste && historikk && (
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0, color: 'var(--ds-color-neutral-text-subtle)' }}>
+            <Metatekst style={{ margin: 0, color: 'var(--ds-color-neutral-text-subtle)' }}>
               Ingen kjøring registrert ennå.
-            </Paragraph>
+            </Metatekst>
           )}
         </div>
         {startFeil && (
@@ -273,10 +274,10 @@ export default function AdministrasjonLovdataResynk() {
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
           Automatisk frekvens
         </Heading>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
           Hvor ofte resynk skal kjøre automatisk, i tillegg til den manuelle knappen over og kjøringen ved
           hver app-oppstart. Sjekkes hver time — en endring her tar altså inntil en time å tre i kraft.
-        </Paragraph>
+        </Metatekst>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
           <Field style={{ minWidth: '12rem' }}>
             <Label>Frekvens</Label>
@@ -302,15 +303,15 @@ export default function AdministrasjonLovdataResynk() {
             {lagrer ? 'Lagrer …' : 'Lagre frekvens'}
           </Button>
           {lagreOk && !lagrer && (
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0, color: 'var(--ds-color-success-text-default)' }}>
+            <Metatekst style={{ margin: 0, color: 'var(--ds-color-success-text-default)' }}>
               Lagret.
-            </Paragraph>
+            </Metatekst>
           )}
         </div>
         {sistEndretAv && (
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.5rem', marginBottom: 0 }}>
+          <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.5rem', marginBottom: 0 }}>
             Sist endret av {sistEndretAv}.
-          </Paragraph>
+          </Metatekst>
         )}
         {lagreFeil && (
           <Alert data-color="danger" data-size="sm" style={{ marginTop: '0.75rem' }}>

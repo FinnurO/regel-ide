@@ -1,6 +1,7 @@
-import { EXPERIMENTAL_Suggestion as Suggestion, Field, Label, Paragraph, type SuggestionItem } from '@digdir/designsystemet-react';
+import { EXPERIMENTAL_Suggestion as Suggestion, Field, Label, type SuggestionItem } from '@digdir/designsystemet-react';
 import type { RegelnodeDto } from '../api/types';
 import { useRegelnodeSok } from './useRegelnodeSok';
+import { Metatekst } from '../entitet/Metatekst';
 
 export interface RegelnodeVelgerProps {
   regelnoder: RegelnodeDto[];
@@ -47,9 +48,9 @@ export function RegelnodeVelger({ regelnoder, value, onChange, label = 'Regelnod
         </Suggestion.List>
       </Suggestion>
       {alleTreffAntall > treff.length && (
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.2rem' }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.2rem' }}>
           Viser {treff.length} av {alleTreffAntall} treff — skriv et mer spesifikt søk for å se flere.
-        </Paragraph>
+        </Metatekst>
       )}
     </Field>
   );

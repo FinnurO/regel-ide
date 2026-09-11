@@ -1,12 +1,13 @@
 import { Link as RouterLink } from 'react-router';
-import { Card, Heading, Link, Paragraph } from '@digdir/designsystemet-react';
+import { Card, Heading, Link } from '@digdir/designsystemet-react';
 import type { RegelnodeDto, TjenesteDto } from '../api/types';
 import type { SeksjonNokkel } from '../api/tjenesteFelt';
+import { Metatekst } from '../entitet/Metatekst';
 
 function StatKort({ etikett, verdi, onClick }: { etikett: string; verdi: number; onClick: () => void }) {
   return (
     <Card style={{ padding: '0.9rem 1rem', cursor: 'pointer' }} onClick={onClick}>
-      <div style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>{etikett}</div>
+      <Metatekst as="div" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>{etikett}</Metatekst>
       <div style={{ fontSize: 'var(--ds-font-size-5)', fontWeight: 600, marginTop: '0.1rem' }}>{verdi}</div>
     </Card>
   );
@@ -49,7 +50,7 @@ export function OversiktFane({
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem', maxWidth: '900px' }}>
       <Card style={{ padding: '1rem 1.25rem' }}>
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.6rem' }}>Metadata</Heading>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem 1.5rem', fontSize: 'var(--ds-font-size-1)' }}>
+        <Metatekst as="div" style={{ display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '0.75rem 1.5rem' }}>
           {/* [Ny, 2026-09-09, issue #138] Eier-virksomheten, ØVERST og med lenke: det er den
             * faktiske koblingen til katalogen, og den avgjør hvem som ser og kan endre tjenesten.
             * Står før «Kompetent myndighet» nettopp fordi de to blandes — se `eierNavn`. */}
@@ -77,25 +78,25 @@ export function OversiktFane({
           <div><div style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Behandlingstid</div><div>{tjeneste.behandlingstid ?? '—'}</div></div>
           <div><div style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.1rem' }}>Kostnad</div><div>{tjeneste.kostnad ?? '—'}</div></div>
           <div><div style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Output</div><div>{tjeneste.output ?? '—'}</div></div>
-        </div>
+        </Metatekst>
       </Card>
 
       <Card style={{ padding: '1rem 1.25rem' }}>
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.4rem' }}>Vilkårstre</Heading>
         {tjeneste.rotnodeId ? (
           <>
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
+            <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
               Rotnode: {rotnode?.tittel ?? '…'}
-            </Paragraph>
-            <div style={{ display: 'flex', gap: '0.5rem', fontSize: 'var(--ds-font-size-1)' }}>
+            </Metatekst>
+            <Metatekst as="div" style={{ display: 'flex', gap: '0.5rem' }}>
               <Link asChild><RouterLink to={`/vilkarstre/${tjeneste.rotnodeId}`}>Åpne vilkårstre →</RouterLink></Link>
               <Link asChild><RouterLink to={`/tjenester/${tjeneste.id}/veiledning`}>Åpne veiledning →</RouterLink></Link>
-            </div>
+            </Metatekst>
           </>
         ) : (
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>
+          <Metatekst>
             Ingen rotnode koblet ennå. <Link asChild><button type="button" onClick={() => onGaTilFane('vilkarstre')} style={{ background: 'none', border: 'none', padding: 0, font: 'inherit', color: 'inherit', textDecoration: 'underline', cursor: 'pointer' }}>Gå til Vilkårstre →</button></Link>
-          </Paragraph>
+          </Metatekst>
         )}
       </Card>
 
@@ -108,7 +109,7 @@ export function OversiktFane({
 
       <Card style={{ padding: '1rem 1.25rem' }}>
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.4rem' }}>Beskrivelse</Heading>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0 }}>{tjeneste.beskrivelse ?? 'Ingen beskrivelse registrert ennå.'}</Paragraph>
+        <Metatekst style={{ margin: 0 }}>{tjeneste.beskrivelse ?? 'Ingen beskrivelse registrert ennå.'}</Metatekst>
       </Card>
     </div>
   );

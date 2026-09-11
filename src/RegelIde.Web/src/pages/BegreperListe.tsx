@@ -4,6 +4,7 @@ import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner,
 import { ApiError, api } from '../api/client';
 import type { BegrepDto } from '../api/types';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
+import { Metatekst } from '../entitet/Metatekst';
 
 type Sorteringskolonne = 'term' | 'begrepstype' | 'status' | 'eier';
 
@@ -162,7 +163,7 @@ export default function BegreperListe() {
                   </Link>
                 </Table.Cell>
                 <Table.Cell>{b.begrepstype}</Table.Cell>
-                <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{b.lovreferanseEid ?? '—'}</Table.Cell>
+                <Metatekst as={Table.Cell}>{b.lovreferanseEid ?? '—'}</Metatekst>
                 <Table.Cell>{b.status}</Table.Cell>
                 <Table.Cell>{visEier(b.virksomhetId)}</Table.Cell>
               </Table.Row>

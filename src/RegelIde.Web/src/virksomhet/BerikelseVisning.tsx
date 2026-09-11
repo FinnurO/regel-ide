@@ -1,5 +1,6 @@
 import { Link, Tag } from '@digdir/designsystemet-react';
 import type { NavnekandidatDto } from '../api/types';
+import { Metatekst } from '../entitet/Metatekst';
 
 /**
  * SNL/SSR-berikelsen for en navnekandidat (docs/31-navneform-berikelse-snl-ssr-spesifikasjon.md) —
@@ -22,9 +23,9 @@ export function BerikelseVisning({ k }: { k: NavnekandidatDto }) {
             </Tag>
           </Link>
           {k.snlAlias && k.snlAlias.length > 0 && (
-            <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+            <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
               også kjent som: {k.snlAlias.join(', ')}
-            </span>
+            </Metatekst>
           )}
         </>
       ) : k.ssrBekreftetStedsnavn ? (

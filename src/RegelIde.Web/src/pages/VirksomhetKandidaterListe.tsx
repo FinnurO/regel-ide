@@ -14,6 +14,7 @@ import { useSortering } from '../kandidater/useSortering';
 import { useKandidatvalg } from '../kandidater/useKandidatvalg';
 import { Massehandlingsrad } from '../kandidater/Massehandlingsrad';
 import { useNodeEtiketter, useRettskildeoppslag } from '../kandidater/useNodeEtiketter';
+import { Metatekst } from '../entitet/Metatekst';
 
 type Sorteringskolonne = 'virksomhet' | 'rettskilde' | 'status' | 'opprettet';
 
@@ -426,10 +427,10 @@ export default function VirksomhetKandidaterListe() {
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
           Kjør sveip
         </Heading>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.5rem' }}>
+        <Metatekst style={{ marginBottom: '0.5rem' }}>
           Søker gjennom alle rettskilder etter forekomster av virksomhetens registrerte navneformer
           (se Virksomhetsdetalj → «Navneformer i rettskildetekst») og legger nye treff i køen som «Venter».
-        </Paragraph>
+        </Metatekst>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
           <VirksomhetVelger
             virksomheter={virksomheter}
@@ -524,7 +525,7 @@ export default function VirksomhetKandidaterListe() {
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
           Slett avviste kandidater
         </Heading>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
           «Slett valgte» over sletter et PRESIST utvalg (kun avviste blant de markerte radene). Dette
           kortet er for STOR, filterbasert sletting: ekte, irreversibel sletting av ALLE 'Avvist'-
           kandidater innenfor virksomhet-/rettskildefilteret — nyttig for å tømme køen før et nytt sveip
@@ -532,7 +533,7 @@ export default function VirksomhetKandidaterListe() {
           avvist posisjon på nytt). Respekterer IKKE statusfilteret over — kun 'Avvist'-rader kan slettes
           uansett metode: en 'Venter'-rad skal behandles (godkjennes/avvises), og en 'Godkjent'-rad har
           opprettet en ekte tekst-tagg som ikke kan fjernes i etterkant.
-        </Paragraph>
+        </Metatekst>
         <Button
           data-size="sm"
           data-color="danger"
@@ -638,7 +639,7 @@ export default function VirksomhetKandidaterListe() {
         </Table.Cell>
         <Table.Cell>{visEier(k.virksomhetId)}</Table.Cell>
         <Table.Cell>{rettskildeOppslag.tittel(k.rettskildeId)}</Table.Cell>
-        <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
+        <Metatekst as={Table.Cell}>
           {/* [Rettet, 2026-09-02, issue #115] Viser nå "§ nummer — overskrift" (visNodeTekst)
               i stedet for rå nodeEid — monospace-stilen passet den rå eId-koden, ikke prosa. */}
           {/* Slik at bruker kan lese noden i sin fulle sammenheng FØR godkjenning
@@ -650,14 +651,14 @@ export default function VirksomhetKandidaterListe() {
           <Link asChild>
             <RouterLink to={rettskildeLenkeForId(k.rettskildeId, k.nodeEid)} target="_blank">{nodeEtiketter.etikett(k.rettskildeId, k.nodeEid)} ↗</RouterLink>
           </Link>
-        </Table.Cell>
+        </Metatekst>
         <Table.Cell>
           {(() => {
             const navneform = visNavneformFunnet(k);
             return navneform ? (
               <Tag data-color="accent" data-size="sm">{navneform}</Tag>
             ) : (
-              <span style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>…</span>
+              <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>…</Metatekst>
             );
           })()}
         </Table.Cell>
@@ -672,9 +673,9 @@ export default function VirksomhetKandidaterListe() {
                 <Button data-size="sm" variant="tertiary" onClick={() => enkelthandling(k.id, 'avvis')}>Avvis</Button>
               </>
             ) : (
-              <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+              <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
                 {k.behandletAv ? `Behandlet av ${k.behandletAv}` : '—'}
-              </span>
+              </Metatekst>
             )}
             {/* KUN 'Avvist' — en 'Godkjent' rad har en ekte tekst-tagg som ikke kan fjernes i
                 etterkant, og en 'Venter'-rad skal behandles, ikke bare forsvinne. Se

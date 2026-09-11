@@ -30,6 +30,7 @@
  */
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { ToggleGroup, Button, Textfield, Tag } from '@digdir/designsystemet-react';
+import { Metatekst } from '../entitet/Metatekst';
 
 /* ------------------------------ typer ------------------------------ */
 
@@ -403,9 +404,9 @@ export function MinimalEditor({
             borderBottom: '1px solid var(--ds-color-brand1-border-subtle)',
           }}
         >
-          <div style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: 'var(--ds-size-2)' }}>
+          <Metatekst as="div" style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: 'var(--ds-size-2)' }}>
             Sett inn referanse — lagres som typet peker, ikke som URL:
-          </div>
+          </Metatekst>
           <div style={{ display: 'flex', gap: 'var(--ds-size-2)', flexWrap: 'wrap' }}>
             {referanser.map((o) => (
               <Button key={`${o.kind}:${o.id}`} variant="secondary" data-size="sm" onClick={() => settInnReferanse(o)}>

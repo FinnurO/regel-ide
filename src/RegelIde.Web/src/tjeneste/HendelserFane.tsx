@@ -3,6 +3,7 @@ import { Alert, Button, Field, Heading, Label, Paragraph, Select, Spinner, Tag, 
 import { ApiError, api } from '../api/client';
 import type { HendelseDto } from '../api/types';
 import type { DetaljVisning } from '../entitet/detaljVisning';
+import { Metatekst } from '../entitet/Metatekst';
 
 export interface HendelserFaneProps {
   tjenesteId: string;
@@ -65,10 +66,10 @@ export function HendelserFane({ tjenesteId, hendelser, setHendelser, alleHendels
   return (
     <div style={{ maxWidth: '760px' }}>
       <Heading level={2} data-size="xs" style={{ marginBottom: '0.75rem' }}>Hendelser</Heading>
-      <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)', marginBottom: '0.75rem' }}>
+      <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
         Ren, symmetrisk klassifisering (docs/03-domenemodell.md §1.5) — ingen retning. To tjenester som
         deler samme hendelse blir relaterte uten at én forårsaker den andre.
-      </Paragraph>
+      </Metatekst>
       {hendelser === null && <Spinner aria-label="Laster …" data-size="sm" />}
       {hendelser && hendelser.length === 0 && <Paragraph>Ingen hendelser koblet ennå.</Paragraph>}
       {hendelser && hendelser.length > 0 && (

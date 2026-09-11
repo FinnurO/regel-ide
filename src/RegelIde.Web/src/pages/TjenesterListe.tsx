@@ -7,6 +7,7 @@ import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { STATUS_VISNING } from '../entitet/StatusStepper';
+import { Metatekst } from '../entitet/Metatekst';
 
 type Sorteringskolonne = 'tittel' | 'tjenestetype' | 'status' | 'eier';
 
@@ -20,7 +21,7 @@ type Sorteringskolonne = 'tittel' | 'tjenestetype' | 'status' | 'eier';
 function KpiKort({ etikett, verdi }: { etikett: string; verdi: number | null }) {
   return (
     <Card style={{ flex: 1, minWidth: '160px', padding: '0.75rem 1rem' }}>
-      <div style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>{etikett}</div>
+      <Metatekst as="div" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>{etikett}</Metatekst>
       <div style={{ fontSize: 'var(--ds-font-size-5)', fontWeight: 600, marginTop: '0.1rem' }}>{verdi ?? '…'}</div>
     </Card>
   );

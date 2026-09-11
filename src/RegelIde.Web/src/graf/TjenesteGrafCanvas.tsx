@@ -3,7 +3,8 @@ import {
   ReactFlow, Background, Controls, MiniMap, Position, useNodesState, useEdgesState, type Edge, type Node,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import { Checkbox, Paragraph } from '@digdir/designsystemet-react';
+import { Checkbox } from '@digdir/designsystemet-react';
+import { Metatekst } from '../entitet/Metatekst';
 import {
   REL_FARGE, REL_LABEL, beregnLagdeltLayout, nodeLabel,
   type FeltvisningValg, type GrafKantLik, type GrafNodeLik,
@@ -162,9 +163,9 @@ export function TjenesteGrafCanvas({ noder, kanter, felt, onFeltChange, fremheve
   return (
     <>
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', fontWeight: 'var(--ds-font-weight-medium)', margin: 0 }}>
+        <Metatekst style={{ fontWeight: 'var(--ds-font-weight-medium)', margin: 0 }}>
           Vis på hver node:
-        </Paragraph>
+        </Metatekst>
         <Checkbox label="Type" checked={felt.type} onChange={(e) => onFeltChange({ ...felt, type: e.target.checked })} />
         <Checkbox label="Kompetent myndighet" checked={felt.kompetentMyndighet} onChange={(e) => onFeltChange({ ...felt, kompetentMyndighet: e.target.checked })} />
         <Checkbox label="Livshendelser" checked={felt.livshendelser} onChange={(e) => onFeltChange({ ...felt, livshendelser: e.target.checked })} />
@@ -201,28 +202,28 @@ export function TjenesteGrafCanvas({ noder, kanter, felt, onFeltChange, fremheve
 
       <div style={{ minHeight: '2.5rem', marginTop: '0.75rem' }}>
         {kantDetalj ? (
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>
+          <Metatekst>
             <span style={{ display: 'inline-block', width: '0.75rem', height: '0.75rem', marginRight: '0.4rem', verticalAlign: 'middle', background: kantDetalj.erHandlingTilhorighet ? 'var(--ds-color-neutral-border-subtle)' : REL_FARGE[kantDetalj.rel] ?? '#888', borderRadius: '50%' }} />
             {kantDetalj.erHandlingTilhorighet ? 'har handling' : REL_LABEL[kantDetalj.rel] ?? kantDetalj.rel}
             {valgtKantId && (
-              <button
+              <Metatekst as="button"
                 type="button"
                 onClick={() => setValgtKantId(null)}
-                style={{ marginLeft: '0.75rem', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
+                style={{ marginLeft: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)', background: 'none', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}
               >
                 Lukk
-              </button>
+              </Metatekst>
             )}
-          </Paragraph>
+          </Metatekst>
         ) : (
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+          <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
             Hold musepekeren over (eller klikk på) en kant for å se relasjonen. Fargeforklaring: {Object.entries(REL_LABEL).map(([rel, label]) => (
               <span key={rel} style={{ display: 'inline-flex', alignItems: 'center', gap: '0.25rem', marginRight: '0.75rem' }}>
                 <span style={{ display: 'inline-block', width: '0.75rem', height: '0.75rem', background: REL_FARGE[rel], borderRadius: '50%' }} />
                 {label}
               </span>
             ))}
-          </Paragraph>
+          </Metatekst>
         )}
       </div>
     </>
