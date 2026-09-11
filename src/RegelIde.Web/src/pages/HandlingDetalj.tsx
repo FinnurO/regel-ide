@@ -20,7 +20,7 @@
  */
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router';
-import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Tabs, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Select, Spinner, Tabs, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import {
   GYLDIGE_HANDLINGSTYPER, GYLDIGE_UTFORT_AV,
@@ -569,18 +569,22 @@ export default function HandlingDetalj() {
         <>
           <section style={{ marginBottom: '2rem' }}>
             <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>Kanaler</Heading>
-            {handling.kanaler.length === 0 && <Paragraph>Ingen kanaler registrert ennå.</Paragraph>}
-            {handling.kanaler.length > 0 && (
-              <ul>
-                {handling.kanaler.map((k, i) => (
-                  <li key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                    <span>{k.kanal}</span>
-                    {k.adresse && <Tag data-color="neutral" data-size="sm">{k.adresse}</Tag>}
-                    <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernKanal(i)}>Fjern</Button>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {/* [Rettet, issue #281] Card ALLTID rendret (docs/09 §14). */}
+            <Card style={{ padding: handling.kanaler.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
+              {handling.kanaler.length === 0 ? (
+                <Paragraph style={{ margin: 0 }}>Ingen kanaler registrert ennå.</Paragraph>
+              ) : (
+                <ul style={{ margin: 0, padding: '0.75rem 1rem' }}>
+                  {handling.kanaler.map((k, i) => (
+                    <li key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <span>{k.kanal}</span>
+                      {k.adresse && <Tag data-color="neutral" data-size="sm">{k.adresse}</Tag>}
+                      <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernKanal(i)}>Fjern</Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
             <form onSubmit={leggTilKanal} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap', marginTop: '0.75rem' }}>
               <Textfield data-size="sm" label="Kanal" value={nyKanalKanal} onChange={(e) => setNyKanalKanal(e.target.value)}
                 placeholder="f.eks. elektronisk, skranke, post" required />
@@ -592,19 +596,23 @@ export default function HandlingDetalj() {
 
           <section style={{ marginBottom: '2rem' }}>
             <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>Vedlegg</Heading>
-            {handling.vedlegg.length === 0 && <Paragraph>Ingen vedlegg registrert ennå.</Paragraph>}
-            {handling.vedlegg.length > 0 && (
-              <ul>
-                {handling.vedlegg.map((v, i) => (
-                  <li key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                    <span>{v.navn}</span>
-                    {v.kategori && <Tag data-color="neutral" data-size="sm">{v.kategori}</Tag>}
-                    <VisHjemmel hjemmel={v.hjemmel} />
-                    <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernVedlegg(i)}>Fjern</Button>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {/* [Rettet, issue #281] Card ALLTID rendret (docs/09 §14). */}
+            <Card style={{ padding: handling.vedlegg.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
+              {handling.vedlegg.length === 0 ? (
+                <Paragraph style={{ margin: 0 }}>Ingen vedlegg registrert ennå.</Paragraph>
+              ) : (
+                <ul style={{ margin: 0, padding: '0.75rem 1rem' }}>
+                  {handling.vedlegg.map((v, i) => (
+                    <li key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <span>{v.navn}</span>
+                      {v.kategori && <Tag data-color="neutral" data-size="sm">{v.kategori}</Tag>}
+                      <VisHjemmel hjemmel={v.hjemmel} />
+                      <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernVedlegg(i)}>Fjern</Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
             <form onSubmit={leggTilVedlegg} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap', marginTop: '0.75rem' }}>
               <Textfield data-size="sm" label="Navn" value={nyVedleggNavn} onChange={(e) => setNyVedleggNavn(e.target.value)} required />
               <Textfield data-size="sm" label="Kategori (valgfritt)" value={nyVedleggKategori} onChange={(e) => setNyVedleggKategori(e.target.value)} />
@@ -621,23 +629,27 @@ export default function HandlingDetalj() {
         <>
           <section style={{ marginBottom: '2rem' }}>
             <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>Veiledningstekst</Heading>
-            {handling.veiledningstekst.length === 0 && <Paragraph>Ingen veiledningstekst registrert ennå.</Paragraph>}
-            {handling.veiledningstekst.length > 0 && (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', marginBottom: '0.75rem' }}>
-                {handling.veiledningstekst.map((v, i) => (
-                  <div key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
-                    <div style={{ flex: 1 }}>
-                      <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                        <strong>{v.overskrift}</strong>
-                        <VisHjemmel hjemmel={v.hjemmel} />
+            {/* [Rettet, issue #281] Card ALLTID rendret (docs/09 §14). */}
+            <Card style={{ padding: handling.veiledningstekst.length > 0 ? 0 : '1rem', overflow: 'hidden', marginBottom: '0.75rem' }}>
+              {handling.veiledningstekst.length === 0 ? (
+                <Paragraph style={{ margin: 0 }}>Ingen veiledningstekst registrert ennå.</Paragraph>
+              ) : (
+                <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', padding: '0.75rem 1rem' }}>
+                  {handling.veiledningstekst.map((v, i) => (
+                    <div key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
+                      <div style={{ flex: 1 }}>
+                        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                          <strong>{v.overskrift}</strong>
+                          <VisHjemmel hjemmel={v.hjemmel} />
+                        </div>
+                        {v.innhold && <Metatekst style={{ marginTop: '0.2rem' }}>{v.innhold}</Metatekst>}
                       </div>
-                      {v.innhold && <Metatekst style={{ marginTop: '0.2rem' }}>{v.innhold}</Metatekst>}
+                      <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernVeiledning(i)}>Fjern</Button>
                     </div>
-                    <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernVeiledning(i)}>Fjern</Button>
-                  </div>
-                ))}
-              </div>
-            )}
+                  ))}
+                </div>
+              )}
+            </Card>
             <form onSubmit={leggTilVeiledning} style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', maxWidth: '40rem' }}>
               <Textfield data-size="sm" label="Overskrift" value={nyVeiledningOverskrift} onChange={(e) => setNyVeiledningOverskrift(e.target.value)} required />
               <Field>
@@ -658,18 +670,22 @@ export default function HandlingDetalj() {
             <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
               Kun relevant for handlinger som representerer at rettigheten faller bort eller trekkes tilbake.
             </Metatekst>
-            {handling.arsaker.length === 0 && <Paragraph>Ingen årsaker registrert ennå.</Paragraph>}
-            {handling.arsaker.length > 0 && (
-              <ul>
-                {handling.arsaker.map((a, i) => (
-                  <li key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-                    <span>{a.arsak}</span>
-                    <VisHjemmel hjemmel={a.hjemmel} />
-                    <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernArsak(i)}>Fjern</Button>
-                  </li>
-                ))}
-              </ul>
-            )}
+            {/* [Rettet, issue #281] Card ALLTID rendret (docs/09 §14). */}
+            <Card style={{ padding: handling.arsaker.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
+              {handling.arsaker.length === 0 ? (
+                <Paragraph style={{ margin: 0 }}>Ingen årsaker registrert ennå.</Paragraph>
+              ) : (
+                <ul style={{ margin: 0, padding: '0.75rem 1rem' }}>
+                  {handling.arsaker.map((a, i) => (
+                    <li key={i} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                      <span>{a.arsak}</span>
+                      <VisHjemmel hjemmel={a.hjemmel} />
+                      <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernArsak(i)}>Fjern</Button>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </Card>
             <form onSubmit={leggTilArsak} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap', marginTop: '0.75rem' }}>
               <Textfield data-size="sm" label="Årsak" value={nyArsakArsak} onChange={(e) => setNyArsakArsak(e.target.value)} required />
               <Textfield data-size="sm" label="Hjemmel — lov" value={nyArsakLov} onChange={(e) => setNyArsakLov(e.target.value)} required />

@@ -1,6 +1,6 @@
 import { useEffect, useState, type Dispatch, type FormEvent, type SetStateAction } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Select, Spinner, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { HendelseDto, TjenesteDto, TjenesteavhengighetDto, TjenesteTverrTenantTreffDto } from '../api/types';
 import type { DetaljVisning } from '../entitet/detaljVisning';
@@ -118,10 +118,15 @@ export function AvhengigheterFane({ tjenesteId, avhengigheter, setAvhengigheter,
         Rettede, årsaksforklarte koblinger mellom to tjenester (docs/03-domenemodell.md §1.5) — ett
         rettet kant per relasjon, vist med riktig tekst uansett hvilken side du ser fra.
       </Metatekst>
-      {avhengigheter === null && <Spinner aria-label="Laster …" data-size="sm" />}
-      {avhengigheter && avhengigheter.length === 0 && <Paragraph>Ingen tjenesteavhengigheter registrert ennå.</Paragraph>}
-      {avhengigheter && avhengigheter.length > 0 && (
-        <ul style={{ marginBottom: '1rem' }}>
+      {/* [Rettet, issue #281] Card ALLTID rendret (docs/09 §14) — tom-/laste-tilstand er en
+          Paragraph INNI kortet, ikke et betinget-rendret kort utenfor. */}
+      <Card style={{ padding: avhengigheter && avhengigheter.length > 0 ? 0 : '1rem', overflow: 'hidden', marginBottom: '1rem' }}>
+      {avhengigheter === null ? (
+        <Spinner aria-label="Laster …" data-size="sm" />
+      ) : avhengigheter.length === 0 ? (
+        <Paragraph style={{ margin: 0 }}>Ingen tjenesteavhengigheter registrert ennå.</Paragraph>
+      ) : (
+        <ul style={{ margin: 0, padding: '0.75rem 1rem' }}>
           {avhengigheter.map((a) => (
             <li key={a.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               <button type="button"
@@ -140,6 +145,7 @@ export function AvhengigheterFane({ tjenesteId, avhengigheter, setAvhengigheter,
           ))}
         </ul>
       )}
+      </Card>
 
       <form onSubmit={leggTilAvhengighet} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
         <Field>
