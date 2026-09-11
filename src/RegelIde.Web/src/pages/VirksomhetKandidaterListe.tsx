@@ -9,18 +9,13 @@ import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { KandidatflytForklaring } from '../kandidater/KandidatflytForklaring';
+import { KandidatStatusTag } from '../kandidater/KandidatStatusTag';
 import { useSortering } from '../kandidater/useSortering';
 import { useKandidatvalg } from '../kandidater/useKandidatvalg';
 import { Massehandlingsrad } from '../kandidater/Massehandlingsrad';
 import { useNodeEtiketter, useRettskildeoppslag } from '../kandidater/useNodeEtiketter';
 
 type Sorteringskolonne = 'virksomhet' | 'rettskilde' | 'status' | 'opprettet';
-
-const STATUS_FARGE: Record<string, 'neutral' | 'warning' | 'success' | 'danger'> = {
-  Venter: 'warning',
-  Godkjent: 'success',
-  Avvist: 'danger',
-};
 
 /**
  * [Ny, issue #265, 2026-09-11] Gruppert visning — samme "se forslagene i sammenheng"-behov Johann
@@ -667,7 +662,7 @@ export default function VirksomhetKandidaterListe() {
           })()}
         </Table.Cell>
         <Table.Cell>
-          <Tag data-color={STATUS_FARGE[k.status] ?? 'neutral'} data-size="sm">{k.status}</Tag>
+          <KandidatStatusTag status={k.status} />
         </Table.Cell>
         <Table.Cell>
           <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>

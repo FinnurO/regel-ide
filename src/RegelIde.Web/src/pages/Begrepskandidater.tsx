@@ -13,14 +13,9 @@ import { useSortering } from '../kandidater/useSortering';
 import { useKandidatvalg } from '../kandidater/useKandidatvalg';
 import { useNodeEtiketter, useRettskildeoppslag } from '../kandidater/useNodeEtiketter';
 import { Massehandlingsrad } from '../kandidater/Massehandlingsrad';
+import { KandidatStatusTag } from '../kandidater/KandidatStatusTag';
 
 type Sorteringskolonne = 'begrep' | 'monster' | 'rettskilde' | 'status' | 'opprettet';
-
-const STATUS_FARGE: Record<string, 'neutral' | 'warning' | 'success' | 'danger'> = {
-  Venter: 'warning',
-  Godkjent: 'success',
-  Avvist: 'danger',
-};
 
 const KONFIDENS_FARGE: Record<string, 'neutral' | 'warning' | 'success' | 'danger' | 'info'> = {
   hoy: 'success',
@@ -637,7 +632,7 @@ export default function Begrepskandidater() {
                         </Link>
                       </Table.Cell>
                       <Table.Cell>
-                        <Tag data-color={STATUS_FARGE[f.status] ?? 'neutral'} data-size="sm">{f.status}</Tag>
+                        <KandidatStatusTag status={f.status} />
                       </Table.Cell>
                       <Table.Cell>
                         <div style={{ display: 'flex', gap: '0.4rem', flexWrap: 'wrap', alignItems: 'center' }}>

@@ -16,20 +16,7 @@ import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
 import type { RettskildeSammendrag, VeiledningDto, VeiledningNodeDto, VirksomhetDto } from '../api/types';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
-
-const DOKUMENTTYPE_FARGE: Record<string, 'info' | 'warning' | 'neutral' | 'success'> = {
-  hjemmel: 'info',
-  'praktisk-rad': 'warning',
-  sjekkliste: 'success',
-  kommentar: 'neutral',
-};
-
-const DOKUMENTTYPE_LABEL: Record<string, string> = {
-  hjemmel: 'Hjemmel',
-  'praktisk-rad': 'Praktisk råd',
-  sjekkliste: 'Sjekkliste',
-  kommentar: 'Kommentar',
-};
+import { DokumenttypeTag } from '../handbok/DokumenttypeTag';
 
 function VisVerdi({ verdiJson }: { verdiJson: string }) {
   try {
@@ -101,9 +88,7 @@ function VeiledningNode({ node, dybde, rettskilder }: { node: VeiledningNodeDto;
 
       {node.kommentarer.map((k) => (
         <div key={k.id} style={{ marginBottom: '0.5rem' }}>
-          <Tag data-color={DOKUMENTTYPE_FARGE[k.dokumenttype] ?? 'neutral'} data-size="sm" style={{ marginBottom: '0.2rem' }}>
-            {DOKUMENTTYPE_LABEL[k.dokumenttype] ?? k.dokumenttype}
-          </Tag>
+          <DokumenttypeTag dokumenttype={k.dokumenttype} style={{ marginBottom: '0.2rem' }} />
           <div style={{ fontSize: 'var(--ds-font-size-2)' }} dangerouslySetInnerHTML={{ __html: k.tekstHtml }} />
         </div>
       ))}
@@ -118,9 +103,7 @@ function VeiledningNode({ node, dybde, rettskilder }: { node: VeiledningNodeDto;
           {u.beskrivelse && <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.3rem' }}>{u.beskrivelse}</Paragraph>}
           {u.kommentarer.map((k) => (
             <div key={k.id} style={{ marginBottom: '0.3rem' }}>
-              <Tag data-color={DOKUMENTTYPE_FARGE[k.dokumenttype] ?? 'neutral'} data-size="sm" style={{ marginBottom: '0.2rem' }}>
-                {DOKUMENTTYPE_LABEL[k.dokumenttype] ?? k.dokumenttype}
-              </Tag>
+              <DokumenttypeTag dokumenttype={k.dokumenttype} style={{ marginBottom: '0.2rem' }} />
               <div style={{ fontSize: 'var(--ds-font-size-2)' }} dangerouslySetInnerHTML={{ __html: k.tekstHtml }} />
             </div>
           ))}

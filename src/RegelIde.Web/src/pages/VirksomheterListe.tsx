@@ -118,7 +118,7 @@ export default function VirksomheterListe() {
 
       {!laster && viste.length > 0 && (
         <Card style={{ padding: 0, overflow: 'hidden' }}>
-          <Table>
+          <Table data-density="compact">
             <Table.Head>
               <Table.Row>
                 <Table.HeaderCell>

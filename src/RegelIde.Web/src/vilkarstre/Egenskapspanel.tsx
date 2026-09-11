@@ -22,20 +22,7 @@ import type {
 } from '../api/types';
 import { MinimalEditor } from '../handbok/MinimalEditor';
 import { StatusStepper } from '../entitet/StatusStepper';
-
-const VEILEDNINGSDOKUMENTTYPER = [
-  { id: 'kommentar', label: 'Kommentar' },
-  { id: 'hjemmel', label: 'Hjemmel' },
-  { id: 'praktisk-rad', label: 'Praktisk råd' },
-  { id: 'sjekkliste', label: 'Sjekkliste' },
-];
-
-const VEILEDNINGSDOKUMENTTYPE_FARGE: Record<string, 'info' | 'warning' | 'neutral' | 'success'> = {
-  hjemmel: 'info',
-  'praktisk-rad': 'warning',
-  sjekkliste: 'success',
-  kommentar: 'neutral',
-};
+import { DokumenttypeTag, VEILEDNINGSDOKUMENTTYPER } from '../handbok/DokumenttypeTag';
 
 export type EgenskapspanelNode = { kind: 'vilkar' | 'regelnode' | 'unntak'; id: string };
 
@@ -291,9 +278,7 @@ function VeiledningskommentarAdministrasjon({ malType, malId, setFane, onOpprett
               border: '1px solid var(--ds-color-neutral-border-subtle)', borderRadius: 'var(--ds-border-radius-md)', padding: '0.5rem',
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
-                <Tag data-color={VEILEDNINGSDOKUMENTTYPE_FARGE[k.dokumenttype] ?? 'neutral'} data-size="sm">
-                  {VEILEDNINGSDOKUMENTTYPER.find((d) => d.id === k.dokumenttype)?.label ?? k.dokumenttype}
-                </Tag>
+                <DokumenttypeTag dokumenttype={k.dokumenttype} />
                 <div style={{ display: 'flex', gap: '0.25rem' }}>
                   <Button variant="tertiary" data-size="sm" type="button" title="Flytt opp" disabled={i === 0} onClick={() => flytt(k.id, 'opp')}>▲</Button>
                   <Button variant="tertiary" data-size="sm" type="button" title="Flytt ned" disabled={i === kommentarer.length - 1} onClick={() => flytt(k.id, 'ned')}>▼</Button>
