@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
-import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Select, Spinner, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Select, Spinner, Tabs, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { NavneformgrunnTag } from '../virksomhet/Navneformgrunn';
 import { GruppeMedlemmer } from '../virksomhet/GruppeMedlemmer';
@@ -10,8 +10,18 @@ import type { BegrepBruktIRettskildeDto, BegrepDefinisjonRelasjonDto, BegrepDto,
 import { StatusStepper } from '../entitet/StatusStepper';
 import { Metatekst } from '../entitet/Metatekst';
 
+/**
+ * [Ny, issue #276, 2026-09-11] Fanegruppering — 6-7 flate seksjoner (avhengig av begrepskategori),
+ * over docs/30 §3.1 pkt. 3 sin "faner ved >~4 seksjoner"-grense. Gruppert etter hva seksjonen
+ * FAKTISK svarer på (samme prinsipp som VirksomhetDetalj, issue #268): Grunndata (identitet/redigering),
+ * Bruk (hvor forekommer/brukes begrepet), Relasjoner (kun vist når det er noe å vise — gruppe-
+ * medlemskap eller bekreftede definisjonsrelasjoner).
+ */
+type Fane = 'grunndata' | 'bruk' | 'relasjoner';
+
 export default function BegrepDetalj() {
   const { id } = useParams<{ id: string }>();
+  const [fane, setFane] = useState<Fane>('grunndata');
   const [begrep, setBegrep] = useState<BegrepDto | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
@@ -124,10 +134,22 @@ export default function BegrepDetalj() {
         </Metatekst>
       </Paragraph>
 
+      <Tabs value={fane} onChange={(v) => setFane(v as Fane)} style={{ marginBottom: '1rem' }}>
+        <Tabs.List>
+          <Tabs.Tab value="grunndata">Grunndata</Tabs.Tab>
+          <Tabs.Tab value="bruk">Bruk</Tabs.Tab>
+          {(begrep.begrepskategori === 'gruppe' || definisjonsrelasjoner.length > 0) && (
+            <Tabs.Tab value="relasjoner">Relasjoner</Tabs.Tab>
+          )}
+        </Tabs.List>
+      </Tabs>
+
+      {fane === 'grunndata' && (
+      <>
       {(begrep.begrepskategori === 'virksomhet' || begrep.begrepskategori === 'gruppe'
         || begrep.begrepskategori === 'administrativ_inndeling') && (
         <section style={{ marginBottom: '1.5rem' }}>
-          <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+          <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
             Lenket til
           </Heading>
           {begrep.begrepskategori === 'virksomhet' && begrep.virksomhetReferanseId && (
@@ -163,7 +185,11 @@ export default function BegrepDetalj() {
           )}
         </section>
       )}
+      </>
+      )}
 
+      {fane === 'relasjoner' && (
+      <>
       {/* [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] Drill-through fra gruppebegrepet til
         * det gruppen faktisk INNEHOLDER — begge nivåene (medlemsgrupper og konkrete virksomheter) og
         * retningen oppover. Uten denne var et gruppebegrep en blindvei: siden viste hva gruppen ER
@@ -171,9 +197,13 @@ export default function BegrepDetalj() {
       {begrep.begrepskategori === 'gruppe' && id && (
         <GruppeMedlemmer gruppeBegrepId={id} rettskilder={rettskilder} />
       )}
+      </>
+      )}
 
+      {fane === 'grunndata' && (
+      <>
       <section style={{ marginBottom: '2rem' }}>
-        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+        <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
           Egenskaper
         </Heading>
         <form onSubmit={lagre} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '40rem' }}>
@@ -227,14 +257,18 @@ export default function BegrepDetalj() {
       </section>
 
       <section style={{ marginBottom: '2rem' }}>
-        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+        <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
           Status
         </Heading>
         <StatusStepper status={begrep.status} onChange={endreStatus} disabled={statusEndres} />
       </section>
+      </>
+      )}
 
+      {fane === 'bruk' && (
+      <>
       <section style={{ marginBottom: '2rem' }}>
-        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+        <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
           Brukt i vilkår
         </Heading>
         <Card style={{ padding: bruktIVilkar.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
@@ -266,7 +300,7 @@ export default function BegrepDetalj() {
           const rettskildeNavn =
             taggedeForekomster[0]?.rettskildeTittel ?? definerendeRettskilde?.tittel;
           return (
-            <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+            <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
               {rettskildeNavn ? `Forekomster i ${rettskildeNavn}` : 'Forekomster (taggkoblet)'}
             </Heading>
           );
@@ -294,15 +328,18 @@ export default function BegrepDetalj() {
           )}
         </Card>
       </section>
+      </>
+      )}
 
       {/* [Ny, #212, 2026-09-10] AC5 — «også definert i N andre rettskilder». Kjernebeslutningen (Johann
         * 2026-09-09): ett begrep per forskrift, ALDRI slått sammen til én rad (NTNUs og MFs definisjon
         * er to ulike tekster med ulik hjemmel og ulik fastsetter) — denne seksjonen gjør likheten
         * SPØRRBAR (docs/32 §3 S5/S6) uten å late som forskjellen forsvinner: hver relatert rad er et
-        * eget, selvstendig begrep med sin egen lenke, ikke et sammenslått felt. */}
-      {definisjonsrelasjoner.length > 0 && (
+        * eget, selvstendig begrep med sin egen lenke, ikke et sammenslått felt.
+        * [ENDRET, issue #276] Hører til "Relasjoner"-fanen (samme fane som GruppeMedlemmer over). */}
+      {fane === 'relasjoner' && definisjonsrelasjoner.length > 0 && (
         <section style={{ marginBottom: '2rem' }}>
-          <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+          <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
             Også definert i {definisjonsrelasjoner.length} {definisjonsrelasjoner.length === 1 ? 'annen rettskilde' : 'andre rettskilder'}
           </Heading>
           <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
@@ -335,8 +372,9 @@ export default function BegrepDetalj() {
         </section>
       )}
 
+      {fane === 'bruk' && (
       <section>
-        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+        <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
           Andre steder ordet forekommer i korpuset
         </Heading>
         <Alert data-color="warning" data-size="sm" style={{ marginBottom: '0.75rem' }}>
@@ -363,6 +401,7 @@ export default function BegrepDetalj() {
           )}
         </Card>
       </section>
+      )}
     </>
   );
 }

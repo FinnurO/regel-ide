@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { useParams } from 'react-router';
-import { Alert, Button, Field, Heading, Label, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Link as RouterLink, useParams } from 'react-router';
+import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { DatasettDto, DatasettVerdiDto, VirksomhetDto } from '../api/types';
 import { Metatekst } from '../entitet/Metatekst';
@@ -88,6 +88,12 @@ export default function DatasettDetalj() {
 
   return (
     <>
+      <Metatekst as="nav" aria-label="Brødsmulesti" style={{ display: 'flex', gap: '0.4rem', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+        <Link asChild><RouterLink to="/datasett">Datasett</RouterLink></Link>
+        <span>/</span>
+        <span style={{ color: 'var(--ds-color-neutral-text-default)', fontFamily: 'monospace' }}>{datasett.prop}</span>
+      </Metatekst>
+
       <Heading level={1} data-size="lg" style={{ fontFamily: 'monospace' }}>{datasett.prop}</Heading>
       <Paragraph style={{ marginBottom: '0.5rem' }}>{datasett.felt}</Paragraph>
       <Tag data-color="info" style={{ marginBottom: '1.5rem' }}>{datasett.dtype} · {datasett.type}</Tag>

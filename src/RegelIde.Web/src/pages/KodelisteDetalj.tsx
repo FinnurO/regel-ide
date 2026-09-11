@@ -73,6 +73,12 @@ export default function KodelisteDetalj() {
 
   return (
     <>
+      <Metatekst as="nav" aria-label="Brødsmulesti" style={{ display: 'flex', gap: '0.4rem', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+        <Link asChild><RouterLink to="/kodelister">Kodelister</RouterLink></Link>
+        <span>/</span>
+        <span style={{ color: 'var(--ds-color-neutral-text-default)', fontFamily: 'monospace' }}>{kodeliste.kode}</span>
+      </Metatekst>
+
       <Heading level={1} data-size="lg" style={{ fontFamily: 'monospace' }}>
         {kodeliste.kode}
       </Heading>
