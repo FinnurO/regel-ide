@@ -689,3 +689,36 @@ siden av 14 `virksomhet`-tagger, og defaulten skjulte de 14 kommunenavnene bak e
 «laget med FLEST tagger», med `kinds`-rekkefølgen som likhetsbryter. Prinsippet: en default som
 bestemmer hva brukeren SER ved kald åpning skal vise mest mulig av det som faktisk er markert.
 
+## 22. Appens ytre side (html/body) skal ALDRI scrolle — kun de to indre panelene (2026-09-11, issue #269)
+
+Johann observerte doble scrollbarer på `/navnekandidater` i Chrome ved 100 % zoom — to
+scrollbar-spor tett ved siden av hverandre, ikke sidemenyens og hovedinnholdets naturlige to (som
+sitter langt fra hverandre, én ved x≈260px, én ved høyre kant).
+
+**Årsak**: `.layout` (`App.tsx`) er `height: 100vh` og inneholder to FULLHØYDE paneler som hver
+scroller for seg selv — `.sidebar__nav` og `.innhold`, begge `overflow-y: auto`. Det er en bevisst,
+riktig arkitektur (header/brukerbrikke i sidemenyen skal alltid være synlig uansett hvor lang
+navigasjonslisten blir, jf. §-kommentaren i `index.css`). Problemet er at `100vh` og den faktiske
+synlige viewport-høyden IKKE alltid er nøyaktig samme tall — en kjent, dokumentert avrundingskvirk på
+tvers av nettlesere, som forverres ved enkelte zoom-nivåer (skjermens fysiske piksler deler seg ikke
+alltid jevnt på CSS-pikslene ved f.eks. 100 % på visse skjermer/OS-skaleringer). Blir `.layout` en
+brøkdels piksel høyere enn viewporten, overflower `body` selv med akkurat den brøkdelen — og Chrome
+tegner sin EGEN, native scrollbar for DET i tillegg til `.innhold`s allerede tiltenkte, custom-styla
+scrollbar, rett ved siden av. To scrollbarer for én rulling, synlig ved akkurat de zoom/skjerm-
+kombinasjonene der avrundingen slår ut.
+
+**Kartlagt (samme runde)**: dette er IKKE en side-spesifikk feil som må rettes 74 steder — `.layout`/
+`.sidebar`/`.innhold` er ÉN delt struktur i `App.tsx`, brukt av HVER ENESTE rute i appen. Symptomet
+viser seg først når hovedinnholdet er langt nok til at `.innhold` selv scroller (de fleste liste-/
+detaljsider), men den underliggende sårbarheten (ytre side kan i teorien alltid overflowe med en
+brøkdels piksel) gjelder alle sider likt. Sjekket for øvrig at appens andre `overflow: auto`-bruk
+(kodevisning i `RettskildeDetalj.tsx`, kontekstpanel i `TjenesteDetalj.tsx`/`KontekstPanel.tsx`,
+korte lister i `AvhengigheterFane.tsx`/`HandlingerFane.tsx` m.fl.) er bevisst avgrensede indre
+scroll-bokser (`maxHeight` satt), ikke berørt av denne sårbarheten — de konkurrerer ikke med den
+ytre siden om scroll.
+
+**Regel**: `html, body { overflow: hidden }` — en permanent, defensiv sperre som garanterer at den
+YTRE siden aldri kan scrolle, uansett om `100vh`-avrundingen noen gang slår til igjen. De to indre
+panelene (`.sidebar__nav`, `.innhold`) er de ENESTE stedene med scroll, som designet — denne regelen
+håndhever det i stedet for å stole på at `100vh` alltid stemmer eksakt med viewporten.
+

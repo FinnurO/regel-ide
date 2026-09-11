@@ -3,6 +3,20 @@ html, body, #root {
   margin: 0;
 }
 
+/* [Ny, issue #269, 2026-09-11] Doble scrollbarer i Chrome ved 100% zoom — se docs/09
+   §22 for hele resonnementet. Kort versjon: `.layout` er `height: 100vh` med to
+   FULLHØYDE, uavhengig scrollende paneler inni seg (`.sidebar__nav` og `.innhold`,
+   begge `overflow-y: auto`) — men `100vh` og den faktiske viewport-høyden er IKKE
+   alltid nøyaktig samme tall (kjent, dokumentert nettleser-avrundingskvirk, verre ved
+   enkelte zoom-nivåer). Blir `.layout` en brøkdels piksel høyere enn viewporten,
+   overflower `body` med akkurat den brøkdelen — og nettleseren tegner sin EGEN,
+   native scrollbar for DET i tillegg til `.innhold`s allerede tiltenkte scrollbar,
+   rett ved siden av. `overflow: hidden` her gjør at den ytre siden ALDRI kan scrolle,
+   uansett — de to indre panelene forblir de eneste stedene med scroll, som designet. */
+html, body {
+  overflow: hidden;
+}
+
 body {
   font-family: var(--ds-font-family, sans-serif);
   color: var(--ds-color-neutral-text-default);
