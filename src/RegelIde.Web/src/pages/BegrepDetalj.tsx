@@ -350,7 +350,7 @@ export default function BegrepDetalj() {
           ) : (
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', padding: '0.75rem' }}>
               {bruktIRettskilder.map((r, i) => (
-                // [Rettet, issue #278] rettskildeId+nodeEid er IKKE unikt her: BegrepBruktIRettskilderTjeneste
+                // [Rettet, PR #278] rettskildeId+nodeEid er IKKE unikt her: BegrepBruktIRettskilderTjeneste
                 // (server) itererer HVERT regex-treff i noden, så samme term to steder i ÉTT ledd gir to
                 // rader med identisk (rettskildeId, nodeEid) og ulik snippet — ekte, ulike treff, ikke en
                 // datafeil. Listen kommer uendret fra ett API-kall (ikke klient-sortert/-filtrert), så
