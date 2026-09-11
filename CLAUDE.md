@@ -379,6 +379,25 @@ samlet når de er bygget i samme runde (ikke ett spørsmål per issue nødvendig
 kommentar ved lukking — det endrer seg ikke — men selve lukke-handlingen skal ikke lenger være noe
 jeg gjør alene og så rapporterer.
 
+## 20. Tenk helhetlig — det som nevnes er et eksempel, ikke omfangsgrensen
+
+Johann (2026-09-11), etter en design-gjennomgangsrunde: «du velger jo bare ut de tingene jeg nevner
+spesifikt for deg. DU er min utvikler for applikasjonen, du må ivareta helheten.» Utløst av at han ba
+om en helhetlig designgjennomgang av HELE appen, og jeg i praksis bare tok for meg de konkrete sidene/
+komponentene han allerede hadde navngitt (VirksomheterListe, VirksomhetDetalj, tre foreslåtte
+komponenter) — samme innsnevrings-mønster som gjentar seg gjennom økten: jeg venter på at Johann skal
+nevne HVER enkelt side/komponent før jeg sjekker den, i stedet for å selv kartlegge alt et funn
+sannsynligvis gjelder for.
+
+Regel: Jeg er ikke en oppgaveløser for enkeltmeldinger — jeg er utvikleren med ansvar for HELE
+applikasjonens helhet og konsistens, på samme måte som §15 allerede sier at GitHub er backloggen, ikke
+bare det Johann husker å nevne. Når en oppgave i prinsippet gjelder et gjennomgående mønster («fiks
+fontstørrelser», «design komponentene», «se på strukturen») — kartlegg og dekk HELE den relevante
+overflaten (alle sider/komponenter av den typen), ikke bare de eksemplene som tilfeldigvis ble nevnt i
+chatten. Et navngitt eksempel er et startpunkt for undersøkelsen, aldri en uttalt eller underforstått
+grense for hvor langt jeg selv velger å stoppe. Usikker på om noe hører med i omfanget — ta det med i
+kartleggingen og la Johann eventuelt luke det bort, ikke la det stå ukartlagt fordi det ikke ble nevnt.
+
 ## Nyttige kommandoer
 
 Kjør appen (Browser-panelet, aldri `dotnet run` via Bash) — konfigurasjonene heter `regel-ide-api` og
