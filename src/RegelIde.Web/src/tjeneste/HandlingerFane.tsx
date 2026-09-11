@@ -124,10 +124,16 @@ export function HandlingerFane({ tjenesteId, handlinger, setHandlinger, referans
         {handlingsforslagMelding && <Alert data-color="info" style={{ marginTop: '0.5rem' }}>{handlingsforslagMelding}</Alert>}
       </div>
 
-      {handlinger === null && <Spinner aria-label="Laster …" data-size="sm" />}
-      {handlinger && handlinger.length === 0 && <Paragraph>Ingen handlinger registrert ennå.</Paragraph>}
-      {handlinger && handlinger.length > 0 && (
-        <div style={{ border: '1px solid var(--ds-color-neutral-border-subtle)', borderRadius: 'var(--ds-border-radius-md)', overflow: 'hidden', marginBottom: '1.25rem' }}>
+      {/* [Rettet, issue #281] Card ALLTID rendret (docs/09 §14) — erstatter en hånd-rullet
+          border-div som bare eksisterte for full tilstand; tom-/laste-tilstand er en Paragraph
+          INNI kortet nå, ikke et betinget-rendret kort utenfor. */}
+      <Card style={{ padding: handlinger && handlinger.length > 0 ? 0 : '1rem', overflow: 'hidden', marginBottom: '1.25rem' }}>
+      {handlinger === null ? (
+        <Spinner aria-label="Laster …" data-size="sm" />
+      ) : handlinger.length === 0 ? (
+        <Paragraph style={{ margin: 0 }}>Ingen handlinger registrert ennå.</Paragraph>
+      ) : (
+        <div>
           {handlinger.map((h) => (
             <Metatekst as="div" key={h.id} style={{
               display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: '0.5rem', alignItems: 'center',
@@ -142,6 +148,7 @@ export function HandlingerFane({ tjenesteId, handlinger, setHandlinger, referans
           ))}
         </div>
       )}
+      </Card>
 
       <Card style={{ maxWidth: '640px', padding: '1rem 1.25rem' }}>
         <Tabs value={modus} onChange={(v) => setModus(v as 'koble' | 'opprett')} style={{ marginBottom: '0.75rem' }}>
