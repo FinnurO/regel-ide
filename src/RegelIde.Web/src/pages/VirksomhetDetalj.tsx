@@ -2,6 +2,7 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router';
 import { Alert, Button, Card, Dialog, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
+import { rettskildeLenkeForId } from '../api/eidLenker';
 import type { KodelisteDto, MyndighetstildelingDto, Navneformgrunn, RettskildeNodeDto, RettskildeSammendrag, VirksomhetKandidatDto, VirksomhetRelasjonDto, VirksomhetSlettOversiktDto, VirksomhetsbegrepDto, VirksomhetWhereUsedDto } from '../api/types';
 import { NavneformgrunnTag, NavneformgrunnVelger } from '../virksomhet/Navneformgrunn';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
@@ -372,8 +373,9 @@ export default function VirksomhetDetalj() {
                           <Link asChild>
                             <RouterLink
                               to={
-                                `/rettskilder/${r.hjemmelRettskildeId}` +
-                                (r.hjemmelEid ? `?eid=${encodeURIComponent(r.hjemmelEid)}` : '')
+                                r.hjemmelEid
+                                  ? rettskildeLenkeForId(r.hjemmelRettskildeId, r.hjemmelEid)
+                                  : `/rettskilder/${r.hjemmelRettskildeId}`
                               }
                               title={hjemmelEtikett(r.hjemmelRettskildeId, r.hjemmelEid).tittel}
                             >
@@ -480,7 +482,7 @@ export default function VirksomhetDetalj() {
                             {forekomster.map((f) => (
                               <li key={`${f.rettskildeId}-${f.nodeEid}-${f.startOffset}`}>
                                 <Link asChild>
-                                  <RouterLink to={`/rettskilder/${f.rettskildeId}?eid=${encodeURIComponent(f.nodeEid)}`}>
+                                  <RouterLink to={rettskildeLenkeForId(f.rettskildeId, f.nodeEid)}>
                                     {f.rettskildeTittel} — {visNodeKort(f.rettskildeId, f.nodeEid)}
                                   </RouterLink>
                                 </Link>

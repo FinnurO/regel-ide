@@ -6,18 +6,9 @@ import type { TjenesteDto } from '../api/types';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
+import { STATUS_VISNING } from '../entitet/StatusStepper';
 
 type Sorteringskolonne = 'tittel' | 'tjenestetype' | 'status' | 'eier';
-
-/** Samme 6 statusverdier som backend (TjenesteregisterTjeneste), farge+visningstekst for Tag. */
-const STATUS_VISNING: Record<string, { farge: 'neutral' | 'warning' | 'info' | 'success' | 'danger'; tekst: string }> = {
-  utkast: { farge: 'neutral', tekst: 'Utkast' },
-  under_revisjon: { farge: 'warning', tekst: 'Under revisjon' },
-  validert: { farge: 'info', tekst: 'Validert' },
-  publisert: { farge: 'success', tekst: 'Publisert' },
-  tilbaketrukket: { farge: 'danger', tekst: 'Tilbaketrukket' },
-  arkivert: { farge: 'neutral', tekst: 'Arkivert' },
-};
 
 /**
  * KPI-rad (2026-08-20, "Startside Alternativ 1c") — kun tall vi faktisk kan bekrefte er riktige.
@@ -137,7 +128,7 @@ export default function TjenesterListe() {
       <form onSubmit={opprett} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '1.5rem' }}>
         <Textfield label="Ny tjeneste" placeholder="f.eks. Alminnelig skjenkebevilling" value={nyTittel}
           onChange={(e) => setNyTittel(e.target.value)} required />
-        <Button type="submit" disabled={oppretter || !nyTittel.trim()}>
+        <Button data-size="sm" type="submit" disabled={oppretter || !nyTittel.trim()}>
           {oppretter ? 'Oppretter …' : 'Opprett'}
         </Button>
       </form>

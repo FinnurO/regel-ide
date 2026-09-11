@@ -28,7 +28,7 @@ import { finnHovedledd } from '../virksomhet/navneformKjede';
 import { RaaTekstMedLenker } from '../rettskilde/RaaTekstMedLenker';
 import { forsokFormaterXml } from '../rettskilde/formaterXml';
 import { forsokFormaterHtml } from '../rettskilde/formaterHtml';
-import { eidVisningstekst, finnRettskildeForEid, rettskildeLenke } from '../api/eidLenker';
+import { eidVisningstekst, finnRettskildeForEid, rettskildeLenke, rettskildeLenkeForId } from '../api/eidLenker';
 import { paragrafEtikett } from '../rettskilde/paragrafEtikett';
 import { KontekstPanel, type KontekstPanelGruppe } from '../entitet/KontekstPanel';
 import { PUNKTMERKE_FORKLARING, harTekstEtterListen, underordnedePunkter } from '../rettskilde/punktliste';
@@ -724,7 +724,7 @@ export default function RettskildeDetalj() {
             .map((r) => ({
               start: r.tekstStart!,
               end: r.tekstStart! + r.tekstLengde!,
-              href: `/rettskilder/${r.tilRettskildeId}?eid=${encodeURIComponent(r.tilEid)}`,
+              href: rettskildeLenkeForId(r.tilRettskildeId, r.tilEid),
             }))
         : [],
     [referanser, valgtNode],
@@ -850,7 +850,7 @@ export default function RettskildeDetalj() {
           : r.visningstekst,
         onClick: () => navigate(
           r.hjemmelEid
-            ? `/rettskilder/${id}?eid=${encodeURIComponent(r.hjemmelEid)}`
+            ? rettskildeLenkeForId(id!, r.hjemmelEid)
             : `/virksomheter/${r.fraVirksomhetId}`,
         ),
       })),
@@ -896,7 +896,7 @@ export default function RettskildeDetalj() {
       items: referertAvDokumenter.map((r) => ({
         key: `${r.dokumentId}-${r.fraNodeEid}-${r.tilEid}`,
         label: `${r.dokumentTittel}${r.fraNodeOverskrift ? ` — ${r.fraNodeOverskrift}` : ''} → ${tilEidVisning(r.tilEid)}`,
-        onClick: () => navigate(`/rettskilder/${r.dokumentId}?eid=${encodeURIComponent(r.fraNodeEid)}`),
+        onClick: () => navigate(rettskildeLenkeForId(r.dokumentId, r.fraNodeEid)),
       })),
     },
   ];
@@ -1517,7 +1517,7 @@ export default function RettskildeDetalj() {
                         {referertAvDokumenterForNode.map((r, i) => (
                           <li key={`d-${r.dokumentId}-${i}`}>
                             <Link asChild>
-                              <RouterLink to={`/rettskilder/${r.dokumentId}?eid=${encodeURIComponent(r.fraNodeEid)}`}>
+                              <RouterLink to={rettskildeLenkeForId(r.dokumentId, r.fraNodeEid)}>
                                 {r.dokumentTittel}{r.fraNodeOverskrift ? ` — ${r.fraNodeOverskrift}` : ''}
                               </RouterLink>
                             </Link>
@@ -1550,7 +1550,7 @@ export default function RettskildeDetalj() {
                             return (
                               <li key={r.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--ds-font-size-1)' }}>
                                 <Link asChild>
-                                  <RouterLink to={`/rettskilder/${r.tilRettskildeId}?eid=${encodeURIComponent(r.tilEid)}`}>{visningstekst}</RouterLink>
+                                  <RouterLink to={rettskildeLenkeForId(r.tilRettskildeId, r.tilEid)}>{visningstekst}</RouterLink>
                                 </Link>
                                 {visningstekst !== r.tilEid && (
                                   <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>({r.tilEid})</span>

@@ -427,7 +427,7 @@ export default function ImportWizard() {
             </Paragraph>
           )}
           {parseFeil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{parseFeil}</Alert>}
-          <Button style={{ marginTop: '0.75rem' }} onClick={lastOpp} disabled={!raaTekst.trim() || tolker}>
+          <Button data-size="sm" style={{ marginTop: '0.75rem' }} onClick={lastOpp} disabled={!raaTekst.trim() || tolker}>
             {tolker && <Spinner aria-label="Tolker …" data-size="xs" />}
             {tolker ? 'Tolker …' : 'Tolk JSON'}
           </Button>
@@ -441,17 +441,17 @@ export default function ImportWizard() {
           </Paragraph>
 
           <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-            <Button variant="secondary" onClick={() => setVisGraf((v) => !v)}>
+            <Button data-size="sm" variant="secondary" onClick={() => setVisGraf((v) => !v)}>
               {visGraf ? 'Skjul graf-forhåndsvisning' : 'Forhåndsvis som graf (før noe opprettes)'}
             </Button>
             {antallGjenstaende > 0 && (
-              <Button onClick={opprettAlleGjenstaende} disabled={bulkKjorer}>
+              <Button data-size="sm" onClick={opprettAlleGjenstaende} disabled={bulkKjorer}>
                 {bulkKjorer && <Spinner aria-label="Importerer …" data-size="xs" />}
                 {bulkKjorer ? 'Importerer …' : `Importer alle ${antallGjenstaende} gjenstående rettigheter`}
               </Button>
             )}
             {antallSlettbare > 0 && (
-              <Button variant="secondary" data-color="danger" onClick={slettAlleOpprettede} disabled={bulkKjorer}>
+              <Button data-size="sm" variant="secondary" data-color="danger" onClick={slettAlleOpprettede} disabled={bulkKjorer}>
                 {bulkKjorer && <Spinner aria-label="Sletter …" data-size="xs" />}
                 {bulkKjorer ? 'Sletter …' : `Slett alle ${antallSlettbare} opprettede (angre denne importen)`}
               </Button>
@@ -619,7 +619,7 @@ export default function ImportWizard() {
                       )}
 
                       {t.feil && <Alert data-color="danger" style={{ marginBottom: '0.5rem' }}>{t.feil}</Alert>}
-                      <Button onClick={() => opprettRettighet(i)} disabled={t.oppretter || !t.malVirksomhetId}>
+                      <Button data-size="sm" onClick={() => opprettRettighet(i)} disabled={t.oppretter || !t.malVirksomhetId}>
                         {t.oppretter ? 'Oppretter …' : 'Opprett denne rettigheten'}
                       </Button>
                     </>
@@ -814,7 +814,7 @@ function AvhengigheterSeksjon({ rettigheter, navnTilId }: { rettigheter: RaaRett
         Avhengigheter ({kandidater.length} unike kanter funnet i importen)
       </Heading>
       {antallKlareForBulk > 0 && (
-        <Button onClick={opprettAlleKanter} disabled={bulkKjorer} style={{ marginBottom: '0.75rem' }}>
+        <Button data-size="sm" onClick={opprettAlleKanter} disabled={bulkKjorer} style={{ marginBottom: '0.75rem' }}>
           {bulkKjorer && bulkFremdrift
             ? `Oppretter … (${bulkFremdrift.ferdig}/${bulkFremdrift.totalt})`
             : `Opprett alle ${antallKlareForBulk} klare kanter`}

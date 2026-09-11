@@ -108,7 +108,7 @@ export default function BegreperListe() {
             <Select.Option value="handlingsbegrep">Handlingsbegrep</Select.Option>
           </Select>
         </Field>
-        <Button type="submit" disabled={oppretter || !nyTerm.trim()}>
+        <Button data-size="sm" type="submit" disabled={oppretter || !nyTerm.trim()}>
           {oppretter ? 'Oppretter …' : 'Opprett'}
         </Button>
       </form>

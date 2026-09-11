@@ -16,18 +16,9 @@ import type { HandlingMedTjenesteDto } from '../api/types';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
+import { STATUS_VISNING } from '../entitet/StatusStepper';
 
 type Sorteringskolonne = 'navn' | 'handlingstype' | 'status' | 'tjeneste' | 'eier';
-
-/** Samme 6 statusverdier/farger som TjenesterListe.tsx (HandlingEntitet.Status er samme verdisett). */
-const STATUS_VISNING: Record<string, { farge: 'neutral' | 'warning' | 'info' | 'success' | 'danger'; tekst: string }> = {
-  utkast: { farge: 'neutral', tekst: 'Utkast' },
-  under_revisjon: { farge: 'warning', tekst: 'Under revisjon' },
-  validert: { farge: 'info', tekst: 'Validert' },
-  publisert: { farge: 'success', tekst: 'Publisert' },
-  tilbaketrukket: { farge: 'danger', tekst: 'Tilbaketrukket' },
-  arkivert: { farge: 'neutral', tekst: 'Arkivert' },
-};
 
 export default function HandlingerListe() {
   const [rader, setRader] = useState<HandlingMedTjenesteDto[] | null>(null);
@@ -113,7 +104,7 @@ export default function HandlingerListe() {
 
       {viste && viste.length > 0 && (
         <Card style={{ padding: 0, overflow: 'hidden' }}>
-          <Table>
+          <Table data-density="compact">
             <Table.Head>
               <Table.Row>
                 <Table.HeaderCell>

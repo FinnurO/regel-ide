@@ -767,34 +767,42 @@ sekundærtekst) skal gå gjennom én delt `Metatekst`-komponent, ikke en ny inli
 `--ds-font-size-1`-referanse. Komponenten er ren presentasjon (ingen egen logikk) — poenget er
 étt sted å style om fra, ikke ny funksjonalitet.
 
-## 25. Statusfarge-konsolidering — fire ulike domener, ikke én generisk funksjon (issue #267, 2026-09-11)
+## 25. Statusfarge-konsolidering — fire ulike domener, ikke én generisk funksjon (issue #267, 2026-09-11, bygget samme dag)
 
-Seks lokale status→farge(+tekst)-konstanter ble funnet duplisert på tvers av filer:
+Seks lokale status→farge(+tekst)-konstanter ble funnet — men, rettet ved selve bygningen (under er
+det som faktisk stemte, ikke det opprinnelige canvas-anslaget): **kun fire av dem er reell
+duplisering**. `STATUS_FARGE` fantes i SEKS filer, ikke fire — men to av dem
+(`AdministrasjonLovdataResynk.tsx`: `Pågår/Fullført/Feilet`, `KildefeilListe.tsx`:
+`Ny/Kjent/Rettet-hos-oss/Venter-på-Lovdata`) har samme variabelNAVN men et helt annet nøkkelrom og
+domene (synkroniseringsjobb-status, feilkø-status) — samme navn valgt uavhengig tre steder, ikke
+duplisert kode. Konsolidert kun de fire med IDENTISK `Venter/Godkjent/Avvist`-skjema:
 
-| Konstant | Forekomster | Filer |
+| Konstant | Reelt duplikat i | Ikke duplikat (samme navn, annet domene) |
 |---|---|---|
-| `STATUS_FARGE` (Venter/Godkjent/Avvist) | ×4 | `VirksomhetKandidaterListe`, `Begrepskandidater`, `NavnekandidaterListe`, `BegrepDefinisjonRelasjonKo` |
-| `DOKUMENTTYPE_FARGE`/`VEILEDNINGSDOKUMENTTYPE_FARGE` | ×2 | `TjenesteVeiledning`, `Egenskapspanel` |
-| `STATUS_VISNING` (6-status entitetsstatus) | ×2 | `TjenesterListe`, `HandlingerListe` |
-| `KommentarStatus` (under_arbeid/til_godkjenning/publisert/må_revideres) | ×1 | `RettskildeTre` |
+| `STATUS_FARGE` (Venter/Godkjent/Avvist) | `VirksomhetKandidaterListe`, `Begrepskandidater`, `NavnekandidaterListe`, `BegrepDefinisjonRelasjonKo` (×4) | `AdministrasjonLovdataResynk`, `KildefeilListe` |
+| `DOKUMENTTYPE_FARGE`/`VEILEDNINGSDOKUMENTTYPE_FARGE` (hjemmel/praktisk-råd/sjekkliste/kommentar) | `TjenesteVeiledning`, `Egenskapspanel` (×2) | `KommentarRedigering`s `DOKUMENTTYPER` (kommentar/retningslinje/instruks/håndbok — håndbok-SEKSJONENS type, et annet domene) |
+| `STATUS_VISNING` (6-status entitetsstatus) | `TjenesterListe`, `HandlingerListe` (×2) | — |
+| `KommentarStatus` (under_arbeid/til_godkjenning/publisert/må_revideres) | `RettskildeTre` (×1, ingen duplikat å konsolidere) | — |
 
 **Johanns beslutning (2026-09-11, via spørsmålsverktøyet)**: konsolider PER REELT DOMENE, ikke til
-én generisk «status → farge»-funksjon for alt. De seks forekomstene er faktisk fire ulike domener
-(kandidatstatus, dokumenttype, entitetsstatus, kommentarstatus) med hver sin betydningsmengde — å
-tvinge dem inn i én felles funksjon ville skjule at f.eks. `KommentarStatus` sin firedeling ikke
-har noe med kandidat-treverdien å gjøre. Konkret:
+én generisk «status → farge»-funksjon for alt. Bygget:
 
-1. **Kandidatstatus** (`STATUS_FARGE` ×4) → én delt `KandidatStatusTag`.
-2. **Dokumenttype** (×2) → én delt `DokumenttypeTag`.
-3. **Entitetsstatus** (`STATUS_VISNING` ×2) → gjenbruk `StatusStepper` sin egen fargekilde, ikke en
-   ny — StatusStepperen har allerede seks-tilstands-fargelogikken kanonisert (§ under).
+1. **Kandidatstatus** (`STATUS_FARGE` ×4) → `kandidater/KandidatStatusTag.tsx`.
+2. **Dokumenttype** (×2) → `handbok/DokumenttypeTag.tsx`.
+3. **Entitetsstatus** (`STATUS_VISNING` ×2) → flyttet inn i `entitet/StatusStepper.tsx` (samme fil
+   som allerede eier `STATUS_VERDIER`) og eksportert derfra, ikke en ny, egen fil — se rettelsen
+   rett under for hvorfor "gjenbruk StatusStepper sin fargekilde" var upresist formulert.
 4. **`KommentarStatus`** (RettskildeTre) → EGEN, ikke slått sammen med de tre andre — reelt ulikt
-   domene.
+   domene, ingen kodeendring.
 
-**`StatusStepper` sin faktiske oppførsel** (bekreftet i kode, ikke antatt): Tag-raden er IKKE en
-fremdriftslinje. `accent`+fylt = nåværende status. `neutral`+fylt = passerte statuser. `neutral`+
-outline = fremtidige. `Dialog`-bekreftelse vises KUN på overgangen publisert → tilbaketrukket/
-arkivert (den eneste retningen som er reelt vanskelig å angre).
+**Rettelse ved bygging**: opprinnelig sto det her "gjenbruk `StatusStepper` sin egen fargekilde" —
+upresist. `StatusStepper`s Tag-RAD farger etter POSISJON relativt til gjeldende steg (`accent`+fylt
+for nåværende, `neutral`+fylt for passerte, `neutral`+outline for fremtidige; `Dialog`-bekreftelse
+KUN på publisert → tilbaketrukket/arkivert) — det er en annen, posisjonsbasert fargelogikk enn det
+`TjenesterListe`/`HandlingerListe` trenger (én enkelt Tag med FAST farge per statusverdi, uavhengig
+av hva som er "gjeldende"). Det som faktisk lot seg dele var LABEL+FARGE-PARET for de seks
+verdiene — flyttet til samme modul som `STATUS_VERDIER` (`entitet/StatusStepper.tsx`, eksportert som
+`STATUS_VISNING`), ikke stepper-radens interne posisjonslogikk.
 
 ## 26. Mål tabelltetthet, ikke anta den (issue #267, 2026-09-11)
 
@@ -807,13 +815,22 @@ Handlinger og Virksomheter — de seks andre listesidene har for få rader til a
 problem, og skal IKKE tvinges inn i samme mønster kun for konsistensens skyld (jf. §16, «mål det,
 ikke anta det»).
 
-## 27. `data-size` på knapper — konvensjon, ikke automatikk (issue #267, 2026-09-11)
+## 27. `data-size="sm"` på ALLE knapper — appens faktiske, unntaksfrie konvensjon (issue #267, 2026-09-11, bygget samme dag)
 
-`Button`/`data-size="sm"` skal brukes i kompakte arbeidsflater (tabellrader, inline-handlinger ved
-siden av skjemafelt, verktøylinjer) — standardstørrelsen er for åpne sider, ikke for tette rader.
-Ved gjennomgangen manglet 57 av 241 knapp-forekomster i koden en eksplisitt `data-size` der
-konteksten tilsa `sm`. Retting rulles ut sammen med resten av issue #267, ikke som en egen runde —
-den henger sammen med tabelltetthet-arbeidet i §26 (samme tette rader).
+**Rettet ved bygging**: det opprinnelige anslaget («57 av 241 mangler») var telt med en linjebasert
+`grep`, som teller `<Button` og `data-size` per linje hver for seg — en `<Button` skrevet over flere
+linjer (attributtene på egne linjer, et vanlig mønster i denne kodebasen) blir dermed en falsk
+positiv når `data-size` står på en ANNEN linje enn `<Button` selv. Et skript som følger hele
+åpne-tag-spennet (til den balanserte `>`, ikke bare linjen) ga et annet, korrekt tall: **kun 36 av
+243** manglet reelt `data-size`. Rettet i denne runden (§27-implementeringen).
+
+**Det finnes ingen `Button`-forekomst i hele appen med en annen `data-size`-verdi enn `sm`** — alle
+243 (etter rettingen) er `sm`, null er `md`/`lg`/`xs`. Det er ikke «bruk `sm` i tette kontekster,
+standard ellers» slik denne seksjonen opprinnelig antok (før noen faktisk telte) — appens etablerte,
+eksepsjonsfrie konvensjon er ganske enkelt **`sm` alltid**, på enhver knapp, uansett kontekst. De 36
+manglende var rene forglemmelser, ikke bevisste standardstørrelse-valg — bekreftet ved at samme
+skjema-mønster (f.eks. et inline `type="submit"`-skjema i en detaljside) allerede hadde `sm` andre
+steder i SAMME fil (`HandlingDetalj.tsx`, `VilkarstreDetalj.tsx`, `RettskildeDetalj.tsx` m.fl.).
 
 ## 28. Liste- og detaljsidemal — generisk mønster for alle 14 + 8 sider (issue #266/#267, 2026-09-11)
 
@@ -828,8 +845,11 @@ ved full gjennomgang av hver enkelt fil — ikke antatt fra noen få eksempler:
   KontekstPanel-grupper er IKKE nødvendigvis likt mellom entiteter — RettskildeDetalj har 5,
   TjenesteDetalj har 3 — det er riktig, ikke en inkonsekvens, når entitetene faktisk har ulikt
   antall relasjonstyper (§29 utdyper for RettskildeDetalj spesifikt).
-- Ett funnet, ikke rettet ennå: `KodelisteDetalj`/`DatasettDetalj` har en tom-tilstand som avviker
-  fra malen over — dokumentert i canvasen, ikke bygget.
+- **Rettet (issue #272, 2026-09-11)**: `KodelisteDetalj.tsx` sin "Koder"-seksjon rendrer nå et
+  `<Card>` uansett — den fulgte ikke Card-alltid-mønster over, samme bug som #265 rettet i
+  `VirksomhetKandidaterListe`/`NavnekandidaterListe`. `DatasettDetalj.tsx` hadde IKKE denne bugen
+  ved nærmere sjekk — den viser alltid sin standardverdi-rad med «—»-fallback, en annen, allerede
+  korrekt løsning for en fast rad som alltid finnes (ikke en liste som kan være tom).
 
 ## 29. VirksomheterListe/VirksomhetDetalj — foreslått, IKKE besluttet omstrukturering (issue #268)
 

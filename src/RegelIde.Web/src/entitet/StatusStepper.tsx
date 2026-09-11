@@ -9,13 +9,29 @@ import { Button, Dialog, Paragraph, Tag } from '@digdir/designsystemet-react';
 export const STATUS_VERDIER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'] as const;
 export type StatusVerdi = typeof STATUS_VERDIER[number];
 
-const STATUS_LABELER: Record<StatusVerdi, string> = {
-  utkast: 'Utkast',
-  under_revisjon: 'Under revisjon',
-  validert: 'Validert',
-  publisert: 'Publisert',
-  tilbaketrukket: 'Tilbaketrukket',
-  arkivert: 'Arkivert',
+/**
+ * [Konsolidert, issue #267, 2026-09-11] Farge + visningstekst for de 6 statusverdiene i én enkelt
+ * `Tag` — f.eks. i en tabellrad, til forskjell fra hele stepper-raden under. Tidligere duplisert
+ * IDENTISK som lokal `STATUS_VISNING`-konstant i `TjenesterListe.tsx` og `HandlingerListe.tsx`, pluss
+ * en tredje, kun-tekst `STATUS_LABELER` her i samme fil. Én kilde nå.
+ *
+ * <p>
+ * <b>Ikke samme fargelogikk som selve stepper-raden</b> (se `<StatusStepper>` under): den farger
+ * etter POSISJON relativt til gjeldende steg (`accent` for nåværende, `neutral` for alle andre,
+ * outline for fremtidige) — et helt annet, posisjonsbasert formål enn denne per-status-fargen, som
+ * gir hver av de 6 verdiene sin egen faste farge uavhengig av hva som er "gjeldende". Docs/09 §25
+ * omtalte tidligere dette som "gjenbruk StatusStepper sin fargekilde" — upresist, rettet her: det
+ * som faktisk gjenbrukes er ÉN kilde for LABEL+FARGE-paret, ikke steppercomponentens interne
+ * posisjonslogikk.
+ * </p>
+ */
+export const STATUS_VISNING: Record<string, { farge: 'neutral' | 'warning' | 'info' | 'success' | 'danger'; tekst: string }> = {
+  utkast: { farge: 'neutral', tekst: 'Utkast' },
+  under_revisjon: { farge: 'warning', tekst: 'Under revisjon' },
+  validert: { farge: 'info', tekst: 'Validert' },
+  publisert: { farge: 'success', tekst: 'Publisert' },
+  tilbaketrukket: { farge: 'danger', tekst: 'Tilbaketrukket' },
+  arkivert: { farge: 'neutral', tekst: 'Arkivert' },
 };
 
 /** Overganger som krever en Dialog-bekreftelse før de utføres (docs/30 §3.3) — nøkkelen er
@@ -77,9 +93,9 @@ export function StatusStepper({ status, onChange, disabled }: StatusStepperProps
             variant={indeks > aktivIndeks ? 'outline' : 'default'}
             style={{ cursor: disabled ? 'default' : 'pointer', opacity: disabled ? 0.6 : 1 }}
             onClick={() => klikkSteg(steg)}
-            title={steg === status ? 'Gjeldende status' : `Sett status til «${STATUS_LABELER[steg]}»`}
+            title={steg === status ? 'Gjeldende status' : `Sett status til «${STATUS_VISNING[steg].tekst}»`}
           >
-            {STATUS_LABELER[steg]}
+            {STATUS_VISNING[steg].tekst}
           </Tag>
         ))}
       </div>
@@ -87,7 +103,7 @@ export function StatusStepper({ status, onChange, disabled }: StatusStepperProps
       <Dialog open={ventendeStatus !== null} onClose={() => setVentendeStatus(null)} closeButton="Avbryt" style={{ maxWidth: '28rem' }}>
         <Dialog.Block>
           <Paragraph style={{ margin: 0 }}>
-            Endre status fra «{erStatusVerdi(status) ? STATUS_LABELER[status] : status}» til «{ventendeStatus ? STATUS_LABELER[ventendeStatus] : ''}»?
+            Endre status fra «{erStatusVerdi(status) ? STATUS_VISNING[status].tekst : status}» til «{ventendeStatus ? STATUS_VISNING[ventendeStatus].tekst : ''}»?
             {ventendeStatus === 'tilbaketrukket' && ' Dette markerer den som ikke lenger gjeldende.'}
             {ventendeStatus === 'arkivert' && ' Dette markerer den som avsluttet/historisk.'}
           </Paragraph>

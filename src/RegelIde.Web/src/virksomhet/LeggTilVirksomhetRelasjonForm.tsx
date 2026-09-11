@@ -91,7 +91,7 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
           value={kommentar} onChange={(e) => setKommentar(e.target.value)} style={{ flex: 2, minWidth: '16rem' }} />
       </div>
 
-      <Button type="button" onClick={opprett} disabled={oppretter || !tilVirksomhetId || !relasjonsType}>
+      <Button data-size="sm" type="button" onClick={opprett} disabled={oppretter || !tilVirksomhetId || !relasjonsType}>
         {oppretter ? 'Oppretter …' : 'Opprett relasjon'}
       </Button>
       {feilmelding && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{feilmelding}</Alert>}

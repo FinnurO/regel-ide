@@ -11,6 +11,7 @@ import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
 import { KandidatflytForklaring } from '../kandidater/KandidatflytForklaring';
 import { KonfidensTag } from '../kandidater/KonfidensTag';
+import { KandidatStatusTag } from '../kandidater/KandidatStatusTag';
 import { useSortering } from '../kandidater/useSortering';
 import { useKandidatvalg } from '../kandidater/useKandidatvalg';
 import { Massehandlingsrad } from '../kandidater/Massehandlingsrad';
@@ -54,12 +55,6 @@ function serverFilter(fane: Fane): { status: string; behandletAutomatisk?: boole
     default: return { status: fane };
   }
 }
-
-const STATUS_FARGE: Record<string, 'neutral' | 'warning' | 'success' | 'danger'> = {
-  Venter: 'warning',
-  Godkjent: 'success',
-  Avvist: 'danger',
-};
 
 // [ENDRET, issue #203 pkt. 2] 'administrativ_inndeling' lagt til — egen farge ('success', ikke i bruk
 // av de to andre) slik at kategorien er visuelt skilt fra både virksomhet og gruppe i tabellen/filteret.
@@ -570,9 +565,7 @@ export default function NavnekandidaterListe() {
               "Vernepliktsverket", som SNL ikke typer som organisasjonsartikkel). Skiller de to her,
               i selve status-taggen, i stedet for en egen fane — samme rad, samme Avvist-fane, bare
               tydeligere HVORFOR/HVEM som avviste den. */}
-          <Tag data-color={STATUS_FARGE[k.status] ?? 'neutral'} data-size="sm">
-            {k.status === 'Avvist' && !k.behandletAv ? 'Avvist (automatisk)' : k.status}
-          </Tag>
+          <KandidatStatusTag status={k.status} tekst={k.status === 'Avvist' && !k.behandletAv ? 'Avvist (automatisk)' : undefined} />
         </Table.Cell>
         <Table.Cell>
           {redigerId === k.id ? (
@@ -659,7 +652,7 @@ export default function NavnekandidaterListe() {
         </Paragraph>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
           <RettskildeVelger rettskilder={rettskilder} value={sveipRettskildeId} onChange={setSveipRettskildeId} label="Rettskilde (tomt = hele korpuset)" />
-          <Button onClick={kjorSveip} disabled={sveiper}>
+          <Button data-size="sm" onClick={kjorSveip} disabled={sveiper}>
             {sveiper ? 'Sveiper …' : 'Kjør sveip'}
           </Button>
         </div>

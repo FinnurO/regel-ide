@@ -124,7 +124,7 @@ export default function BegrepsforslagKo() {
       {rettskilder.length > 0 && (
         <div style={{ marginBottom: '1rem' }}>
           <RettskildeFlervalg rettskilder={rettskilder} valgte={valgteRettskilder} onChange={setValgteRettskilder} />
-          <Button onClick={kjorForslag} disabled={kjorer || valgteRettskilder.size === 0}>
+          <Button data-size="sm" onClick={kjorForslag} disabled={kjorer || valgteRettskilder.size === 0}>
             {kjorer ? 'Kjører KI-forslag …' : 'Kjør KI-forslag'}
           </Button>
         </div>

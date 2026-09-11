@@ -278,7 +278,7 @@ export default function TjenesteforslagKo() {
       <form onSubmit={leggTilLenke} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '1rem' }}>
         <Textfield label="URL" placeholder="https://…" value={nyUrl} onChange={(e) => setNyUrl(e.target.value)} required />
         <Textfield label="Beskrivelse (valgfri)" value={nyBeskrivelse} onChange={(e) => setNyBeskrivelse(e.target.value)} />
-        <Button type="submit" disabled={leggerTilLenke || !nyUrl.trim()}>
+        <Button data-size="sm" type="submit" disabled={leggerTilLenke || !nyUrl.trim()}>
           {leggerTilLenke ? 'Legger til …' : 'Legg til lenke'}
         </Button>
       </form>
@@ -321,7 +321,7 @@ export default function TjenesteforslagKo() {
               <Select.Option value="full">Tjeneste + handlinger (ett kall)</Select.Option>
             </Select>
           </Field>
-          <Button onClick={kjorForslag} disabled={kjorer || valgteRettskilder.size === 0}>
+          <Button data-size="sm" onClick={kjorForslag} disabled={kjorer || valgteRettskilder.size === 0}>
             {kjorer ? 'Kjører KI-forslag …' : 'Kjør KI-forslag'}
           </Button>
         </div>

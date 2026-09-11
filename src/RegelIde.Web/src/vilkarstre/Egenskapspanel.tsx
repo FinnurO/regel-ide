@@ -22,20 +22,7 @@ import type {
 } from '../api/types';
 import { MinimalEditor } from '../handbok/MinimalEditor';
 import { StatusStepper } from '../entitet/StatusStepper';
-
-const VEILEDNINGSDOKUMENTTYPER = [
-  { id: 'kommentar', label: 'Kommentar' },
-  { id: 'hjemmel', label: 'Hjemmel' },
-  { id: 'praktisk-rad', label: 'Praktisk råd' },
-  { id: 'sjekkliste', label: 'Sjekkliste' },
-];
-
-const VEILEDNINGSDOKUMENTTYPE_FARGE: Record<string, 'info' | 'warning' | 'neutral' | 'success'> = {
-  hjemmel: 'info',
-  'praktisk-rad': 'warning',
-  sjekkliste: 'success',
-  kommentar: 'neutral',
-};
+import { DokumenttypeTag, VEILEDNINGSDOKUMENTTYPER } from '../handbok/DokumenttypeTag';
 
 export type EgenskapspanelNode = { kind: 'vilkar' | 'regelnode' | 'unntak'; id: string };
 
@@ -291,9 +278,7 @@ function VeiledningskommentarAdministrasjon({ malType, malId, setFane, onOpprett
               border: '1px solid var(--ds-color-neutral-border-subtle)', borderRadius: 'var(--ds-border-radius-md)', padding: '0.5rem',
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.3rem' }}>
-                <Tag data-color={VEILEDNINGSDOKUMENTTYPE_FARGE[k.dokumenttype] ?? 'neutral'} data-size="sm">
-                  {VEILEDNINGSDOKUMENTTYPER.find((d) => d.id === k.dokumenttype)?.label ?? k.dokumenttype}
-                </Tag>
+                <DokumenttypeTag dokumenttype={k.dokumenttype} />
                 <div style={{ display: 'flex', gap: '0.25rem' }}>
                   <Button variant="tertiary" data-size="sm" type="button" title="Flytt opp" disabled={i === 0} onClick={() => flytt(k.id, 'opp')}>▲</Button>
                   <Button variant="tertiary" data-size="sm" type="button" title="Flytt ned" disabled={i === kommentarer.length - 1} onClick={() => flytt(k.id, 'ned')}>▼</Button>
@@ -499,7 +484,7 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, tjenester, feil
             </>
           )}
           <div>
-            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+            <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
         </form>
       )}
@@ -515,7 +500,7 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, tjenester, feil
             <Textarea value={veiledningSaksbehandler} onChange={(e) => setVeiledningSaksbehandler(e.target.value)} rows={3} />
           </Field>
           <div>
-            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+            <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
         </form>
       )}
@@ -526,7 +511,7 @@ function VilkarPanel({ id, fane, setFane, begreper, rettskilder, tjenester, feil
           <Paragraph style={{ marginBottom: '0.25rem' }}>Juridisk grunnlag:</Paragraph>
           <JuridiskGrunnlagRedigering grunnlag={juridiskGrunnlag} rettskilder={rettskilder} onEndre={setJuridiskGrunnlag} />
           <div style={{ marginTop: '0.75rem' }}>
-            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+            <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
           <div style={{ marginTop: '1rem' }}>
             <Label style={{ marginBottom: '0.4rem' }}>Status</Label>
@@ -646,7 +631,7 @@ function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndre
             Utdata: {regelnode.utdataNavn} ({regelnode.utdataType})
           </Paragraph>
           <div>
-            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+            <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
         </form>
       )}
@@ -662,7 +647,7 @@ function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndre
             <Textarea value={avslagTekst} onChange={(e) => setAvslagTekst(e.target.value)} rows={3} />
           </Field>
           <div>
-            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+            <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
         </form>
       )}
@@ -673,7 +658,7 @@ function RegelnodePanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndre
           <Paragraph style={{ marginBottom: '0.25rem' }}>Juridisk grunnlag:</Paragraph>
           <JuridiskGrunnlagRedigering grunnlag={juridiskGrunnlag} rettskilder={rettskilder} onEndre={setJuridiskGrunnlag} />
           <div style={{ marginTop: '0.75rem' }}>
-            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+            <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
           <div style={{ marginTop: '1rem' }}>
             <Label style={{ marginBottom: '0.4rem' }}>Status</Label>
@@ -762,7 +747,7 @@ function UnntakPanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndret }
             gjelder_regel og betingelse settes ved opprettelse (INV-3/INV-4) og endres ikke her.
           </Paragraph>
           <div>
-            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+            <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
         </form>
       )}
@@ -777,7 +762,7 @@ function UnntakPanel({ id, fane, setFane, rettskilder, feil, setFeil, onEndret }
           <Paragraph style={{ marginBottom: '0.25rem' }}>Juridisk grunnlag:</Paragraph>
           <JuridiskGrunnlagRedigering grunnlag={juridiskGrunnlag} rettskilder={rettskilder} onEndre={setJuridiskGrunnlag} />
           <div style={{ marginTop: '0.75rem' }}>
-            <Button type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
+            <Button data-size="sm" type="submit" disabled={lagrer}>{lagrer ? 'Lagrer …' : 'Lagre'}</Button>
           </div>
           <div style={{ marginTop: '1rem' }}>
             <Label style={{ marginBottom: '0.4rem' }}>Status</Label>

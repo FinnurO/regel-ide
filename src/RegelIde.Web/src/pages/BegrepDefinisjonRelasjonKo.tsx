@@ -1,15 +1,10 @@
 import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Alert, Button, Card, Heading, Link, Paragraph, Select, Spinner, Table, Tag } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Heading, Link, Paragraph, Select, Spinner, Table } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
+import { KandidatStatusTag } from '../kandidater/KandidatStatusTag';
 import type { BegrepDefinisjonRelasjonKandidatDto } from '../api/types';
-
-const STATUS_FARGE: Record<string, 'neutral' | 'warning' | 'success' | 'danger'> = {
-  Venter: 'warning',
-  Godkjent: 'success',
-  Avvist: 'danger',
-};
 
 /**
  * [Ny, #212, 2026-09-10] Kandidatkø for «definert likt som»-forslag mellom to begreps-FOREKOMSTER
@@ -94,7 +89,7 @@ export default function BegrepDefinisjonRelasjonKo() {
 
   return (
     <>
-      <Heading level={1} data-size="md" style={{ marginBottom: '0.5rem' }}>
+      <Heading level={1} data-size="lg" style={{ marginBottom: '0.5rem' }}>
         Relaterte definisjoner
       </Heading>
       <Paragraph style={{ marginBottom: '1rem', maxWidth: '48rem' }} data-size="sm">
@@ -153,7 +148,7 @@ export default function BegrepDefinisjonRelasjonKo() {
                     <Paragraph data-size="xs" style={{ margin: 0, color: 'var(--ds-color-neutral-text-subtle)' }}>{k.til.definisjon}</Paragraph>
                   </Table.Cell>
                   <Table.Cell>
-                    <Tag data-color={STATUS_FARGE[k.status] ?? 'neutral'} data-size="sm">{k.status}</Tag>
+                    <KandidatStatusTag status={k.status} />
                   </Table.Cell>
                   <Table.Cell>
                     {k.status === 'Venter' && (
