@@ -1,0 +1,97 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; color: #1F2C3D; background: #FFFFFF; }
+    .mono { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
+    .card { background: #FFFFFF; border: 1px solid #B8BCC1; border-radius: 4px; }
+    .sectionlabel { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #545E6B; }
+  </style>
+</helmet>
+<div style="max-width: 1240px; margin: 0 auto; padding: 40px 32px 80px;">
+
+  <div class="sectionlabel">Regel-IDE · Design System · Innholdsverifisert (ikke bare struktur)</div>
+  <h1 style="font-size: 36px; font-weight: 500; margin: 4px 0 8px;">Tjeneste og Handling — reelt innhold</h1>
+  <p style="font-size: 18px; line-height: 27px; color: #545E6B; max-width: 900px; margin: 0 0 32px;">
+    Johann spurte om jeg faktisk visste hvordan disse skulle se ut — svaret var nei, jeg hadde bare talt faner/kontekstpanel. Dette arket er lest rett fra <span class="mono">TjenesteDetalj.tsx</span>, <span class="mono">OversiktFane.tsx</span>, <span class="mono">HandlingDetalj.tsx</span> og <span class="mono">api/types.ts</span> — reelle felt, reelle fanenavn.
+  </p>
+
+  <!-- TJENESTE -->
+  <h2 style="font-size: 24px; font-weight: 500; margin: 0 0 4px;">TjenesteDetalj — 8 faner (Oversikt alltid + 7)</h2>
+  <p style="font-size: 13px; color: #545E6B; margin: 0 0 14px;">Fanerekkefølge fra <span class="mono">SEKSJON_LABELER</span>: Oversikt · Vilkårstre · Innhold · Status · Regelverksreferanser · Hendelser · Handlinger · Avhengigheter.</p>
+  <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 16px;">
+    <div style="padding: 16px 20px; border-bottom: 1px solid #E7E9EA;">
+      <div style="font-size: 24px; font-weight: 500;">Søknad om skjenkebevilling</div>
+      <div style="font-size: 13px; color: #545E6B; margin-top: 4px;">Eid av <span style="color:#0062BA;">Kystvakten (test-live)</span> · Kompetent myndighet (fritekst): «Kommunen»</div>
+    </div>
+    <div style="display: flex; gap: 2px; padding: 0 20px; border-bottom: 1px solid #B8BCC1;">
+      <div style="padding: 8px 4px; border-bottom: 2px solid #0062BA; font-size: 13px; font-weight: 600; color: #0062BA;">Oversikt</div>
+      <div style="padding: 8px 12px; font-size: 13px; color: #545E6B;">Vilkårstre</div>
+      <div style="padding: 8px 12px; font-size: 13px; color: #545E6B;">Innhold</div>
+      <div style="padding: 8px 12px; font-size: 13px; color: #545E6B;">Status</div>
+      <div style="padding: 8px 12px; font-size: 13px; color: #545E6B;">Regelverksreferanser</div>
+      <div style="padding: 8px 12px; font-size: 13px; color: #545E6B;">Hendelser</div>
+      <div style="padding: 8px 12px; font-size: 13px; color: #545E6B;">Handlinger</div>
+      <div style="padding: 8px 12px; font-size: 13px; color: #545E6B;">Avhengigheter</div>
+    </div>
+    <div style="padding: 20px;">
+      <div style="font-size: 13px; color: #545E6B; margin-bottom: 4px;">Formål</div>
+      <div style="font-size: 14px; margin-bottom: 16px;">Sikre forsvarlig skjenking av alkoholholdig drikk innenfor kommunens grenser.</div>
+      <div style="display: grid; grid-template-columns: repeat(4, minmax(0,1fr)); gap: 12px;">
+        <div class="card" style="padding: 14px;"><div style="font-size:12px; color:#545E6B;">Regelverksreferanser</div><div style="font-size:22px; font-weight:600; margin-top:2px;">6</div></div>
+        <div class="card" style="padding: 14px;"><div style="font-size:12px; color:#545E6B;">Hendelser</div><div style="font-size:22px; font-weight:600; margin-top:2px;">2</div></div>
+        <div class="card" style="padding: 14px;"><div style="font-size:12px; color:#545E6B;">Handlinger</div><div style="font-size:22px; font-weight:600; margin-top:2px;">3</div></div>
+        <div class="card" style="padding: 14px;"><div style="font-size:12px; color:#545E6B;">Avhengigheter</div><div style="font-size:22px; font-weight:600; margin-top:2px;">1</div></div>
+      </div>
+      <div style="font-size: 11px; color: #545E6B; margin-top: 8px;">Hvert kort er klikkbart → hopper rett til fanen (ekte adferd i <span class="mono">OversiktFane.tsx</span>, ikke oppfunnet her).</div>
+    </div>
+  </div>
+  <p style="font-size: 12px; color: #545E6B; max-width: 900px; margin: 0 0 40px;">
+    Merk det ekte skillet i koden: <span class="mono">virksomhetId</span> (eier) er en ekte FK til virksomhetskatalogen; <span class="mono">kompetentMyndighet</span> er BEVISST fritekst (docs/13 §8) — et importert rettighetsorgan finnes ofte ikke i katalogen. To ulike ting, ikke en glemt kobling.
+  </p>
+
+  <!-- HANDLING -->
+  <h2 style="font-size: 24px; font-weight: 500; margin: 0 0 4px;">HandlingDetalj — 4 faner, med underoverskrifter inni</h2>
+  <p style="font-size: 13px; color: #545E6B; margin: 0 0 14px;">Egenskaper (Status/Behandlingstid/Kostnad/Resultat) · Kanaler (Kanaler/Vedlegg) · Veiledning (Veiledningstekst/Årsaker) · Regelverk (Regelverksreferanser/Rotnode-overstyring).</p>
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <div style="padding: 16px 20px; border-bottom: 1px solid #E7E9EA;">
+      <div style="font-size: 24px; font-weight: 500;">Søk om skjenkebevilling</div>
+      <div style="font-size: 13px; color: #545E6B; margin-top: 4px;">Tilhørende: Søknad om skjenkebevilling → «Se rettighet»</div>
+    </div>
+    <div style="display: flex; gap: 2px; padding: 0 20px; border-bottom: 1px solid #B8BCC1;">
+      <div style="padding: 8px 4px; border-bottom: 2px solid #0062BA; font-size: 13px; font-weight: 600; color: #0062BA;">Egenskaper</div>
+      <div style="padding: 8px 12px; font-size: 13px; color: #545E6B;">Kanaler</div>
+      <div style="padding: 8px 12px; font-size: 13px; color: #545E6B;">Veiledning</div>
+      <div style="padding: 8px 12px; font-size: 13px; color: #545E6B;">Regelverk</div>
+    </div>
+    <div style="padding: 20px;">
+      <div style="font-size: 15px; font-weight: 500; margin-bottom: 8px;">Status</div>
+      <div style="height: 24px; width: 160px; background: #F1EFE8; border-radius: 4px; margin-bottom: 16px;"></div>
+      <div style="font-size: 15px; font-weight: 500; margin-bottom: 8px;">Behandlingstid</div>
+      <div style="height: 24px; width: 220px; background: #F1EFE8; border-radius: 4px; margin-bottom: 16px;"></div>
+      <div style="font-size: 15px; font-weight: 500; margin-bottom: 8px;">Kostnad</div>
+      <div style="height: 24px; width: 220px; background: #F1EFE8; border-radius: 4px; margin-bottom: 16px;"></div>
+      <div style="font-size: 15px; font-weight: 500; margin-bottom: 8px;">Resultat</div>
+      <div style="height: 24px; width: 260px; background: #F1EFE8; border-radius: 4px;"></div>
+    </div>
+  </div>
+
+  <p style="font-size: 13px; color: #545E6B; max-width: 900px; margin-top: 20px;">
+    <b>Oppdatert:</b> BegrepDetalj, VilkarstreDetalj, KodelisteDetalj og DatasettDetalj er nå innholdsverifisert
+    på samme måte som Tjeneste/Handling her — reelt feltinnhold, faktisk empty-state-oppførsel og
+    designbegrunnelser fra kildekoden, ikke bare struktur. Funnene står i «Maler og sider»-arket
+    (Detaljsidemal.dc.html) sin statustabell, inkludert en bekreftet uoverensstemmelse mellom
+    KodelisteDetalj og DatasettDetalj sin tom-tilstand-håndtering. Alle 71 frontend-tsx-filer i appen
+    er nå gjennomgått på dette nivået — ingen gjenstår.
+  </p>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,98 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; color: #1F2C3D; background: #FFFFFF; }
+    .mono { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
+    .card { background: #FFFFFF; border: 1px solid #B8BCC1; border-radius: 4px; }
+    .sectionlabel { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #545E6B; }
+    .y { color: #023409; font-weight: 600; }
+    .n { color: #590D0D; font-weight: 600; }
+  </style>
+</helmet>
+<div style="max-width: 1240px; margin: 0 auto; padding: 40px 32px 80px;">
+
+  <div class="sectionlabel">Regel-IDE · Design System</div>
+  <h1 style="font-size: 36px; font-weight: 500; margin: 4px 0 8px;">Detaljside-mal</h1>
+  <p style="font-size: 18px; line-height: 27px; color: #545E6B; max-width: 860px; margin: 0 0 32px;">
+    Ett mønster for ALLE 8 entitets-detaljsidene — malen <span class="mono">TjenesteDetalj.tsx</span> allerede beviser fungerer. Målt status under viser hvor langt hver av de andre 7 har kommet.
+  </p>
+
+  <div style="display: flex; gap: 24px;">
+    <!-- MOCKUP -->
+    <div class="card" style="flex: 1.4; padding: 0; overflow: hidden;">
+      <div style="padding: 12px 20px; border-bottom: 1px solid #E7E9EA; font-size: 13px; color: #545E6B;">
+        Virksomheter <span style="margin: 0 6px;">/</span> <span style="color: #1F2C3D; font-weight: 500;">Entitetsnavn</span>
+      </div>
+      <div style="padding: 20px 20px 12px;">
+        <div style="font-size: 30px; font-weight: 500;">Entitetsnavn</div>
+        <div style="display: flex; gap: 8px; margin-top: 8px;">
+          <span style="background: #DCEBF6; color: #042D4D; border-radius: 999px; padding: 2px 10px; font-size: 13px;">stat</span>
+          <span style="background: #EAF3DE; color: #023409; border-radius: 999px; padding: 2px 10px; font-size: 13px;">Aktiv</span>
+        </div>
+      </div>
+      <div style="display: flex; gap: 4px; padding: 0 20px; border-bottom: 1px solid #B8BCC1;">
+        <div style="padding: 10px 4px; border-bottom: 2px solid #0062BA; font-size: 14px; font-weight: 600; color: #0062BA;">Grunndata</div>
+        <div style="padding: 10px 16px; font-size: 14px; color: #545E6B;">Relasjoner</div>
+        <div style="padding: 10px 16px; font-size: 14px; color: #545E6B;">Navneformer</div>
+        <div style="padding: 10px 16px; font-size: 14px; color: #545E6B;">Farlig sone</div>
+      </div>
+      <div style="padding: 20px; font-size: 14px; color: #545E6B;">
+        Ett faneinnhold av gangen — resten er ikke i DOM-en, ikke bare skjult.
+      </div>
+    </div>
+
+    <!-- KONTEKSTPANEL -->
+    <div class="card" style="width: 260px; padding: 16px;">
+      <div class="sectionlabel" style="margin-bottom: 10px;">Relatert</div>
+      <div style="font-size: 13px; font-weight: 600; margin-bottom: 4px;">Hjemmel</div>
+      <div style="font-size: 13px; color: #0062BA; margin-bottom: 12px;">§ 5 andre ledd →</div>
+      <div style="font-size: 13px; font-weight: 600; margin-bottom: 4px;">Brukt i tjenester</div>
+      <div style="font-size: 13px; color: #0062BA; margin-bottom: 12px;">3 tjenester →</div>
+      <div style="font-size: 12px; color: #545E6B; margin-top: 8px;">ÉN samlet KontekstPanel — ikke 3-6 spredte seksjoner nedover siden.</div>
+    </div>
+  </div>
+
+  <h2 style="font-size: 22px; font-weight: 500; margin: 40px 0 4px;">Målt status, alle 8 detaljsider (2026-09-11)</h2>
+  <div class="card" style="padding: 0; overflow: hidden; margin-top: 16px;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+      <thead>
+        <tr style="background: #E7E9EA;">
+          <th style="text-align:left; padding: 8px 16px;">Side</th>
+          <th style="text-align:left; padding: 8px 12px;">Brødsmulesti</th>
+          <th style="text-align:left; padding: 8px 12px;">Faner/accordion</th>
+          <th style="text-align:left; padding: 8px 12px;">KontekstPanel</th>
+        </tr>
+      </thead>
+      <tbody style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">
+        <tr style="border-top:1px solid #E7E9EA; background:#EAF3DE;"><td style="padding:6px 16px;">TjenesteDetalj (malen selv)</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="y">✓</td></tr>
+        <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px;">RettskildeDetalj</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="y">✓</td></tr>
+        <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px;">HandlingDetalj</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="n">✗ — sjekk om relevant her</td></tr>
+        <tr style="border-top:1px solid #E7E9EA; background:#FAEEDA;"><td style="padding:6px 16px;">VirksomhetDetalj</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="n">✗ — se konkret forslag →</td><td style="padding:6px 12px;" class="n">✗</td></tr>
+        <tr style="border-top:1px solid #E7E9EA; background:#FAEEDA;"><td style="padding:6px 16px;">BegrepDetalj</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="n">✗ — 6 flate seksjoner, KORREKT Card-alltid-mønster allerede (verifisert)</td><td style="padding:6px 12px;" class="n">✗</td></tr>
+        <tr style="border-top:1px solid #E7E9EA; background:#FAEEDA;"><td style="padding:6px 16px;">VilkarstreDetalj</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="n">✗ — MEN Egenskapspanel har egne 5 faner (Generelt/Tekster/Metadata/Veiledning/Historikk)</td><td style="padding:6px 12px;" class="y">(~) valg-drevet høyrepanel, samme funksjon</td></tr>
+        <tr style="border-top:1px solid #E7E9EA; background:#FCEBEB;"><td style="padding:6px 16px;">KodelisteDetalj</td><td style="padding:6px 12px;" class="n">✗</td><td style="padding:6px 12px;" class="n">✗</td><td style="padding:6px 12px;" class="n">✗</td></tr>
+        <tr style="border-top:1px solid #E7E9EA; background:#FCEBEB;"><td style="padding:6px 16px;">DatasettDetalj</td><td style="padding:6px 12px;" class="n">✗</td><td style="padding:6px 12px;" class="n">✗</td><td style="padding:6px 12px;" class="n">✗</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size: 12px; color: #545E6B; margin: 8px 0 0; max-width: 900px;">
+    Rødt = ingen av de tre er på plass (KodelisteDetalj, DatasettDetalj — ikke tidligere kartlagt i #268). Gult = delvis. Grønt = ferdig malen selv beviser fungerer.
+  </p>
+  <p style="font-size: 13px; color: #590D0D; margin: 12px 0 0; max-width: 900px;">
+    <b>Ny, verifisert uoverensstemmelse mellom de to røde sidene:</b> KodelisteDetalj skjuler koder-tabellen
+    HELT når den er tom (bar «Ingen koder registrert ennå.»-paragraf, tabellen rendres ikke i det hele
+    tatt) — mens DatasettDetalj ALLTID viser sin standardverdi-rad, selv når verdien er <span class="mono">undefined</span>
+    (vist som «—»). To ulike svar på "hva er tom tilstand" på to sider som ellers ser strukturelt like ut.
+  </p>
+
+</div>
+</x-dc>
+</body>
+</html>

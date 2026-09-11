@@ -1,0 +1,74 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; color: #1F2C3D; background: #FFFFFF; }
+    .mono { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
+    .card { background: #FFFFFF; border: 1px solid #B8BCC1; border-radius: 4px; }
+    .sectionlabel { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #545E6B; }
+  </style>
+</helmet>
+<div style="max-width: 1240px; margin: 0 auto; padding: 40px 32px 80px;">
+
+  <div class="sectionlabel">Regel-IDE · Design System · Anvendt eksempel (issue #268)</div>
+  <h1 style="font-size: 36px; font-weight: 500; margin: 4px 0 8px;">/virksomheter/{id} — anvendt detaljside-mal</h1>
+  <p style="font-size: 18px; line-height: 27px; color: #545E6B; max-width: 860px; margin: 0 0 32px;">
+    I dag: minst 8 seksjoner i én flat scroll — dobbelt så mange som docs/30s egen «faner ved &gt;4 seksjoner»-grense. To ulike tom-tilstand-behandlinger på samme side (én uten ramme, to med).
+  </p>
+
+  <div style="display: flex; gap: 32px; align-items: flex-start;">
+    <!-- FØR -->
+    <div style="flex: 1;">
+      <div class="sectionlabel" style="color: #590D0D; margin-bottom: 8px;">I dag — 8 seksjoner, én lang scroll</div>
+      <div class="card" style="padding: 16px; font-size: 13px;">
+        <div style="padding: 6px 0; border-bottom: 1px dashed #E7E9EA;">Grunndata</div>
+        <div style="padding: 6px 0; border-bottom: 1px dashed #E7E9EA;">Relasjoner til andre virksomheter</div>
+        <div style="padding: 6px 0; border-bottom: 1px dashed #E7E9EA;">Navneformer i rettskildetekst</div>
+        <div style="padding: 6px 0; border-bottom: 1px dashed #E7E9EA;">Myndighetstildelinger <span style="color:#590D0D; font-size:11px;">← tom uten ramme</span></div>
+        <div style="padding: 6px 0; border-bottom: 1px dashed #E7E9EA;">Rettskilder — ansvarlig departement</div>
+        <div style="padding: 6px 0; border-bottom: 1px dashed #E7E9EA;">Fastsatt av denne virksomheten</div>
+        <div style="padding: 6px 0; border-bottom: 1px dashed #E7E9EA;">Ventende kandidater <span style="color:#023409; font-size:11px;">← tom MED ramme</span></div>
+        <div style="padding: 6px 0; color: #590D0D;">Farlig sone</div>
+      </div>
+    </div>
+    <!-- ETTER -->
+    <div style="flex: 1.3;">
+      <div class="sectionlabel" style="color: #023409; margin-bottom: 8px;">Forslag — samme mal som TjenesteDetalj/RettskildeDetalj</div>
+      <div class="card" style="padding: 0; overflow: hidden;">
+        <div style="padding: 10px 18px; border-bottom: 1px solid #E7E9EA; font-size: 12px; color: #545E6B;">Virksomheter <span style="margin:0 6px;">/</span> <span style="color:#1F2C3D; font-weight:500;">Klagenemndssekretariatet</span></div>
+        <div style="padding: 16px 18px 10px;">
+          <div style="font-size: 26px; font-weight: 500;">Klagenemndssekretariatet</div>
+          <div style="display: flex; gap: 8px; margin-top: 6px;">
+            <span style="background: #DCEBF6; color: #042D4D; border-radius: 999px; padding: 2px 10px; font-size: 12px;">stat</span>
+            <span style="background: #EAF3DE; color: #023409; border-radius: 999px; padding: 2px 10px; font-size: 12px;">Aktiv</span>
+          </div>
+        </div>
+        <div style="display: flex; gap: 2px; padding: 0 18px; border-bottom: 1px solid #B8BCC1; font-size: 13px;">
+          <div style="padding: 8px 4px; border-bottom: 2px solid #0062BA; font-weight: 600; color: #0062BA;">Grunndata</div>
+          <div style="padding: 8px 12px; color: #545E6B;">Navneformer</div>
+          <div style="padding: 8px 12px; color: #545E6B;">Myndighet &amp; relasjoner</div>
+          <div style="padding: 8px 12px; color: #545E6B;">Rettskilder</div>
+          <div style="padding: 8px 12px; color: #545E6B;">Kandidater</div>
+          <div style="padding: 8px 12px; color: #590D0D;">Farlig sone</div>
+        </div>
+        <div style="padding: 16px 18px; font-size: 13px; color: #545E6B;">
+          Fanens innhold — «Myndighet &amp; relasjoner» slår sammen 3 tidligere separate seksjoner (Relasjoner, Myndighetstildelinger, Rettskilder-ansvarlig-for) som alle svarer på samme spørsmål: hva styrer denne virksomheten / hva styrer den.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <p style="font-size: 13px; color: #545E6B; max-width: 900px; margin-top: 20px;">
+    Fanegruppering foreslått ut fra hva seksjonene FAKTISK svarer på (docs/32 §3 S1–S7), ikke bare for å redusere antall — «Myndighet &amp; relasjoner» og «Rettskilder» er to ulike spørsmål (hvem styrer virksomheten vs. hvilke rettskilder nevner den), holdt adskilt. Endelig fanenavn/gruppering avklares med Johann før bygging (docs/30 §3.1 pkt. 3 — egen sak, del av #268).
+  </p>
+
+</div>
+</x-dc>
+</body>
+</html>

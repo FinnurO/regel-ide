@@ -1,0 +1,79 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; color: #1F2C3D; background: #FFFFFF; }
+    .mono { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
+    .card { background: #FFFFFF; border: 1px solid #B8BCC1; border-radius: 4px; }
+    .sectionlabel { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #545E6B; }
+  </style>
+</helmet>
+<div style="max-width: 1240px; margin: 0 auto; padding: 40px 32px 80px;">
+
+  <div class="sectionlabel">Regel-IDE · Design System · Rettet (§21 — antok, sjekket ikke)</div>
+  <h1 style="font-size: 36px; font-weight: 500; margin: 4px 0 8px;">Veiviser-mal, og to sider som IKKE er det</h1>
+  <p style="font-size: 18px; line-height: 27px; color: #545E6B; max-width: 900px; margin: 0 0 32px;">
+    Forrige versjon av dette arket antok ImportWizard.tsx og Importer.tsx «burde konvergere mot»
+    NavnekandidatVeiviser sitt steg-mønster. Feil — lest begge filene, og ingen av dem bruker noen
+    steg-indikator i det hele tatt. Tre reelt ulike mønstre, ikke ett mønster + to etterslep.
+  </p>
+
+  <h2 style="font-size: 22px; font-weight: 500; margin: 0 0 12px;">NavnekandidatVeiviser — EKTE steg-mønster</h2>
+  <div class="card" style="padding: 0; overflow: hidden; max-width: 760px; margin-bottom: 32px;">
+    <div style="padding: 16px 20px; display: flex; gap: 8px; border-bottom: 1px solid #B8BCC1;">
+      <span style="background: #0062BA; color: #fff; border-radius: 999px; padding: 3px 12px; font-size: 13px; font-weight: 600;">1. Er teksten riktig?</span>
+      <span style="background: #E7E9EA; color: #545E6B; border-radius: 999px; padding: 3px 12px; font-size: 13px;">2. Hva slags ting er dette?</span>
+      <span style="background: #E7E9EA; color: #545E6B; border-radius: 999px; padding: 3px 12px; font-size: 13px;">3. Hvilken virksomhet?</span>
+      <span style="background: #E7E9EA; color: #545E6B; border-radius: 999px; padding: 3px 12px; font-size: 13px;">4. Bekreft</span>
+    </div>
+    <div style="padding: 16px 20px; font-size: 13px; color: #545E6B;">ÉN kandidat, lineært gjennom faste steg. Ingen andre sider i appen gjør dette.</div>
+  </div>
+
+  <h2 style="font-size: 22px; font-weight: 500; margin: 0 0 12px;">ImportWizard — batch-gjennomgang, ikke steg</h2>
+  <p style="font-size: 13px; color: #545E6B; margin: 0 0 12px; max-width: 800px;">
+    Lim inn/last opp JSON → parse → FLAT liste av accordion-rader (én per rettighet) → massehandling. Ingen «neste steg»-knapp — hver rad behandles uavhengig, i egen rekkefølge saksbehandleren velger.
+  </p>
+  <div class="card" style="padding: 0; overflow: hidden; max-width: 760px; margin-bottom: 32px;">
+    <div style="padding: 12px 20px; border-bottom: 1px solid #B8BCC1; display: flex; gap: 8px; font-size: 13px;">
+      <button style="height: 32px; padding: 0 12px; background: #0062BA; color: #fff; border: none; border-radius: 4px;">Importer alle 12 gjenstående</button>
+      <button style="height: 32px; padding: 0 12px; background: #fff; border: 1px solid #CE4D4D; color: #590D0D; border-radius: 4px;">Slett alle opprettede (angre)</button>
+    </div>
+    <div style="padding: 12px 20px; border-bottom: 1px solid #E7E9EA; display: flex; justify-content: space-between; align-items: center;">
+      <span style="font-size: 14px;">▶ Søknad om skjenkebevilling</span>
+      <span style="background: #EAF3DE; color: #023409; border-radius:999px; padding:2px 10px; font-size:12px;">Opprettet</span>
+    </div>
+    <div style="padding: 12px 20px; border-bottom: 1px solid #E7E9EA; font-size: 14px;">▼ Melding om dyrehold — <span style="color:#545E6B; font-size:12px;">rad åpen, tung form lastes først nå</span></div>
+    <div style="padding: 12px 20px; font-size: 14px;">▶ Søknad om serveringsbevilling</div>
+  </div>
+  <p style="font-size: 12px; color: #545E6B; max-width: 800px; margin-top: -20px; margin-bottom: 32px;">
+    Reell, dokumentert ytelsesfeil rettet her: Chrome krasjet med 88 limte-inn rader — hver rads tunge <span class="mono">VirksomhetVelger</span>-skjema ble først mountet ~40 000 combobox-valg samtidig. Fikset ved å ikke rendre en rads skjema før raden faktisk åpnes.
+  </p>
+
+  <h2 style="font-size: 22px; font-weight: 500; margin: 0 0 12px;">Importer — kildevalg + bekreftelse, to skjermer</h2>
+  <p style="font-size: 13px; color: #545E6B; margin: 0 0 12px; max-width: 800px;">
+    To betingede visninger (<span class="mono">if (importertId)</span>), ingen egen stepper-komponent. Steg 1: velg kilde (Lovdata-søk ELLER filopplasting). Steg 2: bekreft mot tolket struktur (AK-3.3.6).
+  </p>
+  <div class="card" style="padding: 20px; max-width: 760px;">
+    <div style="font-size: 15px; font-weight: 500; margin-bottom: 8px;">Bekreft import</div>
+    <div style="display: flex; gap: 16px;">
+      <div style="flex: 1; font-size: 12px; color: #545E6B;">Kildetekst<div style="height: 80px; background: #F1EFE8; border-radius: 4px; margin-top: 4px;"></div></div>
+      <div style="flex: 1; font-size: 12px; color: #545E6B;">Tolket struktur (14 noder)<div style="height: 80px; background: #F1EFE8; border-radius: 4px; margin-top: 4px;"></div></div>
+    </div>
+  </div>
+
+  <p style="font-size: 13px; color: #545E6B; max-width: 900px; margin-top: 24px;">
+    Konklusjon: dette er IKKE tre modenhetsnivåer av samme mønster — det er tre reelt ulike oppgaver
+    (én-ad-gangen-flyt / batch-gjennomgang-uten-rekkefølge / kilde-så-bekreft). Ingen konvergering
+    foreslås lenger.
+  </p>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,78 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; color: #1F2C3D; background: #FFFFFF; }
+    .mono { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
+    .card { background: #FFFFFF; border: 1px solid #B8BCC1; border-radius: 4px; }
+    .sectionlabel { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #545E6B; }
+  </style>
+</helmet>
+<div style="max-width: 1240px; margin: 0 auto; padding: 40px 32px 80px;">
+
+  <div class="sectionlabel">Regel-IDE · Design System</div>
+  <h1 style="font-size: 36px; font-weight: 500; margin: 4px 0 8px;">Graf/tre-visualisering, og appens skall</h1>
+  <p style="font-size: 18px; line-height: 27px; color: #545E6B; max-width: 900px; margin: 0 0 32px;">
+    Sjette sideform: VilkarstreGraf, RettskildeTre, Tjenestereise (graf) — nodetre/canvas, ikke tabell eller skjema. Pluss skallet (sidemeny/toppfelt) og globalt søk, som allerede fungerer og ikke endres.
+  </p>
+
+  <div style="display: flex; gap: 24px; margin-bottom: 40px;">
+    <div class="card" style="flex: 1; padding: 20px;">
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Vilkårstre / rettskildehierarki</div>
+      <svg width="100%" height="160" viewBox="0 0 320 160">
+        <line x1="160" y1="20" x2="80" y2="80" stroke="#B8BCC1" stroke-width="1.5"/>
+        <line x1="160" y1="20" x2="240" y2="80" stroke="#B8BCC1" stroke-width="1.5"/>
+        <line x1="80" y1="80" x2="40" y2="140" stroke="#B8BCC1" stroke-width="1.5"/>
+        <line x1="80" y1="80" x2="120" y2="140" stroke="#B8BCC1" stroke-width="1.5"/>
+        <rect x="120" y="4" width="80" height="32" rx="4" fill="#DDEAF6" stroke="#99C0E3"/>
+        <text x="160" y="24" text-anchor="middle" font-size="11" fill="#002C54">Regelnode</text>
+        <rect x="40" y="64" width="80" height="32" rx="4" fill="#EAF3DE" stroke="#97C459"/>
+        <text x="80" y="84" text-anchor="middle" font-size="11" fill="#023409">Vilkår</text>
+        <rect x="200" y="64" width="80" height="32" rx="4" fill="#FAEEDA" stroke="#EF9F27"/>
+        <text x="240" y="84" text-anchor="middle" font-size="11" fill="#633806">Unntak</text>
+        <rect x="4" y="124" width="72" height="32" rx="4" fill="#F1EFE8" stroke="#B8BCC1"/>
+        <text x="40" y="144" text-anchor="middle" font-size="11" fill="#2C2C2A">Egenskap</text>
+        <rect x="84" y="124" width="72" height="32" rx="4" fill="#F1EFE8" stroke="#B8BCC1"/>
+        <text x="120" y="144" text-anchor="middle" font-size="11" fill="#2C2C2A">Egenskap</text>
+      </svg>
+      <div style="font-size: 12px; color: #545E6B; margin-top: 8px;">Node-form/farge = type, ikke tilfeldig — samme prinsipp som Tag-fargene ellers i appen.</div>
+    </div>
+    <div class="card" style="flex: 1; padding: 20px;">
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 12px;">Egenskapspanel (valgt node, side ved side med treet)</div>
+      <div style="font-size: 13px; color: #545E6B; margin-bottom: 6px;">Valgt: Vilkår «Fylte 18 år»</div>
+      <div style="height: 28px; background: #F1EFE8; border-radius: 4px; margin-bottom: 8px;"></div>
+      <div style="height: 28px; background: #F1EFE8; border-radius: 4px; margin-bottom: 8px;"></div>
+      <div style="font-size: 12px; color: #545E6B; margin-top: 8px;">To-kolonne «IDE»-mønster (docs/09 §11) — samme unntak fra 1100px-bredden som TjenesteDetalj.</div>
+    </div>
+  </div>
+
+  <h2 style="font-size: 22px; font-weight: 500; margin: 0 0 12px;">Skallet (uendret — allerede riktig, Johanns egen vurdering)</h2>
+  <div class="card" style="padding: 0; overflow: hidden; display: flex; height: 200px;">
+    <div style="width: 220px; background: #fff; border-right: 1px solid #B8BCC1; padding: 14px; font-size: 12px;">
+      <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
+        <div style="width: 26px; height: 26px; background: #0062BA; border-radius: 4px; color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 12px;">R</div>
+        <div>
+          <div style="font-weight: 600;">Forvaltningsverktøy</div>
+          <div style="color: #545E6B; font-size: 10px;">for digitale tjenester</div>
+        </div>
+      </div>
+      <div style="color: #0062BA; margin-bottom: 12px;">Søk overalt <span style="color:#545E6B;">Ctrl/⌘+K</span></div>
+      <div style="color: #545E6B; font-size: 10px; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 4px;">Kilder</div>
+      <div style="margin-bottom: 2px;">Rettskilder</div>
+      <div style="color: #B8BCC1;">Importer katalog <span style="background:#F1EFE8; border-radius:999px; padding:0 4px; font-size:9px;">Kommer</span></div>
+    </div>
+    <div style="flex: 1; padding: 20px; font-size: 13px; color: #545E6B; display: flex; align-items: center; justify-content: center;">
+      Hovedinnhold — ingen ad-hoc <span class="mono" style="margin: 0 4px;">fontSize</span>-overstyringer her i det hele tatt (§0 i #266). Nettopp FRAVÆRET av overstyring er hvorfor denne allerede er konsistent.
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

@@ -1,0 +1,102 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; color: #1F2C3D; background: #FFFFFF; }
+    .mono { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
+    .card { background: #FFFFFF; border: 1px solid #B8BCC1; border-radius: 4px; }
+    .sectionlabel { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #545E6B; }
+  </style>
+</helmet>
+<div style="max-width: 1240px; margin: 0 auto; padding: 40px 32px 80px;">
+
+  <div class="sectionlabel">Regel-IDE · Design System · Innholdsverifisert (RettskildeDetalj lest i sin helhet, 1657 linjer)</div>
+  <h1 style="font-size: 36px; font-weight: 500; margin: 4px 0 8px;">Rettskildetekst og tagging (RettskildeDetalj + TagTekst)</h1>
+  <p style="font-size: 18px; line-height: 27px; color: #545E6B; max-width: 900px; margin: 0 0 32px;">
+    Den mest brukte flaten i hele appen — å lese en lovtekst og markere hvilke ord som betyr noe (docs/32 §3 S1–S7). RettskildeDetalj er appens desidert største/mest komplekse fil (1657 linjer, ~25 useState) — bekrefter påstanden om "mest besøkte side".
+  </p>
+
+  <h2 style="font-size: 22px; font-weight: 500; margin: 0 0 12px;">Fire reelle faner (ikke de jeg antok)</h2>
+  <div class="card" style="padding: 0; overflow: hidden; max-width: 900px; margin-bottom: 12px;">
+    <div style="padding: 10px 20px; font-size: 12px; color: #545E6B; border-bottom: 1px solid #E7E9EA;">Virksomheter <span style="margin:0 6px;">/</span> <span style="color:#1F2C3D; font-weight:500;">Forskrift om skjenkebevilling</span></div>
+    <div style="display: flex; gap: 2px; padding: 0 20px; border-bottom: 1px solid #B8BCC1;">
+      <div style="padding: 8px 4px; font-size: 13px; color: #545E6B;">Metadata</div>
+      <div style="padding: 8px 12px; border-bottom: 2px solid #0062BA; font-size: 13px; font-weight: 600; color: #0062BA;">Innhold &amp; tagging</div>
+      <div style="padding: 8px 12px; font-size: 13px; color: #545E6B;">Relasjoner</div>
+      <div style="padding: 8px 12px; font-size: 13px; color: #545E6B; font-style: italic;">(Håndbok — kun for rundskriv/veiledninger)</div>
+    </div>
+  </div>
+  <p style="font-size: 13px; color: #545E6B; max-width: 900px; margin: 0 0 24px;">
+    «Innhold &amp; tagging» er DEFAULT-fanen (bevisst, ikke Metadata — "de fleste vil se selve lovteksten først", Johanns eget live-testfunn). «Relasjoner» samler 5 grupper i ÉTT KontekstPanel: Organrelasjoner hjemlet her (først, bevisst — "hvem forvalter loven"), Hjemmel, Hjemmel for, Brukt i tjenester, Referert fra håndbøker. Til sammenligning har TjenesteDetalj sitt KontekstPanel bare 3 grupper (Regelverksreferanser/Hendelser/Avhengigheter) — ulikt antall er riktig, ikke en inkonsekvens, siden entitetene faktisk har ulikt antall relasjonstyper.
+  </p>
+
+  <div style="display: flex; gap: 24px;">
+    <div class="card" style="flex: 1.6; padding: 0; overflow: hidden;">
+      <div style="display: flex; gap: 2px; padding: 10px 16px 0; border-bottom: 1px solid #B8BCC1;">
+        <div style="padding: 8px 14px; border-bottom: 2px solid #0062BA; font-size: 13px; font-weight: 600; color: #0062BA;">Virksomhet (14)</div>
+        <div style="padding: 8px 14px; font-size: 13px; color: #545E6B;">Begrep (3)</div>
+        <div style="padding: 8px 14px; font-size: 13px; color: #545E6B;">Vilkår (0)</div>
+      </div>
+      <div style="padding: 20px; font-size: 15px; line-height: 1.7;">
+        § 1. <mark style="background: #DDEAF6; color: #002C54; border-bottom: 2px solid #0062BA; font-weight: 500;">Energiklagenemnda</mark>
+        behandler klager over enkeltvedtak truffet av
+        <mark style="background: #DDEAF6; color: #002C54; border-bottom: 2px solid #0062BA; font-weight: 500;">Reguleringsmyndigheten for energi</mark>
+        med hjemmel i energiloven § 2-3 første ledd og § 10-6 første ledd og
+        <a href="#" style="text-decoration: underline;">naturgassloven</a> § 4 første ledd og § 13 første ledd.
+      </div>
+      <div style="padding: 10px 20px; border-top: 1px solid #E7E9EA; font-size: 12px; color: #545E6B;">
+        Marker tekst → velg lag (fane over) → velg mål. Understreket = kryssreferanse til en annen rettskilde (klikkbar, ikke en tagg).
+      </div>
+    </div>
+    <div class="card" style="width: 280px; padding: 16px;">
+      <div class="sectionlabel" style="margin-bottom: 10px;">Ny tagg</div>
+      <div style="font-size: 13px; margin-bottom: 8px;">Valgt tekst:</div>
+      <div style="font-size: 13px; font-weight: 600; margin-bottom: 12px;">«Reguleringsmyndigheten for energi»</div>
+      <div style="font-size: 12px; color: #545E6B; margin-bottom: 4px;">Lag</div>
+      <div style="height: 32px; border: 1px solid #B8BCC1; border-radius: 4px; margin-bottom: 12px; display: flex; align-items: center; padding: 0 10px; font-size: 13px;">virksomhet</div>
+      <div style="font-size: 12px; color: #545E6B; margin-bottom: 4px;">Mål</div>
+      <div style="height: 32px; border: 1px solid #B8BCC1; border-radius: 4px; margin-bottom: 16px; display: flex; align-items: center; padding: 0 10px; font-size: 13px; color: #545E6B;">Søk navneform …</div>
+      <button style="width: 100%; height: 36px; background: #0062BA; color: #fff; border: none; border-radius: 4px; font-size: 14px;">Lagre tagg</button>
+    </div>
+  </div>
+
+  <p style="font-size: 13px; color: #545E6B; max-width: 900px; margin-top: 20px;">
+    Aktivt lag defaultes til det med FLEST tagger på noden (docs/09 §21, ikke bare første i lista) — retter en tidligere feil der 14 kommunenavn ble skjult bak en fane fordi begrep-laget tilfeldigvis kom først. Ikke endret her; tatt med for at helheten skal vise korrekt oppførsel, ikke bare struktur.
+  </p>
+  <p style="font-size: 12px; color: #545E6B; max-width: 900px; margin-top: 8px;">
+    Bekreftet (lest TagTekst.tsx sin egen prop-dokumentasjon): dette er SAMME mekanisme som §21-defaulten
+    over, ikke to separate valg. Kontrakten er eksplisitt: en kontrollerende forelder (RettskildeDetalj)
+    SKAL starte <span class="mono">activeKind</span> tom — det er nettopp det tomme utgangspunktet som lar
+    TagTekst selv derivere visningen via <span class="mono">finnStandardLag</span>. Å forhåndsvelge
+    <span class="mono">kinds[0]</span> ("Begrep") var den opprinnelige feilen (14 urelaterte tagg-rader mot
+    umarkert tekst); RettskildeDetalj implementerer kontrakten riktig, det er ikke en egen, separat fiks.
+  </p>
+
+  <h2 style="font-size: 22px; font-weight: 500; margin: 40px 0 4px;">RettskildeTre — venstrekolonnens navigator, 5 nivåer</h2>
+  <p style="font-size: 13px; color: #545E6B; margin: 0 0 12px; max-width: 900px;">
+    Innholdsverifisert i sin helhet. Fem nodenivåer med hver sin visuelle rytme (leselig uten å telle
+    innrykk): kapittel (versal/halvfet), underinndeling (romertall i nøytral pille), paragraf (§-nummer
+    i accent-chip — mest markert, det er hit man lenker), ledd (tallmarkør i sirkel + tekstutdrag),
+    punkt (mono "a)"). Dybde vises med BÅDE innrykk og en tynn ledelinje. Opphevet paragraf: gjennomstreket, dempet, "Opphevet"-tag, aldri barn.
+  </p>
+  <div class="card" style="padding: 12px 16px; max-width: 500px; font-size: 13px; margin-bottom: 8px;">
+    <div style="font-size:11px; font-weight:700; letter-spacing:0.05em; color:#545E6B; text-transform:uppercase; border-top:1px solid #B8BCC1; padding-top:8px;">Kapittel 1. Alminnelige bestemmelser</div>
+    <div style="display:flex; align-items:center; gap:8px; padding:6px 0 6px 20px;"><span style="background:#E7E9EA; color:#545E6B; border-radius:999px; padding:1px 7px; font-size:11px; font-weight:600;">I</span><span style="color:#545E6B;">Formål</span></div>
+    <div style="display:flex; align-items:center; gap:8px; padding:6px 0 6px 20px;"><span style="background:#DDEAF6; color:#002C54; border-radius:4px; padding:1px 8px; font-size:11px; font-weight:600;" class="mono">§ 1</span><span>Formål</span></div>
+    <div style="display:flex; align-items:flex-start; gap:8px; padding:6px 0 6px 40px;"><span style="width:20px; height:20px; border:1px solid #B8BCC1; border-radius:999px; display:flex; align-items:center; justify-content:center; font-size:10px; color:#545E6B;">1</span><span style="color:#545E6B; font-size:12px;">Forskriften skal sikre forsvarlig skjenking …</span></div>
+    <div style="display:flex; align-items:center; gap:8px; padding:6px 0 6px 20px; opacity:0.65;"><span style="background:#DDEAF6; color:#042D4D; border-radius:4px; padding:1px 8px; font-size:11px; font-weight:600; text-decoration:line-through;" class="mono">§ 2</span><span style="text-decoration:line-through; color:#545E6B;">Virkeområde</span><span style="background:#E7E9EA; color:#545E6B; border-radius:999px; padding:1px 8px; font-size:10px;">Opphevet</span></div>
+  </div>
+  <p style="font-size: 11px; color: #545E6B; max-width: 900px;">
+    Bærer sin egen, SJETTE, lokale status-farge-konstant (<span class="mono">KommentarStatus</span>: under_arbeid=neutral/til_godkjenning=warning/publisert=success/ma_revideres=danger) — samme mønster som STATUS_FARGE ×4, DOKUMENTTYPE_FARGE ×2, STATUS_VISNING ×2 nevnt i Komponenter-arket. Besluttet der (Johann, 2026-09-11): vurderes for seg som et fjerde, egentlig ulikt domene — ikke slått sammen med de tre andre.
+  </p>
+
+</div>
+</x-dc>
+</body>
+</html>

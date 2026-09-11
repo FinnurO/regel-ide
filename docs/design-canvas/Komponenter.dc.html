@@ -1,0 +1,173 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; color: #1F2C3D; background: #FFFFFF; }
+    a { color: #002C54; } a:hover { color: #0062BA; }
+    .mono { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
+    .card { background: #FFFFFF; border: 1px solid #B8BCC1; border-radius: 4px; }
+    .tag { display: inline-flex; align-items: center; border-radius: 999px; padding: 2px 10px; font-size: 14px; font-weight: 500; }
+    .sectionlabel { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #545E6B; }
+  </style>
+</helmet>
+<div style="max-width: 1240px; margin: 0 auto; padding: 40px 32px 80px;">
+
+  <div class="sectionlabel">Regel-IDE · Design System</div>
+  <h1 style="font-size: 36px; font-weight: 500; margin: 4px 0 8px;">Komponenter</h1>
+  <p style="font-size: 18px; line-height: 27px; color: #545E6B; max-width: 820px; margin: 0 0 32px;">
+    Nye, delte primitiver som løser bekreftet duplisering (#266/#267) — deretter en oversikt over det som allerede er delt og fungerer, så helheten er synlig ett sted.
+  </p>
+
+  <!-- METATEKST -->
+  <h2 style="font-size: 24px; font-weight: 500; margin: 40px 0 4px;">1. Metatekst — NY</h2>
+  <p style="font-size: 14px; color: #545E6B; margin: 0 0 16px; max-width: 760px;">
+    Løser 231 ad-hoc <span class="mono">fontSize: 'var(--ds-font-size-1)'</span>-forekomster. Docs/09 §6 krever ALLTID begge — 12px OG dempet farge, aldri én alene (feilen som allerede er begått én gang og gjentatt 120 av 231 ganger).
+  </p>
+  <div class="card" style="padding: 24px; display: flex; gap: 40px; align-items: flex-start;">
+    <div>
+      <div class="sectionlabel" style="margin-bottom: 8px;">Riktig</div>
+      <div style="font-size: 12px; color: #545E6B;">Hjelpetekst under en seksjonsoverskrift, forklarende ingress, tabellcelle-metadata.</div>
+    </div>
+    <div style="border-left: 1px solid #B8BCC1; padding-left: 40px;">
+      <div class="sectionlabel" style="margin-bottom: 8px;">Spesifikasjon</div>
+      <div style="font-size: 13px;">font-size: <span class="mono">--ds-font-size-1</span> (12px)</div>
+      <div style="font-size: 13px;">farge: <span class="mono">--ds-color-neutral-text-subtle</span> (#545E6B)</div>
+      <div style="font-size: 13px;">vekt: 400 (arvet)</div>
+    </div>
+  </div>
+
+  <!-- KANDIDATSTATUSTAG -->
+  <h2 style="font-size: 24px; font-weight: 500; margin: 40px 0 4px;">2. KandidatStatusTag — NY</h2>
+  <p style="font-size: 14px; color: #545E6B; margin: 0 0 16px; max-width: 760px;">
+    Løser 4 byte-for-byte identiske <span class="mono">STATUS_FARGE</span>-konstanter
+    (Venter/Godkjent/Avvist → warning/success/danger) i VirksomhetKandidaterListe, Begrepskandidater,
+    NavnekandidaterListe og BegrepDefinisjonRelasjonKo — samme kandidatkø-familie som allerede deler
+    <span class="mono">useKandidatvalg</span>/<span class="mono">useSortering</span>/<span class="mono">Massehandlingsrad</span>.
+  </p>
+  <div class="card" style="padding: 24px; display: flex; gap: 16px; align-items: center;">
+    <span class="tag" style="background: #FAEEDA; color: #633806;">Venter</span>
+    <span class="tag" style="background: #EAF3DE; color: #023409;">Godkjent</span>
+    <span class="tag" style="background: #FCEBEB; color: #590D0D;">Avvist</span>
+    <span style="font-size: 13px; color: #545E6B; margin-left: 16px;">Ikke slått sammen med AdministrasjonLovdataResynk (Pågår/Fullført/Feilet) eller KildefeilListe (Ny/Kjent/…) — bekreftet ULIKE domener, forblir separate.</span>
+  </div>
+
+  <!-- DOKUMENTTYPETAG -->
+  <h2 style="font-size: 24px; font-weight: 500; margin: 40px 0 4px;">3. DokumenttypeTag — NY</h2>
+  <p style="font-size: 14px; color: #545E6B; margin: 0 0 16px; max-width: 760px;">
+    Løser <span class="mono">DOKUMENTTYPE_FARGE</span> (TjenesteVeiledning.tsx) og
+    <span class="mono">VEILEDNINGSDOKUMENTTYPE_FARGE</span> (Egenskapspanel.tsx) — byte-for-byte
+    identisk oppslag, to navn, to steder.
+  </p>
+  <div class="card" style="padding: 24px; display: flex; gap: 16px; align-items: center;">
+    <span class="tag" style="background: #DCEBF6; color: #042D4D;">hjemmel</span>
+    <span class="tag" style="background: #FAEEDA; color: #633806;">praktisk-råd</span>
+    <span class="tag" style="background: #EAF3DE; color: #023409;">sjekkliste</span>
+    <span class="tag" style="background: #F1EFE8; color: #2C2C2A;">kommentar</span>
+  </div>
+
+  <!-- BUTTON-STØRRELSER -->
+  <h2 style="font-size: 24px; font-weight: 500; margin: 40px 0 4px;">4. Button — data-size-gjennomgang</h2>
+  <p style="font-size: 14px; color: #545E6B; margin: 0 0 16px; max-width: 760px;">
+    57 av 241 knapper (24 %) mangler <span class="mono">data-size</span> og rendres i full størrelse midt i kompakte arbeidsflater. Standard skal være <span class="mono">sm</span> i ALLE arbeidsflater; full størrelse er en BEVISST unntak for en reell hovedhandling, ikke en forglemmelse.
+  </p>
+  <div class="card" style="padding: 24px; display: flex; gap: 24px; align-items: center;">
+    <button style="height: 48px; padding: 0 20px; background: #0062BA; color: #fff; border: none; border-radius: 4px; font-size: 16px; font-weight: 500;">md (default)</button>
+    <button style="height: 36px; padding: 0 16px; background: #0062BA; color: #fff; border: none; border-radius: 4px; font-size: 14px; font-weight: 500;">sm — standard i arbeidsflater</button>
+    <span style="font-size: 13px; color: #545E6B;">→ 57 knapper flyttes fra venstre til høyre variant</span>
+  </div>
+
+  <!-- EMPTY STATE CARD -->
+  <h2 style="font-size: 24px; font-weight: 500; margin: 40px 0 4px;">5. Tom-tilstand i Card — allerede etablert mønster</h2>
+  <p style="font-size: 14px; color: #545E6B; margin: 0 0 16px; max-width: 760px;">
+    IKKE en ny komponent — et mønster 13+ steder allerede følger riktig (Begrepskandidater, BegrepDetalj m.fl.). #265s funn (VirksomhetKandidaterListe) var avviket, nå rettet til samme mønster.
+  </p>
+  <div style="display: flex; gap: 24px;">
+    <div style="flex: 1;">
+      <div class="sectionlabel" style="margin-bottom: 8px; color: #590D0D;">Galt (funnet i #265)</div>
+      <div style="font-size: 14px; color: #545E6B; padding: 8px 0;">Ingen kandidater matcher filteret.</div>
+    </div>
+    <div style="flex: 1;">
+      <div class="sectionlabel" style="margin-bottom: 8px; color: #023409;">Riktig — alltid i Card</div>
+      <div class="card" style="padding: 16px;">
+        <div style="font-size: 14px; color: #545E6B;">Ingen kandidater matcher filteret.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- STATUSSTEPPER — innholdsverifisert -->
+  <h2 style="font-size: 24px; font-weight: 500; margin: 48px 0 4px;">StatusStepper — allerede delt, eksakt oppførsel verifisert</h2>
+  <p style="font-size: 14px; color: #545E6B; margin: 0 0 16px; max-width: 800px;">
+    Brukt av Vilkår/Regelnode/Unntak/Begrep/Handling/Tjeneste. IKKE en fremdriftslinje — en rad av
+    klikkbare <span class="mono">Tag</span>-er. Gjeldende = accent/fylt. Passerte = neutral/fylt.
+    Fremtidige = neutral/outline. Tilbake-hopp er TILLATT (samme som den gamle Select-en tillot).
+  </p>
+  <div class="card" style="padding: 20px;">
+    <div style="display: flex; gap: 8px; margin-bottom: 16px;">
+      <span style="background:#E7E9EA; color:#545E6B; border-radius:999px; padding:3px 12px; font-size:13px;">Utkast</span>
+      <span style="background:#E7E9EA; color:#545E6B; border-radius:999px; padding:3px 12px; font-size:13px;">Under revisjon</span>
+      <span style="background:#0062BA; color:#fff; border-radius:999px; padding:3px 12px; font-size:13px; font-weight:600;">Validert</span>
+      <span style="border:1px solid #B8BCC1; color:#545E6B; border-radius:999px; padding:3px 12px; font-size:13px;">Publisert</span>
+      <span style="border:1px solid #B8BCC1; color:#545E6B; border-radius:999px; padding:3px 12px; font-size:13px;">Tilbaketrukket</span>
+      <span style="border:1px solid #B8BCC1; color:#545E6B; border-radius:999px; padding:3px 12px; font-size:13px;">Arkivert</span>
+    </div>
+    <div style="font-size: 12px; color: #545E6B;">Klikk på «Publisert» → «Tilbaketrukket» eller «Arkivert» krever <span class="mono">Dialog</span>-bekreftelse («Dette markerer den som ikke lenger gjeldende.») — alle andre overganger skjer direkte, ingen andre kritiske overganger er låst.</div>
+  </div>
+  <p style="font-size: 13px; color: #590D0D; margin: 12px 0 0; max-width: 800px;">
+    <b>Femte og sjette duplikat funnet</b> (utover STATUS_FARGE ×4 og DOKUMENTTYPE_FARGE ×2 nevnt over):
+    <span class="mono">TjenesterListe.tsx</span> og <span class="mono">HandlingerListe.tsx</span> har HVER sin egen
+    <span class="mono">STATUS_VISNING</span>-konstant som fargelegger nøyaktig de samme 6 statusverdiene
+    StatusStepper allerede kanoniserer — som en enkel <span class="mono">Tag</span> i listeraden (riktig
+    valg der, en full stepper hører ikke hjemme i en tabellrad), men selve FARGEKARTET er kopiert, ikke
+    delt fra StatusStepper sin egen kilde. <span class="mono">tre/RettskildeTre.tsx</span> har i tillegg sin
+    egen <span class="mono">KommentarStatus</span>-fargekonstant (under_arbeid/til_godkjenning/publisert/
+    ma_revideres — et ANNET, firetrinns statusdomene enn de 6-trinns). Seks lokale status-fargekonstanter
+    totalt kartlagt denne runden, på tvers av hele appen.
+  </p>
+  <p style="font-size: 13px; color: #023409; max-width: 800px; margin-top: 8px;">
+    <b>Besluttet (Johann, 2026-09-11):</b> én delt funksjon PER EKTE DOMENE, ikke én generisk
+    fargefunksjon for alt. Konkret: (1) kandidatstatus (Venter/Godkjent/Avvist) — én delt funksjon for
+    alle kandidatkø-sidene, (2) dokumenttype (hjemmel/praktisk-råd/sjekkliste/kommentar) — egen delt
+    funksjon, (3) den 6-trinns entitetsstatusen StatusStepper allerede kanoniserer — en delt, mindre
+    Tag-variant for tabellrader som gjenbruker SAMME fargekilde som stepperen, ikke en ny kopi, (4)
+    KommentarStatus — vurderes for seg (fjerde, egentlig ulikt domene). Fire domener, ikke én
+    sammenblandet fargefunksjon.
+  </p>
+
+  <!-- ALLEREDE DELT -->
+  <h2 style="font-size: 24px; font-weight: 500; margin: 48px 0 4px;">Allerede delt og fungerende (ingen endring her)</h2>
+  <p style="font-size: 14px; color: #545E6B; margin: 0 0 16px; max-width: 820px;">
+    For helheten — dette er IKKE nytt, det er allerede riktig bygget og skal IKKE dupliseres videre.
+  </p>
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 14px;">
+      <thead>
+        <tr style="background: #E7E9EA;">
+          <th style="text-align: left; padding: 10px 16px; font-weight: 600;">Komponent/hook</th>
+          <th style="text-align: left; padding: 10px 16px; font-weight: 600;">Sted</th>
+          <th style="text-align: left; padding: 10px 16px; font-weight: 600;">Brukt av</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr style="border-top: 1px solid #B8BCC1;"><td style="padding: 8px 16px;">Massehandlingsrad</td><td style="padding: 8px 16px;" class="mono">kandidater/</td><td style="padding: 8px 16px; color: #545E6B;">Alle 3 kandidatkøer</td></tr>
+        <tr style="border-top: 1px solid #B8BCC1;"><td style="padding: 8px 16px;">useKandidatvalg / useSortering / useNodeEtiketter</td><td style="padding: 8px 16px;" class="mono">kandidater/</td><td style="padding: 8px 16px; color: #545E6B;">Alle 3 kandidatkøer</td></tr>
+        <tr style="border-top: 1px solid #B8BCC1;"><td style="padding: 8px 16px;">KontekstPanel (StatusStepper vist over)</td><td style="padding: 8px 16px;" class="mono">entitet/</td><td style="padding: 8px 16px; color: #545E6B;">TjenesteDetalj (mal for detaljsider)</td></tr>
+        <tr style="border-top: 1px solid #B8BCC1;"><td style="padding: 8px 16px;">Accordion</td><td style="padding: 8px 16px;" class="mono">entitet/</td><td style="padding: 8px 16px; color: #545E6B;">InnholdFane sine 9 faste seksjoner + egne — helt entitetsuavhengig, verifisert</td></tr>
+        <tr style="border-top: 1px solid #B8BCC1;"><td style="padding: 8px 16px;">KonfidensTag (Høy=success/Lav=neutral, ALDRI warning/danger)</td><td style="padding: 8px 16px;" class="mono">kandidater/</td><td style="padding: 8px 16px; color: #545E6B;">NavnekandidaterListe + wizarden — «ukjent i SNL/SSR» er IKKE en feil (Johanns egen begrunnelse)</td></tr>
+        <tr style="border-top: 1px solid #B8BCC1;"><td style="padding: 8px 16px;">Pagineringskontroll / usePaginering</td><td style="padding: 8px 16px;" class="mono">tabell/</td><td style="padding: 8px 16px; color: #545E6B;">Alle listesider</td></tr>
+        <tr style="border-top: 1px solid #B8BCC1;"><td style="padding: 8px 16px;">RettskildeVelger / RettskildeFlervalg</td><td style="padding: 8px 16px;" class="mono">rettskilde/</td><td style="padding: 8px 16px; color: #545E6B;">Se #264 — VirksomhetKandidaterListe bruker IKKE disse ennå</td></tr>
+        <tr style="border-top: 1px solid #B8BCC1;"><td style="padding: 8px 16px;">VirksomhetVelger / GruppebegrepVelger</td><td style="padding: 8px 16px;" class="mono">virksomhet/</td><td style="padding: 8px 16px; color: #545E6B;">De fleste virksomhet-skjema</td></tr>
+        <tr style="border-top: 1px solid #B8BCC1;"><td style="padding: 8px 16px;">rettskildeLenkeForId</td><td style="padding: 8px 16px;" class="mono">api/eidLenker.ts</td><td style="padding: 8px 16px; color: #545E6B;">25 av 25 reelle kandidater etter #267-rettingen (15 opprinnelig + 10 rettet: 5 i RettskildeDetalj, 3 i NavnekandidatVeiviser, 2 i VirksomhetDetalj)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

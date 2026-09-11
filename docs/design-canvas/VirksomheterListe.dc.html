@@ -1,0 +1,83 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; color: #1F2C3D; background: #FFFFFF; }
+    .mono { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
+    .card { background: #FFFFFF; border: 1px solid #B8BCC1; border-radius: 4px; }
+    .sectionlabel { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #545E6B; }
+  </style>
+</helmet>
+<div style="max-width: 1240px; margin: 0 auto; padding: 40px 32px 80px;">
+
+  <div class="sectionlabel">Regel-IDE · Design System · Anvendt eksempel (issue #268)</div>
+  <h1 style="font-size: 36px; font-weight: 500; margin: 4px 0 8px;">/virksomheter — anvendt listeside-mal</h1>
+  <p style="font-size: 18px; line-height: 27px; color: #545E6B; max-width: 860px; margin: 0 0 32px;">
+    I dag: tre fullt synlige opprett-skjema over selve katalogen. Alle tre har en dokumentert, individuell begrunnelse — problemet er at de er flate, ikke at de finnes.
+  </p>
+
+  <div style="display: flex; gap: 32px;">
+    <!-- FØR -->
+    <div style="flex: 1;">
+      <div class="sectionlabel" style="color: #590D0D; margin-bottom: 8px;">I dag</div>
+      <div class="card" style="padding: 16px;">
+        <div style="font-size: 14px; font-weight: 600; margin-bottom: 6px;">Søk i Brreg og opprett virksomhet</div>
+        <div style="height: 28px; background: #F1EFE8; border-radius: 4px; margin-bottom: 12px;"></div>
+        <div style="font-size: 14px; font-weight: 600; margin-bottom: 6px;">Opprett virksomhet med bare navn</div>
+        <div style="height: 28px; background: #F1EFE8; border-radius: 4px; margin-bottom: 12px;"></div>
+        <div style="font-size: 14px; font-weight: 600; margin-bottom: 6px;">Er dette et nytt navn for en virksomhet som allerede finnes?</div>
+        <div style="height: 28px; background: #F1EFE8; border-radius: 4px; margin-bottom: 16px;"></div>
+        <div style="border-top: 2px dashed #CE4D4D; padding-top: 12px; text-align: center; font-size: 12px; color: #590D0D;">↓ Katalogen (hovedsaken) først synlig HER, etter scroll</div>
+      </div>
+    </div>
+    <!-- ETTER -->
+    <div style="flex: 1;">
+      <div class="sectionlabel" style="color: #023409; margin-bottom: 8px;">Forslag</div>
+      <div class="card" style="padding: 0; overflow: hidden;">
+        <div style="padding: 14px 16px; border-bottom: 1px solid #B8BCC1; display: flex; justify-content: space-between; align-items: center;">
+          <div style="font-size: 20px; font-weight: 500;">Virksomheter</div>
+          <button style="height: 36px; padding: 0 14px; background: #0062BA; color: #fff; border: none; border-radius: 4px; font-size: 14px;">+ Legg til virksomhet</button>
+        </div>
+        <div style="padding: 12px 16px; border-bottom: 1px solid #B8BCC1; display: flex; gap: 8px;">
+          <div style="height: 36px; flex: 1; border: 1px solid #B8BCC1; border-radius: 4px; display: flex; align-items: center; padding: 0 12px; font-size: 14px; color: #545E6B;">🔍 Navn, organisasjonsnummer …</div>
+        </div>
+        <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+          <thead><tr style="background: #E7E9EA;"><th style="text-align:left; padding: 6px 16px;">Navn</th><th style="text-align:left; padding: 6px 12px;">Org.nr</th><th style="text-align:left; padding: 6px 12px;">Aktiv</th></tr></thead>
+          <tbody>
+            <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px; color:#0062BA;">Advokattilsynet</td><td style="padding:6px 12px;" class="mono">914459265</td><td style="padding:6px 12px;"><span style="background:#EAF3DE; color:#023409; border-radius:999px; padding:1px 8px;">Aktiv</span></td></tr>
+            <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px; color:#0062BA;">Agder fylkeskommune</td><td style="padding:6px 12px;" class="mono">921707134</td><td style="padding:6px 12px;"><span style="background:#EAF3DE; color:#023409; border-radius:999px; padding:1px 8px;">Aktiv</span></td></tr>
+            <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px; color:#0062BA;">Akershus fylkeskommune</td><td style="padding:6px 12px;" class="mono">930580783</td><td style="padding:6px 12px;"><span style="background:#F1EFE8; color:#5F5E5A; border-radius:999px; padding:1px 8px;">Sovende</span></td></tr>
+          </tbody>
+        </table>
+        <div style="padding: 8px 16px; font-size: 12px; color: #545E6B; border-top: 1px solid #B8BCC1;">Katalogen fyller siden med én gang. Alle tre opprett-veier finnes fortsatt, bak «+ Legg til virksomhet».</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ekspandert "legg til" -->
+  <h2 style="font-size: 22px; font-weight: 500; margin: 40px 0 4px;">«+ Legg til virksomhet» ekspandert</h2>
+  <p style="font-size: 14px; color: #545E6B; margin: 0 0 16px; max-width: 760px;">
+    De tre veiene finnes fortsatt — nå som faner i én dialog/panel i stedet for tre permanente kort. Ingen funksjon fjernet, kun progressiv avdekking (docs/30 §3.1 pkt. 3: faner når &gt;~4 seksjoner konkurrerer om plassen).
+  </p>
+  <div class="card" style="padding: 0; overflow: hidden; max-width: 640px;">
+    <div style="display: flex; gap: 4px; padding: 0 16px; border-bottom: 1px solid #B8BCC1; background: #F1EFE8;">
+      <div style="padding: 10px 4px; border-bottom: 2px solid #0062BA; font-size: 13px; font-weight: 600; color: #0062BA;">Søk i Brreg</div>
+      <div style="padding: 10px 16px; font-size: 13px; color: #545E6B;">Kun navn</div>
+      <div style="padding: 10px 16px; font-size: 13px; color: #545E6B;">Koble til eksisterende</div>
+    </div>
+    <div style="padding: 16px;">
+      <div style="font-size: 12px; color: #545E6B; margin-bottom: 8px;">For virksomheter som mangler i katalogen — søk på navn eller organisasjonsnummer i Brønnøysundregisteret.</div>
+      <div style="height: 36px; background: #F1EFE8; border-radius: 4px;"></div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

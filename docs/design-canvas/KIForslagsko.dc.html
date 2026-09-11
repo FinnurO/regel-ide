@@ -1,0 +1,75 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; color: #1F2C3D; background: #FFFFFF; }
+    .mono { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
+    .card { background: #FFFFFF; border: 1px solid #B8BCC1; border-radius: 4px; }
+    .sectionlabel { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #545E6B; }
+  </style>
+</helmet>
+<div style="max-width: 1240px; margin: 0 auto; padding: 40px 32px 80px;">
+
+  <div class="sectionlabel">Regel-IDE · Design System · Innholdsverifisert</div>
+  <h1 style="font-size: 36px; font-weight: 500; margin: 4px 0 8px;">KI-forslagskø — BegrepsforslagKo og TjenesteforslagKo</h1>
+  <p style="font-size: 18px; line-height: 27px; color: #545E6B; max-width: 900px; margin: 0 0 32px;">
+    Samme kjerne (rettskilde-flervalg → kjør KI → ventende forslag-tabell → massehandling), men
+    TjenesteforslagKo er en reelt større overbygning, ikke bare "samme side med et ekstra felt".
+  </p>
+
+  <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 24px;">
+    <div style="padding: 14px 20px; border-bottom: 1px solid #B8BCC1;">
+      <div style="font-size: 20px; font-weight: 500;">Identifiser tjenester</div>
+      <div style="font-size: 12px; color: #545E6B; margin-top: 2px;">Byggesteg 5 runde 1: KI-klienten er en stub — returnerer ett fast eksempelforslag (ekte disclaimer i UI-et)</div>
+    </div>
+    <div style="padding: 16px 20px; border-bottom: 1px solid #E7E9EA;">
+      <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">Kunnskapsbibliotek (lenker og filer) — KUN TjenesteforslagKo</div>
+      <div style="display: flex; gap: 8px; font-size: 13px; color: #545E6B;">
+        <span style="background:#E7E9EA; border-radius:4px; padding:4px 10px;">📄 Rundskriv 2024-3.pdf ✕</span>
+        <span style="background:#E7E9EA; border-radius:4px; padding:4px 10px;">🔗 lovdata.no/.../rundskriv ✕</span>
+      </div>
+      <div style="font-size: 11px; color: #545E6B; margin-top: 6px;">Filopplasting avvises hvis filen mangler tekstlag (rent skann) — ekte validering, ikke antatt.</div>
+    </div>
+    <div style="padding: 16px 20px; border-bottom: 1px solid #E7E9EA; display: flex; gap: 12px; align-items: center;">
+      <div style="font-size: 13px; color: #545E6B;">Rettskilder (flervalg) …</div>
+      <div style="font-size: 13px; color: #545E6B;">Omfang: <b>Tjeneste + handlinger (ett kall)</b> — KUN TjenesteforslagKo</div>
+      <button style="height: 32px; padding: 0 14px; background: #0062BA; color: #fff; border: none; border-radius: 4px; font-size: 13px;">Kjør KI-forslag</button>
+    </div>
+    <div style="padding: 16px 20px;">
+      <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">Ventende forslag</div>
+      <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+        <thead><tr style="background:#E7E9EA;"><th style="padding:6px 12px;"></th><th style="text-align:left; padding:6px 12px;">Tittel/Term</th><th style="text-align:left; padding:6px 12px;">Type</th><th style="text-align:left; padding:6px 12px;">Handlinger</th></tr></thead>
+        <tbody>
+          <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 12px;"><input type="checkbox"/></td><td style="padding:6px 12px;">Søknad om skjenkebevilling</td><td style="padding:6px 12px;">Tjeneste</td>
+            <td style="padding:6px 12px;">
+              <button style="margin-right:4px; font-size:12px; background:#fff; border:1px solid #B8BCC1; border-radius:4px; padding:2px 8px;">Rediger</button>
+              <button style="margin-right:4px; font-size:12px; background:#0062BA; color:#fff; border:none; border-radius:4px; padding:2px 8px;">Godkjenn</button>
+              <button style="margin-right:4px; font-size:12px; background:#fff; border:1px solid #B8BCC1; border-radius:4px; padding:2px 8px;">Avvis</button>
+              <button style="font-size:12px; background:#fff; border:1px solid #CE4D4D; color:#590D0D; border-radius:4px; padding:2px 8px;">Slett *</button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="font-size: 11px; color: #545E6B; margin-top: 6px;">* «Slett» (hard delete) finnes KUN i TjenesteforslagKo — Begrepsforslag har bare Avvis/Rediger/Godkjenn.</div>
+    </div>
+  </div>
+
+  <div class="card" style="padding: 16px 20px;">
+    <div style="font-size: 14px; font-weight: 600; margin-bottom: 6px;">Mine forslag til andre virksomheter — KUN TjenesteforslagKo, egen tabell</div>
+    <div style="font-size: 13px; color: #545E6B;">Egen utvalgstilstand og egen «Slett valgte»-handling — fordi et forslag sendt til en ANNEN virksomhet tidligere ikke hadde noen angre-vei. Reelt, dokumentert behov, ikke en duplisert tabell ved en feil.</div>
+  </div>
+
+  <p style="font-size: 12px; color: #545E6B; max-width: 900px; margin-top: 20px;">
+    Ikke slått sammen med Massehandlingsrad (kandidater/) — et KI-forslag krever REDIGERING før godkjenning (Rediger-knappen), mens kandidat-radene bare bytter status. Bekreftet, reell forskjell, ikke duplisering å rydde opp i.
+  </p>
+
+</div>
+</x-dc>
+</body>
+</html>

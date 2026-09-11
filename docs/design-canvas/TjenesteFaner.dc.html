@@ -1,0 +1,103 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; color: #1F2C3D; background: #FFFFFF; }
+    .mono { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
+    .card { background: #FFFFFF; border: 1px solid #B8BCC1; border-radius: 4px; }
+    .sectionlabel { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #545E6B; }
+  </style>
+</helmet>
+<div style="max-width: 1240px; margin: 0 auto; padding: 40px 32px 80px;">
+
+  <div class="sectionlabel">Regel-IDE · Design System · Innholdsverifisert (alle 7 fane-filer lest)</div>
+  <h1 style="font-size: 36px; font-weight: 500; margin: 4px 0 8px;">TjenesteDetalj sine 7 faner — reelt innhold</h1>
+  <p style="font-size: 18px; line-height: 27px; color: #545E6B; max-width: 900px; margin: 0 0 32px;">
+    Forrige ark viste Oversikt. Dette dekker de 7 andre — hver har sitt eget, reelle mønster, ikke bare "et faneinnhold".
+  </p>
+
+  <h2 style="font-size: 22px; font-weight: 500; margin: 0 0 4px;">Skallet: brukerstyrt fane-rekkefølge/synlighet — en distinkt, ekte funksjon</h2>
+  <p style="font-size: 13px; color: #545E6B; margin: 0 0 16px; max-width: 900px;">
+    TjenesteDetalj.tsx (skallet, 327 linjer — fanenes innhold flyttet ut 2026-08-27) har en «⚙»-knapp
+    som åpner et panel: hver synlig fane kan flyttes ↑↓ eller skjules ✕, skjulte faner kan gjenopprettes
+    ↺. Lagres per bruker/tjeneste via <span class="mono">useVisningsinnstillinger</span>. INGEN annen
+    side i appen har denne funksjonen — hverken en generell mal å bygge videre på, eller en mangel
+    andre sider bør kopiere uten videre; ikke vurdert her, bare bekreftet at den finnes og er unik.
+  </p>
+  <div class="card" style="padding: 16px; max-width: 500px; margin-bottom: 32px;">
+    <div style="font-size: 13px; font-weight: 600; margin-bottom: 8px;">Tilpass faner</div>
+    <div style="display:flex; justify-content:space-between; font-size:13px; padding:4px 0;"><span>Innhold</span><span style="color:#545E6B;">↑ ↓ ✕</span></div>
+    <div style="display:flex; justify-content:space-between; font-size:13px; padding:4px 0;"><span>Status</span><span style="color:#545E6B;">↑ ↓ ✕</span></div>
+    <div style="font-size: 11px; color: #545E6B; margin-top: 8px;">Skjult: <span style="color:#0062BA;">↺ Avhengigheter</span></div>
+  </div>
+
+  <h2 style="font-size: 22px; font-weight: 500; margin: 0 0 4px;">Innhold — 9 faste Accordion-seksjoner + egne</h2>
+  <p style="font-size: 13px; color: #545E6B; margin: 0 0 12px; max-width: 800px;">
+    Grunnleggende · Tidspunkt og frister · Innsender og tilgang · Vedlegg · Opplysninger · Veiledning og utfylling · Innsending og oppfølging · Kontakt og hjelp · Hva rettigheten innebærer — hver merket «— fast». Hvert FELT har sin egen §-referanse-picker ved siden av label-en.
+  </p>
+  <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 12px;">
+    <div style="padding: 10px 16px; border-bottom: 1px solid #B8BCC1; display:flex; justify-content:space-between; font-size:13px;"><span>▼ Grunnleggende — fast</span><span style="color:#545E6B;">↑ ↓</span></div>
+    <div style="padding: 16px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px 16px;">
+      <div><div style="font-size:12px; display:flex; justify-content:space-between;"><span>Tittel</span><span style="color:#0062BA; font-size:11px;">§ 3 ↗ +§</span></div><div style="height:28px; background:#F1EFE8; border-radius:4px; margin-top:4px;"></div></div>
+      <div><div style="font-size:12px;">Tjenestetype</div><div style="height:28px; background:#F1EFE8; border-radius:4px; margin-top:4px;"></div></div>
+    </div>
+    <div style="padding: 10px 16px; border-top: 1px solid #E7E9EA; font-size:13px; color:#545E6B;">▶ Tidspunkt og frister — fast</div>
+    <div style="padding: 10px 16px; border-top: 1px solid #E7E9EA; font-size:13px; color:#545E6B;">▶ Egen seksjon: «Spesialtilfelle for bygg» <span style="color:#590D0D;">✕</span></div>
+  </div>
+  <p style="font-size: 12px; color: #545E6B; margin: 0 0 32px;">
+    Bevisst VANLIG knapp, ikke <span class="mono">&lt;form onSubmit&gt;</span> — nøstede forms er ikke gyldig HTML, og utløste i praksis en full side-omlasting (ekte, observert funn, ikke en teoretisk bekymring).
+  </p>
+
+  <div style="display: flex; gap: 24px; margin-bottom: 32px;">
+    <div class="card" style="flex: 1; padding: 16px;">
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Avhengigheter — RETNING teller</div>
+      <div style="font-size: 13px;">«Søknad» <b>er forutsetning for</b> «Vedtak» ↗</div>
+      <div style="font-size: 11px; color: #545E6B; margin-top: 8px;">6 relasjonstyper, hver med presis betydning. Kryss-tenant-søk med 300ms debounce for eksterne mottakere; navn alene holder (org.nr valgfritt) — dekker utenlandske motparter uten norsk orgnr.</div>
+    </div>
+    <div class="card" style="flex: 1; padding: 16px;">
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Hendelser — BEVISST symmetrisk</div>
+      <div style="font-size: 13px;">Delt hendelse: «Flytting» (livshendelse)</div>
+      <div style="font-size: 11px; color: #545E6B; margin-top: 8px;">Ingen retning — to tjenester som deler samme hendelse blir relaterte UTEN at én forårsaker den andre. Motsatt av Avhengigheter med vilje, ikke en mangel.</div>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 24px; margin-bottom: 32px;">
+    <div class="card" style="flex: 1.3; padding: 16px;">
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Handlinger — grid, ikke Table + KI-knapp</div>
+      <button style="height:30px; padding:0 12px; background:#fff; border:1px solid #B8BCC1; border-radius:4px; font-size:12px; margin-bottom:10px;">Foreslå handlinger (KI)</button>
+      <div style="display:grid; grid-template-columns:2fr 1fr 1fr 1fr; gap:6px; font-size:12px;">
+        <div style="color:#0062BA;">Søke om skjenkebevilling</div><div><span class="tag" style="background:#F1EFE8; border-radius:999px; padding:1px 6px;">søke</span></div><div>søker</div><div><span class="tag" style="background:#E7E9EA; border-radius:999px; padding:1px 6px;">utkast</span></div>
+      </div>
+      <div style="font-size:11px; color:#545E6B; margin-top:8px;">Viser union av EIDE + sekundært KOBLEDE handlinger. To faner under: «Koble eksisterende» / «Opprett ny».</div>
+    </div>
+    <div class="card" style="flex: 1; padding: 16px;">
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Regelverksreferanser — gruppert per rettskilde</div>
+      <div style="font-size:13px; font-weight:500;">Alkoholloven</div>
+      <div style="font-size:12px; color:#0062BA; margin-top:2px;">§ 4-2 ↗</div>
+      <div style="font-size:11px; color:#545E6B; margin-top:8px;">Kun hele-tjenesten-nivå (felt=null) — feltnivå vises i stedet inline i Innhold-fanens §-tagger.</div>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 24px;">
+    <div class="card" style="flex: 1; padding: 16px;">
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Status</div>
+      <div style="font-size: 12px; color: #545E6B;">Samme StatusStepper som Komponenter-arket — «klikk på et steg ER handlingen» (docs/30 §3.3).</div>
+    </div>
+    <div class="card" style="flex: 1; padding: 16px;">
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 8px;">Vilkårstre</div>
+      <div style="font-size: 13px;">Rotnode: <b>Vedtak om skjenkebevilling</b></div>
+      <div style="font-size: 12px; color: #0062BA; margin-top: 4px;">Åpne vilkårstre → · Åpne veiledning →</div>
+      <div style="font-size: 11px; color: #545E6B; margin-top: 8px;">«Bytt rotnode» bruker RegelnodeVelger (søkbar), ikke en rå Select.</div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

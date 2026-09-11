@@ -1,0 +1,30 @@
+{
+  "pages": [
+    { "id": "fundament", "name": "Fundament" },
+    { "id": "komponenter", "name": "Komponenter" },
+    { "id": "maler", "name": "Maler (alle sider)" },
+    { "id": "anvendt", "name": "Anvendt (VirksomheterListe/Detalj)" },
+    { "id": "tjenestehandling", "name": "Tjeneste og Handling (innholdsverifisert)" },
+    { "id": "monstre", "name": "Resten av appen (veiviser/tagging/KI-kø/graf)" },
+    { "id": "flere", "name": "Dokument/skjema/tjenestereise/søk/håndbok" }
+  ],
+  "artboards": [
+    { "file": "Main.dc.html", "x": 0, "y": 0, "w": 1000, "h": 1400, "page": "fundament" },
+    { "file": "Komponenter.dc.html", "x": 0, "y": 0, "w": 1240, "h": 2200, "page": "komponenter" },
+    { "file": "ListePagemal.dc.html", "x": 0, "y": 0, "w": 1240, "h": 1900, "page": "maler" },
+    { "file": "Detaljsidemal.dc.html", "x": 1360, "y": 0, "w": 1240, "h": 1600, "page": "maler" },
+    { "file": "VirksomheterListe.dc.html", "x": 0, "y": 0, "w": 1240, "h": 1200, "page": "anvendt" },
+    { "file": "VirksomhetDetalj.dc.html", "x": 1360, "y": 0, "w": 1240, "h": 900, "page": "anvendt" },
+    { "file": "TjenesteOgHandling.dc.html", "x": 0, "y": 0, "w": 1240, "h": 2000, "page": "tjenestehandling" },
+    { "file": "TjenesteFaner.dc.html", "x": 1360, "y": 0, "w": 1240, "h": 1800, "page": "tjenestehandling" },
+    { "file": "Veivisermal.dc.html", "x": 0, "y": 0, "w": 1240, "h": 1300, "page": "monstre" },
+    { "file": "RettskildeLesing.dc.html", "x": 1360, "y": 0, "w": 1240, "h": 900, "page": "monstre" },
+    { "file": "KIForslagsko.dc.html", "x": 0, "y": 1400, "w": 1240, "h": 900, "page": "monstre" },
+    { "file": "VisualiseringOgSkall.dc.html", "x": 1360, "y": 1000, "w": 1240, "h": 900, "page": "monstre" },
+    { "file": "Dokumentvisning.dc.html", "x": 0, "y": 0, "w": 1240, "h": 1000, "page": "flere" },
+    { "file": "SkjemaOgMerkelapper.dc.html", "x": 1360, "y": 0, "w": 1240, "h": 1600, "page": "flere" },
+    { "file": "TjenestereiseOgSok.dc.html", "x": 0, "y": 1100, "w": 1240, "h": 900, "page": "flere" },
+    { "file": "Handboksforfatting.dc.html", "x": 1360, "y": 1700, "w": 1240, "h": 900, "page": "flere" }
+  ],
+  "launch": { "view": "canvas", "page": "tjenestehandling" }
+}

@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; color: #1F2C3D; background: #FFFFFF; }
+    .mono { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
+    .card { background: #FFFFFF; border: 1px solid #B8BCC1; border-radius: 4px; }
+    .sectionlabel { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #545E6B; }
+  </style>
+</helmet>
+<div style="max-width: 1240px; margin: 0 auto; padding: 40px 32px 80px;">
+
+  <div class="sectionlabel">Regel-IDE · Design System</div>
+  <h1 style="font-size: 36px; font-weight: 500; margin: 4px 0 8px;">Tjenestereise-graf (rettet) og globalt søk</h1>
+  <p style="font-size: 18px; line-height: 27px; color: #545E6B; max-width: 900px; margin: 0 0 32px;">
+    Rettelse fra forrige ark: Tjenestereise.tsx er IKKE samme mønster som VilkarstreGraf — det er en egen, interaktiv React Flow-graf (@xyflow/react), appens eneste bruk av det biblioteket. To ulike graf-implementasjoner, med god grunn hver — ikke duplisering å rydde opp i.
+  </p>
+
+  <div style="display: flex; gap: 24px; margin-bottom: 40px;">
+    <div class="card" style="flex: 1; padding: 20px;">
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">Tjenestereise (TjenesteGrafCanvas)</div>
+      <div style="font-size: 12px; color: #545E6B; margin-bottom: 12px;">@xyflow/react — pan/zoom, minimap, dra noder</div>
+      <svg width="100%" height="140" viewBox="0 0 300 140">
+        <rect x="10" y="55" width="70" height="30" rx="15" fill="#DDEAF6" stroke="#99C0E3"/>
+        <text x="45" y="74" text-anchor="middle" font-size="10" fill="#002C54">Tjeneste A</text>
+        <path d="M80,70 L140,40" stroke="#0062BA" stroke-width="1.5" marker-end="url(#arr1)"/>
+        <path d="M80,70 L140,100" stroke="#EA9B1B" stroke-width="1.5" marker-end="url(#arr1)"/>
+        <rect x="140" y="25" width="70" height="30" rx="15" fill="#DDEAF6" stroke="#99C0E3"/>
+        <text x="175" y="44" text-anchor="middle" font-size="10" fill="#002C54">Tjeneste B</text>
+        <rect x="140" y="85" width="70" height="30" rx="15" fill="#FAEEDA" stroke="#EF9F27"/>
+        <text x="175" y="104" text-anchor="middle" font-size="10" fill="#633806">Handling</text>
+        <path d="M210,40 L270,40" stroke="#0062BA" stroke-width="1.5" marker-end="url(#arr1)"/>
+        <rect x="230" y="25" width="60" height="30" rx="15" fill="#DDEAF6" stroke="#99C0E3"/>
+        <text x="260" y="44" text-anchor="middle" font-size="9" fill="#002C54">Tjeneste C</text>
+        <defs><marker id="arr1" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 z" fill="#545E6B"/></marker></defs>
+      </svg>
+      <div style="font-size: 11px; color: #545E6B; margin-top: 8px;">Rel-farge fra <span class="mono">grafFelles.ts</span> (delt med ImportWizard sin forhåndsvisning) — én kilde, to bruksteder.</div>
+    </div>
+    <div class="card" style="flex: 1; padding: 20px;">
+      <div style="font-size: 14px; font-weight: 600; margin-bottom: 4px;">Vilkårstre (VilkarstreGraf)</div>
+      <div style="font-size: 12px; color: #545E6B; margin-bottom: 12px;">Egen enkel SVG, DMN-DRD-stil — ingen ny npm-avhengighet</div>
+      <svg width="100%" height="140" viewBox="0 0 300 140">
+        <line x1="150" y1="20" x2="80" y2="80" stroke="#B8BCC1"/>
+        <line x1="150" y1="20" x2="220" y2="80" stroke="#B8BCC1"/>
+        <rect x="115" y="4" width="70" height="30" rx="4" fill="#DDEAF6" stroke="#99C0E3"/>
+        <text x="150" y="23" text-anchor="middle" font-size="10" fill="#002C54">Regelnode</text>
+        <rect x="45" y="64" width="70" height="30" rx="4" fill="#EAF3DE" stroke="#97C459"/>
+        <text x="80" y="83" text-anchor="middle" font-size="10" fill="#023409">Vilkår</text>
+        <rect x="185" y="64" width="70" height="30" rx="4" fill="#FAEEDA" stroke="#EF9F27"/>
+        <text x="220" y="83" text-anchor="middle" font-size="10" fill="#633806">Unntak</text>
+      </svg>
+      <div style="font-size: 11px; color: #545E6B; margin-top: 8px;">Bevisst uten dra-og-slipp i runde 1 — klikk for å velge node. Alternativ visning: VilkarstreTre (hierarkisk liste, samme data).</div>
+    </div>
+  </div>
+
+  <h2 style="font-size: 22px; font-weight: 500; margin: 0 0 12px;">GlobaltSok — Ctrl/⌘+K</h2>
+  <div style="display: flex; justify-content: center;">
+    <div class="card" style="width: 480px; padding: 0; overflow: hidden; box-shadow: 0 4px 16px rgba(0,0,0,0.08);">
+      <div style="padding: 12px 16px; border-bottom: 1px solid #B8BCC1;">
+        <div style="height: 36px; border: 1px solid #B8BCC1; border-radius: 4px; display: flex; align-items: center; padding: 0 12px; font-size: 14px; color: #545E6B;">🔍 Søk i rettskilder, tjenester, begrep og vilkår …</div>
+      </div>
+      <div style="padding: 8px 0;">
+        <div style="padding: 8px 16px; display: flex; justify-content: space-between; font-size: 13px;"><span>Forskrift om skjenkebevilling</span><span style="color:#545E6B;">Forskrift</span></div>
+        <div style="padding: 8px 16px; display: flex; justify-content: space-between; font-size: 13px; background: #E7E9EA;"><span>Søknad om skjenkebevilling</span><span style="color:#545E6B;">publisert</span></div>
+        <div style="padding: 8px 16px; display: flex; justify-content: space-between; font-size: 13px;"><span>Skjenkebevilling (begrep)</span><span style="color:#545E6B;">publisert</span></div>
+      </div>
+    </div>
+  </div>
+  <p style="font-size: 12px; color: #545E6B; text-align: center; margin-top: 8px;">Samme Suggestion-mønster som RettskildeVelger/VirksomhetVelger — ikke en fjerde variant.</p>
+
+</div>
+</x-dc>
+</body>
+</html>

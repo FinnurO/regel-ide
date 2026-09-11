@@ -1,0 +1,123 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; color: #1F2C3D; background: #FFFFFF; }
+    .mono { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
+    .card { background: #FFFFFF; border: 1px solid #B8BCC1; border-radius: 4px; }
+    .sectionlabel { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #545E6B; }
+    .y { color: #023409; font-weight: 600; }
+    .n { color: #590D0D; font-weight: 600; }
+    .na { color: #B8BCC1; }
+  </style>
+</helmet>
+<div style="max-width: 1240px; margin: 0 auto; padding: 40px 32px 80px;">
+
+  <div class="sectionlabel">Regel-IDE · Design System</div>
+  <h1 style="font-size: 36px; font-weight: 500; margin: 4px 0 8px;">Listeside-mal</h1>
+  <p style="font-size: 18px; line-height: 27px; color: #545E6B; max-width: 860px; margin: 0 0 32px;">
+    Ett mønster for ALLE 14 listesidene i appen — ikke bare de tre kandidatkøene. Målt status per side under viser hvor langt hver er kommet mot dette mønsteret i dag.
+  </p>
+
+  <!-- MALEN -->
+  <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 16px;">
+    <div style="padding: 16px 20px; border-bottom: 1px solid #B8BCC1;">
+      <div style="font-size: 24px; font-weight: 500;">Sidetittel</div>
+      <div style="font-size: 12px; color: #545E6B; margin-top: 2px;">Ett-linjes forklaring av hva lista viser</div>
+    </div>
+    <div style="padding: 16px 20px; border-bottom: 1px solid #B8BCC1; display: flex; gap: 12px; flex-wrap: wrap;">
+      <div style="height: 36px; padding: 0 12px; border: 1px solid #B8BCC1; border-radius: 4px; display: flex; align-items: center; font-size: 14px; color: #545E6B; min-width: 160px;">Filter …</div>
+      <div style="height: 36px; padding: 0 12px; border: 1px solid #B8BCC1; border-radius: 4px; display: flex; align-items: center; font-size: 14px; color: #545E6B; min-width: 160px;">🔍 Søk …</div>
+      <div style="height: 36px; padding: 0 12px; background: #E7E9EA; border-radius: 4px; display: flex; align-items: center; font-size: 14px; gap: 8px;">
+        <span style="color: #545E6B;">Gruppering:</span><span style="font-weight: 600;">Ingen</span>
+      </div>
+    </div>
+    <div style="padding: 10px 20px; border-bottom: 1px solid #B8BCC1; background: #F1EFE8; display: flex; align-items: center; gap: 16px; font-size: 14px;">
+      <span style="color: #545E6B;">0 valgte</span>
+      <button style="height: 32px; padding: 0 14px; background: #99C0E3; color: #002C54; border: none; border-radius: 4px; font-size: 13px;">Godkjenn valgte</button>
+      <button style="height: 32px; padding: 0 14px; background: #fff; border: 1px solid #B8BCC1; border-radius: 4px; font-size: 13px;">Avvis valgte</button>
+      <span style="font-size: 12px; color: #545E6B; font-style: italic;">— kun i behandlingskøer, ikke i rene kataloger</span>
+    </div>
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+      <thead><tr style="background: #E7E9EA;"><th style="text-align:left; padding: 6px 20px;">Kolonne A</th><th style="text-align:left; padding: 6px 12px;">Kolonne B</th><th style="text-align:left; padding: 6px 12px;">Status</th></tr></thead>
+      <tbody>
+        <tr style="border-top: 1px solid #B8BCC1;"><td style="padding: 6px 20px;">Rad 1</td><td style="padding: 6px 12px;">…</td><td style="padding: 6px 12px;"><span class="tag" style="background:#EAF3DE; color:#023409; border-radius:999px; padding:1px 8px;">Aktiv</span></td></tr>
+        <tr style="border-top: 1px solid #B8BCC1;"><td style="padding: 6px 20px;">Rad 2</td><td style="padding: 6px 12px;">…</td><td style="padding: 6px 12px;"><span class="tag" style="background:#EAF3DE; color:#023409; border-radius:999px; padding:1px 8px;">Aktiv</span></td></tr>
+      </tbody>
+    </table>
+    <div style="padding: 10px 20px; font-size: 12px; color: #545E6B; border-top: 1px solid #B8BCC1;">data-density="compact" — kompakt radhøyde, standard for alle store datasett</div>
+  </div>
+  <p style="font-size: 12px; color: #545E6B; margin: 0 0 40px;">
+    Tom-tilstand: samme <span class="mono">Card</span> rendres ALLTID (aldri betinget) — se «Komponenter»-arket, punkt 5.
+  </p>
+
+  <!-- STATUS PER SIDE -->
+  <h2 style="font-size: 22px; font-weight: 500; margin: 40px 0 4px;">Målt status, alle 14 listesider (2026-09-11)</h2>
+  <p style="font-size: 14px; color: #545E6B; margin: 0 0 16px;">Massehandling er BEVISST N/A for rene kataloger (Begreper/Brukere/Datasett/…) — kun relevant der en rad skal godkjennes/avvises.</p>
+  <div class="card" style="padding: 0; overflow: hidden;">
+    <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+      <thead>
+        <tr style="background: #E7E9EA;">
+          <th style="text-align:left; padding: 8px 16px;">Side</th>
+          <th style="text-align:left; padding: 8px 12px;">Kompakt tabell</th>
+          <th style="text-align:left; padding: 8px 12px;">Fritekstsøk</th>
+          <th style="text-align:left; padding: 8px 12px;">Gruppering</th>
+          <th style="text-align:left; padding: 8px 12px;">Massehandling</th>
+        </tr>
+      </thead>
+      <tbody style="font-family: 'IBM Plex Mono', monospace; font-size: 12.5px;">
+        <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px;">RettskilderListe</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="na">–</td><td style="padding:6px 12px;" class="na">–</td></tr>
+        <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px;">NavnekandidaterListe</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="y">✓</td></tr>
+        <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px;">VirksomhetKandidaterListe</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="y">✓ (issue #265)</td><td style="padding:6px 12px;" class="y">✓ (issue #265)</td><td style="padding:6px 12px;" class="y">✓</td></tr>
+        <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px;">Begrepskandidater</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="n">✗</td><td style="padding:6px 12px;" class="n">✗</td><td style="padding:6px 12px;" class="y">✓</td></tr>
+        <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px;">BegrepDefinisjonRelasjonKo</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="n">✗</td><td style="padding:6px 12px;" class="na">–</td><td style="padding:6px 12px;" class="na">–</td></tr>
+        <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px;">KildefeilListe</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="n">✗</td><td style="padding:6px 12px;" class="na">–</td><td style="padding:6px 12px;" class="na">–</td></tr>
+        <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px;">AdministrasjonLovdataResynk</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="na">–</td><td style="padding:6px 12px;" class="na">–</td></tr>
+        <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px;">BegreperListe</td><td style="padding:6px 12px;" class="n">✗ — 1 rad, ikke aktuelt</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="na">–</td><td style="padding:6px 12px;" class="na">–</td></tr>
+        <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px;">BrukereListe</td><td style="padding:6px 12px;" class="n">✗ — 7 rader, ikke aktuelt</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="na">–</td><td style="padding:6px 12px;" class="na">–</td></tr>
+        <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px;">DatasettListe</td><td style="padding:6px 12px;" class="n">✗ — 4 rader, ikke aktuelt</td><td style="padding:6px 12px;" class="n">✗</td><td style="padding:6px 12px;" class="na">–</td><td style="padding:6px 12px;" class="na">–</td></tr>
+        <tr style="border-top:1px solid #E7E9EA; background:#FAEEDA;"><td style="padding:6px 16px;">HandlingerListe</td><td style="padding:6px 12px;" class="n">✗ — MEN 1020 rader, bør få compact</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="na">–</td><td style="padding:6px 12px;" class="na">–</td></tr>
+        <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px;">KodelisterListe</td><td style="padding:6px 12px;" class="n">✗ — 7 rader, ikke aktuelt</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="na">–</td><td style="padding:6px 12px;" class="na">–</td></tr>
+        <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px;">TjenesterListe</td><td style="padding:6px 12px;" class="n">✗ — 1 rad i dag, vokser (KI-forslagskø)</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="na">–</td><td style="padding:6px 12px;" class="na">–</td></tr>
+        <tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px;">VilkarstreListe</td><td style="padding:6px 12px;" class="n">✗ — 1 rad (samme kilde som Tjenester)</td><td style="padding:6px 12px;" class="n">✗</td><td style="padding:6px 12px;" class="na">–</td><td style="padding:6px 12px;" class="na">–</td></tr>
+        <tr style="border-top:1px solid #E7E9EA; background:#FAEEDA;"><td style="padding:6px 16px;">VirksomheterListe</td><td style="padding:6px 12px;" class="n">✗ — MEN 501 rader, bør få compact</td><td style="padding:6px 12px;" class="y">✓</td><td style="padding:6px 12px;" class="na">–</td><td style="padding:6px 12px;" class="na">–</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p style="font-size: 12px; color: #545E6B; margin: 8px 0 0; max-width: 900px;">
+    <b>Målt live (2026-09-11), ikke antatt (§16):</b> Begreper=1, Brukere=7, Datasett=4, Handlinger=1020,
+    Kodelister=7, Tjenester=1 (VilkarstreListe bruker samme kilde=1), Virksomheter=501. KONKLUSJON: kun
+    2 av de 8 (gule rader — Handlinger, Virksomheter) har faktisk nok rader til at kompakt tabell gir
+    noen mening. De øvrige 6 har for få rader i dag (1–7) til at tettheten er relevant — riktig svar der
+    er "ikke aktuelt ennå", ikke "mangler". Tjenester/Vilkårstre har kun 1 rad i dag, men vokser via
+    KI-forslagskøen — verdt å revurdere når den fylles opp, ikke en beslutning å ta på dagens tall alene.
+  </p>
+
+  <h2 style="font-size: 22px; font-weight: 500; margin: 40px 0 4px;">Ny, bekreftet funn: tom-tilstand utenfor Card på ALLE 8 nykartlagte sider</h2>
+  <p style="font-size: 14px; color: #545E6B; max-width: 900px; margin: 0 0 12px;">
+    Alle 8 sidene som ble innholdsverifisert i denne runden (BegreperListe, BrukereListe, DatasettListe,
+    HandlingerListe, KodelisterListe, TjenesterListe, VilkarstreListe, RettskilderListe) bruker en BAR,
+    ikke-Card-innpakket <span class="mono">&lt;Paragraph&gt;</span> for tom tilstand — samme anti-mønster
+    #265 rettet for VirksomhetKandidaterListe, men bekreftet her på ENDA flere sider enn først antatt.
+    Kun de 3 kandidatkøene (NavnekandidaterListe, VirksomhetKandidaterListe, Begrepskandidater) gjør det
+    riktig i dag.
+  </p>
+  <p style="font-size: 13px; color: #545E6B; max-width: 900px;">
+    Andre reelle funn: <span class="mono">DatasettListe</span>, <span class="mono">HandlingerListe</span>,
+    <span class="mono">VilkarstreListe</span> har BEVISST ingen opprett-skjema (hver med egen begrunnelse i
+    koden — f.eks. Vilkårstre-rotnode opprettes bevisst kun fra Tjeneste-siden, "et write-once skjema her
+    ville ikke latt deg se eller angre en feilaktig opprettelse"). <span class="mono">BrukereListe</span>
+    har et helt eget mønster: inline rad-redigering (ingen dialog). Ingen av de 8 har massehandling — riktig,
+    det er bevisst forbeholdt behandlingskøer.
+  </p>
+
+</div>
+</x-dc>
+</body>
+</html>

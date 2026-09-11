@@ -1,0 +1,151 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; color: #1F2C3D; background: #FFFFFF; }
+    a { color: #002C54; } a:hover { color: #0062BA; }
+    .mono { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
+    .swatch { border-radius: 4px; border: 1px solid #B8BCC1; }
+    .card { background: #FFFFFF; border: 1px solid #B8BCC1; border-radius: 4px; }
+  </style>
+</helmet>
+<div style="max-width: 1240px; margin: 0 auto; padding: 40px 32px 80px;">
+
+  <div style="margin-bottom: 40px;">
+    <div style="font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #545E6B; margin-bottom: 8px;">Regel-IDE · Design System</div>
+    <h1 style="font-size: 36px; font-weight: 500; line-height: 46.8px; margin: 0;">Fundament</h1>
+    <p style="font-size: 18px; line-height: 27px; color: #545E6B; max-width: 760px; margin: 12px 0 0;">
+      Bygget fra faktiske målte verdier i den installerte pakken (<span class="mono" style="font-size: 14px;">@digdir/designsystemet-css 1.18.0</span> / <span class="mono" style="font-size: 14px;">-theme 1.11.0</span>, tema «Digdir») og <span class="mono" style="font-size: 14px;">docs/09-design-konvensjoner.md</span> — ikke gjettet. Dette arket er utgangspunktet for «Komponenter» og «Maler og sider».
+    </p>
+  </div>
+
+  <!-- FARGER -->
+  <h2 style="font-size: 22px; font-weight: 500; margin: 0 0 4px;">Farger (lys tema)</h2>
+  <p style="font-size: 14px; color: #545E6B; margin: 0 0 20px;">Én rolle per bruksområde — nøytral, aksent, info/success/warning/danger. Aldri en hex-verdi valgt fritt.</p>
+  <div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 16px; margin-bottom: 40px;">
+
+    <div>
+      <div class="swatch" style="height: 56px; background: #FFFFFF;"></div>
+      <div style="font-size: 13px; font-weight: 500; margin-top: 6px;">Nøytral bakgrunn</div>
+      <div class="mono" style="font-size: 12px; color: #545E6B;">#FFFFFF</div>
+    </div>
+    <div>
+      <div class="swatch" style="height: 56px; background: #D8DADD;"></div>
+      <div style="font-size: 13px; font-weight: 500; margin-top: 6px;">Nøytral hover</div>
+      <div class="mono" style="font-size: 12px; color: #545E6B;">#D8DADD</div>
+    </div>
+    <div>
+      <div class="swatch" style="height: 56px; background: #E7E9EA;"></div>
+      <div style="font-size: 13px; font-weight: 500; margin-top: 6px;">Nøytral tint</div>
+      <div class="mono" style="font-size: 12px; color: #545E6B;">#E7E9EA</div>
+    </div>
+    <div>
+      <div class="swatch" style="height: 56px; background: #B8BCC1;"></div>
+      <div style="font-size: 13px; font-weight: 500; margin-top: 6px;">Kant, subtil</div>
+      <div class="mono" style="font-size: 12px; color: #545E6B;">#B8BCC1</div>
+    </div>
+    <div>
+      <div class="swatch" style="height: 56px; background: #1F2C3D;"></div>
+      <div style="font-size: 13px; font-weight: 500; margin-top: 6px; color: #1F2C3D;">Tekst, standard</div>
+      <div class="mono" style="font-size: 12px; color: #545E6B;">#1F2C3D</div>
+    </div>
+    <div>
+      <div class="swatch" style="height: 56px; background: #545E6B;"></div>
+      <div style="font-size: 13px; font-weight: 500; margin-top: 6px;">Tekst, dempet</div>
+      <div class="mono" style="font-size: 12px; color: #545E6B;">#545E6B</div>
+    </div>
+
+    <div>
+      <div class="swatch" style="height: 56px; background: #0062BA;"></div>
+      <div style="font-size: 13px; font-weight: 500; margin-top: 6px;">Aksent, base</div>
+      <div class="mono" style="font-size: 12px; color: #545E6B;">#0062BA</div>
+    </div>
+    <div>
+      <div class="swatch" style="height: 56px; background: #DDEAF6;"></div>
+      <div style="font-size: 13px; font-weight: 500; margin-top: 6px;">Aksent, tint</div>
+      <div class="mono" style="font-size: 12px; color: #545E6B;">#DDEAF6</div>
+    </div>
+    <div>
+      <div class="swatch" style="height: 56px; background: #DCEBF6;"></div>
+      <div style="font-size: 13px; font-weight: 500; margin-top: 6px;">Info, tint</div>
+      <div class="mono" style="font-size: 12px; color: #545E6B;">#DCEBF6</div>
+    </div>
+    <div>
+      <div class="swatch" style="height: 56px; background: #EA9B1B;"></div>
+      <div style="font-size: 13px; font-weight: 500; margin-top: 6px; color: #FFFFFF;">Warning, base</div>
+      <div class="mono" style="font-size: 12px; color: #545E6B;">#EA9B1B</div>
+    </div>
+    <div>
+      <div class="swatch" style="height: 56px; background: #EAF3DE;"></div>
+      <div style="font-size: 13px; font-weight: 500; margin-top: 6px;">Success, tekst</div>
+      <div class="mono" style="font-size: 12px; color: #023409;">#023409</div>
+    </div>
+    <div>
+      <div class="swatch" style="height: 56px; background: #CE4D4D;"></div>
+      <div style="font-size: 13px; font-weight: 500; margin-top: 6px;">Danger, kant</div>
+      <div class="mono" style="font-size: 12px; color: #545E6B;">#CE4D4D</div>
+    </div>
+  </div>
+
+  <!-- TYPOGRAFI -->
+  <h2 style="font-size: 22px; font-weight: 500; margin: 0 0 4px;">Typografiskala</h2>
+  <p style="font-size: 14px; color: #545E6B; margin: 0 0 8px;">
+    <strong style="color: #590D0D;">Bekreftet avvik (issue #266):</strong> 231 steder i koden bruker
+    <span class="mono">--ds-font-size-1</span> (12px) rett i en inline-stil for «metatekst» — men
+    <span class="mono">Paragraph</span>-komponentens egen <span class="mono">data-size</span>-skala når
+    ALDRI ned dit (xs = 14px, sm = 16px). Se «Metatekst»-komponenten i «Komponenter» for løsningen.
+  </p>
+  <div class="card" style="padding: 24px; margin-bottom: 40px;">
+    <div style="font-size: 36px; font-weight: 500; line-height: 46.8px;">Sideheading (H1, lg) — 36px / 500</div>
+    <div style="font-size: 24px; font-weight: 500; margin-top: 12px;">Seksjonsoverskrift (H2, sm) — 21–24px / 500</div>
+    <div style="font-size: 18px; font-weight: 400; line-height: 27px; margin-top: 12px;">Brødtekst (Paragraph, md — DEFAULT) — 18px / 400 / 27px</div>
+    <div style="font-size: 16px; font-weight: 400; margin-top: 12px;">Paragraph data-size="sm" — 16px (IKKE metatekst, til tross for navnet)</div>
+    <div style="font-size: 14px; font-weight: 400; margin-top: 12px;">Paragraph data-size="xs" — 14px (heller ikke metatekst)</div>
+    <div style="font-size: 12px; font-weight: 400; color: #545E6B; margin-top: 12px;">--ds-font-size-1 — 12px — DETTE er metatekst/hjelpetekst, kun oppnåelig via en egen komponent</div>
+  </div>
+
+  <!-- SPACING -->
+  <h2 style="font-size: 22px; font-weight: 500; margin: 0 0 4px;">Mellomrom og form</h2>
+  <div class="card" style="padding: 24px; margin-bottom: 40px; display: flex; gap: 32px; flex-wrap: wrap;">
+    <div>
+      <div style="display: flex; gap: 8px; align-items: flex-end;">
+        <div style="width: 32px; height: 32px; background: #0062BA; border-radius: 2px;"></div>
+        <div style="width: 32px; height: 32px; background: #0062BA; border-radius: 4px;"></div>
+        <div style="width: 32px; height: 32px; background: #0062BA; border-radius: 8px;"></div>
+        <div style="width: 32px; height: 32px; background: #0062BA; border-radius: 999px;"></div>
+      </div>
+      <div style="font-size: 13px; color: #545E6B; margin-top: 8px;">Hjørner: 2 · 4 (standard) · 8 · full</div>
+    </div>
+    <div>
+      <div style="height: 48px; width: 160px; background: #0062BA; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 500;">Knapp / input, 48px</div>
+      <div style="font-size: 13px; color: #545E6B; margin-top: 8px;">Standard høyde</div>
+    </div>
+    <div>
+      <div style="width: 260px; height: 48px; background: #F1EFE8; border-right: 1px solid #B8BCC1; display: flex; align-items: center; padding-left: 16px; font-size: 13px; color: #545E6B;">Sidemeny, 260px</div>
+      <div style="font-size: 13px; color: #545E6B; margin-top: 8px;">Fast bredde, 16px padding</div>
+    </div>
+  </div>
+
+  <div style="display: flex; gap: 16px; margin-top: 48px;">
+    <div class="card" style="flex: 1; padding: 20px;">
+      <div style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #545E6B;">Neste ark</div>
+      <div style="font-size: 18px; font-weight: 500; margin-top: 4px;">Komponenter</div>
+      <div style="font-size: 14px; color: #545E6B; margin-top: 4px;">Nye, delte primitiver (#266/#267) + status på det som allerede finnes, inkl. alle 6 funnet duplikate status-fargekonstanter og hvordan de skal konsolideres.</div>
+    </div>
+    <div class="card" style="flex: 1; padding: 20px;">
+      <div style="font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.04em; color: #545E6B;">Neste ark</div>
+      <div style="font-size: 18px; font-weight: 500; margin-top: 4px;">Maler og sider</div>
+      <div style="font-size: 14px; color: #545E6B; margin-top: 4px;">Listemal + detaljmal som gjelder ALLE 14 listesider og 8 detaljsider — anvendt konkret på Virksomheter.</div>
+    </div>
+  </div>
+
+</div>
+</x-dc>
+</body>
+</html>

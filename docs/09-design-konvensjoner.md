@@ -738,3 +738,108 @@ element — samme feilmønster gjelder den IKKE på samme måte, ikke sjekket vi
    dekke over et symptom (en scrollbar), sjekk ALLTID om det faktisk fjerner ekte, tilgjengelig
    innhold FØR den landes — se selvkorrigeringen over for hvorfor det ikke er en retorisk øvelse.
 
+## 23. Design-canvasen (2026-09-11) — hva den er, og hvor den bor
+
+En hel-applikasjons design-gjennomgang (`design`-skillet i Claude Code) resulterte i 16 artboards
+som dekker fundament, komponenter, alle 14 listesider + 8 detaljsider, og hvert avvikende mønster
+(veivisere, rettskildelesing/tagging, KI-forslagskø, graf/tre-visualisering, dokumentvisning,
+skjema, tjenestereise/søk, håndbokforfatting). Kilden ligger i `docs/design-canvas/` (16
+`.dc.html`-filer + `canvas.json`) — sjekket inn som et varig øyeblikksbilde, ikke generert på nytt
+ved behov, fordi verktøyets egen midlertidige arbeidsmappe og den publiserte lenken begge er
+skjøre (økt-lokale, kan ryddes/miste eierskap). En interaktiv, redigerbar visning av samme innhold
+er publisert som et Artifact; lenken står i `docs/design-canvas/README.md`.
+
+**Canvasen er referanse, ikke kravspesifikasjon.** Den er skrevet for å vise HVORDAN noe skal se
+ut og hvorfor, med ekte målte tall og faktiske kodesitater — men den binder ingenting alene. Det
+canvasen fant og Johann besluttet, er destillert til §24–28 under; det er DE seksjonene som er
+bindende, på samme måte som resten av dette dokumentet. Der canvasen viser et forslag som ikke er
+besluttet ennå (VirksomhetDetalj-omstruktureringen, §28), sier §28 det eksplisitt.
+
+## 24. Metatekst — en delt komponent for 12px hjelpetekst (issue #266, 2026-09-11)
+
+**231 steder i koden bruker `--ds-font-size-1` (12px) direkte i en inline-stil**, fordi
+`Paragraph`-komponentens egen `data-size`-skala aldri når ned dit (`xs` = 14px, `sm` = 16px, `md`
+= 18px — ingen av dem er "metatekst"). Resultatet er 231 uavhengige steder som må endres samstemt
+den dagen 12px-verdien endres, og ingen enkelt kilde å lese kontrakten fra.
+
+**Regel**: enhver 12px-hjelpetekst (feltbeskrivelser, tabell-metadata, tidsstempler, `title`-aktig
+sekundærtekst) skal gå gjennom én delt `Metatekst`-komponent, ikke en ny inline `fontSize`/
+`--ds-font-size-1`-referanse. Komponenten er ren presentasjon (ingen egen logikk) — poenget er
+étt sted å style om fra, ikke ny funksjonalitet.
+
+## 25. Statusfarge-konsolidering — fire ulike domener, ikke én generisk funksjon (issue #267, 2026-09-11)
+
+Seks lokale status→farge(+tekst)-konstanter ble funnet duplisert på tvers av filer:
+
+| Konstant | Forekomster | Filer |
+|---|---|---|
+| `STATUS_FARGE` (Venter/Godkjent/Avvist) | ×4 | `VirksomhetKandidaterListe`, `Begrepskandidater`, `NavnekandidaterListe`, `BegrepDefinisjonRelasjonKo` |
+| `DOKUMENTTYPE_FARGE`/`VEILEDNINGSDOKUMENTTYPE_FARGE` | ×2 | `TjenesteVeiledning`, `Egenskapspanel` |
+| `STATUS_VISNING` (6-status entitetsstatus) | ×2 | `TjenesterListe`, `HandlingerListe` |
+| `KommentarStatus` (under_arbeid/til_godkjenning/publisert/må_revideres) | ×1 | `RettskildeTre` |
+
+**Johanns beslutning (2026-09-11, via spørsmålsverktøyet)**: konsolider PER REELT DOMENE, ikke til
+én generisk «status → farge»-funksjon for alt. De seks forekomstene er faktisk fire ulike domener
+(kandidatstatus, dokumenttype, entitetsstatus, kommentarstatus) med hver sin betydningsmengde — å
+tvinge dem inn i én felles funksjon ville skjule at f.eks. `KommentarStatus` sin firedeling ikke
+har noe med kandidat-treverdien å gjøre. Konkret:
+
+1. **Kandidatstatus** (`STATUS_FARGE` ×4) → én delt `KandidatStatusTag`.
+2. **Dokumenttype** (×2) → én delt `DokumenttypeTag`.
+3. **Entitetsstatus** (`STATUS_VISNING` ×2) → gjenbruk `StatusStepper` sin egen fargekilde, ikke en
+   ny — StatusStepperen har allerede seks-tilstands-fargelogikken kanonisert (§ under).
+4. **`KommentarStatus`** (RettskildeTre) → EGEN, ikke slått sammen med de tre andre — reelt ulikt
+   domene.
+
+**`StatusStepper` sin faktiske oppførsel** (bekreftet i kode, ikke antatt): Tag-raden er IKKE en
+fremdriftslinje. `accent`+fylt = nåværende status. `neutral`+fylt = passerte statuser. `neutral`+
+outline = fremtidige. `Dialog`-bekreftelse vises KUN på overgangen publisert → tilbaketrukket/
+arkivert (den eneste retningen som er reelt vanskelig å angre).
+
+## 26. Mål tabelltetthet, ikke anta den (issue #267, 2026-09-11)
+
+Reelt målt radantall (live API, 2026-09-11): Begreper=1, Brukere=7, Datasett=4, **Handlinger=1020**,
+Kodelister=7, Tjenester=1, Vilkårstre=1 (samme datakilde som Tjenester), **Virksomheter=501**.
+
+**Regel**: `data-density="compact"` på `Table` skal begrunnes med et reelt målt radantall for den
+konkrete listen, ikke antas fordi «det er en liste». Med tallene over kvalifiserer per nå kun
+Handlinger og Virksomheter — de seks andre listesidene har for få rader til at tetthet er et reelt
+problem, og skal IKKE tvinges inn i samme mønster kun for konsistensens skyld (jf. §16, «mål det,
+ikke anta det»).
+
+## 27. `data-size` på knapper — konvensjon, ikke automatikk (issue #267, 2026-09-11)
+
+`Button`/`data-size="sm"` skal brukes i kompakte arbeidsflater (tabellrader, inline-handlinger ved
+siden av skjemafelt, verktøylinjer) — standardstørrelsen er for åpne sider, ikke for tette rader.
+Ved gjennomgangen manglet 57 av 241 knapp-forekomster i koden en eksplisitt `data-size` der
+konteksten tilsa `sm`. Retting rulles ut sammen med resten av issue #267, ikke som en egen runde —
+den henger sammen med tabelltetthet-arbeidet i §26 (samme tette rader).
+
+## 28. Liste- og detaljsidemal — generisk mønster for alle 14 + 8 sider (issue #266/#267, 2026-09-11)
+
+**Alle 8 nykartlagte detaljsider** (og reelt alle 14 listesider) bruker samme to strukturer, målt
+ved full gjennomgang av hver enkelt fil — ikke antatt fra noen få eksempler:
+
+- **Listemal**: søkefelt + evt. gruppering/filter øverst, `Table` (tetthet per §26), og — punktet
+  som IKKE var konsistent ved gjennomgangen — en `Card`-basert tom-tilstand som skal vises alltid
+  når listen er tom, ikke bare betinget rendret rundt en betingelse som glemmer selve Card-en (reell
+  bug funnet og rettet i `VirksomhetKandidaterListe`/`NavnekandidaterListe`, issue #265).
+- **Detaljmal**: brødsmulesti → faner (`Tab`) → `KontekstPanel`-grupper i sidepanelet. Antall
+  KontekstPanel-grupper er IKKE nødvendigvis likt mellom entiteter — RettskildeDetalj har 5,
+  TjenesteDetalj har 3 — det er riktig, ikke en inkonsekvens, når entitetene faktisk har ulikt
+  antall relasjonstyper (§29 utdyper for RettskildeDetalj spesifikt).
+- Ett funnet, ikke rettet ennå: `KodelisteDetalj`/`DatasettDetalj` har en tom-tilstand som avviker
+  fra malen over — dokumentert i canvasen, ikke bygget.
+
+## 29. VirksomheterListe/VirksomhetDetalj — foreslått, IKKE besluttet omstrukturering (issue #268)
+
+**Dette er et forslag i canvasen, ikke en vedtatt endring** — i motsetning til §24–27, som er
+Johanns faktiske beslutninger. Forslaget: `VirksomheterListe` har i dag tre fullt synlige
+opprett-skjema (søk i Brreg / opprett med navn / koble eksisterende navn) alltid synlig over selve
+katalogen, slik at katalogen (hovedsaken) først blir synlig etter scroll. Alle tre skjemaene har
+individuelt god begrunnelse — problemet som foreslås løst er at de er flate, ikke at de finnes.
+Forslaget samler dem bak én «+ Legg til virksomhet»-inngang som faner i ett panel (progressiv
+avdekking, ingen funksjon fjernet), og tilsvarende slår `VirksomhetDetalj` sine 8 flate seksjoner
+sammen til faner, der «Myndighet & relasjoner» slår sammen 3 tidligere seksjoner. Bygges kun hvis/
+når issue #268 tas videre — ikke gjør denne endringen ut fra denne seksjonen alene.
+

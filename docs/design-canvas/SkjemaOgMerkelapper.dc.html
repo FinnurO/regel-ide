@@ -1,0 +1,106 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <style>
+    body { margin: 0; font-family: 'Inter', system-ui, sans-serif; color: #1F2C3D; background: #FFFFFF; }
+    .mono { font-family: 'IBM Plex Mono', 'Courier New', monospace; }
+    .card { background: #FFFFFF; border: 1px solid #B8BCC1; border-radius: 4px; }
+    .sectionlabel { font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; color: #545E6B; }
+    .tag { display: inline-flex; align-items: center; border-radius: 999px; padding: 2px 10px; font-size: 13px; font-weight: 500; }
+  </style>
+</helmet>
+<div style="max-width: 1240px; margin: 0 auto; padding: 40px 32px 80px;">
+
+  <div class="sectionlabel">Regel-IDE · Design System</div>
+  <h1 style="font-size: 36px; font-weight: 500; margin: 4px 0 8px;">«Legg til X»-skjema, og en allerede-riktig merkelapp</h1>
+  <p style="font-size: 18px; line-height: 27px; color: #545E6B; max-width: 900px; margin: 0 0 32px;">
+    LeggTilMyndighetstildelingForm, LeggTilVirksomhetRelasjonForm, KobleRegelverksreferanseForm — samme inline-skjema-mønster tre steder. Pluss Navneformgrunn, som allerede er BEVISET på at status→farge+tekst-mønsteret (KandidatStatusTag/DokumenttypeTag) fungerer i produksjon.
+  </p>
+
+  <h2 style="font-size: 22px; font-weight: 500; margin: 0 0 12px;">«Legg til»-skjemaet — samme oppskrift alle tre steder</h2>
+  <div class="card" style="padding: 20px; max-width: 560px; margin-bottom: 32px;">
+    <div style="font-size: 13px; margin-bottom: 4px;">Relasjonstype</div>
+    <div style="height: 36px; border: 1px solid #B8BCC1; border-radius: 4px; margin-bottom: 14px; display:flex; align-items:center; padding:0 10px; font-size:13px; color:#545E6B;">er sekretariat for …</div>
+    <div style="font-size: 13px; margin-bottom: 4px;">Til virksomhet <span class="mono" style="font-size:11px;">(VirksomhetVelger — delt)</span></div>
+    <div style="height: 36px; border: 1px solid #B8BCC1; border-radius: 4px; margin-bottom: 14px;"></div>
+    <div style="font-size: 13px; margin-bottom: 4px;">Hjemmel <span class="mono" style="font-size:11px;">(RettskildeVelger — delt, valgfri)</span></div>
+    <div style="height: 36px; border: 1px solid #B8BCC1; border-radius: 4px; margin-bottom: 16px;"></div>
+    <button style="height: 36px; padding: 0 16px; background: #0062BA; color: #fff; border: none; border-radius: 4px; font-size: 14px;">Legg til</button>
+  </div>
+  <p style="font-size: 13px; color: #545E6B; max-width: 780px; margin: 0 0 40px;">
+    Alle tre gjenbruker allerede <span class="mono">VirksomhetVelger</span>/<span class="mono">RettskildeVelger</span> — ikke en dupliseringssak, samme «ett skjema-per-fil»-konvensjon (kommentert eksplisitt i kildekoden). Tatt med for helheten, ikke fordi noe er galt her.
+  </p>
+
+  <h2 style="font-size: 22px; font-weight: 500; margin: 0 0 12px;">LeggTilMyndighetstildelingForm — en RIKERE variant, ikke bare samme skjema</h2>
+  <p style="font-size: 14px; color: #545E6B; margin: 0 0 12px; max-width: 800px;">
+    Innholdsverifisert: dette er IKKE bare enda et «velg/velg/lagre»-skjema — det bygger en LISTE av
+    paragraf-spenn (kan være flere per tildeling), med egen delliste + fjern-knapp per spenn.
+  </p>
+  <div class="card" style="padding: 20px; max-width: 620px; margin-bottom: 16px;">
+    <div style="font-size: 13px; margin-bottom: 4px;">Gruppebegrep</div>
+    <div style="height: 32px; border: 1px solid #B8BCC1; border-radius: 4px; margin-bottom: 12px; display:flex; align-items:center; padding:0 10px; font-size:13px; color:#545E6B;">forurensningsmyndighet — forurensningsloven</div>
+    <div style="font-size: 13px; margin-bottom: 4px;">Hjemmel (forskrift/delegeringsvedtak)</div>
+    <div style="height: 32px; border: 1px solid #B8BCC1; border-radius: 4px; margin-bottom: 12px;"></div>
+    <table style="width:100%; border-collapse:collapse; font-size:12px; margin-bottom: 10px;">
+      <thead><tr style="background:#E7E9EA;"><th style="text-align:left; padding:4px 8px;">Spenn</th><th style="padding:4px 8px;"></th></tr></thead>
+      <tbody><tr style="border-top:1px solid #E7E9EA;"><td style="padding:4px 8px;">§ 3 — § 5</td><td style="padding:4px 8px; text-align:right;"><span style="color:#590D0D;">Fjern</span></td></tr></tbody>
+    </table>
+    <div style="display:flex; gap:8px; margin-bottom: 12px;">
+      <div style="flex:1; height:30px; border:1px solid #B8BCC1; border-radius:4px;"></div>
+      <button style="height:30px; padding:0 10px; background:#fff; border:1px solid #B8BCC1; border-radius:4px; font-size:12px;">Legg til spenn</button>
+    </div>
+    <div style="font-size: 12px; color: #545E6B; margin-bottom: 4px;">Gyldig fra / til (valgfritt)</div>
+    <div style="font-size: 11px; color: #545E6B;">"De aller fleste tildelinger er permanente og bør la begge datofeltene stå tomme" — ekte hjelpetekst, ikke oppfunnet her.</div>
+  </div>
+
+  <h2 style="font-size: 22px; font-weight: 500; margin: 0 0 12px;">GruppeMedlemmer — tre tabeller, bevisst ikke slått sammen</h2>
+  <p style="font-size: 14px; color: #545E6B; margin: 0 0 12px; max-width: 800px;">
+    Uvanlig lang JSDoc forklarer HVORFOR: «Medlemsgrupper», «Virksomheter i gruppen» og «Medlem av»
+    er tre ULIKE påstander, ikke tre visninger av det samme — eksempel fra koden: «Karasjok får sine
+    plikter etter sameloven INDIREKTE, gjennom en gruppe som selv er medlem av en gruppe.»
+  </p>
+  <div class="card" style="padding: 0; overflow: hidden; margin-bottom: 32px;">
+    <table style="width:100%; border-collapse:collapse; font-size:13px;">
+      <thead><tr style="background:#E7E9EA;"><th style="text-align:left; padding:6px 16px;">Virksomhet</th><th style="text-align:left; padding:6px 12px;">Hjemmel</th><th style="text-align:left; padding:6px 12px;">Vilkår</th><th style="text-align:left; padding:6px 12px;">Gyldighet</th></tr></thead>
+      <tbody><tr style="border-top:1px solid #E7E9EA;"><td style="padding:6px 16px; color:#0062BA;">Trondheim kommune</td><td style="padding:6px 12px;">§ 4</td><td style="padding:6px 12px; color:#545E6B;">Ingen</td><td style="padding:6px 12px;"><span style="background:#DCEBF6; color:#042D4D; border-radius:999px; padding:1px 8px; font-size:11px;">2020 – 2030</span></td></tr></tbody>
+    </table>
+  </div>
+
+  <h2 style="font-size: 22px; font-weight: 500; margin: 0 0 12px;">BerikelseVisning og RelasjonstekstMedLenke — små, allerede riktige detaljer</h2>
+  <div style="display: flex; gap: 24px;">
+    <div class="card" style="flex: 1; padding: 16px;">
+      <div style="font-size: 12px; color: #545E6B; margin-bottom: 6px;">BerikelseVisning (SNL/SSR-bekreftelse på en navnekandidat)</div>
+      <span class="tag" style="background:#EAF3DE; color:#023409;">SNL · org.nr. 974767880 ↗</span>
+    </div>
+    <div class="card" style="flex: 1; padding: 16px;">
+      <div style="font-size: 12px; color: #545E6B; margin-bottom: 6px;">RelasjonstekstMedLenke</div>
+      <div style="font-size: 13px;">er sekretariat for <a href="#" style="color:#0062BA; text-decoration:underline;">Konkurranseklagenemnda</a></div>
+      <div style="font-size: 11px; color: #545E6B; margin-top: 6px;">Rettet reell bug: navnet lenkes DER det står i setningen, i stedet for å legges til på slutten som en duplisert «(Konkurranseklagenemnda)».</div>
+    </div>
+  </div>
+
+  <h2 style="font-size: 22px; font-weight: 500; margin: 40px 0 12px;">Navneformgrunn — allerede riktig bygget referanse</h2>
+  <p style="font-size: 14px; color: #545E6B; margin: 0 0 12px; max-width: 780px;">
+    Nøyaktig samme «status → farge + tekst, ÉN delt kilde» som KandidatStatusTag/DokumenttypeTag foreslår — bare at denne allerede finnes og fungerer på tvers av 4 sider (VirksomheterListe, VirksomhetDetalj, BegrepDetalj, navnekandidat-wizarden). Beviset på at mønsteret er riktig, ikke bare en idé.
+  </p>
+  <div class="card" style="padding: 20px; display: flex; gap: 12px; flex-wrap: wrap;">
+    <span class="tag" style="background:#EAF3DE; color:#023409;">Gjeldende navn</span>
+    <span class="tag" style="background:#FAEEDA; color:#633806;">Utgått navn</span>
+    <span class="tag" style="background:#DCEBF6; color:#042D4D;">Kortform</span>
+    <span class="tag" style="background:#FCEBEB; color:#590D0D;">Feilskriving</span>
+    <span class="tag" style="background:#DDEAF6; color:#002C54;">Parallellnavn</span>
+  </div>
+  <p style="font-size: 12px; color: #545E6B; margin-top: 8px;">
+    Fargevalget er et KRAV, ikke pynt (Johanns egen begrunnelse i kildekoden) — en utgått/feilskrevet navneform skal aldri kunne forveksles med det offisielle navnet.
+  </p>
+
+</div>
+</x-dc>
+</body>
+</html>
