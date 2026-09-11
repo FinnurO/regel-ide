@@ -1,6 +1,6 @@
 import { useEffect, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router';
-import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { KodelisteDto } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
@@ -70,12 +70,17 @@ export default function KodelisterListe() {
       </form>
       {oppretterFeil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{oppretterFeil}</Alert>}
 
-      {feil && <Alert data-color="danger">{feil}</Alert>}
-      {!kodelister && !feil && <Spinner aria-label="Laster …" data-size="sm" />}
-      {kodelister && kodelister.length === 0 && <Paragraph>Ingen kodelister funnet.</Paragraph>}
+      {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
 
-      {kodelister && kodelister.length > 0 && (
-        <Table border>
+      {/* [Rettet, issue #279] Card ALLTID rendret (docs/09 §14) — tom-/laste-tilstand er en
+          Paragraph INNI kortet, ikke et betinget-rendret kort utenfor. */}
+      <Card style={{ padding: kodelister && kodelister.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
+      {!kodelister && !feil ? (
+        <Spinner aria-label="Laster …" data-size="sm" />
+      ) : kodelister && kodelister.length === 0 ? (
+        <Paragraph style={{ margin: 0 }}>Ingen kodelister funnet.</Paragraph>
+      ) : kodelister && kodelister.length > 0 ? (
+        <Table>
           <Table.Head>
             <Table.Row>
               <Table.HeaderCell>Kode</Table.HeaderCell>
@@ -101,7 +106,8 @@ export default function KodelisterListe() {
             ))}
           </Table.Body>
         </Table>
-      )}
+      ) : null}
+      </Card>
     </>
   );
 }

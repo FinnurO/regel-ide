@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Alert, Heading, Link, Paragraph, Spinner, Table } from '@digdir/designsystemet-react';
+import { Alert, Card, Heading, Link, Paragraph, Spinner, Table } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { TjenesteDto } from '../api/types';
 
@@ -28,12 +28,17 @@ export default function VilkarstreListe() {
         Rotnode opprettes/endres på selve tjenestesiden.
       </Paragraph>
 
-      {feil && <Alert data-color="danger">{feil}</Alert>}
-      {!tjenester && !feil && <Spinner aria-label="Laster …" data-size="sm" />}
-      {tjenester && tjenester.length === 0 && <Paragraph>Ingen tjenester funnet — opprett en under «Tjenester» først.</Paragraph>}
+      {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
 
-      {tjenester && tjenester.length > 0 && (
-        <Table border>
+      {/* [Rettet, issue #279] Card ALLTID rendret (docs/09 §14) — tom-/laste-tilstand er en
+          Paragraph INNI kortet, ikke et betinget-rendret kort utenfor. */}
+      <Card style={{ padding: tjenester && tjenester.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
+      {!tjenester && !feil ? (
+        <Spinner aria-label="Laster …" data-size="sm" />
+      ) : tjenester && tjenester.length === 0 ? (
+        <Paragraph style={{ margin: 0 }}>Ingen tjenester funnet — opprett en under «Tjenester» først.</Paragraph>
+      ) : tjenester && tjenester.length > 0 ? (
+        <Table>
           <Table.Head>
             <Table.Row>
               <Table.HeaderCell>Tjeneste</Table.HeaderCell>
@@ -59,7 +64,8 @@ export default function VilkarstreListe() {
             ))}
           </Table.Body>
         </Table>
-      )}
+      ) : null}
+      </Card>
     </>
   );
 }

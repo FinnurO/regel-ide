@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState, type FormEvent } from 'react';
 import { Link as RouterLink, useNavigate } from 'react-router';
-import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { BegrepDto } from '../api/types';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
@@ -123,12 +123,17 @@ export default function BegreperListe() {
         style={{ maxWidth: '20rem', marginBottom: '1rem' }}
       />
 
-      {feil && <Alert data-color="danger">{feil}</Alert>}
-      {!begreper && !feil && <Spinner aria-label="Laster …" data-size="sm" />}
-      {viste && viste.length === 0 && <Paragraph>Ingen begreper funnet.</Paragraph>}
+      {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
 
-      {viste && viste.length > 0 && (
-        <Table border>
+      {/* [Rettet, issue #279] Card ALLTID rendret (docs/09 §14) — tom-/laste-tilstand er en
+          Paragraph INNI kortet, ikke et betinget-rendret kort utenfor. */}
+      <Card style={{ padding: viste && viste.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
+      {!begreper && !feil ? (
+        <Spinner aria-label="Laster …" data-size="sm" />
+      ) : viste && viste.length === 0 ? (
+        <Paragraph style={{ margin: 0 }}>Ingen begreper funnet.</Paragraph>
+      ) : viste && viste.length > 0 ? (
+        <Table>
           <Table.Head>
             <Table.Row>
               <Table.HeaderCell>
@@ -170,7 +175,8 @@ export default function BegreperListe() {
             ))}
           </Table.Body>
         </Table>
-      )}
+      ) : null}
+      </Card>
     </>
   );
 }
