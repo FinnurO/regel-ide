@@ -3,6 +3,19 @@ html, body, #root {
   margin: 0;
 }
 
+/* [Ny, issue #269, 2026-09-11] Doble scrollbarer i Chrome — se docs/09 §22 for hele
+   resonnementet, inkl. en selv-korrigering (§16): DEN FAKTISKE årsaken var
+   `.innhold`s egen boksmodell (se `.innhold` sin kommentar under), ikke en
+   100vh-avrundingskvirk slik denne kommentaren først antok. `overflow: hidden` her
+   er en defensiv sperre mot at den ytre siden NOENSINNE kan scrolle, uansett — men
+   den er ikke selve fiksen. Fjern IKKE denne uten å også ha bekreftet at INGEN av de
+   to indre panelene (`.sidebar__nav`, `.innhold`) lenger kan overflowe sin egen
+   forelder — se `.innhold`-kommentaren for hvorfor det kravet er lett å bryte
+   utilsiktet (padding + `height`-basert layout + feil `box-sizing`). */
+html, body {
+  overflow: hidden;
+}
+
 body {
   font-family: var(--ds-font-family, sans-serif);
   color: var(--ds-color-neutral-text-default);
@@ -207,6 +220,16 @@ a.sidebar__item:hover {
   height: 100%;
   overflow-y: auto;
   padding: var(--ds-size-6);
+  /* [Rettet, issue #269, 2026-09-11] `box-sizing` er ellers nettleser-default `content-box` — med
+     `height: 100%` OG padding betyr det at elementets FAKTISKE rendrede høyde (content + padding) ble
+     48px (2 × `--ds-size-6`) HØYERE enn foreldrenes 100%, uansett zoom/avrunding. Det var den EKTE
+     årsaken til at bunnen av siden (f.eks. pagineringskontrollen) ble avkuttet og uoppnåelig etter at
+     `html, body { overflow: hidden }` (samme sak, samme runde) fjernet den ytre scrollbaren som
+     FØR dekket over dette ved å la brukeren scrolle de manglende 48 pikslene inn via siden selv —
+     ikke bare en kosmetisk dobbel-scrollbar, et EKTE, permanent tap av tilgjengelig innhold. `border-box`
+     gjør at `height: 100%` inkluderer paddingen i stedet for å legge den utenpå, så elementet faktisk
+     blir like høyt som foreldren i stedet for 48px høyere. */
+  box-sizing: border-box;
 }
 
 .innhold > * {
