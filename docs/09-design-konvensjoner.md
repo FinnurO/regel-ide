@@ -845,8 +845,11 @@ ved full gjennomgang av hver enkelt fil — ikke antatt fra noen få eksempler:
   KontekstPanel-grupper er IKKE nødvendigvis likt mellom entiteter — RettskildeDetalj har 5,
   TjenesteDetalj har 3 — det er riktig, ikke en inkonsekvens, når entitetene faktisk har ulikt
   antall relasjonstyper (§29 utdyper for RettskildeDetalj spesifikt).
-- Ett funnet, ikke rettet ennå: `KodelisteDetalj`/`DatasettDetalj` har en tom-tilstand som avviker
-  fra malen over — dokumentert i canvasen, ikke bygget.
+- **Rettet (issue #272, 2026-09-11)**: `KodelisteDetalj.tsx` sin "Koder"-seksjon rendrer nå et
+  `<Card>` uansett — den fulgte ikke Card-alltid-mønster over, samme bug som #265 rettet i
+  `VirksomhetKandidaterListe`/`NavnekandidaterListe`. `DatasettDetalj.tsx` hadde IKKE denne bugen
+  ved nærmere sjekk — den viser alltid sin standardverdi-rad med «—»-fallback, en annen, allerede
+  korrekt løsning for en fast rad som alltid finnes (ikke en liste som kan være tom).
 
 ## 29. VirksomheterListe/VirksomhetDetalj — foreslått, IKKE besluttet omstrukturering (issue #268)
 
