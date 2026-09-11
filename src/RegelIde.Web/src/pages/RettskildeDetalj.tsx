@@ -33,6 +33,7 @@ import { paragrafEtikett } from '../rettskilde/paragrafEtikett';
 import { KontekstPanel, type KontekstPanelGruppe } from '../entitet/KontekstPanel';
 import { PUNKTMERKE_FORKLARING, harTekstEtterListen, underordnedePunkter } from '../rettskilde/punktliste';
 import type { PunktVisning } from '../rettskilde/punktliste';
+import { Metatekst } from '../entitet/Metatekst';
 
 const STITYPE_FARGE: Record<string, 'info' | 'success'> = { tematisk: 'info', organisatorisk: 'success' };
 
@@ -924,11 +925,11 @@ export default function RettskildeDetalj() {
 
   return (
     <>
-      <nav aria-label="Brødsmulesti" style={{ display: 'flex', gap: '0.4rem', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+      <Metatekst as="nav" aria-label="Brødsmulesti" style={{ display: 'flex', gap: '0.4rem', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
         <Link asChild><RouterLink to="/rettskilder">Rettskilder</RouterLink></Link>
         <span>/</span>
         <span style={{ color: 'var(--ds-color-neutral-text-default)' }}>{detalj.tittel}</span>
-      </nav>
+      </Metatekst>
 
       <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
         <div>
@@ -966,9 +967,9 @@ export default function RettskildeDetalj() {
         // Formatert klientside (issue #130) — den lagrede akn_xml-strengen er selv ÉN ubrutt linje
         // (AknXmlSkriver bruker ren strengsammenslåing uten innrykk), se formaterXml.ts sin
         // klassekommentar for hvorfor dette gjøres her og ikke server-/lagringssiden.
-        <pre style={{ overflow: 'auto', maxHeight: '400px', background: 'var(--ds-color-neutral-surface-tinted)', padding: '1rem', fontSize: 'var(--ds-font-size-1)', marginBottom: '1rem' }}>
+        <Metatekst as="pre" style={{ overflow: 'auto', maxHeight: '400px', background: 'var(--ds-color-neutral-surface-tinted)', padding: '1rem', marginBottom: '1rem' }}>
           {detalj.aknXml ? forsokFormaterXml(detalj.aknXml) : '—'}
-        </pre>
+        </Metatekst>
       )}
       {visKilde && (
         <div style={{ marginBottom: '1rem' }}>
@@ -985,9 +986,9 @@ export default function RettskildeDetalj() {
             // Johann påpekte at rå kilde-HTML uten struktur er nøyaktig samme problem issue #130 allerede
             // løste for AKN-XML, bare ufikset her. Egen HTML-variant (forsokFormaterHtml), ikke
             // forsokFormaterXml selv — ekte Lovdata-HTML er ikke nødvendigvis velformet XML.
-            <pre style={{ overflow: 'auto', maxHeight: '400px', background: 'var(--ds-color-neutral-surface-tinted)', padding: '1rem', fontSize: 'var(--ds-font-size-1)' }}>
+            <Metatekst as="pre" style={{ overflow: 'auto', maxHeight: '400px', background: 'var(--ds-color-neutral-surface-tinted)', padding: '1rem' }}>
               {forsokFormaterHtml(kildeHtml)}
-            </pre>
+            </Metatekst>
           )}
         </div>
       )}
@@ -1039,20 +1040,20 @@ export default function RettskildeDetalj() {
                 Navigasjonsstier
               </Heading>
               {detalj.url && (
-                <Paragraph style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)', marginBottom: '0.5rem' }}>
+                <Metatekst style={{ fontFamily: 'monospace', marginBottom: '0.5rem' }}>
                   <Link href={detalj.url} target="_blank" rel="noopener noreferrer">{detalj.url}</Link>
-                </Paragraph>
+                </Metatekst>
               )}
               {nettsideStier.length === 0 ? (
-                <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
+                <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
                   Ingen kjent navigasjonssti for denne siden.
-                </Paragraph>
+                </Metatekst>
               ) : (
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   {nettsideStier.map((s, i) => (
                     <span key={i} style={{ display: 'flex', gap: '0.35rem', alignItems: 'center' }}>
                       <Tag data-color={STITYPE_FARGE[s.stiType] ?? 'neutral'} data-size="sm">{s.stiType}</Tag>
-                      <span style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>{s.sti}</span>
+                      <Metatekst as="span" style={{ fontFamily: 'monospace' }}>{s.sti}</Metatekst>
                     </span>
                   ))}
                 </div>
@@ -1273,9 +1274,9 @@ export default function RettskildeDetalj() {
               </>
             ) : (
               <form onSubmit={lagreMetadata} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '40rem' }}>
-                <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', margin: 0 }}>
+                <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', margin: 0 }}>
                   ELI ({detalj.eli ?? '—'}) er permanent skrivebeskyttet og kan ikke redigeres her.
-                </Paragraph>
+                </Metatekst>
                 <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
                   <Textfield data-size="sm" label="Kortnavn" value={metaKortnavn} onChange={(e) => setMetaKortnavn(e.target.value)} style={{ flex: 1, minWidth: '12rem' }} />
                   <Textfield data-size="sm" label="Utgiver" value={metaUtgiver} onChange={(e) => setMetaUtgiver(e.target.value)} style={{ flex: 1, minWidth: '12rem' }} />
@@ -1363,9 +1364,9 @@ export default function RettskildeDetalj() {
                     {valgtNode.nummer ?? valgtNode.nodeType}
                     {valgtNode.overskrift && ` — ${valgtNode.overskrift}`}
                   </Heading>
-                  <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)', marginBottom: '1rem' }}>
+                  <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '1rem' }}>
                     {valgtNode.eid}
-                  </Paragraph>
+                  </Metatekst>
 
                   {detalj.kildetype === 'Rundskriv' ? (
                     valgtNode.handbokMetadata ? (
@@ -1433,11 +1434,11 @@ export default function RettskildeDetalj() {
                             border: '1px solid var(--ds-color-warning-border-subtle)',
                           }}
                         >
-                          <Paragraph style={{ width: '100%', margin: 0, fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                          <Metatekst style={{ width: '100%', margin: 0, color: 'var(--ds-color-neutral-text-subtle)' }}>
                             Opprett vilkår fra utdraget «{tagger.find((t) => t.id === opprettVilkarFraTaggId)?.quoteExact}» —
                             juridisk grunnlag fylles automatisk ut fra denne rettskilden og noden. Vilkåret plasseres IKKE
                             automatisk i noe vilkårstre — det gjøres som et eget steg senere.
-                          </Paragraph>
+                          </Metatekst>
                           <Textfield
                             data-size="sm"
                             label="Tittel på vilkåret"
@@ -1507,7 +1508,7 @@ export default function RettskildeDetalj() {
                       <Heading level={4} data-size="2xs" style={{ marginBottom: '0.4rem' }}>
                         Referert fra (punkt 6/9 — koblingen til denne noden, sett fra den andre siden)
                       </Heading>
-                      <ul style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.3rem', fontSize: 'var(--ds-font-size-1)' }}>
+                      <Metatekst as="ul" style={{ margin: 0, padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.3rem' }}>
                         {referertAvTjenesterForNode.map((r, i) => (
                           <li key={`t-${r.tjenesteId}-${i}`}>
                             <Link asChild><RouterLink to={`/tjenester/${r.tjenesteId}`}>{r.tjenesteTittel}</RouterLink></Link>
@@ -1524,7 +1525,7 @@ export default function RettskildeDetalj() {
                             <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}> ({tilEidVisning(r.tilEid)})</span>
                           </li>
                         ))}
-                      </ul>
+                      </Metatekst>
                     </div>
                   )}
 
@@ -1541,30 +1542,30 @@ export default function RettskildeDetalj() {
                       // blokk finnes ikke mer — dette ER den ene erstatningsvisningen for ALLE doctyper).
                       const nettsideLenkerForNode = detalj.kildetype === 'Brukerveiledning' ? nettsideLenker : [];
                       if (nodeReferanser.length === 0 && nettsideLenkerForNode.length === 0) {
-                        return <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>Ingen referanser fra denne noden.</Paragraph>;
+                        return <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Ingen referanser fra denne noden.</Metatekst>;
                       }
                       return (
                         <ul style={{ margin: '0 0 0.75rem', padding: 0, listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '0.4rem' }}>
                           {nodeReferanser.map((r) => {
                             const visningstekst = referanseVisningstekst(r);
                             return (
-                              <li key={r.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--ds-font-size-1)' }}>
+                              <Metatekst as="li" key={r.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                                 <Link asChild>
                                   <RouterLink to={rettskildeLenkeForId(r.tilRettskildeId, r.tilEid)}>{visningstekst}</RouterLink>
                                 </Link>
                                 {visningstekst !== r.tilEid && (
-                                  <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>({r.tilEid})</span>
+                                  <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>({r.tilEid})</Metatekst>
                                 )}
                                 {r.opprinnelse === 'import' ? (
                                   <Tag data-color="neutral" data-size="sm">fra kilden</Tag>
                                 ) : (
                                   <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernReferanse(r.id)}>Fjern</Button>
                                 )}
-                              </li>
+                              </Metatekst>
                             );
                           })}
                           {nettsideLenkerForNode.map((l) => (
-                            <li key={l.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: 'var(--ds-font-size-1)' }}>
+                            <Metatekst as="li" key={l.id} style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                               <Tag data-color={l.type === 'lovdatalenke' ? 'warning' : 'neutral'} data-size="sm">{l.type}</Tag>
                               {l.tilRettskildeId ? (
                                 <Link asChild>
@@ -1574,7 +1575,7 @@ export default function RettskildeDetalj() {
                                 <Link href={l.raaHref} target="_blank" rel="noopener noreferrer">{l.ankerTekst ?? l.raaHref}</Link>
                               )}
                               <Tag data-color="neutral" data-size="sm">fra kilden</Tag>
-                            </li>
+                            </Metatekst>
                           ))}
                         </ul>
                       );
@@ -1605,9 +1606,9 @@ export default function RettskildeDetalj() {
             Denne håndboken omhandler
           </Heading>
           {rettskildeomfang.length === 0 ? (
-            <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
+            <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
               Ingen rettskilder deklarert ennå.
-            </Paragraph>
+            </Metatekst>
           ) : (
             <Table border style={{ marginBottom: '0.75rem' }}>
               <Table.Head>

@@ -4,6 +4,7 @@ import { Alert, Button, Card, Heading, Link, Paragraph, Select, Spinner, Table, 
 import { ApiError, api } from '../api/client';
 import { rettskildeLenke } from '../api/eidLenker';
 import type { KodelisteDto, RettskildeSammendrag } from '../api/types';
+import { Metatekst } from '../entitet/Metatekst';
 
 const STATUSER = ['utkast', 'under_revisjon', 'validert', 'publisert', 'tilbaketrukket', 'arkivert'];
 
@@ -85,7 +86,7 @@ export default function KodelisteDetalj() {
         </Paragraph>
       )}
       {kodeliste.juridiskGrunnlagEid && (
-        <Paragraph style={{ marginBottom: '1.5rem', fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)' }}>
+        <Metatekst style={{ marginBottom: '1.5rem', fontFamily: 'monospace' }}>
           Juridisk grunnlag:{' '}
           {(() => {
             const href = rettskildeLenke(kodeliste.juridiskGrunnlagEid, rettskilder);
@@ -95,7 +96,7 @@ export default function KodelisteDetalj() {
               kodeliste.juridiskGrunnlagEid
             );
           })()}
-        </Paragraph>
+        </Metatekst>
       )}
 
       <section style={{ marginBottom: '2rem' }}>

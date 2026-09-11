@@ -3,6 +3,7 @@ import { useParams } from 'react-router';
 import { Alert, Button, Field, Heading, Label, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { DatasettDto, DatasettVerdiDto, VirksomhetDto } from '../api/types';
+import { Metatekst } from '../entitet/Metatekst';
 
 /** Viser en Datasett-verdi lesbart — de er lagret som JSON (streng/tall/boolsk/liste), ikke rå tekst. */
 function VisVerdi({ verdiJson }: { verdiJson: string }) {
@@ -95,10 +96,10 @@ export default function DatasettDetalj() {
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Kommunale/nasjonale verdier
         </Heading>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
           Standardverdien brukes for enhver virksomhet uten egen registrert verdi — en teknisk
           standardverdi, ikke en juridisk norm om at disse virksomhetene faktisk mangler egne regler.
-        </Paragraph>
+        </Metatekst>
         <Table border style={{ marginBottom: '1rem' }}>
           <Table.Head>
             <Table.Row>

@@ -9,6 +9,7 @@
  */
 import { Tag } from '@digdir/designsystemet-react';
 import type { VilkarstreNode } from './bygging';
+import { Metatekst } from '../entitet/Metatekst';
 
 interface VilkarstreTreProps {
   root: VilkarstreNode;
@@ -49,14 +50,14 @@ function Rad({ node, dybde, valgtId, onSelect }: { node: VilkarstreNode; dybde: 
         </Tag>
         <span style={{ fontWeight: node.erRotnode ? 700 : 500 }}>{node.tittel}</span>
         {node.kind === 'regelnode' && (
-          <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+          <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
             barn: {node.barnOperator}{node.erRotnode ? ' · rotnode' : ''}
-          </span>
+          </Metatekst>
         )}
         {node.kind === 'vilkar' && (
-          <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+          <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
             {node.vilkarstype} · {node.vurderingstype}{node.erFormel ? ' · formel' : ''}
-          </span>
+          </Metatekst>
         )}
       </div>
 
@@ -66,16 +67,16 @@ function Rad({ node, dybde, valgtId, onSelect }: { node: VilkarstreNode; dybde: 
 
       {node.unntak.map((u) => (
         <div key={u.id}>
-          <div
+          <Metatekst as="div"
             style={{
               paddingBlock: 'var(--ds-size-1)',
               paddingInlineStart: `calc(var(--ds-size-3) + ${dybde + 1} * var(--ds-size-5))`,
-              fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-warning-text-default)',
+              color: 'var(--ds-color-warning-text-default)',
             }}
-          >
+>
             <Tag data-size="sm" data-color="warning">Unntak</Tag>{' '}
             {u.tittel} — med mindre «{u.betingelse.tittel}»
-          </div>
+          </Metatekst>
           <Rad node={u.betingelse} dybde={dybde + 2} valgtId={valgtId} onSelect={onSelect} />
         </div>
       ))}

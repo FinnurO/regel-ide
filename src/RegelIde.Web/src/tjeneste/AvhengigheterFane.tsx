@@ -4,6 +4,7 @@ import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner,
 import { ApiError, api } from '../api/client';
 import type { HendelseDto, TjenesteDto, TjenesteavhengighetDto, TjenesteTverrTenantTreffDto } from '../api/types';
 import type { DetaljVisning } from '../entitet/detaljVisning';
+import { Metatekst } from '../entitet/Metatekst';
 
 /** 'for'/'avhengig_av'/'input_til' er de generelle relasjonene; de tre første har en presis
  * betydning (docs/03-domenemodell.md §1.5). Uendret fra tidligere TjenesteDetalj.tsx. */
@@ -113,10 +114,10 @@ export function AvhengigheterFane({ tjenesteId, avhengigheter, setAvhengigheter,
   return (
     <div style={{ maxWidth: '800px' }}>
       <Heading level={2} data-size="xs" style={{ marginBottom: '0.75rem' }}>Tjenesteavhengigheter</Heading>
-      <Paragraph style={{ color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)', marginBottom: '0.75rem' }}>
+      <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
         Rettede, årsaksforklarte koblinger mellom to tjenester (docs/03-domenemodell.md §1.5) — ett
         rettet kant per relasjon, vist med riktig tekst uansett hvilken side du ser fra.
-      </Paragraph>
+      </Metatekst>
       {avhengigheter === null && <Spinner aria-label="Laster …" data-size="sm" />}
       {avhengigheter && avhengigheter.length === 0 && <Paragraph>Ingen tjenesteavhengigheter registrert ennå.</Paragraph>}
       {avhengigheter && avhengigheter.length > 0 && (
@@ -129,10 +130,10 @@ export function AvhengigheterFane({ tjenesteId, avhengigheter, setAvhengigheter,
                 {a.visningstekst}
               </button>
               {a.motpartTjenesteId && (
-                <Link asChild style={{ fontSize: 'var(--ds-font-size-1)' }}><RouterLink to={`/tjenester/${a.motpartTjenesteId}`}>↗</RouterLink></Link>
+                <Metatekst as={Link} asChild><RouterLink to={`/tjenester/${a.motpartTjenesteId}`}>↗</RouterLink></Metatekst>
               )}
               {a.motpartOrganisasjonsnummer && <Tag data-color="info" data-size="sm">org.nr {a.motpartOrganisasjonsnummer}</Tag>}
-              {a.motpartUrl && <Link href={a.motpartUrl} target="_blank" rel="noreferrer" style={{ fontSize: 'var(--ds-font-size-1)' }}>↗</Link>}
+              {a.motpartUrl && <Metatekst as={Link} href={a.motpartUrl} target="_blank" rel="noreferrer">↗</Metatekst>}
               {a.beskrivelse && <Tag data-color="neutral" data-size="sm">{a.beskrivelse}</Tag>}
               <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => fjernAvhengighet(a.id)}>Fjern</Button>
             </li>
@@ -172,26 +173,26 @@ export function AvhengigheterFane({ tjenesteId, avhengigheter, setAvhengigheter,
       </form>
 
       <div style={{ paddingTop: '0.75rem', borderTop: '1px solid var(--ds-color-neutral-border-subtle)' }}>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
           Eller finn en ANNEN virksomhets publiserte tjeneste, eller — hvis den ikke finnes som en ekte
           tjeneste i Regel-IDE i det hele tatt — oppgi den som en ekstern referanse manuelt nedenfor.
           Navn er det eneste påkrevde feltet; organisasjonsnummer brukes som bindingsnøkkel når
           motparten faktisk har et, men en konseptuell motpart uten et ekte norsk orgnummer (f.eks. en
           utenlandsk myndighet) kan opprettes med navn alene.
-        </Paragraph>
+        </Metatekst>
         <Textfield data-size="sm" label="Søk i andre virksomheters publiserte tjenester" value={tverrTenantSok}
           onChange={(e) => setTverrTenantSok(e.target.value)} style={{ maxWidth: '24rem', marginBottom: '0.5rem' }} />
-        {tverrTenantSokerLaster && <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Søker …</Paragraph>}
+        {tverrTenantSokerLaster && <Metatekst>Søker …</Metatekst>}
         {!tverrTenantSokerLaster && tverrTenantSok.trim() && tverrTenantTreff.length === 0 && (
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Ingen treff.</Paragraph>
+          <Metatekst>Ingen treff.</Metatekst>
         )}
         {tverrTenantTreff.length > 0 && (
           <ul style={{ maxHeight: '12rem', overflow: 'auto', marginBottom: '0.5rem' }}>
             {tverrTenantTreff.map((t) => (
               <li key={t.id} style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.2rem' }}>
-                <span style={{ flex: 1, fontSize: 'var(--ds-font-size-1)' }}>
+                <Metatekst as="span" style={{ flex: 1 }}>
                   {t.tittel} <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>({t.virksomhetNavn})</span>
-                </span>
+                </Metatekst>
                 <Button data-size="sm" variant="tertiary" onClick={() => velgTilTjeneste(t.id, t)}>Velg</Button>
               </li>
             ))}

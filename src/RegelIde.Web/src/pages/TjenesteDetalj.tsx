@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink, useParams } from 'react-router';
-import { Alert, Button, Link, Paragraph, Spinner, Tabs, Tag } from '@digdir/designsystemet-react';
+import { Alert, Button, Heading, Link, Spinner, Tabs, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api, apiUrl } from '../api/client';
 import { eidVisningstekst } from '../api/eidLenker';
 import type {
@@ -20,6 +20,7 @@ import { AvhengigheterFane } from '../tjeneste/AvhengigheterFane';
 import { KontekstPanel, type KontekstPanelGruppe } from '../entitet/KontekstPanel';
 import type { DetaljVisning } from '../entitet/detaljVisning';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
+import { Metatekst } from '../entitet/Metatekst';
 
 /**
  * Tjeneste-siden — redesignet (2026-08-27) fra ett 1253-linjers, endimensjonalt skjema
@@ -176,7 +177,7 @@ export default function TjenesteDetalj() {
   return (
     <div className="tjenestedetalj-fullbredde" style={{ display: 'flex', gap: '0', height: '100%' }}>
       <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-        <nav aria-label="Brødsmulesti" style={{ display: 'flex', gap: '0.4rem', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+        <Metatekst as="nav" aria-label="Brødsmulesti" style={{ display: 'flex', gap: '0.4rem', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
           <Link asChild><RouterLink to="/tjenester">Tjenester</RouterLink></Link>
           <span>/</span>
           {section === 'oversikt' ? (
@@ -191,11 +192,11 @@ export default function TjenesteDetalj() {
               <span style={{ color: 'var(--ds-color-neutral-text-default)' }}>{SEKSJON_LABELER[section]}</span>
             </>
           )}
-        </nav>
+        </Metatekst>
 
         <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', gap: '1rem', marginBottom: '0.6rem' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <h1 className="h1" style={{ fontSize: 'var(--ds-font-size-7)', fontWeight: 500, margin: 0 }}>{tjeneste.tittel}</h1>
+            <Heading level={1} data-size="lg" style={{ margin: 0 }}>{tjeneste.tittel}</Heading>
             <Tag data-color="neutral" data-size="sm">{tjeneste.status}</Tag>
           </div>
           <Button variant="secondary" data-size="sm" onClick={() => (visModelleksport ? setVisModelleksport(false) : apneModelleksport())}>
@@ -209,15 +210,15 @@ export default function TjenesteDetalj() {
             {modelleksportFeil && <Alert data-color="danger">{modelleksportFeil}</Alert>}
             {modelleksport && (
               <>
-                <pre style={{
+                <Metatekst as="pre" style={{
                   maxHeight: '16rem', overflow: 'auto', padding: '0.75rem 1rem', borderRadius: 'var(--ds-border-radius-md)',
-                  background: 'var(--ds-color-neutral-surface-tinted)', fontSize: 'var(--ds-font-size-1)', margin: '0 0 0.4rem',
+                  background: 'var(--ds-color-neutral-surface-tinted)', margin: '0 0 0.4rem',
                 }}>
                   {JSON.stringify(modelleksport, null, 2)}
-                </pre>
-                <Link href={apiUrl(`/api/tjenester/${tjeneste.id}/modelleksport`)} target="_blank" rel="noreferrer" style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                </Metatekst>
+                <Metatekst as={Link} href={apiUrl(`/api/tjenester/${tjeneste.id}/modelleksport`)} target="_blank" rel="noreferrer">
                   Åpne full respons i ny fane →
-                </Link>
+                </Metatekst>
               </>
             )}
           </div>
@@ -238,25 +239,25 @@ export default function TjenesteDetalj() {
             border: '1px solid var(--ds-color-neutral-border-subtle)', borderRadius: 'var(--ds-border-radius-md)',
             padding: '0.75rem', marginBottom: '0.75rem', maxWidth: '24rem',
           }}>
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', fontWeight: 600, marginBottom: '0.4rem' }}>Rekkefølge og synlighet</Paragraph>
+            <Metatekst style={{ fontWeight: 600, marginBottom: '0.4rem' }}>Rekkefølge og synlighet</Metatekst>
             {synligeSeksjoner.map((k, idx) => (
-              <div key={k} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.25rem 0', fontSize: 'var(--ds-font-size-1)' }}>
+              <Metatekst as="div" key={k} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.25rem 0' }}>
                 <span>{SEKSJON_LABELER[k]}</span>
                 <span style={{ display: 'flex', gap: '0.2rem' }}>
                   <Button variant="tertiary" data-size="sm" disabled={idx === 0} onClick={() => flyttSeksjon(k, -1)} style={{ minWidth: 0, padding: '0 0.3rem' }}>↑</Button>
                   <Button variant="tertiary" data-size="sm" disabled={idx === synligeSeksjoner.length - 1} onClick={() => flyttSeksjon(k, 1)} style={{ minWidth: 0, padding: '0 0.3rem' }}>↓</Button>
                   <Button variant="tertiary" data-size="sm" onClick={() => { skjulSeksjon(k); if (section === k) setSection('oversikt'); }} style={{ minWidth: 0, padding: '0 0.3rem' }}>✕</Button>
                 </span>
-              </div>
+              </Metatekst>
             ))}
             {skjulteSeksjoner.length > 0 && (
               <>
-                <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', fontWeight: 600, margin: '0.6rem 0 0.3rem' }}>Skjult</Paragraph>
+                <Metatekst style={{ fontWeight: 600, margin: '0.6rem 0 0.3rem' }}>Skjult</Metatekst>
                 {skjulteSeksjoner.map((k) => (
-                  <div key={k} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.25rem 0', fontSize: 'var(--ds-font-size-1)', opacity: 0.7 }}>
+                  <Metatekst as="div" key={k} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0.25rem 0', opacity: 0.7 }}>
                     <span>{SEKSJON_LABELER[k]}</span>
                     <Button variant="tertiary" data-size="sm" onClick={() => visSeksjon(k)} style={{ minWidth: 0, padding: '0 0.3rem' }}>↺</Button>
-                  </div>
+                  </Metatekst>
                 ))}
               </>
             )}

@@ -17,6 +17,7 @@ import { rettskildeLenke } from '../api/eidLenker';
 import type { RettskildeSammendrag, VeiledningDto, VeiledningNodeDto, VirksomhetDto } from '../api/types';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { DokumenttypeTag } from '../handbok/DokumenttypeTag';
+import { Metatekst } from '../entitet/Metatekst';
 
 function VisVerdi({ verdiJson }: { verdiJson: string }) {
   try {
@@ -39,7 +40,7 @@ function VeiledningNode({ node, dybde, rettskilder }: { node: VeiledningNodeDto;
       </div>
       {node.beskrivelse && <Paragraph style={{ marginBottom: '0.3rem' }}>{node.beskrivelse}</Paragraph>}
       {node.juridiskGrunnlag.length > 0 && (
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.3rem' }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.3rem' }}>
           Hjemmel:{' '}
           {node.juridiskGrunnlag.map((g, i) => {
             const href = rettskildeLenke(g.eId, rettskilder);
@@ -54,12 +55,12 @@ function VeiledningNode({ node, dybde, rettskilder }: { node: VeiledningNodeDto;
               </span>
             );
           })}
-        </Paragraph>
+        </Metatekst>
       )}
       {node.skjonnsmomenter.length > 0 && (
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.3rem' }}>
+        <Metatekst style={{ marginBottom: '0.3rem' }}>
           Momenter i skjønnsvurderingen: {node.skjonnsmomenter.map((m) => m.navn).join(', ')}.
-        </Paragraph>
+        </Metatekst>
       )}
 
       {node.inputDatasettVerdier.length > 0 && (
@@ -79,7 +80,7 @@ function VeiledningNode({ node, dybde, rettskilder }: { node: VeiledningNodeDto;
                   <VisVerdi verdiJson={v.verdiJson} />
                   {v.erStandardverdi && <Tag data-color="neutral" data-size="sm" style={{ marginLeft: '0.4rem' }}>standard</Tag>}
                 </Table.Cell>
-                <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{v.kilde ?? '—'}</Table.Cell>
+                <Metatekst as={Table.Cell}>{v.kilde ?? '—'}</Metatekst>
               </Table.Row>
             ))}
           </Table.Body>
@@ -100,7 +101,7 @@ function VeiledningNode({ node, dybde, rettskilder }: { node: VeiledningNodeDto;
           <Paragraph style={{ marginBottom: '0.3rem' }}>
             <strong>Unntak: {u.tittel}</strong> — med mindre «{u.betingelseTittel}»
           </Paragraph>
-          {u.beskrivelse && <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.3rem' }}>{u.beskrivelse}</Paragraph>}
+          {u.beskrivelse && <Metatekst style={{ marginBottom: '0.3rem' }}>{u.beskrivelse}</Metatekst>}
           {u.kommentarer.map((k) => (
             <div key={k.id} style={{ marginBottom: '0.3rem' }}>
               <DokumenttypeTag dokumenttype={k.dokumenttype} style={{ marginBottom: '0.2rem' }} />
@@ -137,11 +138,11 @@ export default function TjenesteVeiledning() {
   return (
     <>
       <Heading level={1} data-size="lg" style={{ marginBottom: '0.5rem' }}>Veiledning: {veiledning.tjenesteTittel}</Heading>
-      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '1rem' }}>
+      <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '1rem' }}>
         Vilkårstreet rendret i beslutningsorden, med kommunale/nasjonale parameterverdier og
         veiledningskommentarer vevd inn per node — ikke en persistert dokumentversjon, alltid
         gjeldende tilstand.
-      </Paragraph>
+      </Metatekst>
       <VirksomhetVelger
         virksomheter={virksomheter}
         value={virksomhetId}

@@ -10,6 +10,7 @@ import { LeggTilMyndighetstildelingForm } from '../virksomhet/LeggTilMyndighetst
 import { RelasjonstekstMedLenke } from '../virksomhet/RelasjonstekstMedLenke';
 import { paragrafEtikett } from '../rettskilde/paragrafEtikett';
 import { LeggTilVirksomhetRelasjonForm } from '../virksomhet/LeggTilVirksomhetRelasjonForm';
+import { Metatekst } from '../entitet/Metatekst';
 
 /** [Ny, issue #157] Rad-etiketter for bekreftelsesdialogen — KUN de feltene som faktisk kan være > 0
  * for en reell virksomhet vises (0-rader skjules, se `SlettVirksomhetSeksjon` under). Rekkefølgen her
@@ -245,11 +246,11 @@ export default function VirksomhetDetalj() {
 
   return (
     <>
-      <nav aria-label="Brødsmulesti" style={{ display: 'flex', gap: '0.4rem', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+      <Metatekst as="nav" aria-label="Brødsmulesti" style={{ display: 'flex', gap: '0.4rem', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
         <Link asChild><RouterLink to="/virksomheter">Virksomheter</RouterLink></Link>
         <span>/</span>
         <span style={{ color: 'var(--ds-color-neutral-text-default)' }}>{virksomhet.visningsnavn}</span>
-      </nav>
+      </Metatekst>
 
       {/* [ENDRET, registernavn-runden, 2026-09-08] visningsnavn i brødsmule og H1; registerets egen
           form står i grunndata-tabellen under («Registrert navn (Brreg)»). Se VirksomhetDto i
@@ -284,10 +285,10 @@ export default function VirksomhetDetalj() {
                   <Table.HeaderCell>Registrert navn (Brreg)</Table.HeaderCell>
                   <Table.Cell>
                     {virksomhet.navn}
-                    <span style={{ display: 'block', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                    <Metatekst as="span" style={{ display: 'block', color: 'var(--ds-color-neutral-text-subtle)' }}>
                       Beholdes i registerets egen form (issue #158). Navnet som vises ellers i appen er
                       virksomhetens gjeldende navneform.
-                    </span>
+                    </Metatekst>
                   </Table.Cell>
                 </Table.Row>
               )}
@@ -340,12 +341,12 @@ export default function VirksomhetDetalj() {
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Relasjoner til andre virksomheter
         </Heading>
-        <Paragraph style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
+        <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
           Navngitte relasjoner til BESTEMTE, konkrete virksomheter (f.eks. «underlagt», «sekretariat for»)
           — til forskjell fra «Overordnet enhet» i Grunndata over, som er automatisk Brreg-avledet uten
           hjemmel. Listen viser relasjoner i BEGGE retninger fra denne virksomhetens ståsted — samme rad
           kan altså vises med ulik tekst på motpartens side.
-        </Paragraph>
+        </Metatekst>
         <Card style={{ padding: relasjoner && relasjoner.length > 0 ? 0 : '1rem', overflow: 'hidden', marginBottom: '0.75rem' }}>
           {!relasjoner && <Spinner aria-label="Laster …" data-size="sm" />}
           {relasjoner && relasjoner.length === 0 && <Paragraph style={{ margin: 0 }}>Ingen relasjoner registrert.</Paragraph>}
@@ -367,7 +368,7 @@ export default function VirksomhetDetalj() {
                         motpartVirksomhetId={r.motpartVirksomhetId}
                       />
                     </Table.Cell>
-                    <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                    <Metatekst as={Table.Cell}>
                       {r.hjemmelRettskildeId ? (
                         <>
                           <Link asChild>
@@ -392,7 +393,7 @@ export default function VirksomhetDetalj() {
                       ) : (
                         '—'
                       )}
-                    </Table.Cell>
+                    </Metatekst>
                   </Table.Row>
                 ))}
               </Table.Body>
@@ -419,10 +420,10 @@ export default function VirksomhetDetalj() {
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Navneformer i rettskildetekst
         </Heading>
-        <Paragraph style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
+        <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
           Alle navneformer under peker på samme virksomhet — synonymer (f.eks. «Fylkesmann»/«Statsforvalter») er bare flere rader, ingen egen mekanisme.
           «Brukt i» viser hvor navneformen faktisk er tagget i en rettskildetekst, med lenke til paragrafen.
-        </Paragraph>
+        </Metatekst>
         <Card style={{ padding: begrep && begrep.length > 0 ? 0 : '1rem', overflow: 'hidden', marginBottom: '0.75rem' }}>
           {!begrep && <Spinner aria-label="Laster …" data-size="sm" />}
           {begrep && begrep.length === 0 && <Paragraph style={{ margin: 0 }}>Ingen navneformer registrert ennå.</Paragraph>}
@@ -466,7 +467,7 @@ export default function VirksomhetDetalj() {
                       *
                       * `null` = laster ⇒ Spinner. «Ikke brukt ennå» skal ALDRI vises mens data
                       * fortsatt lastes (docs/09 §15) — da er svaret ikke tomt, bare ikke kommet. */}
-                    <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                    <Metatekst as={Table.Cell}>
                       {!whereUsed && <Spinner aria-label="Laster …" data-size="xs" />}
                       {whereUsed && (() => {
                         const forekomster = whereUsed.navneformForekomster.filter((f) => f.navneformId === b.id);
@@ -491,7 +492,7 @@ export default function VirksomhetDetalj() {
                           </ul>
                         );
                       })()}
-                    </Table.Cell>
+                    </Metatekst>
                     {/* [Ny, 2026-09-09, issue #135] Fjern navneform. Åpner en dialog framfor å slette
                       * direkte: sletting tar med tekst-taggene som peker på navneformen, og antallet
                       * står i «Brukt i»-kolonnen rett til venstre — men det skal SIES, ikke leses ut
@@ -580,11 +581,11 @@ export default function VirksomhetDetalj() {
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Myndighetstildelinger
         </Heading>
-        <Paragraph style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
+        <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
           Gruppebegrep (f.eks. «forurensningsmyndighet») tildelt denne virksomheten gjennom en forskrift.
           Gyldighet arves fra hjemmelen, og kan i tillegg avgrenses av en egen gyldighetsperiode under
           (de aller fleste tildelinger er permanente og viser ingen periode).
-        </Paragraph>
+        </Metatekst>
         <Card style={{ padding: tildelinger && tildelinger.length > 0 ? 0 : '1rem', overflow: 'hidden', marginBottom: '0.75rem' }}>
           {!tildelinger && <Spinner aria-label="Laster …" data-size="sm" />}
           {tildelinger && tildelinger.length === 0 && <Paragraph style={{ margin: 0 }}>Ingen myndighetstildelinger registrert.</Paragraph>}
@@ -619,7 +620,7 @@ export default function VirksomhetDetalj() {
                         );
                       })()}
                     </Table.Cell>
-                    <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                    <Metatekst as={Table.Cell}>
                       {t.paragrafspenn
                         .map((p) =>
                           p.tilEid
@@ -627,7 +628,7 @@ export default function VirksomhetDetalj() {
                             : visNodeKort(t.hjemmelRettskildeId, p.fraEid),
                         )
                         .join(', ')}
-                    </Table.Cell>
+                    </Metatekst>
                     <Table.Cell>{t.vilkaar ?? '—'}</Table.Cell>
                     <Table.Cell>{t.gyldigFra || t.gyldigTil ? `${t.gyldigFra ?? ''}–${t.gyldigTil ?? ''}` : '—'}</Table.Cell>
                   </Table.Row>
@@ -655,10 +656,10 @@ export default function VirksomhetDetalj() {
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Ansvarlig for
         </Heading>
-        <Paragraph style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
+        <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
           Gjeldende lover/forskrifter der Lovdata oppgir denne virksomheten som ansvarlig departement
           (eksakt navnetreff, ingen fuzzy-matching — se rettskildens egen "Ansvarlig departement"-felt).
-        </Paragraph>
+        </Metatekst>
         <Card style={{ padding: rettskilderAnsvarligFor && rettskilderAnsvarligFor.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
           {!rettskilderAnsvarligFor && <Spinner aria-label="Laster …" data-size="sm" />}
           {rettskilderAnsvarligFor && rettskilderAnsvarligFor.length === 0 && (
@@ -691,11 +692,11 @@ export default function VirksomhetDetalj() {
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Fastsatt av denne virksomheten
         </Heading>
-        <Paragraph style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
+        <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
           Gjeldende rettskilder der «Fastsatt av»-frasen i hjemmelslinja peker på denne virksomheten —
           matchet mot registernavnet og virksomhetens navneformer. «Fastsatt av styret ved X» regnes
           som fastsatt av X: styret er organet innad, institusjonen er den katalogen kjenner.
-        </Paragraph>
+        </Metatekst>
         <Card style={{ padding: rettskilderFastsattAv && rettskilderFastsattAv.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
           {!rettskilderFastsattAv && <Spinner aria-label="Laster …" data-size="sm" />}
           {rettskilderFastsattAv && rettskilderFastsattAv.length === 0 && (
@@ -724,10 +725,10 @@ export default function VirksomhetDetalj() {
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Ventende kandidater
         </Heading>
-        <Paragraph style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)', fontSize: 'var(--ds-font-size-1)' }}>
+        <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
           Funn fra tekstsøk som ikke er godkjent eller avvist ennå.{' '}
           <Link asChild><RouterLink to={`/virksomhet-kandidater?virksomhetId=${id}`}>Se full kandidatliste (alle statuser, filtrerbar)</RouterLink></Link>
-        </Paragraph>
+        </Metatekst>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.75rem' }}>
           <Button data-size="sm" variant="secondary" onClick={kjorSveip} disabled={sveiper}>
             {sveiper ? 'Sveiper …' : 'Kjør sveip for denne virksomheten'}
@@ -753,7 +754,7 @@ export default function VirksomhetDetalj() {
               <Table.Body>
                 {kandidater.map((k) => (
                   <Table.Row key={k.id}>
-                    <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                    <Metatekst as={Table.Cell}>
                       {/* [Rettet, 2026-09-02, issue #115] "Node"-kolonnen er den ENESTE plassen i
                           denne tabellen som viser hvilken rettskilde treffet gjelder (ingen egen
                           "Rettskilde"-kolonne) — derfor kilde OG paragraf her, ikke bare paragrafen. */}
@@ -762,7 +763,7 @@ export default function VirksomhetDetalj() {
                         const kildeNavn = rettskilde ? rettskilde.tittel : k.rettskildeId;
                         return `${kildeNavn} — ${visNodeKort(k.rettskildeId, k.nodeEid)}`;
                       })()}
-                    </Table.Cell>
+                    </Metatekst>
                     <Table.Cell style={{ display: 'flex', gap: '0.5rem' }}>
                       <Button
                         data-size="sm"
@@ -854,10 +855,10 @@ function SlettVirksomhetSeksjon({
         Farlig sone
       </Heading>
       <Card style={{ padding: '1rem', borderColor: 'var(--ds-color-danger-border-default)' }}>
-        <Paragraph style={{ marginBottom: '0.75rem', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+        <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
           Sletter virksomheten og ALT tilknyttet innhold den eier (tjenester, rettskilder, begreper,
           brukere m.fl.) — ingen tilbakestilling. Du får se nøyaktig hva som rammes før du bekrefter.
-        </Paragraph>
+        </Metatekst>
         {feil && <Alert data-color="danger" style={{ marginBottom: '0.75rem' }}>{feil}</Alert>}
         <Button data-size="sm" data-color="danger" variant="secondary" onClick={apneDialog} disabled={henterOversikt}>
           {henterOversikt ? 'Henter oversikt …' : 'Slett virksomhet'}
@@ -886,10 +887,10 @@ function SlettVirksomhetSeksjon({
                 </Table.Body>
               </Table>
               {underliggende > 0 && (
-                <Paragraph style={{ margin: 0, fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                <Metatekst style={{ margin: 0, color: 'var(--ds-color-neutral-text-subtle)' }}>
                   {underliggende} underliggende virksomhet{underliggende === 1 ? '' : 'er'} mister koblingen til denne som
                   overordnet enhet (slettes IKKE selv).
-                </Paragraph>
+                </Metatekst>
               )}
             </>
           )}

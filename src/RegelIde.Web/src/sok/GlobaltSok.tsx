@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router';
 import { Button, Dialog, EXPERIMENTAL_Suggestion as Suggestion, type SuggestionItem } from '@digdir/designsystemet-react';
 import { api } from '../api/client';
 import type { BegrepDto, RettskildeSammendrag, TjenesteDto, VilkarDto } from '../api/types';
+import { Metatekst } from '../entitet/Metatekst';
 
 /** Øvre grense på antall KOMBINERTE treff mount'et som `<Suggestion.Option>` samtidig — samme
  * "søk-før-mount"-teknikk og grense som `useRettskildeSok` (docs/09 §10), her på tvers av fire
@@ -121,7 +122,7 @@ export function GlobaltSok() {
         style={{ width: '100%', justifyContent: 'space-between', display: 'flex' }}
       >
         Søk overalt
-        <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>Ctrl/⌘+K</span>
+        <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Ctrl/⌘+K</Metatekst>
       </Button>
 
       <Dialog open={apen} onClose={lukk} closeButton="Lukk søk" style={{ maxWidth: '36rem', width: '100%' }}>

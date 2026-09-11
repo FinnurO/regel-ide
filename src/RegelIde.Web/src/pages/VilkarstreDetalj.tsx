@@ -7,6 +7,7 @@ import { byggVilkarstre, flatNodeliste, type VilkarstreNode } from '../vilkarstr
 import { VilkarstreGraf } from '../vilkarstre/VilkarstreGraf';
 import { VilkarstreTre } from '../vilkarstre/VilkarstreTre';
 import { Egenskapspanel, type EgenskapspanelNode } from '../vilkarstre/Egenskapspanel';
+import { Metatekst } from '../entitet/Metatekst';
 
 /**
  * Samme reachability-sjekk som VilkarstreGrafHjelper.KanNaAsync på backend (INV-7), kjørt client-side
@@ -233,11 +234,11 @@ export default function VilkarstreDetalj() {
 
   return (
     <>
-      <nav aria-label="Brødsmulesti" style={{ display: 'flex', gap: '0.4rem', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
+      <Metatekst as="nav" aria-label="Brødsmulesti" style={{ display: 'flex', gap: '0.4rem', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.6rem', flexWrap: 'wrap' }}>
         <Link asChild><RouterLink to="/vilkarstre">Vilkårstre</RouterLink></Link>
         <span>/</span>
         <span style={{ color: 'var(--ds-color-neutral-text-default)' }}>{tre.tittel}</span>
-      </nav>
+      </Metatekst>
 
       <Heading level={1} data-size="lg" style={{ marginTop: '0.5rem', marginBottom: '1rem' }}>
         {tre.tittel}
@@ -271,9 +272,9 @@ export default function VilkarstreDetalj() {
           {visLeggTil && (
             <form onSubmit={leggTil} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginTop: '0.75rem', flexWrap: 'wrap' }}>
               {nyttVilkarUnderRegelnode && (
-                <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', width: '100%', margin: 0 }}>
+                <Metatekst style={{ width: '100%', margin: 0 }}>
                   Kobles automatisk inn som barn av valgt regelnode ved opprettelse.
-                </Paragraph>
+                </Metatekst>
               )}
               <Field>
                 <Label>Type</Label>
@@ -291,13 +292,13 @@ export default function VilkarstreDetalj() {
 
           {(ubrukteVilkar.length > 0 || ubrukteRegelnoder.length > 0) && (
             <div style={{ marginTop: '0.75rem' }}>
-              <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.25rem' }}>
+              <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.25rem' }}>
                 Løse noder — opprettet, men ikke koblet inn i treet ennå (bruk «Koble barn til regelnode» for å plassere dem):
-              </Paragraph>
-              <ul style={{ margin: 0, fontSize: 'var(--ds-font-size-1)' }}>
+              </Metatekst>
+              <Metatekst as="ul" style={{ margin: 0 }}>
                 {ubrukteVilkar.map((v) => <li key={v.id}>{v.tittel} (Vilkår)</li>)}
                 {ubrukteRegelnoder.map((r) => <li key={r.id}>{r.tittel} (Regelnode)</li>)}
-              </ul>
+              </Metatekst>
             </div>
           )}
 
@@ -331,9 +332,9 @@ export default function VilkarstreDetalj() {
               <Button data-size="sm" type="submit" disabled={kobler || !kobleForelder || !kobleBarnId}>
                 {kobler ? 'Kobler …' : 'Koble'}
               </Button>
-              <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', width: '100%', margin: 0 }}>
+              <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', width: '100%', margin: 0 }}>
                 «Barn»-listen viser kun kandidater som ikke ville skapt en sykel (INV-7) med valgt forelder.
-              </Paragraph>
+              </Metatekst>
               {kobleFeil && <Alert data-color="danger" style={{ width: '100%' }}>{kobleFeil}</Alert>}
             </form>
           )}

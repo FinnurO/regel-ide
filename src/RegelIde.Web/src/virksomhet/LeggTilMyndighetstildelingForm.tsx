@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Alert, Button, Card, Field, Label, Paragraph, Select, Table, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Field, Label, Select, Table, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { MyndighetstildelingDto, ParagrafspennParDto, RettskildeNodeDto, RettskildeSammendrag, VirksomhetsbegrepDto } from '../api/types';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
+import { Metatekst } from '../entitet/Metatekst';
 
 export interface LeggTilMyndighetstildelingFormProps {
   virksomhetId: string;
@@ -131,9 +132,9 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
           })}
         </Select>
         {gruppebegrep && gruppebegrep.length === 0 && (
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.2rem' }}>
+          <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.2rem' }}>
             Ingen gruppebegrep opprettet ennå (opprettes via «Koble til …» i lovtekst-visningen, eller <code>POST /api/gruppebegrep</code>).
-          </Paragraph>
+          </Metatekst>
         )}
       </Field>
 
@@ -144,18 +145,18 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
 
       {gruppebegrepId && (
         <div style={{ marginBottom: '0.75rem' }}>
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', fontWeight: 500, marginBottom: '0.4rem' }}>
+          <Metatekst style={{ fontWeight: 500, marginBottom: '0.4rem' }}>
             Paragrafspenn i {lovForGruppebegrep?.tittel ?? 'gruppebegrepets lov'} — minst ett kreves
-          </Paragraph>
+          </Metatekst>
           {paragrafspenn.length > 0 && (
             <Card style={{ padding: 0, overflow: 'hidden', marginBottom: '0.5rem' }}>
               <Table>
                 <Table.Body>
                   {paragrafspenn.map((p, i) => (
                     <Table.Row key={i}>
-                      <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                      <Metatekst as={Table.Cell}>
                         {visSpennTekst(p)}
-                      </Table.Cell>
+                      </Metatekst>
                       <Table.Cell>
                         <Button data-size="sm" variant="tertiary" onClick={() => fjernSpenn(i)}>Fjern</Button>
                       </Table.Cell>
@@ -212,10 +213,10 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
         <Textfield data-size="sm" type="date" label="Gyldig til (valgfritt)" value={gyldigTil}
           onChange={(e) => setGyldigTil(e.target.value)} style={{ flex: 1, minWidth: '12rem' }} />
       </div>
-      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.4rem', marginBottom: '0.75rem' }}>
+      <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.4rem', marginBottom: '0.75rem' }}>
         De aller fleste tildelinger er permanente og bør la begge datofeltene stå tomme — sett dem kun
         for tidsavgrenset medlemskap (f.eks. en vertskommune som slutter å ha et fengsel/mottak).
-      </Paragraph>
+      </Metatekst>
 
       <Button data-size="sm" type="button" onClick={opprett}
         disabled={oppretter || !gruppebegrepId || !hjemmelRettskildeId || paragrafspenn.length === 0}>

@@ -3,6 +3,7 @@ import { Button, Field, Label, Select, Textfield } from '@digdir/designsystemet-
 import { ApiError, api } from '../api/client';
 import type { RettskildeNodeDto, RettskildeSammendrag, TjenesteRegelverksreferanseDto } from '../api/types';
 import { RettskildeVelger } from './RettskildeVelger';
+import { Metatekst } from '../entitet/Metatekst';
 
 export interface KobleRegelverksreferanseFormProps {
   tjenesteId: string;
@@ -88,7 +89,7 @@ export function KobleRegelverksreferanseForm({
       <Button data-size={storrelse} type="submit" disabled={kobler || !rettskildeId || !eid.trim()}>
         {kobler ? 'Kobler …' : 'Koble referanse'}
       </Button>
-      {feilmelding && <span style={{ color: 'var(--ds-color-danger-text-default)', fontSize: 'var(--ds-font-size-1)', width: '100%' }}>{feilmelding}</span>}
+      {feilmelding && <Metatekst as="span" style={{ color: 'var(--ds-color-danger-text-default)', width: '100%' }}>{feilmelding}</Metatekst>}
     </form>
   );
 }

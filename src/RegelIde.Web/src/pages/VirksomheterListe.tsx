@@ -8,6 +8,7 @@ import { usePaginering } from '../tabell/usePaginering';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { NavneformgrunnVelger } from '../virksomhet/Navneformgrunn';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
+import { Metatekst } from '../entitet/Metatekst';
 
 type Sorteringskolonne = 'navn' | 'organisasjonsnummer' | 'forvaltningsniva' | 'aktiv';
 
@@ -222,10 +223,10 @@ function BrregSokPanel({
       <Heading level={2} data-size="sm" style={{ marginBottom: '0.3rem' }}>
         Søk i Brreg og opprett virksomhet
       </Heading>
-      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+      <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
         For virksomheter som mangler i katalogen over — søk på navn eller organisasjonsnummer i
         Brønnøysundregisterets Enhetsregister, og opprett den direkte herfra.
-      </Paragraph>
+      </Metatekst>
       <form onSubmit={sok} style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', marginBottom: '0.75rem' }}>
         <Textfield
           label="Navn eller organisasjonsnummer"
@@ -241,7 +242,7 @@ function BrregSokPanel({
 
       {feil && <Alert data-color="danger" style={{ marginBottom: '0.75rem' }}>{feil}</Alert>}
 
-      {treff && treff.length === 0 && <Paragraph style={{ fontSize: 'var(--ds-font-size-1)' }}>Ingen treff i Brreg.</Paragraph>}
+      {treff && treff.length === 0 && <Metatekst>Ingen treff i Brreg.</Metatekst>}
 
       {treff && treff.length > 0 && (
         <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
@@ -254,13 +255,13 @@ function BrregSokPanel({
               >
                 <span style={{ flex: 1 }}>
                   {t.navn}{' '}
-                  <span style={{ fontFamily: 'monospace', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                  <Metatekst as="span" style={{ fontFamily: 'monospace', color: 'var(--ds-color-neutral-text-subtle)' }}>
                     ({t.organisasjonsnummer})
-                  </span>
+                  </Metatekst>
                   {t.organisasjonsformBeskrivelse && (
-                    <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}> — {t.organisasjonsformBeskrivelse}</span>
+                    <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}> — {t.organisasjonsformBeskrivelse}</Metatekst>
                   )}
-                  {t.poststed && <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>, {t.poststed}</span>}
+                  {t.poststed && <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>, {t.poststed}</Metatekst>}
                   {!t.erAktiv && <Tag data-color="warning" data-size="sm" style={{ marginLeft: '0.4rem' }}>Slettet i Brreg</Tag>}
                 </span>
                 {alleredeICatalogen ? (
@@ -332,11 +333,11 @@ function NavnKunPanel({
       <Heading level={2} data-size="sm" style={{ marginBottom: '0.3rem' }}>
         Opprett virksomhet med bare navn
       </Heading>
-      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+      <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
         For aktører uten egen Brreg-registrering, f.eks. Kystvakten (del av Forsvaret) — «del av
         virksomhet» er valgfri. Navnet slås automatisk opp mot Store norske leksikon; en bekreftet
         artikkel gir en ferdig navneform du kan verifisere under.
-      </Paragraph>
+      </Metatekst>
       <form onSubmit={opprett}>
         <Textfield
           label="Navn"
@@ -465,11 +466,11 @@ function KoblEksisterendeVirksomhetPanel({
       <Heading level={2} data-size="sm" style={{ marginBottom: '0.3rem' }}>
         Er dette et nytt navn for en virksomhet som allerede finnes?
       </Heading>
-      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+      <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
         For når det ikke er en ny virksomhet, men en ny navneform på én som allerede er i katalogen —
         f.eks. «Kredittilsynet» som en eldre betegnelse på Finanstilsynet. Velg virksomheten under;
         navnet legges til som navneform på DEN, ingen ny virksomhet opprettes.
-      </Paragraph>
+      </Metatekst>
       <form onSubmit={koble}>
         <Textfield
           label="Navneform"

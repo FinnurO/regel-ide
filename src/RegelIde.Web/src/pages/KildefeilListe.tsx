@@ -7,6 +7,7 @@ import type { KildefeilDto, KildefeilStatus, RettskildeSammendrag } from '../api
 import { useRettskildeoppslag } from '../kandidater/useNodeEtiketter';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
 import { usePaginering } from '../tabell/usePaginering';
+import { Metatekst } from '../entitet/Metatekst';
 
 const STATUS_FARGE: Record<KildefeilStatus, 'neutral' | 'warning' | 'success' | 'info'> = {
   Ny: 'warning',
@@ -105,18 +106,18 @@ export default function KildefeilListe() {
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
           Hjemmel-validering (issue #233)
         </Heading>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
           Sjekker om hjemmelrelasjonene faktisk peker på bestemmelser som finnes, og registrerer hvert
           «node finnes ikke»-funn i lista under. Idempotent — kjør på nytt uten å duplisere kjente funn.
-        </Paragraph>
+        </Metatekst>
         <div style={{ display: 'flex', gap: '0.75rem', alignItems: 'center', flexWrap: 'wrap' }}>
           <Button data-size="sm" onClick={kjorHjemmelValidering} disabled={registrerer}>
             {registrerer ? 'Kjører …' : 'Kjør hjemmel-validering'}
           </Button>
           {sisteRegistrering && !registrerer && (
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0, color: 'var(--ds-color-neutral-text-subtle)' }}>
+            <Metatekst style={{ margin: 0, color: 'var(--ds-color-neutral-text-subtle)' }}>
               {sisteRegistrering.nye} nye registrert (totalt {sisteRegistrering.totalt} for denne mekanismen).
-            </Paragraph>
+            </Metatekst>
           )}
         </div>
         {registrerFeil && (

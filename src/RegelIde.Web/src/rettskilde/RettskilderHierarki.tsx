@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 import { Details, Heading, Link, List, Paragraph } from '@digdir/designsystemet-react';
 import type { RettskildeHjemmelRelasjonDto, RettskildeSammendrag } from '../api/types';
+import { Metatekst } from '../entitet/Metatekst';
 
 interface RettskilderHierarkiProps {
   /** Korpuset hierarkiet bygges fra — kalleren har allerede anvendt «aktiv»/departement-filteret
@@ -148,9 +149,9 @@ function DepartementGruppeRad({ gruppe, filterAktiv }: { gruppe: DepartementGrup
       <Details.Summary>
         <Heading level={2} data-size="sm" style={{ display: 'inline', margin: 0 }}>
           {gruppe.departement}{' '}
-          <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', fontWeight: 400 }}>
+          <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)', fontWeight: 400 }}>
             ({gruppe.lover.length} {gruppe.lover.length === 1 ? 'lov' : 'lover'})
-          </span>
+          </Metatekst>
         </Heading>
       </Details.Summary>
       <Details.Content>
@@ -175,16 +176,16 @@ function LovRad({ lov, forskrifter }: { lov: RettskildeSammendrag; forskrifter: 
             <RouterLink to={`/rettskilder/${lov.id}`}>{lov.tittel}</RouterLink>
           </Link>
         </span>{' '}
-        <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+        <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
           ({forskrifter.length} {forskrifter.length === 1 ? 'forskrift' : 'forskrifter'})
-        </span>
+        </Metatekst>
       </Details.Summary>
       <Details.Content>
         {apen &&
           (forskrifter.length === 0 ? (
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+            <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
               Ingen forskrifter hjemlet i denne loven.
-            </Paragraph>
+            </Metatekst>
           ) : (
             <List.Unordered>
               {forskrifter.map((f) => (

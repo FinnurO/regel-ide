@@ -4,6 +4,7 @@ import { Alert, Card, Heading, Link, Paragraph, Spinner, Table, Tag } from '@dig
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
 import { useVirksomheter } from './useVirksomheter';
+import { Metatekst } from '../entitet/Metatekst';
 import type {
   GruppeMedlemskapDto, MyndighetstildelingDto, ParagrafspennParDto, RettskildeSammendrag,
   VirksomhetsbegrepDto,
@@ -77,9 +78,9 @@ function HjemmelCelle({
         <RouterLink to={href}>{hjemmel?.tittel ?? 'Se hjemmelen'}</RouterLink>
       </Link>
       {paragrafspenn.length > 0 && (
-        <span style={{
+        <Metatekst as="span" style={{
           display: 'block', fontFamily: 'var(--ds-font-family-mono, monospace)',
-          fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)',
+          color: 'var(--ds-color-neutral-text-subtle)',
         }}>
           {paragrafspenn
             .map((p) => [p.fraEid, p.tilEid]
@@ -87,7 +88,7 @@ function HjemmelCelle({
               .map((e) => paragrafVisning(e, hjemmel?.eli))
               .join(' – '))
             .join(', ')}
-        </span>
+        </Metatekst>
       )}
     </>
   );
@@ -160,10 +161,10 @@ export function GruppeMedlemmer({ gruppeBegrepId, rettskilder }: GruppeMedlemmer
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Medlemsgrupper
         </Heading>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
           Grupper som selv er medlem av denne gruppen — ett nivå ned. Hver rad er hjemlet der
           medlemskapet faktisk står, typisk en forskrift, ikke den loven som definerer gruppene.
-        </Paragraph>
+        </Metatekst>
         <Card style={{ padding: medlemsgrupper && medlemsgrupper.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
           {medlemsgrupper === null ? (
             <Spinner aria-label="Laster medlemsgrupper …" data-size="sm" />
@@ -212,10 +213,10 @@ export function GruppeMedlemmer({ gruppeBegrepId, rettskilder }: GruppeMedlemmer
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Virksomheter i gruppen
         </Heading>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
           Konkrete, navngitte virksomheter som er tildelt denne gruppen (myndighetstildelinger).
           Vilkår-kolonnen står bare når tildelingen er avgrenset til noe bestemt.
-        </Paragraph>
+        </Metatekst>
         <Card style={{ padding: tildelinger && tildelinger.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
           {tildelinger === null ? (
             <Spinner aria-label="Laster virksomheter i gruppen …" data-size="sm" />
@@ -269,10 +270,10 @@ export function GruppeMedlemmer({ gruppeBegrepId, rettskilder }: GruppeMedlemmer
         <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
           Medlem av
         </Heading>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
           Grupper denne gruppen selv er medlem av. Det er denne veien plikter arves indirekte: en
           virksomhet i denne gruppen er også omfattet av det som gjelder for gruppene her.
-        </Paragraph>
+        </Metatekst>
         <Card style={{ padding: overordnede && overordnede.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
           {overordnede === null ? (
             <Spinner aria-label="Laster overordnede grupper …" data-size="sm" />

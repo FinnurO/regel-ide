@@ -1,6 +1,7 @@
 import type { CSSProperties } from 'react';
-import { Button, Heading, Paragraph, Tabs } from '@digdir/designsystemet-react';
+import { Button, Heading, Tabs } from '@digdir/designsystemet-react';
 import type { DetaljVisning } from './detaljVisning';
+import { Metatekst } from './Metatekst';
 
 export interface KontekstPanelItem {
   key: string;
@@ -46,7 +47,7 @@ function GruppeListe({ grupper }: { grupper: KontekstPanelGruppe[] }) {
             {gruppe.heading}
           </Heading>
           {gruppe.items.length === 0 && (
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>Ingen ennå.</Paragraph>
+            <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Ingen ennå.</Metatekst>
           )}
           {gruppe.items.map((item) => (
             <button key={item.key} type="button" style={RAD_STIL} onClick={item.onClick}>
@@ -110,17 +111,17 @@ export function KontekstPanel({
           <GruppeListe grupper={grupper} />
         ) : selectedDetail ? (
           <>
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.2rem' }}>{selectedDetail.meta}</Paragraph>
+            <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.2rem' }}>{selectedDetail.meta}</Metatekst>
             <Heading level={3} data-size="xs" style={{ marginBottom: '0.5rem' }}>{selectedDetail.title}</Heading>
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', lineHeight: 1.6, marginBottom: '0.75rem' }}>
+            <Metatekst style={{ lineHeight: 1.6, marginBottom: '0.75rem' }}>
               {selectedDetail.body ?? 'Ingen ytterligere tekst å vise.'}
-            </Paragraph>
+            </Metatekst>
             <Button variant="secondary" data-size="sm" onClick={onClearDetail}>Lukk</Button>
           </>
         ) : (
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+          <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
             Klikk en rad i listen over — eller en §-referanse på et felt — for å se detaljer her.
-          </Paragraph>
+          </Metatekst>
         )}
       </div>
     </div>

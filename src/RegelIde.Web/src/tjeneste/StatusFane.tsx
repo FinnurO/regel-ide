@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Alert, Card, Heading, Paragraph } from '@digdir/designsystemet-react';
+import { Alert, Card, Heading } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { TjenesteDto } from '../api/types';
 import { StatusStepper } from '../entitet/StatusStepper';
+import { Metatekst } from '../entitet/Metatekst';
 
 export interface StatusFaneProps {
   tjeneste: TjenesteDto;
@@ -34,9 +35,9 @@ export function StatusFane({ tjeneste, onTjenesteOppdatert }: StatusFaneProps) {
       <Heading level={2} data-size="xs" style={{ marginBottom: '0.6rem' }}>Status</Heading>
       <StatusStepper status={tjeneste.status} onChange={endreStatus} disabled={statusEndres} />
       {feil && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{feil}</Alert>}
-      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.6rem' }}>
+      <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.6rem' }}>
         Å sette status til «publisert» gjør tjenesten synlig i innbyggerveiledningen.
-      </Paragraph>
+      </Metatekst>
     </Card>
   );
 }

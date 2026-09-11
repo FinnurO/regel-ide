@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Button, Details, Textfield } from '@digdir/designsystemet-react';
+import { Metatekst } from './Metatekst';
 
 export interface AccordionProps {
   apen: boolean;
@@ -39,7 +40,7 @@ export function Accordion({
             />
           ) : (
             <span style={{ fontWeight: 600 }}>
-              {tittel}{tittelSuffiks && <span style={{ fontWeight: 400, fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginLeft: '0.4rem' }}>{tittelSuffiks}</span>}
+              {tittel}{tittelSuffiks && <Metatekst as="span" style={{ fontWeight: 400, color: 'var(--ds-color-neutral-text-subtle)', marginLeft: '0.4rem' }}>{tittelSuffiks}</Metatekst>}
             </span>
           )}
           <span style={{ display: 'flex', gap: '0.2rem' }} onClick={(e) => e.stopPropagation()}>

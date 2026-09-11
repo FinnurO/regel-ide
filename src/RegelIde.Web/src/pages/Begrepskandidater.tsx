@@ -14,6 +14,7 @@ import { useKandidatvalg } from '../kandidater/useKandidatvalg';
 import { useNodeEtiketter, useRettskildeoppslag } from '../kandidater/useNodeEtiketter';
 import { Massehandlingsrad } from '../kandidater/Massehandlingsrad';
 import { KandidatStatusTag } from '../kandidater/KandidatStatusTag';
+import { Metatekst } from '../entitet/Metatekst';
 
 type Sorteringskolonne = 'begrep' | 'monster' | 'rettskilde' | 'status' | 'opprettet';
 
@@ -415,22 +416,22 @@ export default function Begrepskandidater() {
       <Heading level={1} data-size="lg" style={{ marginBottom: '0.2rem' }}>
         Begrepskandidater
       </Heading>
-      <Paragraph style={{ marginBottom: '1.25rem', fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+      <Metatekst style={{ marginBottom: '1.25rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
         Deterministisk (regex-basert) sveip etter begrepsdefinisjoner i rettskildetekst (M1: eksplisitt
         definisjonsliste, M11: egen definisjonsparagraf, docs/24) — godkjenn for å opprette et begrep i
         en valgt virksomhets register pluss en ekte tekst-tagg, avvis for å fjerne fra køen. Egen kø fra{' '}
         <Link asChild><RouterLink to="/begreper/forslag">KI-forslag begrep</RouterLink></Link>, som
         opererer direkte på selve begrepsregisteret.
-      </Paragraph>
+      </Metatekst>
 
       <Card style={{ padding: '1rem', marginBottom: '1.5rem' }}>
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
           Kjør sveip
         </Heading>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.5rem' }}>
+        <Metatekst style={{ marginBottom: '0.5rem' }}>
           Ingen rettskilde valgt = hele det importerte korpuset. Idempotent — kan kjøres flere ganger
           uten duplikater.
-        </Paragraph>
+        </Metatekst>
         <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
           <RettskildeVelger rettskilder={rettskilder} value={sveipRettskildeId} onChange={setSveipRettskildeId} label="Rettskilde (tomt = hele korpuset)" />
           <Button data-size="sm" onClick={kjorSveip} disabled={sveiper}>
@@ -514,10 +515,10 @@ export default function Begrepskandidater() {
         <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
           Slett avviste begrepskandidater
         </Heading>
-        <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
           Ekte, irreversibel sletting av 'Avvist'-kandidater — nyttig for å tømme køen før et nytt sveip.
           Respekterer rettskildefilteret over, men IKKE statusfilteret — kun 'Avvist'-rader kan slettes.
-        </Paragraph>
+        </Metatekst>
         <Button
           data-size="sm"
           data-color="danger"
@@ -594,9 +595,9 @@ export default function Begrepskandidater() {
                       <Table.Cell style={{ fontWeight: 500 }}>
                         {f.begrepOriginal}
                         {f.begrepOriginal.toLowerCase() !== f.begrep.toLowerCase() && (
-                          <div style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                          <Metatekst as="div" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
                             normalisert: {f.begrep}
-                          </div>
+                          </Metatekst>
                         )}
                       </Table.Cell>
                       <Table.Cell style={{ maxWidth: '28rem' }}>
@@ -624,13 +625,13 @@ export default function Begrepskandidater() {
                           {KONFIDENS_TEKST[f.konfidens] ?? f.konfidens}
                         </Tag>
                       </Table.Cell>
-                      <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>
+                      <Metatekst as={Table.Cell}>
                         <Link asChild>
                           <RouterLink to={rettskildeLenkeForId(f.rettskildeId, f.nodeEid)} target="_blank">
                             {rettskildeOppslag.tittel(f.rettskildeId)} — {nodeEtiketter.etikett(f.rettskildeId, f.nodeEid)} ↗
                           </RouterLink>
                         </Link>
-                      </Table.Cell>
+                      </Metatekst>
                       <Table.Cell>
                         <KandidatStatusTag status={f.status} />
                       </Table.Cell>
@@ -642,9 +643,9 @@ export default function Begrepskandidater() {
                               <Button data-size="sm" variant="tertiary" onClick={() => avvis(f.id)}>Avvis</Button>
                             </>
                           ) : (
-                            <span style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                            <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
                               {f.behandletAv ? `Behandlet av ${f.behandletAv}` : '—'}
-                            </span>
+                            </Metatekst>
                           )}
                           {/* KUN 'Avvist' — se klassekommentaren/backend-kommentaren for hvorfor. */}
                           {f.status === 'Avvist' && (
@@ -675,11 +676,11 @@ export default function Begrepskandidater() {
           <Heading level={2} data-size="xs" style={{ marginBottom: '0.5rem' }}>
             Godkjenn begrepskandidat
           </Heading>
-          <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.75rem' }}>
+          <Metatekst style={{ marginBottom: '0.75rem' }}>
             «{godkjennForekomst?.begrepOriginal}» opprettes som et nytt begrep i valgt virksomhets
             register, pluss en ekte tekst-tagg i rettskilden. En forekomst er delt/objektiv, men
             registeret krever en eier — velg hvilken virksomhet begrepet skal landes i.
-          </Paragraph>
+          </Metatekst>
           <VirksomhetVelger
             virksomheter={virksomheter}
             value={godkjennVirksomhetId}

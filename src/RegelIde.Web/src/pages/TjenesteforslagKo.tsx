@@ -5,6 +5,7 @@ import { ApiError, api } from '../api/client';
 import type { KunnskapsbibliotekFilDto, KunnskapsbibliotekLenkeDto, MittForslagDto, RettskildeSammendrag, TjenesteforslagDto } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
 import { RettskildeFlervalg } from '../rettskilde/RettskildeFlervalg';
+import { Metatekst } from '../entitet/Metatekst';
 
 /**
  * «Identifiser tjenester» (byggesteg 5 runde 1, docs/06-veikart.md) — foreslår nye Tjeneste-objekter
@@ -262,9 +263,9 @@ export default function TjenesteforslagKo() {
       </Paragraph>
 
       <Heading level={2} data-size="sm">Kunnskapsbibliotek (lenker og filer)</Heading>
-      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginBottom: '0.5rem' }}>
+      <Metatekst style={{ marginBottom: '0.5rem' }}>
         Nettside, PDF eller Word-dokument som beskriver hva virksomheten leverer av tjenester.
-      </Paragraph>
+      </Metatekst>
       {lenker.length > 0 && (
         <ul style={{ marginBottom: '0.75rem' }}>
           {lenker.map((l) => (
@@ -335,10 +336,10 @@ export default function TjenesteforslagKo() {
             <Alert data-color="info" style={{ marginBottom: '0.3rem' }}>{sisteKjoring.melding}</Alert>
           )}
           {(sisteKjoring.inputTokens !== null || sisteKjoring.outputTokens !== null) && (
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)' }}>
+            <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
               Siste KI-kall: {sisteKjoring.inputTokens ?? '—'} input-tokens, {sisteKjoring.outputTokens ?? '—'} output-tokens.
               {sisteKjoring.antallHandlinger !== null && ` ${sisteKjoring.antallHandlinger} handling(er) foreslått under tjenesten(e).`}
-            </Paragraph>
+            </Metatekst>
           )}
         </div>
       )}
@@ -351,9 +352,9 @@ export default function TjenesteforslagKo() {
       {ko && ko.length > 0 && (
         <>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0 }}>
+            <Metatekst style={{ margin: 0 }}>
               {valgte.size} valgt{valgte.size === 1 ? '' : 'e'}
-            </Paragraph>
+            </Metatekst>
             <Button data-size="sm" onClick={() => massehandling('godkjenn')} disabled={valgte.size === 0 || massehandlingKjorer}>
               {massehandlingKjorer ? 'Godkjenner …' : 'Godkjenn valgte'}
             </Button>
@@ -391,8 +392,8 @@ export default function TjenesteforslagKo() {
                   <Table.Cell>
                     <Link asChild><RouterLink to={`/tjenester/${f.tjeneste.id}`}>{f.tjeneste.tittel}</RouterLink></Link>
                   </Table.Cell>
-                  <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{f.tjeneste.beskrivelse ?? '—'}</Table.Cell>
-                  <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{f.aiForslagVersjon ?? '—'}</Table.Cell>
+                  <Metatekst as={Table.Cell}>{f.tjeneste.beskrivelse ?? '—'}</Metatekst>
+                  <Metatekst as={Table.Cell}>{f.aiForslagVersjon ?? '—'}</Metatekst>
                   <Table.Cell>
                     <div style={{ display: 'flex', gap: '0.4rem' }}>
                       <Button variant="tertiary" data-size="sm" onClick={() => avvis(f.tjeneste.id)}>Avvis</Button>
@@ -411,19 +412,19 @@ export default function TjenesteforslagKo() {
       <Heading level={2} data-size="sm" style={{ marginTop: '1.5rem' }}>
         Mine forslag til andre virksomheter
       </Heading>
-      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
+      <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
         Tjenester DENNE virksomheten selv har foreslått til en ANNEN virksomhet via import-wizarden
         («Importer rettighetsmodell»), som fortsatt står ubehandlet der. Bruk «Slett» for å angre —
         f.eks. for å rydde opp etter en test-import før en ny kjøring.
-      </Paragraph>
+      </Metatekst>
       {!mineForslag && <Spinner aria-label="Laster …" data-size="sm" />}
       {mineForslag && mineForslag.length === 0 && <Paragraph>Ingen egne forslag venter hos andre virksomheter.</Paragraph>}
       {mineForslag && mineForslag.length > 0 && (
         <>
           <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', marginBottom: '0.75rem', flexWrap: 'wrap' }}>
-            <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', margin: 0 }}>
+            <Metatekst style={{ margin: 0 }}>
               {valgteMine.size} valgt{valgteMine.size === 1 ? '' : 'e'}
-            </Paragraph>
+            </Metatekst>
             <Button
               data-size="sm"
               variant="secondary"
@@ -463,7 +464,7 @@ export default function TjenesteforslagKo() {
                   <Table.Cell>
                     <Link asChild><RouterLink to={`/tjenester/${f.tjeneste.id}`}>{f.tjeneste.tittel}</RouterLink></Link>
                   </Table.Cell>
-                  <Table.Cell style={{ fontSize: 'var(--ds-font-size-1)' }}>{f.malVirksomhetNavn}</Table.Cell>
+                  <Metatekst as={Table.Cell}>{f.malVirksomhetNavn}</Metatekst>
                   <Table.Cell>
                     <Button variant="tertiary" data-color="danger" data-size="sm" onClick={() => slettMittForslag(f.tjeneste.id)}>Slett</Button>
                   </Table.Cell>
@@ -474,11 +475,11 @@ export default function TjenesteforslagKo() {
         </>
       )}
 
-      <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', marginTop: '1.5rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
+      <Metatekst style={{ marginTop: '1.5rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
         Byggesteg 5 runde 1: KI-klienten er en stub (KiAgentKlientStub) — den returnerer ett fast
         eksempelforslag for å bevise kø-/godkjenningsmekanismen, ikke ekte språkmodell-resonnering.
         Ekte leverandørvalg er en egen, senere beslutning.
-      </Paragraph>
+      </Metatekst>
     </>
   );
 }
