@@ -398,6 +398,22 @@ chatten. Et navngitt eksempel er et startpunkt for undersøkelsen, aldri en utta
 grense for hvor langt jeg selv velger å stoppe. Usikker på om noe hører med i omfanget — ta det med i
 kartleggingen og la Johann eventuelt luke det bort, ikke la det stå ukartlagt fordi det ikke ble nevnt.
 
+## 21. Aldri anta noe — spør om du er usikker
+
+Johann (2026-09-11), rett etter §20: samme design-gjennomgang fortsatte å bli bygget på antatt
+innhold — sidestruktur og feltnavn jeg selv fant sannsynlig, ikke det som faktisk sto i koden. Måtte
+be to ganger («ikke anta noe, men se på reelt innhold») før jeg faktisk leste kildefilene i stedet
+for å mønster-fylle fra det jeg allerede hadde sett andre steder i appen.
+
+Regel: en påstand om hvordan noe ser ut, hva et felt heter, eller hvordan noe oppfører seg, skal
+komme fra faktisk lesing av koden — ikke fra hva som virker sannsynlig gitt mønsteret ellers i
+appen. Er jeg usikker på om en antakelse stemmer, og kan sjekke det (les filen, kjør spørringen,
+åpne siden), gjør det FØR jeg presenterer den som et faktum. Kan jeg ikke sjekke det i øyeblikket —
+si det eksplisitt («ikke verifisert, antatt ut fra mønsteret») i stedet for å skrive det som om det
+var bekreftet, eller spør Johann. Samme prinsipp som §16 («mål det, ikke anta det») og §8 («ingen
+gjettet fallback») — denne gjelder spesifikt PÅSTANDER OM KODEN/APPEN SELV, ikke bare data i
+korpuset.
+
 ## Nyttige kommandoer
 
 Kjør appen (Browser-panelet, aldri `dotnet run` via Bash) — konfigurasjonene heter `regel-ide-api` og
