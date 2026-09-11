@@ -695,30 +695,46 @@ Johann observerte doble scrollbarer på `/navnekandidater` i Chrome ved 100 % zo
 scrollbar-spor tett ved siden av hverandre, ikke sidemenyens og hovedinnholdets naturlige to (som
 sitter langt fra hverandre, én ved x≈260px, én ved høyre kant).
 
-**Årsak**: `.layout` (`App.tsx`) er `height: 100vh` og inneholder to FULLHØYDE paneler som hver
-scroller for seg selv — `.sidebar__nav` og `.innhold`, begge `overflow-y: auto`. Det er en bevisst,
-riktig arkitektur (header/brukerbrikke i sidemenyen skal alltid være synlig uansett hvor lang
-navigasjonslisten blir, jf. §-kommentaren i `index.css`). Problemet er at `100vh` og den faktiske
-synlige viewport-høyden IKKE alltid er nøyaktig samme tall — en kjent, dokumentert avrundingskvirk på
-tvers av nettlesere, som forverres ved enkelte zoom-nivåer (skjermens fysiske piksler deler seg ikke
-alltid jevnt på CSS-pikslene ved f.eks. 100 % på visse skjermer/OS-skaleringer). Blir `.layout` en
-brøkdels piksel høyere enn viewporten, overflower `body` selv med akkurat den brøkdelen — og Chrome
-tegner sin EGEN, native scrollbar for DET i tillegg til `.innhold`s allerede tiltenkte, custom-styla
-scrollbar, rett ved siden av. To scrollbarer for én rulling, synlig ved akkurat de zoom/skjerm-
-kombinasjonene der avrundingen slår ut.
+**Første forklaring var FEIL — selvkorrigert samme runde (§16).** Første antagelse var en
+100vh-vs-viewport avrundingskvirk (skjermens fysiske piksler som ikke deler seg jevnt på CSS-piksler
+ved visse zoom-nivåer). `html, body { overflow: hidden }` ble lagt til på det grunnlaget — men Johann
+oppdaget rett etter at bunnen av siden (pagineringskontrollen på `/begrepskandidater`, «Vis pr.
+side»/sidetall) nå var permanent AVKUTTET og umulig å scrolle til, ikke bare kosmetisk dobbel-
+scrollbar. Det var beviset på at forklaringen var feil: en brøkdels-piksel-avrunding kan ikke
+forklare et konsekvent, MÅLBART tap på 48px av innhold.
+
+**Den faktiske årsaken**: `.innhold` (`index.css`) har `height: 100%` OG `padding: var(--ds-size-6)`
+(24px), men INGEN `box-sizing: border-box`. Nettleserens default `content-box` betyr at padding
+legges UTENPÅ den angitte høyden — elementets faktiske rendrede høyde ble dermed alltid 100% + 2×24px
+= 48px HØYERE enn `.layout` (målt: `.innhold.clientHeight` 768px mot `.layout.offsetHeight` 720px,
+helt uavhengig av zoom). Dette hadde INGENTING med 100vh-avrunding å gjøre — det var en ren
+boksmodell-feil, til stede på ALLE zoom-nivåer hele tiden. Før denne runden ble de 48 pikslene
+absorbert (stygt, men funksjonelt) av at `body` fikk lov til å overflow scroll dem inn i syne — det
+VAR "den doble scrollbaren" Johann så, ikke en synsvilling. Da `overflow: hidden` ble lagt til på
+`html`/`body` uten å først fjerne selve overflow-ÅRSAKEN, forsvant scrollbaren, men de 48 pikslene
+forble fysisk utenfor viewporten og ble nå util­gjengelige i stedet for bare stygt synlige — en reell
+regresjon, ikke en forbedring, inntil dette ble oppdaget og rettet i samme runde.
+
+**Retting**: `.innhold` fikk `box-sizing: border-box`, slik at `height: 100%` inkluderer paddingen i
+stedet for å legge den utenpå. Bekreftet: `.innhold.clientHeight` er nå identisk med
+`.layout.offsetHeight` (720 = 720), scroll til bunn av `/begrepskandidater` viser hele
+pagineringskontrollen.
 
 **Kartlagt (samme runde)**: dette er IKKE en side-spesifikk feil som må rettes 74 steder — `.layout`/
-`.sidebar`/`.innhold` er ÉN delt struktur i `App.tsx`, brukt av HVER ENESTE rute i appen. Symptomet
-viser seg først når hovedinnholdet er langt nok til at `.innhold` selv scroller (de fleste liste-/
-detaljsider), men den underliggende sårbarheten (ytre side kan i teorien alltid overflowe med en
-brøkdels piksel) gjelder alle sider likt. Sjekket for øvrig at appens andre `overflow: auto`-bruk
-(kodevisning i `RettskildeDetalj.tsx`, kontekstpanel i `TjenesteDetalj.tsx`/`KontekstPanel.tsx`,
-korte lister i `AvhengigheterFane.tsx`/`HandlingerFane.tsx` m.fl.) er bevisst avgrensede indre
-scroll-bokser (`maxHeight` satt), ikke berørt av denne sårbarheten — de konkurrerer ikke med den
-ytre siden om scroll.
+`.sidebar`/`.innhold` er ÉN delt struktur i `App.tsx`, brukt av HVER ENESTE rute i appen, så
+boksmodell-feilen rammet alle sider likt, og fiksen retter alle likt. Sjekket for øvrig at appens
+andre `overflow: auto`-bruk (kodevisning i `RettskildeDetalj.tsx`, kontekstpanel i
+`TjenesteDetalj.tsx`/`KontekstPanel.tsx`, korte lister i `AvhengigheterFane.tsx`/`HandlingerFane.tsx`
+m.fl.) er bevisst avgrensede indre scroll-bokser (`maxHeight` satt), ikke berørt av denne
+boksmodell-sårbarheten. `.sidebar__nav` bruker `flex: 1`, ikke `height: 100%` + padding på samme
+element — samme feilmønster gjelder den IKKE på samme måte, ikke sjekket videre utover det.
 
-**Regel**: `html, body { overflow: hidden }` — en permanent, defensiv sperre som garanterer at den
-YTRE siden aldri kan scrolle, uansett om `100vh`-avrundingen noen gang slår til igjen. De to indre
-panelene (`.sidebar__nav`, `.innhold`) er de ENESTE stedene med scroll, som designet — denne regelen
-håndhever det i stedet for å stole på at `100vh` alltid stemmer eksakt med viewporten.
+**Regel, to deler**:
+1. Ethvert element som kombinerer en `height`/`width` basert på foreldrens størrelse (`100%`, eller en
+   `flex`-fordelt størrelse) MED egen `padding`, MÅ ha `box-sizing: border-box` — ellers overflower
+   det foreldren sin med nøyaktig paddingens størrelse, uansett zoom, alltid, ikke bare i grensetilfeller.
+2. `html, body { overflow: hidden }` STÅR VED LAG som en permanent, defensiv sperre mot at den ytre
+   siden noensinne kan scrolle — men den er en sperre, ikke en fiks. Legges en slik sperre til for å
+   dekke over et symptom (en scrollbar), sjekk ALLTID om det faktisk fjerner ekte, tilgjengelig
+   innhold FØR den landes — se selvkorrigeringen over for hvorfor det ikke er en retorisk øvelse.
 
