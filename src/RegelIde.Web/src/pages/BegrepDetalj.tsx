@@ -351,7 +351,7 @@ export default function BegrepDetalj() {
               {bruktIRettskilder.map((r) => (
                 <div key={`${r.rettskildeId}-${r.nodeEid}`}>
                   <Link asChild>
-                    <RouterLink to={`/rettskilder/${r.rettskildeId}?eid=${encodeURIComponent(r.nodeEid)}`}>{r.rettskildeTittel}</RouterLink>
+                    <RouterLink to={rettskildeLenkeForId(r.rettskildeId, r.nodeEid)}>{r.rettskildeTittel}</RouterLink>
                   </Link>
                   <Paragraph style={{ fontSize: 'var(--ds-font-size-1)', color: 'var(--ds-color-neutral-text-subtle)', margin: 0 }}>
                     {r.snippet}
