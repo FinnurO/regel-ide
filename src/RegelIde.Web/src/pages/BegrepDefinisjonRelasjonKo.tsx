@@ -94,7 +94,7 @@ export default function BegrepDefinisjonRelasjonKo() {
 
   return (
     <>
-      <Heading level={1} data-size="md" style={{ marginBottom: '0.5rem' }}>
+      <Heading level={1} data-size="lg" style={{ marginBottom: '0.5rem' }}>
         Relaterte definisjoner
       </Heading>
       <Paragraph style={{ marginBottom: '1rem', maxWidth: '48rem' }} data-size="sm">

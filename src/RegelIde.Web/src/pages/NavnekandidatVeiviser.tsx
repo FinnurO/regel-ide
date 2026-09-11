@@ -5,6 +5,7 @@ import {
   Spinner, Table, Tag, Textfield,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
+import { rettskildeLenkeForId } from '../api/eidLenker';
 import type {
   BrregEnhetDto, NavnekandidatDto, Navneformgrunn, RettskildeDetalj as RettskildeDetaljDto,
   RettskildeNodeDto, VirksomhetsbegrepDto,
@@ -364,7 +365,7 @@ export default function NavnekandidatVeiviser() {
             'Tekst-taggen for forekomsten er koblet til det nye gruppebegrepet.',
             'Navnekandidaten er satt til «Godkjent».',
           ],
-          rettskildeLenke: `/rettskilder/${kandidat.rettskildeId}?eid=${encodeURIComponent(kandidat.nodeEid)}`,
+          rettskildeLenke: rettskildeLenkeForId(kandidat.rettskildeId, kandidat.nodeEid),
           // Gruppe-veien lager en 'begrep'-tagg mot gruppebegrepet — altså laget «Begrep»,
           // IKKE «Virksomhet». Se GodkjennAsync.
           taggLag: 'Begrep',
@@ -436,7 +437,7 @@ export default function NavnekandidatVeiviser() {
             : 'Ingen tekst-tagg ble opprettet — se advarselen under.',
         ],
         rettskildeLenke: resultat.taggId
-          ? `/rettskilder/${resultat.rettskildeId}?eid=${encodeURIComponent(resultat.nodeEid)}`
+          ? rettskildeLenkeForId(resultat.rettskildeId, resultat.nodeEid)
           : null,
         taggLag: resultat.taggId ? 'Virksomhet' : null,
         virksomhetLenke: `/virksomheter/${valgtVirksomhetId}`,
@@ -606,7 +607,7 @@ export default function NavnekandidatVeiviser() {
                   <Table.Cell>
                     {rettskilde ? (
                       <Link asChild>
-                        <RouterLink to={`/rettskilder/${kandidat.rettskildeId}?eid=${encodeURIComponent(kandidat.nodeEid)}`}>
+                        <RouterLink to={rettskildeLenkeForId(kandidat.rettskildeId, kandidat.nodeEid)}>
                           {rettskilde.tittel} ↗
                         </RouterLink>
                       </Link>
