@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
-import { Alert, Heading, Link, Paragraph, Spinner, Table } from '@digdir/designsystemet-react';
+import { Alert, Card, Heading, Link, Paragraph, Spinner, Table } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { DatasettDto } from '../api/types';
 
@@ -26,12 +26,17 @@ export default function DatasettListe() {
         felt, se lenken i tabellen.
       </Paragraph>
 
-      {feil && <Alert data-color="danger">{feil}</Alert>}
-      {!datasett && !feil && <Spinner aria-label="Laster …" data-size="sm" />}
-      {datasett && datasett.length === 0 && <Paragraph>Ingen datasett funnet.</Paragraph>}
+      {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
 
-      {datasett && datasett.length > 0 && (
-        <Table border>
+      {/* [Rettet, issue #279] Card ALLTID rendret (docs/09 §14) — tom-/laste-tilstand er en
+          Paragraph INNI kortet, ikke et betinget-rendret kort utenfor. */}
+      <Card style={{ padding: datasett && datasett.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
+      {!datasett && !feil ? (
+        <Spinner aria-label="Laster …" data-size="sm" />
+      ) : datasett && datasett.length === 0 ? (
+        <Paragraph style={{ margin: 0 }}>Ingen datasett funnet.</Paragraph>
+      ) : datasett && datasett.length > 0 ? (
+        <Table>
           <Table.Head>
             <Table.Row>
               <Table.HeaderCell>Felt</Table.HeaderCell>
@@ -57,7 +62,8 @@ export default function DatasettListe() {
             ))}
           </Table.Body>
         </Table>
-      )}
+      ) : null}
+      </Card>
     </>
   );
 }

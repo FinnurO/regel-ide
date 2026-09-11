@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 import {
-  Alert, Button, Checkbox, Heading, Link, Paragraph, Spinner, Table, Tabs, Tag, Textfield,
+  Alert, Button, Card, Checkbox, Heading, Link, Paragraph, Spinner, Table, Tabs, Tag, Textfield,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { LovdataImportstatusDto, RettskildeHjemmelRelasjonDto, RettskildeSammendrag } from '../api/types';
@@ -311,15 +311,7 @@ export default function RettskilderListe() {
         />
       </div>
 
-      {feil && <Alert data-color="danger">{feil}</Alert>}
-
-      {!rettskilder && !feil && <Spinner aria-label="Laster …" data-size="sm" />}
-
-      {fane !== 'hierarki' && viste && viste.length === 0 && (
-        <Paragraph>
-          {fane === 'aktive' ? 'Ingen rettskilder funnet.' : 'Ingen rettskilder utenfor korpuset funnet.'}
-        </Paragraph>
-      )}
+      {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
 
       {fane === 'hierarki' && (
         <>
@@ -335,8 +327,16 @@ export default function RettskilderListe() {
         </>
       )}
 
-      {viste && viste.length > 0 && fane === 'aktive' && (
-        <Table className="rettskilde-tabell" border data-density="compact">
+      {/* [Rettet, issue #279] Card ALLTID rendret (docs/09 §14) — tom-/laste-tilstand er en
+          Paragraph INNI kortet, ikke et betinget-rendret kort utenfor. */}
+      {fane === 'aktive' && (
+        <Card style={{ padding: viste && viste.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
+        {!rettskilder && !feil ? (
+          <Spinner aria-label="Laster …" data-size="sm" />
+        ) : viste && viste.length === 0 ? (
+          <Paragraph style={{ margin: 0 }}>Ingen rettskilder funnet.</Paragraph>
+        ) : viste && viste.length > 0 ? (
+        <Table className="rettskilde-tabell" data-density="compact">
           <Table.Head>
             <Table.Row>
               <Table.HeaderCell>
@@ -404,10 +404,19 @@ export default function RettskilderListe() {
             ))}
           </Table.Body>
         </Table>
+        ) : null}
+        </Card>
       )}
 
-      {viste && viste.length > 0 && fane === 'utenfor-korpuset' && (
-        <Table className="rettskilde-tabell" border data-density="compact">
+      {/* [Rettet, issue #279] Card ALLTID rendret (docs/09 §14) — samme mønster som aktive-fanen over. */}
+      {fane === 'utenfor-korpuset' && (
+        <Card style={{ padding: viste && viste.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
+        {!rettskilder && !feil ? (
+          <Spinner aria-label="Laster …" data-size="sm" />
+        ) : viste && viste.length === 0 ? (
+          <Paragraph style={{ margin: 0 }}>Ingen rettskilder utenfor korpuset funnet.</Paragraph>
+        ) : viste && viste.length > 0 ? (
+        <Table className="rettskilde-tabell" data-density="compact">
           <Table.Head>
             <Table.Row>
               <Table.HeaderCell>
@@ -484,6 +493,8 @@ export default function RettskilderListe() {
             ))}
           </Table.Body>
         </Table>
+        ) : null}
+        </Card>
       )}
       {fane !== 'hierarki' && viste && viste.length > 0 && <Pagineringskontroll {...paginering} />}
 

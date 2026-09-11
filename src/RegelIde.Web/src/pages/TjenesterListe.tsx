@@ -143,12 +143,16 @@ export default function TjenesterListe() {
         style={{ maxWidth: '20rem', marginBottom: '1rem' }}
       />
 
-      {feil && <Alert data-color="danger">{feil}</Alert>}
-      {!tjenester && !feil && <Spinner aria-label="Laster …" data-size="sm" />}
-      {viste && viste.length === 0 && <Paragraph>Ingen tjenester funnet.</Paragraph>}
+      {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
 
-      {viste && viste.length > 0 && (
-        <Card style={{ padding: 0, overflow: 'hidden' }}>
+      {/* [Rettet, issue #279] Card ALLTID rendret (docs/09 §14) — tom-/laste-tilstand er en
+          Paragraph INNI kortet, ikke et betinget-rendret kort utenfor. */}
+      <Card style={{ padding: viste && viste.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
+      {!tjenester && !feil ? (
+        <Spinner aria-label="Laster …" data-size="sm" />
+      ) : viste && viste.length === 0 ? (
+        <Paragraph style={{ margin: 0 }}>Ingen tjenester funnet.</Paragraph>
+      ) : viste && viste.length > 0 ? (
           <Table>
             <Table.Head>
               <Table.Row>
@@ -194,8 +198,8 @@ export default function TjenesterListe() {
               })}
             </Table.Body>
           </Table>
-        </Card>
-      )}
+      ) : null}
+      </Card>
       {viste && viste.length > 0 && <Pagineringskontroll {...paginering} />}
     </>
   );

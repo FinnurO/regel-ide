@@ -1,5 +1,5 @@
 import { useEffect, useState, type FormEvent } from 'react';
-import { Alert, Button, Field, Heading, Label, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
+import { Alert, Button, Card, Field, Heading, Label, Paragraph, Select, Spinner, Table, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { BrukerDto, BrukerRolle } from '../api/types';
 import { useBruker } from '../bruker/BrukerContext';
@@ -141,14 +141,18 @@ export default function BrukereListe() {
       </form>
       {oppretterFeil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{oppretterFeil}</Alert>}
 
-      {feil && <Alert data-color="danger">{feil}</Alert>}
-      {!brukere && !feil && <Spinner aria-label="Laster …" data-size="sm" />}
-      {brukere && brukere.length === 0 && <Paragraph>Ingen brukere funnet.</Paragraph>}
-
+      {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
       {redigererFeil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{redigererFeil}</Alert>}
 
-      {brukere && brukere.length > 0 && (
-        <Table border>
+      {/* [Rettet, issue #279] Card ALLTID rendret (docs/09 §14) — tom-/laste-tilstand er en
+          Paragraph INNI kortet, ikke et betinget-rendret kort utenfor. */}
+      <Card style={{ padding: brukere && brukere.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
+      {!brukere && !feil ? (
+        <Spinner aria-label="Laster …" data-size="sm" />
+      ) : brukere && brukere.length === 0 ? (
+        <Paragraph style={{ margin: 0 }}>Ingen brukere funnet.</Paragraph>
+      ) : brukere && brukere.length > 0 ? (
+        <Table>
           <Table.Head>
             <Table.Row>
               <Table.HeaderCell>Navn</Table.HeaderCell>
@@ -224,7 +228,8 @@ export default function BrukereListe() {
             })}
           </Table.Body>
         </Table>
-      )}
+      ) : null}
+      </Card>
     </>
   );
 }
