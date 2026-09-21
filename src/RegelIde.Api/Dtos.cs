@@ -866,6 +866,90 @@ public sealed record NavnekandidatGruppemedlemskapResultatDto(
         r.Kandidat.RettskildeId, r.NodeEid, MyndighetstildelingDto.FraEntitet(r.Tildeling));
 }
 
+/// <summary>
+/// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC1-4] Forespørsel for den nye
+/// manuelle inngangsdøren <c>POST /api/navnekandidater/manuell</c> — utløst av «Behandle som
+/// organ/gruppe →» i <c>TagTekst</c>s tag-linje (<c>kind='begrep'</c>), IKKE av et sveip. Samme unike
+/// nøkkel (RettskildeId, NodeEid, StartOffset) som sveipet bruker for GET-or-create, se
+/// <see cref="NavnekandidatOppdagelseTjeneste.OpprettEllerFinnAsync"/>.
+/// </summary>
+public sealed record NavnekandidatManuellRequest(
+    Guid RettskildeId, string NodeEid, int StartOffset, int EndOffset, string ForeslattTekst);
+
+/// <summary>
+/// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC5/AC6] Forespørsel for
+/// <c>POST /api/navnekandidater/{id}/kobl-til-myndighetstildeling</c>. <c>RolleBegrepId</c> er et
+/// FRITT valgt gruppebegrep (en «rolle», f.eks. «forurensningsmyndighet») — til forskjell fra
+/// <see cref="KoblNavnekandidatTilGruppemedlemskapRequest"/>s <c>GruppeBegrepId</c>, som er selve
+/// gruppemedlem-sporets gruppe. Hjemmelen sendes IKKE — den er alltid kandidatens egen rettskilde,
+/// samme konvensjon som gruppemedlemskaps-endepunktet.
+/// </summary>
+public sealed record KoblNavnekandidatTilMyndighetstildelingRequest(
+    Guid VirksomhetId, Guid RolleBegrepId, IReadOnlyList<ParagrafspennParDto> Paragrafspenn,
+    string? Vilkaar, string? Navneformgrunn);
+
+/// <summary>Som <see cref="NavnekandidatGruppemedlemskapResultatDto"/>, men <c>Tildeling</c> gjelder et
+/// fritt valgt rollebegrep — se <see cref="NavnekandidatMyndighetstildelingResultat"/>.</summary>
+public sealed record NavnekandidatMyndighetstildelingResultatDto(
+    NavnekandidatDto Kandidat, BegrepDto Navneform, Guid? TaggId, Guid RettskildeId, string NodeEid,
+    MyndighetstildelingDto Tildeling)
+{
+    public static NavnekandidatMyndighetstildelingResultatDto FraResultat(NavnekandidatMyndighetstildelingResultat r) => new(
+        NavnekandidatDto.FraEntitet(r.Kandidat), BegrepDto.FraEntitet(r.Navneform), r.TaggId,
+        r.Kandidat.RettskildeId, r.NodeEid, MyndighetstildelingDto.FraEntitet(r.Tildeling));
+}
+
+/// <summary>
+/// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC7/AC8] Forespørsel for
+/// <c>POST /api/navnekandidater/{id}/kobl-til-relasjon</c>. <c>HjemletHer</c> = <c>true</c> betyr at
+/// relasjonen faktisk fremgår av KANDIDATENS EGEN rettskilde/node (hjemmelen settes dit — sendes ikke
+/// eksplisitt av klienten, samme «hjemmelen er ikke et valg»-konvensjon som gruppemedlemskap);
+/// <c>false</c> betyr ingen formell hjemmel — kun <c>Kommentar</c> som fritekst (se
+/// <see cref="VirksomhetRelasjonEntitet.Kommentar"/>).
+/// </summary>
+public sealed record KoblNavnekandidatTilRelasjonRequest(
+    Guid VirksomhetId, string? Navneformgrunn, Guid MotpartVirksomhetId, string RelasjonsType,
+    bool HjemletHer, string? Kommentar);
+
+/// <summary>Rå <see cref="VirksomhetRelasjonEntitet"/>-felt, uten den beregnede visningsteksten
+/// <see cref="VirksomhetRelasjonDto"/> har (klienten kjenner allerede type/motpart — den valgte dem
+/// nettopp — og trenger her bare BEKREFTELSE på hva som ble lagret, ikke en ny visningstekst-beregning).</summary>
+public sealed record NavnekandidatRelasjonDto(
+    Guid Id, string RelasjonsType, Guid FraVirksomhetId, Guid TilVirksomhetId,
+    Guid? HjemmelRettskildeId, string? HjemmelEid, string? Kommentar)
+{
+    public static NavnekandidatRelasjonDto FraEntitet(VirksomhetRelasjonEntitet r) => new(
+        r.Id, r.RelasjonsType, r.FraVirksomhetId, r.TilVirksomhetId, r.HjemmelRettskildeId, r.HjemmelEid, r.Kommentar);
+}
+
+/// <summary>Som <see cref="NavnekandidatKoblingResultatDto"/>, pluss selve relasjonsraden.</summary>
+public sealed record NavnekandidatRelasjonResultatDto(
+    NavnekandidatDto Kandidat, BegrepDto Navneform, Guid? TaggId, Guid RettskildeId, string NodeEid,
+    NavnekandidatRelasjonDto Relasjon)
+{
+    public static NavnekandidatRelasjonResultatDto FraResultat(NavnekandidatRelasjonResultat r) => new(
+        NavnekandidatDto.FraEntitet(r.Kandidat), BegrepDto.FraEntitet(r.Navneform), r.TaggId,
+        r.Kandidat.RettskildeId, r.NodeEid, NavnekandidatRelasjonDto.FraEntitet(r.Relasjon));
+}
+
+/// <summary>
+/// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC9] Forespørsel for
+/// <c>POST /api/navnekandidater/{id}/kobl-til-gruppe-av-gruppe</c> — kun for <c>Kategori == "gruppe"</c>-
+/// kandidater. Oppretter gruppebegrepet (samme mekanisme som <c>/godkjenn</c>) OG et
+/// <see cref="GruppeMedlemskapEntitet"/> som gjør DET til medlem av <see cref="OverordnetGruppeBegrepId"/>,
+/// hjemlet i kandidatens egen rettskilde — i én atomisk handling, fordi klienten ikke kjenner det nye
+/// gruppebegrepets id før det er opprettet.
+/// </summary>
+public sealed record KoblNavnekandidatTilGruppeAvGruppeRequest(Guid OverordnetGruppeBegrepId);
+
+public sealed record NavnekandidatGruppeAvGruppeResultatDto(
+    NavnekandidatDto Kandidat, BegrepDto Gruppebegrep, GruppeMedlemskapDto Medlemskap)
+{
+    public static NavnekandidatGruppeAvGruppeResultatDto FraResultat(NavnekandidatGruppeAvGruppeResultat r) => new(
+        NavnekandidatDto.FraEntitet(r.Kandidat), BegrepDto.FraEntitet(r.Gruppebegrep),
+        GruppeMedlemskapDto.FraEntitet(r.Medlemskap));
+}
+
 public sealed record SveipNavnekandidaterRequest(Guid? RettskildeId);
 
 public sealed record SveipNavnekandidaterResultatDto(int AntallTreffFunnet, int AntallNyeKandidater);

@@ -106,6 +106,22 @@ export interface TagTekstProps {
   /** Hvilke kinds `onOpprettFraTag`-knappen skal vises for. Utelatt/tom viser den ingen steder. */
   opprettFraTagKinds?: TagKindId[];
   /**
+   * [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC1] Manuell inngangsdør til
+   * navnekandidat-veiviseren — knapp i selve TAG-LINJEN (`«Behandle som organ/gruppe →»`), ved siden
+   * av «Ny tagg»/registry-knappene, for kinds i `behandleSomOrganKinds` (typisk kun `'begrep'`).
+   *
+   * <p>Til forskjell fra `onOpprettFraTag` (som gjelder en ALLEREDE opprettet, umerket tagg i
+   * tagg-listen UNDER teksten) gjelder dette selve MARKERINGEN, FØR noen tagg er committet — denne
+   * komponenten forplikter seg ikke til en tagg her, og sier ingenting om at én blir opprettet:
+   * sluttresultatet (en `kind='begrep'`-tagg som peker på navneform-Begrep-raden) opprettes av
+   * navnekandidat-veiviserens `kobl-til-*`-endepunkt ved fullføring, et helt annet sted i appen. Denne
+   * komponenten forblir domene-agnostisk — den vet ikke hva en «navnekandidat» er, kun at MARKERINGEN
+   * (tekst + posisjon + hvilken blokk) skal videre til kalleren.</p>
+   */
+  onBehandleSomOrgan?: (params: { kind: TagKindId; blokkNokkel: string | null; start: number; end: number; text: string }) => void;
+  /** Hvilke kinds `onBehandleSomOrgan`-knappen skal vises for. Utelatt/tom viser den ingen steder. */
+  behandleSomOrganKinds?: TagKindId[];
+  /**
    * Slår opp en menneskelesbar lenke for en koblet tagg sin `ref` — 2026-07-30, fikser at
    * koblede tagger kun viste sin rå GUID/eId. `undefined` betyr «ingen lenke tilgjengelig ennå»
    * (f.eks. treffet mangler i den ferdiglastede listen), og faller da tilbake til rå tekst.
@@ -494,7 +510,7 @@ function BlokkListe({
 export function TagTekst({
   text, tags, kinds, onTag, onRemoveTag, registry, onLinkTag, onOpprettFraTag, opprettFraTagKinds, resolveRef,
   activeKind, onActiveKindChange, showTagList = true, readOnly = false, references,
-  underblokker, underblokkerFotnote,
+  underblokker, underblokkerFotnote, onBehandleSomOrgan, behandleSomOrganKinds,
 }: TagTekstProps) {
   // [ENDRET, punktliste-runden, 2026-09-09] Ref-en er flyttet til `Tekstflate` (én per blokk, siden
   // offsettene måles mot containeren). Denne ref-en er nå bare ROT-noden, brukt av `visTaggITeksten`
@@ -695,6 +711,22 @@ export function TagTekst({
               <Button variant="secondary" data-size="sm" onClick={() => commit(pendingKind, null)}>
                 Ny tagg
               </Button>
+              {/* [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC1] Manuell
+                * inngangsdør til navnekandidat-veiviseren — se `onBehandleSomOrgan`s doc. Committer
+                * BEVISST ingen tagg her (ingen `onTag`-kall): den nye kandidatraden opprettes fra selve
+                * markeringen, og den EVENTUELLE taggen kommer fra veiviserens `kobl-til-*`-endepunkt. */}
+              {onBehandleSomOrgan && (behandleSomOrganKinds ?? []).includes(pendingKind) && (
+                <Button
+                  variant="secondary"
+                  data-size="sm"
+                  onClick={() => {
+                    onBehandleSomOrgan({ kind: pendingKind, blokkNokkel: sel.nokkel, start: sel.start, end: sel.end, text: sel.text });
+                    clearSelection();
+                  }}
+                >
+                  Behandle som organ/gruppe →
+                </Button>
+              )}
               {(registry?.[pendingKind] ?? []).slice(0, 4).map((cand) => (
                 <Button key={cand.ref} variant="tertiary" data-size="sm" onClick={() => commit(pendingKind, cand.ref)}>
                   {cand.label}

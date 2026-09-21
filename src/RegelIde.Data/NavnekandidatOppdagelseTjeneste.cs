@@ -157,8 +157,20 @@ namespace RegelIde.Data;
 public sealed class NavnekandidatOppdagelseTjeneste(
     RegelIdeDbContext db, VirksomhetsbegrepTjeneste virksomhetsbegrep,
     TekstTaggTjeneste tekstTaggTjeneste, VirksomhetOppslagTjeneste virksomhetOppslag,
-    EksternNavneoppslagTjeneste eksternOppslag, MyndighetstildelingTjeneste myndighetstildeling)
+    EksternNavneoppslagTjeneste eksternOppslag, MyndighetstildelingTjeneste myndighetstildeling,
+    // [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283] De to nye mekanismene
+    // (gruppe-av-gruppe, rolle/relasjon-tillegget) gjenbruker tjenestelaget disse allerede har —
+    // ingen duplisert opprett-/valideringslogikk, se KoblTilMyndighetstildelingAsync/KoblTilRelasjonAsync/
+    // KoblTilGruppeAvGruppeAsync under.
+    GruppeMedlemskapTjeneste gruppeMedlemskap, VirksomhetRelasjonregisterTjeneste virksomhetRelasjonregister)
 {
+    /// <summary>
+    /// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC2] Diskriminatorverdien for
+    /// den NYE manuelle inngangsdøren («Behandle som organ/gruppe →» i `TagTekst`/`RettskildeDetalj`) —
+    /// samme nullbare diskriminator-mønster som <see cref="StorBokstavOppdagelsesKilde"/>, ingen ny
+    /// tabell/felt. Satt av <c>POST /api/navnekandidater/manuell</c>, ALDRI av et sveip.
+    /// </summary>
+    public const string ManuellOppdagelsesKilde = "manuell";
     /// <summary>Diskriminatorverdien skrevet til <see cref="NavnekandidatEntitet.OppdagelsesKilde"/> for
     /// alle kandidater produsert av det brede "stor bokstav"-mønsteret (<see cref="FinnStorBokstavKandidaterITekst"/>,
     /// docs/31) — se den entitetsfeltets kommentar. <c>null</c> for kandidater fra de eldre, presise
@@ -1807,6 +1819,129 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             kobling!.Kandidat, kobling.Navneform, kobling.TaggId, kobling.NodeEid, tildeling);
     }
 
+    /// <summary>
+    /// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC5/AC6] Generalisert
+    /// Myndighetstildeling — til forskjell fra <see cref="KoblTilGruppemedlemskapAsync"/> (som ALLTID
+    /// bruker kandidatens EGEN node som paragrafspenn, og der gruppebegrepet ER selve "gruppemedlem"-
+    /// sporets gruppe) tar denne et FRITT valgt rollebegrep + et fritt valgt paragrafspenn + valgfritt
+    /// vilkår — mekanismen gjelder for et rent virksomhet-treff OGSÅ, ikke bare gruppemedlem-sporet
+    /// (issue #283, Johanns bekreftede avgjørelse). De to metodene kan begge kjøres for SAMME kandidat
+    /// (én gjør et gruppemedlemskap, denne gjør en UAVHENGIG rolletildeling) — begge kaller samme
+    /// idempotente <see cref="LukkKjedenMotVirksomhetAsync"/>, så en gjentatt/kombinert kjede er
+    /// ufarlig.
+    /// </summary>
+    public async Task<NavnekandidatMyndighetstildelingResultat?> KoblTilMyndighetstildelingAsync(
+        Guid id, Guid virksomhetId, Guid rolleBegrepId, IReadOnlyList<ParagrafspennPar> paragrafspenn,
+        string? vilkaar, string? navneformgrunn, string behandletAv, CancellationToken ct = default)
+    {
+        var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
+        if (kandidat is null) return null;
+        if (kandidat.Kategori != "virksomhet")
+        {
+            throw new ArgumentException(
+                $"Kandidaten har kategori '{kandidat.Kategori}' — kun 'virksomhet'-kandidater kan få en "
+                + "rolletildeling her.");
+        }
+        ValiderNavneformgrunn(navneformgrunn);
+
+        // Idempotent — samme (rolle, virksomhet, hjemmel) skal ikke gi en duplikat-rad ved gjentatt kall.
+        var tildeling = await db.Myndighetstildelinger.FirstOrDefaultAsync(
+            m => m.GruppeBegrepId == rolleBegrepId && m.VirksomhetId == virksomhetId
+                 && m.HjemmelRettskildeId == kandidat.RettskildeId, ct);
+        tildeling ??= await myndighetstildeling.OpprettAsync(
+            rolleBegrepId, virksomhetId, kandidat.RettskildeId, paragrafspenn, vilkaar, behandletAv, ct: ct);
+
+        var kobling = await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct);
+        return new NavnekandidatMyndighetstildelingResultat(
+            kobling!.Kandidat, kobling.Navneform, kobling.TaggId, kobling.NodeEid, tildeling);
+    }
+
+    /// <summary>
+    /// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC7/AC8] «Relasjon til annen
+    /// virksomhet» — knytter kandidatens virksomhet (som FRA-siden, samme konvensjon som
+    /// <c>POST /api/virksomheter/{id}/relasjoner</c>) til en fritt valgt motpart via
+    /// <see cref="VirksomhetRelasjonregisterTjeneste"/>. Løser issue #263 AC2/AC3 sitt «Minimalt»-nivå:
+    /// en forhåndsutfylt snarvei fra navnekandidat-behandlingen til den ALLEREDE eksisterende
+    /// relasjonsmekanismen — INGEN automatisk mønstergjenkjenning av selve relasjonen (det er #263 AC1,
+    /// eksplisitt utenfor denne saken).
+    /// <para>
+    /// <paramref name="hjemletHer"/> avgjør hjemmelsfeltene (AC7): <c>true</c> → hjemmelen ER
+    /// kandidatens egen rettskilde/node (det er DER relasjonen faktisk fremgår), <c>false</c> →
+    /// ingen hjemmel, kun <paramref name="kommentar"/> som fritekst (samme "ingen tvunget hjemmel"-bruk
+    /// som <see cref="VirksomhetRelasjonEntitet.Kommentar"/> allerede har for klagenemndssekretariat-
+    /// eksemplet i docs/28).
+    /// </para>
+    /// </summary>
+    public async Task<NavnekandidatRelasjonResultat?> KoblTilRelasjonAsync(
+        Guid id, Guid virksomhetId, string? navneformgrunn, Guid motpartVirksomhetId, string relasjonsType,
+        bool hjemletHer, string? kommentar, string behandletAv, CancellationToken ct = default)
+    {
+        var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
+        if (kandidat is null) return null;
+        if (kandidat.Kategori != "virksomhet")
+        {
+            throw new ArgumentException(
+                $"Kandidaten har kategori '{kandidat.Kategori}' — kun 'virksomhet'-kandidater kan få en "
+                + "relasjon til en annen virksomhet her.");
+        }
+        ValiderNavneformgrunn(navneformgrunn);
+
+        var relasjon = await db.VirksomhetRelasjoner.FirstOrDefaultAsync(
+            r => r.Entitetsstatus == "gjeldende" && r.FraVirksomhetId == virksomhetId
+                 && r.TilVirksomhetId == motpartVirksomhetId && r.RelasjonsType == relasjonsType, ct);
+        relasjon ??= await virksomhetRelasjonregister.OpprettAsync(
+            virksomhetId, motpartVirksomhetId, relasjonsType,
+            hjemletHer ? kandidat.RettskildeId : null, hjemletHer ? kandidat.NodeEid : null,
+            hjemletHer ? null : kommentar, behandletAv, ct);
+
+        var kobling = await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct);
+        return new NavnekandidatRelasjonResultat(
+            kobling!.Kandidat, kobling.Navneform, kobling.TaggId, kobling.NodeEid, relasjon);
+    }
+
+    /// <summary>
+    /// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC9] «Gruppe av gruppe» fra
+    /// veiviseren — utvider gruppe-sporet (<see cref="GodkjennAsync"/> sin <c>"gruppe"</c>-gren) med et
+    /// valgfritt medlemskap i en ALLEREDE eksisterende, OVERORDNET gruppe, hjemlet i SAMME rettskilde
+    /// som selve gruppebegrepet opprettes fra. Egen metode (ikke en utvidelse av
+    /// <see cref="GodkjennAsync"/>): den vanlige «Opprett gruppebegrep og godkjenn»-knappen skal være
+    /// UENDRET (AC5: «ingen regresjon») for det store flertallet av gruppe-kandidater som ikke har noe
+    /// gruppe-av-gruppe-forhold å registrere.
+    /// </summary>
+    public async Task<NavnekandidatGruppeAvGruppeResultat?> KoblTilGruppeAvGruppeAsync(
+        Guid id, Guid overordnetGruppeBegrepId, string behandletAv, CancellationToken ct = default)
+    {
+        var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
+        if (kandidat is null) return null;
+        if (kandidat.Kategori != "gruppe")
+        {
+            throw new ArgumentException(
+                $"Kandidaten har kategori '{kandidat.Kategori}' — kun 'gruppe'-kandidater kan opprettes "
+                + "som medlem av en annen gruppe her.");
+        }
+        if (kandidat.Status != "Venter")
+        {
+            throw new ArgumentException(
+                $"Kandidaten har status '{kandidat.Status}' — kan kun godkjenne kandidater med status 'Venter'.");
+        }
+
+        var gruppebegrep = await virksomhetsbegrep.OpprettGruppebegrepAsync(
+            kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
+
+        var medlemskap = await gruppeMedlemskap.OpprettAsync(
+            overordnetGruppeBegrepId, gruppebegrep.Id, kandidat.RettskildeId,
+            [new ParagrafspennPar(kandidat.NodeEid, null)], behandletAv, ct: ct);
+
+        await OpprettDepartementTaggHvisMuligAsync(kandidat, gruppebegrep.Id, behandletAv, ct);
+
+        kandidat.Status = "Godkjent";
+        kandidat.BehandletAv = behandletAv;
+        kandidat.BehandletTidspunkt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync(ct);
+
+        return new NavnekandidatGruppeAvGruppeResultat(kandidat, gruppebegrep, medlemskap);
+    }
+
     private static void ValiderNavneformgrunn(string? navneformgrunn)
     {
         if (!VirksomhetsbegrepTjeneste.ErGyldigNavneformgrunn(navneformgrunn))
@@ -2036,3 +2171,30 @@ public sealed record NavnekandidatKoblingResultat(
 public sealed record NavnekandidatGruppemedlemskapResultat(
     NavnekandidatEntitet Kandidat, BegrepEntitet Navneform, Guid? TaggId, string NodeEid,
     MyndighetstildelingEntitet Tildeling);
+
+/// <summary>
+/// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283] Utfallet av
+/// <see cref="NavnekandidatOppdagelseTjeneste.KoblTilMyndighetstildelingAsync"/> — samme kjede-form som
+/// <see cref="NavnekandidatGruppemedlemskapResultat"/>, men <see cref="Tildeling"/> gjelder et FRITT
+/// valgt rollebegrep, ikke gruppemedlem-sporets egen gruppe.
+/// </summary>
+public sealed record NavnekandidatMyndighetstildelingResultat(
+    NavnekandidatEntitet Kandidat, BegrepEntitet Navneform, Guid? TaggId, string NodeEid,
+    MyndighetstildelingEntitet Tildeling);
+
+/// <summary>
+/// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283] Utfallet av
+/// <see cref="NavnekandidatOppdagelseTjeneste.KoblTilRelasjonAsync"/>.
+/// </summary>
+public sealed record NavnekandidatRelasjonResultat(
+    NavnekandidatEntitet Kandidat, BegrepEntitet Navneform, Guid? TaggId, string NodeEid,
+    VirksomhetRelasjonEntitet Relasjon);
+
+/// <summary>
+/// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283] Utfallet av
+/// <see cref="NavnekandidatOppdagelseTjeneste.KoblTilGruppeAvGruppeAsync"/> — INGEN navneform/tagg-
+/// kjede her (til forskjell fra de to over): en <c>"gruppe"</c>-kandidat er selv et gruppebegrep, ikke
+/// en virksomhet-tagg.
+/// </summary>
+public sealed record NavnekandidatGruppeAvGruppeResultat(
+    NavnekandidatEntitet Kandidat, BegrepEntitet Gruppebegrep, GruppeMedlemskapEntitet Medlemskap);

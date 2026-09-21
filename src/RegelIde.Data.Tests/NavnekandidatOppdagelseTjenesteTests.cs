@@ -1456,7 +1456,10 @@ public class NavnekandidatOppdagelseTjenesteTests
         RegelIdeDbContext db, Func<HttpRequestMessage, HttpResponseMessage> svar) => new(
         db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)),
         new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(new RutetHandler(svar)), db),
-        new MyndighetstildelingTjeneste(db));
+        new MyndighetstildelingTjeneste(db),
+        // [Ny, «alle mekanismer»-runden, 2026-09-21, issue #283] De to nye konstruktørparametrene —
+        // se NavnekandidatOppdagelseTjeneste sin egen kommentar for hvorfor de trengs.
+        new GruppeMedlemskapTjeneste(db), new VirksomhetRelasjonregisterTjeneste(db));
 
     [Fact]
     public async Task Sveip_snl_bekreftet_institusjon_via_stor_bokstav_monster_gir_venter_kandidat_med_oppdagelseskilde()
