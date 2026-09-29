@@ -1,15 +1,24 @@
-# src/ — Byggesteg 1: konverteringspipeline + database + les-API
+# src/ — backend (.NET) + frontend (React)
 
-.NET 8-løsning. Jf. `docs/06-veikart.md` byggesteg 1 og `docs/08-byggesteg1-teknisk-design.md`:
+**[Oppdatert 2026-09-30 — var stemplet "Byggesteg 1" og .NET 8 siden 2026-07-30, langt forbi
+virkeligheten. Se `docs/25-funksjonsoversikt.md` for hva som faktisk er bygget siden.]**
+
+.NET 10-løsning + en React/Vite-frontend. Startet som byggesteg 1 (jf. `docs/06-veikart.md` og
+`docs/08-byggesteg1-teknisk-design.md`), men dekker nå hele kjeden fra rettskildeimport til
+saksbehandler-UI:
 
 - `RegelIde.Kildekonvertering` — konverteringspipelinen (`LovdataKonverterer.Konverter`).
 - `RegelIde.Kildekonvertering.Tests` — xUnit-tester mot de ekte, fullstendige
   dokumentene i `data/kilder/raw-lovdata/` (ikke syntetiske utdrag).
-- `RegelIde.Data` — EF Core + PostgreSQL, skjemaet fra §2 i teknisk design (låst, ikke
-  endret her) + `RettskildeImportTjeneste` som persisterer et `KonverteringResultat`.
-- `RegelIde.Data.Tests` — kjører migrasjonen og importtjenesten mot en ekte,
+- `RegelIde.Data` — EF Core + PostgreSQL: rettskilder, begreper, vilkår/regler, virksomhetskatalog
+  (roller/relasjoner/gruppemedlemskap), KI-forslagstjenester (`*ForslagTjeneste`), navnekandidat-
+  oppdagelse, proveniens. `RettskildeImportTjeneste` persisterer et `KonverteringResultat`.
+- `RegelIde.Data.Tests` — kjører migrasjonen og domenelogikken mot en ekte,
   embedded Postgres-instans (se eget avsnitt under — ingen Docker/Podman nødvendig).
-- `RegelIde.Api` — HTTP-API som **gir ut** rettskilder fra databasen (se eget avsnitt under).
+- `RegelIde.Api` — HTTP-API (se Swagger på `/swagger`) + seeding ved oppstart.
+- `RegelIde.Api.Tests` — integrasjonstester mot API-et + en ekte, embedded Postgres.
+- `RegelIde.Web` — saksbehandler-frontenden (React + Vite + `@digdir/designsystemet-react`).
+  Se `docs/09-design-konvensjoner.md` (BINDENDE) før du bygger noe nytt her.
 
 ```bash
 dotnet test src/RegelIde.Kildekonvertering.Tests
