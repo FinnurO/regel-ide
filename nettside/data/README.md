@@ -25,6 +25,12 @@ Disse to brukes av `rettskilder/index.html` og `virksomheter/index.html` til sø
 opp navn/hjemmel for en gruppe-id uten et eget API-kall per gruppe. Det er ikke en av de to
 formelt påkrevde katalogfilene, men eksportert i sin helhet fordi det er lite.
 
+`koblinger/karasjok-eksempel.json` (se tabellen under) brukes nå av to sider: `koblinger/index.html`
+(den tekniske sporbarhetskjeden i full detalj) og `kjeden/index.html` (samme eksempel, fortalt som
+én sammenhengende fortelling fra lovtekst til vedtak, for en leser uten forkunnskap). `kjeden/`
+kombinerer denne filen med `virksomheter/455d90bf-….json` — ingen nye felter eller filer er lagt
+til for den siden.
+
 ### 2. Detaljfiler — kun et STARTUTVALG
 
 Detaljfiler eksisterer bare for de konkrete eksemplene showcasen bruker. Filnavnet er alltid
