@@ -98,6 +98,10 @@ import type {
   TjenesteDto,
   TjenesteReferanseDto,
   TjenesteRegelverksreferanseDto,
+  TjenesteRegelverksreferanseForslagDto,
+  KjorRegelverksreferanseforslagRequest,
+  KjorRegelverksreferanseforslagResponsDto,
+  RettskildeStatistikkDto,
   TjenesteavhengighetDto,
   TjenesteavhengighetRequest,
   RelasjonsTypeKonfigurasjonDto,
@@ -280,6 +284,10 @@ export const api = {
 
   hentReferertAvDokumenter: (id: string) =>
     kall<DokumentReferanseDto[]>(`/api/rettskilder/${id}/referert-av-dokumenter`),
+
+  /** [Ny, issue #286] «Denne loven forvaltes av X virksomheter, har Y begrep, har Z tjenester». */
+  hentRettskildeStatistikk: (id: string) =>
+    kall<RettskildeStatistikkDto>(`/api/rettskilder/${id}/statistikk`),
 
   oppdaterRettskildeMetadata: (id: string, request: OppdaterRettskildeMetadataRequest) =>
     kall<RettskildeDetalj>(`/api/rettskilder/${id}/metadata`, {
@@ -962,6 +970,25 @@ export const api = {
 
   fjernTjenesteRegelverksreferanse: (referanseId: string) =>
     kall<void>(`/api/tjenester/regelverksreferanser/${referanseId}`, { method: 'DELETE' }),
+
+  // ---------- Regelverksreferanseforslag (issue #286) — KI-forslag-kø for EKSISTERENDE tjenester ----------
+  // uten regelverksreferanser, egen kø fra hentTjenesteforslagKo (som gjelder HELT NYE tjenester).
+
+  hentTjenesteRegelverksreferanseForslag: (status?: string) =>
+    kall<TjenesteRegelverksreferanseForslagDto[]>(`/api/tjenester/regelverksreferanse-forslag${status ? `?status=${status}` : ''}`),
+
+  kjorTjenesteRegelverksreferanseforslag: (request: KjorRegelverksreferanseforslagRequest) =>
+    kall<KjorRegelverksreferanseforslagResponsDto>('/api/tjenester/regelverksreferanse-forslag/kjor', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  godkjennTjenesteRegelverksreferanseforslag: (id: string) =>
+    kall<{ id: string; status: string }>(`/api/tjenester/regelverksreferanse-forslag/${id}/godkjenn`, { method: 'POST' }),
+
+  avvisTjenesteRegelverksreferanseforslag: (id: string) =>
+    kall<{ id: string; status: string }>(`/api/tjenester/regelverksreferanse-forslag/${id}/avvis`, { method: 'POST' }),
 
   // ---------- Hendelseregister (docs/03-domenemodell.md §1.5, docs/13-backlog.md §2.1) ----------
 

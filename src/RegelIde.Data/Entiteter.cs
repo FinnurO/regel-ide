@@ -898,6 +898,51 @@ public sealed class TjenesteRegelverksreferanseEntitet
 }
 
 /// <summary>
+/// [Ny, issue #286] Arbeidskø-rad: KI-foreslått kobling fra en EKSISTERENDE, gjeldende
+/// <see cref="TjenesteEntitet"/> (som i dag har null <see cref="TjenesteRegelverksreferanseEntitet"/>-rader)
+/// til en paragraf i en rettskilde. Samme "egen kandidatentitet med sitt eget Status/BehandletAv/
+/// BehandletTidspunkt"-mønster som <see cref="BegrepDefinisjonRelasjonKandidatEntitet"/> (issue #212) —
+/// BEVISST IKKE <see cref="ProveniensEntitet"/>/<c>TjenesteEntitet.Status</c>-mønsteret
+/// <see cref="TjenesteforslagTjeneste"/> bruker for HELT NYE tjenester: her er tjenesten allerede en ekte,
+/// gjeldende rad med sin egen, urelaterte statuslivssyklus — det er KUN selve KOBLINGEN som er til
+/// vurdering, ikke tjenesten selv, akkurat som «definert likt som»-relasjonen i #212 er til vurdering
+/// uavhengig av de to Begrep-radenes egne statuser.
+/// <para>
+/// Godkjenning oppretter en ekte <see cref="TjenesteRegelverksreferanseEntitet"/> via den allerede
+/// eksisterende <see cref="TjenesteregisterTjeneste.KobleRegelverksreferanseAsync"/> — denne raden er
+/// BARE arbeidskøen/revisjonssporet, aldri selve koblingen (samme todeling som kandidat- vs.
+/// bekreftet-relasjon-tabellene i #212).
+/// </para>
+/// </summary>
+public sealed class TjenesteRegelverksreferanseForslagEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid TjenesteId { get; set; }
+    public required Guid TilRettskildeId { get; set; }
+    public required string TilEid { get; set; }
+
+    /// <summary>Alltid <c>null</c> i denne runden — forslaget gjelder kun den flate, hele-tjenesten-
+    /// referansen (samme betydning som <see cref="TjenesteRegelverksreferanseEntitet.Felt"/> = <c>null</c>),
+    /// aldri et enkeltfelt i "Innhold"-fanen. Feltet finnes likevel her (i stedet for å utelates helt) for
+    /// å holde formen IDENTISK med <see cref="TjenesteRegelverksreferanseEntitet"/> — en fremtidig runde som
+    /// ønsker felt-spesifikke forslag trenger da ingen skjemaendring, kun å faktisk sette verdien.</summary>
+    public string? Felt { get; set; }
+
+    /// <summary>KI-ens begrunnelse for hvorfor akkurat denne paragrafen er det rettslige grunnlaget —
+    /// vist i køen slik at en saksbehandler kan vurdere forslaget uten selv å måtte lete opp og lese hele
+    /// paragrafen først (samme «ingen ugjennomsiktig score alene»-prinsipp som #212 §AC3).</summary>
+    public string? Begrunnelse { get; set; }
+
+    public string Status { get; set; } = "Venter"; // 'Venter' | 'Godkjent' | 'Avvist'
+    public string? AiForslagVersjon { get; set; }
+    public string? KildeReferanserJson { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? BehandletAv { get; set; }
+    public DateTimeOffset? BehandletTidspunkt { get; set; }
+}
+
+/// <summary>
 /// [Ny, 2026-08-22, <see cref="OppgaveregisterHandlingSeed"/>] Regelverksreferanse fra en Handling til
 /// en rettskilde — EKSAKT samme form/rolle som <see cref="TjenesteRegelverksreferanseEntitet"/>, egen
 /// tabell siden kilden her er en Handling, ikke en Tjeneste (en handling kan ha en annen, mer spesifikk

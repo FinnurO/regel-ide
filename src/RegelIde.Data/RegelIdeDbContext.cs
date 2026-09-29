@@ -68,6 +68,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<TjenesteEntitet> Tjenester => Set<TjenesteEntitet>();
     public DbSet<HandlingEntitet> Handlinger => Set<HandlingEntitet>();
     public DbSet<TjenesteRegelverksreferanseEntitet> TjenesteRegelverksreferanser => Set<TjenesteRegelverksreferanseEntitet>();
+    public DbSet<TjenesteRegelverksreferanseForslagEntitet> TjenesteRegelverksreferanseForslag => Set<TjenesteRegelverksreferanseForslagEntitet>();
     public DbSet<HandlingRegelverksreferanseEntitet> HandlingRegelverksreferanser => Set<HandlingRegelverksreferanseEntitet>();
     public DbSet<HandlingTjenesteEntitet> HandlingTjenester => Set<HandlingTjenesteEntitet>();
     public DbSet<HendelseEntitet> Hendelser => Set<HendelseEntitet>();
@@ -778,6 +779,40 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                 .HasDatabaseName("ux_tjeneste_regelverksreferanser").HasFilter("felt IS NULL");
             e.HasIndex(x => new { x.TjenesteId, x.TilRettskildeId, x.TilEid, x.Felt }).IsUnique()
                 .HasDatabaseName("ux_tjeneste_regelverksreferanser_felt").HasFilter("felt IS NOT NULL");
+        });
+
+        // [Ny, issue #286] Se Entiteter.cs sin klassekommentar for hele resonnementet (samme
+        // kandidatkø-mønster som BegrepDefinisjonRelasjonKandidatEntitet, issue #212).
+        b.Entity<TjenesteRegelverksreferanseForslagEntitet>(e =>
+        {
+            e.ToTable("tjeneste_regelverksreferanse_forslag", t =>
+            {
+                t.HasCheckConstraint("ck_tjeneste_regelverksreferanse_forslag_status", "status IN ('Venter', 'Godkjent', 'Avvist')");
+            });
+            e.HasKey(x => x.Id).HasName("tjeneste_regelverksreferanse_forslag_pkey");
+            e.Property(x => x.TjenesteId).HasColumnName("tjeneste_id");
+            e.Property(x => x.TilRettskildeId).HasColumnName("til_rettskilde_id");
+            e.Property(x => x.TilEid).HasColumnName("til_eid");
+            e.Property(x => x.Felt).HasColumnName("felt");
+            e.Property(x => x.Begrunnelse).HasColumnName("begrunnelse");
+            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("Venter");
+            e.Property(x => x.AiForslagVersjon).HasColumnName("ai_forslag_versjon");
+            e.Property(x => x.KildeReferanserJson).HasColumnName("kilde_referanser_json").HasColumnType("jsonb");
+            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
+            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
+            e.Property(x => x.BehandletAv).HasColumnName("behandlet_av");
+            e.Property(x => x.BehandletTidspunkt).HasColumnName("behandlet_tidspunkt");
+
+            e.HasOne<TjenesteEntitet>().WithMany().HasForeignKey(x => x.TjenesteId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.TilRettskildeId);
+
+            // Dedup uavhengig av status (aldri foreslå NØYAKTIG samme (tjeneste, rettskilde, eId) på
+            // nytt selv om et tidligere forslag om samme par allerede ble Avvist/Godkjent) — Felt er
+            // bevisst UTENFOR indeksen (alltid null her, se Entiteter.cs), ikke fordi Postgres/SQLite sin
+            // NULL != NULL-semantikk ville brutt dedup (samme fallgruve som de to partial-indeksene over),
+            // men fordi vi her faktisk ØNSKER treff selv om Felt en dag blir tatt i bruk.
+            e.HasIndex(x => new { x.TjenesteId, x.TilRettskildeId, x.TilEid }).IsUnique()
+                .HasDatabaseName("ux_tjeneste_regelverksreferanse_forslag_par");
         });
 
         b.Entity<HandlingRegelverksreferanseEntitet>(e =>

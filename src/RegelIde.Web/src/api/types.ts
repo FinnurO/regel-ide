@@ -958,6 +958,45 @@ export interface TjenesteRegelverksreferanseDto {
   felt: string | null;
 }
 
+/** [Ny, issue #286] Kandidatkø-rad for GET /api/tjenester/regelverksreferanse-forslag — KI-foreslått
+ * kobling for en EKSISTERENDE tjeneste uten regelverksreferanser. */
+export interface TjenesteRegelverksreferanseForslagDto {
+  id: string;
+  tjenesteId: string;
+  tjenesteTittel: string;
+  virksomhetId: string;
+  tilRettskildeId: string;
+  tilEid: string;
+  begrunnelse: string | null;
+  status: string;
+  aiForslagVersjon: string | null;
+  opprettetAv: string;
+  opprettetTidspunkt: string;
+  behandletAv: string | null;
+  behandletTidspunkt: string | null;
+}
+
+export interface KjorRegelverksreferanseforslagRequest {
+  rettskildeIder: string[];
+}
+
+export interface KjorRegelverksreferanseforslagResponsDto {
+  antallTjenesterUtenReferanse: number;
+  antallVurdert: number;
+  antallNyeForslag: number;
+  inputTokens: number | null;
+  outputTokens: number | null;
+}
+
+/** [Ny, issue #286] GET /api/rettskilder/{id}/statistikk — «Denne loven forvaltes av X virksomheter,
+ * har Y begrep, har Z tjenester». */
+export interface RettskildeStatistikkDto {
+  rettskildeId: string;
+  antallVirksomheter: number;
+  antallBegrep: number;
+  antallTjenester: number;
+}
+
 /** Samme rolle for en Handling som TjenesteRegelverksreferanseDto har for en Tjeneste (2026-08-22,
  * se OppgaveregisterHandlingSeed) — kun lesing i UI-et ennå, ingen koble til/fjern-endepunkt finnes. */
 export interface HandlingRegelverksreferanseDto {
