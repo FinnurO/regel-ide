@@ -979,6 +979,52 @@ public sealed class HandlingRegelverksreferanseEntitet
 }
 
 /// <summary>
+/// [Ny, issue #290] Arbeidskø-rad: KI-foreslått OPPGRADERING av en <see cref="HandlingRegelverksreferanseEntitet"/>
+/// fra dokumentnivå til paragrafnivå — samme kandidatkø-mønster/entitetsvalg som
+/// <see cref="TjenesteRegelverksreferanseForslagEntitet"/> (issue #286), tilpasset Handling i stedet for
+/// Tjeneste. Til forskjell fra Tjeneste-varianten (som foreslår en HELT NY kobling der det ikke fantes
+/// noen) foreslår denne en OPPGRADERING av en referanse som ALLEREDE finnes på dokumentnivå (
+/// <see cref="OppgaveregisterHandlingSeed"/> har allerede matchet rettskilden — se dens klassekommentar
+/// punkt (c) — men fritekst-henvisningen var for kompleks for seedens egen enkle regex,
+/// <see cref="HandlingRegelverksreferanseEntitet.KildeHenvisningFritekst"/> ELLER en spenn/liste-form som
+/// "§§ 21-4, 22-3"). Kjøres derfor ALDRI for skjemaer der rettskilden selv ikke er importert
+/// (<c>RettskildematcherIkkeFunnet</c> i seed-resultatet) — se
+/// <see cref="HandlingRegelverksreferanseforslagTjeneste"/>s klassekommentar for kandidat-utvelgelsen.
+/// <para>
+/// Godkjenning OPPGRADERER den eksisterende <see cref="HandlingRegelverksreferanseEntitet"/>-radens
+/// <see cref="HandlingRegelverksreferanseEntitet.TilEid"/> via den nye
+/// <see cref="HandlingregisterTjeneste.OppgraderRegelverksreferanseTilParagrafAsync"/> — oppretter ALDRI
+/// en søsterrad ved siden av (samme «unngå dobbel dokument-/paragrafnivå-rad»-prinsipp som seedens egen
+/// oppgraderingslogikk, se <see cref="OppgaveregisterHandlingSeed"/>s dictionary-kommentar).
+/// </para>
+/// </summary>
+public sealed class HandlingRegelverksreferanseForslagEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid HandlingId { get; set; }
+    public required Guid TilRettskildeId { get; set; }
+
+    /// <summary>Den FORESLÅTTE paragrafnivå-eId'en (kandidat, bekreftet mot en ekte
+    /// <see cref="RettskildeNodeEntitet"/> FØR forslaget i det hele tatt opprettes — se
+    /// <see cref="HandlingRegelverksreferanseforslagTjeneste"/>) — ALDRI dokumentnivå-Elien selv,
+    /// til forskjell fra <see cref="HandlingRegelverksreferanseEntitet.TilEid"/> som kan være begge deler.</summary>
+    public required string TilEid { get; set; }
+
+    /// <summary>KI-ens begrunnelse for hvorfor akkurat denne paragrafen er det rettslige grunnlaget for
+    /// handlingen (til forskjell fra f.eks. en ren "jf."-kryssreferanse nevnt i samme fritekst) — samme
+    /// «ingen ugjennomsiktig score alene»-prinsipp som <see cref="TjenesteRegelverksreferanseForslagEntitet.Begrunnelse"/>.</summary>
+    public string? Begrunnelse { get; set; }
+
+    public string Status { get; set; } = "Venter"; // 'Venter' | 'Godkjent' | 'Avvist'
+    public string? AiForslagVersjon { get; set; }
+    public string? KildeReferanserJson { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? BehandletAv { get; set; }
+    public DateTimeOffset? BehandletTidspunkt { get; set; }
+}
+
+/// <summary>
 /// [Ny, 2026-08-27, Tjenestedetalj-redesignrunden] Sekundær "også brukt av"-kobling mellom en
 /// <see cref="HandlingEntitet"/> og en ANNEN <see cref="TjenesteEntitet"/> enn den som eier den
 /// ("Koble eksisterende handling" — søk blant ALLE tjenesters handlinger). IKKE eierskap:

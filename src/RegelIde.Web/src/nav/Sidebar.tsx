@@ -64,6 +64,7 @@ const GRUPPER: Gruppe[] = [
     rader: [
       { kind: 'lenke', to: '/tjenester/forslag', label: 'KI-forslag tjenester' },
       { kind: 'lenke', to: '/tjenester/regelverksreferanse-forslag', label: 'Regelverksreferanseforslag' },
+      { kind: 'lenke', to: '/tjenester/handlinger/regelverksreferanse-forslag', label: 'Handling-regelverksreferanseforslag' },
       { kind: 'lenke', to: '/begreper/forslag', label: 'KI-forslag begrep' },
       { kind: 'lenke', to: '/virksomhet-kandidater', label: 'Virksomhetskandidater' },
       { kind: 'lenke', to: '/navnekandidater', label: 'Navnekandidater' },

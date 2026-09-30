@@ -410,6 +410,29 @@ public sealed record HandlingRegelverksreferanseDto(Guid Id, Guid HandlingId, Gu
         new(r.Id, r.HandlingId, r.TilRettskildeId, r.TilEid);
 }
 
+/// <summary>[Ny, issue #290] Kandidatkø-rad for GET /api/tjenester/handlinger/regelverksreferanse-forslag
+/// — KI-foreslått OPPGRADERING (dokumentnivå → paragrafnivå) for en Handling. Samme "bærer det
+/// underliggende sitt visningsnavn"-mønster som <see cref="TjenesteRegelverksreferanseForslagDto"/>.</summary>
+public sealed record HandlingRegelverksreferanseForslagDto(
+    Guid Id, Guid HandlingId, string HandlingNavn, string TjenesteTittel, Guid TilRettskildeId, string TilEid,
+    string? Begrunnelse, string Status, string? AiForslagVersjon,
+    string OpprettetAv, DateTimeOffset OpprettetTidspunkt, string? BehandletAv, DateTimeOffset? BehandletTidspunkt)
+{
+    public static HandlingRegelverksreferanseForslagDto FraEntitet(
+        RegelIde.Data.HandlingRegelverksreferanseForslagEntitet f, HandlingEntitet h, string tjenesteTittel) =>
+        new(f.Id, f.HandlingId, h.Navn, tjenesteTittel, f.TilRettskildeId, f.TilEid, f.Begrunnelse, f.Status, f.AiForslagVersjon,
+            f.OpprettetAv, f.OpprettetTidspunkt, f.BehandletAv, f.BehandletTidspunkt);
+}
+
+public sealed record KjorHandlingRegelverksreferanseforslagRequest(IReadOnlyList<Guid> RettskildeIder);
+
+public sealed record KjorHandlingRegelverksreferanseforslagResponsDto(
+    int AntallKandidatrader, int AntallVurdert, int AntallNyeForslag, int? InputTokens, int? OutputTokens)
+{
+    public static KjorHandlingRegelverksreferanseforslagResponsDto FraResultat(RegelIde.Data.HandlingRegelverksreferanseforslagResultat r) =>
+        new(r.AntallKandidatrader, r.AntallVurdert, r.AntallNyeForslag, r.InputTokens, r.OutputTokens);
+}
+
 /// <summary>Sammendrag returnert av POST /api/eksterne-kilder/oppgaveregister/koble-til-handlinger —
 /// se <see cref="RegelIde.Data.OppgaveregisterHandlingSeed"/>s klassekommentar for hva hvert felt teller
 /// og hvorfor lave rettskilde-/virksomhet-treffrater er forventet.</summary>

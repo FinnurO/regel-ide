@@ -25,6 +25,9 @@ import type {
   HandlingDto,
   HandlingMedTjenesteDto,
   HandlingRegelverksreferanseDto,
+  HandlingRegelverksreferanseForslagDto,
+  KjorHandlingRegelverksreferanseforslagRequest,
+  KjorHandlingRegelverksreferanseforslagResponsDto,
   HandlingRequest,
   HandlingTjenesteDto,
   KobleHandlingRequest,
@@ -1412,6 +1415,26 @@ export const api = {
 
   hentHandlingRegelverksreferanser: (handlingId: string) =>
     kall<HandlingRegelverksreferanseDto[]>(`/api/tjenester/handlinger/${handlingId}/regelverksreferanser`),
+
+  // ---------- Handling-regelverksreferanseforslag (issue #290) — KI-assistert oppgradering av ----------
+  // dokumentnivå-koblinger (OppgaveregisterHandlingSeed) til paragrafnivå, egen kø fra
+  // hentTjenesteRegelverksreferanseForslag (som gjelder Tjeneste, ikke Handling).
+
+  hentHandlingRegelverksreferanseForslag: (status?: string) =>
+    kall<HandlingRegelverksreferanseForslagDto[]>(`/api/tjenester/handlinger/regelverksreferanse-forslag${status ? `?status=${status}` : ''}`),
+
+  kjorHandlingRegelverksreferanseforslag: (request: KjorHandlingRegelverksreferanseforslagRequest) =>
+    kall<KjorHandlingRegelverksreferanseforslagResponsDto>('/api/tjenester/handlinger/regelverksreferanse-forslag/kjor', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  godkjennHandlingRegelverksreferanseforslag: (id: string) =>
+    kall<{ id: string; status: string }>(`/api/tjenester/handlinger/regelverksreferanse-forslag/${id}/godkjenn`, { method: 'POST' }),
+
+  avvisHandlingRegelverksreferanseforslag: (id: string) =>
+    kall<{ id: string; status: string }>(`/api/tjenester/handlinger/regelverksreferanse-forslag/${id}/avvis`, { method: 'POST' }),
 
   flyttHandlingTilTjeneste: (handlingId: string, tjenesteId: string) =>
     kall<HandlingDto>(`/api/tjenester/handlinger/${handlingId}/flytt-til-tjeneste`, {
