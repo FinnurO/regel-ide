@@ -134,6 +134,9 @@ import type {
   MyndighetstildelingDto,
   GruppeMedlemskapDto,
   GruppeMedlemskapRequest,
+  KiOppdagelseRequest,
+  KiOppdagelseSamletResultatDto,
+  KiForslagKoRadDto,
   KoblNavnekandidatTilGruppemedlemskapRequest,
   NavnekandidatGruppemedlemskapResultatDto,
   ParagrafspennParDto,
@@ -519,12 +522,15 @@ export const api = {
     rettskildeId?: string; status?: string; kategori?: string; behandletAutomatisk?: boolean;
     /** [Ny, konfidens-runden, 2026-09-09] 'hoy' | 'lav' | 'ingen' (ikke klassifisert). */
     konfidens?: string;
+    /** [Ny, issue #285] 'ki-fri-sveip' viser KUN KI-oppdagede kandidater — se KiOppdagelseKo.tsx. */
+    oppdagelsesKilde?: string;
   }) => {
     const parametre = new URLSearchParams();
     if (filter.rettskildeId) parametre.set('rettskildeId', filter.rettskildeId);
     if (filter.status) parametre.set('status', filter.status);
     if (filter.kategori) parametre.set('kategori', filter.kategori);
     if (filter.konfidens) parametre.set('konfidens', filter.konfidens);
+    if (filter.oppdagelsesKilde) parametre.set('oppdagelsesKilde', filter.oppdagelsesKilde);
     // [Ny, 2026-09-04] Skiller "Avvist automatisk" (SNL/SSR selv, BehandletAv tom) fra "Avvist manuelt"
     // (en saksbehandler, BehandletAv satt) — kun meningsfullt sammen med status='Avvist', se backend-
     // kommentaren (NavnekandidatOppdagelseTjeneste.ListerAsync).
@@ -1173,6 +1179,32 @@ export const api = {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),
     }),
+
+  // ---------- KI-oppdagelse av virksomheter/grupper/roller/relasjoner (issue #285) ----------
+
+  kjorKiOppdagelse: (request: KiOppdagelseRequest) =>
+    kall<KiOppdagelseSamletResultatDto>('/api/ki-oppdagelse/kjor', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  hentKiForslagKo: () => kall<KiForslagKoRadDto[]>('/api/ki-oppdagelse/ko'),
+
+  godkjennMyndighetstildeling: (id: string) =>
+    kall<MyndighetstildelingDto>(`/api/myndighetstildelinger/${id}/godkjenn`, { method: 'POST' }),
+
+  avvisMyndighetstildeling: (id: string) =>
+    kall<void>(`/api/myndighetstildelinger/${id}`, { method: 'DELETE' }),
+
+  godkjennGruppeMedlemskap: (id: string) =>
+    kall<GruppeMedlemskapDto>(`/api/gruppemedlemskap/${id}/godkjenn`, { method: 'POST' }),
+
+  avvisGruppeMedlemskap: (id: string) =>
+    kall<void>(`/api/gruppemedlemskap/${id}`, { method: 'DELETE' }),
+
+  godkjennVirksomhetRelasjon: (id: string) =>
+    kall<VirksomhetRelasjonDto>(`/api/virksomhet-relasjoner/${id}/godkjenn`, { method: 'POST' }),
 
   // ---------- Kodelisteregister / verdidomene (docs/03-domenemodell.md §1.4) — byggesteg 2 ----------
 

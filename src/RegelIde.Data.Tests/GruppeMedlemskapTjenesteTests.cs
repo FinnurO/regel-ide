@@ -317,4 +317,99 @@ public class GruppeMedlemskapTjenesteTests
         Assert.Equal("Kari Jurist", rad.EndretAv);
         Assert.Null(rad.VirksomhetId); // delt/nasjonal opplysning, ikke én virksomhets arbeidsprodukt.
     }
+
+    // ---------- Issue #285 AC5/AC6 — statusfelt + godkjenn/avvis for KI-forslag ----------
+
+    [Fact]
+    public async Task Default_status_er_validert_ingen_atferdsendring_for_menneskeflyt()
+    {
+        await using var db = _fixture.NyDbContext();
+        var oppsett = await NyttOppsettAsync(db);
+        var overordnet = await NyGruppeAsync(db, oppsett.LovId, "status-default-over");
+        var underordnet = await NyGruppeAsync(db, oppsett.LovId, "status-default-under");
+
+        var medlemskap = await new GruppeMedlemskapTjeneste(db).OpprettAsync(
+            overordnet.Id, underordnet.Id, oppsett.ForskriftId, [new ParagrafspennPar(oppsett.FraEid, null)], "Kari Jurist");
+
+        Assert.Equal("validert", medlemskap.Status);
+        var rad = await db.Proveniens.SingleAsync(p => p.EntitetType == "gruppe_medlemskap" && p.EntitetId == medlemskap.Id);
+        Assert.Equal("opprettet", rad.Handling); // IKKE "foreslatt_av_ai" — menneske-flyten er uendret.
+    }
+
+    [Fact]
+    public async Task Foreslatt_av_ai_uten_versjon_kastes()
+    {
+        await using var db = _fixture.NyDbContext();
+        var oppsett = await NyttOppsettAsync(db);
+        var overordnet = await NyGruppeAsync(db, oppsett.LovId, "mangler-versjon-over");
+        var underordnet = await NyGruppeAsync(db, oppsett.LovId, "mangler-versjon-under");
+
+        await Assert.ThrowsAsync<ArgumentException>(() => new GruppeMedlemskapTjeneste(db).OpprettAsync(
+            overordnet.Id, underordnet.Id, oppsett.ForskriftId, [new ParagrafspennPar(oppsett.FraEid, null)], "system-ki",
+            status: "foreslatt_av_ai"));
+    }
+
+    [Fact]
+    public async Task Foreslatt_av_ai_skriver_proveniens_med_ai_versjon_og_kan_godkjennes()
+    {
+        await using var db = _fixture.NyDbContext();
+        var oppsett = await NyttOppsettAsync(db);
+        var overordnet = await NyGruppeAsync(db, oppsett.LovId, "ki-forslag-over");
+        var underordnet = await NyGruppeAsync(db, oppsett.LovId, "ki-forslag-under");
+
+        var register = new GruppeMedlemskapTjeneste(db);
+        var medlemskap = await register.OpprettAsync(
+            overordnet.Id, underordnet.Id, oppsett.ForskriftId, [new ParagrafspennPar(oppsett.FraEid, null)], "system-ki",
+            status: "foreslatt_av_ai", aiForslagVersjon: "stub-v1");
+
+        Assert.Equal("foreslatt_av_ai", medlemskap.Status);
+        var opprettetRad = await db.Proveniens.SingleAsync(p => p.EntitetType == "gruppe_medlemskap" && p.EntitetId == medlemskap.Id);
+        Assert.Equal("foreslatt_av_ai", opprettetRad.Handling);
+        Assert.Equal("stub-v1", opprettetRad.AiForslagVersjon);
+
+        var godkjent = await register.GodkjennAsync(medlemskap.Id, "Kari Jurist");
+        Assert.NotNull(godkjent);
+        Assert.Equal("validert", godkjent!.Status);
+        Assert.Equal("Kari Jurist", godkjent.SistEndretAv);
+        var godkjentRad = await db.Proveniens.SingleAsync(
+            p => p.EntitetType == "gruppe_medlemskap" && p.EntitetId == medlemskap.Id && p.Handling == "validert");
+        Assert.Equal("Kari Jurist", godkjentRad.GodkjentAv);
+    }
+
+    [Fact]
+    public async Task GodkjennAsync_kaster_hvis_allerede_validert()
+    {
+        await using var db = _fixture.NyDbContext();
+        var oppsett = await NyttOppsettAsync(db);
+        var overordnet = await NyGruppeAsync(db, oppsett.LovId, "alt-validert-over");
+        var underordnet = await NyGruppeAsync(db, oppsett.LovId, "alt-validert-under");
+        var register = new GruppeMedlemskapTjeneste(db);
+        var medlemskap = await register.OpprettAsync(
+            overordnet.Id, underordnet.Id, oppsett.ForskriftId, [new ParagrafspennPar(oppsett.FraEid, null)], "Kari Jurist");
+
+        await Assert.ThrowsAsync<ArgumentException>(() => register.GodkjennAsync(medlemskap.Id, "Kari Jurist"));
+    }
+
+    [Fact]
+    public async Task AvvisAsync_sletter_kun_foreslatt_av_ai_rader()
+    {
+        await using var db = _fixture.NyDbContext();
+        var oppsett = await NyttOppsettAsync(db);
+        var overordnetForeslatt = await NyGruppeAsync(db, oppsett.LovId, "avvis-over-a");
+        var underordnetForeslatt = await NyGruppeAsync(db, oppsett.LovId, "avvis-under-a");
+        var overordnetValidert = await NyGruppeAsync(db, oppsett.LovId, "avvis-over-b");
+        var underordnetValidert = await NyGruppeAsync(db, oppsett.LovId, "avvis-under-b");
+        var register = new GruppeMedlemskapTjeneste(db);
+        var foreslatt = await register.OpprettAsync(
+            overordnetForeslatt.Id, underordnetForeslatt.Id, oppsett.ForskriftId, [new ParagrafspennPar(oppsett.FraEid, null)],
+            "system-ki", status: "foreslatt_av_ai", aiForslagVersjon: "stub-v1");
+        var validert = await register.OpprettAsync(
+            overordnetValidert.Id, underordnetValidert.Id, oppsett.ForskriftId, [new ParagrafspennPar(oppsett.FraEid, null)], "Kari Jurist");
+
+        Assert.True(await register.AvvisAsync(foreslatt.Id));
+        Assert.Null(await db.GruppeMedlemskap.FindAsync(foreslatt.Id));
+
+        await Assert.ThrowsAsync<ArgumentException>(() => register.AvvisAsync(validert.Id));
+        Assert.NotNull(await db.GruppeMedlemskap.FindAsync(validert.Id));
+    }
 }

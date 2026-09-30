@@ -211,4 +211,65 @@ public class MyndighetstildelingEndepunktTests
         }));
         Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
     }
+
+    // ---------- Issue #285 AC6 — godkjenn/avvis for KI-foreslåtte tildelinger ----------
+
+    private async Task<Guid> OpprettForeslattAvAiTildelingAsync(Guid gruppeBegrepId, Guid virksomhetId, Guid hjemmelId, string paragrafEid)
+    {
+        await using var db = _fixture.NyDbContext();
+        var tildeling = new MyndighetstildelingEntitet
+        {
+            Id = Guid.NewGuid(), GruppeBegrepId = gruppeBegrepId, VirksomhetId = virksomhetId, HjemmelRettskildeId = hjemmelId,
+            ParagrafspennJson = "[{\"FraEid\":\"" + paragrafEid + "\",\"TilEid\":null}]", Status = "foreslatt_av_ai",
+            OpprettetAv = "system-ki", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        };
+        db.Myndighetstildelinger.Add(tildeling);
+        await db.SaveChangesAsync();
+        return tildeling.Id;
+    }
+
+    [Fact]
+    public async Task Godkjenn_endrer_status_fra_foreslatt_av_ai_til_validert()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var (lovId, paragrafEid) = await OpprettRettskildeMedParagrafAsync();
+        var (hjemmelId, _) = await OpprettRettskildeMedParagrafAsync();
+        var virksomhetId = await OpprettVirksomhetAsync();
+        var gruppebegrepSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppebegrep", brukerId,
+            new { LovkildeId = lovId, Term = $"ki-rolle-{Guid.NewGuid():N}" }));
+        var gruppebegrep = await gruppebegrepSvar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger);
+        var tildelingId = await OpprettForeslattAvAiTildelingAsync(gruppebegrep!.Id, virksomhetId, hjemmelId, paragrafEid);
+
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/myndighetstildelinger/{tildelingId}/godkjenn", brukerId));
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+        var godkjent = await svar.Content.ReadFromJsonAsync<MyndighetstildelingDto>(JsonInnstillinger);
+        Assert.Equal("validert", godkjent!.Status);
+    }
+
+    [Fact]
+    public async Task Avvis_sletter_foreslatt_av_ai_rad_men_ikke_en_validert_rad()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var (lovId, paragrafEid) = await OpprettRettskildeMedParagrafAsync();
+        var (hjemmelId, _) = await OpprettRettskildeMedParagrafAsync();
+        var virksomhetId = await OpprettVirksomhetAsync();
+        var gruppebegrepSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppebegrep", brukerId,
+            new { LovkildeId = lovId, Term = $"ki-avvis-{Guid.NewGuid():N}" }));
+        var gruppebegrep = await gruppebegrepSvar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger);
+        var tildelingId = await OpprettForeslattAvAiTildelingAsync(gruppebegrep!.Id, virksomhetId, hjemmelId, paragrafEid);
+
+        var slettSvar = await _client.DeleteAsync($"/api/myndighetstildelinger/{tildelingId}");
+        Assert.Equal(HttpStatusCode.NoContent, slettSvar.StatusCode);
+
+        // En allerede VALIDERT rad (menneske-opprettet, dagens flyt) skal IKKE kunne slettes via dette
+        // endepunktet — ingen eksisterende slette-vei for validerte tildelinger utvides av denne runden.
+        var validertSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/myndighetstildelinger", brukerId, new
+        {
+            GruppeBegrepId = gruppebegrep.Id, VirksomhetId = virksomhetId, HjemmelRettskildeId = hjemmelId,
+            Paragrafspenn = new[] { new { FraEid = paragrafEid, TilEid = (string?)null } }, Vilkaar = (string?)null,
+        }));
+        var validert = await validertSvar.Content.ReadFromJsonAsync<MyndighetstildelingDto>(JsonInnstillinger);
+        var avvisValidertSvar = await _client.DeleteAsync($"/api/myndighetstildelinger/{validert!.Id}");
+        Assert.Equal(HttpStatusCode.BadRequest, avvisValidertSvar.StatusCode);
+    }
 }

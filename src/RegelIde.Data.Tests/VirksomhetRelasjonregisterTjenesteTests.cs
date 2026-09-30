@@ -256,4 +256,71 @@ public class VirksomhetRelasjonregisterTjenesteTests
         Assert.False(await db.VirksomhetRelasjoner.AnyAsync(r => r.Id == relasjon.Id));
         Assert.False(await register.SlettAsync(relasjon.Id));
     }
+
+    // ---------- Issue #285 AC5/AC6 — statusfelt + godkjenn for KI-forslag ----------
+
+    [Fact]
+    public async Task Default_status_er_validert_ingen_atferdsendring_for_menneskeflyt()
+    {
+        await using var db = _fixture.NyDbContext();
+        var fra = await NyVirksomhetAsync(db);
+        var til = await NyVirksomhetAsync(db);
+        var type = await NyRelasjonsTypeAsync(db);
+
+        var relasjon = await new VirksomhetRelasjonregisterTjeneste(db).OpprettAsync(fra, til, type, null, null, null, "Kari Jurist");
+
+        Assert.Equal("validert", relasjon.Status);
+        var rad = await db.Proveniens.SingleAsync(p => p.EntitetType == "virksomhet_relasjon" && p.EntitetId == relasjon.Id);
+        Assert.Equal("opprettet", rad.Handling); // IKKE "foreslatt_av_ai" — menneske-flyten er uendret.
+    }
+
+    [Fact]
+    public async Task Foreslatt_av_ai_uten_versjon_kastes()
+    {
+        await using var db = _fixture.NyDbContext();
+        var fra = await NyVirksomhetAsync(db);
+        var til = await NyVirksomhetAsync(db);
+        var type = await NyRelasjonsTypeAsync(db);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => new VirksomhetRelasjonregisterTjeneste(db).OpprettAsync(
+            fra, til, type, null, null, null, "system-ki", status: "foreslatt_av_ai"));
+    }
+
+    [Fact]
+    public async Task Foreslatt_av_ai_skriver_proveniens_med_ai_versjon_og_kan_godkjennes()
+    {
+        await using var db = _fixture.NyDbContext();
+        var fra = await NyVirksomhetAsync(db);
+        var til = await NyVirksomhetAsync(db);
+        var type = await NyRelasjonsTypeAsync(db);
+
+        var register = new VirksomhetRelasjonregisterTjeneste(db);
+        var relasjon = await register.OpprettAsync(
+            fra, til, type, null, null, null, "system-ki", status: "foreslatt_av_ai", aiForslagVersjon: "stub-v1");
+
+        Assert.Equal("foreslatt_av_ai", relasjon.Status);
+        var opprettetRad = await db.Proveniens.SingleAsync(p => p.EntitetType == "virksomhet_relasjon" && p.EntitetId == relasjon.Id);
+        Assert.Equal("foreslatt_av_ai", opprettetRad.Handling);
+        Assert.Equal("stub-v1", opprettetRad.AiForslagVersjon);
+
+        var godkjent = await register.GodkjennAsync(relasjon.Id, "Kari Jurist");
+        Assert.NotNull(godkjent);
+        Assert.Equal("validert", godkjent!.Status);
+        var godkjentRad = await db.Proveniens.SingleAsync(
+            p => p.EntitetType == "virksomhet_relasjon" && p.EntitetId == relasjon.Id && p.Handling == "validert");
+        Assert.Equal("Kari Jurist", godkjentRad.GodkjentAv);
+    }
+
+    [Fact]
+    public async Task GodkjennAsync_kaster_hvis_allerede_validert()
+    {
+        await using var db = _fixture.NyDbContext();
+        var fra = await NyVirksomhetAsync(db);
+        var til = await NyVirksomhetAsync(db);
+        var type = await NyRelasjonsTypeAsync(db);
+        var register = new VirksomhetRelasjonregisterTjeneste(db);
+        var relasjon = await register.OpprettAsync(fra, til, type, null, null, null, "Kari Jurist");
+
+        await Assert.ThrowsAsync<ArgumentException>(() => register.GodkjennAsync(relasjon.Id, "Kari Jurist"));
+    }
 }

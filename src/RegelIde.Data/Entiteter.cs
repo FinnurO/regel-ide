@@ -1070,6 +1070,24 @@ public sealed class VirksomhetRelasjonEntitet
     /// <c>Remove</c>, ikke en soft-delete via dette feltet. Se
     /// <see cref="VirksomhetRelasjonregisterTjeneste.SlettAsync"/>.</summary>
     public string Entitetsstatus { get; set; } = "gjeldende";
+
+    /// <summary>
+    /// [Ny, issue #285 AC5, KI-oppdagelse-runden] Lukker et bekreftet gap: FØR denne runden hadde denne
+    /// entiteten INGEN statusfelt i det hele tatt — en KI-opprettet rad kunne ikke skilles fra en
+    /// menneske-opprettet rad, og hadde ingen «venter på revisjon»-tilstand. To verdier, samme
+    /// grunn-idé som Begrep/Tjenestes 7-verdis statusløp, men ikke samme fulle løp (en relasjon
+    /// publiseres ikke/arkiveres ikke separat — den er enten et ubekreftet KI-forslag eller en
+    /// bekreftet opplysning): <c>'foreslatt_av_ai'</c> = opprettet av
+    /// <see cref="RegelIde.Data.VirksomhetOgGruppeKiOppdagelseTjeneste"/>, ikke ennå bekreftet av et
+    /// menneske. <c>'validert'</c> = enten bekreftet av et menneske i etterkant (se
+    /// <see cref="VirksomhetRelasjonregisterTjeneste.GodkjennAsync"/>), ELLER — default, satt direkte
+    /// ved opprettelse — en rad opprettet av et menneske i utgangspunktet (dagens flyt fra PR #284,
+    /// UENDRET oppførsel: <see cref="VirksomhetRelasjonregisterTjeneste.OpprettAsync"/> setter fortsatt
+    /// <c>'validert'</c> med det samme når ingen status oppgis, ALDRI en revisjonskø et menneske ikke
+    /// ba om).
+    /// </summary>
+    public string Status { get; set; } = "validert";
+
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }
 }
@@ -1291,6 +1309,11 @@ public sealed class MyndighetstildelingEntitet
     public DateOnly? GyldigFra { get; set; }
     public DateOnly? GyldigTil { get; set; }
 
+    /// <summary>[Ny, issue #285 AC5, KI-oppdagelse-runden] Se <see cref="VirksomhetRelasjonEntitet.Status"/>
+    /// for verdisettet og begrunnelsen — samme to-verdis modell, samme "default 'validert', ingen
+    /// atferdsendring for eksisterende bruk"-prinsipp.</summary>
+    public string Status { get; set; } = "validert";
+
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }
     public string? SistEndretAv { get; set; }
@@ -1345,6 +1368,10 @@ public sealed class GruppeMedlemskapEntitet
     /// <see cref="MyndighetstildelingEntitet.GyldigFra"/>.</summary>
     public DateOnly? GyldigFra { get; set; }
     public DateOnly? GyldigTil { get; set; }
+
+    /// <summary>[Ny, issue #285 AC5, KI-oppdagelse-runden] Se <see cref="VirksomhetRelasjonEntitet.Status"/>
+    /// for verdisettet og begrunnelsen.</summary>
+    public string Status { get; set; } = "validert";
 
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }

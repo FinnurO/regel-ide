@@ -36,11 +36,28 @@ public sealed class GruppeMedlemskapTjeneste(RegelIdeDbContext db)
     /// registrering som må rettes, ikke bare at «noe» er sirkulært.
     /// </para>
     /// </summary>
+    /// <summary>Lukket vokabular for <see cref="GruppeMedlemskapEntitet.Status"/> — se dens kommentar.</summary>
+    private static readonly string[] GyldigeStatuser = ["foreslatt_av_ai", "validert"];
+
+    /// <param name="status">
+    /// [Ny, issue #285 AC5, KI-oppdagelse-runden] Se <see cref="MyndighetstildelingTjeneste.OpprettAsync"/>s
+    /// tilsvarende parameter — samme betydning/default her.
+    /// </param>
     public async Task<GruppeMedlemskapEntitet> OpprettAsync(
         Guid overordnetGruppeBegrepId, Guid underordnetGruppeBegrepId, Guid hjemmelRettskildeId,
         IReadOnlyList<ParagrafspennPar> paragrafspenn, string opprettetAv,
-        DateOnly? gyldigFra = null, DateOnly? gyldigTil = null, CancellationToken ct = default)
+        DateOnly? gyldigFra = null, DateOnly? gyldigTil = null, CancellationToken ct = default,
+        string status = "validert", string? aiForslagVersjon = null)
     {
+        if (!GyldigeStatuser.Contains(status))
+        {
+            throw new ArgumentException($"Ugyldig status '{status}'. Gyldige verdier: {string.Join(", ", GyldigeStatuser)}. Ingen gjettet fallback.");
+        }
+        if (status == "foreslatt_av_ai" && aiForslagVersjon is null)
+        {
+            throw new ArgumentException("aiForslagVersjon må oppgis når status er 'foreslatt_av_ai'. Ingen gjettet fallback.");
+        }
+
         // Selv-medlemskap først: en tydeligere feilmelding enn den generelle sykelmeldingen, og
         // sjekken må uansett stå her fordi traverseringen under starter ETTER den underordnede noden.
         if (overordnetGruppeBegrepId == underordnetGruppeBegrepId)
@@ -100,14 +117,53 @@ public sealed class GruppeMedlemskapTjeneste(RegelIdeDbContext db)
             ParagrafspennJson = JsonSerializer.Serialize(paragrafspenn, JsonSerialiseringHjelper.Innstillinger),
             GyldigFra = gyldigFra,
             GyldigTil = gyldigTil,
+            Status = status,
             OpprettetAv = opprettetAv,
             OpprettetTidspunkt = DateTimeOffset.UtcNow,
         };
         db.GruppeMedlemskap.Add(medlemskap);
-        db.Proveniens.Add(ProveniensHjelper.NyRad(
-            "gruppe_medlemskap", medlemskap.Id, virksomhetId: null, "opprettet", opprettetAv));
+        db.Proveniens.Add(status == "foreslatt_av_ai"
+            ? ProveniensHjelper.NyForslagRad("gruppe_medlemskap", medlemskap.Id, virksomhetId: null, opprettetAv, aiForslagVersjon!)
+            : ProveniensHjelper.NyRad("gruppe_medlemskap", medlemskap.Id, virksomhetId: null, "opprettet", opprettetAv));
         await db.SaveChangesAsync(ct);
         return medlemskap;
+    }
+
+    /// <summary>[Ny, issue #285 AC6, KI-oppdagelse-runden] Se <see cref="MyndighetstildelingTjeneste.GodkjennAsync"/>
+    /// — samme mønster.</summary>
+    public async Task<GruppeMedlemskapEntitet?> GodkjennAsync(Guid id, string godkjentAv, CancellationToken ct = default)
+    {
+        var medlemskap = await db.GruppeMedlemskap.FirstOrDefaultAsync(m => m.Id == id, ct);
+        if (medlemskap is null) return null;
+        if (medlemskap.Status != "foreslatt_av_ai")
+        {
+            throw new ArgumentException(
+                $"Medlemskapet har status '{medlemskap.Status}' — kun 'foreslatt_av_ai'-rader kan godkjennes her.");
+        }
+        medlemskap.Status = "validert";
+        medlemskap.SistEndretAv = godkjentAv;
+        medlemskap.SistEndretTidspunkt = DateTimeOffset.UtcNow;
+        var proveniens = ProveniensHjelper.NyRad("gruppe_medlemskap", medlemskap.Id, virksomhetId: null, "validert", godkjentAv);
+        proveniens.GodkjentAv = godkjentAv;
+        db.Proveniens.Add(proveniens);
+        await db.SaveChangesAsync(ct);
+        return medlemskap;
+    }
+
+    /// <summary>[Ny, issue #285 AC6, KI-oppdagelse-runden] Se <see cref="MyndighetstildelingTjeneste.AvvisAsync"/>
+    /// — samme begrunnelse for hvorfor dette er begrenset til 'foreslatt_av_ai'.</summary>
+    public async Task<bool> AvvisAsync(Guid id, CancellationToken ct = default)
+    {
+        var medlemskap = await db.GruppeMedlemskap.FirstOrDefaultAsync(m => m.Id == id, ct);
+        if (medlemskap is null) return false;
+        if (medlemskap.Status != "foreslatt_av_ai")
+        {
+            throw new ArgumentException(
+                $"Medlemskapet har status '{medlemskap.Status}' — kun 'foreslatt_av_ai'-rader kan avvises/slettes her.");
+        }
+        db.GruppeMedlemskap.Remove(medlemskap);
+        await db.SaveChangesAsync(ct);
+        return true;
     }
 
     /// <summary>

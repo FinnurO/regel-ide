@@ -102,6 +102,11 @@ else
     builder.Services.AddScoped<IKiAgentKlient, KiAgentKlientStub>();
 }
 builder.Services.AddScoped<BegrepsforslagTjeneste>();
+// [Ny, issue #285] KI-drevet TILLEGG til det deterministiske navnekandidat-sveipet — samme
+// Stub/OpenAiKompatibel-KI-klient som over, ingen egen leverandørvalg-konfig. Se
+// VirksomhetOgGruppeKiOppdagelseTjeneste for hvorfor den kaller de andre tjenestene direkte i stedet
+// for et eget HTTP-kall (samme kodesti som de eksisterende endepunktene).
+builder.Services.AddScoped<VirksomhetOgGruppeKiOppdagelseTjeneste>();
 // Byggesteg 5 runde 4 (RAG-spike) — samme "Stub eller OpenAiKompatibel"-mønster som IKiAgentKlient
 // over, men egen konfig (RegelIde:KiAgent:EmbeddingBaseUrl/EmbeddingModell) siden en leverandør
 // typisk har separate URL-er/modellnavn for chat-completions og embeddings. Om HostYourAI faktisk
@@ -3194,6 +3199,47 @@ app.MapPost("/api/myndighetstildelinger", async (HttpRequest request, Myndighets
     .WithSummary("Kobler et gruppebegrep til en konkret virksomhet, hjemlet i en forskrift (docs/20 §2.5). " +
         "Gyldighet arves fra hjemmelen, og kan i tillegg avgrenses av valgfrie egne GyldigFra/GyldigTil (docs/29 §Del B).");
 
+// [Ny, issue #285 AC6, KI-oppdagelse-runden] Et menneske bekrefter/avviser en KI-foreslått tildeling
+// (Status="foreslatt_av_ai") — se MyndighetstildelingTjeneste.GodkjennAsync/AvvisAsync.
+app.MapPost("/api/myndighetstildelinger/{id:guid}/godkjenn", async (Guid id, HttpRequest request,
+        MyndighetstildelingTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var godkjent = await register.GodkjennAsync(id, bruker.Navn, ct);
+            return godkjent is null
+                ? Results.NotFound(new { feil = $"Ingen myndighetstildeling med id '{id}'." })
+                : Results.Ok(MyndighetstildelingDto.FraEntitet(godkjent));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("GodkjennMyndighetstildeling")
+    .WithSummary("Bekrefter en KI-foreslått myndighetstildeling (status 'foreslatt_av_ai' → 'validert'). " +
+        "Issue #285 AC6 — et menneske MÅ eksplisitt godkjenne før den regnes som gjeldende.");
+
+app.MapDelete("/api/myndighetstildelinger/{id:guid}", async (Guid id, MyndighetstildelingTjeneste register, CancellationToken ct) =>
+    {
+        try
+        {
+            return await register.AvvisAsync(id, ct)
+                ? Results.NoContent()
+                : Results.NotFound(new { feil = $"Ingen myndighetstildeling med id '{id}'." });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("AvvisMyndighetstildeling")
+    .WithSummary("Avviser (sletter) en KI-foreslått myndighetstildeling — kun 'foreslatt_av_ai'-rader kan slettes her.");
+
 app.MapGet("/api/virksomheter/{id:guid}/myndighetstildelinger", async (Guid id, bool? gjeldende, MyndighetstildelingTjeneste register, CancellationToken ct) =>
         Results.Ok((await register.AlleForVirksomhetAsync(id, gjeldende ?? false, ct)).Select(MyndighetstildelingDto.FraEntitet)))
     .WithOpenApi()
@@ -3271,6 +3317,46 @@ app.MapPost("/api/gruppemedlemskap", async (HttpRequest request, GruppeMedlemska
     .WithSummary("Registrerer at ett gruppebegrep er MEDLEM av et annet, hjemlet i en rettskilde (issue #164). " +
         "Idempotent på paret. Sirkulære kjeder avvises med 400 og hele kjeden navngitt i feilmeldingen.");
 
+// [Ny, issue #285 AC6, KI-oppdagelse-runden] Se GodkjennMyndighetstildeling/AvvisMyndighetstildeling over
+// — samme mønster, for GruppeMedlemskapEntitet.
+app.MapPost("/api/gruppemedlemskap/{id:guid}/godkjenn", async (Guid id, HttpRequest request,
+        GruppeMedlemskapTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var godkjent = await register.GodkjennAsync(id, bruker.Navn, ct);
+            return godkjent is null
+                ? Results.NotFound(new { feil = $"Ingen gruppemedlemskap med id '{id}'." })
+                : Results.Ok(GruppeMedlemskapDto.FraEntitet(godkjent));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("GodkjennGruppeMedlemskap")
+    .WithSummary("Bekrefter et KI-foreslått gruppemedlemskap (status 'foreslatt_av_ai' → 'validert'). Issue #285 AC6.");
+
+app.MapDelete("/api/gruppemedlemskap/{id:guid}", async (Guid id, GruppeMedlemskapTjeneste register, CancellationToken ct) =>
+    {
+        try
+        {
+            return await register.AvvisAsync(id, ct)
+                ? Results.NoContent()
+                : Results.NotFound(new { feil = $"Ingen gruppemedlemskap med id '{id}'." });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("AvvisGruppeMedlemskap")
+    .WithSummary("Avviser (sletter) et KI-foreslått gruppemedlemskap — kun 'foreslatt_av_ai'-rader kan slettes her.");
+
 app.MapGet("/api/gruppebegrep/{id:guid}/medlemsgrupper", async (Guid id, GruppeMedlemskapTjeneste register, CancellationToken ct) =>
         Results.Ok((await register.MedlemsgrupperForAsync(id, ct)).Select(GruppeMedlemskapDto.FraEntitet)))
     .WithOpenApi()
@@ -3313,6 +3399,33 @@ app.MapPost("/api/virksomheter/{id:guid}/relasjoner", async (Guid id, HttpReques
     .WithOpenApi()
     .WithName("OpprettVirksomhetRelasjon")
     .WithSummary("Oppretter en rettet relasjon FRA denne virksomheten TIL en annen (docs/29 §Del C).");
+
+// [Ny, issue #285 AC6, KI-oppdagelse-runden] Se GodkjennMyndighetstildeling over — samme mønster, for
+// VirksomhetRelasjonEntitet. «Avvis» for en foreslatt_av_ai-rad dekkes av den eksisterende
+// SlettVirksomhetRelasjon under (VirksomhetRelasjonregisterTjeneste.SlettAsync er ubetinget — se dens
+// kommentar — men KI-forslag-køen i UI-et viser kun 'Slett' for foreslatt_av_ai-rader, se KiOppdagelseKo.tsx).
+app.MapPost("/api/virksomhet-relasjoner/{relasjonId:guid}/godkjenn", async (Guid relasjonId, HttpRequest request,
+        VirksomhetRelasjonregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var godkjent = await register.GodkjennAsync(relasjonId, bruker.Navn, ct);
+            return godkjent is null
+                ? Results.NotFound(new { feil = $"Ingen relasjon med id '{relasjonId}'." })
+                : Results.Ok(VirksomhetRelasjonDto.FraVisning(
+                    (await register.HentForVirksomhetAsync(godkjent.FraVirksomhetId, ct))
+                    .First(v => v.Id == godkjent.Id)));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("GodkjennVirksomhetRelasjon")
+    .WithSummary("Bekrefter en KI-foreslått virksomhet-relasjon (status 'foreslatt_av_ai' → 'validert'). Issue #285 AC6.");
 
 app.MapDelete("/api/virksomhet-relasjoner/{relasjonId:guid}", async (Guid relasjonId, VirksomhetRelasjonregisterTjeneste register, CancellationToken ct) =>
         await register.SlettAsync(relasjonId, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen relasjon med id '{relasjonId}'." }))
@@ -3494,6 +3607,106 @@ virksomhetKandidater.MapDelete("/", async (Guid? virksomhetId, Guid? rettskildeI
         "VirksomhetKandidatTjeneste.HardslettAlleAvvisteAsync for hvorfor 'Godkjent' ikke kan hardslettes " +
         "(en ekte tekst-tagg som ikke kan fjernes i etterkant).");
 
+// ---------- KI-oppdagelse av virksomheter/grupper/roller/relasjoner (issue #285) ----------
+// TILLEGG til det deterministiske navnekandidat-sveipet under, IKKE en erstatning — se
+// VirksomhetOgGruppeKiOppdagelseTjenestes klassekommentar for hele arkitekturresonnementet.
+
+app.MapPost("/api/ki-oppdagelse/kjor", async (HttpRequest request, KiOppdagelseRequest body,
+        VirksomhetOgGruppeKiOppdagelseTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        if (body.RettskildeIder.Count == 0)
+        {
+            return Results.BadRequest(new { feil = "Minst én rettskilde må velges. Ingen gjettet fallback." });
+        }
+        try
+        {
+            var kandidater = new List<KiOppdagelseKandidatUtfallDto>();
+            var meldinger = new List<string>();
+            int? inputTokensSum = null, outputTokensSum = null;
+            foreach (var rettskildeId in body.RettskildeIder)
+            {
+                var resultat = await tjeneste.KjorOppdagelseAsync(rettskildeId, bruker.Navn, ct);
+                kandidater.AddRange(resultat.Kandidater.Select(KiOppdagelseKandidatUtfallDto.FraUtfall));
+                if (resultat.Melding is not null) meldinger.Add(resultat.Melding);
+                if (resultat.InputTokens is { } i) inputTokensSum = (inputTokensSum ?? 0) + i;
+                if (resultat.OutputTokens is { } o) outputTokensSum = (outputTokensSum ?? 0) + o;
+            }
+            return Results.Ok(new KiOppdagelseSamletResultatDto(kandidater, inputTokensSum, outputTokensSum, meldinger));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("KjorKiOppdagelse")
+    .WithSummary("Issue #285 AC1/AC2 — kjører KI-agenten mot hver oppgitt rettskildes faktiske, allerede " +
+        "importerte tekst (én om gangen internt), og foreslår virksomhet-/gruppekandidater + evt. " +
+        "rolle/relasjon/gruppe-av-gruppe der KI-en finner et EKSPLISITT og entydig forankret treff. " +
+        "Skriver ALDRI 'validert' direkte — se KiOppdagelseKandidatUtfallDto for hva som ble/ikke ble opprettet.");
+
+app.MapGet("/api/ki-oppdagelse/ko", async (RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        // Issue #285 AC6 — «vis disse i en egen fane/kø, IKKE blandet med menneske-opprettede rader
+        // uten markering»: KUN rader med Status == "foreslatt_av_ai", flatet til én liste på tvers av
+        // de tre entitetstypene. AiForslagVersjon slås opp fra Proveniens (der den faktisk lagres, se
+        // ProveniensHjelper.NyForslagRad) — ett samlet oppslag, ikke ett kall per rad.
+        var forslagProveniens = await db.Proveniens
+            .Where(p => p.Handling == "foreslatt_av_ai"
+                        && (p.EntitetType == "myndighetstildeling" || p.EntitetType == "virksomhet_relasjon" || p.EntitetType == "gruppe_medlemskap"))
+            .ToListAsync(ct);
+        var aiVersjonPerEntitet = forslagProveniens.ToDictionary(p => (p.EntitetType, p.EntitetId), p => p.AiForslagVersjon);
+
+        var rader = new List<KiForslagKoRadDto>();
+
+        var tildelinger = await db.Myndighetstildelinger.Where(m => m.Status == "foreslatt_av_ai").ToListAsync(ct);
+        if (tildelinger.Count > 0)
+        {
+            var gruppeIder = tildelinger.Select(t => t.GruppeBegrepId).Distinct().ToList();
+            var virksomhetIder = tildelinger.Select(t => t.VirksomhetId).Distinct().ToList();
+            var gruppeTermer = await db.Begreper.Where(b => gruppeIder.Contains(b.Id)).ToDictionaryAsync(b => b.Id, b => b.Term, ct);
+            var virksomhetNavn = await db.Virksomheter.Where(v => virksomhetIder.Contains(v.Id)).ToDictionaryAsync(v => v.Id, v => v.Navn, ct);
+            rader.AddRange(tildelinger.Select(t => new KiForslagKoRadDto(
+                "myndighetstildeling", t.Id,
+                $"{virksomhetNavn.GetValueOrDefault(t.VirksomhetId, "(ukjent virksomhet)")} — rolle: {gruppeTermer.GetValueOrDefault(t.GruppeBegrepId, "(ukjent rolle)")}",
+                aiVersjonPerEntitet.GetValueOrDefault(("myndighetstildeling", t.Id)))));
+        }
+
+        var relasjoner = await db.VirksomhetRelasjoner.Where(r => r.Status == "foreslatt_av_ai").ToListAsync(ct);
+        if (relasjoner.Count > 0)
+        {
+            var virksomhetIder = relasjoner.SelectMany(r => new[] { r.FraVirksomhetId, r.TilVirksomhetId }).Distinct().ToList();
+            var virksomhetNavn = await db.Virksomheter.Where(v => virksomhetIder.Contains(v.Id)).ToDictionaryAsync(v => v.Id, v => v.Navn, ct);
+            var typeKoder = relasjoner.Select(r => r.RelasjonsType).Distinct().ToList();
+            var typer = await db.RelasjonsTypeKonfigurasjoner.Where(k => typeKoder.Contains(k.Kode)).ToDictionaryAsync(k => k.Kode, k => k.FraVisningsmal, ct);
+            rader.AddRange(relasjoner.Select(r => new KiForslagKoRadDto(
+                "virksomhet_relasjon", r.Id,
+                $"{virksomhetNavn.GetValueOrDefault(r.FraVirksomhetId, "(ukjent)")} " +
+                string.Format(typer.GetValueOrDefault(r.RelasjonsType, "(ukjent relasjonstype) {0}"), virksomhetNavn.GetValueOrDefault(r.TilVirksomhetId, "(ukjent)")),
+                aiVersjonPerEntitet.GetValueOrDefault(("virksomhet_relasjon", r.Id)))));
+        }
+
+        var medlemskap = await db.GruppeMedlemskap.Where(m => m.Status == "foreslatt_av_ai").ToListAsync(ct);
+        if (medlemskap.Count > 0)
+        {
+            var gruppeIder = medlemskap.SelectMany(m => new[] { m.OverordnetGruppeBegrepId, m.UnderordnetGruppeBegrepId }).Distinct().ToList();
+            var gruppeTermer = await db.Begreper.Where(b => gruppeIder.Contains(b.Id)).ToDictionaryAsync(b => b.Id, b => b.Term, ct);
+            rader.AddRange(medlemskap.Select(m => new KiForslagKoRadDto(
+                "gruppe_medlemskap", m.Id,
+                $"{gruppeTermer.GetValueOrDefault(m.UnderordnetGruppeBegrepId, "(ukjent gruppe)")} er medlem av {gruppeTermer.GetValueOrDefault(m.OverordnetGruppeBegrepId, "(ukjent gruppe)")}",
+                aiVersjonPerEntitet.GetValueOrDefault(("gruppe_medlemskap", m.Id)))));
+        }
+
+        return Results.Ok(rader);
+    })
+    .WithOpenApi()
+    .WithName("HentKiForslagKo")
+    .WithSummary("Issue #285 AC6 — alle ventende (Status='foreslatt_av_ai') rolle-/relasjon-/gruppe-av-" +
+        "gruppe-forslag, flatet til én liste. Navnekandidat-forslagene selv (kategori virksomhet/gruppe) " +
+        "vises i den EKSISTERENDE /api/navnekandidater-køen, filtrert på oppdagelsesKilde='ki-fri-sveip'.");
+
 // ---------- Navnekandidater — oppdagelse av egennavn/juridiske aktører (docs/13-backlog.md §9) ----------
 // Komplementær til /api/virksomhet-kandidater over: DEN er en bekreftelsesmekanisme (krever en
 // allerede kjent navneform), DENNE er en oppdagelsesmekanisme (ren regex-mønstergjenkjenning, foreslår
@@ -3559,7 +3772,7 @@ static async Task<List<NavnekandidatDto>> BerikNavnekandidaterAsync(
 }
 
 navnekandidater.MapGet("/", async (string? status, string? kategori, Guid? rettskildeId, bool? behandletAutomatisk,
-        string? konfidens, NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+        string? konfidens, string? oppdagelsesKilde, NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
         // Samme eksplisitte "utelatt = kun Venter, 'Alle' = ingen filter"-mønster som
         // /api/virksomhet-kandidater — se den endepunktkommentaren.
@@ -3567,12 +3780,14 @@ navnekandidater.MapGet("/", async (string? status, string? kategori, Guid? retts
         var statusFilter = effektivStatus == "Alle" ? null : effektivStatus;
         var kandidater = await register.ListerAsync(
             statusFilter, kategori, rettskildeId, behandletAutomatisk,
-            string.IsNullOrEmpty(konfidens) || konfidens == "Alle" ? null : konfidens, ct);
+            string.IsNullOrEmpty(konfidens) || konfidens == "Alle" ? null : konfidens, ct,
+            string.IsNullOrEmpty(oppdagelsesKilde) ? null : oppdagelsesKilde);
         return Results.Ok(await BerikNavnekandidaterAsync(kandidater, db, ct));
     })
     .WithName("HentNavnekandidater")
-    .WithSummary("Kandidatliste, valgfritt filtrert på status/kategori/rettskilde/behandletAutomatisk/konfidens. status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter. " +
+    .WithSummary("Kandidatliste, valgfritt filtrert på status/kategori/rettskilde/behandletAutomatisk/konfidens/oppdagelsesKilde. status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter. " +
         "konfidens: 'hoy'/'lav', eller 'ingen' for rader som ikke er SNL/SSR-klassifisert (alle 'gruppe'-kandidater). " +
+        "oppdagelsesKilde='ki-fri-sveip' (issue #285) viser KUN KI-oppdagede kandidater, adskilt fra det deterministiske sveipet. " +
         "behandletAutomatisk (kun meningsfullt sammen med status='Avvist'): true = KUN rader ingen har rørt (BehandletAv tom), false = KUN manuelt avviste rader (BehandletAv satt). " +
         "Merk at automatisk avvisning IKKE lenger finnes (konfidens-runden 2026-09-09) — behandletAutomatisk=true beskriver derfor historiske rader. " +
         "'virksomhet'-kandidater (uansett oppdagelsesmønster, se issue #117) beriket med SNL-alias/URL/orgnr og SSR-bekreftelse når SNL/SSR-cachen har et treff for teksten.");

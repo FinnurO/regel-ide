@@ -13,7 +13,7 @@ namespace RegelIde.Data;
 public sealed record VirksomhetRelasjonVisning(
     Guid Id, string RelasjonsType, string Retning, string Visningstekst,
     Guid MotpartVirksomhetId, string MotpartNavn,
-    Guid? HjemmelRettskildeId, string? HjemmelEid, string? Kommentar);
+    Guid? HjemmelRettskildeId, string? HjemmelEid, string? Kommentar, string Status);
 
 /// <summary>
 /// [Ny, nemnd/sekretariat-runden, 2026-09-09] Én relasjon sett fra RETTSKILDENS ståsted i stedet for
@@ -62,7 +62,7 @@ public sealed class VirksomhetRelasjonregisterTjeneste(RegelIdeDbContext db)
             var visningstekst = string.Format(mal, motpartNavn);
             return new VirksomhetRelasjonVisning(
                 r.Id, r.RelasjonsType, erFra ? "fra" : "til", visningstekst,
-                motpartId, motpartNavn, r.HjemmelRettskildeId, r.HjemmelEid, r.Kommentar);
+                motpartId, motpartNavn, r.HjemmelRettskildeId, r.HjemmelEid, r.Kommentar, r.Status);
         }).ToList();
     }
 
@@ -140,11 +140,27 @@ public sealed class VirksomhetRelasjonregisterTjeneste(RegelIdeDbContext db)
     /// Tjenesteavhengighet er det ikke opplagt at en sykel i VirksomhetRelasjon er meningsløs (f.eks.
     /// kan A være "underlagt" B og B samtidig "enhet_i" A i en annen betydning), se docs/29 §C.3.
     /// </summary>
+    /// <summary>Lukket vokabular for <see cref="VirksomhetRelasjonEntitet.Status"/> — se dens kommentar.</summary>
+    private static readonly string[] GyldigeStatuser = ["foreslatt_av_ai", "validert"];
+
+    /// <param name="status">
+    /// [Ny, issue #285 AC5, KI-oppdagelse-runden] Se <see cref="MyndighetstildelingTjeneste.OpprettAsync"/>s
+    /// tilsvarende parameter — samme betydning/default her.
+    /// </param>
     public async Task<VirksomhetRelasjonEntitet> OpprettAsync(
         Guid fraVirksomhetId, Guid tilVirksomhetId, string relasjonsType,
         Guid? hjemmelRettskildeId, string? hjemmelEid, string? kommentar,
-        string opprettetAv, CancellationToken ct = default)
+        string opprettetAv, CancellationToken ct = default,
+        string status = "validert", string? aiForslagVersjon = null)
     {
+        if (!GyldigeStatuser.Contains(status))
+        {
+            throw new ArgumentException($"Ugyldig status '{status}'. Gyldige verdier: {string.Join(", ", GyldigeStatuser)}. Ingen gjettet fallback.");
+        }
+        if (status == "foreslatt_av_ai" && aiForslagVersjon is null)
+        {
+            throw new ArgumentException("aiForslagVersjon må oppgis når status er 'foreslatt_av_ai'. Ingen gjettet fallback.");
+        }
         if (fraVirksomhetId == tilVirksomhetId)
         {
             throw new ArgumentException("En virksomhet kan ikke ha en relasjon til seg selv.");
@@ -183,11 +199,33 @@ public sealed class VirksomhetRelasjonregisterTjeneste(RegelIdeDbContext db)
             HjemmelRettskildeId = hjemmelRettskildeId,
             HjemmelEid = hjemmelEid,
             Kommentar = kommentar,
+            Status = status,
             OpprettetAv = opprettetAv,
             OpprettetTidspunkt = DateTimeOffset.UtcNow,
         };
         db.VirksomhetRelasjoner.Add(relasjon);
-        db.Proveniens.Add(ProveniensHjelper.NyRad("virksomhet_relasjon", relasjon.Id, virksomhetId: null, "opprettet", opprettetAv));
+        db.Proveniens.Add(status == "foreslatt_av_ai"
+            ? ProveniensHjelper.NyForslagRad("virksomhet_relasjon", relasjon.Id, virksomhetId: null, opprettetAv, aiForslagVersjon!)
+            : ProveniensHjelper.NyRad("virksomhet_relasjon", relasjon.Id, virksomhetId: null, "opprettet", opprettetAv));
+        await db.SaveChangesAsync(ct);
+        return relasjon;
+    }
+
+    /// <summary>[Ny, issue #285 AC6, KI-oppdagelse-runden] Se <see cref="MyndighetstildelingTjeneste.GodkjennAsync"/>
+    /// — samme mønster.</summary>
+    public async Task<VirksomhetRelasjonEntitet?> GodkjennAsync(Guid id, string godkjentAv, CancellationToken ct = default)
+    {
+        var relasjon = await db.VirksomhetRelasjoner.FirstOrDefaultAsync(r => r.Id == id, ct);
+        if (relasjon is null) return null;
+        if (relasjon.Status != "foreslatt_av_ai")
+        {
+            throw new ArgumentException(
+                $"Relasjonen har status '{relasjon.Status}' — kun 'foreslatt_av_ai'-rader kan godkjennes her.");
+        }
+        relasjon.Status = "validert";
+        var proveniens = ProveniensHjelper.NyRad("virksomhet_relasjon", relasjon.Id, virksomhetId: null, "validert", godkjentAv);
+        proveniens.GodkjentAv = godkjentAv;
+        db.Proveniens.Add(proveniens);
         await db.SaveChangesAsync(ct);
         return relasjon;
     }

@@ -423,6 +423,8 @@ export interface MyndighetstildelingDto {
   vilkaar: string | null;
   gyldigFra: string | null;
   gyldigTil: string | null;
+  /** [Ny, issue #285 AC5] 'foreslatt_av_ai' | 'validert' — se MyndighetstildelingEntitet.Status. */
+  status: 'foreslatt_av_ai' | 'validert';
 }
 
 /** [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] «Gruppe av gruppe» — `underordnetGruppeBegrepId`
@@ -437,6 +439,47 @@ export interface GruppeMedlemskapDto {
   paragrafspenn: ParagrafspennParDto[];
   gyldigFra: string | null;
   gyldigTil: string | null;
+  /** [Ny, issue #285 AC5] 'foreslatt_av_ai' | 'validert' — se GruppeMedlemskapEntitet.Status. */
+  status: 'foreslatt_av_ai' | 'validert';
+}
+
+// ---------- KI-oppdagelse av virksomheter/grupper/roller/relasjoner (issue #285) ----------
+
+/** POST /api/ki-oppdagelse/kjor. */
+export interface KiOppdagelseRequest {
+  rettskildeIder: string[];
+}
+
+/** Ett behandlet KI-forslag — se KiOppdagelseKandidatUtfall (RegelIde.Data) for feltenes betydning.
+ * `*IkkeOpprettetGrunn`/`NavnekandidatFeil` er null når raden faktisk ble opprettet (id-feltet satt). */
+export interface KiOppdagelseKandidatUtfallDto {
+  type: 'virksomhet' | 'gruppe';
+  navn: string;
+  nodeEid: string;
+  navnekandidatId: string | null;
+  navnekandidatFeil: string | null;
+  myndighetstildelingId: string | null;
+  rolleIkkeOpprettetGrunn: string | null;
+  virksomhetRelasjonId: string | null;
+  relasjonIkkeOpprettetGrunn: string | null;
+  gruppeMedlemskapId: string | null;
+  gruppeAvGruppeIkkeOpprettetGrunn: string | null;
+}
+
+export interface KiOppdagelseSamletResultatDto {
+  kandidater: KiOppdagelseKandidatUtfallDto[];
+  inputTokens: number | null;
+  outputTokens: number | null;
+  meldinger: string[];
+}
+
+/** GET /api/ki-oppdagelse/ko — alle ventende (status='foreslatt_av_ai') rolle-/relasjon-/gruppe-av-
+ * gruppe-forslag, flatet til én liste på tvers av de tre entitetstypene. */
+export interface KiForslagKoRadDto {
+  type: 'myndighetstildeling' | 'virksomhet_relasjon' | 'gruppe_medlemskap';
+  id: string;
+  visningstekst: string;
+  aiForslagVersjon: string | null;
 }
 
 export interface GruppeMedlemskapRequest {
@@ -1174,6 +1217,8 @@ export interface VirksomhetRelasjonDto {
   hjemmelRettskildeId: string | null;
   hjemmelEid: string | null;
   kommentar: string | null;
+  /** [Ny, issue #285 AC5] 'foreslatt_av_ai' | 'validert' — se VirksomhetRelasjonEntitet.Status. */
+  status: 'foreslatt_av_ai' | 'validert';
 }
 
 /** POST /api/virksomheter/{id}/relasjoner — {id} blir alltid FraVirksomhetId. */

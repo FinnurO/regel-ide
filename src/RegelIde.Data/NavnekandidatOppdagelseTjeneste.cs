@@ -171,6 +171,20 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// tabell/felt. Satt av <c>POST /api/navnekandidater/manuell</c>, ALDRI av et sveip.
     /// </summary>
     public const string ManuellOppdagelsesKilde = "manuell";
+
+    /// <summary>
+    /// [Ny, issue #285 AC4, KI-oppdagelse-runden] Diskriminatorverdien for kandidater opprettet av
+    /// <see cref="VirksomhetOgGruppeKiOppdagelseTjeneste"/> — en KI som leser rettskildeteksten FRITT
+    /// (strukturert JSON-svar fra <see cref="IKiAgentKlient"/>) og selv resonnerer seg fram til
+    /// virksomhet-/gruppe-kandidater, TIL FORSKJELL FRA det deterministiske regex-sveipet
+    /// (<see cref="SveipAsync"/>, <see cref="StorBokstavOppdagelsesKilde"/> m.fl.) — samme nullbare
+    /// diskriminator-mønster, ingen ny tabell/felt. Kandidaten lander UENDRET i samme kø, med samme
+    /// <c>Status = "Venter"</c>-startpunkt og samme godkjenn/avvis-flyt som ethvert annet treff — et
+    /// menneske MÅ fortsatt bekrefte den (issue #285 sin eksplisitte «ingenting publiseres uten et
+    /// menneske i loopen»). Satt av <see cref="VirksomhetOgGruppeKiOppdagelseTjeneste.KjorOppdagelseAsync"/>,
+    /// ALDRI av et sveip.
+    /// </summary>
+    public const string KiFriSveipOppdagelsesKilde = "ki-fri-sveip";
     /// <summary>Diskriminatorverdien skrevet til <see cref="NavnekandidatEntitet.OppdagelsesKilde"/> for
     /// alle kandidater produsert av det brede "stor bokstav"-mønsteret (<see cref="FinnStorBokstavKandidaterITekst"/>,
     /// docs/31) — se den entitetsfeltets kommentar. <c>null</c> for kandidater fra de eldre, presise
@@ -1422,14 +1436,21 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// ingen filtrering. Egen <c>'ingen'</c>-verdi fordi «ikke klassifisert» og «lav konfidens» er to
     /// forskjellige ting, og et NULL-filter ellers ikke kan uttrykkes i en spørrestreng.
     /// </param>
+    /// <param name="oppdagelsesKilde">
+    /// [Ny, issue #285 AC6, KI-oppdagelse-runden] Filtrerer på <see cref="NavnekandidatEntitet.OppdagelsesKilde"/>
+    /// — <c>null</c> (default) = ingen filtrering. Lar UI-et vise en egen «KI-forslag»-fane for
+    /// <see cref="KiFriSveipOppdagelsesKilde"/>, adskilt fra det deterministiske sveipets treff (issue
+    /// #285: «vis disse i en egen fane/kø, IKKE blandet med menneske-opprettede rader uten markering»).
+    /// </param>
     public Task<List<NavnekandidatEntitet>> ListerAsync(
         string? status = null, string? kategori = null, Guid? rettskildeId = null, bool? behandletAutomatisk = null,
-        string? konfidens = null, CancellationToken ct = default)
+        string? konfidens = null, CancellationToken ct = default, string? oppdagelsesKilde = null)
     {
         var spørring = db.Navnekandidater.AsQueryable();
         if (status is not null) spørring = spørring.Where(k => k.Status == status);
         if (kategori is not null) spørring = spørring.Where(k => k.Kategori == kategori);
         if (rettskildeId is not null) spørring = spørring.Where(k => k.RettskildeId == rettskildeId);
+        if (oppdagelsesKilde is not null) spørring = spørring.Where(k => k.OppdagelsesKilde == oppdagelsesKilde);
         if (konfidens is not null)
         {
             spørring = konfidens == "ingen"
