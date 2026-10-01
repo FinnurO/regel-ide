@@ -157,39 +157,65 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
     /// bort, men heller ikke tvunget gjennom med en gjettet kobling.
     /// </para>
     /// </summary>
+    /// <summary>
+    /// [Rettet, 2026-10-01, live bug] Myk tegnbudsjett PER KI-KALL — ikke en hard grense på selve
+    /// rettskilden. 143 913 tegn AKN-XML (helse- og omsorgstjenesteloven) ga et KI-kall som timet ut
+    /// etter 100 sekunder mot HostYourAI, to forsøk, 500 i produksjon. Verdien er satt konservativt
+    /// lavt (ikke "akkurat under det som feilet") siden <see cref="RettskildeKontekstHjelper.ByggKontekstChunketAsync"/>
+    /// sitt node-tekst-uttrekk er mindre enn rå AKN-XML, men fortsatt ukjent hvor mye mindre uten å
+    /// måle — en konservativ verdi her er billigere å teste mot enn å gjette en marginal.
+    /// </summary>
+    private const int MaksTegnPerKiKall = 15_000;
+
     public async Task<KiOppdagelseResultat> KjorOppdagelseAsync(Guid rettskildeId, string opprettetAv, CancellationToken ct = default)
     {
-        var kontekst = await RettskildeKontekstHjelper.ByggKontekstAsync(db, [rettskildeId], ct);
+        var kontekstDeler = await RettskildeKontekstHjelper.ByggKontekstChunketAsync(db, rettskildeId, MaksTegnPerKiKall, ct);
+        if (kontekstDeler.Count == 0)
+        {
+            return new KiOppdagelseResultat([], null, null, "Rettskilden har ingen tekst å lese.");
+        }
 
-        KiSvar svar;
-        List<KandidatForslagJson>? forslag;
-        try
+        var alleForslag = new List<KandidatForslagJson>();
+        int? inputTokensSum = null, outputTokensSum = null;
+        foreach (var kontekst in kontekstDeler)
         {
-            (svar, forslag) = await KiForslagRetryHjelper.KjorMedEttRetryVedTomtSvarAsync<KandidatForslagJson>(
-                kallCt => kiKlient.GenererAsync(SystemInstruks, kontekst, kallCt),
-                json => JsonSerializer.Deserialize<List<KandidatForslagJson>>(
-                    JsonSvarHjelper.StrimleKodeblokk(json), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }),
-                _logger, "KI-oppdagelse virksomhet/gruppe", ct);
+            KiSvar svar;
+            List<KandidatForslagJson>? forslag;
+            try
+            {
+                (svar, forslag) = await KiForslagRetryHjelper.KjorMedEttRetryVedTomtSvarAsync<KandidatForslagJson>(
+                    kallCt => kiKlient.GenererAsync(SystemInstruks, kontekst, kallCt),
+                    json => JsonSerializer.Deserialize<List<KandidatForslagJson>>(
+                        JsonSvarHjelper.StrimleKodeblokk(json), new JsonSerializerOptions { PropertyNameCaseInsensitive = true }),
+                    _logger, "KI-oppdagelse virksomhet/gruppe", ct);
+            }
+            catch (JsonException ex)
+            {
+                throw new InvalidOperationException($"KI-klienten returnerte ugyldig JSON for KI-oppdagelse: {ex.Message}", ex);
+            }
+            // Sum, ikke siste verdi — flere KI-kall for samme forespørsel skal rapportere det REELLE,
+            // totale forbruket, ikke bare det siste kallets tall (ville underrapportert kostnaden for
+            // enhver rettskilde som trengte mer enn én del).
+            if (svar.InputTokens is not null) inputTokensSum = (inputTokensSum ?? 0) + svar.InputTokens;
+            if (svar.OutputTokens is not null) outputTokensSum = (outputTokensSum ?? 0) + svar.OutputTokens;
+            if (forslag is not null) alleForslag.AddRange(forslag);
         }
-        catch (JsonException ex)
-        {
-            throw new InvalidOperationException($"KI-klienten returnerte ugyldig JSON for KI-oppdagelse: {ex.Message}", ex);
-        }
-        if (forslag is null || forslag.Count == 0)
+
+        if (alleForslag.Count == 0)
         {
             return new KiOppdagelseResultat(
-                [], svar.InputTokens, svar.OutputTokens,
+                [], inputTokensSum, outputTokensSum,
                 "KI-agenten svarte, men fant ingen virksomhet-/gruppekandidater i valgt rettskilde.");
         }
 
-        // Rettskilden er allerede validert til å finnes/være gjeldende av ByggKontekstAsync over (den
-        // kaster ArgumentException ellers) — ingen ny sjekk trengs her.
+        // Rettskilden er allerede validert til å finnes/være gjeldende av ByggKontekstChunketAsync over
+        // (den kaster ArgumentException ellers) — ingen ny sjekk trengs her.
         var utfall = new List<KiOppdagelseKandidatUtfall>();
-        foreach (var k in forslag)
+        foreach (var k in alleForslag)
         {
             utfall.Add(await BehandleEttForslagAsync(k, rettskildeId, opprettetAv, ct));
         }
-        return new KiOppdagelseResultat(utfall, svar.InputTokens, svar.OutputTokens, null);
+        return new KiOppdagelseResultat(utfall, inputTokensSum, outputTokensSum, null);
     }
 
     /// <summary>
