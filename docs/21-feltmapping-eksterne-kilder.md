@@ -107,7 +107,7 @@ gjøre statusen synlig, ikke som en komplett gjennomgang:
 
 - **Altinn Ressurser** ([`AltinnRessursHenter`](../src/RegelIde.Data/AltinnRessursHenter.cs)) — rå høsting, ingen kobling.
 - **Altinn Skjemaoversikt** ([`AltinnSkjemaoversiktHenter`](../src/RegelIde.Data/AltinnSkjemaoversiktHenter.cs)) — rå høsting, ingen kobling.
-- **Statsforvalter-/fylkeskommune-tjenestelister** ([`TjenestelisteImporter`](../src/RegelIde.Data/TjenestelisteImporter.cs)) — rå høsting (delt kode for to strukturelt like kilder), ingen kobling.
+- **Kommune-/fylkeskommune-/statsforvalter-tjenestelister** — se §5, koblet issue #294.
 
 Når/hvis noen av disse skal kobles inn i domenemodellen (samme mønster som Oppgaveregisteret),
 **skriv en tilsvarende seksjon i dette dokumentet FØR koden skrives** — det var nettopp mangelen på
@@ -136,3 +136,60 @@ andre kildene over.
 den som kjører wizarden — den lander da som et forslag (`Status = "foreslatt_av_annen_virksomhet"`,
 `Proveniens.ForeslattAvVirksomhetId`) i mål-virksomhetens kø, se docs/23 §6 og
 `TjenesteregisterTjeneste.OpprettForslagFraAnnenVirksomhetAsync`.
+
+## 5. Kommune-/fylkeskommune-/statsforvalter-tjenester (issue #294)
+
+*Skrevet ETTER koden (samme avvik fra §3s egen anbefaling som §4 allerede innrømmer for
+import-wizarden) — notert her for ordens skyld, med samme advarsel: ikke et forbilde å gjenta.*
+
+**Kilde**: tre `EksternKildeEntitet`-kildetyper (`kommune_tjeneste`/`fylkeskommune_dialogtjeneste`/
+`statsforvalter_tjeneste`), alle filbaserte (Johanns eget eksterne skript, se
+`data/kilder/kommune-skraping/README.md` og `TjenestelisteImporter`s klassekommentar). Per-record
+JSON-formen er EMPIRISK IDENTISK på tvers av alle tre (verifisert mot den ekte, kjørende
+dev-databasen 2026-10-01), domenekoblingen skjer i
+[`EksternTjenestelisteHandlingSeed`](../src/RegelIde.Data/EksternTjenestelisteHandlingSeed.cs).
+
+### 5.1 Mappes til domenemodellen
+
+| Kildefelt | Forekomst (målt mot live dev-db 2026-10-01) | Mappes til | Kommentar |
+|---|---|---|---|
+| `tjenestenavn` | 100 % på alle tre kildetyper | `Handling.Navn` | Direkte. |
+| `tilbys_av[].organisasjonsnummer` | 100 %, allerede en streng (ikke tall som Oppgaveregisterets `eier.organisasjonsnummer`) | Matching-nøkkel → `Virksomhet.Id` PER tilbyder | Ingen treff for ÉN tilbyder ⇒ KUN den tilbyderens handling hoppes over (se §5.2) — resten av `tilbys_av[]`-listen behandles uavhengig. |
+| (kilderadens `EksternKildeEntitet.Id`) | — | `Handling.EksternKildeId` | Idempotens-nøkkelen, PARET med `TjenesteId` (ikke alene) — se §5.2 for hvorfor. |
+| `beskrivelse`, fallback `kategori`/`tema` | se §5.2 | `Handling.Merknad` | Beskrivelse først; kategori/tema kun når beskrivelse er tom/mangler. |
+| (implisitt: alltid `soker`) | — | `Handling.UtfortAv = "soker"` | Samme begrunnelse som Oppgaveregisteret — alle tre er innsendinger TIL myndigheten. |
+| (implisitt: alltid `"annet"`) | — | `Handling.Handlingstype` | Ingen kildefelt å klassifisere fra (til forskjell fra Oppgaveregisterets `bruksomraader[]`) — se §5.2. |
+
+### 5.2 Bevisste forenklinger/forskjeller fra Oppgaveregisteret (dokumentert i koden)
+
+- **Ingen `lovhjemler[]`-ekvivalent i noen av de tre kildene** — INGEN `HandlingRegelverksreferanseEntitet`
+  opprettes av denne seeden. Regelverksreferanser for disse ~16 200 tjenestene kommer utelukkende fra
+  gjenbruk av `TjenesteRegelverksreferanseforslagTjeneste` (PR #289, KI-forslag basert på
+  tittel/beskrivelse), ikke fra noen deterministisk kildemapping.
+- **`tilbys_av[]` kan ha FLERE elementer** (statsforvalter, opptil 10 — kommune/fylkeskommune har
+  empirisk alltid nøyaktig ett) → SAMME kilderad gir da opphav til FLERE `Handling`-rader, én per kjent
+  tilbyder-virksomhet, hver under sin EGEN plassholder-`Tjeneste`. Ingen master/instans-modellering
+  (eksplisitt parkert, se `TjenestelisteImporter`s klassekommentar) — se `ux_handlinger_ekstern_kilde`-
+  indeksutvidelsen (RegelIdeDbContext.cs, (EksternKildeId, TjenesteId) i stedet for EksternKildeId alene)
+  som gjør dette trygt.
+- **`beskrivelse` alltid tom for `kommune_tjeneste`** (dokumentert svakhet,
+  `data/kilder/kommune-skraping/README.md`) → `Merknad` faller tilbake til `kategori` for DENNE
+  kildetypen (100 % utfylt i stikkprøven). Fylkeskommune/statsforvalter har egen, reell `beskrivelse` i
+  praksis og bruker den direkte. Se PR-beskrivelsen (issue #294, AC3) for vurderingen av om dette faktisk
+  monner i UI-et.
+- **Ingen bruksområde-/handlingstype-klassifisering** — `kategori`/`tema` er fri tekst uten noe kjent,
+  begrenset vokabular å mappe determinerisk fra (til forskjell fra Oppgaveregisterets tre kjente
+  `bruksomraader[].navn`-verdier) — `Handlingstype = "annet"` uniformt, ingen gjettet finere inndeling.
+
+### 5.3 Mappes IKKE
+
+| Kildefelt | Hvorfor ikke | Reelt mappingpotensial? |
+|---|---|---|
+| `url` | Kun brukt som del av høstelagets identitetsnøkkel (`EksternKildeEntitet.EksternId`), ikke lest av seeden selv. | Middels — kunne vært en kanal-adresse i `Handling.Kanaler`, samme ubrukte mulighet som Oppgaveregisterets `nettadresser[]` (§1.3). |
+| `kilder[]` (kun `kommune_tjeneste`) | Skrapemetode-diagnostikk (`SKJEMA_NO_API` m.fl.), ingen domenebetydning. | Ingen. |
+| `tilbys_av[].organisasjon` (fritekst-navn) | Deserialisert kun for matching-formål i tidligere runder — denne seeden bruker virksomhetens EGEN `Navn` fra databasen, ikke kildens fritekst-variant, samme begrunnelse som Oppgaveregisterets `eier.etatsnavn` (§1.3). | Lavt. |
+
+## 6. Videre arbeid (ikke gjort i #294)
+
+Samme liste som §2 pekte på for Oppgaveregisteret, pluss: `url` → `Handling.Kanaler` for de tre nye
+kildene (identisk ubrukt mulighet). Ingen av disse er implementert i #294.

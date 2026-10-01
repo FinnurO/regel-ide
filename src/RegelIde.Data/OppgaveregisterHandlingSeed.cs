@@ -207,8 +207,18 @@ public static partial class OppgaveregisterHandlingSeed
             .ToDictionaryAsync(t => t.VirksomhetId, t => t.Id, ct);
 
         // Eksisterende handlinger fra en tidligere kjøring av DENNE seeden — se "Idempotens" over.
+        // [ENDRET, issue #294] Scopet til KUN denne kildetypens egne EksternKilde-rader (via
+        // kildeRader, allerede lest over) — FØR denne endringen skannet spørringen HELE Handlinger-
+        // tabellen uten kildetype-filter. Det var trygt så lenge EksternKildeId var garantert unik per
+        // Handling (den gamle DB-indeksen), men EksternTjenestelisteHandlingSeed (samme PR) kan nå
+        // lovlig gi FLERE Handling-rader samme EksternKildeId (statsforvalter-duplisering per
+        // tilbyder-embete, se dens klassekommentar) — en uskopet ToDictionaryAsync her ville da kastet
+        // "An item with the same key has already been added" så snart NOEN statsforvalter-rad med mer
+        // enn én tilbyder fantes i basen, selv om denne seeden (Oppgaveregisteret) selv aldri lager
+        // dupliserte EksternKildeId-er. Scopingen her er derfor en nødvendig, ikke kosmetisk, retting.
+        var kildeIdSett = kildeRader.Select(k => k.Id).ToHashSet();
         var eksisterendeHandlinger = await db.Handlinger
-            .Where(h => h.EksternKildeId != null && h.Entitetsstatus == "gjeldende")
+            .Where(h => h.EksternKildeId != null && h.Entitetsstatus == "gjeldende" && kildeIdSett.Contains(h.EksternKildeId.Value))
             .ToDictionaryAsync(h => h.EksternKildeId!.Value, ct);
         // [ENDRET, issue #147, 2026-09-10, rettet ved orkestrator-verifisering] Var tidligere en HashSet
         // av (HandlingId, TilRettskildeId, TilEid) — nøkkelen inkluderte TilEid, så et GJENTATT kall etter
