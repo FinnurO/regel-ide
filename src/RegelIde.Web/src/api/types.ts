@@ -423,6 +423,8 @@ export interface MyndighetstildelingDto {
   vilkaar: string | null;
   gyldigFra: string | null;
   gyldigTil: string | null;
+  /** [Ny, issue #285 AC5] 'foreslatt_av_ai' | 'validert' — se MyndighetstildelingEntitet.Status. */
+  status: 'foreslatt_av_ai' | 'validert';
 }
 
 /** [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] «Gruppe av gruppe» — `underordnetGruppeBegrepId`
@@ -437,6 +439,47 @@ export interface GruppeMedlemskapDto {
   paragrafspenn: ParagrafspennParDto[];
   gyldigFra: string | null;
   gyldigTil: string | null;
+  /** [Ny, issue #285 AC5] 'foreslatt_av_ai' | 'validert' — se GruppeMedlemskapEntitet.Status. */
+  status: 'foreslatt_av_ai' | 'validert';
+}
+
+// ---------- KI-oppdagelse av virksomheter/grupper/roller/relasjoner (issue #285) ----------
+
+/** POST /api/ki-oppdagelse/kjor. */
+export interface KiOppdagelseRequest {
+  rettskildeIder: string[];
+}
+
+/** Ett behandlet KI-forslag — se KiOppdagelseKandidatUtfall (RegelIde.Data) for feltenes betydning.
+ * `*IkkeOpprettetGrunn`/`NavnekandidatFeil` er null når raden faktisk ble opprettet (id-feltet satt). */
+export interface KiOppdagelseKandidatUtfallDto {
+  type: 'virksomhet' | 'gruppe';
+  navn: string;
+  nodeEid: string;
+  navnekandidatId: string | null;
+  navnekandidatFeil: string | null;
+  myndighetstildelingId: string | null;
+  rolleIkkeOpprettetGrunn: string | null;
+  virksomhetRelasjonId: string | null;
+  relasjonIkkeOpprettetGrunn: string | null;
+  gruppeMedlemskapId: string | null;
+  gruppeAvGruppeIkkeOpprettetGrunn: string | null;
+}
+
+export interface KiOppdagelseSamletResultatDto {
+  kandidater: KiOppdagelseKandidatUtfallDto[];
+  inputTokens: number | null;
+  outputTokens: number | null;
+  meldinger: string[];
+}
+
+/** GET /api/ki-oppdagelse/ko — alle ventende (status='foreslatt_av_ai') rolle-/relasjon-/gruppe-av-
+ * gruppe-forslag, flatet til én liste på tvers av de tre entitetstypene. */
+export interface KiForslagKoRadDto {
+  type: 'myndighetstildeling' | 'virksomhet_relasjon' | 'gruppe_medlemskap';
+  id: string;
+  visningstekst: string;
+  aiForslagVersjon: string | null;
 }
 
 export interface GruppeMedlemskapRequest {
@@ -1035,13 +1078,83 @@ export interface TjenesteRegelverksreferanseDto {
   felt: string | null;
 }
 
+/** [Ny, issue #286] Kandidatkø-rad for GET /api/tjenester/regelverksreferanse-forslag — KI-foreslått
+ * kobling for en EKSISTERENDE tjeneste uten regelverksreferanser. */
+export interface TjenesteRegelverksreferanseForslagDto {
+  id: string;
+  tjenesteId: string;
+  tjenesteTittel: string;
+  virksomhetId: string;
+  tilRettskildeId: string;
+  tilEid: string;
+  begrunnelse: string | null;
+  status: string;
+  aiForslagVersjon: string | null;
+  opprettetAv: string;
+  opprettetTidspunkt: string;
+  behandletAv: string | null;
+  behandletTidspunkt: string | null;
+}
+
+export interface KjorRegelverksreferanseforslagRequest {
+  rettskildeIder: string[];
+}
+
+export interface KjorRegelverksreferanseforslagResponsDto {
+  antallTjenesterUtenReferanse: number;
+  antallVurdert: number;
+  antallNyeForslag: number;
+  inputTokens: number | null;
+  outputTokens: number | null;
+}
+
+/** [Ny, issue #286] GET /api/rettskilder/{id}/statistikk — «Denne loven forvaltes av X virksomheter,
+ * har Y begrep, har Z tjenester». */
+export interface RettskildeStatistikkDto {
+  rettskildeId: string;
+  antallVirksomheter: number;
+  antallBegrep: number;
+  antallTjenester: number;
+}
+
 /** Samme rolle for en Handling som TjenesteRegelverksreferanseDto har for en Tjeneste (2026-08-22,
- * se OppgaveregisterHandlingSeed) — kun lesing i UI-et ennå, ingen koble til/fjern-endepunkt finnes. */
+ * se OppgaveregisterHandlingSeed) — kun lesing i UI-et ennå, ingen generisk koble til/fjern-endepunkt
+ * finnes (issue #290 la til en SNEVER oppgraderingsvei via regelverksreferanse-forslag-køen under). */
 export interface HandlingRegelverksreferanseDto {
   id: string;
   handlingId: string;
   tilRettskildeId: string;
   tilEid: string;
+}
+
+/** [Ny, issue #290] Kandidatkø-rad for GET /api/tjenester/handlinger/regelverksreferanse-forslag —
+ * KI-foreslått OPPGRADERING (dokumentnivå → paragrafnivå) av en Handling-regelverksreferanse. */
+export interface HandlingRegelverksreferanseForslagDto {
+  id: string;
+  handlingId: string;
+  handlingNavn: string;
+  tjenesteTittel: string;
+  tilRettskildeId: string;
+  tilEid: string;
+  begrunnelse: string | null;
+  status: string;
+  aiForslagVersjon: string | null;
+  opprettetAv: string;
+  opprettetTidspunkt: string;
+  behandletAv: string | null;
+  behandletTidspunkt: string | null;
+}
+
+export interface KjorHandlingRegelverksreferanseforslagRequest {
+  rettskildeIder: string[];
+}
+
+export interface KjorHandlingRegelverksreferanseforslagResponsDto {
+  antallKandidatrader: number;
+  antallVurdert: number;
+  antallNyeForslag: number;
+  inputTokens: number | null;
+  outputTokens: number | null;
 }
 
 /** Håndbok-nivå rettskildeomfang (docs/12-fasit-handbok-leveranse.md, 2026-07-31). */
@@ -1174,6 +1287,8 @@ export interface VirksomhetRelasjonDto {
   hjemmelRettskildeId: string | null;
   hjemmelEid: string | null;
   kommentar: string | null;
+  /** [Ny, issue #285 AC5] 'foreslatt_av_ai' | 'validert' — se VirksomhetRelasjonEntitet.Status. */
+  status: 'foreslatt_av_ai' | 'validert';
 }
 
 /** POST /api/virksomheter/{id}/relasjoner — {id} blir alltid FraVirksomhetId. */

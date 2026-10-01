@@ -180,4 +180,119 @@ public class MyndighetstildelingTjenesteTests
         Assert.Single(alleForGruppe);
         Assert.Equal(permanent.Id, alleForGruppe[0].Id);
     }
+
+    // ---------- Issue #285 AC5/AC6 — statusfelt + godkjenn/avvis for KI-forslag ----------
+
+    [Fact]
+    public async Task Default_status_er_validert_ingen_atferdsendring_for_menneskeflyt()
+    {
+        await using var db = _fixture.NyDbContext();
+        var (lovId, paragrafEid) = await OpprettAlkohollovenMedParagrafAsync(db);
+        var forskrift = await new RettskildeImportTjeneste(db).ImporterAsync(
+            LovdataKonverterer.Konverter(Testdata.LesAlkoholforskriften(), new DateOnly(2026, 8, 22)));
+        var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(virksomhet);
+        await db.SaveChangesAsync();
+        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("status-default"), "Kari Jurist");
+
+        var tildeling = await new MyndighetstildelingTjeneste(db).OpprettAsync(
+            gruppebegrep.Id, virksomhet.Id, forskrift, [new ParagrafspennPar(paragrafEid, null)], null, "Kari Jurist");
+
+        Assert.Equal("validert", tildeling.Status);
+        var rad = await db.Proveniens.SingleAsync(p => p.EntitetType == "myndighetstildeling" && p.EntitetId == tildeling.Id);
+        Assert.Equal("opprettet", rad.Handling); // IKKE "foreslatt_av_ai" — menneske-flyten er uendret.
+    }
+
+    [Fact]
+    public async Task Foreslatt_av_ai_uten_versjon_kastes()
+    {
+        await using var db = _fixture.NyDbContext();
+        var (lovId, paragrafEid) = await OpprettAlkohollovenMedParagrafAsync(db);
+        var forskrift = await new RettskildeImportTjeneste(db).ImporterAsync(
+            LovdataKonverterer.Konverter(Testdata.LesAlkoholforskriften(), new DateOnly(2026, 8, 22)));
+        var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(virksomhet);
+        await db.SaveChangesAsync();
+        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("mangler-versjon"), "Kari Jurist");
+
+        await Assert.ThrowsAsync<ArgumentException>(() => new MyndighetstildelingTjeneste(db).OpprettAsync(
+            gruppebegrep.Id, virksomhet.Id, forskrift, [new ParagrafspennPar(paragrafEid, null)], null, "system-ki",
+            status: "foreslatt_av_ai"));
+    }
+
+    [Fact]
+    public async Task Foreslatt_av_ai_skriver_proveniens_med_ai_versjon_og_kan_godkjennes()
+    {
+        await using var db = _fixture.NyDbContext();
+        var (lovId, paragrafEid) = await OpprettAlkohollovenMedParagrafAsync(db);
+        var forskrift = await new RettskildeImportTjeneste(db).ImporterAsync(
+            LovdataKonverterer.Konverter(Testdata.LesAlkoholforskriften(), new DateOnly(2026, 8, 22)));
+        var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(virksomhet);
+        await db.SaveChangesAsync();
+        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("ki-forslag"), "Kari Jurist");
+
+        var register = new MyndighetstildelingTjeneste(db);
+        var tildeling = await register.OpprettAsync(
+            gruppebegrep.Id, virksomhet.Id, forskrift, [new ParagrafspennPar(paragrafEid, null)], null, "system-ki",
+            status: "foreslatt_av_ai", aiForslagVersjon: "stub-v1");
+
+        Assert.Equal("foreslatt_av_ai", tildeling.Status);
+        var opprettetRad = await db.Proveniens.SingleAsync(p => p.EntitetType == "myndighetstildeling" && p.EntitetId == tildeling.Id);
+        Assert.Equal("foreslatt_av_ai", opprettetRad.Handling);
+        Assert.Equal("stub-v1", opprettetRad.AiForslagVersjon);
+
+        var godkjent = await register.GodkjennAsync(tildeling.Id, "Kari Jurist");
+        Assert.NotNull(godkjent);
+        Assert.Equal("validert", godkjent!.Status);
+        Assert.Equal("Kari Jurist", godkjent.SistEndretAv);
+        var godkjentRad = await db.Proveniens.SingleAsync(
+            p => p.EntitetType == "myndighetstildeling" && p.EntitetId == tildeling.Id && p.Handling == "validert");
+        Assert.Equal("Kari Jurist", godkjentRad.GodkjentAv);
+    }
+
+    [Fact]
+    public async Task GodkjennAsync_kaster_hvis_allerede_validert()
+    {
+        await using var db = _fixture.NyDbContext();
+        var (lovId, paragrafEid) = await OpprettAlkohollovenMedParagrafAsync(db);
+        var forskrift = await new RettskildeImportTjeneste(db).ImporterAsync(
+            LovdataKonverterer.Konverter(Testdata.LesAlkoholforskriften(), new DateOnly(2026, 8, 22)));
+        var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
+        db.Virksomheter.Add(virksomhet);
+        await db.SaveChangesAsync();
+        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("alt-validert"), "Kari Jurist");
+        var register = new MyndighetstildelingTjeneste(db);
+        var tildeling = await register.OpprettAsync(
+            gruppebegrep.Id, virksomhet.Id, forskrift, [new ParagrafspennPar(paragrafEid, null)], null, "Kari Jurist");
+
+        await Assert.ThrowsAsync<ArgumentException>(() => register.GodkjennAsync(tildeling.Id, "Kari Jurist"));
+    }
+
+    [Fact]
+    public async Task AvvisAsync_sletter_kun_foreslatt_av_ai_rader()
+    {
+        await using var db = _fixture.NyDbContext();
+        var (lovId, paragrafEid) = await OpprettAlkohollovenMedParagrafAsync(db);
+        var forskrift = await new RettskildeImportTjeneste(db).ImporterAsync(
+            LovdataKonverterer.Konverter(Testdata.LesAlkoholforskriften(), new DateOnly(2026, 8, 22)));
+        var virksomhetA = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-a-{Guid.NewGuid():N}" };
+        var virksomhetB = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-b-{Guid.NewGuid():N}" };
+        db.Virksomheter.AddRange(virksomhetA, virksomhetB);
+        await db.SaveChangesAsync();
+        var gruppebegrepA = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("avvis-a"), "Kari Jurist");
+        var gruppebegrepB = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("avvis-b"), "Kari Jurist");
+        var register = new MyndighetstildelingTjeneste(db);
+        var foreslatt = await register.OpprettAsync(
+            gruppebegrepA.Id, virksomhetA.Id, forskrift, [new ParagrafspennPar(paragrafEid, null)], null, "system-ki",
+            status: "foreslatt_av_ai", aiForslagVersjon: "stub-v1");
+        var validert = await register.OpprettAsync(
+            gruppebegrepB.Id, virksomhetB.Id, forskrift, [new ParagrafspennPar(paragrafEid, null)], null, "Kari Jurist");
+
+        Assert.True(await register.AvvisAsync(foreslatt.Id));
+        Assert.Null(await db.Myndighetstildelinger.FindAsync(foreslatt.Id));
+
+        await Assert.ThrowsAsync<ArgumentException>(() => register.AvvisAsync(validert.Id));
+        Assert.NotNull(await db.Myndighetstildelinger.FindAsync(validert.Id));
+    }
 }

@@ -379,12 +379,58 @@ public sealed record TjenesteRegelverksreferanseDto(Guid Id, Guid TjenesteId, Gu
         new(r.Id, r.TjenesteId, r.TilRettskildeId, r.TilEid, r.Felt);
 }
 
+/// <summary>[Ny, issue #286] Kandidatkø-rad for GET /api/tjenester/regelverksreferanse-forslag — bærer
+/// den eiende tjenestens tittel/virksomhetId join'et inn (se
+/// <see cref="RegelIde.Data.TjenesteRegelverksreferanseforslagTjeneste.ListerMedTjenesteAsync"/>), samme
+/// "klienten trenger ikke ett kall per rad"-mønster som <see cref="BegrepDefinisjonRelasjonKandidatDto"/>.</summary>
+public sealed record TjenesteRegelverksreferanseForslagDto(
+    Guid Id, Guid TjenesteId, string TjenesteTittel, Guid VirksomhetId, Guid TilRettskildeId, string TilEid,
+    string? Begrunnelse, string Status, string? AiForslagVersjon,
+    string OpprettetAv, DateTimeOffset OpprettetTidspunkt, string? BehandletAv, DateTimeOffset? BehandletTidspunkt)
+{
+    public static TjenesteRegelverksreferanseForslagDto FraEntitet(RegelIde.Data.TjenesteRegelverksreferanseForslagEntitet f, TjenesteEntitet t) =>
+        new(f.Id, f.TjenesteId, t.Tittel, t.VirksomhetId, f.TilRettskildeId, f.TilEid, f.Begrunnelse, f.Status, f.AiForslagVersjon,
+            f.OpprettetAv, f.OpprettetTidspunkt, f.BehandletAv, f.BehandletTidspunkt);
+}
+
+public sealed record KjorRegelverksreferanseforslagRequest(IReadOnlyList<Guid> RettskildeIder);
+
+public sealed record KjorRegelverksreferanseforslagResponsDto(
+    int AntallTjenesterUtenReferanse, int AntallVurdert, int AntallNyeForslag, int? InputTokens, int? OutputTokens)
+{
+    public static KjorRegelverksreferanseforslagResponsDto FraResultat(RegelIde.Data.TjenesteRegelverksreferanseforslagResultat r) =>
+        new(r.AntallTjenesterUtenReferanse, r.AntallVurdert, r.AntallNyeForslag, r.InputTokens, r.OutputTokens);
+}
+
 /// <summary>Samme rolle for en Handling som <see cref="TjenesteRegelverksreferanseDto"/> har for en
 /// Tjeneste (2026-08-22, <see cref="RegelIde.Data.OppgaveregisterHandlingSeed"/>).</summary>
 public sealed record HandlingRegelverksreferanseDto(Guid Id, Guid HandlingId, Guid TilRettskildeId, string TilEid)
 {
     public static HandlingRegelverksreferanseDto FraEntitet(HandlingRegelverksreferanseEntitet r) =>
         new(r.Id, r.HandlingId, r.TilRettskildeId, r.TilEid);
+}
+
+/// <summary>[Ny, issue #290] Kandidatkø-rad for GET /api/tjenester/handlinger/regelverksreferanse-forslag
+/// — KI-foreslått OPPGRADERING (dokumentnivå → paragrafnivå) for en Handling. Samme "bærer det
+/// underliggende sitt visningsnavn"-mønster som <see cref="TjenesteRegelverksreferanseForslagDto"/>.</summary>
+public sealed record HandlingRegelverksreferanseForslagDto(
+    Guid Id, Guid HandlingId, string HandlingNavn, string TjenesteTittel, Guid TilRettskildeId, string TilEid,
+    string? Begrunnelse, string Status, string? AiForslagVersjon,
+    string OpprettetAv, DateTimeOffset OpprettetTidspunkt, string? BehandletAv, DateTimeOffset? BehandletTidspunkt)
+{
+    public static HandlingRegelverksreferanseForslagDto FraEntitet(
+        RegelIde.Data.HandlingRegelverksreferanseForslagEntitet f, HandlingEntitet h, string tjenesteTittel) =>
+        new(f.Id, f.HandlingId, h.Navn, tjenesteTittel, f.TilRettskildeId, f.TilEid, f.Begrunnelse, f.Status, f.AiForslagVersjon,
+            f.OpprettetAv, f.OpprettetTidspunkt, f.BehandletAv, f.BehandletTidspunkt);
+}
+
+public sealed record KjorHandlingRegelverksreferanseforslagRequest(IReadOnlyList<Guid> RettskildeIder);
+
+public sealed record KjorHandlingRegelverksreferanseforslagResponsDto(
+    int AntallKandidatrader, int AntallVurdert, int AntallNyeForslag, int? InputTokens, int? OutputTokens)
+{
+    public static KjorHandlingRegelverksreferanseforslagResponsDto FraResultat(RegelIde.Data.HandlingRegelverksreferanseforslagResultat r) =>
+        new(r.AntallKandidatrader, r.AntallVurdert, r.AntallNyeForslag, r.InputTokens, r.OutputTokens);
 }
 
 /// <summary>Sammendrag returnert av POST /api/eksterne-kilder/oppgaveregister/koble-til-handlinger —
@@ -494,11 +540,11 @@ public sealed record RelasjonsTypeKonfigurasjonDto(string Kode, string FraVisnin
 public sealed record VirksomhetRelasjonDto(
     Guid Id, string RelasjonsType, string Retning, string Visningstekst,
     Guid MotpartVirksomhetId, string MotpartNavn,
-    Guid? HjemmelRettskildeId, string? HjemmelEid, string? Kommentar)
+    Guid? HjemmelRettskildeId, string? HjemmelEid, string? Kommentar, string Status)
 {
     public static VirksomhetRelasjonDto FraVisning(VirksomhetRelasjonVisning v) => new(
         v.Id, v.RelasjonsType, v.Retning, v.Visningstekst, v.MotpartVirksomhetId, v.MotpartNavn,
-        v.HjemmelRettskildeId, v.HjemmelEid, v.Kommentar);
+        v.HjemmelRettskildeId, v.HjemmelEid, v.Kommentar, v.Status);
 }
 
 /// <summary>[Ny, nemnd/sekretariat-runden, 2026-09-09] Én relasjon hjemlet i én rettskilde — se
@@ -569,6 +615,11 @@ public sealed record ImportRettighetRequest(
 /// GET /api/rettskilder/{id}/referert-av-tjenester (byggesteg 4, 2026-07-30).
 /// </summary>
 public sealed record TjenesteReferanseDto(Guid TjenesteId, string TjenesteTittel, string TilEid);
+
+/// <summary>[Ny, issue #286] GET /api/rettskilder/{id}/statistikk — «Denne loven forvaltes av X
+/// virksomheter, har Y begrep, har Z tjenester». Se <see cref="RettskildeRepository.StatistikkAsync"/>
+/// sin doc-kommentar for den presise telledefinisjonen bak hvert tall.</summary>
+public sealed record RettskildeStatistikkDto(Guid RettskildeId, int AntallVirksomheter, int AntallBegrep, int AntallTjenester);
 
 /// <summary>
 /// Motsatt retning av <see cref="RettskildeReferanseDto"/> — brukt av
@@ -703,12 +754,12 @@ public sealed record MyndighetstildelingRequest(
 public sealed record MyndighetstildelingDto(
     Guid Id, Guid GruppeBegrepId, Guid VirksomhetId, Guid HjemmelRettskildeId,
     IReadOnlyList<ParagrafspennParDto> Paragrafspenn, string? Vilkaar,
-    DateOnly? GyldigFra, DateOnly? GyldigTil)
+    DateOnly? GyldigFra, DateOnly? GyldigTil, string Status)
 {
     public static MyndighetstildelingDto FraEntitet(MyndighetstildelingEntitet m) => new(
         m.Id, m.GruppeBegrepId, m.VirksomhetId, m.HjemmelRettskildeId,
         MyndighetstildelingTjeneste.LesParagrafspenn(m).Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList(),
-        m.Vilkaar, m.GyldigFra, m.GyldigTil);
+        m.Vilkaar, m.GyldigFra, m.GyldigTil, m.Status);
 }
 
 // [Ny, navneform-kjede-runden, 2026-09-08] «Where used» for én virksomhet, se
@@ -751,12 +802,12 @@ public sealed record GruppeMedlemskapRequest(
 
 public sealed record GruppeMedlemskapDto(
     Guid Id, Guid OverordnetGruppeBegrepId, Guid UnderordnetGruppeBegrepId, Guid HjemmelRettskildeId,
-    IReadOnlyList<ParagrafspennParDto> Paragrafspenn, DateOnly? GyldigFra, DateOnly? GyldigTil)
+    IReadOnlyList<ParagrafspennParDto> Paragrafspenn, DateOnly? GyldigFra, DateOnly? GyldigTil, string Status)
 {
     public static GruppeMedlemskapDto FraEntitet(GruppeMedlemskapEntitet m) => new(
         m.Id, m.OverordnetGruppeBegrepId, m.UnderordnetGruppeBegrepId, m.HjemmelRettskildeId,
         GruppeMedlemskapTjeneste.LesParagrafspenn(m).Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList(),
-        m.GyldigFra, m.GyldigTil);
+        m.GyldigFra, m.GyldigTil, m.Status);
 }
 
 public sealed record VirksomhetKandidatRequest(Guid VirksomhetId, Guid RettskildeId, string NodeEid, int StartOffset, int EndOffset);
@@ -953,6 +1004,45 @@ public sealed record NavnekandidatGruppeAvGruppeResultatDto(
 public sealed record SveipNavnekandidaterRequest(Guid? RettskildeId);
 
 public sealed record SveipNavnekandidaterResultatDto(int AntallTreffFunnet, int AntallNyeKandidater);
+
+// ---------- KI-oppdagelse av virksomheter/grupper/roller/relasjoner (issue #285) ----------
+
+/// <summary>Forespørsel for <c>POST /api/ki-oppdagelse/kjor</c> — kjøres én rettskilde om gangen internt
+/// (se <see cref="VirksomhetOgGruppeKiOppdagelseTjeneste.KjorOppdagelseAsync"/>), men klienten kan sende
+/// flere id-er i ett kall (samme «velg flere rettskilder»-UX som «Identifiser begrep»/«Identifiser
+/// tjenester»).</summary>
+public sealed record KiOppdagelseRequest(IReadOnlyList<Guid> RettskildeIder);
+
+/// <summary>Ett behandlet KI-forslag — se <see cref="KiOppdagelseKandidatUtfall"/> for feltenes betydning.</summary>
+public sealed record KiOppdagelseKandidatUtfallDto(
+    string Type, string Navn, string NodeEid,
+    Guid? NavnekandidatId, string? NavnekandidatFeil,
+    Guid? MyndighetstildelingId, string? RolleIkkeOpprettetGrunn,
+    Guid? VirksomhetRelasjonId, string? RelasjonIkkeOpprettetGrunn,
+    Guid? GruppeMedlemskapId, string? GruppeAvGruppeIkkeOpprettetGrunn)
+{
+    public static KiOppdagelseKandidatUtfallDto FraUtfall(KiOppdagelseKandidatUtfall u) => new(
+        u.Type, u.Navn, u.NodeEid, u.NavnekandidatId, u.NavnekandidatFeil,
+        u.MyndighetstildelingId, u.RolleIkkeOpprettetGrunn, u.VirksomhetRelasjonId, u.RelasjonIkkeOpprettetGrunn,
+        u.GruppeMedlemskapId, u.GruppeAvGruppeIkkeOpprettetGrunn);
+}
+
+/// <summary>Samlet resultat for ALLE rettskilder oppgitt i én <see cref="KiOppdagelseRequest"/> — én
+/// <see cref="KiOppdagelseResultat"/> per rettskilde-id, slått sammen til én kandidatliste + summerte
+/// token-tall. Egen form (ikke <see cref="KjorForslagResponsDto{T}"/>): denne agenten kjøres flere
+/// ganger internt (én gang per rettskilde-id, se <see cref="VirksomhetOgGruppeKiOppdagelseTjeneste.KjorOppdagelseAsync"/>),
+/// så «tom-melding»-feltet kan ha flere verdier, ett per rettskilde, ikke bare ett.</summary>
+public sealed record KiOppdagelseSamletResultatDto(
+    IReadOnlyList<KiOppdagelseKandidatUtfallDto> Kandidater, int? InputTokens, int? OutputTokens, IReadOnlyList<string> Meldinger);
+
+/// <summary>
+/// Én rad i den samlede KI-forslag-køen for rolle-/relasjon-/gruppe-av-gruppe-forslag (issue #285 AC6 —
+/// «vis disse i en egen fane/kø, IKKE blandet med menneske-opprettede rader uten markering»). Flat form
+/// på tvers av de tre entitetstypene (<c>Type</c> skiller dem), slik at UI-et kan liste alle ventende
+/// KI-forslag i ÉN tabell uten tre separate kall/seksjoner.
+/// </summary>
+public sealed record KiForslagKoRadDto(
+    string Type, Guid Id, string Visningstekst, string? AiForslagVersjon);
 
 /// <summary>
 /// Massegodkjenning/-avvisning (samme testing-i-store-mengder-begrunnelse som

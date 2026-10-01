@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using RegelIde.Data;
@@ -12,9 +13,11 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    partial class RegelIdeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260929225154_LeggTilTjenesteRegelverksreferanseforslag")]
+    partial class LeggTilTjenesteRegelverksreferanseforslag
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -861,13 +864,6 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("sist_endret_tidspunkt");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("validert")
-                        .HasColumnName("status");
-
                     b.Property<Guid>("UnderordnetGruppeBegrepId")
                         .HasColumnType("uuid")
                         .HasColumnName("underordnet_gruppe_begrep_id");
@@ -888,8 +884,6 @@ namespace RegelIde.Data.Migrasjoner
                     b.ToTable("gruppe_medlemskap", null, t =>
                         {
                             t.HasCheckConstraint("ck_gruppe_medlemskap_ikke_selv", "overordnet_gruppe_begrep_id <> underordnet_gruppe_begrep_id");
-
-                            t.HasCheckConstraint("ck_gruppe_medlemskap_status", "status IN ('foreslatt_av_ai', 'validert')");
                         });
                 });
 
@@ -1169,78 +1163,6 @@ namespace RegelIde.Data.Migrasjoner
                         .HasDatabaseName("ux_handling_regelverksreferanser");
 
                     b.ToTable("handling_regelverksreferanser", (string)null);
-                });
-
-            modelBuilder.Entity("RegelIde.Data.HandlingRegelverksreferanseForslagEntitet", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("AiForslagVersjon")
-                        .HasColumnType("text")
-                        .HasColumnName("ai_forslag_versjon");
-
-                    b.Property<string>("Begrunnelse")
-                        .HasColumnType("text")
-                        .HasColumnName("begrunnelse");
-
-                    b.Property<string>("BehandletAv")
-                        .HasColumnType("text")
-                        .HasColumnName("behandlet_av");
-
-                    b.Property<DateTimeOffset?>("BehandletTidspunkt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("behandlet_tidspunkt");
-
-                    b.Property<Guid>("HandlingId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("handling_id");
-
-                    b.Property<string>("KildeReferanserJson")
-                        .HasColumnType("jsonb")
-                        .HasColumnName("kilde_referanser_json");
-
-                    b.Property<string>("OpprettetAv")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("opprettet_av");
-
-                    b.Property<DateTimeOffset>("OpprettetTidspunkt")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("opprettet_tidspunkt")
-                        .HasDefaultValueSql("now()");
-
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("Venter")
-                        .HasColumnName("status");
-
-                    b.Property<string>("TilEid")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("til_eid");
-
-                    b.Property<Guid>("TilRettskildeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("til_rettskilde_id");
-
-                    b.HasKey("Id")
-                        .HasName("handling_regelverksreferanse_forslag_pkey");
-
-                    b.HasIndex("TilRettskildeId");
-
-                    b.HasIndex("HandlingId", "TilRettskildeId", "TilEid")
-                        .IsUnique()
-                        .HasDatabaseName("ux_handling_regelverksreferanse_forslag_par");
-
-                    b.ToTable("handling_regelverksreferanse_forslag", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_handling_regelverksreferanse_forslag_status", "status IN ('Venter', 'Godkjent', 'Avvist')");
-                        });
                 });
 
             modelBuilder.Entity("RegelIde.Data.HandlingTjenesteEntitet", b =>
@@ -1916,13 +1838,6 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("sist_endret_tidspunkt");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("validert")
-                        .HasColumnName("status");
-
                     b.Property<string>("Vilkaar")
                         .HasColumnType("text")
                         .HasColumnName("vilkaar");
@@ -1943,10 +1858,7 @@ namespace RegelIde.Data.Migrasjoner
                     b.HasIndex("VirksomhetId")
                         .HasDatabaseName("ix_myndighetstildelinger_virksomhet");
 
-                    b.ToTable("myndighetstildelinger", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_myndighetstildelinger_status", "status IN ('foreslatt_av_ai', 'validert')");
-                        });
+                    b.ToTable("myndighetstildelinger", (string)null);
                 });
 
             modelBuilder.Entity("RegelIde.Data.NavnekandidatEntitet", b =>
@@ -4057,13 +3969,6 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("relasjons_type");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("text")
-                        .HasDefaultValue("validert")
-                        .HasColumnName("status");
-
                     b.Property<Guid>("TilVirksomhetId")
                         .HasColumnType("uuid")
                         .HasColumnName("til_virksomhet_id");
@@ -4084,10 +3989,7 @@ namespace RegelIde.Data.Migrasjoner
                         .HasDatabaseName("ux_virksomhet_relasjoner_fra_til_type")
                         .HasFilter("entitetsstatus = 'gjeldende'");
 
-                    b.ToTable("virksomhet_relasjoner", null, t =>
-                        {
-                            t.HasCheckConstraint("ck_virksomhet_relasjoner_status", "status IN ('foreslatt_av_ai', 'validert')");
-                        });
+                    b.ToTable("virksomhet_relasjoner", (string)null);
                 });
 
             modelBuilder.Entity("RegelIde.Data.BegrepDefinisjonRelasjonEntitet", b =>
@@ -4279,21 +4181,6 @@ namespace RegelIde.Data.Migrasjoner
                 });
 
             modelBuilder.Entity("RegelIde.Data.HandlingRegelverksreferanseEntitet", b =>
-                {
-                    b.HasOne("RegelIde.Data.HandlingEntitet", null)
-                        .WithMany()
-                        .HasForeignKey("HandlingId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("RegelIde.Data.RettskildeEntitet", null)
-                        .WithMany()
-                        .HasForeignKey("TilRettskildeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-                });
-
-            modelBuilder.Entity("RegelIde.Data.HandlingRegelverksreferanseForslagEntitet", b =>
                 {
                     b.HasOne("RegelIde.Data.HandlingEntitet", null)
                         .WithMany()

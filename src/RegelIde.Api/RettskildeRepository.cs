@@ -317,6 +317,76 @@ public sealed class RettskildeRepository(RegelIdeDbContext db, VirksomhetOppslag
             .ToListAsync();
 
     /// <summary>
+    /// [Ny, issue #286] «Denne loven forvaltes av X virksomheter, har Y begrep, har Z tjenester» —
+    /// se PR-beskrivelsen for full diskusjon av alternative tolkninger. Presis telledefinisjon (valgt,
+    /// ikke den eneste mulige):
+    /// <list type="bullet">
+    /// <item><b>AntallTjenester</b> — distinkte <see cref="TjenesteEntitet"/>-rader med enten (a) minst én
+    /// <see cref="TjenesteRegelverksreferanseEntitet"/> til DENNE rettskilden (samme grunnlag som
+    /// <see cref="ReferertAvTjenesterAsync"/> over), ELLER [UTVIDET, issue #290] (b) minst én av tjenestens
+    /// egne <see cref="HandlingEntitet"/> har en <see cref="HandlingRegelverksreferanseEntitet"/> til DENNE
+    /// rettskilden. Uten (b) ville de 903 Oppgaveregister-importerte skjemaene (koblet på HANDLING-nivå,
+    /// se <see cref="OppgaveregisterHandlingSeed"/> — en helt annen tabell/pipeline enn
+    /// TjenesteRegelverksreferanseEntitet) forblitt usynlige i denne statistikken, selv om de faktisk
+    /// utgjør hele skalaen den opprinnelige bestillingen siktet til (issue #290s korreksjon av #286).</item>
+    /// <item><b>AntallBegrep</b> — distinkte <see cref="BegrepEntitet"/>-rader tagget
+    /// (<see cref="TekstTaggEntitet.Kind"/> = <c>'begrep'</c>) i denne rettskildens løpetekst. IKKE
+    /// virksomhets-navneformer (<c>Kind='virksomhet'</c> peker også på en <see cref="BegrepEntitet"/>-
+    /// rad, men er en helt annen ting — se <see cref="AntallVirksomheter"/>) og ikke gruppebegrep tagget
+    /// et ANNET sted enn i denne rettskilden.</item>
+    /// <item><b>AntallVirksomheter</b> — UNION (distinkt) av tre uavhengige kilder til "forvalter/er
+    /// koblet til denne rettskilden": (a) virksomheter hvis NAVNEFORM er direkte tagget
+    /// (<c>Kind='virksomhet'</c>) i denne rettskildens tekst — <see cref="BegrepEntitet.VirksomhetReferanseId"/>
+    /// på den taggede raden; (b) <see cref="MyndighetstildelingEntitet.HjemmelRettskildeId"/> == denne
+    /// (myndighet tildelt via denne rettskilden); (c) <see cref="VirksomhetRelasjonEntitet.HjemmelRettskildeId"/>
+    /// == denne, BEGGE parter i relasjonen (Fra- og Til-virksomheten — en "sekretariat for"-relasjon sier
+    /// noe om begge organene, ikke bare det ene). Et gruppebegrep tagget i teksten teller IKKE i seg selv
+    /// som en virksomhet her (det telles i <see cref="AntallBegrep"/>) — kun konkrete virksomheter/
+    /// myndighetstildelinger/-relasjoner gjør.</item>
+    /// </list>
+    /// Returnerer <c>null</c> hvis rettskilden ikke finnes — samme "404, ikke en telling på tomt
+    /// grunnlag"-holdning som resten av API-et.
+    /// </summary>
+    public async Task<RettskildeStatistikkDto?> StatistikkAsync(Guid rettskildeId, CancellationToken ct = default)
+    {
+        if (!await db.Rettskilder.AnyAsync(r => r.Id == rettskildeId, ct)) return null;
+
+        var tjenesteIderViaDirekteReferanse = db.TjenesteRegelverksreferanser
+            .Where(r => r.TilRettskildeId == rettskildeId)
+            .Select(r => r.TjenesteId);
+        // [Ny, issue #290] Handling → eiende Tjeneste — se doc-kommentaren over for hvorfor dette må
+        // regnes med (Oppgaveregisteret kobler på Handling-nivå, ikke Tjeneste-nivå).
+        var tjenesteIderViaHandling = db.HandlingRegelverksreferanser
+            .Where(r => r.TilRettskildeId == rettskildeId)
+            .Join(db.Handlinger, r => r.HandlingId, h => h.Id, (r, h) => h.TjenesteId);
+        var antallTjenester = await tjenesteIderViaDirekteReferanse.Union(tjenesteIderViaHandling).Distinct().CountAsync(ct);
+
+        var antallBegrep = await db.TekstTagger
+            .Where(t => t.RettskildeId == rettskildeId && t.Kind == "begrep" && t.RefId != null && t.Entitetsstatus == "gjeldende")
+            .Select(t => t.RefId!.Value).Distinct().CountAsync(ct);
+
+        var viaNavneformTagg = db.TekstTagger
+            .Where(t => t.RettskildeId == rettskildeId && t.Kind == "virksomhet" && t.RefId != null && t.Entitetsstatus == "gjeldende")
+            .Join(db.Begreper, t => t.RefId!.Value, b => b.Id, (t, b) => b.VirksomhetReferanseId)
+            .Where(v => v != null)
+            .Select(v => v!.Value);
+        var viaMyndighetstildeling = db.Myndighetstildelinger
+            .Where(m => m.HjemmelRettskildeId == rettskildeId)
+            .Select(m => m.VirksomhetId);
+        var viaRelasjonFra = db.VirksomhetRelasjoner
+            .Where(r => r.HjemmelRettskildeId == rettskildeId)
+            .Select(r => r.FraVirksomhetId);
+        var viaRelasjonTil = db.VirksomhetRelasjoner
+            .Where(r => r.HjemmelRettskildeId == rettskildeId)
+            .Select(r => r.TilVirksomhetId);
+        var antallVirksomheter = await viaNavneformTagg
+            .Union(viaMyndighetstildeling).Union(viaRelasjonFra).Union(viaRelasjonTil)
+            .Distinct().CountAsync(ct);
+
+        return new RettskildeStatistikkDto(rettskildeId, antallVirksomheter, antallBegrep, antallTjenester);
+    }
+
+    /// <summary>
     /// Punkt 6/9 (avklaringsrunde 2026-08-13) — sideordnet <see cref="ReferertAvTjenesterAsync"/>, men
     /// for referanser som ORIGINERER i et ANNET dokuments nodetre (håndbok/rundskriv), ikke fra en
     /// Tjeneste. Joiner <see cref="RettskildeReferanseEntitet.FraNodeId"/> → <see cref="RettskildeNodeEntitet"/>

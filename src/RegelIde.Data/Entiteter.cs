@@ -898,6 +898,51 @@ public sealed class TjenesteRegelverksreferanseEntitet
 }
 
 /// <summary>
+/// [Ny, issue #286] Arbeidskø-rad: KI-foreslått kobling fra en EKSISTERENDE, gjeldende
+/// <see cref="TjenesteEntitet"/> (som i dag har null <see cref="TjenesteRegelverksreferanseEntitet"/>-rader)
+/// til en paragraf i en rettskilde. Samme "egen kandidatentitet med sitt eget Status/BehandletAv/
+/// BehandletTidspunkt"-mønster som <see cref="BegrepDefinisjonRelasjonKandidatEntitet"/> (issue #212) —
+/// BEVISST IKKE <see cref="ProveniensEntitet"/>/<c>TjenesteEntitet.Status</c>-mønsteret
+/// <see cref="TjenesteforslagTjeneste"/> bruker for HELT NYE tjenester: her er tjenesten allerede en ekte,
+/// gjeldende rad med sin egen, urelaterte statuslivssyklus — det er KUN selve KOBLINGEN som er til
+/// vurdering, ikke tjenesten selv, akkurat som «definert likt som»-relasjonen i #212 er til vurdering
+/// uavhengig av de to Begrep-radenes egne statuser.
+/// <para>
+/// Godkjenning oppretter en ekte <see cref="TjenesteRegelverksreferanseEntitet"/> via den allerede
+/// eksisterende <see cref="TjenesteregisterTjeneste.KobleRegelverksreferanseAsync"/> — denne raden er
+/// BARE arbeidskøen/revisjonssporet, aldri selve koblingen (samme todeling som kandidat- vs.
+/// bekreftet-relasjon-tabellene i #212).
+/// </para>
+/// </summary>
+public sealed class TjenesteRegelverksreferanseForslagEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid TjenesteId { get; set; }
+    public required Guid TilRettskildeId { get; set; }
+    public required string TilEid { get; set; }
+
+    /// <summary>Alltid <c>null</c> i denne runden — forslaget gjelder kun den flate, hele-tjenesten-
+    /// referansen (samme betydning som <see cref="TjenesteRegelverksreferanseEntitet.Felt"/> = <c>null</c>),
+    /// aldri et enkeltfelt i "Innhold"-fanen. Feltet finnes likevel her (i stedet for å utelates helt) for
+    /// å holde formen IDENTISK med <see cref="TjenesteRegelverksreferanseEntitet"/> — en fremtidig runde som
+    /// ønsker felt-spesifikke forslag trenger da ingen skjemaendring, kun å faktisk sette verdien.</summary>
+    public string? Felt { get; set; }
+
+    /// <summary>KI-ens begrunnelse for hvorfor akkurat denne paragrafen er det rettslige grunnlaget —
+    /// vist i køen slik at en saksbehandler kan vurdere forslaget uten selv å måtte lete opp og lese hele
+    /// paragrafen først (samme «ingen ugjennomsiktig score alene»-prinsipp som #212 §AC3).</summary>
+    public string? Begrunnelse { get; set; }
+
+    public string Status { get; set; } = "Venter"; // 'Venter' | 'Godkjent' | 'Avvist'
+    public string? AiForslagVersjon { get; set; }
+    public string? KildeReferanserJson { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? BehandletAv { get; set; }
+    public DateTimeOffset? BehandletTidspunkt { get; set; }
+}
+
+/// <summary>
 /// [Ny, 2026-08-22, <see cref="OppgaveregisterHandlingSeed"/>] Regelverksreferanse fra en Handling til
 /// en rettskilde — EKSAKT samme form/rolle som <see cref="TjenesteRegelverksreferanseEntitet"/>, egen
 /// tabell siden kilden her er en Handling, ikke en Tjeneste (en handling kan ha en annen, mer spesifikk
@@ -931,6 +976,52 @@ public sealed class HandlingRegelverksreferanseEntitet
     /// noe gikk galt, kun at Oppgaveregisteret ikke oppga noen paragrafhenvisning for dette dokumentet.
     /// </summary>
     public string? KildeHenvisningFritekst { get; set; }
+}
+
+/// <summary>
+/// [Ny, issue #290] Arbeidskø-rad: KI-foreslått OPPGRADERING av en <see cref="HandlingRegelverksreferanseEntitet"/>
+/// fra dokumentnivå til paragrafnivå — samme kandidatkø-mønster/entitetsvalg som
+/// <see cref="TjenesteRegelverksreferanseForslagEntitet"/> (issue #286), tilpasset Handling i stedet for
+/// Tjeneste. Til forskjell fra Tjeneste-varianten (som foreslår en HELT NY kobling der det ikke fantes
+/// noen) foreslår denne en OPPGRADERING av en referanse som ALLEREDE finnes på dokumentnivå (
+/// <see cref="OppgaveregisterHandlingSeed"/> har allerede matchet rettskilden — se dens klassekommentar
+/// punkt (c) — men fritekst-henvisningen var for kompleks for seedens egen enkle regex,
+/// <see cref="HandlingRegelverksreferanseEntitet.KildeHenvisningFritekst"/> ELLER en spenn/liste-form som
+/// "§§ 21-4, 22-3"). Kjøres derfor ALDRI for skjemaer der rettskilden selv ikke er importert
+/// (<c>RettskildematcherIkkeFunnet</c> i seed-resultatet) — se
+/// <see cref="HandlingRegelverksreferanseforslagTjeneste"/>s klassekommentar for kandidat-utvelgelsen.
+/// <para>
+/// Godkjenning OPPGRADERER den eksisterende <see cref="HandlingRegelverksreferanseEntitet"/>-radens
+/// <see cref="HandlingRegelverksreferanseEntitet.TilEid"/> via den nye
+/// <see cref="HandlingregisterTjeneste.OppgraderRegelverksreferanseTilParagrafAsync"/> — oppretter ALDRI
+/// en søsterrad ved siden av (samme «unngå dobbel dokument-/paragrafnivå-rad»-prinsipp som seedens egen
+/// oppgraderingslogikk, se <see cref="OppgaveregisterHandlingSeed"/>s dictionary-kommentar).
+/// </para>
+/// </summary>
+public sealed class HandlingRegelverksreferanseForslagEntitet
+{
+    public Guid Id { get; set; }
+    public required Guid HandlingId { get; set; }
+    public required Guid TilRettskildeId { get; set; }
+
+    /// <summary>Den FORESLÅTTE paragrafnivå-eId'en (kandidat, bekreftet mot en ekte
+    /// <see cref="RettskildeNodeEntitet"/> FØR forslaget i det hele tatt opprettes — se
+    /// <see cref="HandlingRegelverksreferanseforslagTjeneste"/>) — ALDRI dokumentnivå-Elien selv,
+    /// til forskjell fra <see cref="HandlingRegelverksreferanseEntitet.TilEid"/> som kan være begge deler.</summary>
+    public required string TilEid { get; set; }
+
+    /// <summary>KI-ens begrunnelse for hvorfor akkurat denne paragrafen er det rettslige grunnlaget for
+    /// handlingen (til forskjell fra f.eks. en ren "jf."-kryssreferanse nevnt i samme fritekst) — samme
+    /// «ingen ugjennomsiktig score alene»-prinsipp som <see cref="TjenesteRegelverksreferanseForslagEntitet.Begrunnelse"/>.</summary>
+    public string? Begrunnelse { get; set; }
+
+    public string Status { get; set; } = "Venter"; // 'Venter' | 'Godkjent' | 'Avvist'
+    public string? AiForslagVersjon { get; set; }
+    public string? KildeReferanserJson { get; set; }
+    public required string OpprettetAv { get; set; }
+    public DateTimeOffset OpprettetTidspunkt { get; set; }
+    public string? BehandletAv { get; set; }
+    public DateTimeOffset? BehandletTidspunkt { get; set; }
 }
 
 /// <summary>
@@ -1070,6 +1161,24 @@ public sealed class VirksomhetRelasjonEntitet
     /// <c>Remove</c>, ikke en soft-delete via dette feltet. Se
     /// <see cref="VirksomhetRelasjonregisterTjeneste.SlettAsync"/>.</summary>
     public string Entitetsstatus { get; set; } = "gjeldende";
+
+    /// <summary>
+    /// [Ny, issue #285 AC5, KI-oppdagelse-runden] Lukker et bekreftet gap: FØR denne runden hadde denne
+    /// entiteten INGEN statusfelt i det hele tatt — en KI-opprettet rad kunne ikke skilles fra en
+    /// menneske-opprettet rad, og hadde ingen «venter på revisjon»-tilstand. To verdier, samme
+    /// grunn-idé som Begrep/Tjenestes 7-verdis statusløp, men ikke samme fulle løp (en relasjon
+    /// publiseres ikke/arkiveres ikke separat — den er enten et ubekreftet KI-forslag eller en
+    /// bekreftet opplysning): <c>'foreslatt_av_ai'</c> = opprettet av
+    /// <see cref="RegelIde.Data.VirksomhetOgGruppeKiOppdagelseTjeneste"/>, ikke ennå bekreftet av et
+    /// menneske. <c>'validert'</c> = enten bekreftet av et menneske i etterkant (se
+    /// <see cref="VirksomhetRelasjonregisterTjeneste.GodkjennAsync"/>), ELLER — default, satt direkte
+    /// ved opprettelse — en rad opprettet av et menneske i utgangspunktet (dagens flyt fra PR #284,
+    /// UENDRET oppførsel: <see cref="VirksomhetRelasjonregisterTjeneste.OpprettAsync"/> setter fortsatt
+    /// <c>'validert'</c> med det samme når ingen status oppgis, ALDRI en revisjonskø et menneske ikke
+    /// ba om).
+    /// </summary>
+    public string Status { get; set; } = "validert";
+
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }
 }
@@ -1291,6 +1400,11 @@ public sealed class MyndighetstildelingEntitet
     public DateOnly? GyldigFra { get; set; }
     public DateOnly? GyldigTil { get; set; }
 
+    /// <summary>[Ny, issue #285 AC5, KI-oppdagelse-runden] Se <see cref="VirksomhetRelasjonEntitet.Status"/>
+    /// for verdisettet og begrunnelsen — samme to-verdis modell, samme "default 'validert', ingen
+    /// atferdsendring for eksisterende bruk"-prinsipp.</summary>
+    public string Status { get; set; } = "validert";
+
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }
     public string? SistEndretAv { get; set; }
@@ -1345,6 +1459,10 @@ public sealed class GruppeMedlemskapEntitet
     /// <see cref="MyndighetstildelingEntitet.GyldigFra"/>.</summary>
     public DateOnly? GyldigFra { get; set; }
     public DateOnly? GyldigTil { get; set; }
+
+    /// <summary>[Ny, issue #285 AC5, KI-oppdagelse-runden] Se <see cref="VirksomhetRelasjonEntitet.Status"/>
+    /// for verdisettet og begrunnelsen.</summary>
+    public string Status { get; set; } = "validert";
 
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }

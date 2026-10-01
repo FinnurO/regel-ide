@@ -60,6 +60,16 @@ $BegrepIderForDetalj = @(
     "e9c77642-1c56-4152-bf60-477ea598d7b1"  # uklanderlig vandel (alkoholloven § 1-7b)
 )
 
+# [Ny, issue #286] Rettskilder å eksportere statistikk for. Til FORSKJELL fra de tre listene over
+# (som alle er opake databaseGuid-er, kun gyldige mot ÉN bestemt lokal instans) identifiseres
+# rettskilder her ved sin ELI — en stabil, offentlig URI som er DEN SAMME uansett hvilken lokal
+# instans/import som kjørte (samme dokument har samme ELI overalt). Scriptet slår selv opp gjeldende
+# Guid mot den allerede hentede rettskilder-katalogen (steg [1/6] under) — ingen hardkodet Guid å
+# holde i synk, og scriptet kjører uendret mot enhver instans som har dokumentet importert.
+$RettskilderEliForDetalj = @(
+    "https://lovdata.no/eli/lov/1989/06/02/27/nor" # alkoholloven — samme rettskilde begrep-detaljfilene over er hentet fra
+)
+
 function Get-Api {
     param([string]$Sti, [switch]$MedBrukerHeader)
     $uri = "$BaseUrl$Sti"
@@ -87,7 +97,7 @@ Write-Host "Eksporterer fra $BaseUrl ..." -ForegroundColor Cyan
 # ---------------------------------------------------------------------------------------------
 # 1. Katalogfiler — hele resultatet, ingen filtrering
 # ---------------------------------------------------------------------------------------------
-Write-Host "`n[1/5] Rettskilder-katalog" -ForegroundColor Cyan
+Write-Host "`n[1/6] Rettskilder-katalog" -ForegroundColor Cyan
 $rettskilder = Get-Api "/api/rettskilder"
 Write-JsonFile -RelPath "rettskilder/katalog.json" -Data ([ordered]@{
     "_kilde"    = "GET /api/rettskilder (hele resultatet, ingen filtrering) — eksportert $(Nu)"
@@ -96,7 +106,7 @@ Write-JsonFile -RelPath "rettskilder/katalog.json" -Data ([ordered]@{
     "rettskilder" = $rettskilder
 })
 
-Write-Host "`n[2/5] Virksomheter-katalog" -ForegroundColor Cyan
+Write-Host "`n[2/6] Virksomheter-katalog" -ForegroundColor Cyan
 $virksomheter = Get-Api "/api/virksomheter"
 Write-JsonFile -RelPath "virksomheter/katalog.json" -Data ([ordered]@{
     "_kilde"        = "GET /api/virksomheter (hele resultatet, ingen filtrering) — eksportert $(Nu)"
@@ -107,7 +117,7 @@ Write-JsonFile -RelPath "virksomheter/katalog.json" -Data ([ordered]@{
 # ---------------------------------------------------------------------------------------------
 # 2. Virksomhets-detaljfiler
 # ---------------------------------------------------------------------------------------------
-Write-Host "`n[3/5] Virksomhets-detaljfiler ($($VirksomhetIderForDetalj.Count) stk)" -ForegroundColor Cyan
+Write-Host "`n[3/6] Virksomhets-detaljfiler ($($VirksomhetIderForDetalj.Count) stk)" -ForegroundColor Cyan
 foreach ($id in $VirksomhetIderForDetalj) {
     $v = $virksomheter | Where-Object { $_.id -eq $id }
     if (-not $v) {
@@ -133,7 +143,7 @@ foreach ($id in $VirksomhetIderForDetalj) {
 # ---------------------------------------------------------------------------------------------
 # 3. Gruppe-register + detaljfiler
 # ---------------------------------------------------------------------------------------------
-Write-Host "`n[4/5] Gruppebegrep-register + detaljfiler ($($GruppeIderForDetalj.Count) stk)" -ForegroundColor Cyan
+Write-Host "`n[4/6] Gruppebegrep-register + detaljfiler ($($GruppeIderForDetalj.Count) stk)" -ForegroundColor Cyan
 $alleGrupper = Get-Api "/api/gruppebegrep"
 Write-JsonFile -RelPath "grupper/register.json" -Data ([ordered]@{
     "_kilde"        = "GET /api/gruppebegrep (hele resultatet) — eksportert $(Nu)"
@@ -167,7 +177,7 @@ foreach ($id in $GruppeIderForDetalj) {
 # ---------------------------------------------------------------------------------------------
 # 4. Begrep-oversikt + detaljfiler (krever X-Bruker-Id)
 # ---------------------------------------------------------------------------------------------
-Write-Host "`n[5/5] Begreper-oversikt + detaljfiler ($($BegrepIderForDetalj.Count) stk)" -ForegroundColor Cyan
+Write-Host "`n[5/6] Begreper-oversikt + detaljfiler ($($BegrepIderForDetalj.Count) stk)" -ForegroundColor Cyan
 $alleBegreper = Get-Api "/api/begreper" -MedBrukerHeader
 $skosBegreper = $alleBegreper | Where-Object { -not $_.begrepskategori -or $_.begrepskategori -eq "gruppe" }
 Write-JsonFile -RelPath "begreper/oversikt.json" -Data ([ordered]@{
@@ -186,6 +196,29 @@ foreach ($id in $BegrepIderForDetalj) {
     $merged["_kilde"] = "GET /api/begreper/{id} + /brukt-i-rettskilder for id=$id — eksportert $(Nu)"
     $merged["bruktIRettskilder"] = $bruktI
     Write-JsonFile -RelPath "begreper/$id.json" -Data $merged
+}
+
+# ---------------------------------------------------------------------------------------------
+# 5. Rettskilde-statistikk-detaljfiler (issue #286) — «Denne loven forvaltes av X virksomheter,
+#    har Y begrep, har Z tjenester». Kun DATA-en her, ingen visningsside (dekkes av en egen sak, se
+#    issue #286 sin "Ikke i denne saken"-seksjon).
+# ---------------------------------------------------------------------------------------------
+Write-Host "`n[6/6] Rettskilde-statistikk-detaljfiler ($($RettskilderEliForDetalj.Count) stk)" -ForegroundColor Cyan
+foreach ($eli in $RettskilderEliForDetalj) {
+    $r = $rettskilder | Where-Object { $_.eli -eq $eli }
+    if (-not $r) {
+        Write-Warning "Fant ikke rettskilde med ELI '$eli' i katalogen — hopper over statistikk-detaljfil."
+        continue
+    }
+    $statistikk = Get-Api "/api/rettskilder/$($r.id)/statistikk"
+    Write-JsonFile -RelPath "rettskilder/$($r.id).json" -Data ([ordered]@{
+        "_kilde"           = "GET /api/rettskilder/{id}/statistikk for id=$($r.id) (eli=$eli) — eksportert $(Nu)"
+        "_merk"            = "Presis telledefinisjon (antallVirksomheter/antallBegrep/antallTjenester): se RettskildeRepository.StatistikkAsync sin doc-kommentar i src/RegelIde.Api, gjengitt i PR-beskrivelsen for issue #286."
+        "id"               = $r.id
+        "tittel"           = $r.tittel
+        "eli"              = $r.eli
+        "statistikk"       = $statistikk
+    })
 }
 
 Write-Host "`nFerdig. Alle filer skrevet under $DataRoot" -ForegroundColor Cyan
