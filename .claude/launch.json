@@ -12,6 +12,12 @@
       "runtimeExecutable": "npm",
       "runtimeArgs": ["--prefix", "src/RegelIde.Web", "run", "dev"],
       "port": 5173
+    },
+    {
+      "name": "nettside-static",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "8123", "--directory", "nettside"],
+      "port": 8123
     }
   ]
 }

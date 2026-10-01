@@ -1,6 +1,6 @@
 {
   "_kilde": "Sammensatt av GET /api/rettskilder/{id}/noder/oppslag (samelov + forskrift), GET /api/virksomheter/{id}/where-used, GET /api/virksomheter/{id}/begrep og GET /api/virksomheter/{id}/myndighetstildelinger for Karasjok kommune — eksportert 2026-09-09T22:23:46Z",
-  "_merk": "Støttefil spesifikt for koblinger-siden (flaggskipet) — samler de eksakte paragraftekstene og id-ene som utgjør Karasjok/sameloven-eksempelet, slik at siden ikke hardkoder noe i HTML.",
+  "_merk": "Støttefil for koblinger-siden (flaggskipet) og kjeden-siden (fra lovtekst til vedtak) — samler de eksakte paragraftekstene og id-ene som utgjør Karasjok/sameloven-eksempelet, slik at ingen av sidene hardkoder noe i HTML.",
   "rettskilder": {
     "samelov": {
       "id": "b2b2bc4b-f2a3-44e8-a665-ea491a2185b7",
