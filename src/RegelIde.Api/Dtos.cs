@@ -1434,6 +1434,33 @@ public sealed record TjenestelisteHostingResultatDto(int Nye, int Oppdaterte, in
 /// </summary>
 public sealed record KommuneTjenesteHostingResultatDto(int Nye, int Oppdaterte, int Uendret, int RecordsMedManglendeOrganisasjonsnummer);
 
+/// <summary>
+/// [Ny, issue #294] Sammendrag returnert av POST /api/eksterne-kilder/{kildetype}/koble-til-handlinger
+/// for de tre kildetypene <see cref="RegelIde.Data.KommuneTjenesteHenter.Kildetype"/>/
+/// <see cref="RegelIde.Data.TjenestelisteImporter.FylkeskommuneDialog"/>/
+/// <see cref="RegelIde.Data.TjenestelisteImporter.Statsforvalter"/> — speil av
+/// <see cref="OppgaveregisterHandlingSeedResultatDto"/>, se
+/// <see cref="RegelIde.Data.EksternTjenestelisteHandlingSeed"/> for hva hvert felt teller og hvorfor
+/// (ingen regelverksreferanse-felt her, til forskjell fra Oppgaveregisteret — se dens klassekommentar
+/// punkt (a)).
+/// </summary>
+public sealed record EksternTjenestelisteHandlingSeedResultatDto(
+    string Kildetype, int KildeRaderTotalt, int TilbydereTotalt, int NyeHandlinger, int OppdaterteHandlinger,
+    int UendretHandlinger, int HoppetOverUsikkerVirksomhet, int NyeTjenester)
+{
+    public static EksternTjenestelisteHandlingSeedResultatDto FraResultat(RegelIde.Data.EksternTjenestelisteHandlingSeedResultat r) =>
+        new(r.Kildetype, r.KildeRaderTotalt, r.TilbydereTotalt, r.NyeHandlinger, r.OppdaterteHandlinger,
+            r.UendretHandlinger, r.HoppetOverUsikkerVirksomhet, r.NyeTjenester);
+}
+
+/// <summary>[Ny, issue #294] Sammendrag returnert av DELETE /api/eksterne-kilder/{kildetype}/konverterte-tjenester
+/// — se <see cref="RegelIde.Data.EksternTjenestelisteHandlingSeed.SlettKonverterteAsync"/>.</summary>
+public sealed record EksternTjenestelisteSlettResultatDto(string Kildetype, int SlettedeHandlinger, int SlettedeTjenester)
+{
+    public static EksternTjenestelisteSlettResultatDto FraResultat(RegelIde.Data.EksternTjenestelisteSlettResultat r) =>
+        new(r.Kildetype, r.SlettedeHandlinger, r.SlettedeTjenester);
+}
+
 /// <summary>Kunnskapsbibliotek-fil (byggesteg 5 runde 2) — inneholder aldri de rå bytene, kun utvunnet tekst.</summary>
 public sealed record KunnskapsbibliotekFilDto(Guid Id, Guid VirksomhetId, string Filnavn, string? Tittel, string Filtype, string UtvunnetTekst, string OpprettetAv, DateTimeOffset OpprettetTidspunkt)
 {

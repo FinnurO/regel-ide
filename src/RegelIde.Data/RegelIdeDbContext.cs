@@ -764,7 +764,13 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // Unik KUN for ikke-null verdier (partial index, samme standard-SQL-syntaks på begge
             // profiler) — de aller fleste handlinger er håndskrevne og har EksternKildeId = null, som
             // ellers ville kollidert i en vanlig unik indeks.
-            e.HasIndex(x => x.EksternKildeId).IsUnique().HasDatabaseName("ux_handlinger_ekstern_kilde")
+            // [ENDRET, issue #294] Var UNIK på EksternKildeId ALENE — utvidet til (EksternKildeId,
+            // TjenesteId) for å tillate at ÉN EksternKilde-rad (typisk en statsforvalter_tjeneste med
+            // flere tilbys_av-embeter) lovlig gir opphav til FLERE Handling-rader, én under HVERT
+            // tilbyder-embetes egen plassholder-Tjeneste — se EksternTjenestelisteHandlingSeed sin
+            // klassekommentar punkt (b). Fortsatt unik PER (kilde, tjeneste)-par, så en gjentatt
+            // kjøring av samme seed mot samme tjeneste fortsatt er idempotent, ikke en ny duplikatrad.
+            e.HasIndex(x => new { x.EksternKildeId, x.TjenesteId }).IsUnique().HasDatabaseName("ux_handlinger_ekstern_kilde")
                 .HasFilter("ekstern_kilde_id IS NOT NULL");
         });
 

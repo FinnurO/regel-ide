@@ -1692,6 +1692,49 @@ eksterneKilder.MapPost("/oppgaveregister/koble-til-handlinger", async (RegelIdeD
         "for treffrate-forklaringen (lav rettskilde-/virksomhet-treffrate er forventet, avhenger av hvor mye av " +
         "Lovdata-/virksomhetsregisteret som faktisk er importert i denne instansen).");
 
+// [Ny, issue #294] Konvertering for de tre strukturelt identiske, allerede høstede kildene
+// (kommune_tjeneste/fylkeskommune_dialogtjeneste/statsforvalter_tjeneste) — speil av
+// /oppgaveregister/koble-til-handlinger over, men ÉN parametrisert rute for alle tre (se
+// EksternTjenestelisteHandlingSeed sin klassekommentar for hvorfor én delt klasse holder). Et ukjent
+// {kildetype}-argument gir 400, ikke 404 — samme ArgumentException-håndtering som ellers i filen.
+eksterneKilder.MapPost("/{kildetype}/koble-til-handlinger", async (string kildetype, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        try
+        {
+            var resultat = await EksternTjenestelisteHandlingSeed.SeedAsync(db, kildetype, ct);
+            return Results.Ok(EksternTjenestelisteHandlingSeedResultatDto.FraResultat(resultat));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KobleEksternTjenestelisteTilHandlinger")
+    .WithSummary("Kobler allerede høstede kommune-/fylkeskommune-/statsforvalter-skjema (POST .../{kildetype}/hent " +
+        "ELLER .../importer MÅ ha kjørt først, se de respektive høste-endepunktene) inn i domenemodellen som ekte " +
+        "Handling-rader — eksakt match mot Virksomhet (organisasjonsnummer), én samlende, kildetype-navngitt " +
+        "plassholder-Tjeneste per eiende/tilbydende virksomhet. kildetype må være én av: " +
+        "kommune_tjeneste | fylkeskommune_dialogtjeneste | statsforvalter_tjeneste. Idempotent, se " +
+        "EksternTjenestelisteHandlingSeed for statsforvalter-dupliseringen per tilbyder-embete.");
+
+eksterneKilder.MapDelete("/{kildetype}/konverterte-tjenester", async (string kildetype, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        try
+        {
+            var resultat = await EksternTjenestelisteHandlingSeed.SlettKonverterteAsync(db, kildetype, ct);
+            return Results.Ok(EksternTjenestelisteSlettResultatDto.FraResultat(resultat));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("SlettKonverterteEksterneTjenester")
+    .WithSummary("Massesletter ALLE Handling-rader (og tomme plassholder-Tjenester) som stammer fra en tidligere " +
+        "/{kildetype}/koble-til-handlinger-kjøring for den angitte kildetypen — for når selve konverteringslogikken " +
+        "endres og gamle rader må bort helt. Rører ALDRI selve EksternKilde-radene (rå-høstingen), kun de avledede " +
+        "domeneradene — en ny konverteringskjøring kan derfor starte helt på nytt uten å re-høste.");
+
 eksterneKilder.MapPost("/altinn-skjemaoversikt/hent", async (AltinnSkjemaoversiktHenter henter, CancellationToken ct) =>
     {
         var resultat = await henter.HentAltAsync(ct);
