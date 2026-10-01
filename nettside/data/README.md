@@ -42,13 +42,23 @@ entitetens id (unntatt `begreper/oversikt.json`, som er en liten, kuratert overs
 | `begreper/c98ed4b3-fb01-4159-ae14-fe4cbd9a378d.json` | samme to kall | «skjenketid» (alkoholloven § 4-4). |
 | `begreper/a7fbcd03-96c4-4216-82c6-60d602bf0543.json` | samme to kall | «styrer og stedfortreder» (alkoholloven § 1-7c). |
 | `begreper/e9c77642-1c56-4152-bf60-477ea598d7b1.json` | samme to kall | «uklanderlig vandel» (alkoholloven § 1-7b). |
+| `rettskilder/<id>.json` | `GET /api/rettskilder/{id}/statistikk` | [Ny, issue #286] «Denne loven forvaltes av X virksomheter, har Y begrep, har Z tjenester» for én rettskilde (i dag: alkoholloven). Kun DATA-en — selve visningssiden er en egen sak, se issue #286. |
+
+Til forskjell fra de tre andre detaljlistene identifiseres rettskilder i
+`$RettskilderEliForDetalj` (i scriptet) ved sin **ELI** (en stabil, offentlig URI), ikke en
+hardkodet database-Guid — samme dokument har samme ELI i ALLE miljøer, så listen trenger aldri
+oppdateres når scriptet kjøres mot en annen lokal instans. Scriptet slår selv opp gjeldende Guid
+mot den allerede hentede `rettskilder/katalog.json`-listen før det kaller statistikk-endepunktet.
 
 ## Slik legger du til en ny detaljfil
 
 1. Finn id-en til entiteten du vil legge til (fra den relevante katalogfilen, eller
    `GET /api/virksomheter`/`/api/gruppebegrep`/`/api/begreper` direkte mot en kjørende instans).
-2. Åpne `nettside/tools/eksporter-data.ps1` og legg id-en til i riktig liste øverst i scriptet
-   (`$VirksomhetIderForDetalj`, `$GruppeIderForDetalj` eller `$BegrepIderForDetalj`).
+   For en rettskilde-statistikkfil trenger du i stedet ELI-en (`GET /api/rettskilder` og les
+   `eli`-feltet) — ikke id-en, se punktet over.
+2. Åpne `nettside/tools/eksporter-data.ps1` og legg id-en (eller ELI-en, for rettskilder) til i
+   riktig liste øverst i scriptet (`$VirksomhetIderForDetalj`, `$GruppeIderForDetalj`,
+   `$BegrepIderForDetalj` eller `$RettskilderEliForDetalj`).
 3. Kjør scriptet på nytt mot en kjørende lokal `RegelIde.Api`:
    ```powershell
    ./nettside/tools/eksporter-data.ps1 -BaseUrl https://localhost:7010
@@ -72,6 +82,9 @@ enkeltpersoners kontaktinformasjon. Konkret sjekket før eksport:
 - `begreper/*.json` inneholder term, definisjon og lovreferanse — samme sjekk som over.
 - `rettskilder/katalog.json` inneholder kun metadata (tittel, kildetype, departement, eier) — ingen
   fulltekst og ingen personnavn.
+- `rettskilder/<id>.json` (issue #286) inneholder KUN tre heltall (antall virksomheter/begrep/
+  tjenester) pluss id/tittel/eli — ingen navn, ingen liste over hvilke konkrete virksomheter/
+  tjenester det gjelder.
 
 Et automatisk søk etter kjente testbruker-navn i alle filene under `nettside/data/` ga null treff
 ved siste eksport (se sluttrapporten fra byggerunden som opprettet dette).
