@@ -789,6 +789,29 @@ export default function RettskildeDetalj() {
     }
   }
 
+  /**
+   * [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC1-4] «Behandle som
+   * organ/gruppe →» i tag-linjen — den manuelle inngangsdøren til navnekandidat-veiviseren.
+   * `underblokker` sendes ikke til `TagTekst` her (punktene er ikke taggbare, se filkommentaren
+   * øverst), så `blokkNokkel` er alltid `null` og noden er alltid `valgtNode`.
+   */
+  async function startBehandleSomOrgan(params: { start: number; end: number; text: string }) {
+    if (!id || !valgtNode) return;
+    setTaggFeil(null);
+    try {
+      const kandidat = await api.opprettManuellNavnekandidat({
+        rettskildeId: id,
+        nodeEid: valgtNode.eid,
+        startOffset: params.start,
+        endOffset: params.end,
+        foreslattTekst: params.text,
+      });
+      navigate(`/navnekandidater/${kandidat.id}/behandle`);
+    } catch (e) {
+      setTaggFeil(e instanceof ApiError ? e.message : 'Kunne ikke opprette navnekandidaten.');
+    }
+  }
+
   async function leggTilReferanse(e: FormEvent) {
     e.preventDefault();
     if (!id || !valgtNode || !nyReferanseRettskildeId || !nyReferanseEid.trim()) return;
@@ -1421,6 +1444,8 @@ export default function RettskildeDetalj() {
                         onLinkTag={handleKobleTag}
                         onOpprettFraTag={(taggId) => startOpprettVilkarFraTag(taggId)}
                         opprettFraTagKinds={['vilkar']}
+                        onBehandleSomOrgan={(p) => startBehandleSomOrgan(p)}
+                        behandleSomOrganKinds={['begrep']}
                         resolveRef={resolveRef}
                         references={inlineReferanser}
                       />

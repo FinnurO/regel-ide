@@ -2,7 +2,17 @@
 
 **Forvaltningsverktøy for å bygge digitale tjenester fra rettskilde til vedtak — for én virksomhet, med sporbarhet innebygd.**
 
-> **Status:** v0.3 — ontologien for Vilkår/Regel/Unntak er låst (2026-07-23). Se [`docs/00-endringslogg-v0.1.md`](docs/00-endringslogg-v0.1.md) og [`docs/00-endringslogg-v0.2.md`](docs/00-endringslogg-v0.2.md) for hva som er endret og hvorfor.
+> **Status:** v0.3 — ontologien for Vilkår/Regel/Unntak er låst (2026-07-23), og siden har appen fått
+> et fullt saksbehandler-grensesnitt (`src/RegelIde.Web`), en virksomhetskatalog med roller og
+> relasjoner (myndighetstildeling, klageinstans/underlagt/sekretariat/enhet_i-relasjoner,
+> gruppemedlemskap), en navnekandidat-veiviser som fanger opp alle disse ved sveip AV manuell
+> tagging, og en familie KI-forslagstjenester (begrep/tjeneste/handling, alltid med et menneske i
+> godkjenn/avvis-loopen — se `docs/14-byggesteg5-teknisk-design.md`). Se
+> [`docs/00-endringslogg-v0.1.md`](docs/00-endringslogg-v0.1.md),
+> [`docs/00-endringslogg-v0.2.md`](docs/00-endringslogg-v0.2.md) og
+> [`docs/00-endringslogg-v0.3.md`](docs/00-endringslogg-v0.3.md) for hva som er endret og hvorfor.
+> **[`docs/25-funksjonsoversikt.md`](docs/25-funksjonsoversikt.md) er nærmeste ting til en sannhet
+> om hva som faktisk finnes i appen akkurat nå** — denne READMEen gir bare et førsteinntrykk.
 
 Regel-IDE er referanseimplementasjonen av **Kildelaget** og **Regellaget** i [`digital-rettsstat`](https://github.com/FinnurO/digital-rettsstat) — verktøyet en virksomhet (f.eks. en kommune eller et direktorat) bruker til å gå fra rettskildetekst til en kjørbar, forklarbar og sporbar tjeneste. Bygget bevisst for **tverrfaglige team** (tjenestedesignere, jurister, fagansvarlige/saksbehandlere, utviklere) i samme verktøy, ikke for én rolle — jf. `digital-rettsstat` prinsipp 7. Testcase gjennom hele spesifikasjonen er **alminnelig skjenkebevilling** (alkoholloven) — samme regelverk som Helsedirektoratets "Alkoholfloken"-arbeid, omtalt i `digital-rettsstat/docs/04-norske-case.md`.
 
@@ -15,19 +25,28 @@ Digital-rettsstats `06-regellaget.md` skiller mellom **Lag 1-editoren** (tekst �
 
 ## Dokumenter
 
+**35+ dokumenter i `docs/` — [`docs/README.md`](docs/README.md) er den levende, oppdaterte indeksen**
+(hva som er BINDENDE/REFERANSE/SPESIFIKASJON/LEVERT/REFERAT, og når hvert dokument sist ble
+verifisert mot koden). Tabellen under er kun et førsteinntrykk til de mest sentrale dokumentene —
+ved motstrid, stol på `docs/README.md` og selve koden, ikke denne listen.
+
 | Dokument | Innhold |
 |---|---|
-| [`docs/01-referansemodell.md`](docs/01-referansemodell.md) | Begrepsapparatet (regelkilde → regel → vilkår → fakta → beslutning), inkl. den låste Vilkår/Regel/Unntak-ontologien (§5) og Vedtak/skjønn-presiseringene. **Les denne først.** |
+| [`docs/01-referansemodell.md`](docs/01-referansemodell.md) | Begrepsapparatet (regelkilde → regel → vilkår → fakta → beslutning), inkl. den låste Vilkår/Regel/Unntak-ontologien (§5), skjønn/avklaringsbehov (§6.1) og Vedtak/skjønn-presiseringene. **Les denne først.** |
 | [`docs/02-produktkrav.md`](docs/02-produktkrav.md) | Funksjonelle krav: skjermer, akseptkriterier, roller. PRD-nivå. |
 | [`docs/03-domenemodell.md`](docs/03-domenemodell.md) | Entiteter og relasjoner, RBAC-matrise, livssykluser, publiseringsmodell, hendelsesmodell. |
 | [`docs/04-api-kontrakter.md`](docs/04-api-kontrakter.md) | Systemgrensesnitt: hvilke operasjoner finnes (ikke full OpenAPI ennå). |
 | [`docs/05-arkitektur-og-nfk.md`](docs/05-arkitektur-og-nfk.md) | Teknologivalg, eksportformater, ikke-funksjonelle krav, tekniske risikoområder. |
 | [`docs/06-veikart.md`](docs/06-veikart.md) | Faseplan — rekkefølgen vi faktisk bygger i, og hvorfor. |
-| [`docs/07-forklaringsmodell-api-avvik.md`](docs/07-forklaringsmodell-api-avvik.md) | Konkrete forslag til justeringer i `forklaringsmodell-api` for at begrepsbruken skal henge sammen på tvers av repoene. |
-| [`docs/08-byggesteg1-teknisk-design.md`](docs/08-byggesteg1-teknisk-design.md) | AKN-skjema, databasetabeller og konverteringspipeline for byggesteg 1 — **under ekstern kvalitetssikring, ingen kode skrevet mot dette ennå.** |
-| [`docs/09-design-konvensjoner.md`](docs/09-design-konvensjoner.md) | Designsystemet i praksis: temaoppsett, tokens (faktiske navn), to-flate-/navigasjonsmønster, hvilke Digdir-komponenter erstatter rå HTML. |
+| [`docs/09-design-konvensjoner.md`](docs/09-design-konvensjoner.md) | **BINDENDE.** Designsystemet i praksis: temaoppsett, tokens, Card-alltid-rendret-mønsteret (§14), navigasjonsmønster. Les FØR ny UI. |
+| [`docs/14-byggesteg5-teknisk-design.md`](docs/14-byggesteg5-teknisk-design.md) | KI-agentene: forslagsmønsteret (kø → godkjenn/avvis → proveniens med `AiForslagVersjon`/`GodkjentAv`) som `Begrepsforslag`/`Tjenesteforslag`/`Handlingsforslag` og navnekandidat-oppdagelsen alle følger. |
+| [`docs/20-virksomhetskatalog-og-rollemodell.md`](docs/20-virksomhetskatalog-og-rollemodell.md) | Virksomhetskatalogen: roller (myndighetstildeling), relasjoner (underlagt/sekretariat/klageinstans/enhet_i/oppgaver_overført_til), gruppemedlemskap. |
+| [`docs/25-funksjonsoversikt.md`](docs/25-funksjonsoversikt.md) | **Nærmeste ting til en sannhet om hva som faktisk finnes i appen i dag.** |
+| [`docs/32-formal-roller-og-sporsmal.md`](docs/32-formal-roller-og-sporsmal.md) | **BINDENDE.** Formålet, rollene, og §3-spørsmålene (S1–S7) modellen skal kunne besvare — hvorfor dette bygges. |
+| [`docs/design-canvas/`](docs/design-canvas/) | 16-artboard visuell designreferanse (Claude Design-canvas), publisert som Artifact — brukt som fasit ved nye skjermer. |
 | [`prototyper/`](prototyper/) | Interaktive HTML-mockuper fra Claude Design — frontend-siden, holdt bevisst atskilt fra det tekniske designet i `docs/`. |
 | [`historikk/`](historikk/) | Det opprinnelige kravspesifikasjons-kildedokumentet (v1.0), beholdt for sporbarhet — ikke gjeldende krav. |
+| [`nettside/`](nettside/) | Den offentlige forklaringssiden ([finnuro.github.io/regel-ide](https://finnuro.github.io/regel-ide/)), statisk generert fra ekte data (se `nettside/tools/eksporter-data.ps1`). Egen sak/label `nettside-tilbakemelding` for tilbakemeldinger på den. |
 
 ## Kjøre lokalt
 

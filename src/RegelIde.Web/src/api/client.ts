@@ -94,6 +94,13 @@ import type {
   OppdaterNavnekandidatRequest,
   KoblNavnekandidatTilVirksomhetRequest,
   NavnekandidatKoblingResultatDto,
+  NavnekandidatManuellRequest,
+  KoblNavnekandidatTilMyndighetstildelingRequest,
+  NavnekandidatMyndighetstildelingResultatDto,
+  KoblNavnekandidatTilRelasjonRequest,
+  NavnekandidatRelasjonResultatDto,
+  KoblNavnekandidatTilGruppeAvGruppeRequest,
+  NavnekandidatGruppeAvGruppeResultatDto,
   TekstTaggDto,
   TjenesteDto,
   TjenesteReferanseDto,
@@ -560,6 +567,45 @@ export const api = {
    * EGEN rettskilde. Idempotent. */
   koblNavnekandidatTilGruppemedlemskap: (id: string, request: KoblNavnekandidatTilGruppemedlemskapRequest) =>
     kall<NavnekandidatGruppemedlemskapResultatDto>(`/api/navnekandidater/${id}/kobl-til-gruppemedlemskap`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  /** [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC1-4] Manuell inngangsdør —
+   * GET-or-create på (RettskildeId, NodeEid, StartOffset), samme idempotens som sveipet. Kalt fra
+   * TagTekst-tag-linjens «Behandle som organ/gruppe →»-knapp i RettskildeDetalj. */
+  opprettManuellNavnekandidat: (request: NavnekandidatManuellRequest) =>
+    kall<NavnekandidatDto>('/api/navnekandidater/manuell', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  /** [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC5/AC6] Det valgfrie «Rolle
+   * tildelt her»-steget — speil av koblNavnekandidatTilGruppemedlemskap, men for et fritt valgt
+   * rollebegrep + eget paragrafspenn/vilkår, uten gruppekoblingen. Idempotent. */
+  koblNavnekandidatTilMyndighetstildeling: (id: string, request: KoblNavnekandidatTilMyndighetstildelingRequest) =>
+    kall<NavnekandidatMyndighetstildelingResultatDto>(`/api/navnekandidater/${id}/kobl-til-myndighetstildeling`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  /** [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC7/AC8, #263 AC2/AC3] Det
+   * valgfrie «Relasjon til annen virksomhet»-steget — «Minimalt»-nivå snarvei til den eksisterende
+   * relasjonsmekanismen, ingen automatisk mønstergjenkjenning. Idempotent. */
+  koblNavnekandidatTilRelasjon: (id: string, request: KoblNavnekandidatTilRelasjonRequest) =>
+    kall<NavnekandidatRelasjonResultatDto>(`/api/navnekandidater/${id}/kobl-til-relasjon`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  /** [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC9] Gruppe-av-gruppe fra
+   * veiviserens gruppe-spor — oppretter gruppebegrepet OG medlemskapet i én atomisk handling. */
+  koblNavnekandidatTilGruppeAvGruppe: (id: string, request: KoblNavnekandidatTilGruppeAvGruppeRequest) =>
+    kall<NavnekandidatGruppeAvGruppeResultatDto>(`/api/navnekandidater/${id}/kobl-til-gruppe-av-gruppe`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),

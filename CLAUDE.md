@@ -414,6 +414,27 @@ var bekreftet, eller spør Johann. Samme prinsipp som §16 («mål det, ikke ant
 gjettet fallback») — denne gjelder spesifikt PÅSTANDER OM KODEN/APPEN SELV, ikke bare data i
 korpuset.
 
+## 22. Dokumentasjon er den kollektive hukommelsen — hold den oppdatert som en del av arbeidet, ikke etterpå
+
+Johann (2026-09-30): «du må tvinge enhver til å holde github pages, readme og andre
+dokumentasjonsfiler oppdatert. det er den kollektive hukommelsen.» Root-`README.md` og
+`src/README.md` hadde begge stått stille i over en måned mens store deler av appen ble bygget rundt
+dem (frontend, virksomhetskatalog, KI-agenter) — README-ene visste ikke om noe av det.
+
+Regel: en sak som legger til en reell, ny mulighet (ny hovedfunksjon, ny entitet/relasjon andre skal
+bygge videre på, en ny arbeidsflyt) er **ikke ferdig** før den også oppdaterer det som beskriver den
+utad — minst: root-`README.md` hvis funksjonen er noe en ny leser bør vite finnes, `docs/README.md`
+sin indekstabell hvis et dokument endrer status eller et nytt dokument opprettes, og selve
+fagdokumentet saken bygger på (samme disiplin som allerede gjelder for `docs/09` ved
+designbeslutninger, se `[[feedback_regel_ide_design_konvensjoner_sjekkes_forst]]`). Dette gjelder
+BÅDE når jeg selv bygger, og når jeg spawner en bakgrunnsagent — ta med dokumentasjonsoppdatering
+som et eksplisitt akseptansekriterium i oppdraget, ikke noe agenten forventes å huske selv.
+
+Docs-statusvokabularet i `docs/README.md` avgjør HVORDAN: et dokument merket REFERAT skal aldri
+endres i etterkant (det er et øyeblikksbilde) — der legges i stedet en peker til hva som faktisk ble
+gjort. BINDENDE/REFERANSE/SPESIFIKASJON oppdateres derimot direkte. Ved tvil om et dokument er
+utdatert: si det eksplisitt i PR-en fremfor å late som alt henger sammen (§21).
+
 ## Nyttige kommandoer
 
 Kjør appen (Browser-panelet, aldri `dotnet run` via Bash) — konfigurasjonene heter `regel-ide-api` og
