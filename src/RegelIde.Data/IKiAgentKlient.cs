@@ -1,3 +1,5 @@
+using System.Text.RegularExpressions;
+
 namespace RegelIde.Data;
 
 /// <summary>
@@ -43,20 +45,43 @@ public sealed class KiAgentKlientStub : IKiAgentKlient
     private const string FullSvar =
         """[{"Tjeneste": {"Tittel": "Stub-tjeneste (KI-forslag, full)"}, "Handlinger": [{"Navn": "Stub-handling (KI-forslag, full)", "Handlingstype": "soke"}]}]""";
 
-    public Task<KiSvar> GenererAsync(string systemInstruks, string kontekst, CancellationToken ct = default) =>
-        Task.FromResult(new KiSvar(VelgSvar(systemInstruks), InputTokens: null, OutputTokens: null));
+    // [Ny, issue #286] Til forskjell fra de fire faste svarene over MÅ dette svaret faktisk peke på en
+    // eId som finnes i konteksten (TjenesteRegelverksreferanseforslagTjeneste dropper stille enhver
+    // "Eid" utenfor det gitte kandidatsettet, samme validering som en ekte KI-leverandør ville blitt
+    // utsatt for) — et fast, oppdiktet svar ville derfor ALDRI blitt til et forslag, og "bevis
+    // rørledningen"-rollen ville falt bort. Løsningen: les FØRSTE "[eId]"-tag i den faktiske
+    // konteksten og ekko den tilbake, samme prinsipp som EmbeddedPostgresApiFixture sin
+    // AltErInstitusjonHandler ekkoer søketermen tilbake i SNL-stubben.
+    private static readonly Regex FoersteEidTag = new(@"\[([^\]]+)\]");
 
-    // Skiller de fire agent-system-instruksene på tekst den ALLEREDE har, ikke en egen enum/parameter
-    // — samme "ett fast, tydelig merket eksempelforslag per agenttype"-rolle klassekommentaren
-    // beskriver, nå utvidet fra to til fire agenttyper (handlingsforslag-ki-omfang-runden). Rekkefølgen
-    // er bevisst: "i ÉTT kall" (Full) og "EKSISTERENDE tjeneste" (Handling) er begge unike nok til at
-    // sjekkerekkefølgen ikke er sårbar, men holdes ETTER begrep-sjekken for å ikke endre eksisterende
-    // oppførsel for «Identifiser begrep».
-    private static string VelgSvar(string systemInstruks) => systemInstruks switch
+    private static string RegelverksreferanseforslagSvar(string kontekst)
+    {
+        var treff = FoersteEidTag.Match(kontekst);
+        if (!treff.Success) return "[]";
+        var eid = treff.Groups[1].Value;
+        return $$"""
+            [{"Eid": "{{eid}}", "Begrunnelse": "STUB-forslag – ingen ekte KI er koblet til. Peker på første kandidatparagraf i konteksten for å bevise rørledningen."}]
+            """;
+    }
+
+    public Task<KiSvar> GenererAsync(string systemInstruks, string kontekst, CancellationToken ct = default) =>
+        Task.FromResult(new KiSvar(VelgSvar(systemInstruks, kontekst), InputTokens: null, OutputTokens: null));
+
+    // Skiller agent-system-instruksene på tekst den ALLEREDE har, ikke en egen enum/parameter — samme
+    // "ett fast, tydelig merket eksempelforslag per agenttype"-rolle klassekommentaren beskriver, nå
+    // utvidet til fem agenttyper (issue #286 la til regelverksreferanseforslag-grenen). Rekkefølgen er
+    // bevisst: de mer spesifikke frasene sjekkes FØR de mer generiske, men ingen av dem overlapper i
+    // praksis.
+    private static string VelgSvar(string systemInstruks, string kontekst) => systemInstruks switch
     {
         _ when systemInstruks.Contains("begrep", StringComparison.OrdinalIgnoreCase) => BegrepSvar,
         _ when systemInstruks.Contains("i ÉTT kall") => FullSvar,
         _ when systemInstruks.Contains("EKSISTERENDE tjeneste") => HandlingSvar,
+        // [Ny, issue #290] Egen frase for HandlingRegelverksreferanseforslagTjeneste, skilt fra Tjeneste-
+        // varianten under — begge gjenbruker SAMME kontekst-lesende svar (samme JSON-form, "Eid"/
+        // "Begrunnelse"), se RegelverksreferanseforslagSvar sin egen kommentar.
+        _ when systemInstruks.Contains("rettslig grunnlag for handlingen") => RegelverksreferanseforslagSvar(kontekst),
+        _ when systemInstruks.Contains("en gitt offentlig tjeneste") => RegelverksreferanseforslagSvar(kontekst),
         _ => TjenesteSvar,
     };
 }

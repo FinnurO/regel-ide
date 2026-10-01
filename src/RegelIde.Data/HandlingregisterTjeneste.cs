@@ -351,6 +351,52 @@ public sealed class HandlingregisterTjeneste(RegelIdeDbContext db)
         return handling;
     }
 
+    /// <summary>
+    /// [Ny, issue #290] Oppgraderer en EKSISTERENDE, dokumentnivå <see cref="HandlingRegelverksreferanseEntitet"/>
+    /// til paragrafnivå — brukt av <see cref="HandlingRegelverksreferanseforslagTjeneste.GodkjennAsync"/>
+    /// til å bekrefte et KI-forslag. Oppretter ALDRI en ny søsterrad (samme "unngå dobbel dokument-/
+    /// paragrafnivå-rad for samme (handling, rettskilde)"-prinsipp som <see cref="OppgaveregisterHandlingSeed"/>
+    /// selv bruker ved re-kjøring, se dens dictionary-kommentar) — kun selve <see cref="HandlingRegelverksreferanseEntitet.TilEid"/>
+    /// endres, på PLASS, på den raden som allerede finnes.
+    /// <para>
+    /// Kaster <see cref="ArgumentException"/> (ikke stille no-op) i to tilfeller kalleren bevisst
+    /// behandler som "ikke en feil for GODKJENNINGEN, men heller ingenting mer å gjøre her": (1) ingen
+    /// eksisterende dokumentnivå-rad å oppgradere finnes (kan skje hvis raden er fjernet i mellomtiden),
+    /// (2) raden er IKKE lenger på dokumentnivå — enten allerede oppgradert til NØYAKTIG samme paragraf
+    /// (idempotent — samme forslag godkjent to ganger, eller en reseed fant den samme selv), ELLER pekt
+    /// til en ANNEN paragraf av noe/noen annet i mellomtiden (en manuell redigering, eller et annet
+    /// godkjent forslag) — denne metoden overskriver ALDRI en allerede paragrafnivå-referanse, samme
+    /// "rør aldri et menneskes/en annen bekreftelses arbeid"-holdning som resten av kodebasen.
+    /// </para>
+    /// </summary>
+    public async Task<HandlingRegelverksreferanseEntitet> OppgraderRegelverksreferanseTilParagrafAsync(
+        Guid handlingId, Guid tilRettskildeId, string nyTilEid, CancellationToken ct = default)
+    {
+        var referanse = await db.HandlingRegelverksreferanser
+            .FirstOrDefaultAsync(r => r.HandlingId == handlingId && r.TilRettskildeId == tilRettskildeId, ct);
+        if (referanse is null)
+        {
+            throw new ArgumentException(
+                $"Fant ingen eksisterende regelverksreferanse fra handling '{handlingId}' til rettskilde '{tilRettskildeId}' å oppgradere.");
+        }
+        if (referanse.TilEid == nyTilEid)
+        {
+            return referanse; // allerede nøyaktig denne paragrafen — idempotent, ikke en feil.
+        }
+
+        var dokumentEli = await db.Rettskilder.Where(r => r.Id == tilRettskildeId).Select(r => r.Eli).FirstOrDefaultAsync(ct);
+        if (referanse.TilEid != dokumentEli)
+        {
+            throw new ArgumentException(
+                $"Regelverksreferansen fra handling '{handlingId}' til rettskilde '{tilRettskildeId}' er allerede " +
+                $"på paragrafnivå (til '{referanse.TilEid}', ikke dokumentnivå) — oppgraderes ikke automatisk til en annen paragraf.");
+        }
+
+        referanse.TilEid = nyTilEid;
+        await db.SaveChangesAsync(ct);
+        return referanse;
+    }
+
     private static void Valider(string navn, string handlingstype, string? utfortAv)
     {
         if (string.IsNullOrWhiteSpace(navn))

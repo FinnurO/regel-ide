@@ -379,12 +379,58 @@ public sealed record TjenesteRegelverksreferanseDto(Guid Id, Guid TjenesteId, Gu
         new(r.Id, r.TjenesteId, r.TilRettskildeId, r.TilEid, r.Felt);
 }
 
+/// <summary>[Ny, issue #286] Kandidatkø-rad for GET /api/tjenester/regelverksreferanse-forslag — bærer
+/// den eiende tjenestens tittel/virksomhetId join'et inn (se
+/// <see cref="RegelIde.Data.TjenesteRegelverksreferanseforslagTjeneste.ListerMedTjenesteAsync"/>), samme
+/// "klienten trenger ikke ett kall per rad"-mønster som <see cref="BegrepDefinisjonRelasjonKandidatDto"/>.</summary>
+public sealed record TjenesteRegelverksreferanseForslagDto(
+    Guid Id, Guid TjenesteId, string TjenesteTittel, Guid VirksomhetId, Guid TilRettskildeId, string TilEid,
+    string? Begrunnelse, string Status, string? AiForslagVersjon,
+    string OpprettetAv, DateTimeOffset OpprettetTidspunkt, string? BehandletAv, DateTimeOffset? BehandletTidspunkt)
+{
+    public static TjenesteRegelverksreferanseForslagDto FraEntitet(RegelIde.Data.TjenesteRegelverksreferanseForslagEntitet f, TjenesteEntitet t) =>
+        new(f.Id, f.TjenesteId, t.Tittel, t.VirksomhetId, f.TilRettskildeId, f.TilEid, f.Begrunnelse, f.Status, f.AiForslagVersjon,
+            f.OpprettetAv, f.OpprettetTidspunkt, f.BehandletAv, f.BehandletTidspunkt);
+}
+
+public sealed record KjorRegelverksreferanseforslagRequest(IReadOnlyList<Guid> RettskildeIder);
+
+public sealed record KjorRegelverksreferanseforslagResponsDto(
+    int AntallTjenesterUtenReferanse, int AntallVurdert, int AntallNyeForslag, int? InputTokens, int? OutputTokens)
+{
+    public static KjorRegelverksreferanseforslagResponsDto FraResultat(RegelIde.Data.TjenesteRegelverksreferanseforslagResultat r) =>
+        new(r.AntallTjenesterUtenReferanse, r.AntallVurdert, r.AntallNyeForslag, r.InputTokens, r.OutputTokens);
+}
+
 /// <summary>Samme rolle for en Handling som <see cref="TjenesteRegelverksreferanseDto"/> har for en
 /// Tjeneste (2026-08-22, <see cref="RegelIde.Data.OppgaveregisterHandlingSeed"/>).</summary>
 public sealed record HandlingRegelverksreferanseDto(Guid Id, Guid HandlingId, Guid TilRettskildeId, string TilEid)
 {
     public static HandlingRegelverksreferanseDto FraEntitet(HandlingRegelverksreferanseEntitet r) =>
         new(r.Id, r.HandlingId, r.TilRettskildeId, r.TilEid);
+}
+
+/// <summary>[Ny, issue #290] Kandidatkø-rad for GET /api/tjenester/handlinger/regelverksreferanse-forslag
+/// — KI-foreslått OPPGRADERING (dokumentnivå → paragrafnivå) for en Handling. Samme "bærer det
+/// underliggende sitt visningsnavn"-mønster som <see cref="TjenesteRegelverksreferanseForslagDto"/>.</summary>
+public sealed record HandlingRegelverksreferanseForslagDto(
+    Guid Id, Guid HandlingId, string HandlingNavn, string TjenesteTittel, Guid TilRettskildeId, string TilEid,
+    string? Begrunnelse, string Status, string? AiForslagVersjon,
+    string OpprettetAv, DateTimeOffset OpprettetTidspunkt, string? BehandletAv, DateTimeOffset? BehandletTidspunkt)
+{
+    public static HandlingRegelverksreferanseForslagDto FraEntitet(
+        RegelIde.Data.HandlingRegelverksreferanseForslagEntitet f, HandlingEntitet h, string tjenesteTittel) =>
+        new(f.Id, f.HandlingId, h.Navn, tjenesteTittel, f.TilRettskildeId, f.TilEid, f.Begrunnelse, f.Status, f.AiForslagVersjon,
+            f.OpprettetAv, f.OpprettetTidspunkt, f.BehandletAv, f.BehandletTidspunkt);
+}
+
+public sealed record KjorHandlingRegelverksreferanseforslagRequest(IReadOnlyList<Guid> RettskildeIder);
+
+public sealed record KjorHandlingRegelverksreferanseforslagResponsDto(
+    int AntallKandidatrader, int AntallVurdert, int AntallNyeForslag, int? InputTokens, int? OutputTokens)
+{
+    public static KjorHandlingRegelverksreferanseforslagResponsDto FraResultat(RegelIde.Data.HandlingRegelverksreferanseforslagResultat r) =>
+        new(r.AntallKandidatrader, r.AntallVurdert, r.AntallNyeForslag, r.InputTokens, r.OutputTokens);
 }
 
 /// <summary>Sammendrag returnert av POST /api/eksterne-kilder/oppgaveregister/koble-til-handlinger —
@@ -569,6 +615,11 @@ public sealed record ImportRettighetRequest(
 /// GET /api/rettskilder/{id}/referert-av-tjenester (byggesteg 4, 2026-07-30).
 /// </summary>
 public sealed record TjenesteReferanseDto(Guid TjenesteId, string TjenesteTittel, string TilEid);
+
+/// <summary>[Ny, issue #286] GET /api/rettskilder/{id}/statistikk — «Denne loven forvaltes av X
+/// virksomheter, har Y begrep, har Z tjenester». Se <see cref="RettskildeRepository.StatistikkAsync"/>
+/// sin doc-kommentar for den presise telledefinisjonen bak hvert tall.</summary>
+public sealed record RettskildeStatistikkDto(Guid RettskildeId, int AntallVirksomheter, int AntallBegrep, int AntallTjenester);
 
 /// <summary>
 /// Motsatt retning av <see cref="RettskildeReferanseDto"/> — brukt av

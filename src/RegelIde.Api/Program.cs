@@ -125,6 +125,13 @@ builder.Services.AddScoped<TjenesteforslagTjeneste>();
 // «Foreslå handlinger» (handlingsforslag-ki-omfang-runden) — omfang "handling" for EN eksisterende
 // tjeneste. Samme IKiAgentKlient som over (Stub/OpenAiKompatibel), ingen egen leverandørvalg-konfig.
 builder.Services.AddScoped<HandlingsforslagTjeneste>();
+// [Ny, issue #286] Regelverksreferanseforslag for EKSISTERENDE tjenester uten koblinger — samme
+// IKiAgentKlient/IEmbeddingKlient-oppsett som over.
+builder.Services.AddScoped<TjenesteRegelverksreferanseforslagTjeneste>();
+// [Ny, issue #290] Samme mønster, for Handling-regelverksreferanser (Oppgaveregister-importen) — se
+// HandlingRegelverksreferanseforslagTjeneste sin klassekommentar for hvorfor den IKKE trenger
+// IEmbeddingKlient (deterministisk regex+bekreftelse-innsnevring, ikke embedding-basert).
+builder.Services.AddScoped<HandlingRegelverksreferanseforslagTjeneste>();
 builder.Services.AddHttpClient<LovdataBulkHenter>();
 builder.Services.AddScoped<LovdataKatalogTjeneste>();
 builder.Services.AddScoped<LovdataFullimportTjeneste>();
@@ -1109,6 +1116,20 @@ rettskilder.MapGet("/{id:guid}/referert-av-dokumenter", async (Guid id, Rettskil
         Results.Ok(await repo.ReferertAvAndreDokumenterAsync(id)))
     .WithName("HentRettskildeReferertAvDokumenter")
     .WithSummary("Punkt 6/9 — hvilke ANDRE dokumenters (håndbok/rundskriv) noder som refererer denne rettskilden.");
+
+rettskilder.MapGet("/{id:guid}/statistikk", async (Guid id, RettskildeRepository repo, CancellationToken ct) =>
+    {
+        var statistikk = await repo.StatistikkAsync(id, ct);
+        return statistikk is null ? Results.NotFound(new { feil = $"Ingen rettskilde med id '{id}'." }) : Results.Ok(statistikk);
+    })
+    .WithName("HentRettskildeStatistikk")
+    .WithSummary("[Ny, issue #286] «Denne loven forvaltes av X virksomheter, har Y begrep, har Z tjenester». " +
+        "Presis telledefinisjon (se RettskildeRepository.StatistikkAsync sin doc-kommentar for full begrunnelse): " +
+        "AntallTjenester = distinkte Tjeneste-rader med >=1 TjenesteRegelverksreferanse til DENNE rettskilden. " +
+        "AntallBegrep = distinkte Begrep-rader tagget (TekstTagger.Kind='begrep') i denne rettskildens løpetekst. " +
+        "AntallVirksomheter = union av: virksomheter hvis navneform er tagget (Kind='virksomhet') i teksten, PLUSS " +
+        "MyndighetstildelingEntitet.HjemmelRettskildeId==denne, PLUSS VirksomhetRelasjonEntitet.HjemmelRettskildeId" +
+        "==denne (begge parter). Åpen lesing, samme holdning som resten av GET /api/rettskilder/{id}/*.");
 
 // ---------- Punkt 8 (avklaringsrunde 2026-08-13) — §3.4s multi-sti og §3.2s lenker for en   ----------
 // ---------- Brukerveiledning. Tomme lister for enhver annen doctype, ikke en feil.          ----------
@@ -2118,6 +2139,86 @@ tjenester.MapDelete("/regelverksreferanser/{referanseId:guid}", async (Guid refe
     .WithName("FjernTjenesteRegelverksreferanse")
     .WithSummary("Fjerner en regelverksreferanse-kobling.");
 
+// ---------- Regelverksreferanseforslag (issue #286) — KI-forslag-kø for EKSISTERENDE tjenester ----------
+// uten regelverksreferanser. Egen kandidatkø (TjenesteRegelverksreferanseForslagEntitet), samme
+// mønster som /api/begrep-definisjon-relasjoner (issue #212) — se
+// TjenesteRegelverksreferanseforslagTjeneste sin klassekommentar for hele resonnementet.
+
+tjenester.MapGet("/regelverksreferanse-forslag", async (string? status, HttpRequest request,
+        TjenesteRegelverksreferanseforslagTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        // Samme eksplisitte "utelatt = kun Venter, 'Alle' = ingen filter"-mønster som
+        // GET /api/begrep-definisjon-relasjoner. Scopet til EGEN virksomhet — en Tjeneste er alltid én
+        // bestemt virksomhets eget arbeidsprodukt (§0.1), se ListerAsync sin doc-kommentar.
+        var effektivStatus = string.IsNullOrEmpty(status) ? "Venter" : status;
+        var statusFilter = effektivStatus == "Alle" ? null : effektivStatus;
+        var rader = await tjeneste.ListerMedTjenesteAsync(bruker.VirksomhetId, statusFilter, ct);
+        return Results.Ok(rader.Select(r => TjenesteRegelverksreferanseForslagDto.FraEntitet(r.Forslag, r.Tjeneste)));
+    })
+    .WithName("HentTjenesteRegelverksreferanseForslag")
+    .WithSummary("Kandidatkø (egen virksomhet) for KI-foreslåtte regelverksreferanser på EKSISTERENDE tjenester " +
+        "uten koblinger (issue #286). status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter.");
+
+tjenester.MapPost("/regelverksreferanse-forslag/kjor", async (HttpRequest request, KjorRegelverksreferanseforslagRequest body,
+        TjenesteRegelverksreferanseforslagTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        try
+        {
+            var resultat = await tjeneste.KjorForslagAsync(bruker.VirksomhetId, body.RettskildeIder, bruker.Navn, ct);
+            return Results.Ok(KjorRegelverksreferanseforslagResponsDto.FraResultat(resultat));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KjorTjenesteRegelverksreferanseforslag")
+    .WithSummary("Kjører «Foreslå regelverksreferanser»-agenten for egen virksomhets tjenester uten " +
+        "regelverksreferanser, mot kandidatparagrafer (embedding-innsnevret) fra valgte rettskilder. Idempotent.");
+
+tjenester.MapPost("/regelverksreferanse-forslag/{id:guid}/godkjenn", async (Guid id, HttpRequest request,
+        TjenesteRegelverksreferanseforslagTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var oppdatert = await tjeneste.GodkjennAsync(id, bruker.Navn, ct);
+            return oppdatert is null ? Results.NotFound(new { feil = $"Ingen forslag med id '{id}'." }) : Results.Ok(new { oppdatert.Id, oppdatert.Status });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("GodkjennTjenesteRegelverksreferanseforslag")
+    .WithSummary("Bekrefter forslaget — oppretter den ekte TjenesteRegelverksreferanseEntitet-koblingen via " +
+        "TjenesteregisterTjeneste.KobleRegelverksreferanseAsync.");
+
+tjenester.MapPost("/regelverksreferanse-forslag/{id:guid}/avvis", async (Guid id, HttpRequest request,
+        TjenesteRegelverksreferanseforslagTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var oppdatert = await tjeneste.AvvisAsync(id, bruker.Navn, ct);
+            return oppdatert is null ? Results.NotFound(new { feil = $"Ingen forslag med id '{id}'." }) : Results.Ok(new { oppdatert.Id, oppdatert.Status });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("AvvisTjenesteRegelverksreferanseforslag");
+
 // ---------- Handlinger (2026-08-20) — konkrete handlinger tilknyttet en Rettighet ----------
 
 app.MapGet("/api/handlinger", async (HandlingregisterTjeneste register, CancellationToken ct) =>
@@ -2220,6 +2321,84 @@ tjenester.MapGet("/handlinger/{handlingId:guid}/regelverksreferanser", async (Gu
     .WithName("HentHandlingRegelverksreferanser")
     .WithSummary("Lister handlingens regelverksreferanser (2026-08-22, se OppgaveregisterHandlingSeed) — samme rolle " +
         "for en Handling som GET /api/tjenester/{id}/regelverksreferanser har for en Tjeneste. Åpen lesing.");
+
+// ---------- Handling-regelverksreferanseforslag (issue #290) — KI-assistert oppgradering av ----------
+// dokumentnivå-koblinger (OppgaveregisterHandlingSeed) til paragrafnivå, for fritekst-henvisninger som
+// var for komplekse for seedens egen enkle regex. Se HandlingRegelverksreferanseforslagTjeneste sin
+// klassekommentar for hele resonnementet, inkl. hvorfor dette ALDRI kjører for RettskildematcherIkkeFunnet.
+
+tjenester.MapGet("/handlinger/regelverksreferanse-forslag", async (string? status, HttpRequest request,
+        HandlingRegelverksreferanseforslagTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var effektivStatus = string.IsNullOrEmpty(status) ? "Venter" : status;
+        var statusFilter = effektivStatus == "Alle" ? null : effektivStatus;
+        var rader = await tjeneste.ListerMedHandlingAsync(bruker.VirksomhetId, statusFilter, ct);
+        return Results.Ok(rader.Select(r => HandlingRegelverksreferanseForslagDto.FraEntitet(r.Forslag, r.Handling, r.TjenesteTittel)));
+    })
+    .WithName("HentHandlingRegelverksreferanseForslag")
+    .WithSummary("Kandidatkø (egen virksomhet) for KI-foreslåtte paragrafnivå-oppgraderinger av Handling-" +
+        "regelverksreferanser (issue #290). status utelatt = kun 'Venter'; status='Alle' = ingen statusfilter.");
+
+tjenester.MapPost("/handlinger/regelverksreferanse-forslag/kjor", async (HttpRequest request, KjorHandlingRegelverksreferanseforslagRequest body,
+        HandlingRegelverksreferanseforslagTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null)
+        {
+            return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        }
+        try
+        {
+            var resultat = await tjeneste.KjorForslagAsync(bruker.VirksomhetId, body.RettskildeIder, bruker.Navn, ct);
+            return Results.Ok(KjorHandlingRegelverksreferanseforslagResponsDto.FraResultat(resultat));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KjorHandlingRegelverksreferanseforslag")
+    .WithSummary("Kjører «Foreslå paragrafnivå»-agenten for egen virksomhets Handling-regelverksreferanser " +
+        "som fortsatt står på dokumentnivå (rettskilden importert, men fritekst-henvisningen for kompleks " +
+        "for OppgaveregisterHandlingSeed sin egen regex). Idempotent.");
+
+tjenester.MapPost("/handlinger/regelverksreferanse-forslag/{id:guid}/godkjenn", async (Guid id, HttpRequest request,
+        HandlingRegelverksreferanseforslagTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var oppdatert = await tjeneste.GodkjennAsync(id, bruker.Navn, ct);
+            return oppdatert is null ? Results.NotFound(new { feil = $"Ingen forslag med id '{id}'." }) : Results.Ok(new { oppdatert.Id, oppdatert.Status });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("GodkjennHandlingRegelverksreferanseforslag")
+    .WithSummary("Bekrefter forslaget — oppgraderer den eksisterende HandlingRegelverksreferanseEntitet-raden " +
+        "til paragrafnivå via HandlingregisterTjeneste.OppgraderRegelverksreferanseTilParagrafAsync.");
+
+tjenester.MapPost("/handlinger/regelverksreferanse-forslag/{id:guid}/avvis", async (Guid id, HttpRequest request,
+        HandlingRegelverksreferanseforslagTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var oppdatert = await tjeneste.AvvisAsync(id, bruker.Navn, ct);
+            return oppdatert is null ? Results.NotFound(new { feil = $"Ingen forslag med id '{id}'." }) : Results.Ok(new { oppdatert.Id, oppdatert.Status });
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("AvvisHandlingRegelverksreferanseforslag");
 
 tjenester.MapPut("/handlinger/{handlingId:guid}", async (Guid handlingId, HttpRequest request, HandlingRequest body, HandlingregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {

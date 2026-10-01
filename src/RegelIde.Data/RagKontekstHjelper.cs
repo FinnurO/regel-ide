@@ -51,13 +51,7 @@ internal static class RagKontekstHjelper
 
         var sporsmalVektor = (await embeddingKlient.EmbedAsync([sporsmalTekst], ct))[0];
 
-        var topK = noder
-            .Where(n => embeddinger.ContainsKey(n.Id))
-            .Select(n => new { Node = n, Likhet = KosinusLikhet(sporsmalVektor, embeddinger[n.Id]) })
-            .OrderByDescending(x => x.Likhet)
-            .Take(k)
-            .Select(x => x.Node.Id)
-            .ToHashSet();
+        var topK = RangerEtterLikhet(noder, embeddinger, sporsmalVektor, k).Select(n => n.Id).ToHashSet();
 
         // Grupperes fortsatt per rettskilde og beholder Sorteringsrekkefolge (ikke ren likhets-
         // rangert rekkefølge) — samme lesbarhetsbegrunnelse som RettskildeKontekstHjelper, ellers
@@ -75,6 +69,25 @@ internal static class RagKontekstHjelper
         }
         return sb.ToString();
     }
+
+    /// <summary>
+    /// [Ny, issue #286] Utrukket fra <see cref="ByggKontekstAsync"/>s embed-og-rangér-kjerne — for
+    /// forbrukere som trenger de RÅ topp-K-nodene selv (id/eId/rettskilde/likhetsscore), ikke en
+    /// ferdig formatert KI-prompt-streng. <see cref="TjenesteRegelverksreferanseforslagTjeneste"/> bruker
+    /// denne til kandidat-innsnevring FØR selve KI-kallet (i stedet for å dumpe hele korpuset), mens
+    /// <see cref="ByggKontekstAsync"/> selv fortsatt bruker den til prompt-bygging. Ingen endring i
+    /// rangeringslogikken — samme kosinuslikhet, samme "topp K, ferdig"-utvelgelse.
+    /// </summary>
+    internal static List<RettskildeNodeEntitet> RangerEtterLikhet(
+        IReadOnlyList<RettskildeNodeEntitet> noder, IReadOnlyDictionary<Guid, List<double>> embeddinger,
+        double[] sporsmalVektor, int k) =>
+        noder
+            .Where(n => embeddinger.ContainsKey(n.Id))
+            .Select(n => new { Node = n, Likhet = KosinusLikhet(sporsmalVektor, embeddinger[n.Id]) })
+            .OrderByDescending(x => x.Likhet)
+            .Take(k)
+            .Select(x => x.Node)
+            .ToList();
 
     /// <summary>
     /// Standard kosinuslikhet — ren C#, ingen ny avhengighet (se docs/14 §RAG-spike for hvorfor ikke

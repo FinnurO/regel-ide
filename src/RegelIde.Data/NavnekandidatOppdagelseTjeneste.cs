@@ -185,6 +185,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// ALDRI av et sveip.
     /// </summary>
     public const string KiFriSveipOppdagelsesKilde = "ki-fri-sveip";
+
     /// <summary>Diskriminatorverdien skrevet til <see cref="NavnekandidatEntitet.OppdagelsesKilde"/> for
     /// alle kandidater produsert av det brede "stor bokstav"-mønsteret (<see cref="FinnStorBokstavKandidaterITekst"/>,
     /// docs/31) — se den entitetsfeltets kommentar. <c>null</c> for kandidater fra de eldre, presise
