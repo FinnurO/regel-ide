@@ -131,4 +131,41 @@ public class VirksomhetRelasjonEndepunktTests
         var etterSlett = await _client.GetFromJsonAsync<List<VirksomhetRelasjonDto>>($"/api/virksomheter/{fraId}/relasjoner", JsonInnstillinger);
         Assert.Empty(etterSlett!);
     }
+
+    // ---------- Issue #285 AC5/AC6 — statusfelt + godkjenn for KI-foreslåtte relasjoner ----------
+
+    [Fact]
+    public async Task Nyopprettet_relasjon_har_status_validert()
+    {
+        var juristId = await HentJuristIdAsync();
+        var fraId = await OpprettVirksomhetAsync(juristId, $"Fra-virksomhet-status {Guid.NewGuid():N}");
+        var tilId = await OpprettVirksomhetAsync(juristId, $"Til-virksomhet-status {Guid.NewGuid():N}");
+
+        var opprettSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/virksomheter/{fraId}/relasjoner", juristId,
+            new { TilVirksomhetId = tilId, RelasjonsType = "underlagt", HjemmelRettskildeId = (Guid?)null, HjemmelEid = (string?)null, Kommentar = (string?)null }));
+        var liste = await opprettSvar.Content.ReadFromJsonAsync<List<VirksomhetRelasjonDto>>(JsonInnstillinger);
+        Assert.Equal("validert", liste!.Single().Status);
+    }
+
+    [Fact]
+    public async Task Godkjenn_endrer_status_fra_foreslatt_av_ai_til_validert()
+    {
+        var juristId = await HentJuristIdAsync();
+        var fraId = await OpprettVirksomhetAsync(juristId, $"Fra-virksomhet-godkjenn {Guid.NewGuid():N}");
+        var tilId = await OpprettVirksomhetAsync(juristId, $"Til-virksomhet-godkjenn {Guid.NewGuid():N}");
+
+        await using var db = _fixture.NyDbContext();
+        var relasjon = new VirksomhetRelasjonEntitet
+        {
+            Id = Guid.NewGuid(), FraVirksomhetId = fraId, TilVirksomhetId = tilId, RelasjonsType = "underlagt",
+            Status = "foreslatt_av_ai", OpprettetAv = "system-ki", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        };
+        db.VirksomhetRelasjoner.Add(relasjon);
+        await db.SaveChangesAsync();
+
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/virksomhet-relasjoner/{relasjon.Id}/godkjenn", juristId));
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+        var godkjent = await svar.Content.ReadFromJsonAsync<VirksomhetRelasjonDto>(JsonInnstillinger);
+        Assert.Equal("validert", godkjent!.Status);
+    }
 }

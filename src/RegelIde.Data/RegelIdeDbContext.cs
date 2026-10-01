@@ -155,7 +155,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 
         b.Entity<MyndighetstildelingEntitet>(e =>
         {
-            e.ToTable("myndighetstildelinger");
+            e.ToTable("myndighetstildelinger", t =>
+                // [Ny, issue #285 AC5] Samme lukkede to-verdis vokabular som virksomhet_relasjoner/
+                // gruppe_medlemskap under — se MyndighetstildelingEntitet.Status.
+                t.HasCheckConstraint("ck_myndighetstildelinger_status", "status IN ('foreslatt_av_ai', 'validert')"));
             e.HasKey(x => x.Id).HasName("myndighetstildelinger_pkey");
             e.Property(x => x.GruppeBegrepId).HasColumnName("gruppe_begrep_id");
             e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
@@ -164,6 +167,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Vilkaar).HasColumnName("vilkaar");
             e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
             e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
+            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("validert");
             e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
@@ -184,9 +188,13 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
         b.Entity<GruppeMedlemskapEntitet>(e =>
         {
             e.ToTable("gruppe_medlemskap", t =>
+            {
                 t.HasCheckConstraint(
                     "ck_gruppe_medlemskap_ikke_selv",
-                    "overordnet_gruppe_begrep_id <> underordnet_gruppe_begrep_id"));
+                    "overordnet_gruppe_begrep_id <> underordnet_gruppe_begrep_id");
+                // [Ny, issue #285 AC5] Se GruppeMedlemskapEntitet.Status.
+                t.HasCheckConstraint("ck_gruppe_medlemskap_status", "status IN ('foreslatt_av_ai', 'validert')");
+            });
             e.HasKey(x => x.Id).HasName("gruppe_medlemskap_pkey");
             e.Property(x => x.OverordnetGruppeBegrepId).HasColumnName("overordnet_gruppe_begrep_id");
             e.Property(x => x.UnderordnetGruppeBegrepId).HasColumnName("underordnet_gruppe_begrep_id");
@@ -194,6 +202,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.ParagrafspennJson).HasColumnName("paragrafspenn_json").HasDefaultValue("[]");
             e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
             e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
+            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("validert");
             e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
@@ -938,7 +947,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 
         b.Entity<VirksomhetRelasjonEntitet>(e =>
         {
-            e.ToTable("virksomhet_relasjoner");
+            e.ToTable("virksomhet_relasjoner", t =>
+                // [Ny, issue #285 AC5] Se VirksomhetRelasjonEntitet.Status.
+                t.HasCheckConstraint("ck_virksomhet_relasjoner_status", "status IN ('foreslatt_av_ai', 'validert')"));
             e.HasKey(x => x.Id).HasName("virksomhet_relasjoner_pkey");
             e.Property(x => x.FraVirksomhetId).HasColumnName("fra_virksomhet_id");
             e.Property(x => x.TilVirksomhetId).HasColumnName("til_virksomhet_id");
@@ -947,6 +958,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.HjemmelEid).HasColumnName("hjemmel_eid");
             e.Property(x => x.Kommentar).HasColumnName("kommentar");
             e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
+            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("validert");
             e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
 

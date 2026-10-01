@@ -130,6 +130,10 @@ export default function NavnekandidaterListe() {
     return forhandsvalgt ? new Set([forhandsvalgt]) : new Set();
   });
   const [filterForeslattTekst, setFilterForeslattTekst] = useState('');
+  // [Ny, issue #285] Forhåndsutfylt fra ?oppdagelsesKilde=ki-fri-sveip (KiOppdagelseKo.tsx sin lenke
+  // til «navneform-forslagene» — se den sidens kommentar) — samme "kun INITIAL verdi"-mønster som
+  // rettskildeId over. '' = ingen filtrering (standard, uendret oppførsel).
+  const [oppdagelsesKildeFilter] = useState(() => searchParams.get('oppdagelsesKilde') ?? '');
 
   const [gruppering, setGruppering] = useState<Gruppering>('ingen');
   const [gruppeApne, setGruppeApne] = useState<Set<string>>(new Set());
@@ -176,6 +180,7 @@ export default function NavnekandidaterListe() {
       .hentNavnekandidater({
         kategori: kategoriFilter || undefined,
         konfidens: konfidensFilter || undefined,
+        oppdagelsesKilde: oppdagelsesKildeFilter || undefined,
         ...serverFilter(statusFilter),
       })
       .then((liste) => {
