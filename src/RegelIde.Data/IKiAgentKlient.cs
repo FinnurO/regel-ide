@@ -77,6 +77,10 @@ public sealed class KiAgentKlientStub : IKiAgentKlient
         _ when systemInstruks.Contains("begrep", StringComparison.OrdinalIgnoreCase) => BegrepSvar,
         _ when systemInstruks.Contains("i ÉTT kall") => FullSvar,
         _ when systemInstruks.Contains("EKSISTERENDE tjeneste") => HandlingSvar,
+        // [Ny, issue #290] Egen frase for HandlingRegelverksreferanseforslagTjeneste, skilt fra Tjeneste-
+        // varianten under — begge gjenbruker SAMME kontekst-lesende svar (samme JSON-form, "Eid"/
+        // "Begrunnelse"), se RegelverksreferanseforslagSvar sin egen kommentar.
+        _ when systemInstruks.Contains("rettslig grunnlag for handlingen") => RegelverksreferanseforslagSvar(kontekst),
         _ when systemInstruks.Contains("en gitt offentlig tjeneste") => RegelverksreferanseforslagSvar(kontekst),
         _ => TjenesteSvar,
     };

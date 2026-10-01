@@ -1075,12 +1075,43 @@ export interface RettskildeStatistikkDto {
 }
 
 /** Samme rolle for en Handling som TjenesteRegelverksreferanseDto har for en Tjeneste (2026-08-22,
- * se OppgaveregisterHandlingSeed) — kun lesing i UI-et ennå, ingen koble til/fjern-endepunkt finnes. */
+ * se OppgaveregisterHandlingSeed) — kun lesing i UI-et ennå, ingen generisk koble til/fjern-endepunkt
+ * finnes (issue #290 la til en SNEVER oppgraderingsvei via regelverksreferanse-forslag-køen under). */
 export interface HandlingRegelverksreferanseDto {
   id: string;
   handlingId: string;
   tilRettskildeId: string;
   tilEid: string;
+}
+
+/** [Ny, issue #290] Kandidatkø-rad for GET /api/tjenester/handlinger/regelverksreferanse-forslag —
+ * KI-foreslått OPPGRADERING (dokumentnivå → paragrafnivå) av en Handling-regelverksreferanse. */
+export interface HandlingRegelverksreferanseForslagDto {
+  id: string;
+  handlingId: string;
+  handlingNavn: string;
+  tjenesteTittel: string;
+  tilRettskildeId: string;
+  tilEid: string;
+  begrunnelse: string | null;
+  status: string;
+  aiForslagVersjon: string | null;
+  opprettetAv: string;
+  opprettetTidspunkt: string;
+  behandletAv: string | null;
+  behandletTidspunkt: string | null;
+}
+
+export interface KjorHandlingRegelverksreferanseforslagRequest {
+  rettskildeIder: string[];
+}
+
+export interface KjorHandlingRegelverksreferanseforslagResponsDto {
+  antallKandidatrader: number;
+  antallVurdert: number;
+  antallNyeForslag: number;
+  inputTokens: number | null;
+  outputTokens: number | null;
 }
 
 /** Håndbok-nivå rettskildeomfang (docs/12-fasit-handbok-leveranse.md, 2026-07-31). */

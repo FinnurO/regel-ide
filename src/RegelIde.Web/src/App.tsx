@@ -19,6 +19,7 @@ import DatasettListe from './pages/DatasettListe';
 import TjenesteVeiledning from './pages/TjenesteVeiledning';
 import TjenesteforslagKo from './pages/TjenesteforslagKo';
 import TjenesteRegelverksreferanseforslagKo from './pages/TjenesteRegelverksreferanseforslagKo';
+import HandlingRegelverksreferanseforslagKo from './pages/HandlingRegelverksreferanseforslagKo';
 import BegrepsforslagKo from './pages/BegrepsforslagKo';
 import BrukereListe from './pages/BrukereListe';
 import VirksomheterListe from './pages/VirksomheterListe';
@@ -52,6 +53,7 @@ function App() {
           <Route path="/tjenester" element={<TjenesterListe />} />
           <Route path="/tjenester/forslag" element={<TjenesteforslagKo />} />
           <Route path="/tjenester/regelverksreferanse-forslag" element={<TjenesteRegelverksreferanseforslagKo />} />
+          <Route path="/tjenester/handlinger/regelverksreferanse-forslag" element={<HandlingRegelverksreferanseforslagKo />} />
           <Route path="/tjenester/:id" element={<TjenesteDetalj />} />
           <Route path="/tjenester/:tjenesteId/handlinger/:handlingId" element={<HandlingDetalj />} />
           <Route path="/handlinger" element={<HandlingerListe />} />
