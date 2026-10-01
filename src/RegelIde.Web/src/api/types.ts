@@ -591,6 +591,83 @@ export interface NavnekandidatDto {
   konfidensGrunn: string | null;
 }
 
+/** [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC1-4] POST /api/navnekandidater/
+ * manuell — den manuelle inngangsdøren fra `TagTekst`s tag-linje («Behandle som organ/gruppe →»). */
+export interface NavnekandidatManuellRequest {
+  rettskildeId: string;
+  nodeEid: string;
+  startOffset: number;
+  endOffset: number;
+  foreslattTekst: string;
+}
+
+/** [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC5/AC6] POST /api/navnekandidater/
+ * {id}/kobl-til-myndighetstildeling — det valgfrie «Rolle tildelt her»-steget, for BÅDE virksomhet- og
+ * gruppemedlem-slaget. `rolleBegrepId` er et FRITT valgt gruppebegrep, ikke gruppemedlem-sporets egen
+ * gruppe. Hjemmelen sendes ikke — den er alltid kandidatens egen rettskilde. */
+export interface KoblNavnekandidatTilMyndighetstildelingRequest {
+  virksomhetId: string;
+  rolleBegrepId: string;
+  paragrafspenn: ParagrafspennParDto[];
+  vilkaar: string | null;
+  navneformgrunn: Navneformgrunn | null;
+}
+
+/** Som `NavnekandidatGruppemedlemskapResultatDto`, men `tildeling` gjelder et fritt valgt rollebegrep. */
+export interface NavnekandidatMyndighetstildelingResultatDto {
+  kandidat: NavnekandidatDto;
+  navneform: BegrepDto;
+  taggId: string | null;
+  rettskildeId: string;
+  nodeEid: string;
+  tildeling: MyndighetstildelingDto;
+}
+
+/** [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC7/AC8] POST /api/navnekandidater/
+ * {id}/kobl-til-relasjon — det valgfrie «Relasjon til annen virksomhet»-steget. `hjemletHer=true`
+ * hjemler relasjonen i kandidatens egen rettskilde/node (sendes ikke — settes server-side);
+ * `false` lagrer kun `kommentar` som fritekst, uten hjemmel. */
+export interface KoblNavnekandidatTilRelasjonRequest {
+  virksomhetId: string;
+  navneformgrunn: Navneformgrunn | null;
+  motpartVirksomhetId: string;
+  relasjonsType: string;
+  hjemletHer: boolean;
+  kommentar: string | null;
+}
+
+/** Rå VirksomhetRelasjon-felt uten beregnet visningstekst — se backend-DTOen. */
+export interface NavnekandidatRelasjonDto {
+  id: string;
+  relasjonsType: string;
+  fraVirksomhetId: string;
+  tilVirksomhetId: string;
+  hjemmelRettskildeId: string | null;
+  hjemmelEid: string | null;
+  kommentar: string | null;
+}
+
+export interface NavnekandidatRelasjonResultatDto {
+  kandidat: NavnekandidatDto;
+  navneform: BegrepDto;
+  taggId: string | null;
+  rettskildeId: string;
+  nodeEid: string;
+  relasjon: NavnekandidatRelasjonDto;
+}
+
+/** [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC9] POST /api/navnekandidater/
+ * {id}/kobl-til-gruppe-av-gruppe — kun for kategori='gruppe'-kandidater. */
+export interface KoblNavnekandidatTilGruppeAvGruppeRequest {
+  overordnetGruppeBegrepId: string;
+}
+
+export interface NavnekandidatGruppeAvGruppeResultatDto {
+  kandidat: NavnekandidatDto;
+  gruppebegrep: BegrepDto;
+  medlemskap: GruppeMedlemskapDto;
+}
+
 /** rettskildeId=null sveiper hele det importerte korpuset, satt snevrer inn til én rettskilde. */
 export interface SveipNavnekandidaterRequest {
   rettskildeId: string | null;

@@ -3781,6 +3781,38 @@ navnekandidater.MapPost("/sveip", async (HttpRequest request, SveipNavnekandidat
         "på tvers av sveip) — SSR-bekreftet 'Nasjon'/'Fylke'/'Kommune' gir 'administrativ_inndeling' i stedet for " +
         "'virksomhet' (issue #203 pkt. 3). Slår opp lærte korreksjonsregler (issue #203 pkt. 4) FØR materialisering.");
 
+// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC1-4] Manuell inngangsdør fra
+// TagTekst/RettskildeDetalj («Behandle som organ/gruppe →», tag-linjen for kind='begrep') — den ENESTE
+// veien inn i navnekandidat-veiviseren utenom sveipet. GET-or-create på nøyaktig samme unike nøkkel som
+// sveipet (RettskildeId, NodeEid, StartOffset), se OpprettEllerFinnAsync: en allerede eksisterende rad
+// på samme posisjon gjenbrukes uendret i stedet for en duplikat. Kategori settes alltid til
+// 'virksomhet' (bare et forhåndsvalg — steg 2 i veiviseren lar saksbehandleren endre det, ingen
+// forgrening skjer FØR det steget). OppdagelsesKilde='manuell', Konfidens/KonfidensGrunn=null (aldri
+// SNL/SSR-klassifisert). Bevisst INGEN ny TagKindId — sluttresultatet er uansett kind='begrep' pekende
+// på navneform-Begrep-raden (docs/20 §2.6, det reverterte anti-mønsteret AC4 nevner).
+navnekandidater.MapPost("/manuell", async (HttpRequest request, NavnekandidatManuellRequest body,
+        NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var kandidat = await register.OpprettEllerFinnAsync(
+                body.ForeslattTekst.Trim(), "virksomhet", body.RettskildeId, body.NodeEid,
+                body.StartOffset, body.EndOffset, bruker.Navn, ct,
+                oppdagelsesKilde: NavnekandidatOppdagelseTjeneste.ManuellOppdagelsesKilde);
+            return Results.Ok(NavnekandidatDto.FraEntitet(kandidat));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OpprettManuellNavnekandidat")
+    .WithSummary("Issue #283 AC1-4 — manuell inngangsdør ('Behandle som organ/gruppe →' i TagTekst). " +
+        "GET-or-create på (RettskildeId, NodeEid, StartOffset), samme idempotens som sveipet. " +
+        "OppdagelsesKilde='manuell', Konfidens=null. Naviger til /navnekandidater/{id}/behandle etter opprettelse.");
+
 navnekandidater.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest request,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
@@ -3907,6 +3939,92 @@ navnekandidater.MapPost("/{id:guid}/kobl-til-gruppemedlemskap", async (Guid id, 
     .WithName("KoblNavnekandidatTilGruppemedlemskap")
     .WithSummary("Som /kobl-til-virksomhet, pluss en myndighetstildeling som gjør virksomheten medlem av " +
         "gruppebegrepet — hjemlet i kandidatens EGEN rettskilde (det er der navnet står). Idempotent.");
+
+// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC5/AC6] Generalisert
+// Myndighetstildeling — det valgfrie «Rolle tildelt her»-steget i veiviseren, for BÅDE
+// 'virksomhet'- og 'gruppemedlem'-slaget (til forskjell fra /kobl-til-gruppemedlemskap, som er bundet
+// til gruppemedlem-sporets EGEN gruppe). Kan kombineres med /kobl-til-gruppemedlemskap på samme
+// kandidat — begge kaller samme idempotente kjedelukking.
+navnekandidater.MapPost("/{id:guid}/kobl-til-myndighetstildeling", async (Guid id, HttpRequest request,
+        KoblNavnekandidatTilMyndighetstildelingRequest body, NavnekandidatOppdagelseTjeneste register,
+        RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var resultat = await register.KoblTilMyndighetstildelingAsync(
+                id, body.VirksomhetId, body.RolleBegrepId,
+                body.Paragrafspenn.Select(p => new ParagrafspennPar(p.FraEid, p.TilEid)).ToList(),
+                body.Vilkaar, body.Navneformgrunn, bruker.Navn, ct);
+            return resultat is null
+                ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." })
+                : Results.Ok(NavnekandidatMyndighetstildelingResultatDto.FraResultat(resultat));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KoblNavnekandidatTilMyndighetstildeling")
+    .WithSummary("Issue #283 AC5/AC6 — speil av /kobl-til-gruppemedlemskap, men for et FRITT valgt " +
+        "rollebegrep + eget paragrafspenn/vilkår, uten gruppekoblingen. Hjemlet i kandidatens egen " +
+        "rettskilde. Idempotent.");
+
+// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC7/AC8] «Relasjon til annen
+// virksomhet» — løser issue #263 AC2/AC3 sitt «Minimalt»-nivå (forhåndsutfylt snarvei, ingen
+// automatisk mønstergjenkjenning, se #263 AC1 som er eksplisitt utenfor).
+navnekandidater.MapPost("/{id:guid}/kobl-til-relasjon", async (Guid id, HttpRequest request,
+        KoblNavnekandidatTilRelasjonRequest body, NavnekandidatOppdagelseTjeneste register,
+        RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var resultat = await register.KoblTilRelasjonAsync(
+                id, body.VirksomhetId, body.Navneformgrunn, body.MotpartVirksomhetId, body.RelasjonsType,
+                body.HjemletHer, body.Kommentar, bruker.Navn, ct);
+            return resultat is null
+                ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." })
+                : Results.Ok(NavnekandidatRelasjonResultatDto.FraResultat(resultat));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KoblNavnekandidatTilRelasjon")
+    .WithSummary("Issue #283 AC7/AC8, #263 AC2/AC3 'Minimalt'-nivå — kobler kandidatens virksomhet " +
+        "(Fra-siden) til en fritt valgt motpart via en eksisterende relasjonstype. HjemletHer=true " +
+        "hjemler relasjonen i kandidatens egen rettskilde/node, false lagrer kun en fritekst-kommentar. " +
+        "Idempotent.");
+
+// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC9] Gruppe-av-gruppe fra
+// veiviserens gruppe-spor — oppretter gruppebegrepet OG et GruppeMedlemskapEntitet i én atomisk
+// handling (klienten kjenner ikke det nye gruppebegrepets id på forhånd).
+navnekandidater.MapPost("/{id:guid}/kobl-til-gruppe-av-gruppe", async (Guid id, HttpRequest request,
+        KoblNavnekandidatTilGruppeAvGruppeRequest body, NavnekandidatOppdagelseTjeneste register,
+        RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var resultat = await register.KoblTilGruppeAvGruppeAsync(id, body.OverordnetGruppeBegrepId, bruker.Navn, ct);
+            return resultat is null
+                ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." })
+                : Results.Ok(NavnekandidatGruppeAvGruppeResultatDto.FraResultat(resultat));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("KoblNavnekandidatTilGruppeAvGruppe")
+    .WithSummary("Issue #283 AC9 — som /godkjenn for 'gruppe'-kandidater, pluss et GruppeMedlemskapEntitet " +
+        "som gjør det NYE gruppebegrepet til medlem av OverordnetGruppeBegrepId, hjemlet i kandidatens " +
+        "egen rettskilde. Kun for Kategori='gruppe' og Status='Venter'.");
 
 navnekandidater.MapPost("/godkjenn-batch", async (HttpRequest request, NavnekandidatBatchRequest body,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>

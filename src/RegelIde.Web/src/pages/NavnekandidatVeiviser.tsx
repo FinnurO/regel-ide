@@ -1,14 +1,14 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Link as RouterLink, useNavigate, useParams } from 'react-router';
 import {
-  Alert, Breadcrumbs, Button, Card, Divider, Field, Heading, Link, Paragraph, Radio, Search,
-  Spinner, Table, Tag, Textfield,
+  Alert, Breadcrumbs, Button, Card, Divider, Field, Heading, Label, Link, Paragraph, Radio, Search,
+  Select, Spinner, Table, Tag, Textfield,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
 import type {
-  BrregEnhetDto, NavnekandidatDto, Navneformgrunn, RettskildeDetalj as RettskildeDetaljDto,
-  RettskildeNodeDto, VirksomhetsbegrepDto,
+  BrregEnhetDto, NavnekandidatDto, Navneformgrunn, RelasjonsTypeKonfigurasjonDto,
+  RettskildeDetalj as RettskildeDetaljDto, RettskildeNodeDto, VirksomhetsbegrepDto,
 } from '../api/types';
 import { BerikelseVisning } from '../virksomhet/BerikelseVisning';
 import { GruppebegrepVelger } from '../virksomhet/GruppebegrepVelger';
@@ -54,13 +54,19 @@ import { Metatekst } from '../entitet/Metatekst';
  * kandidat SSR alt har klassifisert dit trenger ingen ekstra menneskelig kategorivalg i en veiviser
  * bygget for den mer kompliserte virksomhets-koblingsflyten.
  *
- * <h3>Bevisst UTENFOR denne runden</h3>
- * Å OPPRETTE et nytt gruppebegrep
- * og samtidig gjøre det medlem av en annen gruppe (gruppe-av-gruppe fra veiviseren) er heller ikke
- * med: `GruppeMedlemskapEntitet` finnes og har eget endepunkt, men veiviserens gruppe-vei oppretter
- * i dag kun selve gruppebegrepet, og medlemskapet mellom to grupper registreres separat (slik
- * `SamiskSprakforvaltningSeed` gjør det). Korreksjonsregel-tabellen (issue #203 pkt. 4) kommer
- * separat; steg 1 retter ÉN rad, og lærer ikke et mønster som kan brukes på nye sveip.
+ * <h3>[Utvidet, «alle mekanismer»-runden, 2026-09-21, issue #283] De fire resterende mekanismene</h3>
+ * Denne runden dekker det filkommentaren lenge sa var bevisst utenfor: (1) en MANUELL inngangsdør
+ * (`TagTekst`s «Behandle som organ/gruppe →», `RettskildeDetalj.tsx`) i tillegg til sveipet —
+ * `Kandidat.oppdagelsesKilde==='manuell'`, men INGEN forgrening i veiviseren basert på det; (2) et
+ * valgfritt STEG 4 «Utover navneform?» mellom virksomhetsvalget og bekreftelsen, for BÅDE
+ * `virksomhet`- og `gruppemedlem`-sporet (se `Tillegg`-typen) — «Rolle tildelt her» (generell
+ * `Myndighetstildeling`, IKKE bundet til gruppemedlemskapet) eller «Relasjon til annen virksomhet»
+ * (`VirksomhetRelasjonEntitet`, løser issue #263 AC2/AC3 sitt «Minimalt»-nivå) registreres SAMTIDIG
+ * som navneformen lukkes; (3) gruppe-sporet (`Slag==='gruppe'`) har fått et valgfritt tillegg — «er
+ * denne gruppen selv medlem av en annen gruppe?» — som oppretter et `GruppeMedlemskapEntitet` mellom
+ * det NYE gruppebegrepet og en allerede eksisterende, overordnet gruppe (ett nytt endepunkt,
+ * `kobl-til-gruppe-av-gruppe`, siden klienten ikke kjenner det nye gruppebegrepets id på forhånd).
+ * Korreksjonsregel-tabellen (issue #203 pkt. 4) er IKKE del av denne runden.
  *
  * <h3>Designmønster</h3>
  * Ny side, så den følger saksbehandler-mønsteret fra dag én (docs/09 §14): brødsmulesti,
@@ -73,26 +79,39 @@ import { Metatekst } from '../entitet/Metatekst';
  * [ny, gruppemedlemskap-runden, 2026-09-08] — se filkommentaren. */
 type Slag = 'virksomhet' | 'gruppemedlem' | 'gruppe' | 'irrelevant';
 
-/** De to `Slag`-verdiene som går videre til steg 4 (virksomhetsvalget). Skilt ut som en egen
- * predikatfunksjon fordi den brukes på fire steder — steg-tittelen, steg 3s «Neste»-knapp, steg 4s
- * og steg 5s synlighet — og en glemt oppdatering av ÉN av dem gir en veiviser som halvveis åpner en
- * vei. */
+/** De to `Slag`-verdiene som går videre til steg 3 (virksomhetsvalget) og steg 4 (tillegget under). Skilt
+ * ut som en egen predikatfunksjon fordi den brukes på flere steder — steg-titlene, steg 3s
+ * «Neste»-knapp, steg 4 (tillegget) og steg 5 (bekreft) sin synlighet — og en glemt oppdatering av ÉN
+ * av dem gir en veiviser som halvveis åpner en vei. */
 function harVirksomhetssteg(slag: Slag | null): boolean {
   return slag === 'virksomhet' || slag === 'gruppemedlem';
 }
 
-/** Steg-titlene. Steg 4 sin tittel avhenger av `Slag`: gruppemedlem-veien velger BÅDE virksomhet og
+/**
+ * [Ny, «alle mekanismer»-runden, 2026-09-21, issue #283 AC5] Steg 4 sitt valg — det NYE, valgfrie
+ * steget mellom virksomhetsvalget og bekreftelsen, for BÅDE `virksomhet`- og `gruppemedlem`-sporet.
+ * `'ingen'` er standarden (dagens oppførsel, uendret) — de aller fleste treff er bare en navneform.
+ */
+type Tillegg = 'ingen' | 'rolle' | 'relasjon';
+
+/** Steg-titlene. Steg 3 sin tittel avhenger av `Slag`: gruppemedlem-veien velger BÅDE virksomhet og
  * gruppe i det steget, og en tittel som bare sa «Hvilken virksomhet?» ville underrapportert hva
- * steget faktisk krever av saksbehandleren. */
+ * steget faktisk krever av saksbehandleren.
+ * <p>[ENDRET, «alle mekanismer»-runden, 2026-09-21, issue #283 AC5] Fem elementer (ikke fire) for
+ * `virksomhet`/`gruppemedlem`-sporet — det nye steg 4 («Utover navneform?») er satt inn FØR «Bekreft»,
+ * som dermed rykker fra indeks 3 til indeks 4. Andre `Slag`-verdier (`gruppe`/`irrelevant`/`null`)
+ * bruker fortsatt bare fire — de når aldri forbi steg 2 i det hele tatt.</p>
+ * <p>[Rettet samtidig] Indeksene er FAKTISK «steg-nummer minus 1» nå (kommentaren under sa alltid
+ * det, men steg 3-kortet leste tidligere indeks 3 — «Bekreft» — i stedet for indeks 2. Usynlig fordi
+ * teksten der aldri ble vist alene, kun sammen med et hardkodet «3. »-prefiks.)</p> */
 function stegTitler(slag: Slag | null): readonly string[] {
   // [ENDRET 2026-09-09] «Kontekst» er ikke lenger et steg — se `steg`-tilstanden i komponenten.
   // Indeks i denne listen er derfor steg-nummer MINUS 1.
-  return [
-    'Er teksten riktig?',
-    'Hva slags ting er dette?',
-    slag === 'gruppemedlem' ? 'Hvilken virksomhet og gruppe?' : 'Hvilken virksomhet?',
-    'Bekreft',
-  ];
+  const virksomhetTittel = slag === 'gruppemedlem' ? 'Hvilken virksomhet og gruppe?' : 'Hvilken virksomhet?';
+  if (harVirksomhetssteg(slag)) {
+    return ['Er teksten riktig?', 'Hva slags ting er dette?', virksomhetTittel, 'Utover navneform?', 'Bekreft'];
+  }
+  return ['Er teksten riktig?', 'Hva slags ting er dette?', virksomhetTittel, 'Bekreft'];
 }
 
 /** Steg 3 sin gren: koble til en som finnes, eller opprette en ny (fra Brreg, eller kun navn). */
@@ -184,7 +203,34 @@ export default function NavnekandidatVeiviser() {
    * lastes for å pynte på et valg. `null` mens den lastes eller når loven ikke kunne hentes. */
   const [valgtGruppeLovTittel, setValgtGruppeLovTittel] = useState<string | null>(null);
 
-  // Steg 4 / avslutning
+  // [Ny, «alle mekanismer»-runden, 2026-09-21, issue #283 AC5] Steg 4 — valgfritt tillegg UTOVER
+  // navneformen, for BÅDE virksomhet- og gruppemedlem-sporet. Default 'ingen' = dagens oppførsel.
+  const [tillegg, setTillegg] = useState<Tillegg>('ingen');
+
+  // Tillegg==='rolle' — AC6: rollebegrep (et FRITT valgt gruppebegrep, IKKE gruppemedlem-sporets egen
+  // gruppe) + paragrafspenn (ETT par — se `LeggTilMyndighetstildelingForm.tsx` for den fulle
+  // liste-byggeren; her holdt til ett par, se PR-beskrivelsen for begrunnelsen) + valgfritt vilkår.
+  const [valgtRolleBegrepId, setValgtRolleBegrepId] = useState('');
+  const [rolleFraEid, setRolleFraEid] = useState('');
+  const [rolleTilEid, setRolleTilEid] = useState('');
+  const [rolleVilkaar, setRolleVilkaar] = useState('');
+
+  // Tillegg==='relasjon' — AC7/AC8, løser issue #263 AC2/AC3 sitt «Minimalt»-nivå.
+  const [relasjonstyper, setRelasjonstyper] = useState<RelasjonsTypeKonfigurasjonDto[] | null>(null);
+  const [motpartVirksomhetId, setMotpartVirksomhetId] = useState('');
+  const [relasjonsType, setRelasjonsType] = useState('');
+  /** `true` = hjemlet i kandidatens EGEN rettskilde/node (sendes ikke eksplisitt, settes server-side —
+   * samme «hjemmelen er ikke et valg»-konvensjon som gruppemedlemskap). `false` = ingen formell
+   * hjemmel, kun `relasjonKommentar` som fritekst. */
+  const [relasjonHjemletHer, setRelasjonHjemletHer] = useState(true);
+  const [relasjonKommentar, setRelasjonKommentar] = useState('');
+
+  // Slag==='gruppe' — AC9: valgfritt tillegg «er denne gruppen selv medlem av en annen gruppe?».
+  // Gjenbruker `gruppebegrep`-lista over (bredere lastebetingelse, se effekten under).
+  const [erGruppeAvGruppe, setErGruppeAvGruppe] = useState(false);
+  const [valgtOverordnetGruppeBegrepId, setValgtOverordnetGruppeBegrepId] = useState('');
+
+  // Steg 5 / avslutning
   const [fullfører, setFullfører] = useState(false);
   const [feil, setFeil] = useState<string | null>(null);
   const [ferdig, setFerdig] = useState<{
@@ -204,9 +250,10 @@ export default function NavnekandidatVeiviser() {
      * 2026-09-09: «her flyter det litt sammen»). `null` på gruppe-/irrelevant-veiene, som ikke
      * ender i en virksomhet. */
     virksomhetForSveip: { id: string; navn: string } | null;
-    /** [Ny, gruppemedlemskap-runden] Gruppebegrepets detaljside, satt kun på gruppemedlem-veien.
-     * Det er nettopp den drill-throughen medlemskapet ble registrert FOR: derfra ser man hele
-     * medlemslista gruppen nå inneholder. */
+    /** [Ny, gruppemedlemskap-runden] Gruppebegrepets detaljside, satt på gruppemedlem-veien (den
+     * EKSISTERENDE gruppen medlemskapet ble registrert for) og — [Ny, «alle mekanismer»-runden,
+     * 2026-09-21, issue #283 AC9] — på gruppe-av-gruppe-tillegget (det NYE gruppebegrepets EGEN
+     * side, der man ser at det er registrert som medlem av den overordnede gruppen). */
     gruppeLenke: string | null;
     advarsel: string | null;
   } | null>(null);
@@ -268,15 +315,31 @@ export default function NavnekandidatVeiviser() {
       : { start: kandidat.startOffset, slutt: kandidat.endOffset };
   }, [kandidat, node]);
 
-  /** Gruppebegrepene lastes FØRST når gruppemedlem-veien faktisk er valgt — ikke ved sidelast.
-   * De aller fleste kandidatene går virksomhet- eller gruppe-veien, og et kall ingen av dem trenger
-   * er et kall som ikke skal gjøres. */
+  /** Gruppebegrepene lastes FØRST når NOEN av de tre stedene som trenger dem faktisk er valgt — ikke
+   * ved sidelast. De aller fleste kandidatene trenger ingen av dem, og et kall ingen av dem trenger er
+   * et kall som ikke skal gjøres.
+   * <p>[UTVIDET, «alle mekanismer»-runden, 2026-09-21, issue #283] Var scopet KUN til
+   * `slag === 'gruppemedlem'` — nå ogSÅ tillegg==='rolle' (steg 4, AC6: rollebegrepet er et FRITT
+   * valgt gruppebegrep) og slag==='gruppe' med gruppe-av-gruppe-tillegget valgt (AC9: den OVERORDNEDE
+   * gruppen er også et gruppebegrep). Samme lastede liste gjenbrukes for alle tre — de er samme
+   * underliggende data (alle gruppebegrep), bare tre ulike BRUKssteder.</p> */
+  const trengerGruppebegrepliste = slag === 'gruppemedlem' || tillegg === 'rolle' || (slag === 'gruppe' && erGruppeAvGruppe);
   useEffect(() => {
-    if (slag !== 'gruppemedlem' || gruppebegrep !== null) return;
+    if (!trengerGruppebegrepliste || gruppebegrep !== null) return;
     api.hentGruppebegrep()
       .then(setGruppebegrep)
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Kunne ikke laste gruppebegrepene.'));
-  }, [slag, gruppebegrep]);
+  }, [trengerGruppebegrepliste, gruppebegrep]);
+
+  /** [Ny, «alle mekanismer»-runden, 2026-09-21, issue #283 AC7] Relasjonstypene lastes FØRST når
+   * «Relasjon til annen virksomhet»-tillegget faktisk er valgt — samme lat-lasting-begrunnelse som
+   * gruppebegrep over. */
+  useEffect(() => {
+    if (tillegg !== 'relasjon' || relasjonstyper !== null) return;
+    api.hentRelasjonstyper()
+      .then(setRelasjonstyper)
+      .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Kunne ikke laste relasjonstypene.'));
+  }, [tillegg, relasjonstyper]);
 
   /** Loven det VALGTE gruppebegrepet er hjemlet i — ÉN rettskilde, hentet etter valget. Se
    * kommentaren på `valgtGruppeLovTittel` for hvorfor ikke hele rettskildelista lastes på forhånd. */
@@ -295,6 +358,22 @@ export default function NavnekandidatVeiviser() {
   }, [valgtGruppeBegrepId, gruppebegrep]);
 
   const valgtGruppe = gruppebegrep?.find((g) => g.id === valgtGruppeBegrepId) ?? null;
+
+  // [Ny, «alle mekanismer»-runden, 2026-09-21, issue #283 AC6] Paragraf-kandidater for
+  // rolletillegget — samme filter som `LeggTilMyndighetstildelingForm.tsx`, men scopet til DENNE
+  // rettskildens noder (`noder` er alt lastet for kontekst-kortet) i stedet for en separat lastet
+  // lov: kandidatens rettskilde ER hjemmelen her, det er ikke et valg.
+  const paragrafKandidaterForRolle = (noder ?? []).filter(
+    (n) => n.nodeType === 'side' || (n.nodeType !== 'kapittel' && n.nummer),
+  );
+  function visRolleNodeKort(eid: string): string {
+    const funnetNode = (noder ?? []).find((n) => n.eid === eid);
+    if (!funnetNode) return eid;
+    if (funnetNode.nodeType === 'side') return 'Hele siden';
+    return funnetNode.nummer ? `§ ${funnetNode.nummer}` : eid;
+  }
+  const valgtRolle = gruppebegrep?.find((g) => g.id === valgtRolleBegrepId) ?? null;
+  const valgtMotpart = virksomheter.find((v) => v.id === motpartVirksomhetId) ?? null;
 
   async function lagreTekst() {
     if (!id || !kandidat) return;
@@ -356,6 +435,38 @@ export default function NavnekandidatVeiviser() {
     setFeil(null);
     try {
       if (valg === 'gruppe') {
+        // [Ny, «alle mekanismer»-runden, 2026-09-21, issue #283 AC9] Gruppe-av-gruppe-tillegget bruker
+        // et ANNET endepunkt — klienten kjenner ikke det nye gruppebegrepets id på forhånd, se
+        // KoblTilGruppeAvGruppeAsync. Den vanlige veien under (else-grenen) er BEVISST HELT UENDRET
+        // (AC5: «ingen regresjon») for det store flertallet uten noe gruppe-av-gruppe-forhold.
+        if (erGruppeAvGruppe && valgtOverordnetGruppeBegrepId) {
+          const resultat = await api.koblNavnekandidatTilGruppeAvGruppe(id, {
+            overordnetGruppeBegrepId: valgtOverordnetGruppeBegrepId,
+          });
+          const overordnetTerm = gruppebegrep?.find((g) => g.id === valgtOverordnetGruppeBegrepId)?.term
+            ?? 'den valgte gruppen';
+          setFerdig({
+            tittel: `«${kandidat.foreslattTekst}» er opprettet som gruppebegrep.`,
+            detaljer: [
+              'Gruppebegrepet er hjemlet i denne rettskilden (navn + lov utgjør identiteten).',
+              `Gruppen er registrert som medlem av «${overordnetTerm}», hjemlet i denne rettskilden — `
+                + 'det er her medlemskapet står (issue #283 AC9).',
+              'Tekst-taggen for forekomsten er koblet til det nye gruppebegrepet.',
+              'Navnekandidaten er satt til «Godkjent».',
+            ],
+            rettskildeLenke: rettskildeLenkeForId(kandidat.rettskildeId, kandidat.nodeEid),
+            taggLag: 'Begrep',
+            virksomhetLenke: null,
+            virksomhetForSveip: null,
+            // [Ny] Til forskjell fra den uendrede grenen under (som aldri viste denne lenken for
+            // gruppe-veien) peker denne på det NYE gruppebegrepets EGEN side — der ser man at det
+            // faktisk er registrert som medlem av den overordnede gruppen.
+            gruppeLenke: `/begreper/${resultat.gruppebegrep.id}`,
+            advarsel: null,
+          });
+          return;
+        }
+
         // BEVISST helt uendret vei: samme GodkjennAsync som dagens fungerende hurtig-Godkjenn
         // (oppretter Begrep(gruppe) + tagg m/RefId). Ingen regresjon her (AK5).
         await api.godkjennNavnekandidat(id);
@@ -395,25 +506,65 @@ export default function NavnekandidatVeiviser() {
     }
   }
 
-  /** Steg 4: lukker kjeden. Gruppemedlem-veien går til et ANNET endepunkt som i tillegg oppretter
-   * myndighetstildelingen — se `KoblTilGruppemedlemskapAsync`. Resten av utfallet er identisk, og
-   * behandles derfor felles under. */
+  /**
+   * Steg 5: lukker kjeden.
+   * <p>Gruppemedlem-sporet går ALLTID via `kobl-til-gruppemedlemskap` (det er sporets EGET
+   * primærutfall). Det rene virksomhet-sporet går via `kobl-til-virksomhet` NÅR intet steg 4-tillegg
+   * er valgt — ER et tillegg valgt der, gjør TILLEGGETS eget endepunkt HELE kjedelukkingen selv
+   * (samme idempotente `LukkKjedenMotVirksomhetAsync` alle disse endepunktene deler server-side), så
+   * et separat, rent redundant `kobl-til-virksomhet`-kall gjøres IKKE i tillegg.</p>
+   * <p>[Ny, «alle mekanismer»-runden, 2026-09-21, issue #283 AC5/AC6/AC7/AC8] Steg 4-tillegget
+   * (`tillegg`) er en UAVHENGIG tilleggsopplysning, ikke en erstatning for gruppemedlem-sporet — er
+   * BÅDE `slag==='gruppemedlem'` OG et tillegg valgt, gjøres BEGGE kall.</p>
+   */
   async function fullførVirksomhet() {
     if (!id || !kandidat || !valgtVirksomhetId) return;
     if (slag === 'gruppemedlem' && !valgtGruppeBegrepId) return;
+    if (!tilleggKlart) return;
     setFullfører(true);
     setFeil(null);
     try {
-      const resultat = slag === 'gruppemedlem'
+      const primær = slag === 'gruppemedlem'
         ? await api.koblNavnekandidatTilGruppemedlemskap(id, {
           virksomhetId: valgtVirksomhetId,
           gruppeBegrepId: valgtGruppeBegrepId,
           navneformgrunn,
         })
-        : await api.koblNavnekandidatTilVirksomhet(id, {
+        : tillegg === 'ingen'
+          ? await api.koblNavnekandidatTilVirksomhet(id, {
+            virksomhetId: valgtVirksomhetId,
+            navneformgrunn,
+          })
+          : null;
+
+      const rolleResultat = tillegg === 'rolle'
+        ? await api.koblNavnekandidatTilMyndighetstildeling(id, {
+          virksomhetId: valgtVirksomhetId,
+          rolleBegrepId: valgtRolleBegrepId,
+          paragrafspenn: [{ fraEid: rolleFraEid.trim(), tilEid: rolleTilEid.trim() || null }],
+          vilkaar: rolleVilkaar.trim() || null,
+          navneformgrunn,
+        })
+        : null;
+
+      const relasjonResultat = tillegg === 'relasjon'
+        ? await api.koblNavnekandidatTilRelasjon(id, {
           virksomhetId: valgtVirksomhetId,
           navneformgrunn,
-        });
+          motpartVirksomhetId,
+          relasjonsType,
+          hjemletHer: relasjonHjemletHer,
+          kommentar: relasjonHjemletHer ? null : (relasjonKommentar.trim() || null),
+        })
+        : null;
+
+      // Alle fire mulige resultater deler samme fem grunnfelt (kandidat/navneform/taggId/
+      // rettskildeId/nodeEid) — se DTO-ene i api/types.ts. Hvilket av dem som faktisk ble kalt
+      // avgjøres av slag/tillegg over; nøyaktig ETT av dem er alltid satt (aldri alle null, sperret
+      // av validerings-guardene øverst i funksjonen).
+      const resultat = primær ?? rolleResultat ?? relasjonResultat;
+      if (!resultat) return; // uoppnåelig gitt guardene over — TS krever likevel en eksplisitt sjekk.
+
       const virksomhetNavn = virksomheter.find((v) => v.id === valgtVirksomhetId)?.visningsnavn ?? 'virksomheten';
       setFerdig({
         tittel: `«${resultat.navneform.term}» er nå en navneform for ${virksomhetNavn}.`,
@@ -425,6 +576,21 @@ export default function NavnekandidatVeiviser() {
             ? [
               `${virksomhetNavn} er registrert som medlem av «${valgtGruppe.term}», hjemlet i `
               + 'denne rettskilden — det er her navnet står.',
+            ]
+            : []),
+          ...(rolleResultat && valgtRolle
+            ? [
+              `${virksomhetNavn} er tildelt rollen «${valgtRolle.term}» her, hjemlet i denne `
+              + 'rettskilden (issue #283 AC6).',
+            ]
+            : []),
+          ...(relasjonResultat && valgtMotpart
+            ? [
+              relasjonHjemletHer
+                ? `Relasjonen «${relasjonsType}» til ${valgtMotpart.visningsnavn} er registrert, `
+                  + 'hjemlet i denne rettskilden (issue #283 AC7/AC8).'
+                : `Relasjonen «${relasjonsType}» til ${valgtMotpart.visningsnavn} er registrert, uten `
+                  + 'formell hjemmel — kun kommentaren.',
             ]
             : []),
           'Navnekandidaten er satt til «Godkjent».',
@@ -471,10 +637,19 @@ export default function NavnekandidatVeiviser() {
 
   const valgtVirksomhet = virksomheter.find((v) => v.id === valgtVirksomhetId) ?? null;
 
-  /** Steg 4 er ferdig når virksomheten er valgt — OG, på gruppemedlem-veien, gruppen også. Ett felt
-   * som mangler skal stoppe «Neste», ikke bli en 400 fra endepunktet ved fullføring. */
-  const steg4Klart = valgtVirksomhetId !== ''
+  /** Steg 3 er ferdig når virksomheten er valgt — OG, på gruppemedlem-veien, gruppen også. Ett felt
+   * som mangler skal stoppe «Neste», ikke bli en 400 fra endepunktet ved fullføring.
+   * [ENDRET, «alle mekanismer»-runden, 2026-09-21, issue #283] Omdøpt fra `steg4Klart` — «steg 4» er
+   * nå det NYE tillegg-steget (se `tilleggKlart` under), ikke virksomhetsvalget lenger. */
+  const steg3Klart = valgtVirksomhetId !== ''
     && (slag !== 'gruppemedlem' || valgtGruppeBegrepId !== '');
+
+  /** [Ny, «alle mekanismer»-runden, 2026-09-21, issue #283 AC5/AC6/AC7] Steg 4 er ferdig når det
+   * valgte tillegget har det det trenger — eller når intet tillegg er valgt (default, alltid klart). */
+  const tilleggKlart = tillegg === 'ingen'
+    || (tillegg === 'rolle' && valgtRolleBegrepId !== '' && rolleFraEid.trim() !== '')
+    || (tillegg === 'relasjon' && motpartVirksomhetId !== '' && relasjonsType !== ''
+        && (relasjonHjemletHer || relasjonKommentar.trim() !== ''));
 
   return (
     <>
@@ -772,13 +947,57 @@ export default function NavnekandidatVeiviser() {
                   disabled={steg !== 2}
                 />
               </Field>
+
+              {/* [Ny, «alle mekanismer»-runden, 2026-09-21, issue #283 AC9] Gruppe-av-gruppe-tillegget
+                * — kun for gruppe-sporet, som ellers ikke har noe eget steg 3/4 å legge det i. */}
+              {slag === 'gruppe' && steg === 2 && (
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <Divider style={{ margin: '0.75rem 0' }} />
+                  <Heading level={3} data-size="xs" style={{ marginBottom: '0.35rem' }}>
+                    Er denne gruppen selv medlem av en annen gruppe?
+                  </Heading>
+                  <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
+                    Valgfritt — f.eks. at «språkutviklingskommuner» selv inngår i «forvaltningsområdet
+                    for samiske språk». Den overordnede gruppen må finnes som gruppebegrep fra før.
+                  </Metatekst>
+                  <Field data-size="sm" style={{ marginBottom: '0.5rem' }}>
+                    <Radio name="gruppeAvGruppe" label="Nei" value="nei"
+                      checked={!erGruppeAvGruppe} onChange={() => setErGruppeAvGruppe(false)} />
+                    <Radio name="gruppeAvGruppe" label="Ja" value="ja"
+                      checked={erGruppeAvGruppe} onChange={() => setErGruppeAvGruppe(true)} />
+                  </Field>
+                  {erGruppeAvGruppe && (
+                    gruppebegrep === null ? (
+                      <Spinner aria-label="Laster gruppebegrepene …" data-size="sm" />
+                    ) : gruppebegrep.length === 0 ? (
+                      <Alert data-color="warning" data-size="sm">
+                        Det finnes ingen andre gruppebegrep ennå — ingen overordnet gruppe å velge.
+                      </Alert>
+                    ) : (
+                      <GruppebegrepVelger
+                        gruppebegrep={gruppebegrep}
+                        value={valgtOverordnetGruppeBegrepId}
+                        onChange={setValgtOverordnetGruppeBegrepId}
+                        label="Overordnet gruppe"
+                        tomValgTekst="Velg overordnet gruppe …"
+                        style={{ maxWidth: '28rem' }}
+                      />
+                    )
+                  )}
+                </div>
+              )}
+
               {steg === 2 && (
                 <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
                   {harVirksomhetssteg(slag) && (
                     <Button data-size="sm" onClick={() => setSteg(3)}>Neste</Button>
                   )}
                   {slag === 'gruppe' && (
-                    <Button data-size="sm" onClick={() => fullførIkkeVirksomhet('gruppe')} disabled={fullfører}>
+                    <Button
+                      data-size="sm"
+                      onClick={() => fullførIkkeVirksomhet('gruppe')}
+                      disabled={fullfører || (erGruppeAvGruppe && !valgtOverordnetGruppeBegrepId)}
+                    >
                       {fullfører ? 'Oppretter …' : 'Opprett gruppebegrep og godkjenn'}
                     </Button>
                   )}
@@ -796,8 +1015,11 @@ export default function NavnekandidatVeiviser() {
           {/* ---------------- Steg 3: Hvilken virksomhet? ---------------- */}
           {steg >= 3 && (
             <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
+              {/* [Rettet, «alle mekanismer»-runden, 2026-09-21] Leste tidligere indeks [3] («Bekreft»)
+                * i stedet for [2] (virksomhet-tittelen) — usynlig fordi teksten aldri ble vist alene,
+                * kun sammen med det hardkodede «3. »-prefikset. Se `stegTitler`s kommentar. */}
               <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>
-                3. {stegTitler(slag)[3]}
+                3. {stegTitler(slag)[2]}
               </Heading>
               <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
                 Finn virksomheten i katalogen, eller opprett den — fra Brønnøysundregisteret hvis den
@@ -964,17 +1186,163 @@ export default function NavnekandidatVeiviser() {
 
               {steg === 3 && (
                 <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <Button data-size="sm" onClick={() => setSteg(4)} disabled={!steg4Klart}>Neste</Button>
+                  <Button data-size="sm" onClick={() => setSteg(4)} disabled={!steg3Klart}>Neste</Button>
                   <Button data-size="sm" variant="tertiary" onClick={() => setSteg(2)}>Tilbake</Button>
                 </div>
               )}
             </Card>
           )}
 
-          {/* ---------------- Steg 4: Bekreft ---------------- */}
-          {steg >= 4 && (
+          {/* ---------------- Steg 4: Utover navneform? (Ny, issue #283 AC5/AC6/AC7) ---------------- */}
+          {steg >= 4 && harVirksomhetssteg(slag) && (
             <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
-              <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>4. Bekreft</Heading>
+              <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>
+                4. {stegTitler(slag)[3]}
+              </Heading>
+              <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+                Valgfritt — de aller fleste treff er BARE en navneform. Velg ett av de to under KUN
+                når denne KONKRETE forekomsten selv sier noe mer: at stedet HAR en rolle her, eller at
+                det står i et organisatorisk forhold til en annen, navngitt virksomhet.
+              </Metatekst>
+
+              <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
+                <Radio name="tillegg" label="Ingen" value="ingen"
+                  checked={tillegg === 'ingen'} onChange={() => setTillegg('ingen')} disabled={steg !== 4} />
+                <Radio
+                  name="tillegg"
+                  label="Rolle tildelt her"
+                  description="Teksten tildeler et rollebegrep (en myndighet) til virksomheten her — f.eks. «forurensningsmyndighet». Oppretter en generell myndighetstildeling, uavhengig av et evt. gruppemedlemskap."
+                  value="rolle"
+                  checked={tillegg === 'rolle'}
+                  onChange={() => { setTillegg('rolle'); if (!rolleFraEid) setRolleFraEid(kandidat.nodeEid); }}
+                  disabled={steg !== 4}
+                />
+                <Radio
+                  name="tillegg"
+                  label="Relasjon til annen virksomhet"
+                  description="Teksten beskriver et organisatorisk forhold til en annen, navngitt virksomhet — f.eks. klageinstans, underlagt, sekretariat."
+                  value="relasjon"
+                  checked={tillegg === 'relasjon'}
+                  onChange={() => setTillegg('relasjon')}
+                  disabled={steg !== 4}
+                />
+              </Field>
+
+              {tillegg === 'rolle' && (
+                <>
+                  {gruppebegrep === null ? (
+                    <Spinner aria-label="Laster gruppebegrepene …" data-size="sm" />
+                  ) : gruppebegrep.length === 0 ? (
+                    <Alert data-color="warning" data-size="sm" style={{ marginBottom: '0.75rem' }}>
+                      Det finnes ingen gruppebegrep ennå — ingen rolle å velge. Opprett rollebegrepet
+                      fra lovteksten som definerer det først (via «Gruppe som defineres her» på den
+                      kandidaten).
+                    </Alert>
+                  ) : (
+                    <GruppebegrepVelger
+                      gruppebegrep={gruppebegrep}
+                      value={valgtRolleBegrepId}
+                      onChange={setValgtRolleBegrepId}
+                      label="Rollebegrep"
+                      tomValgTekst="Velg rolle …"
+                      style={{ marginBottom: '0.75rem', maxWidth: '28rem' }}
+                    />
+                  )}
+
+                  <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+                    {paragrafKandidaterForRolle.length > 0 && (
+                      <Field data-size="sm" style={{ maxWidth: '14rem' }}>
+                        <Label>Paragraf</Label>
+                        <Select data-size="sm" value={rolleFraEid} onChange={(e) => setRolleFraEid(e.target.value)}>
+                          <Select.Option value="">Velg …</Select.Option>
+                          {paragrafKandidaterForRolle.map((n) => (
+                            <Select.Option key={n.id} value={n.eid}>
+                              {n.nodeType === 'side' ? 'Hele siden' : n.nummer}{n.overskrift ? ` — ${n.overskrift}` : ''}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Field>
+                    )}
+                    <Textfield data-size="sm" label="Fra eId (avansert / manuell)" value={rolleFraEid}
+                      onChange={(e) => setRolleFraEid(e.target.value)} style={{ minWidth: '16rem', fontFamily: 'monospace' }} />
+                    {paragrafKandidaterForRolle.length > 0 && (
+                      <Field data-size="sm" style={{ maxWidth: '14rem' }}>
+                        <Label>Til paragraf (valgfritt)</Label>
+                        <Select data-size="sm" value={rolleTilEid} onChange={(e) => setRolleTilEid(e.target.value)}>
+                          <Select.Option value="">Enkeltpunkt, ikke spenn</Select.Option>
+                          {paragrafKandidaterForRolle.map((n) => (
+                            <Select.Option key={n.id} value={n.eid}>
+                              {n.nodeType === 'side' ? 'Hele siden' : n.nummer}{n.overskrift ? ` — ${n.overskrift}` : ''}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Field>
+                    )}
+                    <Textfield data-size="sm" label="Til eId (valgfritt, avansert)" value={rolleTilEid}
+                      onChange={(e) => setRolleTilEid(e.target.value)} style={{ minWidth: '16rem', fontFamily: 'monospace' }} />
+                  </div>
+                  {/* [Note] Kun ETT paragrafspenn-par her — se PR-beskrivelsen for begrunnelsen
+                    * (`LeggTilMyndighetstildelingForm.tsx` har den fulle liste-byggeren for flere). */}
+                  <Textfield data-size="sm" label="Vilkår (valgfritt)" value={rolleVilkaar}
+                    onChange={(e) => setRolleVilkaar(e.target.value)} style={{ maxWidth: '28rem', marginBottom: '0.75rem' }} />
+                  {valgtRolle && (
+                    <Alert data-color="info" data-size="sm" style={{ marginBottom: '0.75rem' }}>
+                      Rolletildeling: <strong>{valgtRolle.term}</strong> ved {visRolleNodeKort(rolleFraEid || kandidat.nodeEid)}
+                    </Alert>
+                  )}
+                </>
+              )}
+
+              {tillegg === 'relasjon' && (
+                <>
+                  <Field data-size="sm" style={{ maxWidth: '24rem', marginBottom: '0.75rem' }}>
+                    <Label>Relasjonstype</Label>
+                    <Select data-size="sm" value={relasjonsType} onChange={(e) => setRelasjonsType(e.target.value)} disabled={!relasjonstyper}>
+                      <Select.Option value="">{relasjonstyper ? 'Velg relasjonstype …' : 'Laster …'}</Select.Option>
+                      {relasjonstyper?.map((t) => (
+                        <Select.Option key={t.kode} value={t.kode}>
+                          {t.kode} — «{t.fraVisningsmal.replace('{0}', 'motparten')}»
+                        </Select.Option>
+                      ))}
+                    </Select>
+                  </Field>
+                  <VirksomhetVelger
+                    virksomheter={virksomheter.filter((v) => v.id !== valgtVirksomhetId)}
+                    value={motpartVirksomhetId}
+                    onChange={setMotpartVirksomhetId}
+                    label="Motpart (annen virksomhet)"
+                    tomValgTekst="Velg virksomhet …"
+                    style={{ marginBottom: '0.75rem', maxWidth: '28rem' }}
+                  />
+                  <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
+                    <Radio name="hjemletHer" label="Hjemlet i denne rettskilden"
+                      description="Relasjonen fremgår faktisk av denne setningen."
+                      checked={relasjonHjemletHer} onChange={() => setRelasjonHjemletHer(true)} />
+                    <Radio name="hjemletHer" label="Ikke hjemlet her — bare en kommentar"
+                      description="Relasjonen er kjent, men denne teksten er ikke den formelle hjemmelen."
+                      checked={!relasjonHjemletHer} onChange={() => setRelasjonHjemletHer(false)} />
+                  </Field>
+                  {!relasjonHjemletHer && (
+                    <Textfield data-size="sm" label="Kommentar" placeholder="f.eks. lenke til org-kart"
+                      value={relasjonKommentar} onChange={(e) => setRelasjonKommentar(e.target.value)}
+                      style={{ maxWidth: '28rem', marginBottom: '0.75rem' }} />
+                  )}
+                </>
+              )}
+
+              {steg === 4 && (
+                <div style={{ display: 'flex', gap: '0.5rem' }}>
+                  <Button data-size="sm" onClick={() => setSteg(5)} disabled={!tilleggKlart}>Neste</Button>
+                  <Button data-size="sm" variant="tertiary" onClick={() => setSteg(3)}>Tilbake</Button>
+                </div>
+              )}
+            </Card>
+          )}
+
+          {/* ---------------- Steg 5: Bekreft ---------------- */}
+          {steg >= 5 && (
+            <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
+              <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>5. Bekreft</Heading>
               <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
                 Dette blir opprettet eller endret når du fullfører:
               </Metatekst>
@@ -997,6 +1365,31 @@ export default function NavnekandidatVeiviser() {
                           * alltid kandidatens egen rettskilde. Se KoblTilGruppemedlemskapAsync. */}
                         <Metatekst as="span" style={{ display: 'block', color: 'var(--ds-color-neutral-text-subtle)' }}>
                           Hjemlet i {rettskilde?.tittel ?? 'denne rettskilden'} — det er her navnet står.
+                        </Metatekst>
+                      </Table.Cell>
+                    </Table.Row>
+                  )}
+                  {/* [Ny, «alle mekanismer»-runden, 2026-09-21, issue #283 AC5/AC6/AC7] Steg 4-tillegget. */}
+                  {tillegg === 'rolle' && (
+                    <Table.Row>
+                      <Table.HeaderCell scope="row">Rolle tildelt her</Table.HeaderCell>
+                      <Table.Cell>
+                        {valgtRolle ? `«${valgtRolle.term}»` : '—'}
+                        <Metatekst as="span" style={{ display: 'block', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                          Hjemlet i {rettskilde?.tittel ?? 'denne rettskilden'}, ved {visRolleNodeKort(rolleFraEid || kandidat.nodeEid)}.
+                        </Metatekst>
+                      </Table.Cell>
+                    </Table.Row>
+                  )}
+                  {tillegg === 'relasjon' && (
+                    <Table.Row>
+                      <Table.HeaderCell scope="row">Relasjon til annen virksomhet</Table.HeaderCell>
+                      <Table.Cell>
+                        {valgtMotpart && relasjonsType ? `${relasjonsType} — ${valgtMotpart.visningsnavn}` : '—'}
+                        <Metatekst as="span" style={{ display: 'block', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                          {relasjonHjemletHer
+                            ? `Hjemlet i ${rettskilde?.tittel ?? 'denne rettskilden'}.`
+                            : 'Ingen formell hjemmel — kun kommentaren registreres.'}
                         </Metatekst>
                       </Table.Cell>
                     </Table.Row>
@@ -1025,10 +1418,10 @@ export default function NavnekandidatVeiviser() {
                 </Table.Body>
               </Table>
               <div style={{ display: 'flex', gap: '0.5rem' }}>
-                <Button data-size="sm" onClick={fullførVirksomhet} disabled={fullfører || !steg4Klart}>
+                <Button data-size="sm" onClick={fullførVirksomhet} disabled={fullfører || !steg3Klart || !tilleggKlart}>
                   {fullfører ? 'Fullfører …' : 'Fullfør'}
                 </Button>
-                <Button data-size="sm" variant="tertiary" onClick={() => setSteg(3)}>Tilbake</Button>
+                <Button data-size="sm" variant="tertiary" onClick={() => setSteg(harVirksomhetssteg(slag) ? 4 : 3)}>Tilbake</Button>
               </div>
             </Card>
           )}

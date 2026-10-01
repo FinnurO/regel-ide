@@ -758,4 +758,217 @@ public class NavnekandidaterEndepunktTests
         Assert.Equal("feilskriving", Assert.Single(liste!).Navneformgrunn);
     }
 
+    // ==================================================================================
+    // [Ny, «alle mekanismer»-runden, 2026-09-21, issue #283] Manuell inngangsdør + de tre
+    // nye kobl-til-*-endepunktene (rolletildeling, relasjon, gruppe-av-gruppe).
+    // ==================================================================================
+
+    private static Task<BegrepEntitet> NyGruppeAsync(RegelIdeDbContext db, Guid lovkildeId, string prefiks) =>
+        new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovkildeId, $"{prefiks}-{Guid.NewGuid():N}", "test");
+
+    /// <summary>AC1/AC2/AC3 — GET-or-create på (RettskildeId, NodeEid, StartOffset), OppdagelsesKilde
+    /// satt til 'manuell', Konfidens=null. Gjentatt kall på SAMME posisjon skal returnere SAMME rad,
+    /// ikke en duplikat — nøyaktig samme idempotens som sveipet (OpprettEllerFinnAsync).</summary>
+    [Fact]
+    public async Task Manuell_oppretter_kandidat_med_oppdagelseskilde_manuell_og_er_idempotent()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync("Suldal skal føre tilsyn med dette.");
+        await using var db0 = _fixture.NyDbContext();
+        var node = await db0.RettskildeNoder.SingleAsync(n => n.RettskildeId == rettskildeId);
+
+        var body = new
+        {
+            RettskildeId = rettskildeId, NodeEid = node.Eid, StartOffset = 0, EndOffset = "Suldal".Length,
+            ForeslattTekst = "Suldal",
+        };
+        var forste = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/manuell", brukerId, body));
+        Assert.Equal(HttpStatusCode.OK, forste.StatusCode);
+        var forsteKandidat = await forste.Content.ReadFromJsonAsync<NavnekandidatDto>(JsonInnstillinger);
+        Assert.Equal("manuell", forsteKandidat!.OppdagelsesKilde);
+        Assert.Equal("virksomhet", forsteKandidat.Kategori); // forhåndsvalg — kan endres i steg 2.
+        Assert.Null(forsteKandidat.Konfidens);
+        Assert.Equal("Venter", forsteKandidat.Status);
+
+        var andre = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/manuell", brukerId, body));
+        Assert.Equal(HttpStatusCode.OK, andre.StatusCode);
+        var andreKandidat = await andre.Content.ReadFromJsonAsync<NavnekandidatDto>(JsonInnstillinger);
+        Assert.Equal(forsteKandidat.Id, andreKandidat!.Id); // SAMME rad, ingen duplikat.
+
+        await using var db = _fixture.NyDbContext();
+        Assert.Equal(1, await db.Navnekandidater.CountAsync(k => k.RettskildeId == rettskildeId));
+    }
+
+    /// <summary>AC5/AC6 — det valgfrie «Rolle tildelt her»-steget for det RENE virksomhet-sporet:
+    /// lukker navneform-kjeden OG oppretter en myndighetstildeling mot et FRITT valgt rollebegrep,
+    /// hjemlet i kandidatens egen rettskilde.</summary>
+    [Fact]
+    public async Task Kobl_til_myndighetstildeling_lukker_kjeden_og_oppretter_rolletildeling()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var scene = await OpprettSceneAsync("Rolleetaten");
+        await using var db0 = _fixture.NyDbContext();
+        var rolle = await NyGruppeAsync(db0, scene.RettskildeId, "forurensningsmyndighet");
+
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post,
+            $"/api/navnekandidater/{scene.KandidatId}/kobl-til-myndighetstildeling", brukerId,
+            new
+            {
+                VirksomhetId = scene.MaalVirksomhetId, RolleBegrepId = rolle.Id,
+                Paragrafspenn = new[] { new { FraEid = scene.NodeEid, TilEid = (string?)null } },
+                Vilkaar = "kommunale avløpsanlegg", Navneformgrunn = "gjeldende",
+            }));
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+        var resultat = await svar.Content.ReadFromJsonAsync<NavnekandidatMyndighetstildelingResultatDto>(JsonInnstillinger);
+
+        Assert.Equal("Godkjent", resultat!.Kandidat.Status);
+        Assert.Equal(scene.MaalVirksomhetId, resultat.Tildeling.VirksomhetId);
+        Assert.Equal(rolle.Id, resultat.Tildeling.GruppeBegrepId);
+        Assert.Equal(scene.RettskildeId, resultat.Tildeling.HjemmelRettskildeId); // egen rettskilde, ikke valgt.
+        Assert.Equal("kommunale avløpsanlegg", resultat.Tildeling.Vilkaar);
+        Assert.NotNull(resultat.TaggId); // navneform-kjeden er lukket akkurat som kobl-til-virksomhet.
+
+        await using var db = _fixture.NyDbContext();
+        Assert.Equal(1, await db.Myndighetstildelinger.CountAsync(
+            m => m.GruppeBegrepId == rolle.Id && m.VirksomhetId == scene.MaalVirksomhetId));
+
+        // Idempotent: et gjentatt kall på SAMME (rolle, virksomhet, hjemmel) gjenbruker raden.
+        var andre = await _client.SendAsync(MedBruker(HttpMethod.Post,
+            $"/api/navnekandidater/{scene.KandidatId}/kobl-til-myndighetstildeling", brukerId,
+            new
+            {
+                VirksomhetId = scene.MaalVirksomhetId, RolleBegrepId = rolle.Id,
+                Paragrafspenn = new[] { new { FraEid = scene.NodeEid, TilEid = (string?)null } },
+                Vilkaar = "kommunale avløpsanlegg", Navneformgrunn = "gjeldende",
+            }));
+        Assert.Equal(HttpStatusCode.OK, andre.StatusCode);
+        var andreResultat = await andre.Content.ReadFromJsonAsync<NavnekandidatMyndighetstildelingResultatDto>(JsonInnstillinger);
+        Assert.Equal(resultat.Tildeling.Id, andreResultat!.Tildeling.Id);
+        Assert.Equal(1, await db.Myndighetstildelinger.CountAsync(
+            m => m.GruppeBegrepId == rolle.Id && m.VirksomhetId == scene.MaalVirksomhetId));
+    }
+
+    /// <summary>
+    /// AC7/AC8, #263 AC2/AC3 «Minimalt»-nivå — samme FORM som testcaset i issue #263
+    /// (Energidepartementet/Energiklagenemnda, klageinstans): kandidatens virksomhet knyttes til en
+    /// motpart via en relasjonstype, hjemlet i kandidatens EGEN rettskilde (HjemletHer=true).
+    /// </summary>
+    [Fact]
+    public async Task Kobl_til_relasjon_hjemlet_her_lukker_kjeden_og_oppretter_relasjon()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var scene = await OpprettSceneAsync("Energiklagenemnda");
+        await using var db0 = _fixture.NyDbContext();
+        // Unikt kode-suffiks — 'klageinstans' er en av de faste kodene API-oppstart seeder (samme
+        // vokabular som issue #263s testcase), og et forsøk på å legge den inn på nytt her ville
+        // veltet ux_relasjonstype_konfigurasjon_kode i denne DELTE test-databasen.
+        var relasjonsType = $"klageinstans-{Guid.NewGuid():N}";
+        db0.RelasjonsTypeKonfigurasjoner.Add(new RelasjonsTypeKonfigurasjonEntitet
+        {
+            Id = Guid.NewGuid(), Kode = relasjonsType, FraVisningsmal = "har klageinstans hos {0}",
+            TilVisningsmal = "er klageinstans for {0}", Aktiv = true,
+        });
+        var motpartId = Guid.NewGuid();
+        db0.Virksomheter.Add(new Virksomhet { Id = motpartId, Navn = $"Energidepartementet {Guid.NewGuid():N}" });
+        await db0.SaveChangesAsync();
+
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post,
+            $"/api/navnekandidater/{scene.KandidatId}/kobl-til-relasjon", brukerId,
+            new
+            {
+                VirksomhetId = scene.MaalVirksomhetId, Navneformgrunn = "gjeldende",
+                MotpartVirksomhetId = motpartId, RelasjonsType = relasjonsType,
+                HjemletHer = true, Kommentar = (string?)null,
+            }));
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+        var resultat = await svar.Content.ReadFromJsonAsync<NavnekandidatRelasjonResultatDto>(JsonInnstillinger);
+
+        Assert.Equal("Godkjent", resultat!.Kandidat.Status);
+        Assert.Equal(scene.MaalVirksomhetId, resultat.Relasjon.FraVirksomhetId);
+        Assert.Equal(motpartId, resultat.Relasjon.TilVirksomhetId);
+        Assert.Equal(relasjonsType, resultat.Relasjon.RelasjonsType);
+        Assert.Equal(scene.RettskildeId, resultat.Relasjon.HjemmelRettskildeId);
+        Assert.Equal(scene.NodeEid, resultat.Relasjon.HjemmelEid);
+        Assert.Null(resultat.Relasjon.Kommentar);
+
+        await using var db = _fixture.NyDbContext();
+        Assert.Equal(1, await db.VirksomhetRelasjoner.CountAsync(
+            r => r.FraVirksomhetId == scene.MaalVirksomhetId && r.TilVirksomhetId == motpartId));
+    }
+
+    /// <summary>AC7 — motsatt gren: INGEN formell hjemmel, kun en fritekst-kommentar.</summary>
+    [Fact]
+    public async Task Kobl_til_relasjon_uten_hjemmel_lagrer_kun_kommentar()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var scene = await OpprettSceneAsync("Sekretariatetaten");
+        await using var db0 = _fixture.NyDbContext();
+        var relasjonsType = $"sekretariat-{Guid.NewGuid():N}"; // se kommentaren i testen over.
+        db0.RelasjonsTypeKonfigurasjoner.Add(new RelasjonsTypeKonfigurasjonEntitet
+        {
+            Id = Guid.NewGuid(), Kode = relasjonsType, FraVisningsmal = "har sekretariat i {0}",
+            TilVisningsmal = "er sekretariat for {0}", Aktiv = true,
+        });
+        var motpartId = Guid.NewGuid();
+        db0.Virksomheter.Add(new Virksomhet { Id = motpartId, Navn = $"Sekretariatsvirksomheten {Guid.NewGuid():N}" });
+        await db0.SaveChangesAsync();
+
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post,
+            $"/api/navnekandidater/{scene.KandidatId}/kobl-til-relasjon", brukerId,
+            new
+            {
+                VirksomhetId = scene.MaalVirksomhetId, Navneformgrunn = (string?)null,
+                MotpartVirksomhetId = motpartId, RelasjonsType = relasjonsType,
+                HjemletHer = false, Kommentar = "Kjent fra org-kart, ikke lovhjemlet.",
+            }));
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+        var resultat = await svar.Content.ReadFromJsonAsync<NavnekandidatRelasjonResultatDto>(JsonInnstillinger);
+
+        Assert.Null(resultat!.Relasjon.HjemmelRettskildeId);
+        Assert.Null(resultat.Relasjon.HjemmelEid);
+        Assert.Equal("Kjent fra org-kart, ikke lovhjemlet.", resultat.Relasjon.Kommentar);
+    }
+
+    /// <summary>AC9 — gruppe-sporet: oppretter gruppebegrepet OG et GruppeMedlemskapEntitet som gjør
+    /// det til medlem av en allerede eksisterende, overordnet gruppe, i én atomisk handling.</summary>
+    [Fact]
+    public async Task Kobl_til_gruppe_av_gruppe_oppretter_gruppebegrep_og_medlemskap()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var scene = await OpprettSceneAsync("sprakutviklingskommuner", kategori: "gruppe");
+        await using var db0 = _fixture.NyDbContext();
+        var overordnet = await NyGruppeAsync(db0, scene.RettskildeId, "forvaltningsomradet");
+
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post,
+            $"/api/navnekandidater/{scene.KandidatId}/kobl-til-gruppe-av-gruppe", brukerId,
+            new { OverordnetGruppeBegrepId = overordnet.Id }));
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+        var resultat = await svar.Content.ReadFromJsonAsync<NavnekandidatGruppeAvGruppeResultatDto>(JsonInnstillinger);
+
+        Assert.Equal("Godkjent", resultat!.Kandidat.Status);
+        Assert.Equal("gruppe", resultat.Gruppebegrep.Begrepskategori);
+        Assert.NotEqual(overordnet.Id, resultat.Gruppebegrep.Id);
+        Assert.Equal(overordnet.Id, resultat.Medlemskap.OverordnetGruppeBegrepId);
+        Assert.Equal(resultat.Gruppebegrep.Id, resultat.Medlemskap.UnderordnetGruppeBegrepId);
+        Assert.Equal(scene.RettskildeId, resultat.Medlemskap.HjemmelRettskildeId);
+
+        await using var db = _fixture.NyDbContext();
+        Assert.Equal(1, await db.GruppeMedlemskap.CountAsync(
+            m => m.OverordnetGruppeBegrepId == overordnet.Id && m.UnderordnetGruppeBegrepId == resultat.Gruppebegrep.Id));
+    }
+
+    /// <summary>Kun 'gruppe'-kandidater hører hjemme her — et 'virksomhet'-treff har sin egen vei.</summary>
+    [Fact]
+    public async Task Kobl_til_gruppe_av_gruppe_avviser_virksomhet_kategori()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var scene = await OpprettSceneAsync("Ikkegruppeetaten"); // default kategori='virksomhet'.
+        await using var db0 = _fixture.NyDbContext();
+        var overordnet = await NyGruppeAsync(db0, scene.RettskildeId, "forvaltningsomradet");
+
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post,
+            $"/api/navnekandidater/{scene.KandidatId}/kobl-til-gruppe-av-gruppe", brukerId,
+            new { OverordnetGruppeBegrepId = overordnet.Id }));
+        Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
+    }
 }
