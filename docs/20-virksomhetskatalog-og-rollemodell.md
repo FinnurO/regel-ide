@@ -204,6 +204,64 @@ status, status utelatt = kun `Venter`, `status=Alle` = ingen statusfilter), `POS
 + avkrysningsbokser + massegodkjenn/avvis + sveip-trigger) og en "Kjør sveip"-knapp + lenke til fullisten
 fra `VirksomhetDetalj.tsx`.
 
+### 2.7 `Status` på `Myndighetstildeling`/`VirksomhetRelasjon`/`GruppeMedlemskap` — KI-oppdagelse (issue #285, PR #291, 2026-10-01)
+
+Før denne runden hadde ingen av de tre koblingsentitetene noe statusfelt i det hele tatt — en rad var
+alltid "bare sann", uansett hvem eller hva som opprettet den. Det var et bekreftet gap (AC5): en ny
+tjeneste, `VirksomhetOgGruppeKiOppdagelseTjeneste`, leser rettskildetekst FRITT (samme forslagsmønster
+som Begreps-/Tjenesteforslag-tjenestene) og foreslår virksomhet-/gruppekandidater pluss rolle/
+relasjon/gruppe-av-gruppe der teksten eksplisitt sier det — men den skriver UTELUKKENDE via de samme
+tjenestemetodene de eksisterende HTTP-endepunktene selv kaller (ingen parallell skrivevei), og uten et
+statusfelt ville et slikt forslag sett identisk ut som en menneske-bekreftet opplysning.
+
+**Nytt felt på alle tre** (`MyndighetstildelingEntitet`, `VirksomhetRelasjonEntitet`,
+`GruppeMedlemskapEntitet`):
+
+| Felt | Type | Kommentar |
+|---|---|---|
+| `Status` | `string` | `'foreslatt_av_ai'` \| `'validert'`. Default `'validert'` — **ingen atferdsendring** for rader opprettet av et menneske (eksisterende `OpprettAsync`-metoder setter fortsatt `'validert'` med det samme når ingen status oppgis) |
+
+Ikke samme fulle syvtrinns statusløp som Begrep/Tjeneste (§3.1 i `03-domenemodell.md`) — en relasjon
+publiseres eller arkiveres ikke separat, den er enten et ubekreftet KI-forslag eller en bekreftet
+opplysning. Nye `GodkjennAsync`/`AvvisAsync`-metoder på de tre registertjenestene lar et menneske
+eksplisitt bekrefte (`'foreslatt_av_ai'` → `'validert'`) eller avvise (sletter raden — det finnes
+ingen `'avvist_av_ai'`-mellomtilstand, kun `'Avvist'` dersom raden faktisk var en reell feiltolkning)
+et KI-forslag før det regnes som gjeldende, vist i en egen kø-side (`KiOppdagelseKo.tsx`) adskilt fra
+menneske-opprettede rader. Endepunkter: `POST /api/ki-oppdagelse/kjor` (kjør oppdagelsen for valgte
+rettskilder), `GET /api/ki-oppdagelse/ko` (samlet kø på tvers av alle tre entitetstyper),
+`POST /api/myndighetstildelinger/{id}/godkjenn` + `DELETE /api/myndighetstildelinger/{id}`,
+`POST /api/gruppemedlemskap/{id}/godkjenn` + `DELETE /api/gruppemedlemskap/{id}`,
+`POST /api/virksomhet-relasjoner/{id}/godkjenn` (avvisning dekkes av den eksisterende, ubetingede
+`DELETE /api/virksomheter/{id}/relasjoner/{relasjonId}` — køen i UI-et viser kun "Slett" for
+`foreslatt_av_ai`-rader).
+
+Live-verifisert (ikke bare kompilert) mot ekte HostYourAI/DeepSeek-V4-Flash og den ekte "Forskrift om
+Energiklagenemnda" hentet direkte fra Lovdata — fant og rettet en reell bug underveis: modellen ekkoer
+ikke alltid `[eId]`-taggen ordrett (kortform/blandet skilletegn), løst med et suffiks-fallback i
+node-oppslaget.
+
+### 2.8 Navnekandidat-veiviseren dekker nå alle 6 virksomhet-rollemekanismer (issue #283, PR #284, 2026-10-01)
+
+Veiviseren (§15 i `09-design-konvensjoner.md`, full stegbeskrivelse i `25-funksjonsoversikt.md` under
+"Navnekandidater") dekket opprinnelig kun to av mekanismene i dette dokumentet: navneform (§2.3) og
+myndighetstildeling via gruppemedlem (§2.5, kun étt spesialtilfelle). Fire nye innganger er lagt til,
+alle bygget på den eksisterende wizard-arkitekturen i stedet for egne skjermer:
+
+1. **Manuell inngangsdør** — "Behandle som organ/gruppe →" i `TagTekst` sin tagg-linje for
+   `kind='begrep'` (koblet fra `RettskildeDetalj`). `POST /api/navnekandidater/manuell` er GET-or-create
+   på samme nøkkel som det automatiske sveipet (§2.6.1) — en `NavnekandidatEntitet` med
+   `OppdagelsesKilde='manuell'`, `Konfidens=null`, finnes en rad fra før på samme sted gjenbrukes den.
+2. **Generalisert myndighetstildeling (§2.5)** — nytt steg 4 "Utover navneform?" i veiviseren, for
+   BÅDE virksomhet- og gruppemedlem-sporet. `POST /api/navnekandidater/{id}/kobl-til-myndighetstildeling`
+   er et speil av det eksisterende `kobl-til-gruppemedlemskap`-endepunktet, uten selve gruppekoblingen —
+   løser at rolletildeling tidligere kun kunne opprettes via gruppemedlem-sporet.
+3. **`VirksomhetRelasjon`** (datamodell besluttet i `28-navnekandidat-presisjon-innspill.md`,
+   "Mekanisme 2") — samme steg 4, grenen "Relasjon til annen virksomhet".
+   `POST /api/navnekandidater/{id}/kobl-til-relasjon`. Løser issue #263 AC2/AC3 sitt "Minimalt"-nivå.
+4. **Gruppe-av-gruppe** (`GruppeMedlemskapEntitet`, se «Gruppe av gruppe» i `25-funksjonsoversikt.md`)
+   — valgfritt tillegg på gruppe-sporet. `POST /api/navnekandidater/{id}/kobl-til-gruppe-av-gruppe`
+   oppretter gruppebegrepet OG medlemskapet atomisk.
+
 ## 3. Aggregerte visninger (beregnet, ikke lagret)
 
 Uendret fra kravspekens §3 — beregnes ved lesing, aldri lagret som egen fakta:

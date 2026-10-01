@@ -41,6 +41,13 @@ i treet.
 
 *Hvor:* «Rettskilder» i sidemenyen (`/rettskilder`, `/rettskilder/:id`).
 
+[NYTT, 2026-10-01] `GET /api/rettskilder/{id}/statistikk` gir presist telte nøkkeltall for én
+rettskilde — antall distinkte virksomheter koblet (direkte navneform-tagg ELLER myndighetstildeling),
+antall distinkte begrep tagget, og antall tjenester koblet (direkte `TjenesteRegelverksreferanse`
+ELLER via en `Handling` sin regelverksreferanse, siden Oppgaveregisteret kobler på Handling-nivå, ikke
+Tjeneste-nivå) — brukt av `nettside/tools/eksporter-data.ps1` for den offentlige nettsideeksporten
+(ELI-basert oppslag, ikke hardkodet rettskilde-id).
+
 ### Importer rettskilder
 
 To måter å hente inn nye rettskilder: søk i en lokal, automatisk fornyet katalog over Lovdatas
@@ -147,7 +154,30 @@ behandlingstid og resultat — hver med egen hjemmel der relevant.
 *Hvor:* «Handlinger» (`/handlinger`, `/handlinger/:id`).
 
 *Kjent begrensning:* en handlings regelverksreferanser er kun lesbare i dag — ingen UI for å koble
-til/fjerne dem manuelt (kun automatisk satt av Oppgaveregister-seeden).
+til/fjerne dem manuelt (kun automatisk satt av Oppgaveregister-seeden) — se de to KI-forslagskøene
+under for den ene unntatte skrivbare veien som faktisk finnes.
+
+### Regelverksreferanser — KI-forslag for tjenester og handlinger (KI-forslagskø) [NYTT, 2026-10-01]
+
+To separate køer foreslår koblinger til rettskilde-paragrafer der de mangler i dag, etter samme
+godkjenn/avvis-mønster som «Identifiser begrep»/«Identifiser tjenester»:
+
+- **Tjenester uten regelverksreferanser** — embedding-innsnevrede kandidatparagrafer + KI-vurdering
+  per tjeneste, for eksisterende, gjeldende tjenester som i dag har null koblinger. Godkjenning
+  oppretter en ekte `TjenesteRegelverksreferanse`; forslagsraden selv er bare arbeidskøen, aldri
+  selve koblingen. *Hvor:* «KI-forslag regelverksreferanser (tjenester)»
+  (`/tjenester/regelverksreferanse-forslag`).
+- **Handlinger matchet på dokumentnivå, uten bekreftet paragrafnivå** — dekker de ~900
+  Oppgaveregister-importerte skjemaene spesifikt (den ekte bulk-importen til `Handling`, i motsetning
+  til tjeneste-katalogen): deterministisk regex+bekreftelse-kandidatinnsnevring (ikke embedding),
+  siden kildens egen henvisningsfritekst allerede nevner paragrafnumrene. Kjøres kun for rader der
+  rettskilden selv ER matchet, men fritekst-henvisningen var for kompleks til å tolkes automatisk ved
+  import. Godkjenning OPPGRADERER den eksisterende dokumentnivå-raden til paragrafnivå — oppretter
+  aldri en søsterrad. *Hvor:* «KI-forslag regelverksreferanser (handlinger)»
+  (`/tjenester/handlinger/regelverksreferanse-forslag`).
+
+Begge viser KI-ens begrunnelse per forslag (hvorfor akkurat denne paragrafen), samme
+«ingen ugjennomsiktig score alene»-prinsipp som resten av KI-forslagskøene.
 
 ### Importer modelleksport-JSON (import-wizard)
 
@@ -298,6 +328,12 @@ setningen»-mønster der hvert unike navn valideres strukturelt mot Store norske
 Sentralt stedsnavnregister i stedet for mot en hånd-vedlikeholdt ordliste. Køen har fem faner
 (Venter / Godkjent / Avvist automatisk / Avvist manuelt / Alle).
 
+[NYTT, 2026-10-01, issue #283] **To veier inn i køen.** I tillegg til det automatiske sveipet (under)
+kan en kandidat nå også opprettes manuelt: «Behandle som organ/gruppe →» i tagg-linja under et
+`begrep`-merket utdrag (`TagTekst`, lenket fra `RettskildeDetalj`) oppretter — eller gjenbruker,
+GET-or-create på samme nøkkel som sveipet — en rad med `OppdagelsesKilde='manuell'`, `Konfidens=null`,
+og sender saksbehandleren rett inn i den samme veiviseren under.
+
 **Veiviser for å behandle én kandidat** [NYTT, 2026-09-07]. «Behandle …» på en kandidatrad åpner en
 egen, dypt lenkbar side som tar saksbehandleren gjennom hele kjeden i fem steg, og som er
 tilgjengelig **uansett status** — også for rader som alt er godkjent eller avvist:
@@ -316,7 +352,16 @@ tilgjengelig **uansett status** — også for rader som alt er godkjent eller av
    gruppemedlem-veien velges i tillegg **hvilken gruppe** teksten navngir virksomheten som medlem av;
    gruppen må finnes som gruppebegrep fra før, siden den er definert i en LOV mens denne rettskilden
    bare navngir medlemmene.
-5. **Bekreft** — en oppsummering av hva som blir opprettet eller endret, før man fullfører.
+5. **Utover navneform?** [NYTT, 2026-10-01, issue #283 AC5/AC6/AC7] — valgfritt steg for BÅDE
+   virksomhet- og gruppemedlem-sporet, kun relevant når denne KONKRETE forekomsten sier noe mer enn
+   bare en navneform: «Rolle tildelt her» oppretter en generell myndighetstildeling (rollebegrep +
+   paragraf/eId-avgrensning), uavhengig av et eventuelt gruppemedlemskap samtidig — generaliserer det
+   som før kun fantes via gruppemedlem-veien. «Relasjon til annen virksomhet» oppretter en
+   `VirksomhetRelasjon` (klageinstans, underlagt, sekretariat …) når teksten beskriver et
+   organisatorisk forhold til en annen, navngitt virksomhet — løser issue #263 AC2/AC3 sitt
+   "Minimalt"-nivå. Gruppe-sporet («gruppe som defineres her») får i tillegg et eget, valgfritt
+   gruppe-av-gruppe-tillegg som oppretter gruppebegrepet OG medlemskapet atomisk i samme operasjon.
+6. **Bekreft** — en oppsummering av hva som blir opprettet eller endret, før man fullfører.
 
 Fullføring **lukker kjeden** for en virksomhet-kandidat: navneformen opprettes (eller gjenbrukes) med
 sin grunn, kandidaten settes til «Godkjent», og tekst-taggen for forekomsten peker nå på
@@ -338,9 +383,10 @@ videre til gruppens side, der medlemslisten nå inneholder virksomheten. Veien e
 den to ganger for samme par gir ikke to tildelinger.
 
 *Kjent begrensning / bevisst utenfor denne runden:* «administrativ inndeling» er ikke et eget utfall
-ennå — velg «Ikke relevant» og ta det opp separat. Å opprette et nytt gruppebegrep og samtidig gjøre
-det medlem av en annen gruppe (gruppe-av-gruppe **fra veiviseren**) er heller ikke med; det
-registreres separat, se «Gruppe av gruppe» under.
+ennå — velg «Ikke relevant» og ta det opp separat.
+
+[RETTET, 2026-10-01] Gruppe-av-gruppe **fra veiviseren** er ikke lenger en begrensning — se steg 5
+over. Beholdes også som egen registrering utenfor veiviseren, se «Gruppe av gruppe» under.
 
 *Hvor:* «Navnekandidater» (`/navnekandidater`, `/navnekandidater/:id/behandle`).
 
@@ -353,8 +399,14 @@ egen status — ingen egne datoer.
 
 *Hvor:* read-only tabell på en virksomhets detaljside, og — [NYTT, 2026-09-08] — den motsatte veien:
 hele medlemslisten på gruppebegrepets egen side, se «Gruppe av gruppe» under. **Ingen generelt
-frontend-skjema for å opprette en tildeling fra bunnen ennå** — men navnekandidat-veiviserens
-gruppemedlem-vei oppretter dem nå fra saksbehandlerflyten (`docs/13-backlog.md` §8).
+frontend-skjema for å opprette en tildeling fra bunnen ennå** — men navnekandidat-veiviseren oppretter
+dem nå fra saksbehandlerflyten, både via gruppemedlem-veien og — [NYTT, 2026-10-01, issue #283] — som
+en generell tildeling uavhengig av gruppemedlemskap, se steg 5 under «Navnekandidater» over
+(`docs/13-backlog.md` §8).
+
+[NYTT, 2026-10-01, issue #285] En tildeling kan nå også komme fra KI-oppdagelse, med en egen
+`Status` (`foreslatt_av_ai`/`validert`) som skiller et ubekreftet forslag fra en bekreftet
+opplysning — se «KI-oppdagelse av virksomheter, grupper og roller» under.
 
 ### Gruppe av gruppe, og drill-through til medlemmene [NYTT, 2026-09-08]
 
@@ -407,6 +459,22 @@ opprettes for å få eksempelet til å se komplett ut.
 `POST /api/gruppemedlemskap`, `GET /api/gruppebegrep/{id}/medlemsgrupper`,
 `GET /api/gruppebegrep/{id}/overordnede-grupper`, `GET /api/gruppebegrep/{id}/tildelinger`.
 
+### KI-oppdagelse av virksomheter, grupper og roller [NYTT, 2026-10-01, issue #285]
+
+En KI-agent (`VirksomhetOgGruppeKiOppdagelseTjeneste`) leser valgte rettskilders tekst FRITT — ikke
+regex/tekstsøk som sveipene over, men samme forslagsmønster som «Identifiser begrep»/«Identifiser
+tjenester» — og foreslår virksomhet-/gruppekandidater, pluss rolle/relasjon/gruppe-av-gruppe der
+teksten eksplisitt sier det. Skriver utelukkende via de samme tjenestemetodene de ordinære
+HTTP-endepunktene selv bruker (ingen egen, parallell skrivevei). Hver opprettet rad
+(`Myndighetstildeling`/`VirksomhetRelasjon`/`GruppeMedlemskap`) får `Status='foreslatt_av_ai'` i
+stedet for det vanlige `'validert'`, og vises i en egen kø adskilt fra menneske-opprettede rader — et
+menneske må eksplisitt godkjenne (sletter forslaget og setter `'validert'`) eller avvise (sletter
+raden) før den regnes som gjeldende. Rader opprettet av et menneske er fortsatt `'validert'` med én
+gang, uendret oppførsel.
+
+*Hvor:* «KI-oppdagelse» (`/ki-oppdagelse`); `POST /api/ki-oppdagelse/kjor` (kjør for valgte
+rettskilder), `GET /api/ki-oppdagelse/ko` (samlet kø).
+
 ---
 
 ## Brukerhåndtering
@@ -439,6 +507,18 @@ bakgrunnsoppdatering). **Ingen av dem har en egen frontend-side** — resultatet
 via Oppgaveregister-koblingen på en handlings detaljside.
 
 ---
+
+## Offentlig nettside (`nettside/`)
+
+Separat fra appen (`src/RegelIde.Web`) beskrevet over: et statisk mikronettsted som viser utvalgte
+deler av korpuset offentlig, bygget fra data eksportert med `nettside/tools/eksporter-data.ps1`. [NYTT,
+2026-10-01, issue #287] Siden «Kjeden» (`nettside/kjeden/index.html`) viser hele kjeden rettskilde →
+begrep → virksomhet → tjeneste → vilkår → vedtak som én sammenhengende fortelling for en leser uten
+forkunnskap, med Karasjok kommune/sameloven som gjennomgående eksempel — de tre første leddene hentet
+live fra samme datasett som koblinger-siden bruker, de tre siste tydelig merket som illustrasjon siden
+DigRett ennå ikke har eksportert tjeneste-/vilkår-/vedtaksdata. Lenket fra forsidens hero, kortgrid og
+hovednavigasjon. Denne oversikten dekker ikke nettsidens øvrige sider i detalj — se `nettside/`
+selv — kun at «Kjeden» nå finnes.
 
 ## Ikke startet / bevisst utenfor MVP
 

@@ -33,7 +33,7 @@ ikke ny tekst.
 
 | Dok | Hva | Sist verifisert |
 |---|---|---|
-| [25-funksjonsoversikt](25-funksjonsoversikt.md) | Hva som faktisk finnes i appen i dag. Nærmeste ting til en sannhet om omfang. | 2026-09-08 |
+| [25-funksjonsoversikt](25-funksjonsoversikt.md) | Hva som faktisk finnes i appen i dag. Nærmeste ting til en sannhet om omfang. | 2026-10-01 |
 | [03-domenemodell](03-domenemodell.md) | Entitetene og feltene. | 2026-08-02 |
 | [01-referansemodell](01-referansemodell.md) | Ontologien Vilkår/Regel/Unntak (låst 2026-07-23, nå implementert). | 2026-09-10 |
 | [02-produktkrav](02-produktkrav.md) | Kravspesifikasjonen. | 2026-08-02 |
@@ -55,9 +55,9 @@ ikke ny tekst.
 | [29-gruppe-relasjon-spesifikasjon](29-gruppe-relasjon-spesifikasjon.md) | Gruppebegrep + virksomhetsrelasjoner. Del C (relasjonstyper) er bygget og data-styrt. | 2026-09-02 |
 | [31-navneform-berikelse-snl-ssr](31-navneform-berikelse-snl-ssr-spesifikasjon.md) | SNL/SSR-oppslag og konfidens. §9 er konfidens-beslutningen. | 2026-09-09 |
 | [23-tjeneste-modell-eksport-og-skjema](23-tjeneste-modell-eksport-og-skjema.md) | Eksportformatet. §6 har de to harde importproblemene. | 2026-08-28 |
-| [14-byggesteg5-teknisk-design](14-byggesteg5-teknisk-design.md) | KI-agentene. Runde 1 bygget, resten er mal. | 2026-08-11 |
+| [14-byggesteg5-teknisk-design](14-byggesteg5-teknisk-design.md) | KI-agentene. Runde 1 bygget, resten er mal. Runde 5 (regelverksreferanseforslag + KI-oppdagelse) også bygget. | 2026-10-01 |
 | [15-handbok-dokumentgraf-notat](15-handbok-dokumentgraf-notat.md) | Håndbok-laget. Lag 1 (rå kilde) er bygget og brukes nå også for Lovdata. | 2026-08-13 |
-| [20-virksomhetskatalog-og-rollemodell](20-virksomhetskatalog-og-rollemodell.md) | Katalogen og rollene. §4/§7.2 låser at forvaltningsnivå aldri settes fra Brreg. | 2026-08-22 |
+| [20-virksomhetskatalog-og-rollemodell](20-virksomhetskatalog-og-rollemodell.md) | Katalogen og rollene. §4/§7.2 låser at forvaltningsnivå aldri settes fra Brreg. §2.7/§2.8 (2026-10-01) dekker Status-feltet og veiviserens 6 mekanismer. | 2026-10-01 |
 
 ## Levert — designgrunnlag for noe som er bygget
 
@@ -99,3 +99,13 @@ referansemodellen.
 Se GitHub-issuet «Docs-runde 2». Kort: splitt `13-backlog`, oppdater `src/README.md` (208 linjer,
 sist rørt 2026-07-30) og root-README, og arkiver de referatene som er helt overtatt av senere
 beslutninger.
+
+**Funnet 2026-10-01, ved en docs-catchup-runde (5 PR-er merget uten docs-oppdatering):**
+`03-domenemodell` og `04-api-kontrakter` dekker IKKE virksomhetskatalog-domenet i det hele tatt — ingen
+`Virksomhet`/`Myndighetstildeling`/`VirksomhetRelasjon`/`GruppeMedlemskap`/`Navnekandidat`-entitet eller
+noe `/api/virksomheter`-/`/api/navnekandidater`-endepunkt er nevnt i noen av de to, selv om dette er
+det klart mest aktivt bygde domenet siden `docs/20` ble opprettet 2026-08-22 (begge filers "sist
+verifisert"-datoer er FØR det, 2026-08-02/2026-07-24). `docs/20` dekker datamodellen for domenet i
+praksis, men API-flaten er kun spredt dokumentert i `25-funksjonsoversikt` sine "Hvor:"-linjer, ikke
+samlet. Ikke rettet i denne runden (langt større jobb enn å dokumentere 5 PR-er) — notert her slik at
+det ikke glemmes.

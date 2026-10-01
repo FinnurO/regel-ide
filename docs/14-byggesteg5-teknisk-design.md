@@ -473,3 +473,63 @@ retter seg mot samme underliggende chunking `RagKontekstHjelper` deler med Spor 
 
 Se `docs/13-backlog.md` §2.2 og `docs/06-veikart.md` byggesteg 5 for den fulle, delte listen over
 utsatte punkter fra begge spor (holdes IKKE duplisert her for å unngå drift mellom de tre dokumentene).
+
+## 9. Runde 5 (2026-10-01) — tre nye agenter, alle kopier av §4-mønsteret
+
+Tre nye `foreslatt_av_ai`-produserende tjenester, bygget samme dag (issue #286/#290/#285). Ingen av
+dem endrer selve arkitekturen i §1/§4 — hver er en konkret anvendelse av mønsteret §4 allerede
+beskriver, for en ny entitetstype/et nytt scope.
+
+### 9.1 `TjenesteRegelverksreferanseforslagTjeneste` (issue #286) og `HandlingRegelverksreferanseforslagTjeneste` (issue #290)
+
+Begge foreslår koblinger mellom en allerede-eksisterende, gjeldende rad (en `Tjeneste` uten
+regelverksreferanser, eller en Oppgaveregister-importert `Handling` matchet kun på dokumentnivå) og
+en rettskilde-paragraf — **bevisst IKKE** samme mønster som `TjenesteforslagTjeneste` (helt NYE
+tjenester), men samme kandidatkø-mønster som `BegrepDefinisjonRelasjonTjeneste` (issue #212): kun
+selve KOBLINGEN er til vurdering, ikke entiteten den peker fra, som har sin egen, urelaterte
+statuslivssyklus. Egne entiteter `TjenesteRegelverksreferanseForslagEntitet`/
+`HandlingRegelverksreferanseForslagEntitet` (`src/RegelIde.Data/Entiteter.cs`) — arbeidskø, ikke
+selve koblingen; godkjenning oppretter/oppgraderer den ekte raden via eksisterende tjenestemetoder
+(`TjenesteregisterTjeneste.KobleRegelverksreferanseAsync` / den nye
+`HandlingregisterTjeneste.OppgraderRegelverksreferanseTilParagrafAsync`).
+
+**Kandidatinnsnevring er bevisst ulik mellom de to** — ikke en inkonsistens, men to forskjellige
+utgangspunkt: Tjeneste-varianten bruker embedding (samme `RagKontekstHjelper` som §8.2), siden en
+tjenestebeskrivelse ikke selv antyder hvilken paragraf som er hjemmelen. Handling-varianten bruker
+deterministisk regex+bekreftelse i stedet, siden Oppgaveregisterets egen
+`KildeHenvisningFritekst` (`HandlingRegelverksreferanseEntitet`) allerede nevner paragrafnumrene —
+oppgaven er å TOLKE en kjent streng ("§§ 21-4, 22-3"), ikke å FINNE kandidater i fritekst. Handling-
+forslaget kjøres derfor aldri for rader der rettskilden selv ikke er importert (seedens egen
+`RettskildematcherIkkeFunnet`-utfall).
+
+**`GET /api/rettskilder/{id}/statistikk`** (nytt i samme runde, `RettskildeRepository.StatistikkAsync`)
+teller `antallTjenester` via UNIONEN av direkte `TjenesteRegelverksreferanse`-koblinger og
+`Handling`→eiende-`Tjeneste`-koblinger — nødvendig fordi Oppgaveregisteret kobler på Handling-nivå,
+ikke Tjeneste-nivå (se `OppgaveregisterHandlingSeed`), så en tjeneste kan være reelt koblet til en
+rettskilde uten noen egen `TjenesteRegelverksreferanse`-rad.
+
+### 9.2 `VirksomhetOgGruppeKiOppdagelseTjeneste` (issue #285)
+
+Samme forslagsmønster som runde 1s to agenter (§3) — leser rettskildetekst FRITT via
+`IKiAgentKlient` — men foreslår virksomhet-/gruppekandidater og rolle/relasjon/gruppe-av-gruppe-
+koblinger i stedet for begrep/tjenester. **Skriver utelukkende via de samme tjenestemetodene de
+ordinære HTTP-endepunktene selv kaller** (`NavnekandidatOppdagelseTjeneste.OpprettEllerFinnAsync`,
+`MyndighetstildelingTjeneste`/`VirksomhetRelasjonregisterTjeneste`/`GruppeMedlemskapTjeneste
+.OpprettAsync`) — ingen parallell skrivevei, i motsetning til f.eks. `BegrepsforslagTjeneste` som
+skriver direkte til sin egen entitet.
+
+Dette var mulig fordi §2.7/§2.8 i `docs/20-virksomhetskatalog-og-rollemodell.md` samtidig la et nytt
+`Status`-felt (`'foreslatt_av_ai'`/`'validert'`) til de tre mål-entitetene
+(`MyndighetstildelingEntitet`/`VirksomhetRelasjonEntitet`/`GruppeMedlemskapEntitet`) — se der for
+feltet, kø-endepunktene og godkjenn/avvis-mekanismen. Følger IKKE samme generalisering som §4
+(`OpprettForslagFraKiAsync`-kopi) fordi målet her er eksisterende, generelle `OpprettAsync`-metoder
+med en status-parameter, ikke en helt ny entitetstype.
+
+**Live-verifisert** (ikke bare kompilert eller stubbet) mot ekte HostYourAI/DeepSeek-V4-Flash og den
+ekte "Forskrift om Energiklagenemnda" hentet direkte fra Lovdata — fant og rettet en reell bug
+underveis: modellen ekkoer ikke alltid `[eId]`-taggen ordrett i svaret sitt (kortform/blandet
+skilletegn), løst med et suffiks-fallback i node-oppslaget. Dekket av en ny testfil
+(`VirksomhetOgGruppeKiOppdagelseLiveTests.cs`) som kjører mot den ekte leverandøren — eksplisitt
+merket `[Trait("Category", "LiveIntegration")]` og dermed **ekskludert fra vanlig `dotnet test`**,
+samme eksklusjonsmønster som holder §1s "aldri ekte nettverkskall i automatiserte tester"-regel sann
+for resten av KI-agent-testene.
