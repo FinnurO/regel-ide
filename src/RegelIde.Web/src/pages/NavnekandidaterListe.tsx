@@ -228,9 +228,12 @@ export default function NavnekandidaterListe() {
     }
   }
 
-  async function enkelthandling(id: string, handling: 'godkjenn' | 'avvis') {
+  // [ENDRET, issue #298 AC3] 'godkjenn-fast' lagt til — speil av 'godkjenn', men for den FASTE,
+  // nasjonale grenen av gruppe-sporet (kun relevant for Kategori='gruppe', se knappen under).
+  async function enkelthandling(id: string, handling: 'godkjenn' | 'godkjenn-fast' | 'avvis') {
     try {
       if (handling === 'godkjenn') await api.godkjennNavnekandidat(id);
+      else if (handling === 'godkjenn-fast') await api.godkjennNavnekandidatSomFastGruppebegrep(id);
       else await api.avvisNavnekandidat(id);
       lastKandidater();
     } catch (err) {
@@ -616,6 +619,21 @@ export default function NavnekandidaterListe() {
                       erstatter. */}
                   {(k.kategori === 'gruppe' || k.kategori === 'administrativ_inndeling') && (
                     <Button data-size="sm" onClick={() => enkelthandling(k.id, 'godkjenn')}>Godkjenn</Button>
+                  )}
+                  {/* [Ny, issue #298 AC3] «Fast, nasjonalt begrep»-alternativet — KUN for 'gruppe' (ikke
+                      administrativ_inndeling, som alltid er lovspesifikt, se OpprettAdministrativInndelingAsync).
+                      Speil av «Godkjenn» over, men mot /godkjenn-som-fast-gruppebegrep (get-or-create: finnes
+                      det alt et fast begrep med samme Term, kobles kandidaten til DET i stedet for å opprette
+                      en dublett). For den FULLE, ekspandert-forklarte veien (med søk/bekreftelse før man
+                      velger), se «Behandle …» → veiviseren i stedet. */}
+                  {k.kategori === 'gruppe' && (
+                    <Button
+                      data-size="sm" variant="secondary"
+                      onClick={() => enkelthandling(k.id, 'godkjenn-fast')}
+                      title="Oppretter (eller kobler til et eksisterende) gruppebegrep UTEN lovkilde — delt på tvers av alle lover, f.eks. «Kongen»."
+                    >
+                      Godkjenn som fast
+                    </Button>
                   )}
                   <Button data-size="sm" variant="tertiary" onClick={() => enkelthandling(k.id, 'avvis')}>Avvis</Button>
                 </>

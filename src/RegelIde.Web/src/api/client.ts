@@ -104,6 +104,7 @@ import type {
   NavnekandidatRelasjonResultatDto,
   KoblNavnekandidatTilGruppeAvGruppeRequest,
   NavnekandidatGruppeAvGruppeResultatDto,
+  NavnekandidatFastGruppebegrepResultatDto,
   TekstTaggDto,
   TjenesteDto,
   TjenesteReferanseDto,
@@ -630,6 +631,12 @@ export const api = {
 
   godkjennNavnekandidat: (id: string) =>
     kall<NavnekandidatDto>(`/api/navnekandidater/${id}/godkjenn`, { method: 'POST' }),
+
+  /** [Ny, issue #298 AC3] Alternativet til godkjennNavnekandidat for 'gruppe'-kandidater: oppretter
+   * (eller gjenbruker) et gruppebegrep UTEN lovkilde — fast, nasjonalt, delt på tvers av alle lover. */
+  godkjennNavnekandidatSomFastGruppebegrep: (id: string) =>
+    kall<NavnekandidatFastGruppebegrepResultatDto>(
+      `/api/navnekandidater/${id}/godkjenn-som-fast-gruppebegrep`, { method: 'POST' }),
 
   avvisNavnekandidat: (id: string) =>
     kall<NavnekandidatDto>(`/api/navnekandidater/${id}/avvis`, { method: 'POST' }),
