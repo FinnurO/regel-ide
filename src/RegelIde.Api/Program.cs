@@ -3384,7 +3384,8 @@ app.MapPost("/api/gruppebegrep", async (HttpRequest request, GruppebegrepRequest
     })
     .WithOpenApi()
     .WithName("OpprettGruppebegrep")
-    .WithSummary("Gruppebegrep (docs/20 §2.4) — Term+LovkildeId er sammen begrepets identitet, f.eks. 'forurensningsmyndighet' i forurensningsloven.");
+    .WithSummary("Gruppebegrep (docs/20 §2.4) — Term+LovkildeId er sammen begrepets identitet, f.eks. 'forurensningsmyndighet' i " +
+        "forurensningsloven. [ENDRET, issue #298] LovkildeId=null oppretter et FAST, nasjonalt gruppebegrep (identitet = kun Term).");
 
 app.MapGet("/api/rettskilder/{lovkildeId:guid}/gruppebegrep", async (Guid lovkildeId, VirksomhetsbegrepTjeneste register, CancellationToken ct) =>
         Results.Ok((await register.AlleGruppebegrepForLovAsync(lovkildeId, ct)).Select(BegrepDto.FraEntitet)))
@@ -4283,6 +4284,33 @@ navnekandidater.MapPost("/{id:guid}/kobl-til-gruppe-av-gruppe", async (Guid id, 
     .WithSummary("Issue #283 AC9 — som /godkjenn for 'gruppe'-kandidater, pluss et GruppeMedlemskapEntitet " +
         "som gjør det NYE gruppebegrepet til medlem av OverordnetGruppeBegrepId, hjemlet i kandidatens " +
         "egen rettskilde. Kun for Kategori='gruppe' og Status='Venter'.");
+
+// [Ny, issue #298 AC3] «Fast, nasjonalt begrep»-grenen av gruppe-sporet — alternativet til det vanlige
+// /godkjenn for en 'gruppe'-kandidat når saksbehandleren eksplisitt avgjør at begrepet IKKE skal
+// lovscopes (f.eks. «Kongen»). Get-or-create: gjenbruker et eksisterende fast begrep med samme Term
+// (case-insensitiv) i stedet for å opprette en dublett — se
+// VirksomhetsbegrepTjeneste.OpprettEllerGjenbrukFastGruppebegrepAsync.
+navnekandidater.MapPost("/{id:guid}/godkjenn-som-fast-gruppebegrep", async (Guid id, HttpRequest request,
+        NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var resultat = await register.KoblTilFastGruppebegrepAsync(id, bruker.Navn, ct);
+            return resultat is null
+                ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." })
+                : Results.Ok(NavnekandidatFastGruppebegrepResultatDto.FraResultat(resultat));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("GodkjennNavnekandidatSomFastGruppebegrep")
+    .WithSummary("Issue #298 AC3 — alternativet til /godkjenn for 'gruppe'-kandidater: oppretter (eller " +
+        "gjenbruker, hvis Term alt finnes som fast begrep) et gruppebegrep UTEN lovkilde (LovkildeId=null), " +
+        "delt på tvers av alle lover. Kun for Kategori='gruppe' og Status='Venter'.");
 
 navnekandidater.MapPost("/godkjenn-batch", async (HttpRequest request, NavnekandidatBatchRequest body,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>

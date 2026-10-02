@@ -242,6 +242,141 @@ public class VirksomhetsbegrepTjenesteTests
         Assert.Equal(forvaltningsloven, andreRad.LovkildeId);
     }
 
+    // ---------- [Ny, issue #298] Fast, nasjonalt gruppebegrep (lovkildeId=null) + case-insensitiv
+    // duplikatsjekk for BEGGE grener (fast og lovspesifikt). ----------
+
+    [Fact]
+    public async Task Gruppebegrep_samme_term_ulik_case_i_samme_lov_kastes()
+    {
+        await using var db = _fixture.NyDbContext();
+        var lovkildeId = await OpprettAlkohollovenAsync(db);
+        var term = NyTerm("Departementet");
+
+        var register = new VirksomhetsbegrepTjeneste(db);
+        await register.OpprettGruppebegrepAsync(lovkildeId, term, "Kari Jurist");
+
+        // «Departementet» og «departementet» skal IKKE bli to rader — issue #298 pkt. 3.
+        var feil = await Assert.ThrowsAsync<ArgumentException>(
+            () => register.OpprettGruppebegrepAsync(lovkildeId, term.ToLowerInvariant(), "Kari Jurist"));
+        Assert.Contains("finnes allerede", feil.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    [Fact]
+    public async Task Fast_gruppebegrep_opprettes_uten_lovkilde()
+    {
+        await using var db = _fixture.NyDbContext();
+        var term = NyTerm("Kongen");
+
+        var register = new VirksomhetsbegrepTjeneste(db);
+        var fast = await register.OpprettGruppebegrepAsync(null, term, "Kari Jurist");
+
+        Assert.Null(fast.LovkildeId);
+        Assert.Equal("gruppe", fast.Begrepskategori);
+        Assert.Equal(term, fast.Term);
+    }
+
+    [Fact]
+    public async Task Fast_gruppebegrep_samme_term_ulik_case_kastes()
+    {
+        await using var db = _fixture.NyDbContext();
+        var term = NyTerm("Kongen");
+
+        var register = new VirksomhetsbegrepTjeneste(db);
+        await register.OpprettGruppebegrepAsync(null, term, "Kari Jurist");
+
+        var feil = await Assert.ThrowsAsync<ArgumentException>(
+            () => register.OpprettGruppebegrepAsync(null, term.ToUpperInvariant(), "Kari Jurist"));
+        Assert.Contains("finnes allerede", feil.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>Et fast (lovkildeId=null) og et lovspesifikt gruppebegrep med SAMME Term er to ulike
+    /// rader — "null" er sin egen scope, ikke en tredje lov som tilfeldigvis matcher alle andre.</summary>
+    [Fact]
+    public async Task Fast_og_lovspesifikt_gruppebegrep_med_samme_term_er_to_ulike_rader()
+    {
+        await using var db = _fixture.NyDbContext();
+        var lovkildeId = await OpprettAlkohollovenAsync(db);
+        var term = NyTerm("tilsynsorganet");
+
+        var register = new VirksomhetsbegrepTjeneste(db);
+        var fast = await register.OpprettGruppebegrepAsync(null, term, "Kari Jurist");
+        var lovspesifikt = await register.OpprettGruppebegrepAsync(lovkildeId, term, "Kari Jurist");
+
+        Assert.NotEqual(fast.Id, lovspesifikt.Id);
+        Assert.Null(fast.LovkildeId);
+        Assert.Equal(lovkildeId, lovspesifikt.LovkildeId);
+    }
+
+    /// <summary>To ulike, FASTE gruppebegrep (begge lovkildeId=null) med samme term — uten en egen
+    /// delvis indeks for null-grenen ville Postgres' standard NULL != NULL-oppførsel i en unik indeks
+    /// IKKE dedupet disse (issue #298 AC4) — denne testen dekker nettopp det DB-vernet, ikke bare
+    /// applikasjonssjekken over.</summary>
+    [Fact]
+    public async Task To_faste_gruppebegrep_med_samme_term_kastes_pa_db_niva()
+    {
+        await using var db = _fixture.NyDbContext();
+        var term = NyTerm("Stortinget");
+        db.Begreper.Add(new BegrepEntitet
+        {
+            Id = Guid.NewGuid(),
+            Begrepskategori = "gruppe",
+            LovkildeId = null,
+            Term = term,
+            Status = "publisert",
+            OpprettetAv = "Kari Jurist",
+            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        await db.SaveChangesAsync();
+
+        // Omgår applikasjonssjekken i OpprettGruppebegrepAsync ved å skrive rett til basen — dette
+        // isolerer DEN UNIKE INDEKSENS egen evne til å hindre to "LovkildeId IS NULL"-rader med
+        // samme (case-sensitivt) Term, uavhengig av C#-koden rundt.
+        db.Begreper.Add(new BegrepEntitet
+        {
+            Id = Guid.NewGuid(),
+            Begrepskategori = "gruppe",
+            LovkildeId = null,
+            Term = term,
+            Status = "publisert",
+            OpprettetAv = "Kari Jurist",
+            OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
+    }
+
+    [Fact]
+    public async Task OpprettEllerGjenbrukFastGruppebegrep_gjenbruker_eksisterende_rad()
+    {
+        await using var db = _fixture.NyDbContext();
+        var term = NyTerm("Kongen i statsrad");
+
+        var register = new VirksomhetsbegrepTjeneste(db);
+        var (forste, forsteVarNy) = await register.OpprettEllerGjenbrukFastGruppebegrepAsync(term, "Kari Jurist");
+        Assert.True(forsteVarNy);
+
+        // Ulik case OG ledende/avsluttende whitespace — samme toleranse som den øvrige dedupen i denne klassen.
+        var (andre, andreVarNy) = await register.OpprettEllerGjenbrukFastGruppebegrepAsync(
+            $"  {term.ToUpperInvariant()}  ", "Ola Saksbehandler");
+        Assert.False(andreVarNy);
+        Assert.Equal(forste.Id, andre.Id);
+
+        var alle = await register.AlleGruppebegrepAsync();
+        Assert.Single(alle, b => string.Equals(b.Term, term, StringComparison.OrdinalIgnoreCase));
+    }
+
+    [Fact]
+    public async Task FinnFastGruppebegrep_finner_ikke_lovspesifikt_begrep_med_samme_term()
+    {
+        await using var db = _fixture.NyDbContext();
+        var lovkildeId = await OpprettAlkohollovenAsync(db);
+        var term = NyTerm("kontrollorganet");
+
+        var register = new VirksomhetsbegrepTjeneste(db);
+        await register.OpprettGruppebegrepAsync(lovkildeId, term, "Kari Jurist");
+
+        Assert.Null(await register.FinnFastGruppebegrepAsync(term));
+    }
+
     // ---------- [Ny, issue #203 pkt. 2] Administrativ inndeling — samme (Term, LovkildeId)-scoping som
     // gruppebegrep over (besluttet med Johann 2026-09-10), egen Begrepskategori-verdi og egen metode
     // (OpprettAdministrativInndelingAsync) — se den metodens kommentar for hvorfor ikke slått sammen

@@ -971,4 +971,91 @@ public class NavnekandidaterEndepunktTests
             new { OverordnetGruppeBegrepId = overordnet.Id }));
         Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
     }
+
+    // ==================================================================================
+    // [Ny, issue #298 AC3/AC6] «Fast, nasjonalt begrep»-grenen av gruppe-sporet.
+    // ==================================================================================
+
+    /// <summary>AC3 — alternativet til /godkjenn: oppretter et gruppebegrep UTEN lovkilde.</summary>
+    [Fact]
+    public async Task Godkjenn_som_fast_gruppebegrep_oppretter_begrep_uten_lovkilde()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var scene = await OpprettSceneAsync("Kongen", kategori: "gruppe");
+
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post,
+            $"/api/navnekandidater/{scene.KandidatId}/godkjenn-som-fast-gruppebegrep", brukerId));
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+        var resultat = await svar.Content.ReadFromJsonAsync<NavnekandidatFastGruppebegrepResultatDto>(JsonInnstillinger);
+
+        Assert.Equal("Godkjent", resultat!.Kandidat.Status);
+        Assert.Equal("gruppe", resultat.Gruppebegrep.Begrepskategori);
+        Assert.Null(resultat.Gruppebegrep.LovkildeId);
+        Assert.True(resultat.VarNyttBegrep);
+    }
+
+    /// <summary>
+    /// AC6 — to «Kongen»-kandidater skal ende på NØYAKTIG ÉN delt Begrep-rad, ikke to, selv når den
+    /// andre godkjenningen skjer FØRST via den vanlige /godkjenn-veien... nei — se i stedet
+    /// <c>NavnekandidatOppdagelseTjenesteTests</c> (Data.Tests) for selve gjenbruk-på-tvers-av-to-
+    /// kandidater-dekningen (krever to rader med NØYAKTIG samme, men ulik-case, ForeslattTekst — upraktisk
+    /// å sette opp via <see cref="OpprettSceneAsync"/> her, som ALLTID genererer sin egen unike hale).
+    /// Denne testen dekker i stedet at ÉN godkjenning returnerer <c>VarNyttBegrep=true</c>, og at et
+    /// GJENTATT kall på SAMME kandidat (idempotens, om noen klikker to ganger) ikke dupliserer raden.
+    /// </summary>
+    [Fact]
+    public async Task Godkjenn_som_fast_gruppebegrep_er_idempotent_for_samme_kandidat()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var scene = await OpprettSceneAsync("Stortinget", kategori: "gruppe");
+
+        var forsteSvar = await _client.SendAsync(MedBruker(HttpMethod.Post,
+            $"/api/navnekandidater/{scene.KandidatId}/godkjenn-som-fast-gruppebegrep", brukerId));
+        Assert.Equal(HttpStatusCode.OK, forsteSvar.StatusCode);
+        var forsteResultat = await forsteSvar.Content.ReadFromJsonAsync<NavnekandidatFastGruppebegrepResultatDto>(JsonInnstillinger);
+        Assert.True(forsteResultat!.VarNyttBegrep);
+
+        // Kandidaten er nå 'Godkjent' — et gjentatt kall skal feile (samme "kun Venter"-vern som
+        // /godkjenn og /kobl-til-gruppe-av-gruppe), IKKE opprette en ny dublett-rad.
+        var andreSvar = await _client.SendAsync(MedBruker(HttpMethod.Post,
+            $"/api/navnekandidater/{scene.KandidatId}/godkjenn-som-fast-gruppebegrep", brukerId));
+        Assert.Equal(HttpStatusCode.BadRequest, andreSvar.StatusCode);
+
+        await using var db = _fixture.NyDbContext();
+        Assert.Equal(1, await db.Begreper.CountAsync(
+            b => b.Begrepskategori == "gruppe" && b.LovkildeId == null && b.Id == forsteResultat.Gruppebegrep.Id));
+    }
+
+    /// <summary>Kun 'gruppe'-kandidater hører hjemme her — samme vern som /kobl-til-gruppe-av-gruppe.</summary>
+    [Fact]
+    public async Task Godkjenn_som_fast_gruppebegrep_avviser_virksomhet_kategori()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var scene = await OpprettSceneAsync("Ikkegruppeetaten2"); // default kategori='virksomhet'.
+
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post,
+            $"/api/navnekandidater/{scene.KandidatId}/godkjenn-som-fast-gruppebegrep", brukerId));
+        Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
+    }
+
+    /// <summary>Et fast og et lovspesifikt gruppebegrep med samme Term er bevisst TO ulike rader (se
+    /// VirksomhetsbegrepTjenesteTests for den dypere dekningen av selve scopingen) — her dekkes kun at
+    /// den vanlige, lovspesifikke /godkjenn-veien (AC5: «ingen regresjon») er helt uendret av AC3.</summary>
+    [Fact]
+    public async Task Godkjenn_lovspesifikt_er_uendret_av_fast_begrep_grenen()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var scene = await OpprettSceneAsync("Departementetsporet", kategori: "gruppe");
+
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post,
+            $"/api/navnekandidater/{scene.KandidatId}/godkjenn", brukerId));
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+        var resultat = await svar.Content.ReadFromJsonAsync<NavnekandidatDto>(JsonInnstillinger);
+        Assert.Equal("Godkjent", resultat!.Status);
+
+        await using var db = _fixture.NyDbContext();
+        var gruppebegrep = await db.Begreper.SingleAsync(
+            b => b.Begrepskategori == "gruppe" && b.LovkildeId == scene.RettskildeId && b.Term == scene.Navn);
+        Assert.Equal(scene.RettskildeId, gruppebegrep.LovkildeId);
+    }
 }

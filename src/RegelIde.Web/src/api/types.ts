@@ -711,6 +711,16 @@ export interface NavnekandidatGruppeAvGruppeResultatDto {
   medlemskap: GruppeMedlemskapDto;
 }
 
+/** [Ny, issue #298 AC3] POST /api/navnekandidater/{id}/godkjenn-som-fast-gruppebegrep — kun for
+ * kategori='gruppe'-kandidater. Ingen request-body: get-or-create avgjøres av ForeslattTekst alene. */
+export interface NavnekandidatFastGruppebegrepResultatDto {
+  kandidat: NavnekandidatDto;
+  gruppebegrep: BegrepDto;
+  /** `true` hvis gruppebegrepet ble OPPRETTET nå, `false` hvis en eksisterende fast rad med samme
+   * Term (case-insensitiv) ble GJENBRUKT i stedet. */
+  varNyttBegrep: boolean;
+}
+
 /** rettskildeId=null sveiper hele det importerte korpuset, satt snevrer inn til én rettskilde. */
 export interface SveipNavnekandidaterRequest {
   rettskildeId: string | null;

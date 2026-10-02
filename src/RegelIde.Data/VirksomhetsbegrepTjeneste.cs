@@ -160,9 +160,24 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     }
 
     /// <summary>
-    /// Gruppebegrep (docs/20 §2.4) — <paramref name="term"/> + <paramref name="lovkildeId"/> utgjør
-    /// SAMMEN identiteten (samme gruppenavn i to ulike lover er to ulike rader; samme gruppenavn i SAMME
-    /// lov skal ikke kunne dupliseres — se den unike partielle indeksen i RegelIdeDbContext).
+    /// Gruppebegrep (docs/20 §2.4). <paramref name="lovkildeId"/> er nå NULLBAR (issue #298):
+    /// <list type="bullet">
+    /// <item>SATT — lovspesifikt gruppebegrep, uendret oppførsel fra før: <paramref name="term"/> +
+    /// <paramref name="lovkildeId"/> utgjør SAMMEN identiteten (samme gruppenavn i to ulike lover er to
+    /// ulike rader; samme gruppenavn i SAMME lov skal ikke kunne dupliseres).</item>
+    /// <item><c>null</c> — fast, NASJONALT gruppebegrep, uten lovscoping i det hele tatt (Johanns
+    /// «Kongen er et fast begrep, men koblingen Kongen til lov er egne relasjoner»-presisering,
+    /// issue #298). Identiteten er da KUN <paramref name="term"/>, gjenbrukt på tvers av ALLE lover —
+    /// nøyaktig samme "én rad, mange tagger"-mønster som en virksomhets navneform
+    /// (<see cref="OpprettVirksomhetsbegrepAsync"/>) allerede er. Rettskilde-eksistens-sjekken hoppes
+    /// da over (ingen lov å sjekke mot). Se den unike partielle indeksen i RegelIdeDbContext for
+    /// DB-vernet (to separate indekser — én per gren — fordi Postgres' standard NULL-i-unik-indeks-
+    /// oppførsel ikke ville dedupet flere "LovkildeId IS NULL, samme Term"-rader i ÉN delt indeks).</item>
+    /// </list>
+    /// [Rettet, issue #298] Duplikatsjekken var case-SENSITIV (<c>b.Term == term</c>) — til forskjell
+    /// fra navneform-sjekken over, som eksplisitt bruker <c>StringComparison.OrdinalIgnoreCase</c>.
+    /// Samme mønster brukt her nå (last kandidatene i minnet, sammenlign case-insensitivt): «Departementet»
+    /// og «departementet» skal ikke bli to rader, uansett om begrepet er fast eller lovspesifikt.
     /// </summary>
     /// <param name="lovreferanseEid">
     /// [Ny, 2026-08-30] Valgfri eId til NØYAKTIG den noden gruppebegrepet ble oppdaget i (typisk
@@ -176,21 +191,30 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     /// ikke har noen enkelt "opprinnelsesnode".
     /// </param>
     public async Task<BegrepEntitet> OpprettGruppebegrepAsync(
-        Guid lovkildeId, string term, string opprettetAv, string? lovreferanseEid = null, CancellationToken ct = default)
+        Guid? lovkildeId, string term, string opprettetAv, string? lovreferanseEid = null, CancellationToken ct = default)
     {
         if (string.IsNullOrWhiteSpace(term))
         {
             throw new ArgumentException("Term kan ikke være tom. Ingen gjettet fallback.");
         }
-        if (!await db.Rettskilder.AnyAsync(r => r.Id == lovkildeId && r.Entitetsstatus == "gjeldende", ct))
+        if (lovkildeId is not null
+            && !await db.Rettskilder.AnyAsync(r => r.Id == lovkildeId.Value && r.Entitetsstatus == "gjeldende", ct))
         {
             throw new ArgumentException($"Fant ingen rettskilde med id '{lovkildeId}'. Ingen gjettet fallback.");
         }
-        if (await db.Begreper.AnyAsync(b =>
-                b.Begrepskategori == "gruppe" && b.LovkildeId == lovkildeId && b.Term == term
-                && b.Entitetsstatus == "gjeldende", ct))
+
+        // Case-insensitiv duplikatsjekk, scopet til SAMME lovkildeId (inkl. "null" — fast/nasjonalt
+        // er sin egen scope, se metodekommentaren) — samme mønster (last inn kandidatene, sammenlign
+        // i minnet med OrdinalIgnoreCase) som navneform-sjekken i OpprettVirksomhetsbegrepAsync over.
+        var finnesAlt = await db.Begreper
+            .Where(b => b.Begrepskategori == "gruppe" && b.LovkildeId == lovkildeId && b.Entitetsstatus == "gjeldende")
+            .Select(b => b.Term)
+            .ToListAsync(ct);
+        if (finnesAlt.Any(t => string.Equals(t, term.Trim(), StringComparison.OrdinalIgnoreCase)))
         {
-            throw new ArgumentException($"Gruppebegrepet '{term}' finnes allerede for denne loven.");
+            throw new ArgumentException(lovkildeId is null
+                ? $"Det faste, nasjonale gruppebegrepet '{term.Trim()}' finnes allerede."
+                : $"Gruppebegrepet '{term.Trim()}' finnes allerede for denne loven.");
         }
 
         var begrep = new BegrepEntitet
@@ -209,6 +233,38 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
         db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", begrep.Id, virksomhetId: null, "opprettet", opprettetAv));
         await db.SaveChangesAsync(ct);
         return begrep;
+    }
+
+    /// <summary>
+    /// [Ny, issue #298 AC3] Get-or-create for et FAST, nasjonalt gruppebegrep (<see cref="OpprettGruppebegrepAsync"/>
+    /// med <c>lovkildeId=null</c>) — gjenbruker en eksisterende gjeldende rad med samme <paramref name="term"/>
+    /// (case-insensitiv) i stedet for å opprette en dublett, samme "gjenbruk fremfor dublett"-mønster som
+    /// navneform-gjenbruken i <see cref="NavnekandidatOppdagelseTjeneste.LukkKjedenMotVirksomhetAsync"/>.
+    /// Oppretter en NY rad (via <see cref="OpprettGruppebegrepAsync"/>) kun hvis <see cref="FinnFastGruppebegrepAsync"/>
+    /// ikke finner noe — dette er selve "søk FØRST, opprett kun hvis ingen finnes"-kravet i issue #298 AC3.
+    /// </summary>
+    /// <returns>Begrepet (nytt eller gjenbrukt), og <c>true</c> hvis det ble opprettet NÅ (ikke gjenbrukt).</returns>
+    public async Task<(BegrepEntitet Begrep, bool VarNyttBegrep)> OpprettEllerGjenbrukFastGruppebegrepAsync(
+        string term, string opprettetAv, string? lovreferanseEid = null, CancellationToken ct = default)
+    {
+        var eksisterende = await FinnFastGruppebegrepAsync(term, ct);
+        if (eksisterende is not null) return (eksisterende, false);
+
+        var nytt = await OpprettGruppebegrepAsync(null, term, opprettetAv, lovreferanseEid, ct);
+        return (nytt, true);
+    }
+
+    /// <summary>
+    /// [Ny, issue #298 AC3] Finner et EKSISTERENDE fast, nasjonalt gruppebegrep (<c>LovkildeId == null</c>)
+    /// med samme <paramref name="term"/> (case-insensitiv, samme sammenligning som duplikatsjekken i
+    /// <see cref="OpprettGruppebegrepAsync"/>) — eller <c>null</c> hvis ingen finnes ennå.
+    /// </summary>
+    public async Task<BegrepEntitet?> FinnFastGruppebegrepAsync(string term, CancellationToken ct = default)
+    {
+        var kandidater = await db.Begreper
+            .Where(b => b.Begrepskategori == "gruppe" && b.LovkildeId == null && b.Entitetsstatus == "gjeldende")
+            .ToListAsync(ct);
+        return kandidater.FirstOrDefault(b => string.Equals(b.Term, term.Trim(), StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>

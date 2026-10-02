@@ -742,7 +742,13 @@ public sealed record VirksomhetsbegrepRequest(Guid VirksomhetId, string Term, st
 
 /// <summary>[Ny, 2026-09-09] Kropp for POST /api/virksomhetsbegrep/{id}/navneformgrunn. Null = uspesifisert.</summary>
 public sealed record SettNavneformgrunnRequest(string? Navneformgrunn);
-public sealed record GruppebegrepRequest(Guid LovkildeId, string Term);
+/// <param name="LovkildeId">
+/// [ENDRET, issue #298] Nå nullbar: `null` oppretter et FAST, nasjonalt gruppebegrep (ingen lov å
+/// scope mot — identiteten er da kun <paramref name="Term"/>, se
+/// <see cref="VirksomhetsbegrepTjeneste.OpprettGruppebegrepAsync"/>). Satt gir uendret oppførsel
+/// (lovspesifikt gruppebegrep).
+/// </param>
+public sealed record GruppebegrepRequest(Guid? LovkildeId, string Term);
 
 public sealed record ParagrafspennParDto(string FraEid, string? TilEid);
 
@@ -999,6 +1005,16 @@ public sealed record NavnekandidatGruppeAvGruppeResultatDto(
     public static NavnekandidatGruppeAvGruppeResultatDto FraResultat(NavnekandidatGruppeAvGruppeResultat r) => new(
         NavnekandidatDto.FraEntitet(r.Kandidat), BegrepDto.FraEntitet(r.Gruppebegrep),
         GruppeMedlemskapDto.FraEntitet(r.Medlemskap));
+}
+
+/// <summary>
+/// [Ny, issue #298 AC3] Resultat for <c>POST /api/navnekandidater/{id}/godkjenn-som-fast-gruppebegrep</c>.
+/// </summary>
+public sealed record NavnekandidatFastGruppebegrepResultatDto(
+    NavnekandidatDto Kandidat, BegrepDto Gruppebegrep, bool VarNyttBegrep)
+{
+    public static NavnekandidatFastGruppebegrepResultatDto FraResultat(NavnekandidatFastGruppebegrepResultat r) => new(
+        NavnekandidatDto.FraEntitet(r.Kandidat), BegrepDto.FraEntitet(r.Gruppebegrep), r.VarNyttBegrep);
 }
 
 public sealed record SveipNavnekandidaterRequest(Guid? RettskildeId);
