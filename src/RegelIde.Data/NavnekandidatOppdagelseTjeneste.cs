@@ -1660,9 +1660,24 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// <see cref="LukkKjedenMotVirksomhetAsync"/> er alt idempotent per (Term, VirksomhetId)).
     /// </para>
     /// </summary>
+    /// <param name="tilKategori">
+    /// [Ny, issue #299 etter Johanns nettlesertest] <c>null</c> = bruk hver rads EGEN kategori (som før).
+    /// Satt (<c>"gruppe"</c>/<c>"administrativ_inndeling"</c>) = saksbehandleren har eksplisitt avgjort at
+    /// HELE gruppen skal behandles som denne kategorien, og rader med en annen kategori omkategoriseres
+    /// først via <see cref="OmkategoriserVentendeAsync"/> (KI-klassifiseringen er ustabil på samme tekst,
+    /// så en gruppe er ofte blandet gruppe/virksomhet). Aldri en stille sammenslåing: kalleren (dialogen)
+    /// viser antall per kategori og hvor mange som endres.
+    /// </param>
     public async Task<IReadOnlyList<NavnekandidatGruppeBatchRad>> GodkjennGruppeBatchAsync(
-        IReadOnlyList<Guid> ider, bool fast, string behandletAv, CancellationToken ct = default)
+        IReadOnlyList<Guid> ider, bool fast, string behandletAv, string? tilKategori = null,
+        CancellationToken ct = default)
     {
+        if (tilKategori is not null && tilKategori is not ("gruppe" or "administrativ_inndeling"))
+        {
+            throw new ArgumentException(
+                $"Ugyldig tilKategori '{tilKategori}' — kun 'gruppe' eller 'administrativ_inndeling' "
+                + "(bruk /kobl-til-virksomhet-batch for virksomhet).");
+        }
         var rader = new List<NavnekandidatGruppeBatchRad>();
         // Nøkkel: fast ? Guid.Empty (ÉN delt rad totalt) : kandidatens egen RettskildeId (én delt rad PER lov).
         var begrepCache = new Dictionary<Guid, Guid>();
@@ -1676,6 +1691,10 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 {
                     rader.Add(new NavnekandidatGruppeBatchRad(id, false, $"Ingen kandidat med id '{id}'.", null));
                     continue;
+                }
+                if (tilKategori is not null && kandidat.Kategori != tilKategori)
+                {
+                    await OmkategoriserVentendeAsync(id, tilKategori, behandletAv, ct);
                 }
                 if (kandidat.Kategori != "gruppe" && kandidat.Kategori != "administrativ_inndeling")
                 {
@@ -1738,6 +1757,26 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             }
         }
         return rader;
+    }
+
+    /// <summary>
+    /// [Ny, issue #299 etter Johanns nettlesertest] Eksplisitt omkategorisering av en VENTENDE kandidat
+    /// som del av «Behandle gruppen» — tynn innpakning av <see cref="OppdaterAsync"/>, som alt støtter
+    /// kategoriendring (samme validering av gyldige kategorier). Nekter rader som ikke er <c>"Venter"</c>
+    /// (en allerede behandlet rad har fått sine følge-entiteter, og kategorien skal ikke skrives om i
+    /// ettertid), og rører ALDRI <c>ForeslattTekst</c>. Kastes som <see cref="ArgumentException"/> så
+    /// batch-løkkene rapporterer en feilrad i stedet for å avbryte hele batchen.
+    /// </summary>
+    public async Task OmkategoriserVentendeAsync(Guid id, string kategori, string behandletAv, CancellationToken ct = default)
+    {
+        var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
+        if (kandidat is null || kandidat.Kategori == kategori) return;
+        if (kandidat.Status != "Venter")
+        {
+            throw new ArgumentException(
+                $"Kandidaten har status '{kandidat.Status}' — kan kun omkategorisere kandidater med status 'Venter'.");
+        }
+        await OppdaterAsync(id, null, kategori, behandletAv, ct);
     }
 
     public async Task<NavnekandidatEntitet?> AvvisAsync(Guid id, string behandletAv, CancellationToken ct = default)
@@ -2150,9 +2189,14 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         // virksomhet) — å opprette en duplikat-navneform ved en ny forekomst av samme navn er ikke en
         // ny opplysning. Grunnen oppdateres da bare hvis den var uspesifisert (NULL), slik at et
         // menneskes tidligere, eksplisitte valg aldri overskrives stille.
+        // [ENDRET, issue #299] CASE-INSENSITIVT (var `b.Term == ...`, case-sensitivt): samme identitet som
+        // dubletten-vakten i VirksomhetsbegrepTjeneste.OpprettVirksomhetsbegrepAsync og #298s gruppebegrep.
+        // En «Behandle gruppen»-batch kan inneholde «kommunen» og «Kommunen» i samme gruppe, og uten dette
+        // ville rad 2 falt ned i Opprett-grenen og kastet «allerede navneformen».
+        var termLower = kandidat.ForeslattTekst.Trim().ToLower();
         var navneform = await db.Begreper.FirstOrDefaultAsync(
             b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == virksomhetId
-                 && b.Term == kandidat.ForeslattTekst && b.Entitetsstatus == "gjeldende", ct);
+                 && b.Term.ToLower() == termLower && b.Entitetsstatus == "gjeldende", ct);
         if (navneform is null)
         {
             navneform = await virksomhetsbegrep.OpprettVirksomhetsbegrepAsync(

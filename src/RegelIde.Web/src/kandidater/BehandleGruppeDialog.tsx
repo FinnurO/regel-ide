@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import {
-  Alert, Button, Card, Dialog, Divider, Field, Heading, Radio, Search, Table, Textfield,
+  Alert, Button, Card, Dialog, Divider, Field, Heading, Label, Radio, Search, Table, Textfield,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import type { BrregEnhetDto, NavnekandidatBatchResultatDto, NavnekandidatDto, Navneformgrunn } from '../api/types';
@@ -37,8 +37,12 @@ type VirksomhetVei = 'eksisterende' | 'brreg' | 'kunNavn';
  * </p>
  */
 export interface BehandleGruppeDialogProps {
-  /** Radene i gruppen som FAKTISK skal behandles — kun status='Venter', og alle med SAMME Kategori
-   * (kalleren filtrerer/sikrer dette før dialogen åpnes). Garantert ikke-tom av kalleren. */
+  /** Gruppetittelen (hyppigste skrivemåte, se `vanligsteSkrivemaate` i NavnekandidaterListe.tsx) —
+   * radene kan ha ULIK case, så `rader[0].foreslattTekst` er ikke representativ. */
+  visningsnavn: string;
+  /** Radene i gruppen som FAKTISK skal behandles — kun status='Venter'. Kategorien kan være BLANDET
+   * (KI-klassifiseringen er ustabil på samme tekst): dialogen lar saksbehandleren velge eksplisitt.
+   * Garantert ikke-tom av kalleren. */
   rader: NavnekandidatDto[];
   /** «§ nummer — overskrift» (eller rå eId) for DEN REPRESENTATIVE raden — se AC2: den første etter
    * paragraf-/lovreferanse-rekkefølge, ikke bare den første i et vilkårlig array. */
@@ -54,11 +58,26 @@ export interface BehandleGruppeDialogProps {
   onFerdig: () => void;
 }
 
+const KATEGORI_TEKST: Record<NavnekandidatDto['kategori'], string> = {
+  gruppe: 'Gruppe',
+  virksomhet: 'Virksomhet',
+  administrativ_inndeling: 'Administrativ inndeling',
+};
+
 export function BehandleGruppeDialog({
-  rader, representantKontekst, representantRettskildeTittel, flereRettskilder, onLukk, onFerdig,
+  visningsnavn, rader, representantKontekst, representantRettskildeTittel, flereRettskilder, onLukk, onFerdig,
 }: BehandleGruppeDialogProps) {
-  const kategori = rader[0].kategori;
-  const foreslattTekst = rader[0].foreslattTekst;
+  const foreslattTekst = visningsnavn;
+
+  // Antall rader per kategori, mest vanlige først. Blandet kategori er normalen for de største gruppene
+  // («kommunen», «statsforvalteren»): saksbehandleren avgjør EN gang, og utfallet appliseres på alle.
+  // `administrativ_inndeling` tilbys kun når den FAKTISK finnes blant radene — aldri som stille
+  // sammenslåingsmål.
+  const kategoriAntall = [...rader.reduce((m, r) => m.set(r.kategori, (m.get(r.kategori) ?? 0) + 1),
+    new Map<NavnekandidatDto['kategori'], number>())].sort((a, b) => b[1] - a[1]);
+  const erBlandet = kategoriAntall.length > 1;
+  const [kategori, setKategori] = useState<NavnekandidatDto['kategori']>(kategoriAntall[0][0]);
+  const antallSomEndrerKategori = rader.filter((r) => r.kategori !== kategori).length;
   const { virksomheter, oppdater: oppdaterVirksomheter } = useVirksomheter();
 
   // ---------- Virksomhet-sporet (kategori==='virksomhet') ----------
@@ -126,6 +145,7 @@ export function BehandleGruppeDialog({
     try {
       settResultatFraSvar(await api.koblNavnekandidaterTilVirksomhetBatch({
         ider: rader.map((r) => r.id), virksomhetId: valgtVirksomhetId, navneformgrunn,
+        omkategoriser: antallSomEndrerKategori > 0,
       }));
     } catch (e) {
       setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved behandling av gruppen.');
@@ -140,6 +160,7 @@ export function BehandleGruppeDialog({
     try {
       settResultatFraSvar(await api.godkjennNavnekandidaterGruppeBatch({
         ider: rader.map((r) => r.id), fast: gruppeScope === 'fast',
+        tilKategori: antallSomEndrerKategori > 0 ? 'gruppe' : undefined,
       }));
     } catch (e) {
       setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved behandling av gruppen.');
@@ -154,6 +175,7 @@ export function BehandleGruppeDialog({
     try {
       settResultatFraSvar(await api.godkjennNavnekandidaterGruppeBatch({
         ider: rader.map((r) => r.id), fast: false,
+        tilKategori: antallSomEndrerKategori > 0 ? 'administrativ_inndeling' : undefined,
       }));
     } catch (e) {
       setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved behandling av gruppen.');
@@ -187,6 +209,29 @@ export function BehandleGruppeDialog({
 
       {!resultat && (
         <Dialog.Block>
+          {erBlandet && (
+            <div style={{ marginBottom: '0.75rem' }}>
+              <Alert data-color="info" data-size="sm" style={{ marginBottom: '0.5rem' }}>
+                Gruppen har blandet kategori ({kategoriAntall.map(([k, n]) => `${n} ${k.replace('_', ' ')}`).join(', ')}) —
+                KI-klassifiseringen er ustabil på samme tekst. Velg ÉN kategori for hele gruppen.
+              </Alert>
+              <Field data-size="sm">
+                <Label>Behandle alle som:</Label>
+                {kategoriAntall.map(([k, n]) => (
+                  <Radio key={k} name="behandleSom" value={k}
+                    label={`${KATEGORI_TEKST[k]} (${n} av ${rader.length} er det i dag)`}
+                    checked={kategori === k} onChange={() => setKategori(k)} />
+                ))}
+              </Field>
+              {antallSomEndrerKategori > 0 && (
+                <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.4rem' }}>
+                  {antallSomEndrerKategori} rad{antallSomEndrerKategori === 1 ? '' : 'er'} endrer kategori til
+                  {' '}«{KATEGORI_TEKST[kategori]}» ved bekreftelse (de står som «Venter», teksten røres ikke).
+                </Metatekst>
+              )}
+              <Divider style={{ margin: '0.75rem 0' }} />
+            </div>
+          )}
           {kategori === 'virksomhet' && (
             <>
               <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>

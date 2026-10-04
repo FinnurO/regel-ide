@@ -756,6 +756,9 @@ export interface KoblNavnekandidaterTilVirksomhetBatchRequest {
   ider: string[];
   virksomhetId: string;
   navneformgrunn: Navneformgrunn | null;
+  /** `true` = saksbehandleren har eksplisitt valgt «behandle alle som virksomhet» for en gruppe med
+   * blandet kategori — rader med annen kategori omkategoriseres først (utelatt/false = som før). */
+  omkategoriser?: boolean;
 }
 
 /** [Ny, issue #299 AC3/AC4] POST /api/navnekandidater/godkjenn-gruppe-batch — «Behandle gruppen» for
@@ -765,6 +768,9 @@ export interface KoblNavnekandidaterTilVirksomhetBatchRequest {
 export interface NavnekandidatGruppeBatchRequest {
   ider: string[];
   fast: boolean;
+  /** Eksplisitt valg om å behandle HELE gruppen som denne kategorien (omkategoriserer avvikende rader
+   * først); utelatt = hver rads egen kategori. */
+  tilKategori?: 'gruppe' | 'administrativ_inndeling';
 }
 
 /** [Ny, 2026-08-30] Resultat av DELETE /api/navnekandidater (massesletting, valgfritt filtrert). */

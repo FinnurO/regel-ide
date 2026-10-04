@@ -32,6 +32,22 @@ type Sorteringskolonne = 'foreslattTekst' | 'kategori' | 'rettskilde' | 'status'
  */
 type Gruppering = 'ingen' | 'foreslattTekst' | 'rettskilde';
 
+/** Gruppenøkkel for «Foreslått tekst»-grupperingen: trimmet og case-insensitiv (nb-locale). */
+function normaliserGruppenokkel(tekst: string): string {
+  return tekst.trim().toLocaleLowerCase('nb');
+}
+
+/** Gruppetittelen: den HYPPIGSTE skrivemåten blant radene (uavhengig av case-nøkkelen), ved likt antall
+ * den som forekommer først i radrekkefølgen. Selve radene viser fortsatt sin egen, uendrede tekst. */
+function vanligsteSkrivemaate(rader: NavnekandidatDto[]): string {
+  const antall = new Map<string, number>();
+  for (const r of rader) antall.set(r.foreslattTekst.trim(), (antall.get(r.foreslattTekst.trim()) ?? 0) + 1);
+  let beste = rader[0].foreslattTekst.trim();
+  let besteAntall = 0;
+  for (const [tekst, n] of antall) if (n > besteAntall) { beste = tekst; besteAntall = n; }
+  return beste;
+}
+
 interface Kandidatgruppe {
   nokkel: string;
   visningsnavn: string;
@@ -446,14 +462,17 @@ export default function NavnekandidaterListe() {
     if (!viste || gruppering === 'ingen') return null;
     const perNokkel = new Map<string, NavnekandidatDto[]>();
     for (const k of viste) {
-      const nokkel = gruppering === 'foreslattTekst' ? k.foreslattTekst : k.rettskildeId;
+      // [ENDRET, issue #299 etter Johanns nettlesertest] Nøkkelen er CASE-INSENSITIV og trimmet:
+      // «departementet»/«Departementet» er samme gruppe (samme identitet som #298s gruppebegrep og
+      // navneform-dedup server-side), ikke to. Radenes egen tekst vises uendret i raden.
+      const nokkel = gruppering === 'foreslattTekst' ? normaliserGruppenokkel(k.foreslattTekst) : k.rettskildeId;
       const eksisterende = perNokkel.get(nokkel);
       if (eksisterende) eksisterende.push(k); else perNokkel.set(nokkel, [k]);
     }
     return [...perNokkel.entries()]
       .map(([nokkel, rader]): Kandidatgruppe => ({
         nokkel,
-        visningsnavn: gruppering === 'rettskilde' ? rettskildeOppslag.tittel(nokkel) : nokkel,
+        visningsnavn: gruppering === 'rettskilde' ? rettskildeOppslag.tittel(nokkel) : vanligsteSkrivemaate(rader),
         rader,
       }))
       .sort((a, b) => b.rader.length - a.rader.length || a.visningsnavn.localeCompare(b.visningsnavn, 'nb'));
@@ -512,15 +531,14 @@ export default function NavnekandidaterListe() {
   }
 
   /**
-   * [Ny, issue #299] «Behandle gruppen» krever UNIFORM kategori blant de ventende radene — selve
-   * beslutningsflyten (virksomhet/gruppe/administrativ_inndeling) avgjøres av kategorien, og en gruppe
-   * med BLANDET kategori (sjelden, men mulig ved manuell omkategorisering av enkeltrader) kan ikke få
-   * ETT felles svar. Disse radene må da behandles enkeltvis (eller rettes til samme kategori først via
-   * «Rediger») — IKKE i scope for issue #299 (se saksbeskrivelsens avgrensning).
+   * [ENDRET, issue #299 etter Johanns nettlesertest] Tidligere krevde «Behandle gruppen» UNIFORM kategori
+   * og var deaktivert ellers. Men KI-klassifiseringen er ustabil på samme tekst (de STØRSTE gruppene —
+   * «kommunen», «statsforvalteren» — er blandet gruppe/virksomhet), så en sperre blokkerte nettopp der
+   * funksjonen trengs mest. Nå åpnes dialogen alltid, og saksbehandleren velger eksplisitt kategori for
+   * HELE gruppen (med antall per kategori synlig) — se BehandleGruppeDialog.
    */
   function kanBehandlesSamlet(g: Kandidatgruppe): boolean {
-    const venter = venterRaderIGruppe(g);
-    return venter.length > 0 && new Set(venter.map((r) => r.kategori)).size === 1;
+    return venterRaderIGruppe(g).length > 0;
   }
 
   const [behandleGruppeNokkel, setBehandleGruppeNokkel] = useState<string | null>(null);
@@ -572,6 +590,7 @@ export default function NavnekandidaterListe() {
     const representant = venter[0];
     const rettskilder = new Set(venter.map((r) => r.rettskildeId));
     return {
+      visningsnavn: g.visningsnavn,
       rader: venter,
       representantKontekst:
         `${rettskildeOppslag.tittel(representant.rettskildeId)}, ${nodeEtiketter.etikett(representant.rettskildeId, representant.nodeEid)}`,
@@ -1000,9 +1019,7 @@ export default function NavnekandidaterListe() {
                                     data-size="sm"
                                     onClick={() => apneBehandleGruppe(g)}
                                     disabled={!kanBehandlesSamlet(g)}
-                                    title={kanBehandlesSamlet(g)
-                                      ? `Ett felles svar for alle ${venterRaderIGruppe(g).length} ventende kandidatene i gruppen`
-                                      : 'Gruppen har ventende kandidater med ULIK kategori — kan ikke behandles samlet. Rett kategorien (via «Rediger») eller behandle radene enkeltvis.'}
+                                    title={`Ett felles svar for alle ${venterRaderIGruppe(g).length} ventende kandidatene i gruppen`}
                                   >
                                     Behandle gruppen ({venterRaderIGruppe(g).length})
                                   </Button>
@@ -1035,6 +1052,7 @@ export default function NavnekandidaterListe() {
       {/* [Ny, issue #299 AC3/AC4] «Behandle gruppen» — se BehandleGruppeDialog for hele flyten. */}
       {behandleGruppeData && (
         <BehandleGruppeDialog
+          visningsnavn={behandleGruppeData.visningsnavn}
           rader={behandleGruppeData.rader}
           representantKontekst={behandleGruppeData.representantKontekst}
           representantRettskildeTittel={behandleGruppeData.representantRettskildeTittel}

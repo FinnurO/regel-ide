@@ -1104,8 +1104,14 @@ public sealed record NavnekandidatSlettBatchResultatDto(IReadOnlyList<Navnekandi
 /// per-rad ok/feil-form som de andre batch-endepunktene) — klienten trenger kun vite at raden lyktes,
 /// ikke hele <see cref="NavnekandidatKoblingResultatDto"/> for hver av dem.
 /// </summary>
+/// <param name="Omkategoriser">
+/// [Ny, etter Johanns nettlesertest] <c>true</c> = saksbehandleren har eksplisitt valgt «behandle alle som
+/// virksomhet» for en gruppe med BLANDET kategori (KI-klassifiseringen er ustabil på samme tekst): rader
+/// med en annen kategori omkategoriseres til <c>"virksomhet"</c> først. <c>false</c> (standard) = som før,
+/// en rad med feil kategori gir en feilrad.
+/// </param>
 public sealed record KoblNavnekandidaterTilVirksomhetBatchRequest(
-    IReadOnlyList<Guid> Ider, Guid VirksomhetId, string? Navneformgrunn);
+    IReadOnlyList<Guid> Ider, Guid VirksomhetId, string? Navneformgrunn, bool Omkategoriser = false);
 
 /// <summary>
 /// [Ny, issue #299 AC3/AC4] «Behandle gruppen», gruppe-/administrativ_inndeling-sporet: ETT delt
@@ -1115,7 +1121,12 @@ public sealed record KoblNavnekandidaterTilVirksomhetBatchRequest(
 /// enkeltrad-veiviseren (issue #298 AC3) — kun relevant/lovlig for <c>"gruppe"</c>-kandidater, se
 /// metodekommentaren for hvorfor <c>"administrativ_inndeling"</c> + <c>Fast=true</c> gir en feilrad.
 /// </summary>
-public sealed record NavnekandidatGruppeBatchRequest(IReadOnlyList<Guid> Ider, bool Fast);
+/// <param name="TilKategori">
+/// [Ny, etter Johanns nettlesertest] <c>null</c> = hver rads egen kategori; <c>"gruppe"</c>/
+/// <c>"administrativ_inndeling"</c> = eksplisitt valg om å behandle HELE gruppen som den kategorien,
+/// med omkategorisering av avvikende rader først (se GodkjennGruppeBatchAsync).
+/// </param>
+public sealed record NavnekandidatGruppeBatchRequest(IReadOnlyList<Guid> Ider, bool Fast, string? TilKategori = null);
 
 // ---------- Begrepsforekomster — begrepsoppdagelse (M1/M11), docs/24 ----------
 

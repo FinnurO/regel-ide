@@ -4382,6 +4382,7 @@ navnekandidater.MapPost("/kobl-til-virksomhet-batch", async (HttpRequest request
         {
             try
             {
+                if (body.Omkategoriser) await register.OmkategoriserVentendeAsync(id, "virksomhet", bruker.Navn, ct);
                 var resultat = await register.KoblTilVirksomhetAsync(id, body.VirksomhetId, body.Navneformgrunn, bruker.Navn, ct);
                 rader.Add(resultat is null
                     ? new NavnekandidatBatchRadDto(id, false, $"Ingen kandidat med id '{id}'.", null)
@@ -4408,7 +4409,15 @@ navnekandidater.MapPost("/godkjenn-gruppe-batch", async (HttpRequest request, Na
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
-        var rader = await register.GodkjennGruppeBatchAsync(body.Ider, body.Fast, bruker.Navn, ct);
+        IReadOnlyList<NavnekandidatGruppeBatchRad> rader;
+        try
+        {
+            rader = await register.GodkjennGruppeBatchAsync(body.Ider, body.Fast, bruker.Navn, body.TilKategori, ct);
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
         return Results.Ok(new NavnekandidatBatchResultatDto(
             rader.Select(r => new NavnekandidatBatchRadDto(
                 r.Id, r.Ok, r.Feil, r.Resultat is null ? null : NavnekandidatDto.FraEntitet(r.Resultat))).ToList()));
