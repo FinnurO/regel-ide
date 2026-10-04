@@ -230,6 +230,13 @@ export default function NavnekandidatVeiviser() {
   const [erGruppeAvGruppe, setErGruppeAvGruppe] = useState(false);
   const [valgtOverordnetGruppeBegrepId, setValgtOverordnetGruppeBegrepId] = useState('');
 
+  // [Ny, issue #298 AC3] Slag==='gruppe' — saksbehandlerens EKSPLISITTE valg mellom et gruppebegrep
+  // hjemlet i DENNE loven (dagens oppførsel, default — AC5: «ingen regresjon») og et fast, nasjonalt
+  // begrep uten lovscoping (Johanns «Kongen»-eksempel, issue #298). Gjensidig utelukkende med
+  // gruppe-av-gruppe-tillegget over — begge er EKSTRA valg på gruppe-sporet, men gruppe-av-gruppe
+  // gjelder uansett hvilken scope man velger her, så de to påvirker ikke hverandre i UI-en.
+  const [gruppeScope, setGruppeScope] = useState<'lovspesifikt' | 'fast'>('lovspesifikt');
+
   // Steg 5 / avslutning
   const [fullfører, setFullfører] = useState(false);
   const [feil, setFeil] = useState<string | null>(null);
@@ -461,6 +468,34 @@ export default function NavnekandidatVeiviser() {
             // [Ny] Til forskjell fra den uendrede grenen under (som aldri viste denne lenken for
             // gruppe-veien) peker denne på det NYE gruppebegrepets EGEN side — der ser man at det
             // faktisk er registrert som medlem av den overordnede gruppen.
+            gruppeLenke: `/begreper/${resultat.gruppebegrep.id}`,
+            advarsel: null,
+          });
+          return;
+        }
+
+        // [Ny, issue #298 AC3] Fast, nasjonalt begrep — ETT ANNET endepunkt, get-or-create server-side
+        // (gjenbruker en eksisterende fast rad med samme Term i stedet for å opprette en dublett, se
+        // VirksomhetsbegrepTjeneste.OpprettEllerGjenbrukFastGruppebegrepAsync). Samme "egen gren, ikke
+        // en utvidelse av den vanlige veien"-begrunnelse som gruppe-av-gruppe-grenen over.
+        if (gruppeScope === 'fast') {
+          const resultat = await api.godkjennNavnekandidatSomFastGruppebegrep(id);
+          setFerdig({
+            tittel: resultat.varNyttBegrep
+              ? `«${kandidat.foreslattTekst}» er opprettet som fast, nasjonalt gruppebegrep.`
+              : `«${kandidat.foreslattTekst}» er koblet til et eksisterende fast, nasjonalt gruppebegrep.`,
+            detaljer: [
+              resultat.varNyttBegrep
+                ? 'Gruppebegrepet er FAST og nasjonalt — det har ingen lovkilde, og gjenbrukes på tvers av alle lover.'
+                : 'Et fast gruppebegrep med nøyaktig denne teksten fantes allerede — kandidaten er koblet '
+                  + 'til DEN eksisterende raden i stedet for å opprette en ny (samme begrep, ikke en dublett).',
+              'Tekst-taggen for forekomsten er koblet til gruppebegrepet.',
+              'Navnekandidaten er satt til «Godkjent».',
+            ],
+            rettskildeLenke: rettskildeLenkeForId(kandidat.rettskildeId, kandidat.nodeEid),
+            taggLag: 'Begrep',
+            virksomhetLenke: null,
+            virksomhetForSveip: null,
             gruppeLenke: `/begreper/${resultat.gruppebegrep.id}`,
             advarsel: null,
           });
@@ -948,9 +983,40 @@ export default function NavnekandidatVeiviser() {
                 />
               </Field>
 
-              {/* [Ny, «alle mekanismer»-runden, 2026-09-21, issue #283 AC9] Gruppe-av-gruppe-tillegget
-                * — kun for gruppe-sporet, som ellers ikke har noe eget steg 3/4 å legge det i. */}
+              {/* [Ny, issue #298 AC3] Saksbehandlerens eksplisitte valg: lovspesifikt (dagens
+                * oppførsel, fortsatt default — AC5 «ingen regresjon») eller fast/nasjonalt gruppebegrep
+                * uten lovscoping. Gruppe-av-gruppe-tillegget rett under gjelder KUN lovspesifikt
+                * (KoblTilGruppeAvGruppeAsync oppretter alltid et lovspesifikt gruppebegrep server-side)
+                * — vist/relevant bare når den scopen er valgt. */}
               {slag === 'gruppe' && steg === 2 && (
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <Divider style={{ margin: '0.75rem 0' }} />
+                  <Heading level={3} data-size="xs" style={{ marginBottom: '0.35rem' }}>
+                    Lovspesifikt eller fast, nasjonalt begrep?
+                  </Heading>
+                  <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
+                    Et lovspesifikt gruppebegrep hører til DENNE loven — samme navn i en annen lov blir
+                    en egen rad. Et fast, nasjonalt begrep har ingen lov å høre til, f.eks. «Kongen»:
+                    samme organ uansett hvilken lov som nevner det. Finnes det alt et fast begrep med
+                    nøyaktig denne teksten, kobles kandidaten til DET i stedet for å opprette en ny rad.
+                  </Metatekst>
+                  <Field data-size="sm">
+                    <Radio
+                      name="gruppeScope" label="Lovspesifikt gruppebegrep for denne loven" value="lovspesifikt"
+                      checked={gruppeScope === 'lovspesifikt'} onChange={() => setGruppeScope('lovspesifikt')}
+                    />
+                    <Radio
+                      name="gruppeScope" label="Fast, nasjonalt begrep" value="fast"
+                      checked={gruppeScope === 'fast'} onChange={() => setGruppeScope('fast')}
+                    />
+                  </Field>
+                </div>
+              )}
+
+              {/* [Ny, «alle mekanismer»-runden, 2026-09-21, issue #283 AC9] Gruppe-av-gruppe-tillegget
+                * — kun for gruppe-sporet, som ellers ikke har noe eget steg 3/4 å legge det i. KUN for
+                * lovspesifikt (se kommentaren over). */}
+              {slag === 'gruppe' && steg === 2 && gruppeScope === 'lovspesifikt' && (
                 <div style={{ marginBottom: '0.75rem' }}>
                   <Divider style={{ margin: '0.75rem 0' }} />
                   <Heading level={3} data-size="xs" style={{ marginBottom: '0.35rem' }}>
@@ -996,9 +1062,11 @@ export default function NavnekandidatVeiviser() {
                     <Button
                       data-size="sm"
                       onClick={() => fullførIkkeVirksomhet('gruppe')}
-                      disabled={fullfører || (erGruppeAvGruppe && !valgtOverordnetGruppeBegrepId)}
+                      disabled={fullfører || (gruppeScope === 'lovspesifikt' && erGruppeAvGruppe && !valgtOverordnetGruppeBegrepId)}
                     >
-                      {fullfører ? 'Oppretter …' : 'Opprett gruppebegrep og godkjenn'}
+                      {fullfører
+                        ? 'Oppretter …'
+                        : gruppeScope === 'fast' ? 'Godkjenn som fast, nasjonalt begrep' : 'Opprett gruppebegrep og godkjenn'}
                     </Button>
                   )}
                   {slag === 'irrelevant' && (

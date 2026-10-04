@@ -2102,4 +2102,101 @@ public class NavnekandidatOppdagelseTjenesteTests
             k => k.RettskildeId == rettskildeId && k.ForeslattTekst == "Ø Suldal kommune");
         Assert.Equal("Ø Suldal kommune", kandidat.ForeslattTekst); // UENDRET — korreksjonen i den ANDRE rettskilden gjelder ikke her.
     }
+
+    // ==================================================================================
+    // [Ny, issue #298 AC3/AC6] KoblTilFastGruppebegrepAsync — «fast, nasjonalt begrep»-grenen av
+    // gruppe-sporet. Kandidatene settes opp DIREKTE (ikke via SveipAsync/mønstergjenkjenningen —
+    // ForeslattTekst må være en NØYAKTIG, GUID-unik streng her for å garantere isolasjon i den delte
+    // DataTestCollection-databasen, noe det lukkede FasteRollesubstantiv-ordforrådet ikke kan gi).
+    // ==================================================================================
+
+    // [Rettet] StartOffset må være DISTINKT per (RettskildeId, NodeEid) — ux_navnekandidater_rettskilde_
+    // node_start er unik på nettopp det paret, uansett ForeslattTekst/Status (samme "idempotens-nøkkel"-
+    // vern som ved et ekte sveip, se den indeksens egen kommentar i RegelIdeDbContext).
+    private static NavnekandidatEntitet NyGruppeKandidat(
+        Guid rettskildeId, string nodeEid, string foreslattTekst, int startOffset = 0) => new()
+    {
+        Id = Guid.NewGuid(), ForeslattTekst = foreslattTekst, Kategori = "gruppe", RettskildeId = rettskildeId,
+        NodeEid = nodeEid, StartOffset = startOffset, EndOffset = startOffset + 5, Status = "Venter",
+        OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+    };
+
+    [Fact]
+    public async Task KoblTilFastGruppebegrepAsync_oppretter_begrep_uten_lovkilde_og_godkjenner_kandidaten()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Nøytral tekst uten noe sveipbart innhold.");
+        var node = await db.RettskildeNoder.SingleAsync(n => n.RettskildeId == rettskildeId);
+        var kandidat = NyGruppeKandidat(rettskildeId, node.Eid, $"Kongen-{Guid.NewGuid():N}");
+        db.Navnekandidater.Add(kandidat);
+        await db.SaveChangesAsync();
+
+        var tjeneste = NyTjeneste(db);
+        var resultat = await tjeneste.KoblTilFastGruppebegrepAsync(kandidat.Id, "Kari Jurist");
+
+        Assert.True(resultat!.VarNyttBegrep);
+        Assert.Null(resultat.Gruppebegrep.LovkildeId);
+        Assert.Equal("gruppe", resultat.Gruppebegrep.Begrepskategori);
+        Assert.Equal("Godkjent", resultat.Kandidat.Status);
+    }
+
+    /// <summary>
+    /// AC6 — to «Kongen»-kandidater skal ende på NØYAKTIG ÉN delt Begrep-rad, ikke to. Dekker SAMTIDIG
+    /// case-insensitiv dedup (issue #298 pkt. 3) ved å la den andre kandidatens tekst ha en ANNEN case
+    /// enn den første.
+    /// </summary>
+    [Fact]
+    public async Task KoblTilFastGruppebegrepAsync_gjenbruker_eksisterende_rad_pa_tvers_av_to_kandidater_case_insensitivt()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Nøytral tekst uten noe sveipbart innhold.");
+        var node = await db.RettskildeNoder.SingleAsync(n => n.RettskildeId == rettskildeId);
+        var term = $"Kongen-{Guid.NewGuid():N}";
+        var kandidat1 = NyGruppeKandidat(rettskildeId, node.Eid, term, startOffset: 0);
+        var kandidat2 = NyGruppeKandidat(rettskildeId, node.Eid, term.ToUpperInvariant(), startOffset: 10);
+        db.Navnekandidater.AddRange(kandidat1, kandidat2);
+        await db.SaveChangesAsync();
+
+        var tjeneste = NyTjeneste(db);
+        var forsteResultat = await tjeneste.KoblTilFastGruppebegrepAsync(kandidat1.Id, "Kari Jurist");
+        Assert.True(forsteResultat!.VarNyttBegrep);
+
+        var andreResultat = await tjeneste.KoblTilFastGruppebegrepAsync(kandidat2.Id, "Kari Jurist");
+        Assert.False(andreResultat!.VarNyttBegrep);
+        Assert.Equal(forsteResultat.Gruppebegrep.Id, andreResultat.Gruppebegrep.Id);
+        Assert.Equal("Godkjent", andreResultat.Kandidat.Status);
+
+        Assert.Equal(1, await db.Begreper.CountAsync(b =>
+            b.Begrepskategori == "gruppe" && b.LovkildeId == null && b.Term.ToLower() == term.ToLower()));
+    }
+
+    [Fact]
+    public async Task KoblTilFastGruppebegrepAsync_avviser_virksomhet_kategori()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Nøytral tekst uten noe sveipbart innhold.");
+        var node = await db.RettskildeNoder.SingleAsync(n => n.RettskildeId == rettskildeId);
+        var kandidat = NyGruppeKandidat(rettskildeId, node.Eid, $"Testetaten-{Guid.NewGuid():N}");
+        kandidat.Kategori = "virksomhet";
+        db.Navnekandidater.Add(kandidat);
+        await db.SaveChangesAsync();
+
+        var tjeneste = NyTjeneste(db);
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.KoblTilFastGruppebegrepAsync(kandidat.Id, "Kari Jurist"));
+    }
+
+    [Fact]
+    public async Task KoblTilFastGruppebegrepAsync_avviser_kandidat_som_ikke_er_venter()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Nøytral tekst uten noe sveipbart innhold.");
+        var node = await db.RettskildeNoder.SingleAsync(n => n.RettskildeId == rettskildeId);
+        var kandidat = NyGruppeKandidat(rettskildeId, node.Eid, $"Kongen-{Guid.NewGuid():N}");
+        kandidat.Status = "Avvist";
+        db.Navnekandidater.Add(kandidat);
+        await db.SaveChangesAsync();
+
+        var tjeneste = NyTjeneste(db);
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.KoblTilFastGruppebegrepAsync(kandidat.Id, "Kari Jurist"));
+    }
 }

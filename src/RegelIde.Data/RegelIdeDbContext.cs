@@ -1092,6 +1092,14 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // hverandre i modellen.
             e.HasIndex(x => new { x.Term, x.LovkildeId }, "ux_begreper_gruppebegrep_term_lovkilde").IsUnique()
                 .HasFilter("begrepskategori = 'gruppe' AND entitetsstatus = 'gjeldende'");
+            // [Ny, issue #298 AC4] Postgres' unik-indeks behandler NULL som DISTINKT fra enhver annen
+            // NULL — to gruppebegrep-rader med LovkildeId IS NULL og NØYAKTIG samme Term ville derfor
+            // IKKE blitt stoppet av indeksen rett over (den sammenligner (Term, LovkildeId) PARVIS, og
+            // (term, null) == (term, null) er aldri sant for Postgres i denne sammenhengen). Fast,
+            // nasjonalt gruppebegrep (issue #298, lovkildeId=null) trenger derfor sin EGEN delvise
+            // unike indeks, scopet til NETTOPP den null-grenen, på Term alene.
+            e.HasIndex(x => x.Term, "ux_begreper_gruppebegrep_fast_term").IsUnique()
+                .HasFilter("begrepskategori = 'gruppe' AND entitetsstatus = 'gjeldende' AND lovkilde_id IS NULL");
             // [Ny, issue #203 pkt. 2] Samme (Term, LovkildeId)-scoping som gruppebegrep over — besluttet
             // med Johann 2026-09-10 (issue-kommentar): en administrativ inndeling er IKKE nasjonalt
             // scopet til bare Term, den er hjemlet per lov akkurat som et gruppebegrep.

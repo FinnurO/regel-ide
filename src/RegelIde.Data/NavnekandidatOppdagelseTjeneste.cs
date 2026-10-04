@@ -1964,6 +1964,54 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         return new NavnekandidatGruppeAvGruppeResultat(kandidat, gruppebegrep, medlemskap);
     }
 
+    /// <summary>
+    /// [Ny, issue #298 AC3] «Fast, nasjonalt begrep»-grenen av gruppe-sporet — saksbehandlerens
+    /// EKSPLISITTE, sak-for-sak-avgjørelse at gruppebegrepet IKKE skal lovscopes (Johanns eksempel:
+    /// «Kongen er vel et fast begrep, men koblingen Kongen til lov er egne relasjoner»). Egen metode,
+    /// ikke en utvidelse av <see cref="GodkjennAsync"/> (som er den UENDREDE, fortsatt-default
+    /// "lovspesifikt gruppebegrep for denne loven"-veien) — samme "vanlig vei urørt"-begrunnelse som
+    /// <see cref="KoblTilGruppeAvGruppeAsync"/> allerede er en egen metode av.
+    /// <para>
+    /// Bruker <see cref="VirksomhetsbegrepTjeneste.OpprettEllerGjenbrukFastGruppebegrepAsync"/> — get-or-
+    /// create, IKKE en ubetinget opprettelse: finnes det alt et fast gruppebegrep med samme Term
+    /// (case-insensitiv), gjenbrukes DEN raden i stedet for å opprette en dublett (issue #298 AC3: "søk
+    /// FØRST ... opprett kun hvis ingen finnes"). To "Kongen"-kandidater fra to ulike lover (eller to
+    /// forekomster i SAMME lov) ender dermed opp på nøyaktig ÉN delt Begrep-rad, ikke to (AC6).
+    /// </para>
+    /// </summary>
+    public async Task<NavnekandidatFastGruppebegrepResultat?> KoblTilFastGruppebegrepAsync(
+        Guid id, string behandletAv, CancellationToken ct = default)
+    {
+        var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
+        if (kandidat is null) return null;
+        if (kandidat.Kategori != "gruppe")
+        {
+            throw new ArgumentException(
+                $"Kandidaten har kategori '{kandidat.Kategori}' — kun 'gruppe'-kandidater kan godkjennes "
+                + "som fast, nasjonalt begrep.");
+        }
+        if (kandidat.Status != "Venter")
+        {
+            throw new ArgumentException(
+                $"Kandidaten har status '{kandidat.Status}' — kan kun godkjenne kandidater med status 'Venter'.");
+        }
+
+        var (gruppebegrep, varNyttBegrep) = await virksomhetsbegrep.OpprettEllerGjenbrukFastGruppebegrepAsync(
+            kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
+
+        // Samme tagg-eierskap (ansvarlig departement for KANDIDATENS EGEN rettskilde) som den vanlige
+        // gruppe-grenen i GodkjennAsync — at selve BEGREPET er nasjonalt/lovløst endrer ikke hvor
+        // FOREKOMSTEN (teksten denne kandidaten ble funnet i) står, eller hvem som eier taggen der.
+        await OpprettDepartementTaggHvisMuligAsync(kandidat, gruppebegrep.Id, behandletAv, ct);
+
+        kandidat.Status = "Godkjent";
+        kandidat.BehandletAv = behandletAv;
+        kandidat.BehandletTidspunkt = DateTimeOffset.UtcNow;
+        await db.SaveChangesAsync(ct);
+
+        return new NavnekandidatFastGruppebegrepResultat(kandidat, gruppebegrep, varNyttBegrep);
+    }
+
     private static void ValiderNavneformgrunn(string? navneformgrunn)
     {
         if (!VirksomhetsbegrepTjeneste.ErGyldigNavneformgrunn(navneformgrunn))
@@ -2220,3 +2268,14 @@ public sealed record NavnekandidatRelasjonResultat(
 /// </summary>
 public sealed record NavnekandidatGruppeAvGruppeResultat(
     NavnekandidatEntitet Kandidat, BegrepEntitet Gruppebegrep, GruppeMedlemskapEntitet Medlemskap);
+
+/// <summary>
+/// [Ny, issue #298 AC3] Utfallet av <see cref="NavnekandidatOppdagelseTjeneste.KoblTilFastGruppebegrepAsync"/>.
+/// </summary>
+/// <param name="VarNyttBegrep">
+/// <c>true</c> hvis <see cref="Gruppebegrep"/> ble OPPRETTET nå, <c>false</c> hvis en eksisterende fast
+/// rad med samme Term ble GJENBRUKT — klienten skal vise forskjellen (docs/09 §15), ikke late som det
+/// alltid er en ny rad.
+/// </param>
+public sealed record NavnekandidatFastGruppebegrepResultat(
+    NavnekandidatEntitet Kandidat, BegrepEntitet Gruppebegrep, bool VarNyttBegrep);
