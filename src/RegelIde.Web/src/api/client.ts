@@ -160,6 +160,8 @@ import type {
   NavnekandidatBatchRequest,
   NavnekandidatBatchResultatDto,
   NavnekandidatSlettBatchResultatDto,
+  KoblNavnekandidaterTilVirksomhetBatchRequest,
+  NavnekandidatGruppeBatchRequest,
   SlettNavnekandidaterResultatDto,
   VisningsinnstillingInput, VirksomhetRelasjonHjemletDto,
 } from './types';
@@ -650,6 +652,24 @@ export const api = {
 
   avvisNavnekandidaterBatch: (request: NavnekandidatBatchRequest) =>
     kall<NavnekandidatBatchResultatDto>('/api/navnekandidater/avvis-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  /** [Ny, issue #299 AC3/AC4] «Behandle gruppen» for 'virksomhet'-kandidater (NavnekandidaterListe.tsx
+   * sin grupperte visning) — SAMME valgte/opprettede virksomhet kobles til ALLE `ider` i ett kall. */
+  koblNavnekandidaterTilVirksomhetBatch: (request: KoblNavnekandidaterTilVirksomhetBatchRequest) =>
+    kall<NavnekandidatBatchResultatDto>('/api/navnekandidater/kobl-til-virksomhet-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  /** [Ny, issue #299 AC3/AC4] «Behandle gruppen» for 'gruppe'/'administrativ_inndeling'-kandidater — ETT
+   * delt begrep (opprettet/gjenbrukt per rettskilde, eller totalt når `fast`) kobles til ALLE `ider`. */
+  godkjennNavnekandidaterGruppeBatch: (request: NavnekandidatGruppeBatchRequest) =>
+    kall<NavnekandidatBatchResultatDto>('/api/navnekandidater/godkjenn-gruppe-batch', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(request),

@@ -749,6 +749,24 @@ export interface NavnekandidatBatchResultatDto {
   rader: NavnekandidatBatchRadDto[];
 }
 
+/** [Ny, issue #299 AC3/AC4] POST /api/navnekandidater/kobl-til-virksomhet-batch — «Behandle gruppen»
+ * for 'virksomhet'-kandidater: SAMME valgte/opprettede virksomhet kobles til ALLE `ider` i ett kall.
+ * Svaret gjenbruker `NavnekandidatBatchResultatDto` (samme per-rad ok/feil-form som de andre batchene). */
+export interface KoblNavnekandidaterTilVirksomhetBatchRequest {
+  ider: string[];
+  virksomhetId: string;
+  navneformgrunn: Navneformgrunn | null;
+}
+
+/** [Ny, issue #299 AC3/AC4] POST /api/navnekandidater/godkjenn-gruppe-batch — «Behandle gruppen» for
+ * 'gruppe'/'administrativ_inndeling'-kandidater: ETT delt begrep (opprettet/gjenbrukt — se
+ * NavnekandidatOppdagelseTjeneste.GodkjennGruppeBatchAsync) kobles til ALLE `ider`. `fast` speiler
+ * steg 2-radioknappen i enkeltrad-veiviseren (issue #298 AC3) — kun gyldig for 'gruppe'-kandidater. */
+export interface NavnekandidatGruppeBatchRequest {
+  ider: string[];
+  fast: boolean;
+}
+
 /** [Ny, 2026-08-30] Resultat av DELETE /api/navnekandidater (massesletting, valgfritt filtrert). */
 export interface SlettNavnekandidaterResultatDto {
   antallSlettet: number;

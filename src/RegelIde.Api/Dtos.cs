@@ -1096,6 +1096,27 @@ public sealed record NavnekandidatSlettBatchRadDto(Guid Id, bool Ok, string? Fei
 
 public sealed record NavnekandidatSlettBatchResultatDto(IReadOnlyList<NavnekandidatSlettBatchRadDto> Rader);
 
+/// <summary>
+/// [Ny, issue #299 AC3/AC4] «Behandle gruppen», virksomhet-sporet: SAMME valgte/opprettede
+/// <paramref name="VirksomhetId"/> kobles til ALLE kandidatene i <paramref name="Ider"/> i ett kall —
+/// speil av <see cref="KoblNavnekandidatTilVirksomhetRequest"/> (enkeltrad), men med en id-LISTE i
+/// stedet for ett id i URL-en. Resultatet gjenbruker <see cref="NavnekandidatBatchResultatDto"/> (samme
+/// per-rad ok/feil-form som de andre batch-endepunktene) — klienten trenger kun vite at raden lyktes,
+/// ikke hele <see cref="NavnekandidatKoblingResultatDto"/> for hver av dem.
+/// </summary>
+public sealed record KoblNavnekandidaterTilVirksomhetBatchRequest(
+    IReadOnlyList<Guid> Ider, Guid VirksomhetId, string? Navneformgrunn);
+
+/// <summary>
+/// [Ny, issue #299 AC3/AC4] «Behandle gruppen», gruppe-/administrativ_inndeling-sporet: ETT delt
+/// gruppebegrep/administrativ inndeling (opprettet eller gjenbrukt — se
+/// <see cref="NavnekandidatOppdagelseTjeneste.GodkjennGruppeBatchAsync"/> for cache-nøkkelen) kobles til
+/// ALLE kandidatene i <paramref name="Ider"/>. <paramref name="Fast"/> speiler steg 2-radioknappen i
+/// enkeltrad-veiviseren (issue #298 AC3) — kun relevant/lovlig for <c>"gruppe"</c>-kandidater, se
+/// metodekommentaren for hvorfor <c>"administrativ_inndeling"</c> + <c>Fast=true</c> gir en feilrad.
+/// </summary>
+public sealed record NavnekandidatGruppeBatchRequest(IReadOnlyList<Guid> Ider, bool Fast);
+
 // ---------- Begrepsforekomster — begrepsoppdagelse (M1/M11), docs/24 ----------
 
 public sealed record BegrepsforekomstDto(

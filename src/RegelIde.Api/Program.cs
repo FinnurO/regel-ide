@@ -4364,6 +4364,61 @@ navnekandidater.MapPost("/avvis-batch", async (HttpRequest request, Navnekandida
     .WithName("AvvisNavnekandidaterBatch")
     .WithSummary("Masseavvisning — server-side batch med per-rad-feilhåndtering.");
 
+// [Ny, issue #299 AC3/AC4] «Behandle gruppen» — den grupperte visningen i NavnekandidaterListe.tsx sin
+// virksomhet-gren: SAMME valgte/opprettede virksomhet kobles til ALLE kandidatene i body.Ider i ett
+// kall. Til forskjell fra godkjenn-/avvis-batch over (N UAVHENGIGE enkeltrad-kall) er poenget her
+// nettopp at ALLE radene skal DELE samme utfall — men ingen delt-opprettelse-cache trengs (til
+// forskjell fra /godkjenn-gruppe-batch under): KoblTilVirksomhetAsync sin navneform-gjenbruk er alt
+// idempotent per (Term, VirksomhetId) via LukkKjedenMotVirksomhetAsync, så et rent løkke-over-id-er-kall
+// mot den EKSISTERENDE, uendrede metoden er trygt og tilstrekkelig.
+navnekandidater.MapPost("/kobl-til-virksomhet-batch", async (HttpRequest request,
+        KoblNavnekandidaterTilVirksomhetBatchRequest body, NavnekandidatOppdagelseTjeneste register,
+        RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var rader = new List<NavnekandidatBatchRadDto>();
+        foreach (var id in body.Ider)
+        {
+            try
+            {
+                var resultat = await register.KoblTilVirksomhetAsync(id, body.VirksomhetId, body.Navneformgrunn, bruker.Navn, ct);
+                rader.Add(resultat is null
+                    ? new NavnekandidatBatchRadDto(id, false, $"Ingen kandidat med id '{id}'.", null)
+                    : new NavnekandidatBatchRadDto(id, true, null, NavnekandidatDto.FraEntitet(resultat.Kandidat)));
+            }
+            catch (ArgumentException ex)
+            {
+                rader.Add(new NavnekandidatBatchRadDto(id, false, ex.Message, null));
+            }
+        }
+        return Results.Ok(new NavnekandidatBatchResultatDto(rader));
+    })
+    .WithName("KoblNavnekandidaterTilVirksomhetBatch")
+    .WithSummary("Issue #299 AC3/AC4 — «Behandle gruppen» for 'virksomhet'-kandidater: SAMME valgte/" +
+        "opprettede virksomhet kobles til ALLE kandidatene i body.Ider (N KoblNavnekandidatTilVirksomhet-" +
+        "kall, idempotent navneform-gjenbruk per (Term, VirksomhetId) gjør gjentatte kall trygt).");
+
+// [Ny, issue #299 AC3/AC4] «Behandle gruppen» — gruppe-/administrativ_inndeling-grenen: ETT delt
+// begrep (opprettet/gjenbrukt PER DISTINKT rettskilde når Fast=false, ÉN gang totalt når Fast=true)
+// koblet til ALLE kandidatene i body.Ider, i stedet for N uavhengige /godkjenn-kall (som ville kastet
+// for rad 2..N på nøyaktig samme Term+LovkildeId — se GodkjennGruppeBatchAsync sin metodekommentar).
+navnekandidater.MapPost("/godkjenn-gruppe-batch", async (HttpRequest request, NavnekandidatGruppeBatchRequest body,
+        NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var rader = await register.GodkjennGruppeBatchAsync(body.Ider, body.Fast, bruker.Navn, ct);
+        return Results.Ok(new NavnekandidatBatchResultatDto(
+            rader.Select(r => new NavnekandidatBatchRadDto(
+                r.Id, r.Ok, r.Feil, r.Resultat is null ? null : NavnekandidatDto.FraEntitet(r.Resultat))).ToList()));
+    })
+    .WithName("GodkjennNavnekandidaterGruppeBatch")
+    .WithSummary("Issue #299 AC3/AC4 — «Behandle gruppen» for 'gruppe'/'administrativ_inndeling': ETT " +
+        "delt begrep koblet til ALLE kandidatene i body.Ider, i stedet for N uavhengige /godkjenn-kall. " +
+        "Se NavnekandidatOppdagelseTjeneste.GodkjennGruppeBatchAsync for cache-nøkkelen (per rettskilde, " +
+        "eller totalt når body.Fast).");
+
 // [Ny, «flytt Slett inn i massehandling-raden», 2026-09-02] Massesletting av et PRESIST avkrysset
 // utvalg — komplementær til DELETE / under (filter-basert, se DEN endepunktkommentaren for hvorfor
 // begge fortsatt finnes). Samme løkke-over-id-liste-mønster som /forslag/slett-batch

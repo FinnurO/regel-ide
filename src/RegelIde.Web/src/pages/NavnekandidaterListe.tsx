@@ -16,6 +16,7 @@ import { useSortering } from '../kandidater/useSortering';
 import { useKandidatvalg } from '../kandidater/useKandidatvalg';
 import { Massehandlingsrad } from '../kandidater/Massehandlingsrad';
 import { useNodeEtiketter, useRettskildeoppslag } from '../kandidater/useNodeEtiketter';
+import { BehandleGruppeDialog } from '../kandidater/BehandleGruppeDialog';
 import { Metatekst } from '../entitet/Metatekst';
 
 type Sorteringskolonne = 'foreslattTekst' | 'kategori' | 'rettskilde' | 'status' | 'opprettet';
@@ -482,6 +483,104 @@ export default function NavnekandidaterListe() {
   // Samme "§ nummer — overskrift"-bygging som VirksomhetKandidaterListe.tsx sin visNodeTekst — kilden
   // vises allerede i egen "Rettskilde"-kolonne rett ved siden av.
 
+  /**
+   * [Ny, issue #299 AC2] Rekkefølgen INNI en «Behandle gruppen»-batch — IKKE det samme som
+   * `sortering`-tilstanden lenger oppe (den styrer den FLATE/kolonne-sorteringen av hele `viste`-
+   * settet, f.eks. på status eller rettskilde). Her: FØRST etter lov (alfabetisk, nb — det er selve
+   * «lovreferansen» når gruppen spenner over flere lover), SÅ etter paragrafrekkefølgen i den loven
+   * (array-indeksen i `nodeEtiketter.noderFor`, som allerede kommer i dokumentrekkefølge fra
+   * serveren — se den hookens egen kommentar), med `startOffset` som siste tiebreak for flere treff i
+   * samme node. Gir AC2 sin «representative kontekst: den FØRSTE, per paragraf-sortering».
+   */
+  function sorterGruppeRader(rader: NavnekandidatDto[]): NavnekandidatDto[] {
+    return [...rader].sort((a, b) => {
+      if (a.rettskildeId !== b.rettskildeId) {
+        return rettskildeOppslag.tittel(a.rettskildeId).localeCompare(rettskildeOppslag.tittel(b.rettskildeId), 'nb');
+      }
+      const noder = nodeEtiketter.noderFor(a.rettskildeId);
+      const iA = noder?.findIndex((n) => n.eid === a.nodeEid) ?? -1;
+      const iB = noder?.findIndex((n) => n.eid === b.nodeEid) ?? -1;
+      if (iA !== -1 && iB !== -1 && iA !== iB) return iA - iB;
+      return a.startOffset - b.startOffset;
+    });
+  }
+
+  /** De radene i gruppen som FAKTISK kan behandles/avvises samlet — kun «Venter» (samme vern som
+   * enkeltrad-Godkjenn/Avvis: en allerede behandlet rad skal ikke røres av en gruppehandling). */
+  function venterRaderIGruppe(g: Kandidatgruppe): NavnekandidatDto[] {
+    return g.rader.filter((r) => r.status === 'Venter');
+  }
+
+  /**
+   * [Ny, issue #299] «Behandle gruppen» krever UNIFORM kategori blant de ventende radene — selve
+   * beslutningsflyten (virksomhet/gruppe/administrativ_inndeling) avgjøres av kategorien, og en gruppe
+   * med BLANDET kategori (sjelden, men mulig ved manuell omkategorisering av enkeltrader) kan ikke få
+   * ETT felles svar. Disse radene må da behandles enkeltvis (eller rettes til samme kategori først via
+   * «Rediger») — IKKE i scope for issue #299 (se saksbeskrivelsens avgrensning).
+   */
+  function kanBehandlesSamlet(g: Kandidatgruppe): boolean {
+    const venter = venterRaderIGruppe(g);
+    return venter.length > 0 && new Set(venter.map((r) => r.kategori)).size === 1;
+  }
+
+  const [behandleGruppeNokkel, setBehandleGruppeNokkel] = useState<string | null>(null);
+  const [avvisGruppeKjorer, setAvvisGruppeKjorer] = useState(false);
+  const [avvisGruppeFeil, setAvvisGruppeFeil] = useState<string | null>(null);
+
+  /** Åpner «Behandle gruppen»-dialogen — tvinger ALLTID gruppen åpen samtidig (selv om saksbehandleren
+   * klikket fra en kollapset gruppe): det trigger `synligeRader`/`nodeEtiketter` sin late nodehenting
+   * for gruppens rettskilde(r), som den representative konteksten (AC2) og sorteringen over er
+   * avhengig av. */
+  function apneBehandleGruppe(g: Kandidatgruppe) {
+    setGruppeApne((forrige) => new Set(forrige).add(g.nokkel));
+    setBehandleGruppeNokkel(g.nokkel);
+  }
+
+  async function avvisGruppe(g: Kandidatgruppe) {
+    const venter = venterRaderIGruppe(g);
+    if (venter.length === 0) return;
+    if (!window.confirm(
+      `Avvise alle ${venter.length} ventende kandidat${venter.length === 1 ? '' : 'er'} i gruppen «${g.visningsnavn}»?`,
+    )) return;
+    setAvvisGruppeKjorer(true);
+    setAvvisGruppeFeil(null);
+    try {
+      const resultat = await api.avvisNavnekandidaterBatch({ ider: venter.map((r) => r.id) });
+      const feilede = resultat.rader.filter((r) => !r.ok);
+      if (feilede.length > 0) {
+        setAvvisGruppeFeil(
+          `${feilede.length} av ${resultat.rader.length} rad(er) feilet: ${feilede.map((r) => r.feil).join('; ')}`,
+        );
+      }
+      lastKandidater();
+    } catch (err) {
+      setAvvisGruppeFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved avvisning av gruppen.');
+    } finally {
+      setAvvisGruppeKjorer(false);
+    }
+  }
+
+  /** Selve propsene til `BehandleGruppeDialog` — `null` når ingen dialog skal vises, ELLER når gruppen
+   * (f.eks. etter en reload) ikke lenger har noen ventende rader (dialogen lukker seg da stille i
+   * stedet for å vise et tomt skjema). */
+  const behandleGruppeData = useMemo(() => {
+    if (!behandleGruppeNokkel || !grupper) return null;
+    const g = grupper.find((gr) => gr.nokkel === behandleGruppeNokkel);
+    if (!g) return null;
+    const venter = sorterGruppeRader(venterRaderIGruppe(g));
+    if (venter.length === 0) return null;
+    const representant = venter[0];
+    const rettskilder = new Set(venter.map((r) => r.rettskildeId));
+    return {
+      rader: venter,
+      representantKontekst:
+        `${rettskildeOppslag.tittel(representant.rettskildeId)}, ${nodeEtiketter.etikett(representant.rettskildeId, representant.nodeEid)}`,
+      representantRettskildeTittel: rettskilder.size === 1 ? rettskildeOppslag.tittel(representant.rettskildeId) : null,
+      flereRettskilder: rettskilder.size > 1,
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [behandleGruppeNokkel, grupper, nodeEtiketter, rettskildeOppslag]);
+
   function apneAlleGrupper() {
     if (grupper) setGruppeApne(new Set(grupper.map((g) => g.nokkel)));
   }
@@ -878,17 +977,46 @@ export default function NavnekandidaterListe() {
                           </Table.Cell>
                           {/* 8, ikke 7: konfidens-kolonnen kom til 2026-09-09. */}
                           <Table.Cell colSpan={8}>
-                            <button
-                              type="button"
-                              className="tabell-gruppe-knapp"
-                              onClick={() => vekslGruppeApen(g.nokkel)}
-                              aria-expanded={gruppeApne.has(g.nokkel)}
-                            >
-                              {gruppeApne.has(g.nokkel) ? '▼' : '▶'} {g.visningsnavn}
-                            </button>
-                            <Tag data-color="neutral" data-size="sm" style={{ marginLeft: '0.5rem' }}>
-                              {g.rader.length} kandidat{g.rader.length === 1 ? '' : 'er'}
-                            </Tag>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', flexWrap: 'wrap' }}>
+                              <button
+                                type="button"
+                                className="tabell-gruppe-knapp"
+                                onClick={() => vekslGruppeApen(g.nokkel)}
+                                aria-expanded={gruppeApne.has(g.nokkel)}
+                              >
+                                {gruppeApne.has(g.nokkel) ? '▼' : '▶'} {g.visningsnavn}
+                              </button>
+                              <Tag data-color="neutral" data-size="sm">
+                                {g.rader.length} kandidat{g.rader.length === 1 ? '' : 'er'}
+                              </Tag>
+                              {/* [Ny, issue #299 AC3-AC5] «Behandle/Avvis gruppen» — KUN i foreslattTekst-
+                                * grupperingen (se Gruppering-kommentaren): det er DEN som grupperer på
+                                * identisk tekst, altså et utfall som faktisk kan deles. 'rettskilde'-
+                                * grupperingen samler ulike tekster under samme lov — ett felles svar for
+                                * DEN gir ikke mening, og tilbys derfor ikke her. */}
+                              {gruppering === 'foreslattTekst' && venterRaderIGruppe(g).length > 0 && (
+                                <>
+                                  <Button
+                                    data-size="sm"
+                                    onClick={() => apneBehandleGruppe(g)}
+                                    disabled={!kanBehandlesSamlet(g)}
+                                    title={kanBehandlesSamlet(g)
+                                      ? `Ett felles svar for alle ${venterRaderIGruppe(g).length} ventende kandidatene i gruppen`
+                                      : 'Gruppen har ventende kandidater med ULIK kategori — kan ikke behandles samlet. Rett kategorien (via «Rediger») eller behandle radene enkeltvis.'}
+                                  >
+                                    Behandle gruppen ({venterRaderIGruppe(g).length})
+                                  </Button>
+                                  <Button
+                                    data-size="sm"
+                                    variant="tertiary"
+                                    onClick={() => avvisGruppe(g)}
+                                    disabled={avvisGruppeKjorer}
+                                  >
+                                    Avvis gruppen
+                                  </Button>
+                                </>
+                              )}
+                            </div>
                           </Table.Cell>
                         </Table.Row>
                         {gruppeApne.has(g.nokkel) && g.rader.map(renderKandidatRad)}
@@ -901,6 +1029,23 @@ export default function NavnekandidaterListe() {
       )}
 
       {gruppering === 'ingen' && viste && viste.length > 0 && <Pagineringskontroll {...paginering} />}
+
+      {avvisGruppeFeil && <Alert data-color="danger" style={{ marginTop: '1rem' }}>{avvisGruppeFeil}</Alert>}
+
+      {/* [Ny, issue #299 AC3/AC4] «Behandle gruppen» — se BehandleGruppeDialog for hele flyten. */}
+      {behandleGruppeData && (
+        <BehandleGruppeDialog
+          rader={behandleGruppeData.rader}
+          representantKontekst={behandleGruppeData.representantKontekst}
+          representantRettskildeTittel={behandleGruppeData.representantRettskildeTittel}
+          flereRettskilder={behandleGruppeData.flereRettskilder}
+          onLukk={() => setBehandleGruppeNokkel(null)}
+          onFerdig={() => {
+            setBehandleGruppeNokkel(null);
+            lastKandidater();
+          }}
+        />
+      )}
     </>
   );
 }

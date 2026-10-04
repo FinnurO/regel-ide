@@ -295,6 +295,113 @@ public class NavnekandidaterEndepunktTests
         Assert.Single(etterBatchSvar!, k => k.Id == gyldigId && k.Status == "Avvist");
     }
 
+    // ---------- [Ny, issue #299 AC3/AC4] «Behandle gruppen» — kobl-til-virksomhet-batch/
+    // godkjenn-gruppe-batch, de nye endepunktene bak NavnekandidaterListe.tsx sin «foreslattTekst»-
+    // gruppering. Kandidatene settes opp DIREKTE (samme begrunnelse som OpprettSceneAsync sin
+    // kommentar) med en FELLES, GUID-unik ForeslattTekst — det er nøyaktig scenarioet «Kongen»/
+    // «Departementet»/«kommunen» fra saksbeskrivelsen. ----------
+
+    private async Task<(Guid RettskildeId, List<Guid> KandidatIder)> OpprettFlereKandidaterMedSammeTekstAsync(
+        string kategori, string tekst, int antall)
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = Guid.NewGuid();
+        var nodeEid = $"https://test/{rettskildeId:N}/§1/ledd-1";
+        db.Rettskilder.Add(new RettskildeEntitet
+        {
+            Id = rettskildeId, Doctype = "doc", Kildetype = "Lov", Status = "Gjeldende", Importrolle = "referanse",
+            Tittel = "Testlov " + rettskildeId, OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        db.RettskildeNoder.Add(new RettskildeNodeEntitet
+        {
+            Id = Guid.NewGuid(), RettskildeId = rettskildeId, Eid = nodeEid, KildeId = "ledd-1",
+            NodeType = "ledd", Tekst = $"Nøytral tekst med «{tekst}» nevnt flere ganger uten noe sveipbart mønster.",
+        });
+        var ider = new List<Guid>();
+        for (var i = 0; i < antall; i++)
+        {
+            var id = Guid.NewGuid();
+            db.Navnekandidater.Add(new NavnekandidatEntitet
+            {
+                // StartOffset MÅ være distinkt per (RettskildeId, NodeEid) — ux_navnekandidater_rettskilde_
+                // node_start, se Data.Tests-varianten sin tilsvarende kommentar.
+                Id = id, ForeslattTekst = tekst, Kategori = kategori, RettskildeId = rettskildeId,
+                NodeEid = nodeEid, StartOffset = i * 10, EndOffset = i * 10 + tekst.Length, Status = "Venter",
+                OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            });
+            ider.Add(id);
+        }
+        await db.SaveChangesAsync();
+        return (rettskildeId, ider);
+    }
+
+    [Fact]
+    public async Task KoblTilVirksomhetBatch_kobler_alle_kandidatene_til_samme_virksomhet()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var tekst = $"Testetaten-{Guid.NewGuid():N}";
+        var (_, kandidatIder) = await OpprettFlereKandidaterMedSammeTekstAsync("virksomhet", tekst, antall: 3);
+
+        await using var db = _fixture.NyDbContext();
+        var virksomhetId = Guid.NewGuid();
+        db.Virksomheter.Add(new Virksomhet { Id = virksomhetId, Navn = $"Maalvirksomhet {Guid.NewGuid():N}", OpprettetTidspunkt = DateTimeOffset.UtcNow });
+        await db.SaveChangesAsync();
+
+        var batchSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/kobl-til-virksomhet-batch", brukerId,
+            new { Ider = kandidatIder, VirksomhetId = virksomhetId, Navneformgrunn = (string?)null }));
+        Assert.Equal(HttpStatusCode.OK, batchSvar.StatusCode);
+        var resultat = await batchSvar.Content.ReadFromJsonAsync<NavnekandidatBatchResultatDto>(JsonInnstillinger);
+        Assert.Equal(3, resultat!.Rader.Count);
+        Assert.All(resultat.Rader, r => Assert.True(r.Ok, r.Feil));
+        Assert.All(resultat.Rader, r => Assert.Equal("Godkjent", r.Resultat!.Status));
+
+        // Alle tre skal dele NØYAKTIG én navneform (samme Term, samme virksomhet) — ikke tre separate
+        // Begrep-rader for samme tekst mot samme virksomhet.
+        await using var kontrollDb = _fixture.NyDbContext();
+        Assert.Equal(1, await kontrollDb.Begreper.CountAsync(b =>
+            b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == virksomhetId && b.Term == tekst));
+    }
+
+    [Fact]
+    public async Task GodkjennGruppeBatch_lovspesifikt_deler_ett_begrep_mellom_alle_kandidatene()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var tekst = $"Kongen-{Guid.NewGuid():N}";
+        var (rettskildeId, kandidatIder) = await OpprettFlereKandidaterMedSammeTekstAsync("gruppe", tekst, antall: 3);
+
+        var batchSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/godkjenn-gruppe-batch", brukerId,
+            new { Ider = kandidatIder, Fast = false }));
+        Assert.Equal(HttpStatusCode.OK, batchSvar.StatusCode);
+        var resultat = await batchSvar.Content.ReadFromJsonAsync<NavnekandidatBatchResultatDto>(JsonInnstillinger);
+        Assert.Equal(3, resultat!.Rader.Count);
+        Assert.All(resultat.Rader, r => Assert.True(r.Ok, r.Feil));
+        Assert.All(resultat.Rader, r => Assert.Equal("Godkjent", r.Resultat!.Status));
+
+        // Nøyaktig ÉN delt rad — IKKE 3 (som ville skjedd med N uavhengige /godkjenn-kall, se
+        // GodkjennGruppeBatchAsync sin metodekommentar).
+        await using var db = _fixture.NyDbContext();
+        Assert.Equal(1, await db.Begreper.CountAsync(b =>
+            b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId && b.Term == tekst));
+    }
+
+    [Fact]
+    public async Task GodkjennGruppeBatch_fast_deler_ett_begrep_uten_lovkilde()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var tekst = $"Kongen-{Guid.NewGuid():N}";
+        var (_, kandidatIder) = await OpprettFlereKandidaterMedSammeTekstAsync("gruppe", tekst, antall: 2);
+
+        var batchSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/godkjenn-gruppe-batch", brukerId,
+            new { Ider = kandidatIder, Fast = true }));
+        Assert.Equal(HttpStatusCode.OK, batchSvar.StatusCode);
+        var resultat = await batchSvar.Content.ReadFromJsonAsync<NavnekandidatBatchResultatDto>(JsonInnstillinger);
+        Assert.All(resultat!.Rader, r => Assert.True(r.Ok, r.Feil));
+
+        await using var db = _fixture.NyDbContext();
+        Assert.Equal(1, await db.Begreper.CountAsync(b =>
+            b.Begrepskategori == "gruppe" && b.LovkildeId == null && b.Term == tekst));
+    }
+
     // ---------- Sletting (2026-08-30) — se docs-kommentaren i NavnekandidatOppdagelseTjeneste.SlettAsync/
     // SlettAlleAsync for hvorfor "avvis" alene ikke holder for ytelsestest-scenarioet (posisjonsbasert
     // idempotens). ----------
