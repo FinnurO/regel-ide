@@ -1631,6 +1631,154 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         }
     }
 
+    /// <summary>
+    /// [Ny, issue #299 AC3/AC4] «Behandle gruppen» — for <c>NavnekandidaterListe.tsx</c> sin nye
+    /// grupperte visning (issue #299): N kandidater med nøyaktig samme <c>ForeslattTekst</c> skal dele
+    /// SAMME utfall, ikke behandles én og én. For <c>"gruppe"</c>/<c>"administrativ_inndeling"</c> betyr
+    /// det «ett begrep-opprettelse/kobling, N tagger» (AC3) — stikk MOTSATT av å kalle
+    /// <see cref="GodkjennAsync"/> N ganger (slik det eksisterende <c>/godkjenn-batch</c> gjør, se
+    /// <c>Program.cs</c>): <see cref="VirksomhetsbegrepTjeneste.OpprettGruppebegrepAsync"/> KASTER på
+    /// eksakt duplikat (samme <c>Term</c>+<c>LovkildeId</c>) — riktig vern mot et UTILSIKTET duplikat et
+    /// annet sted, men feil her, der duplikatet er selve POENGET (gruppen er per definisjon samme tekst),
+    /// og kandidat 2..N ville feilet.
+    /// <para>
+    /// Begrepet caches i <paramref name="ider"/>-løkken, PER DISTINKT <c>RettskildeId</c> når
+    /// <paramref name="fast"/> er <c>false</c> (lovspesifikt — identiteten inkluderer loven, så en gruppe
+    /// som strekker seg over FLERE lover får én delt rad PER lov, se
+    /// <see cref="VirksomhetsbegrepTjeneste.OpprettEllerGjenbrukGruppebegrepAsync"/>), eller ÉN gang totalt
+    /// når <paramref name="fast"/> er <c>true</c> (fast/nasjonalt, issue #298 — identiteten er kun Term,
+    /// se <see cref="VirksomhetsbegrepTjeneste.OpprettEllerGjenbrukFastGruppebegrepAsync"/>).
+    /// </para>
+    /// <para>
+    /// Samme "N kall, ett resultat med per-rad ok/feil"-form som <c>/godkjenn-batch</c>/<c>/avvis-batch</c>
+    /// (se <see cref="NavnekandidatGruppeBatchRad"/>) — men hver rad gjør her det
+    /// <see cref="GodkjennAsync"/> gjør for <c>"gruppe"</c>/<c>"administrativ_inndeling"</c>, MOT et
+    /// forhåndsresolvert (ikke selv-opprettet) begrep. <c>"virksomhet"</c>-kandidater hører IKKE hjemme
+    /// her — se <see cref="KoblTilVirksomhetAsync"/> og den tilsvarende
+    /// <c>/kobl-til-virksomhet-batch</c>-endepunktet i stedet (samme valgte/opprettede virksomhet for ALLE
+    /// radene, men ingen delt-opprettelse-cache trengs der: navneform-gjenbruket i
+    /// <see cref="LukkKjedenMotVirksomhetAsync"/> er alt idempotent per (Term, VirksomhetId)).
+    /// </para>
+    /// </summary>
+    /// <param name="tilKategori">
+    /// [Ny, issue #299 etter Johanns nettlesertest] <c>null</c> = bruk hver rads EGEN kategori (som før).
+    /// Satt (<c>"gruppe"</c>/<c>"administrativ_inndeling"</c>) = saksbehandleren har eksplisitt avgjort at
+    /// HELE gruppen skal behandles som denne kategorien, og rader med en annen kategori omkategoriseres
+    /// først via <see cref="OmkategoriserVentendeAsync"/> (KI-klassifiseringen er ustabil på samme tekst,
+    /// så en gruppe er ofte blandet gruppe/virksomhet). Aldri en stille sammenslåing: kalleren (dialogen)
+    /// viser antall per kategori og hvor mange som endres.
+    /// </param>
+    public async Task<IReadOnlyList<NavnekandidatGruppeBatchRad>> GodkjennGruppeBatchAsync(
+        IReadOnlyList<Guid> ider, bool fast, string behandletAv, string? tilKategori = null,
+        CancellationToken ct = default)
+    {
+        if (tilKategori is not null && tilKategori is not ("gruppe" or "administrativ_inndeling"))
+        {
+            throw new ArgumentException(
+                $"Ugyldig tilKategori '{tilKategori}' — kun 'gruppe' eller 'administrativ_inndeling' "
+                + "(bruk /kobl-til-virksomhet-batch for virksomhet).");
+        }
+        var rader = new List<NavnekandidatGruppeBatchRad>();
+        // Nøkkel: fast ? Guid.Empty (ÉN delt rad totalt) : kandidatens egen RettskildeId (én delt rad PER lov).
+        var begrepCache = new Dictionary<Guid, Guid>();
+
+        foreach (var id in ider)
+        {
+            try
+            {
+                var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
+                if (kandidat is null)
+                {
+                    rader.Add(new NavnekandidatGruppeBatchRad(id, false, $"Ingen kandidat med id '{id}'.", null));
+                    continue;
+                }
+                if (tilKategori is not null && kandidat.Kategori != tilKategori)
+                {
+                    await OmkategoriserVentendeAsync(id, tilKategori, behandletAv, ct);
+                }
+                if (kandidat.Kategori != "gruppe" && kandidat.Kategori != "administrativ_inndeling")
+                {
+                    rader.Add(new NavnekandidatGruppeBatchRad(id, false,
+                        $"Kandidaten har kategori '{kandidat.Kategori}' — kun 'gruppe'/'administrativ_inndeling' "
+                        + "kan behandles med denne gruppehandlingen. Bruk /kobl-til-virksomhet-batch for 'virksomhet'.",
+                        null));
+                    continue;
+                }
+                if (fast && kandidat.Kategori == "administrativ_inndeling")
+                {
+                    rader.Add(new NavnekandidatGruppeBatchRad(id, false,
+                        "Administrativ inndeling støtter ikke fast/nasjonalt begrep — den er alltid lovspesifikt "
+                        + "(issue #298s \"ikke i denne saken\").", null));
+                    continue;
+                }
+                if (kandidat.Status != "Venter")
+                {
+                    rader.Add(new NavnekandidatGruppeBatchRad(id, false,
+                        $"Kandidaten har status '{kandidat.Status}' — kan kun godkjenne kandidater med status 'Venter'.",
+                        null));
+                    continue;
+                }
+
+                var cacheNokkel = fast ? Guid.Empty : kandidat.RettskildeId;
+                if (!begrepCache.TryGetValue(cacheNokkel, out var begrepId))
+                {
+                    BegrepEntitet begrep;
+                    if (fast)
+                    {
+                        (begrep, _) = await virksomhetsbegrep.OpprettEllerGjenbrukFastGruppebegrepAsync(
+                            kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
+                    }
+                    else if (kandidat.Kategori == "administrativ_inndeling")
+                    {
+                        (begrep, _) = await virksomhetsbegrep.OpprettEllerGjenbrukAdministrativInndelingAsync(
+                            kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
+                    }
+                    else
+                    {
+                        (begrep, _) = await virksomhetsbegrep.OpprettEllerGjenbrukGruppebegrepAsync(
+                            kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
+                    }
+                    begrepId = begrep.Id;
+                    begrepCache[cacheNokkel] = begrepId;
+                }
+
+                // Samme to steg som GodkjennAsync sin hale (departement-tagg + status), MOT det delte,
+                // forhåndsresolverte begrepet i stedet for et selv-opprettet ett.
+                await OpprettDepartementTaggHvisMuligAsync(kandidat, begrepId, behandletAv, ct);
+                kandidat.Status = "Godkjent";
+                kandidat.BehandletAv = behandletAv;
+                kandidat.BehandletTidspunkt = DateTimeOffset.UtcNow;
+                await db.SaveChangesAsync(ct);
+                rader.Add(new NavnekandidatGruppeBatchRad(id, true, null, kandidat));
+            }
+            catch (ArgumentException ex)
+            {
+                rader.Add(new NavnekandidatGruppeBatchRad(id, false, ex.Message, null));
+            }
+        }
+        return rader;
+    }
+
+    /// <summary>
+    /// [Ny, issue #299 etter Johanns nettlesertest] Eksplisitt omkategorisering av en VENTENDE kandidat
+    /// som del av «Behandle gruppen» — tynn innpakning av <see cref="OppdaterAsync"/>, som alt støtter
+    /// kategoriendring (samme validering av gyldige kategorier). Nekter rader som ikke er <c>"Venter"</c>
+    /// (en allerede behandlet rad har fått sine følge-entiteter, og kategorien skal ikke skrives om i
+    /// ettertid), og rører ALDRI <c>ForeslattTekst</c>. Kastes som <see cref="ArgumentException"/> så
+    /// batch-løkkene rapporterer en feilrad i stedet for å avbryte hele batchen.
+    /// </summary>
+    public async Task OmkategoriserVentendeAsync(Guid id, string kategori, string behandletAv, CancellationToken ct = default)
+    {
+        var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
+        if (kandidat is null || kandidat.Kategori == kategori) return;
+        if (kandidat.Status != "Venter")
+        {
+            throw new ArgumentException(
+                $"Kandidaten har status '{kandidat.Status}' — kan kun omkategorisere kandidater med status 'Venter'.");
+        }
+        await OppdaterAsync(id, null, kategori, behandletAv, ct);
+    }
+
     public async Task<NavnekandidatEntitet?> AvvisAsync(Guid id, string behandletAv, CancellationToken ct = default)
     {
         var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
@@ -2041,9 +2189,14 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         // virksomhet) — å opprette en duplikat-navneform ved en ny forekomst av samme navn er ikke en
         // ny opplysning. Grunnen oppdateres da bare hvis den var uspesifisert (NULL), slik at et
         // menneskes tidligere, eksplisitte valg aldri overskrives stille.
+        // [ENDRET, issue #299] CASE-INSENSITIVT (var `b.Term == ...`, case-sensitivt): samme identitet som
+        // dubletten-vakten i VirksomhetsbegrepTjeneste.OpprettVirksomhetsbegrepAsync og #298s gruppebegrep.
+        // En «Behandle gruppen»-batch kan inneholde «kommunen» og «Kommunen» i samme gruppe, og uten dette
+        // ville rad 2 falt ned i Opprett-grenen og kastet «allerede navneformen».
+        var termLower = kandidat.ForeslattTekst.Trim().ToLower();
         var navneform = await db.Begreper.FirstOrDefaultAsync(
             b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == virksomhetId
-                 && b.Term == kandidat.ForeslattTekst && b.Entitetsstatus == "gjeldende", ct);
+                 && b.Term.ToLower() == termLower && b.Entitetsstatus == "gjeldende", ct);
         if (navneform is null)
         {
             navneform = await virksomhetsbegrep.OpprettVirksomhetsbegrepAsync(
@@ -2279,3 +2432,11 @@ public sealed record NavnekandidatGruppeAvGruppeResultat(
 /// </param>
 public sealed record NavnekandidatFastGruppebegrepResultat(
     NavnekandidatEntitet Kandidat, BegrepEntitet Gruppebegrep, bool VarNyttBegrep);
+
+/// <summary>
+/// [Ny, issue #299 AC3/AC4] ÉN rad i resultatet av <see cref="NavnekandidatOppdagelseTjeneste.GodkjennGruppeBatchAsync"/>
+/// — samme "per-rad ok/feil"-form som de eksisterende batch-endepunktene (<c>/godkjenn-batch</c> m.fl.,
+/// se <c>NavnekandidatBatchRadDto</c> i <c>RegelIde.Api</c>), men i Data-laget sin egen record-type
+/// (samme "egen, parallell type fremfor en delt generisk" -linje som resten av filen).
+/// </summary>
+public sealed record NavnekandidatGruppeBatchRad(Guid Id, bool Ok, string? Feil, NavnekandidatEntitet? Resultat);

@@ -1096,6 +1096,38 @@ public sealed record NavnekandidatSlettBatchRadDto(Guid Id, bool Ok, string? Fei
 
 public sealed record NavnekandidatSlettBatchResultatDto(IReadOnlyList<NavnekandidatSlettBatchRadDto> Rader);
 
+/// <summary>
+/// [Ny, issue #299 AC3/AC4] «Behandle gruppen», virksomhet-sporet: SAMME valgte/opprettede
+/// <paramref name="VirksomhetId"/> kobles til ALLE kandidatene i <paramref name="Ider"/> i ett kall —
+/// speil av <see cref="KoblNavnekandidatTilVirksomhetRequest"/> (enkeltrad), men med en id-LISTE i
+/// stedet for ett id i URL-en. Resultatet gjenbruker <see cref="NavnekandidatBatchResultatDto"/> (samme
+/// per-rad ok/feil-form som de andre batch-endepunktene) — klienten trenger kun vite at raden lyktes,
+/// ikke hele <see cref="NavnekandidatKoblingResultatDto"/> for hver av dem.
+/// </summary>
+/// <param name="Omkategoriser">
+/// [Ny, etter Johanns nettlesertest] <c>true</c> = saksbehandleren har eksplisitt valgt «behandle alle som
+/// virksomhet» for en gruppe med BLANDET kategori (KI-klassifiseringen er ustabil på samme tekst): rader
+/// med en annen kategori omkategoriseres til <c>"virksomhet"</c> først. <c>false</c> (standard) = som før,
+/// en rad med feil kategori gir en feilrad.
+/// </param>
+public sealed record KoblNavnekandidaterTilVirksomhetBatchRequest(
+    IReadOnlyList<Guid> Ider, Guid VirksomhetId, string? Navneformgrunn, bool Omkategoriser = false);
+
+/// <summary>
+/// [Ny, issue #299 AC3/AC4] «Behandle gruppen», gruppe-/administrativ_inndeling-sporet: ETT delt
+/// gruppebegrep/administrativ inndeling (opprettet eller gjenbrukt — se
+/// <see cref="NavnekandidatOppdagelseTjeneste.GodkjennGruppeBatchAsync"/> for cache-nøkkelen) kobles til
+/// ALLE kandidatene i <paramref name="Ider"/>. <paramref name="Fast"/> speiler steg 2-radioknappen i
+/// enkeltrad-veiviseren (issue #298 AC3) — kun relevant/lovlig for <c>"gruppe"</c>-kandidater, se
+/// metodekommentaren for hvorfor <c>"administrativ_inndeling"</c> + <c>Fast=true</c> gir en feilrad.
+/// </summary>
+/// <param name="TilKategori">
+/// [Ny, etter Johanns nettlesertest] <c>null</c> = hver rads egen kategori; <c>"gruppe"</c>/
+/// <c>"administrativ_inndeling"</c> = eksplisitt valg om å behandle HELE gruppen som den kategorien,
+/// med omkategorisering av avvikende rader først (se GodkjennGruppeBatchAsync).
+/// </param>
+public sealed record NavnekandidatGruppeBatchRequest(IReadOnlyList<Guid> Ider, bool Fast, string? TilKategori = null);
+
 // ---------- Begrepsforekomster — begrepsoppdagelse (M1/M11), docs/24 ----------
 
 public sealed record BegrepsforekomstDto(

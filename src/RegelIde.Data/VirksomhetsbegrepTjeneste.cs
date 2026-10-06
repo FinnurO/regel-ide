@@ -268,6 +268,40 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     }
 
     /// <summary>
+    /// [Ny, issue #299 AC3/AC4] Get-or-create for et LOVSPESIFIKT gruppebegrep — speil av
+    /// <see cref="OpprettEllerGjenbrukFastGruppebegrepAsync"/>, men scopet til <paramref name="lovkildeId"/>
+    /// i stedet for "ingen lov". Finnes til «Behandle gruppen»-flyten i
+    /// <see cref="NavnekandidatOppdagelseTjeneste.GodkjennGruppeBatchAsync"/>: der skal N kandidater med
+    /// SAMME <c>(Term, LovkildeId)</c> dele ÉN begrep-rad, og <see cref="OpprettGruppebegrepAsync"/> alene
+    /// ville KASTET for kandidat 2..N (dens duplikatsjekk er riktig for et enkeltstående, utilsiktet
+    /// duplikat, men feil når duplikatet er selve POENGET — gruppen er per definisjon samme tekst).
+    /// </summary>
+    /// <returns>Begrepet (nytt eller gjenbrukt), og <c>true</c> hvis det ble opprettet NÅ (ikke gjenbrukt).</returns>
+    public async Task<(BegrepEntitet Begrep, bool VarNyttBegrep)> OpprettEllerGjenbrukGruppebegrepAsync(
+        Guid lovkildeId, string term, string opprettetAv, string? lovreferanseEid = null, CancellationToken ct = default)
+    {
+        var eksisterende = await FinnGruppebegrepAsync(lovkildeId, term, ct);
+        if (eksisterende is not null) return (eksisterende, false);
+
+        var nytt = await OpprettGruppebegrepAsync(lovkildeId, term, opprettetAv, lovreferanseEid, ct);
+        return (nytt, true);
+    }
+
+    /// <summary>
+    /// [Ny, issue #299 AC3/AC4] Finner et EKSISTERENDE lovspesifikt gruppebegrep (<c>LovkildeId == lovkildeId</c>,
+    /// ikke <c>null</c> — se <see cref="FinnFastGruppebegrepAsync"/> for den faste/nasjonale grenen) med
+    /// samme <paramref name="term"/> (case-insensitiv, samme sammenligning som duplikatsjekken i
+    /// <see cref="OpprettGruppebegrepAsync"/>) — eller <c>null</c> hvis ingen finnes ennå.
+    /// </summary>
+    public async Task<BegrepEntitet?> FinnGruppebegrepAsync(Guid lovkildeId, string term, CancellationToken ct = default)
+    {
+        var kandidater = await db.Begreper
+            .Where(b => b.Begrepskategori == "gruppe" && b.LovkildeId == lovkildeId && b.Entitetsstatus == "gjeldende")
+            .ToListAsync(ct);
+        return kandidater.FirstOrDefault(b => string.Equals(b.Term, term.Trim(), StringComparison.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
     /// [Ny, issue #203 pkt. 2] Administrativ inndeling (nasjon/fylke/kommune) — nøyaktig samme mønster
     /// som <see cref="OpprettGruppebegrepAsync"/> rett over (samme (Term, LovkildeId)-scoping, samme
     /// unike-partielle-indeks-vern, samme <paramref name="lovreferanseEid"/>-formål), men egen metode
@@ -315,6 +349,41 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
         db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", begrep.Id, virksomhetId: null, "opprettet", opprettetAv));
         await db.SaveChangesAsync(ct);
         return begrep;
+    }
+
+    /// <summary>
+    /// [Ny, issue #299 AC3/AC4] Get-or-create for en administrativ inndeling — speil av
+    /// <see cref="OpprettEllerGjenbrukGruppebegrepAsync"/>, brukt av samme «Behandle gruppen»-flyt
+    /// (<see cref="NavnekandidatOppdagelseTjeneste.GodkjennGruppeBatchAsync"/>) for kategorien
+    /// <c>administrativ_inndeling</c>, som alltid er lovspesifikt (ingen fast/nasjonal gren finnes for
+    /// den, se issue #298s "Ikke i denne saken"). <see cref="FinnAdministrativInndelingAsync"/> sin
+    /// case-INSENSITIVE sammenligning er bevisst mer tolerant enn <see cref="OpprettAdministrativInndelingAsync"/>s
+    /// egen (case-sensitive) duplikatsjekk under — det utvider ALDRI til et kast, kun til MER gjenbruk
+    /// (Opprett kalles her kun når Finn ikke fant noe), og endrer ingenting ved enkeltrad-godkjenning.
+    /// </summary>
+    /// <returns>Begrepet (nytt eller gjenbrukt), og <c>true</c> hvis det ble opprettet NÅ (ikke gjenbrukt).</returns>
+    public async Task<(BegrepEntitet Begrep, bool VarNyttBegrep)> OpprettEllerGjenbrukAdministrativInndelingAsync(
+        Guid lovkildeId, string term, string opprettetAv, string? lovreferanseEid = null, CancellationToken ct = default)
+    {
+        var eksisterende = await FinnAdministrativInndelingAsync(lovkildeId, term, ct);
+        if (eksisterende is not null) return (eksisterende, false);
+
+        var nytt = await OpprettAdministrativInndelingAsync(lovkildeId, term, opprettetAv, lovreferanseEid, ct);
+        return (nytt, true);
+    }
+
+    /// <summary>
+    /// [Ny, issue #299 AC3/AC4] Finner en EKSISTERENDE administrativ inndeling med samme
+    /// <paramref name="term"/> (case-insensitiv — se <see cref="OpprettEllerGjenbrukAdministrativInndelingAsync"/>
+    /// sin kommentar for hvorfor det er trygt) i samme lov — eller <c>null</c> hvis ingen finnes ennå.
+    /// </summary>
+    public async Task<BegrepEntitet?> FinnAdministrativInndelingAsync(Guid lovkildeId, string term, CancellationToken ct = default)
+    {
+        var kandidater = await db.Begreper
+            .Where(b => b.Begrepskategori == "administrativ_inndeling" && b.LovkildeId == lovkildeId
+                        && b.Entitetsstatus == "gjeldende")
+            .ToListAsync(ct);
+        return kandidater.FirstOrDefault(b => string.Equals(b.Term, term.Trim(), StringComparison.OrdinalIgnoreCase));
     }
 
     public Task<List<BegrepEntitet>> AlleVirksomhetsbegrepForAsync(Guid virksomhetId, CancellationToken ct = default) =>

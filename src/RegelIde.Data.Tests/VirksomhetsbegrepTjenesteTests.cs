@@ -377,6 +377,76 @@ public class VirksomhetsbegrepTjenesteTests
         Assert.Null(await register.FinnFastGruppebegrepAsync(term));
     }
 
+    // ---------- [Ny, issue #299 AC3/AC4] Get-or-create for LOVSPESIFIKT gruppebegrep og administrativ
+    // inndeling — brukt av NavnekandidatOppdagelseTjeneste.GodkjennGruppeBatchAsync («Behandle
+    // gruppen»), speil av OpprettEllerGjenbrukFastGruppebegrepAsync over. ----------
+
+    [Fact]
+    public async Task OpprettEllerGjenbrukGruppebegrep_gjenbruker_eksisterende_lovspesifikt_rad()
+    {
+        await using var db = _fixture.NyDbContext();
+        var lovkildeId = await OpprettAlkohollovenAsync(db);
+        var term = NyTerm("tilsynsorganet");
+
+        var register = new VirksomhetsbegrepTjeneste(db);
+        var (forste, forsteVarNy) = await register.OpprettEllerGjenbrukGruppebegrepAsync(lovkildeId, term, "Kari Jurist");
+        Assert.True(forsteVarNy);
+        Assert.Equal(lovkildeId, forste.LovkildeId);
+
+        // Ulik case OG whitespace — samme toleranse som den faste varianten.
+        var (andre, andreVarNy) = await register.OpprettEllerGjenbrukGruppebegrepAsync(
+            lovkildeId, $"  {term.ToUpperInvariant()}  ", "Ola Saksbehandler");
+        Assert.False(andreVarNy);
+        Assert.Equal(forste.Id, andre.Id);
+    }
+
+    [Fact]
+    public async Task OpprettEllerGjenbrukGruppebegrep_ulik_lov_gir_to_ulike_rader()
+    {
+        await using var db = _fixture.NyDbContext();
+        var alkoholloven = await OpprettAlkohollovenAsync(db);
+        var forvaltningsloven = await new RettskildeImportTjeneste(db).ImporterAsync(
+            LovdataKonverterer.Konverter(Testdata.LesForvaltningsloven(), new DateOnly(2026, 8, 22)));
+        var term = NyTerm("kontrollmyndigheten");
+
+        var register = new VirksomhetsbegrepTjeneste(db);
+        var (forste, _) = await register.OpprettEllerGjenbrukGruppebegrepAsync(alkoholloven, term, "Kari Jurist");
+        var (andre, andreVarNy) = await register.OpprettEllerGjenbrukGruppebegrepAsync(forvaltningsloven, term, "Kari Jurist");
+
+        Assert.True(andreVarNy);
+        Assert.NotEqual(forste.Id, andre.Id);
+    }
+
+    [Fact]
+    public async Task FinnGruppebegrep_finner_ikke_fast_begrep_med_samme_term()
+    {
+        await using var db = _fixture.NyDbContext();
+        var lovkildeId = await OpprettAlkohollovenAsync(db);
+        var term = NyTerm("Kongen");
+
+        var register = new VirksomhetsbegrepTjeneste(db);
+        await register.OpprettGruppebegrepAsync(null, term, "Kari Jurist");
+
+        Assert.Null(await register.FinnGruppebegrepAsync(lovkildeId, term));
+    }
+
+    [Fact]
+    public async Task OpprettEllerGjenbrukAdministrativInndeling_gjenbruker_eksisterende_rad()
+    {
+        await using var db = _fixture.NyDbContext();
+        var lovkildeId = await OpprettAlkohollovenAsync(db);
+        var term = NyTerm("Suldal kommune");
+
+        var register = new VirksomhetsbegrepTjeneste(db);
+        var (forste, forsteVarNy) = await register.OpprettEllerGjenbrukAdministrativInndelingAsync(lovkildeId, term, "Kari Jurist");
+        Assert.True(forsteVarNy);
+
+        var (andre, andreVarNy) = await register.OpprettEllerGjenbrukAdministrativInndelingAsync(
+            lovkildeId, $"  {term.ToUpperInvariant()}  ", "Ola Saksbehandler");
+        Assert.False(andreVarNy);
+        Assert.Equal(forste.Id, andre.Id);
+    }
+
     // ---------- [Ny, issue #203 pkt. 2] Administrativ inndeling — samme (Term, LovkildeId)-scoping som
     // gruppebegrep over (besluttet med Johann 2026-09-10), egen Begrepskategori-verdi og egen metode
     // (OpprettAdministrativInndelingAsync) — se den metodens kommentar for hvorfor ikke slått sammen
