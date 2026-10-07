@@ -65,7 +65,10 @@ a.plain{ color:inherit; text-decoration:none; }
 .brand__title{ font-weight:600; font-size: var(--ds-body-md-font-size); }
 .brand__subtitle{ font-size: var(--ds-body-xs-font-size); color: var(--ds-color-text-subtle); }
 
-.main-nav{ display:flex; gap: var(--ds-size-1); }
+/* Ni menypunkter får ikke plass på én linje under ca. 1180 px: bryt til to linjer i stedet for å gi hele siden
+   horisontal rulling. Over det holdes menyen på én linje, og det er merkevareteksten som brytes (#325). */
+.main-nav{ display:flex; gap: var(--ds-size-1); flex-wrap:wrap; justify-content:flex-end; }
+@media (min-width: 1180px){ .main-nav{ flex-wrap:nowrap; flex-shrink:0; } }
 .main-nav a{
   display:inline-flex; align-items:center; height:2.5rem; padding-inline: var(--ds-size-3);
   border-radius: var(--ds-border-radius-md); text-decoration:none; color: var(--ds-color-text-subtle);
@@ -408,7 +411,7 @@ table.ds-table caption{ text-align:left; font-size: var(--ds-body-sm-font-size);
 .struktur-figur .sf-boks{ fill: var(--ds-color-background-default); stroke: var(--ds-color-border-strong); }
 .struktur-figur .sf-boks--omrade{ stroke-dasharray: 5 4; }
 .struktur-figur .sf-etikett{ fill: var(--ds-color-text-subtle); font-size:10.5px; letter-spacing:1px; }
-.struktur-figur .sf-navn{ fill: currentColor; font-weight:600; }
+.struktur-figur .sf-navn{ fill: currentColor; font-weight:600; font-size:12.5px; }
 .struktur-figur .sf-tekst{ fill: currentColor; }
 .struktur-figur .sf-dempet{ fill: var(--ds-color-text-subtle); }
 .struktur-figur .sf-linje{ stroke: currentColor; fill:none; }
