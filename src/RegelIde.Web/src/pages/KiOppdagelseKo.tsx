@@ -101,7 +101,7 @@ export default function KiOppdagelseKo() {
       </Heading>
       <Paragraph style={{ marginBottom: '1.5rem', maxWidth: '42rem' }}>
         Velg én eller flere rettskilder — agenten leser den faktiske, allerede importerte lovteksten
-        FRITT (ikke bare kjente regex-mønstre) og foreslår virksomhet-/gruppekandidater, pluss rolle/
+        FRITT (ikke bare kjente regex-mønstre) og foreslår virksomheter og klasser, roller og områder (er typen usikker, velger du den), pluss rolle/
         relasjon/gruppe-av-gruppe der teksten eksplisitt sier det. Dette er et TILLEGG til det
         deterministiske <Link asChild><RouterLink to="/navnekandidater">navnekandidat-sveipet</RouterLink></Link>,
         ikke en erstatning. Ingenting publiseres uten at et menneske godkjenner det eksplisitt.

@@ -815,12 +815,12 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal("gruppe", kandidat.Kategori);
         Assert.Equal("Venter", kandidat.Status);
 
-        var godkjent = await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist");
+        var godkjent = await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist", nodetype: Nodetyper.Klasse);
         Assert.Equal("Godkjent", godkjent!.Status);
         Assert.Equal("Kari Jurist", godkjent.BehandletAv);
 
         var gruppebegrep = await db.Begreper.SingleAsync(
-            b => b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId && b.Term == "kommunen");
+            b => b.Begrepskategori == "klasse" && b.LovkildeId == rettskildeId && b.Term == "kommunen");
         Assert.Equal("publisert", gruppebegrep.Status);
         // [Rettet, 2026-08-30] LovreferanseEid skal settes til NØYAKTIG kandidatens NodeEid ved
         // godkjenning, slik at gruppebegrepet kan spores tilbake til paragrafen det ble funnet i.
@@ -1159,7 +1159,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         var tjeneste = NyTjeneste(db);
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
-        await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist");
+        await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist", nodetype: Nodetyper.Klasse);
 
         var slettet = await tjeneste.SlettAsync(kandidat.Id);
 
@@ -1315,11 +1315,11 @@ public class NavnekandidatOppdagelseTjenesteTests
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
         Assert.Equal("gruppe", kandidat.Kategori);
 
-        var godkjent = await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist");
+        var godkjent = await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist", nodetype: Nodetyper.Klasse);
         Assert.Equal("Godkjent", godkjent!.Status);
 
         var gruppebegrep = await db.Begreper.SingleAsync(
-            b => b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId && b.Term == "kommunen");
+            b => b.Begrepskategori == "klasse" && b.LovkildeId == rettskildeId && b.Term == "kommunen");
 
         var tagg = await db.TekstTagger.SingleAsync(t => t.RettskildeId == rettskildeId);
         Assert.Equal(departementVirksomhetId, tagg.VirksomhetId);
@@ -1348,11 +1348,11 @@ public class NavnekandidatOppdagelseTjenesteTests
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
         Assert.Equal("gruppe", kandidat.Kategori);
 
-        var godkjent = await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist");
+        var godkjent = await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist", nodetype: Nodetyper.Klasse);
 
         Assert.Equal("Godkjent", godkjent!.Status); // kandidaten godkjennes fortsatt normalt …
         Assert.NotNull(await db.Begreper.SingleOrDefaultAsync(
-            b => b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId)); // … gruppebegrepet opprettes fortsatt …
+            b => b.Begrepskategori == "klasse" && b.LovkildeId == rettskildeId)); // … gruppebegrepet opprettes fortsatt …
         Assert.False(await db.TekstTagger.AnyAsync(t => t.RettskildeId == rettskildeId)); // … men ingen tagg-siden-effekt.
     }
 
@@ -1374,7 +1374,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         await tjeneste.SveipAsync(rettskildeId, "test");
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
 
-        var godkjent = await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist");
+        var godkjent = await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist", nodetype: Nodetyper.Klasse);
 
         Assert.Equal("Godkjent", godkjent!.Status);
         Assert.False(await db.TekstTagger.AnyAsync(t => t.RettskildeId == rettskildeId));
@@ -1751,7 +1751,7 @@ public class NavnekandidatOppdagelseTjenesteTests
 
         var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId);
         Assert.Equal("Testlandia", kandidat.ForeslattTekst);
-        Assert.Equal("administrativ_inndeling", kandidat.Kategori);
+        Assert.Equal("omrade", kandidat.Kategori); // [ENDRET, issue #310] var 'administrativ_inndeling'.
         Assert.Equal("Venter", kandidat.Status);
         // Uten institusjonsord rett etter — konfidensen (uendret regel) er fortsatt "lav", KUN
         // kategorien er ny. De to avgjørelsene er uavhengige, se KlassifiserAsync sin kommentar.
@@ -1786,7 +1786,7 @@ public class NavnekandidatOppdagelseTjenesteTests
 
         // "Østerdalen fylkeskommune" er flerords-mønsterets HELE fangst (fylkeskommune er et kjent
         // Institusjonsord) — samme term sendes til SSR, se KlassifiserAsync-kallet i fase 2.
-        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId && k.Kategori == "administrativ_inndeling");
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId && k.Kategori == "omrade");
         Assert.Equal("Østerdalen fylkeskommune", kandidat.ForeslattTekst);
         Assert.Equal("hoy", kandidat.Konfidens);
         Assert.Equal("ssr_med_institusjonsord", kandidat.KonfidensGrunn);
@@ -1815,7 +1815,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         // siden av flerords-fangsten, samme mønster som "Østerdalen fylkeskommune"-testen over. Filtrer
         // derfor eksplisitt på "administrativ_inndeling", samme som den eksisterende
         // "Lindholt kommune"-testen filtrerer på "virksomhet" av nøyaktig samme grunn.
-        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId && k.Kategori == "administrativ_inndeling");
+        var kandidat = await db.Navnekandidater.SingleAsync(k => k.RettskildeId == rettskildeId && k.Kategori == "omrade");
         Assert.Equal("Vindalen kommune", kandidat.ForeslattTekst);
         Assert.Equal("Venter", kandidat.Status);
 
@@ -1823,7 +1823,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal("Godkjent", godkjent!.Status);
 
         var begrep = await db.Begreper.SingleAsync(
-            b => b.Begrepskategori == "administrativ_inndeling" && b.LovkildeId == rettskildeId && b.Term == "Vindalen kommune");
+            b => b.Begrepskategori == "omrade" && b.LovkildeId == rettskildeId && b.Term == "Vindalen kommune");
         Assert.Equal("publisert", begrep.Status);
         Assert.Equal(kandidat.NodeEid, begrep.LovreferanseEid);
     }
@@ -2048,7 +2048,7 @@ public class NavnekandidatOppdagelseTjenesteTests
 
         var kandidat = await db.Navnekandidater.SingleAsync(
             k => k.RettskildeId == rettskildeId && k.ForeslattTekst == "Suldal kommune");
-        Assert.Equal("administrativ_inndeling", kandidat.Kategori); // pkt. 3-klassifiseringen kjørte på den korrigerte teksten.
+        Assert.Equal("omrade", kandidat.Kategori); // pkt. 3-klassifiseringen kjørte på den korrigerte teksten.
 
         // Posisjonen skal peke på der "Suldal kommune" FAKTISK står i noden (rett etter "Ø "), ikke på
         // det opprinnelige regex-treffets [start, start+lengde) — se FinnKorrigertIntervall.
@@ -2113,10 +2113,12 @@ public class NavnekandidatOppdagelseTjenesteTests
     // [Rettet] StartOffset må være DISTINKT per (RettskildeId, NodeEid) — ux_navnekandidater_rettskilde_
     // node_start er unik på nettopp det paret, uansett ForeslattTekst/Status (samme "idempotens-nøkkel"-
     // vern som ved et ekte sveip, se den indeksens egen kommentar i RegelIdeDbContext).
+    // [ENDRET, issue #310] Standard kategori er nå "klasse" — en kandidat med AVKLART nodetype, som kan
+    // godkjennes uten mer. 'gruppe' (uavklart) testes eksplisitt med kategori: "gruppe".
     private static NavnekandidatEntitet NyGruppeKandidat(
-        Guid rettskildeId, string nodeEid, string foreslattTekst, int startOffset = 0) => new()
+        Guid rettskildeId, string nodeEid, string foreslattTekst, int startOffset = 0, string kategori = "klasse") => new()
     {
-        Id = Guid.NewGuid(), ForeslattTekst = foreslattTekst, Kategori = "gruppe", RettskildeId = rettskildeId,
+        Id = Guid.NewGuid(), ForeslattTekst = foreslattTekst, Kategori = kategori, RettskildeId = rettskildeId,
         NodeEid = nodeEid, StartOffset = startOffset, EndOffset = startOffset + 5, Status = "Venter",
         OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
     };
@@ -2136,7 +2138,7 @@ public class NavnekandidatOppdagelseTjenesteTests
 
         Assert.True(resultat!.VarNyttBegrep);
         Assert.Null(resultat.Gruppebegrep.LovkildeId);
-        Assert.Equal("gruppe", resultat.Gruppebegrep.Begrepskategori);
+        Assert.Equal("klasse", resultat.Gruppebegrep.Begrepskategori);
         Assert.Equal("Godkjent", resultat.Kandidat.Status);
     }
 
@@ -2167,7 +2169,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.Equal("Godkjent", andreResultat.Kandidat.Status);
 
         Assert.Equal(1, await db.Begreper.CountAsync(b =>
-            b.Begrepskategori == "gruppe" && b.LovkildeId == null && b.Term.ToLower() == term.ToLower()));
+            b.Begrepskategori == "klasse" && b.LovkildeId == null && b.Term.ToLower() == term.ToLower()));
     }
 
     [Fact]
@@ -2226,7 +2228,7 @@ public class NavnekandidatOppdagelseTjenesteTests
         Assert.All(rader, r => Assert.True(r.Ok, r.Feil));
         Assert.All(rader, r => Assert.Equal("Godkjent", r.Resultat!.Status));
         Assert.Equal(1, await db.Begreper.CountAsync(b =>
-            b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId && b.Term.ToLower() == term.ToLower()));
+            b.Begrepskategori == "klasse" && b.LovkildeId == rettskildeId && b.Term.ToLower() == term.ToLower()));
     }
 
     [Fact]
@@ -2248,7 +2250,7 @@ public class NavnekandidatOppdagelseTjenesteTests
 
         Assert.All(rader, r => Assert.True(r.Ok, r.Feil));
         Assert.Equal(1, await db.Begreper.CountAsync(b =>
-            b.Begrepskategori == "gruppe" && b.LovkildeId == null && b.Term.ToLower() == term.ToLower()));
+            b.Begrepskategori == "klasse" && b.LovkildeId == null && b.Term.ToLower() == term.ToLower()));
     }
 
     [Fact]
@@ -2269,22 +2271,20 @@ public class NavnekandidatOppdagelseTjenesteTests
         var rader = await tjeneste.GodkjennGruppeBatchAsync([kandidat1.Id, kandidat2.Id], fast: false, "Kari Jurist");
 
         Assert.All(rader, r => Assert.True(r.Ok, r.Feil));
-        var begrep1 = await db.Begreper.SingleAsync(b => b.Begrepskategori == "gruppe" && b.LovkildeId == rettskilde1 && b.Term == term);
-        var begrep2 = await db.Begreper.SingleAsync(b => b.Begrepskategori == "gruppe" && b.LovkildeId == rettskilde2 && b.Term == term);
+        var begrep1 = await db.Begreper.SingleAsync(b => b.Begrepskategori == "klasse" && b.LovkildeId == rettskilde1 && b.Term == term);
+        var begrep2 = await db.Begreper.SingleAsync(b => b.Begrepskategori == "klasse" && b.LovkildeId == rettskilde2 && b.Term == term);
         Assert.NotEqual(begrep1.Id, begrep2.Id);
     }
 
     [Fact]
-    public async Task GodkjennGruppeBatchAsync_administrativ_inndeling_deler_ett_begrep()
+    public async Task GodkjennGruppeBatchAsync_omrade_deler_ett_begrep()
     {
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Nøytral tekst uten noe sveipbart innhold.");
         var node = await db.RettskildeNoder.SingleAsync(n => n.RettskildeId == rettskildeId);
         var term = $"Suldal-kommune-{Guid.NewGuid():N}";
-        var kandidat1 = NyGruppeKandidat(rettskildeId, node.Eid, term, startOffset: 0);
-        kandidat1.Kategori = "administrativ_inndeling";
-        var kandidat2 = NyGruppeKandidat(rettskildeId, node.Eid, term, startOffset: 10);
-        kandidat2.Kategori = "administrativ_inndeling";
+        var kandidat1 = NyGruppeKandidat(rettskildeId, node.Eid, term, startOffset: 0, kategori: "omrade");
+        var kandidat2 = NyGruppeKandidat(rettskildeId, node.Eid, term, startOffset: 10, kategori: "omrade");
         db.Navnekandidater.AddRange(kandidat1, kandidat2);
         await db.SaveChangesAsync();
 
@@ -2293,31 +2293,89 @@ public class NavnekandidatOppdagelseTjenesteTests
 
         Assert.All(rader, r => Assert.True(r.Ok, r.Feil));
         Assert.Equal(1, await db.Begreper.CountAsync(b =>
-            b.Begrepskategori == "administrativ_inndeling" && b.LovkildeId == rettskildeId && b.Term == term));
+            b.Begrepskategori == "omrade" && b.LovkildeId == rettskildeId && b.Term == term));
     }
 
+    /// <summary>[ENDRET, issue #310] Var «administrativ inndeling + fast gir feilrad» — den sperren er
+    /// fjernet (den faste identiteten gjelder alle tre typene). Nå: en kandidat med UAVKLART type
+    /// ('gruppe') gir en feilrad uten tilKategori, og rører ikke radene som har en type.</summary>
     [Fact]
-    public async Task GodkjennGruppeBatchAsync_administrativ_inndeling_med_fast_gir_feilrad_men_rorer_ikke_andre()
+    public async Task GodkjennGruppeBatchAsync_uavklart_gruppe_gir_feilrad_men_rorer_ikke_andre()
     {
         await using var db = _fixture.NyDbContext();
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Nøytral tekst uten noe sveipbart innhold.");
         var node = await db.RettskildeNoder.SingleAsync(n => n.RettskildeId == rettskildeId);
-        var kandidatAdmin = NyGruppeKandidat(rettskildeId, node.Eid, $"Suldal-kommune-{Guid.NewGuid():N}", startOffset: 0);
-        kandidatAdmin.Kategori = "administrativ_inndeling";
-        var kandidatGruppe = NyGruppeKandidat(rettskildeId, node.Eid, $"Kongen-{Guid.NewGuid():N}", startOffset: 10);
-        db.Navnekandidater.AddRange(kandidatAdmin, kandidatGruppe);
+        var kandidatUavklart = NyGruppeKandidat(rettskildeId, node.Eid, $"kommunene-{Guid.NewGuid():N}", startOffset: 0, kategori: "gruppe");
+        var kandidatOmrade = NyGruppeKandidat(rettskildeId, node.Eid, $"Suldal-{Guid.NewGuid():N}", startOffset: 10, kategori: "omrade");
+        db.Navnekandidater.AddRange(kandidatUavklart, kandidatOmrade);
         await db.SaveChangesAsync();
 
+        var rader = await NyTjeneste(db).GodkjennGruppeBatchAsync([kandidatUavklart.Id, kandidatOmrade.Id], fast: true, "Kari Jurist");
+
+        var uavklartRad = rader.Single(r => r.Id == kandidatUavklart.Id);
+        Assert.False(uavklartRad.Ok);
+        Assert.Contains("uavklart", uavklartRad.Feil, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal("Venter", (await db.Navnekandidater.AsNoTracking().SingleAsync(k => k.Id == kandidatUavklart.Id)).Status);
+
+        var omradeRad = rader.Single(r => r.Id == kandidatOmrade.Id);
+        Assert.True(omradeRad.Ok, omradeRad.Feil);
+        Assert.Equal("omrade", (await db.Begreper.SingleAsync(b => b.Term == kandidatOmrade.ForeslattTekst)).Begrepskategori);
+    }
+
+    /// <summary>[Ny, issue #310] Godkjenning av en 'gruppe'-kandidat (uavklart type) uten valgt nodetype
+    /// kastes, og kandidaten står fortsatt «Venter» — typen gjettes ikke. MED nodetype opprettes begrepet
+    /// med den typen, og kandidatraden får typen som kategori (sporbart).</summary>
+    [Fact]
+    public async Task GodkjennAsync_krever_nodetype_for_uavklart_gruppekandidat()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Nøytral tekst uten noe sveipbart innhold.");
+        var node = await db.RettskildeNoder.SingleAsync(n => n.RettskildeId == rettskildeId);
+        var kandidat = NyGruppeKandidat(rettskildeId, node.Eid, $"departementet-{Guid.NewGuid():N}", kategori: "gruppe");
+        db.Navnekandidater.Add(kandidat);
+        await db.SaveChangesAsync();
         var tjeneste = NyTjeneste(db);
-        var rader = await tjeneste.GodkjennGruppeBatchAsync([kandidatAdmin.Id, kandidatGruppe.Id], fast: true, "Kari Jurist");
 
-        var adminRad = rader.Single(r => r.Id == kandidatAdmin.Id);
-        Assert.False(adminRad.Ok);
-        Assert.Contains("administrativ inndeling", adminRad.Feil, StringComparison.OrdinalIgnoreCase);
+        var feil = await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist"));
+        Assert.Contains("nodetype", feil.Message, StringComparison.OrdinalIgnoreCase);
+        Assert.Equal("Venter", (await db.Navnekandidater.AsNoTracking().SingleAsync(k => k.Id == kandidat.Id)).Status);
+        Assert.False(await db.Begreper.AnyAsync(b => b.Term == kandidat.ForeslattTekst));
 
-        var gruppeRad = rader.Single(r => r.Id == kandidatGruppe.Id);
-        Assert.True(gruppeRad.Ok, gruppeRad.Feil);
-        Assert.Equal("Godkjent", gruppeRad.Resultat!.Status);
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist", nodetype: "gruppe"));
+
+        var godkjent = await tjeneste.GodkjennAsync(kandidat.Id, "Kari Jurist", nodetype: Nodetyper.Rolle);
+        Assert.Equal("Godkjent", godkjent!.Status);
+        Assert.Equal("rolle", godkjent.Kategori);
+        var begrep = await db.Begreper.SingleAsync(b => b.Term == kandidat.ForeslattTekst);
+        Assert.Equal("rolle", begrep.Begrepskategori);
+        Assert.Equal(rettskildeId, begrep.LovkildeId);
+    }
+
+    /// <summary>[Ny, issue #310] Fast-grenen og gruppe-av-gruppe-grenen tar samme nodetype-valg.</summary>
+    [Fact]
+    public async Task Fast_og_gruppe_av_gruppe_krever_og_bruker_nodetype_for_uavklart_kandidat()
+    {
+        await using var db = _fixture.NyDbContext();
+        var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Nøytral tekst uten noe sveipbart innhold.");
+        var node = await db.RettskildeNoder.SingleAsync(n => n.RettskildeId == rettskildeId);
+        var fastKandidat = NyGruppeKandidat(rettskildeId, node.Eid, $"Kongen-{Guid.NewGuid():N}", startOffset: 0, kategori: "gruppe");
+        var medlemKandidat = NyGruppeKandidat(rettskildeId, node.Eid, $"vertskommuner-{Guid.NewGuid():N}", startOffset: 10, kategori: "gruppe");
+        db.Navnekandidater.AddRange(fastKandidat, medlemKandidat);
+        await db.SaveChangesAsync();
+        var tjeneste = NyTjeneste(db);
+        var overordnet = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(
+            Nodetyper.Omrade, rettskildeId, $"forvaltningsområdet-{Guid.NewGuid():N}", "Kari Jurist");
+
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.KoblTilFastGruppebegrepAsync(fastKandidat.Id, "Kari Jurist"));
+        var fast = await tjeneste.KoblTilFastGruppebegrepAsync(fastKandidat.Id, "Kari Jurist", nodetype: Nodetyper.Klasse);
+        Assert.Equal("klasse", fast!.Gruppebegrep.Begrepskategori);
+        Assert.Null(fast.Gruppebegrep.LovkildeId);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.KoblTilGruppeAvGruppeAsync(medlemKandidat.Id, overordnet.Id, "Kari Jurist"));
+        var medlem = await tjeneste.KoblTilGruppeAvGruppeAsync(medlemKandidat.Id, overordnet.Id, "Kari Jurist", nodetype: Nodetyper.Klasse);
+        Assert.Equal("klasse", medlem!.Gruppebegrep.Begrepskategori);
+        // Klasse som medlem av et OMRÅDE — medlemskap på tvers av nodetyper går gjennom tjenesten.
+        Assert.Equal(overordnet.Id, medlem.Medlemskap.OverordnetGruppeBegrepId);
     }
 
     [Fact]
@@ -2394,7 +2452,8 @@ public class NavnekandidatOppdagelseTjenesteTests
         var rettskildeId = await OpprettRettskildeMedNodeAsync(db, "Nøytral tekst uten noe sveipbart innhold.");
         var node = await db.RettskildeNoder.SingleAsync(n => n.RettskildeId == rettskildeId);
         var term = $"Statsforvalteren-{Guid.NewGuid():N}";
-        var gruppeKandidat = NyGruppeKandidat(rettskildeId, node.Eid, term, startOffset: 0);
+        // [ENDRET, issue #310] Én uavklart ('gruppe') og én virksomhet — tilKategori setter typen på begge.
+        var gruppeKandidat = NyGruppeKandidat(rettskildeId, node.Eid, term, startOffset: 0, kategori: "gruppe");
         var virksomhetKandidat = NyGruppeKandidat(rettskildeId, node.Eid, term.ToLowerInvariant(), startOffset: 10);
         virksomhetKandidat.Kategori = "virksomhet";
         db.Navnekandidater.AddRange(gruppeKandidat, virksomhetKandidat);
@@ -2402,12 +2461,12 @@ public class NavnekandidatOppdagelseTjenesteTests
 
         var tjeneste = NyTjeneste(db);
         var rader = await tjeneste.GodkjennGruppeBatchAsync(
-            [gruppeKandidat.Id, virksomhetKandidat.Id], fast: false, "Kari Jurist", tilKategori: "gruppe");
+            [gruppeKandidat.Id, virksomhetKandidat.Id], fast: false, "Kari Jurist", tilKategori: "klasse");
 
         Assert.All(rader, r => Assert.True(r.Ok, r.Feil));
-        Assert.Equal("gruppe", (await db.Navnekandidater.SingleAsync(k => k.Id == virksomhetKandidat.Id)).Kategori);
+        Assert.Equal("klasse", (await db.Navnekandidater.SingleAsync(k => k.Id == virksomhetKandidat.Id)).Kategori);
         Assert.Equal(1, await db.Begreper.CountAsync(b =>
-            b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId && b.Term.ToLower() == term.ToLower()));
+            b.Begrepskategori == "klasse" && b.LovkildeId == rettskildeId && b.Term.ToLower() == term.ToLower()));
     }
 
     [Fact]
@@ -2433,6 +2492,11 @@ public class NavnekandidatOppdagelseTjenesteTests
         await using var db = _fixture.NyDbContext();
         await Assert.ThrowsAsync<ArgumentException>(() =>
             NyTjeneste(db).GodkjennGruppeBatchAsync([Guid.NewGuid()], fast: false, "Kari Jurist", tilKategori: "virksomhet"));
+        // [Ny, issue #310] 'gruppe' og 'administrativ_inndeling' er ikke lenger noe man kan godkjenne SOM.
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            NyTjeneste(db).GodkjennGruppeBatchAsync([Guid.NewGuid()], fast: false, "Kari Jurist", tilKategori: "gruppe"));
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            NyTjeneste(db).GodkjennGruppeBatchAsync([Guid.NewGuid()], fast: false, "Kari Jurist", tilKategori: "administrativ_inndeling"));
     }
 
     [Fact]
