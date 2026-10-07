@@ -8,6 +8,8 @@ Målegrunnlaget for `docs/33-strukturmodell-aktor-omrade-kompetanse.md`.
 | `<kilde>.json` | Fasit: aktører + strukturutsagn med eksakt sitat og eId, for hovedkilden og dens ledsagende forskrifter. |
 | `noder/<kilde>.json` | Nodetekstene fasiten er laget fra (gjeldende versjon, ikke opphevede noder), slik at målingen kan kjøres uten database. |
 | `maling-monster.md` | **[Ny 2026-10-07, #307]** Måling av mønsterkonverteringen (`MonsterStrukturkonverterer`) mot fasiten: presisjon/gjenfinning per kanttype, kilde og mønster, vanligste feil, forkastede mønstre. GENERERT av `src/RegelIde.Data.Tests/Strukturfasit/` — ikke rediger for hånd. |
+| `maling-ki.md` | **[Ny 2026-10-07, #308]** Måling av KI-konverteringen (`KiStrukturkonverterer`) side om side med mønsterlaget og unionen: presisjon/gjenfinning per kanttype, kilde og type, kastede rader per årsak, kall, tokens og kostnad. GENERERT — live av `KiStrukturkonvertererLiveMalingTests` (gated, `REGELIDE_KI_LIVE_MALING=1`), og regenerert uten nettverk fra `ki-utdata/` av `KiMalingRapportTests`. Ikke rediger for hånd. |
+| `ki-utdata/` | **[Ny 2026-10-07, #308]** Utdata fra live-kjøringen: KI-dokumentet per kilde i fasit-formatet (`oppdagelseskilde = "ki:<modell>"`) og `kjoring.json` (modell, instruksavtrykk, kall, tokens, alle kastede rader med årsak). Lagret fordi en KI-kjøring verken er reproduserbar eller gratis. |
 | `designtest.py` | Klassifiserer hvert utsagn mot dagens og revidert modell (`docs/33` §6). `python designtest.py`. |
 
 ## Proveniens
