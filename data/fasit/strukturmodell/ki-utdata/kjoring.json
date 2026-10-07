@@ -1,0 +1,2280 @@
+{
+  "Modell": "deepseek-ai/DeepSeek-V4-Flash",
+  "Tidspunkt": "2026-10-07 10:16 +02:00",
+  "Kjoringsnummer": 1,
+  "Instruksavtrykk": "64071f24989f",
+  "Valg": {
+    "MaksTegnPerKall": 6000,
+    "MaksParallelleKall": 4,
+    "MaksDelingsdybde": 2
+  },
+  "Kilder": [
+    {
+      "Kilde": "domstolloven",
+      "AntallDeler": 29,
+      "AntallKall": 29,
+      "UgyldigJson": 0,
+      "FeiledeKall": 1,
+      "TaptNoder": 28,
+      "InputTokens": 96466,
+      "OutputTokens": 91210,
+      "Sekunder": 556,
+      "Kastet": [
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§1/ledd-1",
+          "Sitat": "De alminnelige domstoler er: Høyesterett, lagmannsrettene, tingrettene",
+          "Kategori": "sammensetning_omrade",
+          "Type": "bestar_av",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§1/ledd-1",
+          "Sitat": "De alminnelige domstoler er: Høyesterett, lagmannsrettene, tingrettene",
+          "Kategori": "sammensetning_omrade",
+          "Type": "bestar_av",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§2/ledd-1",
+          "Sitat": "Særdomstoler er: jordskifterettene; de overordentlige domstoler, som nedsettes etter § 29; konsulrettene i utlandet; Riksretten.",
+          "Kategori": "sammensetning_omrade",
+          "Type": "bestar_av",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§2/ledd-1",
+          "Sitat": "Særdomstoler er: jordskifterettene; de overordentlige domstoler, som nedsettes etter § 29; konsulrettene i utlandet; Riksretten.",
+          "Kategori": "sammensetning_omrade",
+          "Type": "bestar_av",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§2/ledd-1",
+          "Sitat": "Særdomstoler er: jordskifterettene; de overordentlige domstoler, som nedsettes etter § 29; konsulrettene i utlandet; Riksretten.",
+          "Kategori": "sammensetning_omrade",
+          "Type": "bestar_av",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§1/ledd-1/punkt-3",
+          "Sitat": "kan Høyesterett ... deles i flere avdelinger",
+          "Kategori": "organsammensetning",
+          "Type": "har_organ",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§1/ledd-1/punkt-3",
+          "Sitat": "kan Høyesterett nedsette ett eller flere utvalg, som betegnes som Høyesteretts ankeutvalg.",
+          "Kategori": "organsammensetning",
+          "Type": "har_organ",
+          "Detalj": "står ordrett i en annen node i samme kall (feil tagg)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§1/ledd-1/punkt-3",
+          "Sitat": "Høyesterettsjustitiarius leder behandlingen i avdelinger og utvalg og behandlingen av saker i storkammer eller plenum, som hun eller han er med i. Ellers ledes behandlingen av eldste dommer som er med.",
+          "Kategori": "relasjon",
+          "Type": "ledes_av",
+          "Detalj": "står ordrett i en annen node i samme kall (feil tagg)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§1/ledd-1/punkt-3",
+          "Sitat": "Høyesterettsjustitiarius leder behandlingen i avdelinger og utvalg og behandlingen av saker i storkammer eller plenum, som hun eller han er med i. Ellers ledes behandlingen av eldste dommer som er med.",
+          "Kategori": "relasjon",
+          "Type": "ledes_av",
+          "Detalj": "står ordrett i en annen node i samme kall (feil tagg)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§2/ledd-1/punkt-2",
+          "Sitat": "Høyesterettsjustitiarius leder rettens forretninger, fastsetter tiden for dens møter og for behandlingen av sakene og fordeler forretningene mellom rettens medlemmer og i tilfelle dens avdelinger og utvalg.",
+          "Kategori": "kompetanse",
+          "Type": "instruksjonskompetanse",
+          "Detalj": "står ordrett i en annen node i samme kall (feil tagg)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§2/ledd-1/punkt-2",
+          "Sitat": "Har justitiarius forfall, gjør eldste dommer tjeneste så lenge ingen annen er oppnevnt.",
+          "Kategori": "relasjon",
+          "Type": "ledes_av",
+          "Detalj": "står ordrett i en annen node i samme kall (feil tagg)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§2/ledd-1/punkt-3",
+          "Sitat": "Høyesterett skal ha en direktør, som leder domstolens kontor",
+          "Kategori": "organsammensetning",
+          "Type": "har_organ",
+          "Detalj": "står ordrett i en annen node i samme kall (feil tagg)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§2/ledd-1/punkt-4",
+          "Sitat": "Lagmannsrettene skal ha en førstelagmann som leder og så mange lagmenn, lagdommere og jordskiftelagdommere som til enhver tid er bestemt.",
+          "Kategori": "organsammensetning",
+          "Type": "har_medlemmer",
+          "Detalj": "står ordrett i en annen node i samme kall (feil tagg)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§2/ledd-1/punkt-4",
+          "Sitat": "Førstelagmannen kan tilkalle dommere fra tingrettene i lagdømmet til å ta sete i retten.",
+          "Kategori": "kompetanse",
+          "Type": "utpekingskompetanse",
+          "Detalj": "står ordrett i en annen node i samme kall (feil tagg)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§2/ledd-1/punkt-4",
+          "Sitat": "Når særlige grunner foreligger, kan førstelagmannen også tilkalle dommere ved tingrettene og lagmannsretten i et annet lagdømme dersom de er villige til å gjøre tjeneste.",
+          "Kategori": "kompetanse",
+          "Type": "utpekingskompetanse",
+          "Detalj": "står ordrett i en annen node i samme kall (feil tagg)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§2/ledd-1/punkt-5",
+          "Sitat": "Førstelagmannen fordeler sakene mellom dommerne ved domstolen.",
+          "Kategori": "kompetanse",
+          "Type": "instruksjonskompetanse",
+          "Detalj": "står ordrett i en annen node i samme kall (feil tagg)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§2/ledd-1/punkt-5",
+          "Sitat": "Har førstelagmannen forfall, skal den eldste av lagmennene eller den eldste av de øvrige dommerne gjøre tjeneste som førstelagmann",
+          "Kategori": "relasjon",
+          "Type": "ledes_av",
+          "Detalj": "står ordrett i en annen node i samme kall (feil tagg)"
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§11/ledd-3",
+          "Sitat": "Førstelagmannen kan bemyndige lagmennene til å utføre de forretningene som etter andre lovbestemmelser er tillagt denne.",
+          "Kategori": "kompetanse",
+          "Type": "delegeringsfullmakt",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ukjent_kategori",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§11/ledd-4",
+          "Sitat": "Hvor saksmengden gjør det påkrevet, kan lagmannsretten etter bestemmelse av domstoladministrasjonen deles i avdelinger.",
+          "Kategori": "organisasjonsstruktur",
+          "Type": "bestar_av",
+          "Detalj": "Kategorien «organisasjonsstruktur» står ikke i FORMAT.md."
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§11/ledd-4",
+          "Sitat": "I så fall kan det utnevnes en lagmann som leder for hver avdeling.",
+          "Kategori": "medlemskap",
+          "Type": "har_medlemmer",
+          "Detalj": "Typen «har_medlemmer» står ikke i FORMAT.md-lista for «medlemskap»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§11/ledd-4",
+          "Sitat": "Førstelagmannen fordeler sakene mellom avdelingene og treffer bestemmelse om dommernes tjenestegjøring.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§11/ledd-4",
+          "Sitat": "Lagmannen fordeler sakene mellom dommerne i avdelingen.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§12/ledd-1",
+          "Sitat": "I den enkelte sak settes retten med tre dommere når annet ikke er bestemt ved lov.",
+          "Kategori": "organsammensetning",
+          "Type": "har_medlemmer",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§12/ledd-1",
+          "Sitat": "Istedenfor førstelagmannen eller en lagmann kan en av lagdommerne gjøre tjeneste som rettens leder.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§12/ledd-2",
+          "Sitat": "kan førstelagmannen beslutte at en av de tre dommerne som nevnt i første ledd kan være jordskiftelagdommer.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§12/ledd-3",
+          "Sitat": "kan førstelagmannen bestemme at et varamedlem skal følge forhandlingene og tre inn i retten om noen får forfall.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§12/ledd-4",
+          "Sitat": "Nærmere regler om klarering og autorisasjon kan gis av Kongen.",
+          "Kategori": "kompetanse",
+          "Type": "forskriftskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§13/ledd-1",
+          "Sitat": "Avgjørelser og andre forføyninger, som ikke gjelder de enkelte rettssaker, treffer førstelagmannen alene hvis ikke annet er bestemt.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§16/ledd-1",
+          "Sitat": "Rikets inddeling i lagdømmer for hver lagmandsret og lagdømmernes inddeling i retskredser (lagsogn) bestemmer Kongen.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§18/ledd-1",
+          "Sitat": "For hvert lagsokn fastsetter domstoladministrasjonen ett eller flere rettssteder.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§18/ledd-1",
+          "Sitat": "Når størrelsen av lagsoknet eller andre grunner gjør det hensiktsmessig, skal det fastsettes flere rettssteder, hvert for en del av lagsoknet.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-1",
+          "Sitat": "Tingrettene skal ha en sorenskriver som leder og så mange tingrettsdommere som til enhver tid er bestemt.",
+          "Kategori": "konstituerende",
+          "Type": "skal_finnes",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-1",
+          "Sitat": "Det kan også utnevnes en nestleder.",
+          "Kategori": "konstituerende",
+          "Type": "skal_finnes",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-1",
+          "Sitat": "Har lederen og nestlederen forfall, skal den eldste av de andre dommerne gjøre tjeneste, så lenge ingen annen er oppnevnt.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-2",
+          "Sitat": "kan domstolens leder tilkalle dommere som er villige til å gjøre tjeneste fra tingretter i samme eller et annet lagdømme.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-2",
+          "Sitat": "Domstolens leder kan ellers be lagmannsretten om å foreta tilkalling av slike dommere innen lagdømmet.",
+          "Kategori": "relasjon",
+          "Type": "samarbeider_med",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-3",
+          "Sitat": "Har tingretten flere dommere, fordeler domstolens leder forretningene mellom dem.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ukjent_kategori",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-4",
+          "Sitat": "kan tingrettene etter bestemmelse av domstoladministrasjonen deles i avdelinger.",
+          "Kategori": "organisasjonsstruktur",
+          "Type": "bestar_av",
+          "Detalj": "Kategorien «organisasjonsstruktur» står ikke i FORMAT.md."
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-4",
+          "Sitat": "I så fall kan det utnevnes en dommer som leder for hver avdeling.",
+          "Kategori": "medlemskap",
+          "Type": "har_medlemmer",
+          "Detalj": "Typen «har_medlemmer» står ikke i FORMAT.md-lista for «medlemskap»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-4",
+          "Sitat": "Domstolens leder fordeler sakene mellom avdelingene og treffer bestemmelse om dommernes tjenestegjøring.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-4",
+          "Sitat": "Avdelingslederen fordeler sakene mellom dommerne i avdelingene.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-4",
+          "Sitat": "Domstolens leder kan bemyndige avdelingsledere til å utføre de oppgaver som etter andre lovbestemmelser er tillagt denne.",
+          "Kategori": "kompetanse",
+          "Type": "delegeringsfullmakt",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§20/ledd-1",
+          "Sitat": "Domstoladministrasjonen kan oppnevne en særskilt dommer til en eller flere bestemte straffesaker eller til å styre skjønn, ekspropriasjonssaker eller saker som reises under ett etter tvisteloven § 4-5 første ledd, når det er påkrevet fordi saken er vidløftig eller fordi forretningene bør ledes av samme dommer i flere domssokn.",
+          "Kategori": "kompetanse",
+          "Type": "oppnevningskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§20/ledd-1",
+          "Sitat": "kan domstoladministrasjonen oppnevne et varamedlem som skal følge forhandlingene og tre inn i retten om lederen får forfall.",
+          "Kategori": "kompetanse",
+          "Type": "oppnevningskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§21/ledd-1",
+          "Sitat": "I tingretten skal avgjørelser og andre forføyninger som ikke gjelder de enkelte rettssaker, treffes av domstolens leder, når ikke annet er bestemt.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§21/ledd-2",
+          "Sitat": "I den enkelte sak gjør bare en dommer tjeneste.",
+          "Kategori": "annet:domsmyndighet",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§21/ledd-2",
+          "Sitat": "Retten settes med meddommere i de tilfelle som tvisteloven og straffeprosessloven bestemmer.",
+          "Kategori": "annet:rettssammensetning",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§31/ledd-1",
+          "Sitat": "Når rettsmøte i straffesaker holdes av en enkelt dommer og det ikke møter forsvarer eller representant for påtalemyndigheten, skal det være rettsvitne tilstede i rettsmøtet.",
+          "Kategori": "annet:tilstedevaerelse",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§31/ledd-1",
+          "Sitat": "Når det i andre saker holdes rettsmøte eller tvangsforretning av en enkelt dommer og det ikke møter prosessfullmektig for noen av parter, kan rettsvitne tilkalles når dommeren av særlige grunner finner det ønskelig.",
+          "Kategori": "annet:tilkalling",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§40/ledd-1",
+          "Sitat": "At en sak er avgjort av en høiere ret istedenfor av en lavere, er ikke ugyldighetsgrund.",
+          "Kategori": "relasjon",
+          "Type": "annet:avgjorelse_rettsinstans",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§41/ledd-1",
+          "Sitat": "Har en rett feilaktig begynt å behandle en sak uten meddommere eller med oppnevnte meddommere istedenfor uttrukne, skal feilen så vidt mulig rettes ved at domstolens sammensetning uten opphold forandres, og forhandlingen gjentas i den utstrekning som anses påkrevet.",
+          "Kategori": "annet:rettelsesplikt",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§41/ledd-2",
+          "Sitat": "Blir en part opmerksom paa feilen, bør han snarest mulig forlange den rettet.",
+          "Kategori": "annet:initiativplikt",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§42/ledd-1",
+          "Sitat": "De handlinger, en domstol har foretat til oplysning av saken eller til sikring av partenes tarv, er ikke ugyldige og kan ikke angripes av den grund, at saken hører under en anden domstol.",
+          "Kategori": "annet:kompetanse_gyldighet",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§42/ledd-2",
+          "Sitat": "Hvis der er fare ved ophold, bør slike handlinger fremmes, selv om saken forøvrig avvises, fordi den er bragt ind for urigtig domstol.",
+          "Kategori": "annet:kompetanse_gyldighet",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§43/ledd-1",
+          "Sitat": "Enhver domstol, som skal avgjøre en sak, har ret til selv at opta de nødvendige bevis, hvis ikke andet er bestemt.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§43/ledd-2",
+          "Sitat": "En granskingskommisjon, et kontrollutvalg eller et annet særskilt organ som er oppnevnt av Kongen, Stortinget eller et departement eller en statsforvalter for å granske faktiske forhold med sikte på å avdekke lovbrudd eller kritikkverdige forhold, kan kreve bevisopptak ved domstolene etter § 44.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ukjent_eid",
+          "Eid": "n107b",
+          "Sitat": "Videre kan et forvaltningsorgan som ledd i forberedelsen av eller kontrollen med enkeltvedtak kreve slikt bevisopptak.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "Taggen «n107b» står ikke i dette kallets inndata."
+        },
+        {
+          "Arsak": "ukjent_eid",
+          "Eid": "n107c",
+          "Sitat": "En granskingskommisjon, et kontrollutvalg eller et annet særskilt organ som er oppnevnt av Kongen, Stortinget eller et departement eller en statsforvalter",
+          "Kategori": "relasjon",
+          "Type": "oppnevner",
+          "Detalj": "Taggen «n107c» står ikke i dette kallets inndata."
+        },
+        {
+          "Arsak": "ukjent_eid",
+          "Eid": "n107d",
+          "Sitat": "En granskingskommisjon, et kontrollutvalg eller et annet særskilt organ som er oppnevnt av Kongen, Stortinget eller et departement eller en statsforvalter",
+          "Kategori": "relasjon",
+          "Type": "oppnevner",
+          "Detalj": "Taggen «n107d» står ikke i dette kallets inndata."
+        },
+        {
+          "Arsak": "ukjent_eid",
+          "Eid": "n107e",
+          "Sitat": "En granskingskommisjon, et kontrollutvalg eller et annet særskilt organ som er oppnevnt av Kongen, Stortinget eller et departement eller en statsforvalter",
+          "Kategori": "relasjon",
+          "Type": "oppnevner",
+          "Detalj": "Taggen «n107e» står ikke i dette kallets inndata."
+        },
+        {
+          "Arsak": "ukjent_eid",
+          "Eid": "n107f",
+          "Sitat": "En granskingskommisjon, et kontrollutvalg eller et annet særskilt organ som er oppnevnt av Kongen, Stortinget eller et departement eller en statsforvalter",
+          "Kategori": "relasjon",
+          "Type": "oppnevner",
+          "Detalj": "Taggen «n107f» står ikke i dette kallets inndata."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§44/ledd-1",
+          "Sitat": "Skal dommerhandlinger i en sak, som staar under behandling ved en domstol, foretages utenfor embedskredsen, utføres de efter domstolens anmodning af stedets ret.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "ukjent_eid",
+          "Eid": "n108b",
+          "Sitat": "Anmodningen rettes til tingretten, hvis ikke andet er bestemt eller følger av forretningens art.",
+          "Kategori": "relasjon",
+          "Type": "annet:anmodning_utførelse",
+          "Detalj": "Taggen «n108b» står ikke i dette kallets inndata."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§44/ledd-2",
+          "Sitat": "Naar hensynet til saken gjør det ønskelig eller ophold eller omkostninger kan undgaaes, kan den domstol, som har saken, selv foreta saadanne handlinger.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§44/ledd-3",
+          "Sitat": "Er der fare ved ophold, kan enhver domstol, som har faat en retsanmodning, foreta dommerhandlinger utenfor sin embedskreds.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§44/ledd-4",
+          "Sitat": "En domstol, som foretar dommerhandlinger utenfor sin embedskreds, skal uten ophold gi stedets ret meddelelse.",
+          "Kategori": "relasjon",
+          "Type": "annet:meddelelsesplikt",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§45/ledd-1",
+          "Sitat": "Hvis den domstol, som har faat en retsanmodning efter § 44, finder, at den ikke har adgang til at foreta handlingen, avslaar den anmodningen ved kjendelse.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ukjent_eid",
+          "Eid": "n112b",
+          "Sitat": "Anke kan erklæres baade af parterne og af den ret, som har stillet anmodningen.",
+          "Kategori": "kompetanse",
+          "Type": "klagekompetanse",
+          "Detalj": "Taggen «n112b» står ikke i dette kallets inndata."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§45/ledd-2",
+          "Sitat": "Finder den ret, som har faat en retsanmodning, at den burde være henvendt til en anden ret eller myndighet, kan den sende anmodningen videre til denne.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§46/ledd-1",
+          "Sitat": "Retsanmodninger fra utenlandske domstoler eller andre utenlandske myndigheter skal bare efterkommes, naar de blir sendt gjennem vedkommende norske regjeringsdepartement, hvis ikke andet er bestemt av Kongen, eller følger av overenskomst med fremmed stat.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ukjent_eid",
+          "Eid": "n114b",
+          "Sitat": "Retsanmodninger fra utenlandske domstoler eller andre utenlandske myndigheter skal bare efterkommes, naar de blir sendt gjennem vedkommende norske regjeringsdepartement",
+          "Kategori": "relasjon",
+          "Type": "annet:overordnet_mottak",
+          "Detalj": "Taggen «n114b» står ikke i dette kallets inndata."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§46/ledd-2",
+          "Sitat": "Anmodningen sendes til stedets tingrett, hvis ikke andet er bestemt eller følger av handlingens art.",
+          "Kategori": "relasjon",
+          "Type": "annet:anmodning_utførelse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ukjent_eid",
+          "Eid": "n115b",
+          "Sitat": "Når hensiktsmessighetsvurderinger tilsier at flere domstoler er kompetente, avgjør departementet ved hvilken rett handlingen skal finne sted.",
+          "Kategori": "kompetanse",
+          "Type": "utpekingskompetanse",
+          "Detalj": "Taggen «n115b» står ikke i dette kallets inndata."
+        },
+        {
+          "Arsak": "ukjent_eid",
+          "Eid": "n115c",
+          "Sitat": "Retten prøver selv, om den har adgang til at foreta handlingen.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "Taggen «n115c» står ikke i dette kallets inndata."
+        },
+        {
+          "Arsak": "ukjent_eid",
+          "Eid": "n115d",
+          "Sitat": "Rettens avgjørelse kan ankes av vedkommende regjeringsdepartement.",
+          "Kategori": "kompetanse",
+          "Type": "klagekompetanse",
+          "Detalj": "Taggen «n115d» står ikke i dette kallets inndata."
+        },
+        {
+          "Arsak": "ukjent_eid",
+          "Eid": "n115e",
+          "Sitat": "Finder retten, at anmodningen burde være henvendt til en anden ret eller myndighet, kan den sende anmodningen videre til denne.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "Taggen «n115e» står ikke i dette kallets inndata."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§46/ledd-4",
+          "Sitat": "Kongen kan gi nærmere regler om retsanmodninger fra utenlandske myndigheter.",
+          "Kategori": "kompetanse",
+          "Type": "forskriftskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§46/ledd-6",
+          "Sitat": "EFTA-domstolen kan i samsvar med Avtalen mellom EFTA-statene om opprettelse av et overvåkingsorgan og en domstol protokoll 5 artikkel 25 begjære bevisopptak direkte for den domstol som skal holde bevisopptaket.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§47/ledd-1",
+          "Sitat": "Den rett som har en sak til behandling kan beslutte at bevisopptak skal søkes foretatt ved utenlandsk myndighet.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ukjent_eid",
+          "Eid": "n120b",
+          "Sitat": "Står saken ikke for noen rett, kan slik beslutning etter søknad treffes av tingretten på det sted hvor søkeren bor, eller hvor det er et verneting for saken.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "Taggen «n120b» står ikke i dette kallets inndata."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§48/ledd-1",
+          "Sitat": "eller følger av overenskomst med fremmed stat",
+          "Kategori": "relasjon",
+          "Type": "instruksjon",
+          "Detalj": "fra = «a5»: tekstform står ikke i teksten."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§49/ledd-1",
+          "Sitat": "Om retsanmodninger til utenlandske myndigheder i andre tilfælde end de, som § 47 handler om, kan Kongen gi de nødvendige bestemmelser.",
+          "Kategori": "kompetanse",
+          "Type": "forskriftskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§51/ledd-1",
+          "Sitat": "Konsulretten styres av utsendt utenrikstjenesteansatt og norsk honorær representant som departementet har gitt myndighed.",
+          "Kategori": "relasjon",
+          "Type": "ledes_av",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§51/ledd-1",
+          "Sitat": "Konsulretten styres af utsendt utenrikstjenesteansatt og norsk honorær representant",
+          "Kategori": "relasjon",
+          "Type": "ledes_av",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§51/ledd-1",
+          "Sitat": "som departementet har givet myndiged",
+          "Kategori": "relasjon",
+          "Type": "delegerer_til",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§51/ledd-3",
+          "Sitat": "Kongen giver nærmere regler om konsulretten.",
+          "Kategori": "kompetanse",
+          "Type": "forskriftskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§51a/ledd-1",
+          "Sitat": "Når en norsk domstol i en sak skal tage stilling til tolkningen af Avtalen om Det europæiske økonomiske samarbejdsområde med protokoller, vedlæg og de retsakter vedlæggene omhandler, kan den i samsvar med Avtalen mellem EFTA-statene om oprettelse af et overvågningsorgan og en domstol artikel 34 forelægge tolkningsspørgsmålet for EFTA-domstolen.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§51a/ledd-1",
+          "Sitat": "Rettens beslutning om at et tolkningsspørgsmål skal eller ikke skal forelægges for EFTA-domstolen, kan ikke angripes ved anke.",
+          "Kategori": "relasjon",
+          "Type": "instruksjon",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§51a/ledd-2",
+          "Sitat": "Også domstoler som ikke er nevnt i §§ 1 og 2 første ledd har adgang til at forelægge tolkningsspørgsmål for EFTA-domstolen.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§51a/ledd-2",
+          "Sitat": "Forliksrådene har ikke adgang til at forelægge tolkningsspørgsmål for EFTA-domstolen.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§52/ledd-1",
+          "Sitat": "alle de medlemmer af en domstol, som kan træffe eller være med i dømmende avgjørelser",
+          "Kategori": "medlemskap",
+          "Type": "medlem_av",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§52/ledd-1",
+          "Sitat": "Som dommere regnes også medlemmer af forliksrådet.",
+          "Kategori": "medlemskap",
+          "Type": "medlem_av",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55/ledd-1",
+          "Sitat": "Dommere til Højesteret, lagmannsrettene, tingrettene og jordskifterettene udnævnes som embetsmænd af Kongen",
+          "Kategori": "relasjon",
+          "Type": "oppnevner",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55/ledd-1",
+          "Sitat": "efter Grundloven § 21",
+          "Kategori": "relasjon",
+          "Type": "instruksjon",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-1",
+          "Sitat": "Innstillingsrådet for dommere skal afgive indstilling i forbindelse med dommerudnævnelse",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-1",
+          "Sitat": "Innstillingsrådet for dommere skal afgive indstilling i forbindelse med dommerudnævnelse og foretage enkelte konstitutioner",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-1",
+          "Sitat": "Innstillingsrådet skal bestå af tre dommere fra Højesteret, lagmandsretterne eller tingretterne, en advokat, en jurist ansat i det offentlige og to medlemmer som ikke er jurister.",
+          "Kategori": "organsammensetning",
+          "Type": "har_medlemmer",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-1",
+          "Sitat": "Kongen opnævner medlemmerne af Innstillingsrådet med personlige varamend",
+          "Kategori": "relasjon",
+          "Type": "oppnevner",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-1",
+          "Sitat": "Kongen opnævner medlemmerne af Innstillingsrådet med personlige varamend",
+          "Kategori": "relasjon",
+          "Type": "oppnevner",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-1",
+          "Sitat": "Kongen opnævner medlemmerne af Innstillingsrådet med personlige varamend",
+          "Kategori": "relasjon",
+          "Type": "oppnevner",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-1",
+          "Sitat": "Kongen opnævner medlemmerne af Innstillingsrådet med personlige varamend",
+          "Kategori": "relasjon",
+          "Type": "oppnevner",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-1",
+          "Sitat": "Når Innstillingsrådet behandler sager som angår udnævnelse eller konstitution af jordskiftelagdommere og jordskiftedommere, deltager en jordskiftelagdommer eller en jordskiftedommer og en jordskiftekandidat i stedet for henholdsvis en dommer og juristen ansat i det offentlige.",
+          "Kategori": "organsammensetning",
+          "Type": "har_medlemmer",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-1",
+          "Sitat": "Kongen fastsætter hvilket medlem som skal være leder for Innstillingsrådet.",
+          "Kategori": "relasjon",
+          "Type": "oppnevner",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55a/ledd-2",
+          "Sitat": "Opnævningen skal ske for en periode på fire år med adgang til gjenopnævning for én periode.",
+          "Kategori": "relasjon",
+          "Type": "ledes_av",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§57/ledd-3",
+          "Sitat": "kan ... med mindre kommunestyret enstemmig fastsetter rekkefølgen",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§58/ledd-1",
+          "Sitat": "Valget innberettes til statsforvalteren. Finner han valget lovlig, utferdiger han oppnevnelse for de valgte",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "fra = «a2»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§58/ledd-1",
+          "Sitat": "Ellers påbyr han at det i fornøden utstrekning skal holdes nytt valg",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "fra = «a2»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§58/ledd-2",
+          "Sitat": "Statsforvalteren fører tilsyn med forliksrådets virksomhet",
+          "Kategori": "kompetanse",
+          "Type": "tilsynskompetanse",
+          "Detalj": "fra = «a2»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§59/ledd-1",
+          "Sitat": "foretar kommunestyret nytt valg av medlem eller varamedlem",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "fra = «a1»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§59/ledd-2",
+          "Sitat": "Kommunestyret kan tillate et medlem eller varamedlem å fratre sin stilling",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "fra = «a1»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§59/ledd-2",
+          "Sitat": "foretar i så fall nytt valg",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "fra = «a1»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§59/ledd-3",
+          "Sitat": "kan statsforvalteren oppnevne stedfortredere for den enkelte sak eller for inntil tre måneder",
+          "Kategori": "kompetanse",
+          "Type": "oppnevningskompetanse",
+          "Detalj": "fra = «a2»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§59/ledd-4",
+          "Sitat": "kan kommunestyret selv velge ny formann",
+          "Kategori": "kompetanse",
+          "Type": "oppnevningskompetanse",
+          "Detalj": "fra = «a1»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ukjent_kategori",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§62/ledd-1",
+          "Sitat": "For tjenestemenn ved domstolene gjelder lov 4. mars 1983 nr. 3 om statens tjenestemenn m.m.",
+          "Kategori": "annet",
+          "Type": "annet:inkorporasjon",
+          "Detalj": "Kategorien «annet» står ikke i FORMAT.md."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§62/ledd-2",
+          "Sitat": "Etter bestemmelser gitt av domstoladministrasjonen kan domstollederen ... oppnevne stedfortredere for domstolens tjenestemenn",
+          "Kategori": "kompetanse",
+          "Type": "oppnevningskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§62a/ledd-1",
+          "Sitat": "Lagmannsrettene skal ha jordskifteteknisk personale",
+          "Kategori": "organsammensetning",
+          "Type": "har_medlemmer",
+          "Detalj": "fra = «a22»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§63/ledd-1",
+          "Sitat": "Namsfogden er hovedstevnevitne i sitt distrikt",
+          "Kategori": "relasjon",
+          "Type": "annet:rolle",
+          "Detalj": "fra = «a23»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§63/ledd-2",
+          "Sitat": "Hjelpestevnevitner for hovedstevnevitnet må godkjennes av tingretten",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "fra = «a25»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§63/ledd-2",
+          "Sitat": "Med politimesterens samtykke kan det oppnevnes hjelpestevnevitner fra andre politistasjoner",
+          "Kategori": "kompetanse",
+          "Type": "utpekingskompetanse",
+          "Detalj": "fra = «a27»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§63b/ledd-1",
+          "Sitat": "Domstolene kan, uten hinder av taushetsplikt, innhente fra folkeregistermyndigheten de opplysninger",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "fra = «a34»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§64/ledd-1",
+          "Sitat": "I hvert lagsogn skal det for lagmannsrettssaker være to utvalg av meddommere, ett for kvinner og ett for menn",
+          "Kategori": "konstituerende",
+          "Type": "skal_finnes",
+          "Detalj": "fra = «a36»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§64/ledd-2",
+          "Sitat": "underretter lagmannsrettens leder kommunene om fordelingen",
+          "Kategori": "relasjon",
+          "Type": "rapporterer_til",
+          "Detalj": "til = «a38»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§65/ledd-1",
+          "Sitat": "I hvert domssogn skal det for tingrettssaker være to utvalg av meddommere",
+          "Kategori": "konstituerende",
+          "Type": "skal_finnes",
+          "Detalj": "fra = «a39»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§65/ledd-2",
+          "Sitat": "Domstollederen ... fordeler domstollederen utvalgsmedlemmene mellom domssognets kommuner etter folketallet. Hver kommune skal likevel ha minst ett medlem i hvert utvalg.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§66a/ledd-2",
+          "Sitat": "Kommunen gjennomfører valget innen tre måneder etter at underretning fra domstollederen er mottatt. Valget gjelder fra det tidspunkt domstollederen bestemmer.",
+          "Kategori": "relasjon",
+          "Type": "underordnet",
+          "Detalj": "Typen «underordnet» står ikke i FORMAT.md-lista for «relasjon»."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§71/ledd-1",
+          "Sitat": "Utelukket fra valg på grunn av stilling er: Stortingets representanter og vararepresentanter, ...",
+          "Kategori": "annet:valgbarhetsbegrensning",
+          "Type": "annet:valgbarhetsbegrensning",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§72/ledd-1",
+          "Sitat": "Utelukket fra valg på grunn av vandel er: den som er idømt ubetinget fengselsstraff i mer enn ett år, ...",
+          "Kategori": "annet:valgbarhetsbegrensning",
+          "Type": "annet:valgbarhetsbegrensning",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§77/ledd-1",
+          "Sitat": "samt at Domstoladministrasjonen hvert halvår skal kontrollere om medlemmene av utvalgene av meddommere og skjønnsmedlemmer er innført i fortegnelsen i strid med § 72",
+          "Kategori": "kompetanse",
+          "Type": "tilsynskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§88/ledd-2",
+          "Sitat": "En dommer kan fravike en slik beslutning i den enkelte sak.",
+          "Kategori": "kompetanse",
+          "Type": "omgjoring",
+          "Detalj": "Typen «omgjoring» står ikke i FORMAT.md-lista for «kompetanse»."
+        },
+        {
+          "Arsak": "ukjent_aktorreferanse",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§92/ledd-1",
+          "Sitat": "Dersom en uttrukket meddommer ikke kan gjøre tjeneste eller ikke møter, skal et varamedlem av samme kjønn innkalles.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "fra = «null» finnes ikke i svarets aktorer."
+        },
+        {
+          "Arsak": "ukjent_eid",
+          "Eid": "n109",
+          "Sitat": "Er domstolens formann eller den tingrettsdommer som har tilsyn med dommerfullmektigen ugild, er også dommerfullmektigen utelukket",
+          "Kategori": "relasjon",
+          "Type": "annet:ugildhet_smitter",
+          "Detalj": "Taggen «n109» står ikke i dette kallets inndata."
+        },
+        {
+          "Arsak": "ukjent_eid",
+          "Eid": "n109",
+          "Sitat": "Er domstolens formann eller den tingrettsdommer som har tilsyn med dommerfullmektigen ugild, er også dommerfullmektigen utelukket",
+          "Kategori": "relasjon",
+          "Type": "annet:ugildhet_smitter",
+          "Detalj": "Taggen «n109» står ikke i dette kallets inndata."
+        },
+        {
+          "Arsak": "ukjent_eid",
+          "Eid": "n109",
+          "Sitat": "Det samme gjelder i forholdet mellom jordskiftedommer og jordskiftedommerfullmektig.",
+          "Kategori": "relasjon",
+          "Type": "annet:ugildhet_smitter",
+          "Detalj": "Taggen «n109» står ikke i dette kallets inndata."
+        },
+        {
+          "Arsak": "ukjent_eid",
+          "Eid": "n110",
+          "Sitat": "Ingen som står i et forhold til saken som nevnt i § 106 nr. 1 til 6, kan delta i saken som protokollsekretær eller utreder, jf. § 61, eller forestå trekning av meddommere.",
+          "Kategori": "kompetanse",
+          "Type": "annet:forbud_mot_delta",
+          "Detalj": "Taggen «n110» står ikke i dette kallets inndata."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§121c/ledd-2/punkt-1",
+          "Sitat": "valg som stortingsrepresentant, som medlem av Sametinget eller som medlem av folkevalgte organer i kommune eller fylkeskommune",
+          "Kategori": "medlemskap",
+          "Type": "medlem_av",
+          "Detalj": "står ordrett i en annen node i samme kall (feil tagg)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§121c/ledd-2/punkt-1",
+          "Sitat": "valg som stortingsrepresentant",
+          "Kategori": "medlemskap",
+          "Type": "medlem_av",
+          "Detalj": "står ordrett i en annen node i samme kall (feil tagg)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§132/ledd-2",
+          "Sitat": "Rettens leder kan begrænse antallet af tilhørere for at hindre, at rummet blir overfyldt.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§136/ledd-2",
+          "Sitat": "Oversættelsen maa være bekræftet af en translatør, som er godkjendt af det offentlige, eller af en tolk, som retten har opnævnt eller godkjendt.",
+          "Kategori": "kompetanse",
+          "Type": "utpekingskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§138/ledd-1",
+          "Sitat": "Om opnævnelse af retstolk og om tolkens pligter og ugildhet gjælder de regler, som er git om sakkyndige.",
+          "Kategori": "annet:henvisning_til_regler",
+          "Type": "annet:henvisning_til_regler",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§138/ledd-2",
+          "Sitat": "Stillingen som rettstolk kan forenes med stillingen som protokollfører eller rettsvitne.",
+          "Kategori": "medlemskap",
+          "Type": "inngar_i",
+          "Detalj": "fra = «a8»: tekstform står ikke i teksten."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§164/ledd-1",
+          "Sitat": "Det kan også bestemmes at meddelelsen kan sendes via annen myndighet.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "fra = «a36»: tekstform står ikke i teksten."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§166/ledd-2",
+          "Sitat": "Negter et stevnevitne at utføre en forkyndelse, kan spørsmaalet forelægges for stedets tingrett eller for den ret, som har saken.",
+          "Kategori": "relasjon",
+          "Type": "klageinstans_for",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§166/ledd-2",
+          "Sitat": "Negter et stevnevitne at utføre en forkyndelse, kan spørsmaalet forelægges for stedets tingrett eller for den ret, som har saken.",
+          "Kategori": "relasjon",
+          "Type": "klageinstans_for",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§174/ledd-2",
+          "Sitat": "rette kontor",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§176/ledd-1",
+          "Sitat": "rette kontor",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§180/ledd-3",
+          "Sitat": "gjennem vedkommende norske utenriksstasjon",
+          "Kategori": "relasjon",
+          "Type": "bistar",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§191/ledd-1",
+          "Sitat": "for en fylkeskommune er det fylkesordføreren",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "fra = «a12»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§191/ledd-1",
+          "Sitat": "for en kommune er det ordføreren",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "fra = «a14»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§191/ledd-2",
+          "Sitat": "Er der ingen formand, kan de rettes til ethvert medlem av styret",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "fra = «a24»: tekstform står ikke i teksten."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§217a/ledd-1",
+          "Sitat": "den domstol som avgjør spørsmålet om straff eller erstatning, skal varsle Advokattilsynet om avgjørelsen.",
+          "Kategori": "kompetanse",
+          "Type": "annet:varslingsplikt",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§235/ledd-1",
+          "Sitat": "Kongen ... fastsetter hvilket medlem som skal være leder for Tilsynsutvalget.",
+          "Kategori": "kompetanse",
+          "Type": "utpekingskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§238/ledd-6",
+          "Sitat": "Tilsynsutvalget kan gi utvalgets leder eller et annet av utvalgets medlemmer myndighet til å avvise en klage når det ikke foreligger klageadgang etter loven her",
+          "Kategori": "kompetanse",
+          "Type": "delegeringsfullmakt",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§238/ledd-6",
+          "Sitat": "Tilsynsutvalget kan gi utvalgets leder eller et annet av utvalgets medlemmer myndighet til å avgjøre en klagesak når klagen er åpenbart ubegrunnet.",
+          "Kategori": "kompetanse",
+          "Type": "delegeringsfullmakt",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "ukjent_aktorreferanse",
+          "Eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§241/ledd-1",
+          "Sitat": "kan vedkommende styresmakt i særlige tilfelle godta tilsvarende juridisk eksamen i utlandet",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "fra = «null» finnes ikke i svarets aktorer."
+        }
+      ],
+      "KastedeAktorer": {
+        "tekstform står ikke i teksten": 6,
+        "ukjent oppløsning": 16
+      },
+      "Kallfeil": [
+        "Kall feilet (28 noder, første https://lovdata.no/eli/forskrift/2021/01/22/163/nor/§1/ledd-1): KI-kallet mot 'https://hostyourai.com/api/v1/chat/completions' feilet (504 GatewayTimeout): <html>  <head><title>504 Gateway Time-out</title></head>  <body>  <center><h1>504 Gateway Time-out</h1></center>  <hr><center>nginx</center>  </body>  </html>  "
+      ]
+    },
+    {
+      "Kilde": "energiloven",
+      "AntallDeler": 15,
+      "AntallKall": 15,
+      "UgyldigJson": 0,
+      "FeiledeKall": 0,
+      "TaptNoder": 0,
+      "InputTokens": 49422,
+      "OutputTokens": 47586,
+      "Sekunder": 208,
+      "Kastet": [
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-1b/ledd-1",
+          "Sitat": "En konsesjon etter § 3-1 bortfaller hvis arbeidet ikke er satt i gang innen fem år",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-2/ledd-1",
+          "Sitat": "Innen et område kan konsesjon gis for bygging, eierskap og drift av anlegg for fordeling av elektrisk energi mellom spenningsnivåer som fastsettes av departementet.",
+          "Kategori": "kompetanse",
+          "Type": "forskriftskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-3/ledd-1",
+          "Sitat": "Den som gis områdekonsesjon etter § 3-2, skal levere elektrisk energi til alle kunder innenfor det geografiske området konsesjonen gjelder for.",
+          "Kategori": "ansvarsomrade",
+          "Type": "har_ansvarsomrade",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-3/ledd-2",
+          "Sitat": "Reguleringsmyndigheten kan dispensere fra leverings-, tilknytnings- eller investeringsplikten etter første ledd når særlige grunner tilsier det.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-3/ledd-3",
+          "Sitat": "Departementet kan gi forskrift om leveringsplikten, blant annet om priser, konsesjonærenes og sluttbrukernes vilkår, gjennomføring, organisering og informasjon.",
+          "Kategori": "kompetanse",
+          "Type": "forskriftskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-3/ledd-4",
+          "Sitat": "Reguleringsmyndigheten skal ved enkeltvedtak fastsette eller godkjenne vilkår for leveringsplikt",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-4/ledd-1",
+          "Sitat": "Den som gis anleggskonsesjon etter § 3-1 for nettanlegg, har plikt til å tilknytte nye anlegg for uttak av elektrisk energi",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-4/ledd-2",
+          "Sitat": "Departementet kan i ekstraordinære tilfeller gi dispensasjon fra tilknytnings- og investeringsplikten for uttakskunder.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-4/ledd-3",
+          "Sitat": "Reguleringsmyndigheten skal ved enkeltvedtak fastsette eller godkjenne vilkår for tilknytning av anlegg",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-4a/ledd-1",
+          "Sitat": "Alle som har konsesjon for nettanlegg etter dette kapittelet, har plikt til å tilknytte nye anlegg for produksjon av elektrisk energi",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-4a/ledd-2",
+          "Sitat": "Områdekonsesjonæren skal på forespørsel bygge nødvendige nettanlegg helt frem til et anlegg for produksjon av elektrisk energi",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-4a/ledd-3",
+          "Sitat": "Departementet kan gi dispensasjon fra tilknytnings- og investeringsplikten for produksjon dersom tiltaket ikke er samfunnsmessig rasjonelt.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-4a/ledd-4",
+          "Sitat": "Reguleringsmyndigheten skal ved enkeltvedtak fastsette eller godkjenne vilkår for tilknytning av anlegg",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-5/ledd-1",
+          "Sitat": "For konsesjoner etter §§ 3-1 og 3-2 kan departementet gi nærmere forskrifter og fastsette vilkår",
+          "Kategori": "kompetanse",
+          "Type": "forskriftskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-5/ledd-2",
+          "Sitat": "Departementet kan i forbindelse med den enkelte konsesjon fastsette ytterligere vilkår dersom det finnes påkrevet av allmenne eller private interesser.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-6/ledd-1",
+          "Sitat": "Departementet kan treffe vedtak om ekspropriasjon av anlegg for omforming, overføring og fordeling av elektrisk energi.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-7/ledd-1",
+          "Sitat": "Departementet kan gi forskrifter om utpeking av konsesjonær etter §§ 3-1 og 3-2 som koordinerende operatør av distribusjonssystem. Departementet kan gi forskrifter om operatørens oppgaver og myndighet overfor aktører som helt eller delvis eier eller er tilknyttet nett.",
+          "Kategori": "kompetanse",
+          "Type": "forskriftskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-8/ledd-1",
+          "Sitat": "Når det er nødvendig for å ivareta nasjonale sikkerhetsinteresser, kan Kongen fatte vedtak om at konsesjonærer etter kapittel 3 skal prioritere nettilknytning eller kapasitetsøkning for en bestemt uttakskunde.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "sikkerhet = «høy»."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-3/ledd-5",
+          "Sitat": "Reguleringsmyndigheten skal ved enkeltvedtak fastsette eller godkjenne vilkår om utøvelsen av avregningsansvaret",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-5/ledd-1",
+          "Sitat": "Uten konsesjon fra reguleringsmyndigheten kan ingen andre enn staten forestå organisering eller drift av markedsplass for omsetning av elektrisk energi.",
+          "Kategori": "kompetanse",
+          "Type": "konsesjonskompetanse",
+          "Detalj": "Typen «konsesjonskompetanse» står ikke i FORMAT.md-lista for «kompetanse»."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-5/ledd-3",
+          "Sitat": "Reguleringsmyndigheten skal ved enkeltvedtak fastsette eller godkjenne vilkår for handel på markedsplasser",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-5a/ledd-3",
+          "Sitat": "Reguleringsmyndigheten skal ved enkeltvedtak fastsette eller godkjenne vilkår for handel på markedsplasser som nevnt i første og annet ledd",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-6/ledd-1",
+          "Sitat": "I et integrert foretak skal nettvirksomhet være organisert som en egen selvstendig juridisk enhet, adskilt fra annen virksomhet.",
+          "Kategori": "konstituerende",
+          "Type": "skal_finnes",
+          "Detalj": "fra = «a8»: tekstform står ikke i teksten."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-8/ledd-2",
+          "Sitat": "Den som har kontroll over eller rettigheter i en virksomhet som driver med produksjon eller omsetning av elektrisk energi kan ikke utnevne personer til styret i en virksomhet som eier anlegg i transmisjonsnettet, eller som har systemansvar",
+          "Kategori": "kompetanse",
+          "Type": "utnevningskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-8/ledd-2",
+          "Sitat": "kan ikke utnevne personer til en ledende stilling i en virksomhet som nevnt i bokstav a",
+          "Kategori": "kompetanse",
+          "Type": "utnevningskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-8/ledd-2",
+          "Sitat": "kan ikke utnevne personer som utad kan representere en virksomhet som nevnt i bokstav a",
+          "Kategori": "kompetanse",
+          "Type": "utnevningskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§9-1/ledd-1",
+          "Sitat": "Kraftforsyningens beredskapsorganisasjon (KBO) består av de enheter som eier eller driver anlegg eller annet som har vesentlig betydning for drift eller gjenoppretting av eller sikkerhet i produksjon, omforming, overføring, omsetning eller fordeling av elektrisk energi eller fjernvarme.",
+          "Kategori": "medlemskap",
+          "Type": "bestar_av",
+          "Detalj": "Typen «bestar_av» står ikke i FORMAT.md-lista for «medlemskap»."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§9-1/ledd-5",
+          "Sitat": "Beredskapsmyndigheten kan under beredskap og i krig underlegge kraftforsyningen KBO.",
+          "Kategori": "relasjon",
+          "Type": "instruksjon",
+          "Detalj": "til = «a6»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§9-1/ledd-5",
+          "Sitat": "Kraftforsyningen plikter å følge de pålegg som gis og gjennomføre de tiltak som kreves.",
+          "Kategori": "relasjon",
+          "Type": "instruksjon",
+          "Detalj": "til = «a6»: ukjent oppløsning."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§9-5/ledd-2",
+          "Sitat": "Alle som omfattes av dette kapittelet, plikter å gi beredskapsmyndigheten adgang til grunn, bygg, anlegg og lignende mot gyldig legitimasjon",
+          "Kategori": "annet:adgangsrett",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§9-5/ledd-2",
+          "Sitat": "Det samme gjelder adgang for politiet og militære myndigheter når dette har sammenheng med forberedelse til og gjennomføring av væpnet sikring.",
+          "Kategori": "annet:adgangsrett",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§9-5/ledd-3",
+          "Sitat": "Beredskapsmyndigheten kan gi forskrift om at KBO-enheter kan kreve at personer som skal ha tilgang til anlegg ... skal fremlegge en ordinær politiattest.",
+          "Kategori": "kompetanse",
+          "Type": "forskriftskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§9-5/ledd-3",
+          "Sitat": "KBO-enheter kan kreve at personer som skal ha tilgang til anlegg ... skal fremlegge en ordinær politiattest.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-3",
+          "Sitat": "Enhver plikter uten hinder av taushetsplikt å gi departementet, reguleringsmyndigheten eller klagenemnda de opplysninger som er nødvendige for utøvelse av myndighet etter denne loven.",
+          "Kategori": "annet:opplysningsplikt",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-3",
+          "Sitat": "uten hinder av lovbestemt taushetsplikt skal informasjon utleveres til EFTAs faste komité, EFTAs overvåkningsorgan eller EU-kommisjonen",
+          "Kategori": "annet:opplysningsplikt",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-4",
+          "Sitat": "kan departementet eller reguleringsmyndigheten, uten hinder av lovbestemt taushetsplikt, gi andre norske myndigheter opplysninger som er nødvendige for å fremme håndhevelsen av norsk regulering av kraftmarkedet.",
+          "Kategori": "annet:opplysningsplikt",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-4",
+          "Sitat": "kan departementet eller reguleringsmyndigheten uten hinder av lovbestemt taushetsplikt gi energimyndighetene i andre stater som er part i EØS-avtalen, byrået for samarbeid mellom energiregulatorer eller EFTAs overvåkningsorgan opplysninger",
+          "Kategori": "annet:opplysningsplikt",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1a/ledd-2",
+          "Sitat": "Undersøkelsesrapportene med tilhørende materiale skal stilles til rådighet for konsesjonsmyndigheten.",
+          "Kategori": "annet:rapporteringsplikt",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "ukjent_kategori",
+          "Eid": "kap-I/ledd-6",
+          "Sitat": "endringene i energiloven § 3-4a, herunder at nåværende § 3-4a tredje ledd blir nytt fjerde ledd, først trer i kraft 1. januar 2026, jf. ikrafttredelsesvedtak 20. juni 2025 nr. 1085.",
+          "Kategori": "annet",
+          "Type": "annet:ikrafttredelse",
+          "Detalj": "Kategorien «annet» står ikke i FORMAT.md."
+        }
+      ],
+      "KastedeAktorer": {
+        "tekstform står ikke i teksten": 4,
+        "ukjent oppløsning": 1
+      },
+      "Kallfeil": []
+    },
+    {
+      "Kilde": "helse-og-omsorgstjenesteloven",
+      "AntallDeler": 11,
+      "AntallKall": 11,
+      "UgyldigJson": 0,
+      "FeiledeKall": 0,
+      "TaptNoder": 0,
+      "InputTokens": 38676,
+      "OutputTokens": 25273,
+      "Sekunder": 132,
+      "Kastet": [
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§1-2/ledd-1",
+          "Sitat": "Loven gjelder for helse- og omsorgstjenester som tilbys eller ytes i riket av kommunen eller private som har avtale med kommunen",
+          "Kategori": "ansvarsomrade",
+          "Type": "har_jurisdiksjon",
+          "Detalj": "fra = «a1»: variant står ikke i teksten."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§2-2/ledd-1",
+          "Sitat": "Forvaltningsloven gjelder for kommunenes virksomhet med de særlige bestemmelser som følger av loven her og av pasient- og brukerrettighetsloven.",
+          "Kategori": "ansvarsomrade",
+          "Type": "har_jurisdiksjon",
+          "Detalj": "fra = «a1»: variant står ikke i teksten."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-1/ledd-1",
+          "Sitat": "Kommunen skal sørge for at personer som oppholder seg i kommunen, tilbys nødvendige helse- og omsorgstjenester.",
+          "Kategori": "ansvarsomrade",
+          "Type": "har_ansvarsomrade",
+          "Detalj": "fra = «a1»: variant står ikke i teksten."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-1/ledd-4",
+          "Sitat": "Kommunens helse- og omsorgstjeneste omfatter offentlig organiserte helse- og omsorgstjenester som ikke hører under stat eller fylkeskommune.",
+          "Kategori": "ansvarsomrade",
+          "Type": "har_ansvarsomrade",
+          "Detalj": "fra = «a1»: variant står ikke i teksten."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-1/ledd-5",
+          "Sitat": "Tjenester som nevnt i første ledd, kan ytes av kommunen selv eller ved at kommunen inngår avtale med andre offentlige eller private tjenesteytere. Avtalene kan ikke overdras.",
+          "Kategori": "relasjon",
+          "Type": "samarbeider_med",
+          "Detalj": "fra = «a1»: variant står ikke i teksten."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-1/ledd-5",
+          "Sitat": "Avtalene kan ikke overdras.",
+          "Kategori": "relasjon",
+          "Type": "annet:kan_ikke_overdra",
+          "Detalj": "fra = «a1»: variant står ikke i teksten."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-2a/ledd-1",
+          "Sitat": "Kommunen skal tilby opphold i sykehjem eller tilsvarende bolig særskilt tilrettelagt for heldøgns tjenester dersom dette etter en helse- og omsorgsfaglig vurdering er det eneste tilbudet som kan sikre pasienten eller brukeren nødvendige og forsvarlige helse- og omsorgstjenester.",
+          "Kategori": "ansvarsomrade",
+          "Type": "har_ansvarsomrade",
+          "Detalj": "fra = «a1»: variant står ikke i teksten."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-9/ledd-1",
+          "Sitat": "Bestemmelsene i helsetilsynsloven § 7 om plikt til å gi tilsynsmyndigheten opplysninger og adgang til virksomheten på anmodning ... gjelder for enhver som utfører tjeneste",
+          "Kategori": "kompetanse",
+          "Type": "tilsynskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-9/ledd-1",
+          "Sitat": "Bestemmelsene i helsetilsynsloven § 7 om plikt til å gi tilsynsmyndigheten opplysninger og adgang til virksomheten på anmodning ... gjelder for enhver som utfører tjeneste",
+          "Kategori": "kompetanse",
+          "Type": "tilsynskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§6-5/ledd-2",
+          "Sitat": "det regionale helseforetaket skal varsle Helsedirektoratet",
+          "Kategori": "relasjon",
+          "Type": "rapporterer_til",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-1/ledd-2",
+          "Sitat": "kommunen skal sørge for at det blir utarbeidet en individuell plan",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-2/ledd-1",
+          "Sitat": "kommunen skal tilby koordinator",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-2a/ledd-1",
+          "Sitat": "kommunen skal oppnevne en barnekoordinator",
+          "Kategori": "relasjon",
+          "Type": "oppnevner",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§8-2/ledd-1",
+          "Sitat": "Kommunen skal sørge for at egne ansatte ... får påkrevd videre- og etterutdanning",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§8-2/ledd-2",
+          "Sitat": "Kommunen skal medvirke til at personell ... i privat virksomhet som har avtale med kommunen, får adgang til nødvendig videre- og etterutdanning",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-11/ledd-1",
+          "Sitat": "Beslutning etter § 9-5 tredje ledd bokstav a kan påklages ... til statsforvalteren.",
+          "Kategori": "kompetanse",
+          "Type": "klagekompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-11/ledd-2",
+          "Sitat": "Vedtak etter § 9-5 tredje ledd bokstavene b og c som er overprøvd ... kan påklages ... til barneverns- og helsenemnda.",
+          "Kategori": "kompetanse",
+          "Type": "klagekompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-6/ledd-2",
+          "Sitat": "Dersom begjæringen skal forelegges et folkevalgt organ, skal begjæringen, dersom organet er enig, ... sendes til fylkesnemnda.",
+          "Kategori": "relasjon",
+          "Type": "rapporterer_til",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-7/ledd-1",
+          "Sitat": "Nemndas vedtak kan bringes inn for tingretten ... av den private part eller av kommunen.",
+          "Kategori": "kompetanse",
+          "Type": "klagekompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        }
+      ],
+      "KastedeAktorer": {
+        "variant står ikke i teksten": 1,
+        "tekstform står ikke i teksten": 1
+      },
+      "Kallfeil": []
+    },
+    {
+      "Kilde": "sameloven",
+      "AntallDeler": 9,
+      "AntallKall": 9,
+      "UgyldigJson": 0,
+      "FeiledeKall": 0,
+      "TaptNoder": 0,
+      "InputTokens": 24307,
+      "OutputTokens": 18425,
+      "Sekunder": 56,
+      "Kastet": [
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§1-2/ledd-1",
+          "Sitat": "Den samiske folkegruppe skal ha et eget landsomfattende sameting valgt av og blant samene.",
+          "Kategori": "konstituerende",
+          "Type": "skal_finnes",
+          "Detalj": "fra = «a7»: ugyldig felt."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§1-3/ledd-1",
+          "Sitat": "Sametingets årsmelding sendes til Kongen.",
+          "Kategori": "relasjon",
+          "Type": "rapporterer_til",
+          "Detalj": "fra = «a5»: ugyldig felt."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§1-4/ledd-1",
+          "Sitat": "De særlige utgifter som påføres fylkeskommuner og kommuner ved valg til Sametinget dekkes av staten.",
+          "Kategori": "relasjon",
+          "Type": "annet:okonomisk_ansvar",
+          "Detalj": "fra = «a2»: ugyldig felt."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§1-4/ledd-2",
+          "Sitat": "Kongen gir forskrift om gjennomføring av første ledd.",
+          "Kategori": "kompetanse",
+          "Type": "forskriftskompetanse",
+          "Detalj": "fra = «a1»: ugyldig felt."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§1-6/ledd-2",
+          "Sitat": "Sametinget kan ved forskrift gi nærmere bestemmelser om bruken av det samiske flagget.",
+          "Kategori": "kompetanse",
+          "Type": "forskriftskompetanse",
+          "Detalj": "fra = «a5»: ugyldig felt."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-1/ledd-1",
+          "Sitat": "Sametingets arbeidsområde er alle saker som etter tingets oppfatning særlig berører den samiske folkegruppe.",
+          "Kategori": "ansvarsomrade",
+          "Type": "har_ansvarsomrade",
+          "Detalj": "fra = «a5»: ugyldig felt."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-1/ledd-2",
+          "Sitat": "Sametinget kan av eget tiltak reise og avgi uttalelse om alle saker innenfor sitt arbeidsområde.",
+          "Kategori": "kompetanse",
+          "Type": "annet:uttalelseskompetanse",
+          "Detalj": "fra = «a5»: ugyldig felt."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-1/ledd-3",
+          "Sitat": "Sametinget kan delegeres myndighet til å forvalte de bevilgninger som bevilges til samiske formål over det årlige statsbudsjett.",
+          "Kategori": "kompetanse",
+          "Type": "delegeringsfullmakt",
+          "Detalj": "til = «a5»: ugyldig felt."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-1/ledd-3",
+          "Sitat": "Departementet fastsetter reglement for Sametingets økonomiforvaltning.",
+          "Kategori": "kompetanse",
+          "Type": "annet:fastsettingskompetanse",
+          "Detalj": "fra = «a6»: ugyldig felt."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-1/ledd-3",
+          "Sitat": "Sametinget kan gi forskrift om fordeling og bruk av tilskudd.",
+          "Kategori": "kompetanse",
+          "Type": "forskriftskompetanse",
+          "Detalj": "fra = «a5»: ugyldig felt."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-1/ledd-4",
+          "Sitat": "Sametinget har beslutningsmyndighet når dette følger av andre bestemmelser i loven eller fastsatt på annen måte.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "fra = «a5»: ugyldig felt."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-2/ledd-1",
+          "Sitat": "Andre offentlige organer bør gi Sametinget anledning til å uttale seg før de treffer avgjørelse i saker på Sametingets arbeidsområde.",
+          "Kategori": "relasjon",
+          "Type": "annet:horingsplikt",
+          "Detalj": "fra = «a8»: ugyldig felt."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-3/ledd-1",
+          "Sitat": "Valg til Sametinget holdes som direkte valg.",
+          "Kategori": "konstituerende",
+          "Type": "annet:valgordning",
+          "Detalj": "til = «a5»: ugyldig felt."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-3/ledd-3",
+          "Sitat": "Valget holdes på samme dag som stortingsvalg.",
+          "Kategori": "konstituerende",
+          "Type": "annet:valgtidspunkt",
+          "Detalj": "til = «a5»: ugyldig felt."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-3/ledd-4",
+          "Sitat": "Sametinget velges for et tidsrom av fire år.",
+          "Kategori": "konstituerende",
+          "Type": "annet:valgperiode",
+          "Detalj": "til = «a5»: ugyldig felt."
+        },
+        {
+          "Arsak": "ukjent_kategori",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-4/ledd-1",
+          "Sitat": "Ved valg til Sametinget velges medlemmer med varamedlemmer fra følgende valgkretser:",
+          "Kategori": "organisering",
+          "Type": "annet:valgkretser",
+          "Detalj": "Kategorien «organisering» står ikke i FORMAT.md."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-4/ledd-2",
+          "Sitat": "Det skal velges 39 representanter til Sametinget.",
+          "Kategori": "organsammensetning",
+          "Type": "har_medlemmer",
+          "Detalj": "fra = «a5»: ugyldig felt."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-4/ledd-3",
+          "Sitat": "Kongen gir forskrift med utfyllende bestemmelser om mandatfordelingen og kandidatkåring.",
+          "Kategori": "kompetanse",
+          "Type": "forskriftskompetanse",
+          "Detalj": "fra = «a1»: ugyldig felt."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-6/ledd-2",
+          "Sitat": "Begjæring om innføring i Sametingets valgmanntall rettes til Sametinget.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "fra = «a5»: ugyldig felt."
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-6/ledd-3",
+          "Sitat": "Sametingets valgmanntall utarbeides av Sametinget på grunnlag av folkeregisteret",
+          "Kategori": "kompetanse",
+          "Type": "annet:utarbeidelseskompetanse",
+          "Detalj": "fra = «a5»: ugyldig felt."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-1/ledd-1/punkt-2",
+          "Sitat": "offentlig organ: ethvert organ for stat og kommune som har en tjenestekrets som helt eller delvis omfatter en av kommunene i forvaltningsområdet, og fylkeskommuner som Kongen i forskrift har fastsatt",
+          "Kategori": "medlemskap",
+          "Type": "inngar_i",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-2/ledd-3",
+          "Sitat": "Papirbaserte og digitale skjema til bruk overfor et offentlig organ i forvaltningsområdet for samiske språk skal foreligge både på samisk og norsk. Ansvaret ligger hos det organet som utarbeider skjemaet.",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-3/ledd-5",
+          "Sitat": "Retten til svar på samisk gjelder ikke overfor offentlige organer som er landsomfattende, med mindre annet følger av forskrift fastsatt av Kongen.",
+          "Kategori": "kompetanse",
+          "Type": "forskriftskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-9/ledd-2",
+          "Sitat": "kommunestyret kan selv bestemme at samisk skal være likestilt med norsk i hele eller deler av den interne kommunale administrasjonen",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§4-2/ledd-1",
+          "Sitat": "har Sametinget og andre representanter for berørte samiske interesser rett til å bli konsultert",
+          "Kategori": "kompetanse",
+          "Type": "annet: konsultasjonsrett",
+          "Detalj": "Typen «annet: konsultasjonsrett» står ikke i FORMAT.md-lista for «kompetanse»."
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§4-3/ledd-1/punkt-1",
+          "Sitat": "regjeringen, departementer, direktorater og andre underliggende virksomheter",
+          "Kategori": "kompetanse",
+          "Type": "annet: konsultasjonsplikt",
+          "Detalj": "Typen «annet: konsultasjonsplikt» står ikke i FORMAT.md-lista for «kompetanse»."
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§4-3/ledd-1/punkt-2",
+          "Sitat": "statsforetak og private rettssubjekter når de utøver myndighet på vegne av staten",
+          "Kategori": "kompetanse",
+          "Type": "annet: konsultasjonsplikt",
+          "Detalj": "Typen «annet: konsultasjonsplikt» står ikke i FORMAT.md-lista for «kompetanse»."
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§4-4/ledd-1",
+          "Sitat": "Fylkeskommuner og kommuner har plikt til å konsultere representanter for berørte samiske interesser",
+          "Kategori": "kompetanse",
+          "Type": "annet: konsultasjonsplikt",
+          "Detalj": "Typen «annet: konsultasjonsplikt» står ikke i FORMAT.md-lista for «kompetanse»."
+        }
+      ],
+      "KastedeAktorer": {
+        "ugyldig felt": 9
+      },
+      "Kallfeil": []
+    },
+    {
+      "Kilde": "spesialisthelsetjenesteloven",
+      "AntallDeler": 15,
+      "AntallKall": 15,
+      "UgyldigJson": 0,
+      "FeiledeKall": 0,
+      "TaptNoder": 0,
+      "InputTokens": 50445,
+      "OutputTokens": 54218,
+      "Sekunder": 173,
+      "Kastet": [
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1e/ledd-2",
+          "Sitat": "Det regionale helseforetaket skal, i tillegg til å følge opp enkelte pasienter, sørge for nødvendig samarbeid mellom ulike helseforetak innad i det regionale helseforetaket, med andre regionale helseforetak og andre tjenesteytere",
+          "Kategori": "annet:samarbeidsplikt",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-4a/ledd-2",
+          "Sitat": "Den kliniske etikkomiteen skal bidra til å øke helsepersonellets kompetanse",
+          "Kategori": "annet:formål",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-4a/ledd-4",
+          "Sitat": "Den kliniske etikkomiteen skal utføre sine oppgaver uavhengig og selvstendig.",
+          "Kategori": "annet:uavhengighet",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "duplikat",
+          "Eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-4/ledd-1",
+          "Sitat": "Departementet kan gi forskrifter om",
+          "Kategori": "kompetanse",
+          "Type": "forskriftskompetanse",
+          "Detalj": "Samme eId, kategori, type, fra, til og sitat som en tidligere rad."
+        },
+        {
+          "Arsak": "duplikat",
+          "Eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-4/ledd-1",
+          "Sitat": "Departementet kan gi forskrifter om",
+          "Kategori": "kompetanse",
+          "Type": "forskriftskompetanse",
+          "Detalj": "Samme eId, kategori, type, fra, til og sitat som en tidligere rad."
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5c/ledd-1",
+          "Sitat": "Kontaktlegen skal være involvert i behandlingen eller oppfølgingen av pasienten.",
+          "Kategori": "annet:rolleoppgave",
+          "Type": "annet",
+          "Detalj": "Typen «annet» står ikke i FORMAT.md-lista for «annet:rolleoppgave»."
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5c/ledd-3",
+          "Sitat": "Kontaktlegen skal være pasientens faste medisinskfaglige kontakt.",
+          "Kategori": "annet:rolleoppgave",
+          "Type": "annet",
+          "Detalj": "Typen «annet» står ikke i FORMAT.md-lista for «annet:rolleoppgave»."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-3a/ledd-1",
+          "Sitat": "Virksomheter som er omfattet av loven her, skal ... sende melding til statsforvalteren og Statens undersøkelseskommisjon for helse- og omsorgstjenesten",
+          "Kategori": "relasjon",
+          "Type": "rapporterer_til",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "ugyldig_aktor",
+          "Eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-4/ledd-2",
+          "Sitat": "Utvalgene kan uten hinder av taushetsplikt kreve opplysninger som er nødvendige for utførelse av deres arbeid.",
+          "Kategori": "kompetanse",
+          "Type": "annet:innhentingskompetanse",
+          "Detalj": "fra = «a20»: variant står ikke i teksten."
+        },
+        {
+          "Arsak": "ugyldig_felt",
+          "Eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-15/ledd-1",
+          "Sitat": "Når utskrivning fra tjeneste som nevnt i § 2-1 a første ledd nr. 5 bør medføre tiltak fra den kommunale helse- og omsorgstjenesten",
+          "Kategori": "annet:ansvar",
+          "Type": null,
+          "Detalj": "eid, sitat, kategori eller type mangler."
+        },
+        {
+          "Arsak": "ukjent_kategori",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§1/ledd-1/punkt-1",
+          "Sitat": "at det opprettes regionale helseforetak som etter eiers retningslinjer skal planlegge og organisere spesialisthelsetjenesten",
+          "Kategori": "annet: konstituerende",
+          "Type": "oppretter",
+          "Detalj": "Kategorien «annet: konstituerende» står ikke i FORMAT.md."
+        },
+        {
+          "Arsak": "ukjent_kategori",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§2/ledd-1",
+          "Sitat": "Denne loven gjelder for regionale helseforetak og helseforetak.",
+          "Kategori": "annet: virkeområde",
+          "Type": "har_jurisdiksjon",
+          "Detalj": "Kategorien «annet: virkeområde» står ikke i FORMAT.md."
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§2/ledd-2",
+          "Sitat": "og som er opprettet i medhold av § 8",
+          "Kategori": "relasjon",
+          "Type": "oppretter",
+          "Detalj": "Typen «oppretter» står ikke i FORMAT.md-lista for «relasjon»."
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§2/ledd-3",
+          "Sitat": "og som er opprettet i medhold av § 9",
+          "Kategori": "relasjon",
+          "Type": "oppretter",
+          "Detalj": "Typen «oppretter» står ikke i FORMAT.md-lista for «relasjon»."
+        },
+        {
+          "Arsak": "ukjent_kategori",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§2/ledd-4",
+          "Sitat": "Loven gjelder ikke på Svalbard og Jan Mayen",
+          "Kategori": "annet: virkeområde",
+          "Type": "har_jurisdiksjon",
+          "Detalj": "Kategorien «annet: virkeområde» står ikke i FORMAT.md."
+        },
+        {
+          "Arsak": "ukjent_kategori",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§2a/ledd-1",
+          "Sitat": "Regionale helseforetak har et overordnet ansvar for å iverksette den nasjonale helsepolitikken i helseregionen",
+          "Kategori": "annet: ansvarsområde",
+          "Type": "har_ansvarsomrade",
+          "Detalj": "Kategorien «annet: ansvarsområde» står ikke i FORMAT.md."
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§2a/ledd-1",
+          "Sitat": "Regionale helseforetak skal planlegge, organisere, styre og samordne virksomhetene i helseforetakene som de eier",
+          "Kategori": "kompetanse",
+          "Type": "instruksjon",
+          "Detalj": "Typen «instruksjon» står ikke i FORMAT.md-lista for «kompetanse»."
+        },
+        {
+          "Arsak": "ukjent_kategori",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§4/ledd-1",
+          "Sitat": "Riket inndeles i så mange helseregioner som Kongen bestemmer",
+          "Kategori": "annet: område",
+          "Type": "bestar_av",
+          "Detalj": "Kategorien «annet: område» står ikke i FORMAT.md."
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§4/ledd-1",
+          "Sitat": "I hver helseregion skal det være ett regionalt helseforetak",
+          "Kategori": "relasjon",
+          "Type": "har_sete_i",
+          "Detalj": "Typen «har_sete_i» står ikke i FORMAT.md-lista for «relasjon»."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§4/ledd-1",
+          "Sitat": "Staten skal organisere sitt eierskap til virksomheter som yter spesialisthelsetjeneste",
+          "Kategori": "annet: ansvarsområde",
+          "Type": "har_ansvarsomrade",
+          "Detalj": "står ordrett i en annen node i samme kall (feil tagg)"
+        },
+        {
+          "Arsak": "ukjent_kategori",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§6/ledd-1",
+          "Sitat": "Foretaket har selv rettigheter og plikter",
+          "Kategori": "annet: rettssubjekt",
+          "Type": "annet: egen_rettsstilling",
+          "Detalj": "Kategorien «annet: rettssubjekt» står ikke i FORMAT.md."
+        },
+        {
+          "Arsak": "ukjent_kategori",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§7/ledd-1",
+          "Sitat": "Eier hefter ubegrenset for foretakets forpliktelser",
+          "Kategori": "annet: ansvarsområde",
+          "Type": "annet: ansvar",
+          "Detalj": "Kategorien «annet: ansvarsområde» står ikke i FORMAT.md."
+        },
+        {
+          "Arsak": "ukjent_kategori",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§9/ledd-1",
+          "Sitat": "Utøvende virksomhet skal organiseres som helseforetak",
+          "Kategori": "annet: organisering",
+          "Type": "del_av",
+          "Detalj": "Kategorien «annet: organisering» står ikke i FORMAT.md."
+        },
+        {
+          "Arsak": "ukjent_kategori",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§10/ledd-1",
+          "Sitat": "Regionalt helseforetak skal ha vedtekter",
+          "Kategori": "annet: konstituerende",
+          "Type": "skal_finnes",
+          "Detalj": "Kategorien «annet: konstituerende» står ikke i FORMAT.md."
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§21/ledd-2",
+          "Sitat": "Foretakets daglige leder kan ikke være medlem av styret.",
+          "Kategori": "relasjon",
+          "Type": "medlem_av",
+          "Detalj": "Typen «medlem_av» står ikke i FORMAT.md-lista for «relasjon»."
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§21/ledd-2",
+          "Sitat": "Daglig leder av et helseforetak kan ikke være medlem av styret i det regionale helseforetaket",
+          "Kategori": "relasjon",
+          "Type": "medlem_av",
+          "Detalj": "Typen «medlem_av» står ikke i FORMAT.md-lista for «relasjon»."
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§21a/ledd-1",
+          "Sitat": "Styreleder kan ikke velges.",
+          "Kategori": "relasjon",
+          "Type": "medlem_av",
+          "Detalj": "Typen «medlem_av» står ikke i FORMAT.md-lista for «relasjon»."
+        },
+        {
+          "Arsak": "falskt_sitat",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§23/ledd-2",
+          "Sitat": "Det kan inngås avtale mellom helseforetaket og fagforening ... om at de ansatte i stedet for dette styremedlemmet skal velge to observatører og varamedlemmer.",
+          "Kategori": "organsammensetning",
+          "Type": "har_medlemmer",
+          "Detalj": "står ikke i noden (parafrase eller oppdiktet)"
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§24/ledd-2",
+          "Sitat": "Et styremedlem blir stående inntil nytt styremedlem er valgt",
+          "Kategori": "relasjon",
+          "Type": "medlem_av",
+          "Detalj": "Typen «medlem_av» står ikke i FORMAT.md-lista for «relasjon»."
+        },
+        {
+          "Arsak": "ukjent_type",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§25/ledd-1",
+          "Sitat": "Når særlige forhold foreligger, har et styremedlem rett til å tre tilbake før tjenestetiden er ute.",
+          "Kategori": "relasjon",
+          "Type": "medlem_av",
+          "Detalj": "Typen «medlem_av» står ikke i FORMAT.md-lista for «relasjon»."
+        },
+        {
+          "Arsak": "ukjent_aktorreferanse",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§25/ledd-2",
+          "Sitat": "Et styremedlem kan avsettes av den som har valgt styremedlemmet.",
+          "Kategori": "relasjon",
+          "Type": "velger",
+          "Detalj": "fra = «null» finnes ikke i svarets aktorer."
+        },
+        {
+          "Arsak": "ukjent_aktorreferanse",
+          "Eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§25/ledd-3",
+          "Sitat": "I forbindelse med omorganisering av foretak kan det foretas nytt valg eller suppleringsvalg av styremedlem",
+          "Kategori": "kompetanse",
+          "Type": "vedtakskompetanse",
+          "Detalj": "fra = «null» finnes ikke i svarets aktorer."
+        }
+      ],
+      "KastedeAktorer": {
+        "variant står ikke i teksten": 1,
+        "tekstform står ikke i teksten": 3
+      },
+      "Kallfeil": []
+    }
+  ]
+}

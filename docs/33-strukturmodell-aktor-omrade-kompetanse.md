@@ -230,6 +230,18 @@ eget, senere steg som ikke bestemmer hvordan uttrekket virker.
    med fasit-formatet som svarskjema. Svar valideres hardt: sitat må være eksakt delstreng av noden,
    eId må finnes, ukjente typekoder avvises. Ugyldige rader kastes og telles — aldri «repareres».
 
+   **Bygget i #308 (2026-10-07):** `KiStrukturkonverterer` (samme `IStrukturkonverterer`) via
+   `IKiAgentKlient`. Kategoriene/typene i instruksen og valideringen er samme liste
+   (`Strukturkontrakt`, holdt lik FORMAT.md av en test). Kildene deles i kall à maks 6000 tegn
+   nodetekst, aldri midt i en node og aldri på tvers av en ledsagende kilde (som #295); ugyldig JSON
+   halverer kallet. Noder refereres med korte tagger (`[n17]`) som slås opp til ekte eId — #285 målte
+   at modellen forkorter lange eId-er. Validering: sitat eksakt (ordinal) delstreng av noden, tagg i
+   kallets egne inndata, kategori/type i lista for kategorien eller `annet:<x>`, fra/til må peke på en
+   aktør i samme svar, aktørens tekstform og varianter må stå i kallets tekst, polaritet må være satt
+   (ingen standardverdi). `oppdagelseskilde = "ki:<modell>"`. Live-målingen er gated
+   (`LiveIntegration` + `REGELIDE_KI_LIVE_MALING=1`), og utdataene lagres i
+   `data/fasit/strukturmodell/ki-utdata/`, så rapporten regenereres uten nettverk.
+
 ### 5.3 Til databasen bare som forslag
 
 Uttrekket skrives aldri som `validert`. Det går inn som `foreslatt_av_ai` (eller `monster`-proveniens)
@@ -282,7 +294,98 @@ prosentpoeng som regresjonsvern. **Foreløpige** — låses etter fasitgjennomga
 del av de falske positive er sannsynlige fasitutelatelser (f.eks. kommune → fylke i samelovens
 § 2-4 punkt 6, «Kongen kan gi forskrift om at …» klassifisert som annen kompetansetype).
 
-### 5.5 Konvertering av eksisterende data
+**Målt 2026-10-07 (#308, KI-laget)** — én live-kjøring med `deepseek-ai/DeepSeek-V4-Flash` via
+HostYourAI, instruksen ikke iterert mot fasiten. Full rapport (per type, kastede rader med
+eksempler, falske positive/negative): `data/fasit/strukturmodell/maling-ki.md`. Samme treffregel
+som mønsterlaget. Union = alle mønsterutsagn + KI-utsagn som ikke dupliserer et mønsterutsagn.
+
+| Kanttype | Fasit | Mønster P / G | KI P / G | Union P / G | Bare mønster | Bare KI |
+|---|---:|---:|---:|---:|---:|---:|
+| R relasjon | 223 | 77,8 / 12,6 % | 24,4 / 14,3 % | 34,5 / 25,6 % | 25 | 29 |
+| K kompetanse | 427 | 88,5 / 59,7 % | 45,1 / 71,2 % | 46,3 / 78,0 % | 32 | 81 |
+| — herav forskriftskompetanse | 205 | 91,9 / 88,8 % | 89,8 / 85,9 % | 89,3 / 93,2 % | 16 | 10 |
+| — herav vedtakskompetanse | 158 | 80,0 / 43,0 % | 28,8 / 65,8 % | 30,4 / 75,3 % | 16 | 52 |
+| — herav tilsynskompetanse | 16 | 100 / 31,3 % | 68,8 / 68,8 % | 71,4 / 62,5 % | 0 | 6 |
+| M medlemskap | 48 | – / 0 % | 4,5 / 2,1 % | 4,5 / 2,1 % | 0 | 1 |
+| O områdesammensetning | 578 | 97,4 / 85,8 % | 0 / 0 % | 95,4 / 85,8 % | 496 | 0 |
+| A ansvarsområde | 120 | 100 / 51,7 % | 0 / 0 % | 54,9 / 51,7 % | 62 | 0 |
+| G organtilhørighet | 43 | 66,7 / 9,3 % | 12,2 / 11,6 % | 12,8 / 14,0 % | 1 | 2 |
+| T skal finnes | 21 | – / 0 % | 14,3 / 9,5 % | 14,3 / 9,5 % | 0 | 2 |
+| `annet:*` | 366 | – / 0 % | 1,7 / 0,3 % | 1,7 / 0,3 % | 0 | 1 |
+| senere lag | 39 | – / 0 % | 35,9 / 35,9 % | 35,9 / 35,9 % | 0 | 14 |
+| **Alle** | **1865** | **93,8 / 45,3 %** | **34,4 / 19,2 %** | **57,2 / 52,1 %** | 616 | 130 |
+
+| Kilde | Mønster P / G | KI P / G | Union P / G |
+|---|---:|---:|---:|
+| Domstolloven | 95,7 / 62,3 % | 16,3 / 6,7 % | 63,5 / 64,5 % |
+| Energiloven | 94,7 / 42,5 % | 57,5 / 48,0 % | 60,8 / 57,5 % |
+| Helse- og omsorgstjenesteloven | 91,8 / 23,4 % | 48,9 / 33,9 % | 48,1 / 33,3 % |
+| Sameloven | 87,7 / 40,0 % | 27,1 / 6,7 % | 66,8 / 43,9 % |
+| Spesialisthelsetjenesteloven + helseforetaksloven | 89,6 / 19,9 % | 34,2 / 32,1 % | 34,0 / 33,1 % |
+
+Kostnad og drift: 79 kall, 259 316 tokens inn og 236 712 ut. Det gir ≈ 0,16 EUR for alle fem kildene
+etter HostYourAIs listepris lest 2026-10-07 (0,29 €/M inn, 0,35 €/M ut, øvre grense fordi
+hurtigbufrede tokens ikke rapporteres). Summert kalltid var 19 min, med 4 kall samtidig. 0 kall
+returnerte ugyldig JSON. Ett kall feilet med 504 hos leverandøren, og da gikk 28 noder i en
+domstolloven-forskrift (2021/01/22/163) tapt.
+
+Valideringen kastet 272 av 1315 rader (21 %):
+
+- falskt sitat: 91 (77 parafrase eller oppdiktet, 14 med feil tagg)
+- ugyldig felt: 71 (f.eks. `sikkerhet: "høy"`)
+- ugyldig aktør: 52. Aktørene som ble avvist, fordeler seg slik: ukjent oppløsning 17, tekstformen står
+  ikke i teksten 14, ugyldig felt 9, varianten står ikke i teksten 2.
+- ukjent type: 21
+- ukjent eId: 17
+- ukjent kategori: 14
+- ukjent aktørreferanse: 4 (blant annet `"fra": "null"` som streng)
+- duplikat: 2
+
+Lesning:
+
+- **KI er ikke uttømmende på lister.** Inndelingslistene i domstolloven og sameloven, O og A, blir
+  oppsummert og ikke listet. Det gir 0 treff, og derfor er KI-gjenfinningen 6,7 % i begge kildene.
+- **KI når der mønstrene ikke gjør det.** I de to helselovene og energiloven gir KI 21–40 treff hver
+  som mønsterlaget ikke fant.
+- **Rapporttallene i `annet:*` sier lite.** Treffregelen krever samme fritt valgte typenavn, og det
+  blir nesten aldri likt.
+
+### 5.5 Anbefalt fordeling mellom mønster og KI (#308)
+
+Fordelingen bygger på tallene over: én kjøring, en fasit som ikke er verifisert (#309) og én modell.
+Den gjelder hvilket lag som skal levere forslag til forslagskøen (#313), og med hvilken tillit. Det
+betyr ikke at noe skal lagres som validert (§5.3).
+
+| Kanttype | Lag | Tillit i forslagskøen (#313) | Begrunnelse |
+|---|---|---|---|
+| O områdesammensetning | **Mønster alene** | normal | Mønster 97,4 / 85,8 %. KI 0 treff (oppsummerer lister) og bidrar ikke med noe. |
+| A `har_sete_i` | **Mønster alene** | normal | Mønster 100 / 95,4 %. KI predikerte ingen. |
+| A `har_ansvarsomrade` / `har_jurisdiksjon` | **Ingen av dem nå** → områderegisteret (#312/#314) | — | 55 i fasiten. Mønster 0 og KI 0 av 51 riktige. Fasitens konvensjon («tingrett har ansvarsområde = egen rettskrets») står ikke i teksten. |
+| K forskriftskompetanse | **Mønster først, KI som supplement** | mønster normal. KI-rader uten mønstertreff i samme node: normal, merket `ki:` | Lagene er like gode (91,9 / 88,8 % mot 89,8 / 85,9 %). Unionen hever gjenfinningen til 93,2 % med 89,3 % presisjon. |
+| K vedtakskompetanse | **Mønster + KI** | KI: **lav tillit, egen merking** | KI gir 52 treff mønsteret ikke har (G 43 → 75 % i union), men bare 28,8 % presisjon. Rundt 7 av 10 KI-forslag er feil. |
+| K tilsynskompetanse | **Mønster + KI** | KI: middels | KI 68,8 / 68,8 % mot mønster 100 / 31,3 %. Grunnlaget er lite (16 i fasiten). |
+| K utpeking/oppnevning/instruksjon/klage/delegering | **KI alene** (ingen mønstre) | **lav tillit, egen merking** | Presisjon 3,7–26 %, gjenfinning 23–40 %. KI-forslagene er hovedsakelig støy, men de er det eneste laget som finner noe. |
+| R relasjon, typer med mønster (`delegerer_til`, `instruksjon`, `klageinstans_for`, `oppnevner`) | **Mønster** | normal (`klageinstans_for`/`oppnevner`: lav, jf. #307) | Mønster 55–100 % presisjon. KI 0–33 % og tilfører 0–2 treff per type. |
+| R relasjon, typer uten mønster (`rapporterer_til`, `velger`, `ledes_av`, `eies_av`, `etterfolger`, `radgir`, `oppretter`, …) | **KI alene** | **lav tillit, egen merking** | R samlet: KI 24,4 / 14,3 %. `rapporterer_til` 31 %, `oppretter` 57 %, `etterfolger` 60 %, men på få utsagn. KI gir 29 R-treff mønsteret ikke har. |
+| M medlemskap | **Ingen automatikk nå** | KI-forslag sendes **ikke** | KI 4,5 / 2,1 % er støy. Medlemskap i fasiten er mest klasser og områdeutvidelser, og det hører til #310/#314. |
+| G organtilhørighet, T skal finnes | **KI** | **lav tillit, egen merking** | KI 12–14 % presisjon, 2 treff hver som mønsteret ikke har. Mønster `har_medlemmer` 66,7 % (#307). |
+| `annet:*` | Ikke målbart med dagens treffregel | **lav tillit**, som hull-signal | Fritt typenavn treffer nesten aldri eksakt (1,7 %). Verdien ligger i at de avslører hull i modellen (FORMAT.md), ikke i treff. |
+
+**Konklusjon:** Mønsterlaget bærer O, A `har_sete_i` og K forskriftskompetanse. KI bidrar mest i
+de kildene og typene der formuleringene varierer: de to helselovene, energiloven, K vedtak og R-typer
+uten mønster. Presisjonen er for lav til normal tillit, med ett unntak (forskriftskompetanse).
+
+Alle KI-forslag utenfor forskriftskompetanse bør derfor merkes **lav tillit** i #313 og vises
+adskilt fra mønsterforslag. Valideringens kassasjoner bør ikke «repareres» for å øke tallene (21 %
+kastet).
+
+Før tersklene settes, trengs to ting:
+
+- en ny KI-måling etter fasitgjennomgangen (#309)
+- en beslutning om KI-svar skal låses med strukturert utdata eller JSON-skjema hos leverandøren.
+  Begge deler kan redusere `ugyldig_felt`/`ugyldig_aktor`.
+
+### 5.6 Konvertering av eksisterende data
 
 | Fra | Til | Automatisk? |
 |---|---|---|

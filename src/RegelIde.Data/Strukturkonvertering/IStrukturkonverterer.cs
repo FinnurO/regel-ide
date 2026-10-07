@@ -10,6 +10,9 @@ namespace RegelIde.Data.Strukturkonvertering;
 /// <para>
 /// Implementasjoner: <see cref="MonsterStrukturkonverterer"/> (deterministiske mønstre, denne saken).
 /// KI-laget (#308) skal implementere samme grensesnitt, slik at de to måles likt.
+/// [ENDRET, #308, 2026-10-07] Gjort: <see cref="KiStrukturkonverterer"/>. Grensesnittet er beholdt
+/// synkront (KI-laget blokkerer i <c>Konverter</c>); den asynkrone
+/// <see cref="KiStrukturkonverterer.KonverterMedRapportAsync"/> gir i tillegg tokens og kastede rader.
 /// </para>
 /// </summary>
 public interface IStrukturkonverterer
