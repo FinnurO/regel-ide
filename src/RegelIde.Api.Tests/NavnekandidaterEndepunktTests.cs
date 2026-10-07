@@ -998,15 +998,16 @@ public class NavnekandidaterEndepunktTests
         var resultat = await svar.Content.ReadFromJsonAsync<NavnekandidatMyndighetstildelingResultatDto>(JsonInnstillinger);
 
         Assert.Equal("Godkjent", resultat!.Kandidat.Status);
-        Assert.Equal(scene.MaalVirksomhetId, resultat.Tildeling.VirksomhetId);
-        Assert.Equal(rolle.Id, resultat.Tildeling.GruppeBegrepId);
+        // [ENDRET, issue #311] Tildelingen er en kant: virksomhet → begrep, vilkåret er avgrensningsteksten.
+        Assert.Equal(scene.MaalVirksomhetId, resultat.Tildeling.FraVirksomhetId);
+        Assert.Equal(rolle.Id, resultat.Tildeling.TilBegrepId);
         Assert.Equal(scene.RettskildeId, resultat.Tildeling.HjemmelRettskildeId); // egen rettskilde, ikke valgt.
-        Assert.Equal("kommunale avløpsanlegg", resultat.Tildeling.Vilkaar);
+        Assert.Equal("kommunale avløpsanlegg", resultat.Tildeling.AvgrensningTekst);
         Assert.NotNull(resultat.TaggId); // navneform-kjeden er lukket akkurat som kobl-til-virksomhet.
 
         await using var db = _fixture.NyDbContext();
-        Assert.Equal(1, await db.Myndighetstildelinger.CountAsync(
-            m => m.GruppeBegrepId == rolle.Id && m.VirksomhetId == scene.MaalVirksomhetId));
+        Assert.Equal(1, await db.Strukturkanter.CountAsync(
+            m => m.TilBegrepId == rolle.Id && m.FraVirksomhetId == scene.MaalVirksomhetId));
 
         // Idempotent: et gjentatt kall på SAMME (rolle, virksomhet, hjemmel) gjenbruker raden.
         var andre = await _client.SendAsync(MedBruker(HttpMethod.Post,
@@ -1020,8 +1021,8 @@ public class NavnekandidaterEndepunktTests
         Assert.Equal(HttpStatusCode.OK, andre.StatusCode);
         var andreResultat = await andre.Content.ReadFromJsonAsync<NavnekandidatMyndighetstildelingResultatDto>(JsonInnstillinger);
         Assert.Equal(resultat.Tildeling.Id, andreResultat!.Tildeling.Id);
-        Assert.Equal(1, await db.Myndighetstildelinger.CountAsync(
-            m => m.GruppeBegrepId == rolle.Id && m.VirksomhetId == scene.MaalVirksomhetId));
+        Assert.Equal(1, await db.Strukturkanter.CountAsync(
+            m => m.TilBegrepId == rolle.Id && m.FraVirksomhetId == scene.MaalVirksomhetId));
     }
 
     /// <summary>
@@ -1037,7 +1038,7 @@ public class NavnekandidaterEndepunktTests
         await using var db0 = _fixture.NyDbContext();
         // Unikt kode-suffiks — 'klageinstans' er en av de faste kodene API-oppstart seeder (samme
         // vokabular som issue #263s testcase), og et forsøk på å legge den inn på nytt her ville
-        // veltet ux_relasjonstype_konfigurasjon_kode i denne DELTE test-databasen.
+        // veltet ux_relasjonstype_konfigurasjon_kategori_kode (før #311: _kode) i denne DELTE test-databasen.
         var relasjonsType = $"klageinstans-{Guid.NewGuid():N}";
         db0.RelasjonsTypeKonfigurasjoner.Add(new RelasjonsTypeKonfigurasjonEntitet
         {
@@ -1062,17 +1063,19 @@ public class NavnekandidaterEndepunktTests
         Assert.Equal("Godkjent", resultat!.Kandidat.Status);
         Assert.Equal(scene.MaalVirksomhetId, resultat.Relasjon.FraVirksomhetId);
         Assert.Equal(motpartId, resultat.Relasjon.TilVirksomhetId);
-        Assert.Equal(relasjonsType, resultat.Relasjon.RelasjonsType);
+        Assert.Equal(relasjonsType, resultat.Relasjon.Typekode);
+        Assert.Equal("R", resultat.Relasjon.Kategori);
         Assert.Equal(scene.RettskildeId, resultat.Relasjon.HjemmelRettskildeId);
         Assert.Equal(scene.NodeEid, resultat.Relasjon.HjemmelEid);
-        Assert.Null(resultat.Relasjon.Kommentar);
+        Assert.Null(resultat.Relasjon.KildeUtenforKorpusTekst);
 
         await using var db = _fixture.NyDbContext();
-        Assert.Equal(1, await db.VirksomhetRelasjoner.CountAsync(
+        Assert.Equal(1, await db.Strukturkanter.CountAsync(
             r => r.FraVirksomhetId == scene.MaalVirksomhetId && r.TilVirksomhetId == motpartId));
     }
 
-    /// <summary>AC7 — motsatt gren: INGEN formell hjemmel, kun en fritekst-kommentar.</summary>
+    /// <summary>AC7 — motsatt gren: INGEN formell hjemmel, kun en fritekst-kommentar. [ENDRET, issue #311] Kommentaren
+    /// lagres som kantens kilde utenfor korpus — og uten den finnes ingen kilde, så kallet avvises.</summary>
     [Fact]
     public async Task Kobl_til_relasjon_uten_hjemmel_lagrer_kun_kommentar()
     {
@@ -1102,10 +1105,25 @@ public class NavnekandidaterEndepunktTests
 
         Assert.Null(resultat!.Relasjon.HjemmelRettskildeId);
         Assert.Null(resultat.Relasjon.HjemmelEid);
-        Assert.Equal("Kjent fra org-kart, ikke lovhjemlet.", resultat.Relasjon.Kommentar);
+        Assert.Equal("Kjent fra org-kart, ikke lovhjemlet.", resultat.Relasjon.KildeUtenforKorpusTekst);
+
+        await using var db1 = _fixture.NyDbContext();
+        var motpart2Id = Guid.NewGuid();
+        db1.Virksomheter.Add(new Virksomhet { Id = motpart2Id, Navn = $"Uten-kilde-motpart {Guid.NewGuid():N}" });
+        await db1.SaveChangesAsync();
+
+        var utenKilde = await _client.SendAsync(MedBruker(HttpMethod.Post,
+            $"/api/navnekandidater/{scene.KandidatId}/kobl-til-relasjon", brukerId,
+            new
+            {
+                VirksomhetId = scene.MaalVirksomhetId, Navneformgrunn = (string?)null,
+                MotpartVirksomhetId = motpart2Id, RelasjonsType = relasjonsType,
+                HjemletHer = false, Kommentar = (string?)null,
+            }));
+        Assert.Equal(HttpStatusCode.BadRequest, utenKilde.StatusCode);
     }
 
-    /// <summary>AC9 — gruppe-sporet: oppretter gruppebegrepet OG et GruppeMedlemskapEntitet som gjør
+    /// <summary>AC9 — gruppe-sporet: oppretter gruppebegrepet OG en M-kant (før #311 gruppemedlemskap) som gjør
     /// det til medlem av en allerede eksisterende, overordnet gruppe, i én atomisk handling.</summary>
     [Fact]
     public async Task Kobl_til_gruppe_av_gruppe_oppretter_gruppebegrep_og_medlemskap()
@@ -1124,13 +1142,13 @@ public class NavnekandidaterEndepunktTests
         Assert.Equal("Godkjent", resultat!.Kandidat.Status);
         Assert.Equal("klasse", resultat.Gruppebegrep.Begrepskategori);
         Assert.NotEqual(overordnet.Id, resultat.Gruppebegrep.Id);
-        Assert.Equal(overordnet.Id, resultat.Medlemskap.OverordnetGruppeBegrepId);
-        Assert.Equal(resultat.Gruppebegrep.Id, resultat.Medlemskap.UnderordnetGruppeBegrepId);
+        Assert.Equal(overordnet.Id, resultat.Medlemskap.TilBegrepId);
+        Assert.Equal(resultat.Gruppebegrep.Id, resultat.Medlemskap.FraBegrepId);
         Assert.Equal(scene.RettskildeId, resultat.Medlemskap.HjemmelRettskildeId);
 
         await using var db = _fixture.NyDbContext();
-        Assert.Equal(1, await db.GruppeMedlemskap.CountAsync(
-            m => m.OverordnetGruppeBegrepId == overordnet.Id && m.UnderordnetGruppeBegrepId == resultat.Gruppebegrep.Id));
+        Assert.Equal(1, await db.Strukturkanter.CountAsync(
+            m => m.TilBegrepId == overordnet.Id && m.FraBegrepId == resultat.Gruppebegrep.Id));
     }
 
     /// <summary>Kun 'gruppe'-kandidater hører hjemme her — et 'virksomhet'-treff har sin egen vei.</summary>
