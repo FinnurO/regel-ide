@@ -199,7 +199,7 @@ public class VirksomhetOgGruppeKiOppdagelseTjenesteTests
 
         var rolleTerm = NyOrgNavn("klageinstans");
         var rolleLov = await OpprettRettskildeMedNodeAsync(db, "Klageinstans er den myndighet som er tillagt dette.");
-        var rollebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(rolleLov.RettskildeId, rolleTerm, "Kari Jurist");
+        var rollebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(Nodetyper.Klasse, rolleLov.RettskildeId, rolleTerm, "Kari Jurist");
 
         var svar = $$$"""
             [{"Type":"virksomhet","Navn":"{{{navn}}}","NodeEid":"{{{nodeEid}}}",
@@ -315,8 +315,8 @@ public class VirksomhetOgGruppeKiOppdagelseTjenesteTests
         var (rettskildeId, nodeEid) = await OpprettRettskildeMedNodeAsync(
             db, "Vertskommuner inngår i ordningen for særskilt tilsyn.");
 
-        var underordnet = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(rettskildeId, "vertskommuner", "Kari Jurist");
-        var overordnet = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(rettskildeId, "ordningen for særskilt tilsyn", "Kari Jurist");
+        var underordnet = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(Nodetyper.Klasse, rettskildeId, "vertskommuner", "Kari Jurist");
+        var overordnet = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(Nodetyper.Klasse, rettskildeId, "ordningen for særskilt tilsyn", "Kari Jurist");
 
         var svar = $$$"""
             [{"Type":"gruppe","Navn":"vertskommuner","NodeEid":"{{{nodeEid}}}","Rolle":null,"Relasjon":null,

@@ -260,6 +260,8 @@ export interface VirksomhetGruppetildelingDto {
   tildelingId: string;
   gruppeBegrepId: string;
   gruppeTerm: string;
+  /** [Ny, issue #310] Nodetypen til begrepet tildelingen gjelder (klasse/rolle/omrade/organ/gruppe). */
+  gruppeBegrepskategori: string | null;
 }
 
 /** `GET /api/virksomheter/{id}/where-used` — ETT kall for alle virksomhetens navneformer (ikke ett per
@@ -341,6 +343,9 @@ export interface VirksomhetDto {
   sektorkode: string | null;
   overordnetEnhetId: string | null;
   sistBrregSynkronisert: string | null;
+  /** [Ny, issue #310] rettssubjekt | organ | organisatorisk_enhet — null = uavklart. Automatisk bare for
+   * KOMM/FYLK (og forvaltningsnivå kommune/fylkeskommune), ellers satt av et menneske. */
+  aktortype: Aktortype | null;
 }
 
 /** [Ny, 2026-08-30] Opprett en virksomhet med KUN navn — se POST /api/virksomheter. */
@@ -453,7 +458,8 @@ export interface KiOppdagelseRequest {
 /** Ett behandlet KI-forslag — se KiOppdagelseKandidatUtfall (RegelIde.Data) for feltenes betydning.
  * `*IkkeOpprettetGrunn`/`NavnekandidatFeil` er null når raden faktisk ble opprettet (id-feltet satt). */
 export interface KiOppdagelseKandidatUtfallDto {
-  type: 'virksomhet' | 'gruppe';
+  /** [ENDRET, issue #310] KI-en foreslår nodetypen; 'gruppe' = «usikker, mennesket velger». */
+  type: 'virksomhet' | Kandidatnodetype | 'gruppe';
   navn: string;
   nodeEid: string;
   navnekandidatId: string | null;
@@ -559,13 +565,33 @@ export interface HardslettVirksomhetKandidaterResultatDto {
  */
 export type Navneformgrunn = 'gjeldende' | 'utgatt' | 'kortform' | 'feilskriving' | 'parallellnavn';
 
+/**
+ * [Ny, issue #310 «nodetype-akse», 2026-10-07, docs/33 §4.1–4.2] Nodetypene et begrep med gruppefunksjon
+ * kan ha. Speiler `Nodetyper` i RegelIde.Data (og CHECK-ene). `Kandidatnodetype` er de et menneske kan
+ * VELGE for en navnekandidat; `organ` finnes bare på reklassifiserte rader uten Virksomhet-rad ennå.
+ * 'gruppe' er utfaset som begrepstype, men lever videre på en KANDIDAT som «nodetype ikke avgjort».
+ */
+export type Kandidatnodetype = 'klasse' | 'rolle' | 'omrade';
+export type Begrepsnodetype = Kandidatnodetype | 'organ';
+/** Alle kategorier med gruppefunksjon — kan være mål for tildeling/medlemskap. */
+export const BEGREPSKATEGORIER_MED_GRUPPEFUNKSJON: readonly string[] = ['gruppe', 'klasse', 'rolle', 'omrade', 'organ'];
+export function harGruppefunksjon(begrepskategori: string | null | undefined): boolean {
+  return !!begrepskategori && BEGREPSKATEGORIER_MED_GRUPPEFUNKSJON.includes(begrepskategori);
+}
+/** [Ny, issue #310] Aktørtype på Virksomhet — NULL = uavklart. */
+export type Aktortype = 'rettssubjekt' | 'organ' | 'organisatorisk_enhet';
+
 /** [Ny, navnekandidat-wizard-runden, 2026-09-07] PATCH /api/navnekandidater/{id} — utelatt/undefined
  * felt betyr «la stå uendret». Kun for REGEX-ARTEFAKTER i teksten, se `Navneformgrunn` sitt skille.
  * [ENDRET, issue #203 pkt. 2] 'administrativ_inndeling' lagt til. */
 export interface OppdaterNavnekandidatRequest {
   foreslattTekst?: string;
-  kategori?: 'virksomhet' | 'gruppe' | 'administrativ_inndeling';
+  /** [ENDRET, issue #310] 'administrativ_inndeling' er slått inn i 'omrade'. */
+  kategori?: Navnekandidatkategori;
 }
+
+/** [Ny, issue #310] Navnekandidatens kategori: 'gruppe' = generisk aktøromtale, nodetype ikke avgjort. */
+export type Navnekandidatkategori = 'virksomhet' | 'gruppe' | Kandidatnodetype;
 
 /** [Ny, navnekandidat-wizard-runden, 2026-09-07] POST /api/navnekandidater/{id}/kobl-til-virksomhet. */
 export interface KoblNavnekandidatTilVirksomhetRequest {
@@ -607,7 +633,9 @@ export interface NavnekandidatDto {
   foreslattTekst: string;
   // [ENDRET, issue #203 pkt. 2/3] 'administrativ_inndeling' lagt til — nasjon/fylke/kommune,
   // SSR-bekreftet ved klassifisering (KlassifiserAsync), ikke satt av mønstergjenkjenningen selv.
-  kategori: 'virksomhet' | 'gruppe' | 'administrativ_inndeling';
+  // [ENDRET, issue #310] ...og nå slått inn i 'omrade'. 'klasse'/'rolle'/'omrade' = nodetype foreslått
+  // (KI/SSR) eller valgt; 'gruppe' = generisk aktøromtale, nodetype ikke avgjort.
+  kategori: Navnekandidatkategori;
   rettskildeId: string;
   nodeEid: string;
   startOffset: number;
@@ -703,6 +731,8 @@ export interface NavnekandidatRelasjonResultatDto {
  * {id}/kobl-til-gruppe-av-gruppe — kun for kategori='gruppe'-kandidater. */
 export interface KoblNavnekandidatTilGruppeAvGruppeRequest {
   overordnetGruppeBegrepId: string;
+  /** [Ny, issue #310] Påkrevd for en 'gruppe'-kandidat (uavklart type). */
+  nodetype?: Kandidatnodetype;
 }
 
 export interface NavnekandidatGruppeAvGruppeResultatDto {
@@ -770,7 +800,8 @@ export interface NavnekandidatGruppeBatchRequest {
   fast: boolean;
   /** Eksplisitt valg om å behandle HELE gruppen som denne kategorien (omkategoriserer avvikende rader
    * først); utelatt = hver rads egen kategori. */
-  tilKategori?: 'gruppe' | 'administrativ_inndeling';
+  // [ENDRET, issue #310] En NODETYPE — påkrevd når gruppen har kandidater med uavklart type ('gruppe').
+  tilKategori?: Kandidatnodetype;
 }
 
 /** [Ny, 2026-08-30] Resultat av DELETE /api/navnekandidater (massesletting, valgfritt filtrert). */
@@ -1372,11 +1403,13 @@ export interface BegrepDto {
   id: string;
   virksomhetId: string | null;
   /** null = ordinært begrep (faktabegrep/handlingsbegrep). 'virksomhet' = navneform for
-   * virksomhetReferanseId. 'gruppe' = gruppebegrep hjemlet i lovkildeId. Se docs/20 §2.3/§2.4. */
+   * virksomhetReferanseId. 'gruppe' = gruppebegrep hjemlet i lovkildeId. Se docs/20 §2.3/§2.4.
+   * [ENDRET, issue #310] 'klasse' | 'rolle' | 'omrade' | 'organ' — de typede begrepene med
+   * gruppefunksjon (se `Begrepsnodetype`); 'gruppe' finnes bare på rader som ikke er reklassifisert. */
   begrepskategori: string | null;
   /** Kun satt når begrepskategori === 'virksomhet' — hvilken virksomhet dette er en navneform for. */
   virksomhetReferanseId: string | null;
-  /** Kun satt når begrepskategori === 'gruppe' — loven gruppebegrepet er hjemlet i. */
+  /** Kun satt for begrep med gruppefunksjon — loven begrepet er hjemlet i. null = fast, nasjonalt (#298). */
   lovkildeId: string | null;
   term: string;
   definisjon: string | null;

@@ -88,7 +88,7 @@ public static class NodetypeReklassifisering
         END
         $f$;
 
-        CREATE OR REPLACE FUNCTION pg_temp.nt310_slaa_sammen(p_overlevende uuid, p_arkivert uuid) RETURNS void
+        CREATE OR REPLACE FUNCTION pg_temp.nt310_slaa_sammen(p_overlevende uuid, p_arkivert uuid, p_arkivert_kategori text) RETURNS void
         LANGUAGE plpgsql AS $f$
         BEGIN
             IF p_overlevende IS NULL OR p_arkivert IS NULL OR p_overlevende = p_arkivert THEN
@@ -159,7 +159,10 @@ public static class NodetypeReklassifisering
             UPDATE vilkar SET skjonnsgrunnlag_begrep_id = p_overlevende WHERE skjonnsgrunnlag_begrep_id = p_arkivert;
             UPDATE begrepsforekomster SET begrep_id = p_overlevende WHERE begrep_id = p_arkivert;
 
+            -- Den arkiverte raden får også sin godkjente type, slik at 'gruppe' kan telles til 0 og
+            -- fjernes fra CHECK-en i en senere runde (arkiverte rader teller også mot en CHECK).
             UPDATE begreper SET entitetsstatus = 'arkivert', status = 'arkivert',
+                begrepskategori = p_arkivert_kategori,
                 sist_endret_av = 'migrasjon-310', sist_endret_tidspunkt = now()
             WHERE "Id" = p_arkivert;
             PERFORM pg_temp.nt310_proveniens(p_arkivert, 'arkivert', 'slatt sammen med ' || p_overlevende::text);
@@ -208,7 +211,7 @@ public static class NodetypeReklassifisering
             -- Mangler den, blir «kongen» alene organ (godkjent som organ uansett).
             v_overlevende := pg_temp.nt310_finn('Kongen i statsråd', NULL, NULL);
             v_arkivert := pg_temp.nt310_finn('kongen', NULL, NULL);
-            PERFORM pg_temp.nt310_slaa_sammen(v_overlevende, v_arkivert);
+            PERFORM pg_temp.nt310_slaa_sammen(v_overlevende, v_arkivert, 'organ');
             PERFORM pg_temp.nt310_sett('Kongen i statsråd', NULL, NULL, 'organ');
             PERFORM pg_temp.nt310_sett('kongen', NULL, NULL, 'organ');
 
@@ -221,9 +224,9 @@ public static class NodetypeReklassifisering
             v_vergemal := pg_temp.nt310_finn('statsforvalteren', vgf_eli, vgf_tittel);
             v_overlevende := COALESCE(v_fast, v_fast_bestemt, v_reindrift, v_vergemal);
             IF v_overlevende IS NOT NULL THEN
-                PERFORM pg_temp.nt310_slaa_sammen(v_overlevende, v_fast_bestemt);
-                PERFORM pg_temp.nt310_slaa_sammen(v_overlevende, v_reindrift);
-                PERFORM pg_temp.nt310_slaa_sammen(v_overlevende, v_vergemal);
+                PERFORM pg_temp.nt310_slaa_sammen(v_overlevende, v_fast_bestemt, 'klasse');
+                PERFORM pg_temp.nt310_slaa_sammen(v_overlevende, v_reindrift, 'klasse');
+                PERFORM pg_temp.nt310_slaa_sammen(v_overlevende, v_vergemal, 'klasse');
                 UPDATE begreper SET begrepskategori = 'klasse', lovkilde_id = NULL,
                     sist_endret_av = 'migrasjon-310', sist_endret_tidspunkt = now()
                 WHERE "Id" = v_overlevende;
@@ -244,7 +247,7 @@ public static class NodetypeReklassifisering
                       AND b.entitetsstatus = 'gjeldende' AND lower(b.term) = 'stortinget'
                     ORDER BY b.opprettet_tidspunkt LIMIT 1;
                     IF v_navneform IS NOT NULL THEN
-                        PERFORM pg_temp.nt310_slaa_sammen(v_navneform, v_stortinget);
+                        PERFORM pg_temp.nt310_slaa_sammen(v_navneform, v_stortinget, 'organ');
                         v_id := v_navneform;
                     ELSE
                         UPDATE begreper SET begrepskategori = 'virksomhet', virksomhet_referanse_id = v_virksomhet,
@@ -275,7 +278,7 @@ public static class NodetypeReklassifisering
         END
         $do$;
 
-        DROP FUNCTION IF EXISTS pg_temp.nt310_slaa_sammen(uuid, uuid);
+        DROP FUNCTION IF EXISTS pg_temp.nt310_slaa_sammen(uuid, uuid, text);
         DROP FUNCTION IF EXISTS pg_temp.nt310_sett(text, text, text, text);
         DROP FUNCTION IF EXISTS pg_temp.nt310_proveniens(uuid, text, text);
         DROP FUNCTION IF EXISTS pg_temp.nt310_finn(text, text, text);

@@ -183,7 +183,7 @@ public class VirksomhetsbegrepTjenesteTests
         await using var db = _fixture.NyDbContext();
         var lovId = await OpprettAlkohollovenAsync(db);
         var gruppe = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(
-            lovId, NyTerm("kontrollmyndighet"), "Kari Jurist");
+            Nodetyper.Klasse, lovId, NyTerm("kontrollmyndighet"), "Kari Jurist");
         Assert.Null(gruppe.Navneformgrunn);
     }
 
@@ -218,10 +218,10 @@ public class VirksomhetsbegrepTjenesteTests
         var term = NyTerm("kontrollmyndighet");
 
         var register = new VirksomhetsbegrepTjeneste(db);
-        await register.OpprettGruppebegrepAsync(lovkildeId, term, "Kari Jurist");
+        await register.OpprettGruppebegrepAsync(Nodetyper.Klasse, lovkildeId, term, "Kari Jurist");
 
         await Assert.ThrowsAsync<ArgumentException>(
-            () => register.OpprettGruppebegrepAsync(lovkildeId, term, "Kari Jurist"));
+            () => register.OpprettGruppebegrepAsync(Nodetyper.Klasse, lovkildeId, term, "Kari Jurist"));
     }
 
     [Fact]
@@ -234,8 +234,8 @@ public class VirksomhetsbegrepTjenesteTests
         var term = NyTerm("tilsynsmyndighet");
 
         var register = new VirksomhetsbegrepTjeneste(db);
-        var forsteRad = await register.OpprettGruppebegrepAsync(alkoholloven, term, "Kari Jurist");
-        var andreRad = await register.OpprettGruppebegrepAsync(forvaltningsloven, term, "Kari Jurist");
+        var forsteRad = await register.OpprettGruppebegrepAsync(Nodetyper.Klasse, alkoholloven, term, "Kari Jurist");
+        var andreRad = await register.OpprettGruppebegrepAsync(Nodetyper.Klasse, forvaltningsloven, term, "Kari Jurist");
 
         Assert.NotEqual(forsteRad.Id, andreRad.Id);
         Assert.Equal(alkoholloven, forsteRad.LovkildeId);
@@ -253,11 +253,11 @@ public class VirksomhetsbegrepTjenesteTests
         var term = NyTerm("Departementet");
 
         var register = new VirksomhetsbegrepTjeneste(db);
-        await register.OpprettGruppebegrepAsync(lovkildeId, term, "Kari Jurist");
+        await register.OpprettGruppebegrepAsync(Nodetyper.Klasse, lovkildeId, term, "Kari Jurist");
 
         // «Departementet» og «departementet» skal IKKE bli to rader — issue #298 pkt. 3.
         var feil = await Assert.ThrowsAsync<ArgumentException>(
-            () => register.OpprettGruppebegrepAsync(lovkildeId, term.ToLowerInvariant(), "Kari Jurist"));
+            () => register.OpprettGruppebegrepAsync(Nodetyper.Klasse, lovkildeId, term.ToLowerInvariant(), "Kari Jurist"));
         Assert.Contains("finnes allerede", feil.Message, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -268,10 +268,10 @@ public class VirksomhetsbegrepTjenesteTests
         var term = NyTerm("Kongen");
 
         var register = new VirksomhetsbegrepTjeneste(db);
-        var fast = await register.OpprettGruppebegrepAsync(null, term, "Kari Jurist");
+        var fast = await register.OpprettGruppebegrepAsync(Nodetyper.Klasse, null, term, "Kari Jurist");
 
         Assert.Null(fast.LovkildeId);
-        Assert.Equal("gruppe", fast.Begrepskategori);
+        Assert.Equal("klasse", fast.Begrepskategori);
         Assert.Equal(term, fast.Term);
     }
 
@@ -282,10 +282,10 @@ public class VirksomhetsbegrepTjenesteTests
         var term = NyTerm("Kongen");
 
         var register = new VirksomhetsbegrepTjeneste(db);
-        await register.OpprettGruppebegrepAsync(null, term, "Kari Jurist");
+        await register.OpprettGruppebegrepAsync(Nodetyper.Klasse, null, term, "Kari Jurist");
 
         var feil = await Assert.ThrowsAsync<ArgumentException>(
-            () => register.OpprettGruppebegrepAsync(null, term.ToUpperInvariant(), "Kari Jurist"));
+            () => register.OpprettGruppebegrepAsync(Nodetyper.Klasse, null, term.ToUpperInvariant(), "Kari Jurist"));
         Assert.Contains("finnes allerede", feil.Message, StringComparison.OrdinalIgnoreCase);
     }
 
@@ -299,8 +299,8 @@ public class VirksomhetsbegrepTjenesteTests
         var term = NyTerm("tilsynsorganet");
 
         var register = new VirksomhetsbegrepTjeneste(db);
-        var fast = await register.OpprettGruppebegrepAsync(null, term, "Kari Jurist");
-        var lovspesifikt = await register.OpprettGruppebegrepAsync(lovkildeId, term, "Kari Jurist");
+        var fast = await register.OpprettGruppebegrepAsync(Nodetyper.Klasse, null, term, "Kari Jurist");
+        var lovspesifikt = await register.OpprettGruppebegrepAsync(Nodetyper.Klasse, lovkildeId, term, "Kari Jurist");
 
         Assert.NotEqual(fast.Id, lovspesifikt.Id);
         Assert.Null(fast.LovkildeId);
@@ -351,12 +351,12 @@ public class VirksomhetsbegrepTjenesteTests
         var term = NyTerm("Kongen i statsrad");
 
         var register = new VirksomhetsbegrepTjeneste(db);
-        var (forste, forsteVarNy) = await register.OpprettEllerGjenbrukFastGruppebegrepAsync(term, "Kari Jurist");
+        var (forste, forsteVarNy) = await register.OpprettEllerGjenbrukFastGruppebegrepAsync(Nodetyper.Klasse, term, "Kari Jurist");
         Assert.True(forsteVarNy);
 
         // Ulik case OG ledende/avsluttende whitespace — samme toleranse som den øvrige dedupen i denne klassen.
         var (andre, andreVarNy) = await register.OpprettEllerGjenbrukFastGruppebegrepAsync(
-            $"  {term.ToUpperInvariant()}  ", "Ola Saksbehandler");
+            Nodetyper.Klasse, $"  {term.ToUpperInvariant()}  ", "Ola Saksbehandler");
         Assert.False(andreVarNy);
         Assert.Equal(forste.Id, andre.Id);
 
@@ -372,7 +372,7 @@ public class VirksomhetsbegrepTjenesteTests
         var term = NyTerm("kontrollorganet");
 
         var register = new VirksomhetsbegrepTjeneste(db);
-        await register.OpprettGruppebegrepAsync(lovkildeId, term, "Kari Jurist");
+        await register.OpprettGruppebegrepAsync(Nodetyper.Klasse, lovkildeId, term, "Kari Jurist");
 
         Assert.Null(await register.FinnFastGruppebegrepAsync(term));
     }
@@ -389,13 +389,13 @@ public class VirksomhetsbegrepTjenesteTests
         var term = NyTerm("tilsynsorganet");
 
         var register = new VirksomhetsbegrepTjeneste(db);
-        var (forste, forsteVarNy) = await register.OpprettEllerGjenbrukGruppebegrepAsync(lovkildeId, term, "Kari Jurist");
+        var (forste, forsteVarNy) = await register.OpprettEllerGjenbrukGruppebegrepAsync(Nodetyper.Klasse, lovkildeId, term, "Kari Jurist");
         Assert.True(forsteVarNy);
         Assert.Equal(lovkildeId, forste.LovkildeId);
 
         // Ulik case OG whitespace — samme toleranse som den faste varianten.
         var (andre, andreVarNy) = await register.OpprettEllerGjenbrukGruppebegrepAsync(
-            lovkildeId, $"  {term.ToUpperInvariant()}  ", "Ola Saksbehandler");
+            Nodetyper.Klasse, lovkildeId, $"  {term.ToUpperInvariant()}  ", "Ola Saksbehandler");
         Assert.False(andreVarNy);
         Assert.Equal(forste.Id, andre.Id);
     }
@@ -410,8 +410,8 @@ public class VirksomhetsbegrepTjenesteTests
         var term = NyTerm("kontrollmyndigheten");
 
         var register = new VirksomhetsbegrepTjeneste(db);
-        var (forste, _) = await register.OpprettEllerGjenbrukGruppebegrepAsync(alkoholloven, term, "Kari Jurist");
-        var (andre, andreVarNy) = await register.OpprettEllerGjenbrukGruppebegrepAsync(forvaltningsloven, term, "Kari Jurist");
+        var (forste, _) = await register.OpprettEllerGjenbrukGruppebegrepAsync(Nodetyper.Klasse, alkoholloven, term, "Kari Jurist");
+        var (andre, andreVarNy) = await register.OpprettEllerGjenbrukGruppebegrepAsync(Nodetyper.Klasse, forvaltningsloven, term, "Kari Jurist");
 
         Assert.True(andreVarNy);
         Assert.NotEqual(forste.Id, andre.Id);
@@ -425,100 +425,180 @@ public class VirksomhetsbegrepTjenesteTests
         var term = NyTerm("Kongen");
 
         var register = new VirksomhetsbegrepTjeneste(db);
-        await register.OpprettGruppebegrepAsync(null, term, "Kari Jurist");
+        await register.OpprettGruppebegrepAsync(Nodetyper.Klasse, null, term, "Kari Jurist");
 
         Assert.Null(await register.FinnGruppebegrepAsync(lovkildeId, term));
     }
 
+    // ---------- [ENDRET, issue #310 «nodetype-akse», 2026-10-07] Testene for administrativ inndeling
+    // (issue #203 pkt. 2) er erstattet: kategorien er slått inn i 'omrade', og OpprettAdministrativ-
+    // InndelingAsync er fjernet. Det de testet — (Term, LovkildeId)-scoping og gjenbruk — dekkes nå av
+    // nodetype-testene under, som i tillegg låser at typene deler ÉN identitet. ----------
+
+    [Theory]
+    [InlineData("klasse")]
+    [InlineData("rolle")]
+    [InlineData("omrade")]
+    [InlineData("organ")]
+    public async Task Nytt_begrep_far_valgt_nodetype_og_ingen_navneformgrunn(string nodetype)
+    {
+        await using var db = _fixture.NyDbContext();
+        var lovId = await OpprettAlkohollovenAsync(db);
+        var begrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(
+            nodetype, lovId, NyTerm("Suldal kommune"), "Kari Jurist");
+
+        Assert.Equal(nodetype, begrep.Begrepskategori);
+        Assert.Equal(lovId, begrep.LovkildeId);
+        Assert.Null(begrep.VirksomhetId);
+        Assert.Null(begrep.Navneformgrunn);
+        Assert.Equal("publisert", begrep.Status);
+    }
+
+    /// <summary>Ingen nye 'gruppe'-begrep (utfases), og ingen ukjent verdi — ingen gjettet fallback.</summary>
+    [Theory]
+    [InlineData("gruppe")]
+    [InlineData("administrativ_inndeling")]
+    [InlineData("Klasse")]
+    [InlineData("")]
+    public async Task Ugyldig_eller_utfaset_nodetype_kastes(string nodetype)
+    {
+        await using var db = _fixture.NyDbContext();
+        var feil = await Assert.ThrowsAsync<ArgumentException>(
+            () => new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(nodetype, null, NyTerm("x"), "Kari Jurist"));
+        Assert.Contains("nodetype", feil.Message, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>[ENDRET, issue #310] Var «samme term og lov er OK for gruppe og administrativ inndeling
+    /// samtidig» — de to hadde hver sin unike indeks. Nå deler alle typene med gruppefunksjon ÉN
+    /// identitet (ux_begreper_nodebegrep_term_lovkilde): «reguleringsmyndighet» i energiloven kan ikke
+    /// finnes både som rolle og som klasse — det ville vært samme begrep registrert to ganger.</summary>
     [Fact]
-    public async Task OpprettEllerGjenbrukAdministrativInndeling_gjenbruker_eksisterende_rad()
+    public async Task Samme_term_og_lov_med_ulik_nodetype_kastes()
+    {
+        await using var db = _fixture.NyDbContext();
+        var lovkildeId = await OpprettAlkohollovenAsync(db);
+        var term = NyTerm("reguleringsmyndighet");
+
+        var register = new VirksomhetsbegrepTjeneste(db);
+        await register.OpprettGruppebegrepAsync(Nodetyper.Rolle, lovkildeId, term, "Kari Jurist");
+
+        var feil = await Assert.ThrowsAsync<ArgumentException>(
+            () => register.OpprettGruppebegrepAsync(Nodetyper.Klasse, lovkildeId, term, "Kari Jurist"));
+        Assert.Contains("som rolle", feil.Message);
+    }
+
+    /// <summary>DB-vernet bak testen over — skrevet rett til basen, forbi applikasjonssjekken.</summary>
+    [Fact]
+    public async Task Samme_term_og_lov_med_ulik_nodetype_kastes_pa_db_niva()
+    {
+        await using var db = _fixture.NyDbContext();
+        var lovkildeId = await OpprettAlkohollovenAsync(db);
+        var term = NyTerm("kommunene");
+        foreach (var kategori in new[] { "klasse", "omrade" })
+        {
+            db.Begreper.Add(new BegrepEntitet
+            {
+                Id = Guid.NewGuid(), Begrepskategori = kategori, LovkildeId = lovkildeId, Term = term,
+                Status = "publisert", OpprettetAv = "Kari Jurist", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            });
+        }
+        await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
+    }
+
+    /// <summary>Get-or-create gjenbruker KUN samme type — en klasse-forekomst kobles aldri stille til et
+    /// område med samme navn (gjettet kobling). Gjelder både lovspesifikk og fast gren.</summary>
+    [Fact]
+    public async Task OpprettEllerGjenbruk_med_annen_nodetype_enn_eksisterende_kastes()
     {
         await using var db = _fixture.NyDbContext();
         var lovkildeId = await OpprettAlkohollovenAsync(db);
         var term = NyTerm("Suldal kommune");
 
         var register = new VirksomhetsbegrepTjeneste(db);
-        var (forste, forsteVarNy) = await register.OpprettEllerGjenbrukAdministrativInndelingAsync(lovkildeId, term, "Kari Jurist");
-        Assert.True(forsteVarNy);
-
-        var (andre, andreVarNy) = await register.OpprettEllerGjenbrukAdministrativInndelingAsync(
-            lovkildeId, $"  {term.ToUpperInvariant()}  ", "Ola Saksbehandler");
-        Assert.False(andreVarNy);
-        Assert.Equal(forste.Id, andre.Id);
-    }
-
-    // ---------- [Ny, issue #203 pkt. 2] Administrativ inndeling — samme (Term, LovkildeId)-scoping som
-    // gruppebegrep over (besluttet med Johann 2026-09-10), egen Begrepskategori-verdi og egen metode
-    // (OpprettAdministrativInndelingAsync) — se den metodens kommentar for hvorfor ikke slått sammen
-    // med OpprettGruppebegrepAsync til én parameterisert metode. ----------
-
-    [Fact]
-    public async Task Administrativ_inndeling_far_riktig_begrepskategori_og_ingen_navneformgrunn()
-    {
-        await using var db = _fixture.NyDbContext();
-        var lovId = await OpprettAlkohollovenAsync(db);
-        var inndeling = await new VirksomhetsbegrepTjeneste(db).OpprettAdministrativInndelingAsync(
-            lovId, NyTerm("Suldal kommune"), "Kari Jurist");
-
-        Assert.Equal("administrativ_inndeling", inndeling.Begrepskategori);
-        Assert.Equal(lovId, inndeling.LovkildeId);
-        Assert.Null(inndeling.VirksomhetId);
-        Assert.Null(inndeling.Navneformgrunn);
-        Assert.Equal("publisert", inndeling.Status);
-    }
-
-    [Fact]
-    public async Task Administrativ_inndeling_samme_term_i_samme_lov_kastes()
-    {
-        await using var db = _fixture.NyDbContext();
-        var lovkildeId = await OpprettAlkohollovenAsync(db);
-        var term = NyTerm("Hedmark fylke");
-
-        var register = new VirksomhetsbegrepTjeneste(db);
-        await register.OpprettAdministrativInndelingAsync(lovkildeId, term, "Kari Jurist");
-
+        var (omrade, varNy) = await register.OpprettEllerGjenbrukGruppebegrepAsync(Nodetyper.Omrade, lovkildeId, term, "Kari Jurist");
+        Assert.True(varNy);
+        var (igjen, igjenVarNy) = await register.OpprettEllerGjenbrukGruppebegrepAsync(
+            Nodetyper.Omrade, lovkildeId, $"  {term.ToUpperInvariant()}  ", "Ola Saksbehandler");
+        Assert.False(igjenVarNy);
+        Assert.Equal(omrade.Id, igjen.Id);
         await Assert.ThrowsAsync<ArgumentException>(
-            () => register.OpprettAdministrativInndelingAsync(lovkildeId, term, "Kari Jurist"));
+            () => register.OpprettEllerGjenbrukGruppebegrepAsync(Nodetyper.Klasse, lovkildeId, term, "Kari Jurist"));
+
+        var fastTerm = NyTerm("Kongen i statsrad");
+        await register.OpprettEllerGjenbrukFastGruppebegrepAsync(Nodetyper.Organ, fastTerm, "Kari Jurist");
+        await Assert.ThrowsAsync<ArgumentException>(
+            () => register.OpprettEllerGjenbrukFastGruppebegrepAsync(Nodetyper.Rolle, fastTerm, "Kari Jurist"));
     }
 
+    /// <summary>En gjenværende 'gruppe'-rad (andre miljøer) gjenbrukes ikke stille som en type — feilen
+    /// sier at nodetypen må settes på den først.</summary>
     [Fact]
-    public async Task Administrativ_inndeling_samme_term_i_ulik_lov_er_to_ulike_rader()
+    public async Task OpprettEllerGjenbruk_mot_gjenvaerende_gruppe_rad_ber_om_reklassifisering()
     {
         await using var db = _fixture.NyDbContext();
-        var alkoholloven = await OpprettAlkohollovenAsync(db);
-        var forvaltningsloven = await new RettskildeImportTjeneste(db).ImporterAsync(
-            LovdataKonverterer.Konverter(Testdata.LesForvaltningsloven(), new DateOnly(2026, 8, 22)));
-        var term = NyTerm("Østfold fylke");
+        var term = NyTerm("Statsforvalteren");
+        db.Begreper.Add(new BegrepEntitet
+        {
+            Id = Guid.NewGuid(), Begrepskategori = "gruppe", LovkildeId = null, Term = term,
+            Status = "publisert", OpprettetAv = "Kari Jurist", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        await db.SaveChangesAsync();
 
-        var register = new VirksomhetsbegrepTjeneste(db);
-        var forsteRad = await register.OpprettAdministrativInndelingAsync(alkoholloven, term, "Kari Jurist");
-        var andreRad = await register.OpprettAdministrativInndelingAsync(forvaltningsloven, term, "Kari Jurist");
-
-        Assert.NotEqual(forsteRad.Id, andreRad.Id);
-        Assert.Equal(alkoholloven, forsteRad.LovkildeId);
-        Assert.Equal(forvaltningsloven, andreRad.LovkildeId);
+        var feil = await Assert.ThrowsAsync<ArgumentException>(
+            () => new VirksomhetsbegrepTjeneste(db).OpprettEllerGjenbrukFastGruppebegrepAsync(Nodetyper.Klasse, term, "Kari Jurist"));
+        Assert.Contains("'gruppe'", feil.Message);
     }
 
-    /// <summary>Samme term (Term, LovkildeId) er OK på tvers av de to ULIKE kategoriene — de to unike
-    /// partielle indeksene (ux_begreper_gruppebegrep_term_lovkilde/ux_begreper_administrativ_inndeling_
-    /// term_lovkilde) er hver filtrert på SIN EGEN Begrepskategori, se RegelIdeDbContext. Dekker
-    /// samtidig regresjonen som oppsto da migrasjonen først ble generert (EF slo de to identiske
-    /// (Term, LovkildeId)-HasIndex-kallene sammen til ÉN og mistet gruppebegrep-indeksen stille — se
-    /// PR-beskrivelsen) — hadde den regresjonen ikke vært rettet, ville enten denne testen eller
-    /// Gruppebegrep_samme_term_i_samme_lov_kastes feilet.</summary>
+    /// <summary>SettNodetypeAsync — veien for å reklassifisere gjenværende 'gruppe'-rader for hånd.
+    /// Tildelinger peker på begrepets id og følger uendret med.</summary>
     [Fact]
-    public async Task Samme_term_og_lov_er_ok_for_gruppe_og_administrativ_inndeling_samtidig()
+    public async Task SettNodetype_reklassifiserer_gruppe_rad_og_beholder_tildelinger()
     {
         await using var db = _fixture.NyDbContext();
         var lovkildeId = await OpprettAlkohollovenAsync(db);
-        var term = NyTerm("delt-navn");
+        var gruppe = new BegrepEntitet
+        {
+            Id = Guid.NewGuid(), Begrepskategori = "gruppe", LovkildeId = lovkildeId, Term = NyTerm("vertskommuner"),
+            Status = "publisert", OpprettetAv = "Kari Jurist", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        };
+        var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Vertskommune-{Guid.NewGuid():N}" };
+        db.Begreper.Add(gruppe);
+        db.Virksomheter.Add(virksomhet);
+        db.Myndighetstildelinger.Add(new MyndighetstildelingEntitet
+        {
+            Id = Guid.NewGuid(), GruppeBegrepId = gruppe.Id, VirksomhetId = virksomhet.Id, HjemmelRettskildeId = lovkildeId,
+            OpprettetAv = "Kari Jurist", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+        });
+        await db.SaveChangesAsync();
 
         var register = new VirksomhetsbegrepTjeneste(db);
-        var gruppe = await register.OpprettGruppebegrepAsync(lovkildeId, term, "Kari Jurist");
-        var inndeling = await register.OpprettAdministrativInndelingAsync(lovkildeId, term, "Kari Jurist");
+        var oppdatert = await register.SettNodetypeAsync(gruppe.Id, Nodetyper.Klasse, "Kari Jurist");
 
-        Assert.NotEqual(gruppe.Id, inndeling.Id);
-        Assert.Equal("gruppe", gruppe.Begrepskategori);
-        Assert.Equal("administrativ_inndeling", inndeling.Begrepskategori);
+        Assert.NotNull(oppdatert);
+        Assert.Equal("klasse", oppdatert!.Begrepskategori);
+        Assert.Equal(1, await db.Myndighetstildelinger.CountAsync(m => m.GruppeBegrepId == gruppe.Id));
+        await Assert.ThrowsAsync<ArgumentException>(() => register.SettNodetypeAsync(gruppe.Id, "gruppe", "Kari Jurist"));
+        Assert.Null(await register.SettNodetypeAsync(Guid.NewGuid(), Nodetyper.Rolle, "Kari Jurist"));
+    }
+
+    /// <summary>Listene som picker-ene bygger på tar med ALLE typene med gruppefunksjon.</summary>
+    [Fact]
+    public async Task AlleGruppebegrep_inkluderer_alle_nodetyper()
+    {
+        await using var db = _fixture.NyDbContext();
+        var lovkildeId = await OpprettAlkohollovenAsync(db);
+        var register = new VirksomhetsbegrepTjeneste(db);
+        var ider = new List<Guid>();
+        foreach (var type in Nodetyper.Settbare)
+        {
+            ider.Add((await register.OpprettGruppebegrepAsync(type, lovkildeId, NyTerm($"t-{type}"), "Kari Jurist")).Id);
+        }
+
+        var alle = (await register.AlleGruppebegrepAsync()).Select(b => b.Id).ToHashSet();
+        var forLov = (await register.AlleGruppebegrepForLovAsync(lovkildeId)).Select(b => b.Id).ToHashSet();
+        var alleAsync = (await register.AlleAsync()).Select(b => b.Id).ToHashSet();
+        Assert.All(ider, id => Assert.Contains(id, alle));
+        Assert.All(ider, id => Assert.Contains(id, forLov));
+        Assert.All(ider, id => Assert.Contains(id, alleAsync));
     }
 }

@@ -1,7 +1,10 @@
 import type {
   ApiFeil,
   BegrepBruktIRettskildeDto,
+  Aktortype,
   BegrepDto,
+  Begrepsnodetype,
+  Kandidatnodetype,
   BegrepRequest,
   BegrepsforekomstDto,
   BegrepTaggetForekomstDto,
@@ -487,6 +490,22 @@ export const api = {
     return kall<HardslettVirksomhetKandidaterResultatDto>(`/api/virksomhet-kandidater${sok ? `?${sok}` : ''}`, { method: 'DELETE' });
   },
 
+  /** [Ny, issue #310] Aktørtype — null = tilbake til uavklart. */
+  settVirksomhetAktortype: (id: string, aktortype: Aktortype | null) =>
+    kall<VirksomhetDto>(`/api/virksomheter/${id}/aktortype`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ aktortype }),
+    }),
+
+  /** [Ny, issue #310] Setter nodetypen på et begrep med gruppefunksjon (reklassifisering for hånd). */
+  settNodetype: (begrepId: string, nodetype: Begrepsnodetype) =>
+    kall<BegrepDto>(`/api/gruppebegrep/${begrepId}/nodetype`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ nodetype }),
+    }),
+
   settVirksomhetForvaltningsniva: (id: string, forvaltningsniva: string | null) =>
     kall<VirksomhetDto>(`/api/virksomheter/${id}/forvaltningsniva`, {
       method: 'PUT',
@@ -631,14 +650,17 @@ export const api = {
       body: JSON.stringify(request),
     }),
 
-  godkjennNavnekandidat: (id: string) =>
-    kall<NavnekandidatDto>(`/api/navnekandidater/${id}/godkjenn`, { method: 'POST' }),
+  /** [ENDRET, issue #310] `nodetype` er påkrevd for en 'gruppe'-kandidat (uavklart type), valgfri ellers. */
+  godkjennNavnekandidat: (id: string, nodetype?: Kandidatnodetype) =>
+    kall<NavnekandidatDto>(
+      `/api/navnekandidater/${id}/godkjenn${nodetype ? `?nodetype=${nodetype}` : ''}`, { method: 'POST' }),
 
   /** [Ny, issue #298 AC3] Alternativet til godkjennNavnekandidat for 'gruppe'-kandidater: oppretter
    * (eller gjenbruker) et gruppebegrep UTEN lovkilde — fast, nasjonalt, delt på tvers av alle lover. */
-  godkjennNavnekandidatSomFastGruppebegrep: (id: string) =>
+  godkjennNavnekandidatSomFastGruppebegrep: (id: string, nodetype?: Kandidatnodetype) =>
     kall<NavnekandidatFastGruppebegrepResultatDto>(
-      `/api/navnekandidater/${id}/godkjenn-som-fast-gruppebegrep`, { method: 'POST' }),
+      `/api/navnekandidater/${id}/godkjenn-som-fast-gruppebegrep${nodetype ? `?nodetype=${nodetype}` : ''}`,
+      { method: 'POST' }),
 
   avvisNavnekandidat: (id: string) =>
     kall<NavnekandidatDto>(`/api/navnekandidater/${id}/avvis`, { method: 'POST' }),

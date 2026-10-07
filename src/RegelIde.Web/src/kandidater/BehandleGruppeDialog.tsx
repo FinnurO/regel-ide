@@ -3,7 +3,8 @@ import {
   Alert, Button, Card, Dialog, Divider, Field, Heading, Label, Radio, Search, Table, Textfield,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { BrregEnhetDto, NavnekandidatBatchResultatDto, NavnekandidatDto, Navneformgrunn } from '../api/types';
+import type { BrregEnhetDto, Kandidatnodetype, NavnekandidatBatchResultatDto, NavnekandidatDto, Navneformgrunn } from '../api/types';
+import { KANDIDATNODETYPER, NODETYPE_VISNING, NodetypeVelger } from '../begrep/Nodetype';
 import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { NavneformgrunnVelger } from '../virksomhet/Navneformgrunn';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
@@ -58,11 +59,16 @@ export interface BehandleGruppeDialogProps {
   onFerdig: () => void;
 }
 
-const KATEGORI_TEKST: Record<NavnekandidatDto['kategori'], string> = {
-  gruppe: 'Gruppe',
-  virksomhet: 'Virksomhet',
-  administrativ_inndeling: 'Administrativ inndeling',
-};
+/** [ENDRET, issue #310 «nodetype-akse»] Var en tekst per kategori (gruppe/virksomhet/administrativ_inndeling).
+ * Nå: virksomhet, eller nodetypens egen tekst fra den delte `NODETYPE_VISNING`. */
+function kategoriTekst(kategori: string): string {
+  return kategori === 'virksomhet' ? 'Virksomhet' : NODETYPE_VISNING[kategori]?.tekst ?? kategori;
+}
+
+/** [Ny, issue #310] Dialogens to spor: virksomhet (koble til en virksomhet) eller begrep (klasse/rolle/
+ * område). 'gruppe' er ikke et spor lenger — det er en kandidat med uavklart type, som havner i begrep-
+ * sporet og må få typen valgt her. */
+type Spor = 'virksomhet' | 'begrep';
 
 export function BehandleGruppeDialog({
   visningsnavn, rader, representantKontekst, representantRettskildeTittel, flereRettskilder, onLukk, onFerdig,
@@ -71,13 +77,19 @@ export function BehandleGruppeDialog({
 
   // Antall rader per kategori, mest vanlige først. Blandet kategori er normalen for de største gruppene
   // («kommunen», «statsforvalteren»): saksbehandleren avgjør EN gang, og utfallet appliseres på alle.
-  // `administrativ_inndeling` tilbys kun når den FAKTISK finnes blant radene — aldri som stille
-  // sammenslåingsmål.
   const kategoriAntall = [...rader.reduce((m, r) => m.set(r.kategori, (m.get(r.kategori) ?? 0) + 1),
     new Map<NavnekandidatDto['kategori'], number>())].sort((a, b) => b[1] - a[1]);
+  // [ENDRET, issue #310] Spor (virksomhet/begrep) + nodetype i stedet for én fri kategori. Startsporet er
+  // den vanligste kategoriens spor. Nodetypen forhåndsvelges BARE når alle rader som har en nodetype er
+  // enige — ellers ingen forhåndsvalg (typen gjettes ikke, CLAUDE.md §8).
+  const [spor, setSpor] = useState<Spor>(kategoriAntall[0][0] === 'virksomhet' ? 'virksomhet' : 'begrep');
+  const foreslatteTyper = [...new Set(rader.map((r) => r.kategori).filter(
+    (k): k is Kandidatnodetype => (KANDIDATNODETYPER as readonly string[]).includes(k)))];
+  const [nodetype, setNodetype] = useState<Kandidatnodetype | null>(foreslatteTyper.length === 1 ? foreslatteTyper[0] : null);
+  const harBeggeSpor = kategoriAntall.some(([k]) => k === 'virksomhet') && kategoriAntall.some(([k]) => k !== 'virksomhet');
   const erBlandet = kategoriAntall.length > 1;
-  const [kategori, setKategori] = useState<NavnekandidatDto['kategori']>(kategoriAntall[0][0]);
-  const antallSomEndrerKategori = rader.filter((r) => r.kategori !== kategori).length;
+  const malkategori = spor === 'virksomhet' ? 'virksomhet' : nodetype;
+  const antallSomEndrerKategori = rader.filter((r) => r.kategori !== malkategori).length;
   const { virksomheter, oppdater: oppdaterVirksomheter } = useVirksomheter();
 
   // ---------- Virksomhet-sporet (kategori==='virksomhet') ----------
@@ -90,7 +102,7 @@ export function BehandleGruppeDialog({
   const [nyttNavn, setNyttNavn] = useState(foreslattTekst);
   const [oppretterVirksomhet, setOppretterVirksomhet] = useState(false);
 
-  // ---------- Gruppe-sporet (kategori==='gruppe') — issue #298 AC3, speil av veiviserens steg 2. ----------
+  // ---------- Begrep-sporet (klasse/rolle/område) — issue #298 AC3, speil av veiviserens steg 2. ----------
   const [gruppeScope, setGruppeScope] = useState<'lovspesifikt' | 'fast'>('lovspesifikt');
 
   // ---------- Felles ----------
@@ -154,28 +166,16 @@ export function BehandleGruppeDialog({
     }
   }
 
-  async function bekreftGruppe() {
+  // [ENDRET, issue #310] Én bekreft for begrep-sporet (var: gruppe + administrativ inndeling som to).
+  // tilKategori = valgt nodetype; serveren omkategoriserer bare radene som avviker.
+  async function bekreftBegrep() {
+    if (!nodetype) return;
     setKjorer(true);
     setFeil(null);
     try {
       settResultatFraSvar(await api.godkjennNavnekandidaterGruppeBatch({
         ider: rader.map((r) => r.id), fast: gruppeScope === 'fast',
-        tilKategori: antallSomEndrerKategori > 0 ? 'gruppe' : undefined,
-      }));
-    } catch (e) {
-      setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved behandling av gruppen.');
-    } finally {
-      setKjorer(false);
-    }
-  }
-
-  async function bekreftAdministrativInndeling() {
-    setKjorer(true);
-    setFeil(null);
-    try {
-      settResultatFraSvar(await api.godkjennNavnekandidaterGruppeBatch({
-        ider: rader.map((r) => r.id), fast: false,
-        tilKategori: antallSomEndrerKategori > 0 ? 'administrativ_inndeling' : undefined,
+        tilKategori: antallSomEndrerKategori > 0 ? nodetype : undefined,
       }));
     } catch (e) {
       setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved behandling av gruppen.');
@@ -185,7 +185,7 @@ export function BehandleGruppeDialog({
   }
 
   const valgtVirksomhet = virksomheter.find((v) => v.id === valgtVirksomhetId) ?? null;
-  const klarTilBekreft = kategori !== 'virksomhet' || valgtVirksomhetId !== '';
+  const klarTilBekreft = spor === 'virksomhet' ? valgtVirksomhetId !== '' : nodetype !== null;
 
   return (
     <Dialog open onClose={onLukk} closeButton="Lukk" style={{ maxWidth: '38rem' }}>
@@ -210,29 +210,39 @@ export function BehandleGruppeDialog({
       {!resultat && (
         <Dialog.Block>
           {erBlandet && (
-            <div style={{ marginBottom: '0.75rem' }}>
-              <Alert data-color="info" data-size="sm" style={{ marginBottom: '0.5rem' }}>
-                Gruppen har blandet kategori ({kategoriAntall.map(([k, n]) => `${n} ${k.replace('_', ' ')}`).join(', ')}) —
-                KI-klassifiseringen er ustabil på samme tekst. Velg ÉN kategori for hele gruppen.
-              </Alert>
-              <Field data-size="sm">
-                <Label>Behandle alle som:</Label>
-                {kategoriAntall.map(([k, n]) => (
-                  <Radio key={k} name="behandleSom" value={k}
-                    label={`${KATEGORI_TEKST[k]} (${n} av ${rader.length} er det i dag)`}
-                    checked={kategori === k} onChange={() => setKategori(k)} />
-                ))}
-              </Field>
-              {antallSomEndrerKategori > 0 && (
-                <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.4rem' }}>
-                  {antallSomEndrerKategori} rad{antallSomEndrerKategori === 1 ? '' : 'er'} endrer kategori til
-                  {' '}«{KATEGORI_TEKST[kategori]}» ved bekreftelse (de står som «Venter», teksten røres ikke).
+            <Alert data-color="info" data-size="sm" style={{ marginBottom: '0.5rem' }}>
+              Gruppen har blandet kategori ({kategoriAntall.map(([k, n]) => `${n} ${kategoriTekst(k).toLowerCase()}`).join(', ')}) —
+              klassifiseringen er ustabil på samme tekst. Velg ÉN behandling for hele gruppen.
+            </Alert>
+          )}
+          {harBeggeSpor && (
+            <Field data-size="sm" style={{ marginBottom: '0.5rem' }}>
+              <Label>Behandle alle som:</Label>
+              <Radio name="behandleSom" value="virksomhet" label="Virksomhet (navneform for en konkret virksomhet)"
+                checked={spor === 'virksomhet'} onChange={() => setSpor('virksomhet')} />
+              <Radio name="behandleSom" value="begrep" label="Begrep loven definerer (klasse, rolle eller område)"
+                checked={spor === 'begrep'} onChange={() => setSpor('begrep')} />
+            </Field>
+          )}
+          {spor === 'begrep' && (
+            <div style={{ marginBottom: '0.5rem' }}>
+              <Heading level={3} data-size="xs" style={{ marginBottom: '0.35rem' }}>Hva slags begrep er dette?</Heading>
+              {foreslatteTyper.length > 1 && (
+                <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.35rem' }}>
+                  Radene har ulike foreslåtte typer ({foreslatteTyper.map(kategoriTekst).join(', ').toLowerCase()}) — ingen er forhåndsvalgt.
                 </Metatekst>
               )}
-              <Divider style={{ margin: '0.75rem 0' }} />
+              <NodetypeVelger name="gruppeNodetype" value={nodetype} onChange={(t) => setNodetype(t as Kandidatnodetype)} />
             </div>
           )}
-          {kategori === 'virksomhet' && (
+          {antallSomEndrerKategori > 0 && malkategori && (
+            <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.4rem' }}>
+              {antallSomEndrerKategori} rad{antallSomEndrerKategori === 1 ? '' : 'er'} endrer kategori til
+              {' '}«{kategoriTekst(malkategori)}» ved bekreftelse (de står som «Venter», teksten røres ikke).
+            </Metatekst>
+          )}
+          {(erBlandet || spor === 'begrep') && <Divider style={{ margin: '0.75rem 0' }} />}
+          {spor === 'virksomhet' && (
             <>
               <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
                 <Radio name="vei" label="Velg fra katalogen" value="eksisterende"
@@ -333,16 +343,16 @@ export function BehandleGruppeDialog({
             </>
           )}
 
-          {kategori === 'gruppe' && (
+          {spor === 'begrep' && (
             <>
               <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
-                Et lovspesifikt gruppebegrep hører til denne/disse loven(e) — samme navn i en annen lov
+                Et lovspesifikt begrep hører til denne/disse loven(e) — samme navn i en annen lov
                 blir en egen rad. Et fast, nasjonalt begrep har ingen lov å høre til, f.eks. «Kongen»
                 (issue #298).
                 {flereRettskilder && ' Lovspesifikt her oppretter/gjenbruker ÉN rad PER lov gruppen spenner over, ikke én delt rad for hele gruppen.'}
               </Metatekst>
               <Field data-size="sm">
-                <Radio name="gruppeScope" label="Lovspesifikt gruppebegrep" value="lovspesifikt"
+                <Radio name="gruppeScope" label="Lovspesifikt begrep" value="lovspesifikt"
                   checked={gruppeScope === 'lovspesifikt'} onChange={() => setGruppeScope('lovspesifikt')} />
                 <Radio name="gruppeScope" label="Fast, nasjonalt begrep" value="fast"
                   checked={gruppeScope === 'fast'} onChange={() => setGruppeScope('fast')} />
@@ -350,13 +360,8 @@ export function BehandleGruppeDialog({
             </>
           )}
 
-          {kategori === 'administrativ_inndeling' && (
-            <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
-              Administrativ inndeling er alltid lovspesifikt (ingen fast/nasjonal variant, issue #298) —
-              ett begrep opprettes/gjenbrukes per lov gruppen spenner over, og kobles til alle
-              {' '}{rader.length} forekomstene.
-            </Metatekst>
-          )}
+          {/* [FJERNET, issue #310] Egen «administrativ inndeling er alltid lovspesifikt»-gren — kategorien
+            * er slått inn i Område, og den faste varianten gjelder nå alle tre typene. */}
 
           {feil && <Alert data-color="danger" data-size="sm" style={{ marginTop: '0.75rem' }}>{feil}</Alert>}
         </Dialog.Block>
@@ -387,11 +392,7 @@ export function BehandleGruppeDialog({
             <Button
               data-size="sm"
               disabled={kjorer || !klarTilBekreft}
-              onClick={
-                kategori === 'virksomhet' ? bekreftVirksomhet
-                  : kategori === 'gruppe' ? bekreftGruppe
-                    : bekreftAdministrativInndeling
-              }
+              onClick={spor === 'virksomhet' ? bekreftVirksomhet : bekreftBegrep}
             >
               {kjorer ? 'Behandler …' : `Bekreft for alle ${rader.length}`}
             </Button>

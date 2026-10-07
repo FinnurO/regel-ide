@@ -46,7 +46,7 @@ public class GruppeMedlemskapTjenesteTests
     private sealed record Oppsett(Guid LovId, Guid ForskriftId, string FraEid, string TilEid);
 
     private static Task<BegrepEntitet> NyGruppeAsync(RegelIdeDbContext db, Guid lovId, string prefiks) =>
-        new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm(prefiks), "Kari Jurist");
+        new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(Nodetyper.Klasse, lovId, NyTerm(prefiks), "Kari Jurist");
 
     [Fact]
     public async Task Oppretter_gruppemedlemskap_med_strukturert_paragrafspenn()

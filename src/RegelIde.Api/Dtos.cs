@@ -789,7 +789,7 @@ public sealed record VirksomhetNavneformForekomstDto(
 
 /// <summary>Én myndighetstildeling med GRUPPEBEGREPET navngitt — nøklet på tildelingens egen id, slik
 /// at klienten kan slå gruppenavnet inn i den myndighetstildelings-tabellen den allerede viser.</summary>
-public sealed record VirksomhetGruppetildelingDto(Guid TildelingId, Guid GruppeBegrepId, string GruppeTerm);
+public sealed record VirksomhetGruppetildelingDto(Guid TildelingId, Guid GruppeBegrepId, string GruppeTerm, string? GruppeBegrepskategori);
 
 public sealed record VirksomhetWhereUsedDto(
     IReadOnlyList<VirksomhetNavneformForekomstDto> NavneformForekomster,
@@ -802,7 +802,7 @@ public sealed record VirksomhetWhereUsedDto(
                 f.StartOffset, f.EndOffset))
             .ToList(),
         r.Gruppetildelinger
-            .Select(g => new VirksomhetGruppetildelingDto(g.TildelingId, g.GruppeBegrepId, g.GruppeTerm))
+            .Select(g => new VirksomhetGruppetildelingDto(g.TildelingId, g.GruppeBegrepId, g.GruppeTerm, g.GruppeBegrepskategori))
             .ToList());
 }
 

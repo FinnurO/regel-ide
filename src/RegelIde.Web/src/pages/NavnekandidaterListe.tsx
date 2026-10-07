@@ -4,7 +4,8 @@ import { Alert, Button, Card, Checkbox, Field, Heading, Label, Link, Paragraph, 
 import { ApiError, api } from '../api/client';
 import { BerikelseVisning } from '../virksomhet/BerikelseVisning';
 import { rettskildeLenkeForId } from '../api/eidLenker';
-import type { NavnekandidatDto, RettskildeSammendrag } from '../api/types';
+import type { Kandidatnodetype, NavnekandidatDto, Navnekandidatkategori, RettskildeSammendrag } from '../api/types';
+import { BegrepskategoriTag, KANDIDATNODETYPER, NODETYPE_VISNING } from '../begrep/Nodetype';
 import { RettskildeFlervalg } from '../rettskilde/RettskildeFlervalg';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { Pagineringskontroll } from '../tabell/Pagineringskontroll';
@@ -76,11 +77,23 @@ function serverFilter(fane: Fane): { status: string; behandletAutomatisk?: boole
 
 // [ENDRET, issue #203 pkt. 2] 'administrativ_inndeling' lagt til — egen farge ('success', ikke i bruk
 // av de to andre) slik at kategorien er visuelt skilt fra både virksomhet og gruppe i tabellen/filteret.
-const KATEGORI_FARGE: Record<string, 'info' | 'accent' | 'success'> = {
-  virksomhet: 'accent',
-  gruppe: 'info',
-  administrativ_inndeling: 'success',
-};
+// [ENDRET, issue #310 «nodetype-akse»] Bare 'virksomhet' har en lokal farge igjen; nodetypene
+// (klasse/rolle/omrade) og 'gruppe' (= type ikke avgjort) vises med den DELTE BegrepskategoriTag, slik at
+// samme type har samme farge her som på BegrepDetalj (docs/09 §15). 'administrativ_inndeling' er slått
+// inn i 'omrade'.
+const VIRKSOMHET_FARGE = 'accent';
+
+/** [Ny, issue #310] Kandidatens kategori som tag — virksomhet lokalt, alt annet via den delte komponenten. */
+function KandidatkategoriTag({ kategori }: { kategori: string }) {
+  return kategori === 'virksomhet'
+    ? <Tag data-color={VIRKSOMHET_FARGE} data-size="sm">Virksomhet</Tag>
+    : <BegrepskategoriTag kategori={kategori} />;
+}
+
+/** [Ny, issue #310] Kandidaten har en valgt/foreslått nodetype og kan godkjennes direkte. */
+function harNodetype(kategori: string): kategori is Kandidatnodetype {
+  return (KANDIDATNODETYPER as readonly string[]).includes(kategori);
+}
 
 
 /**
@@ -130,7 +143,8 @@ export default function NavnekandidaterListe() {
   // hundrevis av ulike rettskilder samtidig).
 
   // [ENDRET, issue #203 pkt. 2] 'administrativ_inndeling' lagt til i filteret.
-  const [kategoriFilter, setKategoriFilter] = useState<'virksomhet' | 'gruppe' | 'administrativ_inndeling' | ''>('');
+  // [ENDRET, issue #310] Nodetypene i stedet for 'administrativ_inndeling'.
+  const [kategoriFilter, setKategoriFilter] = useState<Navnekandidatkategori | ''>('');
   // [Ny, konfidens-runden, 2026-09-09] '' = alle. 'ingen' = radene som ikke er klassifisert
   // (alle 'gruppe'-kandidater) — se ListerAsync sin konfidens-parameter for hvorfor det er en egen
   // verdi og ikke bare et tomt filter.
@@ -266,7 +280,7 @@ export default function NavnekandidaterListe() {
   // enkelhet som resten av tabellen.
   const [redigerId, setRedigerId] = useState<string | null>(null);
   const [redigerTekst, setRedigerTekst] = useState('');
-  const [redigerKategori, setRedigerKategori] = useState<'virksomhet' | 'gruppe' | 'administrativ_inndeling'>('virksomhet');
+  const [redigerKategori, setRedigerKategori] = useState<Navnekandidatkategori>('virksomhet');
   const [redigerLagrer, setRedigerLagrer] = useState(false);
   const [redigerFeil, setRedigerFeil] = useState<string | null>(null);
 
@@ -629,12 +643,16 @@ export default function NavnekandidaterListe() {
               value={redigerKategori}
               onChange={(e) => setRedigerKategori(e.target.value as typeof redigerKategori)}
             >
-              <Select.Option value="virksomhet">virksomhet</Select.Option>
-              <Select.Option value="gruppe">gruppe</Select.Option>
-              <Select.Option value="administrativ_inndeling">administrativ_inndeling</Select.Option>
+              {/* [ENDRET, issue #310] Her velger mennesket nodetypen for en 'gruppe'-kandidat (eller
+                * retter KI-ens forslag) — deretter virker hurtig-«Godkjenn». */}
+              <Select.Option value="virksomhet">Virksomhet</Select.Option>
+              <Select.Option value="gruppe">{NODETYPE_VISNING.gruppe.tekst}</Select.Option>
+              {KANDIDATNODETYPER.map((t) => (
+                <Select.Option key={t} value={t}>{NODETYPE_VISNING[t].tekst}</Select.Option>
+              ))}
             </Select>
           ) : (
-            <Tag data-color={KATEGORI_FARGE[k.kategori] ?? 'neutral'} data-size="sm">{k.kategori}</Tag>
+            <KandidatkategoriTag kategori={k.kategori} />
           )}
         </Table.Cell>
         {/* [Ny, konfidens-runden, 2026-09-09] Hvor godt bekreftet treffet er — erstatter automatisk
@@ -735,8 +753,18 @@ export default function NavnekandidaterListe() {
                       handling, samme GodkjennAsync-gren). For `virksomhet` er den fjernet: den satte bare
                       status og etterlot en tagg som aldri ble koblet — nettopp blindveien wizarden
                       erstatter. */}
-                  {(k.kategori === 'gruppe' || k.kategori === 'administrativ_inndeling') && (
-                    <Button data-size="sm" onClick={() => enkelthandling(k.id, 'godkjenn')}>Godkjenn</Button>
+                  {/* [ENDRET, issue #310] Kun når nodetypen er valgt (klasse/rolle/område) — en
+                      'gruppe'-kandidat har uavklart type, og serveren gjetter den ikke. Velg typen med
+                      «Rediger» eller i veiviseren først. */}
+                  {harNodetype(k.kategori) && (
+                    <Button data-size="sm" onClick={() => enkelthandling(k.id, 'godkjenn')}>
+                      Godkjenn som {NODETYPE_VISNING[k.kategori].tekst.toLowerCase()}
+                    </Button>
+                  )}
+                  {k.kategori === 'gruppe' && (
+                    <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
+                      Velg type før godkjenning
+                    </Metatekst>
                   )}
                   {/* [Ny, issue #298 AC3] «Fast, nasjonalt begrep»-alternativet — KUN for 'gruppe' (ikke
                       administrativ_inndeling, som alltid er lovspesifikt, se OpprettAdministrativInndelingAsync).
@@ -744,7 +772,7 @@ export default function NavnekandidaterListe() {
                       det alt et fast begrep med samme Term, kobles kandidaten til DET i stedet for å opprette
                       en dublett). For den FULLE, ekspandert-forklarte veien (med søk/bekreftelse før man
                       velger), se «Behandle …» → veiviseren i stedet. */}
-                  {k.kategori === 'gruppe' && (
+                  {harNodetype(k.kategori) && (
                     <Button
                       data-size="sm" variant="secondary"
                       onClick={() => enkelthandling(k.id, 'godkjenn-fast')}
@@ -834,9 +862,11 @@ export default function NavnekandidaterListe() {
           <Select data-size="sm" value={kategoriFilter} onChange={(e) => setKategoriFilter(e.target.value as typeof kategoriFilter)}>
             <Select.Option value="">Alle kategorier</Select.Option>
             <Select.Option value="virksomhet">Virksomhet</Select.Option>
-            <Select.Option value="gruppe">Gruppe</Select.Option>
-            {/* [Ny, issue #203 pkt. 2] */}
-            <Select.Option value="administrativ_inndeling">Administrativ inndeling</Select.Option>
+            {/* [ENDRET, issue #310] Nodetypene; 'administrativ_inndeling' er slått inn i Område. */}
+            <Select.Option value="gruppe">{NODETYPE_VISNING.gruppe.tekst}</Select.Option>
+            {KANDIDATNODETYPER.map((t) => (
+              <Select.Option key={t} value={t}>{NODETYPE_VISNING[t].tekst}</Select.Option>
+            ))}
           </Select>
         </Field>
         {/* [Ny, konfidens-runden, 2026-09-09] «Lav konfidens» er der de reelle, men lite omtalte

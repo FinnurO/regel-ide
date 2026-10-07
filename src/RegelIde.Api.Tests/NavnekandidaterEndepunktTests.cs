@@ -924,7 +924,7 @@ public class NavnekandidaterEndepunktTests
     // ==================================================================================
 
     private static Task<BegrepEntitet> NyGruppeAsync(RegelIdeDbContext db, Guid lovkildeId, string prefiks) =>
-        new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovkildeId, $"{prefiks}-{Guid.NewGuid():N}", "test");
+        new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(Nodetyper.Klasse, lovkildeId, $"{prefiks}-{Guid.NewGuid():N}", "test");
 
     /// <summary>AC1/AC2/AC3 — GET-or-create på (RettskildeId, NodeEid, StartOffset), OppdagelsesKilde
     /// satt til 'manuell', Konfidens=null. Gjentatt kall på SAMME posisjon skal returnere SAMME rad,
