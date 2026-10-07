@@ -13,8 +13,17 @@ saksbehandler-UI:
 - `RegelIde.Data` — EF Core + PostgreSQL: rettskilder, begreper, vilkår/regler, virksomhetskatalog
   (roller/relasjoner/gruppemedlemskap), KI-forslagstjenester (`*ForslagTjeneste`), navnekandidat-
   oppdagelse, proveniens. `RettskildeImportTjeneste` persisterer et `KonverteringResultat`.
+  - `RegelIde.Data/Strukturkonvertering/` **[Ny 2026-10-07, #307]** — automatisk konvertering av
+    nodetekst til strukturutsagn (aktør, kompetanse, relasjon, område) i fasit-formatet
+    (`data/fasit/strukturmodell/FORMAT.md`, `docs/33` §5): `IStrukturkonverterer` og det
+    deterministiske `MonsterStrukturkonverterer` med navngitte mønstre (`monster:<id>`). Ingen
+    database, ingen nettverk, ingen lagring — lagring som forslag er #313.
 - `RegelIde.Data.Tests` — kjører migrasjonen og domenelogikken mot en ekte,
   embedded Postgres-instans (se eget avsnitt under — ingen Docker/Podman nødvendig).
+  - `RegelIde.Data.Tests/Strukturfasit/` **[Ny 2026-10-07, #307]** — måler strukturkonverteringen
+    mot fasiten for fem rettskilder UTEN database (kan kjøres alene:
+    `dotnet test src/RegelIde.Data.Tests --filter "FullyQualifiedName~Strukturfasit"`), og skriver
+    rapporten `data/fasit/strukturmodell/maling-monster.md`.
 - `RegelIde.Api` — HTTP-API (se Swagger på `/swagger`) + seeding ved oppstart.
 - `RegelIde.Api.Tests` — integrasjonstester mot API-et + en ekte, embedded Postgres.
 - `RegelIde.Web` — saksbehandler-frontenden (React + Vite + `@digdir/designsystemet-react`).

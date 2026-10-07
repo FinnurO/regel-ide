@@ -78,7 +78,10 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
   "betinget": true | false,
   "kilde_utenfor_korpus": true | false,         // utsagnet viser til noe som fastsettes utenfor teksten (kgl.res., vedtekter, «Kongen bestemmer»)
   "sikkerhet": "hoy" | "middels" | "lav",
-  "kommentar": "..."
+  "kommentar": "...",
+  "oppdagelseskilde": "monster:<id>"          // [Ny, #307, 2026-10-07] KUN i maskinell konvertering: hvilket mønster/
+                                              // hvilken modell som fant utsagnet («monster:forskrift-gi», senere «ki:<modell>»).
+                                              // Fasiten (manuell) har ikke feltet. Blir OppdagelsesKilde ved lagring (#313).
 }
 
 Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):

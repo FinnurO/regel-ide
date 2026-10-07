@@ -7,6 +7,7 @@ Målegrunnlaget for `docs/33-strukturmodell-aktor-omrade-kompetanse.md`.
 | `FORMAT.md` | Annotasjonsformatet. Også KONTRAKTEN for automatisk konvertering (`docs/33` §5.1). |
 | `<kilde>.json` | Fasit: aktører + strukturutsagn med eksakt sitat og eId, for hovedkilden og dens ledsagende forskrifter. |
 | `noder/<kilde>.json` | Nodetekstene fasiten er laget fra (gjeldende versjon, ikke opphevede noder), slik at målingen kan kjøres uten database. |
+| `maling-monster.md` | **[Ny 2026-10-07, #307]** Måling av mønsterkonverteringen (`MonsterStrukturkonverterer`) mot fasiten: presisjon/gjenfinning per kanttype, kilde og mønster, vanligste feil, forkastede mønstre. GENERERT av `src/RegelIde.Data.Tests/Strukturfasit/` — ikke rediger for hånd. |
 | `designtest.py` | Klassifiserer hvert utsagn mot dagens og revidert modell (`docs/33` §6). `python designtest.py`. |
 
 ## Proveniens

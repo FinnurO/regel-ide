@@ -213,6 +213,19 @@ eget, senere steg som ikke bestemmer hvordan uttrekket virker.
    underordnet», «består av N medlemmer», «oppnevnes av», «kan ikke instruere», og strukturerte
    lister av kommuner i inndelingsforskrifter. Navn løses kun ved eksakt treff mot navneform/område
    (`VirksomhetOppslagTjeneste`, ingen fuzzy) — ellers `referent = null`.
+
+   **Bygget i #307 (2026-10-07):** `src/RegelIde.Data/Strukturkonvertering/` —
+   `IStrukturkonverterer` (noder inn → fasit-formatet ut) og `MonsterStrukturkonverterer` med 30
+   navngitte mønstre (`monster:<id>`, stabil id = senere `OppdagelsesKilde`). I tillegg til listen
+   over: `vedtak-forvaltningsverb` (gi pålegg/dispensasjon, ilegge, trekke tilbake, fastsette
+   vilkår), `vedtak-godkjennes-av`, `tilsyn-forer-tilsyn` (bare tilsyn med at *regelverk* følges,
+   jf. §1), `har-sete-i`, og fra inndelingslistene også `O del_av` (kommune → fylke) og `A
+   har_sete_i` (tingrett → rettssted). Aktører identifiseres i dette laget **bare ved tekstform** —
+   oppslaget mot katalog/område i avsnittet over hører til #313/#314. Endepunkter setningen ikke
+   avgjør (førsteinstansen i «… påklages til klagenemnda», «til disse») blir `null`; aktørfelt som
+   krever skjønn (entitetstype, navngitt, referent, oppløsning) står `null`. Utsagnene har feltet
+   `oppdagelseskilde` (tillegg til FORMAT.md, utelatt i fasiten). Prøvde og forkastede former står
+   med begrunnelse nederst i målerapporten.
 2. **KI-lag** — samme systeminstruks-mønster som `VirksomhetOgGruppeKiOppdagelseTjeneste` (#285),
    med fasit-formatet som svarskjema. Svar valideres hardt: sitat må være eksakt delstreng av noden,
    eId må finnes, ukjente typekoder avvises. Ugyldige rader kastes og telles — aldri «repareres».
@@ -229,6 +242,45 @@ fem kildene og regner presisjon/gjenfinning per kategori mot fasiten. Treff = sa
 type (+ samme fra/til-tekstform når de finnes). Mønsterlaget kjøres i vanlig testkjøring (ingen
 nettverk); KI-laget er gated på samme måte som andre live-tester. Terskler låses først etter
 menneskelig gjennomgang av fasiten.
+
+**Målt 2026-10-07 (#307, mønsterlaget)** — full rapport med per-mønster-tall, de 20 vanligste
+falske positive/negative og forkastede mønstre: `data/fasit/strukturmodell/maling-monster.md`
+(regenereres av testen). «Samme tekstform» er tolket som at aktørenes former (tekstform ∪
+varianter) har minst én felles skrivemåte, uten skille på store/små bokstaver; én-til-én-treff.
+
+| Kanttype | Fasit | Predikert | Presisjon | Gjenfinning | Presisjon uten endepunktkrav |
+|---|---:|---:|---:|---:|---:|
+| R relasjon | 223 | 36 | 77,8 % | 12,6 % | 94,4 % |
+| K kompetanse | 427 | 288 | 88,5 % | 59,7 % | 88,5 % |
+| — herav forskriftskompetanse | 205 | 198 | **91,9 %** | 88,8 % | 91,9 % |
+| — herav vedtakskompetanse | 158 | 85 | 80,0 % | 43,0 % | 80,0 % |
+| M medlemskap | 48 | 0 | – | 0 % | – |
+| O områdesammensetning | 578 | 509 | 97,4 % | 85,8 % | 99,6 % |
+| A ansvarsområde | 120 | 62 | 100 % | 51,7 % | 100 % |
+| G organtilhørighet | 43 | 6 | 66,7 % | 9,3 % | 100 % |
+| I / T | 0 / 21 | 0 | – | 0 % | – |
+| `annet:*` + senere lag | 405 | 0 | – | 0 % | – |
+| **Alle** | **1865** | **901** | **93,8 %** | **45,3 %** | 95,9 % |
+
+| Kilde | Presisjon | Gjenfinning |
+|---|---:|---:|
+| Domstolloven | 95,7 % | 62,3 % |
+| Energiloven | 94,7 % | 42,5 % |
+| Helse- og omsorgstjenesteloven | 91,8 % | 23,4 % |
+| Sameloven | 87,7 % | 40,0 % |
+| Spesialisthelsetjenesteloven + helseforetaksloven | 89,6 % | 19,9 % |
+
+Lesning: mønsterlaget er presist der lovteksten har fast form — inndelingslistene (O/A) og
+forskriftskompetanse — og finner lite av R/M/T, der formuleringene varierer og endepunktet ofte står
+i en annen setning. Forskjellen mellom presisjon med og uten endepunktkrav (R 78 → 94 %, G 67 →
+100 %) er aktører mønsteret ikke kan avgjøre fra setningen alene — nettopp det KI-laget (#308) og
+oppløsningen (#313/#314) skal måles på. Gjenfinningen er lavest i de to helselovene, som uttrykker
+struktur gjennom plikter og saksforhold heller enn faste kompetanseformler.
+
+Terskler i testen: K forskriftskompetanse presisjon ≥ 0,9 (#307); øvrige kanttyper målt verdi − 5
+prosentpoeng som regresjonsvern. **Foreløpige** — låses etter fasitgjennomgangen i #309, fordi en
+del av de falske positive er sannsynlige fasitutelatelser (f.eks. kommune → fylke i samelovens
+§ 2-4 punkt 6, «Kongen kan gi forskrift om at …» klassifisert som annen kompetansetype).
 
 ### 5.5 Konvertering av eksisterende data
 
