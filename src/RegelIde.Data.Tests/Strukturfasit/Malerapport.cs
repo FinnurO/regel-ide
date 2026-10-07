@@ -82,14 +82,20 @@ internal static class Malerapport
 
         sb.AppendLine("## Per mønster");
         sb.AppendLine();
-        sb.AppendLine("| Mønster | Type | Predikert | Treff | Presisjon | Korpusgrunnlag (`docs/33` §1) |");
-        sb.AppendLine("|---|---|---:|---:|---:|---|");
+        sb.AppendLine("«Gjenkjent» = andelen av mønsterets utsagn der fasiten har et utsagn med samme eId + kategori + type (uansett aktør, ikke én-til-én).");
+        sb.AppendLine("Stor avstand mellom presisjon og gjenkjent betyr at mønsteret finner riktig utsagn, men feil eller manglende aktør.");
+        sb.AppendLine();
+        sb.AppendLine("| Mønster | Type | Predikert | Treff | Presisjon | Gjenkjent | Korpusgrunnlag (`docs/33` §1) |");
+        sb.AppendLine("|---|---|---:|---:|---:|---:|---|");
+        var fasitgrupper = malinger.SelectMany(m => m.Fasit).Select(f => (f.Kilde, f.Gruppe)).ToHashSet();
         foreach (var mo in monstre)
         {
             var kildeId = mo.Oppdagelseskilde;
-            var pred = malinger.Sum(m => m.Predikert.Count(r => r.Monster == kildeId));
+            var rader = malinger.SelectMany(m => m.Predikert).Where(r => r.Monster == kildeId).ToList();
             var treff = malinger.Sum(m => m.Treff.Count(t => t.Predikert.Monster == kildeId));
-            sb.AppendLine($"| `{mo.Id}` | {mo.Type} | {pred} | {treff} | {P(pred == 0 ? null : (double)treff / pred)} | {Celle(mo.Korpusgrunnlag)} |");
+            var gjenkjent = rader.Count(r => fasitgrupper.Contains((r.Kilde, r.Gruppe)));
+            double? Andel(int n) => rader.Count == 0 ? null : (double)n / rader.Count;
+            sb.AppendLine($"| `{mo.Id}` | {mo.Type} | {rader.Count} | {treff} | {P(Andel(treff))} | {P(Andel(gjenkjent))} | {Celle(mo.Korpusgrunnlag)} |");
         }
         sb.AppendLine();
 

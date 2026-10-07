@@ -44,6 +44,8 @@ public static class Aktorfrase
         "det", "den", "de", "dette", "denne", "disse", "han", "hun", "ingen", "enhver", "alle", "noen",
         "man", "en", "et", "ei", "andre", "annen", "annet", "hver", "hvert", "begge", "selv", "dem",
         "deres", "sin", "sitt", "sine", "seg",
+        // Tallord: «avgjøres av fem dommere» — tallet er ikke aktøren.
+        "to", "tre", "fire", "fem", "seks", "sju", "syv", "åtte", "ni", "ti", "elleve", "tolv",
     };
 
     // Ord som ikke kan stå først i en aktørfrase (preposisjon/konjunksjon/adverb).

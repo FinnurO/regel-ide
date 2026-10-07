@@ -51,7 +51,8 @@ internal sealed record RegexMonsteroppsett(
     bool KreverFra = false,
     bool KreverTil = false,
     string Polaritet = "positiv",
-    bool ObjektForan = false);
+    bool ObjektForan = false,
+    bool AlleUttrykk = false);
 
 internal static class RegexMonster
 {
@@ -59,12 +60,17 @@ internal static class RegexMonster
     private const int MaksObjektTegn = 200;
 
     /// <summary>
-    /// Kjører uttrykkene i rekkefølge mot setningen. Det FØRSTE uttrykket som gir minst ett godtatt
-    /// funn vinner — senere uttrykk i samme mønster er alternative formuleringer (direkte/omvendt
-    /// ordstilling, passiv), ikke tilleggsfunn, og skal ikke gi samme utsagn to ganger.
+    /// Kjører uttrykkene i rekkefølge mot setningen. Som standard vinner det FØRSTE uttrykket som gir minst
+    /// ett godtatt funn — senere uttrykk er da reserveformer (f.eks. «X kan delegere» uten «til Y» etter
+    /// «X kan delegere … til Y»), og skal ikke gi et nytt, dårligere utsagn ved siden av det første.
+    /// Med <see cref="RegexMonsteroppsett.AlleUttrykk"/> er uttrykkene i stedet uavhengige ledd i samme
+    /// setning (hovedsetning + «at X kan gi forskrift» i bisetningen), og alle funn tas med, ett per
+    /// distinkt fra/til.
     /// </summary>
     public static IReadOnlyList<Monsterfunn> Finn(string setning, RegexMonsteroppsett oppsett, IReadOnlyList<Regex> uttrykk)
     {
+        var samlet = new List<Monsterfunn>();
+        var sett = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var rx in uttrykk)
         {
             var funn = new List<Monsterfunn>();
@@ -88,9 +94,17 @@ internal static class RegexMonster
 
                 funn.Add(new Monsterfunn(Sitat(setning), fra, til, objekt, oppsett.Polaritet));
             }
-            if (funn.Count > 0) return funn;
+            if (!oppsett.AlleUttrykk)
+            {
+                if (funn.Count > 0) return funn;
+                continue;
+            }
+            foreach (var f in funn)
+            {
+                if (sett.Add(string.Join('|', f.Fra) + "→" + string.Join('|', f.Til))) samlet.Add(f);
+            }
         }
-        return [];
+        return samlet;
     }
 
     private static IReadOnlyList<string> Endepunkt(Match m, string gruppe, string genitivgruppe)

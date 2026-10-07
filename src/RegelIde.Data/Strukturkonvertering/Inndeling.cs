@@ -64,6 +64,36 @@ internal static class Inndeling
         return funn;
     }
 
+    private static readonly Regex KommuneIFylkeUttrykk = new(
+        @"\bkommunene\s+(?!fra\s+og\s+med\b)(?<liste>\p{Lu}[^:;]*?)\s+i\s+(?<fylke>\p{Lu}[\p{L}\-]*(?:\s+og\s+\p{Lu}[\p{L}\-]*)?\s+fylke)\b", Valg);
+
+    /// <summary>[Ny, #307, 2026-10-07] «kommunene A, B og C i X fylke» → hver kommune <c>del_av</c> «X fylke».</summary>
+    public static IReadOnlyList<Monsterfunn> KommuneIFylke(string setning)
+    {
+        var funn = new List<Monsterfunn>();
+        foreach (Match m in KommuneIFylkeUttrykk.Matches(setning))
+        {
+            var fylke = m.Groups["fylke"].Value;
+            funn.AddRange(Navneliste(m.Groups["liste"].Value).Select(k => new Monsterfunn(k, [k], [fylke], null, "positiv")));
+        }
+        return funn;
+    }
+
+    private static readonly Regex HarRettskretsenUttrykk = new(
+        @"^\[?(?<fylke>\p{Lu}[^,:;]{1,80}?\s+fylke)\s+har\s+rettskretsen\s+(?<navn>[^,:;]{3,120}?\btingrett),", Valg);
+
+    /// <summary>[Ny, #307, 2026-10-07] «Agder fylke har rettskretsen Agder tingrett, …» → tingretten <c>del_av</c> fylket.</summary>
+    public static IReadOnlyList<Monsterfunn> HarRettskretsen(string setning)
+    {
+        var m = HarRettskretsenUttrykk.Match(setning);
+        if (!m.Success) return [];
+        var navn = m.Groups["navn"].Value.Trim();
+        var fylke = m.Groups["fylke"].Value.Trim();
+        return Aktorfrase.ErNavn(navn) && Aktorfrase.ErNavn(fylke)
+            ? [new Monsterfunn(RegexMonster.Sitat(setning[..(m.Groups["navn"].Index)]).Trim(), [navn], [fylke], null, "positiv")]
+            : [];
+    }
+
     private static readonly Regex UtgjorUttrykk = new(
         @"^\[?(?:Lagsognene|Kommunene|Fylkene|Rettskretsene|Lagdømmene|Valgkretsene)\s+(?<liste>.+?)\s+utgjør\s+(?<navn>\p{Lu}.+?)\s*\.?$", Valg);
 
@@ -132,6 +162,11 @@ internal static class Inndeling
         else
         {
             var og = siste.IndexOf(" og ", StringComparison.Ordinal);
+            // [ENDRET, #307, 2026-10-07] To «og» i siste element («Møre og Romsdal og Trööndelagen/
+            // Trøndelag») er tvetydig: ett av dem er inne i et navn, og teksten sier ikke hvilket. Da
+            // forkastes lista (alt-eller-ingenting) i stedet for å velge — målt: første versjon delte på
+            // første «og» og ga «Møre» + «Romsdal og Trööndelagen/Trøndelag» som to lagsogn.
+            if (og > 0 && siste.IndexOf(" og ", og + 4, StringComparison.Ordinal) > 0) return [];
             if (og > 0)
             {
                 deler[^1] = siste[..og].Trim();
