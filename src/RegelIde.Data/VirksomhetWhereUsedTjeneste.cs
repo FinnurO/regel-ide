@@ -109,7 +109,8 @@ public sealed class VirksomhetWhereUsedTjeneste(RegelIdeDbContext db)
         var gruppetildelinger = await db.Myndighetstildelinger
             .Where(m => m.VirksomhetId == virksomhetId)
             .Join(
-                db.Begreper.Where(b => b.Begrepskategori == "gruppe"),
+                // [ENDRET, issue #310] alle kategorier med gruppefunksjon, ikke bare 'gruppe'.
+                db.Begreper.Where(b => Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!)),
                 m => m.GruppeBegrepId, b => b.Id,
                 (m, b) => new Gruppetildeling(m.Id, b.Id, b.Term))
             .ToListAsync(ct);

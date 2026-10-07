@@ -39,6 +39,28 @@ public sealed class Virksomhet
     /// grovt, og selv der det ER entydig gjettbart skal det ikke gjettes, se §4).</summary>
     public string? OrganisasjonsformKode { get; set; }
 
+    /// <summary>
+    /// [Ny, issue #310 «nodetype-akse», 2026-10-07, docs/33 §4.1] Hva slags aktør dette er i juridisk
+    /// forstand: <c>'rettssubjekt'</c> (Oslo kommune, Helse Nord RHF), <c>'organ'</c> (Stortinget,
+    /// et departement, kommunestyret) eller <c>'organisatorisk_enhet'</c> (RME som enhet i NVE). NULL =
+    /// UAVKLART, og er normaltilstanden — lukket vokabular, CHECK <c>ck_virksomheter_aktortype</c>,
+    /// speilet av <see cref="Nodetyper.Aktortyper"/>.
+    /// <para>
+    /// Settes automatisk KUN der det er entydig (<see cref="Nodetyper.UtledAktortypeAutomatisk"/>):
+    /// Brreg <c>KOMM</c>/<c>FYLK</c> → rettssubjekt, samme prinsipp som <see cref="Forvaltningsniva"/>
+    /// (docs/20 §7.2). Alt annet setter et menneske (<c>PUT /api/virksomheter/{id}/aktortype</c>).
+    /// </para>
+    /// <para>
+    /// <b>Premissavvik, målt 2026-10-07 (CLAUDE.md §16):</b> saken sier «KOMM/FYLK», men 0 av 501
+    /// rader i lokal base har <see cref="OrganisasjonsformKode"/> KOMM/FYLK — <see cref="OrganisasjonsregisterSeed"/>
+    /// leser orgForm fra JSON-fila og skriver den inn som <see cref="Forvaltningsniva"/>
+    /// (<c>kommune</c>/<c>fylkeskommune</c>, 355 + 14 rader), ikke i dette feltet. Utledningen leser
+    /// derfor begge: et forvaltningsnivå <c>kommune</c>/<c>fylkeskommune</c> er selv utledet entydig
+    /// fra KOMM/FYLK (eller satt av et menneske), så det er samme signal ett ledd unna — ikke et gjett.
+    /// </para>
+    /// </summary>
+    public string? Aktortype { get; set; }
+
     /// <summary>[Ny, virksomhetskatalog-runden] Fra Brreg (institusjonell sektorkode, SSB) — ren
     /// referanseinformasjon, samme "ingen automatisk avledning"-begrunnelse som
     /// <see cref="OrganisasjonsformKode"/>.</summary>
@@ -1307,6 +1329,17 @@ public sealed class BegrepEntitet
     /// godkjenning av en navnekandidat (<see cref="NavnekandidatOppdagelseTjeneste.GodkjennAsync"/>,
     /// gren parallell til `'gruppe'`), samme mekanisme som
     /// <see cref="VirksomhetsbegrepTjeneste.OpprettGruppebegrepAsync"/>.
+    /// [FJERNET, issue #310] `'administrativ_inndeling'` er slått inn i `'omrade'` (0 rader lokalt
+    /// 2026-10-07) — migrasjonen <c>InnforNodetypeakse</c> flytter eventuelle rader i andre miljøer.
+    /// </para>
+    /// <para>
+    /// [Ny, issue #310 «nodetype-akse», 2026-10-07, docs/33 §4.1–4.2] `'gruppe'` var fire ting i én
+    /// kasse — klasse, rolle, område og organ. De ekte begrepene er nå TYPENE: `'klasse'`, `'rolle'`,
+    /// `'omrade'` og (mellomtilstand, se <see cref="Nodetyper.Organ"/>) `'organ'`. Gruppefunksjonen
+    /// (tildeling/medlemskap) er en EVNE alle disse har, ikke en egen type — se
+    /// <see cref="Nodetyper.MedGruppefunksjon"/>. Den faste og den lovspesifikke identiteten fra #298
+    /// gjelder alle. `'gruppe'` står fortsatt i CHECK-constrainten for rader i andre miljøer som ikke er
+    /// reklassifisert, men ingen nye begrep får den verdien.
     /// </para></summary>
     public string? Begrepskategori { get; set; }
 
@@ -1346,8 +1379,9 @@ public sealed class BegrepEntitet
     /// </summary>
     public string? Navneformgrunn { get; set; }
 
-    /// <summary>Kun for <see cref="Begrepskategori"/> = `'gruppe'` ELLER `'administrativ_inndeling'`
-    /// (issue #203 pkt. 2) — loven begrepet hører til. Del av begrepets IDENTITET sammen med
+    /// <summary>Kun for begrep med gruppefunksjon (<see cref="Nodetyper.MedGruppefunksjon"/> — før #310:
+    /// `'gruppe'` ELLER `'administrativ_inndeling'`) — loven begrepet hører til. NULL = fast, nasjonalt
+    /// begrep (#298). Del av begrepets IDENTITET sammen med
     /// <see cref="Term"/>, ikke bare metadata (docs/20 §2.4): samme navn i to ulike lover er to ulike
     /// rader.</summary>
     public Guid? LovkildeId { get; set; }
@@ -1791,7 +1825,16 @@ public sealed class NavnekandidatEntitet
     /// `'gruppe'` (juridisk aktør-substantiv uten egennavn-status — fast liste, ELLER suffiksmønster med
     /// liten forbokstav), eller `'administrativ_inndeling'` (nasjon/fylke/kommune — [Ny, issue #203 pkt.
     /// 2/3], SSR-bekreftet ved klassifisering, se <see cref="NavnekandidatOppdagelseTjeneste.KlassifiserAsync"/>).
-    /// Se <see cref="NavnekandidatOppdagelseTjeneste"/> for selve klassifiseringslogikken.</summary>
+    /// Se <see cref="NavnekandidatOppdagelseTjeneste"/> for selve klassifiseringslogikken.
+    /// <para>
+    /// [ENDRET, issue #310 «nodetype-akse», 2026-10-07] Verdisettet er nå
+    /// <see cref="Nodetyper.Kandidatkategorier"/>: `'virksomhet'`, `'gruppe'` — som på en KANDIDAT nå
+    /// betyr «generisk aktøromtale, nodetypen er ikke avgjort» (sveipet kan ikke skille
+    /// klasse/rolle/område uten å gjette, CLAUDE.md §8) — og `'klasse'`/`'rolle'`/`'omrade'` når
+    /// nodetypen er foreslått (KI-oppdagelsen, SSR) eller valgt av et menneske. En `'gruppe'`-kandidat
+    /// kan ikke godkjennes før et menneske har valgt nodetype. `'administrativ_inndeling'` er slått inn i
+    /// `'omrade'` (SSR-bekreftet nasjon/fylke/kommune er et territorium).
+    /// </para></summary>
     public required string Kategori { get; set; }
 
     public required Guid RettskildeId { get; set; }

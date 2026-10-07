@@ -31,7 +31,7 @@ namespace RegelIde.Data;
 /// <b>Idempotent</b> — kan kjøres om igjen uten å duplisere, slik alle appens øvrige seeds er (samme
 /// mønster som <see cref="OrganisasjonsregisterSeed"/>/<see cref="DepartementSeed"/>): hvert lag
 /// slås opp før det opprettes, og de underliggende tjenestene har selv duplikatsperrer
-/// (<c>ux_gruppe_medlemskap_par</c>, <c>ux_begreper_gruppebegrep_term_lovkilde</c>,
+/// (<c>ux_gruppe_medlemskap_par</c>, <c>ux_begreper_nodebegrep_term_lovkilde</c> (het «gruppebegrep» før #310),
 /// <c>tekst_tagger_unik_tagg</c>). To kjøringer gir samme radantall.
 /// </para>
 ///
@@ -155,8 +155,11 @@ public static class SamiskSprakforvaltningSeed
         var gruppebegrepPerTerm = new Dictionary<string, BegrepEntitet>(StringComparer.Ordinal);
         foreach (var term in Kategorier.Append(Forvaltningsomradet))
         {
+            // [ENDRET, issue #310] Nodetype fra Johanns godkjente reklassifiseringsliste: de tre
+            // kommunekategoriene er KLASSER (listet i forskrift), forvaltningsområdet er et OMRÅDE.
+            var nodetype = term == Forvaltningsomradet ? Nodetyper.Omrade : Nodetyper.Klasse;
             gruppebegrepPerTerm[term] = await SorgForGruppebegrepAsync(
-                db, virksomhetsbegrep, samelov.Id, term, DefinisjonNodeEid, ct);
+                db, virksomhetsbegrep, samelov.Id, term, nodetype, DefinisjonNodeEid, ct);
         }
 
         // ---------- 2. Tagg gruppetermene der loven DEFINERER dem ----------
@@ -276,10 +279,14 @@ public static class SamiskSprakforvaltningSeed
 
     private static async Task<BegrepEntitet> SorgForGruppebegrepAsync(
         RegelIdeDbContext db, VirksomhetsbegrepTjeneste virksomhetsbegrep,
-        Guid lovkildeId, string term, string lovreferanseEid, CancellationToken ct)
+        Guid lovkildeId, string term, string nodetype, string lovreferanseEid, CancellationToken ct)
     {
+        // [ENDRET, issue #310] Gjenkjenner raden uansett kategori med gruppefunksjon: migrasjonen
+        // InnforNodetypeakse har reklassifisert en eksisterende 'gruppe'-rad til klasse/omrade, og en
+        // 'gruppe'-sjekk her ville da forsøkt å opprette en dublett (og feilet på den unike indeksen).
+        // Kategorien på en eksisterende rad overskrives ALDRI her — et menneskes valg står.
         var eksisterende = await db.Begreper.FirstOrDefaultAsync(
-            b => b.Begrepskategori == "gruppe" && b.LovkildeId == lovkildeId && b.Term == term
+            b => Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!) && b.LovkildeId == lovkildeId && b.Term == term
                  && b.Entitetsstatus == "gjeldende", ct);
         if (eksisterende is not null)
         {
@@ -295,7 +302,7 @@ public static class SamiskSprakforvaltningSeed
             }
             return eksisterende;
         }
-        return await virksomhetsbegrep.OpprettGruppebegrepAsync(lovkildeId, term, SeedBruker, lovreferanseEid, ct);
+        return await virksomhetsbegrep.OpprettGruppebegrepAsync(nodetype, lovkildeId, term, SeedBruker, lovreferanseEid, ct);
     }
 
     /// <returns>
