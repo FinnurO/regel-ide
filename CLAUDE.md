@@ -435,6 +435,22 @@ endres i etterkant (det er et øyeblikksbilde) — der legges i stedet en peker 
 gjort. BINDENDE/REFERANSE/SPESIFIKASJON oppdateres derimot direkte. Ved tvil om et dokument er
 utdatert: si det eksplisitt i PR-en fremfor å late som alt henger sammen (§21).
 
+[Ny, 2026-10-07, #325] **`nettside/` er en del av den kollektive hukommelsen.** Den offentlige
+nettsiden (GitHub Pages, `nettside/`) SKAL oppdateres når en leveranse endrer det den forklarer — for
+eksempel spørsmålene i `docs/32` §3, strukturmodellen, eller hva som er bygget. Den gamle regelen om å
+holde seg unna `nettside/` er opphevet. Johanns begrunnelse: grensen fantes bare fordi to parallelle
+økter kolliderte i `nettside/`, ikke fordi nettsiden skulle stå stille. Derfor sjekkes konflikter FØR
+endringer i `nettside/`:
+
+1. Åpne PR-er som rører `nettside/`: `gh pr list --state open`, deretter `gh pr diff <nr> --name-only`
+   for hver.
+2. Umergede fjerngrener med `nettside/`-endringer: `git branch -r --no-merged origin/master` og
+   `git diff --name-only origin/master...<gren> -- nettside/`. Finnes det en slik gren, sjekk om PR-en
+   dens allerede er merget — da er det en glemt gren (§13), ikke en konflikt.
+3. Andre worktrees og økter: `git worktree list`, og om andre Claude-økter jobber i `nettside/`.
+
+Ved konflikt: vent, eller spør Johann. Konfliktsjekken dokumenteres i PR-en.
+
 ## Nyttige kommandoer
 
 Kjør appen (Browser-panelet, aldri `dotnet run` via Bash) — konfigurasjonene heter `regel-ide-api` og

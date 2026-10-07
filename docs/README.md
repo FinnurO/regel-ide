@@ -58,7 +58,7 @@ ikke ny tekst.
 | [14-byggesteg5-teknisk-design](14-byggesteg5-teknisk-design.md) | KI-agentene. Runde 1 bygget, resten er mal. Runde 5 (regelverksreferanseforslag + KI-oppdagelse) også bygget. | 2026-10-01 |
 | [15-handbok-dokumentgraf-notat](15-handbok-dokumentgraf-notat.md) | Håndbok-laget. Lag 1 (rå kilde) er bygget og brukes nå også for Lovdata. | 2026-08-13 |
 | [20-virksomhetskatalog-og-rollemodell](20-virksomhetskatalog-og-rollemodell.md) | Katalogen og rollene. §4/§7.2 låser at forvaltningsnivå aldri settes fra Brreg. §2.7/§2.8 (2026-10-01) dekker Status-feltet og veiviserens 6 mekanismer. §2.4/§7.2 (2026-10-07): nodetype-akse (klasse/rolle/område) og aktørtype på virksomhet (issue #310). | 2026-10-07 |
-| [33-strukturmodell-aktor-omrade-kompetanse](33-strukturmodell-aktor-omrade-kompetanse.md) | **Ny 2026-10-07.** Revidert strukturmodell (aktør/område/kompetanse/klasse/rolle), korpusmåling av hvilke relasjoner lovteksten faktisk uttrykker, fasit for fem rettskilder (`data/fasit/strukturmodell/`), designtest, og automatisk konvertering med fasit-formatet som kontrakt. Styrer strukturmodell-epicen. | 2026-10-07 |
+| [33-strukturmodell-aktor-omrade-kompetanse](33-strukturmodell-aktor-omrade-kompetanse.md) | **Ny 2026-10-07.** Revidert strukturmodell (aktør/område/kompetanse/klasse/rolle), korpusmåling av hvilke relasjoner lovteksten faktisk uttrykker, fasit for fem rettskilder (`data/fasit/strukturmodell/`), designtest, og automatisk konvertering med fasit-formatet som kontrakt. Styrer strukturmodell-epicen. Lettlest innføring for lesere uten forkunnskap: [nettsiden](https://finnuro.github.io/regel-ide/strukturmodell/) (`nettside/strukturmodell/`, #325). | 2026-10-07 |
 
 ## Levert — designgrunnlag for noe som er bygget
 

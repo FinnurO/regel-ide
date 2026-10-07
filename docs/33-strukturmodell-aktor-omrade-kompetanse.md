@@ -22,6 +22,9 @@ seks relasjonskategorier, og skillet struktur/normativitet). Dette dokumentet
 Prinsippet fra `docs/32` §1 gjelder uendret: **strukturering skal skje uten gjetting.** Alt i §4–§5 er
 utformet slik at det maskinen ikke vet, forblir synlig ukjent.
 
+En lettlest innføring i modellen for lesere uten forkunnskap ligger på nettsiden:
+[finnuro.github.io/regel-ide/strukturmodell/](https://finnuro.github.io/regel-ide/strukturmodell/) (`nettside/strukturmodell/`, #325).
+
 ## 1. Korpusmåling — hvilke relasjoner står faktisk i teksten?
 
 Målt 2026-10-07 mot den lokale basen: 757 gjeldende lover + 5110 gjeldende forskrifter (kun
