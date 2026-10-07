@@ -16,7 +16,7 @@ Forvaltningsapparatet — hvem som forvalter en lov, fatter vedtak, er klageinst
 berørt — står i lovteksten, men ingen kan lese hele korpuset, så kunnskapen lever på nettsider istedenfor
 i kilden. Regel-IDE gjør apparatet spørrbart ved å strukturere det som alt står der.
 
-Spørsmålene modellen skal kunne besvare står i `docs/32-formal-roller-og-sporsmal.md` §3 (S1–S7).
+Spørsmålene modellen skal kunne besvare står i `docs/32-formal-roller-og-sporsmal.md` §3 (S1–S9).
 **Før en byggerunde: navngi hvilket av dem leveransen flytter, og for hvilken rolle** (modelløren først,
 Johann 2026-09-08). Kan det ikke besvares, er oppgaven ikke forstått ennå. Akseptansekriterier
 formuleres som spørsmål modellen skal kunne besvare etterpå — ikke «feltet finnes» eller «siden viser X».
@@ -24,7 +24,7 @@ formuleres som spørsmål modellen skal kunne besvare etterpå — ikke «feltet
 To konsekvenser som har vært brutt gjentatte ganger:
 
 - **En tagg er sporbarhetsleddet mellom tekst og modell**, ikke en markering for at noe skal se pent ut.
-  Kriteriet for om noe er verdt å tagge er om taggen bidrar til å besvare et av S1–S7 — ikke om ordet er
+  Kriteriet for om noe er verdt å tagge er om taggen bidrar til å besvare et av S1–S9 — ikke om ordet er
   et egennavn. «Karasjok» i forskrift om samiske språk binder kommunen til en gruppe med plikter;
   «Karasjok» i en fredningsforskrift er bare et stedsnavn.
 - **Loven definerer, registeret beskriver** (Johann 2026-09-08): «Virksomhet, org.nummer og brreg er

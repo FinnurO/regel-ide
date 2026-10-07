@@ -26,7 +26,7 @@ ikke ny tekst.
 | Dok | Hva | Sist verifisert |
 |---|---|---|
 | [09-design-konvensjoner](09-design-konvensjoner.md) | UI-konvensjoner. Les FØR ny UI, oppdater ETTER designbeslutninger. | 2026-09-09 |
-| [32-formal-roller-og-sporsmal](32-formal-roller-og-sporsmal.md) | Formålet, rollene, og §3 spørsmålene S1–S7 modellen skal kunne besvare. | 2026-09-08 |
+| [32-formal-roller-og-sporsmal](32-formal-roller-og-sporsmal.md) | Formålet, rollene, og §3 spørsmålene S1–S9 modellen skal kunne besvare (S8–S9 lagt til 2026-10-07, #317). | 2026-10-07 |
 | [../CLAUDE.md](../CLAUDE.md) | Arbeidsregler (§0 formålet, §13 slett grenen ved merge, §14 regex treffer prosaen). | 2026-09-10 |
 
 ## Referanse — beskriver systemet som det er
