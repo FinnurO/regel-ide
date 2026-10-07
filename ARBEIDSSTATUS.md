@@ -9,11 +9,17 @@ før mer arbeid på tjenester, handlinger og regler. Designgrunnlag: `docs/33`.
 
 | Sak | Gren | Status | Verifisert hvordan |
 |---|---|---|---|
-| #306 fasit + docs/33 | `strukturmodell-fasit` | PR åpen, venter Johanns bekreftelse (§19) | Sitater maskinelt sjekket mot base; `designtest.py` gjengir tallene i docs/33 §6 |
-| #307 mønsterkonvertering + måleoppsett | `strukturmodell-monster` (fra `strukturmodell-fasit`, ingen PR før #306 er merget — ikke stable) | under arbeid | — |
-| #310 nodetype-akse | — | venter Johanns godkjenning av reklassifiseringslista | — |
-| #311 kanttabell | — | venter Johanns valg A/B/C | — |
-| #309 fasit-gjennomgang | — | venter: hvem gjennomgår | — |
+| #306 fasit + docs/33 | — | **Landet** (#319) | Sitater maskinelt sjekket mot base; `designtest.py` gjengir docs/33 §6 |
+| #317 S8–S9 i docs/32 | — | **Landet** (#320) | Kun docs |
+| #307 mønsterkonvertering | `strukturmodell-monster` | PR #321 åpen, venter Johanns bekreftelse (§19) | Strukturfasit 19/19 grønne etter rebase; Data.Tests 879/879 før rebase (master fikk bare docs siden) |
+| #308 KI-konvertering | `strukturmodell-ki` (fra `strukturmodell-monster`, ingen PR før #321 er merget) | under arbeid | — |
+| #309 fasitgjennomgang | — | Venter på Johann: arket er https://claude.ai/artifact/KCkiu3gWhyoCSCi2hXRVqG (80 utsagn + 54 negative + 30 aktører, seed 309). Vurderinger leses med ArtifactData, samling `vurderinger` | Lagring testet med én skrevet/lest/slettet rad |
+| #310 nodetype-akse | `strukturmodell-nodetype` | under arbeid (første migrasjon i kjeden) | — |
+| #311 kanttabell | — | Johann valgte **A: full konsolidering nå**. Starter når #310 er landet | — |
+| #316 erstattede versjoner | — | Johann valgte **(a)** noder → `erstattet` + importfiks, og data-opprydding i samme sak. Kjøres etter #310/#311 | Kartlegging i kommentar på #316 |
 
-**Rekkefølge:** #310 → #311 → #312 har hver sin migrasjon og skal ikke stables. #316 (erstattede versjoner)
-landes før eller etter dem hvis den trenger migrasjon.
+**Johanns bindende beslutninger 2026-10-07:** #310 reklassifiseringslista godkjent som foreslått; #311 = A;
+#309 = Johann gjennomgår selv; #317 = S8–S9; #316 = (a) + opprydding; #307 treffregel = tekstform ∪ varianter,
+case-insensitivt.
+
+**Rekkefølge for migrasjoner (ikke stable, §15):** #310 → #311 → #312 → #316.
