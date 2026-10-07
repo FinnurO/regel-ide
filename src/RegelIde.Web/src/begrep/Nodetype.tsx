@@ -3,14 +3,14 @@ import type { Aktortype, Begrepsnodetype, Kandidatnodetype } from '../api/types'
 
 /**
  * [Ny, issue #310 «nodetype-akse», 2026-10-07, docs/33 §4.1–4.2] ÉN delt kilde for visning og valg av
- * nodetypen på et begrep med gruppefunksjon (klasse/rolle/område/organ) og aktørtypen på en virksomhet
+ * nodetypen på et begrep med gruppefunksjon (klasse/rolle/område) og aktørtypen på en virksomhet
  * — samme «én komponent, aldri en lokal variant»-regel som `NavneformgrunnTag` (docs/09 §15).
  *
  * <h3>Fargerollene (docs/09 §15, oppdatert i samme runde)</h3>
  * Typen er en KATEGORI, ikke en status — derfor ingen statusfarger (`success`/`warning`/`danger`), som
  * i appen betyr «riktig/forsiktig/feil». `gruppe` (ikke reklassifisert / nodetype ikke avgjort) er
- * `neutral`: den er nettopp UAVKLART, og skal ikke se ut som en av typene. `organ` deler `accent` med
- * virksomhet-kategorien i navnekandidatlisten, fordi et organ hører hjemme som aktør (docs/33 §4.1).
+ * `neutral`: den er nettopp UAVKLART, og skal ikke se ut som en av typene. [FJERNET, #311] `organ` (var
+ * `accent`) — et organ er nå en virksomhet.
  * En verdi komponenten ikke kjenner vises RÅ i stedet for å skjules (samme regel som `NavneformgrunnTag`).
  */
 type Farge = 'brand2' | 'brand3' | 'info' | 'accent' | 'neutral';
@@ -31,11 +31,8 @@ export const NODETYPE_VISNING: Record<string, { tekst: string; farge: Farge; for
     farge: 'info',
     forklaring: 'Et territorium (f.eks. «forvaltningsområdet for samiske språk», «Troms»).',
   },
-  organ: {
-    tekst: 'Organ',
-    farge: 'accent',
-    forklaring: 'Et organ loven omtaler som ennå ikke finnes som virksomhet i katalogen (f.eks. «Kongen i statsråd»).',
-  },
+  // [FJERNET, issue #311] organ — organer er virksomheter med aktørtype «organ» (Stortinget, Kongen i
+  // statsråd); organ-begrepene ble navneformer for dem. En gjenværende rad vises rått (se under).
   gruppe: {
     tekst: 'Gruppe (type ikke avgjort)',
     farge: 'neutral',
@@ -56,7 +53,7 @@ export function BegrepskategoriTag({ kategori }: { kategori: string | null | und
 }
 
 export const KANDIDATNODETYPER: readonly Kandidatnodetype[] = ['klasse', 'rolle', 'omrade'];
-export const BEGREPSNODETYPER: readonly Begrepsnodetype[] = ['klasse', 'rolle', 'omrade', 'organ'];
+export const BEGREPSNODETYPER: readonly Begrepsnodetype[] = ['klasse', 'rolle', 'omrade']; // [ENDRET, #311] uten organ
 
 /**
  * Valg av nodetype som radioknapper — veiviserens steg 2 og «Behandle gruppen». Ingen forhåndsvalgt

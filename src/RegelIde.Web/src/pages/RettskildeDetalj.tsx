@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from 're
 import { Link as RouterLink, useNavigate, useParams, useSearchParams } from 'react-router';
 import { Alert, Button, Field, Heading, Label, Link, Paragraph, Select, Spinner, Switch, Table, Tabs, Tag, Textarea, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
+import { STRUKTURKANT_KATEGORI_VISNING, nodeHref } from '../strukturkant/StrukturkantTabell';
 import type {
   BegrepDto,
   DokumentReferanseDto,
@@ -16,7 +17,7 @@ import type {
   RettskildeReferanseDto,
   RettskildeSammendrag,
   TekstTaggDto,
-  TjenesteReferanseDto, VirksomhetRelasjonHjemletDto } from '../api/types';
+  TjenesteReferanseDto, StrukturkantDto } from '../api/types';
 import { TagTekst, type Registry, type TagKindId, type TextTag } from '../tagging/TagTekst';
 import { RettskildeTre, type RettskildeNode as TreNodeVm } from '../tre/RettskildeTre';
 import { KommentarRedigering } from '../handbok/KommentarRedigering';
@@ -168,9 +169,10 @@ export default function RettskildeDetalj() {
   const [hjemler, setHjemler] = useState<RettskildeHjemmelDto[]>([]);
   // Motsatt retning — kun ikke-tom for en LOV noe faktisk er hjemlet i.
   const [hjemletFor, setHjemletFor] = useState<RettskildeHjemletForDto[]>([]);
-  // [Ny, nemnd/sekretariat-runden, 2026-09-09] Organrelasjonene denne rettskilden hjemler — se
-  // GET /api/rettskilder/{id}/virksomhetsrelasjoner.
-  const [virksomhetsrelasjoner, setVirksomhetsrelasjoner] = useState<VirksomhetRelasjonHjemletDto[]>([]);
+  // [Ny, nemnd/sekretariat-runden, 2026-09-09] Organrelasjonene denne rettskilden hjemler.
+  // [ENDRET, issue #311] Alle strukturkanter hjemlet her (GET /api/rettskilder/{id}/strukturkanter) — ikke
+  // bare relasjoner: tildelinger, medlemskap og kompetanse hjemlet i loven svarer på det samme spørsmålet.
+  const [strukturkanter, setStrukturkanter] = useState<StrukturkantDto[]>([]);
 
   // «Endrer» (rettskildedetalj-fikser, 2026-09-02, punkt 5) — header-metadatafeltet <dt
   // class="changesToDocuments">Endrer</dt>, hvilke(t) andre dokument(er) DENNE rettskilden endrer.
@@ -376,7 +378,7 @@ export default function RettskildeDetalj() {
     api.hentReferanser(id).then(setReferanser).catch(() => setReferanser([]));
     api.hentHjemmel(id).then(setHjemler).catch(() => setHjemler([]));
     api.hentHjemmelFor(id).then(setHjemletFor).catch(() => setHjemletFor([]));
-    api.hentVirksomhetsrelasjonerForRettskilde(id).then(setVirksomhetsrelasjoner).catch(() => setVirksomhetsrelasjoner([]));
+    api.hentStrukturkanterForRettskilde(id).then(setStrukturkanter).catch(() => setStrukturkanter([]));
     api.hentRettskildeEndringer(id).then(setEndringer).catch(() => setEndringer([]));
     api.hentRettskildeStier(id).then(setNettsideStier).catch(() => setNettsideStier([]));
     api.hentRettskildeNettsideLenker(id).then(setNettsideLenker).catch(() => setNettsideLenker([]));
@@ -864,20 +866,25 @@ export default function RettskildeDetalj() {
       // forvalter loven, og i hvilken egenskap» (docs/32 §3 S1/S2), mens gruppene under er
       // dokument-til-dokument- og tjeneste-koblinger. Paragrafen står i etiketten fordi hjemmelen er
       // en BESTEMMELSE, ikke bare «denne loven et sted».
-      heading: 'Organrelasjoner hjemlet her',
-      items: virksomhetsrelasjoner.map((r) => ({
-        key: r.id,
+      // [ENDRET, issue #311] «Strukturutsagn hjemlet her» — alle kategorier, med kategori og polaritet i
+      // etiketten (en negativ kant er et utsagn om at noe IKKE gjelder, og skal ikke leses som det motsatte).
+      heading: 'Strukturutsagn hjemlet her',
+      items: strukturkanter.map((r) => {
+        const kategori = STRUKTURKANT_KATEGORI_VISNING[r.kategori]?.tekst ?? r.kategori;
+        const negativ = r.polaritet === 'negativ' ? ' (negativ)' : '';
+        const forslag = r.status === 'foreslatt_av_ai' ? ' [forslag]' : '';
         // Paragrafen alene, ikke `tilEidVisning`: vi ER på denne lovens side, så lovtittelen er
         // støy — og `eidVisningstekst` ville dessuten gitt leddnummeret som paragrafnummer.
-        label: r.hjemmelEid
-          ? `${r.visningstekst} — ${paragrafEtikett(detaljNoderPerRettskilde.get(id ?? ''), r.hjemmelEid)?.tekst ?? r.hjemmelEid.split('/nor/').pop() ?? r.hjemmelEid}`
-          : r.visningstekst,
-        onClick: () => navigate(
-          r.hjemmelEid
-            ? rettskildeLenkeForId(id!, r.hjemmelEid)
-            : `/virksomheter/${r.fraVirksomhetId}`,
-        ),
-      })),
+        const eid = r.hjemmelEid ?? r.paragrafspenn[0]?.fraEid ?? null;
+        const paragraf = eid
+          ? ` — ${paragrafEtikett(detaljNoderPerRettskilde.get(id ?? ''), eid)?.tekst ?? eid.split('/nor/').pop() ?? eid}`
+          : '';
+        return {
+          key: r.id,
+          label: `${kategori}: ${r.visningstekst}${negativ}${forslag}${paragraf}`,
+          onClick: () => navigate(eid ? rettskildeLenkeForId(id!, eid) : nodeHref(r.fra)),
+        };
+      }),
     },
     {
       heading: 'Hjemmel',

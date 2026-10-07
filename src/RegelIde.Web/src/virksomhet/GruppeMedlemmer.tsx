@@ -3,12 +3,10 @@ import { Link as RouterLink } from 'react-router';
 import { Alert, Card, Heading, Link, Paragraph, Spinner, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
-import { useVirksomheter } from './useVirksomheter';
 import { Metatekst } from '../entitet/Metatekst';
-import type {
-  GruppeMedlemskapDto, MyndighetstildelingDto, ParagrafspennParDto, RettskildeSammendrag,
-  VirksomhetsbegrepDto,
-} from '../api/types';
+import type { ParagrafspennParDto, RettskildeSammendrag, StrukturkantDto } from '../api/types';
+import { StrukturkantTabell } from '../strukturkant/StrukturkantTabell';
+import { BegrepskategoriTag } from '../begrep/Nodetype';
 
 /**
  * [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] Drill-through fra et gruppebegrep til det
@@ -40,6 +38,13 @@ import type {
  * `Spinner`; den negative påstanden («ingen medlemmer») vises aldri mens dataene fortsatt er på vei.
  * §5: `Link asChild` rundt react-router sin `Link`.
  *
+ * <h3>[ENDRET, issue #311 «Strukturmodell 6»] Én kilde: strukturkantene</h3>
+ * Alle tre listene leses nå fra ÉTT kall (`GET /api/strukturkanter?begrepId=…`) i stedet for tre endepunkter
+ * mot to tabeller: medlemsgrupper = M-kanter INN fra et begrep, virksomheter = M-/I-kanter INN fra en
+ * virksomhet (I for en rolle — «innehas av»), medlem av = M-kanter UT til et begrep. En fjerde seksjon viser
+ * øvrige kanter begrepet står i (områdesammensetning, ansvarsområde, kompetanse, klassenivå). Hjemmelen kan
+ * nå mangle — da finnes en kilde utenfor korpus, og den vises med samme «Ingen hjemmel»-merke som docs/09 §18.
+ *
  * <p><b>Bevisst IKKE gjort i denne runden</b> (docs/09 §14 sin migreringsplikt, eksplisitt flagget):
  * `BegrepDetalj` er ikke migrert til det delte `KontekstPanel`-mønsteret. Å migrere hele siden er et
  * større, selvstendig grep enn å lukke gruppe-drill-throughen, og ville blandet to ting i samme
@@ -61,12 +66,22 @@ function paragrafVisning(eid: string, eli: string | null | undefined): string {
 /** Hjemmelen som én celle: rettskildens tittel som lenke til nøyaktig paragrafen, med paragrafspennet
  * som liten metatekst under. Flere spenn listes hver for seg — de er hver sin påstand om HVOR. */
 function HjemmelCelle({
-  hjemmelRettskildeId, paragrafspenn, rettskilder,
+  hjemmelRettskildeId, paragrafspenn, rettskilder, kilde,
 }: {
-  hjemmelRettskildeId: string;
+  hjemmelRettskildeId: string | null;
   paragrafspenn: ParagrafspennParDto[];
   rettskilder: RettskildeSammendrag[];
+  /** [Ny, issue #311] Kilde utenfor korpus — vises når det ikke finnes hjemmel. */
+  kilde: string | null;
 }) {
+  if (!hjemmelRettskildeId) {
+    return (
+      <>
+        <Tag data-size="sm" data-color="warning">Ingen hjemmel</Tag>{' '}
+        <Metatekst as="span">{kilde}</Metatekst>
+      </>
+    );
+  }
   const hjemmel = rettskilder.find((r) => r.id === hjemmelRettskildeId);
   const forste = paragrafspenn[0];
   const href = forste
@@ -107,50 +122,30 @@ function Gyldighet({ fra, til }: { fra: string | null; til: string | null }) {
 
 export function GruppeMedlemmer({ gruppeBegrepId, rettskilder }: GruppeMedlemmerProps) {
   // `null` = ikke hentet ennå (docs/09 §15) — skilt fra `[]` = hentet, og faktisk tomt.
-  const [medlemsgrupper, setMedlemsgrupper] = useState<GruppeMedlemskapDto[] | null>(null);
-  const [overordnede, setOverordnede] = useState<GruppeMedlemskapDto[] | null>(null);
-  const [tildelinger, setTildelinger] = useState<MyndighetstildelingDto[] | null>(null);
-  const [gruppebegrep, setGruppebegrep] = useState<VirksomhetsbegrepDto[] | null>(null);
+  const [kanter, setKanter] = useState<StrukturkantDto[] | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
-  const { virksomheter, visEier } = useVirksomheter();
 
   useEffect(() => {
     let avbrutt = false;
     setFeil(null);
-    setMedlemsgrupper(null);
-    setOverordnede(null);
-    setTildelinger(null);
-    Promise.all([
-      api.hentMedlemsgrupper(gruppeBegrepId),
-      api.hentOverordnedeGrupper(gruppeBegrepId),
-      api.hentMyndighetstildelingerForGruppebegrep(gruppeBegrepId),
-      // Gruppebegrepene trengs for å vise TERMEN til en medlemsgruppe — medlemskapsraden bærer bare
-      // id-er. Lista er kort (~7) og deles av begge retningene.
-      api.hentGruppebegrep(),
-    ])
-      .then(([medlem, over, tildelt, alle]) => {
-        if (avbrutt) return;
-        setMedlemsgrupper(medlem);
-        setOverordnede(over);
-        setTildelinger(tildelt);
-        setGruppebegrep(alle);
-      })
+    setKanter(null);
+    api.hentStrukturkanter({ begrepId: gruppeBegrepId })
+      .then((k) => { if (!avbrutt) setKanter(k); })
       .catch((e) => {
         if (avbrutt) return;
         setFeil(e instanceof ApiError ? e.message : 'Kunne ikke hente gruppens medlemmer.');
         // Tom-tilstand er IKKE riktig svar når kallet feilet — da er svaret ukjent, og feilen vises.
         // Settes likevel til [] slik at spinneren ikke står og går for alltid.
-        setMedlemsgrupper([]);
-        setOverordnede([]);
-        setTildelinger([]);
+        setKanter([]);
       });
     return () => { avbrutt = true; };
   }, [gruppeBegrepId]);
 
-  /** Termen til et gruppebegrep, eller den rå id-en — aldri en oppfunnet term. */
-  function gruppeTerm(id: string): string {
-    return gruppebegrep?.find((g) => g.id === id)?.term ?? id;
-  }
+  // [ENDRET, issue #311] De tre listene avledet fra kantene — se klassekommentaren.
+  const medlemsgrupper = kanter && kanter.filter((k) => k.kategori === 'M' && k.retning === 'til' && k.fra.type === 'begrep');
+  const tildelinger = kanter && kanter.filter((k) => (k.kategori === 'M' || k.kategori === 'I') && k.retning === 'til' && k.fra.type === 'virksomhet');
+  const overordnede = kanter && kanter.filter((k) => k.kategori === 'M' && k.retning === 'fra' && k.til?.type === 'begrep');
+  const ovrige = kanter && kanter.filter((k) => !medlemsgrupper!.includes(k) && !tildelinger!.includes(k) && !overordnede!.includes(k));
 
   return (
     <>
@@ -186,17 +181,19 @@ export function GruppeMedlemmer({ gruppeBegrepId, rettskilder }: GruppeMedlemmer
                 {medlemsgrupper.map((m) => (
                   <Table.Row key={m.id}>
                     <Table.Cell>
-                      <Link asChild>
-                        <RouterLink to={`/begreper/${m.underordnetGruppeBegrepId}`}>
-                          «{gruppeTerm(m.underordnetGruppeBegrepId)}»
-                        </RouterLink>
-                      </Link>
+                      <span style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <Link asChild>
+                          <RouterLink to={`/begreper/${m.fra.id}`}>«{m.fra.navn}»</RouterLink>
+                        </Link>
+                        <BegrepskategoriTag kategori={m.fra.nodetype} />
+                      </span>
                     </Table.Cell>
                     <Table.Cell>
                       <HjemmelCelle
                         hjemmelRettskildeId={m.hjemmelRettskildeId}
                         paragrafspenn={m.paragrafspenn}
                         rettskilder={rettskilder}
+                        kilde={m.kildeUtenforKorpusTekst}
                       />
                     </Table.Cell>
                     <Table.Cell><Gyldighet fra={m.gyldigFra} til={m.gyldigTil} /></Table.Cell>
@@ -214,8 +211,8 @@ export function GruppeMedlemmer({ gruppeBegrepId, rettskilder }: GruppeMedlemmer
           Virksomheter i gruppen
         </Heading>
         <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
-          Konkrete, navngitte virksomheter som er tildelt denne gruppen (myndighetstildelinger).
-          Vilkår-kolonnen står bare når tildelingen er avgrenset til noe bestemt.
+          Konkrete, navngitte virksomheter som er medlem av denne gruppen — eller, for en rolle, som
+          innehar den. Vilkår-kolonnen står bare når tilhørigheten er avgrenset til noe bestemt.
         </Metatekst>
         <Card style={{ padding: tildelinger && tildelinger.length > 0 ? 0 : '1rem', overflow: 'hidden' }}>
           {tildelinger === null ? (
@@ -238,21 +235,25 @@ export function GruppeMedlemmer({ gruppeBegrepId, rettskilder }: GruppeMedlemmer
                 {tildelinger.map((t) => (
                   <Table.Row key={t.id}>
                     <Table.Cell>
-                      <Link asChild>
-                        <RouterLink to={`/virksomheter/${t.virksomhetId}`}>
-                          {virksomheter.find((v) => v.id === t.virksomhetId)?.visningsnavn ?? visEier(t.virksomhetId)}
-                        </RouterLink>
-                      </Link>
+                      <span style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <Link asChild>
+                          <RouterLink to={`/virksomheter/${t.fra.id}`}>{t.fra.navn}</RouterLink>
+                        </Link>
+                        {t.kategori === 'I' && <Tag data-size="sm" data-color="neutral">Innehar rollen</Tag>}
+                        {t.polaritet === 'negativ' && <Tag data-size="sm" data-color="warning">Negativ</Tag>}
+                        {t.status === 'foreslatt_av_ai' && <Tag data-size="sm" data-color="info">Forslag</Tag>}
+                      </span>
                     </Table.Cell>
                     <Table.Cell>
                       <HjemmelCelle
                         hjemmelRettskildeId={t.hjemmelRettskildeId}
                         paragrafspenn={t.paragrafspenn}
                         rettskilder={rettskilder}
+                        kilde={t.kildeUtenforKorpusTekst}
                       />
                     </Table.Cell>
                     <Table.Cell>
-                      {t.vilkaar ?? (
+                      {t.avgrensningTekst ?? (
                         <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Ingen</span>
                       )}
                     </Table.Cell>
@@ -294,17 +295,19 @@ export function GruppeMedlemmer({ gruppeBegrepId, rettskilder }: GruppeMedlemmer
                 {overordnede.map((m) => (
                   <Table.Row key={m.id}>
                     <Table.Cell>
-                      <Link asChild>
-                        <RouterLink to={`/begreper/${m.overordnetGruppeBegrepId}`}>
-                          «{gruppeTerm(m.overordnetGruppeBegrepId)}»
-                        </RouterLink>
-                      </Link>
+                      <span style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                        <Link asChild>
+                          <RouterLink to={`/begreper/${m.til!.id}`}>«{m.til!.navn}»</RouterLink>
+                        </Link>
+                        <BegrepskategoriTag kategori={m.til!.nodetype} />
+                      </span>
                     </Table.Cell>
                     <Table.Cell>
                       <HjemmelCelle
                         hjemmelRettskildeId={m.hjemmelRettskildeId}
                         paragrafspenn={m.paragrafspenn}
                         rettskilder={rettskilder}
+                        kilde={m.kildeUtenforKorpusTekst}
                       />
                     </Table.Cell>
                     <Table.Cell><Gyldighet fra={m.gyldigFra} til={m.gyldigTil} /></Table.Cell>
@@ -314,6 +317,18 @@ export function GruppeMedlemmer({ gruppeBegrepId, rettskilder }: GruppeMedlemmer
             </Table>
           )}
         </Card>
+      </section>
+
+      {/* ---------- [Ny, issue #311] Øvrige strukturkanter ---------- */}
+      <section style={{ marginBottom: '2rem' }}>
+        <Heading level={2} data-size="sm" style={{ marginBottom: '0.75rem' }}>
+          Andre strukturutsagn
+        </Heading>
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '-0.5rem', marginBottom: '0.75rem' }}>
+          Kompetanse, områdesammensetning, ansvarsområder og klassenivå (docs/33 §4.3) der dette begrepet er
+          en av endene.
+        </Metatekst>
+        <StrukturkantTabell kanter={ovrige} tomTekst="Ingen andre strukturutsagn." visKategori />
       </section>
     </>
   );

@@ -119,8 +119,9 @@ import type {
   TjenesteavhengighetDto,
   TjenesteavhengighetRequest,
   RelasjonsTypeKonfigurasjonDto,
-  VirksomhetRelasjonDto,
-  VirksomhetRelasjonRequest,
+  StrukturkantDto,
+  StrukturkantRequest,
+  Strukturkantkategori,
   TjenesteTverrTenantTreffDto,
   TjenesteforslagDto,
   TjenesteforslagBatchRequest,
@@ -142,15 +143,11 @@ import type {
   BrregEnhetDto,
   VirksomhetsbegrepDto,
   VirksomhetWhereUsedDto,
-  MyndighetstildelingDto,
-  GruppeMedlemskapDto,
-  GruppeMedlemskapRequest,
   KiOppdagelseRequest,
   KiOppdagelseSamletResultatDto,
   KiForslagKoRadDto,
   KoblNavnekandidatTilGruppemedlemskapRequest,
   NavnekandidatGruppemedlemskapResultatDto,
-  ParagrafspennParDto,
   VirksomhetKandidatDto,
   SveipVirksomhetKandidaterRequest,
   SveipVirksomhetKandidaterResultatDto,
@@ -166,7 +163,7 @@ import type {
   KoblNavnekandidaterTilVirksomhetBatchRequest,
   NavnekandidatGruppeBatchRequest,
   SlettNavnekandidaterResultatDto,
-  VisningsinnstillingInput, VirksomhetRelasjonHjemletDto,
+  VisningsinnstillingInput,
 } from './types';
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:5187';
@@ -391,45 +388,15 @@ export const api = {
       body: JSON.stringify(request),
     }),
 
-  /** `kunGjeldende` filtrerer bort tildelinger som ikke er gjeldende akkurat nå (docs/29 §Del B). */
-  hentMyndighetstildelingerForVirksomhet: (virksomhetId: string, kunGjeldende = false) =>
-    kall<MyndighetstildelingDto[]>(`/api/virksomheter/${virksomhetId}/myndighetstildelinger${kunGjeldende ? '?gjeldende=true' : ''}`),
+  // [FJERNET, issue #311] hentMyndighetstildelingerForVirksomhet — se hentStrukturkanter.
 
   /** ALLE gruppebegrep på tvers av lover — søk/velg-grunnlag for LeggTilMyndighetstildelingForm. */
   hentGruppebegrep: () => kall<VirksomhetsbegrepDto[]>('/api/gruppebegrep'),
 
-  opprettMyndighetstildeling: (request: {
-    gruppeBegrepId: string; virksomhetId: string; hjemmelRettskildeId: string;
-    paragrafspenn: ParagrafspennParDto[]; vilkaar: string | null;
-    gyldigFra?: string | null; gyldigTil?: string | null;
-  }) =>
-    kall<MyndighetstildelingDto>('/api/myndighetstildelinger', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request),
-    }),
-
-  /** [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] Hvilke VIRKSOMHETER som er medlem av et
-   * gruppebegrep, og under hvilke hjemler — drill-through fra en gruppetagg til medlemslisten.
-   * Endepunktet fantes fra før, men ingen klient kalte det. */
-  hentMyndighetstildelingerForGruppebegrep: (gruppeBegrepId: string, kunGjeldende = false) =>
-    kall<MyndighetstildelingDto[]>(
-      `/api/gruppebegrep/${gruppeBegrepId}/tildelinger${kunGjeldende ? '?gjeldende=true' : ''}`),
-
-  /** Gruppene som selv er MEDLEM av dette gruppebegrepet — ett nivå ned, ikke transitivt. */
-  hentMedlemsgrupper: (gruppeBegrepId: string) =>
-    kall<GruppeMedlemskapDto[]>(`/api/gruppebegrep/${gruppeBegrepId}/medlemsgrupper`),
-
-  /** Gruppene dette gruppebegrepet selv er MEDLEM av — motsatt retning. */
-  hentOverordnedeGrupper: (gruppeBegrepId: string) =>
-    kall<GruppeMedlemskapDto[]>(`/api/gruppebegrep/${gruppeBegrepId}/overordnede-grupper`),
-
-  opprettGruppeMedlemskap: (request: GruppeMedlemskapRequest) =>
-    kall<GruppeMedlemskapDto>('/api/gruppemedlemskap', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request),
-    }),
+  // [FJERNET, issue #311] opprettMyndighetstildeling, hentMyndighetstildelingerForGruppebegrep,
+  // hentMedlemsgrupper, hentOverordnedeGrupper og opprettGruppeMedlemskap. Alle tilhørigheter er
+  // strukturkanter: hentStrukturkanter({ begrepId }) og opprettStrukturkant (kategori M/I).
+  // (Lesefasadene /api/gruppebegrep/{id}/tildelinger m.fl. står igjen på serveren for nettside-eksporten.)
 
   /** Departement-virksomhet-lenke (2026-08-30) — gjeldende lover/forskrifter der AnsvarligDepartement eksakt matcher denne virksomhetens navn. */
   hentRettskilderAnsvarligFor: (virksomhetId: string) =>
@@ -1131,14 +1098,44 @@ export const api = {
   slettTjenesteavhengighet: (avhengighetId: string) =>
     kall<void>(`/api/tjenester/avhengigheter/${avhengighetId}`, { method: 'DELETE' }),
 
-  // ---------- VirksomhetRelasjon (docs/28, docs/29 §Del C) ----------
+  // ---------- Strukturkanter (issue #311 «Strukturmodell 6», docs/33 §4.3) ----------
+  // [ENDRET, issue #311] Erstatter VirksomhetRelasjon-, myndighetstildeling- og gruppemedlemskap-kallene.
 
-  hentRelasjonstyper: () => kall<RelasjonsTypeKonfigurasjonDto[]>('/api/konfigurasjon/relasjonstyper'),
+  /** Typekodene, valgfritt for én kategori. */
+  hentRelasjonstyper: (kategori?: Strukturkantkategori) =>
+    kall<RelasjonsTypeKonfigurasjonDto[]>(`/api/konfigurasjon/relasjonstyper${kategori ? `?kategori=${kategori}` : ''}`),
 
-  hentVirksomhetRelasjoner: (virksomhetId: string) =>
-    kall<VirksomhetRelasjonDto[]>(`/api/virksomheter/${virksomhetId}/relasjoner`),
-  /** [Ny, nemnd/sekretariat-runden, 2026-09-09] Motstykket sett fra rettskilden: hvilke
-   * virksomhetsrelasjoner er hjemlet HER. Relasjoner uten hjemmel er ikke med. */
+  /** Kantene for ÉN node (virksomhet ELLER begrep), i begge retninger, med visningstekst fra nodens side. */
+  hentStrukturkanter: (node: { virksomhetId?: string; begrepId?: string }, valg?: { kategori?: Strukturkantkategori; gjeldende?: boolean }) => {
+    const sok = new URLSearchParams();
+    if (node.virksomhetId) sok.set('virksomhetId', node.virksomhetId);
+    if (node.begrepId) sok.set('begrepId', node.begrepId);
+    if (valg?.kategori) sok.set('kategori', valg.kategori);
+    if (valg?.gjeldende) sok.set('gjeldende', 'true');
+    return kall<StrukturkantDto[]>(`/api/strukturkanter?${sok.toString()}`);
+  },
+
+  /** [Ny, nemnd/sekretariat-runden, 2026-09-09; ENDRET #311] Kantene HJEMLET i én rettskilde (alle kategorier). */
+  hentStrukturkanterForRettskilde: (rettskildeId: string) =>
+    kall<StrukturkantDto[]>(`/api/rettskilder/${rettskildeId}/strukturkanter`),
+
+  opprettStrukturkant: (request: StrukturkantRequest) =>
+    kall<StrukturkantDto>('/api/strukturkanter', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+    }),
+
+  godkjennStrukturkant: (id: string) =>
+    kall<StrukturkantDto>(`/api/strukturkanter/${id}/godkjenn`, { method: 'POST' }),
+
+  /** Avviser (sletter) et FORSLAG. En validert kant slettes med `slettStrukturkant`. */
+  avvisStrukturkant: (id: string) =>
+    kall<void>(`/api/strukturkanter/${id}/avvis`, { method: 'POST' }),
+
+  slettStrukturkant: (id: string) =>
+    kall<void>(`/api/strukturkanter/${id}`, { method: 'DELETE' }),
+
   /** [Ny, 2026-09-09, issue #135] Sletter én navneform OG tekst-taggene som peker på den — ekte
    * sletting, ikke statusendring. Returnerer hvor mange tagger som forsvant, slik at UI-et kan si
    * hva som faktisk skjedde. Se VirksomhetsbegrepTjeneste.SlettVirksomhetsbegrepAsync. */
@@ -1146,19 +1143,6 @@ export const api = {
     kall<{ slettet: boolean; antallTaggerSlettet: number }>(`/api/virksomhetsbegrep/${begrepId}`, {
       method: 'DELETE',
     }),
-
-  hentVirksomhetsrelasjonerForRettskilde: (rettskildeId: string) =>
-    kall<VirksomhetRelasjonHjemletDto[]>(`/api/rettskilder/${rettskildeId}/virksomhetsrelasjoner`),
-
-  opprettVirksomhetRelasjon: (virksomhetId: string, request: VirksomhetRelasjonRequest) =>
-    kall<VirksomhetRelasjonDto[]>(`/api/virksomheter/${virksomhetId}/relasjoner`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(request),
-    }),
-
-  slettVirksomhetRelasjon: (relasjonId: string) =>
-    kall<void>(`/api/virksomhet-relasjoner/${relasjonId}`, { method: 'DELETE' }),
 
   // ---------- Import-wizard (2026-08-28) — modelleksport-JSON → ekte tjenester/handlinger ----------
 
@@ -1270,20 +1254,7 @@ export const api = {
 
   hentKiForslagKo: () => kall<KiForslagKoRadDto[]>('/api/ki-oppdagelse/ko'),
 
-  godkjennMyndighetstildeling: (id: string) =>
-    kall<MyndighetstildelingDto>(`/api/myndighetstildelinger/${id}/godkjenn`, { method: 'POST' }),
-
-  avvisMyndighetstildeling: (id: string) =>
-    kall<void>(`/api/myndighetstildelinger/${id}`, { method: 'DELETE' }),
-
-  godkjennGruppeMedlemskap: (id: string) =>
-    kall<GruppeMedlemskapDto>(`/api/gruppemedlemskap/${id}/godkjenn`, { method: 'POST' }),
-
-  avvisGruppeMedlemskap: (id: string) =>
-    kall<void>(`/api/gruppemedlemskap/${id}`, { method: 'DELETE' }),
-
-  godkjennVirksomhetRelasjon: (id: string) =>
-    kall<VirksomhetRelasjonDto>(`/api/virksomhet-relasjoner/${id}/godkjenn`, { method: 'POST' }),
+  // [FJERNET, issue #311] godkjenn/avvis per entitetstype — se godkjennStrukturkant/avvisStrukturkant.
 
   // ---------- Kodelisteregister / verdidomene (docs/03-domenemodell.md §1.4) — byggesteg 2 ----------
 
