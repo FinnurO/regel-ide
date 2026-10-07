@@ -901,7 +901,7 @@ avdekking. Dialogen åpnes automatisk når siden nås med `?forslagNavn=` (fra e
 slik at deep-linken fortsatt fungerer uten en ekstra klikk.
 
 `VirksomhetDetalj` sine 8 flate seksjoner er samlet i 6 faner, gruppert etter hva seksjonen FAKTISK
-svarer på (docs/32 §3 S1–S7), ikke bare for å redusere antallet:
+svarer på (docs/32 §3 S1–S9), ikke bare for å redusere antallet:
 - **Grunndata** — uendret (registrert navn/orgnr/forvaltningsnivå/overordnet enhet).
 - **Navneformer** — uendret («Navneformer i rettskildetekst»).
 - **Myndighet & relasjoner** — slår sammen tre tidligere seksjoner som alle svarer «hva styrer denne

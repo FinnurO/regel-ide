@@ -56,8 +56,15 @@ flytter framover.
 | S5 | **Hva er de faktiske navnene og betegnelsene?** | Alle navneformer et organ opptrer under i lovtekst — gjeldende, utgåtte, kortformer, feilskrivinger |
 | S6 | **Hva gjelder for denne konkrete aktøren?** | Oppslag fra en virksomhet til bestemmelsene som treffer den, inkludert indirekte via gruppe |
 | S7 | **Hva skjer hvis denne bestemmelsen endres?** | Påvirkningsanalyse: hvilke aktører, tjenester og regler henger i den |
+| S8 | **Hvilke områder finnes, og hvem har ansvarsområde hvor?** | Geografiske og jurisdiksjonelle områder (fylke, kommune som territorium, rettskrets, lagdømme, embetsområde, helseregion, forvaltningsområde) og hva de består av; hvilken aktør som har ansvarsområde i hvilket område — det som avgjør hvilken av ti statsforvaltere «Statsforvalteren» er for en gitt kommune |
+| S9 | **Hvem har hvilken kompetanse etter hvilken paragraf?** | Kompetanse knyttet til bestemmelse: forskrift, vedtak, klage, tilsyn, delegering, oppnevning m.fl. — avgrenset til paragraf/ledd/sakstype, med polaritet («kan ikke instrueres», «kommunestyret selv») |
 
 Listen er ikke låst, men den skal utvides bevisst, ikke skli.
+
+[ENDRET, 2026-10-07, issue #317] S8 og S9 lagt til etter Johanns beslutning. Grunnlaget er korpusmålingen og
+fasiten i `docs/33`: kompetanse knyttet til en bestemmelse er det vanligste strukturutsagnet i lovteksten (S9),
+og generelle omtaler som «Statsforvalteren» kan ikke løses opp til én aktør uten områder (S8). S1–S7 er
+uendret.
 
 ## 4. Roller og inngangsvinkler
 
@@ -101,7 +108,7 @@ Det følger to ting av det:
 
 Før en byggerunde starter:
 
-- **Navngi spørsmålet.** Hvilket av S1–S7 flytter denne leveransen, og for hvilken rolle i §4? Kan
+- **Navngi spørsmålet.** Hvilket av S1–S9 flytter denne leveransen, og for hvilken rolle i §4? Kan
   det ikke besvares, er ikke oppgaven forstått ennå.
 - **Si hvor gjettingen kan snike seg inn**, og hva som gjøres i stedet. Enhver utledet kobling
   trenger et svar på «hva om vi tar feil».
@@ -121,7 +128,7 @@ Ved verifisering:
 
 ## 7. Åpne spørsmål
 
-- **Rolle-aksen** (S1/S2): `MyndighetstildelingEntitet` har ingen rolle — modellen kan si at et organ
+- **Rolle-aksen** (S1/S2) — [2026-10-07] tas i strukturmodell-epicen #318 (kompetansetype på kanten, #310/#311): `MyndighetstildelingEntitet` har ingen rolle — modellen kan si at et organ
   er tildelt en gruppe, men ikke i hvilken egenskap (vedtak/klage/tilsyn/forskrift).
   `RettskildeEntitet.FunksjonellRolle` finnes med verdien `kompetansenorm`, men er aldri populert og
   ligger på dokumentnivå. Uten dette leddet kan ikke modelløren uttrykke en vedtaksregel. Ikke avklart

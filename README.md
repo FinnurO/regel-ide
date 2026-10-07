@@ -42,7 +42,7 @@ ved motstrid, stol på `docs/README.md` og selve koden, ikke denne listen.
 | [`docs/14-byggesteg5-teknisk-design.md`](docs/14-byggesteg5-teknisk-design.md) | KI-agentene: forslagsmønsteret (kø → godkjenn/avvis → proveniens med `AiForslagVersjon`/`GodkjentAv`) som `Begrepsforslag`/`Tjenesteforslag`/`Handlingsforslag` og navnekandidat-oppdagelsen alle følger. |
 | [`docs/20-virksomhetskatalog-og-rollemodell.md`](docs/20-virksomhetskatalog-og-rollemodell.md) | Virksomhetskatalogen: roller (myndighetstildeling), relasjoner (underlagt/sekretariat/klageinstans/enhet_i/oppgaver_overført_til), gruppemedlemskap. |
 | [`docs/25-funksjonsoversikt.md`](docs/25-funksjonsoversikt.md) | **Nærmeste ting til en sannhet om hva som faktisk finnes i appen i dag.** |
-| [`docs/32-formal-roller-og-sporsmal.md`](docs/32-formal-roller-og-sporsmal.md) | **BINDENDE.** Formålet, rollene, og §3-spørsmålene (S1–S7) modellen skal kunne besvare — hvorfor dette bygges. |
+| [`docs/32-formal-roller-og-sporsmal.md`](docs/32-formal-roller-og-sporsmal.md) | **BINDENDE.** Formålet, rollene, og §3-spørsmålene (S1–S9) modellen skal kunne besvare — hvorfor dette bygges. |
 | [`docs/design-canvas/`](docs/design-canvas/) | 16-artboard visuell designreferanse (Claude Design-canvas), publisert som Artifact — brukt som fasit ved nye skjermer. |
 | [`prototyper/`](prototyper/) | Interaktive HTML-mockuper fra Claude Design — frontend-siden, holdt bevisst atskilt fra det tekniske designet i `docs/`. |
 | [`historikk/`](historikk/) | Det opprinnelige kravspesifikasjons-kildedokumentet (v1.0), beholdt for sporbarhet — ikke gjeldende krav. |
