@@ -2100,7 +2100,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             r => r.Kategori == Strukturkanter.Relasjon && r.FraVirksomhetId == virksomhetId
                  && r.TilVirksomhetId == motpartVirksomhetId && r.Typekode == relasjonsType, ct);
         relasjon ??= (await strukturkanter.OpprettAsync(new NyStrukturkant(
-            Strukturkanter.Relasjon, relasjonsType, Strukturnode.Virksomhet(virksomhetId), Strukturnode.Virksomhet(motpartVirksomhetId),
+            Strukturkanter.Relasjon, relasjonsType, Kantnode.Virksomhet(virksomhetId), Kantnode.Virksomhet(motpartVirksomhetId),
             HjemmelRettskildeId: hjemletHer ? kandidat.RettskildeId : null,
             HjemmelEid: hjemletHer ? kandidat.NodeEid : null,
             KildeUtenforKorpusTekst: hjemletHer ? null : kommentar), behandletAv, ct)).Kant;
@@ -2145,7 +2145,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
 
         var medlemskap = (await strukturkanter.OpprettAsync(new NyStrukturkant(
             Strukturkanter.Medlemskap, Strukturkanter.MedlemAv,
-            Strukturnode.Begrep(gruppebegrep.Id), Strukturnode.Begrep(overordnetGruppeBegrepId),
+            Kantnode.Begrep(gruppebegrep.Id), Kantnode.Begrep(overordnetGruppeBegrepId),
             HjemmelRettskildeId: kandidat.RettskildeId,
             Paragrafspenn: [new ParagrafspennPar(kandidat.NodeEid, null)]), behandletAv, ct)).Kant;
 

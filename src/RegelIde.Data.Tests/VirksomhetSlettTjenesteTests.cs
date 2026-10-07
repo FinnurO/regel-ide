@@ -48,10 +48,11 @@ public class VirksomhetSlettTjenesteTests
             Term = "Testnavneform", Status = "publisert", OpprettetAv = "test",
         });
         db.Brukere.Add(new Bruker { Id = Guid.NewGuid(), Navn = "Test Testesen", VirksomhetId = virksomhetId, Rolle = "saksbehandler" });
-        db.VirksomhetRelasjoner.Add(new VirksomhetRelasjonEntitet
+        db.Strukturkanter.Add(new StrukturkantEntitet
         {
-            Id = Guid.NewGuid(), FraVirksomhetId = annenVirksomhetId, TilVirksomhetId = virksomhetId,
-            RelasjonsType = "underlagt", OpprettetAv = "test",
+            Id = Guid.NewGuid(), Kategori = Strukturkanter.Relasjon, Typekode = "underlagt",
+            FraVirksomhetId = annenVirksomhetId, TilVirksomhetId = virksomhetId,
+            KildeUtenforKorpusTekst = "test", OpprettetAv = "test",
         });
         await db.SaveChangesAsync();
 
@@ -62,7 +63,7 @@ public class VirksomhetSlettTjenesteTests
         Assert.Equal(1, oversikt!.Rettskilder);
         Assert.Equal(1, oversikt.Navneformer);
         Assert.Equal(1, oversikt.Brukere);
-        Assert.Equal(1, oversikt.VirksomhetRelasjoner);
+        Assert.Equal(1, oversikt.Strukturkanter); // [ENDRET, issue #311] var VirksomhetRelasjoner.
         Assert.Equal(1, oversikt.UnderliggendeVirksomheter);
         Assert.Equal(0, oversikt.TekstTaggerMedPublisertReferanse);
         Assert.True(oversikt.KanSlettes);
@@ -119,13 +120,15 @@ public class VirksomhetSlettTjenesteTests
             db.Brukere.Add(bruker);
             brukerId = bruker.Id;
 
-            // TilVirksomhetId == virksomhetId, RESTRICT i DB — nøyaktig FK-en tjenesten MÅ rydde eksplisitt.
-            var relasjon = new VirksomhetRelasjonEntitet
+            // Virksomheten som TIL-node i en R-kant. [ENDRET, issue #311] Var RESTRICT på
+            // virksomhet_relasjoner (tjenesten ryddet eksplisitt); strukturkanter kaskaderer i begge ender.
+            var relasjon = new StrukturkantEntitet
             {
-                Id = Guid.NewGuid(), FraVirksomhetId = annenVirksomhetId, TilVirksomhetId = virksomhetId,
-                RelasjonsType = "underlagt", OpprettetAv = "test",
+                Id = Guid.NewGuid(), Kategori = Strukturkanter.Relasjon, Typekode = "underlagt",
+                FraVirksomhetId = annenVirksomhetId, TilVirksomhetId = virksomhetId,
+                KildeUtenforKorpusTekst = "test", OpprettetAv = "test",
             };
-            db.VirksomhetRelasjoner.Add(relasjon);
+            db.Strukturkanter.Add(relasjon);
             relasjonId = relasjon.Id;
 
             var proveniens = new ProveniensEntitet
@@ -152,7 +155,7 @@ public class VirksomhetSlettTjenesteTests
             Assert.False(await db.Rettskilder.AnyAsync(r => r.Id == rettskildeId));
             Assert.False(await db.Begreper.AnyAsync(b => b.Id == begrepId));
             Assert.False(await db.Brukere.AnyAsync(b => b.Id == brukerId));
-            Assert.False(await db.VirksomhetRelasjoner.AnyAsync(r => r.Id == relasjonId));
+            Assert.False(await db.Strukturkanter.AnyAsync(r => r.Id == relasjonId));
 
             // Andre virksomheten (relasjonens FRA-side) skal IKKE ha blitt rørt.
             Assert.True(await db.Virksomheter.AnyAsync(v => v.Id == annenVirksomhetId));

@@ -22,7 +22,8 @@ public static class StrukturkantMigrering
     /// M <c>medlem_av</c>; <c>vilkaar</c> → <c>avgrensning_tekst</c>.</item>
     /// </list>
     /// <c>oppdagelses_kilde</c> = <c>'ki:&lt;versjon&gt;'</c> der proveniensen har en AI-versjon for raden, ellers
-    /// <c>'manuell'</c>. Hver flyttet rad får en proveniensrad (<c>handling = 'migrert'</c>) som navngir
+    /// <c>'manuell'</c>. Typekodene <c>M medlem_av</c> og <c>I innehar</c> legges inn i
+    /// <c>relasjonstype_konfigurasjon</c> (R-kodene fantes fra før). Hver flyttet rad får en proveniensrad (<c>handling = 'migrert'</c>) som navngir
     /// tabellen den kom fra. Til slutt sammenlignes antallet: avviker det, avbrytes migrasjonen
     /// (RAISE EXCEPTION) i stedet for å fullføre med tap.
     /// <para>
@@ -94,6 +95,13 @@ public static class StrukturkantMigrering
                 m.opprettet_av, m.opprettet_tidspunkt, m.sist_endret_av, m.sist_endret_tidspunkt
             FROM myndighetstildelinger m
             JOIN begreper b ON b."Id" = m.gruppe_begrep_id;
+
+            -- Typekodene de flyttede kantene bruker, slik at den logiske FK-en holder i det øyeblikket migrasjonen er
+            -- ferdig (resten av startsettet seedes ved oppstart, Strukturkanter.SeedStartsettAsync). Samme maler som der.
+            INSERT INTO relasjonstype_konfigurasjon ("Id", kategori, kode, fra_visningsmal, til_visningsmal, sorteringsrekkefolge, aktiv)
+            VALUES (gen_random_uuid(), 'M', 'medlem_av', 'er medlem av {0}', 'har medlem {0}', 34, true),
+                   (gen_random_uuid(), 'I', 'innehar', 'innehar rollen {0}', 'innehas av {0}', 43, true)
+            ON CONFLICT (kategori, kode) DO NOTHING;
 
             INSERT INTO proveniens ("Id", entitet_type, entitet_id, endret_av, dato, handling, kilde_referanser)
             SELECT gen_random_uuid(), 'strukturkant', k."Id", 'migrasjon-311', now(), 'migrert',

@@ -3454,7 +3454,7 @@ strukturkanter.MapGet("/", async (Guid? virksomhetId, Guid? begrepId, string? ka
                 var forslag = await tjeneste.HentForslagAsync(ct);
                 return Results.Ok(forslag.Where(v => kategori == null || v.Kategori == kategori).Select(StrukturkantDto.FraVisning));
             }
-            var node = virksomhetId is { } v ? Strukturnode.Virksomhet(v) : Strukturnode.Begrep(begrepId!.Value);
+            var node = virksomhetId is { } v ? Kantnode.Virksomhet(v) : Kantnode.Begrep(begrepId!.Value);
             var kanter = await tjeneste.HentForNodeAsync(node, kategori, gjeldende ?? false, ct);
             return Results.Ok(kanter
                 .Where(k => status == null || k.Status == status)
@@ -3492,11 +3492,11 @@ strukturkanter.MapPost("/", async (HttpRequest request, StrukturkantRequest body
         }
         try
         {
-            Strukturnode? til = body.TilVirksomhetId is null && body.TilBegrepId is null
+            Kantnode? til = body.TilVirksomhetId is null && body.TilBegrepId is null
                 ? null
-                : new Strukturnode(body.TilVirksomhetId, body.TilBegrepId);
+                : new Kantnode(body.TilVirksomhetId, body.TilBegrepId);
             var resultat = await tjeneste.OpprettAsync(new NyStrukturkant(
-                body.Kategori, body.Typekode, new Strukturnode(body.FraVirksomhetId, body.FraBegrepId), til,
+                body.Kategori, body.Typekode, new Kantnode(body.FraVirksomhetId, body.FraBegrepId), til,
                 body.HjemmelRettskildeId, body.HjemmelEid, body.KildeUtenforKorpusTekst, body.KildeUtenforKorpusLenke,
                 body.Paragrafspenn?.Select(p => new ParagrafspennPar(p.FraEid, p.TilEid)).ToList(), body.AvgrensningTekst,
                 body.Objekt, body.Polaritet, body.GyldigFra, body.GyldigTil, body.Kommentar), bruker.Navn, ct);

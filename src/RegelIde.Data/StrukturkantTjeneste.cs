@@ -9,10 +9,10 @@ namespace RegelIde.Data;
 public sealed record ParagrafspennPar(string FraEid, string? TilEid);
 
 /// <summary>[Ny, issue #311] Én ende av en strukturkant — NØYAKTIG én av de to id-ene er satt.</summary>
-public sealed record Strukturnode(Guid? VirksomhetId, Guid? BegrepId)
+public sealed record Kantnode(Guid? VirksomhetId, Guid? BegrepId)
 {
-    public static Strukturnode Virksomhet(Guid id) => new(id, null);
-    public static Strukturnode Begrep(Guid id) => new(null, id);
+    public static Kantnode Virksomhet(Guid id) => new(id, null);
+    public static Kantnode Begrep(Guid id) => new(null, id);
     public bool ErGyldig => (VirksomhetId is null) != (BegrepId is null);
 }
 
@@ -26,7 +26,7 @@ public sealed record Strukturnode(Guid? VirksomhetId, Guid? BegrepId)
 /// <paramref name="OppdagelsesKilde"/> ikke er oppgitt (samme regel som de gamle tjenestene hadde) — havner i
 /// Proveniens og avleder <c>OppdagelsesKilde = "ki:&lt;versjon&gt;"</c>.</param>
 public sealed record NyStrukturkant(
-    string Kategori, string Typekode, Strukturnode Fra, Strukturnode? Til,
+    string Kategori, string Typekode, Kantnode Fra, Kantnode? Til,
     Guid? HjemmelRettskildeId = null, string? HjemmelEid = null,
     string? KildeUtenforKorpusTekst = null, string? KildeUtenforKorpusLenke = null,
     IReadOnlyList<ParagrafspennPar>? Paragrafspenn = null, string? AvgrensningTekst = null,
@@ -42,7 +42,7 @@ public sealed record StrukturkantOpprettet(StrukturkantEntitet Kant, bool VarNy)
 /// <param name="Type"><c>'virksomhet'</c> | <c>'begrep'</c>.</param>
 /// <param name="Nodetype">Aktørtypen for en virksomhet (<see cref="Virksomhet.Aktortype"/>, kan være NULL =
 /// uavklart) eller begrepskategorien for et begrep (klasse/rolle/omrade/gruppe).</param>
-public sealed record StrukturnodeVisning(string Type, Guid Id, string Navn, string? Nodetype);
+public sealed record KantnodeVisning(string Type, Guid Id, string Navn, string? Nodetype);
 
 /// <summary>
 /// [Ny, issue #311] Én strukturkant med navn og ferdig beregnet visningstekst. Når den er hentet FOR en
@@ -52,7 +52,7 @@ public sealed record StrukturnodeVisning(string Type, Guid Id, string Navn, stri
 /// </summary>
 public sealed record StrukturkantVisning(
     Guid Id, string Kategori, string Typekode, string? Retning, string Visningstekst,
-    StrukturnodeVisning Fra, StrukturnodeVisning? Til, string? Objekt,
+    KantnodeVisning Fra, KantnodeVisning? Til, string? Objekt,
     IReadOnlyList<ParagrafspennPar> Paragrafspenn, string? AvgrensningTekst, string Polaritet,
     Guid? HjemmelRettskildeId, string? HjemmelRettskildeTittel, string? HjemmelEid,
     string? KildeUtenforKorpusTekst, string? KildeUtenforKorpusLenke,
@@ -290,7 +290,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
     {
         var (kategori, typekode) = await TildelingskategoriAsync(begrepId, ct);
         return await OpprettAsync(new NyStrukturkant(
-            kategori, typekode, Strukturnode.Virksomhet(virksomhetId), Strukturnode.Begrep(begrepId),
+            kategori, typekode, Kantnode.Virksomhet(virksomhetId), Kantnode.Begrep(begrepId),
             HjemmelRettskildeId: hjemmelRettskildeId, Paragrafspenn: paragrafspenn, AvgrensningTekst: avgrensningTekst,
             GyldigFra: gyldigFra, GyldigTil: gyldigTil, Status: status, AiForslagVersjon: aiForslagVersjon), opprettetAv, ct);
     }
@@ -370,7 +370,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
     /// <summary>Kanter der noden er fra ELLER til, valgfritt avgrenset til én kategori og/eller til kanter som
     /// er gjeldende i dag (<see cref="ErGjeldende"/>).</summary>
     public async Task<List<StrukturkantVisning>> HentForNodeAsync(
-        Strukturnode node, string? kategori = null, bool kunGjeldende = false, CancellationToken ct = default)
+        Kantnode node, string? kategori = null, bool kunGjeldende = false, CancellationToken ct = default)
     {
         if (!node.ErGyldig) throw new ArgumentException("Noden må være NØYAKTIG én av virksomhet eller begrep.");
         if (kategori is not null && !Strukturkanter.ErGyldigKategori(kategori))
@@ -438,7 +438,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
     /// ellers registernavnet — samme regel som relasjonene hadde før #311 (registernavn-runden 2026-09-08).
     /// </summary>
     public async Task<List<StrukturkantVisning>> ByggVisningerAsync(
-        IReadOnlyList<StrukturkantEntitet> kanter, Strukturnode? perspektiv, CancellationToken ct = default)
+        IReadOnlyList<StrukturkantEntitet> kanter, Kantnode? perspektiv, CancellationToken ct = default)
     {
         if (kanter.Count == 0) return [];
 
@@ -469,19 +469,19 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         var hjemmeltitler = await db.Rettskilder.Where(r => hjemmelIder.Contains(r.Id))
             .Select(r => new { r.Id, Tittel = r.Kortnavn ?? r.Tittel }).ToDictionaryAsync(r => r.Id, r => r.Tittel, ct);
 
-        StrukturnodeVisning Node(Guid? virksomhetId, Guid? begrepId)
+        KantnodeVisning Node(Guid? virksomhetId, Guid? begrepId)
         {
             if (virksomhetId is { } v)
             {
                 var finnes = virksomheter.TryGetValue(v, out var rad);
-                return new StrukturnodeVisning("virksomhet", v,
+                return new KantnodeVisning("virksomhet", v,
                     lesbartNavn.GetValueOrDefault(v) ?? (finnes ? rad!.Navn : "(ukjent virksomhet)"),
                     finnes ? rad!.Aktortype : null);
             }
             var b = begrepId!.Value;
             return begreper.TryGetValue(b, out var brad)
-                ? new StrukturnodeVisning("begrep", b, brad.Term, brad.Begrepskategori)
-                : new StrukturnodeVisning("begrep", b, "(ukjent begrep)", null);
+                ? new KantnodeVisning("begrep", b, brad.Term, brad.Begrepskategori)
+                : new KantnodeVisning("begrep", b, "(ukjent begrep)", null);
         }
 
         return kanter.Select(k =>
@@ -521,7 +521,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
     /// <summary>Sjekker at noden finnes og har lov til å stå i denne enden for denne kategorien. Returnerer
     /// navnet (for feilmeldinger).</summary>
     private async Task<string> ValiderNodeAsync(
-        Strukturnode node, bool virksomhetLov, string[] begrepstyper, string ende, string beskrivelse, string kategori,
+        Kantnode node, bool virksomhetLov, string[] begrepstyper, string ende, string beskrivelse, string kategori,
         CancellationToken ct)
     {
         if (node.VirksomhetId is { } v)

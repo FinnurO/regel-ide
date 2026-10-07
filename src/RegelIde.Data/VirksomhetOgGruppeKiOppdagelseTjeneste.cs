@@ -454,7 +454,7 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
             // [ENDRET, issue #311] «Ikke hjemlet her» var en kommentar på VirksomhetRelasjon; på en kant er det
             // en kilde utenfor korpus (ck_strukturkanter_kilde krever én av dem) — teksten er den samme.
             var opprettet = await strukturkanter.OpprettAsync(new NyStrukturkant(
-                Strukturkanter.Relasjon, relasjon.Type, Strukturnode.Virksomhet(fraId.Value), Strukturnode.Virksomhet(tilId.Value),
+                Strukturkanter.Relasjon, relasjon.Type, Kantnode.Virksomhet(fraId.Value), Kantnode.Virksomhet(tilId.Value),
                 HjemmelRettskildeId: relasjon.HjemletHer ? rettskildeId : null,
                 HjemmelEid: relasjon.HjemletHer ? nodeEid : null,
                 KildeUtenforKorpusTekst: relasjon.HjemletHer ? null : "KI-forslag — ingen bekreftet hjemmel oppgitt av agenten.",
@@ -515,7 +515,7 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
         {
             var opprettet = await strukturkanter.OpprettAsync(new NyStrukturkant(
                 Strukturkanter.Medlemskap, Strukturkanter.MedlemAv,
-                Strukturnode.Begrep(underordnetTreff[0]), Strukturnode.Begrep(overordnetTreff[0]),
+                Kantnode.Begrep(underordnetTreff[0]), Kantnode.Begrep(overordnetTreff[0]),
                 HjemmelRettskildeId: rettskildeId, Paragrafspenn: [new ParagrafspennPar(nodeEid, null)],
                 Status: "foreslatt_av_ai", AiForslagVersjon: AiForslagVersjon), opprettetAv, ct);
             return (opprettet.Kant.Id, null);

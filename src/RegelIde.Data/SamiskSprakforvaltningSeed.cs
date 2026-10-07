@@ -190,7 +190,7 @@ public static class SamiskSprakforvaltningSeed
         {
             await strukturkanter.OpprettAsync(new NyStrukturkant(
                 Strukturkanter.Medlemskap, Strukturkanter.MedlemAv,
-                Strukturnode.Begrep(gruppebegrepPerTerm[kategori].Id), Strukturnode.Begrep(overordnet.Id),
+                Kantnode.Begrep(gruppebegrepPerTerm[kategori].Id), Kantnode.Begrep(overordnet.Id),
                 HjemmelRettskildeId: forskrift.Id, Paragrafspenn: hjemmelSpenn), SeedBruker, ct);
             antallMedlemskap++;
         }
