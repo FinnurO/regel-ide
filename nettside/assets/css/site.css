@@ -378,3 +378,41 @@ table.ds-table caption{ text-align:left; font-size: var(--ds-body-sm-font-size);
 }
 
 .chain-link.is-illustrative{ border-style:dashed; opacity:.85; }
+
+/* ---------- Strukturmodell-siden: lesetekst, tabeller og Karasjok-figuren (issue #325) ---------- */
+.prose{ max-width: var(--site-content-max); }
+.prose p{ margin:0 0 var(--ds-size-4); }
+.prose p:last-child{ margin-bottom:0; }
+.prose ul, .prose ol{ margin:0 0 var(--ds-size-4); padding-left:1.25em; display:flex; flex-direction:column; gap: var(--ds-size-2); }
+.prose h3{ font-size: var(--ds-body-lg-font-size); font-weight:600; margin:0 0 var(--ds-size-3); }
+.struktur-etter-tabell{ margin-top: var(--ds-size-8); }
+.struktur-merk{ margin-top: var(--ds-size-6); max-width: var(--site-content-max); }
+/* Tabellene får en minstebredde så kolonnene ikke presses til ett ord per linje; på smal skjerm
+   ruller de sidelengs inne i .table-scroll i stedet for å gi hele siden horisontal rulling. */
+.struktur-tabell{ min-width: 38rem; }
+.struktur-tabell th[scope="row"]{ font-weight:600; white-space:nowrap; text-align:left; vertical-align:top; }
+.struktur-tabell td{ vertical-align:top; }
+.struktur-forbehold{ border-left:3px solid var(--ds-color-warning-border-default); background: var(--ds-color-warning-surface-tinted); padding: var(--ds-size-3) var(--ds-size-4); border-radius: 0 var(--ds-border-radius-md) var(--ds-border-radius-md) 0; font-size: var(--ds-body-sm-font-size); }
+.struktur-lenker{ margin-top: var(--ds-size-8); max-width: var(--site-content-max); }
+.struktur-kilde{ margin: var(--ds-size-6) 0 0; font-size: var(--ds-body-xs-font-size); color: var(--ds-color-text-subtle); }
+
+/* Figuren er inline SVG og farges KUN med ds-tokens via klasser (ikke faste farger), så den følger
+   det aktive fargetemaet. Under 640 px ruller figuren sidelengs i stedet for å krympe teksten til
+   uleselig størrelse; nummerlisten under figuren sier det samme i ren tekst. */
+.struktur-figur{ margin:0; border:1px solid var(--ds-color-border-subtle); border-radius: var(--ds-border-radius-lg); background: var(--ds-color-background-tinted); padding: var(--ds-size-5); display:flex; flex-direction:column; gap: var(--ds-size-4); }
+.struktur-figur__scroll{ overflow-x:auto; }
+.struktur-figur svg{ display:block; width:100%; height:auto; min-width: 40rem; color: var(--ds-color-text-default); font-family: var(--site-font-body); }
+.struktur-figur figcaption{ font-size: var(--ds-body-sm-font-size); color: var(--ds-color-text-subtle); max-width: var(--site-content-max); }
+.struktur-figur .sf-lov{ fill: var(--ds-color-accent-surface-tinted); stroke: var(--ds-color-accent-border-default); }
+.struktur-figur .sf-sitat{ fill: currentColor; font-family: var(--site-font-display); font-style:italic; font-size:14px; }
+.struktur-figur .sf-boks{ fill: var(--ds-color-background-default); stroke: var(--ds-color-border-strong); }
+.struktur-figur .sf-boks--omrade{ stroke-dasharray: 5 4; }
+.struktur-figur .sf-etikett{ fill: var(--ds-color-text-subtle); font-size:10.5px; letter-spacing:1px; }
+.struktur-figur .sf-navn{ fill: currentColor; font-weight:600; }
+.struktur-figur .sf-tekst{ fill: currentColor; }
+.struktur-figur .sf-dempet{ fill: var(--ds-color-text-subtle); }
+.struktur-figur .sf-linje{ stroke: currentColor; fill:none; }
+.struktur-figur .sf-pilspiss{ fill: currentColor; }
+.struktur-figur .sf-valgt{ stroke: var(--ds-color-accent-text-default); stroke-width:2; stroke-dasharray: 6 4; fill:none; }
+.struktur-figur .sf-pilspiss-valgt{ fill: var(--ds-color-accent-text-default); }
+.struktur-figur .sf-valgt-tekst{ fill: var(--ds-color-accent-text-default); font-weight:600; }

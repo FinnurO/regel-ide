@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="nb" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Strukturmodellen — DigRett showcase</title>
+<meta name="description" content="En innføring i strukturmodellen for forvaltningen: hvem som finnes, hvordan de henger sammen og hvem som har hvilken myndighet, hentet ut av lovteksten og testet mot fem lover.">
+<link rel="canonical" href="https://finnuro.github.io/regel-ide/strukturmodell/">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/fonts.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet-theme.css">
+<link rel="stylesheet" href="../assets/css/site.css">
+<meta property="og:title" content="Strukturmodellen — DigRett showcase">
+<meta property="og:description" content="Hvem som finnes i forvaltningen, hvordan de henger sammen og hvem som har hvilken myndighet, hentet ut av lovteksten med lenke tilbake til paragrafen.">
+<meta property="og:type" content="website">
+</head>
+<body>
+
+<a class="ds-link skip-to-content" href="#main">Hopp til innhold</a>
+
+<div class="disclaimer-bar">
+  <div class="wrap">
+    <span>📎 <strong>Midlertidig showcase</strong> — statisk fasade, ikke selve applikasjonen.</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand plain" href="../">
+      <span class="brand__mark" aria-hidden="true">DR</span>
+      <span class="brand__text">
+        <span class="brand__title">DigRett</span>
+        <span class="brand__subtitle">Digital rettsstat — showcase</span>
+      </span>
+    </a>
+    <nav class="main-nav" aria-label="Hovedmeny">
+      <a href="../">Forside</a>
+      <a href="../rettskilder/">Rettskilder</a>
+      <a href="../virksomheter/">Virksomheter</a>
+      <a href="../grupper/">Grupper</a>
+      <a href="../koblinger/">Koblinger</a>
+      <a href="../kjeden/">Kjeden</a>
+      <a href="../strukturmodell/" aria-current="page">Strukturmodellen</a>
+      <a href="../begreper/">Begreper</a>
+      <a href="../om/">Om</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <div class="wrap page-head">
+    <span class="eyebrow">Innføring · oktober 2026</span>
+    <h1>Strukturmodell for forvaltningen</h1>
+    <p class="lead">Lovene sier hvem som finnes i forvaltningen, hvordan de henger sammen og hvem som har hvilken myndighet. Men ingen kan lese hele lovverket, så den kunnskapen lever i dag på nettsider og i folks hoder. Strukturmodellen henter den ut av lovteksten og gjør den søkbar, med en lenke tilbake til paragrafen hver opplysning kommer fra.</p>
+  </div>
+
+  <div class="wrap">
+    <div class="purpose-box">
+      <span class="purpose-box__label">Spørsmålene strukturmodellen skal gjøre besvarbare</span>
+      <div class="purpose-box__pills">
+        <span class="pill" data-tone="accent">S1</span><span class="pill" data-tone="accent">S2</span><span class="pill" data-tone="accent">S3</span><span class="pill" data-tone="accent">S6</span><span class="pill" data-tone="accent">S8</span><span class="pill" data-tone="accent">S9</span>
+      </div>
+      <p>Siden er for deg som ikke har forkunnskap: hva modellen skal svare på, hva den består av, og hvordan den er testet. Se <a href="../om/">Om-siden</a> for alle ni spørsmål og hvor langt hvert av dem er kommet.</p>
+    </div>
+  </div>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Formålet</span>
+        <h2>Hva modellen skal kunne svare på</h2>
+        <p>Modellen er god nok når den kan svare på spørsmål som disse, direkte fra dataene:</p>
+      </div>
+      <div class="prose">
+        <ul>
+          <li>Hvem forvalter en lov, og hvem har ansvaret etter en bestemt paragraf?</li>
+          <li>Hvem blir berørt, direkte eller fordi de hører til en gruppe som «språkutviklingskommuner»?</li>
+          <li>Hvem er klageinstans for hvem, og hvem er underlagt hvem?</li>
+          <li>Hvilke områder finnes, og hvem har ansvar hvor?</li>
+          <li>Hvem har hvilken myndighet etter hvilken paragraf: forskrift, vedtak, klage eller tilsyn?</li>
+          <li>Hva gjelder for én bestemt aktør, for eksempel Karasjok kommune?</li>
+        </ul>
+        <p>Modellen beskriver <strong>strukturen</strong>. Den beskriver ikke plikter og rettigheter for innbyggere og virksomheter, og den avgjør ikke saker. Det hører til et senere lag, som forutsetter at strukturen er på plass.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Byggeklossene</span>
+        <h2>Hva som finnes: seks typer</h2>
+        <p>Alt lovteksten omtaler, er én av seks typer. Typen avgjør hvilke koblinger tingen kan ha.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Type</th><th scope="col">Hva det er</th><th scope="col">Eksempler fra lovene</th><th scope="col">Kjennetegn</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Rettssubjekt</th><td>En juridisk person som kan ha rettigheter og plikter</td><td>Staten, Oslo kommune, Helse Nord RHF</td><td>Kan eie, inngå avtaler og saksøkes</td></tr>
+            <tr><th scope="row">Organ</th><td>Handler på vegne av et rettssubjekt</td><td>Stortinget, Kongen i statsråd, departement, kommunestyret, Energiklagenemnda, tingrettene</td><td>Treffer beslutninger for noen</td></tr>
+            <tr><th scope="row">Organisatorisk enhet</th><td>En del av en organisasjon, uten selvstendig myndighet</td><td>Reguleringsmyndigheten for energi (enhet i NVE), Sametingets administrasjon, koordinerende enhet</td><td>Ligger inne i noe større</td></tr>
+            <tr><th scope="row">Rolle</th><td>En funksjon noen har i en bestemt sammenheng</td><td>konsesjonsmyndigheten, kommunelege, beredskapsmyndigheten</td><td>Kan ha ulik innehaver etter ulike paragrafer</td></tr>
+            <tr><th scope="row">Klasse</th><td>En kategori av aktører</td><td>kommunene, statsforvalterne, språkutviklingskommuner</td><td>Teksten snakker om mange av samme slag</td></tr>
+            <tr><th scope="row">Område</th><td>Et geografisk eller jurisdiksjonelt område</td><td>Karasjok (territoriet), et lagdømme, forvaltningsområdet for samiske språk</td><td>Kan pekes ut på et kart</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="no-callout struktur-merk">
+        <p>Samme ord kan være flere ting. «Kommunen» er både et rettssubjekt (Karasjok kommune) og et område (Karasjok). «Agder» er navnet på et fylke, en tingrett og et lagdømme. Modellen holder dem atskilt og kobler dem sammen.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Koblingene</span>
+        <h2>Hva lovteksten sier om dem: åtte koblinger</h2>
+        <p>Hver opplysning er en kobling mellom to ting, eller mellom en ting og en paragraf. Det finnes åtte slags koblinger.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Kobling</th><th scope="col">Hva den sier</th><th scope="col">Eksempel fra lovteksten</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Kompetanse</th><td>En aktør har myndighet etter en bestemmelse: forskrift, vedtak, klage, tilsyn, delegering, oppnevning. Den vanligste koblingen i lovverket.</td><td>«Departementet kan gi forskrift om …»</td></tr>
+            <tr><th scope="row">Relasjon</th><td>Et forhold mellom to aktører: klageinstans, delegering, instruksjon, eierskap, rapportering, oppnevning</td><td>«Departementet delegerer all myndighet etter [energiloven]» til NVE</td></tr>
+            <tr><th scope="row">Medlemskap</th><td>Noe hører til en klasse</td><td>tingrettene hører til «de alminnelige domstoler»</td></tr>
+            <tr><th scope="row">Områdesammensetning</th><td>Et område består av andre områder</td><td>Follo og Nordre Østfold tingretts rettskrets omfatter Ås</td></tr>
+            <tr><th scope="row">Ansvarsområde</th><td>En aktør har ansvar for, eller sete i, et område</td><td>Statsforvalteren i Troms og Finnmark har ansvar for Troms og Finnmark</td></tr>
+            <tr><th scope="row">Organtilhørighet</th><td>Et organ eller en enhet hører til et rettssubjekt, eller et organ er satt sammen på en bestemt måte</td><td>«Et foretak ledes av et styre og en daglig leder»</td></tr>
+            <tr><th scope="row">Rolleinnehav</th><td>En aktør er utpekt til en rolle</td><td>«Norges vassdrags- og energidirektorat utpekes som konsesjonsmyndighet»</td></tr>
+            <tr><th scope="row">Klassenivå</th><td>Alle i en klasse skal ha noe, hver for seg</td><td>«Høyesterett skal ha en direktør», «skal kommunen tilby koordinator»</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <h3>Det hver kobling alltid har med seg</h3>
+        <ul>
+          <li><strong>Hjemmel:</strong> paragrafen og leddet koblingen kommer fra. Når opplysningen er bestemt utenfor lovtekstene, for eksempel i en kongelig resolusjon eller i vedtekter, står kilden i stedet.</li>
+          <li><strong>Avgrensning:</strong> hvilke saker eller paragrafer koblingen gjelder. Nesten alle koblinger i lovverket er avgrenset, for eksempel «bare enkeltvedtak».</li>
+          <li><strong>Fortegn:</strong> «kan ikke instrueres» er like viktig som «kan instruere», fordi det er slik uavhengighet uttrykkes.</li>
+          <li><strong>Status:</strong> om et menneske har bekreftet koblingen, eller om den er et maskinforslag som venter på godkjenning.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Grupper</span>
+        <h2>Grupper er en egenskap, ikke en egen type</h2>
+        <p>Mye av lovteksten handler om grupper: «kommunene», «statsforvalterne», «forvaltningsområdet». Modellen har ingen egen gruppetype. Klasser, områder og roller kan alle samle andre ting. Men de samler på hver sin måte, og forskjellen avgjør hva som gjelder for hvem:</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Tilhørighet</th><th scope="col">Hva den betyr</th><th scope="col">Følger det med?</th><th scope="col">Eksempel</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Medlem av en klasse</th><td>Aktøren er én av en kategori</td><td>Ja. Det som gjelder klassen, gjelder hvert medlem</td><td>Karasjok kommune hører til kommunene i forvaltningsområdet for samiske språk</td></tr>
+            <tr><th scope="row">Del av et område</th><td>Et område ligger inne i et større</td><td>Ja, geografisk</td><td>Karasjok ligger i Finnmark</td></tr>
+            <tr><th scope="row">Innehaver av en rolle</th><td>Aktøren har en funksjon etter bestemte paragrafer</td><td>Nei, bare innenfor avgrensningen</td><td>NVE er konsesjonsmyndighet etter § 3-1, men ikke etter alle paragrafer</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Eksempel</span>
+        <h2>Hvem er klageinstans for Karasjok?</h2>
+        <p>Lovene skriver sjelden navn. De skriver «Statsforvalteren» og «kommunen», og det finnes ti statsforvaltere og 357 kommuner. Klassene forteller hvem som <em>kan</em> være ment. Det er områdene som avgjør hvem som <em>er</em> det i en bestemt sak.</p>
+      </div>
+      <figure class="struktur-figur">
+        <div class="struktur-figur__scroll">
+          <svg viewBox="0 0 760 410" role="img" aria-label="Lovteksten nevner statsforvalteren og kommunen. Begge er klasser, og klassene er koblet med «klageinstans for». Karasjok kommune er medlem av kommuneklassen og har territoriet Karasjok. Statsforvalteren i Troms og Finnmark er medlem av statsforvalterklassen og har ansvarsområdet Troms og Finnmark. Karasjok ligger i det området, og derfor er det paret som gjelder.">
+            <defs>
+              <marker id="sf-pil" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="sf-pilspiss" d="M0,0 L10,5 L0,10 z"/></marker>
+              <marker id="sf-pil-valgt" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="sf-pilspiss-valgt" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <g font-size="13">
+              <!-- Lovteksten -->
+              <rect class="sf-lov" x="130" y="10" width="500" height="50" rx="6"/>
+              <text class="sf-sitat" x="380" y="31" text-anchor="middle">«Statsforvalteren er klageinstans for</text>
+              <text class="sf-sitat" x="380" y="49" text-anchor="middle">kommunens vedtak»</text>
+              <!-- Klasser -->
+              <rect class="sf-boks" x="40" y="110" width="240" height="54" rx="6"/>
+              <text class="sf-etikett" x="54" y="128">KLASSE</text>
+              <text class="sf-navn" x="54" y="150">statsforvalter (10 medlemmer)</text>
+              <rect class="sf-boks" x="480" y="110" width="240" height="54" rx="6"/>
+              <text class="sf-etikett" x="494" y="128">KLASSE</text>
+              <text class="sf-navn" x="494" y="150">kommune (357 medlemmer)</text>
+              <!-- Aktører -->
+              <rect class="sf-boks" x="40" y="220" width="240" height="54" rx="6"/>
+              <text class="sf-etikett" x="54" y="238">AKTØR · ORGAN</text>
+              <text class="sf-navn" x="54" y="260">Statsforvalteren i Troms og Finnmark</text>
+              <rect class="sf-boks" x="480" y="220" width="240" height="54" rx="6"/>
+              <text class="sf-etikett" x="494" y="238">AKTØR · RETTSSUBJEKT</text>
+              <text class="sf-navn" x="494" y="260">Karasjok kommune</text>
+              <!-- Områder (stiplet ramme) -->
+              <rect class="sf-boks sf-boks--omrade" x="40" y="340" width="240" height="54" rx="6"/>
+              <text class="sf-etikett" x="54" y="358">OMRÅDE</text>
+              <text class="sf-navn" x="54" y="380">Troms og Finnmark</text>
+              <rect class="sf-boks sf-boks--omrade" x="480" y="340" width="240" height="54" rx="6"/>
+              <text class="sf-etikett" x="494" y="358">OMRÅDE</text>
+              <text class="sf-navn" x="494" y="380">Karasjok (territoriet)</text>
+              <!-- Tagger fra lovteksten til klassene -->
+              <line class="sf-linje" x1="230" y1="60" x2="170" y2="108" marker-end="url(#sf-pil)"/>
+              <text class="sf-dempet" x="150" y="88" text-anchor="end">tagg</text>
+              <line class="sf-linje" x1="530" y1="60" x2="590" y2="108" marker-end="url(#sf-pil)"/>
+              <text class="sf-dempet" x="610" y="88">tagg</text>
+              <!-- Klasse til klasse -->
+              <line class="sf-linje" x1="280" y1="137" x2="478" y2="137" marker-end="url(#sf-pil)"/>
+              <text class="sf-tekst" x="380" y="129" text-anchor="middle">klageinstans for</text>
+              <!-- Medlemskap -->
+              <line class="sf-linje" x1="160" y1="220" x2="160" y2="166" marker-end="url(#sf-pil)"/>
+              <text class="sf-tekst" x="170" y="198">medlem av</text>
+              <line class="sf-linje" x1="600" y1="220" x2="600" y2="166" marker-end="url(#sf-pil)"/>
+              <text class="sf-tekst" x="610" y="198">medlem av</text>
+              <!-- Områdekoblinger -->
+              <line class="sf-linje" x1="160" y1="274" x2="160" y2="338" marker-end="url(#sf-pil)"/>
+              <text class="sf-tekst" x="170" y="311">har ansvarsområde</text>
+              <line class="sf-linje" x1="600" y1="274" x2="600" y2="338" marker-end="url(#sf-pil)"/>
+              <text class="sf-tekst" x="610" y="311">har territorium</text>
+              <line class="sf-linje" x1="480" y1="367" x2="282" y2="367" marker-end="url(#sf-pil)"/>
+              <text class="sf-tekst" x="381" y="359" text-anchor="middle">ligger i</text>
+              <!-- Paret området velger ut -->
+              <line class="sf-valgt" x1="282" y1="247" x2="478" y2="247" marker-end="url(#sf-pil-valgt)" marker-start="url(#sf-pil-valgt)"/>
+              <text class="sf-valgt-tekst" x="380" y="239" text-anchor="middle">paret som gjelder</text>
+            </g>
+          </svg>
+        </div>
+        <figcaption>Lovteksten kobler to klasser. Området velger ut paret: Karasjok ligger i Troms og Finnmark, og den statsforvalteren som har ansvar der, er klageinstans for Karasjok kommunes vedtak.</figcaption>
+      </figure>
+      <div class="prose struktur-etter-tabell">
+        <ol>
+          <li>Lovteksten nevner «Statsforvalteren» og «kommunen». Hver omtale er koblet (tagget) til sin klasse, med lenke til paragrafen.</li>
+          <li>Klassene er koblet til hverandre: statsforvalter er klageinstans for kommune.</li>
+          <li>Karasjok kommune er medlem av kommuneklassen og har territoriet Karasjok.</li>
+          <li>Statsforvalteren i Troms og Finnmark har ansvar for Troms og Finnmark, der Karasjok ligger.</li>
+          <li>Svaret blir at Statsforvalteren i Troms og Finnmark er klageinstans for Karasjok kommune. Hvert ledd kan spores til en kilde.</li>
+        </ol>
+        <p>Står det bare «kommunen skal tilby …», trengs det ikke noe område. Da gjelder regelen hver kommune for seg. Området trengs når lovteksten kobler to grupper til hverandre.</p>
+        <p>Den samme Karasjok kommune er hovedpersonen på <a href="../kjeden/">Kjeden</a>, som følger én rettighet fra lovtekst til vedtak.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Testet mot lovene</span>
+        <h2>Slik vet vi at modellen holder</h2>
+        <p>Modellen er ikke tegnet fra skrivebordet. Den er testet mot hva lovene faktisk sier.</p>
+      </div>
+      <div class="stat-row">
+        <div class="stat-tile"><span class="n">6&nbsp;000+</span><span class="l">lover og forskrifter gjennomsøkt for å se hvilke koblinger lovteksten faktisk bruker</span></div>
+        <div class="stat-tile"><span class="n">1&nbsp;865</span><span class="l">utsagn i fem lover annotert setning for setning, som fasit</span></div>
+        <div class="stat-tile"><span class="n">3&nbsp;% → 92&nbsp;%</span><span class="l">av utsagnene den forrige modellen og den nye modellen kan uttrykke</span></div>
+        <div class="stat-tile"><span class="n">94&nbsp;%</span><span class="l">presisjon når maskinen finner koblingene selv, med faste mønstre</span></div>
+      </div>
+      <div class="prose">
+        <p>De fem lovene er valgt fordi de er ulike. Sameloven har områder og klasser av kommuner, energiloven har delegering og uavhengighet, helse- og omsorgstjenesteloven har organer inne i kommunen, spesialisthelsetjenesteloven har eierskap og helseregioner, og domstolloven har rettskretser og lagdømmer.</p>
+        <p>Tre funn endret modellen:</p>
+        <ul>
+          <li><strong>Myndighet knyttet til en paragraf</strong> er det lovene oftest sier, oftere enn forhold mellom aktører. Over 5&nbsp;000 steder står det «kan gi forskrift om».</li>
+          <li><strong>De fleste koblinger gjelder bare visse saker</strong>, så avgrensning må alltid være med.</li>
+          <li><strong>Mange aktører nevnes uten navn</strong>, så områder er nødvendig for å finne hvem som er ment.</li>
+        </ul>
+        <p>Lovene sier derimot nesten aldri at én aktør fører tilsyn med en annen, eller leverer tjenester til en annen. De sier at noen fører tilsyn <em>med at regelverket følges</em>.</p>
+        <p class="struktur-forbehold"><strong>Forbehold:</strong> tallene er målt 7. oktober 2026 mot en fasit som er laget maskinelt og ennå ikke kontrollert av et menneske. Fasiten kontrolleres av et menneske før tallene låses. Tallene er skrevet inn her fra målingen i designnotatet, ikke lest fra en datafil slik tallene på forsiden er.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Konvertering</span>
+        <h2>Automatisk konvertering, med et menneske som bekrefter</h2>
+        <p>Målet er at maskinen leser loven og foreslår koblingene. Det skjer i to lag.</p>
+      </div>
+      <div class="prose">
+        <ul>
+          <li><strong>Faste mønstre:</strong> 94&nbsp;% riktige, og de finner omtrent halvparten. De er gode på forskriftsmyndighet og på hvilke kommuner et område består av.</li>
+          <li><strong>En språkmodell:</strong> finner flere, men tar oftere feil.</li>
+        </ul>
+        <p>Ingenting blir gjeldende av seg selv. Alle forslag går til en kø der et menneske godkjenner dem, og forslag fra språkmodellen merkes med lav tillit. Prinsippet er at det maskinen ikke vet, skal vises som ukjent. Det skal ikke fylles inn med noe som ser riktig ut.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Avgrensning</span>
+        <h2>Hva modellen ikke dekker ennå</h2>
+      </div>
+      <div class="prose">
+        <ul>
+          <li><strong>Plikter, rettigheter, vilkår og saksbehandling.</strong> Det er neste lag, som bygger på dette.</li>
+          <li><strong>Klasser som avgjøres av en regel</strong>, for eksempel «organ med tjenestekrets i forvaltningsområdet». Modellen lagrer kriteriet, men avgjør ikke selv hvem som er med.</li>
+          <li><strong>Opplysninger som bare står utenfor lovtekstene</strong>, som helseregionene i vedtektene og statsforvalternes embetsområder i en kongelig resolusjon. De legges inn med kilden oppgitt.</li>
+          <li><strong>Personer.</strong> Ingen av de fem lovene navngir personer, og det er utsatt.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="border-bottom:none;">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Status</span>
+        <h2>Status og neste steg</h2>
+      </div>
+      <div class="prose">
+        <p>Typeinndelingen er på plass, og både mønsterkonverteringen og KI-konverteringen er målt. Nå samles alle koblingene i én tabell. Deretter kommer områderegisteret, med fylker og kommuner fra Kartverket, rettskretser fra forskrift og embetsområder.</p>
+        <p>Beviset er at de fem lovene ligger i modellen, og at spørsmålene øverst på siden besvares fra dataene med lenke til paragrafen. Fasiten kontrolleres av et menneske før tallene låses.</p>
+      </div>
+      <ul class="source-list struktur-lenker">
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/blob/master/docs/33-strukturmodell-aktor-omrade-kompetanse.md" target="_blank" rel="noopener">Designnotatet (docs/33)</a><span class="desc">Det tekniske grunnlaget: korpusmålingen, fasiten for de fem lovene, designtesten og konverteringen.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/issues/318" target="_blank" rel="noopener">Arbeidsplanen (epic #318)</a><span class="desc">Delsakene i byggerekkefølge, fra fasit til beviset.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/blob/master/docs/32-formal-roller-og-sporsmal.md" target="_blank" rel="noopener">Spørsmålene (docs/32)</a><span class="desc">De ni spørsmålene hele DigRett skal kunne besvare, med S8 og S9 som kom fra dette arbeidet.</span></span></li>
+      </ul>
+      <p class="struktur-kilde">Lovtekst fra Lovdata (NLOD 2.0).</p>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <h3>Om nettstedet</h3>
+      <p style="font-size:var(--ds-body-sm-font-size); color:var(--ds-color-text-subtle); max-width:32ch; margin:0;">Midlertidig showcase av <strong>DigRett</strong>, ikke selve produktet. Kildekode: <a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">regel-ide</a>.</p>
+    </div>
+    <div>
+      <h3>Sider</h3>
+      <ul>
+        <li><a href="../">Forside</a></li>
+        <li><a href="../rettskilder/">Rettskilder</a></li>
+        <li><a href="../virksomheter/">Virksomheter</a></li>
+        <li><a href="../grupper/">Grupper</a></li>
+        <li><a href="../koblinger/">Koblinger</a></li>
+        <li><a href="../kjeden/">Kjeden</a></li>
+        <li><a href="../begreper/">Begreper</a></li>
+        <li><a href="../om/">Om</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Kildekode</h3>
+      <ul>
+        <li><a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">FinnurO/regel-ide</a></li>
+        <li><a href="https://github.com/FinnurO/regel-ide/blob/master/docs/33-strukturmodell-aktor-omrade-kompetanse.md" target="_blank" rel="noopener">Designnotatet (docs/33)</a></li>
+      </ul>
+    </div>
+    <p class="fine">Tallene på denne siden er målt 7. oktober 2026 mot en maskinelt laget fasit som ennå ikke er kontrollert av et menneske.</p>
+  </div>
+</footer>
+
+<button type="button" class="ds-button feedback-fab" data-color="accent" id="feedback-open-btn" aria-haspopup="dialog">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+  <span class="btn-label">Gi tilbakemelding</span>
+</button>
+
+<dialog class="feedback-dialog" id="feedback-dialog" aria-labelledby="feedback-dialog-title">
+  <div class="feedback-dialog__body">
+    <h2 id="feedback-dialog-title">Gi tilbakemelding</h2>
+    <p class="lead">Sendes som et innspill på GitHub — du logger inn med (eller oppretter) en gratis GitHub-konto for å fullføre innsendingen der.</p>
+    <p class="feedback-hint">Vi tar automatisk med hvilke seksjoner du har åpnet på siden. Vil du sitere en bestemt setning: lukk dette vinduet, marker teksten på siden, og trykk «Gi tilbakemelding» på nytt.</p>
+    <div class="feedback-context" id="feedback-context"></div>
+    <div class="feedback-field">
+      <label for="feedback-text">Hva vil du si noe om?</label>
+      <textarea id="feedback-text" placeholder="Skriv tilbakemeldingen din her …"></textarea>
+    </div>
+    <div class="feedback-actions">
+      <button type="button" class="ds-button" data-variant="tertiary" data-color="neutral" id="feedback-cancel-btn">Avbryt</button>
+      <button type="button" class="ds-button" data-color="accent" id="feedback-submit-btn">Send inn på GitHub →</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/feedback.js"></script>
+</body>
+</html>
