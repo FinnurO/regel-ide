@@ -347,6 +347,11 @@ tilgjengelig **uansett status** — også for rader som alt er godkjent eller av
 3. **Hva slags ting er dette?** — konkret virksomhet; **konkret virksomhet navngitt som medlem av en
    gruppe** [NYTT, 2026-09-08]; gruppe som defineres her (samme resultat som den gamle
    Godkjenn-knappen: gruppebegrep hjemlet i loven + koblet tagg); eller ikke relevant (raden avvises).
+   **[ENDRET, issue #310, 2026-10-07]** «Gruppe som defineres her» heter nå «Begrep loven definerer»,
+   og saksbehandleren MÅ velge type — **klasse, rolle eller område** — før begrepet opprettes (typen
+   forhåndsvelges bare når KI-en/SSR alt har foreslått den). Det samme gjelder hurtig-«Godkjenn» i
+   listen (velg typen med «Rediger») og «Behandle gruppen». Begrepssiden viser typen som tag og lar den
+   endres; virksomhetssiden viser og setter **aktørtype** (rettssubjekt/organ/organisatorisk enhet).
 4. **Hvilken virksomhet?** — velg fra katalogen, eller opprett underveis fra Brreg eller med bare
    navn. Her velges også **grunnen** til at navneformen peker dit (se «Virksomheter» over). På
    gruppemedlem-veien velges i tillegg **hvilken gruppe** teksten navngir virksomheten som medlem av;

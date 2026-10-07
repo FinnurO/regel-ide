@@ -39,8 +39,11 @@ public sealed class MyndighetstildelingTjeneste(RegelIdeDbContext db)
         {
             throw new ArgumentException("aiForslagVersjon må oppgis når status er 'foreslatt_av_ai'. Ingen gjettet fallback.");
         }
+        // [ENDRET, issue #310] Målet kan være ethvert begrep med gruppefunksjon (klasse/rolle/omrade/organ,
+        // og gjenværende 'gruppe') — Nodetyper.MedGruppefunksjon. Konsolideres til én kanttabell i #311.
         var gruppeBegrep = await db.Begreper.FirstOrDefaultAsync(
-            b => b.Id == gruppeBegrepId && b.Begrepskategori == "gruppe" && b.Entitetsstatus == "gjeldende", ct);
+            b => b.Id == gruppeBegrepId && Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!)
+                 && b.Entitetsstatus == "gjeldende", ct);
         if (gruppeBegrep is null)
         {
             throw new ArgumentException($"Fant ingen gruppebegrep med id '{gruppeBegrepId}'. Ingen gjettet fallback.");

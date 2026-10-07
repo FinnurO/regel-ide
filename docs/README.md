@@ -52,12 +52,12 @@ ikke ny tekst.
 |---|---|---|
 | [13-backlog](13-backlog.md) | **Trenger splitting** — §0–§0i er gjennomførte runder, §2/§4 peker framover og konkurrerer med 56 åpne GitHub-issues. To backlogger er verre enn én. | 2026-08-30 |
 | [24-begrepsoppdagelse-plan](24-begrepsoppdagelse-plan.md) | M1–M17 mønsterkatalogen for begrepsoppdagelse. M1/M11 er bygget; resten er katalog. | 2026-08-30 |
-| [29-gruppe-relasjon-spesifikasjon](29-gruppe-relasjon-spesifikasjon.md) | Gruppebegrep + virksomhetsrelasjoner. Del C (relasjonstyper) er bygget og data-styrt. | 2026-09-02 |
+| [29-gruppe-relasjon-spesifikasjon](29-gruppe-relasjon-spesifikasjon.md) | Gruppebegrep + virksomhetsrelasjoner. Del C (relasjonstyper) er bygget og data-styrt. Kategorien `gruppe` er siden splittet i nodetyper (issue #310, peker øverst i dokumentet). | 2026-10-07 |
 | [31-navneform-berikelse-snl-ssr](31-navneform-berikelse-snl-ssr-spesifikasjon.md) | SNL/SSR-oppslag og konfidens. §9 er konfidens-beslutningen. | 2026-09-09 |
 | [23-tjeneste-modell-eksport-og-skjema](23-tjeneste-modell-eksport-og-skjema.md) | Eksportformatet. §6 har de to harde importproblemene. | 2026-08-28 |
 | [14-byggesteg5-teknisk-design](14-byggesteg5-teknisk-design.md) | KI-agentene. Runde 1 bygget, resten er mal. Runde 5 (regelverksreferanseforslag + KI-oppdagelse) også bygget. | 2026-10-01 |
 | [15-handbok-dokumentgraf-notat](15-handbok-dokumentgraf-notat.md) | Håndbok-laget. Lag 1 (rå kilde) er bygget og brukes nå også for Lovdata. | 2026-08-13 |
-| [20-virksomhetskatalog-og-rollemodell](20-virksomhetskatalog-og-rollemodell.md) | Katalogen og rollene. §4/§7.2 låser at forvaltningsnivå aldri settes fra Brreg. §2.7/§2.8 (2026-10-01) dekker Status-feltet og veiviserens 6 mekanismer. | 2026-10-01 |
+| [20-virksomhetskatalog-og-rollemodell](20-virksomhetskatalog-og-rollemodell.md) | Katalogen og rollene. §4/§7.2 låser at forvaltningsnivå aldri settes fra Brreg. §2.7/§2.8 (2026-10-01) dekker Status-feltet og veiviserens 6 mekanismer. §2.4/§7.2 (2026-10-07): nodetype-akse (klasse/rolle/område) og aktørtype på virksomhet (issue #310). | 2026-10-07 |
 | [33-strukturmodell-aktor-omrade-kompetanse](33-strukturmodell-aktor-omrade-kompetanse.md) | **Ny 2026-10-07.** Revidert strukturmodell (aktør/område/kompetanse/klasse/rolle), korpusmåling av hvilke relasjoner lovteksten faktisk uttrykker, fasit for fem rettskilder (`data/fasit/strukturmodell/`), designtest, og automatisk konvertering med fasit-formatet som kontrakt. Styrer strukturmodell-epicen. | 2026-10-07 |
 
 ## Levert — designgrunnlag for noe som er bygget

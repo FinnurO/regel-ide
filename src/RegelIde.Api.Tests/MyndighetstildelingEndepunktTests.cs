@@ -1,4 +1,4 @@
-using System.Net;
+﻿using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
@@ -77,12 +77,12 @@ public class MyndighetstildelingEndepunktTests
         var term = $"kontrollmyndighet-{Guid.NewGuid():N}";
 
         var opprettSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppebegrep", brukerId,
-            new { LovkildeId = lovId, Term = term }));
+            new { LovkildeId = lovId, Term = term, Nodetype = "rolle" }));
         Assert.Equal(HttpStatusCode.Created, opprettSvar.StatusCode);
 
         var alle = await _client.GetFromJsonAsync<List<BegrepDto>>("/api/gruppebegrep", JsonInnstillinger);
         var gruppebegrep = Assert.Single(alle!, b => b.Term == term);
-        Assert.Equal("gruppe", gruppebegrep.Begrepskategori);
+        Assert.Equal("rolle", gruppebegrep.Begrepskategori); // [ENDRET, issue #310]
         Assert.Equal(lovId, gruppebegrep.LovkildeId);
     }
 
@@ -95,7 +95,7 @@ public class MyndighetstildelingEndepunktTests
         var virksomhetId = await OpprettVirksomhetAsync();
 
         var gruppebegrepSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppebegrep", brukerId,
-            new { LovkildeId = lovId, Term = $"forurensningsmyndighet-{Guid.NewGuid():N}" }));
+            new { LovkildeId = lovId, Term = $"forurensningsmyndighet-{Guid.NewGuid():N}", Nodetype = "rolle" }));
         var gruppebegrep = await gruppebegrepSvar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger);
 
         var tildelingSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/myndighetstildelinger", brukerId, new
@@ -129,7 +129,7 @@ public class MyndighetstildelingEndepunktTests
         var virksomhetId = await OpprettVirksomhetAsync();
 
         var gruppebegrepSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppebegrep", brukerId,
-            new { LovkildeId = lovId, Term = $"vertskommune-{Guid.NewGuid():N}" }));
+            new { LovkildeId = lovId, Term = $"vertskommune-{Guid.NewGuid():N}", Nodetype = "rolle" }));
         var gruppebegrep = await gruppebegrepSvar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger);
 
         var utloptSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/myndighetstildelinger", brukerId, new
@@ -198,7 +198,7 @@ public class MyndighetstildelingEndepunktTests
         var (hjemmelId, _) = await OpprettRettskildeMedParagrafAsync();
 
         var gruppebegrepSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppebegrep", brukerId,
-            new { LovkildeId = lovId, Term = $"kontrollmyndighet-{Guid.NewGuid():N}" }));
+            new { LovkildeId = lovId, Term = $"kontrollmyndighet-{Guid.NewGuid():N}", Nodetype = "rolle" }));
         var gruppebegrep = await gruppebegrepSvar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger);
 
         var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/myndighetstildelinger", brukerId, new
@@ -236,7 +236,7 @@ public class MyndighetstildelingEndepunktTests
         var (hjemmelId, _) = await OpprettRettskildeMedParagrafAsync();
         var virksomhetId = await OpprettVirksomhetAsync();
         var gruppebegrepSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppebegrep", brukerId,
-            new { LovkildeId = lovId, Term = $"ki-rolle-{Guid.NewGuid():N}" }));
+            new { LovkildeId = lovId, Term = $"ki-rolle-{Guid.NewGuid():N}", Nodetype = "rolle" }));
         var gruppebegrep = await gruppebegrepSvar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger);
         var tildelingId = await OpprettForeslattAvAiTildelingAsync(gruppebegrep!.Id, virksomhetId, hjemmelId, paragrafEid);
 
@@ -254,7 +254,7 @@ public class MyndighetstildelingEndepunktTests
         var (hjemmelId, _) = await OpprettRettskildeMedParagrafAsync();
         var virksomhetId = await OpprettVirksomhetAsync();
         var gruppebegrepSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppebegrep", brukerId,
-            new { LovkildeId = lovId, Term = $"ki-avvis-{Guid.NewGuid():N}" }));
+            new { LovkildeId = lovId, Term = $"ki-avvis-{Guid.NewGuid():N}", Nodetype = "rolle" }));
         var gruppebegrep = await gruppebegrepSvar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger);
         var tildelingId = await OpprettForeslattAvAiTildelingAsync(gruppebegrep!.Id, virksomhetId, hjemmelId, paragrafEid);
 
@@ -271,5 +271,50 @@ public class MyndighetstildelingEndepunktTests
         var validert = await validertSvar.Content.ReadFromJsonAsync<MyndighetstildelingDto>(JsonInnstillinger);
         var avvisValidertSvar = await _client.DeleteAsync($"/api/myndighetstildelinger/{validert!.Id}");
         Assert.Equal(HttpStatusCode.BadRequest, avvisValidertSvar.StatusCode);
+    }
+
+    // ---------- [Ny, issue #310 «nodetype-akse»] PUT /api/gruppebegrep/{id}/nodetype og PUT /api/virksomheter/{id}/aktortype ----------
+
+    [Fact]
+    public async Task Nodetype_kan_settes_pa_gruppebegrep_og_ugyldig_type_gir_400()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var (lovId, _) = await OpprettRettskildeMedParagrafAsync();
+        var utenType = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppebegrep", brukerId,
+            new { LovkildeId = lovId, Term = $"uten-type-{Guid.NewGuid():N}" }));
+        Assert.Equal(HttpStatusCode.BadRequest, utenType.StatusCode); // nodetype påkrevd — gjettes ikke.
+
+        var opprettSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppebegrep", brukerId,
+            new { LovkildeId = lovId, Term = $"vertskommuner-{Guid.NewGuid():N}", Nodetype = "rolle" }));
+        var begrep = await opprettSvar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger);
+
+        var settSvar = await _client.SendAsync(MedBruker(HttpMethod.Put, $"/api/gruppebegrep/{begrep!.Id}/nodetype", brukerId,
+            new { Nodetype = "klasse" }));
+        Assert.Equal(HttpStatusCode.OK, settSvar.StatusCode);
+        Assert.Equal("klasse", (await settSvar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger))!.Begrepskategori);
+
+        var ugyldig = await _client.SendAsync(MedBruker(HttpMethod.Put, $"/api/gruppebegrep/{begrep.Id}/nodetype", brukerId,
+            new { Nodetype = "gruppe" }));
+        Assert.Equal(HttpStatusCode.BadRequest, ugyldig.StatusCode);
+        var ukjent = await _client.SendAsync(MedBruker(HttpMethod.Put, $"/api/gruppebegrep/{Guid.NewGuid()}/nodetype", brukerId,
+            new { Nodetype = "rolle" }));
+        Assert.Equal(HttpStatusCode.NotFound, ukjent.StatusCode);
+    }
+
+    [Fact]
+    public async Task Aktortype_kan_settes_nullstilles_og_ugyldig_verdi_gir_400()
+    {
+        var virksomhetId = await OpprettVirksomhetAsync();
+
+        var settSvar = await _client.PutAsJsonAsync($"/api/virksomheter/{virksomhetId}/aktortype", new { Aktortype = "organ" });
+        Assert.Equal(HttpStatusCode.OK, settSvar.StatusCode);
+        Assert.Equal("organ", (await settSvar.Content.ReadFromJsonAsync<VirksomhetDto>(JsonInnstillinger))!.Aktortype);
+
+        var nullSvar = await _client.PutAsJsonAsync($"/api/virksomheter/{virksomhetId}/aktortype", new { Aktortype = (string?)null });
+        Assert.Equal(HttpStatusCode.OK, nullSvar.StatusCode);
+        Assert.Null((await nullSvar.Content.ReadFromJsonAsync<VirksomhetDto>(JsonInnstillinger))!.Aktortype);
+
+        var ugyldig = await _client.PutAsJsonAsync($"/api/virksomheter/{virksomhetId}/aktortype", new { Aktortype = "kommune" });
+        Assert.Equal(HttpStatusCode.BadRequest, ugyldig.StatusCode);
     }
 }

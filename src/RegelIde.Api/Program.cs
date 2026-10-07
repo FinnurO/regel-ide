@@ -749,6 +749,30 @@ app.MapPut("/api/virksomheter/{id:guid}/forvaltningsniva", async (Guid id, SettF
     .WithName("SettVirksomhetForvaltningsniva")
     .WithSummary("Setter Forvaltningsnivå — validert mot KL-FORVALTNINGSNIVA-kodelisten (docs/20 §7.2: aldri gjettet automatisk).");
 
+// [Ny, issue #310 «nodetype-akse», docs/33 §4.1] Aktørtypen settes av et menneske — automatisk kun for
+// KOMM/FYLK (migrasjonen, OrganisasjonsregisterSeed og fra-brreg). Lukket vokabular (Nodetyper.Aktortyper,
+// CHECK ck_virksomheter_aktortype), ikke en kodeliste: tre verdier som modellen selv er bygget rundt, ikke
+// noe en forvalter skal kunne utvide. NULL (tilbake til uavklart) er alltid gyldig.
+app.MapPut("/api/virksomheter/{id:guid}/aktortype", async (Guid id, SettAktortypeRequest body, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var virksomhet = await db.Virksomheter.FirstOrDefaultAsync(v => v.Id == id, ct);
+        if (virksomhet is null) return Results.NotFound(new { feil = $"Ingen virksomhet med id '{id}'." });
+        if (!Nodetyper.ErGyldigAktortype(body.Aktortype))
+        {
+            return Results.BadRequest(new
+            {
+                feil = $"'{body.Aktortype}' er ikke en gyldig aktørtype. Gyldige verdier: "
+                    + $"{string.Join(", ", Nodetyper.Aktortyper)} (eller null for uavklart).",
+            });
+        }
+        virksomhet.Aktortype = body.Aktortype;
+        await db.SaveChangesAsync(ct);
+        return Results.Ok(VirksomhetDto.FraEntitet(virksomhet));
+    })
+    .WithOpenApi()
+    .WithName("SettVirksomhetAktortype")
+    .WithSummary("Issue #310 — setter aktørtypen (rettssubjekt|organ|organisatorisk_enhet, eller null = uavklart).");
+
 app.MapGet("/api/virksomheter/brreg-sok", async (string? q, BrregKlient klient, CancellationToken ct) =>
     {
         if (string.IsNullOrWhiteSpace(q)) return Results.Ok(Array.Empty<BrregEnhetDto>());
@@ -789,6 +813,8 @@ app.MapPost("/api/virksomheter/fra-brreg", async (
             OrganisasjonsformKode = enhet.Organisasjonsform?.Kode,
             Sektorkode = enhet.InstitusjonellSektorkode?.Kode,
             Forvaltningsniva = null,
+            // [Ny, issue #310] Den ENESTE automatiske aktørtypen: KOMM/FYLK → rettssubjekt (entydig).
+            Aktortype = Nodetyper.UtledAktortypeAutomatisk(enhet.Organisasjonsform?.Kode, forvaltningsniva: null),
             OverordnetEnhetId = enhet.OverordnetEnhet is { } morOrgnr
                 ? await db.Virksomheter.Where(v => v.Organisasjonsnummer == morOrgnr).Select(v => (Guid?)v.Id).FirstOrDefaultAsync(ct)
                 : null,
@@ -3374,7 +3400,12 @@ app.MapPost("/api/gruppebegrep", async (HttpRequest request, GruppebegrepRequest
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         try
         {
-            var opprettet = await register.OpprettGruppebegrepAsync(body.LovkildeId, body.Term, bruker.Navn, ct: ct);
+            // [ENDRET, issue #310] Nodetype påkrevd (klasse/rolle/omrade/organ) — ingen nye 'gruppe'-begrep.
+            if (string.IsNullOrWhiteSpace(body.Nodetype))
+            {
+                return Results.BadRequest(new { feil = "Nodetype er påkrevd: klasse, rolle, omrade eller organ (issue #310). Ingen gjettet fallback." });
+            }
+            var opprettet = await register.OpprettGruppebegrepAsync(body.Nodetype, body.LovkildeId, body.Term, bruker.Navn, ct: ct);
             return Results.Created($"/api/begreper/{opprettet.Id}", BegrepDto.FraEntitet(opprettet));
         }
         catch (ArgumentException ex)
@@ -3385,7 +3416,32 @@ app.MapPost("/api/gruppebegrep", async (HttpRequest request, GruppebegrepRequest
     .WithOpenApi()
     .WithName("OpprettGruppebegrep")
     .WithSummary("Gruppebegrep (docs/20 §2.4) — Term+LovkildeId er sammen begrepets identitet, f.eks. 'forurensningsmyndighet' i " +
-        "forurensningsloven. [ENDRET, issue #298] LovkildeId=null oppretter et FAST, nasjonalt gruppebegrep (identitet = kun Term).");
+        "forurensningsloven. [ENDRET, issue #298] LovkildeId=null oppretter et FAST, nasjonalt gruppebegrep (identitet = kun Term). " +
+        "[ENDRET, issue #310] Nodetype (klasse|rolle|omrade|organ) er påkrevd — det er begrepets TYPE; gruppefunksjonen har alle.");
+
+// [Ny, issue #310 «nodetype-akse»] Setter nodetypen på et eksisterende begrep med gruppefunksjon — veien for
+// å reklassifisere de 'gruppe'-radene som ikke sto på Johanns liste (andre miljøer) uten en ny migrasjon.
+app.MapPut("/api/gruppebegrep/{id:guid}/nodetype", async (Guid id, HttpRequest request, SettNodetypeRequest body,
+        VirksomhetsbegrepTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var oppdatert = await register.SettNodetypeAsync(id, body.Nodetype, bruker.Navn, ct);
+            return oppdatert is null
+                ? Results.NotFound(new { feil = $"Fant ikke noe gjeldende begrep med gruppefunksjon med id '{id}'." })
+                : Results.Ok(BegrepDto.FraEntitet(oppdatert));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithOpenApi()
+    .WithName("SettNodetypePaGruppebegrep")
+    .WithSummary("Issue #310 — setter nodetypen (klasse|rolle|omrade|organ) på et begrep med gruppefunksjon. " +
+        "Tildelinger, medlemskap og tagger følger uendret med (de peker på begrepets id).");
 
 app.MapGet("/api/rettskilder/{lovkildeId:guid}/gruppebegrep", async (Guid lovkildeId, VirksomhetsbegrepTjeneste register, CancellationToken ct) =>
         Results.Ok((await register.AlleGruppebegrepForLovAsync(lovkildeId, ct)).Select(BegrepDto.FraEntitet)))
@@ -3961,8 +4017,9 @@ static async Task<List<NavnekandidatDto>> BerikNavnekandidaterAsync(
     // "administrativ_inndeling"-rad har derfor akkurat samme cache-treff å vise (typisk SSR-bekreftelse
     // med SsrObjektType «Nasjon»/«Fylke»/«Kommune» — selve grunnen den ble klassifisert dit i
     // utgangspunktet). "gruppe" sendes fortsatt ALDRI til SNL/SSR, se SveipAsync.
+    // [ENDRET, issue #310] "administrativ_inndeling" → "omrade" (kategorien er slått inn der).
     var termer = kandidater
-        .Where(k => k.Kategori is "virksomhet" or "administrativ_inndeling")
+        .Where(k => k.Kategori is "virksomhet" or Nodetyper.Omrade)
         .Select(k => k.ForeslattTekst.ToLowerInvariant())
         .Distinct()
         .ToList();
@@ -3975,7 +4032,7 @@ static async Task<List<NavnekandidatDto>> BerikNavnekandidaterAsync(
     return kandidater.Select(k =>
     {
         var dto = NavnekandidatDto.FraEntitet(k);
-        if (k.Kategori is not ("virksomhet" or "administrativ_inndeling")) return dto;
+        if (k.Kategori is not ("virksomhet" or Nodetyper.Omrade)) return dto;
 
         snlPerTerm.TryGetValue(k.ForeslattTekst.ToLowerInvariant(), out var snl);
         ssrPerTerm.TryGetValue(k.ForeslattTekst.ToLowerInvariant(), out var ssr);
@@ -4037,7 +4094,7 @@ navnekandidater.MapPost("/sveip", async (HttpRequest request, SveipNavnekandidat
         "flerords-institusjonsord OG det brede 'stor bokstav midt i setning'-mønsteret (tidligere et eget " +
         "/sveip-storbokstav-endepunkt, docs/31 §6, nå fjernet — se NavnekandidatOppdagelseTjeneste.SveipAsync " +
         "sin klassekommentar). Klassifiseres mot LEVENDE eksterne SNL/SSR-API-er (per unikt navn i sveipet, cachet " +
-        "på tvers av sveip) — SSR-bekreftet 'Nasjon'/'Fylke'/'Kommune' gir 'administrativ_inndeling' i stedet for " +
+        "på tvers av sveip) — SSR-bekreftet 'Nasjon'/'Fylke'/'Kommune' gir 'omrade' (før #310: 'administrativ_inndeling') i stedet for " +
         "'virksomhet' (issue #203 pkt. 3). Slår opp lærte korreksjonsregler (issue #203 pkt. 4) FØR materialisering.");
 
 // [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC1-4] Manuell inngangsdør fra
@@ -4072,14 +4129,15 @@ navnekandidater.MapPost("/manuell", async (HttpRequest request, NavnekandidatMan
         "GET-or-create på (RettskildeId, NodeEid, StartOffset), samme idempotens som sveipet. " +
         "OppdagelsesKilde='manuell', Konfidens=null. Naviger til /navnekandidater/{id}/behandle etter opprettelse.");
 
-navnekandidater.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest request,
+navnekandidater.MapPost("/{id:guid}/godkjenn", async (Guid id, string? nodetype, HttpRequest request,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         try
         {
-            var oppdatert = await register.GodkjennAsync(id, bruker.Navn, ct);
+            // [ENDRET, issue #310] ?nodetype=klasse|rolle|omrade — påkrevd for en 'gruppe'-kandidat (uavklart).
+            var oppdatert = await register.GodkjennAsync(id, bruker.Navn, ct, nodetype);
             return oppdatert is null ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." }) : Results.Ok(NavnekandidatDto.FraEntitet(oppdatert));
         }
         catch (ArgumentException ex)
@@ -4088,7 +4146,8 @@ navnekandidater.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest reque
         }
     })
     .WithName("GodkjennNavnekandidat")
-    .WithSummary("'gruppe'/'administrativ_inndeling': oppretter et ekte begrep direkte (samme mekanisme, ulik Begrepskategori). " +
+    .WithSummary("klasse/rolle/omrade: oppretter et ekte begrep av den typen direkte. 'gruppe' (uavklart nodetype) krever " +
+        "?nodetype=klasse|rolle|omrade (issue #310 — typen gjettes ikke). " +
         "'virksomhet': setter kun status — selve virksomhetskoblingen skjer manuelt via VirksomhetDetalj.");
 
 navnekandidater.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request,
@@ -4270,7 +4329,8 @@ navnekandidater.MapPost("/{id:guid}/kobl-til-gruppe-av-gruppe", async (Guid id, 
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         try
         {
-            var resultat = await register.KoblTilGruppeAvGruppeAsync(id, body.OverordnetGruppeBegrepId, bruker.Navn, ct);
+            var resultat = await register.KoblTilGruppeAvGruppeAsync(
+                id, body.OverordnetGruppeBegrepId, bruker.Navn, ct, body.Nodetype);
             return resultat is null
                 ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." })
                 : Results.Ok(NavnekandidatGruppeAvGruppeResultatDto.FraResultat(resultat));
@@ -4283,21 +4343,22 @@ navnekandidater.MapPost("/{id:guid}/kobl-til-gruppe-av-gruppe", async (Guid id, 
     .WithName("KoblNavnekandidatTilGruppeAvGruppe")
     .WithSummary("Issue #283 AC9 — som /godkjenn for 'gruppe'-kandidater, pluss et GruppeMedlemskapEntitet " +
         "som gjør det NYE gruppebegrepet til medlem av OverordnetGruppeBegrepId, hjemlet i kandidatens " +
-        "egen rettskilde. Kun for Kategori='gruppe' og Status='Venter'.");
+        "egen rettskilde. Kun for gruppe-/klasse-/rolle-/områdekandidater med Status='Venter'. " +
+        "[ENDRET, issue #310] Nodetype påkrevd i body for en 'gruppe'-kandidat.");
 
 // [Ny, issue #298 AC3] «Fast, nasjonalt begrep»-grenen av gruppe-sporet — alternativet til det vanlige
 // /godkjenn for en 'gruppe'-kandidat når saksbehandleren eksplisitt avgjør at begrepet IKKE skal
 // lovscopes (f.eks. «Kongen»). Get-or-create: gjenbruker et eksisterende fast begrep med samme Term
 // (case-insensitiv) i stedet for å opprette en dublett — se
 // VirksomhetsbegrepTjeneste.OpprettEllerGjenbrukFastGruppebegrepAsync.
-navnekandidater.MapPost("/{id:guid}/godkjenn-som-fast-gruppebegrep", async (Guid id, HttpRequest request,
+navnekandidater.MapPost("/{id:guid}/godkjenn-som-fast-gruppebegrep", async (Guid id, string? nodetype, HttpRequest request,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         try
         {
-            var resultat = await register.KoblTilFastGruppebegrepAsync(id, bruker.Navn, ct);
+            var resultat = await register.KoblTilFastGruppebegrepAsync(id, bruker.Navn, ct, nodetype);
             return resultat is null
                 ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." })
                 : Results.Ok(NavnekandidatFastGruppebegrepResultatDto.FraResultat(resultat));
@@ -4310,7 +4371,8 @@ navnekandidater.MapPost("/{id:guid}/godkjenn-som-fast-gruppebegrep", async (Guid
     .WithName("GodkjennNavnekandidatSomFastGruppebegrep")
     .WithSummary("Issue #298 AC3 — alternativet til /godkjenn for 'gruppe'-kandidater: oppretter (eller " +
         "gjenbruker, hvis Term alt finnes som fast begrep) et gruppebegrep UTEN lovkilde (LovkildeId=null), " +
-        "delt på tvers av alle lover. Kun for Kategori='gruppe' og Status='Venter'.");
+        "delt på tvers av alle lover. Kun for gruppe-/klasse-/rolle-/områdekandidater med Status='Venter'. " +
+        "[ENDRET, issue #310] ?nodetype=klasse|rolle|omrade påkrevd for en 'gruppe'-kandidat.");
 
 navnekandidater.MapPost("/godkjenn-batch", async (HttpRequest request, NavnekandidatBatchRequest body,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
@@ -4336,8 +4398,9 @@ navnekandidater.MapPost("/godkjenn-batch", async (HttpRequest request, Navnekand
     })
     .WithName("GodkjennNavnekandidaterBatch")
     .WithSummary("Massegodkjenning (store test-sveip-mengder) — server-side batch med per-rad-feilhåndtering, " +
-        "samme mønster som /api/virksomhet-kandidater/godkjenn-batch. 'gruppe' oppretter et ekte gruppebegrep PER " +
-        "rad som lykkes; 'virksomhet' setter kun status — se GodkjennNavnekandidat-endepunktet over.");
+        "samme mønster som /api/virksomhet-kandidater/godkjenn-batch. klasse/rolle/omrade oppretter et ekte begrep PER " +
+        "rad som lykkes; 'gruppe' (uavklart nodetype) gir en feilrad — velg typen først (issue #310); " +
+        "'virksomhet' setter kun status — se GodkjennNavnekandidat-endepunktet over.");
 
 navnekandidater.MapPost("/avvis-batch", async (HttpRequest request, NavnekandidatBatchRequest body,
         NavnekandidatOppdagelseTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
@@ -4423,7 +4486,8 @@ navnekandidater.MapPost("/godkjenn-gruppe-batch", async (HttpRequest request, Na
                 r.Id, r.Ok, r.Feil, r.Resultat is null ? null : NavnekandidatDto.FraEntitet(r.Resultat))).ToList()));
     })
     .WithName("GodkjennNavnekandidaterGruppeBatch")
-    .WithSummary("Issue #299 AC3/AC4 — «Behandle gruppen» for 'gruppe'/'administrativ_inndeling': ETT " +
+    .WithSummary("Issue #299 AC3/AC4 — «Behandle gruppen» for klasse/rolle/omrade (issue #310; TilKategori velger typen " +
+        "for kandidater med uavklart 'gruppe'): ETT " +
         "delt begrep koblet til ALLE kandidatene i body.Ider, i stedet for N uavhengige /godkjenn-kall. " +
         "Se NavnekandidatOppdagelseTjeneste.GodkjennGruppeBatchAsync for cache-nøkkelen (per rettskilde, " +
         "eller totalt når body.Fast).");

@@ -240,8 +240,10 @@ public sealed class GruppeMedlemskapTjeneste(RegelIdeDbContext db)
 
     private async Task<BegrepEntitet> FinnGruppebegrepAsync(Guid id, CancellationToken ct)
     {
+        // [ENDRET, issue #310] Begge ender kan være ethvert begrep med gruppefunksjon — f.eks. klassen
+        // «språkutviklingskommuner» som medlem av OMRÅDET «forvaltningsområdet for samiske språk».
         var begrep = await db.Begreper.FirstOrDefaultAsync(
-            b => b.Id == id && b.Begrepskategori == "gruppe" && b.Entitetsstatus == "gjeldende", ct);
+            b => b.Id == id && Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!) && b.Entitetsstatus == "gjeldende", ct);
         return begrep ?? throw new ArgumentException(
             $"Fant ingen gruppebegrep med id '{id}'. Ingen gjettet fallback.");
     }

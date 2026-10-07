@@ -748,7 +748,15 @@ public sealed record SettNavneformgrunnRequest(string? Navneformgrunn);
 /// <see cref="VirksomhetsbegrepTjeneste.OpprettGruppebegrepAsync"/>). Satt gir uendret oppførsel
 /// (lovspesifikt gruppebegrep).
 /// </param>
-public sealed record GruppebegrepRequest(Guid? LovkildeId, string Term);
+/// <param name="Nodetype">[Ny, issue #310] klasse|rolle|omrade|organ — påkrevd (validert i endepunktet, så
+/// en manglende verdi gir en lesbar 400 i stedet for en modellbindingsfeil).</param>
+public sealed record GruppebegrepRequest(Guid? LovkildeId, string Term, string? Nodetype = null);
+
+/// <summary>[Ny, issue #310] <c>PUT /api/gruppebegrep/{id}/nodetype</c>.</summary>
+public sealed record SettNodetypeRequest(string Nodetype);
+
+/// <summary>[Ny, issue #310] <c>PUT /api/virksomheter/{id}/aktortype</c> — NULL = tilbake til uavklart.</summary>
+public sealed record SettAktortypeRequest(string? Aktortype);
 
 public sealed record ParagrafspennParDto(string FraEid, string? TilEid);
 
@@ -781,7 +789,7 @@ public sealed record VirksomhetNavneformForekomstDto(
 
 /// <summary>Én myndighetstildeling med GRUPPEBEGREPET navngitt — nøklet på tildelingens egen id, slik
 /// at klienten kan slå gruppenavnet inn i den myndighetstildelings-tabellen den allerede viser.</summary>
-public sealed record VirksomhetGruppetildelingDto(Guid TildelingId, Guid GruppeBegrepId, string GruppeTerm);
+public sealed record VirksomhetGruppetildelingDto(Guid TildelingId, Guid GruppeBegrepId, string GruppeTerm, string? GruppeBegrepskategori);
 
 public sealed record VirksomhetWhereUsedDto(
     IReadOnlyList<VirksomhetNavneformForekomstDto> NavneformForekomster,
@@ -794,7 +802,7 @@ public sealed record VirksomhetWhereUsedDto(
                 f.StartOffset, f.EndOffset))
             .ToList(),
         r.Gruppetildelinger
-            .Select(g => new VirksomhetGruppetildelingDto(g.TildelingId, g.GruppeBegrepId, g.GruppeTerm))
+            .Select(g => new VirksomhetGruppetildelingDto(g.TildelingId, g.GruppeBegrepId, g.GruppeTerm, g.GruppeBegrepskategori))
             .ToList());
 }
 
@@ -997,7 +1005,8 @@ public sealed record NavnekandidatRelasjonResultatDto(
 /// hjemlet i kandidatens egen rettskilde — i én atomisk handling, fordi klienten ikke kjenner det nye
 /// gruppebegrepets id før det er opprettet.
 /// </summary>
-public sealed record KoblNavnekandidatTilGruppeAvGruppeRequest(Guid OverordnetGruppeBegrepId);
+/// <param name="Nodetype">[Ny, issue #310] klasse|rolle|omrade — påkrevd for en 'gruppe'-kandidat (uavklart type).</param>
+public sealed record KoblNavnekandidatTilGruppeAvGruppeRequest(Guid OverordnetGruppeBegrepId, string? Nodetype = null);
 
 public sealed record NavnekandidatGruppeAvGruppeResultatDto(
     NavnekandidatDto Kandidat, BegrepDto Gruppebegrep, GruppeMedlemskapDto Medlemskap)
@@ -1120,6 +1129,8 @@ public sealed record KoblNavnekandidaterTilVirksomhetBatchRequest(
 /// ALLE kandidatene i <paramref name="Ider"/>. <paramref name="Fast"/> speiler steg 2-radioknappen i
 /// enkeltrad-veiviseren (issue #298 AC3) — kun relevant/lovlig for <c>"gruppe"</c>-kandidater, se
 /// metodekommentaren for hvorfor <c>"administrativ_inndeling"</c> + <c>Fast=true</c> gir en feilrad.
+/// [ENDRET, issue #310] <c>TilKategori</c> er nå en NODETYPE (klasse|rolle|omrade), og påkrevd når gruppen
+/// inneholder kandidater med uavklart type ('gruppe'); fast/nasjonalt gjelder alle tre typene.
 /// </summary>
 /// <param name="TilKategori">
 /// [Ny, etter Johanns nettlesertest] <c>null</c> = hver rads egen kategori; <c>"gruppe"</c>/

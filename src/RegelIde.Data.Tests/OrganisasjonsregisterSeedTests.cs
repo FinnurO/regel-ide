@@ -89,8 +89,13 @@ public class OrganisasjonsregisterSeedTests
         // delte DataTestCollection-databasen kan i praksis se mer enn én "Bergen kommune"-rad avhengig
         // av hvilke andre testklasser (nå: ServeringsbevillingModellSeedTests) som også kaller
         // BergenKorpusSeed i samme kjøring.
-        var bergen = await db.Virksomheter.FirstAsync(v => v.Navn == "Bergen kommune");
-        Assert.Equal("964338531", bergen.Organisasjonsnummer);
+        // [ENDRET, issue #310] Slås opp på den STABILE nøkkelen (orgnr, CLAUDE.md §4), ikke navnet:
+        // HandlingregisterTjenesteTests/TjenesteregisterTjenesteTests legger inn egne «Bergen kommune»-rader
+        // UTEN orgnr i den delte databasen, og hvilken av dem FirstAsync (uten ORDER BY) returnerte, hang
+        // på fysisk radrekkefølge — som endret seg da seeden begynte å skrive Aktortype på eksisterende rader.
+        var bergen = await db.Virksomheter.SingleAsync(v => v.Organisasjonsnummer == "964338531");
+        Assert.Equal("Bergen kommune", bergen.Navn);
+        Assert.Equal("rettssubjekt", bergen.Aktortype); // [Ny, issue #310] KOMM ⇒ rettssubjekt.
         Assert.Equal("4601", bergen.Kommunenummer);
         Assert.Equal("kommune", bergen.Forvaltningsniva);
         Assert.True(bergen.Aktiv); // Johanns eksplisitte instruks — alltid aktiv.
@@ -178,7 +183,8 @@ public class OrganisasjonsregisterSeedTests
         // delte DataTestCollection-databasen kan i praksis se mer enn én "Bergen kommune"-rad avhengig
         // av hvilke andre testklasser (nå: ServeringsbevillingModellSeedTests) som også kaller
         // BergenKorpusSeed i samme kjøring.
-        var bergen = await db.Virksomheter.FirstAsync(v => v.Navn == "Bergen kommune");
+        // [ENDRET, issue #310] Orgnr, ikke navn — se Backfiller-testen over.
+        var bergen = await db.Virksomheter.SingleAsync(v => v.Organisasjonsnummer == "964338531");
         var brukere = await db.Brukere.Where(b => b.VirksomhetId == bergen.Id).ToListAsync();
         Assert.Equal(2, brukere.Count);
         Assert.Contains(brukere, b => b.Navn == "Mari Fagansvarlig" && b.Rolle == "Fagansvarlig");

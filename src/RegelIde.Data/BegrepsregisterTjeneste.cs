@@ -161,7 +161,9 @@ public sealed class BegrepsregisterTjeneste(RegelIdeDbContext db)
         // er NULL, ikke redigerbare"-regel gjelder for den som for virksomhet/gruppe (se BegrepEntitet
         // sin klassekommentar). Variabelnavnet er beholdt uendret (kun tre-veis nå) for å holde diffen
         // liten — betydningen er fortsatt "har IKKE Definisjon/Begrepstype-feltene".
-        var erVirksomhetEllerGruppe = begrep.Begrepskategori is "virksomhet" or "gruppe" or "administrativ_inndeling";
+        // [ENDRET, issue #310] Alle kategorier med gruppefunksjon (Nodetyper.MedGruppefunksjon) i stedet for
+        // 'gruppe'/'administrativ_inndeling' — 'administrativ_inndeling' er slått inn i 'omrade'.
+        var erVirksomhetEllerGruppe = begrep.Begrepskategori == "virksomhet" || Nodetyper.HarGruppefunksjon(begrep.Begrepskategori);
         if (string.IsNullOrWhiteSpace(term))
         {
             throw new ArgumentException("Term kan ikke være tom. Ingen gjettet fallback.");

@@ -43,7 +43,7 @@ public class MyndighetstildelingTjenesteTests
         db.Virksomheter.Add(virksomhet);
         await db.SaveChangesAsync();
 
-        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("kontrollmyndighet"), "Kari Jurist");
+        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(Nodetyper.Klasse, lovId, NyTerm("kontrollmyndighet"), "Kari Jurist");
         var register = new MyndighetstildelingTjeneste(db);
         var tildeling = await register.OpprettAsync(
             gruppebegrep.Id, virksomhet.Id, forskrift, [new ParagrafspennPar(paragrafEid, null)], "kommunale avløpsanlegg", "Kari Jurist");
@@ -68,7 +68,7 @@ public class MyndighetstildelingTjenesteTests
         var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
         db.Virksomheter.Add(virksomhet);
         await db.SaveChangesAsync();
-        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("kontrollmyndighet-tom"), "Kari Jurist");
+        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(Nodetyper.Klasse, lovId, NyTerm("kontrollmyndighet-tom"), "Kari Jurist");
 
         var register = new MyndighetstildelingTjeneste(db);
         await Assert.ThrowsAsync<ArgumentException>(
@@ -85,7 +85,7 @@ public class MyndighetstildelingTjenesteTests
         var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
         db.Virksomheter.Add(virksomhet);
         await db.SaveChangesAsync();
-        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("kontrollmyndighet-ukjent"), "Kari Jurist");
+        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(Nodetyper.Klasse, lovId, NyTerm("kontrollmyndighet-ukjent"), "Kari Jurist");
 
         var register = new MyndighetstildelingTjeneste(db);
         await Assert.ThrowsAsync<ArgumentException>(() => register.OpprettAsync(
@@ -102,7 +102,7 @@ public class MyndighetstildelingTjenesteTests
         var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
         db.Virksomheter.Add(virksomhet);
         await db.SaveChangesAsync();
-        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("kontrollmyndighet-opphevet"), "Kari Jurist");
+        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(Nodetyper.Klasse, lovId, NyTerm("kontrollmyndighet-opphevet"), "Kari Jurist");
 
         var register = new MyndighetstildelingTjeneste(db);
         var tildeling = await register.OpprettAsync(
@@ -132,7 +132,7 @@ public class MyndighetstildelingTjenesteTests
         var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
         db.Virksomheter.Add(virksomhet);
         await db.SaveChangesAsync();
-        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("vertskommune-utlopt"), "Kari Jurist");
+        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(Nodetyper.Klasse, lovId, NyTerm("vertskommune-utlopt"), "Kari Jurist");
 
         var register = new MyndighetstildelingTjeneste(db);
         var tildeling = await register.OpprettAsync(
@@ -159,7 +159,7 @@ public class MyndighetstildelingTjenesteTests
         var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
         db.Virksomheter.Add(virksomhet);
         await db.SaveChangesAsync();
-        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("vertskommune-filter"), "Kari Jurist");
+        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(Nodetyper.Klasse, lovId, NyTerm("vertskommune-filter"), "Kari Jurist");
 
         var register = new MyndighetstildelingTjeneste(db);
         var utlopt = await register.OpprettAsync(
@@ -193,7 +193,7 @@ public class MyndighetstildelingTjenesteTests
         var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
         db.Virksomheter.Add(virksomhet);
         await db.SaveChangesAsync();
-        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("status-default"), "Kari Jurist");
+        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(Nodetyper.Klasse, lovId, NyTerm("status-default"), "Kari Jurist");
 
         var tildeling = await new MyndighetstildelingTjeneste(db).OpprettAsync(
             gruppebegrep.Id, virksomhet.Id, forskrift, [new ParagrafspennPar(paragrafEid, null)], null, "Kari Jurist");
@@ -213,7 +213,7 @@ public class MyndighetstildelingTjenesteTests
         var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
         db.Virksomheter.Add(virksomhet);
         await db.SaveChangesAsync();
-        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("mangler-versjon"), "Kari Jurist");
+        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(Nodetyper.Klasse, lovId, NyTerm("mangler-versjon"), "Kari Jurist");
 
         await Assert.ThrowsAsync<ArgumentException>(() => new MyndighetstildelingTjeneste(db).OpprettAsync(
             gruppebegrep.Id, virksomhet.Id, forskrift, [new ParagrafspennPar(paragrafEid, null)], null, "system-ki",
@@ -230,7 +230,7 @@ public class MyndighetstildelingTjenesteTests
         var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
         db.Virksomheter.Add(virksomhet);
         await db.SaveChangesAsync();
-        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("ki-forslag"), "Kari Jurist");
+        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(Nodetyper.Klasse, lovId, NyTerm("ki-forslag"), "Kari Jurist");
 
         var register = new MyndighetstildelingTjeneste(db);
         var tildeling = await register.OpprettAsync(
@@ -261,7 +261,7 @@ public class MyndighetstildelingTjenesteTests
         var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-{Guid.NewGuid():N}" };
         db.Virksomheter.Add(virksomhet);
         await db.SaveChangesAsync();
-        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("alt-validert"), "Kari Jurist");
+        var gruppebegrep = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(Nodetyper.Klasse, lovId, NyTerm("alt-validert"), "Kari Jurist");
         var register = new MyndighetstildelingTjeneste(db);
         var tildeling = await register.OpprettAsync(
             gruppebegrep.Id, virksomhet.Id, forskrift, [new ParagrafspennPar(paragrafEid, null)], null, "Kari Jurist");
@@ -280,8 +280,8 @@ public class MyndighetstildelingTjenesteTests
         var virksomhetB = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Test-virksomhet-b-{Guid.NewGuid():N}" };
         db.Virksomheter.AddRange(virksomhetA, virksomhetB);
         await db.SaveChangesAsync();
-        var gruppebegrepA = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("avvis-a"), "Kari Jurist");
-        var gruppebegrepB = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(lovId, NyTerm("avvis-b"), "Kari Jurist");
+        var gruppebegrepA = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(Nodetyper.Klasse, lovId, NyTerm("avvis-a"), "Kari Jurist");
+        var gruppebegrepB = await new VirksomhetsbegrepTjeneste(db).OpprettGruppebegrepAsync(Nodetyper.Klasse, lovId, NyTerm("avvis-b"), "Kari Jurist");
         var register = new MyndighetstildelingTjeneste(db);
         var foreslatt = await register.OpprettAsync(
             gruppebegrepA.Id, virksomhetA.Id, forskrift, [new ParagrafspennPar(paragrafEid, null)], null, "system-ki",

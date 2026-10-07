@@ -66,7 +66,9 @@ public sealed class VirksomhetWhereUsedTjeneste(RegelIdeDbContext db)
     /// ingressen og viste så bare paragrafspenn/vilkår/gyldighet. Det er nøyaktig den manglende
     /// opplysningen Johann ba om for Karasjok («språkutviklingskommuner»).
     /// </summary>
-    public sealed record Gruppetildeling(Guid TildelingId, Guid GruppeBegrepId, string GruppeTerm);
+    /// <param name="GruppeBegrepskategori">[Ny, issue #310] Nodetypen (klasse/rolle/omrade/organ, eller
+    /// gjenværende 'gruppe') — slik at VirksomhetDetalj kan vise HVA slags tilhørighet tildelingen er.</param>
+    public sealed record Gruppetildeling(Guid TildelingId, Guid GruppeBegrepId, string GruppeTerm, string? GruppeBegrepskategori);
 
     public sealed record Resultat(
         IReadOnlyList<NavneformForekomst> NavneformForekomster,
@@ -109,9 +111,10 @@ public sealed class VirksomhetWhereUsedTjeneste(RegelIdeDbContext db)
         var gruppetildelinger = await db.Myndighetstildelinger
             .Where(m => m.VirksomhetId == virksomhetId)
             .Join(
-                db.Begreper.Where(b => b.Begrepskategori == "gruppe"),
+                // [ENDRET, issue #310] alle kategorier med gruppefunksjon, ikke bare 'gruppe'.
+                db.Begreper.Where(b => Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!)),
                 m => m.GruppeBegrepId, b => b.Id,
-                (m, b) => new Gruppetildeling(m.Id, b.Id, b.Term))
+                (m, b) => new Gruppetildeling(m.Id, b.Id, b.Term, b.Begrepskategori))
             .ToListAsync(ct);
 
         return new Resultat(forekomster, gruppetildelinger);

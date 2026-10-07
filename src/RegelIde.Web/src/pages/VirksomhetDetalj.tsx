@@ -3,7 +3,7 @@ import { Link as RouterLink, useNavigate, useParams } from 'react-router';
 import { Alert, Button, Card, Dialog, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tabs, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
-import type { KodelisteDto, MyndighetstildelingDto, Navneformgrunn, RettskildeNodeDto, RettskildeSammendrag, VirksomhetKandidatDto, VirksomhetRelasjonDto, VirksomhetSlettOversiktDto, VirksomhetsbegrepDto, VirksomhetWhereUsedDto } from '../api/types';
+import type { Aktortype, KodelisteDto, MyndighetstildelingDto, Navneformgrunn, RettskildeNodeDto, RettskildeSammendrag, VirksomhetKandidatDto, VirksomhetRelasjonDto, VirksomhetSlettOversiktDto, VirksomhetsbegrepDto, VirksomhetWhereUsedDto } from '../api/types';
 import { NavneformgrunnTag, NavneformgrunnVelger } from '../virksomhet/Navneformgrunn';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { LeggTilMyndighetstildelingForm } from '../virksomhet/LeggTilMyndighetstildelingForm';
@@ -11,6 +11,7 @@ import { RelasjonstekstMedLenke } from '../virksomhet/RelasjonstekstMedLenke';
 import { paragrafEtikett } from '../rettskilde/paragrafEtikett';
 import { LeggTilVirksomhetRelasjonForm } from '../virksomhet/LeggTilVirksomhetRelasjonForm';
 import { Metatekst } from '../entitet/Metatekst';
+import { AktortypeTag, AktortypeVelger, BegrepskategoriTag } from '../begrep/Nodetype';
 
 /** [Ny, issue #157] Rad-etiketter for bekreftelsesdialogen — KUN de feltene som faktisk kan være > 0
  * for en reell virksomhet vises (0-rader skjules, se `SlettVirksomhetSeksjon` under). Rekkefølgen her
@@ -113,6 +114,11 @@ export default function VirksomhetDetalj() {
   // (ville krevd å endre en delt hook brukt mange steder). Lagrer derfor den nyeste verdien lokalt her
   // og lar den overstyre hook-verdien i visningen under, i stedet for å endre den delte hooken.
   const [forvaltningsnivaOverstyrt, setForvaltningsnivaOverstyrt] = useState<string | null | undefined>(undefined);
+  // [Ny, issue #310 «nodetype-akse»] Aktørtype — samme «lokal overstyring av hook-verdien»-mønster som
+  // forvaltningsnivået rett over, av samme grunn (useVirksomheter har ingen «hent på nytt»).
+  const [aktortypeOverstyrt, setAktortypeOverstyrt] = useState<Aktortype | null | undefined>(undefined);
+  const [aktortypeLagres, setAktortypeLagres] = useState(false);
+  const [aktortypeFeil, setAktortypeFeil] = useState<string | null>(null);
 
   // [Ny, 2026-09-02, issue #115] Node-tekst per rettskilde — samme lazy-per-rettskilde-mønster som
   // VirksomhetKandidaterListe.tsx/LeggTilMyndighetstildelingForm.tsx, slik at "Paragrafspenn"- og
@@ -213,6 +219,20 @@ export default function VirksomhetDetalj() {
     }
   }
 
+  async function endreAktortype(verdi: Aktortype | null) {
+    if (!id) return;
+    setAktortypeFeil(null);
+    setAktortypeLagres(true);
+    try {
+      const oppdatert = await api.settVirksomhetAktortype(id, verdi);
+      setAktortypeOverstyrt(oppdatert.aktortype);
+    } catch (err) {
+      setAktortypeFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved endring av aktørtype.');
+    } finally {
+      setAktortypeLagres(false);
+    }
+  }
+
   async function leggTilBegrep(e: FormEvent) {
     e.preventDefault();
     if (!id || !nyTerm.trim()) return;
@@ -253,6 +273,7 @@ export default function VirksomhetDetalj() {
   if (!virksomhet) return <Alert data-color="danger">Fant ingen virksomhet med id «{id}».</Alert>;
 
   const forvaltningsniva = forvaltningsnivaOverstyrt === undefined ? virksomhet.forvaltningsniva : forvaltningsnivaOverstyrt;
+  const aktortype = aktortypeOverstyrt === undefined ? virksomhet.aktortype : aktortypeOverstyrt;
 
   return (
     <>
@@ -275,6 +296,9 @@ export default function VirksomhetDetalj() {
         <Tag data-color={virksomhet.aktiv ? 'success' : 'neutral'} data-size="sm">
           {virksomhet.aktiv ? 'Aktiv' : 'Sovende'}
         </Tag>
+        {/* [Ny, issue #310] Aktørtypen (docs/33 §4.1). «Uavklart» vises eksplisitt her — på
+          * detaljsiden er fraværet selve opplysningen (samme valg som NavneformgrunnTag visUspesifisert). */}
+        <AktortypeTag aktortype={aktortype} visUavklart />
       </Paragraph>
 
       {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
@@ -329,6 +353,15 @@ export default function VirksomhetDetalj() {
                     </Select>
                   </Field>
                   {forvaltningsnivaFeil && <Alert data-color="danger" style={{ marginTop: '0.25rem' }}>{forvaltningsnivaFeil}</Alert>}
+                </Table.Cell>
+              </Table.Row>
+              {/* [Ny, issue #310 «nodetype-akse», docs/33 §4.1] Automatisk utfylt bare for KOMM/FYLK
+                * (rettssubjekt); alt annet setter et menneske her. */}
+              <Table.Row>
+                <Table.HeaderCell>Aktørtype</Table.HeaderCell>
+                <Table.Cell>
+                  <AktortypeVelger value={aktortype} onChange={endreAktortype} disabled={aktortypeLagres} />
+                  {aktortypeFeil && <Alert data-color="danger" style={{ marginTop: '0.25rem' }}>{aktortypeFeil}</Alert>}
                 </Table.Cell>
               </Table.Row>
               <Table.Row>
@@ -607,7 +640,8 @@ export default function VirksomhetDetalj() {
           Myndighetstildelinger
         </Heading>
         <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
-          Gruppebegrep (f.eks. «forurensningsmyndighet») tildelt denne virksomheten gjennom en forskrift.
+          Klasser, roller og områder (f.eks. «språkutviklingskommuner», «reguleringsmyndighet») denne
+          virksomheten er tildelt eller medlem av gjennom en forskrift.
           Gyldighet arves fra hjemmelen, og kan i tillegg avgrenses av en egen gyldighetsperiode under
           (de aller fleste tildelinger er permanente og viser ingen periode).
         </Metatekst>
@@ -638,10 +672,15 @@ export default function VirksomhetDetalj() {
                       {whereUsed && (() => {
                         const gruppe = whereUsed.gruppetildelinger.find((g) => g.tildelingId === t.id);
                         if (!gruppe) return <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>—</span>;
+                        // [ENDRET, issue #310] Typen som tag ved siden av navnet — «medlem av en klasse» og
+                        // «innehar en rolle» er ulike påstander (docs/33 §4.2), og tabellen skal vise hvilken.
                         return (
-                          <Link asChild>
-                            <RouterLink to={`/begreper/${gruppe.gruppeBegrepId}`}>{gruppe.gruppeTerm}</RouterLink>
-                          </Link>
+                          <span style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                            <Link asChild>
+                              <RouterLink to={`/begreper/${gruppe.gruppeBegrepId}`}>{gruppe.gruppeTerm}</RouterLink>
+                            </Link>
+                            <BegrepskategoriTag kategori={gruppe.gruppeBegrepskategori} />
+                          </span>
                         );
                       })()}
                     </Table.Cell>

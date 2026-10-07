@@ -5,7 +5,8 @@
 > **Status:** v0.3 — ontologien for Vilkår/Regel/Unntak er låst (2026-07-23), og siden har appen fått
 > et fullt saksbehandler-grensesnitt (`src/RegelIde.Web`), en virksomhetskatalog med roller og
 > relasjoner (myndighetstildeling, klageinstans/underlagt/sekretariat/enhet_i-relasjoner,
-> gruppemedlemskap), en navnekandidat-veiviser som fanger opp alle disse ved sveip AV manuell
+> gruppemedlemskap; begrepene med gruppefunksjon er typet som klasse/rolle/område, og virksomheter har
+> en aktørtype — issue #310), en navnekandidat-veiviser som fanger opp alle disse ved sveip AV manuell
 > tagging, og en familie KI-forslagstjenester (begrep/tjeneste/handling, alltid med et menneske i
 > godkjenn/avvis-loopen — se `docs/14-byggesteg5-teknisk-design.md`). Se
 > [`docs/00-endringslogg-v0.1.md`](docs/00-endringslogg-v0.1.md),

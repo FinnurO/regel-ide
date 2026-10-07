@@ -48,6 +48,8 @@ public sealed record BrukerDto(Guid Id, string Navn, Guid VirksomhetId, string V
 /// <summary>[Utvidet, virksomhetskatalog-runden, docs/20 §2.1] De nye feltene har defaultverdier slik
 /// at eksisterende konstruksjonssteder ikke må endres — kun HentVirksomhetskatalog-endepunktet fyller
 /// dem inn.</summary>
+/// <param name="Aktortype">[Ny, issue #310] rettssubjekt|organ|organisatorisk_enhet, eller NULL = uavklart —
+/// se <see cref="Virksomhet.Aktortype"/>.</param>
 /// <param name="Visningsnavn">
 /// [Ny, registernavn-runden, 2026-09-08] Navnet UI-et skal VISE: virksomhetens navneform med grunn
 /// <c>'gjeldende'</c> når den finnes, ellers <paramref name="Navn"/>. Se
@@ -69,14 +71,15 @@ public sealed record BrukerDto(Guid Id, string Navn, Guid VirksomhetId, string V
 public sealed record VirksomhetDto(
     Guid Id, string Navn, string? Organisasjonsnummer, bool Aktiv,
     string? Forvaltningsniva = null, string? OrganisasjonsformKode = null, string? Sektorkode = null,
-    Guid? OverordnetEnhetId = null, DateOnly? SistBrregSynkronisert = null, string? Visningsnavn = null)
+    Guid? OverordnetEnhetId = null, DateOnly? SistBrregSynkronisert = null, string? Visningsnavn = null,
+    string? Aktortype = null)
 {
     /// <summary>Uten navneformer for hånden — <c>visningsnavn</c> settes da lik <c>navn</c>, aldri
     /// null. Brukes av endepunkt som returnerer ÉN nyopprettet/nyendret rad, der en ekstra spørring
     /// for å hente navneformen ikke er verdt det.</summary>
     public static VirksomhetDto FraEntitet(Virksomhet v) => new(
         v.Id, v.Navn, v.Organisasjonsnummer, v.Aktiv, v.Forvaltningsniva, v.OrganisasjonsformKode,
-        v.Sektorkode, v.OverordnetEnhetId, v.SistBrregSynkronisert, v.Navn);
+        v.Sektorkode, v.OverordnetEnhetId, v.SistBrregSynkronisert, v.Navn, v.Aktortype);
 
     /// <summary>Med visningsnavn slått opp — brukes av katalogendepunktet, som henter alle
     /// navneformene i ett spørsmål (<see cref="VirksomhetVisningsnavnTjeneste.AlleAsync"/>).
@@ -85,7 +88,7 @@ public sealed record VirksomhetDto(
     public static VirksomhetDto FraEntitet(Virksomhet v, IReadOnlyDictionary<Guid, string> visningsnavn) => new(
         v.Id, v.Navn, v.Organisasjonsnummer, v.Aktiv, v.Forvaltningsniva, v.OrganisasjonsformKode,
         v.Sektorkode, v.OverordnetEnhetId, v.SistBrregSynkronisert,
-        visningsnavn.GetValueOrDefault(v.Id) ?? v.Navn);
+        visningsnavn.GetValueOrDefault(v.Id) ?? v.Navn, v.Aktortype);
 }
 
 /// <summary>Brukerhåndteringssiden — se BrukerregisterTjeneste.GyldigeRoller for gyldige verdier.</summary>

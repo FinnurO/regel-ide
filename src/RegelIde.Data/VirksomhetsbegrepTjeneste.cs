@@ -4,7 +4,8 @@ namespace RegelIde.Data;
 
 /// <summary>
 /// Register for de to nye <see cref="BegrepEntitet.Begrepskategori"/>-verdiene, `'virksomhet'` og
-/// `'gruppe'` (docs/20 §2.3/§2.4) — delt/nasjonal referansedata, samme "ingen eiende virksomhet"-mønster
+/// `'gruppe'` (docs/20 §2.3/§2.4) — [ENDRET, issue #310] der `'gruppe'` nå er splittet i de typede
+/// kategoriene `'klasse'`/`'rolle'`/`'omrade'`/`'organ'` (<see cref="Nodetyper"/>) — delt/nasjonal referansedata, samme "ingen eiende virksomhet"-mønster
 /// som <see cref="KodelisteregisterTjeneste"/>s `Type='ekstern-referanse'`. Skilt fra
 /// <see cref="BegrepsregisterTjeneste"/> (ordinære fakta-/handlingsbegrep, fortsatt virksomhetens eget
 /// arbeidsprodukt, uendret) — de to har ulik eier-semantikk og bør ikke dele valideringslogikk.
@@ -178,6 +179,17 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     /// fra navneform-sjekken over, som eksplisitt bruker <c>StringComparison.OrdinalIgnoreCase</c>.
     /// Samme mønster brukt her nå (last kandidatene i minnet, sammenlign case-insensitivt): «Departementet»
     /// og «departementet» skal ikke bli to rader, uansett om begrepet er fast eller lovspesifikt.
+    /// <para>
+    /// [ENDRET, issue #310 «nodetype-akse», 2026-10-07] Tar nå en PÅKREVD <paramref name="nodetype"/>
+    /// (<see cref="Nodetyper.Settbare"/>: klasse/rolle/omrade, eller organ) — ingen nye begrep får
+    /// <c>'gruppe'</c>. Parameteren står FØRST med vilje: alle gamle kall
+    /// <c>(lovkildeId, term, opprettetAv)</c> ble kompileringsfeil i stedet for å forskyve strengene
+    /// stille. Duplikatsjekken gjelder på tvers av ALLE kategorier med gruppefunksjon (samme mengde som
+    /// den unike indeksen): «reguleringsmyndighet» i energiloven kan ikke finnes både som rolle og
+    /// klasse. Metodenavnet er beholdt («gruppebegrep» = begrep med gruppefunksjon, docs/33 §4.2) for
+    /// ikke å stable en omdøping på toppen av typeendringen; #311 konsoliderer kanten. Erstatter også
+    /// <c>OpprettAdministrativInndelingAsync</c> — se [FJERNET]-merknaden lenger ned.
+    /// </para>
     /// </summary>
     /// <param name="lovreferanseEid">
     /// [Ny, 2026-08-30] Valgfri eId til NØYAKTIG den noden gruppebegrepet ble oppdaget i (typisk
@@ -191,8 +203,10 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     /// ikke har noen enkelt "opprinnelsesnode".
     /// </param>
     public async Task<BegrepEntitet> OpprettGruppebegrepAsync(
-        Guid? lovkildeId, string term, string opprettetAv, string? lovreferanseEid = null, CancellationToken ct = default)
+        string nodetype, Guid? lovkildeId, string term, string opprettetAv, string? lovreferanseEid = null,
+        CancellationToken ct = default)
     {
+        ValiderNyNodetype(nodetype);
         if (string.IsNullOrWhiteSpace(term))
         {
             throw new ArgumentException("Term kan ikke være tom. Ingen gjettet fallback.");
@@ -206,22 +220,19 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
         // Case-insensitiv duplikatsjekk, scopet til SAMME lovkildeId (inkl. "null" — fast/nasjonalt
         // er sin egen scope, se metodekommentaren) — samme mønster (last inn kandidatene, sammenlign
         // i minnet med OrdinalIgnoreCase) som navneform-sjekken i OpprettVirksomhetsbegrepAsync over.
-        var finnesAlt = await db.Begreper
-            .Where(b => b.Begrepskategori == "gruppe" && b.LovkildeId == lovkildeId && b.Entitetsstatus == "gjeldende")
-            .Select(b => b.Term)
-            .ToListAsync(ct);
-        if (finnesAlt.Any(t => string.Equals(t, term.Trim(), StringComparison.OrdinalIgnoreCase)))
+        var eksisterende = await FinnNodebegrepAsync(lovkildeId, term, ct);
+        if (eksisterende is not null)
         {
-            throw new ArgumentException(lovkildeId is null
-                ? $"Det faste, nasjonale gruppebegrepet '{term.Trim()}' finnes allerede."
-                : $"Gruppebegrepet '{term.Trim()}' finnes allerede for denne loven.");
+            var hvor = lovkildeId is null ? "som fast, nasjonalt begrep" : "for denne loven";
+            throw new ArgumentException(
+                $"Begrepet '{term.Trim()}' finnes allerede {hvor} (som {Nodetyper.Visningsnavn(eksisterende.Begrepskategori)}).");
         }
 
         var begrep = new BegrepEntitet
         {
             Id = Guid.NewGuid(),
             VirksomhetId = null,
-            Begrepskategori = "gruppe",
+            Begrepskategori = nodetype,
             LovkildeId = lovkildeId,
             Term = term,
             LovreferanseEid = lovreferanseEid,
@@ -233,6 +244,18 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
         db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", begrep.Id, virksomhetId: null, "opprettet", opprettetAv));
         await db.SaveChangesAsync(ct);
         return begrep;
+    }
+
+    /// <summary>[Ny, issue #310] Nye begrep får en valgbar nodetype eller <c>'organ'</c> — aldri
+    /// <c>'gruppe'</c> (utfases), og aldri en ukjent verdi. Ingen gjettet fallback.</summary>
+    private static void ValiderNyNodetype(string nodetype)
+    {
+        if (!Nodetyper.ErSettbar(nodetype))
+        {
+            throw new ArgumentException(
+                $"Ugyldig nodetype '{nodetype}'. Gyldige verdier: {string.Join(", ", Nodetyper.Settbare)}. "
+                + "'gruppe' brukes ikke lenger for nye begrep (issue #310). Ingen gjettet fallback.");
+        }
     }
 
     /// <summary>
@@ -242,30 +265,46 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     /// navneform-gjenbruken i <see cref="NavnekandidatOppdagelseTjeneste.LukkKjedenMotVirksomhetAsync"/>.
     /// Oppretter en NY rad (via <see cref="OpprettGruppebegrepAsync"/>) kun hvis <see cref="FinnFastGruppebegrepAsync"/>
     /// ikke finner noe — dette er selve "søk FØRST, opprett kun hvis ingen finnes"-kravet i issue #298 AC3.
+    /// <para>[ENDRET, issue #310] Gjenbruker KUN en rad med samme <paramref name="nodetype"/>. Finnes
+    /// termen som en ANNEN type (eller fortsatt som <c>'gruppe'</c>), kastes det — å stille koble en
+    /// rolle-forekomst til en klasse ville vært en gjettet kobling.</para>
     /// </summary>
     /// <returns>Begrepet (nytt eller gjenbrukt), og <c>true</c> hvis det ble opprettet NÅ (ikke gjenbrukt).</returns>
     public async Task<(BegrepEntitet Begrep, bool VarNyttBegrep)> OpprettEllerGjenbrukFastGruppebegrepAsync(
-        string term, string opprettetAv, string? lovreferanseEid = null, CancellationToken ct = default)
+        string nodetype, string term, string opprettetAv, string? lovreferanseEid = null, CancellationToken ct = default)
     {
+        ValiderNyNodetype(nodetype);
         var eksisterende = await FinnFastGruppebegrepAsync(term, ct);
-        if (eksisterende is not null) return (eksisterende, false);
+        if (eksisterende is not null)
+        {
+            KrevSammeNodetype(eksisterende, nodetype);
+            return (eksisterende, false);
+        }
 
-        var nytt = await OpprettGruppebegrepAsync(null, term, opprettetAv, lovreferanseEid, ct);
+        var nytt = await OpprettGruppebegrepAsync(nodetype, null, term, opprettetAv, lovreferanseEid, ct);
         return (nytt, true);
+    }
+
+    /// <summary>[Ny, issue #310] Se <see cref="OpprettEllerGjenbrukFastGruppebegrepAsync"/>.</summary>
+    private static void KrevSammeNodetype(BegrepEntitet eksisterende, string nodetype)
+    {
+        if (eksisterende.Begrepskategori == nodetype) return;
+        throw new ArgumentException(eksisterende.Begrepskategori == Nodetyper.Gruppe
+            ? $"Begrepet '{eksisterende.Term}' finnes allerede, men med den utfasede typen 'gruppe'. "
+              + "Sett nodetypen på det eksisterende begrepet først (begrepssiden), så kan kandidaten kobles til det."
+            : $"Begrepet '{eksisterende.Term}' finnes allerede som {Nodetyper.Visningsnavn(eksisterende.Begrepskategori)}, "
+              + $"ikke som {Nodetyper.Visningsnavn(nodetype)}. Ingen gjettet kobling — velg samme type, "
+              + "eller endre typen på det eksisterende begrepet.");
     }
 
     /// <summary>
     /// [Ny, issue #298 AC3] Finner et EKSISTERENDE fast, nasjonalt gruppebegrep (<c>LovkildeId == null</c>)
     /// med samme <paramref name="term"/> (case-insensitiv, samme sammenligning som duplikatsjekken i
     /// <see cref="OpprettGruppebegrepAsync"/>) — eller <c>null</c> hvis ingen finnes ennå.
+    /// [ENDRET, issue #310] Uansett nodetype (alle kategorier med gruppefunksjon).
     /// </summary>
-    public async Task<BegrepEntitet?> FinnFastGruppebegrepAsync(string term, CancellationToken ct = default)
-    {
-        var kandidater = await db.Begreper
-            .Where(b => b.Begrepskategori == "gruppe" && b.LovkildeId == null && b.Entitetsstatus == "gjeldende")
-            .ToListAsync(ct);
-        return kandidater.FirstOrDefault(b => string.Equals(b.Term, term.Trim(), StringComparison.OrdinalIgnoreCase));
-    }
+    public Task<BegrepEntitet?> FinnFastGruppebegrepAsync(string term, CancellationToken ct = default) =>
+        FinnNodebegrepAsync(null, term, ct);
 
     /// <summary>
     /// [Ny, issue #299 AC3/AC4] Get-or-create for et LOVSPESIFIKT gruppebegrep — speil av
@@ -275,15 +314,22 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     /// SAMME <c>(Term, LovkildeId)</c> dele ÉN begrep-rad, og <see cref="OpprettGruppebegrepAsync"/> alene
     /// ville KASTET for kandidat 2..N (dens duplikatsjekk er riktig for et enkeltstående, utilsiktet
     /// duplikat, men feil når duplikatet er selve POENGET — gruppen er per definisjon samme tekst).
+    /// [ENDRET, issue #310] Samme nodetype-regel som den faste varianten.
     /// </summary>
     /// <returns>Begrepet (nytt eller gjenbrukt), og <c>true</c> hvis det ble opprettet NÅ (ikke gjenbrukt).</returns>
     public async Task<(BegrepEntitet Begrep, bool VarNyttBegrep)> OpprettEllerGjenbrukGruppebegrepAsync(
-        Guid lovkildeId, string term, string opprettetAv, string? lovreferanseEid = null, CancellationToken ct = default)
+        string nodetype, Guid lovkildeId, string term, string opprettetAv, string? lovreferanseEid = null,
+        CancellationToken ct = default)
     {
+        ValiderNyNodetype(nodetype);
         var eksisterende = await FinnGruppebegrepAsync(lovkildeId, term, ct);
-        if (eksisterende is not null) return (eksisterende, false);
+        if (eksisterende is not null)
+        {
+            KrevSammeNodetype(eksisterende, nodetype);
+            return (eksisterende, false);
+        }
 
-        var nytt = await OpprettGruppebegrepAsync(lovkildeId, term, opprettetAv, lovreferanseEid, ct);
+        var nytt = await OpprettGruppebegrepAsync(nodetype, lovkildeId, term, opprettetAv, lovreferanseEid, ct);
         return (nytt, true);
     }
 
@@ -292,106 +338,60 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     /// ikke <c>null</c> — se <see cref="FinnFastGruppebegrepAsync"/> for den faste/nasjonale grenen) med
     /// samme <paramref name="term"/> (case-insensitiv, samme sammenligning som duplikatsjekken i
     /// <see cref="OpprettGruppebegrepAsync"/>) — eller <c>null</c> hvis ingen finnes ennå.
+    /// [ENDRET, issue #310] Uansett nodetype (alle kategorier med gruppefunksjon).
     /// </summary>
-    public async Task<BegrepEntitet?> FinnGruppebegrepAsync(Guid lovkildeId, string term, CancellationToken ct = default)
+    public Task<BegrepEntitet?> FinnGruppebegrepAsync(Guid lovkildeId, string term, CancellationToken ct = default) =>
+        FinnNodebegrepAsync(lovkildeId, term, ct);
+
+    /// <summary>[Ny, issue #310] Felles oppslag bak duplikatsjekk og get-or-create: gjeldende begrep med
+    /// gruppefunksjon, samme scope (<paramref name="lovkildeId"/>, inkl. null = fast), samme term
+    /// case-insensitivt. Samme mengde som de unike indeksene ux_begreper_nodebegrep_*.</summary>
+    private async Task<BegrepEntitet?> FinnNodebegrepAsync(Guid? lovkildeId, string term, CancellationToken ct)
     {
         var kandidater = await db.Begreper
-            .Where(b => b.Begrepskategori == "gruppe" && b.LovkildeId == lovkildeId && b.Entitetsstatus == "gjeldende")
-            .ToListAsync(ct);
-        return kandidater.FirstOrDefault(b => string.Equals(b.Term, term.Trim(), StringComparison.OrdinalIgnoreCase));
-    }
-
-    /// <summary>
-    /// [Ny, issue #203 pkt. 2] Administrativ inndeling (nasjon/fylke/kommune) — nøyaktig samme mønster
-    /// som <see cref="OpprettGruppebegrepAsync"/> rett over (samme (Term, LovkildeId)-scoping, samme
-    /// unike-partielle-indeks-vern, samme <paramref name="lovreferanseEid"/>-formål), men egen metode
-    /// og egen <see cref="BegrepEntitet.Begrepskategori"/>-verdi: en administrativ inndeling er IKKE en
-    /// juridisk-aktør-rolle («gruppe»), den er et geografisk/administrativt nivå SSR har bekreftet (se
-    /// <see cref="NavnekandidatOppdagelseTjeneste.KlassifiserAsync"/>). Ikke slått sammen med
-    /// <see cref="OpprettGruppebegrepAsync"/> til én parameterisert metode: de to har ulik
-    /// KILDE-begrunnelse for scopingen (gruppe er en juridisk rolle definert AV loven; administrativ
-    /// inndeling er et geografisk faktum SSR bekrefter, som loven bare NEVNER) selv om selve koden
-    /// tilfeldigvis blir strukturelt lik i dag — samme "egen, parallell metode fremfor en generisk
-    /// kategori-parameter"-linje som resten av denne klassen (jf. OpprettVirksomhetsbegrepAsync vs.
-    /// OpprettGruppebegrepAsync).
-    /// </summary>
-    public async Task<BegrepEntitet> OpprettAdministrativInndelingAsync(
-        Guid lovkildeId, string term, string opprettetAv, string? lovreferanseEid = null, CancellationToken ct = default)
-    {
-        if (string.IsNullOrWhiteSpace(term))
-        {
-            throw new ArgumentException("Term kan ikke være tom. Ingen gjettet fallback.");
-        }
-        if (!await db.Rettskilder.AnyAsync(r => r.Id == lovkildeId && r.Entitetsstatus == "gjeldende", ct))
-        {
-            throw new ArgumentException($"Fant ingen rettskilde med id '{lovkildeId}'. Ingen gjettet fallback.");
-        }
-        if (await db.Begreper.AnyAsync(b =>
-                b.Begrepskategori == "administrativ_inndeling" && b.LovkildeId == lovkildeId && b.Term == term
-                && b.Entitetsstatus == "gjeldende", ct))
-        {
-            throw new ArgumentException($"Den administrative inndelingen '{term}' finnes allerede for denne loven.");
-        }
-
-        var begrep = new BegrepEntitet
-        {
-            Id = Guid.NewGuid(),
-            VirksomhetId = null,
-            Begrepskategori = "administrativ_inndeling",
-            LovkildeId = lovkildeId,
-            Term = term,
-            LovreferanseEid = lovreferanseEid,
-            Status = "publisert",
-            OpprettetAv = opprettetAv,
-            OpprettetTidspunkt = DateTimeOffset.UtcNow,
-        };
-        db.Begreper.Add(begrep);
-        db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", begrep.Id, virksomhetId: null, "opprettet", opprettetAv));
-        await db.SaveChangesAsync(ct);
-        return begrep;
-    }
-
-    /// <summary>
-    /// [Ny, issue #299 AC3/AC4] Get-or-create for en administrativ inndeling — speil av
-    /// <see cref="OpprettEllerGjenbrukGruppebegrepAsync"/>, brukt av samme «Behandle gruppen»-flyt
-    /// (<see cref="NavnekandidatOppdagelseTjeneste.GodkjennGruppeBatchAsync"/>) for kategorien
-    /// <c>administrativ_inndeling</c>, som alltid er lovspesifikt (ingen fast/nasjonal gren finnes for
-    /// den, se issue #298s "Ikke i denne saken"). <see cref="FinnAdministrativInndelingAsync"/> sin
-    /// case-INSENSITIVE sammenligning er bevisst mer tolerant enn <see cref="OpprettAdministrativInndelingAsync"/>s
-    /// egen (case-sensitive) duplikatsjekk under — det utvider ALDRI til et kast, kun til MER gjenbruk
-    /// (Opprett kalles her kun når Finn ikke fant noe), og endrer ingenting ved enkeltrad-godkjenning.
-    /// </summary>
-    /// <returns>Begrepet (nytt eller gjenbrukt), og <c>true</c> hvis det ble opprettet NÅ (ikke gjenbrukt).</returns>
-    public async Task<(BegrepEntitet Begrep, bool VarNyttBegrep)> OpprettEllerGjenbrukAdministrativInndelingAsync(
-        Guid lovkildeId, string term, string opprettetAv, string? lovreferanseEid = null, CancellationToken ct = default)
-    {
-        var eksisterende = await FinnAdministrativInndelingAsync(lovkildeId, term, ct);
-        if (eksisterende is not null) return (eksisterende, false);
-
-        var nytt = await OpprettAdministrativInndelingAsync(lovkildeId, term, opprettetAv, lovreferanseEid, ct);
-        return (nytt, true);
-    }
-
-    /// <summary>
-    /// [Ny, issue #299 AC3/AC4] Finner en EKSISTERENDE administrativ inndeling med samme
-    /// <paramref name="term"/> (case-insensitiv — se <see cref="OpprettEllerGjenbrukAdministrativInndelingAsync"/>
-    /// sin kommentar for hvorfor det er trygt) i samme lov — eller <c>null</c> hvis ingen finnes ennå.
-    /// </summary>
-    public async Task<BegrepEntitet?> FinnAdministrativInndelingAsync(Guid lovkildeId, string term, CancellationToken ct = default)
-    {
-        var kandidater = await db.Begreper
-            .Where(b => b.Begrepskategori == "administrativ_inndeling" && b.LovkildeId == lovkildeId
+            .Where(b => Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!) && b.LovkildeId == lovkildeId
                         && b.Entitetsstatus == "gjeldende")
             .ToListAsync(ct);
         return kandidater.FirstOrDefault(b => string.Equals(b.Term, term.Trim(), StringComparison.OrdinalIgnoreCase));
     }
+
+    /// <summary>
+    /// [Ny, issue #310] Setter nodetypen på et EKSISTERENDE begrep med gruppefunksjon — veien for et
+    /// menneske til å reklassifisere de <c>'gruppe'</c>-radene som ikke sto på Johanns liste (andre
+    /// miljøer), eller rette en feil type, uten en ny migrasjon. Rører ingenting annet: tildelinger,
+    /// medlemskap og tagger peker på begrepets id og følger uendret med. Ingen unik-konflikt mulig:
+    /// indeksene dekker alle kategoriene med gruppefunksjon samlet, så (Term, LovkildeId) er like
+    /// unik før og etter.
+    /// </summary>
+    /// <returns><c>null</c> hvis iden ikke finnes eller ikke er et begrep med gruppefunksjon.</returns>
+    public async Task<BegrepEntitet?> SettNodetypeAsync(Guid id, string nodetype, string endretAv, CancellationToken ct = default)
+    {
+        ValiderNyNodetype(nodetype);
+        var begrep = await db.Begreper.FirstOrDefaultAsync(
+            b => b.Id == id && Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!) && b.Entitetsstatus == "gjeldende", ct);
+        if (begrep is null) return null;
+        if (begrep.Begrepskategori == nodetype) return begrep;
+        begrep.Begrepskategori = nodetype;
+        begrep.SistEndretAv = endretAv;
+        begrep.SistEndretTidspunkt = DateTimeOffset.UtcNow;
+        db.Proveniens.Add(ProveniensHjelper.NyRad("begrep", id, virksomhetId: null, "endret", endretAv));
+        await db.SaveChangesAsync(ct);
+        return begrep;
+    }
+
+    // [FJERNET, issue #310] OpprettAdministrativInndelingAsync / OpprettEllerGjenbrukAdministrativInndelingAsync /
+    // FinnAdministrativInndelingAsync (issue #203 pkt. 2, #299). De var bevisst egne metoder fordi
+    // «administrativ inndeling er et geografisk faktum SSR bekrefter, ikke en juridisk rolle» — det
+    // skillet bæres nå av nodetypen selv ('omrade' vs. 'rolle'), og kategorien er slått inn i 'omrade'
+    // (issue #310: «administrativ_inndeling (0 rader) går inn i omrade»). Samme opprettelse går via
+    // OpprettGruppebegrepAsync(Nodetyper.Omrade, …), som i tillegg gir området den faste grenen fra #298.
 
     public Task<List<BegrepEntitet>> AlleVirksomhetsbegrepForAsync(Guid virksomhetId, CancellationToken ct = default) =>
         db.Begreper.Where(b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == virksomhetId
             && b.Entitetsstatus == "gjeldende").ToListAsync(ct);
 
     public Task<List<BegrepEntitet>> AlleGruppebegrepForLovAsync(Guid lovkildeId, CancellationToken ct = default) =>
-        db.Begreper.Where(b => b.Begrepskategori == "gruppe" && b.LovkildeId == lovkildeId
+        db.Begreper.Where(b => Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!) && b.LovkildeId == lovkildeId
             && b.Entitetsstatus == "gjeldende").ToListAsync(ct);
 
     /// <summary>
@@ -401,8 +401,9 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     /// <see cref="AlleGruppebegrepForLovAsync"/> (scoped til ÉN kjent lov, brukt i lovtekst-visningen)
     /// vet ikke denne kalleren på forhånd hvilken lov — brukeren skal kunne søke på tvers av alle.
     /// </summary>
+    // [ENDRET, issue #310] Alle kategorier med gruppefunksjon (klasse/rolle/omrade/organ + gjenværende 'gruppe').
     public Task<List<BegrepEntitet>> AlleGruppebegrepAsync(CancellationToken ct = default) =>
-        db.Begreper.Where(b => b.Begrepskategori == "gruppe" && b.Entitetsstatus == "gjeldende")
+        db.Begreper.Where(b => Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!) && b.Entitetsstatus == "gjeldende")
             .OrderBy(b => b.Term)
             .ToListAsync(ct);
 
@@ -419,9 +420,9 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     /// </summary>
     // [ENDRET, issue #203 pkt. 2] 'administrativ_inndeling' lagt til i OR-en — ellers usynlig i
     // tagg-picker-en for nøyaktig samme grunn som gruppebegrep opprinnelig var det, se klassekommentaren.
+    // [ENDRET, issue #310] 'administrativ_inndeling' er slått inn i 'omrade'; alle kategorier med gruppefunksjon tas med.
     public Task<List<BegrepEntitet>> AlleAsync(CancellationToken ct = default) =>
-        db.Begreper.Where(b => b.Begrepskategori == "virksomhet" || b.Begrepskategori == "gruppe"
-            || b.Begrepskategori == "administrativ_inndeling")
+        db.Begreper.Where(b => b.Begrepskategori == "virksomhet" || Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!))
             .Where(b => b.Entitetsstatus == "gjeldende")
             .OrderBy(b => b.Term)
             .ToListAsync(ct);

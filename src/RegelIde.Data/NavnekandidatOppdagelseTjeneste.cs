@@ -651,7 +651,9 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 .Select(b => b.Term).ToListAsync(ct),
             StringComparer.OrdinalIgnoreCase);
         var gruppeTermerPerLovkilde = (await db.Begreper
-                .Where(b => b.Begrepskategori == "gruppe" && b.Entitetsstatus == "gjeldende" && b.LovkildeId != null)
+                // [ENDRET, issue #310] alle kategorier med gruppefunksjon — en reklassifisert «kommunene»
+                // (nå 'klasse') dekker fortsatt det samme treffet som da den het 'gruppe'.
+                .Where(b => Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!) && b.Entitetsstatus == "gjeldende" && b.LovkildeId != null)
                 .Select(b => new { b.Term, b.LovkildeId }).ToListAsync(ct))
             .GroupBy(b => b.LovkildeId!.Value)
             .ToDictionary(g => g.Key, g => new HashSet<string>(g.Select(x => x.Term), StringComparer.OrdinalIgnoreCase));
@@ -663,7 +665,8 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         // klassekommentarens "Term-basert dedup"-avsnitt for hvorfor. Oppdateres fortløpende i løkken
         // under (samme sveip kan treffe samme normaliserte term flere ganger på ulike posisjoner).
         var gruppeKandidatTermerPerRettskilde = (await db.Navnekandidater
-                .Where(k => k.Kategori == "gruppe")
+                // [ENDRET, issue #310] også kandidater et menneske/KI-en alt har gitt en nodetype.
+                .Where(k => Nodetyper.MedGruppefunksjon.Contains(k.Kategori))
                 .Select(k => new { k.RettskildeId, k.ForeslattTekst }).ToListAsync(ct))
             .GroupBy(k => k.RettskildeId)
             .ToDictionary(g => g.Key, g => new HashSet<string>(g.Select(x => x.ForeslattTekst.ToLowerInvariant()), StringComparer.Ordinal));
@@ -739,6 +742,9 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 {
                     // Faste rollesubstantiv — en lukket, hånd-kuratert liste, ALLTID korrekt som
                     // "gruppe" per design (se klassekommentaren). Ingen klassifisering, opprett direkte.
+                    // [ENDRET, issue #310] "gruppe" betyr her «generisk aktøromtale, nodetype ikke avgjort»:
+                    // regexen kan ikke se om «kommunene» er en klasse eller «departementet» en rolle uten å
+                    // gjette (CLAUDE.md §8) — mennesket velger klasse/rolle/område ved godkjenning.
                     await OpprettEllerFinnAsync(tekst, "gruppe", node.RettskildeId, node.Eid, start, start + lengde, opprettetAv, ct);
                     if (forAntall == 0)
                     {
@@ -888,8 +894,10 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         var ssr = await eksternOppslag.SlaOppSsrAsync(raaTekst, ct);
         if (ssr.Treff)
         {
+            // [ENDRET, issue #310] "administrativ_inndeling" → Nodetyper.Omrade: et SSR-bekreftet
+            // nasjon/fylke/kommune-NAVN er et territorium, og kategorien er slått inn i 'omrade'.
             var kategori = ssr.TaksonomiKategori is not null && SsrAdministrativInndelingTyper.Contains(ssr.TaksonomiKategori)
-                ? "administrativ_inndeling"
+                ? Nodetyper.Omrade
                 : "virksomhet";
             var nesteOrd = NesteOrdEtter(tekst, matchSlutt);
             return nesteOrd is not null && InstitusjonsordMønster.IsMatch(nesteOrd)
@@ -1357,10 +1365,11 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             k => k.RettskildeId == rettskildeId && k.NodeEid == nodeEid && k.StartOffset == startOffset, ct);
         if (eksisterende is not null) return eksisterende;
 
-        if (kategori is not ("virksomhet" or "gruppe" or "administrativ_inndeling"))
+        // [ENDRET, issue #310] Nodetyper.Kandidatkategorier (virksomhet, gruppe = uavklart, klasse, rolle, omrade).
+        if (!Nodetyper.Kandidatkategorier.Contains(kategori))
         {
             throw new ArgumentException(
-                $"Ukjent kategori '{kategori}'. Gyldige verdier: 'virksomhet', 'gruppe', 'administrativ_inndeling'.");
+                $"Ukjent kategori '{kategori}'. Gyldige verdier: {string.Join(", ", Nodetyper.Kandidatkategorier)}.");
         }
         if (konfidens is not (null or "hoy" or "lav"))
         {
@@ -1520,7 +1529,14 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// selve hovedformålet med godkjenningen.
     /// </para>
     /// </summary>
-    public async Task<NavnekandidatEntitet?> GodkjennAsync(Guid id, string behandletAv, CancellationToken ct = default)
+    /// <param name="nodetype">
+    /// [Ny, issue #310 «nodetype-akse»] <c>klasse</c>/<c>rolle</c>/<c>omrade</c> — saksbehandlerens valg
+    /// av hva slags begrep kandidaten blir. PÅKREVD for en <c>"gruppe"</c>-kandidat (= uavklart type);
+    /// valgfri når kandidaten alt har en nodetype (KI-forslag, SSR-område, eller satt i listen), og
+    /// overstyrer den da. <c>null</c> + <c>"virksomhet"</c> = uendret virksomhet-oppførsel.
+    /// </param>
+    public async Task<NavnekandidatEntitet?> GodkjennAsync(
+        Guid id, string behandletAv, CancellationToken ct = default, string? nodetype = null)
     {
         var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
         if (kandidat is null) return null;
@@ -1531,22 +1547,15 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         }
 
         Guid? refIdForTagg = null;
-        if (kandidat.Kategori == "gruppe")
+        // [ENDRET, issue #310] Én gren for alle begrep med gruppefunksjon (var: "gruppe" og
+        // "administrativ_inndeling" som to parallelle grener). Nodetypen avklares FØRST — en "gruppe"-
+        // kandidat uten valgt nodetype kastes, kandidaten forblir "Venter" (ingen gjettet type).
+        if (nodetype is not null || kandidat.Kategori != "virksomhet")
         {
-            var gruppebegrep = await virksomhetsbegrep.OpprettGruppebegrepAsync(
-                kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
-            refIdForTagg = gruppebegrep.Id;
-        }
-        else if (kandidat.Kategori == "administrativ_inndeling")
-        {
-            // [Ny, issue #203 pkt. 2] Gren PARALLELL til "gruppe" over — samme mekanisme
-            // (OpprettAdministrativInndelingAsync er strukturelt identisk med OpprettGruppebegrepAsync,
-            // se den metodens kommentar for hvorfor det likevel er en egen metode), samme
-            // (Term, LovkildeId)-scoping, samme "gruppe"-taggkobling (Kind="begrep", RefId=det nye
-            // begrepets id).
-            var administrativInndeling = await virksomhetsbegrep.OpprettAdministrativInndelingAsync(
-                kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
-            refIdForTagg = administrativInndeling.Id;
+            var type = await AvklarNodetypeAsync(kandidat, nodetype, behandletAv, ct);
+            var begrep = await virksomhetsbegrep.OpprettGruppebegrepAsync(
+                type, kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
+            refIdForTagg = begrep.Id;
         }
         // "virksomhet": ingen Begrep-entitet opprettes her — se metodekommentaren.
 
@@ -1557,6 +1566,38 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         kandidat.BehandletTidspunkt = DateTimeOffset.UtcNow;
         await db.SaveChangesAsync(ct);
         return kandidat;
+    }
+
+    /// <summary>
+    /// [Ny, issue #310 «nodetype-akse», 2026-10-07] Avgjør hvilken nodetype (klasse/rolle/omrade) en
+    /// kandidat skal bli begrep som. En eksplisitt <paramref name="nodetype"/> (menneskets valg) vinner og
+    /// skrives inn på kandidaten via <see cref="OmkategoriserVentendeAsync"/> — samme mekanisme som
+    /// «Behandle gruppen» sin <c>tilKategori</c>, slik at kandidatraden viser hva den faktisk ble. Uten
+    /// eksplisitt valg brukes kandidatens egen kategori, men BARE hvis den alt er en nodetype — en
+    /// <c>"gruppe"</c>-kandidat er en generisk aktøromtale der sveipet ikke vet typen, og den gjettes ikke.
+    /// </summary>
+    private async Task<string> AvklarNodetypeAsync(
+        NavnekandidatEntitet kandidat, string? nodetype, string behandletAv, CancellationToken ct)
+    {
+        if (nodetype is not null)
+        {
+            if (!Nodetyper.ErValgbar(nodetype))
+            {
+                throw new ArgumentException(
+                    $"Ugyldig nodetype '{nodetype}'. Gyldige verdier: {string.Join(", ", Nodetyper.Valgbare)}. "
+                    + "Ingen gjettet fallback.");
+            }
+            await OmkategoriserVentendeAsync(kandidat.Id, nodetype, behandletAv, ct);
+        }
+        if (!Nodetyper.ErValgbar(kandidat.Kategori))
+        {
+            throw new ArgumentException(kandidat.Kategori == Nodetyper.Gruppe
+                ? "Kandidaten er en generisk aktøromtale uten avklart nodetype. Velg klasse, rolle eller "
+                  + "område (issue #310) — typen gjettes ikke."
+                : $"Kandidaten har kategori '{kandidat.Kategori}' — kun klasse, rolle og område kan bli et "
+                  + "begrep her. Bruk virksomhet-veien for 'virksomhet'.");
+        }
+        return kandidat.Kategori;
     }
 
     /// <summary>
@@ -1672,10 +1713,12 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         IReadOnlyList<Guid> ider, bool fast, string behandletAv, string? tilKategori = null,
         CancellationToken ct = default)
     {
-        if (tilKategori is not null && tilKategori is not ("gruppe" or "administrativ_inndeling"))
+        // [ENDRET, issue #310] tilKategori er nå en NODETYPE (klasse/rolle/omrade) — 'gruppe' og
+        // 'administrativ_inndeling' er ikke lenger noe man kan godkjenne SOM.
+        if (tilKategori is not null && !Nodetyper.ErValgbar(tilKategori))
         {
             throw new ArgumentException(
-                $"Ugyldig tilKategori '{tilKategori}' — kun 'gruppe' eller 'administrativ_inndeling' "
+                $"Ugyldig tilKategori '{tilKategori}' — kun {string.Join(", ", Nodetyper.Valgbare)} "
                 + "(bruk /kobl-til-virksomhet-batch for virksomhet).");
         }
         var rader = new List<NavnekandidatGruppeBatchRad>();
@@ -1696,19 +1739,18 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 {
                     await OmkategoriserVentendeAsync(id, tilKategori, behandletAv, ct);
                 }
-                if (kandidat.Kategori != "gruppe" && kandidat.Kategori != "administrativ_inndeling")
+                // [ENDRET, issue #310] Kun kandidater med avklart nodetype. En "gruppe"-kandidat (uavklart)
+                // gir en feilrad med beskjed om å velge type — «Behandle gruppen» sender tilKategori for det.
+                // Den gamle sperren «administrativ inndeling støtter ikke fast» er fjernet: issue #310 sier
+                // at den faste og den lovspesifikke identiteten fra #298 gjelder alle tre typene.
+                if (!Nodetyper.ErValgbar(kandidat.Kategori))
                 {
                     rader.Add(new NavnekandidatGruppeBatchRad(id, false,
-                        $"Kandidaten har kategori '{kandidat.Kategori}' — kun 'gruppe'/'administrativ_inndeling' "
-                        + "kan behandles med denne gruppehandlingen. Bruk /kobl-til-virksomhet-batch for 'virksomhet'.",
+                        kandidat.Kategori == Nodetyper.Gruppe
+                            ? "Kandidaten har uavklart nodetype ('gruppe') — velg klasse, rolle eller område for gruppen."
+                            : $"Kandidaten har kategori '{kandidat.Kategori}' — kun klasse/rolle/område kan behandles "
+                              + "med denne gruppehandlingen. Bruk /kobl-til-virksomhet-batch for 'virksomhet'.",
                         null));
-                    continue;
-                }
-                if (fast && kandidat.Kategori == "administrativ_inndeling")
-                {
-                    rader.Add(new NavnekandidatGruppeBatchRad(id, false,
-                        "Administrativ inndeling støtter ikke fast/nasjonalt begrep — den er alltid lovspesifikt "
-                        + "(issue #298s \"ikke i denne saken\").", null));
                     continue;
                 }
                 if (kandidat.Status != "Venter")
@@ -1726,17 +1768,12 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                     if (fast)
                     {
                         (begrep, _) = await virksomhetsbegrep.OpprettEllerGjenbrukFastGruppebegrepAsync(
-                            kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
-                    }
-                    else if (kandidat.Kategori == "administrativ_inndeling")
-                    {
-                        (begrep, _) = await virksomhetsbegrep.OpprettEllerGjenbrukAdministrativInndelingAsync(
-                            kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
+                            kandidat.Kategori, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
                     }
                     else
                     {
                         (begrep, _) = await virksomhetsbegrep.OpprettEllerGjenbrukGruppebegrepAsync(
-                            kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
+                            kandidat.Kategori, kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
                     }
                     begrepId = begrep.Id;
                     begrepCache[cacheNokkel] = begrepId;
@@ -1860,10 +1897,11 @@ public sealed class NavnekandidatOppdagelseTjeneste(
 
         if (kategori is not null)
         {
-            if (kategori is not ("virksomhet" or "gruppe" or "administrativ_inndeling"))
+            // [ENDRET, issue #310] Nodetyper.Kandidatkategorier.
+            if (!Nodetyper.Kandidatkategorier.Contains(kategori))
             {
                 throw new ArgumentException(
-                    $"Ugyldig kategori '{kategori}'. Gyldige verdier: virksomhet, gruppe, administrativ_inndeling. "
+                    $"Ugyldig kategori '{kategori}'. Gyldige verdier: {string.Join(", ", Nodetyper.Kandidatkategorier)}. "
                     + "Ingen gjettet fallback.");
             }
             kandidat.Kategori = kategori;
@@ -2078,16 +2116,19 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// UENDRET (AC5: «ingen regresjon») for det store flertallet av gruppe-kandidater som ikke har noe
     /// gruppe-av-gruppe-forhold å registrere.
     /// </summary>
+    /// <param name="nodetype">[Ny, issue #310] Samme som i <see cref="GodkjennAsync"/>.</param>
     public async Task<NavnekandidatGruppeAvGruppeResultat?> KoblTilGruppeAvGruppeAsync(
-        Guid id, Guid overordnetGruppeBegrepId, string behandletAv, CancellationToken ct = default)
+        Guid id, Guid overordnetGruppeBegrepId, string behandletAv, CancellationToken ct = default,
+        string? nodetype = null)
     {
         var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
         if (kandidat is null) return null;
-        if (kandidat.Kategori != "gruppe")
+        // [ENDRET, issue #310] 'gruppe' (uavklart) ELLER en nodetype — ikke 'virksomhet'.
+        if (!Nodetyper.MedGruppefunksjon.Contains(kandidat.Kategori))
         {
             throw new ArgumentException(
-                $"Kandidaten har kategori '{kandidat.Kategori}' — kun 'gruppe'-kandidater kan opprettes "
-                + "som medlem av en annen gruppe her.");
+                $"Kandidaten har kategori '{kandidat.Kategori}' — kun gruppe-/klasse-/rolle-/områdekandidater "
+                + "kan opprettes som medlem av en annen gruppe her.");
         }
         if (kandidat.Status != "Venter")
         {
@@ -2095,8 +2136,9 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 $"Kandidaten har status '{kandidat.Status}' — kan kun godkjenne kandidater med status 'Venter'.");
         }
 
+        var type = await AvklarNodetypeAsync(kandidat, nodetype, behandletAv, ct);
         var gruppebegrep = await virksomhetsbegrep.OpprettGruppebegrepAsync(
-            kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
+            type, kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
 
         var medlemskap = await gruppeMedlemskap.OpprettAsync(
             overordnetGruppeBegrepId, gruppebegrep.Id, kandidat.RettskildeId,
@@ -2127,16 +2169,18 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// forekomster i SAMME lov) ender dermed opp på nøyaktig ÉN delt Begrep-rad, ikke to (AC6).
     /// </para>
     /// </summary>
+    /// <param name="nodetype">[Ny, issue #310] Samme som i <see cref="GodkjennAsync"/>.</param>
     public async Task<NavnekandidatFastGruppebegrepResultat?> KoblTilFastGruppebegrepAsync(
-        Guid id, string behandletAv, CancellationToken ct = default)
+        Guid id, string behandletAv, CancellationToken ct = default, string? nodetype = null)
     {
         var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
         if (kandidat is null) return null;
-        if (kandidat.Kategori != "gruppe")
+        // [ENDRET, issue #310] 'gruppe' (uavklart) ELLER en nodetype — ikke 'virksomhet'.
+        if (!Nodetyper.MedGruppefunksjon.Contains(kandidat.Kategori))
         {
             throw new ArgumentException(
-                $"Kandidaten har kategori '{kandidat.Kategori}' — kun 'gruppe'-kandidater kan godkjennes "
-                + "som fast, nasjonalt begrep.");
+                $"Kandidaten har kategori '{kandidat.Kategori}' — kun gruppe-/klasse-/rolle-/områdekandidater "
+                + "kan godkjennes som fast, nasjonalt begrep.");
         }
         if (kandidat.Status != "Venter")
         {
@@ -2144,8 +2188,9 @@ public sealed class NavnekandidatOppdagelseTjeneste(
                 $"Kandidaten har status '{kandidat.Status}' — kan kun godkjenne kandidater med status 'Venter'.");
         }
 
+        var type = await AvklarNodetypeAsync(kandidat, nodetype, behandletAv, ct);
         var (gruppebegrep, varNyttBegrep) = await virksomhetsbegrep.OpprettEllerGjenbrukFastGruppebegrepAsync(
-            kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
+            type, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
 
         // Samme tagg-eierskap (ansvarlig departement for KANDIDATENS EGEN rettskilde) som den vanlige
         // gruppe-grenen i GodkjennAsync — at selve BEGREPET er nasjonalt/lovløst endrer ikke hvor

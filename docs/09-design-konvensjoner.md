@@ -494,6 +494,25 @@ forveksles med det offisielle navnet. En uspesifisert (NULL) grunn gir som stand
 «Uspesifisert»-merkelapp på hver av dem ville vært ren støy; `visUspesifisert` slås på der fraværet
 er selve poenget. En verdi komponenten ikke kjenner vises RÅ i stedet for å skjules.
 
+**[Ny, issue #310, 2026-10-07] `BegrepskategoriTag` / `NodetypeVelger` / `AktortypeTag` /
+`AktortypeVelger`** (`src/begrep/Nodetype.tsx`) — samme «én delt kilde»-regel for nodetypen på et
+begrep med gruppefunksjon og aktørtypen på en virksomhet, brukt av `BegrepDetalj`, `VirksomhetDetalj`,
+`NavnekandidaterListe`, `BehandleGruppeDialog` og veiviseren. Fargerollene er LÅST:
+
+| Verdi | Farge | Hvorfor |
+|---|---|---|
+| `klasse` | `brand2` | Typen er en KATEGORI, ikke en status — derfor ingen statusfarger (`success`/`warning`/`danger` betyr riktig/forsiktig/feil i appen). |
+| `rolle` | `brand3` | Som over. |
+| `omrade` | `info` | Som over. |
+| `organ` | `accent` | Samme farge som `virksomhet`-kategorien i navnekandidatlisten: et organ hører hjemme som aktør (docs/33 §4.1). |
+| `gruppe` (type ikke avgjort) | `neutral` | Nettopp UAVKLART — skal ikke se ut som en av typene. |
+| Aktørtype (alle tre) | `neutral` | Ingen av rettssubjekt/organ/enhet er «bedre» enn de andre; NULL vises som `neutral` `outline` «Aktørtype uavklart» bare der fraværet er poenget (`visUavklart`, detaljsiden). |
+
+Erstatter de tidligere faste `success`-taggene «Gruppebegrep»/«Administrativ inndeling» på
+`BegrepDetalj` og `KATEGORI_FARGE` (`gruppe: 'info'`, `administrativ_inndeling: 'success'`) i
+`NavnekandidaterListe`. Nodetypen forhåndsvelges ALDRI i `NodetypeVelger` med mindre kandidaten alt
+har en — typen gjettes ikke.
+
 ---
 
 ## 16. Navigerbare tagger i løpetekst + medlemslister på et gruppebegrep (2026-09-08, issue #164)

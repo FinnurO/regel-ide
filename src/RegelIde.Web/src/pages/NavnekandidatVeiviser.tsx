@@ -17,6 +17,8 @@ import { VirksomhetVelger } from '../virksomhet/VirksomhetVelger';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { KonfidensTag, konfidensGrunnTekst } from '../kandidater/KonfidensTag';
 import { Metatekst } from '../entitet/Metatekst';
+import { KANDIDATNODETYPER, NODETYPE_VISNING, NodetypeVelger } from '../begrep/Nodetype';
+import type { Kandidatnodetype } from '../api/types';
 
 /**
  * [Ny, navnekandidat-wizard-runden, 2026-09-07] Behandling av ÉN navnekandidat, ende til ende.
@@ -67,6 +69,14 @@ import { Metatekst } from '../entitet/Metatekst';
  * det NYE gruppebegrepet og en allerede eksisterende, overordnet gruppe (ett nytt endepunkt,
  * `kobl-til-gruppe-av-gruppe`, siden klienten ikke kjenner det nye gruppebegrepets id på forhånd).
  * Korreksjonsregel-tabellen (issue #203 pkt. 4) er IKKE del av denne runden.
+ *
+ * <h3>[ENDRET, issue #310 «nodetype-akse», 2026-10-07] Gruppe-sporet ble begrep-sporet</h3>
+ * «Gruppe som defineres her» er nå «Begrep loven definerer», og steg 2 krever at saksbehandleren
+ * velger nodetypen — klasse, rolle eller område (docs/33 §4.1–4.2). Den forhåndsvelges BARE når
+ * kandidaten alt har en (KI-forslag, SSR-område, eller satt i listen); en `gruppe`-kandidat er en
+ * generisk aktøromtale der sveipet ikke vet typen, og veiviseren gjetter den ikke. Typen sendes med
+ * alle tre endepunktene (godkjenn, fast, gruppe-av-gruppe). «Administrativ inndeling» er slått inn i
+ * Område — derfor er merknaden om at den «ikke er med i denne runden» fjernet.
  *
  * <h3>Designmønster</h3>
  * Ny side, så den følger saksbehandler-mønsteret fra dag én (docs/09 §14): brødsmulesti,
@@ -236,6 +246,8 @@ export default function NavnekandidatVeiviser() {
   // gruppe-av-gruppe-tillegget over — begge er EKSTRA valg på gruppe-sporet, men gruppe-av-gruppe
   // gjelder uansett hvilken scope man velger her, så de to påvirker ikke hverandre i UI-en.
   const [gruppeScope, setGruppeScope] = useState<'lovspesifikt' | 'fast'>('lovspesifikt');
+  // [Ny, issue #310] Nodetypen begrep-sporet oppretter. `null` = ikke valgt — knappen er da sperret.
+  const [nodetype, setNodetype] = useState<Kandidatnodetype | null>(null);
 
   // Steg 5 / avslutning
   const [fullfører, setFullfører] = useState(false);
@@ -295,7 +307,10 @@ export default function NavnekandidatVeiviser() {
         // Forhåndsvelg det opplagte: en 'gruppe'-kandidat skal normalt bli et gruppebegrep, en
         // 'virksomhet'-kandidat en konkret virksomhet. Fortsatt et VALG brukeren ser og kan endre —
         // steg 2 hoppes aldri over automatisk.
-        setSlag(k.kategori === 'gruppe' ? 'gruppe' : 'virksomhet');
+        // [ENDRET, issue #310] Alt som ikke er 'virksomhet' går til begrep-sporet; nodetypen
+        // forhåndsvelges bare når kandidaten ALT har en (ikke for 'gruppe' = uavklart).
+        setSlag(k.kategori === 'virksomhet' ? 'virksomhet' : 'gruppe');
+        setNodetype((KANDIDATNODETYPER as readonly string[]).includes(k.kategori) ? k.kategori as Kandidatnodetype : null);
         setNyttNavn(k.foreslattTekst);
         setBrregSok(k.foreslattTekst);
         return Promise.all([api.hentRettskilde(k.rettskildeId), api.hentNoder(k.rettskildeId)]);
@@ -438,6 +453,8 @@ export default function NavnekandidatVeiviser() {
   /** Steg 2-utfallene som avslutter veiviseren uten å gå via steg 3. */
   async function fullførIkkeVirksomhet(valg: 'gruppe' | 'irrelevant') {
     if (!id || !kandidat) return;
+    if (valg === 'gruppe' && !nodetype) return; // [Ny, issue #310] knappen er sperret uten type, se steg 2.
+    const typeTekst = nodetype ? NODETYPE_VISNING[nodetype].tekst.toLowerCase() : 'begrep';
     setFullfører(true);
     setFeil(null);
     try {
@@ -449,14 +466,15 @@ export default function NavnekandidatVeiviser() {
         if (erGruppeAvGruppe && valgtOverordnetGruppeBegrepId) {
           const resultat = await api.koblNavnekandidatTilGruppeAvGruppe(id, {
             overordnetGruppeBegrepId: valgtOverordnetGruppeBegrepId,
+            nodetype: nodetype ?? undefined,
           });
           const overordnetTerm = gruppebegrep?.find((g) => g.id === valgtOverordnetGruppeBegrepId)?.term
             ?? 'den valgte gruppen';
           setFerdig({
-            tittel: `«${kandidat.foreslattTekst}» er opprettet som gruppebegrep.`,
+            tittel: `«${kandidat.foreslattTekst}» er opprettet som ${typeTekst}.`,
             detaljer: [
-              'Gruppebegrepet er hjemlet i denne rettskilden (navn + lov utgjør identiteten).',
-              `Gruppen er registrert som medlem av «${overordnetTerm}», hjemlet i denne rettskilden — `
+              'Begrepet er hjemlet i denne rettskilden (navn + lov utgjør identiteten).',
+              `Det er registrert som medlem av «${overordnetTerm}», hjemlet i denne rettskilden — `
                 + 'det er her medlemskapet står (issue #283 AC9).',
               'Tekst-taggen for forekomsten er koblet til det nye gruppebegrepet.',
               'Navnekandidaten er satt til «Godkjent».',
@@ -479,11 +497,11 @@ export default function NavnekandidatVeiviser() {
         // VirksomhetsbegrepTjeneste.OpprettEllerGjenbrukFastGruppebegrepAsync). Samme "egen gren, ikke
         // en utvidelse av den vanlige veien"-begrunnelse som gruppe-av-gruppe-grenen over.
         if (gruppeScope === 'fast') {
-          const resultat = await api.godkjennNavnekandidatSomFastGruppebegrep(id);
+          const resultat = await api.godkjennNavnekandidatSomFastGruppebegrep(id, nodetype ?? undefined);
           setFerdig({
             tittel: resultat.varNyttBegrep
-              ? `«${kandidat.foreslattTekst}» er opprettet som fast, nasjonalt gruppebegrep.`
-              : `«${kandidat.foreslattTekst}» er koblet til et eksisterende fast, nasjonalt gruppebegrep.`,
+              ? `«${kandidat.foreslattTekst}» er opprettet som fast, nasjonal ${typeTekst}.`
+              : `«${kandidat.foreslattTekst}» er koblet til en eksisterende fast, nasjonal ${typeTekst}.`,
             detaljer: [
               resultat.varNyttBegrep
                 ? 'Gruppebegrepet er FAST og nasjonalt — det har ingen lovkilde, og gjenbrukes på tvers av alle lover.'
@@ -504,12 +522,12 @@ export default function NavnekandidatVeiviser() {
 
         // BEVISST helt uendret vei: samme GodkjennAsync som dagens fungerende hurtig-Godkjenn
         // (oppretter Begrep(gruppe) + tagg m/RefId). Ingen regresjon her (AK5).
-        await api.godkjennNavnekandidat(id);
+        await api.godkjennNavnekandidat(id, nodetype ?? undefined);
         setFerdig({
-          tittel: `«${kandidat.foreslattTekst}» er opprettet som gruppebegrep.`,
+          tittel: `«${kandidat.foreslattTekst}» er opprettet som ${typeTekst}.`,
           detaljer: [
-            'Gruppebegrepet er hjemlet i denne rettskilden (navn + lov utgjør identiteten).',
-            'Tekst-taggen for forekomsten er koblet til det nye gruppebegrepet.',
+            'Begrepet er hjemlet i denne rettskilden (navn + lov utgjør identiteten).',
+            'Tekst-taggen for forekomsten er koblet til det nye begrepet.',
             'Navnekandidaten er satt til «Godkjent».',
           ],
           rettskildeLenke: rettskildeLenkeForId(kandidat.rettskildeId, kandidat.nodeEid),
@@ -937,10 +955,8 @@ export default function NavnekandidatVeiviser() {
           {steg >= 2 && (
             <Card style={{ padding: '1rem', marginBottom: '1rem' }}>
               <Heading level={2} data-size="sm" style={{ marginBottom: '0.35rem' }}>2. Hva slags ting er dette?</Heading>
-              <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
-                «Administrativ inndeling» er bevisst ikke med i denne runden — velg «Ikke relevant»
-                hvis treffet er det, og ta det opp separat.
-              </Metatekst>
+              {/* [FJERNET, issue #310] Merknaden «Administrativ inndeling er bevisst ikke med i denne
+                * runden» — kategorien er slått inn i Område, som nå velges under begrep-sporet. */}
               <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
                 <Radio
                   name="slag"
@@ -965,8 +981,8 @@ export default function NavnekandidatVeiviser() {
                 />
                 <Radio
                   name="slag"
-                  label="Gruppe som defineres her"
-                  description="En rolle/gruppe loven selv definerer, f.eks. «forurensningsmyndighet»."
+                  label="Begrep loven definerer — klasse, rolle eller område"
+                  description="Ikke én navngitt aktør, men en mengde («kommunene»), en funksjon («reguleringsmyndighet») eller et område («forvaltningsområdet for samiske språk»)."
                   value="gruppe"
                   checked={slag === 'gruppe'}
                   onChange={() => setSlag('gruppe')}
@@ -988,6 +1004,23 @@ export default function NavnekandidatVeiviser() {
                 * uten lovscoping. Gruppe-av-gruppe-tillegget rett under gjelder KUN lovspesifikt
                 * (KoblTilGruppeAvGruppeAsync oppretter alltid et lovspesifikt gruppebegrep server-side)
                 * — vist/relevant bare når den scopen er valgt. */}
+              {/* [Ny, issue #310 «nodetype-akse»] Typen er PÅKREVD og forhåndsvelges bare når kandidaten
+                * alt har en (se `setNodetype` i lasteeffekten). */}
+              {slag === 'gruppe' && steg === 2 && (
+                <div style={{ marginBottom: '0.75rem' }}>
+                  <Divider style={{ margin: '0.75rem 0' }} />
+                  <Heading level={3} data-size="xs" style={{ marginBottom: '0.35rem' }}>
+                    Hva slags begrep er dette?
+                  </Heading>
+                  <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
+                    {kandidat.kategori === 'gruppe'
+                      ? 'Sveipet fant en generisk aktøromtale, men vet ikke typen — velg den.'
+                      : `Foreslått: ${NODETYPE_VISNING[kandidat.kategori]?.tekst ?? kandidat.kategori} — endre om forslaget er feil.`}
+                  </Metatekst>
+                  <NodetypeVelger name="nodetype" value={nodetype} onChange={(t) => setNodetype(t as Kandidatnodetype)} />
+                </div>
+              )}
+
               {slag === 'gruppe' && steg === 2 && (
                 <div style={{ marginBottom: '0.75rem' }}>
                   <Divider style={{ margin: '0.75rem 0' }} />
@@ -1062,11 +1095,14 @@ export default function NavnekandidatVeiviser() {
                     <Button
                       data-size="sm"
                       onClick={() => fullførIkkeVirksomhet('gruppe')}
-                      disabled={fullfører || (gruppeScope === 'lovspesifikt' && erGruppeAvGruppe && !valgtOverordnetGruppeBegrepId)}
+                      disabled={fullfører || !nodetype || (gruppeScope === 'lovspesifikt' && erGruppeAvGruppe && !valgtOverordnetGruppeBegrepId)}
                     >
                       {fullfører
                         ? 'Oppretter …'
-                        : gruppeScope === 'fast' ? 'Godkjenn som fast, nasjonalt begrep' : 'Opprett gruppebegrep og godkjenn'}
+                        : !nodetype ? 'Velg type først'
+                          : gruppeScope === 'fast'
+                            ? `Godkjenn som fast, nasjonal ${NODETYPE_VISNING[nodetype].tekst.toLowerCase()}`
+                            : `Opprett ${NODETYPE_VISNING[nodetype].tekst.toLowerCase()} og godkjenn`}
                     </Button>
                   )}
                   {slag === 'irrelevant' && (

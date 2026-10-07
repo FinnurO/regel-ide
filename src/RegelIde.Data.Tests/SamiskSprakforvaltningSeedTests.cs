@@ -129,6 +129,7 @@ public class SamiskSprakforvaltningSeedTests
         await KjorSeedAsync(db);
 
         var overordnet = await FinnGruppebegrepAsync(db, forutsetninger.SamelovId, Forvaltningsomradet);
+        Assert.Equal("omrade", overordnet.Begrepskategori); // [Ny, issue #310] Johanns godkjente liste.
         var medlemskap = await new GruppeMedlemskapTjeneste(db).MedlemsgrupperForAsync(overordnet.Id);
         Assert.Equal(3, medlemskap.Count);
 
@@ -165,6 +166,7 @@ public class SamiskSprakforvaltningSeedTests
         Assert.Equal("kortform", navneform.Navneformgrunn);
 
         var gruppe = await FinnGruppebegrepAsync(db, forutsetninger.SamelovId, Sprakutvikling);
+        Assert.Equal("klasse", gruppe.Begrepskategori); // [Ny, issue #310] klasse som medlem av et område.
         var tildeling = await db.Myndighetstildelinger.SingleAsync(
             m => m.GruppeBegrepId == gruppe.Id && m.VirksomhetId == forutsetninger.KarasjokId);
         Assert.Equal(forutsetninger.ForskriftId, tildeling.HjemmelRettskildeId);
@@ -226,7 +228,8 @@ public class SamiskSprakforvaltningSeedTests
 
     private static Task<BegrepEntitet> FinnGruppebegrepAsync(RegelIdeDbContext db, Guid lovkildeId, string term) =>
         db.Begreper.SingleAsync(
-            b => b.Begrepskategori == "gruppe" && b.LovkildeId == lovkildeId && b.Term == term
+            // [ENDRET, issue #310] Seeden oppretter nå klasse/omrade, ikke 'gruppe'.
+            b => Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!) && b.LovkildeId == lovkildeId && b.Term == term
                  && b.Entitetsstatus == "gjeldende");
 
     private sealed record Forutsetninger(Guid SamelovId, Guid ForskriftId, Guid KarasjokId);
@@ -325,7 +328,7 @@ public class SamiskSprakforvaltningSeedTests
 
     private static async Task<Radantall> TellAsync(RegelIdeDbContext db, Forutsetninger f) => new(
         await db.GruppeMedlemskap.CountAsync(m => m.HjemmelRettskildeId == f.ForskriftId),
-        await db.Begreper.CountAsync(b => b.Begrepskategori == "gruppe" && b.LovkildeId == f.SamelovId),
+        await db.Begreper.CountAsync(b => Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!) && b.LovkildeId == f.SamelovId),
         await db.Begreper.CountAsync(
             b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == f.KarasjokId),
         await db.Myndighetstildelinger.CountAsync(m => m.HjemmelRettskildeId == f.ForskriftId),

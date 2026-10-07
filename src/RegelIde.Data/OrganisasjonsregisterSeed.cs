@@ -112,6 +112,10 @@ public static class OrganisasjonsregisterSeed
                 "KOMM" => "kommune",
                 _ => null,
             };
+            // [Ny, issue #310] Aktørtype — samme entydige KOMM/FYLK-regel (Nodetyper.UtledAktortypeAutomatisk).
+            // Nødvendig her og ikke bare i migrasjonen: i et FERSKT miljø kjører migrasjonen mot en tom
+            // virksomhetstabell, og det er denne seeden som oppretter kommunene etterpå.
+            var aktortype = Nodetyper.UtledAktortypeAutomatisk(entry.OrgForm, forvaltningsniva);
             var skalAlltidVaereAktiv = entry.Organisasjonsnummer is BergenOrgnr or AgderOrgnr;
 
             var matchetPaOrgnr = perOrgnr.TryGetValue(entry.Organisasjonsnummer, out var funnetPaOrgnr);
@@ -126,6 +130,7 @@ public static class OrganisasjonsregisterSeed
                     Navn = entry.Navn,
                     Organisasjonsnummer = entry.Organisasjonsnummer,
                     Forvaltningsniva = forvaltningsniva,
+                    Aktortype = aktortype,
                     Aktiv = skalAlltidVaereAktiv, // false for alle nye, sovende kommuner/fylkeskommuner — se klassekommentaren.
                     OpprettetTidspunkt = DateTimeOffset.UtcNow,
                 };
@@ -137,6 +142,7 @@ public static class OrganisasjonsregisterSeed
             {
                 match.Organisasjonsnummer ??= entry.Organisasjonsnummer;
                 match.Forvaltningsniva ??= forvaltningsniva;
+                match.Aktortype ??= aktortype; // aldri overskriv et menneskes valg — kun NULL (uavklart) fylles.
                 perOrgnr.TryAdd(entry.Organisasjonsnummer, match);
 
                 if (skalAlltidVaereAktiv) match.Aktiv = true; // Bergen/Agder — tvunget sant på HVER kjøring, se klassekommentaren.

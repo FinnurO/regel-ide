@@ -58,7 +58,7 @@ public class GruppeMedlemskapEndepunktTests
 
     private async Task<BegrepDto> OpprettGruppebegrepAsync(Guid brukerId, Guid lovId, string term)
     {
-        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppebegrep", brukerId, new { LovkildeId = lovId, Term = term }));
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppebegrep", brukerId, new { LovkildeId = lovId, Term = term, Nodetype = "klasse" }));
         svar.EnsureSuccessStatusCode();
         return (await svar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger))!;
     }

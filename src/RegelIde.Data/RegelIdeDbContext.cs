@@ -123,8 +123,13 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 
         b.Entity<Virksomhet>(e =>
         {
-            e.ToTable("virksomheter");
+            // [ENDRET, issue #310] CHECK for Aktortype — samme lukkede-vokabular-mønster som
+            // ck_begreper_navneformgrunn. NULL (uavklart) er BEVISST gyldig, se Virksomhet.Aktortype.
+            e.ToTable("virksomheter", t => t.HasCheckConstraint(
+                "ck_virksomheter_aktortype",
+                "aktortype IS NULL OR aktortype IN ('rettssubjekt', 'organ', 'organisatorisk_enhet')"));
             e.HasKey(x => x.Id).HasName("virksomheter_pkey");
+            e.Property(x => x.Aktortype).HasColumnName("aktortype");
             e.Property(x => x.Navn).HasColumnName("navn");
             e.Property(x => x.Organisasjonsnummer).HasColumnName("organisasjonsnummer");
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
@@ -256,8 +261,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             {
                 t.HasCheckConstraint("ck_navnekandidater_status", "status IN ('Venter', 'Godkjent', 'Avvist')");
                 // [ENDRET, issue #203 pkt. 2] 'administrativ_inndeling' lagt til — se BegrepEntitet.Begrepskategori.
+                // [ENDRET, issue #310] 'klasse'/'rolle'/'omrade' lagt til, 'administrativ_inndeling' slått inn
+                // i 'omrade'. 'gruppe' BLIR på en kandidat: = «nodetype ikke avgjort» (Nodetyper.Kandidatkategorier).
                 t.HasCheckConstraint(
-                    "ck_navnekandidater_kategori", "kategori IN ('virksomhet', 'gruppe', 'administrativ_inndeling')");
+                    "ck_navnekandidater_kategori", "kategori IN ('virksomhet', 'gruppe', 'klasse', 'rolle', 'omrade')");
                 // [Ny, konfidens-runden, 2026-09-09] Samme lukkede-vokabular-mønster som de to over.
                 // NULL er gyldig: 'gruppe'-kandidater sendes aldri til SNL/SSR, og rader fra før
                 // feltet fantes har ingen konfidens å oppgi. Se NavnekandidatEntitet.Konfidens.
@@ -1026,9 +1033,14 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.ToTable("begreper", t =>
             {
                 // [ENDRET, issue #203 pkt. 2] 'administrativ_inndeling' lagt til — se BegrepEntitet.Begrepskategori.
+                // [ENDRET, issue #310] 'klasse'/'rolle'/'omrade'/'organ' lagt til, 'administrativ_inndeling'
+                // fjernet (slått inn i 'omrade' av migrasjonen InnforNodetypeakse). 'gruppe' står IGJEN:
+                // andre miljøer kan ha rader som ikke er reklassifisert ennå — fjernes i en senere runde
+                // når en måling viser 0 'gruppe'-rader overalt. Speilet av Nodetyper.MedGruppefunksjon.
                 t.HasCheckConstraint(
                     "ck_begreper_begrepskategori",
-                    "begrepskategori IS NULL OR begrepskategori IN ('virksomhet', 'gruppe', 'administrativ_inndeling')");
+                    "begrepskategori IS NULL OR begrepskategori IN "
+                    + "('virksomhet', 'gruppe', 'klasse', 'rolle', 'omrade', 'organ')");
                 // [Ny, navneformgrunn-runden, 2026-09-07] Samme lukkede-vokabular-mønster som
                 // ck_begreper_begrepskategori rett over. NULL er BEVISST gyldig: alle rader som fantes
                 // før denne runden beholder NULL (ingen datamigrering, ingen gjettet verdi) — se
@@ -1090,21 +1102,27 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // ALLEREDE i selve HasIndex-kallet (overloaden som tar `name`), som EF bruker som del av
             // indeksens IDENTITET, ikke bare som DB-navn — det er det som faktisk skiller de to fra
             // hverandre i modellen.
-            e.HasIndex(x => new { x.Term, x.LovkildeId }, "ux_begreper_gruppebegrep_term_lovkilde").IsUnique()
-                .HasFilter("begrepskategori = 'gruppe' AND entitetsstatus = 'gjeldende'");
+            // [ENDRET, issue #310] Filteret dekker nå ALLE kategoriene med gruppefunksjon
+            // (Nodetyper.MedGruppefunksjon), ikke bare 'gruppe' — og indeksene er omdøpt fra «gruppebegrep»
+            // til «nodebegrep». Én felles indeks, ikke én per type: «reguleringsmyndighet» i energiloven skal
+            // ikke kunne finnes BÅDE som rolle og som klasse — det er samme begrep feilregistrert to ganger,
+            // ikke to begrep. Den separate administrativ_inndeling-indeksen under er fjernet av samme grunn
+            // ('administrativ_inndeling' er slått inn i 'omrade', som dekkes her).
+            e.HasIndex(x => new { x.Term, x.LovkildeId }, "ux_begreper_nodebegrep_term_lovkilde").IsUnique()
+                .HasFilter("begrepskategori IN ('gruppe', 'klasse', 'rolle', 'omrade', 'organ') AND entitetsstatus = 'gjeldende'");
             // [Ny, issue #298 AC4] Postgres' unik-indeks behandler NULL som DISTINKT fra enhver annen
             // NULL — to gruppebegrep-rader med LovkildeId IS NULL og NØYAKTIG samme Term ville derfor
             // IKKE blitt stoppet av indeksen rett over (den sammenligner (Term, LovkildeId) PARVIS, og
             // (term, null) == (term, null) er aldri sant for Postgres i denne sammenhengen). Fast,
             // nasjonalt gruppebegrep (issue #298, lovkildeId=null) trenger derfor sin EGEN delvise
             // unike indeks, scopet til NETTOPP den null-grenen, på Term alene.
-            e.HasIndex(x => x.Term, "ux_begreper_gruppebegrep_fast_term").IsUnique()
-                .HasFilter("begrepskategori = 'gruppe' AND entitetsstatus = 'gjeldende' AND lovkilde_id IS NULL");
-            // [Ny, issue #203 pkt. 2] Samme (Term, LovkildeId)-scoping som gruppebegrep over — besluttet
-            // med Johann 2026-09-10 (issue-kommentar): en administrativ inndeling er IKKE nasjonalt
-            // scopet til bare Term, den er hjemlet per lov akkurat som et gruppebegrep.
-            e.HasIndex(x => new { x.Term, x.LovkildeId }, "ux_begreper_administrativ_inndeling_term_lovkilde").IsUnique()
-                .HasFilter("begrepskategori = 'administrativ_inndeling' AND entitetsstatus = 'gjeldende'");
+            // [ENDRET, issue #310] Samme utvidelse/omdøping som indeksen over — «Den faste og den
+            // lovspesifikke identiteten fra #298 gjelder alle tre» (issuens utforming).
+            e.HasIndex(x => x.Term, "ux_begreper_nodebegrep_fast_term").IsUnique()
+                .HasFilter("begrepskategori IN ('gruppe', 'klasse', 'rolle', 'omrade', 'organ') AND entitetsstatus = 'gjeldende' AND lovkilde_id IS NULL");
+            // [FJERNET, issue #310] ux_begreper_administrativ_inndeling_term_lovkilde (issue #203 pkt. 2,
+            // samme (Term, LovkildeId)-scoping som gruppebegrep) — 'administrativ_inndeling' er slått inn i
+            // 'omrade', som dekkes av ux_begreper_nodebegrep_term_lovkilde over.
         });
 
         b.Entity<BegrepsforekomstEntitet>(e =>

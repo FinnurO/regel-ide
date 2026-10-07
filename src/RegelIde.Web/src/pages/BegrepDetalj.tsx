@@ -6,7 +6,9 @@ import { NavneformgrunnTag } from '../virksomhet/Navneformgrunn';
 import { GruppeMedlemmer } from '../virksomhet/GruppeMedlemmer';
 import { finnRettskildeForEid, rettskildeLenke, rettskildeLenkeForId } from '../api/eidLenker';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
-import type { BegrepBruktIRettskildeDto, BegrepDefinisjonRelasjonDto, BegrepDto, BegrepTaggetForekomstDto, RettskildeSammendrag, VilkarDto } from '../api/types';
+import type { BegrepBruktIRettskildeDto, BegrepDefinisjonRelasjonDto, BegrepDto, Begrepsnodetype, BegrepTaggetForekomstDto, RettskildeSammendrag, VilkarDto } from '../api/types';
+import { harGruppefunksjon } from '../api/types';
+import { BEGREPSNODETYPER, BegrepskategoriTag, NODETYPE_VISNING } from '../begrep/Nodetype';
 import { StatusStepper } from '../entitet/StatusStepper';
 import { Metatekst } from '../entitet/Metatekst';
 
@@ -38,6 +40,11 @@ export default function BegrepDetalj() {
   const [lagrer, setLagrer] = useState(false);
   const [lagreFeil, setLagreFeil] = useState<string | null>(null);
   const [statusEndres, setStatusEndres] = useState(false);
+  // [Ny, issue #310] Nodetype-endring for begrep med gruppefunksjon — veien for å reklassifisere de
+  // 'gruppe'-radene som ikke sto på Johanns liste (andre miljøer), eller rette en feil type.
+  const [nyNodetype, setNyNodetype] = useState<Begrepsnodetype | ''>('');
+  const [nodetypeLagrer, setNodetypeLagrer] = useState(false);
+  const [nodetypeFeil, setNodetypeFeil] = useState<string | null>(null);
 
   function fyllSkjemaFra(b: BegrepDto) {
     setTerm(b.term);
@@ -91,6 +98,21 @@ export default function BegrepDetalj() {
     }
   }
 
+  async function lagreNodetype() {
+    if (!id || !nyNodetype) return;
+    setNodetypeLagrer(true);
+    setNodetypeFeil(null);
+    try {
+      const oppdatert = await api.settNodetype(id, nyNodetype);
+      setBegrep(oppdatert);
+      setNyNodetype('');
+    } catch (err) {
+      setNodetypeFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved endring av type.');
+    } finally {
+      setNodetypeLagrer(false);
+    }
+  }
+
   async function endreStatus(nyStatus: string) {
     if (!id) return;
     setStatusEndres(true);
@@ -126,9 +148,14 @@ export default function BegrepDetalj() {
           * §6-mønsteret: Paragraph som wrapper med Tag-er inni) — for en navneform er «hvorfor peker
           * dette hit» like viktig identitetsinformasjon som selve kategorien ved siden av. */}
         {begrep.begrepskategori === 'virksomhet' && <NavneformgrunnTag grunn={begrep.navneformgrunn} visUspesifisert />}
-        {begrep.begrepskategori === 'gruppe' && <Tag data-color="success" data-size="sm">Gruppebegrep</Tag>}
-        {/* [Ny, issue #203 pkt. 2] */}
-        {begrep.begrepskategori === 'administrativ_inndeling' && <Tag data-color="success" data-size="sm">Administrativ inndeling</Tag>}
+        {/* [ENDRET, issue #310] Var to faste `success`-tagger («Gruppebegrep», «Administrativ inndeling»).
+          * Nå typen selv, via den delte BegrepskategoriTag (docs/09 §15) — klasse/rolle/område/organ, og
+          * «Gruppe (type ikke avgjort)» for rader som ikke er reklassifisert. «Fast, nasjonalt» står ved
+          * siden av når begrepet ikke er lovscopet (#298), siden det er en del av identiteten. */}
+        {harGruppefunksjon(begrep.begrepskategori) && <BegrepskategoriTag kategori={begrep.begrepskategori} />}
+        {harGruppefunksjon(begrep.begrepskategori) && !begrep.lovkildeId && (
+          <Tag data-color="neutral" data-size="sm" variant="outline">Fast, nasjonalt</Tag>
+        )}
         <Metatekst as="span" style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
           Eier: {visEier(begrep.virksomhetId)}
         </Metatekst>
@@ -138,7 +165,7 @@ export default function BegrepDetalj() {
         <Tabs.List>
           <Tabs.Tab value="grunndata">Grunndata</Tabs.Tab>
           <Tabs.Tab value="bruk">Bruk</Tabs.Tab>
-          {(begrep.begrepskategori === 'gruppe' || definisjonsrelasjoner.length > 0) && (
+          {(harGruppefunksjon(begrep.begrepskategori) || definisjonsrelasjoner.length > 0) && (
             <Tabs.Tab value="relasjoner">Relasjoner</Tabs.Tab>
           )}
         </Tabs.List>
@@ -146,8 +173,7 @@ export default function BegrepDetalj() {
 
       {fane === 'grunndata' && (
       <>
-      {(begrep.begrepskategori === 'virksomhet' || begrep.begrepskategori === 'gruppe'
-        || begrep.begrepskategori === 'administrativ_inndeling') && (
+      {(begrep.begrepskategori === 'virksomhet' || harGruppefunksjon(begrep.begrepskategori)) && (
         <section style={{ marginBottom: '1.5rem' }}>
           <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
             Lenket til
@@ -162,9 +188,14 @@ export default function BegrepDetalj() {
           )}
           {/* [Ny, issue #203 pkt. 2] Samme visning/lenkevalg som gruppebegrep under — administrativ
             * inndeling har nøyaktig samme (Term, LovkildeId)-scoping og samme LovreferanseEid-mønster. */}
-          {(begrep.begrepskategori === 'gruppe' || begrep.begrepskategori === 'administrativ_inndeling') && begrep.lovkildeId && (
+          {harGruppefunksjon(begrep.begrepskategori) && !begrep.lovkildeId && (
             <Paragraph>
-              {begrep.begrepskategori === 'gruppe' ? 'Gruppebegrep hjemlet i' : 'Administrativ inndeling hjemlet i'}{' '}
+              Fast, nasjonalt begrep — ikke knyttet til én lov; koblingene til lovene er egne relasjoner (#298).
+            </Paragraph>
+          )}
+          {harGruppefunksjon(begrep.begrepskategori) && begrep.lovkildeId && (
+            <Paragraph>
+              {NODETYPE_VISNING[begrep.begrepskategori ?? '']?.tekst ?? 'Begrep'} hjemlet i{' '}
               {(() => {
                 const lov = rettskilder.find((r) => r.id === begrep.lovkildeId);
                 if (!lov) return <span>{begrep.lovkildeId}</span>;
@@ -188,13 +219,45 @@ export default function BegrepDetalj() {
       </>
       )}
 
+      {/* [Ny, issue #310 «nodetype-akse»] Typen kan endres av et menneske — for 'gruppe'-rader som ikke
+        * sto på den godkjente reklassifiseringslista (andre miljøer), eller for å rette en feil type.
+        * Tildelinger, medlemskap og tagger peker på begrepets id og følger uendret med (se
+        * VirksomhetsbegrepTjeneste.SettNodetypeAsync). Ingen forhåndsvalgt ny verdi — typen gjettes ikke. */}
+      {fane === 'grunndata' && harGruppefunksjon(begrep.begrepskategori) && (
+        <section style={{ marginBottom: '1.5rem' }}>
+          <Heading level={3} data-size="xs" style={{ marginBottom: '0.5rem' }}>
+            Type
+          </Heading>
+          <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.5rem' }}>
+            {begrep.begrepskategori === 'gruppe'
+              ? 'Begrepet har den utfasede typen «gruppe» — velg hva det faktisk er.'
+              : NODETYPE_VISNING[begrep.begrepskategori ?? '']?.forklaring}
+          </Metatekst>
+          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+            <Field data-size="sm" style={{ minWidth: '14rem' }}>
+              <Label>Endre type til</Label>
+              <Select value={nyNodetype} onChange={(e) => setNyNodetype(e.target.value as Begrepsnodetype | '')}>
+                <Select.Option value="">Velg type …</Select.Option>
+                {BEGREPSNODETYPER.filter((t) => t !== begrep.begrepskategori).map((t) => (
+                  <Select.Option key={t} value={t}>{NODETYPE_VISNING[t].tekst}</Select.Option>
+                ))}
+              </Select>
+            </Field>
+            <Button data-size="sm" variant="secondary" onClick={lagreNodetype} disabled={!nyNodetype || nodetypeLagrer}>
+              {nodetypeLagrer ? 'Lagrer …' : 'Endre type'}
+            </Button>
+          </div>
+          {nodetypeFeil && <Alert data-color="danger" data-size="sm" style={{ marginTop: '0.5rem' }}>{nodetypeFeil}</Alert>}
+        </section>
+      )}
+
       {fane === 'relasjoner' && (
       <>
       {/* [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] Drill-through fra gruppebegrepet til
         * det gruppen faktisk INNEHOLDER — begge nivåene (medlemsgrupper og konkrete virksomheter) og
         * retningen oppover. Uten denne var et gruppebegrep en blindvei: siden viste hva gruppen ER
         * hjemlet i, men aldri hvem som er i den. Se `GruppeMedlemmer` for hvorfor det er tre lister. */}
-      {begrep.begrepskategori === 'gruppe' && id && (
+      {harGruppefunksjon(begrep.begrepskategori) && id && (
         <GruppeMedlemmer gruppeBegrepId={id} rettskilder={rettskilder} />
       )}
       </>
@@ -208,8 +271,7 @@ export default function BegrepDetalj() {
         </Heading>
         <form onSubmit={lagre} style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem', maxWidth: '40rem' }}>
           <Textfield label="Term" value={term} onChange={(e) => setTerm(e.target.value)} required />
-          {begrep.begrepskategori !== 'virksomhet' && begrep.begrepskategori !== 'gruppe'
-            && begrep.begrepskategori !== 'administrativ_inndeling' && (
+          {begrep.begrepskategori !== 'virksomhet' && !harGruppefunksjon(begrep.begrepskategori) && (
             <Field>
               <Label>Definisjon</Label>
               <Textarea value={definisjon} onChange={(e) => setDefinisjon(e.target.value)} rows={3} required />
@@ -239,8 +301,7 @@ export default function BegrepDetalj() {
               })()}
             </Metatekst>
           )}
-          {begrep.begrepskategori !== 'virksomhet' && begrep.begrepskategori !== 'gruppe'
-            && begrep.begrepskategori !== 'administrativ_inndeling' && (
+          {begrep.begrepskategori !== 'virksomhet' && !harGruppefunksjon(begrep.begrepskategori) && (
             <Field>
               <Label>Begrepstype</Label>
               <Select value={begrepstype} onChange={(e) => setBegrepstype(e.target.value)}>

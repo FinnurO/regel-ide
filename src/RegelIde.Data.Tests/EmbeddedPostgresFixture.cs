@@ -35,6 +35,16 @@ public sealed class EmbeddedPostgresFixture : IAsyncLifetime
         await EmbeddedPostgresHjelper.VentTilKlarAsync(masterConnString);
 
         await using var master = new RegelIdeDbContext(NyOptions(masterConnString));
+        // [Ny, issue #310, 2026-10-07] Server-loggen skrus ned til FATAL. Målt: med flere tester som
+        // FORVENTER en DB-skranke-feil (hver gir en ERROR-linje + hele INSERT-setningen i loggen) hang den
+        // N-te slike INSERT-en til 30 s timeout — backend «active» uten ventehendelse i pg_stat_activity,
+        // uavhengig av hvilken test/tabell det var (TjenestelisteImporterTests og VirksomhetsbegrepTjenesteTests
+        // i samme kjøring; master hadde akkurat færre slike feil og var grønn). Antatt årsak, IKKE bevist:
+        // postgres' stderr-rør (arvet via pg_ctl) leses ikke lenger, og når det er fullt blokkerer neste
+        // logglinje. Testene trenger ikke serverloggen — feilen kommer uansett til klienten.
+        await master.Database.ExecuteSqlRawAsync(
+            "ALTER SYSTEM SET log_min_messages = 'fatal'; ALTER SYSTEM SET log_min_error_statement = 'panic'; "
+            + "ALTER SYSTEM SET log_checkpoints = 'off'; SELECT pg_reload_conf();");
         await master.Database.ExecuteSqlRawAsync("CREATE DATABASE regelide_test;");
 
         await using var db = new RegelIdeDbContext(NyOptions(ConnectionString));

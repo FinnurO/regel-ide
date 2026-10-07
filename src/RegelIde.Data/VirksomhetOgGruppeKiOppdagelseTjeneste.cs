@@ -111,9 +111,15 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
 
         Svar KUN med en ren JSON-array, ingen markdown-kodeblokk (```), ingen forklaringstekst før eller
         etter. Hvert element er ETT navngitt organ/virksomhet nevnt i teksten, med NØYAKTIG disse feltene:
-        - "Type": "virksomhet" (et konkret, navngitt organ/virksomhet — f.eks. "Statens vegvesen",
-          "Energiklagenemnda") eller "gruppe" (en generisk juridisk-aktør-rolle uten egennavn-status —
-          f.eks. "kommunen", "statsforvalteren")
+        - "Type": én av disse:
+          "virksomhet" — et konkret, navngitt organ/virksomhet (f.eks. "Statens vegvesen", "Energiklagenemnda").
+          "klasse" — en samlebetegnelse for flere aktører som loven omtaler som en mengde, og der det som
+            gjelder mengden gjelder hvert medlem (f.eks. "kommunene", "språkutviklingskommuner").
+          "rolle" — en funksjon/myndighet som innehas av en aktør, og som kan ha ulik innehaver i ulike
+            paragrafer (f.eks. "reguleringsmyndigheten", "departementet", "kommunelegen").
+          "omrade" — et geografisk område/territorium (f.eks. "forvaltningsområdet for samiske språk", "Troms").
+          "gruppe" — en generisk aktøromtale der du IKKE er sikker på om det er klasse, rolle eller område.
+            Velg "gruppe" heller enn å gjette — et menneske avgjør typen.
         - "Navn": navnet EKSAKT slik det står i lovteksten (samme stavemåte/store-små bokstaver) — MÅ
           finnes ORDRETT i teksten til den oppgitte [eId]-taggen, ikke omskrevet/normalisert
         - "NodeEid": den eksakte [eId]-taggen (uten hakeparentesene) der navnet faktisk står
@@ -125,7 +131,7 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
           — et objekt {"Type": "underlagt"|"sekretariat"|"klageinstans"|"enhet_i", "MotpartNavn": "det
           andre organets navn, eksakt som det står i teksten", "HjemletHer": true hvis DENNE paragrafen
           faktisk sier det, false hvis du utleder det fra en annen kontekst}, ellers null
-        - "GruppeAvGruppe": KUN for Type="gruppe" OG kun hvis teksten sier at DENNE gruppen selv inngår
+        - "GruppeAvGruppe": KUN for Type="klasse", "omrade" eller "gruppe", OG kun hvis teksten sier at DENNE gruppen selv inngår
           i/er en del av en STØRRE, navngitt gruppe — et objekt {"OverordnetGruppeNavn": "den større
           gruppens navn"}, ellers null
 
@@ -133,6 +139,16 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
         array [] hvis du ikke finner noe. Vær presis — foreslå Rolle/Relasjon/GruppeAvGruppe KUN når
         teksten faktisk sier det eksplisitt, ikke ut fra alminnelig kunnskap om norsk forvaltning.
         """;
+
+    // [ENDRET, issue #310 «nodetype-akse», 2026-10-07] Instruksen over ber nå om klasse/rolle/omrade i
+    // stedet for bare "gruppe" (issue #310: «KI-oppdagelsen foreslår klasse, rolle eller område i stedet for
+    // gruppe»), med "gruppe" beholdt som det EKSPLISITTE «usikker»-svaret — samme «ingen gjetting»-linje
+    // som resten av tjenesten: heller la mennesket velge enn å tvinge modellen til en type den ikke kan
+    // begrunne. Typen lagres som navnekandidatens Kategori og er bare et FORSLAG: kandidaten er fortsatt
+    // "Venter", og veiviseren lar mennesket endre den før noe begrep opprettes.
+
+    /// <summary>KI-typene som blir en navnekandidat — <see cref="Nodetyper.Kandidatkategorier"/>.</summary>
+    private static bool ErGruppelikType(string type) => Nodetyper.MedGruppefunksjon.Contains(type);
 
     private sealed record RolleForslagJson(string RolleNavn, string? ParagrafEid);
     private sealed record RelasjonForslagJson(string Type, string MotpartNavn, bool HjemletHer);
@@ -252,7 +268,7 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
     private async Task<KiOppdagelseKandidatUtfall> BehandleEttForslagAsync(
         KandidatForslagJson k, Guid rettskildeId, string opprettetAv, CancellationToken ct)
     {
-        if (k.Type is not ("virksomhet" or "gruppe"))
+        if (!Nodetyper.Kandidatkategorier.Contains(k.Type))
         {
             return new KiOppdagelseKandidatUtfall(
                 k.Type, k.Navn, k.NodeEid, null, $"Ukjent type '{k.Type}' fra KI-agenten.",
@@ -316,7 +332,7 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
 
         Guid? gruppeMedlemskapId = null;
         string? gruppeAvGruppeGrunn = k.GruppeAvGruppe is null ? null : "Ingen gruppe-av-gruppe foreslått av KI-agenten for dette treffet.";
-        if (k.Type == "gruppe" && k.GruppeAvGruppe is not null)
+        if (ErGruppelikType(k.Type) && k.Type != Nodetyper.Rolle && k.GruppeAvGruppe is not null)
         {
             (gruppeMedlemskapId, gruppeAvGruppeGrunn) = await ForsokGruppeAvGruppeAsync(
                 k.GruppeAvGruppe, faktiskTekst, rettskildeId, ekteNodeEid, opprettetAv, ct);
@@ -337,8 +353,11 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
     private async Task<(Guid? Id, string? IkkeOpprettetGrunn)> ForsokRolleAsync(
         RolleForslagJson rolle, string virksomhetNavn, Guid rettskildeId, string kandidatNodeEid, string opprettetAv, CancellationToken ct)
     {
+        // [ENDRET, issue #310] Rollebegrepet kan ligge i enhver kategori med gruppefunksjon — etter
+        // reklassifiseringen er «reguleringsmyndighet» en 'rolle', og en gruppe-sjekk her ville ikke
+        // lenger funnet den.
         var rolleTreff = await db.Begreper
-            .Where(b => b.Begrepskategori == "gruppe" && b.Entitetsstatus == "gjeldende"
+            .Where(b => Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!) && b.Entitetsstatus == "gjeldende"
                         && b.Term.ToLower() == rolle.RolleNavn.Trim().ToLower())
             .Select(b => b.Id)
             .ToListAsync(ct);
@@ -451,7 +470,7 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
         GruppeAvGruppeForslagJson gruppeAvGruppe, string gruppeNavn, Guid rettskildeId, string nodeEid, string opprettetAv, CancellationToken ct)
     {
         var underordnetTreff = await db.Begreper
-            .Where(b => b.Begrepskategori == "gruppe" && b.Entitetsstatus == "gjeldende" && b.LovkildeId == rettskildeId
+            .Where(b => Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!) && b.Entitetsstatus == "gjeldende" && b.LovkildeId == rettskildeId
                         && b.Term.ToLower() == gruppeNavn.Trim().ToLower())
             .Select(b => b.Id)
             .ToListAsync(ct);
@@ -463,7 +482,7 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
         }
 
         var overordnetTreff = await db.Begreper
-            .Where(b => b.Begrepskategori == "gruppe" && b.Entitetsstatus == "gjeldende"
+            .Where(b => Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!) && b.Entitetsstatus == "gjeldende"
                         && b.Term.ToLower() == gruppeAvGruppe.OverordnetGruppeNavn.Trim().ToLower())
             .Select(b => b.Id)
             .ToListAsync(ct);
