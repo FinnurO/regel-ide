@@ -122,6 +122,8 @@ public class BrregEndepunktTests
         Assert.Equal("6100", opprettet.Sektorkode);
         // [LÅST, docs/20 §4/§7.2] Aldri gjettet fra Brreg-data — se Program.cs-kommentaren på selve endepunktet.
         Assert.Null(opprettet.Forvaltningsniva);
+        // [Ny, issue #310] ORGL er ikke entydig ⇒ aktørtypen står uavklart (kun KOMM/FYLK utledes).
+        Assert.Null(opprettet.Aktortype);
         Assert.NotNull(opprettet.SistBrregSynkronisert);
 
         await using var db = _fixture.NyDbContext();

@@ -182,8 +182,13 @@ public class NavnekandidaterEndepunktTests
         Assert.Equal("kommunen", kandidat.ForeslattTekst);
         Assert.Equal("Venter", kandidat.Status);
 
-        var godkjennSvar = await _client.SendAsync(
+        // [ENDRET, issue #310] En 'gruppe'-kandidat har uavklart nodetype — uten ?nodetype= avvises
+        // godkjenningen (typen gjettes ikke), med den opprettes begrepet av valgt type.
+        var utenTypeSvar = await _client.SendAsync(
             MedBruker(HttpMethod.Post, $"/api/navnekandidater/{kandidat.Id}/godkjenn", brukerId));
+        Assert.Equal(HttpStatusCode.BadRequest, utenTypeSvar.StatusCode);
+        var godkjennSvar = await _client.SendAsync(
+            MedBruker(HttpMethod.Post, $"/api/navnekandidater/{kandidat.Id}/godkjenn?nodetype=klasse", brukerId));
         Assert.Equal(HttpStatusCode.OK, godkjennSvar.StatusCode);
         var godkjent = await godkjennSvar.Content.ReadFromJsonAsync<NavnekandidatDto>(JsonInnstillinger);
         Assert.Equal("Godkjent", godkjent!.Status);
@@ -191,7 +196,7 @@ public class NavnekandidaterEndepunktTests
         // Gruppebegrepet skal nå faktisk finnes i databasen (docs/20 §2.4-identitet: Term+LovkildeId).
         await using var db = _fixture.NyDbContext();
         var gruppebegrep = await db.Begreper.SingleOrDefaultAsync(
-            b => b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId && b.Term == "kommunen");
+            b => b.Begrepskategori == "klasse" && b.LovkildeId == rettskildeId && b.Term == "kommunen");
         Assert.NotNull(gruppebegrep);
 
         // Kandidaten er allerede Godkjent — et nytt godkjenn-forsøk skal feile (kun 'Venter' kan behandles).
@@ -246,6 +251,13 @@ public class NavnekandidaterEndepunktTests
         Assert.Contains(kandidater, k => k.Kategori == "gruppe");
         Assert.Contains(kandidater, k => k.Kategori == "virksomhet");
 
+        // [ENDRET, issue #310] Mennesket velger nodetypen for 'gruppe'-kandidaten («Rediger» i listen,
+        // PATCH) før massegodkjenning — ellers gir den raden en feilrad (typen gjettes ikke).
+        var gruppeKandidat = kandidater.Single(k => k.Kategori == "gruppe");
+        var settTypeSvar = await _client.SendAsync(MedBruker(HttpMethod.Patch, $"/api/navnekandidater/{gruppeKandidat.Id}",
+            brukerId, new { Kategori = "klasse" }));
+        Assert.Equal(HttpStatusCode.OK, settTypeSvar.StatusCode);
+
         var batchSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/godkjenn-batch", brukerId,
             new { Ider = kandidater.Select(k => k.Id) }));
         Assert.Equal(HttpStatusCode.OK, batchSvar.StatusCode);
@@ -258,7 +270,7 @@ public class NavnekandidaterEndepunktTests
         // batchen ruller IKKE bare status, den kaller den faktiske GodkjennAsync-forgreiningen per rad.
         await using var db = _fixture.NyDbContext();
         var gruppebegrep = await db.Begreper.SingleOrDefaultAsync(
-            b => b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId && b.Term == "kommunen");
+            b => b.Begrepskategori == "klasse" && b.LovkildeId == rettskildeId && b.Term == "kommunen");
         Assert.NotNull(gruppebegrep);
     }
 
@@ -367,7 +379,7 @@ public class NavnekandidaterEndepunktTests
     {
         var brukerId = await HentJuristIdAsync();
         var tekst = $"Kongen-{Guid.NewGuid():N}";
-        var (rettskildeId, kandidatIder) = await OpprettFlereKandidaterMedSammeTekstAsync("gruppe", tekst, antall: 3);
+        var (rettskildeId, kandidatIder) = await OpprettFlereKandidaterMedSammeTekstAsync("klasse", tekst, antall: 3);
 
         var batchSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/godkjenn-gruppe-batch", brukerId,
             new { Ider = kandidatIder, Fast = false }));
@@ -381,7 +393,7 @@ public class NavnekandidaterEndepunktTests
         // GodkjennGruppeBatchAsync sin metodekommentar).
         await using var db = _fixture.NyDbContext();
         Assert.Equal(1, await db.Begreper.CountAsync(b =>
-            b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId && b.Term == tekst));
+            b.Begrepskategori == "klasse" && b.LovkildeId == rettskildeId && b.Term == tekst));
     }
 
     [Fact]
@@ -389,17 +401,21 @@ public class NavnekandidaterEndepunktTests
     {
         var brukerId = await HentJuristIdAsync();
         var tekst = $"Kongen-{Guid.NewGuid():N}";
+        // [ENDRET, issue #310] Uavklarte 'gruppe'-kandidater — TilKategori velger typen for hele gruppen.
         var (_, kandidatIder) = await OpprettFlereKandidaterMedSammeTekstAsync("gruppe", tekst, antall: 2);
 
         var batchSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/godkjenn-gruppe-batch", brukerId,
-            new { Ider = kandidatIder, Fast = true }));
+            new { Ider = kandidatIder, Fast = true, TilKategori = "organ" }));
+        Assert.Equal(HttpStatusCode.BadRequest, batchSvar.StatusCode); // organ er ikke valgbar for nye begrep.
+        batchSvar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/godkjenn-gruppe-batch", brukerId,
+            new { Ider = kandidatIder, Fast = true, TilKategori = "rolle" }));
         Assert.Equal(HttpStatusCode.OK, batchSvar.StatusCode);
         var resultat = await batchSvar.Content.ReadFromJsonAsync<NavnekandidatBatchResultatDto>(JsonInnstillinger);
         Assert.All(resultat!.Rader, r => Assert.True(r.Ok, r.Feil));
 
         await using var db = _fixture.NyDbContext();
         Assert.Equal(1, await db.Begreper.CountAsync(b =>
-            b.Begrepskategori == "gruppe" && b.LovkildeId == null && b.Term == tekst));
+            b.Begrepskategori == "rolle" && b.LovkildeId == null && b.Term == tekst));
     }
 
     [Fact]
@@ -441,14 +457,14 @@ public class NavnekandidaterEndepunktTests
         var (rettskildeId, kandidatIder) = await OpprettFlereKandidaterMedSammeTekstAsync("virksomhet", tekst, antall: 2);
 
         var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/godkjenn-gruppe-batch", brukerId,
-            new { Ider = kandidatIder, Fast = false, TilKategori = "gruppe" }));
+            new { Ider = kandidatIder, Fast = false, TilKategori = "klasse" }));
         Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
         Assert.All((await svar.Content.ReadFromJsonAsync<NavnekandidatBatchResultatDto>(JsonInnstillinger))!.Rader,
             r => Assert.True(r.Ok, r.Feil));
 
         await using var db = _fixture.NyDbContext();
         Assert.Equal(1, await db.Begreper.CountAsync(b =>
-            b.Begrepskategori == "gruppe" && b.LovkildeId == rettskildeId && b.Term == tekst));
+            b.Begrepskategori == "klasse" && b.LovkildeId == rettskildeId && b.Term == tekst));
 
         var ugyldig = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/navnekandidater/godkjenn-gruppe-batch", brukerId,
             new { Ider = kandidatIder, Fast = false, TilKategori = "virksomhet" }));
@@ -1101,12 +1117,12 @@ public class NavnekandidaterEndepunktTests
 
         var svar = await _client.SendAsync(MedBruker(HttpMethod.Post,
             $"/api/navnekandidater/{scene.KandidatId}/kobl-til-gruppe-av-gruppe", brukerId,
-            new { OverordnetGruppeBegrepId = overordnet.Id }));
+            new { OverordnetGruppeBegrepId = overordnet.Id, Nodetype = "klasse" })); // [ENDRET, issue #310]
         Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
         var resultat = await svar.Content.ReadFromJsonAsync<NavnekandidatGruppeAvGruppeResultatDto>(JsonInnstillinger);
 
         Assert.Equal("Godkjent", resultat!.Kandidat.Status);
-        Assert.Equal("gruppe", resultat.Gruppebegrep.Begrepskategori);
+        Assert.Equal("klasse", resultat.Gruppebegrep.Begrepskategori);
         Assert.NotEqual(overordnet.Id, resultat.Gruppebegrep.Id);
         Assert.Equal(overordnet.Id, resultat.Medlemskap.OverordnetGruppeBegrepId);
         Assert.Equal(resultat.Gruppebegrep.Id, resultat.Medlemskap.UnderordnetGruppeBegrepId);
@@ -1143,13 +1159,17 @@ public class NavnekandidaterEndepunktTests
         var brukerId = await HentJuristIdAsync();
         var scene = await OpprettSceneAsync("Kongen", kategori: "gruppe");
 
-        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post,
+        // [ENDRET, issue #310] Uavklart type ⇒ ?nodetype påkrevd.
+        var utenType = await _client.SendAsync(MedBruker(HttpMethod.Post,
             $"/api/navnekandidater/{scene.KandidatId}/godkjenn-som-fast-gruppebegrep", brukerId));
+        Assert.Equal(HttpStatusCode.BadRequest, utenType.StatusCode);
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post,
+            $"/api/navnekandidater/{scene.KandidatId}/godkjenn-som-fast-gruppebegrep?nodetype=klasse", brukerId));
         Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
         var resultat = await svar.Content.ReadFromJsonAsync<NavnekandidatFastGruppebegrepResultatDto>(JsonInnstillinger);
 
         Assert.Equal("Godkjent", resultat!.Kandidat.Status);
-        Assert.Equal("gruppe", resultat.Gruppebegrep.Begrepskategori);
+        Assert.Equal("klasse", resultat.Gruppebegrep.Begrepskategori);
         Assert.Null(resultat.Gruppebegrep.LovkildeId);
         Assert.True(resultat.VarNyttBegrep);
     }
@@ -1170,7 +1190,7 @@ public class NavnekandidaterEndepunktTests
         var scene = await OpprettSceneAsync("Stortinget", kategori: "gruppe");
 
         var forsteSvar = await _client.SendAsync(MedBruker(HttpMethod.Post,
-            $"/api/navnekandidater/{scene.KandidatId}/godkjenn-som-fast-gruppebegrep", brukerId));
+            $"/api/navnekandidater/{scene.KandidatId}/godkjenn-som-fast-gruppebegrep?nodetype=rolle", brukerId));
         Assert.Equal(HttpStatusCode.OK, forsteSvar.StatusCode);
         var forsteResultat = await forsteSvar.Content.ReadFromJsonAsync<NavnekandidatFastGruppebegrepResultatDto>(JsonInnstillinger);
         Assert.True(forsteResultat!.VarNyttBegrep);
@@ -1178,12 +1198,12 @@ public class NavnekandidaterEndepunktTests
         // Kandidaten er nå 'Godkjent' — et gjentatt kall skal feile (samme "kun Venter"-vern som
         // /godkjenn og /kobl-til-gruppe-av-gruppe), IKKE opprette en ny dublett-rad.
         var andreSvar = await _client.SendAsync(MedBruker(HttpMethod.Post,
-            $"/api/navnekandidater/{scene.KandidatId}/godkjenn-som-fast-gruppebegrep", brukerId));
+            $"/api/navnekandidater/{scene.KandidatId}/godkjenn-som-fast-gruppebegrep?nodetype=rolle", brukerId));
         Assert.Equal(HttpStatusCode.BadRequest, andreSvar.StatusCode);
 
         await using var db = _fixture.NyDbContext();
         Assert.Equal(1, await db.Begreper.CountAsync(
-            b => b.Begrepskategori == "gruppe" && b.LovkildeId == null && b.Id == forsteResultat.Gruppebegrep.Id));
+            b => b.Begrepskategori == "rolle" && b.LovkildeId == null && b.Id == forsteResultat.Gruppebegrep.Id));
     }
 
     /// <summary>Kun 'gruppe'-kandidater hører hjemme her — samme vern som /kobl-til-gruppe-av-gruppe.</summary>
@@ -1208,14 +1228,14 @@ public class NavnekandidaterEndepunktTests
         var scene = await OpprettSceneAsync("Departementetsporet", kategori: "gruppe");
 
         var svar = await _client.SendAsync(MedBruker(HttpMethod.Post,
-            $"/api/navnekandidater/{scene.KandidatId}/godkjenn", brukerId));
+            $"/api/navnekandidater/{scene.KandidatId}/godkjenn?nodetype=rolle", brukerId));
         Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
         var resultat = await svar.Content.ReadFromJsonAsync<NavnekandidatDto>(JsonInnstillinger);
         Assert.Equal("Godkjent", resultat!.Status);
 
         await using var db = _fixture.NyDbContext();
         var gruppebegrep = await db.Begreper.SingleAsync(
-            b => b.Begrepskategori == "gruppe" && b.LovkildeId == scene.RettskildeId && b.Term == scene.Navn);
+            b => b.Begrepskategori == "rolle" && b.LovkildeId == scene.RettskildeId && b.Term == scene.Navn);
         Assert.Equal(scene.RettskildeId, gruppebegrep.LovkildeId);
     }
 }

@@ -56,9 +56,9 @@ public class GruppeMedlemskapEndepunktTests
         return (rettskildeId, eid);
     }
 
-    private async Task<BegrepDto> OpprettGruppebegrepAsync(Nodetyper.Klasse, Guid brukerId, Guid lovId, string term)
+    private async Task<BegrepDto> OpprettGruppebegrepAsync(Guid brukerId, Guid lovId, string term)
     {
-        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppebegrep", brukerId, new { LovkildeId = lovId, Term = term }));
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppebegrep", brukerId, new { LovkildeId = lovId, Term = term, Nodetype = "klasse" }));
         svar.EnsureSuccessStatusCode();
         return (await svar.Content.ReadFromJsonAsync<BegrepDto>(JsonInnstillinger))!;
     }
@@ -69,8 +69,8 @@ public class GruppeMedlemskapEndepunktTests
         var brukerId = await HentJuristIdAsync();
         var (lovId, paragrafEid) = await OpprettRettskildeMedParagrafAsync();
         var (hjemmelId, hjemmelEid) = await OpprettRettskildeMedParagrafAsync();
-        var overordnet = await OpprettGruppebegrepAsync(Nodetyper.Klasse, brukerId, lovId, $"forvaltningsomradet-{Guid.NewGuid():N}");
-        var underordnet = await OpprettGruppebegrepAsync(Nodetyper.Klasse, brukerId, lovId, $"sprakutviklingskommuner-{Guid.NewGuid():N}");
+        var overordnet = await OpprettGruppebegrepAsync(brukerId, lovId, $"forvaltningsomradet-{Guid.NewGuid():N}");
+        var underordnet = await OpprettGruppebegrepAsync(brukerId, lovId, $"sprakutviklingskommuner-{Guid.NewGuid():N}");
 
         var svar = await _client.SendAsync(MedBruker(HttpMethod.Post, "/api/gruppemedlemskap", brukerId, new
         {
@@ -92,8 +92,8 @@ public class GruppeMedlemskapEndepunktTests
         var brukerId = await HentJuristIdAsync();
         var (lovId, _) = await OpprettRettskildeMedParagrafAsync();
         var (hjemmelId, hjemmelEid) = await OpprettRettskildeMedParagrafAsync();
-        var overordnet = await OpprettGruppebegrepAsync(Nodetyper.Klasse, brukerId, lovId, $"ki-over-{Guid.NewGuid():N}");
-        var underordnet = await OpprettGruppebegrepAsync(Nodetyper.Klasse, brukerId, lovId, $"ki-under-{Guid.NewGuid():N}");
+        var overordnet = await OpprettGruppebegrepAsync(brukerId, lovId, $"ki-over-{Guid.NewGuid():N}");
+        var underordnet = await OpprettGruppebegrepAsync(brukerId, lovId, $"ki-under-{Guid.NewGuid():N}");
 
         await using var db = _fixture.NyDbContext();
         var medlemskap = new GruppeMedlemskapEntitet
@@ -117,8 +117,8 @@ public class GruppeMedlemskapEndepunktTests
         var brukerId = await HentJuristIdAsync();
         var (lovId, _) = await OpprettRettskildeMedParagrafAsync();
         var (hjemmelId, hjemmelEid) = await OpprettRettskildeMedParagrafAsync();
-        var overordnet = await OpprettGruppebegrepAsync(Nodetyper.Klasse, brukerId, lovId, $"ki-avvis-over-{Guid.NewGuid():N}");
-        var underordnet = await OpprettGruppebegrepAsync(Nodetyper.Klasse, brukerId, lovId, $"ki-avvis-under-{Guid.NewGuid():N}");
+        var overordnet = await OpprettGruppebegrepAsync(brukerId, lovId, $"ki-avvis-over-{Guid.NewGuid():N}");
+        var underordnet = await OpprettGruppebegrepAsync(brukerId, lovId, $"ki-avvis-under-{Guid.NewGuid():N}");
 
         await using var db = _fixture.NyDbContext();
         var medlemskap = new GruppeMedlemskapEntitet

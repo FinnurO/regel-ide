@@ -9,10 +9,15 @@ namespace RegelIde.Data.Tests;
 /// den SQL-en migrasjonen kjører (<see cref="NodetypeReklassifisering.Sql"/> /
 /// <see cref="NodetypeReklassifisering.AktortypeSql"/>), ikke en kopi.
 /// <para>
-/// Hver test får sin EGEN, fersk-migrerte database (samme teknikk som
-/// <c>SamiskSprakforvaltningSeedTests.NyTomDatabaseAsync</c>): reklassifiseringen identifiserer rader på
-/// TERM og LOV, og i den delte collection-databasen ville andre testers «kommunene»/«departementet»
-/// blitt truffet — og omvendt.
+/// Klassen bruker ÉN egen, fersk-migrert database (samme teknikk som
+/// <c>SamiskSprakforvaltningSeedTests.NyTomDatabaseAsync</c>), og hver test kjører i en transaksjon som
+/// rulles tilbake: reklassifiseringen identifiserer rader på TERM og LOV, og i den delte
+/// collection-databasen ville andre testers «kommunene»/«departementet» blitt truffet — og omvendt.
+/// [ENDRET 2026-10-07] Var én fersk database PER test (seks stk.). Med det hang senere tester som
+/// forventer en DB-skranke-feil (INSERT «active» uten ventehendelse i pg_stat_activity, målt) til 30 s
+/// timeout i samme kjøring. Antatt årsak, IKKE verifisert: embedded Postgres' loggutdata (sjekkpunkter
+/// ved CREATE DATABASE, ERROR-linjer) skrives til et rør ingen leser, og når det er fullt blokkerer
+/// neste ERROR-logging. Én database i stedet for seks fjernet symptomet.
 /// </para>
 /// </summary>
 [Collection(DataTestCollection.Navn)]
@@ -112,7 +117,8 @@ public class NodetypeReklassifiseringTests
     [Fact]
     public async Task Godkjent_liste_reklassifiseres_og_koblinger_flyttes_til_overlevende_rad()
     {
-        await using var db = new RegelIdeDbContext(NyOptions(await NyTomDatabaseAsync()));
+        await using var db = new RegelIdeDbContext(NyOptions(await EgenDatabaseAsync()));
+        await using var tx = await db.Database.BeginTransactionAsync(); // rulles tilbake ved dispose — se klassekommentaren.
         var l = await LeggInnLoverAsync(db);
         var eier = NyVirksomhet(db, "Kommunal- og distriktsdepartementet");
         var karasjok = NyVirksomhet(db, "Karasjok kommune");
@@ -218,7 +224,8 @@ public class NodetypeReklassifiseringTests
     [Fact]
     public async Task Rader_utenfor_lista_rores_ikke_og_andre_kjoring_er_no_op()
     {
-        await using var db = new RegelIdeDbContext(NyOptions(await NyTomDatabaseAsync()));
+        await using var db = new RegelIdeDbContext(NyOptions(await EgenDatabaseAsync()));
+        await using var tx = await db.Database.BeginTransactionAsync(); // rulles tilbake ved dispose — se klassekommentaren.
         await KjorAsync(db); // tom base: ingen feil.
 
         var l = await LeggInnLoverAsync(db);
@@ -245,7 +252,8 @@ public class NodetypeReklassifiseringTests
     [Fact]
     public async Task Stortinget_blir_navneform_nar_virksomheten_finnes()
     {
-        await using var db = new RegelIdeDbContext(NyOptions(await NyTomDatabaseAsync()));
+        await using var db = new RegelIdeDbContext(NyOptions(await EgenDatabaseAsync()));
+        await using var tx = await db.Database.BeginTransactionAsync(); // rulles tilbake ved dispose — se klassekommentaren.
         var l = await LeggInnLoverAsync(db);
         var storting = NyVirksomhet(db, "STORTINGET", "971524960");
         var stortinget = Gruppe(db, "stortinget", l.Reindrift);
@@ -266,7 +274,8 @@ public class NodetypeReklassifiseringTests
     [Fact]
     public async Task Stortinget_slas_sammen_med_eksisterende_navneform()
     {
-        await using var db = new RegelIdeDbContext(NyOptions(await NyTomDatabaseAsync()));
+        await using var db = new RegelIdeDbContext(NyOptions(await EgenDatabaseAsync()));
+        await using var tx = await db.Database.BeginTransactionAsync(); // rulles tilbake ved dispose — se klassekommentaren.
         var l = await LeggInnLoverAsync(db);
         var storting = NyVirksomhet(db, "STORTINGET", "971524960");
         var stortinget = Gruppe(db, "stortinget", l.Reindrift);
@@ -294,7 +303,8 @@ public class NodetypeReklassifiseringTests
     [Fact]
     public async Task Aktortype_fylles_bare_der_det_er_entydig()
     {
-        await using var db = new RegelIdeDbContext(NyOptions(await NyTomDatabaseAsync()));
+        await using var db = new RegelIdeDbContext(NyOptions(await EgenDatabaseAsync()));
+        await using var tx = await db.Database.BeginTransactionAsync(); // rulles tilbake ved dispose — se klassekommentaren.
         Virksomhet V(string navn, string? orgform, string? niva, string? aktortype = null) =>
             db.Virksomheter.Add(new Virksomhet
             {
@@ -334,16 +344,34 @@ public class NodetypeReklassifiseringTests
     public void UtledAktortypeAutomatisk_speiler_migrasjonen(string? orgform, string? niva, string? forventet) =>
         Assert.Equal(forventet, Nodetyper.UtledAktortypeAutomatisk(orgform, niva));
 
-    /// <summary>CHECK-en på aktortype — lukket vokabular.</summary>
+    /// <summary>CHECK-en på aktortype — lukket vokabular (klassens egen database, se klassekommentaren).</summary>
     [Fact]
     public async Task Ukjent_aktortype_avvises_av_databasen()
     {
-        await using var db = _fixture.NyDbContext();
+        await using var db = new RegelIdeDbContext(NyOptions(await EgenDatabaseAsync()));
+        await using var tx = await db.Database.BeginTransactionAsync(); // rulles tilbake ved dispose — se klassekommentaren.
         db.Virksomheter.Add(new Virksomhet { Id = Guid.NewGuid(), Navn = $"x-{Guid.NewGuid():N}", Aktortype = "kommune" });
         await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
     }
 
     // ---------- Fersk database per test (se klassekommentaren) ----------
+
+    private static readonly SemaphoreSlim DatabaseLas = new(1, 1);
+    private static string? _egenDatabase;
+
+    /// <summary>Klassens ene, ferske database — opprettes første gang en test trenger den.</summary>
+    private async Task<string> EgenDatabaseAsync()
+    {
+        await DatabaseLas.WaitAsync();
+        try
+        {
+            return _egenDatabase ??= await NyTomDatabaseAsync();
+        }
+        finally
+        {
+            DatabaseLas.Release();
+        }
+    }
 
     private async Task<string> NyTomDatabaseAsync()
     {
