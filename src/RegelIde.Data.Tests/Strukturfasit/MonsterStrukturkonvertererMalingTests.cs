@@ -19,7 +19,40 @@ public class MonsterStrukturkonvertererMalingTests(ITestOutputHelper output)
     /// det samme igjen uten å vite hvorfor det ble forkastet (CLAUDE.md §7: avviste alternativer er
     /// dokumentasjon).
     /// </summary>
-    internal static readonly IReadOnlyList<(string Id, string Grunn)> ForkastedeMonstre = [];
+    internal static readonly IReadOnlyList<(string Id, string Grunn)> ForkastedeMonstre =
+    [
+        ("vedtak-forvaltningsverb: verbet «pålegge»",
+            "Prøvd sammen med «gi pålegg/dispensasjon, ilegge, trekke tilbake». Formen ga 11 utsagn, hvorav 8 falske positive: «En domstol kan pålegge en klager …», «Retten kan pålegge …», «Arbeidsgiver kan pålegge helsepersonell …», «Kommunen kan pålegge personell …» — prosessuelle pålegg og arbeidsgivers instruks, ikke enkeltvedtak. De 3 riktige: energiloven § 5-3 og § 10-1a («Departementet kan pålegge ethvert fjernvarmeanlegg …», «Konsesjonsmyndigheten kan … pålegge konsesjonæren …») og helse- og omsorgstjenesteloven § 6-6 («Departementet kan pålegge samarbeid mellom kommuner»). Uten verbet: 26 av 26."),
+        ("tilsyn-forer-tilsyn: alle objekter etter «tilsyn med»",
+            "5 av 9. Tre av de fire feilene var tilsyn med en AKTØR («fører tilsyn med forliksrådets virksomhet», «med daglig leder», «med helseforetak»), den fjerde «Riksrevisjonen fører kontroll med forvaltningen av statens interesser» — samme skille som korpusmålingen i docs/33 §1 viste. Nå bare «tilsyn/kontroll med at …» og «med lovligheten/etterlevelsen/gjennomføringen/overholdelsen av …»."),
+        ("vedtak-godkjennes-av: «er godkjent av X»",
+            "6 av 12. Perfektum partisipp beskriver en tilstand eller et vilkår («Når avviklingsoppgjøret er godkjent av foretaksmøtet, skal …», «før det er godkjent av statsforvalteren»), ikke hvem som har kompetansen. Nå bare «skal/må/kan (være) godkjennes/godkjent av»."),
+        ("Navneliste: siste element med to «og» delt på det første",
+            "Ga «Møre» + «Romsdal og Trööndelagen/Trøndelag» som lagsogn (domstolloven-inndelingen § 12). Tvetydig — teksten sier ikke hvilket «og» som er inne i et navn — så hele lista forkastes nå."),
+        ("oppnevnt-av: ordet rett foran finitt passiv som den oppnevnte",
+            "«Dommere til Høyesterett, …, tingrettene og jordskifterettene utnevnes … av Kongen» ga «jordskifterettene». For «oppnevnes/utnevnes» brukes nå setningens subjekt."),
+        ("(ikke bygget) rapporterer_til",
+            "Fasiten har 31, men uttrykt som «sende melding til», «varsle», «forelegges», «underrette» — formuleringer som like ofte er informasjonsplikter for private (docs/33 §1: «rapporterer til» 45 %). Ingen form med høy nok presisjon til mønsterlaget; overlatt til KI-laget (#308)."),
+        ("(ikke bygget) A har_ansvarsomrade tingrett → egen rettskrets",
+            "Fasiten har 52 slike («Vestre Finnmark tingrett» har ansvarsområde «Vestre Finnmark tingrett»), men rettskretsens navn står ikke i teksten — det er annotatørens konvensjon (docs/33 §3 funn 3: område og organ har samme navn). Å lage dem ville vært å kopiere fasiten, ikke lese teksten."),
+    ];
+
+    // Regresjonsvern per kanttype: [målt verdi 2026-10-07] − 5 prosentpoeng, for presisjon og gjenfinning
+    // med endepunktkrav. [FORELØPIG — #307 akseptansekriterium 3] Tersklene låses først etter den
+    // menneskelige gjennomgangen av fasiten i #309: før det er en «feil» like gjerne en fasitfeil, og et
+    // vern som er strengere enn målingen ville bare ha låst fast fasitens nåværende tilfeldigheter.
+    // Kanttyper uten predikerte utsagn (M, I, T) har ingen presisjon å verne; gjenfinningen er 0.
+    private static readonly IReadOnlyDictionary<string, (double Presisjon, double Gjenfinning)> MaltPerKategori =
+        new Dictionary<string, (double, double)>
+        {
+            ["R"] = (0.778, 0.126),
+            ["K"] = (0.885, 0.597),
+            ["O"] = (0.974, 0.858),
+            ["A"] = (1.000, 0.517),
+            ["G"] = (0.667, 0.093),
+        };
+
+    private const double Slingringsmonn = 0.05;
 
     [Fact]
     public void Maling_mot_fasiten_skriver_rapport_og_holder_tersklene()
@@ -38,5 +71,17 @@ public class MonsterStrukturkonvertererMalingTests(ITestOutputHelper output)
         var forskrift = Tall.For(malinger, r => r.Utsagn.Type == "forskriftskompetanse");
         Assert.True(forskrift.Presisjon >= 0.9,
             $"Presisjon K forskriftskompetanse er {Malerapport.P(forskrift.Presisjon)}, krav ≥ 90 %.");
+
+        var brudd = new List<string>();
+        foreach (var (bokstav, malt) in MaltPerKategori)
+        {
+            var t = Tall.For(malinger, r => r.Bokstav == bokstav);
+            if (!(t.Presisjon >= malt.Presisjon - Slingringsmonn))
+                brudd.Add($"{bokstav} presisjon {Malerapport.P(t.Presisjon)} < {Malerapport.P(malt.Presisjon - Slingringsmonn)}");
+            if (!(t.Gjenfinning >= malt.Gjenfinning - Slingringsmonn))
+                brudd.Add($"{bokstav} gjenfinning {Malerapport.P(t.Gjenfinning)} < {Malerapport.P(malt.Gjenfinning - Slingringsmonn)}");
+        }
+        Assert.True(brudd.Count == 0,
+            "Regresjon mot målt nivå (se data/fasit/strukturmodell/maling-monster.md): " + string.Join("; ", brudd));
     }
 }
