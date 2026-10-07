@@ -295,7 +295,7 @@ Pluss to som følger av funnene: 12. Hvem har hvilken kompetanse etter hvilken p
 
 ## 8. Byggerekkefølge
 
-Se epic-saken på GitHub. Kort: (1) fasit + måleoppsett + dette notatet → (2) deterministisk
+Se epic-saken #318 (delsaker #306–#317). Kort: (1) fasit + måleoppsett + dette notatet → (2) deterministisk
 konvertering målt mot fasit → (3) KI-konvertering, samme kontrakt → (4) områderegister fra Kartverket
 → (5) nodetype-akse + reklassifisering → (6) kanttabell (etter Johanns konsolideringsvalg) →
 (7) import av konverteringsresultat til forslagskø → (8) oppløsning av generiske omtaler →
