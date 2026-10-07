@@ -138,6 +138,15 @@ uavklart** — settes automatisk bare der det er entydig (Brreg `KOMM`/`FYLK` �
 regel som `docs/20` §7.2 for forvaltningsnivå), ellers av et menneske. `Virksomhet` blir dermed «aktør»
 i ordets juridiske forstand; registeret beskriver den, loven definerer den (CLAUDE.md §0).
 
+**[Bygget, issue #310, 2026-10-07]** `Virksomhet.Aktortype` og `Begrepskategori` ∈ `klasse`/`rolle`/
+`omrade` finnes nå (migrasjonen `InnforNodetypeakse`), og de 13 gruppebegrepene er reklassifisert etter
+Johanns godkjente liste. Ett avvik fra tabellen over: tre godkjente «organ»-rader (Kongen i statsråd,
+med «kongen» slått inn; «stortinget» i reindriftsloven) har ingen `Virksomhet`-rad å bo i — Stortinget
+(orgnr 971524960) finnes ikke i katalogen lokalt, og en rad med gjettede data opprettes ikke. De ligger
+derfor som `Begrepskategori = 'organ'` til noen oppretter virksomheten (migrasjonen gjør dem til
+navneform automatisk der Stortinget-virksomheten alt finnes). Statsforvalter-radene er slått sammen til
+én fast, nasjonal klasse.
+
 ### 4.2 Gruppe er en evne, ikke en type
 
 Svar på Johanns spørsmål (2026-10-07): «er det bedre å ha grupper med en attributt som skiller ulike

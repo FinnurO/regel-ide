@@ -109,6 +109,16 @@ mot samme `VirksomhetId` — ingen egen mekanisme.
 
 ### 2.4 `Begrep` — kategori `Rolle`
 
+> **[ENDRET, issue #310, 2026-10-07] Kategorien er splittet etter nodetype.** «Rolle» ble omdøpt til
+> «gruppe» (docs/29 Del A), og #310 splittet `'gruppe'` i de ekte begrepene som TYPER (docs/33
+> §4.1–4.2): `Begrepskategori` ∈ `'klasse'` | `'rolle'` | `'omrade'` | `'organ'` (organ = mellomtilstand
+> for et organ uten `Virksomhet`-rad). `'administrativ_inndeling'` er slått inn i `'omrade'`.
+> Gruppefunksjonen (tildeling/medlemskap) er en evne alle typene har — samme identitet `(Term,
+> LovkildeId)` og samme faste/nasjonale gren (#298) for alle, håndhevet av ÉN felles unik indeks
+> (`ux_begreper_nodebegrep_*`). `'gruppe'` står igjen i CHECK-en bare for ikke-reklassifiserte rader i
+> andre miljøer (lokalt 0 etter migrasjonen); typen settes for hånd på begrepssiden
+> (`PUT /api/gruppebegrep/{id}/nodetype`). Tabellen under er den opprinnelige planen.
+
 | Felt (for `Begrepskategori = Rolle`) | Type | Kommentar |
 |---|---|---|
 | `Streng` | `string` | Rollenavnet, f.eks. "forurensningsmyndighet" |
@@ -337,6 +347,13 @@ infrastruktur, gjenbruker det samme presisjonsnivået som `TjenesteRegelverksref
 Bekreftet: ingen automatisk forslag basert på sektorkode ved berikelse. Feltet starter `NULL` for alt
 utenom `KOMM`/`FYLK` (som allerede er entydig, se §4) — Johann fyller inn resten manuelt. Samme
 prinsipp som §4s "ingen filtrering/gjetning fra navn", nå også anvendt på klassifiseringsfeltet.
+
+**[Ny, issue #310, 2026-10-07] Samme regel for `Aktortype`** (`rettssubjekt` | `organ` |
+`organisatorisk_enhet` | NULL = uavklart, docs/33 §4.1): automatisk KUN `KOMM`/`FYLK` → `rettssubjekt`,
+alt annet settes av et menneske på VirksomhetDetalj (`PUT /api/virksomheter/{id}/aktortype`). Målt
+2026-10-07: 0 av 501 rader har `organisasjonsform_kode` KOMM/FYLK lokalt — seeden skriver orgForm inn
+som forvaltningsnivå `kommune`/`fylkeskommune` (355 + 14) — så utledningen leser begge
+(`Nodetyper.UtledAktortypeAutomatisk`). Resultat lokalt: 369 rettssubjekt, 132 uavklart.
 
 ## 8. Forutsetninger — status
 

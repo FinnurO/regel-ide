@@ -1,5 +1,12 @@
 # 29. Gruppe og VirksomhetRelasjon — spesifikasjon og byggeplan
 
+> **[Peker, issue #310, 2026-10-07]** Del A sin `'gruppe'`-kategori er siden splittet i nodetypene
+> `'klasse'`/`'rolle'`/`'omrade'`/`'organ'` (docs/33 §4.1–4.2, migrasjonen `InnforNodetypeakse`).
+> A.1-tabellen under var sjekklisten for hvilke filer som måtte endres — samme flate ble endret i #310,
+> pluss den delte `src/RegelIde.Data/Nodetyper.cs` og `src/RegelIde.Web/src/begrep/Nodetype.tsx`.
+> Indeksene heter nå `ux_begreper_nodebegrep_term_lovkilde`/`_fast_term`. Kanten selv (tildeling +
+> medlemskap) konsolideres i #311.
+
 Implementerbar spesifikasjon for den ALLEREDE BESLUTTEDE, IKKE BYGGEDE datamodellen i
 `docs/28-navnekandidat-presisjon-innspill.md`, seksjonen «Beslutning: datamodell for gruppe, relasjon
 og myndighetstildeling (2026-09-02)». Dette dokumentet er spesifikasjon og byggeplan — det inneholder
