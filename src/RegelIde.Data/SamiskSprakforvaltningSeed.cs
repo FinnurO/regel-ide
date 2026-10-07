@@ -10,7 +10,7 @@ namespace RegelIde.Data;
 /// <para>
 /// <b>Bygget på de generelle tjenestene, ikke som et engangs-script</b> (issue #164 sitt
 /// akseptansekriterium 5): hver rad går gjennom <see cref="VirksomhetsbegrepTjeneste"/>,
-/// <see cref="GruppeMedlemskapTjeneste"/>, <see cref="MyndighetstildelingTjeneste"/> og
+/// <see cref="StrukturkantTjeneste"/> (før #311: gruppemedlemskap- og myndighetstildelingstjenestene) og
 /// <see cref="TekstTaggTjeneste"/> — samme kodevei en saksbehandler utløser fra veiviseren. Seeden er
 /// derfor samtidig en verifikasjon av at mekanismen virker på et ekte tilfelle; ville den bare skrevet
 /// rader direkte med <c>db.X.Add</c>, hadde den kunnet «lykkes» selv om mekanismen var ødelagt.
@@ -31,7 +31,8 @@ namespace RegelIde.Data;
 /// <b>Idempotent</b> — kan kjøres om igjen uten å duplisere, slik alle appens øvrige seeds er (samme
 /// mønster som <see cref="OrganisasjonsregisterSeed"/>/<see cref="DepartementSeed"/>): hvert lag
 /// slås opp før det opprettes, og de underliggende tjenestene har selv duplikatsperrer
-/// (<c>ux_gruppe_medlemskap_par</c>, <c>ux_begreper_nodebegrep_term_lovkilde</c> (het «gruppebegrep» før #310),
+/// (<see cref="StrukturkantTjeneste.OpprettAsync"/> sin idempotens — før #311 <c>ux_gruppe_medlemskap_par</c> —,
+/// <c>ux_begreper_nodebegrep_term_lovkilde</c> (het «gruppebegrep» før #310),
 /// <c>tekst_tagger_unik_tagg</c>). To kjøringer gir samme radantall.
 /// </para>
 ///
@@ -116,8 +117,7 @@ public static class SamiskSprakforvaltningSeed
     public static async Task<SamiskSprakforvaltningSeedResultat> SeedAsync(
         RegelIdeDbContext db,
         VirksomhetsbegrepTjeneste virksomhetsbegrep,
-        GruppeMedlemskapTjeneste gruppeMedlemskap,
-        MyndighetstildelingTjeneste myndighetstildeling,
+        StrukturkantTjeneste strukturkanter,
         TekstTaggTjeneste tekstTagg,
         VirksomhetOppslagTjeneste virksomhetOppslag,
         CancellationToken ct = default)
@@ -182,13 +182,16 @@ public static class SamiskSprakforvaltningSeed
         }
 
         // ---------- 3. Gruppe av gruppe: de tre kategoriene er medlemsgrupper ----------
+        // [ENDRET, issue #311] M-kant fra kategorien (klasse) til forvaltningsområdet (område).
         var overordnet = gruppebegrepPerTerm[Forvaltningsomradet];
         var hjemmelSpenn = new[] { new ParagrafspennPar(MedlemNodeEid, null) };
         var antallMedlemskap = 0;
         foreach (var kategori in Kategorier)
         {
-            await gruppeMedlemskap.OpprettAsync(
-                overordnet.Id, gruppebegrepPerTerm[kategori].Id, forskrift.Id, hjemmelSpenn, SeedBruker, ct: ct);
+            await strukturkanter.OpprettAsync(new NyStrukturkant(
+                Strukturkanter.Medlemskap, Strukturkanter.MedlemAv,
+                Strukturnode.Begrep(gruppebegrepPerTerm[kategori].Id), Strukturnode.Begrep(overordnet.Id),
+                HjemmelRettskildeId: forskrift.Id, Paragrafspenn: hjemmelSpenn), SeedBruker, ct);
             antallMedlemskap++;
         }
 
@@ -221,14 +224,9 @@ public static class SamiskSprakforvaltningSeed
             antallNavneformer++;
 
             var gruppe = gruppebegrepPerTerm[kommune.Kategori];
-            var tildeling = await db.Myndighetstildelinger.FirstOrDefaultAsync(
-                m => m.GruppeBegrepId == gruppe.Id && m.VirksomhetId == virksomhet.Id
-                     && m.HjemmelRettskildeId == forskrift.Id, ct);
-            if (tildeling is null)
-            {
-                await myndighetstildeling.OpprettAsync(
-                    gruppe.Id, virksomhet.Id, forskrift.Id, hjemmelSpenn, vilkaar: null, SeedBruker, ct: ct);
-            }
+            // [ENDRET, issue #311] Tildelingskant (M — gruppen er en klasse). Idempotent i tjenesten.
+            await strukturkanter.OpprettTildelingAsync(
+                virksomhet.Id, gruppe.Id, forskrift.Id, hjemmelSpenn, avgrensningTekst: null, SeedBruker, ct: ct);
             antallTildelinger++;
 
             if (forskriftEier is null) continue; // rapportert samlet under.

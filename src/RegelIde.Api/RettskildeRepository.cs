@@ -334,13 +334,14 @@ public sealed class RettskildeRepository(RegelIdeDbContext db, VirksomhetOppslag
     /// virksomhets-navneformer (<c>Kind='virksomhet'</c> peker også på en <see cref="BegrepEntitet"/>-
     /// rad, men er en helt annen ting — se <see cref="AntallVirksomheter"/>) og ikke gruppebegrep tagget
     /// et ANNET sted enn i denne rettskilden.</item>
-    /// <item><b>AntallVirksomheter</b> — UNION (distinkt) av tre uavhengige kilder til "forvalter/er
+    /// <item><b>AntallVirksomheter</b> — UNION (distinkt) av to uavhengige kilder til "forvalter/er
     /// koblet til denne rettskilden": (a) virksomheter hvis NAVNEFORM er direkte tagget
     /// (<c>Kind='virksomhet'</c>) i denne rettskildens tekst — <see cref="BegrepEntitet.VirksomhetReferanseId"/>
-    /// på den taggede raden; (b) <see cref="MyndighetstildelingEntitet.HjemmelRettskildeId"/> == denne
-    /// (myndighet tildelt via denne rettskilden); (c) <see cref="VirksomhetRelasjonEntitet.HjemmelRettskildeId"/>
-    /// == denne, BEGGE parter i relasjonen (Fra- og Til-virksomheten — en "sekretariat for"-relasjon sier
-    /// noe om begge organene, ikke bare det ene). Et gruppebegrep tagget i teksten teller IKKE i seg selv
+    /// på den taggede raden; (b) [ENDRET, issue #311] virksomheter i BEGGE ender av en
+    /// <see cref="StrukturkantEntitet"/> med <see cref="StrukturkantEntitet.HjemmelRettskildeId"/> == denne (før
+    /// #311 to kilder: myndighetstildeling — virksomheten — og virksomhetsrelasjon — begge parter, fordi en
+    /// "sekretariat for"-relasjon sier noe om begge organene; kanttabellen dekker begge, og i tillegg
+    /// kompetanse/ansvarsområde/organtilhørighet hjemlet her). Et gruppebegrep tagget i teksten teller IKKE i seg selv
     /// som en virksomhet her (det telles i <see cref="AntallBegrep"/>) — kun konkrete virksomheter/
     /// myndighetstildelinger/-relasjoner gjør.</item>
     /// </list>
@@ -370,17 +371,14 @@ public sealed class RettskildeRepository(RegelIdeDbContext db, VirksomhetOppslag
             .Join(db.Begreper, t => t.RefId!.Value, b => b.Id, (t, b) => b.VirksomhetReferanseId)
             .Where(v => v != null)
             .Select(v => v!.Value);
-        var viaMyndighetstildeling = db.Myndighetstildelinger
-            .Where(m => m.HjemmelRettskildeId == rettskildeId)
-            .Select(m => m.VirksomhetId);
-        var viaRelasjonFra = db.VirksomhetRelasjoner
-            .Where(r => r.HjemmelRettskildeId == rettskildeId)
-            .Select(r => r.FraVirksomhetId);
-        var viaRelasjonTil = db.VirksomhetRelasjoner
-            .Where(r => r.HjemmelRettskildeId == rettskildeId)
-            .Select(r => r.TilVirksomhetId);
+        var viaKantFra = db.Strukturkanter
+            .Where(k => k.HjemmelRettskildeId == rettskildeId && k.FraVirksomhetId != null)
+            .Select(k => k.FraVirksomhetId!.Value);
+        var viaKantTil = db.Strukturkanter
+            .Where(k => k.HjemmelRettskildeId == rettskildeId && k.TilVirksomhetId != null)
+            .Select(k => k.TilVirksomhetId!.Value);
         var antallVirksomheter = await viaNavneformTagg
-            .Union(viaMyndighetstildeling).Union(viaRelasjonFra).Union(viaRelasjonTil)
+            .Union(viaKantFra).Union(viaKantTil)
             .Distinct().CountAsync(ct);
 
         return new RettskildeStatistikkDto(rettskildeId, antallVirksomheter, antallBegrep, antallTjenester);

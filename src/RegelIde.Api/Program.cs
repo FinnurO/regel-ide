@@ -46,9 +46,10 @@ builder.Services.AddScoped<VirksomhetsbegrepTjeneste>();
 // [Ny, registernavn-runden, 2026-09-08] Løser visningsnavnet (navneform med grunn 'gjeldende', ellers
 // Virksomhet.Navn) — se klassekommentaren for hvorfor de to formene er forskjellige.
 builder.Services.AddScoped<VirksomhetVisningsnavnTjeneste>();
-builder.Services.AddScoped<MyndighetstildelingTjeneste>();
+// [ENDRET, issue #311] MyndighetstildelingTjeneste og GruppeMedlemskapTjeneste (og
+// VirksomhetRelasjonregisterTjeneste under) er erstattet av ÉN skrivevei for alle strukturkanter.
+builder.Services.AddScoped<StrukturkantTjeneste>();
 builder.Services.AddScoped<VirksomhetWhereUsedTjeneste>();
-builder.Services.AddScoped<GruppeMedlemskapTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatSveipTjeneste>();
 builder.Services.AddScoped<NavnekandidatOppdagelseTjeneste>();
@@ -79,7 +80,6 @@ builder.Services.AddScoped<DatasettregisterTjeneste>();
 builder.Services.AddScoped<VilkarstreKommentarTjeneste>();
 builder.Services.AddScoped<HendelseregisterTjeneste>();
 builder.Services.AddScoped<TjenesteavhengighetregisterTjeneste>();
-builder.Services.AddScoped<VirksomhetRelasjonregisterTjeneste>();
 builder.Services.AddScoped<VirksomhetSlettTjeneste>();
 builder.Services.AddScoped<HandlingregisterTjeneste>();
 builder.Services.AddScoped<HandlingTjenesteregisterTjeneste>();
@@ -353,40 +353,11 @@ using (var scope = app.Services.CreateScope())
     //
     // Samme feilklasse som CLAUDE.md §4 beskriver for seed-vakter: vakten må sjekke den STABILE
     // NØKKELEN for raden den beskytter, ikke en egenskap ved hele tabellen.
-    var kjenteRelasjonstyper = new (string Kode, string FraMal, string TilMal, int Rekkefolge)[]
-    {
-        ("underlagt", "er underlagt {0}", "er eier/overordnet for {0}", 0),
-        ("sekretariat", "har sekretariat hos {0}", "er sekretariat for {0}", 1),
-        ("klageinstans", "har klageinstans hos {0}", "er klageinstans for {0}", 2),
-        ("enhet_i", "er enhet i {0}", "har enhet {0}", 3),
-        // [Ny, etterfølgelse-runden, 2026-09-09, issue #134] Rettslig ETTERFØLGELSE — «oppgavene til
-        // X behandles nå av Y». De fire over sier alle noe om organer som eksisterer SAMTIDIG; ingen
-        // av dem uttrykker at et organ er avviklet og oppgavene overtatt.
-        //
-        // Utløst av advokatloven § 73, som splitter Advokatbevillingsnemndens saker mellom TO
-        // etterfølgere: klagesakene til Advokatnemnda (syvende ledd), alle andre saker til
-        // Advokattilsynet (åttende ledd). Modellert som navneform på Advokattilsynet påsto katalogen
-        // at de to var samme organ under to navn — noe loven direkte motsier.
-        //
-        // Delvis overføring uttrykkes i Kommentar (sakstypen), siden VirksomhetRelasjonEntitet ikke
-        // har et Vilkaar-felt slik MyndighetstildelingEntitet har. Det gjør avgrensningen
-        // etterprøvbar, men ikke spørrbar — en bevisst, dokumentert begrensning, se issue #134.
-        ("oppgaver_overfort_til", "fikk oppgavene overført til {0}", "overtok oppgavene til {0}", 4),
-    };
-    var finnesAlt = await db.RelasjonsTypeKonfigurasjoner.Select(k => k.Kode).ToListAsync();
-    var manglende = kjenteRelasjonstyper.Where(t => !finnesAlt.Contains(t.Kode)).ToList();
-    if (manglende.Count > 0)
-    {
-        db.RelasjonsTypeKonfigurasjoner.AddRange(manglende.Select(t => new RelasjonsTypeKonfigurasjonEntitet
-        {
-            Id = Guid.NewGuid(),
-            Kode = t.Kode,
-            FraVisningsmal = t.FraMal,
-            TilVisningsmal = t.TilMal,
-            Sorteringsrekkefolge = t.Rekkefolge,
-        }));
-        await db.SaveChangesAsync();
-    }
+    // [ENDRET, issue #311] Lista er flyttet til Strukturkanter.Startsett (med kategori, og utvidet med
+    // docs/33 §4.3-startsettet for alle åtte kategorier) slik at testene seeder nøyaktig samme typer. Vakten
+    // er fortsatt per stabil nøkkel — nå (kategori, kode). [Etterfølgelse-typen «oppgaver_overfort_til»
+    // (issue #134, advokatloven § 73) og begrunnelsen for den står nå i Startsett.]
+    await Strukturkanter.SeedStartsettAsync(db);
 
     // Testkommunens egne lokale rettskilder (2026-07-29, docs/06-veikart.md) — idempotent, guardet
     // internt per rettskilde (ikke "!AnyAsync" på hele tabellen, siden dette kjører etter at
@@ -501,8 +472,7 @@ using (var scope = app.Services.CreateScope())
     var samiskSeed = await SamiskSprakforvaltningSeed.SeedAsync(
         db,
         scope.ServiceProvider.GetRequiredService<VirksomhetsbegrepTjeneste>(),
-        scope.ServiceProvider.GetRequiredService<GruppeMedlemskapTjeneste>(),
-        scope.ServiceProvider.GetRequiredService<MyndighetstildelingTjeneste>(),
+        scope.ServiceProvider.GetRequiredService<StrukturkantTjeneste>(),
         scope.ServiceProvider.GetRequiredService<TekstTaggTjeneste>(),
         scope.ServiceProvider.GetRequiredService<VirksomhetOppslagTjeneste>());
     app.Logger.LogInformation(
@@ -909,12 +879,15 @@ app.MapGet("/api/konfigurasjon/tagg-kinds", async (RegelIdeDbContext db) =>
     .WithName("HentTaggKindKonfigurasjon")
     .WithSummary("Lister aktive tag-kinds (2026-07-25, erstatter en tidligere hardkodet liste i frontend/backend).");
 
-app.MapGet("/api/konfigurasjon/relasjonstyper", async (RegelIdeDbContext db) =>
-        (await db.RelasjonsTypeKonfigurasjoner.Where(k => k.Aktiv).OrderBy(k => k.Sorteringsrekkefolge).ToListAsync())
+// [ENDRET, issue #311] ?kategori=R|K|M|O|A|G|I|T avgrenser til én kategori. Uten parameter: alle typene.
+app.MapGet("/api/konfigurasjon/relasjonstyper", async (string? kategori, RegelIdeDbContext db) =>
+        (await db.RelasjonsTypeKonfigurasjoner
+            .Where(k => k.Aktiv && (kategori == null || k.Kategori == kategori))
+            .OrderBy(k => k.Kategori).ThenBy(k => k.Sorteringsrekkefolge).ToListAsync())
             .Select(RelasjonsTypeKonfigurasjonDto.FraEntitet))
     .WithOpenApi()
     .WithName("HentRelasjonsTypeKonfigurasjon")
-    .WithSummary("Lister aktive relasjonstyper for VirksomhetRelasjon (docs/29 §Del C) — samme mønster som GET /api/konfigurasjon/tagg-kinds.");
+    .WithSummary("Lister aktive typekoder for strukturkanter (docs/29 §Del C, docs/33 §4.3), valgfritt for én kategori — samme mønster som GET /api/konfigurasjon/tagg-kinds.");
 
 // [Ny, fler-verdi-departement, 2026-09-04] Løser HVER streng i en rettskildes AnsvarligDepartement-liste
 // til sin egen AnsvarligDepartementLenkeDto (departement + løst Virksomhet-id, eller null — «ingen
@@ -1121,17 +1094,17 @@ rettskilder.MapGet("/{id:guid}/endringer", async (Guid id, RettskildeRepository 
         "(rettskildedetalj-fikser, 2026-09-02) — hvilke(t) andre dokument(er) DENNE rettskilden endrer. " +
         "Tom liste for enhver rettskilde uten feltet.");
 
-// [Ny, nemnd/sekretariat-runden, 2026-09-09] Motstykket til
-// GET /api/virksomheter/{id}/relasjoner: hvilke virksomhetsrelasjoner er HJEMLET i denne rettskilden.
-// Uten dette var en hjemmel bare synlig fra virksomhetssiden, og docs/32 §3 S1 («hvem forvalter loven,
-// og i hvilken egenskap») kunne ikke stilles fra bestemmelsen den står i.
-rettskilder.MapGet("/{id:guid}/virksomhetsrelasjoner", async (Guid id, VirksomhetRelasjonregisterTjeneste register, CancellationToken ct) =>
-        Results.Ok((await register.HentForHjemmelRettskildeAsync(id, ct)).Select(VirksomhetRelasjonHjemletDto.FraVisning)))
+// [Ny, nemnd/sekretariat-runden, 2026-09-09] Motstykket til virksomhetssiden: hvilke strukturutsagn er
+// HJEMLET i denne rettskilden. Uten dette var en hjemmel bare synlig fra virksomhetssiden, og docs/32 §3 S1
+// («hvem forvalter loven, og i hvilken egenskap») kunne ikke stilles fra bestemmelsen den står i.
+// [ENDRET, issue #311] Var /{id}/virksomhetsrelasjoner (bare R-relasjoner). Nå alle kategorier — tildelinger,
+// medlemskap og kompetanse hjemlet i loven hører like mye hjemme her som relasjonene.
+rettskilder.MapGet("/{id:guid}/strukturkanter", async (Guid id, StrukturkantTjeneste tjeneste, CancellationToken ct) =>
+        Results.Ok((await tjeneste.HentForHjemmelRettskildeAsync(id, ct)).Select(StrukturkantDto.FraVisning)))
     .WithOpenApi()
-    .WithName("HentVirksomhetsrelasjonerHjemletIRettskilde")
-    .WithSummary("Relasjoner mellom virksomheter (sekretariat, klageinstans, underlagt) som denne " +
-        "rettskilden er oppgitt som hjemmel for. Relasjoner uten hjemmel (kun kommentar) er ikke med — " +
-        "de hører per definisjon ikke til noen rettskilde.");
+    .WithName("HentStrukturkanterHjemletIRettskilde")
+    .WithSummary("Issue #311 — strukturkanter (alle kategorier) som denne rettskilden er oppgitt som hjemmel for. " +
+        "Kanter med bare kilde utenfor korpus er ikke med — de hører per definisjon ikke til noen rettskilde.");
 
 rettskilder.MapGet("/{id:guid}/referert-av-tjenester", async (Guid id, RettskildeRepository repo) =>
         Results.Ok(await repo.ReferertAvTjenesterAsync(id)))
@@ -1154,8 +1127,8 @@ rettskilder.MapGet("/{id:guid}/statistikk", async (Guid id, RettskildeRepository
         "AntallTjenester = distinkte Tjeneste-rader med >=1 TjenesteRegelverksreferanse til DENNE rettskilden. " +
         "AntallBegrep = distinkte Begrep-rader tagget (TekstTagger.Kind='begrep') i denne rettskildens løpetekst. " +
         "AntallVirksomheter = union av: virksomheter hvis navneform er tagget (Kind='virksomhet') i teksten, PLUSS " +
-        "MyndighetstildelingEntitet.HjemmelRettskildeId==denne, PLUSS VirksomhetRelasjonEntitet.HjemmelRettskildeId" +
-        "==denne (begge parter). Åpen lesing, samme holdning som resten av GET /api/rettskilder/{id}/*.");
+        "virksomheter i BEGGE ender av en strukturkant med HjemmelRettskildeId==denne (issue #311; før: " +
+        "myndighetstildelinger og virksomhetsrelasjoner). Åpen lesing, samme holdning som resten av GET /api/rettskilder/{id}/*.");
 
 // ---------- Punkt 8 (avklaringsrunde 2026-08-13) — §3.4s multi-sti og §3.2s lenker for en   ----------
 // ---------- Brukerveiledning. Tomme lister for enhver annen doctype, ikke en feil.          ----------
@@ -3400,10 +3373,10 @@ app.MapPost("/api/gruppebegrep", async (HttpRequest request, GruppebegrepRequest
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         try
         {
-            // [ENDRET, issue #310] Nodetype påkrevd (klasse/rolle/omrade/organ) — ingen nye 'gruppe'-begrep.
+            // [ENDRET, issue #310] Nodetype påkrevd (klasse/rolle/omrade — organ fjernet i #311) — ingen nye 'gruppe'-begrep.
             if (string.IsNullOrWhiteSpace(body.Nodetype))
             {
-                return Results.BadRequest(new { feil = "Nodetype er påkrevd: klasse, rolle, omrade eller organ (issue #310). Ingen gjettet fallback." });
+                return Results.BadRequest(new { feil = "Nodetype er påkrevd: klasse, rolle eller omrade (issue #310/#311). Ingen gjettet fallback." });
             }
             var opprettet = await register.OpprettGruppebegrepAsync(body.Nodetype, body.LovkildeId, body.Term, bruker.Navn, ct: ct);
             return Results.Created($"/api/begreper/{opprettet.Id}", BegrepDto.FraEntitet(opprettet));
@@ -3417,7 +3390,7 @@ app.MapPost("/api/gruppebegrep", async (HttpRequest request, GruppebegrepRequest
     .WithName("OpprettGruppebegrep")
     .WithSummary("Gruppebegrep (docs/20 §2.4) — Term+LovkildeId er sammen begrepets identitet, f.eks. 'forurensningsmyndighet' i " +
         "forurensningsloven. [ENDRET, issue #298] LovkildeId=null oppretter et FAST, nasjonalt gruppebegrep (identitet = kun Term). " +
-        "[ENDRET, issue #310] Nodetype (klasse|rolle|omrade|organ) er påkrevd — det er begrepets TYPE; gruppefunksjonen har alle.");
+        "[ENDRET, issue #310] Nodetype (klasse|rolle|omrade) er påkrevd — det er begrepets TYPE; gruppefunksjonen har alle.");
 
 // [Ny, issue #310 «nodetype-akse»] Setter nodetypen på et eksisterende begrep med gruppefunksjon — veien for
 // å reklassifisere de 'gruppe'-radene som ikke sto på Johanns liste (andre miljøer) uten en ny migrasjon.
@@ -3440,7 +3413,7 @@ app.MapPut("/api/gruppebegrep/{id:guid}/nodetype", async (Guid id, HttpRequest r
     })
     .WithOpenApi()
     .WithName("SettNodetypePaGruppebegrep")
-    .WithSummary("Issue #310 — setter nodetypen (klasse|rolle|omrade|organ) på et begrep med gruppefunksjon. " +
+    .WithSummary("Issue #310 — setter nodetypen (klasse|rolle|omrade; organ fjernet i #311) på et begrep med gruppefunksjon. " +
         "Tildelinger, medlemskap og tagger følger uendret med (de peker på begrepets id).");
 
 app.MapGet("/api/rettskilder/{lovkildeId:guid}/gruppebegrep", async (Guid lovkildeId, VirksomhetsbegrepTjeneste register, CancellationToken ct) =>
@@ -3455,77 +3428,158 @@ app.MapGet("/api/gruppebegrep", async (VirksomhetsbegrepTjeneste register, Cance
     .WithName("HentAlleGruppebegrep")
     .WithSummary("Lister ALLE gruppebegrep på tvers av lover — søk/velg-grunnlag for å opprette en myndighetstildeling (docs/13-backlog.md §8.1 punkt 1).");
 
-app.MapPost("/api/myndighetstildelinger", async (HttpRequest request, MyndighetstildelingRequest body,
-        MyndighetstildelingTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+// ---------- Strukturkanter (issue #311 «Strukturmodell 6», docs/33 §4.3) ----------
+// [Ny, issue #311] ÉN endepunktfamilie for alle strukturutsagn — erstatter /api/myndighetstildelinger,
+// /api/gruppemedlemskap og /api/virksomhet-relasjoner (skriveveiene er FJERNET, ikke fasader: «ingen
+// parallell skrivevei», Johanns valg A). Lesefasadene som nettside-eksporten bruker
+// (/api/virksomheter/{id}/myndighetstildelinger, /api/gruppebegrep/{id}/tildelinger|medlemsgrupper|
+// overordnede-grupper) står igjen som tynne fasader — nettside/ er Johanns domene, og skriptet skal virke uendret.
+var strukturkanter = app.MapGroup("/api/strukturkanter").WithOpenApi();
+
+strukturkanter.MapGet("/", async (Guid? virksomhetId, Guid? begrepId, string? kategori, string? status, bool? gjeldende,
+        StrukturkantTjeneste tjeneste, CancellationToken ct) =>
     {
-        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
-        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         try
         {
-            var paragrafspenn = body.Paragrafspenn.Select(p => new ParagrafspennPar(p.FraEid, p.TilEid)).ToList();
-            var opprettet = await register.OpprettAsync(
-                body.GruppeBegrepId, body.VirksomhetId, body.HjemmelRettskildeId, paragrafspenn, body.Vilkaar,
-                bruker.Navn, body.GyldigFra, body.GyldigTil, ct);
-            return Results.Created($"/api/myndighetstildelinger/{opprettet.Id}", MyndighetstildelingDto.FraEntitet(opprettet));
+            if (virksomhetId is not null && begrepId is not null)
+            {
+                return Results.BadRequest(new { feil = "Oppgi virksomhetId ELLER begrepId, ikke begge." });
+            }
+            if (virksomhetId is null && begrepId is null)
+            {
+                if (status != "foreslatt_av_ai")
+                {
+                    return Results.BadRequest(new { feil = "Oppgi virksomhetId eller begrepId (eller status=foreslatt_av_ai for forslagskøen)." });
+                }
+                var forslag = await tjeneste.HentForslagAsync(ct);
+                return Results.Ok(forslag.Where(v => kategori == null || v.Kategori == kategori).Select(StrukturkantDto.FraVisning));
+            }
+            var node = virksomhetId is { } v ? Strukturnode.Virksomhet(v) : Strukturnode.Begrep(begrepId!.Value);
+            var kanter = await tjeneste.HentForNodeAsync(node, kategori, gjeldende ?? false, ct);
+            return Results.Ok(kanter
+                .Where(k => status == null || k.Status == status)
+                .OrderBy(k => Array.IndexOf(Strukturkanter.Kategorier, k.Kategori))
+                .ThenBy(k => k.Visningstekst, StringComparer.Ordinal)
+                .Select(StrukturkantDto.FraVisning));
         }
         catch (ArgumentException ex)
         {
             return Results.BadRequest(new { feil = ex.Message });
         }
     })
-    .WithOpenApi()
-    .WithName("OpprettMyndighetstildeling")
-    .WithSummary("Kobler et gruppebegrep til en konkret virksomhet, hjemlet i en forskrift (docs/20 §2.5). " +
-        "Gyldighet arves fra hjemmelen, og kan i tillegg avgrenses av valgfrie egne GyldigFra/GyldigTil (docs/29 §Del B).");
+    .WithName("HentStrukturkanter")
+    .WithSummary("Issue #311 — strukturkantene for én node (virksomhetId ELLER begrepId), i begge retninger, med " +
+        "visningstekst fra nodens side. ?kategori=R|K|M|O|A|G|I|T avgrenser, ?gjeldende=true filtrerer på " +
+        "gyldighet (kantens egne datoer + hjemmelens status, docs/29 §Del B). Uten node: ?status=foreslatt_av_ai " +
+        "gir forslagskøen.");
 
-// [Ny, issue #285 AC6, KI-oppdagelse-runden] Et menneske bekrefter/avviser en KI-foreslått tildeling
-// (Status="foreslatt_av_ai") — se MyndighetstildelingTjeneste.GodkjennAsync/AvvisAsync.
-app.MapPost("/api/myndighetstildelinger/{id:guid}/godkjenn", async (Guid id, HttpRequest request,
-        MyndighetstildelingTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
+strukturkanter.MapGet("/{id:guid}", async (Guid id, StrukturkantTjeneste tjeneste, CancellationToken ct) =>
+        await tjeneste.HentAsync(id, ct) is { } v
+            ? Results.Ok(StrukturkantDto.FraVisning(v))
+            : Results.NotFound(new { feil = $"Ingen strukturkant med id '{id}'." }))
+    .WithName("HentStrukturkant")
+    .WithSummary("Issue #311 — én strukturkant.");
+
+strukturkanter.MapPost("/", async (HttpRequest request, StrukturkantRequest body, StrukturkantTjeneste tjeneste,
+        RegelIdeDbContext db, CancellationToken ct) =>
     {
         var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
         if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        if (body.Polaritet is null)
+        {
+            // docs/33 §5.2 (#308): «polaritet må være satt (ingen standardverdi)» — samme regel for et menneske.
+            return Results.BadRequest(new { feil = "Polaritet må oppgis (positiv|negativ). Ingen standardverdi gjettes." });
+        }
         try
         {
-            var godkjent = await register.GodkjennAsync(id, bruker.Navn, ct);
-            return godkjent is null
-                ? Results.NotFound(new { feil = $"Ingen myndighetstildeling med id '{id}'." })
-                : Results.Ok(MyndighetstildelingDto.FraEntitet(godkjent));
+            Strukturnode? til = body.TilVirksomhetId is null && body.TilBegrepId is null
+                ? null
+                : new Strukturnode(body.TilVirksomhetId, body.TilBegrepId);
+            var resultat = await tjeneste.OpprettAsync(new NyStrukturkant(
+                body.Kategori, body.Typekode, new Strukturnode(body.FraVirksomhetId, body.FraBegrepId), til,
+                body.HjemmelRettskildeId, body.HjemmelEid, body.KildeUtenforKorpusTekst, body.KildeUtenforKorpusLenke,
+                body.Paragrafspenn?.Select(p => new ParagrafspennPar(p.FraEid, p.TilEid)).ToList(), body.AvgrensningTekst,
+                body.Objekt, body.Polaritet, body.GyldigFra, body.GyldigTil, body.Kommentar), bruker.Navn, ct);
+            var dto = StrukturkantDto.FraVisning((await tjeneste.HentAsync(resultat.Kant.Id, ct))!);
+            // 201 for en ny kant, 200 når et identisk utsagn alt fantes (idempotent — StrukturkantTjeneste.OpprettAsync).
+            return resultat.VarNy ? Results.Created($"/api/strukturkanter/{dto.Id}", dto) : Results.Ok(dto);
         }
         catch (ArgumentException ex)
         {
             return Results.BadRequest(new { feil = ex.Message });
         }
     })
-    .WithOpenApi()
-    .WithName("GodkjennMyndighetstildeling")
-    .WithSummary("Bekrefter en KI-foreslått myndighetstildeling (status 'foreslatt_av_ai' → 'validert'). " +
-        "Issue #285 AC6 — et menneske MÅ eksplisitt godkjenne før den regnes som gjeldende.");
+    .WithName("OpprettStrukturkant")
+    .WithSummary("Issue #311 — registrerer ett strukturutsagn (R/K/M/O/A/G/I/T) med hjemmel ELLER kilde utenfor korpus, " +
+        "avgrensning, polaritet og gyldighet. Et menneskes registrering lagres som 'validert'/'manuell'. Typekoden må " +
+        "finnes for kategorien, nodene må ha lovlig type, og M/O kan ikke lukke en sykel (400 med kjeden navngitt).");
 
-app.MapDelete("/api/myndighetstildelinger/{id:guid}", async (Guid id, MyndighetstildelingTjeneste register, CancellationToken ct) =>
+strukturkanter.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest request, StrukturkantTjeneste tjeneste,
+        RegelIdeDbContext db, CancellationToken ct) =>
     {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
         try
         {
-            return await register.AvvisAsync(id, ct)
+            return await tjeneste.GodkjennAsync(id, bruker.Navn, ct) is null
+                ? Results.NotFound(new { feil = $"Ingen strukturkant med id '{id}'." })
+                : Results.Ok(StrukturkantDto.FraVisning((await tjeneste.HentAsync(id, ct))!));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("GodkjennStrukturkant")
+    .WithSummary("Issue #311 (#285 AC6) — et menneske bekrefter et forslag ('foreslatt_av_ai' → 'validert').");
+
+strukturkanter.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request, StrukturkantTjeneste tjeneste,
+        RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            return await tjeneste.AvvisAsync(id, ct)
                 ? Results.NoContent()
-                : Results.NotFound(new { feil = $"Ingen myndighetstildeling med id '{id}'." });
+                : Results.NotFound(new { feil = $"Ingen strukturkant med id '{id}'." });
         }
         catch (ArgumentException ex)
         {
             return Results.BadRequest(new { feil = ex.Message });
         }
     })
-    .WithOpenApi()
-    .WithName("AvvisMyndighetstildeling")
-    .WithSummary("Avviser (sletter) en KI-foreslått myndighetstildeling — kun 'foreslatt_av_ai'-rader kan slettes her.");
+    .WithName("AvvisStrukturkant")
+    .WithSummary("Issue #311 — avviser (sletter) et forslag. Kun 'foreslatt_av_ai'; en validert kant slettes med DELETE.");
 
-app.MapGet("/api/virksomheter/{id:guid}/myndighetstildelinger", async (Guid id, bool? gjeldende, MyndighetstildelingTjeneste register, CancellationToken ct) =>
-        Results.Ok((await register.AlleForVirksomhetAsync(id, gjeldende ?? false, ct)).Select(MyndighetstildelingDto.FraEntitet)))
+strukturkanter.MapDelete("/{id:guid}", async (Guid id, HttpRequest request, StrukturkantTjeneste tjeneste,
+        RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        return await tjeneste.SlettAsync(id, bruker.Navn, ct)
+            ? Results.NoContent()
+            : Results.NotFound(new { feil = $"Ingen strukturkant med id '{id}'." });
+    })
+    .WithName("SlettStrukturkant")
+    .WithSummary("Issue #311 — sletter en strukturkant uansett status (logges i Proveniens).");
+
+// [ENDRET, issue #311] Tynn lesefasade over M-/I-kanter fra virksomheten — se MyndighetstildelingDto.
+// Nettside-eksporten leser den; frontend bruker /api/strukturkanter.
+app.MapGet("/api/virksomheter/{id:guid}/myndighetstildelinger", async (Guid id, bool? gjeldende, StrukturkantTjeneste tjeneste,
+        RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var kanter = await db.Strukturkanter
+            .Where(k => (k.Kategori == Strukturkanter.Medlemskap || k.Kategori == Strukturkanter.Rolleinnehav)
+                        && k.FraVirksomhetId == id && k.TilBegrepId != null && k.HjemmelRettskildeId != null)
+            .OrderBy(k => k.OpprettetTidspunkt).ToListAsync(ct);
+        if (gjeldende == true) kanter = await tjeneste.FiltrerGjeldendeAsync(kanter, ct);
+        return Results.Ok(kanter.Select(MyndighetstildelingDto.FraKant));
+    })
     .WithOpenApi()
     .WithName("HentMyndighetstildelingerForVirksomhet")
-    .WithSummary("Lister myndighetstildelinger denne virksomheten har. ?gjeldende=true filtrerer bort " +
-        "tildelinger som ikke er gjeldende akkurat nå (hjemmel opphevet/utløpt, eller tildelingens egen " +
-        "GyldigFra/GyldigTil utenfor dagens dato — docs/29 §Del B).");
+    .WithSummary("[Lesefasade, issue #311] M-/I-kanter fra denne virksomheten til et begrep, i myndighetstildelingens " +
+        "gamle form (for nettside-eksporten). ?gjeldende=true filtrerer på gyldighet (docs/29 §Del B).");
 
 // [Ny, navneform-kjede-runden, 2026-09-08] «Where used» for én virksomhet — se
 // VirksomhetWhereUsedTjeneste for hvorfor dette er ETT samlet oppslag og ikke ett kall per navneform,
@@ -3561,8 +3615,17 @@ app.MapGet("/api/virksomheter/{id:guid}/rettskilder-fastsatt-av", async (Guid id
         "virksomheten — matchet mot registernavnet OG virksomhetens navneformer (issue #215). Ingen " +
         "fuzzy-matching: et organnavn uten treff gir tom liste, ikke en feil.");
 
-app.MapGet("/api/gruppebegrep/{id:guid}/tildelinger", async (Guid id, bool? gjeldende, MyndighetstildelingTjeneste register, CancellationToken ct) =>
-        Results.Ok((await register.AlleForGruppeBegrepAsync(id, gjeldende ?? false, ct)).Select(MyndighetstildelingDto.FraEntitet)))
+// [ENDRET, issue #311] Tynn lesefasade over M-/I-kanter (virksomhet → dette begrepet) — se
+// MyndighetstildelingDto. Brukes av nettside-eksporten.
+app.MapGet("/api/gruppebegrep/{id:guid}/tildelinger", async (Guid id, bool? gjeldende, StrukturkantTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var kanter = await db.Strukturkanter
+            .Where(k => (k.Kategori == Strukturkanter.Medlemskap || k.Kategori == Strukturkanter.Rolleinnehav)
+                        && k.TilBegrepId == id && k.FraVirksomhetId != null && k.HjemmelRettskildeId != null)
+            .OrderBy(k => k.OpprettetTidspunkt).ToListAsync(ct);
+        if (gjeldende == true) kanter = await tjeneste.FiltrerGjeldendeAsync(kanter, ct);
+        return Results.Ok(kanter.Select(MyndighetstildelingDto.FraKant));
+    })
     .WithOpenApi()
     .WithName("HentMyndighetstildelingerForGruppeBegrep")
     .WithSummary("Lister hvilke virksomheter et gruppebegrep er tildelt til, og under hvilke hjemler. " +
@@ -3571,146 +3634,39 @@ app.MapGet("/api/gruppebegrep/{id:guid}/tildelinger", async (Guid id, bool? gjel
 // ---------- Gruppemedlemskap: «gruppe av gruppe» (issue #164) ----------
 // [Ny, gruppemedlemskap-runden, 2026-09-08] Det YTTERSTE nivået i gruppehierarkiet: en gruppe kan
 // selv være medlem av en gruppe. Nivået under — gruppe → konkret virksomhet — er
-// /api/myndighetstildelinger over. Se GruppeMedlemskapEntitet for hvorfor dette er en egen entitet.
+// /api/myndighetstildelinger over. [ENDRET, issue #311] Begge nivåene er nå M-kanter i strukturkanter.
 
-app.MapPost("/api/gruppemedlemskap", async (HttpRequest request, GruppeMedlemskapRequest body,
-        GruppeMedlemskapTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
-    {
-        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
-        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
-        try
-        {
-            var paragrafspenn = body.Paragrafspenn.Select(p => new ParagrafspennPar(p.FraEid, p.TilEid)).ToList();
-            var opprettet = await register.OpprettAsync(
-                body.OverordnetGruppeBegrepId, body.UnderordnetGruppeBegrepId, body.HjemmelRettskildeId,
-                paragrafspenn, bruker.Navn, body.GyldigFra, body.GyldigTil, ct);
-            return Results.Created($"/api/gruppemedlemskap/{opprettet.Id}", GruppeMedlemskapDto.FraEntitet(opprettet));
-        }
-        catch (ArgumentException ex)
-        {
-            return Results.BadRequest(new { feil = ex.Message });
-        }
-    })
-    .WithOpenApi()
-    .WithName("OpprettGruppeMedlemskap")
-    .WithSummary("Registrerer at ett gruppebegrep er MEDLEM av et annet, hjemlet i en rettskilde (issue #164). " +
-        "Idempotent på paret. Sirkulære kjeder avvises med 400 og hele kjeden navngitt i feilmeldingen.");
+// [FJERNET, issue #311] POST /api/gruppemedlemskap, POST /api/gruppemedlemskap/{id}/godkjenn og
+// DELETE /api/gruppemedlemskap/{id} — gruppe-av-gruppe er en M-kant begrep → begrep: POST /api/strukturkanter,
+// /api/strukturkanter/{id}/godkjenn|avvis. Sykelsjekken (issue #164) står i StrukturkantTjeneste.
 
-// [Ny, issue #285 AC6, KI-oppdagelse-runden] Se GodkjennMyndighetstildeling/AvvisMyndighetstildeling over
-// — samme mønster, for GruppeMedlemskapEntitet.
-app.MapPost("/api/gruppemedlemskap/{id:guid}/godkjenn", async (Guid id, HttpRequest request,
-        GruppeMedlemskapTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
-    {
-        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
-        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
-        try
-        {
-            var godkjent = await register.GodkjennAsync(id, bruker.Navn, ct);
-            return godkjent is null
-                ? Results.NotFound(new { feil = $"Ingen gruppemedlemskap med id '{id}'." })
-                : Results.Ok(GruppeMedlemskapDto.FraEntitet(godkjent));
-        }
-        catch (ArgumentException ex)
-        {
-            return Results.BadRequest(new { feil = ex.Message });
-        }
-    })
-    .WithOpenApi()
-    .WithName("GodkjennGruppeMedlemskap")
-    .WithSummary("Bekrefter et KI-foreslått gruppemedlemskap (status 'foreslatt_av_ai' → 'validert'). Issue #285 AC6.");
-
-app.MapDelete("/api/gruppemedlemskap/{id:guid}", async (Guid id, GruppeMedlemskapTjeneste register, CancellationToken ct) =>
-    {
-        try
-        {
-            return await register.AvvisAsync(id, ct)
-                ? Results.NoContent()
-                : Results.NotFound(new { feil = $"Ingen gruppemedlemskap med id '{id}'." });
-        }
-        catch (ArgumentException ex)
-        {
-            return Results.BadRequest(new { feil = ex.Message });
-        }
-    })
-    .WithOpenApi()
-    .WithName("AvvisGruppeMedlemskap")
-    .WithSummary("Avviser (sletter) et KI-foreslått gruppemedlemskap — kun 'foreslatt_av_ai'-rader kan slettes her.");
-
-app.MapGet("/api/gruppebegrep/{id:guid}/medlemsgrupper", async (Guid id, GruppeMedlemskapTjeneste register, CancellationToken ct) =>
-        Results.Ok((await register.MedlemsgrupperForAsync(id, ct)).Select(GruppeMedlemskapDto.FraEntitet)))
+// [ENDRET, issue #311] Tynne lesefasader over M-kanter begrep → begrep (nettside-eksporten leser dem).
+app.MapGet("/api/gruppebegrep/{id:guid}/medlemsgrupper", async (Guid id, RegelIdeDbContext db, CancellationToken ct) =>
+        Results.Ok((await db.Strukturkanter
+                .Where(k => k.Kategori == Strukturkanter.Medlemskap && k.TilBegrepId == id && k.FraBegrepId != null
+                            && k.HjemmelRettskildeId != null)
+                .OrderBy(k => k.OpprettetTidspunkt).ToListAsync(ct))
+            .Select(GruppeMedlemskapDto.FraKant)))
     .WithOpenApi()
     .WithName("HentMedlemsgrupperForGruppeBegrep")
     .WithSummary("Gruppene som er MEDLEM av dette gruppebegrepet — ett nivå ned, ikke transitivt. " +
         "Tom liste for et gruppebegrep som bare har konkrete virksomheter som medlemmer.");
 
-app.MapGet("/api/gruppebegrep/{id:guid}/overordnede-grupper", async (Guid id, GruppeMedlemskapTjeneste register, CancellationToken ct) =>
-        Results.Ok((await register.OverordnedeGrupperForAsync(id, ct)).Select(GruppeMedlemskapDto.FraEntitet)))
+app.MapGet("/api/gruppebegrep/{id:guid}/overordnede-grupper", async (Guid id, RegelIdeDbContext db, CancellationToken ct) =>
+        Results.Ok((await db.Strukturkanter
+                .Where(k => k.Kategori == Strukturkanter.Medlemskap && k.FraBegrepId == id && k.TilBegrepId != null
+                            && k.HjemmelRettskildeId != null)
+                .OrderBy(k => k.OpprettetTidspunkt).ToListAsync(ct))
+            .Select(GruppeMedlemskapDto.FraKant)))
     .WithOpenApi()
     .WithName("HentOverordnedeGrupperForGruppeBegrep")
     .WithSummary("Gruppene dette gruppebegrepet selv er MEDLEM av — motsatt retning av /medlemsgrupper.");
 
-// ---------- VirksomhetRelasjon (docs/28, docs/29 §Del C) ----------
-
-app.MapGet("/api/virksomheter/{id:guid}/relasjoner", async (Guid id, VirksomhetRelasjonregisterTjeneste register, CancellationToken ct) =>
-        Results.Ok((await register.HentForVirksomhetAsync(id, ct)).Select(VirksomhetRelasjonDto.FraVisning)))
-    .WithOpenApi()
-    .WithName("HentVirksomhetRelasjoner")
-    .WithSummary(
-        "Lister virksomhetens relasjoner til andre virksomheter i BEGGE retninger (der den er Fra, og der " +
-        "den er Til) med ferdig beregnet visningstekst — ett rettet kant per relasjon, ingen duplisert lagring.");
-
-app.MapPost("/api/virksomheter/{id:guid}/relasjoner", async (Guid id, HttpRequest request, VirksomhetRelasjonRequest body,
-        VirksomhetRelasjonregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
-    {
-        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
-        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
-        try
-        {
-            await register.OpprettAsync(
-                id, body.TilVirksomhetId, body.RelasjonsType, body.HjemmelRettskildeId, body.HjemmelEid, body.Kommentar, bruker.Navn, ct);
-            return Results.Ok((await register.HentForVirksomhetAsync(id, ct)).Select(VirksomhetRelasjonDto.FraVisning));
-        }
-        catch (ArgumentException ex)
-        {
-            return Results.BadRequest(new { feil = ex.Message });
-        }
-    })
-    .WithOpenApi()
-    .WithName("OpprettVirksomhetRelasjon")
-    .WithSummary("Oppretter en rettet relasjon FRA denne virksomheten TIL en annen (docs/29 §Del C).");
-
-// [Ny, issue #285 AC6, KI-oppdagelse-runden] Se GodkjennMyndighetstildeling over — samme mønster, for
-// VirksomhetRelasjonEntitet. «Avvis» for en foreslatt_av_ai-rad dekkes av den eksisterende
-// SlettVirksomhetRelasjon under (VirksomhetRelasjonregisterTjeneste.SlettAsync er ubetinget — se dens
-// kommentar — men KI-forslag-køen i UI-et viser kun 'Slett' for foreslatt_av_ai-rader, se KiOppdagelseKo.tsx).
-app.MapPost("/api/virksomhet-relasjoner/{relasjonId:guid}/godkjenn", async (Guid relasjonId, HttpRequest request,
-        VirksomhetRelasjonregisterTjeneste register, RegelIdeDbContext db, CancellationToken ct) =>
-    {
-        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
-        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
-        try
-        {
-            var godkjent = await register.GodkjennAsync(relasjonId, bruker.Navn, ct);
-            return godkjent is null
-                ? Results.NotFound(new { feil = $"Ingen relasjon med id '{relasjonId}'." })
-                : Results.Ok(VirksomhetRelasjonDto.FraVisning(
-                    (await register.HentForVirksomhetAsync(godkjent.FraVirksomhetId, ct))
-                    .First(v => v.Id == godkjent.Id)));
-        }
-        catch (ArgumentException ex)
-        {
-            return Results.BadRequest(new { feil = ex.Message });
-        }
-    })
-    .WithOpenApi()
-    .WithName("GodkjennVirksomhetRelasjon")
-    .WithSummary("Bekrefter en KI-foreslått virksomhet-relasjon (status 'foreslatt_av_ai' → 'validert'). Issue #285 AC6.");
-
-app.MapDelete("/api/virksomhet-relasjoner/{relasjonId:guid}", async (Guid relasjonId, VirksomhetRelasjonregisterTjeneste register, CancellationToken ct) =>
-        await register.SlettAsync(relasjonId, ct) ? Results.NoContent() : Results.NotFound(new { feil = $"Ingen relasjon med id '{relasjonId}'." }))
-    .WithOpenApi()
-    .WithName("SlettVirksomhetRelasjon")
-    .WithSummary("Sletter en virksomhet-relasjon.");
+// [FJERNET, issue #311] VirksomhetRelasjon-endepunktene (GET/POST /api/virksomheter/{id}/relasjoner,
+// POST /api/virksomhet-relasjoner/{id}/godkjenn, DELETE /api/virksomhet-relasjoner/{id}). Relasjoner er
+// R-kanter: GET /api/strukturkanter?virksomhetId=…&kategori=R, POST /api/strukturkanter, og
+// /api/strukturkanter/{id}/godkjenn|avvis / DELETE /api/strukturkanter/{id}. Ingen frontend- eller
+// nettside-kode leser dem lenger (målt med grep 2026-10-07), så de er fjernet, ikke gjort til fasader.
 
 var virksomhetKandidater = app.MapGroup("/api/virksomhet-kandidater").WithOpenApi();
 
@@ -3926,64 +3882,16 @@ app.MapPost("/api/ki-oppdagelse/kjor", async (HttpRequest request, KiOppdagelseR
         "rolle/relasjon/gruppe-av-gruppe der KI-en finner et EKSPLISITT og entydig forankret treff. " +
         "Skriver ALDRI 'validert' direkte — se KiOppdagelseKandidatUtfallDto for hva som ble/ikke ble opprettet.");
 
-app.MapGet("/api/ki-oppdagelse/ko", async (RegelIdeDbContext db, CancellationToken ct) =>
-    {
-        // Issue #285 AC6 — «vis disse i en egen fane/kø, IKKE blandet med menneske-opprettede rader
-        // uten markering»: KUN rader med Status == "foreslatt_av_ai", flatet til én liste på tvers av
-        // de tre entitetstypene. AiForslagVersjon slås opp fra Proveniens (der den faktisk lagres, se
-        // ProveniensHjelper.NyForslagRad) — ett samlet oppslag, ikke ett kall per rad.
-        var forslagProveniens = await db.Proveniens
-            .Where(p => p.Handling == "foreslatt_av_ai"
-                        && (p.EntitetType == "myndighetstildeling" || p.EntitetType == "virksomhet_relasjon" || p.EntitetType == "gruppe_medlemskap"))
-            .ToListAsync(ct);
-        var aiVersjonPerEntitet = forslagProveniens.ToDictionary(p => (p.EntitetType, p.EntitetId), p => p.AiForslagVersjon);
-
-        var rader = new List<KiForslagKoRadDto>();
-
-        var tildelinger = await db.Myndighetstildelinger.Where(m => m.Status == "foreslatt_av_ai").ToListAsync(ct);
-        if (tildelinger.Count > 0)
-        {
-            var gruppeIder = tildelinger.Select(t => t.GruppeBegrepId).Distinct().ToList();
-            var virksomhetIder = tildelinger.Select(t => t.VirksomhetId).Distinct().ToList();
-            var gruppeTermer = await db.Begreper.Where(b => gruppeIder.Contains(b.Id)).ToDictionaryAsync(b => b.Id, b => b.Term, ct);
-            var virksomhetNavn = await db.Virksomheter.Where(v => virksomhetIder.Contains(v.Id)).ToDictionaryAsync(v => v.Id, v => v.Navn, ct);
-            rader.AddRange(tildelinger.Select(t => new KiForslagKoRadDto(
-                "myndighetstildeling", t.Id,
-                $"{virksomhetNavn.GetValueOrDefault(t.VirksomhetId, "(ukjent virksomhet)")} — rolle: {gruppeTermer.GetValueOrDefault(t.GruppeBegrepId, "(ukjent rolle)")}",
-                aiVersjonPerEntitet.GetValueOrDefault(("myndighetstildeling", t.Id)))));
-        }
-
-        var relasjoner = await db.VirksomhetRelasjoner.Where(r => r.Status == "foreslatt_av_ai").ToListAsync(ct);
-        if (relasjoner.Count > 0)
-        {
-            var virksomhetIder = relasjoner.SelectMany(r => new[] { r.FraVirksomhetId, r.TilVirksomhetId }).Distinct().ToList();
-            var virksomhetNavn = await db.Virksomheter.Where(v => virksomhetIder.Contains(v.Id)).ToDictionaryAsync(v => v.Id, v => v.Navn, ct);
-            var typeKoder = relasjoner.Select(r => r.RelasjonsType).Distinct().ToList();
-            var typer = await db.RelasjonsTypeKonfigurasjoner.Where(k => typeKoder.Contains(k.Kode)).ToDictionaryAsync(k => k.Kode, k => k.FraVisningsmal, ct);
-            rader.AddRange(relasjoner.Select(r => new KiForslagKoRadDto(
-                "virksomhet_relasjon", r.Id,
-                $"{virksomhetNavn.GetValueOrDefault(r.FraVirksomhetId, "(ukjent)")} " +
-                string.Format(typer.GetValueOrDefault(r.RelasjonsType, "(ukjent relasjonstype) {0}"), virksomhetNavn.GetValueOrDefault(r.TilVirksomhetId, "(ukjent)")),
-                aiVersjonPerEntitet.GetValueOrDefault(("virksomhet_relasjon", r.Id)))));
-        }
-
-        var medlemskap = await db.GruppeMedlemskap.Where(m => m.Status == "foreslatt_av_ai").ToListAsync(ct);
-        if (medlemskap.Count > 0)
-        {
-            var gruppeIder = medlemskap.SelectMany(m => new[] { m.OverordnetGruppeBegrepId, m.UnderordnetGruppeBegrepId }).Distinct().ToList();
-            var gruppeTermer = await db.Begreper.Where(b => gruppeIder.Contains(b.Id)).ToDictionaryAsync(b => b.Id, b => b.Term, ct);
-            rader.AddRange(medlemskap.Select(m => new KiForslagKoRadDto(
-                "gruppe_medlemskap", m.Id,
-                $"{gruppeTermer.GetValueOrDefault(m.UnderordnetGruppeBegrepId, "(ukjent gruppe)")} er medlem av {gruppeTermer.GetValueOrDefault(m.OverordnetGruppeBegrepId, "(ukjent gruppe)")}",
-                aiVersjonPerEntitet.GetValueOrDefault(("gruppe_medlemskap", m.Id)))));
-        }
-
-        return Results.Ok(rader);
-    })
+app.MapGet("/api/ki-oppdagelse/ko", async (StrukturkantTjeneste tjeneste, CancellationToken ct) =>
+        // Issue #285 AC6 — «vis disse i en egen fane/kø, IKKE blandet med menneske-opprettede rader uten
+        // markering»: KUN kanter med Status == "foreslatt_av_ai". [ENDRET, issue #311] Én tabell i stedet for
+        // tre; versjonen er kantens OppdagelsesKilde (før: slått opp i Proveniens per entitetstype).
+        Results.Ok((await tjeneste.HentForslagAsync(ct)).Select(v => new KiForslagKoRadDto(
+            v.Kategori, v.Id, v.Visningstekst + (v.Polaritet == "negativ" ? " (negativ)" : ""), v.OppdagelsesKilde))))
     .WithOpenApi()
     .WithName("HentKiForslagKo")
-    .WithSummary("Issue #285 AC6 — alle ventende (Status='foreslatt_av_ai') rolle-/relasjon-/gruppe-av-" +
-        "gruppe-forslag, flatet til én liste. Navnekandidat-forslagene selv (kategori virksomhet/gruppe) " +
+    .WithSummary("Issue #285 AC6 / #311 — alle ventende (Status='foreslatt_av_ai') strukturkanter, uansett " +
+        "kategori, som én liste. Navnekandidat-forslagene selv (kategori virksomhet/gruppe) " +
         "vises i den EKSISTERENDE /api/navnekandidater-køen, filtrert på oppdagelsesKilde='ki-fri-sveip'.");
 
 // ---------- Navnekandidater — oppdagelse av egennavn/juridiske aktører (docs/13-backlog.md §9) ----------
@@ -4233,7 +4141,7 @@ navnekandidater.MapPost("/{id:guid}/kobl-til-virksomhet", async (Guid id, HttpRe
 
 // [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] Wizardens nye vei: kandidaten peker på en
 // virksomhet som er navngitt som MEDLEM av et eksisterende gruppebegrep. Gjør alt
-// /kobl-til-virksomhet gjør, pluss en MyndighetstildelingEntitet hjemlet i KANDIDATENS EGEN
+// /kobl-til-virksomhet gjør, pluss en tildelingskant (M/I, før #311 myndighetstildeling) hjemlet i KANDIDATENS EGEN
 // rettskilde — se NavnekandidatOppdagelseTjeneste.KoblTilGruppemedlemskapAsync.
 navnekandidater.MapPost("/{id:guid}/kobl-til-gruppemedlemskap", async (Guid id, HttpRequest request,
         KoblNavnekandidatTilGruppemedlemskapRequest body, NavnekandidatOppdagelseTjeneste register,
@@ -4319,7 +4227,7 @@ navnekandidater.MapPost("/{id:guid}/kobl-til-relasjon", async (Guid id, HttpRequ
         "Idempotent.");
 
 // [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC9] Gruppe-av-gruppe fra
-// veiviserens gruppe-spor — oppretter gruppebegrepet OG et GruppeMedlemskapEntitet i én atomisk
+// veiviserens gruppe-spor — oppretter gruppebegrepet OG en M-kant (før #311 gruppemedlemskap) i én atomisk
 // handling (klienten kjenner ikke det nye gruppebegrepets id på forhånd).
 navnekandidater.MapPost("/{id:guid}/kobl-til-gruppe-av-gruppe", async (Guid id, HttpRequest request,
         KoblNavnekandidatTilGruppeAvGruppeRequest body, NavnekandidatOppdagelseTjeneste register,
@@ -4341,7 +4249,7 @@ navnekandidater.MapPost("/{id:guid}/kobl-til-gruppe-av-gruppe", async (Guid id, 
         }
     })
     .WithName("KoblNavnekandidatTilGruppeAvGruppe")
-    .WithSummary("Issue #283 AC9 — som /godkjenn for 'gruppe'-kandidater, pluss et GruppeMedlemskapEntitet " +
+    .WithSummary("Issue #283 AC9 — som /godkjenn for 'gruppe'-kandidater, pluss en M-strukturkant " +
         "som gjør det NYE gruppebegrepet til medlem av OverordnetGruppeBegrepId, hjemlet i kandidatens " +
         "egen rettskilde. Kun for gruppe-/klasse-/rolle-/områdekandidater med Status='Venter'. " +
         "[ENDRET, issue #310] Nodetype påkrevd i body for en 'gruppe'-kandidat.");
