@@ -2848,6 +2848,10 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("kategori");
 
+                    b.Property<string>("KildeUtenforKorpusDokumentasjon")
+                        .HasColumnType("text")
+                        .HasColumnName("kilde_utenfor_korpus_dokumentasjon");
+
                     b.Property<string>("KildeUtenforKorpusLenke")
                         .HasColumnType("text")
                         .HasColumnName("kilde_utenfor_korpus_lenke");
@@ -2855,6 +2859,10 @@ namespace RegelIde.Data.Migrasjoner
                     b.Property<string>("KildeUtenforKorpusTekst")
                         .HasColumnType("text")
                         .HasColumnName("kilde_utenfor_korpus_tekst");
+
+                    b.Property<string>("KildeUtenforKorpusType")
+                        .HasColumnType("text")
+                        .HasColumnName("kilde_utenfor_korpus_type");
 
                     b.Property<string>("Kommentar")
                         .HasColumnType("text")
@@ -2929,6 +2937,9 @@ namespace RegelIde.Data.Migrasjoner
                     b.HasIndex("HjemmelRettskildeId")
                         .HasDatabaseName("ix_strukturkanter_hjemmel");
 
+                    b.HasIndex("KildeUtenforKorpusType")
+                        .HasDatabaseName("ix_strukturkanter_kilde_type");
+
                     b.HasIndex("Status")
                         .HasDatabaseName("ix_strukturkanter_status");
 
@@ -2949,7 +2960,11 @@ namespace RegelIde.Data.Migrasjoner
 
                             t.HasCheckConstraint("ck_strukturkanter_kategori", "kategori IN ('R', 'K', 'M', 'O', 'A', 'G', 'I', 'T')");
 
-                            t.HasCheckConstraint("ck_strukturkanter_kilde", "hjemmel_rettskilde_id IS NOT NULL OR kilde_utenfor_korpus_tekst IS NOT NULL");
+                            t.HasCheckConstraint("ck_strukturkanter_kilde", "(hjemmel_rettskilde_id IS NOT NULL AND kilde_utenfor_korpus_tekst IS NULL AND kilde_utenfor_korpus_lenke IS NULL AND kilde_utenfor_korpus_type IS NULL AND kilde_utenfor_korpus_dokumentasjon IS NULL) OR (hjemmel_rettskilde_id IS NULL AND kilde_utenfor_korpus_tekst IS NOT NULL AND kilde_utenfor_korpus_type IS NOT NULL AND kilde_utenfor_korpus_dokumentasjon IS NOT NULL)");
+
+                            t.HasCheckConstraint("ck_strukturkanter_kilde_dokumentasjon", "kilde_utenfor_korpus_dokumentasjon IS NULL OR kilde_utenfor_korpus_dokumentasjon IN ('primaer', 'sekundaer')");
+
+                            t.HasCheckConstraint("ck_strukturkanter_kilde_type", "kilde_utenfor_korpus_type IS NULL OR kilde_utenfor_korpus_type IN ('kgl_res', 'instruks', 'tildelingsbrev', 'vedtekter', 'styrevedtak', 'forarbeider', 'nettside_annet')");
 
                             t.HasCheckConstraint("ck_strukturkanter_polaritet", "polaritet IN ('positiv', 'negativ')");
 

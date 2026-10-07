@@ -114,9 +114,15 @@ public class StrukturkantMigreringTests
         var r2 = await K(relKommentar);
         Assert.Null(r2.HjemmelRettskildeId);
         Assert.Equal("bekreftet mot org-kartet", r2.KildeUtenforKorpusTekst);
+        // Johanns beslutning 2026-10-07: relasjoner uten hjemmel migreres med nettside_annet — ingen bedre type gjettes.
+        Assert.Equal(("nettside_annet", "sekundaer"), (r2.KildeUtenforKorpusType, r2.KildeUtenforKorpusDokumentasjon));
         Assert.Null(r2.Kommentar);
         var r3 = await K(relIngenting);
         Assert.StartsWith("(ingen kilde oppgitt", r3.KildeUtenforKorpusTekst);
+        Assert.Equal("nettside_annet", r3.KildeUtenforKorpusType);
+        Assert.Null(r1.KildeUtenforKorpusType); // hjemmel i korpus ⇒ ingen kildetype …
+        Assert.Null(r1.KildeUtenforKorpusDokumentasjon); // … og ingen dokumentasjonsgrad.
+        Assert.Equal(2, await etter.Strukturkanter.CountAsync(k => k.KildeUtenforKorpusType == "nettside_annet"));
         var r4 = await K(relBegge);
         Assert.Equal("Gjelder klagesaker", r4.Kommentar);
         Assert.Null(r4.KildeUtenforKorpusTekst);

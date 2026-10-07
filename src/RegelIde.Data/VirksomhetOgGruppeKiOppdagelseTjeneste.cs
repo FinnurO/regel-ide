@@ -458,6 +458,9 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
                 HjemmelRettskildeId: relasjon.HjemletHer ? rettskildeId : null,
                 HjemmelEid: relasjon.HjemletHer ? nodeEid : null,
                 KildeUtenforKorpusTekst: relasjon.HjemletHer ? null : "KI-forslag — ingen bekreftet hjemmel oppgitt av agenten.",
+                // Typen gjettes ikke: KI-en har ikke sagt hvor relasjonen er dokumentert — «annet».
+                KildeUtenforKorpusType: relasjon.HjemletHer ? null : Strukturkanter.NettsideAnnet,
+                KildeUtenforKorpusDokumentasjon: relasjon.HjemletHer ? null : Strukturkanter.Sekundaer,
                 Status: "foreslatt_av_ai", AiForslagVersjon: AiForslagVersjon), opprettetAv, ct);
             return (opprettet.Kant.Id, null);
         }

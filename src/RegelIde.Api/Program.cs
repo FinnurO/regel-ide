@@ -3473,6 +3473,26 @@ strukturkanter.MapGet("/", async (Guid? virksomhetId, Guid? begrepId, string? ka
         "gyldighet (kantens egne datoer + hjemmelens status, docs/29 §Del B). Uten node: ?status=foreslatt_av_ai " +
         "gir forslagskøen.");
 
+// [Ny, Johanns beslutning 2026-10-07] Arbeidslista over forvaltningsstruktur som mangler forankring i en
+// rettskilde: kanter UTEN hjemmel i korpus, filtrert på kildetypen (standard nettside_annet — «bare
+// dokumentert på en nettside»). ?kildetype=alle gir alle kanter uten korpus-hjemmel.
+strukturkanter.MapGet("/uten-korpusforankring", async (string? kildetype, StrukturkantTjeneste tjeneste, CancellationToken ct) =>
+    {
+        try
+        {
+            var type = kildetype switch { null or "" => Strukturkanter.NettsideAnnet, "alle" => null, _ => kildetype };
+            return Results.Ok((await tjeneste.HentUtenKorpusforankringAsync(type, ct)).Select(StrukturkantDto.FraVisning));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("HentStrukturkanterUtenKorpusforankring")
+    .WithSummary("Kanter som BARE er dokumentert utenfor korpus, per kildetype (kgl_res|instruks|tildelingsbrev|vedtekter|" +
+        "styrevedtak|forarbeider|nettside_annet; standard nettside_annet, «alle» = alle typer) — arbeidslista over struktur " +
+        "som mangler forankring i en rettskilde.");
+
 strukturkanter.MapGet("/{id:guid}", async (Guid id, StrukturkantTjeneste tjeneste, CancellationToken ct) =>
         await tjeneste.HentAsync(id, ct) is { } v
             ? Results.Ok(StrukturkantDto.FraVisning(v))
@@ -3499,7 +3519,9 @@ strukturkanter.MapPost("/", async (HttpRequest request, StrukturkantRequest body
                 body.Kategori, body.Typekode, new Kantnode(body.FraVirksomhetId, body.FraBegrepId), til,
                 body.HjemmelRettskildeId, body.HjemmelEid, body.KildeUtenforKorpusTekst, body.KildeUtenforKorpusLenke,
                 body.Paragrafspenn?.Select(p => new ParagrafspennPar(p.FraEid, p.TilEid)).ToList(), body.AvgrensningTekst,
-                body.Objekt, body.Polaritet, body.GyldigFra, body.GyldigTil, body.Kommentar), bruker.Navn, ct);
+                body.Objekt, body.Polaritet, body.GyldigFra, body.GyldigTil, body.Kommentar,
+                KildeUtenforKorpusType: body.KildeUtenforKorpusType,
+                KildeUtenforKorpusDokumentasjon: body.KildeUtenforKorpusDokumentasjon), bruker.Navn, ct);
             var dto = StrukturkantDto.FraVisning((await tjeneste.HentAsync(resultat.Kant.Id, ct))!);
             // 201 for en ny kant, 200 når et identisk utsagn alt fantes (idempotent — StrukturkantTjeneste.OpprettAsync).
             return resultat.VarNy ? Results.Created($"/api/strukturkanter/{dto.Id}", dto) : Results.Ok(dto);
@@ -4210,7 +4232,8 @@ navnekandidater.MapPost("/{id:guid}/kobl-til-relasjon", async (Guid id, HttpRequ
         {
             var resultat = await register.KoblTilRelasjonAsync(
                 id, body.VirksomhetId, body.Navneformgrunn, body.MotpartVirksomhetId, body.RelasjonsType,
-                body.HjemletHer, body.Kommentar, bruker.Navn, ct);
+                body.HjemletHer, body.Kommentar, bruker.Navn, ct, body.KildeUtenforKorpusType,
+                body.KildeUtenforKorpusDokumentasjon);
             return resultat is null
                 ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." })
                 : Results.Ok(NavnekandidatRelasjonResultatDto.FraResultat(resultat));

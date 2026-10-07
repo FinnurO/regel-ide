@@ -2078,12 +2078,14 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// ingen hjemmel, kun <paramref name="kommentar"/> som fritekst — [ENDRET, issue #311] lagret som kantens
     /// <see cref="StrukturkantEntitet.KildeUtenforKorpusTekst"/> (det var den bruken kommentaren hadde, jf.
     /// klagenemndssekretariat-eksemplet i docs/28). Uten kommentar finnes da ingen kilde, og kanten avvises
-    /// (docs/33 §4.3: hjemmel ELLER kilde utenfor korpus).
+    /// (docs/33 §4.3: hjemmel ELLER kilde utenfor korpus). <paramref name="kildeUtenforKorpusType"/> er påkrevd
+    /// sammen med kommentaren (Johanns beslutning 2026-10-07) — veiviseren lar saksbehandleren velge den.
     /// </para>
     /// </summary>
     public async Task<NavnekandidatRelasjonResultat?> KoblTilRelasjonAsync(
         Guid id, Guid virksomhetId, string? navneformgrunn, Guid motpartVirksomhetId, string relasjonsType,
-        bool hjemletHer, string? kommentar, string behandletAv, CancellationToken ct = default)
+        bool hjemletHer, string? kommentar, string behandletAv, CancellationToken ct = default,
+        string? kildeUtenforKorpusType = null, string? kildeUtenforKorpusDokumentasjon = null)
     {
         var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
         if (kandidat is null) return null;
@@ -2103,7 +2105,9 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             Strukturkanter.Relasjon, relasjonsType, Kantnode.Virksomhet(virksomhetId), Kantnode.Virksomhet(motpartVirksomhetId),
             HjemmelRettskildeId: hjemletHer ? kandidat.RettskildeId : null,
             HjemmelEid: hjemletHer ? kandidat.NodeEid : null,
-            KildeUtenforKorpusTekst: hjemletHer ? null : kommentar), behandletAv, ct)).Kant;
+            KildeUtenforKorpusTekst: hjemletHer ? null : kommentar,
+            KildeUtenforKorpusType: hjemletHer ? null : kildeUtenforKorpusType,
+            KildeUtenforKorpusDokumentasjon: hjemletHer ? null : kildeUtenforKorpusDokumentasjon), behandletAv, ct)).Kant;
 
         var kobling = await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct);
         return new NavnekandidatRelasjonResultat(

@@ -216,7 +216,7 @@ public class StrukturkantTjenesteTests
 
         var a = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Ansvarsomrade, "har_ansvarsomrade",
             Kantnode.Virksomhet(statsforvalter), Kantnode.Begrep(troms),
-            KildeUtenforKorpusTekst: "Kgl.res. om embetsområder", Polaritet: "positiv"), "Kari Jurist");
+            KildeUtenforKorpusTekst: "Kgl.res. om embetsområder", KildeUtenforKorpusType: "kgl_res", KildeUtenforKorpusDokumentasjon: "primaer", Polaritet: "positiv"), "Kari Jurist");
         var g = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Organtilhorighet, "del_av",
             Kantnode.Virksomhet(rme), Kantnode.Virksomhet(nve), HjemmelRettskildeId: o.LovId), "Kari Jurist");
         var t = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Klasseniva, "skal_ha",
@@ -264,9 +264,36 @@ public class StrukturkantTjenesteTests
 
         var r = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "eies_av",
             Kantnode.Virksomhet(rhf), Kantnode.Virksomhet(hod),
-            KildeUtenforKorpusTekst: "Vedtekter for Helse Nord RHF § 3", KildeUtenforKorpusLenke: "https://helse-nord.no/vedtekter"), "Kari Jurist");
+            KildeUtenforKorpusTekst: "Vedtekter for Helse Nord RHF § 3", KildeUtenforKorpusLenke: "https://helse-nord.no/vedtekter",
+            KildeUtenforKorpusType: "vedtekter", KildeUtenforKorpusDokumentasjon: Strukturkanter.Primaer), "Kari Jurist");
         Assert.Null(r.Kant.HjemmelRettskildeId);
-        Assert.Equal("https://helse-nord.no/vedtekter", r.Kant.KildeUtenforKorpusLenke);
+        Assert.Equal(("https://helse-nord.no/vedtekter", "vedtekter"), (r.Kant.KildeUtenforKorpusLenke, r.Kant.KildeUtenforKorpusType));
+
+        // [Ny, Johanns beslutning 2026-10-07] Typen er påkrevd uten hjemmel, må være i lista, og en kant med
+        // hjemmel i korpus kan ikke OGSÅ ha en kilde utenfor (da er typen NULL).
+        var utenType = await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
+            Strukturkanter.Relasjon, "ledes_av", Kantnode.Virksomhet(rhf), Kantnode.Virksomhet(hod),
+            KildeUtenforKorpusTekst: "styrevedtak 12/2025"), "Kari Jurist"));
+        Assert.Contains("type", utenType.Message);
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
+            Strukturkanter.Relasjon, "ledes_av", Kantnode.Virksomhet(rhf), Kantnode.Virksomhet(hod),
+            KildeUtenforKorpusTekst: "styrevedtak 12/2025", KildeUtenforKorpusType: "rykte", KildeUtenforKorpusDokumentasjon: "primaer"), "Kari Jurist"));
+
+        // [Ny, Johanns beslutning 2026-10-07] Dokumentasjonen (primær/sekundær) er påkrevd sammen med typen.
+        // Tilsynsutvalget-eksempelet: opprettet ved kgl.res. 15. mai 2002, bare kjent gjennom en artikkel i Juristen.
+        var utenDok = await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
+            Strukturkanter.Relasjon, "oppretter", Kantnode.Virksomhet(hod), Kantnode.Virksomhet(rhf),
+            KildeUtenforKorpusTekst: "kgl.res. 15. mai 2002", KildeUtenforKorpusType: "kgl_res"), "Kari Jurist"));
+        Assert.Contains("sekundaer", utenDok.Message);
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
+            Strukturkanter.Relasjon, "oppretter", Kantnode.Virksomhet(hod), Kantnode.Virksomhet(rhf),
+            KildeUtenforKorpusTekst: "kgl.res. 15. mai 2002", KildeUtenforKorpusType: "kgl_res",
+            KildeUtenforKorpusDokumentasjon: "tertiaer"), "Kari Jurist"));
+        var tilsynsutvalget = await tjeneste.OpprettAsync(new NyStrukturkant(
+            Strukturkanter.Relasjon, "oppretter", Kantnode.Virksomhet(hod), Kantnode.Virksomhet(rhf),
+            KildeUtenforKorpusTekst: "kgl.res. 15. mai 2002 — kjent gjennom artikkel i Juristen",
+            KildeUtenforKorpusType: "kgl_res", KildeUtenforKorpusDokumentasjon: Strukturkanter.Sekundaer), "Kari Jurist");
+        Assert.Equal(("kgl_res", "sekundaer"), (tilsynsutvalget.Kant.KildeUtenforKorpusType, tilsynsutvalget.Kant.KildeUtenforKorpusDokumentasjon));
 
         var utenKilde = await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
             Strukturkanter.Relasjon, "ledes_av", Kantnode.Virksomhet(rhf), Kantnode.Virksomhet(hod)), "Kari Jurist"));
@@ -274,6 +301,38 @@ public class StrukturkantTjenesteTests
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
             Strukturkanter.Relasjon, "ledes_av", Kantnode.Virksomhet(rhf), Kantnode.Virksomhet(hod),
             KildeUtenforKorpusLenke: "https://example.org"), "Kari Jurist"));
+    }
+
+    [Fact]
+    public async Task Hjemmel_i_korpus_utelukker_kilde_utenfor_og_arbeidslista_viser_bare_nettside_annet()
+    {
+        await using var db = _fixture.NyDbContext();
+        var o = await NyttOppsettAsync(db);
+        var (a, b, c) = (await NyVirksomhetAsync(db, "Sekretariatet"), await NyVirksomhetAsync(db, "Nemnda"), await NyVirksomhetAsync(db, "Departementet"));
+        var tjeneste = new StrukturkantTjeneste(db);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
+            Strukturkanter.Relasjon, "sekretariat_for", Kantnode.Virksomhet(a), Kantnode.Virksomhet(b),
+            HjemmelRettskildeId: o.LovId, KildeUtenforKorpusTekst: "org-kart", KildeUtenforKorpusType: "nettside_annet",
+            KildeUtenforKorpusDokumentasjon: "primaer"), "Kari Jurist"));
+
+        var bareNettside = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "sekretariat_for",
+            Kantnode.Virksomhet(a), Kantnode.Virksomhet(b), KildeUtenforKorpusTekst: "organisasjonskartet",
+            KildeUtenforKorpusType: Strukturkanter.NettsideAnnet, KildeUtenforKorpusDokumentasjon: Strukturkanter.Primaer), "Kari Jurist");
+        var instruks = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "instruksjon",
+            Kantnode.Virksomhet(c), Kantnode.Virksomhet(b), KildeUtenforKorpusTekst: "instruks for nemnda",
+            KildeUtenforKorpusType: "instruks", KildeUtenforKorpusDokumentasjon: Strukturkanter.Sekundaer), "Kari Jurist");
+        var hjemlet = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "klageinstans_for",
+            Kantnode.Virksomhet(b), Kantnode.Virksomhet(c), HjemmelRettskildeId: o.LovId), "Kari Jurist");
+        Assert.Null(hjemlet.Kant.KildeUtenforKorpusType);
+
+        var arbeidsliste = await tjeneste.HentUtenKorpusforankringAsync(Strukturkanter.NettsideAnnet);
+        Assert.Contains(arbeidsliste, v => v.Id == bareNettside.Kant.Id && v.KildeUtenforKorpusType == "nettside_annet");
+        Assert.DoesNotContain(arbeidsliste, v => v.Id == instruks.Kant.Id || v.Id == hjemlet.Kant.Id);
+        var alleUtenHjemmel = await tjeneste.HentUtenKorpusforankringAsync(null);
+        Assert.Contains(alleUtenHjemmel, v => v.Id == instruks.Kant.Id);
+        Assert.DoesNotContain(alleUtenHjemmel, v => v.Id == hjemlet.Kant.Id);
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.HentUtenKorpusforankringAsync("blogg"));
     }
 
     [Fact]
@@ -527,7 +586,8 @@ public class StrukturkantTjenesteTests
         var hjemlet = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "klageinstans",
             Kantnode.Virksomhet(a), Kantnode.Virksomhet(b), HjemmelRettskildeId: o.ForskriftId), "Kari Jurist");
         await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "sekretariat",
-            Kantnode.Virksomhet(c), Kantnode.Virksomhet(b), KildeUtenforKorpusTekst: "org-kart"), "Kari Jurist");
+            Kantnode.Virksomhet(c), Kantnode.Virksomhet(b), KildeUtenforKorpusTekst: "org-kart",
+            KildeUtenforKorpusType: Strukturkanter.NettsideAnnet, KildeUtenforKorpusDokumentasjon: Strukturkanter.Primaer), "Kari Jurist");
 
         var forForskriften = await tjeneste.HentForHjemmelRettskildeAsync(o.ForskriftId);
         var v = Assert.Single(forForskriften, x => x.Id == hjemlet.Kant.Id);

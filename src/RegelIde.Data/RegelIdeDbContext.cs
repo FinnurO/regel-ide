@@ -191,8 +191,19 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                     "(fra_virksomhet_id IS NULL OR til_virksomhet_id IS NULL OR fra_virksomhet_id <> til_virksomhet_id) "
                     + "AND (fra_begrep_id IS NULL OR til_begrep_id IS NULL OR fra_begrep_id <> til_begrep_id)");
                 // docs/33 §4.3: «HjemmelRettskildeId + HjemmelEid — påkrevd, ELLER KildeUtenforKorpus».
+                // [ENDRET, Johanns beslutning 2026-10-07] ELLER i streng forstand: med hjemmel i korpus er alle
+                // kilde-utenfor-feltene NULL; uten hjemmel er både teksten og TYPEN påkrevd.
                 t.HasCheckConstraint("ck_strukturkanter_kilde",
-                    "hjemmel_rettskilde_id IS NOT NULL OR kilde_utenfor_korpus_tekst IS NOT NULL");
+                    "(hjemmel_rettskilde_id IS NOT NULL AND kilde_utenfor_korpus_tekst IS NULL "
+                    + "AND kilde_utenfor_korpus_lenke IS NULL AND kilde_utenfor_korpus_type IS NULL "
+                    + "AND kilde_utenfor_korpus_dokumentasjon IS NULL) "
+                    + "OR (hjemmel_rettskilde_id IS NULL AND kilde_utenfor_korpus_tekst IS NOT NULL "
+                    + "AND kilde_utenfor_korpus_type IS NOT NULL AND kilde_utenfor_korpus_dokumentasjon IS NOT NULL)");
+                t.HasCheckConstraint("ck_strukturkanter_kilde_dokumentasjon",
+                    "kilde_utenfor_korpus_dokumentasjon IS NULL OR kilde_utenfor_korpus_dokumentasjon IN ('primaer', 'sekundaer')");
+                t.HasCheckConstraint("ck_strukturkanter_kilde_type",
+                    "kilde_utenfor_korpus_type IS NULL OR kilde_utenfor_korpus_type IN "
+                    + "('kgl_res', 'instruks', 'tildelingsbrev', 'vedtekter', 'styrevedtak', 'forarbeider', 'nettside_annet')");
             });
             e.HasKey(x => x.Id).HasName("strukturkanter_pkey");
             e.Property(x => x.Kategori).HasColumnName("kategori");
@@ -209,6 +220,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.HjemmelEid).HasColumnName("hjemmel_eid");
             e.Property(x => x.KildeUtenforKorpusTekst).HasColumnName("kilde_utenfor_korpus_tekst");
             e.Property(x => x.KildeUtenforKorpusLenke).HasColumnName("kilde_utenfor_korpus_lenke");
+            e.Property(x => x.KildeUtenforKorpusType).HasColumnName("kilde_utenfor_korpus_type");
+            e.Property(x => x.KildeUtenforKorpusDokumentasjon).HasColumnName("kilde_utenfor_korpus_dokumentasjon");
             e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
             e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
             e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("validert");
@@ -237,6 +250,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasIndex(x => x.HjemmelRettskildeId).HasDatabaseName("ix_strukturkanter_hjemmel");
             e.HasIndex(x => new { x.Kategori, x.Typekode }).HasDatabaseName("ix_strukturkanter_kategori_type");
             e.HasIndex(x => x.Status).HasDatabaseName("ix_strukturkanter_status");
+            e.HasIndex(x => x.KildeUtenforKorpusType).HasDatabaseName("ix_strukturkanter_kilde_type");
         });
 
         b.Entity<VirksomhetKandidatEntitet>(e =>

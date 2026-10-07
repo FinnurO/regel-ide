@@ -554,7 +554,8 @@ public sealed record StrukturkantDto(
     StrukturnodeDto Fra, StrukturnodeDto? Til, string? Objekt,
     IReadOnlyList<ParagrafspennParDto> Paragrafspenn, string? AvgrensningTekst, string Polaritet,
     Guid? HjemmelRettskildeId, string? HjemmelRettskildeTittel, string? HjemmelEid,
-    string? KildeUtenforKorpusTekst, string? KildeUtenforKorpusLenke,
+    string? KildeUtenforKorpusTekst, string? KildeUtenforKorpusLenke, string? KildeUtenforKorpusType,
+    string? KildeUtenforKorpusDokumentasjon,
     DateOnly? GyldigFra, DateOnly? GyldigTil, string Status, string OppdagelsesKilde, string? Kommentar,
     string OpprettetAv, DateTimeOffset OpprettetTidspunkt)
 {
@@ -563,7 +564,7 @@ public sealed record StrukturkantDto(
         StrukturnodeDto.FraVisning(v.Fra), v.Til is null ? null : StrukturnodeDto.FraVisning(v.Til), v.Objekt,
         v.Paragrafspenn.Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList(), v.AvgrensningTekst, v.Polaritet,
         v.HjemmelRettskildeId, v.HjemmelRettskildeTittel, v.HjemmelEid,
-        v.KildeUtenforKorpusTekst, v.KildeUtenforKorpusLenke, v.GyldigFra, v.GyldigTil, v.Status, v.OppdagelsesKilde,
+        v.KildeUtenforKorpusTekst, v.KildeUtenforKorpusLenke, v.KildeUtenforKorpusType, v.KildeUtenforKorpusDokumentasjon, v.GyldigFra, v.GyldigTil, v.Status, v.OppdagelsesKilde,
         v.Kommentar, v.OpprettetAv, v.OpprettetTidspunkt);
 }
 
@@ -572,12 +573,13 @@ public sealed record StrukturkantDto(
 public sealed record StrukturkantRadDto(
     Guid Id, string Kategori, string Typekode, Guid? FraVirksomhetId, Guid? FraBegrepId,
     Guid? TilVirksomhetId, Guid? TilBegrepId, Guid? HjemmelRettskildeId, string? HjemmelEid,
-    string? KildeUtenforKorpusTekst, IReadOnlyList<ParagrafspennParDto> Paragrafspenn, string? AvgrensningTekst,
-    string Polaritet, string Status)
+    string? KildeUtenforKorpusTekst, string? KildeUtenforKorpusType, string? KildeUtenforKorpusDokumentasjon,
+    IReadOnlyList<ParagrafspennParDto> Paragrafspenn,
+    string? AvgrensningTekst, string Polaritet, string Status)
 {
     public static StrukturkantRadDto FraEntitet(StrukturkantEntitet k) => new(
         k.Id, k.Kategori, k.Typekode, k.FraVirksomhetId, k.FraBegrepId, k.TilVirksomhetId, k.TilBegrepId,
-        k.HjemmelRettskildeId, k.HjemmelEid, k.KildeUtenforKorpusTekst,
+        k.HjemmelRettskildeId, k.HjemmelEid, k.KildeUtenforKorpusTekst, k.KildeUtenforKorpusType, k.KildeUtenforKorpusDokumentasjon,
         StrukturkantTjeneste.LesParagrafspenn(k).Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList(),
         k.AvgrensningTekst, k.Polaritet, k.Status);
 }
@@ -593,7 +595,10 @@ public sealed record StrukturkantRequest(
     string? KildeUtenforKorpusTekst = null, string? KildeUtenforKorpusLenke = null,
     IReadOnlyList<ParagrafspennParDto>? Paragrafspenn = null, string? AvgrensningTekst = null,
     string? Objekt = null, string? Polaritet = null, DateOnly? GyldigFra = null, DateOnly? GyldigTil = null,
-    string? Kommentar = null);
+    string? Kommentar = null,
+    // [Ny, Johanns beslutning 2026-10-07] Påkrevd sammen med KildeUtenforKorpusTekst — se
+    // StrukturkantEntitet.KildeUtenforKorpusType. Dokumentasjon: primaer|sekundaer, påkrevd sammen med typen.
+    string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null);
 
 /// <summary>Ett cross-tenant søketreff for GET /api/tjenester/sok-tverr-tenant — se <see cref="TjenesteTverrTenantTreff"/>.</summary>
 public sealed record TjenesteTverrTenantTreffDto(Guid Id, string Tittel, string? Beskrivelse, Guid VirksomhetId, string VirksomhetNavn)
@@ -1018,7 +1023,9 @@ public sealed record NavnekandidatMyndighetstildelingResultatDto(
 /// </summary>
 public sealed record KoblNavnekandidatTilRelasjonRequest(
     Guid VirksomhetId, string? Navneformgrunn, Guid MotpartVirksomhetId, string RelasjonsType,
-    bool HjemletHer, string? Kommentar);
+    bool HjemletHer, string? Kommentar,
+    // [Ny, issue #311 / Johanns beslutning 2026-10-07] Begge påkrevd når HjemletHer er false.
+    string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null);
 
 // [FJERNET, issue #311] NavnekandidatRelasjonDto — erstattet av StrukturkantRadDto (R-kanten).
 

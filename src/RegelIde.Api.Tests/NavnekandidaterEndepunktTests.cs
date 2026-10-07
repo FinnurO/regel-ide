@@ -1098,7 +1098,7 @@ public class NavnekandidaterEndepunktTests
             {
                 VirksomhetId = scene.MaalVirksomhetId, Navneformgrunn = (string?)null,
                 MotpartVirksomhetId = motpartId, RelasjonsType = relasjonsType,
-                HjemletHer = false, Kommentar = "Kjent fra org-kart, ikke lovhjemlet.",
+                HjemletHer = false, Kommentar = "Kjent fra org-kart, ikke lovhjemlet.", KildeUtenforKorpusType = "nettside_annet", KildeUtenforKorpusDokumentasjon = "sekundaer",
             }));
         Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
         var resultat = await svar.Content.ReadFromJsonAsync<NavnekandidatRelasjonResultatDto>(JsonInnstillinger);

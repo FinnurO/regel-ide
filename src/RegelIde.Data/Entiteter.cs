@@ -1442,6 +1442,27 @@ public sealed class StrukturkantEntitet
     public string? KildeUtenforKorpusTekst { get; set; }
     public string? KildeUtenforKorpusLenke { get; set; }
 
+    /// <summary>
+    /// [Ny, issue #311, Johanns beslutning 2026-10-07] HVA slags kilde utenfor korpus: <c>kgl_res</c> |
+    /// <c>instruks</c> | <c>tildelingsbrev</c> | <c>vedtekter</c> | <c>styrevedtak</c> | <c>forarbeider</c> (proposisjoner, innstillinger, NOU-er) | <c>nettside_annet</c>
+    /// (<see cref="Strukturkanter.KildeUtenforKorpusTyper"/>, CHECK <c>ck_strukturkanter_kilde_type</c>).
+    /// Påkrevd når <see cref="KildeUtenforKorpusTekst"/> er satt, NULL når kanten har hjemmel i korpus
+    /// (CHECK <c>ck_strukturkanter_kilde</c>). Formålet er spørringen «hvilke koblinger er bare dokumentert på
+    /// en nettside?» (<c>nettside_annet</c>) — en arbeidsliste over forvaltningsstruktur uten forankring i en
+    /// rettskilde (<c>GET /api/strukturkanter/uten-korpusforankring</c>). Migrerte relasjoner uten hjemmel fikk
+    /// <c>nettside_annet</c>; en bedre type gjettes ikke.
+    /// </summary>
+    public string? KildeUtenforKorpusType { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #311, Johanns beslutning 2026-10-07] <c>primaer</c> | <c>sekundaer</c> — går lenken/teksten
+    /// til SELVE kilden, eller til en tekst som refererer den? Eksempel: Tilsynsutvalget ble opprettet ved
+    /// kgl.res. 15. mai 2002, men er bare kjent gjennom en artikkel i Juristen ⇒ <c>kgl_res</c> + <c>sekundaer</c>.
+    /// Påkrevd når <see cref="KildeUtenforKorpusType"/> er satt (CHECK <c>ck_strukturkanter_kilde</c>).
+    /// Migrerte relasjoner uten hjemmel fikk <c>sekundaer</c> — vi vet ikke om kilden er primær.
+    /// </summary>
+    public string? KildeUtenforKorpusDokumentasjon { get; set; }
+
     /// <summary>Kantens EGEN gyldighet, utover hjemmelens (docs/29 §Del B) — de fleste setter ingen.</summary>
     public DateOnly? GyldigFra { get; set; }
     public DateOnly? GyldigTil { get; set; }

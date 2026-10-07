@@ -52,7 +52,7 @@ public class VirksomhetSlettTjenesteTests
         {
             Id = Guid.NewGuid(), Kategori = Strukturkanter.Relasjon, Typekode = "underlagt",
             FraVirksomhetId = annenVirksomhetId, TilVirksomhetId = virksomhetId,
-            KildeUtenforKorpusTekst = "test", OpprettetAv = "test",
+            KildeUtenforKorpusTekst = "test", KildeUtenforKorpusType = Strukturkanter.NettsideAnnet, KildeUtenforKorpusDokumentasjon = Strukturkanter.Sekundaer, OpprettetAv = "test",
         });
         await db.SaveChangesAsync();
 
@@ -126,7 +126,7 @@ public class VirksomhetSlettTjenesteTests
             {
                 Id = Guid.NewGuid(), Kategori = Strukturkanter.Relasjon, Typekode = "underlagt",
                 FraVirksomhetId = annenVirksomhetId, TilVirksomhetId = virksomhetId,
-                KildeUtenforKorpusTekst = "test", OpprettetAv = "test",
+                KildeUtenforKorpusTekst = "test", KildeUtenforKorpusType = Strukturkanter.NettsideAnnet, KildeUtenforKorpusDokumentasjon = Strukturkanter.Sekundaer, OpprettetAv = "test",
             };
             db.Strukturkanter.Add(relasjon);
             relasjonId = relasjon.Id;

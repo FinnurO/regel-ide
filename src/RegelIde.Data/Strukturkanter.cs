@@ -39,6 +39,22 @@ public static class Strukturkanter
 
     public static bool ErGyldigKategori(string? k) => k is not null && Kategorier.Contains(k);
 
+    /// <summary>
+    /// [Ny, issue #311, Johanns beslutning 2026-10-07] Typen kilde utenfor korpus — speilet av CHECK
+    /// <c>ck_strukturkanter_kilde_type</c>. <see cref="NettsideAnnet"/> er «bare dokumentert på en nettside eller
+    /// annet sted uten rettslig status» — arbeidslista over struktur som mangler forankring i en rettskilde.
+    /// </summary>
+    public static readonly string[] KildeUtenforKorpusTyper =
+        ["kgl_res", "instruks", "tildelingsbrev", "vedtekter", "styrevedtak", "forarbeider", NettsideAnnet];
+
+    public const string NettsideAnnet = "nettside_annet";
+
+    /// <summary>[Ny, Johanns beslutning 2026-10-07] Er kilden utenfor korpus dokumentert PRIMÆRT (lenken/teksten
+    /// er selve kilden) eller SEKUNDÆRT (en tekst som refererer den)? CHECK <c>ck_strukturkanter_kilde_dokumentasjon</c>.</summary>
+    public static readonly string[] KildeDokumentasjoner = [Primaer, Sekundaer];
+    public const string Primaer = "primaer";
+    public const string Sekundaer = "sekundaer";
+
     /// <summary>Visningsnavn — samme ord som UI-et (StrukturkantKategoriTag.tsx).</summary>
     public static string Visningsnavn(string kategori) => kategori switch
     {

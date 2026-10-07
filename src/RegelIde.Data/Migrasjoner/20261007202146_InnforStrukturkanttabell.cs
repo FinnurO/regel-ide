@@ -11,7 +11,8 @@ namespace RegelIde.Data.Migrasjoner
     /// <list type="number">
     /// <item><c>relasjonstype_konfigurasjon.kategori</c> (eksisterende rader → <c>'R'</c>); unik på (kategori, kode).
     /// Startsettet fra docs/33 §4.3 seedes ved oppstart (<see cref="Strukturkanter.SeedStartsettAsync"/>), ikke her.</item>
-    /// <item>Tabellen <c>strukturkanter</c> (<see cref="StrukturkantEntitet"/>).</item>
+    /// <item>Tabellen <c>strukturkanter</c> (<see cref="StrukturkantEntitet"/>), inkl. <c>kilde_utenfor_korpus_type</c> og <c>kilde_utenfor_korpus_dokumentasjon</c>
+    /// (Johanns beslutning 2026-10-07, lagt inn i SAMME migrasjon før den ble merget).</item>
     /// <item>Alle rader i <c>virksomhet_relasjoner</c>, <c>gruppe_medlemskap</c> og <c>myndighetstildelinger</c>
     /// flyttes 1:1 med samme id (<see cref="StrukturkantMigrering.DataSql"/>) — antallet kontrolleres, og
     /// migrasjonen avbrytes ved avvik.</item>
@@ -90,6 +91,8 @@ namespace RegelIde.Data.Migrasjoner
                     hjemmel_eid = table.Column<string>(type: "text", nullable: true),
                     kilde_utenfor_korpus_tekst = table.Column<string>(type: "text", nullable: true),
                     kilde_utenfor_korpus_lenke = table.Column<string>(type: "text", nullable: true),
+                    kilde_utenfor_korpus_type = table.Column<string>(type: "text", nullable: true),
+                    kilde_utenfor_korpus_dokumentasjon = table.Column<string>(type: "text", nullable: true),
                     gyldig_fra = table.Column<DateOnly>(type: "date", nullable: true),
                     gyldig_til = table.Column<DateOnly>(type: "date", nullable: true),
                     status = table.Column<string>(type: "text", nullable: false, defaultValue: "validert"),
@@ -106,7 +109,9 @@ namespace RegelIde.Data.Migrasjoner
                     table.CheckConstraint("ck_strukturkanter_fra_en", "(fra_virksomhet_id IS NULL) <> (fra_begrep_id IS NULL)");
                     table.CheckConstraint("ck_strukturkanter_ikke_selv", "(fra_virksomhet_id IS NULL OR til_virksomhet_id IS NULL OR fra_virksomhet_id <> til_virksomhet_id) AND (fra_begrep_id IS NULL OR til_begrep_id IS NULL OR fra_begrep_id <> til_begrep_id)");
                     table.CheckConstraint("ck_strukturkanter_kategori", "kategori IN ('R', 'K', 'M', 'O', 'A', 'G', 'I', 'T')");
-                    table.CheckConstraint("ck_strukturkanter_kilde", "hjemmel_rettskilde_id IS NOT NULL OR kilde_utenfor_korpus_tekst IS NOT NULL");
+                    table.CheckConstraint("ck_strukturkanter_kilde", "(hjemmel_rettskilde_id IS NOT NULL AND kilde_utenfor_korpus_tekst IS NULL AND kilde_utenfor_korpus_lenke IS NULL AND kilde_utenfor_korpus_type IS NULL AND kilde_utenfor_korpus_dokumentasjon IS NULL) OR (hjemmel_rettskilde_id IS NULL AND kilde_utenfor_korpus_tekst IS NOT NULL AND kilde_utenfor_korpus_type IS NOT NULL AND kilde_utenfor_korpus_dokumentasjon IS NOT NULL)");
+                    table.CheckConstraint("ck_strukturkanter_kilde_dokumentasjon", "kilde_utenfor_korpus_dokumentasjon IS NULL OR kilde_utenfor_korpus_dokumentasjon IN ('primaer', 'sekundaer')");
+                    table.CheckConstraint("ck_strukturkanter_kilde_type", "kilde_utenfor_korpus_type IS NULL OR kilde_utenfor_korpus_type IN ('kgl_res', 'instruks', 'tildelingsbrev', 'vedtekter', 'styrevedtak', 'forarbeider', 'nettside_annet')");
                     table.CheckConstraint("ck_strukturkanter_polaritet", "polaritet IN ('positiv', 'negativ')");
                     table.CheckConstraint("ck_strukturkanter_status", "status IN ('foreslatt_av_ai', 'validert')");
                     table.CheckConstraint("ck_strukturkanter_til_hoyst_en", "til_virksomhet_id IS NULL OR til_begrep_id IS NULL");
@@ -157,6 +162,11 @@ namespace RegelIde.Data.Migrasjoner
                 name: "ix_strukturkanter_hjemmel",
                 table: "strukturkanter",
                 column: "hjemmel_rettskilde_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_strukturkanter_kilde_type",
+                table: "strukturkanter",
+                column: "kilde_utenfor_korpus_type");
 
             migrationBuilder.CreateIndex(
                 name: "ix_strukturkanter_kategori_type",

@@ -428,6 +428,15 @@ export interface ParagrafspennParDto {
  * (`RelasjonsTypeKonfigurasjonDto`). */
 export type Strukturkantkategori = 'R' | 'K' | 'M' | 'O' | 'A' | 'G' | 'I' | 'T';
 
+/** [Ny, issue #311, Johanns beslutning 2026-10-07] Typen kilde utenfor korpus — speilet av
+ * `Strukturkanter.KildeUtenforKorpusTyper`. `nettside_annet` = bare dokumentert på en nettside e.l. —
+ * arbeidslista over struktur uten forankring i en rettskilde. */
+export type KildeUtenforKorpusType =
+  'kgl_res' | 'instruks' | 'tildelingsbrev' | 'vedtekter' | 'styrevedtak' | 'forarbeider' | 'nettside_annet';
+/** [Ny, Johanns beslutning 2026-10-07] Lenken/teksten er selve kilden (`primaer`) eller en tekst som refererer
+ * den (`sekundaer`, f.eks. en artikkel i Juristen om en kgl.res.). */
+export type KildeUtenforKorpusDokumentasjon = 'primaer' | 'sekundaer';
+
 /** [Ny, issue #311] Én ende av en kant: en virksomhet (aktør) eller et begrep med gruppefunksjon.
  * `nodetype` er aktørtypen (kan være null = uavklart) eller begrepskategorien. */
 export interface StrukturnodeDto {
@@ -457,6 +466,8 @@ export interface StrukturkantDto {
   hjemmelEid: string | null;
   kildeUtenforKorpusTekst: string | null;
   kildeUtenforKorpusLenke: string | null;
+  kildeUtenforKorpusType: KildeUtenforKorpusType | null;
+  kildeUtenforKorpusDokumentasjon: KildeUtenforKorpusDokumentasjon | null;
   gyldigFra: string | null;
   gyldigTil: string | null;
   status: 'foreslatt_av_ai' | 'validert';
@@ -479,6 +490,8 @@ export interface StrukturkantRadDto {
   hjemmelRettskildeId: string | null;
   hjemmelEid: string | null;
   kildeUtenforKorpusTekst: string | null;
+  kildeUtenforKorpusType: KildeUtenforKorpusType | null;
+  kildeUtenforKorpusDokumentasjon: KildeUtenforKorpusDokumentasjon | null;
   paragrafspenn: ParagrafspennParDto[];
   avgrensningTekst: string | null;
   polaritet: 'positiv' | 'negativ';
@@ -498,6 +511,9 @@ export interface StrukturkantRequest {
   hjemmelEid?: string | null;
   kildeUtenforKorpusTekst?: string | null;
   kildeUtenforKorpusLenke?: string | null;
+  /** Påkrevd sammen med kildeteksten (Johanns beslutning 2026-10-07). */
+  kildeUtenforKorpusType?: KildeUtenforKorpusType | null;
+  kildeUtenforKorpusDokumentasjon?: KildeUtenforKorpusDokumentasjon | null;
   paragrafspenn?: ParagrafspennParDto[];
   avgrensningTekst?: string | null;
   objekt?: string | null;
@@ -793,6 +809,9 @@ export interface KoblNavnekandidatTilRelasjonRequest {
   relasjonsType: string;
   hjemletHer: boolean;
   kommentar: string | null;
+  /** [Ny, issue #311] Påkrevd når `hjemletHer` er false — kommentaren lagres som kilde utenfor korpus. */
+  kildeUtenforKorpusType?: KildeUtenforKorpusType | null;
+  kildeUtenforKorpusDokumentasjon?: KildeUtenforKorpusDokumentasjon | null;
 }
 
 export interface NavnekandidatRelasjonResultatDto {

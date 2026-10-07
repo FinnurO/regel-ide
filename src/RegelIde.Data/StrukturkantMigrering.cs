@@ -16,7 +16,9 @@ public static class StrukturkantMigrering
     /// #311 AC2: «migrert uten tap»):
     /// <list type="bullet">
     /// <item><c>virksomhet_relasjoner</c> → R med samme typekode. Kommentar UTEN hjemmel → kilde utenfor korpus
-    /// (det var bruken: «bekreftet mot organisasjonskartet …»); kommentar MED hjemmel → kommentar.</item>
+    /// (det var bruken: «bekreftet mot organisasjonskartet …») med kildetype <c>nettside_annet</c> — Johanns
+    /// beslutning 2026-10-07: en bedre type gjettes ikke — og dokumentasjon <c>sekundaer</c>, siden vi ikke vet om
+    /// kilden er primær; kommentar MED hjemmel → kommentar.</item>
     /// <item><c>gruppe_medlemskap</c> → M <c>medlem_av</c>, fra = underordnet, til = overordnet.</item>
     /// <item><c>myndighetstildelinger</c> → I <c>innehar</c> når målet er en rolle (nodetypen fra #310), ellers
     /// M <c>medlem_av</c>; <c>vilkaar</c> → <c>avgrensning_tekst</c>.</item>
@@ -52,7 +54,8 @@ public static class StrukturkantMigrering
 
             INSERT INTO strukturkanter (
                 "Id", kategori, typekode, fra_virksomhet_id, til_virksomhet_id,
-                hjemmel_rettskilde_id, hjemmel_eid, kilde_utenfor_korpus_tekst, kommentar,
+                hjemmel_rettskilde_id, hjemmel_eid, kilde_utenfor_korpus_tekst, kilde_utenfor_korpus_type,
+                kilde_utenfor_korpus_dokumentasjon, kommentar,
                 avgrensning_paragrafspenn_json, polaritet, status, oppdagelses_kilde, opprettet_av, opprettet_tidspunkt)
             SELECT r."Id", 'R', r.relasjons_type, r.fra_virksomhet_id, r.til_virksomhet_id,
                 r.hjemmel_rettskilde_id, r.hjemmel_eid,
@@ -60,6 +63,8 @@ public static class StrukturkantMigrering
                      THEN COALESCE(NULLIF(btrim(r.kommentar), ''),
                                    '(ingen kilde oppgitt — migrert fra virksomhet_relasjoner uten hjemmel og uten kommentar, issue #311)')
                 END,
+                CASE WHEN r.hjemmel_rettskilde_id IS NULL THEN 'nettside_annet' END,
+                CASE WHEN r.hjemmel_rettskilde_id IS NULL THEN 'sekundaer' END,
                 CASE WHEN r.hjemmel_rettskilde_id IS NOT NULL THEN r.kommentar END,
                 '[]', 'positiv', r.status,
                 COALESCE((SELECT 'ki:' || p.ai_forslag_versjon FROM proveniens p

@@ -6,6 +6,7 @@ import { rettskildeLenkeForId } from '../api/eidLenker';
 import type { RettskildeNodeDto, StrukturkantDto, Strukturkantkategori, StrukturnodeDto } from '../api/types';
 import { paragrafEtikett } from '../rettskilde/paragrafEtikett';
 import { Metatekst } from '../entitet/Metatekst';
+import { KILDETYPE_VISNING } from './KildeUtenforKorpus';
 
 /**
  * [Ny, issue #311 «Strukturmodell 6», 2026-10-07] ÉN delt visning av strukturkanter (docs/33 §4.3) — brukt av
@@ -183,6 +184,13 @@ export function StrukturkantTabell({ kanter, tomTekst, visKategori = false, visH
                     ) : (
                       <>
                         <Tag data-size="sm" data-color="warning">Ingen hjemmel</Tag>{' '}
+                        {/* [Ny, Johanns beslutning 2026-10-07] Kildetypen og om dokumentasjonen er sekundær. */}
+                        {k.kildeUtenforKorpusType && (
+                          <Tag data-size="sm" data-color="neutral">
+                            {KILDETYPE_VISNING[k.kildeUtenforKorpusType] ?? k.kildeUtenforKorpusType}
+                            {k.kildeUtenforKorpusDokumentasjon === 'sekundaer' ? ' (sekundær)' : ''}
+                          </Tag>
+                        )}{' '}
                         {k.kildeUtenforKorpusLenke ? (
                           <Link href={k.kildeUtenforKorpusLenke} target="_blank" rel="noopener noreferrer">
                             {k.kildeUtenforKorpusTekst}

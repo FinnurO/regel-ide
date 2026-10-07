@@ -113,7 +113,7 @@ public class StrukturkantEndepunktTests
         var svar = await PostKantAsync(brukerId, new
         {
             Kategori = "R", Typekode = "sekretariat", FraVirksomhetId = merkenemnd, TilVirksomhetId = statsforvalteren,
-            KildeUtenforKorpusTekst = "docs/28-eksempel", Polaritet = "positiv",
+            KildeUtenforKorpusTekst = "docs/28-eksempel", KildeUtenforKorpusType = "nettside_annet", KildeUtenforKorpusDokumentasjon = "primaer", Polaritet = "positiv",
         });
         Assert.Equal(HttpStatusCode.Created, svar.StatusCode);
         var kant = (await svar.Content.ReadFromJsonAsync<StrukturkantDto>(JsonInnstillinger))!;
@@ -129,7 +129,7 @@ public class StrukturkantEndepunktTests
         var igjen = await PostKantAsync(brukerId, new
         {
             Kategori = "R", Typekode = "sekretariat", FraVirksomhetId = merkenemnd, TilVirksomhetId = statsforvalteren,
-            KildeUtenforKorpusTekst = "docs/28-eksempel", Polaritet = "positiv",
+            KildeUtenforKorpusTekst = "docs/28-eksempel", KildeUtenforKorpusType = "nettside_annet", KildeUtenforKorpusDokumentasjon = "primaer", Polaritet = "positiv",
         });
         Assert.Equal(HttpStatusCode.OK, igjen.StatusCode);
         Assert.Equal(kant.Id, (await igjen.Content.ReadFromJsonAsync<StrukturkantDto>(JsonInnstillinger))!.Id);
@@ -208,7 +208,8 @@ public class StrukturkantEndepunktTests
         var kant = new StrukturkantEntitet
         {
             Id = Guid.NewGuid(), Kategori = "R", Typekode = typekode, FraVirksomhetId = fra, TilVirksomhetId = til,
-            KildeUtenforKorpusTekst = "KI-forslag", Status = "foreslatt_av_ai", OppdagelsesKilde = "ki:test",
+            KildeUtenforKorpusTekst = "KI-forslag", KildeUtenforKorpusType = Strukturkanter.NettsideAnnet, KildeUtenforKorpusDokumentasjon = Strukturkanter.Sekundaer,
+            Status = "foreslatt_av_ai", OppdagelsesKilde = "ki:test",
             OpprettetAv = "system-ki", OpprettetTidspunkt = DateTimeOffset.UtcNow,
         };
         db.Strukturkanter.Add(kant);
@@ -241,6 +242,47 @@ public class StrukturkantEndepunktTests
         Assert.Equal(HttpStatusCode.NoContent, (await _client.SendAsync(MedBruker(HttpMethod.Delete, $"/api/strukturkanter/{godkjennes}", brukerId))).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync($"/api/strukturkanter/{godkjennes}")).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/strukturkanter/{Guid.NewGuid()}/godkjenn", brukerId))).StatusCode);
+    }
+
+    // ---------------- [Ny, Johanns beslutning 2026-10-07] Arbeidslista: bare dokumentert på nettside ----------------
+
+    [Fact]
+    public async Task Uten_korpusforankring_lister_nettside_annet_og_filtrerer_paa_kildetype()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var (a, _) = await OpprettVirksomhetAsync("Org-kart A");
+        var (b, _) = await OpprettVirksomhetAsync("Org-kart B");
+        var nettside = await PostKantAsync(brukerId, new
+        {
+            Kategori = "R", Typekode = "sekretariat_for", FraVirksomhetId = a, TilVirksomhetId = b, Polaritet = "positiv",
+            KildeUtenforKorpusTekst = "organisasjonskartet", KildeUtenforKorpusType = "nettside_annet", KildeUtenforKorpusDokumentasjon = "primaer",
+        });
+        Assert.Equal(HttpStatusCode.Created, nettside.StatusCode);
+        var nettsideId = (await nettside.Content.ReadFromJsonAsync<StrukturkantDto>(JsonInnstillinger))!.Id;
+        var vedtekter = await PostKantAsync(brukerId, new
+        {
+            Kategori = "R", Typekode = "eies_av", FraVirksomhetId = a, TilVirksomhetId = b, Polaritet = "positiv",
+            KildeUtenforKorpusTekst = "vedtektene § 2", KildeUtenforKorpusType = "vedtekter", KildeUtenforKorpusDokumentasjon = "primaer",
+        });
+        var vedtekterId = (await vedtekter.Content.ReadFromJsonAsync<StrukturkantDto>(JsonInnstillinger))!.Id;
+        // Uten type ⇒ 400: typen gjettes ikke.
+        Assert.Equal(HttpStatusCode.BadRequest, (await PostKantAsync(brukerId, new
+        {
+            Kategori = "R", Typekode = "radgir", FraVirksomhetId = a, TilVirksomhetId = b, Polaritet = "positiv",
+            KildeUtenforKorpusTekst = "nettsiden",
+        })).StatusCode);
+
+        var standard = await _client.GetFromJsonAsync<List<StrukturkantDto>>("/api/strukturkanter/uten-korpusforankring", JsonInnstillinger);
+        Assert.Contains(standard!, k => k.Id == nettsideId && k.KildeUtenforKorpusType == "nettside_annet"
+            && k.KildeUtenforKorpusDokumentasjon == "primaer");
+        Assert.DoesNotContain(standard!, k => k.Id == vedtekterId);
+        var bareVedtekter = await _client.GetFromJsonAsync<List<StrukturkantDto>>("/api/strukturkanter/uten-korpusforankring?kildetype=vedtekter", JsonInnstillinger);
+        Assert.All(bareVedtekter!, k => Assert.Equal("vedtekter", k.KildeUtenforKorpusType));
+        Assert.Contains(bareVedtekter!, k => k.Id == vedtekterId);
+        var alle = await _client.GetFromJsonAsync<List<StrukturkantDto>>("/api/strukturkanter/uten-korpusforankring?kildetype=alle", JsonInnstillinger);
+        Assert.Contains(alle!, k => k.Id == nettsideId);
+        Assert.Contains(alle!, k => k.Id == vedtekterId);
+        Assert.Equal(HttpStatusCode.BadRequest, (await _client.GetAsync("/api/strukturkanter/uten-korpusforankring?kildetype=blogg")).StatusCode);
     }
 
     // ---------------- Lesefasadene for nettside-eksporten ----------------

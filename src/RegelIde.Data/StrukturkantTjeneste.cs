@@ -32,7 +32,8 @@ public sealed record NyStrukturkant(
     IReadOnlyList<ParagrafspennPar>? Paragrafspenn = null, string? AvgrensningTekst = null,
     string? Objekt = null, string Polaritet = "positiv",
     DateOnly? GyldigFra = null, DateOnly? GyldigTil = null, string? Kommentar = null,
-    string Status = "validert", string? AiForslagVersjon = null, string? OppdagelsesKilde = null);
+    string Status = "validert", string? AiForslagVersjon = null, string? OppdagelsesKilde = null,
+    string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null);
 
 /// <summary>Resultatet av <see cref="StrukturkantTjeneste.OpprettAsync"/> — <see cref="VarNy"/> = false betyr
 /// at et identisk utsagn alt fantes og ble returnert uendret (idempotens, se metoden).</summary>
@@ -55,7 +56,8 @@ public sealed record StrukturkantVisning(
     KantnodeVisning Fra, KantnodeVisning? Til, string? Objekt,
     IReadOnlyList<ParagrafspennPar> Paragrafspenn, string? AvgrensningTekst, string Polaritet,
     Guid? HjemmelRettskildeId, string? HjemmelRettskildeTittel, string? HjemmelEid,
-    string? KildeUtenforKorpusTekst, string? KildeUtenforKorpusLenke,
+    string? KildeUtenforKorpusTekst, string? KildeUtenforKorpusLenke, string? KildeUtenforKorpusType,
+    string? KildeUtenforKorpusDokumentasjon,
     DateOnly? GyldigFra, DateOnly? GyldigTil, string Status, string OppdagelsesKilde, string? Kommentar,
     string OpprettetAv, DateTimeOffset OpprettetTidspunkt);
 
@@ -181,6 +183,37 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         {
             throw new ArgumentException("En lenke til kilde utenfor korpus må ha en tekst som sier hva kilden er.");
         }
+        // [Ny, Johanns beslutning 2026-10-07] Typen på kilden utenfor korpus: påkrevd uten hjemmel, NULL med.
+        var kildeType = string.IsNullOrWhiteSpace(ny.KildeUtenforKorpusType) ? null : ny.KildeUtenforKorpusType.Trim();
+        var kildeDok = string.IsNullOrWhiteSpace(ny.KildeUtenforKorpusDokumentasjon) ? null : ny.KildeUtenforKorpusDokumentasjon.Trim();
+        if (ny.HjemmelRettskildeId is not null
+            && (kildeTekst is not null || kildeLenke is not null || kildeType is not null || kildeDok is not null))
+        {
+            throw new ArgumentException(
+                "Kanten har hjemmel i korpus OG en kilde utenfor korpus — oppgi én av dem (docs/33 §4.3). "
+                + "En utfyllende merknad hører i kommentaren.");
+        }
+        if (ny.HjemmelRettskildeId is null)
+        {
+            if (kildeType is null)
+            {
+                throw new ArgumentException(
+                    $"Kilde utenfor korpus må ha en type ({string.Join(", ", Strukturkanter.KildeUtenforKorpusTyper)}). "
+                    + "Ingen gjettet fallback.");
+            }
+            if (!Strukturkanter.KildeUtenforKorpusTyper.Contains(kildeType))
+            {
+                throw new ArgumentException(
+                    $"Ukjent kildetype '{kildeType}'. Gyldige verdier: {string.Join(", ", Strukturkanter.KildeUtenforKorpusTyper)}.");
+            }
+            // [Ny, Johanns beslutning 2026-10-07] Primær (selve kilden) eller sekundær (en tekst som refererer den).
+            if (kildeDok is null || !Strukturkanter.KildeDokumentasjoner.Contains(kildeDok))
+            {
+                throw new ArgumentException(
+                    $"Kilde utenfor korpus må si om dokumentasjonen er 'primaer' (selve kilden) eller 'sekundaer' "
+                    + $"(en tekst som refererer den){(kildeDok is null ? "" : $" — '{kildeDok}' er ukjent")}. Ingen gjettet fallback.");
+            }
+        }
         if (ny.HjemmelEid is not null && ny.HjemmelRettskildeId is null)
         {
             throw new ArgumentException("HjemmelEid uten HjemmelRettskildeId — eId-en er bare unik innenfor sin rettskilde.");
@@ -259,6 +292,8 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             HjemmelEid = ny.HjemmelEid,
             KildeUtenforKorpusTekst = kildeTekst,
             KildeUtenforKorpusLenke = kildeLenke,
+            KildeUtenforKorpusType = kildeType,
+            KildeUtenforKorpusDokumentasjon = kildeDok,
             GyldigFra = ny.GyldigFra,
             GyldigTil = ny.GyldigTil,
             Status = ny.Status,
@@ -395,6 +430,26 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             .OrderBy(v => v.Kategori, StringComparer.Ordinal).ThenBy(v => v.Visningstekst, StringComparer.Ordinal).ToList();
     }
 
+    /// <summary>
+    /// [Ny, Johanns beslutning 2026-10-07] Kantene som BARE er dokumentert i en kilde av typen
+    /// <paramref name="kildetype"/> utenfor korpus — med <see cref="Strukturkanter.NettsideAnnet"/> er det
+    /// arbeidslista «forvaltningsstruktur som mangler forankring i en rettskilde». Null = alle kanter uten
+    /// hjemmel i korpus, uansett type.
+    /// </summary>
+    public async Task<List<StrukturkantVisning>> HentUtenKorpusforankringAsync(string? kildetype, CancellationToken ct = default)
+    {
+        if (kildetype is not null && !Strukturkanter.KildeUtenforKorpusTyper.Contains(kildetype))
+        {
+            throw new ArgumentException(
+                $"Ukjent kildetype '{kildetype}'. Gyldige verdier: {string.Join(", ", Strukturkanter.KildeUtenforKorpusTyper)}.");
+        }
+        var kanter = await db.Strukturkanter
+            .Where(k => k.HjemmelRettskildeId == null && (kildetype == null || k.KildeUtenforKorpusType == kildetype))
+            .ToListAsync(ct);
+        return (await ByggVisningerAsync(kanter, perspektiv: null, ct))
+            .OrderBy(v => v.Kategori, StringComparer.Ordinal).ThenBy(v => v.Visningstekst, StringComparer.Ordinal).ToList();
+    }
+
     /// <summary>Alle ventende forslag (<c>foreslatt_av_ai</c>) — KI-forslag-køen (issue #285 AC6).</summary>
     public async Task<List<StrukturkantVisning>> HentForslagAsync(CancellationToken ct = default)
     {
@@ -511,7 +566,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
                 k.Id, k.Kategori, k.Typekode, retning, tekst, fra, til, k.Objekt, LesParagrafspenn(k), k.AvgrensningTekst,
                 k.Polaritet, k.HjemmelRettskildeId,
                 k.HjemmelRettskildeId is { } h ? hjemmeltitler.GetValueOrDefault(h) : null, k.HjemmelEid,
-                k.KildeUtenforKorpusTekst, k.KildeUtenforKorpusLenke, k.GyldigFra, k.GyldigTil, k.Status,
+                k.KildeUtenforKorpusTekst, k.KildeUtenforKorpusLenke, k.KildeUtenforKorpusType, k.KildeUtenforKorpusDokumentasjon, k.GyldigFra, k.GyldigTil, k.Status,
                 k.OppdagelsesKilde, k.Kommentar, k.OpprettetAv, k.OpprettetTidspunkt);
         }).ToList();
     }

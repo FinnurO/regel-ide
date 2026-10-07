@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Alert, Button, Card, Field, Label, Radio, Select, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { RelasjonsTypeKonfigurasjonDto, RettskildeSammendrag, StrukturkantDto, VirksomhetDto } from '../api/types';
+import type { KildeUtenforKorpusDokumentasjon, KildeUtenforKorpusType, RelasjonsTypeKonfigurasjonDto, RettskildeSammendrag, StrukturkantDto, VirksomhetDto } from '../api/types';
+import { KildeUtenforKorpusVelger } from '../strukturkant/KildeUtenforKorpus';
 import { VirksomhetVelger } from './VirksomhetVelger';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { Metatekst } from '../entitet/Metatekst';
@@ -40,6 +41,9 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
   const [hjemmelEid, setHjemmelEid] = useState('');
   const [kildeTekst, setKildeTekst] = useState('');
   const [kildeLenke, setKildeLenke] = useState('');
+  // [Ny, Johanns beslutning 2026-10-07] Type og dokumentasjon er påkrevd sammen med kilden — ingen forhåndsvalg.
+  const [kildeType, setKildeType] = useState<KildeUtenforKorpusType | ''>('');
+  const [kildeDok, setKildeDok] = useState<KildeUtenforKorpusDokumentasjon | ''>('');
   const [avgrensning, setAvgrensning] = useState('');
 
   const [oppretter, setOppretter] = useState(false);
@@ -52,7 +56,10 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
   // Andre virksomheter enn denne selv — en relasjon til seg selv avvises uansett server-side, men
   // ingen grunn til å tilby det som et valg i det hele tatt.
   const andreVirksomheter = virksomheter.filter((v) => v.id !== virksomhetId);
-  const harKilde = !!hjemmelRettskildeId || !!kildeTekst.trim();
+  // Hjemmel ELLER kilde utenfor korpus (med type og dokumentasjon) — aldri begge (docs/33 §4.3).
+  const harKilde = hjemmelRettskildeId
+    ? !kildeTekst.trim()
+    : !!kildeTekst.trim() && !!kildeType && !!kildeDok;
 
   async function opprett() {
     if (!tilVirksomhetId || !relasjonsType || !polaritet || !harKilde) return;
@@ -63,6 +70,7 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
         kategori: 'R', typekode: relasjonsType, fraVirksomhetId: virksomhetId, tilVirksomhetId, polaritet,
         hjemmelRettskildeId: hjemmelRettskildeId || null, hjemmelEid: hjemmelEid.trim() || null,
         kildeUtenforKorpusTekst: kildeTekst.trim() || null, kildeUtenforKorpusLenke: kildeLenke.trim() || null,
+        kildeUtenforKorpusType: kildeType || null, kildeUtenforKorpusDokumentasjon: kildeDok || null,
         avgrensningTekst: avgrensning.trim() || null,
       });
       onOpprettet(ny);
@@ -73,6 +81,8 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
       setHjemmelEid('');
       setKildeTekst('');
       setKildeLenke('');
+      setKildeType('');
+      setKildeDok('');
       setAvgrensning('');
     } catch (err) {
       setFeilmelding(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse av relasjon.');
@@ -121,15 +131,21 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
       </div>
 
       <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.25rem' }}>
-        <Textfield data-size="sm" label="Kilde utenfor korpus (påkrevd uten hjemmel)"
+        <Textfield data-size="sm" label="Kilde utenfor korpus (bare uten hjemmel)"
           placeholder="f.eks. organisasjonskartet, vedtekter, kgl.res."
           value={kildeTekst} onChange={(e) => setKildeTekst(e.target.value)} style={{ flex: 2, minWidth: '16rem' }} />
         <Textfield data-size="sm" label="Lenke til kilden (valgfritt)" value={kildeLenke}
           onChange={(e) => setKildeLenke(e.target.value)} style={{ flex: 1, minWidth: '14rem' }} />
       </div>
+      {!hjemmelRettskildeId && (
+        <div style={{ marginBottom: '0.25rem' }}>
+          <KildeUtenforKorpusVelger type={kildeType} dokumentasjon={kildeDok} onType={setKildeType} onDokumentasjon={setKildeDok} />
+        </div>
+      )}
       <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
-        En relasjon må ha en hjemmel ELLER en kilde utenfor korpus (docs/33 §4.3) — et forhold som bare er
-        bekreftet mot et organisasjonskart skal ikke kunne forveksles med et som står i en bestemmelse.
+        En relasjon må ha en hjemmel ELLER en kilde utenfor korpus med type og dokumentasjon (docs/33 §4.3) — et
+        forhold som bare er bekreftet mot et organisasjonskart skal ikke kunne forveksles med et som står i en
+        bestemmelse. Med hjemmel skal kildefeltene stå tomme.
       </Metatekst>
 
       <Button data-size="sm" type="button" onClick={opprett}
