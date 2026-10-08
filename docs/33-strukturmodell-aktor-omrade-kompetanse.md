@@ -233,12 +233,12 @@ Alle strukturutsagn lagres som én kanttype med kategori + konfigurerbar typekod
 
 | Kat. | Fra → Til | Typekoder (startsett, utvidbart) |
 |---|---|---|
-| **R** relasjon | aktør → aktør | [ENDRET, #341] Struktur UTEN myndighet: eies_av, ledes_av, sekretariat_for, rapporterer_til, etterfolger, representerer, har_delegert_til (gjennomført delegering). Uavklart (står til Johann avgjør): administrativt_underordnet, velger, radgir, ankeinstans_for, oppretter, avvikler |
-| **K** kompetanse | aktør/rolle → **motpart** (valgfri) og bestemmelse/sakstype | [ENDRET, #341] beslutning; struktur: oppretting, avvikling, organisasjon; personell: oppnevning, utpeking, ansettelse, avsetting; styring: instruksjon, samordning, delegering, godkjenning, samtykke, palegg; normgivning (med normform); kontroll: tilsyn, revisjon; klage og overprøving: klage, omgjoring, overproving, stadfesting; vedtak; sanksjon; forelegging (ikke plassert) |
+| **R** relasjon | aktør → aktør | [ENDRET, #341] Struktur UTEN myndighet: eies_av, ledes_av, sekretariat_for, rapporterer_til, etterfolger, representerer, har_delegert_til (gjennomført delegering). [ENDRET, #352] Avgjort som R (struktur eller hendelse, ikke myndighet): administrativt_underordnet, radgir, oppretter, avvikler. velger og ankeinstans_for er flyttet til K |
+| **K** kompetanse | aktør/rolle → **motpart** (valgfri) og bestemmelse/sakstype | [ENDRET, #341, #352] beslutning; struktur: oppretting, avvikling, organisasjon; oppnevning: oppnevning (med undertype valg/ansettelse/utpeking/oppnevning), avsetting; styring: instruksjon, samordning, delegering, godkjenning, samtykke, palegg; normgivning (med normform); kontroll: tilsyn, revisjon, forelegging; klage og overprøving: klage, omgjoring, overproving (med undertype anke), stadfesting; vedtak; sanksjon |
 | **M** medlemskap | aktør/klasse/område → klasse | medlem_av |
 | **O** områdesammensetning | område → område | bestar_av |
 | **A** ansvarsområde | aktør → område | har_ansvarsomrade, har_jurisdiksjon, har_sete_i, valgkrets_for |
-| **G** organtilhørighet | organ/enhet/rolle → rettssubjekt | har_organ, del_av, har_medlemmer |
+| **G** organtilhørighet | organ/enhet/rolle → rettssubjekt | har_organ, del_av, har_medlemmer (organets faste medlemmer), [Ny, #352] settes_med (sammensetningen i den enkelte sak — saksavhengig) |
 | **I** rolleinnehav | aktør → rolle | innehar (= dagens `Myndighetstildeling` når målet er en rolle) |
 | **T** klassenivå | klasse → rolle/organ-type | skal_ha (distributivt: hvert medlem av klassen har …) |
 
@@ -329,10 +329,43 @@ omgjøring, oppnevning, tilsyn med en aktør, avsetting, sanksjon, samtykke, ove
 **fvl-kategori** i typekonfigurasjonen (`relasjonstype_konfigurasjon.familie`/`fvl_kategori`, kilden er
 `Strukturkanter.Kompetansetyper`). `beslutning` står over alle familiene og brukes når teksten bare sier
 «beslutningsmyndighet» (sameloven § 2-1 fjerde ledd). Familiene: struktur (oppretting, avvikling, organisasjon), personell
-(oppnevning, utpeking, ansettelse, avsetting), styring (instruksjon, samordning, delegering, godkjenning, samtykke, pålegg),
+— [ENDRET, #352] heter nå oppnevning, se under — (oppnevning, utpeking, ansettelse, avsetting), styring (instruksjon, samordning, delegering, godkjenning, samtykke, pålegg),
 normgivning, kontroll (tilsyn, revisjon), klage og overprøving (klage, omgjøring, overprøving, stadfesting), vedtak og
 sanksjon. `forelegging` (beslutning 2) er ikke plassert i en familie av Johann og har familie NULL. Kantene kan filtreres
 på familie (`GET /api/strukturkanter?familie=…`), og VirksomhetDetalj grupperer kompetansen på familie.
+
+**[Bygget, issue #352 «rester etter #341», Johanns beslutninger 2026-10-08]**
+
+1. *Familien `personell` heter `oppnevning`.* Johann: «Oppnevningskompetanse … er den mest generelle kategorien. Eksempler:
+   Kommunestyret velger forliksrådsmedlemmer. Stortinget velger sivilombud. Et styre ansetter direktør. Kongen i statsråd
+   oppnevner et utvalg. Fellesnevner: En aktør gis myndighet til å bestemme hvem som skal inneha en rolle, et verv eller en
+   funksjon.» R `velger`, K `utpeking` og K `ansettelse` er derfor K `oppnevning` med motpart, og verbet er bevart som
+   **undertype** på kanten (`strukturkanter.undertype`: `valg` | `ansettelse` | `utpeking` | `oppnevning`). Verbene
+   («velger», «ansetter», «utpeker», «oppnevner») og ordstammene som avgjør undertypen ut fra et sitat står i
+   `kompetanseleksikon.json` («undertyper», versjon 2026-10-08.2). *Hvorfor et felt og ikke bare leksikonet:* leksikonet sier
+   hvilke ord som gir oppnevning, ikke hvilket ord en bestemt kant kom fra; uten feltet ville de 26 fasitutsagnene som var
+   utpeking/ansettelse mistet opplysningen. Undertypen er bygget som normformen (lukket liste per type, bare på K, NULL = ikke
+   angitt, CHECK `ck_strukturkanter_undertype`), men er ikke slått sammen med den. Ansettelse er fortsatt enkeltvedtak: fvl-
+   kategorien følger undertypen (`Strukturkanter.FvlKategoriFor`). `avsetting` er en egen type i familien oppnevning som
+   motsatsen — **hovedøktens tolkning, Johann bekrefter**. `utnevning` og `konstitusjon` står i fasitsitatene, men er ikke på
+   Johanns liste og er ikke lagt til (spørsmål i PR-en).
+2. *`ankeinstans_for` er K `overproving`* (familien klage og overprøving) med motpart og undertype `anke` (fra =
+   ankeinstansen, til = den hvis avgjørelser ankes). Undertypen `anke` er hovedøktens tolkning (Johann bekrefter): uten den
+   kan «hvem er ankeinstans for tingrettene?» ikke skilles fra annen overprøving.
+3. *`forelegging` har familien `kontroll`.* Leksikonregelen `vedtak-godkjennes-av` gir `godkjenningskompetanse` (styring),
+   ikke vedtak; id-en er beholdt som mønsterets stabile id.
+4. *R `administrativt_underordnet`, `radgir`, `oppretter` og `avvikler` blir stående:* de er struktur eller hendelser, ikke
+   myndighet. Kompetansen til å opprette eller avvikle er K `oppretting`/`avvikling` (familien struktur).
+5. *[Tillegg, Johann 2026-10-08, fasitkontrollen domstolloven u17] Sammensetningen i den enkelte sak er G `settes_med`*, ikke
+   `har_medlemmer` (organets faste medlemmer): «I andre saker enn etter første ledd første punktum settes Høyesterett med fem
+   dommere». Fra = rollen som deltar (dommer), til = organet; antallet står i `objekt` («fem dommere») og sakstypen i
+   avgrensningen. Typen er merket **saksavhengig** i typekonfigurasjonen (`relasjonstype_konfigurasjon.saksavhengig`).
+   *Antallet i `objekt`, ikke et tallfelt:* loven sier antallet i former et heltall ikke bærer («minst tre», «en dommer og en
+   varadommer», plenum = «alle … som ikke er ugilde»), fasiten har det alt i objektet, og ingen av S1–S9 regner med det ennå.
+   Bare u17 er konvertert; u16 og u18 har samme form og venter på Johann.
+
+Migrasjonen `OppnevningsfamilienOgRester` gjør dette i basen (teller før/etter, proveniens, `Down` snur nøyaktig), og
+`konvertering-352-oppnevning.py` i fasiten (1797 → 1797 utsagn).
 
 *Fvl-kategori — på typen, ikke på kanten:* `forskrift | enkeltvedtak | ikke_vedtak` (forvaltningsloven § 2: vedtak =
 forskrift + enkeltvedtak). Det er en egenskap ved hva slags kompetanse det er (alle vedtakskompetanser er enkeltvedtak), så
@@ -557,6 +590,16 @@ omgjøring 3, forelegging 2, sanksjon 2, samtykke 1, revisjon 1); 20 `delegerer_
 `har_delegert_til`; `delegerbar` satt på 104 kompetanser etter #335-regelen på sitatet (89 true, 15 false). Ikke konvertert
 (avventer Johann): velger 17, radgir 10, bistar 15, samarbeider_med 24, administrativt_underordnet 5, del_av 9,
 annet:ankeinstans_for 3, annet:forelegges_for 2, annet:intern_forelegging 2, oppretter 14, avvikler 2.
+
+**[ENDRET, issue #352, 2026-10-08] Restene konvertert** (`konvertering-352-oppnevning.py`, deterministisk, idempotent, samme
+skript på `ki-utdata/`): fasit 1 797 → 1 797 utsagn, relasjon 276 → 256, kompetanse 630 → 650. velger 17 → oppnevning/valg,
+utpekingskompetanse 21 → oppnevning/utpeking, ansettelseskompetanse 5 → oppnevning/ansettelse, annet:ankeinstans_for 3 →
+overprøving/anke, 5 vedtak → godkjenning (leksikonregelens to uttrykk), 21 eksisterende oppnevningsutsagn fikk undertypen
+fra sitatet (17 oppnevning, 2 ansettelse, 2 utpeking), domstolloven u17 har_medlemmer → settes_med. administrativt_underordnet,
+radgir, oppretter og avvikler står (beslutning 4). Fortsatt ikke avgjort: bistar 15, samarbeider_med 24, del_av 9,
+annet:forelegges_for 2, annet:intern_forelegging 2, annet:ankekompetanse 2 (en parts rett til å anke), annet:overordnet_domstol 2.
+KI-utdata 1 043 → 1 043. Rapportene: mønster 93,8/47,1 % → 93,9/47,2 %; KI 36,1/21,0 % → 36,6/21,3 %; union 58,0/54,8 % →
+58,3/55,1 %.
 
 **Leksikonet** (`src/RegelIde.Data/Strukturkonvertering/kompetanseleksikon.json`, versjonert, innebygd) er Johanns
 beslutning 3: det tilordner hvert lovuttrykk mønsterlaget kjenner til kategori, type, normform og familie; `Monsterkatalog`

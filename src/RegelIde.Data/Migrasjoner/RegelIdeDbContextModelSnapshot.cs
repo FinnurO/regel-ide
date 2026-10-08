@@ -2293,6 +2293,12 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("kode");
 
+                    b.Property<bool>("Saksavhengig")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("saksavhengig");
+
                     b.Property<int>("Sorteringsrekkefolge")
                         .HasColumnType("integer")
                         .HasColumnName("sorteringsrekkefolge");

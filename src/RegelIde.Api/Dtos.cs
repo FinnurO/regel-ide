@@ -535,10 +535,12 @@ public sealed record TjenesteavhengighetRequest(
 /// <param name="Familie">[Ny, issue #341] Kompetansefamilien (bare K) — se <see cref="RelasjonsTypeKonfigurasjonEntitet.Familie"/>.</param>
 /// <param name="FvlKategori">[Ny, issue #341] forskrift | enkeltvedtak | ikke_vedtak (bare K), NULL = ikke avklart.</param>
 public sealed record RelasjonsTypeKonfigurasjonDto(string Kategori, string Kode, string FraVisningsmal, string TilVisningsmal,
-    string? Familie = null, string? FvlKategori = null)
+    string? Familie = null, string? FvlKategori = null,
+    // [Ny, issue #352-tillegg] Gjelder typen den enkelte saken (G settes_med), ikke organet fast?
+    bool Saksavhengig = false)
 {
     public static RelasjonsTypeKonfigurasjonDto FraEntitet(RelasjonsTypeKonfigurasjonEntitet k) =>
-        new(k.Kategori, k.Kode, k.FraVisningsmal, k.TilVisningsmal, k.Familie, k.FvlKategori);
+        new(k.Kategori, k.Kode, k.FraVisningsmal, k.TilVisningsmal, k.Familie, k.FvlKategori, k.Saksavhengig);
 }
 
 // [FJERNET, issue #311] VirksomhetRelasjonDto, VirksomhetRelasjonHjemletDto og VirksomhetRelasjonRequest —

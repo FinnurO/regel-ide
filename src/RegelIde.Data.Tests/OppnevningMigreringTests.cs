@@ -129,6 +129,9 @@ public class OppnevningMigreringTests
             Assert.Equal("oppnevning", (await etter.RelasjonsTypeKonfigurasjoner.SingleAsync(t => t.Kategori == "K" && t.Kode == "avsetting")).Familie);
             Assert.Equal("kontroll", (await etter.RelasjonsTypeKonfigurasjoner.SingleAsync(t => t.Kategori == "K" && t.Kode == "forelegging")).Familie);
             Assert.True(await etter.RelasjonsTypeKonfigurasjoner.AnyAsync(t => t.Kategori == "R" && t.Kode == "radgir"));
+            // [Ny, #352-tillegg] Sammensetningen i den enkelte sak: G settes_med, merket saksavhengig — og bare den.
+            Assert.True((await etter.RelasjonsTypeKonfigurasjoner.SingleAsync(t => t.Kategori == "G" && t.Kode == Strukturkanter.SettesMed)).Saksavhengig);
+            Assert.Equal(1, await etter.RelasjonsTypeKonfigurasjoner.CountAsync(t => t.Saksavhengig));
         }
 
         // ---- Down: tilbake til #341 ----
@@ -145,6 +148,7 @@ public class OppnevningMigreringTests
             Assert.True(await tilbake.RelasjonsTypeKonfigurasjoner.AnyAsync(t => t.Kategori == "R" && t.Kode == "velger"));
             Assert.Equal("personell", (await tilbake.RelasjonsTypeKonfigurasjoner.SingleAsync(t => t.Kategori == "K" && t.Kode == "ansettelse")).Familie);
             Assert.Null((await tilbake.RelasjonsTypeKonfigurasjoner.SingleAsync(t => t.Kategori == "K" && t.Kode == "forelegging")).Familie);
+            Assert.False(await tilbake.RelasjonsTypeKonfigurasjoner.AnyAsync(t => t.Kode == Strukturkanter.SettesMed));
         }
     }
 }

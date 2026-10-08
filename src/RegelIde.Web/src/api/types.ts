@@ -1477,6 +1477,8 @@ export interface RelasjonsTypeKonfigurasjonDto {
   familie?: Kompetansefamilie | null;
   /** [Ny, issue #341] forskrift | enkeltvedtak | ikke_vedtak (bare K), null = ikke avklart. */
   fvlKategori?: FvlKategori | null;
+  /** [Ny, issue #352-tillegg] Gjelder typen den enkelte saken (G settes_med), ikke organet fast? */
+  saksavhengig?: boolean;
 }
 
 /** Ett cross-tenant søketreff (GET /api/tjenester/sok-tverr-tenant) — kun publiserte tjenester fra ALLE virksomheter. */

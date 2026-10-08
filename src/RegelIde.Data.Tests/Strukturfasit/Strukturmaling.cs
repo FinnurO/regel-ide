@@ -101,7 +101,7 @@ internal static class Strukturmaling
         ("sammensetning_omrade", "del_av") => "O",
         (_, "har_ansvarsomrade" or "har_jurisdiksjon" or "har_sete_i") => "A",
         (_, "skal_finnes") => "T",
-        (_, "har_medlemmer" or "har_organ") => "G",
+        (_, "har_medlemmer" or "har_organ" or "settes_med") => "G", // [ENDRET, #352] + settes_med
         _ => "annet",
     };
 

@@ -1040,3 +1040,7 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   («Relasjon — …» / «Kompetanse (familie) — … overfor motparten»). Normform, grunnlag og «Kan delegeres?» starter på
   «Ikke angitt» (CLAUDE.md §8). Tildelingsskjemaene skiller **hjemmelsstedet** («Tildelt i paragraf», påkrevd) fra
   **avgrensningen** («Gjelder for …», valgfri).
+- [Ny, #352] **Undertypen står i teksten**, som normformen: «har oppnevningskompetanse (valg) overfor …». Skjemaet tilbyr
+  «Undertype» (Valg/Ansettelse/Utpeking/Oppnevning med verbet i parentes, Anke for overprøving) bare når typen har
+  undertyper, med «Ikke angitt» som utgangspunkt. Familien heter «Oppnevning» (var «Personell»). En saksavhengig type (G
+  «settes i den enkelte sak med») har antallet fra objektet i parentes i teksten — ingen egen tagg.

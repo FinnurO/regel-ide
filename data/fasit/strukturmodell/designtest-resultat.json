@@ -8394,7 +8394,7 @@
  {
   "kilde": "domstolloven",
   "kategori": "organsammensetning",
-  "type": "har_medlemmer",
+  "type": "settes_med",
   "dagens": "nei",
   "revidert": "ja",
   "element": "G"

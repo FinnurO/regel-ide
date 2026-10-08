@@ -261,7 +261,8 @@ public sealed class KiStrukturkonverterer(
                 Kan du ikke avgjøre typen for et kompetanseuttrykk, bruk "{{Strukturkontrakt.Ukjent}}" — ikke gjett;
               medlemskap = aktør/klasse→klasse; sammensetning_omrade = område→område; ansvarsomrade = aktør→område;
               konstituerende = oppretter/avvikler/skal_finnes («Hver kommune skal ha …»);
-              organsammensetning = har_medlemmer (antall, hvem oppnevner) / har_organ (rettssubjekt→organ).
+              organsammensetning = har_medlemmer (organets FASTE medlemmer: antall, hvem oppnevner) / har_organ (rettssubjekt→organ)
+                / settes_med (sammensetningen i den ENKELTE SAK: antall i "objekt", sakstypen i "avgrensning").
             - "fra", "til": aktør-id fra "aktorer" i DETTE svaret, eller null når teksten ikke avgjør aktøren
             - "objekt": for kompetanse: bestemmelsen/sakstypen/regelverket (f.eks. "vedtak etter § 3-1")
             - "normform": bare på normgivningskompetanse — en av {{string.Join(", ", Strukturkontrakt.Normformer)}}, når teksten sier det

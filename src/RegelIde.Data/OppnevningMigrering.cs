@@ -16,6 +16,9 @@ namespace RegelIde.Data;
 /// ankeinstansen, til = den hvis avgjørelser ankes — samme retning som <c>klageinstans_for</c> → <c>klage</c> i #341).
 /// Undertypen <c>anke</c> er hovedøktens tolkning (Johann bekrefter i PR-en).</item>
 /// <item><b>Forelegging</b> (beslutning 3) får familien <c>kontroll</c>.</item>
+/// <item><b>[Ny, #352-tillegg] Sammensetningen i den enkelte sak</b> (Johann 2026-10-08, fasitkontrollen domstolloven
+/// u17): G-typen <c>settes_med</c> legges inn med <c>saksavhengig = true</c> (den nye kolonnen; alle andre typer får
+/// false). Ingen eksisterende kant konverteres — lokalt finnes ingen <c>har_medlemmer</c>-kant med denne betydningen.</item>
 /// <item><b>Typekonfigurasjonen</b>: de flyttede kodene (R <c>velger</c>, R <c>ankeinstans_for</c>, K <c>utpeking</c>,
 /// K <c>ansettelse</c>) slettes, så ingen skrivevei kan bruke dem.</item>
 /// </list>
@@ -93,6 +96,12 @@ public static class OppnevningMigrering
             VALUES (gen_random_uuid(), 'K', 'oppnevning', 'har oppnevningskompetanse {0}', '{0} har oppnevningskompetanse overfor denne', 18, true, 'oppnevning', NULL),
                    (gen_random_uuid(), 'K', 'overproving', 'har overprøvingskompetanse {0}', '{0} har overprøvingskompetanse overfor denne', 33, true, 'klage_overproving', NULL)
             ON CONFLICT (kategori, kode) DO NOTHING;
+            -- [Ny, #352-tillegg] Sammensetningen i den enkelte sak — saksavhengig. Finnes koden alt (seedet ved oppstart før
+            -- migrasjonen), merkes den.
+            INSERT INTO relasjonstype_konfigurasjon ("Id", kategori, kode, fra_visningsmal, til_visningsmal, sorteringsrekkefolge, aktiv, familie, fvl_kategori, saksavhengig)
+            SELECT gen_random_uuid(), 'G', 'settes_med', 'deltar i den enkelte sak i {0}', 'settes i den enkelte sak med {0}',
+                   coalesce((SELECT max(sorteringsrekkefolge) FROM relasjonstype_konfigurasjon WHERE kategori = 'G'), 0) + 1, true, NULL, NULL, true
+            ON CONFLICT (kategori, kode) DO UPDATE SET saksavhengig = true;
 
             -- ---- Proveniens FØR endringen: de gamle verdiene (Down leser dem) ----
             INSERT INTO proveniens ("Id", entitet_type, entitet_id, endret_av, dato, handling, kilde_referanser)
@@ -167,6 +176,10 @@ public static class OppnevningMigrering
     public const string DownSql = """
         DO $do$
         BEGIN
+            IF EXISTS (SELECT 1 FROM strukturkanter k WHERE k.kategori = 'G' AND k.typekode = 'settes_med') THEN
+                RAISE EXCEPTION 'Issue #352 Down: det finnes G settes_med-kanter, som ikke kan uttrykkes før #352. Slett eller konverter dem for hånd først.';
+            END IF;
+            DELETE FROM relasjonstype_konfigurasjon WHERE kategori = 'G' AND kode = 'settes_med';
             IF EXISTS (SELECT 1 FROM strukturkanter k WHERE k.undertype IS NOT NULL
                        AND NOT EXISTS (SELECT 1 FROM proveniens p WHERE p.entitet_id = k."Id" AND p.endret_av = 'migrasjon-352'
                                        AND p.kilde_referanser->>'issue' = '352')) THEN

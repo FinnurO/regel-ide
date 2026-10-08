@@ -1192,6 +1192,15 @@ public sealed class RelasjonsTypeKonfigurasjonEntitet
     /// <see cref="Strukturkanter.FvlKategoriFor"/> for normgivning, der normformen avgjør. NULL = ikke avklart.
     /// </summary>
     public string? FvlKategori { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #352-tillegg, Johanns beslutning 2026-10-08 (fasitkontrollen, domstolloven u17)] Gjelder kanten den
+    /// ENKELTE SAKEN — hvordan organet settes i en sakstype — og ikke organet fast? Første bruk: G <c>settes_med</c>
+    /// («I andre saker enn etter første ledd første punktum settes Høyesterett med fem dommere»), som ikke er organets faste
+    /// medlemmer (<c>har_medlemmer</c>). En egenskap ved TYPEN (som familie og fvl-kategori), ikke ved kanten. false =
+    /// organets faste struktur.
+    /// </summary>
+    public bool Saksavhengig { get; set; }
 }
 
 /// <summary>

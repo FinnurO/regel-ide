@@ -33,6 +33,12 @@ Reglene (FORMAT.md og docs/33 §4.3 er oppdatert tilsvarende):
   Delegerbar (#335-regelen fra konvertering-341-kompetanse.py, kopiert uendret): på rader som BLIR kompetanse her
        (velger, ankeinstans_for), så de behandles som alle andre kompetanser.
   Beslutning 4 — administrativt_underordnet, radgir, oppretter og avvikler blir stående (struktur/hendelse). Ingen endring.
+  Tillegg (Johann 2026-10-08, fasitkontrollen, domstolloven u17) — «I andre saker enn etter første ledd første punktum
+       settes Høyesterett med fem dommere» er SAMMENSETNINGEN I DEN ENKELTE SAK, ikke organets faste medlemmer:
+       organsammensetning/har_medlemmer → organsammensetning/settes_med (saksavhengig). Antallet står fortsatt i «objekt»;
+       «avgrensning» blir sakstypen, lest av nodens tekst («I <sakstype> settes …»); den gamle avgrensningen («Høyesterett»)
+       legges i kommentaren, så den ikke går tapt. Bare u17 er avgjort av Johann; andre har_medlemmer-utsagn med samme
+       form («settes/satt … med N dommere») listes som kandidater og konverteres IKKE.
 
 Fortsatt ikke avgjort (listes): bistar, samarbeider_med og del_av under relasjon, annet:forelegges_for og
 annet:intern_forelegging (plikt til å forelegge — ikke det samme som foreleggingskompetanse), annet:ankekompetanse (en PARTS
@@ -71,6 +77,15 @@ UAVGJORT = {("relasjon", t) for t in ["bistar", "samarbeider_med", "del_av", "an
 
 UNDERTYPER = json.load(open(LEKSIKON, encoding="utf-8"))["undertyper"]
 
+# Tillegget: (kilde, utsagn-id, sitat) — sitatet er med, så en omnummerert fasit ikke treffer feil rad.
+SETTES_MED = {("domstolloven", "u17", "settes Høyesterett med fem dommere")}
+SETTES_MED_FORM = re.compile(r"\b(?:settes|satt)\b[^.;]*\bmed\s+\S+\s+dommere\b")
+
+
+def nodetekster(kilde):
+    sti = os.path.join(HER, "noder", kilde + ".json")
+    return {n["eid"]: n.get("tekst") or "" for n in json.load(open(sti, encoding="utf-8"))} if os.path.exists(sti) else {}
+
 
 def undertype_fra_sitat(fasittype, sitat):
     treff = {u["undertype"] for u in UNDERTYPER if u["type"] == fasittype
@@ -91,7 +106,7 @@ def delegerbar(u, kongen, former):
     return verdi
 
 
-def konverter(d):
+def konverter(d, kilde, tekster):
     endret = collections.Counter()
     kandidater = []
     kongen = {a["id"] for a in d["aktorer"] if a["tekstform"].lower() == "kongen" or a["tekstform"].lower().startswith("kongen i statsr")}
@@ -117,6 +132,15 @@ def konverter(d):
             if undertype is not None:
                 u["undertype"] = undertype
                 endret[f"undertype fra sitatet: {u['type']}/{undertype}"] += 1
+        elif gammel == ("organsammensetning", "har_medlemmer"):
+            if (kilde, u["id"], u["sitat"]) in SETTES_MED:
+                m = re.search(r"\bI (.+?)\s+" + re.escape(u["sitat"]), tekster.get(u["eid"], ""))
+                assert m, f"fant ikke sakstypen foran sitatet i {kilde} {u['id']}"
+                if u.get("avgrensning"):
+                    u["kommentar"] = ((u.get("kommentar") or "") + f" [#352] Avgrensningen var «{u['avgrensning']}».").strip()
+                u["type"], u["avgrensning"] = "settes_med", m.group(1)
+            elif SETTES_MED_FORM.search(u["sitat"]):
+                kandidater.append(u)
         if (u["kategori"], u["type"]) != gammel:
             ny = f"{u['kategori']}/{u['type']}" + (f" ({u['undertype']})" if u.get("undertype") else "")
             endret[f"{gammel[0]}/{gammel[1]} → {ny}"] += 1
@@ -137,7 +161,7 @@ for kilde in KILDER:
     d = json.loads(raw)
     antall_for = len(d["utsagn"])
     totalt_for.update(tell(d))
-    endret, kandidater = konverter(d)
+    endret, kandidater = konverter(d, kilde, nodetekster(kilde))
     assert len(d["utsagn"]) == antall_for, "ingen rader skal forsvinne"
     totalt_etter.update(tell(d))
     alle_endringer.update(endret)
@@ -156,12 +180,14 @@ print(f"Etter: {sum(totalt_etter.values())} utsagn, relasjon {kat(totalt_etter, 
 print("\nPer type (før → etter), de som er berørt:")
 for (k, t) in sorted(set(totalt_for) | set(totalt_etter)):
     if t in {"velger", "utpekingskompetanse", "ansettelseskompetanse", "oppnevningskompetanse", "avsettingskompetanse",
-             "annet:ankeinstans_for", "overprovingskompetanse", "vedtakskompetanse", "godkjenningskompetanse", "foreleggingskompetanse"}:
+             "annet:ankeinstans_for", "overprovingskompetanse", "vedtakskompetanse", "godkjenningskompetanse", "foreleggingskompetanse",
+             "har_medlemmer", "settes_med"}:
         print(f"  {k}/{t}: {totalt_for[(k, t)]} → {totalt_etter[(k, t)]}")
 print("\nIkke avgjort (står uendret):")
 for (k, t), v in sorted(totalt_etter.items()):
     if (k, t) in UAVGJORT:
         print(f"  {v:4}  {k}/{t}")
-print(f"\nGodkjenningslignende vedtakskompetanse som IKKE er regelens uttrykk (kandidater for #309, ikke konvertert): {len(alle_kandidater)}")
+print(f"\nKandidater som IKKE er konvertert (godkjenningslignende vedtak utenfor regelens uttrykk, og har_medlemmer med "
+      f"«settes/satt … med N dommere» utenom u17) — for Johann/#309: {len(alle_kandidater)}")
 for kilde, u in alle_kandidater:
-    print(f"  {kilde} {u['id']}: {u['sitat'][:110]}")
+    print(f"  {kilde} {u['id']} ({u['type']}): {u['sitat'][:110]}")

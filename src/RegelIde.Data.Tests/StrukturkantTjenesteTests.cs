@@ -877,6 +877,30 @@ public class StrukturkantTjenesteTests
         await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
     }
 
+    /// <summary>[Ny, issue #352-tillegg, Johann 2026-10-08 (domstolloven u17)] «Hvordan settes Høyesterett i andre saker?»:
+    /// G settes_med fra rollen som deltar til organet, antallet i objektet og sakstypen i avgrensningen — typen er merket
+    /// saksavhengig, og antallet står i teksten fra begge sider.</summary>
+    [Fact]
+    public async Task Settes_med_er_saksavhengig_sammensetning_med_antall_og_sakstype()
+    {
+        await using var db = _fixture.NyDbContext();
+        var o = await NyttOppsettAsync(db);
+        var hoyesterett = await NyVirksomhetAsync(db, "Høyesterett");
+        var dommer = await NyttBegrepAsync(db, Nodetyper.Rolle, o.LovId, "dommer-i-hoyesterett");
+        var tjeneste = new StrukturkantTjeneste(db);
+
+        await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Organtilhorighet, Strukturkanter.SettesMed,
+            Kantnode.Begrep(dommer), Kantnode.Virksomhet(hoyesterett), HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid,
+            Objekt: "fem dommere", AvgrensningTekst: "andre saker enn etter første ledd første punktum"), "Kari Jurist");
+
+        Assert.True((await db.RelasjonsTypeKonfigurasjoner.SingleAsync(t => t.Kategori == "G" && t.Kode == Strukturkanter.SettesMed)).Saksavhengig);
+        Assert.False((await db.RelasjonsTypeKonfigurasjoner.SingleAsync(t => t.Kategori == "G" && t.Kode == "har_medlemmer")).Saksavhengig);
+        var v = Assert.Single(await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(hoyesterett)));
+        Assert.StartsWith("settes i den enkelte sak med ", v.Visningstekst);
+        Assert.EndsWith("(fem dommere)", v.Visningstekst);
+        Assert.Equal("andre saker enn etter første ledd første punktum", v.AvgrensningTekst);
+    }
+
     /// <summary>[Ny, issue #341, Johanns beslutning P2] Selvregulering er normgivning der motparten er innehaveren selv — den
     /// eneste selvkanten som er lov, i tjenesten og i databasen.</summary>
     [Fact]

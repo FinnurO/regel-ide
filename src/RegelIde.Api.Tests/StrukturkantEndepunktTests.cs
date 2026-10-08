@@ -104,6 +104,9 @@ public class StrukturkantEndepunktTests
         Assert.Contains(r!, t => t.Kode == Strukturkanter.HarDelegertTil);
         var g = await _client.GetFromJsonAsync<List<RelasjonsTypeKonfigurasjonDto>>("/api/konfigurasjon/relasjonstyper?kategori=G", JsonInnstillinger);
         Assert.Contains(g!, t => t.Kode == "del_av"); // der enhet_i havnet
+        // [Ny, issue #352-tillegg] Sammensetningen i den enkelte sak er saksavhengig; organets faste medlemmer er det ikke.
+        Assert.True(Assert.Single(g!, t => t.Kode == Strukturkanter.SettesMed).Saksavhengig);
+        Assert.False(Assert.Single(g!, t => t.Kode == "har_medlemmer").Saksavhengig);
 
         var k = await _client.GetFromJsonAsync<List<RelasjonsTypeKonfigurasjonDto>>("/api/konfigurasjon/relasjonstyper?kategori=K", JsonInnstillinger);
         // [ENDRET, issue #341] forskrift → normgivning (normform forskrift); hver K-type har familie og ev. fvl-kategori.

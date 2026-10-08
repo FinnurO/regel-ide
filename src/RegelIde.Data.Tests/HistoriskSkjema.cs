@@ -65,7 +65,8 @@ internal static class HistoriskSkjema
             + "ALTER TABLE relasjonstype_konfigurasjon ADD COLUMN IF NOT EXISTS familie text; "
             + "ALTER TABLE relasjonstype_konfigurasjon ADD COLUMN IF NOT EXISTS fvl_kategori text;");
         // [Ny, issue #352] strukturkanter.undertype (OppnevningsfamilienOgRester).
-        await db.Database.ExecuteSqlRawAsync("ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS undertype text;");
+        await db.Database.ExecuteSqlRawAsync("ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS undertype text; "
+            + "ALTER TABLE relasjonstype_konfigurasjon ADD COLUMN IF NOT EXISTS saksavhengig boolean NOT NULL DEFAULT false;");
     }
 
     /// <param name="leggTilSenereKolonner">[Ny, #341] Etter en migrering til et HISTORISK punkt legges senere kolonner til

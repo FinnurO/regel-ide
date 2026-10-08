@@ -751,6 +751,9 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
                 var fraTekst = string.Format(type?.FraVisningsmal ?? "(ukjent type) {0}", motpart);
                 tekst = retning == "fra" ? fraTekst : $"{fra.Navn} {fraTekst}";
             }
+            // [Ny, issue #352-tillegg] En saksavhengig type (G settes_med) har antallet i objektet — det er selve
+            // opplysningen («settes i den enkelte sak med dommere (fem dommere)»), så det står i teksten fra begge sider.
+            if (type?.Saksavhengig == true && k.Objekt is not null) tekst += $" ({k.Objekt})";
             return new StrukturkantVisning(
                 k.Id, k.Kategori, k.Typekode, retning, tekst, fra, til, k.Objekt, LesParagrafspenn(k), k.AvgrensningTekst,
                 k.Polaritet, k.HjemmelRettskildeId,

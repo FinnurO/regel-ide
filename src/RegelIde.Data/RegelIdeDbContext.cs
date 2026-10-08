@@ -1027,6 +1027,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // [Ny, issue #311] Kategori — identiteten er (kategori, kode), se RelasjonsTypeKonfigurasjonEntitet.
             e.Property(x => x.Kategori).HasColumnName("kategori").HasDefaultValue("R");
             e.Property(x => x.Kode).HasColumnName("kode");
+            // [Ny, issue #352-tillegg] Saksavhengig type (G settes_med) — se RelasjonsTypeKonfigurasjonEntitet.Saksavhengig.
+            e.Property(x => x.Saksavhengig).HasColumnName("saksavhengig").HasDefaultValue(false);
             e.Property(x => x.FraVisningsmal).HasColumnName("fra_visningsmal");
             e.Property(x => x.TilVisningsmal).HasColumnName("til_visningsmal");
             e.Property(x => x.Sorteringsrekkefolge).HasColumnName("sorteringsrekkefolge");

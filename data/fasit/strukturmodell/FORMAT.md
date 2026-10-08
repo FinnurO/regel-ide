@@ -126,6 +126,9 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
 - `ankeinstans_for` er `overprovingskompetanse` med motpart og `undertype` `anke` (familien klage og overprøving).
 - `foreleggingskompetanse` er i familien kontroll. «… skal/må godkjennes av X» / «Godkjenning … gis av X» er
   `godkjenningskompetanse` (styring), ikke `vedtakskompetanse`.
+- [Tillegg, Johann 2026-10-08, fasitkontrollen domstolloven u17] Sammensetningen i den enkelte sak er
+  `organsammensetning`/`settes_med` (saksavhengig), ikke `har_medlemmer` (organets faste medlemmer): antallet i `objekt`,
+  sakstypen i `avgrensning`. Bare u17 er konvertert; u16 og u18 har samme form og venter på Johann.
 - Konverteringen er deterministisk: `konvertering-352-oppnevning.py` (fasit 1797 → 1797 utsagn, KI-utdata 1043 → 1043).
 
 Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
@@ -144,7 +147,9 @@ Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
 - sammensetning_omrade (område → område): `bestar_av`, `del_av`.
 - ansvarsomrade (aktør → område): `har_ansvarsomrade`, `har_jurisdiksjon`, `har_sete_i`.
 - konstituerende: `oppretter`, `avvikler`, `skal_finnes` («Hver kommune skal ha …»).
-- organsammensetning: `har_medlemmer` (antall, hvem oppnevner), `har_organ` (rettssubjekt → organ, f.eks. «kommunestyret»).
+- organsammensetning: `har_medlemmer` (organets FASTE medlemmer: antall, hvem oppnevner), `har_organ` (rettssubjekt →
+  organ, f.eks. «kommunestyret»), `settes_med` ([Ny, #352] sammensetningen i den ENKELTE SAK, saksavhengig: «I andre saker
+  enn etter første ledd første punktum settes Høyesterett med fem dommere» — antallet i `objekt`, sakstypen i `avgrensning`).
 
 ## Lesing
 

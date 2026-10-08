@@ -10,6 +10,8 @@ namespace RegelIde.Data.Migrasjoner
     /// <c>oppnevning</c> i CHECK-en, og datadelen i <see cref="OppnevningMigrering"/>: R velger, K utpeking og K ansettelse
     /// blir K oppnevning med undertype; R ankeinstans_for blir K overproving med undertype anke; forelegging får familien
     /// kontroll. Teller før/etter og avbryter ved avvik.
+    /// [Ny, #352-tillegg, Johanns beslutning 2026-10-08] <c>saksavhengig</c> på typekonfigurasjonen og G-typen
+    /// <c>settes_med</c> (sammensetningen i den enkelte sak, se <see cref="Strukturkanter.SaksavhengigeTyper"/>).
     /// </summary>
     public partial class OppnevningsfamilienOgRester : Migration
     {
@@ -26,6 +28,13 @@ namespace RegelIde.Data.Migrasjoner
                 table: "strukturkanter",
                 type: "text",
                 nullable: true);
+
+            migrationBuilder.AddColumn<bool>(
+                name: "saksavhengig",
+                table: "relasjonstype_konfigurasjon",
+                type: "boolean",
+                nullable: false,
+                defaultValue: false);
 
             migrationBuilder.AddCheckConstraint(
                 name: "ck_strukturkanter_undertype",
@@ -63,6 +72,10 @@ namespace RegelIde.Data.Migrasjoner
             migrationBuilder.DropColumn(
                 name: "undertype",
                 table: "strukturkanter");
+
+            migrationBuilder.DropColumn(
+                name: "saksavhengig",
+                table: "relasjonstype_konfigurasjon");
         }
     }
 }

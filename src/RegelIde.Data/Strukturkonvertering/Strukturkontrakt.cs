@@ -46,7 +46,8 @@ public static partial class Strukturkontrakt
             ["sammensetning_omrade"] = ["bestar_av", "del_av"],
             ["ansvarsomrade"] = ["har_ansvarsomrade", "har_jurisdiksjon", "har_sete_i"],
             ["konstituerende"] = ["oppretter", "avvikler", "skal_finnes"],
-            ["organsammensetning"] = ["har_medlemmer", "har_organ"],
+            // [ENDRET, issue #352-tillegg, Johann 2026-10-08] settes_med = sammensetningen i den enkelte sak (saksavhengig).
+            ["organsammensetning"] = ["har_medlemmer", "har_organ", Strukturkanter.SettesMed],
         };
 
     /// <summary>[Ny, issue #341] Kompetansetypen når uttrykket ikke kan typebestemmes.</summary>

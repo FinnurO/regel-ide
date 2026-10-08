@@ -8982,16 +8982,16 @@
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§5/ledd-2",
    "sitat": "settes Høyesterett med fem dommere",
    "kategori": "organsammensetning",
-   "type": "har_medlemmer",
+   "type": "settes_med",
    "fra": "avd",
    "til": "dommer",
    "objekt": "5 dommere (avdeling)",
    "polaritet": "positiv",
-   "avgrensning": "Høyesterett",
+   "avgrensning": "andre saker enn etter første ledd første punktum",
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "[#352] Avgrensningen var «Høyesterett»."
   },
   {
    "id": "u18",

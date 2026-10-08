@@ -49,6 +49,7 @@ STD = {
     "oppretter": ("nei", "ja", "R"), "avvikler": ("delvis", "ja", "R"), "skal_finnes": ("nei", "ja", "T"),
     # organsammensetning
     "har_medlemmer": ("nei", "ja", "G"), "har_organ": ("nei", "ja", "G"),
+    "settes_med": ("nei", "ja", "G"),  # [Ny, #352-tillegg] sammensetningen i den enkelte sak (saksavhengig G)
 }
 
 # --- annet:* — nøkkelordregler (første treff vinner). Hver regel er begrunnet i designnotatet §5. ----

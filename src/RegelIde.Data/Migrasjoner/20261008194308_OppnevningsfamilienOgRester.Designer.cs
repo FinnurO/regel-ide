@@ -13,7 +13,7 @@ using RegelIde.Data;
 namespace RegelIde.Data.Migrasjoner
 {
     [DbContext(typeof(RegelIdeDbContext))]
-    [Migration("20261008191514_OppnevningsfamilienOgRester")]
+    [Migration("20261008194308_OppnevningsfamilienOgRester")]
     partial class OppnevningsfamilienOgRester
     {
         /// <inheritdoc />
@@ -2295,6 +2295,12 @@ namespace RegelIde.Data.Migrasjoner
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("kode");
+
+                    b.Property<bool>("Saksavhengig")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("boolean")
+                        .HasDefaultValue(false)
+                        .HasColumnName("saksavhengig");
 
                     b.Property<int>("Sorteringsrekkefolge")
                         .HasColumnType("integer")

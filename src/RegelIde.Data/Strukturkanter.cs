@@ -421,6 +421,12 @@ public static class Strukturkanter
         (Organtilhorighet, "har_organ", "er organ for {0}", "har organet {0}"),
         (Organtilhorighet, "del_av", "er del av {0}", "har som del {0}"),
         (Organtilhorighet, "har_medlemmer", "har medlemmer fra {0}", "har medlemmer i {0}"),
+        // [Ny, issue #352-tillegg, Johanns beslutning 2026-10-08, fasitkontrollen domstolloven u17] SAMMENSETNINGEN I DEN
+        // ENKELTE SAK: hvor mange og hvilke dommere (eller andre) som deltar i en sakstype — ikke organets faste medlemmer
+        // (har_medlemmer). Fra = rollen som deltar (G-noderegelen: «organ, enhet eller rolle»), til = organet som settes;
+        // antallet står i Objekt («fem dommere»), sakstypen i avgrensningen («andre saker enn etter første ledd første
+        // punktum»). Typen er merket saksavhengig (SaksavhengigeTyper), og visningsteksten tar med objektet.
+        (Organtilhorighet, SettesMed, "deltar i den enkelte sak i {0}", "settes i den enkelte sak med {0}"),
 
         // ---- I rolleinnehav (aktør → rolle) ----
         (Rolleinnehav, "innehar", "innehar rollen {0}", "innehas av {0}"),
@@ -428,6 +434,22 @@ public static class Strukturkanter
         // ---- T klassenivå (klasse → rolle/organtype; distributivt) ----
         (Klasseniva, "skal_ha", "skal (hvert medlem) ha {0}", "skal finnes hos hvert medlem av {0}"),
     ];
+
+    /// <summary>[Ny, issue #352-tillegg] G-typen for sammensetningen i den enkelte sak.</summary>
+    public const string SettesMed = "settes_med";
+
+    /// <summary>
+    /// [Ny, issue #352-tillegg, Johanns beslutning 2026-10-08] Typene som gjelder den ENKELTE SAKEN, ikke organet fast —
+    /// seedes som <see cref="RelasjonsTypeKonfigurasjonEntitet.Saksavhengig"/> = true.
+    /// <para>
+    /// <b>Antallet i <c>Objekt</c>, ikke i et eget tallfelt (valgt og begrunnet, #352):</b> lovteksten sier antallet i
+    /// former et heltall ikke bærer uten tap — «fem dommere», «minst tre», «en dommer og en varadommer», «alle … som ikke er
+    /// ugilde» (plenum) — og fasiten har alt antallet i objektet på de tilsvarende <c>har_medlemmer</c>-utsagnene («3
+    /// dommere», «11 dommere»). Ingen spørsmål i docs/32 §3 krever å regne med antallet ennå; et tallfelt kan legges til den
+    /// dagen et gjør det, uten å miste noe, fordi teksten står i objektet.
+    /// </para>
+    /// </summary>
+    public static readonly IReadOnlyList<(string Kategori, string Kode)> SaksavhengigeTyper = [(Organtilhorighet, SettesMed)];
 
     /// <summary>Typekoden migrerte myndighetstildelinger og gruppemedlemskap får (issue #311).</summary>
     public const string MedlemAv = "medlem_av";
@@ -455,6 +477,7 @@ public static class Strukturkanter
             {
                 Id = Guid.NewGuid(), Kategori = kategori, Kode = kode, FraVisningsmal = fraMal, TilVisningsmal = tilMal,
                 Sorteringsrekkefolge = rekkefolge, Familie = kt.Familie, FvlKategori = kt.FvlKategori,
+                Saksavhengig = SaksavhengigeTyper.Contains((kategori, kode)), // [Ny, #352-tillegg]
             });
         }
         if (nye.Count == 0) return;
