@@ -16,6 +16,8 @@ export const KILDETYPE_VISNING: Record<KildeUtenforKorpusType, string> = {
   styrevedtak: 'Styrevedtak',
   forarbeider: 'Forarbeider (prop., innst., NOU)',
   nettside_annet: 'Nettside/annet',
+  // [Ny, issue #312] Kartverket/Enhetsregisteret/SSR — autoritativt register, ikke rettskilde.
+  register: 'Register',
 };
 
 export const DOKUMENTASJON_VISNING: Record<KildeUtenforKorpusDokumentasjon, string> = {

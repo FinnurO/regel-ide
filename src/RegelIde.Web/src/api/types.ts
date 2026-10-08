@@ -432,7 +432,10 @@ export type Strukturkantkategori = 'R' | 'K' | 'M' | 'O' | 'A' | 'G' | 'I' | 'T'
  * `Strukturkanter.KildeUtenforKorpusTyper`. `nettside_annet` = bare dokumentert på en nettside e.l. —
  * arbeidslista over struktur uten forankring i en rettskilde. */
 export type KildeUtenforKorpusType =
-  'kgl_res' | 'instruks' | 'tildelingsbrev' | 'vedtekter' | 'styrevedtak' | 'forarbeider' | 'nettside_annet';
+  'kgl_res' | 'instruks' | 'tildelingsbrev' | 'vedtekter' | 'styrevedtak' | 'forarbeider' | 'nettside_annet'
+  // [Ny, issue #312] Et autoritativt register som ikke er en rettskilde (Kartverket, Enhetsregisteret, SSR) —
+  // se Strukturkanter.Register.
+  | 'register';
 /** [Ny, Johanns beslutning 2026-10-07] Lenken/teksten er selve kilden (`primaer`) eller en tekst som refererer
  * den (`sekundaer`, f.eks. en artikkel som omtaler en kgl.res. — og som kan ta feil om den, se #311). */
 export type KildeUtenforKorpusDokumentasjon = 'primaer' | 'sekundaer';
@@ -1494,6 +1497,36 @@ export interface BegrepDto {
   versjon: number;
   /** Kun meningsfull når begrepskategori === 'virksomhet'. Se `Navneformgrunn`. */
   navneformgrunn: Navneformgrunn | null;
+  /** [Ny, issue #312] Kun for registrerte områder (begrepskategori 'omrade'): fylke, kommune, tettsted, lagsogn,
+   * lagdomme, helseregion, annet. null for alt annet, også områder registrert for hånd før #312. */
+  omradetype?: Omradetype | null;
+  /** [Ny, issue #312] Kommune-/fylkesnummer (Kartverket) eller SSR-stedsnummer. Attributt, ikke identitet alene. */
+  omradekode?: string | null;
+}
+
+/** [Ny, issue #312] Speilet av `Omradetyper.Alle` (CHECK ck_begreper_omradetype). */
+export type Omradetype = 'fylke' | 'kommune' | 'tettsted' | 'lagsogn' | 'lagdomme' | 'helseregion' | 'annet';
+
+export interface OmradeVisningDto {
+  id: string;
+  navn: string;
+  omradetype: Omradetype | null;
+  omradekode: string | null;
+}
+
+/** [Ny, issue #312, AC5] Én rubrikk i «gitt kommune X → …». `status` sier om svaret er entydig; ved flere
+ * kandidater velges ingen (CLAUDE.md §8). Id er virksomhetens id for aktør-rubrikker, områdets begrep-id ellers. */
+export interface TilhorighetsrubrikkDto {
+  rubrikk: string;
+  status: 'entydig' | 'ikke_entydig' | 'mangler';
+  kandidater: { id: string; navn: string }[];
+}
+
+export interface KommuneTilhorighetDto {
+  kommune: OmradeVisningDto;
+  rubrikker: TilhorighetsrubrikkDto[];
+  overordnede: OmradeVisningDto[];
+  ansvarlige: { virksomhetId: string; navn: string; typekode: string; via: OmradeVisningDto; kantId: string }[];
 }
 
 export interface BegrepRequest {

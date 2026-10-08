@@ -3,6 +3,7 @@ import type {
   BegrepBruktIRettskildeDto,
   Aktortype,
   BegrepDto,
+  KommuneTilhorighetDto,
   Begrepsnodetype,
   Kandidatnodetype,
   BegrepRequest,
@@ -1168,6 +1169,9 @@ export const api = {
   hentBegreper: () => kall<BegrepDto[]>('/api/begreper'),
 
   hentBegrep: (id: string) => kall<BegrepDto>(`/api/begreper/${id}`),
+  /** [Ny, issue #312, AC5] Fylke, tingrett, lagsogn, lagdømme, lagmannsrett, statsforvalter, helseregion og RHF for
+   * et kommuneområde (begrep-id), beregnet fra strukturkantene. */
+  hentOmradeTilhorighet: (omradeId: string) => kall<KommuneTilhorighetDto>(`/api/omrader/${omradeId}/tilhorighet`),
 
   opprettBegrep: (request: BegrepRequest) =>
     kall<BegrepDto>('/api/begreper', {
