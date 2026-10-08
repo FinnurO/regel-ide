@@ -3469,7 +3469,7 @@ app.MapGet("/api/gruppebegrep", async (VirksomhetsbegrepTjeneste register, Cance
 var strukturkanter = app.MapGroup("/api/strukturkanter").WithOpenApi();
 
 strukturkanter.MapGet("/", async (Guid? virksomhetId, Guid? begrepId, string? kategori, string? status, bool? gjeldende,
-        StrukturkantTjeneste tjeneste, CancellationToken ct) =>
+        string? familie, StrukturkantTjeneste tjeneste, CancellationToken ct) =>
     {
         try
         {
@@ -3484,10 +3484,11 @@ strukturkanter.MapGet("/", async (Guid? virksomhetId, Guid? begrepId, string? ka
                     return Results.BadRequest(new { feil = "Oppgi virksomhetId eller begrepId (eller status=foreslatt_av_ai for forslagskøen)." });
                 }
                 var forslag = await tjeneste.HentForslagAsync(ct);
-                return Results.Ok(forslag.Where(v => kategori == null || v.Kategori == kategori).Select(StrukturkantDto.FraVisning));
+                return Results.Ok(forslag.Where(v => (kategori == null || v.Kategori == kategori) && (familie == null || v.Familie == familie))
+                    .Select(StrukturkantDto.FraVisning));
             }
             var node = virksomhetId is { } v ? Kantnode.Virksomhet(v) : Kantnode.Begrep(begrepId!.Value);
-            var kanter = await tjeneste.HentForNodeAsync(node, kategori, gjeldende ?? false, ct);
+            var kanter = await tjeneste.HentForNodeAsync(node, kategori, gjeldende ?? false, ct, familie);
             return Results.Ok(kanter
                 .Where(k => status == null || k.Status == status)
                 .OrderBy(k => Array.IndexOf(Strukturkanter.Kategorier, k.Kategori))
@@ -3503,7 +3504,8 @@ strukturkanter.MapGet("/", async (Guid? virksomhetId, Guid? begrepId, string? ka
     .WithSummary("Issue #311 — strukturkantene for én node (virksomhetId ELLER begrepId), i begge retninger, med " +
         "visningstekst fra nodens side. ?kategori=R|K|M|O|A|G|I|T avgrenser, ?gjeldende=true filtrerer på " +
         "gyldighet (kantens egne datoer + hjemmelens status, docs/29 §Del B). Uten node: ?status=foreslatt_av_ai " +
-        "gir forslagskøen.");
+        "gir forslagskøen. [Ny, #341] ?familie=struktur|personell|styring|normgivning|kontroll|klage_overproving|vedtak|sanksjon " +
+        "gir bare kompetansekantene i den familien.");
 
 // [Ny, Johanns beslutning 2026-10-07] Arbeidslista over forvaltningsstruktur som mangler forankring i en
 // rettskilde: kanter UTEN hjemmel i korpus, filtrert på kildetypen (standard nettside_annet — «bare
@@ -3553,7 +3555,8 @@ strukturkanter.MapPost("/", async (HttpRequest request, StrukturkantRequest body
                 body.Paragrafspenn?.Select(p => new ParagrafspennPar(p.FraEid, p.TilEid)).ToList(), body.AvgrensningTekst,
                 body.Objekt, body.Polaritet, body.GyldigFra, body.GyldigTil, body.Kommentar,
                 KildeUtenforKorpusType: body.KildeUtenforKorpusType,
-                KildeUtenforKorpusDokumentasjon: body.KildeUtenforKorpusDokumentasjon), bruker.Navn, ct);
+                KildeUtenforKorpusDokumentasjon: body.KildeUtenforKorpusDokumentasjon,
+                Normform: body.Normform, Grunnlag: body.Grunnlag, Delegerbar: body.Delegerbar), bruker.Navn, ct);
             var dto = StrukturkantDto.FraVisning((await tjeneste.HentAsync(resultat.Kant.Id, ct))!);
             // 201 for en ny kant, 200 når et identisk utsagn alt fantes (idempotent — StrukturkantTjeneste.OpprettAsync).
             return resultat.VarNy ? Results.Created($"/api/strukturkanter/{dto.Id}", dto) : Results.Ok(dto);

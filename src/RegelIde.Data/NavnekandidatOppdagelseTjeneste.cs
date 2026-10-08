@@ -2103,12 +2103,19 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         }
         ValiderNavneformgrunn(navneformgrunn);
 
+        // [ENDRET, issue #341] Typen kan være en R-type (struktur) ELLER en K-type med motpart («har klagekompetanse overfor»):
+        // myndighetsrelasjonene ble flyttet fra R til K (Johanns beslutning P1). Kategorien leses av konfigurasjonen — finnes
+        // koden i ingen eller begge, brukes R, og OpprettAsync avviser en ukjent kode synlig.
+        var kategorier = await db.RelasjonsTypeKonfigurasjoner
+            .Where(t => (t.Kategori == Strukturkanter.Relasjon || t.Kategori == Strukturkanter.Kompetanse) && t.Kode == relasjonsType && t.Aktiv)
+            .Select(t => t.Kategori).ToListAsync(ct);
+        var kategori = kategorier.Count == 1 ? kategorier[0] : Strukturkanter.Relasjon;
         // Samme dublettregel som VirksomhetRelasjon hadde: (fra, til, type).
         var relasjon = await db.Strukturkanter.FirstOrDefaultAsync(
-            r => r.Kategori == Strukturkanter.Relasjon && r.FraVirksomhetId == virksomhetId
+            r => r.Kategori == kategori && r.FraVirksomhetId == virksomhetId
                  && r.TilVirksomhetId == motpartVirksomhetId && r.Typekode == relasjonsType, ct);
         relasjon ??= (await strukturkanter.OpprettAsync(new NyStrukturkant(
-            Strukturkanter.Relasjon, relasjonsType, Kantnode.Virksomhet(virksomhetId), Kantnode.Virksomhet(motpartVirksomhetId),
+            kategori, relasjonsType, Kantnode.Virksomhet(virksomhetId), Kantnode.Virksomhet(motpartVirksomhetId),
             HjemmelRettskildeId: hjemletHer ? kandidat.RettskildeId : null,
             HjemmelEid: hjemletHer ? kandidat.NodeEid : null,
             KildeUtenforKorpusTekst: hjemletHer ? null : kommentar,

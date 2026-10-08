@@ -98,14 +98,22 @@ public class StrukturkantEndepunktTests
         Assert.DoesNotContain(alle!, t => RelasjonskodeHarmonisering.GamleKoder.Contains(t.Kode));
         var sekretariat = Assert.Single(r!, t => t.Kode == "sekretariat_for");
         Assert.Equal(("er sekretariat for {0}", "har sekretariat hos {0}"), (sekretariat.FraVisningsmal, sekretariat.TilVisningsmal));
-        Assert.Contains(r!, t => t.Kode == "klageinstans_for"); // docs/33 §4.3-startsettet
+        // [ENDRET, issue #341] Myndighetsrelasjonene er ikke lenger R-typer — de er K med motpart.
+        Assert.DoesNotContain(r!, t => t.Kode is "klageinstans_for" or "instruksjon" or "omgjoring" or "oppnevner" or "delegerer_til");
         Assert.Contains(r!, t => t.Kode == "etterfolger");
+        Assert.Contains(r!, t => t.Kode == Strukturkanter.HarDelegertTil);
         var g = await _client.GetFromJsonAsync<List<RelasjonsTypeKonfigurasjonDto>>("/api/konfigurasjon/relasjonstyper?kategori=G", JsonInnstillinger);
         Assert.Contains(g!, t => t.Kode == "del_av"); // der enhet_i havnet
 
         var k = await _client.GetFromJsonAsync<List<RelasjonsTypeKonfigurasjonDto>>("/api/konfigurasjon/relasjonstyper?kategori=K", JsonInnstillinger);
-        Assert.Contains(k!, t => t.Kode == "forskrift");
-        Assert.Contains(k!, t => t.Kode == "instruksjon"); // samme kode som i R — identiteten er (kategori, kode).
+        // [ENDRET, issue #341] forskrift → normgivning (normform forskrift); hver K-type har familie og ev. fvl-kategori.
+        Assert.DoesNotContain(k!, t => t.Kode == "forskrift");
+        var normgivning = Assert.Single(k!, t => t.Kode == Strukturkanter.Normgivning);
+        Assert.Equal("normgivning", normgivning.Familie);
+        var klage = Assert.Single(k!, t => t.Kode == "klage");
+        Assert.Equal(("klage_overproving", "har klagekompetanse {0}"), (klage.Familie, klage.FraVisningsmal));
+        Assert.Equal("enkeltvedtak", Assert.Single(k!, t => t.Kode == "vedtak").FvlKategori);
+        Assert.Null(Assert.Single(k!, t => t.Kode == Strukturkanter.Beslutning).Familie);
     }
 
     // ---------------- Opprett og les per node / per kategori ----------------
@@ -145,6 +153,46 @@ public class StrukturkantEndepunktTests
 
         // Kategorifilteret: ingen M-kanter for denne noden.
         Assert.Empty((await _client.GetFromJsonAsync<List<StrukturkantDto>>($"/api/strukturkanter?virksomhetId={merkenemnd}&kategori=M", JsonInnstillinger))!);
+    }
+
+    /// <summary>[Ny, issue #341] S9: «hvilken kompetanse har A, overfor hvem?» — K med motpart, normform/grunnlag/delegerbar
+    /// gjennom API-et, og filteret på familie.</summary>
+    [Fact]
+    public async Task K_kant_med_motpart_normform_og_familiefilter()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var (lovId, paragrafEid) = await OpprettRettskildeMedParagrafAsync();
+        var (dep, _) = await OpprettVirksomhetAsync("Energidepartementet");
+        var (nemnd, nemndNavn) = await OpprettVirksomhetAsync("Energiklagenemnda");
+
+        var klage = await PostKantAsync(brukerId, new
+        {
+            Kategori = "K", Typekode = "klage", FraVirksomhetId = dep, TilVirksomhetId = nemnd, HjemmelRettskildeId = lovId,
+            HjemmelEid = paragrafEid, AvgrensningTekst = "enkeltvedtak i første instans", Polaritet = "positiv",
+        });
+        Assert.Equal(HttpStatusCode.Created, klage.StatusCode);
+        var forskrift = await PostKantAsync(brukerId, new
+        {
+            Kategori = "K", Typekode = "normgivning", FraVirksomhetId = dep, HjemmelRettskildeId = lovId, HjemmelEid = paragrafEid,
+            Objekt = "nettariffer", Normform = "forskrift", Delegerbar = true, Grunnlag = "offentligrettslig", Polaritet = "positiv",
+        });
+        Assert.Equal(HttpStatusCode.Created, forskrift.StatusCode);
+        var f = (await forskrift.Content.ReadFromJsonAsync<StrukturkantDto>(JsonInnstillinger))!;
+        Assert.Equal(("forskrift", true, "offentligrettslig", "normgivning", "forskrift"), (f.Normform, f.Delegerbar, f.Grunnlag, f.Familie, f.FvlKategori));
+
+        var fraDep = await _client.GetFromJsonAsync<List<StrukturkantDto>>($"/api/strukturkanter?virksomhetId={dep}&kategori=K", JsonInnstillinger);
+        Assert.Contains(fraDep!, k => k.Visningstekst == $"har klagekompetanse overfor {nemndNavn}");
+        var fraNemnda = await _client.GetFromJsonAsync<List<StrukturkantDto>>($"/api/strukturkanter?virksomhetId={nemnd}", JsonInnstillinger);
+        Assert.EndsWith("har klagekompetanse overfor denne", Assert.Single(fraNemnda!).Visningstekst);
+
+        var normgivning = await _client.GetFromJsonAsync<List<StrukturkantDto>>($"/api/strukturkanter?virksomhetId={dep}&familie=normgivning", JsonInnstillinger);
+        Assert.Equal(f.Id, Assert.Single(normgivning!).Id);
+        Assert.Equal(HttpStatusCode.BadRequest, (await _client.GetAsync($"/api/strukturkanter?virksomhetId={dep}&familie=alt")).StatusCode);
+        // Normform på en annen type enn normgivning: 400.
+        Assert.Equal(HttpStatusCode.BadRequest, (await PostKantAsync(brukerId, new
+        {
+            Kategori = "K", Typekode = "vedtak", FraVirksomhetId = dep, HjemmelRettskildeId = lovId, Objekt = "x", Normform = "forskrift", Polaritet = "positiv",
+        })).StatusCode);
     }
 
     [Fact]
@@ -246,7 +294,7 @@ public class StrukturkantEndepunktTests
         var (nemnd, _) = await OpprettVirksomhetAsync("Klagenemnda");
         var opprettet = await PostKantAsync(brukerId, new
         {
-            Kategori = "R", Typekode = "klageinstans_for", FraVirksomhetId = dep, TilVirksomhetId = nemnd,
+            Kategori = "K", Typekode = "klage", FraVirksomhetId = dep, TilVirksomhetId = nemnd,
             HjemmelRettskildeId = lovId, HjemmelEid = paragrafEid, Polaritet = "positiv",
         });
         var kant = (await opprettet.Content.ReadFromJsonAsync<StrukturkantDto>(JsonInnstillinger))!;
@@ -265,7 +313,7 @@ public class StrukturkantEndepunktTests
         Assert.Equal(kant.Id, etter.Id);
         Assert.Equal(paragrafEid, Assert.Single(etter.Paragrafspenn).FraEid);
         Assert.Equal("enkeltvedtak nemnda treffer i første instans", etter.AvgrensningTekst);
-        Assert.Equal(("klageinstans_for", dep, nemnd), (etter.Typekode, etter.Fra.Id, etter.Til!.Id)); // identiteten urørt
+        Assert.Equal(("klage", dep, nemnd), (etter.Typekode, etter.Fra.Id, etter.Til!.Id)); // identiteten urørt
 
         await using (var db = _fixture.NyDbContext())
         {
@@ -395,25 +443,25 @@ public class StrukturkantEndepunktTests
         var klasse = await OpprettBegrepAsync(brukerId, lovId, "klasse", "vertskommuner");
         var omrade = await OpprettBegrepAsync(brukerId, lovId, "omrade", "forvaltningsomradet");
         var rolle = await OpprettBegrepAsync(brukerId, lovId, "rolle", "forurensningsmyndighet");
-        var spenn = new[] { new { FraEid = hjemmelEid, TilEid = (string?)null } };
+        // [ENDRET, issue #341] Hjemmelsstedet er hjemmel-eId; lesefasaden viser det fortsatt som paragrafspenn.
 
         var utlopt = await PostKantAsync(brukerId, new
         {
             Kategori = "M", Typekode = "medlem_av", FraVirksomhetId = virksomhet, TilBegrepId = klasse.Id, HjemmelRettskildeId = hjemmelId,
-            Paragrafspenn = spenn, AvgrensningTekst = "fengsel", Polaritet = "positiv",
+            HjemmelEid = hjemmelEid, AvgrensningTekst = "fengsel", Polaritet = "positiv",
             GyldigFra = new DateOnly(2020, 1, 1), GyldigTil = new DateOnly(2021, 12, 31),
         });
         Assert.Equal(HttpStatusCode.Created, utlopt.StatusCode);
         var innehar = await PostKantAsync(brukerId, new
         {
             Kategori = "I", Typekode = "innehar", FraVirksomhetId = virksomhet, TilBegrepId = rolle.Id, HjemmelRettskildeId = hjemmelId,
-            Paragrafspenn = spenn, Polaritet = "positiv",
+            HjemmelEid = hjemmelEid, Polaritet = "positiv",
         });
         Assert.Equal(HttpStatusCode.Created, innehar.StatusCode);
         var gruppeAvGruppe = await PostKantAsync(brukerId, new
         {
             Kategori = "M", Typekode = "medlem_av", FraBegrepId = klasse.Id, TilBegrepId = omrade.Id, HjemmelRettskildeId = hjemmelId,
-            Paragrafspenn = spenn, Polaritet = "positiv",
+            HjemmelEid = hjemmelEid, Polaritet = "positiv",
         });
         Assert.Equal(HttpStatusCode.Created, gruppeAvGruppe.StatusCode);
 
@@ -421,6 +469,7 @@ public class StrukturkantEndepunktTests
         Assert.Equal(2, tildelinger!.Count);
         var gammelForm = Assert.Single(tildelinger, t => t.GruppeBegrepId == klasse.Id);
         Assert.Equal(("fengsel", hjemmelId), (gammelForm.Vilkaar, gammelForm.HjemmelRettskildeId));
+        Assert.Equal(hjemmelEid, Assert.Single(gammelForm.Paragrafspenn).FraEid); // nettsidens hjemmelLabel leser dette
         var gjeldende = await _client.GetFromJsonAsync<List<MyndighetstildelingDto>>($"/api/virksomheter/{virksomhet}/myndighetstildelinger?gjeldende=true", JsonInnstillinger);
         Assert.Equal(rolle.Id, Assert.Single(gjeldende!).GruppeBegrepId);
 
@@ -447,7 +496,7 @@ public class StrukturkantEndepunktTests
         var (b, _) = await OpprettVirksomhetAsync("Stat B");
         Assert.Equal(HttpStatusCode.Created, (await PostKantAsync(brukerId, new
         {
-            Kategori = "R", Typekode = "klageinstans_for", FraVirksomhetId = a, TilVirksomhetId = b, HjemmelRettskildeId = lovId, Polaritet = "positiv",
+            Kategori = "K", Typekode = "klage", FraVirksomhetId = a, TilVirksomhetId = b, HjemmelRettskildeId = lovId, Polaritet = "positiv",
         })).StatusCode);
 
         var statistikk = await _client.GetFromJsonAsync<JsonElement>($"/api/rettskilder/{lovId}/statistikk", JsonInnstillinger);

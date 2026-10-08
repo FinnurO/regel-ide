@@ -990,8 +990,8 @@ public class NavnekandidaterEndepunktTests
             $"/api/navnekandidater/{scene.KandidatId}/kobl-til-myndighetstildeling", brukerId,
             new
             {
-                VirksomhetId = scene.MaalVirksomhetId, RolleBegrepId = rolle.Id,
-                Paragrafspenn = new[] { new { FraEid = scene.NodeEid, TilEid = (string?)null } },
+                // [ENDRET, issue #341] Hjemmelsstedet sendes som hjemmel-eId; paragrafspenn er nå bare avgrensningen.
+                VirksomhetId = scene.MaalVirksomhetId, RolleBegrepId = rolle.Id, HjemmelEid = scene.NodeEid,
                 Vilkaar = "kommunale avløpsanlegg", Navneformgrunn = "gjeldende",
             }));
         Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
@@ -1003,6 +1003,8 @@ public class NavnekandidaterEndepunktTests
         Assert.Equal(rolle.Id, resultat.Tildeling.TilBegrepId);
         Assert.Equal(scene.RettskildeId, resultat.Tildeling.HjemmelRettskildeId); // egen rettskilde, ikke valgt.
         Assert.Equal("kommunale avløpsanlegg", resultat.Tildeling.AvgrensningTekst);
+        Assert.Equal(scene.NodeEid, resultat.Tildeling.HjemmelEid); // [Ny, #341] hvor tildelingen står
+        Assert.Empty(resultat.Tildeling.Paragrafspenn); // ingen avgrensning angitt — ikke gjettet
         Assert.NotNull(resultat.TaggId); // navneform-kjeden er lukket akkurat som kobl-til-virksomhet.
 
         await using var db = _fixture.NyDbContext();
@@ -1014,8 +1016,8 @@ public class NavnekandidaterEndepunktTests
             $"/api/navnekandidater/{scene.KandidatId}/kobl-til-myndighetstildeling", brukerId,
             new
             {
-                VirksomhetId = scene.MaalVirksomhetId, RolleBegrepId = rolle.Id,
-                Paragrafspenn = new[] { new { FraEid = scene.NodeEid, TilEid = (string?)null } },
+                // [ENDRET, issue #341] Hjemmelsstedet sendes som hjemmel-eId; paragrafspenn er nå bare avgrensningen.
+                VirksomhetId = scene.MaalVirksomhetId, RolleBegrepId = rolle.Id, HjemmelEid = scene.NodeEid,
                 Vilkaar = "kommunale avløpsanlegg", Navneformgrunn = "gjeldende",
             }));
         Assert.Equal(HttpStatusCode.OK, andre.StatusCode);
