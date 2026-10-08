@@ -19,6 +19,7 @@ internal static class HistoriskSkjema
 {
     public const string Nodetypeakse = "20261007074037_InnforNodetypeakse";
     public const string Strukturkanttabell = "20261007202146_InnforStrukturkanttabell";
+    public const string HarmoniserRelasjonskoder = "20261008064334_HarmoniserRelasjonskoder"; // [Ny, #330]
 
     /// <summary>Oppretter en ny, tom database og migrerer den til <paramref name="tilMigrasjon"/> (null = siste).</summary>
     public static async Task<string> NyDatabaseAsync(EmbeddedPostgresFixture fixture, string prefiks, string? tilMigrasjon)

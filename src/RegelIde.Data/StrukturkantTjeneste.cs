@@ -239,17 +239,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
                 $"Kategori {ny.Kategori} ({Strukturkanter.Visningsnavn(ny.Kategori)}) med hjemmel i korpus krever "
                 + "paragrafspenn — ingen gjettet fallback (docs/20 §7.1, docs/33 §3 funn 7).");
         }
-        foreach (var par in paragrafspenn)
-        {
-            if (!await db.RettskildeNoder.AnyAsync(n => n.Eid == par.FraEid, ct))
-            {
-                throw new ArgumentException($"Fant ingen rettskilde-node med eId '{par.FraEid}'. Ingen gjettet fallback.");
-            }
-            if (par.TilEid is not null && !await db.RettskildeNoder.AnyAsync(n => n.Eid == par.TilEid, ct))
-            {
-                throw new ArgumentException($"Fant ingen rettskilde-node med eId '{par.TilEid}'. Ingen gjettet fallback.");
-            }
-        }
+        await ValiderParagrafspennAsync(paragrafspenn, ct);
         if (ny.GyldigFra is not null && ny.GyldigTil is not null && ny.GyldigFra.Value > ny.GyldigTil.Value)
         {
             throw new ArgumentException("GyldigFra kan ikke være etter GyldigTil. Ingen gjettet fallback.");
@@ -342,6 +332,76 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         return kategori == Nodetyper.Rolle
             ? (Strukturkanter.Rolleinnehav, Strukturkanter.Innehar)
             : (Strukturkanter.Medlemskap, Strukturkanter.MedlemAv);
+    }
+
+    /// <summary>
+    /// [Ny, issue #330, 2026-10-08] Erstatter avgrensningen (paragrafspenn + tekst) på en EKSISTERENDE kant. Før
+    /// #330 fantes ingen oppdateringsvei — en kant som var riktig i retning men manglet avgrensning
+    /// (Energiklagenemnda-raden: departementet er klageinstans bare for «enkeltvedtak Energiklagenemnda treffer i
+    /// første instans», forskrift om Energiklagenemnda § 1 annet ledd) kunne bare rettes med SQL eller ved å slette
+    /// og registrere på nytt, som mister id og proveniens. Johann (2026-10-08): rettelsen gjøres via API-et, ikke
+    /// ved å gjette i en migrasjon.
+    /// <para>
+    /// Samme validering som <see cref="OpprettAsync"/>: hver eId i spennet må finnes i korpus, og M/I med hjemmel
+    /// krever et spenn (<see cref="Strukturkanter.KreverParagrafspenn"/>). Begge feltene ERSTATTES — tomt spenn og
+    /// null/blank tekst fjerner dem; det er ingen «behold det som står»-verdi å gjette på. Finnes det fra før en
+    /// ANNEN kant med samme identitet som kanten ville fått (idempotensnøkkelen i <see cref="OpprettAsync"/>, der
+    /// spennet inngår), avvises endringen: to rader for samme utsagn er nettopp det idempotensen skal hindre.
+    /// Gammel og ny verdi logges i Proveniens (<c>handling = 'endret'</c>).
+    /// </para>
+    /// </summary>
+    /// <returns>Kanten, eller null hvis id-en ikke finnes.</returns>
+    public async Task<StrukturkantEntitet?> OppdaterAvgrensningAsync(
+        Guid id, IReadOnlyList<ParagrafspennPar>? paragrafspenn, string? avgrensningTekst, string endretAv,
+        CancellationToken ct = default)
+    {
+        var kant = await db.Strukturkanter.FirstOrDefaultAsync(k => k.Id == id, ct);
+        if (kant is null) return null;
+
+        var spenn = paragrafspenn ?? [];
+        if (Strukturkanter.KreverParagrafspenn.Contains(kant.Kategori) && kant.HjemmelRettskildeId is not null && spenn.Count == 0)
+        {
+            throw new ArgumentException(
+                $"Kategori {kant.Kategori} ({Strukturkanter.Visningsnavn(kant.Kategori)}) med hjemmel i korpus krever "
+                + "paragrafspenn — ingen gjettet fallback (docs/20 §7.1, docs/33 §3 funn 7).");
+        }
+        await ValiderParagrafspennAsync(spenn, ct);
+        var spennJson = JsonSerializer.Serialize(spenn, JsonSerialiseringHjelper.Innstillinger);
+        var tekst = string.IsNullOrWhiteSpace(avgrensningTekst) ? null : avgrensningTekst.Trim();
+
+        if (spennJson == kant.AvgrensningParagrafspennJson && tekst == kant.AvgrensningTekst) return kant;
+
+        var dublett = await db.Strukturkanter.AnyAsync(k =>
+            k.Id != kant.Id
+            && k.Kategori == kant.Kategori && k.Typekode == kant.Typekode
+            && k.FraVirksomhetId == kant.FraVirksomhetId && k.FraBegrepId == kant.FraBegrepId
+            && k.TilVirksomhetId == kant.TilVirksomhetId && k.TilBegrepId == kant.TilBegrepId
+            && k.Objekt == kant.Objekt && k.Polaritet == kant.Polaritet
+            && k.HjemmelRettskildeId == kant.HjemmelRettskildeId
+            && k.AvgrensningParagrafspennJson == spennJson, ct);
+        if (dublett)
+        {
+            throw new ArgumentException(
+                "Det finnes alt en kant med samme type, ender, hjemmel og paragrafspenn — endringen ville gitt to rader "
+                + "for samme utsagn. Ingen gjettet sammenslåing.");
+        }
+
+        var proveniens = ProveniensHjelper.NyRad(ProveniensType, kant.Id, virksomhetId: null, "endret", endretAv);
+        proveniens.KildeReferanserJson = JsonSerializer.Serialize(new
+        {
+            felt = "avgrensning",
+            forParagrafspenn = JsonSerializer.Deserialize<JsonElement>(kant.AvgrensningParagrafspennJson),
+            forAvgrensningTekst = kant.AvgrensningTekst,
+            nyttParagrafspenn = JsonSerializer.Deserialize<JsonElement>(spennJson),
+            nyAvgrensningTekst = tekst,
+        });
+        kant.AvgrensningParagrafspennJson = spennJson;
+        kant.AvgrensningTekst = tekst;
+        kant.SistEndretAv = endretAv;
+        kant.SistEndretTidspunkt = DateTimeOffset.UtcNow;
+        db.Proveniens.Add(proveniens);
+        await db.SaveChangesAsync(ct);
+        return kant;
     }
 
     /// <summary>Et menneske bekrefter et forslag (<c>foreslatt_av_ai</c> → <c>validert</c>) — samme mønster
@@ -572,6 +632,23 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
     }
 
     // ---------------- Validering ----------------
+
+    /// <summary>Hver eId i spennet må finnes som rettskilde-node — ingen gjettet fallback. [Skilt ut fra
+    /// <see cref="OpprettAsync"/> i #330, slik at <see cref="OppdaterAvgrensningAsync"/> validerer likt.]</summary>
+    private async Task ValiderParagrafspennAsync(IReadOnlyList<ParagrafspennPar> paragrafspenn, CancellationToken ct)
+    {
+        foreach (var par in paragrafspenn)
+        {
+            if (string.IsNullOrWhiteSpace(par.FraEid) || !await db.RettskildeNoder.AnyAsync(n => n.Eid == par.FraEid, ct))
+            {
+                throw new ArgumentException($"Fant ingen rettskilde-node med eId '{par.FraEid}'. Ingen gjettet fallback.");
+            }
+            if (par.TilEid is not null && !await db.RettskildeNoder.AnyAsync(n => n.Eid == par.TilEid, ct))
+            {
+                throw new ArgumentException($"Fant ingen rettskilde-node med eId '{par.TilEid}'. Ingen gjettet fallback.");
+            }
+        }
+    }
 
     /// <summary>Sjekker at noden finnes og har lov til å stå i denne enden for denne kategorien. Returnerer
     /// navnet (for feilmeldinger).</summary>

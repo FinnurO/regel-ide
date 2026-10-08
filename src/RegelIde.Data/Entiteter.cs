@@ -1171,7 +1171,7 @@ public sealed class RelasjonsTypeKonfigurasjonEntitet
     /// <summary>[Ny, issue #311] R/K/M/O/A/G/I/T — se <see cref="Strukturkanter.Kategorier"/>. Rader som
     /// fantes før #311 fikk <c>'R'</c> i migrasjonen (de var alle relasjonstyper for VirksomhetRelasjon).</summary>
     public string Kategori { get; set; } = Strukturkanter.Relasjon;
-    public required string Kode { get; set; } // 'underlagt' | 'klageinstans_for' | 'forskrift' | 'medlem_av' | ... (utvidbart)
+    public required string Kode { get; set; } // 'klageinstans_for' | 'administrativt_underordnet' | 'forskrift' | 'medlem_av' | ... (utvidbart; [ENDRET #330] de gamle R-kodene underlagt/sekretariat/klageinstans/enhet_i/oppgaver_overfort_til er fjernet)
     public required string FraVisningsmal { get; set; } // "er underlagt {0}"
     public required string TilVisningsmal { get; set; } // "er eier/overordnet for {0}"
     public int Sorteringsrekkefolge { get; set; }

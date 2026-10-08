@@ -291,6 +291,40 @@ public class VirksomhetOgGruppeKiOppdagelseTjenesteTests
         Assert.Null(relasjon.KildeUtenforKorpusTekst);
     }
 
+    /// <summary>[Ny, issue #330] «Er en enhet i» er G <c>del_av</c> etter harmoniseringen — KI-forslaget blir en
+    /// G-kant (kategorien fra konfigurasjonsraden), og den gamle koden <c>enhet_i</c> avvises synlig.</summary>
+    [Fact]
+    public async Task Relasjon_del_av_blir_G_kant_og_gammel_kode_enhet_i_avvises()
+    {
+        await using var db = _fixture.NyDbContext();
+        var fraNavn = NyOrgNavn("Reguleringsmyndigheten");
+        var tilNavn = NyOrgNavn("Direktoratet");
+        var (rettskildeId, nodeEid) = await OpprettRettskildeMedNodeAsync(
+            db, $"{fraNavn} er en enhet i {tilNavn}.");
+        var fra = new Virksomhet { Id = Guid.NewGuid(), Navn = $"register-{fraNavn}" };
+        var til = new Virksomhet { Id = Guid.NewGuid(), Navn = $"register-{tilNavn}" };
+        db.Virksomheter.AddRange(fra, til);
+        await db.SaveChangesAsync();
+        await new VirksomhetsbegrepTjeneste(db).OpprettVirksomhetsbegrepAsync(fra.Id, fraNavn, "Kari Jurist");
+        await new VirksomhetsbegrepTjeneste(db).OpprettVirksomhetsbegrepAsync(til.Id, tilNavn, "Kari Jurist");
+        await Strukturkanter.SeedStartsettAsync(db);
+
+        string Svar(string type) => $$$"""
+            [{"Type":"virksomhet","Navn":"{{{fraNavn}}}","NodeEid":"{{{nodeEid}}}","Rolle":null,
+              "Relasjon":{"Type":"{{{type}}}","MotpartNavn":"{{{tilNavn}}}","HjemletHer":true},"GruppeAvGruppe":null}]
+            """;
+
+        var gammel = Assert.Single((await NyTjeneste(db, Svar("enhet_i")).KjorOppdagelseAsync(rettskildeId, "system-ki")).Kandidater);
+        Assert.Null(gammel.RelasjonKantId);
+        Assert.Contains("Ukjent relasjonstype 'enhet_i'", gammel.RelasjonIkkeOpprettetGrunn);
+
+        var ny = Assert.Single((await NyTjeneste(db, Svar("del_av")).KjorOppdagelseAsync(rettskildeId, "system-ki")).Kandidater);
+        Assert.NotNull(ny.RelasjonKantId);
+        var kant = await db.Strukturkanter.SingleAsync(r => r.Id == ny.RelasjonKantId);
+        Assert.Equal((Strukturkanter.Organtilhorighet, "del_av", fra.Id, til.Id),
+            (kant.Kategori, kant.Typekode, kant.FraVirksomhetId!.Value, kant.TilVirksomhetId!.Value));
+    }
+
     [Fact]
     public async Task GruppeAvGruppe_krever_at_underordnet_gruppebegrep_allerede_finnes()
     {

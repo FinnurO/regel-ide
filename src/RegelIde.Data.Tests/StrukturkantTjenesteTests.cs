@@ -67,7 +67,7 @@ public class StrukturkantTjenesteTests
         var tjeneste = new StrukturkantTjeneste(db);
 
         var r = await tjeneste.OpprettAsync(new NyStrukturkant(
-            Strukturkanter.Relasjon, "klageinstans", Kantnode.Virksomhet(fra), Kantnode.Virksomhet(til),
+            Strukturkanter.Relasjon, "klageinstans_for", Kantnode.Virksomhet(fra), Kantnode.Virksomhet(til),
             HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid, Polaritet: "positiv"), "Kari Jurist");
 
         Assert.True(r.VarNy);
@@ -80,8 +80,8 @@ public class StrukturkantTjenesteTests
         var tilSiden = Assert.Single(await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(til)));
         Assert.Equal("fra", fraSiden.Retning);
         Assert.Equal("til", tilSiden.Retning);
-        Assert.StartsWith("har klageinstans hos ", fraSiden.Visningstekst);
-        Assert.StartsWith("er klageinstans for ", tilSiden.Visningstekst);
+        Assert.StartsWith("er klageinstans for ", fraSiden.Visningstekst);
+        Assert.StartsWith("har klageinstans hos ", tilSiden.Visningstekst);
     }
 
     [Fact]
@@ -386,7 +386,7 @@ public class StrukturkantTjenesteTests
         var (a, b) = (await NyVirksomhetAsync(db), await NyVirksomhetAsync(db));
         db.Strukturkanter.Add(new StrukturkantEntitet
         {
-            Id = Guid.NewGuid(), Kategori = "R", Typekode = "underlagt", FraVirksomhetId = a, TilVirksomhetId = b, OpprettetAv = "test",
+            Id = Guid.NewGuid(), Kategori = "R", Typekode = "administrativt_underordnet", FraVirksomhetId = a, TilVirksomhetId = b, OpprettetAv = "test",
         });
         await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
         db.ChangeTracker.Clear();
@@ -394,7 +394,7 @@ public class StrukturkantTjenesteTests
         var begrep = await db.Begreper.Select(x => x.Id).FirstAsync();
         db.Strukturkanter.Add(new StrukturkantEntitet
         {
-            Id = Guid.NewGuid(), Kategori = "R", Typekode = "underlagt", FraVirksomhetId = a, FraBegrepId = begrep,
+            Id = Guid.NewGuid(), Kategori = "R", Typekode = "administrativt_underordnet", FraVirksomhetId = a, FraBegrepId = begrep,
             TilVirksomhetId = b, KildeUtenforKorpusTekst = "x", OpprettetAv = "test",
         });
         await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
@@ -454,7 +454,7 @@ public class StrukturkantTjenesteTests
         var o = await NyttOppsettAsync(db);
         var a = await NyVirksomhetAsync(db);
         await Assert.ThrowsAsync<ArgumentException>(() => new StrukturkantTjeneste(db).OpprettAsync(new NyStrukturkant(
-            Strukturkanter.Relasjon, "underlagt", Kantnode.Virksomhet(a), Kantnode.Virksomhet(a), HjemmelRettskildeId: o.LovId), "Kari Jurist"));
+            Strukturkanter.Relasjon, "administrativt_underordnet", Kantnode.Virksomhet(a), Kantnode.Virksomhet(a), HjemmelRettskildeId: o.LovId), "Kari Jurist"));
     }
 
     // ---------------- Sykel (bevart fra gruppe-av-gruppe, issue #164) ----------------
@@ -505,9 +505,10 @@ public class StrukturkantTjenesteTests
             "bestar_av", Kantnode.Begrep(y), Kantnode.Begrep(x), HjemmelRettskildeId: o.LovId), "Kari Jurist"));
 
         // docs/29 §C.3: A «underlagt» B og B «enhet_i» A kan begge være sanne — ingen sykelsjekk for R.
-        await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "underlagt",
+        // [ENDRET, #330] Kodene er nå administrativt_underordnet og rapporterer_til (enhet_i ble G del_av).
+        await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "administrativt_underordnet",
             Kantnode.Virksomhet(v1), Kantnode.Virksomhet(v2), HjemmelRettskildeId: o.LovId), "Kari Jurist");
-        var tilbake = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "enhet_i",
+        var tilbake = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "rapporterer_til",
             Kantnode.Virksomhet(v2), Kantnode.Virksomhet(v1), HjemmelRettskildeId: o.LovId), "Kari Jurist");
         Assert.True(tilbake.VarNy);
     }
@@ -627,16 +628,99 @@ public class StrukturkantTjenesteTests
             navneformgrunn: VirksomhetVisningsnavnTjeneste.VisningsGrunn);
         var tjeneste = new StrukturkantTjeneste(db);
 
-        var hjemlet = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "klageinstans",
+        var hjemlet = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "klageinstans_for",
             Kantnode.Virksomhet(a), Kantnode.Virksomhet(b), HjemmelRettskildeId: o.ForskriftId), "Kari Jurist");
-        await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "sekretariat",
+        await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "sekretariat_for",
             Kantnode.Virksomhet(c), Kantnode.Virksomhet(b), KildeUtenforKorpusTekst: "org-kart",
             KildeUtenforKorpusType: Strukturkanter.NettsideAnnet, KildeUtenforKorpusDokumentasjon: Strukturkanter.Primaer), "Kari Jurist");
 
         var forForskriften = await tjeneste.HentForHjemmelRettskildeAsync(o.ForskriftId);
         var v = Assert.Single(forForskriften, x => x.Id == hjemlet.Kant.Id);
         Assert.Null(v.Retning);
-        Assert.StartsWith($"{lesbart} har klageinstans hos ", v.Visningstekst);
+        Assert.StartsWith($"{lesbart} er klageinstans for ", v.Visningstekst);
         Assert.DoesNotContain(forForskriften, x => x.KildeUtenforKorpusTekst == "org-kart");
+    }
+
+    // ---------------- Issue #330: gamle koder borte, avgrensning kan oppdateres ----------------
+
+    /// <summary>[Ny, issue #330 AC2] Seeden legger ikke de gamle kodene inn igjen, og tjenesten avviser dem —
+    /// mens den nye koden i samme betydning virker.</summary>
+    [Fact]
+    public async Task De_gamle_relasjonskodene_finnes_ikke_og_kan_ikke_brukes()
+    {
+        await using var db = _fixture.NyDbContext();
+        var o = await NyttOppsettAsync(db); // seeder Startsett
+        var (a, b) = (await NyVirksomhetAsync(db), await NyVirksomhetAsync(db));
+        var tjeneste = new StrukturkantTjeneste(db);
+
+        Assert.DoesNotContain(Strukturkanter.Startsett, s => RelasjonskodeHarmonisering.GamleKoder.Contains(s.Kode));
+        Assert.False(await db.RelasjonsTypeKonfigurasjoner.AnyAsync(t => RelasjonskodeHarmonisering.GamleKoder.Contains(t.Kode)));
+        foreach (var (gammel, nyKategori, nyKode, _) in RelasjonskodeHarmonisering.Mapping)
+        {
+            var ex = await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
+                Strukturkanter.Relasjon, gammel, Kantnode.Virksomhet(a), Kantnode.Virksomhet(b), HjemmelRettskildeId: o.LovId), "Kari Jurist"));
+            Assert.Contains($"Ukjent typekode '{gammel}'", ex.Message);
+            // Målkoden finnes og er aktiv i riktig kategori.
+            Assert.True(await db.RelasjonsTypeKonfigurasjoner.AnyAsync(t => t.Kategori == nyKategori && t.Kode == nyKode && t.Aktiv));
+        }
+    }
+
+    /// <summary>[Ny, issue #330] <see cref="StrukturkantTjeneste.OppdaterAvgrensningAsync"/>: setter spenn + tekst
+    /// på samme kant, logger før/etter, er en no-op ved samme verdi, og validerer som opprettelsen.</summary>
+    [Fact]
+    public async Task Avgrensning_oppdateres_paa_samme_kant_med_proveniens()
+    {
+        await using var db = _fixture.NyDbContext();
+        var o = await NyttOppsettAsync(db);
+        var (dep, nemnd) = (await NyVirksomhetAsync(db, "Departementet"), await NyVirksomhetAsync(db, "Klagenemnda"));
+        var tjeneste = new StrukturkantTjeneste(db);
+        var kant = (await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "klageinstans_for",
+            Kantnode.Virksomhet(dep), Kantnode.Virksomhet(nemnd), HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid), "Kari Jurist")).Kant;
+
+        var oppdatert = await tjeneste.OppdaterAvgrensningAsync(kant.Id, [new ParagrafspennPar(o.ParagrafEid, null)],
+            " enkeltvedtak nemnda treffer i første instans ", "Johann");
+        Assert.NotNull(oppdatert);
+        db.ChangeTracker.Clear();
+        var lagret = await db.Strukturkanter.SingleAsync(k => k.Id == kant.Id);
+        Assert.Equal("enkeltvedtak nemnda treffer i første instans", lagret.AvgrensningTekst);
+        Assert.Equal(o.ParagrafEid, Assert.Single(StrukturkantTjeneste.LesParagrafspenn(lagret)).FraEid);
+        Assert.Equal(("klageinstans_for", dep, nemnd), (lagret.Typekode, lagret.FraVirksomhetId!.Value, lagret.TilVirksomhetId!.Value));
+        Assert.Equal("Johann", lagret.SistEndretAv);
+        var prov = await db.Proveniens.SingleAsync(p => p.EntitetId == kant.Id && p.Handling == "endret");
+        using (var refs = System.Text.Json.JsonDocument.Parse(prov.KildeReferanserJson!))
+        {
+            Assert.Equal(0, refs.RootElement.GetProperty("forParagrafspenn").GetArrayLength());
+            Assert.Equal("enkeltvedtak nemnda treffer i første instans", refs.RootElement.GetProperty("nyAvgrensningTekst").GetString());
+        }
+
+        // Samme verdi en gang til: ingen ny proveniensrad.
+        await tjeneste.OppdaterAvgrensningAsync(kant.Id, [new ParagrafspennPar(o.ParagrafEid, null)],
+            "enkeltvedtak nemnda treffer i første instans", "Johann");
+        Assert.Equal(1, await db.Proveniens.CountAsync(p => p.EntitetId == kant.Id && p.Handling == "endret"));
+
+        // Ukjent eId avvises; ukjent kant gir null.
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OppdaterAvgrensningAsync(kant.Id,
+            [new ParagrafspennPar("finnes/ikke", null)], null, "Johann"));
+        Assert.Null(await tjeneste.OppdaterAvgrensningAsync(Guid.NewGuid(), [], null, "Johann"));
+
+        // En endring som ville gjort kanten identisk med en annen, avvises (idempotensnøkkelen).
+        var tvilling = (await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "klageinstans_for",
+            Kantnode.Virksomhet(dep), Kantnode.Virksomhet(nemnd), HjemmelRettskildeId: o.LovId,
+            Paragrafspenn: [new ParagrafspennPar(o.AnnenParagrafEid, null)]), "Kari Jurist")).Kant;
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OppdaterAvgrensningAsync(tvilling.Id,
+            [new ParagrafspennPar(o.ParagrafEid, null)], null, "Johann"));
+    }
+
+    /// <summary>[Ny, issue #330] M/I med hjemmel krever spenn også ved oppdatering (samme regel som opprettelsen).</summary>
+    [Fact]
+    public async Task Avgrensning_kan_ikke_fjerne_paakrevd_spenn_paa_medlemskap()
+    {
+        await using var db = _fixture.NyDbContext();
+        var o = await NyttOppsettAsync(db);
+        var v = await NyVirksomhetAsync(db);
+        var klasse = await NyttBegrepAsync(db, Nodetyper.Klasse, o.LovId, "klasse");
+        var tjeneste = new StrukturkantTjeneste(db);
+        var m = await tjeneste.OpprettTildelingAsync(v, klasse, o.LovId, [new ParagrafspennPar(o.ParagrafEid, null)], null, "Kari Jurist");
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OppdaterAvgrensningAsync(m.Kant.Id, [], "uten spenn", "Johann"));
     }
 }

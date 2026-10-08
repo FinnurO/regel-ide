@@ -85,16 +85,23 @@ public class StrukturkantEndepunktTests
     // ---------------- Typekonfigurasjonen ----------------
 
     [Fact]
-    public async Task Typekonfigurasjonen_har_alle_aatte_kategoriene_og_de_gamle_relasjonstypene_uendret()
+    public async Task Typekonfigurasjonen_har_alle_aatte_kategoriene_og_ingen_av_de_gamle_relasjonskodene()
     {
         var alle = await _client.GetFromJsonAsync<List<RelasjonsTypeKonfigurasjonDto>>("/api/konfigurasjon/relasjonstyper", JsonInnstillinger);
         Assert.Equal(Strukturkanter.Kategorier.OrderBy(k => k), alle!.Select(t => t.Kategori).Distinct().OrderBy(k => k));
 
         var r = await _client.GetFromJsonAsync<List<RelasjonsTypeKonfigurasjonDto>>("/api/konfigurasjon/relasjonstyper?kategori=R", JsonInnstillinger);
         Assert.All(r!, t => Assert.Equal("R", t.Kategori));
-        var sekretariat = Assert.Single(r!, t => t.Kode == "sekretariat");
-        Assert.Equal(("har sekretariat hos {0}", "er sekretariat for {0}"), (sekretariat.FraVisningsmal, sekretariat.TilVisningsmal));
+        // [ENDRET, issue #330] Før: «de gamle relasjonstypene uendret». Nå skal ingen av dem tilbys (veiviseren og
+        // «Legg til relasjon» lister nettopp denne lista) — og API-oppstartens seed skal ikke ha lagt dem inn igjen.
+        Assert.DoesNotContain(r!, t => RelasjonskodeHarmonisering.GamleKoder.Contains(t.Kode));
+        Assert.DoesNotContain(alle!, t => RelasjonskodeHarmonisering.GamleKoder.Contains(t.Kode));
+        var sekretariat = Assert.Single(r!, t => t.Kode == "sekretariat_for");
+        Assert.Equal(("er sekretariat for {0}", "har sekretariat hos {0}"), (sekretariat.FraVisningsmal, sekretariat.TilVisningsmal));
         Assert.Contains(r!, t => t.Kode == "klageinstans_for"); // docs/33 §4.3-startsettet
+        Assert.Contains(r!, t => t.Kode == "etterfolger");
+        var g = await _client.GetFromJsonAsync<List<RelasjonsTypeKonfigurasjonDto>>("/api/konfigurasjon/relasjonstyper?kategori=G", JsonInnstillinger);
+        Assert.Contains(g!, t => t.Kode == "del_av"); // der enhet_i havnet
 
         var k = await _client.GetFromJsonAsync<List<RelasjonsTypeKonfigurasjonDto>>("/api/konfigurasjon/relasjonstyper?kategori=K", JsonInnstillinger);
         Assert.Contains(k!, t => t.Kode == "forskrift");
@@ -110,9 +117,11 @@ public class StrukturkantEndepunktTests
         var (merkenemnd, merkenemndNavn) = await OpprettVirksomhetAsync("Lokal merkenemnd");
         var (statsforvalteren, statsforvalterenNavn) = await OpprettVirksomhetAsync("Statsforvalteren");
 
+        // [ENDRET, issue #330] sekretariat_for (statsforvalteren → nemnda) i stedet for den fjernede «sekretariat»
+        // (nemnda → statsforvalteren). Samme utsagn, motsatt lagret retning — visningstekstene under er uendret.
         var svar = await PostKantAsync(brukerId, new
         {
-            Kategori = "R", Typekode = "sekretariat", FraVirksomhetId = merkenemnd, TilVirksomhetId = statsforvalteren,
+            Kategori = "R", Typekode = "sekretariat_for", FraVirksomhetId = statsforvalteren, TilVirksomhetId = merkenemnd,
             KildeUtenforKorpusTekst = "docs/28-eksempel", KildeUtenforKorpusType = "nettside_annet", KildeUtenforKorpusDokumentasjon = "primaer", Polaritet = "positiv",
         });
         Assert.Equal(HttpStatusCode.Created, svar.StatusCode);
@@ -128,7 +137,7 @@ public class StrukturkantEndepunktTests
         // Samme utsagn en gang til: 200 med SAMME kant (idempotent), ikke en dublett.
         var igjen = await PostKantAsync(brukerId, new
         {
-            Kategori = "R", Typekode = "sekretariat", FraVirksomhetId = merkenemnd, TilVirksomhetId = statsforvalteren,
+            Kategori = "R", Typekode = "sekretariat_for", FraVirksomhetId = statsforvalteren, TilVirksomhetId = merkenemnd,
             KildeUtenforKorpusTekst = "docs/28-eksempel", KildeUtenforKorpusType = "nettside_annet", KildeUtenforKorpusDokumentasjon = "primaer", Polaritet = "positiv",
         });
         Assert.Equal(HttpStatusCode.OK, igjen.StatusCode);
@@ -173,7 +182,7 @@ public class StrukturkantEndepunktTests
         // Polaritet må oppgis.
         Assert.Equal(HttpStatusCode.BadRequest, (await PostKantAsync(brukerId, new
         {
-            Kategori = "R", Typekode = "underlagt", FraVirksomhetId = a, TilVirksomhetId = b, HjemmelRettskildeId = lovId,
+            Kategori = "R", Typekode = "administrativt_underordnet", FraVirksomhetId = a, TilVirksomhetId = b, HjemmelRettskildeId = lovId,
         })).StatusCode);
         // Ukjent typekode.
         Assert.Equal(HttpStatusCode.BadRequest, (await PostKantAsync(brukerId, new
@@ -183,12 +192,12 @@ public class StrukturkantEndepunktTests
         // Verken hjemmel eller kilde utenfor korpus.
         Assert.Equal(HttpStatusCode.BadRequest, (await PostKantAsync(brukerId, new
         {
-            Kategori = "R", Typekode = "underlagt", FraVirksomhetId = a, TilVirksomhetId = b, Polaritet = "positiv",
+            Kategori = "R", Typekode = "administrativt_underordnet", FraVirksomhetId = a, TilVirksomhetId = b, Polaritet = "positiv",
         })).StatusCode);
         // Ikke-eksisterende node.
         Assert.Equal(HttpStatusCode.BadRequest, (await PostKantAsync(brukerId, new
         {
-            Kategori = "R", Typekode = "underlagt", FraVirksomhetId = a, TilVirksomhetId = Guid.NewGuid(), HjemmelRettskildeId = lovId, Polaritet = "positiv",
+            Kategori = "R", Typekode = "administrativt_underordnet", FraVirksomhetId = a, TilVirksomhetId = Guid.NewGuid(), HjemmelRettskildeId = lovId, Polaritet = "positiv",
         })).StatusCode);
         // Feil nodetype: M krever klasse/område som mål — en virksomhet er ikke det.
         Assert.Equal(HttpStatusCode.BadRequest, (await PostKantAsync(brukerId, new
@@ -201,6 +210,95 @@ public class StrukturkantEndepunktTests
     }
 
     // ---------------- Forslag: godkjenn / avvis / slett ----------------
+
+    /// <summary>[Ny, issue #330 AC2] De gamle kodene er borte fra konfigurasjonen OG fra Startsett, så POST avviser
+    /// dem — også etter at API-oppstarten har kjørt seeden (fixturen reiser verten før testene kjører).</summary>
+    [Fact]
+    public async Task De_gamle_relasjonskodene_avvises_med_400()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var (lovId, _) = await OpprettRettskildeMedParagrafAsync();
+        var (a, _) = await OpprettVirksomhetAsync("Gammel kode A");
+        var (b, _) = await OpprettVirksomhetAsync("Gammel kode B");
+        foreach (var kode in RelasjonskodeHarmonisering.GamleKoder)
+        {
+            var svar = await PostKantAsync(brukerId, new
+            {
+                Kategori = "R", Typekode = kode, FraVirksomhetId = a, TilVirksomhetId = b, HjemmelRettskildeId = lovId, Polaritet = "positiv",
+            });
+            Assert.Equal(HttpStatusCode.BadRequest, svar.StatusCode);
+            Assert.Contains($"Ukjent typekode '{kode}'", await svar.Content.ReadAsStringAsync());
+        }
+        Assert.DoesNotContain(Strukturkanter.Startsett, s => RelasjonskodeHarmonisering.GamleKoder.Contains(s.Kode));
+    }
+
+    /// <summary>
+    /// [Ny, issue #330] PUT /api/strukturkanter/{id}/avgrensning — veien Energiklagenemnda-raden rettes gjennom.
+    /// Spørsmålene: settes spenn og tekst på SAMME kant (id beholdes), logges gammel og ny verdi i Proveniens, og
+    /// avvises en ukjent eId, en ukjent kant og en uinnlogget bruker?
+    /// </summary>
+    [Fact]
+    public async Task Avgrensning_kan_settes_paa_en_eksisterende_kant_og_logges()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var (lovId, paragrafEid) = await OpprettRettskildeMedParagrafAsync();
+        var (dep, _) = await OpprettVirksomhetAsync("Departementet");
+        var (nemnd, _) = await OpprettVirksomhetAsync("Klagenemnda");
+        var opprettet = await PostKantAsync(brukerId, new
+        {
+            Kategori = "R", Typekode = "klageinstans_for", FraVirksomhetId = dep, TilVirksomhetId = nemnd,
+            HjemmelRettskildeId = lovId, HjemmelEid = paragrafEid, Polaritet = "positiv",
+        });
+        var kant = (await opprettet.Content.ReadFromJsonAsync<StrukturkantDto>(JsonInnstillinger))!;
+        Assert.Empty(kant.Paragrafspenn);
+        Assert.Null(kant.AvgrensningTekst);
+
+        var url = $"/api/strukturkanter/{kant.Id}/avgrensning";
+        var body = new
+        {
+            Paragrafspenn = new[] { new { FraEid = paragrafEid, TilEid = (string?)null } },
+            AvgrensningTekst = "  enkeltvedtak nemnda treffer i første instans ",
+        };
+        var svar = await _client.SendAsync(MedBruker(HttpMethod.Put, url, brukerId, body));
+        Assert.Equal(HttpStatusCode.OK, svar.StatusCode);
+        var etter = (await svar.Content.ReadFromJsonAsync<StrukturkantDto>(JsonInnstillinger))!;
+        Assert.Equal(kant.Id, etter.Id);
+        Assert.Equal(paragrafEid, Assert.Single(etter.Paragrafspenn).FraEid);
+        Assert.Equal("enkeltvedtak nemnda treffer i første instans", etter.AvgrensningTekst);
+        Assert.Equal(("klageinstans_for", dep, nemnd), (etter.Typekode, etter.Fra.Id, etter.Til!.Id)); // identiteten urørt
+
+        await using (var db = _fixture.NyDbContext())
+        {
+            var p = await db.Proveniens.SingleAsync(x => x.EntitetId == kant.Id && x.Handling == "endret");
+            Assert.Equal(StrukturkantTjeneste.ProveniensType, p.EntitetType);
+            using var refs = JsonDocument.Parse(p.KildeReferanserJson!);
+            Assert.Equal("avgrensning", refs.RootElement.GetProperty("felt").GetString());
+            Assert.Equal(JsonValueKind.Null, refs.RootElement.GetProperty("forAvgrensningTekst").ValueKind);
+            Assert.Equal(paragrafEid, refs.RootElement.GetProperty("nyttParagrafspenn")[0].GetProperty("FraEid").GetString());
+            var lagret = await db.Strukturkanter.AsNoTracking().SingleAsync(x => x.Id == kant.Id);
+            Assert.NotNull(lagret.SistEndretTidspunkt);
+        }
+
+        // Samme verdi igjen: 200, ingen ny proveniensrad.
+        Assert.Equal(HttpStatusCode.OK, (await _client.SendAsync(MedBruker(HttpMethod.Put, url, brukerId, body))).StatusCode);
+        await using (var db = _fixture.NyDbContext())
+        {
+            Assert.Equal(1, await db.Proveniens.CountAsync(x => x.EntitetId == kant.Id && x.Handling == "endret"));
+        }
+
+        // Ukjent eId: 400, og kanten er uendret.
+        Assert.Equal(HttpStatusCode.BadRequest, (await _client.SendAsync(MedBruker(HttpMethod.Put, url, brukerId, new
+        {
+            Paragrafspenn = new[] { new { FraEid = "https://test/finnes-ikke/§9", TilEid = (string?)null } },
+        }))).StatusCode);
+        var uendret = await _client.GetFromJsonAsync<StrukturkantDto>($"/api/strukturkanter/{kant.Id}", JsonInnstillinger);
+        Assert.Equal(paragrafEid, Assert.Single(uendret!.Paragrafspenn).FraEid);
+
+        // Ukjent kant: 404. Uten bruker: avvist.
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.SendAsync(MedBruker(HttpMethod.Put,
+            $"/api/strukturkanter/{Guid.NewGuid()}/avgrensning", brukerId, body))).StatusCode);
+        Assert.NotEqual(HttpStatusCode.OK, (await _client.PutAsJsonAsync(url, body)).StatusCode);
+    }
 
     private async Task<Guid> OpprettForslagAsync(Guid fra, Guid til, string typekode)
     {

@@ -600,6 +600,11 @@ public sealed record StrukturkantRequest(
     // StrukturkantEntitet.KildeUtenforKorpusType. Dokumentasjon: primaer|sekundaer, påkrevd sammen med typen.
     string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null);
 
+/// <summary>[Ny, issue #330, 2026-10-08] PUT /api/strukturkanter/{id}/avgrensning — ERSTATTER kantens avgrensning
+/// (begge feltene; tomt/utelatt spenn og blank tekst fjerner dem). Se <c>StrukturkantTjeneste.OppdaterAvgrensningAsync</c>.</summary>
+public sealed record OppdaterStrukturkantAvgrensningRequest(
+    IReadOnlyList<ParagrafspennParDto>? Paragrafspenn = null, string? AvgrensningTekst = null);
+
 /// <summary>Ett cross-tenant søketreff for GET /api/tjenester/sok-tverr-tenant — se <see cref="TjenesteTverrTenantTreff"/>.</summary>
 public sealed record TjenesteTverrTenantTreffDto(Guid Id, string Tittel, string? Beskrivelse, Guid VirksomhetId, string VirksomhetNavn)
 {

@@ -50,7 +50,7 @@ public class VirksomhetSlettTjenesteTests
         db.Brukere.Add(new Bruker { Id = Guid.NewGuid(), Navn = "Test Testesen", VirksomhetId = virksomhetId, Rolle = "saksbehandler" });
         db.Strukturkanter.Add(new StrukturkantEntitet
         {
-            Id = Guid.NewGuid(), Kategori = Strukturkanter.Relasjon, Typekode = "underlagt",
+            Id = Guid.NewGuid(), Kategori = Strukturkanter.Relasjon, Typekode = "administrativt_underordnet",
             FraVirksomhetId = annenVirksomhetId, TilVirksomhetId = virksomhetId,
             KildeUtenforKorpusTekst = "test", KildeUtenforKorpusType = Strukturkanter.NettsideAnnet, KildeUtenforKorpusDokumentasjon = Strukturkanter.Sekundaer, OpprettetAv = "test",
         });
@@ -124,7 +124,7 @@ public class VirksomhetSlettTjenesteTests
             // virksomhet_relasjoner (tjenesten ryddet eksplisitt); strukturkanter kaskaderer i begge ender.
             var relasjon = new StrukturkantEntitet
             {
-                Id = Guid.NewGuid(), Kategori = Strukturkanter.Relasjon, Typekode = "underlagt",
+                Id = Guid.NewGuid(), Kategori = Strukturkanter.Relasjon, Typekode = "administrativt_underordnet",
                 FraVirksomhetId = annenVirksomhetId, TilVirksomhetId = virksomhetId,
                 KildeUtenforKorpusTekst = "test", KildeUtenforKorpusType = Strukturkanter.NettsideAnnet, KildeUtenforKorpusDokumentasjon = Strukturkanter.Sekundaer, OpprettetAv = "test",
             };
