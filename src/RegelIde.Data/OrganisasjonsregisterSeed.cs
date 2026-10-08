@@ -119,7 +119,14 @@ public static class OrganisasjonsregisterSeed
             var skalAlltidVaereAktiv = entry.Organisasjonsnummer is BergenOrgnr or AgderOrgnr;
 
             var matchetPaOrgnr = perOrgnr.TryGetValue(entry.Organisasjonsnummer, out var funnetPaOrgnr);
-            var match = matchetPaOrgnr ? funnetPaOrgnr : perNavn.GetValueOrDefault(entry.Navn);
+            // [ENDRET, issue #343, 2026-10-08] Navnetilbakefallet treffer KUN en rad UTEN organisasjonsnummer
+            // — de radene andre seeds har opprettet uten orgnr (Agder fylkeskommune, Bærum, Tønsberg; se
+            // klassekommentaren). Før traff det også en rad som alt HADDE et annet orgnr: kildefila har to
+            // «HERØY KOMMUNE» (872417982/964978840) og to «VÅLER KOMMUNE» (871034222/959272581), og den andre
+            // av hvert par ble da slått inn i den første og aldri opprettet (funnet under #312: Herøy 1515 og
+            // Våler 3114 manglet som rettssubjekt). Likt navn med ulikt orgnr er to virksomheter, ikke én.
+            var navneTreff = perNavn.GetValueOrDefault(entry.Navn);
+            var match = matchetPaOrgnr ? funnetPaOrgnr : (navneTreff?.Organisasjonsnummer is null ? navneTreff : null);
             var forsteGangDenneRaden = !matchetPaOrgnr && match is not null; // matchet kun på navn ⇒ orgnr var NULL fra før.
 
             if (match is null)
