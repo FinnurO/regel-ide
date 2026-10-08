@@ -99,6 +99,49 @@ public class KompetanseleksikonTests
         }
     }
 
+    /// <summary>[Ny, issue #352, Johanns beslutning 1] Verbene står i leksikonet, hver undertype finnes i
+    /// <see cref="Strukturkanter.Undertyper"/> og omvendt, og stammene avgjør undertypen på sitatet uten å gjette.</summary>
+    [Fact]
+    public void Undertypene_med_verb_star_i_leksikonet_og_samsvarer_med_typemodellen()
+    {
+        foreach (var u in Kompetanseleksikon.Undertyper)
+        {
+            Assert.True(Strukturkontrakt.ErGyldigUndertype(u.Type, u.Undertype), $"{u.Type}/{u.Undertype}");
+            Assert.False(string.IsNullOrWhiteSpace(u.Verb));
+            Assert.NotEmpty(u.Stammer);
+        }
+        foreach (var (kode, undertyper) in Strukturkanter.Undertyper)
+        {
+            var fasitType = Strukturkanter.Kompetansetyper.Single(t => t.Kode == kode).FasitType;
+            Assert.Equal(undertyper.Order(), Kompetanseleksikon.Undertyper.Where(u => u.Type == fasitType).Select(u => u.Undertype).Order());
+        }
+        // Johanns fire verb.
+        Assert.Equal(["ansetter", "oppnevner", "utpeker", "velger"],
+            Kompetanseleksikon.Undertyper.Where(u => u.Type == "oppnevningskompetanse").Select(u => u.Verb).Order());
+        // Familien heter oppnevning; vedtak-godkjennes-av er godkjenning (Johanns beslutning 3).
+        Assert.Equal("oppnevning", Kompetanseleksikon.For("oppnevnt-av").Familie);
+        Assert.Equal(("godkjenningskompetanse", "styring"),
+            (Kompetanseleksikon.For("vedtak-godkjennes-av").Type, Kompetanseleksikon.For("vedtak-godkjennes-av").Familie));
+    }
+
+    [Theory]
+    [InlineData("Forliksrådsmedlemmer med varamedlemmer velges av kommunestyret selv.", "valg")]
+    [InlineData("Styret tilsetter leder for internrevisjonen", "ansettelse")]
+    [InlineData("Helseinstitusjon som omfattes av denne loven, skal peke ut kontaktlege", "utpeking")]
+    [InlineData("Kongen oppnevner medlemmene av Tilsynsutvalget", "oppnevning")]
+    [InlineData("Dommere utnevnes som embetsmenn av Kongen", null)] // utnevning er ikke på Johanns liste
+    [InlineData("Finner han valget lovlig, utferdiger han oppnevnelse for de valgte", null)] // to verb: gjettes ikke
+    public void Undertypen_avgjores_paa_sitatet(string sitat, string? forventet) =>
+        Assert.Equal(forventet, Kompetanseleksikon.UndertypeFor("oppnevningskompetanse", sitat));
+
+    [Fact]
+    public void Monsterlaget_setter_undertypen_paa_oppnevning()
+    {
+        var d = Konverter("Kongen oppnevner medlemmene av Innstillingsrådet med personlige varamedlemmer.");
+        var u = Assert.Single(d.Utsagn, x => x.Type == "oppnevningskompetanse");
+        Assert.Equal("oppnevning", u.Undertype);
+    }
+
     private static Strukturdokument Konverter(string tekst) =>
         new MonsterStrukturkonverterer().Konverter(new Strukturkonverteringsgrunnlag("test", "https://lovdata.no/eli/lov/test/nor",
             [new Strukturnode("test", "https://lovdata.no/eli/lov/test/nor", "https://lovdata.no/eli/lov/test/nor/§1/ledd-1", "ledd", null, tekst)]));

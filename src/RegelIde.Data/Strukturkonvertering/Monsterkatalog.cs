@@ -111,7 +111,7 @@ internal static class Monsterkatalog
 
         Regex("vedtak-godkjennes-av",
             "«… skal/må godkjennes av X», «… må være godkjent av X», «Godkjenning … gis av X». IKKE «er godkjent av X» (tilstand/vilkår, ikke kompetanse).",
-            "Ikke målt i docs/33 §1. Godkjenning er et enkeltvedtak; mønsteret krever at godkjenneren står i setningen.",
+            "Ikke målt i docs/33 §1. [ENDRET, #352] Gir godkjenningskompetanse (familien styring), ikke vedtakskompetanse (Johanns beslutning 3); mønsteret krever at godkjenneren står i setningen.",
             new RegexMonsteroppsett(KreverFra: true, ObjektForan: true),
             @"\b(?:skal|må|kan)\s+(?:være\s+)?(?:godkjennes|godkjent)\s+av\s+" + Etter("fra"),
             @"\bGodkjenning\b" + Fritt + @"{0,80}?\bgis\s+av\s+" + Etter("fra")),

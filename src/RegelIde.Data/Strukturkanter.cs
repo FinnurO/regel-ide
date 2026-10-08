@@ -163,9 +163,61 @@ public static class Strukturkanter
             || (k.FraBegrepId is not null && k.FraBegrepId == k.TilBegrepId));
 
     /// <summary>[Ny, issue #341, Johanns beslutning 2026-10-08 (hierarki), <c>[LÅST]</c>] Kompetansefamiliene — speilet av
-    /// CHECK <c>ck_relasjonstype_konfigurasjon_familie</c>. <see cref="Beslutning"/> står over alle og har ingen familie.</summary>
+    /// CHECK <c>ck_relasjonstype_konfigurasjon_familie</c>. <see cref="Beslutning"/> står over alle og har ingen familie.
+    /// <para>
+    /// [ENDRET, issue #352, Johanns beslutning 1 2026-10-08, <c>[LÅST]</c>] <c>personell</c> heter <see cref="Oppnevning"/>:
+    /// «Oppnevningskompetanse … er den mest generelle kategorien. […] Fellesnevner: En aktør gis myndighet til å bestemme
+    /// hvem som skal inneha en rolle, et verv eller en funksjon.» Migrasjonen <c>OppnevningsfamilienOgRester</c> byttet
+    /// verdien i typekonfigurasjonen og i CHECK-en.
+    /// </para></summary>
     public static readonly string[] Familier =
-        ["struktur", "personell", "styring", "normgivning", "kontroll", "klage_overproving", "vedtak", "sanksjon"];
+        ["struktur", Oppnevning, "styring", "normgivning", "kontroll", "klage_overproving", "vedtak", "sanksjon"];
+
+    /// <summary>[Ny, issue #352] Familien OG K-typen oppnevning (samme ord: typen er familiens generelle form).</summary>
+    public const string Oppnevning = "oppnevning";
+
+    /// <summary>[Ny, issue #352] K-typen overprøving — anke er en undertype av den (<see cref="Undertyper"/>).</summary>
+    public const string Overproving = "overproving";
+
+    /// <summary>
+    /// [Ny, issue #352, Johanns beslutning 1 2026-10-08] Undertypene til en K-type — speilet av CHECK
+    /// <c>ck_strukturkanter_undertype</c>. Undertypen sier HVORDAN kompetansen utøves etter teksten, der typen er den
+    /// generelle formen: «Kommunestyret velger forliksrådsmedlemmer» er oppnevningskompetanse med undertype <c>valg</c>.
+    /// <para>
+    /// <b>Hvorfor et felt på kanten og ikke bare et uttrykk i leksikonet</b> (Johann: «Verbet … beholdes som en undertype
+    /// eller et uttrykk i leksikonet, så det kan spørres på»): leksikonet sier hvilke ORD som gir oppnevningskompetanse,
+    /// men ikke hvilket av dem en bestemt kant kom fra. Uten feltet kunne «hvem velger styremedlemmene?» bare besvares ved
+    /// å lese sitatet igjen, og de 26 fasitutsagnene som før #352 var <c>utpekingskompetanse</c> eller
+    /// <c>ansettelseskompetanse</c> ville mistet opplysningen de hadde (sakens AC: «ingenting går tapt»). Den naturlige
+    /// plassen er den <see cref="Normformer">normformen</see> alt har for normgivning: en lukket liste per type, bare på K,
+    /// NULL = ikke angitt. Normformen er IKKE slått sammen med undertypen — den er <c>[LÅST]</c> fra #341 og bærer sin
+    /// egen fvl-betydning.
+    /// </para>
+    /// <para>
+    /// <b>Ordene er substantiv</b> (<c>valg</c>, ikke <c>velger</c>), som typekodene og normformene; VERBENE («velger»,
+    /// «ansetter», «utpeker», «oppnevner») står i leksikonet (<c>kompetanseleksikon.json</c>, <c>undertyper</c>), sammen
+    /// med ordstammene som avgjør undertypen ut fra et sitat.
+    /// </para>
+    /// <para>
+    /// <b><c>anke</c> under overprøving</b> er hovedøktens tolkning (Johann bekrefter i PR-en for #352): Johann avgjorde at
+    /// <c>ankeinstans_for</c> blir K overprøving; uten undertypen kan «hvem er ankeinstans for tingrettene?» ikke skilles fra
+    /// annen overprøving (domstolsprøving av et forvaltningsvedtak), og det ville vært et tap.
+    /// </para>
+    /// <para>
+    /// <b>Avsetting er ikke en undertype av oppnevning</b>, men en egen type i familien oppnevning (hovedøktens tolkning,
+    /// Johann bekrefter: den er motsatsen). <c>utnevning</c> og <c>konstitusjon</c> står i fasitsitatene, men er ikke på
+    /// Johanns liste — de er ikke lagt til (spørsmål i PR-en), og et sitat med dem får undertype NULL.
+    /// </para>
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, string[]> Undertyper = new Dictionary<string, string[]>
+    {
+        [Oppnevning] = ["valg", "ansettelse", "utpeking", "oppnevning"],
+        [Overproving] = ["anke"],
+    };
+
+    /// <summary>[Ny, issue #352] Er <paramref name="undertype"/> en gyldig undertype for K-typen <paramref name="typekode"/>?</summary>
+    public static bool ErGyldigUndertype(string typekode, string undertype) =>
+        Undertyper.TryGetValue(typekode, out var lov) && lov.Contains(undertype);
 
     /// <summary>[Ny, issue #341, Johanns beslutning 2026-10-08, <c>[LÅST]</c>] Forvaltningslovens § 2-perspektiv — speilet av
     /// CHECK <c>ck_relasjonstype_konfigurasjon_fvl_kategori</c>.</summary>
@@ -186,6 +238,13 @@ public static class Strukturkanter
     /// (beslutning 2 på #341, kom før hierarkiet) er ikke plassert i en familie av Johann — NULL til det er avgjort.
     /// </para>
     /// <para>
+    /// [ENDRET, issue #352, Johanns beslutninger 2026-10-08] Familien <c>personell</c> heter <see cref="Oppnevning"/>, og
+    /// <c>utpeking</c> og <c>ansettelse</c> er ikke lenger egne typer: de er oppnevningskompetanse med
+    /// <see cref="Undertyper">undertype</see> <c>utpeking</c>/<c>ansettelse</c> (R <c>velger</c> ble undertype <c>valg</c>).
+    /// <c>avsetting</c> står i familien oppnevning som motsatsen (hovedøktens tolkning, Johann bekrefter). <c>forelegging</c>
+    /// har familien <c>kontroll</c> (Johanns beslutning 3).
+    /// </para>
+    /// <para>
     /// <b>Fvl-kategori</b> er satt bare der den følger av forvaltningsloven uten skjønn: vedtak og pålegg er
     /// enkeltvedtak (fvl. § 2 første ledd bokstav b), ansettelse er enkeltvedtak (§ 2 tredje ledd), instruksjon,
     /// samordning, tilsyn og revisjon er i seg selv ikke vedtak. Normgivning avgjøres av normformen (se
@@ -199,10 +258,10 @@ public static class Strukturkanter
         ("oppretting", "opprettingskompetanse", "opprettingskompetanse", "struktur", null),
         ("avvikling", "avviklingskompetanse", "avviklingskompetanse", "struktur", null),
         ("organisasjon", "organisasjonskompetanse", "organisasjonskompetanse", "struktur", null),
-        ("oppnevning", "oppnevningskompetanse", "oppnevningskompetanse", "personell", null),
-        ("utpeking", "utpekingskompetanse", "utpekingskompetanse", "personell", null),
-        ("ansettelse", "ansettelseskompetanse", "ansettelseskompetanse", "personell", "enkeltvedtak"),
-        ("avsetting", "avsettingskompetanse", "avsettingskompetanse", "personell", null),
+        // [ENDRET, issue #352] Familien heter oppnevning. [FJERNET, #352] utpeking og ansettelse — nå undertyper av oppnevning
+        // (migrasjonen OppnevningsfamilienOgRester flyttet kantene). Ansettelsens fvl-kategori følger undertypen (FvlKategoriFor).
+        (Oppnevning, "oppnevningskompetanse", "oppnevningskompetanse", Oppnevning, null),
+        ("avsetting", "avsettingskompetanse", "avsettingskompetanse", Oppnevning, null),
         ("instruksjon", "instruksjonskompetanse", "instruksjonskompetanse", "styring", "ikke_vedtak"),
         ("samordning", "samordningskompetanse", "samordningskompetanse", "styring", "ikke_vedtak"),
         ("delegering", "delegeringskompetanse", "delegeringskompetanse", "styring", null),
@@ -214,11 +273,12 @@ public static class Strukturkanter
         ("revisjon", "revisjonskompetanse", "revisjonskompetanse", "kontroll", "ikke_vedtak"),
         ("klage", "klagekompetanse", "klagekompetanse", "klage_overproving", null),
         ("omgjoring", "omgjøringskompetanse", "omgjoringskompetanse", "klage_overproving", null),
-        ("overproving", "overprøvingskompetanse", "overprovingskompetanse", "klage_overproving", null),
+        (Overproving, "overprøvingskompetanse", "overprovingskompetanse", "klage_overproving", null),
         ("stadfesting", "stadfestingskompetanse", "stadfestingskompetanse", "klage_overproving", null),
         ("vedtak", "vedtakskompetanse", "vedtakskompetanse", "vedtak", "enkeltvedtak"),
         ("sanksjon", "sanksjonskompetanse", "sanksjonskompetanse", "sanksjon", null),
-        ("forelegging", "foreleggingskompetanse", "foreleggingskompetanse", null, null),
+        // [ENDRET, issue #352, Johanns beslutning 3 2026-10-08] forelegging er kontroll (var NULL = ikke plassert).
+        ("forelegging", "foreleggingskompetanse", "foreleggingskompetanse", "kontroll", null),
     ];
 
     /// <summary>
@@ -239,9 +299,19 @@ public static class Strukturkanter
     /// er normgivning, og der er det normformen (som alt står på kanten) som avgjør. Et eget felt på kanten ville gitt
     /// to kilder til samme opplysning og en verdi som kan motsi typen.
     /// </para>
+    /// <para>
+    /// [ENDRET, issue #352] Samme slags unntak for oppnevning med undertype <c>ansettelse</c>: den er enkeltvedtak (fvl. § 2
+    /// tredje ledd), slik typen <c>ansettelse</c> var før den ble en undertype — opplysningen skal ikke gå tapt i
+    /// sammenslåingen. De andre undertypene (valg, utpeking, oppnevning) gir typens verdi (NULL = ikke avklart).
+    /// </para>
     /// </summary>
-    public static string? FvlKategoriFor(string typekode, string? normform, string? typensFvlKategori) =>
-        typekode == Normgivning ? (normform == "forskrift" ? "forskrift" : null) : typensFvlKategori;
+    public static string? FvlKategoriFor(string typekode, string? normform, string? undertype, string? typensFvlKategori) =>
+        typekode switch
+        {
+            Normgivning => normform == "forskrift" ? "forskrift" : null,
+            Oppnevning when undertype == "ansettelse" => "enkeltvedtak",
+            _ => typensFvlKategori,
+        };
 
     /// <summary>
     /// Kategoriene der en sykel er en registreringsfeil og avvises (Johanns valg i issue #164 for
@@ -304,15 +374,16 @@ public static class Strukturkanter
         // HAR delegert til mottakeren, avgrenset per paragraf. Unntakene i et delegeringsvedtak («omfatter ikke …»)
         // er avgrensning, ikke negativ kompetanse. Kompetansen til å delegere er K delegering.
         (Relasjon, HarDelegertTil, "har delegert myndighet til {0}", "har fått delegert myndighet fra {0}"),
-        // [UAVKLART, issue #341, 2026-10-08] Kodene under er verken på Johanns liste over struktur (P1) eller flyttet til
-        // K: administrativt_underordnet (hierarki — men innebærer instruksjon?), velger (valg — en form for oppnevning?),
-        // radgir (verken struktur eller myndighet, jf. åpent spørsmål 4 på #341), ankeinstans_for (anke er ikke i
-        // P2-typologien), oppretter og avvikler (organisasjonskompetanse eller en gjennomført handling?). De står
-        // uendret til Johann har avgjort dem — å flytte dem ville vært å gjette (CLAUDE.md §8).
+        // [ENDRET, issue #352, Johanns beslutning 4 2026-10-08 — sto som UAVKLART fra #341] administrativt_underordnet,
+        // radgir, oppretter og avvikler BLIR STÅENDE som R: «De er struktur eller hendelser, ikke myndighet.»
+        // oppretter/avvikler er den GJENNOMFØRTE handlingen; kompetansen til å opprette eller avvikle er K oppretting/
+        // avvikling i familien struktur.
+        // [FJERNET, #352] velger → K oppnevning med undertype valg («Kommunestyret velger forliksrådsmedlemmer»; samme
+        //   retning: fra = den som velger, til = den/det som velges), ankeinstans_for → K overprøving med undertype anke
+        //   (fra = ankeinstansen, til = den hvis avgjørelser ankes). Migrasjonen OppnevningsfamilienOgRester flyttet
+        //   kantene og slettet kodene fra konfigurasjonen; de er fjernet HERFRA også, ellers ville seeden lagt dem inn igjen.
         (Relasjon, "administrativt_underordnet", "er administrativt underordnet {0}", "er administrativt overordnet {0}"),
-        (Relasjon, "velger", "velger {0}", "velges av {0}"),
         (Relasjon, "radgir", "gir råd til {0}", "får råd fra {0}"),
-        (Relasjon, "ankeinstans_for", "er ankeinstans for {0}", "har ankeinstans hos {0}"),
         (Relasjon, "oppretter", "oppretter {0}", "er opprettet av {0}"),
         (Relasjon, "avvikler", "avvikler {0}", "avvikles av {0}"),
 
@@ -350,6 +421,12 @@ public static class Strukturkanter
         (Organtilhorighet, "har_organ", "er organ for {0}", "har organet {0}"),
         (Organtilhorighet, "del_av", "er del av {0}", "har som del {0}"),
         (Organtilhorighet, "har_medlemmer", "har medlemmer fra {0}", "har medlemmer i {0}"),
+        // [Ny, issue #352-tillegg, Johanns beslutning 2026-10-08, fasitkontrollen domstolloven u17] SAMMENSETNINGEN I DEN
+        // ENKELTE SAK: hvor mange og hvilke dommere (eller andre) som deltar i en sakstype — ikke organets faste medlemmer
+        // (har_medlemmer). Fra = rollen som deltar (G-noderegelen: «organ, enhet eller rolle»), til = organet som settes;
+        // antallet står i Objekt («fem dommere»), sakstypen i avgrensningen («andre saker enn etter første ledd første
+        // punktum»). Typen er merket saksavhengig (SaksavhengigeTyper), og visningsteksten tar med objektet.
+        (Organtilhorighet, SettesMed, "deltar i den enkelte sak i {0}", "settes i den enkelte sak med {0}"),
 
         // ---- I rolleinnehav (aktør → rolle) ----
         (Rolleinnehav, "innehar", "innehar rollen {0}", "innehas av {0}"),
@@ -357,6 +434,22 @@ public static class Strukturkanter
         // ---- T klassenivå (klasse → rolle/organtype; distributivt) ----
         (Klasseniva, "skal_ha", "skal (hvert medlem) ha {0}", "skal finnes hos hvert medlem av {0}"),
     ];
+
+    /// <summary>[Ny, issue #352-tillegg] G-typen for sammensetningen i den enkelte sak.</summary>
+    public const string SettesMed = "settes_med";
+
+    /// <summary>
+    /// [Ny, issue #352-tillegg, Johanns beslutning 2026-10-08] Typene som gjelder den ENKELTE SAKEN, ikke organet fast —
+    /// seedes som <see cref="RelasjonsTypeKonfigurasjonEntitet.Saksavhengig"/> = true.
+    /// <para>
+    /// <b>Antallet i <c>Objekt</c>, ikke i et eget tallfelt (valgt og begrunnet, #352):</b> lovteksten sier antallet i
+    /// former et heltall ikke bærer uten tap — «fem dommere», «minst tre», «en dommer og en varadommer», «alle … som ikke er
+    /// ugilde» (plenum) — og fasiten har alt antallet i objektet på de tilsvarende <c>har_medlemmer</c>-utsagnene («3
+    /// dommere», «11 dommere»). Ingen spørsmål i docs/32 §3 krever å regne med antallet ennå; et tallfelt kan legges til den
+    /// dagen et gjør det, uten å miste noe, fordi teksten står i objektet.
+    /// </para>
+    /// </summary>
+    public static readonly IReadOnlyList<(string Kategori, string Kode)> SaksavhengigeTyper = [(Organtilhorighet, SettesMed)];
 
     /// <summary>Typekoden migrerte myndighetstildelinger og gruppemedlemskap får (issue #311).</summary>
     public const string MedlemAv = "medlem_av";
@@ -384,6 +477,7 @@ public static class Strukturkanter
             {
                 Id = Guid.NewGuid(), Kategori = kategori, Kode = kode, FraVisningsmal = fraMal, TilVisningsmal = tilMal,
                 Sorteringsrekkefolge = rekkefolge, Familie = kt.Familie, FvlKategori = kt.FvlKategori,
+                Saksavhengig = SaksavhengigeTyper.Contains((kategori, kode)), // [Ny, #352-tillegg]
             });
         }
         if (nye.Count == 0) return;

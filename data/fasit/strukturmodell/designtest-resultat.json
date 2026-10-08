@@ -17,11 +17,11 @@
  },
  {
   "kilde": "sameloven",
-  "kategori": "relasjon",
-  "type": "velger",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "sameloven",
@@ -1322,7 +1322,7 @@
  {
   "kilde": "sameloven",
   "kategori": "kompetanse",
-  "type": "ansettelseskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -2386,7 +2386,7 @@
  {
   "kilde": "energiloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -2394,7 +2394,7 @@
  {
   "kilde": "energiloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -2402,7 +2402,7 @@
  {
   "kilde": "energiloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -2818,7 +2818,7 @@
  {
   "kilde": "energiloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -3314,7 +3314,7 @@
  {
   "kilde": "energiloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -3362,7 +3362,7 @@
  {
   "kilde": "energiloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -3458,7 +3458,7 @@
  {
   "kilde": "energiloven",
   "kategori": "kompetanse",
-  "type": "vedtakskompetanse",
+  "type": "godkjenningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -4490,7 +4490,7 @@
  {
   "kilde": "helse-og-omsorgstjenesteloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -4842,7 +4842,7 @@
  {
   "kilde": "helse-og-omsorgstjenesteloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -5138,7 +5138,7 @@
  {
   "kilde": "helse-og-omsorgstjenesteloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -5298,7 +5298,7 @@
  {
   "kilde": "helse-og-omsorgstjenesteloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -5338,7 +5338,7 @@
  {
   "kilde": "helse-og-omsorgstjenesteloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -5554,7 +5554,7 @@
  {
   "kilde": "helse-og-omsorgstjenesteloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -5570,7 +5570,7 @@
  {
   "kilde": "helse-og-omsorgstjenesteloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -6018,7 +6018,7 @@
  {
   "kilde": "spesialisthelsetjenesteloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -6425,11 +6425,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "velger",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -6449,35 +6449,35 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "velger",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "velger",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "velger",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "velger",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -6521,11 +6521,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "velger",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -6545,27 +6545,27 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "velger",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "velger",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "velger",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -6946,18 +6946,18 @@
  {
   "kilde": "spesialisthelsetjenesteloven",
   "kategori": "kompetanse",
-  "type": "vedtakskompetanse",
+  "type": "godkjenningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "velger",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -6993,19 +6993,19 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "velger",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "velger",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -7242,7 +7242,7 @@
  {
   "kilde": "spesialisthelsetjenesteloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -7610,7 +7610,7 @@
  {
   "kilde": "spesialisthelsetjenesteloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -7826,7 +7826,7 @@
  {
   "kilde": "spesialisthelsetjenesteloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -7842,7 +7842,7 @@
  {
   "kilde": "spesialisthelsetjenesteloven",
   "kategori": "kompetanse",
-  "type": "vedtakskompetanse",
+  "type": "godkjenningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -8394,7 +8394,7 @@
  {
   "kilde": "domstolloven",
   "kategori": "organsammensetning",
-  "type": "har_medlemmer",
+  "type": "settes_med",
   "dagens": "nei",
   "revidert": "ja",
   "element": "G"
@@ -8497,11 +8497,11 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "relasjon",
-  "type": "annet:ankeinstans_for",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "overprovingskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "domstolloven",
@@ -8722,7 +8722,7 @@
  {
   "kilde": "domstolloven",
   "kategori": "kompetanse",
-  "type": "vedtakskompetanse",
+  "type": "godkjenningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -8746,7 +8746,7 @@
  {
   "kilde": "domstolloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -8785,11 +8785,11 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "relasjon",
-  "type": "velger",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "domstolloven",
@@ -8882,7 +8882,7 @@
  {
   "kilde": "domstolloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -8953,11 +8953,11 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "relasjon",
-  "type": "velger",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "domstolloven",
@@ -9018,7 +9018,7 @@
  {
   "kilde": "domstolloven",
   "kategori": "kompetanse",
-  "type": "ansettelseskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -9114,7 +9114,7 @@
  {
   "kilde": "domstolloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -9178,7 +9178,7 @@
  {
   "kilde": "domstolloven",
   "kategori": "kompetanse",
-  "type": "utpekingskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -9378,7 +9378,7 @@
  {
   "kilde": "domstolloven",
   "kategori": "kompetanse",
-  "type": "ansettelseskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -9409,11 +9409,11 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "relasjon",
-  "type": "velger",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "domstolloven",
@@ -9466,7 +9466,7 @@
  {
   "kilde": "domstolloven",
   "kategori": "kompetanse",
-  "type": "ansettelseskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -9474,7 +9474,7 @@
  {
   "kilde": "domstolloven",
   "kategori": "kompetanse",
-  "type": "ansettelseskompetanse",
+  "type": "oppnevningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -9585,11 +9585,11 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "relasjon",
-  "type": "velger",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "domstolloven",
@@ -9689,11 +9689,11 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "relasjon",
-  "type": "annet:ankeinstans_for",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "overprovingskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "domstolloven",
@@ -9794,7 +9794,7 @@
  {
   "kilde": "domstolloven",
   "kategori": "kompetanse",
-  "type": "vedtakskompetanse",
+  "type": "godkjenningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -10457,11 +10457,11 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "relasjon",
-  "type": "annet:ankeinstans_for",
-  "dagens": "nei",
+  "kategori": "kompetanse",
+  "type": "overprovingskompetanse",
+  "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "domstolloven",

@@ -2709,7 +2709,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§25/ledd-3",
       "sitat": "Rettslokalene må være godkjent av domstoladministrasjonen.",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "godkjenningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "godkjenne rettslokaler",
@@ -2794,8 +2794,8 @@
       "id": "u23",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-3",
       "sitat": "Kommunestyret velger et av medlemmene til formann.",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a14",
       "til": "a15",
       "objekt": null,
@@ -2805,7 +2805,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "valg"
     },
     {
       "id": "u24",
@@ -2828,8 +2829,8 @@
       "id": "u25",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-4",
       "sitat": "Den ene formannen velges som leder for domstolen.",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a13",
       "til": "a16",
       "objekt": null,
@@ -2839,7 +2840,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": "Forliksrådet velger formann som leder.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "valg"
     },
     {
       "id": "u26",
@@ -3067,14 +3069,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": "Stortinget velger to medlemmer til styret.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "valg"
     },
     {
       "id": "u39",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§33a/ledd-1",
       "sitat": "Kongen fastsetter hvilket medlem som skal være leder for styret for domstoladministrasjonen.",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "leder for styret",
@@ -3085,7 +3088,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": true
+      "delegerbar": true,
+      "undertype": "utpeking"
     },
     {
       "id": "u40",
@@ -4009,7 +4013,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§57/ledd-1",
       "sitat": "Forliksrådsmedlemmer med varamedlemmer velges av kommunestyret selv.",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a14",
       "til": null,
       "objekt": "forliksrådsmedlemmer med varamedlemmer",
@@ -4020,7 +4024,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": false
+      "delegerbar": false,
+      "undertype": "utpeking"
     },
     {
       "id": "u94",
@@ -4348,7 +4353,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": false
+      "delegerbar": false,
+      "undertype": "valg"
     },
     {
       "id": "u113",
@@ -4365,7 +4371,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": "Kommunestyret velger, men her spesifisert for delte kommuner.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "valg"
     },
     {
       "id": "u114",
@@ -4520,7 +4527,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": false
+      "delegerbar": false,
+      "undertype": "valg"
     },
     {
       "id": "u123",
@@ -5170,7 +5178,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "oppnevning"
     },
     {
       "id": "u161",
@@ -5187,7 +5196,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "oppnevning"
     },
     {
       "id": "u162",
@@ -5272,7 +5282,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "oppnevning"
     },
     {
       "id": "u167",
@@ -5289,7 +5300,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "oppnevning"
     },
     {
       "id": "u168",
@@ -5306,7 +5318,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "oppnevning"
     },
     {
       "id": "u169",
@@ -5573,7 +5586,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§121d/ledd-1",
       "sitat": "Godkjenning av dommeres sidegjøremål gis av domstoladministrasjonen.",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "godkjenningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "godkjenning av dommeres sidegjøremål",
@@ -6042,7 +6055,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§135/ledd-1",
       "sitat": "Skal nogen, som ikke kan norsk, ta del i forhandlingen, brukes en tolk, som retten har opnævnt eller godkjendt.",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a32",
       "til": null,
       "objekt": "oppnevne eller godkjenne tolk",
@@ -6052,7 +6065,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": "Retten oppnevner eller godkjenner tolk.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "utpeking"
     },
     {
       "id": "u212",
@@ -7452,7 +7466,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": true
+      "delegerbar": true,
+      "undertype": "oppnevning"
     },
     {
       "id": "u293",
@@ -7470,7 +7485,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": true
+      "delegerbar": true,
+      "undertype": "oppnevning"
     },
     {
       "id": "u294",

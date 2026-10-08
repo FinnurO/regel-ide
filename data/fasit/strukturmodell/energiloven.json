@@ -1162,7 +1162,7 @@
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§2-4/ledd-1",
    "sitat": "Kongen kan gi forskrift om at nærmere bestemte vedtak etter § 3-1 skal fattes av Kongen i statsråd.",
    "kategori": "kompetanse",
-   "type": "utpekingskompetanse",
+   "type": "oppnevningskompetanse",
    "fra": "a2",
    "til": null,
    "objekt": "hvem som fatter vedtak etter § 3-1",
@@ -1172,14 +1172,15 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Utøves ved forskrift 2013/681 (i korpus). Kongen kan trekke vedtakskompetanse til seg selv.",
-   "delegerbar": false
+   "delegerbar": false,
+   "undertype": "utpeking"
   },
   {
    "id": "u15",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§2-5/ledd-1",
    "sitat": "Departementet utpeker en reguleringsmyndighet og klagenemnd etter denne loven",
    "kategori": "kompetanse",
-   "type": "utpekingskompetanse",
+   "type": "oppnevningskompetanse",
    "fra": "a1",
    "til": null,
    "objekt": "utpeking av reguleringsmyndighet (a3)",
@@ -1188,14 +1189,15 @@
    "betinget": false,
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
-   "kommentar": "Unntatt fra delegering (kap-I/ledd-5). Selve utpekingen skjer utenfor korpus."
+   "kommentar": "Unntatt fra delegering (kap-I/ledd-5). Selve utpekingen skjer utenfor korpus.",
+   "undertype": "utpeking"
   },
   {
    "id": "u16",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§2-5/ledd-1",
    "sitat": "Departementet utpeker en reguleringsmyndighet og klagenemnd etter denne loven",
    "kategori": "kompetanse",
-   "type": "utpekingskompetanse",
+   "type": "oppnevningskompetanse",
    "fra": "a1",
    "til": null,
    "objekt": "utpeking av klagenemnd (a4)",
@@ -1204,7 +1206,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
-   "kommentar": "Unntatt fra delegering (kap-I/ledd-5). Oppnevning av nemndas medlemmer og sekretariat er ikke regulert i korpuset."
+   "kommentar": "Unntatt fra delegering (kap-I/ledd-5). Oppnevning av nemndas medlemmer og sekretariat er ikke regulert i korpuset.",
+   "undertype": "utpeking"
   },
   {
    "id": "u17",
@@ -2041,7 +2044,7 @@
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-3/ledd-2",
    "sitat": "tillegges den som utpekes av reguleringsmyndigheten",
    "kategori": "kompetanse",
-   "type": "utpekingskompetanse",
+   "type": "oppnevningskompetanse",
    "fra": "a3",
    "til": null,
    "objekt": "avregningsansvarlig (a14)",
@@ -2050,7 +2053,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
-   "kommentar": "Utpeker privat aktør som skal utøve offentlig myndighet."
+   "kommentar": "Utpeker privat aktør som skal utøve offentlig myndighet.",
+   "undertype": "utpeking"
   },
   {
    "id": "u69",
@@ -3054,7 +3058,7 @@
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§6-1/ledd-2",
    "sitat": "Departementet tildeler myndigheten til å utøve systemansvaret på nærmere fastsatte vilkår.",
    "kategori": "kompetanse",
-   "type": "utpekingskompetanse",
+   "type": "oppnevningskompetanse",
    "fra": "a1",
    "til": null,
    "objekt": "systemansvarlig (a13)",
@@ -3063,7 +3067,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
-   "kommentar": "Unntatt fra delegering (kap-I/ledd-5). Tildelingsvedtaket er utenfor korpus."
+   "kommentar": "Unntatt fra delegering (kap-I/ledd-5). Tildelingsvedtaket er utenfor korpus.",
+   "undertype": "utpeking"
   },
   {
    "id": "u131",
@@ -3150,7 +3155,7 @@
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§6-2/ledd-2",
    "sitat": "Departementet utpeker en rasjoneringsmyndighet",
    "kategori": "kompetanse",
-   "type": "utpekingskompetanse",
+   "type": "oppnevningskompetanse",
    "fra": "a1",
    "til": null,
    "objekt": "rasjoneringsmyndighet (a8)",
@@ -3159,7 +3164,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Unntatt fra delegering, men utøvd i delegeringsvedtaket kap-I/ledd-7 (NVE)."
+   "kommentar": "Unntatt fra delegering, men utøvd i delegeringsvedtaket kap-I/ledd-7 (NVE).",
+   "undertype": "utpeking"
   },
   {
    "id": "u137",
@@ -3347,7 +3353,7 @@
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§7-4/ledd-1",
    "sitat": "skal godkjennes av departementet",
    "kategori": "kompetanse",
-   "type": "vedtakskompetanse",
+   "type": "godkjenningskompetanse",
    "fra": "a1",
    "til": null,
    "objekt": "godkjenning av kost-nytteanalyse",
@@ -3572,7 +3578,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "utpeking"
   },
   {
    "id": "u162",

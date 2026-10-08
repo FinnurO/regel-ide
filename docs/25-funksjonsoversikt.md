@@ -424,6 +424,14 @@ arbeidsordning, vedtekter, instruks), grunnlag (offentligrettslig/privatrettslig
 hvor det står (hjemmelsstedet) fra hvilke paragrafer det gjelder for (avgrensningen). Mønsterlaget i den automatiske
 konverteringen styres av et versjonert leksikon over lovuttrykk (`kompetanseleksikon.json`).
 
+[NYTT, 2026-10-08, issue #352] **Oppnevningsfamilien og sammensetningen i den enkelte sak.** Familien «personell» heter
+«oppnevning»: å velge, ansette, utpeke eller oppnevne noen er oppnevningskompetanse med motpart, og verbet står som
+**undertype** («Kommunestyret har oppnevningskompetanse (valg) overfor forliksrådet»). Ankeinstans er overprøving med
+undertype anke; forelegging er i familien kontroll; «… skal godkjennes av X» er godkjenning, ikke vedtak. «Administrativt
+underordnet», «gir råd til», «oppretter» og «avvikler» er fortsatt relasjoner. Ny organtilhørighet «settes i den enkelte
+sak med» skiller hvordan et organ settes i en sakstype («Høyesterett settes med fem dommere i andre saker …») fra organets
+faste medlemmer; typen er merket saksavhengig, og antallet står i teksten.
+
 Organene **Stortinget** og **Kongen i statsråd** er nå virksomheter (aktørtype organ), ikke begreper.
 
 *Hvor:* «Myndighet & relasjoner»-fanen på en virksomhet (seksjonene kompetanse — gruppert og filtrerbar på familie

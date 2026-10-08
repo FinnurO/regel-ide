@@ -42,6 +42,10 @@ public class StrukturkontraktTests
     [InlineData("kompetanse", "ukjent", true)]
     [InlineData("relasjon", "klageinstans_for", false)] // [ENDRET, #341] er klagekompetanse med motpart
     [InlineData("relasjon", "har_delegert_til", true)]
+    [InlineData("relasjon", "velger", false)] // [Ny, #352] er oppnevningskompetanse med undertype valg
+    [InlineData("kompetanse", "utpekingskompetanse", false)] // [Ny, #352] er oppnevningskompetanse med undertype utpeking
+    [InlineData("kompetanse", "ansettelseskompetanse", false)] // [Ny, #352] er oppnevningskompetanse med undertype ansettelse
+    [InlineData("relasjon", "radgir", true)] // [Ny, #352] Johanns beslutning 4: struktur
     [InlineData("relasjon", "del_av", true)]
     [InlineData("sammensetning_omrade", "del_av", true)]
     [InlineData("kompetanse", "annet:klageordning", true)]

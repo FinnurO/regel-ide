@@ -579,7 +579,8 @@ public class StrukturkantTjenesteTests
         var o = await NyttOppsettAsync(db);
         var (a, b) = (await NyVirksomhetAsync(db), await NyVirksomhetAsync(db));
         var tjeneste = new StrukturkantTjeneste(db);
-        var kant = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "velger",
+        // [ENDRET, issue #352] var R velger — den er nå K oppnevning med undertype valg; radgir er fortsatt R.
+        var kant = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "radgir",
             Kantnode.Virksomhet(a), Kantnode.Virksomhet(b), HjemmelRettskildeId: o.LovId), "Kari Jurist");
 
         Assert.True(await tjeneste.SlettAsync(kant.Kant.Id, "Kari Jurist"));
@@ -824,6 +825,82 @@ public class StrukturkantTjenesteTests
             Normform: "forskrift"), "Kari Jurist")).VarNy);
     }
 
+    /// <summary>[Ny, issue #352, Johanns beslutning 1] S9 «hvem kan velge medlemmene av forliksrådet?»: oppnevningskompetanse
+    /// med undertype valg, med motpart. Undertypen er en lukket liste per type, bare på K, del av utsagnets identitet og vises
+    /// i parentes; ansettelse gir fvl-kategori enkeltvedtak.</summary>
+    [Fact]
+    public async Task Undertype_paa_oppnevning_valideres_lagres_og_vises()
+    {
+        await using var db = _fixture.NyDbContext();
+        var o = await NyttOppsettAsync(db);
+        var (kommunestyret, forliksradet, styret) = (await NyVirksomhetAsync(db, "Kommunestyret"), await NyVirksomhetAsync(db, "Forliksrådet"),
+            await NyVirksomhetAsync(db, "Styret"));
+        var tjeneste = new StrukturkantTjeneste(db);
+
+        var valg = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, Strukturkanter.Oppnevning,
+            Kantnode.Virksomhet(kommunestyret), Kantnode.Virksomhet(forliksradet), HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid,
+            Undertype: "valg"), "Kari Jurist");
+        Assert.Equal("valg", valg.Kant.Undertype);
+        var v = Assert.Single(await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(kommunestyret)));
+        Assert.Equal(("valg", "oppnevning", (string?)null), (v.Undertype, v.Familie, v.FvlKategori));
+        Assert.StartsWith("har oppnevningskompetanse (valg) overfor Forliksrådet", v.Visningstekst); // navnet har et unikt suffiks
+
+        // Samme motpart, annet verb: et annet utsagn (undertypen er identitet), og ansettelse er enkeltvedtak.
+        var ansettelse = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, Strukturkanter.Oppnevning,
+            Kantnode.Virksomhet(kommunestyret), Kantnode.Virksomhet(forliksradet), HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid,
+            Undertype: "ansettelse"), "Kari Jurist");
+        Assert.True(ansettelse.VarNy);
+        Assert.Equal("enkeltvedtak", (await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(kommunestyret)))
+            .Single(k => k.Undertype == "ansettelse").FvlKategori);
+
+        // Anke under overprøving.
+        Assert.Equal("anke", (await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, Strukturkanter.Overproving,
+            Kantnode.Virksomhet(styret), Kantnode.Virksomhet(forliksradet), HjemmelRettskildeId: o.LovId, Undertype: "anke"), "Kari Jurist")).Kant.Undertype);
+
+        // Feil undertype for typen, ukjent undertype, undertype på en type uten undertyper og på R: avvist, ingen gjetning.
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, Strukturkanter.Oppnevning,
+            Kantnode.Virksomhet(kommunestyret), Kantnode.Virksomhet(styret), HjemmelRettskildeId: o.LovId, Undertype: "anke"), "Kari Jurist"));
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, Strukturkanter.Oppnevning,
+            Kantnode.Virksomhet(kommunestyret), Kantnode.Virksomhet(styret), HjemmelRettskildeId: o.LovId, Undertype: "utnevning"), "Kari Jurist"));
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "klage",
+            Kantnode.Virksomhet(kommunestyret), Kantnode.Virksomhet(styret), HjemmelRettskildeId: o.LovId, Undertype: "valg"), "Kari Jurist"));
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "radgir",
+            Kantnode.Virksomhet(kommunestyret), Kantnode.Virksomhet(styret), HjemmelRettskildeId: o.LovId, Undertype: "valg"), "Kari Jurist"));
+
+        // Databasen holder samme grense som tjenesten (ck_strukturkanter_undertype).
+        db.ChangeTracker.Clear();
+        db.Strukturkanter.Add(new StrukturkantEntitet
+        {
+            Id = Guid.NewGuid(), Kategori = "K", Typekode = "klage", FraVirksomhetId = kommunestyret, TilVirksomhetId = styret,
+            HjemmelRettskildeId = o.LovId, Undertype = "valg", OpprettetAv = "test",
+        });
+        await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync());
+    }
+
+    /// <summary>[Ny, issue #352-tillegg, Johann 2026-10-08 (domstolloven u17)] «Hvordan settes Høyesterett i andre saker?»:
+    /// G settes_med fra rollen som deltar til organet, antallet i objektet og sakstypen i avgrensningen — typen er merket
+    /// saksavhengig, og antallet står i teksten fra begge sider.</summary>
+    [Fact]
+    public async Task Settes_med_er_saksavhengig_sammensetning_med_antall_og_sakstype()
+    {
+        await using var db = _fixture.NyDbContext();
+        var o = await NyttOppsettAsync(db);
+        var hoyesterett = await NyVirksomhetAsync(db, "Høyesterett");
+        var dommer = await NyttBegrepAsync(db, Nodetyper.Rolle, o.LovId, "dommer-i-hoyesterett");
+        var tjeneste = new StrukturkantTjeneste(db);
+
+        await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Organtilhorighet, Strukturkanter.SettesMed,
+            Kantnode.Begrep(dommer), Kantnode.Virksomhet(hoyesterett), HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid,
+            Objekt: "fem dommere", AvgrensningTekst: "andre saker enn etter første ledd første punktum"), "Kari Jurist");
+
+        Assert.True((await db.RelasjonsTypeKonfigurasjoner.SingleAsync(t => t.Kategori == "G" && t.Kode == Strukturkanter.SettesMed)).Saksavhengig);
+        Assert.False((await db.RelasjonsTypeKonfigurasjoner.SingleAsync(t => t.Kategori == "G" && t.Kode == "har_medlemmer")).Saksavhengig);
+        var v = Assert.Single(await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(hoyesterett)));
+        Assert.StartsWith("settes i den enkelte sak med ", v.Visningstekst);
+        Assert.EndsWith("(fem dommere)", v.Visningstekst);
+        Assert.Equal("andre saker enn etter første ledd første punktum", v.AvgrensningTekst);
+    }
+
     /// <summary>[Ny, issue #341, Johanns beslutning P2] Selvregulering er normgivning der motparten er innehaveren selv — den
     /// eneste selvkanten som er lov, i tjenesten og i databasen.</summary>
     [Fact]
@@ -865,12 +942,18 @@ public class StrukturkantTjenesteTests
             var rad = await db.RelasjonsTypeKonfigurasjoner.SingleAsync(k => k.Kategori == "K" && k.Kode == t.Kode);
             Assert.Equal(t.Familie, rad.Familie);
             Assert.Equal(t.FvlKategori, rad.FvlKategori);
-            Assert.Equal(t.Kode is Strukturkanter.Beslutning or "forelegging", rad.Familie is null);
+            // [ENDRET, issue #352] Bare beslutning står uten familie: forelegging er kontroll (Johanns beslutning 3).
+            Assert.Equal(t.Kode is Strukturkanter.Beslutning, rad.Familie is null);
         }
+        Assert.Equal("kontroll", (await db.RelasjonsTypeKonfigurasjoner.SingleAsync(k => k.Kategori == "K" && k.Kode == "forelegging")).Familie);
+        Assert.False(await db.RelasjonsTypeKonfigurasjoner.AnyAsync(k => k.Familie == "personell")); // [Ny, #352] heter oppnevning
         Assert.Equal("normgivning", Strukturkanter.KompetansetypeFraFasit["normgivningskompetanse"]);
-        Assert.Equal("enkeltvedtak", Strukturkanter.FvlKategoriFor("vedtak", null, "enkeltvedtak"));
-        Assert.Equal("forskrift", Strukturkanter.FvlKategoriFor(Strukturkanter.Normgivning, "forskrift", null));
-        Assert.Null(Strukturkanter.FvlKategoriFor(Strukturkanter.Normgivning, "instruks", null));
+        Assert.Equal("enkeltvedtak", Strukturkanter.FvlKategoriFor("vedtak", null, null, "enkeltvedtak"));
+        Assert.Equal("forskrift", Strukturkanter.FvlKategoriFor(Strukturkanter.Normgivning, "forskrift", null, null));
+        Assert.Null(Strukturkanter.FvlKategoriFor(Strukturkanter.Normgivning, "instruks", null, null));
+        // [Ny, issue #352] Ansettelse var enkeltvedtak som egen type; som undertype av oppnevning er den det fortsatt.
+        Assert.Equal("enkeltvedtak", Strukturkanter.FvlKategoriFor(Strukturkanter.Oppnevning, null, "ansettelse", null));
+        Assert.Null(Strukturkanter.FvlKategoriFor(Strukturkanter.Oppnevning, null, "valg", null));
 
         var (dep, dir) = (await NyVirksomhetAsync(db, "Departementet"), await NyVirksomhetAsync(db, "Direktoratet"));
         var tjeneste = new StrukturkantTjeneste(db);

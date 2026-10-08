@@ -207,7 +207,7 @@ public class MonsterStrukturkonvertererTests
     {
         var aktorfelt = Feltnavn(JsonSerializer.SerializeToNode(new StrukturAktor("a1", "x", [], [], 1, null, null, null, null, null, null) { VerifisertAv = "x" })!); // [ENDRET, #312] + verifisert_av
         var utsagnfelt = Feltnavn(JsonSerializer.SerializeToNode(new StrukturUtsagn("u1", "e", "s", "k", "t", null, null, null, "positiv", null, null, null, null, null)
-            { VerifisertAv = "x", Normform = "forskrift", Grunnlag = "privatrettslig", Delegerbar = true })!); // [ENDRET, #341] + kompetansefeltene
+            { VerifisertAv = "x", Normform = "forskrift", Grunnlag = "privatrettslig", Delegerbar = true, Undertype = "valg" })!); // [ENDRET, #341] + kompetansefeltene, [ENDRET, #352] + undertype
 
         foreach (var kilde in StrukturfasitLeser.LesAlle())
         {

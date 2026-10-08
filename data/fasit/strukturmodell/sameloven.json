@@ -2690,8 +2690,8 @@
       "id": "u3",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§1-2/ledd-1",
       "sitat": "valgt av og blant samene",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a3",
       "til": "a1",
       "objekt": null,
@@ -2700,7 +2700,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Både velgerkorps ('av') og valgbarhetskrets ('blant'). Operasjonalisert via valgmanntallet (§ 2-6)."
+      "kommentar": "Både velgerkorps ('av') og valgbarhetskrets ('blant'). Operasjonalisert via valgmanntallet (§ 2-6).",
+      "undertype": "valg"
     },
     {
       "id": "u4",
@@ -5310,7 +5311,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-12/ledd-1",
       "sitat": "Personalet ved administrasjonen ansettes av Sametinget.",
       "kategori": "kompetanse",
-      "type": "ansettelseskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "ansettelse av personale i Sametingets administrasjon",
@@ -5319,7 +5320,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Arbeidsgiverfunksjon — ingen standardtype (oppnevningskompetanse dekker ikke ansettelse)."
+      "kommentar": "Arbeidsgiverfunksjon — ingen standardtype (oppnevningskompetanse dekker ikke ansettelse).",
+      "undertype": "ansettelse"
     },
     {
       "id": "u167",
@@ -5415,7 +5417,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "oppnevning"
     },
     {
       "id": "u173",
@@ -5463,7 +5466,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "oppnevning"
     },
     {
       "id": "u176",
@@ -5886,7 +5890,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "lav",
-      "kommentar": "Prosessuell kompetanse i den enkelte sak — grensetilfelle mot saksbehandling."
+      "kommentar": "Prosessuell kompetanse i den enkelte sak — grensetilfelle mot saksbehandling.",
+      "undertype": "oppnevning"
     },
     {
       "id": "u202",

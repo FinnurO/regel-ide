@@ -122,6 +122,8 @@ public sealed class MonsterStrukturkonverterer : IStrukturkonverterer
                 Oppdagelseskilde = u.Monster.Oppdagelseskilde,
                 // [Ny, issue #341] Normformen fra leksikonet, og delegerbar etter #335-regelen avgjort på sitatet.
                 Normform = u.Monster.Normform,
+                // [Ny, issue #352] Undertypen fra leksikonets ordstammer på sitatet (null ved ingen eller flere treff).
+                Undertype = u.Monster.Kategori == "kompetanse" ? Kompetanseleksikon.UndertypeFor(u.Monster.Type, u.Sitat) : null,
                 Delegerbar = u.Monster.Kategori == "kompetanse" ? Delegerbar(u.Fra, u.Sitat) : null,
             });
         }

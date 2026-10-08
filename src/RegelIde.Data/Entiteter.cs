@@ -1179,9 +1179,10 @@ public sealed class RelasjonsTypeKonfigurasjonEntitet
 
     /// <summary>
     /// [Ny, issue #341, Johanns beslutning 2026-10-08 (hierarki med familier)] Kompetansefamilien til en K-type:
-    /// struktur | personell | styring | normgivning | kontroll | klage_overproving | vedtak | sanksjon
+    /// struktur | oppnevning | styring | normgivning | kontroll | klage_overproving | vedtak | sanksjon
     /// (<see cref="Strukturkanter.Familier"/>, CHECK <c>ck_relasjonstype_konfigurasjon_familie</c>). Bare på K. NULL på
     /// <c>beslutning</c> (står øverst, over alle familiene) og på en type Johann ikke har plassert ennå.
+    /// [ENDRET, issue #352, Johanns beslutning 2026-10-08] <c>personell</c> heter <c>oppnevning</c>.
     /// </summary>
     public string? Familie { get; set; }
 
@@ -1191,6 +1192,15 @@ public sealed class RelasjonsTypeKonfigurasjonEntitet
     /// <see cref="Strukturkanter.FvlKategoriFor"/> for normgivning, der normformen avgjør. NULL = ikke avklart.
     /// </summary>
     public string? FvlKategori { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #352-tillegg, Johanns beslutning 2026-10-08 (fasitkontrollen, domstolloven u17)] Gjelder kanten den
+    /// ENKELTE SAKEN — hvordan organet settes i en sakstype — og ikke organet fast? Første bruk: G <c>settes_med</c>
+    /// («I andre saker enn etter første ledd første punktum settes Høyesterett med fem dommere»), som ikke er organets faste
+    /// medlemmer (<c>har_medlemmer</c>). En egenskap ved TYPEN (som familie og fvl-kategori), ikke ved kanten. false =
+    /// organets faste struktur.
+    /// </summary>
+    public bool Saksavhengig { get; set; }
 }
 
 /// <summary>
@@ -1514,6 +1524,15 @@ public sealed class StrukturkantEntitet
     /// typen alene. Migrerte K <c>forskrift</c>-kanter fikk <c>'forskrift'</c> (det var hva koden sa).
     /// </summary>
     public string? Normform { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #352, Johanns beslutning 1 2026-10-08] HVORDAN kompetansen utøves etter teksten, der typen er den generelle
+    /// formen: på K <c>oppnevning</c> <c>valg</c> | <c>ansettelse</c> | <c>utpeking</c> | <c>oppnevning</c>, på K
+    /// <c>overproving</c> <c>anke</c> (<see cref="Strukturkanter.Undertyper"/>, CHECK <c>ck_strukturkanter_undertype</c>).
+    /// NULL = ikke angitt. Migrerte R <c>velger</c>-, K <c>utpeking</c>-/<c>ansettelse</c>- og R <c>ankeinstans_for</c>-kanter
+    /// fikk undertypen den gamle koden sa — opplysningen gikk ikke tapt i sammenslåingen.
+    /// </summary>
+    public string? Undertype { get; set; }
 
     /// <summary>
     /// [Ny, issue #341, Johanns beslutning 3 2026-10-08] Kompetansens grunnlag: <c>offentligrettslig</c> |

@@ -85,6 +85,12 @@ public sealed record StrukturUtsagn(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Normform { get; init; }
 
+    /// <summary>[Ny, issue #352] Undertypen på en oppnevnings-/overprøvingskompetanse (FORMAT.md): valg | ansettelse |
+    /// utpeking | oppnevning, anke. Utelatt når null.</summary>
+    [JsonPropertyName("undertype")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Undertype { get; init; }
+
     /// <summary>[Ny, issue #341] offentligrettslig | privatrettslig (FORMAT.md). Utelatt når null.</summary>
     [JsonPropertyName("grunnlag")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

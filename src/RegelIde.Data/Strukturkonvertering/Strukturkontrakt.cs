@@ -29,10 +29,13 @@ public static partial class Strukturkontrakt
             // [ENDRET, issue #341, Johanns beslutning P1 2026-10-08] Relasjon er struktur uten myndighet (+ den
             // gjennomførte delegeringen); myndighetsrelasjonene (klageinstans_for, instruksjon, omgjoring, oppnevner,
             // tilsyn_med_aktor, delegerer_til) er kompetanse med motpart. De seks siste er ikke avgjort ennå (FORMAT.md).
+            // [ENDRET, issue #352, Johanns beslutninger 2026-10-08] velger er oppnevningskompetanse med undertype valg
+            // (fjernet herfra); administrativt_underordnet og radgir er avgjort som relasjon (struktur, ikke myndighet).
+            // bistar, samarbeider_med og del_av er fortsatt ikke avgjort.
             ["relasjon"] =
             [
                 "eies_av", "ledes_av", "sekretariat_for", "rapporterer_til", "etterfolger", "representerer",
-                Strukturkanter.HarDelegertTil, "administrativt_underordnet", "velger", "bistar", "samarbeider_med", "radgir",
+                Strukturkanter.HarDelegertTil, "administrativt_underordnet", "bistar", "samarbeider_med", "radgir",
                 "del_av",
             ],
             // [ENDRET, issue #341] Typologien (P2 + hierarkiet) — samme liste og rekkefølge som Strukturkanter.Kompetansetyper,
@@ -43,7 +46,8 @@ public static partial class Strukturkontrakt
             ["sammensetning_omrade"] = ["bestar_av", "del_av"],
             ["ansvarsomrade"] = ["har_ansvarsomrade", "har_jurisdiksjon", "har_sete_i"],
             ["konstituerende"] = ["oppretter", "avvikler", "skal_finnes"],
-            ["organsammensetning"] = ["har_medlemmer", "har_organ"],
+            // [ENDRET, issue #352-tillegg, Johann 2026-10-08] settes_med = sammensetningen i den enkelte sak (saksavhengig).
+            ["organsammensetning"] = ["har_medlemmer", "har_organ", Strukturkanter.SettesMed],
         };
 
     /// <summary>[Ny, issue #341] Kompetansetypen når uttrykket ikke kan typebestemmes.</summary>
@@ -51,6 +55,11 @@ public static partial class Strukturkontrakt
 
     /// <summary>[Ny, issue #341] FORMAT.md <c>utsagn.normform</c> — samme liste som <see cref="Strukturkanter.Normformer"/>.</summary>
     public static IReadOnlyList<string> Normformer => Strukturkanter.Normformer;
+
+    /// <summary>[Ny, issue #352] FORMAT.md <c>utsagn.undertype</c>: gyldig for FASITTYPEN (<c>oppnevningskompetanse</c>,
+    /// <c>overprovingskompetanse</c>) — samme lister som <see cref="Strukturkanter.Undertyper"/> (per typekode).</summary>
+    public static bool ErGyldigUndertype(string fasitType, string undertype) =>
+        Strukturkanter.KompetansetypeFraFasit.TryGetValue(fasitType, out var kode) && Strukturkanter.ErGyldigUndertype(kode, undertype);
 
     /// <summary>[Ny, issue #341] FORMAT.md <c>utsagn.grunnlag</c> — samme liste som <see cref="Strukturkanter.Grunnlag"/>.</summary>
     public static IReadOnlyList<string> Grunnlag => Strukturkanter.Grunnlag;

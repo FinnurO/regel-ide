@@ -1580,7 +1580,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-4/ledd-2",
       "sitat": "Ved behov skal kommunen bestemme hvilken kommunal tjenesteyter som skal ivareta samordningen.",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "hvilken kommunal tjenesteyter som ivaretar samordning",
@@ -1589,7 +1589,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "#300: kommunen utpeker en INTERN enhet/tjenesteyter til en funksjon. Mål-aktør a21."
+      "kommentar": "#300: kommunen utpeker en INTERN enhet/tjenesteyter til en funksjon. Mål-aktør a21.",
+      "undertype": "utpeking"
     },
     {
       "id": "u24",
@@ -2294,7 +2295,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§6-1/ledd-1",
       "sitat": "eller med helseforetak som det regionale helseforetaket bestemmer",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a44",
       "til": null,
       "objekt": "hvilket helseforetak som er avtalepart",
@@ -2303,7 +2304,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "RHF utpeker datterforetak som motpart; impliserer eierrelasjon RHF→HF."
+      "kommentar": "RHF utpeker datterforetak som motpart; impliserer eierrelasjon RHF→HF.",
+      "undertype": "utpeking"
     },
     {
       "id": "u68",
@@ -2563,7 +2565,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "#300: rettssubjektet oppnevner en rolle. Jf. § 7-3 der den koordinerende enheten har ansvaret for oppnevningen – to nivåer."
+      "kommentar": "#300: rettssubjektet oppnevner en rolle. Jf. § 7-3 der den koordinerende enheten har ansvaret for oppnevningen – to nivåer.",
+      "undertype": "oppnevning"
     },
     {
       "id": "u84",
@@ -2694,7 +2697,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Intern enhet oppnevner rolle. #300."
+      "kommentar": "Intern enhet oppnevner rolle. #300.",
+      "undertype": "oppnevning"
     },
     {
       "id": "u92",
@@ -2710,7 +2714,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Jf. § 7-2 a der «kommunen» oppnevner – rettssubjekt har plikten, enheten utfører."
+      "kommentar": "Jf. § 7-2 a der «kommunen» oppnevner – rettssubjekt har plikten, enheten utfører.",
+      "undertype": "oppnevning"
     },
     {
       "id": "u93",
@@ -2896,7 +2901,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-7/ledd-3/punkt-7",
       "sitat": "angivelse av faglig ansvarlig for gjennomføringen av tiltaket",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a32",
       "til": null,
       "objekt": "faglig ansvarlig for gjennomføring av tiltak",
@@ -2905,7 +2910,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "lav",
-      "kommentar": "Vedtaket skal angi en ansvarlig rolle – vedtaksfatter utpeker rolleinnehaver."
+      "kommentar": "Vedtaket skal angi en ansvarlig rolle – vedtaksfatter utpeker rolleinnehaver.",
+      "undertype": "utpeking"
     },
     {
       "id": "u105",
@@ -3220,7 +3226,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-2/ledd-1",
       "sitat": "institusjon utpekt av regionalt helseforetak",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a44",
       "til": null,
       "objekt": "institusjon for tvangsinnleggelse av rusmiddelavhengige",
@@ -3229,7 +3235,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "RHF utpeker hvilke institusjoner (jf. spesialisthelsetjenesteloven § 2-1a)."
+      "kommentar": "RHF utpeker hvilke institusjoner (jf. spesialisthelsetjenesteloven § 2-1a).",
+      "undertype": "utpeking"
     },
     {
       "id": "u125",
@@ -3300,7 +3307,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-3/ledd-1",
       "sitat": "institusjon utpekt av regionalt helseforetak",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a44",
       "til": null,
       "objekt": "institusjon for tilbakeholdelse av gravide rusmiddelavhengige",
@@ -3309,7 +3316,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "utpeking"
     },
     {
       "id": "u130",
@@ -3737,7 +3745,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§11-3/ledd-1",
       "sitat": "hvilken kommune som skal ha finansieringsansvaret",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "hvilken kommune som er finansieringsansvarlig",
@@ -3746,7 +3754,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Utpeking av ansvarlig kommune skjer i forskrift."
+      "kommentar": "Utpeking av ansvarlig kommune skjer i forskrift.",
+      "undertype": "utpeking"
     },
     {
       "id": "u157",
@@ -3769,7 +3778,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§11-4/ledd-3",
       "sitat": "om hvilken kommune som skal ha ansvaret for utgiftene for utskrivingsklare pasienter",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "ansvarlig kommune for utskrivningsklare pasienter",
@@ -3778,7 +3787,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "utpeking"
     },
     {
       "id": "u159",

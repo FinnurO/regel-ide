@@ -12,8 +12,8 @@ bare eId + kategori + type — forskjellen mellom de to viser hvor mye av feilen
 
 ## Totalt
 
-1797 fasitutsagn, 903 predikerte, 847 treff → presisjon **93,8 %**, gjenfinning **47,1 %**
-(uten endepunktkrav: presisjon 95,8 %, gjenfinning 48,1 %).
+1797 fasitutsagn, 903 predikerte, 848 treff → presisjon **93,9 %**, gjenfinning **47,2 %**
+(uten endepunktkrav: presisjon 95,9 %, gjenfinning 48,2 %).
 
 ## Per kategori (kanttype, `docs/33` §4.3)
 
@@ -21,22 +21,22 @@ Bokstaven følger `STD`-tabellen i `designtest.py`. `annet:*`-typer står i egen
 
 | Kategori | Fasit | Predikert | Treff | Presisjon | Gjenfinning | Presisjon u/endepunkt | Gjenfinning u/endepunkt |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| R | 139 | 4 | 3 | 75,0 % | 2,2 % | 75,0 % | 2,2 % |
-| K | 557 | 324 | 284 | 87,7 % | 51,0 % | 89,2 % | 51,9 % |
+| R | 122 | 4 | 3 | 75,0 % | 2,5 % | 75,0 % | 2,5 % |
+| K | 577 | 324 | 285 | 88,0 % | 49,4 % | 89,5 % | 50,3 % |
 | M | 48 | 0 | 0 | – | 0,0 % | – | 0,0 % |
 | O | 177 | 122 | 109 | 89,3 % | 61,6 % | 98,4 % | 67,8 % |
 | A | 449 | 419 | 419 | 100,0 % | 93,3 % | 100,0 % | 93,3 % |
 | G | 43 | 6 | 4 | 66,7 % | 9,3 % | 100,0 % | 14,0 % |
 | I | 0 | 0 | 0 | – | – | – | – |
 | T | 21 | 0 | 0 | – | 0,0 % | – | 0,0 % |
-| annet | 324 | 28 | 28 | 100,0 % | 8,6 % | 100,0 % | 8,6 % |
+| annet | 321 | 28 | 28 | 100,0 % | 8,7 % | 100,0 % | 8,7 % |
 | senere lag | 39 | 0 | 0 | – | 0,0 % | – | 0,0 % |
 
 ## Per kilde
 
 | Kilde | Fasit | Predikert | Treff | Presisjon | Gjenfinning | Presisjon u/endepunkt | Gjenfinning u/endepunkt |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| domstolloven | 764 | 539 | 516 | 95,7 % | 67,5 % | 96,8 % | 68,3 % |
+| domstolloven | 764 | 539 | 517 | 95,9 % | 67,7 % | 97,0 % | 68,5 % |
 | energiloven | 254 | 115 | 108 | 93,9 % | 42,5 % | 93,9 % | 42,5 % |
 | helse-og-omsorgstjenesteloven | 192 | 50 | 47 | 94,0 % | 24,5 % | 94,0 % | 24,5 % |
 | sameloven | 285 | 131 | 116 | 88,5 % | 40,7 % | 96,9 % | 44,6 % |
@@ -47,11 +47,12 @@ Bokstaven følger `STD`-tabellen i `designtest.py`. `annet:*`-typer står i egen
 | Kategori / type | Fasit | Predikert | Treff | Presisjon | Gjenfinning | Presisjon u/endepunkt | Gjenfinning u/endepunkt |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | K kompetanse / normgivningskompetanse | 210 | 198 | 184 | 92,9 % | 87,6 % | 92,9 % | 87,6 % |
-| K kompetanse / vedtakskompetanse | 158 | 85 | 68 | 80,0 % | 43,0 % | 80,0 % | 43,0 % |
+| K kompetanse / vedtakskompetanse | 153 | 78 | 63 | 80,8 % | 41,2 % | 80,8 % | 41,2 % |
+| K kompetanse / godkjenningskompetanse | 8 | 7 | 6 | 85,7 % | 75,0 % | 85,7 % | 75,0 % |
 | K kompetanse / klagekompetanse | 22 | 9 | 7 | 77,8 % | 31,8 % | 100,0 % | 40,9 % |
 | R relasjon / administrativt_underordnet | 5 | 0 | 0 | – | 0,0 % | – | 0,0 % |
-| G organsammensetning / har_medlemmer | 24 | 6 | 4 | 66,7 % | 16,7 % | 100,0 % | 25,0 % |
-| K kompetanse / oppnevningskompetanse | 36 | 10 | 7 | 70,0 % | 19,4 % | 100,0 % | 27,8 % |
+| G organsammensetning / har_medlemmer | 21 | 6 | 4 | 66,7 % | 19,0 % | 100,0 % | 28,6 % |
+| K kompetanse / oppnevningskompetanse | 79 | 10 | 7 | 70,0 % | 8,9 % | 100,0 % | 12,7 % |
 | K kompetanse / instruksjonskompetanse | 27 | 4 | 4 | 100,0 % | 14,8 % | 100,0 % | 14,8 % |
 | K kompetanse / delegeringskompetanse | 19 | 9 | 8 | 88,9 % | 42,1 % | 88,9 % | 42,1 % |
 | R relasjon / har_delegert_til | 20 | 4 | 3 | 75,0 % | 15,0 % | 75,0 % | 15,0 % |
@@ -87,7 +88,7 @@ Stor avstand mellom presisjon og gjenkjent betyr at mønsteret finner riktig uts
 | `forskrift-gitt-av` | normgivningskompetanse | 7 | 5 | 71,4 % | 71,4 % | Ikke målt i docs/33 §1 (passiv form av forskriftskompetanse). Krever at aktøren står i setningen. |
 | `vedtak-treffe` | vedtakskompetanse | 24 | 20 | 83,3 % | 83,3 % | docs/33 §1: «treffer vedtak / avgjøres av» 1465 treff, 73 % presisjon. |
 | `vedtak-avgjores-av` | vedtakskompetanse | 21 | 12 | 57,1 % | 57,1 % | docs/33 §1: «treffer vedtak / avgjøres av» 1465 treff, 73 %. Krever at aktøren står i setningen — «av» uten aktør er ikke et kompetanseutsagn. |
-| `vedtak-godkjennes-av` | vedtakskompetanse | 7 | 5 | 71,4 % | 85,7 % | Ikke målt i docs/33 §1. Godkjenning er et enkeltvedtak; mønsteret krever at godkjenneren står i setningen. |
+| `vedtak-godkjennes-av` | godkjenningskompetanse | 7 | 6 | 85,7 % | 85,7 % | Ikke målt i docs/33 §1. [ENDRET, #352] Gir godkjenningskompetanse (familien styring), ikke vedtakskompetanse (Johanns beslutning 3); mønsteret krever at godkjen … |
 | `vedtak-forvaltningsverb` | vedtakskompetanse | 26 | 26 | 100,0 % | 100,0 % | Ikke målt i docs/33 §1. Tatt med etter fasitens falske negative: energiloven uttrykker vedtakskompetanse nesten bare slik, ikke som «treffe vedtak». Verbet «pål … |
 | `vedtak-avgjor` | vedtakskompetanse | 7 | 5 | 71,4 % | 71,4 % | Ikke målt separat i docs/33 §1 (del av «avgjøres av»-familien). |
 | `klage-paklages-til` | klagekompetanse | 4 | 3 | 75,0 % | 100,0 % | docs/33 §1: «klageinstans for / påklages til» 1718 treff, 67 % presisjon. Førsteinstansen er ofte implisitt. |
@@ -113,7 +114,7 @@ Stor avstand mellom presisjon og gjenkjent betyr at mønsteret finner riktig uts
 | `inndeling-sogner` | annet:sogner_til | 28 | 28 | 100,0 % | 100,0 % | Strukturerte lister i inndelingsforskrifter (docs/33 §1, ikke tallfestet). |
 | `inndeling-bestar-av-liste` | bestar_av | 4 | 4 | 100,0 % | 100,0 % | Ikke målt i docs/33 §1. Generell listeform; kravet om egennavn holder organsammensetning ute. |
 
-## Falske positive (56)
+## Falske positive (55)
 
 Gruppert på mønster og om eId+kategori+type fantes i fasiten (= feil/manglende aktør) eller ikke (= feil gjenkjenning).
 
@@ -137,7 +138,6 @@ Gruppert på mønster og om eId+kategori+type fantes i fasiten (= feil/manglende
 | `monster:forskrift-naermere-regler` | ikke i fasiten | 1 |
 | `monster:klage-er-klageinstans` | feil/manglende aktør | 1 |
 | `monster:klage-paklages-til` | feil/manglende aktør | 1 |
-| `monster:vedtak-godkjennes-av` | feil/manglende aktør | 1 |
 | `monster:vedtak-godkjennes-av` | ikke i fasiten | 1 |
 
 De 20 vanligste (én fra hver gruppe i tur, vanligste gruppe først):
@@ -162,32 +162,30 @@ De 20 vanligste (én fra hver gruppe i tur, vanligste gruppe først):
 | 16 | domstolloven | lov/1915/08/13/5/nor/§33c/ledd-2 | `monster:forskrift-naermere-regler` | domstoladministrasjonen → null | Domstoladministrasjonen gir nærmere bestemmelser om organiseringen av disse dommernes tjenester. |
 | 17 | sameloven | lov/1987/06/12/56/nor/§3-11/ledd-1 | `monster:klage-er-klageinstans` | Statsforvalteren → null | Statsforvalteren er klageinstans når klagen angår kommunale eller fylkeskommunale organ. |
 | 18 | sameloven | lov/1987/06/12/56/nor/§2-12/ledd-5 | `monster:klage-paklages-til` | Sametinget → styre | Enkeltvedtak fattet av styre, råd eller utvalg oppnevnt av Sametinget, kan i samsvar med forvaltningslovens bestemmelser påklages til Sametinget eller særskilt  … |
-| 19 | domstolloven | lov/1915/08/13/5/nor/§63/ledd-2 | `monster:vedtak-godkjennes-av` | tingretten → null | Hjelpestevnevitner for hovedstevnevitnet må godkjennes av tingretten. |
-| 20 | energiloven | kap-I/ledd-8 | `monster:vedtak-godkjennes-av` | Departementet → null | Norges vassdrags- og energidirektorat delegeres også myndighet til å behandle søknader om endringer i konsesjoner etter energiloven gitt av Kongen i statsråd ve … |
+| 19 | energiloven | kap-I/ledd-8 | `monster:vedtak-godkjennes-av` | Departementet → null | Norges vassdrags- og energidirektorat delegeres også myndighet til å behandle søknader om endringer i konsesjoner etter energiloven gitt av Kongen i statsråd ve … |
+| 20 | domstolloven | lov/1915/08/13/5/nor/§5/ledd-4 | `monster:vedtak-avgjores-av` | Høyesterett → null | I saker etter første og annet ledd som er av særlig viktighet, kan det bestemmes at saken, eller rettsspørsmål i den, skal avgjøres av Høyesterett i storkammer, … |
 
-## Falske negative (950)
+## Falske negative (949)
 
 Gruppert på kategori/type. Typer mønsterlaget ikke har mønster for, er forventet her — de er KI-lagets (#308) nevner.
 
 | Kategori / type | Har mønster | Antall |
 |---|---|---:|
 | K kompetanse / vedtakskompetanse | ja | 90 |
+| K kompetanse / oppnevningskompetanse | ja | 72 |
 | O sammensetning_omrade / bestar_av | ja | 38 |
 | R relasjon / rapporterer_til | nei | 31 |
 | M medlemskap / medlem_av | nei | 30 |
 | O sammensetning_omrade / del_av | ja | 30 |
-| K kompetanse / oppnevningskompetanse | ja | 29 |
 | K kompetanse / normgivningskompetanse | ja | 26 |
 | A ansvarsomrade / har_ansvarsomrade | ja | 24 |
 | senere lag relasjon / samarbeider_med | nei | 24 |
 | K kompetanse / instruksjonskompetanse | ja | 23 |
 | K kompetanse / tilsynskompetanse | ja | 21 |
-| K kompetanse / utpekingskompetanse | nei | 21 |
 | T konstituerende / skal_finnes | nei | 21 |
-| G organsammensetning / har_medlemmer | ja | 20 |
 | M medlemskap / inngar_i | nei | 18 |
+| G organsammensetning / har_medlemmer | ja | 17 |
 | R relasjon / har_delegert_til | ja | 17 |
-| R relasjon / velger | nei | 17 |
 | K kompetanse / klagekompetanse | ja | 15 |
 | senere lag relasjon / bistar | nei | 15 |
 | R konstituerende / oppretter | nei | 14 |
@@ -196,12 +194,12 @@ Gruppert på kategori/type. Typer mønsterlaget ikke har mønster for, er forven
 | R relasjon / ledes_av | nei | 12 |
 | annet annet:finansieringsansvar / annet:dekker_utgifter_for | nei | 11 |
 | K kompetanse / delegeringskompetanse | ja | 11 |
+| K kompetanse / overprovingskompetanse | nei | 11 |
 | G organsammensetning / har_organ | nei | 10 |
 | R relasjon / radgir | nei | 10 |
 | annet kompetanse / annet:forkynningskompetanse | nei | 9 |
 | annet medlemskap / annet:klasse_definert_ved_tjenestekrets | nei | 9 |
 | G relasjon / del_av | nei | 9 |
-| K kompetanse / overprovingskompetanse | nei | 8 |
 | annet relasjon / annet:konsultasjonsplikt_overfor | nei | 8 |
 | annet annet:funksjonstildeling / annet:lovtildelt_oppgave | nei | 7 |
 | annet medlemskap / annet:virkeomrade_utvidet_til | nei | 7 |
@@ -210,17 +208,19 @@ Gruppert på kategori/type. Typer mønsterlaget ikke har mønster for, er forven
 | annet kompetanse / annet:ikraftsettingskompetanse | nei | 6 |
 | R relasjon / representerer | nei | 6 |
 | annet ansvarsomrade / annet:lokalisert_i | nei | 5 |
-| K kompetanse / ansettelseskompetanse | nei | 5 |
-| … 162 typer til (alle `annet:*` eller ≤ 5 utsagn) | | 254 |
+| K kompetanse / avsettingskompetanse | nei | 5 |
+| R relasjon / administrativt_underordnet | ja | 5 |
+| K kompetanse / organisasjonskompetanse | nei | 4 |
+| … 159 typer til (alle `annet:*` eller ≤ 4 utsagn) | | 239 |
 
 De 20 vanligste blant typene med mønster (én fra hver type i tur, vanligste type først):
 
 | # | Kilde | eId | Type | fra → til (fasit) | Sitat |
 |---|---|---|---|---|---|
 | 1 | domstolloven | lov/1915/08/13/5/nor/§13/ledd-1 | vedtakskompetanse | førstelagmann → null | Avgjørelser og andre forføyninger, som ikke gjelder de enkelte rettssaker, treffer førstelagmannen alene |
-| 2 | domstolloven | lov/1915/08/13/5/nor/§16/ledd-1 | bestar_av | Rikets → lagdømmer | Rikets inddeling i lagdømmer |
-| 3 | domstolloven | forskrift/2021/01/22/163/nor/§2/ledd-1/punkt-3 | del_av | Finnsnes → Senja | Finnsnes |
-| 4 | domstolloven | lov/1915/08/13/5/nor/§20/ledd-1 | oppnevningskompetanse | domstoladministrasjonen → null | Domstoladministrasjonen kan oppnevne en særskilt dommer |
+| 2 | domstolloven | lov/1915/08/13/5/nor/§20/ledd-1 | oppnevningskompetanse | domstoladministrasjonen → null | Domstoladministrasjonen kan oppnevne en særskilt dommer |
+| 3 | domstolloven | lov/1915/08/13/5/nor/§16/ledd-1 | bestar_av | Rikets → lagdømmer | Rikets inddeling i lagdømmer |
+| 4 | domstolloven | forskrift/2021/01/22/163/nor/§2/ledd-1/punkt-3 | del_av | Finnsnes → Senja | Finnsnes |
 | 5 | domstolloven | lov/1915/08/13/5/nor/§48/ledd-4 | normgivningskompetanse | Kongen → null | ved regler, som Kongen gir |
 | 6 | domstolloven | lov/1915/08/13/5/nor/§16/ledd-1 | har_ansvarsomrade | lagmannsrettene → lagdømmer | lagdømmer for hver lagmandsret |
 | 7 | domstolloven | lov/1915/08/13/5/nor/§33/ledd-2 | instruksjonskompetanse | Stortinget → domstoladministrasjonen | Gjennom Stortingets behandling av budsjettproposisjonen gis årlige retningslinjer for domstoladministrasjonens virksomhet |
@@ -231,12 +231,12 @@ De 20 vanligste blant typene med mønster (én fra hver type i tur, vanligste ty
 | 12 | domstolloven | lov/1915/08/13/5/nor/§238/ledd-6 | delegeringskompetanse | Tilsynsutvalget for dommere → null | Tilsynsutvalget kan gi utvalgets leder eller et annet av utvalgets medlemmer myndighet til |
 | 13 | energiloven | lov/1990/06/29/50/nor/§9-1/ledd-5 | administrativt_underordnet | kraftforsyningen → Kraftforsyningens beredskapsorganisasjon (KBO) | Beredskapsmyndigheten kan under beredskap og i krig underlegge kraftforsyningen KBO. |
 | 14 | domstolloven | forskrift/2021/01/22/163/nor/§1/ledd-1 | har_sete_i | tingrettene → rettssteder | med ett eller flere rettssteder |
-| 15 | spesialisthelsetjenesteloven | lov/1999/07/02/61/nor/§4-4/ledd-1 | beslutningskompetanse | felles system for å beslutte hvilke metoder som kan tilbys i spesialisthelsetjenesten → null | felles system for å beslutte hvilke metoder som kan tilbys |
-| 16 | domstolloven | lov/1915/08/13/5/nor/§66a/ledd-1 | vedtakskompetanse | domstolens leder → null | kan domstollederen bestemme at det skal velges flere medlemmer til utvalgene |
-| 17 | domstolloven | lov/1915/08/13/5/nor/§16/ledd-1 | bestar_av | lagdømmer → lagsogn | lagdømmernes inddeling i retskredser (lagsogn) |
-| 18 | domstolloven | forskrift/2021/01/22/163/nor/§2/ledd-1/punkt-5 | del_av | Svolvær → Vågan | Svolvær |
-| 19 | domstolloven | lov/1915/08/13/5/nor/§33a/ledd-1 | oppnevningskompetanse | Kongen → null | Kongen fastsetter hvilket medlem som skal være leder for styret for domstoladministrasjonen. |
-| 20 | domstolloven | lov/1915/08/13/5/nor/§60/ledd-1 | normgivningskompetanse | Kongen → null | Kongen fastsetter hvordan forsikringen skal lyde. |
+| 15 | helse-og-omsorgstjenesteloven | lov/2011/06/24/30/nor/§9-7/ledd-4 | godkjenningskompetanse | Statsforvalteren → null | Vedtaket kan ikke iverksettes før det er godkjent av statsforvalteren. |
+| 16 | spesialisthelsetjenesteloven | lov/1999/07/02/61/nor/§4-4/ledd-1 | beslutningskompetanse | felles system for å beslutte hvilke metoder som kan tilbys i spesialisthelsetjenesten → null | felles system for å beslutte hvilke metoder som kan tilbys |
+| 17 | domstolloven | lov/1915/08/13/5/nor/§66a/ledd-1 | vedtakskompetanse | domstolens leder → null | kan domstollederen bestemme at det skal velges flere medlemmer til utvalgene |
+| 18 | domstolloven | lov/1915/08/13/5/nor/§26a/ledd-1 | oppnevningskompetanse | Kongen → null | Kongen fastsetter hvilke lagdømmer og domssogn som skal utøve domsmyndighet |
+| 19 | domstolloven | lov/1915/08/13/5/nor/§16/ledd-1 | bestar_av | lagdømmer → lagsogn | lagdømmernes inddeling i retskredser (lagsogn) |
+| 20 | domstolloven | forskrift/2021/01/22/163/nor/§2/ledd-1/punkt-5 | del_av | Svolvær → Vågan | Svolvær |
 
 ## Forkastede mønstre
 

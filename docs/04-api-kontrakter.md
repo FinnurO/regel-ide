@@ -161,17 +161,17 @@ Organisasjonen (Testkommunen) registrerer disse URL-ene **én gang** i data.norg
 
 | Metode og sti | Hva |
 |---|---|
-| `GET /api/strukturkanter?virksomhetId=…\|begrepId=…[&kategori=R..T][&gjeldende=true][&status=…][&familie=…]` | Kantene for én node, begge retninger, med visningstekst fra nodens side (`retning` = `fra`/`til`). [Ny, #341] `familie` = struktur\|personell\|styring\|normgivning\|kontroll\|klage_overproving\|vedtak\|sanksjon gir bare kompetansekantene i den familien (400 ved ukjent). Svaret har `normform`, `grunnlag`, `delegerbar`, `selvregulering`, `familie`, `fvlKategori`. |
+| `GET /api/strukturkanter?virksomhetId=…\|begrepId=…[&kategori=R..T][&gjeldende=true][&status=…][&familie=…]` | Kantene for én node, begge retninger, med visningstekst fra nodens side (`retning` = `fra`/`til`). [Ny, #341] `familie` = struktur\|oppnevning ([ENDRET, #352] het personell)\|styring\|normgivning\|kontroll\|klage_overproving\|vedtak\|sanksjon gir bare kompetansekantene i den familien (400 ved ukjent). Svaret har `normform`, `grunnlag`, `delegerbar`, `selvregulering`, `familie`, `fvlKategori` og [Ny, #352] `undertype`. |
 | `GET /api/strukturkanter?status=foreslatt_av_ai[&kategori=…]` | Forslagskøen. |
 | `GET /api/strukturkanter/uten-korpusforankring[?kildetype=…\|alle]` | Kanter uten hjemmel i korpus, per kildetype (standard `nettside_annet`) — arbeidslista. |
 | `GET /api/strukturkanter/{id}` | Én kant. |
-| `POST /api/strukturkanter` | Opprett. Polaritet MÅ oppgis; hjemmel ELLER kilde utenfor korpus (tekst + type + dokumentasjon). 201 ny, 200 identisk utsagn fantes (idempotent), 400 ved ugyldig kategori/typekode/nodetype/sykel/kilde. [Ny, #341] `normform` (bare K normgivning), `grunnlag` og `delegerbar` (bare K), NULL = ikke angitt; M/I med hjemmel krever `hjemmelEid` (hvor det står); til = fra bare for K normgivning (selvregulering). |
+| `POST /api/strukturkanter` | Opprett. Polaritet MÅ oppgis; hjemmel ELLER kilde utenfor korpus (tekst + type + dokumentasjon). 201 ny, 200 identisk utsagn fantes (idempotent), 400 ved ugyldig kategori/typekode/nodetype/sykel/kilde. [Ny, #341] `normform` (bare K normgivning), `grunnlag` og `delegerbar` (bare K), NULL = ikke angitt; M/I med hjemmel krever `hjemmelEid` (hvor det står); til = fra bare for K normgivning (selvregulering). [Ny, #352] `undertype` bare på K oppnevning (valg\|ansettelse\|utpeking\|oppnevning) og overproving (anke); 400 ellers. |
 | `PUT /api/strukturkanter/{id}/avgrensning` | [Ny, #330] Erstatter avgrensningen (paragrafspenn + tekst) på en eksisterende kant; type, ender og hjemmel endres ikke. Hver eId må finnes i korpus, en endring som ville gitt en dublett avvises (400). Gammel og ny verdi i Proveniens. [ENDRET, #341] M/I krever ikke lenger spenn — kravet gjelder hjemmel-eId. |
 | `POST /api/strukturkanter/{id}/godkjenn` | Forslag → validert. |
 | `POST /api/strukturkanter/{id}/avvis` | Sletter et forslag (bare `foreslatt_av_ai`). |
 | `DELETE /api/strukturkanter/{id}` | Sletter en kant uansett status (logges i Proveniens). |
 | `GET /api/rettskilder/{id}/strukturkanter` | Kantene hjemlet i en rettskilde (var `/virksomhetsrelasjoner`). |
-| `GET /api/konfigurasjon/relasjonstyper[?kategori=…]` | Typekodene (nå med `kategori`). [Ny, #341] K-typene har `familie` og `fvlKategori`. |
+| `GET /api/konfigurasjon/relasjonstyper[?kategori=…]` | Typekodene (nå med `kategori`). [Ny, #341] K-typene har `familie` og `fvlKategori`. [Ny, #352] `saksavhengig` = typen gjelder den enkelte saken (G `settes_med`). |
 | `GET /api/ki-oppdagelse/ko` | Forslagskøen i KI-sidens form (`type` = kategori). |
 
 **Lesefasader for nettside-eksporten** (samme JSON-form som før #311, bygget fra kantene):

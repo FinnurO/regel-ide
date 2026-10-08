@@ -9,7 +9,7 @@ type Gruppe = Kompetansefamilie | typeof UTEN_FAMILIE;
 
 /**
  * [Ny, issue #341, Johanns hierarkibeslutning 2026-10-08] Kompetansekantene for én node, gruppert og filtrerbare på
- * kompetansefamilie (struktur, personell, styring, normgivning, kontroll, klage og overprøving, vedtak, sanksjon). Svarer
+ * kompetansefamilie (struktur, oppnevning [het personell før #352], styring, normgivning, kontroll, klage og overprøving, vedtak, sanksjon). Svarer
  * på S9: «hvilken kompetanse har A, overfor hvem, etter hvilken paragraf?» — og omvendt, fra motpartens side, «hvem har
  * kompetanse overfor B?» (samme kant, til-malen).
  * <p>

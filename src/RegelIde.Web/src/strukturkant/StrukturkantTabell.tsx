@@ -43,7 +43,7 @@ export const STRUKTURKANT_KATEGORI_VISNING: Record<Strukturkantkategori, { tekst
  */
 export const FAMILIE_VISNING: Record<Kompetansefamilie, string> = {
   struktur: 'Struktur',
-  personell: 'Personell',
+  oppnevning: 'Oppnevning', // [ENDRET, issue #352] het «Personell»
   styring: 'Styring',
   normgivning: 'Normgivning',
   kontroll: 'Kontroll',
@@ -167,7 +167,7 @@ export function StrukturkantTabell({ kanter, tomTekst, visKategori = false, visH
                         <Tag data-size="sm" data-color="warning" title="Teksten sier at dette IKKE gjelder.">Negativ</Tag>
                       )}
                       {/* [Ny, issue #341] Kompetansens egenskaper — klassifiseringer (`neutral`), ikke statuser (docs/09 §31).
-                        * Normform og motpart står alt i utsagnsteksten. NULL vises ikke: «ikke angitt» er ikke en påstand. */}
+                        * Normform, undertype (#352) og motpart står alt i utsagnsteksten. NULL vises ikke: «ikke angitt» er ikke en påstand. */}
                       {k.kategori === 'K' && k.delegerbar !== null && (
                         <Tag data-size="sm" data-color="neutral"
                           title={k.delegerbar ? 'Kompetansen kan delegeres videre («Kongen …»).' : 'Kompetansen kan ikke delegeres («Kongen i statsråd …», «… selv»).'}>

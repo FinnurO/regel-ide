@@ -1795,7 +1795,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1a/ledd-5",
       "sitat": "De regionale helseforetakene skal peke ut institusjoner i det enkelte helseforetak som kan ta imot rusmiddelavhengige",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a5",
       "til": null,
       "objekt": "institusjoner i det enkelte helseforetak som kan ta imot rusmiddelavhengige",
@@ -1805,7 +1805,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "utpeking"
     },
     {
       "id": "u13",
@@ -2543,7 +2544,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "oppnevning"
     },
     {
       "id": "u56",
@@ -2560,7 +2562,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "utpeking"
     },
     {
       "id": "u57",
@@ -2672,7 +2675,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-1/ledd-2",
       "sitat": "Regionale helseforetak skal utpeke det nødvendige antall helseinstitusjoner eller avdelinger i slike institusjoner innen helseregionen med tilsvarende plikt",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a29",
       "til": "a30",
       "objekt": "helseinstitusjoner eller avdelinger med plikt for psykiatrisk helsehjelp og tverrfaglig spesialisert behandling for rusmiddelmisbruk",
@@ -2682,7 +2685,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "utpeking"
     },
     {
       "id": "u64",
@@ -3031,7 +3035,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Hvem som peker ut rådgiverne er ikke angitt i teksten",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "utpeking"
     },
     {
       "id": "u84",
@@ -3200,7 +3205,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§4-1/ledd-1",
       "sitat": "Bruk av betegnelsen universitetssykehus skal godkjennes av departementet.",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "godkjenningskompetanse",
       "fra": "a3",
       "til": null,
       "objekt": "godkjenning av bruk av betegnelsen universitetssykehus",
@@ -3860,7 +3865,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§8-2/ledd-1",
       "sitat": "Loven trer i kraft fra det tidspunkt Kongen bestemmer.",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a4",
       "til": null,
       "objekt": "ikrafttredelsestidspunkt for loven",
@@ -3871,14 +3876,15 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": true
+      "delegerbar": true,
+      "undertype": "utpeking"
     },
     {
       "id": "u132",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§8-2/ledd-1",
       "sitat": "Kongen kan bestemme at de enkelte bestemmelser i loven skal tre i kraft til forskjellig tid.",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a4",
       "til": null,
       "objekt": "ikrafttredelse av enkelte bestemmelser",
@@ -3889,7 +3895,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": true
+      "delegerbar": true,
+      "undertype": "utpeking"
     },
     {
       "id": "u133",
@@ -4463,8 +4470,8 @@
       "id": "u166",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§21/ledd-3",
       "sitat": "Styremedlemmene velges av foretaksmøtet",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a59",
       "til": "a64",
       "objekt": null,
@@ -4474,7 +4481,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": "Med unntak som følger av §§ 22 og 23",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "valg"
     },
     {
       "id": "u167",
@@ -4559,7 +4567,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "valg"
     },
     {
       "id": "u172",
@@ -4582,8 +4591,8 @@
       "id": "u173",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§22/ledd-1",
       "sitat": "Inntil en tredel og minst to av styrets medlemmer med varamedlemmer skal velges av og blant de ansatte",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a65",
       "til": "a64",
       "objekt": null,
@@ -4593,7 +4602,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "valg"
     },
     {
       "id": "u174",
@@ -4618,8 +4628,8 @@
       "id": "u175",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§23/ledd-1",
       "sitat": "I helseforetak som har flere enn 30 ansatte, kan et flertall av de ansatte kreve at inntil en tredel og minst to av styrets medlemmer med varamedlemmer, velges av og blant de ansatte.",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a65",
       "til": "a64",
       "objekt": null,
@@ -4629,14 +4639,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "valg"
     },
     {
       "id": "u176",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§23/ledd-2",
       "sitat": "Har helseforetaket flere enn 200 ansatte, skal de ansatte velge ett styremedlem og varamedlem",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a65",
       "til": "a64",
       "objekt": null,
@@ -4646,7 +4657,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "valg"
     },
     {
       "id": "u177",
@@ -5347,7 +5359,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "ansettelse"
     },
     {
       "id": "u218",
@@ -5848,7 +5861,7 @@
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§43/ledd-2",
       "sitat": "Årsregnskap og årsberetning skal godkjennes av foretaksmøtet.",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "godkjenningskompetanse",
       "fra": "a59",
       "til": null,
       "objekt": "godkjenne årsregnskap og årsberetning",
@@ -5865,7 +5878,7 @@
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§44/ledd-1",
       "sitat": "Foretak skal ha revisor som velges av foretaksmøtet.",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a59",
       "til": "a80",
       "objekt": "revisor",
@@ -5875,7 +5888,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "utpeking"
     },
     {
       "id": "u249",
@@ -5932,8 +5946,8 @@
       "id": "u252",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§47/ledd-1",
       "sitat": "Når foretaksmøtet har truffet vedtak om oppløsning etter § 46, skal det snarest velges avviklingsstyre",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a59",
       "til": "a82",
       "objekt": "avviklingsstyre",
@@ -5943,14 +5957,15 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "valg"
     },
     {
       "id": "u253",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§47/ledd-1",
       "sitat": "Avviklingsstyret velger selv leder og nestleder hvis ikke foretaksmøtet har gjort det.",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a82",
       "til": null,
       "objekt": "velge leder og nestleder",
@@ -5960,7 +5975,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "utpeking"
     },
     {
       "id": "u254",
@@ -6271,7 +6287,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "oppnevning"
     },
     {
       "id": "u272",
@@ -6288,14 +6305,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "oppnevning"
     },
     {
       "id": "u273",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§52/punkt-9",
       "sitat": "I tillegg utpeker førstelagmannen i Borgarting leder for nemnda og leders varamedlem.",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a89",
       "til": "a87",
       "objekt": "leder for nemnda og leders varamedlem",
@@ -6305,7 +6323,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "utpeking"
     },
     {
       "id": "u274",

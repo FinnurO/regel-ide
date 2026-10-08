@@ -77,6 +77,10 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
   "objekt": "<for kompetanse: bestemmelse/sakstype/regelverk, f.eks. 'vedtak etter § 3-1', 'forskrift om …'>",
   "normform": "forskrift" | "reglement" | "arbeidsordning" | "vedtekter" | "instruks",  // [Ny, #341] KUN på
                               // normgivningskompetanse; utelatt/null = ikke angitt
+  "undertype": "valg" | "ansettelse" | "utpeking" | "oppnevning" | "anke",  // [Ny, #352] HVORDAN kompetansen utøves:
+                              // KUN på oppnevningskompetanse (valg/ansettelse/utpeking/oppnevning — verbet «velger»,
+                              // «ansetter», «utpeker», «oppnevner») og overprovingskompetanse (anke). Utelatt/null = ikke angitt.
+                              // Verbene og ordstammene står i kompetanseleksikon.json («undertyper»)
   "grunnlag": "offentligrettslig" | "privatrettslig",  // [Ny, #341] KUN på kompetanse; privatrettslig = eierskap/
                               // selskapsrett. Utelatt/null = ikke angitt (settes av et menneske, aldri utledet)
   "delegerbar": true | false, // [Ny, #341/#335] KUN på kompetanse: «Kongen …» = true, «Kongen i statsråd …» og
@@ -103,32 +107,49 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
   og den GJENNOMFØRTE delegeringen (`har_delegert_til`, fra et delegeringsvedtak; unntakene i vedtaket er egne rader
   med negativ polaritet = avgrensning av delegeringen, ikke negativ kompetanse). Kompetansen til å delegere («X kan
   delegere til Y») er `delegeringskompetanse`.
-- `velger`, `radgir`, `bistar`, `samarbeider_med`, `administrativt_underordnet` og `del_av` står foreløpig under
-  relasjon: de er verken på Johanns strukturliste eller flyttet (åpent spørsmål 4 på #341).
-- Kompetansetypene har en **familie** (struktur, personell, styring, normgivning, kontroll, klage_overproving, vedtak,
+- [ENDRET, #352] `administrativt_underordnet`, `radgir`, og (under konstituerende) `oppretter` og `avvikler` er avgjort
+  som struktur/hendelse, ikke myndighet (Johanns beslutning 4); kompetansen til å opprette eller avvikle er
+  `opprettingskompetanse`/`avviklingskompetanse`. `bistar`, `samarbeider_med` og `del_av` står fortsatt under relasjon
+  uten å være avgjort.
+- Kompetansetypene har en **familie** (struktur, oppnevning, styring, normgivning, kontroll, klage_overproving, vedtak,
   sanksjon) og en **fvl-kategori**; begge er egenskaper ved TYPEN og står i `Strukturkanter.Kompetansetyper` i koden,
   ikke i fasiten. `beslutningskompetanse` står over alle familiene og brukes når teksten bare sier
   «beslutningsmyndighet». `vedtakskompetanse` betyr enkeltvedtak; forskrift er `normgivningskompetanse` med normform
   `forskrift`.
 - Konverteringen av fasiten fra de gamle typene er deterministisk: `konvertering-341-kompetanse.py`.
 
+**[ENDRET, issue #352, Johanns beslutninger 2026-10-08]** Restene etter #341:
+- Familien `personell` heter **oppnevning**: «En aktør gis myndighet til å bestemme hvem som skal inneha en rolle, et
+  verv eller en funksjon.» `velger` (relasjon), `utpekingskompetanse` og `ansettelseskompetanse` er
+  `oppnevningskompetanse` med motpart og `undertype` (`valg`, `utpeking`, `ansettelse`; `oppnevning` når teksten sier
+  «oppnevner»). `avsettingskompetanse` står i familien oppnevning som motsatsen (hovedøktens tolkning, Johann bekrefter).
+- `ankeinstans_for` er `overprovingskompetanse` med motpart og `undertype` `anke` (familien klage og overprøving).
+- `foreleggingskompetanse` er i familien kontroll. «… skal/må godkjennes av X» / «Godkjenning … gis av X» er
+  `godkjenningskompetanse` (styring), ikke `vedtakskompetanse`.
+- [Tillegg, Johann 2026-10-08, fasitkontrollen domstolloven u17] Sammensetningen i den enkelte sak er
+  `organsammensetning`/`settes_med` (saksavhengig), ikke `har_medlemmer` (organets faste medlemmer): antallet i `objekt`,
+  sakstypen i `avgrensning`. Bare u17 er konvertert; u16 og u18 har samme form og venter på Johann.
+- Konverteringen er deterministisk: `konvertering-352-oppnevning.py` (fasit 1797 → 1797 utsagn, KI-utdata 1043 → 1043).
+
 Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
 - relasjon (aktør→aktør): `eies_av`, `ledes_av`, `sekretariat_for`, `rapporterer_til`, `etterfolger`,
   `representerer`, `har_delegert_til` (gjennomført delegering, når BÅDE fra og til er gitt),
-  `administrativt_underordnet`, `velger`, `bistar`, `samarbeider_med`, `radgir`, `del_av`.
+  `administrativt_underordnet`, `bistar`, `samarbeider_med`, `radgir`, `del_av`.
 - kompetanse (aktør→motpart/bestemmelse/sakstype): `beslutningskompetanse`, `opprettingskompetanse`,
-  `avviklingskompetanse`, `organisasjonskompetanse`, `oppnevningskompetanse`, `utpekingskompetanse`
-  (X bestemmer hvem som er myndighet), `ansettelseskompetanse`, `avsettingskompetanse`, `instruksjonskompetanse`
+  `avviklingskompetanse`, `organisasjonskompetanse`, `oppnevningskompetanse` (med undertype: valg, ansettelse,
+  utpeking — X bestemmer hvem som er myndighet —, oppnevning), `avsettingskompetanse`, `instruksjonskompetanse`
   (bruk polaritet), `samordningskompetanse`, `delegeringskompetanse` (X kan delegere), `godkjenningskompetanse`,
   `samtykkekompetanse`, `paleggskompetanse`, `normgivningskompetanse` (med normform), `tilsynskompetanse`,
-  `revisjonskompetanse`, `klagekompetanse`, `omgjoringskompetanse`, `overprovingskompetanse`,
+  `revisjonskompetanse`, `klagekompetanse`, `omgjoringskompetanse`, `overprovingskompetanse` (undertype anke),
   `stadfestingskompetanse`, `vedtakskompetanse` (enkeltvedtak), `sanksjonskompetanse`, `foreleggingskompetanse`,
   `ukjent` (maskinell konvertering: et kompetanseuttrykk verken leksikonet eller KI kan typebestemme — gjettes ikke).
 - medlemskap (aktør/klasse → klasse): `medlem_av`, `inngar_i`.
 - sammensetning_omrade (område → område): `bestar_av`, `del_av`.
 - ansvarsomrade (aktør → område): `har_ansvarsomrade`, `har_jurisdiksjon`, `har_sete_i`.
 - konstituerende: `oppretter`, `avvikler`, `skal_finnes` («Hver kommune skal ha …»).
-- organsammensetning: `har_medlemmer` (antall, hvem oppnevner), `har_organ` (rettssubjekt → organ, f.eks. «kommunestyret»).
+- organsammensetning: `har_medlemmer` (organets FASTE medlemmer: antall, hvem oppnevner), `har_organ` (rettssubjekt →
+  organ, f.eks. «kommunestyret»), `settes_med` ([Ny, #352] sammensetningen i den ENKELTE SAK, saksavhengig: «I andre saker
+  enn etter første ledd første punktum settes Høyesterett med fem dommere» — antallet i feltet objekt, sakstypen i feltet avgrensning).
 
 ## Lesing
 
