@@ -26,7 +26,7 @@ public class MonsterStrukturkonvertererTests
         var d = Konverter("Departementet kan gi forskrift om leveringsplikten.");
 
         var u = Assert.Single(d.Utsagn);
-        Assert.Equal(("kompetanse", "forskriftskompetanse"), (u.Kategori, u.Type));
+        Assert.Equal(("kompetanse", "normgivningskompetanse", "forskrift"), (u.Kategori, u.Type, u.Normform)); // [ENDRET, #341]
         Assert.Equal("Departementet", Tekstform(d, u.Fra));
         Assert.Null(u.Til);
         Assert.Equal("forskrift om leveringsplikten", u.Objekt);
@@ -38,7 +38,7 @@ public class MonsterStrukturkonvertererTests
     {
         var d = Konverter("For konsesjoner etter § 5-1 kan departementet gi nærmere forskrifter og fastsette vilkår.");
 
-        var u = Assert.Single(d.Utsagn, x => x.Type == "forskriftskompetanse");
+        var u = Assert.Single(d.Utsagn, x => x.Type == "normgivningskompetanse");
         Assert.Equal("departementet", Tekstform(d, u.Fra));
     }
 
@@ -47,7 +47,7 @@ public class MonsterStrukturkonvertererTests
     {
         var d = Konverter("Departementet kan gi forskrift om at reguleringsmyndigheten kan gi forskrift om metoder for beregning.");
 
-        var fra = d.Utsagn.Where(u => u.Type == "forskriftskompetanse").Select(u => Tekstform(d, u.Fra)).ToList();
+        var fra = d.Utsagn.Where(u => u.Type == "normgivningskompetanse").Select(u => Tekstform(d, u.Fra)).ToList();
         Assert.Equal(["Departementet", "reguleringsmyndigheten"], fra);
     }
 
@@ -57,7 +57,7 @@ public class MonsterStrukturkonvertererTests
     [InlineData("Etter søknad kan ikke gi forskrift om gebyr.")]
     public void Pronomen_eller_ikke_aktor_som_subjekt_gir_ingen_forskriftskompetanse(string tekst)
     {
-        Assert.DoesNotContain(Konverter(tekst).Utsagn, u => u.Type == "forskriftskompetanse");
+        Assert.DoesNotContain(Konverter(tekst).Utsagn, u => u.Type == "normgivningskompetanse");
     }
 
     [Fact]
@@ -65,7 +65,7 @@ public class MonsterStrukturkonvertererTests
     {
         var d = Konverter("Reguleringsmyndigheten og klagenemnda kan ikke instrueres i disponeringen av tildelte budsjettmidler.");
 
-        var utsagn = d.Utsagn.Where(u => u.Type == "instruksjon").ToList();
+        var utsagn = d.Utsagn.Where(u => u.Type == "instruksjonskompetanse").ToList(); // [ENDRET, #341] K med motpart
         Assert.Equal(2, utsagn.Count);
         Assert.All(utsagn, u => Assert.Equal("negativ", u.Polaritet));
         Assert.All(utsagn, u => Assert.Null(u.Fra));
@@ -77,7 +77,8 @@ public class MonsterStrukturkonvertererTests
     {
         var d = Konverter("Kongens myndighet etter lov 12. juni 1987 nr. 56 § 2-11 delegeres til Kommunal- og regionaldepartementet.");
 
-        var u = Assert.Single(d.Utsagn, x => x.Type == "delegerer_til");
+        // [ENDRET, #341] «… delegeres til» er delegeringsvedtakets form: en gjennomført delegering.
+        var u = Assert.Single(d.Utsagn, x => x.Type == "har_delegert_til");
         Assert.Equal("Kongen", Tekstform(d, u.Fra));
         Assert.Equal("Kommunal- og regionaldepartementet", Tekstform(d, u.Til));
     }
@@ -88,7 +89,8 @@ public class MonsterStrukturkonvertererTests
         // «disse» peker tilbake i teksten — mønsterlaget følger ikke pronomen (CLAUDE.md §8).
         var d = Konverter("Styret kan delegere myndighet til disse.");
 
-        var u = Assert.Single(d.Utsagn, x => x.Type == "delegerer_til");
+        // [ENDRET, #341] «kan delegere» er kompetansen til å delegere.
+        var u = Assert.Single(d.Utsagn, x => x.Type == "delegeringskompetanse");
         Assert.Equal("Styret", Tekstform(d, u.Fra));
         Assert.Null(u.Til);
     }
@@ -98,7 +100,7 @@ public class MonsterStrukturkonvertererTests
     {
         var d = Konverter("Vedtaket kan påklages til klagenemnda.");
 
-        var u = Assert.Single(d.Utsagn, x => x.Type == "klageinstans_for");
+        var u = Assert.Single(d.Utsagn, x => x.Type == "klagekompetanse"); // [ENDRET, #341] fra = klageinstansen
         Assert.Equal("klagenemnda", Tekstform(d, u.Fra));
         Assert.Null(u.Til);
     }
@@ -204,7 +206,8 @@ public class MonsterStrukturkonvertererTests
     public void Recordene_har_alle_feltnavnene_fasiten_bruker()
     {
         var aktorfelt = Feltnavn(JsonSerializer.SerializeToNode(new StrukturAktor("a1", "x", [], [], 1, null, null, null, null, null, null) { VerifisertAv = "x" })!); // [ENDRET, #312] + verifisert_av
-        var utsagnfelt = Feltnavn(JsonSerializer.SerializeToNode(new StrukturUtsagn("u1", "e", "s", "k", "t", null, null, null, "positiv", null, null, null, null, null) { VerifisertAv = "x" })!);
+        var utsagnfelt = Feltnavn(JsonSerializer.SerializeToNode(new StrukturUtsagn("u1", "e", "s", "k", "t", null, null, null, "positiv", null, null, null, null, null)
+            { VerifisertAv = "x", Normform = "forskrift", Grunnlag = "privatrettslig", Delegerbar = true })!); // [ENDRET, #341] + kompetansefeltene
 
         foreach (var kilde in StrukturfasitLeser.LesAlle())
         {

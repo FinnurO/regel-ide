@@ -58,8 +58,8 @@ internal static class Monsterkatalog
 
     public static IReadOnlyList<Strukturmonster> Bygg() =>
     [
-        // ---- K forskriftskompetanse ---------------------------------------------------------------
-        Regex("forskrift-gi", "kompetanse", "forskriftskompetanse",
+        // ---- K normgivningskompetanse, normform forskrift ([ENDRET, #341] var forskriftskompetanse) ---------------------------------------------------------------
+        Regex("forskrift-gi",
             "«X kan gi (nærmere) forskrift(er) om …», «X gir forskrift om …», «kan X gi forskrift …», «X kan fatte enkeltvedtak eller gi forskrift om …».",
             "docs/33 §1: «kan gi forskrift om» 5651 treff, 100 % presisjon.",
             new RegexMonsteroppsett(KreverFra: true, AlleUttrykk: true),
@@ -69,14 +69,14 @@ internal static class Monsterkatalog
             // kan gi forskrift om …» — to kompetanser i samme setning, derfor AlleUttrykk.
             @"\bat\s+" + SubjektOmvendt + @"\s+(?:kan|skal)\s+gi\s+(?<obj>(?:nærmere\s+)?forskrift(?:er)?\b)"),
 
-        Regex("forskrift-i-ved", "kompetanse", "forskriftskompetanse",
+        Regex("forskrift-i-ved",
             "«X kan i/ved forskrift (gi/fastsette/bestemme/stille …)», «X fastsetter ved forskrift …».",
             "docs/33 §1: variant av «kan gi forskrift om» (5651 treff, 100 %); formen er ikke målt separat.",
             new RegexMonsteroppsett(KreverFra: true, AlleUttrykk: true),
             Start + Subjekt + "(?:" + Modal + @"|\s+fastsetter\s+)(?<obj>(?:i|ved)\s+forskrift\b)",
             @"\b(?:kan|skal)\s+" + SubjektOmvendt + @"\s+(?<obj>(?:i|ved)\s+forskrift\b)"),
 
-        Regex("forskrift-naermere-regler", "kompetanse", "forskriftskompetanse",
+        Regex("forskrift-naermere-regler",
             "«X kan gi/fastsette (nærmere/utfyllende/de nødvendige) regler/bestemmelser om …», «Nærmere regler om … kan gis av X», «Nærmere regler … kan X gi».",
             "Ikke målt i docs/33 §1. Med fordi lovteksten bruker «gi (nærmere) regler» om forskrift uten å si ordet; presisjonen måles mot fasiten.",
             new RegexMonsteroppsett(KreverFra: true, AlleUttrykk: true),
@@ -85,14 +85,14 @@ internal static class Monsterkatalog
             @"(?<obj>(?:Nærmere|Utfyllende)\s+(?:regler|bestemmelser|forskrifter)\b)[^.;]{0,150}?\bgis\s+av\s+" + Etter("fra"),
             @"(?<obj>(?:Nærmere|Utfyllende)\s+(?:regler|bestemmelser)\b)[^.;]{0,150}?\bkan\s+" + SubjektOmvendt + @"\s+gi\b"),
 
-        Regex("forskrift-gitt-av", "kompetanse", "forskriftskompetanse",
+        Regex("forskrift-gitt-av",
             "«forskrift fastsatt av X», «forskrifter gitt av X», «regler gitt av X».",
             "Ikke målt i docs/33 §1 (passiv form av forskriftskompetanse). Krever at aktøren står i setningen.",
             new RegexMonsteroppsett(KreverFra: true),
             @"\b(?<obj>forskrift|forskrifter|regler)\s+(?:gitt|fastsatt)\s+av\s+" + Etter("fra")),
 
         // ---- K vedtakskompetanse ------------------------------------------------------------------
-        Regex("vedtak-treffe", "kompetanse", "vedtakskompetanse",
+        Regex("vedtak-treffe",
             "«X kan/skal treffe/fatte (enkelt)vedtak …», «X treffer vedtak …», «X kan ved/i enkeltvedtak …», og omvendt ordstilling.",
             "docs/33 §1: «treffer vedtak / avgjøres av» 1465 treff, 73 % presisjon.",
             new RegexMonsteroppsett(KreverFra: true, AlleUttrykk: true),
@@ -101,7 +101,7 @@ internal static class Monsterkatalog
             @"\b(?:kan|skal)\s+" + SubjektOmvendt + @"\s+(?:også\s+)?(?:treffe|fatte)\s+(?<obj>(?:enkelt)?vedtak\b)",
             @"\b(?:kan|skal)\s+" + SubjektOmvendt + @"\s+(?<obj>(?:ved|i)\s+enkeltvedtak\b)"),
 
-        Regex("vedtak-avgjores-av", "kompetanse", "vedtakskompetanse",
+        Regex("vedtak-avgjores-av",
             "«(Vedtak/avgjørelse om …) treffes/fattes/avgjøres/besluttes/vedtas av X». Objektet er det som står foran verbet.",
             "docs/33 §1: «treffer vedtak / avgjøres av» 1465 treff, 73 %. Krever at aktøren står i setningen — «av» uten aktør er ikke et kompetanseutsagn.",
             new RegexMonsteroppsett(KreverFra: true, ObjektForan: true),
@@ -109,40 +109,40 @@ internal static class Monsterkatalog
             // eget objekt: «det treffes vedtak om bruk av tvang» har ingen agent, «tvang» er ikke en aktør.
             @"\b(?:avgjøres|treffes|fattes|besluttes|vedtas)\s+(?:(?!(?:om|vedtak|avgjørelse|beslutning)\b)[^\s.;,]+\s+){0,4}?av\s+" + Etter("fra")),
 
-        Regex("vedtak-godkjennes-av", "kompetanse", "vedtakskompetanse",
+        Regex("vedtak-godkjennes-av",
             "«… skal/må godkjennes av X», «… må være godkjent av X», «Godkjenning … gis av X». IKKE «er godkjent av X» (tilstand/vilkår, ikke kompetanse).",
             "Ikke målt i docs/33 §1. Godkjenning er et enkeltvedtak; mønsteret krever at godkjenneren står i setningen.",
             new RegexMonsteroppsett(KreverFra: true, ObjektForan: true),
             @"\b(?:skal|må|kan)\s+(?:være\s+)?(?:godkjennes|godkjent)\s+av\s+" + Etter("fra"),
             @"\bGodkjenning\b" + Fritt + @"{0,80}?\bgis\s+av\s+" + Etter("fra")),
 
-        Regex("vedtak-forvaltningsverb", "kompetanse", "vedtakskompetanse",
+        Regex("vedtak-forvaltningsverb",
             "«X kan gi pålegg/dispensasjon om …», «X kan dispensere fra …», «X kan ilegge (overtredelsesgebyr) …», «X kan trekke tilbake/tilbakekalle …», «X kan fastsette (ytterligere) vilkår …» — verb som i forvaltningsretten er enkeltvedtak. Aldri etter «ikke».",
             "Ikke målt i docs/33 §1. Tatt med etter fasitens falske negative: energiloven uttrykker vedtakskompetanse nesten bare slik, ikke som «treffe vedtak». Verbet «pålegge» er tatt UT (se forkastede mønstre i målerapporten).",
             new RegexMonsteroppsett(KreverFra: true, AlleUttrykk: true),
             Start + Subjekt + Modal + @"(?!ikke\b)" + Fritt + @"{0,40}?\b(?<obj>(?:gi\s+(?:de\s+)?(?:pålegg|dispensasjon)|dispensere|ilegge|tilbakekalle|trekke\s+tilbake|fastsette\s+(?:ytterligere\s+)?vilkår)\b)",
             @"\b(?:kan|skal)\s+" + SubjektOmvendt + @"\s+(?<obj>(?:gi\s+(?:de\s+)?(?:pålegg|dispensasjon)|dispensere|ilegge|tilbakekalle|trekke\s+tilbake|fastsette\s+(?:ytterligere\s+)?vilkår)\b)"),
 
-        Regex("vedtak-avgjor", "kompetanse", "vedtakskompetanse",
+        Regex("vedtak-avgjor",
             "«X avgjør (i tvilstilfelle) …».",
             "Ikke målt separat i docs/33 §1 (del av «avgjøres av»-familien).",
             new RegexMonsteroppsett(KreverFra: true),
             Start + Subjekt + @"\s+avgjør\s+(?<obj>\S.*)"),
 
-        // ---- R klageinstans_for -------------------------------------------------------------------
-        new Strukturmonster("klage-paklages-til", "relasjon", "klageinstans_for",
+        // ---- K klagekompetanse med motpart ([ENDRET, #341] var R klageinstans_for — samme retning) -------------------------------------------------------------------
+        Monster("klage-paklages-til",
             "«(Enkeltvedtak fattet av Y) … kan påklages (…) til X» → X klageinstans for Y. Y er null når setningen ikke sier hvem førsteinstansen er.",
             "docs/33 §1: «klageinstans for / påklages til» 1718 treff, 67 % presisjon. Førsteinstansen er ofte implisitt.",
             KlagePaklagesTil),
 
-        Regex("klage-er-klageinstans", "relasjon", "klageinstans_for",
+        Regex("klage-er-klageinstans",
             "«X er klageinstans (for enkeltvedtak truffet av Y)», «Klageinstans for Ys vedtak er X».",
             "docs/33 §1: «klageinstans for / påklages til» 1718 treff, 67 %.",
             new RegexMonsteroppsett(KreverFra: true),
             Start + Subjekt + @"\s+er\s+(?:også\s+)?klageinstans\b(?:\s+for\s+(?:enkelt)?vedtak(?:\s+(?:truffet|fattet))?\s+av\s+" + Etter("til") + ")?",
             @"\bKlageinstans\s+for\s+(?<tilgen>\p{L}+)\s+vedtak\s+er\s+" + Etter("fra")),
 
-        Regex("klage-ikke-paklages", "relasjon", "klageinstans_for",
+        Regex("klage-ikke-paklages",
             "«vedtak av Y … kan ikke påklages», «Ys vedtak kan ikke påklages» → negativ, uten klageinstans. Krever Y — «Vedtak om registrering kan ikke påklages» sier ingenting om en aktør.",
             "docs/33 §1: del av «klageinstans for / påklages til» (1718 treff, 67 %); negativ form ikke målt separat.",
             new RegexMonsteroppsett(KreverTil: true, Polaritet: "negativ"),
@@ -150,47 +150,47 @@ internal static class Monsterkatalog
             Start + @"(?<tilgen>\p{Lu}\p{L}+)\s+vedtak\s+kan\s+ikke\s+påklages"),
 
         // ---- R administrativt_underordnet ---------------------------------------------------------
-        Regex("administrativt-underordnet", "relasjon", "administrativt_underordnet",
+        Regex("administrativt-underordnet",
             "«X er administrativt underordnet/underlagt Y».",
             "docs/33 §1: 775 treff på «underordnet», 13 % — signalet er KUN i frasen «administrativt underordnet», som er det eneste mønsteret tar.",
             new RegexMonsteroppsett(KreverFra: true),
             Start + Subjekt + @"\s+er\s+administrativt\s+(?:underordnet|underlagt)\s+" + Etter("til")),
 
         // ---- G har_medlemmer ----------------------------------------------------------------------
-        Regex("har-medlemmer", "organsammensetning", "har_medlemmer",
+        Regex("har-medlemmer",
             "«X skal ha (minst) N medlemmer/dommere/representanter», «X består av N medlemmer». Til = substantivet etter tallet, slik det står.",
             "docs/33 §1: «består av N medlemmer» 147 treff, 100 % presisjon.",
             new RegexMonsteroppsett(KreverFra: true),
             Start + Subjekt + @"(?:\s+skal)?\s+(?:ha|har|bestå\s+av|består\s+av)\s+(?:minst\s+|inntil\s+|høyst\s+|i\s+alt\s+)?" + Tall
                 + @"\s+(?:\p{L}+\s+)?(?<til>\p{L}*(?:medlemmer|dommere|representanter|personer))\b"),
 
-        // ---- R oppnevner --------------------------------------------------------------------------
-        new Strukturmonster("oppnevnt-av", "relasjon", "oppnevner",
+        // ---- K oppnevningskompetanse med motpart ([ENDRET, #341] var R oppnevner) --------------------------------------------------------------------------
+        Monster("oppnevnt-av",
             "«Y oppnevnt/utnevnt av X», «Y oppnevnes/utnevnes (som …) av X» → X oppnevner Y. Y = de ett–to ordene rett foran verbet, ellers null.",
             "docs/33 §1: «oppnevner / utnevner» 1422 treff, 33 % presisjon.",
             OppnevntAv),
 
-        Regex("oppnevner-aktivt", "relasjon", "oppnevner",
+        Regex("oppnevner-aktivt",
             "«X oppnevner/utnevner … til/av Y» («Kongen oppnevner medlemmene av Innstillingsrådet»). Y null hvis ingen «til/av» følger.",
             "docs/33 §1: «oppnevner / utnevner» 1422 treff, 33 %.",
             new RegexMonsteroppsett(KreverFra: true),
             Start + Subjekt + @"\s+(?:oppnevner|utnevner)\b(?:[^.;]{0,160}?\b(?:til|av)\s+(?!å\b)" + Etter("til") + ")?"),
 
-        // ---- R instruksjon (negativ) --------------------------------------------------------------
-        Regex("instruksjon-kan-ikke-instrueres", "relasjon", "instruksjon",
+        // ---- K instruksjonskompetanse, negativ ([ENDRET, #341] var R instruksjon) --------------------------------------------------------------
+        Regex("instruksjon-kan-ikke-instrueres",
             "«X (er uavhengig og) kan ikke instrueres (av Y)» → negativ instruksjon, Y = null når agenten ikke står i setningen.",
             "docs/33 §1: «instruere» 908 treff, 27 % — og nesten bare NEGATIV («kan ikke instruere») = uavhengighet. Mønsteret tar bare den negative formen.",
             new RegexMonsteroppsett(KreverTil: true, Polaritet: "negativ"),
             Start + SubjektTil + @"(?:\s+er\s+[^.;]{0,80}?\s+og)?\s+(?:kan|skal)\s+ikke\s+instrueres\b(?:\s+av\s+" + Etter("fra") + ")?"),
 
-        Regex("instruksjon-kan-ikke-instruere", "relasjon", "instruksjon",
+        Regex("instruksjon-kan-ikke-instruere",
             "«X kan/skal ikke instruere Y», «X skal ikke gi instruks(er) til Y» → negativ instruksjon.",
             "docs/33 §1: «instruere» 908 treff, 27 %, nesten bare negativ.",
             new RegexMonsteroppsett(KreverFra: true, Polaritet: "negativ"),
             Start + Subjekt + @"\s+(?:kan|skal)\s+ikke\s+(?:instruere\s+" + Etter("til") + @"|gi\s+instrukse?r?\s+til\s+" + Etter("til") + ")"),
 
-        // ---- R delegerer_til ----------------------------------------------------------------------
-        Regex("delegerer-kan-delegere", "relasjon", "delegerer_til",
+        // ---- Delegering ([ENDRET, #341] var R delegerer_til): «kan delegere» = K delegeringskompetanse, «delegeres til» = R har_delegert_til ----------------------------------------------------------------------
+        Regex("delegerer-kan-delegere",
             "«X kan delegere (myndighet …) til Y», «X delegerer … til Y», «X kan bemyndige Y». Y null når den ikke kan bestemmes («til disse»).",
             "docs/33 §1: «delegerer til» 2875 treff, 47 % presisjon — nesten alltid avgrenset til paragraf (avgrensningen tolkes ikke her).",
             new RegexMonsteroppsett(KreverFra: true),
@@ -198,7 +198,7 @@ internal static class Monsterkatalog
             Start + Subjekt + Modal + @"bemyndige\s+" + Etter("til"),
             Start + Subjekt + "(?:" + Modal + @"delegere|\s+delegerer)\b"),
 
-        Regex("delegerer-delegeres-til", "relasjon", "delegerer_til",
+        Regex("delegerer-delegeres-til",
             "«Xs myndighet (etter …) delegeres til Y» → X delegerer til Y (genitiv-s fjernet: «Kongens» → «Kongen»); «… delegeres til Y» uten X → fra null.",
             "docs/33 §1: «delegerer til» 2875 treff, 47 %.",
             new RegexMonsteroppsett(KreverTil: true),
@@ -206,22 +206,35 @@ internal static class Monsterkatalog
             @"\bdelegeres\s+(?:delvis\s+|også\s+)?til\s+" + Etter("til")),
 
         // ---- K tilsynskompetanse ------------------------------------------------------------------
-        Regex("tilsyn-forer-tilsyn", "kompetanse", "tilsynskompetanse",
+        Regex("tilsyn-forer-tilsyn",
             "«X (skal) føre(r) tilsyn/kontroll med at …» og «… med lovligheten/etterlevelsen/gjennomføringen/overholdelsen av …» — tilsyn med at REGELVERK følges. «Tilsyn med daglig leder/forliksrådets virksomhet» (tilsyn med en aktør) tas ikke.",
             "docs/33 §1: «fører tilsyn med at …» 2246 treff, ~33 % presisjon, og «tilsyn med aktør» ≈ 0 % som kompetanse. Første versjon tok alle objekter og fikk 5 av 9 mot fasiten; feilene var nettopp tilsyn med en aktør.",
             new RegexMonsteroppsett(KreverFra: true, AlleUttrykk: true),
             Start + Subjekt + @"(?:" + Modal + @"føre|\s+fører)\s+(?<obj>(?:tilsyn|kontroll)\s+med\s+(?:at|lovligheten|etterlevelsen|gjennomføringen|overholdelsen)\b)",
             @"\b(?:kan|skal)\s+" + SubjektOmvendt + @"\s+føre\s+(?<obj>(?:tilsyn|kontroll)\s+med\s+(?:at|lovligheten|etterlevelsen|gjennomføringen|overholdelsen)\b)"),
 
+        // ---- [Ny, issue #341] K beslutningskompetanse og samordningskompetanse (Johanns leksikon) --------------------
+        Regex("beslutning-beslutningsmyndighet",
+            "«X har beslutningsmyndighet …» — øverst i kompetansehierarkiet, brukt når teksten ikke sier mer (sameloven § 2-1 fjerde ledd).",
+            "Ikke målt i docs/33 §1. Tatt med etter Johanns beslutning 3 på #341 («beslutningsmyndighet» → beslutning).",
+            new RegexMonsteroppsett(KreverFra: true),
+            Start + Subjekt + @"\s+har\s+(?<obj>beslutningsmyndighet\b)"),
+
+        Regex("samordning-samordne",
+            "«X skal/kan samordne …», også sist i en oppramsing («skal planlegge, organisere, styre og samordne»). Passiv («skal samordnes med») tas ikke — den sier ikke hvem som har kompetansen.",
+            "Ikke målt i docs/33 §1. Tatt med etter Johanns beslutning 3 på #341 («samordne» → samordning).",
+            new RegexMonsteroppsett(KreverFra: true),
+            Start + Subjekt + Modal + @"(?:[^.;:]{0,60}?\s+og\s+)?(?<obj>samordne\b)"),
+
         // ---- A har_sete_i -------------------------------------------------------------------------
-        Regex("har-sete-i", "ansvarsomrade", "har_sete_i",
+        Regex("har-sete-i",
             "«X har (sitt) sete i Y», «X skal ha sitt sete i Y».",
             "Ikke målt i docs/33 §1. Fast lovformulering for sete; Y tas slik den står («rikets hovedstad»), uten oppslag.",
             new RegexMonsteroppsett(KreverFra: true, KreverTil: true),
             Start + Subjekt + @"(?:\s+skal)?\s+(?:ha|har)\s+(?:sitt\s+)?sete\s+i\s+" + Etter("til")),
 
         // ---- O bestar_av / del_av, A har_sete_i: strukturerte lister i inndelingsforskrifter -------
-        new Strukturmonster("inndeling-kommune-i-fylke", "sammensetning_omrade", "del_av",
+        Monster("inndeling-kommune-i-fylke",
             "«kommunene A, B og C i X fylke» → hver kommune er del av X fylke. Samme listeregel som de andre inndelingsmønstrene; «fra og med …»-lister tas ikke.",
             "Ikke målt i docs/33 §1. Fylkestilhørigheten står eksplisitt i setningen.",
             Inndeling.KommuneIFylke),
@@ -235,22 +248,22 @@ internal static class Monsterkatalog
         // [ENDRET, issue #312] Var O «sammensetning_omrade/bestar_av» (rettskretsen N består av kommunene). Nå A
         // «ansvarsomrade/har_ansvarsomrade»: tingretten har ansvarsområde direkte til kommunene teksten nevner (Johanns
         // funn 2026-10-07 på #312). Samme regex, samme endepunkter — bare kanttypen.
-        new Strukturmonster("inndeling-rettskrets", "ansvarsomrade", "har_ansvarsomrade",
+        Monster("inndeling-rettskrets",
             "«(… har rettskretsen) N tingrett, med rettssted(er) i …, som dekker kommunene A, B og C» → N har ansvarsområde i hver kommune; «som dekker A kommune» → én.",
             "docs/33 §1 nevner strukturerte kommunelister i inndelingsforskrifter som høypresisjonskilde (ikke tallfestet).",
             s => Inndeling.Rettskrets(s, kommuner: true)),
 
-        new Strukturmonster("inndeling-rettssted", "ansvarsomrade", "har_sete_i",
+        Monster("inndeling-rettssted",
             "Samme struktur som inndeling-rettskrets: «N tingrett, med rettssteder i A og B, …» → N har sete i A og i B.",
             "Samme kilde som inndeling-rettskrets.",
             s => Inndeling.Rettskrets(s, kommuner: false)),
 
-        new Strukturmonster("inndeling-kommuneliste", "sammensetning_omrade", "bestar_av",
+        Monster("inndeling-kommuneliste",
             "«Navn (/samisk navn): kommunene A, B og C i X fylke (og kommunene …)» og «… samt fylkene A, B og C» → Navn består av hvert listeelement. Lister som er definert ved retning («fra og med … og nordover») tas IKKE.",
             "Strukturerte kommunelister (docs/33 §1, ikke tallfestet). Retnings- og komplementdefinisjoner kan ikke avgjøres uten et områderegister (#312).",
             Inndeling.Kommuneliste),
 
-        new Strukturmonster("inndeling-utgjor", "sammensetning_omrade", "bestar_av",
+        Monster("inndeling-utgjor",
             "«Lagsognene/Kommunene/Fylkene A, B og C utgjør N» → N består av hvert element.",
             "Strukturerte lister i inndelingsforskrifter (docs/33 §1, ikke tallfestet).",
             Inndeling.Utgjor),
@@ -259,23 +272,30 @@ internal static class Monsterkatalog
         // ga mening med den forkastede rettskrets-aktøren (rk_*, samme navn som tingretten). Nå det teksten sier:
         // tingretten SOGNER TIL lagsognet, som «annet:sogner_til» (aktør → område; ingen typekode i FORMAT.md passer).
         // Strukturen bak — kommunene inngår i lagsognet via tingrettens kommuner — avledes av DomstolinndelingTolker.
-        new Strukturmonster("inndeling-sogner", "ansvarsomrade", "annet:sogner_til",
+        Monster("inndeling-sogner",
             "«Til lagsognet/rettskretsen N sogner A tingrett og B tingrett» → A sogner til N, B sogner til N.",
             "Strukturerte lister i inndelingsforskrifter (docs/33 §1, ikke tallfestet).",
             s => Inndeling.Sogner(s).Select(f => f with { Fra = f.Til, Til = f.Fra }).ToList()),
 
-        new Strukturmonster("inndeling-bestar-av-liste", "sammensetning_omrade", "bestar_av",
+        Monster("inndeling-bestar-av-liste",
             "«N består (i tillegg) av A, B og C», der ALLE elementene er egennavn (stor forbokstav). «Styret består av ni medlemmer» tas ikke (det er har-medlemmer).",
             "Ikke målt i docs/33 §1. Generell listeform; kravet om egennavn holder organsammensetning ute.",
             Inndeling.BestarAvListe),
     ];
 
-    private static Strukturmonster Regex(string id, string kategori, string type, string beskrivelse, string korpus,
+    // [ENDRET, issue #341, Johanns beslutning 3] Kategori, type og normform kommer fra leksikonet (kompetanseleksikon.json),
+    // slått opp på mønsterets id — regex-en står her, betydningen der. Før #341 sto kategori/type som literaler i hvert kall.
+    private static Strukturmonster Regex(string id, string beskrivelse, string korpus,
         RegexMonsteroppsett oppsett, params string[] uttrykk)
     {
         var kompilert = uttrykk.Select(u => new Regex(u, Valg)).ToList();
-        return new Strukturmonster(id, kategori, type, beskrivelse, korpus,
-            setning => RegexMonster.Finn(setning, oppsett, kompilert));
+        return Monster(id, beskrivelse, korpus, setning => RegexMonster.Finn(setning, oppsett, kompilert));
+    }
+
+    private static Strukturmonster Monster(string id, string beskrivelse, string korpus, Func<string, IReadOnlyList<Monsterfunn>> finn)
+    {
+        var regel = Kompetanseleksikon.For(id);
+        return new Strukturmonster(id, regel.Kategori, regel.Type, beskrivelse, korpus, finn) { Normform = regel.Normform };
     }
 
     // ---- Spesialmønstre som trenger mer enn ett uttrykk per setning ---------------------------------

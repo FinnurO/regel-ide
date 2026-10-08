@@ -67,9 +67,11 @@ function paragrafVisning(eid: string, eli: string | null | undefined): string {
 /** Hjemmelen som én celle: rettskildens tittel som lenke til nøyaktig paragrafen, med paragrafspennet
  * som liten metatekst under. Flere spenn listes hver for seg — de er hver sin påstand om HVOR. */
 function HjemmelCelle({
-  hjemmelRettskildeId, paragrafspenn, rettskilder, kilde, kildetype,
+  hjemmelRettskildeId, hjemmelEid, paragrafspenn, rettskilder, kilde, kildetype,
 }: {
   hjemmelRettskildeId: string | null;
+  /** [Ny, issue #341] HVOR tildelingen står. Før #341 lå det i paragrafspennet (som nå bare er avgrensningen). */
+  hjemmelEid: string | null;
   paragrafspenn: ParagrafspennParDto[];
   rettskilder: RettskildeSammendrag[];
   /** [Ny, issue #311] Kilde utenfor korpus — vises når det ikke finnes hjemmel. */
@@ -86,21 +88,29 @@ function HjemmelCelle({
     );
   }
   const hjemmel = rettskilder.find((r) => r.id === hjemmelRettskildeId);
-  const forste = paragrafspenn[0];
+  const forste = hjemmelEid ?? paragrafspenn[0]?.fraEid;
   const href = forste
-    ? rettskildeLenkeForId(hjemmelRettskildeId, forste.fraEid)
+    ? rettskildeLenkeForId(hjemmelRettskildeId, forste)
     : `/rettskilder/${hjemmelRettskildeId}`;
   return (
     <>
       <Link asChild>
         <RouterLink to={href}>{hjemmel?.tittel ?? 'Se hjemmelen'}</RouterLink>
       </Link>
+      {hjemmelEid && (
+        <Metatekst as="span" style={{
+          display: 'block', fontFamily: 'var(--ds-font-family-mono, monospace)',
+          color: 'var(--ds-color-neutral-text-subtle)',
+        }}>
+          {paragrafVisning(hjemmelEid, hjemmel?.eli)}
+        </Metatekst>
+      )}
       {paragrafspenn.length > 0 && (
         <Metatekst as="span" style={{
           display: 'block', fontFamily: 'var(--ds-font-family-mono, monospace)',
           color: 'var(--ds-color-neutral-text-subtle)',
         }}>
-          {paragrafspenn
+          {hjemmelEid ? 'gjelder for ' : ''}{paragrafspenn
             .map((p) => [p.fraEid, p.tilEid]
               .filter((e): e is string => !!e)
               .map((e) => paragrafVisning(e, hjemmel?.eli))
@@ -194,6 +204,7 @@ export function GruppeMedlemmer({ gruppeBegrepId, rettskilder }: GruppeMedlemmer
                     <Table.Cell>
                       <HjemmelCelle
                         hjemmelRettskildeId={m.hjemmelRettskildeId}
+                        hjemmelEid={m.hjemmelEid}
                         paragrafspenn={m.paragrafspenn}
                         rettskilder={rettskilder}
                         kilde={m.kildeUtenforKorpusTekst}
@@ -251,6 +262,7 @@ export function GruppeMedlemmer({ gruppeBegrepId, rettskilder }: GruppeMedlemmer
                     <Table.Cell>
                       <HjemmelCelle
                         hjemmelRettskildeId={t.hjemmelRettskildeId}
+                        hjemmelEid={t.hjemmelEid}
                         paragrafspenn={t.paragrafspenn}
                         rettskilder={rettskilder}
                         kilde={t.kildeUtenforKorpusTekst}
@@ -309,6 +321,7 @@ export function GruppeMedlemmer({ gruppeBegrepId, rettskilder }: GruppeMedlemmer
                     <Table.Cell>
                       <HjemmelCelle
                         hjemmelRettskildeId={m.hjemmelRettskildeId}
+                        hjemmelEid={m.hjemmelEid}
                         paragrafspenn={m.paragrafspenn}
                         rettskilder={rettskilder}
                         kilde={m.kildeUtenforKorpusTekst}

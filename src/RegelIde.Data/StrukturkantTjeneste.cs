@@ -33,7 +33,9 @@ public sealed record NyStrukturkant(
     string? Objekt = null, string Polaritet = "positiv",
     DateOnly? GyldigFra = null, DateOnly? GyldigTil = null, string? Kommentar = null,
     string Status = "validert", string? AiForslagVersjon = null, string? OppdagelsesKilde = null,
-    string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null);
+    string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null,
+    // [Ny, issue #341, 2026-10-08] Bare på K — se StrukturkantEntitet.Normform/Grunnlag/Delegerbar. Null = ikke angitt.
+    string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null);
 
 /// <summary>Resultatet av <see cref="StrukturkantTjeneste.OpprettAsync"/> — <see cref="VarNy"/> = false betyr
 /// at et identisk utsagn alt fantes og ble returnert uendret (idempotens, se metoden).</summary>
@@ -59,7 +61,12 @@ public sealed record StrukturkantVisning(
     string? KildeUtenforKorpusTekst, string? KildeUtenforKorpusLenke, string? KildeUtenforKorpusType,
     string? KildeUtenforKorpusDokumentasjon,
     DateOnly? GyldigFra, DateOnly? GyldigTil, string Status, string OppdagelsesKilde, string? Kommentar,
-    string OpprettetAv, DateTimeOffset OpprettetTidspunkt);
+    string OpprettetAv, DateTimeOffset OpprettetTidspunkt,
+    // [Ny, issue #341] K-feltene. Selvregulering = normgivning der til = fra (avledet, Johanns beslutning P2).
+    string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null, bool Selvregulering = false,
+    // [Ny, issue #341, Johanns hierarkibeslutning] Fra typekonfigurasjonen: familien og fvl-kategorien (for normgivning
+    // avledet av normformen, Strukturkanter.FvlKategoriFor).
+    string? Familie = null, string? FvlKategori = null);
 
 /// <summary>
 /// [Ny, issue #311 «Strukturmodell 6: én typestyrt kanttabell», 2026-10-07] Den ENESTE skriveveien til
@@ -148,9 +155,13 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             throw new ArgumentException(
                 $"Kategori {ny.Kategori} ({Strukturkanter.Visningsnavn(ny.Kategori)}) krever en til-node ({regel.TilBeskrivelse}).");
         }
-        if (ny.Til is not null && ny.Til == ny.Fra)
+        // [ENDRET, issue #341] Unntaket er selvregulering: normgivning der motparten er innehaveren selv (Johanns
+        // beslutning P2 — «normgivning der B = A»). Samme unntak som CHECK ck_strukturkanter_ikke_selv.
+        var erSelvregulering = ny.Kategori == Strukturkanter.Kompetanse && ny.Typekode == Strukturkanter.Normgivning;
+        if (ny.Til is not null && ny.Til == ny.Fra && !erSelvregulering)
         {
-            throw new ArgumentException("En kant kan ikke gå fra en node til seg selv. Ingen gjettet fallback.");
+            throw new ArgumentException(
+                "En kant kan ikke gå fra en node til seg selv (unntak: K normgivning = selvregulering). Ingen gjettet fallback.");
         }
         var fraNavn = await ValiderNodeAsync(ny.Fra, regel.FraVirksomhet, regel.FraBegrep, "fra", regel.FraBeskrivelse, ny.Kategori, ct);
         var tilNavn = ny.Til is null
@@ -170,6 +181,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         {
             throw new ArgumentException("En klassenivå-kant uten til-node må ha et objekt (f.eks. «kommunestyre»).");
         }
+        var (normform, grunnlag) = ValiderKompetansefelt(ny.Kategori, ny.Typekode, ny.Normform, ny.Grunnlag, ny.Delegerbar);
 
         // ---- Kilde ----
         var kildeTekst = string.IsNullOrWhiteSpace(ny.KildeUtenforKorpusTekst) ? null : ny.KildeUtenforKorpusTekst.Trim();
@@ -232,12 +244,14 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             }
         }
 
-        // ---- Avgrensning ----
-        if (Strukturkanter.KreverParagrafspenn.Contains(ny.Kategori) && ny.HjemmelRettskildeId is not null && paragrafspenn.Count == 0)
+        // ---- Hjemmelssted og avgrensning ----
+        // [ENDRET, issue #341] M/I med hjemmel i korpus krever HVOR det står (hjemmel-eId), ikke et avgrensningsspenn —
+        // se Strukturkanter.KreverHjemmelsted for sammenblandingen #311 innførte.
+        if (Strukturkanter.KreverHjemmelsted.Contains(ny.Kategori) && ny.HjemmelRettskildeId is not null && ny.HjemmelEid is null)
         {
             throw new ArgumentException(
-                $"Kategori {ny.Kategori} ({Strukturkanter.Visningsnavn(ny.Kategori)}) med hjemmel i korpus krever "
-                + "paragrafspenn — ingen gjettet fallback (docs/20 §7.1, docs/33 §3 funn 7).");
+                $"Kategori {ny.Kategori} ({Strukturkanter.Visningsnavn(ny.Kategori)}) med hjemmel i korpus krever hjemmel-eId — "
+                + "noden der tildelingen står. Ingen gjettet fallback (issue #341).");
         }
         await ValiderParagrafspennAsync(paragrafspenn, ct);
         if (ny.GyldigFra is not null && ny.GyldigTil is not null && ny.GyldigFra.Value > ny.GyldigTil.Value)
@@ -250,14 +264,28 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         // ---- Idempotens ----
         var tilV = ny.Til?.VirksomhetId;
         var tilB = ny.Til?.BegrepId;
+        // [ENDRET, issue #341] Hjemmelssted og normform er nå en del av utsagnets identitet («kan gi forskrift» og «kan gi
+        // reglement» er to utsagn; samme tildeling hjemlet i § 1 og § 2 også). Delegerbar og grunnlag er det IKKE —
+        // to rader som bare skiller seg der, er samme utsagn med motstridende opplysning, og det avvises under.
         var eksisterende = await db.Strukturkanter.FirstOrDefaultAsync(k =>
             k.Kategori == ny.Kategori && k.Typekode == ny.Typekode
             && k.FraVirksomhetId == ny.Fra.VirksomhetId && k.FraBegrepId == ny.Fra.BegrepId
             && k.TilVirksomhetId == tilV && k.TilBegrepId == tilB
             && k.Objekt == objekt && k.Polaritet == ny.Polaritet
-            && k.HjemmelRettskildeId == ny.HjemmelRettskildeId
+            && k.HjemmelRettskildeId == ny.HjemmelRettskildeId && k.HjemmelEid == ny.HjemmelEid
+            && k.Normform == normform
             && k.AvgrensningParagrafspennJson == spennJson, ct);
-        if (eksisterende is not null) return new StrukturkantOpprettet(eksisterende, false);
+        if (eksisterende is not null)
+        {
+            if ((ny.Delegerbar is not null && eksisterende.Delegerbar is not null && ny.Delegerbar != eksisterende.Delegerbar)
+                || (grunnlag is not null && eksisterende.Grunnlag is not null && grunnlag != eksisterende.Grunnlag))
+            {
+                throw new ArgumentException(
+                    "Det finnes alt en identisk kompetansekant med en annen verdi for delegerbar/grunnlag. Rett den "
+                    + "eksisterende kanten i stedet — ingen gjettet sammenslåing.");
+            }
+            return new StrukturkantOpprettet(eksisterende, false);
+        }
 
         // ---- Sykel ----
         if (Strukturkanter.SykelfrieKategorier.Contains(ny.Kategori) && ny.Fra.BegrepId is { } fraB && tilB is { } tilBegrep)
@@ -284,6 +312,9 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             KildeUtenforKorpusLenke = kildeLenke,
             KildeUtenforKorpusType = kildeType,
             KildeUtenforKorpusDokumentasjon = kildeDok,
+            Normform = normform,
+            Grunnlag = grunnlag,
+            Delegerbar = ny.Delegerbar,
             GyldigFra = ny.GyldigFra,
             GyldigTil = ny.GyldigTil,
             Status = ny.Status,
@@ -305,18 +336,26 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
     /// <summary>
     /// «Tildeling»: en virksomhet knyttes til et begrep med gruppefunksjon. Kategorien UTLEDES av begrepets
     /// nodetype — samme regel som datamigreringen i #311: mål = rolle → <c>I innehar</c> (rolleinnehav arves
-    /// ikke, docs/33 §4.2), ellers → <c>M medlem_av</c>. Brukt av veiviseren, KI-oppdagelsen, «Legg til
-    /// tilhørighet»-skjemaet og samisk-seeden, som alle før #311 skrev en myndighetstildeling.
+    /// ikke, docs/33 §4.2), ellers → <c>M medlem_av</c>. Brukt av veiviseren, KI-oppdagelsen og samisk-seeden,
+    /// som alle før #311 skrev en myndighetstildeling.
+    /// <para>
+    /// [ENDRET, issue #341, 2026-10-08] <paramref name="hjemmelEid"/> er HVOR tildelingen står (noden i hjemmelen —
+    /// for veiviseren og KI-oppdagelsen kandidatens egen node). Før #341 sendte alle kallerne den noden som
+    /// avgrensningsspenn; <paramref name="avgrensning"/> er nå bare «hvilke paragrafer tildelingen gjelder for»
+    /// (#314), og er tom med mindre kalleren faktisk vet det.
+    /// </para>
     /// </summary>
     public async Task<StrukturkantOpprettet> OpprettTildelingAsync(
-        Guid virksomhetId, Guid begrepId, Guid hjemmelRettskildeId, IReadOnlyList<ParagrafspennPar> paragrafspenn,
-        string? avgrensningTekst, string opprettetAv, DateOnly? gyldigFra = null, DateOnly? gyldigTil = null,
+        Guid virksomhetId, Guid begrepId, Guid hjemmelRettskildeId, string hjemmelEid,
+        IReadOnlyList<ParagrafspennPar>? avgrensning, string? avgrensningTekst, string opprettetAv,
+        DateOnly? gyldigFra = null, DateOnly? gyldigTil = null,
         CancellationToken ct = default, string status = "validert", string? aiForslagVersjon = null)
     {
         var (kategori, typekode) = await TildelingskategoriAsync(begrepId, ct);
         return await OpprettAsync(new NyStrukturkant(
             kategori, typekode, Kantnode.Virksomhet(virksomhetId), Kantnode.Begrep(begrepId),
-            HjemmelRettskildeId: hjemmelRettskildeId, Paragrafspenn: paragrafspenn, AvgrensningTekst: avgrensningTekst,
+            HjemmelRettskildeId: hjemmelRettskildeId, HjemmelEid: hjemmelEid, Paragrafspenn: avgrensning,
+            AvgrensningTekst: avgrensningTekst,
             GyldigFra: gyldigFra, GyldigTil: gyldigTil, Status: status, AiForslagVersjon: aiForslagVersjon), opprettetAv, ct);
     }
 
@@ -342,8 +381,9 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
     /// og registrere på nytt, som mister id og proveniens. Johann (2026-10-08): rettelsen gjøres via API-et, ikke
     /// ved å gjette i en migrasjon.
     /// <para>
-    /// Samme validering som <see cref="OpprettAsync"/>: hver eId i spennet må finnes i korpus, og M/I med hjemmel
-    /// krever et spenn (<see cref="Strukturkanter.KreverParagrafspenn"/>). Begge feltene ERSTATTES — tomt spenn og
+    /// Samme validering som <see cref="OpprettAsync"/>: hver eId i spennet må finnes i korpus. [ENDRET, #341] M/I krever
+    /// ikke lenger et spenn — kravet gjelder hjemmelsstedet (<see cref="Strukturkanter.KreverHjemmelsted"/>), som denne
+    /// metoden ikke rører. Begge feltene ERSTATTES — tomt spenn og
     /// null/blank tekst fjerner dem; det er ingen «behold det som står»-verdi å gjette på. Finnes det fra før en
     /// ANNEN kant med samme identitet som kanten ville fått (idempotensnøkkelen i <see cref="OpprettAsync"/>, der
     /// spennet inngår), avvises endringen: to rader for samme utsagn er nettopp det idempotensen skal hindre.
@@ -359,12 +399,6 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         if (kant is null) return null;
 
         var spenn = paragrafspenn ?? [];
-        if (Strukturkanter.KreverParagrafspenn.Contains(kant.Kategori) && kant.HjemmelRettskildeId is not null && spenn.Count == 0)
-        {
-            throw new ArgumentException(
-                $"Kategori {kant.Kategori} ({Strukturkanter.Visningsnavn(kant.Kategori)}) med hjemmel i korpus krever "
-                + "paragrafspenn — ingen gjettet fallback (docs/20 §7.1, docs/33 §3 funn 7).");
-        }
         await ValiderParagrafspennAsync(spenn, ct);
         var spennJson = JsonSerializer.Serialize(spenn, JsonSerialiseringHjelper.Innstillinger);
         var tekst = string.IsNullOrWhiteSpace(avgrensningTekst) ? null : avgrensningTekst.Trim();
@@ -377,7 +411,8 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             && k.FraVirksomhetId == kant.FraVirksomhetId && k.FraBegrepId == kant.FraBegrepId
             && k.TilVirksomhetId == kant.TilVirksomhetId && k.TilBegrepId == kant.TilBegrepId
             && k.Objekt == kant.Objekt && k.Polaritet == kant.Polaritet
-            && k.HjemmelRettskildeId == kant.HjemmelRettskildeId
+            && k.HjemmelRettskildeId == kant.HjemmelRettskildeId && k.HjemmelEid == kant.HjemmelEid
+            && k.Normform == kant.Normform
             && k.AvgrensningParagrafspennJson == spennJson, ct);
         if (dublett)
         {
@@ -534,9 +569,15 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
 
     /// <summary>Kanter der noden er fra ELLER til, valgfritt avgrenset til én kategori og/eller til kanter som
     /// er gjeldende i dag (<see cref="ErGjeldende"/>).</summary>
+    /// <param name="familie">[Ny, issue #341] Bare kompetansekanter i denne familien (<see cref="Strukturkanter.Familier"/>).
+    /// <see cref="Strukturkanter.Beslutning"/> er toppen og står ikke i noen familie.</param>
     public async Task<List<StrukturkantVisning>> HentForNodeAsync(
-        Kantnode node, string? kategori = null, bool kunGjeldende = false, CancellationToken ct = default)
+        Kantnode node, string? kategori = null, bool kunGjeldende = false, CancellationToken ct = default, string? familie = null)
     {
+        if (familie is not null && !Strukturkanter.Familier.Contains(familie))
+        {
+            throw new ArgumentException($"Ukjent familie '{familie}'. Gyldige verdier: {string.Join(", ", Strukturkanter.Familier)}.");
+        }
         if (!node.ErGyldig) throw new ArgumentException("Noden må være NØYAKTIG én av virksomhet eller begrep.");
         if (kategori is not null && !Strukturkanter.ErGyldigKategori(kategori))
         {
@@ -546,6 +587,12 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             ? db.Strukturkanter.Where(k => k.FraVirksomhetId == v || k.TilVirksomhetId == v)
             : db.Strukturkanter.Where(k => k.FraBegrepId == node.BegrepId || k.TilBegrepId == node.BegrepId);
         if (kategori is not null) q = q.Where(k => k.Kategori == kategori);
+        if (familie is not null)
+        {
+            var koder = db.RelasjonsTypeKonfigurasjoner
+                .Where(t => t.Kategori == Strukturkanter.Kompetanse && t.Familie == familie).Select(t => t.Kode);
+            q = q.Where(k => k.Kategori == Strukturkanter.Kompetanse && koder.Contains(k.Typekode));
+        }
         var kanter = await q.ToListAsync(ct);
         if (kunGjeldende) kanter = await FiltrerGjeldendeAsync(kanter, ct);
         return await ByggVisningerAsync(kanter, node, ct);
@@ -681,14 +728,18 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
                 retning = erFra ? "fra" : "til";
             }
             var objektTekst = k.Objekt ?? (k.HjemmelEid is not null || k.AvgrensningParagrafspennJson != "[]" ? "etter hjemmelen" : "(ikke angitt)");
+            var selvregulering = Strukturkanter.ErSelvregulering(k);
             string tekst;
-            if (retning == "til")
+            if (retning == "til" && !selvregulering)
             {
                 tekst = string.Format(type?.TilVisningsmal ?? "(ukjent type) {0}", fra.Navn);
             }
             else
             {
-                var motpart = til?.Navn ?? objektTekst;
+                // [ENDRET, issue #341] K: motparten med «overfor» (+ normform og objekt) — se Kompetansetekst.
+                var motpart = k.Kategori == Strukturkanter.Kompetanse
+                    ? Kompetansetekst(k.Normform, til?.Navn, selvregulering, k.Objekt, objektTekst)
+                    : til?.Navn ?? objektTekst;
                 var fraTekst = string.Format(type?.FraVisningsmal ?? "(ukjent type) {0}", motpart);
                 tekst = retning == "fra" ? fraTekst : $"{fra.Navn} {fraTekst}";
             }
@@ -697,11 +748,63 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
                 k.Polaritet, k.HjemmelRettskildeId,
                 k.HjemmelRettskildeId is { } h ? hjemmeltitler.GetValueOrDefault(h) : null, k.HjemmelEid,
                 k.KildeUtenforKorpusTekst, k.KildeUtenforKorpusLenke, k.KildeUtenforKorpusType, k.KildeUtenforKorpusDokumentasjon, k.GyldigFra, k.GyldigTil, k.Status,
-                k.OppdagelsesKilde, k.Kommentar, k.OpprettetAv, k.OpprettetTidspunkt);
+                k.OppdagelsesKilde, k.Kommentar, k.OpprettetAv, k.OpprettetTidspunkt,
+                k.Normform, k.Grunnlag, k.Delegerbar, selvregulering,
+                k.Kategori == Strukturkanter.Kompetanse ? type?.Familie : null,
+                k.Kategori == Strukturkanter.Kompetanse ? Strukturkanter.FvlKategoriFor(k.Typekode, k.Normform, type?.FvlKategori) : null);
         }).ToList();
     }
 
+    /// <summary>
+    /// [Ny, issue #341, Johanns beslutning P1 2026-10-08] Motpartsteksten i en kompetansekant — det {0} står for i
+    /// K-malene («har klagekompetanse {0}»): «A har kompetanse av typen X, eventuelt OVERFOR B, når det gjelder Y».
+    /// Normformen står først i parentes («har normgivningskompetanse (forskrift) …»). Uten motpart og objekt:
+    /// <paramref name="reserve"/> («etter hjemmelen» / «(ikke angitt)», som før).
+    /// </summary>
+    public static string Kompetansetekst(string? normform, string? motpart, bool selvregulering, string? objekt, string reserve)
+    {
+        var deler = new List<string>();
+        if (normform is not null) deler.Add($"({normform})");
+        if (selvregulering) deler.Add("overfor seg selv (selvregulering)");
+        else if (motpart is not null) deler.Add($"overfor {motpart}");
+        if (objekt is not null) deler.Add(motpart is not null || selvregulering ? $"— {objekt}" : objekt);
+        if (motpart is null && !selvregulering && objekt is null) deler.Add(reserve);
+        return string.Join(' ', deler);
+    }
+
     // ---------------- Validering ----------------
+
+    /// <summary>
+    /// [Ny, issue #341] Normform, grunnlag og delegerbar finnes bare på K (CHECK-ene i RegelIdeDbContext); normformen bare
+    /// på normgivning. Lukkede lister, ingen standardverdi. Returnerer de trimmede verdiene.
+    /// </summary>
+    private static (string? Normform, string? Grunnlag) ValiderKompetansefelt(
+        string kategori, string typekode, string? normform, string? grunnlag, bool? delegerbar)
+    {
+        var nf = string.IsNullOrWhiteSpace(normform) ? null : normform.Trim();
+        var gr = string.IsNullOrWhiteSpace(grunnlag) ? null : grunnlag.Trim();
+        if (kategori != Strukturkanter.Kompetanse && (nf is not null || gr is not null || delegerbar is not null))
+        {
+            throw new ArgumentException(
+                "Normform, grunnlag og delegerbar er egenskaper ved en KOMPETANSE (kategori K) — ikke ved "
+                + $"{Strukturkanter.Visningsnavn(kategori)} (issue #341).");
+        }
+        if (nf is not null && typekode != Strukturkanter.Normgivning)
+        {
+            throw new ArgumentException($"Normform gjelder bare normgivningskompetanse, ikke «{typekode}» (issue #341).");
+        }
+        if (nf is not null && !Strukturkanter.Normformer.Contains(nf))
+        {
+            throw new ArgumentException(
+                $"Ukjent normform '{nf}'. Gyldige verdier: {string.Join(", ", Strukturkanter.Normformer)}. Ingen gjettet fallback.");
+        }
+        if (gr is not null && !Strukturkanter.Grunnlag.Contains(gr))
+        {
+            throw new ArgumentException(
+                $"Ukjent grunnlag '{gr}'. Gyldige verdier: {string.Join(", ", Strukturkanter.Grunnlag)}. Ingen gjettet fallback.");
+        }
+        return (nf, gr);
+    }
 
     /// <summary>Hver eId i spennet må finnes som rettskilde-node — ingen gjettet fallback. [Skilt ut fra
     /// <see cref="OpprettAsync"/> i #330, slik at <see cref="OppdaterAvgrensningAsync"/> validerer likt.]</summary>

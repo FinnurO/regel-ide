@@ -2535,7 +2535,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§21/ledd-3",
       "sitat": "Nærmere regler om klarering og autorisasjon kan gis av Kongen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "regler om klarering og autorisasjon",
@@ -2545,7 +2545,9 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u9",
@@ -2562,7 +2564,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u10",
@@ -2620,7 +2623,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§23/ledd-2",
       "sitat": "Bemyndigelse gis av domstoladministrasjonen eller av domstollederen etter nærmere bestemmelse gitt av domstoladministrasjonen.",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "bemyndigelse til fullmektig",
@@ -2647,7 +2650,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u15",
@@ -2749,7 +2753,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u21",
@@ -2841,7 +2846,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-5",
       "sitat": "Arbeids-, skyss- og kostgodtgjørelse til medlemmene og varamedlemmene fastsettes i samsvar med forskrift gitt av Kongen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "forskrift om godtgjørelse",
@@ -2851,7 +2856,9 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u27",
@@ -2892,7 +2899,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-6",
       "sitat": "Kongen kan ved forskrift gi regler om forholdet mellom forliksrådet og sekretariatet.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "regler om forholdet mellom forliksråd og sekretariat",
@@ -2902,7 +2909,9 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u30",
@@ -2953,7 +2962,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u33",
@@ -3004,7 +3014,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": false
     },
     {
       "id": "u36",
@@ -3038,7 +3049,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u38",
@@ -3072,7 +3084,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u40",
@@ -3106,7 +3119,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u42",
@@ -3123,7 +3137,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": false
     },
     {
       "id": "u43",
@@ -3163,8 +3178,8 @@
       "id": "u45",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§33b/ledd-1",
       "sitat": "Klageinstans for direktørens vedtak er styret og for styrets vedtak Kongen i statsråd.",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": "a20",
       "til": "a23",
       "objekt": null,
@@ -3180,8 +3195,8 @@
       "id": "u46",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§33b/ledd-1",
       "sitat": "og for styrets vedtak Kongen i statsråd.",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": "a21",
       "til": "a20",
       "objekt": null,
@@ -3191,7 +3206,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": false
     },
     {
       "id": "u47",
@@ -3249,7 +3265,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§33b/ledd-2",
       "sitat": "Styret kan delegere til direktøren å foreta ansettelser.",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a20",
       "til": null,
       "objekt": "ansettelser",
@@ -3317,7 +3333,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§33d/ledd-1",
       "sitat": "Kongen kan gi nærmere forskrifter om domstoladministrasjonens virksomhet.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "nærmere forskrifter om domstoladministrasjonens virksomhet",
@@ -3327,7 +3343,9 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u55",
@@ -3384,8 +3402,8 @@
       "id": "u58",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§35/ledd-1",
       "sitat": "Har en domstol erklært sig for ikke domsmyndig, er avgjørelsen for saa vidt bindende for andre domstoler av samme eller lavere orden.",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a28",
       "til": "a29",
       "objekt": null,
@@ -3401,8 +3419,8 @@
       "id": "u59",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§35/ledd-1",
       "sitat": "Dette gjælder ogsaa, før avgjørelsen er blit retskraftig.",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a28",
       "til": "a29",
       "objekt": null,
@@ -3446,14 +3464,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": false
     },
     {
       "id": "u62",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§48/ledd-1",
       "sitat": "Anmodningen sendes gjennem vedkommende regjeringsdepartement, hvis ikke andet er bestemt av Kongen",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a32",
       "til": "a25",
       "objekt": null,
@@ -3469,8 +3488,8 @@
       "id": "u63",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§48/ledd-1",
       "sitat": "hvis ikke andet er bestemt av Kongen",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a8",
       "til": "a32",
       "objekt": null,
@@ -3480,14 +3499,15 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u64",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§48/ledd-4",
       "sitat": "hvad der er bestemt ved overenskomst med fremmed magt eller ved regler, som Kongen gir.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "regler om bevisoptagelse i utlandet",
@@ -3497,7 +3517,9 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u65",
@@ -3538,7 +3560,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§50/ledd-2",
       "sitat": "Nærmere regler om fremgangsmåten kan Kongen gi.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "regler om fremgangsmåten for bevisopptak ved konsulrett",
@@ -3548,7 +3570,9 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u68",
@@ -3616,7 +3640,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u72",
@@ -3691,7 +3716,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55b/ledd-6",
       "sitat": "Kongen kan gi nærmere forskrifter om behandlingen av innstillingssaker.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "behandlingen av innstillingssaker",
@@ -3701,7 +3726,9 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u77",
@@ -3776,7 +3803,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55e/ledd-3",
       "sitat": "Innstillingsrådet kan delegere til domstoladministrasjonen å foreta konstitusjonen.",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a34",
       "til": "a10",
       "objekt": "konstitusjon etter § 55e",
@@ -3837,14 +3864,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u85",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55f/ledd-2",
       "sitat": "Innstillingsrådet kan delegere til domstoladministrasjonen å foreta konstitusjon.",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a34",
       "til": "a10",
       "objekt": "konstitusjon etter § 55f",
@@ -3929,7 +3957,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55g/ledd-4",
       "sitat": "Departementet kan gi nærmere bestemmelser om tilsetting av dommerfullmektiger og jordskiftedommerfullmektiger.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a17",
       "til": null,
       "objekt": "tilsetting av dommerfullmektiger og jordskiftedommerfullmektiger",
@@ -3939,7 +3967,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u91",
@@ -3990,7 +4019,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": false
     },
     {
       "id": "u94",
@@ -4031,7 +4061,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§60/ledd-1",
       "sitat": "Kongen fastsetter hvordan forsikringen skal lyde",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "fastsette forsikringens ordlyd",
@@ -4041,7 +4071,9 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u97",
@@ -4184,7 +4216,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§63/ledd-4",
       "sitat": "Kongen fastsetter hvordan forsikringen skal lyde",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "fastsette forsikringens ordlyd",
@@ -4194,7 +4226,9 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u106",
@@ -4313,7 +4347,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": false
     },
     {
       "id": "u113",
@@ -4337,7 +4372,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§66/ledd-3",
       "sitat": "Skal deling gjennomføres i løpet av en valgperiode, skal det for den tiden som gjenstår av perioden, foretas særskilte valg som nevnt i annet ledd første punktum. Valget foregår da etter nærmere regler som fastsettes av Domstoladministrasjonen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "fastsette regler for særskilte valg",
@@ -4347,7 +4382,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u115",
@@ -4483,7 +4519,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": false
     },
     {
       "id": "u123",
@@ -4524,7 +4561,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§69/ledd-2",
       "sitat": "Domstoladministrasjonen kan gi nærmere forskrift om fortegnelsene.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "gi forskrift om fortegnelsene",
@@ -4534,7 +4571,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u126",
@@ -4591,8 +4629,8 @@
       "id": "u129",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§76/ledd-3",
       "sitat": "kan påklage avgjørelsen til den domstolen som fortegnelsen gjelder.",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": null,
       "til": "a7",
       "objekt": null,
@@ -4609,7 +4647,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§77/ledd-1",
       "sitat": "Kongen kan gi forskrift om at Domstoladministrasjonen hvert halvår skal kontrollere",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "kontroll av utvalgsmedlemmer",
@@ -4619,7 +4657,9 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u131",
@@ -4642,8 +4682,8 @@
       "id": "u132",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§78/ledd-1",
       "sitat": "Beslutningen kan bringes inn for overordnet domstol.",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": "a32",
       "til": "a50",
       "objekt": null,
@@ -4711,7 +4751,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§86/ledd-1",
       "sitat": "Domstoladministrasjonen kan ved forskrift dele lagsogn og domssogn i flere trekningskretser.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "dele lagsogn og domssogn",
@@ -4721,7 +4761,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u137",
@@ -4931,8 +4972,8 @@
       "id": "u149",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§90/ledd-4",
       "sitat": "en tjenestemann ved domstolen etter retningslinjer gitt av domstollederen",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a35",
       "til": "a56",
       "objekt": null,
@@ -4948,8 +4989,8 @@
       "id": "u150",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§90/ledd-5",
       "sitat": "Avgjørelse av spørsmål om gyldig fravær som er tatt av en tjenestemann, kan kreves forelagt for en dommer. Dommerens avgjørelse kan bringes inn for overordnet domstol.",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": "a55",
       "til": "a56",
       "objekt": null,
@@ -4965,8 +5006,8 @@
       "id": "u151",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§90/ledd-5",
       "sitat": "Dommerens avgjørelse kan bringes inn for overordnet domstol.",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": "a50",
       "til": "a55",
       "objekt": null,
@@ -5016,8 +5057,8 @@
       "id": "u154",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§91/ledd-3",
       "sitat": "Det kan overlates til en av domstolens tjenestemenn",
-      "kategori": "relasjon",
-      "type": "delegerer_til",
+      "kategori": "kompetanse",
+      "type": "delegeringskompetanse",
       "fra": "a55",
       "til": "a56",
       "objekt": null,
@@ -5033,8 +5074,8 @@
       "id": "u155",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§91/ledd-4",
       "sitat": "Den det gjelder, kan forlange forbigåelsesspørsmålet forelagt en dommer når det er avgjort av en tjenestemann. Dommerens avgjørelse kan bringes inn for overordnet domstol.",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": "a55",
       "til": "a56",
       "objekt": null,
@@ -5050,8 +5091,8 @@
       "id": "u156",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§91/ledd-4",
       "sitat": "Dommerens avgjørelse kan bringes inn for overordnet domstol.",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": "a50",
       "til": "a55",
       "objekt": null,
@@ -5203,8 +5244,8 @@
       "id": "u165",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§100/ledd-1",
       "sitat": "Første gang nogen gjør tjeneste som meddommer, skal rettens leder foreholde ham de pligter, som paahviler en meddommer, og ta imot hans forsikring",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a60",
       "til": "a61",
       "objekt": null,
@@ -5271,8 +5312,8 @@
       "id": "u169",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§104/ledd-1",
       "sitat": "skal dommeren eller den som styrer forretningen foreholde vitnet de plikter som påhviler et rettsvitne, og ta imot vitnets forsikring",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a63",
       "til": "a64",
       "objekt": null,
@@ -5289,7 +5330,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§105a/ledd-1",
       "sitat": "Godtgjørelsen til jordskiftemeddommer og meddommer fastsettes av rettens leder etter forskrifter gitt av Kongen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "Godtgjørelsen til jordskiftemeddommer og meddommer",
@@ -5299,14 +5340,16 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": "Kongen gir forskrifter om godtgjørelsen",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u171",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§105a/ledd-1",
       "sitat": "Det samme gjelder for sakkyndige rettsvitner ved konsulrettene.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "Godtgjørelsen til sakkyndige rettsvitner ved konsulrettene",
@@ -5316,14 +5359,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u172",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§105a/ledd-2",
       "sitat": "Rettsvitne godtgjøres etter forskrifter gitt av Kongen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "godtgjørelse for rettsvitne",
@@ -5333,7 +5377,9 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u173",
@@ -5544,7 +5590,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§121d/ledd-1",
       "sitat": "Domstoladministrasjonen kan delegere til domstollederen å treffe vedtak i saker om godkjenning.",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a10",
       "til": "a35",
       "objekt": "vedtak i saker om godkjenning",
@@ -5595,7 +5641,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§121e/ledd-4",
       "sitat": "Investeringer som representerer eierinteresser i selskaper, skal registreres dersom de overstiger en grense som fastsettes av Kongen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "grense for registrering av investeringer",
@@ -5605,7 +5651,9 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u189",
@@ -5663,7 +5711,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§121k/ledd-1",
       "sitat": "Kongen kan gi nærmere forskrifter om dommeres sidegjøremål.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "forskrifter om dommeres sidegjøremål",
@@ -5673,7 +5721,9 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u193",
@@ -5697,7 +5747,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§124a/ledd-4",
       "sitat": "Departementet kan gi forskrift om strømming etter første ledd, blant annet om behandling av personopplysninger.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a17",
       "til": null,
       "objekt": "strømming etter første ledd",
@@ -5707,7 +5757,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u195",
@@ -5850,7 +5901,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§131a/ledd-3",
       "sitat": "Kongen kan gi nærmere regler til utfylling og gjennomføring av disse bestemmelser.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "regler til utfylling og gjennomføring av forbud mot fotografering og opptak i straffesaker",
@@ -5860,14 +5911,16 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": "Kongen gis hjemmel til å gi forskrift.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u204",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§131a/ledd-4",
       "sitat": "Kongen kan i forskrift gi saksbehandlingsregler til utfylling av reglene i tjenesteloven for søknad om tillatelse til fotografering, filmopptak og opptak for radio eller fjernsyn, herunder om saksbehandlingsfrist og rettsvirkninger av fristoverskridelse.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "saksbehandlingsregler til utfylling av tjenesteloven",
@@ -5877,7 +5930,9 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u205",
@@ -5918,7 +5973,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§132a/ledd-4",
       "sitat": "Domstoladministrasjonen kan gi nærmere bestemmelser om gjennomføring og organisering av sikkerhetskontroller i domstolene. Domstoladministrasjonen avgjør ved hvilke domstoler det skal etableres permanent sikkerhetskontroll.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "gi bestemmelser om sikkerhetskontroller og avgjøre ved hvilke domstoler det etableres permanent kontroll",
@@ -5928,7 +5983,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": "To typer bestemmelser: regler og enkeltvedtak.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u208",
@@ -6003,7 +6059,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§142/ledd-1",
       "sitat": "Domstoladministrasjonen kan gi nærmere regler om bruk av kapper og annet antrekk under rettsmøter",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "bruk av kapper og annet antrekk under rettsmøter for dommere og rettens personale for øvrig, advokater og aktor og andre representanter for påtalemyndigheten",
@@ -6013,14 +6069,15 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u213",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§143/ledd-1",
       "sitat": "Kongen kan i forskrift bestemme at det etableres en prøveordning ved enkelte tingretter og lagmannsretter",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "etablering av prøveordning ved enkelte tingretter og lagmannsretter om bruk av fjernmøteteknologi",
@@ -6030,7 +6087,9 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u214",
@@ -6054,7 +6113,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§146/ledd-4",
       "sitat": "Kongen kan gi nærmere regler om at avgivelse med virkning etter denne paragraf skal kunne skje også til tjenestemann, tilbyder av posttjenester eller telegraf- eller telefonstasjon i fremmed stat.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "avgivelse med virkning etter §146 til tjenestemann, tilbyder av posttjenester eller telegraf- eller telefonstasjon i fremmed stat",
@@ -6064,7 +6123,9 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u216",
@@ -6428,7 +6489,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§163a/ledd-5",
       "sitat": "Kongen kan gi nærmere forskrifter om postforkynning.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "nærmere forskrifter om postforkynning",
@@ -6438,14 +6499,16 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u238",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§163a/ledd-6",
       "sitat": "Kongen kan ved forskrift gi nærmere regler om elektronisk forkynning",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "nærmere regler om elektronisk forkynning",
@@ -6455,7 +6518,9 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u239",
@@ -6489,7 +6554,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u241",
@@ -6648,8 +6714,8 @@
       "id": "u250",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§169/ledd-2",
       "sitat": "huseieren eller en, som paa hans vegne fører tilsyn med huset",
-      "kategori": "relasjon",
-      "type": "tilsyn_med_aktor",
+      "kategori": "kompetanse",
+      "type": "tilsynskompetanse",
       "fra": "a94",
       "til": null,
       "objekt": null,
@@ -6802,7 +6868,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§181/ledd-3",
       "sitat": "Kongen kan ved forskrift gi nærmere regler om adgangen til å kunngjøre meldinger på nettsted",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "nærmere regler om kunngjøring av meldinger på nettsted",
@@ -6812,7 +6878,9 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u260",
@@ -6853,7 +6921,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§189/ledd-1",
       "sitat": "Telegraf kan brukes til at avgi skriftlige meddelelser, begjæringer og erklæringer til retten efter nærmere bestemmelse av Kongen",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "nærmere bestemmelse om bruk av telegraf til å avgi meddelelser til retten",
@@ -6863,14 +6931,16 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": "Kongen har forskriftskompetanse.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u263",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§190/ledd-1",
       "sitat": "Nærmere regler om forkyndelser og meddelelser kan Kongen gi",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "nærmere regler om forkyndelser og meddelelser",
@@ -6880,7 +6950,9 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u264",
@@ -7176,7 +7248,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§197a/ledd-3",
       "sitat": "Kongen kan ved forskrift gi nærmere regler om hva som kan anses som en betryggende teknisk løsning og at bruk av bestemte elektroniske løsninger skal være obligatorisk i skriftlig kommunikasjon med domstolene.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "regler om betryggende teknisk løsning og obligatorisk bruk av elektroniske løsninger",
@@ -7186,14 +7258,16 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u282",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§197a/ledd-4",
       "sitat": "Kongen kan ved forskrift gjøre unntak fra lovbestemte krav til skriftlig kommunikasjon med domstolene når kommunikasjonen skjer elektronisk.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "unntak fra lovbestemte krav til skriftlig kommunikasjon",
@@ -7203,14 +7277,16 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u283",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§197a/ledd-5",
       "sitat": "Kongen kan ved forskrift gi nærmere regler om elektronisk kommunikasjon med domstolene, herunder regler om signering og fremgangsmåter for signering, integritet og konfidensialitet og regler som stiller krav til produkter, tjenester og standarder som er nødvendige for slik kommunikasjon.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "regler om elektronisk kommunikasjon med domstolene",
@@ -7220,14 +7296,16 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u284",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§201/ledd-1",
       "sitat": "Finder en høiere ret, at den lavere ret har begaat en aapenbar feil i avgjørelsen, kan den paalægge den skyldige dommer helt eller delvis at utrede de økede omkostninger, som derved er voldt.",
-      "kategori": "relasjon",
-      "type": "tilsyn_med_aktor",
+      "kategori": "kompetanse",
+      "type": "tilsynskompetanse",
       "fra": "a111",
       "til": "a112",
       "objekt": null,
@@ -7373,7 +7451,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u293",
@@ -7390,7 +7469,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u294",
@@ -7567,7 +7647,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§237/ledd-4",
       "sitat": "Kongen kan i forskrift fastsette et annet tidspunkt for fristberegningen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "forskrift om fristberegning",
@@ -7577,7 +7657,9 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u305",
@@ -7617,8 +7699,8 @@
       "id": "u307",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§239/ledd-2",
       "sitat": "Partene i saken kan bringe Tilsynsutvalgets vedtak inn for tingretten ved søksmål.",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": "a52",
       "til": "a117",
       "objekt": null,
@@ -7635,7 +7717,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§240/ledd-1",
       "sitat": "Kongen kan gi nærmere forskrifter om organiseringen og behandlingen av disiplinærsaker i Tilsynsutvalget.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "forskrifter om organiseringen og behandlingen av disiplinærsaker i Tilsynsutvalget",
@@ -7645,14 +7727,16 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u309",
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§241/ledd-2",
       "sitat": "kan Kongen gi forskrift om i hvilken utstrekning og på hvilke vilkår juridisk utdannelse i utlandet kan godtas.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a8",
       "til": null,
       "objekt": "forskrift om juridisk utdannelse i utlandet",
@@ -7662,7 +7746,9 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u310",
@@ -7804,8 +7890,8 @@
       "id": "u318",
       "eid": "https://lovdata.no/eli/forskrift/2021/01/22/163/nor/§10/ledd-1",
       "sitat": "Hvert lagdømme har en lagmannsrett som er ankeinstans for flere rettskretser.",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": "a131",
       "til": null,
       "objekt": null,
@@ -8196,7 +8282,7 @@
       "eid": "https://lovdata.no/eli/forskrift/2012/02/03/119/nor/punkt-1",
       "sitat": "Kongens myndighet til å fastsette forskrifter etter lov 13. august 1915 nr. 5 om domstolene § 163a delegeres til Justis- og beredskapsdepartementet.",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a150",
       "til": "a151",
       "objekt": "fastsette forskrifter etter domstolloven § 163a",
@@ -8213,7 +8299,7 @@
       "eid": "https://lovdata.no/eli/forskrift/2012/02/03/119/nor/punkt-1",
       "sitat": "Delegeringen omfatter myndigheten til å endre og oppheve forskrift 11. oktober 1985 nr. 1810 om postforkynning fastsatt av Kongen.",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a150",
       "til": "a151",
       "objekt": "endre og oppheve forskrift 11. oktober 1985 nr. 1810 om postforkynning",
@@ -8230,7 +8316,7 @@
       "eid": "https://lovdata.no/eli/forskrift/2012/02/03/119/nor/punkt-2",
       "sitat": "Kongens myndighet til å fastsette forskrifter etter lov 13. august 1915 nr. 5 om domstolene § 197a delegeres til Justis- og beredskapsdepartementet.",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a150",
       "til": "a151",
       "objekt": "fastsette forskrifter etter domstolloven § 197a",
@@ -8247,7 +8333,7 @@
       "eid": "https://lovdata.no/eli/forskrift/2012/02/03/119/nor/punkt-2",
       "sitat": "Delegeringen omfatter myndigheten til å endre og oppheve forskrift 25. juni 2010 nr. 977 om elektronisk kommunikasjon med namsmannen i saker etter tvangsfullbyrdelsesloven og i saker for forliksrådet fastsatt av Kongen.",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a150",
       "til": "a151",
       "objekt": "endre og oppheve forskrift 25. juni 2010 nr. 977 om elektronisk kommunikasjon med namsmannen og forliksrådet",

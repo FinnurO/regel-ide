@@ -632,7 +632,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-7/ledd-3",
       "sitat": "Vedtak om registrering kan ikke påklages. Kongen kan gi nærmere bestemmelser om vilkårene og framgangsmåten ved registrering.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a2",
       "til": null,
       "objekt": "vilkårene og framgangsmåten ved registrering",
@@ -642,7 +642,9 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u5",
@@ -700,7 +702,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-11/ledd-1",
       "sitat": "Kongen gir utfyllende bestemmelser om valg til Sametinget.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a2",
       "til": null,
       "objekt": "utfyllende bestemmelser om valg til Sametinget",
@@ -710,7 +712,9 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u9",
@@ -768,7 +772,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-12/ledd-3",
       "sitat": "delegere myndighet til disse",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "styrer, råd eller utvalg",
@@ -785,7 +789,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-12/ledd-4",
       "sitat": "Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14",
@@ -818,8 +822,8 @@
       "id": "u15",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-12/ledd-5",
       "sitat": "klagenemnd oppnevnt av Sametinget",
-      "kategori": "relasjon",
-      "type": "oppnevner",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a1",
       "til": "a3",
       "objekt": null,
@@ -836,7 +840,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-14/ledd-1",
       "sitat": "Sametinget gir bestemmelser om sammenkalling og arbeidsordningen i Sametinget.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "sammenkalling og arbeidsordningen i Sametinget",
@@ -846,14 +850,15 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u17",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-15/ledd-1",
       "sitat": "Kongen kan i forskrift bestemme at også andre medlemmer av Sametinget skal ha rett til pensjon.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a2",
       "til": null,
       "objekt": "andre medlemmer av Sametinget skal ha rett til pensjon",
@@ -863,14 +868,16 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u18",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-15/ledd-2",
       "sitat": "Kongen gir nærmere forskrift om beregningen av pensjonsrettighetene og om gjennomføringen av pensjonsordningen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a2",
       "til": null,
       "objekt": "beregningen av pensjonsrettighetene og gjennomføringen av pensjonsordningen",
@@ -880,7 +887,9 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u19",
@@ -1159,7 +1168,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-5/ledd-2",
       "sitat": "med mindre det følger av forskrift fastsatt av Kongen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a2",
       "til": null,
       "objekt": "unntak fra språkrettigheter",
@@ -1169,7 +1178,9 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u36",
@@ -1193,7 +1204,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-8/ledd-1",
       "sitat": "Kongen kan gi nærmere regler om gjennomføringen av denne bestemmelsen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a2",
       "til": null,
       "objekt": "nærmere regler om opplæring",
@@ -1203,7 +1214,9 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u38",
@@ -1243,8 +1256,8 @@
       "id": "u40",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-11/ledd-1",
       "sitat": "klage til det organet som er nærmest overordnet det organet klagen angår",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": null,
       "til": null,
       "objekt": null,
@@ -1260,8 +1273,8 @@
       "id": "u41",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-11/ledd-1",
       "sitat": "Statsforvalteren er klageinstans når klagen angår kommunale eller fylkeskommunale organ",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": "a19",
       "til": "a20",
       "objekt": null,
@@ -1312,7 +1325,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-15/ledd-1",
       "sitat": "Kongen gir forskrift om hvilke kommuner og fylkeskommuner som skal inngå i forvaltningsområdet for samiske språk",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a2",
       "til": null,
       "objekt": "forskrift om hvilke kommuner og fylkeskommuner som skal inngå i forvaltningsområdet for samiske språk",
@@ -1322,14 +1335,16 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u45",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-15/ledd-1",
       "sitat": "hvilke kommuner som skal regnes som språkutviklingskommuner, språkvitaliseringskommuner og språkstimuleringskommuner",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a2",
       "til": null,
       "objekt": "forskrift om hvilke kommuner som skal regnes som språkutviklingskommuner, språkvitaliseringskommuner og språkstimuleringskommuner",
@@ -1339,14 +1354,15 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u46",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-15/ledd-2",
       "sitat": "Kongen kan gi forskrift om at bestemmelsene i dette kapittelet også skal gjelde helt eller delvis for andre statlige offentlige organer, fylkeskommunale enheter eller for privat rettssubjekt",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a2",
       "til": null,
       "objekt": "forskrift om at bestemmelsene i dette kapittelet også skal gjelde for andre aktører",
@@ -1356,14 +1372,16 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u47",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§4-8/ledd-1",
       "sitat": "Kongen kan gi forskrift med nærmere bestemmelser om hvem som har rett og plikt til konsultasjoner",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a2",
       "til": null,
       "objekt": "forskrift om hvem som har rett og plikt til konsultasjoner og gjennomføringen",
@@ -1373,7 +1391,9 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u48",
@@ -1397,7 +1417,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§5-1/ledd-2",
       "sitat": "Kongen gir regler om sammenkalling av og arbeidsordningen i Sametinget.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a2",
       "til": null,
       "objekt": "regler om sammenkalling av og arbeidsordningen i Sametinget",
@@ -1407,7 +1427,9 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": "Midlertidig kompetanse for Kongen.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u50",
@@ -1424,7 +1446,8 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": "Kongen har kompetanse til å fastsette lovens ikrafttredelsestidspunkt.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u51",
@@ -1652,7 +1675,7 @@
       "eid": "https://lovdata.no/eli/forskrift/2004/12/10/1607/nor/ledd-1",
       "sitat": "Kongens myndighet etter lov 12. juni 1987 nr. 56 om Sametinget og andre samiske rettsforhold (sameloven) § 2-11 delegeres til Kommunal- og regionaldepartementet",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a2",
       "til": "a33",
       "objekt": null,
@@ -1662,7 +1685,8 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u65",
@@ -1703,7 +1727,7 @@
       "eid": "https://lovdata.no/eli/forskrift/2004/12/10/1607/nor/ledd-3",
       "sitat": "Kongens myndighet etter samelovens § 2-11 delegeres delvis til Kommunal- og regionaldepartementet",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a2",
       "til": "a33",
       "objekt": null,
@@ -1713,7 +1737,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u68",
@@ -1747,7 +1772,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u70",

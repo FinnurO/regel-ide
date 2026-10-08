@@ -626,7 +626,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§1-1/ledd-3",
       "sitat": "Departementet kan i forskrift eller i det enkelte tilfelle begrense anvendelsen av enkelte bestemmelser i denne lov hva gjelder innretninger, formål eller virksomheter omfattet av havenergilova.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "anvendelsen av enkelte bestemmelser i denne lov hva gjelder innretninger, formål eller virksomheter omfattet av havenergilova",
@@ -636,7 +636,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u2",
@@ -670,7 +671,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u4",
@@ -779,7 +781,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§2-2/ledd-3",
       "sitat": "Departementet kan fastsette hvilke opplysninger eller undersøkelser søkeren må sørge for",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "fastsettelse av opplysninger/undersøkelser for søknad",
@@ -789,7 +791,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u11",
@@ -847,7 +850,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§2-2/ledd-6",
       "sitat": "Departementet kan gi forskrift om bruk av innsigelse i konsesjonssaker etter loven her.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "bruk av innsigelse i konsesjonssaker",
@@ -857,7 +860,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u15",
@@ -932,7 +936,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§2-4/ledd-1",
       "sitat": "Kongen kan gi forskrift om at nærmere bestemte vedtak etter § 3-1 skal fattes av Kongen i statsråd.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a2",
       "til": null,
       "objekt": "vedtak etter § 3-1 skal fattes av Kongen i statsråd",
@@ -942,7 +946,9 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": false
     },
     {
       "id": "u20",
@@ -983,7 +989,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§2-5/ledd-1",
       "sitat": "gir forskrift om organisering, oppgaver og myndighet",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "organisering, oppgaver og myndighet for reguleringsmyndighet og klagenemnd",
@@ -993,14 +999,15 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u23",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§2-5/ledd-2",
       "sitat": "Reguleringsmyndigheten og klagenemnda er uavhengige og kan ikke instrueres om utøvelsen av tillagt myndighet.",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": null,
       "til": null,
       "objekt": null,
@@ -1016,8 +1023,8 @@
       "id": "u24",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§2-5/ledd-2",
       "sitat": "Enkeltvedtak fattet av reguleringsmyndigheten kan bare påklages til klagenemnda.",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": "a5",
       "til": "a6",
       "objekt": null,
@@ -1033,8 +1040,8 @@
       "id": "u25",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§2-5/ledd-3",
       "sitat": "Reguleringsmyndigheten og klagenemnda kan ikke instrueres i disponeringen av tildelte budsjettmidler.",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": null,
       "til": null,
       "objekt": null,
@@ -1068,7 +1075,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-1/ledd-2",
       "sitat": "Departementet fastsetter ved forskrift hvor høy spenning eller hvilken installert effekt et elektrisk anlegg skal ha",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "spennings- og effektgrenser for konsesjonsplikt",
@@ -1078,14 +1085,15 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u28",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-1/ledd-2",
       "sitat": "Departementet kan ved forskrift fastsette unntak fra konsesjonsplikt eller nærmere angitte begrensninger for konsesjonsfrie anlegg.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "unntak fra konsesjonsplikt eller begrensninger for konsesjonsfrie anlegg",
@@ -1095,7 +1103,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u29",
@@ -1186,8 +1195,8 @@
       "id": "u34",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-3/ledd-1",
       "sitat": "Den samme plikten gjelder ved forbruksøkninger som medfører behov for investeringer i nett. Plikten til å foreta nødvendige investeringer i nettanlegg etter annet og tredje punktum gjelder også anleggskonsesjonærer der tilknytningen utløser et investeringsbehov.",
-      "kategori": "relasjon",
-      "type": "tilsyn_med_aktor",
+      "kategori": "kompetanse",
+      "type": "tilsynskompetanse",
       "fra": "a7",
       "til": null,
       "objekt": null,
@@ -1238,7 +1247,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§3-8/ledd-5",
       "sitat": "Kongen kan gi forskrift om prioritering av nettilknytning eller kapasitetsøkning",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a2",
       "til": null,
       "objekt": "forskrift om prioritering av nettilknytning eller kapasitetsøkning",
@@ -1248,7 +1257,9 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u38",
@@ -1374,7 +1385,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-1/ledd-5",
       "sitat": "Departementet kan gi forskrift om innholdet i vilkår som nevnt i annet ledd.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift om innholdet i vilkår etter § 4-1 annet ledd",
@@ -1384,14 +1395,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u46",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-1/ledd-6",
       "sitat": "Departementet kan gi forskrift om endring etter klage og omgjøringsadgang som avviker fra bestemmelsene i forvaltningsloven §§ 34 og 35",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift om endring etter klage og omgjøringsadgang",
@@ -1401,7 +1413,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u47",
@@ -1493,7 +1506,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-3/ledd-1",
       "sitat": "Departementet gir forskrift om måling, avregning og fakturering.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift om måling, avregning og fakturering",
@@ -1503,14 +1516,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u53",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-3/ledd-2",
       "sitat": "Myndighet etter regelverket som nevnt i første ledd til å koordinere måling og avregning av kraftomsetning, tillegges den som utpekes av reguleringsmyndigheten, under nærmere fastsatte vilkår.",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a6",
       "til": "a10",
       "objekt": "myndighet til å koordinere måling og avregning",
@@ -1561,7 +1575,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-3/ledd-4",
       "sitat": "Departementet gir forskrifter om utforming og gjennomføring av ordningen",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrifter om opprinnelsesgarantier",
@@ -1571,7 +1585,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u57",
@@ -1612,7 +1627,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-4/ledd-4",
       "sitat": "Departementet gir forskrifter om utforming og gjennomføring av ordningen",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "utforming og gjennomføring av ordningen",
@@ -1622,7 +1637,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u60",
@@ -1663,7 +1679,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-5/ledd-2",
       "sitat": "Departementet kan gi forskrift om aktørenes informasjonsplikt og om vilkårene reguleringsmyndigheten kan sette i konsesjonen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "aktørenes informasjonsplikt og om vilkårene reguleringsmyndigheten kan sette i konsesjonen",
@@ -1673,7 +1689,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u63",
@@ -1765,7 +1782,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-5a/ledd-5",
       "sitat": "Departementet kan gi forskrift om aktørenes informasjonsplikt, kriterier for utpeking av operatører etter første ledd og vilkårene som kan fastsettes etter fjerde ledd.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "aktørenes informasjonsplikt, kriterier for utpeking av operatører etter første ledd og vilkårene som kan fastsettes etter fjerde ledd",
@@ -1775,7 +1792,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u69",
@@ -1816,7 +1834,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-6/ledd-2",
       "sitat": "Departementet kan gi forskrift om nettforetaks adgang til å selge eller leie ut egen kapasitet",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "nettforetaks adgang til å selge eller leie ut egen kapasitet",
@@ -1826,7 +1844,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u72",
@@ -1850,7 +1869,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-6/ledd-4",
       "sitat": "Departementet kan gi nærmere forskrifter om selskapsmessig skille og fastsette vilkår i konsesjon etter § 4-1",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "selskapsmessig skille og vilkår i konsesjon etter § 4-1",
@@ -1860,7 +1879,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u74",
@@ -1883,8 +1903,8 @@
       "id": "u75",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-7/ledd-2",
       "sitat": "Morselskap eller kontrollerende eier i det integrerte foretaket skal ikke gi instrukser til nettforetak om den daglige driften",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a19",
       "til": "a15",
       "objekt": null,
@@ -1900,8 +1920,8 @@
       "id": "u76",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-7/ledd-2",
       "sitat": "Dette er ikke til hinder for overordnet styring med nettforetakets økonomiske rammer.",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a19",
       "til": "a15",
       "objekt": null,
@@ -1935,7 +1955,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-7/ledd-5",
       "sitat": "Departementet kan gi forskrift om funksjonelt skille.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "funksjonelt skille",
@@ -1945,7 +1965,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u79",
@@ -2003,7 +2024,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-8/ledd-5",
       "sitat": "Departementet kan fatte enkeltvedtak eller gi forskrift om nærmere krav til eiermessig skille.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "nærmere krav til eiermessig skille",
@@ -2013,7 +2034,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u83",
@@ -2037,7 +2059,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-8/ledd-6",
       "sitat": "Departementet kan gi forskrift som gjør unntak fra kravene i denne paragrafen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift som gjør unntak fra kravene i §4-8",
@@ -2047,7 +2069,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u85",
@@ -2173,7 +2196,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-10/ledd-5",
       "sitat": "Departementet kan gi forskrift om sertifisering, blant annet om utenlandsforbindelser og sertifisering for foretak som er hjemmehørende i stater utenfor EØS.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift om sertifisering, blant annet om utenlandsforbindelser og sertifisering for foretak utenfor EØS",
@@ -2183,14 +2206,15 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u93",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-11/ledd-1",
       "sitat": "Departementet kan gi forskrift om at reguleringsmyndigheten kan gi forskrift om metoder for beregning av nettselskapenes tillatte og faktiske inntekter og håndtering av avvik mellom disse, samt nøytral opptreden av netteier.",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift om at reguleringsmyndigheten kan gi forskrift om metoder for beregning av nettselskapenes tillatte og faktiske inntekter og håndtering av avvik, samt nøytral opptreden av netteier",
@@ -2207,7 +2231,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4A-2/ledd-3",
       "sitat": "Departementet kan gi forskrift om hvordan regneeksempelet etter første ledd og beregningen av kostnaden etter annet ledd skal gis.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift om hvordan regneeksempelet etter første ledd og beregningen av kostnaden etter annet ledd skal gis",
@@ -2217,14 +2241,15 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u95",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4A-4/ledd-3",
       "sitat": "Departementet kan gi forskrift om hvordan endringer i kraftavtalen skal varsles overfor forbrukere.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift om hvordan endringer i kraftavtalen skal varsles overfor forbrukere",
@@ -2234,7 +2259,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u96",
@@ -2326,7 +2352,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4A-5/ledd-2",
       "sitat": "kan den ansvarlige ilegges et overtredelsesgebyr. Departementet kan gi forskrift om utmålingen av slikt overtredelsesgebyr.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift om utmålingen av overtredelsesgebyr",
@@ -2336,14 +2362,15 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u102",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§5-1/ledd-2",
       "sitat": "Departementet kan fastsette hvor stor ytelse eller hvor mange abonnenter et fjernvarmeanlegg skal ha for at denne bestemmelse kommer til anvendelse.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "fastsette hvor stor ytelse eller hvor mange abonnenter et fjernvarmeanlegg skal ha for at §5-1 kommer til anvendelse",
@@ -2353,7 +2380,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u103",
@@ -2377,7 +2405,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§5-2/ledd-1",
       "sitat": "For konsesjoner etter § 5-1 kan departementet gi nærmere forskrifter og fastsette vilkår:",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "nærmere forskrifter for konsesjoner etter § 5-1",
@@ -2387,7 +2415,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u105",
@@ -2547,7 +2576,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§5-6/ledd-3",
       "sitat": "Departementet kan ved forskrift fastsette nærmere bestemmelser om slik megling.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "nærmere bestemmelser om megling",
@@ -2557,7 +2586,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u115",
@@ -2649,7 +2679,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§5-8/ledd-1",
       "sitat": "Departementet kan gi forskrift om måling og fakturering av fjernvarme og fjernkjøling og om måling og fakturering av energibruk i hver enkelt bruksenhet i bygninger som har felles varmeanlegg for romoppvarming eller tappevann eller felles kjøleanlegg for romavkjøling eller tappevann.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift om måling og fakturering av fjernvarme og fjernkjøling og energibruk i bygninger",
@@ -2659,14 +2689,15 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u121",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§6-1/ledd-1",
       "sitat": "Departementet gir forskrifter om systemansvaret.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrifter om systemansvaret",
@@ -2676,14 +2707,15 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u122",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§6-1/ledd-2",
       "sitat": "Departementet tildeler myndigheten til å utøve systemansvaret på nærmere fastsatte vilkår.",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a1",
       "til": "a9",
       "objekt": "myndigheten til å utøve systemansvaret",
@@ -2699,8 +2731,8 @@
       "id": "u123",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§6-1/ledd-3",
       "sitat": "Enhver som helt eller delvis eier eller driver nett, produksjon eller organisert markedsplass, samt omsettere og sluttbrukere plikter å rette seg etter den systemansvarliges instrukser under systemansvaret, samt følge de bestemmelser om systemansvaret som er fastsatt i eller i medhold av denne lov.",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": null,
@@ -2751,7 +2783,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§6-2/ledd-3",
       "sitat": "Rasjoneringsmyndigheten kan delegere myndighet til å treffe vedtak i forbindelse med gjennomføring av rasjonering til Kraftforsyningens beredskapsorganisasjon (KBO)",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a27",
       "til": "a28",
       "objekt": "myndighet til å treffe vedtak i forbindelse med gjennomføring av rasjonering",
@@ -2768,7 +2800,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§6-2/ledd-4",
       "sitat": "Departementet kan gi forskrift om virkemidler for å unngå kraftrasjonering, planlegging og gjennomføring av kraftrasjonering, rekvisisjon av kraft og tvangsmessige leveringsinnskrenkninger",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "virkemidler for å unngå kraftrasjonering, planlegging og gjennomføring av kraftrasjonering, rekvisisjon av kraft og tvangsmessige leveringsinnskrenkninger",
@@ -2778,14 +2810,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u128",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§6-3/ledd-1",
       "sitat": "Departementet gir forskrifter om leveringskvaliteten i kraftsystemet og om informasjonsplikten i den forbindelse",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "leveringskvaliteten i kraftsystemet og informasjonsplikten",
@@ -2795,14 +2828,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u129",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§7-1/ledd-2",
       "sitat": "Departementet gir forskrifter og vilkår om planleggingen",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "planleggingen",
@@ -2812,14 +2846,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u130",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§7-2/ledd-2",
       "sitat": "Departementet kan gi forskrift om hvilke tiltakshavere og anlegg som omfattes av første ledd",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "hvilke tiltakshavere og anlegg som omfattes av første ledd",
@@ -2829,14 +2864,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u131",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§7-3/ledd-2",
       "sitat": "Departementet kan gi forskrift om nærmere definisjon av tiltakene i første ledd og innholdet i og gjennomføringen av en kost-nytteanalyse",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "nærmere definisjon av tiltakene i første ledd og innholdet i og gjennomføringen av en kost-nytteanalyse",
@@ -2846,7 +2882,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u132",
@@ -2870,7 +2907,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§7-4/ledd-1",
       "sitat": "Departementet kan gi forskrift om innsending, godkjenning og bruk av kost-nytteanalysene",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "innsending, godkjenning og bruk av kost-nytteanalysene",
@@ -2880,7 +2917,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u134",
@@ -2904,7 +2942,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§8-1/ledd-3",
       "sitat": "Departementet gir forskrifter om utformingen av, innholdet i, beregningsmåter for og utstedelse av energiattesten og bruk av den i markedsføring, samt lagring av opplysninger, herunder personopplysninger",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "utformingen, innholdet, beregningsmåter for og utstedelse av energiattesten og bruk av den i markedsføring, samt lagring av opplysninger, herunder personopplysninger",
@@ -2914,14 +2952,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u136",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§8-1/ledd-4",
       "sitat": "Departementet kan gi forskrifter om kvalifikasjonskrav for den som utfører energiattestering",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "kvalifikasjonskrav for den som utfører energiattestering",
@@ -2931,14 +2970,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u137",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§8-1/ledd-5",
       "sitat": "Departementet kan gi forskrifter om hvilke bygninger som er unntatt fra krav i §§ 8-2 og 8-3 om energiattest, hvilke bygninger som anses å være ofte besøkt av allmennheten som nevnt i §§ 8-2 og 8-3, og hvem som er ansvarlig for å oppfylle pliktene til energimerking",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "hvilke bygninger som er unntatt fra krav i §§ 8-2 og 8-3 om energiattest, hvilke bygninger som anses å være ofte besøkt av allmennheten som nevnt i §§ 8-2 og 8-3, og hvem som er ansvarlig for å oppfylle pliktene til energimerking",
@@ -2948,7 +2988,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u138",
@@ -2972,7 +3013,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§8-3/ledd-2",
       "sitat": "Departementet kan gi forskrift om innholdet i pliktene etter første ledd.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "innholdet i pliktene etter § 8-3 første ledd",
@@ -2982,14 +3023,15 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u140",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§8-4/ledd-2",
       "sitat": "Departementet kan gi forskrift om energivurdering av varme- og klimaanlegg, kvalifikasjonskrav for den som utfører energivurdering, dokumentasjonskrav og liknende, og hvilke bygninger og anlegg som omfattes av kravene i første ledd.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "energivurdering av varme- og klimaanlegg, kvalifikasjonskrav, dokumentasjonskrav, bygninger og anlegg som omfattes",
@@ -2999,14 +3041,15 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u141",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§8-5/ledd-1",
       "sitat": "Departementet gir forskrift om hva som regnes som store foretak.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "hva som regnes som store foretak",
@@ -3016,14 +3059,15 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u142",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§8-5/ledd-2",
       "sitat": "Departementet gir forskrift om kvalifikasjonskrav for den som utfører energikartlegging, kartleggingens utarbeidelse og innhold og rapportering, lagring og bruk av resultatene fra energikartlegging.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "kvalifikasjonskrav, kartleggingens utarbeidelse, innhold, rapportering, lagring og bruk av resultater",
@@ -3033,7 +3077,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u143",
@@ -3091,7 +3136,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§9-2/ledd-2",
       "sitat": "Beredskapsmyndigheten kan gi forskrift eller treffe enkeltvedtak om beredskapstiltak for å forebygge, håndtere eller begrense virkningene av ekstraordinære situasjoner som nevnt i § 9-1 fjerde eller femte ledd eller for å gjenopprette normal situasjon.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a29",
       "til": null,
       "objekt": "beredskapstiltak",
@@ -3101,7 +3146,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u147",
@@ -3159,7 +3205,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§9-3/ledd-3",
       "sitat": "Departementet kan gi nærmere forskrifter om informasjonssikkerhet i kraftforsyningen og om taushetsplikten.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "informasjonssikkerhet i kraftforsyningen og taushetsplikten",
@@ -3169,14 +3215,15 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u151",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§9-4/ledd-1",
       "sitat": "Beredskapsmyndigheten kan delegere myndighet til å treffe vedtak i forbindelse med beredskap til KBO eller enheter som inngår i KBO.",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a29",
       "til": null,
       "objekt": "myndighet til å treffe vedtak i forbindelse med beredskap",
@@ -3192,8 +3239,8 @@
       "id": "u152",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§9-4/ledd-1",
       "sitat": "Beredskapsmyndigheten kan delegere myndighet til å treffe vedtak i forbindelse med beredskap til KBO eller enheter som inngår i KBO.",
-      "kategori": "relasjon",
-      "type": "delegerer_til",
+      "kategori": "kompetanse",
+      "type": "delegeringskompetanse",
       "fra": "a29",
       "til": "a28",
       "objekt": null,
@@ -3210,7 +3257,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§9-5/ledd-1",
       "sitat": "Beredskapsmyndigheten kan i forskrift fastsette krav om å melde igangsetting av arbeid for å bygge eller endre anlegg eller systemer som nevnt i § 9-2 første ledd.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a29",
       "til": null,
       "objekt": "krav om å melde igangsetting av arbeid",
@@ -3220,7 +3267,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u154",
@@ -3244,7 +3292,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§9-6/ledd-2",
       "sitat": "Departementet kan gi forskrift om gebyr eller sektoravgift og om innrapportering av opplysninger som er nødvendige for beregning av gebyret eller sektoravgiften.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift om gebyr eller sektoravgift og innrapportering",
@@ -3254,7 +3302,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u156",
@@ -3329,7 +3378,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-2",
       "sitat": "Departementet gir forskrifter om internkontroll og internkontrollsystemer.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrifter om internkontroll",
@@ -3339,14 +3388,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u161",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-6",
       "sitat": "Departementet kan gi forskrift om informasjons- og taushetsplikten og om utlevering av opplysninger som nevnt i tredje, fjerde og femte ledd, og om plikt til å utlevere informasjon til det europeiske nettverket for operatører av transmisjonssystem for elektrisk energi.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift om informasjons- og taushetsplikt, utlevering av opplysninger, plikt til å utlevere informasjon til ENTSO-E",
@@ -3356,7 +3406,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u162",
@@ -3380,7 +3431,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-7",
       "sitat": "Departementet kan gi forskrift om gebyr eller sektoravgift og om innrapportering av opplysninger som er nødvendige for beregning av gebyret eller sektoravgiften.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift om gebyr eller sektoravgift og innrapportering",
@@ -3390,7 +3441,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u164",
@@ -3482,7 +3534,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-2/ledd-3",
       "sitat": "Departementet kan gi forskrift om at også brudd på andre bestemmelser gitt i eller i medhold av lov skal kunne gi grunnlag for å trekke tilbake en omsetningskonsesjon.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift om at brudd på andre bestemmelser skal kunne gi grunnlag for tilbaketrekking av omsetningskonsesjon",
@@ -3492,7 +3544,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u170",
@@ -3550,7 +3603,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-5/ledd-1",
       "sitat": "Departementet kan gi forskrift om at forsettlig eller uaktsom overtredelse av forskriften straffes på samme måte.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift om straff for overtredelse av forskriften",
@@ -3560,14 +3613,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u174",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-6/ledd-1",
       "sitat": "Departementet kan gi forskrift til gjennomføring og utfylling av loven og dens virkeområde.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift til gjennomføring og utfylling av loven og dens virkeområde",
@@ -3577,14 +3631,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u175",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-6/ledd-2",
       "sitat": "Departementet kan gi de forskrifter som er nødvendig for ivaretakelse av Norges forpliktelser etter EØS-avtalen",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrifter nødvendig for ivaretakelse av Norges forpliktelser etter EØS-avtalen",
@@ -3594,14 +3649,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u176",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-6/ledd-3",
       "sitat": "Departementet kan gi forskrift om saksbehandlingsregler til utfylling av reglene i tjenesteloven for konsesjoner etter §§ 4-1 og 4-5 i denne lov",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift om saksbehandlingsregler til utfylling av reglene i tjenesteloven for konsesjoner etter §§ 4-1 og 4-5",
@@ -3611,7 +3667,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u177",
@@ -3652,7 +3709,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-7/ledd-6",
       "sitat": "Departementet kan gi forskrift om utmåling av overtredelsesgebyr.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "utmåling av overtredelsesgebyr",
@@ -3662,7 +3719,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u180",
@@ -3703,7 +3761,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-8/ledd-4",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om inndragning av utbytte",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "inndragning av utbytte",
@@ -3713,7 +3771,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u183",
@@ -3764,7 +3823,8 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u186",
@@ -3781,7 +3841,8 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": true
     },
     {
       "id": "u187",
@@ -3798,14 +3859,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": false
     },
     {
       "id": "u188",
       "eid": "kap-I/ledd-1",
       "sitat": "Som følge av endringer i energiloven ved lov 20. juni 2025 nr. 46, endres departementets delegeringsvedtak 31. oktober 2019 nr. 1455 til Norges vassdrags- og energidirektorat.",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a1",
       "til": "a34",
       "objekt": null,
@@ -3822,7 +3884,7 @@
       "eid": "kap-I/ledd-2",
       "sitat": "Departementet delegerer all myndighet etter lov 29. juni 1990 nr. 50 om produksjon, omforming, overføring, omsetning, fordeling og bruk av energi m.m. (energiloven) til Norges vassdrags- og energidirektorat med følgende unntak:",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a1",
       "til": "a34",
       "objekt": "all myndighet etter energiloven",
@@ -3839,7 +3901,7 @@
       "eid": "kap-I/ledd-3",
       "sitat": "Delegeringsvedtaket omfatter ikke departementets forskriftskompetanse etter energiloven med unntak av § 9-1, § 9-2, § 9-3 og § 9-5.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "Forskriftskompetanse etter energiloven",
@@ -3849,14 +3911,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": "Departementet beholder forskriftskompetansen, unntatt de angitte paragrafene.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u191",
       "eid": "kap-I/ledd-3",
       "sitat": "Forskrifter til energiloven fastsatt av Norges vassdrags- og energidirektorat med hjemmel i tidligere delegeringsvedtak står ved lag.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a34",
       "til": null,
       "objekt": "Forskrifter til energiloven",
@@ -3866,7 +3929,8 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "middels",
       "kommentar": "Forskriftene fortsetter å gjelde; implisitt myndighet.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "normform": "forskrift"
     },
     {
       "id": "u192",
@@ -3934,7 +3998,8 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "middels",
       "kommentar": "Unntatt fra delegering; Kongen i statsråd beholder kompetansen.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": false
     },
     {
       "id": "u196",
@@ -4026,7 +4091,7 @@
       "eid": "kap-I/ledd-5",
       "sitat": "§ 6-1 annet ledd | Tildeling av myndighet til å utøve systemansvaret",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": null,
       "til": null,
       "objekt": "Tildeling av myndighet til å utøve systemansvaret",

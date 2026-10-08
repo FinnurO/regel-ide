@@ -71,8 +71,16 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
   "kategori": "relasjon" | "kompetanse" | "medlemskap" | "sammensetning_omrade" | "ansvarsomrade" | "konstituerende" | "organsammensetning" | "annet:<x>",
   "type": "<se lister under>",
   "fra": "a1",                // aktør-id (eller null hvis ikke i teksten)
-  "til": "a2",                // aktør-id ELLER null (for kompetanse: null)
+  "til": "a2",                // aktør-id ELLER null. [ENDRET, #341] For kompetanse: MOTPARTEN («A har klagekompetanse
+                              // overfor B»), null når kompetansen ikke har en motpart i teksten. til = fra på
+                              // normgivning = selvregulering (avledet, ikke en egen type).
   "objekt": "<for kompetanse: bestemmelse/sakstype/regelverk, f.eks. 'vedtak etter § 3-1', 'forskrift om …'>",
+  "normform": "forskrift" | "reglement" | "arbeidsordning" | "vedtekter" | "instruks",  // [Ny, #341] KUN på
+                              // normgivningskompetanse; utelatt/null = ikke angitt
+  "grunnlag": "offentligrettslig" | "privatrettslig",  // [Ny, #341] KUN på kompetanse; privatrettslig = eierskap/
+                              // selskapsrett. Utelatt/null = ikke angitt (settes av et menneske, aldri utledet)
+  "delegerbar": true | false, // [Ny, #341/#335] KUN på kompetanse: «Kongen …» = true, «Kongen i statsråd …» og
+                              // «X selv» = false — avgjort på sitatet. Utelatt/null = ikke angitt
   "polaritet": "positiv" | "negativ",           // «kan ikke instruere» = negativ
   "avgrensning": "<paragraf/sakstype/vilkår som begrenser utsagnet, ellers null>",
   "betinget": true | false,
@@ -87,15 +95,35 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
                                               // domstollovens inndelingsdel via fasitkontrollen #309). Konverteringen setter det aldri.
 }
 
+**[ENDRET, issue #341, Johanns beslutninger 2026-10-08]** Grensen mellom relasjon og kompetanse:
+- **Kompetanse** er myndighet: «A har kompetanse av typen X, eventuelt OVERFOR B (`til`), når det gjelder Y
+  (`objekt`/`avgrensning`)». Klageinstans, instruksjon, omgjøring, oppnevning, tilsyn med en aktør, avsetting,
+  sanksjon, samtykke, overprøving og forelegging er kompetanse med motpart — ikke relasjon.
+- **Relasjon** er struktur UTEN myndighet: eierskap, ledelse, sekretariat, rapportering, etterfølger, representasjon —
+  og den GJENNOMFØRTE delegeringen (`har_delegert_til`, fra et delegeringsvedtak; unntakene i vedtaket er egne rader
+  med negativ polaritet = avgrensning av delegeringen, ikke negativ kompetanse). Kompetansen til å delegere («X kan
+  delegere til Y») er `delegeringskompetanse`.
+- `velger`, `radgir`, `bistar`, `samarbeider_med`, `administrativt_underordnet` og `del_av` står foreløpig under
+  relasjon: de er verken på Johanns strukturliste eller flyttet (åpent spørsmål 4 på #341).
+- Kompetansetypene har en **familie** (struktur, personell, styring, normgivning, kontroll, klage_overproving, vedtak,
+  sanksjon) og en **fvl-kategori**; begge er egenskaper ved TYPEN og står i `Strukturkanter.Kompetansetyper` i koden,
+  ikke i fasiten. `beslutningskompetanse` står over alle familiene og brukes når teksten bare sier
+  «beslutningsmyndighet». `vedtakskompetanse` betyr enkeltvedtak; forskrift er `normgivningskompetanse` med normform
+  `forskrift`.
+- Konverteringen av fasiten fra de gamle typene er deterministisk: `konvertering-341-kompetanse.py`.
+
 Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
-- relasjon (aktør→aktør): `klageinstans_for`, `administrativt_underordnet`, `instruksjon` (bruk polaritet),
-  `omgjoring` (bruk polaritet), `tilsyn_med_aktor`, `sekretariat_for`, `rapporterer_til`, `oppnevner`,
-  `velger`, `ledes_av`, `eies_av`, `etterfolger`, `bistar`, `samarbeider_med`, `radgir`, `del_av`,
-  `delegerer_til` (når BÅDE fra og til er gitt).
-- kompetanse (aktør→bestemmelse/sakstype): `forskriftskompetanse`, `vedtakskompetanse`,
-  `klagekompetanse`, `tilsynskompetanse` (tilsyn med at regelverk følges), `delegeringsfullmakt`
-  (X kan delegere), `oppnevningskompetanse`, `instruksjonskompetanse`, `utpekingskompetanse`
-  (X bestemmer hvem som er myndighet).
+- relasjon (aktør→aktør): `eies_av`, `ledes_av`, `sekretariat_for`, `rapporterer_til`, `etterfolger`,
+  `representerer`, `har_delegert_til` (gjennomført delegering, når BÅDE fra og til er gitt),
+  `administrativt_underordnet`, `velger`, `bistar`, `samarbeider_med`, `radgir`, `del_av`.
+- kompetanse (aktør→motpart/bestemmelse/sakstype): `beslutningskompetanse`, `opprettingskompetanse`,
+  `avviklingskompetanse`, `organisasjonskompetanse`, `oppnevningskompetanse`, `utpekingskompetanse`
+  (X bestemmer hvem som er myndighet), `ansettelseskompetanse`, `avsettingskompetanse`, `instruksjonskompetanse`
+  (bruk polaritet), `samordningskompetanse`, `delegeringskompetanse` (X kan delegere), `godkjenningskompetanse`,
+  `samtykkekompetanse`, `paleggskompetanse`, `normgivningskompetanse` (med normform), `tilsynskompetanse`,
+  `revisjonskompetanse`, `klagekompetanse`, `omgjoringskompetanse`, `overprovingskompetanse`,
+  `stadfestingskompetanse`, `vedtakskompetanse` (enkeltvedtak), `sanksjonskompetanse`, `foreleggingskompetanse`,
+  `ukjent` (maskinell konvertering: et kompetanseuttrykk verken leksikonet eller KI kan typebestemme — gjettes ikke).
 - medlemskap (aktør/klasse → klasse): `medlem_av`, `inngar_i`.
 - sammensetning_omrade (område → område): `bestar_av`, `del_av`.
 - ansvarsomrade (aktør → område): `har_ansvarsomrade`, `har_jurisdiksjon`, `har_sete_i`.

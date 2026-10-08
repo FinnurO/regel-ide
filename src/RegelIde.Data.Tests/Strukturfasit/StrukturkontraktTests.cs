@@ -37,12 +37,16 @@ public class StrukturkontraktTests
     }
 
     [Theory]
-    [InlineData("kompetanse", "forskriftskompetanse", true)]
+    [InlineData("kompetanse", "normgivningskompetanse", true)]
+    [InlineData("kompetanse", "forskriftskompetanse", false)] // [ENDRET, #341] er normgivning med normform forskrift
+    [InlineData("kompetanse", "ukjent", true)]
+    [InlineData("relasjon", "klageinstans_for", false)] // [ENDRET, #341] er klagekompetanse med motpart
+    [InlineData("relasjon", "har_delegert_til", true)]
     [InlineData("relasjon", "del_av", true)]
     [InlineData("sammensetning_omrade", "del_av", true)]
     [InlineData("kompetanse", "annet:klageordning", true)]
     [InlineData("annet:klage", "annet:klageordning", true)]
-    [InlineData("annet:klage", "forskriftskompetanse", false)]
+    [InlineData("annet:klage", "normgivningskompetanse", false)]
     [InlineData("kompetanse", "bestar_av", false)]
     [InlineData("organsammensetning", "ledes_av", false)]
     [InlineData("kompetanse", "annet:", false)]

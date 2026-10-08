@@ -87,15 +87,15 @@ internal static class Strukturmaling
     /// ingen av dem, så de ville bare blåst opp gjenfinningsnevneren i R/K uten å si noe om mønstrene.
     /// <c>bistar</c>/<c>samarbeider_med</c> er bevisst senere lag (docs/33 §4.4).
     /// </summary>
+    /// <para>[ENDRET, issue #341] Myndighetsrelasjonene er K (kompetanse med motpart); R er struktur + har_delegert_til. K er
+    /// hele kompetanselista i <see cref="Strukturkontrakt"/> (typologien), så nye typer ikke havner i «annet».</para>
     public static string Bokstav(string kategori, string type) => (kategori, type) switch
     {
-        (_, "klageinstans_for" or "administrativt_underordnet" or "sekretariat_for" or "etterfolger" or "instruksjon"
-            or "omgjoring" or "tilsyn_med_aktor" or "rapporterer_til" or "oppnevner" or "velger" or "ledes_av"
-            or "eies_av" or "radgir" or "delegerer_til" or "oppretter" or "avvikler") => "R",
+        (_, "administrativt_underordnet" or "sekretariat_for" or "etterfolger" or "rapporterer_til" or "velger" or "ledes_av"
+            or "eies_av" or "radgir" or "representerer" or "har_delegert_til" or "oppretter" or "avvikler") => "R",
         ("relasjon", "del_av") => "G",
         (_, "bistar" or "samarbeider_med") => "senere lag",
-        (_, "forskriftskompetanse" or "vedtakskompetanse" or "klagekompetanse" or "tilsynskompetanse"
-            or "delegeringsfullmakt" or "oppnevningskompetanse" or "instruksjonskompetanse" or "utpekingskompetanse") => "K",
+        ("kompetanse", _) when Strukturkontrakt.TyperPerKategori["kompetanse"].Contains(type) => "K",
         (_, "medlem_av" or "inngar_i") => "M",
         (_, "bestar_av") => "O",
         ("sammensetning_omrade", "del_av") => "O",

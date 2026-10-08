@@ -20,9 +20,14 @@ internal static class HistoriskSkjema
     public const string Nodetypeakse = "20261007074037_InnforNodetypeakse";
     public const string Strukturkanttabell = "20261007202146_InnforStrukturkanttabell";
     public const string HarmoniserRelasjonskoder = "20261008064334_HarmoniserRelasjonskoder"; // [Ny, #330]
+    public const string Omraderegister = "20261008080640_InnforOmraderegister"; // [Ny, #341]
 
     /// <summary>Oppretter en ny, tom database og migrerer den til <paramref name="tilMigrasjon"/> (null = siste).</summary>
-    public static async Task<string> NyDatabaseAsync(EmbeddedPostgresFixture fixture, string prefiks, string? tilMigrasjon)
+    /// <param name="leggTilSenereKolonner">[Ny, #341] false for en test som selv migrerer videre til siste versjon
+    /// (da ville kolonnene <see cref="LeggTilSenereKolonnerAsync"/> legger til, kollidert med migrasjonens AddColumn) —
+    /// den må skrive radene med rå SQL.</param>
+    public static async Task<string> NyDatabaseAsync(EmbeddedPostgresFixture fixture, string prefiks, string? tilMigrasjon,
+        bool leggTilSenereKolonner = true)
     {
         var navn = $"{prefiks}_{Guid.NewGuid():N}";
         await using (var master = new RegelIdeDbContext(Options(ByttDatabase(fixture, "postgres"))))
@@ -34,8 +39,7 @@ internal static class HistoriskSkjema
 #pragma warning restore EF1003
         }
         var connString = ByttDatabase(fixture, navn);
-        await MigrerAsync(connString, tilMigrasjon);
-        if (tilMigrasjon is not null) await LeggTilSenereKolonnerAsync(connString);
+        await MigrerAsync(connString, tilMigrasjon, leggTilSenereKolonner);
         return connString;
     }
 
@@ -51,12 +55,26 @@ internal static class HistoriskSkjema
         await using var db = new RegelIdeDbContext(Options(connString));
         await db.Database.ExecuteSqlRawAsync(
             "ALTER TABLE begreper ADD COLUMN IF NOT EXISTS omradetype text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS omradekode text;");
+        // [Ny, issue #341] strukturkanter.normform/grunnlag/delegerbar (KompetanseMedMotpart). IF EXISTS: før #311 finnes
+        // ikke tabellen.
+        await db.Database.ExecuteSqlRawAsync(
+            "ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS normform text; "
+            + "ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS grunnlag text; "
+            + "ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS delegerbar boolean; "
+            + "ALTER TABLE relasjonstype_konfigurasjon ADD COLUMN IF NOT EXISTS familie text; "
+            + "ALTER TABLE relasjonstype_konfigurasjon ADD COLUMN IF NOT EXISTS fvl_kategori text;");
     }
 
-    public static async Task MigrerAsync(string connString, string? tilMigrasjon)
+    /// <param name="leggTilSenereKolonner">[Ny, #341] Etter en migrering til et HISTORISK punkt legges senere kolonner til
+    /// (som i <see cref="NyDatabaseAsync"/>) — StrukturkantMigreringTests leser strukturkanter med dagens EF-modell rett
+    /// etter at #311 opprettet tabellen. Aldri når <paramref name="tilMigrasjon"/> er null (siste versjon har dem).</param>
+    public static async Task MigrerAsync(string connString, string? tilMigrasjon, bool leggTilSenereKolonner = true)
     {
-        await using var db = new RegelIdeDbContext(Options(connString));
-        await db.GetService<IMigrator>().MigrateAsync(tilMigrasjon);
+        await using (var db = new RegelIdeDbContext(Options(connString)))
+        {
+            await db.GetService<IMigrator>().MigrateAsync(tilMigrasjon);
+        }
+        if (tilMigrasjon is not null && leggTilSenereKolonner) await LeggTilSenereKolonnerAsync(connString);
     }
 
     public static DbContextOptions<RegelIdeDbContext> Options(string connString) =>

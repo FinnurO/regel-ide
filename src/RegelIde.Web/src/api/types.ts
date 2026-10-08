@@ -452,6 +452,16 @@ export interface StrukturnodeDto {
 /** [Ny, issue #311] GET /api/strukturkanter?virksomhetId|begrepId=… — én kant med navn og visningstekst.
  * `retning` er nodens side når listen er hentet for en node ('fra'/'til'), ellers null (per hjemmel,
  * forslagskø). `til` er null bare for K/T. */
+/** [Ny, issue #341, Johanns hierarkibeslutning 2026-10-08] Kompetansefamiliene — speilet av `Strukturkanter.Familier`. */
+export type Kompetansefamilie =
+  'struktur' | 'personell' | 'styring' | 'normgivning' | 'kontroll' | 'klage_overproving' | 'vedtak' | 'sanksjon';
+/** [Ny, issue #341] Forvaltningslovens § 2-perspektiv på en kompetansetype. */
+export type FvlKategori = 'forskrift' | 'enkeltvedtak' | 'ikke_vedtak';
+/** [Ny, issue #341] Normformen på en normgivningskompetanse — speilet av `Strukturkanter.Normformer`. */
+export type Normform = 'forskrift' | 'reglement' | 'arbeidsordning' | 'vedtekter' | 'instruks';
+/** [Ny, issue #341] Kompetansens grunnlag. */
+export type Kompetansegrunnlag = 'offentligrettslig' | 'privatrettslig';
+
 export interface StrukturkantDto {
   id: string;
   kategori: Strukturkantkategori;
@@ -479,6 +489,16 @@ export interface StrukturkantDto {
   kommentar: string | null;
   opprettetAv: string;
   opprettetTidspunkt: string;
+  // [Ny, issue #341] K-feltene. For K er `til` MOTPARTEN («har klagekompetanse overfor …»).
+  normform: Normform | null;
+  grunnlag: Kompetansegrunnlag | null;
+  /** Kan kompetansen delegeres videre? null = ikke angitt. */
+  delegerbar: boolean | null;
+  /** Normgivning der motparten er innehaveren selv (avledet). */
+  selvregulering: boolean;
+  /** Typens familie og fvl-kategori fra typekonfigurasjonen (bare K). */
+  familie: Kompetansefamilie | null;
+  fvlKategori: FvlKategori | null;
 }
 
 /** [Ny, issue #311] Rå kantfelt — svaret fra veiviserens kobl-til-*-endepunkter. */
@@ -524,6 +544,10 @@ export interface StrukturkantRequest {
   gyldigFra?: string | null;
   gyldigTil?: string | null;
   kommentar?: string | null;
+  /** [Ny, issue #341] Bare på K (normform bare på normgivning). Null/utelatt = ikke angitt. */
+  normform?: Normform | null;
+  grunnlag?: Kompetansegrunnlag | null;
+  delegerbar?: boolean | null;
 }
 
 // [FJERNET, issue #311] GruppeMedlemskapRequest, VirksomhetRelasjonDto/-Request/-HjemletDto og
@@ -786,6 +810,9 @@ export interface NavnekandidatManuellRequest {
 export interface KoblNavnekandidatTilMyndighetstildelingRequest {
   virksomhetId: string;
   rolleBegrepId: string;
+  /** [Ny, issue #341] HVOR i kandidatens rettskilde rollen tildeles — null = kandidatens egen node. */
+  hjemmelEid: string | null;
+  /** [ENDRET, issue #341] Nå bare AVGRENSNINGEN: hvilke paragrafer rollen gjelder for (valgfri). */
   paragrafspenn: ParagrafspennParDto[];
   vilkaar: string | null;
   navneformgrunn: Navneformgrunn | null;
@@ -1438,6 +1465,10 @@ export interface RelasjonsTypeKonfigurasjonDto {
   kode: string;
   fraVisningsmal: string;
   tilVisningsmal: string;
+  /** [Ny, issue #341] Kompetansefamilien (bare K) — null på «beslutning» (øverst) og på en type som ikke er plassert. */
+  familie?: Kompetansefamilie | null;
+  /** [Ny, issue #341] forskrift | enkeltvedtak | ikke_vedtak (bare K), null = ikke avklart. */
+  fvlKategori?: FvlKategori | null;
 }
 
 /** Ett cross-tenant søketreff (GET /api/tjenester/sok-tverr-tenant) — kun publiserte tjenester fra ALLE virksomheter. */

@@ -1107,12 +1107,13 @@ export const api = {
     kall<RelasjonsTypeKonfigurasjonDto[]>(`/api/konfigurasjon/relasjonstyper${kategori ? `?kategori=${kategori}` : ''}`),
 
   /** Kantene for ÉN node (virksomhet ELLER begrep), i begge retninger, med visningstekst fra nodens side. */
-  hentStrukturkanter: (node: { virksomhetId?: string; begrepId?: string }, valg?: { kategori?: Strukturkantkategori; gjeldende?: boolean }) => {
+  hentStrukturkanter: (node: { virksomhetId?: string; begrepId?: string }, valg?: { kategori?: Strukturkantkategori; gjeldende?: boolean; familie?: string }) => {
     const sok = new URLSearchParams();
     if (node.virksomhetId) sok.set('virksomhetId', node.virksomhetId);
     if (node.begrepId) sok.set('begrepId', node.begrepId);
     if (valg?.kategori) sok.set('kategori', valg.kategori);
     if (valg?.gjeldende) sok.set('gjeldende', 'true');
+    if (valg?.familie) sok.set('familie', valg.familie); // [Ny, issue #341]
     return kall<StrukturkantDto[]>(`/api/strukturkanter?${sok.toString()}`);
   },
 

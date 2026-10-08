@@ -28,6 +28,9 @@ public sealed record Strukturmonster(
 {
     /// <summary>Proveniensverdien som skrives på utsagnet: <c>monster:&lt;id&gt;</c>.</summary>
     public string Oppdagelseskilde => "monster:" + Id;
+
+    /// <summary>[Ny, issue #341] Normformen leksikonet gir uttrykket (bare normgivning) — skrives på utsagnet.</summary>
+    public string? Normform { get; init; }
 }
 
 /// <summary>

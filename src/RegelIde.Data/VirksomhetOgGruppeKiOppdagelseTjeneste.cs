@@ -130,12 +130,12 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
           andre organets navn, eksakt som det står i teksten", "HjemletHer": true hvis DENNE paragrafen
           faktisk sier det, false hvis du utleder det fra en annen kontekst}, ellers null. Koden leses ALLTID
           med organet i "Navn" som subjekt og motparten som objekt:
-            "klageinstans_for" — organet ER klageinstans for motparten (behandler klager over motpartens vedtak)
+            "klage" — organet HAR KLAGEKOMPETANSE overfor motparten (behandler klager over motpartens vedtak)
             "sekretariat_for" — organet ER sekretariat for motparten
             "administrativt_underordnet" — organet er administrativt underordnet motparten
             "del_av" — organet er en enhet i / en del av motparten
           Står forholdet omvendt (f.eks. organet er det som HAR klageinstans hos motparten), er koden ikke
-          "klageinstans_for" — da hører relasjonen til motpartens eget treff, der motparten er subjektet.
+          "klage" — da hører relasjonen til motpartens eget treff, der motparten er subjektet.
         - "GruppeAvGruppe": KUN for Type="klasse", "omrade" eller "gruppe", OG kun hvis teksten sier at DENNE gruppen selv inngår
           i/er en del av en STØRRE, navngitt gruppe — et objekt {"OverordnetGruppeNavn": "den større
           gruppens navn"}, ellers null
@@ -417,7 +417,8 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
         try
         {
             var tildeling = await strukturkanter.OpprettTildelingAsync(
-                virksomhetId.Value, rolleTreff[0], rettskildeId, [new ParagrafspennPar(paragrafEid, null)],
+                // [ENDRET, issue #341] Paragrafen KI-en peker på er HVOR rollen tildeles (hjemmel-eId), ikke en avgrensning.
+                virksomhetId.Value, rolleTreff[0], rettskildeId, paragrafEid, avgrensning: null,
                 avgrensningTekst: null, opprettetAv, ct: ct, status: "foreslatt_av_ai", aiForslagVersjon: AiForslagVersjon);
             return (tildeling.Kant.Id, null);
         }
@@ -435,8 +436,10 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
         // [ENDRET, issue #330] Koden slås opp i R OG G: «er en enhet i» ble G del_av (organtilhørighet) da de gamle
         // R-kodene ble harmonisert. Kategorien kommer fra konfigurasjonsraden, ikke fra en gjetning; finnes koden i
         // begge, er den tvetydig og forkastes.
+        // [ENDRET, issue #341] … og i K: klageinstans er nå K «klage» med motparten som til-node (Johanns beslutning P1).
         var kategorier = await db.RelasjonsTypeKonfigurasjoner
-            .Where(t => (t.Kategori == Strukturkanter.Relasjon || t.Kategori == Strukturkanter.Organtilhorighet)
+            .Where(t => (t.Kategori == Strukturkanter.Relasjon || t.Kategori == Strukturkanter.Organtilhorighet
+                         || t.Kategori == Strukturkanter.Kompetanse)
                         && t.Kode == relasjon.Type && t.Aktiv)
             .Select(t => t.Kategori).ToListAsync(ct);
         if (kategorier.Count != 1)
@@ -538,7 +541,7 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
             var opprettet = await strukturkanter.OpprettAsync(new NyStrukturkant(
                 Strukturkanter.Medlemskap, Strukturkanter.MedlemAv,
                 Kantnode.Begrep(underordnetTreff[0]), Kantnode.Begrep(overordnetTreff[0]),
-                HjemmelRettskildeId: rettskildeId, Paragrafspenn: [new ParagrafspennPar(nodeEid, null)],
+                HjemmelRettskildeId: rettskildeId, HjemmelEid: nodeEid, // [ENDRET, #341] hjemmelssted, ikke avgrensning
                 Status: "foreslatt_av_ai", AiForslagVersjon: AiForslagVersjon), opprettetAv, ct);
             return (opprettet.Kant.Id, null);
         }

@@ -532,9 +532,13 @@ public sealed record TjenesteavhengighetRequest(
 /// <summary>Konfigurerbare typekoder for strukturkanter (docs/29 §Del C, samme mønster som
 /// <see cref="TaggKindKonfigurasjonDto"/>). [ENDRET, issue #311] Har <see cref="Kategori"/> — samme kode kan
 /// finnes i to kategorier.</summary>
-public sealed record RelasjonsTypeKonfigurasjonDto(string Kategori, string Kode, string FraVisningsmal, string TilVisningsmal)
+/// <param name="Familie">[Ny, issue #341] Kompetansefamilien (bare K) — se <see cref="RelasjonsTypeKonfigurasjonEntitet.Familie"/>.</param>
+/// <param name="FvlKategori">[Ny, issue #341] forskrift | enkeltvedtak | ikke_vedtak (bare K), NULL = ikke avklart.</param>
+public sealed record RelasjonsTypeKonfigurasjonDto(string Kategori, string Kode, string FraVisningsmal, string TilVisningsmal,
+    string? Familie = null, string? FvlKategori = null)
 {
-    public static RelasjonsTypeKonfigurasjonDto FraEntitet(RelasjonsTypeKonfigurasjonEntitet k) => new(k.Kategori, k.Kode, k.FraVisningsmal, k.TilVisningsmal);
+    public static RelasjonsTypeKonfigurasjonDto FraEntitet(RelasjonsTypeKonfigurasjonEntitet k) =>
+        new(k.Kategori, k.Kode, k.FraVisningsmal, k.TilVisningsmal, k.Familie, k.FvlKategori);
 }
 
 // [FJERNET, issue #311] VirksomhetRelasjonDto, VirksomhetRelasjonHjemletDto og VirksomhetRelasjonRequest —
@@ -557,7 +561,9 @@ public sealed record StrukturkantDto(
     string? KildeUtenforKorpusTekst, string? KildeUtenforKorpusLenke, string? KildeUtenforKorpusType,
     string? KildeUtenforKorpusDokumentasjon,
     DateOnly? GyldigFra, DateOnly? GyldigTil, string Status, string OppdagelsesKilde, string? Kommentar,
-    string OpprettetAv, DateTimeOffset OpprettetTidspunkt)
+    string OpprettetAv, DateTimeOffset OpprettetTidspunkt,
+    // [Ny, issue #341] K-feltene, og familie/fvl-kategori fra typekonfigurasjonen.
+    string? Normform, string? Grunnlag, bool? Delegerbar, bool Selvregulering, string? Familie, string? FvlKategori)
 {
     public static StrukturkantDto FraVisning(StrukturkantVisning v) => new(
         v.Id, v.Kategori, v.Typekode, v.Retning, v.Visningstekst,
@@ -565,7 +571,8 @@ public sealed record StrukturkantDto(
         v.Paragrafspenn.Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList(), v.AvgrensningTekst, v.Polaritet,
         v.HjemmelRettskildeId, v.HjemmelRettskildeTittel, v.HjemmelEid,
         v.KildeUtenforKorpusTekst, v.KildeUtenforKorpusLenke, v.KildeUtenforKorpusType, v.KildeUtenforKorpusDokumentasjon, v.GyldigFra, v.GyldigTil, v.Status, v.OppdagelsesKilde,
-        v.Kommentar, v.OpprettetAv, v.OpprettetTidspunkt);
+        v.Kommentar, v.OpprettetAv, v.OpprettetTidspunkt,
+        v.Normform, v.Grunnlag, v.Delegerbar, v.Selvregulering, v.Familie, v.FvlKategori);
 }
 
 /// <summary>[Ny, issue #311] Rå kantfelt uten navn/visningstekst — svaret fra veiviserens kobl-til-*-endepunkter,
@@ -598,7 +605,9 @@ public sealed record StrukturkantRequest(
     string? Kommentar = null,
     // [Ny, Johanns beslutning 2026-10-07] Påkrevd sammen med KildeUtenforKorpusTekst — se
     // StrukturkantEntitet.KildeUtenforKorpusType. Dokumentasjon: primaer|sekundaer, påkrevd sammen med typen.
-    string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null);
+    string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null,
+    // [Ny, issue #341] Bare på K: normform (bare normgivning), grunnlag og delegerbar. Null = ikke angitt.
+    string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null);
 
 /// <summary>[Ny, issue #330, 2026-10-08] PUT /api/strukturkanter/{id}/avgrensning — ERSTATTER kantens avgrensning
 /// (begge feltene; tomt/utelatt spenn og blank tekst fjerner dem). Se <c>StrukturkantTjeneste.OppdaterAvgrensningAsync</c>.</summary>
@@ -835,8 +844,17 @@ public sealed record MyndighetstildelingDto(
 {
     public static MyndighetstildelingDto FraKant(StrukturkantEntitet k) => new(
         k.Id, k.TilBegrepId!.Value, k.FraVirksomhetId!.Value, k.HjemmelRettskildeId!.Value,
-        StrukturkantTjeneste.LesParagrafspenn(k).Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList(),
-        k.AvgrensningTekst, k.GyldigFra, k.GyldigTil, k.Status);
+        FasadeSpenn(k), k.AvgrensningTekst, k.GyldigFra, k.GyldigTil, k.Status);
+
+    /// <summary>
+    /// [Ny, issue #341] Fasadens <c>paragrafspenn</c> er HJEMMELSSTEDET — det nettsiden leser den som
+    /// (<c>nettside/grupper/index.html</c>, <c>hjemmelLabel(…, paragrafspenn)</c>), og det de 19 lokale radene hadde der før
+    /// #341 flyttet det til <c>hjemmel_eid</c>. Har kanten ingen hjemmel-eId, gis avgrensningen som før. Ny kode leser
+    /// <see cref="StrukturkantDto"/>, som har begge hver for seg.
+    /// </summary>
+    internal static List<ParagrafspennParDto> FasadeSpenn(StrukturkantEntitet k) => k.HjemmelEid is { } eid
+        ? [new ParagrafspennParDto(eid, null)]
+        : StrukturkantTjeneste.LesParagrafspenn(k).Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList();
 
     public static bool KanVises(StrukturkantEntitet k) =>
         (k.Kategori == Strukturkanter.Medlemskap || k.Kategori == Strukturkanter.Rolleinnehav)
@@ -887,7 +905,7 @@ public sealed record GruppeMedlemskapDto(
 {
     public static GruppeMedlemskapDto FraKant(StrukturkantEntitet k) => new(
         k.Id, k.TilBegrepId!.Value, k.FraBegrepId!.Value, k.HjemmelRettskildeId!.Value,
-        StrukturkantTjeneste.LesParagrafspenn(k).Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList(),
+        MyndighetstildelingDto.FasadeSpenn(k), // [ENDRET, #341] hjemmelsstedet, se MyndighetstildelingDto.FasadeSpenn
         k.GyldigFra, k.GyldigTil, k.Status);
 
     public static bool KanVises(StrukturkantEntitet k) =>
@@ -1021,8 +1039,11 @@ public sealed record NavnekandidatManuellRequest(
 /// gruppemedlem-sporets gruppe. Hjemmelen sendes IKKE — den er alltid kandidatens egen rettskilde,
 /// samme konvensjon som gruppemedlemskaps-endepunktet.
 /// </summary>
+/// <param name="HjemmelEid">[Ny, issue #341] HVOR i kandidatens rettskilde rollen tildeles — null = kandidatens egen node.</param>
+/// <param name="Paragrafspenn">[ENDRET, issue #341] Nå bare AVGRENSNINGEN: hvilke paragrafer rollen gjelder for (valgfri).
+/// Før #341 var dette hjemmelsstedet, og det ble lagret som avgrensning (se Strukturkanter.KreverHjemmelsted).</param>
 public sealed record KoblNavnekandidatTilMyndighetstildelingRequest(
-    Guid VirksomhetId, Guid RolleBegrepId, IReadOnlyList<ParagrafspennParDto> Paragrafspenn,
+    Guid VirksomhetId, Guid RolleBegrepId, string? HjemmelEid, IReadOnlyList<ParagrafspennParDto>? Paragrafspenn,
     string? Vilkaar, string? Navneformgrunn);
 
 /// <summary>Som <see cref="NavnekandidatGruppemedlemskapResultatDto"/>, men <c>Tildeling</c> gjelder et

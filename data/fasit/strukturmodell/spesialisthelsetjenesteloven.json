@@ -1388,8 +1388,8 @@
       "id": "u1",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§1/ledd-1/punkt-1",
       "sitat": "at det opprettes regionale helseforetak som etter eiers retningslinjer skal planlegge og organisere spesialisthelsetjenesten",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a24",
       "til": "a2",
       "objekt": null,
@@ -1501,7 +1501,7 @@
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§2/ledd-4",
       "sitat": "Kongen kan bestemme at den helt eller delvis skal gjelde på Svalbard og Jan Mayen",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "lovens anvendelse på Svalbard og Jan Mayen",
@@ -1510,7 +1510,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u9",
@@ -1638,7 +1640,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Kompetanse til å fastsette et områdesystem — ingen standardtype dekker dette."
+      "kommentar": "Kompetanse til å fastsette et områdesystem — ingen standardtype dekker dette.",
+      "delegerbar": true
     },
     {
       "id": "u17",
@@ -1708,8 +1711,8 @@
       "id": "u21",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§5/ledd-1",
       "sitat": "Departementet er klageinstans for enkeltvedtak truffet av foretakene, når ikke særskilt klageinstans er fastsatt i lov eller forskrift",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": "a9",
       "til": "a5",
       "objekt": null,
@@ -1820,8 +1823,8 @@
       "id": "u28",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§8/ledd-1/punkt-1",
       "sitat": "hvem som skal være medlemmer av styret, herunder styrets leder og nestleder",
-      "kategori": "relasjon",
-      "type": "oppnevner",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a10",
       "til": "a13",
       "objekt": null,
@@ -1836,8 +1839,8 @@
       "id": "u29",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§8/ledd-1/punkt-2",
       "sitat": "hvem som skal være foretakets revisor",
-      "kategori": "relasjon",
-      "type": "oppnevner",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a10",
       "til": "a19",
       "objekt": null,
@@ -1916,8 +1919,8 @@
       "id": "u34",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§9/ledd-1/punkt-1",
       "sitat": "hvem som skal være medlem av styret, herunder styrets leder og nestleder",
-      "kategori": "relasjon",
-      "type": "oppnevner",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a13",
       "til": "a13",
       "objekt": null,
@@ -2038,7 +2041,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Gir Kongen kompetanse til å bestemme foretakenes medlemskap i arbeidsgiverorganisasjon (i praksis Spekter, ikke i korpus)."
+      "kommentar": "Gir Kongen kompetanse til å bestemme foretakenes medlemskap i arbeidsgiverorganisasjon (i praksis Spekter, ikke i korpus).",
+      "delegerbar": false
     },
     {
       "id": "u42",
@@ -2220,8 +2224,8 @@
       "id": "u53",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§16/ledd-1",
       "sitat": "Eier kan ikke utøve eierstyring i foretak utenom foretaksmøte",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a24",
       "til": "a5",
       "objekt": null,
@@ -2268,8 +2272,8 @@
       "id": "u56",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§16/ledd-4",
       "sitat": "Departementet skal årlig avholde foretaksmøte i løpet av årets to første måneder for å fastsette økonomiske og organisatoriske krav og rammer for regionale helseforetak",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a9",
       "til": "a2",
       "objekt": null,
@@ -2284,8 +2288,8 @@
       "id": "u57",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§16a/ledd-1",
       "sitat": "Departementet skal holde seg orientert om foretakenes virksomhet",
-      "kategori": "relasjon",
-      "type": "tilsyn_med_aktor",
+      "kategori": "kompetanse",
+      "type": "tilsynskompetanse",
       "fra": "a9",
       "til": "a5",
       "objekt": null,
@@ -2396,8 +2400,8 @@
       "id": "u64",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§19/ledd-1",
       "sitat": "Eieren kan overlate til styrets leder å lede foretaksmøtet",
-      "kategori": "relasjon",
-      "type": "delegerer_til",
+      "kategori": "kompetanse",
+      "type": "delegeringskompetanse",
       "fra": "a24",
       "til": "a15",
       "objekt": "ledelse av foretaksmøtet",
@@ -2700,8 +2704,8 @@
       "id": "u83",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§21a/ledd-2",
       "sitat": "Styret tilsetter leder for internrevisjonen og fastsetter instruks og årsplaner for internrevisjonen",
-      "kategori": "relasjon",
-      "type": "oppnevner",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a13",
       "til": "a22",
       "objekt": null,
@@ -2716,8 +2720,8 @@
       "id": "u84",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§21a/ledd-2",
       "sitat": "Styret tilsetter leder for internrevisjonen og fastsetter instruks og årsplaner for internrevisjonen",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a13",
       "til": "a21",
       "objekt": null,
@@ -2765,7 +2769,7 @@
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§22/ledd-2",
       "sitat": "Kongen kan gi forskrift om valget, herunder om vilkår for stemmerett og valgbarhet",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "valg av ansattes styrerepresentanter",
@@ -2774,7 +2778,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u88",
@@ -2829,7 +2835,7 @@
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§23/ledd-3",
       "sitat": "Kongen kan gi forskrift om beregningen av antall ansatte",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "beregning av antall ansatte",
@@ -2838,7 +2844,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u92",
@@ -2860,8 +2868,8 @@
       "id": "u93",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§25/ledd-2",
       "sitat": "Et styremedlem kan avsettes av den som har valgt styremedlemmet",
-      "kategori": "relasjon",
-      "type": "annet:avsetter",
+      "kategori": "kompetanse",
+      "type": "avsettingskompetanse",
       "fra": null,
       "til": "a17",
       "objekt": null,
@@ -2876,8 +2884,8 @@
       "id": "u94",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§25/ledd-2",
       "sitat": "Dette gjelder ikke et styremedlem som er valgt etter §§ 22 eller 23",
-      "kategori": "relasjon",
-      "type": "annet:avsetter",
+      "kategori": "kompetanse",
+      "type": "avsettingskompetanse",
       "fra": "a12",
       "til": "a17",
       "objekt": null,
@@ -2893,7 +2901,7 @@
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§25/ledd-3",
       "sitat": "Departementet kan i forskrift fastsette nærmere bestemmelser om slike valg",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "valg ved omorganisering",
@@ -2902,7 +2910,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u96",
@@ -2988,8 +2997,8 @@
       "id": "u101",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§28/ledd-4",
       "sitat": "I regionalt helseforetak omfatter styrets plikter etter tredje ledd også helseforetak som foretaket eier",
-      "kategori": "relasjon",
-      "type": "tilsyn_med_aktor",
+      "kategori": "kompetanse",
+      "type": "tilsynskompetanse",
       "fra": "a13",
       "til": "a4",
       "objekt": null,
@@ -3004,8 +3013,8 @@
       "id": "u102",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§29/ledd-1",
       "sitat": "Styret skal føre tilsyn med daglig leder",
-      "kategori": "relasjon",
-      "type": "tilsyn_med_aktor",
+      "kategori": "kompetanse",
+      "type": "tilsynskompetanse",
       "fra": "a13",
       "til": "a14",
       "objekt": null,
@@ -3020,8 +3029,8 @@
       "id": "u103",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§29/ledd-1",
       "sitat": "kan fastsette instruks for denne",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a13",
       "til": "a14",
       "objekt": null,
@@ -3197,7 +3206,7 @@
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§32/ledd-1",
       "sitat": "Sykehusvirksomhet kan ikke selges uten Stortingets samtykke",
       "kategori": "kompetanse",
-      "type": "annet:samtykkekompetanse",
+      "type": "samtykkekompetanse",
       "fra": "a11",
       "til": null,
       "objekt": "salg av sykehusvirksomhet",
@@ -3244,8 +3253,8 @@
       "id": "u117",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§36/ledd-1",
       "sitat": "Foretaket skal ha en daglig leder som tilsettes av styret",
-      "kategori": "relasjon",
-      "type": "oppnevner",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a13",
       "til": "a14",
       "objekt": null,
@@ -3260,8 +3269,8 @@
       "id": "u118",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§36/ledd-1",
       "sitat": "Styret treffer vedtak om å si opp eller avskjedige daglig leder",
-      "kategori": "relasjon",
-      "type": "annet:avsetter",
+      "kategori": "kompetanse",
+      "type": "avsettingskompetanse",
       "fra": "a13",
       "til": "a14",
       "objekt": null,
@@ -3308,8 +3317,8 @@
       "id": "u121",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§37/ledd-2",
       "sitat": "Daglig leder i regionalt helseforetak skal også føre tilsyn med helseforetak som det regionale helseforetaket eier",
-      "kategori": "relasjon",
-      "type": "tilsyn_med_aktor",
+      "kategori": "kompetanse",
+      "type": "tilsynskompetanse",
       "fra": "a14",
       "til": "a4",
       "objekt": null,
@@ -3340,8 +3349,8 @@
       "id": "u123",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§37/ledd-3",
       "sitat": "Slike saker kan daglig leder bare avgjøre når styret i den enkelte sak har gitt daglig leder myndighet til det",
-      "kategori": "relasjon",
-      "type": "delegerer_til",
+      "kategori": "kompetanse",
+      "type": "delegeringskompetanse",
       "fra": "a13",
       "til": "a14",
       "objekt": "saker av uvanlig art eller stor betydning",
@@ -3404,8 +3413,8 @@
       "id": "u127",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§37a/ledd-2",
       "sitat": "Internrevisjonen skal også omfatte helseforetakene som det regionale helseforetaket eier",
-      "kategori": "relasjon",
-      "type": "annet:reviderer",
+      "kategori": "kompetanse",
+      "type": "revisjonskompetanse",
       "fra": "a21",
       "til": "a4",
       "objekt": null,
@@ -3437,7 +3446,7 @@
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§39/ledd-1",
       "sitat": "Styret representerer foretaket utad og tegner dets firma",
       "kategori": "relasjon",
-      "type": "annet:representerer",
+      "type": "representerer",
       "fra": "a13",
       "til": "a5",
       "objekt": null,
@@ -3452,8 +3461,8 @@
       "id": "u130",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§39/ledd-2",
       "sitat": "Styret kan gi styremedlem eller daglig leder rett til å tegne foretakets firma",
-      "kategori": "relasjon",
-      "type": "delegerer_til",
+      "kategori": "kompetanse",
+      "type": "delegeringskompetanse",
       "fra": "a13",
       "til": "a14",
       "objekt": "firmategning",
@@ -3469,7 +3478,7 @@
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§39/ledd-3",
       "sitat": "Daglig leder representerer foretaket utad i saker som faller inn under dennes myndighet etter § 37",
       "kategori": "relasjon",
-      "type": "annet:representerer",
+      "type": "representerer",
       "fra": "a14",
       "til": "a5",
       "objekt": null,
@@ -3565,7 +3574,7 @@
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§43/ledd-1",
       "sitat": "Departementet kan i forskrift utfylle eller fravike bestemmelser i regnskapsloven om regnskapsføring av pensjonsforhold",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "regnskapsføring av pensjonsforhold",
@@ -3574,7 +3583,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u138",
@@ -3628,8 +3638,8 @@
       "id": "u141",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§45/ledd-1",
       "sitat": "Riksrevisjonen fører kontroll med forvaltningen av statens interesser og kan foreta undersøkelser mv. i regionalt helseforetak, helseforetak og heleide datterselskaper",
-      "kategori": "relasjon",
-      "type": "tilsyn_med_aktor",
+      "kategori": "kompetanse",
+      "type": "tilsynskompetanse",
       "fra": "a25",
       "til": "a5",
       "objekt": null,
@@ -3644,8 +3654,8 @@
       "id": "u142",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§45/ledd-1",
       "sitat": "etter lov om Riksrevisjonen og instruks fastsatt av Stortinget",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a11",
       "til": "a25",
       "objekt": null,
@@ -3814,14 +3824,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegerbar": true
     },
     {
       "id": "u153",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§52/punkt-1",
       "sitat": "Kongen kan gi nærmere overgangsbestemmelser.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "overgangsbestemmelser",
@@ -3830,7 +3841,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u154",
@@ -3932,8 +3945,8 @@
       "id": "u160",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§52/punkt-9",
       "sitat": "Departementet oppnevner tre medlemmer og varamedlemmer for disse til nemnda",
-      "kategori": "relasjon",
-      "type": "oppnevner",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a9",
       "til": "a27",
       "objekt": "3 medlemmer + vara",
@@ -3948,8 +3961,8 @@
       "id": "u161",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§52/punkt-9",
       "sitat": "Kommunenes Sentralforbund oppnevner tre medlemmer og varamedlemmer for disse til nemnda",
-      "kategori": "relasjon",
-      "type": "oppnevner",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a28",
       "til": "a27",
       "objekt": "3 medlemmer + vara",
@@ -3964,8 +3977,8 @@
       "id": "u162",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§52/punkt-9",
       "sitat": "I tillegg utpeker førstelagmannen i Borgarting leder for nemnda og leders varamedlem",
-      "kategori": "relasjon",
-      "type": "oppnevner",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a29",
       "til": "a27",
       "objekt": "leder + vara",
@@ -3981,7 +3994,7 @@
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§52/punkt-9",
       "sitat": "Departementet kan gi nærmere regler for nemndas virksomhet",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "nemndas virksomhet",
@@ -3990,7 +4003,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u164",
@@ -4029,7 +4043,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§1-2/ledd-2",
       "sitat": "Departementet kan ved forskrift eller i det enkelte tilfelle bestemme hva som er spesialisthelsetjeneste",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "hva som er spesialisthelsetjeneste",
@@ -4038,14 +4052,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Også enkeltvedtakskompetanse («i det enkelte tilfelle») — definisjonskompetanse over lovens virkeområde."
+      "kommentar": "Også enkeltvedtakskompetanse («i det enkelte tilfelle») — definisjonskompetanse over lovens virkeområde.",
+      "normform": "forskrift"
     },
     {
       "id": "u167",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§1-2/ledd-3",
       "sitat": "Kongen gir forskrifter om lovens anvendelse på Svalbard og Jan Mayen",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "lovens anvendelse på Svalbard og Jan Mayen",
@@ -4054,14 +4069,16 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u168",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§1-2/ledd-3",
       "sitat": "Kongen kan bestemme om og i hvilken utstrekning bestemmelser som er gitt i denne lov skal gjelde på norske skip i utenriksfart",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "lovens anvendelse på skip, luftfartøy og kontinentalsokkelen",
@@ -4070,14 +4087,16 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u169",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§1-3/ledd-1",
       "sitat": "Kongen kan i forskrift gjennomføre bilaterale avtaler med andre land om trygdekoordinering",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "bilaterale trygdekoordineringsavtaler",
@@ -4086,7 +4105,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u170",
@@ -4157,7 +4178,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1a/ledd-4",
       "sitat": "Kongen kan gi forskrifter med nærmere bestemmelser om pliktens innhold",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "innholdet i RHF-enes sørge-for-plikt",
@@ -4166,7 +4187,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u175",
@@ -4237,7 +4260,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1a/ledd-8",
       "sitat": "Departementet kan ved forskrift gi nærmere bestemmelser om krav til tjenester som omfattes av denne loven",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "krav til tjenester",
@@ -4246,7 +4269,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u180",
@@ -4476,8 +4500,8 @@
       "id": "u194",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1e/ledd-4",
       "sitat": "Det regionale helseforetaket kan beslutte at ett eller flere av helseforetakene det eier, skal inngå og være part i slike avtaler",
-      "kategori": "relasjon",
-      "type": "delegerer_til",
+      "kategori": "kompetanse",
+      "type": "delegeringskompetanse",
       "fra": "a2",
       "til": "a4",
       "objekt": "inngåelse av samarbeidsavtaler (hol § 6-1)",
@@ -4493,7 +4517,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-3/ledd-1",
       "sitat": "Departementet kan ved forskrift eller i det enkelte tilfelle gi bestemmelser om",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "nasjonale tjenester i sht; markedsføring",
@@ -4502,14 +4526,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u196",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-4/ledd-1",
       "sitat": "Departementet kan gi forskrifter om",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "ventelister, prioriterte pasientgrupper, RHF-rapportering av aktivitetstall",
@@ -4518,7 +4543,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u197",
@@ -4620,8 +4646,8 @@
       "id": "u203",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-4a/ledd-4",
       "sitat": "Den kliniske etikkomiteen skal utføre sine oppgaver uavhengig og selvstendig",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a4",
       "til": "a43",
       "objekt": null,
@@ -4653,7 +4679,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5/ledd-3",
       "sitat": "Kongen i statsråd kan i forskrift gi nærmere bestemmelser om hvilke pasientgrupper plikten omfatter",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "individuell plan",
@@ -4662,7 +4688,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": false
     },
     {
       "id": "u206",
@@ -4717,7 +4745,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5a/ledd-4",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om hvilke oppgaver koordinatoren skal ha",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "koordinatorens oppgaver",
@@ -4726,7 +4754,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u210",
@@ -4780,8 +4809,8 @@
       "id": "u213",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5b/ledd-1",
       "sitat": "overordnet ansvar for arbeidet med individuell plan og for oppnevning, opplæring og veiledning av koordinator",
-      "kategori": "relasjon",
-      "type": "oppnevner",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a45",
       "til": "a46",
       "objekt": null,
@@ -4797,7 +4826,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5b/ledd-2",
       "sitat": "Departementet kan gi forskrift med nærmere bestemmelser om hvilket ansvar den koordinerende enheten skal ha",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "koordinerende enhets ansvar",
@@ -4806,14 +4835,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u215",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5c/ledd-1",
       "sitat": "Helseinstitusjon som omfattes av denne loven skal oppnevne kontaktlege",
-      "kategori": "relasjon",
-      "type": "oppnevner",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a41",
       "til": "a47",
       "objekt": null,
@@ -4828,8 +4858,8 @@
       "id": "u216",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5c/ledd-4",
       "sitat": "kontaktpsykolog utnevnes i stedet for kontaktlege",
-      "kategori": "relasjon",
-      "type": "oppnevner",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a41",
       "til": "a47",
       "objekt": "kontaktpsykolog",
@@ -4845,7 +4875,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5c/ledd-5",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om hvilke pasientgrupper som omfattes og hvilke oppgaver og hvilket ansvar kontaktlegen",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "kontaktlege/kontaktpsykolog",
@@ -4854,14 +4884,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u218",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5d/ledd-1",
       "sitat": "kan departementet gi forskrift om helt eller delvis unntak fra følgende bestemmelser",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "unntak fra §§ 2-5, 2-5a, 2-5c",
@@ -4870,7 +4901,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Fravikskompetanse (midlertidig)."
+      "kommentar": "Fravikskompetanse (midlertidig).",
+      "normform": "forskrift"
     },
     {
       "id": "u219",
@@ -4893,7 +4925,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-6/ledd-2",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om ordningens omfang og innhold",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "utskrivningsklare pasienter, betalingssatser",
@@ -4902,7 +4934,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u221",
@@ -4941,7 +4974,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-1/ledd-5",
       "sitat": "Departementet kan gi forskrift om det nærmere innhold i plikten til å yte øyeblikkelig hjelp",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "øyeblikkelig hjelp",
@@ -4950,7 +4983,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u224",
@@ -5053,7 +5087,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-4/ledd-3",
       "sitat": "Departementet kan ved forskrift gi nærmere bestemmelser om utvalgenes arbeid",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "kvalitets- og pasientsikkerhetsutvalg",
@@ -5062,14 +5096,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u231",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-4a/ledd-2",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om plikten etter første ledd",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "kvalitetsforbedring og pasientsikkerhet",
@@ -5078,7 +5113,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u232",
@@ -5101,7 +5137,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-5/ledd-2",
       "sitat": "Departementet kan gi forskrifter om plikten til å delta i undervisning og opplæring",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "undervisning og opplæring",
@@ -5110,14 +5146,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u234",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-6/ledd-1",
       "sitat": "Departementet kan gi forskrift om helseinstitusjonenes særlige plikter i forhold til barn",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "barns institusjonsopphold",
@@ -5126,7 +5163,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u235",
@@ -5149,7 +5187,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-7a/ledd-2",
       "sitat": "Departementet kan gi nærmere bestemmelser om barneansvarlig personell i forskrift",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "barneansvarlig personell",
@@ -5158,14 +5196,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u237",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-8a/ledd-1",
       "sitat": "Departementet kan i forskrift stille vilkår for bruk av betegnelsen sykehus",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "betegnelsen sykehus",
@@ -5174,14 +5213,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u238",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-8a/ledd-2",
       "sitat": "Departementet kan fastsette regler om overtredelsesgebyr",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "overtredelsesgebyr for misbruk av betegnelsen sykehus",
@@ -5190,7 +5230,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "middels",
-      "kommentar": "Sanksjonshjemmel; hvem som ilegger gebyret er ikke angitt."
+      "kommentar": "Sanksjonshjemmel; hvem som ilegger gebyret er ikke angitt.",
+      "normform": "forskrift"
     },
     {
       "id": "u239",
@@ -5213,7 +5254,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-9/ledd-1",
       "sitat": "Departementet kan i forskrift kreve at lederen skal ha bestemte kvalifikasjoner",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "lederkvalifikasjoner i sykehus",
@@ -5222,7 +5263,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u241",
@@ -5245,7 +5287,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-11/ledd-5",
       "sitat": "Departementet kan gi forskrift om det nærmere innhold i informasjonsplikten",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "informasjonsplikt",
@@ -5254,14 +5296,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u243",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-12/ledd-2",
       "sitat": "Kongen kan fastsette nærmere forskrifter om den kommunale helse- og omsorgstjenestens og sosialtjenestens adgang til å henvise",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "henvisning til TSB",
@@ -5270,7 +5313,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u244",
@@ -5309,7 +5354,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-14/ledd-2",
       "sitat": "Kongen kan gi forskrift om gjennomføringen av opphold ved institusjoner som tilbyr behandling for rusmiddelavhengighet",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "opphold i TSB-institusjoner, herunder klage og tvangstiltak",
@@ -5318,14 +5363,16 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u247",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-16/ledd-1",
       "sitat": "Kongen kan gi forskrift med nærmere regler om legemiddelassistert rehabilitering",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "LAR",
@@ -5334,7 +5381,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u248",
@@ -5357,7 +5406,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§4-1/ledd-1",
       "sitat": "Departementet kan gi forskrift om krav til godkjenning av virksomheter og helsetjenester",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "godkjenning av virksomheter",
@@ -5366,7 +5415,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u250",
@@ -5389,7 +5439,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§4-1/ledd-2",
       "sitat": "Departementet kan gi forskrift om krav til godkjenning av private virksomheter og helsetjenester",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "godkjenning av private virksomheter",
@@ -5398,14 +5448,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u252",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§4-1/ledd-3",
       "sitat": "Departementet kan gi forskrift med nærmere bestemmelser om vilkår for tildeling av godkjenning",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "vilkår for godkjenning",
@@ -5414,7 +5465,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u253",
@@ -5500,8 +5552,8 @@
       "id": "u258",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§4-2/ledd-3",
       "sitat": "Departementet kan sette vilkår for fordelingen",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a9",
       "til": "a2",
       "objekt": null,
@@ -5517,7 +5569,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§4-2/ledd-4",
       "sitat": "Departementet kan ved forskrift gi nærmere regler til utfylling og gjennomføring av denne bestemmelsen",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "legefordeling, avtalehjemler",
@@ -5526,7 +5578,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u260",
@@ -5549,7 +5602,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§4-4/ledd-1",
       "sitat": "felles system for å beslutte hvilke metoder som kan tilbys",
       "kategori": "kompetanse",
-      "type": "annet:beslutningskompetanse",
+      "type": "beslutningskompetanse",
       "fra": "a58",
       "til": null,
       "objekt": "hvilke metoder som kan tilbys i sht",
@@ -5565,7 +5618,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§4-4/ledd-2",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om organiseringen av og saksbehandlingen i systemet",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "organisering av metodesystemet",
@@ -5574,7 +5627,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u263",
@@ -5725,7 +5779,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-2/ledd-4",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om utgiftsdekningen",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "utgiftsdekning EØS",
@@ -5734,14 +5788,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u273",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-2/ledd-5",
       "sitat": "Departementet kan gi forskrift om beregning av utgifter som nevnt i første og annet ledd",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "refusjonsberegning",
@@ -5750,7 +5805,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Hjemmel for den ledsagende refusjonsforskriften."
+      "kommentar": "Hjemmel for den ledsagende refusjonsforskriften.",
+      "normform": "forskrift"
     },
     {
       "id": "u274",
@@ -5773,7 +5829,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-2/ledd-6",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om finansieringen av laboratorie- og røntgentjenester",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "finansiering lab/røntgen",
@@ -5782,7 +5838,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u276",
@@ -5837,7 +5894,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-3/ledd-4",
       "sitat": "Departementet kan gi forskrift om beregning av behandlings- og forpleiningsutgifter",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "utgiftsberegning § 5-3",
@@ -5846,7 +5903,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u280",
@@ -5869,7 +5927,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-4/ledd-2",
       "sitat": "Departementet kan gi forskrift om hvilke utgifter som omfattes av første ledd",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "kontrollkommisjonenes utgifter",
@@ -5878,14 +5936,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u282",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-5/ledd-1",
       "sitat": "Departementet kan gi forskrift om:",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "pasienters egenbetaling",
@@ -5894,7 +5953,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u283",
@@ -5917,7 +5977,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-5/ledd-3",
       "sitat": "Departementet kan ved forskrift gi nærmere bestemmelser om innholdet etter annet ledd",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "egenbetaling ved omskjæring",
@@ -5926,7 +5986,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u285",
@@ -6060,8 +6121,8 @@
       "id": "u293",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§7-3/ledd-1",
       "sitat": "Departementet kan bestemme på hvilke områder direktoratet skal utarbeide slike retningslinjer og veiledere",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a9",
       "til": "a35",
       "objekt": null,
@@ -6093,7 +6154,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§8-1/ledd-1",
       "sitat": "Kongen kan gi forskrifter i den utstrekning det er nødvendig for å oppfylle internasjonale overenskomster",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "internasjonale overenskomster",
@@ -6102,7 +6163,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u296",
@@ -6118,7 +6181,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegerbar": true
     },
     {
       "id": "u297",

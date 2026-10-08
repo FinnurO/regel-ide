@@ -67,7 +67,7 @@ public class StrukturkantTjenesteTests
         var tjeneste = new StrukturkantTjeneste(db);
 
         var r = await tjeneste.OpprettAsync(new NyStrukturkant(
-            Strukturkanter.Relasjon, "klageinstans_for", Kantnode.Virksomhet(fra), Kantnode.Virksomhet(til),
+            Strukturkanter.Kompetanse, "klage", Kantnode.Virksomhet(fra), Kantnode.Virksomhet(til),
             HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid, Polaritet: "positiv"), "Kari Jurist");
 
         Assert.True(r.VarNy);
@@ -80,8 +80,10 @@ public class StrukturkantTjenesteTests
         var tilSiden = Assert.Single(await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(til)));
         Assert.Equal("fra", fraSiden.Retning);
         Assert.Equal("til", tilSiden.Retning);
-        Assert.StartsWith("er klageinstans for ", fraSiden.Visningstekst);
-        Assert.StartsWith("har klageinstans hos ", tilSiden.Visningstekst);
+        // [ENDRET, issue #341] Klageinstans er K klage med motpart: «har klagekompetanse overfor B» / «A har … overfor denne».
+        Assert.StartsWith("har klagekompetanse overfor Statsforvalteren", fraSiden.Visningstekst);
+        Assert.StartsWith("Lokal nemnd", tilSiden.Visningstekst);
+        Assert.EndsWith(" har klagekompetanse overfor denne", tilSiden.Visningstekst);
     }
 
     [Fact]
@@ -93,14 +95,16 @@ public class StrukturkantTjenesteTests
         var tjeneste = new StrukturkantTjeneste(db);
 
         var k = await tjeneste.OpprettAsync(new NyStrukturkant(
-            Strukturkanter.Kompetanse, "forskrift", Kantnode.Virksomhet(dep), Til: null,
+            Strukturkanter.Kompetanse, Strukturkanter.Normgivning, Kantnode.Virksomhet(dep), Til: null, Normform: "forskrift",
             HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid,
             Paragrafspenn: [new ParagrafspennPar(o.ParagrafEid, o.AnnenParagrafEid)],
             Objekt: "salgs- og skjenketider", Polaritet: "positiv"), "Kari Jurist");
 
         var v = Assert.Single(await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(dep), Strukturkanter.Kompetanse));
         Assert.Null(v.Til);
-        Assert.Equal("har forskriftskompetanse: salgs- og skjenketider", v.Visningstekst);
+        // [ENDRET, issue #341] Forskriftskompetanse er normgivning med normform forskrift.
+        Assert.Equal("har normgivningskompetanse (forskrift) salgs- og skjenketider", v.Visningstekst);
+        Assert.Equal("forskrift", v.Normform);
         Assert.Equal(new ParagrafspennPar(o.ParagrafEid, o.AnnenParagrafEid), Assert.Single(v.Paragrafspenn));
         Assert.Equal(k.Kant.Id, v.Id);
     }
@@ -132,12 +136,10 @@ public class StrukturkantTjenesteTests
         var klasse = await NyttBegrepAsync(db, Nodetyper.Klasse, o.LovId, "språkutviklingskommuner");
         var omrade = await NyttBegrepAsync(db, Nodetyper.Omrade, o.LovId, "forvaltningsområdet");
         var tjeneste = new StrukturkantTjeneste(db);
-        var spenn = new[] { new ParagrafspennPar(o.ForskriftEid, null) };
-
         await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Medlemskap, Strukturkanter.MedlemAv,
-            Kantnode.Virksomhet(kommune), Kantnode.Begrep(klasse), HjemmelRettskildeId: o.ForskriftId, Paragrafspenn: spenn), "Kari Jurist");
+            Kantnode.Virksomhet(kommune), Kantnode.Begrep(klasse), HjemmelRettskildeId: o.ForskriftId, HjemmelEid: o.ForskriftEid), "Kari Jurist");
         await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Medlemskap, Strukturkanter.MedlemAv,
-            Kantnode.Begrep(klasse), Kantnode.Begrep(omrade), HjemmelRettskildeId: o.ForskriftId, Paragrafspenn: spenn), "Kari Jurist");
+            Kantnode.Begrep(klasse), Kantnode.Begrep(omrade), HjemmelRettskildeId: o.ForskriftId, HjemmelEid: o.ForskriftEid), "Kari Jurist");
 
         var forKlassen = await tjeneste.HentForNodeAsync(Kantnode.Begrep(klasse), Strukturkanter.Medlemskap);
         Assert.Equal(2, forKlassen.Count);
@@ -146,7 +148,7 @@ public class StrukturkantTjenesteTests
     }
 
     [Fact]
-    public async Task M_og_I_krever_paragrafspenn_naar_hjemmelen_er_i_korpus()
+    public async Task M_og_I_krever_hjemmelssted_naar_hjemmelen_er_i_korpus() // [ENDRET, #341] var «…krever_paragrafspenn…»
     {
         await using var db = _fixture.NyDbContext();
         var o = await NyttOppsettAsync(db);
@@ -155,7 +157,7 @@ public class StrukturkantTjenesteTests
         var ex = await Assert.ThrowsAsync<ArgumentException>(() => new StrukturkantTjeneste(db).OpprettAsync(new NyStrukturkant(
             Strukturkanter.Medlemskap, Strukturkanter.MedlemAv, Kantnode.Virksomhet(v), Kantnode.Begrep(klasse),
             HjemmelRettskildeId: o.LovId), "Kari Jurist"));
-        Assert.Contains("paragrafspenn", ex.Message);
+        Assert.Contains("hjemmel-eId", ex.Message);
     }
 
     [Fact]
@@ -167,19 +169,23 @@ public class StrukturkantTjenesteTests
         var rolle = await NyttBegrepAsync(db, Nodetyper.Rolle, o.LovId, "konsesjonsmyndigheten");
         var klasse = await NyttBegrepAsync(db, Nodetyper.Klasse, o.LovId, "direktorater");
         var tjeneste = new StrukturkantTjeneste(db);
-        var spenn = new[] { new ParagrafspennPar(o.ParagrafEid, null) };
+        // [ENDRET, issue #341] Hjemmelsstedet er hjemmel-eId; avgrensningen er «hvilke paragrafer den gjelder for».
+        var avgrensning = new[] { new ParagrafspennPar(o.AnnenParagrafEid, null) };
 
-        var i = await tjeneste.OpprettTildelingAsync(nve, rolle, o.LovId, spenn, "bare konsesjoner etter § 3-1", "Kari Jurist");
-        var m = await tjeneste.OpprettTildelingAsync(nve, klasse, o.LovId, spenn, null, "Kari Jurist");
+        var i = await tjeneste.OpprettTildelingAsync(nve, rolle, o.LovId, o.ParagrafEid, avgrensning, "bare konsesjoner etter § 3-1", "Kari Jurist");
+        var m = await tjeneste.OpprettTildelingAsync(nve, klasse, o.LovId, o.ParagrafEid, null, null, "Kari Jurist");
 
         Assert.Equal((Strukturkanter.Rolleinnehav, Strukturkanter.Innehar), (i.Kant.Kategori, i.Kant.Typekode));
+        Assert.Equal(o.ParagrafEid, i.Kant.HjemmelEid);
+        Assert.Equal(o.AnnenParagrafEid, Assert.Single(StrukturkantTjeneste.LesParagrafspenn(i.Kant)).FraEid);
+        Assert.Equal((o.ParagrafEid, "[]"), (m.Kant.HjemmelEid, m.Kant.AvgrensningParagrafspennJson));
         Assert.Equal("bare konsesjoner etter § 3-1", i.Kant.AvgrensningTekst);
         Assert.Equal((Strukturkanter.Medlemskap, Strukturkanter.MedlemAv), (m.Kant.Kategori, m.Kant.Typekode));
 
         // M til en rolle er feil kategori — rolleinnehav arves ikke (docs/33 §4.2), så det må være I.
         var ex = await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
             Strukturkanter.Medlemskap, Strukturkanter.MedlemAv, Kantnode.Virksomhet(nve), Kantnode.Begrep(rolle),
-            HjemmelRettskildeId: o.LovId, Paragrafspenn: spenn), "Kari Jurist"));
+            HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid), "Kari Jurist"));
         Assert.Contains("rolle", ex.Message);
     }
 
@@ -242,7 +248,7 @@ public class StrukturkantTjenesteTests
         var o = await NyttOppsettAsync(db);
         var (dep, nemnd) = (await NyVirksomhetAsync(db, "Departementet"), await NyVirksomhetAsync(db, "Klagenemnda"));
         var tjeneste = new StrukturkantTjeneste(db);
-        NyStrukturkant Kant(string polaritet) => new(Strukturkanter.Relasjon, "instruksjon",
+        NyStrukturkant Kant(string polaritet) => new(Strukturkanter.Kompetanse, "instruksjon",
             Kantnode.Virksomhet(dep), Kantnode.Virksomhet(nemnd), HjemmelRettskildeId: o.LovId, Polaritet: polaritet);
 
         var negativ = await tjeneste.OpprettAsync(Kant("negativ"), "Kari Jurist");
@@ -325,13 +331,13 @@ public class StrukturkantTjenesteTests
             KildeUtenforKorpusType: "forarbeider", KildeUtenforKorpusDokumentasjon: Strukturkanter.Primaer, Polaritet: "positiv"), "Kari Jurist");
         Assert.Equal(("forarbeider", "primaer"), (sekretariat.Kant.KildeUtenforKorpusType, sekretariat.Kant.KildeUtenforKorpusDokumentasjon));
 
-        var oppnevnerEtterLoven = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "oppnevner",
+        var oppnevnerEtterLoven = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "oppnevning",
             Kantnode.Virksomhet(kongen), Kantnode.Virksomhet(tilsyn), HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid,
             Polaritet: "positiv"), "Kari Jurist");
         Assert.Null(oppnevnerEtterLoven.Kant.KildeUtenforKorpusType);
         Assert.Null(oppnevnerEtterLoven.Kant.KildeUtenforKorpusDokumentasjon);
 
-        var forsteOppnevning = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "oppnevner",
+        var forsteOppnevning = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "oppnevning",
             Kantnode.Virksomhet(kongen), Kantnode.Virksomhet(tilsyn),
             KildeUtenforKorpusTekst: "Kgl.res. 15. mai 2002 (Offisielt fra statsråd) — de første medlemmene og lederen",
             KildeUtenforKorpusLenke: "https://www.regjeringen.no/no/aktuelt/offisielt-fra-statsrad-15-mai-2002-/id101763/",
@@ -341,7 +347,7 @@ public class StrukturkantTjenesteTests
 
         var forUtvalget = await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(tilsyn));
         Assert.DoesNotContain(forUtvalget, k => k.Typekode == "oppretter");
-        Assert.Equal(2, forUtvalget.Count(k => k.Typekode == "oppnevner"));
+        Assert.Equal(2, forUtvalget.Count(k => k.Typekode == "oppnevning"));
         // Forarbeidene er en anerkjent rettskildetype — kanten havner IKKE på nettside-arbeidslista.
         Assert.DoesNotContain(await tjeneste.HentUtenKorpusforankringAsync(Strukturkanter.NettsideAnnet), k => k.Id == sekretariat.Kant.Id);
         Assert.Contains(await tjeneste.HentUtenKorpusforankringAsync("forarbeider"), k => k.Id == sekretariat.Kant.Id);
@@ -363,10 +369,10 @@ public class StrukturkantTjenesteTests
         var bareNettside = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "sekretariat_for",
             Kantnode.Virksomhet(a), Kantnode.Virksomhet(b), KildeUtenforKorpusTekst: "organisasjonskartet",
             KildeUtenforKorpusType: Strukturkanter.NettsideAnnet, KildeUtenforKorpusDokumentasjon: Strukturkanter.Primaer), "Kari Jurist");
-        var instruks = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "instruksjon",
+        var instruks = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "instruksjon",
             Kantnode.Virksomhet(c), Kantnode.Virksomhet(b), KildeUtenforKorpusTekst: "instruks for nemnda",
             KildeUtenforKorpusType: "instruks", KildeUtenforKorpusDokumentasjon: Strukturkanter.Sekundaer), "Kari Jurist");
-        var hjemlet = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "klageinstans_for",
+        var hjemlet = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "klage",
             Kantnode.Virksomhet(b), Kantnode.Virksomhet(c), HjemmelRettskildeId: o.LovId), "Kari Jurist");
         Assert.Null(hjemlet.Kant.KildeUtenforKorpusType);
 
@@ -408,10 +414,10 @@ public class StrukturkantTjenesteTests
         var (a, b) = (await NyVirksomhetAsync(db), await NyVirksomhetAsync(db));
         var tjeneste = new StrukturkantTjeneste(db);
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
-            Strukturkanter.Relasjon, "delegerer_til", Kantnode.Virksomhet(a), Kantnode.Virksomhet(b),
+            Strukturkanter.Relasjon, Strukturkanter.HarDelegertTil, Kantnode.Virksomhet(a), Kantnode.Virksomhet(b),
             HjemmelRettskildeId: o.LovId, Paragrafspenn: [new ParagrafspennPar("finnes/ikke", null)]), "Kari Jurist"));
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
-            Strukturkanter.Relasjon, "delegerer_til", Kantnode.Virksomhet(a), Kantnode.Virksomhet(b),
+            Strukturkanter.Relasjon, Strukturkanter.HarDelegertTil, Kantnode.Virksomhet(a), Kantnode.Virksomhet(b),
             HjemmelRettskildeId: o.LovId, HjemmelEid: o.ForskriftEid), "Kari Jurist")); // eId fra en ANNEN rettskilde
     }
 
@@ -422,9 +428,9 @@ public class StrukturkantTjenesteTests
         var o = await NyttOppsettAsync(db);
         var (a, b) = (await NyVirksomhetAsync(db), await NyVirksomhetAsync(db));
         var tjeneste = new StrukturkantTjeneste(db);
-        // 'forskrift' er en K-type, ikke en R-type.
+        // 'normgivning' er en K-type, ikke en R-type. [ENDRET, #341: var 'forskrift', som ikke finnes lenger.]
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
-            Strukturkanter.Relasjon, "forskrift", Kantnode.Virksomhet(a), Kantnode.Virksomhet(b), HjemmelRettskildeId: o.LovId), "Kari Jurist"));
+            Strukturkanter.Relasjon, Strukturkanter.Normgivning, Kantnode.Virksomhet(a), Kantnode.Virksomhet(b), HjemmelRettskildeId: o.LovId), "Kari Jurist"));
 
         var inaktiv = Unik("inaktiv");
         db.RelasjonsTypeKonfigurasjoner.Add(new RelasjonsTypeKonfigurasjonEntitet
@@ -469,10 +475,9 @@ public class StrukturkantTjenesteTests
         var c = await NyttBegrepAsync(db, Nodetyper.Klasse, o.LovId, "C");
         var d = await NyttBegrepAsync(db, Nodetyper.Klasse, o.LovId, "D");
         var tjeneste = new StrukturkantTjeneste(db);
-        var spenn = new[] { new ParagrafspennPar(o.ParagrafEid, null) };
         Task<StrukturkantOpprettet> Medlem(Guid fra, Guid til) => tjeneste.OpprettAsync(new NyStrukturkant(
             Strukturkanter.Medlemskap, Strukturkanter.MedlemAv, Kantnode.Begrep(fra), Kantnode.Begrep(til),
-            HjemmelRettskildeId: o.LovId, Paragrafspenn: spenn), "Kari Jurist");
+            HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid), "Kari Jurist");
 
         await Medlem(a, b);  // A ⊂ B
         await Medlem(b, c);  // B ⊂ C
@@ -559,7 +564,7 @@ public class StrukturkantTjenesteTests
         // En validert kant avvises ikke — den slettes.
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.AvvisAsync(forslag.Kant.Id));
 
-        var mønster = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "oppnevner",
+        var mønster = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "oppnevning",
             Kantnode.Virksomhet(a), Kantnode.Virksomhet(c), HjemmelRettskildeId: o.LovId,
             Status: "foreslatt_av_ai", OppdagelsesKilde: "monster:oppnevnes-av"), "mønsterlaget");
         Assert.Equal("monster:oppnevnes-av", mønster.Kant.OppdagelsesKilde);
@@ -593,10 +598,8 @@ public class StrukturkantTjenesteTests
         var klasse1 = await NyttBegrepAsync(db, Nodetyper.Klasse, o.LovId, "vertskommuner");
         var klasse2 = await NyttBegrepAsync(db, Nodetyper.Klasse, o.LovId, "gamle-vertskommuner");
         var tjeneste = new StrukturkantTjeneste(db);
-        var spenn = new[] { new ParagrafspennPar(o.ParagrafEid, null) };
-
-        await tjeneste.OpprettTildelingAsync(v, klasse1, o.LovId, spenn, null, "Kari Jurist");
-        await tjeneste.OpprettTildelingAsync(v, klasse2, o.LovId, spenn, null, "Kari Jurist",
+        await tjeneste.OpprettTildelingAsync(v, klasse1, o.LovId, o.ParagrafEid, null, null, "Kari Jurist");
+        await tjeneste.OpprettTildelingAsync(v, klasse2, o.LovId, o.ParagrafEid, null, null, "Kari Jurist",
             gyldigFra: new DateOnly(2020, 1, 1), gyldigTil: new DateOnly(2021, 1, 1));
 
         var alle = await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(v), Strukturkanter.Medlemskap);
@@ -628,7 +631,7 @@ public class StrukturkantTjenesteTests
             navneformgrunn: VirksomhetVisningsnavnTjeneste.VisningsGrunn);
         var tjeneste = new StrukturkantTjeneste(db);
 
-        var hjemlet = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "klageinstans_for",
+        var hjemlet = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "klage",
             Kantnode.Virksomhet(a), Kantnode.Virksomhet(b), HjemmelRettskildeId: o.ForskriftId), "Kari Jurist");
         await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "sekretariat_for",
             Kantnode.Virksomhet(c), Kantnode.Virksomhet(b), KildeUtenforKorpusTekst: "org-kart",
@@ -637,7 +640,7 @@ public class StrukturkantTjenesteTests
         var forForskriften = await tjeneste.HentForHjemmelRettskildeAsync(o.ForskriftId);
         var v = Assert.Single(forForskriften, x => x.Id == hjemlet.Kant.Id);
         Assert.Null(v.Retning);
-        Assert.StartsWith($"{lesbart} er klageinstans for ", v.Visningstekst);
+        Assert.StartsWith($"{lesbart} har klagekompetanse overfor ", v.Visningstekst);
         Assert.DoesNotContain(forForskriften, x => x.KildeUtenforKorpusTekst == "org-kart");
     }
 
@@ -660,7 +663,8 @@ public class StrukturkantTjenesteTests
             var ex = await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
                 Strukturkanter.Relasjon, gammel, Kantnode.Virksomhet(a), Kantnode.Virksomhet(b), HjemmelRettskildeId: o.LovId), "Kari Jurist"));
             Assert.Contains($"Ukjent typekode '{gammel}'", ex.Message);
-            // Målkoden finnes og er aktiv i riktig kategori.
+            // Målkoden finnes og er aktiv i riktig kategori — med mindre #341 har flyttet den videre (klageinstans_for → K klage).
+            if (KompetanseMigrering.FjernedeKoder.Contains((nyKategori, nyKode))) continue;
             Assert.True(await db.RelasjonsTypeKonfigurasjoner.AnyAsync(t => t.Kategori == nyKategori && t.Kode == nyKode && t.Aktiv));
         }
     }
@@ -674,7 +678,7 @@ public class StrukturkantTjenesteTests
         var o = await NyttOppsettAsync(db);
         var (dep, nemnd) = (await NyVirksomhetAsync(db, "Departementet"), await NyVirksomhetAsync(db, "Klagenemnda"));
         var tjeneste = new StrukturkantTjeneste(db);
-        var kant = (await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "klageinstans_for",
+        var kant = (await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "klage",
             Kantnode.Virksomhet(dep), Kantnode.Virksomhet(nemnd), HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid), "Kari Jurist")).Kant;
 
         var oppdatert = await tjeneste.OppdaterAvgrensningAsync(kant.Id, [new ParagrafspennPar(o.ParagrafEid, null)],
@@ -684,7 +688,7 @@ public class StrukturkantTjenesteTests
         var lagret = await db.Strukturkanter.SingleAsync(k => k.Id == kant.Id);
         Assert.Equal("enkeltvedtak nemnda treffer i første instans", lagret.AvgrensningTekst);
         Assert.Equal(o.ParagrafEid, Assert.Single(StrukturkantTjeneste.LesParagrafspenn(lagret)).FraEid);
-        Assert.Equal(("klageinstans_for", dep, nemnd), (lagret.Typekode, lagret.FraVirksomhetId!.Value, lagret.TilVirksomhetId!.Value));
+        Assert.Equal(("klage", dep, nemnd), (lagret.Typekode, lagret.FraVirksomhetId!.Value, lagret.TilVirksomhetId!.Value));
         Assert.Equal("Johann", lagret.SistEndretAv);
         var prov = await db.Proveniens.SingleAsync(p => p.EntitetId == kant.Id && p.Handling == "endret");
         using (var refs = System.Text.Json.JsonDocument.Parse(prov.KildeReferanserJson!))
@@ -704,23 +708,178 @@ public class StrukturkantTjenesteTests
         Assert.Null(await tjeneste.OppdaterAvgrensningAsync(Guid.NewGuid(), [], null, "Johann"));
 
         // En endring som ville gjort kanten identisk med en annen, avvises (idempotensnøkkelen).
-        var tvilling = (await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "klageinstans_for",
-            Kantnode.Virksomhet(dep), Kantnode.Virksomhet(nemnd), HjemmelRettskildeId: o.LovId,
+        var tvilling = (await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "klage",
+            Kantnode.Virksomhet(dep), Kantnode.Virksomhet(nemnd), HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid,
             Paragrafspenn: [new ParagrafspennPar(o.AnnenParagrafEid, null)]), "Kari Jurist")).Kant;
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OppdaterAvgrensningAsync(tvilling.Id,
             [new ParagrafspennPar(o.ParagrafEid, null)], null, "Johann"));
     }
 
-    /// <summary>[Ny, issue #330] M/I med hjemmel krever spenn også ved oppdatering (samme regel som opprettelsen).</summary>
+    /// <summary>[ENDRET, issue #341] Het «Avgrensning_kan_ikke_fjerne_paakrevd_spenn_paa_medlemskap». Kravet på M/I gjelder nå
+    /// HVOR det står (hjemmel-eId), ikke avgrensningen — så avgrensningen kan tømmes, og hjemmelsstedet står.</summary>
     [Fact]
-    public async Task Avgrensning_kan_ikke_fjerne_paakrevd_spenn_paa_medlemskap()
+    public async Task Avgrensning_kan_tommes_paa_medlemskap_fordi_hjemmelsstedet_er_hjemmel_eid()
     {
         await using var db = _fixture.NyDbContext();
         var o = await NyttOppsettAsync(db);
         var v = await NyVirksomhetAsync(db);
         var klasse = await NyttBegrepAsync(db, Nodetyper.Klasse, o.LovId, "klasse");
         var tjeneste = new StrukturkantTjeneste(db);
-        var m = await tjeneste.OpprettTildelingAsync(v, klasse, o.LovId, [new ParagrafspennPar(o.ParagrafEid, null)], null, "Kari Jurist");
-        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OppdaterAvgrensningAsync(m.Kant.Id, [], "uten spenn", "Johann"));
+        var m = await tjeneste.OpprettTildelingAsync(v, klasse, o.LovId, o.ParagrafEid, [new ParagrafspennPar(o.AnnenParagrafEid, null)], null, "Kari Jurist");
+        var etter = await tjeneste.OppdaterAvgrensningAsync(m.Kant.Id, [], null, "Johann");
+        Assert.Equal(("[]", o.ParagrafEid), (etter!.AvgrensningParagrafspennJson, etter.HjemmelEid));
+    }
+
+    [Fact]
+    public async Task M_og_I_med_hjemmel_krever_hjemmelssted_ikke_avgrensning()
+    {
+        await using var db = _fixture.NyDbContext();
+        var o = await NyttOppsettAsync(db);
+        var v = await NyVirksomhetAsync(db);
+        var klasse = await NyttBegrepAsync(db, Nodetyper.Klasse, o.LovId, "klasse");
+        var tjeneste = new StrukturkantTjeneste(db);
+        // Bare et avgrensningsspenn (slik #311 lagret hjemmelsstedet) holder ikke lenger.
+        var ex = await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
+            Strukturkanter.Medlemskap, Strukturkanter.MedlemAv, Kantnode.Virksomhet(v), Kantnode.Begrep(klasse),
+            HjemmelRettskildeId: o.LovId, Paragrafspenn: [new ParagrafspennPar(o.ParagrafEid, null)]), "Kari Jurist"));
+        Assert.Contains("hjemmel-eId", ex.Message);
+    }
+
+    // ---------------- Issue #341: kompetanse med motpart og typologi ----------------
+
+    /// <summary>[Ny, issue #341 AC1] R tar ikke lenger myndighetstyper: de flyttede kodene finnes ikke i startsettet eller i
+    /// konfigurasjonen og avvises — mens K-typen med samme betydning tar motparten som til-node.</summary>
+    [Fact]
+    public async Task R_tar_ikke_lenger_myndighetstyper_de_er_K_med_motpart()
+    {
+        await using var db = _fixture.NyDbContext();
+        var o = await NyttOppsettAsync(db);
+        var (a, b) = (await NyVirksomhetAsync(db, "Klagenemnda"), await NyVirksomhetAsync(db, "Direktoratet"));
+        var tjeneste = new StrukturkantTjeneste(db);
+
+        foreach (var kode in new[] { "klageinstans_for", "instruksjon", "omgjoring", "oppnevner", "delegerer_til" })
+        {
+            Assert.DoesNotContain(Strukturkanter.Startsett, t => t.Kategori == Strukturkanter.Relasjon && t.Kode == kode);
+            var ex = await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
+                Strukturkanter.Relasjon, kode, Kantnode.Virksomhet(a), Kantnode.Virksomhet(b), HjemmelRettskildeId: o.LovId), "Kari Jurist"));
+            Assert.Contains("Ukjent typekode", ex.Message);
+        }
+        // R er struktur uten myndighet (P1) + den gjennomførte delegeringen.
+        foreach (var kode in new[] { "eies_av", "ledes_av", "sekretariat_for", "rapporterer_til", "etterfolger", "representerer", Strukturkanter.HarDelegertTil })
+        {
+            Assert.Contains(Strukturkanter.Startsett, t => t.Kategori == Strukturkanter.Relasjon && t.Kode == kode);
+        }
+
+        var klage = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "klage",
+            Kantnode.Virksomhet(a), Kantnode.Virksomhet(b), HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid,
+            Objekt: "enkeltvedtak i første instans"), "Kari Jurist");
+        var v = Assert.Single(await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(a), Strukturkanter.Kompetanse));
+        Assert.Equal(klage.Kant.Id, v.Id);
+        Assert.StartsWith("har klagekompetanse overfor Direktoratet", v.Visningstekst);
+        Assert.EndsWith("— enkeltvedtak i første instans", v.Visningstekst);
+        Assert.Equal("klage_overproving", v.Familie);
+    }
+
+    /// <summary>[Ny, issue #341] Normform bare på normgivning (lukket liste), grunnlag og delegerbar bare på K — og ingen
+    /// standardverdi.</summary>
+    [Fact]
+    public async Task Normform_grunnlag_og_delegerbar_valideres_og_lagres()
+    {
+        await using var db = _fixture.NyDbContext();
+        var o = await NyttOppsettAsync(db);
+        var (kongen, morselskap, nett) = (await NyVirksomhetAsync(db, "Kongen i statsråd"), await NyVirksomhetAsync(db, "Morselskapet"),
+            await NyVirksomhetAsync(db, "Nettforetaket"));
+        var tjeneste = new StrukturkantTjeneste(db);
+
+        var forskrift = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, Strukturkanter.Normgivning,
+            Kantnode.Virksomhet(kongen), null, HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid, Objekt: "skjenketider",
+            Normform: "forskrift", Delegerbar: false), "Kari Jurist");
+        Assert.Equal(("forskrift", (bool?)false), (forskrift.Kant.Normform, forskrift.Kant.Delegerbar));
+        var v = Assert.Single(await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(kongen)));
+        Assert.Equal(("normgivning", "forskrift"), (v.Familie, v.FvlKategori)); // fvl-kategorien følger normformen
+
+        var privat = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "instruksjon",
+            Kantnode.Virksomhet(morselskap), Kantnode.Virksomhet(nett), HjemmelRettskildeId: o.LovId, Polaritet: "negativ",
+            Grunnlag: "privatrettslig"), "Kari Jurist");
+        Assert.Equal("privatrettslig", privat.Kant.Grunnlag);
+
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "vedtak",
+            Kantnode.Virksomhet(kongen), null, HjemmelRettskildeId: o.LovId, Objekt: "x", Normform: "forskrift"), "Kari Jurist"));
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, Strukturkanter.Normgivning,
+            Kantnode.Virksomhet(kongen), null, HjemmelRettskildeId: o.LovId, Objekt: "x", Normform: "rundskriv"), "Kari Jurist"));
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "instruksjon",
+            Kantnode.Virksomhet(morselskap), Kantnode.Virksomhet(nett), HjemmelRettskildeId: o.LovId, Grunnlag: "kontrakt"), "Kari Jurist"));
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "eies_av",
+            Kantnode.Virksomhet(nett), Kantnode.Virksomhet(morselskap), HjemmelRettskildeId: o.LovId, Grunnlag: "privatrettslig"), "Kari Jurist"));
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "eies_av",
+            Kantnode.Virksomhet(nett), Kantnode.Virksomhet(morselskap), HjemmelRettskildeId: o.LovId, Delegerbar: true), "Kari Jurist"));
+
+        // Samme utsagn med motsatt delegerbar er en motsigelse, ikke et nytt utsagn — og slås ikke stille sammen.
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, Strukturkanter.Normgivning,
+            Kantnode.Virksomhet(kongen), null, HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid, Objekt: "skjenketider",
+            Normform: "forskrift", Delegerbar: true), "Kari Jurist"));
+        // Uten delegerbar: samme kant returneres.
+        Assert.False((await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, Strukturkanter.Normgivning,
+            Kantnode.Virksomhet(kongen), null, HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid, Objekt: "skjenketider",
+            Normform: "forskrift"), "Kari Jurist")).VarNy);
+    }
+
+    /// <summary>[Ny, issue #341, Johanns beslutning P2] Selvregulering er normgivning der motparten er innehaveren selv — den
+    /// eneste selvkanten som er lov, i tjenesten og i databasen.</summary>
+    [Fact]
+    public async Task Selvregulering_er_normgivning_overfor_seg_selv_og_ingen_andre_selvkanter_er_lov()
+    {
+        await using var db = _fixture.NyDbContext();
+        var o = await NyttOppsettAsync(db);
+        var sameting = await NyVirksomhetAsync(db, "Sametinget");
+        var tjeneste = new StrukturkantTjeneste(db);
+
+        var selv = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, Strukturkanter.Normgivning,
+            Kantnode.Virksomhet(sameting), Kantnode.Virksomhet(sameting), HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid,
+            Normform: "arbeidsordning"), "Kari Jurist");
+        Assert.True(Strukturkanter.ErSelvregulering(selv.Kant));
+        var v = Assert.Single(await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(sameting)));
+        Assert.True(v.Selvregulering);
+        Assert.Equal("har normgivningskompetanse (arbeidsordning) overfor seg selv (selvregulering)", v.Visningstekst);
+        Assert.Null(v.FvlKategori); // en arbeidsordning er ikke automatisk en forskrift
+
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "klage",
+            Kantnode.Virksomhet(sameting), Kantnode.Virksomhet(sameting), HjemmelRettskildeId: o.LovId), "Kari Jurist"));
+        db.Strukturkanter.Add(new StrukturkantEntitet
+        {
+            Id = Guid.NewGuid(), Kategori = "K", Typekode = "klage", FraVirksomhetId = sameting, TilVirksomhetId = sameting,
+            HjemmelRettskildeId = o.LovId, OpprettetAv = "test",
+        });
+        await Assert.ThrowsAsync<DbUpdateException>(() => db.SaveChangesAsync()); // ck_strukturkanter_ikke_selv
+    }
+
+    /// <summary>[Ny, issue #341, Johanns hierarkibeslutning] Hver K-type har familien sin i konfigurasjonen (beslutning står
+    /// øverst uten familie; forelegging er ikke plassert), og kantene kan filtreres på familie.</summary>
+    [Fact]
+    public async Task Kompetansetypene_har_familie_og_kan_filtreres_paa_den()
+    {
+        await using var db = _fixture.NyDbContext();
+        var o = await NyttOppsettAsync(db);
+        foreach (var t in Strukturkanter.Kompetansetyper)
+        {
+            var rad = await db.RelasjonsTypeKonfigurasjoner.SingleAsync(k => k.Kategori == "K" && k.Kode == t.Kode);
+            Assert.Equal(t.Familie, rad.Familie);
+            Assert.Equal(t.FvlKategori, rad.FvlKategori);
+            Assert.Equal(t.Kode is Strukturkanter.Beslutning or "forelegging", rad.Familie is null);
+        }
+        Assert.Equal("normgivning", Strukturkanter.KompetansetypeFraFasit["normgivningskompetanse"]);
+        Assert.Equal("enkeltvedtak", Strukturkanter.FvlKategoriFor("vedtak", null, "enkeltvedtak"));
+        Assert.Equal("forskrift", Strukturkanter.FvlKategoriFor(Strukturkanter.Normgivning, "forskrift", null));
+        Assert.Null(Strukturkanter.FvlKategoriFor(Strukturkanter.Normgivning, "instruks", null));
+
+        var (dep, dir) = (await NyVirksomhetAsync(db, "Departementet"), await NyVirksomhetAsync(db, "Direktoratet"));
+        var tjeneste = new StrukturkantTjeneste(db);
+        await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "instruksjon", Kantnode.Virksomhet(dep),
+            Kantnode.Virksomhet(dir), HjemmelRettskildeId: o.LovId), "Kari Jurist");
+        await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "tilsyn", Kantnode.Virksomhet(dep),
+            Kantnode.Virksomhet(dir), HjemmelRettskildeId: o.LovId), "Kari Jurist");
+        var styring = await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(dep), familie: "styring");
+        Assert.Equal("instruksjon", Assert.Single(styring).Typekode);
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.HentForNodeAsync(Kantnode.Virksomhet(dep), familie: "alt"));
     }
 }

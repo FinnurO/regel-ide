@@ -3,7 +3,7 @@ import { Link as RouterLink } from 'react-router';
 import { Card, Link, Paragraph, Spinner, Table, Tag } from '@digdir/designsystemet-react';
 import { api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
-import type { RettskildeNodeDto, StrukturkantDto, Strukturkantkategori, StrukturnodeDto } from '../api/types';
+import type { Kompetansefamilie, RettskildeNodeDto, StrukturkantDto, Strukturkantkategori, StrukturnodeDto } from '../api/types';
 import { paragrafEtikett } from '../rettskilde/paragrafEtikett';
 import { Metatekst } from '../entitet/Metatekst';
 import { KILDETYPE_VISNING } from './KildeUtenforKorpus';
@@ -26,8 +26,9 @@ import { KILDETYPE_VISNING } from './KildeUtenforKorpus';
  */
 export const STRUKTURKANT_KATEGORI_VISNING: Record<Strukturkantkategori, { tekst: string; forklaring: string }> = {
   // [ENDRET, #330] «underlagt» var en av de gamle kodene — nå administrativt underordnet.
-  R: { tekst: 'Relasjon', forklaring: 'Aktør → aktør (klageinstans for, administrativt underordnet, sekretariat for …).' },
-  K: { tekst: 'Kompetanse', forklaring: 'Aktør/rolle → bestemmelse eller sakstype (forskrift, vedtak, tilsyn …).' },
+  // [ENDRET, issue #341] R er struktur UTEN myndighet; myndigheten er K med motpart (Johanns beslutning P1).
+  R: { tekst: 'Relasjon', forklaring: 'Aktør → aktør, struktur uten myndighet (eies av, ledes av, sekretariat for, etterfølger, har delegert til …).' },
+  K: { tekst: 'Kompetanse', forklaring: 'Aktør/rolle har kompetanse, eventuelt overfor en motpart (klage, instruksjon, tilsyn, normgivning, vedtak …).' },
   M: { tekst: 'Medlemskap', forklaring: 'Aktør/klasse/område → klasse eller område. Det som gjelder klassen, gjelder medlemmet.' },
   O: { tekst: 'Områdesammensetning', forklaring: 'Område → område (består av).' },
   A: { tekst: 'Ansvarsområde', forklaring: 'Aktør → område (ansvarsområde, jurisdiksjon, sete).' },
@@ -35,6 +36,22 @@ export const STRUKTURKANT_KATEGORI_VISNING: Record<Strukturkantkategori, { tekst
   I: { tekst: 'Rolleinnehav', forklaring: 'Aktør → rolle (innehar). Arves ikke.' },
   T: { tekst: 'Klassenivå', forklaring: 'Klasse → rolle/organtype: hvert medlem av klassen skal ha …' },
 };
+
+/**
+ * [Ny, issue #341, Johanns hierarkibeslutning 2026-10-08] Kompetansefamiliene i fast rekkefølge, med visningsnavn. En
+ * familie er en klassifisering (`neutral`, docs/09 §31), ikke en status. «Beslutning» står over alle familiene og har ingen.
+ */
+export const FAMILIE_VISNING: Record<Kompetansefamilie, string> = {
+  struktur: 'Struktur',
+  personell: 'Personell',
+  styring: 'Styring',
+  normgivning: 'Normgivning',
+  kontroll: 'Kontroll',
+  klage_overproving: 'Klage og overprøving',
+  vedtak: 'Vedtak',
+  sanksjon: 'Sanksjon',
+};
+export const FAMILIE_REKKEFOLGE = Object.keys(FAMILIE_VISNING) as Kompetansefamilie[];
 
 export function StrukturkantKategoriTag({ kategori }: { kategori: Strukturkantkategori }) {
   const v = STRUKTURKANT_KATEGORI_VISNING[kategori];
@@ -90,13 +107,15 @@ export interface StrukturkantTabellProps {
   visHjemmelKilde?: boolean;
   /** Ekstra kolonne med handlinger per rad (godkjenn/avvis/slett). */
   handlinger?: (kant: StrukturkantDto) => ReactNode;
+  /** [Ny, issue #341] Vis kompetansefamilien som tag — når tabellen blander familier. */
+  visFamilie?: boolean;
 }
 
 /**
  * Tabellen. Kolonner: utsagnet (med lenker og tagger), avgrensningen (paragrafspenn + tekst + egen gyldighet)
  * og hjemmelen/kilden. `Card` ALLTID rendret med tom-tilstand inni (docs/09 §14/§28).
  */
-export function StrukturkantTabell({ kanter, tomTekst, visKategori = false, visHjemmelKilde = true, handlinger }: StrukturkantTabellProps) {
+export function StrukturkantTabell({ kanter, tomTekst, visKategori = false, visHjemmelKilde = true, handlinger, visFamilie = false }: StrukturkantTabellProps) {
   // Nodene per rettskilde, for «§ 36 sjette ledd» i stedet for rå eId (docs/09 §18) — lazy, samme mønster
   // som VirksomhetDetalj hadde for tildelingene.
   const [noder, setNoder] = useState<Map<string, RettskildeNodeDto[]>>(new Map());
@@ -134,7 +153,8 @@ export function StrukturkantTabell({ kanter, tomTekst, visKategori = false, visH
           <Table.Body>
             {kanter.map((k) => {
               // Motparten er den ANDRE noden sett fra listens node; uten node (per hjemmel) lenkes begge.
-              const lenkenoder = k.retning === 'fra' ? (k.til ? [k.til] : [])
+              // [ENDRET, issue #341] Selvregulering (til = fra): ingen lenke til noden selv.
+              const lenkenoder = k.retning === 'fra' ? (k.til && k.til.id !== k.fra.id ? [k.til] : [])
                 : k.retning === 'til' ? [k.fra]
                 : [k.fra, ...(k.til ? [k.til] : [])];
               return (
@@ -145,6 +165,22 @@ export function StrukturkantTabell({ kanter, tomTekst, visKategori = false, visH
                       <span><KanttekstMedLenker tekst={k.visningstekst} noder={lenkenoder} /></span>
                       {k.polaritet === 'negativ' && (
                         <Tag data-size="sm" data-color="warning" title="Teksten sier at dette IKKE gjelder.">Negativ</Tag>
+                      )}
+                      {/* [Ny, issue #341] Kompetansens egenskaper — klassifiseringer (`neutral`), ikke statuser (docs/09 §31).
+                        * Normform og motpart står alt i utsagnsteksten. NULL vises ikke: «ikke angitt» er ikke en påstand. */}
+                      {k.kategori === 'K' && k.delegerbar !== null && (
+                        <Tag data-size="sm" data-color="neutral"
+                          title={k.delegerbar ? 'Kompetansen kan delegeres videre («Kongen …»).' : 'Kompetansen kan ikke delegeres («Kongen i statsråd …», «… selv»).'}>
+                          {k.delegerbar ? 'Kan delegeres' : 'Kan ikke delegeres'}
+                        </Tag>
+                      )}
+                      {k.kategori === 'K' && k.grunnlag && (
+                        <Tag data-size="sm" data-color="neutral" title="Kompetansens grunnlag (issue #341).">
+                          {k.grunnlag === 'privatrettslig' ? 'Privatrettslig (eierskap)' : 'Offentligrettslig'}
+                        </Tag>
+                      )}
+                      {visFamilie && k.kategori === 'K' && k.familie && (
+                        <Tag data-size="sm" data-color="neutral" title="Kompetansefamilie (issue #341).">{FAMILIE_VISNING[k.familie]}</Tag>
                       )}
                       {k.status === 'foreslatt_av_ai' && (
                         <Tag data-size="sm" data-color="info" title="Ikke bekreftet av et menneske — regnes ikke som gjeldende.">

@@ -96,8 +96,10 @@ public static class Strukturkanter
     public static readonly IReadOnlyDictionary<string, Noderegel> Noderegler = new Dictionary<string, Noderegel>
     {
         [Relasjon] = new("aktør", true, [], "aktør", true, [], false),
+        // [ENDRET, issue #341] Til-noden er MOTPARTEN («A har klagekompetanse overfor B»); uten motpart sier objekt/
+        // hjemmel/avgrensning hva kompetansen gjelder. Til = fra er lov bare for normgivning (selvregulering).
         [Kompetanse] = new("aktør eller rolle", true, [Nodetyper.Rolle],
-            "bestemmelse/sakstype (valgfri node)", true, [Nodetyper.Klasse, Nodetyper.Rolle, Nodetyper.Omrade], true),
+            "motpart (aktør, klasse, rolle eller område) — valgfri", true, [Nodetyper.Klasse, Nodetyper.Rolle, Nodetyper.Omrade], true),
         // Mål = klasse ELLER område: «språkutviklingskommuner» (klasse) er medlem av «forvaltningsområdet for
         // samiske språk» (område) — gruppe-av-gruppe-dataene fra #164 har nettopp den formen (målt 2026-10-07).
         [Medlemskap] = new("aktør, klasse eller område", true, [Nodetyper.Klasse, Nodetyper.Omrade],
@@ -110,10 +112,136 @@ public static class Strukturkanter
             [Nodetyper.Rolle, Nodetyper.Klasse], true),
     };
 
-    /// <summary>Kategoriene der en kant SKAL ha paragrafspenn når hjemmelen er i korpus — samme krav
-    /// myndighetstildeling og gruppemedlemskap hadde før #311 (docs/20 §7.1), og docs/33 §3 funn 7
-    /// («avgrensning til paragraf/ledd er påkrevd på all tildeling»).</summary>
-    public static readonly string[] KreverParagrafspenn = [Medlemskap, Rolleinnehav];
+    /// <summary>
+    /// [ENDRET, issue #341, 2026-10-08 — het <c>KreverParagrafspenn</c>] Kategoriene der en kant med hjemmel i korpus
+    /// SKAL si HVOR i hjemmelen den står (<see cref="StrukturkantEntitet.HjemmelEid"/>) — ikke hvilke paragrafer den
+    /// gjelder for.
+    /// <para>
+    /// Før #341 krevde regelen et AVGRENSNINGSSPENN på M/I, og alle skriveveiene (veiviseren, KI-oppdagelsen,
+    /// samisk-seeden) fylte det med noden der tildelingen står — altså hjemmelsstedet. #311 flyttet så
+    /// <c>Myndighetstildeling.ParagrafspennJson</c> inn i <c>avgrensning_paragrafspenn_json</c>, og 19 lokale rader
+    /// (18 M + 1 I) fikk hjemmelsstedet som avgrensning og tom <c>hjemmel_eid</c> (Johanns funn på #341). Målt
+    /// 2026-10-08: alle 19 er ETT punkt som er en node i kantens egen hjemmel. Migrasjonen
+    /// <c>KompetanseMedMotpart</c> flyttet dem til <c>hjemmel_eid</c>; avgrensningen står nå bare for «hvilke
+    /// paragrafer det gjelder for» (#314: rollen i § X avgjøres av innehavet som gjelder § X).
+    /// </para>
+    /// <para>
+    /// Merk at docs/20 §2.5 beskrev det gamle feltet som «paragrafer i LOVEN denne tildelingen dekker» (en
+    /// avgrensning), og «Legg til tilhørighet»-skjemaet bygget det fra gruppebegrepets lov. Begge betydningene har
+    /// altså vært skrevet til samme felt; migrasjonen skiller dem på om noden ligger i hjemmelen, ikke på en gjetning.
+    /// </para>
+    /// </summary>
+    public static readonly string[] KreverHjemmelsted = [Medlemskap, Rolleinnehav];
+
+    // ---------------- Kompetanse (issue #341, Johanns beslutninger 2026-10-08) ----------------
+
+    /// <summary>[Ny, issue #341] K-typen normgivning — den eneste som har en <see cref="Normformer">normform</see>.</summary>
+    public const string Normgivning = "normgivning";
+
+    /// <summary>[Ny, issue #341] R-typen for en GJENNOMFØRT delegering (Johanns beslutning 1).</summary>
+    public const string HarDelegertTil = "har_delegert_til";
+
+    /// <summary>
+    /// [Ny, issue #341, Johanns beslutning P2 2026-10-08, <c>[LÅST]</c>] Normgivningens form — speilet av CHECK
+    /// <c>ck_strukturkanter_normform</c>. «Selvregulering» er ikke en egen form eller type: den er normgivning der
+    /// til = fra (<see cref="ErSelvregulering"/>).
+    /// </summary>
+    public static readonly string[] Normformer = ["forskrift", "reglement", "arbeidsordning", "vedtekter", "instruks"];
+
+    /// <summary>
+    /// [Ny, issue #341, Johanns beslutning 3 2026-10-08, <c>[LÅST]</c>] Grunnlaget for en kompetanse — speilet av CHECK
+    /// <c>ck_strukturkanter_grunnlag</c>. <c>privatrettslig</c> = eierskap/selskapsrett (morselskapets instruksjon av et
+    /// nettforetak); samme modell, men spørrbart.
+    /// </summary>
+    public static readonly string[] Grunnlag = ["offentligrettslig", "privatrettslig"];
+
+    /// <summary>[Ny, issue #341] Selvregulering er AVLEDET (Johanns beslutning P2): normgivning der motparten er
+    /// kompetanseinnehaveren selv. Den eneste kanten der fra = til er lov (CHECK <c>ck_strukturkanter_ikke_selv</c>).</summary>
+    public static bool ErSelvregulering(StrukturkantEntitet k) =>
+        k.Kategori == Kompetanse && k.Typekode == Normgivning
+        && ((k.FraVirksomhetId is not null && k.FraVirksomhetId == k.TilVirksomhetId)
+            || (k.FraBegrepId is not null && k.FraBegrepId == k.TilBegrepId));
+
+    /// <summary>[Ny, issue #341, Johanns beslutning 2026-10-08 (hierarki), <c>[LÅST]</c>] Kompetansefamiliene — speilet av
+    /// CHECK <c>ck_relasjonstype_konfigurasjon_familie</c>. <see cref="Beslutning"/> står over alle og har ingen familie.</summary>
+    public static readonly string[] Familier =
+        ["struktur", "personell", "styring", "normgivning", "kontroll", "klage_overproving", "vedtak", "sanksjon"];
+
+    /// <summary>[Ny, issue #341, Johanns beslutning 2026-10-08, <c>[LÅST]</c>] Forvaltningslovens § 2-perspektiv — speilet av
+    /// CHECK <c>ck_relasjonstype_konfigurasjon_fvl_kategori</c>.</summary>
+    public static readonly string[] FvlKategorier = ["forskrift", "enkeltvedtak", "ikke_vedtak"];
+
+    /// <summary>[Ny, issue #341] Øverst i hierarkiet: brukes når teksten bare sier «beslutningsmyndighet» (sameloven § 2-1
+    /// fjerde ledd).</summary>
+    public const string Beslutning = "beslutning";
+
+    /// <summary>
+    /// [Ny, issue #341, Johanns beslutninger 2026-10-08] ÉN tabell over kompetansetypene: koden i databasen, ordet i
+    /// visningen («klagekompetanse»), typen i FORMAT.md/fasiten, familien og fvl-kategorien. Startsettet (K-radene),
+    /// <see cref="KompetansetypeFraFasit"/> og seedingen av familie/fvl-kategori leses herfra, så de ikke kan drifte.
+    /// <para>
+    /// <b>Familiene</b> er Johanns liste (struktur: opprette, avvikle, organisere; personell: oppnevne, utpeke, ansette,
+    /// avsette; styring: instruere, samordne, delegere, godkjenne, samtykke, pålegg; normgivning; kontroll: tilsyn,
+    /// revisjon; klage og overprøving: klage, omgjøre, overprøve, stadfeste; vedtak; sanksjon). <c>forelegging</c>
+    /// (beslutning 2 på #341, kom før hierarkiet) er ikke plassert i en familie av Johann — NULL til det er avgjort.
+    /// </para>
+    /// <para>
+    /// <b>Fvl-kategori</b> er satt bare der den følger av forvaltningsloven uten skjønn: vedtak og pålegg er
+    /// enkeltvedtak (fvl. § 2 første ledd bokstav b), ansettelse er enkeltvedtak (§ 2 tredje ledd), instruksjon,
+    /// samordning, tilsyn og revisjon er i seg selv ikke vedtak. Normgivning avgjøres av normformen (se
+    /// <see cref="FvlKategoriFor"/>). Resten er NULL = ikke avklart (f.eks. er en avskjed et enkeltvedtak, men avsetting
+    /// av et styre i et foretak er det ikke) — det gjettes ikke; lista står i PR-en for #341.
+    /// </para>
+    /// </summary>
+    public static readonly IReadOnlyList<(string Kode, string Substantiv, string FasitType, string? Familie, string? FvlKategori)> Kompetansetyper =
+    [
+        (Beslutning, "beslutningskompetanse", "beslutningskompetanse", null, null),
+        ("oppretting", "opprettingskompetanse", "opprettingskompetanse", "struktur", null),
+        ("avvikling", "avviklingskompetanse", "avviklingskompetanse", "struktur", null),
+        ("organisasjon", "organisasjonskompetanse", "organisasjonskompetanse", "struktur", null),
+        ("oppnevning", "oppnevningskompetanse", "oppnevningskompetanse", "personell", null),
+        ("utpeking", "utpekingskompetanse", "utpekingskompetanse", "personell", null),
+        ("ansettelse", "ansettelseskompetanse", "ansettelseskompetanse", "personell", "enkeltvedtak"),
+        ("avsetting", "avsettingskompetanse", "avsettingskompetanse", "personell", null),
+        ("instruksjon", "instruksjonskompetanse", "instruksjonskompetanse", "styring", "ikke_vedtak"),
+        ("samordning", "samordningskompetanse", "samordningskompetanse", "styring", "ikke_vedtak"),
+        ("delegering", "delegeringskompetanse", "delegeringskompetanse", "styring", null),
+        ("godkjenning", "godkjenningskompetanse", "godkjenningskompetanse", "styring", null),
+        ("samtykke", "samtykkekompetanse", "samtykkekompetanse", "styring", null),
+        ("palegg", "påleggskompetanse", "paleggskompetanse", "styring", "enkeltvedtak"),
+        (Normgivning, "normgivningskompetanse", "normgivningskompetanse", "normgivning", null),
+        ("tilsyn", "tilsynskompetanse", "tilsynskompetanse", "kontroll", "ikke_vedtak"),
+        ("revisjon", "revisjonskompetanse", "revisjonskompetanse", "kontroll", "ikke_vedtak"),
+        ("klage", "klagekompetanse", "klagekompetanse", "klage_overproving", null),
+        ("omgjoring", "omgjøringskompetanse", "omgjoringskompetanse", "klage_overproving", null),
+        ("overproving", "overprøvingskompetanse", "overprovingskompetanse", "klage_overproving", null),
+        ("stadfesting", "stadfestingskompetanse", "stadfestingskompetanse", "klage_overproving", null),
+        ("vedtak", "vedtakskompetanse", "vedtakskompetanse", "vedtak", "enkeltvedtak"),
+        ("sanksjon", "sanksjonskompetanse", "sanksjonskompetanse", "sanksjon", null),
+        ("forelegging", "foreleggingskompetanse", "foreleggingskompetanse", null, null),
+    ];
+
+    /// <summary>
+    /// [Ny, issue #341] FORMAT.md-typen (fasit og konvertering, «…kompetanse») → K-typekoden i databasen. Avbildningen
+    /// #313 trenger når konverteringsresultatet skal inn som forslag.
+    /// </summary>
+    public static readonly IReadOnlyDictionary<string, string> KompetansetypeFraFasit =
+        Kompetansetyper.ToDictionary(t => t.FasitType, t => t.Kode, StringComparer.Ordinal);
+
+    /// <summary>
+    /// [Ny, issue #341, Johanns beslutning 2026-10-08] Fvl-kategorien for én KANT: typens (fra konfigurasjonen), unntatt
+    /// normgivning, der den følger av normformen — normform <c>forskrift</c> gir <c>forskrift</c> («forskriftskompetanse
+    /// er normgivning med normform forskrift og fvl-kategori forskrift»). Andre normformer (reglement, instruks …) og
+    /// ukjent normform gir NULL: om et reglement er en forskrift etter fvl. § 2 c, avgjøres ikke av formen alene.
+    /// <para>
+    /// <b>Hvorfor på typen og ikke på kanten (Johanns spørsmål):</b> fvl-kategorien er en egenskap ved HVA slags
+    /// kompetanse det er, ikke ved det enkelte utsagnet — alle vedtakskompetanser er enkeltvedtak. Det eneste unntaket
+    /// er normgivning, og der er det normformen (som alt står på kanten) som avgjør. Et eget felt på kanten ville gitt
+    /// to kilder til samme opplysning og en verdi som kan motsi typen.
+    /// </para>
+    /// </summary>
+    public static string? FvlKategoriFor(string typekode, string? normform, string? typensFvlKategori) =>
+        typekode == Normgivning ? (normform == "forskrift" ? "forskrift" : null) : typensFvlKategori;
 
     /// <summary>
     /// Kategoriene der en sykel er en registreringsfeil og avvises (Johanns valg i issue #164 for
@@ -143,9 +271,9 @@ public static class Strukturkanter
     /// «Legg til relasjon» (som lister konfigurasjonen) ville tilbudt dem på nytt.
     /// </para>
     /// <para>
-    /// <b>K-kodene følger docs/33 §4.3</b> (<c>forskrift</c>, <c>vedtak</c> …), ikke FORMAT.md/
-    /// <c>Strukturkontrakt</c> (<c>forskriftskompetanse</c>, <c>vedtakskompetanse</c> …). Avbildningen mellom
-    /// de to hører til #313 (konverteringsresultat inn som forslag), der det er ett sted å gjøre den.
+    /// <b>K-kodene er korte</b> (<c>klage</c>, <c>normgivning</c> …), FORMAT.md/<c>Strukturkontrakt</c> bruker
+    /// «…kompetanse» (<c>klagekompetanse</c>, <c>normgivningskompetanse</c> …). [ENDRET, #341] Avbildningen står nå i
+    /// <see cref="KompetansetypeFraFasit"/>, så #313 ikke må finne den opp.
     /// </para>
     /// </summary>
     public static readonly IReadOnlyList<(string Kategori, string Kode, string FraMal, string TilMal)> Startsett =
@@ -155,38 +283,53 @@ public static class Strukturkanter
         // — se avsnittet over. Den rettslige ETTERFØLGELSEN fra etterfølgelse-runden (2026-09-09, issue #134,
         // advokatloven § 73: «Advokatbevillingsnemnden fikk oppgavene overført til Advokatnemnda») uttrykkes nå
         // som «Advokatnemnda etterfolger Advokatbevillingsnemnden».
-        (Relasjon, "klageinstans_for", "er klageinstans for {0}", "har klageinstans hos {0}"),
-        (Relasjon, "administrativt_underordnet", "er administrativt underordnet {0}", "er administrativt overordnet {0}"),
-        (Relasjon, "instruksjon", "kan instruere {0}", "kan instrueres av {0}"),
-        (Relasjon, "omgjoring", "kan omgjøre vedtak fra {0}", "kan få vedtak omgjort av {0}"),
+        //
+        // [ENDRET, issue #341, Johanns beslutning P1 2026-10-08] R er STRUKTUR UTEN MYNDIGHET: eierskap, ledelse,
+        // sekretariat, rapportering, etterfølger og representasjon — pluss den gjennomførte delegeringen
+        // (har_delegert_til). Myndighetsrelasjonene er flyttet til K med til = motparten:
+        // [FJERNET, #341] klageinstans_for → K klage («A har klagekompetanse overfor B»; samme retning: fra =
+        //   klageinstansen, til = den hvis vedtak påklages — migrasjonen KompetanseMedMotpart flyttet de 3 lokale radene),
+        // [FJERNET, #341] instruksjon → K instruksjon, omgjoring → K omgjoring, oppnevner → K oppnevning,
+        // [FJERNET, #341] delegerer_til → K delegering (kompetansen til å delegere, «X kan delegere til Y») ELLER
+        //   R har_delegert_til (en GJENNOMFØRT delegering, Johanns beslutning 1 på #341). Hvilken av de to en gammel
+        //   delegerer_til-rad var, kan ikke avgjøres uten å lese kilden — migrasjonen avbryter derfor hvis det finnes
+        //   slike rader (0 lokalt 2026-10-08) i stedet for å gjette.
+        (Relasjon, "eies_av", "eies av {0}", "eier {0}"),
+        (Relasjon, "ledes_av", "ledes av {0}", "leder {0}"),
         (Relasjon, "sekretariat_for", "er sekretariat for {0}", "har sekretariat hos {0}"),
         (Relasjon, "rapporterer_til", "rapporterer til {0}", "mottar rapporter fra {0}"),
-        (Relasjon, "oppnevner", "oppnevner {0}", "oppnevnes av {0}"),
-        (Relasjon, "velger", "velger {0}", "velges av {0}"),
-        (Relasjon, "ledes_av", "ledes av {0}", "leder {0}"),
-        (Relasjon, "eies_av", "eies av {0}", "eier {0}"),
         (Relasjon, "etterfolger", "etterfølger {0}", "etterfølges av {0}"),
-        (Relasjon, "radgir", "gir råd til {0}", "får råd fra {0}"),
-        (Relasjon, "delegerer_til", "delegerer myndighet til {0}", "har fått delegert myndighet fra {0}"),
         (Relasjon, "representerer", "representerer {0}", "representeres av {0}"),
+        // [Ny, issue #341, Johanns beslutning 1 2026-10-08] Gjennomført delegering: en strukturell kant fra den som
+        // HAR delegert til mottakeren, avgrenset per paragraf. Unntakene i et delegeringsvedtak («omfatter ikke …»)
+        // er avgrensning, ikke negativ kompetanse. Kompetansen til å delegere er K delegering.
+        (Relasjon, HarDelegertTil, "har delegert myndighet til {0}", "har fått delegert myndighet fra {0}"),
+        // [UAVKLART, issue #341, 2026-10-08] Kodene under er verken på Johanns liste over struktur (P1) eller flyttet til
+        // K: administrativt_underordnet (hierarki — men innebærer instruksjon?), velger (valg — en form for oppnevning?),
+        // radgir (verken struktur eller myndighet, jf. åpent spørsmål 4 på #341), ankeinstans_for (anke er ikke i
+        // P2-typologien), oppretter og avvikler (organisasjonskompetanse eller en gjennomført handling?). De står
+        // uendret til Johann har avgjort dem — å flytte dem ville vært å gjette (CLAUDE.md §8).
+        (Relasjon, "administrativt_underordnet", "er administrativt underordnet {0}", "er administrativt overordnet {0}"),
+        (Relasjon, "velger", "velger {0}", "velges av {0}"),
+        (Relasjon, "radgir", "gir råd til {0}", "får råd fra {0}"),
         (Relasjon, "ankeinstans_for", "er ankeinstans for {0}", "har ankeinstans hos {0}"),
         (Relasjon, "oppretter", "oppretter {0}", "er opprettet av {0}"),
         (Relasjon, "avvikler", "avvikler {0}", "avvikles av {0}"),
 
-        // ---- K kompetanse (aktør/rolle → bestemmelse eller sakstype) ----
-        // {0} = til-noden hvis satt, ellers Objekt (sakstypen), ellers «etter hjemmelen» — se
-        // StrukturkantTjeneste.Motpartstekst.
-        (Kompetanse, "forskrift", "har forskriftskompetanse: {0}", "forskriftskompetanse ligger hos {0}"),
-        (Kompetanse, "vedtak", "har vedtakskompetanse: {0}", "vedtakskompetanse ligger hos {0}"),
-        (Kompetanse, "klage", "har klagekompetanse: {0}", "klagekompetanse ligger hos {0}"),
-        (Kompetanse, "tilsyn", "har tilsynskompetanse: {0}", "tilsynskompetanse ligger hos {0}"),
-        (Kompetanse, "delegering", "kan delegere: {0}", "delegeringsfullmakt ligger hos {0}"),
-        (Kompetanse, "oppnevning", "har oppnevningskompetanse: {0}", "oppnevningskompetanse ligger hos {0}"),
-        (Kompetanse, "instruksjon", "har instruksjonskompetanse: {0}", "instruksjonskompetanse ligger hos {0}"),
-        (Kompetanse, "utpeking", "har utpekingskompetanse: {0}", "utpekingskompetanse ligger hos {0}"),
-        (Kompetanse, "godkjenning", "har godkjenningskompetanse: {0}", "godkjenningskompetanse ligger hos {0}"),
-        (Kompetanse, "iverksetting", "har iverksettingskompetanse: {0}", "iverksettingskompetanse ligger hos {0}"),
-        (Kompetanse, "overproving", "har overprøvingskompetanse: {0}", "overprøvingskompetanse ligger hos {0}"),
+        // ---- K kompetanse (aktør/rolle → motpart, bestemmelse eller sakstype) ----
+        // [ENDRET, issue #341, Johanns beslutning P2 2026-10-08] Typologien er Johanns liste: instruksjon, tilsyn, klage,
+        // omgjøring, delegering, oppnevning, vedtak, utpeking, godkjenning, samtykke, pålegg, normgivning og organisasjon,
+        // utvidet (beslutning 2) med avsetting, sanksjon, overprøving og forelegging, og (hierarkibeslutningen) med
+        // beslutning, oppretting, avvikling, ansettelse, samordning, revisjon og stadfesting. «A har kompetanse av typen X,
+        // eventuelt OVERFOR B (til-noden), når det gjelder Y (objekt/avgrensning)». {0} er motpartsteksten
+        // StrukturkantTjeneste.Kompetansetekst bygger: «(normform) overfor B — objekt», eller objektet, eller «etter
+        // hjemmelen». Til-malen leses fra motpartens side.
+        // [FJERNET, #341] forskrift → normgivning med Normform = 'forskrift' (de 205 forskriftskompetansene i fasiten
+        //   og eventuelle K forskrift-rader; migrasjonen konverterer dem), iverksetting (ikke i typologien; 0 rader).
+        // [ENDRET, issue #341, Johanns beslutning 2026-10-08 (hierarki)] Radene genereres fra Kompetansetyper (under), i
+        // familierekkefølge — beslutning øverst. Nye typer i den runden: beslutning, oppretting, avvikling, ansettelse,
+        // samordning, revisjon og stadfesting.
+        .. Kompetansetyper.Select(t => (Kompetanse, t.Kode, $"har {t.Substantiv} {{0}}", $"{{0}} har {t.Substantiv} overfor denne")),
 
         // ---- M medlemskap (aktør/klasse/område → klasse) ----
         (Medlemskap, "medlem_av", "er medlem av {0}", "har medlem {0}"),
@@ -235,10 +378,12 @@ public static class Strukturkanter
         {
             rekkefolge++;
             if (finnes.Contains((kategori, kode))) continue;
+            // [Ny, issue #341] Familie og fvl-kategori for K-typene (Kompetansetyper).
+            var kt = kategori == Kompetanse ? Kompetansetyper.FirstOrDefault(t => t.Kode == kode) : default;
             nye.Add(new RelasjonsTypeKonfigurasjonEntitet
             {
                 Id = Guid.NewGuid(), Kategori = kategori, Kode = kode, FraVisningsmal = fraMal, TilVisningsmal = tilMal,
-                Sorteringsrekkefolge = rekkefolge,
+                Sorteringsrekkefolge = rekkefolge, Familie = kt.Familie, FvlKategori = kt.FvlKategori,
             });
         }
         if (nye.Count == 0) return;

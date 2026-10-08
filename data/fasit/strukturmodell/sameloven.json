@@ -2755,7 +2755,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§1-4/ledd-2",
       "sitat": "Kongen gir forskrift om gjennomføring av første ledd.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a4",
       "til": null,
       "objekt": "forskrift om dekning av utgifter ved sametingsvalg (§ 1-4 første ledd)",
@@ -2764,14 +2764,16 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Forvaltningsansvaret for § 1-4 overført til kommunal- og moderniseringsministeren (forskrift 2021/489)."
+      "kommentar": "Forvaltningsansvaret for § 1-4 overført til kommunal- og moderniseringsministeren (forskrift 2021/489).",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u8",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§1-6/ledd-2",
       "sitat": "Sametinget kan ved forskrift gi nærmere bestemmelser om bruken av det samiske flagget.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift om bruken av det samiske flagget",
@@ -2780,7 +2782,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u9",
@@ -2818,8 +2821,8 @@
       "id": "u11",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-1/ledd-3",
       "sitat": "Sametinget kan delegeres myndighet til å forvalte de bevilgninger som bevilges til samiske formål over det årlige statsbudsjett",
-      "kategori": "relasjon",
-      "type": "delegerer_til",
+      "kategori": "kompetanse",
+      "type": "delegeringskompetanse",
       "fra": null,
       "til": "a1",
       "objekt": null,
@@ -2835,7 +2838,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-1/ledd-3",
       "sitat": "Departementet fastsetter reglement for Sametingets økonomiforvaltning.",
       "kategori": "kompetanse",
-      "type": "annet:reglementskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a14",
       "til": null,
       "objekt": "reglement for Sametingets økonomiforvaltning",
@@ -2844,14 +2847,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Intern styringsrett (ikke forskrift) — også en styringsRELASJON departement→Sametinget som modellen bør kunne uttrykke. Departementets referent uavklart (delt forvaltningsansvar, se forskrift 2021/489)."
+      "kommentar": "Intern styringsrett (ikke forskrift) — også en styringsRELASJON departement→Sametinget som modellen bør kunne uttrykke. Departementets referent uavklart (delt forvaltningsansvar, se forskrift 2021/489).",
+      "normform": "reglement"
     },
     {
       "id": "u13",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-1/ledd-3",
       "sitat": "Sametinget kan gi forskrift om fordeling og bruk av tilskudd.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forskrift om fordeling og bruk av tilskudd",
@@ -2860,7 +2864,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u14",
@@ -5011,7 +5016,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-4/ledd-3",
       "sitat": "Kongen gir forskrift med utfyllende bestemmelser om mandatfordelingen og kandidatkåring.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a4",
       "til": null,
       "objekt": "forskrift om mandatfordeling og kandidatkåring ved sametingsvalg",
@@ -5020,7 +5025,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u149",
@@ -5139,7 +5146,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-7/ledd-3",
       "sitat": "Kongen kan gi nærmere bestemmelser om vilkårene og framgangsmåten ved registrering.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a4",
       "til": null,
       "objekt": "vilkår og framgangsmåte ved registrering av partinavn",
@@ -5148,7 +5155,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u157",
@@ -5267,7 +5276,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-11/ledd-1",
       "sitat": "Kongen gir utfyllende bestemmelser om valg til Sametinget.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a4",
       "til": null,
       "objekt": "utfyllende bestemmelser om valg til Sametinget",
@@ -5276,7 +5285,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Delvis delegert til Kommunal- og regionaldepartementet (forskrift 2004/1607); forvaltningsansvaret overført (forskrift 2021/489)."
+      "kommentar": "Delvis delegert til Kommunal- og regionaldepartementet (forskrift 2004/1607); forvaltningsansvaret overført (forskrift 2021/489).",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u165",
@@ -5299,7 +5310,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-12/ledd-1",
       "sitat": "Personalet ved administrasjonen ansettes av Sametinget.",
       "kategori": "kompetanse",
-      "type": "annet:ansettelseskompetanse",
+      "type": "ansettelseskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "ansettelse av personale i Sametingets administrasjon",
@@ -5346,8 +5357,8 @@
       "id": "u169",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-12/ledd-3",
       "sitat": "såfremt ikke annet fremgår, delegere myndighet til disse",
-      "kategori": "relasjon",
-      "type": "delegerer_til",
+      "kategori": "kompetanse",
+      "type": "delegeringskompetanse",
       "fra": "a1",
       "til": "a135",
       "objekt": null,
@@ -5363,7 +5374,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-12/ledd-4",
       "sitat": "Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "beslutningsmyndighet etter §§ 2-9, 2-10 og 2-14",
@@ -5394,8 +5405,8 @@
       "id": "u172",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-12/ledd-5",
       "sitat": "styre, råd eller utvalg oppnevnt av Sametinget",
-      "kategori": "relasjon",
-      "type": "oppnevner",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a1",
       "til": "a135",
       "objekt": null,
@@ -5410,8 +5421,8 @@
       "id": "u173",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-12/ledd-5",
       "sitat": "kan i samsvar med forvaltningslovens bestemmelser påklages til Sametinget",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": "a1",
       "til": "a135",
       "objekt": null,
@@ -5426,8 +5437,8 @@
       "id": "u174",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-12/ledd-5",
       "sitat": "eller særskilt klagenemnd oppnevnt av Sametinget",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": "a137",
       "til": "a135",
       "objekt": null,
@@ -5442,8 +5453,8 @@
       "id": "u175",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-12/ledd-5",
       "sitat": "særskilt klagenemnd oppnevnt av Sametinget",
-      "kategori": "relasjon",
-      "type": "oppnevner",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a1",
       "til": "a137",
       "objekt": null,
@@ -5459,7 +5470,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-14/ledd-1",
       "sitat": "Sametinget gir bestemmelser om sammenkalling og arbeidsordningen i Sametinget.",
       "kategori": "kompetanse",
-      "type": "annet:reglementskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "forretningsorden (sammenkalling og arbeidsordning)",
@@ -5468,14 +5479,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Selvorganiseringskompetanse; ikke delegerbar (§ 2-12). Her betyr 'i Sametinget' plenumsorganet."
+      "kommentar": "Selvorganiseringskompetanse; ikke delegerbar (§ 2-12). Her betyr 'i Sametinget' plenumsorganet.",
+      "normform": "arbeidsordning"
     },
     {
       "id": "u177",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-15/ledd-1",
       "sitat": "Kongen kan i forskrift bestemme at også andre medlemmer av Sametinget skal ha rett til pensjon.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a4",
       "til": null,
       "objekt": "pensjonsrett for andre medlemmer av Sametinget",
@@ -5484,14 +5496,16 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u178",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-15/ledd-2",
       "sitat": "Kongen gir nærmere forskrift om beregningen av pensjonsrettighetene og om gjennomføringen av pensjonsordningen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a4",
       "til": null,
       "objekt": "forskrift om Sametingets pensjonsordning",
@@ -5500,7 +5514,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u179",
@@ -5827,7 +5843,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-3/ledd-5",
       "sitat": "med mindre annet følger av forskrift fastsatt av Kongen",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a4",
       "til": null,
       "objekt": "utvide svarretten til landsomfattende offentlige organer",
@@ -5836,7 +5852,9 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u200",
@@ -6003,7 +6021,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-5/ledd-2",
       "sitat": "med mindre det følger av forskrift fastsatt av Kongen",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a4",
       "til": null,
       "objekt": "utvide retten til landsomfattende helse- og omsorgsinstitusjoner og barnevernsinstitusjoner",
@@ -6012,7 +6030,9 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u211",
@@ -6067,7 +6087,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-8/ledd-1",
       "sitat": "Kongen kan gi nærmere regler om gjennomføringen av denne bestemmelsen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a4",
       "til": null,
       "objekt": "gjennomføring av retten til opplæring i samisk (§ 3-8)",
@@ -6076,7 +6096,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u215",
@@ -6172,14 +6194,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegerbar": false
     },
     {
       "id": "u221",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-11/ledd-1",
       "sitat": "klage til det organet som er nærmest overordnet det organet klagen angår",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": "a156",
       "til": "a22",
       "objekt": null,
@@ -6194,8 +6217,8 @@
       "id": "u222",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§3-11/ledd-1",
       "sitat": "Statsforvalteren er klageinstans når klagen angår kommunale eller fylkeskommunale organ.",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": "a21",
       "til": "a29",
       "objekt": null,
@@ -6268,7 +6291,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Forskriftskompetanse hvis UTØVELSE er klasse-/områdemedlemskap (utøvd i forskrift 2005/657). Modellen må kunne knytte medlemskapsutsagn til hjemmelen."
+      "kommentar": "Forskriftskompetanse hvis UTØVELSE er klasse-/områdemedlemskap (utøvd i forskrift 2005/657). Modellen må kunne knytte medlemskapsutsagn til hjemmelen.",
+      "delegerbar": true
     },
     {
       "id": "u227",
@@ -6300,7 +6324,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Utøvd i forskrift 2003/13 § 3 (som bygger på eldre hjemmel). 'helt eller delvis' = bestemmelsesavgrenset medlemskap."
+      "kommentar": "Utøvd i forskrift 2003/13 § 3 (som bygger på eldre hjemmel). 'helt eller delvis' = bestemmelsesavgrenset medlemskap.",
+      "delegerbar": true
     },
     {
       "id": "u229",
@@ -6547,7 +6572,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§4-8/ledd-1",
       "sitat": "Kongen kan gi forskrift med nærmere bestemmelser om hvem som har rett og plikt til konsultasjoner",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a4",
       "til": null,
       "objekt": "hvem som har rett og plikt til konsultasjoner, og gjennomføringen",
@@ -6556,7 +6581,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Nær utpekingskompetanse (bestemmer hvem som er part)."
+      "kommentar": "Nær utpekingskompetanse (bestemmer hvem som er part).",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u245",
@@ -6595,7 +6622,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§5-1/ledd-2",
       "sitat": "Kongen gir regler om sammenkalling av og arbeidsordningen i Sametinget.",
       "kategori": "kompetanse",
-      "type": "annet:reglementskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a4",
       "til": null,
       "objekt": "sammenkalling og arbeidsordning i Sametinget",
@@ -6604,7 +6631,9 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Subsidiær og tidsavgrenset kompetanse — faller bort når Sametinget utøver egen kompetanse."
+      "kommentar": "Subsidiær og tidsavgrenset kompetanse — faller bort når Sametinget utøver egen kompetanse.",
+      "normform": "arbeidsordning",
+      "delegerbar": true
     },
     {
       "id": "u248",
@@ -6620,7 +6649,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegerbar": true
     },
     {
       "id": "u249",
@@ -7107,7 +7137,7 @@
       "eid": "https://lovdata.no/eli/forskrift/2004/12/10/1607/nor/ledd-1",
       "sitat": "Kongens myndighet etter lov 12. juni 1987 nr. 56 om Sametinget og andre samiske rettsforhold (sameloven) § 2-11 delegeres til Kommunal- og regionaldepartementet",
       "kategori": "relasjon",
-      "type": "delegerer_til",
+      "type": "har_delegert_til",
       "fra": "a4",
       "til": "a16",
       "objekt": null,
@@ -7123,7 +7153,7 @@
       "eid": "https://lovdata.no/eli/forskrift/2004/12/10/1607/nor/ledd-2",
       "sitat": "endring av sametingsvalgreglene som hovedregel bør avgjøres ved kongelig resolusjon",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a4",
       "til": null,
       "objekt": "endringer i sametingsvalgreglene (hovedregel)",
@@ -7132,14 +7162,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Gjengivelse av Ot.prp. nr. 33 (1986–1987)."
+      "kommentar": "Gjengivelse av Ot.prp. nr. 33 (1986–1987).",
+      "normform": "forskrift"
     },
     {
       "id": "u281",
       "eid": "https://lovdata.no/eli/forskrift/2004/12/10/1607/nor/ledd-2",
       "sitat": "mindre viktige endringer likevel bør kunne fastsettes av departementet",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a17",
       "til": null,
       "objekt": "mindre viktige endringer i sametingsvalgreglene",
@@ -7148,14 +7179,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Gjengivelse av forarbeider; 'departementet' generisk."
+      "kommentar": "Gjengivelse av forarbeider; 'departementet' generisk.",
+      "normform": "forskrift"
     },
     {
       "id": "u282",
       "eid": "https://lovdata.no/eli/forskrift/2004/12/10/1607/nor/ledd-3",
       "sitat": "Departementet kan foreta mindre viktige endringer i forskrift om valg til Sametinget, herunder å tilpasse forskriften til valgloven og å følge opp endringer i sameloven.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a17",
       "til": null,
       "objekt": "mindre viktige endringer i forskrift om valg til Sametinget",
@@ -7164,14 +7196,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Kvalitativ (ikke paragrafbasert) avgrensning av delegert kompetanse."
+      "kommentar": "Kvalitativ (ikke paragrafbasert) avgrensning av delegert kompetanse.",
+      "normform": "forskrift"
     },
     {
       "id": "u283",
       "eid": "https://lovdata.no/eli/forskrift/2004/12/10/1607/nor/ledd-3",
       "sitat": "Andre endringer skal fortsatt fastsettes av Kongen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a4",
       "til": null,
       "objekt": "andre (ikke mindre viktige) endringer i forskrift om valg til Sametinget",
@@ -7180,7 +7213,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Restkompetanse hos delegerende organ."
+      "kommentar": "Restkompetanse hos delegerende organ.",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u284",

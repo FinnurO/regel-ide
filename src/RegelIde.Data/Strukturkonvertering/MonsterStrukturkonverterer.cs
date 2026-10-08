@@ -43,6 +43,21 @@ public sealed class MonsterStrukturkonverterer : IStrukturkonverterer
     /// <summary>Alle mønstrene, i den rekkefølgen de kjøres. Rekkefølgen avgjør aktør-id-ene i utdata.</summary>
     public static IReadOnlyList<Strukturmonster> Monstre { get; } = Monsterkatalog.Bygg();
 
+    /// <summary>
+    /// [Ny, issue #341 + #335 AC2, 2026-10-08] Kan kompetansen delegeres? Avgjort på SITATET, ikke på aktøren (fasitens
+    /// «Kongen»-aktør har «Kongen i statsråd» som variant): «Kongen i statsråd …» → false, ellers en fra-aktør «Kongen» →
+    /// true, og «X selv» («kommunestyret selv») → false. Alt annet: null (ikke angitt) — samme regel som
+    /// <c>konvertering-341-kompetanse.py</c> brukte på fasiten.
+    /// </summary>
+    internal static bool? Delegerbar(string? fra, string sitat)
+    {
+        if (fra is null) return null;
+        if (Regex.IsMatch(sitat, Regex.Escape(fra) + @"\s+selv\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) return false;
+        if (!fra.StartsWith("Kongen", StringComparison.OrdinalIgnoreCase)) return null;
+        if (sitat.Contains("Kongen i statsråd", StringComparison.Ordinal)) return false;
+        return string.Equals(fra, "Kongen", StringComparison.OrdinalIgnoreCase) ? true : null;
+    }
+
     /// <inheritdoc />
     public Strukturdokument Konverter(Strukturkonverteringsgrunnlag grunnlag)
     {
@@ -105,6 +120,9 @@ public sealed class MonsterStrukturkonverterer : IStrukturkonverterer
                 Kommentar: null)
             {
                 Oppdagelseskilde = u.Monster.Oppdagelseskilde,
+                // [Ny, issue #341] Normformen fra leksikonet, og delegerbar etter #335-regelen avgjort på sitatet.
+                Normform = u.Monster.Normform,
+                Delegerbar = u.Monster.Kategori == "kompetanse" ? Delegerbar(u.Fra, u.Sitat) : null,
             });
         }
 

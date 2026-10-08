@@ -1023,3 +1023,20 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **[Ny, issue #345] «Sogner hit»:** `A sogner_til` (tingrett → lagsogn) vises ikke under «Hvem har ansvar her», men i
   en egen seksjon «Sogner hit». Seksjonen rendres bare når den har innhold, og det har den i praksis bare for lagsogn.
   En kommunes lagsogn og lagdømme står ikke som kant på kommunen. De avledes i tilhørigheten gjennom tingretten.
+
+## 33. Kompetanse med motpart (issue #341, 2026-10-08)
+
+- **Kompetansen har egen seksjon** øverst i «Myndighet & relasjoner» på VirksomhetDetalj: `strukturkant/KompetanseTabell.tsx`,
+  gruppert på kompetansefamilie (overskrift `Heading level={4} data-size="2xs"` per familie, fast rekkefølge fra
+  `FAMILIE_REKKEFOLGE`, «Beslutning / uten familie» sist) og med et `Select`-filter «Kompetansefamilie» når det finnes
+  mer enn én familie. Hver gruppe er en vanlig `StrukturkantTabell` (§31) — ingen egen kanttabell.
+- **Motparten står i utsagnsteksten**, ikke i en egen kolonne: «har klagekompetanse overfor X», fra motpartens side
+  «Y har klagekompetanse overfor denne». Normformen står i teksten i parentes («(forskrift)»), selvregulering som
+  «overfor seg selv (selvregulering)» — og noden lenkes da ikke til seg selv.
+- **Fargeroller (låst, samme prinsipp som §31):** «Kan delegeres» / «Kan ikke delegeres», grunnlaget
+  («Privatrettslig (eierskap)» / «Offentligrettslig») og familien er klassifiseringer → `neutral`. NULL vises ikke —
+  «ikke angitt» er ikke en påstand.
+- **Skjemaene:** «Legg til relasjon eller kompetanse» og veiviserens relasjonssteg lister R- og K-typer i én `Select`
+  («Relasjon — …» / «Kompetanse (familie) — … overfor motparten»). Normform, grunnlag og «Kan delegeres?» starter på
+  «Ikke angitt» (CLAUDE.md §8). Tildelingsskjemaene skiller **hjemmelsstedet** («Tildelt i paragraf», påkrevd) fra
+  **avgrensningen** («Gjelder for …», valgfri).

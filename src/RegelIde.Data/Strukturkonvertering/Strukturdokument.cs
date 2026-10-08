@@ -80,6 +80,21 @@ public sealed record StrukturUtsagn(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Oppdagelseskilde { get; init; }
 
+    /// <summary>[Ny, issue #341] Normformen på en normgivningskompetanse (FORMAT.md). Utelatt når null.</summary>
+    [JsonPropertyName("normform")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Normform { get; init; }
+
+    /// <summary>[Ny, issue #341] offentligrettslig | privatrettslig (FORMAT.md). Utelatt når null.</summary>
+    [JsonPropertyName("grunnlag")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Grunnlag { get; init; }
+
+    /// <summary>[Ny, issue #341/#335] Kan kompetansen delegeres (FORMAT.md)? Utelatt når null.</summary>
+    [JsonPropertyName("delegerbar")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public bool? Delegerbar { get; init; }
+
     /// <summary>
     /// [Ny, issue #312, 2026-10-08] Hvem som har verifisert/rettet raden i fasiten — første bruk er Johanns systemiske
     /// rettelse av domstollovens inndelingsdel (FORMAT.md). Konverteringen setter det aldri; utelates når null.

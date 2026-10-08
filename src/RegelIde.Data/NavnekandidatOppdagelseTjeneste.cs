@@ -2020,7 +2020,8 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         var tildeling = await FinnTildelingAsync(virksomhetId, gruppeBegrepId, kandidat.RettskildeId, ct)
             ?? (await strukturkanter.OpprettTildelingAsync(
                 virksomhetId, gruppeBegrepId, kandidat.RettskildeId,
-                [new ParagrafspennPar(kandidat.NodeEid, null)], avgrensningTekst: null, behandletAv, ct: ct)).Kant;
+                // [ENDRET, issue #341] Kandidatens node er HVOR medlemskapet står (hjemmel-eId), ikke en avgrensning.
+                kandidat.NodeEid, avgrensning: null, avgrensningTekst: null, behandletAv, ct: ct)).Kant;
 
         // Steg 2: nøyaktig samme kjedelukking som virksomhet-veien.
         var kobling = await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct);
@@ -2039,8 +2040,12 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// idempotente <see cref="LukkKjedenMotVirksomhetAsync"/>, så en gjentatt/kombinert kjede er
     /// ufarlig.
     /// </summary>
+    /// <param name="hjemmelEid">[ENDRET, issue #341] HVOR i kandidatens rettskilde rollen tildeles — null = kandidatens egen
+    /// node («Rolle tildelt her»). Før #341 kom dette inn som et paragrafspenn og ble lagret som avgrensning.</param>
+    /// <param name="avgrensning">[Ny, issue #341] Valgfritt: hvilke paragrafer rollen gjelder for (#314 — «konsesjons-
+    /// myndigheten etter energiloven § 3-1»). Tom = ikke angitt.</param>
     public async Task<NavnekandidatMyndighetstildelingResultat?> KoblTilMyndighetstildelingAsync(
-        Guid id, Guid virksomhetId, Guid rolleBegrepId, IReadOnlyList<ParagrafspennPar> paragrafspenn,
+        Guid id, Guid virksomhetId, Guid rolleBegrepId, string? hjemmelEid, IReadOnlyList<ParagrafspennPar>? avgrensning,
         string? vilkaar, string? navneformgrunn, string behandletAv, CancellationToken ct = default)
     {
         var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
@@ -2057,7 +2062,8 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         // [ENDRET, issue #311] Vilkåret er kantens AvgrensningTekst.
         var tildeling = await FinnTildelingAsync(virksomhetId, rolleBegrepId, kandidat.RettskildeId, ct)
             ?? (await strukturkanter.OpprettTildelingAsync(
-                virksomhetId, rolleBegrepId, kandidat.RettskildeId, paragrafspenn, vilkaar, behandletAv, ct: ct)).Kant;
+                virksomhetId, rolleBegrepId, kandidat.RettskildeId, string.IsNullOrWhiteSpace(hjemmelEid) ? kandidat.NodeEid : hjemmelEid.Trim(),
+                avgrensning, vilkaar, behandletAv, ct: ct)).Kant;
 
         var kobling = await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct);
         return new NavnekandidatMyndighetstildelingResultat(
@@ -2097,12 +2103,19 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         }
         ValiderNavneformgrunn(navneformgrunn);
 
+        // [ENDRET, issue #341] Typen kan være en R-type (struktur) ELLER en K-type med motpart («har klagekompetanse overfor»):
+        // myndighetsrelasjonene ble flyttet fra R til K (Johanns beslutning P1). Kategorien leses av konfigurasjonen — finnes
+        // koden i ingen eller begge, brukes R, og OpprettAsync avviser en ukjent kode synlig.
+        var kategorier = await db.RelasjonsTypeKonfigurasjoner
+            .Where(t => (t.Kategori == Strukturkanter.Relasjon || t.Kategori == Strukturkanter.Kompetanse) && t.Kode == relasjonsType && t.Aktiv)
+            .Select(t => t.Kategori).ToListAsync(ct);
+        var kategori = kategorier.Count == 1 ? kategorier[0] : Strukturkanter.Relasjon;
         // Samme dublettregel som VirksomhetRelasjon hadde: (fra, til, type).
         var relasjon = await db.Strukturkanter.FirstOrDefaultAsync(
-            r => r.Kategori == Strukturkanter.Relasjon && r.FraVirksomhetId == virksomhetId
+            r => r.Kategori == kategori && r.FraVirksomhetId == virksomhetId
                  && r.TilVirksomhetId == motpartVirksomhetId && r.Typekode == relasjonsType, ct);
         relasjon ??= (await strukturkanter.OpprettAsync(new NyStrukturkant(
-            Strukturkanter.Relasjon, relasjonsType, Kantnode.Virksomhet(virksomhetId), Kantnode.Virksomhet(motpartVirksomhetId),
+            kategori, relasjonsType, Kantnode.Virksomhet(virksomhetId), Kantnode.Virksomhet(motpartVirksomhetId),
             HjemmelRettskildeId: hjemletHer ? kandidat.RettskildeId : null,
             HjemmelEid: hjemletHer ? kandidat.NodeEid : null,
             KildeUtenforKorpusTekst: hjemletHer ? null : kommentar,
@@ -2151,7 +2164,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
             Strukturkanter.Medlemskap, Strukturkanter.MedlemAv,
             Kantnode.Begrep(gruppebegrep.Id), Kantnode.Begrep(overordnetGruppeBegrepId),
             HjemmelRettskildeId: kandidat.RettskildeId,
-            Paragrafspenn: [new ParagrafspennPar(kandidat.NodeEid, null)]), behandletAv, ct)).Kant;
+            HjemmelEid: kandidat.NodeEid), behandletAv, ct)).Kant; // [ENDRET, #341] hjemmelssted, ikke avgrensning
 
         await OpprettDepartementTaggHvisMuligAsync(kandidat, gruppebegrep.Id, behandletAv, ct);
 

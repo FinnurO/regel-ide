@@ -414,10 +414,21 @@ er konvertert til «er klageinstans for», «er sekretariat for», «etterfølge
 og «er administrativt underordnet», så «hvem er klageinstans for hvem?» gir ett svar. Avgrensningen på en
 eksisterende kant kan rettes over API-et (`PUT /api/strukturkanter/{id}/avgrensning`).
 
+[NYTT, 2026-10-08, issue #341] **Kompetanse med motpart.** Myndighet er kompetanse, ikke relasjon: «Energidepartementet
+har klagekompetanse overfor Energiklagenemnda», «Kongen i statsråd har normgivningskompetanse (forskrift) — kan ikke
+delegeres». Relasjon brukes bare om struktur uten myndighet (eies av, ledes av, sekretariat for, rapporterer til,
+etterfølger, representerer) og om en gjennomført delegering («har delegert myndighet til»). Kompetansetypene er ordnet i
+familier (struktur, personell, styring, normgivning, kontroll, klage og overprøving, vedtak, sanksjon) med
+forvaltningslovens kategori (forskrift/enkeltvedtak/ikke vedtak) på typen; kompetansen har normform (forskrift, reglement,
+arbeidsordning, vedtekter, instruks), grunnlag (offentligrettslig/privatrettslig) og «kan delegeres». En kant skiller nå
+hvor det står (hjemmelsstedet) fra hvilke paragrafer det gjelder for (avgrensningen). Mønsterlaget i den automatiske
+konverteringen styres av et versjonert leksikon over lovuttrykk (`kompetanseleksikon.json`).
+
 Organene **Stortinget** og **Kongen i statsråd** er nå virksomheter (aktørtype organ), ikke begreper.
 
-*Hvor:* «Myndighet & relasjoner»-fanen på en virksomhet (tre seksjoner: relasjoner, medlemskap og roller,
-øvrige utsagn), «Relasjoner»-fanen på et begrep med gruppefunksjon, «Strukturutsagn hjemlet her» på en
+*Hvor:* «Myndighet & relasjoner»-fanen på en virksomhet (seksjonene kompetanse — gruppert og filtrerbar på familie
+[#341] —, relasjoner, medlemskap og roller, ansvarsområder, organtilhørighet; skjemaet «Legg til relasjon eller
+kompetanse»), «Relasjoner»-fanen på et begrep med gruppefunksjon, «Strukturutsagn hjemlet her» på en
 rettskilde, KI-forslagskøen. API: `/api/strukturkanter` (se `docs/04` §14), og arbeidslista over struktur
 som bare er dokumentert på nettside: `GET /api/strukturkanter/uten-korpusforankring`.
 

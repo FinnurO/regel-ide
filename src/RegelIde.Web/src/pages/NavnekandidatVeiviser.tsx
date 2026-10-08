@@ -364,8 +364,10 @@ export default function NavnekandidatVeiviser() {
   useEffect(() => {
     if (tillegg !== 'relasjon' || relasjonstyper !== null) return;
     // [ENDRET, issue #311] Bare R-typene — konfigurasjonen har nå typekoder for alle åtte kategoriene.
-    api.hentRelasjonstyper('R')
-      .then(setRelasjonstyper)
+    // [ENDRET, issue #341] R og K: klagekompetanse, instruksjon og oppnevning er nå K med motpart (serveren slår opp
+    // kategorien til koden, NavnekandidatOppdagelseTjeneste.KoblTilRelasjonAsync).
+    Promise.all([api.hentRelasjonstyper('R'), api.hentRelasjonstyper('K')])
+      .then(([r, k]) => setRelasjonstyper([...r, ...k]))
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Kunne ikke laste relasjonstypene.'));
   }, [tillegg, relasjonstyper]);
 
@@ -600,7 +602,10 @@ export default function NavnekandidatVeiviser() {
         ? await api.koblNavnekandidatTilMyndighetstildeling(id, {
           virksomhetId: valgtVirksomhetId,
           rolleBegrepId: valgtRolleBegrepId,
-          paragrafspenn: [{ fraEid: rolleFraEid.trim(), tilEid: rolleTilEid.trim() || null }],
+          // [ENDRET, issue #341] «Paragraf» er HVOR rollen tildeles (hjemmel-eId); «Gjelder for» er avgrensningen. Før #341
+          // ble begge sendt som ett spenn og lagret som avgrensning (Strukturkanter.KreverHjemmelsted).
+          hjemmelEid: rolleFraEid.trim() || null,
+          paragrafspenn: rolleTilEid.trim() ? [{ fraEid: rolleTilEid.trim(), tilEid: null }] : [],
           vilkaar: rolleVilkaar.trim() || null,
           navneformgrunn,
         })
@@ -1332,7 +1337,7 @@ export default function NavnekandidatVeiviser() {
                 <Radio
                   name="tillegg"
                   label="Relasjon til annen virksomhet"
-                  description="Teksten beskriver et organisatorisk forhold til en annen, navngitt virksomhet — f.eks. klageinstans for, administrativt underordnet, sekretariat for."
+                  description="Teksten beskriver et forhold til en annen, navngitt virksomhet — en relasjon (sekretariat for, eies av) eller en kompetanse overfor den (klagekompetanse, instruksjon, oppnevning)."
                   value="relasjon"
                   checked={tillegg === 'relasjon'}
                   onChange={() => setTillegg('relasjon')}
@@ -1364,7 +1369,7 @@ export default function NavnekandidatVeiviser() {
                   <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
                     {paragrafKandidaterForRolle.length > 0 && (
                       <Field data-size="sm" style={{ maxWidth: '14rem' }}>
-                        <Label>Paragraf</Label>
+                        <Label>Hjemmel — tildelt i paragraf</Label>
                         <Select data-size="sm" value={rolleFraEid} onChange={(e) => setRolleFraEid(e.target.value)}>
                           <Select.Option value="">Velg …</Select.Option>
                           {paragrafKandidaterForRolle.map((n) => (
@@ -1375,13 +1380,13 @@ export default function NavnekandidatVeiviser() {
                         </Select>
                       </Field>
                     )}
-                    <Textfield data-size="sm" label="Fra eId (avansert / manuell)" value={rolleFraEid}
+                    <Textfield data-size="sm" label="Hjemmel-eId — hvor rollen tildeles (avansert)" value={rolleFraEid}
                       onChange={(e) => setRolleFraEid(e.target.value)} style={{ minWidth: '16rem', fontFamily: 'monospace' }} />
                     {paragrafKandidaterForRolle.length > 0 && (
                       <Field data-size="sm" style={{ maxWidth: '14rem' }}>
-                        <Label>Til paragraf (valgfritt)</Label>
+                        <Label>Gjelder for paragraf (valgfritt)</Label>
                         <Select data-size="sm" value={rolleTilEid} onChange={(e) => setRolleTilEid(e.target.value)}>
-                          <Select.Option value="">Enkeltpunkt, ikke spenn</Select.Option>
+                          <Select.Option value="">Ikke angitt</Select.Option>
                           {paragrafKandidaterForRolle.map((n) => (
                             <Select.Option key={n.id} value={n.eid}>
                               {n.nodeType === 'side' ? 'Hele siden' : n.nummer}{n.overskrift ? ` — ${n.overskrift}` : ''}
@@ -1390,11 +1395,13 @@ export default function NavnekandidatVeiviser() {
                         </Select>
                       </Field>
                     )}
-                    <Textfield data-size="sm" label="Til eId (valgfritt, avansert)" value={rolleTilEid}
+                    <Textfield data-size="sm" label="Gjelder for eId (valgfritt, avansert)" value={rolleTilEid}
                       onChange={(e) => setRolleTilEid(e.target.value)} style={{ minWidth: '16rem', fontFamily: 'monospace' }} />
                   </div>
                   {/* [Note] Kun ETT paragrafspenn-par her — se PR-beskrivelsen for begrunnelsen
-                    * (`LeggTilMyndighetstildelingForm.tsx` har den fulle liste-byggeren for flere). */}
+                    * (`LeggTilMyndighetstildelingForm.tsx` har den fulle liste-byggeren for flere).
+                    * [ENDRET, issue #341] «Paragraf» er hjemmelsstedet (hvor rollen tildeles), «Gjelder for» er avgrensningen
+                    * — hvilken paragraf rollen gjelder for (#314). Før #341 var de to fra/til i ett hjemmelsspenn. */}
                   <Textfield data-size="sm" label="Vilkår (valgfritt)" value={rolleVilkaar}
                     onChange={(e) => setRolleVilkaar(e.target.value)} style={{ maxWidth: '28rem', marginBottom: '0.75rem' }} />
                   {valgtRolle && (
@@ -1408,12 +1415,14 @@ export default function NavnekandidatVeiviser() {
               {tillegg === 'relasjon' && (
                 <>
                   <Field data-size="sm" style={{ maxWidth: '24rem', marginBottom: '0.75rem' }}>
-                    <Label>Relasjonstype</Label>
+                    <Label>Relasjon eller kompetanse</Label>
                     <Select data-size="sm" value={relasjonsType} onChange={(e) => setRelasjonsType(e.target.value)} disabled={!relasjonstyper}>
-                      <Select.Option value="">{relasjonstyper ? 'Velg relasjonstype …' : 'Laster …'}</Select.Option>
+                      <Select.Option value="">{relasjonstyper ? 'Velg type …' : 'Laster …'}</Select.Option>
                       {relasjonstyper?.map((t) => (
-                        <Select.Option key={t.kode} value={t.kode}>
-                          {t.kode} — «{t.fraVisningsmal.replace('{0}', 'motparten')}»
+                        <Select.Option key={`${t.kategori}:${t.kode}`} value={t.kode}>
+                          {t.kategori === 'K'
+                            ? `Kompetanse — «${t.fraVisningsmal.replace('{0}', 'overfor motparten')}»`
+                            : `Relasjon — «${t.fraVisningsmal.replace('{0}', 'motparten')}»`}
                         </Select.Option>
                       ))}
                     </Select>

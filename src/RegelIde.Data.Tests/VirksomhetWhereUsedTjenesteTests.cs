@@ -227,7 +227,7 @@ public class VirksomhetWhereUsedTjenesteTests
 
         await Strukturkanter.SeedStartsettAsync(db);
         var tildeling = (await new StrukturkantTjeneste(db).OpprettTildelingAsync(
-            virksomhetId, gruppe.Id, rettskildeId, [new ParagrafspennPar(nodeEid, null)], avgrensningTekst: null, "test")).Kant;
+            virksomhetId, gruppe.Id, rettskildeId, nodeEid, avgrensning: null, avgrensningTekst: null, "test")).Kant;
 
         var resultat = await new VirksomhetWhereUsedTjeneste(db).HentAsync(virksomhetId);
 
