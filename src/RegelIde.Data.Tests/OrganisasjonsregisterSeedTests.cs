@@ -171,6 +171,33 @@ public class OrganisasjonsregisterSeedTests
         Assert.True(bergen.Aktiv);
     }
 
+    /// <summary>
+    /// [Ny, issue #343, 2026-10-08] Kildefila har to «HERØY KOMMUNE» og to «VÅLER KOMMUNE» med ulikt orgnr.
+    /// Før rettelsen ble den andre av hvert par slått inn i den første via navnetilbakefallet og aldri
+    /// opprettet (Herøy 1515 og Våler 3114 manglet). Likt navn med ulikt orgnr er to virksomheter.
+    /// Orgnr-ene er verifisert mot kildefila 2026-10-08.
+    /// </summary>
+    [Theory]
+    [InlineData("872417982", "964978840")] // Herøy (Nordland / Møre og Romsdal)
+    [InlineData("871034222", "959272581")] // Våler (Innlandet / Østfold)
+    public async Task Kommuner_med_likt_navn_og_ulikt_orgnr_blir_to_rader(string orgnrA, string orgnrB)
+    {
+        await using var db = _fixture.NyDbContext();
+        await ForberedEksisterendeVirksomheterAsync(db);
+
+        await OrganisasjonsregisterSeed.SeedAsync(db);
+
+        var a = await db.Virksomheter.SingleAsync(v => v.Organisasjonsnummer == orgnrA);
+        var b = await db.Virksomheter.SingleAsync(v => v.Organisasjonsnummer == orgnrB);
+        Assert.NotEqual(a.Id, b.Id);
+        Assert.Equal(a.Navn, b.Navn, ignoreCase: true);
+        Assert.Equal("kommune", b.Forvaltningsniva);
+
+        var antall = await db.Virksomheter.CountAsync();
+        await OrganisasjonsregisterSeed.SeedAsync(db); // idempotent — stabil nøkkel er orgnr
+        Assert.Equal(antall, await db.Virksomheter.CountAsync());
+    }
+
     [Fact]
     public async Task Seeder_to_testbrukere_for_bergen_kommune_idempotent()
     {
