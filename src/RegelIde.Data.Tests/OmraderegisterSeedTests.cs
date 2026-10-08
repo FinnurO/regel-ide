@@ -80,7 +80,8 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
     public async Task Andre_kjoring_skriver_ingenting_vakten_er_pa_stabil_nokkel()
     {
         var s = await SeededAsync();
-        Assert.True(s.Forste.NyeKanter > 1000, $"Første kjøring: {s.Forste.NyeKanter} kanter.");
+        // [ENDRET, #345] Var > 1000 før de 357 utflatede lagsogn → kommune-kantene ble fjernet (884 målt 2026-10-08).
+        Assert.True(s.Forste.NyeKanter > 800, $"Første kjøring: {s.Forste.NyeKanter} kanter.");
         Assert.Equal(0, s.Andre.NyeOmrader);
         Assert.Equal(0, s.Andre.NyeKanter);
         Assert.Equal(0, s.Andre.NyeVirksomheter);
@@ -290,10 +291,10 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
             Assert.Equal(forskriftId, k.HjemmelRettskildeId);
             Assert.Matches(@"/§1[1-6]/ledd-([2-9]|\d\d)$", k.HjemmelEid); // et sogner-ledd, ikke «utgjør»-leddet
         });
-        // Bergen tingrett: «Til lagsognet Vestland sogner …» i § 13.
-        var bergen = await db.Virksomheter.SingleAsync(v => v.Navn == "BERGEN TINGRETT");
-        var bergenSogner = Assert.Single(sogner, k => k.FraVirksomhetId == bergen.Id);
-        Assert.Equal("lagsogn Vestland", lagsogn[bergenSogner.TilBegrepId!.Value]);
+        // Hordaland tingrett sogner til lagsognet Vestland (Gulating).
+        var hordaland = await db.Virksomheter.SingleAsync(v => v.Navn == "HORDALAND TINGRETT");
+        var hordalandSogner = Assert.Single(sogner, k => k.FraVirksomhetId == hordaland.Id);
+        Assert.Equal("lagsogn Vestland", lagsogn[hordalandSogner.TilBegrepId!.Value]);
 
         Assert.False(await db.Strukturkanter.AnyAsync(k => k.Kategori == Strukturkanter.Omradesammensetning && k.FraBegrepId != null
             && lagsogn.Keys.Contains(k.FraBegrepId.Value) && k.TilBegrepId != null && kommuner.Contains(k.TilBegrepId.Value)));
@@ -373,7 +374,9 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
         var tjeneste = new StrukturkantTjeneste(db);
         var perHjemmel = await tjeneste.ForslagPerHjemmelAsync();
         var antall = perHjemmel.Single(g => g.RettskildeId == forskriftId).Antall;
-        Assert.True(antall > 700, $"{antall} forslag");
+        // [ENDRET, #345] Tingrett → kommune 357, sete 61, tingrett → lagsogn 28, lagdømme → lagsogn 15,
+        // lagmannsrett → lagdømme 6. (Før #345: 790, med 357 utflatede lagsogn → kommune og uten de 28 + 6.)
+        Assert.Equal(467, antall);
 
         Assert.Equal(antall, await tjeneste.GodkjennAlleForHjemmelAsync(forskriftId, "monster:", "Kari Jurist"));
         Assert.False(await db.Strukturkanter.AnyAsync(k => k.HjemmelRettskildeId == forskriftId && k.Status != "validert"));
