@@ -1036,6 +1036,8 @@ public class NavnekandidaterEndepunktTests
         var brukerId = await HentJuristIdAsync();
         var scene = await OpprettSceneAsync("Energiklagenemnda");
         await using var db0 = _fixture.NyDbContext();
+        // [Merk, #330: 'klageinstans' er siden fjernet; den faste koden heter nå 'klageinstans_for', motsatt vei.
+        // Testen bruker fortsatt sin egen unike kode, så den er upåvirket.]
         // Unikt kode-suffiks — 'klageinstans' er en av de faste kodene API-oppstart seeder (samme
         // vokabular som issue #263s testcase), og et forsøk på å legge den inn på nytt her ville
         // veltet ux_relasjonstype_konfigurasjon_kategori_kode (før #311: _kode) i denne DELTE test-databasen.

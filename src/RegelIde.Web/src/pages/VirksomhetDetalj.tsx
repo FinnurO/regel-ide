@@ -374,7 +374,7 @@ export default function VirksomhetDetalj() {
           Relasjoner til andre virksomheter
         </Heading>
         <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
-          Navngitte relasjoner til BESTEMTE, konkrete virksomheter (f.eks. «underlagt», «sekretariat for»)
+          Navngitte relasjoner til BESTEMTE, konkrete virksomheter (f.eks. «er klageinstans for», «er sekretariat for»)
           — til forskjell fra «Overordnet enhet» i Grunndata over, som er automatisk Brreg-avledet uten
           hjemmel. Listen viser relasjoner i BEGGE retninger fra denne virksomhetens ståsted — samme rad
           kan altså vises med ulik tekst på motpartens side.

@@ -13,6 +13,24 @@
 > Gyldighetslogikken fra Del B (kantens egne datoer + hjemmelens status) er `StrukturkantTjeneste.ErGjeldende`.
 > `'organ'` er fjernet som nodetype — organer er virksomheter. Filnavn og klassenavn i tabellene under er historiske.
 
+> **[Peker, issue #330, 2026-10-08]** De fire (fem med `oppgaver_overfort_til`) relasjonstypene i C.2-tabellen
+> under **finnes ikke lenger**. De ble lest motsatt vei av docs/33 §4.3-kodene («X har klageinstans hos Y» =
+> «Y er klageinstans for X»), så samme forhold kunne ligge lagret begge veier. Johann besluttet 2026-10-08 å
+> harmonisere; migrasjonen `HarmoniserRelasjonskoder` (`RelasjonskodeHarmonisering.cs`) konverterte radene og
+> slettet kodene fra `relasjonstype_konfigurasjon` og fra `Strukturkanter.Startsett`:
+>
+> | Gammel kode | Ny kode | Retning |
+> |---|---|---|
+> | `klageinstans` | R `klageinstans_for` | fra/til byttet |
+> | `sekretariat` | R `sekretariat_for` | fra/til byttet |
+> | `oppgaver_overfort_til` | R `etterfolger` | fra/til byttet |
+> | `enhet_i` | **G** `del_av` (organtilhørighet) | samme |
+> | `underlagt` | R `administrativt_underordnet` | samme |
+>
+> Målt lokalt 2026-10-08: 29 kanter før og etter; 10 konvertert (3 + 4 + 2 + 1 + 0), hver med en proveniensrad
+> som har gammel kode og opprinnelige ender (`endret_av = 'migrasjon-330'`). C.2-tabellen og C.1-kommentarene
+> under er historiske.
+
 Implementerbar spesifikasjon for den ALLEREDE BESLUTTEDE, IKKE BYGGEDE datamodellen i
 `docs/28-navnekandidat-presisjon-innspill.md`, seksjonen «Beslutning: datamodell for gruppe, relasjon
 og myndighetstildeling (2026-09-02)». Dette dokumentet er spesifikasjon og byggeplan — det inneholder
@@ -402,6 +420,8 @@ tabell:
 | `sekretariat` | «har sekretariat hos {0}» | «er sekretariat for {0}» |
 | `klageinstans` | «har klageinstans hos {0}» | «er klageinstans for {0}» |
 | `enhet_i` | «er enhet i {0}» | «har enhet {0}» |
+
+[FJERNET, issue #330] Alle fire kodene over (og `oppgaver_overfort_til`) — se pekeren øverst i dokumentet.
 
 **(b) Er `TaggKindKonfigurasjonEntitet` FAKTISK «admin-redigerbar» i dag, slik docs/28 antar?**
 **Verifisert: NEI.** Dette er en viktig korreksjon til oppdragets egen premiss. Grep + lesing av

@@ -362,7 +362,8 @@ tilgjengelig **uansett status** — også for rader som alt er godkjent eller av
    bare en navneform: «Rolle tildelt her» oppretter en generell myndighetstildeling (rollebegrep +
    paragraf/eId-avgrensning), uavhengig av et eventuelt gruppemedlemskap samtidig — generaliserer det
    som før kun fantes via gruppemedlem-veien. «Relasjon til annen virksomhet» oppretter en
-   `VirksomhetRelasjon` (klageinstans, underlagt, sekretariat …) når teksten beskriver et
+   `VirksomhetRelasjon` (klageinstans, underlagt, sekretariat …; [ENDRET, #311/#330] nå en R-kant med
+   docs/33-kodene — klageinstans for, administrativt underordnet, sekretariat for …) når teksten beskriver et
    organisatorisk forhold til en annen, navngitt virksomhet — løser issue #263 AC2/AC3 sitt
    "Minimalt"-nivå. Gruppe-sporet («gruppe som defineres her») får i tillegg et eget, valgfritt
    gruppe-av-gruppe-tillegg som oppretter gruppebegrepet OG medlemskapet atomisk i samme operasjon.
@@ -406,6 +407,12 @@ korpus (med type — kgl.res., instruks, tildelingsbrev, vedtekter, styrevedtak,
 — og om dokumentasjonen er primær eller sekundær), avgrensning (paragrafspenn og tekst), polaritet
 («kan IKKE instruere» er et eget utsagn), gyldighet, status (forslag/validert) og hvilken mekanisme som
 fant den. Myndighetstildelinger, gruppemedlemskap og virksomhetsrelasjoner ble flyttet inn uten tap.
+
+[NYTT, 2026-10-08, issue #330] Hvert forhold har ÉN kode og én lagret retning: de gamle relasjonskodene
+(«har klageinstans hos», «har sekretariat hos», «fikk oppgavene overført til», «er enhet i», «er underlagt»)
+er konvertert til «er klageinstans for», «er sekretariat for», «etterfølger», «er del av» (organtilhørighet)
+og «er administrativt underordnet», så «hvem er klageinstans for hvem?» gir ett svar. Avgrensningen på en
+eksisterende kant kan rettes over API-et (`PUT /api/strukturkanter/{id}/avgrensning`).
 
 Organene **Stortinget** og **Kongen i statsråd** er nå virksomheter (aktørtype organ), ikke begreper.
 

@@ -25,7 +25,8 @@ import { KILDETYPE_VISNING } from './KildeUtenforKorpus';
  * </ul>
  */
 export const STRUKTURKANT_KATEGORI_VISNING: Record<Strukturkantkategori, { tekst: string; forklaring: string }> = {
-  R: { tekst: 'Relasjon', forklaring: 'Aktør → aktør (klageinstans for, underlagt, sekretariat for …).' },
+  // [ENDRET, #330] «underlagt» var en av de gamle kodene — nå administrativt underordnet.
+  R: { tekst: 'Relasjon', forklaring: 'Aktør → aktør (klageinstans for, administrativt underordnet, sekretariat for …).' },
   K: { tekst: 'Kompetanse', forklaring: 'Aktør/rolle → bestemmelse eller sakstype (forskrift, vedtak, tilsyn …).' },
   M: { tekst: 'Medlemskap', forklaring: 'Aktør/klasse/område → klasse eller område. Det som gjelder klassen, gjelder medlemmet.' },
   O: { tekst: 'Områdesammensetning', forklaring: 'Område → område (består av).' },

@@ -126,10 +126,16 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
           dette leddet — et objekt {"RolleNavn": "rollebegrepet slik det brukes andre steder i loven",
           "ParagrafEid": "[eId] der rollen tildeles, eller null for samme som NodeEid"}, ellers null
         - "Relasjon": KUN hvis teksten EKSPLISITT sier at organet står i et hierarkisk/administrativt
-          forhold til ET ANNET navngitt organ (underlagt/sekretariat for/klageinstans for/er en enhet i)
-          — et objekt {"Type": "underlagt"|"sekretariat"|"klageinstans"|"enhet_i", "MotpartNavn": "det
+          forhold til ET ANNET navngitt organ — et objekt {"Type": én av kodene under, "MotpartNavn": "det
           andre organets navn, eksakt som det står i teksten", "HjemletHer": true hvis DENNE paragrafen
-          faktisk sier det, false hvis du utleder det fra en annen kontekst}, ellers null
+          faktisk sier det, false hvis du utleder det fra en annen kontekst}, ellers null. Koden leses ALLTID
+          med organet i "Navn" som subjekt og motparten som objekt:
+            "klageinstans_for" — organet ER klageinstans for motparten (behandler klager over motpartens vedtak)
+            "sekretariat_for" — organet ER sekretariat for motparten
+            "administrativt_underordnet" — organet er administrativt underordnet motparten
+            "del_av" — organet er en enhet i / en del av motparten
+          Står forholdet omvendt (f.eks. organet er det som HAR klageinstans hos motparten), er koden ikke
+          "klageinstans_for" — da hører relasjonen til motpartens eget treff, der motparten er subjektet.
         - "GruppeAvGruppe": KUN for Type="klasse", "omrade" eller "gruppe", OG kun hvis teksten sier at DENNE gruppen selv inngår
           i/er en del av en STØRRE, navngitt gruppe — et objekt {"OverordnetGruppeNavn": "den større
           gruppens navn"}, ellers null
@@ -139,6 +145,11 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
         teksten faktisk sier det eksplisitt, ikke ut fra alminnelig kunnskap om norsk forvaltning.
         """;
 
+    // [ENDRET, issue #330, 2026-10-08] Relasjonskodene i instruksen var de gamle R-kodene
+    // ("underlagt"|"sekretariat"|"klageinstans"|"enhet_i"), som er konvertert og fjernet fra konfigurasjonen
+    // (RelasjonskodeHarmonisering). De var dessuten tvetydige i retning: instruksen sa «klageinstans for», men
+    // koden «klageinstans» leses «har klageinstans hos». Nå er det docs/33 §4.3-kodene, med retningen spelt ut.
+    // «Er en enhet i» er G del_av (organtilhørighet), ikke R — se ForsokRelasjonAsync.
     // [ENDRET, issue #310 «nodetype-akse», 2026-10-07] Instruksen over ber nå om klasse/rolle/omrade i
     // stedet for bare "gruppe" (issue #310: «KI-oppdagelsen foreslår klasse, rolle eller område i stedet for
     // gruppe»), med "gruppe" beholdt som det EKSPLISITTE «usikker»-svaret — samme «ingen gjetting»-linje
@@ -421,12 +432,20 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
     private async Task<(Guid? Id, string? IkkeOpprettetGrunn)> ForsokRelasjonAsync(
         RelasjonForslagJson relasjon, string virksomhetNavn, Guid rettskildeId, string nodeEid, string opprettetAv, CancellationToken ct)
     {
-        var relasjonsTypeFinnes = await db.RelasjonsTypeKonfigurasjoner.AnyAsync(
-            t => t.Kategori == Strukturkanter.Relasjon && t.Kode == relasjon.Type && t.Aktiv, ct);
-        if (!relasjonsTypeFinnes)
+        // [ENDRET, issue #330] Koden slås opp i R OG G: «er en enhet i» ble G del_av (organtilhørighet) da de gamle
+        // R-kodene ble harmonisert. Kategorien kommer fra konfigurasjonsraden, ikke fra en gjetning; finnes koden i
+        // begge, er den tvetydig og forkastes.
+        var kategorier = await db.RelasjonsTypeKonfigurasjoner
+            .Where(t => (t.Kategori == Strukturkanter.Relasjon || t.Kategori == Strukturkanter.Organtilhorighet)
+                        && t.Kode == relasjon.Type && t.Aktiv)
+            .Select(t => t.Kategori).ToListAsync(ct);
+        if (kategorier.Count != 1)
         {
-            return (null, $"Ukjent relasjonstype '{relasjon.Type}' fra KI-agenten — ingen gjettet fallback.");
+            return (null, kategorier.Count == 0
+                ? $"Ukjent relasjonstype '{relasjon.Type}' fra KI-agenten — ingen gjettet fallback."
+                : $"Relasjonstypen '{relasjon.Type}' finnes i flere kategorier ({string.Join(", ", kategorier)}) — ingen gjettet fallback.");
         }
+        var kategori = kategorier[0];
 
         var fraId = await virksomhetOppslag.FinnVirksomhetIdForNavnEllerNavneformAsync(virksomhetNavn, ct);
         if (fraId is null)
@@ -445,7 +464,7 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
 
         // Samme dublettregel som VirksomhetRelasjon hadde (fra, til, type) — uansett hjemmel/avgrensning.
         var eksisterende = await db.Strukturkanter.FirstOrDefaultAsync(
-            r => r.Kategori == Strukturkanter.Relasjon && r.FraVirksomhetId == fraId.Value
+            r => r.Kategori == kategori && r.FraVirksomhetId == fraId.Value
                  && r.TilVirksomhetId == tilId.Value && r.Typekode == relasjon.Type, ct);
         if (eksisterende is not null) return (eksisterende.Id, null);
 
@@ -454,7 +473,7 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
             // [ENDRET, issue #311] «Ikke hjemlet her» var en kommentar på VirksomhetRelasjon; på en kant er det
             // en kilde utenfor korpus (ck_strukturkanter_kilde krever én av dem) — teksten er den samme.
             var opprettet = await strukturkanter.OpprettAsync(new NyStrukturkant(
-                Strukturkanter.Relasjon, relasjon.Type, Kantnode.Virksomhet(fraId.Value), Kantnode.Virksomhet(tilId.Value),
+                kategori, relasjon.Type, Kantnode.Virksomhet(fraId.Value), Kantnode.Virksomhet(tilId.Value),
                 HjemmelRettskildeId: relasjon.HjemletHer ? rettskildeId : null,
                 HjemmelEid: relasjon.HjemletHer ? nodeEid : null,
                 KildeUtenforKorpusTekst: relasjon.HjemletHer ? null : "KI-forslag — ingen bekreftet hjemmel oppgitt av agenten.",

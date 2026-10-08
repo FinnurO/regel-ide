@@ -357,6 +357,9 @@ using (var scope = app.Services.CreateScope())
     // docs/33 §4.3-startsettet for alle åtte kategorier) slik at testene seeder nøyaktig samme typer. Vakten
     // er fortsatt per stabil nøkkel — nå (kategori, kode). [Etterfølgelse-typen «oppgaver_overfort_til»
     // (issue #134, advokatloven § 73) og begrunnelsen for den står nå i Startsett.]
+    // [ENDRET, issue #330, 2026-10-08] De fem gamle R-kodene (underlagt, sekretariat, klageinstans, enhet_i,
+    // oppgaver_overfort_til) er fjernet fra Startsett, så denne seeden legger dem ikke inn igjen etter at
+    // migrasjonen HarmoniserRelasjonskoder har konvertert radene og slettet kodene (RelasjonskodeHarmonisering).
     await Strukturkanter.SeedStartsettAsync(db);
 
     // Testkommunens egne lokale rettskilder (2026-07-29, docs/06-veikart.md) — idempotent, guardet
@@ -3535,6 +3538,34 @@ strukturkanter.MapPost("/", async (HttpRequest request, StrukturkantRequest body
     .WithSummary("Issue #311 — registrerer ett strukturutsagn (R/K/M/O/A/G/I/T) med hjemmel ELLER kilde utenfor korpus, " +
         "avgrensning, polaritet og gyldighet. Et menneskes registrering lagres som 'validert'/'manuell'. Typekoden må " +
         "finnes for kategorien, nodene må ha lovlig type, og M/O kan ikke lukke en sykel (400 med kjeden navngitt).");
+
+// [Ny, issue #330, 2026-10-08] Den første oppdateringsveien for en eksisterende kant — bare avgrensningen.
+// Bestilt for Energiklagenemnda-raden (Johann 2026-10-08: «Gjøres via API-et», ikke i migrasjonen): kanten er
+// riktig i retning, men mangler avgrensning til § 1 annet ledd. Type, ender og hjemmel er kantens IDENTITET og
+// endres ikke her — feil der rettes ved å slette og registrere på nytt.
+strukturkanter.MapPut("/{id:guid}/avgrensning", async (Guid id, HttpRequest request, OppdaterStrukturkantAvgrensningRequest body,
+        StrukturkantTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        try
+        {
+            var kant = await tjeneste.OppdaterAvgrensningAsync(
+                id, body.Paragrafspenn?.Select(p => new ParagrafspennPar(p.FraEid, p.TilEid)).ToList(), body.AvgrensningTekst,
+                bruker.Navn, ct);
+            return kant is null
+                ? Results.NotFound(new { feil = $"Ingen strukturkant med id '{id}'." })
+                : Results.Ok(StrukturkantDto.FraVisning((await tjeneste.HentAsync(id, ct))!));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("OppdaterStrukturkantAvgrensning")
+    .WithSummary("Issue #330 — erstatter avgrensningen (paragrafspenn + tekst) på en eksisterende kant. Hver eId må finnes " +
+        "i korpus; M/I med hjemmel krever spenn; en endring som ville gitt en dublett av en annen kant avvises (400). " +
+        "Gammel og ny verdi logges i Proveniens.");
 
 strukturkanter.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest request, StrukturkantTjeneste tjeneste,
         RegelIdeDbContext db, CancellationToken ct) =>

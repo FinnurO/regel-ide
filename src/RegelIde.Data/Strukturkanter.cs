@@ -108,7 +108,8 @@ public static class Strukturkanter
     /// Kategoriene der en sykel er en registreringsfeil og avvises (Johanns valg i issue #164 for
     /// gruppe-av-gruppe, bevart her): medlemskap og områdesammensetning arves transitivt, så en ring ville
     /// velte enhver traversering. R har bevisst INGEN sykelsjekk (docs/29 §C.3: A kan være «underlagt» B og B
-    /// samtidig «enhet_i» A i en annen betydning) — uendret fra <c>VirksomhetRelasjon</c>.
+    /// samtidig «enhet_i» A i en annen betydning) — uendret fra <c>VirksomhetRelasjon</c>. [Merk, #330: <c>enhet_i</c>
+    /// er siden blitt G <c>del_av</c>; eksempelet om to ulike betydninger mellom samme par gjelder fortsatt.]
     /// </summary>
     public static readonly string[] SykelfrieKategorier = [Medlemskap, Omradesammensetning];
 
@@ -118,13 +119,17 @@ public static class Strukturkanter
     /// Seedes ved oppstart per (kategori, kode); en kode som alt finnes røres ikke (maler kan være endret
     /// bevisst i drift).
     /// <para>
-    /// <b>De fem første R-kodene er de som fantes før #311</b> (<c>underlagt</c>, <c>sekretariat</c>,
-    /// <c>klageinstans</c>, <c>enhet_i</c>, <c>oppgaver_overfort_til</c>) — data fra
-    /// <c>virksomhet_relasjoner</c> er migrert med SAMME typekode (issue #311). Tre av dem overlapper i
-    /// betydning med docs/33-koder i MOTSATT retning (<c>klageinstans</c> «har klageinstans hos» ↔
-    /// <c>klageinstans_for</c>, <c>sekretariat</c> ↔ <c>sekretariat_for</c>, og <c>underlagt</c> ≈
-    /// <c>administrativt_underordnet</c>). De er IKKE slått sammen: det krever at eksisterende rader snus,
-    /// og er et valg for Johann (åpent spørsmål i PR-en for #311), ikke noe migrasjonen skal gjette.
+    /// <b>[FJERNET, issue #330, 2026-10-08] De fem R-kodene fra før #311</b> (<c>underlagt</c>, <c>sekretariat</c>,
+    /// <c>klageinstans</c>, <c>enhet_i</c>, <c>oppgaver_overfort_til</c>) sto først i lista fram til #330. #311
+    /// migrerte <c>virksomhet_relasjoner</c> med SAMME typekode, og tre av dem leses MOTSATT vei av sin
+    /// docs/33-tvilling («X har klageinstans hos Y» = «Y er klageinstans for X»), så «hvem er klageinstans for
+    /// hvem?» ga to svar. Johann besluttet 2026-10-08 å harmonisere: migrasjonen <c>HarmoniserRelasjonskoder</c>
+    /// konverterte radene (<see cref="RelasjonskodeHarmonisering"/> har mappingen: <c>klageinstans</c> →
+    /// <c>klageinstans_for</c>, <c>sekretariat</c> → <c>sekretariat_for</c> og <c>oppgaver_overfort_til</c> →
+    /// <c>etterfolger</c> med fra/til byttet; <c>enhet_i</c> → G <c>del_av</c> og <c>underlagt</c> →
+    /// <c>administrativt_underordnet</c> i samme retning) og slettet de gamle kodene fra konfigurasjonen. De er
+    /// fjernet HERFRA også — ellers ville seeden under lagt dem inn igjen ved neste oppstart, og veiviseren og
+    /// «Legg til relasjon» (som lister konfigurasjonen) ville tilbudt dem på nytt.
     /// </para>
     /// <para>
     /// <b>K-kodene følger docs/33 §4.3</b> (<c>forskrift</c>, <c>vedtak</c> …), ikke FORMAT.md/
@@ -135,13 +140,10 @@ public static class Strukturkanter
     public static readonly IReadOnlyList<(string Kategori, string Kode, string FraMal, string TilMal)> Startsett =
     [
         // ---- R relasjon (aktør → aktør) ----
-        (Relasjon, "underlagt", "er underlagt {0}", "er eier/overordnet for {0}"),
-        (Relasjon, "sekretariat", "har sekretariat hos {0}", "er sekretariat for {0}"),
-        (Relasjon, "klageinstans", "har klageinstans hos {0}", "er klageinstans for {0}"),
-        (Relasjon, "enhet_i", "er enhet i {0}", "har enhet {0}"),
-        // [Ny, etterfølgelse-runden, 2026-09-09, issue #134] Rettslig ETTERFØLGELSE — se Program.cs-historikken
-        // (advokatloven § 73). Flyttet hit fra oppstartsblokken i Program.cs i #311.
-        (Relasjon, "oppgaver_overfort_til", "fikk oppgavene overført til {0}", "overtok oppgavene til {0}"),
+        // [FJERNET, issue #330, 2026-10-08] underlagt, sekretariat, klageinstans, enhet_i og oppgaver_overfort_til
+        // — se avsnittet over. Den rettslige ETTERFØLGELSEN fra etterfølgelse-runden (2026-09-09, issue #134,
+        // advokatloven § 73: «Advokatbevillingsnemnden fikk oppgavene overført til Advokatnemnda») uttrykkes nå
+        // som «Advokatnemnda etterfolger Advokatbevillingsnemnden».
         (Relasjon, "klageinstans_for", "er klageinstans for {0}", "har klageinstans hos {0}"),
         (Relasjon, "administrativt_underordnet", "er administrativt underordnet {0}", "er administrativt overordnet {0}"),
         (Relasjon, "instruksjon", "kan instruere {0}", "kan instrueres av {0}"),
