@@ -36,7 +36,8 @@ public sealed record KommuneTilhorighet(
 /// beregnet fra strukturkantene, ikke lagret.
 /// <para>
 /// <b>Algoritmen.</b> (1) Alle områder kommunen inngår i: <c>O bestar_av</c>-kanter oppover, transitivt (fylke,
-/// lagsogn → lagdømme, fylke → helseregion). (2) Alle aktører med <c>A har_ansvarsomrade</c> til kommunen eller et av
+/// lagsogn → lagdømme, fylke → helseregion). [ENDRET, #345] Lagsognet nås gjennom tingretten: kommune ← tingrett
+/// (<c>A har_ansvarsomrade</c>) → lagsogn (<c>A sogner_til</c>), se <see cref="AvledetGjennomSognerTilAsync"/>. (2) Alle aktører med <c>A har_ansvarsomrade</c> til kommunen eller et av
 /// disse områdene. (3) Rubrikkene velges av OMRÅDETYPEN kanten lander på — ikke av navnet på aktøren:
 /// </para>
 /// <list type="bullet">
@@ -77,7 +78,13 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
             .Where(k => k.Kategori == Strukturkanter.Omradesammensetning
                         && k.FraBegrepId != null && k.TilBegrepId != null)
             .ToListAsync(ct), ct);
-        var foreldre = oKanter.GroupBy(k => k.TilBegrepId!.Value).ToDictionary(g => g.Key, g => g.Select(k => k.FraBegrepId!.Value).ToList());
+        // [ENDRET, issue #345, Johann 2026-10-08] Foreldrekantene er O-kantene PLUSS kantene avledet gjennom en aktør
+        // som «sogner til» et område: tingretten har ansvarsområde til kommunen (§§ 2–9) og sogner til lagsognet
+        // (§§ 11–16), så kommunen inngår i lagsognet. Kjeden er kommune ← tingrett → lagsogn → lagdømme. Ingenting av
+        // dette lagres som kant lagsogn → kommune; det er utledet her fra det forskriften faktisk sier.
+        var foreldrekanter = oKanter.Select(k => (Barn: k.TilBegrepId!.Value, Forelder: k.FraBegrepId!.Value, Validert: k.Status == "validert"))
+            .Concat(await AvledetGjennomSognerTilAsync(ct)).ToList();
+        var foreldre = foreldrekanter.GroupBy(k => k.Barn).ToDictionary(g => g.Key, g => g.Select(k => k.Forelder).ToList());
         var overordnedeIder = new List<Guid>();
         var ko = new Queue<Guid>([kommune.Id]);
         var sett = new HashSet<Guid> { kommune.Id };
@@ -91,8 +98,8 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
             }
         }
         // [Ny, #312] Områder som bare nås via et forslag: samme traversering over bare validerte kanter.
-        var valideredeForeldre = oKanter.Where(k => k.Status == "validert").GroupBy(k => k.TilBegrepId!.Value)
-            .ToDictionary(g => g.Key, g => g.Select(k => k.FraBegrepId!.Value).ToList());
+        var valideredeForeldre = foreldrekanter.Where(k => k.Validert).GroupBy(k => k.Barn)
+            .ToDictionary(g => g.Key, g => g.Select(k => k.Forelder).ToList());
         var validertSett = new HashSet<Guid> { kommune.Id };
         var vko = new Queue<Guid>([kommune.Id]);
         while (vko.Count > 0)
@@ -152,5 +159,27 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
             Akt("RHF", a => a.Via.Omradetype == Omradetyper.Helseregion),
         };
         return new KommuneTilhorighet(omrader[kommune.Id], rubrikker, overordnede, ansvarlige);
+    }
+
+    /// <summary>
+    /// [Ny, issue #345] Avledede foreldrekanter: aktøren X har <c>A sogner_til</c> område L og <c>A har_ansvarsomrade</c>
+    /// område N ⇒ N inngår i L. Validert bare når BEGGE kantene er validert; ellers hviler svaret på et forslag.
+    /// </summary>
+    private async Task<List<(Guid Barn, Guid Forelder, bool Validert)>> AvledetGjennomSognerTilAsync(CancellationToken ct)
+    {
+        var sogner = await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
+            .Where(k => k.Kategori == Strukturkanter.Ansvarsomrade && k.Typekode == OmraderegisterSeed.SognerTil
+                        && k.FraVirksomhetId != null && k.TilBegrepId != null)
+            .ToListAsync(ct), ct);
+        if (sogner.Count == 0) return [];
+        var aktorer = sogner.Select(k => k.FraVirksomhetId!.Value).Distinct().ToList();
+        var ansvar = await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
+            .Where(k => k.Kategori == Strukturkanter.Ansvarsomrade && k.Typekode == "har_ansvarsomrade"
+                        && k.FraVirksomhetId != null && aktorer.Contains(k.FraVirksomhetId.Value) && k.TilBegrepId != null)
+            .ToListAsync(ct), ct);
+        var ansvarPerAktor = ansvar.GroupBy(k => k.FraVirksomhetId!.Value).ToDictionary(g => g.Key, g => g.ToList());
+        return sogner.SelectMany(s => (ansvarPerAktor.GetValueOrDefault(s.FraVirksomhetId!.Value) ?? [])
+                .Select(a => (Barn: a.TilBegrepId!.Value, Forelder: s.TilBegrepId!.Value, Validert: s.Status == "validert" && a.Status == "validert")))
+            .ToList();
     }
 }

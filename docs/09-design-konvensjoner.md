@@ -1020,3 +1020,6 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Samlet godkjenning:** når området har forslag, vises «Godkjenn alle N forslag hjemlet i X» øverst på områdefanen —
   to klikk (knapp → «Bekreft»), fordi handlingen gjelder alle forslag med samme hjemmel, også i andre områder.
   Tilhørigheten merker en kandidat «Forslag» (`info`) når svaret hviler på en ikke-godkjent kant.
+- **[Ny, issue #345] «Sogner hit»:** `A sogner_til` (tingrett → lagsogn) vises ikke under «Hvem har ansvar her», men i
+  en egen seksjon «Sogner hit». Seksjonen rendres bare når den har innhold, og det har den i praksis bare for lagsogn.
+  En kommunes lagsogn og lagdømme står ikke som kant på kommunen. De avledes i tilhørigheten gjennom tingretten.

@@ -38,6 +38,31 @@ public static class OmraderegisterSeed
     public const string OpprettetAv = "seed:omraderegister";
     public const string Konfignokkel = "RegelIde:Omraderegister:SeedVedOppstart";
 
+    /// <summary>[Ny, issue #345] Typekoden for «Til lagsognet X sogner A tingrett» (A, tingrett → lagsogn).</summary>
+    public const string SognerTil = "sogner_til";
+
+    /// <summary>[Ny, issue #345] Oppdagelseskilden for tingrett → lagsogn (mønsteret inndeling-sogner, #307).</summary>
+    public const string SognerTilOppdagelseskilde = "monster:inndeling-sogner-til";
+
+    /// <summary>[ENDRET, issue #345, Johann 2026-10-08] Oppdagelseskilden for lagdømme → lagsogn. Kanten kommer fra
+    /// «utgjør»-leddet (§§ 11–16 første ledd, mønsteret inndeling-utgjor), ikke «sogner»-leddet. #342 merket den
+    /// feilaktig «monster:inndeling-sogner»; <see cref="RettOppdagelseskildeForUtgjorAsync"/> retter rader som alt finnes.</summary>
+    public const string UtgjorOppdagelseskilde = "monster:inndeling-utgjor";
+
+    /// <summary>[Ny, issue #345] Idempotent retting av merkingen på lagdømme → lagsogn-kanter #342 skrev med feil
+    /// mønster-id. Rører bare O <c>bestar_av</c>-kanter med den gamle etiketten og hjemmel i inndelingsforskriften,
+    /// og bare <c>OppdagelsesKilde</c> — status, hjemmel og ender er urørt.</summary>
+    private static async Task<int> RettOppdagelseskildeForUtgjorAsync(RegelIdeDbContext db, Guid forskriftId, CancellationToken ct)
+    {
+        var feilmerket = await db.Strukturkanter
+            .Where(k => k.Kategori == Strukturkanter.Omradesammensetning && k.Typekode == "bestar_av"
+                        && k.OppdagelsesKilde == "monster:inndeling-sogner" && k.HjemmelRettskildeId == forskriftId)
+            .ToListAsync(ct);
+        foreach (var k in feilmerket) k.OppdagelsesKilde = UtgjorOppdagelseskilde;
+        if (feilmerket.Count > 0) await db.SaveChangesAsync(ct);
+        return feilmerket.Count;
+    }
+
     public sealed record Resultat(
         int NyeOmrader,
         int NyeKanter,
@@ -51,7 +76,8 @@ public static class OmraderegisterSeed
         IReadOnlyDictionary<string, IReadOnlyList<string>> DelteKommuner,
         IReadOnlyList<string> Konverteringsavvik,
         int GjortTilForslag = 0,
-        int SlettedeKanter = 0);
+        int SlettedeKanter = 0,
+        int SlettedeUtflatedeKanter = 0);
 
     private sealed class Tilstand(RegelIdeDbContext db, StrukturkantTjeneste kanter, VirksomhetsbegrepTjeneste navneformer)
     {
@@ -67,6 +93,7 @@ public static class OmraderegisterSeed
         public int KommunenummerFylt;
         public int GjortTilForslag;
         public int SlettedeKanter;
+        public int SlettedeUtflatedeKanter;
         public List<string> Hoppet { get; } = [];
         public List<string> Navneavvik { get; } = [];
     }
@@ -140,7 +167,7 @@ public static class OmraderegisterSeed
         return new Resultat(t.NyeOmrader, t.NyeKanter, t.NyeVirksomheter, t.KommunenummerFylt, t.Hoppet, t.Navneavvik,
             utenRettssubjekt, utenKommune,
             domstol?.Uloste ?? [], domstol?.DelteKommuner ?? new Dictionary<string, IReadOnlyList<string>>(),
-            domstol?.Konverteringsavvik ?? [], t.GjortTilForslag, t.SlettedeKanter);
+            domstol?.Konverteringsavvik ?? [], t.GjortTilForslag, t.SlettedeKanter, t.SlettedeUtflatedeKanter);
     }
 
     private static Resultat Tomt(Tilstand t) =>
@@ -214,6 +241,7 @@ public static class OmraderegisterSeed
             return null;
         }
         var forskriftId = forskrift[0].Id;
+        await RettOppdagelseskildeForUtgjorAsync(t.Db, forskriftId, ct); // [Ny, issue #345] retter #342-etiketten på lagdømme → lagsogn
         var noder = await t.Db.RettskildeNoder
             .Where(n => n.RettskildeId == forskriftId && n.Entitetsstatus == "gjeldende")
             .OrderBy(n => n.Sorteringsrekkefolge)
@@ -272,7 +300,23 @@ public static class OmraderegisterSeed
             }
         }
 
-        // ---- Lagsogn → kommuner (via tingrettens kommuner), lagdømme → lagsogn ----
+        // ---- Lagsogn og tingrett → lagsogn (§§ 11–16, «Til lagsognet X sogner A tingrett og B tingrett») ----
+        // [ENDRET, issue #345, Johann 2026-10-08] Hele kjeden står i forskriften, og bare den lagres:
+        //   §§ 2–9      tingrett «dekker kommunene …»  → A tingrett har_ansvarsomrade kommune (over)
+        //   §§ 11–16    «Til lagsognet X sogner …»     → A tingrett sogner_til lagsogn (her)
+        //   §§ 11–16    «… utgjør Z lagdømme»          → O lagdømme bestar_av lagsogn (under)
+        // Kommunens lagsogn og lagdømme AVLEDES i oppslaget (OmradeOppslagTjeneste): kommune ← tingrett → lagsogn →
+        // lagdømme.
+        //
+        // Typekoden er A «sogner_til» (aktør → område), samme som fasiten og mønsteret inndeling-sogner
+        // («annet:sogner_til», kategori ansvarsomrade). O er utelukket fordi fra-noden er tingretten, ikke et område:
+        // #312 lager ingen rettskrets-node (bare områder en kilde navngir får node). G del_av er organ → rettssubjekt.
+        // Lest slik: tingrettens ansvarsområde (domssognet) inngår i lagsognet.
+        //
+        // [FJERNET, issue #345, Johann 2026-10-08] Her lå 357 kanter «O lagsogn bestar_av kommune», avledet via
+        // tingrettens kommuneliste (kommentar «Via X tingrett, som sogner til lagsognet …»). Johann: det er utflatet
+        // data som teksten ikke sier, og «alt skal kunne utledes fra forskriften ned på kommunenivå». Kantene slettes i
+        // oppryddingen under, gjennom tjenesten (logget i Proveniens), og lages ikke lenger.
         var lagsognOmrade = new Dictionary<string, BegrepEntitet>(StringComparer.Ordinal);
         foreach (var l in r.Lagsogn)
         {
@@ -282,14 +326,10 @@ public static class OmraderegisterSeed
             foreach (var trNavn in l.Tingretter)
             {
                 var tr = r.Tingretter.Single(x => string.Equals(x.Tekstform, trNavn, StringComparison.OrdinalIgnoreCase));
-                foreach (var k in tr.Kommuner)
-                {
-                    await KantAsync(t, new NyStrukturkant(Strukturkanter.Omradesammensetning, "bestar_av",
-                        Kantnode.Begrep(omr.Id), Kantnode.Begrep(kommunePerNummer[k.Kommunenummer].Id),
-                        HjemmelRettskildeId: forskriftId, HjemmelEid: l.Eid,
-                        Kommentar: $"Via {tr.Tekstform}, som sogner til lagsognet; kommunelisten står i {tr.Eid.Split("/nor/").Last()}."),
-                        ct, "monster:inndeling-sogner");
-                }
+                if (!tingrettVirksomhet.TryGetValue(tr.Tekstform, out var v)) continue; // listet i Hoppet over
+                await KantAsync(t, new NyStrukturkant(Strukturkanter.Ansvarsomrade, SognerTil,
+                    Kantnode.Virksomhet(v.Id), Kantnode.Begrep(omr.Id),
+                    HjemmelRettskildeId: forskriftId, HjemmelEid: l.Eid), ct, SognerTilOppdagelseskilde);
             }
         }
         var lagdommeOmrade = new Dictionary<string, BegrepEntitet>(StringComparer.Ordinal);
@@ -302,22 +342,43 @@ public static class OmraderegisterSeed
             {
                 await KantAsync(t, new NyStrukturkant(Strukturkanter.Omradesammensetning, "bestar_av",
                     Kantnode.Begrep(omr.Id), Kantnode.Begrep(lagsognOmrade[ls].Id),
-                    HjemmelRettskildeId: forskriftId, HjemmelEid: ld.Eid), ct, "monster:inndeling-sogner");
+                    HjemmelRettskildeId: forskriftId, HjemmelEid: ld.Eid), ct, UtgjorOppdagelseskilde);
             }
 
-            // [FJERNET, issue #312, Johanns beslutning 2026-10-08] Kanten lagmannsrett → lagdømme ble koblet via NAVNET
-            // («<X> lagdømme» ↔ Brreg «<X> LAGMANNSRETT», hjemmel forskriften § 10 første ledd). Johann: ikke via navn.
-            // Målt 2026-10-08: ingen tekst i korpus sier hvilken lagmannsrett som hører til hvilket lagdømme —
-            // domstolloven § 10 første ledd handler om lagmannsrettenes dommere, § 16 første ledd og forskriften § 10
-            // sier bare at hvert lagdømme HAR én lagmannsrett. Uten navnet kan kanten ikke bestemmes, så den lages ikke;
-            // rubrikken «lagmannsrett» i oppslaget er «mangler» til en kilde avgjør paret. De seks kantene seeden
-            // laget før beslutningen slettes under (gjennom tjenesten, logget i Proveniens). Lagmannsrett-virksomhetene
-            // seeden opprettet blir stående: de er ordinære Brreg-enheter.
+            // [ENDRET, issue #345, Johann 2026-10-08] Kanten lagmannsrett → lagdømme er lagt inn igjen, som FORSLAG
+            // (blokken etter oppryddingen under). Navneregel: lagmannsretten for lagdømmet «X lagdømme» er «X
+            // lagmannsrett» (FOR-2021-01-22-163 § 10 første ledd: «Hvert lagdømme har en lagmannsrett»). Bekreftet
+            // som regel av Johann 2026-10-08.
+            //
+            // Historikk: i #342 ble kanten først lagret som validert, koblet via navnet. Etter Johanns «ikke via navn»
+            // ble den fjernet ([FJERNET]). Begrunnelsen var at ingen tekst i korpus parer lagmannsrett og lagdømme.
+            // Den runden leste feilaktig domstolloven § 10 som kandidat for hjemmel; den paragrafen handler om
+            // lagmannsrettenes dommere. Johann pekte på forskriften § 10 første ledd og bekreftet navneregelen.
         }
 
         // [Ny, issue #312, Johanns beslutning 2026-10-08] Opprydding av kanter seeden lagret FØR beslutningen, gjennom
         // tjenesten (ikke SQL). Bare seedens egne, urørte kanter (OpprettetAv = seed, SistEndretAv NULL): en kant et
         // menneske har godkjent etterpå har SistEndretAv satt og røres aldri.
+        var lagsognIder = lagsognOmrade.Values.Select(b => b.Id).ToHashSet();
+        var kommuneIder = kommunePerNummer.Values.Select(b => b.Id).ToHashSet();
+        bool ErLagsognKommune(StrukturkantEntitet k) =>
+            k.Kategori == Strukturkanter.Omradesammensetning && k.FraBegrepId is { } fra && lagsognIder.Contains(fra)
+            && k.TilBegrepId is { } til && kommuneIder.Contains(til);
+
+        // [Ny, issue #345] De 357 utflatede lagsogn → kommune-kantene (se [FJERNET] over), uansett status: Johanns
+        // beslutning gjelder selve utsagnet, ikke om det er godkjent. Bare seedens egne kanter med forskriften som hjemmel.
+        var utflatede = (await t.Db.Strukturkanter
+                .Where(k => k.HjemmelRettskildeId == forskriftId && k.OpprettetAv == OpprettetAv
+                            && k.Kategori == Strukturkanter.Omradesammensetning)
+                .ToListAsync(ct))
+            .Where(ErLagsognKommune).ToList();
+        foreach (var k in utflatede)
+        {
+            await t.Kanter.SlettAsync(k.Id, OpprettetAv, ct);
+            t.Kantnokler.Remove((k.Kategori, k.Typekode, k.FraVirksomhetId, k.FraBegrepId, k.TilVirksomhetId, k.TilBegrepId, k.HjemmelRettskildeId));
+            t.SlettedeUtflatedeKanter++;
+        }
+
         var gamle = await t.Db.Strukturkanter
             .Where(k => k.HjemmelRettskildeId == forskriftId && k.OpprettetAv == OpprettetAv && k.SistEndretAv == null
                         && k.Status == "validert")
@@ -326,9 +387,11 @@ public static class OmraderegisterSeed
         foreach (var k in gamle)
         {
             if (k.Kategori == Strukturkanter.Ansvarsomrade && k.FraVirksomhetId is not null && k.TilBegrepId is { } til
-                && lagdommeIder.Contains(til))
+                && lagdommeIder.Contains(til) && k.OppdagelsesKilde != DomstolinndelingTolker.LagmannsrettOppdagelseskilde)
             {
-                await t.Kanter.SlettAsync(k.Id, OpprettetAv, ct); // lagmannsrett → lagdømme via navn (se [FJERNET] over)
+                // Den VALIDERTE navnekanten fra før beslutningen (oppdagelseskilde «manuell»). [ENDRET, #345] Den
+                // erstattes av forslaget under, med samme nøkkel; derfor kjører oppryddingen FØR forslaget lages.
+                await t.Kanter.SlettAsync(k.Id, OpprettetAv, ct);
                 t.Kantnokler.Remove((k.Kategori, k.Typekode, k.FraVirksomhetId, k.FraBegrepId, k.TilVirksomhetId, k.TilBegrepId, k.HjemmelRettskildeId));
                 t.SlettedeKanter++;
             }
@@ -336,6 +399,25 @@ public static class OmraderegisterSeed
             {
                 await t.Kanter.GjorTilForslagAsync(k.Id, k.OppdagelsesKilde, OpprettetAv, ct);
                 t.GjortTilForslag++;
+            }
+        }
+
+        // ---- [Ny, issue #345, Johann 2026-10-08] Lagmannsrett → lagdømme, som forslag ----
+        // Hjemmel: forskriften § 10 første ledd (r.LagmannsrettEid). Navneregelen (DomstolinndelingTolker.
+        // ParLagmannsretter) gir lagmannsretten. Finnes ikke «X lagmannsrett» eksakt, lages ingen kant, og lagdømmet
+        // listes i Hoppet.
+        if (r.LagmannsrettEid is not null)
+        {
+            var (par, uparet) = DomstolinndelingTolker.ParLagmannsretter(r.Lagdommer, domstoler);
+            t.Hoppet.AddRange(uparet);
+            foreach (var p in par)
+            {
+                var lv = await DomstolAsync(t, p.Lagmannsrett, navneform: null, kilder.BrregDomstoler.Hentet, ct);
+                await KantAsync(t, new NyStrukturkant(Strukturkanter.Ansvarsomrade, "har_ansvarsomrade",
+                    Kantnode.Virksomhet(lv.Id), Kantnode.Begrep(lagdommeOmrade[p.Lagdomme.Navn].Id),
+                    HjemmelRettskildeId: forskriftId, HjemmelEid: r.LagmannsrettEid,
+                    Kommentar: DomstolinndelingTolker.LagmannsrettKommentar(p.Lagdomme.Navn, p.Lagdomme.Navn[..^" lagdømme".Length] + " lagmannsrett")),
+                    ct, DomstolinndelingTolker.LagmannsrettOppdagelseskilde);
             }
         }
         return r;

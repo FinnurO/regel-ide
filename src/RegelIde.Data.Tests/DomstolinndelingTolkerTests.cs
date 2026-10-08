@@ -110,4 +110,29 @@ public sealed class DomstolinndelingTolkerTests(ITestOutputHelper utskrift)
         Assert.Equal("5610", karasjok.Key);
         Assert.Equal(2, karasjok.Value.Count);
     }
+
+    [Fact]
+    public void Hvert_lagdomme_pares_med_lagmannsretten_med_samme_navn_og_uten_ett_treff_pares_det_ikke()
+    {
+        // [Ny, issue #345] Hjemmelen er § 10 første ledd; paret er navnets.
+        var r = Tolk();
+        Assert.EndsWith("/§10/ledd-1", r.LagmannsrettEid);
+        var domstoler = Kilder().BrregDomstoler.Enheter;
+        var (par, uparet) = DomstolinndelingTolker.ParLagmannsretter(r.Lagdommer, domstoler);
+        Assert.Empty(uparet);
+        Assert.Equal(
+            ["AGDER LAGMANNSRETT", "BORGARTING LAGMANNSRETT", "EIDSIVATING LAGMANNSRETT", "FROSTATING LAGMANNSRETT", "GULATING LAGMANNSRETT", "HÅLOGALAND LAGMANNSRETT"],
+            par.Select(p => p.Lagmannsrett.Navn).Order(StringComparer.Ordinal));
+        Assert.Equal("GULATING LAGMANNSRETT", par.Single(p => p.Lagdomme.Navn == "Gulating lagdømme").Lagmannsrett.Navn);
+
+        // Mangler én, eller er navnet tvetydig: ingen par, og lagdømmet listes.
+        var utenAgder = domstoler.Where(d => d.Navn != "AGDER LAGMANNSRETT").ToList();
+        var dobbel = domstoler.Append(new OmraderegisterKilder.BrregDomstol("999999999", "Gulating lagmannsrett", "ORGL")).ToList();
+        var (par1, uparet1) = DomstolinndelingTolker.ParLagmannsretter(r.Lagdommer, utenAgder);
+        var (par2, uparet2) = DomstolinndelingTolker.ParLagmannsretter(r.Lagdommer, dobbel);
+        Assert.Equal(5, par1.Count);
+        Assert.StartsWith("Agder lagdømme: 0 treff", Assert.Single(uparet1));
+        Assert.Equal(5, par2.Count);
+        Assert.StartsWith("Gulating lagdømme: 2 treff", Assert.Single(uparet2));
+    }
 }

@@ -508,8 +508,9 @@ using (var scope = app.Services.CreateScope())
             omradeSeed.NyeOmrader, omradeSeed.NyeKanter, omradeSeed.NyeVirksomheter, omradeSeed.KommunenummerFylt,
             omradeSeed.KommunerUtenRettssubjekt.Count, omradeSeed.UlosteDomstoler.Count, omradeSeed.DelteKommuner.Count);
         app.Logger.LogInformation(
-            "Områderegister-seed: {Forslag} validerte domstolkanter gjort om til forslag, {Slettet} navnebaserte lagmannsrett-kanter slettet.",
-            omradeSeed.GjortTilForslag, omradeSeed.SlettedeKanter);
+            "Områderegister-seed: {Forslag} validerte domstolkanter gjort om til forslag, {Slettet} validerte navnebaserte "
+            + "lagmannsrett-kanter slettet, {Utflatede} utflatede lagsogn → kommune-kanter slettet (#345).",
+            omradeSeed.GjortTilForslag, omradeSeed.SlettedeKanter, omradeSeed.SlettedeUtflatedeKanter);
         foreach (var x in omradeSeed.Hoppet.Concat(omradeSeed.Navneavvik).Concat(omradeSeed.UlosteDomstoler))
         {
             app.Logger.LogWarning("Områderegister-seed: {Melding}", x);

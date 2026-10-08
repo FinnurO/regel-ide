@@ -26,6 +26,8 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
         ("871034222", "VÅLER KOMMUNE"), // 3419 Innlandet
         ("958935420", "OSLO KOMMUNE"), // 0301
         ("820852982", "KRISTIANSAND KOMMUNE"), // 4204
+        ("964965226", "STAVANGER KOMMUNE"), // 1103 — [Ny, #345] Rogaland sogner til Gulating
+        ("960510542", "VOSS HERAD"), // 4621 — [Ny, #345] Vestland, Gulating
     ];
 
     private static readonly SemaphoreSlim Las = new(1, 1);
@@ -78,7 +80,8 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
     public async Task Andre_kjoring_skriver_ingenting_vakten_er_pa_stabil_nokkel()
     {
         var s = await SeededAsync();
-        Assert.True(s.Forste.NyeKanter > 1000, $"Første kjøring: {s.Forste.NyeKanter} kanter.");
+        // [ENDRET, #345] Var > 1000 før de 357 utflatede lagsogn → kommune-kantene ble fjernet (884 målt 2026-10-08).
+        Assert.True(s.Forste.NyeKanter > 800, $"Første kjøring: {s.Forste.NyeKanter} kanter.");
         Assert.Equal(0, s.Andre.NyeOmrader);
         Assert.Equal(0, s.Andre.NyeKanter);
         Assert.Equal(0, s.Andre.NyeVirksomheter);
@@ -140,18 +143,17 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
         await using var db = Ny(s.ConnString);
         Assert.Empty(s.Forste.UlosteDomstoler);
         Assert.Empty(s.Forste.DelteKommuner);
-        Assert.Equal(28, s.Forste.NyeVirksomheter); // 28 tingretter. [ENDRET, #312] Lagmannsrettene kobles ikke lenger via navn.
+        Assert.Equal(34, s.Forste.NyeVirksomheter); // 28 tingretter + 6 lagmannsretter. [ENDRET, #345] Lagmannsrettene er tilbake, som forslag.
 
         var forskriftId = await db.Rettskilder.Where(r => r.Eli == DomstolinndelingTolker.ForskriftEli).Select(r => r.Id).SingleAsync();
         var domstolkanter = await db.Strukturkanter.Where(k => k.HjemmelRettskildeId == forskriftId).ToListAsync();
         Assert.All(domstolkanter, k => Assert.NotNull(k.HjemmelEid));
         // [Ny, #312, Johanns beslutning 2026-10-08] Tolket lovtekst er forslag med mønsteret som oppdagelseskilde.
         Assert.All(domstolkanter, k => Assert.Equal("foreslatt_av_ai", k.Status));
-        Assert.All(domstolkanter, k => Assert.StartsWith("monster:inndeling-", k.OppdagelsesKilde));
+        // [ENDRET, #345] Alle er mønsterforslag: inndelingsmønstrene og navneregelen lagmannsrett → lagdømme.
+        Assert.All(domstolkanter, k => Assert.True(k.OppdagelsesKilde.StartsWith("monster:inndeling-", StringComparison.Ordinal)
+                                                   || k.OppdagelsesKilde == DomstolinndelingTolker.LagmannsrettOppdagelseskilde, k.OppdagelsesKilde));
         Assert.False(await db.Strukturkanter.AnyAsync(k => k.KildeUtenforKorpusType == Strukturkanter.Register && k.Status != "validert"));
-        // Ingen lagmannsrett → lagdømme (ikke via navn).
-        var lagdommer = await db.Begreper.Where(b => b.Omradetype == Omradetyper.Lagdomme).Select(b => b.Id).ToListAsync();
-        Assert.False(await db.Strukturkanter.AnyAsync(k => k.Kategori == "A" && k.TilBegrepId != null && lagdommer.Contains(k.TilBegrepId.Value)));
         Assert.Equal(357, domstolkanter.Count(k => k.Typekode == "har_ansvarsomrade" && k.TilBegrepId != null
             && db.Begreper.Any(b => b.Id == k.TilBegrepId && b.Omradetype == Omradetyper.Kommune)));
 
@@ -180,6 +182,8 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
     [InlineData("4204", "Agder", "Agder tingrett", "lagsogn Agder", "Agder lagdømme", "Statsforvalteren i Agder", "Helseregion Sør-Øst", "HELSE SØR-ØST RHF")]
     [InlineData("3114", "Østfold", "Søndre Østfold tingrett", "lagsogn Søndre Østfold", "Borgarting lagdømme", "Statsforvalteren i Østfold, Buskerud, Oslo og Akershus", "Helseregion Sør-Øst", "HELSE SØR-ØST RHF")]
     [InlineData("3419", "Innlandet", "Hedmarken og Østerdal tingrett", "lagsogn Innlandet", "Eidsivating lagdømme", "Statsforvalteren i Innlandet", "Helseregion Sør-Øst", "HELSE SØR-ØST RHF")]
+    [InlineData("1103", "Rogaland", "Sør-Rogaland tingrett", "lagsogn Rogaland", "Gulating lagdømme", "Statsforvaltaren i Rogaland", "Helseregion Vest", "HELSE VEST RHF")]
+    [InlineData("4621", "Vestland", "Hardanger og Voss tingrett", "lagsogn Vestland", "Gulating lagdømme", "Statsforvaltaren i Vestland", "Helseregion Vest", "HELSE VEST RHF")]
     public async Task Oppslag_gitt_kommune_gir_entydig_fylke_tingrett_lagdomme_statsforvalter_og_RHF(
         string kommunenummer, string fylke, string tingrett, string lagsogn, string lagdomme,
         string statsforvalter, string helseregion, string rhf)
@@ -199,8 +203,14 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
         Entydig("tingrett", tingrett);
         Entydig("lagsogn", lagsogn);
         Entydig("lagdømme", lagdomme);
-        // [ENDRET, #312] Ingen kilde i korpus parer lagmannsrett og lagdømme — rubrikken er «mangler», ikke gjettet.
-        Assert.Equal("mangler", r["lagmannsrett"].Status);
+        // [ENDRET, #345] Lagmannsretten finnes, men som forslag: forskriften § 10 hjemler at lagdømmet har én, og
+        // paret er navnets til et menneske har bekreftet det. (I #342 var rubrikken «mangler».)
+        Assert.True(r["lagmannsrett"].Entydig, $"lagmannsrett: {r["lagmannsrett"].Status} [{string.Join(" | ", r["lagmannsrett"].Kandidater)}]");
+        Assert.Equal(lagdomme.Replace(" lagdømme", " lagmannsrett", StringComparison.Ordinal), r["lagmannsrett"].Kandidater.Single(), ignoreCase: true);
+        Assert.True(r["lagmannsrett"].Forslag.Single());
+        // [Ny, #345] Lagsogn og lagdømme er avledet gjennom tingretten (forslag), ikke lagret på kommunen.
+        Assert.True(r["lagsogn"].Forslag.Single());
+        Assert.True(r["lagdømme"].Forslag.Single());
         // Domstolsvarene hviler på forslag til de er godkjent; fylke/statsforvalter/RHF på validerte kanter.
         Assert.True(r["tingrett"].Forslag.Single());
         Assert.False(r["fylke"].Forslag.Single());
@@ -208,6 +218,178 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
         Entydig("statsforvalter", statsforvalter);
         Entydig("helseregion", helseregion);
         Entydig("RHF", rhf);
+    }
+
+    /// <summary>[Ny, issue #345] Lagdømmet og orgnr-et til lagmannsretten med samme navn i brreg-domstoler.json.</summary>
+    private static readonly Dictionary<string, string> LagmannsrettPerLagdomme = new(StringComparer.Ordinal)
+    {
+        ["Hålogaland lagdømme"] = "926720481",
+        ["Frostating lagdømme"] = "926720589",
+        ["Gulating lagdømme"] = "926720937",
+        ["Agder lagdømme"] = "926720988",
+        ["Borgarting lagdømme"] = "926721356",
+        ["Eidsivating lagdømme"] = "926721321",
+    };
+
+    private const string ForskriftParagraf10Ledd1 = "https://lovdata.no/eli/forskrift/2021/01/22/163/nor/§10/ledd-1";
+
+    [Fact]
+    public async Task Lagmannsrett_far_ansvarsomrade_til_sitt_lagdomme_som_forslag_hjemlet_i_forskriften_paragraf_10_forste_ledd()
+    {
+        var s = await SeededAsync();
+        await using var db = Ny(s.ConnString);
+        var forskriftId = await db.Rettskilder.Where(r => r.Eli == DomstolinndelingTolker.ForskriftEli).Select(r => r.Id).SingleAsync();
+        var kanter = await db.Strukturkanter
+            .Where(k => k.Kategori == "A" && k.Typekode == "har_ansvarsomrade")
+            .Join(db.Begreper.Where(b => b.Omradetype == Omradetyper.Lagdomme), k => k.TilBegrepId, b => b.Id, (k, b) => new { k, Lagdomme = b.Term })
+            .Join(db.Virksomheter, x => x.k.FraVirksomhetId, v => v.Id, (x, v) => new { x.k, x.Lagdomme, v.Organisasjonsnummer })
+            .ToListAsync();
+
+        // Nøyaktig de seks parene, ett per lagdømme, og ingen andre aktører med ansvarsområde til et lagdømme.
+        Assert.Equal(6, kanter.Count);
+        Assert.Equal(LagmannsrettPerLagdomme.OrderBy(x => x.Key), kanter.ToDictionary(x => x.Lagdomme, x => x.Organisasjonsnummer!).OrderBy(x => x.Key));
+        Assert.All(kanter, x =>
+        {
+            Assert.Equal("foreslatt_av_ai", x.k.Status);
+            Assert.Equal(DomstolinndelingTolker.LagmannsrettOppdagelseskilde, x.k.OppdagelsesKilde);
+            Assert.Equal(forskriftId, x.k.HjemmelRettskildeId);
+            Assert.Equal(ForskriftParagraf10Ledd1, x.k.HjemmelEid);
+            // Kommentaren sier at det er en navneregel med hjemmel, bekreftet av Johann (#345).
+            Assert.StartsWith($"Navneregel: lagmannsretten for lagdømmet «{x.Lagdomme}» er «{x.Lagdomme.Replace(" lagdømme", " lagmannsrett", StringComparison.Ordinal)}»", x.k.Kommentar);
+            Assert.Contains("§ 10 første ledd", x.k.Kommentar);
+            Assert.Contains("Bekreftet som regel av Johann 2026-10-08", x.k.Kommentar);
+        });
+        Assert.DoesNotContain(s.Forste.Hoppet, h => h.Contains("lagdømme", StringComparison.Ordinal));
+        // Med i den samlede godkjenningen for forskriften (prefikset «monster:»).
+        var perHjemmel = await new StrukturkantTjeneste(db).ForslagPerHjemmelAsync();
+        Assert.Equal(await db.Strukturkanter.CountAsync(k => k.HjemmelRettskildeId == forskriftId && k.Status == "foreslatt_av_ai"
+                                                             && k.OppdagelsesKilde.StartsWith("monster:")),
+            perHjemmel.Single(g => g.RettskildeId == forskriftId).Antall);
+    }
+
+    [Fact]
+    public async Task Tingrett_sogner_til_ett_lagsogn_hjemlet_i_sogner_leddet_og_lagsogn_er_ikke_koblet_direkte_til_kommuner()
+    {
+        // [Ny, issue #345, Johann 2026-10-08] Kjeden fra forskriften: tingrett → lagsogn (§§ 11–16), ingen utflatede
+        // lagsogn → kommune-kanter.
+        var s = await SeededAsync();
+        await using var db = Ny(s.ConnString);
+        var forskriftId = await db.Rettskilder.Where(r => r.Eli == DomstolinndelingTolker.ForskriftEli).Select(r => r.Id).SingleAsync();
+        var lagsogn = await db.Begreper.Where(b => b.Omradetype == Omradetyper.Lagsogn).ToDictionaryAsync(b => b.Id, b => b.Term);
+        var kommuner = await db.Begreper.Where(b => b.Omradetype == Omradetyper.Kommune).Select(b => b.Id).ToListAsync();
+        var sogner = await db.Strukturkanter.Where(k => k.Typekode == OmraderegisterSeed.SognerTil).ToListAsync();
+
+        Assert.Equal(28, sogner.Count); // én per tingrett
+        Assert.Equal(28, sogner.Select(k => k.FraVirksomhetId).Distinct().Count());
+        Assert.Equal(15, sogner.Select(k => k.TilBegrepId).Distinct().Count()); // alle lagsognene har minst én tingrett
+        Assert.All(sogner, k =>
+        {
+            Assert.Equal(Strukturkanter.Ansvarsomrade, k.Kategori);
+            Assert.True(lagsogn.ContainsKey(k.TilBegrepId!.Value));
+            Assert.Equal("foreslatt_av_ai", k.Status);
+            Assert.Equal(OmraderegisterSeed.SognerTilOppdagelseskilde, k.OppdagelsesKilde);
+            Assert.Equal(forskriftId, k.HjemmelRettskildeId);
+            Assert.Matches(@"/§1[1-6]/ledd-([2-9]|\d\d)$", k.HjemmelEid); // et sogner-ledd, ikke «utgjør»-leddet
+        });
+        // Hordaland tingrett sogner til lagsognet Vestland (Gulating).
+        var hordaland = await db.Virksomheter.SingleAsync(v => v.Navn == "HORDALAND TINGRETT");
+        var hordalandSogner = Assert.Single(sogner, k => k.FraVirksomhetId == hordaland.Id);
+        Assert.Equal("lagsogn Vestland", lagsogn[hordalandSogner.TilBegrepId!.Value]);
+
+        Assert.False(await db.Strukturkanter.AnyAsync(k => k.Kategori == Strukturkanter.Omradesammensetning && k.FraBegrepId != null
+            && lagsogn.Keys.Contains(k.FraBegrepId.Value) && k.TilBegrepId != null && kommuner.Contains(k.TilBegrepId.Value)));
+        Assert.Equal(0, s.Forste.SlettedeUtflatedeKanter);
+    }
+
+    [Fact]
+    public async Task Utflatede_lagsogn_til_kommune_kanter_fra_342_slettes_gjennom_tjenesten()
+    {
+        // [Ny, issue #345] En base seedet av #342 har kanten «O lagsogn bestar_av kommune». Neste kjøring sletter den
+        // (logget i Proveniens) og lager den ikke igjen.
+        var conn = await NyTomDatabaseAsync("omrader_utflatet");
+        await using var db = Ny(conn);
+        await GrunnlagAsync(db);
+        await KjorAsync(db);
+        var forskriftId = await db.Rettskilder.Where(r => r.Eli == DomstolinndelingTolker.ForskriftEli).Select(r => r.Id).SingleAsync();
+        var lagsognVestland = await db.Begreper.SingleAsync(b => b.Omradetype == Omradetyper.Lagsogn && b.Term == "lagsogn Vestland");
+        var voss = await db.Begreper.SingleAsync(b => b.Omradetype == Omradetyper.Kommune && b.Omradekode == "4621");
+        var gammel = await new StrukturkantTjeneste(db).OpprettAsync(new NyStrukturkant(Strukturkanter.Omradesammensetning, "bestar_av",
+            Kantnode.Begrep(lagsognVestland.Id), Kantnode.Begrep(voss.Id), HjemmelRettskildeId: forskriftId,
+            HjemmelEid: DomstolinndelingTolker.ForskriftEli + "/§13/ledd-2", Kommentar: "Via Hardanger og Voss tingrett (#342)",
+            Status: "foreslatt_av_ai", OppdagelsesKilde: "monster:inndeling-sogner"), OmraderegisterSeed.OpprettetAv);
+
+        await using var db2 = Ny(conn);
+        var igjen = await KjorAsync(db2);
+        Assert.Equal(1, igjen.SlettedeUtflatedeKanter);
+        Assert.Equal(0, igjen.NyeKanter);
+        Assert.False(await db2.Strukturkanter.AnyAsync(k => k.Id == gammel.Kant.Id));
+        Assert.True(await db2.Proveniens.AnyAsync(p => p.EntitetId == gammel.Kant.Id && p.Handling == "slettet"));
+        // Oppslaget gir fortsatt lagsognet, nå avledet gjennom tingretten.
+        var svar = await new OmradeOppslagTjeneste(db2, new StrukturkantTjeneste(db2)).ForKommunenummerAsync("4621");
+        Assert.Equal("lagsogn Vestland", svar!.Rubrikker.Single(r => r.Rubrikk == "lagsogn").Kandidater.Single());
+    }
+
+    [Fact]
+    public async Task Lagdomme_til_lagsogn_merkes_med_utgjor_monsteret_og_gamle_etiketter_rettes()
+    {
+        // [Ny, issue #345, Johann 2026-10-08] Lagdømme → lagsogn kommer fra «utgjør»-leddet. #342 merket kantene
+        // «monster:inndeling-sogner». En ny kjøring retter etiketten på de som alt finnes, og nye får riktig etikett.
+        var conn = await NyTomDatabaseAsync("omrader_utgjor");
+        await using var db = Ny(conn);
+        await GrunnlagAsync(db);
+        await KjorAsync(db);
+        var forskriftId = await db.Rettskilder.Where(r => r.Eli == DomstolinndelingTolker.ForskriftEli).Select(r => r.Id).SingleAsync();
+        bool ErLagdommeTilLagsogn(StrukturkantEntitet k) =>
+            k.Kategori == Strukturkanter.Omradesammensetning && k.Typekode == "bestar_av" && k.HjemmelRettskildeId == forskriftId;
+
+        var kanter = (await db.Strukturkanter.ToListAsync()).Where(ErLagdommeTilLagsogn).ToList();
+        Assert.Equal(15, kanter.Count);
+        Assert.All(kanter, k => Assert.Equal(OmraderegisterSeed.UtgjorOppdagelseskilde, k.OppdagelsesKilde));
+
+        // Simuler en base fra #342: gammel etikett på tre av kantene.
+        foreach (var k in kanter.Take(3)) k.OppdagelsesKilde = "monster:inndeling-sogner";
+        await db.SaveChangesAsync();
+
+        await using var db2 = Ny(conn);
+        await KjorAsync(db2);
+        var etter = (await db2.Strukturkanter.ToListAsync()).Where(ErLagdommeTilLagsogn).ToList();
+        Assert.Equal(15, etter.Count);
+        Assert.All(etter, k => Assert.Equal(OmraderegisterSeed.UtgjorOppdagelseskilde, k.OppdagelsesKilde));
+        Assert.All(etter, k => Assert.Equal("foreslatt_av_ai", k.Status)); // bare etiketten er rørt
+    }
+
+    [Fact]
+    public async Task Lagdomme_uten_lagmannsrett_med_eksakt_navn_far_ingen_kant_og_listes()
+    {
+        // Egen seedmappe der AGDER LAGMANNSRETT er fjernet fra Brreg-øyeblikksbildet.
+        var mappe = Path.Combine(Path.GetTempPath(), $"omrader_uten_agder_{Guid.NewGuid():N}");
+        Directory.CreateDirectory(mappe);
+        try
+        {
+            foreach (var f in OmraderegisterKilder.Alle) File.Copy(Path.Combine(OmraderegisterKilder.StandardMappe, f), Path.Combine(mappe, f));
+            var domstolfil = Path.Combine(mappe, OmraderegisterKilder.BrregDomstolfil);
+            var json = System.Text.Json.Nodes.JsonNode.Parse(await File.ReadAllTextAsync(domstolfil))!;
+            var enheter = json["enheter"]!.AsArray();
+            enheter.Remove(enheter.Single(e => (string?)e!["navn"] == "AGDER LAGMANNSRETT"));
+            await File.WriteAllTextAsync(domstolfil, json.ToJsonString());
+
+            var conn = await NyTomDatabaseAsync("omrader_uten_lagmannsrett");
+            await using var db = Ny(conn);
+            await GrunnlagAsync(db);
+            var resultat = await OmraderegisterSeed.SeedAsync(db, new StrukturkantTjeneste(db), new VirksomhetsbegrepTjeneste(db), mappe);
+
+            var lagdommer = await db.Begreper.Where(b => b.Omradetype == Omradetyper.Lagdomme).ToDictionaryAsync(b => b.Term, b => b.Id);
+            Assert.Equal(6, lagdommer.Count);
+            var agderId = lagdommer["Agder lagdømme"];
+            Assert.False(await db.Strukturkanter.AnyAsync(k => k.Kategori == "A" && k.TilBegrepId == agderId));
+            Assert.Equal(5, await db.Strukturkanter.CountAsync(k => k.OppdagelsesKilde == DomstolinndelingTolker.LagmannsrettOppdagelseskilde));
+            Assert.False(await db.Virksomheter.AnyAsync(v => v.Organisasjonsnummer == "926720988"));
+            Assert.Contains(resultat.Hoppet, h => h.StartsWith("Agder lagdømme: 0 treff på «Agder lagmannsrett»", StringComparison.Ordinal));
+        }
+        finally
+        {
+            Directory.Delete(mappe, recursive: true);
+        }
     }
 
     [Fact]
@@ -221,7 +403,9 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
         var tjeneste = new StrukturkantTjeneste(db);
         var perHjemmel = await tjeneste.ForslagPerHjemmelAsync();
         var antall = perHjemmel.Single(g => g.RettskildeId == forskriftId).Antall;
-        Assert.True(antall > 700, $"{antall} forslag");
+        // [ENDRET, #345] Tingrett → kommune 357, sete 61, tingrett → lagsogn 28, lagdømme → lagsogn 15,
+        // lagmannsrett → lagdømme 6. (Før #345: 790, med 357 utflatede lagsogn → kommune og uten de 28 + 6.)
+        Assert.Equal(467, antall);
 
         Assert.Equal(antall, await tjeneste.GodkjennAlleForHjemmelAsync(forskriftId, "monster:", "Kari Jurist"));
         Assert.False(await db.Strukturkanter.AnyAsync(k => k.HjemmelRettskildeId == forskriftId && k.Status != "validert"));

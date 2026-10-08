@@ -137,7 +137,10 @@ export function Omraderegister({ omradeId, omradetype }: { omradeId: string; omr
 
   const sammensetning = kanter && kanter.filter((k) => k.kategori === 'O' && k.retning === 'fra');
   const inngarI = kanter && kanter.filter((k) => k.kategori === 'O' && k.retning === 'til');
-  const ansvar = kanter && kanter.filter((k) => k.kategori === 'A' && k.retning === 'til');
+  // [ENDRET, issue #345] «sogner_til» (tingrett → lagsogn) er ikke ansvar i området, men tingrettens domssogn som
+  // inngår i det — egen seksjon «Sogner hit», vist bare når den har innhold (lagsognene).
+  const ansvar = kanter && kanter.filter((k) => k.kategori === 'A' && k.retning === 'til' && k.typekode !== 'sogner_til');
+  const sognerHit = kanter && kanter.filter((k) => k.kategori === 'A' && k.retning === 'til' && k.typekode === 'sogner_til');
   const ovrige = kanter && kanter.filter((k) => k.kategori !== 'O' && k.kategori !== 'A');
 
   return (
@@ -149,8 +152,9 @@ export function Omraderegister({ omradeId, omradetype }: { omradeId: string; omr
           <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>Tilhørighet</Heading>
           <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
             Beregnet fra kantene under og i de overordnede områdene: fylke og helseregion fra Kartverket og
-            RHF-vedtektene, tingrett, lagsogn og lagdømme fra forskrift om inndelingen av rettskretser og lagdømmer,
-            statsforvalteren fra embetsinndelingen. Er det ikke nøyaktig én kandidat, velges ingen.
+            RHF-vedtektene, statsforvalteren fra embetsinndelingen. Tingrett, lagsogn, lagdømme og lagmannsrett kommer fra
+            forskrift om inndelingen av rettskretser og lagdømmer, gjennom kjeden kommune ← tingrett → lagsogn → lagdømme.
+            Er det ikke nøyaktig én kandidat, velges ingen.
           </Metatekst>
           {feil && <Alert data-color="danger" data-size="sm">{feil}</Alert>}
           <Card style={{ padding: tilhorighet ? 0 : '1rem', overflow: 'hidden', marginBottom: '0.75rem' }}>
@@ -196,6 +200,16 @@ export function Omraderegister({ omradeId, omradetype }: { omradeId: string; omr
         </Metatekst>
         <StrukturkantTabell kanter={ansvar} tomTekst="Ingen aktør har ansvarsområde direkte i dette området." />
       </section>
+
+      {sognerHit && sognerHit.length > 0 && (
+        <section style={{ marginBottom: '2rem' }}>
+          <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>Sogner hit</Heading>
+          <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
+            Tingrettene som sogner til lagsognet. Kommunene i lagsognet er kommunene disse tingrettene dekker.
+          </Metatekst>
+          <StrukturkantTabell kanter={sognerHit} tomTekst="" />
+        </section>
+      )}
 
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>Består av</Heading>
