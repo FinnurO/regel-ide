@@ -35,7 +35,9 @@ public sealed record NyStrukturkant(
     string Status = "validert", string? AiForslagVersjon = null, string? OppdagelsesKilde = null,
     string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null,
     // [Ny, issue #341, 2026-10-08] Bare på K — se StrukturkantEntitet.Normform/Grunnlag/Delegerbar. Null = ikke angitt.
-    string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null);
+    string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null,
+    // [Ny, issue #352] Bare på K oppnevning/overproving — se StrukturkantEntitet.Undertype. Null = ikke angitt.
+    string? Undertype = null);
 
 /// <summary>Resultatet av <see cref="StrukturkantTjeneste.OpprettAsync"/> — <see cref="VarNy"/> = false betyr
 /// at et identisk utsagn alt fantes og ble returnert uendret (idempotens, se metoden).</summary>
@@ -66,7 +68,9 @@ public sealed record StrukturkantVisning(
     string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null, bool Selvregulering = false,
     // [Ny, issue #341, Johanns hierarkibeslutning] Fra typekonfigurasjonen: familien og fvl-kategorien (for normgivning
     // avledet av normformen, Strukturkanter.FvlKategoriFor).
-    string? Familie = null, string? FvlKategori = null);
+    string? Familie = null, string? FvlKategori = null,
+    // [Ny, issue #352] Undertypen (valg/ansettelse/utpeking/oppnevning på oppnevning, anke på overprøving). Null = ikke angitt.
+    string? Undertype = null);
 
 /// <summary>
 /// [Ny, issue #311 «Strukturmodell 6: én typestyrt kanttabell», 2026-10-07] Den ENESTE skriveveien til
@@ -181,7 +185,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         {
             throw new ArgumentException("En klassenivå-kant uten til-node må ha et objekt (f.eks. «kommunestyre»).");
         }
-        var (normform, grunnlag) = ValiderKompetansefelt(ny.Kategori, ny.Typekode, ny.Normform, ny.Grunnlag, ny.Delegerbar);
+        var (normform, grunnlag, undertype) = ValiderKompetansefelt(ny.Kategori, ny.Typekode, ny.Normform, ny.Grunnlag, ny.Delegerbar, ny.Undertype);
 
         // ---- Kilde ----
         var kildeTekst = string.IsNullOrWhiteSpace(ny.KildeUtenforKorpusTekst) ? null : ny.KildeUtenforKorpusTekst.Trim();
@@ -274,6 +278,8 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             && k.Objekt == objekt && k.Polaritet == ny.Polaritet
             && k.HjemmelRettskildeId == ny.HjemmelRettskildeId && k.HjemmelEid == ny.HjemmelEid
             && k.Normform == normform
+            // [Ny, issue #352] Undertypen er også identitet: «velger» og «ansetter» samme motpart er to utsagn.
+            && k.Undertype == undertype
             && k.AvgrensningParagrafspennJson == spennJson, ct);
         if (eksisterende is not null)
         {
@@ -313,6 +319,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             KildeUtenforKorpusType = kildeType,
             KildeUtenforKorpusDokumentasjon = kildeDok,
             Normform = normform,
+            Undertype = undertype,
             Grunnlag = grunnlag,
             Delegerbar = ny.Delegerbar,
             GyldigFra = ny.GyldigFra,
@@ -413,6 +420,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             && k.Objekt == kant.Objekt && k.Polaritet == kant.Polaritet
             && k.HjemmelRettskildeId == kant.HjemmelRettskildeId && k.HjemmelEid == kant.HjemmelEid
             && k.Normform == kant.Normform
+            && k.Undertype == kant.Undertype
             && k.AvgrensningParagrafspennJson == spennJson, ct);
         if (dublett)
         {
@@ -738,7 +746,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             {
                 // [ENDRET, issue #341] K: motparten med «overfor» (+ normform og objekt) — se Kompetansetekst.
                 var motpart = k.Kategori == Strukturkanter.Kompetanse
-                    ? Kompetansetekst(k.Normform, til?.Navn, selvregulering, k.Objekt, objektTekst)
+                    ? Kompetansetekst(k.Normform ?? k.Undertype, til?.Navn, selvregulering, k.Objekt, objektTekst)
                     : til?.Navn ?? objektTekst;
                 var fraTekst = string.Format(type?.FraVisningsmal ?? "(ukjent type) {0}", motpart);
                 tekst = retning == "fra" ? fraTekst : $"{fra.Navn} {fraTekst}";
@@ -751,7 +759,8 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
                 k.OppdagelsesKilde, k.Kommentar, k.OpprettetAv, k.OpprettetTidspunkt,
                 k.Normform, k.Grunnlag, k.Delegerbar, selvregulering,
                 k.Kategori == Strukturkanter.Kompetanse ? type?.Familie : null,
-                k.Kategori == Strukturkanter.Kompetanse ? Strukturkanter.FvlKategoriFor(k.Typekode, k.Normform, type?.FvlKategori) : null);
+                k.Kategori == Strukturkanter.Kompetanse ? Strukturkanter.FvlKategoriFor(k.Typekode, k.Normform, k.Undertype, type?.FvlKategori) : null,
+                k.Undertype);
         }).ToList();
     }
 
@@ -760,11 +769,16 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
     /// K-malene («har klagekompetanse {0}»): «A har kompetanse av typen X, eventuelt OVERFOR B, når det gjelder Y».
     /// Normformen står først i parentes («har normgivningskompetanse (forskrift) …»). Uten motpart og objekt:
     /// <paramref name="reserve"/> («etter hjemmelen» / «(ikke angitt)», som før).
+    /// <para>
+    /// [ENDRET, issue #352] Første parameter er presiseringen i parentes: normformen ELLER undertypen («har
+    /// oppnevningskompetanse (valg) overfor forliksrådet»). De kan ikke stå på samme kant — normform bare på normgivning,
+    /// undertype bare på oppnevning/overprøving (CHECK-ene) — så kalleren sender den som finnes.
+    /// </para>
     /// </summary>
-    public static string Kompetansetekst(string? normform, string? motpart, bool selvregulering, string? objekt, string reserve)
+    public static string Kompetansetekst(string? presisering, string? motpart, bool selvregulering, string? objekt, string reserve)
     {
         var deler = new List<string>();
-        if (normform is not null) deler.Add($"({normform})");
+        if (presisering is not null) deler.Add($"({presisering})");
         if (selvregulering) deler.Add("overfor seg selv (selvregulering)");
         else if (motpart is not null) deler.Add($"overfor {motpart}");
         if (objekt is not null) deler.Add(motpart is not null || selvregulering ? $"— {objekt}" : objekt);
@@ -778,8 +792,8 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
     /// [Ny, issue #341] Normform, grunnlag og delegerbar finnes bare på K (CHECK-ene i RegelIdeDbContext); normformen bare
     /// på normgivning. Lukkede lister, ingen standardverdi. Returnerer de trimmede verdiene.
     /// </summary>
-    private static (string? Normform, string? Grunnlag) ValiderKompetansefelt(
-        string kategori, string typekode, string? normform, string? grunnlag, bool? delegerbar)
+    private static (string? Normform, string? Grunnlag, string? Undertype) ValiderKompetansefelt(
+        string kategori, string typekode, string? normform, string? grunnlag, bool? delegerbar, string? undertype)
     {
         var nf = string.IsNullOrWhiteSpace(normform) ? null : normform.Trim();
         var gr = string.IsNullOrWhiteSpace(grunnlag) ? null : grunnlag.Trim();
@@ -803,7 +817,20 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             throw new ArgumentException(
                 $"Ukjent grunnlag '{gr}'. Gyldige verdier: {string.Join(", ", Strukturkanter.Grunnlag)}. Ingen gjettet fallback.");
         }
-        return (nf, gr);
+        // [Ny, issue #352] Undertype: bare på K, og bare en undertype typen har (Strukturkanter.Undertyper).
+        var ut = string.IsNullOrWhiteSpace(undertype) ? null : undertype.Trim();
+        if (ut is not null && kategori != Strukturkanter.Kompetanse)
+        {
+            throw new ArgumentException(
+                $"Undertype er en egenskap ved en KOMPETANSE (kategori K) — ikke ved {Strukturkanter.Visningsnavn(kategori)} (issue #352).");
+        }
+        if (ut is not null && !Strukturkanter.ErGyldigUndertype(typekode, ut))
+        {
+            var lov = Strukturkanter.Undertyper.TryGetValue(typekode, out var u) ? string.Join(", ", u) : "ingen";
+            throw new ArgumentException(
+                $"Ukjent undertype '{ut}' for «{typekode}». Gyldige verdier: {lov}. Ingen gjettet fallback (issue #352).");
+        }
+        return (nf, gr, ut);
     }
 
     /// <summary>Hver eId i spennet må finnes som rettskilde-node — ingen gjettet fallback. [Skilt ut fra

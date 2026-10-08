@@ -32,9 +32,23 @@ public static class Kompetanseleksikon
         [property: JsonPropertyName("familie")] string? Familie,
         [property: JsonPropertyName("merknad")] string? Merknad);
 
+    /// <summary>
+    /// [Ny, issue #352, Johanns beslutning 1 2026-10-08] Én undertype: FORMAT.md-typen den hører til, undertypen
+    /// (<see cref="Strukturkanter.Undertyper"/>), VERBET Johann bruker («velger», «ansetter», «utpeker», «oppnevner») og
+    /// ordstammene som avgjør undertypen ut fra et sitat (regulære uttrykk som må stå ved ordstart, store/små bokstaver
+    /// likegyldig). Samme stammer brukes av mønsterlaget (<see cref="UndertypeFor"/>) og av fasitkonverteringen
+    /// (<c>konvertering-352-oppnevning.py</c> leser denne fila), så de ikke kan drifte.
+    /// </summary>
+    public sealed record UndertypeRegel(
+        [property: JsonPropertyName("type")] string Type,
+        [property: JsonPropertyName("undertype")] string Undertype,
+        [property: JsonPropertyName("verb")] string Verb,
+        [property: JsonPropertyName("stammer")] IReadOnlyList<string> Stammer);
+
     private sealed record Fil(
         [property: JsonPropertyName("versjon")] string Versjon,
-        [property: JsonPropertyName("regler")] IReadOnlyList<Regel> Regler);
+        [property: JsonPropertyName("regler")] IReadOnlyList<Regel> Regler,
+        [property: JsonPropertyName("undertyper")] IReadOnlyList<UndertypeRegel>? Undertyper);
 
     private static readonly Lazy<Fil> Innhold = new(() =>
     {
@@ -48,6 +62,25 @@ public static class Kompetanseleksikon
 
     /// <summary>Alle reglene, i filas rekkefølge.</summary>
     public static IReadOnlyList<Regel> Regler => Innhold.Value.Regler;
+
+    /// <summary>[Ny, issue #352] Undertypene med verb og ordstammer, i filas rekkefølge.</summary>
+    public static IReadOnlyList<UndertypeRegel> Undertyper => Innhold.Value.Undertyper ?? [];
+
+    /// <summary>
+    /// [Ny, issue #352] Undertypen sitatet gir for en FORMAT.md-type: den ENE undertypen (for typen) som har en stamme ved
+    /// ordstart i sitatet. Ingen treff, eller treff for flere undertyper («utferdiger oppnevnelse for de valgte»), gir null —
+    /// det gjettes ikke hvilket verb som er det styrende.
+    /// </summary>
+    public static string? UndertypeFor(string type, string sitat)
+    {
+        var treff = Undertyper
+            .Where(u => u.Type == type && u.Stammer.Any(s =>
+                System.Text.RegularExpressions.Regex.IsMatch(sitat, @"\b" + s, System.Text.RegularExpressions.RegexOptions.IgnoreCase)))
+            .Select(u => u.Undertype)
+            .Distinct()
+            .ToList();
+        return treff.Count == 1 ? treff[0] : null;
+    }
 
     /// <summary>Regelen for et mønster. Mangler den, er det en programmeringsfeil — et mønster uten regel har ingen
     /// betydning (ingen gjettet fallback).</summary>

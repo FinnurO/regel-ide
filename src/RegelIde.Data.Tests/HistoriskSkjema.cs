@@ -21,6 +21,7 @@ internal static class HistoriskSkjema
     public const string Strukturkanttabell = "20261007202146_InnforStrukturkanttabell";
     public const string HarmoniserRelasjonskoder = "20261008064334_HarmoniserRelasjonskoder"; // [Ny, #330]
     public const string Omraderegister = "20261008080640_InnforOmraderegister"; // [Ny, #341]
+    public const string KompetanseMedMotpart = "20261008174215_KompetanseMedMotpart"; // [Ny, #352]
 
     /// <summary>Oppretter en ny, tom database og migrerer den til <paramref name="tilMigrasjon"/> (null = siste).</summary>
     /// <param name="leggTilSenereKolonner">[Ny, #341] false for en test som selv migrerer videre til siste versjon
@@ -63,6 +64,8 @@ internal static class HistoriskSkjema
             + "ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS delegerbar boolean; "
             + "ALTER TABLE relasjonstype_konfigurasjon ADD COLUMN IF NOT EXISTS familie text; "
             + "ALTER TABLE relasjonstype_konfigurasjon ADD COLUMN IF NOT EXISTS fvl_kategori text;");
+        // [Ny, issue #352] strukturkanter.undertype (OppnevningsfamilienOgRester).
+        await db.Database.ExecuteSqlRawAsync("ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS undertype text;");
     }
 
     /// <param name="leggTilSenereKolonner">[Ny, #341] Etter en migrering til et HISTORISK punkt legges senere kolonner til

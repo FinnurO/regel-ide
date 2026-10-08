@@ -162,6 +162,7 @@ public sealed class KiStrukturkonverterer(
                 {
                     Oppdagelseskilde = "ki:" + modell,
                     Normform = r.Normform,
+                    Undertype = r.Undertype,
                     Grunnlag = r.Grunnlag,
                     Delegerbar = r.Delegerbar,
                 });
@@ -202,6 +203,12 @@ public sealed class KiStrukturkonverterer(
     /// <summary>[Ny, issue #341, Johanns beslutning 3] Leksikonets uttrykk, ett per linje — det KI-en IKKE skal foreslå for.</summary>
     private static string Leksikonliste() => string.Join("\n", Kompetanseleksikon.Regler
         .Select(r => $"  - {string.Join(" / ", r.Uttrykk.Select(u => $"«{u}»"))} → {r.Kategori}/{r.Type}{(r.Normform is null ? "" : $" ({r.Normform})")}"));
+
+    /// <summary>[Ny, issue #352] Undertypene per kompetansetype, med verbene fra leksikonet: «bare på oppnevningskompetanse —
+    /// valg («velger»), …».</summary>
+    private static string Undertypeliste() => string.Join("; ", Kompetanseleksikon.Undertyper
+        .GroupBy(u => u.Type)
+        .Select(g => $"bare på {g.Key} — {string.Join(", ", g.Select(u => $"\"{u.Undertype}\" («{u.Verb}»)"))}"));
 
     private static string ByggSystemInstruks()
     {
@@ -248,6 +255,8 @@ public sealed class KiStrukturkonverterer(
               kompetanse = MYNDIGHET: «A har kompetanse av typen X, eventuelt overfor B, når det gjelder Y». Klageinstans,
                 instruksjon, omgjøring, oppnevning, tilsyn med en aktør, avsetting, sanksjon og samtykke er kompetanse —
                 "til" = motparten (den det gjelder), ellers null med "objekt" satt. «X kan delegere» = delegeringskompetanse.
+                Å velge, ansette, utpeke eller oppnevne noen er oppnevningskompetanse med "undertype"; ankeinstans er
+                overprovingskompetanse med "undertype": "anke".
                 Forskrift er normgivningskompetanse med "normform": "forskrift". vedtakskompetanse betyr enkeltvedtak.
                 Kan du ikke avgjøre typen for et kompetanseuttrykk, bruk "{{Strukturkontrakt.Ukjent}}" — ikke gjett;
               medlemskap = aktør/klasse→klasse; sammensetning_omrade = område→område; ansvarsomrade = aktør→område;
@@ -256,6 +265,7 @@ public sealed class KiStrukturkonverterer(
             - "fra", "til": aktør-id fra "aktorer" i DETTE svaret, eller null når teksten ikke avgjør aktøren
             - "objekt": for kompetanse: bestemmelsen/sakstypen/regelverket (f.eks. "vedtak etter § 3-1")
             - "normform": bare på normgivningskompetanse — en av {{string.Join(", ", Strukturkontrakt.Normformer)}}, når teksten sier det
+            - "undertype": {{Undertypeliste()}} — når teksten sier det, ellers utelat
             - "grunnlag": bare på kompetanse — "privatrettslig" når kompetansen følger av eierskap/selskapsrett, ellers utelat
             - "delegerbar": bare på kompetanse — false for «Kongen i statsråd …» og «X selv …», true for «Kongen …», ellers utelat
             - "polaritet": "positiv" eller "negativ" — ALLTID med («kan ikke instruere» = negativ)
@@ -536,7 +546,8 @@ public sealed class KiStrukturkonverterer(
             & Streng(u, "polaritet", out var polaritet) & Streng(u, "avgrensning", out var avgrensning)
             & Bool(u, "betinget", out var betinget) & Bool(u, "kilde_utenfor_korpus", out var utenfor)
             & Streng(u, "sikkerhet", out var sikkerhet) & Streng(u, "kommentar", out var kommentar)
-            & Streng(u, "normform", out var normform) & Streng(u, "grunnlag", out var grunnlag) & Bool(u, "delegerbar", out var delegerbar);
+            & Streng(u, "normform", out var normform) & Streng(u, "grunnlag", out var grunnlag) & Bool(u, "delegerbar", out var delegerbar)
+            & Streng(u, "undertype", out var undertype);
 
         KastetRad Kast(string arsak, string detalj) =>
             new(arsak, tagg is not null && noder.TryGetValue(tagg, out var n) ? n.Eid : tagg, sitat, kategori, type, detalj);
@@ -575,9 +586,13 @@ public sealed class KiStrukturkonverterer(
             return (null, Kast(KastetArsak.UgyldigFelt, $"grunnlag = «{grunnlag}» (bare på kompetanse)."));
         if (delegerbar is not null && kategori != "kompetanse")
             return (null, Kast(KastetArsak.UgyldigFelt, "delegerbar finnes bare på kompetanse."));
+        // [Ny, issue #352] Undertypen: bare en undertype FORMAT.md-typen har (oppnevning: valg/ansettelse/utpeking/oppnevning;
+        // overprøving: anke).
+        if (undertype is not null && (kategori != "kompetanse" || !Strukturkontrakt.ErGyldigUndertype(type, undertype)))
+            return (null, Kast(KastetArsak.UgyldigFelt, $"undertype = «{undertype}» (bare på oppnevnings-/overprøvingskompetanse, lukket liste)."));
 
         return (new KiRad(node.Eid, sitat, kategori, type, fraAktor, tilAktor, objekt, polaritet, avgrensning,
-            betinget, utenfor, sikkerhet, kommentar, normform, grunnlag, delegerbar), null);
+            betinget, utenfor, sikkerhet, kommentar, normform, grunnlag, delegerbar, undertype), null);
     }
 
     /// <summary>
@@ -828,7 +843,9 @@ internal sealed record KiRad(
     string Eid, string Sitat, string Kategori, string Type, KiAktor? Fra, KiAktor? Til, string? Objekt, string Polaritet,
     string? Avgrensning, bool? Betinget, bool? KildeUtenforKorpus, string? Sikkerhet, string? Kommentar,
     // [Ny, issue #341] Bare på kompetanse (normform bare på normgivning) — validert i TolkUtsagn.
-    string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null);
+    string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null,
+    // [Ny, issue #352] Bare på oppnevnings-/overprøvingskompetanse — validert i TolkUtsagn.
+    string? Undertype = null);
 
 /// <summary>Én validert aktør fra ett KI-svar.</summary>
 internal sealed record KiAktor(

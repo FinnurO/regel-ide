@@ -200,6 +200,11 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                 t.HasCheckConstraint("ck_strukturkanter_grunnlag",
                     "grunnlag IS NULL OR (kategori = 'K' AND grunnlag IN ('offentligrettslig', 'privatrettslig'))");
                 t.HasCheckConstraint("ck_strukturkanter_delegerbar", "delegerbar IS NULL OR kategori = 'K'");
+                // [Ny, issue #352] Undertype bare på K, og bare de undertypene typen har (Strukturkanter.Undertyper).
+                t.HasCheckConstraint("ck_strukturkanter_undertype",
+                    "undertype IS NULL OR (kategori = 'K' AND ("
+                    + "(typekode = 'oppnevning' AND undertype IN ('valg', 'ansettelse', 'utpeking', 'oppnevning')) "
+                    + "OR (typekode = 'overproving' AND undertype IN ('anke'))))");
                 // docs/33 §4.3: «HjemmelRettskildeId + HjemmelEid — påkrevd, ELLER KildeUtenforKorpus».
                 // [ENDRET, Johanns beslutning 2026-10-07] ELLER i streng forstand: med hjemmel i korpus er alle
                 // kilde-utenfor-feltene NULL; uten hjemmel er både teksten og TYPEN påkrevd.
@@ -234,6 +239,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.KildeUtenforKorpusType).HasColumnName("kilde_utenfor_korpus_type");
             e.Property(x => x.KildeUtenforKorpusDokumentasjon).HasColumnName("kilde_utenfor_korpus_dokumentasjon");
             e.Property(x => x.Normform).HasColumnName("normform");
+            e.Property(x => x.Undertype).HasColumnName("undertype");
             e.Property(x => x.Grunnlag).HasColumnName("grunnlag");
             e.Property(x => x.Delegerbar).HasColumnName("delegerbar");
             e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
@@ -1010,8 +1016,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             {
                 t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_kategori", "kategori IN ('R', 'K', 'M', 'O', 'A', 'G', 'I', 'T')");
                 // [Ny, issue #341] Familie og fvl-kategori finnes bare på kompetansetyper.
+                // [ENDRET, issue #352, Johanns beslutning 2026-10-08] 'personell' heter 'oppnevning'.
                 t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_familie",
-                    "familie IS NULL OR (kategori = 'K' AND familie IN ('struktur', 'personell', 'styring', 'normgivning', "
+                    "familie IS NULL OR (kategori = 'K' AND familie IN ('struktur', 'oppnevning', 'styring', 'normgivning', "
                     + "'kontroll', 'klage_overproving', 'vedtak', 'sanksjon'))");
                 t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_fvl_kategori",
                     "fvl_kategori IS NULL OR (kategori = 'K' AND fvl_kategori IN ('forskrift', 'enkeltvedtak', 'ikke_vedtak'))");
