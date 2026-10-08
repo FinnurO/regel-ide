@@ -305,14 +305,18 @@ public static class OmraderegisterSeed
                     HjemmelRettskildeId: forskriftId, HjemmelEid: ld.Eid), ct, "monster:inndeling-sogner");
             }
 
-            // [FJERNET, issue #312, Johanns beslutning 2026-10-08] Kanten lagmannsrett → lagdømme ble koblet via NAVNET
-            // («<X> lagdømme» ↔ Brreg «<X> LAGMANNSRETT», hjemmel forskriften § 10 første ledd). Johann: ikke via navn.
-            // Målt 2026-10-08: ingen tekst i korpus sier hvilken lagmannsrett som hører til hvilket lagdømme —
-            // domstolloven § 10 første ledd handler om lagmannsrettenes dommere, § 16 første ledd og forskriften § 10
-            // sier bare at hvert lagdømme HAR én lagmannsrett. Uten navnet kan kanten ikke bestemmes, så den lages ikke;
-            // rubrikken «lagmannsrett» i oppslaget er «mangler» til en kilde avgjør paret. De seks kantene seeden
-            // laget før beslutningen slettes under (gjennom tjenesten, logget i Proveniens). Lagmannsrett-virksomhetene
-            // seeden opprettet blir stående: de er ordinære Brreg-enheter.
+            // [ENDRET, issue #345, Johann 2026-10-08] Kanten lagmannsrett → lagdømme er lagt inn igjen, nå som
+            // FORSLAG. Se blokken etter oppryddingen under.
+            //
+            // Historikk: i #342 ble kanten først lagret som validert, koblet via navnet. Etter Johanns «ikke via navn»
+            // ble den fjernet ([FJERNET]). Begrunnelsen var at ingen tekst i korpus parer lagmannsrett og lagdømme.
+            // Den runden leste feilaktig domstolloven § 10 som kandidat for hjemmel; den paragrafen handler om
+            // lagmannsrettenes dommere.
+            //
+            // Johann pekte på den riktige hjemmelen: inndelingsforskriften (FOR-2021-01-22-163) § 10 første ledd,
+            // «Hvert lagdømme har en lagmannsrett som er ankeinstans for flere rettskretser.» Forskriften hjemler AT
+            // lagdømmet har én lagmannsrett, men ikke HVILKEN. Paret er derfor navnets, og det står ærlig i kommentaren
+            // på kanten. Kanten er et forslag, og et menneske bekrefter paret i den samlede godkjenningen.
         }
 
         // [Ny, issue #312, Johanns beslutning 2026-10-08] Opprydding av kanter seeden lagret FØR beslutningen, gjennom
@@ -326,9 +330,11 @@ public static class OmraderegisterSeed
         foreach (var k in gamle)
         {
             if (k.Kategori == Strukturkanter.Ansvarsomrade && k.FraVirksomhetId is not null && k.TilBegrepId is { } til
-                && lagdommeIder.Contains(til))
+                && lagdommeIder.Contains(til) && k.OppdagelsesKilde != DomstolinndelingTolker.LagmannsrettOppdagelseskilde)
             {
-                await t.Kanter.SlettAsync(k.Id, OpprettetAv, ct); // lagmannsrett → lagdømme via navn (se [FJERNET] over)
+                // Den VALIDERTE navnekanten fra før beslutningen (oppdagelseskilde «manuell»). [ENDRET, #345] Den
+                // erstattes av forslaget under, med samme nøkkel; derfor kjører oppryddingen FØR forslaget lages.
+                await t.Kanter.SlettAsync(k.Id, OpprettetAv, ct);
                 t.Kantnokler.Remove((k.Kategori, k.Typekode, k.FraVirksomhetId, k.FraBegrepId, k.TilVirksomhetId, k.TilBegrepId, k.HjemmelRettskildeId));
                 t.SlettedeKanter++;
             }
@@ -336,6 +342,29 @@ public static class OmraderegisterSeed
             {
                 await t.Kanter.GjorTilForslagAsync(k.Id, k.OppdagelsesKilde, OpprettetAv, ct);
                 t.GjortTilForslag++;
+            }
+        }
+
+        // ---- [Ny, issue #345, Johann 2026-10-08] Lagmannsrett → lagdømme, som forslag ----
+        // Hjemmel: forskriften § 10 første ledd (r.LagmannsrettEid). Den hjemler AT lagdømmet har én lagmannsrett.
+        // HVILKEN lagmannsrett avgjøres av navnet (DomstolinndelingTolker.ParLagmannsretter). Et menneske bekrefter
+        // paret i den samlede godkjenningen. Gir et lagdømme ikke nøyaktig ett navnetreff, lages ingen kant, og
+        // lagdømmet listes i Hoppet.
+        if (r.LagmannsrettEid is not null)
+        {
+            var (par, uparet) = DomstolinndelingTolker.ParLagmannsretter(r.Lagdommer, domstoler);
+            t.Hoppet.AddRange(uparet);
+            foreach (var p in par)
+            {
+                var lv = await DomstolAsync(t, p.Lagmannsrett, navneform: null, kilder.BrregDomstoler.Hentet, ct);
+                await KantAsync(t, new NyStrukturkant(Strukturkanter.Ansvarsomrade, "har_ansvarsomrade",
+                    Kantnode.Virksomhet(lv.Id), Kantnode.Begrep(lagdommeOmrade[p.Lagdomme.Navn].Id),
+                    HjemmelRettskildeId: forskriftId, HjemmelEid: r.LagmannsrettEid,
+                    Kommentar: $"Forskriften § 10 første ledd hjemler AT {p.Lagdomme.Navn} har én lagmannsrett, men ikke HVILKEN. "
+                               + $"Paret er identifisert ved navnelikhet: «{p.Lagdomme.Navn}» ↔ «{p.Lagmannsrett.Navn}» "
+                               + $"(Enhetsregisteret, orgnr {p.Lagmannsrett.Organisasjonsnummer}). Et menneske bekrefter paret "
+                               + "i den samlede godkjenningen."),
+                    ct, DomstolinndelingTolker.LagmannsrettOppdagelseskilde);
             }
         }
         return r;

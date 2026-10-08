@@ -177,6 +177,15 @@ knapp på områdefanen, hver kant logges i Proveniens). Registerkanter og de kur
 kilde, ikke tolket lovtekst. (2) Lagmannsrett → lagdømme kobles IKKE via navn: ingen tekst i korpus parer dem (domstolloven
 § 10 første ledd gjelder lagmannsrettenes dommere; § 16 første ledd og forskriften § 10 sier bare at hvert lagdømme har én),
 så de seks kantene er slettet og rubrikken er «mangler» til en kilde avgjør paret. (3) Oppslaget tar med forslag, merket.
+**[ENDRET, issue #345, Johann 2026-10-08]** Punkt (2) bygde på en feillesning. Hjemmelen er inndelingsforskriften
+(FOR-2021-01-22-163) § 10 første ledd: «Hvert lagdømme har en lagmannsrett som er ankeinstans for flere rettskretser.»
+Domstolloven § 10 var feil kandidat. De seks kantene er lagt inn igjen som FORSLAG:
+- Hjemmel: eId `…/163/nor/§10/ledd-1`. Oppdagelseskilde: `monster:lagdomme-lagmannsrett-navnepar`.
+- Forskriften hjemler AT hvert lagdømme har én lagmannsrett, men ikke HVILKEN. Paret identifiseres ved navnelikhet
+  («Gulating lagdømme» ↔ «GULATING LAGMANNSRETT» i Enhetsregisteret, `DomstolinndelingTolker.ParLagmannsretter`), og
+  det står i kommentaren på kanten.
+- Paret bekreftes av et menneske i den samlede godkjenningen for forskriften (796 forslag i stedet for 790).
+- Uten nøyaktig ett navnetreff lages ingen kant, og lagdømmet listes.
 
 ### 4.2 Gruppe er en evne, ikke en type
 

@@ -48,6 +48,54 @@ public static class DomstolinndelingTolker
     /// <summary>Teksten i § 10 første ledd som er hjemmelen for at lagdømmet har én lagmannsrett.</summary>
     public const string LagmannsrettSetning = "Hvert lagdømme har en lagmannsrett";
 
+    /// <summary>[Ny, issue #345] Oppdagelseskilden for kanten lagmannsrett → lagdømme. Den er ikke et mønster i
+    /// konverteringen (#307), men en navneregel i <see cref="ParLagmannsretter"/>. Prefikset <c>monster:</c> er likevel
+    /// riktig: kanten er maskinelt avledet, lagres som forslag og godkjennes samlet med resten av forskriften.</summary>
+    public const string LagmannsrettOppdagelseskilde = "monster:lagdomme-lagmannsrett-navnepar";
+
+    /// <summary>[Ny, issue #345] Et lagdømme og lagmannsretten som er paret med det etter navnet.</summary>
+    public sealed record LagmannsrettPar(Lagdomme Lagdomme, OmraderegisterKilder.BrregDomstol Lagmannsrett);
+
+    /// <summary>
+    /// [Ny, issue #345, Johann 2026-10-08] Parer hvert lagdømme med sin lagmannsrett. Paret avgjøres ved
+    /// NAVNELIKHET: «&lt;X&gt; lagdømme» hører til enheten som heter nøyaktig «&lt;X&gt; lagmannsrett» i
+    /// Enhetsregisteret. Navnet sammenlignes uten skille på store og små bokstaver, siden Brreg skriver
+    /// «GULATING LAGMANNSRETT».
+    /// <para>
+    /// Forskriften § 10 første ledd hjemler AT hvert lagdømme har én lagmannsrett («Hvert lagdømme har en
+    /// lagmannsrett som er ankeinstans for flere rettskretser»), men ikke HVILKEN. Derfor er kanten et forslag, og
+    /// et menneske bekrefter paret i den samlede godkjenningen.
+    /// </para>
+    /// <para>
+    /// Gir et lagdømme ikke nøyaktig ett treff, eller slutter navnet ikke på « lagdømme», pares det ikke. Det
+    /// listes i stedet i <c>Uparet</c> (CLAUDE.md §8).
+    /// </para>
+    /// </summary>
+    public static (IReadOnlyList<LagmannsrettPar> Par, IReadOnlyList<string> Uparet) ParLagmannsretter(
+        IReadOnlyList<Lagdomme> lagdommer, IReadOnlyList<OmraderegisterKilder.BrregDomstol> domstoler)
+    {
+        const string etterledd = " lagdømme";
+        var par = new List<LagmannsrettPar>();
+        var uparet = new List<string>();
+        foreach (var ld in lagdommer)
+        {
+            if (!ld.Navn.EndsWith(etterledd, StringComparison.Ordinal))
+            {
+                uparet.Add($"{ld.Navn}: navnet slutter ikke på «lagdømme» — ingen lagmannsrett paret, ingen kant.");
+                continue;
+            }
+            var forventet = ld.Navn[..^etterledd.Length] + " lagmannsrett";
+            var treff = domstoler.Where(d => string.Equals(d.Navn, forventet, StringComparison.OrdinalIgnoreCase)).ToList();
+            if (treff.Count != 1)
+            {
+                uparet.Add($"{ld.Navn}: {treff.Count} treff på «{forventet}» (eksakt navn) i Brreg-øyeblikksbildet — ingen kant.");
+                continue;
+            }
+            par.Add(new LagmannsrettPar(ld, treff[0]));
+        }
+        return (par, uparet);
+    }
+
     /// <summary>SSR-typene et rettssted kan være, i prioritert rekkefølge (samme sett som fornyelsesverktøyet).</summary>
     public static readonly string[] Bebyggelsestyper = ["By", "Tettsted", "Tettbebyggelse", "Bygdelag (bygd)"];
 
