@@ -78,7 +78,10 @@ UAVGJORT = {("relasjon", t) for t in ["bistar", "samarbeider_med", "del_av", "an
 UNDERTYPER = json.load(open(LEKSIKON, encoding="utf-8"))["undertyper"]
 
 # Tillegget: (kilde, utsagn-id, sitat) — sitatet er med, så en omnummerert fasit ikke treffer feil rad.
-SETTES_MED = {("domstolloven", "u17", "settes Høyesterett med fem dommere")}
+SETTES_MED = {("domstolloven", "u17", "settes Høyesterett med fem dommere"),
+              # Johann 2026-10-09: u16 og u18 likedan (L15)
+              ("domstolloven", "u16", "settes Høyesterett med tre dommere"),
+              ("domstolloven", "u18", "Høyesterett i storkammer, satt med 11 dommere")}
 SETTES_MED_FORM = re.compile(r"\b(?:settes|satt)\b[^.;]*\bmed\s+\S+\s+dommere\b")
 
 

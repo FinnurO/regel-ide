@@ -51,7 +51,7 @@ Bokstaven følger `STD`-tabellen i `designtest.py`. `annet:*`-typer står i egen
 | K kompetanse / godkjenningskompetanse | 8 | 7 | 6 | 85,7 % | 75,0 % | 85,7 % | 75,0 % |
 | K kompetanse / klagekompetanse | 22 | 9 | 7 | 77,8 % | 31,8 % | 100,0 % | 40,9 % |
 | R relasjon / administrativt_underordnet | 5 | 0 | 0 | – | 0,0 % | – | 0,0 % |
-| G organsammensetning / har_medlemmer | 23 | 6 | 4 | 66,7 % | 17,4 % | 100,0 % | 26,1 % |
+| G organsammensetning / har_medlemmer | 21 | 6 | 4 | 66,7 % | 19,0 % | 100,0 % | 28,6 % |
 | K kompetanse / oppnevningskompetanse | 79 | 10 | 7 | 70,0 % | 8,9 % | 100,0 % | 12,7 % |
 | K kompetanse / instruksjonskompetanse | 27 | 4 | 4 | 100,0 % | 14,8 % | 100,0 % | 14,8 % |
 | K kompetanse / delegeringskompetanse | 19 | 9 | 8 | 88,9 % | 42,1 % | 88,9 % | 42,1 % |
@@ -183,8 +183,8 @@ Gruppert på kategori/type. Typer mønsterlaget ikke har mønster for, er forven
 | K kompetanse / instruksjonskompetanse | ja | 23 |
 | K kompetanse / tilsynskompetanse | ja | 21 |
 | T konstituerende / skal_finnes | nei | 21 |
-| G organsammensetning / har_medlemmer | ja | 19 |
 | M medlemskap / inngar_i | nei | 18 |
+| G organsammensetning / har_medlemmer | ja | 17 |
 | R relasjon / har_delegert_til | ja | 17 |
 | K kompetanse / klagekompetanse | ja | 15 |
 | senere lag relasjon / bistar | nei | 15 |
@@ -211,7 +211,7 @@ Gruppert på kategori/type. Typer mønsterlaget ikke har mønster for, er forven
 | K kompetanse / avsettingskompetanse | nei | 5 |
 | R relasjon / administrativt_underordnet | ja | 5 |
 | K kompetanse / organisasjonskompetanse | nei | 4 |
-| … 159 typer til (alle `annet:*` eller ≤ 4 utsagn) | | 237 |
+| … 159 typer til (alle `annet:*` eller ≤ 4 utsagn) | | 239 |
 
 De 20 vanligste blant typene med mønster (én fra hver type i tur, vanligste type først):
 

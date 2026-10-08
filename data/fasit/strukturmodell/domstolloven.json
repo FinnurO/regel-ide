@@ -8966,7 +8966,7 @@
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§5/ledd-1",
    "sitat": "settes Høyesterett med tre dommere",
    "kategori": "organsammensetning",
-   "type": "har_medlemmer",
+   "type": "settes_med",
    "fra": "hr_ankeutv",
    "til": "dommer",
    "objekt": "3 dommere",
@@ -8975,7 +8975,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "[#352] Sammensetningen i den enkelte sak (L15), som u17 (Johann 2026-10-09)."
   },
   {
    "id": "u17",
@@ -8998,7 +8998,7 @@
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§5/ledd-4",
    "sitat": "Høyesterett i storkammer, satt med 11 dommere",
    "kategori": "organsammensetning",
-   "type": "har_medlemmer",
+   "type": "settes_med",
    "fra": "storkammer",
    "til": "dommer",
    "objekt": "11 dommere",
@@ -9007,7 +9007,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "[#352] Sammensetningen i den enkelte sak (L15), som u17 (Johann 2026-10-09)."
   },
   {
    "id": "u19",

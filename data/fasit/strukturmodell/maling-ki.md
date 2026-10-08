@@ -114,10 +114,10 @@ Alle typer fra FORMAT.md-listene som står i fasiten eller som et av lagene pred
 | A ansvarsomrade / har_ansvarsomrade | 381 | 357 | 100,0 % | 93,7 % | 35 | 0,0 % | 0,0 % | 91,1 % | 93,7 % | 357 | 0 |
 | A ansvarsomrade / har_sete_i | 65 | 62 | 100,0 % | 95,4 % | 0 | – | 0,0 % | 100,0 % | 95,4 % | 62 | 0 |
 | A ansvarsomrade / har_jurisdiksjon | 3 | 0 | – | 0,0 % | 16 | 0,0 % | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
-| G organsammensetning / har_medlemmer | 23 | 6 | 66,7 % | 17,4 % | 16 | 18,8 % | 13,0 % | 18,2 % | 17,4 % | 1 | 0 |
+| G organsammensetning / har_medlemmer | 21 | 6 | 66,7 % | 19,0 % | 16 | 18,8 % | 14,3 % | 18,2 % | 19,0 % | 1 | 0 |
 | G organsammensetning / har_organ | 10 | 0 | – | 0,0 % | 6 | 33,3 % | 20,0 % | 33,3 % | 20,0 % | 0 | 2 |
 | G relasjon / del_av | 9 | 0 | – | 0,0 % | 19 | 0,0 % | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
-| G organsammensetning / settes_med | 1 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
+| G organsammensetning / settes_med | 3 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | T konstituerende / skal_finnes | 21 | 0 | – | 0,0 % | 14 | 14,3 % | 9,5 % | 14,3 % | 9,5 % | 0 | 2 |
 | senere lag relasjon / samarbeider_med | 24 | 0 | – | 0,0 % | 19 | 57,9 % | 45,8 % | 57,9 % | 45,8 % | 0 | 11 |
 | senere lag relasjon / bistar | 15 | 0 | – | 0,0 % | 20 | 15,0 % | 20,0 % | 15,0 % | 20,0 % | 0 | 3 |
@@ -248,8 +248,8 @@ Eksempler (én fra hver kategori i tur, inntil 20):
 | K kompetanse / instruksjonskompetanse | 27 | 17 | 23 | 13 |
 | K kompetanse / tilsynskompetanse | 26 | 13 | 21 | 14 |
 | senere lag relasjon / samarbeider_med | 24 | 13 | 24 | 13 |
-| G organsammensetning / har_medlemmer | 23 | 20 | 19 | 19 |
 | K kompetanse / klagekompetanse | 22 | 16 | 15 | 12 |
+| G organsammensetning / har_medlemmer | 21 | 18 | 17 | 17 |
 | T konstituerende / skal_finnes | 21 | 19 | 21 | 19 |
 | R relasjon / har_delegert_til | 20 | 20 | 17 | 17 |
 | K kompetanse / delegeringskompetanse | 19 | 12 | 11 | 8 |
@@ -265,5 +265,5 @@ Eksempler (én fra hver kategori i tur, inntil 20):
 | R relasjon / radgir | 10 | 8 | 10 | 8 |
 | annet kompetanse / annet:forkynningskompetanse | 9 | 9 | 9 | 9 |
 | annet medlemskap / annet:klasse_definert_ved_tjenestekrets | 9 | 9 | 9 | 9 |
-| … 171 typer til | 317 | | | |
+| … 171 typer til | 319 | | | |
 
