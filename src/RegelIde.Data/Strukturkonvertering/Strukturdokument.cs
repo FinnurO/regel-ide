@@ -1,4 +1,4 @@
-using System.Text.Json.Serialization;
+﻿using System.Text.Json.Serialization;
 
 namespace RegelIde.Data.Strukturkonvertering;
 
@@ -42,7 +42,13 @@ public sealed record StrukturAktor(
     [property: JsonPropertyName("referent")] string? Referent,
     [property: JsonPropertyName("oppløsning")] string? Opplosning,
     [property: JsonPropertyName("distributiv")] bool? Distributiv,
-    [property: JsonPropertyName("kommentar")] string? Kommentar);
+    [property: JsonPropertyName("kommentar")] string? Kommentar)
+{
+    /// <summary>[Ny, issue #312] Samme som <see cref="StrukturUtsagn.VerifisertAv"/>, for aktører fasitrettelsen endret.</summary>
+    [JsonPropertyName("verifisert_av")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? VerifisertAv { get; init; }
+}
 
 /// <summary>
 /// Ett strukturelt utsagn, jf. FORMAT.md «utsagn». <see cref="Fra"/>/<see cref="Til"/> er aktør-id-er
@@ -73,6 +79,14 @@ public sealed record StrukturUtsagn(
     [JsonPropertyName("oppdagelseskilde")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Oppdagelseskilde { get; init; }
+
+    /// <summary>
+    /// [Ny, issue #312, 2026-10-08] Hvem som har verifisert/rettet raden i fasiten — første bruk er Johanns systemiske
+    /// rettelse av domstollovens inndelingsdel (FORMAT.md). Konverteringen setter det aldri; utelates når null.
+    /// </summary>
+    [JsonPropertyName("verifisert_av")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? VerifisertAv { get; init; }
 }
 
 /// <summary>

@@ -142,9 +142,10 @@ public static class DomstolinndelingTolker
         // ---- Lagsogn (fra «Til lagsognet X sogner …») ----
         var tingrettNavn = ferdigeTingretter.Select(t => t.Tekstform).ToHashSet(StringComparer.OrdinalIgnoreCase);
         var lagsogn = new List<Lagsogn>();
-        foreach (var gruppe in Fra("inndeling-sogner").GroupBy(u => (Navn: Tekst(u.Fra), u.Eid)))
+        // [#312] inndeling-sogner gir «tingrett annet:sogner_til lagsogn» (fra = tingretten, til = lagsognet).
+        foreach (var gruppe in Fra("inndeling-sogner").GroupBy(u => (Navn: Tekst(u.Til), u.Eid)))
         {
-            var medlemmer = gruppe.Select(u => Tekst(u.Til)).ToList();
+            var medlemmer = gruppe.Select(u => Tekst(u.Fra)).ToList();
             foreach (var m in medlemmer.Where(m => !tingrettNavn.Contains(m)))
             {
                 uloste.Add($"«{m}» sogner til lagsognet {gruppe.Key.Navn} ({gruppe.Key.Eid}), men står ikke som tingrett i kapittel 1.");

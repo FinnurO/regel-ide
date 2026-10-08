@@ -27,4 +27,20 @@ Målegrunnlaget for `docs/33-strukturmodell-aktor-omrade-kompetanse.md`.
 | energiloven | 4 | 339 | 52 | 254 |
 | helse-og-omsorgstjenesteloven | 1 | 285 | 63 | 192 |
 | spesialisthelsetjenesteloven | 3 | 378 | 70 | 302 |
-| domstolloven | 4 | 726 | 613 | 832 |
+| domstolloven | 4 | 726 | 540 | 764 |
+
+[ENDRET, issue #312, 2026-10-08] Domstolloven hadde 613 aktører og 832 utsagn før den systemiske rettelsen under.
+
+## Rettelser
+
+- **#312 — domstollovens inndelingsdel (2026-10-08).** Johanns funn fra fasitkontrollen (#309, kommentarene på #312):
+  rettskretsen har ikke eget navn, og rettssted og kommune er samme område. `rettelse-312-domstolinndeling.py`
+  (kjørt én gang, idempotent) har: fjernet de 28 oppfunne rettskrets-aktørene (`rk_*`); gjort de 357
+  «rettskrets består av kommune»-radene om til «tingrett `har_ansvarsomrade` kommune» (samme id, eId og sitat) og
+  fjernet de 28 «tingrett har ansvarsområde rettskrets»-radene; gjort «lagsogn består av rettskrets» (28) om til det
+  teksten sier, «tingrett `annet:sogner_til` lagsogn»; fjernet 56 rader som bare beskrev rettskretsen (28 AVLEDEDE
+  «rettskrets del av lagdømme», 24 «gruppert under fylkesgruppe», 4 «del av fylke»); slått 45 av 61 rettssteder
+  sammen med kommune-aktøren med samme navn, og gjort de 16 andre til område med `del_av` kommunen (kommunen fra
+  Kartverkets SSR, avgrenset til tingrettens egne kommuner — `kilde_utenfor_korpus: true`). 0 uløste steder.
+  Lagsogn og lagdømme er beholdt som områder. Hver endret rad har `verifisert_av`. Måling før/etter står i PR-en
+  for #312 og i `docs/33` §5.4.

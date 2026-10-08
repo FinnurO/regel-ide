@@ -1,4 +1,4 @@
-using RegelIde.Data.Strukturkonvertering;
+﻿using RegelIde.Data.Strukturkonvertering;
 using Xunit.Abstractions;
 
 namespace RegelIde.Data.Tests.Strukturfasit;
@@ -34,7 +34,9 @@ public class MonsterStrukturkonvertererMalingTests(ITestOutputHelper output)
         ("(ikke bygget) rapporterer_til",
             "Fasiten har 31, men uttrykt som «sende melding til», «varsle», «forelegges», «underrette» — formuleringer som like ofte er informasjonsplikter for private (docs/33 §1: «rapporterer til» 45 %). Ingen form med høy nok presisjon til mønsterlaget; overlatt til KI-laget (#308)."),
         ("(ikke bygget) A har_ansvarsomrade tingrett → egen rettskrets",
-            "Fasiten har 52 slike («Vestre Finnmark tingrett» har ansvarsområde «Vestre Finnmark tingrett»), men rettskretsens navn står ikke i teksten — det er annotatørens konvensjon (docs/33 §3 funn 3: område og organ har samme navn). Å lage dem ville vært å kopiere fasiten, ikke lese teksten."),
+            "Fasiten hadde 52 slike («Vestre Finnmark tingrett» har ansvarsområde «Vestre Finnmark tingrett»), men rettskretsens navn står ikke i teksten. [Løst i #312, 2026-10-08:] Johann forkastet rettskrets-aktørene i fasitkontrollen; fasiten er rettet til «tingrett har_ansvarsomrade kommune», som inndeling-rettskrets nå gir direkte."),
+        ("inndeling-har-rettskretsen (fjernet i #312)",
+            "«X fylke har rettskretsen N tingrett» → N del_av X fylke uttrykte tingretten som et område. Fjernet sammen med rettskrets-aktørene i fasiten (Johanns funn på #312)."),
     ];
 
     // Regresjonsvern per kanttype: [målt verdi 2026-10-07] − 5 prosentpoeng, for presisjon og gjenfinning
@@ -47,8 +49,11 @@ public class MonsterStrukturkonvertererMalingTests(ITestOutputHelper output)
         {
             ["R"] = (0.778, 0.126),
             ["K"] = (0.885, 0.597),
-            ["O"] = (0.974, 0.858),
-            ["A"] = (1.000, 0.517),
+            // [ENDRET, issue #312, 2026-10-08] O og A målt på nytt etter den systemiske rettelsen av domstollovens
+            // inndelingsdel (rettelse-312-domstolinndeling.py): de 357 kommunelisteradene er flyttet fra O (rettskrets
+            // består av kommune) til A (tingrett har ansvarsområde i kommune). Før: O 0,974/0,858, A 1,000/0,517.
+            ["O"] = (0.893, 0.616),
+            ["A"] = (1.000, 0.933),
             ["G"] = (0.667, 0.093),
         };
 
