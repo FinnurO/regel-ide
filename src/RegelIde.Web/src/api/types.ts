@@ -452,9 +452,13 @@ export interface StrukturnodeDto {
 /** [Ny, issue #311] GET /api/strukturkanter?virksomhetId|begrepId=… — én kant med navn og visningstekst.
  * `retning` er nodens side når listen er hentet for en node ('fra'/'til'), ellers null (per hjemmel,
  * forslagskø). `til` er null bare for K/T. */
-/** [Ny, issue #341, Johanns hierarkibeslutning 2026-10-08] Kompetansefamiliene — speilet av `Strukturkanter.Familier`. */
+/** [Ny, issue #341, Johanns hierarkibeslutning 2026-10-08] Kompetansefamiliene — speilet av `Strukturkanter.Familier`.
+ * [ENDRET, issue #352] 'personell' heter 'oppnevning' (Johanns beslutning 1). */
 export type Kompetansefamilie =
-  'struktur' | 'personell' | 'styring' | 'normgivning' | 'kontroll' | 'klage_overproving' | 'vedtak' | 'sanksjon';
+  'struktur' | 'oppnevning' | 'styring' | 'normgivning' | 'kontroll' | 'klage_overproving' | 'vedtak' | 'sanksjon';
+/** [Ny, issue #352] Undertypen på oppnevning (valg/ansettelse/utpeking/oppnevning) og overprøving (anke) — speilet av
+ * `Strukturkanter.Undertyper`. */
+export type Kompetanseundertype = 'valg' | 'ansettelse' | 'utpeking' | 'oppnevning' | 'anke';
 /** [Ny, issue #341] Forvaltningslovens § 2-perspektiv på en kompetansetype. */
 export type FvlKategori = 'forskrift' | 'enkeltvedtak' | 'ikke_vedtak';
 /** [Ny, issue #341] Normformen på en normgivningskompetanse — speilet av `Strukturkanter.Normformer`. */
@@ -498,6 +502,8 @@ export interface StrukturkantDto {
   selvregulering: boolean;
   /** Typens familie og fvl-kategori fra typekonfigurasjonen (bare K). */
   familie: Kompetansefamilie | null;
+  /** [Ny, issue #352] Undertypen (bare K oppnevning/overproving). null = ikke angitt. Står også i visningsteksten i parentes. */
+  undertype: Kompetanseundertype | null;
   fvlKategori: FvlKategori | null;
 }
 
@@ -548,6 +554,8 @@ export interface StrukturkantRequest {
   normform?: Normform | null;
   grunnlag?: Kompetansegrunnlag | null;
   delegerbar?: boolean | null;
+  /** [Ny, issue #352] Bare på K oppnevning/overproving. Null/utelatt = ikke angitt. */
+  undertype?: Kompetanseundertype | null;
 }
 
 // [FJERNET, issue #311] GruppeMedlemskapRequest, VirksomhetRelasjonDto/-Request/-HjemletDto og

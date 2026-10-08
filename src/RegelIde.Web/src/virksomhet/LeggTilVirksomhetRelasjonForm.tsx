@@ -1,12 +1,27 @@
 import { useEffect, useState } from 'react';
 import { Alert, Button, Card, Field, Label, Radio, Select, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { KildeUtenforKorpusDokumentasjon, KildeUtenforKorpusType, Kompetansegrunnlag, Normform, RelasjonsTypeKonfigurasjonDto, RettskildeSammendrag, StrukturkantDto, VirksomhetDto } from '../api/types';
+import type { KildeUtenforKorpusDokumentasjon, KildeUtenforKorpusType, Kompetansegrunnlag, Kompetanseundertype, Normform, RelasjonsTypeKonfigurasjonDto, RettskildeSammendrag, StrukturkantDto, VirksomhetDto } from '../api/types';
 import { FAMILIE_VISNING } from '../strukturkant/StrukturkantTabell';
 import { KildeUtenforKorpusVelger } from '../strukturkant/KildeUtenforKorpus';
 import { VirksomhetVelger } from './VirksomhetVelger';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { Metatekst } from '../entitet/Metatekst';
+
+/**
+ * [Ny, issue #352, Johanns beslutning 1 2026-10-08] Undertypene per K-type — speilet av `Strukturkanter.Undertyper`, med
+ * verbet fra leksikonet i teksten. Oppnevning er den generelle formen («hvem skal inneha en rolle, et verv eller en
+ * funksjon»); verbet sier hvordan.
+ */
+const UNDERTYPER: Record<string, { verdi: Kompetanseundertype; tekst: string }[]> = {
+  oppnevning: [
+    { verdi: 'valg', tekst: 'Valg («velger»)' },
+    { verdi: 'ansettelse', tekst: 'Ansettelse («ansetter»)' },
+    { verdi: 'utpeking', tekst: 'Utpeking («utpeker»)' },
+    { verdi: 'oppnevning', tekst: 'Oppnevning («oppnevner»)' },
+  ],
+  overproving: [{ verdi: 'anke', tekst: 'Anke («er ankeinstans for»)' }],
+};
 
 export interface LeggTilVirksomhetRelasjonFormProps {
   virksomhetId: string;
@@ -38,6 +53,11 @@ export interface LeggTilVirksomhetRelasjonFormProps {
  * (Johanns beslutning P1). Velges en K-type, lagres en K-kant med motparten som til-node, og skjemaet tilbyr normform (bare
  * normgivning), grunnlag og «kan delegeres» — alle med «Ikke angitt» som utgangspunkt (CLAUDE.md §8: ingen forhåndsvalg).
  * </p>
+ * <p>
+ * [ENDRET, issue #352] Velges oppnevning eller overprøving, tilbyr skjemaet også undertypen (valg/ansettelse/utpeking/
+ * oppnevning, anke) — også den med «Ikke angitt» som utgangspunkt. R «velger» og «er ankeinstans for» finnes ikke lenger
+ * i lista; de er oppnevning (valg) og overprøving (anke).
+ * </p>
  */
 export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rettskilder, onOpprettet }: LeggTilVirksomhetRelasjonFormProps) {
   const [typer, setTyper] = useState<RelasjonsTypeKonfigurasjonDto[] | null>(null);
@@ -56,6 +76,8 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
   const [normform, setNormform] = useState<Normform | ''>('');
   const [grunnlag, setGrunnlag] = useState<Kompetansegrunnlag | ''>('');
   const [delegerbar, setDelegerbar] = useState<'' | 'ja' | 'nei'>('');
+  // [Ny, issue #352] Bare for K-typer som har undertyper (UNDERTYPER).
+  const [undertype, setUndertype] = useState<Kompetanseundertype | ''>('');
 
   const [oppretter, setOppretter] = useState(false);
   const [feilmelding, setFeilmelding] = useState<string | null>(null);
@@ -69,6 +91,7 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
   // Verdien i nedtrekkslista er «kategori:kode» — samme kode kan i prinsippet finnes i to kategorier.
   const [valgtKategori, valgtKode] = relasjonsType ? relasjonsType.split(':') as ['R' | 'K', string] : [null, ''];
   const erKompetanse = valgtKategori === 'K';
+  const undertyper = erKompetanse ? UNDERTYPER[valgtKode] : undefined;
 
   // Andre virksomheter enn denne selv — en relasjon til seg selv avvises uansett server-side, men
   // ingen grunn til å tilby det som et valg i det hele tatt.
@@ -88,6 +111,7 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
         normform: erKompetanse && valgtKode === 'normgivning' && normform ? normform : null,
         grunnlag: erKompetanse && grunnlag ? grunnlag : null,
         delegerbar: erKompetanse && delegerbar ? delegerbar === 'ja' : null,
+        undertype: undertyper && undertyper.some((u) => u.verdi === undertype) ? (undertype as Kompetanseundertype) : null,
         hjemmelRettskildeId: hjemmelRettskildeId || null, hjemmelEid: hjemmelEid.trim() || null,
         kildeUtenforKorpusTekst: kildeTekst.trim() || null, kildeUtenforKorpusLenke: kildeLenke.trim() || null,
         kildeUtenforKorpusType: kildeType || null, kildeUtenforKorpusDokumentasjon: kildeDok || null,
@@ -107,6 +131,7 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
       setNormform('');
       setGrunnlag('');
       setDelegerbar('');
+      setUndertype('');
     } catch (err) {
       setFeilmelding(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse av relasjon.');
     } finally {
@@ -144,6 +169,17 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
                 <Select.Option value="">Ikke angitt</Select.Option>
                 {(['forskrift', 'reglement', 'arbeidsordning', 'vedtekter', 'instruks'] as Normform[]).map((n) => (
                   <Select.Option key={n} value={n}>{n}</Select.Option>
+                ))}
+              </Select>
+            </Field>
+          )}
+          {undertyper && (
+            <Field data-size="sm" style={{ minWidth: '12rem' }}>
+              <Label>Undertype</Label>
+              <Select data-size="sm" value={undertype} onChange={(e) => setUndertype(e.target.value as Kompetanseundertype | '')}>
+                <Select.Option value="">Ikke angitt</Select.Option>
+                {undertyper.map((u) => (
+                  <Select.Option key={u.verdi} value={u.verdi}>{u.tekst}</Select.Option>
                 ))}
               </Select>
             </Field>
