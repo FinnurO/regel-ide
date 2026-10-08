@@ -1456,8 +1456,10 @@ public sealed class StrukturkantEntitet
 
     /// <summary>
     /// [Ny, issue #311, Johanns beslutning 2026-10-07] <c>primaer</c> | <c>sekundaer</c> — går lenken/teksten
-    /// til SELVE kilden, eller til en tekst som refererer den? Eksempel: Tilsynsutvalget ble opprettet ved
-    /// kgl.res. 15. mai 2002, men er bare kjent gjennom en artikkel i Juristen ⇒ <c>kgl_res</c> + <c>sekundaer</c>.
+    /// til SELVE kilden, eller til en tekst som refererer den? Eksempel (#311, 2026-10-07): en debattartikkel
+    /// påsto at Tilsynsutvalget for dommere ble OPPRETTET ved kgl.res. 15. mai 2002 — primærkilden (Offisielt fra
+    /// statsråd) viste at resolusjonen bare OPPNEVNTE de første medlemmene. En sekundærkilde kan altså ta feil om
+    /// kildens art; markeringen gjør at kanten kan oppgraderes eller rettes når primærkilden er lest.
     /// Påkrevd når <see cref="KildeUtenforKorpusType"/> er satt (CHECK <c>ck_strukturkanter_kilde</c>).
     /// Migrerte relasjoner uten hjemmel fikk <c>sekundaer</c> — vi vet ikke om kilden er primær.
     /// </summary>

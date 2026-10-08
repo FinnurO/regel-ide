@@ -434,7 +434,7 @@ export type Strukturkantkategori = 'R' | 'K' | 'M' | 'O' | 'A' | 'G' | 'I' | 'T'
 export type KildeUtenforKorpusType =
   'kgl_res' | 'instruks' | 'tildelingsbrev' | 'vedtekter' | 'styrevedtak' | 'forarbeider' | 'nettside_annet';
 /** [Ny, Johanns beslutning 2026-10-07] Lenken/teksten er selve kilden (`primaer`) eller en tekst som refererer
- * den (`sekundaer`, f.eks. en artikkel i Juristen om en kgl.res.). */
+ * den (`sekundaer`, f.eks. en artikkel som omtaler en kgl.res. — og som kan ta feil om den, se #311). */
 export type KildeUtenforKorpusDokumentasjon = 'primaer' | 'sekundaer';
 
 /** [Ny, issue #311] Én ende av en kant: en virksomhet (aktør) eller et begrep med gruppefunksjon.

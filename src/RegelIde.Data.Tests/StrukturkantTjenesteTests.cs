@@ -279,21 +279,16 @@ public class StrukturkantTjenesteTests
             Strukturkanter.Relasjon, "ledes_av", Kantnode.Virksomhet(rhf), Kantnode.Virksomhet(hod),
             KildeUtenforKorpusTekst: "styrevedtak 12/2025", KildeUtenforKorpusType: "rykte", KildeUtenforKorpusDokumentasjon: "primaer"), "Kari Jurist"));
 
-        // [Ny, Johanns beslutning 2026-10-07] Dokumentasjonen (primær/sekundær) er påkrevd sammen med typen.
-        // Tilsynsutvalget-eksempelet: opprettet ved kgl.res. 15. mai 2002, bare kjent gjennom en artikkel i Juristen.
+        // [Ny, Johanns beslutning 2026-10-07] Dokumentasjonen (primær/sekundær) er påkrevd sammen med typen,
+        // og må være en av de to verdiene.
         var utenDok = await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
-            Strukturkanter.Relasjon, "oppretter", Kantnode.Virksomhet(hod), Kantnode.Virksomhet(rhf),
-            KildeUtenforKorpusTekst: "kgl.res. 15. mai 2002", KildeUtenforKorpusType: "kgl_res"), "Kari Jurist"));
+            Strukturkanter.Relasjon, "radgir", Kantnode.Virksomhet(hod), Kantnode.Virksomhet(rhf),
+            KildeUtenforKorpusTekst: "styrevedtak 12/2025", KildeUtenforKorpusType: "styrevedtak"), "Kari Jurist"));
         Assert.Contains("sekundaer", utenDok.Message);
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
-            Strukturkanter.Relasjon, "oppretter", Kantnode.Virksomhet(hod), Kantnode.Virksomhet(rhf),
-            KildeUtenforKorpusTekst: "kgl.res. 15. mai 2002", KildeUtenforKorpusType: "kgl_res",
+            Strukturkanter.Relasjon, "radgir", Kantnode.Virksomhet(hod), Kantnode.Virksomhet(rhf),
+            KildeUtenforKorpusTekst: "styrevedtak 12/2025", KildeUtenforKorpusType: "styrevedtak",
             KildeUtenforKorpusDokumentasjon: "tertiaer"), "Kari Jurist"));
-        var tilsynsutvalget = await tjeneste.OpprettAsync(new NyStrukturkant(
-            Strukturkanter.Relasjon, "oppretter", Kantnode.Virksomhet(hod), Kantnode.Virksomhet(rhf),
-            KildeUtenforKorpusTekst: "kgl.res. 15. mai 2002 — kjent gjennom artikkel i Juristen",
-            KildeUtenforKorpusType: "kgl_res", KildeUtenforKorpusDokumentasjon: Strukturkanter.Sekundaer), "Kari Jurist");
-        Assert.Equal(("kgl_res", "sekundaer"), (tilsynsutvalget.Kant.KildeUtenforKorpusType, tilsynsutvalget.Kant.KildeUtenforKorpusDokumentasjon));
 
         var utenKilde = await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
             Strukturkanter.Relasjon, "ledes_av", Kantnode.Virksomhet(rhf), Kantnode.Virksomhet(hod)), "Kari Jurist"));
@@ -301,6 +296,55 @@ public class StrukturkantTjenesteTests
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(
             Strukturkanter.Relasjon, "ledes_av", Kantnode.Virksomhet(rhf), Kantnode.Virksomhet(hod),
             KildeUtenforKorpusLenke: "https://example.org"), "Kari Jurist"));
+    }
+
+    /// <summary>
+    /// Testtilfellene fra #311 (kommentarene 2026-10-07, med RETTELSEN): Tilsynsutvalget for dommere.
+    /// <list type="bullet">
+    /// <item>Sekretariatet: Domstoladministrasjonen <c>sekretariat_for</c> Tilsynsutvalget, forankret i Ot.prp. nr. 44
+    /// (2000–2001) kap. 11.5.12 ⇒ <c>forarbeider</c> + <c>primaer</c> (ikke <c>nettside_annet</c>, som før kilden var funnet).</item>
+    /// <item>Kongen i statsråd <c>oppnevner</c> Tilsynsutvalget, hjemlet i domstolloven (i korpus) — ingen kildetype. Selve
+    /// oppnevningen av de første medlemmene ved kgl.res. 15. mai 2002 er en egen kant med <c>kgl_res</c> + <c>primaer</c>
+    /// og den perioden oppnevningen gjaldt.</item>
+    /// <item>INGEN <c>oppretter</c>-kant med kgl.res. som kilde — det ville gjentatt sekundærkildens (artikkelens) feil.</item>
+    /// </list>
+    /// </summary>
+    [Fact]
+    public async Task Tilsynsutvalget_sekretariat_i_forarbeider_og_oppnevning_hjemlet_i_loven()
+    {
+        await using var db = _fixture.NyDbContext();
+        var o = await NyttOppsettAsync(db); // alkoholloven står for domstolloven: testen trenger bare EN lov i korpus.
+        var (da, tilsyn, kongen) = (await NyVirksomhetAsync(db, "Domstoladministrasjonen"),
+            await NyVirksomhetAsync(db, "Tilsynsutvalget for dommere"), await NyVirksomhetAsync(db, "Kongen i statsråd"));
+        var tjeneste = new StrukturkantTjeneste(db);
+
+        var sekretariat = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "sekretariat_for",
+            Kantnode.Virksomhet(da), Kantnode.Virksomhet(tilsyn),
+            KildeUtenforKorpusTekst: "Ot.prp. nr. 44 (2000–2001) kap. 11.5.12",
+            KildeUtenforKorpusLenke: "https://www.regjeringen.no/no/dokumenter/otprp-nr-44-2000-2001-/id164074/?ch=11",
+            KildeUtenforKorpusType: "forarbeider", KildeUtenforKorpusDokumentasjon: Strukturkanter.Primaer, Polaritet: "positiv"), "Kari Jurist");
+        Assert.Equal(("forarbeider", "primaer"), (sekretariat.Kant.KildeUtenforKorpusType, sekretariat.Kant.KildeUtenforKorpusDokumentasjon));
+
+        var oppnevnerEtterLoven = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "oppnevner",
+            Kantnode.Virksomhet(kongen), Kantnode.Virksomhet(tilsyn), HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid,
+            Polaritet: "positiv"), "Kari Jurist");
+        Assert.Null(oppnevnerEtterLoven.Kant.KildeUtenforKorpusType);
+        Assert.Null(oppnevnerEtterLoven.Kant.KildeUtenforKorpusDokumentasjon);
+
+        var forsteOppnevning = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "oppnevner",
+            Kantnode.Virksomhet(kongen), Kantnode.Virksomhet(tilsyn),
+            KildeUtenforKorpusTekst: "Kgl.res. 15. mai 2002 (Offisielt fra statsråd) — de første medlemmene og lederen",
+            KildeUtenforKorpusLenke: "https://www.regjeringen.no/no/aktuelt/offisielt-fra-statsrad-15-mai-2002-/id101763/",
+            KildeUtenforKorpusType: "kgl_res", KildeUtenforKorpusDokumentasjon: Strukturkanter.Primaer,
+            GyldigFra: new DateOnly(2002, 11, 1), GyldigTil: new DateOnly(2006, 10, 31), Polaritet: "positiv"), "Kari Jurist");
+        Assert.True(forsteOppnevning.VarNy); // ulik kilde ⇒ eget utsagn ved siden av den lovhjemlede kanten.
+
+        var forUtvalget = await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(tilsyn));
+        Assert.DoesNotContain(forUtvalget, k => k.Typekode == "oppretter");
+        Assert.Equal(2, forUtvalget.Count(k => k.Typekode == "oppnevner"));
+        // Forarbeidene er en anerkjent rettskildetype — kanten havner IKKE på nettside-arbeidslista.
+        Assert.DoesNotContain(await tjeneste.HentUtenKorpusforankringAsync(Strukturkanter.NettsideAnnet), k => k.Id == sekretariat.Kant.Id);
+        Assert.Contains(await tjeneste.HentUtenKorpusforankringAsync("forarbeider"), k => k.Id == sekretariat.Kant.Id);
     }
 
     [Fact]
