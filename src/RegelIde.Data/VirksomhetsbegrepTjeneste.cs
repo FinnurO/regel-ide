@@ -228,6 +228,24 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
                 $"Begrepet '{term.Trim()}' finnes allerede {hvor} (som {Nodetyper.Visningsnavn(eksisterende.Begrepskategori)}).");
         }
 
+        // [Ny, issue #312 «områderegister», 2026-10-08] Et begrep med samme navn som et REGISTRERT område (fylke,
+        // kommune, lagsogn …) opprettes ikke ved siden av det: Johanns funn 2026-10-07 på #312 er at to løse noder
+        // for samme sted aldri skal oppstå. Det gjenbrukes heller ikke automatisk — «Oslo» er både fylke og kommune,
+        // og «Herøy» er to kommuner, så et valg ville vært gjettet (CLAUDE.md §8). Koblingen mot registeret hører
+        // til oppløsningen i #313/#314; til da må et menneske velge det registrerte området.
+        var registrerte = await db.Begreper
+            .Where(b => b.Begrepskategori == Nodetyper.Omrade && b.Omradetype != null && b.Entitetsstatus == "gjeldende")
+            .Select(b => new { b.Term, b.Omradetype, b.Omradekode })
+            .ToListAsync(ct);
+        var sammeNavn = registrerte.Where(b => string.Equals(b.Term, term.Trim(), StringComparison.OrdinalIgnoreCase)).ToList();
+        if (sammeNavn.Count > 0)
+        {
+            throw new ArgumentException(
+                $"«{term.Trim()}» finnes i områderegisteret ({string.Join(", ", sammeNavn.Select(b => $"{b.Omradetype} {b.Omradekode}".Trim()))}). "
+                + "Et nytt begrep med samme navn ville blitt en løs dublett, og et automatisk valg mellom registerradene "
+                + "ville vært gjettet. Koble mot det registrerte området i stedet. Ingen gjettet fallback.");
+        }
+
         var begrep = new BegrepEntitet
         {
             Id = Guid.NewGuid(),
@@ -350,7 +368,11 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     {
         var kandidater = await db.Begreper
             .Where(b => Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!) && b.LovkildeId == lovkildeId
-                        && b.Entitetsstatus == "gjeldende")
+                        && b.Entitetsstatus == "gjeldende"
+                        // [ENDRET, issue #312] Registrerte områder (med områdetype) er ikke med i de unike term-
+                        // indeksene lenger — og dermed ikke her heller («samme mengde som indeksene»). Se
+                        // OpprettGruppebegrepAsync for hvorfor de heller ikke gjenbrukes på navn.
+                        && b.Omradetype == null)
             .ToListAsync(ct);
         return kandidater.FirstOrDefault(b => string.Equals(b.Term, term.Trim(), StringComparison.OrdinalIgnoreCase));
     }

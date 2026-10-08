@@ -1,0 +1,73 @@
+{
+  "_kilde": "SSB KLASS, klassifikasjon 104 (fylkesinndeling), endringer rundt 1.1.2024. Rått svar.",
+  "_url": "https://data.ssb.no/api/klass/v1/classifications/104/changes?from=2023-12-31&to=2024-01-02",
+  "_hentet": "2026-10-08",
+  "_bruk": "Issue #312: RHF-vedtektene (sist endret 11.06.2024) navngir fylker fra før 1.1.2024 (Viken, Vestfold og Telemark, Troms og Finnmark). Seeden avbilder dem til dagens fylker med denne endringslista — ikke ved å gjette ut fra navn.",
+  "svar": {
+    "codeChanges": [
+      {
+        "oldCode": "30",
+        "oldName": "Viken",
+        "oldShortName": "",
+        "newCode": "31",
+        "newName": "Østfold",
+        "newShortName": "",
+        "changeOccurred": "2024-01-01"
+      },
+      {
+        "oldCode": "30",
+        "oldName": "Viken",
+        "oldShortName": "",
+        "newCode": "32",
+        "newName": "Akershus",
+        "newShortName": "",
+        "changeOccurred": "2024-01-01"
+      },
+      {
+        "oldCode": "30",
+        "oldName": "Viken",
+        "oldShortName": "",
+        "newCode": "33",
+        "newName": "Buskerud",
+        "newShortName": "",
+        "changeOccurred": "2024-01-01"
+      },
+      {
+        "oldCode": "38",
+        "oldName": "Vestfold og Telemark",
+        "oldShortName": "",
+        "newCode": "39",
+        "newName": "Vestfold",
+        "newShortName": "",
+        "changeOccurred": "2024-01-01"
+      },
+      {
+        "oldCode": "38",
+        "oldName": "Vestfold og Telemark",
+        "oldShortName": "",
+        "newCode": "40",
+        "newName": "Telemark",
+        "newShortName": "",
+        "changeOccurred": "2024-01-01"
+      },
+      {
+        "oldCode": "54",
+        "oldName": "Troms og Finnmark - Romsa ja Finnmárku - Tromssa ja Finmarkku",
+        "oldShortName": "",
+        "newCode": "55",
+        "newName": "Troms - Romsa - Tromssa",
+        "newShortName": "",
+        "changeOccurred": "2024-01-01"
+      },
+      {
+        "oldCode": "54",
+        "oldName": "Troms og Finnmark - Romsa ja Finnmárku - Tromssa ja Finmarkku",
+        "oldShortName": "",
+        "newCode": "56",
+        "newName": "Finnmark - Finnmárku - Finmarkku",
+        "newShortName": "",
+        "changeOccurred": "2024-01-01"
+      }
+    ]
+  }
+}

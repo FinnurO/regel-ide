@@ -1,0 +1,376 @@
+{
+  "_kilde": "Kartverket, Sentralt stedsnavnregister (SSR), /stedsnavn/v1/navn. UTTREKK: treff med eksakt samme skrivemåte, navnestatus hovednavn og navneobjekttype i By, Bygdelag (bygd), Tettbebyggelse, Tettsted.",
+  "_url": "https://ws.geonorge.no/stedsnavn/v1/navn?sok=<navn>&fuzzy=false&treffPerSide=500&side=<n>",
+  "_hentet": "2026-10-08",
+  "_bruk": "Issue #312: rettssteder som ikke er en kommune (Johanns funn 1 på #312) legges inn som tettsted-område i kommunen SSR oppgir. Seeden godtar bare et treff i en av kommunene tingretten selv dekker, og bare når det er nøyaktig ett slikt; ellers listes rettsstedet som uløst.",
+  "navn": [
+    {
+      "sok": "Brekstad",
+      "treff": [
+        {
+          "skrivemåte": "Brekstad",
+          "navneobjekttype": "By",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 680040,
+          "kommuner": [
+            {
+              "kommunenummer": "5057",
+              "kommunenavn": "Ørland"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sok": "Brønnøysund",
+      "treff": [
+        {
+          "skrivemåte": "Brønnøysund",
+          "navneobjekttype": "By",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 196102,
+          "kommuner": [
+            {
+              "kommunenummer": "1813",
+              "kommunenavn": "Brønnøy"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sok": "Egersund",
+      "treff": [
+        {
+          "skrivemåte": "Egersund",
+          "navneobjekttype": "By",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 910822,
+          "kommuner": [
+            {
+              "kommunenummer": "1101",
+              "kommunenavn": "Eigersund"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sok": "Fagernes",
+      "treff": [
+        {
+          "skrivemåte": "Fagernes",
+          "navneobjekttype": "By",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 494290,
+          "kommuner": [
+            {
+              "kommunenummer": "3451",
+              "kommunenavn": "Nord-Aurdal"
+            }
+          ]
+        },
+        {
+          "skrivemåte": "Fagernes",
+          "navneobjekttype": "Bygdelag (bygd)",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 808250,
+          "kommuner": [
+            {
+              "kommunenummer": "5501",
+              "kommunenavn": "Tromsø"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sok": "Finnsnes",
+      "treff": [
+        {
+          "skrivemåte": "Finnsnes",
+          "navneobjekttype": "By",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 139419,
+          "kommuner": [
+            {
+              "kommunenummer": "5530",
+              "kommunenavn": "Senja"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sok": "Førde",
+      "treff": [
+        {
+          "skrivemåte": "Førde",
+          "navneobjekttype": "By",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 7844,
+          "kommuner": [
+            {
+              "kommunenummer": "4647",
+              "kommunenavn": "Sunnfjord"
+            }
+          ]
+        },
+        {
+          "skrivemåte": "Førde",
+          "navneobjekttype": "Tettbebyggelse",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 246401,
+          "kommuner": [
+            {
+              "kommunenummer": "4612",
+              "kommunenavn": "Sveio"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sok": "Hokksund",
+      "treff": [
+        {
+          "skrivemåte": "Hokksund",
+          "navneobjekttype": "By",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 117254,
+          "kommuner": [
+            {
+              "kommunenummer": "3314",
+              "kommunenavn": "Øvre Eiker"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sok": "Hønefoss",
+      "treff": [
+        {
+          "skrivemåte": "Hønefoss",
+          "navneobjekttype": "By",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 125620,
+          "kommuner": [
+            {
+              "kommunenummer": "3305",
+              "kommunenavn": "Ringerike"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sok": "Lofthus",
+      "treff": [
+        {
+          "skrivemåte": "Lofthus",
+          "navneobjekttype": "Bygdelag (bygd)",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 491305,
+          "kommuner": [
+            {
+              "kommunenummer": "4618",
+              "kommunenavn": "Ullensvang"
+            }
+          ]
+        },
+        {
+          "skrivemåte": "Lofthus",
+          "navneobjekttype": "Tettbebyggelse",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 914543,
+          "kommuner": [
+            {
+              "kommunenummer": "0301",
+              "kommunenavn": "Oslo"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sok": "Mo i Rana",
+      "treff": [
+        {
+          "skrivemåte": "Mo i Rana",
+          "navneobjekttype": "By",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 684116,
+          "kommuner": [
+            {
+              "kommunenummer": "1833",
+              "kommunenavn": "Rana"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sok": "Mysen",
+      "treff": [
+        {
+          "skrivemåte": "Mysen",
+          "navneobjekttype": "By",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 550525,
+          "kommuner": [
+            {
+              "kommunenummer": "3118",
+              "kommunenavn": "Indre Østfold"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sok": "Sandnessjøen",
+      "treff": [
+        {
+          "skrivemåte": "Sandnessjøen",
+          "navneobjekttype": "By",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 622889,
+          "kommuner": [
+            {
+              "kommunenummer": "1820",
+              "kommunenavn": "Alstahaug"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sok": "Sandvika",
+      "treff": [
+        {
+          "skrivemåte": "Sandvika",
+          "navneobjekttype": "By",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 180676,
+          "kommuner": [
+            {
+              "kommunenummer": "3201",
+              "kommunenavn": "Bærum"
+            }
+          ]
+        },
+        {
+          "skrivemåte": "Sandvika",
+          "navneobjekttype": "Tettsted",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 321664,
+          "kommuner": [
+            {
+              "kommunenummer": "1868",
+              "kommunenavn": "Øksnes"
+            }
+          ]
+        },
+        {
+          "skrivemåte": "Sandvika",
+          "navneobjekttype": "Tettbebyggelse",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 426271,
+          "kommuner": [
+            {
+              "kommunenummer": "4213",
+              "kommunenavn": "Tvedestrand"
+            }
+          ]
+        },
+        {
+          "skrivemåte": "Sandvika",
+          "navneobjekttype": "Tettbebyggelse",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 677910,
+          "kommuner": [
+            {
+              "kommunenummer": "3413",
+              "kommunenavn": "Stange"
+            }
+          ]
+        },
+        {
+          "skrivemåte": "Sandvika",
+          "navneobjekttype": "Tettsted",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 924134,
+          "kommuner": [
+            {
+              "kommunenummer": "5042",
+              "kommunenavn": "Lierne"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sok": "Ski",
+      "treff": [
+        {
+          "skrivemåte": "Ski",
+          "navneobjekttype": "By",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 610596,
+          "kommuner": [
+            {
+              "kommunenummer": "3207",
+              "kommunenavn": "Nordre Follo"
+            }
+          ]
+        },
+        {
+          "skrivemåte": "Ski",
+          "navneobjekttype": "Bygdelag (bygd)",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 1081398,
+          "kommuner": [
+            {
+              "kommunenummer": "3207",
+              "kommunenavn": "Nordre Follo"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sok": "Svolvær",
+      "treff": [
+        {
+          "skrivemåte": "Svolvær",
+          "navneobjekttype": "By",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 320274,
+          "kommuner": [
+            {
+              "kommunenummer": "1865",
+              "kommunenavn": "Vågan"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "sok": "Vågåmo",
+      "treff": [
+        {
+          "skrivemåte": "Vågåmo",
+          "navneobjekttype": "Tettsted",
+          "navnestatus": "hovednavn",
+          "stedsnummer": 314370,
+          "kommuner": [
+            {
+              "kommunenummer": "3435",
+              "kommunenavn": "Vågå"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

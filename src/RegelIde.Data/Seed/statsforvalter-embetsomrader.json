@@ -1,0 +1,28 @@
+{
+  "_kilde": "Lest for hånd 2026-10-08 (issue #312). Embetsinndelingen står ikke i korpus som én liste. Strukturen ble satt ved kgl.res. 10. mars 2017 (Troms og Finnmark ved kgl.res. 16. juni 2017, som ligger i korpus som forskrift 2017-06-16-755 og bare sier at embetene slås sammen), og regjeringen besluttet 23. februar 2024 å beholde den etter at sju fylker ble gjenopprettet 1. januar 2024. Selve resolusjonen fra 2017 ble IKKE funnet; derfor er dokumentasjonen 'sekundaer' for alle ti.",
+  "_primaerkilder_lest": [
+    {
+      "tekst": "Kgl.res. 15. mars 2024 (FOR-2024-03-15-452): «Nytt navn på Statsforvalteren i Oslo og Viken blir Statsforvalteren i Østfold, Buskerud, Oslo og Akershus», i kraft 1. juli 2024",
+      "lenke": "https://lovdata.no/LTI/forskrift/2024-03-15-452",
+      "merknad": "Gir NAVNET, ikke en liste over fylker — sammensetningen leses av navnet og er derfor ikke primærdokumentert."
+    }
+  ],
+  "_sekundaerkilde": {
+    "tekst": "Regjeringen.no, pressemelding 23.02.2024 «Beholder dagens struktur og styrker statens tilstedeværelse» (Digitaliserings- og forvaltningsdepartementet)",
+    "lenke": "https://www.regjeringen.no/no/aktuelt/statsforvalterstruktur/id3026736/",
+    "sier": "Statsforvalterstrukturen fra 2019/2020 beholdes etter gjenopprettingen av Akershus, Buskerud, Østfold, Vestfold, Telemark, Troms og Finnmark; Oslo og Viken får nytt navn."
+  },
+  "_bruk": "OmraderegisterSeed oppretter A har_ansvarsomrade statsforvalter -> fylke, med kilde utenfor korpus type kgl_res, dokumentasjon sekundaer. Fylkene oppgis med NAVN slik de står i embetets navn, og slås opp eksakt mot kartverket-fylker-kommuner.json; et navn uten treff listes, gjettes ikke.",
+  "embeter": [
+    { "organisasjonsnummer": "974762994", "navn": "Statsforvalteren i Agder", "fylker": ["Agder"] },
+    { "organisasjonsnummer": "974761645", "navn": "Statsforvalteren i Innlandet", "fylker": ["Innlandet"] },
+    { "organisasjonsnummer": "974764067", "navn": "Statsforvaltaren i Møre og Romsdal", "fylker": ["Møre og Romsdal"] },
+    { "organisasjonsnummer": "974764687", "navn": "Statsforvalteren i Nordland", "fylker": ["Nordland"] },
+    { "organisasjonsnummer": "974763230", "navn": "Statsforvaltaren i Rogaland", "fylker": ["Rogaland"] },
+    { "organisasjonsnummer": "967311014", "navn": "Statsforvalteren i Troms og Finnmark", "fylker": ["Troms", "Finnmark"] },
+    { "organisasjonsnummer": "974764350", "navn": "Statsforvalteren i Trøndelag", "fylker": ["Trøndelag"] },
+    { "organisasjonsnummer": "974762501", "navn": "Statsforvalteren i Vestfold og Telemark", "fylker": ["Vestfold", "Telemark"] },
+    { "organisasjonsnummer": "974760665", "navn": "Statsforvaltaren i Vestland", "fylker": ["Vestland"] },
+    { "organisasjonsnummer": "974761319", "navn": "Statsforvalteren i Østfold, Buskerud, Oslo og Akershus", "fylker": ["Østfold", "Buskerud", "Oslo", "Akershus"] }
+  ]
+}
