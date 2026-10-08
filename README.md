@@ -25,6 +25,15 @@ Regel-IDE er referanseimplementasjonen av **Kildelaget** og **Regellaget** i [`d
 
 Digital-rettsstats `06-regellaget.md` skiller mellom **Lag 1-editoren** (tekst — rettskildebiblioteket, kap. 4.3 under) og **Lag 2-editoren** (regel — vilkårs-/regeltreet, kap. 4.4). Regel-IDE er begge i samme skall, fordi begge skal brukes av de samme tverrfaglige teamene (prinsipp 7).
 
+## Strukturmodellen for forvaltningen
+
+Hvem som finnes i forvaltningen, hvordan de henger sammen og hvem som har hvilken myndighet, hentet ut
+av lovteksten med hjemmel på hver kobling: seks typer (rettssubjekt, organ, organisatorisk enhet, rolle,
+klasse, område) og åtte koblinger, testet mot en fasit på 1 865 utsagn fra fem lover. Lettlest innføring
+for lesere uten forkunnskap: [finnuro.github.io/regel-ide/strukturmodell/](https://finnuro.github.io/regel-ide/strukturmodell/).
+Spesifikasjonen og målingene: [`docs/33-strukturmodell-aktor-omrade-kompetanse.md`](docs/33-strukturmodell-aktor-omrade-kompetanse.md)
+(arbeidsplanen er epic #318).
+
 ## Dokumenter
 
 **35+ dokumenter i `docs/` — [`docs/README.md`](docs/README.md) er den levende, oppdaterte indeksen**
