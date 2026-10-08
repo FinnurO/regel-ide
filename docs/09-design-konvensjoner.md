@@ -504,7 +504,7 @@ begrep med gruppefunksjon og aktørtypen på en virksomhet, brukt av `BegrepDeta
 | `klasse` | `brand2` | Typen er en KATEGORI, ikke en status — derfor ingen statusfarger (`success`/`warning`/`danger` betyr riktig/forsiktig/feil i appen). |
 | `rolle` | `brand3` | Som over. |
 | `omrade` | `info` | Som over. |
-| `organ` | `accent` | Samme farge som `virksomhet`-kategorien i navnekandidatlisten: et organ hører hjemme som aktør (docs/33 §4.1). |
+| ~~`organ`~~ | — | [FJERNET, issue #311] Organer er virksomheter (aktørtype `organ`); kategorien finnes ikke lenger. |
 | `gruppe` (type ikke avgjort) | `neutral` | Nettopp UAVKLART — skal ikke se ut som en av typene. |
 | Aktørtype (alle tre) | `neutral` | Ingen av rettssubjekt/organ/enhet er «bedre» enn de andre; NULL vises som `neutral` `outline` «Aktørtype uavklart» bare der fraværet er poenget (`visUavklart`, detaljsiden). |
 
@@ -637,7 +637,8 @@ virksomhetssiden er ikke etterprøvbar fra bestemmelsen den står i. Fra lovens 
 Fra-malen («X har sekretariat hos Y») — det finnes ingen «motpart» å velge retning ut fra der.
 
 **Motpartens navn lenkes der det alt står i visningsteksten**
-(`src/virksomhet/RelasjonstekstMedLenke.tsx`). Malen fra `RelasjonsTypeKonfigurasjon` inneholder
+(`src/virksomhet/RelasjonstekstMedLenke.tsx` — [ERSTATTET, #311] av `KanttekstMedLenker` i
+`src/strukturkant/StrukturkantTabell.tsx`, som lenker begge nodene). Malen fra `RelasjonsTypeKonfigurasjon` inneholder
 navnet, så en påhengt «({navn})»-lenke ga «er sekretariat for Konkurranseklagenemnda
 (Konkurranseklagenemnda)».
 
@@ -977,4 +978,29 @@ ikke tilfeldige enkeltvalg:
   `docs/design-canvas/RettskildeLesing.dc.html`. Beregnet i to rene funksjoner (ikke JSX-inline),
   derfor ikke mekanisk migrert til `Metatekst` (§24) — samme "allerede DRY via en annen mekanisme"-
   begrunnelse som `KontekstPanel`s `RAD_STIL`.
+
+## 31. Strukturkanter i UI — én tabell, én kildevelger (issue #311, 2026-10-07)
+
+**Én delt visning:** `src/strukturkant/StrukturkantTabell.tsx` viser strukturkanter overalt (VirksomhetDetalj,
+GruppeMedlemmer på BegrepDetalj, og kategorietikettene i RettskildeDetalj/KI-køen). Kolonnene er faste:
+**Utsagn** (visningsteksten med nodenavnene lenket der de står, §18) — **Avgrensning** (paragrafspenn via
+`paragrafEtikett`, avgrensningstekst, egen gyldighet) — **Hjemmel / kilde**. Legg aldri en fjerde, lokal
+kanttabell ved siden av; trengs en ny kolonne, legg den her.
+
+**Fargeroller (låst, samme prinsipp som §15):**
+
+| Hva | Farge | Hvorfor |
+|---|---|---|
+| Kategori (R/K/M/O/A/G/I/T) | `neutral` | En klassifisering, ikke en status. |
+| Negativ polaritet | `warning` | «Kan IKKE instruere» skal ikke kunne leses som at relasjonen gjelder. |
+| Forslag (`foreslatt_av_ai`) | `info`, med oppdagelseskilden i teksten | Ubekreftet påstand — skal ikke se validert ut. |
+| «Ingen hjemmel» | `warning` (som §18) + kildetype-tag `neutral`, «(sekundær)» når dokumentasjonen er sekundær | Et forhold dokumentert på en nettside eller i en artikkel skal ikke kunne forveksles med en bestemmelse. |
+
+**`KildeUtenforKorpusVelger`** (`src/strukturkant/KildeUtenforKorpus.tsx`) er den ene velgeren for kildetype og
+dokumentasjon (primær/sekundær), brukt av relasjonsskjemaet og veiviserens steg 4. Ingen verdi forhåndsvelges
+(CLAUDE.md §8). Med hjemmel skal kildefeltene stå tomme — skjemaene sperrer innsending når begge er fylt.
+
+**Polaritet velges, aldri forhåndsvalgt** i relasjonsskjemaet (samme «ingen standardverdi»-regel som
+KI-konverteringen, docs/33 §5.2). Tildelingsskjemaet («Legg til medlemskap/rolle») sender alltid `positiv`,
+fordi det registrerer at virksomheten ER medlem/innehaver.
 

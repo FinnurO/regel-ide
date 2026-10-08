@@ -25,7 +25,7 @@ ikke ny tekst.
 
 | Dok | Hva | Sist verifisert |
 |---|---|---|
-| [09-design-konvensjoner](09-design-konvensjoner.md) | UI-konvensjoner. Les FØR ny UI, oppdater ETTER designbeslutninger. | 2026-09-09 |
+| [09-design-konvensjoner](09-design-konvensjoner.md) | UI-konvensjoner. Les FØR ny UI, oppdater ETTER designbeslutninger. §31 strukturkanter (#311). | 2026-10-07 |
 | [32-formal-roller-og-sporsmal](32-formal-roller-og-sporsmal.md) | Formålet, rollene, og §3 spørsmålene S1–S9 modellen skal kunne besvare (S8–S9 lagt til 2026-10-07, #317). | 2026-10-07 |
 | [../CLAUDE.md](../CLAUDE.md) | Arbeidsregler (§0 formålet, §13 slett grenen ved merge, §14 regex treffer prosaen). | 2026-09-10 |
 
@@ -33,11 +33,11 @@ ikke ny tekst.
 
 | Dok | Hva | Sist verifisert |
 |---|---|---|
-| [25-funksjonsoversikt](25-funksjonsoversikt.md) | Hva som faktisk finnes i appen i dag. Nærmeste ting til en sannhet om omfang. | 2026-10-01 |
-| [03-domenemodell](03-domenemodell.md) | Entitetene og feltene. | 2026-08-02 |
+| [25-funksjonsoversikt](25-funksjonsoversikt.md) | Hva som faktisk finnes i appen i dag. Nærmeste ting til en sannhet om omfang. | 2026-10-07 |
+| [03-domenemodell](03-domenemodell.md) | Entitetene og feltene. §1.15a virksomhetskatalog og strukturkanter (#311). | 2026-10-07 |
 | [01-referansemodell](01-referansemodell.md) | Ontologien Vilkår/Regel/Unntak (låst 2026-07-23, nå implementert). | 2026-09-10 |
 | [02-produktkrav](02-produktkrav.md) | Kravspesifikasjonen. | 2026-08-02 |
-| [04-api-kontrakter](04-api-kontrakter.md) | API-formen. | 2026-07-24 |
+| [04-api-kontrakter](04-api-kontrakter.md) | API-formen. §14 strukturkanter (#311). | 2026-10-07 |
 | [05-arkitektur-og-nfk](05-arkitektur-og-nfk.md) | Arkitektur og ikke-funksjonelle krav. | 2026-07-24 |
 | [06-veikart](06-veikart.md) | Byggestegene 1–6 og retningsbeslutningene. | 2026-08-11 |
 | [21-feltmapping-eksterne-kilder](21-feltmapping-eksterne-kilder.md) | Mapping fra eksterne kilder til våre felt. Ny kilde ⇒ ny seksjon her. | 2026-08-28 |
@@ -52,7 +52,7 @@ ikke ny tekst.
 |---|---|---|
 | [13-backlog](13-backlog.md) | **Trenger splitting** — §0–§0i er gjennomførte runder, §2/§4 peker framover og konkurrerer med 56 åpne GitHub-issues. To backlogger er verre enn én. | 2026-08-30 |
 | [24-begrepsoppdagelse-plan](24-begrepsoppdagelse-plan.md) | M1–M17 mønsterkatalogen for begrepsoppdagelse. M1/M11 er bygget; resten er katalog. | 2026-08-30 |
-| [29-gruppe-relasjon-spesifikasjon](29-gruppe-relasjon-spesifikasjon.md) | Gruppebegrep + virksomhetsrelasjoner. Del C (relasjonstyper) er bygget og data-styrt. Kategorien `gruppe` er siden splittet i nodetyper (issue #310, peker øverst i dokumentet). | 2026-10-07 |
+| [29-gruppe-relasjon-spesifikasjon](29-gruppe-relasjon-spesifikasjon.md) | Gruppebegrep + virksomhetsrelasjoner. Del C (relasjonstyper) er bygget og data-styrt. Kategorien `gruppe` er siden splittet i nodetyper (#310), og tildeling/medlemskap/relasjon er strukturkanter (#311) — pekere øverst i dokumentet. | 2026-10-07 |
 | [31-navneform-berikelse-snl-ssr](31-navneform-berikelse-snl-ssr-spesifikasjon.md) | SNL/SSR-oppslag og konfidens. §9 er konfidens-beslutningen. | 2026-09-09 |
 | [23-tjeneste-modell-eksport-og-skjema](23-tjeneste-modell-eksport-og-skjema.md) | Eksportformatet. §6 har de to harde importproblemene. | 2026-08-28 |
 | [14-byggesteg5-teknisk-design](14-byggesteg5-teknisk-design.md) | KI-agentene. Runde 1 bygget, resten er mal. Runde 5 (regelverksreferanseforslag + KI-oppdagelse) også bygget. | 2026-10-01 |
@@ -100,6 +100,10 @@ referansemodellen.
 Se GitHub-issuet «Docs-runde 2». Kort: splitt `13-backlog`, oppdater `src/README.md` (208 linjer,
 sist rørt 2026-07-30) og root-README, og arkiver de referatene som er helt overtatt av senere
 beslutninger.
+
+**[Delvis løst 2026-10-07, #311]** `03-domenemodell` §1.15a og `04-api-kontrakter` §14 dekker nå
+virksomhetskatalogens entiteter og strukturkant-endepunktene; navnekandidat-endepunktene er fortsatt bare
+i `25-funksjonsoversikt`.
 
 **Funnet 2026-10-01, ved en docs-catchup-runde (5 PR-er merget uten docs-oppdatering):**
 `03-domenemodell` og `04-api-kontrakter` dekker IKKE virksomhetskatalog-domenet i det hele tatt — ingen

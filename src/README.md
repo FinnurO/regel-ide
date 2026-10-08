@@ -11,8 +11,8 @@ saksbehandler-UI:
 - `RegelIde.Kildekonvertering.Tests` — xUnit-tester mot de ekte, fullstendige
   dokumentene i `data/kilder/raw-lovdata/` (ikke syntetiske utdrag).
 - `RegelIde.Data` — EF Core + PostgreSQL: rettskilder, begreper, vilkår/regler, virksomhetskatalog
-  (roller/relasjoner/gruppemedlemskap; nodetype-aksen klasse/rolle/område/organ + aktørtype i
-  `Nodetyper.cs`, issue #310), KI-forslagstjenester (`*ForslagTjeneste`), navnekandidat-
+  (nodetype-aksen klasse/rolle/område + aktørtype i `Nodetyper.cs`, issue #310; alle strukturutsagn i
+  ÉN kanttabell — `StrukturkantEntitet`/`StrukturkantTjeneste`/`Strukturkanter.cs`, issue #311, docs/33 §4.3), KI-forslagstjenester (`*ForslagTjeneste`), navnekandidat-
   oppdagelse, proveniens. `RettskildeImportTjeneste` persisterer et `KonverteringResultat`.
   - `RegelIde.Data/Strukturkonvertering/` **[Ny 2026-10-07, #307]** — automatisk konvertering av
     nodetekst til strukturutsagn (aktør, kompetanse, relasjon, område) i fasit-formatet

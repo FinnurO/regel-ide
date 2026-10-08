@@ -301,6 +301,16 @@ Versjonering (§0) svarer «hvilken versjon gjelder»; proveniens svarer «hvord
 | Vedtaksgrunnlag (simulert) | `vilkarsvurderinger[]`, `rettskilde_referanser[]`, `presedens_referanser[]` | Speiler forklaringsloggens innhold (produktkrav kap. 3.12) |
 | Vedtaksvirkning (simulert) | `type`, `beskrivelse`, `gyldig_fra`/`gyldig_til` | Én instans av rotnodens `utdata` — feltnavnene følger `forklaringsmodell-api`s `Vedtaksvirkning` bevisst, for å unngå enda et tredje navnesett, se `07-forklaringsmodell-api-avvik.md` |
 
+### 1.15a Virksomhetskatalog og strukturkanter (issue #310/#311, 2026-10-07)
+
+Domenet er spesifisert i `docs/20` (katalogen) og `docs/33` §4 (strukturmodellen); her står entitetene.
+
+| Entitet | Nøkkelfelt | Kommentar |
+|---|---|---|
+| `Virksomhet` | `navn` (rå registerform), `organisasjonsnummer` (stabil nøkkel, nullbar), `aktortype` (`rettssubjekt`\|`organ`\|`organisatorisk_enhet`\|NULL = uavklart) | Aktør i juridisk forstand. Organer bor her (Stortinget 971524960, «Kongen i statsråd» uten orgnr — #311). |
+| `Begrep` med `begrepskategori` | `virksomhet` = navneform for en virksomhet; `klasse`\|`rolle`\|`omrade` = node med gruppefunksjon; `gruppe` = uavklart (utfases) | `organ` ble fjernet i #311. |
+| `Strukturkant` | `kategori` (R/K/M/O/A/G/I/T), `typekode` (rad i `relasjonstype_konfigurasjon`), fra-node og til-node (virksomhet ELLER begrep), `objekt`, avgrensning (`paragrafspenn` + `avgrensning_tekst`), `polaritet`, hjemmel (`hjemmel_rettskilde_id`/`hjemmel_eid`) ELLER kilde utenfor korpus (`tekst`, `lenke`, `type`, `dokumentasjon`), `gyldig_fra`/`gyldig_til`, `status` (`foreslatt_av_ai`\|`validert`), `oppdagelses_kilde` (`manuell`\|`monster:<id>`\|`ki:<modell>`) | ÉN tabell for alle strukturutsagn — erstatter `VirksomhetRelasjon`, `GruppeMedlemskap` og `Myndighetstildeling` (#311). Detaljer og regler: `docs/33` §4.3. |
+
 ### 1.16 ER-diagram (relasjoner mellom hovedentitetene)
 
 ```mermaid
@@ -330,6 +340,10 @@ erDiagram
   VILKAR ||--o{ PROVENIENS : "endringslogg"
   REGEL ||--o{ PROVENIENS : "endringslogg"
   RETTSKILDE ||--o{ PROVENIENS : "endringslogg"
+  STRUKTURKANT }o--o| VIRKSOMHET : "fra/til (aktør)"
+  STRUKTURKANT }o--o| BEGREP : "fra/til (klasse/rolle/område)"
+  STRUKTURKANT }o--o| RETTSKILDE : "hjemmel"
+  BEGREP }o--o| VIRKSOMHET : "navneform for"
 ```
 
 ---
