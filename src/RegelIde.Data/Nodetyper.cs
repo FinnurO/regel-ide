@@ -35,35 +35,36 @@ public static class Nodetyper
     /// <c>'administrativ_inndeling'</c> (issue #310: «går inn i omrade»).</summary>
     public const string Omrade = "omrade";
 
-    /// <summary>
-    /// Et organ loven omtaler, som ennå IKKE finnes som <see cref="Virksomhet"/>-rad («Kongen i
-    /// statsråd», «stortinget»). docs/33 §4.1 sier at organer bor i <see cref="Virksomhet"/> (med
-    /// <see cref="Virksomhet.Aktortype"/> = <c>'organ'</c>), men reklassifiseringen i #310 skal ikke
-    /// OPPRETTE virksomhetsrader med gjettede data (CLAUDE.md §8) — et organ-begrep er derfor en
-    /// mellomtilstand for de radene Johann godkjente som «organ». Bevisst IKKE i
-    /// <see cref="Valgbare"/>: et nytt organ går gjennom veiviserens virksomhet-vei.
-    /// </summary>
-    public const string Organ = "organ";
+    // [FJERNET, issue #311 «Strukturmodell 6», 2026-10-07] Konstanten Organ ('organ') var en MELLOMTILSTAND
+    // fra #310: tre godkjente organ-rader («Kongen i statsråd», «kongen», «stortinget») hadde ingen
+    // Virksomhet-rad å bo i, og #310 skulle ikke opprette virksomheter med gjettede data. Johanns beslutning
+    // på #311 (2026-10-07): organer bor i Virksomhet — Stortinget fra Brreg (971524960, øyeblikksbilde i
+    // Seed/brreg-971524960-stortinget.json), «Kongen i statsråd» uten orgnr med hjemmel i Grunnloven — og
+    // organ-begrepene er nå NAVNEFORMER for dem (migrasjonen InnforStrukturkanttabell, se
+    // StrukturkantMigrering.OrganSql). Kategorien er fjernet fra ck_begreper_begrepskategori i samme
+    // migrasjon. Et organ registreres nå som Virksomhet med Aktortype = 'organ'.
 
     /// <summary>Nodetypene et menneske (eller KI-en, som forslag) kan velge for et NYTT begrep fra en
     /// navnekandidat — veiviseren, «Behandle gruppen» og godkjenningsendepunktene.</summary>
     public static readonly string[] Valgbare = [Klasse, Rolle, Omrade];
 
     /// <summary>Nodetypene et menneske kan SETTE på et eksisterende begrep med gruppefunksjon
-    /// (<c>PUT /api/gruppebegrep/{id}/nodetype</c>) — <see cref="Valgbare"/> pluss
-    /// <see cref="Organ"/>, slik at gjenværende <c>'gruppe'</c>-rader i andre miljøer kan
-    /// reklassifiseres for hånd uten en ny migrasjon.</summary>
-    public static readonly string[] Settbare = [Klasse, Rolle, Omrade, Organ];
+    /// (<c>PUT /api/gruppebegrep/{id}/nodetype</c>), slik at gjenværende <c>'gruppe'</c>-rader i andre
+    /// miljøer kan reklassifiseres for hånd uten en ny migrasjon. [ENDRET, issue #311] Var
+    /// <see cref="Valgbare"/> pluss <c>'organ'</c> — organ er ikke lenger en begrepskategori (se
+    /// <c>[FJERNET]</c>-sporet over); et organ er en <see cref="Virksomhet"/>.</summary>
+    public static readonly string[] Settbare = [Klasse, Rolle, Omrade];
 
     /// <summary>
     /// Alle <see cref="BegrepEntitet.Begrepskategori"/>-verdier som bærer GRUPPEFUNKSJONEN — kan være
-    /// mål for <see cref="MyndighetstildelingEntitet"/> og begge ender av
-    /// <see cref="GruppeMedlemskapEntitet"/>, og deler den faste/lovspesifikke identiteten fra #298.
+    /// begrep-noder i en <see cref="StrukturkantEntitet"/> (før #311: mål for myndighetstildeling og begge
+    /// ender av gruppemedlemskap), og deler den faste/lovspesifikke identiteten fra #298.
+    /// [ENDRET, issue #311] <c>'organ'</c> er fjernet — se <c>[FJERNET]</c>-sporet over.
     /// Inkluderer <see cref="Gruppe"/> slik at ikke-reklassifiserte rader fortsatt virker.
     /// <c>string[]</c>, ikke et sett: EF Core oversetter <c>Contains</c> på en array til
     /// <c>= ANY (...)</c> i SQL.
     /// </summary>
-    public static readonly string[] MedGruppefunksjon = [Gruppe, Klasse, Rolle, Omrade, Organ];
+    public static readonly string[] MedGruppefunksjon = [Gruppe, Klasse, Rolle, Omrade];
 
     /// <summary>Gyldige <see cref="NavnekandidatEntitet.Kategori"/>-verdier. <see cref="Gruppe"/> =
     /// «generisk aktøromtale, nodetype ikke avgjort» — det deterministiske sveipet kan ikke se forskjell
@@ -81,7 +82,6 @@ public static class Nodetyper
         Klasse => "klasse",
         Rolle => "rolle",
         Omrade => "område",
-        Organ => "organ",
         Gruppe => "gruppe (uavklart type)",
         "virksomhet" => "virksomhet-navneform",
         null => "ordinært begrep",

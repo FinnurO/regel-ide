@@ -4,9 +4,10 @@
 
 > **Status:** v0.3 — ontologien for Vilkår/Regel/Unntak er låst (2026-07-23), og siden har appen fått
 > et fullt saksbehandler-grensesnitt (`src/RegelIde.Web`), en virksomhetskatalog med roller og
-> relasjoner (myndighetstildeling, klageinstans/underlagt/sekretariat/enhet_i-relasjoner,
-> gruppemedlemskap; begrepene med gruppefunksjon er typet som klasse/rolle/område, og virksomheter har
-> en aktørtype — issue #310), en navnekandidat-veiviser som fanger opp alle disse ved sveip AV manuell
+> relasjoner — alle strukturutsagn (relasjoner, medlemskap, rolleinnehav, kompetanse, områder,
+> organtilhørighet, klassenivå) i én typestyrt kanttabell med hjemmel eller kilde utenfor korpus,
+> avgrensning og polaritet (issue #311); begrepene med gruppefunksjon er typet som klasse/rolle/område,
+> virksomheter har en aktørtype, og organer som Stortinget og Kongen i statsråd er virksomheter (#310/#311), en navnekandidat-veiviser som fanger opp alle disse ved sveip AV manuell
 > tagging, og en familie KI-forslagstjenester (begrep/tjeneste/handling, alltid med et menneske i
 > godkjenn/avvis-loopen — se `docs/14-byggesteg5-teknisk-design.md`). Se
 > [`docs/00-endringslogg-v0.1.md`](docs/00-endringslogg-v0.1.md),
@@ -41,7 +42,7 @@ ved motstrid, stol på `docs/README.md` og selve koden, ikke denne listen.
 | [`docs/06-veikart.md`](docs/06-veikart.md) | Faseplan — rekkefølgen vi faktisk bygger i, og hvorfor. |
 | [`docs/09-design-konvensjoner.md`](docs/09-design-konvensjoner.md) | **BINDENDE.** Designsystemet i praksis: temaoppsett, tokens, Card-alltid-rendret-mønsteret (§14), navigasjonsmønster. Les FØR ny UI. |
 | [`docs/14-byggesteg5-teknisk-design.md`](docs/14-byggesteg5-teknisk-design.md) | KI-agentene: forslagsmønsteret (kø → godkjenn/avvis → proveniens med `AiForslagVersjon`/`GodkjentAv`) som `Begrepsforslag`/`Tjenesteforslag`/`Handlingsforslag` og navnekandidat-oppdagelsen alle følger. |
-| [`docs/20-virksomhetskatalog-og-rollemodell.md`](docs/20-virksomhetskatalog-og-rollemodell.md) | Virksomhetskatalogen: roller (myndighetstildeling), relasjoner (underlagt/sekretariat/klageinstans/enhet_i/oppgaver_overført_til), gruppemedlemskap. |
+| [`docs/20-virksomhetskatalog-og-rollemodell.md`](docs/20-virksomhetskatalog-og-rollemodell.md) | Virksomhetskatalogen. Tildelinger, relasjoner og gruppemedlemskap er siden #311 strukturkanter — se `docs/33` §4.3. |
 | [`docs/25-funksjonsoversikt.md`](docs/25-funksjonsoversikt.md) | **Nærmeste ting til en sannhet om hva som faktisk finnes i appen i dag.** |
 | [`docs/32-formal-roller-og-sporsmal.md`](docs/32-formal-roller-og-sporsmal.md) | **BINDENDE.** Formålet, rollene, og §3-spørsmålene (S1–S9) modellen skal kunne besvare — hvorfor dette bygges. |
 | [`docs/design-canvas/`](docs/design-canvas/) | 16-artboard visuell designreferanse (Claude Design-canvas), publisert som Artifact — brukt som fasit ved nye skjermer. |

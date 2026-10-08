@@ -5,6 +5,8 @@ import {
   Select, Spinner, Table, Tag, Textfield,
 } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
+import { KildeUtenforKorpusVelger } from '../strukturkant/KildeUtenforKorpus';
+import type { KildeUtenforKorpusDokumentasjon, KildeUtenforKorpusType } from '../api/types';
 import { rettskildeLenkeForId } from '../api/eidLenker';
 import type {
   BrregEnhetDto, NavnekandidatDto, Navneformgrunn, RelasjonsTypeKonfigurasjonDto,
@@ -234,6 +236,9 @@ export default function NavnekandidatVeiviser() {
    * hjemmel, kun `relasjonKommentar` som fritekst. */
   const [relasjonHjemletHer, setRelasjonHjemletHer] = useState(true);
   const [relasjonKommentar, setRelasjonKommentar] = useState('');
+  // [Ny, issue #311, Johanns beslutning 2026-10-07] Kildetype + dokumentasjon, påkrevd uten hjemmel.
+  const [relasjonKildeType, setRelasjonKildeType] = useState<KildeUtenforKorpusType | ''>('');
+  const [relasjonKildeDok, setRelasjonKildeDok] = useState<KildeUtenforKorpusDokumentasjon | ''>('');
 
   // Slag==='gruppe' — AC9: valgfritt tillegg «er denne gruppen selv medlem av en annen gruppe?».
   // Gjenbruker `gruppebegrep`-lista over (bredere lastebetingelse, se effekten under).
@@ -358,7 +363,8 @@ export default function NavnekandidatVeiviser() {
    * gruppebegrep over. */
   useEffect(() => {
     if (tillegg !== 'relasjon' || relasjonstyper !== null) return;
-    api.hentRelasjonstyper()
+    // [ENDRET, issue #311] Bare R-typene — konfigurasjonen har nå typekoder for alle åtte kategoriene.
+    api.hentRelasjonstyper('R')
       .then(setRelasjonstyper)
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Kunne ikke laste relasjonstypene.'));
   }, [tillegg, relasjonstyper]);
@@ -608,6 +614,8 @@ export default function NavnekandidatVeiviser() {
           relasjonsType,
           hjemletHer: relasjonHjemletHer,
           kommentar: relasjonHjemletHer ? null : (relasjonKommentar.trim() || null),
+          kildeUtenforKorpusType: relasjonHjemletHer ? null : (relasjonKildeType || null),
+          kildeUtenforKorpusDokumentasjon: relasjonHjemletHer ? null : (relasjonKildeDok || null),
         })
         : null;
 
@@ -702,7 +710,7 @@ export default function NavnekandidatVeiviser() {
   const tilleggKlart = tillegg === 'ingen'
     || (tillegg === 'rolle' && valgtRolleBegrepId !== '' && rolleFraEid.trim() !== '')
     || (tillegg === 'relasjon' && motpartVirksomhetId !== '' && relasjonsType !== ''
-        && (relasjonHjemletHer || relasjonKommentar.trim() !== ''));
+        && (relasjonHjemletHer || (relasjonKommentar.trim() !== '' && !!relasjonKildeType && !!relasjonKildeDok)));
 
   return (
     <>
@@ -1315,7 +1323,7 @@ export default function NavnekandidatVeiviser() {
                 <Radio
                   name="tillegg"
                   label="Rolle tildelt her"
-                  description="Teksten tildeler et rollebegrep (en myndighet) til virksomheten her — f.eks. «forurensningsmyndighet». Oppretter en generell myndighetstildeling, uavhengig av et evt. gruppemedlemskap."
+                  description="Teksten tildeler et rollebegrep (en myndighet) til virksomheten her — f.eks. «forurensningsmyndighet». Oppretter en egen tilhørighet (rolleinnehav, eller medlemskap hvis begrepet er en klasse), uavhengig av et evt. gruppemedlemskap."
                   value="rolle"
                   checked={tillegg === 'rolle'}
                   onChange={() => { setTillegg('rolle'); if (!rolleFraEid) setRolleFraEid(kandidat.nodeEid); }}
@@ -1422,14 +1430,20 @@ export default function NavnekandidatVeiviser() {
                     <Radio name="hjemletHer" label="Hjemlet i denne rettskilden"
                       description="Relasjonen fremgår faktisk av denne setningen."
                       checked={relasjonHjemletHer} onChange={() => setRelasjonHjemletHer(true)} />
-                    <Radio name="hjemletHer" label="Ikke hjemlet her — bare en kommentar"
+                    <Radio name="hjemletHer" label="Ikke hjemlet her — oppgi kilden"
                       description="Relasjonen er kjent, men denne teksten er ikke den formelle hjemmelen."
                       checked={!relasjonHjemletHer} onChange={() => setRelasjonHjemletHer(false)} />
                   </Field>
                   {!relasjonHjemletHer && (
-                    <Textfield data-size="sm" label="Kommentar" placeholder="f.eks. lenke til org-kart"
+                    <Textfield data-size="sm" label="Kilde utenfor korpus (påkrevd)" placeholder="f.eks. lenke til org-kart"
                       value={relasjonKommentar} onChange={(e) => setRelasjonKommentar(e.target.value)}
                       style={{ maxWidth: '28rem', marginBottom: '0.75rem' }} />
+                  )}
+                  {!relasjonHjemletHer && (
+                    <div style={{ marginBottom: '0.75rem' }}>
+                      <KildeUtenforKorpusVelger type={relasjonKildeType} dokumentasjon={relasjonKildeDok}
+                        onType={setRelasjonKildeType} onDokumentasjon={setRelasjonKildeDok} disabled={steg !== 4} />
+                    </div>
                   )}
                 </>
               )}

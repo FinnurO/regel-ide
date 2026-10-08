@@ -367,9 +367,10 @@ export interface VirksomhetSlettOversiktDto {
   begreper: number;
   navneformer: number;
   brukere: number;
-  myndighetstildelinger: number;
+  /** [ENDRET, issue #311] Var myndighetstildelinger + virksomhetRelasjoner — nå alle strukturkanter med
+   * virksomheten i en av endene (kaskaderer). */
+  strukturkanter: number;
   virksomhetKandidater: number;
-  virksomhetRelasjoner: number;
   virksomhetNettsider: number;
   kodelister: number;
   datasett: number;
@@ -419,6 +420,115 @@ export interface ParagrafspennParDto {
   tilEid: string | null;
 }
 
+// ---------- Strukturkanter (issue #311 «Strukturmodell 6», docs/33 §4.3) ----------
+
+/** [Ny, issue #311] De åtte kategoriene — lukket vokabular, speilet av `Strukturkanter.Kategorier` i
+ * RegelIde.Data. R relasjon, K kompetanse, M medlemskap, O områdesammensetning, A ansvarsområde,
+ * G organtilhørighet, I rolleinnehav, T klassenivå. Typekoden innenfor kategorien er konfigurerbar
+ * (`RelasjonsTypeKonfigurasjonDto`). */
+export type Strukturkantkategori = 'R' | 'K' | 'M' | 'O' | 'A' | 'G' | 'I' | 'T';
+
+/** [Ny, issue #311, Johanns beslutning 2026-10-07] Typen kilde utenfor korpus — speilet av
+ * `Strukturkanter.KildeUtenforKorpusTyper`. `nettside_annet` = bare dokumentert på en nettside e.l. —
+ * arbeidslista over struktur uten forankring i en rettskilde. */
+export type KildeUtenforKorpusType =
+  'kgl_res' | 'instruks' | 'tildelingsbrev' | 'vedtekter' | 'styrevedtak' | 'forarbeider' | 'nettside_annet';
+/** [Ny, Johanns beslutning 2026-10-07] Lenken/teksten er selve kilden (`primaer`) eller en tekst som refererer
+ * den (`sekundaer`, f.eks. en artikkel som omtaler en kgl.res. — og som kan ta feil om den, se #311). */
+export type KildeUtenforKorpusDokumentasjon = 'primaer' | 'sekundaer';
+
+/** [Ny, issue #311] Én ende av en kant: en virksomhet (aktør) eller et begrep med gruppefunksjon.
+ * `nodetype` er aktørtypen (kan være null = uavklart) eller begrepskategorien. */
+export interface StrukturnodeDto {
+  type: 'virksomhet' | 'begrep';
+  id: string;
+  navn: string;
+  nodetype: string | null;
+}
+
+/** [Ny, issue #311] GET /api/strukturkanter?virksomhetId|begrepId=… — én kant med navn og visningstekst.
+ * `retning` er nodens side når listen er hentet for en node ('fra'/'til'), ellers null (per hjemmel,
+ * forslagskø). `til` er null bare for K/T. */
+export interface StrukturkantDto {
+  id: string;
+  kategori: Strukturkantkategori;
+  typekode: string;
+  retning: 'fra' | 'til' | null;
+  visningstekst: string;
+  fra: StrukturnodeDto;
+  til: StrukturnodeDto | null;
+  objekt: string | null;
+  paragrafspenn: ParagrafspennParDto[];
+  avgrensningTekst: string | null;
+  polaritet: 'positiv' | 'negativ';
+  hjemmelRettskildeId: string | null;
+  hjemmelRettskildeTittel: string | null;
+  hjemmelEid: string | null;
+  kildeUtenforKorpusTekst: string | null;
+  kildeUtenforKorpusLenke: string | null;
+  kildeUtenforKorpusType: KildeUtenforKorpusType | null;
+  kildeUtenforKorpusDokumentasjon: KildeUtenforKorpusDokumentasjon | null;
+  gyldigFra: string | null;
+  gyldigTil: string | null;
+  status: 'foreslatt_av_ai' | 'validert';
+  /** 'manuell' | 'monster:<id>' | 'ki:<modell>' — hvilken mekanisme som fant utsagnet (docs/33 §4.3). */
+  oppdagelsesKilde: string;
+  kommentar: string | null;
+  opprettetAv: string;
+  opprettetTidspunkt: string;
+}
+
+/** [Ny, issue #311] Rå kantfelt — svaret fra veiviserens kobl-til-*-endepunkter. */
+export interface StrukturkantRadDto {
+  id: string;
+  kategori: Strukturkantkategori;
+  typekode: string;
+  fraVirksomhetId: string | null;
+  fraBegrepId: string | null;
+  tilVirksomhetId: string | null;
+  tilBegrepId: string | null;
+  hjemmelRettskildeId: string | null;
+  hjemmelEid: string | null;
+  kildeUtenforKorpusTekst: string | null;
+  kildeUtenforKorpusType: KildeUtenforKorpusType | null;
+  kildeUtenforKorpusDokumentasjon: KildeUtenforKorpusDokumentasjon | null;
+  paragrafspenn: ParagrafspennParDto[];
+  avgrensningTekst: string | null;
+  polaritet: 'positiv' | 'negativ';
+  status: 'foreslatt_av_ai' | 'validert';
+}
+
+/** [Ny, issue #311] POST /api/strukturkanter. Nøyaktig én fra-node; høyst én til-node (ingen bare for K/T).
+ * Hjemmel ELLER kilde utenfor korpus er påkrevd, og polariteten MÅ oppgis (ingen standardverdi). */
+export interface StrukturkantRequest {
+  kategori: Strukturkantkategori;
+  typekode: string;
+  fraVirksomhetId?: string | null;
+  fraBegrepId?: string | null;
+  tilVirksomhetId?: string | null;
+  tilBegrepId?: string | null;
+  hjemmelRettskildeId?: string | null;
+  hjemmelEid?: string | null;
+  kildeUtenforKorpusTekst?: string | null;
+  kildeUtenforKorpusLenke?: string | null;
+  /** Påkrevd sammen med kildeteksten (Johanns beslutning 2026-10-07). */
+  kildeUtenforKorpusType?: KildeUtenforKorpusType | null;
+  kildeUtenforKorpusDokumentasjon?: KildeUtenforKorpusDokumentasjon | null;
+  paragrafspenn?: ParagrafspennParDto[];
+  avgrensningTekst?: string | null;
+  objekt?: string | null;
+  polaritet: 'positiv' | 'negativ';
+  gyldigFra?: string | null;
+  gyldigTil?: string | null;
+  kommentar?: string | null;
+}
+
+// [FJERNET, issue #311] GruppeMedlemskapRequest, VirksomhetRelasjonDto/-Request/-HjemletDto og
+// NavnekandidatRelasjonDto — erstattet av Strukturkant*-typene over. MyndighetstildelingDto og
+// GruppeMedlemskapDto under er beholdt fordi API-et fortsatt serverer dem som LESEFASADER for
+// nettside-eksporten; frontend leser StrukturkantDto.
+
+/** [ENDRET, issue #311] Lesefasade (M-/I-kant i myndighetstildelingens gamle form) — se Dtos.cs. */
 export interface MyndighetstildelingDto {
   id: string;
   gruppeBegrepId: string;
@@ -464,11 +574,12 @@ export interface KiOppdagelseKandidatUtfallDto {
   nodeEid: string;
   navnekandidatId: string | null;
   navnekandidatFeil: string | null;
-  myndighetstildelingId: string | null;
+  /** [ENDRET, issue #311] Kant-id-er (M/I for rolle, R for relasjon, M for gruppe-av-gruppe). */
+  rolleKantId: string | null;
   rolleIkkeOpprettetGrunn: string | null;
-  virksomhetRelasjonId: string | null;
+  relasjonKantId: string | null;
   relasjonIkkeOpprettetGrunn: string | null;
-  gruppeMedlemskapId: string | null;
+  gruppeAvGruppeKantId: string | null;
   gruppeAvGruppeIkkeOpprettetGrunn: string | null;
 }
 
@@ -479,22 +590,13 @@ export interface KiOppdagelseSamletResultatDto {
   meldinger: string[];
 }
 
-/** GET /api/ki-oppdagelse/ko — alle ventende (status='foreslatt_av_ai') rolle-/relasjon-/gruppe-av-
- * gruppe-forslag, flatet til én liste på tvers av de tre entitetstypene. */
+/** GET /api/ki-oppdagelse/ko — alle ventende (status='foreslatt_av_ai') strukturkanter.
+ * [ENDRET, issue #311] `type` er kantens kategori; `aiForslagVersjon` er oppdagelseskilden. */
 export interface KiForslagKoRadDto {
-  type: 'myndighetstildeling' | 'virksomhet_relasjon' | 'gruppe_medlemskap';
+  type: Strukturkantkategori;
   id: string;
   visningstekst: string;
   aiForslagVersjon: string | null;
-}
-
-export interface GruppeMedlemskapRequest {
-  overordnetGruppeBegrepId: string;
-  underordnetGruppeBegrepId: string;
-  hjemmelRettskildeId: string;
-  paragrafspenn: ParagrafspennParDto[];
-  gyldigFra?: string | null;
-  gyldigTil?: string | null;
 }
 
 export interface VirksomhetKandidatDto {
@@ -568,13 +670,14 @@ export type Navneformgrunn = 'gjeldende' | 'utgatt' | 'kortform' | 'feilskriving
 /**
  * [Ny, issue #310 «nodetype-akse», 2026-10-07, docs/33 §4.1–4.2] Nodetypene et begrep med gruppefunksjon
  * kan ha. Speiler `Nodetyper` i RegelIde.Data (og CHECK-ene). `Kandidatnodetype` er de et menneske kan
- * VELGE for en navnekandidat; `organ` finnes bare på reklassifiserte rader uten Virksomhet-rad ennå.
+ * VELGE for en navnekandidat. [ENDRET, issue #311] `organ` er ikke lenger en begrepskategori.
  * 'gruppe' er utfaset som begrepstype, men lever videre på en KANDIDAT som «nodetype ikke avgjort».
  */
 export type Kandidatnodetype = 'klasse' | 'rolle' | 'omrade';
-export type Begrepsnodetype = Kandidatnodetype | 'organ';
-/** Alle kategorier med gruppefunksjon — kan være mål for tildeling/medlemskap. */
-export const BEGREPSKATEGORIER_MED_GRUPPEFUNKSJON: readonly string[] = ['gruppe', 'klasse', 'rolle', 'omrade', 'organ'];
+/** [ENDRET, issue #311] 'organ' fjernet — organer er virksomheter (Aktortype 'organ'). */
+export type Begrepsnodetype = Kandidatnodetype;
+/** Alle kategorier med gruppefunksjon — kan være begrep-noder i en strukturkant. */
+export const BEGREPSKATEGORIER_MED_GRUPPEFUNKSJON: readonly string[] = ['gruppe', 'klasse', 'rolle', 'omrade'];
 export function harGruppefunksjon(begrepskategori: string | null | undefined): boolean {
   return !!begrepskategori && BEGREPSKATEGORIER_MED_GRUPPEFUNKSJON.includes(begrepskategori);
 }
@@ -625,7 +728,8 @@ export interface NavnekandidatGruppemedlemskapResultatDto {
   taggId: string | null;
   rettskildeId: string;
   nodeEid: string;
-  tildeling: MyndighetstildelingDto;
+  /** [ENDRET, issue #311] Kanten (M, eller I når gruppebegrepet er en rolle). */
+  tildeling: StrukturkantRadDto;
 }
 
 export interface NavnekandidatDto {
@@ -691,7 +795,7 @@ export interface NavnekandidatMyndighetstildelingResultatDto {
   taggId: string | null;
   rettskildeId: string;
   nodeEid: string;
-  tildeling: MyndighetstildelingDto;
+  tildeling: StrukturkantRadDto;
 }
 
 /** [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC7/AC8] POST /api/navnekandidater/
@@ -705,17 +809,9 @@ export interface KoblNavnekandidatTilRelasjonRequest {
   relasjonsType: string;
   hjemletHer: boolean;
   kommentar: string | null;
-}
-
-/** Rå VirksomhetRelasjon-felt uten beregnet visningstekst — se backend-DTOen. */
-export interface NavnekandidatRelasjonDto {
-  id: string;
-  relasjonsType: string;
-  fraVirksomhetId: string;
-  tilVirksomhetId: string;
-  hjemmelRettskildeId: string | null;
-  hjemmelEid: string | null;
-  kommentar: string | null;
+  /** [Ny, issue #311] Påkrevd når `hjemletHer` er false — kommentaren lagres som kilde utenfor korpus. */
+  kildeUtenforKorpusType?: KildeUtenforKorpusType | null;
+  kildeUtenforKorpusDokumentasjon?: KildeUtenforKorpusDokumentasjon | null;
 }
 
 export interface NavnekandidatRelasjonResultatDto {
@@ -724,7 +820,8 @@ export interface NavnekandidatRelasjonResultatDto {
   taggId: string | null;
   rettskildeId: string;
   nodeEid: string;
-  relasjon: NavnekandidatRelasjonDto;
+  /** [ENDRET, issue #311] R-kanten. */
+  relasjon: StrukturkantRadDto;
 }
 
 /** [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC9] POST /api/navnekandidater/
@@ -738,7 +835,8 @@ export interface KoblNavnekandidatTilGruppeAvGruppeRequest {
 export interface NavnekandidatGruppeAvGruppeResultatDto {
   kandidat: NavnekandidatDto;
   gruppebegrep: BegrepDto;
-  medlemskap: GruppeMedlemskapDto;
+  /** [ENDRET, issue #311] M-kanten (fra = det nye begrepet, til = den overordnede gruppen). */
+  medlemskap: StrukturkantRadDto;
 }
 
 /** [Ny, issue #298 AC3] POST /api/navnekandidater/{id}/godkjenn-som-fast-gruppebegrep — kun for
@@ -1330,39 +1428,13 @@ export interface TjenesteavhengighetRequest {
   tilUrl?: string | null;
 }
 
-/** Konfigurerbar relasjonstype for VirksomhetRelasjon (docs/29 §Del C) — GET /api/konfigurasjon/relasjonstyper. */
+/** Konfigurerbar typekode for strukturkanter (docs/29 §Del C) — GET /api/konfigurasjon/relasjonstyper[?kategori=X].
+ * [ENDRET, issue #311] `kategori` — identiteten er (kategori, kode). */
 export interface RelasjonsTypeKonfigurasjonDto {
+  kategori: Strukturkantkategori;
   kode: string;
   fraVisningsmal: string;
   tilVisningsmal: string;
-}
-
-/**
- * Én VirksomhetRelasjon sett fra den spurte virksomhetens ståsted — retning+visningstekst er ferdig
- * beregnet server-side (docs/28, docs/29 §Del C). SAMME lagrede rad gir ULIK visningstekst avhengig av
- * hvilken virksomhet man spør fra — se `retning`.
- */
-export interface VirksomhetRelasjonDto {
-  id: string;
-  relasjonsType: string;
-  retning: 'fra' | 'til';
-  visningstekst: string;
-  motpartVirksomhetId: string;
-  motpartNavn: string;
-  hjemmelRettskildeId: string | null;
-  hjemmelEid: string | null;
-  kommentar: string | null;
-  /** [Ny, issue #285 AC5] 'foreslatt_av_ai' | 'validert' — se VirksomhetRelasjonEntitet.Status. */
-  status: 'foreslatt_av_ai' | 'validert';
-}
-
-/** POST /api/virksomheter/{id}/relasjoner — {id} blir alltid FraVirksomhetId. */
-export interface VirksomhetRelasjonRequest {
-  tilVirksomhetId: string;
-  relasjonsType: string;
-  hjemmelRettskildeId: string | null;
-  hjemmelEid: string | null;
-  kommentar: string | null;
 }
 
 /** Ett cross-tenant søketreff (GET /api/tjenester/sok-tverr-tenant) — kun publiserte tjenester fra ALLE virksomheter. */
@@ -1404,7 +1476,7 @@ export interface BegrepDto {
   virksomhetId: string | null;
   /** null = ordinært begrep (faktabegrep/handlingsbegrep). 'virksomhet' = navneform for
    * virksomhetReferanseId. 'gruppe' = gruppebegrep hjemlet i lovkildeId. Se docs/20 §2.3/§2.4.
-   * [ENDRET, issue #310] 'klasse' | 'rolle' | 'omrade' | 'organ' — de typede begrepene med
+   * [ENDRET, issue #310] 'klasse' | 'rolle' | 'omrade' (organ fjernet i #311) — de typede begrepene med
    * gruppefunksjon (se `Begrepsnodetype`); 'gruppe' finnes bare på rader som ikke er reklassifisert. */
   begrepskategori: string | null;
   /** Kun satt når begrepskategori === 'virksomhet' — hvilken virksomhet dette er en navneform for. */
@@ -2152,17 +2224,4 @@ export interface VisningsinnstillingInput {
   accordionApne: Record<string, boolean>;
 }
 
-/** [Ny, nemnd/sekretariat-runden, 2026-09-09] Én virksomhetsrelasjon hjemlet i én rettskilde —
- * GET /api/rettskilder/{id}/virksomhetsrelasjoner. `visningstekst` er ferdig satt sammen fra
- * relasjonstypens Fra-mal («Konkurransetilsynet har klageinstans hos Konkurranseklagenemnda»). */
-export interface VirksomhetRelasjonHjemletDto {
-  id: string;
-  relasjonsType: string;
-  visningstekst: string;
-  fraVirksomhetId: string;
-  fraNavn: string;
-  tilVirksomhetId: string;
-  tilNavn: string;
-  hjemmelEid: string | null;
-  kommentar: string | null;
-}
+

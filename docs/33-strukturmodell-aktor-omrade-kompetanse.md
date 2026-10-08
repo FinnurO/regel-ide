@@ -147,6 +147,15 @@ derfor som `Begrepskategori = 'organ'` til noen oppretter virksomheten (migrasjo
 navneform automatisk der Stortinget-virksomheten alt finnes). Statsforvalter-radene er slått sammen til
 én fast, nasjonal klasse.
 
+**[Bygget, issue #311, 2026-10-07] Organene er virksomheter.** Johanns beslutning på #311: migrasjonen
+`InnforStrukturkanttabell` oppretter **Stortinget** (orgnr 971524960, aktørtype `organ`) fra et committet
+Brreg-øyeblikksbilde (`src/RegelIde.Data/Seed/brreg-971524960-stortinget.json`, hentet 2026-10-07 — en
+migrasjon kan ikke kalle Brreg; en test holder SQL-en og fila like) og **«Kongen i statsråd»** som organ uten
+orgnr, med hjemmelen (Grunnloven) i proveniensraden for opprettelsen. De tre organ-begrepene («Kongen i
+statsråd», den arkiverte «kongen», «stortinget») er navneformer for dem, taggene er flyttet til
+virksomhet-laget, og `'organ'` er fjernet som begrepskategori (CHECK og nodebegrep-indeksene). Et organ-
+begrep med ukjent term i et annet miljø blir `'gruppe'` (uavklart) — det gjettes ikke på en virksomhet.
+
 ### 4.2 Gruppe er en evne, ikke en type
 
 Svar på Johanns spørsmål (2026-10-07): «er det bedre å ha grupper med en attributt som skiller ulike
@@ -199,6 +208,39 @@ Felles egenskaper på **alle** kanter:
 - `Polaritet` (`positiv`|`negativ`) — funn 6. «Kommunestyret selv» = K med `delegerbar = false`.
 - `GyldigFra`/`GyldigTil`, `Status` (`foreslatt_av_ai`|`validert`, `docs/20` §2.7), `OppdagelsesKilde`
   (`manuell` | `monster:<id>` | `ki:<modell>`) — proveniens for automatisk konvertering (§5).
+- **[Ny, Johanns beslutninger 2026-10-07] `KildeUtenforKorpusType`** — kildens ART: `kgl_res` |
+  `instruks` | `tildelingsbrev` | `vedtekter` | `styrevedtak` | `forarbeider` | `nettside_annet`.
+  **`KildeUtenforKorpusDokumentasjon`** — HVOR den er dokumentert: `primaer` (lenken/teksten er selve
+  kilden) | `sekundaer` (en tekst som refererer den). Begge er påkrevd når kanten har kilde utenfor
+  korpus, og NULL når den har hjemmel i korpus — «ELLER» er eksklusivt (CHECK `ck_strukturkanter_kilde`).
+  `nettside_annet` gir arbeidslista over forvaltningsstruktur som mangler forankring i en rettskilde
+  (`GET /api/strukturkanter/uten-korpusforankring`). Skillet mellom art og dokumentasjon finnes fordi en
+  sekundærkilde kan ta feil om kildens art: en debattartikkel påsto at Tilsynsutvalget for dommere ble
+  *opprettet* ved kgl.res. 15. mai 2002, mens primærkilden viser at resolusjonen *oppnevnte* de første
+  medlemmene. Rettet testtilfelle (#311): Domstoladministrasjonen `sekretariat_for` Tilsynsutvalget =
+  `forarbeider` + `primaer` (Ot.prp. nr. 44 (2000–2001) kap. 11.5.12); Kongen i statsråd `oppnevner`
+  Tilsynsutvalget hjemlet i domstolloven; ingen `oppretter`-kant.
+
+**[Bygget, issue #311 «Strukturmodell 6», 2026-10-07]** Tabellen `strukturkanter` (`StrukturkantEntitet`,
+`StrukturkantTjeneste`, `Strukturkanter.cs`) — Johanns valg **A: full konsolidering**. Den erstatter
+`VirksomhetRelasjon`, `GruppeMedlemskap` og `Myndighetstildeling` (droppet; spor i `[FJERNET]`-kommentarer,
+proveniensrad `migrert` per kant og migrasjonens `Down`).
+
+- **Ender:** polymorfe — `FraVirksomhetId` | `FraBegrepId` (nøyaktig én, CHECK) og `TilVirksomhetId` |
+  `TilBegrepId` (høyst én; begge NULL bare for K/T). Lovlige nodetyper per kategori står i
+  `Strukturkanter.Noderegler` og håndheves i tjenesten (M: til = klasse/område; I: til = rolle; O: område →
+  område; G: til = virksomhet …). `'gruppe'` (uavklart) godtas der et begrep med gruppefunksjon godtas.
+- **K uten til-node** må si hva kompetansen gjelder: `Objekt` (sakstypen), paragrafspenn eller hjemmel-eId.
+- **Typekoder** er rader i `relasjonstype_konfigurasjon`, som har fått `kategori` (identitet = (kategori,
+  kode), siden `instruksjon` finnes både i R og K). Startsettet over seedes ved oppstart per (kategori, kode).
+- **Sykel** avvises i M og O (bevart fra gruppe-av-gruppe, #164); R har bevisst ingen sykelsjekk.
+- **Idempotens:** samme kategori/type/fra/til/objekt/polaritet/hjemmel/avgrensning ⇒ samme kant.
+- **Åpne spørsmål (ikke avgjort i #311):** (1) de fem R-kodene som fantes før (`underlagt`, `sekretariat`,
+  `klageinstans`, `enhet_i`, `oppgaver_overfort_til`) er beholdt med samme kode; tre av dem overlapper
+  startsettet i MOTSATT retning (`klageinstans` ↔ `klageinstans_for`, `sekretariat` ↔ `sekretariat_for`,
+  `underlagt` ≈ `administrativt_underordnet`). Å slå dem sammen krever at radene snus. (2) K-kodene følger
+  tabellen over (`forskrift`, `vedtak` …), ikke FORMAT.md/`Strukturkontrakt` (`forskriftskompetanse` …) —
+  avbildningen hører til #313.
 
 ### 4.4 Bevisst ikke i strukturlaget (forslagets punkt 9)
 
@@ -398,9 +440,9 @@ Før tersklene settes, trengs to ting:
 
 | Fra | Til | Automatisk? |
 |---|---|---|
-| `VirksomhetRelasjon` (10 rader lokalt) | R-kanter, samme typekode | Ja — 1:1, ingen tap |
-| `GruppeMedlemskap` (3) | M-kanter | Ja — 1:1 |
-| `Myndighetstildeling` (16) | M eller I, avhengig av målets nye nodetype | **Nei** før de 13 gruppebegrepene er reklassifisert |
+| `VirksomhetRelasjon` (10 rader lokalt) | R-kanter, samme typekode | Ja — 1:1, ingen tap. **Bygget #311:** 10 → 10 (8 hjemlet; 2 uten hjemmel → kilde utenfor korpus `nettside_annet` + `sekundaer`) |
+| `GruppeMedlemskap` (3) | M-kanter | Ja — 1:1. **Bygget #311:** 3 → 3 |
+| `Myndighetstildeling` (16) | M eller I, avhengig av målets nye nodetype | **Bygget #311** (etter #310): 16 → 15 M (14 klasse + 1 område) + 1 I (rolle) |
 | `Begrep(gruppe)` (13) | klasse / rolle / område / organ | **Nei** — må avgjøres av et menneske (liste i sak) |
 | `Begrep(administrativ_inndeling)` (0) | område | Ja |
 | Kommuner/fylker | område-noder fra Kartverket kommuneinfo (15 fylker, 357 kommuner) + `O bestar_av` + `A har_ansvarsomrade` kommune→eget territorium | Ja — entydig nøkkel (kommunenummer innen gyldig inndeling) |
@@ -443,10 +485,8 @@ Pluss to som følger av funnene: 12. Hvem har hvilken kompetanse etter hvilken p
 
 ## 7. Ikke løst / åpne beslutninger
 
-1. **Konsolidering av kanttabellene** — én ny tabell som erstatter `VirksomhetRelasjon`,
-   `GruppeMedlemskap` og `Myndighetstildeling` (berører KI-oppdagelsen, veiviseren, VirksomhetDetalj,
-   BegrepDetalj, nettside-eksporten), eller ny tabell for de nye kategoriene og konsolidering senere.
-   Prissatt i sak; Johanns valg.
+1. ~~**Konsolidering av kanttabellene**~~ — **avgjort og bygget (#311):** Johann valgte A, full
+   konsolidering. Se §4.3.
 2. **Reklassifisering av de 13 gruppebegrepene** — liste i sak; Johanns valg per rad.
 3. **Sametinget** passer ikke rent i én nodetype (folkevalgt organ uten oppgitt rettssubjekt som
    likevel ansetter og trer inn i rettigheter). Fasiten bruker `organ` med kommentar.

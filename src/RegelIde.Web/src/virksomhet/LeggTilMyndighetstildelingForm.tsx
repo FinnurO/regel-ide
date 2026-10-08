@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { Alert, Button, Card, Field, Label, Select, Table, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { MyndighetstildelingDto, ParagrafspennParDto, RettskildeNodeDto, RettskildeSammendrag, VirksomhetsbegrepDto } from '../api/types';
+import type { ParagrafspennParDto, RettskildeNodeDto, RettskildeSammendrag, StrukturkantDto, VirksomhetsbegrepDto } from '../api/types';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
 import { Metatekst } from '../entitet/Metatekst';
 
 export interface LeggTilMyndighetstildelingFormProps {
   virksomhetId: string;
   rettskilder: RettskildeSammendrag[];
-  onOpprettet: (ny: MyndighetstildelingDto) => void;
+  onOpprettet: (ny: StrukturkantDto) => void;
 }
 
 /**
@@ -21,6 +21,12 @@ export interface LeggTilMyndighetstildelingFormProps {
  * sourced fra gruppebegrepets EGEN lov + en «avansert/manuell» eId-`Textfield` som fallback), men
  * bygger en LISTE av `{ FraEid, TilEid? }`-par (docs/20 §7.1) i stedet for én enkelt referanse —
  * `ParagrafspennJson` krever minst ett par, se `MyndighetstildelingTjeneste.OpprettAsync`.
+ *
+ * [ENDRET, issue #311 «Strukturmodell 6»] Lagrer nå en strukturkant via `POST /api/strukturkanter`. Kategorien
+ * følger av begrepets nodetype — en ROLLE gir `I innehar` (innehav arves ikke, docs/33 §4.2), alt annet
+ * `M medlem_av` — samme regel som datamigreringen og `StrukturkantTjeneste.OpprettTildelingAsync`. Vilkåret
+ * lagres som kantens avgrensningstekst. Polariteten er alltid positiv her: skjemaet registrerer at
+ * virksomheten ER medlem/innehaver; et negativt utsagn registreres som en egen kant.
  */
 export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOpprettet }: LeggTilMyndighetstildelingFormProps) {
   const [gruppebegrep, setGruppebegrep] = useState<VirksomhetsbegrepDto[] | null>(null);
@@ -98,8 +104,11 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
     setFeilmelding(null);
     setOppretter(true);
     try {
-      const ny = await api.opprettMyndighetstildeling({
-        gruppeBegrepId: gruppebegrepId, virksomhetId, hjemmelRettskildeId, paragrafspenn, vilkaar: vilkaar.trim() || null,
+      const erRolle = valgtGruppebegrep?.begrepskategori === 'rolle';
+      const ny = await api.opprettStrukturkant({
+        kategori: erRolle ? 'I' : 'M', typekode: erRolle ? 'innehar' : 'medlem_av',
+        fraVirksomhetId: virksomhetId, tilBegrepId: gruppebegrepId, hjemmelRettskildeId, paragrafspenn,
+        avgrensningTekst: vilkaar.trim() || null, polaritet: 'positiv',
         gyldigFra: gyldigFra || null, gyldigTil: gyldigTil || null,
       });
       onOpprettet(ny);
@@ -110,7 +119,7 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
       setGyldigFra('');
       setGyldigTil('');
     } catch (err) {
-      setFeilmelding(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse av myndighetstildeling.');
+      setFeilmelding(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse av tilhørigheten.');
     } finally {
       setOppretter(false);
     }
@@ -220,7 +229,7 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
 
       <Button data-size="sm" type="button" onClick={opprett}
         disabled={oppretter || !gruppebegrepId || !hjemmelRettskildeId || paragrafspenn.length === 0}>
-        {oppretter ? 'Oppretter …' : 'Opprett myndighetstildeling'}
+        {oppretter ? 'Oppretter …' : 'Opprett tilhørighet'}
       </Button>
       {feilmelding && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{feilmelding}</Alert>}
     </Card>

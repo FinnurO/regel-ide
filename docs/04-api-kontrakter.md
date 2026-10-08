@@ -154,6 +154,32 @@ Ingen `PUT`/publiseringsendepunkt for AI-forslag — AI kan aldri publisere (RBA
 
 Organisasjonen (Testkommunen) registrerer disse URL-ene **én gang** i data.norge.nos registreringsløsning (Altinn-autorisert) — ikke noe regel-IDE gjør per publisering.
 
+## 14. Strukturkanter (issue #311, 2026-10-07)
+
+Én endepunktfamilie for alle strukturutsagn (`docs/33` §4.3). Erstatter `/api/myndighetstildelinger`,
+`/api/gruppemedlemskap` og `/api/virksomhet-relasjoner` (skriveveiene er fjernet).
+
+| Metode og sti | Hva |
+|---|---|
+| `GET /api/strukturkanter?virksomhetId=…\|begrepId=…[&kategori=R..T][&gjeldende=true][&status=…]` | Kantene for én node, begge retninger, med visningstekst fra nodens side (`retning` = `fra`/`til`). |
+| `GET /api/strukturkanter?status=foreslatt_av_ai[&kategori=…]` | Forslagskøen. |
+| `GET /api/strukturkanter/uten-korpusforankring[?kildetype=…\|alle]` | Kanter uten hjemmel i korpus, per kildetype (standard `nettside_annet`) — arbeidslista. |
+| `GET /api/strukturkanter/{id}` | Én kant. |
+| `POST /api/strukturkanter` | Opprett. Polaritet MÅ oppgis; hjemmel ELLER kilde utenfor korpus (tekst + type + dokumentasjon). 201 ny, 200 identisk utsagn fantes (idempotent), 400 ved ugyldig kategori/typekode/nodetype/sykel/kilde. |
+| `POST /api/strukturkanter/{id}/godkjenn` | Forslag → validert. |
+| `POST /api/strukturkanter/{id}/avvis` | Sletter et forslag (bare `foreslatt_av_ai`). |
+| `DELETE /api/strukturkanter/{id}` | Sletter en kant uansett status (logges i Proveniens). |
+| `GET /api/rettskilder/{id}/strukturkanter` | Kantene hjemlet i en rettskilde (var `/virksomhetsrelasjoner`). |
+| `GET /api/konfigurasjon/relasjonstyper[?kategori=…]` | Typekodene (nå med `kategori`). |
+| `GET /api/ki-oppdagelse/ko` | Forslagskøen i KI-sidens form (`type` = kategori). |
+
+**Lesefasader for nettside-eksporten** (samme JSON-form som før #311, bygget fra kantene):
+`GET /api/virksomheter/{id}/myndighetstildelinger`, `GET /api/gruppebegrep/{id}/tildelinger`,
+`/medlemsgrupper`, `/overordnede-grupper`. Ny kode skal lese `/api/strukturkanter`.
+
+Veiviserens `POST /api/navnekandidater/{id}/kobl-til-*` beholder rutene; svarene bærer nå kanten
+(`StrukturkantRadDto`). `kobl-til-relasjon` med `HjemletHer=false` krever kommentar + kildetype + dokumentasjon.
+
 ## Generelle regler (gjelder alle ressurser over)
 
 - Ingen `DELETE` på entiteter med `entitetsstatus != utkast` eller som er referert av en `ForklaringsloggOppforing` i `forklaringsmodell-api` (samme append-only-prinsipp som der).

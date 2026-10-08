@@ -529,40 +529,76 @@ public sealed record TjenesteavhengighetRequest(
     Guid? TilTjenesteId, string Rel, Guid? HendelseId, string? Beskrivelse,
     string? TilOrganisasjonsnummer = null, string? TilNavn = null, string? TilUrl = null);
 
-/// <summary>Konfigurerbare relasjonstyper (docs/29 §Del C, samme mønster som <see cref="TaggKindKonfigurasjonDto"/>).</summary>
-public sealed record RelasjonsTypeKonfigurasjonDto(string Kode, string FraVisningsmal, string TilVisningsmal)
+/// <summary>Konfigurerbare typekoder for strukturkanter (docs/29 §Del C, samme mønster som
+/// <see cref="TaggKindKonfigurasjonDto"/>). [ENDRET, issue #311] Har <see cref="Kategori"/> — samme kode kan
+/// finnes i to kategorier.</summary>
+public sealed record RelasjonsTypeKonfigurasjonDto(string Kategori, string Kode, string FraVisningsmal, string TilVisningsmal)
 {
-    public static RelasjonsTypeKonfigurasjonDto FraEntitet(RelasjonsTypeKonfigurasjonEntitet k) => new(k.Kode, k.FraVisningsmal, k.TilVisningsmal);
+    public static RelasjonsTypeKonfigurasjonDto FraEntitet(RelasjonsTypeKonfigurasjonEntitet k) => new(k.Kategori, k.Kode, k.FraVisningsmal, k.TilVisningsmal);
 }
 
-/// <summary>Én <see cref="VirksomhetRelasjonEntitet"/> sett fra én bestemt virksomhets ståsted — se
-/// <see cref="VirksomhetRelasjonVisning"/> for hva feltene betyr.</summary>
-public sealed record VirksomhetRelasjonDto(
-    Guid Id, string RelasjonsType, string Retning, string Visningstekst,
-    Guid MotpartVirksomhetId, string MotpartNavn,
-    Guid? HjemmelRettskildeId, string? HjemmelEid, string? Kommentar, string Status)
+// [FJERNET, issue #311] VirksomhetRelasjonDto, VirksomhetRelasjonHjemletDto og VirksomhetRelasjonRequest —
+// relasjoner er R-kanter, se StrukturkantDto/StrukturkantRequest under.
+
+// ---------- Strukturkanter (issue #311, docs/33 §4.3) ----------
+
+/// <summary>[Ny, issue #311] Én node i en kant — se <see cref="KantnodeVisning"/>.</summary>
+public sealed record StrukturnodeDto(string Type, Guid Id, string Navn, string? Nodetype)
 {
-    public static VirksomhetRelasjonDto FraVisning(VirksomhetRelasjonVisning v) => new(
-        v.Id, v.RelasjonsType, v.Retning, v.Visningstekst, v.MotpartVirksomhetId, v.MotpartNavn,
-        v.HjemmelRettskildeId, v.HjemmelEid, v.Kommentar, v.Status);
+    public static StrukturnodeDto FraVisning(KantnodeVisning n) => new(n.Type, n.Id, n.Navn, n.Nodetype);
 }
 
-/// <summary>[Ny, nemnd/sekretariat-runden, 2026-09-09] Én relasjon hjemlet i én rettskilde — se
-/// <see cref="VirksomhetRelasjonHjemletVisning"/> for hvorfor lovens side trenger sin egen form.</summary>
-public sealed record VirksomhetRelasjonHjemletDto(
-    Guid Id, string RelasjonsType, string Visningstekst,
-    Guid FraVirksomhetId, string FraNavn, Guid TilVirksomhetId, string TilNavn,
-    string? HjemmelEid, string? Kommentar)
+/// <summary>[Ny, issue #311] Én strukturkant med navn og visningstekst — se <see cref="StrukturkantVisning"/>.</summary>
+public sealed record StrukturkantDto(
+    Guid Id, string Kategori, string Typekode, string? Retning, string Visningstekst,
+    StrukturnodeDto Fra, StrukturnodeDto? Til, string? Objekt,
+    IReadOnlyList<ParagrafspennParDto> Paragrafspenn, string? AvgrensningTekst, string Polaritet,
+    Guid? HjemmelRettskildeId, string? HjemmelRettskildeTittel, string? HjemmelEid,
+    string? KildeUtenforKorpusTekst, string? KildeUtenforKorpusLenke, string? KildeUtenforKorpusType,
+    string? KildeUtenforKorpusDokumentasjon,
+    DateOnly? GyldigFra, DateOnly? GyldigTil, string Status, string OppdagelsesKilde, string? Kommentar,
+    string OpprettetAv, DateTimeOffset OpprettetTidspunkt)
 {
-    public static VirksomhetRelasjonHjemletDto FraVisning(VirksomhetRelasjonHjemletVisning v) => new(
-        v.Id, v.RelasjonsType, v.Visningstekst, v.FraVirksomhetId, v.FraNavn, v.TilVirksomhetId, v.TilNavn,
-        v.HjemmelEid, v.Kommentar);
+    public static StrukturkantDto FraVisning(StrukturkantVisning v) => new(
+        v.Id, v.Kategori, v.Typekode, v.Retning, v.Visningstekst,
+        StrukturnodeDto.FraVisning(v.Fra), v.Til is null ? null : StrukturnodeDto.FraVisning(v.Til), v.Objekt,
+        v.Paragrafspenn.Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList(), v.AvgrensningTekst, v.Polaritet,
+        v.HjemmelRettskildeId, v.HjemmelRettskildeTittel, v.HjemmelEid,
+        v.KildeUtenforKorpusTekst, v.KildeUtenforKorpusLenke, v.KildeUtenforKorpusType, v.KildeUtenforKorpusDokumentasjon, v.GyldigFra, v.GyldigTil, v.Status, v.OppdagelsesKilde,
+        v.Kommentar, v.OpprettetAv, v.OpprettetTidspunkt);
 }
 
-/// <summary>Forespørsel for POST /api/virksomheter/{id}/relasjoner — {id} blir alltid FraVirksomhetId
-/// (samme «{id} er alltid Fra-siden»-konvensjon som POST /api/tjenester/{id}/avhengigheter).</summary>
-public sealed record VirksomhetRelasjonRequest(
-    Guid TilVirksomhetId, string RelasjonsType, Guid? HjemmelRettskildeId, string? HjemmelEid, string? Kommentar);
+/// <summary>[Ny, issue #311] Rå kantfelt uten navn/visningstekst — svaret fra veiviserens kobl-til-*-endepunkter,
+/// der klienten alt kjenner nodene (den valgte dem nettopp) og bare trenger bekreftelse på hva som ble lagret.</summary>
+public sealed record StrukturkantRadDto(
+    Guid Id, string Kategori, string Typekode, Guid? FraVirksomhetId, Guid? FraBegrepId,
+    Guid? TilVirksomhetId, Guid? TilBegrepId, Guid? HjemmelRettskildeId, string? HjemmelEid,
+    string? KildeUtenforKorpusTekst, string? KildeUtenforKorpusType, string? KildeUtenforKorpusDokumentasjon,
+    IReadOnlyList<ParagrafspennParDto> Paragrafspenn,
+    string? AvgrensningTekst, string Polaritet, string Status)
+{
+    public static StrukturkantRadDto FraEntitet(StrukturkantEntitet k) => new(
+        k.Id, k.Kategori, k.Typekode, k.FraVirksomhetId, k.FraBegrepId, k.TilVirksomhetId, k.TilBegrepId,
+        k.HjemmelRettskildeId, k.HjemmelEid, k.KildeUtenforKorpusTekst, k.KildeUtenforKorpusType, k.KildeUtenforKorpusDokumentasjon,
+        StrukturkantTjeneste.LesParagrafspenn(k).Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList(),
+        k.AvgrensningTekst, k.Polaritet, k.Status);
+}
+
+/// <summary>[Ny, issue #311] Forespørsel for <c>POST /api/strukturkanter</c>. Nøyaktig én av
+/// <c>FraVirksomhetId</c>/<c>FraBegrepId</c>; høyst én av til-feltene (begge null bare for K/T). Status og
+/// oppdagelseskilde settes ikke av klienten: et menneske som registrerer en kant registrerer en validert,
+/// manuell opplysning (forslag kommer fra KI-/mønsterlaget, docs/33 §5.3).</summary>
+public sealed record StrukturkantRequest(
+    string Kategori, string Typekode,
+    Guid? FraVirksomhetId, Guid? FraBegrepId, Guid? TilVirksomhetId, Guid? TilBegrepId,
+    Guid? HjemmelRettskildeId = null, string? HjemmelEid = null,
+    string? KildeUtenforKorpusTekst = null, string? KildeUtenforKorpusLenke = null,
+    IReadOnlyList<ParagrafspennParDto>? Paragrafspenn = null, string? AvgrensningTekst = null,
+    string? Objekt = null, string? Polaritet = null, DateOnly? GyldigFra = null, DateOnly? GyldigTil = null,
+    string? Kommentar = null,
+    // [Ny, Johanns beslutning 2026-10-07] Påkrevd sammen med KildeUtenforKorpusTekst — se
+    // StrukturkantEntitet.KildeUtenforKorpusType. Dokumentasjon: primaer|sekundaer, påkrevd sammen med typen.
+    string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null);
 
 /// <summary>Ett cross-tenant søketreff for GET /api/tjenester/sok-tverr-tenant — se <see cref="TjenesteTverrTenantTreff"/>.</summary>
 public sealed record TjenesteTverrTenantTreffDto(Guid Id, string Tittel, string? Beskrivelse, Guid VirksomhetId, string VirksomhetNavn)
@@ -760,20 +796,28 @@ public sealed record SettAktortypeRequest(string? Aktortype);
 
 public sealed record ParagrafspennParDto(string FraEid, string? TilEid);
 
-public sealed record MyndighetstildelingRequest(
-    Guid GruppeBegrepId, Guid VirksomhetId, Guid HjemmelRettskildeId,
-    IReadOnlyList<ParagrafspennParDto> Paragrafspenn, string? Vilkaar,
-    DateOnly? GyldigFra = null, DateOnly? GyldigTil = null);
+// [FJERNET, issue #311] MyndighetstildelingRequest — opprett via POST /api/strukturkanter (M/I).
 
+/// <summary>
+/// [ENDRET, issue #311] TYNN LESEFASADE: samme JSON-form som før #311, nå bygget fra en M-/I-kant
+/// (virksomhet → begrep). Beholdt fordi nettside-eksporten (<c>nettside/tools/eksporter-data.ps1</c>, Johanns
+/// domene) leser <c>/api/virksomheter/{id}/myndighetstildelinger</c> og <c>/api/gruppebegrep/{id}/tildelinger</c>
+/// — skriptet skal fortsatt virke uendret. Ny kode skal lese <see cref="StrukturkantDto"/>. Kanter uten
+/// korpus-hjemmel (kilde utenfor korpus) har ingen plass her og utelates av fasaden.
+/// </summary>
 public sealed record MyndighetstildelingDto(
     Guid Id, Guid GruppeBegrepId, Guid VirksomhetId, Guid HjemmelRettskildeId,
     IReadOnlyList<ParagrafspennParDto> Paragrafspenn, string? Vilkaar,
     DateOnly? GyldigFra, DateOnly? GyldigTil, string Status)
 {
-    public static MyndighetstildelingDto FraEntitet(MyndighetstildelingEntitet m) => new(
-        m.Id, m.GruppeBegrepId, m.VirksomhetId, m.HjemmelRettskildeId,
-        MyndighetstildelingTjeneste.LesParagrafspenn(m).Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList(),
-        m.Vilkaar, m.GyldigFra, m.GyldigTil, m.Status);
+    public static MyndighetstildelingDto FraKant(StrukturkantEntitet k) => new(
+        k.Id, k.TilBegrepId!.Value, k.FraVirksomhetId!.Value, k.HjemmelRettskildeId!.Value,
+        StrukturkantTjeneste.LesParagrafspenn(k).Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList(),
+        k.AvgrensningTekst, k.GyldigFra, k.GyldigTil, k.Status);
+
+    public static bool KanVises(StrukturkantEntitet k) =>
+        (k.Kategori == Strukturkanter.Medlemskap || k.Kategori == Strukturkanter.Rolleinnehav)
+        && k.FraVirksomhetId is not null && k.TilBegrepId is not null && k.HjemmelRettskildeId is not null;
 }
 
 // [Ny, navneform-kjede-runden, 2026-09-08] «Where used» for én virksomhet, se
@@ -809,19 +853,23 @@ public sealed record VirksomhetWhereUsedDto(
 // [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] «Gruppe av gruppe» — se
 // GruppeMedlemskapEntitet. Formen speiler MyndighetstildelingRequest/-Dto over, som er den
 // tilsvarende kanten ned til en konkret virksomhet.
-public sealed record GruppeMedlemskapRequest(
-    Guid OverordnetGruppeBegrepId, Guid UnderordnetGruppeBegrepId, Guid HjemmelRettskildeId,
-    IReadOnlyList<ParagrafspennParDto> Paragrafspenn,
-    DateOnly? GyldigFra = null, DateOnly? GyldigTil = null);
+// [FJERNET, issue #311] GruppeMedlemskapRequest — opprett via POST /api/strukturkanter (M, begrep → begrep).
 
+/// <summary>[ENDRET, issue #311] TYNN LESEFASADE for nettside-eksporten — samme begrunnelse som
+/// <see cref="MyndighetstildelingDto"/>. Bygget fra en M-kant begrep → begrep (fra = underordnet,
+/// til = overordnet).</summary>
 public sealed record GruppeMedlemskapDto(
     Guid Id, Guid OverordnetGruppeBegrepId, Guid UnderordnetGruppeBegrepId, Guid HjemmelRettskildeId,
     IReadOnlyList<ParagrafspennParDto> Paragrafspenn, DateOnly? GyldigFra, DateOnly? GyldigTil, string Status)
 {
-    public static GruppeMedlemskapDto FraEntitet(GruppeMedlemskapEntitet m) => new(
-        m.Id, m.OverordnetGruppeBegrepId, m.UnderordnetGruppeBegrepId, m.HjemmelRettskildeId,
-        GruppeMedlemskapTjeneste.LesParagrafspenn(m).Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList(),
-        m.GyldigFra, m.GyldigTil, m.Status);
+    public static GruppeMedlemskapDto FraKant(StrukturkantEntitet k) => new(
+        k.Id, k.TilBegrepId!.Value, k.FraBegrepId!.Value, k.HjemmelRettskildeId!.Value,
+        StrukturkantTjeneste.LesParagrafspenn(k).Select(p => new ParagrafspennParDto(p.FraEid, p.TilEid)).ToList(),
+        k.GyldigFra, k.GyldigTil, k.Status);
+
+    public static bool KanVises(StrukturkantEntitet k) =>
+        k.Kategori == Strukturkanter.Medlemskap && k.FraBegrepId is not null && k.TilBegrepId is not null
+        && k.HjemmelRettskildeId is not null;
 }
 
 public sealed record VirksomhetKandidatRequest(Guid VirksomhetId, Guid RettskildeId, string NodeEid, int StartOffset, int EndOffset);
@@ -922,13 +970,14 @@ public sealed record KoblNavnekandidatTilGruppemedlemskapRequest(
 /// [Ny, gruppemedlemskap-runden, 2026-09-08] Som <see cref="NavnekandidatKoblingResultatDto"/>, pluss
 /// medlemskapsraden — klienten trenger den for «dette skjedde»-oppsummeringen (docs/09 §15).
 /// </summary>
+/// <remarks>[ENDRET, issue #311] <c>Tildeling</c> er nå kanten (M, eller I for en rolle).</remarks>
 public sealed record NavnekandidatGruppemedlemskapResultatDto(
     NavnekandidatDto Kandidat, BegrepDto Navneform, Guid? TaggId, Guid RettskildeId, string NodeEid,
-    MyndighetstildelingDto Tildeling)
+    StrukturkantRadDto Tildeling)
 {
     public static NavnekandidatGruppemedlemskapResultatDto FraResultat(NavnekandidatGruppemedlemskapResultat r) => new(
         NavnekandidatDto.FraEntitet(r.Kandidat), BegrepDto.FraEntitet(r.Navneform), r.TaggId,
-        r.Kandidat.RettskildeId, r.NodeEid, MyndighetstildelingDto.FraEntitet(r.Tildeling));
+        r.Kandidat.RettskildeId, r.NodeEid, StrukturkantRadDto.FraEntitet(r.Tildeling));
 }
 
 /// <summary>
@@ -957,11 +1006,11 @@ public sealed record KoblNavnekandidatTilMyndighetstildelingRequest(
 /// fritt valgt rollebegrep — se <see cref="NavnekandidatMyndighetstildelingResultat"/>.</summary>
 public sealed record NavnekandidatMyndighetstildelingResultatDto(
     NavnekandidatDto Kandidat, BegrepDto Navneform, Guid? TaggId, Guid RettskildeId, string NodeEid,
-    MyndighetstildelingDto Tildeling)
+    StrukturkantRadDto Tildeling)
 {
     public static NavnekandidatMyndighetstildelingResultatDto FraResultat(NavnekandidatMyndighetstildelingResultat r) => new(
         NavnekandidatDto.FraEntitet(r.Kandidat), BegrepDto.FraEntitet(r.Navneform), r.TaggId,
-        r.Kandidat.RettskildeId, r.NodeEid, MyndighetstildelingDto.FraEntitet(r.Tildeling));
+        r.Kandidat.RettskildeId, r.NodeEid, StrukturkantRadDto.FraEntitet(r.Tildeling));
 }
 
 /// <summary>
@@ -969,39 +1018,32 @@ public sealed record NavnekandidatMyndighetstildelingResultatDto(
 /// <c>POST /api/navnekandidater/{id}/kobl-til-relasjon</c>. <c>HjemletHer</c> = <c>true</c> betyr at
 /// relasjonen faktisk fremgår av KANDIDATENS EGEN rettskilde/node (hjemmelen settes dit — sendes ikke
 /// eksplisitt av klienten, samme «hjemmelen er ikke et valg»-konvensjon som gruppemedlemskap);
-/// <c>false</c> betyr ingen formell hjemmel — kun <c>Kommentar</c> som fritekst (se
-/// <see cref="VirksomhetRelasjonEntitet.Kommentar"/>).
+/// <c>false</c> betyr ingen formell hjemmel — kun <c>Kommentar</c> som fritekst, lagret som kantens kilde utenfor
+/// korpus ([ENDRET, issue #311]; påkrevd når <c>HjemletHer</c> er false).
 /// </summary>
 public sealed record KoblNavnekandidatTilRelasjonRequest(
     Guid VirksomhetId, string? Navneformgrunn, Guid MotpartVirksomhetId, string RelasjonsType,
-    bool HjemletHer, string? Kommentar);
+    bool HjemletHer, string? Kommentar,
+    // [Ny, issue #311 / Johanns beslutning 2026-10-07] Begge påkrevd når HjemletHer er false.
+    string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null);
 
-/// <summary>Rå <see cref="VirksomhetRelasjonEntitet"/>-felt, uten den beregnede visningsteksten
-/// <see cref="VirksomhetRelasjonDto"/> har (klienten kjenner allerede type/motpart — den valgte dem
-/// nettopp — og trenger her bare BEKREFTELSE på hva som ble lagret, ikke en ny visningstekst-beregning).</summary>
-public sealed record NavnekandidatRelasjonDto(
-    Guid Id, string RelasjonsType, Guid FraVirksomhetId, Guid TilVirksomhetId,
-    Guid? HjemmelRettskildeId, string? HjemmelEid, string? Kommentar)
-{
-    public static NavnekandidatRelasjonDto FraEntitet(VirksomhetRelasjonEntitet r) => new(
-        r.Id, r.RelasjonsType, r.FraVirksomhetId, r.TilVirksomhetId, r.HjemmelRettskildeId, r.HjemmelEid, r.Kommentar);
-}
+// [FJERNET, issue #311] NavnekandidatRelasjonDto — erstattet av StrukturkantRadDto (R-kanten).
 
 /// <summary>Som <see cref="NavnekandidatKoblingResultatDto"/>, pluss selve relasjonsraden.</summary>
 public sealed record NavnekandidatRelasjonResultatDto(
     NavnekandidatDto Kandidat, BegrepDto Navneform, Guid? TaggId, Guid RettskildeId, string NodeEid,
-    NavnekandidatRelasjonDto Relasjon)
+    StrukturkantRadDto Relasjon)
 {
     public static NavnekandidatRelasjonResultatDto FraResultat(NavnekandidatRelasjonResultat r) => new(
         NavnekandidatDto.FraEntitet(r.Kandidat), BegrepDto.FraEntitet(r.Navneform), r.TaggId,
-        r.Kandidat.RettskildeId, r.NodeEid, NavnekandidatRelasjonDto.FraEntitet(r.Relasjon));
+        r.Kandidat.RettskildeId, r.NodeEid, StrukturkantRadDto.FraEntitet(r.Relasjon));
 }
 
 /// <summary>
 /// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC9] Forespørsel for
 /// <c>POST /api/navnekandidater/{id}/kobl-til-gruppe-av-gruppe</c> — kun for <c>Kategori == "gruppe"</c>-
 /// kandidater. Oppretter gruppebegrepet (samme mekanisme som <c>/godkjenn</c>) OG et
-/// <see cref="GruppeMedlemskapEntitet"/> som gjør DET til medlem av <see cref="OverordnetGruppeBegrepId"/>,
+/// M-kant (<see cref="StrukturkantEntitet"/>; før #311 gruppemedlemskap) som gjør DET til medlem av <see cref="OverordnetGruppeBegrepId"/>,
 /// hjemlet i kandidatens egen rettskilde — i én atomisk handling, fordi klienten ikke kjenner det nye
 /// gruppebegrepets id før det er opprettet.
 /// </summary>
@@ -1009,11 +1051,11 @@ public sealed record NavnekandidatRelasjonResultatDto(
 public sealed record KoblNavnekandidatTilGruppeAvGruppeRequest(Guid OverordnetGruppeBegrepId, string? Nodetype = null);
 
 public sealed record NavnekandidatGruppeAvGruppeResultatDto(
-    NavnekandidatDto Kandidat, BegrepDto Gruppebegrep, GruppeMedlemskapDto Medlemskap)
+    NavnekandidatDto Kandidat, BegrepDto Gruppebegrep, StrukturkantRadDto Medlemskap)
 {
     public static NavnekandidatGruppeAvGruppeResultatDto FraResultat(NavnekandidatGruppeAvGruppeResultat r) => new(
         NavnekandidatDto.FraEntitet(r.Kandidat), BegrepDto.FraEntitet(r.Gruppebegrep),
-        GruppeMedlemskapDto.FraEntitet(r.Medlemskap));
+        StrukturkantRadDto.FraEntitet(r.Medlemskap));
 }
 
 /// <summary>
@@ -1039,17 +1081,18 @@ public sealed record SveipNavnekandidaterResultatDto(int AntallTreffFunnet, int 
 public sealed record KiOppdagelseRequest(IReadOnlyList<Guid> RettskildeIder);
 
 /// <summary>Ett behandlet KI-forslag — se <see cref="KiOppdagelseKandidatUtfall"/> for feltenes betydning.</summary>
+/// <remarks>[ENDRET, issue #311] Id-feltene peker på strukturkanter — se <see cref="KiOppdagelseKandidatUtfall"/>.</remarks>
 public sealed record KiOppdagelseKandidatUtfallDto(
     string Type, string Navn, string NodeEid,
     Guid? NavnekandidatId, string? NavnekandidatFeil,
-    Guid? MyndighetstildelingId, string? RolleIkkeOpprettetGrunn,
-    Guid? VirksomhetRelasjonId, string? RelasjonIkkeOpprettetGrunn,
-    Guid? GruppeMedlemskapId, string? GruppeAvGruppeIkkeOpprettetGrunn)
+    Guid? RolleKantId, string? RolleIkkeOpprettetGrunn,
+    Guid? RelasjonKantId, string? RelasjonIkkeOpprettetGrunn,
+    Guid? GruppeAvGruppeKantId, string? GruppeAvGruppeIkkeOpprettetGrunn)
 {
     public static KiOppdagelseKandidatUtfallDto FraUtfall(KiOppdagelseKandidatUtfall u) => new(
         u.Type, u.Navn, u.NodeEid, u.NavnekandidatId, u.NavnekandidatFeil,
-        u.MyndighetstildelingId, u.RolleIkkeOpprettetGrunn, u.VirksomhetRelasjonId, u.RelasjonIkkeOpprettetGrunn,
-        u.GruppeMedlemskapId, u.GruppeAvGruppeIkkeOpprettetGrunn);
+        u.RolleKantId, u.RolleIkkeOpprettetGrunn, u.RelasjonKantId, u.RelasjonIkkeOpprettetGrunn,
+        u.GruppeAvGruppeKantId, u.GruppeAvGruppeIkkeOpprettetGrunn);
 }
 
 /// <summary>Samlet resultat for ALLE rettskilder oppgitt i én <see cref="KiOppdagelseRequest"/> — én
@@ -1066,6 +1109,9 @@ public sealed record KiOppdagelseSamletResultatDto(
 /// på tvers av de tre entitetstypene (<c>Type</c> skiller dem), slik at UI-et kan liste alle ventende
 /// KI-forslag i ÉN tabell uten tre separate kall/seksjoner.
 /// </summary>
+/// <remarks>[ENDRET, issue #311] Alle rader er strukturkanter: <c>Type</c> er kategorien (R/K/M/O/A/G/I/T), og
+/// godkjenn/avvis går til <c>/api/strukturkanter/{id}/godkjenn|avvis</c> uansett type.
+/// <c>AiForslagVersjon</c> er kantens oppdagelseskilde (<c>ki:&lt;modell&gt;</c>/<c>monster:&lt;id&gt;</c>).</remarks>
 public sealed record KiForslagKoRadDto(
     string Type, Guid Id, string Visningstekst, string? AiForslagVersjon);
 

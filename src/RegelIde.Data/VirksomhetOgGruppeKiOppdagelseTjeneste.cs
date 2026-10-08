@@ -11,12 +11,15 @@ namespace RegelIde.Data;
 /// UI-et (kø-visning) og AC1-omfangsmålingen (issue #285): «dekket KI noe regex-sveipet gikk glipp
 /// av» krever at hvert enkelt forslag er etterprøvbart, ikke bare en sum.
 /// </summary>
+/// <remarks>[ENDRET, issue #311] De tre id-feltene peker nå alle på en <see cref="StrukturkantEntitet"/>
+/// (var MyndighetstildelingId/VirksomhetRelasjonId/GruppeMedlemskapId): rolle → M- eller I-kant (etter
+/// rollebegrepets nodetype), relasjon → R-kant, gruppe-av-gruppe → M-kant.</remarks>
 public sealed record KiOppdagelseKandidatUtfall(
     string Type, string Navn, string NodeEid,
     Guid? NavnekandidatId, string? NavnekandidatFeil,
-    Guid? MyndighetstildelingId, string? RolleIkkeOpprettetGrunn,
-    Guid? VirksomhetRelasjonId, string? RelasjonIkkeOpprettetGrunn,
-    Guid? GruppeMedlemskapId, string? GruppeAvGruppeIkkeOpprettetGrunn);
+    Guid? RolleKantId, string? RolleIkkeOpprettetGrunn,
+    Guid? RelasjonKantId, string? RelasjonIkkeOpprettetGrunn,
+    Guid? GruppeAvGruppeKantId, string? GruppeAvGruppeIkkeOpprettetGrunn);
 
 /// <summary>Resultatet av ett <see cref="VirksomhetOgGruppeKiOppdagelseTjeneste.KjorOppdagelseAsync"/>-kall
 /// — samme "svar + token-forbruk + evt. tom-melding"-form som <see cref="KiForslagResultat{T}"/>, men egen
@@ -37,13 +40,11 @@ public sealed record KiOppdagelseResultat(
 /// at KI kan opprette utifra de mønstrene du har beskrevet nøye i api'ene»</b> — denne tjenesten kaller
 /// derfor UTELUKKENDE de SAMME tjenestemetodene <c>RegelIde.Api</c> sine eksisterende HTTP-endepunkter
 /// selv kaller: <see cref="NavnekandidatOppdagelseTjeneste.OpprettEllerFinnAsync"/> (samme kodesti som
-/// <c>POST /api/navnekandidater/manuell</c>), <see cref="MyndighetstildelingTjeneste.OpprettAsync"/>
-/// (samme kodesti som <c>POST /api/myndighetstildelinger</c> OG
-/// <c>POST /api/navnekandidater/{id}/kobl-til-myndighetstildeling</c>),
-/// <see cref="VirksomhetRelasjonregisterTjeneste.OpprettAsync"/> (samme kodesti som
-/// <c>POST /api/virksomheter/{id}/relasjoner</c> OG <c>.../kobl-til-relasjon</c>), og
-/// <see cref="GruppeMedlemskapTjeneste.OpprettAsync"/> (samme kodesti som <c>POST /api/gruppemedlemskap</c>
-/// OG <c>.../kobl-til-gruppe-av-gruppe</c>). Ingen ny, parallell skrivevei til noen av disse tabellene.
+/// <c>POST /api/navnekandidater/manuell</c>) og <see cref="StrukturkantTjeneste.OpprettAsync"/>/
+/// <see cref="StrukturkantTjeneste.OpprettTildelingAsync"/> (samme kodesti som <c>POST /api/strukturkanter</c>
+/// OG veiviserens <c>.../kobl-til-*</c>). Ingen ny, parallell skrivevei.
+/// [ENDRET, issue #311] Var tre tjenester (myndighetstildeling, virksomhetsrelasjon, gruppemedlemskap) —
+/// nå én kanttabell og én tjeneste.
 /// </para>
 /// <para>
 /// <b>Hvorfor tjenestemetodene direkte, og ikke et ekte utgående HTTP-kall til seg selv:</b> et internt
@@ -51,7 +52,7 @@ public sealed record KiOppdagelseResultat(
 /// (endepunktene ER tynne wrappere rundt disse metodene, se Program.cs) — bare med et unødvendig
 /// nettverkshopp og en egen feilhåndteringsvei mellom. Samme vurdering som allerede gjelder for
 /// <see cref="NavnekandidatOppdagelseTjeneste.KoblTilMyndighetstildelingAsync"/> m.fl., som også kaller
-/// <see cref="MyndighetstildelingTjeneste"/> direkte, ikke over HTTP.
+/// <see cref="StrukturkantTjeneste"/> direkte, ikke over HTTP.
 /// </para>
 /// <para>
 /// <b>Aldri publisert/stolt på uten et menneske (issue #285s eksplisitte krav):</b>
@@ -60,10 +61,9 @@ public sealed record KiOppdagelseResultat(
 /// <see cref="NavnekandidatOppdagelseTjeneste.KiFriSveipOppdagelsesKilde"/> — UENDRET fra ethvert annet
 /// sveiptreff, må gjennom nøyaktig samme godkjenn/avvis-flyt/veiviser som et menneske ville brukt.</item>
 /// <item>Rolle-/relasjon-/gruppe-av-gruppe-forslagene skrives med <c>Status = "foreslatt_av_ai"</c> (issue
-/// #285 AC5 — det NYE statusfeltet på <see cref="MyndighetstildelingEntitet"/>/<see cref="VirksomhetRelasjonEntitet"/>/
-/// <see cref="GruppeMedlemskapEntitet"/>), ALDRI <c>"validert"</c> direkte — et menneske må eksplisitt
-/// godkjenne (<c>GodkjennAsync</c> på hver av de tre tjenestene) før raden regnes som gjeldende
-/// (issue #285 AC6).</item>
+/// #285 AC5 — statusfeltet på <see cref="StrukturkantEntitet"/>, med <c>OppdagelsesKilde = "ki:&lt;modell&gt;"</c>),
+/// ALDRI <c>"validert"</c> direkte — et menneske må eksplisitt godkjenne
+/// (<see cref="StrukturkantTjeneste.GodkjennAsync"/>) før raden regnes som gjeldende (issue #285 AC6).</item>
 /// </list>
 /// </para>
 /// <para>
@@ -87,8 +87,7 @@ public sealed record KiOppdagelseResultat(
 public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
     RegelIdeDbContext db, IKiAgentKlient kiKlient, IConfiguration config,
     NavnekandidatOppdagelseTjeneste navnekandidatOppdagelse, VirksomhetOppslagTjeneste virksomhetOppslag,
-    MyndighetstildelingTjeneste myndighetstildeling, VirksomhetRelasjonregisterTjeneste virksomhetRelasjonregister,
-    GruppeMedlemskapTjeneste gruppeMedlemskap,
+    StrukturkantTjeneste strukturkanter,
     ILogger<VirksomhetOgGruppeKiOppdagelseTjeneste>? logger = null)
 {
     private readonly ILogger<VirksomhetOgGruppeKiOppdagelseTjeneste> _logger =
@@ -316,11 +315,11 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
             navnekandidatFeil = ex.Message;
         }
 
-        Guid? myndighetstildelingId = null;
+        Guid? rolleKantId = null;
         string? rolleGrunn = k.Rolle is null ? null : "Ingen rolle foreslått av KI-agenten for dette treffet.";
         if (k.Type == "virksomhet" && k.Rolle is not null)
         {
-            (myndighetstildelingId, rolleGrunn) = await ForsokRolleAsync(k.Rolle, faktiskTekst, rettskildeId, ekteNodeEid, opprettetAv, ct);
+            (rolleKantId, rolleGrunn) = await ForsokRolleAsync(k.Rolle, faktiskTekst, rettskildeId, ekteNodeEid, opprettetAv, ct);
         }
 
         Guid? relasjonId = null;
@@ -340,12 +339,12 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
 
         return new KiOppdagelseKandidatUtfall(
             k.Type, faktiskTekst, ekteNodeEid, navnekandidatId, navnekandidatFeil,
-            myndighetstildelingId, rolleGrunn, relasjonId, relasjonGrunn, gruppeMedlemskapId, gruppeAvGruppeGrunn);
+            rolleKantId, rolleGrunn, relasjonId, relasjonGrunn, gruppeMedlemskapId, gruppeAvGruppeGrunn);
     }
 
     /// <summary>
-    /// Forsøker å forankre og opprette en <see cref="MyndighetstildelingEntitet"/> for et KI-foreslått
-    /// rolle-treff. «Ingen gjettet fallback» på BEGGE bindingene: rollebegrepet MÅ finnes entydig fra
+    /// Forsøker å forankre og opprette en tildelingskant (<see cref="StrukturkantTjeneste.OpprettTildelingAsync"/>
+    /// — I når rollebegrepet er en rolle, ellers M) for et KI-foreslått rolle-treff. «Ingen gjettet fallback» på BEGGE bindingene: rollebegrepet MÅ finnes entydig fra
     /// før (KI-en dikter ikke opp et nytt rollebegrep her — det er <see cref="NavnekandidatOppdagelseTjeneste.GodkjennAsync"/>s
     /// jobb for en <c>"gruppe"</c>-kandidat, en helt annen kjede), og virksomheten kandidatens EGET navn
     /// peker på må allerede finnes i registeret/navneformene (<see cref="VirksomhetOppslagTjeneste"/>).
@@ -378,7 +377,7 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
         // bekreftet å finnes (BehandleEttForslagAsync hentet den før dette kalles) via NØYAKTIG samme
         // eksakt-så-suffiks-oppslag som her, så vi kan trygt gjenbruke kandidatNodeEid (allerede den
         // EKTE, lagrede formen) direkte i det tilfellet. Et OPPGITT, ANNET ParagrafEid må derimot
-        // løses på samme lempelige måte (se FinnNodeAsync) — MyndighetstildelingTjeneste.OpprettAsync
+        // løses på samme lempelige måte (se FinnNodeAsync) — StrukturkantTjeneste.OpprettAsync
         // gjør sin EGEN eksakte eksistens-sjekk nedstrøms, så den EKTE, lagrede eId-formen må brukes
         // her, ikke modellens rå (mulig forkortede) sitat.
         string paragrafEid;
@@ -396,16 +395,20 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
             paragrafEid = paragrafNode.Eid;
         }
 
-        var eksisterende = await db.Myndighetstildelinger.FirstOrDefaultAsync(
-            m => m.GruppeBegrepId == rolleTreff[0] && m.VirksomhetId == virksomhetId.Value && m.HjemmelRettskildeId == rettskildeId, ct);
+        // Samme dublettregel som før #311 (rolle, virksomhet, hjemmel) — uansett avgrensning, så en ny
+        // KI-kjøring ikke legger et nytt forslag ved siden av et menneskes eksisterende tildeling.
+        var eksisterende = await db.Strukturkanter.FirstOrDefaultAsync(
+            m => (m.Kategori == Strukturkanter.Medlemskap || m.Kategori == Strukturkanter.Rolleinnehav)
+                 && m.TilBegrepId == rolleTreff[0] && m.FraVirksomhetId == virksomhetId.Value
+                 && m.HjemmelRettskildeId == rettskildeId, ct);
         if (eksisterende is not null) return (eksisterende.Id, null);
 
         try
         {
-            var tildeling = await myndighetstildeling.OpprettAsync(
-                rolleTreff[0], virksomhetId.Value, rettskildeId, [new ParagrafspennPar(paragrafEid, null)],
-                vilkaar: null, opprettetAv, ct: ct, status: "foreslatt_av_ai", aiForslagVersjon: AiForslagVersjon);
-            return (tildeling.Id, null);
+            var tildeling = await strukturkanter.OpprettTildelingAsync(
+                virksomhetId.Value, rolleTreff[0], rettskildeId, [new ParagrafspennPar(paragrafEid, null)],
+                avgrensningTekst: null, opprettetAv, ct: ct, status: "foreslatt_av_ai", aiForslagVersjon: AiForslagVersjon);
+            return (tildeling.Kant.Id, null);
         }
         catch (ArgumentException ex)
         {
@@ -414,11 +417,12 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
     }
 
     /// <summary>Se <see cref="ForsokRolleAsync"/> — samme «ingen gjettet fallback»-linje, nå for BEGGE
-    /// virksomhetene en <see cref="VirksomhetRelasjonEntitet"/> trenger.</summary>
+    /// virksomhetene en R-kant (<see cref="StrukturkantEntitet"/>) trenger.</summary>
     private async Task<(Guid? Id, string? IkkeOpprettetGrunn)> ForsokRelasjonAsync(
         RelasjonForslagJson relasjon, string virksomhetNavn, Guid rettskildeId, string nodeEid, string opprettetAv, CancellationToken ct)
     {
-        var relasjonsTypeFinnes = await db.RelasjonsTypeKonfigurasjoner.AnyAsync(t => t.Kode == relasjon.Type && t.Aktiv, ct);
+        var relasjonsTypeFinnes = await db.RelasjonsTypeKonfigurasjoner.AnyAsync(
+            t => t.Kategori == Strukturkanter.Relasjon && t.Kode == relasjon.Type && t.Aktiv, ct);
         if (!relasjonsTypeFinnes)
         {
             return (null, $"Ukjent relasjonstype '{relasjon.Type}' fra KI-agenten — ingen gjettet fallback.");
@@ -439,19 +443,26 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
             return (null, "KI-agenten foreslo en relasjon fra en virksomhet til seg selv — forkastet.");
         }
 
-        var eksisterende = await db.VirksomhetRelasjoner.FirstOrDefaultAsync(
-            r => r.Entitetsstatus == "gjeldende" && r.FraVirksomhetId == fraId.Value
-                 && r.TilVirksomhetId == tilId.Value && r.RelasjonsType == relasjon.Type, ct);
+        // Samme dublettregel som VirksomhetRelasjon hadde (fra, til, type) — uansett hjemmel/avgrensning.
+        var eksisterende = await db.Strukturkanter.FirstOrDefaultAsync(
+            r => r.Kategori == Strukturkanter.Relasjon && r.FraVirksomhetId == fraId.Value
+                 && r.TilVirksomhetId == tilId.Value && r.Typekode == relasjon.Type, ct);
         if (eksisterende is not null) return (eksisterende.Id, null);
 
         try
         {
-            var opprettet = await virksomhetRelasjonregister.OpprettAsync(
-                fraId.Value, tilId.Value, relasjon.Type,
-                relasjon.HjemletHer ? rettskildeId : null, relasjon.HjemletHer ? nodeEid : null,
-                relasjon.HjemletHer ? null : "KI-forslag — ingen bekreftet hjemmel oppgitt av agenten.",
-                opprettetAv, ct, status: "foreslatt_av_ai", aiForslagVersjon: AiForslagVersjon);
-            return (opprettet.Id, null);
+            // [ENDRET, issue #311] «Ikke hjemlet her» var en kommentar på VirksomhetRelasjon; på en kant er det
+            // en kilde utenfor korpus (ck_strukturkanter_kilde krever én av dem) — teksten er den samme.
+            var opprettet = await strukturkanter.OpprettAsync(new NyStrukturkant(
+                Strukturkanter.Relasjon, relasjon.Type, Kantnode.Virksomhet(fraId.Value), Kantnode.Virksomhet(tilId.Value),
+                HjemmelRettskildeId: relasjon.HjemletHer ? rettskildeId : null,
+                HjemmelEid: relasjon.HjemletHer ? nodeEid : null,
+                KildeUtenforKorpusTekst: relasjon.HjemletHer ? null : "KI-forslag — ingen bekreftet hjemmel oppgitt av agenten.",
+                // Typen gjettes ikke: KI-en har ikke sagt hvor relasjonen er dokumentert — «annet».
+                KildeUtenforKorpusType: relasjon.HjemletHer ? null : Strukturkanter.NettsideAnnet,
+                KildeUtenforKorpusDokumentasjon: relasjon.HjemletHer ? null : Strukturkanter.Sekundaer,
+                Status: "foreslatt_av_ai", AiForslagVersjon: AiForslagVersjon), opprettetAv, ct);
+            return (opprettet.Kant.Id, null);
         }
         catch (ArgumentException ex)
         {
@@ -497,16 +508,20 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
             return (null, "KI-agenten foreslo at gruppen er medlem av seg selv — forkastet.");
         }
 
-        var eksisterende = await db.GruppeMedlemskap.FirstOrDefaultAsync(
-            m => m.OverordnetGruppeBegrepId == overordnetTreff[0] && m.UnderordnetGruppeBegrepId == underordnetTreff[0], ct);
+        // Samme dublettregel som gruppemedlemskap hadde (paret, uansett hjemmel).
+        var eksisterende = await db.Strukturkanter.FirstOrDefaultAsync(
+            m => m.Kategori == Strukturkanter.Medlemskap
+                 && m.TilBegrepId == overordnetTreff[0] && m.FraBegrepId == underordnetTreff[0], ct);
         if (eksisterende is not null) return (eksisterende.Id, null);
 
         try
         {
-            var opprettet = await gruppeMedlemskap.OpprettAsync(
-                overordnetTreff[0], underordnetTreff[0], rettskildeId, [new ParagrafspennPar(nodeEid, null)],
-                opprettetAv, ct: ct, status: "foreslatt_av_ai", aiForslagVersjon: AiForslagVersjon);
-            return (opprettet.Id, null);
+            var opprettet = await strukturkanter.OpprettAsync(new NyStrukturkant(
+                Strukturkanter.Medlemskap, Strukturkanter.MedlemAv,
+                Kantnode.Begrep(underordnetTreff[0]), Kantnode.Begrep(overordnetTreff[0]),
+                HjemmelRettskildeId: rettskildeId, Paragrafspenn: [new ParagrafspennPar(nodeEid, null)],
+                Status: "foreslatt_av_ai", AiForslagVersjon: AiForslagVersjon), opprettetAv, ct);
+            return (opprettet.Kant.Id, null);
         }
         catch (ArgumentException ex)
         {

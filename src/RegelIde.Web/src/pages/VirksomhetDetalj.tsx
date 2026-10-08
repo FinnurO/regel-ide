@@ -3,15 +3,15 @@ import { Link as RouterLink, useNavigate, useParams } from 'react-router';
 import { Alert, Button, Card, Dialog, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tabs, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
-import type { Aktortype, KodelisteDto, MyndighetstildelingDto, Navneformgrunn, RettskildeNodeDto, RettskildeSammendrag, VirksomhetKandidatDto, VirksomhetRelasjonDto, VirksomhetSlettOversiktDto, VirksomhetsbegrepDto, VirksomhetWhereUsedDto } from '../api/types';
+import type { Aktortype, KodelisteDto, Navneformgrunn, RettskildeNodeDto, RettskildeSammendrag, StrukturkantDto, VirksomhetKandidatDto, VirksomhetSlettOversiktDto, VirksomhetsbegrepDto, VirksomhetWhereUsedDto } from '../api/types';
 import { NavneformgrunnTag, NavneformgrunnVelger } from '../virksomhet/Navneformgrunn';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { LeggTilMyndighetstildelingForm } from '../virksomhet/LeggTilMyndighetstildelingForm';
-import { RelasjonstekstMedLenke } from '../virksomhet/RelasjonstekstMedLenke';
+import { StrukturkantTabell } from '../strukturkant/StrukturkantTabell';
 import { paragrafEtikett } from '../rettskilde/paragrafEtikett';
 import { LeggTilVirksomhetRelasjonForm } from '../virksomhet/LeggTilVirksomhetRelasjonForm';
 import { Metatekst } from '../entitet/Metatekst';
-import { AktortypeTag, AktortypeVelger, BegrepskategoriTag } from '../begrep/Nodetype';
+import { AktortypeTag, AktortypeVelger } from '../begrep/Nodetype';
 
 /** [Ny, issue #157] Rad-etiketter for bekreftelsesdialogen — KUN de feltene som faktisk kan være > 0
  * for en reell virksomhet vises (0-rader skjules, se `SlettVirksomhetSeksjon` under). Rekkefølgen her
@@ -22,9 +22,9 @@ const SLETT_OVERSIKT_ETIKETTER: [key: keyof VirksomhetSlettOversiktDto, etikett:
   ['begreper', 'Begreper (arbeidsprodukt)'],
   ['navneformer', 'Navneformer'],
   ['brukere', 'Brukere'],
-  ['myndighetstildelinger', 'Myndighetstildelinger'],
+  // [ENDRET, issue #311] Var «Myndighetstildelinger» + «Relasjoner til andre virksomheter».
+  ['strukturkanter', 'Strukturutsagn (relasjoner, tilhørigheter, kompetanse m.m.)'],
   ['virksomhetKandidater', 'Navnekandidater i kø'],
-  ['virksomhetRelasjoner', 'Relasjoner til andre virksomheter'],
   ['virksomhetNettsider', 'Nettsider'],
   ['kodelister', 'Kodelister'],
   ['datasett', 'Datasett'],
@@ -54,9 +54,10 @@ export default function VirksomhetDetalj() {
   const [fane, setFane] = useState<Fane>('grunndata');
 
   const [begrep, setBegrep] = useState<VirksomhetsbegrepDto[] | null>(null);
-  const [tildelinger, setTildelinger] = useState<MyndighetstildelingDto[] | null>(null);
+  // [ENDRET, issue #311] ÉN liste med alle strukturkantene virksomheten står i (var tildelinger + relasjoner
+  // fra to tabeller). Seksjonene under filtrerer den på kategori.
+  const [kanter, setKanter] = useState<StrukturkantDto[] | null>(null);
   const [kandidater, setKandidater] = useState<VirksomhetKandidatDto[] | null>(null);
-  const [relasjoner, setRelasjoner] = useState<VirksomhetRelasjonDto[] | null>(null);
   const [rettskilder, setRettskilder] = useState<RettskildeSammendrag[]>([]);
   const [visLeggTilTildeling, setVisLeggTilTildeling] = useState(false);
   const [visLeggTilRelasjon, setVisLeggTilRelasjon] = useState(false);
@@ -144,30 +145,16 @@ export default function VirksomhetDetalj() {
     return node.nummer ?? eid;
   }
 
-  // [Ny, nemnd/sekretariat-runden, 2026-09-09] Etikett for en relasjonshjemmel:
-  // «Konkurranseloven – krrl § 36 sjette ledd». Rettskildenavnet må med fordi relasjonene på ÉN
-  // virksomhet peker på ULIKE lover — til forskjell fra tildelingstabellen, der rettskilden står i
-  // egen kolonne og `visNodeKort` derfor holder. Selve paragrafdelen kommer fra den delte
-  // `paragrafEtikett` (som klatrer opp fra leddnoden), ikke fra `visNodeKort`.
-  function hjemmelEtikett(rettskildeId: string, eid: string | null): { tekst: string; tittel?: string } {
-    const kilde = rettskilder.find((k) => k.id === rettskildeId);
-    const kildenavn = kilde?.kortnavn ?? kilde?.tittel ?? 'Rettskilde';
-    if (!eid) return { tekst: kildenavn };
-    const etikett = paragrafEtikett(noderPerRettskilde.get(rettskildeId), eid);
-    // Ikke hentet ennå, eller ukjent eId: rå eId-hale, ingen gjettet paragrafetikett.
-    if (!etikett) return { tekst: `${kildenavn} ${eid.split('/nor/').pop() ?? eid}` };
-    return { tekst: `${kildenavn} ${etikett.tekst}`, tittel: etikett.overskrift ?? undefined };
-  }
+  // [FJERNET, issue #311] hjemmelEtikett — hjemmelvisningen for kanter bor nå i StrukturkantTabell.
 
   function lastAlt() {
     if (!id) return;
     api.hentVirksomhetsbegrep(id).then(setBegrep)
       .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av begrep.'));
-    api.hentMyndighetstildelingerForVirksomhet(id).then(setTildelinger).catch(() => setTildelinger([]));
+    api.hentStrukturkanter({ virksomhetId: id }).then(setKanter).catch(() => setKanter([]));
     api.hentVentendeKandidater(id).then(setKandidater).catch(() => setKandidater([]));
     api.hentRettskilderAnsvarligFor(id).then(setRettskilderAnsvarligFor).catch(() => setRettskilderAnsvarligFor([]));
     api.hentRettskilderFastsattAv(id).then(setRettskilderFastsattAv).catch(() => setRettskilderFastsattAv([]));
-    api.hentVirksomhetRelasjoner(id).then(setRelasjoner).catch(() => setRelasjoner([]));
     // Tom-ved-feil, samme mønster som de andre valgfrie seksjonene over: en virksomhet uten
     // koblinger er et helt normalt svar, ikke en feil som fortjener en banner.
     api.hentVirksomhetWhereUsed(id).then(setWhereUsed)
@@ -175,16 +162,7 @@ export default function VirksomhetDetalj() {
   }
 
   useEffect(lastAlt, [id]);
-  useEffect(() => {
-    for (const t of tildelinger ?? []) sikreNoderFor(t.hjemmelRettskildeId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tildelinger]);
-  // [Ny, nemnd/sekretariat-runden, 2026-09-09] Samme for relasjonenes hjemler, slik at
-  // «Hjemmel»-kolonnen viser «Konkurranseloven § 36 — …» i stedet for en rå lovdata-URL.
-  useEffect(() => {
-    for (const r of relasjoner ?? []) if (r.hjemmelRettskildeId) sikreNoderFor(r.hjemmelRettskildeId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [relasjoner]);
+  // [FJERNET, issue #311] Nodehenting for tildelingenes/relasjonenes hjemler — StrukturkantTabell gjør det selv.
   // [Ny, navneform-kjede-runden, 2026-09-08] Nodene for rettskildene navneformene er TAGGET i, slik
   // at «Brukt i»-kolonnen kan vise «§ 1 — overskrift» i stedet for en rå eId — samme lazy-per-
   // rettskilde-mønster som tildelinger over.
@@ -401,59 +379,11 @@ export default function VirksomhetDetalj() {
           hjemmel. Listen viser relasjoner i BEGGE retninger fra denne virksomhetens ståsted — samme rad
           kan altså vises med ulik tekst på motpartens side.
         </Metatekst>
-        <Card style={{ padding: relasjoner && relasjoner.length > 0 ? 0 : '1rem', overflow: 'hidden', marginBottom: '0.75rem' }}>
-          {!relasjoner && <Spinner aria-label="Laster …" data-size="sm" />}
-          {relasjoner && relasjoner.length === 0 && <Paragraph style={{ margin: 0 }}>Ingen relasjoner registrert.</Paragraph>}
-          {relasjoner && relasjoner.length > 0 && (
-            <Table>
-              <Table.Head>
-                <Table.Row>
-                  <Table.HeaderCell>Relasjon</Table.HeaderCell>
-                  <Table.HeaderCell>Hjemmel/kommentar</Table.HeaderCell>
-                </Table.Row>
-              </Table.Head>
-              <Table.Body>
-                {relasjoner.map((r) => (
-                  <Table.Row key={r.id}>
-                    <Table.Cell>
-                      <RelasjonstekstMedLenke
-                        visningstekst={r.visningstekst}
-                        motpartNavn={r.motpartNavn}
-                        motpartVirksomhetId={r.motpartVirksomhetId}
-                      />
-                    </Table.Cell>
-                    <Metatekst as={Table.Cell}>
-                      {r.hjemmelRettskildeId ? (
-                        <>
-                          <Link asChild>
-                            <RouterLink
-                              to={
-                                r.hjemmelEid
-                                  ? rettskildeLenkeForId(r.hjemmelRettskildeId, r.hjemmelEid)
-                                  : `/rettskilder/${r.hjemmelRettskildeId}`
-                              }
-                              title={hjemmelEtikett(r.hjemmelRettskildeId, r.hjemmelEid).tittel}
-                            >
-                              {hjemmelEtikett(r.hjemmelRettskildeId, r.hjemmelEid).tekst}
-                            </RouterLink>
-                          </Link>
-                          {r.kommentar ? ` — ${r.kommentar}` : ''}
-                        </>
-                      ) : r.kommentar ? (
-                        <>
-                          <Tag data-size="sm" data-color="warning">Ingen hjemmel</Tag>{' '}
-                          {r.kommentar}
-                        </>
-                      ) : (
-                        '—'
-                      )}
-                    </Metatekst>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
-          )}
-        </Card>
+        {/* [ENDRET, issue #311] R-kantene, med polaritet/avgrensning/kilde utenfor korpus (docs/33 §4.3). */}
+        <StrukturkantTabell
+          kanter={kanter && kanter.filter((k) => k.kategori === 'R')}
+          tomTekst="Ingen relasjoner registrert."
+        />
         <Button data-size="sm" variant="secondary" onClick={() => setVisLeggTilRelasjon((v) => !v)}>
           {visLeggTilRelasjon ? 'Skjul skjema' : 'Legg til relasjon'}
         </Button>
@@ -462,8 +392,8 @@ export default function VirksomhetDetalj() {
             virksomhetId={id}
             virksomheter={virksomheter}
             rettskilder={rettskilder}
-            onOpprettet={(nye) => {
-              setRelasjoner(nye);
+            onOpprettet={() => {
+              api.hentStrukturkanter({ virksomhetId: id }).then(setKanter).catch(() => {});
               setVisLeggTilRelasjon(false);
             }}
           />
@@ -637,83 +567,51 @@ export default function VirksomhetDetalj() {
       {fane === 'myndighet' && (
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
-          Myndighetstildelinger
+          Medlemskap og roller
         </Heading>
         <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
-          Klasser, roller og områder (f.eks. «språkutviklingskommuner», «reguleringsmyndighet») denne
-          virksomheten er tildelt eller medlem av gjennom en forskrift.
-          Gyldighet arves fra hjemmelen, og kan i tillegg avgrenses av en egen gyldighetsperiode under
-          (de aller fleste tildelinger er permanente og viser ingen periode).
+          Klasser og områder virksomheten er MEDLEM av (f.eks. «språkutviklingskommuner»), og roller den
+          INNEHAR (f.eks. «reguleringsmyndighet») — to ulike påstander: det som gjelder en klasse gjelder hvert
+          medlem, mens en rolle bare gjelder innenfor sin avgrensning (docs/33 §4.2). Gyldighet arves fra
+          hjemmelen, og kan i tillegg avgrenses av en egen periode.
         </Metatekst>
-        <Card style={{ padding: tildelinger && tildelinger.length > 0 ? 0 : '1rem', overflow: 'hidden', marginBottom: '0.75rem' }}>
-          {!tildelinger && <Spinner aria-label="Laster …" data-size="sm" />}
-          {tildelinger && tildelinger.length === 0 && <Paragraph style={{ margin: 0 }}>Ingen myndighetstildelinger registrert.</Paragraph>}
-          {tildelinger && tildelinger.length > 0 && (
-            <Table data-density="compact">
-              <Table.Head>
-                <Table.Row>
-                  <Table.HeaderCell>Gruppe</Table.HeaderCell>
-                  <Table.HeaderCell>Paragrafspenn</Table.HeaderCell>
-                  <Table.HeaderCell>Vilkår</Table.HeaderCell>
-                  <Table.HeaderCell>Gyldighetsperiode</Table.HeaderCell>
-                </Table.Row>
-              </Table.Head>
-              <Table.Body>
-                {tildelinger.map((t) => (
-                  <Table.Row key={t.id}>
-                    {/* [Ny, navneform-kjede-runden, 2026-09-08] HVILKEN gruppe tildelingen gjelder.
-                      * Ingressen over lovet «Gruppebegrep … tildelt denne virksomheten», men tabellen
-                      * viste bare paragrafspenn/vilkår/gyldighet — gruppens navn sto ingensteds. Det er
-                      * nettopp den opplysningen Johann ba om for Karasjok («språkutviklingskommuner»).
-                      * Kommer fra where-used-oppslaget, nøklet på tildelingens id.
-                      * `null` = laster ⇒ Spinner, ikke en påstand om at gruppen er ukjent (§15). */}
-                    <Table.Cell>
-                      {!whereUsed && <Spinner aria-label="Laster …" data-size="xs" />}
-                      {whereUsed && (() => {
-                        const gruppe = whereUsed.gruppetildelinger.find((g) => g.tildelingId === t.id);
-                        if (!gruppe) return <span style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>—</span>;
-                        // [ENDRET, issue #310] Typen som tag ved siden av navnet — «medlem av en klasse» og
-                        // «innehar en rolle» er ulike påstander (docs/33 §4.2), og tabellen skal vise hvilken.
-                        return (
-                          <span style={{ display: 'inline-flex', gap: '0.4rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                            <Link asChild>
-                              <RouterLink to={`/begreper/${gruppe.gruppeBegrepId}`}>{gruppe.gruppeTerm}</RouterLink>
-                            </Link>
-                            <BegrepskategoriTag kategori={gruppe.gruppeBegrepskategori} />
-                          </span>
-                        );
-                      })()}
-                    </Table.Cell>
-                    <Metatekst as={Table.Cell}>
-                      {t.paragrafspenn
-                        .map((p) =>
-                          p.tilEid
-                            ? `${visNodeKort(t.hjemmelRettskildeId, p.fraEid)} – ${visNodeKort(t.hjemmelRettskildeId, p.tilEid)}`
-                            : visNodeKort(t.hjemmelRettskildeId, p.fraEid),
-                        )
-                        .join(', ')}
-                    </Metatekst>
-                    <Table.Cell>{t.vilkaar ?? '—'}</Table.Cell>
-                    <Table.Cell>{t.gyldigFra || t.gyldigTil ? `${t.gyldigFra ?? ''}–${t.gyldigTil ?? ''}` : '—'}</Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>
-            </Table>
-          )}
-        </Card>
+        {/* [ENDRET, issue #311] Var «Myndighetstildelinger» (egen tabell); nå M-/I-kanter fra virksomheten. */}
+        <StrukturkantTabell
+          kanter={kanter && kanter.filter((k) => (k.kategori === 'M' || k.kategori === 'I') && k.retning === 'fra')}
+          tomTekst="Ingen medlemskap eller roller registrert."
+          visKategori
+        />
         <Button data-size="sm" variant="secondary" onClick={() => setVisLeggTilTildeling((v) => !v)}>
-          {visLeggTilTildeling ? 'Skjul skjema' : 'Legg til myndighetstildeling'}
+          {visLeggTilTildeling ? 'Skjul skjema' : 'Legg til medlemskap/rolle'}
         </Button>
         {visLeggTilTildeling && id && (
           <LeggTilMyndighetstildelingForm
             virksomhetId={id}
             rettskilder={rettskilder}
             onOpprettet={(ny) => {
-              setTildelinger((forrige) => [...(forrige ?? []), ny]);
+              setKanter((forrige) => [...(forrige ?? []), ny]);
               setVisLeggTilTildeling(false);
             }}
           />
         )}
+      </section>
+      )}
+
+      {fane === 'myndighet' && (
+      <section style={{ marginBottom: '2rem' }}>
+        <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
+          Kompetanse, ansvarsområder og organtilhørighet
+        </Heading>
+        <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
+          Øvrige strukturutsagn (issue #311, docs/33 §4.3): hvilken kompetanse virksomheten har etter hvilken
+          bestemmelse, hvilke områder den har ansvar for, og hvilket rettssubjekt den er organ for. Registreres
+          i dag av konverteringen (#313) eller over API-et — det finnes ikke et eget skjema for disse ennå.
+        </Metatekst>
+        <StrukturkantTabell
+          kanter={kanter && kanter.filter((k) => k.kategori !== 'R' && !((k.kategori === 'M' || k.kategori === 'I') && k.retning === 'fra'))}
+          tomTekst="Ingen andre strukturutsagn registrert."
+          visKategori
+        />
       </section>
       )}
 

@@ -14,7 +14,9 @@ namespace RegelIde.Data;
 public sealed record VirksomhetSlettOversikt(
     Guid VirksomhetId, string VirksomhetNavn,
     int Tjenester, int Rettskilder, int Begreper, int Navneformer, int Brukere,
-    int Myndighetstildelinger, int VirksomhetKandidater, int VirksomhetRelasjoner,
+    // [ENDRET, issue #311] Myndighetstildelinger + VirksomhetRelasjoner → Strukturkanter (alle kategorier,
+    // virksomheten i begge ender — alle kaskaderer, se StrukturkantEntitet).
+    int Strukturkanter, int VirksomhetKandidater,
     int VirksomhetNettsider, int Kodelister, int Datasett, int Vilkar, int Regelnoder, int Unntak,
     int VilkarstreKommentarer, int TekstTagger, int Hendelser,
     int KunnskapsbibliotekLenker, int KunnskapsbibliotekFiler, int UnderliggendeVirksomheter,
@@ -49,7 +51,8 @@ public sealed record VirksomhetSlettResultat(VirksomhetSlettUtfall Utfall, strin
 /// at det faktisk betyr NO ACTION i skjemaet). Et fåtall FK-er er derimot <c>NO ACTION</c>/<c>RESTRICT</c>
 /// og MÅ ryddes eksplisitt før selve virksomhet-raden slettes, ellers feiler hele operasjonen på et
 /// FK-brudd: <see cref="Virksomhet.OverordnetEnhetId"/> (selvreferanse — barn mister foreldrekoblingen,
-/// slettes IKKE selv), <see cref="VirksomhetRelasjonEntitet.TilVirksomhetId"/>,
+/// slettes IKKE selv), [FJERNET, issue #311: <c>VirksomhetRelasjon.TilVirksomhetId</c> (RESTRICT) — strukturkanter
+/// kaskaderer i begge ender],
 /// <see cref="ProveniensEntitet.VirksomhetId"/>/<see cref="ProveniensEntitet.ForeslattAvVirksomhetId"/>
 /// (nullstilles — proveniens er en logg, ikke virksomhetens eget arbeidsprodukt, se
 /// <see cref="TjenesteregisterTjeneste.SlettForslagAsync"/> for et annet sted proveniens ryddes
@@ -91,10 +94,9 @@ public sealed class VirksomhetSlettTjeneste(RegelIdeDbContext db)
             Begreper: await db.Begreper.CountAsync(b => b.VirksomhetId == virksomhetId, ct),
             Navneformer: await db.Begreper.CountAsync(b => b.VirksomhetReferanseId == virksomhetId, ct),
             Brukere: await db.Brukere.CountAsync(b => b.VirksomhetId == virksomhetId, ct),
-            Myndighetstildelinger: await db.Myndighetstildelinger.CountAsync(m => m.VirksomhetId == virksomhetId, ct),
+            Strukturkanter: await db.Strukturkanter
+                .CountAsync(k => k.FraVirksomhetId == virksomhetId || k.TilVirksomhetId == virksomhetId, ct),
             VirksomhetKandidater: await db.VirksomhetKandidater.CountAsync(k => k.VirksomhetId == virksomhetId, ct),
-            VirksomhetRelasjoner: await db.VirksomhetRelasjoner
-                .CountAsync(r => r.FraVirksomhetId == virksomhetId || r.TilVirksomhetId == virksomhetId, ct),
             VirksomhetNettsider: await db.VirksomhetNettsider.CountAsync(n => n.VirksomhetId == virksomhetId, ct),
             Kodelister: await db.Kodelister.CountAsync(k => k.VirksomhetId == virksomhetId, ct),
             Datasett: await db.Datasett.CountAsync(d => d.VirksomhetId == virksomhetId, ct),
@@ -144,8 +146,8 @@ public sealed class VirksomhetSlettTjeneste(RegelIdeDbContext db)
             await db.Virksomheter.Where(v => v.OverordnetEnhetId == virksomhetId)
                 .ExecuteUpdateAsync(s => s.SetProperty(v => v.OverordnetEnhetId, (Guid?)null), ct);
 
-            // TilVirksomhetId er RESTRICT i DB — FraVirksomhetId er Cascade og trenger ikke ryddes her.
-            await db.VirksomhetRelasjoner.Where(r => r.TilVirksomhetId == virksomhetId).ExecuteDeleteAsync(ct);
+            // [FJERNET, issue #311] Eksplisitt sletting av virksomhet_relasjoner der virksomheten var Til-siden
+            // (RESTRICT). Strukturkanter kaskaderer i BEGGE ender.
 
             // Proveniens er en logg, ikke virksomhetens eget arbeidsprodukt — nullstilles, slettes ikke.
             await db.Proveniens.Where(p => p.VirksomhetId == virksomhetId)
@@ -160,10 +162,10 @@ public sealed class VirksomhetSlettTjeneste(RegelIdeDbContext db)
             await db.Hendelser.Where(h => h.VirksomhetId == virksomhetId).ExecuteDeleteAsync(ct);
             await db.Rettskilder.Where(r => r.VirksomhetId == virksomhetId).ExecuteDeleteAsync(ct);
 
-            // Selve virksomheten — alt annet (tjenester, brukere, egne begreper, myndighetstildelinger,
+            // Selve virksomheten — alt annet (tjenester, brukere, egne begreper, strukturkanter (begge ender),
             // virksomhetkandidater, virksomhet_nettsider, tekst_tagger, vilkår, regelnoder, unntak,
-            // vilkarstre-kommentarer, kunnskapsbibliotek-lenker/filer, datasett, virksomhet_relasjoner
-            // (fra), tjenesteavhengigheter (fra)) kaskaderer allerede i DB-skjemaet.
+            // vilkarstre-kommentarer, kunnskapsbibliotek-lenker/filer, datasett,
+            // tjenesteavhengigheter (fra)) kaskaderer allerede i DB-skjemaet.
             var slettet = await db.Virksomheter.Where(v => v.Id == virksomhetId).ExecuteDeleteAsync(ct);
             if (slettet == 0)
             {

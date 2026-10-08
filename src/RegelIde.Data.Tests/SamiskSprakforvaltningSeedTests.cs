@@ -81,8 +81,13 @@ public class SamiskSprakforvaltningSeedTests
         // Ingenting oppfunnet: verken rettskilde, gruppebegrep, medlemskap eller virksomhet.
         Assert.Empty(await db.Rettskilder.ToListAsync());
         Assert.Empty(await db.Begreper.ToListAsync());
-        Assert.Empty(await db.GruppeMedlemskap.ToListAsync());
-        Assert.Empty(await db.Virksomheter.ToListAsync());
+        Assert.Empty(await db.Strukturkanter.ToListAsync());
+        // [ENDRET, issue #311] Migrasjonen InnforStrukturkanttabell oppretter de to organene (Stortinget og
+        // «Kongen i statsråd») i ENHVER base — de er ikke seedens verk, og telles derfor ikke med her.
+        Assert.Empty(await db.Virksomheter
+            .Where(v => v.Organisasjonsnummer != StrukturkantMigrering.StortingetOrgnr
+                        && v.Navn != StrukturkantMigrering.KongenIStatsradNavn)
+            .ToListAsync());
     }
 
     /// <summary>
@@ -130,10 +135,12 @@ public class SamiskSprakforvaltningSeedTests
 
         var overordnet = await FinnGruppebegrepAsync(db, forutsetninger.SamelovId, Forvaltningsomradet);
         Assert.Equal("omrade", overordnet.Begrepskategori); // [Ny, issue #310] Johanns godkjente liste.
-        var medlemskap = await new GruppeMedlemskapTjeneste(db).MedlemsgrupperForAsync(overordnet.Id);
+        // [ENDRET, issue #311] Medlemskapene er M-kanter med området som til-node.
+        var medlemskap = (await new StrukturkantTjeneste(db).HentForNodeAsync(Kantnode.Begrep(overordnet.Id), Strukturkanter.Medlemskap))
+            .Where(m => m.Retning == "til").ToList();
         Assert.Equal(3, medlemskap.Count);
 
-        var medlemsIder = medlemskap.Select(m => m.UnderordnetGruppeBegrepId).ToList();
+        var medlemsIder = medlemskap.Select(m => m.Fra.Id).ToList();
         var medlemsTermer = await db.Begreper
             .Where(b => medlemsIder.Contains(b.Id))
             .Select(b => b.Term)
@@ -167,9 +174,10 @@ public class SamiskSprakforvaltningSeedTests
 
         var gruppe = await FinnGruppebegrepAsync(db, forutsetninger.SamelovId, Sprakutvikling);
         Assert.Equal("klasse", gruppe.Begrepskategori); // [Ny, issue #310] klasse som medlem av et område.
-        var tildeling = await db.Myndighetstildelinger.SingleAsync(
-            m => m.GruppeBegrepId == gruppe.Id && m.VirksomhetId == forutsetninger.KarasjokId);
+        var tildeling = await db.Strukturkanter.SingleAsync(
+            m => m.TilBegrepId == gruppe.Id && m.FraVirksomhetId == forutsetninger.KarasjokId);
         Assert.Equal(forutsetninger.ForskriftId, tildeling.HjemmelRettskildeId);
+        Assert.Equal(Strukturkanter.Medlemskap, tildeling.Kategori); // klasse ⇒ M (en rolle hadde gitt I).
     }
 
     /// <summary>
@@ -220,8 +228,7 @@ public class SamiskSprakforvaltningSeedTests
         return SamiskSprakforvaltningSeed.SeedAsync(
             db,
             new VirksomhetsbegrepTjeneste(db),
-            new GruppeMedlemskapTjeneste(db),
-            new MyndighetstildelingTjeneste(db),
+            new StrukturkantTjeneste(db),
             new TekstTaggTjeneste(db, virksomhetOppslag),
             virksomhetOppslag);
     }
@@ -327,11 +334,11 @@ public class SamiskSprakforvaltningSeedTests
         int Gruppemedlemskap, int Gruppebegrep, int Navneformer, int Myndighetstildelinger, int Tagger);
 
     private static async Task<Radantall> TellAsync(RegelIdeDbContext db, Forutsetninger f) => new(
-        await db.GruppeMedlemskap.CountAsync(m => m.HjemmelRettskildeId == f.ForskriftId),
+        await db.Strukturkanter.CountAsync(m => m.HjemmelRettskildeId == f.ForskriftId && m.FraBegrepId != null),
         await db.Begreper.CountAsync(b => Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!) && b.LovkildeId == f.SamelovId),
         await db.Begreper.CountAsync(
             b => b.Begrepskategori == "virksomhet" && b.VirksomhetReferanseId == f.KarasjokId),
-        await db.Myndighetstildelinger.CountAsync(m => m.HjemmelRettskildeId == f.ForskriftId),
+        await db.Strukturkanter.CountAsync(m => m.HjemmelRettskildeId == f.ForskriftId && m.FraVirksomhetId != null),
         await db.TekstTagger.CountAsync(t => t.RettskildeId == f.SamelovId || t.RettskildeId == f.ForskriftId));
 
     /// <summary>

@@ -395,7 +395,29 @@ over. Beholdes også som egen registrering utenfor veiviseren, se «Gruppe av gr
 
 *Hvor:* «Navnekandidater» (`/navnekandidater`, `/navnekandidater/:id/behandle`).
 
+### Strukturkanter — relasjoner, tilhørighet, kompetanse, områder [NYTT, 2026-10-07, issue #311]
+
+Alle strukturutsagn — «X er klageinstans for Y», «Karasjok er medlem av språkutviklingskommunene», «NVE
+innehar rollen konsesjonsmyndighet etter § 3-1», «departementet har forskriftskompetanse etter § 5», «Agder
+lagdømme består av …» — lagres som én type, **strukturkant**, med kategori (R relasjon, K kompetanse, M
+medlemskap, O områdesammensetning, A ansvarsområde, G organtilhørighet, I rolleinnehav, T klassenivå) og
+en konfigurerbar typekode. Alle har de samme egenskapene: hjemmel i en rettskilde ELLER en kilde utenfor
+korpus (med type — kgl.res., instruks, tildelingsbrev, vedtekter, styrevedtak, forarbeider, nettside/annet
+— og om dokumentasjonen er primær eller sekundær), avgrensning (paragrafspenn og tekst), polaritet
+(«kan IKKE instruere» er et eget utsagn), gyldighet, status (forslag/validert) og hvilken mekanisme som
+fant den. Myndighetstildelinger, gruppemedlemskap og virksomhetsrelasjoner ble flyttet inn uten tap.
+
+Organene **Stortinget** og **Kongen i statsråd** er nå virksomheter (aktørtype organ), ikke begreper.
+
+*Hvor:* «Myndighet & relasjoner»-fanen på en virksomhet (tre seksjoner: relasjoner, medlemskap og roller,
+øvrige utsagn), «Relasjoner»-fanen på et begrep med gruppefunksjon, «Strukturutsagn hjemlet her» på en
+rettskilde, KI-forslagskøen. API: `/api/strukturkanter` (se `docs/04` §14), og arbeidslista over struktur
+som bare er dokumentert på nettside: `GET /api/strukturkanter/uten-korpusforankring`.
+
 ### Rollebegrep og myndighetstildeling
+
+> [ENDRET, issue #311] En tildeling er nå en strukturkant (M eller I) — se seksjonen over. Teksten under
+> beskriver det saksbehandleren ser, som er uendret i form.
 
 Et rollebegrep (f.eks. «forurensningsmyndighet») har identitet som (navn, lov) — samme rollestreng i
 to ulike lover er to ulike begrep. En myndighetstildeling kobler ett rollebegrep til en konkret
@@ -460,9 +482,10 @@ veiviseren, slik at den også er en verifikasjon av at mekanismen virker. Den er
 mangler over og rapporteres i oppstartsloggen i stedet for at en rettskilde eller virksomhet
 opprettes for å få eksempelet til å se komplett ut.
 
-*Hvor:* gruppebegrepets detaljside (`/begreper/:id` for et begrep med kategori «gruppe»);
-`POST /api/gruppemedlemskap`, `GET /api/gruppebegrep/{id}/medlemsgrupper`,
-`GET /api/gruppebegrep/{id}/overordnede-grupper`, `GET /api/gruppebegrep/{id}/tildelinger`.
+*Hvor:* gruppebegrepets detaljside (`/begreper/:id` for et begrep med gruppefunksjon), som nå også viser
+«Andre strukturutsagn»; [ENDRET, #311] `GET/POST /api/strukturkanter` (M-kanter begrep → begrep). De gamle
+`GET /api/gruppebegrep/{id}/medlemsgrupper|overordnede-grupper|tildelinger` står som lesefasader for
+nettside-eksporten; `POST /api/gruppemedlemskap` er fjernet.
 
 ### KI-oppdagelse av virksomheter, grupper og roller [NYTT, 2026-10-01, issue #285]
 

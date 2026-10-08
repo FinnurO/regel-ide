@@ -66,7 +66,7 @@ public sealed class VirksomhetWhereUsedTjeneste(RegelIdeDbContext db)
     /// ingressen og viste så bare paragrafspenn/vilkår/gyldighet. Det er nøyaktig den manglende
     /// opplysningen Johann ba om for Karasjok («språkutviklingskommuner»).
     /// </summary>
-    /// <param name="GruppeBegrepskategori">[Ny, issue #310] Nodetypen (klasse/rolle/omrade/organ, eller
+    /// <param name="GruppeBegrepskategori">[Ny, issue #310] Nodetypen (klasse/rolle/omrade, eller
     /// gjenværende 'gruppe') — slik at VirksomhetDetalj kan vise HVA slags tilhørighet tildelingen er.</param>
     public sealed record Gruppetildeling(Guid TildelingId, Guid GruppeBegrepId, string GruppeTerm, string? GruppeBegrepskategori);
 
@@ -108,12 +108,15 @@ public sealed class VirksomhetWhereUsedTjeneste(RegelIdeDbContext db)
                 x.Tagg.StartOffset, x.Tagg.EndOffset))
             .ToListAsync(ct);
 
-        var gruppetildelinger = await db.Myndighetstildelinger
-            .Where(m => m.VirksomhetId == virksomhetId)
+        // [ENDRET, issue #311] Tildelingene er nå M-/I-kanter fra virksomheten til et begrep med
+        // gruppefunksjon (før: myndighetstildelinger). TildelingId = kantens id.
+        var gruppetildelinger = await db.Strukturkanter
+            .Where(m => (m.Kategori == Strukturkanter.Medlemskap || m.Kategori == Strukturkanter.Rolleinnehav)
+                        && m.FraVirksomhetId == virksomhetId && m.TilBegrepId != null)
             .Join(
                 // [ENDRET, issue #310] alle kategorier med gruppefunksjon, ikke bare 'gruppe'.
                 db.Begreper.Where(b => Nodetyper.MedGruppefunksjon.Contains(b.Begrepskategori!)),
-                m => m.GruppeBegrepId, b => b.Id,
+                m => m.TilBegrepId!.Value, b => b.Id,
                 (m, b) => new Gruppetildeling(m.Id, b.Id, b.Term, b.Begrepskategori))
             .ToListAsync(ct);
 

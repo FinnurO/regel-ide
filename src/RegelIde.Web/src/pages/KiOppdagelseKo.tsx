@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 import { Alert, Button, Heading, Link, Paragraph, Spinner, Table } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
+import { StrukturkantKategoriTag } from '../strukturkant/StrukturkantTabell';
 import type { KiForslagKoRadDto, KiOppdagelseKandidatUtfallDto, RettskildeSammendrag } from '../api/types';
 import { RettskildeFlervalg } from '../rettskilde/RettskildeFlervalg';
 import { Metatekst } from '../entitet/Metatekst';
@@ -61,9 +62,8 @@ export default function KiOppdagelseKo() {
   async function godkjenn(rad: KiForslagKoRadDto) {
     setHandlingKjorer(rad.id);
     try {
-      if (rad.type === 'myndighetstildeling') await api.godkjennMyndighetstildeling(rad.id);
-      else if (rad.type === 'virksomhet_relasjon') await api.godkjennVirksomhetRelasjon(rad.id);
-      else await api.godkjennGruppeMedlemskap(rad.id);
+      // [ENDRET, issue #311] Én kanttabell — ett endepunkt uansett kategori (var tre, ett per tabell).
+      await api.godkjennStrukturkant(rad.id);
       lastKo();
     } catch (err) {
       setKoFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved godkjenning.');
@@ -75,11 +75,7 @@ export default function KiOppdagelseKo() {
   async function avvis(rad: KiForslagKoRadDto) {
     setHandlingKjorer(rad.id);
     try {
-      if (rad.type === 'myndighetstildeling') await api.avvisMyndighetstildeling(rad.id);
-      else if (rad.type === 'gruppe_medlemskap') await api.avvisGruppeMedlemskap(rad.id);
-      // 'virksomhet_relasjon' bruker det eksisterende, ubetingede slett-endepunktet — se
-      // client.ts sin kommentar på slettVirksomhetRelasjon/godkjennVirksomhetRelasjon.
-      else await api.slettVirksomhetRelasjon(rad.id);
+      await api.avvisStrukturkant(rad.id);
       lastKo();
     } catch (err) {
       setKoFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved avvisning.');
@@ -88,11 +84,6 @@ export default function KiOppdagelseKo() {
     }
   }
 
-  const typeEtikett: Record<KiForslagKoRadDto['type'], string> = {
-    myndighetstildeling: 'Rolle',
-    virksomhet_relasjon: 'Relasjon',
-    gruppe_medlemskap: 'Gruppe av gruppe',
-  };
 
   return (
     <>
@@ -126,9 +117,9 @@ export default function KiOppdagelseKo() {
           <Paragraph>
             {sisteKjoring.kandidater.length} forslag behandlet —{' '}
             {sisteKjoring.kandidater.filter((k) => k.navnekandidatId).length} navnekandidat(er) opprettet/gjenbrukt,{' '}
-            {sisteKjoring.kandidater.filter((k) => k.myndighetstildelingId).length} rolle(r),{' '}
-            {sisteKjoring.kandidater.filter((k) => k.virksomhetRelasjonId).length} relasjon(er),{' '}
-            {sisteKjoring.kandidater.filter((k) => k.gruppeMedlemskapId).length} gruppe-av-gruppe.
+            {sisteKjoring.kandidater.filter((k) => k.rolleKantId).length} rolle(r)/tilhørighet(er),{' '}
+            {sisteKjoring.kandidater.filter((k) => k.relasjonKantId).length} relasjon(er),{' '}
+            {sisteKjoring.kandidater.filter((k) => k.gruppeAvGruppeKantId).length} gruppe-av-gruppe.
           </Paragraph>
           {(sisteKjoring.inputTokens !== null || sisteKjoring.outputTokens !== null) && (
             <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>
@@ -147,7 +138,8 @@ export default function KiOppdagelseKo() {
       </Heading>
       <Paragraph style={{ marginBottom: '1rem', maxWidth: '42rem' }}>
         Egen kø (issue #285 AC6) — disse radene er allerede skrevet til registeret med status
-        «foreslått av AI», men regnes IKKE som gjeldende før de godkjennes her.
+        «foreslått av AI», men regnes IKKE som gjeldende før de godkjennes her. [Issue #311] Alle er
+        strukturkanter; kolonnen «Kategori» sier hva slags utsagn det er.
       </Paragraph>
       {koFeil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{koFeil}</Alert>}
       {!ko && <Spinner aria-label="Laster …" data-size="sm" />}
@@ -156,16 +148,16 @@ export default function KiOppdagelseKo() {
         <Table border>
           <Table.Head>
             <Table.Row>
-              <Table.HeaderCell>Type</Table.HeaderCell>
+              <Table.HeaderCell>Kategori</Table.HeaderCell>
               <Table.HeaderCell>Forslag</Table.HeaderCell>
-              <Table.HeaderCell>KI-versjon</Table.HeaderCell>
+              <Table.HeaderCell>Oppdaget av</Table.HeaderCell>
               <Table.HeaderCell>Handlinger</Table.HeaderCell>
             </Table.Row>
           </Table.Head>
           <Table.Body>
             {ko.map((rad) => (
               <Table.Row key={`${rad.type}-${rad.id}`}>
-                <Table.Cell>{typeEtikett[rad.type]}</Table.Cell>
+                <Table.Cell><StrukturkantKategoriTag kategori={rad.type} /></Table.Cell>
                 <Table.Cell>{rad.visningstekst}</Table.Cell>
                 <Metatekst as={Table.Cell}>{rad.aiForslagVersjon ?? '—'}</Metatekst>
                 <Table.Cell>

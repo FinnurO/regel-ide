@@ -116,14 +116,16 @@ public class KiOppdagelseEndepunktTests
         };
         db.Begreper.Add(gruppebegrep);
         await db.SaveChangesAsync();
-        db.Myndighetstildelinger.Add(new MyndighetstildelingEntitet
+        // [ENDRET, issue #311] En tildeling er en M-kant (begrepet er en uavklart 'gruppe' ⇒ M, ikke I).
+        db.Strukturkanter.Add(new StrukturkantEntitet
         {
-            Id = Guid.NewGuid(), GruppeBegrepId = gruppebegrep.Id, VirksomhetId = virksomhet.Id, HjemmelRettskildeId = lov.Id,
-            Status = "foreslatt_av_ai", OpprettetAv = "system-ki", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            Id = Guid.NewGuid(), Kategori = Strukturkanter.Medlemskap, Typekode = Strukturkanter.MedlemAv,
+            FraVirksomhetId = virksomhet.Id, TilBegrepId = gruppebegrep.Id, HjemmelRettskildeId = lov.Id,
+            Status = "foreslatt_av_ai", OppdagelsesKilde = "ki:stub-v1", OpprettetAv = "system-ki", OpprettetTidspunkt = DateTimeOffset.UtcNow,
         });
         await db.SaveChangesAsync();
 
         var ko = await _client.GetFromJsonAsync<List<KiForslagKoRadDto>>("/api/ki-oppdagelse/ko", JsonInnstillinger);
-        Assert.Contains(ko!, r => r.Type == "myndighetstildeling" && r.Visningstekst.Contains(virksomhet.Navn));
+        Assert.Contains(ko!, r => r.Type == "M" && r.Visningstekst.Contains(virksomhet.Navn) && r.AiForslagVersjon == "ki:stub-v1");
     }
 }

@@ -40,9 +40,8 @@ public class VirksomhetOgGruppeKiOppdagelseTjenesteTests
         new NavnekandidatOppdagelseTjeneste(
             db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)),
             new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(new HttpClient(new KasterHandler()), db),
-            new MyndighetstildelingTjeneste(db), new GruppeMedlemskapTjeneste(db), new VirksomhetRelasjonregisterTjeneste(db)),
-        new VirksomhetOppslagTjeneste(db), new MyndighetstildelingTjeneste(db),
-        new VirksomhetRelasjonregisterTjeneste(db), new GruppeMedlemskapTjeneste(db));
+            new StrukturkantTjeneste(db)),
+        new VirksomhetOppslagTjeneste(db), new StrukturkantTjeneste(db));
 
     // DB-en er DELT mellom alle tester i DataTestCollection (ICollectionFixture) — et organnavn brukt i
     // navneformen MÅ derfor være unikt på tvers av HELE denne testfilen, ellers blir
@@ -53,7 +52,7 @@ public class VirksomhetOgGruppeKiOppdagelseTjenesteTests
 
     /// <summary>[Ny, issue #285] <see cref="RelasjonsTypeKonfigurasjonEntitet"/> seedes normalt ved
     /// API-oppstart (Program.cs), IKKE av denne fixturen (kun migrasjoner) — samme mønster som
-    /// <c>VirksomhetRelasjonregisterTjenesteTests.NyRelasjonsTypeAsync</c>. Egen, unik kode per test:
+    /// de gamle relasjonstestene (før #311). Egen, unik kode per test (kategori R — default):
     /// en fast kode som "underlagt" ville kollidert på tvers av delte DB-tester.</summary>
     private static async Task<string> NyRelasjonsTypeAsync(RegelIdeDbContext db)
     {
@@ -101,9 +100,9 @@ public class VirksomhetOgGruppeKiOppdagelseTjenesteTests
         var k = resultat.Kandidater[0];
         Assert.NotNull(k.NavnekandidatId);
         Assert.Null(k.NavnekandidatFeil);
-        Assert.Null(k.MyndighetstildelingId);
-        Assert.Null(k.VirksomhetRelasjonId);
-        Assert.Null(k.GruppeMedlemskapId);
+        Assert.Null(k.RolleKantId);
+        Assert.Null(k.RelasjonKantId);
+        Assert.Null(k.GruppeAvGruppeKantId);
 
         var kandidat = await db.Navnekandidater.SingleAsync(n => n.Id == k.NavnekandidatId);
         Assert.Equal("ki-fri-sveip", kandidat.OppdagelsesKilde);
@@ -211,14 +210,17 @@ public class VirksomhetOgGruppeKiOppdagelseTjenesteTests
 
         var k = Assert.Single(resultat.Kandidater);
         Assert.NotNull(k.NavnekandidatId);
-        Assert.NotNull(k.MyndighetstildelingId);
+        Assert.NotNull(k.RolleKantId);
         Assert.Null(k.RolleIkkeOpprettetGrunn);
 
-        var tildeling = await db.Myndighetstildelinger.SingleAsync(m => m.Id == k.MyndighetstildelingId);
+        // [ENDRET, issue #311] Tildelingen er en M-kant (begrepet er en klasse; en rolle hadde gitt I).
+        var tildeling = await db.Strukturkanter.SingleAsync(m => m.Id == k.RolleKantId);
         Assert.Equal("foreslatt_av_ai", tildeling.Status);
-        Assert.Equal(rollebegrep.Id, tildeling.GruppeBegrepId);
-        Assert.Equal(virksomhet.Id, tildeling.VirksomhetId);
-        var proveniens = await db.Proveniens.SingleAsync(p => p.EntitetType == "myndighetstildeling" && p.EntitetId == tildeling.Id);
+        Assert.Equal(Strukturkanter.Medlemskap, tildeling.Kategori);
+        Assert.Equal(rollebegrep.Id, tildeling.TilBegrepId);
+        Assert.Equal(virksomhet.Id, tildeling.FraVirksomhetId);
+        Assert.StartsWith("ki:", tildeling.OppdagelsesKilde);
+        var proveniens = await db.Proveniens.SingleAsync(p => p.EntitetType == StrukturkantTjeneste.ProveniensType && p.EntitetId == tildeling.Id);
         Assert.Equal("foreslatt_av_ai", proveniens.Handling);
         Assert.NotNull(proveniens.AiForslagVersjon);
 
@@ -245,9 +247,9 @@ public class VirksomhetOgGruppeKiOppdagelseTjenesteTests
 
         var k = Assert.Single(resultat.Kandidater);
         Assert.NotNull(k.NavnekandidatId); // navneform-forslaget lever fortsatt, uavhengig
-        Assert.Null(k.MyndighetstildelingId);
+        Assert.Null(k.RolleKantId);
         Assert.NotNull(k.RolleIkkeOpprettetGrunn);
-        Assert.Empty(await db.Myndighetstildelinger.Where(m => m.HjemmelRettskildeId == rettskildeId).ToListAsync());
+        Assert.Empty(await db.Strukturkanter.Where(m => m.HjemmelRettskildeId == rettskildeId).ToListAsync());
     }
 
     [Fact]
@@ -276,15 +278,17 @@ public class VirksomhetOgGruppeKiOppdagelseTjenesteTests
         var resultat = await tjeneste.KjorOppdagelseAsync(rettskildeId, "system-ki");
 
         var k = Assert.Single(resultat.Kandidater);
-        Assert.NotNull(k.VirksomhetRelasjonId);
-        var relasjon = await db.VirksomhetRelasjoner.SingleAsync(r => r.Id == k.VirksomhetRelasjonId);
+        Assert.NotNull(k.RelasjonKantId);
+        var relasjon = await db.Strukturkanter.SingleAsync(r => r.Id == k.RelasjonKantId);
         Assert.Equal("foreslatt_av_ai", relasjon.Status);
+        Assert.Equal(Strukturkanter.Relasjon, relasjon.Kategori);
         Assert.Equal(fra.Id, relasjon.FraVirksomhetId);
         Assert.Equal(til.Id, relasjon.TilVirksomhetId);
-        Assert.Equal(relasjonsType, relasjon.RelasjonsType);
+        Assert.Equal(relasjonsType, relasjon.Typekode);
         Assert.Equal(rettskildeId, relasjon.HjemmelRettskildeId);
         Assert.Equal(nodeEid, relasjon.HjemmelEid);
         Assert.Null(relasjon.Kommentar);
+        Assert.Null(relasjon.KildeUtenforKorpusTekst);
     }
 
     [Fact]
@@ -304,7 +308,7 @@ public class VirksomhetOgGruppeKiOppdagelseTjenesteTests
 
         var k = Assert.Single(resultat.Kandidater);
         Assert.NotNull(k.NavnekandidatId); // gruppe-navnekandidaten opprettes uansett
-        Assert.Null(k.GruppeMedlemskapId);
+        Assert.Null(k.GruppeAvGruppeKantId);
         Assert.NotNull(k.GruppeAvGruppeIkkeOpprettetGrunn);
     }
 
@@ -327,11 +331,12 @@ public class VirksomhetOgGruppeKiOppdagelseTjenesteTests
         var resultat = await tjeneste.KjorOppdagelseAsync(rettskildeId, "system-ki");
 
         var k = Assert.Single(resultat.Kandidater);
-        Assert.NotNull(k.GruppeMedlemskapId);
-        var medlemskap = await db.GruppeMedlemskap.SingleAsync(m => m.Id == k.GruppeMedlemskapId);
+        Assert.NotNull(k.GruppeAvGruppeKantId);
+        var medlemskap = await db.Strukturkanter.SingleAsync(m => m.Id == k.GruppeAvGruppeKantId);
         Assert.Equal("foreslatt_av_ai", medlemskap.Status);
-        Assert.Equal(overordnet.Id, medlemskap.OverordnetGruppeBegrepId);
-        Assert.Equal(underordnet.Id, medlemskap.UnderordnetGruppeBegrepId);
+        Assert.Equal(Strukturkanter.Medlemskap, medlemskap.Kategori);
+        Assert.Equal(overordnet.Id, medlemskap.TilBegrepId);
+        Assert.Equal(underordnet.Id, medlemskap.FraBegrepId);
     }
 
     [Fact]
@@ -359,7 +364,7 @@ public class VirksomhetOgGruppeKiOppdagelseTjenesteTests
         await NyTjeneste(db, svar).KjorOppdagelseAsync(rettskildeId, "system-ki");
 
         Assert.Single(await db.Navnekandidater.Where(n => n.RettskildeId == rettskildeId).ToListAsync());
-        Assert.Single(await db.VirksomhetRelasjoner.Where(r => r.FraVirksomhetId == fra.Id).ToListAsync());
+        Assert.Single(await db.Strukturkanter.Where(r => r.FraVirksomhetId == fra.Id).ToListAsync());
     }
 
     [Fact]

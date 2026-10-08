@@ -43,6 +43,12 @@
     <None Include="Seed\organisasjoner-norge.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <!-- [Ny, issue #311] Brreg-øyeblikksbilde for Stortinget (hentet 2026-10-07). Migrasjonen
+         InnforStrukturkanttabell kan ikke gjøre nettverkskall; StrukturkantMigreringTests leser fila og
+         sjekker at verdiene i StrukturkantMigrering.OrganSql er de samme. -->
+    <None Include="Seed\brreg-971524960-stortinget.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

@@ -157,12 +157,14 @@ namespace RegelIde.Data;
 public sealed class NavnekandidatOppdagelseTjeneste(
     RegelIdeDbContext db, VirksomhetsbegrepTjeneste virksomhetsbegrep,
     TekstTaggTjeneste tekstTaggTjeneste, VirksomhetOppslagTjeneste virksomhetOppslag,
-    EksternNavneoppslagTjeneste eksternOppslag, MyndighetstildelingTjeneste myndighetstildeling,
+    EksternNavneoppslagTjeneste eksternOppslag,
     // [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283] De to nye mekanismene
-    // (gruppe-av-gruppe, rolle/relasjon-tillegget) gjenbruker tjenestelaget disse allerede har —
-    // ingen duplisert opprett-/valideringslogikk, se KoblTilMyndighetstildelingAsync/KoblTilRelasjonAsync/
+    // (gruppe-av-gruppe, rolle/relasjon-tillegget) gjenbruker tjenestelaget — ingen duplisert
+    // opprett-/valideringslogikk, se KoblTilMyndighetstildelingAsync/KoblTilRelasjonAsync/
     // KoblTilGruppeAvGruppeAsync under.
-    GruppeMedlemskapTjeneste gruppeMedlemskap, VirksomhetRelasjonregisterTjeneste virksomhetRelasjonregister)
+    // [ENDRET, issue #311] Var tre tjenester (myndighetstildeling, gruppemedlemskap, virksomhetsrelasjon) —
+    // nå ÉN skrivevei for alle strukturkanter.
+    StrukturkantTjeneste strukturkanter)
 {
     /// <summary>
     /// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC2] Diskriminatorverdien for
@@ -1979,7 +1981,8 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// <c>"Godkjent"</c>, en <see cref="TekstTaggEntitet"/> med <c>Kind="virksomhet"</c> som peker på
     /// virksomheten) — det er nøyaktig samme private
     /// <see cref="LukkKjedenMotVirksomhetAsync"/> som kjøres, ikke en parallell kopi — OG i tillegg en
-    /// <see cref="MyndighetstildelingEntitet"/> som knytter virksomheten til gruppebegrepet, hjemlet i
+    /// tildelingskant (<see cref="StrukturkantTjeneste.OpprettTildelingAsync"/> — M, eller I hvis begrepet er en
+    /// rolle; før #311 en myndighetstildeling) som knytter virksomheten til gruppebegrepet, hjemlet i
     /// KANDIDATENS EGEN rettskilde. At hjemmelen er kandidatens egen rettskilde er selve poenget:
     /// det er forskriften der navnet står som navngir medlemskapet, ikke loven som definerte gruppen
     /// (issue #164 sitt «gruppe av gruppe»-skille).
@@ -1994,8 +1997,8 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// <para>
     /// <b>Idempotent</b> som <see cref="KoblTilVirksomhetAsync"/>: finnes tildelingen allerede for
     /// samme (gruppe, virksomhet, hjemmel), gjenbrukes den i stedet for at en duplikat legges inn —
-    /// <see cref="MyndighetstildelingTjeneste.OpprettAsync"/> har ingen egen duplikatsperre, så
-    /// sjekken må stå her.
+    /// sjekken står her (og ikke bare i <see cref="StrukturkantTjeneste.OpprettAsync"/>s idempotens, som også
+    /// sammenligner avgrensning) for å beholde den gamle regelen: samme par + hjemmel = samme tildeling.
     /// </para>
     /// </summary>
     public async Task<NavnekandidatGruppemedlemskapResultat?> KoblTilGruppemedlemskapAsync(
@@ -2014,12 +2017,10 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         ValiderNavneformgrunn(navneformgrunn);
 
         // Steg 1 (se metodekommentaren om rekkefølgen): medlemskapet.
-        var tildeling = await db.Myndighetstildelinger.FirstOrDefaultAsync(
-            m => m.GruppeBegrepId == gruppeBegrepId && m.VirksomhetId == virksomhetId
-                 && m.HjemmelRettskildeId == kandidat.RettskildeId, ct);
-        tildeling ??= await myndighetstildeling.OpprettAsync(
-            gruppeBegrepId, virksomhetId, kandidat.RettskildeId,
-            [new ParagrafspennPar(kandidat.NodeEid, null)], vilkaar: null, behandletAv, ct: ct);
+        var tildeling = await FinnTildelingAsync(virksomhetId, gruppeBegrepId, kandidat.RettskildeId, ct)
+            ?? (await strukturkanter.OpprettTildelingAsync(
+                virksomhetId, gruppeBegrepId, kandidat.RettskildeId,
+                [new ParagrafspennPar(kandidat.NodeEid, null)], avgrensningTekst: null, behandletAv, ct: ct)).Kant;
 
         // Steg 2: nøyaktig samme kjedelukking som virksomhet-veien.
         var kobling = await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct);
@@ -2053,11 +2054,10 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         ValiderNavneformgrunn(navneformgrunn);
 
         // Idempotent — samme (rolle, virksomhet, hjemmel) skal ikke gi en duplikat-rad ved gjentatt kall.
-        var tildeling = await db.Myndighetstildelinger.FirstOrDefaultAsync(
-            m => m.GruppeBegrepId == rolleBegrepId && m.VirksomhetId == virksomhetId
-                 && m.HjemmelRettskildeId == kandidat.RettskildeId, ct);
-        tildeling ??= await myndighetstildeling.OpprettAsync(
-            rolleBegrepId, virksomhetId, kandidat.RettskildeId, paragrafspenn, vilkaar, behandletAv, ct: ct);
+        // [ENDRET, issue #311] Vilkåret er kantens AvgrensningTekst.
+        var tildeling = await FinnTildelingAsync(virksomhetId, rolleBegrepId, kandidat.RettskildeId, ct)
+            ?? (await strukturkanter.OpprettTildelingAsync(
+                virksomhetId, rolleBegrepId, kandidat.RettskildeId, paragrafspenn, vilkaar, behandletAv, ct: ct)).Kant;
 
         var kobling = await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct);
         return new NavnekandidatMyndighetstildelingResultat(
@@ -2068,21 +2068,24 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283 AC7/AC8] «Relasjon til annen
     /// virksomhet» — knytter kandidatens virksomhet (som FRA-siden, samme konvensjon som
     /// <c>POST /api/virksomheter/{id}/relasjoner</c>) til en fritt valgt motpart via
-    /// <see cref="VirksomhetRelasjonregisterTjeneste"/>. Løser issue #263 AC2/AC3 sitt «Minimalt»-nivå:
+    /// en R-kant (<see cref="StrukturkantTjeneste"/>; før #311 VirksomhetRelasjon). Løser issue #263 AC2/AC3 sitt «Minimalt»-nivå:
     /// en forhåndsutfylt snarvei fra navnekandidat-behandlingen til den ALLEREDE eksisterende
     /// relasjonsmekanismen — INGEN automatisk mønstergjenkjenning av selve relasjonen (det er #263 AC1,
     /// eksplisitt utenfor denne saken).
     /// <para>
     /// <paramref name="hjemletHer"/> avgjør hjemmelsfeltene (AC7): <c>true</c> → hjemmelen ER
     /// kandidatens egen rettskilde/node (det er DER relasjonen faktisk fremgår), <c>false</c> →
-    /// ingen hjemmel, kun <paramref name="kommentar"/> som fritekst (samme "ingen tvunget hjemmel"-bruk
-    /// som <see cref="VirksomhetRelasjonEntitet.Kommentar"/> allerede har for klagenemndssekretariat-
-    /// eksemplet i docs/28).
+    /// ingen hjemmel, kun <paramref name="kommentar"/> som fritekst — [ENDRET, issue #311] lagret som kantens
+    /// <see cref="StrukturkantEntitet.KildeUtenforKorpusTekst"/> (det var den bruken kommentaren hadde, jf.
+    /// klagenemndssekretariat-eksemplet i docs/28). Uten kommentar finnes da ingen kilde, og kanten avvises
+    /// (docs/33 §4.3: hjemmel ELLER kilde utenfor korpus). <paramref name="kildeUtenforKorpusType"/> er påkrevd
+    /// sammen med kommentaren (Johanns beslutning 2026-10-07) — veiviseren lar saksbehandleren velge den.
     /// </para>
     /// </summary>
     public async Task<NavnekandidatRelasjonResultat?> KoblTilRelasjonAsync(
         Guid id, Guid virksomhetId, string? navneformgrunn, Guid motpartVirksomhetId, string relasjonsType,
-        bool hjemletHer, string? kommentar, string behandletAv, CancellationToken ct = default)
+        bool hjemletHer, string? kommentar, string behandletAv, CancellationToken ct = default,
+        string? kildeUtenforKorpusType = null, string? kildeUtenforKorpusDokumentasjon = null)
     {
         var kandidat = await db.Navnekandidater.FirstOrDefaultAsync(k => k.Id == id, ct);
         if (kandidat is null) return null;
@@ -2094,13 +2097,17 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         }
         ValiderNavneformgrunn(navneformgrunn);
 
-        var relasjon = await db.VirksomhetRelasjoner.FirstOrDefaultAsync(
-            r => r.Entitetsstatus == "gjeldende" && r.FraVirksomhetId == virksomhetId
-                 && r.TilVirksomhetId == motpartVirksomhetId && r.RelasjonsType == relasjonsType, ct);
-        relasjon ??= await virksomhetRelasjonregister.OpprettAsync(
-            virksomhetId, motpartVirksomhetId, relasjonsType,
-            hjemletHer ? kandidat.RettskildeId : null, hjemletHer ? kandidat.NodeEid : null,
-            hjemletHer ? null : kommentar, behandletAv, ct);
+        // Samme dublettregel som VirksomhetRelasjon hadde: (fra, til, type).
+        var relasjon = await db.Strukturkanter.FirstOrDefaultAsync(
+            r => r.Kategori == Strukturkanter.Relasjon && r.FraVirksomhetId == virksomhetId
+                 && r.TilVirksomhetId == motpartVirksomhetId && r.Typekode == relasjonsType, ct);
+        relasjon ??= (await strukturkanter.OpprettAsync(new NyStrukturkant(
+            Strukturkanter.Relasjon, relasjonsType, Kantnode.Virksomhet(virksomhetId), Kantnode.Virksomhet(motpartVirksomhetId),
+            HjemmelRettskildeId: hjemletHer ? kandidat.RettskildeId : null,
+            HjemmelEid: hjemletHer ? kandidat.NodeEid : null,
+            KildeUtenforKorpusTekst: hjemletHer ? null : kommentar,
+            KildeUtenforKorpusType: hjemletHer ? null : kildeUtenforKorpusType,
+            KildeUtenforKorpusDokumentasjon: hjemletHer ? null : kildeUtenforKorpusDokumentasjon), behandletAv, ct)).Kant;
 
         var kobling = await LukkKjedenMotVirksomhetAsync(kandidat, virksomhetId, navneformgrunn, behandletAv, ct);
         return new NavnekandidatRelasjonResultat(
@@ -2140,9 +2147,11 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         var gruppebegrep = await virksomhetsbegrep.OpprettGruppebegrepAsync(
             type, kandidat.RettskildeId, kandidat.ForeslattTekst, behandletAv, kandidat.NodeEid, ct);
 
-        var medlemskap = await gruppeMedlemskap.OpprettAsync(
-            overordnetGruppeBegrepId, gruppebegrep.Id, kandidat.RettskildeId,
-            [new ParagrafspennPar(kandidat.NodeEid, null)], behandletAv, ct: ct);
+        var medlemskap = (await strukturkanter.OpprettAsync(new NyStrukturkant(
+            Strukturkanter.Medlemskap, Strukturkanter.MedlemAv,
+            Kantnode.Begrep(gruppebegrep.Id), Kantnode.Begrep(overordnetGruppeBegrepId),
+            HjemmelRettskildeId: kandidat.RettskildeId,
+            Paragrafspenn: [new ParagrafspennPar(kandidat.NodeEid, null)]), behandletAv, ct)).Kant;
 
         await OpprettDepartementTaggHvisMuligAsync(kandidat, gruppebegrep.Id, behandletAv, ct);
 
@@ -2205,6 +2214,14 @@ public sealed class NavnekandidatOppdagelseTjeneste(
         return new NavnekandidatFastGruppebegrepResultat(kandidat, gruppebegrep, varNyttBegrep);
     }
 
+    /// <summary>[Ny, issue #311] En eksisterende tildelingskant (M eller I) for (virksomhet, begrep, hjemmel)
+    /// — samme dublettregel myndighetstildelingen hadde i veiviseren.</summary>
+    private Task<StrukturkantEntitet?> FinnTildelingAsync(Guid virksomhetId, Guid begrepId, Guid hjemmelId, CancellationToken ct) =>
+        db.Strukturkanter.FirstOrDefaultAsync(
+            m => (m.Kategori == Strukturkanter.Medlemskap || m.Kategori == Strukturkanter.Rolleinnehav)
+                 && m.TilBegrepId == begrepId && m.FraVirksomhetId == virksomhetId
+                 && m.HjemmelRettskildeId == hjemmelId, ct);
+
     private static void ValiderNavneformgrunn(string? navneformgrunn)
     {
         if (!VirksomhetsbegrepTjeneste.ErGyldigNavneformgrunn(navneformgrunn))
@@ -2221,7 +2238,7 @@ public sealed class NavnekandidatOppdagelseTjeneste(
     /// <see cref="KoblTilVirksomhetAsync"/> og <see cref="KoblTilGruppemedlemskapAsync"/>: navneform
     /// (med grunn), tagg som peker på virksomheten, og status <c>"Godkjent"</c>. Skilt ut nettopp for
     /// at gruppemedlemskaps-veien IKKE skal bli en parallell kopi som kan komme i utakt — hele
-    /// forskjellen mellom de to veiene er den ene ekstra <c>MyndighetstildelingEntitet</c>-raden.
+    /// forskjellen mellom de to veiene er den ene ekstra tildelingskanten (<see cref="StrukturkantEntitet"/>).
     /// Innholdet er uendret fra <see cref="KoblTilVirksomhetAsync"/> før utskillingen.
     /// </summary>
     private async Task<NavnekandidatKoblingResultat?> LukkKjedenMotVirksomhetAsync(
@@ -2435,10 +2452,10 @@ public sealed record NavnekandidatKoblingResultat(
 /// felt (hjemmel + paragrafspenn) for å kunne SI hva som ble opprettet i sin
 /// «dette skjedde»-oppsummering, uten et nytt oppslag (docs/09 §15).
 /// </summary>
-/// <param name="Tildeling">Myndighetstildelingen som ble opprettet ELLER gjenbrukt.</param>
+/// <param name="Tildeling">Tildelingskanten (M/I, før #311 myndighetstildeling) som ble opprettet ELLER gjenbrukt.</param>
 public sealed record NavnekandidatGruppemedlemskapResultat(
     NavnekandidatEntitet Kandidat, BegrepEntitet Navneform, Guid? TaggId, string NodeEid,
-    MyndighetstildelingEntitet Tildeling);
+    StrukturkantEntitet Tildeling);
 
 /// <summary>
 /// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283] Utfallet av
@@ -2448,7 +2465,7 @@ public sealed record NavnekandidatGruppemedlemskapResultat(
 /// </summary>
 public sealed record NavnekandidatMyndighetstildelingResultat(
     NavnekandidatEntitet Kandidat, BegrepEntitet Navneform, Guid? TaggId, string NodeEid,
-    MyndighetstildelingEntitet Tildeling);
+    StrukturkantEntitet Tildeling);
 
 /// <summary>
 /// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283] Utfallet av
@@ -2456,7 +2473,7 @@ public sealed record NavnekandidatMyndighetstildelingResultat(
 /// </summary>
 public sealed record NavnekandidatRelasjonResultat(
     NavnekandidatEntitet Kandidat, BegrepEntitet Navneform, Guid? TaggId, string NodeEid,
-    VirksomhetRelasjonEntitet Relasjon);
+    StrukturkantEntitet Relasjon);
 
 /// <summary>
 /// [Ny, navnekandidat-alle-mekanismer-runden, 2026-09-21, issue #283] Utfallet av
@@ -2465,7 +2482,7 @@ public sealed record NavnekandidatRelasjonResultat(
 /// en virksomhet-tagg.
 /// </summary>
 public sealed record NavnekandidatGruppeAvGruppeResultat(
-    NavnekandidatEntitet Kandidat, BegrepEntitet Gruppebegrep, GruppeMedlemskapEntitet Medlemskap);
+    NavnekandidatEntitet Kandidat, BegrepEntitet Gruppebegrep, StrukturkantEntitet Medlemskap);
 
 /// <summary>
 /// [Ny, issue #298 AC3] Utfallet av <see cref="NavnekandidatOppdagelseTjeneste.KoblTilFastGruppebegrepAsync"/>.

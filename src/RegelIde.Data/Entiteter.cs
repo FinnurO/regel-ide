@@ -300,7 +300,7 @@ public sealed class RettskildeEntitet
     /// for en nasjonal forskrift ville skjult forskriften for alle andre og for sveipene. En
     /// fastsetter sier bare hvem som fastsatte den; forskriften forblir delt/nasjonal. Besluttet med
     /// Johann 2026-09-09. Fastsettelsen er dessuten bevisst IKKE en
-    /// <see cref="VirksomhetRelasjonEntitet"/> av sekretariat-/klageinstans-typen: det er
+    /// <see cref="StrukturkantEntitet"/> (R) av sekretariat-/klageinstans-typen: det er
     /// dokumentmetadata, ikke en organrelasjon.
     /// </para>
     /// </summary>
@@ -1147,67 +1147,20 @@ public sealed class TjenesteavhengighetEntitet
     public DateTimeOffset OpprettetTidspunkt { get; set; }
 }
 
-/// <summary>
-/// [Ny] Navngitt relasjon mellom to BESTEMTE, konkrete virksomheter (docs/28, «Beslutning: datamodell
-/// for gruppe, relasjon og myndighetstildeling», mekanisme 2) — til forskjell fra gruppe-mekanismen
-/// (docs/29 §Del A), som dekker en GENERISK term realisert av MANGE virksomheter. Samme "ett lagret rad,
-/// to beregnede visningstekster (Fra-side/Til-side)"-mønster som <see cref="TjenesteavhengighetEntitet"/>
-/// (se <see cref="RelasjonsTypeKonfigurasjonEntitet"/> for hvor visningstekstene faktisk lagres — DE
-/// er konfigurerbare, i motsetning til Tjenesteavhengighets kompilerte Dictionary).
-/// <see cref="Virksomhet.OverordnetEnhetId"/> beholdes UENDRET ved siden av dette — automatisk,
-/// Brreg-avledet hierarki uten hjemmel, ulik kilde/pålitelighet fra denne manuelt kuraterte tabellen.
-/// De to slås BEVISST ikke sammen.
-/// </summary>
-public sealed class VirksomhetRelasjonEntitet
-{
-    public Guid Id { get; set; }
-    public required Guid FraVirksomhetId { get; set; }
-    public required Guid TilVirksomhetId { get; set; }
-
-    /// <summary>Konfigurasjonsstyrt kode — FK (logisk, ikke DB-håndhevet) til
-    /// <see cref="RelasjonsTypeKonfigurasjonEntitet.Kode"/>. Kjente verdier per i dag: 'underlagt',
-    /// 'sekretariat', 'klageinstans', 'enhet_i' — IKKE en uttømmende liste, ny type kan legges til uten
-    /// kodeendring.</summary>
-    public required string RelasjonsType { get; set; }
-
-    /// <summary>Nullbar — satt NÅR relasjonen er lovhjemlet.</summary>
-    public Guid? HjemmelRettskildeId { get; set; }
-    public string? HjemmelEid { get; set; }
-
-    /// <summary>Fritekst + kildehenvisning (f.eks. en lenke til et org-kart) når det IKKE finnes en
-    /// formell hjemmel — se docs/28s Klagenemndssekretariatet-eksempel.</summary>
-    public string? Kommentar { get; set; }
-
-    /// <summary>Finnes for konsistens med husstilen (samme presedens som
-    /// <see cref="TjenesteavhengighetEntitet.Entitetsstatus"/>) — men <c>SlettAsync</c> gjør en EKTE
-    /// <c>Remove</c>, ikke en soft-delete via dette feltet. Se
-    /// <see cref="VirksomhetRelasjonregisterTjeneste.SlettAsync"/>.</summary>
-    public string Entitetsstatus { get; set; } = "gjeldende";
-
-    /// <summary>
-    /// [Ny, issue #285 AC5, KI-oppdagelse-runden] Lukker et bekreftet gap: FØR denne runden hadde denne
-    /// entiteten INGEN statusfelt i det hele tatt — en KI-opprettet rad kunne ikke skilles fra en
-    /// menneske-opprettet rad, og hadde ingen «venter på revisjon»-tilstand. To verdier, samme
-    /// grunn-idé som Begrep/Tjenestes 7-verdis statusløp, men ikke samme fulle løp (en relasjon
-    /// publiseres ikke/arkiveres ikke separat — den er enten et ubekreftet KI-forslag eller en
-    /// bekreftet opplysning): <c>'foreslatt_av_ai'</c> = opprettet av
-    /// <see cref="RegelIde.Data.VirksomhetOgGruppeKiOppdagelseTjeneste"/>, ikke ennå bekreftet av et
-    /// menneske. <c>'validert'</c> = enten bekreftet av et menneske i etterkant (se
-    /// <see cref="VirksomhetRelasjonregisterTjeneste.GodkjennAsync"/>), ELLER — default, satt direkte
-    /// ved opprettelse — en rad opprettet av et menneske i utgangspunktet (dagens flyt fra PR #284,
-    /// UENDRET oppførsel: <see cref="VirksomhetRelasjonregisterTjeneste.OpprettAsync"/> setter fortsatt
-    /// <c>'validert'</c> med det samme når ingen status oppgis, ALDRI en revisjonskø et menneske ikke
-    /// ba om).
-    /// </summary>
-    public string Status { get; set; } = "validert";
-
-    public required string OpprettetAv { get; set; }
-    public DateTimeOffset OpprettetTidspunkt { get; set; }
-}
+// [FJERNET, issue #311 «Strukturmodell 6», 2026-10-07] VirksomhetRelasjonEntitet (tabellen
+// virksomhet_relasjoner, docs/28/docs/29 §Del C) — navngitt relasjon mellom to bestemte virksomheter med
+// Fra-/Til-visningsmaler. Erstattet av StrukturkantEntitet med Kategori = 'R' og SAMME typekode; alle
+// rader er flyttet 1:1 (samme Id) av migrasjonen InnforStrukturkanttabell, og tabellen er droppet.
+// Kommentar-feltet levde videre: uten hjemmel → StrukturkantEntitet.KildeUtenforKorpusTekst (det var
+// nettopp det det ble brukt til — «bekreftet mot organisasjonskartet …»), med hjemmel →
+// StrukturkantEntitet.Kommentar. Polaritet og avgrensning (#134), som denne tabellen manglet, finnes nå.
 
 /// <summary>
-/// Global konfigurasjon av gyldige <see cref="VirksomhetRelasjonEntitet.RelasjonsType"/>-koder og deres
-/// to retningsavhengige visningstekst-MALER (docs/29 §Del C). Samme, verifiserte driftsmønster som
+/// Global konfigurasjon av gyldige typekoder for <see cref="StrukturkantEntitet.Typekode"/> (før #311:
+/// <c>VirksomhetRelasjon.RelasjonsType</c>) og deres to retningsavhengige visningstekst-MALER (docs/29 §Del C).
+/// [ENDRET, issue #311] Har nå <see cref="Kategori"/>: samme kode kan finnes i to kategorier
+/// (<c>instruksjon</c> er både en R-relasjon og en K-kompetanse, docs/33 §4.3), så identiteten er
+/// (Kategori, Kode). Startsettet står i <see cref="Strukturkanter.Startsett"/>. Samme, verifiserte driftsmønster som
 /// <see cref="TaggKindKonfigurasjonEntitet"/>: seedes ved oppstart hvis tom, ÉN read-only GET-endepunkt,
 /// INGEN admin-CRUD-UI i denne runden (verken tagg-kinds eller denne har det i dag — «admin-redigerbar»
 /// betyr her «redigerbar med rå SQL av Johann uten kodeendring+redeploy», ikke en UI).
@@ -1215,7 +1168,10 @@ public sealed class VirksomhetRelasjonEntitet
 public sealed class RelasjonsTypeKonfigurasjonEntitet
 {
     public Guid Id { get; set; }
-    public required string Kode { get; set; } // 'underlagt' | 'sekretariat' | 'klageinstans' | 'enhet_i' | ... (utvidbart)
+    /// <summary>[Ny, issue #311] R/K/M/O/A/G/I/T — se <see cref="Strukturkanter.Kategorier"/>. Rader som
+    /// fantes før #311 fikk <c>'R'</c> i migrasjonen (de var alle relasjonstyper for VirksomhetRelasjon).</summary>
+    public string Kategori { get; set; } = Strukturkanter.Relasjon;
+    public required string Kode { get; set; } // 'underlagt' | 'klageinstans_for' | 'forskrift' | 'medlem_av' | ... (utvidbart)
     public required string FraVisningsmal { get; set; } // "er underlagt {0}"
     public required string TilVisningsmal { get; set; } // "er eier/overordnet for {0}"
     public int Sorteringsrekkefolge { get; set; }
@@ -1335,7 +1291,7 @@ public sealed class BegrepEntitet
     /// <para>
     /// [Ny, issue #310 «nodetype-akse», 2026-10-07, docs/33 §4.1–4.2] `'gruppe'` var fire ting i én
     /// kasse — klasse, rolle, område og organ. De ekte begrepene er nå TYPENE: `'klasse'`, `'rolle'`,
-    /// `'omrade'` og (mellomtilstand, se <see cref="Nodetyper.Organ"/>) `'organ'`. Gruppefunksjonen
+    /// `'omrade'` og (mellomtilstand, fjernet igjen i #311 — organer er virksomheter) `'organ'`. Gruppefunksjonen
     /// (tildeling/medlemskap) er en EVNE alle disse har, ikke en egen type — se
     /// <see cref="Nodetyper.MedGruppefunksjon"/>. Den faste og den lovspesifikke identiteten fra #298
     /// gjelder alle. `'gruppe'` står fortsatt i CHECK-constrainten for rader i andre miljøer som ikke er
@@ -1405,98 +1361,129 @@ public sealed class BegrepEntitet
     public DateTimeOffset? SistEndretTidspunkt { get; set; }
 }
 
-/// <summary>
-/// [Ny, virksomhetskatalog-runden, docs/20 §2.5] Kobler et gruppebegrep (<see cref="BegrepEntitet"/> med
-/// <see cref="BegrepEntitet.Begrepskategori"/> = `'gruppe'`) til en konkret virksomhet, hjemlet i en
-/// forskrift/et delegeringsvedtak. Gyldighet arves fra <see cref="HjemmelRettskildeId"/> (som har
-/// <c>Status</c>/<c>GyldigFra</c>/<c>GyldigTil</c>), OG kan i tillegg avgrenses av tildelingens EGNE
-/// <see cref="GyldigFra"/>/<see cref="GyldigTil"/> under (docs/28/docs/29 §Del B — «tidsavgrenset
-/// medlemskap», f.eks. en vertskommune som slutter å ha et fengsel/mottak uten at selve hjemmelen
-/// endres). De aller fleste tildelinger setter ALDRI disse — permanent tildeling er normaltilfellet, se
-/// <see cref="RegelIde.Data.MyndighetstildelingTjeneste.ErGjeldendeAsync"/> for kombinasjonslogikken.
-/// </summary>
-public sealed class MyndighetstildelingEntitet
-{
-    public Guid Id { get; set; }
-    public required Guid GruppeBegrepId { get; set; }
-    public required Guid VirksomhetId { get; set; }
-    public required Guid HjemmelRettskildeId { get; set; }
-
-    /// <summary>Strukturert (docs/20 §7.1, `[LÅST]`) — JSON-serialisert liste av
-    /// <c>{ FraEid: string, TilEid: string? }</c>-par. <c>TilEid = null</c> betyr et enkeltstående
-    /// punkt, ikke et spenn. Matches mot faktiske paragraf-/ledd-noder via eksisterende eId-oppslag.</summary>
-    public string ParagrafspennJson { get; set; } = "[]";
-
-    public string? Vilkaar { get; set; }
-
-    /// <summary>Nullbar, tidsavgrenset medlemskap (docs/29 §Del B). Satt KUN når tildelingen selv har en
-    /// egen gyldighetsperiode utover hjemmelens — de aller fleste tildelinger lar begge stå tomme.</summary>
-    public DateOnly? GyldigFra { get; set; }
-    public DateOnly? GyldigTil { get; set; }
-
-    /// <summary>[Ny, issue #285 AC5, KI-oppdagelse-runden] Se <see cref="VirksomhetRelasjonEntitet.Status"/>
-    /// for verdisettet og begrunnelsen — samme to-verdis modell, samme "default 'validert', ingen
-    /// atferdsendring for eksisterende bruk"-prinsipp.</summary>
-    public string Status { get; set; } = "validert";
-
-    public required string OpprettetAv { get; set; }
-    public DateTimeOffset OpprettetTidspunkt { get; set; }
-    public string? SistEndretAv { get; set; }
-    public DateTimeOffset? SistEndretTidspunkt { get; set; }
-}
+// [FJERNET, issue #311 «Strukturmodell 6», 2026-10-07] MyndighetstildelingEntitet (tabellen
+// myndighetstildelinger, docs/20 §2.5 — gruppebegrep → konkret virksomhet) og GruppeMedlemskapEntitet
+// (tabellen gruppe_medlemskap, issue #164 — «gruppe av gruppe»). Koden sa selv at de var «to nivåer i det
+// samme hierarkiet» med identiske felt (docs/33 §4.2), og begge er nå StrukturkantEntitet:
+//   myndighetstildeling → Kategori 'M' (medlem_av) når målet er klasse/område/uavklart gruppe,
+//                          Kategori 'I' (innehar) når målet er en rolle (nodetypen fra #310);
+//                          Vilkaar → AvgrensningTekst, ParagrafspennJson → AvgrensningParagrafspennJson.
+//   gruppemedlemskap    → Kategori 'M' (medlem_av), fra = underordnet gruppe, til = overordnet gruppe.
+// Alle rader er flyttet 1:1 (samme Id) av migrasjonen InnforStrukturkanttabell, og tabellene er droppet.
+// Sykelsjekken fra GruppeMedlemskapTjeneste lever videre i StrukturkantTjeneste (Strukturkanter.SykelfrieKategorier).
 
 /// <summary>
-/// [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] «Gruppe av gruppe» — en selvrefererende kant
-/// mellom TO gruppebegrep (<see cref="BegrepEntitet"/> med
-/// <see cref="BegrepEntitet.Begrepskategori"/> = `'gruppe'`), der
-/// <see cref="UnderordnetGruppeBegrepId"/> er MEDLEM av <see cref="OverordnetGruppeBegrepId"/>.
+/// [Ny, issue #311 «Strukturmodell 6: én typestyrt kanttabell», 2026-10-07, docs/33 §4.3] ALLE
+/// strukturutsagn — «hvem er klageinstans for hvem», «hvem har forskriftskompetanse etter § X», «Karasjok
+/// er medlem av språkutviklingskommunene», «Agder tingretts rettskrets består av …» — som ÉN kanttype med
+/// lukket <see cref="Kategori"/> og konfigurerbar <see cref="Typekode"/>. Erstatter
+/// <c>VirksomhetRelasjon</c>, <c>GruppeMedlemskap</c> og <c>Myndighetstildeling</c> (Johanns valg A på
+/// #311: full konsolidering, én sannhet).
 /// <para>
-/// <b>Hvorfor en egen entitet og ikke en <c>OverordnetGruppeBegrepId</c>-kolonne på
-/// <see cref="BegrepEntitet"/></b> (Johanns eksplisitte valg (b), issue #164): medlemskapet er en
-/// egen PÅSTAND med egen HJEMMEL — det er forskriften som sier at «språkutviklingskommuner» inngår i
-/// «forvaltningsområdet for samiske språk», mens selve gruppebegrepet er hjemlet i loven
-/// (<see cref="BegrepEntitet.LovkildeId"/>). En kolonne på begrepet kunne ikke båret
-/// <see cref="HjemmelRettskildeId"/>, og ville dessuten låst hver gruppe til ÉN overordnet gruppe.
-/// Samme modellvalg og samme feltsett som <see cref="MyndighetstildelingEntitet"/>, som er den
-/// tilsvarende kanten ned til en konkret <see cref="Virksomhet"/> — de to entitetene er de to
-/// nivåene i det samme hierarkiet, ikke to konkurrerende mekanismer.
+/// <b>Hvorfor én tabell</b> (docs/33 §4.3): alle kategoriene trenger de SAMME egenskapene — hjemmel eller
+/// kilde utenfor korpus, avgrensning, polaritet, gyldighet, status og proveniens — og de var spredt på tre
+/// tabeller med ulike felt. <c>VirksomhetRelasjon</c> manglet avgrensning og polaritet (#134), og
+/// kompetanse, område, organtilhørighet og klassenivå hadde ingen tabell i det hele tatt.
 /// </para>
 /// <para>
-/// <b>Sykler avvises</b> (Johanns eksplisitte valg): både selv-medlemskap (håndhevet av
-/// sjekkskranken <c>ck_gruppe_medlemskap_ikke_selv</c> i databasen) og lengre sirkulære kjeder
-/// (håndhevet i <see cref="RegelIde.Data.GruppeMedlemskapTjeneste.OpprettAsync"/>, som traverserer
-/// eksisterende kanter før innsetting). En sirkulær kjede er ikke en opplysning om verden — den er
-/// alltid en registreringsfeil, og skal stoppes med en tydelig feilmelding i stedet for å legges inn
-/// og velte enhver senere traversering.
+/// <b>Polymorfe ender:</b> en node er enten en <see cref="Virksomhet"/> (aktør — rettssubjekt, organ,
+/// organisatorisk enhet) eller et <see cref="BegrepEntitet"/> med gruppefunksjon (klasse, rolle, område).
+/// Nøyaktig én av <see cref="FraVirksomhetId"/>/<see cref="FraBegrepId"/> er satt (CHECK
+/// <c>ck_strukturkanter_fra_en</c>); høyst én av til-feltene (CHECK <c>ck_strukturkanter_til_hoyst_en</c>),
+/// og til kan bare mangle der kategorien tillater det (K og T — <see cref="Strukturkanter.Noderegler"/>).
+/// Hvilke nodetyper som er lov i hver ende per kategori håndheves i <c>StrukturkantTjeneste</c>, ikke i
+/// databasen (det krever oppslag i begreper).
+/// </para>
+/// <para>
+/// <b>Hjemmel ELLER kilde utenfor korpus</b> (docs/33 §3 funn 8, CHECK <c>ck_strukturkanter_kilde</c>):
+/// helseregionene står i vedtekter, statsforvalternes embetsområder i kgl.res. — en kant uten
+/// Lovdata-hjemmel må si HVOR den kommer fra, ikke stå uten kilde.
 /// </para>
 /// </summary>
-public sealed class GruppeMedlemskapEntitet
+public sealed class StrukturkantEntitet
 {
     public Guid Id { get; set; }
 
-    /// <summary>Gruppen som INNEHOLDER den andre — «forvaltningsområdet for samiske språk».</summary>
-    public required Guid OverordnetGruppeBegrepId { get; set; }
+    /// <summary>R/K/M/O/A/G/I/T — <see cref="Strukturkanter.Kategorier"/>, CHECK <c>ck_strukturkanter_kategori</c>.</summary>
+    public required string Kategori { get; set; }
 
-    /// <summary>Gruppen som ER MEDLEM — «språkutviklingskommuner».</summary>
-    public required Guid UnderordnetGruppeBegrepId { get; set; }
+    /// <summary>Logisk FK (ikke DB-håndhevet, samme som før #311) til
+    /// (<see cref="RelasjonsTypeKonfigurasjonEntitet.Kategori"/>, <see cref="RelasjonsTypeKonfigurasjonEntitet.Kode"/>).
+    /// Validert i tjenestelaget: koden må finnes og være aktiv FOR DENNE KATEGORIEN.</summary>
+    public required string Typekode { get; set; }
 
-    /// <summary>Hvilken rettskilde som NAVNGIR selve medlemskapet — typisk en forskrift, ikke den
-    /// loven som definerer gruppebegrepene. Se klassekommentaren.</summary>
-    public required Guid HjemmelRettskildeId { get; set; }
+    public Guid? FraVirksomhetId { get; set; }
+    public Guid? FraBegrepId { get; set; }
+    public Guid? TilVirksomhetId { get; set; }
+    public Guid? TilBegrepId { get; set; }
 
-    /// <summary>Samme strukturerte form som <see cref="MyndighetstildelingEntitet.ParagrafspennJson"/>
-    /// (docs/20 §7.1) — JSON-serialisert liste av <c>{ FraEid, TilEid? }</c>-par, altså HVOR i
-    /// hjemmelen medlemskapet står.</summary>
-    public string ParagrafspennJson { get; set; } = "[]";
+    /// <summary>Sakstypen/gjenstanden når den ikke er en node — K «vedtak om konsesjon», T «kommunestyre».
+    /// Fritekst ordrett fra kilden; aldri utledet.</summary>
+    public string? Objekt { get; set; }
 
-    /// <summary>Nullbar, tidsavgrenset medlemskap — samme sjeldne unntakstilfelle som
-    /// <see cref="MyndighetstildelingEntitet.GyldigFra"/>.</summary>
+    /// <summary>Strukturert (docs/20 §7.1, <c>[LÅST]</c>) — JSON-liste av <c>{ FraEid, TilEid? }</c>, samme
+    /// form som myndighetstildelingens <c>ParagrafspennJson</c> hadde. <c>"[]"</c> = ingen avgrensning.</summary>
+    public string AvgrensningParagrafspennJson { get; set; } = "[]";
+
+    /// <summary>Avgrensning som ikke er et paragrafspenn — sakstype, «bare ugyldige vedtak» (docs/33 §3
+    /// funn 7). Migrerte myndighetstildelinger har sitt <c>Vilkaar</c> her.</summary>
+    public string? AvgrensningTekst { get; set; }
+
+    /// <summary><c>'positiv'</c> | <c>'negativ'</c> (docs/33 §3 funn 6 — «kan ikke instruere»,
+    /// «kommunestyret selv»). Default positiv; ALLE migrerte rader er positive (ingen av de tre gamle
+    /// tabellene kunne uttrykke noe annet).</summary>
+    public string Polaritet { get; set; } = "positiv";
+
+    public Guid? HjemmelRettskildeId { get; set; }
+    public string? HjemmelEid { get; set; }
+
+    /// <summary>Kilde når hjemmelen ikke er en Lovdata-node (kgl.res., vedtekter, instruks, org-kart).
+    /// <see cref="KildeUtenforKorpusLenke"/> er valgfri; teksten er påkrevd når det ikke finnes hjemmel.</summary>
+    public string? KildeUtenforKorpusTekst { get; set; }
+    public string? KildeUtenforKorpusLenke { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #311, Johanns beslutning 2026-10-07] HVA slags kilde utenfor korpus: <c>kgl_res</c> |
+    /// <c>instruks</c> | <c>tildelingsbrev</c> | <c>vedtekter</c> | <c>styrevedtak</c> | <c>forarbeider</c> (proposisjoner, innstillinger, NOU-er) | <c>nettside_annet</c>
+    /// (<see cref="Strukturkanter.KildeUtenforKorpusTyper"/>, CHECK <c>ck_strukturkanter_kilde_type</c>).
+    /// Påkrevd når <see cref="KildeUtenforKorpusTekst"/> er satt, NULL når kanten har hjemmel i korpus
+    /// (CHECK <c>ck_strukturkanter_kilde</c>). Formålet er spørringen «hvilke koblinger er bare dokumentert på
+    /// en nettside?» (<c>nettside_annet</c>) — en arbeidsliste over forvaltningsstruktur uten forankring i en
+    /// rettskilde (<c>GET /api/strukturkanter/uten-korpusforankring</c>). Migrerte relasjoner uten hjemmel fikk
+    /// <c>nettside_annet</c>; en bedre type gjettes ikke.
+    /// </summary>
+    public string? KildeUtenforKorpusType { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #311, Johanns beslutning 2026-10-07] <c>primaer</c> | <c>sekundaer</c> — går lenken/teksten
+    /// til SELVE kilden, eller til en tekst som refererer den? Eksempel (#311, 2026-10-07): en debattartikkel
+    /// påsto at Tilsynsutvalget for dommere ble OPPRETTET ved kgl.res. 15. mai 2002 — primærkilden (Offisielt fra
+    /// statsråd) viste at resolusjonen bare OPPNEVNTE de første medlemmene. En sekundærkilde kan altså ta feil om
+    /// kildens art; markeringen gjør at kanten kan oppgraderes eller rettes når primærkilden er lest.
+    /// Påkrevd når <see cref="KildeUtenforKorpusType"/> er satt (CHECK <c>ck_strukturkanter_kilde</c>).
+    /// Migrerte relasjoner uten hjemmel fikk <c>sekundaer</c> — vi vet ikke om kilden er primær.
+    /// </summary>
+    public string? KildeUtenforKorpusDokumentasjon { get; set; }
+
+    /// <summary>Kantens EGEN gyldighet, utover hjemmelens (docs/29 §Del B) — de fleste setter ingen.</summary>
     public DateOnly? GyldigFra { get; set; }
     public DateOnly? GyldigTil { get; set; }
 
-    /// <summary>[Ny, issue #285 AC5, KI-oppdagelse-runden] Se <see cref="VirksomhetRelasjonEntitet.Status"/>
-    /// for verdisettet og begrunnelsen.</summary>
+    /// <summary><c>'foreslatt_av_ai'</c> | <c>'validert'</c> — samme to verdier og samme betydning som de
+    /// tre gamle tabellene hadde (issue #285 AC5): et forslag regnes ikke som gjeldende før et menneske har
+    /// godkjent det (docs/33 §5.3).</summary>
     public string Status { get; set; } = "validert";
+
+    /// <summary><c>'manuell'</c> | <c>'monster:&lt;id&gt;'</c> | <c>'ki:&lt;modell&gt;'</c> (docs/33 §4.3) —
+    /// hvilken mekanisme som fant utsagnet. Migrerte rader: <c>'ki:&lt;ai_forslag_versjon&gt;'</c> der
+    /// proveniensen har en slik versjon, ellers <c>'manuell'</c> (alle andre skriveveier før #311 var
+    /// menneskelige).</summary>
+    public string OppdagelsesKilde { get; set; } = "manuell";
+
+    /// <summary>Fri merknad. Migrerte relasjoner MED hjemmel har sin gamle kommentar her (f.eks. hvilken
+    /// sakstype en etterfølgelse gjelder — som nå kan uttrykkes strukturert i <see cref="AvgrensningTekst"/>,
+    /// men det er ikke gjort automatisk).</summary>
+    public string? Kommentar { get; set; }
 
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }

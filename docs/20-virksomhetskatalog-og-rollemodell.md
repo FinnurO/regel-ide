@@ -130,6 +130,11 @@ kan duplikate rollebegrep for samme lov opprettes ved en inntastingsfeil, uten a
 
 ### 2.5 `Myndighetstildeling`
 
+> **[ENDRET, issue #311, 2026-10-07]** Tabellen finnes ikke lenger. En tildeling er en **strukturkant**
+> (`docs/33` §4.3): `M medlem_av` når målet er en klasse/et område, `I innehar` når målet er en rolle.
+> `Vilkaar` er kantens `avgrensning_tekst`, `Paragrafspenn` er `avgrensning_paragrafspenn_json`. Alle 16
+> lokale rader ble flyttet 1:1 (15 M + 1 I). Teksten under beskriver modellen slik den ble bygget i 2026-08.
+
 | Felt | Type | Kommentar |
 |---|---|---|
 | `Id` | PK | |
@@ -215,6 +220,10 @@ status, status utelatt = kun `Venter`, `status=Alle` = ingen statusfilter), `POS
 fra `VirksomhetDetalj.tsx`.
 
 ### 2.7 `Status` på `Myndighetstildeling`/`VirksomhetRelasjon`/`GruppeMedlemskap` — KI-oppdagelse (issue #285, PR #291, 2026-10-01)
+
+> **[ENDRET, issue #311]** De tre tabellene er slått sammen til `strukturkanter`, som har samme `Status`
+> (pluss `OppdagelsesKilde`). Godkjenn/avvis går nå til `/api/strukturkanter/{id}/godkjenn|avvis` for alle
+> kategorier; endepunktene nevnt under er fjernet.
 
 Før denne runden hadde ingen av de tre koblingsentitetene noe statusfelt i det hele tatt — en rad var
 alltid "bare sann", uansett hvem eller hva som opprettet den. Det var et bekreftet gap (AC5): en ny

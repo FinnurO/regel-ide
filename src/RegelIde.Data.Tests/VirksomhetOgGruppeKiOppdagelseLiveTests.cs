@@ -63,7 +63,7 @@ public class VirksomhetOgGruppeKiOppdagelseLiveTests(EmbeddedPostgresFixture fix
     private static NavnekandidatOppdagelseTjeneste NyNavnekandidatOppdagelse(RegelIdeDbContext db, HttpClient http) => new(
         db, new VirksomhetsbegrepTjeneste(db), new TekstTaggTjeneste(db, new VirksomhetOppslagTjeneste(db)),
         new VirksomhetOppslagTjeneste(db), new EksternNavneoppslagTjeneste(http, db),
-        new MyndighetstildelingTjeneste(db), new GruppeMedlemskapTjeneste(db), new VirksomhetRelasjonregisterTjeneste(db));
+        new StrukturkantTjeneste(db));
 
     [Fact]
     public async Task AC1_AC7_Energiklagenemnda_forskrift_ekte_ki_mot_deterministisk_sveip()
@@ -130,7 +130,7 @@ public class VirksomhetOgGruppeKiOppdagelseLiveTests(EmbeddedPostgresFixture fix
         var kiKlient = new KiAgentKlientOpenAiKompatibel(http, config);
         var kiTjeneste = new VirksomhetOgGruppeKiOppdagelseTjeneste(
             db, kiKlient, config, navnekandidatOppdagelse, new VirksomhetOppslagTjeneste(db),
-            new MyndighetstildelingTjeneste(db), new VirksomhetRelasjonregisterTjeneste(db), new GruppeMedlemskapTjeneste(db));
+            new StrukturkantTjeneste(db));
         var kiResultat = await kiTjeneste.KjorOppdagelseAsync(rettskildeId, "live-test-ki");
 
         output.WriteLine("");
@@ -139,9 +139,9 @@ public class VirksomhetOgGruppeKiOppdagelseLiveTests(EmbeddedPostgresFixture fix
         foreach (var k in kiResultat.Kandidater)
         {
             output.WriteLine($"  [{k.Type}] '{k.Navn}' — navnekandidat={(k.NavnekandidatId is not null ? "opprettet" : $"NEI ({k.NavnekandidatFeil})")}, " +
-                              $"rolle={(k.MyndighetstildelingId is not null ? "OPPRETTET" : $"nei ({k.RolleIkkeOpprettetGrunn})")}, " +
-                              $"relasjon={(k.VirksomhetRelasjonId is not null ? "OPPRETTET" : $"nei ({k.RelasjonIkkeOpprettetGrunn})")}, " +
-                              $"gruppeAvGruppe={(k.GruppeMedlemskapId is not null ? "OPPRETTET" : $"nei ({k.GruppeAvGruppeIkkeOpprettetGrunn})")}");
+                              $"rolle={(k.RolleKantId is not null ? "OPPRETTET" : $"nei ({k.RolleIkkeOpprettetGrunn})")}, " +
+                              $"relasjon={(k.RelasjonKantId is not null ? "OPPRETTET" : $"nei ({k.RelasjonIkkeOpprettetGrunn})")}, " +
+                              $"gruppeAvGruppe={(k.GruppeAvGruppeKantId is not null ? "OPPRETTET" : $"nei ({k.GruppeAvGruppeIkkeOpprettetGrunn})")}");
         }
         if (kiResultat.Melding is not null) output.WriteLine($"  Melding: {kiResultat.Melding}");
 
@@ -150,7 +150,7 @@ public class VirksomhetOgGruppeKiOppdagelseLiveTests(EmbeddedPostgresFixture fix
         var kunHosKi = kiResultat.Kandidater.Where(k => !deterministiskeNavn.Contains(k.Navn)).ToList();
         output.WriteLine("");
         output.WriteLine($"=== KI fant {kunHosKi.Count} navn regex-sveipet IKKE fant: {string.Join(", ", kunHosKi.Select(k => k.Navn))} ===");
-        var kiFantRolleEllerRelasjon = kiResultat.Kandidater.Any(k => k.MyndighetstildelingId is not null || k.VirksomhetRelasjonId is not null);
+        var kiFantRolleEllerRelasjon = kiResultat.Kandidater.Any(k => k.RolleKantId is not null || k.RelasjonKantId is not null);
         output.WriteLine($"=== KI foreslo minst én rolle/relasjon regex-sveipet PRINSIPIELT ALDRI kan foreslå: {kiFantRolleEllerRelasjon} ===");
 
         // Eneste harde assert: agenten svarte i det hele tatt (rørledningen virker) — selve DEKNINGS-

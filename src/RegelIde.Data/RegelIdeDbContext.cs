@@ -41,8 +41,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
 {
     public DbSet<Virksomhet> Virksomheter => Set<Virksomhet>();
     public DbSet<VirksomhetNettsideEntitet> VirksomhetNettsider => Set<VirksomhetNettsideEntitet>();
-    public DbSet<MyndighetstildelingEntitet> Myndighetstildelinger => Set<MyndighetstildelingEntitet>();
-    public DbSet<GruppeMedlemskapEntitet> GruppeMedlemskap => Set<GruppeMedlemskapEntitet>();
+    // [FJERNET, issue #311] Myndighetstildelinger og GruppeMedlemskap — se Strukturkanter under.
+    // [Ny, issue #311 «Strukturmodell 6»] Én typestyrt kanttabell for alle strukturutsagn (docs/33 §4.3).
+    public DbSet<StrukturkantEntitet> Strukturkanter => Set<StrukturkantEntitet>();
     public DbSet<VirksomhetKandidatEntitet> VirksomhetKandidater => Set<VirksomhetKandidatEntitet>();
     public DbSet<NavnekandidatEntitet> Navnekandidater => Set<NavnekandidatEntitet>();
     // [Ny, issue #203 pkt. 4] Korreksjonsregler (RettskildeId, opprinnelig tekst) → korrigert tekst.
@@ -76,7 +77,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     public DbSet<TjenesteHendelseEntitet> TjenesteHendelser => Set<TjenesteHendelseEntitet>();
     public DbSet<TjenesteavhengighetEntitet> Tjenesteavhengigheter => Set<TjenesteavhengighetEntitet>();
     public DbSet<EksternTjenestereferanseEntitet> EksterneTjenestereferanser => Set<EksternTjenestereferanseEntitet>();
-    public DbSet<VirksomhetRelasjonEntitet> VirksomhetRelasjoner => Set<VirksomhetRelasjonEntitet>();
+    // [FJERNET, issue #311] VirksomhetRelasjoner — R-kanter i Strukturkanter.
     public DbSet<RelasjonsTypeKonfigurasjonEntitet> RelasjonsTypeKonfigurasjoner => Set<RelasjonsTypeKonfigurasjonEntitet>();
     public DbSet<HandbokRettskildeomfangEntitet> HandbokRettskildeomfang => Set<HandbokRettskildeomfangEntitet>();
     public DbSet<KunnskapsbibliotekLenkeEntitet> KunnskapsbibliotekLenker => Set<KunnskapsbibliotekLenkeEntitet>();
@@ -158,70 +159,98 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_virksomhet_nettsider_virksomhet");
         });
 
-        b.Entity<MyndighetstildelingEntitet>(e =>
+        // [FJERNET, issue #311 «Strukturmodell 6», 2026-10-07] myndighetstildelinger og gruppe_medlemskap
+        // (med ux_gruppe_medlemskap_par og ck_gruppe_medlemskap_ikke_selv) — droppet av migrasjonen
+        // InnforStrukturkanttabell etter at radene er flyttet til strukturkanter. Se StrukturkantEntitet.
+        //
+        // [Ny, issue #311] strukturkanter — én tabell for R/K/M/O/A/G/I/T (docs/33 §4.3). Skrankene som KAN
+        // uttrykkes uten oppslag står her (lukkede vokabular, nøyaktig én fra-node, høyst én til-node, ingen
+        // selvkant, hjemmel ELLER kilde utenfor korpus); nodetype-reglene per kategori og sykelsjekken står i
+        // StrukturkantTjeneste fordi de krever oppslag i begreper/andre kanter.
+        //
+        // INGEN unik indeks på «samme utsagn»: nøkkelen (kategori, type, fra, til, objekt, polaritet,
+        // hjemmel, avgrensning) har fem nullbare ledd, og en unik indeks over dem ville enten sluppet
+        // gjennom NULL-dubletter (Postgres' NULL-semantikk) eller krevd uttrykksindekser modellen ikke
+        // sporer. Myndighetstildeling hadde heller ingen — en innført skranke kunne dessuten veltet
+        // datamigreringen i et annet miljø. Idempotensen ligger i StrukturkantTjeneste.OpprettAsync.
+        b.Entity<StrukturkantEntitet>(e =>
         {
-            e.ToTable("myndighetstildelinger", t =>
-                // [Ny, issue #285 AC5] Samme lukkede to-verdis vokabular som virksomhet_relasjoner/
-                // gruppe_medlemskap under — se MyndighetstildelingEntitet.Status.
-                t.HasCheckConstraint("ck_myndighetstildelinger_status", "status IN ('foreslatt_av_ai', 'validert')"));
-            e.HasKey(x => x.Id).HasName("myndighetstildelinger_pkey");
-            e.Property(x => x.GruppeBegrepId).HasColumnName("gruppe_begrep_id");
-            e.Property(x => x.VirksomhetId).HasColumnName("virksomhet_id");
-            e.Property(x => x.HjemmelRettskildeId).HasColumnName("hjemmel_rettskilde_id");
-            e.Property(x => x.ParagrafspennJson).HasColumnName("paragrafspenn_json").HasDefaultValue("[]");
-            e.Property(x => x.Vilkaar).HasColumnName("vilkaar");
-            e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
-            e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
-            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("validert");
-            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
-            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
-            e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
-            e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
-            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.GruppeBegrepId);
-            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.VirksomhetId);
-            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.HjemmelRettskildeId);
-            e.HasIndex(x => x.GruppeBegrepId).HasDatabaseName("ix_myndighetstildelinger_gruppe_begrep");
-            e.HasIndex(x => x.VirksomhetId).HasDatabaseName("ix_myndighetstildelinger_virksomhet");
-            e.HasIndex(x => x.HjemmelRettskildeId).HasDatabaseName("ix_myndighetstildelinger_hjemmel");
-        });
-
-        // [Ny, gruppemedlemskap-runden, 2026-09-08, issue #164] Se GruppeMedlemskapEntitet for hvorfor
-        // dette er en egen entitet og ikke en kolonne på BegrepEntitet. Den unike indeksen på PARET
-        // (ikke på paret + hjemmel) er det som gjør både SamiskSprakforvaltningSeed og
-        // GruppeMedlemskapTjeneste.OpprettAsync idempotente: ett medlemskap mellom to grupper er ÉN
-        // opplysning, uansett hvor mange hjemler som gjentar den.
-        b.Entity<GruppeMedlemskapEntitet>(e =>
-        {
-            e.ToTable("gruppe_medlemskap", t =>
+            e.ToTable("strukturkanter", t =>
             {
-                t.HasCheckConstraint(
-                    "ck_gruppe_medlemskap_ikke_selv",
-                    "overordnet_gruppe_begrep_id <> underordnet_gruppe_begrep_id");
-                // [Ny, issue #285 AC5] Se GruppeMedlemskapEntitet.Status.
-                t.HasCheckConstraint("ck_gruppe_medlemskap_status", "status IN ('foreslatt_av_ai', 'validert')");
+                t.HasCheckConstraint("ck_strukturkanter_kategori", "kategori IN ('R', 'K', 'M', 'O', 'A', 'G', 'I', 'T')");
+                t.HasCheckConstraint("ck_strukturkanter_polaritet", "polaritet IN ('positiv', 'negativ')");
+                t.HasCheckConstraint("ck_strukturkanter_status", "status IN ('foreslatt_av_ai', 'validert')");
+                t.HasCheckConstraint("ck_strukturkanter_fra_en",
+                    "(fra_virksomhet_id IS NULL) <> (fra_begrep_id IS NULL)");
+                t.HasCheckConstraint("ck_strukturkanter_til_hoyst_en",
+                    "til_virksomhet_id IS NULL OR til_begrep_id IS NULL");
+                // Bare K og T kan stå uten til-node (Strukturkanter.Noderegler.TilValgfri).
+                t.HasCheckConstraint("ck_strukturkanter_til_pakrevd",
+                    "kategori IN ('K', 'T') OR til_virksomhet_id IS NOT NULL OR til_begrep_id IS NOT NULL");
+                t.HasCheckConstraint("ck_strukturkanter_ikke_selv",
+                    "(fra_virksomhet_id IS NULL OR til_virksomhet_id IS NULL OR fra_virksomhet_id <> til_virksomhet_id) "
+                    + "AND (fra_begrep_id IS NULL OR til_begrep_id IS NULL OR fra_begrep_id <> til_begrep_id)");
+                // docs/33 §4.3: «HjemmelRettskildeId + HjemmelEid — påkrevd, ELLER KildeUtenforKorpus».
+                // [ENDRET, Johanns beslutning 2026-10-07] ELLER i streng forstand: med hjemmel i korpus er alle
+                // kilde-utenfor-feltene NULL; uten hjemmel er både teksten og TYPEN påkrevd.
+                t.HasCheckConstraint("ck_strukturkanter_kilde",
+                    "(hjemmel_rettskilde_id IS NOT NULL AND kilde_utenfor_korpus_tekst IS NULL "
+                    + "AND kilde_utenfor_korpus_lenke IS NULL AND kilde_utenfor_korpus_type IS NULL "
+                    + "AND kilde_utenfor_korpus_dokumentasjon IS NULL) "
+                    + "OR (hjemmel_rettskilde_id IS NULL AND kilde_utenfor_korpus_tekst IS NOT NULL "
+                    + "AND kilde_utenfor_korpus_type IS NOT NULL AND kilde_utenfor_korpus_dokumentasjon IS NOT NULL)");
+                t.HasCheckConstraint("ck_strukturkanter_kilde_dokumentasjon",
+                    "kilde_utenfor_korpus_dokumentasjon IS NULL OR kilde_utenfor_korpus_dokumentasjon IN ('primaer', 'sekundaer')");
+                t.HasCheckConstraint("ck_strukturkanter_kilde_type",
+                    "kilde_utenfor_korpus_type IS NULL OR kilde_utenfor_korpus_type IN "
+                    + "('kgl_res', 'instruks', 'tildelingsbrev', 'vedtekter', 'styrevedtak', 'forarbeider', 'nettside_annet')");
             });
-            e.HasKey(x => x.Id).HasName("gruppe_medlemskap_pkey");
-            e.Property(x => x.OverordnetGruppeBegrepId).HasColumnName("overordnet_gruppe_begrep_id");
-            e.Property(x => x.UnderordnetGruppeBegrepId).HasColumnName("underordnet_gruppe_begrep_id");
+            e.HasKey(x => x.Id).HasName("strukturkanter_pkey");
+            e.Property(x => x.Kategori).HasColumnName("kategori");
+            e.Property(x => x.Typekode).HasColumnName("typekode");
+            e.Property(x => x.FraVirksomhetId).HasColumnName("fra_virksomhet_id");
+            e.Property(x => x.FraBegrepId).HasColumnName("fra_begrep_id");
+            e.Property(x => x.TilVirksomhetId).HasColumnName("til_virksomhet_id");
+            e.Property(x => x.TilBegrepId).HasColumnName("til_begrep_id");
+            e.Property(x => x.Objekt).HasColumnName("objekt");
+            e.Property(x => x.AvgrensningParagrafspennJson).HasColumnName("avgrensning_paragrafspenn_json").HasDefaultValue("[]");
+            e.Property(x => x.AvgrensningTekst).HasColumnName("avgrensning_tekst");
+            e.Property(x => x.Polaritet).HasColumnName("polaritet").HasDefaultValue("positiv");
             e.Property(x => x.HjemmelRettskildeId).HasColumnName("hjemmel_rettskilde_id");
-            e.Property(x => x.ParagrafspennJson).HasColumnName("paragrafspenn_json").HasDefaultValue("[]");
+            e.Property(x => x.HjemmelEid).HasColumnName("hjemmel_eid");
+            e.Property(x => x.KildeUtenforKorpusTekst).HasColumnName("kilde_utenfor_korpus_tekst");
+            e.Property(x => x.KildeUtenforKorpusLenke).HasColumnName("kilde_utenfor_korpus_lenke");
+            e.Property(x => x.KildeUtenforKorpusType).HasColumnName("kilde_utenfor_korpus_type");
+            e.Property(x => x.KildeUtenforKorpusDokumentasjon).HasColumnName("kilde_utenfor_korpus_dokumentasjon");
             e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
             e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
             e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("validert");
+            e.Property(x => x.OppdagelsesKilde).HasColumnName("oppdagelses_kilde").HasDefaultValue("manuell");
+            e.Property(x => x.Kommentar).HasColumnName("kommentar");
             e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
             e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
-            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.OverordnetGruppeBegrepId)
-                .OnDelete(DeleteBehavior.Cascade);
-            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.UnderordnetGruppeBegrepId)
-                .OnDelete(DeleteBehavior.Cascade);
-            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.HjemmelRettskildeId)
-                .OnDelete(DeleteBehavior.Cascade);
-            e.HasIndex(x => new { x.OverordnetGruppeBegrepId, x.UnderordnetGruppeBegrepId })
-                .IsUnique().HasDatabaseName("ux_gruppe_medlemskap_par");
-            e.HasIndex(x => x.UnderordnetGruppeBegrepId).HasDatabaseName("ix_gruppe_medlemskap_underordnet");
-            e.HasIndex(x => x.HjemmelRettskildeId).HasDatabaseName("ix_gruppe_medlemskap_hjemmel");
+
+            // CASCADE i alle ender: en kant uten en av sine noder er ingen opplysning. (VirksomhetRelasjon
+            // hadde RESTRICT på til-siden, og VirksomhetSlettTjeneste slettet de radene eksplisitt før
+            // virksomheten — samme effekt, nå uten særbehandling.) Hjemmelen: CASCADE som for
+            // myndighetstildeling/gruppemedlemskap før #311 (en kant uten sin hjemmel ville brutt
+            // ck_strukturkanter_kilde der det ikke finnes kilde utenfor korpus).
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.FraVirksomhetId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.TilVirksomhetId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.FraBegrepId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.TilBegrepId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.HjemmelRettskildeId).OnDelete(DeleteBehavior.Cascade);
+
+            e.HasIndex(x => x.FraVirksomhetId).HasDatabaseName("ix_strukturkanter_fra_virksomhet");
+            e.HasIndex(x => x.FraBegrepId).HasDatabaseName("ix_strukturkanter_fra_begrep");
+            e.HasIndex(x => x.TilVirksomhetId).HasDatabaseName("ix_strukturkanter_til_virksomhet");
+            e.HasIndex(x => x.TilBegrepId).HasDatabaseName("ix_strukturkanter_til_begrep");
+            e.HasIndex(x => x.HjemmelRettskildeId).HasDatabaseName("ix_strukturkanter_hjemmel");
+            e.HasIndex(x => new { x.Kategori, x.Typekode }).HasDatabaseName("ix_strukturkanter_kategori_type");
+            e.HasIndex(x => x.Status).HasDatabaseName("ix_strukturkanter_status");
+            e.HasIndex(x => x.KildeUtenforKorpusType).HasDatabaseName("ix_strukturkanter_kilde_type");
         });
 
         b.Entity<VirksomhetKandidatEntitet>(e =>
@@ -958,43 +987,23 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasIndex(x => x.TilEksternReferanseId).HasDatabaseName("ix_tjenesteavhengigheter_til_ekstern");
         });
 
-        b.Entity<VirksomhetRelasjonEntitet>(e =>
-        {
-            e.ToTable("virksomhet_relasjoner", t =>
-                // [Ny, issue #285 AC5] Se VirksomhetRelasjonEntitet.Status.
-                t.HasCheckConstraint("ck_virksomhet_relasjoner_status", "status IN ('foreslatt_av_ai', 'validert')"));
-            e.HasKey(x => x.Id).HasName("virksomhet_relasjoner_pkey");
-            e.Property(x => x.FraVirksomhetId).HasColumnName("fra_virksomhet_id");
-            e.Property(x => x.TilVirksomhetId).HasColumnName("til_virksomhet_id");
-            e.Property(x => x.RelasjonsType).HasColumnName("relasjons_type");
-            e.Property(x => x.HjemmelRettskildeId).HasColumnName("hjemmel_rettskilde_id");
-            e.Property(x => x.HjemmelEid).HasColumnName("hjemmel_eid");
-            e.Property(x => x.Kommentar).HasColumnName("kommentar");
-            e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
-            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("validert");
-            e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
-            e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
-
-            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.FraVirksomhetId).OnDelete(DeleteBehavior.Cascade);
-            e.HasOne<Virksomhet>().WithMany().HasForeignKey(x => x.TilVirksomhetId).OnDelete(DeleteBehavior.Restrict);
-            e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.HjemmelRettskildeId);
-            e.HasIndex(x => x.FraVirksomhetId).HasDatabaseName("ix_virksomhet_relasjoner_fra");
-            e.HasIndex(x => x.TilVirksomhetId).HasDatabaseName("ix_virksomhet_relasjoner_til");
-            e.HasIndex(x => new { x.FraVirksomhetId, x.TilVirksomhetId, x.RelasjonsType }).IsUnique()
-                .HasFilter("entitetsstatus = 'gjeldende'")
-                .HasDatabaseName("ux_virksomhet_relasjoner_fra_til_type");
-        });
+        // [FJERNET, issue #311] virksomhet_relasjoner (ux_virksomhet_relasjoner_fra_til_type m.fl.) — R-kanter
+        // i strukturkanter, se StrukturkantEntitet.
 
         b.Entity<RelasjonsTypeKonfigurasjonEntitet>(e =>
         {
-            e.ToTable("relasjonstype_konfigurasjon");
+            e.ToTable("relasjonstype_konfigurasjon", t =>
+                t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_kategori", "kategori IN ('R', 'K', 'M', 'O', 'A', 'G', 'I', 'T')"));
             e.HasKey(x => x.Id).HasName("relasjonstype_konfigurasjon_pkey");
+            // [Ny, issue #311] Kategori — identiteten er (kategori, kode), se RelasjonsTypeKonfigurasjonEntitet.
+            e.Property(x => x.Kategori).HasColumnName("kategori").HasDefaultValue("R");
             e.Property(x => x.Kode).HasColumnName("kode");
             e.Property(x => x.FraVisningsmal).HasColumnName("fra_visningsmal");
             e.Property(x => x.TilVisningsmal).HasColumnName("til_visningsmal");
             e.Property(x => x.Sorteringsrekkefolge).HasColumnName("sorteringsrekkefolge");
             e.Property(x => x.Aktiv).HasColumnName("aktiv").HasDefaultValue(true);
-            e.HasIndex(x => x.Kode).IsUnique().HasDatabaseName("ux_relasjonstype_konfigurasjon_kode");
+            // [ENDRET, issue #311] Var unik på kode alene — se Kategori over.
+            e.HasIndex(x => new { x.Kategori, x.Kode }).IsUnique().HasDatabaseName("ux_relasjonstype_konfigurasjon_kategori_kode");
         });
 
         b.Entity<EksternTjenestereferanseEntitet>(e =>
@@ -1037,10 +1046,12 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                 // fjernet (slått inn i 'omrade' av migrasjonen InnforNodetypeakse). 'gruppe' står IGJEN:
                 // andre miljøer kan ha rader som ikke er reklassifisert ennå — fjernes i en senere runde
                 // når en måling viser 0 'gruppe'-rader overalt. Speilet av Nodetyper.MedGruppefunksjon.
+                // [ENDRET, issue #311] 'organ' fjernet — organ-begrepene er navneformer for organ-
+                // virksomheter (migrasjonen InnforStrukturkanttabell, Johanns beslutning på #311).
                 t.HasCheckConstraint(
                     "ck_begreper_begrepskategori",
                     "begrepskategori IS NULL OR begrepskategori IN "
-                    + "('virksomhet', 'gruppe', 'klasse', 'rolle', 'omrade', 'organ')");
+                    + "('virksomhet', 'gruppe', 'klasse', 'rolle', 'omrade')");
                 // [Ny, navneformgrunn-runden, 2026-09-07] Samme lukkede-vokabular-mønster som
                 // ck_begreper_begrepskategori rett over. NULL er BEVISST gyldig: alle rader som fantes
                 // før denne runden beholder NULL (ingen datamigrering, ingen gjettet verdi) — se
@@ -1109,7 +1120,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // ikke to begrep. Den separate administrativ_inndeling-indeksen under er fjernet av samme grunn
             // ('administrativ_inndeling' er slått inn i 'omrade', som dekkes her).
             e.HasIndex(x => new { x.Term, x.LovkildeId }, "ux_begreper_nodebegrep_term_lovkilde").IsUnique()
-                .HasFilter("begrepskategori IN ('gruppe', 'klasse', 'rolle', 'omrade', 'organ') AND entitetsstatus = 'gjeldende'");
+                .HasFilter("begrepskategori IN ('gruppe', 'klasse', 'rolle', 'omrade') AND entitetsstatus = 'gjeldende'");
             // [Ny, issue #298 AC4] Postgres' unik-indeks behandler NULL som DISTINKT fra enhver annen
             // NULL — to gruppebegrep-rader med LovkildeId IS NULL og NØYAKTIG samme Term ville derfor
             // IKKE blitt stoppet av indeksen rett over (den sammenligner (Term, LovkildeId) PARVIS, og
@@ -1119,7 +1130,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // [ENDRET, issue #310] Samme utvidelse/omdøping som indeksen over — «Den faste og den
             // lovspesifikke identiteten fra #298 gjelder alle tre» (issuens utforming).
             e.HasIndex(x => x.Term, "ux_begreper_nodebegrep_fast_term").IsUnique()
-                .HasFilter("begrepskategori IN ('gruppe', 'klasse', 'rolle', 'omrade', 'organ') AND entitetsstatus = 'gjeldende' AND lovkilde_id IS NULL");
+                .HasFilter("begrepskategori IN ('gruppe', 'klasse', 'rolle', 'omrade') AND entitetsstatus = 'gjeldende' AND lovkilde_id IS NULL");
             // [FJERNET, issue #310] ux_begreper_administrativ_inndeling_term_lovkilde (issue #203 pkt. 2,
             // samme (Term, LovkildeId)-scoping som gruppebegrep) — 'administrativ_inndeling' er slått inn i
             // 'omrade', som dekkes av ux_begreper_nodebegrep_term_lovkilde over.

@@ -225,8 +225,9 @@ public class VirksomhetWhereUsedTjenesteTests
         db.Begreper.Add(gruppe);
         await db.SaveChangesAsync();
 
-        var tildeling = await new MyndighetstildelingTjeneste(db).OpprettAsync(
-            gruppe.Id, virksomhetId, rettskildeId, [new ParagrafspennPar(nodeEid, null)], vilkaar: null, "test");
+        await Strukturkanter.SeedStartsettAsync(db);
+        var tildeling = (await new StrukturkantTjeneste(db).OpprettTildelingAsync(
+            virksomhetId, gruppe.Id, rettskildeId, [new ParagrafspennPar(nodeEid, null)], avgrensningTekst: null, "test")).Kant;
 
         var resultat = await new VirksomhetWhereUsedTjeneste(db).HentAsync(virksomhetId);
 

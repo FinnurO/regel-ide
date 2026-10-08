@@ -7,6 +7,12 @@
 > Indeksene heter nå `ux_begreper_nodebegrep_term_lovkilde`/`_fast_term`. Kanten selv (tildeling +
 > medlemskap) konsolideres i #311.
 
+> **[Peker, issue #311, 2026-10-07]** Del B (`MyndighetstildelingEntitet`) og Del C (`VirksomhetRelasjonEntitet`)
+> er nå **strukturkanter** (`docs/33` §4.3): tildeling = M/I, relasjon = R med SAMME typekode, gruppe-av-gruppe
+> = M. Relasjonstypene i Del C lever videre som rader i `relasjonstype_konfigurasjon`, nå med `kategori`.
+> Gyldighetslogikken fra Del B (kantens egne datoer + hjemmelens status) er `StrukturkantTjeneste.ErGjeldende`.
+> `'organ'` er fjernet som nodetype — organer er virksomheter. Filnavn og klassenavn i tabellene under er historiske.
+
 Implementerbar spesifikasjon for den ALLEREDE BESLUTTEDE, IKKE BYGGEDE datamodellen i
 `docs/28-navnekandidat-presisjon-innspill.md`, seksjonen «Beslutning: datamodell for gruppe, relasjon
 og myndighetstildeling (2026-09-02)». Dette dokumentet er spesifikasjon og byggeplan — det inneholder

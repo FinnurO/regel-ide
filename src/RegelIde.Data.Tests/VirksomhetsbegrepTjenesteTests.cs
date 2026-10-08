@@ -439,7 +439,7 @@ public class VirksomhetsbegrepTjenesteTests
     [InlineData("klasse")]
     [InlineData("rolle")]
     [InlineData("omrade")]
-    [InlineData("organ")]
+    // [FJERNET, issue #311] [InlineData("organ")] — organ er ikke lenger en begrepskategori, se testen under.
     public async Task Nytt_begrep_far_valgt_nodetype_og_ingen_navneformgrunn(string nodetype)
     {
         await using var db = _fixture.NyDbContext();
@@ -458,6 +458,7 @@ public class VirksomhetsbegrepTjenesteTests
     [Theory]
     [InlineData("gruppe")]
     [InlineData("administrativ_inndeling")]
+    [InlineData("organ")] // [Ny, issue #311] organ er en Virksomhet, ikke en begrepskategori.
     [InlineData("Klasse")]
     [InlineData("")]
     public async Task Ugyldig_eller_utfaset_nodetype_kastes(string nodetype)
@@ -525,7 +526,7 @@ public class VirksomhetsbegrepTjenesteTests
             () => register.OpprettEllerGjenbrukGruppebegrepAsync(Nodetyper.Klasse, lovkildeId, term, "Kari Jurist"));
 
         var fastTerm = NyTerm("Kongen i statsrad");
-        await register.OpprettEllerGjenbrukFastGruppebegrepAsync(Nodetyper.Organ, fastTerm, "Kari Jurist");
+        await register.OpprettEllerGjenbrukFastGruppebegrepAsync(Nodetyper.Klasse, fastTerm, "Kari Jurist");
         await Assert.ThrowsAsync<ArgumentException>(
             () => register.OpprettEllerGjenbrukFastGruppebegrepAsync(Nodetyper.Rolle, fastTerm, "Kari Jurist"));
     }
@@ -564,9 +565,11 @@ public class VirksomhetsbegrepTjenesteTests
         var virksomhet = new Virksomhet { Id = Guid.NewGuid(), Navn = $"Vertskommune-{Guid.NewGuid():N}" };
         db.Begreper.Add(gruppe);
         db.Virksomheter.Add(virksomhet);
-        db.Myndighetstildelinger.Add(new MyndighetstildelingEntitet
+        // [ENDRET, issue #311] Tildelingen er en M-kant.
+        db.Strukturkanter.Add(new StrukturkantEntitet
         {
-            Id = Guid.NewGuid(), GruppeBegrepId = gruppe.Id, VirksomhetId = virksomhet.Id, HjemmelRettskildeId = lovkildeId,
+            Id = Guid.NewGuid(), Kategori = Strukturkanter.Medlemskap, Typekode = Strukturkanter.MedlemAv,
+            FraVirksomhetId = virksomhet.Id, TilBegrepId = gruppe.Id, HjemmelRettskildeId = lovkildeId,
             OpprettetAv = "Kari Jurist", OpprettetTidspunkt = DateTimeOffset.UtcNow,
         });
         await db.SaveChangesAsync();
@@ -576,7 +579,7 @@ public class VirksomhetsbegrepTjenesteTests
 
         Assert.NotNull(oppdatert);
         Assert.Equal("klasse", oppdatert!.Begrepskategori);
-        Assert.Equal(1, await db.Myndighetstildelinger.CountAsync(m => m.GruppeBegrepId == gruppe.Id));
+        Assert.Equal(1, await db.Strukturkanter.CountAsync(m => m.TilBegrepId == gruppe.Id));
         await Assert.ThrowsAsync<ArgumentException>(() => register.SettNodetypeAsync(gruppe.Id, "gruppe", "Kari Jurist"));
         Assert.Null(await register.SettNodetypeAsync(Guid.NewGuid(), Nodetyper.Rolle, "Kari Jurist"));
     }

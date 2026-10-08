@@ -19,6 +19,13 @@ namespace RegelIde.Data.Tests;
 /// ved CREATE DATABASE, ERROR-linjer) skrives til et rør ingen leser, og når det er fullt blokkerer
 /// neste ERROR-logging. Én database i stedet for seks fjernet symptomet.
 /// </para>
+/// <para>
+/// [ENDRET, issue #311] Databasen migreres nå bare til <c>InnforNodetypeakse</c> (<see cref="HistoriskSkjema"/>),
+/// ikke til siste versjon: SQL-en er frosset sammen med #310-migrasjonen og skriver i
+/// <c>myndighetstildelinger</c>/<c>gruppe_medlemskap</c> og kategorien <c>'organ'</c>, som #311 fjernet. Testene
+/// prøver dermed det samme som før — mot skjemaet slik det var da migrasjonen kjørte. Radene i de to droppede
+/// tabellene legges inn og leses med rå SQL (ingen EF-entitet finnes lenger).
+/// </para>
 /// </summary>
 [Collection(DataTestCollection.Navn)]
 public class NodetypeReklassifiseringTests
@@ -87,24 +94,20 @@ public class NodetypeReklassifiseringTests
         return t;
     }
 
-    private static MyndighetstildelingEntitet Tildeling(RegelIdeDbContext db, Guid gruppe, Guid virksomhet, Guid hjemmel) =>
-        db.Myndighetstildelinger.Add(new MyndighetstildelingEntitet
-        {
-            Id = Guid.NewGuid(), GruppeBegrepId = gruppe, VirksomhetId = virksomhet, HjemmelRettskildeId = hjemmel,
-            ParagrafspennJson = """[{"FraEid":"§1","TilEid":null}]""", OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
-        }).Entity;
+    // [ENDRET, issue #311] Rå SQL — se klassekommentaren.
+    private static Task<HistoriskSkjema.Rad> Tildeling(RegelIdeDbContext db, Guid gruppe, Guid virksomhet, Guid hjemmel) =>
+        HistoriskSkjema.TildelingAsync(db, gruppe, virksomhet, hjemmel);
 
-    private static GruppeMedlemskapEntitet Medlemskap(RegelIdeDbContext db, Guid over, Guid under, Guid hjemmel) =>
-        db.GruppeMedlemskap.Add(new GruppeMedlemskapEntitet
-        {
-            Id = Guid.NewGuid(), OverordnetGruppeBegrepId = over, UnderordnetGruppeBegrepId = under,
-            HjemmelRettskildeId = hjemmel, OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
-        }).Entity;
+    private static Task<HistoriskSkjema.Rad> Medlemskap(RegelIdeDbContext db, Guid over, Guid under, Guid hjemmel) =>
+        HistoriskSkjema.MedlemskapAsync(db, over, under, hjemmel);
 
     private static Virksomhet NyVirksomhet(RegelIdeDbContext db, string navn, string? orgnr = null) =>
         db.Virksomheter.Add(new Virksomhet { Id = Guid.NewGuid(), Navn = navn, Organisasjonsnummer = orgnr }).Entity;
 
     private static Task KjorAsync(RegelIdeDbContext db) => db.Database.ExecuteSqlRawAsync(NodetypeReklassifisering.Sql);
+
+    private static Task<Guid> GruppeForTildelingAsync(RegelIdeDbContext db, Guid tildelingId) =>
+        HistoriskSkjema.GuidAsync(db, $"""SELECT gruppe_begrep_id AS "Value" FROM myndighetstildelinger WHERE "Id" = {tildelingId}""");
 
     private static async Task<BegrepEntitet> HentAsync(RegelIdeDbContext db, Guid id) =>
         await db.Begreper.AsNoTracking().SingleAsync(b => b.Id == id);
@@ -140,24 +143,26 @@ public class NodetypeReklassifiseringTests
         var stortinget = Gruppe(db, "stortinget", l.Reindrift);
         await db.SaveChangesAsync();
 
+        // [ENDRET, issue #311] Taggene lagres FØR de rå SQL-innsettingene under, som kjører med en gang.
         // Tagger: to på «kongen» (den ene en EKSAKT dublett av en tagg på «Kongen i statsråd»), én på overlevende.
         Tagg(db, eier.Id, l.Reindrift, kongenIStatsrad.Id, 0);
         var dublettTagg = Tagg(db, eier.Id, l.Reindrift, kongen.Id, 0);
         var flyttetTagg = Tagg(db, eier.Id, l.Reindrift, kongen.Id, 20);
         var taggPaVergemal = Tagg(db, eier.Id, l.Vgf, statsforvalteren.Id, 0);
+        await db.SaveChangesAsync();
         // Tildelinger: én på vergemålsforskriftens «Statsforvalteren» (skal flyttes), og en identisk på begge
         // statsforvalter-radene (dubletten skal forsvinne, ikke bli to).
-        var tildelingVgf = Tildeling(db, statsforvalteren.Id, sfTroms.Id, l.Vgf);
-        Tildeling(db, statsforvalter.Id, karasjok.Id, l.Reindrift);
-        Tildeling(db, statsforvalteren.Id, karasjok.Id, l.Reindrift);
-        var tildelingRme = Tildeling(db, regNgl.Id, rme.Id, l.Ngl);
-        var tildelingKarasjok = Tildeling(db, utvikling.Id, karasjok.Id, l.Samel);
+        var tildelingVgf = await Tildeling(db, statsforvalteren.Id, sfTroms.Id, l.Vgf);
+        await Tildeling(db, statsforvalter.Id, karasjok.Id, l.Reindrift);
+        await Tildeling(db, statsforvalteren.Id, karasjok.Id, l.Reindrift);
+        var tildelingRme = await Tildeling(db, regNgl.Id, rme.Id, l.Ngl);
+        var tildelingKarasjok = await Tildeling(db, utvikling.Id, karasjok.Id, l.Samel);
         // Medlemskap: språkkategoriene i forvaltningsområdet (skal stå urørt), og «kongen» som medlem av
         // «Kongen i statsråd» (blir selv-medlemskap ved sammenslåing ⇒ slettes).
-        var m1 = Medlemskap(db, forvaltningsomradet.Id, utvikling.Id, l.Samel);
-        var m2 = Medlemskap(db, forvaltningsomradet.Id, vitalisering.Id, l.Samel);
-        var m3 = Medlemskap(db, forvaltningsomradet.Id, stimulering.Id, l.Samel);
-        Medlemskap(db, kongenIStatsrad.Id, kongen.Id, l.Reindrift);
+        var m1 = await Medlemskap(db, forvaltningsomradet.Id, utvikling.Id, l.Samel);
+        var m2 = await Medlemskap(db, forvaltningsomradet.Id, vitalisering.Id, l.Samel);
+        var m3 = await Medlemskap(db, forvaltningsomradet.Id, stimulering.Id, l.Samel);
+        await Medlemskap(db, kongenIStatsrad.Id, kongen.Id, l.Reindrift);
         await db.SaveChangesAsync();
 
         await KjorAsync(db);
@@ -189,8 +194,12 @@ public class NodetypeReklassifiseringTests
         Assert.Equal(kongenIStatsrad.Id, (await db.TekstTagger.SingleAsync(t => t.Id == flyttetTagg.Id)).RefId);
         var dublettEtter = await db.TekstTagger.SingleAsync(t => t.Id == dublettTagg.Id);
         Assert.Equal("arkivert", dublettEtter.Entitetsstatus); // kunne ikke flyttes (unik indeks) ⇒ arkivert, ikke slettet.
-        Assert.False(await db.GruppeMedlemskap.AnyAsync(m => m.UnderordnetGruppeBegrepId == kongen.Id || m.OverordnetGruppeBegrepId == kongen.Id));
-        Assert.False(await db.GruppeMedlemskap.AnyAsync(m => m.OverordnetGruppeBegrepId == m.UnderordnetGruppeBegrepId));
+        Assert.Equal(0, await HistoriskSkjema.TellAsync(db, $"""
+            SELECT count(*)::int AS "Value" FROM gruppe_medlemskap
+            WHERE underordnet_gruppe_begrep_id = {kongen.Id} OR overordnet_gruppe_begrep_id = {kongen.Id}
+            """));
+        Assert.Equal(0, await HistoriskSkjema.TellAsync(db,
+            $"""SELECT count(*)::int AS "Value" FROM gruppe_medlemskap WHERE overordnet_gruppe_begrep_id = underordnet_gruppe_begrep_id"""));
 
         // Statsforvalter-sammenslåingen: reindriftslovens rad overlever som FAST, nasjonal klasse.
         var sfEtter = await HentAsync(db, statsforvalter.Id);
@@ -200,15 +209,21 @@ public class NodetypeReklassifiseringTests
         var sfArkivert = await HentAsync(db, statsforvalteren.Id);
         Assert.Equal("arkivert", sfArkivert.Entitetsstatus);
         Assert.Equal(statsforvalter.Id, (await db.TekstTagger.SingleAsync(t => t.Id == taggPaVergemal.Id)).RefId);
-        Assert.Equal(statsforvalter.Id, (await db.Myndighetstildelinger.SingleAsync(m => m.Id == tildelingVgf.Id)).GruppeBegrepId);
-        Assert.Equal(1, await db.Myndighetstildelinger.CountAsync(m => m.VirksomhetId == karasjok.Id && m.HjemmelRettskildeId == l.Reindrift));
-        Assert.False(await db.Myndighetstildelinger.AnyAsync(m => m.GruppeBegrepId == statsforvalteren.Id));
+        Assert.Equal(statsforvalter.Id, await GruppeForTildelingAsync(db, tildelingVgf.Id));
+        Assert.Equal(1, await HistoriskSkjema.TellAsync(db, $"""
+            SELECT count(*)::int AS "Value" FROM myndighetstildelinger
+            WHERE virksomhet_id = {karasjok.Id} AND hjemmel_rettskilde_id = {l.Reindrift}
+            """));
+        Assert.Equal(0, await HistoriskSkjema.TellAsync(db,
+            $"""SELECT count(*)::int AS "Value" FROM myndighetstildelinger WHERE gruppe_begrep_id = {statsforvalteren.Id}"""));
 
         // Koblinger på reklassifiserte (ikke sammenslåtte) rader er urørt.
-        Assert.Equal(regNgl.Id, (await db.Myndighetstildelinger.SingleAsync(m => m.Id == tildelingRme.Id)).GruppeBegrepId);
-        Assert.Equal(utvikling.Id, (await db.Myndighetstildelinger.SingleAsync(m => m.Id == tildelingKarasjok.Id)).GruppeBegrepId);
-        Assert.Equal(3, await db.GruppeMedlemskap.CountAsync(m => new[] { m1.Id, m2.Id, m3.Id }.Contains(m.Id)
-            && m.OverordnetGruppeBegrepId == forvaltningsomradet.Id));
+        Assert.Equal(regNgl.Id, await GruppeForTildelingAsync(db, tildelingRme.Id));
+        Assert.Equal(utvikling.Id, await GruppeForTildelingAsync(db, tildelingKarasjok.Id));
+        Assert.Equal(3, await HistoriskSkjema.TellAsync(db, $"""
+            SELECT count(*)::int AS "Value" FROM gruppe_medlemskap
+            WHERE "Id" IN ({m1.Id}, {m2.Id}, {m3.Id}) AND overordnet_gruppe_begrep_id = {forvaltningsomradet.Id}
+            """));
 
         // Ingen gjeldende 'gruppe'-rader igjen, og alt er sporbart i proveniens.
         Assert.False(await db.Begreper.AnyAsync(b => b.Begrepskategori == "gruppe"));
@@ -373,27 +388,8 @@ public class NodetypeReklassifiseringTests
         }
     }
 
-    private async Task<string> NyTomDatabaseAsync()
-    {
-        var navn = $"regelide_nt310_{Guid.NewGuid():N}";
-        await using (var master = new RegelIdeDbContext(NyOptions(ByttDatabase("postgres"))))
-        {
-            // EF1003: et databasenavn er en IDENTIFIKATOR og kan ikke være en SQL-parameter i DDL.
-            // Navnet er generert her, av en Guid — ingen ytre inndata er involvert.
-#pragma warning disable EF1003
-            await master.Database.ExecuteSqlRawAsync("CREATE DATABASE " + navn + ";");
-#pragma warning restore EF1003
-        }
-        var connString = ByttDatabase(navn);
-        await using (var ny = new RegelIdeDbContext(NyOptions(connString)))
-        {
-            await ny.Database.MigrateAsync();
-        }
-        return connString;
-    }
-
-    private string ByttDatabase(string databasenavn) =>
-        _fixture.ConnectionString.Replace("Database=regelide_test", $"Database={databasenavn}");
+    private Task<string> NyTomDatabaseAsync() =>
+        HistoriskSkjema.NyDatabaseAsync(_fixture, "regelide_nt310", HistoriskSkjema.Nodetypeakse);
 
     private static DbContextOptions<RegelIdeDbContext> NyOptions(string connString) =>
         new DbContextOptionsBuilder<RegelIdeDbContext>().UseNpgsql(connString).Options;

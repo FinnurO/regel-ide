@@ -181,7 +181,7 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
     /// og «departementet» skal ikke bli to rader, uansett om begrepet er fast eller lovspesifikt.
     /// <para>
     /// [ENDRET, issue #310 «nodetype-akse», 2026-10-07] Tar nå en PÅKREVD <paramref name="nodetype"/>
-    /// (<see cref="Nodetyper.Settbare"/>: klasse/rolle/omrade, eller organ) — ingen nye begrep får
+    /// (<see cref="Nodetyper.Settbare"/>: klasse/rolle/omrade; organ fjernet i #311) — ingen nye begrep får
     /// <c>'gruppe'</c>. Parameteren står FØRST med vilje: alle gamle kall
     /// <c>(lovkildeId, term, opprettetAv)</c> ble kompileringsfeil i stedet for å forskyve strengene
     /// stille. Duplikatsjekken gjelder på tvers av ALLE kategorier med gruppefunksjon (samme mengde som
@@ -396,7 +396,7 @@ public sealed class VirksomhetsbegrepTjeneste(RegelIdeDbContext db)
 
     /// <summary>
     /// ALLE gruppebegrep, uansett hvilken lov de hører til — til bruk i en søk/velg-picker for å
-    /// OPPRETTE en <see cref="MyndighetstildelingEntitet"/> (docs/13-backlog.md §8.1 punkt 1: fantes
+    /// OPPRETTE en tildeling (i dag en <see cref="StrukturkantEntitet"/>, M/I — før #311 myndighetstildeling) (docs/13-backlog.md §8.1 punkt 1: fantes
     /// ingen frontend-skjema for dette, kun en read-only tildelings-tabell). Til forskjell fra
     /// <see cref="AlleGruppebegrepForLovAsync"/> (scoped til ÉN kjent lov, brukt i lovtekst-visningen)
     /// vet ikke denne kalleren på forhånd hvilken lov — brukeren skal kunne søke på tvers av alle.
