@@ -193,3 +193,22 @@ dev-databasen 2026-10-01), domenekoblingen skjer i
 
 Samme liste som §2 pekte på for Oppgaveregisteret, pluss: `url` → `Handling.Kanaler` for de tre nye
 kildene (identisk ubrukt mulighet). Ingen av disse er implementert i #294.
+
+## 7. Områderegisteret: Kartverket, Enhetsregisteret, SSR og SSB (issue #312, 2026-10-08)
+
+Fem eksterne kilder, alle lest fra **øyeblikksbilder** i `src/RegelIde.Data/Seed/` — oppstarten gjør ingen
+nettverkskall (CLAUDE.md §4). Fornyes manuelt med `python src/RegelIde.Data/Seed/fornye-omraderegister.py`
+(bare standardbiblioteket), og diffen leses før commit. Seed: `OmraderegisterSeed` (gated av
+`RegelIde:Omraderegister:SeedVedOppstart`). Nøkkel er alltid kode/orgnr, aldri navn.
+
+| Fil | Kilde (URL i fila) | Felt → modell |
+|---|---|---|
+| `kartverket-fylker-kommuner.json` | Kartverket kommuneinfo `fylkerkommuner?filtrer=fylkesnummer,fylkesnavn,kommuner.kommunenummer,kommuner.kommunenavnNorsk` (hentet 2026-10-08: 15 fylker, 357 kommuner) | `fylkesnummer`/`kommunenummer` → `Begrep.Omradekode`; `fylkesnavn`/`kommunenavnNorsk` → `Term` (overskrives aldri); fylke → kommune → `O bestar_av` (kildetype `register`, primær) |
+| `brreg-kommuner.json` | Enhetsregisteret, `organisasjonsform=KOMM` (357), uttrekk | `organisasjonsnummer` → oppslag av `Virksomhet`; `forretningsadresse.kommunenummer` → `Virksomhet.Kommunenummer` (bare når NULL) og `A har_ansvarsomrade` kommune → eget territorium |
+| `brreg-domstoler.json` | Enhetsregisteret, navnesøk «tingrett»/«lagmannsrett», ORGL under 984195796 (34), uttrekk | Ny `Virksomhet` (orgnr, registernavn, ORGL, Aktiv=false, forvaltningsnivå/aktørtype NULL) når forskriftens navn treffer en skråstrek-form eksakt; navneform = forskriftens tekstform |
+| `kartverket-ssr-rettssteder.json` | Kartverket SSR `/stedsnavn/v1/navn`, de 16 rettsstedene som ikke er kommunenavn; eksakt skrivemåte, hovednavn, type By/Tettsted/Tettbebyggelse/Bygdelag (bygd) | `stedsnummer` → `Omradekode` (type `tettsted`); kommunen (blant tingrettens egne) → `O bestar_av` kommune → tettsted |
+| `ssb-klass-104-fylkesendringer-2024.json` | SSB KLASS 104, endringer 1.1.2024 | Avbilder fylkesnavn i RHF-vedtektene fra før 2024 (Viken, Vestfold og Telemark, Troms og Finnmark) til dagens fylker |
+
+To filer er **lest for hånd** og fornyes ikke av verktøyet: `statsforvalter-embetsomrader.json` (embete → fylker;
+kildetype `kgl_res`, dokumentasjon **sekundær** — kgl.res. 10.03.2017 ble ikke funnet, se fila) og
+`helseregioner-rhf.json` (RHF-vedtektene § 3, sist endret 11.06.2024, ordrett; `vedtekter`, **primær**).

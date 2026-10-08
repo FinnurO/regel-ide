@@ -421,6 +421,18 @@ Organene **Stortinget** og **Kongen i statsråd** er nå virksomheter (aktørtyp
 rettskilde, KI-forslagskøen. API: `/api/strukturkanter` (se `docs/04` §14), og arbeidslista over struktur
 som bare er dokumentert på nettside: `GET /api/strukturkanter/uten-korpusforankring`.
 
+### Områderegister — fylker, kommuner, domstoler, embetsområder, helseregioner [NYTT, 2026-10-08, issue #312]
+
+Alle 15 fylker og 357 kommuner (Kartverket), 28 tingretter med kommunene de dekker og rettsstedet sitt, 15 lagsogn
+og 6 lagdømmer (forskrift om inndelingen av rettskretser og lagdømmer, hjemmel per kant), de 10 statsforvalterne →
+fylker og de 4 RHF-ene → helseregion → fylker. Spørsmålet «gitt kommune X: hvilket fylke, hvilken tingrett,
+lagdømme, lagmannsrett, statsforvalter og RHF?» besvares av oppslaget, som sier «ikke entydig» i stedet for å velge
+når det er flere kandidater.
+
+*Hvor:* «Område»-fanen på et områdebegrep (tilhørighet for en kommune, hvem har ansvar her, består av, inngår i),
+«Ansvarsområder» i «Myndighet & relasjoner» på en virksomhet. API: `GET /api/omrader/kommuner/{nr}/tilhorighet`,
+`GET /api/omrader/{id}/tilhorighet`. Fornyelse: `src/RegelIde.Data/Seed/fornye-omraderegister.py` (docs/21 §7).
+
 ### Rollebegrep og myndighetstildeling
 
 > [ENDRET, issue #311] En tildeling er nå en strukturkant (M eller I) — se seksjonen over. Teksten under

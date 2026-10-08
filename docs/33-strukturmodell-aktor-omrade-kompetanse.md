@@ -159,6 +159,18 @@ statsråd», den arkiverte «kongen», «stortinget») er navneformer for dem, t
 virksomhet-laget, og `'organ'` er fjernet som begrepskategori (CHECK og nodebegrep-indeksene). Et organ-
 begrep med ukjent term i et annet miljø blir `'gruppe'` (uavklart) — det gjettes ikke på en virksomhet.
 
+**[Bygget, issue #312, 2026-10-08] Områderegisteret.** `Begrep.Omradetype` (fylke | kommune | tettsted | lagsogn |
+lagdomme | helseregion | annet) og `Begrep.Omradekode`; identitet = (type, kode) blant gjeldende rader, eller (type,
+term) uten kode — ikke navn (Herøy og Våler finnes to ganger, Oslo er fylke og kommune). Bare områder en kilde
+NAVNGIR får node (Johanns funn på #312): ingen rettskrets-node — tingretten har `A har_ansvarsomrade` direkte til
+kommunene og `A har_sete_i` til rettsstedet, som er SAMME kommunenode der rettsstedet er en kommune og et
+tettsted-område i kommunen ellers; lagsogn og lagdømme er områder; statsforvalteren har kantene direkte til
+fylkene; helseregionen er et område (vedtektene navngir den). Målt i lokal `regelide` 2026-10-08: 414 områder
+(15 fylker, 357 kommuner, 16 tettsteder, 15 lagsogn, 6 lagdømmer, 4 helseregioner, Svalbard), 1 559 kanter, 34 nye
+domstolvirksomheter. Oppslaget «gitt kommune X» er `GET /api/omrader/kommuner/{nr}/tilhorighet`
+(`OmradeOppslagTjeneste`). Inndelingsforskriften tolkes av `DomstolinndelingTolker` via #307-mønstrene: 0 uløste
+navn, 0 kommuner delt mellom domssogn (domstolloven § 66 annet ledd håndteres som «ikke entydig», ingen velges).
+
 ### 4.2 Gruppe er en evne, ikke en type
 
 Svar på Johanns spørsmål (2026-10-07): «er det bedre å ha grupper med en attributt som skiller ulike
@@ -427,6 +439,25 @@ Lesning:
 - **Rapporttallene i `annet:*` sier lite.** Treffregelen krever samme fritt valgte typenavn, og det
   blir nesten aldri likt.
 
+**[ENDRET, issue #312, 2026-10-08] Fasitrettelse for domstollovens inndelingsdel** (Johanns funn fra fasitkontrollen,
+`data/fasit/strukturmodell/rettelse-312-domstolinndeling.py`): rettskrets-aktørene er fjernet, de 357 kommunelisteradene
+er «tingrett `har_ansvarsomrade` kommune», «lagsogn består av rettskrets» er «tingrett `annet:sogner_til` lagsogn»,
+56 rader som bare beskrev rettskretsen er fjernet, 45 rettssteder er slått sammen med kommunen og 16 er tettsted +
+`del_av`. Mønstrene fulgte: `inndeling-rettskrets` gir nå A, `inndeling-sogner` gir `annet:sogner_til`,
+`inndeling-har-rettskretsen` er fjernet. Tallene i tabellene over er fra FØR rettelsen.
+
+| Måling (mønsterlaget) | Før | Etter |
+|---|---:|---:|
+| Fasitutsagn (alle fem) | 1 865 | 1 797 |
+| Alle: presisjon / gjenfinning | 93,8 / 45,3 % | 93,8 / 46,9 % |
+| O: fasit, P / G | 578, 97,4 / 85,8 % | 177, 89,3 / 61,6 % |
+| A: fasit, P / G | 120, 100 / 51,7 % | 449, 100 / 93,3 % |
+| Domstolloven: fasit, P / G | 832, 95,7 / 62,3 % | 764, 95,7 / 67,5 % |
+| KI alle P / G (samme utdata) | 34,4 / 19,2 % | 34,4 / 20,0 % |
+
+Tersklene i `MonsterStrukturkonvertererMalingTests` er satt til de nye O/A-verdiene. O-gjenfinningen faller fordi de
+357 lett-funne radene flyttet til A; det som står igjen i O er vanskeligere.
+
 ### 5.5 Anbefalt fordeling mellom mønster og KI (#308)
 
 Fordelingen bygger på tallene over: én kjøring, en fasit som ikke er verifisert (#309) og én modell.
@@ -471,7 +502,7 @@ Før tersklene settes, trengs to ting:
 | `Myndighetstildeling` (16) | M eller I, avhengig av målets nye nodetype | **Bygget #311** (etter #310): 16 → 15 M (14 klasse + 1 område) + 1 I (rolle) |
 | `Begrep(gruppe)` (13) | klasse / rolle / område / organ | **Nei** — må avgjøres av et menneske (liste i sak) |
 | `Begrep(administrativ_inndeling)` (0) | område | Ja |
-| Kommuner/fylker | område-noder fra Kartverket kommuneinfo (15 fylker, 357 kommuner) + `O bestar_av` + `A har_ansvarsomrade` kommune→eget territorium | Ja — entydig nøkkel (kommunenummer innen gyldig inndeling) |
+| Kommuner/fylker | område-noder fra Kartverket kommuneinfo (15 fylker, 357 kommuner) + `O bestar_av` + `A har_ansvarsomrade` kommune→eget territorium | Ja — entydig nøkkel (kommunenummer innen gyldig inndeling). **Bygget #312:** 357 O-kanter; 355 territoriekanter (Herøy 1515 og Våler 3114 mangler som virksomhet i katalogen — `OrganisasjonsregisterSeed` slår like navn sammen, egen sak) |
 
 ## 6. Designtest — kan modellen uttrykke fasiten?
 
@@ -491,6 +522,9 @@ ikke avgjøres uten regelevaluering (intensjonale klasser, bostedsregion, komple
 Dagens «delvis» er nesten bare kompetanse, som kan presses inn i `Myndighetstildeling` via et
 gruppebegrep («forskriftsmyndighet etter § X»), men uten at kompetansetypen blir spørrbar. Revidert
 «ja» fordeler seg slik på kanttypene: O 578, K 514, R 266, A 176, M 65, G 61, T 21, I 14.
+
+[ENDRET, issue #312] Etter fasitrettelsen gir `designtest.py` 1 797 utsagn, revidert ja 91 % (1 640), delvis 1 %,
+senere lag 8 %; domstolloven 739 strukturutsagn, revidert ja 100 %.
 
 **Forbehold:** «ja» for revidert modell betyr at utsagnet har en plass med de egenskapene det trenger
 — ikke at modellen er bevist. Beviset er at strukturen for de fem kildene faktisk lastes inn og at

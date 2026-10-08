@@ -1004,3 +1004,15 @@ dokumentasjon (primær/sekundær), brukt av relasjonsskjemaet og veiviserens ste
 KI-konverteringen, docs/33 §5.2). Tildelingsskjemaet («Legg til medlemskap/rolle») sender alltid `positiv`,
 fordi det registrerer at virksomheten ER medlem/innehaver.
 
+## 32. Områdefanen og ansvarsområder (issue #312, 2026-10-08)
+
+- **Et registrert område (områdetype satt) åpner på fanen «Område»** i `BegrepDetalj` (`begrep/Omraderegister.tsx`):
+  for en kommune først «Tilhørighet» (beregnet svar, egen kompakt tabell — ikke kanter), deretter «Hvem har ansvar
+  her», «Består av», «Inngår i» med `StrukturkantTabell` (§31). Områdetype + kode vises som `neutral` tag på
+  statuslinjen (`OmradetypeTag`) — en klassifisering, ikke en status.
+- **Tilhørighetens statuser:** entydig = ingen tag; «Ikke entydig» = `warning` (flere kandidater, ingen valgt);
+  «Mangler» = `neutral`. Samme regel som #314 skal bruke — velg aldri en kandidat i UI-et.
+- **VirksomhetDetalj:** A-kantene fra virksomheten har egen seksjon «Ansvarsområder» i «Myndighet & relasjoner»
+  (en tingrett har 10–40 kommuner som ellers druknet kompetanseradene).
+- Kildetypen **«Register»** (Kartverket/Enhetsregisteret/SSR) vises som de andre kildetypene, med «Ingen hjemmel»-
+  merket (§31) — et register er ikke en rettskilde.
