@@ -10,6 +10,7 @@ import type { BegrepBruktIRettskildeDto, BegrepDefinisjonRelasjonDto, BegrepDto,
 import { harGruppefunksjon } from '../api/types';
 import { BEGREPSNODETYPER, BegrepskategoriTag, NODETYPE_VISNING } from '../begrep/Nodetype';
 import { StatusStepper } from '../entitet/StatusStepper';
+import { Omraderegister, OmradetypeTag } from '../begrep/Omraderegister';
 import { Metatekst } from '../entitet/Metatekst';
 
 /**
@@ -19,7 +20,9 @@ import { Metatekst } from '../entitet/Metatekst';
  * Bruk (hvor forekommer/brukes begrepet), Relasjoner (kun vist når det er noe å vise — gruppe-
  * medlemskap eller bekreftede definisjonsrelasjoner).
  */
-type Fane = 'grunndata' | 'bruk' | 'relasjoner';
+// [ENDRET, issue #312] + 'omrade' — eget faneinnhold for et REGISTRERT område (sammensetning, ansvar, tilhørighet),
+// valgt som standardfane når begrepet har områdetype: det er det et områdebegrep finnes for.
+type Fane = 'omrade' | 'grunndata' | 'bruk' | 'relasjoner';
 
 export default function BegrepDetalj() {
   const { id } = useParams<{ id: string }>();
@@ -58,6 +61,7 @@ export default function BegrepDetalj() {
     api.hentBegrep(id).then((b) => {
       setBegrep(b);
       fyllSkjemaFra(b);
+      setFane(b.omradetype ? 'omrade' : 'grunndata');
     }).catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved henting av begrep.'));
     api.hentRettskilder().then(setRettskilder).catch(() => setRettskilder([]));
     // «Brukt i vilkår» — bevisst forenkling (kun ett vilkårstre finnes i dag, se plan «Sammenhengende navigasjon»):
@@ -153,6 +157,8 @@ export default function BegrepDetalj() {
           * «Gruppe (type ikke avgjort)» for rader som ikke er reklassifisert. «Fast, nasjonalt» står ved
           * siden av når begrepet ikke er lovscopet (#298), siden det er en del av identiteten. */}
         {harGruppefunksjon(begrep.begrepskategori) && <BegrepskategoriTag kategori={begrep.begrepskategori} />}
+        {/* [Ny, issue #312] Områdetype og kode fra registeret (Kartverket, inndelingsforskriften, RHF-vedtektene). */}
+        {begrep.omradetype && <OmradetypeTag omradetype={begrep.omradetype} omradekode={begrep.omradekode} />}
         {harGruppefunksjon(begrep.begrepskategori) && !begrep.lovkildeId && (
           <Tag data-color="neutral" data-size="sm" variant="outline">Fast, nasjonalt</Tag>
         )}
@@ -163,6 +169,7 @@ export default function BegrepDetalj() {
 
       <Tabs value={fane} onChange={(v) => setFane(v as Fane)} style={{ marginBottom: '1rem' }}>
         <Tabs.List>
+          {begrep.omradetype && <Tabs.Tab value="omrade">Område</Tabs.Tab>}
           <Tabs.Tab value="grunndata">Grunndata</Tabs.Tab>
           <Tabs.Tab value="bruk">Bruk</Tabs.Tab>
           {(harGruppefunksjon(begrep.begrepskategori) || definisjonsrelasjoner.length > 0) && (
@@ -170,6 +177,10 @@ export default function BegrepDetalj() {
           )}
         </Tabs.List>
       </Tabs>
+
+      {fane === 'omrade' && begrep.omradetype && id && (
+        <Omraderegister omradeId={id} omradetype={begrep.omradetype} />
+      )}
 
       {fane === 'grunndata' && (
       <>

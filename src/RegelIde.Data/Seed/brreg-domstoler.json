@@ -1,0 +1,216 @@
+{
+  "_kilde": "Enhetsregisteret (Brønnøysundregistrene), navnesøk. UTTREKK: enheter med organisasjonsform ORGL og overordnet enhet 984195796 (DOMSTOLENE I NORGE).",
+  "_url": [
+    "https://data.brreg.no/enhetsregisteret/api/enheter?navn=tingrett&size=200",
+    "https://data.brreg.no/enhetsregisteret/api/enheter?navn=lagmannsrett&size=200"
+  ],
+  "_hentet": "2026-10-08",
+  "_antall": 34,
+  "_bruk": "Issue #312: tingrettene og lagmannsrettene finnes ikke i virksomhetskatalogen. OmraderegisterSeed oppretter dem herfra (nøkkel = organisasjonsnummer) når navnet i inndelingsforskriften treffer registernavnet eksakt (en av skråstrek-formene, uten skille på store/små bokstaver).",
+  "enheter": [
+    {
+      "organisasjonsnummer": "926720988",
+      "navn": "AGDER LAGMANNSRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926723480",
+      "navn": "AGDER TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "935363233",
+      "navn": "ASKER OG BÆRUM TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926721356",
+      "navn": "BORGARTING LAGMANNSRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "935364752",
+      "navn": "BUSKERUD TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926721321",
+      "navn": "EIDSIVATING LAGMANNSRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926725920",
+      "navn": "FOLLO OG NORDRE ØSTFOLD TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926720589",
+      "navn": "FROSTATING LAGMANNSRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "935364833",
+      "navn": "GUDBRANDSDAL TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926720937",
+      "navn": "GULATING LAGMANNSRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "935364868",
+      "navn": "HARDANGER OG VOSS TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926723405",
+      "navn": "HAUGALAND OG SUNNHORDLAND TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "935364892",
+      "navn": "HEDMARKEN OG ØSTERDAL TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926723162",
+      "navn": "HELGELAND TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "935364906",
+      "navn": "HORDALAND TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926720481",
+      "navn": "HÅLOGALAND LAGMANNSRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926723073",
+      "navn": "MIDTRE HÅLOGALAND TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "935365139",
+      "navn": "NEDRE TELEMARK TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926723022",
+      "navn": "NORD-TROMS OG SENJA TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "935365120",
+      "navn": "NORDMØRE OG ROMSDAL TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926725939",
+      "navn": "OSLO TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "935365147",
+      "navn": "RINGERIKE OG HALLINGDAL TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926723863",
+      "navn": "ROMERIKE OG GLÅMDAL TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "826723122",
+      "navn": "SALTEN OG LOFOTEN TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926722840",
+      "navn": "SIS-JA NUORTA-FINNMÁRKKU DIGGEGODDI /INDRE OG ØSTRE FINNMARK TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926723278",
+      "navn": "SOGN OG FJORDANE TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "935365201",
+      "navn": "SUNNMØRE TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926722808",
+      "navn": "SØNDRE ØSTFOLD TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926723448",
+      "navn": "SØR-ROGALAND TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926722794",
+      "navn": "TRØNDELAG TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926723618",
+      "navn": "VESTFOLD TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "935365236",
+      "navn": "VESTOPPLAND OG VALDRES TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "926722956",
+      "navn": "VESTRE FINNMARK TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    },
+    {
+      "organisasjonsnummer": "935365317",
+      "navn": "ØVRE TELEMARK TINGRETT",
+      "organisasjonsform": "ORGL",
+      "overordnetEnhet": "984195796"
+    }
+  ]
+}

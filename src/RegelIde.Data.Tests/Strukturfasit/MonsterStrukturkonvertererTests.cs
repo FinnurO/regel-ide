@@ -1,4 +1,4 @@
-using System.Text.Json;
+﻿using System.Text.Json;
 using System.Text.Json.Nodes;
 using RegelIde.Data.Strukturkonvertering;
 
@@ -108,9 +108,10 @@ public class MonsterStrukturkonvertererTests
     {
         var d = Konverter("Agder tingrett, med rettssteder i Arendal og Kristiansand, som dekker kommunene Arendal, Evje og Hornnes, Froland og Åseral.");
 
-        var kommuner = d.Utsagn.Where(u => u.Type == "bestar_av").Select(u => Tekstform(d, u.Til)).ToList();
+        // [ENDRET, issue #312] Kanttypen er A har_ansvarsomrade (tingrett → kommune), ikke O bestar_av (rettskrets → kommune).
+        var kommuner = d.Utsagn.Where(u => u.Type == "har_ansvarsomrade").Select(u => Tekstform(d, u.Til)).ToList();
         Assert.Equal(["Arendal", "Evje og Hornnes", "Froland", "Åseral"], kommuner);
-        Assert.All(d.Utsagn.Where(u => u.Type == "bestar_av"), u => Assert.Equal("Agder tingrett", Tekstform(d, u.Fra)));
+        Assert.All(d.Utsagn.Where(u => u.Type == "har_ansvarsomrade"), u => Assert.Equal("Agder tingrett", Tekstform(d, u.Fra)));
 
         var seter = d.Utsagn.Where(u => u.Type == "har_sete_i").Select(u => Tekstform(d, u.Til)).ToList();
         Assert.Equal(["Arendal", "Kristiansand"], seter);
@@ -202,8 +203,8 @@ public class MonsterStrukturkonvertererTests
     [Fact]
     public void Recordene_har_alle_feltnavnene_fasiten_bruker()
     {
-        var aktorfelt = Feltnavn(JsonSerializer.SerializeToNode(new StrukturAktor("a1", "x", [], [], 1, null, null, null, null, null, null))!);
-        var utsagnfelt = Feltnavn(JsonSerializer.SerializeToNode(new StrukturUtsagn("u1", "e", "s", "k", "t", null, null, null, "positiv", null, null, null, null, null))!);
+        var aktorfelt = Feltnavn(JsonSerializer.SerializeToNode(new StrukturAktor("a1", "x", [], [], 1, null, null, null, null, null, null) { VerifisertAv = "x" })!); // [ENDRET, #312] + verifisert_av
+        var utsagnfelt = Feltnavn(JsonSerializer.SerializeToNode(new StrukturUtsagn("u1", "e", "s", "k", "t", null, null, null, "positiv", null, null, null, null, null) { VerifisertAv = "x" })!);
 
         foreach (var kilde in StrukturfasitLeser.LesAlle())
         {

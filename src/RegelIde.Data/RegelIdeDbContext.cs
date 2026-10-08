@@ -203,7 +203,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                     "kilde_utenfor_korpus_dokumentasjon IS NULL OR kilde_utenfor_korpus_dokumentasjon IN ('primaer', 'sekundaer')");
                 t.HasCheckConstraint("ck_strukturkanter_kilde_type",
                     "kilde_utenfor_korpus_type IS NULL OR kilde_utenfor_korpus_type IN "
-                    + "('kgl_res', 'instruks', 'tildelingsbrev', 'vedtekter', 'styrevedtak', 'forarbeider', 'nettside_annet')");
+                    + "('kgl_res', 'instruks', 'tildelingsbrev', 'vedtekter', 'styrevedtak', 'forarbeider', 'nettside_annet', 'register')");
+                // [ENDRET, issue #312, 2026-10-08] 'register' lagt til — se Strukturkanter.Register.
             });
             e.HasKey(x => x.Id).HasName("strukturkanter_pkey");
             e.Property(x => x.Kategori).HasColumnName("kategori");
@@ -1052,6 +1053,13 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                     "ck_begreper_begrepskategori",
                     "begrepskategori IS NULL OR begrepskategori IN "
                     + "('virksomhet', 'gruppe', 'klasse', 'rolle', 'omrade')");
+                // [Ny, issue #312 «områderegister», 2026-10-08] Områdetypen er lukket (Omradetyper.Alle) og finnes
+                // bare på områder; en kode krever en type (koden er bare unik innenfor typen).
+                t.HasCheckConstraint(
+                    "ck_begreper_omradetype",
+                    "omradetype IS NULL OR (begrepskategori = 'omrade' AND omradetype IN "
+                    + "('fylke', 'kommune', 'tettsted', 'lagsogn', 'lagdomme', 'helseregion', 'annet'))");
+                t.HasCheckConstraint("ck_begreper_omradekode", "omradekode IS NULL OR omradetype IS NOT NULL");
                 // [Ny, navneformgrunn-runden, 2026-09-07] Samme lukkede-vokabular-mønster som
                 // ck_begreper_begrepskategori rett over. NULL er BEVISST gyldig: alle rader som fantes
                 // før denne runden beholder NULL (ingen datamigrering, ingen gjettet verdi) — se
@@ -1071,6 +1079,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.VirksomhetReferanseId).HasColumnName("virksomhet_referanse_id");
             e.Property(x => x.Navneformgrunn).HasColumnName("navneformgrunn");
             e.Property(x => x.LovkildeId).HasColumnName("lovkilde_id");
+            e.Property(x => x.Omradetype).HasColumnName("omradetype");
+            e.Property(x => x.Omradekode).HasColumnName("omradekode");
             e.Property(x => x.Term).HasColumnName("term");
             e.Property(x => x.Definisjon).HasColumnName("definisjon");
             e.Property(x => x.LovreferanseEid).HasColumnName("lovreferanse_eid");
@@ -1119,8 +1129,13 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // ikke kunne finnes BÅDE som rolle og som klasse — det er samme begrep feilregistrert to ganger,
             // ikke to begrep. Den separate administrativ_inndeling-indeksen under er fjernet av samme grunn
             // ('administrativ_inndeling' er slått inn i 'omrade', som dekkes her).
+            // [ENDRET, issue #312 «områderegister», 2026-10-08] Begge term-indeksene gjelder nå bare begrep UTEN
+            // områdetype. Et registrert område har en annen identitet — (omradetype, omradekode) blant gjeldende rader,
+            // eller (omradetype, term) for områder teksten navngir uten kode — fordi navnet ikke er unikt: Herøy og
+            // Våler er to kommuner hver, og «Oslo» er både fylke og kommune (docs/33 §3 funn 9). Uten unntaket ville
+            // den andre Herøy-raden velte på ux_begreper_nodebegrep_fast_term.
             e.HasIndex(x => new { x.Term, x.LovkildeId }, "ux_begreper_nodebegrep_term_lovkilde").IsUnique()
-                .HasFilter("begrepskategori IN ('gruppe', 'klasse', 'rolle', 'omrade') AND entitetsstatus = 'gjeldende'");
+                .HasFilter("begrepskategori IN ('gruppe', 'klasse', 'rolle', 'omrade') AND entitetsstatus = 'gjeldende' AND omradetype IS NULL");
             // [Ny, issue #298 AC4] Postgres' unik-indeks behandler NULL som DISTINKT fra enhver annen
             // NULL — to gruppebegrep-rader med LovkildeId IS NULL og NØYAKTIG samme Term ville derfor
             // IKKE blitt stoppet av indeksen rett over (den sammenligner (Term, LovkildeId) PARVIS, og
@@ -1130,7 +1145,14 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             // [ENDRET, issue #310] Samme utvidelse/omdøping som indeksen over — «Den faste og den
             // lovspesifikke identiteten fra #298 gjelder alle tre» (issuens utforming).
             e.HasIndex(x => x.Term, "ux_begreper_nodebegrep_fast_term").IsUnique()
-                .HasFilter("begrepskategori IN ('gruppe', 'klasse', 'rolle', 'omrade') AND entitetsstatus = 'gjeldende' AND lovkilde_id IS NULL");
+                .HasFilter("begrepskategori IN ('gruppe', 'klasse', 'rolle', 'omrade') AND entitetsstatus = 'gjeldende' AND lovkilde_id IS NULL AND omradetype IS NULL");
+            // [Ny, issue #312] Identiteten til et registrert område med kode: «nummer innen gyldig inndeling» — én
+            // gjeldende rad per (type, kode). En kommune som får nytt nummer får ny rad; den gamle får GyldigTil.
+            e.HasIndex(x => new { x.Omradetype, x.Omradekode }, "ux_begreper_omrade_type_kode").IsUnique()
+                .HasFilter("begrepskategori = 'omrade' AND entitetsstatus = 'gjeldende' AND gyldig_til IS NULL AND omradekode IS NOT NULL");
+            // [Ny, issue #312] Områder teksten navngir uten kode (lagsogn, lagdømme, helseregion): (type, term).
+            e.HasIndex(x => new { x.Omradetype, x.Term }, "ux_begreper_omrade_type_term_ukodet").IsUnique()
+                .HasFilter("begrepskategori = 'omrade' AND entitetsstatus = 'gjeldende' AND gyldig_til IS NULL AND omradetype IS NOT NULL AND omradekode IS NULL");
             // [FJERNET, issue #310] ux_begreper_administrativ_inndeling_term_lovkilde (issue #203 pkt. 2,
             // samme (Term, LovkildeId)-scoping som gruppebegrep) — 'administrativ_inndeling' er slått inn i
             // 'omrade', som dekkes av ux_begreper_nodebegrep_term_lovkilde over.

@@ -12,8 +12,8 @@ bare eId + kategori + type — forskjellen mellom de to viser hvor mye av feilen
 
 ## Totalt
 
-1865 fasitutsagn, 901 predikerte, 845 treff → presisjon **93,8 %**, gjenfinning **45,3 %**
-(uten endepunktkrav: presisjon 95,9 %, gjenfinning 46,3 %).
+1797 fasitutsagn, 899 predikerte, 843 treff → presisjon **93,8 %**, gjenfinning **46,9 %**
+(uten endepunktkrav: presisjon 95,9 %, gjenfinning 48,0 %).
 
 ## Per kategori (kanttype, `docs/33` §4.3)
 
@@ -24,19 +24,19 @@ Bokstaven følger `STD`-tabellen i `designtest.py`. `annet:*`-typer står i egen
 | R | 223 | 36 | 28 | 77,8 % | 12,6 % | 94,4 % | 15,2 % |
 | K | 427 | 288 | 255 | 88,5 % | 59,7 % | 88,5 % | 59,7 % |
 | M | 48 | 0 | 0 | – | 0,0 % | – | 0,0 % |
-| O | 578 | 509 | 496 | 97,4 % | 85,8 % | 99,6 % | 87,7 % |
-| A | 120 | 62 | 62 | 100,0 % | 51,7 % | 100,0 % | 51,7 % |
+| O | 177 | 122 | 109 | 89,3 % | 61,6 % | 98,4 % | 67,8 % |
+| A | 449 | 419 | 419 | 100,0 % | 93,3 % | 100,0 % | 93,3 % |
 | G | 43 | 6 | 4 | 66,7 % | 9,3 % | 100,0 % | 14,0 % |
 | I | 0 | 0 | 0 | – | – | – | – |
 | T | 21 | 0 | 0 | – | 0,0 % | – | 0,0 % |
-| annet | 366 | 0 | 0 | – | 0,0 % | – | 0,0 % |
+| annet | 370 | 28 | 28 | 100,0 % | 7,6 % | 100,0 % | 7,6 % |
 | senere lag | 39 | 0 | 0 | – | 0,0 % | – | 0,0 % |
 
 ## Per kilde
 
 | Kilde | Fasit | Predikert | Treff | Presisjon | Gjenfinning | Presisjon u/endepunkt | Gjenfinning u/endepunkt |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| domstolloven | 832 | 541 | 518 | 95,7 % | 62,3 % | 96,7 % | 62,9 % |
+| domstolloven | 764 | 539 | 516 | 95,7 % | 67,5 % | 96,7 % | 68,2 % |
 | energiloven | 254 | 114 | 108 | 94,7 % | 42,5 % | 94,7 % | 42,5 % |
 | helse-og-omsorgstjenesteloven | 192 | 49 | 45 | 91,8 % | 23,4 % | 95,9 % | 24,5 % |
 | sameloven | 285 | 130 | 114 | 87,7 % | 40,0 % | 96,2 % | 43,9 % |
@@ -56,8 +56,10 @@ Bokstaven følger `STD`-tabellen i `designtest.py`. `annet:*`-typer står i egen
 | R relasjon / delegerer_til | 36 | 13 | 12 | 92,3 % | 33,3 % | 92,3 % | 33,3 % |
 | K kompetanse / tilsynskompetanse | 16 | 5 | 5 | 100,0 % | 31,3 % | 100,0 % | 31,3 % |
 | A ansvarsomrade / har_sete_i | 65 | 62 | 62 | 100,0 % | 95,4 % | 100,0 % | 95,4 % |
-| O sammensetning_omrade / del_av | 85 | 49 | 41 | 83,7 % | 48,2 % | 100,0 % | 57,6 % |
-| O sammensetning_omrade / bestar_av | 493 | 460 | 455 | 98,9 % | 92,3 % | 99,6 % | 92,9 % |
+| O sammensetning_omrade / del_av | 69 | 47 | 39 | 83,0 % | 56,5 % | 100,0 % | 68,1 % |
+| A ansvarsomrade / har_ansvarsomrade | 381 | 357 | 357 | 100,0 % | 93,7 % | 100,0 % | 93,7 % |
+| O sammensetning_omrade / bestar_av | 108 | 75 | 70 | 93,3 % | 64,8 % | 97,3 % | 67,6 % |
+| annet ansvarsomrade / annet:sogner_til | 28 | 28 | 28 | 100,0 % | 100,0 % | 100,0 % | 100,0 % |
 
 ### Per kilde, K forskriftskompetanse (terskel ≥ 0,9 presisjon)
 
@@ -99,12 +101,11 @@ Stor avstand mellom presisjon og gjenkjent betyr at mønsteret finner riktig uts
 | `tilsyn-forer-tilsyn` | tilsynskompetanse | 5 | 5 | 100,0 % | 100,0 % | docs/33 §1: «fører tilsyn med at …» 2246 treff, ~33 % presisjon, og «tilsyn med aktør» ≈ 0 % som kompetanse. Første versjon tok alle objekter og fikk 5 av 9 mot … |
 | `har-sete-i` | har_sete_i | 1 | 1 | 100,0 % | 100,0 % | Ikke målt i docs/33 §1. Fast lovformulering for sete; Y tas slik den står («rikets hovedstad»), uten oppslag. |
 | `inndeling-kommune-i-fylke` | del_av | 47 | 39 | 83,0 % | 100,0 % | Ikke målt i docs/33 §1. Fylkestilhørigheten står eksplisitt i setningen. |
-| `inndeling-har-rettskretsen` | del_av | 2 | 2 | 100,0 % | 100,0 % | Ikke målt i docs/33 §1. |
-| `inndeling-rettskrets` | bestar_av | 357 | 357 | 100,0 % | 100,0 % | docs/33 §1 nevner strukturerte kommunelister i inndelingsforskrifter som høypresisjonskilde (ikke tallfestet). |
+| `inndeling-rettskrets` | har_ansvarsomrade | 357 | 357 | 100,0 % | 100,0 % | docs/33 §1 nevner strukturerte kommunelister i inndelingsforskrifter som høypresisjonskilde (ikke tallfestet). |
 | `inndeling-rettssted` | har_sete_i | 61 | 61 | 100,0 % | 100,0 % | Samme kilde som inndeling-rettskrets. |
 | `inndeling-kommuneliste` | bestar_av | 56 | 56 | 100,0 % | 100,0 % | Strukturerte kommunelister (docs/33 §1, ikke tallfestet). Retnings- og komplementdefinisjoner kan ikke avgjøres uten et områderegister (#312). |
 | `inndeling-utgjor` | bestar_av | 15 | 10 | 66,7 % | 100,0 % | Strukturerte lister i inndelingsforskrifter (docs/33 §1, ikke tallfestet). |
-| `inndeling-sogner` | bestar_av | 28 | 28 | 100,0 % | 100,0 % | Strukturerte lister i inndelingsforskrifter (docs/33 §1, ikke tallfestet). |
+| `inndeling-sogner` | annet:sogner_til | 28 | 28 | 100,0 % | 100,0 % | Strukturerte lister i inndelingsforskrifter (docs/33 §1, ikke tallfestet). |
 | `inndeling-bestar-av-liste` | bestar_av | 4 | 4 | 100,0 % | 100,0 % | Ikke målt i docs/33 §1. Generell listeform; kravet om egennavn holder organsammensetning ute. |
 
 ## Falske positive (56)
@@ -157,21 +158,20 @@ De 20 vanligste (én fra hver gruppe i tur, vanligste gruppe først):
 | 19 | domstolloven | lov/1915/08/13/5/nor/§5/ledd-4 | `monster:vedtak-avgjores-av` | Høyesterett → null | I saker etter første og annet ledd som er av særlig viktighet, kan det bestemmes at saken, eller rettsspørsmål i den, skal avgjøres av Høyesterett i storkammer, … |
 | 20 | sameloven | lov/1987/06/12/56/nor/§2-4/ledd-1/punkt-6 | `monster:inndeling-kommune-i-fylke` | Sunndal → Møre og Romsdal fylke | Sunndal |
 
-## Falske negative (1020)
+## Falske negative (954)
 
 Gruppert på kategori/type. Typer mønsterlaget ikke har mønster for, er forventet her — de er KI-lagets (#308) nevner.
 
 | Kategori / type | Har mønster | Antall |
 |---|---|---:|
 | K kompetanse / vedtakskompetanse | ja | 90 |
-| A ansvarsomrade / har_ansvarsomrade | nei | 52 |
-| O sammensetning_omrade / del_av | ja | 44 |
 | O sammensetning_omrade / bestar_av | ja | 38 |
 | R relasjon / rapporterer_til | nei | 31 |
 | M medlemskap / medlem_av | nei | 30 |
+| O sammensetning_omrade / del_av | ja | 30 |
+| A ansvarsomrade / har_ansvarsomrade | ja | 24 |
 | R relasjon / delegerer_til | ja | 24 |
 | senere lag relasjon / samarbeider_med | nei | 24 |
-| annet sammensetning_omrade / annet:gruppert_under | nei | 24 |
 | K kompetanse / forskriftskompetanse | ja | 23 |
 | K kompetanse / utpekingskompetanse | nei | 21 |
 | T konstituerende / skal_finnes | nei | 21 |
@@ -203,32 +203,33 @@ Gruppert på kategori/type. Typer mønsterlaget ikke har mønster for, er forven
 | annet kompetanse / annet:ikraftsettingskompetanse | nei | 6 |
 | K kompetanse / instruksjonskompetanse | nei | 6 |
 | annet relasjon / annet:representerer | nei | 6 |
-| … 176 typer til (alle `annet:*` eller ≤ 5 utsagn) | | 286 |
+| annet ansvarsomrade / annet:lokalisert_i | nei | 5 |
+| … 175 typer til (alle `annet:*` eller ≤ 5 utsagn) | | 281 |
 
 De 20 vanligste blant typene med mønster (én fra hver type i tur, vanligste type først):
 
 | # | Kilde | eId | Type | fra → til (fasit) | Sitat |
 |---|---|---|---|---|---|
 | 1 | domstolloven | lov/1915/08/13/5/nor/§13/ledd-1 | vedtakskompetanse | førstelagmann → null | Avgjørelser og andre forføyninger, som ikke gjelder de enkelte rettssaker, treffer førstelagmannen alene |
-| 2 | domstolloven | forskrift/2021/01/22/163/nor/§4/ledd-1 | del_av | Nordmøre og Romsdal tingrett → Møre og Romsdal fylke | Møre og Romsdal fylke har rettskretsene |
-| 3 | domstolloven | lov/1915/08/13/5/nor/§16/ledd-1 | bestar_av | Rikets → lagdømmer | Rikets inddeling i lagdømmer |
-| 4 | energiloven | lov/1990/06/29/50/nor/§4-11/ledd-1 | delegerer_til | Departementet → reguleringsmyndighet | Departementet kan gi forskrift om at reguleringsmyndigheten kan gi forskrift om metoder for beregning av nettselskapenes tillatte og faktiske inntekter |
-| 5 | domstolloven | lov/1915/08/13/5/nor/§48/ledd-4 | forskriftskompetanse | Kongen → null | ved regler, som Kongen gir |
-| 6 | domstolloven | lov/1915/08/13/5/nor/§3/ledd-1 | har_medlemmer | Høyesterett → dommere | Retten skal ha en justitiarius og nitten andre dommere. |
-| 7 | domstolloven | lov/1915/08/13/5/nor/§33/ledd-2 | instruksjon | Stortinget → domstoladministrasjonen | Gjennom Stortingets behandling av budsjettproposisjonen gis årlige retningslinjer for domstoladministrasjonens virksomhet |
-| 8 | domstolloven | lov/1915/08/13/5/nor/§58/ledd-1 | oppnevner | statsforvalteren → Forliksrådene | Finner han valget lovlig, utferdiger han oppnevnelse for de valgte |
-| 9 | domstolloven | lov/1915/08/13/5/nor/§33b/ledd-1 | klageinstans_for | Kongen → styre | for styrets vedtak Kongen i statsråd |
-| 10 | domstolloven | lov/1915/08/13/5/nor/§77/ledd-1 | tilsynskompetanse | domstoladministrasjonen → null | Domstoladministrasjonen hvert halvår skal kontrollere om medlemmene av utvalgene av meddommere og skjønnsmedlemmer er innført i fortegnelsen i strid med § 72 |
-| 11 | energiloven | lov/1990/06/29/50/nor/§9-1/ledd-5 | administrativt_underordnet | kraftforsyningen → Kraftforsyningens beredskapsorganisasjon (KBO) | Beredskapsmyndigheten kan under beredskap og i krig underlegge kraftforsyningen KBO. |
-| 12 | domstolloven | forskrift/2021/01/22/163/nor/§1/ledd-1 | har_sete_i | tingrettene → rettssteder | med ett eller flere rettssteder |
-| 13 | domstolloven | lov/1915/08/13/5/nor/§66a/ledd-1 | vedtakskompetanse | domstolens leder → null | kan domstollederen bestemme at det skal velges flere medlemmer til utvalgene |
-| 14 | domstolloven | forskrift/2021/01/22/163/nor/§4/ledd-1 | del_av | Sunnmøre tingrett → Møre og Romsdal fylke | Møre og Romsdal fylke har rettskretsene |
+| 2 | domstolloven | lov/1915/08/13/5/nor/§16/ledd-1 | bestar_av | Rikets → lagdømmer | Rikets inddeling i lagdømmer |
+| 3 | domstolloven | forskrift/2021/01/22/163/nor/§2/ledd-1/punkt-3 | del_av | Finnsnes → Senja | Finnsnes |
+| 4 | domstolloven | lov/1915/08/13/5/nor/§16/ledd-1 | har_ansvarsomrade | lagmannsrettene → lagdømmer | lagdømmer for hver lagmandsret |
+| 5 | energiloven | lov/1990/06/29/50/nor/§4-11/ledd-1 | delegerer_til | Departementet → reguleringsmyndighet | Departementet kan gi forskrift om at reguleringsmyndigheten kan gi forskrift om metoder for beregning av nettselskapenes tillatte og faktiske inntekter |
+| 6 | domstolloven | lov/1915/08/13/5/nor/§48/ledd-4 | forskriftskompetanse | Kongen → null | ved regler, som Kongen gir |
+| 7 | domstolloven | lov/1915/08/13/5/nor/§3/ledd-1 | har_medlemmer | Høyesterett → dommere | Retten skal ha en justitiarius og nitten andre dommere. |
+| 8 | domstolloven | lov/1915/08/13/5/nor/§33/ledd-2 | instruksjon | Stortinget → domstoladministrasjonen | Gjennom Stortingets behandling av budsjettproposisjonen gis årlige retningslinjer for domstoladministrasjonens virksomhet |
+| 9 | domstolloven | lov/1915/08/13/5/nor/§58/ledd-1 | oppnevner | statsforvalteren → Forliksrådene | Finner han valget lovlig, utferdiger han oppnevnelse for de valgte |
+| 10 | domstolloven | lov/1915/08/13/5/nor/§33b/ledd-1 | klageinstans_for | Kongen → styre | for styrets vedtak Kongen i statsråd |
+| 11 | domstolloven | lov/1915/08/13/5/nor/§77/ledd-1 | tilsynskompetanse | domstoladministrasjonen → null | Domstoladministrasjonen hvert halvår skal kontrollere om medlemmene av utvalgene av meddommere og skjønnsmedlemmer er innført i fortegnelsen i strid med § 72 |
+| 12 | energiloven | lov/1990/06/29/50/nor/§9-1/ledd-5 | administrativt_underordnet | kraftforsyningen → Kraftforsyningens beredskapsorganisasjon (KBO) | Beredskapsmyndigheten kan under beredskap og i krig underlegge kraftforsyningen KBO. |
+| 13 | domstolloven | forskrift/2021/01/22/163/nor/§1/ledd-1 | har_sete_i | tingrettene → rettssteder | med ett eller flere rettssteder |
+| 14 | domstolloven | lov/1915/08/13/5/nor/§66a/ledd-1 | vedtakskompetanse | domstolens leder → null | kan domstollederen bestemme at det skal velges flere medlemmer til utvalgene |
 | 15 | domstolloven | lov/1915/08/13/5/nor/§16/ledd-1 | bestar_av | lagdømmer → lagsogn | lagdømmernes inddeling i retskredser (lagsogn) |
-| 16 | energiloven | lov/1990/06/29/50/nor/§9-4/ledd-1 | delegerer_til | Beredskapsmyndigheten → enheter i KBO | Beredskapsmyndigheten kan delegere myndighet til å treffe vedtak i forbindelse med beredskap til KBO eller enheter som inngår i KBO. |
-| 17 | domstolloven | lov/1915/08/13/5/nor/§60/ledd-1 | forskriftskompetanse | Kongen → null | Kongen fastsetter hvordan forsikringen skal lyde. |
-| 18 | domstolloven | lov/1915/08/13/5/nor/§5/ledd-1 | har_medlemmer | Høyesteretts ankeutvalg → dommere | settes Høyesterett med tre dommere |
-| 19 | domstolloven | lov/1915/08/13/5/nor/§33/ledd-3 | instruksjon | Kongen → domstoladministrasjonen | Kongen i statsråd kan treffe vedtak om domstoladministrasjonens virksomhet og administrasjonen av domstolene. |
-| 20 | domstolloven | lov/1915/08/13/5/nor/§43/ledd-2 | oppnevner | null → En granskingskommisjon, et kontrollutvalg eller et annet særskilt organ | som er oppnevnt av Kongen, Stortinget eller et departement eller en statsforvalter |
+| 16 | domstolloven | forskrift/2021/01/22/163/nor/§2/ledd-1/punkt-5 | del_av | Svolvær → Vågan | Svolvær |
+| 17 | domstolloven | lov/1915/08/13/5/nor/§22/ledd-1 | har_ansvarsomrade | tingrettene → domssogn | domssogn for tingrettene (rettskretser) |
+| 18 | energiloven | lov/1990/06/29/50/nor/§9-4/ledd-1 | delegerer_til | Beredskapsmyndigheten → enheter i KBO | Beredskapsmyndigheten kan delegere myndighet til å treffe vedtak i forbindelse med beredskap til KBO eller enheter som inngår i KBO. |
+| 19 | domstolloven | lov/1915/08/13/5/nor/§60/ledd-1 | forskriftskompetanse | Kongen → null | Kongen fastsetter hvordan forsikringen skal lyde. |
+| 20 | domstolloven | lov/1915/08/13/5/nor/§5/ledd-1 | har_medlemmer | Høyesteretts ankeutvalg → dommere | settes Høyesterett med tre dommere |
 
 ## Forkastede mønstre
 
@@ -238,4 +239,5 @@ De 20 vanligste blant typene med mønster (én fra hver type i tur, vanligste ty
 - `Navneliste: siste element med to «og» delt på det første` — Ga «Møre» + «Romsdal og Trööndelagen/Trøndelag» som lagsogn (domstolloven-inndelingen § 12). Tvetydig — teksten sier ikke hvilket «og» som er inne i et navn — så hele lista forkastes nå.
 - `oppnevnt-av: ordet rett foran finitt passiv som den oppnevnte` — «Dommere til Høyesterett, …, tingrettene og jordskifterettene utnevnes … av Kongen» ga «jordskifterettene». For «oppnevnes/utnevnes» brukes nå setningens subjekt.
 - `(ikke bygget) rapporterer_til` — Fasiten har 31, men uttrykt som «sende melding til», «varsle», «forelegges», «underrette» — formuleringer som like ofte er informasjonsplikter for private (docs/33 §1: «rapporterer til» 45 %). Ingen form med høy nok presisjon til mønsterlaget; overlatt til KI-laget (#308).
-- `(ikke bygget) A har_ansvarsomrade tingrett → egen rettskrets` — Fasiten har 52 slike («Vestre Finnmark tingrett» har ansvarsområde «Vestre Finnmark tingrett»), men rettskretsens navn står ikke i teksten — det er annotatørens konvensjon (docs/33 §3 funn 3: område og organ har samme navn). Å lage dem ville vært å kopiere fasiten, ikke lese teksten.
+- `(ikke bygget) A har_ansvarsomrade tingrett → egen rettskrets` — Fasiten hadde 52 slike («Vestre Finnmark tingrett» har ansvarsområde «Vestre Finnmark tingrett»), men rettskretsens navn står ikke i teksten. [Løst i #312, 2026-10-08:] Johann forkastet rettskrets-aktørene i fasitkontrollen; fasiten er rettet til «tingrett har_ansvarsomrade kommune», som inndeling-rettskrets nå gir direkte.
+- `inndeling-har-rettskretsen (fjernet i #312)` — «X fylke har rettskretsen N tingrett» → N del_av X fylke uttrykte tingretten som et område. Fjernet sammen med rettskrets-aktørene i fasiten (Johanns funn på #312).

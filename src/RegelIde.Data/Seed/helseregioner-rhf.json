@@ -1,0 +1,43 @@
+{
+  "_kilde": "Vedtektene for de fire regionale helseforetakene, fastsatt ved kgl.res. og sist endret 11. juni 2024, lest i PDF fra regjeringen.no 2026-10-08 (issue #312). § 3 i hver av dem er gjengitt ordrett i 'omfatter_ordrett'. Dokumentasjonen er derfor 'primaer'.",
+  "_merknad_om_fylkesnavn": "Vedtektene sist endret 11.06.2024 bruker fortsatt fylkesinndelingen fra FØR 1.1.2024: Helse Sør-Øst nevner «Vestfold og Telemark» og «Viken», Helse Nord nevner «Troms og Finnmark fylke». Seeden avbilder disse til dagens fylker med SSB KLASS 104 sin endringsliste (ssb-klass-104-fylkesendringer-2024.json), og skriver avbildningen i kantens kommentar. Svalbard er ikke et fylke i Kartverkets inndeling og legges inn som eget område (type 'annet') fordi vedtektene navngir det.",
+  "_bruk": "OmraderegisterSeed oppretter helseregionen som område (vedtektene navngir den), O helseregion bestar_av fylke, og A har_ansvarsomrade RHF -> helseregion. Kilde utenfor korpus: type vedtekter, dokumentasjon primaer.",
+  "rhf": [
+    {
+      "organisasjonsnummer": "883658752",
+      "navn": "Helse Nord RHF",
+      "helseregion": "Helseregion Nord",
+      "omfatter": ["Svalbard", "Troms og Finnmark", "Nordland"],
+      "omfatter_ordrett": "Ansvarsområdet for Helse Nord RHF er Helseregion Nord. Helseregion Nord omfatter Svalbard, Troms og Finnmark fylke og Nordland fylke.",
+      "lenke": "https://www.regjeringen.no/contentassets/21b845094bec4dad911ee87d4ed1606e/vedtekter-for-helse-nord-rhf-sist-endret-11.06.2024.pdf",
+      "sist_endret": "2024-06-11"
+    },
+    {
+      "organisasjonsnummer": "983658776",
+      "navn": "Helse Midt-Norge RHF",
+      "helseregion": "Helseregion Midt-Norge",
+      "omfatter": ["Møre og Romsdal", "Trøndelag"],
+      "omfatter_ordrett": "Ansvarsområdet for Helse Midt-Norge RHF er Helseregion Midt-Norge. Helseregion Midt- Norge omfatter fylkene Møre og Romsdal og Trøndelag.",
+      "lenke": "https://www.regjeringen.no/contentassets/a901642e003849a1aa36d4c1e5a6c60e/vedtekter-for-helse-midt-norge-rhf-sist-endret-11.06.2024.pdf",
+      "sist_endret": "2024-06-11"
+    },
+    {
+      "organisasjonsnummer": "983658725",
+      "navn": "Helse Vest RHF",
+      "helseregion": "Helseregion Vest",
+      "omfatter": ["Rogaland", "Vestland"],
+      "omfatter_ordrett": "Ansvarsområdet for Helse Vest RHF er Helseregion Vest. Helseregion Vest omfatter fylkene Rogaland og Vestland.",
+      "lenke": "https://www.regjeringen.no/contentassets/f4c654abe37e46bfae3ef47ef65bc988/vedtekter-for-helse-vest-rhf-sist-endret-11.06.2024.pdf",
+      "sist_endret": "2024-06-11"
+    },
+    {
+      "organisasjonsnummer": "991324968",
+      "navn": "Helse Sør-Øst RHF",
+      "helseregion": "Helseregion Sør-Øst",
+      "omfatter": ["Agder", "Vestfold og Telemark", "Viken", "Oslo", "Innlandet"],
+      "omfatter_ordrett": "Ansvarsområdet for Helse Sør-Øst RHF er Helseregion Sør-Øst. Helseregion Sør-Øst omfatter fylkene Agder, Vestfold og Telemark, Viken, Oslo og Innlandet.",
+      "lenke": "https://www.regjeringen.no/contentassets/fd164ee393264425aa054ce8ff637caf/vedtekter-for-helse-sor-ost-rhf-sist-endret-11.06.2024.pdf",
+      "sist_endret": "2024-06-11"
+    }
+  ]
+}

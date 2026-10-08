@@ -1004,3 +1004,19 @@ dokumentasjon (primær/sekundær), brukt av relasjonsskjemaet og veiviserens ste
 KI-konverteringen, docs/33 §5.2). Tildelingsskjemaet («Legg til medlemskap/rolle») sender alltid `positiv`,
 fordi det registrerer at virksomheten ER medlem/innehaver.
 
+## 32. Områdefanen og ansvarsområder (issue #312, 2026-10-08)
+
+- **Et registrert område (områdetype satt) åpner på fanen «Område»** i `BegrepDetalj` (`begrep/Omraderegister.tsx`):
+  for en kommune først «Tilhørighet» (beregnet svar, egen kompakt tabell — ikke kanter), deretter «Hvem har ansvar
+  her», «Består av», «Inngår i» med `StrukturkantTabell` (§31). Områdetype + kode vises som `neutral` tag på
+  statuslinjen (`OmradetypeTag`) — en klassifisering, ikke en status.
+- **Tilhørighetens statuser:** entydig = ingen tag; «Ikke entydig» = `warning` (flere kandidater, ingen valgt);
+  «Mangler» = `neutral`. Samme regel som #314 skal bruke — velg aldri en kandidat i UI-et.
+- **VirksomhetDetalj:** A-kantene fra virksomheten har egen seksjon «Ansvarsområder» i «Myndighet & relasjoner»
+  (en tingrett har 10–40 kommuner som ellers druknet kompetanseradene).
+- **[ENDRET, Johanns beslutning 2026-10-08] «Ingen hjemmel» vises bare når kanten heller ikke har en kildetype.** Har den
+  en kilde utenfor korpus, vises kildetypen («Register», «Vedtekter», «Kgl.res. (sekundær)») i samme `warning`-tag i
+  stedet — gjelder `StrukturkantTabell` og `GruppeMedlemmer`. Erstatter §31-raden «Ingen hjemmel + kildetype-tag».
+- **Samlet godkjenning:** når området har forslag, vises «Godkjenn alle N forslag hjemlet i X» øverst på områdefanen —
+  to klikk (knapp → «Bekreft»), fordi handlingen gjelder alle forslag med samme hjemmel, også i andre områder.
+  Tilhørigheten merker en kandidat «Forslag» (`info`) når svaret hviler på en ikke-godkjent kant.

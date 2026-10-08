@@ -1,4 +1,4 @@
-using System.Text.RegularExpressions;
+﻿using System.Text.RegularExpressions;
 
 namespace RegelIde.Data.Strukturkonvertering;
 
@@ -226,14 +226,17 @@ internal static class Monsterkatalog
             "Ikke målt i docs/33 §1. Fylkestilhørigheten står eksplisitt i setningen.",
             Inndeling.KommuneIFylke),
 
-        new Strukturmonster("inndeling-har-rettskretsen", "sammensetning_omrade", "del_av",
-            "«X fylke har rettskretsen N tingrett, …» → N er del av X fylke. Flertallsformen «har rettskretsene» tas ikke: elementene står i egne punkt-noder.",
-            "Ikke målt i docs/33 §1.",
-            Inndeling.HarRettskretsen),
+        // [FJERNET, issue #312, 2026-10-08] «inndeling-har-rettskretsen» («X fylke har rettskretsen N tingrett» → N del_av
+        // X fylke). Mønsteret uttrykte rettskretsen som et område med tingrettens navn — modellen Johann forkastet i
+        // fasitkontrollen (#312): rettskretsen har ikke eget navn, og tingretten er et organ, ikke et område. Fasiten for
+        // domstolloven er rettet tilsvarende (data/fasit/strukturmodell/rettelse-312-domstolinndeling.py), og de fire
+        // radene mønsteret traff, er fjernet der. Inndeling.HarRettskretsen står igjen ubrukt som spor.
 
-
-        new Strukturmonster("inndeling-rettskrets", "sammensetning_omrade", "bestar_av",
-            "«(… har rettskretsen) N tingrett, med rettssted(er) i …, som dekker kommunene A, B og C» → N består av hver kommune; «som dekker A kommune» → én.",
+        // [ENDRET, issue #312] Var O «sammensetning_omrade/bestar_av» (rettskretsen N består av kommunene). Nå A
+        // «ansvarsomrade/har_ansvarsomrade»: tingretten har ansvarsområde direkte til kommunene teksten nevner (Johanns
+        // funn 2026-10-07 på #312). Samme regex, samme endepunkter — bare kanttypen.
+        new Strukturmonster("inndeling-rettskrets", "ansvarsomrade", "har_ansvarsomrade",
+            "«(… har rettskretsen) N tingrett, med rettssted(er) i …, som dekker kommunene A, B og C» → N har ansvarsområde i hver kommune; «som dekker A kommune» → én.",
             "docs/33 §1 nevner strukturerte kommunelister i inndelingsforskrifter som høypresisjonskilde (ikke tallfestet).",
             s => Inndeling.Rettskrets(s, kommuner: true)),
 
@@ -252,10 +255,14 @@ internal static class Monsterkatalog
             "Strukturerte lister i inndelingsforskrifter (docs/33 §1, ikke tallfestet).",
             Inndeling.Utgjor),
 
-        new Strukturmonster("inndeling-sogner", "sammensetning_omrade", "bestar_av",
-            "«Til lagsognet/rettskretsen N sogner A tingrett og B tingrett» → N består av hver.",
+        // [ENDRET, issue #312, 2026-10-08] Var O «N bestar_av A tingrett» — et område som består av et organ, som bare
+        // ga mening med den forkastede rettskrets-aktøren (rk_*, samme navn som tingretten). Nå det teksten sier:
+        // tingretten SOGNER TIL lagsognet, som «annet:sogner_til» (aktør → område; ingen typekode i FORMAT.md passer).
+        // Strukturen bak — kommunene inngår i lagsognet via tingrettens kommuner — avledes av DomstolinndelingTolker.
+        new Strukturmonster("inndeling-sogner", "ansvarsomrade", "annet:sogner_til",
+            "«Til lagsognet/rettskretsen N sogner A tingrett og B tingrett» → A sogner til N, B sogner til N.",
             "Strukturerte lister i inndelingsforskrifter (docs/33 §1, ikke tallfestet).",
-            Inndeling.Sogner),
+            s => Inndeling.Sogner(s).Select(f => f with { Fra = f.Til, Til = f.Fra }).ToList()),
 
         new Strukturmonster("inndeling-bestar-av-liste", "sammensetning_omrade", "bestar_av",
             "«N består (i tillegg) av A, B og C», der ALLE elementene er egennavn (stor forbokstav). «Styret består av ni medlemmer» tas ikke (det er har-medlemmer).",

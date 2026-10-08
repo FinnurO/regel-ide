@@ -1342,6 +1342,30 @@ public sealed class BegrepEntitet
     /// rader.</summary>
     public Guid? LovkildeId { get; set; }
 
+    /// <summary>
+    /// [Ny, issue #312 «Strukturmodell 7: områderegister», 2026-10-08, docs/33 §4.1] Hva slags område et
+    /// <see cref="Begrepskategori"/> = <c>'omrade'</c> er — <c>fylke</c>, <c>kommune</c>, <c>tettsted</c>,
+    /// <c>lagsogn</c>, <c>lagdomme</c>, <c>helseregion</c> eller <c>annet</c> (<see cref="Omradetyper"/>, CHECK
+    /// <c>ck_begreper_omradetype</c>). NULL for alle andre begrep, og for områder registrert for hånd før #312
+    /// («forvaltningsområdet for samiske språk») — de er ikke del av registeret og har ingen kode.
+    /// <para>
+    /// Typen er nødvendig for oppslaget «gitt kommune X → fylke, lagsogn, lagdømme, helseregion»
+    /// (<see cref="OmradeOppslagTjeneste"/>): alle disse er O-foreldre til kommunen, og uten typen kan ikke
+    /// et fylke skilles fra et lagsogn med samme navn («Agder» er fylke, lagsogn og lagdømme, docs/33 §3 funn 3).
+    /// </para>
+    /// </summary>
+    public string? Omradetype { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #312] Koden i den autoritative inndelingen — kommunenummer/fylkesnummer fra Kartverket, eller
+    /// SSR-stedsnummer for et tettsted. ATTRIBUTT, aldri identitet alene (docs/33 §4.1, docs/15 §3.3: Bergen var
+    /// 1201 før 2020 og 4601 etter). Identiteten er (<see cref="Omradetype"/>, kode) blant GJELDENDE rader
+    /// (<see cref="GyldigTil"/> IS NULL) — den delvise unike indeksen <c>ux_begreper_omrade_type_kode</c>. Navnet
+    /// er bevisst ikke nøkkel: Herøy og Våler finnes to ganger hver, og Oslo er både fylke og kommune.
+    /// NULL for områder teksten navngir uten kode (lagsogn, lagdømme, helseregion).
+    /// </summary>
+    public string? Omradekode { get; set; }
+
     public required string Term { get; set; } // skos:prefLabel
     public string? Definisjon { get; set; } // skos:definition — påkrevd for Begrepskategori=NULL, se klassekommentaren
     public string? LovreferanseEid { get; set; } // dct:source — validert mot RettskildeNoder ved lagring

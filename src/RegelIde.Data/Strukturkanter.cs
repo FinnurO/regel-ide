@@ -45,9 +45,20 @@ public static class Strukturkanter
     /// annet sted uten rettslig status» — arbeidslista over struktur som mangler forankring i en rettskilde.
     /// </summary>
     public static readonly string[] KildeUtenforKorpusTyper =
-        ["kgl_res", "instruks", "tildelingsbrev", "vedtekter", "styrevedtak", "forarbeider", NettsideAnnet];
+        ["kgl_res", "instruks", "tildelingsbrev", "vedtekter", "styrevedtak", "forarbeider", NettsideAnnet, Register];
 
     public const string NettsideAnnet = "nettside_annet";
+
+    /// <summary>
+    /// [Ny, issue #312 «områderegister», 2026-10-08] Et AUTORITATIVT REGISTER som ikke er en rettskilde —
+    /// Kartverkets kommuneinfo (fylke → kommune), Enhetsregisteret (kommunens organisasjonsnummer → eget
+    /// kommunenummer) og Kartverkets SSR (tettsted → kommune). Lagt til fordi ingen av de sju typene fra #311
+    /// passet: <see cref="NettsideAnnet"/> betyr «uten rettslig status» og er ARBEIDSLISTA over struktur som
+    /// mangler forankring — 1 000+ register-kanter der ville druknet de få som faktisk mangler kilde, og et
+    /// nasjonalt register er ikke en nettside. Dokumentasjonen er <see cref="Primaer"/> når kanten er lest
+    /// direkte av registeret. Johann bekrefter typen før merge (CLAUDE.md §19).
+    /// </summary>
+    public const string Register = "register";
 
     /// <summary>[Ny, Johanns beslutning 2026-10-07] Er kilden utenfor korpus dokumentert PRIMÆRT (lenken/teksten
     /// er selve kilden) eller SEKUNDÆRT (en tekst som refererer den)? CHECK <c>ck_strukturkanter_kilde_dokumentasjon</c>.</summary>

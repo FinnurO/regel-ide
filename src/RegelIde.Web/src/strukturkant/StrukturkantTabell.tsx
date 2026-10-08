@@ -184,13 +184,16 @@ export function StrukturkantTabell({ kanter, tomTekst, visKategori = false, visH
                       </Link>
                     ) : (
                       <>
-                        <Tag data-size="sm" data-color="warning">Ingen hjemmel</Tag>{' '}
-                        {/* [Ny, Johanns beslutning 2026-10-07] Kildetypen og om dokumentasjonen er sekundær. */}
-                        {k.kildeUtenforKorpusType && (
-                          <Tag data-size="sm" data-color="neutral">
+                        {/* [ENDRET, issue #312, Johanns beslutning 2026-10-08] «Ingen hjemmel» bare når kanten heller ikke
+                          * har en kildetype. Med kildetype vises TYPEN i stedet (`warning` som før, docs/09 §31): en kant
+                          * fra Kartverket eller fra vedtektene er ikke uten kilde, den har en kilde utenfor korpus. */}
+                        {k.kildeUtenforKorpusType ? (
+                          <Tag data-size="sm" data-color="warning" title="Kilde utenfor korpus — ikke en hjemmel i lovteksten.">
                             {KILDETYPE_VISNING[k.kildeUtenforKorpusType] ?? k.kildeUtenforKorpusType}
                             {k.kildeUtenforKorpusDokumentasjon === 'sekundaer' ? ' (sekundær)' : ''}
                           </Tag>
+                        ) : (
+                          <Tag data-size="sm" data-color="warning">Ingen hjemmel</Tag>
                         )}{' '}
                         {k.kildeUtenforKorpusLenke ? (
                           <Link href={k.kildeUtenforKorpusLenke} target="_blank" rel="noopener noreferrer">

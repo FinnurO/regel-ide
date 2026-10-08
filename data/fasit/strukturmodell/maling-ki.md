@@ -20,11 +20,11 @@ samme eId + kategori + type + fra/til-tekstform som et mønsterutsagn. **Bare m�
 
 | Lag | Fasit | Predikert | Treff | Presisjon | Gjenfinning | Presisjon u/endepunkt | Gjenfinning u/endepunkt |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| Mønster | 1865 | 901 | 845 | 93,8 % | 45,3 % | 95,9 % | 46,3 % |
-| KI | 1865 | 1043 | 359 | 34,4 % | 19,2 % | 39,8 % | 22,3 % |
-| Mønster ∪ KI | 1865 | 1700 | 972 | 57,2 % | 52,1 % | 60,8 % | 55,4 % |
+| Mønster | 1797 | 899 | 843 | 93,8 % | 46,9 % | 95,9 % | 48,0 % |
+| KI | 1797 | 1043 | 359 | 34,4 % | 20,0 % | 39,8 % | 23,1 % |
+| Mønster ∪ KI | 1797 | 1698 | 970 | 57,1 % | 54,0 % | 60,8 % | 57,4 % |
 
-Av 1865 fasitutsagn traff bare mønsterlaget 616, bare KI-laget 130.
+Av 1797 fasitutsagn traff bare mønsterlaget 614, bare KI-laget 130.
 
 ## Per kategori (kanttype, `docs/33` §4.3)
 
@@ -35,14 +35,14 @@ P = presisjon, G = gjenfinning (med endepunktkrav).
 | R | 223 | 36 | 77,8 % | 12,6 % | 131 | 24,4 % | 14,3 % | 34,5 % | 25,6 % | 25 | 29 |
 | K | 427 | 288 | 88,5 % | 59,7 % | 674 | 45,1 % | 71,2 % | 46,3 % | 78,0 % | 32 | 81 |
 | M | 48 | 0 | – | 0,0 % | 22 | 4,5 % | 2,1 % | 4,5 % | 2,1 % | 0 | 1 |
-| O | 578 | 509 | 97,4 % | 85,8 % | 11 | 0,0 % | 0,0 % | 95,4 % | 85,8 % | 496 | 0 |
-| A | 120 | 62 | 100,0 % | 51,7 % | 51 | 0,0 % | 0,0 % | 54,9 % | 51,7 % | 62 | 0 |
+| O | 177 | 122 | 89,3 % | 61,6 % | 11 | 0,0 % | 0,0 % | 82,0 % | 61,6 % | 109 | 0 |
+| A | 449 | 419 | 100,0 % | 93,3 % | 51 | 0,0 % | 0,0 % | 89,1 % | 93,3 % | 419 | 0 |
 | G | 43 | 6 | 66,7 % | 9,3 % | 41 | 12,2 % | 11,6 % | 12,8 % | 14,0 % | 1 | 2 |
 | I | 0 | 0 | – | – | 0 | – | – | – | – | 0 | 0 |
 | T | 21 | 0 | – | 0,0 % | 14 | 14,3 % | 9,5 % | 14,3 % | 9,5 % | 0 | 2 |
-| annet | 366 | 0 | – | 0,0 % | 60 | 1,7 % | 0,3 % | 1,7 % | 0,3 % | 0 | 1 |
+| annet | 370 | 28 | 100,0 % | 7,6 % | 60 | 1,7 % | 0,3 % | 33,0 % | 7,8 % | 28 | 1 |
 | senere lag | 39 | 0 | – | 0,0 % | 39 | 35,9 % | 35,9 % | 35,9 % | 35,9 % | 0 | 14 |
-| **Alle** | 1865 | 901 | 93,8 % | 45,3 % | 1043 | 34,4 % | 19,2 % | 57,2 % | 52,1 % | 616 | 130 |
+| **Alle** | 1797 | 899 | 93,8 % | 46,9 % | 1043 | 34,4 % | 20,0 % | 57,1 % | 54,0 % | 614 | 130 |
 
 ### KI uten endepunktkrav (bare eId + kategori + type)
 
@@ -53,19 +53,19 @@ Avstanden til tabellen over er utsagn KI-en gjenkjente, men med feil eller mangl
 | R | 41,2 % | 24,2 % | 94,4 % | 15,2 % |
 | K | 46,0 % | 72,6 % | 88,5 % | 59,7 % |
 | M | 13,6 % | 6,3 % | – | 0,0 % |
-| O | 81,8 % | 1,6 % | 99,6 % | 87,7 % |
-| A | 7,8 % | 3,3 % | 100,0 % | 51,7 % |
+| O | 81,8 % | 5,1 % | 98,4 % | 67,8 % |
+| A | 7,8 % | 0,9 % | 100,0 % | 93,3 % |
 | G | 22,0 % | 20,9 % | 100,0 % | 14,0 % |
 | I | – | – | – | – |
 | T | 42,9 % | 28,6 % | – | 0,0 % |
-| annet | 1,7 % | 0,3 % | – | 0,0 % |
+| annet | 1,7 % | 0,3 % | 100,0 % | 7,6 % |
 | senere lag | 48,7 % | 48,7 % | – | 0,0 % |
 
 ## Per kilde
 
 | Kilde | Fasit | Mønster pred. | Mønster P | Mønster G | KI pred. | KI P | KI G | Union P | Union G | Bare mønster | Bare KI |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| domstolloven | 832 | 541 | 95,7 % | 62,3 % | 344 | 16,3 % | 6,7 % | 63,5 % | 64,5 % | 481 | 19 |
+| domstolloven | 764 | 539 | 95,7 % | 67,5 % | 344 | 16,3 % | 7,3 % | 63,4 % | 70,0 % | 479 | 19 |
 | energiloven | 254 | 114 | 94,7 % | 42,5 % | 212 | 57,5 % | 48,0 % | 60,8 % | 57,5 % | 25 | 39 |
 | helse-og-omsorgstjenesteloven | 192 | 49 | 91,8 % | 23,4 % | 133 | 48,9 % | 33,9 % | 48,1 % | 33,3 % | 1 | 21 |
 | sameloven | 285 | 130 | 87,7 % | 40,0 % | 70 | 27,1 % | 6,7 % | 66,8 % | 43,9 % | 106 | 11 |
@@ -104,10 +104,10 @@ Alle typer fra FORMAT.md-listene som står i fasiten eller som et av lagene pred
 | K kompetanse / delegeringsfullmakt | 3 | 0 | – | 0,0 % | 27 | 3,7 % | 33,3 % | 3,7 % | 33,3 % | 0 | 1 |
 | M medlemskap / medlem_av | 30 | 0 | – | 0,0 % | 22 | 4,5 % | 3,3 % | 4,5 % | 3,3 % | 0 | 1 |
 | M medlemskap / inngar_i | 18 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
-| O sammensetning_omrade / bestar_av | 493 | 460 | 98,9 % | 92,3 % | 11 | 0,0 % | 0,0 % | 96,6 % | 92,3 % | 455 | 0 |
-| O sammensetning_omrade / del_av | 85 | 49 | 83,7 % | 48,2 % | 0 | – | 0,0 % | 83,7 % | 48,2 % | 41 | 0 |
+| O sammensetning_omrade / bestar_av | 108 | 75 | 93,3 % | 64,8 % | 11 | 0,0 % | 0,0 % | 81,4 % | 64,8 % | 70 | 0 |
+| O sammensetning_omrade / del_av | 69 | 47 | 83,0 % | 56,5 % | 0 | – | 0,0 % | 83,0 % | 56,5 % | 39 | 0 |
+| A ansvarsomrade / har_ansvarsomrade | 381 | 357 | 100,0 % | 93,7 % | 35 | 0,0 % | 0,0 % | 91,1 % | 93,7 % | 357 | 0 |
 | A ansvarsomrade / har_sete_i | 65 | 62 | 100,0 % | 95,4 % | 0 | – | 0,0 % | 100,0 % | 95,4 % | 62 | 0 |
-| A ansvarsomrade / har_ansvarsomrade | 52 | 0 | – | 0,0 % | 35 | 0,0 % | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
 | A ansvarsomrade / har_jurisdiksjon | 3 | 0 | – | 0,0 % | 16 | 0,0 % | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
 | G organsammensetning / har_medlemmer | 24 | 6 | 66,7 % | 16,7 % | 16 | 18,8 % | 12,5 % | 18,2 % | 16,7 % | 1 | 0 |
 | G organsammensetning / har_organ | 10 | 0 | – | 0,0 % | 6 | 33,3 % | 20,0 % | 33,3 % | 20,0 % | 0 | 2 |
@@ -229,16 +229,16 @@ Eksempler (én fra hver kategori i tur, inntil 20):
 
 | Kategori / type | Fasit | Ikke funnet av KI | Ikke funnet av mønster | Ikke funnet av noen |
 |---|---:|---:|---:|---:|
-| O sammensetning_omrade / bestar_av | 493 | 493 | 38 | 38 |
+| A ansvarsomrade / har_ansvarsomrade | 381 | 381 | 24 | 24 |
 | K kompetanse / forskriftskompetanse | 205 | 29 | 23 | 14 |
 | K kompetanse / vedtakskompetanse | 158 | 54 | 90 | 39 |
-| O sammensetning_omrade / del_av | 85 | 85 | 44 | 44 |
+| O sammensetning_omrade / bestar_av | 108 | 108 | 38 | 38 |
+| O sammensetning_omrade / del_av | 69 | 69 | 30 | 30 |
 | A ansvarsomrade / har_sete_i | 65 | 65 | 3 | 3 |
-| A ansvarsomrade / har_ansvarsomrade | 52 | 52 | 52 | 52 |
 | R relasjon / delegerer_til | 36 | 35 | 24 | 24 |
 | R relasjon / rapporterer_til | 31 | 21 | 31 | 21 |
 | M medlemskap / medlem_av | 30 | 29 | 30 | 29 |
-| annet sammensetning_omrade / annet:gruppert_under | 24 | 24 | 24 | 24 |
+| annet ansvarsomrade / annet:sogner_til | 28 | 28 | 0 | 0 |
 | G organsammensetning / har_medlemmer | 24 | 21 | 20 | 20 |
 | senere lag relasjon / samarbeider_med | 24 | 13 | 24 | 13 |
 | R relasjon / oppnevner | 23 | 23 | 16 | 16 |

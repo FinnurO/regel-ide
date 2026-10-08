@@ -597,18 +597,40 @@ export default function VirksomhetDetalj() {
       </section>
       )}
 
+      {/* [Ny, issue #312 «områderegister», 2026-10-08] Ansvarsområdene i egen seksjon: «hvilke områder har denne
+        * aktøren ansvar i?» (docs/33 §6.1 tommelfingerregel 10) er et eget spørsmål, og for en tingrett er det 10–40
+        * kommuner som ellers ville druknet kompetanse- og organradene. Områdenavnene lenker til områdesiden, der
+        * sammensetningen og de andre ansvarlige står. */}
       {fane === 'myndighet' && (
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
-          Kompetanse, ansvarsområder og organtilhørighet
+          Ansvarsområder
+        </Heading>
+        <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
+          Områder virksomheten har ansvar for eller sete i (issue #312): for en kommune eget territorium, for en
+          tingrett kommunene i inndelingsforskriften, for en statsforvalter fylkene i embetet, for et RHF
+          helseregionen.
+        </Metatekst>
+        <StrukturkantTabell
+          kanter={kanter && kanter.filter((k) => k.kategori === 'A' && k.retning === 'fra')}
+          tomTekst="Ingen ansvarsområder registrert."
+        />
+      </section>
+      )}
+
+      {fane === 'myndighet' && (
+      <section style={{ marginBottom: '2rem' }}>
+        <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
+          Kompetanse og organtilhørighet
         </Heading>
         <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
           Øvrige strukturutsagn (issue #311, docs/33 §4.3): hvilken kompetanse virksomheten har etter hvilken
-          bestemmelse, hvilke områder den har ansvar for, og hvilket rettssubjekt den er organ for. Registreres
-          i dag av konverteringen (#313) eller over API-et — det finnes ikke et eget skjema for disse ennå.
+          bestemmelse, og hvilket rettssubjekt den er organ for. Registreres i dag av konverteringen (#313) eller
+          over API-et — det finnes ikke et eget skjema for disse ennå. Ansvarsområdene står i egen seksjon over.
         </Metatekst>
         <StrukturkantTabell
-          kanter={kanter && kanter.filter((k) => k.kategori !== 'R' && !((k.kategori === 'M' || k.kategori === 'I') && k.retning === 'fra'))}
+          kanter={kanter && kanter.filter((k) => k.kategori !== 'R' && !(k.kategori === 'A' && k.retning === 'fra')
+            && !((k.kategori === 'M' || k.kategori === 'I') && k.retning === 'fra'))}
           tomTekst="Ingen andre strukturutsagn registrert."
           visKategori
         />

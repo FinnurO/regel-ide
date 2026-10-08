@@ -1,0 +1,1794 @@
+{
+  "_kilde": "Enhetsregisteret (Brønnøysundregistrene), alle enheter med organisasjonsform KOMM. UTTREKK: organisasjonsnummer, navn og forretningsadresse.kommunenummer.",
+  "_url": "https://data.brreg.no/enhetsregisteret/api/enheter?organisasjonsform=KOMM&size=1000",
+  "_hentet": "2026-10-08",
+  "_antall": 357,
+  "_bruk": "Issue #312: kobler kommunen som rettssubjekt (Virksomhet, nøkkel = organisasjonsnummer) til sitt kommunenummer. For organisasjonsform KOMM er forretningsadressens kommunenummer kommunens eget (BrregKlient.Kommunenummer, verifisert live 2026-09-08); seeden sjekker i tillegg at nummeret er entydig og finnes hos Kartverket.",
+  "enheter": [
+    {
+      "organisasjonsnummer": "817263992",
+      "navn": "FÆRDER KOMMUNE",
+      "kommunenummer": "3911"
+    },
+    {
+      "organisasjonsnummer": "820710592",
+      "navn": "LILLESTRØM KOMMUNE",
+      "kommunenummer": "3205"
+    },
+    {
+      "organisasjonsnummer": "820852982",
+      "navn": "KRISTIANSAND KOMMUNE",
+      "kommunenummer": "4204"
+    },
+    {
+      "organisasjonsnummer": "820956532",
+      "navn": "KINN KOMMUNE",
+      "kommunenummer": "4602"
+    },
+    {
+      "organisasjonsnummer": "822534422",
+      "navn": "SANDE KOMMUNE",
+      "kommunenummer": "1514"
+    },
+    {
+      "organisasjonsnummer": "829912252",
+      "navn": "HARAM KOMMUNE",
+      "kommunenummer": "1580"
+    },
+    {
+      "organisasjonsnummer": "834210622",
+      "navn": "BØMLO KOMMUNE",
+      "kommunenummer": "4613"
+    },
+    {
+      "organisasjonsnummer": "835231712",
+      "navn": "MERÅKER KOMMUNE",
+      "kommunenummer": "5034"
+    },
+    {
+      "organisasjonsnummer": "839893132",
+      "navn": "NORD-FRON KOMMUNE",
+      "kommunenummer": "3436"
+    },
+    {
+      "organisasjonsnummer": "839953062",
+      "navn": "UNJARGGA GIELDA / NESSEBY KOMMUNE",
+      "kommunenummer": "5636"
+    },
+    {
+      "organisasjonsnummer": "840014932",
+      "navn": "LYNGEN KOMMUNE IVGU SUOHKAN YYKEÄN KUNTA",
+      "kommunenummer": "5536"
+    },
+    {
+      "organisasjonsnummer": "840029212",
+      "navn": "STEINKJER KOMMUNE",
+      "kommunenummer": "5006"
+    },
+    {
+      "organisasjonsnummer": "842566142",
+      "navn": "LØRENSKOG KOMMUNE",
+      "kommunenummer": "3222"
+    },
+    {
+      "organisasjonsnummer": "844458312",
+      "navn": "BJØRNAFJORDEN KOMMUNE",
+      "kommunenummer": "4624"
+    },
+    {
+      "organisasjonsnummer": "844824122",
+      "navn": "VEFSN KOMMUNE",
+      "kommunenummer": "1824"
+    },
+    {
+      "organisasjonsnummer": "845152012",
+      "navn": "ØKSNES KOMMUNE",
+      "kommunenummer": "1868"
+    },
+    {
+      "organisasjonsnummer": "845153272",
+      "navn": "FLATANGER KOMMUNE",
+      "kommunenummer": "5049"
+    },
+    {
+      "organisasjonsnummer": "845901422",
+      "navn": "GILDESKÅL KOMMUNE",
+      "kommunenummer": "1838"
+    },
+    {
+      "organisasjonsnummer": "846316442",
+      "navn": "HEMNES KOMMUNE",
+      "kommunenummer": "1832"
+    },
+    {
+      "organisasjonsnummer": "847737492",
+      "navn": "SORTLAND KOMMUNE / SUORTTÁ SOUHKAN",
+      "kommunenummer": "1870"
+    },
+    {
+      "organisasjonsnummer": "857566122",
+      "navn": "LIER KOMMUNE",
+      "kommunenummer": "3312"
+    },
+    {
+      "organisasjonsnummer": "859223672",
+      "navn": "TIME KOMMUNE",
+      "kommunenummer": "1121"
+    },
+    {
+      "organisasjonsnummer": "861381722",
+      "navn": "NORDRE LAND KOMMUNE",
+      "kommunenummer": "3448"
+    },
+    {
+      "organisasjonsnummer": "863320852",
+      "navn": "FLAKSTAD KOMMUNE",
+      "kommunenummer": "1859"
+    },
+    {
+      "organisasjonsnummer": "864338712",
+      "navn": "OSTERØY KOMMUNE",
+      "kommunenummer": "4630"
+    },
+    {
+      "organisasjonsnummer": "864948502",
+      "navn": "TRYSIL KOMMUNE",
+      "kommunenummer": "3421"
+    },
+    {
+      "organisasjonsnummer": "864949762",
+      "navn": "GJERDRUM KOMMUNE",
+      "kommunenummer": "3230"
+    },
+    {
+      "organisasjonsnummer": "864950582",
+      "navn": "RINGSAKER KOMMUNE",
+      "kommunenummer": "3411"
+    },
+    {
+      "organisasjonsnummer": "864952992",
+      "navn": "ÅL KOMMUNE",
+      "kommunenummer": "3328"
+    },
+    {
+      "organisasjonsnummer": "864953042",
+      "navn": "SILJAN KOMMUNE",
+      "kommunenummer": "4010"
+    },
+    {
+      "organisasjonsnummer": "864963552",
+      "navn": "TINN KOMMUNE",
+      "kommunenummer": "4026"
+    },
+    {
+      "organisasjonsnummer": "864964702",
+      "navn": "GRIMSTAD KOMMUNE",
+      "kommunenummer": "4202"
+    },
+    {
+      "organisasjonsnummer": "864965962",
+      "navn": "ÅMLI KOMMUNE",
+      "kommunenummer": "4217"
+    },
+    {
+      "organisasjonsnummer": "864966012",
+      "navn": "IVELAND KOMMUNE",
+      "kommunenummer": "4218"
+    },
+    {
+      "organisasjonsnummer": "864967272",
+      "navn": "SVEIO KOMMUNE",
+      "kommunenummer": "4612"
+    },
+    {
+      "organisasjonsnummer": "864968422",
+      "navn": "FJALER KOMMUNE",
+      "kommunenummer": "4646"
+    },
+    {
+      "organisasjonsnummer": "864969682",
+      "navn": "KLEPP KOMMUNE",
+      "kommunenummer": "1120"
+    },
+    {
+      "organisasjonsnummer": "864979092",
+      "navn": "HJELMELAND KOMMUNE",
+      "kommunenummer": "1133"
+    },
+    {
+      "organisasjonsnummer": "864980902",
+      "navn": "RAUMA KOMMUNE",
+      "kommunenummer": "1539"
+    },
+    {
+      "organisasjonsnummer": "864982212",
+      "navn": "NAMSSKOGAN KOMMUNE",
+      "kommunenummer": "5044"
+    },
+    {
+      "organisasjonsnummer": "864983472",
+      "navn": "TYDAL KOMMUNE",
+      "kommunenummer": "5033"
+    },
+    {
+      "organisasjonsnummer": "864993982",
+      "navn": "BARDU KOMMUNE",
+      "kommunenummer": "5520"
+    },
+    {
+      "organisasjonsnummer": "864994032",
+      "navn": "DYRØY KOMMUNE",
+      "kommunenummer": "5528"
+    },
+    {
+      "organisasjonsnummer": "871034222",
+      "navn": "VÅLER KOMMUNE",
+      "kommunenummer": "3419"
+    },
+    {
+      "organisasjonsnummer": "872417982",
+      "navn": "HERØY KOMMUNE",
+      "kommunenummer": "1818"
+    },
+    {
+      "organisasjonsnummer": "872418032",
+      "navn": "RANA KOMMUNE",
+      "kommunenummer": "1833"
+    },
+    {
+      "organisasjonsnummer": "916882807",
+      "navn": "SANDEFJORD KOMMUNE",
+      "kommunenummer": "3907"
+    },
+    {
+      "organisasjonsnummer": "917151229",
+      "navn": "HOLMESTRAND KOMMUNE",
+      "kommunenummer": "3903"
+    },
+    {
+      "organisasjonsnummer": "918082956",
+      "navn": "LARVIK KOMMUNE",
+      "kommunenummer": "3909"
+    },
+    {
+      "organisasjonsnummer": "920123899",
+      "navn": "INDRE ØSTFOLD KOMMUNE",
+      "kommunenummer": "3118"
+    },
+    {
+      "organisasjonsnummer": "920125298",
+      "navn": "ASKER KOMMUNE",
+      "kommunenummer": "3203"
+    },
+    {
+      "organisasjonsnummer": "920290922",
+      "navn": "ALVER KOMMUNE",
+      "kommunenummer": "4631"
+    },
+    {
+      "organisasjonsnummer": "920297293",
+      "navn": "MIDT-TELEMARK KOMMUNE",
+      "kommunenummer": "4020"
+    },
+    {
+      "organisasjonsnummer": "920500633",
+      "navn": "ULLENSVANG KOMMUNE",
+      "kommunenummer": "4618"
+    },
+    {
+      "organisasjonsnummer": "920817521",
+      "navn": "MOSS KOMMUNE",
+      "kommunenummer": "3103"
+    },
+    {
+      "organisasjonsnummer": "920920004",
+      "navn": "HEIM KOMMUNE",
+      "kommunenummer": "5055"
+    },
+    {
+      "organisasjonsnummer": "921060157",
+      "navn": "STAD KOMMUNE",
+      "kommunenummer": "4649"
+    },
+    {
+      "organisasjonsnummer": "921060440",
+      "navn": "LINDESNES KOMMUNE",
+      "kommunenummer": "4205"
+    },
+    {
+      "organisasjonsnummer": "921133642",
+      "navn": "HUSTADVIKA KOMMUNE",
+      "kommunenummer": "1579"
+    },
+    {
+      "organisasjonsnummer": "921221967",
+      "navn": "MOLDE KOMMUNE",
+      "kommunenummer": "1506"
+    },
+    {
+      "organisasjonsnummer": "921233418",
+      "navn": "ORKLAND KOMMUNE",
+      "kommunenummer": "5059"
+    },
+    {
+      "organisasjonsnummer": "921234554",
+      "navn": "DRAMMEN KOMMUNE",
+      "kommunenummer": "3301"
+    },
+    {
+      "organisasjonsnummer": "921244207",
+      "navn": "SUNNFJORD KOMMUNE",
+      "kommunenummer": "4647"
+    },
+    {
+      "organisasjonsnummer": "921369417",
+      "navn": "SENJA KOMMUNE",
+      "kommunenummer": "5530"
+    },
+    {
+      "organisasjonsnummer": "921383681",
+      "navn": "TØNSBERG KOMMUNE",
+      "kommunenummer": "3905"
+    },
+    {
+      "organisasjonsnummer": "921770669",
+      "navn": "HAMMERFEST KOMMUNE",
+      "kommunenummer": "5603"
+    },
+    {
+      "organisasjonsnummer": "921785410",
+      "navn": "NÆRØYSUND KOMMUNE",
+      "kommunenummer": "5060"
+    },
+    {
+      "organisasjonsnummer": "921806027",
+      "navn": "ØRLAND KOMMUNE",
+      "kommunenummer": "5057"
+    },
+    {
+      "organisasjonsnummer": "921875533",
+      "navn": "ÅFJORD KOMMUNE",
+      "kommunenummer": "5058"
+    },
+    {
+      "organisasjonsnummer": "921891687",
+      "navn": "FJORD KOMMUNE",
+      "kommunenummer": "1578"
+    },
+    {
+      "organisasjonsnummer": "922092648",
+      "navn": "NORDRE FOLLO KOMMUNE",
+      "kommunenummer": "3207"
+    },
+    {
+      "organisasjonsnummer": "922121893",
+      "navn": "SOGNDAL KOMMUNE",
+      "kommunenummer": "4640"
+    },
+    {
+      "organisasjonsnummer": "922421498",
+      "navn": "LYNGDAL KOMMUNE",
+      "kommunenummer": "4225"
+    },
+    {
+      "organisasjonsnummer": "922530890",
+      "navn": "ØYGARDEN KOMMUNE",
+      "kommunenummer": "4626"
+    },
+    {
+      "organisasjonsnummer": "929911709",
+      "navn": "ÅLESUND KOMMUNE",
+      "kommunenummer": "1508"
+    },
+    {
+      "organisasjonsnummer": "933038173",
+      "navn": "ETNEDAL KOMMUNE",
+      "kommunenummer": "3450"
+    },
+    {
+      "organisasjonsnummer": "933277461",
+      "navn": "DRANGEDAL KOMMUNE",
+      "kommunenummer": "4016"
+    },
+    {
+      "organisasjonsnummer": "933649768",
+      "navn": "ULLENSAKER KOMMUNE",
+      "kommunenummer": "3209"
+    },
+    {
+      "organisasjonsnummer": "934266811",
+      "navn": "GAMVIK KOMMUNE",
+      "kommunenummer": "5626"
+    },
+    {
+      "organisasjonsnummer": "934945514",
+      "navn": "RANDABERG KOMMUNE",
+      "kommunenummer": "1127"
+    },
+    {
+      "organisasjonsnummer": "935478715",
+      "navn": "BÆRUM KOMMUNE",
+      "kommunenummer": "3201"
+    },
+    {
+      "organisasjonsnummer": "936846777",
+      "navn": "VENNESLA KOMMUNE",
+      "kommunenummer": "4223"
+    },
+    {
+      "organisasjonsnummer": "937498764",
+      "navn": "VIK KOMMUNE",
+      "kommunenummer": "4639"
+    },
+    {
+      "organisasjonsnummer": "937697767",
+      "navn": "HOLTÅLEN KOMMUNE",
+      "kommunenummer": "5026"
+    },
+    {
+      "organisasjonsnummer": "938469415",
+      "navn": "NORDKAPP KOMMUNE",
+      "kommunenummer": "5620"
+    },
+    {
+      "organisasjonsnummer": "938497524",
+      "navn": "GULEN KOMMUNE",
+      "kommunenummer": "4635"
+    },
+    {
+      "organisasjonsnummer": "938583986",
+      "navn": "NOTODDEN KOMMUNE",
+      "kommunenummer": "4005"
+    },
+    {
+      "organisasjonsnummer": "938587051",
+      "navn": "LEVANGER KOMMUNE",
+      "kommunenummer": "5037"
+    },
+    {
+      "organisasjonsnummer": "938587418",
+      "navn": "VERDAL KOMMUNE",
+      "kommunenummer": "5038"
+    },
+    {
+      "organisasjonsnummer": "938644500",
+      "navn": "VÅGAN KOMMUNE",
+      "kommunenummer": "1865"
+    },
+    {
+      "organisasjonsnummer": "938679088",
+      "navn": "NES KOMMUNE",
+      "kommunenummer": "3228"
+    },
+    {
+      "organisasjonsnummer": "938712441",
+      "navn": "ALSTAHAUG KOMMUNE",
+      "kommunenummer": "1820"
+    },
+    {
+      "organisasjonsnummer": "938726027",
+      "navn": "MELHUS KOMMUNE",
+      "kommunenummer": "5028"
+    },
+    {
+      "organisasjonsnummer": "938759839",
+      "navn": "SKIEN KOMMUNE",
+      "kommunenummer": "4003"
+    },
+    {
+      "organisasjonsnummer": "938772924",
+      "navn": "HITRA KOMMUNE",
+      "kommunenummer": "5056"
+    },
+    {
+      "organisasjonsnummer": "938795592",
+      "navn": "BÅTSFJORD KOMMUNE",
+      "kommunenummer": "5632"
+    },
+    {
+      "organisasjonsnummer": "938801363",
+      "navn": "SARPSBORG KOMMUNE",
+      "kommunenummer": "3105"
+    },
+    {
+      "organisasjonsnummer": "939461450",
+      "navn": "ØRSTA KOMMUNE",
+      "kommunenummer": "1520"
+    },
+    {
+      "organisasjonsnummer": "939600515",
+      "navn": "NESNA KOMMUNE",
+      "kommunenummer": "1828"
+    },
+    {
+      "organisasjonsnummer": "939607706",
+      "navn": "VÅGÅ KOMMUNE",
+      "kommunenummer": "3435"
+    },
+    {
+      "organisasjonsnummer": "939617671",
+      "navn": "SEL KOMMUNE",
+      "kommunenummer": "3437"
+    },
+    {
+      "organisasjonsnummer": "939760946",
+      "navn": "VOLDA KOMMUNE",
+      "kommunenummer": "1577"
+    },
+    {
+      "organisasjonsnummer": "939772766",
+      "navn": "FYRESDAL KOMMUNE",
+      "kommunenummer": "4032"
+    },
+    {
+      "organisasjonsnummer": "939780777",
+      "navn": "HURDAL KOMMUNE",
+      "kommunenummer": "3242"
+    },
+    {
+      "organisasjonsnummer": "939849831",
+      "navn": "DOVRE KOMMUNE",
+      "kommunenummer": "3431"
+    },
+    {
+      "organisasjonsnummer": "939864970",
+      "navn": "RINGEBU KOMMUNE",
+      "kommunenummer": "3439"
+    },
+    {
+      "organisasjonsnummer": "939865942",
+      "navn": "SKAUN KOMMUNE",
+      "kommunenummer": "5029"
+    },
+    {
+      "organisasjonsnummer": "939866914",
+      "navn": "STORD KOMMUNE",
+      "kommunenummer": "4614"
+    },
+    {
+      "organisasjonsnummer": "939885684",
+      "navn": "FOLLDAL KOMMUNE",
+      "kommunenummer": "3429"
+    },
+    {
+      "organisasjonsnummer": "939896600",
+      "navn": "OVERHALLA KOMMUNE",
+      "kommunenummer": "5047"
+    },
+    {
+      "organisasjonsnummer": "939898743",
+      "navn": "RØROS KOMMUNE",
+      "kommunenummer": "5025"
+    },
+    {
+      "organisasjonsnummer": "939901965",
+      "navn": "VESTNES KOMMUNE",
+      "kommunenummer": "1535"
+    },
+    {
+      "organisasjonsnummer": "939958851",
+      "navn": "STJØRDAL KOMMUNE",
+      "kommunenummer": "5035"
+    },
+    {
+      "organisasjonsnummer": "939984194",
+      "navn": "ALVDAL KOMMUNE",
+      "kommunenummer": "3428"
+    },
+    {
+      "organisasjonsnummer": "939991034",
+      "navn": "PORSGRUNN KOMMUNE",
+      "kommunenummer": "4001"
+    },
+    {
+      "organisasjonsnummer": "940010853",
+      "navn": "GRONG KOMMUNE",
+      "kommunenummer": "5045"
+    },
+    {
+      "organisasjonsnummer": "940028515",
+      "navn": "RENDALEN KOMMUNE",
+      "kommunenummer": "3424"
+    },
+    {
+      "organisasjonsnummer": "940039541",
+      "navn": "FREDRIKSTAD KOMMUNE",
+      "kommunenummer": "3107"
+    },
+    {
+      "organisasjonsnummer": "940083672",
+      "navn": "RENNEBU KOMMUNE",
+      "kommunenummer": "5022"
+    },
+    {
+      "organisasjonsnummer": "940100925",
+      "navn": "RINGERIKE KOMMUNE",
+      "kommunenummer": "3305"
+    },
+    {
+      "organisasjonsnummer": "940101808",
+      "navn": "TROMSØ KOMMUNE",
+      "kommunenummer": "5501"
+    },
+    {
+      "organisasjonsnummer": "940138051",
+      "navn": "RINDAL KOMMUNE",
+      "kommunenummer": "5061"
+    },
+    {
+      "organisasjonsnummer": "940152496",
+      "navn": "ÅMOT KOMMUNE",
+      "kommunenummer": "3422"
+    },
+    {
+      "organisasjonsnummer": "940155223",
+      "navn": "GJØVIK KOMMUNE",
+      "kommunenummer": "3407"
+    },
+    {
+      "organisasjonsnummer": "940192404",
+      "navn": "TOLGA KOMMUNE",
+      "kommunenummer": "3426"
+    },
+    {
+      "organisasjonsnummer": "940192692",
+      "navn": "TRÆNA KOMMUNE",
+      "kommunenummer": "1835"
+    },
+    {
+      "organisasjonsnummer": "940208580",
+      "navn": "BALSFJORD KOMMUNE",
+      "kommunenummer": "5532"
+    },
+    {
+      "organisasjonsnummer": "940244145",
+      "navn": "BAMBLE KOMMUNE",
+      "kommunenummer": "4012"
+    },
+    {
+      "organisasjonsnummer": "940330408",
+      "navn": "KARLSØY KOMMUNE",
+      "kommunenummer": "5534"
+    },
+    {
+      "organisasjonsnummer": "940331102",
+      "navn": "KVÆNANGEN KOMMUNE",
+      "kommunenummer": "5546"
+    },
+    {
+      "organisasjonsnummer": "940363586",
+      "navn": "GAIVUONA SUOHKAN KÅFJORD KOMMUNE KAIVUONON KOMUUNI",
+      "kommunenummer": "5540"
+    },
+    {
+      "organisasjonsnummer": "940400392",
+      "navn": "LEBESBY KOMMUNE",
+      "kommunenummer": "5624"
+    },
+    {
+      "organisasjonsnummer": "940493021",
+      "navn": "ARENDAL KOMMUNE",
+      "kommunenummer": "4203"
+    },
+    {
+      "organisasjonsnummer": "940642140",
+      "navn": "EVENES KOMMUNE / EVENÁSSI SUOHKAN",
+      "kommunenummer": "1853"
+    },
+    {
+      "organisasjonsnummer": "940643112",
+      "navn": "GRANE KOMMUNE",
+      "kommunenummer": "1825"
+    },
+    {
+      "organisasjonsnummer": "940651034",
+      "navn": "VEVELSTAD KOMMUNE",
+      "kommunenummer": "1816"
+    },
+    {
+      "organisasjonsnummer": "940667852",
+      "navn": "LURØY KOMMUNE",
+      "kommunenummer": "1834"
+    },
+    {
+      "organisasjonsnummer": "940755603",
+      "navn": "SØRREISA KOMMUNE",
+      "kommunenummer": "5526"
+    },
+    {
+      "organisasjonsnummer": "940791901",
+      "navn": "KARMØY KOMMUNE",
+      "kommunenummer": "1149"
+    },
+    {
+      "organisasjonsnummer": "940802652",
+      "navn": "RÅDE KOMMUNE",
+      "kommunenummer": "3112"
+    },
+    {
+      "organisasjonsnummer": "940837685",
+      "navn": "TYNSET KOMMUNE",
+      "kommunenummer": "3427"
+    },
+    {
+      "organisasjonsnummer": "940875560",
+      "navn": "AREMARK KOMMUNE",
+      "kommunenummer": "3124"
+    },
+    {
+      "organisasjonsnummer": "940898862",
+      "navn": "FLESBERG KOMMUNE",
+      "kommunenummer": "3334"
+    },
+    {
+      "organisasjonsnummer": "941017975",
+      "navn": "VEGA KOMMUNE",
+      "kommunenummer": "1815"
+    },
+    {
+      "organisasjonsnummer": "941087957",
+      "navn": "MÅSØY KOMMUNE",
+      "kommunenummer": "5618"
+    },
+    {
+      "organisasjonsnummer": "941139787",
+      "navn": "AUSTEVOLL KOMMUNE",
+      "kommunenummer": "4625"
+    },
+    {
+      "organisasjonsnummer": "941812716",
+      "navn": "SKJERVØY KOMMUNE",
+      "kommunenummer": "5542"
+    },
+    {
+      "organisasjonsnummer": "941827195",
+      "navn": "SØR-FRON KOMMUNE",
+      "kommunenummer": "3438"
+    },
+    {
+      "organisasjonsnummer": "941962726",
+      "navn": "SKIPTVET KOMMUNE",
+      "kommunenummer": "3116"
+    },
+    {
+      "organisasjonsnummer": "942110286",
+      "navn": "SØR-VARANGER KOMMUNE",
+      "kommunenummer": "5605"
+    },
+    {
+      "organisasjonsnummer": "942110464",
+      "navn": "TRONDHEIM KOMMUNE",
+      "kommunenummer": "5001"
+    },
+    {
+      "organisasjonsnummer": "942402465",
+      "navn": "KONGSBERG KOMMUNE",
+      "kommunenummer": "3303"
+    },
+    {
+      "organisasjonsnummer": "942570619",
+      "navn": "VESTVÅGØY KOMMUNE",
+      "kommunenummer": "1860"
+    },
+    {
+      "organisasjonsnummer": "942875967",
+      "navn": "NAMSOS KOMMUNE",
+      "kommunenummer": "5007"
+    },
+    {
+      "organisasjonsnummer": "943350833",
+      "navn": "NORDREISA KOMMUNE",
+      "kommunenummer": "5544"
+    },
+    {
+      "organisasjonsnummer": "943464723",
+      "navn": "OS KOMMUNE",
+      "kommunenummer": "3430"
+    },
+    {
+      "organisasjonsnummer": "943485437",
+      "navn": "VESTBY KOMMUNE",
+      "kommunenummer": "3216"
+    },
+    {
+      "organisasjonsnummer": "943505527",
+      "navn": "DEANU GIELDA / TANA KOMMUNE",
+      "kommunenummer": "5628"
+    },
+    {
+      "organisasjonsnummer": "944041036",
+      "navn": "FEDJE KOMMUNE",
+      "kommunenummer": "4633"
+    },
+    {
+      "organisasjonsnummer": "944073310",
+      "navn": "FITJAR KOMMUNE",
+      "kommunenummer": "4615"
+    },
+    {
+      "organisasjonsnummer": "944073787",
+      "navn": "HAUGESUND KOMMUNE",
+      "kommunenummer": "1106"
+    },
+    {
+      "organisasjonsnummer": "944117784",
+      "navn": "KONGSVINGER KOMMUNE",
+      "kommunenummer": "3401"
+    },
+    {
+      "organisasjonsnummer": "944227121",
+      "navn": "EIDFJORD KOMMUNE",
+      "kommunenummer": "4619"
+    },
+    {
+      "organisasjonsnummer": "944233199",
+      "navn": "KVAM HERAD",
+      "kommunenummer": "4622"
+    },
+    {
+      "organisasjonsnummer": "944305483",
+      "navn": "INDRE FOSEN KOMMUNE",
+      "kommunenummer": "5054"
+    },
+    {
+      "organisasjonsnummer": "944350675",
+      "navn": "OSEN KOMMUNE",
+      "kommunenummer": "5020"
+    },
+    {
+      "organisasjonsnummer": "944383565",
+      "navn": "NESODDEN KOMMUNE",
+      "kommunenummer": "3212"
+    },
+    {
+      "organisasjonsnummer": "944439838",
+      "navn": "HØYANGER KOMMUNE",
+      "kommunenummer": "4638"
+    },
+    {
+      "organisasjonsnummer": "944482253",
+      "navn": "FROSTA KOMMUNE",
+      "kommunenummer": "5036"
+    },
+    {
+      "organisasjonsnummer": "944484574",
+      "navn": "LEKA KOMMUNE",
+      "kommunenummer": "5052"
+    },
+    {
+      "organisasjonsnummer": "944496394",
+      "navn": "EIGERSUND KOMMUNE",
+      "kommunenummer": "1101"
+    },
+    {
+      "organisasjonsnummer": "944588132",
+      "navn": "ALTA KOMMUNE",
+      "kommunenummer": "5601"
+    },
+    {
+      "organisasjonsnummer": "944716904",
+      "navn": "HATTFJELLDAL KOMMUNE",
+      "kommunenummer": "1826"
+    },
+    {
+      "organisasjonsnummer": "944810277",
+      "navn": "SØMNA KOMMUNE",
+      "kommunenummer": "1812"
+    },
+    {
+      "organisasjonsnummer": "944889116",
+      "navn": "HOL KOMMUNE",
+      "kommunenummer": "3330"
+    },
+    {
+      "organisasjonsnummer": "945012986",
+      "navn": "SMØLA KOMMUNE",
+      "kommunenummer": "1573"
+    },
+    {
+      "organisasjonsnummer": "945034572",
+      "navn": "LEIRFJORD KOMMUNE",
+      "kommunenummer": "1822"
+    },
+    {
+      "organisasjonsnummer": "945037687",
+      "navn": "RØST KOMMUNE",
+      "kommunenummer": "1856"
+    },
+    {
+      "organisasjonsnummer": "945114878",
+      "navn": "DØNNA KOMMUNE",
+      "kommunenummer": "1827"
+    },
+    {
+      "organisasjonsnummer": "945372281",
+      "navn": "RAKKESTAD KOMMUNE",
+      "kommunenummer": "3120"
+    },
+    {
+      "organisasjonsnummer": "945452676",
+      "navn": "BØ KOMMUNE",
+      "kommunenummer": "1867"
+    },
+    {
+      "organisasjonsnummer": "945468661",
+      "navn": "LØDINGEN KOMMUNE",
+      "kommunenummer": "1851"
+    },
+    {
+      "organisasjonsnummer": "945475056",
+      "navn": "GUOVDAGEAINNU SUOHKAN / KAUTOKEINO KOMMUNE",
+      "kommunenummer": "5612"
+    },
+    {
+      "organisasjonsnummer": "945578564",
+      "navn": "LILLEHAMMER KOMMUNE",
+      "kommunenummer": "3405"
+    },
+    {
+      "organisasjonsnummer": "945624809",
+      "navn": "ANDØY KOMMUNE",
+      "kommunenummer": "1871"
+    },
+    {
+      "organisasjonsnummer": "945627913",
+      "navn": "MASFJORDEN KOMMUNE",
+      "kommunenummer": "4634"
+    },
+    {
+      "organisasjonsnummer": "945717173",
+      "navn": "RØDØY KOMMUNE",
+      "kommunenummer": "1836"
+    },
+    {
+      "organisasjonsnummer": "945962151",
+      "navn": "MOSKENES KOMMUNE",
+      "kommunenummer": "1874"
+    },
+    {
+      "organisasjonsnummer": "946439045",
+      "navn": "FROLAND KOMMUNE",
+      "kommunenummer": "4214"
+    },
+    {
+      "organisasjonsnummer": "948164256",
+      "navn": "AURSKOG-HØLAND KOMMUNE",
+      "kommunenummer": "3226"
+    },
+    {
+      "organisasjonsnummer": "948243113",
+      "navn": "SOLA KOMMUNE",
+      "kommunenummer": "1124"
+    },
+    {
+      "organisasjonsnummer": "948350823",
+      "navn": "AUSTRHEIM KOMMUNE",
+      "kommunenummer": "4632"
+    },
+    {
+      "organisasjonsnummer": "952540556",
+      "navn": "RÆLINGEN KOMMUNE",
+      "kommunenummer": "3224"
+    },
+    {
+      "organisasjonsnummer": "952857991",
+      "navn": "ELVERUM KOMMUNE",
+      "kommunenummer": "3420"
+    },
+    {
+      "organisasjonsnummer": "954597482",
+      "navn": "ØVRE EIKER KOMMUNE",
+      "kommunenummer": "3314"
+    },
+    {
+      "organisasjonsnummer": "954679721",
+      "navn": "ÅRDAL KOMMUNE",
+      "kommunenummer": "4643"
+    },
+    {
+      "organisasjonsnummer": "954681890",
+      "navn": "LÆRDAL KOMMUNE",
+      "kommunenummer": "4642"
+    },
+    {
+      "organisasjonsnummer": "958501420",
+      "navn": "HADSEL KOMMUNE",
+      "kommunenummer": "1866"
+    },
+    {
+      "organisasjonsnummer": "958814968",
+      "navn": "BYKLE KOMMUNE",
+      "kommunenummer": "4222"
+    },
+    {
+      "organisasjonsnummer": "958935420",
+      "navn": "OSLO KOMMUNE",
+      "kommunenummer": "0301"
+    },
+    {
+      "organisasjonsnummer": "959159092",
+      "navn": "HALDEN KOMMUNE",
+      "kommunenummer": "3101"
+    },
+    {
+      "organisasjonsnummer": "959220476",
+      "navn": "HØYLANDET KOMMUNE",
+      "kommunenummer": "5046"
+    },
+    {
+      "organisasjonsnummer": "959272581",
+      "navn": "VÅLER KOMMUNE",
+      "kommunenummer": "3114"
+    },
+    {
+      "organisasjonsnummer": "959318166",
+      "navn": "BREMANGER KOMMUNE",
+      "kommunenummer": "4648"
+    },
+    {
+      "organisasjonsnummer": "959377677",
+      "navn": "LOM KOMMUNE",
+      "kommunenummer": "3434"
+    },
+    {
+      "organisasjonsnummer": "959411735",
+      "navn": "PORSANGER KOMMUNE",
+      "kommunenummer": "5622"
+    },
+    {
+      "organisasjonsnummer": "959412340",
+      "navn": "TYSNES KOMMUNE",
+      "kommunenummer": "4616"
+    },
+    {
+      "organisasjonsnummer": "959435375",
+      "navn": "ETNE KOMMUNE",
+      "kommunenummer": "4611"
+    },
+    {
+      "organisasjonsnummer": "959469059",
+      "navn": "NARVIK KOMMUNE",
+      "kommunenummer": "1806"
+    },
+    {
+      "organisasjonsnummer": "959469326",
+      "navn": "DIELDDANUORI SUOHKAN - TJELDSUND KOMMUNE",
+      "kommunenummer": "5512"
+    },
+    {
+      "organisasjonsnummer": "959469415",
+      "navn": "GRATANGEN KOMMUNE",
+      "kommunenummer": "5516"
+    },
+    {
+      "organisasjonsnummer": "959469792",
+      "navn": "IBESTAD KOMMUNE",
+      "kommunenummer": "5514"
+    },
+    {
+      "organisasjonsnummer": "959469881",
+      "navn": "LAVANGEN KOMMUNE LOABÁGA SUOHKAN",
+      "kommunenummer": "5518"
+    },
+    {
+      "organisasjonsnummer": "960010833",
+      "navn": "HOLE KOMMUNE",
+      "kommunenummer": "3310"
+    },
+    {
+      "organisasjonsnummer": "960510542",
+      "navn": "VOSS HERAD",
+      "kommunenummer": "4621"
+    },
+    {
+      "organisasjonsnummer": "961147867",
+      "navn": "BEIARN KOMMUNE",
+      "kommunenummer": "1839"
+    },
+    {
+      "organisasjonsnummer": "961381096",
+      "navn": "SKJÅK KOMMUNE",
+      "kommunenummer": "3433"
+    },
+    {
+      "organisasjonsnummer": "961381185",
+      "navn": "ØYER KOMMUNE",
+      "kommunenummer": "3440"
+    },
+    {
+      "organisasjonsnummer": "961381274",
+      "navn": "GAUSDAL KOMMUNE",
+      "kommunenummer": "3441"
+    },
+    {
+      "organisasjonsnummer": "961381363",
+      "navn": "JEVNAKER KOMMUNE",
+      "kommunenummer": "3236"
+    },
+    {
+      "organisasjonsnummer": "961381452",
+      "navn": "LUNNER KOMMUNE",
+      "kommunenummer": "3234"
+    },
+    {
+      "organisasjonsnummer": "961381541",
+      "navn": "GRAN KOMMUNE",
+      "kommunenummer": "3446"
+    },
+    {
+      "organisasjonsnummer": "961381630",
+      "navn": "SØNDRE LAND KOMMUNE",
+      "kommunenummer": "3447"
+    },
+    {
+      "organisasjonsnummer": "961381819",
+      "navn": "SØR-AURDAL KOMMUNE",
+      "kommunenummer": "3449"
+    },
+    {
+      "organisasjonsnummer": "961381908",
+      "navn": "NORD-AURDAL KOMMUNE",
+      "kommunenummer": "3451"
+    },
+    {
+      "organisasjonsnummer": "961382068",
+      "navn": "ØYSTRE SLIDRE KOMMUNE",
+      "kommunenummer": "3453"
+    },
+    {
+      "organisasjonsnummer": "961382157",
+      "navn": "VESTRE SLIDRE KOMMUNE",
+      "kommunenummer": "3452"
+    },
+    {
+      "organisasjonsnummer": "961382246",
+      "navn": "VANG KOMMUNE",
+      "kommunenummer": "3454"
+    },
+    {
+      "organisasjonsnummer": "961416388",
+      "navn": "SALANGEN KOMMUNE",
+      "kommunenummer": "5522"
+    },
+    {
+      "organisasjonsnummer": "961821967",
+      "navn": "VAKSDAL KOMMUNE",
+      "kommunenummer": "4628"
+    },
+    {
+      "organisasjonsnummer": "962299385",
+      "navn": "STEIGEN KOMMUNE",
+      "kommunenummer": "1848"
+    },
+    {
+      "organisasjonsnummer": "962378064",
+      "navn": "AVERØY KOMMUNE",
+      "kommunenummer": "1554"
+    },
+    {
+      "organisasjonsnummer": "962388108",
+      "navn": "BERLEVÅG KOMMUNE",
+      "kommunenummer": "5630"
+    },
+    {
+      "organisasjonsnummer": "963063237",
+      "navn": "LOPPA KOMMUNE",
+      "kommunenummer": "5614"
+    },
+    {
+      "organisasjonsnummer": "963376030",
+      "navn": "KARASJOGA GIELDA / KARASJOK KOMMUNE",
+      "kommunenummer": "5610"
+    },
+    {
+      "organisasjonsnummer": "963946902",
+      "navn": "KRAGERØ KOMMUNE",
+      "kommunenummer": "4014"
+    },
+    {
+      "organisasjonsnummer": "963989202",
+      "navn": "STRYN KOMMUNE",
+      "kommunenummer": "4651"
+    },
+    {
+      "organisasjonsnummer": "963999089",
+      "navn": "FROGN KOMMUNE",
+      "kommunenummer": "3214"
+    },
+    {
+      "organisasjonsnummer": "964083266",
+      "navn": "FARSUND KOMMUNE",
+      "kommunenummer": "4206"
+    },
+    {
+      "organisasjonsnummer": "964338442",
+      "navn": "ASKØY KOMMUNE",
+      "kommunenummer": "4627"
+    },
+    {
+      "organisasjonsnummer": "964338531",
+      "navn": "BERGEN KOMMUNE",
+      "kommunenummer": "4601"
+    },
+    {
+      "organisasjonsnummer": "964830711",
+      "navn": "HASVIK KOMMUNE",
+      "kommunenummer": "5616"
+    },
+    {
+      "organisasjonsnummer": "964944334",
+      "navn": "MARKER KOMMUNE",
+      "kommunenummer": "3122"
+    },
+    {
+      "organisasjonsnummer": "964947082",
+      "navn": "HVALER KOMMUNE",
+      "kommunenummer": "3110"
+    },
+    {
+      "organisasjonsnummer": "964947716",
+      "navn": "SØR-ODAL KOMMUNE",
+      "kommunenummer": "3415"
+    },
+    {
+      "organisasjonsnummer": "964948054",
+      "navn": "EIDSKOG KOMMUNE",
+      "kommunenummer": "3416"
+    },
+    {
+      "organisasjonsnummer": "964948143",
+      "navn": "GRUE KOMMUNE",
+      "kommunenummer": "3417"
+    },
+    {
+      "organisasjonsnummer": "964948232",
+      "navn": "ÅSNES KOMMUNE",
+      "kommunenummer": "3418"
+    },
+    {
+      "organisasjonsnummer": "964948798",
+      "navn": "ÅS KOMMUNE",
+      "kommunenummer": "3218"
+    },
+    {
+      "organisasjonsnummer": "964948887",
+      "navn": "STOR-ELVDAL KOMMUNE",
+      "kommunenummer": "3423"
+    },
+    {
+      "organisasjonsnummer": "964948976",
+      "navn": "ENGERDAL KOMMUNE",
+      "kommunenummer": "3425"
+    },
+    {
+      "organisasjonsnummer": "964949204",
+      "navn": "LESJA KOMMUNE",
+      "kommunenummer": "3432"
+    },
+    {
+      "organisasjonsnummer": "964949581",
+      "navn": "ENEBAKK KOMMUNE",
+      "kommunenummer": "3220"
+    },
+    {
+      "organisasjonsnummer": "964949859",
+      "navn": "ØSTRE TOTEN KOMMUNE",
+      "kommunenummer": "3442"
+    },
+    {
+      "organisasjonsnummer": "964950113",
+      "navn": "EIDSVOLL KOMMUNE",
+      "kommunenummer": "3240"
+    },
+    {
+      "organisasjonsnummer": "964950202",
+      "navn": "NANNESTAD KOMMUNE",
+      "kommunenummer": "3238"
+    },
+    {
+      "organisasjonsnummer": "964950679",
+      "navn": "LØTEN KOMMUNE",
+      "kommunenummer": "3412"
+    },
+    {
+      "organisasjonsnummer": "964950768",
+      "navn": "NORD-ODAL KOMMUNE",
+      "kommunenummer": "3414"
+    },
+    {
+      "organisasjonsnummer": "964950946",
+      "navn": "NORE OG UVDAL KOMMUNE",
+      "kommunenummer": "3338"
+    },
+    {
+      "organisasjonsnummer": "964951284",
+      "navn": "HORTEN KOMMUNE",
+      "kommunenummer": "3901"
+    },
+    {
+      "organisasjonsnummer": "964951462",
+      "navn": "FLÅ KOMMUNE",
+      "kommunenummer": "3320"
+    },
+    {
+      "organisasjonsnummer": "964951640",
+      "navn": "NESBYEN KOMMUNE",
+      "kommunenummer": "3322"
+    },
+    {
+      "organisasjonsnummer": "964952612",
+      "navn": "GOL KOMMUNE",
+      "kommunenummer": "3324"
+    },
+    {
+      "organisasjonsnummer": "964952701",
+      "navn": "HEMSEDAL KOMMUNE",
+      "kommunenummer": "3326"
+    },
+    {
+      "organisasjonsnummer": "964962766",
+      "navn": "SIGDAL KOMMUNE",
+      "kommunenummer": "3332"
+    },
+    {
+      "organisasjonsnummer": "964962855",
+      "navn": "KRØDSHERAD KOMMUNE",
+      "kommunenummer": "3318"
+    },
+    {
+      "organisasjonsnummer": "964963282",
+      "navn": "ROLLAG KOMMUNE",
+      "kommunenummer": "3336"
+    },
+    {
+      "organisasjonsnummer": "964963371",
+      "navn": "NOME KOMMUNE",
+      "kommunenummer": "4018"
+    },
+    {
+      "organisasjonsnummer": "964963649",
+      "navn": "HJARTDAL KOMMUNE",
+      "kommunenummer": "4024"
+    },
+    {
+      "organisasjonsnummer": "964963738",
+      "navn": "SELJORD KOMMUNE",
+      "kommunenummer": "4022"
+    },
+    {
+      "organisasjonsnummer": "964963827",
+      "navn": "KVITESEID KOMMUNE",
+      "kommunenummer": "4028"
+    },
+    {
+      "organisasjonsnummer": "964963916",
+      "navn": "HÆGEBOSTAD KOMMUNE",
+      "kommunenummer": "4226"
+    },
+    {
+      "organisasjonsnummer": "964964076",
+      "navn": "KVINESDAL KOMMUNE",
+      "kommunenummer": "4227"
+    },
+    {
+      "organisasjonsnummer": "964964165",
+      "navn": "SIRDAL KOMMUNE",
+      "kommunenummer": "4228"
+    },
+    {
+      "organisasjonsnummer": "964964343",
+      "navn": "NISSEDAL KOMMUNE",
+      "kommunenummer": "4030"
+    },
+    {
+      "organisasjonsnummer": "964964521",
+      "navn": "TOKKE KOMMUNE",
+      "kommunenummer": "4034"
+    },
+    {
+      "organisasjonsnummer": "964964610",
+      "navn": "VINJE KOMMUNE",
+      "kommunenummer": "4036"
+    },
+    {
+      "organisasjonsnummer": "964964998",
+      "navn": "GJERSTAD KOMMUNE",
+      "kommunenummer": "4211"
+    },
+    {
+      "organisasjonsnummer": "964965048",
+      "navn": "VEGÅRSHEI KOMMUNE",
+      "kommunenummer": "4212"
+    },
+    {
+      "organisasjonsnummer": "964965137",
+      "navn": "SANDNES KOMMUNE",
+      "kommunenummer": "1108"
+    },
+    {
+      "organisasjonsnummer": "964965226",
+      "navn": "STAVANGER KOMMUNE",
+      "kommunenummer": "1103"
+    },
+    {
+      "organisasjonsnummer": "964965404",
+      "navn": "LILLESAND KOMMUNE",
+      "kommunenummer": "4215"
+    },
+    {
+      "organisasjonsnummer": "964965692",
+      "navn": "SOKNDAL KOMMUNE",
+      "kommunenummer": "1111"
+    },
+    {
+      "organisasjonsnummer": "964965781",
+      "navn": "TVEDESTRAND KOMMUNE",
+      "kommunenummer": "4213"
+    },
+    {
+      "organisasjonsnummer": "964965870",
+      "navn": "BIRKENES KOMMUNE",
+      "kommunenummer": "4216"
+    },
+    {
+      "organisasjonsnummer": "964966109",
+      "navn": "EVJE OG HORNNES KOMMUNE",
+      "kommunenummer": "4219"
+    },
+    {
+      "organisasjonsnummer": "964966397",
+      "navn": "BYGLAND KOMMUNE",
+      "kommunenummer": "4220"
+    },
+    {
+      "organisasjonsnummer": "964966486",
+      "navn": "LUND KOMMUNE",
+      "kommunenummer": "1112"
+    },
+    {
+      "organisasjonsnummer": "964966575",
+      "navn": "VALLE KOMMUNE",
+      "kommunenummer": "4221"
+    },
+    {
+      "organisasjonsnummer": "964966842",
+      "navn": "ÅSERAL KOMMUNE",
+      "kommunenummer": "4224"
+    },
+    {
+      "organisasjonsnummer": "964967369",
+      "navn": "FLEKKEFJORD KOMMUNE",
+      "kommunenummer": "4207"
+    },
+    {
+      "organisasjonsnummer": "964967458",
+      "navn": "SOLUND KOMMUNE",
+      "kommunenummer": "4636"
+    },
+    {
+      "organisasjonsnummer": "964967547",
+      "navn": "HYLLESTAD KOMMUNE",
+      "kommunenummer": "4637"
+    },
+    {
+      "organisasjonsnummer": "964967636",
+      "navn": "KVINNHERAD KOMMUNE",
+      "kommunenummer": "4617"
+    },
+    {
+      "organisasjonsnummer": "964968063",
+      "navn": "AURLAND KOMMUNE",
+      "kommunenummer": "4641"
+    },
+    {
+      "organisasjonsnummer": "964968241",
+      "navn": "LUSTER KOMMUNE",
+      "kommunenummer": "4644"
+    },
+    {
+      "organisasjonsnummer": "964968330",
+      "navn": "ASKVOLL KOMMUNE",
+      "kommunenummer": "4645"
+    },
+    {
+      "organisasjonsnummer": "964968985",
+      "navn": "SAMNANGER KOMMUNE",
+      "kommunenummer": "4623"
+    },
+    {
+      "organisasjonsnummer": "964969124",
+      "navn": "GLOPPEN KOMMUNE",
+      "kommunenummer": "4650"
+    },
+    {
+      "organisasjonsnummer": "964969302",
+      "navn": "MODALEN KOMMUNE",
+      "kommunenummer": "4629"
+    },
+    {
+      "organisasjonsnummer": "964969590",
+      "navn": "HÅ KOMMUNE",
+      "kommunenummer": "1119"
+    },
+    {
+      "organisasjonsnummer": "964977402",
+      "navn": "RISØR KOMMUNE",
+      "kommunenummer": "4201"
+    },
+    {
+      "organisasjonsnummer": "964978573",
+      "navn": "GJESDAL KOMMUNE",
+      "kommunenummer": "1122"
+    },
+    {
+      "organisasjonsnummer": "964978662",
+      "navn": "VANYLVEN KOMMUNE",
+      "kommunenummer": "1511"
+    },
+    {
+      "organisasjonsnummer": "964978751",
+      "navn": "STRAND KOMMUNE",
+      "kommunenummer": "1130"
+    },
+    {
+      "organisasjonsnummer": "964978840",
+      "navn": "HERØY KOMMUNE",
+      "kommunenummer": "1515"
+    },
+    {
+      "organisasjonsnummer": "964979189",
+      "navn": "SULDAL KOMMUNE",
+      "kommunenummer": "1134"
+    },
+    {
+      "organisasjonsnummer": "964979278",
+      "navn": "HAREID KOMMUNE",
+      "kommunenummer": "1517"
+    },
+    {
+      "organisasjonsnummer": "964979367",
+      "navn": "SAUDA KOMMUNE",
+      "kommunenummer": "1135"
+    },
+    {
+      "organisasjonsnummer": "964979456",
+      "navn": "ULSTEIN KOMMUNE",
+      "kommunenummer": "1516"
+    },
+    {
+      "organisasjonsnummer": "964979634",
+      "navn": "KVITSØY KOMMUNE",
+      "kommunenummer": "1144"
+    },
+    {
+      "organisasjonsnummer": "964979723",
+      "navn": "BOKN KOMMUNE",
+      "kommunenummer": "1145"
+    },
+    {
+      "organisasjonsnummer": "964979812",
+      "navn": "TYSVÆR KOMMUNE",
+      "kommunenummer": "1146"
+    },
+    {
+      "organisasjonsnummer": "964979901",
+      "navn": "UTSIRA KOMMUNE",
+      "kommunenummer": "1151"
+    },
+    {
+      "organisasjonsnummer": "964980098",
+      "navn": "STRANDA KOMMUNE",
+      "kommunenummer": "1525"
+    },
+    {
+      "organisasjonsnummer": "964980365",
+      "navn": "SYKKYLVEN KOMMUNE",
+      "kommunenummer": "1528"
+    },
+    {
+      "organisasjonsnummer": "964980543",
+      "navn": "SULA KOMMUNE",
+      "kommunenummer": "1531"
+    },
+    {
+      "organisasjonsnummer": "964980721",
+      "navn": "GISKE KOMMUNE",
+      "kommunenummer": "1532"
+    },
+    {
+      "organisasjonsnummer": "964981337",
+      "navn": "AUKRA KOMMUNE",
+      "kommunenummer": "1547"
+    },
+    {
+      "organisasjonsnummer": "964981426",
+      "navn": "GJEMNES KOMMUNE",
+      "kommunenummer": "1557"
+    },
+    {
+      "organisasjonsnummer": "964981515",
+      "navn": "TINGVOLL KOMMUNE",
+      "kommunenummer": "1560"
+    },
+    {
+      "organisasjonsnummer": "964981604",
+      "navn": "SUNNDAL KOMMUNE",
+      "kommunenummer": "1563"
+    },
+    {
+      "organisasjonsnummer": "964981892",
+      "navn": "SURNADAL KOMMUNE",
+      "kommunenummer": "1566"
+    },
+    {
+      "organisasjonsnummer": "964982031",
+      "navn": "SNÅSA KOMMUNE",
+      "kommunenummer": "5041"
+    },
+    {
+      "organisasjonsnummer": "964982120",
+      "navn": "RØYRVIK KOMMUNE",
+      "kommunenummer": "5043"
+    },
+    {
+      "organisasjonsnummer": "964982597",
+      "navn": "FRØYA KOMMUNE",
+      "kommunenummer": "5014"
+    },
+    {
+      "organisasjonsnummer": "964983003",
+      "navn": "OPPDAL KOMMUNE",
+      "kommunenummer": "5021"
+    },
+    {
+      "organisasjonsnummer": "964983291",
+      "navn": "BRØNNØY KOMMUNE",
+      "kommunenummer": "1813"
+    },
+    {
+      "organisasjonsnummer": "964983380",
+      "navn": "BINDAL KOMMUNE",
+      "kommunenummer": "1811"
+    },
+    {
+      "organisasjonsnummer": "964993602",
+      "navn": "VADSØ KOMMUNE",
+      "kommunenummer": "5607"
+    },
+    {
+      "organisasjonsnummer": "964994129",
+      "navn": "STORFJORD KOMMUNE",
+      "kommunenummer": "5538"
+    },
+    {
+      "organisasjonsnummer": "964994307",
+      "navn": "VÆRØY KOMMUNE",
+      "kommunenummer": "1857"
+    },
+    {
+      "organisasjonsnummer": "970169717",
+      "navn": "STANGE KOMMUNE",
+      "kommunenummer": "3413"
+    },
+    {
+      "organisasjonsnummer": "970187715",
+      "navn": "MIDTRE GAULDAL KOMMUNE",
+      "kommunenummer": "5027"
+    },
+    {
+      "organisasjonsnummer": "970189866",
+      "navn": "MELØY KOMMUNE",
+      "kommunenummer": "1837"
+    },
+    {
+      "organisasjonsnummer": "970490361",
+      "navn": "BJERKREIM KOMMUNE",
+      "kommunenummer": "1114"
+    },
+    {
+      "organisasjonsnummer": "970491589",
+      "navn": "MODUM KOMMUNE",
+      "kommunenummer": "3316"
+    },
+    {
+      "organisasjonsnummer": "970540008",
+      "navn": "HAMAR KOMMUNE",
+      "kommunenummer": "3403"
+    },
+    {
+      "organisasjonsnummer": "970542507",
+      "navn": "HAMARØY KOMMUNE",
+      "kommunenummer": "1875"
+    },
+    {
+      "organisasjonsnummer": "971028300",
+      "navn": "VESTRE TOTEN KOMMUNE",
+      "kommunenummer": "3443"
+    },
+    {
+      "organisasjonsnummer": "971035560",
+      "navn": "MALVIK KOMMUNE",
+      "kommunenummer": "5031"
+    },
+    {
+      "organisasjonsnummer": "971159928",
+      "navn": "ULVIK HERAD",
+      "kommunenummer": "4620"
+    },
+    {
+      "organisasjonsnummer": "971197609",
+      "navn": "SELBU KOMMUNE",
+      "kommunenummer": "5032"
+    },
+    {
+      "organisasjonsnummer": "971643870",
+      "navn": "NITTEDAL KOMMUNE",
+      "kommunenummer": "3232"
+    },
+    {
+      "organisasjonsnummer": "972417734",
+      "navn": "SALTDAL KOMMUNE",
+      "kommunenummer": "1840"
+    },
+    {
+      "organisasjonsnummer": "972417750",
+      "navn": "SØRFOLD KOMMUNE",
+      "kommunenummer": "1845"
+    },
+    {
+      "organisasjonsnummer": "972417963",
+      "navn": "LIERNE KOMMUNE",
+      "kommunenummer": "5042"
+    },
+    {
+      "organisasjonsnummer": "972417971",
+      "navn": "HARSTAD KOMMUNE / HÁRSTTÁID SUOHKAN",
+      "kommunenummer": "5503"
+    },
+    {
+      "organisasjonsnummer": "972417998",
+      "navn": "KVÆFJORD KOMMUNE",
+      "kommunenummer": "5510"
+    },
+    {
+      "organisasjonsnummer": "972418005",
+      "navn": "MÅLSELV KOMMUNE",
+      "kommunenummer": "5524"
+    },
+    {
+      "organisasjonsnummer": "972418013",
+      "navn": "BODØ KOMMUNE",
+      "kommunenummer": "1804"
+    },
+    {
+      "organisasjonsnummer": "972418021",
+      "navn": "FAUSKE KOMMUNE",
+      "kommunenummer": "1841"
+    },
+    {
+      "organisasjonsnummer": "972418048",
+      "navn": "VARDØ KOMMUNE",
+      "kommunenummer": "5634"
+    },
+    {
+      "organisasjonsnummer": "988893226",
+      "navn": "VINDAFJORD KOMMUNE",
+      "kommunenummer": "1160"
+    },
+    {
+      "organisasjonsnummer": "988913898",
+      "navn": "AURE KOMMUNE",
+      "kommunenummer": "1576"
+    },
+    {
+      "organisasjonsnummer": "991891919",
+      "navn": "KRISTIANSUND KOMMUNE",
+      "kommunenummer": "1505"
+    },
+    {
+      "organisasjonsnummer": "997391853",
+      "navn": "INDERØY KOMMUNE",
+      "kommunenummer": "5053"
+    }
+  ]
+}

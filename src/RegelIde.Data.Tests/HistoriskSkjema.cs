@@ -1,4 +1,4 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Migrations;
 
@@ -35,7 +35,22 @@ internal static class HistoriskSkjema
         }
         var connString = ByttDatabase(fixture, navn);
         await MigrerAsync(connString, tilMigrasjon);
+        if (tilMigrasjon is not null) await LeggTilSenereKolonnerAsync(connString);
         return connString;
+    }
+
+    /// <summary>
+    /// [Ny, issue #312, 2026-10-08] Testene skriver og leser <see cref="BegrepEntitet"/> med DAGENS EF-modell mot et
+    /// HISTORISK skjema. Når en senere migrasjon legger en kolonne til en slik tabell (#312: <c>begreper.omradetype</c>/
+    /// <c>omradekode</c>), ville hver INSERT/SELECT velte på «column does not exist» — 6 tester gjorde det. Kolonnene legges
+    /// derfor til tomme (nullable, uten constraints) her. Det endrer ikke det testene måler: migrasjonene de tester rører
+    /// ikke kolonnene. Ingen av testene migrerer videre til siste versjon etterpå (da ville AddColumn kollidert).
+    /// </summary>
+    private static async Task LeggTilSenereKolonnerAsync(string connString)
+    {
+        await using var db = new RegelIdeDbContext(Options(connString));
+        await db.Database.ExecuteSqlRawAsync(
+            "ALTER TABLE begreper ADD COLUMN IF NOT EXISTS omradetype text; ALTER TABLE begreper ADD COLUMN IF NOT EXISTS omradekode text;");
     }
 
     public static async Task MigrerAsync(string connString, string? tilMigrasjon)

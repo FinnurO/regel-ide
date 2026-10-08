@@ -681,13 +681,31 @@ public sealed record BegrepDto(
     Guid Id, Guid? VirksomhetId, string? Begrepskategori, Guid? VirksomhetReferanseId, Guid? LovkildeId,
     string Term, string? Definisjon, string? LovreferanseEid, IReadOnlyList<string> GjelderFor,
     Guid? KodelisteReferanseId, string? SkosUrl, string? Begrepstype, string Status, int Versjon,
-    string? Navneformgrunn)
+    string? Navneformgrunn, string? Omradetype = null, string? Omradekode = null)
 {
+    // [ENDRET, issue #312] Omradetype/Omradekode — BegrepDetalj viser sammensetning og tilhørighet for et registrert område.
     public static BegrepDto FraEntitet(BegrepEntitet b) => new(
         b.Id, b.VirksomhetId, b.Begrepskategori, b.VirksomhetReferanseId, b.LovkildeId, b.Term,
         b.Definisjon, b.LovreferanseEid, b.GjelderFor, b.KodelisteReferanseId, b.SkosUrl, b.Begrepstype,
-        b.Status, b.Versjon, b.Navneformgrunn);
+        b.Status, b.Versjon, b.Navneformgrunn, b.Omradetype, b.Omradekode);
 }
+
+/// <summary>[Ny, issue #312, AC5] Svaret på GET /api/omrader/kommuner/{kommunenummer}/tilhorighet.</summary>
+public sealed record KommuneTilhorighetDto(
+    OmradeVisning Kommune, IReadOnlyList<TilhorighetsrubrikkDto> Rubrikker, IReadOnlyList<OmradeVisning> Overordnede,
+    IReadOnlyList<AnsvarligAktor> Ansvarlige)
+{
+    public static KommuneTilhorighetDto Fra(KommuneTilhorighet t) => new(
+        t.Kommune, t.Rubrikker.Select(r => new TilhorighetsrubrikkDto(r.Rubrikk, r.Status,
+            r.Kandidater.Select((navn, i) => new TilhorighetskandidatDto(r.Ider[i], navn, r.Forslag[i])).ToList())).ToList(),
+        t.Overordnede, t.Ansvarlige);
+}
+
+/// <summary>[Ny, issue #312] Én rubrikk: <c>status</c> = entydig | ikke_entydig | mangler (ved flere velges ingen).</summary>
+public sealed record TilhorighetsrubrikkDto(string Rubrikk, string Status, IReadOnlyList<TilhorighetskandidatDto> Kandidater);
+
+/// <summary>[Ny, issue #312] Id er virksomhetens id for aktør-rubrikker, områdets begrep-id for område-rubrikker.</summary>
+public sealed record TilhorighetskandidatDto(Guid Id, string Navn, bool Forslag);
 
 /// <summary>Forespørsel for POST/PUT /api/begreper.</summary>
 public sealed record BegrepRequest(

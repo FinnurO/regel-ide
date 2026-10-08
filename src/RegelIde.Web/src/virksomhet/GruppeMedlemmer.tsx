@@ -4,7 +4,8 @@ import { Alert, Card, Heading, Link, Paragraph, Spinner, Table, Tag } from '@dig
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
 import { Metatekst } from '../entitet/Metatekst';
-import type { ParagrafspennParDto, RettskildeSammendrag, StrukturkantDto } from '../api/types';
+import type { KildeUtenforKorpusType, ParagrafspennParDto, RettskildeSammendrag, StrukturkantDto } from '../api/types';
+import { KILDETYPE_VISNING } from '../strukturkant/KildeUtenforKorpus';
 import { StrukturkantTabell } from '../strukturkant/StrukturkantTabell';
 import { BegrepskategoriTag } from '../begrep/Nodetype';
 
@@ -66,18 +67,20 @@ function paragrafVisning(eid: string, eli: string | null | undefined): string {
 /** Hjemmelen som én celle: rettskildens tittel som lenke til nøyaktig paragrafen, med paragrafspennet
  * som liten metatekst under. Flere spenn listes hver for seg — de er hver sin påstand om HVOR. */
 function HjemmelCelle({
-  hjemmelRettskildeId, paragrafspenn, rettskilder, kilde,
+  hjemmelRettskildeId, paragrafspenn, rettskilder, kilde, kildetype,
 }: {
   hjemmelRettskildeId: string | null;
   paragrafspenn: ParagrafspennParDto[];
   rettskilder: RettskildeSammendrag[];
   /** [Ny, issue #311] Kilde utenfor korpus — vises når det ikke finnes hjemmel. */
   kilde: string | null;
+  /** [Ny, issue #312] Kildetypen — vises i stedet for «Ingen hjemmel» når den finnes (docs/09 §31). */
+  kildetype?: KildeUtenforKorpusType | null;
 }) {
   if (!hjemmelRettskildeId) {
     return (
       <>
-        <Tag data-size="sm" data-color="warning">Ingen hjemmel</Tag>{' '}
+        <Tag data-size="sm" data-color="warning">{kildetype ? (KILDETYPE_VISNING[kildetype] ?? kildetype) : 'Ingen hjemmel'}</Tag>{' '}
         <Metatekst as="span">{kilde}</Metatekst>
       </>
     );
@@ -194,6 +197,7 @@ export function GruppeMedlemmer({ gruppeBegrepId, rettskilder }: GruppeMedlemmer
                         paragrafspenn={m.paragrafspenn}
                         rettskilder={rettskilder}
                         kilde={m.kildeUtenforKorpusTekst}
+                        kildetype={m.kildeUtenforKorpusType}
                       />
                     </Table.Cell>
                     <Table.Cell><Gyldighet fra={m.gyldigFra} til={m.gyldigTil} /></Table.Cell>
@@ -308,6 +312,7 @@ export function GruppeMedlemmer({ gruppeBegrepId, rettskilder }: GruppeMedlemmer
                         paragrafspenn={m.paragrafspenn}
                         rettskilder={rettskilder}
                         kilde={m.kildeUtenforKorpusTekst}
+                        kildetype={m.kildeUtenforKorpusType}
                       />
                     </Table.Cell>
                     <Table.Cell><Gyldighet fra={m.gyldigFra} til={m.gyldigTil} /></Table.Cell>

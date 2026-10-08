@@ -3,6 +3,7 @@ import type {
   BegrepBruktIRettskildeDto,
   Aktortype,
   BegrepDto,
+  KommuneTilhorighetDto,
   Begrepsnodetype,
   Kandidatnodetype,
   BegrepRequest,
@@ -1126,6 +1127,15 @@ export const api = {
       body: JSON.stringify(request),
     }),
 
+  /** [Ny, issue #312] Ventende forslag gruppert på hjemmelsrettskilde. */
+  hentStrukturkantForslagPerHjemmel: () =>
+    kall<{ hjemmelRettskildeId: string; tittel: string; antall: number }[]>('/api/strukturkanter/forslag-per-hjemmel'),
+
+  /** [Ny, issue #312] Godkjenner alle ventende forslag hjemlet i én rettskilde (hver kant logges i Proveniens). */
+  godkjennAlleStrukturkantForslag: (hjemmelRettskildeId: string, oppdagelseskildePrefiks?: string) =>
+    kall<{ godkjent: number }>(`/api/strukturkanter/godkjenn-alle?hjemmelRettskildeId=${hjemmelRettskildeId}`
+      + (oppdagelseskildePrefiks ? `&oppdagelseskildePrefiks=${encodeURIComponent(oppdagelseskildePrefiks)}` : ''), { method: 'POST' }),
+
   godkjennStrukturkant: (id: string) =>
     kall<StrukturkantDto>(`/api/strukturkanter/${id}/godkjenn`, { method: 'POST' }),
 
@@ -1168,6 +1178,9 @@ export const api = {
   hentBegreper: () => kall<BegrepDto[]>('/api/begreper'),
 
   hentBegrep: (id: string) => kall<BegrepDto>(`/api/begreper/${id}`),
+  /** [Ny, issue #312, AC5] Fylke, tingrett, lagsogn, lagdømme, lagmannsrett, statsforvalter, helseregion og RHF for
+   * et kommuneområde (begrep-id), beregnet fra strukturkantene. */
+  hentOmradeTilhorighet: (omradeId: string) => kall<KommuneTilhorighetDto>(`/api/omrader/${omradeId}/tilhorighet`),
 
   opprettBegrep: (request: BegrepRequest) =>
     kall<BegrepDto>('/api/begreper', {
