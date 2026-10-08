@@ -49,6 +49,11 @@
     <None Include="Seed\brreg-971524960-stortinget.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <!-- [Ny, issue #312] Områderegisterets øyeblikksbilder (OmraderegisterKilder.Alle). Fornyes med
+         Seed/fornye-omraderegister.py, aldri ved oppstart (CLAUDE.md §4). -->
+    <None Include="Seed\kartverket-fylker-kommuner.json;Seed\brreg-kommuner.json;Seed\brreg-domstoler.json;Seed\kartverket-ssr-rettssteder.json;Seed\ssb-klass-104-fylkesendringer-2024.json;Seed\statsforvalter-embetsomrader.json;Seed\helseregioner-rhf.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

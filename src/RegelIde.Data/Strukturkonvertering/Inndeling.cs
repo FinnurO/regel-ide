@@ -106,6 +106,22 @@ internal static class Inndeling
         return Aktorfrase.ErNavn(navn) ? Funn(navn, Navneliste(m.Groups["liste"].Value)) : [];
     }
 
+    /// <summary>
+    /// [Ny, issue #312 «områderegister», 2026-10-08] Bare NAVNET i «Lagsognene … utgjør N lagdømme.» — også når
+    /// lista ikke kan deles entydig (<see cref="Navneliste"/> forkaster «Møre og Romsdal og Trööndelagen/Trøndelag»,
+    /// og deler «Oslo, Asker og Bærum, Buskerud og Søndre Østfold» i fire der forskriften har tre lagsogn).
+    /// <see cref="DomstolinndelingTolker"/> tar da medlemmene fra «Til lagsognet X sogner …»-leddene i samme
+    /// paragraf, som navngir hvert lagsogn for seg, og bruker denne for lagdømmets navn. Samme regex som
+    /// <see cref="Utgjor"/> — ingen ny parser.
+    /// </summary>
+    public static string? UtgjorNavn(string setning)
+    {
+        var m = UtgjorUttrykk.Match(setning);
+        if (!m.Success) return null;
+        var navn = m.Groups["navn"].Value.Trim();
+        return Aktorfrase.ErNavn(navn) ? navn : null;
+    }
+
     private static readonly Regex SognerUttrykk = new(
         @"^\[?Til\s+(?:lagsognet|lagdømmet|rettskretsen|domssognet)\s+(?<navn>\p{Lu}.+?)\s+sogner\s+(?<liste>.+?)\s*\.?$", Valg);
 
