@@ -114,6 +114,45 @@ public class StrukturkantEndepunktTests
         Assert.Equal(("klage_overproving", "har klagekompetanse {0}"), (klage.Familie, klage.FraVisningsmal));
         Assert.Equal("enkeltvedtak", Assert.Single(k!, t => t.Kode == "vedtak").FvlKategori);
         Assert.Null(Assert.Single(k!, t => t.Kode == Strukturkanter.Beslutning).Familie);
+        // [Ny, issue #352, Johanns beslutninger 2026-10-08] Familien heter oppnevning; utpeking/ansettelse er undertyper, ikke
+        // typer; forelegging er kontroll. R velger/ankeinstans_for er flyttet til K; radgir og oppretter er fortsatt R.
+        Assert.Equal("oppnevning", Assert.Single(k!, t => t.Kode == Strukturkanter.Oppnevning).Familie);
+        Assert.Equal("oppnevning", Assert.Single(k!, t => t.Kode == "avsetting").Familie);
+        Assert.Equal("kontroll", Assert.Single(k!, t => t.Kode == "forelegging").Familie);
+        Assert.DoesNotContain(k!, t => t.Kode is "utpeking" or "ansettelse" || t.Familie == "personell");
+        Assert.DoesNotContain(r!, t => t.Kode is "velger" or "ankeinstans_for");
+        Assert.Contains(r!, t => t.Kode == "radgir");
+        Assert.Contains(r!, t => t.Kode == "oppretter");
+    }
+
+    /// <summary>[Ny, issue #352] S9 «hvem velger medlemmene av forliksrådet?»: oppnevningskompetanse med undertype valg og
+    /// motpart gjennom API-et; familiefilteret oppnevning; feil undertype gir 400.</summary>
+    [Fact]
+    public async Task K_oppnevning_med_undertype_og_familien_oppnevning()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var (lovId, paragrafEid) = await OpprettRettskildeMedParagrafAsync();
+        var (kommunestyret, _) = await OpprettVirksomhetAsync("Kommunestyret");
+        var (forliksradet, forliksradetNavn) = await OpprettVirksomhetAsync("Forliksrådet");
+
+        var svar = await PostKantAsync(brukerId, new
+        {
+            Kategori = "K", Typekode = "oppnevning", FraVirksomhetId = kommunestyret, TilVirksomhetId = forliksradet,
+            HjemmelRettskildeId = lovId, HjemmelEid = paragrafEid, Undertype = "valg", Polaritet = "positiv",
+        });
+        Assert.Equal(HttpStatusCode.Created, svar.StatusCode);
+        var kant = (await svar.Content.ReadFromJsonAsync<StrukturkantDto>(JsonInnstillinger))!;
+        Assert.Equal(("valg", "oppnevning"), (kant.Undertype, kant.Familie));
+
+        var oppnevning = await _client.GetFromJsonAsync<List<StrukturkantDto>>(
+            $"/api/strukturkanter?virksomhetId={kommunestyret}&familie=oppnevning", JsonInnstillinger);
+        Assert.Equal($"har oppnevningskompetanse (valg) overfor {forliksradetNavn}", Assert.Single(oppnevning!).Visningstekst);
+        Assert.Equal(HttpStatusCode.BadRequest, (await _client.GetAsync($"/api/strukturkanter?virksomhetId={kommunestyret}&familie=personell")).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await PostKantAsync(brukerId, new
+        {
+            Kategori = "K", Typekode = "oppnevning", FraVirksomhetId = kommunestyret, TilVirksomhetId = forliksradet,
+            HjemmelRettskildeId = lovId, Undertype = "anke", Polaritet = "positiv",
+        })).StatusCode);
     }
 
     // ---------------- Opprett og les per node / per kategori ----------------

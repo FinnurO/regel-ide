@@ -563,7 +563,9 @@ public sealed record StrukturkantDto(
     DateOnly? GyldigFra, DateOnly? GyldigTil, string Status, string OppdagelsesKilde, string? Kommentar,
     string OpprettetAv, DateTimeOffset OpprettetTidspunkt,
     // [Ny, issue #341] K-feltene, og familie/fvl-kategori fra typekonfigurasjonen.
-    string? Normform, string? Grunnlag, bool? Delegerbar, bool Selvregulering, string? Familie, string? FvlKategori)
+    string? Normform, string? Grunnlag, bool? Delegerbar, bool Selvregulering, string? Familie, string? FvlKategori,
+    // [Ny, issue #352] Undertypen på oppnevning (valg/ansettelse/utpeking/oppnevning) og overprøving (anke). Null = ikke angitt.
+    string? Undertype)
 {
     public static StrukturkantDto FraVisning(StrukturkantVisning v) => new(
         v.Id, v.Kategori, v.Typekode, v.Retning, v.Visningstekst,
@@ -572,7 +574,7 @@ public sealed record StrukturkantDto(
         v.HjemmelRettskildeId, v.HjemmelRettskildeTittel, v.HjemmelEid,
         v.KildeUtenforKorpusTekst, v.KildeUtenforKorpusLenke, v.KildeUtenforKorpusType, v.KildeUtenforKorpusDokumentasjon, v.GyldigFra, v.GyldigTil, v.Status, v.OppdagelsesKilde,
         v.Kommentar, v.OpprettetAv, v.OpprettetTidspunkt,
-        v.Normform, v.Grunnlag, v.Delegerbar, v.Selvregulering, v.Familie, v.FvlKategori);
+        v.Normform, v.Grunnlag, v.Delegerbar, v.Selvregulering, v.Familie, v.FvlKategori, v.Undertype);
 }
 
 /// <summary>[Ny, issue #311] Rå kantfelt uten navn/visningstekst — svaret fra veiviserens kobl-til-*-endepunkter,
@@ -607,7 +609,9 @@ public sealed record StrukturkantRequest(
     // StrukturkantEntitet.KildeUtenforKorpusType. Dokumentasjon: primaer|sekundaer, påkrevd sammen med typen.
     string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null,
     // [Ny, issue #341] Bare på K: normform (bare normgivning), grunnlag og delegerbar. Null = ikke angitt.
-    string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null);
+    string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null,
+    // [Ny, issue #352] Bare på K oppnevning/overproving — se StrukturkantEntitet.Undertype. Null = ikke angitt.
+    string? Undertype = null);
 
 /// <summary>[Ny, issue #330, 2026-10-08] PUT /api/strukturkanter/{id}/avgrensning — ERSTATTER kantens avgrensning
 /// (begge feltene; tomt/utelatt spenn og blank tekst fjerner dem). Se <c>StrukturkantTjeneste.OppdaterAvgrensningAsync</c>.</summary>
