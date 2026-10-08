@@ -330,6 +330,35 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
     }
 
     [Fact]
+    public async Task Lagdomme_til_lagsogn_merkes_med_utgjor_monsteret_og_gamle_etiketter_rettes()
+    {
+        // [Ny, issue #345, Johann 2026-10-08] Lagdømme → lagsogn kommer fra «utgjør»-leddet. #342 merket kantene
+        // «monster:inndeling-sogner». En ny kjøring retter etiketten på de som alt finnes, og nye får riktig etikett.
+        var conn = await NyTomDatabaseAsync("omrader_utgjor");
+        await using var db = Ny(conn);
+        await GrunnlagAsync(db);
+        await KjorAsync(db);
+        var forskriftId = await db.Rettskilder.Where(r => r.Eli == DomstolinndelingTolker.ForskriftEli).Select(r => r.Id).SingleAsync();
+        bool ErLagdommeTilLagsogn(StrukturkantEntitet k) =>
+            k.Kategori == Strukturkanter.Omradesammensetning && k.Typekode == "bestar_av" && k.HjemmelRettskildeId == forskriftId;
+
+        var kanter = (await db.Strukturkanter.ToListAsync()).Where(ErLagdommeTilLagsogn).ToList();
+        Assert.Equal(15, kanter.Count);
+        Assert.All(kanter, k => Assert.Equal(OmraderegisterSeed.UtgjorOppdagelseskilde, k.OppdagelsesKilde));
+
+        // Simuler en base fra #342: gammel etikett på tre av kantene.
+        foreach (var k in kanter.Take(3)) k.OppdagelsesKilde = "monster:inndeling-sogner";
+        await db.SaveChangesAsync();
+
+        await using var db2 = Ny(conn);
+        await KjorAsync(db2);
+        var etter = (await db2.Strukturkanter.ToListAsync()).Where(ErLagdommeTilLagsogn).ToList();
+        Assert.Equal(15, etter.Count);
+        Assert.All(etter, k => Assert.Equal(OmraderegisterSeed.UtgjorOppdagelseskilde, k.OppdagelsesKilde));
+        Assert.All(etter, k => Assert.Equal("foreslatt_av_ai", k.Status)); // bare etiketten er rørt
+    }
+
+    [Fact]
     public async Task Lagdomme_uten_lagmannsrett_med_eksakt_navn_far_ingen_kant_og_listes()
     {
         // Egen seedmappe der AGDER LAGMANNSRETT er fjernet fra Brreg-øyeblikksbildet.

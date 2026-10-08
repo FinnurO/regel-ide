@@ -44,6 +44,25 @@ public static class OmraderegisterSeed
     /// <summary>[Ny, issue #345] Oppdagelseskilden for tingrett → lagsogn (mønsteret inndeling-sogner, #307).</summary>
     public const string SognerTilOppdagelseskilde = "monster:inndeling-sogner-til";
 
+    /// <summary>[ENDRET, issue #345, Johann 2026-10-08] Oppdagelseskilden for lagdømme → lagsogn. Kanten kommer fra
+    /// «utgjør»-leddet (§§ 11–16 første ledd, mønsteret inndeling-utgjor), ikke «sogner»-leddet. #342 merket den
+    /// feilaktig «monster:inndeling-sogner»; <see cref="RettOppdagelseskildeForUtgjorAsync"/> retter rader som alt finnes.</summary>
+    public const string UtgjorOppdagelseskilde = "monster:inndeling-utgjor";
+
+    /// <summary>[Ny, issue #345] Idempotent retting av merkingen på lagdømme → lagsogn-kanter #342 skrev med feil
+    /// mønster-id. Rører bare O <c>bestar_av</c>-kanter med den gamle etiketten og hjemmel i inndelingsforskriften,
+    /// og bare <c>OppdagelsesKilde</c> — status, hjemmel og ender er urørt.</summary>
+    private static async Task<int> RettOppdagelseskildeForUtgjorAsync(RegelIdeDbContext db, Guid forskriftId, CancellationToken ct)
+    {
+        var feilmerket = await db.Strukturkanter
+            .Where(k => k.Kategori == Strukturkanter.Omradesammensetning && k.Typekode == "bestar_av"
+                        && k.OppdagelsesKilde == "monster:inndeling-sogner" && k.HjemmelRettskildeId == forskriftId)
+            .ToListAsync(ct);
+        foreach (var k in feilmerket) k.OppdagelsesKilde = UtgjorOppdagelseskilde;
+        if (feilmerket.Count > 0) await db.SaveChangesAsync(ct);
+        return feilmerket.Count;
+    }
+
     public sealed record Resultat(
         int NyeOmrader,
         int NyeKanter,
@@ -222,6 +241,7 @@ public static class OmraderegisterSeed
             return null;
         }
         var forskriftId = forskrift[0].Id;
+        await RettOppdagelseskildeForUtgjorAsync(t.Db, forskriftId, ct); // [Ny, issue #345] retter #342-etiketten på lagdømme → lagsogn
         var noder = await t.Db.RettskildeNoder
             .Where(n => n.RettskildeId == forskriftId && n.Entitetsstatus == "gjeldende")
             .OrderBy(n => n.Sorteringsrekkefolge)
@@ -322,7 +342,7 @@ public static class OmraderegisterSeed
             {
                 await KantAsync(t, new NyStrukturkant(Strukturkanter.Omradesammensetning, "bestar_av",
                     Kantnode.Begrep(omr.Id), Kantnode.Begrep(lagsognOmrade[ls].Id),
-                    HjemmelRettskildeId: forskriftId, HjemmelEid: ld.Eid), ct, "monster:inndeling-sogner");
+                    HjemmelRettskildeId: forskriftId, HjemmelEid: ld.Eid), ct, UtgjorOppdagelseskilde);
             }
 
             // [ENDRET, issue #345, Johann 2026-10-08] Kanten lagmannsrett → lagdømme er lagt inn igjen, som FORSLAG
