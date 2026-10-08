@@ -199,6 +199,9 @@ public static class Strukturkanter
         (Ansvarsomrade, "har_jurisdiksjon", "har jurisdiksjon i {0}", "er jurisdiksjonsområde for {0}"),
         (Ansvarsomrade, "har_sete_i", "har sete i {0}", "er sete for {0}"),
         (Ansvarsomrade, "valgkrets_for", "er valgkrets for {0}", "har valgkrets {0}"),
+        // [Ny, issue #345] «Til lagsognet X sogner A tingrett» (inndelingsforskriften §§ 11–16): tingrettens
+        // ansvarsområde inngår i lagsognet. Samme kode som fasiten og mønsteret inndeling-sogner («annet:sogner_til»).
+        (Ansvarsomrade, "sogner_til", "sogner til {0}", "har tilsognet {0}"),
 
         // ---- G organtilhørighet (organ/enhet/rolle → rettssubjekt) ----
         (Organtilhorighet, "har_organ", "er organ for {0}", "har organet {0}"),

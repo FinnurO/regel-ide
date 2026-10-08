@@ -177,15 +177,27 @@ knapp på områdefanen, hver kant logges i Proveniens). Registerkanter og de kur
 kilde, ikke tolket lovtekst. (2) Lagmannsrett → lagdømme kobles IKKE via navn: ingen tekst i korpus parer dem (domstolloven
 § 10 første ledd gjelder lagmannsrettenes dommere; § 16 første ledd og forskriften § 10 sier bare at hvert lagdømme har én),
 så de seks kantene er slettet og rubrikken er «mangler» til en kilde avgjør paret. (3) Oppslaget tar med forslag, merket.
-**[ENDRET, issue #345, Johann 2026-10-08]** Punkt (2) bygde på en feillesning. Hjemmelen er inndelingsforskriften
-(FOR-2021-01-22-163) § 10 første ledd: «Hvert lagdømme har en lagmannsrett som er ankeinstans for flere rettskretser.»
-Domstolloven § 10 var feil kandidat. De seks kantene er lagt inn igjen som FORSLAG:
-- Hjemmel: eId `…/163/nor/§10/ledd-1`. Oppdagelseskilde: `monster:lagdomme-lagmannsrett-navnepar`.
-- Forskriften hjemler AT hvert lagdømme har én lagmannsrett, men ikke HVILKEN. Paret identifiseres ved navnelikhet
-  («Gulating lagdømme» ↔ «GULATING LAGMANNSRETT» i Enhetsregisteret, `DomstolinndelingTolker.ParLagmannsretter`), og
-  det står i kommentaren på kanten.
-- Paret bekreftes av et menneske i den samlede godkjenningen for forskriften (796 forslag i stedet for 790).
-- Uten nøyaktig ett navnetreff lages ingen kant, og lagdømmet listes.
+**[ENDRET, issue #345, Johann 2026-10-08] Lagmannsrett → lagdømme.** Punkt (2) bygde på en feillesning. Hjemmelen er
+inndelingsforskriften (FOR-2021-01-22-163) § 10 første ledd: «Hvert lagdømme har en lagmannsrett som er ankeinstans for
+flere rettskretser.» Domstolloven § 10 var feil kandidat. De seks kantene er lagt inn igjen som FORSLAG:
+- Hjemmel: eId `…/163/nor/§10/ledd-1`. Oppdagelseskilde: `monster:lagdomme-lagmannsrett-navneregel`.
+- Navneregel: lagmannsretten for lagdømmet «X lagdømme» er «X lagmannsrett»
+  (`DomstolinndelingTolker.ParLagmannsretter`, slått opp i Enhetsregisteret). Johann bekreftet den som regel
+  2026-10-08, med hjemmel i § 10 første ledd.
+- Kantene godkjennes i samme samlede godkjenning som de andre domstolkantene.
+- Finnes ikke «X lagmannsrett» eksakt, lages ingen kant, og lagdømmet listes.
+
+**[ENDRET, issue #345, Johann 2026-10-08] Hele kjeden fra forskriften, ned til kommunenivå.** «Alt skal kunne utledes
+fra forskriften ned på kommunenivå.» Bare det teksten sier, lagres:
+- §§ 2–9: A tingrett `har_ansvarsomrade` kommune.
+- §§ 11–16, sogner-leddene: **A tingrett `sogner_til` lagsogn.** Kanten er ny, har oppdagelseskilde
+  `monster:inndeling-sogner-til` og hjemmel = ledd-eId. Typekoden er den samme som i fasiten og i mønsteret
+  `inndeling-sogner`. O er utelukket fordi fra-noden er en aktør, og det finnes ingen rettskrets-node.
+- §§ 11–16, første ledd: O lagdømme `bestar_av` lagsogn.
+- **[FJERNET]** De 357 kantene «O lagsogn `bestar_av` kommune» fra #342 er slettet gjennom tjenesten. De var utflatet
+  data som teksten ikke sier.
+- Kommunens lagsogn og lagdømme **avledes** i `OmradeOppslagTjeneste`: kommune ← tingrett → lagsogn → lagdømme.
+  Svaret er validert bare når begge kantene i leddet er validert.
 
 ### 4.2 Gruppe er en evne, ikke en type
 

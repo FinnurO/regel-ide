@@ -49,22 +49,29 @@ public static class DomstolinndelingTolker
     public const string LagmannsrettSetning = "Hvert lagdømme har en lagmannsrett";
 
     /// <summary>[Ny, issue #345] Oppdagelseskilden for kanten lagmannsrett → lagdømme. Den er ikke et mønster i
-    /// konverteringen (#307), men en navneregel i <see cref="ParLagmannsretter"/>. Prefikset <c>monster:</c> er likevel
-    /// riktig: kanten er maskinelt avledet, lagres som forslag og godkjennes samlet med resten av forskriften.</summary>
-    public const string LagmannsrettOppdagelseskilde = "monster:lagdomme-lagmannsrett-navnepar";
+    /// konverteringen (#307), men navneregelen i <see cref="ParLagmannsretter"/>. Prefikset <c>monster:</c> er likevel
+    /// riktig: kanten er maskinelt avledet fra lovteksten, lagres som forslag og godkjennes samlet med resten av
+    /// forskriften.</summary>
+    public const string LagmannsrettOppdagelseskilde = "monster:lagdomme-lagmannsrett-navneregel";
 
-    /// <summary>[Ny, issue #345] Et lagdømme og lagmannsretten som er paret med det etter navnet.</summary>
+    /// <summary>[Ny, issue #345] Et lagdømme og lagmannsretten navneregelen gir for det.</summary>
     public sealed record LagmannsrettPar(Lagdomme Lagdomme, OmraderegisterKilder.BrregDomstol Lagmannsrett);
 
+    /// <summary>Kommentaren på kanten lagmannsrett → lagdømme (issue #345, Johanns formulering 2026-10-08).</summary>
+    public static string LagmannsrettKommentar(string lagdomme, string lagmannsrett) =>
+        $"Navneregel: lagmannsretten for lagdømmet «{lagdomme}» er «{lagmannsrett}» (FOR-2021-01-22-163 § 10 første ledd: "
+        + "«Hvert lagdømme har en lagmannsrett»). Bekreftet som regel av Johann 2026-10-08.";
+
     /// <summary>
-    /// [Ny, issue #345, Johann 2026-10-08] Parer hvert lagdømme med sin lagmannsrett. Paret avgjøres ved
-    /// NAVNELIKHET: «&lt;X&gt; lagdømme» hører til enheten som heter nøyaktig «&lt;X&gt; lagmannsrett» i
-    /// Enhetsregisteret. Navnet sammenlignes uten skille på store og små bokstaver, siden Brreg skriver
-    /// «GULATING LAGMANNSRETT».
+    /// [Ny, issue #345, Johann 2026-10-08] Gir hvert lagdømme sin lagmannsrett etter NAVNEREGELEN: lagmannsretten
+    /// for «&lt;X&gt; lagdømme» er «&lt;X&gt; lagmannsrett». Regelen hviler på forskriften § 10 første ledd
+    /// («Hvert lagdømme har en lagmannsrett som er ankeinstans for flere rettskretser»). Johann bekreftet den som
+    /// regel 2026-10-08: «det står: "Hvert lagdømme har en lagmannsrett" så da er logikken riktig at man legger til
+    /// "lagmannsrett" etter hvert lagdømme for å få navnet på lagmannsretten.»
     /// <para>
-    /// Forskriften § 10 første ledd hjemler AT hvert lagdømme har én lagmannsrett («Hvert lagdømme har en
-    /// lagmannsrett som er ankeinstans for flere rettskretser»), men ikke HVILKEN. Derfor er kanten et forslag, og
-    /// et menneske bekrefter paret i den samlede godkjenningen.
+    /// Navnet slås opp i Enhetsregisteret og sammenlignes uten skille på store og små bokstaver, siden Brreg skriver
+    /// «GULATING LAGMANNSRETT». Kanten er likevel et forslag, i samme samlede godkjenning som de andre
+    /// domstolkantene. Det følger Johanns beslutning for mønsterkanter (docs/33 §5.3).
     /// </para>
     /// <para>
     /// Gir et lagdømme ikke nøyaktig ett treff, eller slutter navnet ikke på « lagdømme», pares det ikke. Det
