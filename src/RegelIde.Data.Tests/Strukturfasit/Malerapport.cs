@@ -71,12 +71,12 @@ internal static class Malerapport
         }
         sb.AppendLine();
 
-        sb.AppendLine("### Per kilde, K forskriftskompetanse (terskel ≥ 0,9 presisjon)");
+        sb.AppendLine("### Per kilde, K normgivningskompetanse — fasitens forskriftskompetanse før #341 (terskel ≥ 0,9 presisjon)");
         sb.AppendLine();
         Tabellhode(sb, "Kilde");
         foreach (var m in malinger)
         {
-            Tabellrad(sb, m.Kilde, Tall.For([m], r => r.Utsagn.Type == "forskriftskompetanse"));
+            Tabellrad(sb, m.Kilde, Tall.For([m], r => r.Utsagn.Type == "normgivningskompetanse"));
         }
         sb.AppendLine();
 

@@ -27,6 +27,16 @@ STD = {
     "klagekompetanse": ("delvis", "ja", "K"), "tilsynskompetanse": ("delvis", "ja", "K"),
     "delegeringsfullmakt": ("delvis", "ja", "K"), "oppnevningskompetanse": ("delvis", "ja", "K"),
     "instruksjonskompetanse": ("delvis", "ja", "K"), "utpekingskompetanse": ("delvis", "ja", "K"),
+    # [Ny, issue #341, 2026-10-08] Typene etter konverteringen (konvertering-341-kompetanse.py): myndighetsrelasjonene er
+    # kompetanse med motpart, og K har hele typologien. Samme vurdering som de gamle kompetansetypene over (dagens:
+    # delvis via myndighetstildeling; revidert: ja, K). har_delegert_til/representerer er R som delegerer_til var.
+    **{t: ("delvis", "ja", "K") for t in [
+        "normgivningskompetanse", "delegeringskompetanse", "omgjoringskompetanse", "avsettingskompetanse",
+        "sanksjonskompetanse", "samtykkekompetanse", "overprovingskompetanse", "foreleggingskompetanse",
+        "revisjonskompetanse", "godkjenningskompetanse", "organisasjonskompetanse", "ansettelseskompetanse",
+        "beslutningskompetanse", "samordningskompetanse", "opprettingskompetanse", "avviklingskompetanse",
+        "paleggskompetanse", "stadfestingskompetanse"]},
+    "har_delegert_til": ("nei", "ja", "R"), "representerer": ("nei", "ja", "R"),
     # medlemskap
     "medlem_av": ("ja", "ja", "M"), "inngar_i": ("ja", "ja", "M"),
     # område

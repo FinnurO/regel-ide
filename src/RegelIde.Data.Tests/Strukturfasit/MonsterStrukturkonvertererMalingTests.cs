@@ -47,8 +47,12 @@ public class MonsterStrukturkonvertererMalingTests(ITestOutputHelper output)
     private static readonly IReadOnlyDictionary<string, (double Presisjon, double Gjenfinning)> MaltPerKategori =
         new Dictionary<string, (double, double)>
         {
-            ["R"] = (0.778, 0.126),
-            ["K"] = (0.885, 0.597),
+            // [ENDRET, issue #341, 2026-10-08] Målt på nytt etter at fasiten ble konvertert (konvertering-341-kompetanse.py):
+            // myndighetsrelasjonene er flyttet fra R til K (kompetanse med motpart), og K har fått hele typologien. R er nå
+            // bare struktur + har_delegert_til (139 fasitutsagn, mønsterlaget finner bare delegeringsvedtakets form) — derfor
+            // den lave gjenfinningen; K-nevneren vokste fra 427 til 557. Før: R 0,778/0,126, K 0,885/0,597.
+            ["R"] = (0.750, 0.022),
+            ["K"] = (0.877, 0.510),
             // [ENDRET, issue #312, 2026-10-08] O og A målt på nytt etter den systemiske rettelsen av domstollovens
             // inndelingsdel (rettelse-312-domstolinndeling.py): de 357 kommunelisteradene er flyttet fra O (rettskrets
             // består av kommune) til A (tingrett har ansvarsområde i kommune). Før: O 0,974/0,858, A 1,000/0,517.
@@ -72,10 +76,11 @@ public class MonsterStrukturkonvertererMalingTests(ITestOutputHelper output)
         output.WriteLine(rapport);
         File.WriteAllText(Path.Combine(StrukturfasitLeser.FasitMappe, "maling-monster.md"), rapport);
 
-        // [LÅST, #307 akseptansekriterium 3] K forskriftskompetanse: presisjon ≥ 0,9 mot fasiten.
-        var forskrift = Tall.For(malinger, r => r.Utsagn.Type == "forskriftskompetanse");
+        // [LÅST, #307 akseptansekriterium 3] K forskriftskompetanse: presisjon ≥ 0,9 mot fasiten. [ENDRET, #341] Forskrifts-
+        // kompetanse er nå normgivningskompetanse (normform forskrift) — alle 205 fasitradene ble konvertert, ingen andre.
+        var forskrift = Tall.For(malinger, r => r.Utsagn.Type == "normgivningskompetanse");
         Assert.True(forskrift.Presisjon >= 0.9,
-            $"Presisjon K forskriftskompetanse er {Malerapport.P(forskrift.Presisjon)}, krav ≥ 90 %.");
+            $"Presisjon K normgivningskompetanse er {Malerapport.P(forskrift.Presisjon)}, krav ≥ 90 %.");
 
         var brudd = new List<string>();
         foreach (var (bokstav, malt) in MaltPerKategori)

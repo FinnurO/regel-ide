@@ -26,23 +26,34 @@ public static partial class Strukturkontrakt
     public static IReadOnlyDictionary<string, IReadOnlyList<string>> TyperPerKategori { get; } =
         new Dictionary<string, IReadOnlyList<string>>(StringComparer.Ordinal)
         {
+            // [ENDRET, issue #341, Johanns beslutning P1 2026-10-08] Relasjon er struktur uten myndighet (+ den
+            // gjennomførte delegeringen); myndighetsrelasjonene (klageinstans_for, instruksjon, omgjoring, oppnevner,
+            // tilsyn_med_aktor, delegerer_til) er kompetanse med motpart. De seks siste er ikke avgjort ennå (FORMAT.md).
             ["relasjon"] =
             [
-                "klageinstans_for", "administrativt_underordnet", "instruksjon", "omgjoring", "tilsyn_med_aktor",
-                "sekretariat_for", "rapporterer_til", "oppnevner", "velger", "ledes_av", "eies_av", "etterfolger",
-                "bistar", "samarbeider_med", "radgir", "del_av", "delegerer_til",
+                "eies_av", "ledes_av", "sekretariat_for", "rapporterer_til", "etterfolger", "representerer",
+                Strukturkanter.HarDelegertTil, "administrativt_underordnet", "velger", "bistar", "samarbeider_med", "radgir",
+                "del_av",
             ],
-            ["kompetanse"] =
-            [
-                "forskriftskompetanse", "vedtakskompetanse", "klagekompetanse", "tilsynskompetanse",
-                "delegeringsfullmakt", "oppnevningskompetanse", "instruksjonskompetanse", "utpekingskompetanse",
-            ],
+            // [ENDRET, issue #341] Typologien (P2 + hierarkiet) — samme liste og rekkefølge som Strukturkanter.Kompetansetyper,
+            // så fasit-/konverteringstypen og databasetypen ikke kan drifte. «ukjent» = et kompetanseuttrykk verken
+            // leksikonet eller KI kan typebestemme (Johanns beslutning 3: gjettes ikke).
+            ["kompetanse"] = [.. Strukturkanter.Kompetansetyper.Select(t => t.FasitType), Ukjent],
             ["medlemskap"] = ["medlem_av", "inngar_i"],
             ["sammensetning_omrade"] = ["bestar_av", "del_av"],
             ["ansvarsomrade"] = ["har_ansvarsomrade", "har_jurisdiksjon", "har_sete_i"],
             ["konstituerende"] = ["oppretter", "avvikler", "skal_finnes"],
             ["organsammensetning"] = ["har_medlemmer", "har_organ"],
         };
+
+    /// <summary>[Ny, issue #341] Kompetansetypen når uttrykket ikke kan typebestemmes.</summary>
+    public const string Ukjent = "ukjent";
+
+    /// <summary>[Ny, issue #341] FORMAT.md <c>utsagn.normform</c> — samme liste som <see cref="Strukturkanter.Normformer"/>.</summary>
+    public static IReadOnlyList<string> Normformer => Strukturkanter.Normformer;
+
+    /// <summary>[Ny, issue #341] FORMAT.md <c>utsagn.grunnlag</c> — samme liste som <see cref="Strukturkanter.Grunnlag"/>.</summary>
+    public static IReadOnlyList<string> Grunnlag => Strukturkanter.Grunnlag;
 
     /// <summary>FORMAT.md <c>aktorer.entitetstype</c> (i tillegg til <c>annet:&lt;x&gt;</c>).</summary>
     public static IReadOnlyList<string> Entitetstyper { get; } =

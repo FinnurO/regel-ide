@@ -53,11 +53,11 @@ public class KiStrukturkonvertererTests
     [Fact]
     public void Gyldig_rad_slipper_gjennom_med_ekte_eid_aktor_og_proveniens()
     {
-        var r = Kjor(Svar("""{"eid": "n1", "sitat": "Departementet kan gi forskrift om leveringsplikten", "kategori": "kompetanse", "type": "forskriftskompetanse", "fra": "a1", "objekt": "forskrift om leveringsplikten", "polaritet": "positiv", "sikkerhet": "hoy"}"""), Tekst);
+        var r = Kjor(Svar("""{"eid": "n1", "sitat": "Departementet kan gi forskrift om leveringsplikten", "kategori": "kompetanse", "type": "normgivningskompetanse", "fra": "a1", "objekt": "forskrift om leveringsplikten", "polaritet": "positiv", "sikkerhet": "hoy"}"""), Tekst);
 
         var u = Assert.Single(r.Dokument.Utsagn);
         Assert.Equal($"{Eli}/§1/ledd-1", u.Eid);
-        Assert.Equal(("kompetanse", "forskriftskompetanse"), (u.Kategori, u.Type));
+        Assert.Equal(("kompetanse", "normgivningskompetanse"), (u.Kategori, u.Type));
         Assert.Equal("ki:test-modell", u.Oppdagelseskilde);
         Assert.Equal("forskrift om leveringsplikten", u.Objekt);
         Assert.Null(u.Til);
@@ -76,8 +76,8 @@ public class KiStrukturkonvertererTests
     public void Falskt_sitat_kastes_og_telles_ogsa_naar_det_nesten_er_ordrett()
     {
         var r = Kjor(Svar("""
-            {"eid": "n1", "sitat": "Departementet kan gi forskrifter om leveringsplikten", "kategori": "kompetanse", "type": "forskriftskompetanse", "fra": "a1", "polaritet": "positiv"},
-            {"eid": "n1", "sitat": "departementet  kan gi forskrift", "kategori": "kompetanse", "type": "forskriftskompetanse", "fra": "a1", "polaritet": "positiv"},
+            {"eid": "n1", "sitat": "Departementet kan gi forskrifter om leveringsplikten", "kategori": "kompetanse", "type": "normgivningskompetanse", "fra": "a1", "polaritet": "positiv"},
+            {"eid": "n1", "sitat": "departementet  kan gi forskrift", "kategori": "kompetanse", "type": "normgivningskompetanse", "fra": "a1", "polaritet": "positiv"},
             {"eid": "n1", "sitat": "Klagenemnda avgjør klager", "kategori": "kompetanse", "type": "klagekompetanse", "polaritet": "positiv"}
             """), Tekst, "Klagenemnda avgjør klager etter loven.");
 
@@ -92,9 +92,9 @@ public class KiStrukturkonvertererTests
     public void Ukjent_eid_kastes_ogsaa_naar_det_er_den_lange_eid_en_eller_en_tagg_utenfor_kallet()
     {
         var r = Kjor(Svar($$"""
-            {"eid": "n7", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "forskriftskompetanse", "polaritet": "positiv"},
-            {"eid": "{{Eli}}/§1/ledd-1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "forskriftskompetanse", "polaritet": "positiv"},
-            {"eid": "[n1]", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "forskriftskompetanse", "polaritet": "positiv"}
+            {"eid": "n7", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "normgivningskompetanse", "polaritet": "positiv"},
+            {"eid": "{{Eli}}/§1/ledd-1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "normgivningskompetanse", "polaritet": "positiv"},
+            {"eid": "[n1]", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "normgivningskompetanse", "polaritet": "positiv"}
             """), Tekst);
 
         Assert.Empty(r.Dokument.Utsagn);
@@ -105,7 +105,7 @@ public class KiStrukturkonvertererTests
     public void Ukjent_kategori_og_type_kastes_men_annet_x_godtas()
     {
         var r = Kjor(Svar("""
-            {"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "myndighet", "type": "forskriftskompetanse", "polaritet": "positiv"},
+            {"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "myndighet", "type": "normgivningskompetanse", "polaritet": "positiv"},
             {"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "forskriftsmyndighet", "polaritet": "positiv"},
             {"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "bestar_av", "polaritet": "positiv"},
             {"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "annet:Forskrift Myndighet", "polaritet": "positiv"},
@@ -141,7 +141,7 @@ public class KiStrukturkonvertererTests
     [Fact]
     public void Markdown_kodeblokk_rundt_svaret_strimles_som_i_de_andre_ki_agentene()
     {
-        var r = Kjor("```json\n" + Svar("""{"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "forskriftskompetanse", "fra": "a1", "polaritet": "positiv"}""") + "\n```", Tekst);
+        var r = Kjor("```json\n" + Svar("""{"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "normgivningskompetanse", "fra": "a1", "polaritet": "positiv"}""") + "\n```", Tekst);
 
         Assert.Single(r.Dokument.Utsagn);
         Assert.Equal(0, r.UgyldigJson);
@@ -153,7 +153,7 @@ public class KiStrukturkonvertererTests
         var klient = new KannetKlient(k => Regex.Matches(k, @"^\[n\d+\]", RegexOptions.Multiline).Count > 1
             ? "{\"utsagn\": [ AVKUTTET"
             : k.Contains("[n1]")
-                ? Svar("""{"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "forskriftskompetanse", "fra": "a1", "polaritet": "positiv"}""")
+                ? Svar("""{"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "normgivningskompetanse", "fra": "a1", "polaritet": "positiv"}""")
                 : """{"aktorer": [], "utsagn": []}""");
 
         var r = new KiStrukturkonverterer(klient, Konfig("m"))
@@ -169,10 +169,10 @@ public class KiStrukturkonvertererTests
     public void Aktorreferanser_maa_finnes_og_aktoren_maa_staa_i_teksten()
     {
         var r = Kjor(Svar("""
-            {"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "forskriftskompetanse", "fra": "a9", "polaritet": "positiv"},
-            {"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "forskriftskompetanse", "fra": "a2", "polaritet": "positiv"},
-            {"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "forskriftskompetanse", "fra": "a3", "polaritet": "positiv"},
-            {"eid": "n1", "sitat": "Klage går til klagenemnda", "kategori": "relasjon", "type": "klageinstans_for", "til": "a4", "polaritet": "positiv"}
+            {"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "normgivningskompetanse", "fra": "a9", "polaritet": "positiv"},
+            {"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "normgivningskompetanse", "fra": "a2", "polaritet": "positiv"},
+            {"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "normgivningskompetanse", "fra": "a3", "polaritet": "positiv"},
+            {"eid": "n1", "sitat": "Klage går til klagenemnda", "kategori": "kompetanse", "type": "klagekompetanse", "til": "a4", "polaritet": "positiv"}
             """,
             """
             {"id": "a2", "tekstform": "Nærings- og fiskeridepartementet"},
@@ -193,9 +193,9 @@ public class KiStrukturkonvertererTests
     public void Manglende_polaritet_eller_feil_jsontype_kastes_som_ugyldig_felt_uten_standardverdi()
     {
         var r = Kjor(Svar("""
-            {"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "forskriftskompetanse"},
-            {"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "forskriftskompetanse", "polaritet": "positiv", "betinget": "nei"},
-            {"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "forskriftskompetanse", "polaritet": "positiv", "sikkerhet": "høy"}
+            {"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "normgivningskompetanse"},
+            {"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "normgivningskompetanse", "polaritet": "positiv", "betinget": "nei"},
+            {"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "normgivningskompetanse", "polaritet": "positiv", "sikkerhet": "høy"}
             """), Tekst);
 
         Assert.Empty(r.Dokument.Utsagn);
@@ -206,7 +206,7 @@ public class KiStrukturkonvertererTests
     [Fact]
     public void Duplikate_rader_telles_en_gang()
     {
-        const string rad = """{"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "forskriftskompetanse", "fra": "a1", "polaritet": "positiv"}""";
+        const string rad = """{"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "normgivningskompetanse", "fra": "a1", "polaritet": "positiv"}""";
         var r = Kjor(Svar(rad + "," + rad), Tekst);
 
         Assert.Single(r.Dokument.Utsagn);
@@ -265,7 +265,7 @@ public class KiStrukturkonvertererTests
     {
         var klient = new KannetKlient(k => Svar(
             k.Contains("[n1]")
-                ? """{"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "forskriftskompetanse", "fra": "a1", "polaritet": "positiv"}"""
+                ? """{"eid": "n1", "sitat": "Departementet kan gi forskrift", "kategori": "kompetanse", "type": "normgivningskompetanse", "fra": "a1", "polaritet": "positiv"}"""
                 : """{"eid": "n2", "sitat": "departementet treffer vedtak", "kategori": "kompetanse", "type": "vedtakskompetanse", "fra": "a1", "polaritet": "positiv"}""",
             k.Contains("[n1]")
                 ? """{"id": "a1", "tekstform": "Departementet", "entitetstype": "organ"}"""

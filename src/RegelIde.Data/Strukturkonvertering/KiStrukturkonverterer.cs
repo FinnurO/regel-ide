@@ -161,6 +161,9 @@ public sealed class KiStrukturkonverterer(
                     Kommentar: r.Kommentar)
                 {
                     Oppdagelseskilde = "ki:" + modell,
+                    Normform = r.Normform,
+                    Grunnlag = r.Grunnlag,
+                    Delegerbar = r.Delegerbar,
                 });
             }
         }
@@ -195,6 +198,10 @@ public sealed class KiStrukturkonverterer(
     /// konvensjoner — instruksen er IKKE iterert mot fasiten (#308: én måling, ikke prompt-tilpasning).
     /// </summary>
     public static string SystemInstruks { get; } = ByggSystemInstruks();
+
+    /// <summary>[Ny, issue #341, Johanns beslutning 3] Leksikonets uttrykk, ett per linje — det KI-en IKKE skal foreslå for.</summary>
+    private static string Leksikonliste() => string.Join("\n", Kompetanseleksikon.Regler
+        .Select(r => $"  - {string.Join(" / ", r.Uttrykk.Select(u => $"«{u}»"))} → {r.Kategori}/{r.Type}{(r.Normform is null ? "" : $" ({r.Normform})")}"));
 
     private static string ByggSystemInstruks()
     {
@@ -236,12 +243,21 @@ public sealed class KiStrukturkonverterer(
             - "kategori" og "type" — bruk disse når de passer:
             {{typer}}
               Passer ingen: "annet:<kort_navn>" (små bokstaver og _) og forklar i "kommentar".
-              relasjon = aktør→aktør; kompetanse = aktør→bestemmelse/sakstype (da er "til" null og "objekt" satt);
+              relasjon = STRUKTUR uten myndighet (eierskap, ledelse, sekretariat, rapportering, etterfølger, representasjon,
+                og en GJENNOMFØRT delegering i et delegeringsvedtak = har_delegert_til);
+              kompetanse = MYNDIGHET: «A har kompetanse av typen X, eventuelt overfor B, når det gjelder Y». Klageinstans,
+                instruksjon, omgjøring, oppnevning, tilsyn med en aktør, avsetting, sanksjon og samtykke er kompetanse —
+                "til" = motparten (den det gjelder), ellers null med "objekt" satt. «X kan delegere» = delegeringskompetanse.
+                Forskrift er normgivningskompetanse med "normform": "forskrift". vedtakskompetanse betyr enkeltvedtak.
+                Kan du ikke avgjøre typen for et kompetanseuttrykk, bruk "{{Strukturkontrakt.Ukjent}}" — ikke gjett;
               medlemskap = aktør/klasse→klasse; sammensetning_omrade = område→område; ansvarsomrade = aktør→område;
               konstituerende = oppretter/avvikler/skal_finnes («Hver kommune skal ha …»);
               organsammensetning = har_medlemmer (antall, hvem oppnevner) / har_organ (rettssubjekt→organ).
             - "fra", "til": aktør-id fra "aktorer" i DETTE svaret, eller null når teksten ikke avgjør aktøren
             - "objekt": for kompetanse: bestemmelsen/sakstypen/regelverket (f.eks. "vedtak etter § 3-1")
+            - "normform": bare på normgivningskompetanse — en av {{string.Join(", ", Strukturkontrakt.Normformer)}}, når teksten sier det
+            - "grunnlag": bare på kompetanse — "privatrettslig" når kompetansen følger av eierskap/selskapsrett, ellers utelat
+            - "delegerbar": bare på kompetanse — false for «Kongen i statsråd …» og «X selv …», true for «Kongen …», ellers utelat
             - "polaritet": "positiv" eller "negativ" — ALLTID med («kan ikke instruere» = negativ)
             - "avgrensning": paragraf/sakstype/vilkår som begrenser utsagnet
             - "betinget": true/false
@@ -249,6 +265,10 @@ public sealed class KiStrukturkonverterer(
               vedtekter, «Kongen bestemmer»)
             - "sikkerhet": "hoy", "middels" eller "lav"
             - "kommentar": kort, bare når det trengs
+
+            LEKSIKONET (versjon {{Kompetanseleksikon.Versjon}}): utsagn som uttrykkes med formuleringene under, finner
+            et deterministisk mønsterlag — IKKE annoter dem. Foreslå bare for uttrykk som IKKE står her:
+            {{Leksikonliste()}}
 
             REGLER:
             - Ingen gjetting. Kan aktøren ikke avgjøres fra teksten, sett fra/til til null. Dikt ikke opp aktører,
@@ -515,7 +535,8 @@ public sealed class KiStrukturkonverterer(
             & Streng(u, "fra", out var fra) & Streng(u, "til", out var til) & Streng(u, "objekt", out var objekt)
             & Streng(u, "polaritet", out var polaritet) & Streng(u, "avgrensning", out var avgrensning)
             & Bool(u, "betinget", out var betinget) & Bool(u, "kilde_utenfor_korpus", out var utenfor)
-            & Streng(u, "sikkerhet", out var sikkerhet) & Streng(u, "kommentar", out var kommentar);
+            & Streng(u, "sikkerhet", out var sikkerhet) & Streng(u, "kommentar", out var kommentar)
+            & Streng(u, "normform", out var normform) & Streng(u, "grunnlag", out var grunnlag) & Bool(u, "delegerbar", out var delegerbar);
 
         KastetRad Kast(string arsak, string detalj) =>
             new(arsak, tagg is not null && noder.TryGetValue(tagg, out var n) ? n.Eid : tagg, sitat, kategori, type, detalj);
@@ -547,9 +568,16 @@ public sealed class KiStrukturkonverterer(
             return (null, Kast(KastetArsak.UgyldigFelt, $"polaritet = «{polaritet ?? "null"}»."));
         if (sikkerhet is not null && !Strukturkontrakt.Sikkerheter.Contains(sikkerhet))
             return (null, Kast(KastetArsak.UgyldigFelt, $"sikkerhet = «{sikkerhet}»."));
+        // [Ny, issue #341] Kompetansefeltene: lukkede lister, og bare der de hører hjemme (FORMAT.md).
+        if (normform is not null && (type != "normgivningskompetanse" || !Strukturkontrakt.Normformer.Contains(normform)))
+            return (null, Kast(KastetArsak.UgyldigFelt, $"normform = «{normform}» (bare på normgivningskompetanse)."));
+        if (grunnlag is not null && (kategori != "kompetanse" || !Strukturkontrakt.Grunnlag.Contains(grunnlag)))
+            return (null, Kast(KastetArsak.UgyldigFelt, $"grunnlag = «{grunnlag}» (bare på kompetanse)."));
+        if (delegerbar is not null && kategori != "kompetanse")
+            return (null, Kast(KastetArsak.UgyldigFelt, "delegerbar finnes bare på kompetanse."));
 
         return (new KiRad(node.Eid, sitat, kategori, type, fraAktor, tilAktor, objekt, polaritet, avgrensning,
-            betinget, utenfor, sikkerhet, kommentar), null);
+            betinget, utenfor, sikkerhet, kommentar, normform, grunnlag, delegerbar), null);
     }
 
     /// <summary>
@@ -798,7 +826,9 @@ public static class SitatDiagnoser
 /// <summary>Én validert rad før aktørene er samlet på tvers av kall.</summary>
 internal sealed record KiRad(
     string Eid, string Sitat, string Kategori, string Type, KiAktor? Fra, KiAktor? Til, string? Objekt, string Polaritet,
-    string? Avgrensning, bool? Betinget, bool? KildeUtenforKorpus, string? Sikkerhet, string? Kommentar);
+    string? Avgrensning, bool? Betinget, bool? KildeUtenforKorpus, string? Sikkerhet, string? Kommentar,
+    // [Ny, issue #341] Bare på kompetanse (normform bare på normgivning) — validert i TolkUtsagn.
+    string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null);
 
 /// <summary>Én validert aktør fra ett KI-svar.</summary>
 internal sealed record KiAktor(

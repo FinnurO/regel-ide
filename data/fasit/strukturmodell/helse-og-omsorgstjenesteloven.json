@@ -1243,7 +1243,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§1-2/ledd-2",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om hva som er helse- og omsorgstjenester etter loven her.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om hva som er helse- og omsorgstjenester",
@@ -1252,14 +1252,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u4",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§1-2/ledd-3",
       "sitat": "Kongen kan gi forskrift om lovens anvendelse på Svalbard og Jan Mayen",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a39",
       "til": null,
       "objekt": "forskrift om lovens anvendelse på Svalbard og Jan Mayen",
@@ -1268,14 +1269,16 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Kompetanse avgrenset til område (Svalbard/Jan Mayen)."
+      "kommentar": "Kompetanse avgrenset til område (Svalbard/Jan Mayen).",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u5",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§1-2/ledd-3",
       "sitat": "Kongen kan bestemme om og i hvilken utstrekning bestemmelser gitt i loven her skal gjelde på norske skip i utenriksfart",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a39",
       "til": null,
       "objekt": "anvendelse på skip, luftfartøyer og sokkelinstallasjoner",
@@ -1284,14 +1287,16 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "«bestemme» – form (forskrift/enkeltvedtak) ikke angitt; i praksis forskrift."
+      "kommentar": "«bestemme» – form (forskrift/enkeltvedtak) ikke angitt; i praksis forskrift.",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u6",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§1-3/ledd-1",
       "sitat": "Kongen kan i forskrift gjennomføre bilaterale avtaler med andre land om trygdekoordinering.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a39",
       "til": null,
       "objekt": "forskrift om gjennomføring av bilaterale trygdekoordineringsavtaler",
@@ -1300,14 +1305,16 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u7",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§2-1/ledd-1",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser til utfylling og gjennomføring av denne bestemmelsen",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om helsepersonellovens anvendelse for personell etter loven",
@@ -1316,7 +1323,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u8",
@@ -1355,7 +1363,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-1/ledd-3",
       "sitat": "Kongen kan i forskrift gi nærmere bestemmelser om pliktens innhold.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a39",
       "til": null,
       "objekt": "forskrift om innholdet i kommunens planleggings- og internkontrollplikt",
@@ -1364,7 +1372,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u11",
@@ -1435,7 +1445,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-2/ledd-2",
       "sitat": "Kongen i statsråd kan i forskrift gi nærmere bestemmelser om krav til innhold i tjenestene",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a40",
       "til": null,
       "objekt": "forskrift om innhold og kompetansekrav i tjenestene",
@@ -1444,14 +1454,16 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": false
     },
     {
       "id": "u16",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-2/ledd-3",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om fastlegeordningen",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om fastlegeordningen, inkl. suspensjon",
@@ -1460,14 +1472,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u17",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-2/ledd-4",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om privat helse- og omsorgsvirksomhet i kommunen",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om privat helse- og omsorgsvirksomhet",
@@ -1476,14 +1489,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "«i kommunen» = område."
+      "kommentar": "«i kommunen» = område.",
+      "normform": "forskrift"
     },
     {
       "id": "u18",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-2a/ledd-2",
       "sitat": "Kommunen skal gi forskrift med kriterier for tildeling av langtidsopphold i sykehjem",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "lokal forskrift om tildelingskriterier for langtidsopphold",
@@ -1492,14 +1506,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Kommunal forskriftskompetanse (plikt). Hvilket organ i kommunen som vedtar forskriften sier loven ikke – følger av kommuneloven (kommunestyret). #300: kompetanse lagt til rettssubjektet, intern fordeling utenfor teksten."
+      "kommentar": "Kommunal forskriftskompetanse (plikt). Hvilket organ i kommunen som vedtar forskriften sier loven ikke – følger av kommuneloven (kommunestyret). #300: kompetanse lagt til rettssubjektet, intern fordeling utenfor teksten.",
+      "normform": "forskrift"
     },
     {
       "id": "u19",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-2a/ledd-3",
       "sitat": "[Kongen gir forskrift med kriterier for tildeling av langtidsopphold i sykehjem",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a39",
       "til": null,
       "objekt": "forskrift om tildelingskriterier (alternativ tekst)",
@@ -1508,7 +1523,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "lav",
-      "kommentar": "Teksten står i hakeparentes i databasen – trolig ikke ikraftsatt/alternativ versjon. Kongen vs. kommunen som forskriftsgiver er motstridende; modellen bør kunne merke usikker gyldighet."
+      "kommentar": "Teksten står i hakeparentes i databasen – trolig ikke ikraftsatt/alternativ versjon. Kongen vs. kommunen som forskriftsgiver er motstridende; modellen bør kunne merke usikker gyldighet.",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u20",
@@ -1643,7 +1660,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-5/ledd-4",
       "sitat": "Kongen i statsråd kan i forskrift fastsette nærmere bestemmelser om innholdet i plikten etter første til tredje ledd",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a40",
       "til": null,
       "objekt": "forskrift om øyeblikkelig hjelp-plikten",
@@ -1652,7 +1669,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": false
     },
     {
       "id": "u29",
@@ -1723,7 +1742,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-9c/ledd-2",
       "sitat": "Departementet kan gi nærmere forskrifter om den rådgivende enheten, blant annet om organisering",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om rådgivende enhet for russaker, inkl. organisering",
@@ -1732,7 +1751,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Statlig organ kan regulere kommunens interne organisering."
+      "kommentar": "Statlig organ kan regulere kommunens interne organisering.",
+      "normform": "forskrift"
     },
     {
       "id": "u34",
@@ -1803,7 +1823,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§4-1/ledd-2",
       "sitat": "Kongen i statsråd kan i forskrift gi nærmere bestemmelser om kommunens plikt etter første ledd bokstav d.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a40",
       "til": null,
       "objekt": "forskrift om fagkompetanse i tjenestene",
@@ -1812,14 +1832,16 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": false
     },
     {
       "id": "u39",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§4-2/ledd-2",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om plikten etter første ledd, herunder krav til politisk behandling av kvalitetskrav i kommunestyret eller annet folkevalgt organ.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om kvalitetsforbedring, inkl. politisk behandling i kommunestyret",
@@ -1828,7 +1850,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "#300: statlig forskrift kan kreve behandling i et bestemt organ inne i kommunen."
+      "kommentar": "#300: statlig forskrift kan kreve behandling i et bestemt organ inne i kommunen.",
+      "normform": "forskrift"
     },
     {
       "id": "u40",
@@ -1867,7 +1890,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§4-2a/ledd-4",
       "sitat": "Departementet kan gi forskrift om det nærmere innhold i informasjonsplikten etter første ledd.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om informasjonsplikten",
@@ -1876,14 +1899,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u43",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-3/ledd-1",
       "sitat": "kan kommunen pålegge personell som i kommunen utfører oppgaver etter loven her, å utføre nærmere tilvist arbeid",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a1",
       "til": "a27",
       "objekt": null,
@@ -2107,7 +2131,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-7/ledd-2",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om hvilke opplysninger som skal gis",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om meldinger og videreformidling til sentralt register",
@@ -2116,7 +2140,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u58",
@@ -2180,14 +2205,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "#300: kompetanse lagt DIREKTE til organ inne i kommunen."
+      "kommentar": "#300: kompetanse lagt DIREKTE til organ inne i kommunen.",
+      "delegerbar": false
     },
     {
       "id": "u62",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§6-1/ledd-1",
       "sitat": "Kommunestyret selv",
       "kategori": "kompetanse",
-      "type": "delegeringsfullmakt",
+      "type": "delegeringskompetanse",
       "fra": "a11",
       "til": null,
       "objekt": "inngåelse av samarbeidsavtale",
@@ -2196,7 +2222,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "«selv» = delegeringsforbud. Modellen må kunne uttrykke at en kompetanse IKKE kan delegeres videre internt."
+      "kommentar": "«selv» = delegeringsforbud. Modellen må kunne uttrykke at en kompetanse IKKE kan delegeres videre internt.",
+      "delegerbar": false
     },
     {
       "id": "u63",
@@ -2459,7 +2486,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-1/ledd-3",
       "sitat": "Kongen i statsråd kan i forskrift gi nærmere bestemmelser om hvilke pasient- og brukergrupper plikten omfatter",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a40",
       "til": null,
       "objekt": "forskrift om individuell plan",
@@ -2468,7 +2495,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": false
     },
     {
       "id": "u80",
@@ -2507,7 +2536,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-2/ledd-2",
       "sitat": "Kongen i statsråd kan i forskrift gi nærmere bestemmelser om hvilken kompetanse og hvilke oppgaver koordinatoren skal ha.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a40",
       "til": null,
       "objekt": "forskrift om koordinatorens kompetanse og oppgaver",
@@ -2516,14 +2545,16 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": false
     },
     {
       "id": "u83",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-2a/ledd-1",
       "sitat": "skal kommunen oppnevne en barnekoordinator dersom foreldrene eller den som samtykker på vegne av barnet, ønsker dette",
-      "kategori": "relasjon",
-      "type": "oppnevner",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a1",
       "til": "a17",
       "objekt": null,
@@ -2587,7 +2618,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-2a/ledd-4",
       "sitat": "Kongen i statsråd kan i forskrift gi nærmere bestemmelser om hvilken kompetanse og hvilke oppgaver barnekoordinatoren skal ha.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a40",
       "til": null,
       "objekt": "forskrift om barnekoordinators kompetanse og oppgaver",
@@ -2596,14 +2627,16 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": false
     },
     {
       "id": "u88",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-2b/ledd-1",
       "sitat": "kan departementet gi forskrift om helt eller delvis unntak fra følgende bestemmelser",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "unntak fra §§ 7-1, 7-2 og 7-2 a",
@@ -2612,7 +2645,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Forskrift kan midlertidig oppheve pliktene til å ha koordinator/barnekoordinator."
+      "kommentar": "Forskrift kan midlertidig oppheve pliktene til å ha koordinator/barnekoordinator.",
+      "normform": "forskrift"
     },
     {
       "id": "u89",
@@ -2650,8 +2684,8 @@
       "id": "u91",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-3/ledd-1",
       "sitat": "og for oppnevning, opplæring og veiledning av koordinator og barnekoordinator",
-      "kategori": "relasjon",
-      "type": "oppnevner",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a18",
       "til": "a16",
       "objekt": null,
@@ -2666,8 +2700,8 @@
       "id": "u92",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-3/ledd-1",
       "sitat": "og for oppnevning, opplæring og veiledning av koordinator og barnekoordinator",
-      "kategori": "relasjon",
-      "type": "oppnevner",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a18",
       "til": "a17",
       "objekt": null,
@@ -2699,7 +2733,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-3/ledd-2",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om hvilket ansvar den koordinerende enheten skal ha.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om koordinerende enhets ansvar",
@@ -2708,14 +2742,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Statlig forskrift om kommunal intern enhet."
+      "kommentar": "Statlig forskrift om kommunal intern enhet.",
+      "normform": "forskrift"
     },
     {
       "id": "u95",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§8-1/ledd-2",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om kommunens medvirkning til undervisning og praktisk opplæring.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om undervisning og praktisk opplæring",
@@ -2724,14 +2759,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u96",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§8-2/ledd-4",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om videre- og etterutdanningen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om videre- og etterutdanning",
@@ -2740,7 +2776,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u97",
@@ -2874,8 +2911,8 @@
       "id": "u105",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-7/ledd-4",
       "sitat": "Vedtaket skal sendes statsforvalteren til overprøving etter § 9-8.",
-      "kategori": "relasjon",
-      "type": "annet:overproving",
+      "kategori": "kompetanse",
+      "type": "overprovingskompetanse",
       "fra": "a33",
       "til": "a32",
       "objekt": null,
@@ -2891,7 +2928,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-7/ledd-4",
       "sitat": "Vedtaket kan ikke iverksettes før det er godkjent av statsforvalteren.",
       "kategori": "kompetanse",
-      "type": "annet:godkjenningskompetanse",
+      "type": "godkjenningskompetanse",
       "fra": "a33",
       "til": null,
       "objekt": "godkjenning av vedtak etter § 9-5 tredje ledd b og c",
@@ -2907,7 +2944,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-7/ledd-4",
       "sitat": "kan vedtaket ikke iverksettes før barneverns- og helsenemnda har godkjent vedtaket",
       "kategori": "kompetanse",
-      "type": "annet:godkjenningskompetanse",
+      "type": "godkjenningskompetanse",
       "fra": "a51",
       "til": null,
       "objekt": "godkjenning av påklaget vedtak",
@@ -2923,7 +2960,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-8/ledd-1",
       "sitat": "Statsforvalteren skal overprøve vedtak etter § 9-5 tredje ledd bokstav b og c",
       "kategori": "kompetanse",
-      "type": "annet:overprovingskompetanse",
+      "type": "overprovingskompetanse",
       "fra": "a33",
       "til": null,
       "objekt": "vedtak etter § 9-5 tredje ledd b og c",
@@ -2970,8 +3007,8 @@
       "id": "u111",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-11/ledd-1",
       "sitat": "Beslutning etter § 9-5 tredje ledd bokstav a kan påklages av brukeren eller pasienten, verge og pårørende til statsforvalteren.",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": "a33",
       "til": "a29",
       "objekt": null,
@@ -3002,8 +3039,8 @@
       "id": "u113",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-11/ledd-2",
       "sitat": "som er overprøvd av statsforvalteren etter § 9-8, kan påklages av brukeren eller pasienten, vergen og pårørende, til barneverns- og helsenemnda",
-      "kategori": "relasjon",
-      "type": "klageinstans_for",
+      "kategori": "kompetanse",
+      "type": "klagekompetanse",
       "fra": "a51",
       "til": "a33",
       "objekt": null,
@@ -3067,7 +3104,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-11/ledd-3",
       "sitat": "Kongen kan gi forskrift om at disse reglene skal gjelde helt eller delvis.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a39",
       "til": null,
       "objekt": "forskrift om anvendelse av barnevernslovens regler for nemnda",
@@ -3076,7 +3113,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u118",
@@ -3098,8 +3137,8 @@
       "id": "u119",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-12/ledd-1",
       "sitat": "Vedtak i klagesak etter § 9-11 andre ledd kan bringes inn for tingretten",
-      "kategori": "relasjon",
-      "type": "annet:domstolsoverproving",
+      "kategori": "kompetanse",
+      "type": "overprovingskompetanse",
       "fra": "a53",
       "til": "a51",
       "objekt": null,
@@ -3163,7 +3202,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-14/ledd-1",
       "sitat": "Kongen kan i forskrift gi nærmere bestemmelser til utfylling og gjennomføring av reglene i dette kapitlet.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a39",
       "til": null,
       "objekt": "forskrift til kapittel 9",
@@ -3172,7 +3211,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u124",
@@ -3498,8 +3539,8 @@
       "id": "u144",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-7/ledd-1",
       "sitat": "Nemndas vedtak kan bringes inn for tingretten etter reglene i tvisteloven kapittel 36 av den private part eller av kommunen.",
-      "kategori": "relasjon",
-      "type": "annet:domstolsoverproving",
+      "kategori": "kompetanse",
+      "type": "overprovingskompetanse",
       "fra": "a53",
       "til": "a51",
       "objekt": null,
@@ -3595,7 +3636,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§11-1/ledd-2",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om utgiftsfordelingen mellom to eller flere kommuner",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om utgiftsfordeling mellom kommuner og tvisteløsning",
@@ -3604,14 +3645,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Hvem som avgjør tvister mellom kommuner er ikke angitt i loven."
+      "kommentar": "Hvem som avgjør tvister mellom kommuner er ikke angitt i loven.",
+      "normform": "forskrift"
     },
     {
       "id": "u151",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§11-1/ledd-5",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om dekning av reiseutgifter for behandlingspersonell",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om reiseutgifter og skyssgodtgjørelse",
@@ -3620,14 +3662,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u152",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§11-1/ledd-6",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om utgiftsdekningen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om dekning av helsetjenester mottatt i annet EØS-land",
@@ -3636,7 +3679,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u153",
@@ -3659,7 +3703,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§11-2/ledd-2",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om vederlag for helse- og omsorgstjenester",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om egenbetaling",
@@ -3668,14 +3712,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u155",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§11-3/ledd-1",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om kommuners medfinansieringsansvar",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om kommunal medfinansiering",
@@ -3684,7 +3729,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u156",
@@ -3755,7 +3801,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§11-5/ledd-1",
       "sitat": "Tilskuddene fordeles gjennom inntektssystemet for kommunene etter regler gitt av Kongen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a39",
       "til": null,
       "objekt": "regler om fordeling av rammetilskudd",
@@ -3764,7 +3810,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u161",
@@ -3835,7 +3883,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§12-2/ledd-2",
       "sitat": "Departementet kan i forskrift gi nærmere bestemmelser om innhold og gjennomføring av legefordeling",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om legefordeling",
@@ -3844,7 +3892,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u166",
@@ -3866,8 +3915,8 @@
       "id": "u167",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§12-3/ledd-1",
       "sitat": "Statsforvalteren skal føre tilsyn med lovligheten av kommunens oppfyllelse",
-      "kategori": "relasjon",
-      "type": "tilsyn_med_aktor",
+      "kategori": "kompetanse",
+      "type": "tilsynskompetanse",
       "fra": "a33",
       "til": "a1",
       "objekt": null,
@@ -4027,7 +4076,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§12-4/ledd-2",
       "sitat": "med de begrensninger som institusjonen fastsetter",
       "kategori": "kompetanse",
-      "type": "annet:intern_regelgivning",
+      "type": "normgivningskompetanse",
       "fra": "a50",
       "til": null,
       "objekt": "begrensninger i beboeres bevegelsesfrihet",
@@ -4043,7 +4092,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§12-4/ledd-4",
       "sitat": "Kongen kan gi forskrift om gjennomføringen av opphold ved institusjon.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a39",
       "til": null,
       "objekt": "forskrift om opphold i institusjon, inkl. tvangstiltak",
@@ -4052,14 +4101,16 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u179",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§12-4/ledd-4",
       "sitat": "Kongens myndighet gjelder også private institusjoner for personer med rusmiddelproblemer uten avtale med kommunen.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a39",
       "til": null,
       "objekt": "forskrift om opphold i private rusinstitusjoner",
@@ -4068,7 +4119,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Utvidelse av forskriftskompetansens personelle virkeområde."
+      "kommentar": "Utvidelse av forskriftskompetansens personelle virkeområde.",
+      "normform": "forskrift",
+      "delegerbar": true
     },
     {
       "id": "u180",
@@ -4090,8 +4143,8 @@
       "id": "u181",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§12-5/ledd-1",
       "sitat": "Departementet kan bestemme på hvilke områder direktoratet skal utarbeide slike retningslinjer og veiledere.",
-      "kategori": "relasjon",
-      "type": "instruksjon",
+      "kategori": "kompetanse",
+      "type": "instruksjonskompetanse",
       "fra": "a38",
       "til": "a37",
       "objekt": null,
@@ -4155,7 +4208,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§12-7/ledd-1",
       "sitat": "Departementet kan gi forskrift om krav til og vilkår for godkjenning av private virksomheter og tjenester",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om godkjenningsordning for private",
@@ -4164,7 +4217,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u186",
@@ -4219,7 +4273,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§12-8/ledd-1",
       "sitat": "Departementet kan i forskrift stille vilkår for bruk av betegnelsen legevakt.",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "forskrift om betegnelsen legevakt",
@@ -4228,14 +4282,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "normform": "forskrift"
     },
     {
       "id": "u190",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§12-8/ledd-2",
       "sitat": "Departementet kan fastsette regler om overtredelsesgebyr",
       "kategori": "kompetanse",
-      "type": "forskriftskompetanse",
+      "type": "normgivningskompetanse",
       "fra": "a38",
       "til": null,
       "objekt": "regler om overtredelsesgebyr",
@@ -4244,7 +4299,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Hvem som ilegger gebyret er ikke angitt."
+      "kommentar": "Hvem som ilegger gebyret er ikke angitt.",
+      "normform": "forskrift"
     },
     {
       "id": "u191",
@@ -4260,7 +4316,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegerbar": true
     },
     {
       "id": "u192",
@@ -4276,7 +4333,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegerbar": true
     }
   ]
 }
