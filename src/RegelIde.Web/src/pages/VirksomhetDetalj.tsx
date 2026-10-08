@@ -8,6 +8,7 @@ import { NavneformgrunnTag, NavneformgrunnVelger } from '../virksomhet/Navneform
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { LeggTilMyndighetstildelingForm } from '../virksomhet/LeggTilMyndighetstildelingForm';
 import { StrukturkantTabell } from '../strukturkant/StrukturkantTabell';
+import { KompetanseTabell } from '../strukturkant/KompetanseTabell';
 import { paragrafEtikett } from '../rettskilde/paragrafEtikett';
 import { LeggTilVirksomhetRelasjonForm } from '../virksomhet/LeggTilVirksomhetRelasjonForm';
 import { Metatekst } from '../entitet/Metatekst';
@@ -368,14 +369,36 @@ export default function VirksomhetDetalj() {
       </section>
       )}
 
+      {/* [Ny, issue #341 «kompetanse med motpart», 2026-10-08] Kompetansen først, gruppert på familie: «hvilken kompetanse
+        * har virksomheten, overfor hvem?» og, fra motpartens side, «hvem har kompetanse overfor denne?» (docs/32 S9). Før
+        * #341 sto klageinstans/instruksjon/oppnevning som relasjoner under, og forskriftskompetansen blandet med
+        * organtilhørigheten nederst. */}
+      {fane === 'myndighet' && (
+      <section style={{ marginBottom: '2rem' }}>
+        <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
+          Kompetanse
+        </Heading>
+        <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
+          Hvilken myndighet virksomheten har, eventuelt overfor hvem, etter hvilken bestemmelse — og hvem som har
+          kompetanse overfor den (issue #341). Gruppert på kompetansefamilie. «Kan delegeres» og grunnlaget vises bare
+          når teksten sier det; normformen står i utsagnet.
+        </Metatekst>
+        <KompetanseTabell
+          kanter={kanter && kanter.filter((k) => k.kategori === 'K')}
+          tomTekst="Ingen kompetanse registrert."
+        />
+      </section>
+      )}
+
       {fane === 'myndighet' && (
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
           Relasjoner til andre virksomheter
         </Heading>
         <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
-          Navngitte relasjoner til BESTEMTE, konkrete virksomheter (f.eks. «er klageinstans for», «er sekretariat for»)
-          — til forskjell fra «Overordnet enhet» i Grunndata over, som er automatisk Brreg-avledet uten
+          Struktur uten myndighet til BESTEMTE, konkrete virksomheter (f.eks. «eies av», «er sekretariat for»,
+          «har delegert myndighet til») — klagekompetanse, instruksjon og oppnevning står under Kompetanse over. Dette er
+          til forskjell fra «Overordnet enhet» i Grunndata, som er automatisk Brreg-avledet uten
           hjemmel. Listen viser relasjoner i BEGGE retninger fra denne virksomhetens ståsted — samme rad
           kan altså vises med ulik tekst på motpartens side.
         </Metatekst>
@@ -385,7 +408,7 @@ export default function VirksomhetDetalj() {
           tomTekst="Ingen relasjoner registrert."
         />
         <Button data-size="sm" variant="secondary" onClick={() => setVisLeggTilRelasjon((v) => !v)}>
-          {visLeggTilRelasjon ? 'Skjul skjema' : 'Legg til relasjon'}
+          {visLeggTilRelasjon ? 'Skjul skjema' : 'Legg til relasjon eller kompetanse'}
         </Button>
         {visLeggTilRelasjon && id && (
           <LeggTilVirksomhetRelasjonForm
@@ -621,15 +644,15 @@ export default function VirksomhetDetalj() {
       {fane === 'myndighet' && (
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
-          Kompetanse og organtilhørighet
+          Organtilhørighet og andre strukturutsagn
         </Heading>
         <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
-          Øvrige strukturutsagn (issue #311, docs/33 §4.3): hvilken kompetanse virksomheten har etter hvilken
-          bestemmelse, og hvilket rettssubjekt den er organ for. Registreres i dag av konverteringen (#313) eller
-          over API-et — det finnes ikke et eget skjema for disse ennå. Ansvarsområdene står i egen seksjon over.
+          Øvrige strukturutsagn (issue #311, docs/33 §4.3): hvilket rettssubjekt virksomheten er organ for, og
+          tilhørigheter sett fra den andre siden. Registreres i dag av konverteringen (#313) eller over API-et.
+          Kompetansen og ansvarsområdene står i egne seksjoner over.
         </Metatekst>
         <StrukturkantTabell
-          kanter={kanter && kanter.filter((k) => k.kategori !== 'R' && !(k.kategori === 'A' && k.retning === 'fra')
+          kanter={kanter && kanter.filter((k) => k.kategori !== 'R' && k.kategori !== 'K' && !(k.kategori === 'A' && k.retning === 'fra')
             && !((k.kategori === 'M' || k.kategori === 'I') && k.retning === 'fra'))}
           tomTekst="Ingen andre strukturutsagn registrert."
           visKategori

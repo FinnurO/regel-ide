@@ -27,11 +27,18 @@ export interface LeggTilMyndighetstildelingFormProps {
  * `M medlem_av` — samme regel som datamigreringen og `StrukturkantTjeneste.OpprettTildelingAsync`. Vilkåret
  * lagres som kantens avgrensningstekst. Polariteten er alltid positiv her: skjemaet registrerer at
  * virksomheten ER medlem/innehaver; et negativt utsagn registreres som en egen kant.
+ *
+ * [ENDRET, issue #341, 2026-10-08] Skjemaet skiller nå HVOR tildelingen står (hjemmelsstedet: en paragraf i hjemmelen,
+ * påkrevd — `hjemmelEid`) fra HVILKE PARAGRAFER den gjelder for (spennene i gruppebegrepets lov — nå valgfri avgrensning).
+ * Før #341 var spennet påkrevd og het «paragrafspenn»; veiviseren og seeden brukte samme felt for hjemmelsstedet, og
+ * #311 lagret begge som avgrensning (Strukturkanter.KreverHjemmelsted).
  */
 export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOpprettet }: LeggTilMyndighetstildelingFormProps) {
   const [gruppebegrep, setGruppebegrep] = useState<VirksomhetsbegrepDto[] | null>(null);
   const [gruppebegrepId, setGruppebegrepId] = useState('');
   const [hjemmelRettskildeId, setHjemmelRettskildeId] = useState('');
+  // [Ny, issue #341] Hvor i hjemmelen tildelingen står — påkrevd for M/I med hjemmel i korpus.
+  const [hjemmelEid, setHjemmelEid] = useState('');
   const [vilkaar, setVilkaar] = useState('');
   const [gyldigFra, setGyldigFra] = useState('');
   const [gyldigTil, setGyldigTil] = useState('');
@@ -50,6 +57,16 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
 
   const valgtGruppebegrep = gruppebegrep?.find((r) => r.id === gruppebegrepId);
   const lovkildeId = valgtGruppebegrep?.lovkildeId ?? null;
+  // [Ny, issue #341] Nodene i HJEMMELEN (for hjemmelsstedet) — samme lazy henting som for gruppebegrepets lov.
+  useEffect(() => {
+    if (!hjemmelRettskildeId || noderPerLov.has(hjemmelRettskildeId)) return;
+    api.hentNoder(hjemmelRettskildeId)
+      .then((noder) => setNoderPerLov((forrige) => new Map(forrige).set(hjemmelRettskildeId, noder)))
+      .catch(() => { /* Ingen gjettet fallback — manuell eId under. */ });
+  }, [hjemmelRettskildeId, noderPerLov]);
+  const hjemmelParagrafer = (hjemmelRettskildeId ? noderPerLov.get(hjemmelRettskildeId) : undefined)?.filter(
+    (n) => n.nodeType === 'side' || (n.nodeType !== 'kapittel' && n.nummer),
+  ) ?? [];
   const lovForGruppebegrep = lovkildeId ? rettskilder.find((r) => r.id === lovkildeId) : undefined;
 
   useEffect(() => {
@@ -100,20 +117,21 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
   }
 
   async function opprett() {
-    if (!gruppebegrepId || !hjemmelRettskildeId || paragrafspenn.length === 0) return;
+    if (!gruppebegrepId || !hjemmelRettskildeId || !hjemmelEid.trim()) return;
     setFeilmelding(null);
     setOppretter(true);
     try {
       const erRolle = valgtGruppebegrep?.begrepskategori === 'rolle';
       const ny = await api.opprettStrukturkant({
         kategori: erRolle ? 'I' : 'M', typekode: erRolle ? 'innehar' : 'medlem_av',
-        fraVirksomhetId: virksomhetId, tilBegrepId: gruppebegrepId, hjemmelRettskildeId, paragrafspenn,
+        fraVirksomhetId: virksomhetId, tilBegrepId: gruppebegrepId, hjemmelRettskildeId, hjemmelEid: hjemmelEid.trim(), paragrafspenn,
         avgrensningTekst: vilkaar.trim() || null, polaritet: 'positiv',
         gyldigFra: gyldigFra || null, gyldigTil: gyldigTil || null,
       });
       onOpprettet(ny);
       setGruppebegrepId('');
       setHjemmelRettskildeId('');
+      setHjemmelEid('');
       setVilkaar('');
       setParagrafspenn([]);
       setGyldigFra('');
@@ -151,11 +169,30 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
         <RettskildeVelger rettskilder={rettskilder} value={hjemmelRettskildeId} onChange={setHjemmelRettskildeId}
           label="Hjemmel (forskrift/delegeringsvedtak)" />
       </div>
+      {hjemmelRettskildeId && (
+        <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-end', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+          {hjemmelParagrafer.length > 0 && (
+            <Field style={{ maxWidth: '18rem' }}>
+              <Label>Tildelt i paragraf (påkrevd)</Label>
+              <Select data-size="sm" value={hjemmelEid} onChange={(e) => setHjemmelEid(e.target.value)}>
+                <Select.Option value="">Velg …</Select.Option>
+                {hjemmelParagrafer.map((n) => (
+                  <Select.Option key={n.id} value={n.eid}>
+                    {n.nodeType === 'side' ? 'Hele siden' : n.nummer}{n.overskrift ? ` — ${n.overskrift}` : ''}
+                  </Select.Option>
+                ))}
+              </Select>
+            </Field>
+          )}
+          <Textfield data-size="sm" label="Hjemmel-eId (avansert / manuell)" value={hjemmelEid}
+            onChange={(e) => setHjemmelEid(e.target.value)} style={{ minWidth: '16rem', fontFamily: 'monospace' }} />
+        </div>
+      )}
 
       {gruppebegrepId && (
         <div style={{ marginBottom: '0.75rem' }}>
           <Metatekst style={{ fontWeight: 500, marginBottom: '0.4rem' }}>
-            Paragrafspenn i {lovForGruppebegrep?.tittel ?? 'gruppebegrepets lov'} — minst ett kreves
+            Gjelder for paragrafer i {lovForGruppebegrep?.tittel ?? 'gruppebegrepets lov'} — valgfritt (avgrensning)
           </Metatekst>
           {paragrafspenn.length > 0 && (
             <Card style={{ padding: 0, overflow: 'hidden', marginBottom: '0.5rem' }}>
@@ -228,7 +265,7 @@ export function LeggTilMyndighetstildelingForm({ virksomhetId, rettskilder, onOp
       </Metatekst>
 
       <Button data-size="sm" type="button" onClick={opprett}
-        disabled={oppretter || !gruppebegrepId || !hjemmelRettskildeId || paragrafspenn.length === 0}>
+        disabled={oppretter || !gruppebegrepId || !hjemmelRettskildeId || !hjemmelEid.trim()}>
         {oppretter ? 'Oppretter …' : 'Opprett tilhørighet'}
       </Button>
       {feilmelding && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{feilmelding}</Alert>}

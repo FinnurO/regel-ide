@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Alert, Button, Card, Field, Label, Radio, Select, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { KildeUtenforKorpusDokumentasjon, KildeUtenforKorpusType, RelasjonsTypeKonfigurasjonDto, RettskildeSammendrag, StrukturkantDto, VirksomhetDto } from '../api/types';
+import type { KildeUtenforKorpusDokumentasjon, KildeUtenforKorpusType, Kompetansegrunnlag, Normform, RelasjonsTypeKonfigurasjonDto, RettskildeSammendrag, StrukturkantDto, VirksomhetDto } from '../api/types';
+import { FAMILIE_VISNING } from '../strukturkant/StrukturkantTabell';
 import { KildeUtenforKorpusVelger } from '../strukturkant/KildeUtenforKorpus';
 import { VirksomhetVelger } from './VirksomhetVelger';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
@@ -31,6 +32,12 @@ export interface LeggTilVirksomhetRelasjonFormProps {
  *   <li><b>Kilde utenfor korpus</b> — påkrevd når det ikke er valgt hjemmel (org-kart, vedtekter, kgl.res.).
  *       Det var dette den gamle «Kommentar»-feltet ble brukt til uten hjemmel.</li>
  * </ul>
+ * <p>
+ * [ENDRET, issue #341 «kompetanse med motpart», 2026-10-08] Typelista har både R (struktur uten myndighet) og K
+ * (kompetanse OVERFOR motparten — klage, instruksjon, oppnevning …), fordi myndighetsrelasjonene ble flyttet fra R til K
+ * (Johanns beslutning P1). Velges en K-type, lagres en K-kant med motparten som til-node, og skjemaet tilbyr normform (bare
+ * normgivning), grunnlag og «kan delegeres» — alle med «Ikke angitt» som utgangspunkt (CLAUDE.md §8: ingen forhåndsvalg).
+ * </p>
  */
 export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rettskilder, onOpprettet }: LeggTilVirksomhetRelasjonFormProps) {
   const [typer, setTyper] = useState<RelasjonsTypeKonfigurasjonDto[] | null>(null);
@@ -45,13 +52,23 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
   const [kildeType, setKildeType] = useState<KildeUtenforKorpusType | ''>('');
   const [kildeDok, setKildeDok] = useState<KildeUtenforKorpusDokumentasjon | ''>('');
   const [avgrensning, setAvgrensning] = useState('');
+  // [Ny, issue #341] Bare for K-typer.
+  const [normform, setNormform] = useState<Normform | ''>('');
+  const [grunnlag, setGrunnlag] = useState<Kompetansegrunnlag | ''>('');
+  const [delegerbar, setDelegerbar] = useState<'' | 'ja' | 'nei'>('');
 
   const [oppretter, setOppretter] = useState(false);
   const [feilmelding, setFeilmelding] = useState<string | null>(null);
 
   useEffect(() => {
-    api.hentRelasjonstyper('R').then(setTyper).catch(() => setTyper([]));
+    // [ENDRET, issue #341] R og K: «er klageinstans for» heter nå «har klagekompetanse overfor» (K).
+    Promise.all([api.hentRelasjonstyper('R'), api.hentRelasjonstyper('K')])
+      .then(([r, k]) => setTyper([...r, ...k]))
+      .catch(() => setTyper([]));
   }, []);
+  // Verdien i nedtrekkslista er «kategori:kode» — samme kode kan i prinsippet finnes i to kategorier.
+  const [valgtKategori, valgtKode] = relasjonsType ? relasjonsType.split(':') as ['R' | 'K', string] : [null, ''];
+  const erKompetanse = valgtKategori === 'K';
 
   // Andre virksomheter enn denne selv — en relasjon til seg selv avvises uansett server-side, men
   // ingen grunn til å tilby det som et valg i det hele tatt.
@@ -67,7 +84,10 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
     setOppretter(true);
     try {
       const ny = await api.opprettStrukturkant({
-        kategori: 'R', typekode: relasjonsType, fraVirksomhetId: virksomhetId, tilVirksomhetId, polaritet,
+        kategori: valgtKategori ?? 'R', typekode: valgtKode, fraVirksomhetId: virksomhetId, tilVirksomhetId, polaritet,
+        normform: erKompetanse && valgtKode === 'normgivning' && normform ? normform : null,
+        grunnlag: erKompetanse && grunnlag ? grunnlag : null,
+        delegerbar: erKompetanse && delegerbar ? delegerbar === 'ja' : null,
         hjemmelRettskildeId: hjemmelRettskildeId || null, hjemmelEid: hjemmelEid.trim() || null,
         kildeUtenforKorpusTekst: kildeTekst.trim() || null, kildeUtenforKorpusLenke: kildeLenke.trim() || null,
         kildeUtenforKorpusType: kildeType || null, kildeUtenforKorpusDokumentasjon: kildeDok || null,
@@ -84,6 +104,9 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
       setKildeType('');
       setKildeDok('');
       setAvgrensning('');
+      setNormform('');
+      setGrunnlag('');
+      setDelegerbar('');
     } catch (err) {
       setFeilmelding(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse av relasjon.');
     } finally {
@@ -99,22 +122,56 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
       </div>
 
       <Field data-size="sm" style={{ maxWidth: '24rem', marginBottom: '0.75rem' }}>
-        <Label>Relasjonstype</Label>
+        <Label>Relasjon eller kompetanse</Label>
         <Select data-size="sm" value={relasjonsType} onChange={(e) => setRelasjonsType(e.target.value)} disabled={!typer}>
-          <Select.Option value="">{typer ? 'Velg relasjonstype …' : 'Laster …'}</Select.Option>
+          <Select.Option value="">{typer ? 'Velg type …' : 'Laster …'}</Select.Option>
           {typer?.map((t) => (
-            <Select.Option key={t.kode} value={t.kode}>
-              {t.kode} — «{t.fraVisningsmal.replace('{0}', 'motparten')}»
+            <Select.Option key={`${t.kategori}:${t.kode}`} value={`${t.kategori}:${t.kode}`}>
+              {t.kategori === 'K'
+                ? `Kompetanse${t.familie ? ` (${FAMILIE_VISNING[t.familie].toLowerCase()})` : ''} — «${t.fraVisningsmal.replace('{0}', 'overfor motparten')}»`
+                : `Relasjon — «${t.fraVisningsmal.replace('{0}', 'motparten')}»`}
             </Select.Option>
           ))}
         </Select>
       </Field>
 
+      {erKompetanse && (
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+          {valgtKode === 'normgivning' && (
+            <Field data-size="sm" style={{ minWidth: '12rem' }}>
+              <Label>Normform</Label>
+              <Select data-size="sm" value={normform} onChange={(e) => setNormform(e.target.value as Normform | '')}>
+                <Select.Option value="">Ikke angitt</Select.Option>
+                {(['forskrift', 'reglement', 'arbeidsordning', 'vedtekter', 'instruks'] as Normform[]).map((n) => (
+                  <Select.Option key={n} value={n}>{n}</Select.Option>
+                ))}
+              </Select>
+            </Field>
+          )}
+          <Field data-size="sm" style={{ minWidth: '12rem' }}>
+            <Label>Grunnlag</Label>
+            <Select data-size="sm" value={grunnlag} onChange={(e) => setGrunnlag(e.target.value as Kompetansegrunnlag | '')}>
+              <Select.Option value="">Ikke angitt</Select.Option>
+              <Select.Option value="offentligrettslig">Offentligrettslig</Select.Option>
+              <Select.Option value="privatrettslig">Privatrettslig (eierskap/selskapsrett)</Select.Option>
+            </Select>
+          </Field>
+          <Field data-size="sm" style={{ minWidth: '12rem' }}>
+            <Label>Kan delegeres?</Label>
+            <Select data-size="sm" value={delegerbar} onChange={(e) => setDelegerbar(e.target.value as '' | 'ja' | 'nei')}>
+              <Select.Option value="">Ikke angitt</Select.Option>
+              <Select.Option value="ja">Ja («Kongen …»)</Select.Option>
+              <Select.Option value="nei">Nei («Kongen i statsråd …», «… selv»)</Select.Option>
+            </Select>
+          </Field>
+        </div>
+      )}
+
       <Field data-size="sm" style={{ marginBottom: '0.75rem' }}>
         <Label>Polaritet</Label>
         <Radio name="relasjon-polaritet" value="positiv" label="Positiv — relasjonen gjelder"
           checked={polaritet === 'positiv'} onChange={() => setPolaritet('positiv')} />
-        <Radio name="relasjon-polaritet" value="negativ" label="Negativ — teksten sier at relasjonen IKKE gjelder (f.eks. «kan ikke instruere»)"
+        <Radio name="relasjon-polaritet" value="negativ" label="Negativ — teksten sier at det IKKE gjelder (f.eks. «kan ikke instruere»)"
           checked={polaritet === 'negativ'} onChange={() => setPolaritet('negativ')} />
       </Field>
 
@@ -150,7 +207,7 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
 
       <Button data-size="sm" type="button" onClick={opprett}
         disabled={oppretter || !tilVirksomhetId || !relasjonsType || !polaritet || !harKilde}>
-        {oppretter ? 'Oppretter …' : 'Opprett relasjon'}
+        {oppretter ? 'Oppretter …' : erKompetanse ? 'Opprett kompetanse' : 'Opprett relasjon'}
       </Button>
       {feilmelding && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{feilmelding}</Alert>}
     </Card>
