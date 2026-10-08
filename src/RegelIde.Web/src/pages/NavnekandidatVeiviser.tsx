@@ -1332,7 +1332,7 @@ export default function NavnekandidatVeiviser() {
                 <Radio
                   name="tillegg"
                   label="Relasjon til annen virksomhet"
-                  description="Teksten beskriver et organisatorisk forhold til en annen, navngitt virksomhet — f.eks. klageinstans, underlagt, sekretariat."
+                  description="Teksten beskriver et organisatorisk forhold til en annen, navngitt virksomhet — f.eks. klageinstans for, administrativt underordnet, sekretariat for."
                   value="relasjon"
                   checked={tillegg === 'relasjon'}
                   onChange={() => setTillegg('relasjon')}

@@ -48,13 +48,14 @@ public class RelasjonskodeHarmoniseringTests
         await using (var db = new RegelIdeDbContext(HistoriskSkjema.Options(conn)))
         {
             // Konfigurasjonen slik en kjørende base hadde den før #330: de fem gamle R-kodene (oppstartsseeden).
+            // ExecuteSqlRawAsync formaterer strengen — malenes {0} må dobles.
             await db.Database.ExecuteSqlRawAsync("""
                 INSERT INTO relasjonstype_konfigurasjon ("Id", kategori, kode, fra_visningsmal, til_visningsmal, sorteringsrekkefolge, aktiv)
-                VALUES (gen_random_uuid(), 'R', 'underlagt', 'er underlagt {0}', 'er eier/overordnet for {0}', 0, true),
-                       (gen_random_uuid(), 'R', 'sekretariat', 'har sekretariat hos {0}', 'er sekretariat for {0}', 1, true),
-                       (gen_random_uuid(), 'R', 'klageinstans', 'har klageinstans hos {0}', 'er klageinstans for {0}', 2, true),
-                       (gen_random_uuid(), 'R', 'enhet_i', 'er enhet i {0}', 'har enhet {0}', 3, true),
-                       (gen_random_uuid(), 'R', 'oppgaver_overfort_til', 'fikk oppgavene overført til {0}', 'overtok oppgavene til {0}', 4, true)
+                VALUES (gen_random_uuid(), 'R', 'underlagt', 'er underlagt {{0}}', 'er eier/overordnet for {{0}}', 0, true),
+                       (gen_random_uuid(), 'R', 'sekretariat', 'har sekretariat hos {{0}}', 'er sekretariat for {{0}}', 1, true),
+                       (gen_random_uuid(), 'R', 'klageinstans', 'har klageinstans hos {{0}}', 'er klageinstans for {{0}}', 2, true),
+                       (gen_random_uuid(), 'R', 'enhet_i', 'er enhet i {{0}}', 'har enhet {{0}}', 3, true),
+                       (gen_random_uuid(), 'R', 'oppgaver_overfort_til', 'fikk oppgavene overført til {{0}}', 'overtok oppgavene til {{0}}', 4, true)
                 ON CONFLICT (kategori, kode) DO NOTHING;
                 """);
             lov = db.Rettskilder.Add(new RettskildeEntitet
