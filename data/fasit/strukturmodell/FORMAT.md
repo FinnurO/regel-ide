@@ -149,7 +149,7 @@ Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
 - konstituerende: `oppretter`, `avvikler`, `skal_finnes` («Hver kommune skal ha …»).
 - organsammensetning: `har_medlemmer` (organets FASTE medlemmer: antall, hvem oppnevner), `har_organ` (rettssubjekt →
   organ, f.eks. «kommunestyret»), `settes_med` ([Ny, #352] sammensetningen i den ENKELTE SAK, saksavhengig: «I andre saker
-  enn etter første ledd første punktum settes Høyesterett med fem dommere» — antallet i `objekt`, sakstypen i `avgrensning`).
+  enn etter første ledd første punktum settes Høyesterett med fem dommere» — antallet i feltet objekt, sakstypen i feltet avgrensning).
 
 ## Lesing
 

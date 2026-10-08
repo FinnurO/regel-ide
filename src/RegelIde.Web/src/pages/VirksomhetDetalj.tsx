@@ -381,7 +381,7 @@ export default function VirksomhetDetalj() {
         <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
           Hvilken myndighet virksomheten har, eventuelt overfor hvem, etter hvilken bestemmelse — og hvem som har
           kompetanse overfor den (issue #341). Gruppert på kompetansefamilie. «Kan delegeres» og grunnlaget vises bare
-          når teksten sier det; normformen står i utsagnet.
+          når teksten sier det; normformen og undertypen (f.eks. «valg», #352) står i utsagnet.
         </Metatekst>
         <KompetanseTabell
           kanter={kanter && kanter.filter((k) => k.kategori === 'K')}
