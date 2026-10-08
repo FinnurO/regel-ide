@@ -150,7 +150,7 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
         Assert.All(domstolkanter, k => Assert.NotNull(k.HjemmelEid));
         // [Ny, #312, Johanns beslutning 2026-10-08] Tolket lovtekst er forslag med mønsteret som oppdagelseskilde.
         Assert.All(domstolkanter, k => Assert.Equal("foreslatt_av_ai", k.Status));
-        // [ENDRET, #345] Alle er mønsterforslag: inndelingsmønstrene og navneparet lagmannsrett → lagdømme.
+        // [ENDRET, #345] Alle er mønsterforslag: inndelingsmønstrene og navneregelen lagmannsrett → lagdømme.
         Assert.All(domstolkanter, k => Assert.True(k.OppdagelsesKilde.StartsWith("monster:inndeling-", StringComparison.Ordinal)
                                                    || k.OppdagelsesKilde == DomstolinndelingTolker.LagmannsrettOppdagelseskilde, k.OppdagelsesKilde));
         Assert.False(await db.Strukturkanter.AnyAsync(k => k.KildeUtenforKorpusType == Strukturkanter.Register && k.Status != "validert"));
