@@ -233,8 +233,8 @@ Alle strukturutsagn lagres som én kanttype med kategori + konfigurerbar typekod
 
 | Kat. | Fra → Til | Typekoder (startsett, utvidbart) |
 |---|---|---|
-| **R** relasjon | aktør → aktør | klageinstans_for, administrativt_underordnet, instruksjon, omgjoring, sekretariat_for, rapporterer_til, oppnevner, velger, ledes_av, eies_av, etterfolger, radgir, delegerer_til, representerer, ankeinstans_for, oppretter, avvikler |
-| **K** kompetanse | aktør/rolle → bestemmelse eller sakstype | forskrift, vedtak, klage, tilsyn, delegering, oppnevning, instruksjon, utpeking, godkjenning, iverksetting, overproving, … |
+| **R** relasjon | aktør → aktør | [ENDRET, #341] Struktur UTEN myndighet: eies_av, ledes_av, sekretariat_for, rapporterer_til, etterfolger, representerer, har_delegert_til (gjennomført delegering). Uavklart (står til Johann avgjør): administrativt_underordnet, velger, radgir, ankeinstans_for, oppretter, avvikler |
+| **K** kompetanse | aktør/rolle → **motpart** (valgfri) og bestemmelse/sakstype | [ENDRET, #341] beslutning; struktur: oppretting, avvikling, organisasjon; personell: oppnevning, utpeking, ansettelse, avsetting; styring: instruksjon, samordning, delegering, godkjenning, samtykke, palegg; normgivning (med normform); kontroll: tilsyn, revisjon; klage og overprøving: klage, omgjoring, overproving, stadfesting; vedtak; sanksjon; forelegging (ikke plassert) |
 | **M** medlemskap | aktør/klasse/område → klasse | medlem_av |
 | **O** områdesammensetning | område → område | bestar_av |
 | **A** ansvarsområde | aktør → område | har_ansvarsomrade, har_jurisdiksjon, har_sete_i, valgkrets_for |
@@ -248,7 +248,7 @@ Felles egenskaper på **alle** kanter:
   lenke) når hjemmelen er kgl.res./vedtekter/instruks (funn 8).
 - `AvgrensningParagrafspennJson` (samme strukturerte format som i dag, `docs/20` §7.1) og
   `AvgrensningTekst` (sakstype, «bare ugyldige vedtak») — funn 7.
-- `Polaritet` (`positiv`|`negativ`) — funn 6. «Kommunestyret selv» = K med `delegerbar = false`.
+- `Polaritet` (`positiv`|`negativ`) — funn 6. «Kommunestyret selv» = K med `delegerbar = false` ([Bygget, #341] — se under).
 - `GyldigFra`/`GyldigTil`, `Status` (`foreslatt_av_ai`|`validert`, `docs/20` §2.7), `OppdagelsesKilde`
   (`manuell` | `monster:<id>` | `ki:<modell>`) — proveniens for automatisk konvertering (§5).
 - **[Ny, Johanns beslutninger 2026-10-07] `KildeUtenforKorpusType`** — kildens ART: `kgl_res` |
@@ -307,6 +307,69 @@ i `kilde_referanser`, som `Down` leser for å snu nøyaktig de radene). KI-oppda
 2026-10-08, ikke i migrasjonen): «Energidepartementet er klageinstans for Energiklagenemnda» har fått
 `AvgrensningTekst` «enkeltvedtak Energiklagenemnda treffer i første instans» og paragrafspenn
 `https://lovdata.no/eli/forskrift/2019/10/24/1420/nor/§1/ledd-2` (forskrift om Energiklagenemnda § 1 annet ledd).
+
+**[Bygget, issue #341 «kompetanse med motpart og typologi», Johanns beslutninger 2026-10-08] Grensen mellom K og R.**
+
+*Prinsippet (P1):* A har kompetanse av typen X, eventuelt **overfor B**, når det gjelder Y (bestemmelse eller sakstype),
+med avgrensning og hjemmel. Myndighet er **K**, og motparten er kantens til-node. **R** brukes bare om struktur uten
+myndighet: eierskap, ledelse, sekretariat, rapportering, etterfølger og representasjon. Klageinstans, instruksjon,
+omgjøring, oppnevning, tilsyn med en aktør, avsetting, sanksjon, samtykke, overprøving og forelegging er derfor K, ikke R.
+
+| Spørsmål | Svar i modellen |
+|---|---|
+| «Hvem er klageinstans for B?» | K `klage` med til = B — samme retning som R `klageinstans_for` hadde (fra = klageinstansen) |
+| «Kan X delegere?» | K `delegering` (kompetansen til å delegere, «X kan delegere til Y») |
+| «Har X delegert til Y?» | R `har_delegert_til` — en GJENNOMFØRT delegering fra et delegeringsvedtak, avgrenset per paragraf. Unntakene i vedtaket («omfatter ikke …») er avgrensning av delegeringen, ikke negativ kompetanse (beslutning 1) |
+| «Kan X gi forskrift?» | K `normgivning` med `normform = forskrift`. Normformene: forskrift, reglement, arbeidsordning, vedtekter, instruks |
+| Selvregulering | Ikke en egen type: normgivning der til = fra. Den eneste selvkanten CHECK `ck_strukturkanter_ikke_selv` tillater |
+| Privatrettslig instruksjon (morselskap → nettforetak) | Samme modell, feltet `grunnlag = privatrettslig` (beslutning 3). `offentligrettslig`/NULL ellers |
+| «Kan kompetansen delegeres videre?» | Feltet `delegerbar` (bool, NULL = ikke angitt) på K — fra #335: «Kongen …» = true, «Kongen i statsråd …» og «X selv» = false |
+
+*Typologien og hierarkiet (P2 + Johanns hierarkibeslutning 2026-10-08):* hver K-type har en **familie** og en
+**fvl-kategori** i typekonfigurasjonen (`relasjonstype_konfigurasjon.familie`/`fvl_kategori`, kilden er
+`Strukturkanter.Kompetansetyper`). `beslutning` står over alle familiene og brukes når teksten bare sier
+«beslutningsmyndighet» (sameloven § 2-1 fjerde ledd). Familiene: struktur (oppretting, avvikling, organisasjon), personell
+(oppnevning, utpeking, ansettelse, avsetting), styring (instruksjon, samordning, delegering, godkjenning, samtykke, pålegg),
+normgivning, kontroll (tilsyn, revisjon), klage og overprøving (klage, omgjøring, overprøving, stadfesting), vedtak og
+sanksjon. `forelegging` (beslutning 2) er ikke plassert i en familie av Johann og har familie NULL. Kantene kan filtreres
+på familie (`GET /api/strukturkanter?familie=…`), og VirksomhetDetalj grupperer kompetansen på familie.
+
+*Fvl-kategori — på typen, ikke på kanten:* `forskrift | enkeltvedtak | ikke_vedtak` (forvaltningsloven § 2: vedtak =
+forskrift + enkeltvedtak). Det er en egenskap ved hva slags kompetanse det er (alle vedtakskompetanser er enkeltvedtak), så
+den står på typen. Unntaket er normgivning, der normformen avgjør: `normform = forskrift` gir fvl-kategori `forskrift`
+(`Strukturkanter.FvlKategoriFor`); andre normformer gir NULL, fordi om et reglement er en forskrift etter fvl. § 2 c ikke
+følger av formen. Satt der det følger av loven uten skjønn: vedtak, pålegg og ansettelse = enkeltvedtak; instruksjon,
+samordning, tilsyn og revisjon = ikke_vedtak. Resten er NULL = ikke avklart (f.eks. er en avskjed et enkeltvedtak, men
+avsetting av et foretaksstyre er det ikke).
+
+*Hjemmelssted og avgrensning (feilen fra #311):* kanten har to ulike opplysninger om paragrafer —
+**hjemmelsstedet** (`hjemmel_eid`: HVOR det står, f.eks. naturgassforskriften § 1-4) og **avgrensningen**
+(`avgrensning_paragrafspenn_json`: HVILKE paragrafer det gjelder for, f.eks. energiloven §§ 2-1, 2-2 for
+konsesjonsmyndigheten). #311 la `Myndighetstildeling.ParagrafspennJson` i avgrensningen, men alle skriveveiene (veiviseren,
+KI-oppdagelsen, samisk-seeden) hadde fylt det med noden der tildelingen står. Modellvalget er **den eksisterende
+`hjemmel_eid`** for hvor, ikke et nytt `hjemmel_paragrafspenn_json`: fasiten og konverteringen bruker ett eId per utsagn,
+R/K/A/O-kantene hadde alt `hjemmel_eid` med den betydningen, og to felt for «hvor» ville gitt to sannheter. Et spenn som
+hvor-opplysning finnes ikke i data (0 av 19). M/I med hjemmel i korpus krever nå hjemmel-eId (før: et avgrensningsspenn).
+Merk at docs/20 §2.5 beskrev det gamle feltet som «paragrafer i loven tildelingen dekker» (avgrensning), og «Legg til
+tilhørighet»-skjemaet bygget det fra gruppebegrepets lov — migrasjonen skiller derfor på om punktet ligger i kantens EGEN
+hjemmel, ikke på en antakelse.
+
+*Migrasjonen `KompetanseMedMotpart`* (`KompetanseMigrering.cs`, teller før/etter og avbryter ved avvik). **Målt mot lokal
+`regelide` 2026-10-08:**
+
+| Måling | Før | Etter |
+|---|---:|---:|
+| Strukturkanter totalt | 1 261 | 1 261 |
+| R `klageinstans_for` | 3 | 0 |
+| K `klage` (samme fra/til, Energiklagenemnda-radens avgrensning beholdt) | 0 | 3 |
+| M/I med avgrensningsspenn | 19 | 0 |
+| M/I med hjemmel-eId (spennet var ett punkt i egen hjemmel i alle 19) | 0 | 19 |
+| Proveniensrader `migrasjon-341` (gamle verdier, som `Down` leser) | — | 22 |
+| K-typer i konfigurasjonen (med familie / med fvl-kategori) | 11 | 24 (22 / 7) |
+| R-typer i konfigurasjonen | 17 | 13 |
+
+Avbryter i stedet for å gjette ved R `delegerer_til` (kompetanse eller gjennomført?) og K `iverksetting` (ikke i
+typologien) — 0 lokalt. `grunnlag` og `delegerbar` er ikke satt på noen rad.
 
 ### 4.4 Bevisst ikke i strukturlaget (forslagets punkt 9)
 
@@ -485,6 +548,38 @@ er «tingrett `har_ansvarsomrade` kommune», «lagsogn består av rettskrets» e
 
 Tersklene i `MonsterStrukturkonvertererMalingTests` er satt til de nye O/A-verdiene. O-gjenfinningen faller fordi de
 357 lett-funne radene flyttet til A; det som står igjen i O er vanskeligere.
+
+**[ENDRET, issue #341, 2026-10-08] Fasiten og konverteringen på kompetansemodellen.** Fasiten er konvertert deterministisk
+(`konvertering-341-kompetanse.py`, idempotent, samme skript på `ki-utdata/`): 1 797 → 1 797 utsagn, relasjon 384 → 276,
+kompetanse 522 → 630. 205 forskriftskompetanser → normgivningskompetanse/forskrift; 108 myndighetsrelasjoner → kompetanse
+med motpart (oppnevning 23, instruksjon 21, klage 17, delegeringskompetanse 16, tilsyn 10, avsetting 5, overprøving 7,
+omgjøring 3, forelegging 2, sanksjon 2, samtykke 1, revisjon 1); 20 `delegerer_til` i delegeringsvedtak →
+`har_delegert_til`; `delegerbar` satt på 104 kompetanser etter #335-regelen på sitatet (89 true, 15 false). Ikke konvertert
+(avventer Johann): velger 17, radgir 10, bistar 15, samarbeider_med 24, administrativt_underordnet 5, del_av 9,
+annet:ankeinstans_for 3, annet:forelegges_for 2, annet:intern_forelegging 2, oppretter 14, avvikler 2.
+
+**Leksikonet** (`src/RegelIde.Data/Strukturkonvertering/kompetanseleksikon.json`, versjonert, innebygd) er Johanns
+beslutning 3: det tilordner hvert lovuttrykk mønsterlaget kjenner til kategori, type, normform og familie; `Monsterkatalog`
+henter betydningen derfra ved mønster-id (regex-en står i koden). Datafil framfor tabell fordi mønsterlaget måles uten
+database og en regel bare gir mening sammen med regex-en sin. Nye regler: «beslutningsmyndighet» → beslutning, «samordne» →
+samordning. KI-instruksen lister leksikonet og skal bare foreslå for uttrykk det ikke kjenner; et kompetanseuttrykk ingen
+av dem kan typebestemme, blir `ukjent`. At et godkjent KI-forslag blir en ny leksikonregel, er ikke bygget (oppfølgingssak).
+
+| Måling (samme treffregel) | Før #341 | Etter #341 |
+|---|---:|---:|
+| Mønster alle: P / G | 93,8 / 46,9 % | 93,8 / 47,1 % |
+| Mønster R (fasit 223 → 139): P / G | 77,8 / 12,6 % | 75,0 / 2,2 % |
+| Mønster K (fasit 427 → 557): P / G | 88,5 / 59,7 % | 87,7 / 51,0 % |
+| Mønster forskrift → normgivning: P / G | 91,9 / 88,8 % | 92,9 / 87,6 % |
+| Mønster klage (R klageinstans_for → K klagekompetanse): P / G | 55,6 / 29,4 % | 77,8 / 31,8 % |
+| KI alle (samme utdata, konvertert): P / G | 34,4 / 20,0 % | 36,1 / 21,0 % |
+| Union alle: P / G | 57,1 / 54,0 % | 58,0 / 54,8 % |
+| designtest.py revidert ja | 91 % (1 640) | 91 % (1 642) |
+
+R-gjenfinningen faller fordi R nå bare er struktur (mønsterlaget kjenner bare delegeringsvedtakets form); K-nevneren vokste
+med de flyttede radene. De to nye mønstrene treffer 3 utsagn fasiten ikke har (Sametinget har beslutningsmyndighet;
+kommunen/RHF skal samordne) — sannsynlige fasitutelatelser, ikke målt som riktige. KI-tallene er de lagrede utdataene fra
+#308 konvertert med samme skript, ikke en ny kjøring med den nye instruksen.
 
 ### 5.5 Anbefalt fordeling mellom mønster og KI (#308)
 

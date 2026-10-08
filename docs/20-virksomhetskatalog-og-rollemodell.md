@@ -134,6 +134,11 @@ kan duplikate rollebegrep for samme lov opprettes ved en inntastingsfeil, uten a
 > (`docs/33` §4.3): `M medlem_av` når målet er en klasse/et område, `I innehar` når målet er en rolle.
 > `Vilkaar` er kantens `avgrensning_tekst`, `Paragrafspenn` er `avgrensning_paragrafspenn_json`. Alle 16
 > lokale rader ble flyttet 1:1 (15 M + 1 I). Teksten under beskriver modellen slik den ble bygget i 2026-08.
+>
+> **[ENDRET, issue #341, 2026-10-08]** Feltet `Paragrafspenn` under ble i praksis brukt om HVOR tildelingen står (veiviseren,
+> KI-oppdagelsen og samisk-seeden skrev noden der navnet står), mens tabellen under sier «paragrafer i loven tildelingen
+> dekker». #341 skilte de to: hvor = kantens `hjemmel_eid` (påkrevd for M/I med hjemmel), hvilke paragrafer =
+> avgrensningen. De 19 lokale radene med ett punkt i egen hjemmel ble flyttet til `hjemmel_eid` (`docs/33` §4.3).
 
 | Felt | Type | Kommentar |
 |---|---|---|
