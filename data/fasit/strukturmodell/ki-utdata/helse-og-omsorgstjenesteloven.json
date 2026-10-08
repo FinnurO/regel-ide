@@ -1314,7 +1314,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-3/ledd-2",
       "sitat": "Anmodning om bistand fremmes av den kommunen som har bistandsbehovet.",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a5",
       "til": null,
       "objekt": "anmodning om bistand",
@@ -1324,7 +1324,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "utpeking"
     },
     {
       "id": "u36",
@@ -1519,7 +1520,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§6-1/ledd-1",
       "sitat": "eller med helseforetak som det regionale helseforetaket bestemmer",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a24",
       "til": null,
       "objekt": "Bestemme helseforetak for samarbeidsavtale",
@@ -1529,7 +1530,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "utpeking"
     },
     {
       "id": "u48",
@@ -1771,7 +1773,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "oppnevning"
     },
     {
       "id": "u62",
@@ -2172,7 +2175,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "utpeking"
     },
     {
       "id": "u85",
@@ -2223,7 +2227,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "utpeking"
     },
     {
       "id": "u88",
@@ -2342,7 +2347,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "utpeking"
     },
     {
       "id": "u95",
@@ -2994,7 +3000,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§13-1/ledd-1",
       "sitat": "Loven trer i kraft fra det tidspunkt Kongen bestemmer.",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a3",
       "til": null,
       "objekt": "ikrafttredelse av loven",
@@ -3005,14 +3011,15 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": true
+      "delegerbar": true,
+      "undertype": "utpeking"
     },
     {
       "id": "u133",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§13-1/ledd-1",
       "sitat": "Kongen kan sette de enkelte bestemmelser i loven i kraft til forskjellig tid.",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a3",
       "til": null,
       "objekt": "ikrafttredelse av enkelte bestemmelser til forskjellig tid",
@@ -3023,7 +3030,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": true
+      "delegerbar": true,
+      "undertype": "utpeking"
     }
   ]
 }

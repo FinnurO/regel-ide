@@ -1728,7 +1728,7 @@
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§5/ledd-1",
       "sitat": "Departementet kan gi forskrift om hvem som skal være klageinstans for enkeltvedtak fattet av foretakene",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "klageinstans for foretakenes enkeltvedtak",
@@ -1737,7 +1737,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "utpeking"
     },
     {
       "id": "u23",
@@ -2544,8 +2545,8 @@
       "id": "u73",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§21/ledd-3",
       "sitat": "Styremedlemmene velges av foretaksmøtet med de unntak som følger av §§ 22 og 23",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a12",
       "til": "a17",
       "objekt": null,
@@ -2554,7 +2555,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "valg"
     },
     {
       "id": "u74",
@@ -2592,8 +2594,8 @@
       "id": "u76",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§21/ledd-4",
       "sitat": "Styret skal ha en leder og en nestleder som velges av foretaksmøtet",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a12",
       "til": "a15",
       "objekt": null,
@@ -2602,14 +2604,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "valg"
     },
     {
       "id": "u77",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§21/ledd-4",
       "sitat": "Styret skal ha en leder og en nestleder som velges av foretaksmøtet",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a12",
       "til": "a16",
       "objekt": null,
@@ -2618,14 +2621,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "valg"
     },
     {
       "id": "u78",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§21/ledd-4",
       "sitat": "Det kan bestemmes i vedtektene at styret velger leder og nestleder blant de styremedlemmene som foretaksmøtet har valgt",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a13",
       "til": "a15",
       "objekt": null,
@@ -2634,14 +2638,15 @@
       "betinget": true,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Alternativ valgordning fastsatt i vedtekter."
+      "kommentar": "Alternativ valgordning fastsatt i vedtekter.",
+      "undertype": "valg"
     },
     {
       "id": "u79",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§21a/ledd-1",
       "sitat": "Styret i regionalt helseforetak velger blant sine medlemmer minst tre personer til styrets revisjonsutvalg",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a13",
       "til": "a20",
       "objekt": null,
@@ -2650,7 +2655,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "valg"
     },
     {
       "id": "u80",
@@ -2714,7 +2720,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "ansettelse"
     },
     {
       "id": "u84",
@@ -2736,8 +2743,8 @@
       "id": "u85",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§22/ledd-1",
       "sitat": "Inntil en tredel og minst to av styrets medlemmer med varamedlemmer skal velges av og blant de ansatte i regionalt helseforetak og helseforetak som regionalt helseforetak eier",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a18",
       "til": "a17",
       "objekt": null,
@@ -2746,7 +2753,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Velgerkorps på tvers av rettssubjekter (RHF + eide HF)."
+      "kommentar": "Velgerkorps på tvers av rettssubjekter (RHF + eide HF).",
+      "undertype": "valg"
     },
     {
       "id": "u86",
@@ -2786,8 +2794,8 @@
       "id": "u88",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§23/ledd-1",
       "sitat": "kan et flertall av de ansatte kreve at inntil en tredel og minst to av styrets medlemmer med varamedlemmer, velges av og blant de ansatte",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a18",
       "til": "a17",
       "objekt": null,
@@ -2796,14 +2804,15 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "valg"
     },
     {
       "id": "u89",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§23/ledd-2",
       "sitat": "Har helseforetaket flere enn 200 ansatte, skal de ansatte velge ett styremedlem og varamedlem i tillegg",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a18",
       "til": "a17",
       "objekt": null,
@@ -2812,14 +2821,15 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "valg"
     },
     {
       "id": "u90",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§23/ledd-2",
       "sitat": "om at de ansatte i stedet for dette styremedlemmet skal velge to observatører og varamedlemmer",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a18",
       "til": "a66",
       "objekt": null,
@@ -2828,7 +2838,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "valg"
     },
     {
       "id": "u91",
@@ -3263,7 +3274,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Tilsetting."
+      "kommentar": "Tilsetting.",
+      "undertype": "ansettelse"
     },
     {
       "id": "u118",
@@ -3591,7 +3603,7 @@
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§43/ledd-2",
       "sitat": "Årsregnskap og årsberetning skal godkjennes av foretaksmøtet",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "godkjenningskompetanse",
       "fra": "a12",
       "til": null,
       "objekt": "godkjenning av årsregnskap og årsberetning",
@@ -3606,8 +3618,8 @@
       "id": "u139",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§44/ledd-1",
       "sitat": "Foretak skal ha revisor som velges av foretaksmøtet",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a12",
       "til": "a19",
       "objekt": null,
@@ -3616,7 +3628,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "valg"
     },
     {
       "id": "u140",
@@ -3686,8 +3699,8 @@
       "id": "u144",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§47/ledd-1",
       "sitat": "skal det snarest velges avviklingsstyre",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a12",
       "til": "a23",
       "objekt": null,
@@ -3696,14 +3709,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Passiv; velger utledet fra kontekst (foretaksmøtet)."
+      "kommentar": "Passiv; velger utledet fra kontekst (foretaksmøtet).",
+      "undertype": "valg"
     },
     {
       "id": "u145",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§47/ledd-1",
       "sitat": "Avviklingsstyret velger selv leder og nestleder hvis ikke foretaksmøtet har gjort det",
-      "kategori": "relasjon",
-      "type": "velger",
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a23",
       "til": "a15",
       "objekt": null,
@@ -3712,7 +3726,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "til = leder av avviklingsstyret (rolle av samme type som styreleder)."
+      "kommentar": "til = leder av avviklingsstyret (rolle av samme type som styreleder).",
+      "undertype": "valg"
     },
     {
       "id": "u146",
@@ -3955,7 +3970,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "oppnevning"
     },
     {
       "id": "u161",
@@ -3971,7 +3987,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Privat organisasjon oppnevner til offentlig nemnd."
+      "kommentar": "Privat organisasjon oppnevner til offentlig nemnd.",
+      "undertype": "oppnevning"
     },
     {
       "id": "u162",
@@ -3987,7 +4004,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "utpeking"
     },
     {
       "id": "u163",
@@ -4196,7 +4214,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1a/ledd-5",
       "sitat": "De regionale helseforetakene skal peke ut institusjoner i det enkelte helseforetak som kan ta imot rusmiddelavhengige",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a2",
       "til": null,
       "objekt": "institusjoner for tvangsinnleggelse av rusmiddelavhengige (hol §§ 10-2 til 10-4)",
@@ -4205,7 +4223,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Utpeking av hvem som har en offentlig funksjon. Også implisitt: institusjoner er del av HF."
+      "kommentar": "Utpeking av hvem som har en offentlig funksjon. Også implisitt: institusjoner er del av HF.",
+      "undertype": "utpeking"
     },
     {
       "id": "u176",
@@ -4819,7 +4838,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "oppnevning"
     },
     {
       "id": "u214",
@@ -4852,7 +4872,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "oppnevning"
     },
     {
       "id": "u216",
@@ -4942,7 +4963,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-1/ledd-2",
       "sitat": "Regionale helseforetak skal utpeke det nødvendige antall helseinstitusjoner eller avdelinger i slike institusjoner innen helseregionen",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a2",
       "til": null,
       "objekt": "institusjoner med øyeblikkelig hjelp-plikt i psykiatri og TSB",
@@ -4951,7 +4972,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Utpekingskompetanse avgrenset til eget område."
+      "kommentar": "Utpekingskompetanse avgrenset til eget område.",
+      "undertype": "utpeking"
     },
     {
       "id": "u222",
@@ -5390,7 +5412,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§3-16/ledd-1/punkt-6",
       "sitat": "hvem som beslutter inntak og utskrivning fra legemiddelassistert rehabilitering",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a10",
       "til": null,
       "objekt": "beslutningsmyndighet for inntak/utskrivning i LAR",
@@ -5399,7 +5421,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Kongen bestemmer i forskrift hvem som er vedtaksmyndighet."
+      "kommentar": "Kongen bestemmer i forskrift hvem som er vedtaksmyndighet.",
+      "undertype": "utpeking"
     },
     {
       "id": "u249",
@@ -5423,7 +5446,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§4-1/ledd-1",
       "sitat": "Bruk av betegnelsen universitetssykehus skal godkjennes av departementet",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "godkjenningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "godkjenning av betegnelsen universitetssykehus",

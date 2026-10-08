@@ -972,7 +972,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§2-5/ledd-1",
       "sitat": "Departementet utpeker en reguleringsmyndighet og klagenemnd etter denne loven og gir forskrift om organisering, oppgaver og myndighet.",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "reguleringsmyndighet og klagenemnd",
@@ -982,7 +982,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "utpeking"
     },
     {
       "id": "u22",
@@ -2766,7 +2767,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§6-2/ledd-2",
       "sitat": "Departementet utpeker en rasjoneringsmyndighet",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "en rasjoneringsmyndighet",
@@ -2776,7 +2777,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "utpeking"
     },
     {
       "id": "u126",
@@ -2890,7 +2892,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§7-4/ledd-1",
       "sitat": "En kost-nytteanalyse etter § 7-2 og § 7-3 skal godkjennes av departementet før byggingen eller oppgraderingen settes i gang",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "godkjenningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "kost-nytteanalyse etter § 7-2 og § 7-3",
@@ -3102,7 +3104,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§9-1/ledd-3",
       "sitat": "Beredskapsmyndigheten skal samordne beredskapsarbeid og utpeke den samlede ledelse i KBO.",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a29",
       "til": null,
       "objekt": "den samlede ledelse i KBO",
@@ -3112,7 +3114,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "utpeking"
     },
     {
       "id": "u145",
@@ -3971,7 +3974,7 @@
       "eid": "kap-I/ledd-5",
       "sitat": "§ 2-5 første ledd | Utpeking av reguleringsmyndighet og klagenemnd",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": null,
       "til": null,
       "objekt": "Utpeking av reguleringsmyndighet og klagenemnd",
@@ -3981,7 +3984,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "lav",
       "kommentar": "Myndigheten unntatt fra delegering.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "utpeking"
     },
     {
       "id": "u195",
@@ -4210,7 +4214,7 @@
       "eid": "kap-I/ledd-8",
       "sitat": "Norges vassdrags- og energidirektorat delegeres også myndighet til å behandle søknader om endringer i konsesjoner etter energiloven gitt av Kongen i statsråd ved kongelig resolusjon, der det er bestemt at planendringer kan godkjennes av departementet eller den departementet bemyndiger eller gir fullmakt.",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "godkjenningskompetanse",
       "fra": "a1",
       "til": "a34",
       "objekt": "Søknader om endringer i konsesjoner gitt av Kongen i statsråd",

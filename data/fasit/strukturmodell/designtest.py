@@ -37,6 +37,9 @@ STD = {
         "beslutningskompetanse", "samordningskompetanse", "opprettingskompetanse", "avviklingskompetanse",
         "paleggskompetanse", "stadfestingskompetanse"]},
     "har_delegert_til": ("nei", "ja", "R"), "representerer": ("nei", "ja", "R"),
+    # [ENDRET, issue #352, 2026-10-08] velger, utpekingskompetanse, ansettelseskompetanse og annet:ankeinstans_for finnes ikke
+    # lenger i fasiten: de er oppnevnings-/overprøvingskompetanse med undertype (konvertering-352-oppnevning.py), som alt står
+    # som K over. Nøklene for de gamle typene blir stående, så skriptet fortsatt kan kjøres på en eldre fasit.
     # medlemskap
     "medlem_av": ("ja", "ja", "M"), "inngar_i": ("ja", "ja", "M"),
     # område

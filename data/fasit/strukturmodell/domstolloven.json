@@ -9189,8 +9189,8 @@
    "id": "u30",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§12/ledd-2",
    "sitat": "Ved anke over dom, kjennelse eller beslutning fra tingretten",
-   "kategori": "relasjon",
-   "type": "annet:ankeinstans_for",
+   "kategori": "kompetanse",
+   "type": "overprovingskompetanse",
    "fra": "lr",
    "til": "tr",
    "objekt": null,
@@ -9199,7 +9199,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": true,
    "sikkerhet": "middels",
-   "kommentar": "Domstolloven forutsetter, men fastsetter ikke, ankeordningen (den står i tvisteloven/straffeprosessloven). Forskrift 2021/163 § 10 sier det eksplisitt. «klageinstans_for» passer ikke for rettslig anke."
+   "kommentar": "Domstolloven forutsetter, men fastsetter ikke, ankeordningen (den står i tvisteloven/straffeprosessloven). Forskrift 2021/163 § 10 sier det eksplisitt. «klageinstans_for» passer ikke for rettslig anke.",
+   "undertype": "anke"
   },
   {
    "id": "u31",
@@ -9458,7 +9459,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "oppnevning"
   },
   {
    "id": "u47",
@@ -9645,7 +9647,7 @@
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§25/ledd-3",
    "sitat": "Rettslokalene må være godkjent av domstoladministrasjonen.",
    "kategori": "kompetanse",
-   "type": "vedtakskompetanse",
+   "type": "godkjenningskompetanse",
    "fra": "da",
    "til": null,
    "objekt": "godkjenning av rettslokaler",
@@ -9693,7 +9695,7 @@
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§26a/ledd-1",
    "sitat": "Kongen fastsetter hvilke lagdømmer og domssogn som skal utøve domsmyndighet",
    "kategori": "kompetanse",
-   "type": "utpekingskompetanse",
+   "type": "oppnevningskompetanse",
    "fra": "kongen",
    "til": null,
    "objekt": "hvilket lagdømme/domssogn som har domsmyndighet på sokkelen og i økonomisk sone",
@@ -9703,7 +9705,8 @@
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "delegerbar": true
+   "delegerbar": true,
+   "undertype": "utpeking"
   },
   {
    "id": "u62",
@@ -9773,8 +9776,8 @@
    "id": "u66",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-3",
    "sitat": "Kommunestyret velger et av medlemmene til formann.",
-   "kategori": "relasjon",
-   "type": "velger",
+   "kategori": "kompetanse",
+   "type": "oppnevningskompetanse",
    "fra": "kstyre",
    "til": "frformann",
    "objekt": null,
@@ -9783,7 +9786,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "valg"
   },
   {
    "id": "u67",
@@ -9970,7 +9974,7 @@
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§30/ledd-1",
    "sitat": "hvilken domstol skal behandle anke og begjæring om gjenåpning",
    "kategori": "kompetanse",
-   "type": "utpekingskompetanse",
+   "type": "oppnevningskompetanse",
    "fra": null,
    "til": null,
    "objekt": "ankeinstans for overordentlig domstol / særskilt dommer",
@@ -9979,7 +9983,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Den som nedsetter/oppnevner (Kongen § 29, DA § 20) — ikke sagt direkte. Ankeinstans fastsettes ad hoc."
+   "kommentar": "Den som nedsetter/oppnevner (Kongen § 29, DA § 20) — ikke sagt direkte. Ankeinstans fastsettes ad hoc.",
+   "undertype": "utpeking"
   },
   {
    "id": "u79",
@@ -10109,14 +10114,15 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "delegerbar": true
+   "delegerbar": true,
+   "undertype": "oppnevning"
   },
   {
    "id": "u87",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§33a/ledd-1",
    "sitat": "Stortinget velger to medlemmer",
-   "kategori": "relasjon",
-   "type": "velger",
+   "kategori": "kompetanse",
+   "type": "oppnevningskompetanse",
    "fra": "storting",
    "til": "da_styre",
    "objekt": "2 av 9 medlemmer",
@@ -10125,7 +10131,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Blandet oppnevning: to ulike statsmakter besetter samme organ."
+   "kommentar": "Blandet oppnevning: to ulike statsmakter besetter samme organ.",
+   "undertype": "valg"
   },
   {
    "id": "u88",
@@ -10247,7 +10254,7 @@
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§33b/ledd-2",
    "sitat": "Styret har tilsettingsmyndighet for domstoladministrasjonens stillinger.",
    "kategori": "kompetanse",
-   "type": "ansettelseskompetanse",
+   "type": "oppnevningskompetanse",
    "fra": "da_styre",
    "til": null,
    "objekt": "stillinger i DA",
@@ -10256,7 +10263,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Arbeidsgivermyndighet ≠ oppnevning til verv."
+   "kommentar": "Arbeidsgivermyndighet ≠ oppnevning til verv.",
+   "undertype": "ansettelse"
   },
   {
    "id": "u96",
@@ -10441,7 +10449,7 @@
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§46/ledd-2",
    "sitat": "avgjør departementet ved hvilken rett handlingen skal finne sted",
    "kategori": "kompetanse",
-   "type": "utpekingskompetanse",
+   "type": "oppnevningskompetanse",
    "fra": "dep",
    "til": null,
    "objekt": "hvilken domstol som utfører utenlandsk rettsanmodning",
@@ -10450,7 +10458,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "utpeking"
   },
   {
    "id": "u108",
@@ -10577,7 +10586,7 @@
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§51/ledd-1",
    "sitat": "som departementet har gitt myndighet",
    "kategori": "kompetanse",
-   "type": "utpekingskompetanse",
+   "type": "oppnevningskompetanse",
    "fra": "dep",
    "til": null,
    "objekt": "hvem som styrer konsulretten",
@@ -10586,7 +10595,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "utpeking"
   },
   {
    "id": "u116",
@@ -10766,7 +10776,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "delegerbar": true
+   "delegerbar": true,
+   "undertype": "oppnevning"
   },
   {
    "id": "u127",
@@ -10984,7 +10995,7 @@
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55g/ledd-1",
    "sitat": "Dommerfullmektiger tilsettes for inntil to år av domstollederen.",
    "kategori": "kompetanse",
-   "type": "ansettelseskompetanse",
+   "type": "oppnevningskompetanse",
    "fra": "domstolleder",
    "til": null,
    "objekt": "dommerfullmektiger",
@@ -10993,7 +11004,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "ansettelse"
   },
   {
    "id": "u141",
@@ -11048,8 +11060,8 @@
    "id": "u144",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§57/ledd-1",
    "sitat": "Forliksrådsmedlemmer med varamedlemmer velges av kommunestyret selv.",
-   "kategori": "relasjon",
-   "type": "velger",
+   "kategori": "kompetanse",
+   "type": "oppnevningskompetanse",
    "fra": "kstyre",
    "til": "fr",
    "objekt": null,
@@ -11058,7 +11070,9 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Kommunalt organ besetter et statlig rettspleieorgan."
+   "kommentar": "Kommunalt organ besetter et statlig rettspleieorgan.",
+   "undertype": "valg",
+   "delegerbar": false
   },
   {
    "id": "u145",
@@ -11138,7 +11152,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "oppnevning"
   },
   {
    "id": "u150",
@@ -11163,7 +11178,7 @@
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§61/ledd-2",
    "sitat": "Protokollsekretærer og utredere ved Høyesterett tilsettes av departementet",
    "kategori": "kompetanse",
-   "type": "ansettelseskompetanse",
+   "type": "oppnevningskompetanse",
    "fra": "dep",
    "til": null,
    "objekt": "protokollsekretærer og utredere i HR",
@@ -11172,14 +11187,15 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "ansettelse"
   },
   {
    "id": "u152",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§61/ledd-2",
    "sitat": "eller av Høyesterett etter bestemmelser gitt av departementet",
    "kategori": "kompetanse",
-   "type": "ansettelseskompetanse",
+   "type": "oppnevningskompetanse",
    "fra": "hr",
    "til": null,
    "objekt": "protokollsekretærer og utredere",
@@ -11188,7 +11204,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "ansettelse"
   },
   {
    "id": "u153",
@@ -11402,8 +11419,8 @@
    "id": "u166",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§66/ledd-1",
    "sitat": "Medlemmene til utvalgene av meddommere velges av kommunestyret selv hvert fjerde år.",
-   "kategori": "relasjon",
-   "type": "velger",
+   "kategori": "kompetanse",
+   "type": "oppnevningskompetanse",
    "fra": "kstyre",
    "til": "utvalg_med",
    "objekt": null,
@@ -11412,7 +11429,9 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "valg",
+   "delegerbar": false
   },
   {
    "id": "u167",
@@ -11614,8 +11633,8 @@
    "id": "u179",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§78/ledd-1",
    "sitat": "Beslutningen kan bringes inn for overordnet domstol.",
-   "kategori": "relasjon",
-   "type": "annet:ankeinstans_for",
+   "kategori": "kompetanse",
+   "type": "overprovingskompetanse",
    "fra": "overordnet",
    "til": "domstolene",
    "objekt": "sletting fra fortegnelse",
@@ -11624,7 +11643,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Tilsvarende i § 90 femte ledd og § 91 fjerde ledd (ikke annotert separat)."
+   "kommentar": "Tilsvarende i § 90 femte ledd og § 91 fjerde ledd (ikke annotert separat).",
+   "undertype": "anke"
   },
   {
    "id": "u180",
@@ -11752,7 +11772,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "oppnevning"
   },
   {
    "id": "u188",
@@ -11823,7 +11844,7 @@
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§121d/ledd-1",
    "sitat": "Godkjenning av dommeres sidegjøremål gis av domstoladministrasjonen.",
    "kategori": "kompetanse",
-   "type": "vedtakskompetanse",
+   "type": "godkjenningskompetanse",
    "fra": "da",
    "til": null,
    "objekt": "godkjenning av sidegjøremål",
@@ -12716,7 +12737,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "delegerbar": true
+   "delegerbar": true,
+   "undertype": "oppnevning"
   },
   {
    "id": "u246",
@@ -12946,7 +12968,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Disjunktiv oppnevner (Kongen ELLER Stortinget ELLER et departement ELLER en statsforvalter) — kan ikke uttrykkes med én fra-aktør."
+   "kommentar": "Disjunktiv oppnevner (Kongen ELLER Stortinget ELLER et departement ELLER en statsforvalter) — kan ikke uttrykkes med én fra-aktør.",
+   "undertype": "oppnevning"
   },
   {
    "id": "u260",
@@ -13194,8 +13217,8 @@
    "id": "u275",
    "eid": "https://lovdata.no/eli/forskrift/2021/01/22/163/nor/§10/ledd-1",
    "sitat": "som er ankeinstans for flere rettskretser",
-   "kategori": "relasjon",
-   "type": "annet:ankeinstans_for",
+   "kategori": "kompetanse",
+   "type": "overprovingskompetanse",
    "fra": "lr",
    "til": "domssogn",
    "objekt": null,
@@ -13204,7 +13227,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "METONYMI: ankeinstans «for rettskretser» (områder), ikke for tingretter. Modellen må kunne løse område→organ."
+   "kommentar": "METONYMI: ankeinstans «for rettskretser» (områder), ikke for tingretter. Modellen må kunne løse område→organ.",
+   "undertype": "anke"
   },
   {
    "id": "u276",

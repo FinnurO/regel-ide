@@ -748,7 +748,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "ansettelse"
     },
     {
       "id": "u11",
@@ -833,7 +834,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "oppnevning"
     },
     {
       "id": "u16",
@@ -1042,7 +1044,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "oppnevning"
     },
     {
       "id": "u28",
@@ -1436,7 +1439,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§5-2/ledd-1",
       "sitat": "Loven trer i kraft fra det tidspunkt Kongen bestemmer.",
       "kategori": "kompetanse",
-      "type": "utpekingskompetanse",
+      "type": "oppnevningskompetanse",
       "fra": "a2",
       "til": null,
       "objekt": "ikrafttredelsestidspunkt for loven",
@@ -1447,7 +1450,8 @@
       "sikkerhet": "hoy",
       "kommentar": "Kongen har kompetanse til å fastsette lovens ikrafttredelsestidspunkt.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": true
+      "delegerbar": true,
+      "undertype": "utpeking"
     },
     {
       "id": "u51",
