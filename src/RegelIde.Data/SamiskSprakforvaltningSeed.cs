@@ -184,14 +184,15 @@ public static class SamiskSprakforvaltningSeed
         // ---------- 3. Gruppe av gruppe: de tre kategoriene er medlemsgrupper ----------
         // [ENDRET, issue #311] M-kant fra kategorien (klasse) til forvaltningsområdet (område).
         var overordnet = gruppebegrepPerTerm[Forvaltningsomradet];
-        var hjemmelSpenn = new[] { new ParagrafspennPar(MedlemNodeEid, null) };
+        // [ENDRET, issue #341] Noden der medlemskapet står er HJEMMELSSTEDET (hjemmel-eId), ikke en avgrensning — før #341
+        // ble den sendt som avgrensningsspenn (se Strukturkanter.KreverHjemmelsted).
         var antallMedlemskap = 0;
         foreach (var kategori in Kategorier)
         {
             await strukturkanter.OpprettAsync(new NyStrukturkant(
                 Strukturkanter.Medlemskap, Strukturkanter.MedlemAv,
                 Kantnode.Begrep(gruppebegrepPerTerm[kategori].Id), Kantnode.Begrep(overordnet.Id),
-                HjemmelRettskildeId: forskrift.Id, Paragrafspenn: hjemmelSpenn), SeedBruker, ct);
+                HjemmelRettskildeId: forskrift.Id, HjemmelEid: MedlemNodeEid), SeedBruker, ct);
             antallMedlemskap++;
         }
 
@@ -226,7 +227,7 @@ public static class SamiskSprakforvaltningSeed
             var gruppe = gruppebegrepPerTerm[kommune.Kategori];
             // [ENDRET, issue #311] Tildelingskant (M — gruppen er en klasse). Idempotent i tjenesten.
             await strukturkanter.OpprettTildelingAsync(
-                virksomhet.Id, gruppe.Id, forskrift.Id, hjemmelSpenn, avgrensningTekst: null, SeedBruker, ct: ct);
+                virksomhet.Id, gruppe.Id, forskrift.Id, MedlemNodeEid, avgrensning: null, avgrensningTekst: null, SeedBruker, ct: ct);
             antallTildelinger++;
 
             if (forskriftEier is null) continue; // rapportert samlet under.

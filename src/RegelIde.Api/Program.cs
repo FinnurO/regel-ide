@@ -4307,8 +4307,8 @@ navnekandidater.MapPost("/{id:guid}/kobl-til-myndighetstildeling", async (Guid i
         try
         {
             var resultat = await register.KoblTilMyndighetstildelingAsync(
-                id, body.VirksomhetId, body.RolleBegrepId,
-                body.Paragrafspenn.Select(p => new ParagrafspennPar(p.FraEid, p.TilEid)).ToList(),
+                id, body.VirksomhetId, body.RolleBegrepId, body.HjemmelEid,
+                body.Paragrafspenn?.Select(p => new ParagrafspennPar(p.FraEid, p.TilEid)).ToList(),
                 body.Vilkaar, body.Navneformgrunn, bruker.Navn, ct);
             return resultat is null
                 ? Results.NotFound(new { feil = $"Ingen kandidat med id '{id}'." })

@@ -187,9 +187,19 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                 // Bare K og T kan stå uten til-node (Strukturkanter.Noderegler.TilValgfri).
                 t.HasCheckConstraint("ck_strukturkanter_til_pakrevd",
                     "kategori IN ('K', 'T') OR til_virksomhet_id IS NOT NULL OR til_begrep_id IS NOT NULL");
+                // [ENDRET, issue #341] Unntak for selvregulering: normgivning der motparten er innehaveren selv
+                // (Johanns beslutning P2 — «normgivning der B = A»). Alle andre selvkanter er fortsatt en feil.
                 t.HasCheckConstraint("ck_strukturkanter_ikke_selv",
-                    "(fra_virksomhet_id IS NULL OR til_virksomhet_id IS NULL OR fra_virksomhet_id <> til_virksomhet_id) "
-                    + "AND (fra_begrep_id IS NULL OR til_begrep_id IS NULL OR fra_begrep_id <> til_begrep_id)");
+                    "(kategori = 'K' AND typekode = 'normgivning') OR ("
+                    + "(fra_virksomhet_id IS NULL OR til_virksomhet_id IS NULL OR fra_virksomhet_id <> til_virksomhet_id) "
+                    + "AND (fra_begrep_id IS NULL OR til_begrep_id IS NULL OR fra_begrep_id <> til_begrep_id))");
+                // [Ny, issue #341] Normform bare på K normgivning; grunnlag og delegerbar bare på K. NULL = ikke angitt.
+                t.HasCheckConstraint("ck_strukturkanter_normform",
+                    "normform IS NULL OR (kategori = 'K' AND typekode = 'normgivning' "
+                    + "AND normform IN ('forskrift', 'reglement', 'arbeidsordning', 'vedtekter', 'instruks'))");
+                t.HasCheckConstraint("ck_strukturkanter_grunnlag",
+                    "grunnlag IS NULL OR (kategori = 'K' AND grunnlag IN ('offentligrettslig', 'privatrettslig'))");
+                t.HasCheckConstraint("ck_strukturkanter_delegerbar", "delegerbar IS NULL OR kategori = 'K'");
                 // docs/33 §4.3: «HjemmelRettskildeId + HjemmelEid — påkrevd, ELLER KildeUtenforKorpus».
                 // [ENDRET, Johanns beslutning 2026-10-07] ELLER i streng forstand: med hjemmel i korpus er alle
                 // kilde-utenfor-feltene NULL; uten hjemmel er både teksten og TYPEN påkrevd.
@@ -223,6 +233,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.KildeUtenforKorpusLenke).HasColumnName("kilde_utenfor_korpus_lenke");
             e.Property(x => x.KildeUtenforKorpusType).HasColumnName("kilde_utenfor_korpus_type");
             e.Property(x => x.KildeUtenforKorpusDokumentasjon).HasColumnName("kilde_utenfor_korpus_dokumentasjon");
+            e.Property(x => x.Normform).HasColumnName("normform");
+            e.Property(x => x.Grunnlag).HasColumnName("grunnlag");
+            e.Property(x => x.Delegerbar).HasColumnName("delegerbar");
             e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
             e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
             e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("validert");
@@ -994,7 +1007,15 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
         b.Entity<RelasjonsTypeKonfigurasjonEntitet>(e =>
         {
             e.ToTable("relasjonstype_konfigurasjon", t =>
-                t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_kategori", "kategori IN ('R', 'K', 'M', 'O', 'A', 'G', 'I', 'T')"));
+            {
+                t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_kategori", "kategori IN ('R', 'K', 'M', 'O', 'A', 'G', 'I', 'T')");
+                // [Ny, issue #341] Familie og fvl-kategori finnes bare på kompetansetyper.
+                t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_familie",
+                    "familie IS NULL OR (kategori = 'K' AND familie IN ('struktur', 'personell', 'styring', 'normgivning', "
+                    + "'kontroll', 'klage_overproving', 'vedtak', 'sanksjon'))");
+                t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_fvl_kategori",
+                    "fvl_kategori IS NULL OR (kategori = 'K' AND fvl_kategori IN ('forskrift', 'enkeltvedtak', 'ikke_vedtak'))");
+            });
             e.HasKey(x => x.Id).HasName("relasjonstype_konfigurasjon_pkey");
             // [Ny, issue #311] Kategori — identiteten er (kategori, kode), se RelasjonsTypeKonfigurasjonEntitet.
             e.Property(x => x.Kategori).HasColumnName("kategori").HasDefaultValue("R");
@@ -1003,6 +1024,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.TilVisningsmal).HasColumnName("til_visningsmal");
             e.Property(x => x.Sorteringsrekkefolge).HasColumnName("sorteringsrekkefolge");
             e.Property(x => x.Aktiv).HasColumnName("aktiv").HasDefaultValue(true);
+            e.Property(x => x.Familie).HasColumnName("familie");
+            e.Property(x => x.FvlKategori).HasColumnName("fvl_kategori");
             // [ENDRET, issue #311] Var unik på kode alene — se Kategori over.
             e.HasIndex(x => new { x.Kategori, x.Kode }).IsUnique().HasDatabaseName("ux_relasjonstype_konfigurasjon_kategori_kode");
         });

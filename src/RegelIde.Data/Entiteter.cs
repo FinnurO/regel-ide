@@ -1176,6 +1176,21 @@ public sealed class RelasjonsTypeKonfigurasjonEntitet
     public required string TilVisningsmal { get; set; } // "er eier/overordnet for {0}"
     public int Sorteringsrekkefolge { get; set; }
     public bool Aktiv { get; set; } = true;
+
+    /// <summary>
+    /// [Ny, issue #341, Johanns beslutning 2026-10-08 (hierarki med familier)] Kompetansefamilien til en K-type:
+    /// struktur | personell | styring | normgivning | kontroll | klage_overproving | vedtak | sanksjon
+    /// (<see cref="Strukturkanter.Familier"/>, CHECK <c>ck_relasjonstype_konfigurasjon_familie</c>). Bare på K. NULL på
+    /// <c>beslutning</c> (står øverst, over alle familiene) og på en type Johann ikke har plassert ennå.
+    /// </summary>
+    public string? Familie { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #341, Johanns beslutning 2026-10-08] Forvaltningslovens perspektiv (§ 2: vedtak = forskrift +
+    /// enkeltvedtak): <c>forskrift</c> | <c>enkeltvedtak</c> | <c>ikke_vedtak</c>. Hører til TYPEN, ikke kanten — se
+    /// <see cref="Strukturkanter.FvlKategoriFor"/> for normgivning, der normformen avgjør. NULL = ikke avklart.
+    /// </summary>
+    public string? FvlKategori { get; set; }
 }
 
 /// <summary>
@@ -1446,7 +1461,10 @@ public sealed class StrukturkantEntitet
     public string? Objekt { get; set; }
 
     /// <summary>Strukturert (docs/20 §7.1, <c>[LÅST]</c>) — JSON-liste av <c>{ FraEid, TilEid? }</c>, samme
-    /// form som myndighetstildelingens <c>ParagrafspennJson</c> hadde. <c>"[]"</c> = ingen avgrensning.</summary>
+    /// form som myndighetstildelingens <c>ParagrafspennJson</c> hadde. <c>"[]"</c> = ingen avgrensning.
+    /// [ENDRET, issue #341] Betyr bare HVILKE PARAGRAFER kanten gjelder for («konsesjonsmyndigheten etter energiloven
+    /// §§ 2-1, 2-2 …»). HVOR det står er <see cref="HjemmelEid"/> — se <see cref="Strukturkanter.KreverHjemmelsted"/> for
+    /// sammenblandingen #311 innførte og #341 rettet.</summary>
     public string AvgrensningParagrafspennJson { get; set; } = "[]";
 
     /// <summary>Avgrensning som ikke er et paragrafspenn — sakstype, «bare ugyldige vedtak» (docs/33 §3
@@ -1488,6 +1506,29 @@ public sealed class StrukturkantEntitet
     /// Migrerte relasjoner uten hjemmel fikk <c>sekundaer</c> — vi vet ikke om kilden er primær.
     /// </summary>
     public string? KildeUtenforKorpusDokumentasjon { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #341, Johanns beslutning P2 2026-10-08] Formen på en NORMGIVNINGSKOMPETANSE: <c>forskrift</c> |
+    /// <c>reglement</c> | <c>arbeidsordning</c> | <c>vedtekter</c> | <c>instruks</c> (<see cref="Strukturkanter.Normformer"/>,
+    /// CHECK <c>ck_strukturkanter_normform</c>). Bare på K <c>normgivning</c>. NULL = ikke angitt — aldri utledet av
+    /// typen alene. Migrerte K <c>forskrift</c>-kanter fikk <c>'forskrift'</c> (det var hva koden sa).
+    /// </summary>
+    public string? Normform { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #341, Johanns beslutning 3 2026-10-08] Kompetansens grunnlag: <c>offentligrettslig</c> |
+    /// <c>privatrettslig</c> (eierskap/selskapsrett — morselskapets instruksjon av et nettforetak). Bare på K. NULL = ikke
+    /// angitt; ingen migrert rad har fått en verdi (det gjettes ikke).
+    /// </summary>
+    public string? Grunnlag { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #341 + #335 AC2, 2026-10-08] Kan kompetansen delegeres videre? <c>true</c> («Kongen …»), <c>false</c>
+    /// («Kongen i statsråd …», «kommunestyret selv»). Feltet hører til KOMPETANSEN (#335), ikke til aktøren — derfor
+    /// bare på K. NULL = ikke angitt; ingen migrert rad har fått en verdi. (Stod i docs/33 §4.3 som
+    /// <c>delegerbar = false</c>, men kom ikke med i #311.)
+    /// </summary>
+    public bool? Delegerbar { get; set; }
 
     /// <summary>Kantens EGEN gyldighet, utover hjemmelens (docs/29 §Del B) — de fleste setter ingen.</summary>
     public DateOnly? GyldigFra { get; set; }

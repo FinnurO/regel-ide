@@ -1021,8 +1021,11 @@ public sealed record NavnekandidatManuellRequest(
 /// gruppemedlem-sporets gruppe. Hjemmelen sendes IKKE — den er alltid kandidatens egen rettskilde,
 /// samme konvensjon som gruppemedlemskaps-endepunktet.
 /// </summary>
+/// <param name="HjemmelEid">[Ny, issue #341] HVOR i kandidatens rettskilde rollen tildeles — null = kandidatens egen node.</param>
+/// <param name="Paragrafspenn">[ENDRET, issue #341] Nå bare AVGRENSNINGEN: hvilke paragrafer rollen gjelder for (valgfri).
+/// Før #341 var dette hjemmelsstedet, og det ble lagret som avgrensning (se Strukturkanter.KreverHjemmelsted).</param>
 public sealed record KoblNavnekandidatTilMyndighetstildelingRequest(
-    Guid VirksomhetId, Guid RolleBegrepId, IReadOnlyList<ParagrafspennParDto> Paragrafspenn,
+    Guid VirksomhetId, Guid RolleBegrepId, string? HjemmelEid, IReadOnlyList<ParagrafspennParDto>? Paragrafspenn,
     string? Vilkaar, string? Navneformgrunn);
 
 /// <summary>Som <see cref="NavnekandidatGruppemedlemskapResultatDto"/>, men <c>Tildeling</c> gjelder et
