@@ -235,12 +235,35 @@ proveniensrad `migrert` per kant og migrasjonens `Down`).
   kode), siden `instruksjon` finnes både i R og K). Startsettet over seedes ved oppstart per (kategori, kode).
 - **Sykel** avvises i M og O (bevart fra gruppe-av-gruppe, #164); R har bevisst ingen sykelsjekk.
 - **Idempotens:** samme kategori/type/fra/til/objekt/polaritet/hjemmel/avgrensning ⇒ samme kant.
-- **Åpne spørsmål (ikke avgjort i #311):** (1) de fem R-kodene som fantes før (`underlagt`, `sekretariat`,
-  `klageinstans`, `enhet_i`, `oppgaver_overfort_til`) er beholdt med samme kode; tre av dem overlapper
-  startsettet i MOTSATT retning (`klageinstans` ↔ `klageinstans_for`, `sekretariat` ↔ `sekretariat_for`,
-  `underlagt` ≈ `administrativt_underordnet`). Å slå dem sammen krever at radene snus. (2) K-kodene følger
-  tabellen over (`forskrift`, `vedtak` …), ikke FORMAT.md/`Strukturkontrakt` (`forskriftskompetanse` …) —
-  avbildningen hører til #313.
+- **Åpne spørsmål (ikke avgjort i #311):** (1) ~~de fem R-kodene som fantes før (`underlagt`, `sekretariat`,
+  `klageinstans`, `enhet_i`, `oppgaver_overfort_til`) er beholdt med samme kode~~ — **avgjort og bygget i
+  #330**, se under. (2) K-kodene følger tabellen over (`forskrift`, `vedtak` …), ikke FORMAT.md/
+  `Strukturkontrakt` (`forskriftskompetanse` …) — avbildningen hører til #313.
+
+**[Bygget, issue #330 «harmoniser gamle og nye relasjonskoder», 2026-10-08]** Hvert forhold har nå ÉN kode og
+én lagret retning. De fem R-kodene fra før #311 er konvertert og fjernet (migrasjonen `HarmoniserRelasjonskoder`,
+`RelasjonskodeHarmonisering.cs`; fjernet også fra `Strukturkanter.Startsett`, så oppstartsseeden ikke legger dem
+inn igjen):
+
+| Gammel kode | Ny kode | Retning | Rader lokalt |
+|---|---|---|---:|
+| `klageinstans` («har klageinstans hos») | R `klageinstans_for` | fra/til **byttet** | 3 |
+| `sekretariat` («har sekretariat hos») | R `sekretariat_for` | fra/til **byttet** | 4 |
+| `oppgaver_overfort_til` («fikk oppgavene overført til») | R `etterfolger` | fra/til **byttet** | 2 |
+| `enhet_i` | **G** `del_av` — en enhet i en annen virksomhet er organtilhørighet, ikke en relasjon mellom selvstendige aktører | samme | 1 |
+| `underlagt` | R `administrativt_underordnet` | samme | 0 |
+
+Migrasjonen teller før og etter og avbryter ved avvik (totalt antall, ingen gammel kode igjen, hver målkode =
+før + konvertert, endene kontrollert mot proveniensraden). Målt i lokal `regelide` 2026-10-08: 29 → 29 kanter,
+10 konvertert med samme id, 10 proveniensrader (`endret_av = 'migrasjon-330'`, gammel kode og opprinnelige ender
+i `kilde_referanser`, som `Down` leser for å snu nøyaktig de radene). KI-oppdagelsen ber nå om
+`klageinstans_for`/`sekretariat_for`/`administrativt_underordnet`/`del_av` med retningen spelt ut.
+
+**Avgrensning kan oppdateres** (`PUT /api/strukturkanter/{id}/avgrensning`, `StrukturkantTjeneste.OppdaterAvgrensningAsync`)
+— den første oppdateringsveien for en eksisterende kant. Brukt på Energiklagenemnda-raden (Johanns rettelse
+2026-10-08, ikke i migrasjonen): «Energidepartementet er klageinstans for Energiklagenemnda» har fått
+`AvgrensningTekst` «enkeltvedtak Energiklagenemnda treffer i første instans» og paragrafspenn
+`https://lovdata.no/eli/forskrift/2019/10/24/1420/nor/§1/ledd-2` (forskrift om Energiklagenemnda § 1 annet ledd).
 
 ### 4.4 Bevisst ikke i strukturlaget (forslagets punkt 9)
 
@@ -440,7 +463,7 @@ Før tersklene settes, trengs to ting:
 
 | Fra | Til | Automatisk? |
 |---|---|---|
-| `VirksomhetRelasjon` (10 rader lokalt) | R-kanter, samme typekode | Ja — 1:1, ingen tap. **Bygget #311:** 10 → 10 (8 hjemlet; 2 uten hjemmel → kilde utenfor korpus `nettside_annet` + `sekundaer`) |
+| `VirksomhetRelasjon` (10 rader lokalt) | R-kanter, samme typekode | Ja — 1:1, ingen tap. **Bygget #311:** 10 → 10 (8 hjemlet; 2 uten hjemmel → kilde utenfor korpus `nettside_annet` + `sekundaer`). **Kodene harmonisert i #330:** 10 → 10, se §4.3 |
 | `GruppeMedlemskap` (3) | M-kanter | Ja — 1:1. **Bygget #311:** 3 → 3 |
 | `Myndighetstildeling` (16) | M eller I, avhengig av målets nye nodetype | **Bygget #311** (etter #310): 16 → 15 M (14 klasse + 1 område) + 1 I (rolle) |
 | `Begrep(gruppe)` (13) | klasse / rolle / område / organ | **Nei** — må avgjøres av et menneske (liste i sak) |

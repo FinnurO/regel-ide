@@ -166,6 +166,7 @@ Organisasjonen (Testkommunen) registrerer disse URL-ene **én gang** i data.norg
 | `GET /api/strukturkanter/uten-korpusforankring[?kildetype=…\|alle]` | Kanter uten hjemmel i korpus, per kildetype (standard `nettside_annet`) — arbeidslista. |
 | `GET /api/strukturkanter/{id}` | Én kant. |
 | `POST /api/strukturkanter` | Opprett. Polaritet MÅ oppgis; hjemmel ELLER kilde utenfor korpus (tekst + type + dokumentasjon). 201 ny, 200 identisk utsagn fantes (idempotent), 400 ved ugyldig kategori/typekode/nodetype/sykel/kilde. |
+| `PUT /api/strukturkanter/{id}/avgrensning` | [Ny, #330] Erstatter avgrensningen (paragrafspenn + tekst) på en eksisterende kant; type, ender og hjemmel endres ikke. Hver eId må finnes i korpus, M/I med hjemmel krever spenn, en endring som ville gitt en dublett avvises (400). Gammel og ny verdi i Proveniens. |
 | `POST /api/strukturkanter/{id}/godkjenn` | Forslag → validert. |
 | `POST /api/strukturkanter/{id}/avvis` | Sletter et forslag (bare `foreslatt_av_ai`). |
 | `DELETE /api/strukturkanter/{id}` | Sletter en kant uansett status (logges i Proveniens). |
