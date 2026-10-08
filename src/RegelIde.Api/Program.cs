@@ -49,6 +49,8 @@ builder.Services.AddScoped<VirksomhetVisningsnavnTjeneste>();
 // [ENDRET, issue #311] MyndighetstildelingTjeneste og GruppeMedlemskapTjeneste (og
 // VirksomhetRelasjonregisterTjeneste under) er erstattet av ÉN skrivevei for alle strukturkanter.
 builder.Services.AddScoped<StrukturkantTjeneste>();
+// [Ny, issue #312 «områderegister»] «Gitt kommune X → fylke, tingrett, lagdømme, statsforvalter, RHF» (AC5).
+builder.Services.AddScoped<OmradeOppslagTjeneste>();
 builder.Services.AddScoped<VirksomhetWhereUsedTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatTjeneste>();
 builder.Services.AddScoped<VirksomhetKandidatSveipTjeneste>();
@@ -486,6 +488,29 @@ using (var scope = app.Services.CreateScope())
     foreach (var hoppet in samiskSeed.HoppetOver)
     {
         app.Logger.LogWarning("Samisk språkforvaltning-seed hoppet over: {Grunn}", hoppet);
+    }
+
+    // [Ny, issue #312 «Strukturmodell 7: områderegister», 2026-10-08] Fylker, kommuner, domstolstruktur, embetsområder
+    // og helseregioner fra øyeblikksbildene i Seed/ (ingen nettverk) og inndelingsforskriften i korpus. Kjøres SIST:
+    // kommunene (OrganisasjonsregisterSeed) og statsforvalterne/RHF-ene må finnes, og inndelingsforskriften må være
+    // importert. Skriver til databasen ⇒ gated (CLAUDE.md §4), false i EmbeddedPostgresApiFixture. Idempotent på
+    // stabil nøkkel (kode/orgnr/kantidentitet), og første kjøring er den eneste som skriver noe.
+    if (app.Configuration.GetValue(OmraderegisterSeed.Konfignokkel, true))
+    {
+        var omradeSeed = await OmraderegisterSeed.SeedAsync(
+            db,
+            scope.ServiceProvider.GetRequiredService<StrukturkantTjeneste>(),
+            scope.ServiceProvider.GetRequiredService<VirksomhetsbegrepTjeneste>());
+        app.Logger.LogInformation(
+            "Områderegister-seed: {Omrader} nye områder, {Kanter} nye kanter, {Virksomheter} nye virksomheter, "
+            + "{Kommunenummer} kommunenummer fylt; {UtenRettssubjekt} kommuner uten rettssubjekt, {Uloste} uløste domstolnavn, "
+            + "{Delte} kommuner delt mellom domssogn.",
+            omradeSeed.NyeOmrader, omradeSeed.NyeKanter, omradeSeed.NyeVirksomheter, omradeSeed.KommunenummerFylt,
+            omradeSeed.KommunerUtenRettssubjekt.Count, omradeSeed.UlosteDomstoler.Count, omradeSeed.DelteKommuner.Count);
+        foreach (var x in omradeSeed.Hoppet.Concat(omradeSeed.Navneavvik).Concat(omradeSeed.UlosteDomstoler))
+        {
+            app.Logger.LogWarning("Områderegister-seed: {Melding}", x);
+        }
     }
 }
 
@@ -3616,6 +3641,31 @@ strukturkanter.MapDelete("/{id:guid}", async (Guid id, HttpRequest request, Stru
     })
     .WithName("SlettStrukturkant")
     .WithSummary("Issue #311 — sletter en strukturkant uansett status (logges i Proveniens).");
+
+// ---- [Ny, issue #312 «Strukturmodell 7: områderegister», 2026-10-08] Områdeoppslag (AC5, docs/32 S6/S8) ----
+var omrader = app.MapGroup("/api/omrader").WithOpenApi();
+
+omrader.MapGet("/kommuner/{kommunenummer}/tilhorighet", async (string kommunenummer, OmradeOppslagTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var svar = await tjeneste.ForKommunenummerAsync(kommunenummer, ct);
+        return svar is null
+            ? Results.NotFound(new { feil = $"Ingen gjeldende kommune med nummer '{kommunenummer}' i områderegisteret." })
+            : Results.Ok(KommuneTilhorighetDto.Fra(svar));
+    })
+    .WithName("HentKommuneTilhorighet")
+    .WithSummary("Issue #312 AC5 — gitt et kommunenummer: fylke, tingrett, lagsogn, lagdømme, lagmannsrett, statsforvalter, " +
+        "helseregion og RHF, beregnet fra strukturkantene. Hver rubrikk har status entydig | ikke_entydig | mangler — ved flere " +
+        "kandidater velges ingen.");
+
+omrader.MapGet("/{id:guid}/tilhorighet", async (Guid id, OmradeOppslagTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var svar = await tjeneste.ForKommuneAsync(id, ct);
+        return svar is null
+            ? Results.NotFound(new { feil = $"'{id}' er ikke et gjeldende kommuneområde." })
+            : Results.Ok(KommuneTilhorighetDto.Fra(svar));
+    })
+    .WithName("HentOmradeTilhorighet")
+    .WithSummary("Issue #312 — samme oppslag som /kommuner/{kommunenummer}/tilhorighet, på områdets begrep-id (BegrepDetalj).");
 
 // [ENDRET, issue #311] Tynn lesefasade over M-/I-kanter fra virksomheten — se MyndighetstildelingDto.
 // Nettside-eksporten leser den; frontend bruker /api/strukturkanter.

@@ -90,6 +90,11 @@ public sealed class EmbeddedPostgresApiFixture : IAsyncLifetime
         // veltet hele collection-en med 245 feil (2026-09-08).
         Environment.SetEnvironmentVariable("RegelIde__Virksomhetsnavn__SynkVedOppstart", "false");
 
+        // [Ny, issue #312 «områderegister», 2026-10-08] OmraderegisterSeed skriver ~1 500 strukturkanter og ~450 områder
+        // første gang den kjører (CLAUDE.md §4: skriving ved oppstart skal gates, false her i samme endring). Fixturen
+        // reiser verten mange ganger; testene som trenger registeret seeder det selv (OmradeOppslagEndepunktTests).
+        Environment.SetEnvironmentVariable("RegelIde__Omraderegister__SeedVedOppstart", "false");
+
         // [Ny, issue #117; restrukturert 2026-09-03] Standard, DEFAULT-stubbet SNL/SSR-oppslag for HELE
         // denne DELTE fixturen (samme "aldri ekte, utilsiktede nettverkskall i en testkjøring"-hensyn som
         // Stub-KI-leverandøren og deaktivert Lovdata-fullimport over). Uten dette ville
