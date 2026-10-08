@@ -507,6 +507,9 @@ using (var scope = app.Services.CreateScope())
             + "{Delte} kommuner delt mellom domssogn.",
             omradeSeed.NyeOmrader, omradeSeed.NyeKanter, omradeSeed.NyeVirksomheter, omradeSeed.KommunenummerFylt,
             omradeSeed.KommunerUtenRettssubjekt.Count, omradeSeed.UlosteDomstoler.Count, omradeSeed.DelteKommuner.Count);
+        app.Logger.LogInformation(
+            "Områderegister-seed: {Forslag} validerte domstolkanter gjort om til forslag, {Slettet} navnebaserte lagmannsrett-kanter slettet.",
+            omradeSeed.GjortTilForslag, omradeSeed.SlettedeKanter);
         foreach (var x in omradeSeed.Hoppet.Concat(omradeSeed.Navneavvik).Concat(omradeSeed.UlosteDomstoler))
         {
             app.Logger.LogWarning("Områderegister-seed: {Melding}", x);
@@ -3629,6 +3632,26 @@ strukturkanter.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request, 
     })
     .WithName("AvvisStrukturkant")
     .WithSummary("Issue #311 — avviser (sletter) et forslag. Kun 'foreslatt_av_ai'; en validert kant slettes med DELETE.");
+
+// [Ny, issue #312, Johanns beslutning 2026-10-08] Samlet godkjenning av forslag per hjemmel (domstolkantene fra
+// inndelingsforskriften). Hver kant logges i Proveniens av GodkjennAsync.
+strukturkanter.MapGet("/forslag-per-hjemmel", async (StrukturkantTjeneste tjeneste, CancellationToken ct) =>
+        Results.Ok((await tjeneste.ForslagPerHjemmelAsync(ct))
+            .Select(g => new { hjemmelRettskildeId = g.RettskildeId, tittel = g.Tittel, antall = g.Antall })))
+    .WithName("HentStrukturkantForslagPerHjemmel")
+    .WithSummary("Issue #312 — ventende forslag gruppert på hjemmelsrettskilde (grunnlaget for samlet godkjenning).");
+
+strukturkanter.MapPost("/godkjenn-alle", async (Guid hjemmelRettskildeId, string? oppdagelseskildePrefiks, HttpRequest request,
+        StrukturkantTjeneste tjeneste, RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        var antall = await tjeneste.GodkjennAlleForHjemmelAsync(hjemmelRettskildeId, oppdagelseskildePrefiks, bruker.Navn, ct);
+        return Results.Ok(new { godkjent = antall });
+    })
+    .WithName("GodkjennAlleStrukturkantForslagForHjemmel")
+    .WithSummary("Issue #312 — godkjenner alle ventende forslag hjemlet i én rettskilde (valgfritt avgrenset til en " +
+        "oppdagelseskilde-prefiks, f.eks. 'monster:'). Hver kant får sin egen proveniensrad.");
 
 strukturkanter.MapDelete("/{id:guid}", async (Guid id, HttpRequest request, StrukturkantTjeneste tjeneste,
         RegelIdeDbContext db, CancellationToken ct) =>

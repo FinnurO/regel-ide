@@ -7,14 +7,16 @@ public sealed record OmradeVisning(Guid Id, string Navn, string? Omradetype, str
 
 /// <summary>[Ny, issue #312] En aktør med ansvarsområde, og HVILKET område kanten lander på (kommunen selv, fylket,
 /// lagdømmet …) — slik at «hvorfor er Statsforvalteren i Troms og Finnmark med?» kan besvares: via fylket Finnmark.</summary>
-public sealed record AnsvarligAktor(Guid VirksomhetId, string Navn, string Typekode, OmradeVisning Via, Guid KantId);
+public sealed record AnsvarligAktor(Guid VirksomhetId, string Navn, string Typekode, OmradeVisning Via, Guid KantId, bool Forslag = false);
 
 /// <summary>
 /// [Ny, issue #312] Én rubrikk i svaret («tingrett»), med kandidatene. <see cref="Entydig"/> er true bare når det
 /// er nøyaktig én — ved null eller flere velges ingenting (CLAUDE.md §8), og kalleren viser «mangler» eller
 /// «ikke entydig» med kandidatene (samme regel #314 skal bruke).
 /// </summary>
-public sealed record Tilhorighetsrubrikk(string Rubrikk, IReadOnlyList<string> Kandidater, IReadOnlyList<Guid> Ider)
+/// <param name="Forslag">[Ny, #312, Johanns beslutning 2026-10-08] Per kandidat: true når svaret hviler på minst én
+/// kant som ennå er et FORSLAG (domstolkantene fra inndelingsforskriften, til de er godkjent). Vises, telles ikke bort.</param>
+public sealed record Tilhorighetsrubrikk(string Rubrikk, IReadOnlyList<string> Kandidater, IReadOnlyList<Guid> Ider, IReadOnlyList<bool> Forslag)
 {
     public bool Entydig => Ider.Count == 1;
     public string Status => Ider.Count switch { 0 => "mangler", 1 => "entydig", _ => "ikke_entydig" };
@@ -44,7 +46,9 @@ public sealed record KommuneTilhorighet(
 /// <item>lagmannsrett = aktører med ansvarsområde til lagdømmet; statsforvalter = til fylket; RHF = til helseregionen.</item>
 /// </list>
 /// <para>
-/// Bare gjeldende kanter teller (<see cref="StrukturkantTjeneste.FiltrerGjeldendeAsync"/>), og bare validerte.
+/// Bare gjeldende kanter teller (<see cref="StrukturkantTjeneste.FiltrerGjeldendeAsync"/>). [ENDRET, #312, Johanns
+/// beslutning 2026-10-08] Forslag teller MED, men hver kandidat er merket <c>Forslag</c> når svaret hviler på en
+/// ikke-godkjent kant — domstolkantene er forslag til de er godkjent, og et oppslag som skjulte dem ville sagt «mangler».
 /// Rubrikkreglene forutsetter at registeret er det eneste som gir slike kanter i dag. Får en fylkeskommune senere
 /// <c>har_ansvarsomrade</c> til fylket, havner den i statsforvalter-rubrikken — da må rubrikken avgrenses (f.eks.
 /// mot klassen «statsforvalter», #298). Det er bevisst ikke gjort nå, fordi ingen slik kant finnes (målt 2026-10-08).
@@ -70,7 +74,7 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
 
         // (1) Overordnede områder, transitivt via O-kanter (til = barnet, fra = forelderen).
         var oKanter = await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
-            .Where(k => k.Kategori == Strukturkanter.Omradesammensetning && k.Status == "validert"
+            .Where(k => k.Kategori == Strukturkanter.Omradesammensetning
                         && k.FraBegrepId != null && k.TilBegrepId != null)
             .ToListAsync(ct), ct);
         var foreldre = oKanter.GroupBy(k => k.TilBegrepId!.Value).ToDictionary(g => g.Key, g => g.Select(k => k.FraBegrepId!.Value).ToList());
@@ -86,18 +90,31 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
                 ko.Enqueue(f);
             }
         }
+        // [Ny, #312] Områder som bare nås via et forslag: samme traversering over bare validerte kanter.
+        var valideredeForeldre = oKanter.Where(k => k.Status == "validert").GroupBy(k => k.TilBegrepId!.Value)
+            .ToDictionary(g => g.Key, g => g.Select(k => k.FraBegrepId!.Value).ToList());
+        var validertSett = new HashSet<Guid> { kommune.Id };
+        var vko = new Queue<Guid>([kommune.Id]);
+        while (vko.Count > 0)
+        {
+            foreach (var f in valideredeForeldre.GetValueOrDefault(vko.Dequeue()) ?? [])
+            {
+                if (validertSett.Add(f)) vko.Enqueue(f);
+            }
+        }
         var omrader = await db.Begreper.Where(b => sett.Contains(b.Id))
             .Select(b => new OmradeVisning(b.Id, b.Term, b.Omradetype, b.Omradekode)).ToDictionaryAsync(o => o.Id, ct);
         var overordnede = overordnedeIder.Select(i => omrader[i]).ToList();
 
         // (2) Aktører med ansvarsområde til kommunen eller et overordnet område.
         var aKanter = await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
-            .Where(k => k.Kategori == Strukturkanter.Ansvarsomrade && k.Typekode == "har_ansvarsomrade" && k.Status == "validert"
+            .Where(k => k.Kategori == Strukturkanter.Ansvarsomrade && k.Typekode == "har_ansvarsomrade"
                         && k.FraVirksomhetId != null && k.TilBegrepId != null && sett.Contains(k.TilBegrepId.Value))
             .ToListAsync(ct), ct);
         var visninger = (await kanttjeneste.ByggVisningerAsync(aKanter, perspektiv: null, ct)).ToDictionary(v => v.Id);
         var ansvarlige = aKanter
-            .Select(k => new AnsvarligAktor(k.FraVirksomhetId!.Value, visninger[k.Id].Fra.Navn, k.Typekode, omrader[k.TilBegrepId!.Value], k.Id))
+            .Select(k => new AnsvarligAktor(k.FraVirksomhetId!.Value, visninger[k.Id].Fra.Navn, k.Typekode, omrader[k.TilBegrepId!.Value], k.Id,
+                k.Status != "validert" || !validertSett.Contains(k.TilBegrepId!.Value)))
             .OrderBy(a => a.Via.Omradetype == Omradetyper.Kommune ? 0 : 1).ThenBy(a => a.Navn, StringComparer.Ordinal)
             .ToList();
 
@@ -111,12 +128,15 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
         Tilhorighetsrubrikk Omr(string rubrikk, string type)
         {
             var o = overordnede.Where(x => x.Omradetype == type).OrderBy(x => x.Navn, StringComparer.Ordinal).ToList();
-            return new Tilhorighetsrubrikk(rubrikk, o.Select(x => x.Navn).ToList(), o.Select(x => x.Id).ToList());
+            return new Tilhorighetsrubrikk(rubrikk, o.Select(x => x.Navn).ToList(), o.Select(x => x.Id).ToList(),
+                o.Select(x => !validertSett.Contains(x.Id)).ToList());
         }
         Tilhorighetsrubrikk Akt(string rubrikk, Func<AnsvarligAktor, bool> filter)
         {
-            var a = ansvarlige.Where(filter).GroupBy(x => x.VirksomhetId).Select(g => g.First()).OrderBy(x => x.Navn, StringComparer.Ordinal).ToList();
-            return new Tilhorighetsrubrikk(rubrikk, a.Select(x => x.Navn).ToList(), a.Select(x => x.VirksomhetId).ToList());
+            var a = ansvarlige.Where(filter).GroupBy(x => x.VirksomhetId)
+                .Select(g => g.OrderBy(x => x.Forslag).First()).OrderBy(x => x.Navn, StringComparer.Ordinal).ToList();
+            return new Tilhorighetsrubrikk(rubrikk, a.Select(x => x.Navn).ToList(), a.Select(x => x.VirksomhetId).ToList(),
+                a.Select(x => x.Forslag).ToList());
         }
 
         var rubrikker = new List<Tilhorighetsrubrikk>

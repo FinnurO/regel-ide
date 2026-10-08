@@ -697,7 +697,7 @@ public sealed record KommuneTilhorighetDto(
 {
     public static KommuneTilhorighetDto Fra(KommuneTilhorighet t) => new(
         t.Kommune, t.Rubrikker.Select(r => new TilhorighetsrubrikkDto(r.Rubrikk, r.Status,
-            r.Kandidater.Zip(r.Ider, (navn, id) => new TilhorighetskandidatDto(id, navn)).ToList())).ToList(),
+            r.Kandidater.Select((navn, i) => new TilhorighetskandidatDto(r.Ider[i], navn, r.Forslag[i])).ToList())).ToList(),
         t.Overordnede, t.Ansvarlige);
 }
 
@@ -705,7 +705,7 @@ public sealed record KommuneTilhorighetDto(
 public sealed record TilhorighetsrubrikkDto(string Rubrikk, string Status, IReadOnlyList<TilhorighetskandidatDto> Kandidater);
 
 /// <summary>[Ny, issue #312] Id er virksomhetens id for aktør-rubrikker, områdets begrep-id for område-rubrikker.</summary>
-public sealed record TilhorighetskandidatDto(Guid Id, string Navn);
+public sealed record TilhorighetskandidatDto(Guid Id, string Navn, bool Forslag);
 
 /// <summary>Forespørsel for POST/PUT /api/begreper.</summary>
 public sealed record BegrepRequest(

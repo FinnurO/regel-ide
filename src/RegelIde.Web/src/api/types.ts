@@ -1519,7 +1519,8 @@ export interface OmradeVisningDto {
 export interface TilhorighetsrubrikkDto {
   rubrikk: string;
   status: 'entydig' | 'ikke_entydig' | 'mangler';
-  kandidater: { id: string; navn: string }[];
+  /** [Ny, #312] `forslag` = svaret hviler på en kant som ennå ikke er godkjent. */
+  kandidater: { id: string; navn: string; forslag: boolean }[];
 }
 
 export interface KommuneTilhorighetDto {

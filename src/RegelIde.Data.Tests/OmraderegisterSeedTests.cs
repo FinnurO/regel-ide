@@ -140,11 +140,18 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
         await using var db = Ny(s.ConnString);
         Assert.Empty(s.Forste.UlosteDomstoler);
         Assert.Empty(s.Forste.DelteKommuner);
-        Assert.Equal(34, s.Forste.NyeVirksomheter); // 28 tingretter + 6 lagmannsretter
+        Assert.Equal(28, s.Forste.NyeVirksomheter); // 28 tingretter. [ENDRET, #312] Lagmannsrettene kobles ikke lenger via navn.
 
         var forskriftId = await db.Rettskilder.Where(r => r.Eli == DomstolinndelingTolker.ForskriftEli).Select(r => r.Id).SingleAsync();
         var domstolkanter = await db.Strukturkanter.Where(k => k.HjemmelRettskildeId == forskriftId).ToListAsync();
         Assert.All(domstolkanter, k => Assert.NotNull(k.HjemmelEid));
+        // [Ny, #312, Johanns beslutning 2026-10-08] Tolket lovtekst er forslag med mønsteret som oppdagelseskilde.
+        Assert.All(domstolkanter, k => Assert.Equal("foreslatt_av_ai", k.Status));
+        Assert.All(domstolkanter, k => Assert.StartsWith("monster:inndeling-", k.OppdagelsesKilde));
+        Assert.False(await db.Strukturkanter.AnyAsync(k => k.KildeUtenforKorpusType == Strukturkanter.Register && k.Status != "validert"));
+        // Ingen lagmannsrett → lagdømme (ikke via navn).
+        var lagdommer = await db.Begreper.Where(b => b.Omradetype == Omradetyper.Lagdomme).Select(b => b.Id).ToListAsync();
+        Assert.False(await db.Strukturkanter.AnyAsync(k => k.Kategori == "A" && k.TilBegrepId != null && lagdommer.Contains(k.TilBegrepId.Value)));
         Assert.Equal(357, domstolkanter.Count(k => k.Typekode == "har_ansvarsomrade" && k.TilBegrepId != null
             && db.Begreper.Any(b => b.Id == k.TilBegrepId && b.Omradetype == Omradetyper.Kommune)));
 
@@ -166,15 +173,15 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
     }
 
     [Theory]
-    [InlineData("5610", "Finnmark", "Sis- ja Nuorta-Finnmárkku diggegoddi/Indre og Østre Finnmark tingrett", "lagsogn Finnmárku/Finnmark", "Hålogaland lagdømme", "HÅLOGALAND LAGMANNSRETT", "Statsforvalteren i Troms og Finnmark", "Helseregion Nord", "HELSE NORD RHF")]
-    [InlineData("1515", "Møre og Romsdal", "Sunnmøre tingrett", "lagsogn Møre og Romsdal", "Frostating lagdømme", "FROSTATING LAGMANNSRETT", "Statsforvaltaren i Møre og Romsdal", "Helseregion Midt-Norge", "HELSE MIDT-NORGE RHF")]
-    [InlineData("1818", "Nordland", "Helgeland tingrett", "lagsogn Nordland", "Hålogaland lagdømme", "HÅLOGALAND LAGMANNSRETT", "Statsforvalteren i Nordland", "Helseregion Nord", "HELSE NORD RHF")]
-    [InlineData("0301", "Oslo", "Oslo tingrett", "lagsogn Oslo, Asker og Bærum", "Borgarting lagdømme", "BORGARTING LAGMANNSRETT", "Statsforvalteren i Østfold, Buskerud, Oslo og Akershus", "Helseregion Sør-Øst", "HELSE SØR-ØST RHF")]
-    [InlineData("4204", "Agder", "Agder tingrett", "lagsogn Agder", "Agder lagdømme", "AGDER LAGMANNSRETT", "Statsforvalteren i Agder", "Helseregion Sør-Øst", "HELSE SØR-ØST RHF")]
-    [InlineData("3114", "Østfold", "Søndre Østfold tingrett", "lagsogn Søndre Østfold", "Borgarting lagdømme", "BORGARTING LAGMANNSRETT", "Statsforvalteren i Østfold, Buskerud, Oslo og Akershus", "Helseregion Sør-Øst", "HELSE SØR-ØST RHF")]
-    [InlineData("3419", "Innlandet", "Hedmarken og Østerdal tingrett", "lagsogn Innlandet", "Eidsivating lagdømme", "EIDSIVATING LAGMANNSRETT", "Statsforvalteren i Innlandet", "Helseregion Sør-Øst", "HELSE SØR-ØST RHF")]
+    [InlineData("5610", "Finnmark", "Sis- ja Nuorta-Finnmárkku diggegoddi/Indre og Østre Finnmark tingrett", "lagsogn Finnmárku/Finnmark", "Hålogaland lagdømme", "Statsforvalteren i Troms og Finnmark", "Helseregion Nord", "HELSE NORD RHF")]
+    [InlineData("1515", "Møre og Romsdal", "Sunnmøre tingrett", "lagsogn Møre og Romsdal", "Frostating lagdømme", "Statsforvaltaren i Møre og Romsdal", "Helseregion Midt-Norge", "HELSE MIDT-NORGE RHF")]
+    [InlineData("1818", "Nordland", "Helgeland tingrett", "lagsogn Nordland", "Hålogaland lagdømme", "Statsforvalteren i Nordland", "Helseregion Nord", "HELSE NORD RHF")]
+    [InlineData("0301", "Oslo", "Oslo tingrett", "lagsogn Oslo, Asker og Bærum", "Borgarting lagdømme", "Statsforvalteren i Østfold, Buskerud, Oslo og Akershus", "Helseregion Sør-Øst", "HELSE SØR-ØST RHF")]
+    [InlineData("4204", "Agder", "Agder tingrett", "lagsogn Agder", "Agder lagdømme", "Statsforvalteren i Agder", "Helseregion Sør-Øst", "HELSE SØR-ØST RHF")]
+    [InlineData("3114", "Østfold", "Søndre Østfold tingrett", "lagsogn Søndre Østfold", "Borgarting lagdømme", "Statsforvalteren i Østfold, Buskerud, Oslo og Akershus", "Helseregion Sør-Øst", "HELSE SØR-ØST RHF")]
+    [InlineData("3419", "Innlandet", "Hedmarken og Østerdal tingrett", "lagsogn Innlandet", "Eidsivating lagdømme", "Statsforvalteren i Innlandet", "Helseregion Sør-Øst", "HELSE SØR-ØST RHF")]
     public async Task Oppslag_gitt_kommune_gir_entydig_fylke_tingrett_lagdomme_statsforvalter_og_RHF(
-        string kommunenummer, string fylke, string tingrett, string lagsogn, string lagdomme, string lagmannsrett,
+        string kommunenummer, string fylke, string tingrett, string lagsogn, string lagdomme,
         string statsforvalter, string helseregion, string rhf)
     {
         var s = await SeededAsync();
@@ -192,10 +199,39 @@ public class OmraderegisterSeedTests(EmbeddedPostgresFixture fixture)
         Entydig("tingrett", tingrett);
         Entydig("lagsogn", lagsogn);
         Entydig("lagdømme", lagdomme);
-        Entydig("lagmannsrett", lagmannsrett);
+        // [ENDRET, #312] Ingen kilde i korpus parer lagmannsrett og lagdømme — rubrikken er «mangler», ikke gjettet.
+        Assert.Equal("mangler", r["lagmannsrett"].Status);
+        // Domstolsvarene hviler på forslag til de er godkjent; fylke/statsforvalter/RHF på validerte kanter.
+        Assert.True(r["tingrett"].Forslag.Single());
+        Assert.False(r["fylke"].Forslag.Single());
+        Assert.False(r["statsforvalter"].Forslag.Single());
         Entydig("statsforvalter", statsforvalter);
         Entydig("helseregion", helseregion);
         Entydig("RHF", rhf);
+    }
+
+    [Fact]
+    public async Task Samlet_godkjenning_per_hjemmel_validerer_alle_domstolforslag_og_logger_hver()
+    {
+        var conn = await NyTomDatabaseAsync("omrader_godkjenn");
+        await using var db = Ny(conn);
+        await GrunnlagAsync(db);
+        await KjorAsync(db);
+        var forskriftId = await db.Rettskilder.Where(r => r.Eli == DomstolinndelingTolker.ForskriftEli).Select(r => r.Id).SingleAsync();
+        var tjeneste = new StrukturkantTjeneste(db);
+        var perHjemmel = await tjeneste.ForslagPerHjemmelAsync();
+        var antall = perHjemmel.Single(g => g.RettskildeId == forskriftId).Antall;
+        Assert.True(antall > 700, $"{antall} forslag");
+
+        Assert.Equal(antall, await tjeneste.GodkjennAlleForHjemmelAsync(forskriftId, "monster:", "Kari Jurist"));
+        Assert.False(await db.Strukturkanter.AnyAsync(k => k.HjemmelRettskildeId == forskriftId && k.Status != "validert"));
+        Assert.Equal(antall, await db.Proveniens.CountAsync(p => p.EntitetType == StrukturkantTjeneste.ProveniensType
+                                                               && p.Handling == "validert" && p.GodkjentAv == "Kari Jurist"));
+        // En godkjent kant gjøres ikke om til forslag igjen ved neste oppstart.
+        await using var db2 = Ny(conn);
+        var igjen = await KjorAsync(db2);
+        Assert.Equal(0, igjen.GjortTilForslag);
+        Assert.False(await db2.Strukturkanter.AnyAsync(k => k.HjemmelRettskildeId == forskriftId && k.Status != "validert"));
     }
 
     [Fact]

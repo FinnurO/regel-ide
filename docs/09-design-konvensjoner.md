@@ -1014,5 +1014,9 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   «Mangler» = `neutral`. Samme regel som #314 skal bruke — velg aldri en kandidat i UI-et.
 - **VirksomhetDetalj:** A-kantene fra virksomheten har egen seksjon «Ansvarsområder» i «Myndighet & relasjoner»
   (en tingrett har 10–40 kommuner som ellers druknet kompetanseradene).
-- Kildetypen **«Register»** (Kartverket/Enhetsregisteret/SSR) vises som de andre kildetypene, med «Ingen hjemmel»-
-  merket (§31) — et register er ikke en rettskilde.
+- **[ENDRET, Johanns beslutning 2026-10-08] «Ingen hjemmel» vises bare når kanten heller ikke har en kildetype.** Har den
+  en kilde utenfor korpus, vises kildetypen («Register», «Vedtekter», «Kgl.res. (sekundær)») i samme `warning`-tag i
+  stedet — gjelder `StrukturkantTabell` og `GruppeMedlemmer`. Erstatter §31-raden «Ingen hjemmel + kildetype-tag».
+- **Samlet godkjenning:** når området har forslag, vises «Godkjenn alle N forslag hjemlet i X» øverst på områdefanen —
+  to klikk (knapp → «Bekreft»), fordi handlingen gjelder alle forslag med samme hjemmel, også i andre områder.
+  Tilhørigheten merker en kandidat «Forslag» (`info`) når svaret hviler på en ikke-godkjent kant.

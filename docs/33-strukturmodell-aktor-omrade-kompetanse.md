@@ -166,10 +166,17 @@ NAVNGIR får node (Johanns funn på #312): ingen rettskrets-node — tingretten 
 kommunene og `A har_sete_i` til rettsstedet, som er SAMME kommunenode der rettsstedet er en kommune og et
 tettsted-område i kommunen ellers; lagsogn og lagdømme er områder; statsforvalteren har kantene direkte til
 fylkene; helseregionen er et område (vedtektene navngir den). Målt i lokal `regelide` 2026-10-08: 414 områder
-(15 fylker, 357 kommuner, 16 tettsteder, 15 lagsogn, 6 lagdømmer, 4 helseregioner, Svalbard), 1 559 kanter, 34 nye
-domstolvirksomheter. Oppslaget «gitt kommune X» er `GET /api/omrader/kommuner/{nr}/tilhorighet`
+(15 fylker, 357 kommuner, 16 tettsteder, 15 lagsogn, 6 lagdømmer, 4 helseregioner, Svalbard), 1 559 kanter (1 553 etter at de 6 navnebaserte
+lagmannsrett-kantene ble slettet), 34 nye domstolvirksomheter. Oppslaget «gitt kommune X» er `GET /api/omrader/kommuner/{nr}/tilhorighet`
 (`OmradeOppslagTjeneste`). Inndelingsforskriften tolkes av `DomstolinndelingTolker` via #307-mønstrene: 0 uløste
 navn, 0 kommuner delt mellom domssogn (domstolloven § 66 annet ledd håndteres som «ikke entydig», ingen velges).
+**[ENDRET, Johanns beslutninger 2026-10-08 før merge]** (1) Alle kanter tolkeren leser ut av forskriften (790: tingrett →
+kommune 357, sete 61, lagsogn → kommune 357, lagdømme → lagsogn 15) er FORSLAG (`foreslatt_av_ai`, oppdagelseskilde
+`monster:inndeling-*`) og godkjennes samlet per hjemmel (`POST /api/strukturkanter/godkjenn-alle?hjemmelRettskildeId=…`,
+knapp på områdefanen, hver kant logges i Proveniens). Registerkanter og de kuraterte filene er validert — data fra en
+kilde, ikke tolket lovtekst. (2) Lagmannsrett → lagdømme kobles IKKE via navn: ingen tekst i korpus parer dem (domstolloven
+§ 10 første ledd gjelder lagmannsrettenes dommere; § 16 første ledd og forskriften § 10 sier bare at hvert lagdømme har én),
+så de seks kantene er slettet og rubrikken er «mangler» til en kilde avgjør paret. (3) Oppslaget tar med forslag, merket.
 
 ### 4.2 Gruppe er en evne, ikke en type
 

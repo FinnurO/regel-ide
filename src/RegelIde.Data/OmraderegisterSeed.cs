@@ -49,7 +49,9 @@ public static class OmraderegisterSeed
         IReadOnlyList<string> RettssubjekterUtenKommune,
         IReadOnlyList<string> UlosteDomstoler,
         IReadOnlyDictionary<string, IReadOnlyList<string>> DelteKommuner,
-        IReadOnlyList<string> Konverteringsavvik);
+        IReadOnlyList<string> Konverteringsavvik,
+        int GjortTilForslag = 0,
+        int SlettedeKanter = 0);
 
     private sealed class Tilstand(RegelIdeDbContext db, StrukturkantTjeneste kanter, VirksomhetsbegrepTjeneste navneformer)
     {
@@ -63,6 +65,8 @@ public static class OmraderegisterSeed
         public int NyeKanter;
         public int NyeVirksomheter;
         public int KommunenummerFylt;
+        public int GjortTilForslag;
+        public int SlettedeKanter;
         public List<string> Hoppet { get; } = [];
         public List<string> Navneavvik { get; } = [];
     }
@@ -136,7 +140,7 @@ public static class OmraderegisterSeed
         return new Resultat(t.NyeOmrader, t.NyeKanter, t.NyeVirksomheter, t.KommunenummerFylt, t.Hoppet, t.Navneavvik,
             utenRettssubjekt, utenKommune,
             domstol?.Uloste ?? [], domstol?.DelteKommuner ?? new Dictionary<string, IReadOnlyList<string>>(),
-            domstol?.Konverteringsavvik ?? []);
+            domstol?.Konverteringsavvik ?? [], t.GjortTilForslag, t.SlettedeKanter);
     }
 
     private static Resultat Tomt(Tilstand t) =>
@@ -301,21 +305,38 @@ public static class OmraderegisterSeed
                     HjemmelRettskildeId: forskriftId, HjemmelEid: ld.Eid), ct, "monster:inndeling-sogner");
             }
 
-            // Lagmannsretten: forskriften sier bare «Hvert lagdømme har en lagmannsrett» (§ 10) og navngir den ikke.
-            // Enhetsregisteret har én «<X> LAGMANNSRETT» per lagdømme «<X> lagdømme» — koblingen er navnets, og det
-            // står i kommentaren. Ikke ett treff → ingen kant.
-            if (r.LagmannsrettEid is null) continue;
-            const string etterledd = " lagdømme";
-            if (!ld.Navn.EndsWith(etterledd, StringComparison.Ordinal)) { t.Hoppet.Add($"{ld.Navn}: navnet slutter ikke på «lagdømme»."); continue; }
-            var stamme = ld.Navn[..^etterledd.Length];
-            var lagmannsrett = domstoler.Where(d => string.Equals(d.Navn, stamme + " lagmannsrett", StringComparison.OrdinalIgnoreCase)).ToList();
-            if (lagmannsrett.Count != 1) { t.Hoppet.Add($"{ld.Navn}: {lagmannsrett.Count} treff på «{stamme} lagmannsrett» i Brreg-øyeblikksbildet."); continue; }
-            var lv = await DomstolAsync(t, lagmannsrett[0], navneform: null, kilder.BrregDomstoler.Hentet, ct);
-            await KantAsync(t, new NyStrukturkant(Strukturkanter.Ansvarsomrade, "har_ansvarsomrade",
-                Kantnode.Virksomhet(lv.Id), Kantnode.Begrep(omr.Id),
-                HjemmelRettskildeId: forskriftId, HjemmelEid: r.LagmannsrettEid,
-                Kommentar: $"Forskriften navngir ikke lagmannsretten. Koblingen til {ld.Navn} er navnets: «{lagmannsrett[0].Navn}» er "
-                           + "eneste treff i Enhetsregisteret (overordnet Domstolene i Norge)."), ct);
+            // [FJERNET, issue #312, Johanns beslutning 2026-10-08] Kanten lagmannsrett → lagdømme ble koblet via NAVNET
+            // («<X> lagdømme» ↔ Brreg «<X> LAGMANNSRETT», hjemmel forskriften § 10 første ledd). Johann: ikke via navn.
+            // Målt 2026-10-08: ingen tekst i korpus sier hvilken lagmannsrett som hører til hvilket lagdømme —
+            // domstolloven § 10 første ledd handler om lagmannsrettenes dommere, § 16 første ledd og forskriften § 10
+            // sier bare at hvert lagdømme HAR én lagmannsrett. Uten navnet kan kanten ikke bestemmes, så den lages ikke;
+            // rubrikken «lagmannsrett» i oppslaget er «mangler» til en kilde avgjør paret. De seks kantene seeden
+            // laget før beslutningen slettes under (gjennom tjenesten, logget i Proveniens). Lagmannsrett-virksomhetene
+            // seeden opprettet blir stående: de er ordinære Brreg-enheter.
+        }
+
+        // [Ny, issue #312, Johanns beslutning 2026-10-08] Opprydding av kanter seeden lagret FØR beslutningen, gjennom
+        // tjenesten (ikke SQL). Bare seedens egne, urørte kanter (OpprettetAv = seed, SistEndretAv NULL): en kant et
+        // menneske har godkjent etterpå har SistEndretAv satt og røres aldri.
+        var gamle = await t.Db.Strukturkanter
+            .Where(k => k.HjemmelRettskildeId == forskriftId && k.OpprettetAv == OpprettetAv && k.SistEndretAv == null
+                        && k.Status == "validert")
+            .ToListAsync(ct);
+        var lagdommeIder = lagdommeOmrade.Values.Select(b => b.Id).ToHashSet();
+        foreach (var k in gamle)
+        {
+            if (k.Kategori == Strukturkanter.Ansvarsomrade && k.FraVirksomhetId is not null && k.TilBegrepId is { } til
+                && lagdommeIder.Contains(til))
+            {
+                await t.Kanter.SlettAsync(k.Id, OpprettetAv, ct); // lagmannsrett → lagdømme via navn (se [FJERNET] over)
+                t.Kantnokler.Remove((k.Kategori, k.Typekode, k.FraVirksomhetId, k.FraBegrepId, k.TilVirksomhetId, k.TilBegrepId, k.HjemmelRettskildeId));
+                t.SlettedeKanter++;
+            }
+            else if (k.OppdagelsesKilde.StartsWith("monster:", StringComparison.Ordinal))
+            {
+                await t.Kanter.GjorTilForslagAsync(k.Id, k.OppdagelsesKilde, OpprettetAv, ct);
+                t.GjortTilForslag++;
+            }
         }
         return r;
     }
@@ -466,7 +487,12 @@ public static class OmraderegisterSeed
     {
         var nokkel = (ny.Kategori, ny.Typekode, ny.Fra.VirksomhetId, ny.Fra.BegrepId, ny.Til?.VirksomhetId, ny.Til?.BegrepId, ny.HjemmelRettskildeId);
         if (t.Kantnokler.Contains(nokkel)) return;
-        var opprettet = await t.Kanter.OpprettAsync(ny with { OppdagelsesKilde = oppdagelseskilde }, OpprettetAv, ct);
+        // [ENDRET, issue #312, Johanns beslutning 2026-10-08] Kanter konverteringen leste ut av lovteksten (monster:<id>)
+        // lagres som FORSLAG og godkjennes samlet av et menneske (StrukturkantTjeneste.GodkjennAlleForHjemmelAsync,
+        // docs/33 §5.3). Registerkanter (kildetype register: Kartverket, Enhetsregisteret, SSR) og de kuraterte filene
+        // (lest av et menneske, kilden oppgitt) lagres som validert: de er data fra en kilde, ikke tolket lovtekst.
+        var status = oppdagelseskilde.StartsWith("monster:", StringComparison.Ordinal) ? "foreslatt_av_ai" : "validert";
+        var opprettet = await t.Kanter.OpprettAsync(ny with { OppdagelsesKilde = oppdagelseskilde, Status = status }, OpprettetAv, ct);
         t.Kantnokler.Add(nokkel);
         if (opprettet.VarNy) t.NyeKanter++;
     }

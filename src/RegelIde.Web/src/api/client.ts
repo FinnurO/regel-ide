@@ -1127,6 +1127,15 @@ export const api = {
       body: JSON.stringify(request),
     }),
 
+  /** [Ny, issue #312] Ventende forslag gruppert på hjemmelsrettskilde. */
+  hentStrukturkantForslagPerHjemmel: () =>
+    kall<{ hjemmelRettskildeId: string; tittel: string; antall: number }[]>('/api/strukturkanter/forslag-per-hjemmel'),
+
+  /** [Ny, issue #312] Godkjenner alle ventende forslag hjemlet i én rettskilde (hver kant logges i Proveniens). */
+  godkjennAlleStrukturkantForslag: (hjemmelRettskildeId: string, oppdagelseskildePrefiks?: string) =>
+    kall<{ godkjent: number }>(`/api/strukturkanter/godkjenn-alle?hjemmelRettskildeId=${hjemmelRettskildeId}`
+      + (oppdagelseskildePrefiks ? `&oppdagelseskildePrefiks=${encodeURIComponent(oppdagelseskildePrefiks)}` : ''), { method: 'POST' }),
+
   godkjennStrukturkant: (id: string) =>
     kall<StrukturkantDto>(`/api/strukturkanter/${id}/godkjenn`, { method: 'POST' }),
 

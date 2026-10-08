@@ -424,6 +424,76 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         return kant;
     }
 
+    /// <summary>
+    /// [Ny, issue #312, Johanns beslutning 2026-10-08] Godkjenner ALLE ventende forslag hjemlet i én rettskilde — én
+    /// handling for f.eks. de ~800 domstolkantene <see cref="DomstolinndelingTolker"/> har lest ut av
+    /// inndelingsforskriften, som et menneske har kontrollert mot forskriften. Hver kant går gjennom
+    /// <see cref="GodkjennAsync"/>, så hver får sin egen proveniensrad (<c>validert</c>, <c>GodkjentAv</c>).
+    /// <paramref name="oppdagelseskildePrefiks"/> avgrenser valgfritt til én mekanisme (f.eks. <c>monster:</c>), slik at
+    /// KI-forslag med samme hjemmel ikke godkjennes i samme slengen.
+    /// </summary>
+    /// <returns>Antall kanter som ble godkjent.</returns>
+    public async Task<int> GodkjennAlleForHjemmelAsync(
+        Guid hjemmelRettskildeId, string? oppdagelseskildePrefiks, string godkjentAv, CancellationToken ct = default)
+    {
+        var ider = await db.Strukturkanter
+            .Where(k => k.Status == "foreslatt_av_ai" && k.HjemmelRettskildeId == hjemmelRettskildeId
+                        && (oppdagelseskildePrefiks == null || k.OppdagelsesKilde.StartsWith(oppdagelseskildePrefiks)))
+            .Select(k => k.Id).ToListAsync(ct);
+        foreach (var id in ider) await GodkjennAsync(id, godkjentAv, ct);
+        return ider.Count;
+    }
+
+    /// <summary>[Ny, issue #312] Ventende forslag gruppert på hjemmel — det samlet godkjenning trenger å vise
+    /// («Godkjenn alle 812 forslag hjemlet i forskrift om inndelingen av rettskretser og lagdømmer»).</summary>
+    public async Task<List<(Guid RettskildeId, string Tittel, int Antall)>> ForslagPerHjemmelAsync(CancellationToken ct = default)
+    {
+        var grupper = await db.Strukturkanter
+            .Where(k => k.Status == "foreslatt_av_ai" && k.HjemmelRettskildeId != null)
+            .GroupBy(k => k.HjemmelRettskildeId!.Value)
+            .Select(g => new { Id = g.Key, Antall = g.Count() }).ToListAsync(ct);
+        var ider = grupper.Select(g => g.Id).ToList();
+        var titler = await db.Rettskilder.Where(r => ider.Contains(r.Id))
+            .Select(r => new { r.Id, Tittel = r.Kortnavn ?? r.Tittel }).ToDictionaryAsync(r => r.Id, r => r.Tittel, ct);
+        return grupper.Select(g => (g.Id, titler.GetValueOrDefault(g.Id) ?? "(ukjent rettskilde)", g.Antall))
+            .OrderByDescending(g => g.Antall).ToList();
+    }
+
+    /// <summary>
+    /// [Ny, issue #312, Johanns beslutning 2026-10-08] Gjør en VALIDERT kant om til et forslag — veien for å rette kanter
+    /// en seed har lagret som validert, men som er maskinelt tolket lovtekst og skal godkjennes av et menneske
+    /// (docs/33 §5.3). Brukt én gang av <see cref="OmraderegisterSeed"/> for domstolkantene fra før beslutningen.
+    /// Statusendringen logges i Proveniens (<c>handling = 'endret'</c>, gammel og ny status i kildereferansene).
+    /// </summary>
+    /// <returns>Kanten, eller null hvis id-en ikke finnes.</returns>
+    public async Task<StrukturkantEntitet?> GjorTilForslagAsync(Guid id, string oppdagelsesKilde, string endretAv, CancellationToken ct = default)
+    {
+        var kant = await db.Strukturkanter.FirstOrDefaultAsync(k => k.Id == id, ct);
+        if (kant is null) return null;
+        if (kant.Status != "validert")
+        {
+            throw new ArgumentException($"Kanten har status '{kant.Status}' — bare en validert kant kan gjøres om til forslag.");
+        }
+        if (!OppdagelsesKildeForm().IsMatch(oppdagelsesKilde))
+        {
+            throw new ArgumentException($"Ugyldig oppdagelseskilde '{oppdagelsesKilde}'.");
+        }
+        var proveniens = ProveniensHjelper.NyRad(ProveniensType, kant.Id, virksomhetId: null, "endret", endretAv);
+        proveniens.KildeReferanserJson = JsonSerializer.Serialize(new
+        {
+            felt = "status", forStatus = kant.Status, nyStatus = "foreslatt_av_ai",
+            forOppdagelsesKilde = kant.OppdagelsesKilde, nyOppdagelsesKilde = oppdagelsesKilde,
+            grunn = "Maskinelt tolket lovtekst skal godkjennes av et menneske (Johann 2026-10-08, #312).",
+        });
+        kant.Status = "foreslatt_av_ai";
+        kant.OppdagelsesKilde = oppdagelsesKilde;
+        kant.SistEndretAv = endretAv;
+        kant.SistEndretTidspunkt = DateTimeOffset.UtcNow;
+        db.Proveniens.Add(proveniens);
+        await db.SaveChangesAsync(ct);
+        return kant;
+    }
+
     /// <summary>«Avvis» et forslag — ekte <c>Remove</c>, og BARE for <c>foreslatt_av_ai</c> (samme
     /// avgrensning som før #311: avvisning er for egne, ubekreftede forslag; sletting av en validert kant er
     /// <see cref="SlettAsync"/>).</summary>
