@@ -434,7 +434,7 @@ public sealed class RettskildeNodeEntitet
     public required string KildeId { get; set; } // source_id
     public string? OffisiellEli { get; set; } // nullable — §1.2, fylles ut hvis Lovdata publiserer seksjons-ELI
     public Guid? ParentNodeId { get; set; }
-    public required string NodeType { get; set; } // 'kapittel' | 'underinndeling' | 'paragraf' | 'ledd' | 'punkt'
+    public required string NodeType { get; set; } // 'kapittel' | 'underinndeling' | 'paragraf' | 'ledd' | 'punkt' | 'avslutning' (#361: tekst etter en punktliste; fri tekst, ingen CHECK)
     public string? Nummer { get; set; }
     public string? Overskrift { get; set; }
     public string? Tekst { get; set; } // kun ledd/punkt (bladtekst)
