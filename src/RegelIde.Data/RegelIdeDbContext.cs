@@ -216,10 +216,13 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                     "grunnlag IS NULL OR (kategori = 'K' AND grunnlag IN ('offentligrettslig', 'privatrettslig'))");
                 t.HasCheckConstraint("ck_strukturkanter_delegerbar", "delegerbar IS NULL OR kategori = 'K'");
                 // [Ny, issue #352] Undertype bare på K, og bare de undertypene typen har (Strukturkanter.Undertyper).
+                // [ENDRET, issue #355] + oppnevning: utnevning, konstitusjon; avsetting: avsetting, oppsigelse, avskjed; vedtak: tilbakekall.
                 t.HasCheckConstraint("ck_strukturkanter_undertype",
                     "undertype IS NULL OR (kategori = 'K' AND ("
-                    + "(typekode = 'oppnevning' AND undertype IN ('valg', 'ansettelse', 'utpeking', 'oppnevning')) "
-                    + "OR (typekode = 'overproving' AND undertype IN ('anke'))))");
+                    + "(typekode = 'oppnevning' AND undertype IN ('valg', 'ansettelse', 'utpeking', 'oppnevning', 'utnevning', 'konstitusjon')) "
+                    + "OR (typekode = 'avsetting' AND undertype IN ('avsetting', 'oppsigelse', 'avskjed')) "
+                    + "OR (typekode = 'overproving' AND undertype IN ('anke')) "
+                    + "OR (typekode = 'vedtak' AND undertype IN ('tilbakekall'))))");
                 // [Ny, issue #353, jf. L14] Modalitet bare på P (skal/kan/bør). NULL = ikke angitt.
                 t.HasCheckConstraint("ck_strukturkanter_modalitet",
                     "modalitet IS NULL OR (kategori = 'P' AND modalitet IN ('skal', 'kan', 'bor'))");

@@ -257,8 +257,12 @@ public sealed class KiStrukturkonverterer(
               kompetanse = MYNDIGHET: «A har kompetanse av typen X, eventuelt overfor B, når det gjelder Y». Klageinstans,
                 instruksjon, omgjøring, oppnevning, tilsyn med en aktør, avsetting, sanksjon og samtykke er kompetanse —
                 "til" = motparten (den det gjelder), ellers null med "objekt" satt. «X kan delegere» = delegeringskompetanse.
-                Å velge, ansette, utpeke eller oppnevne noen er oppnevningskompetanse med "undertype"; ankeinstans er
-                overprovingskompetanse med "undertype": "anke".
+                Å velge, ansette, utpeke, oppnevne, utnevne eller konstituere noen er oppnevningskompetanse med "undertype";
+                å avsette, si opp eller avskjedige er avsettingskompetanse med "undertype"; å tilbakekalle en tillatelse er
+                vedtakskompetanse med "undertype": "tilbakekall"; ankeinstans er overprovingskompetanse med "undertype": "anke".
+                Forelegging er IKKE en egen type: gir mottakeren en bindende avgjørelse (godkjenning, samtykke), er det mottakerens
+                kompetanse; gir mottakeren en rådgivende uttalelse, er det plikt/konsultasjonsplikt fra den som forelegger, med
+                "modalitet" ("kan"/"skal").
                 Forskrift er normgivningskompetanse med "normform": "forskrift". vedtakskompetanse betyr enkeltvedtak.
                 Kan du ikke avgjøre typen for et kompetanseuttrykk, bruk "{{Strukturkontrakt.Ukjent}}" — ikke gjett;
               plikt = PLIKT OVERFOR EN MOTPART: «A skal samarbeide med / inngå avtale med / dekke utgiftene / bistå / gi opplysninger
@@ -598,7 +602,7 @@ public sealed class KiStrukturkonverterer(
         // [Ny, issue #352] Undertypen: bare en undertype FORMAT.md-typen har (oppnevning: valg/ansettelse/utpeking/oppnevning;
         // overprøving: anke).
         if (undertype is not null && (kategori != "kompetanse" || !Strukturkontrakt.ErGyldigUndertype(type, undertype)))
-            return (null, Kast(KastetArsak.UgyldigFelt, $"undertype = «{undertype}» (bare på oppnevnings-/overprøvingskompetanse, lukket liste)."));
+            return (null, Kast(KastetArsak.UgyldigFelt, $"undertype = «{undertype}» (bare på oppnevnings-, avsettings-, overprøvings- og vedtakskompetanse, lukket liste)."));
         // [Ny, issue #353] Modaliteten: bare på plikt, lukket liste (skal/kan/bor).
         if (modalitet is not null && (kategori != "plikt" || !Strukturkontrakt.Modaliteter.Contains(modalitet)))
             return (null, Kast(KastetArsak.UgyldigFelt, $"modalitet = «{modalitet}» (bare på plikt: skal, kan, bor)."));

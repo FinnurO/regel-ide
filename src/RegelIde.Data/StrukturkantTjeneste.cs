@@ -36,7 +36,7 @@ public sealed record NyStrukturkant(
     string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null,
     // [Ny, issue #341, 2026-10-08] Bare på K — se StrukturkantEntitet.Normform/Grunnlag/Delegerbar. Null = ikke angitt.
     string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null,
-    // [Ny, issue #352] Bare på K oppnevning/overproving — se StrukturkantEntitet.Undertype. Null = ikke angitt.
+    // [Ny, issue #352] Bare på K oppnevning/overproving — se StrukturkantEntitet.Undertype. Null = ikke angitt. [ENDRET, #355] + avsetting og vedtak.
     string? Undertype = null,
     // [Ny, issue #353] Bare på P: skal | kan | bor — se StrukturkantEntitet.Modalitet. Null = ikke angitt.
     string? Modalitet = null);
