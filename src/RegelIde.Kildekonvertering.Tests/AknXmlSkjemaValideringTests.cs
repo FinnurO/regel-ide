@@ -136,7 +136,7 @@ public class AknXmlSkjemaValideringTests
 
     /// <summary>
     /// [Ny, avslutningsnode-runden, 2026-10-09, issue #361] De nye formene AknXmlSkriver bruker for
-    /// avslutningsnoder (&lt;list&gt; med &lt;intro&gt;/&lt;wrapUp&gt; i et ledd, i et punkt og direkte under
+    /// avslutningsnoder (&lt;list&gt; med &lt;wrapUp&gt; etter et ledd, etter et punkt og direkte under
     /// en paragraf, og flere lister i samme ledd) valideres mot det ekte skjemaet. Alkoholforskriften
     /// (§ 7-2, § 14-3 punkt 14) og forvaltningsloven (§ 18 d, § 28) over dekker ledd og punkt med én liste.
     /// </summary>

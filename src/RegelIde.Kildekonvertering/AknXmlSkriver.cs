@@ -308,20 +308,35 @@ public static class AknXmlSkriver
     }
 
     /// <summary>
-    /// [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Et ledd eller punkt med tekst etter en liste,
-    /// skrevet slik AKN modellerer det (hierarchy-typen: <c>intro?</c>, hierarkiske barn, <c>wrapUp?</c>):
+    /// [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Et ledd eller punkt med tekst etter en liste.
+    ///
+    /// <para>
+    /// <b>Konstruksjonen er AKN <c>&lt;list&gt;</c> med <c>&lt;wrapUp&gt;</c></b>, ikke <c>&lt;blockList&gt;</c>.
+    /// Verifisert mot det vendorede akomantoso30.xsd 2026-10-09: <c>&lt;list&gt;</c> er av typen
+    /// <c>hierarchy</c> (<c>intro?</c>, hierarkiske barn som <c>&lt;point&gt;</c>, <c>wrapUp?</c>), mens
+    /// <c>&lt;blockList&gt;</c> er et blokkelement med <c>listIntroduction?</c>, <c>item+</c>,
+    /// <c>listWrapUp?</c>. AknXmlSkriver har alltid skrevet punktlister som <c>&lt;list&gt;</c>/<c>&lt;point&gt;</c>,
+    /// så avslutningen blir <c>&lt;wrapUp&gt;</c> i den samme lista — ikke en blanding av de to.
+    /// </para>
+    ///
+    /// <para>
+    /// <b>Formen er den som allerede brukes for ledd med punkter</b>: nodens egen tekst (innledningen) i
+    /// <c>&lt;content&gt;&lt;p&gt;</c>, og lista som SØSKEN etter noden. Den eneste endringen er at lista får en
+    /// <c>&lt;wrapUp&gt;</c>, og at det blir én <c>&lt;list&gt;</c> per liste i kilden når teksten står mellom dem:
     /// <code>
-    /// &lt;paragraph eId="…/ledd-2"&gt;&lt;num/&gt;
-    ///   &lt;list&gt;&lt;intro&gt;&lt;p&gt;innledning&lt;/p&gt;&lt;/intro&gt;
-    ///     &lt;point/&gt;…&lt;wrapUp eId="…/ledd-2/avslutning"&gt;&lt;p&gt;avslutning&lt;/p&gt;&lt;/wrapUp&gt;
-    ///   &lt;/list&gt;
-    ///   &lt;list&gt;&lt;point/&gt;…&lt;wrapUp eId="…/ledd-2/avslutning-2"&gt;…&lt;/wrapUp&gt;&lt;/list&gt;
-    /// &lt;/paragraph&gt;
+    /// &lt;paragraph eId="…/ledd-2"&gt;&lt;num/&gt;&lt;content&gt;&lt;p&gt;innledning&lt;/p&gt;&lt;/content&gt;&lt;/paragraph&gt;
+    /// &lt;list&gt;&lt;point/&gt;…&lt;wrapUp eId="…/ledd-2/avslutning"&gt;&lt;p&gt;avslutning&lt;/p&gt;&lt;/wrapUp&gt;&lt;/list&gt;
+    /// &lt;list&gt;&lt;point/&gt;…&lt;wrapUp eId="…/ledd-2/avslutning-2"&gt;…&lt;/wrapUp&gt;&lt;/list&gt;
     /// </code>
-    /// Én &lt;list&gt; per liste i kilden. Innledningen (nodens egen tekst) er &lt;intro&gt; i den første
-    /// lista; teksten mellom to lister er &lt;wrapUp&gt; i den første av dem. Ingen tekst dupliseres.
-    /// <paramref name="ekstraInnhold"/> (paragrafens fotnoter) havner i den siste &lt;p&gt;-en som skrives,
-    /// slik at fotnoten fortsatt står sist i paragrafens tekstflyt.
+    /// Innledningen skrives IKKE som <c>&lt;intro&gt;</c>: i søskenformen ville det enten duplisert teksten
+    /// eller tømt <c>&lt;paragraph&gt;</c> (som da må ha innhold). <c>&lt;intro&gt;</c> hører sammen med å flytte
+    /// lista INN i <c>&lt;paragraph&gt;</c>, og det er meldt som egen sak, ikke gjort her (standardgjennomgangen
+    /// av #361, 2026-10-09). For et punkt med avslutning skrives underpunktene og avslutningen på samme
+    /// måte, som en søsken-<c>&lt;list&gt;</c> etter punktet inne i den omsluttende lista (en <c>&lt;list&gt;</c> er
+    /// selv et hierarkisk element og er lovlig der).
+    /// </para>
+    ///
+    /// <para><paramref name="ekstraInnhold"/> (paragrafens fotnoter) står i nodens egen &lt;p&gt;, som før.</para>
     /// </summary>
     private static void SkrivMedListe(
         StringBuilder sb, IReadOnlyList<RettskildeNode> alleNoder, string tag, RettskildeNode node,
@@ -329,32 +344,26 @@ public static class AknXmlSkriver
     {
         sb.Append($"<{tag} eId=\"{Escape(node.Eid)}\" regelIde:kildeId=\"{Escape(node.KildeId)}\">");
         sb.Append($"<num>{Escape(node.Nummer ?? "")}</num>");
+        sb.Append("<content>").Append("<p>").Append(SkrivSegmenter(node.Segmenter));
+        if (ekstraInnhold is not null) sb.Append(ekstraInnhold);
+        sb.Append("</p>").Append("</content>");
+        sb.Append($"</{tag}>");
 
-        var grupper = GrupperEtterAvslutning(barn);
-        for (var g = 0; g < grupper.Count; g++)
+        foreach (var (punkter, avslutning) in GrupperEtterAvslutning(barn))
         {
-            var (punkter, avslutning) = grupper[g];
-            var erSisteGruppe = g == grupper.Count - 1;
             sb.Append("<list>");
-            if (g == 0)
+            foreach (var punkt in punkter)
             {
-                sb.Append("<intro><p>").Append(SkrivSegmenter(node.Segmenter)).Append("</p></intro>");
-            }
-            for (var i = 0; i < punkter.Count; i++)
-            {
-                var erSistePunkt = erSisteGruppe && avslutning is null && i == punkter.Count - 1;
-                SkrivPunkt(sb, alleNoder, punkter[i], erSistePunkt ? ekstraInnhold : null);
+                SkrivPunkt(sb, alleNoder, punkt, ekstraInnhold: null);
             }
             if (avslutning is not null)
             {
                 sb.Append($"<wrapUp eId=\"{Escape(avslutning.Eid)}\" regelIde:kildeId=\"{Escape(avslutning.KildeId)}\"><p>");
                 sb.Append(SkrivSegmenter(avslutning.Segmenter));
-                if (erSisteGruppe && ekstraInnhold is not null) sb.Append(ekstraInnhold);
                 sb.Append("</p></wrapUp>");
             }
             sb.Append("</list>");
         }
-        sb.Append($"</{tag}>");
     }
 
     /// <summary>
