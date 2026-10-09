@@ -94,6 +94,18 @@ Akoma Ntoso (OASIS LegalDocML) krever en FRBR-basert metadatablokk (Work/Express
 | Paragraf | `{lov-eli}/§1-1` |
 | Ledd | `{paragraf-eId}/ledd-1` |
 | Punkt | `{ledd-eId}/punkt-1` |
+| Avslutning (tekst etter en punktliste) | `{ledd-eId}/avslutning`, `/avslutning-2` … — se under |
+
+**Avslutning** [Ny, 2026-10-09, issue #361, beslutning Johann]: tekst som står ETTER en punktliste i et ledd
+eller punkt (`<p class="leddfortsettelse">`, løs tekst, eller et nestet ledd etter lista) er en egen node
+med `node_type='avslutning'`, AKN `<wrapUp>`. Forelderen er leddet eller punktet lista står i, eller
+paragrafen når lista står direkte under paragrafen (`{paragraf-eId}/avslutning`). Den første heter
+`avslutning`, de neste `avslutning-2`, `avslutning-3` … (ett ledd med flere lister, tekst etter hver), i
+dokumentrekkefølge. Noden sorteres etter punktene den avslutter. Leddets egen `tekst` er da bare
+innledningen; lovteksten er ordrett og har ingen plassholder der lista sto. Før #361 ble avslutningen limt
+inn i leddteksten («… samt i Første punktum gjelder likevel …», energiloven § 10-2 annet ledd).
+Tabeller gir ikke avslutningsnode: de flates ut på stedet de står, så teksten etter dem står allerede i
+riktig rekkefølge.
 
 **Migreringsvei dersom Lovdata senere publiserer offisiell seksjons-ELI:** `rettskilde_noder.offisiell_eli` (§2) fylles ut da, som et rent tillegg — `eid` endres ikke. Dette er den samme append-only-migreringsstrategien som §1.1 beskriver for URI-formatendringer generelt: en ekstern endring legger til informasjon, den omskriver ikke identitet som allerede er i bruk.
 
@@ -321,6 +333,7 @@ Transformasjonen fra Lovdata-kildet innhold til AKN skal være **referansielt tr
    - `<article class="legalArticle">` → `node_type='paragraf'`, `nummer` fra `legalArticleValue`, `overskrift` fra `legalArticleTitle`.
    - Nøstet `<article class="legalP">` → `node_type='ledd'`, `tekst` = tekstinnhold med `<a href="lov/…">` bevart som markører for steg 6.
    - `<li><article class="listArticle">` → `node_type='punkt'`.
+   - Tekst etter en `<ul>`/`<ol>` i et ledd/punkt → `node_type='avslutning'` (§1.2, issue #361).
    - `<article class="changesToParent">` → skriv en `proveniens`-rad (`handling='endret'`), ikke en tekstnode.
 6. **Kryssreferanser** — for hver `<a href="lov/…">`/`<a href="forskrift/…">` i selve løpeteksten (ikke header-metadata som «Endrer»/EØS-henvisninger, jf. Vedlegg A.7):
    - Samme rettskilde → intern referanse, `til_eid` i samme dokument.
