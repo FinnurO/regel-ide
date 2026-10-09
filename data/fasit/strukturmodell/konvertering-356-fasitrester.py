@@ -419,7 +419,8 @@ RETTING = {
     ("spesialisthelsetjenesteloven", "u51", "Eiere utøver den øverste myndighet i foretak i foretaksmøte"): {
         "kategori": "kompetanse", "type": "beslutningskompetanse", "fra": "a24", "til": "a5",
         "avgrensning": "i foretaksmøte — eier kan ikke utøve eierstyring utenom foretaksmøte (§ 16 første ledd annet punktum); unntatt "
-                       "bevilgning og vilkår for tildelingen, som kan gis utenfor foretaksmøte (§ 16 tredje ledd, u55)",
+                       "bevilgning og vilkår for tildelingen, som kan gis utenfor foretaksmøte (§ 16 tredje ledd; vilkårene står som egen "
+                       "kompetanse «sette vilkår for tildelingen», bevilgningen som senere lag i u55)",
         "+kommentar": "[#356, kort nr. 50] u53 («Eier kan ikke utøve eierstyring i foretak utenom foretaksmøte») gjentok denne raden som negasjon "
                       "og er slått inn i avgrensningen. Var relasjon/annet:utover_myndighet_gjennom eier → foretaksmøtet; foretaksmøtet som "
                       "organ står i u52 (har_organ)."},
@@ -764,6 +765,13 @@ JURIST_356 = {
     ("spesialisthelsetjenesteloven", "u203", "Den kliniske etikkomiteen skal utføre sine oppgaver uavhengig og selvstendig"): {
         "kommentar!": "[slutning] Instruksjonsforbudet er utledet av «uavhengig og selvstendig»; teksten nevner ingen avsender. [#356, v5 "
                       "punkt 9, lærdom 5] Uavhengighetsutsagn: fra = null (enhver). Helseforetaket var tolket inn som avsender."},
+    ("spesialisthelsetjenesteloven", "u51", "Eiere utøver den øverste myndighet i foretak i foretaksmøte"): {
+        "+kommentar": f"{J} Åpent valg for hovedøkta/Johann: eierstyring i foretaksmøtet står her som beslutningskompetanse (kort nr. 50), men "
+                      f"u56 (§ 16 fjerde ledd) er instruksjonskompetanse for samme kanal. Én familie må velges for u51, u56 og vilkårsraden."},
+    ("spesialisthelsetjenesteloven", "u56", "Departementet skal årlig avholde foretaksmøte i løpet av årets to første måneder for å fastsette "
+                                            "økonomiske og organisatoriske krav og rammer for regionale helseforetak"): {
+        "+kommentar": f"{J} Åpent valg for hovedøkta/Johann: instruksjonskompetanse her, men u51 (§ 16 første ledd, kort nr. 50) er "
+                      f"beslutningskompetanse for samme kanal. Én familie må velges."},
     ("spesialisthelsetjenesteloven", "u134", "Virksomhet som yter spesialisthelsetjenester skal organiseres som helseforetak"): {
         "fra": "a52", "til": None, "objekt": "organisasjonsform: helseforetak",
         "+kommentar": f"{J} Samme oppsett som u305: virksomheten er fra og organisasjonsformen objekt. Var fra = null, til = Helseforetaket."},

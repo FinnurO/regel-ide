@@ -2204,11 +2204,11 @@
       "til": "a5",
       "objekt": null,
       "polaritet": "positiv",
-      "avgrensning": "i foretaksmøte — eier kan ikke utøve eierstyring utenom foretaksmøte (§ 16 første ledd annet punktum); unntatt bevilgning og vilkår for tildelingen, som kan gis utenfor foretaksmøte (§ 16 tredje ledd, u55)",
+      "avgrensning": "i foretaksmøte — eier kan ikke utøve eierstyring utenom foretaksmøte (§ 16 første ledd annet punktum); unntatt bevilgning og vilkår for tildelingen, som kan gis utenfor foretaksmøte (§ 16 tredje ledd; vilkårene står som egen kompetanse «sette vilkår for tildelingen», bevilgningen som senere lag i u55)",
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Eieren handler gjennom organet foretaksmøtet; foretaksmøtet er foretakets øverste organ. [#356, kort nr. 50] u53 («Eier kan ikke utøve eierstyring i foretak utenom foretaksmøte») gjentok denne raden som negasjon og er slått inn i avgrensningen. Var relasjon/annet:utover_myndighet_gjennom eier → foretaksmøtet; foretaksmøtet som organ står i u52 (har_organ)."
+      "kommentar": "Eieren handler gjennom organet foretaksmøtet; foretaksmøtet er foretakets øverste organ. [#356, juristrunden] Åpent valg for hovedøkta/Johann: eierstyring i foretaksmøtet står her som beslutningskompetanse (kort nr. 50), men u56 (§ 16 fjerde ledd) er instruksjonskompetanse for samme kanal. Én familie må velges for u51, u56 og vilkårsraden."
     },
     {
       "id": "u52",
@@ -2272,7 +2272,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Departementet i eierrolle."
+      "kommentar": "Departementet i eierrolle. [#356, juristrunden] Åpent valg for hovedøkta/Johann: instruksjonskompetanse her, men u51 (§ 16 første ledd, kort nr. 50) er beslutningskompetanse for samme kanal. Én familie må velges."
     },
     {
       "id": "u57",

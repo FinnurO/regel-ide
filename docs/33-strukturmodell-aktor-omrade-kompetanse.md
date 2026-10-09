@@ -444,6 +444,53 @@ avsettingen (undertype avsetting, fra = null som u93); vilkårene står i avgren
 Prediksjonene er uendret (934 mønster, 1 043 KI); fallet i gjenfinning er bare at fasiten fikk elleve rader. Leksikonet (versjon
 2026-10-09.3) har undertypene med verb og ordstammer; ingen nye mønster-regex er lagt til (ingen målt form med høy nok presisjon).
 
+**[Bygget, issue #356 «konverteringsrester etter #341/#352», 2026-10-09]**
+
+Fasitkontrollen (#309, gjennomgang v5) fant regler som var besluttet, men ikke slo til, og juristdebatten om fasitkortene ga 35 kort
+(17 i #356, 18 i #309). Rettelsen er REGLER i `konvertering-356-fasitrester.py` (deterministisk, idempotent, også på `ki-utdata/`), ikke
+håndrettede rader. Ingen modellendring og ingen migrasjon:
+
+- *Oppretting og avvikling* (R1): konstituerende/oppretter eller avvikler med kompetanseordlyd («kan opprette/nedsette», «maa ikke
+  nedsættes», «treffer vedtak om å opprette/oppløsning», «avgjør om … etablere») er K `oppretting`/`avvikling` (#352 beslutning 4).
+  Hendelsen og plikten («skal opprette») står. 10 rader i fasiten, 3 i KI-utdataene (og 1 til oppnevning etter R2).
+- *«Det kan oppnevnes»* (R2) er K `oppnevning`/`oppnevning` med fra = null, ikke G `har_medlemmer`.
+- *«… kan ikke delegeres»* (R3): `delegerbar = false` på kompetansene i paragrafene loven nevner (sameloven § 2-12 fjerde ledd → §§ 2-9,
+  2-10, 2-14). Tekstfunn, ikke slutning; skillet på feltet er #335. Den doble «X selv»-raden (hotl. u62) er slettet (R4).
+- *«beslutningsmyndighet»* gir K `beslutning` (R5). Interne foretaksbeslutninger, fordeling mellom RHF-er, avtaleinngåelse mellom
+  offentlige rettssubjekter og «øverste valgmyndighet» er også `beslutning` (kort og juristrunden). Leksikonregelen «X avgjør» er
+  gjennomgått og står: 4 av 7 prediksjoner treffer et enkeltvedtak i fasiten (57 %), og verbet alene skiller ikke enkeltvedtak fra
+  beslutning — en type som ikke kan leses av ordlyden, gjettes ikke av mønsterlaget.
+- *Unntak i et delegeringsvedtak er avgrensning* (R6): de 13 negative `har_delegert_til`-radene i energilovens delegeringsvedtak er
+  slettet, og unntakene står i avgrensningen på den positive kanten med hjemmelsstedet («FOR-2025-06-26-1340 kap. I femte ledd»). Uten
+  en positiv kant blir raden stående og listes (0). I KI-utdataene: 1.
+- *Gjennomført delegering* (R0, R7): `delegeringskompetanse` i et ledsagende delegeringsvedtak med «delegerer/delegeres» er R
+  `har_delegert_til` (KI-utdataene: 7 rader). «Delegeringen omfatter myndigheten til å endre og oppheve forskrift …» er delegeringens
+  rekkevidde (kort nr. 8), ikke departementets egen normgivning.
+- *Negasjon som gjentar en positiv rad* føres som avgrensning (kort nr. 30, 50, 62): Tilsynsutvalget («kan ikke vurdere forhold som kan
+  overprøves …») har avgrensningen på alle sine kanter; eierstyring i foretaksmøte (hfl § 16) er én kant med unntaket for vilkår ved
+  bevilgning som egen kompetanse.
+- `kilde_utenfor_korpus` gjelder hjemmelen (lærdom 1): 48 forskriftshjemler i spesialisthelsetjenesteloven-fasiten rettet.
+
+*Juristrunden (CLAUDE.md §23):* to agenter vurderte 74 kort (33 regelendringer, 41 kortrettinger): 51 holdt, 23 fikk innvending (19 lav,
+4 middels). 21 er akseptert og bygget inn som regel 10; to er delvis akseptert, og juristen godtok begge i runde 2, så ingen uenighet går
+til Johann: oppløsningsverdien for en forskrift i korpuset mangler i formatet (lærdom 2 — egen sak; «ukjent» ville vært en ny feil), og
+familien for eierstyring i foretaksmøtet (u51 beslutning mot u56 instruksjon) er et åpent valg for hovedøkta, merket på begge radene.
+
+| Måling (samme treffregel, samme utdata) | Før #356 | Etter #356 |
+|---|---:|---:|
+| Fasitutsagn | 1 809 | 1 802 |
+| KI-utsagn | 1 043 | 1 042 |
+| Mønster alle: P / G | 92,7 / 47,9 % | 92,5 / 47,9 % |
+| Mønster K (fasit 582 → 596): P / G | 88,0 / 49,0 % | 87,3 / 47,5 % |
+| KI alle: P / G | 36,5 / 21,1 % | 36,8 / 21,3 % |
+| Union alle: P / G | 58,2 / 55,4 % | 58,2 / 55,6 % |
+| designtest.py revidert ja / senere lag | 1 728 / 60 | 1 720 / 61 |
+
+Mønsterprediksjonene er uendret (934). Presisjonen faller fordi fasiten nå sier beslutning eller sanksjon der mønstrene `vedtak-treffe` og
+`vedtak-avgjor` sier vedtak (domstolloven § 236, spesialisthelsetjenesteloven § 5-1). KI-laget vinner på R: `har_delegert_til` i
+KI-utdataene treffer nå fasiten. Lokal `regelide` har ingen kanter som rettingene gjelder (målt 2026-10-09: 1 261 kanter, ingen K
+oppretting/vedtak/delegering eller R `har_delegert_til`), så ingen dataoppdatering.
+
 *Fvl-kategori — på typen, ikke på kanten:* `forskrift | enkeltvedtak | ikke_vedtak` (forvaltningsloven § 2: vedtak =
 forskrift + enkeltvedtak). Det er en egenskap ved hva slags kompetanse det er (alle vedtakskompetanser er enkeltvedtak), så
 den står på typen. Unntaket er normgivning, der normformen avgjør: `normform = forskrift` gir fvl-kategori `forskrift`
@@ -883,6 +930,8 @@ gruppebegrep («forskriftsmyndighet etter § X»), men uten at kompetansetypen b
 
 [ENDRET, issue #312] Etter fasitrettelsen gir `designtest.py` 1 797 utsagn, revidert ja 91 % (1 640), delvis 1 %,
 senere lag 8 %; domstolloven 739 strukturutsagn, revidert ja 100 %.
+
+[ENDRET, issue #356] Etter konverteringen for #356 (med juristrunden): 1 802 utsagn, revidert ja 95 % (1 720), delvis 21, senere lag 61 (+ «avtalene kan ikke overdras», avtalens innhold).
 
 [ENDRET, issue #355] Etter konverteringen for #355: 1 809 utsagn, revidert ja 96 % (1 728), senere lag 60 (+ ankeadgang u102/u108).
 

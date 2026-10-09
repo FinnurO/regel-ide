@@ -57,3 +57,10 @@ Målegrunnlaget for `docs/33-strukturmodell-aktor-omrade-kompetanse.md`.
   u275 med tingrettene som motpart; foreleggingskompetanse (u117, u118) → plikt/konsultasjonsplikt (kan) med ny negativ anke-rad for
   § 51 a; u22/u165 → del_av; og juristrundens 16 rettinger (regel 10). Domstolloven har dermed 774 utsagn og spesialisthelsetjenesteloven
   304 (fasiten 1 798 → 1 809).
+- **#356 — konverteringsrester etter #341/#352 (2026-10-09).** `konvertering-356-fasitrester.py` (deterministisk, idempotent, også på
+  `ki-utdata/`): oppretting/avvikling med kompetanseordlyd → kompetanse; «Det kan oppnevnes» → oppnevning; «kan ikke delegeres» →
+  delegerbar = false; «beslutningsmyndighet» → beslutning; de 13 negative unntaksradene i energilovens delegeringsvedtak er avgrensning på
+  den positive kanten; gjennomført delegering i KI-utdataene → har_delegert_til; juristkortene fra #356 og #309 og juristrundens 21
+  aksepterte rettinger (regel 10). Fasiten 1 809 → 1 802 (domstolloven 778, energiloven 241, helse- og omsorgstjenesteloven 191, sameloven
+  286, spesialisthelsetjenesteloven 306), KI-utdata 1 043 → 1 042. Nye aktører: helse- og omsorgstjenesteloven a64, a65;
+  spesialisthelsetjenesteloven a71.
