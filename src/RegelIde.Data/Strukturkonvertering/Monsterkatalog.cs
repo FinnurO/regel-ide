@@ -53,6 +53,17 @@ internal static class Monsterkatalog
     // som siterer lovens dato — «Kongens myndighet etter lov 13. august 1915 nr. 5 … delegeres til …».
     private const string Fritt = @"(?:[^.;]|\.(?=\s*\(?[\p{Ll}\d]))";
 
+    // [Ny, issue #353] Modalverbet i en plikt, fanget i gruppen «modal» (L14: modaliteten bevares). «plikter å» og «har plikt
+    // til å» er «skal». Valgfritt «selv» før og et adverb/«uten hinder av taushetsplikt» etter.
+    private const string PliktModal =
+        @"\s+(?:selv\s+)?(?<modal>skal|kan|bør|plikter\s+å|har\s+plikt\s+til\s+å)\s+(?:også\s+|dessuten\s+|likevel\s+|uten\s+hinder\s+av\s+(?:lovbestemt\s+)?taushetsplikt,?\s+)?";
+
+    // [Ny, issue #353] En motpart/et pliktsubjekt etter «med/til/fra/av»: frasen fram til første grense (tegnsetting, «om», «for
+    // å», «når», «dersom», «i samsvar», «jf», «eller med» …). Lengre fraser enn Etter() fordi motparten i en plikt ofte er en
+    // beskrivelse («det regionale helseforetaket i helseregionen»); Aktorfrase.Tolk avviser over seks ord og alt med verb.
+    private static string Frase(string gruppe) =>
+        $@"(?<{gruppe}>[^.;,:()«»]{{1,120}}?)(?=\s+(?:om|for\s+å|før|når|dersom|slik|som|i\s+samsvar|ved|etter|jf|under|innen|til|der|hvor|(?:og|eller)\s+med)\b|\s*[.;,:(]|$)";
+
     private const string Tall =
         @"(?:\d+|to|tre|fire|fem|seks|sju|syv|åtte|ni|ti|elleve|tolv|tretten|fjorten|femten|seksten|sytten|atten|nitten|tjue)";
 
@@ -225,6 +236,48 @@ internal static class Monsterkatalog
             "Ikke målt i docs/33 §1. Tatt med etter Johanns beslutning 3 på #341 («samordne» → samordning).",
             new RegexMonsteroppsett(KreverFra: true),
             Start + Subjekt + Modal + @"(?:[^.;:]{0,60}?\s+og\s+)?(?<obj>samordne\b)"),
+
+        // ---- [Ny, issue #353] P plikt overfor motpart (Johanns godkjenning 2026-10-08) -------------------------------
+        // Modaliteten tas fra modalverbet (gruppen «modal», L14). Motparten er frasen etter «med/til/fra» fram til første
+        // grense; Aktorfrase.Tolk avviser det som ikke kan være en aktør. Gjensidighet sluttes aldri: ett utsagn per subjekt.
+        Regex("plikt-samarbeide",
+            "«X skal/kan/bør samarbeide med Y», «X plikter å samarbeide med Y», og omvendt ordstilling («skal kommunen samarbeide med …»). Y = null når frasen ikke kan være en aktør («med andre»).",
+            "docs/33 §1: «samarbeider med» 966 treff, 40 % presisjon (oppgavebundet, generisk motpart). Tatt inn etter Johanns godkjenning av #353 (energiloven:u27).",
+            new RegexMonsteroppsett(KreverFra: true),
+            Start + Subjekt + PliktModal + @"samarbeide\s+med\s+" + Frase("til"),
+            @"\b(?<modal>skal|kan|bør)\s+" + SubjektOmvendt + @"\s+(?:også\s+)?samarbeide\s+med\s+" + Frase("til")),
+
+        Regex("plikt-inngaa-avtale",
+            "«X skal inngå (samarbeids)avtale med Y», og omvendt ordstilling.",
+            "Ikke målt i docs/33 §1. Tatt inn etter Johanns godkjenning av #353 (helse- og omsorgstjenesteloven § 6-1, a44): avtaleplikten er en P-kant; den inngåtte avtalen er en ekstern kilde (#340).",
+            new RegexMonsteroppsett(KreverFra: true),
+            Start + Subjekt + PliktModal + @"inngå\s+(?:en\s+)?\p{L}*avtaler?\s+med\s+" + Frase("til"),
+            @"\b(?<modal>skal|kan|bør)\s+" + SubjektOmvendt + @"\s+inngå\s+(?:en\s+)?\p{L}*avtaler?\s+med\s+" + Frase("til")),
+
+        Regex("plikt-dekkes-av",
+            "«(Utgiftene til …) skal dekkes av X», «X skal dekke (behandlings-) utgift(er/ene) …», «X dekker utgiftene …» (presens: modalitet null). Betalingsmottakeren settes ALDRI: «utgiftene til X» sier ikke hvem som får pengene (til = null).",
+            "Ikke målt i docs/33 §1 (finansiering sto utenfor strukturlaget til #353). Tatt inn etter Johanns godkjenning av #353 (spesialisthelsetjenesteloven:u269, a39).",
+            new RegexMonsteroppsett(KreverFra: true, ObjektForan: true, AlleUttrykk: true),
+            @"\b(?:(?<modal>skal|kan|bør)\s+(?:de\s+|disse\s+)?(?:også\s+)?)?dekkes\s+(?:også\s+|bare\s+)?av\s+" + Frase("fra")),
+
+        Regex("plikt-dekke-utgifter",
+            "«X skal dekke (behandlings- og forpleinings)utgift(er/ene) …», «X dekker utgiftene …» (presens: modalitet null). Til = null (som plikt-dekkes-av).",
+            "Ikke målt i docs/33 §1. Den aktive formen av plikt-dekkes-av, samme leksikonregel-familie (betalingsplikt).",
+            new RegexMonsteroppsett(KreverFra: true),
+            Start + Subjekt + "(?:" + PliktModal + @"dekke|\s+dekker)\s+(?<obj>(?:[\p{L}\-]+\s+){0,4}?[\p{L}\-]*utgift\p{L}*)"),
+
+        Regex("plikt-gi-opplysninger",
+            "«X skal/plikter å gi (nødvendige) opplysninger (om …) til Y», «… utlevere informasjon til Y». Y påkrevd.",
+            "Ikke målt i docs/33 §1 (informasjonsdeling sto utenfor strukturlaget til #353). Tatt inn etter Johanns godkjenning av #353 (energiloven:u201).",
+            new RegexMonsteroppsett(KreverFra: true, KreverTil: true),
+            Start + Subjekt + PliktModal + @"(?:gi|utlevere)\s+(?:(?:nødvendige|de|alle|slike|relevante|disse)\s+){0,2}(?:opplysninger|informasjon)(?:\s+om\s+[^.;,]{1,80}?)?\s+til\s+" + Frase("til")),
+
+        Regex("plikt-innhente-uttalelse",
+            "«X skal innhente (rådgivende) uttalelse(r) fra Y», og omvendt ordstilling. Y påkrevd («innhente uttalelser» uten «fra» er saksforberedelse, som står utenfor, docs/33 §4.4).",
+            "Ikke målt i docs/33 §1. Tatt inn etter Johanns godkjenning av #353 (konsultasjonsplikt).",
+            new RegexMonsteroppsett(KreverFra: true, KreverTil: true),
+            Start + Subjekt + PliktModal + @"innhente\s+(?:\p{L}+\s+){0,2}?uttalelser?n?\s+fra\s+" + Frase("til"),
+            @"\b(?<modal>skal|kan|bør)\s+" + SubjektOmvendt + @"\s+innhente\s+(?:\p{L}+\s+){0,2}?uttalelser?n?\s+fra\s+" + Frase("til")),
 
         // ---- A har_sete_i -------------------------------------------------------------------------
         Regex("har-sete-i",

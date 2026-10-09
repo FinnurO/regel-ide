@@ -142,6 +142,41 @@ public class KompetanseleksikonTests
         Assert.Equal("oppnevning", u.Undertype);
     }
 
+    /// <summary>[Ny, issue #353] De fem pliktuttrykkene i saken gir plikt med riktig type, retning og modalitet — og
+    /// betalingsmottakeren settes aldri.</summary>
+    [Theory]
+    [InlineData("Reguleringsmyndigheten skal samarbeide med andre lands reguleringsmyndigheter og internasjonale institusjoner.",
+        "samarbeidsplikt", "Reguleringsmyndigheten", "andre lands reguleringsmyndigheter|internasjonale institusjoner", "skal")]
+    [InlineData("Kommunestyret selv skal inngå samarbeidsavtale med det regionale helseforetaket i helseregionen eller med helseforetak som det regionale helseforetaket bestemmer.",
+        "avtaleplikt", "Kommunestyret", "det regionale helseforetaket i helseregionen", "skal")]
+    [InlineData("Det regionale helseforetakets behandlingsutgifter skal dekkes av det regionale helseforetaket i pasientens bostedsregion, jf. § 5-1.",
+        "betalingsplikt", "det regionale helseforetaket i pasientens bostedsregion", null, "skal")]
+    [InlineData("Folketrygden skal dekke behandlings- og forpleiningsutgifter for pasient som ikke har bosted i riket.",
+        "betalingsplikt", "Folketrygden", null, "skal")]
+    [InlineData("Staten dekker utgiftene til kontrollkommisjonenes virksomhet.", "betalingsplikt", "Staten", null, null)]
+    [InlineData("Systemansvarlig skal gi opplysninger til reguleringsmyndigheten.", "informasjonsplikt", "Systemansvarlig", "reguleringsmyndigheten", "skal")]
+    [InlineData("Kommunen bør innhente uttalelse fra Sametinget før vedtak treffes.", "konsultasjonsplikt", "Kommunen", "Sametinget", "bor")]
+    [InlineData("Kommunen kan samarbeide med andre kommuner om ansettelse av kommunelege.", "samarbeidsplikt", "Kommunen", "andre kommuner", "kan")]
+    public void Pliktuttrykkene_gir_plikt_med_modalitet(string tekst, string type, string fra, string? til, string? modalitet)
+    {
+        var d = Konverter(tekst);
+        var utsagn = d.Utsagn.Where(u => u.Type == type).ToList();
+        Assert.NotEmpty(utsagn);
+        Assert.All(utsagn, u => Assert.Equal(("plikt", modalitet), (u.Kategori, u.Modalitet)));
+        Assert.All(utsagn, u => Assert.Equal(fra, d.Aktorer.Single(a => a.Id == u.Fra).Tekstform));
+        var tilFormer = utsagn.Select(u => u.Til is null ? null : d.Aktorer.Single(a => a.Id == u.Til).Tekstform).ToList();
+        Assert.Equal(til?.Split('|') ?? [null], tilFormer);
+        // Én kant per subjekt — aldri en motsatt kant (gjensidighet sluttes ikke).
+        Assert.DoesNotContain(d.Utsagn, u => u.Kategori == "plikt" && u.Fra is not null && d.Aktorer.Single(a => a.Id == u.Fra).Tekstform != fra);
+    }
+
+    [Fact]
+    public void Innhente_uttalelse_uten_fra_er_saksforberedelse_og_gir_ingen_plikt()
+    {
+        var d = Konverter("Før det fattes vedtak, skal departementet innhente rådgivende uttalelser.");
+        Assert.DoesNotContain(d.Utsagn, u => u.Kategori == "plikt");
+    }
+
     private static Strukturdokument Konverter(string tekst) =>
         new MonsterStrukturkonverterer().Konverter(new Strukturkonverteringsgrunnlag("test", "https://lovdata.no/eli/lov/test/nor",
             [new Strukturnode("test", "https://lovdata.no/eli/lov/test/nor", "https://lovdata.no/eli/lov/test/nor/§1/ledd-1", "ledd", null, tekst)]));

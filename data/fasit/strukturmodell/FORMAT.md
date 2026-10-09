@@ -43,7 +43,8 @@ annoteres — det sier hvem som har hvilken myndighet.
   "varianter": ["statsforvalteren", "statsforvaltaren"],
   "eid_eksempler": ["kapittel-2/paragraf-2-1/ledd-1", "..."],   // inntil 5
   "antall_forekomster": 12,                  // ca., i denne kilden
-  "entitetstype": "rettssubjekt" | "organ" | "organisatorisk_enhet" | "rolle" | "person" | "omrade" | "klasse" | "annet:<x>",
+  "entitetstype": "rettssubjekt" | "organ" | "organisatorisk_enhet" | "rolle" | "person" | "omrade" | "klasse" | "ordning" | "annet:<x>",
+  "undertype": "trygdeordning" | "fond" | "tilskuddsordning",  // [Ny, #353] KUN på entitetstype ordning. Utelatt/null = ikke angitt
   "navngitt": true | false,                  // true = peker på én bestemt (Sametinget, NVE); false = generisk (kommunen, statsforvalteren, departementet)
   "referent": "<konkret navn>" | null,       // kun hvis teksten ALENE avgjør det
   "oppløsning": "tekstlig" | "lovens_departement" | "foregaende_ledd" | "omrade" | "saksforhold" | "forskrift_utenfor" | "ukjent",
@@ -60,6 +61,10 @@ Veiledning `entitetstype`:
   behandlingsansvarlig, «forvaltningsmyndigheten»).
 - klasse: en kategori av subjekter («kommuner i forvaltningsområdet», «språkutviklingskommuner»).
 - omrade: geografisk/jurisdiksjonelt område (domssogn, lagdømme, forvaltningsområdet, helseregion, fylke).
+- ordning ([Ny, #353]): en IKKE-AKTØR som rettskilden gir en funksjon — folketrygden (undertype trygdeordning), et fond
+  (Energifondet), en tilskuddsordning. Den forvaltes av et organ (relasjon `forvaltes_av`), kan tilhøre et rettssubjekt
+  (organsammensetning `tilhorer`, BARE når en bestemmelse sier det) og kan være pliktsubjekt («Folketrygden skal dekke …»).
+  Rettstekstens subjekt er ikke nødvendigvis modellens rettssubjekt.
 Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt og område).
 
 ### `utsagn` — ett innslag per strukturelt utsagn
@@ -68,7 +73,7 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
   "id": "u1",
   "eid": "<node-eid>",
   "sitat": "<eksakt delstreng, maks ~30 ord>",
-  "kategori": "relasjon" | "kompetanse" | "medlemskap" | "sammensetning_omrade" | "ansvarsomrade" | "konstituerende" | "organsammensetning" | "annet:<x>",
+  "kategori": "relasjon" | "kompetanse" | "plikt" | "medlemskap" | "sammensetning_omrade" | "ansvarsomrade" | "konstituerende" | "organsammensetning" | "annet:<x>",
   "type": "<se lister under>",
   "fra": "a1",                // aktør-id (eller null hvis ikke i teksten)
   "til": "a2",                // aktør-id ELLER null. [ENDRET, #341] For kompetanse: MOTPARTEN («A har klagekompetanse
@@ -81,6 +86,9 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
                               // KUN på oppnevningskompetanse (valg/ansettelse/utpeking/oppnevning — verbet «velger»,
                               // «ansetter», «utpeker», «oppnevner») og overprovingskompetanse (anke). Utelatt/null = ikke angitt.
                               // Verbene og ordstammene står i kompetanseleksikon.json («undertyper»)
+  "modalitet": "skal" | "kan" | "bor",          // [Ny, #353] KUN på plikt (L14: modaliteten bevares): «skal», «plikter», «har plikt
+                              // til» = skal; «bør» = bor. Utelatt/null = teksten har ikke et modalverb som avgjør det (presens
+                              // «Staten dekker …» er IKKE «skal» — det gjettes ikke)
   "grunnlag": "offentligrettslig" | "privatrettslig",  // [Ny, #341] KUN på kompetanse; privatrettslig = eierskap/
                               // selskapsrett. Utelatt/null = ikke angitt (settes av et menneske, aldri utledet)
   "delegerbar": true | false, // [Ny, #341/#335] KUN på kompetanse: «Kongen …» = true, «Kongen i statsråd …» og
@@ -131,10 +139,28 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
   sakstypen i `avgrensning`. Bare u17 er konvertert; u16 og u18 har samme form og venter på Johann.
 - Konverteringen er deterministisk: `konvertering-352-oppnevning.py` (fasit 1797 → 1797 utsagn, KI-utdata 1043 → 1043).
 
+**[ENDRET, issue #353, Johanns godkjenning 2026-10-08]** Plikt overfor motpart og ordning:
+- **Plikt** (`plikt`) er motstykket til kompetanse: det A SKAL overfor B, der kompetanse er det A KAN. «Kommunen skal inngå
+  samarbeidsavtale med det regionale helseforetaket», «Reguleringsmyndigheten skal samarbeide med andre lands
+  reguleringsmyndigheter», «Utgiftene skal dekkes av det regionale helseforetaket i pasientens bostedsregion». `fra` =
+  pliktsubjektet, `til` = motparten (null når teksten ikke sier det), `modalitet` = skal/kan/bor. Den rike plikten (vilkår,
+  unntak, beløp, begunstiget) hører til regellaget (rettsfølge, L16); plikt-utsagnet er den aktørnære projeksjonen.
+- **Betalingsmottakeren:** «utgiftene til X», «Xs utgifter» og «utgifter som påføres X» sier IKKE hvem som får pengene — da er
+  `til` null og X står i `objekt`/`avgrensning`/`kommentar`. «Yte X kompensasjon», «yter tilskudd til X» sier det.
+- **Én rad per pliktsubjekt (L13).** Står begge parter som pliktsubjekt, blir det to rader. Gjensidighet sluttes aldri fra et
+  ensidig «A skal samarbeide med B». Samarbeid mellom medlemmer av samme klasse: `fra` = `til` = klassen.
+- **Står utenfor:** møteplikt og saksforberedelse (forelegging, oversending, forberedelse av sak), rettigheter som er
+  motstykket til en plikt (konsultasjonsrett, høringsrett), plikter for private («Enhver plikter …»).
+- `bistar` og `samarbeider_med` er ikke lenger relasjonstyper. Ny relasjonstype `forvaltes_av` (ordning → organet som forvalter
+  den), ny organsammensetning `tilhorer` (ordning → rettssubjekt, bare når hjemlet). Ny entitetstype `ordning` med `undertype`.
+- Konverteringen er deterministisk: `konvertering-353-plikt.py` (fasit 1797 → 1798 utsagn: 79 til plikt, ett nytt
+  `forvaltes_av` slått opp i folketrygdloven § 21-11 a første ledd; KI-utdata 1043 → 1043, 43 til plikt).
+
 Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
 - relasjon (aktør→aktør): `eies_av`, `ledes_av`, `sekretariat_for`, `rapporterer_til`, `etterfolger`,
   `representerer`, `har_delegert_til` (gjennomført delegering, når BÅDE fra og til er gitt),
-  `administrativt_underordnet`, `bistar`, `samarbeider_med`, `radgir`, `del_av`.
+  `administrativt_underordnet`, `radgir`, `del_av`, `forvaltes_av` ([Ny, #353] ordning → organet som forvalter den, hjemlet
+  og avgrenset per kapittel/stønadsområde). [ENDRET, #353] bistar og samarbeider_med er plikt.
 - kompetanse (aktør→motpart/bestemmelse/sakstype): `beslutningskompetanse`, `opprettingskompetanse`,
   `avviklingskompetanse`, `organisasjonskompetanse`, `oppnevningskompetanse` (med undertype: valg, ansettelse,
   utpeking — X bestemmer hvem som er myndighet —, oppnevning), `avsettingskompetanse`, `instruksjonskompetanse`
@@ -143,13 +169,18 @@ Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
   `revisjonskompetanse`, `klagekompetanse`, `omgjoringskompetanse`, `overprovingskompetanse` (undertype anke),
   `stadfestingskompetanse`, `vedtakskompetanse` (enkeltvedtak), `sanksjonskompetanse`, `foreleggingskompetanse`,
   `ukjent` (maskinell konvertering: et kompetanseuttrykk verken leksikonet eller KI kan typebestemme — gjettes ikke).
+- plikt (aktør/rolle/klasse/ordning → motpart, valgfri): `samarbeidsplikt`, `avtaleplikt` (plikt til å inngå avtale — den
+  inngåtte avtalen er en ekstern kilde), `betalingsplikt` (til = betalingsmottakeren, null når teksten ikke sier det),
+  `bistandsplikt`, `informasjonsplikt` (gi opplysninger, varsle, utlevere informasjon), `konsultasjonsplikt` (konsultere, innhente
+  uttalelse fra). [Ny, #353]
 - medlemskap (aktør/klasse → klasse): `medlem_av`, `inngar_i`.
 - sammensetning_omrade (område → område): `bestar_av`, `del_av`.
 - ansvarsomrade (aktør → område): `har_ansvarsomrade`, `har_jurisdiksjon`, `har_sete_i`.
 - konstituerende: `oppretter`, `avvikler`, `skal_finnes` («Hver kommune skal ha …»).
 - organsammensetning: `har_medlemmer` (organets FASTE medlemmer: antall, hvem oppnevner), `har_organ` (rettssubjekt →
   organ, f.eks. «kommunestyret»), `settes_med` ([Ny, #352] sammensetningen i den ENKELTE SAK, saksavhengig: «I andre saker
-  enn etter første ledd første punktum settes Høyesterett med fem dommere» — antallet i feltet objekt, sakstypen i feltet avgrensning).
+  enn etter første ledd første punktum settes Høyesterett med fem dommere» — antallet i feltet objekt, sakstypen i feltet avgrensning),
+  `tilhorer` ([Ny, #353] ordning → rettssubjektet den tilhører — BARE når en bestemmelse sier det; ellers ingen rad).
 
 ## Lesing
 

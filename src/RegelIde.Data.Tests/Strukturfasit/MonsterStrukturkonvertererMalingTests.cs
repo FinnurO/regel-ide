@@ -53,6 +53,10 @@ public class MonsterStrukturkonvertererMalingTests(ITestOutputHelper output)
             // den lave gjenfinningen; K-nevneren vokste fra 427 til 557. Før: R 0,778/0,126, K 0,885/0,597.
             ["R"] = (0.750, 0.022),
             ["K"] = (0.877, 0.510),
+            // [Ny, issue #353, 2026-10-09] P (plikt overfor motpart) målt første gang etter konvertering-353-plikt.py: 79 i fasiten,
+            // 30 predikert av de seks nye pliktmønstrene, 17 treff. 7 av de 13 falske positive er «ikke i fasiten» og ser ut som
+            // fasitutelatelser («Utgiftene dekkes av det offentlige», «Kommunen dekker reiseutgifter …») — vurderes i #309.
+            ["P"] = (0.567, 0.215),
             // [ENDRET, issue #312, 2026-10-08] O og A målt på nytt etter den systemiske rettelsen av domstollovens
             // inndelingsdel (rettelse-312-domstolinndeling.py): de 357 kommunelisteradene er flyttet fra O (rettskrets
             // består av kommune) til A (tingrett har ansvarsområde i kommune). Før: O 0,974/0,858, A 1,000/0,517.

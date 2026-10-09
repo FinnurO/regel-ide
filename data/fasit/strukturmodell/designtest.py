@@ -50,6 +50,13 @@ STD = {
     # organsammensetning
     "har_medlemmer": ("nei", "ja", "G"), "har_organ": ("nei", "ja", "G"),
     "settes_med": ("nei", "ja", "G"),  # [Ny, #352-tillegg] sammensetningen i den enkelte sak (saksavhengig G)
+    # [Ny, issue #353, 2026-10-09] Plikt overfor motpart (P) — det docs/33 §4.4 holdt utenfor som «senere lag» (samarbeid,
+    # bistand, informasjonsdeling, konsultasjon, finansiering) er nå P (konvertering-353-plikt.py). Dagens modell (91bfff8) kunne
+    # ikke lagre dem. forvaltes_av (ordning → organ) er R, tilhorer (ordning → rettssubjekt) er G. bistar/samarbeider_med over
+    # blir stående som nøkler, så skriptet fortsatt kan kjøres på en eldre fasit.
+    **{t: ("nei", "ja", "P") for t in ["samarbeidsplikt", "avtaleplikt", "betalingsplikt", "bistandsplikt", "informasjonsplikt",
+                                       "konsultasjonsplikt"]},
+    "forvaltes_av": ("nei", "ja", "R"), "tilhorer": ("nei", "ja", "G"),
 }
 
 # --- annet:* — nøkkelordregler (første treff vinner). Hver regel er begrunnet i designnotatet §5. ----

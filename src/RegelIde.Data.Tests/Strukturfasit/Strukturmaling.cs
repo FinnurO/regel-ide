@@ -85,28 +85,30 @@ internal static class Strukturmaling
     /// <c>STD</c> i <c>data/fasit/strukturmodell/designtest.py</c>. <c>annet:*</c>-typer får egen rad
     /// («annet»): designtest.py sorterer dem videre med nøkkelordregler, men mønsterlaget produserer
     /// ingen av dem, så de ville bare blåst opp gjenfinningsnevneren i R/K uten å si noe om mønstrene.
-    /// <c>bistar</c>/<c>samarbeider_med</c> er bevisst senere lag (docs/33 §4.4).
+    /// [ENDRET, issue #353] <c>bistar</c>/<c>samarbeider_med</c> var bevisst «senere lag» (docs/33 §4.4) — de er nå plikt (P), og
+    /// raden «senere lag» er fjernet. <c>forvaltes_av</c> er R, <c>tilhorer</c> er G.
     /// </summary>
     /// <para>[ENDRET, issue #341] Myndighetsrelasjonene er K (kompetanse med motpart); R er struktur + har_delegert_til. K er
     /// hele kompetanselista i <see cref="Strukturkontrakt"/> (typologien), så nye typer ikke havner i «annet».</para>
     public static string Bokstav(string kategori, string type) => (kategori, type) switch
     {
         (_, "administrativt_underordnet" or "sekretariat_for" or "etterfolger" or "rapporterer_til" or "velger" or "ledes_av"
-            or "eies_av" or "radgir" or "representerer" or "har_delegert_til" or "oppretter" or "avvikler") => "R",
+            or "eies_av" or "radgir" or "representerer" or "har_delegert_til" or "oppretter" or "avvikler" or "forvaltes_av") => "R",
         ("relasjon", "del_av") => "G",
-        (_, "bistar" or "samarbeider_med") => "senere lag",
         ("kompetanse", _) when Strukturkontrakt.TyperPerKategori["kompetanse"].Contains(type) => "K",
+        ("plikt", _) when Strukturkontrakt.TyperPerKategori["plikt"].Contains(type) => "P", // [Ny, #353]
         (_, "medlem_av" or "inngar_i") => "M",
         (_, "bestar_av") => "O",
         ("sammensetning_omrade", "del_av") => "O",
         (_, "har_ansvarsomrade" or "har_jurisdiksjon" or "har_sete_i") => "A",
         (_, "skal_finnes") => "T",
-        (_, "har_medlemmer" or "har_organ" or "settes_med") => "G", // [ENDRET, #352] + settes_med
+        (_, "har_medlemmer" or "har_organ" or "settes_med" or "tilhorer") => "G", // [ENDRET, #352] + settes_med, [#353] + tilhorer
         _ => "annet",
     };
 
     /// <summary>Rekkefølgen bokstavene vises i (docs/33 §4.3), med I og T selv om fasiten har få/ingen.</summary>
-    public static readonly string[] Bokstavrekkefolge = ["R", "K", "M", "O", "A", "G", "I", "T", "annet", "senere lag"];
+    /// [ENDRET, issue #353] + P etter K; «senere lag» er borte (samarbeid/bistand er P).
+    public static readonly string[] Bokstavrekkefolge = ["R", "K", "P", "M", "O", "A", "G", "I", "T", "annet"];
 }
 
 /// <summary>Ett utsagn (fasit eller predikert) med oppslåtte aktører.</summary>

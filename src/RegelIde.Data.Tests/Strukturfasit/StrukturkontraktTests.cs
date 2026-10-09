@@ -47,6 +47,13 @@ public class StrukturkontraktTests
     [InlineData("kompetanse", "ansettelseskompetanse", false)] // [Ny, #352] er oppnevningskompetanse med undertype ansettelse
     [InlineData("relasjon", "radgir", true)] // [Ny, #352] Johanns beslutning 4: struktur
     [InlineData("relasjon", "del_av", true)]
+    [InlineData("plikt", "samarbeidsplikt", true)] // [Ny, #353]
+    [InlineData("plikt", "betalingsplikt", true)]
+    [InlineData("relasjon", "samarbeider_med", false)] // [Ny, #353] er samarbeidsplikt
+    [InlineData("relasjon", "bistar", false)] // [Ny, #353] er bistandsplikt
+    [InlineData("relasjon", "forvaltes_av", true)] // [Ny, #353] ordning → organ
+    [InlineData("organsammensetning", "tilhorer", true)] // [Ny, #353] ordning → rettssubjekt
+    [InlineData("kompetanse", "samarbeidsplikt", false)]
     [InlineData("sammensetning_omrade", "del_av", true)]
     [InlineData("kompetanse", "annet:klageordning", true)]
     [InlineData("annet:klage", "annet:klageordning", true)]

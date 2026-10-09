@@ -205,9 +205,9 @@ public class MonsterStrukturkonvertererTests
     [Fact]
     public void Recordene_har_alle_feltnavnene_fasiten_bruker()
     {
-        var aktorfelt = Feltnavn(JsonSerializer.SerializeToNode(new StrukturAktor("a1", "x", [], [], 1, null, null, null, null, null, null) { VerifisertAv = "x" })!); // [ENDRET, #312] + verifisert_av
+        var aktorfelt = Feltnavn(JsonSerializer.SerializeToNode(new StrukturAktor("a1", "x", [], [], 1, null, null, null, null, null, null) { VerifisertAv = "x", Undertype = "fond" })!); // [ENDRET, #312] + verifisert_av, [#353] + undertype
         var utsagnfelt = Feltnavn(JsonSerializer.SerializeToNode(new StrukturUtsagn("u1", "e", "s", "k", "t", null, null, null, "positiv", null, null, null, null, null)
-            { VerifisertAv = "x", Normform = "forskrift", Grunnlag = "privatrettslig", Delegerbar = true, Undertype = "valg" })!); // [ENDRET, #341] + kompetansefeltene, [ENDRET, #352] + undertype
+            { VerifisertAv = "x", Normform = "forskrift", Grunnlag = "privatrettslig", Delegerbar = true, Undertype = "valg", Modalitet = "skal" })!); // [ENDRET, #341] + kompetansefeltene, [ENDRET, #352] + undertype, [#353] + modalitet
 
         foreach (var kilde in StrukturfasitLeser.LesAlle())
         {

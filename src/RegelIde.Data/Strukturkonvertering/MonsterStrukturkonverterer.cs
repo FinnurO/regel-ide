@@ -64,7 +64,7 @@ public sealed class MonsterStrukturkonverterer : IStrukturkonverterer
         ArgumentNullException.ThrowIfNull(grunnlag);
 
         var aktorer = new AktorBygger();
-        var utsagn = new List<(string Eid, string Sitat, Strukturmonster Monster, string? Fra, string? Til, string? Objekt, string Polaritet)>();
+        var utsagn = new List<(string Eid, string Sitat, Strukturmonster Monster, string? Fra, string? Til, string? Objekt, string Polaritet, string? Modalitet)>();
         var sett = new HashSet<string>(StringComparer.Ordinal);
 
         foreach (var node in grunnlag.Noder)
@@ -89,7 +89,7 @@ public sealed class MonsterStrukturkonverterer : IStrukturkonverterer
                                 var nokkel = string.Join('\u001f', node.Eid, s, monster.Kategori, monster.Type,
                                     fra?.ToLowerInvariant(), til?.ToLowerInvariant(), funn.Sitat);
                                 if (!sett.Add(nokkel)) continue;
-                                utsagn.Add((node.Eid, funn.Sitat, monster, fra, til, funn.Objekt, funn.Polaritet));
+                                utsagn.Add((node.Eid, funn.Sitat, monster, fra, til, funn.Objekt, funn.Polaritet, funn.Modalitet));
                             }
                         }
                     }
@@ -125,6 +125,8 @@ public sealed class MonsterStrukturkonverterer : IStrukturkonverterer
                 // [Ny, issue #352] Undertypen fra leksikonets ordstammer på sitatet (null ved ingen eller flere treff).
                 Undertype = u.Monster.Kategori == "kompetanse" ? Kompetanseleksikon.UndertypeFor(u.Monster.Type, u.Sitat) : null,
                 Delegerbar = u.Monster.Kategori == "kompetanse" ? Delegerbar(u.Fra, u.Sitat) : null,
+                // [Ny, issue #353] Modaliteten fra modalverbet i treffet (bare plikt; null når teksten ikke har et).
+                Modalitet = u.Monster.Kategori == "plikt" ? u.Modalitet : null,
             });
         }
 

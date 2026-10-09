@@ -1122,8 +1122,8 @@
       "id": "u24",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-10/ledd-3",
       "sitat": "Helse- og omsorgstjenesten skal legge til rette for samarbeid med brukergruppenes organisasjoner og med frivillige organisasjoner",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a12",
       "til": "a13",
       "objekt": null,
@@ -1133,14 +1133,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u25",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-10/ledd-3",
       "sitat": "Helse- og omsorgstjenesten skal legge til rette for samarbeid med brukergruppenes organisasjoner og med frivillige organisasjoner",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a12",
       "til": "a14",
       "objekt": null,
@@ -1150,7 +1151,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u26",
@@ -1262,8 +1264,8 @@
       "id": "u32",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-3/ledd-2",
       "sitat": "skal kommunen yte bistand til andre kommuner ved ulykker og andre akutte situasjoner.",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a5",
       "til": "a5",
       "objekt": null,
@@ -1273,14 +1275,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u33",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-3/ledd-3",
       "sitat": "Den kommunen som mottar bistand etter andre ledd, skal yte kommunen som bidrar med hjelp, kompensasjon for utgifter som pådras",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a5",
       "til": "a5",
       "objekt": null,
@@ -1290,7 +1293,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u34",
@@ -1348,8 +1352,8 @@
       "id": "u37",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-5/ledd-1",
       "sitat": "Kommunen kan samarbeide med andre kommuner om ansettelse av kommunelege",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a5",
       "til": "a20",
       "objekt": null,
@@ -1359,7 +1363,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "kan"
     },
     {
       "id": "u38",
@@ -1416,8 +1421,8 @@
       "id": "u41",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-6/ledd-1",
       "sitat": "Kommunen kan ikke inngå avtale med andre private enn ideelle organisasjoner om drift av brukerromsordning",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "avtaleplikt",
       "fra": "a5",
       "til": "a21",
       "objekt": null,
@@ -1427,7 +1432,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "kan"
     },
     {
       "id": "u42",
@@ -1485,8 +1491,8 @@
       "id": "u45",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-11/ledd-1",
       "sitat": "Personell som yter tjenester omfattet av loven her, skal gi spesialisthelsetjenesten råd, veiledning og opplysninger",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": null,
       "til": "a22",
       "objekt": null,
@@ -1496,7 +1502,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": "Gjeldende personell er ikke en aktør i utsagnet",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u46",
@@ -1537,8 +1544,8 @@
       "id": "u48",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§6-1/ledd-1",
       "sitat": "Kommunen kan inngå avtale alene eller sammen med andre kommuner",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a5",
       "til": "a20",
       "objekt": null,
@@ -1548,7 +1555,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "kan"
     },
     {
       "id": "u49",
@@ -1639,8 +1647,8 @@
       "id": "u54",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-1/ledd-1",
       "sitat": "Kommunen skal samarbeide med andre tjenesteytere om planen",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a26",
       "til": "a27",
       "objekt": null,
@@ -1650,7 +1658,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u55",
@@ -2024,8 +2033,8 @@
       "id": "u76",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-9/ledd-1",
       "sitat": "Spesialisthelsetjenesten skal bistå ved gjennomføringen av tiltak etter § 9-5 tredje ledd bokstav b og c.",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a22",
       "til": "a5",
       "objekt": null,
@@ -2035,7 +2044,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u77",
@@ -2529,8 +2539,8 @@
       "id": "u105",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§11-4/ledd-2",
       "sitat": "Kommunen skal inngå samarbeidsavtale med regionalt helseforetak om utskrivningsklare pasienter, jf. § 6-1.",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "avtaleplikt",
       "fra": "a5",
       "til": "a33",
       "objekt": null,
@@ -2540,7 +2550,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u106",
