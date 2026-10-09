@@ -53,21 +53,27 @@ public class AvslutningsnodeKonverteringTests
     }
 
     [Fact]
-    public void Energiloven_10_2_akn_har_intro_og_wrapUp_i_lista()
+    public void Energiloven_10_2_akn_har_wrapUp_i_lista_som_folger_leddet()
     {
+        // AKN <list> (hierarchy) har intro/wrapUp; <blockList> har listIntroduction/listWrapUp. AknXmlSkriver
+        // skriver punktlister som <list>/<point>, så avslutningen er <wrapUp> i den lista — og lista står,
+        // som for alle ledd med punkter, som søsken ETTER <paragraph> (se AknXmlSkriver.SkrivMedListe).
         var r = LovdataKonverterer.Konverter(Testdata.LesEnergilovenUtdrag10_2(), new DateOnly(2026, 10, 9));
         var leddEid = $"{Avslutningsutdrag.ParagrafEid}/ledd-2";
 
         Assert.Contains(
-            $"<paragraph eId=\"{leddEid}\" regelIde:kildeId=\"kapittel-11-paragraf-3-ledd-2\"><num>2</num><list><intro><p>Reguleringsmyndigheten",
+            $"<paragraph eId=\"{leddEid}\" regelIde:kildeId=\"kapittel-11-paragraf-3-ledd-2\"><num>2</num><content><p>Reguleringsmyndigheten",
             r.AknXml);
-        Assert.Contains("samt i</p></intro><point ", r.AknXml);
+        Assert.Contains("samt i</p></content></paragraph><list><point ", r.AknXml);
         Assert.Contains(
             $"</point><wrapUp eId=\"{leddEid}/avslutning\" regelIde:kildeId=\"kapittel-11-paragraf-3-ledd-2-avslutning\"><p>Første punktum gjelder likevel",
             r.AknXml);
-        Assert.Contains("strømmarkedet.</p></wrapUp></list></paragraph>", r.AknXml);
-        // Innledningen står én gang, ikke dobbelt (både i <content> og <intro>).
+        Assert.Contains("strømmarkedet.</p></wrapUp></list>", r.AknXml);
+        Assert.DoesNotContain("<intro>", r.AknXml);
+        Assert.DoesNotContain("listWrapUp", r.AknXml);
+        // Hver tekst står én gang.
         Assert.Single(System.Text.RegularExpressions.Regex.Matches(r.AknXml, "Reguleringsmyndigheten kan, uavhengig"));
+        Assert.Single(System.Text.RegularExpressions.Regex.Matches(r.AknXml, "Første punktum gjelder likevel"));
     }
 
     [Fact]

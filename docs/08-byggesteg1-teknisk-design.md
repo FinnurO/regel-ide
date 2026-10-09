@@ -107,6 +107,15 @@ inn i leddteksten («… samt i Første punktum gjelder likevel …», energilov
 Tabeller gir ikke avslutningsnode: de flates ut på stedet de står, så teksten etter dem står allerede i
 riktig rekkefølge.
 
+**AKN for avslutningen** (#361): `<wrapUp eId="{…}/avslutning">` i den samme `<list>` som punktene. AKN har to
+listekonstruksjoner, verifisert mot `akomantoso30.xsd`: `<list>` (hierarki: `intro?`, `<point>`…, `wrapUp?`) og
+`<blockList>` (blokkelement: `listIntroduction?`, `item+`, `listWrapUp?`). `AknXmlSkriver` har alltid skrevet
+punktlister som `<list>`/`<point>`, så avslutningen bruker `<wrapUp>`, ikke `listWrapUp`. Lista står fortsatt som
+søsken ETTER `<paragraph>` (slik alle ledd med punkter skrives i dag), og innledningen står i leddets
+`<content><p>`, ikke i `<intro>`. Å flytte lista inn i `<paragraph>` (og innledningen til `<intro>`) er en egen
+sak, ikke en del av #361. Bare ledd/punkter som HAR en avslutning, får ny AKN-form, slik at resten av korpuset
+ikke får ny versjon ved resynk.
+
 **Migreringsvei dersom Lovdata senere publiserer offisiell seksjons-ELI:** `rettskilde_noder.offisiell_eli` (§2) fylles ut da, som et rent tillegg — `eid` endres ikke. Dette er den samme append-only-migreringsstrategien som §1.1 beskriver for URI-formatendringer generelt: en ekstern endring legger til informasjon, den omskriver ikke identitet som allerede er i bruk.
 
 ### 1.2.1 Canonical Identity vs. Source Identity — generelt prinsipp
