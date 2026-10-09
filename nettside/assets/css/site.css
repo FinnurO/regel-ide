@@ -442,7 +442,10 @@ section[id^="nytt-"]{ scroll-margin-top: 6rem; }
 .nytt-kort h3{ margin:0; font-size: var(--ds-body-lg-font-size); font-weight:600; }
 .nytt-kort p{ margin:0; font-size: var(--ds-body-sm-font-size); }
 .nytt-kort ul{ margin:0; padding-left:1.1em; font-size: var(--ds-body-sm-font-size); display:flex; flex-direction:column; gap: var(--ds-size-2); }
-.nytt-kort .quote-block{ font-size: var(--ds-body-sm-font-size); padding: var(--ds-size-3) var(--ds-size-4); }
+.nytt-kort-grid--bred{ grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); }
+.nytt-kort .quote-block{ font-size: var(--ds-body-sm-font-size); padding: var(--ds-size-3) var(--ds-size-4); margin:0; }
+/* <blockquote> har nettleserens standardmarg (40px på sidene) — den klemte sitatene til ett ord per linje. */
+blockquote.quote-block.struktur-merk{ margin-inline:0; margin-bottom:0; }
 .nytt-kort .status{ font-size: var(--ds-body-xs-font-size); color: var(--ds-color-text-subtle); border-top:1px solid var(--ds-color-border-subtle); padding-top: var(--ds-size-3); margin-top:auto; }
 
 /* Spørsmål og svar: spørsmålet som overskrift, svaret uthevet, så sporet og statusen. */
@@ -481,7 +484,7 @@ section[id^="nytt-"]{ scroll-margin-top: 6rem; }
 .debattkort__hode{ background: var(--ds-color-background-tinted); border-bottom:1px solid var(--ds-color-border-subtle); padding: var(--ds-size-3) var(--ds-size-5); font-size: var(--ds-body-xs-font-size); font-weight:600; letter-spacing:.04em; text-transform:uppercase; color: var(--ds-color-text-subtle); }
 .debattkort__kropp{ padding: var(--ds-size-5); display:flex; flex-direction:column; gap: var(--ds-size-4); }
 @media (max-width: 640px){ .debattkort__kropp{ padding: var(--ds-size-4); } }
-.debattkort__kropp .quote-block{ font-size: var(--ds-body-sm-font-size); }
+.debattkort__kropp .quote-block{ font-size: var(--ds-body-sm-font-size); margin:0; }
 .debattkort__sider{ display:grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: var(--ds-size-3); }
 .debattkort__side{ border:1px solid var(--ds-color-border-subtle); border-radius: var(--ds-border-radius-md); padding: var(--ds-size-3) var(--ds-size-4); font-size: var(--ds-body-sm-font-size); }
 .debattkort__side strong{ display:block; font-size: var(--ds-body-xs-font-size); text-transform:uppercase; letter-spacing:.04em; color: var(--ds-color-text-subtle); margin-bottom: var(--ds-size-1); }
