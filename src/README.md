@@ -134,7 +134,9 @@ verifiseringen (AK-3.3.6) og ev. tas opp i en fjerde QA-runde:
    underpunkt med samme `PunktEid`-mønster (`{punkt-eId}/punkt-N}`).
 3. **Punkt med flere direkte legalP-"ledd"** (§ 14-3 punkt 14) — bladteksten
    konkatenerer alle direkte legalP-barns tekst i dokumentrekkefølge, i stedet for
-   å kreve nøyaktig ett.
+   å kreve nøyaktig ett. [ENDRET 2026-10-09, #361] Bare teksten FØR den første
+   lista er bladtekst; teksten etter en liste (her den andre legalP-en) er en egen
+   `avslutning`-node, se `docs/08` §1.2.
 4. **Datokode uten løpenummer** — eldre lover/forskrifter identifisert av Lovdata
    med bare dato (f.eks. `LOV-1927-04-05`, ingen `-NN`) forekommer i kryssreferanser.
    ELI-en utelater da løpenummer-segmentet.
