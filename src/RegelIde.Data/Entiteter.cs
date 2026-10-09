@@ -1540,6 +1540,9 @@ public sealed class StrukturkantEntitet
     /// <c>overproving</c> <c>anke</c> (<see cref="Strukturkanter.Undertyper"/>, CHECK <c>ck_strukturkanter_undertype</c>).
     /// NULL = ikke angitt. Migrerte R <c>velger</c>-, K <c>utpeking</c>-/<c>ansettelse</c>- og R <c>ankeinstans_for</c>-kanter
     /// fikk undertypen den gamle koden sa — opplysningen gikk ikke tapt i sammenslåingen.
+    /// [ENDRET, issue #355, Johanns beslutninger 2026-10-09] Avslutning speiler innsetting: K <c>oppnevning</c> også
+    /// <c>utnevning</c> | <c>konstitusjon</c>, K <c>avsetting</c> <c>avsetting</c> | <c>oppsigelse</c> | <c>avskjed</c>, K <c>vedtak</c>
+    /// <c>tilbakekall</c>. Eksisterende kanter fikk ingen undertype i migrasjonen (basen har ikke sitatet).
     /// </summary>
     public string? Undertype { get; set; }
 

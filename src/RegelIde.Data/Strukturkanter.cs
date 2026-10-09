@@ -204,6 +204,12 @@ public static class Strukturkanter
     /// <summary>[Ny, issue #352] K-typen overprøving — anke er en undertype av den (<see cref="Undertyper"/>).</summary>
     public const string Overproving = "overproving";
 
+    /// <summary>[Ny, issue #355] K-typen avsetting — avslutningen av en posisjon, med undertypene avsetting/oppsigelse/avskjed.</summary>
+    public const string Avsetting = "avsetting";
+
+    /// <summary>[Ny, issue #355] K-typen vedtak (enkeltvedtak) — tilbakekall er en undertype av den.</summary>
+    public const string Vedtak = "vedtak";
+
     /// <summary>
     /// [Ny, issue #352, Johanns beslutning 1 2026-10-08] Undertypene til en K-type — speilet av CHECK
     /// <c>ck_strukturkanter_undertype</c>. Undertypen sier HVORDAN kompetansen utøves etter teksten, der typen er den
@@ -230,14 +236,31 @@ public static class Strukturkanter
     /// </para>
     /// <para>
     /// <b>Avsetting er ikke en undertype av oppnevning</b>, men en egen type i familien oppnevning (hovedøktens tolkning,
-    /// Johann bekrefter: den er motsatsen). <c>utnevning</c> og <c>konstitusjon</c> står i fasitsitatene, men er ikke på
-    /// Johanns liste — de er ikke lagt til (spørsmål i PR-en), og et sitat med dem får undertype NULL.
+    /// Johann bekrefter: den er motsatsen). [FJERNET, #355] «<c>utnevning</c> og <c>konstitusjon</c> … er ikke lagt til» — se under.
+    /// </para>
+    /// <para>
+    /// <b>[ENDRET, issue #355 «avslutning speiler innsetting», Johanns beslutninger 2026-10-09, <c>[LÅST]</c>]</b>
+    /// <list type="bullet">
+    /// <item><b>Avslutning speiler innsetting</b> (beslutning 1): K <see cref="Avsetting"/> har undertypene <c>avsetting</c> (motsatsen
+    /// til valg/oppnevning/utpeking — verv og styre: helseforetaksloven § 25 annet ledd, domstolloven § 33a fjerde ledd),
+    /// <c>oppsigelse</c> og <c>avskjed</c> (motsatsen til ansettelse: helseforetaksloven § 36 første ledd).</item>
+    /// <item>Oppnevning får <c>utnevning</c> (embete etter Grl. § 21 — domstolloven § 55 første ledd; motsatsen er avskjed, og bare
+    /// etter dom, § 55 femte ledd) og <c>konstitusjon</c> (midlertidig — §§ 55a, 55e, 55f; den opphører, varigheten står i
+    /// avgrensningen). Utnevning er ikke ansettelse: uten skillet svarer «hvem kan sette inn en fast dommer?» Kongen,
+    /// Innstillingsrådet og domstollederen. Riktig svar er bare Kongen.</item>
+    /// <item><b>Tilbakekall er ikke oppnevning</b> (beslutning 2): tilbakekall av en tillatelse eller autorisasjon er K
+    /// <see cref="Vedtak"/> med undertype <c>tilbakekall</c>. Tilbakekall av delegert myndighet hører til delegering.</item>
+    /// </list>
+    /// Sanksjon er en FUNKSJON, ikke en type (beslutning 3): domstolloven § 33a er en avsetting selv om den er en reaksjon; vilkåret
+    /// står i avgrensningen. Det er bevisst ikke laget noe funksjonsfelt.
     /// </para>
     /// </summary>
     public static readonly IReadOnlyDictionary<string, string[]> Undertyper = new Dictionary<string, string[]>
     {
-        [Oppnevning] = ["valg", "ansettelse", "utpeking", "oppnevning"],
+        [Oppnevning] = ["valg", "ansettelse", "utpeking", "oppnevning", "utnevning", "konstitusjon"],
+        [Avsetting] = ["avsetting", "oppsigelse", "avskjed"],
         [Overproving] = ["anke"],
+        [Vedtak] = ["tilbakekall"],
     };
 
     /// <summary>[Ny, issue #352] Er <paramref name="undertype"/> en gyldig undertype for K-typen <paramref name="typekode"/>?</summary>
@@ -268,6 +291,14 @@ public static class Strukturkanter
     /// <see cref="Undertyper">undertype</see> <c>utpeking</c>/<c>ansettelse</c> (R <c>velger</c> ble undertype <c>valg</c>).
     /// <c>avsetting</c> står i familien oppnevning som motsatsen (hovedøktens tolkning, Johann bekrefter). <c>forelegging</c>
     /// har familien <c>kontroll</c> (Johanns beslutning 3).
+    /// </para>
+    /// <para>
+    /// [FJERNET, issue #355, Johanns beslutning 2026-10-09 (kommentaren om fasitkortene u22/u165/u118), <c>[LÅST]</c>]
+    /// <c>forelegging</c> er ikke lenger en kompetansetype. En forelegging klassifiseres etter RETTSVIRKNINGEN og formålet: bindende
+    /// svar (godkjenning, samtykke, avgjørelse) er mottakerens kompetanse i familien den alt har, og selve foreleggelsen er saksgang
+    /// (regellaget); rådgivende svar (uttalelse, tolkning, merknader) er P <c>konsultasjon</c> fra avsenderen med modalitet kan/skal
+    /// (negativ polaritet for forbud); kontroll bare når mottakeren kan undersøke og følge opp. Migrasjonen
+    /// <c>AvslutningSpeilerInnsetting</c> slettet koden fra konfigurasjonen (0 kanter lokalt).
     /// </para>
     /// <para>
     /// <b>Fvl-kategori</b> er satt bare der den følger av forvaltningsloven uten skjønn: vedtak og pålegg er
@@ -302,8 +333,8 @@ public static class Strukturkanter
         ("stadfesting", "stadfestingskompetanse", "stadfestingskompetanse", "klage_overproving", null),
         ("vedtak", "vedtakskompetanse", "vedtakskompetanse", "vedtak", "enkeltvedtak"),
         ("sanksjon", "sanksjonskompetanse", "sanksjonskompetanse", "sanksjon", null),
-        // [ENDRET, issue #352, Johanns beslutning 3 2026-10-08] forelegging er kontroll (var NULL = ikke plassert).
-        ("forelegging", "foreleggingskompetanse", "foreleggingskompetanse", "kontroll", null),
+        // [FJERNET, issue #355, Johanns beslutning 2026-10-09] forelegging («kontroll» fra #352) — klassifiseres etter rettsvirkningen:
+        //   bindende svar = mottakerens kompetanse, rådgivende = P konsultasjon. Se avsnittet over.
     ];
 
     /// <summary>
@@ -490,7 +521,7 @@ public static class Strukturkanter
         // ---- K kompetanse (aktør/rolle → motpart, bestemmelse eller sakstype) ----
         // [ENDRET, issue #341, Johanns beslutning P2 2026-10-08] Typologien er Johanns liste: instruksjon, tilsyn, klage,
         // omgjøring, delegering, oppnevning, vedtak, utpeking, godkjenning, samtykke, pålegg, normgivning og organisasjon,
-        // utvidet (beslutning 2) med avsetting, sanksjon, overprøving og forelegging, og (hierarkibeslutningen) med
+        // utvidet (beslutning 2) med avsetting, sanksjon, overprøving og forelegging ([FJERNET, #355]), og (hierarkibeslutningen) med
         // beslutning, oppretting, avvikling, ansettelse, samordning, revisjon og stadfesting. «A har kompetanse av typen X,
         // eventuelt OVERFOR B (til-noden), når det gjelder Y (objekt/avgrensning)». {0} er motpartsteksten
         // StrukturkantTjeneste.Kompetansetekst bygger: «(normform) overfor B — objekt», eller objektet, eller «etter

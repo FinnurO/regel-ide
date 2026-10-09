@@ -669,10 +669,10 @@
    "antall_forekomster": 3,
    "entitetstype": "rolle",
    "navngitt": true,
-   "referent": "direktøren i Høyesterett",
+   "referent": "Høyesteretts direktør",
    "oppløsning": "tekstlig",
    "distributiv": null,
-   "kommentar": "Leder Høyesteretts kontor (§ 9); er embetsmann (§ 61)."
+   "kommentar": "Leder Høyesteretts kontor (§ 9); er embetsmann (§ 61). [#355] Stillingen knyttet til nettopp Høyesterett, ikke en felles «direktør»-rolle: G del_av Høyesterett (u22). En person kobles til stillingen med I innehar. Referenten var «direktøren i Høyesterett»."
   },
   {
    "id": "hr_kontor",
@@ -8718,6 +8718,24 @@
    "oppløsning": "tekstlig",
    "distributiv": null,
    "kommentar": "Lagsogn (mellomnivå). Navn kolliderer delvis med fylkes-/tingrettsnavn; staving avviker fra fylkesnavnet."
+  },
+  {
+   "id": "middommer",
+   "tekstform": "midlertidig dommer",
+   "varianter": [
+    "midlertidige dommere",
+    "midlertidige dommeren"
+   ],
+   "eid_eksempler": [
+    "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55h/ledd-1"
+   ],
+   "antall_forekomster": 3,
+   "entitetstype": "rolle",
+   "navngitt": false,
+   "referent": null,
+   "oppløsning": "saksforhold",
+   "distributiv": true,
+   "kommentar": "[#355, juristrunden] Midlertidige dommere, «herunder dommerfullmektig og jordskiftedommerfullmektig» (§ 55 h)."
   }
  ],
  "utsagn": [
@@ -9061,17 +9079,17 @@
    "id": "u22",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§9/ledd-1",
    "sitat": "Høyesterett skal ha en direktør",
-   "kategori": "konstituerende",
-   "type": "skal_finnes",
-   "fra": "hr",
-   "til": "hr_dir",
+   "kategori": "relasjon",
+   "type": "del_av",
+   "fra": "hr_dir",
+   "til": "hr",
    "objekt": null,
    "polaritet": "positiv",
    "avgrensning": null,
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "[#355, Johanns beslutning 1 på u22/u165] «X skal ha en Y» for ett navngitt organ er ikke T (T er bare klassenivå), men G del_av (domstolloven § 9). Var konstituerende/skal_finnes hr → hr_dir; snudd: fra = delen, til = organet."
   },
   {
    "id": "u23",
@@ -10166,7 +10184,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Avsettingsmyndighet over et helt kollegialt organ.",
-   "delegerbar": true
+   "delegerbar": true,
+   "undertype": "avsetting"
   },
   {
    "id": "u90",
@@ -10368,8 +10387,8 @@
    "id": "u102",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§37/ledd-1",
    "sitat": "kan vedkommende regjeringsdepartement paa det offentliges vegne fremsætte indsigelse og erklære anke til Høiesteret",
-   "kategori": "kompetanse",
-   "type": "annet:ankekompetanse",
+   "kategori": "annet:partsposisjon",
+   "type": "annet:ankeadgang",
    "fra": "dep",
    "til": null,
    "objekt": "anke til Høyesterett når saken ikke hører under norsk domsmyndighet",
@@ -10378,7 +10397,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Forvaltningsorgan som prosessaktør for «det offentlige»."
+   "kommentar": "Forvaltningsorgan som prosessaktør for «det offentlige». [#355, beslutning 5] En parts adgang til å anke er en partsposisjon i regellaget, utenfor strukturlaget (som møteplikt). Var kompetanse/annet:ankekompetanse."
   },
   {
    "id": "u103",
@@ -10466,8 +10485,8 @@
    "id": "u108",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§46/ledd-2",
    "sitat": "Rettens avgjørelse kan ankes av vedkommende regjeringsdepartement.",
-   "kategori": "kompetanse",
-   "type": "annet:ankekompetanse",
+   "kategori": "annet:partsposisjon",
+   "type": "annet:ankeadgang",
    "fra": "dep",
    "til": null,
    "objekt": "domstolens avgjørelse om utenlandsk rettsanmodning",
@@ -10476,7 +10495,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "[#355, beslutning 5] En parts adgang til å anke er en partsposisjon i regellaget, utenfor strukturlaget (som møteplikt). Var kompetanse/annet:ankekompetanse."
   },
   {
    "id": "u109",
@@ -10621,33 +10640,35 @@
    "id": "u117",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§51a/ledd-1",
    "sitat": "forelegge tolkningsspørsmålet for EFTA-domstolen",
-   "kategori": "kompetanse",
-   "type": "foreleggingskompetanse",
+   "kategori": "plikt",
+   "type": "konsultasjonsplikt",
    "fra": "domstolene",
    "til": "efta",
-   "objekt": null,
+   "objekt": "rådgivende tolkningsuttalelse",
    "polaritet": "positiv",
-   "avgrensning": null,
+   "avgrensning": "når domstolen i en sak må ta stilling til tolkningen av EØS-avtalen med protokoller, vedlegg og rettsakter",
    "betinget": true,
-   "kilde_utenfor_korpus": false,
+   "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
-   "kommentar": "Relasjon til internasjonal domstol (rådgivende uttalelse); ingen standardtype."
+   "kommentar": "Relasjon til internasjonal domstol (rådgivende uttalelse); ingen standardtype. [#355, beslutning 3 og 4] Forelegging er ikke lenger en kompetansetype. Rettsvirkningen er rådgivende: EFTA-domstolen gir en rådgivende tolkningsuttalelse (ODA artikkel 34, kilde utenfor korpus) → plikt/konsultasjon fra avsenderen, modalitet kan. Var kompetanse/foreleggingskompetanse.",
+   "modalitet": "kan"
   },
   {
    "id": "u118",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§51a/ledd-2",
    "sitat": "Forliksrådene har ikke adgang til å forelegge tolkningsspørsmål for EFTA-domstolen.",
-   "kategori": "kompetanse",
-   "type": "foreleggingskompetanse",
+   "kategori": "plikt",
+   "type": "konsultasjonsplikt",
    "fra": "fr",
    "til": "efta",
-   "objekt": null,
+   "objekt": "rådgivende tolkningsuttalelse",
    "polaritet": "negativ",
    "avgrensning": null,
    "betinget": false,
-   "kilde_utenfor_korpus": false,
+   "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "[#355, beslutning 3 og 4] Forelegging er ikke lenger en kompetansetype. Rettsvirkningen er rådgivende: EFTA-domstolen gir en rådgivende tolkningsuttalelse (ODA artikkel 34, kilde utenfor korpus) → plikt/konsultasjon fra avsenderen, modalitet kan. Var kompetanse/foreleggingskompetanse.",
+   "modalitet": "kan"
   },
   {
    "id": "u119",
@@ -10679,8 +10700,9 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "UTNEVNING som embetsmann (Grl. § 21) — sterkere enn oppnevning; modellen bør skille utnevning/oppnevning/tilsetting/konstitusjon.",
-   "delegerbar": true
+   "kommentar": "UTNEVNING som embetsmann (Grl. § 21) — sterkere enn oppnevning; modellen bør skille utnevning/oppnevning/tilsetting/konstitusjon. [#355, juristrunden] delegerbar = false: sitatet viser til Grunnloven § 21 (Kongen utnevner embetsmenn «etter å ha hørt sitt statsråd», jf. § 28) — Kongen i statsråd, som #335-regelen gir false for. [slutning fra Grl. § 21, i korpus]",
+   "delegerbar": false,
+   "undertype": "utnevning"
   },
   {
    "id": "u121",
@@ -10701,18 +10723,19 @@
   {
    "id": "u122",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55/ledd-5",
-   "sitat": "Dommere kan ikke sies opp eller forflyttes mot sin vilje og kan bare avskjediges etter rettergang og dom.",
+   "sitat": "Dommere kan ikke sies opp",
    "kategori": "kompetanse",
    "type": "avsettingskompetanse",
    "fra": null,
    "til": "dommer",
    "objekt": null,
    "polaritet": "negativ",
-   "avgrensning": "kun etter rettergang og dom",
+   "avgrensning": null,
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Stillingsvern som strukturell uavhengighetsgaranti."
+   "kommentar": "jf. Grunnloven § 22 annet ledd. [#355, kort nr. 58] Setningen har tre regler (L13): oppsigelse (denne raden), avskjed bare etter dom og forflytning mot sin vilje (egne rader). Var én avsettingskompetanse med avgrensning «kun etter rettergang og dom»; kommentaren var «Stillingsvern som strukturell uavhengighetsgaranti.».",
+   "undertype": "oppsigelse"
   },
   {
    "id": "u123",
@@ -10737,14 +10760,15 @@
    "kategori": "kompetanse",
    "type": "oppnevningskompetanse",
    "fra": "innst",
-   "til": null,
+   "til": "dommer",
    "objekt": "konstitusjon av midlertidige dommere",
    "polaritet": "positiv",
-   "avgrensning": null,
+   "avgrensning": "enkelte konstitusjoner etter §§ 55 e og 55 f",
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "konstitusjon"
   },
   {
    "id": "u125",
@@ -10885,14 +10909,15 @@
    "kategori": "kompetanse",
    "type": "oppnevningskompetanse",
    "fra": "domstolleder",
-   "til": null,
+   "til": "dommer",
    "objekt": "konstitusjon av dommer for vigsler",
    "polaritet": "positiv",
-   "avgrensning": null,
+   "avgrensning": "ved en annen domstol, for å foreta vigsler; også pensjonerte dommere; ikke jordskiftelagdommere og dommere i jordskifterettene (§ 55 e annet ledd)",
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "konstitusjon"
   },
   {
    "id": "u134",
@@ -10901,14 +10926,15 @@
    "kategori": "kompetanse",
    "type": "oppnevningskompetanse",
    "fra": "innst",
-   "til": null,
+   "til": "dommer",
    "objekt": "konstitusjon ved siden av fast stilling",
    "polaritet": "positiv",
-   "avgrensning": null,
+   "avgrensning": "ved siden av fast stilling, ved en sideordnet domstol, inntil to år (jordskifterett inntil fire år), ved ledighet eller fravær, inhabilitet, behov for ekstra dommere eller omorganisering (§ 55 e første ledd)",
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "konstitusjon"
   },
   {
    "id": "u135",
@@ -10933,14 +10959,15 @@
    "kategori": "kompetanse",
    "type": "oppnevningskompetanse",
    "fra": "domstolleder",
-   "til": null,
+   "til": "dommer",
    "objekt": "konstitusjon",
    "polaritet": "positiv",
    "avgrensning": "inntil tre måneder",
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "konstitusjon"
   },
   {
    "id": "u137",
@@ -10949,15 +10976,16 @@
    "kategori": "kompetanse",
    "type": "oppnevningskompetanse",
    "fra": "kongen",
-   "til": null,
+   "til": "dommer",
    "objekt": "konstitusjon av ny dommer",
    "polaritet": "positiv",
-   "avgrensning": "> 1 år eller Høyesterett",
+   "avgrensning": "ny dommer (§ 55 f første ledd, inntil to år): lengre varighet enn ett år, eller konstitusjonen gjelder Høyesterett",
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Kompetansefordeling styrt av varighet og domstol.",
-   "delegerbar": true
+   "delegerbar": true,
+   "undertype": "konstitusjon"
   },
   {
    "id": "u138",
@@ -13226,14 +13254,14 @@
    "kategori": "kompetanse",
    "type": "overprovingskompetanse",
    "fra": "lr",
-   "til": "domssogn",
+   "til": "tr",
    "objekt": null,
    "polaritet": "positiv",
-   "avgrensning": null,
+   "avgrensning": "tingrettene i eget lagdømme (rettskretsene som sogner til lagsognene lagdømmet består av)",
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "METONYMI: ankeinstans «for rettskretser» (områder), ikke for tingretter. Modellen må kunne løse område→organ.",
+   "kommentar": "METONYMI: ankeinstans «for rettskretser» (områder), ikke for tingretter. Modellen må kunne løse område→organ. [#355, beslutning 4] Målet er organet: til = tingrettene (var «domssogn», rettskretsene). Rettskretsen er avgrensning, ikke motpart (L1). Paret lagmannsrett ↔ tingrett regnes ut via tingrett → lagsogn → lagdømme (#345) og lagres ikke dobbelt.",
    "undertype": "anke"
   },
   {
@@ -21521,6 +21549,172 @@
    "sikkerhet": "hoy",
    "kommentar": "Ny #312: hvilken kommune tettstedet ligger i, står ikke i teksten — Kartverkets SSR (stedsnummer 610596, kommune 3207), avgrenset til tingrettens egne kommuner.",
    "verifisert_av": "Johann (systemisk rettelse via fasitkontroll #309, 2026-10-08)"
+  },
+  {
+   "id": "u849",
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55/ledd-5",
+   "sitat": "kan bare avskjediges etter rettergang og dom",
+   "kategori": "kompetanse",
+   "type": "avsettingskompetanse",
+   "fra": null,
+   "til": "dommer",
+   "objekt": null,
+   "polaritet": "negativ",
+   "avgrensning": "unntatt etter rettergang og dom",
+   "betinget": false,
+   "kilde_utenfor_korpus": false,
+   "sikkerhet": "middels",
+   "kommentar": "jf. Grunnloven § 22 annet ledd. [#355, kort nr. 58] Skilt ut fra u122.",
+   "undertype": "avskjed"
+  },
+  {
+   "id": "u850",
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55/ledd-5",
+   "sitat": "forflyttes mot sin vilje",
+   "kategori": "kompetanse",
+   "type": "annet:forflytning",
+   "fra": null,
+   "til": "dommer",
+   "objekt": null,
+   "polaritet": "negativ",
+   "avgrensning": "mot sin vilje",
+   "betinget": false,
+   "kilde_utenfor_korpus": false,
+   "sikkerhet": "middels",
+   "kommentar": "jf. Grunnloven § 22 annet ledd. [#355, kort nr. 58] Skilt ut fra u122: forflytning er ikke avsetting (L13, beslutning 1)."
+  },
+  {
+   "id": "u851",
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§37/ledd-1",
+   "sitat": "paa det offentliges vegne",
+   "kategori": "relasjon",
+   "type": "representerer",
+   "fra": "dep",
+   "til": "staten",
+   "objekt": null,
+   "polaritet": "positiv",
+   "avgrensning": "saker som ikke hører under norsk domsmyndighet (§ 37)",
+   "betinget": false,
+   "kilde_utenfor_korpus": false,
+   "sikkerhet": "hoy",
+   "kommentar": "[#355, beslutning 5] Den strukturelle delen av § 37: departementet opptrer «paa det offentliges vegne» — R representerer departement → staten (Johanns beslutning). Selve ankeadgangen er u102 (regellaget)."
+  },
+  {
+   "id": "u852",
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§51a/ledd-1",
+   "sitat": "Rettens beslutning om at et tolkningsspørsmål skal eller ikke skal forelegges for EFTA-domstolen, kan ikke angripes ved anke",
+   "kategori": "kompetanse",
+   "type": "overprovingskompetanse",
+   "fra": null,
+   "til": "domstolene",
+   "objekt": "beslutning om å forelegge eller ikke forelegge et tolkningsspørsmål for EFTA-domstolen",
+   "polaritet": "negativ",
+   "avgrensning": null,
+   "betinget": false,
+   "kilde_utenfor_korpus": false,
+   "sikkerhet": "hoy",
+   "kommentar": "[#355, beslutning 4] § 51 a første ledd siste punktum: beslutningen om å forelegge (eller ikke) kan ikke ankes — egen negativ anke-rad.",
+   "undertype": "anke"
+  },
+  {
+   "id": "u853",
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§9/ledd-1",
+   "sitat": "så mange protokollsekretærer og utredere som saksmengden krever",
+   "kategori": "relasjon",
+   "type": "del_av",
+   "fra": "protsekr",
+   "til": "hr",
+   "objekt": null,
+   "polaritet": "positiv",
+   "avgrensning": "så mange som saksmengden krever",
+   "betinget": false,
+   "kilde_utenfor_korpus": false,
+   "sikkerhet": "hoy",
+   "kommentar": "[#355, juristrunden] Samme «Høyesterett skal ha …»-setning som u22: G del_av (beslutning 1), jf. § 61 annet ledd. Aktøren samler protokollsekretærer og utredere."
+  },
+  {
+   "id": "u854",
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§37/ledd-1",
+   "sitat": "erklære anke til Høiesteret for at faa saksbehandlingen og avgjørelsen kjendt ugyldig",
+   "kategori": "kompetanse",
+   "type": "overprovingskompetanse",
+   "fra": "hr",
+   "til": "domstolene",
+   "objekt": "saksbehandlingen og avgjørelsen i en sak som ikke hører under norsk domsmyndighet",
+   "polaritet": "positiv",
+   "avgrensning": "anke fra departementet etter § 37; ingen tidsfrist eller ankesum",
+   "betinget": false,
+   "kilde_utenfor_korpus": false,
+   "sikkerhet": "hoy",
+   "kommentar": "[#355, juristrunden] Høyesteretts ankekompetanse etter § 37, adskilt fra departementets ankeadgang (u102, regellaget).",
+   "undertype": "anke"
+  },
+  {
+   "id": "u855",
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55f/ledd-2",
+   "sitat": "Beslutning om konstitusjon som nevnt i første ledd, gjøres av Innstillingsrådet for dommere",
+   "kategori": "kompetanse",
+   "type": "oppnevningskompetanse",
+   "fra": "innst",
+   "til": "dommer",
+   "objekt": "konstitusjon av ny dommer (§ 55 f)",
+   "polaritet": "positiv",
+   "avgrensning": "ny dommer (§ 55 f første ledd): ikke lengre varighet enn ett år, og ikke Høyesterett",
+   "betinget": false,
+   "kilde_utenfor_korpus": false,
+   "sikkerhet": "hoy",
+   "kommentar": "[#355, juristrunden] Punktumet har to regler (L13): Innstillingsrådet (denne raden) og Kongen (u137).",
+   "undertype": "konstitusjon"
+  },
+  {
+   "id": "u856",
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55h/ledd-1",
+   "sitat": "En midlertidig dommer, herunder dommerfullmektig og jordskiftedommerfullmektig, kan ikke sies opp",
+   "kategori": "kompetanse",
+   "type": "avsettingskompetanse",
+   "fra": null,
+   "til": "middommer",
+   "objekt": null,
+   "polaritet": "negativ",
+   "avgrensning": "i den perioden konstitusjonen eller tilsettingen gjelder for",
+   "betinget": false,
+   "kilde_utenfor_korpus": false,
+   "sikkerhet": "hoy",
+   "kommentar": "[#355, juristrunden] § 55 h første ledd: samme tre regler som kort nr. 58 (§ 55 femte ledd), for midlertidige dommere. Siste punktum («fratrer … uten oppsigelse eller avskjed») er at konstitusjonen opphører — ingen kant.",
+   "undertype": "oppsigelse"
+  },
+  {
+   "id": "u857",
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55h/ledd-1",
+   "sitat": "kan bare avskjediges etter rettergang og dom i den perioden konstitusjonen eller tilsettingen gjelder for",
+   "kategori": "kompetanse",
+   "type": "avsettingskompetanse",
+   "fra": null,
+   "til": "middommer",
+   "objekt": null,
+   "polaritet": "negativ",
+   "avgrensning": "unntatt etter rettergang og dom; i den perioden konstitusjonen eller tilsettingen gjelder for",
+   "betinget": false,
+   "kilde_utenfor_korpus": false,
+   "sikkerhet": "hoy",
+   "kommentar": "[#355, juristrunden] § 55 h første ledd: samme tre regler som kort nr. 58 (§ 55 femte ledd), for midlertidige dommere. Siste punktum («fratrer … uten oppsigelse eller avskjed») er at konstitusjonen opphører — ingen kant.",
+   "undertype": "avskjed"
+  },
+  {
+   "id": "u858",
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§55h/ledd-1",
+   "sitat": "forflyttes mot sin vilje",
+   "kategori": "kompetanse",
+   "type": "annet:forflytning",
+   "fra": null,
+   "til": "middommer",
+   "objekt": null,
+   "polaritet": "negativ",
+   "avgrensning": "mot sin vilje; i den perioden konstitusjonen eller tilsettingen gjelder for",
+   "betinget": false,
+   "kilde_utenfor_korpus": false,
+   "sikkerhet": "hoy",
+   "kommentar": "[#355, juristrunden] § 55 h første ledd: samme tre regler som kort nr. 58 (§ 55 femte ledd), for midlertidige dommere. Siste punktum («fratrer … uten oppsigelse eller avskjed») er at konstitusjonen opphører — ingen kant."
   }
  ]
 }

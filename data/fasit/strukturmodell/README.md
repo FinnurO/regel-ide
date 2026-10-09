@@ -50,3 +50,10 @@ Målegrunnlaget for `docs/33-strukturmodell-aktor-omrade-kompetanse.md`.
   `forvaltes_av` er **én node fra folketrygdloven** (§ 21-11 a første ledd, «Helsedirektoratet skal forvalte kapittel 5 …»)
   lagt i `noder/spesialisthelsetjenesteloven.json`, og folketrygdloven står som ledsagende kilde — bare den ene noden, loven
   er ikke lest i sin helhet. Spesialisthelsetjenesteloven har dermed 379 tekstnoder og 303 utsagn.
+- **#355 — avslutning speiler innsetting, forelegging etter rettsvirkning (2026-10-09).** `konvertering-355-avslutning.py`
+  (deterministisk, idempotent, også på `ki-utdata/`): undertypene utnevning, konstitusjon, avsetting, oppsigelse, avskjed og
+  tilbakekall fra sitatet (leksikonets stammer); juristdebattens kort nr. 58 (domstolloven § 55 femte ledd → tre rader) og nr. 29
+  (hotl. u145 → annet:partsposisjon); ankeadgang (domstolloven u102, u108) → annet:partsposisjon og ny R representerer for § 37;
+  u275 med tingrettene som motpart; foreleggingskompetanse (u117, u118) → plikt/konsultasjonsplikt (kan) med ny negativ anke-rad for
+  § 51 a; u22/u165 → del_av; og juristrundens 16 rettinger (regel 10). Domstolloven har dermed 774 utsagn og spesialisthelsetjenesteloven
+  304 (fasiten 1 798 → 1 809).

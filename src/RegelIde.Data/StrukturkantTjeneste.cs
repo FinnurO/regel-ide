@@ -36,7 +36,7 @@ public sealed record NyStrukturkant(
     string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null,
     // [Ny, issue #341, 2026-10-08] Bare på K — se StrukturkantEntitet.Normform/Grunnlag/Delegerbar. Null = ikke angitt.
     string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null,
-    // [Ny, issue #352] Bare på K oppnevning/overproving — se StrukturkantEntitet.Undertype. Null = ikke angitt.
+    // [Ny, issue #352] Bare på K oppnevning/overproving — se StrukturkantEntitet.Undertype. Null = ikke angitt. [ENDRET, #355] + avsetting og vedtak.
     string? Undertype = null,
     // [Ny, issue #353] Bare på P: skal | kan | bor — se StrukturkantEntitet.Modalitet. Null = ikke angitt.
     string? Modalitet = null);
@@ -766,6 +766,13 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
                 // objektet: «HELSE SØR-ØST RHF har avtaleplikt (skal) overfor denne — samarbeidsavtale». Til-malen («{0} har
                 // avtaleplikt overfor denne») mistet begge, så Oslo kommunes side sa mindre enn pliktsubjektets.
                 tekst = $"{fra.Navn} {string.Format(type?.FraVisningsmal ?? "(ukjent type) {0}", Kompetansetekst(Modalitetsord(k.Modalitet), "denne", false, k.Objekt, objektTekst))}";
+            }
+            else if (retning == "til" && k.Kategori == Strukturkanter.Kompetanse && k.Undertype is not null)
+            {
+                // [Ny, issue #355, kaldtesten 2026-10-09] Fra motpartens side beholder en kompetanse med undertype undertypen, som
+                // plikten beholder modaliteten (#353-rettingen): «Hvem kan sette inn en fast dommer?» spørres fra dommerrollen, og
+                // «Kongen i statsråd har oppnevningskompetanse overfor denne» skilte ikke utnevning fra konstitusjon.
+                tekst = $"{fra.Navn} {string.Format(type?.FraVisningsmal ?? "(ukjent type) {0}", Kompetansetekst(k.Undertype, "denne", false, k.Objekt, objektTekst))}";
             }
             else if (retning == "til" && !selvregulering)
             {

@@ -127,7 +127,9 @@ public class OppnevningMigreringTests
             }
             Assert.False(await etter.RelasjonsTypeKonfigurasjoner.AnyAsync(t => t.Familie == "personell"));
             Assert.Equal("oppnevning", (await etter.RelasjonsTypeKonfigurasjoner.SingleAsync(t => t.Kategori == "K" && t.Kode == "avsetting")).Familie);
-            Assert.Equal("kontroll", (await etter.RelasjonsTypeKonfigurasjoner.SingleAsync(t => t.Kategori == "K" && t.Kode == "forelegging")).Familie);
+            // [ENDRET, issue #355] Testen migrerer til siste versjon, der forelegging ikke lenger er en K-type
+            // (AvslutningSpeilerInnsetting). At #352 satte familien kontroll, prøves av Down under (#355 legger raden inn igjen først).
+            Assert.False(await etter.RelasjonsTypeKonfigurasjoner.AnyAsync(t => t.Kategori == "K" && t.Kode == "forelegging"));
             Assert.True(await etter.RelasjonsTypeKonfigurasjoner.AnyAsync(t => t.Kategori == "R" && t.Kode == "radgir"));
             // [Ny, #352-tillegg] Sammensetningen i den enkelte sak: G settes_med, merket saksavhengig — og bare den.
             Assert.True((await etter.RelasjonsTypeKonfigurasjoner.SingleAsync(t => t.Kategori == "G" && t.Kode == Strukturkanter.SettesMed)).Saksavhengig);

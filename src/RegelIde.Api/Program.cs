@@ -3480,10 +3480,17 @@ app.MapGet("/api/gruppebegrep", async (VirksomhetsbegrepTjeneste register, Cance
 var strukturkanter = app.MapGroup("/api/strukturkanter").WithOpenApi();
 
 strukturkanter.MapGet("/", async (Guid? virksomhetId, Guid? begrepId, string? kategori, string? status, bool? gjeldende,
-        string? familie, StrukturkantTjeneste tjeneste, CancellationToken ct) =>
+        string? familie, string? undertype, StrukturkantTjeneste tjeneste, CancellationToken ct) =>
     {
         try
         {
+            // [Ny, issue #355 AC4] ?undertype= avgrenser til én undertype («hvem kan sette inn en fast dommer?» = K oppnevning med
+            // undertype utnevning, ikke konstitusjon). Lukket liste (Strukturkanter.Undertyper) — en ukjent verdi er en feil, ikke tomt svar.
+            if (undertype is not null && !Strukturkanter.Undertyper.Values.Any(u => u.Contains(undertype)))
+            {
+                return Results.BadRequest(new { feil = $"Ukjent undertype '{undertype}'. Gyldige verdier: "
+                    + string.Join(", ", Strukturkanter.Undertyper.Values.SelectMany(u => u).Distinct()) + "." });
+            }
             if (virksomhetId is not null && begrepId is not null)
             {
                 return Results.BadRequest(new { feil = "Oppgi virksomhetId ELLER begrepId, ikke begge." });
@@ -3495,13 +3502,14 @@ strukturkanter.MapGet("/", async (Guid? virksomhetId, Guid? begrepId, string? ka
                     return Results.BadRequest(new { feil = "Oppgi virksomhetId eller begrepId (eller status=foreslatt_av_ai for forslagskøen)." });
                 }
                 var forslag = await tjeneste.HentForslagAsync(ct);
-                return Results.Ok(forslag.Where(v => (kategori == null || v.Kategori == kategori) && (familie == null || v.Familie == familie))
+                return Results.Ok(forslag.Where(v => (kategori == null || v.Kategori == kategori) && (familie == null || v.Familie == familie)
+                        && (undertype == null || v.Undertype == undertype))
                     .Select(StrukturkantDto.FraVisning));
             }
             var node = virksomhetId is { } v ? Kantnode.Virksomhet(v) : Kantnode.Begrep(begrepId!.Value);
             var kanter = await tjeneste.HentForNodeAsync(node, kategori, gjeldende ?? false, ct, familie);
             return Results.Ok(kanter
-                .Where(k => status == null || k.Status == status)
+                .Where(k => (status == null || k.Status == status) && (undertype == null || k.Undertype == undertype))
                 .OrderBy(k => Array.IndexOf(Strukturkanter.Kategorier, k.Kategori))
                 .ThenBy(k => k.Visningstekst, StringComparer.Ordinal)
                 .Select(StrukturkantDto.FraVisning));
@@ -3516,7 +3524,8 @@ strukturkanter.MapGet("/", async (Guid? virksomhetId, Guid? begrepId, string? ka
         "visningstekst fra nodens side. ?kategori=R|K|M|O|A|G|I|T avgrenser, ?gjeldende=true filtrerer på " +
         "gyldighet (kantens egne datoer + hjemmelens status, docs/29 §Del B). Uten node: ?status=foreslatt_av_ai " +
         "gir forslagskøen. [Ny, #341] ?familie=struktur|oppnevning|styring|normgivning|kontroll|klage_overproving|vedtak|sanksjon " +
-        "gir bare kompetansekantene i den familien.");
+        "gir bare kompetansekantene i den familien. [Ny, #355] ?undertype=utnevning|konstitusjon|avskjed|tilbakekall|anke|… gir bare " +
+        "kantene med den undertypen («hvem kan sette inn en fast dommer?»: begrepId=dommer&kategori=K&undertype=utnevning).");
 
 // [Ny, Johanns beslutning 2026-10-07] Arbeidslista over forvaltningsstruktur som mangler forankring i en
 // rettskilde: kanter UTEN hjemmel i korpus, filtrert på kildetypen (standard nettside_annet — «bare
@@ -3726,6 +3735,21 @@ omrader.MapGet("/kommuner/{kommunenummer}/plikter", async (string kommunenummer,
     .WithSummary("Issue #353 AC5 — gitt et kommunenummer (og valgfritt ?type=samarbeid|avtale|betaling|bistand|informasjon|" +
         "konsultasjon): pliktene som gjelder kommunen (direkte, via registrert medlemskap, eller fra en klasse uten registrert " +
         "medlemskap — med hull), og motparten per plikt: konkret | entydig | ikke_entydig | mangler | ikke_angitt.");
+
+// [Ny, issue #355 AC4, Johanns beslutning 4 2026-10-09, docs/32 S6] «Hvem er ankeinstans for X tingrett?» — AVLEDET: K overprøving/anke
+// fra lagmannsretten til tingretten (klassen), avgrenset til eget lagdømme, paret via tingrett → lagsogn → lagdømme (#345). Paret lagres
+// ikke. Ved flere kandidater velges ingen.
+app.MapGet("/api/virksomheter/{id:guid}/ankeinstans", async (Guid id, OmradeOppslagTjeneste tjeneste, CancellationToken ct) =>
+    {
+        var svar = await tjeneste.AnkeinstansAsync(id, ct);
+        return svar is null
+            ? Results.NotFound(new { feil = $"Ingen virksomhet med id '{id}'." })
+            : Results.Ok(AnkeinstansDto.Fra(svar));
+    })
+    .WithName("HentAnkeinstans")
+    .WithSummary("Issue #355 AC4 — ankeinstansen for en domstol, avledet fra K overprøving/anke-kantene (direkte, via registrert " +
+        "medlemskap eller fra en klasse uten registrert medlemskap — med hull) og domstolens områder (ansvarsområde, lagsogn, lagdømme). " +
+        "status = entydig | ikke_entydig | mangler; ved flere kandidater velges ingen.");
 
 // [ENDRET, issue #311] Tynn lesefasade over M-/I-kanter fra virksomheten — se MyndighetstildelingDto.
 // Nettside-eksporten leser den; frontend bruker /api/strukturkanter.

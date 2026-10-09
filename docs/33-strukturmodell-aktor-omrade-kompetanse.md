@@ -236,11 +236,11 @@ Alle strukturutsagn lagres som én kanttype med kategori + konfigurerbar typekod
 |---|---|---|
 | **R** relasjon | aktør → aktør | [ENDRET, #341] Struktur UTEN myndighet: eies_av, ledes_av, sekretariat_for, rapporterer_til, etterfolger, representerer, har_delegert_til (gjennomført delegering). [ENDRET, #352] Avgjort som R (struktur eller hendelse, ikke myndighet): administrativt_underordnet, radgir, oppretter, avvikler. velger og ankeinstans_for er flyttet til K. [Ny, #353] forvaltes_av (ordning → organet som forvalter den) |
 | **P** plikt overfor motpart ([Ny, #353]) | aktør (også ordning)/rolle/klasse → **motpart** (valgfri) | samarbeid, avtale, betaling, bistand, informasjon, konsultasjon — med `modalitet` (skal/kan/bør). Se §4.5 |
-| **K** kompetanse | aktør/rolle → **motpart** (valgfri) og bestemmelse/sakstype | [ENDRET, #341, #352] beslutning; struktur: oppretting, avvikling, organisasjon; oppnevning: oppnevning (med undertype valg/ansettelse/utpeking/oppnevning), avsetting; styring: instruksjon, samordning, delegering, godkjenning, samtykke, palegg; normgivning (med normform); kontroll: tilsyn, revisjon, forelegging; klage og overprøving: klage, omgjoring, overproving (med undertype anke), stadfesting; vedtak; sanksjon |
+| **K** kompetanse | aktør/rolle → **motpart** (valgfri) og bestemmelse/sakstype | [ENDRET, #341, #352, #355] beslutning; struktur: oppretting, avvikling, organisasjon; oppnevning: oppnevning (med undertype valg/ansettelse/utpeking/oppnevning/utnevning/konstitusjon), avsetting (med undertype avsetting/oppsigelse/avskjed); styring: instruksjon, samordning, delegering, godkjenning, samtykke, palegg; normgivning (med normform); kontroll: tilsyn, revisjon (~~forelegging~~ [FJERNET, #355]); klage og overprøving: klage, omgjoring, overproving (med undertype anke), stadfesting; vedtak (med undertype tilbakekall); sanksjon |
 | **M** medlemskap | aktør/klasse/område → klasse | medlem_av |
 | **O** områdesammensetning | område → område | bestar_av |
 | **A** ansvarsområde | aktør → område | har_ansvarsomrade, har_jurisdiksjon, har_sete_i, valgkrets_for |
-| **G** organtilhørighet | organ/enhet/rolle → rettssubjekt | har_organ, del_av, har_medlemmer (organets faste medlemmer), [Ny, #352] settes_med (sammensetningen i den enkelte sak — saksavhengig), [Ny, #353] tilhorer (ordning → rettssubjekt, bare når hjemlet) |
+| **G** organtilhørighet | organ/enhet/rolle → rettssubjekt | har_organ, del_av ([#355] også fra en stilling: «Høyesteretts direktør» del_av Høyesterett), har_medlemmer (organets faste medlemmer), [Ny, #352] settes_med (sammensetningen i den enkelte sak — saksavhengig), [Ny, #353] tilhorer (ordning → rettssubjekt, bare når hjemlet) |
 | **I** rolleinnehav | aktør → rolle | innehar (= dagens `Myndighetstildeling` når målet er en rolle) |
 | **T** klassenivå | klasse → rolle/organ-type | skal_ha (distributivt: hvert medlem av klassen har …) |
 
@@ -315,7 +315,7 @@ i `kilde_referanser`, som `Down` leser for å snu nøyaktig de radene). KI-oppda
 *Prinsippet (P1):* A har kompetanse av typen X, eventuelt **overfor B**, når det gjelder Y (bestemmelse eller sakstype),
 med avgrensning og hjemmel. Myndighet er **K**, og motparten er kantens til-node. **R** brukes bare om struktur uten
 myndighet: eierskap, ledelse, sekretariat, rapportering, etterfølger og representasjon. Klageinstans, instruksjon,
-omgjøring, oppnevning, tilsyn med en aktør, avsetting, sanksjon, samtykke, overprøving og forelegging er derfor K, ikke R.
+omgjøring, oppnevning, tilsyn med en aktør, avsetting, sanksjon, samtykke, overprøving og forelegging er derfor K, ikke R. [ENDRET, #355] Forelegging er siden tatt ut som K-type og klassifiseres etter rettsvirkningen (se #355-avsnittet under).
 
 | Spørsmål | Svar i modellen |
 |---|---|
@@ -368,6 +368,81 @@ på familie (`GET /api/strukturkanter?familie=…`), og VirksomhetDetalj grupper
 
 Migrasjonen `OppnevningsfamilienOgRester` gjør dette i basen (teller før/etter, proveniens, `Down` snur nøyaktig), og
 `konvertering-352-oppnevning.py` i fasiten (1797 → 1797 utsagn).
+
+**[Bygget, issue #355 «avslutning speiler innsetting», Johanns beslutninger 2026-10-09]**
+
+Johann la fram to analyser (avslutning av en posisjon og ankedomenet) og godkjente tilpasningen 2026-10-09; samme dag kom
+beslutningene om fasitkortene domstolloven:u22, sameloven:u165 og domstolloven:u118 og utfallet av juristdebatten (kort nr. 29 og 58).
+
+1. *Avslutning speiler innsetting.* K `avsetting` (familien oppnevning) har undertypene `avsetting` (verv og styre — motsatsen til
+   valg/oppnevning/utpeking: helseforetaksloven § 25 annet ledd, domstolloven § 33a fjerde ledd), `oppsigelse` og `avskjed` (motsatsen
+   til ansettelse: helseforetaksloven § 36 første ledd). Oppnevning får `utnevning` (embete etter Grl. § 21: domstolloven § 55 første
+   ledd; avskjed bare etter dom, femte ledd) og `konstitusjon` (midlertidig: §§ 55a, 55e, 55f; den opphører, varigheten står i
+   avgrensningen). *Hvorfor:* utnevning er ikke ansettelse. Uten skillet svarer «hvem kan sette inn en fast dommer?» Kongen,
+   Innstillingsrådet og domstollederen; med det bare Kongen (`GET /api/strukturkanter?begrepId=<dommere>&kategori=K&undertype=utnevning`).
+2. *Tilbakekall er ikke oppnevning:* tilbakekall av en tillatelse eller autorisasjon er K `vedtak` med undertype `tilbakekall`.
+   Tilbakekall av delegert myndighet hører til delegering.
+3. *Sanksjon er en funksjon, ikke en disposisjonstype.* Domstolloven § 33a er en avsetting selv om den er en reaksjon; vilkåret står i
+   avgrensningen. Familien sanksjon beholdes for disposisjoner som selv er reaksjoner. Ingen funksjonsfelt.
+4. *Ankeinstansen er organet.* Inndelingsforskriften § 10 første ledd er K `overproving`/`anke` fra lagmannsretten til tingretten
+   (klassen), avgrenset til eget lagdømme. Parene regnes ut via tingrett → lagsogn → lagdømme (#345) og lagres ikke dobbelt; rettskretsen
+   er avgrensning, ikke motpart (L1). Oppslaget `GET /api/virksomheter/{id}/ankeinstans` (`OmradeOppslagTjeneste.AnkeinstansAsync`):
+   domstolens områder (A har_ansvarsomrade/sogner_til + O-forfedre) → de positive anke-kantene der domstolen er til-siden (direkte, via
+   registrert medlemskap, eller til en klasse uten registrert medlemskap — den siste med hull, teller ikke) → instansen hvis
+   ansvarsområde dekker domstolens. Én → `entydig`, flere → `ikke_entydig` (ingen velges), ingen → `mangler`. Lokalt finnes ennå ingen
+   anke-kanter og ingen klasse «tingrett» (målt 2026-10-09); de lastes ikke i denne saken (importen er #313).
+5. *Ankeadgang er en partsposisjon i regellaget*, utenfor strukturlaget (som møteplikt, §4.4): domstolloven § 37 og § 46 annet ledd
+   («departementet kan anke») og «Kommunen er part i saken» (hotl. § 10-7, kort nr. 29). Den strukturelle delen av § 37, «paa det
+   offentliges vegne», er R `representerer` (departementet → staten).
+6. *Ankehandlingen* (den konkrete anken) hører til sakslaget og er ikke i scope.
+7. *«X skal ha en Y» for ett navngitt organ er G `del_av`*, ikke T (T er bare klassenivå): Sametingets administrasjon del_av Sametinget;
+   STILLINGEN «Høyesteretts direktør» (en rolle knyttet til nettopp Høyesterett) del_av Høyesterett. G tillot alt rolle som fra; ingen ny
+   type. En person kobles til stillingen med I `innehar`.
+8. *Ingen modalitet på strukturkanter.* Struktur med lovhjemmel er lovpålagt; modalitet brukes bare på P (CHECK
+   `ck_strukturkanter_modalitet` fra #353 håndhevet det alt).
+9. *Forelegging er ikke lenger en K-type.* Den klassifiseres etter rettsvirkningen og formålet: bindende svar (godkjenning, samtykke,
+   avgjørelse) er mottakerens kompetanse i familien den alt har, og selve foreleggelsen er saksgang (regellaget); rådgivende svar
+   (uttalelse, tolkning, merknader) er P `konsultasjon` fra avsenderen med modalitet kan/skal og negativ polaritet for forbud; kontroll
+   bare når mottakeren kan undersøke og følge opp. Domstolloven § 51 a første ledd: norsk domstol P konsultasjon (kan) overfor
+   EFTA-domstolen, objekt «rådgivende tolkningsuttalelse», ODA artikkel 34 som kilde utenfor korpus; annet ledd: forliksrådene, samme kant,
+   negativ; første ledd siste punktum («kan ikke angripes ved anke») er en egen negativ anke-rad. EFTA-domstolens egen kompetanse
+   modelleres bare hvis ODA kommer inn i korpuset.
+
+*Migrasjonen `AvslutningSpeilerInnsetting`* (`AvslutningMigrering.cs`): ny CHECK `ck_strukturkanter_undertype`; K `forelegging` ut av
+typekonfigurasjonen med alle verdiene i proveniensen (`migrasjon-355`, `slettet`); avbryter og lister id-ene hvis det finnes K
+forelegging-kanter (rettsvirkningen kan ikke avgjøres uten teksten); ingen eksisterende kant får undertype (basen har ikke sitatet).
+`Down` legger inn nøyaktig den slettede raden (samme Id) og nekter når en undertype fra #355 finnes. **Målt mot lokal `regelide`
+2026-10-09:** 1 261 → 1 261 kanter, typekonfigurasjonen 54 → 53 (−K forelegging), 0 K forelegging-kanter, 1 proveniensrad. `Down`
+prøvd (53 → 54, proveniensraden borte, gammel CHECK) og kjørt opp igjen.
+
+*Fasiten* (`konvertering-355-avslutning.py`, deterministisk, idempotent, også på `ki-utdata/`): 1 798 → 1 809 utsagn. Undertype fra
+sitatet: konstitusjon 5, tilbakekall 5 (hotl. u186, sphl. u253, energiloven u205–u207), avsetting 2, utnevning 2 (domstolloven u120 og
+spesialisthelsetjenesteloven u216 — rettet til oppnevning i juristrunden, se under). Kort nr. 58 (domstolloven § 55 femte ledd) er tre
+rader, spesialisthelsetjenesteloven u118 («si opp eller avskjedige») to. Forelegging: de 2 K-radene (domstolloven u117, u118) → P
+konsultasjon (kan); relasjon/annet:forelegges_for (u52, u56) og annet:intern_forelegging (hotl. u141, u142) står som saksgang. Nye rader:
+§ 37 R representerer, § 51 a negativ anke. u275 til = tingrettene, u22/u165 → del_av, u102/u108 → annet:partsposisjon/annet:ankeadgang,
+u145 → annet:partsposisjon (til = null). KI-utdata 1 043 → 1 043 (tilbakekall 6, utnevning 1).
+
+*Juristrunden (CLAUDE.md §23, 2026-10-09):* agenten jurist-utfordrer vurderte de 29 radene konverteringen endret eller la til; 13
+holdt og 16 fikk innvending (9 lav, 7 middels). Alle er akseptert og bygget inn som regel 10 i skriptet, så ingen uenighet gikk
+videre til Johann: konstitusjonsradene fikk motparten dommere og vilkårene/varigheten i avgrensningen (u124, u133, u134, u136, u137);
+Innstillingsrådets konstitusjon etter § 55 f annet ledd er en egen rad (L13); u120 har `delegerbar = false` (Grl. § 21: Kongen i
+statsråd); u216 «kontaktpsykolog utnevnes» er oppnevning, ikke utnevning (ikke embete — verbet alene avgjør ikke); u94 er unntaket fra
+avsettingen (undertype avsetting, fra = null som u93); vilkårene står i avgrensningen på tilbakekallene (u186, u205–u207) og § 51 a
+(u117); nye rader for protokollsekretærer og utredere del_av Høyesterett (§ 9), Høyesteretts anke etter § 37 og § 55 h første ledd
+(kort nr. 58 for midlertidige dommere).
+
+| Måling (samme treffregel, samme utdata) | Før #355 | Etter #355 |
+|---|---:|---:|
+| Fasitutsagn | 1 798 | 1 809 |
+| Mønster alle: P / G | 92,7 / 48,2 % | 92,7 / 47,9 % |
+| Mønster K (fasit 577 → 582): P / G | 88,0 / 49,4 % | 88,0 / 49,0 % |
+| KI alle: P / G | 36,5 / 21,2 % | 36,5 / 21,1 % |
+| Union alle: P / G | 58,2 / 55,7 % | 58,2 / 55,4 % |
+| designtest.py revidert ja / senere lag | 1 719 / 58 | 1 728 / 60 |
+
+Prediksjonene er uendret (934 mønster, 1 043 KI); fallet i gjenfinning er bare at fasiten fikk elleve rader. Leksikonet (versjon
+2026-10-09.3) har undertypene med verb og ordstammer; ingen nye mønster-regex er lagt til (ingen målt form med høy nok presisjon).
 
 *Fvl-kategori — på typen, ikke på kanten:* `forskrift | enkeltvedtak | ikke_vedtak` (forvaltningsloven § 2: vedtak =
 forskrift + enkeltvedtak). Det er en egenskap ved hva slags kompetanse det er (alle vedtakskompetanser er enkeltvedtak), så
@@ -809,6 +884,8 @@ gruppebegrep («forskriftsmyndighet etter § X»), men uten at kompetansetypen b
 [ENDRET, issue #312] Etter fasitrettelsen gir `designtest.py` 1 797 utsagn, revidert ja 91 % (1 640), delvis 1 %,
 senere lag 8 %; domstolloven 739 strukturutsagn, revidert ja 100 %.
 
+[ENDRET, issue #355] Etter konverteringen for #355: 1 809 utsagn, revidert ja 96 % (1 728), senere lag 60 (+ ankeadgang u102/u108).
+
 [ENDRET, issue #353] Etter plikt-konverteringen (§4.5): 1 798 utsagn, revidert ja 96 % (1 719), delvis 1 %, senere lag 3 % (56:
 møteplikt, saksforberedelse, rettigheter, hefte, avtalens innhold). Revidert «ja» per element: K 637, A 508, O 177, R 159, P 77,
 M 65, G 61, T 21, I 14.
@@ -829,6 +906,7 @@ ansvarsområde i hvilke områder? 11. Hvilke aktører har myndighet innenfor hvi
 
 Pluss to som følger av funnene: 12. Hvem har hvilken kompetanse etter hvilken paragraf (S1)?
 13. Gitt en kommune: hvilken statsforvalter, tingrett og helseregion gjelder for den (S6)?
+[Ny, #355] 16. Hvem kan sette inn en fast dommer (utnevning, ikke konstitusjon)? 17. Hvem er ankeinstans for X tingrett (avledet)?
 [Ny, #353] 14. Gitt en kommune: hvem har den plikt overfor (samarbeid, avtale, betaling …), og hvor står det (S6)?
 15. Hvem forvalter en ordning (folketrygden), etter hvilket kapittel (S1)?
 

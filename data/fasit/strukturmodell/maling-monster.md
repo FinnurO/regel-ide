@@ -12,8 +12,8 @@ bare eId + kategori + type — forskjellen mellom de to viser hvor mye av feilen
 
 ## Totalt
 
-1798 fasitutsagn, 934 predikerte, 866 treff → presisjon **92,7 %**, gjenfinning **48,2 %**
-(uten endepunktkrav: presisjon 94,9 %, gjenfinning 49,3 %).
+1809 fasitutsagn, 934 predikerte, 866 treff → presisjon **92,7 %**, gjenfinning **47,9 %**
+(uten endepunktkrav: presisjon 94,9 %, gjenfinning 49,0 %).
 
 ## Per kategori (kanttype, `docs/33` §4.3)
 
@@ -21,26 +21,26 @@ Bokstaven følger `STD`-tabellen i `designtest.py`. `annet:*`-typer står i egen
 
 | Kategori | Fasit | Predikert | Treff | Presisjon | Gjenfinning | Presisjon u/endepunkt | Gjenfinning u/endepunkt |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| R | 124 | 4 | 3 | 75,0 % | 2,4 % | 75,0 % | 2,4 % |
-| K | 577 | 324 | 285 | 88,0 % | 49,4 % | 89,5 % | 50,3 % |
-| P | 77 | 31 | 18 | 58,1 % | 23,4 % | 64,5 % | 26,0 % |
+| R | 125 | 4 | 3 | 75,0 % | 2,4 % | 75,0 % | 2,4 % |
+| K | 582 | 324 | 285 | 88,0 % | 49,0 % | 89,5 % | 49,8 % |
+| P | 79 | 31 | 18 | 58,1 % | 22,8 % | 64,5 % | 25,3 % |
 | M | 48 | 0 | 0 | – | 0,0 % | – | 0,0 % |
 | O | 177 | 122 | 109 | 89,3 % | 61,6 % | 98,4 % | 67,8 % |
 | A | 449 | 419 | 419 | 100,0 % | 93,3 % | 100,0 % | 93,3 % |
-| G | 43 | 6 | 4 | 66,7 % | 9,3 % | 100,0 % | 14,0 % |
+| G | 46 | 6 | 4 | 66,7 % | 8,7 % | 100,0 % | 13,0 % |
 | I | 0 | 0 | 0 | – | – | – | – |
-| T | 21 | 0 | 0 | – | 0,0 % | – | 0,0 % |
-| annet | 282 | 28 | 28 | 100,0 % | 9,9 % | 100,0 % | 9,9 % |
+| T | 19 | 0 | 0 | – | 0,0 % | – | 0,0 % |
+| annet | 284 | 28 | 28 | 100,0 % | 9,9 % | 100,0 % | 9,9 % |
 
 ## Per kilde
 
 | Kilde | Fasit | Predikert | Treff | Presisjon | Gjenfinning | Presisjon u/endepunkt | Gjenfinning u/endepunkt |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| domstolloven | 764 | 540 | 517 | 95,7 % | 67,7 % | 96,9 % | 68,5 % |
+| domstolloven | 774 | 540 | 517 | 95,7 % | 66,8 % | 96,9 % | 67,6 % |
 | energiloven | 254 | 117 | 110 | 94,0 % | 43,3 % | 94,0 % | 43,3 % |
 | helse-og-omsorgstjenesteloven | 192 | 58 | 51 | 87,9 % | 26,6 % | 91,4 % | 27,6 % |
 | sameloven | 285 | 133 | 118 | 88,7 % | 41,4 % | 97,0 % | 45,3 % |
-| spesialisthelsetjenesteloven | 303 | 86 | 70 | 81,4 % | 23,1 % | 82,6 % | 23,4 % |
+| spesialisthelsetjenesteloven | 304 | 86 | 70 | 81,4 % | 23,0 % | 82,6 % | 23,4 % |
 
 ## Per type mønsterlaget produserer
 
@@ -52,7 +52,7 @@ Bokstaven følger `STD`-tabellen i `designtest.py`. `annet:*`-typer står i egen
 | K kompetanse / klagekompetanse | 22 | 9 | 7 | 77,8 % | 31,8 % | 100,0 % | 40,9 % |
 | R relasjon / administrativt_underordnet | 5 | 0 | 0 | – | 0,0 % | – | 0,0 % |
 | G organsammensetning / har_medlemmer | 21 | 6 | 4 | 66,7 % | 19,0 % | 100,0 % | 28,6 % |
-| K kompetanse / oppnevningskompetanse | 79 | 10 | 7 | 70,0 % | 8,9 % | 100,0 % | 12,7 % |
+| K kompetanse / oppnevningskompetanse | 80 | 10 | 7 | 70,0 % | 8,8 % | 100,0 % | 12,5 % |
 | K kompetanse / instruksjonskompetanse | 27 | 4 | 4 | 100,0 % | 14,8 % | 100,0 % | 14,8 % |
 | K kompetanse / delegeringskompetanse | 19 | 9 | 8 | 88,9 % | 42,1 % | 88,9 % | 42,1 % |
 | R relasjon / har_delegert_til | 20 | 4 | 3 | 75,0 % | 15,0 % | 75,0 % | 15,0 % |
@@ -63,7 +63,7 @@ Bokstaven følger `STD`-tabellen i `designtest.py`. `annet:*`-typer står i egen
 | P plikt / avtaleplikt | 3 | 3 | 2 | 66,7 % | 66,7 % | 100,0 % | 100,0 % |
 | P plikt / betalingsplikt | 18 | 19 | 9 | 47,4 % | 50,0 % | 52,6 % | 55,6 % |
 | P plikt / informasjonsplikt | 13 | 0 | 0 | – | 0,0 % | – | 0,0 % |
-| P plikt / konsultasjonsplikt | 8 | 0 | 0 | – | 0,0 % | – | 0,0 % |
+| P plikt / konsultasjonsplikt | 10 | 0 | 0 | – | 0,0 % | – | 0,0 % |
 | A ansvarsomrade / har_sete_i | 65 | 62 | 62 | 100,0 % | 95,4 % | 100,0 % | 95,4 % |
 | O sammensetning_omrade / del_av | 69 | 47 | 39 | 83,0 % | 56,5 % | 100,0 % | 68,1 % |
 | A ansvarsomrade / har_ansvarsomrade | 381 | 357 | 357 | 100,0 % | 93,7 % | 100,0 % | 93,7 % |
@@ -182,14 +182,14 @@ De 20 vanligste (én fra hver gruppe i tur, vanligste gruppe først):
 | 19 | sameloven | lov/1987/06/12/56/nor/§3-11/ledd-1 | `monster:klage-er-klageinstans` | Statsforvalteren → null | Statsforvalteren er klageinstans når klagen angår kommunale eller fylkeskommunale organ. |
 | 20 | sameloven | lov/1987/06/12/56/nor/§2-12/ledd-5 | `monster:klage-paklages-til` | Sametinget → styre | Enkeltvedtak fattet av styre, råd eller utvalg oppnevnt av Sametinget, kan i samsvar med forvaltningslovens bestemmelser påklages til Sametinget eller særskilt  … |
 
-## Falske negative (932)
+## Falske negative (943)
 
 Gruppert på kategori/type. Typer mønsterlaget ikke har mønster for, er forventet her — de er KI-lagets (#308) nevner.
 
 | Kategori / type | Har mønster | Antall |
 |---|---|---:|
 | K kompetanse / vedtakskompetanse | ja | 87 |
-| K kompetanse / oppnevningskompetanse | ja | 72 |
+| K kompetanse / oppnevningskompetanse | ja | 73 |
 | O sammensetning_omrade / bestar_av | ja | 38 |
 | R relasjon / rapporterer_til | nei | 31 |
 | M medlemskap / medlem_av | nei | 30 |
@@ -198,7 +198,7 @@ Gruppert på kategori/type. Typer mønsterlaget ikke har mønster for, er forven
 | A ansvarsomrade / har_ansvarsomrade | ja | 24 |
 | K kompetanse / instruksjonskompetanse | ja | 23 |
 | K kompetanse / tilsynskompetanse | ja | 21 |
-| T konstituerende / skal_finnes | nei | 21 |
+| T konstituerende / skal_finnes | nei | 19 |
 | M medlemskap / inngar_i | nei | 18 |
 | G organsammensetning / har_medlemmer | ja | 17 |
 | R relasjon / har_delegert_til | ja | 17 |
@@ -206,26 +206,26 @@ Gruppert på kategori/type. Typer mønsterlaget ikke har mønster for, er forven
 | R konstituerende / oppretter | nei | 14 |
 | P plikt / bistandsplikt | nei | 14 |
 | P plikt / samarbeidsplikt | ja | 14 |
+| K kompetanse / overprovingskompetanse | nei | 13 |
 | P plikt / informasjonsplikt | ja | 13 |
 | R relasjon / eies_av | nei | 13 |
+| G relasjon / del_av | nei | 12 |
 | R relasjon / ledes_av | nei | 12 |
 | K kompetanse / delegeringskompetanse | ja | 11 |
-| K kompetanse / overprovingskompetanse | nei | 11 |
 | G organsammensetning / har_organ | nei | 10 |
+| P plikt / konsultasjonsplikt | ja | 10 |
 | R relasjon / radgir | nei | 10 |
 | annet kompetanse / annet:forkynningskompetanse | nei | 9 |
+| K kompetanse / avsettingskompetanse | nei | 9 |
 | annet medlemskap / annet:klasse_definert_ved_tjenestekrets | nei | 9 |
 | P plikt / betalingsplikt | ja | 9 |
-| G relasjon / del_av | nei | 9 |
-| P plikt / konsultasjonsplikt | ja | 8 |
 | annet annet:funksjonstildeling / annet:lovtildelt_oppgave | nei | 7 |
 | annet medlemskap / annet:virkeomrade_utvidet_til | nei | 7 |
 | annet organsammensetning / annet:valgkrets_for | nei | 7 |
 | R relasjon / etterfolger | nei | 7 |
+| R relasjon / representerer | nei | 7 |
 | annet kompetanse / annet:ikraftsettingskompetanse | nei | 6 |
-| R relasjon / representerer | nei | 6 |
 | annet ansvarsomrade / annet:lokalisert_i | nei | 5 |
-| K kompetanse / avsettingskompetanse | nei | 5 |
 | R relasjon / administrativt_underordnet | ja | 5 |
 | K kompetanse / organisasjonskompetanse | nei | 4 |
 | … 158 typer til (alle `annet:*` eller ≤ 4 utsagn) | | 237 |
@@ -248,8 +248,8 @@ De 20 vanligste blant typene med mønster (én fra hver type i tur, vanligste ty
 | 12 | energiloven | kap-I/ledd-9 | samarbeidsplikt | Norges vassdrags- og energidirektorat → Departementet | Gjennomføring av rapportering etter energiloven § 10-1 tredje ledd annet punktum skal samordnes med departementet. |
 | 13 | domstolloven | lov/1915/08/13/5/nor/§217a/ledd-1 | informasjonsplikt | Domstolene → Advokattilsynet | varsle Advokattilsynet om avgjørelsen |
 | 14 | domstolloven | lov/1915/08/13/5/nor/§238/ledd-6 | delegeringskompetanse | Tilsynsutvalget for dommere → null | Tilsynsutvalget kan gi utvalgets leder eller et annet av utvalgets medlemmer myndighet til |
-| 15 | helse-og-omsorgstjenesteloven | lov/2011/06/24/30/nor/§5-3/ledd-3 | betalingsplikt | den kommunen som har bistandsbehovet → andre kommuner | Den kommunen som mottar bistand etter andre ledd, skal yte kommunen som bidrar med hjelp, kompensasjon |
-| 16 | sameloven | lov/1987/06/12/56/nor/§4-3/ledd-1/punkt-1 | konsultasjonsplikt | regjeringen → sameting | regjeringen, departementer, direktorater og andre underliggende virksomheter |
+| 15 | domstolloven | lov/1915/08/13/5/nor/§51a/ledd-1 | konsultasjonsplikt | Domstolene → EFTA-domstolen | forelegge tolkningsspørsmålet for EFTA-domstolen |
+| 16 | helse-og-omsorgstjenesteloven | lov/2011/06/24/30/nor/§5-3/ledd-3 | betalingsplikt | den kommunen som har bistandsbehovet → andre kommuner | Den kommunen som mottar bistand etter andre ledd, skal yte kommunen som bidrar med hjelp, kompensasjon |
 | 17 | energiloven | lov/1990/06/29/50/nor/§9-1/ledd-5 | administrativt_underordnet | kraftforsyningen → Kraftforsyningens beredskapsorganisasjon (KBO) | Beredskapsmyndigheten kan under beredskap og i krig underlegge kraftforsyningen KBO. |
 | 18 | domstolloven | forskrift/2021/01/22/163/nor/§1/ledd-1 | har_sete_i | tingrettene → rettssteder | med ett eller flere rettssteder |
 | 19 | helse-og-omsorgstjenesteloven | lov/2011/06/24/30/nor/§9-7/ledd-4 | godkjenningskompetanse | Statsforvalteren → null | Vedtaket kan ikke iverksettes før det er godkjent av statsforvalteren. |

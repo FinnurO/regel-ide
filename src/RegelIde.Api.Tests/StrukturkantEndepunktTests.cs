@@ -121,7 +121,8 @@ public class StrukturkantEndepunktTests
         // typer; forelegging er kontroll. R velger/ankeinstans_for er flyttet til K; radgir og oppretter er fortsatt R.
         Assert.Equal("oppnevning", Assert.Single(k!, t => t.Kode == Strukturkanter.Oppnevning).Familie);
         Assert.Equal("oppnevning", Assert.Single(k!, t => t.Kode == "avsetting").Familie);
-        Assert.Equal("kontroll", Assert.Single(k!, t => t.Kode == "forelegging").Familie);
+        // [ENDRET, issue #355] Forelegging er ikke lenger en K-type (klassifiseres etter rettsvirkningen).
+        Assert.DoesNotContain(k!, t => t.Kode == "forelegging");
         Assert.DoesNotContain(k!, t => t.Kode is "utpeking" or "ansettelse" || t.Familie == "personell");
         Assert.DoesNotContain(r!, t => t.Kode is "velger" or "ankeinstans_for");
         Assert.Contains(r!, t => t.Kode == "radgir");
@@ -236,6 +237,81 @@ public class StrukturkantEndepunktTests
         Assert.Contains("#340", treff.Motpart.Hull);
         Assert.Equal(HttpStatusCode.BadRequest, (await _client.GetAsync($"/api/omrader/kommuner/{kommunenummer}/plikter?type=mote")).StatusCode);
         Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync("/api/omrader/kommuner/XXXX/plikter")).StatusCode);
+    }
+
+    /// <summary>[Ny, issue #355 AC4] S6 gjennom API-et: «hvem kan sette inn en fast dommer?» med ?undertype=utnevning (bare Kongen),
+    /// ukjent undertype gir 400; og «hvem er ankeinstans for X tingrett?» gir én lagmannsrett, avledet via lagsogn → lagdømme.</summary>
+    [Fact]
+    public async Task S6_fast_dommer_og_ankeinstans_for_tingrett()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var (lovId, paragrafEid) = await OpprettRettskildeMedParagrafAsync();
+        var (kongen, kongenNavn) = await OpprettVirksomhetAsync("Kongen");
+        var (innstillingsradet, _) = await OpprettVirksomhetAsync("Innstillingsrådet");
+        var dommere = await OpprettBegrepAsync(brukerId, lovId, Nodetyper.Rolle, "dommere");
+        foreach (var (fra, undertype) in new[] { (kongen, "utnevning"), (innstillingsradet, "konstitusjon") })
+        {
+            Assert.Equal(HttpStatusCode.Created, (await PostKantAsync(brukerId, new
+            {
+                Kategori = "K", Typekode = "oppnevning", FraVirksomhetId = fra, TilBegrepId = dommere.Id, HjemmelRettskildeId = lovId,
+                HjemmelEid = paragrafEid, Undertype = undertype, Polaritet = "positiv",
+            })).StatusCode);
+        }
+        var alle = await _client.GetFromJsonAsync<List<StrukturkantDto>>($"/api/strukturkanter?begrepId={dommere.Id}&kategori=K", JsonInnstillinger);
+        Assert.Equal(2, alle!.Count);
+        var fast = await _client.GetFromJsonAsync<List<StrukturkantDto>>(
+            $"/api/strukturkanter?begrepId={dommere.Id}&kategori=K&undertype=utnevning", JsonInnstillinger);
+        Assert.Equal(kongenNavn, Assert.Single(fast!).Fra.Navn);
+        Assert.Equal(HttpStatusCode.BadRequest, (await _client.GetAsync($"/api/strukturkanter?begrepId={dommere.Id}&undertype=fast")).StatusCode);
+
+        // Ankeinstans: to lagdømmer med hver sin lagmannsrett; tingretten sogner til et lagsogn i det første.
+        var (agderLr, agderLrNavn) = await OpprettVirksomhetAsync("AGDER LAGMANNSRETT");
+        var (gulatingLr, _) = await OpprettVirksomhetAsync("GULATING LAGMANNSRETT");
+        var (tingrett, _) = await OpprettVirksomhetAsync("AGDER TINGRETT");
+        Guid Omrade(RegelIdeDbContext db, string type, string term)
+        {
+            var b = new BegrepEntitet
+            {
+                Id = Guid.NewGuid(), Begrepskategori = Nodetyper.Omrade, Omradetype = type, Term = $"{term}-{Guid.NewGuid():N}",
+                Status = "publisert", OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            };
+            db.Begreper.Add(b);
+            return b.Id;
+        }
+        await using (var db = _fixture.NyDbContext())
+        {
+            var (ld1, ld2, ls1, ls2) = (Omrade(db, Omradetyper.Lagdomme, "Agder lagdømme"), Omrade(db, Omradetyper.Lagdomme, "Gulating lagdømme"),
+                Omrade(db, Omradetyper.Lagsogn, "lagsogn Agder"), Omrade(db, Omradetyper.Lagsogn, "lagsogn Gula"));
+            await db.SaveChangesAsync();
+            var t = new StrukturkantTjeneste(db);
+            Task Kant(string kategori, string kode, Kantnode fra, Kantnode til) =>
+                t.OpprettAsync(new NyStrukturkant(kategori, kode, fra, til, HjemmelRettskildeId: lovId, HjemmelEid: paragrafEid), "test");
+            await Kant("O", "bestar_av", Kantnode.Begrep(ld1), Kantnode.Begrep(ls1));
+            await Kant("O", "bestar_av", Kantnode.Begrep(ld2), Kantnode.Begrep(ls2));
+            await Kant("A", "har_ansvarsomrade", Kantnode.Virksomhet(agderLr), Kantnode.Begrep(ld1));
+            await Kant("A", "har_ansvarsomrade", Kantnode.Virksomhet(gulatingLr), Kantnode.Begrep(ld2));
+            await Kant("A", "sogner_til", Kantnode.Virksomhet(tingrett), Kantnode.Begrep(ls1));
+        }
+        var tingrettene = await OpprettBegrepAsync(brukerId, lovId, Nodetyper.Klasse, "tingrettene");
+        foreach (var lr in new[] { agderLr, gulatingLr })
+        {
+            Assert.Equal(HttpStatusCode.Created, (await PostKantAsync(brukerId, new
+            {
+                Kategori = "K", Typekode = "overproving", FraVirksomhetId = lr, TilBegrepId = tingrettene.Id, HjemmelRettskildeId = lovId,
+                HjemmelEid = paragrafEid, Undertype = "anke", AvgrensningTekst = "eget lagdømme", Polaritet = "positiv",
+            })).StatusCode);
+        }
+        Assert.Equal(HttpStatusCode.Created, (await PostKantAsync(brukerId, new
+        {
+            Kategori = "M", Typekode = "medlem_av", FraVirksomhetId = tingrett, TilBegrepId = tingrettene.Id, HjemmelRettskildeId = lovId,
+            HjemmelEid = paragrafEid, Polaritet = "positiv",
+        })).StatusCode);
+
+        var anke = await _client.GetFromJsonAsync<AnkeinstansDto>($"/api/virksomheter/{tingrett}/ankeinstans", JsonInnstillinger);
+        Assert.Equal("entydig", anke!.Status);
+        Assert.Equal((agderLr, agderLrNavn), (Assert.Single(anke.Kandidater).Id, anke.Kandidater[0].Navn));
+        Assert.Equal("medlem_av", Assert.Single(anke.Kanter).Grunnlag);
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync($"/api/virksomheter/{Guid.NewGuid()}/ankeinstans")).StatusCode);
     }
 
     // ---------------- Opprett og les per node / per kategori ----------------

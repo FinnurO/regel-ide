@@ -5296,17 +5296,17 @@
       "id": "u165",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-12/ledd-1",
       "sitat": "Sametinget skal ha en egen administrasjon.",
-      "kategori": "konstituerende",
-      "type": "skal_finnes",
-      "fra": "a1",
-      "til": "a132",
+      "kategori": "relasjon",
+      "type": "del_av",
+      "fra": "a132",
+      "til": "a1",
       "objekt": null,
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "[#355, Johanns beslutning 1 på u22/u165] «X skal ha en Y» for ett navngitt organ er ikke T (T er bare klassenivå), men G del_av (sameloven § 2-12 første ledd). Var konstituerende/skal_finnes a1 → a132; snudd: fra = delen, til = organet."
     },
     {
       "id": "u166",

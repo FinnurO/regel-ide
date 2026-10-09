@@ -1044,6 +1044,10 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   «Undertype» (Valg/Ansettelse/Utpeking/Oppnevning med verbet i parentes, Anke for overprøving) bare når typen har
   undertyper, med «Ikke angitt» som utgangspunkt. Familien heter «Oppnevning» (var «Personell»). En saksavhengig type (G
   «settes i den enkelte sak med») har antallet fra objektet i parentes i teksten — ingen egen tagg.
+- [Ny, #355] **Avslutning speiler innsetting i skjemaet:** oppnevning tilbyr i tillegg «Utnevning («utnevner», embete)» og
+  «Konstitusjon («konstituerer», midlertidig)»; avsetting tilbyr «Avsetting / Oppsigelse / Avskjed»; vedtak tilbyr «Tilbakekall». Samme
+  regel: «Ikke angitt» som utgangspunkt, undertypen i parentes i utsagnsteksten. Forelegging finnes ikke lenger som K-type i lista.
+  Ankeinstans-oppslaget (#355) har ingen egen visning ennå — det er et API-svar (`GET /api/virksomheter/{id}/ankeinstans`).
 
 ## 34. Plikt overfor motpart og ordning (issue #353, 2026-10-09)
 

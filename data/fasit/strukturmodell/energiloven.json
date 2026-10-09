@@ -4302,11 +4302,12 @@
    "til": null,
    "objekt": "tilbakekall av konsesjon/tillatelse",
    "polaritet": "positiv",
-   "avgrensning": null,
+   "avgrensning": "uriktige eller ufullstendige opplysninger av vesentlig betydning; ikke lenger skikket etter grovt eller gjentatte brudd på loven eller pålegg; for konsesjon også oversittelse av frister for fremdriften",
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Parallell kompetanse; fordeling følger av hvem som ga tillatelsen (ikke uttrykt)."
+   "kommentar": "Parallell kompetanse; fordeling følger av hvem som ga tillatelsen (ikke uttrykt).",
+   "undertype": "tilbakekall"
   },
   {
    "id": "u206",
@@ -4318,11 +4319,12 @@
    "til": null,
    "objekt": "tilbakekall av konsesjon/tillatelse",
    "polaritet": "positiv",
-   "avgrensning": null,
+   "avgrensning": "uriktige eller ufullstendige opplysninger av vesentlig betydning; ikke lenger skikket etter grovt eller gjentatte brudd på loven eller pålegg; for konsesjon også oversittelse av frister for fremdriften",
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "tilbakekall"
   },
   {
    "id": "u207",
@@ -4334,11 +4336,12 @@
    "til": null,
    "objekt": "tilbakekall av omsetningskonsesjon ved forbrukerrettsbrudd",
    "polaritet": "positiv",
-   "avgrensning": null,
+   "avgrensning": "grovt eller gjentatte brudd på loven eller på avtaleloven § 38 b, markedsføringsloven og angrerettloven (opplistet i punktene); bare når lovbruddet gir rimelig grunn til å tro at fortsatt virksomhet kan skade sluttbrukere eller tilliten til strømmarkedet",
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "tilbakekall"
   },
   {
    "id": "u208",

@@ -2594,7 +2594,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": "Hvem som utnevner fremgår ikke direkte, men helseinstitusjonen fra n63/n64 er implisert.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "utnevning"
     },
     {
       "id": "u58",
@@ -3283,7 +3284,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "tilbakekall"
     },
     {
       "id": "u97",

@@ -1313,11 +1313,11 @@
  },
  {
   "kilde": "sameloven",
-  "kategori": "konstituerende",
-  "type": "skal_finnes",
-  "dagens": "nei",
+  "kategori": "relasjon",
+  "type": "del_av",
+  "dagens": "ja",
   "revidert": "ja",
-  "element": "T"
+  "element": "G"
  },
  {
   "kilde": "sameloven",
@@ -5465,7 +5465,7 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "annet:partsstilling",
+  "kategori": "annet:partsposisjon",
   "type": "annet:part_i_sak",
   "dagens": "nei",
   "revidert": "senere_lag",
@@ -8272,6 +8272,14 @@
   "element": "R"
  },
  {
+  "kilde": "spesialisthelsetjenesteloven",
+  "kategori": "kompetanse",
+  "type": "avsettingskompetanse",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
+ },
+ {
   "kilde": "domstolloven",
   "kategori": "medlemskap",
   "type": "medlem_av",
@@ -8441,11 +8449,11 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "konstituerende",
-  "type": "skal_finnes",
-  "dagens": "nei",
+  "kategori": "relasjon",
+  "type": "del_av",
+  "dagens": "ja",
   "revidert": "ja",
-  "element": "T"
+  "element": "G"
  },
  {
   "kilde": "domstolloven",
@@ -9081,11 +9089,11 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "kompetanse",
-  "type": "annet:ankekompetanse",
-  "dagens": "delvis",
-  "revidert": "ja",
-  "element": "K"
+  "kategori": "annet:partsposisjon",
+  "type": "annet:ankeadgang",
+  "dagens": "nei",
+  "revidert": "senere_lag",
+  "element": "-"
  },
  {
   "kilde": "domstolloven",
@@ -9129,11 +9137,11 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "kompetanse",
-  "type": "annet:ankekompetanse",
-  "dagens": "delvis",
-  "revidert": "ja",
-  "element": "K"
+  "kategori": "annet:partsposisjon",
+  "type": "annet:ankeadgang",
+  "dagens": "nei",
+  "revidert": "senere_lag",
+  "element": "-"
  },
  {
   "kilde": "domstolloven",
@@ -9201,19 +9209,19 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "kompetanse",
-  "type": "foreleggingskompetanse",
-  "dagens": "delvis",
+  "kategori": "plikt",
+  "type": "konsultasjonsplikt",
+  "dagens": "nei",
   "revidert": "ja",
-  "element": "K"
+  "element": "P"
  },
  {
   "kilde": "domstolloven",
-  "kategori": "kompetanse",
-  "type": "foreleggingskompetanse",
-  "dagens": "delvis",
+  "kategori": "plikt",
+  "type": "konsultasjonsplikt",
+  "dagens": "nei",
   "revidert": "ja",
-  "element": "K"
+  "element": "P"
  },
  {
   "kilde": "domstolloven",
@@ -14382,5 +14390,85 @@
   "dagens": "nei",
   "revidert": "ja",
   "element": "O"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "kompetanse",
+  "type": "avsettingskompetanse",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "kompetanse",
+  "type": "annet:forflytning",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "relasjon",
+  "type": "representerer",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "R"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "kompetanse",
+  "type": "overprovingskompetanse",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "relasjon",
+  "type": "del_av",
+  "dagens": "ja",
+  "revidert": "ja",
+  "element": "G"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "kompetanse",
+  "type": "overprovingskompetanse",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "kompetanse",
+  "type": "avsettingskompetanse",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "kompetanse",
+  "type": "avsettingskompetanse",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "kompetanse",
+  "type": "annet:forflytning",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
  }
 ]

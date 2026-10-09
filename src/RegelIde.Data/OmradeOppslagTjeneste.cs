@@ -44,6 +44,24 @@ public sealed record PliktTreff(StrukturkantVisning Kant, string Grunnlag, strin
     public string Retning { get; init; } = OmradeOppslagTjeneste.KommuneSkal;
 }
 
+/// <summary>[Ny, issue #355] Én K overprøving/anke-kant som gjelder domstolen: hvorfor den gjelder (<see cref="Grunnlag"/>:
+/// <c>direkte</c> | <c>medlem_av</c> | <c>klasse_uten_registrert_medlemskap</c>, da med <see cref="GrunnlagHull"/>) og hvilken instans
+/// den gir for nettopp denne domstolen (<see cref="Instans"/>, løst via område).</summary>
+public sealed record AnkeinstansTreff(StrukturkantVisning Kant, string Grunnlag, string? GrunnlagHull, PliktMotpart Instans)
+{
+    /// <summary>[Ny, issue #355, kaldtesten 2026-10-09] True når svaret hviler på minst én kant som ennå er et FORSLAG: anke-kanten
+    /// selv, eller (for en instans som er en virksomhet) kjeden domstol → lagsogn → lagdømme ← instans. Domstolkantene fra
+    /// inndelingsforskriften er forslag til de er godkjent (#312) — samme merking som tilhørigheten.</summary>
+    public bool Forslag { get; init; }
+}
+
+/// <summary>[Ny, issue #355 AC4] Svaret på «hvem er ankeinstans for X?». <see cref="Status"/> (entydig | ikke_entydig | mangler) og
+/// <see cref="Kandidater"/> regnes bare av kanter der domstolen er SIKKERT på til-siden (direkte eller registrert medlemskap); kanter
+/// til en klasse uten registrert medlemskap står i <see cref="Kanter"/> med hullet, men teller ikke.</summary>
+public sealed record AnkeinstansSvar(
+    KantnodeVisning Domstol, string Status, IReadOnlyList<string> Kandidater, IReadOnlyList<Guid> Ider, IReadOnlyList<bool> Forslag,
+    IReadOnlyList<AnkeinstansTreff> Kanter, IReadOnlyList<OmradeVisning> Omrader, IReadOnlyList<string> Hull);
+
 /// <summary>[Ny, issue #353 AC5] Svaret på «hvem har kommune X (samarbeids)plikt med?».</summary>
 public sealed record KommunePlikter(
     OmradeVisning Kommune, KantnodeVisning? Kommunevirksomhet, string? Typekode, IReadOnlyList<PliktTreff> Plikter, IReadOnlyList<string> Hull);
@@ -293,6 +311,165 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
                 .ThenBy(t => t.Kant.Typekode, StringComparer.Ordinal)
                 .ThenBy(t => t.Kant.Visningstekst, StringComparer.Ordinal).ToList(),
             hull);
+    }
+
+    // ---------------- [Ny, issue #355] S6: «Hvem er ankeinstans for X tingrett?» ----------------
+
+    /// <summary>
+    /// [Ny, issue #355 AC4, Johanns beslutning 4 2026-10-09, docs/32 S6] Ankeinstansen for en domstol, AVLEDET — ikke lagret per par.
+    /// Inndelingsforskriften § 10 første ledd («Hvert lagdømme har en lagmannsrett som er ankeinstans for flere rettskretser») er
+    /// K <c>overproving</c> med undertype <c>anke</c> fra lagmannsretten til tingretten (klassen), avgrenset til eget lagdømme. Paret
+    /// lagmannsrett ↔ tingrett regnes ut via kjeden tingrett → lagsogn → lagdømme (#345) og lagres ikke dobbelt; rettskretsen er
+    /// avgrensning, ikke motpart (L1).
+    /// <para>
+    /// <b>Algoritmen:</b> (1) Domstolens områder: målene for dens egne <c>A har_ansvarsomrade</c>/<c>A sogner_til</c>-kanter (tingrettens
+    /// kommuner og lagsogn) og alle områder de inngår i via <c>O bestar_av</c>, transitivt (lagsognet → lagdømmet). (2) De gjeldende,
+    /// positive K overprøving/anke-kantene der domstolen er til-siden: direkte, via en klasse den er REGISTRERT medlem av (M), eller
+    /// fra en klasse uten registrert medlemskap — den siste listes med hull og teller ikke (CLAUDE.md §8, samme regel som pliktoppslaget
+    /// i #353). (3) Instansen på fra-siden: en virksomhet som selv har <c>A har_ansvarsomrade</c> er instans bare når et av områdene
+    /// dekker domstolens («eget lagdømme»); en uten registrert ansvarsområde er instans uten territoriell avgrensning; en rolle løses til
+    /// innehaverne/medlemmene hvis område dekker domstolens (som motparten i <see cref="PlikterForKommunenummerAsync"/>). (4) Nøyaktig én
+    /// instans over de sikre kantene → <c>entydig</c>; flere → <c>ikke_entydig</c> (ingen velges); ingen → <c>mangler</c>.
+    /// </para>
+    /// <para>
+    /// Forslag teller med (domstolkantene fra inndelingsforskriften er forslag til de er godkjent, #312), men hver kant viser sin status.
+    /// </para>
+    /// </summary>
+    /// <returns>Null hvis virksomheten ikke finnes.</returns>
+    public async Task<AnkeinstansSvar?> AnkeinstansAsync(Guid virksomhetId, CancellationToken ct = default)
+    {
+        var domstol = await db.Virksomheter.Where(v => v.Id == virksomhetId).Select(v => new { v.Id, v.Navn, v.Aktortype }).FirstOrDefaultAsync(ct);
+        if (domstol is null) return null;
+        var hull = new List<string>();
+
+        // (1) Domstolens områder: egne A-mål og deres O-forfedre.
+        var egneA = await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
+            .Where(k => k.Kategori == Strukturkanter.Ansvarsomrade && k.FraVirksomhetId == virksomhetId && k.TilBegrepId != null
+                        && (k.Typekode == "har_ansvarsomrade" || k.Typekode == OmraderegisterSeed.SognerTil))
+            .ToListAsync(ct), ct);
+        var oKanter = await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
+            .Where(k => k.Kategori == Strukturkanter.Omradesammensetning && k.FraBegrepId != null && k.TilBegrepId != null)
+            .ToListAsync(ct), ct);
+        var foreldre = oKanter.GroupBy(k => k.TilBegrepId!.Value).ToDictionary(g => g.Key, g => g.Select(k => k.FraBegrepId!.Value).ToList());
+        var dekker = new HashSet<Guid>();
+        var ko = new Queue<Guid>(egneA.Select(k => k.TilBegrepId!.Value));
+        while (ko.Count > 0)
+        {
+            var o = ko.Dequeue();
+            if (!dekker.Add(o)) continue;
+            foreach (var f in foreldre.GetValueOrDefault(o) ?? []) ko.Enqueue(f);
+        }
+        if (dekker.Count == 0)
+        {
+            hull.Add($"«{domstol.Navn}» har ingen registrerte områder (ansvarsområde eller lagsogn) — en ankeinstans med ansvarsområde kan ikke pares.");
+        }
+        // [Ny, kaldtesten] Samme traversering over bare validerte kanter — områder som bare nås via et forslag.
+        var validerteForeldre = oKanter.Where(k => k.Status == "validert").GroupBy(k => k.TilBegrepId!.Value)
+            .ToDictionary(g => g.Key, g => g.Select(k => k.FraBegrepId!.Value).ToList());
+        var validertDekker = new HashSet<Guid>();
+        var vko = new Queue<Guid>(egneA.Where(k => k.Status == "validert").Select(k => k.TilBegrepId!.Value));
+        while (vko.Count > 0)
+        {
+            var o = vko.Dequeue();
+            if (!validertDekker.Add(o)) continue;
+            foreach (var f in validerteForeldre.GetValueOrDefault(o) ?? []) vko.Enqueue(f);
+        }
+        var omrader = await db.Begreper.Where(b => dekker.Contains(b.Id))
+            .Select(b => new OmradeVisning(b.Id, b.Term, b.Omradetype, b.Omradekode)).ToListAsync(ct);
+
+        // (2) Klassene domstolen er REGISTRERT medlem av (M, transitivt over klasse → klasse).
+        var mKanter = await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
+            .Where(k => k.Kategori == Strukturkanter.Medlemskap && k.TilBegrepId != null).ToListAsync(ct), ct);
+        var medlemAv = new HashSet<Guid>();
+        var mko = new Queue<(Guid? V, Guid? B)>([(virksomhetId, null)]);
+        while (mko.Count > 0)
+        {
+            var (v, b) = mko.Dequeue();
+            foreach (var k in mKanter.Where(k => (v != null && k.FraVirksomhetId == v) || (b != null && k.FraBegrepId == b)))
+            {
+                if (medlemAv.Add(k.TilBegrepId!.Value)) mko.Enqueue((null, k.TilBegrepId));
+            }
+        }
+
+        var anker = await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
+            .Where(k => k.Kategori == Strukturkanter.Kompetanse && k.Typekode == Strukturkanter.Overproving && k.Undertype == "anke"
+                        && k.Polaritet == "positiv" && (k.TilVirksomhetId != null || k.TilBegrepId != null))
+            .ToListAsync(ct), ct);
+        var tilKlasser = anker.Where(k => k.TilBegrepId != null).Select(k => k.TilBegrepId!.Value).Distinct().ToList();
+        var klasserMedMedlemmer = mKanter.Where(k => tilKlasser.Contains(k.TilBegrepId!.Value)).Select(k => k.TilBegrepId!.Value).ToHashSet();
+        var klassekategori = await db.Begreper.Where(b => tilKlasser.Contains(b.Id))
+            .Select(b => new { b.Id, b.Begrepskategori }).ToDictionaryAsync(b => b.Id, b => b.Begrepskategori, ct);
+
+        var valgte = new List<(StrukturkantEntitet Kant, string Grunnlag)>();
+        foreach (var k in anker)
+        {
+            string? grunnlag = k.TilVirksomhetId == virksomhetId ? "direkte"
+                : k.TilBegrepId is { } b && medlemAv.Contains(b) ? "medlem_av"
+                : k.TilBegrepId is { } c && klassekategori.GetValueOrDefault(c) == Nodetyper.Klasse && !klasserMedMedlemmer.Contains(c)
+                    ? "klasse_uten_registrert_medlemskap"
+                : null;
+            if (grunnlag is not null) valgte.Add((k, grunnlag));
+        }
+
+        // (3) Instansen per kant, avgrenset til domstolens områder.
+        var fraVirksomheter = valgte.Where(v => v.Kant.FraVirksomhetId != null).Select(v => v.Kant.FraVirksomhetId!.Value).Distinct().ToList();
+        var fraAnsvar = (await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
+                .Where(k => k.Kategori == Strukturkanter.Ansvarsomrade && k.Typekode == "har_ansvarsomrade"
+                            && k.FraVirksomhetId != null && fraVirksomheter.Contains(k.FraVirksomhetId.Value) && k.TilBegrepId != null)
+                .ToListAsync(ct), ct))
+            .GroupBy(k => k.FraVirksomhetId!.Value).ToDictionary(g => g.Key, g => g.Select(k => (Omrade: k.TilBegrepId!.Value, Validert: k.Status == "validert")).ToList());
+        var visninger = (await kanttjeneste.ByggVisningerAsync(valgte.Select(v => v.Kant).ToList(), perspektiv: null, ct)).ToDictionary(v => v.Id);
+        var treff = new List<AnkeinstansTreff>();
+        foreach (var (kant, grunnlag) in valgte)
+        {
+            var visning = visninger[kant.Id];
+            PliktMotpart? instans;
+            var forslag = kant.Status != "validert";
+            if (kant.FraVirksomhetId is { } fv)
+            {
+                var omr = fraAnsvar.GetValueOrDefault(fv)?.Select(x => x.Omrade).ToList();
+                var validertKjede = fraAnsvar.GetValueOrDefault(fv)?.Any(x => x.Validert && validertDekker.Contains(x.Omrade)) ?? true;
+                forslag |= !validertKjede;
+                // Har instansen et registrert ansvarsområde, må det dekke domstolens («eget lagdømme»); ellers gjelder kanten
+                // ikke denne domstolen. Uten registrert ansvarsområde: ingen territoriell avgrensning å prøve.
+                instans = omr is null || omr.Any(dekker.Contains)
+                    ? new PliktMotpart("konkret", [visning.Fra.Navn], [fv], null)
+                    : null;
+            }
+            else
+            {
+                instans = await MotpartAsync(null, kant.FraBegrepId, visning.Fra.Navn, dekker, ct);
+            }
+            if (instans is null) continue;
+            var grunnlagHull = grunnlag == "klasse_uten_registrert_medlemskap"
+                ? $"Klassen «{visning.Til!.Navn}» har ingen registrerte medlemmer — om den omfatter «{domstol.Navn}», avgjøres ikke her."
+                : null;
+            treff.Add(new AnkeinstansTreff(visning, grunnlag, grunnlagHull, instans) { Forslag = forslag });
+        }
+
+        // (4) Svaret, bare fra de sikre kantene.
+        var sikre = treff.Where(t => t.Grunnlag != "klasse_uten_registrert_medlemskap" && t.Instans.Status is "konkret" or "entydig").ToList();
+        var navn = new Dictionary<Guid, string>();
+        var bareForslag = new Dictionary<Guid, bool>();
+        foreach (var t in sikre)
+        {
+            for (var i = 0; i < t.Instans.Ider.Count; i++)
+            {
+                navn.TryAdd(t.Instans.Ider[i], t.Instans.Kandidater[i]);
+                bareForslag[t.Instans.Ider[i]] = bareForslag.GetValueOrDefault(t.Instans.Ider[i], true) && t.Forslag;
+            }
+        }
+        var sortert = navn.Keys.OrderBy(i => navn[i], StringComparer.Ordinal).ToList();
+        if (treff.Count == 0)
+        {
+            hull.Add("Ingen K overprøving/anke-kant gjelder domstolen (direkte, via registrert medlemskap eller fra en klasse uten registrerte medlemmer).");
+        }
+        var status = sortert.Count switch { 0 => "mangler", 1 => "entydig", _ => "ikke_entydig" };
+        return new AnkeinstansSvar(new KantnodeVisning("virksomhet", domstol.Id, domstol.Navn, domstol.Aktortype), status,
+            sortert.Select(i => navn[i]).ToList(), sortert, sortert.Select(i => bareForslag[i]).ToList(),
+            treff.OrderBy(t => t.Grunnlag switch { "direkte" => 0, "medlem_av" => 1, _ => 2 })
+                .ThenBy(t => t.Kant.Visningstekst, StringComparer.Ordinal).ToList(),
+            omrader.OrderBy(o => o.Navn, StringComparer.Ordinal).ToList(), hull);
     }
 
     /// <summary>[Ny, issue #353] <see cref="PliktTreff.Retning"/>: kommunen er pliktsubjektet (fra-siden).</summary>

@@ -442,6 +442,14 @@ forvaltes av et organ («Folketrygden forvaltes av Helsedirektoratet» for folke
 rettssubjekt når en bestemmelse sier det. Spørsmålet «hvem har kommune X samarbeidsplikt med?» besvares av et oppslag som gir
 klassen og et synlig hull når medlemskapet eller områdeinndelingen ikke er lastet (helseregionene: ekstern kilde, #340).
 
+[NYTT, 2026-10-09, issue #355] **Avslutning speiler innsetting.** Avsetting har undertypene avsetting (verv og styre), oppsigelse
+og avskjed; oppnevning har i tillegg utnevning (embete) og konstitusjon (midlertidig); tilbakekall av en tillatelse er et vedtak
+med undertype tilbakekall. «Hvem kan sette inn en fast dommer?» gir derfor bare Kongen (`?undertype=utnevning`). «Hvem er
+ankeinstans for X tingrett?» besvares av et oppslag som regner ut lagmannsretten via tingrett → lagsogn → lagdømme
+(`GET /api/virksomheter/{id}/ankeinstans`), uten å lagre parene. Forelegging er ikke lenger en kompetansetype: et rådgivende svar
+registreres som konsultasjonsplikt (kan/skal) fra den som forelegger, et bindende svar som mottakerens kompetanse. En parts
+adgang til å anke hører til regellaget.
+
 Organene **Stortinget** og **Kongen i statsråd** er nå virksomheter (aktørtype organ), ikke begreper.
 
 *Hvor:* «Myndighet & relasjoner»-fanen på en virksomhet (seksjonene kompetanse — gruppert og filtrerbar på familie

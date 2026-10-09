@@ -115,8 +115,8 @@ public class KompetanseleksikonTests
             var fasitType = Strukturkanter.Kompetansetyper.Single(t => t.Kode == kode).FasitType;
             Assert.Equal(undertyper.Order(), Kompetanseleksikon.Undertyper.Where(u => u.Type == fasitType).Select(u => u.Undertype).Order());
         }
-        // Johanns fire verb.
-        Assert.Equal(["ansetter", "oppnevner", "utpeker", "velger"],
+        // Johanns fire verb, [ENDRET, #355] pluss utnevner og konstituerer.
+        Assert.Equal(["ansetter", "konstituerer", "oppnevner", "utnevner", "utpeker", "velger"],
             Kompetanseleksikon.Undertyper.Where(u => u.Type == "oppnevningskompetanse").Select(u => u.Verb).Order());
         // Familien heter oppnevning; vedtak-godkjennes-av er godkjenning (Johanns beslutning 3).
         Assert.Equal("oppnevning", Kompetanseleksikon.For("oppnevnt-av").Familie);
@@ -129,10 +129,27 @@ public class KompetanseleksikonTests
     [InlineData("Styret tilsetter leder for internrevisjonen", "ansettelse")]
     [InlineData("Helseinstitusjon som omfattes av denne loven, skal peke ut kontaktlege", "utpeking")]
     [InlineData("Kongen oppnevner medlemmene av Tilsynsutvalget", "oppnevning")]
-    [InlineData("Dommere utnevnes som embetsmenn av Kongen", null)] // utnevning er ikke på Johanns liste
+    [InlineData("Dommere utnevnes som embetsmenn av Kongen", "utnevning")] // [ENDRET, #355] utnevning (embete) er en undertype
+    [InlineData("Konstitusjoner med varighet inntil tre måneder kan foretas av domstollederen.", "konstitusjon")] // [Ny, #355]
+    [InlineData("Sametinget konstituerende møte", null)] // [Ny, #355] «konstituerende» er ikke konstitusjon
     [InlineData("Finner han valget lovlig, utferdiger han oppnevnelse for de valgte", null)] // to verb: gjettes ikke
     public void Undertypen_avgjores_paa_sitatet(string sitat, string? forventet) =>
         Assert.Equal(forventet, Kompetanseleksikon.UndertypeFor("oppnevningskompetanse", sitat));
+
+    /// <summary>[Ny, issue #355, Johanns beslutning 1 og 2] Avslutning speiler innsetting: avsetting/oppsigelse/avskjed på
+    /// avsettingskompetanse, tilbakekall på vedtakskompetanse. To verb i samme sitat gir null — gjettes ikke (u118 i fasiten er
+    /// derfor delt i to rader, L13).</summary>
+    [Theory]
+    [InlineData("avsettingskompetanse", "Kongen kan avsette styret dersom det ikke følger opp kritikk", "avsetting")]
+    [InlineData("avsettingskompetanse", "Et styremedlem kan avsettes av den som har valgt styremedlemmet", "avsetting")]
+    [InlineData("avsettingskompetanse", "Dommere kan ikke sies opp", "oppsigelse")]
+    [InlineData("avsettingskompetanse", "kan bare avskjediges etter rettergang og dom", "avskjed")]
+    [InlineData("avsettingskompetanse", "Styret treffer vedtak om å si opp eller avskjedige daglig leder", null)]
+    [InlineData("vedtakskompetanse", "Departementet kan tilbakekalle godkjenning", "tilbakekall")]
+    [InlineData("vedtakskompetanse", "Departementet eller reguleringsmyndigheten kan trekke tilbake en konsesjon", "tilbakekall")]
+    [InlineData("vedtakskompetanse", "Departementet kan gi pålegg om retting", null)]
+    public void Avslutningens_og_tilbakekallets_undertype_avgjores_paa_sitatet(string type, string sitat, string? forventet) =>
+        Assert.Equal(forventet, Kompetanseleksikon.UndertypeFor(type, sitat));
 
     [Fact]
     public void Monsterlaget_setter_undertypen_paa_oppnevning()

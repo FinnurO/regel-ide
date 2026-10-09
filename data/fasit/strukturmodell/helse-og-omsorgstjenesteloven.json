@@ -3580,17 +3580,17 @@
       "id": "u145",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-7/ledd-1",
       "sitat": "Kommunen er part i saken.",
-      "kategori": "annet:partsstilling",
+      "kategori": "annet:partsposisjon",
       "type": "annet:part_i_sak",
       "fra": "a1",
-      "til": "a53",
+      "til": null,
       "objekt": null,
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Kommunen som rettssubjekt i prosessuell partsrolle."
+      "kommentar": "Kommunen som rettssubjekt i prosessuell partsrolle. [#355, kort nr. 29] Partsposisjon hører til regellaget (beslutning 5). Var kategori «annet:partsstilling» med til = tingretten; tingretten er ikke motpart (overprøvingen står som u144)."
     },
     {
       "id": "u146",
@@ -4261,11 +4261,12 @@
       "til": null,
       "objekt": "tilbakekall av godkjenning",
       "polaritet": "positiv",
-      "avgrensning": null,
+      "avgrensning": "når virksomheten som er tildelt godkjenningen, ikke fyller kravene som er satt i forskrift",
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Implisitt også kompetanse til å gi godkjenning."
+      "kommentar": "[slutning] Implisitt også kompetanse til å gi godkjenning.",
+      "undertype": "tilbakekall"
     },
     {
       "id": "u187",

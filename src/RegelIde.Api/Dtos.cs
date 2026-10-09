@@ -567,6 +567,7 @@ public sealed record StrukturkantDto(
     // [Ny, issue #341] K-feltene, og familie/fvl-kategori fra typekonfigurasjonen.
     string? Normform, string? Grunnlag, bool? Delegerbar, bool Selvregulering, string? Familie, string? FvlKategori,
     // [Ny, issue #352] Undertypen på oppnevning (valg/ansettelse/utpeking/oppnevning) og overprøving (anke). Null = ikke angitt.
+    // [ENDRET, issue #355] + oppnevning: utnevning/konstitusjon; avsetting: avsetting/oppsigelse/avskjed; vedtak: tilbakekall.
     string? Undertype,
     // [Ny, issue #353] Modaliteten på en plikt (skal/kan/bor). Null = ikke angitt.
     string? Modalitet = null)
@@ -614,7 +615,7 @@ public sealed record StrukturkantRequest(
     string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null,
     // [Ny, issue #341] Bare på K: normform (bare normgivning), grunnlag og delegerbar. Null = ikke angitt.
     string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null,
-    // [Ny, issue #352] Bare på K oppnevning/overproving — se StrukturkantEntitet.Undertype. Null = ikke angitt.
+    // [Ny, issue #352] Bare på K oppnevning/overproving — se StrukturkantEntitet.Undertype. Null = ikke angitt. [ENDRET, #355] + avsetting og vedtak.
     string? Undertype = null,
     // [Ny, issue #353] Bare på P: skal | kan | bor — se StrukturkantEntitet.Modalitet. Null = ikke angitt.
     string? Modalitet = null);
@@ -733,6 +734,26 @@ public sealed record KommunePlikterDto(
                 t.Motpart.Hull))).ToList(),
         p.Hull);
 }
+
+/// <summary>[Ny, issue #355 AC4] «Hvem er ankeinstans for X?» — avledet via område (se <c>OmradeOppslagTjeneste.AnkeinstansAsync</c>).
+/// <c>status</c> = entydig | ikke_entydig | mangler (ved flere velges ingen); <c>kanter</c> = K overprøving/anke-kantene som gjelder
+/// domstolen, med grunnlaget og instansen per kant; <c>omrader</c> = domstolens områder paret ble regnet ut fra.</summary>
+public sealed record AnkeinstansDto(
+    StrukturnodeDto Domstol, string Status, IReadOnlyList<TilhorighetskandidatDto> Kandidater, IReadOnlyList<AnkeinstansKantDto> Kanter,
+    IReadOnlyList<OmradeVisning> Omrader, IReadOnlyList<string> Hull)
+{
+    public static AnkeinstansDto Fra(AnkeinstansSvar s) => new(
+        StrukturnodeDto.FraVisning(s.Domstol), s.Status,
+        s.Kandidater.Select((navn, i) => new TilhorighetskandidatDto(s.Ider[i], navn, s.Forslag[i])).ToList(),
+        s.Kanter.Select(t => new AnkeinstansKantDto(StrukturkantDto.FraVisning(t.Kant), t.Grunnlag, t.GrunnlagHull,
+            new PliktMotpartDto(t.Instans.Status,
+                t.Instans.Kandidater.Select((navn, i) => new TilhorighetskandidatDto(t.Instans.Ider[i], navn, t.Forslag)).ToList(),
+                t.Instans.Hull))).ToList(),
+        s.Omrader, s.Hull);
+}
+
+/// <summary>[Ny, issue #355] Én anke-kant sett fra domstolen: <c>grunnlag</c> = direkte | medlem_av | klasse_uten_registrert_medlemskap.</summary>
+public sealed record AnkeinstansKantDto(StrukturkantDto Kant, string Grunnlag, string? GrunnlagHull, PliktMotpartDto Instans);
 
 /// <summary>[Ny, issue #353] Én plikt sett fra kommunen: <c>grunnlag</c> = direkte | medlem_av | klasse_uten_registrert_medlemskap (for kommunens ende).</summary>
 /// [ENDRET, #353-retting] <c>retning</c> = kommunen_skal | overfor_kommunen (kommunen er fra- eller til-siden).
