@@ -744,10 +744,10 @@ public sealed record AnkeinstansDto(
 {
     public static AnkeinstansDto Fra(AnkeinstansSvar s) => new(
         StrukturnodeDto.FraVisning(s.Domstol), s.Status,
-        s.Kandidater.Select((navn, i) => new TilhorighetskandidatDto(s.Ider[i], navn, false)).ToList(),
+        s.Kandidater.Select((navn, i) => new TilhorighetskandidatDto(s.Ider[i], navn, s.Forslag[i])).ToList(),
         s.Kanter.Select(t => new AnkeinstansKantDto(StrukturkantDto.FraVisning(t.Kant), t.Grunnlag, t.GrunnlagHull,
             new PliktMotpartDto(t.Instans.Status,
-                t.Instans.Kandidater.Select((navn, i) => new TilhorighetskandidatDto(t.Instans.Ider[i], navn, t.Kant.Status != "validert")).ToList(),
+                t.Instans.Kandidater.Select((navn, i) => new TilhorighetskandidatDto(t.Instans.Ider[i], navn, t.Forslag)).ToList(),
                 t.Instans.Hull))).ToList(),
         s.Omrader, s.Hull);
 }

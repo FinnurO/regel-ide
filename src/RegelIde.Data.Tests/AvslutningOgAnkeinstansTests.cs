@@ -171,6 +171,8 @@ public class AvslutningOgAnkeinstansTests
         Assert.Equal(3, alle.Select(v => v.Fra.Id).Distinct().Count());
         var fast = alle.Where(v => v.Undertype == "utnevning").ToList();
         Assert.Equal(kongen, Assert.Single(fast).Fra.Id);
+        // Fra dommerrollens side står undertypen i teksten (kaldtesten 2026-10-09: den forsvant fra motpartens side).
+        Assert.EndsWith(" har oppnevningskompetanse (utnevning) overfor denne", Assert.Single(fast).Visningstekst);
     }
 
     /// <summary>AC4: «Hvem er ankeinstans for X tingrett?» gir ÉN lagmannsrett, avledet: K overprøving/anke fra hver lagmannsrett
@@ -224,6 +226,7 @@ public class AvslutningOgAnkeinstansTests
         svar = await oppslag.AnkeinstansAsync(tingrett);
         Assert.Equal("entydig", svar!.Status);
         Assert.Equal(agderLr, Assert.Single(svar.Ider));
+        Assert.False(Assert.Single(svar.Forslag)); // alle kantene her er validert; forslag merkes (kaldtesten viste domstolkantene som forslag)
         Assert.Equal("medlem_av", Assert.Single(svar.Kanter).Grunnlag);
         Assert.Contains(svar.Omrader, x => x.Id == agderLagdomme);
         Assert.DoesNotContain(svar.Omrader, x => x.Id == gulatingLagdomme);

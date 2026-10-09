@@ -767,6 +767,13 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
                 // avtaleplikt overfor denne») mistet begge, så Oslo kommunes side sa mindre enn pliktsubjektets.
                 tekst = $"{fra.Navn} {string.Format(type?.FraVisningsmal ?? "(ukjent type) {0}", Kompetansetekst(Modalitetsord(k.Modalitet), "denne", false, k.Objekt, objektTekst))}";
             }
+            else if (retning == "til" && k.Kategori == Strukturkanter.Kompetanse && k.Undertype is not null)
+            {
+                // [Ny, issue #355, kaldtesten 2026-10-09] Fra motpartens side beholder en kompetanse med undertype undertypen, som
+                // plikten beholder modaliteten (#353-rettingen): «Hvem kan sette inn en fast dommer?» spørres fra dommerrollen, og
+                // «Kongen i statsråd har oppnevningskompetanse overfor denne» skilte ikke utnevning fra konstitusjon.
+                tekst = $"{fra.Navn} {string.Format(type?.FraVisningsmal ?? "(ukjent type) {0}", Kompetansetekst(k.Undertype, "denne", false, k.Objekt, objektTekst))}";
+            }
             else if (retning == "til" && !selvregulering)
             {
                 tekst = string.Format(type?.TilVisningsmal ?? "(ukjent type) {0}", fra.Navn);
