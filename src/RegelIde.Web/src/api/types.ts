@@ -462,7 +462,10 @@ export type Kompetansefamilie =
   'struktur' | 'oppnevning' | 'styring' | 'normgivning' | 'kontroll' | 'klage_overproving' | 'vedtak' | 'sanksjon';
 /** [Ny, issue #352] Undertypen på oppnevning (valg/ansettelse/utpeking/oppnevning) og overprøving (anke) — speilet av
  * `Strukturkanter.Undertyper`. */
-export type Kompetanseundertype = 'valg' | 'ansettelse' | 'utpeking' | 'oppnevning' | 'anke';
+export type Kompetanseundertype = 'valg' | 'ansettelse' | 'utpeking' | 'oppnevning' | 'anke'
+  // [Ny, issue #355] Avslutning speiler innsetting: utnevning/konstitusjon på oppnevning, avsetting/oppsigelse/avskjed på avsetting,
+  // tilbakekall på vedtak.
+  | 'utnevning' | 'konstitusjon' | 'avsetting' | 'oppsigelse' | 'avskjed' | 'tilbakekall';
 /** [Ny, issue #341] Forvaltningslovens § 2-perspektiv på en kompetansetype. */
 export type FvlKategori = 'forskrift' | 'enkeltvedtak' | 'ikke_vedtak';
 /** [Ny, issue #341] Normformen på en normgivningskompetanse — speilet av `Strukturkanter.Normformer`. */

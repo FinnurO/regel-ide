@@ -20,8 +20,19 @@ const UNDERTYPER: Record<string, { verdi: Kompetanseundertype; tekst: string }[]
     { verdi: 'ansettelse', tekst: 'Ansettelse («ansetter»)' },
     { verdi: 'utpeking', tekst: 'Utpeking («utpeker»)' },
     { verdi: 'oppnevning', tekst: 'Oppnevning («oppnevner»)' },
+    // [Ny, issue #355, Johanns beslutning 1] Utnevning er embete (Grl. § 21), ikke ansettelse; konstitusjon er midlertidig.
+    { verdi: 'utnevning', tekst: 'Utnevning («utnevner», embete)' },
+    { verdi: 'konstitusjon', tekst: 'Konstitusjon («konstituerer», midlertidig)' },
+  ],
+  // [Ny, issue #355] Avslutning speiler innsetting: avsetting (verv/styre), oppsigelse og avskjed (ansettelse/embete).
+  avsetting: [
+    { verdi: 'avsetting', tekst: 'Avsetting («avsetter»)' },
+    { verdi: 'oppsigelse', tekst: 'Oppsigelse («sier opp»)' },
+    { verdi: 'avskjed', tekst: 'Avskjed («avskjediger»)' },
   ],
   overproving: [{ verdi: 'anke', tekst: 'Anke («er ankeinstans for»)' }],
+  // [Ny, issue #355, beslutning 2] Tilbakekall av en tillatelse eller autorisasjon er et vedtak, ikke oppnevning.
+  vedtak: [{ verdi: 'tilbakekall', tekst: 'Tilbakekall («tilbakekaller»)' }],
 };
 
 export interface LeggTilVirksomhetRelasjonFormProps {
