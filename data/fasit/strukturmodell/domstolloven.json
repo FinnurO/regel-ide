@@ -289,7 +289,8 @@
     "en domstol",
     "enhver domstol",
     "domstolen",
-    "Domstolene"
+    "Domstolene",
+    "enhver ret, som har med saken at gjøre"
    ],
    "eid_eksempler": [
     "https://lovdata.no/eli/lov/1915/08/13/5/nor/§11/ledd-1",
@@ -9917,11 +9918,11 @@
    "til": "felles_fr",
    "objekt": null,
    "polaritet": "positiv",
-   "avgrensning": "kommuner med samme sekretariat og i samme domssogn; 2/3 flertall i hvert kommunestyre",
+   "avgrensning": "kommuner med samme sekretariat og i samme domssogn; 2/3 flertall i hvert kommunestyre; kommunene er samtidig enige om antall medlemmer og varamedlemmer hver kommune skal velge og om hvordan begge kjønn sikres blant medlemmer og varamedlemmer",
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Opprettelse krever samtidig vedtak i FLERE rettssubjekter, og er områdeavgrenset (samme domssogn). [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter."
+   "kommentar": "Opprettelse krever samtidig vedtak i FLERE rettssubjekter, og er områdeavgrenset (samme domssogn). [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter. [#356, juristrunden] Dersom-vilkåret i samme setning er et vilkår for kompetansen (L9)."
   },
   {
    "id": "u74",
@@ -12601,7 +12602,7 @@
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§201/ledd-1",
    "sitat": "kan den paalægge den skyldige dommer helt eller delvis at utrede de økede omkostninger",
    "kategori": "kompetanse",
-   "type": "sanksjonskompetanse",
+   "type": "beslutningskompetanse",
    "fra": "overordnet",
    "til": "dommer",
    "objekt": null,
@@ -12610,7 +12611,7 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": ""
+   "kommentar": "[#356, juristrunden] Omkostningsansvar er kompensasjon, ikke reaksjon (#355 beslutning 3, som kort nr. 61). Var sanksjonskompetanse."
   },
   {
    "id": "u236",
@@ -12652,13 +12653,13 @@
    "type": "sanksjonskompetanse",
    "fra": "overordnet",
    "til": "dommer",
-   "objekt": null,
+   "objekt": "rettergangsstraff",
    "polaritet": "positiv",
-   "avgrensning": null,
+   "avgrensning": "etter domstolloven kapittel 10",
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "[#356, juristrunden] «saadant ansvar» er straff og erstatning (første ledd). Straffen står her (sanksjon), og erstatningen er egen rad (kort nr. 61)."
   },
   {
    "id": "u239",
@@ -12719,11 +12720,11 @@
    "til": "dommer",
    "objekt": null,
    "polaritet": "positiv",
-   "avgrensning": null,
+   "avgrensning": "ikke forhold som kan overprøves etter reglene i rettspleielovgivningen for øvrig (§ 236 fjerde ledd)",
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Disiplinærtilsyn med personer (dommere), ikke med organer."
+   "kommentar": "Disiplinærtilsyn med personer (dommere), ikke med organer. [#356, juristrunden] § 236 fjerde ledd gjelder hele utvalgets virksomhet (kort nr. 62)."
   },
   {
    "id": "u243",
@@ -12735,11 +12736,11 @@
    "til": null,
    "objekt": "klager over dommeres atferd",
    "polaritet": "positiv",
-   "avgrensning": null,
+   "avgrensning": "ikke forhold som kan overprøves etter reglene i rettspleielovgivningen for øvrig (§ 236 fjerde ledd)",
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Klage over PERSON, ikke over vedtak — annen betydning av «klage» enn forvaltningsrettens."
+   "kommentar": "Klage over PERSON, ikke over vedtak — annen betydning av «klage» enn forvaltningsrettens. [#356, juristrunden] § 236 fjerde ledd gjelder hele utvalgets virksomhet (kort nr. 62)."
   },
   {
    "id": "u244",
@@ -21730,6 +21731,54 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "[#309, kort nr. 61] Skilt ut fra u236 (samme sitat, L13): erstatning er kompensasjon, ikke reaksjon."
+  },
+  {
+   "id": "u861",
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§213/ledd-2",
+   "sitat": "Dommere kan ilægges saadant ansvar av høiere ret",
+   "kategori": "kompetanse",
+   "type": "beslutningskompetanse",
+   "fra": "overordnet",
+   "til": "dommer",
+   "objekt": "erstatning",
+   "polaritet": "positiv",
+   "avgrensning": "etter domstolloven kapittel 10",
+   "betinget": false,
+   "kilde_utenfor_korpus": false,
+   "sikkerhet": "hoy",
+   "kommentar": "[#356, juristrunden] Skilt ut fra u238 (L13): erstatning er kompensasjon, ikke reaksjon (kort nr. 61)."
+  },
+  {
+   "id": "u862",
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§213/ledd-1",
+   "sitat": "kan enhver ret, som har med saken at gjøre, ilægge straf og erstatning efter dette kapitel",
+   "kategori": "kompetanse",
+   "type": "sanksjonskompetanse",
+   "fra": "domstolene",
+   "til": null,
+   "objekt": "rettergangsstraff",
+   "polaritet": "positiv",
+   "avgrensning": "etter domstolloven kapittel 10; den rett som har med saken å gjøre; ikke overfor dommere (§ 213 annet ledd, u238) og ikke forliksrådet (§ 213 første ledd tredje punktum, u236)",
+   "betinget": false,
+   "kilde_utenfor_korpus": false,
+   "sikkerhet": "hoy",
+   "kommentar": "[#356, juristrunden] § 213 første ledd første punktum: hovedregelen som de negative forliksrådsradene (u236 og raden for erstatning) er unntak fra. Straff er sanksjon og erstatning beslutning (kort nr. 61)."
+  },
+  {
+   "id": "u863",
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§213/ledd-1",
+   "sitat": "kan enhver ret, som har med saken at gjøre, ilægge straf og erstatning efter dette kapitel",
+   "kategori": "kompetanse",
+   "type": "beslutningskompetanse",
+   "fra": "domstolene",
+   "til": null,
+   "objekt": "erstatning",
+   "polaritet": "positiv",
+   "avgrensning": "etter domstolloven kapittel 10; den rett som har med saken å gjøre; ikke overfor dommere (§ 213 annet ledd, u238) og ikke forliksrådet (§ 213 første ledd tredje punktum, u236)",
+   "betinget": false,
+   "kilde_utenfor_korpus": false,
+   "sikkerhet": "hoy",
+   "kommentar": "[#356, juristrunden] § 213 første ledd første punktum: hovedregelen som de negative forliksrådsradene (u236 og raden for erstatning) er unntak fra. Straff er sanksjon og erstatning beslutning (kort nr. 61)."
   }
  ]
 }

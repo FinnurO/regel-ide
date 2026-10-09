@@ -1066,9 +1066,9 @@
     },
     {
       "id": "a52",
-      "tekstform": "Virksomheter som er omfattet av loven her",
+      "tekstform": "virksomheter som yter spesialisthelsetjenester",
       "varianter": [
-        "virksomheter som yter spesialisthelsetjenester",
+        "Virksomheter som er omfattet av loven her",
         "Virksomheter i spesialisthelsetjenesten",
         "Private virksomheter i spesialisthelsetjenesten",
         "Enhver som yter helsetjenester etter denne lov"
@@ -1286,9 +1286,7 @@
         "ansvarlig selskap"
       ],
       "eid_eksempler": [
-        "https://lovdata.no/eli/lov/2001/06/15/93/nor/§45/ledd-1",
-        "https://lovdata.no/eli/lov/2001/06/15/93/nor/§42/ledd-3",
-        "https://lovdata.no/eli/lov/2001/06/15/93/nor/§42/ledd-2"
+        "https://lovdata.no/eli/lov/2001/06/15/93/nor/§45/ledd-1"
       ],
       "antall_forekomster": 3,
       "entitetstype": "klasse",
@@ -1401,7 +1399,7 @@
       "referent": null,
       "oppløsning": "saksforhold",
       "distributiv": true,
-      "kommentar": "[#356, kort nr. 54] Annen virksomhet foretak kan eie (hfl § 42 tredje ledd); skal organiseres som selskap med begrenset ansvar."
+      "kommentar": "[#356, kort nr. 54] Annen virksomhet foretak kan eie (hfl § 42 tredje ledd første punktum). Den kan organiseres som helseforetak bare når den er en nødvendig og sentral forutsetning for spesialisthelsetjenestene (annet punktum), ellers som selskap med begrenset ansvar (tredje punktum). [#356, juristrunden] Klasse definert ved negasjon. Venter på #349, som a65 i helse- og omsorgstjenesteloven."
     }
   ],
   "utsagn": [
@@ -1756,9 +1754,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, juristrunden] Forskriftshjemmel i loven (lærdom 1). R8 traff bare normform forskrift.",
       "undertype": "utpeking"
     },
     {
@@ -1837,9 +1835,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Opprettelsesvedtaket (kgl.res.) er utenfor korpus. [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter.",
+      "kommentar": "Opprettelsesvedtaket (kgl.res.) er utenfor korpus. [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter. [#356, juristrunden] Hjemmelen er hfl. § 8 første ledd (i korpuset). Opprettelsesvedtaket er bruken av kompetansen (lærdom 1).",
       "delegerbar": false
     },
     {
@@ -1934,9 +1932,9 @@
       "polaritet": "positiv",
       "avgrensning": "styret i eiende RHF eller HF",
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Organet (styret) i ett rettssubjekt oppretter et annet rettssubjekt. «Styret selv» = ikke delegerbart. [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter.",
+      "kommentar": "Organet (styret) i ett rettssubjekt oppretter et annet rettssubjekt. «Styret selv» = ikke delegerbart. [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter. [#356, juristrunden] Hjemmelen er hfl. § 9 første ledd (i korpuset). Stiftelsesvedtaket er bruken av kompetansen (lærdom 1).",
       "delegerbar": false
     },
     {
@@ -2065,7 +2063,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Gir Kongen kompetanse til å bestemme foretakenes medlemskap i arbeidsgiverorganisasjon (i praksis Spekter, ikke i korpus). [#309, kort nr. 18] delegerbar = false er lest av «Kongen i statsråd» (#335-regelen; slutning). Den faktiske arbeidsgivertilknytningen er ukjent og må slås opp (kgl.res. eller vedtekter, kilde utenfor korpus). M-raden u42 (medlem_av arbeidsgiverorganisasjon) er fjernet (L12).",
+      "kommentar": "Gir Kongen i statsråd kompetanse til å bestemme foretakenes arbeidsgivertilknytning. [#309, kort nr. 18] delegerbar = false er lest av «Kongen i statsråd» (#335-regelen; slutning). Den faktiske arbeidsgivertilknytningen er ukjent og må slås opp (kgl.res. eller vedtekter, kilde utenfor korpus). M-raden u42 (medlem_av arbeidsgiverorganisasjon) er fjernet (L12).",
       "delegerbar": false
     },
     {
@@ -3534,15 +3532,15 @@
       "sitat": "Virksomhet som yter spesialisthelsetjenester skal organiseres som helseforetak",
       "kategori": "konstituerende",
       "type": "annet:organisasjonsformkrav",
-      "fra": null,
-      "til": "a4",
-      "objekt": "virksomhet som yter sht (eid av foretak)",
+      "fra": "a52",
+      "til": null,
+      "objekt": "organisasjonsform: helseforetak",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "[#356, juristrunden] Samme oppsett som u305: virksomheten er fra og organisasjonsformen objekt. Var fra = null, til = Helseforetaket."
     },
     {
       "id": "u135",
@@ -3570,7 +3568,7 @@
       "til": "a5",
       "objekt": null,
       "polaritet": "positiv",
-      "avgrensning": "når egnet til å fremme formålet",
+      "avgrensning": "når det er egnet til å fremme foretakets formål; alene eller sammen med andre",
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
@@ -4610,11 +4608,11 @@
       "til": "a43",
       "objekt": null,
       "polaritet": "positiv",
-      "avgrensning": "valgfritt",
+      "avgrensning": null,
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "[#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter."
+      "kommentar": "[#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter. [#356, juristrunden] «valgfritt» var en modalitet, ikke en avgrensning (#355 punkt 8)."
     },
     {
       "id": "u200",
@@ -4678,7 +4676,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Uavhengighet tolket som instruksjonsforbud fra opprettende HF; teksten nevner ikke HF eksplisitt. [#356, v5 punkt 9, lærdom 5] Uavhengighetsutsagn: fra = null (enhver). Helseforetaket var tolket inn."
+      "kommentar": "[slutning] Instruksjonsforbudet er utledet av «uavhengig og selvstendig»; teksten nevner ingen avsender. [#356, v5 punkt 9, lærdom 5] Uavhengighetsutsagn: fra = null (enhver). Helseforetaket var tolket inn som avsender."
     },
     {
       "id": "u204",
@@ -6371,6 +6369,54 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "[#309, kort nr. 55] § 42 annet ledd annet punktum."
+    },
+    {
+      "id": "u306",
+      "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§16/ledd-3",
+      "sitat": "sette vilkår for tildelingen",
+      "kategori": "kompetanse",
+      "type": "beslutningskompetanse",
+      "fra": "a24",
+      "til": "a5",
+      "objekt": "vilkår for tildeling av bevilgning",
+      "polaritet": "positiv",
+      "avgrensning": "utenfor foretaksmøte (§ 16 tredje ledd; unntak fra § 16 første ledd annet punktum)",
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "hoy",
+      "kommentar": "[#356, juristrunden] Skilt ut fra u55 (L13): bevilgningen er senere lag (docs/33 §4.4), men vilkårene binder foretaket og er eierstyring. Typen følger u51. Familien for eierstyring (u51, u56 og denne) er ikke avgjort."
+    },
+    {
+      "id": "u307",
+      "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§42/ledd-3",
+      "sitat": "Kun virksomhet som er en nødvendig og sentral forutsetning for at det kan ytes spesialisthelsetjenester, kan organiseres som helseforetak",
+      "kategori": "konstituerende",
+      "type": "annet:organisasjonsformkrav",
+      "fra": "a71",
+      "til": null,
+      "objekt": "organisasjonsform: helseforetak",
+      "polaritet": "positiv",
+      "avgrensning": "bare når virksomheten er en nødvendig og sentral forutsetning for at det kan ytes spesialisthelsetjenester",
+      "betinget": true,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "hoy",
+      "kommentar": "[#356, juristrunden] § 42 tredje ledd annet punktum. Samme oppsett som u305."
+    },
+    {
+      "id": "u308",
+      "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§42/ledd-3",
+      "sitat": "Annen virksomhet skal organiseres som selskaper med begrenset ansvar",
+      "kategori": "konstituerende",
+      "type": "annet:organisasjonsformkrav",
+      "fra": "a71",
+      "til": null,
+      "objekt": "organisasjonsform: selskap med begrenset ansvar",
+      "polaritet": "positiv",
+      "avgrensning": "virksomhet som ikke er en nødvendig og sentral forutsetning for at det kan ytes spesialisthelsetjenester (§ 42 tredje ledd annet punktum)",
+      "betinget": true,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "hoy",
+      "kommentar": "[#356, juristrunden] § 42 tredje ledd tredje punktum. Samme oppsett som u305."
     }
   ]
 }

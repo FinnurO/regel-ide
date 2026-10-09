@@ -494,7 +494,7 @@
       "referent": null,
       "oppløsning": "ukjent",
       "distributiv": null,
-      "kommentar": "Eneste private kategori kommunen kan avtale drift av brukerromsordning med."
+      "kommentar": "Eneste private kategori kommunen kan avtale drift av brukerromsordning med. [#356, juristrunden] Grunnlaget for differanseklassen a65 («andre private enn ideelle organisasjoner»), som forbudet i § 5-6 (u55) gjelder."
     },
     {
       "id": "a26",
@@ -996,12 +996,12 @@
         "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-11/ledd-3"
       ],
       "antall_forekomster": 1,
-      "entitetstype": "organ",
+      "entitetstype": "klasse",
       "navngitt": false,
       "referent": null,
       "oppløsning": "ukjent",
       "distributiv": null,
-      "kommentar": "Særskilt sammensatt utvalg for nemndsbehandling av kap. 9-saker; hvem som oppnevner er ikke angitt (passiv form)."
+      "kommentar": "Særskilt sammensatt utvalg for nemndsbehandling av kap. 9-saker; hvem som oppnevner er ikke angitt (passiv form). [#356, juristrunden] Ikke et organ: en liste over personer som settes inn som fagkyndige medlemmer i nemnda i den enkelte saken (barnevernsloven §§ 14-2 og 14-3). Var organ."
     },
     {
       "id": "a53",
@@ -1233,7 +1233,7 @@
       "referent": null,
       "oppløsning": "tekstlig",
       "distributiv": null,
-      "kommentar": "[#356, v5 punkt 11] Komplementklasse (jf. #349): private som ikke er ideelle organisasjoner. Kommunen kan ikke avtale drift av brukerromsordning med dem (§ 5-6)."
+      "kommentar": "[#356, v5 punkt 11] Komplementklasse (jf. #349): private som ikke er ideelle organisasjoner. Kommunen kan ikke avtale drift av brukerromsordning med dem (§ 5-6). [#356, juristrunden] Venter på #349 (differanseklasse: private minus a25)."
     }
   ],
   "utsagn": [
@@ -1445,15 +1445,15 @@
       "sitat": "Avtalene kan ikke overdras.",
       "kategori": "relasjon",
       "type": "annet:overdragelse_av_avtale",
-      "fra": "a22",
+      "fra": null,
       "til": null,
-      "objekt": "avtaler om tjenesteyting med andre offentlige eller private tjenesteytere (første ledd)",
+      "objekt": "avtaler om tjenesteyting som kommunen inngår med andre offentlige eller private tjenesteytere (§ 3-1 femte ledd første punktum)",
       "polaritet": "negativ",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Forbud mot videreoverføring av avtaleforholdet. [#356, v5 punkt 10] Teksten sier at avtalene ikke kan overdras — ikke at kommunen ikke kan sette ut tjenester. [slutning] fra = avtaleparten (tjenesteyteren i første ledd); setningen er passiv. Var annet:tjenesteutsetting kommunen → tjenesteytere."
+      "kommentar": "Forbud mot videreoverføring av avtaleforholdet. [#356, v5 punkt 10] Teksten sier at avtalene ikke kan overdras, ikke at kommunen ikke kan sette ut tjenester. fra = null fordi setningen er passiv. [slutning] Forbudet treffer i praksis tjenesteyteren. Avtalens innhold hører til senere lag (docs/33 §4.4). Var annet:tjenesteutsetting fra kommunen til tjenesteytere."
     },
     {
       "id": "u14",
@@ -2147,7 +2147,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Negativ avgrensning av hvem kommunen kan sette ut drift til. [#356, v5 punkt 11, lærdom 4] Negasjonen gikk feil vei: forbudet gjelder «andre private enn ideelle organisasjoner» (a65), ikke de ideelle (a25). Var til = a25, avgrensning «drift av brukerromsordning; kun ideelle organisasjoner tillatt»."
+      "kommentar": "Negativ avgrensning av hvem kommunen kan sette ut drift til. [#356, v5 punkt 11, lærdom 4] Negasjonen gikk feil vei: forbudet gjelder «andre private enn ideelle organisasjoner» (a65), ikke de ideelle (a25). Var til = a25, avgrensning «drift av brukerromsordning; kun ideelle organisasjoner tillatt». [#356, juristrunden] Venter på #349: a65 er en differanseklasse (private minus ideelle organisasjoner) og får definisjonsregelen når #349 er bygget. Legges ikke fram som endelig."
     },
     {
       "id": "u56",
@@ -2235,7 +2235,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§6-1/ledd-1",
       "sitat": "Kommunestyret selv skal inngå samarbeidsavtale med det regionale helseforetaket i helseregionen",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "beslutningskompetanse",
       "fra": "a11",
       "til": null,
       "objekt": "inngåelse av samarbeidsavtale med RHF/HF",
@@ -2244,7 +2244,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "#300: kompetanse lagt DIREKTE til organ inne i kommunen. [#356, R4] Delegeringsforbudet («Kommunestyret selv») står som delegerbar = false på denne raden; den doble negative delegeringsraden (u62) er slettet.",
+      "kommentar": "#300: kompetanse lagt DIREKTE til organ inne i kommunen. [#356, R4] Delegeringsforbudet («Kommunestyret selv») står som delegerbar = false på denne raden; den doble negative delegeringsraden (u62) er slettet. [#356, juristrunden] Å inngå en samarbeidsavtale med RHF er ikke et enkeltvedtak (fvl. § 2). Det er beslutningskompetanse, fordelt internt i kommunen. Plikten overfor RHF står som avtaleplikt (u64). Var vedtakskompetanse.",
       "delegerbar": false
     },
     {
@@ -3131,7 +3131,7 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Oppnevnende myndighet ikke angitt (passiv form). [#356, R2] «Det kan oppnevnes» er en adgang til å oppnevne (L14), ikke organets faste medlemmer: oppnevningskompetanse, fra = null (passiv — teksten sier ikke hvem). Var organsammensetning/har_medlemmer fra «a52» til «None».",
+      "kommentar": "Oppnevnende myndighet ikke angitt (passiv form). [#356, R2] «Det kan oppnevnes» er en adgang til å oppnevne (L14), ikke organets faste medlemmer: oppnevningskompetanse, fra = null (passiv — teksten sier ikke hvem). Var organsammensetning/har_medlemmer fra «a52» til «None». [#356, juristrunden] [slutning] Departementet oppnevner, jf. barnevernsloven § 14-2 annet ledd («Departementet oppnevner utvalg av fagkyndige», i korpuset). fra står som null fordi setningen er passiv. Utvalget er en liste over personer som settes inn i nemnda i den enkelte saken (bvl. §§ 14-2 og 14-3), ikke et organ. Aktøren a52 er derfor klasse.",
       "undertype": "oppnevning"
     },
     {

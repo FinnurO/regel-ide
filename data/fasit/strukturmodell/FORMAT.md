@@ -104,6 +104,9 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
   "avgrensning": "<paragraf/sakstype/vilkår som begrenser utsagnet, ellers null>",
   "betinget": true | false,
   "kilde_utenfor_korpus": true | false,         // utsagnet viser til noe som fastsettes utenfor teksten (kgl.res., vedtekter, «Kongen bestemmer»)
+                                                // [ENDRET, #356, lærdom 1 i #309] Feltet gjelder HJEMMELEN: «X kan gi forskrift om …» i loven er
+                                                // false (forskriften som gis, er bruken av hjemmelen), og en kilde som er i Lovdata-korpuset er
+                                                // aldri utenfor korpus
   "sikkerhet": "hoy" | "middels" | "lav",
   "kommentar": "...",
   "oppdagelseskilde": "monster:<id>"          // [Ny, #307, 2026-10-07] KUN i maskinell konvertering: hvilket mønster/
@@ -221,7 +224,12 @@ idempotent, også på `ki-utdata/`):
 - **Negasjon som bare gjentar en positiv rad** (juristkort nr. 30, 50, 62) føres som avgrensning på den positive raden, ikke som egen
   negativ rad.
 - `kilde_utenfor_korpus` gjelder HJEMMELEN (lærdom 1): en forskriftshjemmel i loven er ikke kilde utenfor korpus.
-- Fasit 1 809 → 1 796 utsagn (13 negative unntaksrader i energiloven og 4 andre rader slettet, 4 nye), KI-utdata 1 043 → 1 042.
+- Juristrunden (CLAUDE.md §23) la til 23 rettinger (regel 10 i skriptet), blant annet hovedregelen i domstolloven § 213 første ledd,
+  avgrensningen fra § 236 fjerde ledd på hele Tilsynsutvalgets virksomhet, organisasjonsformkravene i hfl § 42 tredje ledd og vilkårene
+  for bevilgning i hfl § 16 tredje ledd som egen kompetanse.
+- Fasit 1 809 → 1 802 utsagn (13 negative unntaksrader i energiloven og 4 andre rader slettet, 10 nye), KI-utdata 1 043 → 1 042.
+- Formatet mangler en oppløsningsverdi for en forskrift som ER i korpuset (lærdom 2): «forskrift_utenfor» brukes inntil videre, med
+  kommentar (sameloven a141).
 
 Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
 - relasjon (aktør→aktør): `eies_av`, `ledes_av`, `sekretariat_for`, `rapporterer_til`, `etterfolger`,
@@ -245,9 +253,9 @@ Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
 - medlemskap (aktør/klasse → klasse): `medlem_av`, `inngar_i`.
 - sammensetning_omrade (område → område): `bestar_av`, `del_av`.
 - ansvarsomrade (aktør → område): `har_ansvarsomrade`, `har_jurisdiksjon`, `har_sete_i`.
-- konstituerende: `oppretter`, `avvikler`, `skal_finnes` («Hver kommune skal ha …»). [ENDRET, #356] `oppretter`/`avvikler` er
+- konstituerende: `oppretter`, `avvikler`, `skal_finnes` («Hver kommune skal ha …»). [ENDRET, #356] oppretter og avvikler er
   HENDELSEN («som er opprettet i medhold av», «organ nedsatt av»); «X kan opprette/nedsette», «treffer vedtak om å opprette» og
-  «avgjør om den vil etablere» er `opprettingskompetanse`/`avviklingskompetanse`.
+  «avgjør om den vil etablere» er opprettings- eller avviklingskompetanse (kategorien kompetanse).
 - organsammensetning: `har_medlemmer` (organets FASTE medlemmer: antall, hvem oppnevner), `har_organ` (rettssubjekt →
   organ, f.eks. «kommunestyret»), `settes_med` ([Ny, #352] sammensetningen i den ENKELTE SAK, saksavhengig: «I andre saker
   enn etter første ledd første punktum settes Høyesterett med fem dommere» — antallet i feltet objekt, sakstypen i feltet avgrensning),

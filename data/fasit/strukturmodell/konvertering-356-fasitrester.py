@@ -281,7 +281,8 @@ def regel_3(k, logg, utenfor):
                 continue
             if not any(u["eid"].startswith(f"{lov}§{r.replace(' ', '')}/") for r in refs):
                 continue
-            tilfoy(u, f"[#356, R3] delegerbar = false: TEKSTFUNN — {n['sitat']!r} ({n['id']}). Ikke en slutning fra ordet «Kongen».")
+            if "[#356, R3]" not in (u.get("kommentar") or ""):
+                tilfoy(u, f"[#356, R3] delegerbar = false: TEKSTFUNN — {n['sitat']!r} ({n['id']}). Ikke en slutning fra ordet «Kongen».")
             if u.get("delegerbar") is not False:
                 logg.append((k.kilde, u["id"], f"R3 delegerbar {u.get('delegerbar')} → false (tekstfunn, {n['id']})"))
                 u["delegerbar"] = False
@@ -556,6 +557,10 @@ def sett_felt(u, r, k, logg):
         elif felt == "kommentar":
             if kommentar_foran(u, verdi):
                 logg.append((k.kilde, u["id"], "kommentar"))
+        elif felt == "kommentar!":
+            if u.get("kommentar") != verdi:
+                u["kommentar"] = verdi
+                logg.append((k.kilde, u["id"], "kommentar (overskrevet, juristrunden)"))
         elif felt == "avgrensning_foran":
             if verdi not in (u.get("avgrensning") or ""):
                 u["avgrensning"] = verdi + ("; " + u["avgrensning"] if u.get("avgrensning") else "")
@@ -572,7 +577,9 @@ def regel_9(k, logg):
     for u in d["utsagn"]:
         r = RETTING.get((kilde, u["id"], u["sitat"]))
         if r is not None:
-            sett_felt(u, r, k, logg)
+            # Felt juristrunden (regel 10) setter på nytt, hoppes over her, så skriptet er idempotent: juristens verdi vinner.
+            j = JURIST_356.get((kilde, u["id"], u["sitat"]), {})
+            sett_felt(u, {f: v for f, v in r.items() if f not in j and not (f == "+kommentar" and "kommentar!" in j)}, k, logg)
 
     if kilde == "domstolloven":
         # nr. 62: u248 slettes (avgrensningen står nå på u247); ny rad for uttalelseskompetansen etter § 236 tredje ledd.
@@ -607,7 +614,8 @@ def regel_9(k, logg):
             logg.append((kilde, r["id"], "NY RAD kompetanse/samtykkekompetanse (Sametinget, § 2-6 fjerde ledd)"))
         a141 = next((a for a in d["aktorer"] if a["id"] == "a141"), None)
         tekst = ("[#356, kort nr. 28] Oppløses av forskrift om valg til Sametinget (FOR-2008-12-19-1480, i korpuset), jf. § 2-10 "
-                 "(Sametinget er øverste valgmyndighet). «forskrift_utenfor» betyr her utenfor lovteksten, ikke utenfor korpuset (lærdom 2).")
+                 "(Sametinget er øverste valgmyndighet). Formatet har ingen oppløsningsverdi for en forskrift som ER i korpuset (lærdom 2); "
+                 "«forskrift_utenfor» står til formatet får en slik verdi (juristrunden #356: delvis, egen sak).")
         if a141 and tekst not in (a141.get("kommentar") or ""):
             a141["kommentar"] = ((a141.get("kommentar") or "") + " " + tekst).strip()
             logg.append((kilde, "a141", "aktør: oppløsning presisert i kommentaren (forskrift om valg til Sametinget, i korpus)"))
@@ -679,14 +687,175 @@ def regel_9(k, logg):
 
 
 # ---- R10: juristrunden for denne saken (CLAUDE.md §23) — fylles etter runde 1 og 2 ----------------------------------------------------
-JURIST_356 = {}
+# Runde 1 (2026-10-09): to agenter vurderte 74 kort (33 regelendringer, 41 kortrettinger). 51 holdt og 23 fikk innvending (19 lav,
+# 4 middels, 0 høy). Alle er akseptert, unntatt to som er delvis akseptert (a141-oppløsningen og familievalget for eierstyring; se
+# runde 2 i PR-en). Rettingene er tekstlesninger, og slutninger er merket [slutning]. «kommentar!» overskriver kommentaren der den
+# gamle motsa feltene.
+J = "[#356, juristrunden]"
+KAP10 = "etter domstolloven kapittel 10"
+IKKE_OVERPROVBAR = "ikke forhold som kan overprøves etter reglene i rettspleielovgivningen for øvrig (§ 236 fjerde ledd)"
+JURIST_356 = {
+    ("domstolloven", "u73", "kan med tilslutning av minst 2/3 av hver av kommunestyrenes medlemmer beslutte å ha felles forliksråd"): {
+        "avgrensning": "kommuner med samme sekretariat og i samme domssogn; 2/3 flertall i hvert kommunestyre; kommunene er samtidig enige om "
+                       "antall medlemmer og varamedlemmer hver kommune skal velge og om hvordan begge kjønn sikres blant medlemmer og varamedlemmer",
+        "+kommentar": f"{J} Dersom-vilkåret i samme setning er et vilkår for kompetansen (L9)."},
+    ("energiloven", "u229", "Departementet delegerer all myndighet etter lov 29. juni 1990 nr. 50"): {
+        "+kommentar": f"{J} Unntaket for § 6-2 første og annet ledd står i vedtaket ved siden av utpekingen av NVE som rasjonerings"
+                      f"myndighet etter § 6-2 annet ledd (u246, sjuende ledd). Utpeking er ikke delegering."},
+    ("helse-og-omsorgstjenesteloven", "u61", "Kommunestyret selv skal inngå samarbeidsavtale med det regionale helseforetaket i helseregionen"): {
+        "type": "beslutningskompetanse",
+        "+kommentar": f"{J} Å inngå en samarbeidsavtale med RHF er ikke et enkeltvedtak (fvl. § 2). Det er beslutningskompetanse, fordelt "
+                      f"internt i kommunen. Plikten overfor RHF står som avtaleplikt (u64). Var vedtakskompetanse."},
+    ("helse-og-omsorgstjenesteloven", "u116", "Det kan oppnevnes et eget utvalg av fagkyndige for saker som etter reglene i dette kapitlet "
+                                              "skal behandles av nemnda."): {
+        "+kommentar": f"{J} [slutning] Departementet oppnevner, jf. barnevernsloven § 14-2 annet ledd («Departementet oppnevner utvalg av "
+                      f"fagkyndige», i korpuset). fra står som null fordi setningen er passiv. Utvalget er en liste over personer som settes "
+                      f"inn i nemnda i den enkelte saken (bvl. §§ 14-2 og 14-3), ikke et organ. Aktøren a52 er derfor klasse."},
+    ("sameloven", "u163", "Sametinget er øverste valgmyndighet ved valg til Sametinget."): {
+        "type": "beslutningskompetanse", "kilde_utenfor_korpus": False,
+        "kommentar!": "Avledet av rollen «øverste valgmyndighet». Det konkrete innholdet står i forskrift om valg til Sametinget "
+                      "(FOR-2008-12-19-1480, i korpuset): klageinstans (§ 76 tredje ledd) og godkjenning av fullmakter (§ 72 tredje ledd). "
+                      "[#356, R3] delegerbar = false: TEKSTFUNN (§ 2-12 fjerde ledd, u170). [#356, juristrunden] Beslutningskompetanse, ikke "
+                      "enkeltvedtak. Hjemmelen (§ 2-10) og forskriften er i korpuset. Var vedtakskompetanse og kilde utenfor korpus."},
+    ("sameloven", "u176", "Sametinget gir bestemmelser om sammenkalling og arbeidsordningen i Sametinget."): {
+        "til": "a1", "+kommentar": f"{J} Selvregulering: til = fra (#341)."},
+    ("spesialisthelsetjenesteloven", "u27", "Kongen i statsråd treffer vedtak om å opprette regionalt helseforetak"): {
+        "kilde_utenfor_korpus": False,
+        "+kommentar": f"{J} Hjemmelen er hfl. § 8 første ledd (i korpuset). Opprettelsesvedtaket er bruken av kompetansen (lærdom 1)."},
+    ("spesialisthelsetjenesteloven", "u33", "Styret selv i regionale helseforetak eller helseforetak treffer vedtak om å opprette helseforetak"): {
+        "kilde_utenfor_korpus": False,
+        "+kommentar": f"{J} Hjemmelen er hfl. § 9 første ledd (i korpuset). Stiftelsesvedtaket er bruken av kompetansen (lærdom 1)."},
+    ("spesialisthelsetjenesteloven", "u199", "Andre virksomheter som omfattes av denne loven, kan opprette en klinisk etikkomité"): {
+        "avgrensning": None, "+kommentar": f"{J} «valgfritt» var en modalitet, ikke en avgrensning (#355 punkt 8)."},
+    ("spesialisthelsetjenesteloven", "u22", "Departementet kan gi forskrift om hvem som skal være klageinstans for enkeltvedtak fattet av foretakene"): {
+        "kilde_utenfor_korpus": False, "+kommentar": f"{J} Forskriftshjemmel i loven (lærdom 1). R8 traff bare normform forskrift."},
+    ("domstolloven", "u242", "Tilsynsutvalget for dommere behandler klager og vurderer disiplinærtiltak mot dommere."): {
+        "avgrensning": IKKE_OVERPROVBAR, "+kommentar": f"{J} § 236 fjerde ledd gjelder hele utvalgets virksomhet (kort nr. 62)."},
+    ("domstolloven", "u243", "Tilsynsutvalget for dommere behandler klager"): {
+        "avgrensning": IKKE_OVERPROVBAR, "+kommentar": f"{J} § 236 fjerde ledd gjelder hele utvalgets virksomhet (kort nr. 62)."},
+    ("domstolloven", "u238", "Dommere kan ilægges saadant ansvar av høiere ret"): {
+        "objekt": "rettergangsstraff", "avgrensning": KAP10,
+        "+kommentar": f"{J} «saadant ansvar» er straff og erstatning (første ledd). Straffen står her (sanksjon), og erstatningen er egen "
+                      f"rad (kort nr. 61)."},
+    ("domstolloven", "u235", "kan den paalægge den skyldige dommer helt eller delvis at utrede de økede omkostninger"): {
+        "type": "beslutningskompetanse",
+        "+kommentar": f"{J} Omkostningsansvar er kompensasjon, ikke reaksjon (#355 beslutning 3, som kort nr. 61). Var sanksjonskompetanse."},
+    ("energiloven", "u141", "Kapittel VI om klage og omgjøring"): {
+        "kommentar!": "Forvaltningsloven kapittel VI gjelder ikke: verken vedtaksorganets egen omgjøring (§ 35 første ledd) eller omgjøring ved "
+                      "klageinstans eller overordnet organ (§ 35 annet og tredje ledd). [#309, kort nr. 39] Ulovfestet omgjøring er ikke regulert."},
+    ("helse-og-omsorgstjenesteloven", "u13", "Avtalene kan ikke overdras."): {
+        "fra": None,
+        "objekt": "avtaler om tjenesteyting som kommunen inngår med andre offentlige eller private tjenesteytere (§ 3-1 femte ledd første punktum)",
+        "kommentar!": "Forbud mot videreoverføring av avtaleforholdet. [#356, v5 punkt 10] Teksten sier at avtalene ikke kan overdras, ikke at "
+                      "kommunen ikke kan sette ut tjenester. fra = null fordi setningen er passiv. [slutning] Forbudet treffer i praksis "
+                      "tjenesteyteren. Avtalens innhold hører til senere lag (docs/33 §4.4). Var annet:tjenesteutsetting fra kommunen til "
+                      "tjenesteytere."},
+    ("helse-og-omsorgstjenesteloven", "u55", "Kommunen kan ikke inngå avtale med andre private enn ideelle organisasjoner om drift av "
+                                             "brukerromsordning."): {
+        "+kommentar": f"{J} Venter på #349: a65 er en differanseklasse (private minus ideelle organisasjoner) og får definisjonsregelen når "
+                      f"#349 er bygget. Legges ikke fram som endelig."},
+    ("spesialisthelsetjenesteloven", "u41", "Kongen i statsråd bestemmer hvilken arbeidsgivertilknytning foretakene skal ha"): {
+        "kommentar!": "Gir Kongen i statsråd kompetanse til å bestemme foretakenes arbeidsgivertilknytning. [#309, kort nr. 18] delegerbar = "
+                      "false er lest av «Kongen i statsråd» (#335-regelen; slutning). Den faktiske arbeidsgivertilknytningen er ukjent og må "
+                      "slås opp (kgl.res. eller vedtekter, kilde utenfor korpus). M-raden u42 (medlem_av arbeidsgiverorganisasjon) er fjernet "
+                      "(L12)."},
+    ("spesialisthelsetjenesteloven", "u136", "kan foretak eie virksomhet som ikke yter spesialisthelsetjenester alene eller sammen med andre"): {
+        "avgrensning": "når det er egnet til å fremme foretakets formål; alene eller sammen med andre"},
+    ("spesialisthelsetjenesteloven", "u203", "Den kliniske etikkomiteen skal utføre sine oppgaver uavhengig og selvstendig"): {
+        "kommentar!": "[slutning] Instruksjonsforbudet er utledet av «uavhengig og selvstendig»; teksten nevner ingen avsender. [#356, v5 "
+                      "punkt 9, lærdom 5] Uavhengighetsutsagn: fra = null (enhver). Helseforetaket var tolket inn som avsender."},
+    ("spesialisthelsetjenesteloven", "u134", "Virksomhet som yter spesialisthelsetjenester skal organiseres som helseforetak"): {
+        "fra": "a52", "til": None, "objekt": "organisasjonsform: helseforetak",
+        "+kommentar": f"{J} Samme oppsett som u305: virksomheten er fra og organisasjonsformen objekt. Var fra = null, til = Helseforetaket."},
+}
 
 
 def regel_10(k, logg):
-    for u in k.d["utsagn"]:
-        r = JURIST_356.get((k.kilde, u["id"], u["sitat"]))
+    d, kilde = k.d, k.kilde
+    for u in d["utsagn"]:
+        r = JURIST_356.get((kilde, u["id"], u["sitat"]))
         if r is not None:
             sett_felt(u, r, k, logg)
+
+    def aktor_felt(aid, **felt):
+        a = next((a for a in d["aktorer"] if a["id"] == aid), None)
+        if a is None:
+            return
+        for f, v in felt.items():
+            if f == "pluss_kommentar":
+                if v not in (a.get("kommentar") or ""):
+                    a["kommentar"] = ((a.get("kommentar") or "") + " " + v).strip()
+                    logg.append((kilde, aid, "aktør: kommentar"))
+            elif a.get(f) != v:
+                logg.append((kilde, aid, f"aktør: {f} {a.get(f)!r} → {v!r}"))
+                a[f] = v
+
+    def ny(mal, eid, sitat, **felt):
+        assert sitat in k.tekst.get(eid, ""), (kilde, sitat)
+        if finnes(d, eid, felt["kategori"], felt["type"], sitat, **({"objekt": felt["objekt"]} if "objekt" in felt else {})):
+            return
+        r = ny_rad(d, mal, eid=eid, sitat=sitat, **felt)
+        logg.append((kilde, r["id"], f"NY RAD (juristrunden) {r['kategori']}/{r['type']} {r.get('polaritet')}: {sitat[:60]}"))
+
+    if kilde == "domstolloven":
+        u238 = finn(d, "u238", "Dommere kan ilægges saadant ansvar av høiere ret")
+        if u238:
+            ny(u238, u238["eid"], u238["sitat"], kategori="kompetanse", type="beslutningskompetanse", objekt="erstatning",
+               kommentar=f"{J} Skilt ut fra u238 (L13): erstatning er kompensasjon, ikke reaksjon (kort nr. 61).")
+            s213 = "kan enhver ret, som har med saken at gjøre, ilægge straf og erstatning efter dette kapitel"
+            avgr = (f"{KAP10}; den rett som har med saken å gjøre; ikke overfor dommere (§ 213 annet ledd, u238) og ikke forliksrådet "
+                    f"(§ 213 første ledd tredje punktum, u236)")
+            for type_, obj in [("sanksjonskompetanse", "rettergangsstraff"), ("beslutningskompetanse", "erstatning")]:
+                ny(u238, DL + "§213/ledd-1", s213, kategori="kompetanse", type=type_, fra="domstolene", til=None, objekt=obj,
+                   polaritet="positiv", avgrensning=avgr, betinget=False, sikkerhet="hoy",
+                   kommentar=f"{J} § 213 første ledd første punktum: hovedregelen som de negative forliksrådsradene (u236 og raden for "
+                             f"erstatning) er unntak fra. Straff er sanksjon og erstatning beslutning (kort nr. 61).")
+            dom = next((a for a in d["aktorer"] if a["id"] == "domstolene"), None)
+            if dom and "enhver ret, som har med saken at gjøre" not in dom["varianter"]:
+                dom["varianter"].append("enhver ret, som har med saken at gjøre")
+                logg.append((kilde, "domstolene", "aktør: variant «enhver ret, som har med saken at gjøre»"))
+
+    if kilde == "helse-og-omsorgstjenesteloven":
+        aktor_felt("a52", entitetstype="klasse",
+                   pluss_kommentar=f"{J} Ikke et organ: en liste over personer som settes inn som fagkyndige medlemmer i nemnda i den "
+                                   f"enkelte saken (barnevernsloven §§ 14-2 og 14-3). Var organ.")
+        aktor_felt("a65", pluss_kommentar=f"{J} Venter på #349 (differanseklasse: private minus a25).")
+        aktor_felt("a25", pluss_kommentar=f"{J} Grunnlaget for differanseklassen a65 («andre private enn ideelle organisasjoner»), som "
+                                          f"forbudet i § 5-6 (u55) gjelder.")
+
+    if kilde == "spesialisthelsetjenesteloven":
+        a52 = next((a for a in d["aktorer"] if a["id"] == "a52"), None)
+        ny_form = "virksomheter som yter spesialisthelsetjenester"
+        if a52 and a52["tekstform"] != ny_form:
+            gammel = a52["tekstform"]
+            a52["varianter"] = [gammel] + [v for v in a52["varianter"] if v != ny_form]
+            a52["tekstform"] = ny_form
+            logg.append((kilde, "a52", f"aktør: tekstform «{gammel}» → «{ny_form}» (kort nr. 55)"))
+        aktor_felt("a71", kommentar="[#356, kort nr. 54] Annen virksomhet foretak kan eie (hfl § 42 tredje ledd første punktum). Den kan "
+                                    "organiseres som helseforetak bare når den er en nødvendig og sentral forutsetning for spesialisthelse"
+                                    "tjenestene (annet punktum), ellers som selskap med begrenset ansvar (tredje punktum). [#356, juristrunden] "
+                                    "Klasse definert ved negasjon. Venter på #349, som a65 i helse- og omsorgstjenesteloven.")
+        aktor_felt("a64", eid_eksempler=[HFL + "§45/ledd-1"])
+        u55 = finn(d, "u55", "Eiere kan utenfor foretaksmøte tildele foretak bevilgning og sette vilkår for tildelingen")
+        if u55:
+            ny(u55, u55["eid"], "sette vilkår for tildelingen", kategori="kompetanse", type="beslutningskompetanse", fra="a24", til="a5",
+               objekt="vilkår for tildeling av bevilgning", polaritet="positiv", sikkerhet="hoy",
+               avgrensning="utenfor foretaksmøte (§ 16 tredje ledd; unntak fra § 16 første ledd annet punktum)",
+               kommentar=f"{J} Skilt ut fra u55 (L13): bevilgningen er senere lag (docs/33 §4.4), men vilkårene binder foretaket og er "
+                         f"eierstyring. Typen følger u51. Familien for eierstyring (u51, u56 og denne) er ikke avgjort.")
+        u305 = next((u for u in d["utsagn"] if u["type"] == "annet:organisasjonsformkrav" and u["eid"] == HFL + "§42/ledd-2"), None)
+        if u305:
+            eid = HFL + "§42/ledd-3"
+            ny(u305, eid, "Kun virksomhet som er en nødvendig og sentral forutsetning for at det kan ytes spesialisthelsetjenester, kan "
+                          "organiseres som helseforetak", kategori="konstituerende", type="annet:organisasjonsformkrav", fra="a71",
+               objekt="organisasjonsform: helseforetak", betinget=True,
+               avgrensning="bare når virksomheten er en nødvendig og sentral forutsetning for at det kan ytes spesialisthelsetjenester",
+               kommentar=f"{J} § 42 tredje ledd annet punktum. Samme oppsett som u305.")
+            ny(u305, eid, "Annen virksomhet skal organiseres som selskaper med begrenset ansvar", kategori="konstituerende",
+               type="annet:organisasjonsformkrav", fra="a71", objekt="organisasjonsform: selskap med begrenset ansvar", betinget=True,
+               avgrensning="virksomhet som ikke er en nødvendig og sentral forutsetning for at det kan ytes spesialisthelsetjenester "
+                           "(§ 42 tredje ledd annet punktum)",
+               kommentar=f"{J} § 42 tredje ledd tredje punktum. Samme oppsett som u305.")
 
 
 def tell(d):

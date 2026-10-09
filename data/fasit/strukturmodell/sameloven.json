@@ -2319,7 +2319,7 @@
       "referent": null,
       "oppløsning": "forskrift_utenfor",
       "distributiv": null,
-      "kommentar": "§ 2-6 fjerde ledd. Referent kan ikke avgjøres fra teksten (Sametinget som øverste valgmyndighet § 2-10, og/eller lokale valgorganer etter valgforskriften). [#356, kort nr. 28] Oppløses av forskrift om valg til Sametinget (FOR-2008-12-19-1480, i korpuset), jf. § 2-10 (Sametinget er øverste valgmyndighet). «forskrift_utenfor» betyr her utenfor lovteksten, ikke utenfor korpuset (lærdom 2)."
+      "kommentar": "§ 2-6 fjerde ledd. Referent kan ikke avgjøres fra teksten (Sametinget som øverste valgmyndighet § 2-10, og/eller lokale valgorganer etter valgforskriften). [#356, kort nr. 28] Oppløses av forskrift om valg til Sametinget (FOR-2008-12-19-1480, i korpuset), jf. § 2-10 (Sametinget er øverste valgmyndighet). Formatet har ingen oppløsningsverdi for en forskrift som ER i korpuset (lærdom 2); «forskrift_utenfor» står til formatet får en slik verdi (juristrunden #356: delvis, egen sak)."
     },
     {
       "id": "a142",
@@ -5265,16 +5265,16 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-10/ledd-1",
       "sitat": "Sametinget er øverste valgmyndighet ved valg til Sametinget.",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "beslutningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "valg til Sametinget (som øverste valgmyndighet)",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Avledet av rollen; konkret innhold (godkjenning av valg, klager) står i valgforskriften utenfor korpuset. [#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u170). Ikke en slutning fra ordet «Kongen».",
+      "kommentar": "Avledet av rollen «øverste valgmyndighet». Det konkrete innholdet står i forskrift om valg til Sametinget (FOR-2008-12-19-1480, i korpuset): klageinstans (§ 76 tredje ledd) og godkjenning av fullmakter (§ 72 tredje ledd). [#356, R3] delegerbar = false: TEKSTFUNN (§ 2-12 fjerde ledd, u170). [#356, juristrunden] Beslutningskompetanse, ikke enkeltvedtak. Hjemmelen (§ 2-10) og forskriften er i korpuset. Var vedtakskompetanse og kilde utenfor korpus.",
       "delegerbar": false
     },
     {
@@ -5481,14 +5481,14 @@
       "kategori": "kompetanse",
       "type": "normgivningskompetanse",
       "fra": "a1",
-      "til": null,
+      "til": "a1",
       "objekt": "forretningsorden (sammenkalling og arbeidsordning)",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Selvorganiseringskompetanse; ikke delegerbar (§ 2-12). Her betyr 'i Sametinget' plenumsorganet. [#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u170). Ikke en slutning fra ordet «Kongen».",
+      "kommentar": "Selvorganiseringskompetanse; ikke delegerbar (§ 2-12). Her betyr 'i Sametinget' plenumsorganet. [#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u170). Ikke en slutning fra ordet «Kongen». [#356, juristrunden] Selvregulering: til = fra (#341).",
       "normform": "arbeidsordning",
       "delegerbar": false
     },

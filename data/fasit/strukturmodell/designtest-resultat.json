@@ -1298,7 +1298,7 @@
  {
   "kilde": "sameloven",
   "kategori": "kompetanse",
-  "type": "vedtakskompetanse",
+  "type": "beslutningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -4698,7 +4698,7 @@
  {
   "kilde": "helse-og-omsorgstjenesteloven",
   "kategori": "kompetanse",
-  "type": "vedtakskompetanse",
+  "type": "beslutningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -5381,7 +5381,7 @@
   "type": "annet:avtalebasert_ansvarsoverforing",
   "dagens": "delvis",
   "revidert": "ja",
-  "element": "R"
+  "element": "K"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -8168,6 +8168,30 @@
   "element": "G"
  },
  {
+  "kilde": "spesialisthelsetjenesteloven",
+  "kategori": "kompetanse",
+  "type": "beslutningskompetanse",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
+ },
+ {
+  "kilde": "spesialisthelsetjenesteloven",
+  "kategori": "konstituerende",
+  "type": "annet:organisasjonsformkrav",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "G"
+ },
+ {
+  "kilde": "spesialisthelsetjenesteloven",
+  "kategori": "konstituerende",
+  "type": "annet:organisasjonsformkrav",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "G"
+ },
+ {
   "kilde": "domstolloven",
   "kategori": "medlemskap",
   "type": "medlem_av",
@@ -10042,7 +10066,7 @@
  {
   "kilde": "domstolloven",
   "kategori": "kompetanse",
-  "type": "sanksjonskompetanse",
+  "type": "beslutningskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -14355,6 +14379,30 @@
   "kilde": "domstolloven",
   "kategori": "kompetanse",
   "type": "annet:uttalelse",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "kompetanse",
+  "type": "beslutningskompetanse",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "kompetanse",
+  "type": "beslutningskompetanse",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "kompetanse",
+  "type": "sanksjonskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
