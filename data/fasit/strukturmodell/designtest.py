@@ -75,6 +75,15 @@ REGLER = [
     (r"forvaltningsansvar|ressort", ("nei", "ja", "K")),
     # [Ny, issue #355, kort nr. 58] «Dommere kan ikke … forflyttes mot sin vilje» — negativ kompetanse (stillingsvern), som avsetting.
     (r"forflytning", ("delvis", "ja", "K")),
+    # [Ny, issue #356, kort nr. 62] Tilsynsutvalgets uttalelse om god dommerskikk (domstolloven § 236 tredje ledd): kompetanse, ikke
+    # sanksjon og ikke bindende — K som de andre kompetansevariantene.
+    (r"uttalelse", ("delvis", "ja", "K")),
+    # [Ny, issue #356, v5 punkt 10] «Avtalene kan ikke overdras» (hotl. § 3-1 femte ledd) er avtalens innhold, som docs/33 §4.4
+    # holder utenfor strukturlaget.
+    (r"overdragelse_av_avtale", ("nei", "senere_lag", "-")),
+    # [Ny, issue #356, juristrunden] «Kan … ved avtale overføres» (hotl. § 10-8, kort nr. 14) er en adgang = K, ikke en gjennomført
+    # overføring (R). Må stå foran «ansvarsoverforing» i R-regelen under.
+    (r"avtalebasert_ansvarsoverforing", ("delvis", "ja", "K")),
     # delegering/overføring med unntak og historikk
     (r"delegering|ansvarsoverforing|oppgave_overfort|overtar_rettigheter|tjenesteutsetting", ("delvis", "ja", "R")),
     # rolleinnehav / utpeking

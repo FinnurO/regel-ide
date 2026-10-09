@@ -660,8 +660,9 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "kommentar": "[#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u13). Ikke en slutning fra ordet «Kongen».",
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": false
     },
     {
       "id": "u6",
@@ -694,8 +695,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "kommentar": "[#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u13). Ikke en slutning fra ordet «Kongen».",
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegerbar": false
     },
     {
       "id": "u8",
@@ -755,8 +757,8 @@
       "id": "u11",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-12/ledd-3",
       "sitat": "Sametinget kan opprette de styrer, råd eller utvalg som Sametinget finner hensiktsmessig og, såfremt ikke annet fremgår, delegere myndighet til disse.",
-      "kategori": "konstituerende",
-      "type": "oppretter",
+      "kategori": "kompetanse",
+      "type": "opprettingskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": null,
@@ -765,7 +767,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -851,9 +853,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u13). Ikke en slutning fra ordet «Kongen».",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegerbar": false
     },
     {
       "id": "u17",
@@ -1678,8 +1681,8 @@
       "id": "u64",
       "eid": "https://lovdata.no/eli/forskrift/2004/12/10/1607/nor/ledd-1",
       "sitat": "Kongens myndighet etter lov 12. juni 1987 nr. 56 om Sametinget og andre samiske rettsforhold (sameloven) § 2-11 delegeres til Kommunal- og regionaldepartementet",
-      "kategori": "kompetanse",
-      "type": "delegeringskompetanse",
+      "kategori": "relasjon",
+      "type": "har_delegert_til",
       "fra": "a2",
       "til": "a33",
       "objekt": null,
@@ -1688,9 +1691,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": true
+      "kommentar": "[#356, R0] Gjennomført delegering i et delegeringsvedtak (#341 beslutning 1). Var kompetanse/delegeringskompetanse.",
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u65",
@@ -1730,8 +1732,8 @@
       "id": "u67",
       "eid": "https://lovdata.no/eli/forskrift/2004/12/10/1607/nor/ledd-3",
       "sitat": "Kongens myndighet etter samelovens § 2-11 delegeres delvis til Kommunal- og regionaldepartementet",
-      "kategori": "kompetanse",
-      "type": "delegeringskompetanse",
+      "kategori": "relasjon",
+      "type": "har_delegert_til",
       "fra": "a2",
       "til": "a33",
       "objekt": null,
@@ -1740,9 +1742,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": true
+      "kommentar": "[#356, R0] Gjennomført delegering i et delegeringsvedtak (#341 beslutning 1). Var kompetanse/delegeringskompetanse.",
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u68",

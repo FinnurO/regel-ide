@@ -98,11 +98,15 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
   "grunnlag": "offentligrettslig" | "privatrettslig",  // [Ny, #341] KUN på kompetanse; privatrettslig = eierskap/
                               // selskapsrett. Utelatt/null = ikke angitt (settes av et menneske, aldri utledet)
   "delegerbar": true | false, // [Ny, #341/#335] KUN på kompetanse: «Kongen …» = true, «Kongen i statsråd …» og
-                              // «X selv» = false — avgjort på sitatet. Utelatt/null = ikke angitt
+                              // «X selv» = false — avgjort på sitatet. [ENDRET, #356] Også false når loven sier at myndigheten
+                              // «kan ikke delegeres» (tekstfunn, sameloven § 2-12 fjerde ledd). Utelatt/null = ikke angitt
   "polaritet": "positiv" | "negativ",           // «kan ikke instruere» = negativ
   "avgrensning": "<paragraf/sakstype/vilkår som begrenser utsagnet, ellers null>",
   "betinget": true | false,
   "kilde_utenfor_korpus": true | false,         // utsagnet viser til noe som fastsettes utenfor teksten (kgl.res., vedtekter, «Kongen bestemmer»)
+                                                // [ENDRET, #356, lærdom 1 i #309] Feltet gjelder HJEMMELEN: «X kan gi forskrift om …» i loven er
+                                                // false (forskriften som gis, er bruken av hjemmelen), og en kilde som er i Lovdata-korpuset er
+                                                // aldri utenfor korpus
   "sikkerhet": "hoy" | "middels" | "lav",
   "kommentar": "...",
   "oppdagelseskilde": "monster:<id>"          // [Ny, #307, 2026-10-07] KUN i maskinell konvertering: hvilket mønster/
@@ -118,9 +122,10 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
   (`objekt`/`avgrensning`)». Klageinstans, instruksjon, omgjøring, oppnevning, tilsyn med en aktør, avsetting,
   sanksjon, samtykke, overprøving og forelegging er kompetanse med motpart — ikke relasjon.
 - **Relasjon** er struktur UTEN myndighet: eierskap, ledelse, sekretariat, rapportering, etterfølger, representasjon —
-  og den GJENNOMFØRTE delegeringen (`har_delegert_til`, fra et delegeringsvedtak; unntakene i vedtaket er egne rader
-  med negativ polaritet = avgrensning av delegeringen, ikke negativ kompetanse). Kompetansen til å delegere («X kan
-  delegere til Y») er `delegeringskompetanse`.
+  og den GJENNOMFØRTE delegeringen (`har_delegert_til`, fra et delegeringsvedtak; ~~unntakene i vedtaket er egne rader
+  med negativ polaritet~~ [ENDRET, #356] unntakene i vedtaket står i `avgrensning` på den positive `har_delegert_til`-kanten,
+  med hjemmelsstedet i parentes — ingen egne negative rader). Kompetansen til å delegere («X kan delegere til Y») er
+  `delegeringskompetanse`.
 - [ENDRET, #352] `administrativt_underordnet`, `radgir`, og (under konstituerende) `oppretter` og `avvikler` er avgjort
   som struktur/hendelse, ikke myndighet (Johanns beslutning 4); kompetansen til å opprette eller avvikle er
   `opprettingskompetanse`/`avviklingskompetanse`. `bistar`, `samarbeider_med` og `del_av` står fortsatt under relasjon
@@ -198,6 +203,34 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
 - Konverteringen er deterministisk: `konvertering-355-avslutning.py` (fasit 1798 → 1809 utsagn, inkludert juristrundens rettinger; KI-utdata 1043 → 1043).
 - Verbet alene avgjør ikke undertypen når disposisjonen er en annen: «kontaktpsykolog utnevnes» er oppnevning (ikke embete).
 
+**[ENDRET, issue #356, 2026-10-09] Konverteringsrester etter #341/#352** (fasitkontrollen #309 v5, tilleggene på #356 og utfallet av
+juristdebatten om fasitkortene). Reglene som ikke slo til, er rettet som REGLER i `konvertering-356-fasitrester.py` (deterministisk,
+idempotent, også på `ki-utdata/`):
+- **Oppretting/avvikling:** konstituerende/oppretter eller avvikler med kompetanseordlyd («kan … opprette/nedsette/beslutte å ha»,
+  «maa ikke nedsættes», «treffer vedtak om å opprette/oppløsning», «avgjør om … etablere») → `opprettingskompetanse`/
+  `avviklingskompetanse` (#352 beslutning 4), med delegerbar-regelen på sitatet. Hendelsen og plikten («skal opprette») står.
+- **«Det kan oppnevnes …»** (passiv, L14) → `oppnevningskompetanse`/`oppnevning`, fra = null, til = organet, ikke `har_medlemmer`.
+- **«… kan ikke delegeres»** med paragrafhenvisning → `delegerbar = false` på kompetansene i de paragrafene (samme fra). Den negative
+  delegeringsraden står som sporingsgrunnlag. En negativ delegeringsrad som bare er «X selv» og dobler en kompetanse som alt har
+  `delegerbar = false`, slettes. Skillet tekstfunn/slutning på feltet hører til #335.
+- **«beslutningsmyndighet»** i sitatet → `beslutningskompetanse`, ikke `vedtakskompetanse` (som betyr enkeltvedtak). Interne
+  foretaksbeslutninger og fordeling mellom RHF-er er også `beslutningskompetanse` (kortene, ikke en regel: «X avgjør» alene avgjør det ikke).
+- **Unntak i et delegeringsvedtak er avgrensning** på den positive `har_delegert_til`-kanten med samme ender — kantene i samme ledd,
+  ellers den ene kanten i dokumentet der noden innleder unntakslisten («med følgende unntak»). Hjemmelsstedet står i parentes
+  («FOR-2025-06-26-1340 kap. I femte ledd»). Finnes ingen positiv kant, står den negative raden og listes (gjettes ikke).
+- **Gjennomført delegering**: `delegeringskompetanse` i et ledsagende delegeringsvedtak der sitatet sier «delegerer», «delegeres» eller
+  «Delegeringen omfatter …» → `har_delegert_til` (#341-regelen gjaldt bare den gamle relasjonstypen). «Delegeringen omfatter myndigheten
+  til å endre og oppheve forskrift …» er delegeringens rekkevidde, ikke departementets egen normgivning.
+- **Negasjon som bare gjentar en positiv rad** (juristkort nr. 30, 50, 62) føres som avgrensning på den positive raden, ikke som egen
+  negativ rad.
+- `kilde_utenfor_korpus` gjelder HJEMMELEN (lærdom 1): en forskriftshjemmel i loven er ikke kilde utenfor korpus.
+- Juristrunden (CLAUDE.md §23) la til 23 rettinger (regel 10 i skriptet), blant annet hovedregelen i domstolloven § 213 første ledd,
+  avgrensningen fra § 236 fjerde ledd på hele Tilsynsutvalgets virksomhet, organisasjonsformkravene i hfl § 42 tredje ledd og vilkårene
+  for bevilgning i hfl § 16 tredje ledd som egen kompetanse.
+- Fasit 1 809 → 1 802 utsagn (13 negative unntaksrader i energiloven og 4 andre rader slettet, 10 nye), KI-utdata 1 043 → 1 042.
+- Formatet mangler en oppløsningsverdi for en forskrift som ER i korpuset (lærdom 2): «forskrift_utenfor» brukes inntil videre, med
+  kommentar (sameloven a141).
+
 Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
 - relasjon (aktør→aktør): `eies_av`, `ledes_av`, `sekretariat_for`, `rapporterer_til`, `etterfolger`,
   `representerer`, `har_delegert_til` (gjennomført delegering, når BÅDE fra og til er gitt),
@@ -220,7 +253,9 @@ Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
 - medlemskap (aktør/klasse → klasse): `medlem_av`, `inngar_i`.
 - sammensetning_omrade (område → område): `bestar_av`, `del_av`.
 - ansvarsomrade (aktør → område): `har_ansvarsomrade`, `har_jurisdiksjon`, `har_sete_i`.
-- konstituerende: `oppretter`, `avvikler`, `skal_finnes` («Hver kommune skal ha …»).
+- konstituerende: `oppretter`, `avvikler`, `skal_finnes` («Hver kommune skal ha …»). [ENDRET, #356] oppretter og avvikler er
+  HENDELSEN («som er opprettet i medhold av», «organ nedsatt av»); «X kan opprette/nedsette», «treffer vedtak om å opprette» og
+  «avgjør om den vil etablere» er opprettings- eller avviklingskompetanse (kategorien kompetanse).
 - organsammensetning: `har_medlemmer` (organets FASTE medlemmer: antall, hvem oppnevner), `har_organ` (rettssubjekt →
   organ, f.eks. «kommunestyret»), `settes_med` ([Ny, #352] sammensetningen i den ENKELTE SAK, saksavhengig: «I andre saker
   enn etter første ledd første punktum settes Høyesterett med fem dommere» — antallet i feltet objekt, sakstypen i feltet avgrensning),
