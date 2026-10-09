@@ -419,3 +419,75 @@ table.ds-table caption{ text-align:left; font-size: var(--ds-body-sm-font-size);
 .struktur-figur .sf-valgt{ stroke: var(--ds-color-accent-text-default); stroke-width:2; stroke-dasharray: 6 4; fill:none; }
 .struktur-figur .sf-pilspiss-valgt{ fill: var(--ds-color-accent-text-default); }
 .struktur-figur .sf-valgt-tekst{ fill: var(--ds-color-accent-text-default); font-weight:600; }
+
+/* ---------- [Ny, nettside-nytt-oktober, 2026-10-09] «Nytt oktober 2026» på strukturmodell-siden + nyhetsboks på forsiden ----------
+   Bare lyst tema (Johann lukket #328 2026-10-07). Figurene her er SMALE, STÅENDE SVG-er uten min-width, i motsetning til
+   Karasjok-figuren over (.struktur-figur, min-width 40rem, ruller sidelengs): oppdraget var ingen sidelengs rulling på
+   telefonbredde, så de nye figurene er tegnet 320 enheter brede og skaleres ned i stedet for å rulle. */
+.nyhet-boks{ border:1px solid var(--ds-color-accent-border-subtle, var(--ds-color-border-subtle)); background: var(--ds-color-accent-surface-tinted); border-radius: var(--ds-border-radius-lg); padding: var(--ds-size-5) var(--ds-size-6); max-width: 48rem; }
+.nyhet-boks .kicker{ font-size: var(--ds-body-xs-font-size); font-weight:600; letter-spacing:.06em; text-transform:uppercase; color: var(--ds-color-accent-text-subtle); display:block; margin-bottom: var(--ds-size-2); }
+.nyhet-boks h2{ font-family: var(--site-font-display); font-size: var(--ds-heading-md-font-size); margin:0 0 var(--ds-size-3); text-wrap:balance; }
+.nyhet-boks p{ margin:0 0 var(--ds-size-3); }
+.nyhet-boks a{ font-weight:500; }
+@media (max-width: 640px){ .nyhet-boks{ padding: var(--ds-size-4); } }
+
+.nytt-innhold{ list-style:none; margin: var(--ds-size-5) 0 0; padding:0; display:flex; flex-wrap:wrap; gap: var(--ds-size-2); }
+.nytt-innhold a{ display:inline-block; font-size: var(--ds-body-sm-font-size); font-weight:500; padding: var(--ds-size-1) var(--ds-size-3); border:1px solid var(--ds-color-accent-border-subtle, var(--ds-color-border-subtle)); border-radius: 999px; text-decoration:none; background: var(--ds-color-background-default); }
+.nytt-innhold a:hover{ background: var(--ds-color-surface-hover); }
+section[id^="nytt-"]{ scroll-margin-top: 6rem; }
+.section-head .kicker .pill{ text-transform:none; letter-spacing:0; margin-left: var(--ds-size-2); vertical-align: middle; }
+
+.nytt-kort-grid{ display:grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); gap: var(--ds-size-4); margin: var(--ds-size-6) 0; }
+.nytt-kort{ border:1px solid var(--ds-color-border-subtle); border-radius: var(--ds-border-radius-lg); padding: var(--ds-size-5); background: var(--ds-color-background-default); display:flex; flex-direction:column; gap: var(--ds-size-3); min-width:0; overflow-wrap:break-word; }
+.nytt-kort h3{ margin:0; font-size: var(--ds-body-lg-font-size); font-weight:600; }
+.nytt-kort p{ margin:0; font-size: var(--ds-body-sm-font-size); }
+.nytt-kort ul{ margin:0; padding-left:1.1em; font-size: var(--ds-body-sm-font-size); display:flex; flex-direction:column; gap: var(--ds-size-2); }
+.nytt-kort-grid--bred{ grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); }
+.nytt-kort .quote-block{ font-size: var(--ds-body-sm-font-size); padding: var(--ds-size-3) var(--ds-size-4); margin:0; }
+/* <blockquote> har nettleserens standardmarg (40px på sidene) — den klemte sitatene til ett ord per linje. */
+blockquote.quote-block.struktur-merk{ margin-inline:0; margin-bottom:0; }
+.nytt-kort .status{ font-size: var(--ds-body-xs-font-size); color: var(--ds-color-text-subtle); border-top:1px solid var(--ds-color-border-subtle); padding-top: var(--ds-size-3); margin-top:auto; }
+
+/* Spørsmål og svar: spørsmålet som overskrift, svaret uthevet, så sporet og statusen. */
+.svar-liste{ list-style:none; margin: 0; padding:0; display:flex; flex-direction:column; gap: var(--ds-size-4); min-width:0; }
+.svar-liste > li{ border:1px solid var(--ds-color-border-subtle); border-radius: var(--ds-border-radius-lg); padding: var(--ds-size-5); background: var(--ds-color-background-default); min-width:0; overflow-wrap:break-word; }
+.svar-liste h3{ margin:0 0 var(--ds-size-2); font-size: var(--ds-body-lg-font-size); font-weight:600; }
+.svar-liste .svaret{ margin:0 0 var(--ds-size-3); font-family: var(--site-font-display); font-size: var(--ds-body-lg-font-size); color: var(--ds-color-accent-text-default); }
+.svar-liste p{ margin:0 0 var(--ds-size-3); font-size: var(--ds-body-sm-font-size); }
+.svar-liste p:last-child{ margin-bottom:0; }
+.svar-liste .status{ font-size: var(--ds-body-xs-font-size); color: var(--ds-color-text-subtle); border-top:1px solid var(--ds-color-border-subtle); padding-top: var(--ds-size-3); }
+
+/* To kolonner (figur + tekst) på bred skjerm, én kolonne på smal. */
+.nytt-to-kol{ display:grid; grid-template-columns: minmax(0, 22rem) minmax(0, 1fr); gap: var(--ds-size-8); align-items:start; margin-top: var(--ds-size-6); }
+@media (max-width: 860px){ .nytt-to-kol{ grid-template-columns: minmax(0, 1fr); } }
+
+.nytt-figur{ margin:0; border:1px solid var(--ds-color-border-subtle); border-radius: var(--ds-border-radius-lg); background: var(--ds-color-background-tinted); padding: var(--ds-size-4); display:flex; flex-direction:column; gap: var(--ds-size-3); max-width: 24rem; min-width:0; }
+@media (max-width: 640px){ .nytt-figur{ padding: var(--ds-size-3); } }
+.nytt-figur svg{ display:block; width:100%; height:auto; color: var(--ds-color-text-default); font-family: var(--site-font-body); }
+.nytt-figur figcaption{ font-size: var(--ds-body-sm-font-size); color: var(--ds-color-text-subtle); }
+.nytt-figur .nf-boks{ fill: var(--ds-color-background-default); stroke: var(--ds-color-border-strong); }
+.nytt-figur .nf-boks--slutt{ fill: var(--ds-color-accent-surface-tinted); stroke: var(--ds-color-accent-border-default); }
+.nytt-figur .nf-etikett{ fill: var(--ds-color-text-subtle); font-size:11px; letter-spacing:1px; }
+.nytt-figur .nf-navn{ fill: currentColor; font-weight:600; font-size:16px; }
+.nytt-figur .nf-tekst{ fill: currentColor; font-size:13.5px; }
+.nytt-figur .nf-dempet{ fill: var(--ds-color-text-subtle); font-size:12.5px; }
+.nytt-figur .nf-tall{ fill: var(--ds-color-accent-text-default); font-family: var(--site-font-display); font-weight:600; font-size:30px; }
+.nytt-figur .nf-linje{ stroke: currentColor; stroke-width:1.5; fill:none; }
+.nytt-figur .nf-pilspiss{ fill: currentColor; }
+.nytt-figur .nf-anke{ stroke: var(--ds-color-accent-text-default); stroke-width:2; stroke-dasharray: 6 4; fill:none; }
+.nytt-figur .nf-pilspiss-anke{ fill: var(--ds-color-accent-text-default); }
+.nytt-figur .nf-anke-tekst{ fill: var(--ds-color-accent-text-default); font-weight:600; font-size:13.5px; }
+.nytt-figur .nf-uthevet{ fill: var(--ds-color-accent-text-default); font-weight:600; font-size:13.5px; }
+
+/* Et fasitkort slik det går gjennom debatten: lovtekst, forslag, innvending og utfall. */
+.debattkort{ border:1px solid var(--ds-color-border-default); border-radius: var(--ds-border-radius-lg); background: var(--ds-color-background-default); overflow:hidden; min-width:0; }
+.debattkort__hode{ background: var(--ds-color-background-tinted); border-bottom:1px solid var(--ds-color-border-subtle); padding: var(--ds-size-3) var(--ds-size-5); font-size: var(--ds-body-xs-font-size); font-weight:600; letter-spacing:.04em; text-transform:uppercase; color: var(--ds-color-text-subtle); }
+.debattkort__kropp{ padding: var(--ds-size-5); display:flex; flex-direction:column; gap: var(--ds-size-4); }
+@media (max-width: 640px){ .debattkort__kropp{ padding: var(--ds-size-4); } }
+.debattkort__kropp .quote-block{ font-size: var(--ds-body-sm-font-size); margin:0; }
+.debattkort__sider{ display:grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14rem), 1fr)); gap: var(--ds-size-3); }
+.debattkort__side{ border:1px solid var(--ds-color-border-subtle); border-radius: var(--ds-border-radius-md); padding: var(--ds-size-3) var(--ds-size-4); font-size: var(--ds-body-sm-font-size); }
+.debattkort__side strong{ display:block; font-size: var(--ds-body-xs-font-size); text-transform:uppercase; letter-spacing:.04em; color: var(--ds-color-text-subtle); margin-bottom: var(--ds-size-1); }
+.debattkort__utfall{ border-left:3px solid var(--ds-color-accent-base-default); background: var(--ds-color-accent-surface-tinted); padding: var(--ds-size-3) var(--ds-size-4); border-radius: 0 var(--ds-border-radius-md) var(--ds-border-radius-md) 0; font-size: var(--ds-body-sm-font-size); }
+.debattkort__utfall strong{ display:block; margin-bottom: var(--ds-size-1); }
+.debattkort__utfall ul{ margin:0; padding-left:1.1em; display:flex; flex-direction:column; gap: var(--ds-size-1); }
