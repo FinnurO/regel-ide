@@ -3558,7 +3558,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "[#309, kort nr. 55] Organisasjonsformkravet i annet punktum er egen rad."
     },
     {
       "id": "u136",
@@ -5496,7 +5496,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true. [#309, kort nr. 5]",
       "normform": "forskrift"
     },
     {

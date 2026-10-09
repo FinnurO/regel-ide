@@ -461,7 +461,7 @@ RETTING = {
         "+kommentar": "[#309, kort nr. 2] Universitetssykehus-setningen er egen rad (u250)."},
     # #309 nr. 5
     ("spesialisthelsetjenesteloven", "u252", "Departementet kan gi forskrift med nærmere bestemmelser om vilkår for tildeling av godkjenning"): {
-        "avgrensning": "godkjenning som kreves i medhold av § 4-1 første og andre ledd"},
+        "avgrensning": "godkjenning som kreves i medhold av § 4-1 første og andre ledd", "+kommentar": "[#309, kort nr. 5]"},
     # #309 nr. 6
     ("helse-og-omsorgstjenesteloven", "u20", "Kommunen skal treffe vedtak om kriteriene etter andre ledd er oppfylt."): {
         "objekt": "vedtak om at kriteriene for langtidsopphold i sykehjem eller tilsvarende bolig særskilt tilrettelagt for heldøgns "
@@ -501,7 +501,8 @@ RETTING = {
     ("helse-og-omsorgstjenesteloven", "u14", "skal kommunen ha knyttet til seg lege, sykepleier, fysioterapeut, jordmor, helsesykepleier, "
                                              "ergoterapeut og psykolog"): {
         "avgrensning": "for å oppfylle ansvaret etter § 3-1",
-        "kommentar": "motparten er faggrupper/roller; tilknytningen kan være ansettelse eller avtale (f.eks. næringsdrivende fastlege)"},
+        "kommentar": "motparten er faggrupper/roller; tilknytningen kan være ansettelse eller avtale (f.eks. næringsdrivende fastlege)",
+        "+kommentar": "[#309, kort nr. 22] Forskriftshjemmelen i annen setning står som u15."},
     # #309 nr. 27
     ("helse-og-omsorgstjenesteloven", "u135", "skal forslag til endelig vedtak sendes barneverns- og helsenemnda innen to uker"): {
         "kategori": "annet:saksforberedelse", "fra": None, "betinget": True,
@@ -520,7 +521,8 @@ RETTING = {
                       "valgkrets»."},
     # #309 nr. 35
     ("energiloven", "u23", "Enkeltvedtak fattet av reguleringsmyndigheten kan bare påklages til klagenemnda."): {
-        "kommentar": "[slutning] utledet av «bare» i u22: uten særregelen ville departementet vært klageinstans etter fvl. § 28 første ledd"},
+        "kommentar": "[slutning] utledet av «bare» i u22: uten særregelen ville departementet vært klageinstans etter fvl. § 28 første ledd",
+        "+kommentar": "[#309, kort nr. 35]"},
     # #309 nr. 39
     ("energiloven", "u141", "Kapittel VI om klage og omgjøring"): {"objekt": "omgjøring etter forvaltningsloven kapittel VI (§ 35)",
                                     "+kommentar": "[#309, kort nr. 39] ulovfestet omgjøring er ikke regulert"},
@@ -534,10 +536,11 @@ RETTING = {
                       "hentet fra § 45)."},
     # #309 nr. 55
     ("spesialisthelsetjenesteloven", "u135", "Foretak kan ikke eie virksomhet som yter spesialisthelsetjenester sammen med andre enn foretak"): {
-        "avgrensning": "sammen med andre enn foretak (sameie)"},
+        "avgrensning": "sammen med andre enn foretak (sameie)", "+kommentar": "[#309, kort nr. 55] Organisasjonsformkravet i annet punktum er egen rad."},
     # #309 nr. 57
     ("domstolloven", "u121", "En dommer er uavhengig i sin dømmende virksomhet."): {
-        "kommentar": "[slutning] instruksjonsforbudet er utledet av «uavhengig»; jf. Grunnloven § 95 annet ledd"},
+        "kommentar": "[slutning] instruksjonsforbudet er utledet av «uavhengig»; jf. Grunnloven § 95 annet ledd",
+        "+kommentar": "[#309, kort nr. 57]"},
     # #309 nr. 61 (erstatningsraden legges til i regel_9)
     ("domstolloven", "u236", "Forliksrådet kan ikke ilegge straff eller erstatning etter dette kapitlet."): {
         "objekt": "rettergangsstraff", "avgrensning": "etter domstolloven kapittel 10",
