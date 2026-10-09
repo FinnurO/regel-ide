@@ -491,3 +491,22 @@ blockquote.quote-block.struktur-merk{ margin-inline:0; margin-bottom:0; }
 .debattkort__utfall{ border-left:3px solid var(--ds-color-accent-base-default); background: var(--ds-color-accent-surface-tinted); padding: var(--ds-size-3) var(--ds-size-4); border-radius: 0 var(--ds-border-radius-md) var(--ds-border-radius-md) 0; font-size: var(--ds-body-sm-font-size); }
 .debattkort__utfall strong{ display:block; margin-bottom: var(--ds-size-1); }
 .debattkort__utfall ul{ margin:0; padding-left:1.1em; display:flex; flex-direction:column; gap: var(--ds-size-1); }
+
+/* Telefonbredde (2026-10-09): lange sammensatte ord i overskrifter («sporbarhetskjeden»,
+   «referanseimplementasjon») og nowrap-tekst ga sidelengs rulling ved 375 px på rettskilder,
+   virksomheter, grupper, koblinger og om. Overskrifter får bryte inne i ord (bindestrek der
+   nettleseren kan, ellers hardt brudd); nowrap-tekst får bryte på smale skjermer. */
+h1, h2, h3, h4{ overflow-wrap:break-word; hyphens:auto; }
+@media (max-width: 600px){
+  /* Mindre sideoverskrift så lange ord får plass uten å deles midt i (nettleseren mangler norsk orddeling). */
+  .page-head h1{ font-size: clamp(1.6rem, 8vw, 2.25rem); }
+  .filter-count{ white-space:normal; }
+  .member-list .hjemmel{ white-space:normal; overflow-wrap:anywhere; }
+  .pill{ white-space:normal; }
+  .tree-node{ min-width:0; overflow-wrap:anywhere; }
+  .tree .tree{ padding-left: var(--ds-size-3); }
+  /* Lange sammensatte ord i løpetekst og merker («språkutviklingskommuner») kan bryte; tabellene
+     ligger i .table-scroll og ruller selv, så der beholdes vanlig ordbryting. */
+  main{ overflow-wrap:anywhere; }
+  .table-scroll{ overflow-wrap:normal; }
+}
