@@ -451,6 +451,18 @@ endringer i `nettside/`:
 
 Ved konflikt: vent, eller spør Johann. Konfliktsjekken dokumenteres i PR-en.
 
+## 23. Juristutfordreren før framlegg for Johann
+
+Fasitkort, konverteringsresultat og modellvalg går gjennom agenten `jurist-utfordrer`
+(`.claude/agents/jurist-utfordrer.md`) **før** de legges fram for Johann (beslutning 2026-10-09, #309).
+
+1. **Runde 1:** juristen vurderer forslaget uten modellererens begrunnelser. Mulige dommer er holder, innvending, kontroller og prinsipiell.
+2. **Svar:** modellereren svarer på hver innvending med aksepter, delvis eller avvis. Svaret viser til docs/33, FORMAT.md og beslutninger i sakene.
+3. **Runde 2:** juristen gir replikk på delvis og avvis, med godtar, fastholder eller presiserer.
+4. **Johann ser bare reell uenighet**, med begge argumentene side om side, forhåndsvisning av hvordan det blir i appen og klart språk. Utfallet av det som er avklart, føres inn i sakene der rettingen hører hjemme.
+
+Juristen skal ha samme kontekst som modellereren: hele fasiten for bestemmelsen, en liste over hva som er i korpuset, og beslutningene. Feilene i første runde kom av manglende kontekst, ikke av metode. Endringer i instruksen gjøres via PR.
+
 ## Nyttige kommandoer
 
 Kjør appen (Browser-panelet, aldri `dotnet run` via Bash) — konfigurasjonene heter `regel-ide-api` og
