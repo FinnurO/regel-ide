@@ -1086,7 +1086,7 @@
       "referent": null,
       "oppløsning": "saksforhold",
       "distributiv": true,
-      "kommentar": ""
+      "kommentar": "[#309, kort nr. 55] Varianten «Virksomheter som er omfattet av loven her» hører til spesialisthelsetjenesteloven (§ 1-2). Samme ordlyd i helseforetaksloven betyr foretakene (hfl § 2) — knytt varianten til rettskilden, ellers gjenkjennes feil aktør."
     },
     {
       "id": "a53",
@@ -1387,6 +1387,21 @@
       "oppløsning": "tekstlig",
       "distributiv": true,
       "kommentar": ""
+    },
+    {
+      "id": "a71",
+      "tekstform": "virksomhet som ikke yter spesialisthelsetjenester",
+      "varianter": [],
+      "eid_eksempler": [
+        "https://lovdata.no/eli/lov/2001/06/15/93/nor/§42/ledd-3"
+      ],
+      "antall_forekomster": 1,
+      "entitetstype": "klasse",
+      "navngitt": false,
+      "referent": null,
+      "oppløsning": "saksforhold",
+      "distributiv": true,
+      "kommentar": "[#356, kort nr. 54] Annen virksomhet foretak kan eie (hfl § 42 tredje ledd); skal organiseres som selskap med begrenset ansvar."
     }
   ],
   "utsagn": [
@@ -1514,9 +1529,9 @@
       "polaritet": "positiv",
       "avgrensning": "Svalbard og Jan Mayen",
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift",
       "delegerbar": true
     },
@@ -1814,8 +1829,8 @@
       "id": "u27",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§8/ledd-1",
       "sitat": "Kongen i statsråd treffer vedtak om å opprette regionalt helseforetak",
-      "kategori": "konstituerende",
-      "type": "oppretter",
+      "kategori": "kompetanse",
+      "type": "opprettingskompetanse",
       "fra": "a10",
       "til": "a2",
       "objekt": null,
@@ -1824,7 +1839,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Opprettelsesvedtaket (kgl.res.) er utenfor korpus."
+      "kommentar": "Opprettelsesvedtaket (kgl.res.) er utenfor korpus. [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter.",
+      "delegerbar": false
     },
     {
       "id": "u28",
@@ -1910,8 +1926,8 @@
       "id": "u33",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§9/ledd-1",
       "sitat": "Styret selv i regionale helseforetak eller helseforetak treffer vedtak om å opprette helseforetak",
-      "kategori": "konstituerende",
-      "type": "oppretter",
+      "kategori": "kompetanse",
+      "type": "opprettingskompetanse",
       "fra": "a13",
       "til": "a4",
       "objekt": null,
@@ -1920,7 +1936,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Organet (styret) i ett rettssubjekt oppretter et annet rettssubjekt. «Styret selv» = ikke delegerbart."
+      "kommentar": "Organet (styret) i ett rettssubjekt oppretter et annet rettssubjekt. «Styret selv» = ikke delegerbart. [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter.",
+      "delegerbar": false
     },
     {
       "id": "u34",
@@ -2048,24 +2065,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Gir Kongen kompetanse til å bestemme foretakenes medlemskap i arbeidsgiverorganisasjon (i praksis Spekter, ikke i korpus).",
+      "kommentar": "Gir Kongen kompetanse til å bestemme foretakenes medlemskap i arbeidsgiverorganisasjon (i praksis Spekter, ikke i korpus). [#309, kort nr. 18] delegerbar = false er lest av «Kongen i statsråd» (#335-regelen; slutning). Den faktiske arbeidsgivertilknytningen er ukjent og må slås opp (kgl.res. eller vedtekter, kilde utenfor korpus). M-raden u42 (medlem_av arbeidsgiverorganisasjon) er fjernet (L12).",
       "delegerbar": false
-    },
-    {
-      "id": "u42",
-      "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§10/ledd-2",
-      "sitat": "Alle foretakene skal ha en og samme arbeidsgivertilknytning",
-      "kategori": "medlemskap",
-      "type": "medlem_av",
-      "fra": "a5",
-      "til": null,
-      "objekt": "arbeidsgiverorganisasjon",
-      "polaritet": "positiv",
-      "avgrensning": null,
-      "betinget": false,
-      "kilde_utenfor_korpus": true,
-      "sikkerhet": "middels",
-      "kommentar": "Medlemskap i en organisasjon som ikke er navngitt i korpus."
     },
     {
       "id": "u43",
@@ -2199,17 +2200,17 @@
       "id": "u51",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§16/ledd-1",
       "sitat": "Eiere utøver den øverste myndighet i foretak i foretaksmøte",
-      "kategori": "relasjon",
-      "type": "annet:utover_myndighet_gjennom",
+      "kategori": "kompetanse",
+      "type": "beslutningskompetanse",
       "fra": "a24",
-      "til": "a12",
+      "til": "a5",
       "objekt": null,
       "polaritet": "positiv",
-      "avgrensning": null,
+      "avgrensning": "i foretaksmøte — eier kan ikke utøve eierstyring utenom foretaksmøte (§ 16 første ledd annet punktum); unntatt bevilgning og vilkår for tildelingen, som kan gis utenfor foretaksmøte (§ 16 tredje ledd, u55)",
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Eieren handler gjennom organet foretaksmøtet; foretaksmøtet er foretakets øverste organ."
+      "kommentar": "Eieren handler gjennom organet foretaksmøtet; foretaksmøtet er foretakets øverste organ. [#356, kort nr. 50] u53 («Eier kan ikke utøve eierstyring i foretak utenom foretaksmøte») gjentok denne raden som negasjon og er slått inn i avgrensningen. Var relasjon/annet:utover_myndighet_gjennom eier → foretaksmøtet; foretaksmøtet som organ står i u52 (har_organ)."
     },
     {
       "id": "u52",
@@ -2226,22 +2227,6 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": ""
-    },
-    {
-      "id": "u53",
-      "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§16/ledd-1",
-      "sitat": "Eier kan ikke utøve eierstyring i foretak utenom foretaksmøte",
-      "kategori": "kompetanse",
-      "type": "instruksjonskompetanse",
-      "fra": "a24",
-      "til": "a5",
-      "objekt": null,
-      "polaritet": "negativ",
-      "avgrensning": "utenom foretaksmøte",
-      "betinget": false,
-      "kilde_utenfor_korpus": false,
-      "sikkerhet": "hoy",
-      "kommentar": "Instruksjonsforbud med kanal-unntak: instruksjon kun via et bestemt organ."
     },
     {
       "id": "u54",
@@ -2790,9 +2775,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift",
       "delegerbar": true
     },
@@ -2859,9 +2844,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift",
       "delegerbar": true
     },
@@ -2912,7 +2897,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "[#355, juristrunden] Unntaket fra avsettingen i forrige punktum («Dette» = avsettingen): undertype avsetting; fra = null som u93 («den som har valgt», saksforhold). Var fra = foretaksmøtet.",
+      "kommentar": "[#355, juristrunden] Unntaket fra avsettingen i forrige punktum («Dette» = avsettingen): undertype avsetting; fra = null som u93 («den som har valgt», saksforhold). Var fra = foretaksmøtet. [#356, v5 punkt 8] [slutning] Styremedlemmer etter §§ 22 og 23 velges av og blant de ansatte, så det er ikke foretaksmøtet som er avskåret; fra står som null fordi setningen ikke nevner de ansatte.",
       "undertype": "avsetting"
     },
     {
@@ -2927,9 +2912,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -3355,16 +3340,16 @@
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§37/ledd-3",
       "sitat": "Den daglige ledelsen omfatter ikke saker som etter foretakets forhold er av uvanlig art eller av stor betydning",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "beslutningskompetanse",
       "fra": "a14",
       "til": null,
       "objekt": "saker av uvanlig art eller stor betydning",
       "polaritet": "negativ",
-      "avgrensning": null,
+      "avgrensning": "unntatt når styret i den enkelte sak har gitt daglig leder myndighet, eller når styrets beslutning ikke kan avventes uten vesentlig ulempe for foretakets virksomhet (§ 37 tredje ledd annet punktum; delegeringen står i u123)",
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "[#356, v5 punkt 3] Intern foretaksbeslutning, ikke enkeltvedtak: beslutningskompetanse. Unntaket i samme ledd manglet. Var vedtakskompetanse."
     },
     {
       "id": "u123",
@@ -3533,15 +3518,15 @@
       "sitat": "Foretak kan ikke eie hele eller deler av virksomhet som yter spesialisthelsetjenester og som er organisert med begrenset ansvar",
       "kategori": "relasjon",
       "type": "eies_av",
-      "fra": "a64",
+      "fra": "a52",
       "til": "a5",
       "objekt": null,
       "polaritet": "negativ",
-      "avgrensning": "sht-virksomhet med begrenset ansvar",
+      "avgrensning": "organisert med begrenset ansvar; hel eller delvis eierandel",
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Eierforbud betinget av organisasjonsform og virksomhetstype."
+      "kommentar": "Eierforbud betinget av organisasjonsform og virksomhetstype. [#309, kort nr. 54] Den eide er «virksomhet som yter spesialisthelsetjenester» (a52), ikke a64 (heleide datterselskaper, hentet fra § 45)."
     },
     {
       "id": "u134",
@@ -3569,7 +3554,7 @@
       "til": "a5",
       "objekt": null,
       "polaritet": "negativ",
-      "avgrensning": "sameie med ikke-foretak",
+      "avgrensning": "sammen med andre enn foretak (sameie)",
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
@@ -3581,7 +3566,7 @@
       "sitat": "kan foretak eie virksomhet som ikke yter spesialisthelsetjenester alene eller sammen med andre",
       "kategori": "relasjon",
       "type": "eies_av",
-      "fra": "a64",
+      "fra": "a71",
       "til": "a5",
       "objekt": null,
       "polaritet": "positiv",
@@ -3589,7 +3574,7 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "[#356, kort nr. 54] fra = den eide virksomheten (a71); a64 (heleide datterselskaper) var hentet fra § 45."
     },
     {
       "id": "u137",
@@ -3603,9 +3588,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -3693,8 +3678,8 @@
       "id": "u143",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§46/ledd-1",
       "sitat": "Foretaksmøtet treffer vedtak om oppløsning av foretaket",
-      "kategori": "konstituerende",
-      "type": "avvikler",
+      "kategori": "kompetanse",
+      "type": "avviklingskompetanse",
       "fra": "a12",
       "til": "a5",
       "objekt": null,
@@ -3703,7 +3688,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "NB: RHF oppløses av foretaksmøtet (departementet), mens det opprettes av Kongen i statsråd — asymmetri mellom oppretter og avvikler."
+      "kommentar": "NB: RHF oppløses av foretaksmøtet (departementet), mens det opprettes av Kongen i statsråd — asymmetri mellom oppretter og avvikler. [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å avvikle (#352 beslutning 4). Var konstituerende/avvikler."
     },
     {
       "id": "u144",
@@ -3864,9 +3849,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift",
       "delegerbar": true
     },
@@ -4029,9 +4014,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -4078,9 +4063,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Også enkeltvedtakskompetanse («i det enkelte tilfelle») — definisjonskompetanse over lovens virkeområde.",
+      "kommentar": "Også enkeltvedtakskompetanse («i det enkelte tilfelle») — definisjonskompetanse over lovens virkeområde. [#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -4095,9 +4080,9 @@
       "polaritet": "positiv",
       "avgrensning": "Svalbard og Jan Mayen",
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift",
       "delegerbar": true
     },
@@ -4113,9 +4098,9 @@
       "polaritet": "positiv",
       "avgrensning": "norske skip, luftfartøy, kontinentalsokkel",
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift",
       "delegerbar": true
     },
@@ -4131,9 +4116,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift",
       "delegerbar": true
     },
@@ -4144,14 +4129,14 @@
       "kategori": "ansvarsomrade",
       "type": "annet:sorge_for_ansvar_overordnet",
       "fra": "a1",
-      "til": "a7",
+      "til": null,
       "objekt": "nødvendig spesialisthelsetjeneste til befolkningen",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Ansvar for en PERSONKRETS («befolkningen»); område (riket) er implisitt. To nivåer av sørge-for-ansvar: staten (overordnet) og RHF (regionalt)."
+      "kommentar": "Ansvar for en PERSONKRETS («befolkningen»); område (riket) er implisitt. To nivåer av sørge-for-ansvar: staten (overordnet) og RHF (regionalt). [#309, kort nr. 16] Teksten sier «befolkningen», ikke «riket» (L1); området gjettes ikke. Var til = riket."
     },
     {
       "id": "u171",
@@ -4214,9 +4199,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift",
       "delegerbar": true
     },
@@ -4297,9 +4282,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -4561,9 +4546,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -4578,9 +4563,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -4619,8 +4604,8 @@
       "id": "u199",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-4a/ledd-1",
       "sitat": "Andre virksomheter som omfattes av denne loven, kan opprette en klinisk etikkomité",
-      "kategori": "konstituerende",
-      "type": "oppretter",
+      "kategori": "kompetanse",
+      "type": "opprettingskompetanse",
       "fra": "a68",
       "til": "a43",
       "objekt": null,
@@ -4629,7 +4614,7 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "[#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter."
     },
     {
       "id": "u200",
@@ -4685,7 +4670,7 @@
       "sitat": "Den kliniske etikkomiteen skal utføre sine oppgaver uavhengig og selvstendig",
       "kategori": "kompetanse",
       "type": "instruksjonskompetanse",
-      "fra": "a4",
+      "fra": null,
       "til": "a43",
       "objekt": null,
       "polaritet": "negativ",
@@ -4693,7 +4678,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Uavhengighet tolket som instruksjonsforbud fra opprettende HF; teksten nevner ikke HF eksplisitt."
+      "kommentar": "Uavhengighet tolket som instruksjonsforbud fra opprettende HF; teksten nevner ikke HF eksplisitt. [#356, v5 punkt 9, lærdom 5] Uavhengighetsutsagn: fra = null (enhver). Helseforetaket var tolket inn."
     },
     {
       "id": "u204",
@@ -4724,9 +4709,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift",
       "delegerbar": false
     },
@@ -4791,9 +4776,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -4874,9 +4859,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -4925,9 +4910,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -4942,9 +4927,9 @@
       "polaritet": "positiv",
       "avgrensning": "ved høyt antall ankomster fra Ukraina",
       "betinget": true,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Fravikskompetanse (midlertidig).",
+      "kommentar": "Fravikskompetanse (midlertidig). [#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -4976,9 +4961,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5026,9 +5011,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5139,9 +5124,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5156,9 +5141,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5189,9 +5174,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5206,9 +5191,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5239,9 +5224,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5256,9 +5241,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5273,9 +5258,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Sanksjonshjemmel; hvem som ilegger gebyret er ikke angitt.",
+      "kommentar": "Sanksjonshjemmel; hvem som ilegger gebyret er ikke angitt. [#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5306,9 +5291,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5339,9 +5324,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5356,9 +5341,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift",
       "delegerbar": true
     },
@@ -5406,9 +5391,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift",
       "delegerbar": true
     },
@@ -5424,9 +5409,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift",
       "delegerbar": true
     },
@@ -5455,13 +5440,13 @@
       "type": "normgivningskompetanse",
       "fra": "a9",
       "til": null,
-      "objekt": "godkjenning av virksomheter",
+      "objekt": "krav til godkjenning av virksomheter og helsetjenester",
       "polaritet": "positiv",
-      "avgrensning": null,
+      "avgrensning": "når hensyn til tjenestetilbudets kvalitet, pasientsikkerhet, samfunnssikkerhet eller beredskap tilsier det",
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true. [#309, kort nr. 2] Universitetssykehus-setningen er egen rad (u250).",
       "normform": "forskrift"
     },
     {
@@ -5492,9 +5477,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5507,11 +5492,11 @@
       "til": null,
       "objekt": "vilkår for godkjenning",
       "polaritet": "positiv",
-      "avgrensning": null,
+      "avgrensning": "godkjenning som kreves i medhold av § 4-1 første og andre ledd",
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5623,9 +5608,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5672,9 +5657,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5746,7 +5731,7 @@
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-1/ledd-4",
       "sitat": "Departementet avgjør i tvilstilfeller hvor en pasient har bostedsregion",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "beslutningskompetanse",
       "fra": "a9",
       "til": null,
       "objekt": "fastsettelse av bostedsregion i tvilstilfeller",
@@ -5755,7 +5740,7 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "[#356, kort nr. 9] Beslutningskompetanse, ikke enkeltvedtak: avgjørelsen styrer hvilket regionalt helseforetak som har betalingsansvaret etter § 5-2 første ledd (fordeling mellom RHF-er). til = null betyr ikke at pasienten er motpart."
     },
     {
       "id": "u268",
@@ -5837,9 +5822,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5854,9 +5839,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Hjemmel for den ledsagende refusjonsforskriften.",
+      "kommentar": "Hjemmel for den ledsagende refusjonsforskriften. [#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5888,9 +5873,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5955,9 +5940,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -5989,9 +5974,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -6006,9 +5991,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -6039,9 +6024,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift"
     },
     {
@@ -6217,9 +6202,9 @@
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
-      "kilde_utenfor_korpus": true,
+      "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#356, R8, lærdom 1 i #309] kilde_utenfor_korpus gjelder hjemmelen (her loven), ikke den utfyllende forskriften. Var true.",
       "normform": "forskrift",
       "delegerbar": true
     },
@@ -6370,6 +6355,22 @@
       "sikkerhet": "hoy",
       "kommentar": "[#355, L13] Skilt ut fra u118 (samme sitat): avskjed er en egen regel ved siden av oppsigelse.",
       "undertype": "avskjed"
+    },
+    {
+      "id": "u305",
+      "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§42/ledd-2",
+      "sitat": "Dersom flere foretak eier virksomhet som yter spesialisthelsetjenester sammen, skal virksomheten organiseres som helseforetak eller som ansvarlig selskap i medhold av selskapsloven",
+      "kategori": "konstituerende",
+      "type": "annet:organisasjonsformkrav",
+      "fra": "a52",
+      "til": null,
+      "objekt": "organisasjonsform: helseforetak eller ansvarlig selskap etter selskapsloven",
+      "polaritet": "positiv",
+      "avgrensning": "når flere foretak eier virksomheten sammen",
+      "betinget": true,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "hoy",
+      "kommentar": "[#309, kort nr. 55] § 42 annet ledd annet punktum."
     }
   ]
 }

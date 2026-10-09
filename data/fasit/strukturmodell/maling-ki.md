@@ -20,11 +20,11 @@ samme eId + kategori + type + fra/til-tekstform som et mønsterutsagn. **Bare m�
 
 | Lag | Fasit | Predikert | Treff | Presisjon | Gjenfinning | Presisjon u/endepunkt | Gjenfinning u/endepunkt |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| Mønster | 1809 | 934 | 866 | 92,7 % | 47,9 % | 94,9 % | 49,0 % |
-| KI | 1809 | 1043 | 381 | 36,5 % | 21,1 % | 44,0 % | 25,4 % |
-| Mønster ∪ KI | 1809 | 1723 | 1002 | 58,2 % | 55,4 % | 62,6 % | 59,6 % |
+| Mønster | 1796 | 934 | 865 | 92,6 % | 48,2 % | 94,8 % | 49,3 % |
+| KI | 1796 | 1042 | 385 | 36,9 % | 21,4 % | 44,4 % | 25,8 % |
+| Mønster ∪ KI | 1796 | 1721 | 1004 | 58,3 % | 55,9 % | 62,8 % | 60,2 % |
 
-Av 1809 fasitutsagn traff bare mønsterlaget 624, bare KI-laget 139.
+Av 1796 fasitutsagn traff bare mønsterlaget 622, bare KI-laget 142.
 
 ## Per kategori (kanttype, `docs/33` §4.3)
 
@@ -32,17 +32,17 @@ P = presisjon, G = gjenfinning (med endepunktkrav).
 
 | Kategori | Fasit | Mønster pred. | Mønster P | Mønster G | KI pred. | KI P | KI G | Union P | Union G | Bare mønster | Bare KI |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| R | 125 | 4 | 75,0 % | 2,4 % | 78 | 29,5 % | 18,4 % | 31,7 % | 20,8 % | 3 | 23 |
-| K | 582 | 324 | 88,0 % | 49,0 % | 727 | 46,1 % | 57,6 % | 47,8 % | 65,8 % | 51 | 101 |
+| R | 104 | 4 | 75,0 % | 2,9 % | 81 | 33,3 % | 26,0 % | 32,5 % | 26,0 % | 0 | 24 |
+| K | 592 | 324 | 87,7 % | 48,0 % | 723 | 46,3 % | 56,6 % | 48,1 % | 64,9 % | 52 | 103 |
 | P | 79 | 31 | 58,1 % | 22,8 % | 43 | 32,6 % | 17,7 % | 39,1 % | 34,2 % | 13 | 9 |
-| M | 48 | 0 | – | 0,0 % | 22 | 4,5 % | 2,1 % | 4,5 % | 2,1 % | 0 | 1 |
+| M | 47 | 0 | – | 0,0 % | 22 | 4,5 % | 2,1 % | 4,5 % | 2,1 % | 0 | 1 |
 | O | 177 | 122 | 89,3 % | 61,6 % | 11 | 0,0 % | 0,0 % | 82,0 % | 61,6 % | 109 | 0 |
 | A | 449 | 419 | 100,0 % | 93,3 % | 51 | 0,0 % | 0,0 % | 89,1 % | 93,3 % | 419 | 0 |
-| G | 46 | 6 | 66,7 % | 8,7 % | 41 | 12,2 % | 10,9 % | 12,8 % | 13,0 % | 1 | 2 |
+| G | 45 | 6 | 66,7 % | 8,9 % | 41 | 12,2 % | 11,1 % | 12,8 % | 13,3 % | 1 | 2 |
 | I | 0 | 0 | – | – | 0 | – | – | – | – | 0 | 0 |
 | T | 19 | 0 | – | 0,0 % | 14 | 14,3 % | 10,5 % | 14,3 % | 10,5 % | 0 | 2 |
 | annet | 284 | 28 | 100,0 % | 9,9 % | 56 | 1,8 % | 0,4 % | 34,5 % | 10,2 % | 28 | 1 |
-| **Alle** | 1809 | 934 | 92,7 % | 47,9 % | 1043 | 36,5 % | 21,1 % | 58,2 % | 55,4 % | 624 | 139 |
+| **Alle** | 1796 | 934 | 92,6 % | 48,2 % | 1042 | 36,9 % | 21,4 % | 58,3 % | 55,9 % | 622 | 142 |
 
 ### KI uten endepunktkrav (bare eId + kategori + type)
 
@@ -50,13 +50,13 @@ Avstanden til tabellen over er utsagn KI-en gjenkjente, men med feil eller mangl
 
 | Kategori | KI P u/endepunkt | KI G u/endepunkt | Mønster P u/endepunkt | Mønster G u/endepunkt |
 |---|---:|---:|---:|---:|
-| R | 44,9 % | 28,0 % | 75,0 % | 2,4 % |
-| K | 51,3 % | 64,1 % | 89,5 % | 49,8 % |
+| R | 46,9 % | 36,5 % | 75,0 % | 2,9 % |
+| K | 51,7 % | 63,2 % | 89,2 % | 48,8 % |
 | P | 46,5 % | 25,3 % | 64,5 % | 25,3 % |
-| M | 13,6 % | 6,3 % | – | 0,0 % |
+| M | 13,6 % | 6,4 % | – | 0,0 % |
 | O | 81,8 % | 5,1 % | 98,4 % | 67,8 % |
 | A | 7,8 % | 0,9 % | 100,0 % | 93,3 % |
-| G | 22,0 % | 19,6 % | 100,0 % | 13,0 % |
+| G | 22,0 % | 20,0 % | 100,0 % | 13,3 % |
 | I | – | – | – | – |
 | T | 35,7 % | 26,3 % | – | 0,0 % |
 | annet | 1,8 % | 0,4 % | 100,0 % | 9,9 % |
@@ -65,11 +65,11 @@ Avstanden til tabellen over er utsagn KI-en gjenkjente, men med feil eller mangl
 
 | Kilde | Fasit | Mønster pred. | Mønster P | Mønster G | KI pred. | KI P | KI G | Union P | Union G | Bare mønster | Bare KI |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| domstolloven | 774 | 540 | 95,7 % | 66,8 % | 344 | 17,2 % | 7,6 % | 63,7 % | 69,3 % | 477 | 19 |
-| energiloven | 254 | 117 | 94,0 % | 43,3 % | 212 | 58,0 % | 48,4 % | 61,6 % | 58,7 % | 27 | 40 |
-| helse-og-omsorgstjenesteloven | 192 | 58 | 87,9 % | 26,6 % | 133 | 51,1 % | 35,4 % | 49,6 % | 35,9 % | 3 | 20 |
-| sameloven | 285 | 133 | 88,7 % | 41,4 % | 70 | 31,4 % | 7,7 % | 68,4 % | 45,6 % | 108 | 12 |
-| spesialisthelsetjenesteloven | 304 | 86 | 81,4 % | 23,0 % | 284 | 38,4 % | 35,9 % | 37,9 % | 38,8 % | 9 | 48 |
+| domstolloven | 775 | 540 | 95,6 % | 66,6 % | 344 | 18,0 % | 8,0 % | 63,9 % | 69,3 % | 475 | 21 |
+| energiloven | 241 | 117 | 94,0 % | 45,6 % | 211 | 58,8 % | 51,5 % | 62,0 % | 62,2 % | 27 | 41 |
+| helse-og-omsorgstjenesteloven | 191 | 58 | 87,9 % | 26,7 % | 133 | 51,1 % | 35,6 % | 49,6 % | 36,1 % | 3 | 20 |
+| sameloven | 286 | 133 | 89,5 % | 41,6 % | 70 | 32,9 % | 8,0 % | 69,7 % | 45,8 % | 108 | 12 |
+| spesialisthelsetjenesteloven | 303 | 86 | 80,2 % | 22,8 % | 284 | 38,0 % | 35,6 % | 37,6 % | 38,6 % | 9 | 48 |
 
 ## Per type
 
@@ -78,34 +78,36 @@ Alle typer fra FORMAT.md-listene som står i fasiten eller som et av lagene pred
 | Kategori / type | Fasit | Mønster pred. | Mønster P | Mønster G | KI pred. | KI P | KI G | Union P | Union G | Bare mønster | Bare KI |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
 | R relasjon / rapporterer_til | 31 | 0 | – | 0,0 % | 32 | 31,3 % | 32,3 % | 31,3 % | 32,3 % | 0 | 10 |
-| R relasjon / har_delegert_til | 20 | 4 | 75,0 % | 15,0 % | 0 | – | 0,0 % | 75,0 % | 15,0 % | 3 | 0 |
-| R konstituerende / oppretter | 14 | 0 | – | 0,0 % | 7 | 57,1 % | 28,6 % | 57,1 % | 28,6 % | 0 | 4 |
 | R relasjon / eies_av | 13 | 0 | – | 0,0 % | 10 | 10,0 % | 7,7 % | 10,0 % | 7,7 % | 0 | 1 |
 | R relasjon / ledes_av | 12 | 0 | – | 0,0 % | 5 | 40,0 % | 16,7 % | 40,0 % | 16,7 % | 0 | 2 |
 | R relasjon / radgir | 10 | 0 | – | 0,0 % | 8 | 25,0 % | 20,0 % | 25,0 % | 20,0 % | 0 | 2 |
+| R relasjon / har_delegert_til | 9 | 4 | 75,0 % | 33,3 % | 7 | 85,7 % | 66,7 % | 66,7 % | 66,7 % | 0 | 3 |
 | R relasjon / etterfolger | 7 | 0 | – | 0,0 % | 5 | 60,0 % | 42,9 % | 60,0 % | 42,9 % | 0 | 3 |
 | R relasjon / representerer | 7 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | R relasjon / administrativt_underordnet | 5 | 0 | – | 0,0 % | 5 | 0,0 % | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
-| R konstituerende / avvikler | 2 | 0 | – | 0,0 % | 4 | 0,0 % | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
+| R konstituerende / oppretter | 5 | 0 | – | 0,0 % | 3 | 66,7 % | 40,0 % | 66,7 % | 40,0 % | 0 | 2 |
 | R relasjon / forvaltes_av | 2 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
+| R konstituerende / avvikler | 1 | 0 | – | 0,0 % | 4 | 0,0 % | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
 | R organsammensetning / ledes_av | 1 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | R relasjon / sekretariat_for | 1 | 0 | – | 0,0 % | 2 | 50,0 % | 100,0 % | 50,0 % | 100,0 % | 0 | 1 |
-| K kompetanse / normgivningskompetanse | 210 | 198 | 92,9 % | 87,6 % | 196 | 90,8 % | 84,8 % | 90,2 % | 91,9 % | 16 | 10 |
-| K kompetanse / vedtakskompetanse | 150 | 78 | 80,8 % | 42,0 % | 349 | 27,5 % | 64,0 % | 29,4 % | 74,0 % | 16 | 49 |
-| K kompetanse / oppnevningskompetanse | 80 | 10 | 70,0 % | 8,8 % | 55 | 32,7 % | 22,5 % | 35,4 % | 28,8 % | 5 | 16 |
-| K kompetanse / instruksjonskompetanse | 27 | 4 | 100,0 % | 14,8 % | 33 | 30,3 % | 37,0 % | 37,8 % | 51,9 % | 4 | 10 |
-| K kompetanse / tilsynskompetanse | 26 | 5 | 100,0 % | 19,2 % | 24 | 54,2 % | 50,0 % | 54,5 % | 46,2 % | 0 | 8 |
+| K kompetanse / normgivningskompetanse | 208 | 198 | 92,9 % | 88,5 % | 196 | 90,8 % | 85,6 % | 90,2 % | 92,8 % | 16 | 10 |
+| K kompetanse / vedtakskompetanse | 146 | 78 | 78,2 % | 41,8 % | 349 | 26,9 % | 64,4 % | 28,9 % | 74,7 % | 16 | 49 |
+| K kompetanse / oppnevningskompetanse | 82 | 10 | 70,0 % | 8,5 % | 56 | 32,1 % | 22,0 % | 34,8 % | 28,0 % | 5 | 16 |
+| K kompetanse / instruksjonskompetanse | 26 | 4 | 100,0 % | 15,4 % | 33 | 30,3 % | 38,5 % | 37,8 % | 53,8 % | 4 | 10 |
+| K kompetanse / tilsynskompetanse | 25 | 5 | 100,0 % | 20,0 % | 24 | 54,2 % | 52,0 % | 54,5 % | 48,0 % | 0 | 8 |
 | K kompetanse / klagekompetanse | 22 | 9 | 77,8 % | 31,8 % | 28 | 21,4 % | 27,3 % | 29,4 % | 45,5 % | 4 | 3 |
-| K kompetanse / delegeringskompetanse | 19 | 9 | 88,9 % | 42,1 % | 30 | 23,3 % | 36,8 % | 31,4 % | 57,9 % | 4 | 3 |
+| K kompetanse / delegeringskompetanse | 18 | 9 | 88,9 % | 44,4 % | 22 | 31,8 % | 38,9 % | 39,3 % | 61,1 % | 4 | 3 |
 | K kompetanse / overprovingskompetanse | 13 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | K kompetanse / avsettingskompetanse | 9 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
+| K kompetanse / opprettingskompetanse | 9 | 0 | – | 0,0 % | 3 | 66,7 % | 22,2 % | 66,7 % | 22,2 % | 0 | 2 |
 | K kompetanse / godkjenningskompetanse | 8 | 7 | 85,7 % | 75,0 % | 6 | 83,3 % | 62,5 % | 75,0 % | 75,0 % | 1 | 0 |
+| K kompetanse / beslutningskompetanse | 6 | 1 | 100,0 % | 16,7 % | 0 | – | 0,0 % | 100,0 % | 16,7 % | 1 | 0 |
 | K kompetanse / organisasjonskompetanse | 4 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
+| K kompetanse / sanksjonskompetanse | 4 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | K kompetanse / omgjoringskompetanse | 3 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | K kompetanse / paleggskompetanse | 3 | 0 | – | 0,0 % | 6 | 33,3 % | 66,7 % | 33,3 % | 66,7 % | 0 | 2 |
-| K kompetanse / sanksjonskompetanse | 3 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
-| K kompetanse / samtykkekompetanse | 2 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
-| K kompetanse / beslutningskompetanse | 1 | 1 | 0,0 % | 0,0 % | 0 | – | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
+| K kompetanse / samtykkekompetanse | 3 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
+| K kompetanse / avviklingskompetanse | 1 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | K kompetanse / revisjonskompetanse | 1 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | K kompetanse / samordningskompetanse | 1 | 3 | 33,3 % | 100,0 % | 0 | – | 0,0 % | 33,3 % | 100,0 % | 1 | 0 |
 | P plikt / samarbeidsplikt | 21 | 9 | 77,8 % | 33,3 % | 16 | 56,3 % | 42,9 % | 56,5 % | 61,9 % | 4 | 6 |
@@ -114,14 +116,14 @@ Alle typer fra FORMAT.md-listene som står i fasiten eller som et av lagene pred
 | P plikt / informasjonsplikt | 13 | 0 | – | 0,0 % | 2 | 0,0 % | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
 | P plikt / konsultasjonsplikt | 10 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | P plikt / avtaleplikt | 3 | 3 | 66,7 % | 66,7 % | 3 | 66,7 % | 66,7 % | 50,0 % | 66,7 % | 0 | 0 |
-| M medlemskap / medlem_av | 30 | 0 | – | 0,0 % | 22 | 4,5 % | 3,3 % | 4,5 % | 3,3 % | 0 | 1 |
+| M medlemskap / medlem_av | 29 | 0 | – | 0,0 % | 22 | 4,5 % | 3,4 % | 4,5 % | 3,4 % | 0 | 1 |
 | M medlemskap / inngar_i | 18 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | O sammensetning_omrade / bestar_av | 108 | 75 | 93,3 % | 64,8 % | 11 | 0,0 % | 0,0 % | 81,4 % | 64,8 % | 70 | 0 |
 | O sammensetning_omrade / del_av | 69 | 47 | 83,0 % | 56,5 % | 0 | – | 0,0 % | 83,0 % | 56,5 % | 39 | 0 |
 | A ansvarsomrade / har_ansvarsomrade | 381 | 357 | 100,0 % | 93,7 % | 35 | 0,0 % | 0,0 % | 91,1 % | 93,7 % | 357 | 0 |
 | A ansvarsomrade / har_sete_i | 65 | 62 | 100,0 % | 95,4 % | 0 | – | 0,0 % | 100,0 % | 95,4 % | 62 | 0 |
 | A ansvarsomrade / har_jurisdiksjon | 3 | 0 | – | 0,0 % | 16 | 0,0 % | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
-| G organsammensetning / har_medlemmer | 21 | 6 | 66,7 % | 19,0 % | 16 | 18,8 % | 14,3 % | 18,2 % | 19,0 % | 1 | 0 |
+| G organsammensetning / har_medlemmer | 20 | 6 | 66,7 % | 20,0 % | 16 | 18,8 % | 15,0 % | 18,2 % | 20,0 % | 1 | 0 |
 | G relasjon / del_av | 12 | 0 | – | 0,0 % | 19 | 0,0 % | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
 | G organsammensetning / har_organ | 10 | 0 | – | 0,0 % | 6 | 33,3 % | 20,0 % | 33,3 % | 20,0 % | 0 | 2 |
 | G organsammensetning / settes_med | 3 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
@@ -144,7 +146,7 @@ Kall med ugyldig JSON eller feil (1, første 300 tegn av svaret):
 
 - domstolloven: Kall feilet (28 noder, første https://lovdata.no/eli/forskrift/2021/01/22/163/nor/§1/ledd-1): KI-kallet mot 'https://hostyourai.com/api/v1/chat/completions' fei …
 
-## Kastede rader i valideringen (272 av 1315 rader KI-en svarte med)
+## Kastede rader i valideringen (272 av 1314 rader KI-en svarte med)
 
 Hard validering, ingen reparasjon (#308). Hver rad telles på første regel som slår til, i rekkefølgen i tabellen.
 Kall med ugyldig JSON telles i tabellen over (radene i dem er ukjente), ikke her.
@@ -197,12 +199,12 @@ Eksempler (én fra hver årsak i tur, inntil 20):
 | 19 | domstolloven | `falskt_sitat` | lov/1915/08/13/5/nor/§2/ledd-1 | sammensetning_omrade / bestar_av | Særdomstoler er: jordskifterettene; de overordentlige domstoler, som nedsettes etter § 29; konsulrettene i utlandet; Riksretten. | står ikke i noden (parafrase eller oppdiktet) |
 | 20 | domstolloven | `ukjent_kategori` | lov/1915/08/13/5/nor/§62/ledd-1 | annet / annet:inkorporasjon | For tjenestemenn ved domstolene gjelder lov 4. mars 1983 nr. 3 om statens tjenestemenn m.m. | Kategorien «annet» står ikke i FORMAT.md. |
 
-## KI: falske positive (662)
+## KI: falske positive (657)
 
 | Kategori | Feil/manglende aktør | Ikke i fasiten |
 |---|---:|---:|
-| R | 13 | 42 |
-| K | 55 | 337 |
+| R | 12 | 42 |
+| K | 55 | 333 |
 | P | 8 | 21 |
 | M | 2 | 19 |
 | O | 9 | 2 |
@@ -241,27 +243,25 @@ Eksempler (én fra hver kategori i tur, inntil 20):
 | Kategori / type | Fasit | Ikke funnet av KI | Ikke funnet av mønster | Ikke funnet av noen |
 |---|---:|---:|---:|---:|
 | A ansvarsomrade / har_ansvarsomrade | 381 | 381 | 24 | 24 |
-| K kompetanse / normgivningskompetanse | 210 | 32 | 26 | 17 |
-| K kompetanse / vedtakskompetanse | 150 | 54 | 87 | 39 |
+| K kompetanse / normgivningskompetanse | 208 | 30 | 24 | 15 |
+| K kompetanse / vedtakskompetanse | 146 | 52 | 85 | 37 |
 | O sammensetning_omrade / bestar_av | 108 | 108 | 38 | 38 |
-| K kompetanse / oppnevningskompetanse | 80 | 62 | 73 | 57 |
+| K kompetanse / oppnevningskompetanse | 82 | 64 | 75 | 59 |
 | O sammensetning_omrade / del_av | 69 | 69 | 30 | 30 |
 | A ansvarsomrade / har_sete_i | 65 | 65 | 3 | 3 |
 | R relasjon / rapporterer_til | 31 | 21 | 31 | 21 |
-| M medlemskap / medlem_av | 30 | 29 | 30 | 29 |
+| M medlemskap / medlem_av | 29 | 28 | 29 | 28 |
 | annet ansvarsomrade / annet:sogner_til | 28 | 28 | 0 | 0 |
-| K kompetanse / instruksjonskompetanse | 27 | 17 | 23 | 13 |
-| K kompetanse / tilsynskompetanse | 26 | 13 | 21 | 14 |
+| K kompetanse / instruksjonskompetanse | 26 | 16 | 22 | 12 |
+| K kompetanse / tilsynskompetanse | 25 | 12 | 20 | 13 |
 | K kompetanse / klagekompetanse | 22 | 16 | 15 | 12 |
-| G organsammensetning / har_medlemmer | 21 | 18 | 17 | 17 |
 | P plikt / samarbeidsplikt | 21 | 12 | 14 | 8 |
-| R relasjon / har_delegert_til | 20 | 20 | 17 | 17 |
-| K kompetanse / delegeringskompetanse | 19 | 12 | 11 | 8 |
+| G organsammensetning / har_medlemmer | 20 | 17 | 16 | 16 |
 | T konstituerende / skal_finnes | 19 | 17 | 19 | 17 |
 | P plikt / betalingsplikt | 18 | 18 | 9 | 9 |
+| K kompetanse / delegeringskompetanse | 18 | 11 | 10 | 7 |
 | M medlemskap / inngar_i | 18 | 18 | 18 | 18 |
 | P plikt / bistandsplikt | 14 | 11 | 14 | 11 |
-| R konstituerende / oppretter | 14 | 10 | 14 | 10 |
 | R relasjon / eies_av | 13 | 12 | 13 | 12 |
 | P plikt / informasjonsplikt | 13 | 13 | 13 | 13 |
 | K kompetanse / overprovingskompetanse | 13 | 13 | 13 | 13 |
@@ -270,5 +270,7 @@ Eksempler (én fra hver kategori i tur, inntil 20):
 | G organsammensetning / har_organ | 10 | 8 | 10 | 8 |
 | P plikt / konsultasjonsplikt | 10 | 10 | 10 | 10 |
 | R relasjon / radgir | 10 | 8 | 10 | 8 |
-| … 170 typer til | 325 | | | |
+| annet kompetanse / annet:forkynningskompetanse | 9 | 9 | 9 | 9 |
+| annet medlemskap / annet:klasse_definert_ved_tjenestekrets | 9 | 9 | 9 | 9 |
+| … 173 typer til | 337 | | | |
 

@@ -2319,7 +2319,7 @@
       "referent": null,
       "oppløsning": "forskrift_utenfor",
       "distributiv": null,
-      "kommentar": "§ 2-6 fjerde ledd. Referent kan ikke avgjøres fra teksten (Sametinget som øverste valgmyndighet § 2-10, og/eller lokale valgorganer etter valgforskriften)."
+      "kommentar": "§ 2-6 fjerde ledd. Referent kan ikke avgjøres fra teksten (Sametinget som øverste valgmyndighet § 2-10, og/eller lokale valgorganer etter valgforskriften). [#356, kort nr. 28] Oppløses av forskrift om valg til Sametinget (FOR-2008-12-19-1480, i korpuset), jf. § 2-10 (Sametinget er øverste valgmyndighet). «forskrift_utenfor» betyr her utenfor lovteksten, ikke utenfor korpuset (lærdom 2)."
     },
     {
       "id": "a142",
@@ -2875,7 +2875,7 @@
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-1/ledd-4",
       "sitat": "Sametinget har beslutningsmyndighet når dette følger av andre bestemmelser i loven eller fastsatt på annen måte.",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "beslutningskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "beslutningsmyndighet etter andre bestemmelser eller fastsatt på annen måte",
@@ -2884,7 +2884,7 @@
       "betinget": true,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Åpen henvisning — Sametingets vedtakskompetanse kan følge av andre lover, forskrifter eller delegeringsvedtak utenfor korpuset (f.eks. kulturminneloven, plan- og bygningsloven)."
+      "kommentar": "Åpen henvisning — Sametingets vedtakskompetanse kan følge av andre lover, forskrifter eller delegeringsvedtak utenfor korpuset (f.eks. kulturminneloven, plan- og bygningsloven). [#356, R5] Teksten sier «beslutningsmyndighet» (#341: beslutningskompetanse); vedtakskompetanse betyr enkeltvedtak. Var vedtakskompetanse."
     },
     {
       "id": "u15",
@@ -2906,17 +2906,18 @@
       "id": "u16",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-3/ledd-1",
       "sitat": "Valg til Sametinget holdes som direkte valg.",
-      "kategori": "organsammensetning",
-      "type": "annet:valgmate",
-      "fra": "a1",
-      "til": null,
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
+      "fra": null,
+      "til": "a138",
       "objekt": null,
       "polaritet": "positiv",
-      "avgrensning": null,
+      "avgrensning": "direkte valg",
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Hvordan organets medlemmer utpekes (direkte valg, ikke oppnevning)."
+      "kommentar": "velgerne er de som står i Sametingets valgmanntall (§ 2-6) Tidligere kommentar: «Hvordan organets medlemmer utpekes (direkte valg, ikke oppnevning).». [#309, kort nr. 21] Valg er oppnevning med undertypen valg (#352 beslutning 1); fra = null (passiv), til = medlemmene av Sametinget (samme aktør som i u18). Var organsammensetning/annet:valgmate fra Sametinget.",
+      "undertype": "valg"
     },
     {
       "id": "u17",
@@ -5006,13 +5007,13 @@
       "type": "annet:mandatfordeling",
       "fra": "a54",
       "til": "a1",
-      "objekt": "mandattak for Sør-Norge valgkrets",
-      "polaritet": "negativ",
-      "avgrensning": null,
+      "objekt": "mandater i Sametinget",
+      "polaritet": "positiv",
+      "avgrensning": "ikke flere enn valgkretsen ville fått om alle 39 mandater var fordelt forholdsmessig",
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Særregel (tak) for én navngitt valgkrets."
+      "kommentar": "Særregel (tak) for én navngitt valgkrets. [#309, kort nr. 30] Taket er avgrensning på en positiv kant (lærdom 4). Fordelingsregelen er valgloven § 11-3 tredje og fjerde ledd (i korpuset: https://lovdata.no/eli/lov/2023/06/16/62/nor/§11-3/ledd-3 og ledd-4, kontrollert mot lokal base 2026-10-09) — vanlig henvisning, ikke kilde utenfor korpus. Var negativ, objekt «mandattak for Sør-Norge valgkrets»."
     },
     {
       "id": "u148",
@@ -5084,17 +5085,17 @@
       "id": "u152",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-6/ledd-4",
       "sitat": "Denne registrering skal være tilgjengelig kun for den myndighet som har ansvaret for gjennomføring av valg til Sameting, eller etter samtykke fra Sametinget.",
-      "kategori": "kompetanse",
+      "kategori": "annet:informasjonsdeling",
       "type": "annet:tilgangsrett",
       "fra": "a141",
       "til": null,
       "objekt": "tilgang til registrering av valgmanntallsinnføring i folkeregisteret",
       "polaritet": "positiv",
-      "avgrensning": null,
+      "avgrensning": "eksklusiv («kun»): bare valgmyndigheten; andre bare etter samtykke fra Sametinget (egen rad)",
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "lav",
-      "kommentar": "Rolle uten referent i teksten ('den myndighet som har ansvaret for gjennomføring av valg'). Sametinget har i tillegg samtykkekompetanse."
+      "kommentar": "Rolle uten referent i teksten ('den myndighet som har ansvaret for gjennomføring av valg'). Sametinget har i tillegg samtykkekompetanse. [#356, kort nr. 28] Tilgang er ikke myndighet (K); informasjonstilgang står utenfor P (docs/33 §4.4). Var kategori kompetanse."
     },
     {
       "id": "u153",
@@ -5135,14 +5136,14 @@
       "kategori": "kompetanse",
       "type": "klagekompetanse",
       "fra": null,
-      "til": null,
+      "til": "a1",
       "objekt": "vedtak om registrering av partinavn",
       "polaritet": "negativ",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Negativt utsagn: ingen klageinstans for denne vedtakstypen."
+      "kommentar": "Negativt utsagn: ingen klageinstans for denne vedtakstypen. [#356, kort nr. 31] Motparten står i samme ledd («søke Sametinget om å bli registrert»): til = Sametinget (P1)."
     },
     {
       "id": "u156",
@@ -5224,7 +5225,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Kan ikke delegeres (§ 2-12 fjerde ledd)."
+      "kommentar": "Kan ikke delegeres (§ 2-12 fjerde ledd). [#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u170). Ikke en slutning fra ordet «Kongen».",
+      "delegerbar": false
     },
     {
       "id": "u161",
@@ -5272,7 +5274,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "middels",
-      "kommentar": "Avledet av rollen; konkret innhold (godkjenning av valg, klager) står i valgforskriften utenfor korpuset."
+      "kommentar": "Avledet av rollen; konkret innhold (godkjenning av valg, klager) står i valgforskriften utenfor korpuset. [#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u170). Ikke en slutning fra ordet «Kongen».",
+      "delegerbar": false
     },
     {
       "id": "u164",
@@ -5345,8 +5348,8 @@
       "id": "u168",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-12/ledd-3",
       "sitat": "Sametinget kan opprette de styrer, råd eller utvalg som Sametinget finner hensiktsmessig",
-      "kategori": "konstituerende",
-      "type": "oppretter",
+      "kategori": "kompetanse",
+      "type": "opprettingskompetanse",
       "fra": "a1",
       "til": "a135",
       "objekt": null,
@@ -5355,7 +5358,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Opprettelseskompetanse for en åpen klasse av underorganer."
+      "kommentar": "Opprettelseskompetanse for en åpen klasse av underorganer. [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter."
     },
     {
       "id": "u169",
@@ -5387,7 +5390,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Negativ delegeringsfullmakt; subjekt (Sametinget) utledet av sammenhengen."
+      "kommentar": "Negativ delegeringsfullmakt; subjekt (Sametinget) utledet av sammenhengen. [#356, kort nr. 32] Beholdes som sporingsgrunnlag for delegerbar = false på u160, u163 og u176 (R3, tekstfunn). Merkingen tekstfunn/slutning («uttrykkelig_forbudt») hører til #335."
     },
     {
       "id": "u171",
@@ -5485,8 +5488,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Selvorganiseringskompetanse; ikke delegerbar (§ 2-12). Her betyr 'i Sametinget' plenumsorganet.",
-      "normform": "arbeidsordning"
+      "kommentar": "Selvorganiseringskompetanse; ikke delegerbar (§ 2-12). Her betyr 'i Sametinget' plenumsorganet. [#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u170). Ikke en slutning fra ordet «Kongen».",
+      "normform": "arbeidsordning",
+      "delegerbar": false
     },
     {
       "id": "u177",
@@ -7264,6 +7268,22 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Forvaltningsansvar fordelt PER PARAGRAF. Øvrige paragrafer forblir (implisitt) hos distrikts- og digitaliseringsministeren — 'lovens departement' er dermed ikke entydig for sameloven."
+    },
+    {
+      "id": "u286",
+      "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§2-6/ledd-4",
+      "sitat": "eller etter samtykke fra Sametinget",
+      "kategori": "kompetanse",
+      "type": "samtykkekompetanse",
+      "fra": "a1",
+      "til": null,
+      "objekt": "tilgang for andre enn valgmyndigheten til registreringen av innføring i valgmanntallet i folkeregisteret",
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "hoy",
+      "kommentar": "[#356, kort nr. 28 og punkt 7] Sametinget kan samtykke til at andre får tilgang (§ 2-6 fjerde ledd)."
     }
   ]
 }

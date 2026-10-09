@@ -1204,6 +1204,36 @@
       "oppløsning": "ukjent",
       "distributiv": null,
       "kommentar": "Statlig enhet (Bufetat); nevnt for å avgrense hvilket helsepersonell kommunen dekker reiseutgifter for. Ingen strukturelle utsagn."
+    },
+    {
+      "id": "a64",
+      "tekstform": "en annen kommune som den rusmiddelavhengige har tilknytning til",
+      "varianter": [],
+      "eid_eksempler": [
+        "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-8/ledd-1"
+      ],
+      "antall_forekomster": 1,
+      "entitetstype": "rolle",
+      "navngitt": false,
+      "referent": null,
+      "oppløsning": "saksforhold",
+      "distributiv": false,
+      "kommentar": "[#309, kort nr. 14] Kommunen ansvaret for å reise sak kan overføres til ved avtale (§ 10-8 første ledd)."
+    },
+    {
+      "id": "a65",
+      "tekstform": "andre private enn ideelle organisasjoner",
+      "varianter": [],
+      "eid_eksempler": [
+        "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-6/ledd-1"
+      ],
+      "antall_forekomster": 1,
+      "entitetstype": "klasse",
+      "navngitt": false,
+      "referent": null,
+      "oppløsning": "tekstlig",
+      "distributiv": null,
+      "kommentar": "[#356, v5 punkt 11] Komplementklasse (jf. #349): private som ikke er ideelle organisasjoner. Kommunen kan ikke avtale drift av brukerromsordning med dem (§ 5-6)."
     }
   ],
   "utsagn": [
@@ -1414,16 +1444,16 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-1/ledd-5",
       "sitat": "Avtalene kan ikke overdras.",
       "kategori": "relasjon",
-      "type": "annet:tjenesteutsetting",
-      "fra": "a1",
-      "til": "a22",
-      "objekt": null,
+      "type": "annet:overdragelse_av_avtale",
+      "fra": "a22",
+      "til": null,
+      "objekt": "avtaler om tjenesteyting med andre offentlige eller private tjenesteytere (første ledd)",
       "polaritet": "negativ",
-      "avgrensning": "avtaler om tjenesteyting",
+      "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Forbud mot videreoverføring av avtaleforholdet."
+      "kommentar": "Forbud mot videreoverføring av avtaleforholdet. [#356, v5 punkt 10] Teksten sier at avtalene ikke kan overdras — ikke at kommunen ikke kan sette ut tjenester. [slutning] fra = avtaleparten (tjenesteyteren i første ledd); setningen er passiv. Var annet:tjenesteutsetting kommunen → tjenesteytere."
     },
     {
       "id": "u14",
@@ -1435,11 +1465,11 @@
       "til": "a28",
       "objekt": null,
       "polaritet": "positiv",
-      "avgrensning": null,
+      "avgrensning": "for å oppfylle ansvaret etter § 3-1",
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Krav om at bestemte fagroller skal finnes i/ved kommunen (ansatt eller avtale)."
+      "kommentar": "motparten er faggrupper/roller; tilknytningen kan være ansettelse eller avtale (f.eks. næringsdrivende fastlege) Tidligere kommentar: «Krav om at bestemte fagroller skal finnes i/ved kommunen (ansatt eller avtale).»."
     },
     {
       "id": "u15",
@@ -1536,13 +1566,13 @@
       "type": "vedtakskompetanse",
       "fra": "a1",
       "til": null,
-      "objekt": "vedtak om langtidsopphold i sykehjem",
+      "objekt": "vedtak om at kriteriene for langtidsopphold i sykehjem eller tilsvarende bolig særskilt tilrettelagt for heldøgns tjenester (§ 3-2 a annet ledd) er oppfylt",
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "[#309, kort nr. 6] Skal-plikten og ventelisteplikten hører til regellaget (docs/33 §4.4)."
     },
     {
       "id": "u21",
@@ -2091,8 +2121,8 @@
       "id": "u54",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-6/ledd-1",
       "sitat": "Kommunen avgjør om den vil etablere en brukerromsordning.",
-      "kategori": "konstituerende",
-      "type": "oppretter",
+      "kategori": "kompetanse",
+      "type": "opprettingskompetanse",
       "fra": "a1",
       "til": "a26",
       "objekt": null,
@@ -2101,7 +2131,7 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Valgfri opprettelse (ikke skal_finnes)."
+      "kommentar": "Valgfri opprettelse (ikke skal_finnes). [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter."
     },
     {
       "id": "u55",
@@ -2110,14 +2140,14 @@
       "kategori": "relasjon",
       "type": "annet:tjenesteutsetting",
       "fra": "a1",
-      "til": "a25",
+      "til": "a65",
       "objekt": null,
       "polaritet": "negativ",
-      "avgrensning": "drift av brukerromsordning; kun ideelle organisasjoner tillatt",
+      "avgrensning": "drift av brukerromsordning",
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Negativ avgrensning av hvem kommunen kan sette ut drift til."
+      "kommentar": "Negativ avgrensning av hvem kommunen kan sette ut drift til. [#356, v5 punkt 11, lærdom 4] Negasjonen gikk feil vei: forbudet gjelder «andre private enn ideelle organisasjoner» (a65), ikke de ideelle (a25). Var til = a25, avgrensning «drift av brukerromsordning; kun ideelle organisasjoner tillatt»."
     },
     {
       "id": "u56",
@@ -2214,24 +2244,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "#300: kompetanse lagt DIREKTE til organ inne i kommunen.",
-      "delegerbar": false
-    },
-    {
-      "id": "u62",
-      "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§6-1/ledd-1",
-      "sitat": "Kommunestyret selv",
-      "kategori": "kompetanse",
-      "type": "delegeringskompetanse",
-      "fra": "a11",
-      "til": null,
-      "objekt": "inngåelse av samarbeidsavtale",
-      "polaritet": "negativ",
-      "avgrensning": null,
-      "betinget": false,
-      "kilde_utenfor_korpus": false,
-      "sikkerhet": "hoy",
-      "kommentar": "«selv» = delegeringsforbud. Modellen må kunne uttrykke at en kompetanse IKKE kan delegeres videre internt.",
+      "kommentar": "#300: kompetanse lagt DIREKTE til organ inne i kommunen. [#356, R4] Delegeringsforbudet («Kommunestyret selv») står som delegerbar = false på denne raden; den doble negative delegeringsraden (u62) er slettet.",
       "delegerbar": false
     },
     {
@@ -3108,17 +3121,18 @@
       "id": "u116",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-11/ledd-3",
       "sitat": "Det kan oppnevnes et eget utvalg av fagkyndige for saker som etter reglene i dette kapitlet skal behandles av nemnda.",
-      "kategori": "organsammensetning",
-      "type": "har_medlemmer",
-      "fra": "a52",
-      "til": null,
+      "kategori": "kompetanse",
+      "type": "oppnevningskompetanse",
+      "fra": null,
+      "til": "a52",
       "objekt": null,
       "polaritet": "positiv",
-      "avgrensning": null,
+      "avgrensning": "saker som etter reglene i dette kapitlet skal behandles av nemnda",
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Oppnevnende myndighet ikke angitt (passiv form)."
+      "kommentar": "Oppnevnende myndighet ikke angitt (passiv form). [#356, R2] «Det kan oppnevnes» er en adgang til å oppnevne (L14), ikke organets faste medlemmer: oppnevningskompetanse, fra = null (passiv — teksten sier ikke hvem). Var organsammensetning/har_medlemmer fra «a52» til «None».",
+      "undertype": "oppnevning"
     },
     {
       "id": "u117",
@@ -3420,17 +3434,17 @@
       "id": "u135",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-3/ledd-6",
       "sitat": "skal forslag til endelig vedtak sendes barneverns- og helsenemnda innen to uker",
-      "kategori": "relasjon",
+      "kategori": "annet:saksforberedelse",
       "type": "annet:fremmer_sak_for",
-      "fra": "a1",
+      "fra": null,
       "til": "a51",
       "objekt": null,
       "polaritet": "positiv",
-      "avgrensning": null,
-      "betinget": false,
+      "avgrensning": "når det er truffet midlertidig vedtak; innen to uker, ellers faller vedtaket bort",
+      "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "avsenderen er kommunen, jf. § 10-8 første ledd (slutning) [#309, kort nr. 27] Oversendelse til nemnda er saksforberedelse (senere lag, docs/33 §4.4), verken R eller P. Var relasjon fra kommunen."
     },
     {
       "id": "u136",
@@ -3612,17 +3626,17 @@
       "id": "u147",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-8/ledd-1",
       "sitat": "Ved avtale mellom de berørte kommunene kan ansvaret overføres til en annen kommune som den rusmiddelavhengige har tilknytning til.",
-      "kategori": "relasjon",
-      "type": "annet:ansvarsoverforing",
+      "kategori": "kompetanse",
+      "type": "annet:avtalebasert_ansvarsoverforing",
       "fra": "a5",
-      "til": "a3",
+      "til": "a64",
       "objekt": null,
       "polaritet": "positiv",
-      "avgrensning": null,
+      "avgrensning": "ansvaret for å reise sak etter §§ 10-2 og 10-3; krever avtale mellom de berørte kommunene",
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Interkommunal avtalebasert overføring av stedlig ansvar – nærmest delegerer_til, men mellom likestilte rettssubjekter og varig."
+      "kommentar": "Interkommunal avtalebasert overføring av stedlig ansvar – nærmest delegerer_til, men mellom likestilte rettssubjekter og varig. [#309, kort nr. 14] «Kan … ved avtale overføres» er en adgang, ikke en gjennomført overføring (L14). Var relasjon/annet:ansvarsoverforing til «andre kommuner»."
     },
     {
       "id": "u148",
@@ -3722,7 +3736,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Private avtaleparter inngår i «kommunens helse- og omsorgstjeneste» – tjenestebegrepet krysser virksomhetsgrensen."
+      "kommentar": "Private avtaleparter inngår i «kommunens helse- og omsorgstjeneste» – tjenestebegrepet krysser virksomhetsgrensen. [#309, kort nr. 19] «Herunder» i § 11-2 avgrenser bare vederlagsregelen; leses raden generelt, er hjemmelen også helse- og omsorgstjenesteloven § 3-1 fjerde ledd."
     },
     {
       "id": "u154",

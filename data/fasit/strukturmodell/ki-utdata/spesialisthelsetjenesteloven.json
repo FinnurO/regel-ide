@@ -2282,8 +2282,8 @@
       "id": "u40",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-4a/ledd-1",
       "sitat": "Andre virksomheter som omfattes av denne loven, kan opprette en klinisk etikkomité.",
-      "kategori": "konstituerende",
-      "type": "oppretter",
+      "kategori": "kompetanse",
+      "type": "opprettingskompetanse",
       "fra": "a23",
       "til": "a22",
       "objekt": null,
@@ -2292,7 +2292,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {

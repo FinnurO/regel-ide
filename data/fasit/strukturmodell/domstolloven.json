@@ -8935,8 +8935,8 @@
    "id": "u13",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§4/ledd-1",
    "sitat": "kan Høyesterett nedsette ett eller flere utvalg, som betegnes som Høyesteretts ankeutvalg",
-   "kategori": "konstituerende",
-   "type": "oppretter",
+   "kategori": "kompetanse",
+   "type": "opprettingskompetanse",
    "fra": "hr",
    "til": "hr_ankeutv",
    "objekt": null,
@@ -8945,7 +8945,7 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "[#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter."
   },
   {
    "id": "u14",
@@ -9911,8 +9911,8 @@
    "id": "u73",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§27/ledd-7",
    "sitat": "kan med tilslutning av minst 2/3 av hver av kommunestyrenes medlemmer beslutte å ha felles forliksråd",
-   "kategori": "konstituerende",
-   "type": "oppretter",
+   "kategori": "kompetanse",
+   "type": "opprettingskompetanse",
    "fra": "kommune",
    "til": "felles_fr",
    "objekt": null,
@@ -9921,7 +9921,7 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Opprettelse krever samtidig vedtak i FLERE rettssubjekter, og er områdeavgrenset (samme domssogn)."
+   "kommentar": "Opprettelse krever samtidig vedtak i FLERE rettssubjekter, og er områdeavgrenset (samme domssogn). [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter."
   },
   {
    "id": "u74",
@@ -9959,8 +9959,8 @@
    "id": "u76",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§29/ledd-1",
    "sitat": "Dømmende kommissioner og andre overordentlige domstoler maa ikke nedsættes uten i de lovbestemte tilfælde.",
-   "kategori": "konstituerende",
-   "type": "oppretter",
+   "kategori": "kompetanse",
+   "type": "opprettingskompetanse",
    "fra": null,
    "til": "overord",
    "objekt": null,
@@ -9969,14 +9969,14 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Negativt konstituerende utsagn uten angitt aktør (forbud mot særdomstoler)."
+   "kommentar": "Negativt konstituerende utsagn uten angitt aktør (forbud mot særdomstoler). [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter."
   },
   {
    "id": "u77",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§29/ledd-2",
    "sitat": "Naar parterne samtykker, kan Kongen nedsætte overordentlige domstoler",
-   "kategori": "konstituerende",
-   "type": "oppretter",
+   "kategori": "kompetanse",
+   "type": "opprettingskompetanse",
    "fra": "kongen",
    "til": "overord",
    "objekt": null,
@@ -9985,7 +9985,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "[#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter.",
+   "delegerbar": true
   },
   {
    "id": "u78",
@@ -10718,7 +10719,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Generell negativ instruksjon uten avsender — gjelder alle (Kongen, departement, DA, domstolleder, overordnet domstol). Modellen må tillate fra=«enhver»."
+   "kommentar": "[slutning] instruksjonsforbudet er utledet av «uavhengig»; jf. Grunnloven § 95 annet ledd Tidligere kommentar: «Generell negativ instruksjon uten avsender — gjelder alle (Kongen, departement, DA, domstolleder, overordnet domstol). Modellen må tillate fra=«enhver».»."
   },
   {
    "id": "u122",
@@ -11993,13 +11994,13 @@
    "type": "normgivningskompetanse",
    "fra": "kongen",
    "til": null,
-   "objekt": "sidegjøremål",
+   "objekt": "dommeres sidegjøremål",
    "polaritet": "positiv",
    "avgrensning": null,
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#356, tillegg 2026-10-09] Objektet var «sidegjøremål».",
    "normform": "forskrift",
    "delegerbar": true
   },
@@ -12619,13 +12620,13 @@
    "type": "sanksjonskompetanse",
    "fra": "fr",
    "til": null,
-   "objekt": "rettergangsstraff og erstatning",
+   "objekt": "rettergangsstraff",
    "polaritet": "negativ",
-   "avgrensning": null,
+   "avgrensning": "etter domstolloven kapittel 10",
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "[#309, kort nr. 61] Erstatning er kompensasjon, ikke reaksjon (#355 beslutning 3): egen rad (beslutningskompetanse). Tingrettens kompetanse står i u237. Objektet var «rettergangsstraff og erstatning»."
   },
   {
    "id": "u237",
@@ -12795,32 +12796,16 @@
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§236/ledd-1",
    "sitat": "Tilsynsutvalget kan treffe vedtak om disiplinærtiltak",
    "kategori": "kompetanse",
-   "type": "vedtakskompetanse",
+   "type": "sanksjonskompetanse",
    "fra": "tilsyn",
-   "til": null,
+   "til": "dommer",
    "objekt": "disiplinærtiltak (kritikk/advarsel) mot dommere i HR, LR, TR, JSR",
    "polaritet": "positiv",
-   "avgrensning": null,
+   "avgrensning": "ikke forhold som kan overprøves etter reglene i rettspleielovgivningen for øvrig (§ 236 fjerde ledd)",
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
-  },
-  {
-   "id": "u248",
-   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§236/ledd-4",
-   "sitat": "Tilsynsutvalget kan ikke vurdere forhold som kan overprøves etter reglene i rettspleielovgivningen for øvrig.",
-   "kategori": "kompetanse",
-   "type": "tilsynskompetanse",
-   "fra": "tilsyn",
-   "til": null,
-   "objekt": "forhold som kan overprøves etter rettspleielovgivningen",
-   "polaritet": "negativ",
-   "avgrensning": null,
-   "betinget": false,
-   "kilde_utenfor_korpus": false,
-   "sikkerhet": "hoy",
-   "kommentar": "Negativ kompetanseavgrensning som verner den dømmende virksomhet."
+   "kommentar": "[#356, kort nr. 62] Disiplinærtiltak (kritikk, advarsel) er selv reaksjoner (#355 beslutning 3): sanksjonskompetanse overfor dommere. u248 («kan ikke vurdere …») er avgrensning her, ikke en egen negativ tilsynskant. Var vedtakskompetanse."
   },
   {
    "id": "u249",
@@ -13089,18 +13074,17 @@
    "id": "u265",
    "eid": "https://lovdata.no/eli/forskrift/2012/02/03/119/nor/punkt-1",
    "sitat": "Delegeringen omfatter myndigheten til å endre og oppheve forskrift 11. oktober 1985 nr. 1810 om postforkynning fastsatt av Kongen.",
-   "kategori": "kompetanse",
-   "type": "normgivningskompetanse",
-   "fra": "jd",
-   "til": null,
-   "objekt": "endre/oppheve postforkynningsforskriften",
+   "kategori": "relasjon",
+   "type": "har_delegert_til",
+   "fra": "kongen",
+   "til": "jd",
+   "objekt": "myndighet til å endre og oppheve forskrift 11. oktober 1985 nr. 1810 fastsatt av Kongen",
    "polaritet": "positiv",
    "avgrensning": null,
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Delegert kompetanse omfatter også eksisterende forskrift fastsatt av delegerende organ.",
-   "normform": "forskrift"
+   "kommentar": "Delegert kompetanse omfatter også eksisterende forskrift fastsatt av delegerende organ. [#356, R7, kort nr. 8] Setningen angir hvor langt delegeringen i samme punkt (u264) rekker, ikke egen lovhjemmel for departementet (#341 beslutning 1). Var kompetanse/normgivningskompetanse fra «jd», objekt «endre/oppheve postforkynningsforskriften»."
   },
   {
    "id": "u266",
@@ -13122,18 +13106,17 @@
    "id": "u267",
    "eid": "https://lovdata.no/eli/forskrift/2012/02/03/119/nor/punkt-2",
    "sitat": "Delegeringen omfatter myndigheten til å endre og oppheve forskrift 25. juni 2010 nr. 977",
-   "kategori": "kompetanse",
-   "type": "normgivningskompetanse",
-   "fra": "jd",
-   "til": null,
-   "objekt": "endre/oppheve forskrift om elektronisk kommunikasjon",
+   "kategori": "relasjon",
+   "type": "har_delegert_til",
+   "fra": "kongen",
+   "til": "jd",
+   "objekt": "myndighet til å endre og oppheve forskrift 25. juni 2010 nr. 977 fastsatt av Kongen",
    "polaritet": "positiv",
    "avgrensning": null,
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
-   "normform": "forskrift"
+   "kommentar": "[#356, R7, kort nr. 8] Setningen angir hvor langt delegeringen i samme punkt (u266) rekker, ikke egen lovhjemmel for departementet (#341 beslutning 1). Var kompetanse/normgivningskompetanse fra «jd», objekt «endre/oppheve forskrift om elektronisk kommunikasjon»."
   },
   {
    "id": "u268",
@@ -21715,6 +21698,38 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "[#355, juristrunden] § 55 h første ledd: samme tre regler som kort nr. 58 (§ 55 femte ledd), for midlertidige dommere. Siste punktum («fratrer … uten oppsigelse eller avskjed») er at konstitusjonen opphører — ingen kant."
+  },
+  {
+   "id": "u859",
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§236/ledd-3",
+   "sitat": "Tilsynsutvalget kan gi en uttalelse om hva som er god dommerskikk, uten at dommeren ilegges disiplinærtiltak.",
+   "kategori": "kompetanse",
+   "type": "annet:uttalelse",
+   "fra": "tilsyn",
+   "til": "dommer",
+   "objekt": "uttalelse om hva som er god dommerskikk",
+   "polaritet": "positiv",
+   "avgrensning": "ikke forhold som kan overprøves etter reglene i rettspleielovgivningen for øvrig (§ 236 fjerde ledd)",
+   "betinget": false,
+   "kilde_utenfor_korpus": false,
+   "sikkerhet": "hoy",
+   "kommentar": "[#356, kort nr. 62] Uttalelseskompetansen etter § 236 tredje ledd: ikke sanksjon (ingen disiplinærtiltak) og ikke bindende — annet:uttalelse, med samme avgrensning som u247 (§ 236 fjerde ledd gjelder hele utvalgets virksomhet)."
+  },
+  {
+   "id": "u860",
+   "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§213/ledd-1",
+   "sitat": "Forliksrådet kan ikke ilegge straff eller erstatning etter dette kapitlet.",
+   "kategori": "kompetanse",
+   "type": "beslutningskompetanse",
+   "fra": "fr",
+   "til": null,
+   "objekt": "erstatning",
+   "polaritet": "negativ",
+   "avgrensning": "etter domstolloven kapittel 10",
+   "betinget": false,
+   "kilde_utenfor_korpus": false,
+   "sikkerhet": "hoy",
+   "kommentar": "[#309, kort nr. 61] Skilt ut fra u236 (samme sitat, L13): erstatning er kompensasjon, ikke reaksjon."
   }
  ]
 }

@@ -198,6 +198,10 @@ public sealed class KiStrukturkonverterer(
     /// Systeminstruksen. Bygget én gang fra <see cref="Strukturkontrakt"/>, så lista KI-en ser er den
     /// samme som valideringen godtar. Innholdet er FORMAT.md sine prinsipper og felt, ikke fasitens
     /// konvensjoner — instruksen er IKKE iterert mot fasiten (#308: én måling, ikke prompt-tilpasning).
+    /// [ENDRET, issue #356, 2026-10-09] Tre regler som konverteringen (konvertering-356-fasitrester.py) nå håndhever, er skrevet
+    /// inn så neste live-kjøring ikke gjør samme feil: unntak i et delegeringsvedtak er avgrensning på har_delegert_til (ikke egne
+    /// negative utsagn), «X kan opprette / treffer vedtak om å opprette» er opprettingskompetanse (oppretter/avvikler er hendelsen),
+    /// og «kan ikke delegeres» gir delegerbar = false. De lagrede KI-utdataene er konvertert med skriptet, ikke kjørt på nytt.
     /// </summary>
     public static string SystemInstruks { get; } = ByggSystemInstruks();
 
@@ -253,7 +257,8 @@ public sealed class KiStrukturkonverterer(
             {{typer}}
               Passer ingen: "annet:<kort_navn>" (små bokstaver og _) og forklar i "kommentar".
               relasjon = STRUKTUR uten myndighet (eierskap, ledelse, sekretariat, rapportering, etterfølger, representasjon,
-                og en GJENNOMFØRT delegering i et delegeringsvedtak = har_delegert_til);
+                og en GJENNOMFØRT delegering i et delegeringsvedtak = har_delegert_til; unntakene i vedtaket («omfatter ikke …»)
+                står i "avgrensning" på den kanten, ikke som egne negative utsagn);
               kompetanse = MYNDIGHET: «A har kompetanse av typen X, eventuelt overfor B, når det gjelder Y». Klageinstans,
                 instruksjon, omgjøring, oppnevning, tilsyn med en aktør, avsetting, sanksjon og samtykke er kompetanse —
                 "til" = motparten (den det gjelder), ellers null med "objekt" satt. «X kan delegere» = delegeringskompetanse.
@@ -270,7 +275,9 @@ public sealed class KiStrukturkonverterer(
                 «utgiftene til X» sier IKKE hvem som får pengene — da er "til" null og X står i "objekt"). Ett utsagn per
                 pliktsubjekt; lag aldri et utsagn B → A fordi teksten sier A → B. Møteplikt og saksforberedelse er ikke plikt her;
               medlemskap = aktør/klasse→klasse; sammensetning_omrade = område→område; ansvarsomrade = aktør→område;
-              konstituerende = oppretter/avvikler/skal_finnes («Hver kommune skal ha …»);
+              konstituerende = oppretter/avvikler/skal_finnes («Hver kommune skal ha …»); oppretter/avvikler er HENDELSEN («er
+                opprettet»), mens «X kan opprette/nedsette», «X treffer vedtak om å opprette» er opprettingskompetanse (avvikling:
+                avviklingskompetanse);
               organsammensetning = har_medlemmer (organets FASTE medlemmer: antall, hvem oppnevner) / har_organ (rettssubjekt→organ)
                 / settes_med (sammensetningen i den ENKELTE SAK: antall i "objekt", sakstypen i "avgrensning").
             - "fra", "til": aktør-id fra "aktorer" i DETTE svaret, eller null når teksten ikke avgjør aktøren
@@ -280,7 +287,8 @@ public sealed class KiStrukturkonverterer(
             - "modalitet": bare på plikt — "skal" (også «plikter», «har plikt til»), "kan" eller "bor" («bør»), når teksten har
               modalverbet; ellers utelat
             - "grunnlag": bare på kompetanse — "privatrettslig" når kompetansen følger av eierskap/selskapsrett, ellers utelat
-            - "delegerbar": bare på kompetanse — false for «Kongen i statsråd …» og «X selv …», true for «Kongen …», ellers utelat
+            - "delegerbar": bare på kompetanse — false for «Kongen i statsråd …», «X selv …» og når loven sier at myndigheten
+              «kan ikke delegeres», true for «Kongen …», ellers utelat
             - "polaritet": "positiv" eller "negativ" — ALLTID med («kan ikke instruere» = negativ)
             - "avgrensning": paragraf/sakstype/vilkår som begrenser utsagnet
             - "betinget": true/false
