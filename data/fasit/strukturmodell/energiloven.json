@@ -4306,7 +4306,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Parallell kompetanse; fordeling følger av hvem som ga tillatelsen (ikke uttrykt)."
+   "kommentar": "Parallell kompetanse; fordeling følger av hvem som ga tillatelsen (ikke uttrykt).",
+   "undertype": "tilbakekall"
   },
   {
    "id": "u206",
@@ -4322,7 +4323,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "tilbakekall"
   },
   {
    "id": "u207",
@@ -4338,7 +4340,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "undertype": "tilbakekall"
   },
   {
    "id": "u208",

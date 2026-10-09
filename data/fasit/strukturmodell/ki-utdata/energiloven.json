@@ -3482,7 +3482,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "tilbakekall"
     },
     {
       "id": "u166",
@@ -3516,7 +3517,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": "Gjelder også reguleringsmyndigheten i første punktum",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "tilbakekall"
     },
     {
       "id": "u168",
@@ -3533,7 +3535,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "tilbakekall"
     },
     {
       "id": "u169",

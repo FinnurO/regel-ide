@@ -2895,7 +2895,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "fra = «den som har valgt» — referent avledet av velger-relasjonen (saksforhold)."
+      "kommentar": "fra = «den som har valgt» — referent avledet av velger-relasjonen (saksforhold).",
+      "undertype": "avsetting"
     },
     {
       "id": "u94",
@@ -3297,7 +3298,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "[#355, L13] Sitatet har to regler: oppsigelse (denne raden) og avskjed (egen rad).",
+      "undertype": "oppsigelse"
     },
     {
       "id": "u119",
@@ -4907,7 +4909,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Alternativ rolle-innehaver."
+      "kommentar": "Alternativ rolle-innehaver.",
+      "undertype": "utnevning"
     },
     {
       "id": "u217",
@@ -5524,7 +5527,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "undertype": "tilbakekall"
     },
     {
       "id": "u254",
@@ -6348,6 +6352,23 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "#353: slått opp i folketrygdloven (lokal base), ikke gjettet. Gjelder bare kapittel 5; andre kapitler er et synlig hull (se aktøren)."
+    },
+    {
+      "id": "u304",
+      "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§36/ledd-1",
+      "sitat": "Styret treffer vedtak om å si opp eller avskjedige daglig leder",
+      "kategori": "kompetanse",
+      "type": "avsettingskompetanse",
+      "fra": "a13",
+      "til": "a14",
+      "objekt": null,
+      "polaritet": "positiv",
+      "avgrensning": null,
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "hoy",
+      "kommentar": "[#355, L13] Skilt ut fra u118 (samme sitat): avskjed er en egen regel ved siden av oppsigelse.",
+      "undertype": "avskjed"
     }
   ]
 }

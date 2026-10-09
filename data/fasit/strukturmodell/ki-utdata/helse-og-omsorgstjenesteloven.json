@@ -2934,7 +2934,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "undertype": "tilbakekall"
     },
     {
       "id": "u128",
