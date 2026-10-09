@@ -727,15 +727,16 @@ public sealed record KommunePlikterDto(
 {
     public static KommunePlikterDto Fra(KommunePlikter p) => new(
         p.Kommune, p.Kommunevirksomhet is null ? null : StrukturnodeDto.FraVisning(p.Kommunevirksomhet), p.Typekode,
-        p.Plikter.Select(t => new PliktTreffDto(StrukturkantDto.FraVisning(t.Kant), t.Grunnlag, t.GrunnlagHull,
+        p.Plikter.Select(t => new PliktTreffDto(StrukturkantDto.FraVisning(t.Kant), t.Retning, t.Grunnlag, t.GrunnlagHull,
             new PliktMotpartDto(t.Motpart.Status,
                 t.Motpart.Kandidater.Select((navn, i) => new TilhorighetskandidatDto(t.Motpart.Ider[i], navn, false)).ToList(),
                 t.Motpart.Hull))).ToList(),
         p.Hull);
 }
 
-/// <summary>[Ny, issue #353] Én plikt sett fra kommunen: <c>grunnlag</c> = direkte | medlem_av | klasse_uten_registrert_medlemskap.</summary>
-public sealed record PliktTreffDto(StrukturkantDto Kant, string Grunnlag, string? GrunnlagHull, PliktMotpartDto Motpart);
+/// <summary>[Ny, issue #353] Én plikt sett fra kommunen: <c>grunnlag</c> = direkte | medlem_av | klasse_uten_registrert_medlemskap (for kommunens ende).</summary>
+/// [ENDRET, #353-retting] <c>retning</c> = kommunen_skal | overfor_kommunen (kommunen er fra- eller til-siden).
+public sealed record PliktTreffDto(StrukturkantDto Kant, string Retning, string Grunnlag, string? GrunnlagHull, PliktMotpartDto Motpart);
 
 /// <summary>[Ny, issue #353] <c>status</c> = konkret | entydig | ikke_entydig | mangler | ikke_angitt; <c>hull</c> sier hvorfor.</summary>
 public sealed record PliktMotpartDto(string Status, IReadOnlyList<TilhorighetskandidatDto> Kandidater, string? Hull);

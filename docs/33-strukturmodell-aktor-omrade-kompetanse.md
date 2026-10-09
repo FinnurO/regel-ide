@@ -453,7 +453,9 @@ har. Tilpasningen:
    `A har_ansvarsomrade` dekker kommunen eller et område den ligger i — `entydig` | `ikke_entydig` (ingen velges) | `mangler`
    med hull (helseregionenes inndeling står ikke i lov; den kommer fra vedtektene, ekstern kilde, #340) | `ikke_angitt`.
    Lokalt finnes helseregion → fylke-kantene fra vedtektene alt (#312), så paret kan regnes ut når RHF-klassens medlemmer er
-   registrert. Klasser uten registrert medlemskap listes for ALLE kommuner (de kan gjelde dem) — det er støy til
+   registrert. [ENDRET, #353-retting etter koordinatorens kaldtest 2026-10-09] Oppslaget går i **begge retninger**: det kommunen
+   skal (`retning = kommunen_skal`) og det andre skal overfor kommunen (`overfor_kommunen`, kommunen er til-siden — direkte
+   eller via registrert medlemskap); motparten er da pliktsubjektet, løst på samme måte. Klasser uten registrert medlemskap listes for ALLE kommuner (de kan gjelde dem) — det er støy til
    medlemskapet er lastet eller kan avgjøres, men den er merket, ikke skjult.
 6. **Gjensidighet registreres som teksten sier den.** Én P-kant per pliktsubjekt (L13). Samarbeid mellom medlemmer av samme
    klasse er én kant fra klassen til seg selv (CHECK `ck_strukturkanter_ikke_selv` har unntaket for P med begrep-ende).

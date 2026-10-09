@@ -1051,7 +1051,8 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   kompetansen (motstykket til den): en vanlig `StrukturkantTabell` (§31), ingen egen kanttabell. P-kantene står ikke i
   «Organtilhørighet og andre strukturutsagn».
 - **Modaliteten står i utsagnsteksten** i parentes, som normformen og undertypen (§33): «har samarbeidsplikt (skal) overfor X»,
-  «(bør)». Ingen egen tag. NULL (teksten har ikke et modalverb) vises ikke — «ikke angitt» er ikke en påstand.
+  «(bør)». [ENDRET, #353-retting] Også fra motpartens side: «Y har avtaleplikt (skal) overfor denne — samarbeidsavtale»
+  (modalitet og objekt beholdes; til-malen alene mistet dem). Ingen egen tag. NULL (teksten har ikke et modalverb) vises ikke — «ikke angitt» er ikke en påstand.
 - **Kategoritaggen** «Plikt» er `neutral` (§31). **Aktørtypen «Ordning»** og **ordningstypen** (Trygdeordning/Fond/
   Tilskuddsordning, `OrdningstypeTag`) er klassifiseringer → `neutral`.
 - **Skjemaet** heter «Legg til relasjon, kompetanse eller plikt». P-typene står i samme `Select` som «Plikt — «har
@@ -1063,7 +1064,8 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   slår bare opp R/K og har ingen modalitet (egen sak hvis det trengs).
 - **Aktørtypevelgeren** har «Ordning»; når den er valgt, vises «Ordningstype» med «Ikke angitt» som utgangspunkt.
 - **S6 på områdefanen for en kommune** (`begrep/Omraderegister.tsx`): seksjonen «Plikter overfor motpart» etter tilhørigheten —
-  en kompakt tabell (beregnet svar, ikke kanter, som tilhørigheten §32): utsagnet, «Gjelder kommunen fordi» (direkte / via
+  en kompakt tabell (beregnet svar, ikke kanter, som tilhørigheten §32): [ENDRET, #353-retting] «Retning» (Kommunen skal /
+  Overfor kommunen — begge retninger vises), utsagnet, «Gjelder kommunen fordi» (direkte / via
   medlemskap i «X» / «X» — klasse uten registrert medlemskap, med hullet som `Metatekst`) og motparten. Motpartsstatus har
   tilhørighetens farger: løst (konkret/entydig) = ingen tag, «Ikke entydig» = `warning`, «Mangler» og «Ikke angitt» =
   `neutral`; hullet står som `Metatekst` under. Ingen kandidat velges. Uten plikter: metatekst «Ingen registrerte plikter

@@ -1,5 +1,5 @@
 import type {
-  Aktortype, Modalitet, PliktGrunnlag, PliktMotpartStatus, RelasjonsTypeKonfigurasjonDto,
+  Aktortype, Modalitet, PliktGrunnlag, PliktMotpartStatus, PliktRetning, RelasjonsTypeKonfigurasjonDto,
 } from '../api/types';
 
 /**
@@ -91,5 +91,14 @@ export function motpartStatusVisning(
       return { tekst: 'Ikke angitt', farge: 'neutral', forklaring: 'Teksten sier ikke hvem motparten er.' };
     default:
       return { tekst: status, farge: 'neutral', forklaring: 'Ukjent status fra API-et — vist rått.' };
+  }
+}
+
+/** [Ny, #353-retting] Retningen sett fra kommunen (S6): «Kommunen skal» eller «Overfor kommunen». Ukjent verdi vises rå. */
+export function pliktRetningTekst(retning: PliktRetning | string): string {
+  switch (retning) {
+    case 'kommunen_skal': return 'Kommunen skal';
+    case 'overfor_kommunen': return 'Overfor kommunen';
+    default: return retning;
   }
 }

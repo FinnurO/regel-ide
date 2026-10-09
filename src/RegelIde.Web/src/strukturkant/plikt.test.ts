@@ -7,7 +7,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   MODALITETER, modalitetFraValg, modalitetsord, motpartStatusVisning, ordningKanVaereMotpart, pliktGrunnlagTekst,
-  pliktValgtekst, typerForAktortype,
+  pliktRetningTekst, pliktValgtekst, typerForAktortype,
 } from './plikt';
 
 describe('modalitetsord', () => {
@@ -110,5 +110,13 @@ describe('pliktGrunnlagTekst', () => {
   });
   it('ukjent grunnlag vises rått', () => {
     expect(pliktGrunnlagTekst('noe_annet')).toBe('noe_annet');
+  });
+});
+
+describe('pliktRetningTekst', () => {
+  it('sier hvilken ende kommunen er — begge retninger vises (#353-retting)', () => {
+    expect(pliktRetningTekst('kommunen_skal')).toBe('Kommunen skal');
+    expect(pliktRetningTekst('overfor_kommunen')).toBe('Overfor kommunen');
+    expect(pliktRetningTekst('noe_annet')).toBe('noe_annet');
   });
 });

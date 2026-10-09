@@ -230,7 +230,8 @@ public class StrukturkantEndepunktTests
 
         var plikter = await _client.GetFromJsonAsync<KommunePlikterDto>($"/api/omrader/kommuner/{kommunenummer}/plikter?type=avtale", JsonInnstillinger);
         Assert.Equal(kommuneOmrade, plikter!.Kommune.Id);
-        var treff = Assert.Single(plikter.Plikter, t => t.Kant.Fra.Id == kommunen.Id);
+        // [ENDRET, #353-retting] Begge retninger: «retning» sier hvilken ende kommunen er.
+        var treff = Assert.Single(plikter.Plikter, t => t.Kant.Fra.Id == kommunen.Id && t.Retning == "kommunen_skal");
         Assert.Equal(("klasse_uten_registrert_medlemskap", "mangler"), (treff.Grunnlag, treff.Motpart.Status));
         Assert.Contains("#340", treff.Motpart.Hull);
         Assert.Equal(HttpStatusCode.BadRequest, (await _client.GetAsync($"/api/omrader/kommuner/{kommunenummer}/plikter?type=mote")).StatusCode);

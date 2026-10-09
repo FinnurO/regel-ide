@@ -71,7 +71,8 @@ public class PliktOgOrdningTests
         Assert.StartsWith("har samarbeidsplikt (skal) overfor ACER", fraSiden.Visningstekst);
         Assert.Equal("skal", fraSiden.Modalitet);
         var tilSiden = Assert.Single(await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(acer)));
-        Assert.EndsWith(" har samarbeidsplikt overfor denne", tilSiden.Visningstekst);
+        // [ENDRET, #353-retting] Fra motpartens side beholder plikten modaliteten (koordinatorens kaldtest 2026-10-09).
+        Assert.EndsWith(" har samarbeidsplikt (skal) overfor denne", tilSiden.Visningstekst);
 
         // Gjensidighet sluttes aldri (L13): ingen kant ACER → reguleringsmyndigheten ble laget.
         Assert.Equal(1, await db.Strukturkanter.CountAsync(k => k.FraVirksomhetId == acer || k.TilVirksomhetId == acer));
@@ -87,6 +88,28 @@ public class PliktOgOrdningTests
             HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid, Modalitet: "skal",
             AvgrensningTekst: "i samsvar med Norges EØS-rettslige forpliktelser"), "Kari Jurist");
         Assert.False(igjen.VarNy);
+    }
+
+    /// <summary>[Ny, #353-retting, koordinatorens kaldtest 2026-10-09] Oslo kommunes side viste bare «… har avtaleplikt overfor
+    /// denne»: modaliteten og objektet forsvant fra motpartens side.</summary>
+    [Fact]
+    public async Task P_fra_motpartens_side_beholder_modalitet_og_objekt()
+    {
+        await using var db = _fixture.NyDbContext();
+        var o = await NyttOppsettAsync(db);
+        var rhf = await NyVirksomhetAsync(db, "HELSE SØR-ØST RHF");
+        var oslo = await NyVirksomhetAsync(db, "Oslo kommune");
+        var tjeneste = new StrukturkantTjeneste(db);
+        await tjeneste.OpprettAsync(new NyStrukturkant(
+            Strukturkanter.Plikt, "avtale", Kantnode.Virksomhet(rhf), Kantnode.Virksomhet(oslo), HjemmelRettskildeId: o.LovId,
+            HjemmelEid: o.ParagrafEid, Objekt: "samarbeidsavtale", Modalitet: "skal"), "Kari Jurist");
+
+        var rhfNavn = (await db.Virksomheter.SingleAsync(v => v.Id == rhf)).Navn;
+        var osloNavn = (await db.Virksomheter.SingleAsync(v => v.Id == oslo)).Navn;
+        var fraSiden = Assert.Single(await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(rhf), Strukturkanter.Plikt));
+        Assert.Equal($"har avtaleplikt (skal) overfor {osloNavn} — samarbeidsavtale", fraSiden.Visningstekst);
+        var tilSiden = Assert.Single(await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(oslo), Strukturkanter.Plikt));
+        Assert.Equal($"{rhfNavn} har avtaleplikt (skal) overfor denne — samarbeidsavtale", tilSiden.Visningstekst);
     }
 
     [Fact]
@@ -272,7 +295,7 @@ public class PliktOgOrdningTests
         Assert.NotNull(svar);
         Assert.Equal(kommune.Id, svar.Kommunevirksomhet!.Id);
         // (Den delte testbasen kan ha andre klassekanter uten medlemmer — de listes også, med hull; vi ser på vår.)
-        var treff = Assert.Single(svar.Plikter, t => t.Kant.Fra.Id == kommunene);
+        var treff = Assert.Single(svar.Plikter, t => t.Kant.Fra.Id == kommunene && t.Retning == OmradeOppslagTjeneste.KommuneSkal);
         Assert.Equal("klasse_uten_registrert_medlemskap", treff.Grunnlag);
         Assert.Contains("ingen registrerte medlemmer", treff.GrunnlagHull);
         Assert.Equal("mangler", treff.Motpart.Status);
@@ -284,7 +307,7 @@ public class PliktOgOrdningTests
         await Kant("M", "medlem_av", Kantnode.Virksomhet(rhf), Kantnode.Begrep(rhfKlassen));
         await Kant("A", "har_ansvarsomrade", Kantnode.Virksomhet(rhf), Kantnode.Begrep(helseregion));
         svar = await oppslag.PlikterForKommunenummerAsync(kommunenummer, "avtale");
-        treff = Assert.Single(svar!.Plikter, t => t.Kant.Fra.Id == kommunene);
+        treff = Assert.Single(svar!.Plikter, t => t.Kant.Fra.Id == kommunene && t.Retning == OmradeOppslagTjeneste.KommuneSkal);
         Assert.Equal("mangler", treff.Motpart.Status);
         Assert.Contains("ansvarsområde som dekker kommunen", treff.Motpart.Hull);
 
@@ -293,13 +316,28 @@ public class PliktOgOrdningTests
         // … og kommunen er registrert medlem av «kommunen».
         await Kant("M", "medlem_av", Kantnode.Virksomhet(kommune.Id), Kantnode.Begrep(kommunene));
         svar = await oppslag.PlikterForKommunenummerAsync(kommunenummer, "avtale");
-        treff = Assert.Single(svar!.Plikter, t => t.Kant.Fra.Id == kommunene);
+        treff = Assert.Single(svar!.Plikter, t => t.Kant.Fra.Id == kommunene && t.Retning == OmradeOppslagTjeneste.KommuneSkal);
         Assert.Equal("medlem_av", treff.Grunnlag);
         Assert.Null(treff.GrunnlagHull);
         Assert.Equal(("entydig", rhf), (treff.Motpart.Status, Assert.Single(treff.Motpart.Ider)));
 
+        // 4) [#353-retting] Begge retninger: en plikt ANDRE har OVERFOR kommunen — direkte (RHF-et → kommunens virksomhet).
+        var direkte = await Kant("P", "avtale", Kantnode.Virksomhet(rhf), Kantnode.Virksomhet(kommune.Id), "skal");
+        svar = await oppslag.PlikterForKommunenummerAsync(kommunenummer, "avtale");
+        var overfor = Assert.Single(svar!.Plikter, t => t.Kant.Id == direkte.Kant.Id);
+        Assert.Equal((OmradeOppslagTjeneste.OverforKommunen, "direkte", "konkret", rhf),
+            (overfor.Retning, overfor.Grunnlag, overfor.Motpart.Status, Assert.Single(overfor.Motpart.Ider)));
+        // … og via en klasse kommunen er medlem av: RHF-klassen skal inngå avtale med «kommunen» — motparten er RHF-et via området.
+        var viaKlasse = await Kant("P", "avtale", Kantnode.Begrep(rhfKlassen), Kantnode.Begrep(kommunene), "skal");
+        svar = await oppslag.PlikterForKommunenummerAsync(kommunenummer, "avtale");
+        overfor = Assert.Single(svar!.Plikter, t => t.Kant.Id == viaKlasse.Kant.Id);
+        Assert.Equal((OmradeOppslagTjeneste.OverforKommunen, "medlem_av", "entydig", rhf),
+            (overfor.Retning, overfor.Grunnlag, overfor.Motpart.Status, Assert.Single(overfor.Motpart.Ider)));
+        // Det kommunen skal, står først.
+        Assert.Equal(OmradeOppslagTjeneste.KommuneSkal, svar.Plikter[0].Retning);
+
         // Typefilteret: ingen samarbeidsplikt registrert, bare avtaleplikt.
-        Assert.DoesNotContain((await oppslag.PlikterForKommunenummerAsync(kommunenummer, "samarbeid"))!.Plikter, t => t.Kant.Fra.Id == kommunene);
+        Assert.DoesNotContain((await oppslag.PlikterForKommunenummerAsync(kommunenummer, "samarbeid"))!.Plikter, t => t.Kant.Fra.Id == kommunene && t.Retning == OmradeOppslagTjeneste.KommuneSkal);
         await Assert.ThrowsAsync<ArgumentException>(() => oppslag.PlikterForKommunenummerAsync(kommunenummer, "møte"));
     }
 }

@@ -1590,6 +1590,8 @@ export interface KommuneTilhorighetDto {
 
 /** [Ny, issue #353] Hvorfor en plikt gjelder (eller kan gjelde) kommunen: fra kommunens egen virksomhet, fra en klasse
  * kommunen er REGISTRERT medlem av, eller fra en klasse uten ett eneste registrert medlem (avgjøres ikke — `grunnlagHull`). */
+/** [Ny, #353-retting] `kommunen_skal` = kommunen er pliktsubjektet; `overfor_kommunen` = andre har plikten overfor kommunen. */
+export type PliktRetning = 'kommunen_skal' | 'overfor_kommunen';
 export type PliktGrunnlag = 'direkte' | 'medlem_av' | 'klasse_uten_registrert_medlemskap';
 /** [Ny, issue #353] Motparten sett fra kommunen: `konkret` (til er en virksomhet), `entydig` (klasse/rolle løst til ett medlem
  * via område), `ikke_entydig` (flere — ingen velges), `mangler` (ingen løsning, `hull` sier hvorfor), `ikke_angitt` (teksten
@@ -1599,6 +1601,8 @@ export type PliktMotpartStatus = 'konkret' | 'entydig' | 'ikke_entydig' | 'mangl
 /** [Ny, issue #353] Én plikt sett fra kommunen — `PliktTreffDto` i Dtos.cs. Kandidatene er virksomheter. */
 export interface PliktTreffDto {
   kant: StrukturkantDto;
+  /** [ENDRET, #353-retting] Hvilken ende kommunen er: pliktsubjektet, eller den plikten er overfor. */
+  retning: PliktRetning;
   grunnlag: PliktGrunnlag;
   grunnlagHull: string | null;
   motpart: {

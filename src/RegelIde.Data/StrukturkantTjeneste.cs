@@ -760,7 +760,14 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             var objektTekst = k.Objekt ?? (k.HjemmelEid is not null || k.AvgrensningParagrafspennJson != "[]" ? "etter hjemmelen" : "(ikke angitt)");
             var selvregulering = Strukturkanter.ErSelvregulering(k);
             string tekst;
-            if (retning == "til" && !selvregulering)
+            if (retning == "til" && k.Kategori == Strukturkanter.Plikt)
+            {
+                // [Ny, issue #353, koordinatorens kaldtest 2026-10-09] Fra motpartens side beholder en plikt modaliteten og
+                // objektet: «HELSE SØR-ØST RHF har avtaleplikt (skal) overfor denne — samarbeidsavtale». Til-malen («{0} har
+                // avtaleplikt overfor denne») mistet begge, så Oslo kommunes side sa mindre enn pliktsubjektets.
+                tekst = $"{fra.Navn} {string.Format(type?.FraVisningsmal ?? "(ukjent type) {0}", Kompetansetekst(Modalitetsord(k.Modalitet), "denne", false, k.Objekt, objektTekst))}";
+            }
+            else if (retning == "til" && !selvregulering)
             {
                 tekst = string.Format(type?.TilVisningsmal ?? "(ukjent type) {0}", fra.Navn);
             }
