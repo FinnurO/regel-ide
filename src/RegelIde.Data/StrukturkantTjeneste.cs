@@ -37,7 +37,9 @@ public sealed record NyStrukturkant(
     // [Ny, issue #341, 2026-10-08] Bare på K — se StrukturkantEntitet.Normform/Grunnlag/Delegerbar. Null = ikke angitt.
     string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null,
     // [Ny, issue #352] Bare på K oppnevning/overproving — se StrukturkantEntitet.Undertype. Null = ikke angitt.
-    string? Undertype = null);
+    string? Undertype = null,
+    // [Ny, issue #353] Bare på P: skal | kan | bor — se StrukturkantEntitet.Modalitet. Null = ikke angitt.
+    string? Modalitet = null);
 
 /// <summary>Resultatet av <see cref="StrukturkantTjeneste.OpprettAsync"/> — <see cref="VarNy"/> = false betyr
 /// at et identisk utsagn alt fantes og ble returnert uendret (idempotens, se metoden).</summary>
@@ -70,7 +72,9 @@ public sealed record StrukturkantVisning(
     // avledet av normformen, Strukturkanter.FvlKategoriFor).
     string? Familie = null, string? FvlKategori = null,
     // [Ny, issue #352] Undertypen (valg/ansettelse/utpeking/oppnevning på oppnevning, anke på overprøving). Null = ikke angitt.
-    string? Undertype = null);
+    string? Undertype = null,
+    // [Ny, issue #353] Modaliteten på en plikt (skal/kan/bor). Null = ikke angitt.
+    string? Modalitet = null);
 
 /// <summary>
 /// [Ny, issue #311 «Strukturmodell 6: én typestyrt kanttabell», 2026-10-07] Den ENESTE skriveveien til
@@ -162,15 +166,19 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         // [ENDRET, issue #341] Unntaket er selvregulering: normgivning der motparten er innehaveren selv (Johanns
         // beslutning P2 — «normgivning der B = A»). Samme unntak som CHECK ck_strukturkanter_ikke_selv.
         var erSelvregulering = ny.Kategori == Strukturkanter.Kompetanse && ny.Typekode == Strukturkanter.Normgivning;
-        if (ny.Til is not null && ny.Til == ny.Fra && !erSelvregulering)
+        // [Ny, issue #353] Og en plikt mellom medlemmer av SAMME klasse/rolle (begrep-ende) — se ck_strukturkanter_ikke_selv.
+        var erPliktInnadIKlasse = ny.Kategori == Strukturkanter.Plikt && ny.Fra.BegrepId is not null;
+        if (ny.Til is not null && ny.Til == ny.Fra && !erSelvregulering && !erPliktInnadIKlasse)
         {
             throw new ArgumentException(
-                "En kant kan ikke gå fra en node til seg selv (unntak: K normgivning = selvregulering). Ingen gjettet fallback.");
+                "En kant kan ikke gå fra en node til seg selv (unntak: K normgivning = selvregulering, og P mellom medlemmer av "
+                + "samme klasse/rolle). Ingen gjettet fallback.");
         }
         var fraNavn = await ValiderNodeAsync(ny.Fra, regel.FraVirksomhet, regel.FraBegrep, "fra", regel.FraBeskrivelse, ny.Kategori, ct);
         var tilNavn = ny.Til is null
             ? null
             : await ValiderNodeAsync(ny.Til, regel.TilVirksomhet, regel.TilBegrep, "til", regel.TilBeskrivelse, ny.Kategori, ct);
+        await ValiderOrdningsreglerAsync(ny, ct); // [Ny, issue #353]
 
         var objekt = string.IsNullOrWhiteSpace(ny.Objekt) ? null : ny.Objekt.Trim();
         var paragrafspenn = ny.Paragrafspenn ?? [];
@@ -181,11 +189,21 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
                 "En kompetansekant uten til-node må si HVA kompetansen gjelder: en sakstype (objekt), et paragrafspenn "
                 + "eller en hjemmel-eId (docs/33 §4.3: «aktør/rolle → bestemmelse eller sakstype»).");
         }
+        // [Ny, issue #353] Samme krav for en plikt uten motpart («Folketrygden skal dekke behandlings- og forpleiningsutgifter
+        // …» — objektet er utgiftene, mottakeren står ikke i teksten).
+        if (ny.Kategori == Strukturkanter.Plikt && ny.Til is null && objekt is null
+            && paragrafspenn.Count == 0 && ny.HjemmelEid is null)
+        {
+            throw new ArgumentException(
+                "En pliktkant uten motpart må si HVA plikten gjelder: et objekt (f.eks. «behandlings- og forpleiningsutgifter»), "
+                + "et paragrafspenn eller en hjemmel-eId (issue #353).");
+        }
         if (ny.Kategori == Strukturkanter.Klasseniva && ny.Til is null && objekt is null)
         {
             throw new ArgumentException("En klassenivå-kant uten til-node må ha et objekt (f.eks. «kommunestyre»).");
         }
         var (normform, grunnlag, undertype) = ValiderKompetansefelt(ny.Kategori, ny.Typekode, ny.Normform, ny.Grunnlag, ny.Delegerbar, ny.Undertype);
+        var modalitet = ValiderModalitet(ny.Kategori, ny.Modalitet); // [Ny, issue #353]
 
         // ---- Kilde ----
         var kildeTekst = string.IsNullOrWhiteSpace(ny.KildeUtenforKorpusTekst) ? null : ny.KildeUtenforKorpusTekst.Trim();
@@ -280,6 +298,8 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             && k.Normform == normform
             // [Ny, issue #352] Undertypen er også identitet: «velger» og «ansetter» samme motpart er to utsagn.
             && k.Undertype == undertype
+            // [Ny, issue #353] Modaliteten også: «skal samarbeide» og «kan samarbeide» er to utsagn.
+            && k.Modalitet == modalitet
             && k.AvgrensningParagrafspennJson == spennJson, ct);
         if (eksisterende is not null)
         {
@@ -320,6 +340,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             KildeUtenforKorpusDokumentasjon = kildeDok,
             Normform = normform,
             Undertype = undertype,
+            Modalitet = modalitet,
             Grunnlag = grunnlag,
             Delegerbar = ny.Delegerbar,
             GyldigFra = ny.GyldigFra,
@@ -421,6 +442,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             && k.HjemmelRettskildeId == kant.HjemmelRettskildeId && k.HjemmelEid == kant.HjemmelEid
             && k.Normform == kant.Normform
             && k.Undertype == kant.Undertype
+            && k.Modalitet == kant.Modalitet
             && k.AvgrensningParagrafspennJson == spennJson, ct);
         if (dublett)
         {
@@ -745,9 +767,12 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
             else
             {
                 // [ENDRET, issue #341] K: motparten med «overfor» (+ normform og objekt) — se Kompetansetekst.
+                // [Ny, issue #353] P: samme form, med modaliteten i parentes («har samarbeidsplikt (skal) overfor B»).
                 var motpart = k.Kategori == Strukturkanter.Kompetanse
                     ? Kompetansetekst(k.Normform ?? k.Undertype, til?.Navn, selvregulering, k.Objekt, objektTekst)
-                    : til?.Navn ?? objektTekst;
+                    : k.Kategori == Strukturkanter.Plikt
+                        ? Kompetansetekst(Modalitetsord(k.Modalitet), til?.Navn, false, k.Objekt, objektTekst)
+                        : til?.Navn ?? objektTekst;
                 var fraTekst = string.Format(type?.FraVisningsmal ?? "(ukjent type) {0}", motpart);
                 tekst = retning == "fra" ? fraTekst : $"{fra.Navn} {fraTekst}";
             }
@@ -763,7 +788,7 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
                 k.Normform, k.Grunnlag, k.Delegerbar, selvregulering,
                 k.Kategori == Strukturkanter.Kompetanse ? type?.Familie : null,
                 k.Kategori == Strukturkanter.Kompetanse ? Strukturkanter.FvlKategoriFor(k.Typekode, k.Normform, k.Undertype, type?.FvlKategori) : null,
-                k.Undertype);
+                k.Undertype, k.Modalitet);
         }).ToList();
     }
 
@@ -789,7 +814,71 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         return string.Join(' ', deler);
     }
 
+    /// <summary>[Ny, issue #353] Modaliteten slik den leses («bor» lagres uten ø, som de andre lukkede vokabularene).</summary>
+    public static string? Modalitetsord(string? modalitet) => modalitet switch
+    {
+        null => null,
+        "bor" => "bør",
+        _ => modalitet,
+    };
+
     // ---------------- Validering ----------------
+
+    /// <summary>[Ny, issue #353] Modalitet finnes bare på P (CHECK ck_strukturkanter_modalitet), lukket liste, ingen standardverdi.</summary>
+    private static string? ValiderModalitet(string kategori, string? modalitet)
+    {
+        var m = string.IsNullOrWhiteSpace(modalitet) ? null : modalitet.Trim();
+        if (m is null) return null;
+        if (kategori != Strukturkanter.Plikt)
+        {
+            throw new ArgumentException(
+                $"Modalitet er en egenskap ved en PLIKT (kategori P) — ikke ved {Strukturkanter.Visningsnavn(kategori)} (issue #353).");
+        }
+        if (!Strukturkanter.Modaliteter.Contains(m))
+        {
+            throw new ArgumentException(
+                $"Ukjent modalitet '{m}'. Gyldige verdier: {string.Join(", ", Strukturkanter.Modaliteter)}. Ingen gjettet fallback (issue #353).");
+        }
+        return m;
+    }
+
+    /// <summary>
+    /// [Ny, issue #353] En ordning (<see cref="Nodetyper.Ordning"/>) er ikke en aktør: som fra-node bare i P, R forvaltes_av og
+    /// G tilhorer; som til-node bare i P. R forvaltes_av og G tilhorer krever omvendt at fra ER en ordning, og at til ikke er en
+    /// ordning. Se <see cref="Strukturkanter.OrdningLovSomFra"/>.
+    /// </summary>
+    private async Task ValiderOrdningsreglerAsync(NyStrukturkant ny, CancellationToken ct)
+    {
+        var fraType = await AktortypeAsync(ny.Fra, ct);
+        var tilType = await AktortypeAsync(ny.Til, ct);
+        var navn = $"{ny.Kategori} {ny.Typekode}";
+        if (fraType == Nodetyper.Ordning && !Strukturkanter.OrdningLovSomFra(ny.Kategori, ny.Typekode))
+        {
+            throw new ArgumentException(
+                $"En ordning kan ikke være fra-node i {navn}: den er ikke en aktør. Lov er P (plikt), R {Strukturkanter.ForvaltesAv} "
+                + $"og G {Strukturkanter.Tilhorer} (issue #353).");
+        }
+        if (tilType == Nodetyper.Ordning && !Strukturkanter.OrdningLovSomTil(ny.Kategori))
+        {
+            throw new ArgumentException($"En ordning kan bare være til-node i P (plikt overfor motpart), ikke i {navn} (issue #353).");
+        }
+        if (!Strukturkanter.KreverOrdningSomFra(ny.Kategori, ny.Typekode)) return;
+        if (fraType != Nodetyper.Ordning)
+        {
+            var hva = fraType is null ? "ikke en ordning (aktørtypen er uavklart, eller noden er et begrep)" : $"'{fraType}'";
+            throw new ArgumentException(
+                $"{navn} går fra en ORDNING (aktørtype 'ordning', f.eks. folketrygden) — fra-noden er {hva}. "
+                + "Sett aktørtypen først; den gjettes ikke (issue #353).");
+        }
+        if (tilType == Nodetyper.Ordning)
+        {
+            throw new ArgumentException($"{navn} går til en aktør, ikke til en annen ordning (issue #353).");
+        }
+    }
+
+    private async Task<string?> AktortypeAsync(Kantnode? node, CancellationToken ct) => node?.VirksomhetId is { } v
+        ? await db.Virksomheter.Where(x => x.Id == v).Select(x => x.Aktortype).FirstOrDefaultAsync(ct)
+        : null;
 
     /// <summary>
     /// [Ny, issue #341] Normform, grunnlag og delegerbar finnes bare på K (CHECK-ene i RegelIdeDbContext); normformen bare

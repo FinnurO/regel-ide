@@ -88,10 +88,10 @@ public class KompetanseMigreringTests
                 .OrderBy(n => n.Sorteringsrekkefolge).Take(2).ToListAsync();
             (forskriftEid, forskriftEid2) = (fparagrafer[0].Eid, fparagrafer[1].Eid);
 
-            dep = db.Virksomheter.Add(new Virksomhet { Id = Guid.NewGuid(), Navn = "Departementet" }).Entity.Id;
-            nemnd = db.Virksomheter.Add(new Virksomhet { Id = Guid.NewGuid(), Navn = "Klagenemnda" }).Entity.Id;
-            tilsyn = db.Virksomheter.Add(new Virksomhet { Id = Guid.NewGuid(), Navn = "Tilsynet" }).Entity.Id;
-            await db.SaveChangesAsync();
+            // [ENDRET, #353] Rå SQL: dagens Virksomhet har ordningstype, som skjemaet ved #341 ikke har.
+            dep = await HistoriskSkjema.VirksomhetAsync(db, "Departementet");
+            nemnd = await HistoriskSkjema.VirksomhetAsync(db, "Klagenemnda");
+            tilsyn = await HistoriskSkjema.VirksomhetAsync(db, "Tilsynet");
             var begreper = new VirksomhetsbegrepTjeneste(db);
             klasse = (await begreper.OpprettGruppebegrepAsync(Nodetyper.Klasse, lov, $"kommuner-{Guid.NewGuid():N}", "test")).Id;
             rolle = (await begreper.OpprettGruppebegrepAsync(Nodetyper.Rolle, lov, $"myndighet-{Guid.NewGuid():N}", "test")).Id;
@@ -194,9 +194,8 @@ public class KompetanseMigreringTests
         {
             var lov = await new RettskildeImportTjeneste(db).ImporterAsync(
                 LovdataKonverterer.Konverter(Testdata.LesAlkoholloven(), new DateOnly(2026, 8, 22)));
-            var a = db.Virksomheter.Add(new Virksomhet { Id = Guid.NewGuid(), Navn = "A" }).Entity.Id;
-            var b = db.Virksomheter.Add(new Virksomhet { Id = Guid.NewGuid(), Navn = "B" }).Entity.Id;
-            await db.SaveChangesAsync();
+            var a = await HistoriskSkjema.VirksomhetAsync(db, "A"); // [ENDRET, #353] rå SQL, se over
+            var b = await HistoriskSkjema.VirksomhetAsync(db, "B");
             await KantAsync(db, kategori, kode, a, kategori == "R" ? b : null, null, lov, null, objekt: kategori == "K" ? "noe" : null);
         }
 

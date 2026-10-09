@@ -76,10 +76,10 @@ public class OppnevningMigreringTests
                 LovdataKonverterer.Konverter(Testdata.LesAlkoholloven(), new DateOnly(2026, 8, 22)));
             eid = (await db.RettskildeNoder.Where(n => n.RettskildeId == lov && n.NodeType == "paragraf")
                 .OrderBy(n => n.Sorteringsrekkefolge).FirstAsync()).Eid;
-            Guid Ny(string navn) => db.Virksomheter.Add(new Virksomhet { Id = Guid.NewGuid(), Navn = navn }).Entity.Id;
-            (kommunestyret, forliksradet, styret, direktor) = (Ny("Kommunestyret"), Ny("Forliksrådet"), Ny("Styret"), Ny("Direktøren"));
-            (lagmannsrett, tingrett, dep) = (Ny("Lagmannsretten"), Ny("Tingretten"), Ny("Departementet"));
-            await db.SaveChangesAsync();
+            // [ENDRET, #353] Rå SQL: dagens Virksomhet har ordningstype, som skjemaet ved #341 ikke har.
+            Task<Guid> Ny(string navn) => HistoriskSkjema.VirksomhetAsync(db, navn);
+            (kommunestyret, forliksradet, styret, direktor) = (await Ny("Kommunestyret"), await Ny("Forliksrådet"), await Ny("Styret"), await Ny("Direktøren"));
+            (lagmannsrett, tingrett, dep) = (await Ny("Lagmannsretten"), await Ny("Tingretten"), await Ny("Departementet"));
 
             velger = await KantAsync(db, "R", "velger", kommunestyret, forliksradet, lov, eid, avgrensningTekst: "hvert fjerde år");
             utpeking = await KantAsync(db, "K", "utpeking", dep, tingrett, lov, eid, objekt: "rettssted");

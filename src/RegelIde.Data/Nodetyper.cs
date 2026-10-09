@@ -91,10 +91,38 @@ public static class Nodetyper
     // ---------- Aktørtype på Virksomhet (docs/33 §4.1) ----------
 
     /// <summary>Gyldige <see cref="Virksomhet.Aktortype"/>-verdier. NULL (uavklart) er gyldig og står
-    /// bevisst ikke i settet.</summary>
-    public static readonly string[] Aktortyper = ["rettssubjekt", "organ", "organisatorisk_enhet"];
+    /// bevisst ikke i settet. [ENDRET, issue #353] + <see cref="Ordning"/>.</summary>
+    public static readonly string[] Aktortyper = ["rettssubjekt", "organ", "organisatorisk_enhet", Ordning];
 
     public static bool ErGyldigAktortype(string? verdi) => verdi is null || Aktortyper.Contains(verdi);
+
+    /// <summary>
+    /// [Ny, issue #353, Johanns godkjenning 2026-10-08, <c>[LÅST]</c>] ORDNING — en ikke-aktør som rettskilden gir en funksjon
+    /// (folketrygden, et fond, en tilskuddsordning). Den står ved siden av rettssubjekt (nivå 1), organ og organisatorisk enhet
+    /// (nivå 2) i nodetypeaksen på <see cref="Virksomhet"/>, men er ikke en aktør: den fatter ingen vedtak og har ingen
+    /// organer. Den forvaltes av et organ (R <see cref="Strukturkanter.ForvaltesAv"/>), tilhører et rettssubjekt når det er
+    /// hjemlet (G <see cref="Strukturkanter.Tilhorer"/>), og kan være pliktsubjekt i P («Folketrygden skal dekke …»).
+    /// <para>
+    /// <b>Hvorfor på <see cref="Virksomhet"/> og ikke som en begrepskategori:</b> saken plasserer ordningen «ved siden av
+    /// rettssubjekt, organ og organisatorisk enhet» — aksen som bor i <see cref="Virksomhet.Aktortype"/> — og P/R/G har
+    /// virksomhet-ender. Som <see cref="BegrepEntitet"/> ville R (aktør → aktør) og G (→ rettssubjekt) måttet åpnes for
+    /// begrep-ender bare for denne ene typen. Et organ uten orgnr («Kongen i statsråd», #311) bor alt i Virksomhet; en
+    /// ordning uten orgnr gjør det samme. Hovedøktens valg, Johann bekrefter (PR-en for #353).
+    /// </para>
+    /// <para>
+    /// Ikke med (saken, punkt 4): «en tjeneste» (eget lag, tjenestekatalogen) og «en virksomhet» (er alt en aktør).
+    /// «Statskassen» holdes åpen til den dukker opp i fasiten.
+    /// </para>
+    /// </summary>
+    public const string Ordning = "ordning";
+
+    /// <summary>[Ny, issue #353, <c>[LÅST]</c>] Undertypene til en ordning — speilet av CHECK <c>ck_virksomheter_ordningstype</c>.
+    /// Utvides ved behov (ny verdi = ny migrasjon av CHECK-en, som for <see cref="Aktortyper"/>).</summary>
+    public static readonly string[] Ordningstyper = ["trygdeordning", "fond", "tilskuddsordning"];
+
+    /// <summary>[Ny, issue #353] Ordningstypen er gyldig bare på en ordning; NULL = ikke angitt (alltid gyldig).</summary>
+    public static bool ErGyldigOrdningstype(string? aktortype, string? ordningstype) =>
+        ordningstype is null || (aktortype == Ordning && Ordningstyper.Contains(ordningstype));
 
     /// <summary>
     /// Den ENESTE automatiske utledningen (issue #310 AC1, samme prinsipp som docs/20 §7.2 for

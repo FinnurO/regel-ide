@@ -126,11 +126,20 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
         {
             // [ENDRET, issue #310] CHECK for Aktortype — samme lukkede-vokabular-mønster som
             // ck_begreper_navneformgrunn. NULL (uavklart) er BEVISST gyldig, se Virksomhet.Aktortype.
-            e.ToTable("virksomheter", t => t.HasCheckConstraint(
-                "ck_virksomheter_aktortype",
-                "aktortype IS NULL OR aktortype IN ('rettssubjekt', 'organ', 'organisatorisk_enhet')"));
+            // [ENDRET, issue #353] + 'ordning' (ikke-aktør som rettskilden gir en funksjon, Nodetyper.Ordning) og
+            // ordningstypen, som bare finnes på en ordning (CHECK ck_virksomheter_ordningstype). NULL = ikke angitt.
+            e.ToTable("virksomheter", t =>
+            {
+                t.HasCheckConstraint(
+                    "ck_virksomheter_aktortype",
+                    "aktortype IS NULL OR aktortype IN ('rettssubjekt', 'organ', 'organisatorisk_enhet', 'ordning')");
+                t.HasCheckConstraint(
+                    "ck_virksomheter_ordningstype",
+                    "ordningstype IS NULL OR (aktortype = 'ordning' AND ordningstype IN ('trygdeordning', 'fond', 'tilskuddsordning'))");
+            });
             e.HasKey(x => x.Id).HasName("virksomheter_pkey");
             e.Property(x => x.Aktortype).HasColumnName("aktortype");
+            e.Property(x => x.Ordningstype).HasColumnName("ordningstype");
             e.Property(x => x.Navn).HasColumnName("navn");
             e.Property(x => x.Organisasjonsnummer).HasColumnName("organisasjonsnummer");
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
@@ -177,20 +186,26 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
         {
             e.ToTable("strukturkanter", t =>
             {
-                t.HasCheckConstraint("ck_strukturkanter_kategori", "kategori IN ('R', 'K', 'M', 'O', 'A', 'G', 'I', 'T')");
+                // [ENDRET, issue #353] + 'P' (plikt overfor motpart).
+                t.HasCheckConstraint("ck_strukturkanter_kategori", "kategori IN ('R', 'K', 'P', 'M', 'O', 'A', 'G', 'I', 'T')");
                 t.HasCheckConstraint("ck_strukturkanter_polaritet", "polaritet IN ('positiv', 'negativ')");
                 t.HasCheckConstraint("ck_strukturkanter_status", "status IN ('foreslatt_av_ai', 'validert')");
                 t.HasCheckConstraint("ck_strukturkanter_fra_en",
                     "(fra_virksomhet_id IS NULL) <> (fra_begrep_id IS NULL)");
                 t.HasCheckConstraint("ck_strukturkanter_til_hoyst_en",
                     "til_virksomhet_id IS NULL OR til_begrep_id IS NULL");
-                // Bare K og T kan stå uten til-node (Strukturkanter.Noderegler.TilValgfri).
+                // Bare K, P og T kan stå uten til-node (Strukturkanter.Noderegler.TilValgfri). [ENDRET, issue #353] + P:
+                // betalingsmottakeren er null når teksten ikke sier hvem som får pengene.
                 t.HasCheckConstraint("ck_strukturkanter_til_pakrevd",
-                    "kategori IN ('K', 'T') OR til_virksomhet_id IS NOT NULL OR til_begrep_id IS NOT NULL");
+                    "kategori IN ('K', 'P', 'T') OR til_virksomhet_id IS NOT NULL OR til_begrep_id IS NOT NULL");
                 // [ENDRET, issue #341] Unntak for selvregulering: normgivning der motparten er innehaveren selv
                 // (Johanns beslutning P2 — «normgivning der B = A»). Alle andre selvkanter er fortsatt en feil.
+                // [ENDRET, issue #353] Og for P mellom medlemmer av SAMME klasse/rolle («bør samiskopplæringen skje i samarbeid
+                // mellom flere organ som omfattes av …», samisk opplæringsforskrift § 2): en distributiv plikt mellom
+                // medlemmene, ikke en kant fra en aktør til seg selv. Bare på begrep-ender; en virksomhet har aldri plikt overfor
+                // seg selv.
                 t.HasCheckConstraint("ck_strukturkanter_ikke_selv",
-                    "(kategori = 'K' AND typekode = 'normgivning') OR ("
+                    "(kategori = 'K' AND typekode = 'normgivning') OR (kategori = 'P' AND fra_begrep_id IS NOT NULL) OR ("
                     + "(fra_virksomhet_id IS NULL OR til_virksomhet_id IS NULL OR fra_virksomhet_id <> til_virksomhet_id) "
                     + "AND (fra_begrep_id IS NULL OR til_begrep_id IS NULL OR fra_begrep_id <> til_begrep_id))");
                 // [Ny, issue #341] Normform bare på K normgivning; grunnlag og delegerbar bare på K. NULL = ikke angitt.
@@ -205,6 +220,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                     "undertype IS NULL OR (kategori = 'K' AND ("
                     + "(typekode = 'oppnevning' AND undertype IN ('valg', 'ansettelse', 'utpeking', 'oppnevning')) "
                     + "OR (typekode = 'overproving' AND undertype IN ('anke'))))");
+                // [Ny, issue #353, jf. L14] Modalitet bare på P (skal/kan/bør). NULL = ikke angitt.
+                t.HasCheckConstraint("ck_strukturkanter_modalitet",
+                    "modalitet IS NULL OR (kategori = 'P' AND modalitet IN ('skal', 'kan', 'bor'))");
                 // docs/33 §4.3: «HjemmelRettskildeId + HjemmelEid — påkrevd, ELLER KildeUtenforKorpus».
                 // [ENDRET, Johanns beslutning 2026-10-07] ELLER i streng forstand: med hjemmel i korpus er alle
                 // kilde-utenfor-feltene NULL; uten hjemmel er både teksten og TYPEN påkrevd.
@@ -240,6 +258,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.KildeUtenforKorpusDokumentasjon).HasColumnName("kilde_utenfor_korpus_dokumentasjon");
             e.Property(x => x.Normform).HasColumnName("normform");
             e.Property(x => x.Undertype).HasColumnName("undertype");
+            e.Property(x => x.Modalitet).HasColumnName("modalitet");
             e.Property(x => x.Grunnlag).HasColumnName("grunnlag");
             e.Property(x => x.Delegerbar).HasColumnName("delegerbar");
             e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
@@ -1014,7 +1033,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
         {
             e.ToTable("relasjonstype_konfigurasjon", t =>
             {
-                t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_kategori", "kategori IN ('R', 'K', 'M', 'O', 'A', 'G', 'I', 'T')");
+                // [ENDRET, issue #353] + 'P' (plikt overfor motpart).
+                t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_kategori", "kategori IN ('R', 'K', 'P', 'M', 'O', 'A', 'G', 'I', 'T')");
                 // [Ny, issue #341] Familie og fvl-kategori finnes bare på kompetansetyper.
                 // [ENDRET, issue #352, Johanns beslutning 2026-10-08] 'personell' heter 'oppnevning'.
                 t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_familie",

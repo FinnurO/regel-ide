@@ -30,6 +30,19 @@ public sealed record KommuneTilhorighet(
     IReadOnlyList<OmradeVisning> Overordnede,
     IReadOnlyList<AnsvarligAktor> Ansvarlige);
 
+/// <summary>[Ny, issue #353] Motparten til en plikt sett fra én kommune. <see cref="Status"/>: <c>konkret</c> (til er en
+/// virksomhet) | <c>entydig</c> (klasse/rolle løst til ett medlem via område) | <c>ikke_entydig</c> | <c>mangler</c> |
+/// <c>ikke_angitt</c> (teksten sier ikke hvem). <see cref="Hull"/> sier hvorfor når den ikke er løst.</summary>
+public sealed record PliktMotpart(string Status, IReadOnlyList<string> Kandidater, IReadOnlyList<Guid> Ider, string? Hull);
+
+/// <summary>[Ny, issue #353] Én plikt som gjelder (eller kan gjelde) kommunen. <see cref="Grunnlag"/>: <c>direkte</c> |
+/// <c>medlem_av</c> | <c>klasse_uten_registrert_medlemskap</c> (da sier <see cref="GrunnlagHull"/> hvorfor det ikke er avgjort).</summary>
+public sealed record PliktTreff(StrukturkantVisning Kant, string Grunnlag, string? GrunnlagHull, PliktMotpart Motpart);
+
+/// <summary>[Ny, issue #353 AC5] Svaret på «hvem har kommune X (samarbeids)plikt med?».</summary>
+public sealed record KommunePlikter(
+    OmradeVisning Kommune, KantnodeVisning? Kommunevirksomhet, string? Typekode, IReadOnlyList<PliktTreff> Plikter, IReadOnlyList<string> Hull);
+
 /// <summary>
 /// [Ny, issue #312 «Strukturmodell 7: områderegister», 2026-10-08, AC5, docs/32 S6/S8] Oppslaget «gitt en kommune:
 /// hvilket fylke, hvilken tingrett, hvilket lagsogn og lagdømme, hvilken lagmannsrett, statsforvalter og RHF?» —
@@ -159,6 +172,139 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
             Akt("RHF", a => a.Via.Omradetype == Omradetyper.Helseregion),
         };
         return new KommuneTilhorighet(omrader[kommune.Id], rubrikker, overordnede, ansvarlige);
+    }
+
+    // ---------------- [Ny, issue #353] S6: «Hvem har kommune X samarbeidsplikt med?» ----------------
+
+    /// <summary>
+    /// [Ny, issue #353 AC5, docs/32 S6] Pliktene (P-kanter) som gjelder kommunen, med motparten løst til konkrete aktører der
+    /// strukturen avgjør det — og et SYNLIG HULL der den ikke gjør det. Beregnet, ikke lagret (tilpasning punkt 5: «Kommunen skal
+    /// samarbeide med det regionale helseforetaket i helseregionen» er ÉN kant mellom klasser; parene regnes ut via område, slik
+    /// domstolkjeden gjør i #345).
+    /// <para>
+    /// <b>Hvilke plikter (fra-siden):</b> (1) <c>direkte</c> — fra = kommunens egen virksomhet (rubrikken «kommune» i
+    /// <see cref="ForKommuneAsync"/>); (2) <c>medlem_av</c> — fra = en klasse kommunen er REGISTRERT medlem av (M, transitivt);
+    /// (3) <c>klasse_uten_registrert_medlemskap</c> — fra = en klasse uten ett eneste registrert medlem («kommunen» i en lov er en
+    /// intensjonal klasse: alle kommuner, men medlemskapet er ikke lastet). Den tredje kan gjelde kommunen, men avgjøres ikke her
+    /// (CLAUDE.md §8) — den listes med hullet, ikke tas bort og ikke regnes som sikker.
+    /// </para>
+    /// <para>
+    /// <b>Motparten (til-siden):</b> en virksomhet er <c>konkret</c>. En klasse/rolle løses som Statsforvalter-eksempelet i docs/33
+    /// §4.2: medlemmene (M <c>medlem_av</c> / I <c>innehar</c>) hvis <c>A har_ansvarsomrade</c> dekker kommunen eller et område den
+    /// ligger i. Nøyaktig ett → <c>entydig</c>; flere → <c>ikke_entydig</c> (ingen velges); ingen → <c>mangler</c> med hull: enten har
+    /// klassen ingen registrerte medlemmer, eller ingen av dem har et område som dekker kommunen — helseregionenes inndeling står
+    /// ikke i lov, den kommer fra ekstern kilde (vedtekter, #340). Ingen motpart i teksten → <c>ikke_angitt</c>.
+    /// </para>
+    /// </summary>
+    /// <param name="typekode">P-typen (samarbeid, avtale, betaling …), null = alle.</param>
+    /// <returns>Null hvis kommunenummeret ikke er et gjeldende kommuneområde.</returns>
+    public async Task<KommunePlikter?> PlikterForKommunenummerAsync(string kommunenummer, string? typekode, CancellationToken ct = default)
+    {
+        if (typekode is not null && !Strukturkanter.Plikttyper.Any(t => t.Kode == typekode))
+        {
+            throw new ArgumentException(
+                $"Ukjent plikttype '{typekode}'. Gyldige verdier: {string.Join(", ", Strukturkanter.Plikttyper.Select(t => t.Kode))}.");
+        }
+        var tilhorighet = await ForKommunenummerAsync(kommunenummer, ct);
+        if (tilhorighet is null) return null;
+        var hull = new List<string>();
+
+        // Kommunens virksomhet: rubrikken «kommune» — bare når den er entydig (ellers ingen direkte plikter å slå opp).
+        var kommuneRubrikk = tilhorighet.Rubrikker.First(r => r.Rubrikk == "kommune");
+        Guid? kommuneVirksomhet = kommuneRubrikk.Entydig ? kommuneRubrikk.Ider[0] : null;
+        if (kommuneVirksomhet is null)
+        {
+            hull.Add(kommuneRubrikk.Ider.Count == 0
+                ? "Kommunen som rettssubjekt (virksomhet med ansvarsområde til kommunen) er ikke registrert — direkte plikter kan ikke slås opp."
+                : "Kommunen som rettssubjekt er ikke entydig — direkte plikter slås ikke opp.");
+        }
+
+        // Klassene kommunen er REGISTRERT medlem av (M, transitivt over klasse → klasse), fra virksomheten og fra området.
+        var mKanter = await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
+            .Where(k => k.Kategori == Strukturkanter.Medlemskap && k.TilBegrepId != null).ToListAsync(ct), ct);
+        var medlemAv = new HashSet<Guid>();
+        var ko = new Queue<(Guid? V, Guid? B)>();
+        if (kommuneVirksomhet is { } kv) ko.Enqueue((kv, null));
+        ko.Enqueue((null, tilhorighet.Kommune.Id));
+        while (ko.Count > 0)
+        {
+            var (v, b) = ko.Dequeue();
+            foreach (var k in mKanter.Where(k => (v != null && k.FraVirksomhetId == v) || (b != null && k.FraBegrepId == b)))
+            {
+                if (medlemAv.Add(k.TilBegrepId!.Value)) ko.Enqueue((null, k.TilBegrepId));
+            }
+        }
+
+        var pKanter = await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
+            .Where(k => k.Kategori == Strukturkanter.Plikt && (typekode == null || k.Typekode == typekode)).ToListAsync(ct), ct);
+        // Klasser som er fra-node i en P-kant: hvilke har ingen registrerte medlemmer?
+        var fraKlasser = pKanter.Where(k => k.FraBegrepId != null).Select(k => k.FraBegrepId!.Value).Distinct().ToList();
+        var klasserMedMedlemmer = mKanter.Where(k => fraKlasser.Contains(k.TilBegrepId!.Value)).Select(k => k.TilBegrepId!.Value).ToHashSet();
+        var klassekategori = await db.Begreper.Where(b => fraKlasser.Contains(b.Id))
+            .Select(b => new { b.Id, b.Begrepskategori }).ToDictionaryAsync(b => b.Id, b => b.Begrepskategori, ct);
+
+        var valgte = new List<(StrukturkantEntitet Kant, string Grunnlag)>();
+        foreach (var k in pKanter)
+        {
+            if (kommuneVirksomhet is not null && k.FraVirksomhetId == kommuneVirksomhet) valgte.Add((k, "direkte"));
+            else if (k.FraBegrepId is { } fb && medlemAv.Contains(fb)) valgte.Add((k, "medlem_av"));
+            else if (k.FraBegrepId is { } fk && klassekategori.GetValueOrDefault(fk) == Nodetyper.Klasse && !klasserMedMedlemmer.Contains(fk))
+                valgte.Add((k, "klasse_uten_registrert_medlemskap"));
+        }
+
+        var visninger = (await kanttjeneste.ByggVisningerAsync(valgte.Select(v => v.Kant).ToList(), perspektiv: null, ct)).ToDictionary(v => v.Id);
+        var dekker = new HashSet<Guid>(tilhorighet.Overordnede.Select(o => o.Id)) { tilhorighet.Kommune.Id };
+        var treff = new List<PliktTreff>();
+        foreach (var (kant, grunnlag) in valgte)
+        {
+            var visning = visninger[kant.Id];
+            var grunnlagHull = grunnlag == "klasse_uten_registrert_medlemskap"
+                ? $"Klassen «{visning.Fra.Navn}» har ingen registrerte medlemmer — om plikten gjelder kommunen, avgjøres ikke her (intensjonal klasse, regelevaluering)."
+                : null;
+            treff.Add(new PliktTreff(visning, grunnlag, grunnlagHull, await MotpartAsync(kant, visning, dekker, ct)));
+        }
+        var kommunenode = kommuneVirksomhet is not { } kvId ? null
+            : new KantnodeVisning("virksomhet", kvId, kommuneRubrikk.Kandidater[0],
+                await db.Virksomheter.Where(v => v.Id == kvId).Select(v => v.Aktortype).FirstOrDefaultAsync(ct));
+        return new KommunePlikter(tilhorighet.Kommune, kommunenode, typekode,
+            treff.OrderBy(t => t.Grunnlag switch { "direkte" => 0, "medlem_av" => 1, _ => 2 }).ThenBy(t => t.Kant.Typekode, StringComparer.Ordinal)
+                .ThenBy(t => t.Kant.Visningstekst, StringComparer.Ordinal).ToList(),
+            hull);
+    }
+
+    /// <summary>[Ny, issue #353] Motparten til én plikt sett fra kommunen — se <see cref="PlikterForKommunenummerAsync"/>.</summary>
+    private async Task<PliktMotpart> MotpartAsync(StrukturkantEntitet kant, StrukturkantVisning visning, HashSet<Guid> dekker, CancellationToken ct)
+    {
+        if (kant.TilVirksomhetId is { } tv) return new PliktMotpart("konkret", [visning.Til!.Navn], [tv], null);
+        if (kant.TilBegrepId is not { } tb) return new PliktMotpart("ikke_angitt", [], [], "Motparten står ikke i teksten.");
+
+        // Medlemmene av klassen (M medlem_av) eller innehaverne av rollen (I innehar) — virksomheter.
+        var medlemskanter = await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
+            .Where(k => (k.Kategori == Strukturkanter.Medlemskap || k.Kategori == Strukturkanter.Rolleinnehav)
+                        && k.TilBegrepId == tb && k.FraVirksomhetId != null).ToListAsync(ct), ct);
+        var medlemmer = medlemskanter.Select(k => k.FraVirksomhetId!.Value).Distinct().ToList();
+        if (medlemmer.Count == 0)
+        {
+            return new PliktMotpart("mangler", [], [],
+                $"«{visning.Til!.Navn}» har ingen registrerte medlemmer — parene regnes ut via område når medlemskapet og områdeinndelingen "
+                + "er lastet (helseregionene: ekstern kilde, #340).");
+        }
+        var ansvar = await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
+            .Where(k => k.Kategori == Strukturkanter.Ansvarsomrade && k.Typekode == "har_ansvarsomrade"
+                        && k.FraVirksomhetId != null && medlemmer.Contains(k.FraVirksomhetId.Value)
+                        && k.TilBegrepId != null && dekker.Contains(k.TilBegrepId.Value)).ToListAsync(ct), ct);
+        var treffIder = ansvar.Select(k => k.FraVirksomhetId!.Value).Distinct().ToList();
+        var navn = await db.Virksomheter.Where(v => treffIder.Contains(v.Id)).Select(v => new { v.Id, v.Navn }).ToDictionaryAsync(v => v.Id, v => v.Navn, ct);
+        var sortert = treffIder.OrderBy(i => navn.GetValueOrDefault(i), StringComparer.Ordinal).ToList();
+        return sortert.Count switch
+        {
+            1 => new PliktMotpart("entydig", [navn[sortert[0]]], sortert, null),
+            0 => new PliktMotpart("mangler", [], [],
+                $"Ingen av de {medlemmer.Count} registrerte medlemmene av «{visning.Til!.Navn}» har ansvarsområde som dekker kommunen — "
+                + "områdeinndelingen er ikke lastet (helseregionene: ekstern kilde, #340)."),
+            _ => new PliktMotpart("ikke_entydig", sortert.Select(i => navn[i]).ToList(), sortert,
+                "Flere medlemmer har ansvarsområde som dekker kommunen — ingen velges."),
+        };
     }
 
     /// <summary>

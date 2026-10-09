@@ -21,6 +21,24 @@ public static class Strukturkanter
 {
     public const string Relasjon = "R";
     public const string Kompetanse = "K";
+
+    /// <summary>
+    /// [Ny, issue #353 «pliktrelasjoner mellom parter», Johanns godkjenning 2026-10-08, <c>[LÅST]</c>] P — PLIKT OVERFOR
+    /// MOTPART: «A skal samarbeide med / inngå avtale med / dekke utgiftene / bistå / gi opplysninger til / konsultere B».
+    /// Motstykket til <see cref="Kompetanse"/> (K = det A KAN, normativt; P = det A SKAL overfor B). Samme felter som K (fra,
+    /// valgfri til, hjemmel, avgrensning, polaritet, status, oppdagelseskilde) pluss <see cref="StrukturkantEntitet.Modalitet"/>.
+    /// <para>
+    /// <b>P-kanten er den AKTØRNÆRE PROJEKSJONEN av en rettsfølge, ikke plikten selv.</b> Den rike plikt-noden (vilkår, objekt,
+    /// unntak, tid, mottaker, begunstiget) er det referansemodellen kaller regel → vilkår → rettsfølge → unntak (docs/01 §7–§8)
+    /// og bygges i regellaget (L16). Strukturlaget lagrer bare hvem som skal, overfor hvem, og hvor det står — koblet til
+    /// regellaget via eId når det bygges. Ingen parallell plikt-node her (issue #353, tilpasning punkt 2).
+    /// </para>
+    /// <para>
+    /// <b>Gjensidighet registreres som teksten sier den</b> (tilpasning punkt 6): én P-kant per pliktsubjekt (L13). Står begge
+    /// parter som pliktsubjekt i teksten, blir det to kanter; et ensidig «A skal samarbeide med B» gir aldri en kant B → A.
+    /// </para>
+    /// </summary>
+    public const string Plikt = "P";
     public const string Medlemskap = "M";
     public const string Omradesammensetning = "O";
     public const string Ansvarsomrade = "A";
@@ -28,9 +46,9 @@ public static class Strukturkanter
     public const string Rolleinnehav = "I";
     public const string Klasseniva = "T";
 
-    /// <summary>Alle åtte, i docs/33 §4.3-rekkefølge.</summary>
+    /// <summary>Alle ni, i docs/33 §4.3-rekkefølge. [ENDRET, issue #353] P (plikt overfor motpart) står rett etter K.</summary>
     public static readonly string[] Kategorier =
-        [Relasjon, Kompetanse, Medlemskap, Omradesammensetning, Ansvarsomrade, Organtilhorighet, Rolleinnehav, Klasseniva];
+        [Relasjon, Kompetanse, Plikt, Medlemskap, Omradesammensetning, Ansvarsomrade, Organtilhorighet, Rolleinnehav, Klasseniva];
 
     public static readonly string[] Polariteter = ["positiv", "negativ"];
 
@@ -71,6 +89,7 @@ public static class Strukturkanter
     {
         Relasjon => "relasjon",
         Kompetanse => "kompetanse",
+        Plikt => "plikt overfor motpart", // [Ny, issue #353]
         Medlemskap => "medlemskap",
         Omradesammensetning => "områdesammensetning",
         Ansvarsomrade => "ansvarsområde",
@@ -100,6 +119,12 @@ public static class Strukturkanter
         // hjemmel/avgrensning hva kompetansen gjelder. Til = fra er lov bare for normgivning (selvregulering).
         [Kompetanse] = new("aktør eller rolle", true, [Nodetyper.Rolle],
             "motpart (aktør, klasse, rolle eller område) — valgfri", true, [Nodetyper.Klasse, Nodetyper.Rolle, Nodetyper.Omrade], true),
+        // [Ny, issue #353] Pliktsubjektet kan være en aktør (også en ordning: «Folketrygden skal dekke …»), en rolle
+        // («Koordinatoren skal samarbeide med barnekoordinator») eller en KLASSE («Kommunen skal inngå samarbeidsavtale med det
+        // regionale helseforetaket i helseregionen» — én kant mellom klasser, parene regnes ut via område, tilpasning punkt 5).
+        // Motparten er valgfri: betalingsmottakeren er null når teksten ikke sier hvem som får pengene («utgiftene til X»).
+        [Plikt] = new("aktør (også ordning), rolle eller klasse", true, [Nodetyper.Rolle, Nodetyper.Klasse],
+            "motpart (aktør, klasse eller rolle) — valgfri", true, [Nodetyper.Klasse, Nodetyper.Rolle], true),
         // Mål = klasse ELLER område: «språkutviklingskommuner» (klasse) er medlem av «forvaltningsområdet for
         // samiske språk» (område) — gruppe-av-gruppe-dataene fra #164 har nettopp den formen (målt 2026-10-07).
         [Medlemskap] = new("aktør, klasse eller område", true, [Nodetyper.Klasse, Nodetyper.Omrade],
@@ -313,6 +338,79 @@ public static class Strukturkanter
             _ => typensFvlKategori,
         };
 
+    // ---------------- Plikt overfor motpart og ordning (issue #353, Johanns godkjenning 2026-10-08) ----------------
+
+    /// <summary>
+    /// [Ny, issue #353, <c>[LÅST]</c>] ÉN tabell over plikttypene, som <see cref="Kompetansetyper"/>: koden i databasen, ordet i
+    /// visningen og typen i FORMAT.md/fasiten («samarbeidsplikt»). Startsettet (P-radene) og <see cref="PlikttypeFraFasit"/>
+    /// leses herfra.
+    /// <para>
+    /// <b>Typer, ikke undertyper.</b> Saken kaller de seks «undertyper» av P. De er lagt inn som TYPEKODER i kategorien P (rader i
+    /// <c>relasjonstype_konfigurasjon</c>, som K-typene), ikke i feltet <see cref="StrukturkantEntitet.Undertype"/>: K har sine
+    /// typer som koder og bruker undertype til en presisering av én type (oppnevning → valg). Å legge de seks i undertype-feltet
+    /// ville gitt P én eneste typekode og gjort kategorien til en type. Hovedøktens tolkning, Johann bekrefter (PR-en for #353).
+    /// </para>
+    /// <para>
+    /// <b>Retning:</b> fra = pliktsubjektet, til = motparten. Konsultasjon: fra = den som SKAL konsultere/innhente uttalelse, til =
+    /// den som skal høres. Informasjon: fra = den som skal gi opplysningene, til = mottakeren. Betaling: fra = den som skal dekke
+    /// utgiftene (også en <see cref="Nodetyper.Ordning">ordning</see>), til = betalingsmottakeren, NULL når teksten ikke sier det.
+    /// </para>
+    /// </summary>
+    public static readonly IReadOnlyList<(string Kode, string Substantiv, string FasitType)> Plikttyper =
+    [
+        ("samarbeid", "samarbeidsplikt", "samarbeidsplikt"),
+        ("avtale", "avtaleplikt", "avtaleplikt"),
+        ("betaling", "betalingsplikt", "betalingsplikt"),
+        ("bistand", "bistandsplikt", "bistandsplikt"),
+        ("informasjon", "informasjonsplikt", "informasjonsplikt"),
+        ("konsultasjon", "konsultasjonsplikt", "konsultasjonsplikt"),
+    ];
+
+    /// <summary>[Ny, issue #353] FORMAT.md-typen («samarbeidsplikt») → P-typekoden i databasen («samarbeid»).</summary>
+    public static readonly IReadOnlyDictionary<string, string> PlikttypeFraFasit =
+        Plikttyper.ToDictionary(t => t.FasitType, t => t.Kode, StringComparer.Ordinal);
+
+    /// <summary>
+    /// [Ny, issue #353, jf. L14 «modalitet bevares», <c>[LÅST]</c>] Modaliteten i teksten — speilet av CHECK
+    /// <c>ck_strukturkanter_modalitet</c>. <c>skal</c> (også «plikter», «har plikt til»), <c>kan</c>, <c>bor</c> («bør»). Bare
+    /// på P; NULL = ikke angitt (teksten har ikke et modalverb som avgjør det, f.eks. presens «Staten dekker …» — det gjettes
+    /// ikke at presens betyr «skal»).
+    /// <para>
+    /// <b>Hvorfor bare på P:</b> K er «kan» per definisjon (kompetanse er myndighet), og «kan ikke» er polaritet. På P sier
+    /// modaliteten hvor sterk plikten er: «skal samarbeide» (energiloven § 2-5) og «bør … skje i samarbeid» (samisk
+    /// opplæringsforskrift § 2) er ulike opplysninger (Johanns kommentar på energiloven:u27: «skal_samarbeide som blir mer
+    /// forpliktende»).
+    /// </para>
+    /// </summary>
+    public static readonly string[] Modaliteter = ["skal", "kan", "bor"];
+
+    /// <summary>[Ny, issue #353] R-typen fra en ordning til organet som forvalter den («Helsedirektoratet skal forvalte kapittel 5»,
+    /// folketrygdloven § 21-11 a første ledd). Hjemlet, avgrenset per kapittel/stønadsområde.</summary>
+    public const string ForvaltesAv = "forvaltes_av";
+
+    /// <summary>[Ny, issue #353] G-typen fra en ordning til rettssubjektet den tilhører (rettslig ansvarsbærer) — BARE når det er
+    /// hjemlet. Analysen merket «folketrygden tilhører staten» selv som en slutning uten kilde; uten hjemmel finnes ingen kant,
+    /// og hullet er synlig (CLAUDE.md §8).</summary>
+    public const string Tilhorer = "tilhorer";
+
+    /// <summary>
+    /// [Ny, issue #353] Hvilke kanter en <see cref="Nodetyper.Ordning">ordning</see> kan stå i. En ordning er ikke en aktør
+    /// (folketrygden fatter ingen vedtak, ansetter ingen og har ingen organer), men rettskilden gir den en funksjon:
+    /// pliktsubjekt i P («Folketrygden skal dekke …»), forvaltet av et organ (R <see cref="ForvaltesAv"/>) og tilhørende et
+    /// rettssubjekt (G <see cref="Tilhorer"/>). Som fra-node er bare disse lov; som til-node bare P (en betaling TIL en ordning
+    /// eller et fond). R <see cref="ForvaltesAv"/> og G <see cref="Tilhorer"/> krever omvendt at fra-noden ER en ordning — en
+    /// aktør «forvaltes ikke av» en annen i denne betydningen (det er eierskap/ledelse/sekretariat, R).
+    /// </summary>
+    public static bool OrdningLovSomFra(string kategori, string typekode) =>
+        kategori == Plikt || (kategori, typekode) == (Relasjon, ForvaltesAv) || (kategori, typekode) == (Organtilhorighet, Tilhorer);
+
+    /// <summary>[Ny, issue #353] Se <see cref="OrdningLovSomFra"/>.</summary>
+    public static bool OrdningLovSomTil(string kategori) => kategori == Plikt;
+
+    /// <summary>[Ny, issue #353] Typene som KREVER en ordning som fra-node.</summary>
+    public static bool KreverOrdningSomFra(string kategori, string typekode) =>
+        (kategori, typekode) == (Relasjon, ForvaltesAv) || (kategori, typekode) == (Organtilhorighet, Tilhorer);
+
     /// <summary>
     /// Kategoriene der en sykel er en registreringsfeil og avvises (Johanns valg i issue #164 for
     /// gruppe-av-gruppe, bevart her): medlemskap og områdesammensetning arves transitivt, så en ring ville
@@ -386,6 +484,8 @@ public static class Strukturkanter
         (Relasjon, "radgir", "gir råd til {0}", "får råd fra {0}"),
         (Relasjon, "oppretter", "oppretter {0}", "er opprettet av {0}"),
         (Relasjon, "avvikler", "avvikler {0}", "avvikles av {0}"),
+        // [Ny, issue #353] Fra en ordning (folketrygden) til organet som forvalter den — bare fra en ordning (OrdningLovSomFra).
+        (Relasjon, ForvaltesAv, "forvaltes av {0}", "forvalter {0}"),
 
         // ---- K kompetanse (aktør/rolle → motpart, bestemmelse eller sakstype) ----
         // [ENDRET, issue #341, Johanns beslutning P2 2026-10-08] Typologien er Johanns liste: instruksjon, tilsyn, klage,
@@ -401,6 +501,11 @@ public static class Strukturkanter
         // familierekkefølge — beslutning øverst. Nye typer i den runden: beslutning, oppretting, avvikling, ansettelse,
         // samordning, revisjon og stadfesting.
         .. Kompetansetyper.Select(t => (Kompetanse, t.Kode, $"har {t.Substantiv} {{0}}", $"{{0}} har {t.Substantiv} overfor denne")),
+
+        // ---- P plikt overfor motpart ([Ny, issue #353]) ----
+        // {0} er motpartsteksten StrukturkantTjeneste.Plikttekst bygger: «(skal) overfor B — objekt», eller objektet, eller
+        // «etter hjemmelen». Til-malen leses fra motpartens side.
+        .. Plikttyper.Select(t => (Plikt, t.Kode, $"har {t.Substantiv} {{0}}", $"{{0}} har {t.Substantiv} overfor denne")),
 
         // ---- M medlemskap (aktør/klasse/område → klasse) ----
         (Medlemskap, "medlem_av", "er medlem av {0}", "har medlem {0}"),
@@ -427,6 +532,8 @@ public static class Strukturkanter
         // antallet står i Objekt («fem dommere»), sakstypen i avgrensningen («andre saker enn etter første ledd første
         // punktum»). Typen er merket saksavhengig (SaksavhengigeTyper), og visningsteksten tar med objektet.
         (Organtilhorighet, SettesMed, "deltar i den enkelte sak i {0}", "settes i den enkelte sak med {0}"),
+        // [Ny, issue #353] Fra en ordning til rettssubjektet den tilhører — bare fra en ordning, og bare når det er hjemlet.
+        (Organtilhorighet, Tilhorer, "tilhører {0}", "har ordningen {0}"),
 
         // ---- I rolleinnehav (aktør → rolle) ----
         (Rolleinnehav, "innehar", "innehar rollen {0}", "innehas av {0}"),
