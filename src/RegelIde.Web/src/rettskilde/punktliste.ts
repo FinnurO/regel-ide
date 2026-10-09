@@ -51,7 +51,25 @@ export interface PunktVisning {
   merke: string;
   tekst: string;
   punkter: PunktVisning[];
+  /**
+   * [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Punktets underpunkter OG avslutninger, i
+   * dokumentrekkefølge — se {@link underordnetInnhold}. `punkter` over er de samme underpunktene uten
+   * avslutningene, beholdt for kallere som bare trenger punktene.
+   */
+  innhold: Underblokk[];
 }
+
+/**
+ * [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Én blokk av det som står under et ledd eller
+ * punkt: en sammenhengende punktliste, eller teksten etter en liste (en `avslutning`-node).
+ *
+ * <p>Avslutningsnoden finnes fordi Lovdata-importen før limte teksten etter lista inn i leddets egen
+ * tekst («… samt i Første punktum gjelder likevel …», energiloven § 10-2 annet ledd). Nå er den en egen
+ * node med eId `{ledd-eId}/avslutning` (`-2`, `-3` … ved flere lister), sortert etter punktene.</p>
+ */
+export type Underblokk =
+  | { type: 'punkter'; punkter: PunktVisning[] }
+  | { type: 'avslutning'; eid: string; tekst: string };
 
 /**
  * Teksten som må stå ved en punktliste for at leseren skal vite hva listemerkene er. Ligger her, ved
@@ -79,12 +97,41 @@ export const PUNKTMERKE_FORKLARING =
 export function underordnedePunkter(node: PunktNode): PunktVisning[] {
   return node.barn
     .filter((barn) => barn.nodeType === 'punkt' && barn.tekst != null && barn.tekst.trim() !== '')
-    .map((barn) => ({
-      eid: barn.eid,
-      merke: barn.nummer ?? sisteEidSegment(barn.eid),
-      tekst: barn.tekst!,
-      punkter: underordnedePunkter(barn),
-    }));
+    .map(tilPunktVisning);
+}
+
+function tilPunktVisning(barn: PunktNode): PunktVisning {
+  return {
+    eid: barn.eid,
+    merke: barn.nummer ?? sisteEidSegment(barn.eid),
+    tekst: barn.tekst!,
+    punkter: underordnedePunkter(barn),
+    innhold: underordnetInnhold(barn),
+  };
+}
+
+/**
+ * [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Det som står under en node, i den rekkefølgen
+ * det står i loven: punktene gruppert i lister, og avslutningene der de står — innledning (nodens egen
+ * tekst, vises av kalleren) → punkter → avslutning (→ punkter → avslutning-2 …).
+ *
+ * <p>Rekkefølgen er barnas rekkefølge, som er `Sorteringsrekkefolge` fra API-et (se
+ * {@link underordnedePunkter}). Samme filtrering som der: punkter og avslutninger uten egen tekst
+ * hoppes over, og andre nodetyper (ledd under en paragraf) tas ikke med.</p>
+ */
+export function underordnetInnhold(node: PunktNode): Underblokk[] {
+  const blokker: Underblokk[] = [];
+  for (const barn of node.barn) {
+    if (barn.tekst == null || barn.tekst.trim() === '') continue;
+    if (barn.nodeType === 'punkt') {
+      const siste = blokker[blokker.length - 1];
+      if (siste?.type === 'punkter') siste.punkter.push(tilPunktVisning(barn));
+      else blokker.push({ type: 'punkter', punkter: [tilPunktVisning(barn)] });
+    } else if (barn.nodeType === 'avslutning') {
+      blokker.push({ type: 'avslutning', eid: barn.eid, tekst: barn.tekst });
+    }
+  }
+  return blokker;
 }
 
 /** Siste eId-segment («punkt-3»), som merke-fallback for en punktnode uten `nummer`. */
@@ -132,6 +179,13 @@ const AVSLUTTENDE_TEGN = /[»"'’”)\]\s]+$/u;
  * («… dersom følgende vilkår er oppfylt Formidleren er likevel ansvarlig …», «… inneholde følgende
  * opplysninger Returer av varer …»). Ingen falske positive observert. En falsk
  * positiv koster dessuten bare en fotnote for mye, aldri en gal påstand om lovens innhold.</p>
+ */
+/*
+ * [ENDRET, avslutningsnode-runden, 2026-10-09, issue #361] Årsaken over er rettet i importen: teksten
+ * etter lista er nå en egen `avslutning`-node, og leddets tekst er bare innledningen. Slutningen
+ * trengs fortsatt for rettskilder som er importert FØR rettingen og ikke resynket ennå (der står
+ * sammenskjøtingen i basen). `RettskildeDetalj` viser derfor merknaden bare når noden IKKE har en
+ * avslutningsnode.
  */
 export function harTekstEtterListen(tekst: string | null | undefined, antallPunkter: number): boolean {
   if (antallPunkter === 0 || !tekst) return false;

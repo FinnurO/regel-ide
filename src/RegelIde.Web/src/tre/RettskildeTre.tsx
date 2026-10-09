@@ -14,6 +14,10 @@
  *   ledd            Bærer løpeteksten. Nummermarkør i en liten sirkel,
  *                   tittel erstattes av et tekstutdrag (2 linjer).
  *   punkt           Bokstav-/tallpunkt. Markør «a)» i mono, dempet.
+ *   avslutning      [Ny, #361, 2026-10-09] Teksten etter en punktliste i et
+ *                   ledd/punkt (AKN wrapUp). Står etter punktene, på samme
+ *                   innrykk som dem, uten markør: den er fortsettelsen av
+ *                   leddet, ikke et nytt punkt. Tekstutdrag som ledd/punkt.
  *
  * Dybde markeres med BÅDE innrykk og en tynn ledelinje (guide rail), som
  * er det som gjør 4–5 nivåer lesbart. Opphevet paragraf: gjennomstreket
@@ -35,7 +39,7 @@ import { Tag } from '@digdir/designsystemet-react';
 
 /* ------------------------------ typer ------------------------------ */
 
-export type NodeType = 'kapittel' | 'underinndeling' | 'paragraf' | 'ledd' | 'punkt';
+export type NodeType = 'kapittel' | 'underinndeling' | 'paragraf' | 'ledd' | 'punkt' | 'avslutning';
 
 /** Status på virksomhetens kommentar knyttet til noden (ikke på lovteksten). */
 export type KommentarStatus = 'under_arbeid' | 'til_godkjenning' | 'publisert' | 'ma_revideres';
@@ -48,7 +52,7 @@ export interface RettskildeNode {
   merke: string;
   /** Overskrift. Finnes på kapittel/underinndeling/paragraf. */
   tittel?: string;
-  /** Løpetekst. Finnes bare på ledd og punkt. */
+  /** Løpetekst. Finnes bare på ledd, punkt og avslutning. */
   tekst?: string;
   /** Kun paragraf. Opphevet paragraf produseres som node, men uten barn. */
   opphevet?: boolean;
@@ -73,7 +77,7 @@ export interface RettskildeTreProps {
 /* --------------------------- nivåstiler --------------------------- */
 
 const INDENT: Record<NodeType, number> = {
-  kapittel: 0, underinndeling: 1, paragraf: 1, ledd: 2, punkt: 3,
+  kapittel: 0, underinndeling: 1, paragraf: 1, ledd: 2, punkt: 3, avslutning: 3,
 };
 
 const STATUS_META: Record<KommentarStatus, { label: string; color: string }> = {
@@ -100,6 +104,7 @@ function rowType(t: NodeType, opphevet?: boolean) {
     case 'ledd':
       return { fontSize: 'var(--ds-font-size-1)', fontWeight: 'var(--ds-font-weight-regular)', color: 'var(--ds-color-neutral-text-subtle)' };
     case 'punkt':
+    case 'avslutning':
       return { fontSize: 'var(--ds-font-size-1)', fontWeight: 'var(--ds-font-weight-regular)', color: 'var(--ds-color-neutral-text-subtle)' };
   }
 }
@@ -126,6 +131,7 @@ function markStyle(t: NodeType, opphevet?: boolean): React.CSSProperties {
         border: '1px solid var(--ds-color-neutral-border-subtle)', color: 'var(--ds-color-neutral-text-subtle)',
         fontSize: 'var(--ds-font-size-1)' };
     case 'punkt':
+    case 'avslutning': // tom markør (nummer er null), men samme bredde, så teksten flukter med punktene
       return { ...base, width: 20, color: 'var(--ds-color-neutral-text-subtle)',
         fontSize: 'var(--ds-font-size-1)', fontWeight: 'var(--ds-font-weight-medium)' };
     default:
@@ -192,7 +198,7 @@ export function RettskildeTre({
             }}
             style={{
               position: 'relative',
-              display: 'flex', alignItems: n.nodeType === 'ledd' || n.nodeType === 'punkt' ? 'flex-start' : 'center',
+              display: 'flex', alignItems: n.nodeType === 'ledd' || n.nodeType === 'punkt' || n.nodeType === 'avslutning' ? 'flex-start' : 'center',
               gap: 'var(--ds-size-2)',
               // Kapittel får luft over + skillelinje: markerer seksjonsstart.
               marginTop: n.nodeType === 'kapittel' ? 'var(--ds-size-4)' : 0,
@@ -231,7 +237,7 @@ export function RettskildeTre({
             {/* Etikett: tittel for kapittel/underinndeling/paragraf, tekstutdrag for ledd/punkt */}
             <span style={{
               flex: 1, minWidth: 0, ...type,
-              display: '-webkit-box', WebkitLineClamp: n.nodeType === 'ledd' || n.nodeType === 'punkt' ? 2 : 1,
+              display: '-webkit-box', WebkitLineClamp: n.nodeType === 'ledd' || n.nodeType === 'punkt' || n.nodeType === 'avslutning' ? 2 : 1,
               WebkitBoxOrient: 'vertical', overflow: 'hidden',
               lineHeight: 'var(--ds-line-height-sm)',
             }}>
