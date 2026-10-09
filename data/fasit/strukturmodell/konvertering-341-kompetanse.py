@@ -20,6 +20,8 @@ Reglene (FORMAT.md er oppdatert tilsvarende):
        noder/<kilde>.json — i en ledsagende kilde med tittel «Delegering …») er en GJENNOMFØRT delegering → relasjon/har_delegert_til; ellers (loven sier
        at X KAN delegere) → kompetanse/delegeringskompetanse. Unntakene i et delegeringsvedtak (negativ polaritet)
        beholdes som egne har_delegert_til-rader: de er avgrensning av delegeringen, ikke negativ kompetanse.
+       [ENDRET, #356, 2026-10-09] Rettet i konvertering-356-fasitrester.py (R6): unntakene står nå i avgrensningen på den
+       positive kanten, og de negative radene er slettet. Dette skriptet røres ikke (det konverterer bare de gamle typene).
   P2 — typologi og normform:
        forskriftskompetanse → normgivningskompetanse + normform «forskrift» (alle 205),
        annet:vedtektskompetanse → normgivningskompetanse + normform «vedtekter»,
