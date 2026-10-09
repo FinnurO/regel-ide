@@ -20,11 +20,11 @@ samme eId + kategori + type + fra/til-tekstform som et mønsterutsagn. **Bare m�
 
 | Lag | Fasit | Predikert | Treff | Presisjon | Gjenfinning | Presisjon u/endepunkt | Gjenfinning u/endepunkt |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| Mønster | 1797 | 903 | 848 | 93,9 % | 47,2 % | 95,9 % | 48,2 % |
-| KI | 1797 | 1043 | 382 | 36,6 % | 21,3 % | 44,1 % | 25,6 % |
-| Mønster ∪ KI | 1797 | 1697 | 990 | 58,3 % | 55,1 % | 62,8 % | 59,3 % |
+| Mønster | 1798 | 934 | 866 | 92,7 % | 48,2 % | 94,9 % | 49,3 % |
+| KI | 1798 | 1043 | 381 | 36,5 % | 21,2 % | 44,1 % | 25,6 % |
+| Mønster ∪ KI | 1798 | 1723 | 1002 | 58,2 % | 55,7 % | 62,7 % | 60,1 % |
 
-Av 1797 fasitutsagn traff bare mønsterlaget 611, bare KI-laget 145.
+Av 1798 fasitutsagn traff bare mønsterlaget 624, bare KI-laget 139.
 
 ## Per kategori (kanttype, `docs/33` §4.3)
 
@@ -32,17 +32,17 @@ P = presisjon, G = gjenfinning (med endepunktkrav).
 
 | Kategori | Fasit | Mønster pred. | Mønster P | Mønster G | KI pred. | KI P | KI G | Union P | Union G | Bare mønster | Bare KI |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| R | 122 | 4 | 75,0 % | 2,5 % | 78 | 29,5 % | 18,9 % | 31,7 % | 21,3 % | 3 | 23 |
-| K | 577 | 324 | 88,0 % | 49,4 % | 727 | 46,2 % | 58,2 % | 47,9 % | 66,6 % | 51 | 102 |
+| R | 124 | 4 | 75,0 % | 2,4 % | 78 | 29,5 % | 18,5 % | 31,7 % | 21,0 % | 3 | 23 |
+| K | 577 | 324 | 88,0 % | 49,4 % | 727 | 46,1 % | 58,1 % | 47,8 % | 66,4 % | 51 | 101 |
+| P | 77 | 31 | 58,1 % | 23,4 % | 43 | 32,6 % | 18,2 % | 39,1 % | 35,1 % | 13 | 9 |
 | M | 48 | 0 | – | 0,0 % | 22 | 4,5 % | 2,1 % | 4,5 % | 2,1 % | 0 | 1 |
 | O | 177 | 122 | 89,3 % | 61,6 % | 11 | 0,0 % | 0,0 % | 82,0 % | 61,6 % | 109 | 0 |
 | A | 449 | 419 | 100,0 % | 93,3 % | 51 | 0,0 % | 0,0 % | 89,1 % | 93,3 % | 419 | 0 |
 | G | 43 | 6 | 66,7 % | 9,3 % | 41 | 12,2 % | 11,6 % | 12,8 % | 14,0 % | 1 | 2 |
 | I | 0 | 0 | – | – | 0 | – | – | – | – | 0 | 0 |
 | T | 21 | 0 | – | 0,0 % | 14 | 14,3 % | 9,5 % | 14,3 % | 9,5 % | 0 | 2 |
-| annet | 321 | 28 | 100,0 % | 8,7 % | 60 | 1,7 % | 0,3 % | 33,0 % | 9,0 % | 28 | 1 |
-| senere lag | 39 | 0 | – | 0,0 % | 39 | 35,9 % | 35,9 % | 35,9 % | 35,9 % | 0 | 14 |
-| **Alle** | 1797 | 903 | 93,9 % | 47,2 % | 1043 | 36,6 % | 21,3 % | 58,3 % | 55,1 % | 611 | 145 |
+| annet | 282 | 28 | 100,0 % | 9,9 % | 56 | 1,8 % | 0,4 % | 34,5 % | 10,3 % | 28 | 1 |
+| **Alle** | 1798 | 934 | 92,7 % | 48,2 % | 1043 | 36,5 % | 21,2 % | 58,2 % | 55,7 % | 624 | 139 |
 
 ### KI uten endepunktkrav (bare eId + kategori + type)
 
@@ -50,26 +50,26 @@ Avstanden til tabellen over er utsagn KI-en gjenkjente, men med feil eller mangl
 
 | Kategori | KI P u/endepunkt | KI G u/endepunkt | Mønster P u/endepunkt | Mønster G u/endepunkt |
 |---|---:|---:|---:|---:|
-| R | 44,9 % | 28,7 % | 75,0 % | 2,5 % |
-| K | 51,4 % | 64,8 % | 89,5 % | 50,3 % |
+| R | 44,9 % | 28,2 % | 75,0 % | 2,4 % |
+| K | 51,3 % | 64,6 % | 89,5 % | 50,3 % |
+| P | 46,5 % | 26,0 % | 64,5 % | 26,0 % |
 | M | 13,6 % | 6,3 % | – | 0,0 % |
 | O | 81,8 % | 5,1 % | 98,4 % | 67,8 % |
 | A | 7,8 % | 0,9 % | 100,0 % | 93,3 % |
 | G | 22,0 % | 20,9 % | 100,0 % | 14,0 % |
 | I | – | – | – | – |
 | T | 42,9 % | 28,6 % | – | 0,0 % |
-| annet | 1,7 % | 0,3 % | 100,0 % | 8,7 % |
-| senere lag | 48,7 % | 48,7 % | – | 0,0 % |
+| annet | 1,8 % | 0,4 % | 100,0 % | 9,9 % |
 
 ## Per kilde
 
 | Kilde | Fasit | Mønster pred. | Mønster P | Mønster G | KI pred. | KI P | KI G | Union P | Union G | Bare mønster | Bare KI |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| domstolloven | 764 | 539 | 95,9 % | 67,7 % | 344 | 17,2 % | 7,7 % | 63,7 % | 70,2 % | 477 | 19 |
-| energiloven | 254 | 115 | 93,9 % | 42,5 % | 212 | 58,0 % | 48,4 % | 61,3 % | 57,9 % | 25 | 40 |
-| helse-og-omsorgstjenesteloven | 192 | 50 | 94,0 % | 24,5 % | 133 | 51,9 % | 35,9 % | 51,9 % | 35,9 % | 2 | 24 |
-| sameloven | 285 | 131 | 88,5 % | 40,7 % | 70 | 31,4 % | 7,7 % | 68,1 % | 44,9 % | 106 | 12 |
-| spesialisthelsetjenesteloven | 302 | 68 | 88,2 % | 19,9 % | 284 | 38,4 % | 36,1 % | 37,3 % | 36,4 % | 1 | 50 |
+| domstolloven | 764 | 540 | 95,7 % | 67,7 % | 344 | 17,2 % | 7,7 % | 63,7 % | 70,2 % | 477 | 19 |
+| energiloven | 254 | 117 | 94,0 % | 43,3 % | 212 | 58,0 % | 48,4 % | 61,6 % | 58,7 % | 27 | 40 |
+| helse-og-omsorgstjenesteloven | 192 | 58 | 87,9 % | 26,6 % | 133 | 51,1 % | 35,4 % | 49,6 % | 35,9 % | 3 | 20 |
+| sameloven | 285 | 133 | 88,7 % | 41,4 % | 70 | 31,4 % | 7,7 % | 68,4 % | 45,6 % | 108 | 12 |
+| spesialisthelsetjenesteloven | 303 | 86 | 81,4 % | 23,1 % | 284 | 38,4 % | 36,0 % | 37,9 % | 38,9 % | 9 | 48 |
 
 ## Per type
 
@@ -87,10 +87,11 @@ Alle typer fra FORMAT.md-listene som står i fasiten eller som et av lagene pred
 | R relasjon / representerer | 6 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | R relasjon / administrativt_underordnet | 5 | 0 | – | 0,0 % | 5 | 0,0 % | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
 | R konstituerende / avvikler | 2 | 0 | – | 0,0 % | 4 | 0,0 % | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
+| R relasjon / forvaltes_av | 2 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | R organsammensetning / ledes_av | 1 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | R relasjon / sekretariat_for | 1 | 0 | – | 0,0 % | 2 | 50,0 % | 100,0 % | 50,0 % | 100,0 % | 0 | 1 |
 | K kompetanse / normgivningskompetanse | 210 | 198 | 92,9 % | 87,6 % | 196 | 90,8 % | 84,8 % | 90,2 % | 91,9 % | 16 | 10 |
-| K kompetanse / vedtakskompetanse | 153 | 78 | 80,8 % | 41,2 % | 355 | 27,9 % | 64,7 % | 29,8 % | 74,5 % | 16 | 52 |
+| K kompetanse / vedtakskompetanse | 150 | 78 | 80,8 % | 42,0 % | 349 | 27,5 % | 64,0 % | 29,4 % | 74,0 % | 16 | 49 |
 | K kompetanse / oppnevningskompetanse | 79 | 10 | 70,0 % | 8,9 % | 55 | 32,7 % | 22,8 % | 35,4 % | 29,1 % | 5 | 16 |
 | K kompetanse / instruksjonskompetanse | 27 | 4 | 100,0 % | 14,8 % | 33 | 30,3 % | 37,0 % | 37,8 % | 51,9 % | 4 | 10 |
 | K kompetanse / tilsynskompetanse | 26 | 5 | 100,0 % | 19,2 % | 24 | 54,2 % | 50,0 % | 54,5 % | 46,2 % | 0 | 8 |
@@ -101,12 +102,19 @@ Alle typer fra FORMAT.md-listene som står i fasiten eller som et av lagene pred
 | K kompetanse / avsettingskompetanse | 5 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | K kompetanse / organisasjonskompetanse | 4 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | K kompetanse / omgjoringskompetanse | 3 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
+| K kompetanse / paleggskompetanse | 3 | 0 | – | 0,0 % | 6 | 33,3 % | 66,7 % | 33,3 % | 66,7 % | 0 | 2 |
 | K kompetanse / sanksjonskompetanse | 3 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | K kompetanse / foreleggingskompetanse | 2 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | K kompetanse / samtykkekompetanse | 2 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | K kompetanse / beslutningskompetanse | 1 | 1 | 0,0 % | 0,0 % | 0 | – | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
 | K kompetanse / revisjonskompetanse | 1 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | K kompetanse / samordningskompetanse | 1 | 3 | 33,3 % | 100,0 % | 0 | – | 0,0 % | 33,3 % | 100,0 % | 1 | 0 |
+| P plikt / samarbeidsplikt | 21 | 9 | 77,8 % | 33,3 % | 16 | 56,3 % | 42,9 % | 56,5 % | 61,9 % | 4 | 6 |
+| P plikt / betalingsplikt | 18 | 19 | 47,4 % | 50,0 % | 1 | 0,0 % | 0,0 % | 47,4 % | 50,0 % | 9 | 0 |
+| P plikt / bistandsplikt | 14 | 0 | – | 0,0 % | 21 | 14,3 % | 21,4 % | 14,3 % | 21,4 % | 0 | 3 |
+| P plikt / informasjonsplikt | 13 | 0 | – | 0,0 % | 2 | 0,0 % | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
+| P plikt / konsultasjonsplikt | 8 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
+| P plikt / avtaleplikt | 3 | 3 | 66,7 % | 66,7 % | 3 | 66,7 % | 66,7 % | 50,0 % | 66,7 % | 0 | 0 |
 | M medlemskap / medlem_av | 30 | 0 | – | 0,0 % | 22 | 4,5 % | 3,3 % | 4,5 % | 3,3 % | 0 | 1 |
 | M medlemskap / inngar_i | 18 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | O sammensetning_omrade / bestar_av | 108 | 75 | 93,3 % | 64,8 % | 11 | 0,0 % | 0,0 % | 81,4 % | 64,8 % | 70 | 0 |
@@ -119,8 +127,6 @@ Alle typer fra FORMAT.md-listene som står i fasiten eller som et av lagene pred
 | G relasjon / del_av | 9 | 0 | – | 0,0 % | 19 | 0,0 % | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
 | G organsammensetning / settes_med | 3 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | T konstituerende / skal_finnes | 21 | 0 | – | 0,0 % | 14 | 14,3 % | 9,5 % | 14,3 % | 9,5 % | 0 | 2 |
-| senere lag relasjon / samarbeider_med | 24 | 0 | – | 0,0 % | 19 | 57,9 % | 45,8 % | 57,9 % | 45,8 % | 0 | 11 |
-| senere lag relasjon / bistar | 15 | 0 | – | 0,0 % | 20 | 15,0 % | 20,0 % | 15,0 % | 20,0 % | 0 | 3 |
 
 ## Kall, tokens og kostnad
 
@@ -192,19 +198,19 @@ Eksempler (én fra hver årsak i tur, inntil 20):
 | 19 | domstolloven | `falskt_sitat` | lov/1915/08/13/5/nor/§2/ledd-1 | sammensetning_omrade / bestar_av | Særdomstoler er: jordskifterettene; de overordentlige domstoler, som nedsettes etter § 29; konsulrettene i utlandet; Riksretten. | står ikke i noden (parafrase eller oppdiktet) |
 | 20 | domstolloven | `ukjent_kategori` | lov/1915/08/13/5/nor/§62/ledd-1 | annet / annet:inkorporasjon | For tjenestemenn ved domstolene gjelder lov 4. mars 1983 nr. 3 om statens tjenestemenn m.m. | Kategorien «annet» står ikke i FORMAT.md. |
 
-## KI: falske positive (661)
+## KI: falske positive (662)
 
 | Kategori | Feil/manglende aktør | Ikke i fasiten |
 |---|---:|---:|
 | R | 13 | 42 |
-| K | 55 | 336 |
+| K | 55 | 337 |
+| P | 8 | 21 |
 | M | 2 | 19 |
 | O | 9 | 2 |
 | A | 4 | 47 |
 | G | 5 | 31 |
 | T | 4 | 8 |
-| annet | 0 | 59 |
-| senere lag | 7 | 18 |
+| annet | 0 | 55 |
 
 Eksempler (én fra hver kategori i tur, inntil 20):
 
@@ -212,22 +218,22 @@ Eksempler (én fra hver kategori i tur, inntil 20):
 |---|---|---|---|---|---|---|
 | 1 | domstolloven | lov/1915/08/13/5/nor/§22/ledd-1 | rapporterer_til | ikke i fasiten | Kongen → Stortinget | Endringer i rettskretsene skal forelegges for Stortinget. |
 | 2 | domstolloven | lov/1915/08/13/5/nor/§21/ledd-2 | vedtakskompetanse | ikke i fasiten | domstolens leder → null | I vidløftige saker kan domstolens leder bestemme at en varadommer skal følge forhandlingen og tre inn dersom dommeren får forfall. |
-| 3 | domstolloven | lov/1915/08/13/5/nor/§55a/ledd-4 | medlem_av | ikke i fasiten | Direktøren for domstoladministrasjonen → Innstillingsrådet | Direktøren for domstoladministrasjonen eller den direktøren bemyndiger, har møterett i Innstillingsrådet. |
-| 4 | domstolloven | forskrift/2021/01/22/163/nor/§10/ledd-1 | bestar_av | feil/manglende aktør | null → Lagsogn | Landet deles inn i lagdømmer som består av flere lagsogn. Hvert lagdømme har en lagmannsrett som er ankeinstans for flere rettskretser. |
-| 5 | domstolloven | lov/1915/08/13/5/nor/§67/ledd-1 | har_ansvarsomrade | ikke i fasiten | kommunen → null | Kommunen skal oppfordre allmennheten til å foreslå kandidater til valget. |
-| 6 | domstolloven | lov/1915/08/13/5/nor/§3/ledd-1 | har_medlemmer | feil/manglende aktør | Høyesterett → justitiarius | Retten skal ha en justitiarius og nitten andre dommere. |
-| 7 | domstolloven | lov/1915/08/13/5/nor/§23/ledd-1 | skal_finnes | ikke i fasiten | domstoladministrasjonen → null | I de domssogn, hvor domstoladministrasjonen finner det påkrevet, skal dommerfullmektiger ansettes. |
-| 8 | domstolloven | lov/1915/08/13/5/nor/§1/ledd-2 | annet:har_begrenset_domsmyndighet | ikke i fasiten | Forliksrådene → null | Forliksrådene er meklingsinstitusjoner med begrenset domsmyndighet |
-| 9 | domstolloven | lov/1915/08/13/5/nor/§33b/ledd-2 | bistar | ikke i fasiten | direktøren → styret | For lederstillinger utenom stillingen som domstoladministrasjonens direktør, avgir direktøren forslag. |
+| 3 | domstolloven | lov/1915/08/13/5/nor/§33b/ledd-2 | bistandsplikt | ikke i fasiten | direktøren → styret | For lederstillinger utenom stillingen som domstoladministrasjonens direktør, avgir direktøren forslag. |
+| 4 | domstolloven | lov/1915/08/13/5/nor/§55a/ledd-4 | medlem_av | ikke i fasiten | Direktøren for domstoladministrasjonen → Innstillingsrådet | Direktøren for domstoladministrasjonen eller den direktøren bemyndiger, har møterett i Innstillingsrådet. |
+| 5 | domstolloven | forskrift/2021/01/22/163/nor/§10/ledd-1 | bestar_av | feil/manglende aktør | null → Lagsogn | Landet deles inn i lagdømmer som består av flere lagsogn. Hvert lagdømme har en lagmannsrett som er ankeinstans for flere rettskretser. |
+| 6 | domstolloven | lov/1915/08/13/5/nor/§67/ledd-1 | har_ansvarsomrade | ikke i fasiten | kommunen → null | Kommunen skal oppfordre allmennheten til å foreslå kandidater til valget. |
+| 7 | domstolloven | lov/1915/08/13/5/nor/§3/ledd-1 | har_medlemmer | feil/manglende aktør | Høyesterett → justitiarius | Retten skal ha en justitiarius og nitten andre dommere. |
+| 8 | domstolloven | lov/1915/08/13/5/nor/§23/ledd-1 | skal_finnes | ikke i fasiten | domstoladministrasjonen → null | I de domssogn, hvor domstoladministrasjonen finner det påkrevet, skal dommerfullmektiger ansettes. |
+| 9 | domstolloven | lov/1915/08/13/5/nor/§1/ledd-2 | annet:har_begrenset_domsmyndighet | ikke i fasiten | Forliksrådene → null | Forliksrådene er meklingsinstitusjoner med begrenset domsmyndighet |
 | 10 | domstolloven | lov/1915/08/13/5/nor/§25/ledd-1 | rapporterer_til | ikke i fasiten | Kongen → Stortinget | Endringer i de faste rettsstedene skal forelegges for Stortinget. |
 | 11 | domstolloven | lov/1915/08/13/5/nor/§21/ledd-2 | vedtakskompetanse | ikke i fasiten | domstolen → null | Når retten settes med en dommer og en varadommer og det bare er en fast dommer ved domstolen, tilkaller domstolen en dommer etter reglene i domstolloven § 19 an … |
-| 12 | domstolloven | lov/1915/08/13/5/nor/§66/ledd-1 | medlem_av | ikke i fasiten | kommunestyret → utvalgene av meddommere | Medlemmene til utvalgene av meddommere velges av kommunestyret selv hvert fjerde år. |
-| 13 | domstolloven | forskrift/2021/01/22/163/nor/§11/ledd-1 | bestar_av | feil/manglende aktør | Hålogaland lagdømme → null | Lagsognene Nordland, Romsa/Troms og Finnmárku/Finnmark utgjør Hålogaland lagdømme. |
-| 14 | domstolloven | lov/1915/08/13/5/nor/§69/ledd-1 | har_ansvarsomrade | ikke i fasiten | kommunen → null | Fortegnelse over de valgte meddommere føres av kommunen. |
-| 15 | domstolloven | lov/1915/08/13/5/nor/§27/ledd-2 | har_medlemmer | feil/manglende aktør | forliksråd → null | Forliksrådet skal ha tre medlemmer og like mange varamedlemmer. |
-| 16 | domstolloven | lov/1915/08/13/5/nor/§27/ledd-1 | skal_finnes | feil/manglende aktør | kommune → null | I hver kommune skal det være et forliksråd. |
-| 17 | domstolloven | lov/1915/08/13/5/nor/§2/ledd-2 | annet:gjelder_lov | ikke i fasiten | jordskifterettene → null | For de domstoler som er nevnt under nr. 1-4, gjelder denne lov |
-| 18 | domstolloven | lov/1915/08/13/5/nor/§33b/ledd-2 | bistar | ikke i fasiten | innstillingsråd → styret | For andre stillinger avgis innstillingen fra et innstillingsråd etter tjenestemannsloven. |
+| 12 | domstolloven | lov/1915/08/13/5/nor/§33b/ledd-2 | bistandsplikt | ikke i fasiten | innstillingsråd → styret | For andre stillinger avgis innstillingen fra et innstillingsråd etter tjenestemannsloven. |
+| 13 | domstolloven | lov/1915/08/13/5/nor/§66/ledd-1 | medlem_av | ikke i fasiten | kommunestyret → utvalgene av meddommere | Medlemmene til utvalgene av meddommere velges av kommunestyret selv hvert fjerde år. |
+| 14 | domstolloven | forskrift/2021/01/22/163/nor/§11/ledd-1 | bestar_av | feil/manglende aktør | Hålogaland lagdømme → null | Lagsognene Nordland, Romsa/Troms og Finnmárku/Finnmark utgjør Hålogaland lagdømme. |
+| 15 | domstolloven | lov/1915/08/13/5/nor/§69/ledd-1 | har_ansvarsomrade | ikke i fasiten | kommunen → null | Fortegnelse over de valgte meddommere føres av kommunen. |
+| 16 | domstolloven | lov/1915/08/13/5/nor/§27/ledd-2 | har_medlemmer | feil/manglende aktør | forliksråd → null | Forliksrådet skal ha tre medlemmer og like mange varamedlemmer. |
+| 17 | domstolloven | lov/1915/08/13/5/nor/§27/ledd-1 | skal_finnes | feil/manglende aktør | kommune → null | I hver kommune skal det være et forliksråd. |
+| 18 | domstolloven | lov/1915/08/13/5/nor/§2/ledd-2 | annet:gjelder_lov | ikke i fasiten | jordskifterettene → null | For de domstoler som er nevnt under nr. 1-4, gjelder denne lov |
 | 19 | domstolloven | lov/1915/08/13/5/nor/§33c/ledd-1 | rapporterer_til | ikke i fasiten | domstoladministrasjonen → departementet | Domstoladministrasjonen fremmer forslag til budsjett for domstolene for departementet. |
 | 20 | domstolloven | lov/1915/08/13/5/nor/§22/ledd-1 | vedtakskompetanse | ikke i fasiten | Kongen → null | Rikets inndeling i domssogn for tingrettene (rettskretser) bestemmes av Kongen. |
 
@@ -237,7 +243,7 @@ Eksempler (én fra hver kategori i tur, inntil 20):
 |---|---:|---:|---:|---:|
 | A ansvarsomrade / har_ansvarsomrade | 381 | 381 | 24 | 24 |
 | K kompetanse / normgivningskompetanse | 210 | 32 | 26 | 17 |
-| K kompetanse / vedtakskompetanse | 153 | 54 | 90 | 39 |
+| K kompetanse / vedtakskompetanse | 150 | 54 | 87 | 39 |
 | O sammensetning_omrade / bestar_av | 108 | 108 | 38 | 38 |
 | K kompetanse / oppnevningskompetanse | 79 | 61 | 72 | 56 |
 | O sammensetning_omrade / del_av | 69 | 69 | 30 | 30 |
@@ -247,23 +253,23 @@ Eksempler (én fra hver kategori i tur, inntil 20):
 | annet ansvarsomrade / annet:sogner_til | 28 | 28 | 0 | 0 |
 | K kompetanse / instruksjonskompetanse | 27 | 17 | 23 | 13 |
 | K kompetanse / tilsynskompetanse | 26 | 13 | 21 | 14 |
-| senere lag relasjon / samarbeider_med | 24 | 13 | 24 | 13 |
 | K kompetanse / klagekompetanse | 22 | 16 | 15 | 12 |
 | G organsammensetning / har_medlemmer | 21 | 18 | 17 | 17 |
+| P plikt / samarbeidsplikt | 21 | 12 | 14 | 8 |
 | T konstituerende / skal_finnes | 21 | 19 | 21 | 19 |
 | R relasjon / har_delegert_til | 20 | 20 | 17 | 17 |
 | K kompetanse / delegeringskompetanse | 19 | 12 | 11 | 8 |
+| P plikt / betalingsplikt | 18 | 18 | 9 | 9 |
 | M medlemskap / inngar_i | 18 | 18 | 18 | 18 |
-| senere lag relasjon / bistar | 15 | 12 | 15 | 12 |
+| P plikt / bistandsplikt | 14 | 11 | 14 | 11 |
 | R konstituerende / oppretter | 14 | 10 | 14 | 10 |
 | R relasjon / eies_av | 13 | 12 | 13 | 12 |
-| annet relasjon / annet:informasjonsdeling | 12 | 12 | 12 | 12 |
+| P plikt / informasjonsplikt | 13 | 13 | 13 | 13 |
 | R relasjon / ledes_av | 12 | 10 | 12 | 10 |
-| annet annet:finansieringsansvar / annet:dekker_utgifter_for | 11 | 11 | 11 | 11 |
 | K kompetanse / overprovingskompetanse | 11 | 11 | 11 | 11 |
 | G organsammensetning / har_organ | 10 | 8 | 10 | 8 |
 | R relasjon / radgir | 10 | 8 | 10 | 8 |
 | annet kompetanse / annet:forkynningskompetanse | 9 | 9 | 9 | 9 |
 | annet medlemskap / annet:klasse_definert_ved_tjenestekrets | 9 | 9 | 9 | 9 |
-| … 171 typer til | 319 | | | |
+| … 170 typer til | 319 | | | |
 

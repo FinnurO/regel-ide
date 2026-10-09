@@ -2723,8 +2723,8 @@
       "id": "u5",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§1-4/ledd-1",
       "sitat": "De særlige utgifter som påføres fylkeskommuner og kommuner ved valg til Sametinget dekkes av staten.",
-      "kategori": "relasjon",
-      "type": "annet:finansieringsansvar",
+      "kategori": "plikt",
+      "type": "betalingsplikt",
       "fra": "a5",
       "til": "a6",
       "objekt": null,
@@ -2733,14 +2733,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Økonomisk ansvarsrelasjon mellom rettssubjekter (ingen type for dette). Forutsetter også at fylkeskommuner/kommuner har oppgaver ved sametingsvalget (ikke sagt her)."
+      "kommentar": "Økonomisk ansvarsrelasjon mellom rettssubjekter (ingen type for dette). Forutsetter også at fylkeskommuner/kommuner har oppgaver ved sametingsvalget (ikke sagt her). [#353] Til = «fylkeskommuner»: teksten sier hvem utgiftene er sine (genitiv / «som påføres»). [#353] Modalitet skal: normativ presens.",
+      "modalitet": "skal"
     },
     {
       "id": "u6",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§1-4/ledd-1",
       "sitat": "De særlige utgifter som påføres fylkeskommuner og kommuner ved valg til Sametinget dekkes av staten.",
-      "kategori": "relasjon",
-      "type": "annet:finansieringsansvar",
+      "kategori": "plikt",
+      "type": "betalingsplikt",
       "fra": "a5",
       "til": "a7",
       "objekt": null,
@@ -2749,7 +2750,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Som forrige, for kommunene."
+      "kommentar": "Som forrige, for kommunene. [#353] Til = «kommuner»: teksten sier hvem utgiftene er sine (genitiv / «som påføres»). [#353] Modalitet skal: normativ presens.",
+      "modalitet": "skal"
     },
     {
       "id": "u7",
@@ -6416,8 +6418,8 @@
       "id": "u234",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§4-3/ledd-1/punkt-1",
       "sitat": "regjeringen, departementer, direktorater og andre underliggende virksomheter",
-      "kategori": "relasjon",
-      "type": "annet:konsultasjonsplikt_overfor",
+      "kategori": "plikt",
+      "type": "konsultasjonsplikt",
       "fra": "a146",
       "til": "a1",
       "objekt": null,
@@ -6426,14 +6428,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "'til' (Sametinget) utledet av § 4-2; gjelder også andre representanter for berørte samiske interesser."
+      "kommentar": "'til' (Sametinget) utledet av § 4-2; gjelder også andre representanter for berørte samiske interesser.",
+      "modalitet": "skal"
     },
     {
       "id": "u235",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§4-3/ledd-1/punkt-1",
       "sitat": "regjeringen, departementer, direktorater og andre underliggende virksomheter",
-      "kategori": "relasjon",
-      "type": "annet:konsultasjonsplikt_overfor",
+      "kategori": "plikt",
+      "type": "konsultasjonsplikt",
       "fra": "a147",
       "til": "a1",
       "objekt": null,
@@ -6442,14 +6445,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "'til' (Sametinget) utledet av § 4-2; gjelder også andre representanter for berørte samiske interesser."
+      "kommentar": "'til' (Sametinget) utledet av § 4-2; gjelder også andre representanter for berørte samiske interesser.",
+      "modalitet": "skal"
     },
     {
       "id": "u236",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§4-3/ledd-1/punkt-1",
       "sitat": "regjeringen, departementer, direktorater og andre underliggende virksomheter",
-      "kategori": "relasjon",
-      "type": "annet:konsultasjonsplikt_overfor",
+      "kategori": "plikt",
+      "type": "konsultasjonsplikt",
       "fra": "a148",
       "til": "a1",
       "objekt": null,
@@ -6458,14 +6462,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "'til' (Sametinget) utledet av § 4-2; gjelder også andre representanter for berørte samiske interesser."
+      "kommentar": "'til' (Sametinget) utledet av § 4-2; gjelder også andre representanter for berørte samiske interesser.",
+      "modalitet": "skal"
     },
     {
       "id": "u237",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§4-3/ledd-1/punkt-1",
       "sitat": "regjeringen, departementer, direktorater og andre underliggende virksomheter",
-      "kategori": "relasjon",
-      "type": "annet:konsultasjonsplikt_overfor",
+      "kategori": "plikt",
+      "type": "konsultasjonsplikt",
       "fra": "a149",
       "til": "a1",
       "objekt": null,
@@ -6474,7 +6479,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "'til' (Sametinget) utledet av § 4-2; gjelder også andre representanter for berørte samiske interesser."
+      "kommentar": "'til' (Sametinget) utledet av § 4-2; gjelder også andre representanter for berørte samiske interesser.",
+      "modalitet": "skal"
     },
     {
       "id": "u238",
@@ -6496,8 +6502,8 @@
       "id": "u239",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§4-3/ledd-1/punkt-2",
       "sitat": "statsforetak og private rettssubjekter når de utøver myndighet på vegne av staten",
-      "kategori": "relasjon",
-      "type": "annet:konsultasjonsplikt_overfor",
+      "kategori": "plikt",
+      "type": "konsultasjonsplikt",
       "fra": "a150",
       "til": "a1",
       "objekt": null,
@@ -6506,14 +6512,15 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u240",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§4-3/ledd-1/punkt-2",
       "sitat": "statsforetak og private rettssubjekter når de utøver myndighet på vegne av staten",
-      "kategori": "relasjon",
-      "type": "annet:konsultasjonsplikt_overfor",
+      "kategori": "plikt",
+      "type": "konsultasjonsplikt",
       "fra": "a151",
       "til": "a1",
       "objekt": null,
@@ -6522,7 +6529,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u241",
@@ -6544,8 +6552,8 @@
       "id": "u242",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§4-4/ledd-1",
       "sitat": "Fylkeskommuner og kommuner har plikt til å konsultere representanter for berørte samiske interesser",
-      "kategori": "relasjon",
-      "type": "annet:konsultasjonsplikt_overfor",
+      "kategori": "plikt",
+      "type": "konsultasjonsplikt",
       "fra": "a6",
       "til": "a152",
       "objekt": null,
@@ -6554,14 +6562,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Merk: Sametinget nevnes IKKE som konsultasjonspart for kommunene; motparten er en åpen klasse."
+      "kommentar": "Merk: Sametinget nevnes IKKE som konsultasjonspart for kommunene; motparten er en åpen klasse.",
+      "modalitet": "skal"
     },
     {
       "id": "u243",
       "eid": "https://lovdata.no/eli/lov/1987/06/12/56/nor/§4-4/ledd-1",
       "sitat": "Fylkeskommuner og kommuner har plikt til å konsultere representanter for berørte samiske interesser",
-      "kategori": "relasjon",
-      "type": "annet:konsultasjonsplikt_overfor",
+      "kategori": "plikt",
+      "type": "konsultasjonsplikt",
       "fra": "a7",
       "til": "a152",
       "objekt": null,
@@ -6570,7 +6579,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Merk: Sametinget nevnes IKKE som konsultasjonspart for kommunene; motparten er en åpen klasse."
+      "kommentar": "Merk: Sametinget nevnes IKKE som konsultasjonspart for kommunene; motparten er en åpen klasse.",
+      "modalitet": "skal"
     },
     {
       "id": "u244",
@@ -7013,8 +7023,8 @@
       "id": "u271",
       "eid": "https://lovdata.no/eli/forskrift/2003/01/07/13/nor/§2/ledd-1",
       "sitat": "bør samiskopplæringen skje i samarbeid mellom flere organ som omfattes av samelovens kapittel 3 og denne forskriften",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a157",
       "til": "a157",
       "objekt": null,
@@ -7023,7 +7033,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "lav",
-      "kommentar": "Svak ('bør') samarbeidsnorm mellom organer i samme klasse."
+      "kommentar": "Svak ('bør') samarbeidsnorm mellom organer i samme klasse.",
+      "modalitet": "bor"
     },
     {
       "id": "u272",

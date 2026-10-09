@@ -22,6 +22,7 @@ internal static class HistoriskSkjema
     public const string HarmoniserRelasjonskoder = "20261008064334_HarmoniserRelasjonskoder"; // [Ny, #330]
     public const string Omraderegister = "20261008080640_InnforOmraderegister"; // [Ny, #341]
     public const string KompetanseMedMotpart = "20261008174215_KompetanseMedMotpart"; // [Ny, #352]
+    public const string OppnevningsfamilienOgRester = "20261008194308_OppnevningsfamilienOgRester"; // [Ny, #353]
 
     /// <summary>Oppretter en ny, tom database og migrerer den til <paramref name="tilMigrasjon"/> (null = siste).</summary>
     /// <param name="leggTilSenereKolonner">[Ny, #341] false for en test som selv migrerer videre til siste versjon
@@ -67,6 +68,22 @@ internal static class HistoriskSkjema
         // [Ny, issue #352] strukturkanter.undertype (OppnevningsfamilienOgRester).
         await db.Database.ExecuteSqlRawAsync("ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS undertype text; "
             + "ALTER TABLE relasjonstype_konfigurasjon ADD COLUMN IF NOT EXISTS saksavhengig boolean NOT NULL DEFAULT false;");
+        // [Ny, issue #353] strukturkanter.modalitet og virksomheter.ordningstype (PliktOgOrdning).
+        await db.Database.ExecuteSqlRawAsync("ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS modalitet text; "
+            + "ALTER TABLE virksomheter ADD COLUMN IF NOT EXISTS ordningstype text;");
+    }
+
+    /// <summary>
+    /// [Ny, issue #353, 2026-10-09] En virksomhet med rå SQL, for testene som migrerer VIDERE til siste versjon
+    /// (<c>leggTilSenereKolonner: false</c>): fra #353 har <see cref="Virksomhet"/> kolonnen <c>ordningstype</c>, som det historiske
+    /// skjemaet ikke har, så en EF-innsetting med dagens modell velter («column does not exist»). Samme grunn som kantene i de
+    /// testene alltid er skrevet med rå SQL.
+    /// </summary>
+    public static async Task<Guid> VirksomhetAsync(RegelIdeDbContext db, string navn)
+    {
+        var id = Guid.NewGuid();
+        await db.Database.ExecuteSqlInterpolatedAsync($"INSERT INTO virksomheter (\"Id\", navn) VALUES ({id}, {navn})");
+        return id;
     }
 
     /// <param name="leggTilSenereKolonner">[Ny, #341] Etter en migrering til et HISTORISK punkt legges senere kolonner til

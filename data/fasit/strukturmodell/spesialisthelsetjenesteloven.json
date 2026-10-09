@@ -9,10 +9,14 @@
     {
       "tittel": "Forskrift om refusjonskrav mot det regionale helseforetaket i pasientens bostedsregion (behandlingsoppgjør)",
       "eli": "https://lovdata.no/eli/forskrift/2000/12/20/1551/nor"
+    },
+    {
+      "tittel": "Lov om folketrygd (folketrygdloven)",
+      "eli": "https://lovdata.no/eli/lov/1997/02/28/19/nor"
     }
   ],
   "annotert_av": "KI-agent (Claude), 2026-10-07 — UTKAST, ikke menneskelig verifisert",
-  "noder_lest": 527,
+  "noder_lest": 528,
   "noder_lest_kommentar": "527 noder totalt (260 shtl + 258 hfl + 9 forskrift), hvorav 378 tekstnoder (187 + 185 + 6); resten er kapittel-/paragrafoverskrifter.",
   "aktorer": [
     {
@@ -742,7 +746,8 @@
       ],
       "eid_eksempler": [
         "https://lovdata.no/eli/lov/1999/07/02/61/nor/§7-3/ledd-1",
-        "https://lovdata.no/eli/lov/1999/07/02/61/nor/§7-3/ledd-2"
+        "https://lovdata.no/eli/lov/1999/07/02/61/nor/§7-3/ledd-2",
+        "https://lovdata.no/eli/lov/1997/02/28/19/nor/§21-11a/ledd-1"
       ],
       "antall_forekomster": 3,
       "entitetstype": "organ",
@@ -812,12 +817,13 @@
         "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-3/ledd-2"
       ],
       "antall_forekomster": 1,
-      "entitetstype": "annet:trygdeordning",
+      "entitetstype": "ordning",
       "navngitt": true,
       "referent": "Folketrygden",
       "oppløsning": "tekstlig",
       "distributiv": false,
-      "kommentar": "En stønadsordning, ikke en aktør; forvaltes av Nav (utenfor korpus). Tillegges likevel betalingsansvar."
+      "kommentar": "Ordning (ikke aktør, #353): en trygdeordning loven gir en funksjon — pliktsubjekt for betaling (§ 5-3 annet ledd). Forvaltes av Helsedirektoratet for kapittel 5 (folketrygdloven § 21-11 a første ledd, eget utsagn). Andre kapitler: folketrygdloven sier ikke «forvalte» om dem (§ 21-11 første ledd gir Arbeids- og velferdsdirektoratet vedtakskompetanse, ikke forvaltning) — synlig hull, ikke gjettet. Hvilket kapittel betalingsplikten i § 5-3 annet ledd hører under, sier spesialisthelsetjenesteloven ikke. Tilhører staten? Ingen bestemmelse sier det — ingen tilhorer-kant (synlig hull). [Før #353: entitetstype annet:trygdeordning; «forvaltes av Nav (utenfor korpus)» var en antakelse uten kilde.]",
+      "undertype": "trygdeordning"
     },
     {
       "id": "a40",
@@ -3505,8 +3511,8 @@
       "id": "u132",
       "eid": "https://lovdata.no/eli/lov/2001/06/15/93/nor/§41/ledd-1",
       "sitat": "Foretak skal samarbeide med andre når dette er nødvendig for å fremme foretakets formål",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a5",
       "til": null,
       "objekt": null,
@@ -3515,7 +3521,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Motpart ubestemt («andre»)."
+      "kommentar": "Motpart ubestemt («andre»).",
+      "modalitet": "skal"
     },
     {
       "id": "u133",
@@ -4179,8 +4186,8 @@
       "id": "u173",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1a/ledd-3",
       "sitat": "helseinstitusjoner som det eier, eller som mottar tilskudd fra de regionale helseforetakene til sin virksomhet",
-      "kategori": "relasjon",
-      "type": "annet:finansierer",
+      "kategori": "plikt",
+      "type": "betalingsplikt",
       "fra": "a2",
       "til": "a41",
       "objekt": null,
@@ -4189,7 +4196,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Tilskuddsrelasjon som alternativ tilknytningsform til eierskap."
+      "kommentar": "Tilskuddsrelasjon som alternativ tilknytningsform til eierskap.",
+      "modalitet": "skal"
     },
     {
       "id": "u174",
@@ -4295,8 +4303,8 @@
       "id": "u180",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1b/ledd-1",
       "sitat": "Beredskapsplanen skal samordnes med kommunenes, fylkeskommunenes og de andre regionale helseforetakenes beredskapsplaner",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a2",
       "til": "a31",
       "objekt": null,
@@ -4305,14 +4313,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u181",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1b/ledd-1",
       "sitat": "Beredskapsplanen skal samordnes med kommunenes, fylkeskommunenes og de andre regionale helseforetakenes beredskapsplaner",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a2",
       "til": "a30",
       "objekt": null,
@@ -4321,14 +4330,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u182",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1b/ledd-1",
       "sitat": "Beredskapsplanen skal samordnes med kommunenes, fylkeskommunenes og de andre regionale helseforetakenes beredskapsplaner",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a2",
       "til": "a2",
       "objekt": null,
@@ -4337,14 +4347,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u183",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1c/ledd-1",
       "sitat": "skal helsetjenesten til det regionale helseforetaket yte bistand til andre regionale helseforetak ved ulykker og andre akutte situasjoner",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a2",
       "til": "a2",
       "objekt": null,
@@ -4353,14 +4364,15 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Gjensidig bistandsrelasjon mellom likestilte rettssubjekter; utløses på anmodning."
+      "kommentar": "Gjensidig bistandsrelasjon mellom likestilte rettssubjekter; utløses på anmodning.",
+      "modalitet": "skal"
     },
     {
       "id": "u184",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1c/ledd-2",
       "sitat": "skal yte kompensasjon for utgifter som pådras til det regionale helseforetaket som bidrar med hjelp",
-      "kategori": "relasjon",
-      "type": "annet:finansierer",
+      "kategori": "plikt",
+      "type": "betalingsplikt",
       "fra": "a2",
       "til": "a2",
       "objekt": null,
@@ -4369,7 +4381,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u185",
@@ -4407,8 +4420,8 @@
       "id": "u187",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1e/ledd-1",
       "sitat": "samarbeider med andre tjenesteytere dersom samarbeid er nødvendig for å gi pasienten et helhetlig og samordnet tjenestetilbud",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a52",
       "til": "a51",
       "objekt": null,
@@ -4417,14 +4430,15 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "RHF skal sørge for samarbeidet."
+      "kommentar": "RHF skal sørge for samarbeidet.",
+      "modalitet": "skal"
     },
     {
       "id": "u188",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1e/ledd-1",
       "sitat": "samarbeider med barnekoordinator dersom dette er oppnevnt etter helse- og omsorgstjenesteloven § 7-2 a",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a52",
       "til": "a50",
       "objekt": null,
@@ -4433,7 +4447,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u189",
@@ -4455,8 +4470,8 @@
       "id": "u190",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1e/ledd-2",
       "sitat": "med andre regionale helseforetak og andre tjenesteytere",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a2",
       "til": "a2",
       "objekt": null,
@@ -4681,8 +4696,8 @@
       "id": "u204",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5/ledd-2",
       "sitat": "skal i slike tilfeller medvirke i kommunens arbeid med individuell plan",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a4",
       "til": "a31",
       "objekt": null,
@@ -4691,7 +4706,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Kommunen er koordinerende part."
+      "kommentar": "Kommunen er koordinerende part.",
+      "modalitet": "skal"
     },
     {
       "id": "u205",
@@ -4731,8 +4747,8 @@
       "id": "u207",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5a/ledd-2",
       "sitat": "Koordinatoren skal samarbeide med barnekoordinator",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a46",
       "til": "a50",
       "objekt": null,
@@ -4741,7 +4757,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u208",
@@ -4812,8 +4829,8 @@
       "id": "u212",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5b/ledd-1",
       "sitat": "nødvendig kontakt med, habiliterings- og rehabiliteringsvirksomheten i kommunen",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a45",
       "til": "a31",
       "objekt": null,
@@ -4822,7 +4839,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u213",
@@ -4929,8 +4947,8 @@
       "id": "u219",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-6/ledd-1",
       "sitat": "Regionalt helseforetak skal inngå samarbeidsavtale med kommunene om utskrivningsklare pasienter",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "avtaleplikt",
       "fra": "a2",
       "til": "a31",
       "objekt": null,
@@ -4939,7 +4957,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Hvilke kommuner: implisitt kommunene i helseregionen (ikke sagt)."
+      "kommentar": "Hvilke kommuner: implisitt kommunene i helseregionen (ikke sagt).",
+      "modalitet": "skal"
     },
     {
       "id": "u220",
@@ -5737,8 +5756,8 @@
       "id": "u268",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-2/ledd-1",
       "sitat": "Det regionale helseforetakets behandlings- og forpleiningsutgifter og reiseutgifter til behandling skal dekkes av det regionale helseforetaket i pasientens bostedsregion",
-      "kategori": "annet:finansieringsansvar",
-      "type": "annet:dekker_utgifter_for",
+      "kategori": "plikt",
+      "type": "betalingsplikt",
       "fra": "a3",
       "til": "a2",
       "objekt": null,
@@ -5747,30 +5766,32 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Betalingsansvar mellom RHF bestemt av pasientens bostedsregion (saksforhold)."
+      "kommentar": "Betalingsansvar mellom RHF bestemt av pasientens bostedsregion (saksforhold). [#353] Til = «Det regionale helseforetaket»: teksten sier hvem utgiftene er sine (genitiv / «som påføres»).",
+      "modalitet": "skal"
     },
     {
       "id": "u269",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-2/ledd-1",
       "sitat": "Det samme gjelder utgifter til behandling, forpleining og reise som ytes av andre tjenesteytere etter avtale med det regionale helseforetaket i pasientens bostedsregion",
-      "kategori": "annet:finansieringsansvar",
-      "type": "annet:dekker_utgifter_for",
+      "kategori": "plikt",
+      "type": "betalingsplikt",
       "fra": "a3",
-      "til": "a51",
+      "til": null,
       "objekt": null,
       "polaritet": "positiv",
       "avgrensning": "tjenesteytere med avtale",
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "[#353] Til var «andre tjenesteytere», men teksten sier bare hva utgiftene går til (formål), ikke hvem som får pengene — til = null. [#353] Modaliteten arves fra setningen «Det samme gjelder» viser til; hjemmelen er begge punktum.",
+      "modalitet": "skal"
     },
     {
       "id": "u270",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-2/ledd-2",
       "sitat": "Det regionale helseforetaket i pasientens bostedsregion skal dekke utgifter til behandling og forpleining når det i henhold til internasjonal overenskomst foreligger rett til å reise til utlandet",
-      "kategori": "annet:finansieringsansvar",
-      "type": "annet:dekker_utgifter_for",
+      "kategori": "plikt",
+      "type": "betalingsplikt",
       "fra": "a3",
       "til": null,
       "objekt": null,
@@ -5779,14 +5800,15 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u271",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-2/ledd-4",
       "sitat": "Det regionale helseforetaket i pasientens bostedsregion skal dekke utgifter til spesialisthelsetjenester mottatt i et annet EØS-land",
-      "kategori": "annet:finansieringsansvar",
-      "type": "annet:dekker_utgifter_for",
+      "kategori": "plikt",
+      "type": "betalingsplikt",
       "fra": "a3",
       "til": null,
       "objekt": null,
@@ -5795,7 +5817,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u272",
@@ -5835,17 +5858,18 @@
       "id": "u274",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-2/ledd-6",
       "sitat": "dersom dette følger av avtale mellom det regionale helseforetaket i bostedsregionen og den som yter slike tjenester",
-      "kategori": "annet:finansieringsansvar",
-      "type": "annet:dekker_utgifter_for",
+      "kategori": "plikt",
+      "type": "betalingsplikt",
       "fra": "a3",
-      "til": "a51",
+      "til": null,
       "objekt": null,
       "polaritet": "positiv",
       "avgrensning": "laboratorie- og røntgentjenester; kun ved avtale",
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "[#353] Til var «andre tjenesteytere», men teksten sier bare hva utgiftene går til (formål), ikke hvem som får pengene — til = null. [#353] Modalitet skal: normativ presens.",
+      "modalitet": "skal"
     },
     {
       "id": "u275",
@@ -5868,8 +5892,8 @@
       "id": "u276",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-3/ledd-1",
       "sitat": "Dersom pasienten ikke kan dekke utgiftene selv, skal de dekkes av vedkommende helseinstitusjon eller tjenesteyter",
-      "kategori": "annet:finansieringsansvar",
-      "type": "annet:dekker_utgifter_for",
+      "kategori": "annet:tapsfordeling",
+      "type": "annet:tapsfordeling",
       "fra": "a41",
       "til": null,
       "objekt": null,
@@ -5878,14 +5902,14 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "[#353, juristgjennomgangen] Tapsfordeling, ikke plikt overfor en motpart: institusjonen bærer selv tapet når pasienten ikke kan betale."
     },
     {
       "id": "u277",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-3/ledd-2",
       "sitat": "Folketrygden skal dekke behandlings- og forpleiningsutgifter for pasient som ikke har bosted i riket",
-      "kategori": "annet:finansieringsansvar",
-      "type": "annet:dekker_utgifter_for",
+      "kategori": "plikt",
+      "type": "betalingsplikt",
       "fra": "a39",
       "til": null,
       "objekt": null,
@@ -5894,14 +5918,15 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u278",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-3/ledd-3",
       "sitat": "Utgifter til gjennomføring av tvungent psykisk helsevern skal dekkes av staten",
-      "kategori": "annet:finansieringsansvar",
-      "type": "annet:dekker_utgifter_for",
+      "kategori": "plikt",
+      "type": "betalingsplikt",
       "fra": "a1",
       "til": null,
       "objekt": null,
@@ -5910,7 +5935,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u279",
@@ -5933,17 +5959,18 @@
       "id": "u280",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-4/ledd-1",
       "sitat": "Staten dekker utgiftene til kontrollkommisjonenes virksomhet",
-      "kategori": "annet:finansieringsansvar",
-      "type": "annet:dekker_utgifter_for",
+      "kategori": "plikt",
+      "type": "betalingsplikt",
       "fra": "a1",
-      "til": "a62",
+      "til": null,
       "objekt": null,
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "[#353] Til var «Kontrollkommisjonene», men teksten sier bare hva utgiftene går til (formål), ikke hvem som får pengene — til = null. [#353] Modalitet skal: normativ presens.",
+      "modalitet": "skal"
     },
     {
       "id": "u281",
@@ -6064,8 +6091,8 @@
       "id": "u288",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§6-4/ledd-1",
       "sitat": "Politiet har plikt til å yte slik bistand",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a38",
       "til": "a55",
       "objekt": null,
@@ -6074,7 +6101,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u289",
@@ -6227,8 +6255,8 @@
       "id": "u298",
       "eid": "https://lovdata.no/eli/forskrift/2000/12/20/1551/nor/§1/ledd-1",
       "sitat": "den refusjon som det regionale helseforetaket i pasientens bostedsregion skal yte etter spesialisthelsetjenesteloven § 5-2 første ledd",
-      "kategori": "annet:finansieringsansvar",
-      "type": "annet:dekker_utgifter_for",
+      "kategori": "plikt",
+      "type": "betalingsplikt",
       "fra": "a3",
       "til": null,
       "objekt": null,
@@ -6237,7 +6265,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u299",
@@ -6291,8 +6320,8 @@
       "id": "u302",
       "eid": "https://lovdata.no/eli/forskrift/2000/12/20/1551/nor/§2/ledd-1",
       "sitat": "skal det regionale helseforetaket i pasientens bostedsregion dekke utgiftene i samsvar med de refusjonssatsene som fastsettes etter § 1",
-      "kategori": "annet:finansieringsansvar",
-      "type": "annet:dekker_utgifter_for",
+      "kategori": "plikt",
+      "type": "betalingsplikt",
       "fra": "a3",
       "til": null,
       "objekt": null,
@@ -6301,7 +6330,24 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
+    },
+    {
+      "id": "u303",
+      "eid": "https://lovdata.no/eli/lov/1997/02/28/19/nor/§21-11a/ledd-1",
+      "sitat": "Helsedirektoratet skal forvalte kapittel 5",
+      "kategori": "relasjon",
+      "type": "forvaltes_av",
+      "fra": "a39",
+      "til": "a35",
+      "objekt": null,
+      "polaritet": "positiv",
+      "avgrensning": "folketrygdloven kapittel 5 (stønad ved helsetjenester)",
+      "betinget": false,
+      "kilde_utenfor_korpus": false,
+      "sikkerhet": "hoy",
+      "kommentar": "#353: slått opp i folketrygdloven (lokal base), ikke gjettet. Gjelder bare kapittel 5; andre kapitler er et synlig hull (se aktøren)."
     }
   ]
 }

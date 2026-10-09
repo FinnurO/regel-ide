@@ -1,5 +1,5 @@
 import { Field, Label, Radio, Select, Tag } from '@digdir/designsystemet-react';
-import type { Aktortype, Begrepsnodetype, Kandidatnodetype } from '../api/types';
+import type { Aktortype, Begrepsnodetype, Kandidatnodetype, Ordningstype } from '../api/types';
 
 /**
  * [Ny, issue #310 «nodetype-akse», 2026-10-07, docs/33 §4.1–4.2] ÉN delt kilde for visning og valg av
@@ -92,11 +92,64 @@ export const AKTORTYPE_VISNING: Record<Aktortype, { tekst: string; forklaring: s
   rettssubjekt: { tekst: 'Rettssubjekt', forklaring: 'Kan ha rettigheter og plikter selv — f.eks. en kommune, staten, et helseforetak.' },
   organ: { tekst: 'Organ', forklaring: 'Handler på vegne av et rettssubjekt — f.eks. Stortinget, et departement, kommunestyret.' },
   organisatorisk_enhet: { tekst: 'Organisatorisk enhet', forklaring: 'En enhet inne i en virksomhet — f.eks. RME i NVE.' },
+  // [Ny, issue #353] Ikke en aktør: fatter ingen vedtak og har ingen organer. Kan være pliktsubjekt (P), forvaltes av et organ
+  // (R forvaltes_av) og tilhøre et rettssubjekt når det er hjemlet (G tilhorer) — se Nodetyper.Ordning.
+  ordning: {
+    tekst: 'Ordning',
+    forklaring: 'Ikke en aktør, men noe rettskilden gir en funksjon — f.eks. folketrygden, et fond, en tilskuddsordning. '
+      + 'Kan ha plikter (betale, dekke), forvaltes av et organ og tilhøre et rettssubjekt.',
+  },
 };
+
+/** [Ny, issue #353] Undertypen til en ordning — speilet av `Nodetyper.Ordningstyper`. En klassifisering (`neutral`, docs/09 §34). */
+export const ORDNINGSTYPE_VISNING: Record<Ordningstype, string> = {
+  trygdeordning: 'Trygdeordning',
+  fond: 'Fond',
+  tilskuddsordning: 'Tilskuddsordning',
+};
+
+/** [Ny, issue #353] Ordningstypen som `neutral` tag ved aktørtypen. NULL (ikke angitt) vises ikke — fraværet er ikke en påstand,
+ * og «Ordning» står alt i aktørtype-taggen. En ukjent verdi vises rå (samme regel som `AktortypeTag`). */
+export function OrdningstypeTag({ ordningstype }: { ordningstype: Ordningstype | null }) {
+  if (!ordningstype) return null;
+  return (
+    <Tag data-color="neutral" data-size="sm" title="Ordningstype (issue #353).">
+      {ORDNINGSTYPE_VISNING[ordningstype] ?? ordningstype}
+    </Tag>
+  );
+}
+
+/** [Ny, issue #353] Velger for ordningstypen — '' = ikke angitt (NULL). Aldri forhåndsvalgt (CLAUDE.md §8). Vises bare når
+ * aktørtypen er «Ordning»; serveren avviser ordningstype på andre aktørtyper. */
+export function OrdningstypeVelger({
+  value, onChange, disabled,
+}: {
+  value: Ordningstype | null;
+  onChange: (verdi: Ordningstype | null) => void;
+  disabled?: boolean;
+}) {
+  return (
+    <Field data-size="sm" style={{ maxWidth: '16rem' }}>
+      <Label>Ordningstype</Label>
+      <Select
+        data-size="sm"
+        value={value ?? ''}
+        disabled={disabled}
+        onChange={(e) => onChange((e.target.value || null) as Ordningstype | null)}
+      >
+        <Select.Option value="">Ikke angitt</Select.Option>
+        {(Object.keys(ORDNINGSTYPE_VISNING) as Ordningstype[]).map((o) => (
+          <Select.Option key={o} value={o}>{ORDNINGSTYPE_VISNING[o]}</Select.Option>
+        ))}
+      </Select>
+    </Field>
+  );
+}
 
 /** Aktørtypen som `Tag`. NULL = uavklart vises som `neutral` «Aktørtype uavklart» bare når
  * `visUavklart` er satt (samme valg som `NavneformgrunnTag`s `visUspesifisert`). Fargen er `neutral`
- * for alle tre: typen er en KATEGORI, og ingen av dem er «bedre» enn de andre. */
+ * for alle tre: typen er en KATEGORI, og ingen av dem er «bedre» enn de andre.
+ * [ENDRET, issue #353] Også `ordning` er `neutral` (docs/09 §34) — en klassifisering, ikke en status. */
 export function AktortypeTag({ aktortype, visUavklart }: { aktortype: Aktortype | null; visUavklart?: boolean }) {
   if (!aktortype) {
     return visUavklart ? <Tag data-color="neutral" data-size="sm" variant="outline">Aktørtype uavklart</Tag> : null;

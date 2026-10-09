@@ -852,7 +852,7 @@
       "referent": null,
       "oppløsning": "omrade",
       "distributiv": true,
-      "kommentar": "Generisk (ett av fire RHF); avgjøres av hvilken helseregion kommunen ligger i – teksten uttrykker dette selv («i helseregionen»). Rettssubjekt (foretak), ikke organ."
+      "kommentar": "Generisk (ett av fire RHF); avgjøres av hvilken helseregion kommunen ligger i – teksten uttrykker dette selv («i helseregionen»). Rettssubjekt (foretak), ikke organ. [#353] Avtaleplikten (§ 6-1, § 11-4) er én P-kant mellom klassene «kommunen» og «det regionale helseforetaket i helseregionen». Paret kommune X ↔ RHF Y regnes ut via område (kommunen ligger i fylket, fylket i helseregionen, RHF-et har ansvarsområde i helseregionen); helseregionenes inndeling står ikke i lov, den kommer fra vedtektene (ekstern kilde, #340)."
     },
     {
       "id": "a45",
@@ -1062,12 +1062,13 @@
         "https://lovdata.no/eli/lov/2011/06/24/30/nor/§11-5/ledd-2"
       ],
       "antall_forekomster": 1,
-      "entitetstype": "annet:trygdeordning",
+      "entitetstype": "ordning",
       "navngitt": true,
       "referent": "Folketrygden",
       "oppløsning": "tekstlig",
       "distributiv": null,
-      "kommentar": "Ordning, ikke organ/rettssubjekt, men omtalt som aktør som «yter stønad»."
+      "kommentar": "Ordning, ikke organ/rettssubjekt, men omtalt som aktør som «yter stønad». [#353] Entitetstype var «annet:trygdeordning».",
+      "undertype": "trygdeordning"
     },
     {
       "id": "a57",
@@ -1547,8 +1548,8 @@
       "id": "u21",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-3/ledd-2",
       "sitat": "Helse- og omsorgstjenestene skal bidra i kommunens folkehelsearbeid",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a20",
       "til": "a1",
       "objekt": "folkehelsearbeid",
@@ -1557,14 +1558,15 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "lav",
-      "kommentar": "Tjenestesektor bidrar til kommunens (rettssubjektets) folkehelsearbeid – intern bistandsrelasjon innen samme kommune."
+      "kommentar": "Tjenestesektor bidrar til kommunens (rettssubjektets) folkehelsearbeid – intern bistandsrelasjon innen samme kommune.",
+      "modalitet": "skal"
     },
     {
       "id": "u22",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-4/ledd-1",
       "sitat": "De kommunale helse- og omsorgstjenestene skal samarbeide med andre tjenesteytere",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a20",
       "til": "a22",
       "objekt": null,
@@ -1573,7 +1575,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u23",
@@ -1612,8 +1615,8 @@
       "id": "u25",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-4/ledd-3",
       "sitat": "samarbeide med andre tjenesteytere slik at de kommunale helse- og omsorgstjenestene og andre tjenesteytere kan ivareta sine oppgaver",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a20",
       "til": "a22",
       "objekt": null,
@@ -1622,7 +1625,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "kan"
     },
     {
       "id": "u26",
@@ -1775,8 +1779,8 @@
       "id": "u35",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§3-10/ledd-3",
       "sitat": "Helse- og omsorgstjenesten skal legge til rette for samarbeid med brukergruppenes organisasjoner og med frivillige organisasjoner",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a20",
       "til": "a57",
       "objekt": null,
@@ -1785,7 +1789,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u36",
@@ -1923,8 +1928,8 @@
       "id": "u44",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-3/ledd-2",
       "sitat": "Dersom forholdene tilsier det, skal kommunen yte bistand til andre kommuner ved ulykker og andre akutte situasjoner.",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a1",
       "til": "a3",
       "objekt": null,
@@ -1933,7 +1938,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u45",
@@ -1955,8 +1961,8 @@
       "id": "u46",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-3/ledd-3",
       "sitat": "Den kommunen som mottar bistand etter andre ledd, skal yte kommunen som bidrar med hjelp, kompensasjon",
-      "kategori": "relasjon",
-      "type": "annet:kompenserer",
+      "kategori": "plikt",
+      "type": "betalingsplikt",
       "fra": "a4",
       "til": "a3",
       "objekt": null,
@@ -1965,7 +1971,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "lav",
-      "kommentar": "Økonomisk relasjon mellom kommuner; grenseland normativt."
+      "kommentar": "Økonomisk relasjon mellom kommuner; grenseland normativt.",
+      "modalitet": "skal"
     },
     {
       "id": "u47",
@@ -2003,8 +2010,8 @@
       "id": "u49",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-5/ledd-1",
       "sitat": "Kommunen kan samarbeide med andre kommuner om ansettelse av kommunelege.",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a1",
       "til": "a3",
       "objekt": "ansettelse av kommunelege",
@@ -2013,7 +2020,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Interkommunalt samarbeid: én rolleinnehaver kan betjene flere kommuner. Modellen må tillate rolle delt mellom rettssubjekter."
+      "kommentar": "Interkommunalt samarbeid: én rolleinnehaver kan betjene flere kommuner. Modellen må tillate rolle delt mellom rettssubjekter.",
+      "modalitet": "kan"
     },
     {
       "id": "u50",
@@ -2246,8 +2254,8 @@
       "id": "u64",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§6-1/ledd-1",
       "sitat": "skal inngå samarbeidsavtale med det regionale helseforetaket i helseregionen",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "avtaleplikt",
       "fra": "a1",
       "til": "a44",
       "objekt": null,
@@ -2256,7 +2264,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Avtalebasert samarbeid kommune–RHF. Partene er rettssubjektene; avtalen inngås av organet."
+      "kommentar": "Avtalebasert samarbeid kommune–RHF. Partene er rettssubjektene; avtalen inngås av organet.",
+      "modalitet": "skal"
     },
     {
       "id": "u65",
@@ -2327,8 +2336,8 @@
       "id": "u69",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§6-1/ledd-1",
       "sitat": "Kommunen kan inngå avtale alene eller sammen med andre kommuner.",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a1",
       "til": "a3",
       "objekt": "felles samarbeidsavtale med RHF",
@@ -2337,7 +2346,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Interkommunalt samarbeid om avtaleinngåelse. Merk spenning: «Kommunestyret selv» vs. felles avtale for flere kommuner."
+      "kommentar": "Interkommunalt samarbeid om avtaleinngåelse. Merk spenning: «Kommunestyret selv» vs. felles avtale for flere kommuner.",
+      "modalitet": "kan"
     },
     {
       "id": "u70",
@@ -2440,39 +2450,40 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§6-6/ledd-1",
       "sitat": "Departementet kan pålegge samarbeid mellom kommuner",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "paleggskompetanse",
       "fra": "a38",
-      "til": null,
+      "til": "a1",
       "objekt": "pålegg om interkommunalt samarbeid, oppgaver og utgiftsfordeling",
       "polaritet": "positiv",
       "avgrensning": "når påkrevd for forsvarlig løsning av oppgaver",
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Statlig kompetanse til å etablere tvungent interkommunalt samarbeid; formen (vertskommune o.l.) er ikke angitt."
+      "kommentar": "Statlig kompetanse til å etablere tvungent interkommunalt samarbeid; formen (vertskommune o.l.) er ikke angitt. [#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt."
     },
     {
       "id": "u77",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§6-6/ledd-1",
       "sitat": "Departementet kan pålegge samarbeid mellom kommuner",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a1",
       "til": "a3",
       "objekt": null,
       "polaritet": "positiv",
-      "avgrensning": null,
+      "avgrensning": "når pålegg er gitt",
       "betinget": true,
-      "kilde_utenfor_korpus": false,
+      "kilde_utenfor_korpus": true,
       "sikkerhet": "middels",
-      "kommentar": "Resulterende relasjon kommune–kommune, pålagt ovenfra."
+      "kommentar": "Resulterende relasjon kommune–kommune, pålagt ovenfra. [#353, juristgjennomgangen] «kan» hører til påleggskompetansen; plikten er «skal» når pålegg er gitt, og det konkrete pålegget er en kilde utenfor korpus.",
+      "modalitet": "skal"
     },
     {
       "id": "u78",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-1/ledd-1",
       "sitat": "Kommunen skal samarbeide med andre tjenesteytere om planen",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a1",
       "til": "a22",
       "objekt": null,
@@ -2481,7 +2492,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u79",
@@ -2588,8 +2600,8 @@
       "id": "u85",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§7-2a/ledd-2/punkt-2",
       "sitat": "bidra aktivt til å ivareta kommunens ansvar",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a17",
       "til": "a1",
       "objekt": null,
@@ -2598,7 +2610,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Rollen bistår rettssubjektet med å ivareta dets ansvar."
+      "kommentar": "Rollen bistår rettssubjektet med å ivareta dets ansvar.",
+      "modalitet": "skal"
     },
     {
       "id": "u86",
@@ -2884,8 +2897,8 @@
       "id": "u103",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-7/ledd-2",
       "sitat": "Spesialisthelsetjenesten skal bistå ved utformingen av tiltakene.",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a47",
       "til": "a1",
       "objekt": null,
@@ -2894,7 +2907,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Statlig sektor bistår kommunen (eller rollen a32)."
+      "kommentar": "Statlig sektor bistår kommunen (eller rollen a32).",
+      "modalitet": "skal"
     },
     {
       "id": "u104",
@@ -2981,8 +2995,8 @@
       "id": "u109",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-9/ledd-1",
       "sitat": "Spesialisthelsetjenesten skal bistå ved gjennomføringen av tiltak etter § 9-5 tredje ledd bokstav b og c.",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a47",
       "til": "a1",
       "objekt": null,
@@ -2991,7 +3005,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u110",
@@ -3191,8 +3206,8 @@
       "id": "u122",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§9-13/ledd-3",
       "sitat": "for å yte forsvarlig bistand til kommunene",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a47",
       "til": "a2",
       "objekt": null,
@@ -3201,7 +3216,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u123",
@@ -3355,8 +3371,8 @@
       "id": "u132",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§10-3/ledd-3",
       "sitat": "Kommunen skal, i samråd med institusjonen",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a1",
       "til": "a48",
       "objekt": null,
@@ -3365,7 +3381,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "lav",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u133",
@@ -3627,8 +3644,8 @@
       "id": "u149",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§11-1/ledd-2",
       "sitat": "skal dekkes av den kommunen som etter § 3-1 og § 10-8 er ansvarlig for å yte tjenesten",
-      "kategori": "ansvarsomrade",
-      "type": "annet:finansieringsansvar",
+      "kategori": "plikt",
+      "type": "betalingsplikt",
       "fra": "a5",
       "til": null,
       "objekt": "kostnader til tjenester og tiltak",
@@ -3637,7 +3654,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u150",
@@ -3761,8 +3779,8 @@
       "id": "u157",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§11-4/ledd-2",
       "sitat": "Kommunen skal inngå samarbeidsavtale med regionalt helseforetak om utskrivningsklare pasienter, jf. § 6-1.",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "avtaleplikt",
       "fra": "a1",
       "til": "a44",
       "objekt": null,
@@ -3771,7 +3789,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Her er avtalekompetansen lagt til «Kommunen», i § 6-1 til «Kommunestyret selv» – samme avtale, ulikt nivå."
+      "kommentar": "Her er avtalekompetansen lagt til «Kommunen», i § 6-1 til «Kommunestyret selv» – samme avtale, ulikt nivå.",
+      "modalitet": "skal"
     },
     {
       "id": "u158",
@@ -3794,8 +3813,8 @@
       "id": "u159",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§11-5/ledd-1",
       "sitat": "Staten yter årlig rammetilskudd til delvis dekning av kommunens utgifter.",
-      "kategori": "relasjon",
-      "type": "annet:finansierer",
+      "kategori": "plikt",
+      "type": "betalingsplikt",
       "fra": "a41",
       "til": "a1",
       "objekt": null,
@@ -3804,7 +3823,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "[#353] Modalitet skal: normativ presens.",
+      "modalitet": "skal"
     },
     {
       "id": "u160",
@@ -3828,8 +3848,8 @@
       "id": "u161",
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§11-5/ledd-1",
       "sitat": "Til de berørte kommuner yter dessuten staten årlig et særskilt tilskudd til fengselshelsetjenesten",
-      "kategori": "relasjon",
-      "type": "annet:finansierer",
+      "kategori": "plikt",
+      "type": "betalingsplikt",
       "fra": "a41",
       "til": "a9",
       "objekt": null,
@@ -3838,7 +3858,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "[#353] Modalitet skal: normativ presens.",
+      "modalitet": "skal"
     },
     {
       "id": "u162",

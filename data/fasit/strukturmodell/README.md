@@ -44,3 +44,9 @@ Målegrunnlaget for `docs/33-strukturmodell-aktor-omrade-kompetanse.md`.
   Kartverkets SSR, avgrenset til tingrettens egne kommuner — `kilde_utenfor_korpus: true`). 0 uløste steder.
   Lagsogn og lagdømme er beholdt som områder. Hver endret rad har `verifisert_av`. Måling før/etter står i PR-en
   for #312 og i `docs/33` §5.4.
+- **#353 — plikt overfor motpart og ordning (2026-10-09).** `konvertering-353-plikt.py` (deterministisk, idempotent, også på
+  `ki-utdata/`): 77 utsagn (etter juristgjennomgangen 2026-10-09) fra samarbeid/bistand/informasjonsdeling/konsultasjon/finansiering (det `docs/33` §4.4 holdt
+  utenfor) er kategorien `plikt` med modalitet; Folketrygden og Energifondet er entitetstype `ordning`. For
+  `forvaltes_av` er **én node fra folketrygdloven** (§ 21-11 a første ledd, «Helsedirektoratet skal forvalte kapittel 5 …»)
+  lagt i `noder/spesialisthelsetjenesteloven.json`, og folketrygdloven står som ledsagende kilde — bare den ene noden, loven
+  er ikke lest i sin helhet. Spesialisthelsetjenesteloven har dermed 379 tekstnoder og 303 utsagn.

@@ -767,13 +767,24 @@ app.MapPut("/api/virksomheter/{id:guid}/aktortype", async (Guid id, SettAktortyp
                     + $"{string.Join(", ", Nodetyper.Aktortyper)} (eller null for uavklart).",
             });
         }
+        // [Ny, issue #353] Ordningstypen bare på en ordning (CHECK ck_virksomheter_ordningstype). Ingen gjettet verdi.
+        if (!Nodetyper.ErGyldigOrdningstype(body.Aktortype, body.Ordningstype))
+        {
+            return Results.BadRequest(new
+            {
+                feil = $"Ordningstypen '{body.Ordningstype}' er bare gyldig sammen med aktørtypen 'ordning', og må være en av "
+                    + $"{string.Join(", ", Nodetyper.Ordningstyper)} (eller null = ikke angitt).",
+            });
+        }
         virksomhet.Aktortype = body.Aktortype;
+        virksomhet.Ordningstype = body.Ordningstype;
         await db.SaveChangesAsync(ct);
         return Results.Ok(VirksomhetDto.FraEntitet(virksomhet));
     })
     .WithOpenApi()
     .WithName("SettVirksomhetAktortype")
-    .WithSummary("Issue #310 — setter aktørtypen (rettssubjekt|organ|organisatorisk_enhet, eller null = uavklart).");
+    .WithSummary("Issue #310 — setter aktørtypen (rettssubjekt|organ|organisatorisk_enhet|ordning, eller null = uavklart). " +
+        "[#353] Ordningstypen (trygdeordning|fond|tilskuddsordning) bare sammen med ordning.");
 
 app.MapGet("/api/virksomheter/brreg-sok", async (string? q, BrregKlient klient, CancellationToken ct) =>
     {
@@ -3557,7 +3568,7 @@ strukturkanter.MapPost("/", async (HttpRequest request, StrukturkantRequest body
                 KildeUtenforKorpusType: body.KildeUtenforKorpusType,
                 KildeUtenforKorpusDokumentasjon: body.KildeUtenforKorpusDokumentasjon,
                 Normform: body.Normform, Grunnlag: body.Grunnlag, Delegerbar: body.Delegerbar,
-                Undertype: body.Undertype), bruker.Navn, ct); // [Ny, #352]
+                Undertype: body.Undertype, Modalitet: body.Modalitet), bruker.Navn, ct); // [Ny, #352] undertype, [Ny, #353] modalitet
             var dto = StrukturkantDto.FraVisning((await tjeneste.HentAsync(resultat.Kant.Id, ct))!);
             // 201 for en ny kant, 200 når et identisk utsagn alt fantes (idempotent — StrukturkantTjeneste.OpprettAsync).
             return resultat.VarNy ? Results.Created($"/api/strukturkanter/{dto.Id}", dto) : Results.Ok(dto);
@@ -3694,6 +3705,27 @@ omrader.MapGet("/{id:guid}/tilhorighet", async (Guid id, OmradeOppslagTjeneste t
     })
     .WithName("HentOmradeTilhorighet")
     .WithSummary("Issue #312 — samme oppslag som /kommuner/{kommunenummer}/tilhorighet, på områdets begrep-id (BegrepDetalj).");
+
+// [Ny, issue #353 AC5, docs/32 S6] «Hvem har kommune X samarbeidsplikt med?» — pliktene (P) som gjelder kommunen, med motparten
+// løst via område der strukturen avgjør det, og et synlig hull der den ikke gjør det (helseregionene: ekstern kilde, #340).
+omrader.MapGet("/kommuner/{kommunenummer}/plikter", async (string kommunenummer, string? type, OmradeOppslagTjeneste tjeneste, CancellationToken ct) =>
+    {
+        try
+        {
+            var svar = await tjeneste.PlikterForKommunenummerAsync(kommunenummer, string.IsNullOrWhiteSpace(type) ? null : type, ct);
+            return svar is null
+                ? Results.NotFound(new { feil = $"Ingen gjeldende kommune med nummer '{kommunenummer}' i områderegisteret." })
+                : Results.Ok(KommunePlikterDto.Fra(svar));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("HentKommunePlikter")
+    .WithSummary("Issue #353 AC5 — gitt et kommunenummer (og valgfritt ?type=samarbeid|avtale|betaling|bistand|informasjon|" +
+        "konsultasjon): pliktene som gjelder kommunen (direkte, via registrert medlemskap, eller fra en klasse uten registrert " +
+        "medlemskap — med hull), og motparten per plikt: konkret | entydig | ikke_entydig | mangler | ikke_angitt.");
 
 // [ENDRET, issue #311] Tynn lesefasade over M-/I-kanter fra virksomheten — se MyndighetstildelingDto.
 // Nettside-eksporten leser den; frontend bruker /api/strukturkanter.

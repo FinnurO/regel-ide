@@ -61,6 +61,15 @@ public sealed class Virksomhet
     /// </summary>
     public string? Aktortype { get; set; }
 
+    /// <summary>
+    /// [Ny, issue #353, Johanns godkjenning 2026-10-08] Undertypen til en <see cref="Nodetyper.Ordning">ordning</see>:
+    /// <c>trygdeordning</c> | <c>fond</c> | <c>tilskuddsordning</c> (<see cref="Nodetyper.Ordningstyper"/>, CHECK
+    /// <c>ck_virksomheter_ordningstype</c>). Bare når <see cref="Aktortype"/> er <c>ordning</c>; NULL = ikke angitt. Navnet følger
+    /// <see cref="BegrepEntitet.Omradetype"/> (undertypen til et område), ikke kantens <c>undertype</c>, så «typen av ordning» og
+    /// «hvordan en kompetanse utøves» ikke deler felt.
+    /// </summary>
+    public string? Ordningstype { get; set; }
+
     /// <summary>[Ny, virksomhetskatalog-runden] Fra Brreg (institusjonell sektorkode, SSB) — ren
     /// referanseinformasjon, samme "ingen automatisk avledning"-begrunnelse som
     /// <see cref="OrganisasjonsformKode"/>.</summary>
@@ -1168,7 +1177,7 @@ public sealed class TjenesteavhengighetEntitet
 public sealed class RelasjonsTypeKonfigurasjonEntitet
 {
     public Guid Id { get; set; }
-    /// <summary>[Ny, issue #311] R/K/M/O/A/G/I/T — se <see cref="Strukturkanter.Kategorier"/>. Rader som
+    /// <summary>[Ny, issue #311] R/K/P/M/O/A/G/I/T ([ENDRET, #353] + P) — se <see cref="Strukturkanter.Kategorier"/>. Rader som
     /// fantes før #311 fikk <c>'R'</c> i migrasjonen (de var alle relasjonstyper for VirksomhetRelasjon).</summary>
     public string Kategori { get; set; } = Strukturkanter.Relasjon;
     public required string Kode { get; set; } // 'klageinstans_for' | 'administrativt_underordnet' | 'forskrift' | 'medlem_av' | ... (utvidbart; [ENDRET #330] de gamle R-kodene underlagt/sekretariat/klageinstans/enhet_i/oppgaver_overfort_til er fjernet)
@@ -1453,7 +1462,7 @@ public sealed class StrukturkantEntitet
 {
     public Guid Id { get; set; }
 
-    /// <summary>R/K/M/O/A/G/I/T — <see cref="Strukturkanter.Kategorier"/>, CHECK <c>ck_strukturkanter_kategori</c>.</summary>
+    /// <summary>R/K/P/M/O/A/G/I/T — <see cref="Strukturkanter.Kategorier"/>, CHECK <c>ck_strukturkanter_kategori</c>. [ENDRET, issue #353] + P.</summary>
     public required string Kategori { get; set; }
 
     /// <summary>Logisk FK (ikke DB-håndhevet, samme som før #311) til
@@ -1533,6 +1542,12 @@ public sealed class StrukturkantEntitet
     /// fikk undertypen den gamle koden sa — opplysningen gikk ikke tapt i sammenslåingen.
     /// </summary>
     public string? Undertype { get; set; }
+
+    /// <summary>
+    /// [Ny, issue #353, jf. L14] Modaliteten i en PLIKT (P): <c>skal</c> | <c>kan</c> | <c>bor</c> (<see cref="Strukturkanter.Modaliteter"/>,
+    /// CHECK <c>ck_strukturkanter_modalitet</c>). Bare på P. NULL = ikke angitt — teksten har ikke et modalverb som avgjør det.
+    /// </summary>
+    public string? Modalitet { get; set; }
 
     /// <summary>
     /// [Ny, issue #341, Johanns beslutning 3 2026-10-08] Kompetansens grunnlag: <c>offentligrettslig</c> |

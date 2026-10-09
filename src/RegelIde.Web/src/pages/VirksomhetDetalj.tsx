@@ -3,7 +3,7 @@ import { Link as RouterLink, useNavigate, useParams } from 'react-router';
 import { Alert, Button, Card, Dialog, Field, Heading, Label, Link, Paragraph, Select, Spinner, Table, Tabs, Tag, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
 import { rettskildeLenkeForId } from '../api/eidLenker';
-import type { Aktortype, KodelisteDto, Navneformgrunn, RettskildeNodeDto, RettskildeSammendrag, StrukturkantDto, VirksomhetKandidatDto, VirksomhetSlettOversiktDto, VirksomhetsbegrepDto, VirksomhetWhereUsedDto } from '../api/types';
+import type { Aktortype, KodelisteDto, Ordningstype, Navneformgrunn, RettskildeNodeDto, RettskildeSammendrag, StrukturkantDto, VirksomhetKandidatDto, VirksomhetSlettOversiktDto, VirksomhetsbegrepDto, VirksomhetWhereUsedDto } from '../api/types';
 import { NavneformgrunnTag, NavneformgrunnVelger } from '../virksomhet/Navneformgrunn';
 import { useVirksomheter } from '../virksomhet/useVirksomheter';
 import { LeggTilMyndighetstildelingForm } from '../virksomhet/LeggTilMyndighetstildelingForm';
@@ -12,7 +12,7 @@ import { KompetanseTabell } from '../strukturkant/KompetanseTabell';
 import { paragrafEtikett } from '../rettskilde/paragrafEtikett';
 import { LeggTilVirksomhetRelasjonForm } from '../virksomhet/LeggTilVirksomhetRelasjonForm';
 import { Metatekst } from '../entitet/Metatekst';
-import { AktortypeTag, AktortypeVelger } from '../begrep/Nodetype';
+import { AktortypeTag, AktortypeVelger, OrdningstypeTag, OrdningstypeVelger } from '../begrep/Nodetype';
 
 /** [Ny, issue #157] Rad-etiketter for bekreftelsesdialogen — KUN de feltene som faktisk kan være > 0
  * for en reell virksomhet vises (0-rader skjules, se `SlettVirksomhetSeksjon` under). Rekkefølgen her
@@ -121,6 +121,8 @@ export default function VirksomhetDetalj() {
   const [aktortypeOverstyrt, setAktortypeOverstyrt] = useState<Aktortype | null | undefined>(undefined);
   const [aktortypeLagres, setAktortypeLagres] = useState(false);
   const [aktortypeFeil, setAktortypeFeil] = useState<string | null>(null);
+  // [Ny, issue #353] Ordningstypen — samme lokale overstyring; bare meningsfull når aktørtypen er «ordning».
+  const [ordningstypeOverstyrt, setOrdningstypeOverstyrt] = useState<Ordningstype | null | undefined>(undefined);
 
   // [Ny, 2026-09-02, issue #115] Node-tekst per rettskilde — samme lazy-per-rettskilde-mønster som
   // VirksomhetKandidaterListe.tsx/LeggTilMyndighetstildelingForm.tsx, slik at "Paragrafspenn"- og
@@ -198,13 +200,15 @@ export default function VirksomhetDetalj() {
     }
   }
 
-  async function endreAktortype(verdi: Aktortype | null) {
+  // [ENDRET, issue #353] Tar ordningstypen med: den sendes bare sammen med «ordning» (serveren nullstiller den ellers).
+  async function endreAktortype(verdi: Aktortype | null, ordningstype: Ordningstype | null = null) {
     if (!id) return;
     setAktortypeFeil(null);
     setAktortypeLagres(true);
     try {
-      const oppdatert = await api.settVirksomhetAktortype(id, verdi);
+      const oppdatert = await api.settVirksomhetAktortype(id, verdi, ordningstype);
       setAktortypeOverstyrt(oppdatert.aktortype);
+      setOrdningstypeOverstyrt(oppdatert.ordningstype);
     } catch (err) {
       setAktortypeFeil(err instanceof ApiError ? err.message : 'Ukjent feil ved endring av aktørtype.');
     } finally {
@@ -253,6 +257,7 @@ export default function VirksomhetDetalj() {
 
   const forvaltningsniva = forvaltningsnivaOverstyrt === undefined ? virksomhet.forvaltningsniva : forvaltningsnivaOverstyrt;
   const aktortype = aktortypeOverstyrt === undefined ? virksomhet.aktortype : aktortypeOverstyrt;
+  const ordningstype = ordningstypeOverstyrt === undefined ? virksomhet.ordningstype : ordningstypeOverstyrt;
 
   return (
     <>
@@ -278,6 +283,7 @@ export default function VirksomhetDetalj() {
         {/* [Ny, issue #310] Aktørtypen (docs/33 §4.1). «Uavklart» vises eksplisitt her — på
           * detaljsiden er fraværet selve opplysningen (samme valg som NavneformgrunnTag visUspesifisert). */}
         <AktortypeTag aktortype={aktortype} visUavklart />
+        {aktortype === 'ordning' && <OrdningstypeTag ordningstype={ordningstype} />}
       </Paragraph>
 
       {feil && <Alert data-color="danger" style={{ marginBottom: '1rem' }}>{feil}</Alert>}
@@ -339,7 +345,13 @@ export default function VirksomhetDetalj() {
               <Table.Row>
                 <Table.HeaderCell>Aktørtype</Table.HeaderCell>
                 <Table.Cell>
-                  <AktortypeVelger value={aktortype} onChange={endreAktortype} disabled={aktortypeLagres} />
+                  <AktortypeVelger value={aktortype} onChange={(a) => endreAktortype(a)} disabled={aktortypeLagres} />
+                  {/* [Ny, issue #353] Ordningstypen bare for en ordning — «Ikke angitt» som utgangspunkt (CLAUDE.md §8). */}
+                  {aktortype === 'ordning' && (
+                    <div style={{ marginTop: '0.5rem' }}>
+                      <OrdningstypeVelger value={ordningstype} onChange={(o) => endreAktortype('ordning', o)} disabled={aktortypeLagres} />
+                    </div>
+                  )}
                   {aktortypeFeil && <Alert data-color="danger" style={{ marginTop: '0.25rem' }}>{aktortypeFeil}</Alert>}
                 </Table.Cell>
               </Table.Row>
@@ -390,6 +402,25 @@ export default function VirksomhetDetalj() {
       </section>
       )}
 
+      {/* [Ny, issue #353] Plikt overfor motpart (P) — egen seksjon rett etter kompetansen, motstykket til den (docs/09 §34).
+        * Modaliteten («skal»/«kan»/«bør») står i utsagnsteksten. */}
+      {fane === 'myndighet' && (
+      <section style={{ marginBottom: '2rem' }}>
+        <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
+          Plikter overfor motpart
+        </Heading>
+        <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
+          Hva virksomheten skal overfor andre — samarbeide, inngå avtale, betale, bistå, gi opplysninger, konsultere — og hvem
+          som har slike plikter overfor den (issue #353). Modaliteten står i utsagnet slik teksten sier den; mottakeren av en
+          betaling står bare når teksten sier hvem som får pengene.
+        </Metatekst>
+        <StrukturkantTabell
+          kanter={kanter && kanter.filter((k) => k.kategori === 'P')}
+          tomTekst="Ingen plikter registrert."
+        />
+      </section>
+      )}
+
       {fane === 'myndighet' && (
       <section style={{ marginBottom: '2rem' }}>
         <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>
@@ -408,13 +439,14 @@ export default function VirksomhetDetalj() {
           tomTekst="Ingen relasjoner registrert."
         />
         <Button data-size="sm" variant="secondary" onClick={() => setVisLeggTilRelasjon((v) => !v)}>
-          {visLeggTilRelasjon ? 'Skjul skjema' : 'Legg til relasjon eller kompetanse'}
+          {visLeggTilRelasjon ? 'Skjul skjema' : 'Legg til relasjon, kompetanse eller plikt'}
         </Button>
         {visLeggTilRelasjon && id && (
           <LeggTilVirksomhetRelasjonForm
             virksomhetId={id}
             virksomheter={virksomheter}
             rettskilder={rettskilder}
+            aktortype={aktortype}
             onOpprettet={() => {
               api.hentStrukturkanter({ virksomhetId: id }).then(setKanter).catch(() => {});
               setVisLeggTilRelasjon(false);
@@ -652,7 +684,7 @@ export default function VirksomhetDetalj() {
           Kompetansen og ansvarsområdene står i egne seksjoner over.
         </Metatekst>
         <StrukturkantTabell
-          kanter={kanter && kanter.filter((k) => k.kategori !== 'R' && k.kategori !== 'K' && !(k.kategori === 'A' && k.retning === 'fra')
+          kanter={kanter && kanter.filter((k) => k.kategori !== 'R' && k.kategori !== 'K' && k.kategori !== 'P' && !(k.kategori === 'A' && k.retning === 'fra')
             && !((k.kategori === 'M' || k.kategori === 'I') && k.retning === 'fra'))}
           tomTekst="Ingen andre strukturutsagn registrert."
           visKategori

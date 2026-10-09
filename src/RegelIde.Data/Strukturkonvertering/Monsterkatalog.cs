@@ -53,6 +53,17 @@ internal static class Monsterkatalog
     // som siterer lovens dato — «Kongens myndighet etter lov 13. august 1915 nr. 5 … delegeres til …».
     private const string Fritt = @"(?:[^.;]|\.(?=\s*\(?[\p{Ll}\d]))";
 
+    // [Ny, issue #353] Modalverbet i en plikt, fanget i gruppen «modal» (L14: modaliteten bevares). «plikter å» og «har plikt
+    // til å» er «skal». Valgfritt «selv» før og et adverb/«uten hinder av taushetsplikt» etter.
+    private const string PliktModal =
+        @"\s+(?:selv\s+)?(?<modal>skal|kan|bør|plikter\s+å|har\s+plikt\s+til\s+å)\s+(?:også\s+|dessuten\s+|likevel\s+|uten\s+hinder\s+av\s+(?:lovbestemt\s+)?taushetsplikt,?\s+)?";
+
+    // [Ny, issue #353] En motpart/et pliktsubjekt etter «med/til/fra/av»: frasen fram til første grense (tegnsetting, «om», «for
+    // å», «når», «dersom», «i samsvar», «jf», «eller med» …). Lengre fraser enn Etter() fordi motparten i en plikt ofte er en
+    // beskrivelse («det regionale helseforetaket i helseregionen»); Aktorfrase.Tolk avviser over seks ord og alt med verb.
+    private static string Frase(string gruppe) =>
+        $@"(?<{gruppe}>[^.;,:()«»]{{1,120}}?)(?=\s+(?:om|for\s+å|før|når|dersom|slik|som|i\s+samsvar|ved|etter|jf|under|innen|til|der|hvor|(?:og|eller)\s+med)\b|\s*[.;,:(]|$)";
+
     private const string Tall =
         @"(?:\d+|to|tre|fire|fem|seks|sju|syv|åtte|ni|ti|elleve|tolv|tretten|fjorten|femten|seksten|sytten|atten|nitten|tjue)";
 
@@ -226,6 +237,49 @@ internal static class Monsterkatalog
             new RegexMonsteroppsett(KreverFra: true),
             Start + Subjekt + Modal + @"(?:[^.;:]{0,60}?\s+og\s+)?(?<obj>samordne\b)"),
 
+        // ---- [Ny, issue #353] P plikt overfor motpart (Johanns godkjenning 2026-10-08) -------------------------------
+        // Modaliteten tas fra modalverbet (gruppen «modal», L14). Motparten er frasen etter «med/til/fra» fram til første
+        // grense; Aktorfrase.Tolk avviser det som ikke kan være en aktør. Gjensidighet sluttes aldri: ett utsagn per subjekt.
+        Regex("plikt-samarbeide",
+            "«X skal/kan/bør samarbeide med Y», «X plikter å samarbeide med Y», og omvendt ordstilling («skal kommunen samarbeide med …»). Y = null når frasen ikke kan være en aktør («med andre»).",
+            "docs/33 §1: «samarbeider med» 966 treff, 40 % presisjon (oppgavebundet, generisk motpart). Tatt inn etter Johanns godkjenning av #353 (energiloven:u27).",
+            new RegexMonsteroppsett(KreverFra: true),
+            Start + Subjekt + PliktModal + @"samarbeide\s+med\s+" + Frase("til"),
+            @"\b(?<modal>skal|kan|bør)\s+" + SubjektOmvendt + @"\s+(?:også\s+)?samarbeide\s+med\s+" + Frase("til")),
+
+        Regex("plikt-inngaa-avtale",
+            "«X skal inngå (samarbeids)avtale med Y», og omvendt ordstilling.",
+            "Ikke målt i docs/33 §1. Tatt inn etter Johanns godkjenning av #353 (helse- og omsorgstjenesteloven § 6-1, a44): avtaleplikten er en P-kant; den inngåtte avtalen er en ekstern kilde (#340).",
+            new RegexMonsteroppsett(KreverFra: true),
+            Start + Subjekt + PliktModal + @"inngå\s+(?:en\s+)?\p{L}*avtaler?\s+med\s+" + Frase("til"),
+            @"\b(?<modal>skal|kan|bør)\s+" + SubjektOmvendt + @"\s+inngå\s+(?:en\s+)?\p{L}*avtaler?\s+med\s+" + Frase("til")),
+
+        Etterbehandlet("plikt-dekkes-av",
+            "«(Utgiftene til …) skal dekkes av X», «… dekkes av X» (normativ presens = skal). [ENDRET, juristgjennomgangen 2026-10-09] Betalingsmottakeren settes når teksten sier HVEM utgiftene er sine: genitiv først i setningen («Det regionale helseforetakets … utgifter») eller «som påføres Y» — ellers (formål: «utgiftene til X») null.",
+            "Ikke målt i docs/33 §1 (finansiering sto utenfor strukturlaget til #353). Tatt inn etter Johanns godkjenning av #353 (spesialisthelsetjenesteloven:u269, a39).",
+            new RegexMonsteroppsett(KreverFra: true, ObjektForan: true, AlleUttrykk: true, PresensErSkal: true),
+            Betalingsmottaker,
+            @"\b(?:(?<modal>skal|kan|bør)\s+(?:de\s+|disse\s+)?(?:også\s+)?)?dekkes\s+(?:også\s+|bare\s+)?av\s+" + Frase("fra")),
+
+        Regex("plikt-dekke-utgifter",
+            "«X skal dekke (behandlings- og forpleinings)utgift(er/ene) …», «X dekker utgiftene …» ([ENDRET, juristgjennomgangen] normativ presens = skal). Til = null: objektet står etter verbet og sier hva utgiftene går til.",
+            "Ikke målt i docs/33 §1. Den aktive formen av plikt-dekkes-av, samme leksikonregel-familie (betalingsplikt).",
+            new RegexMonsteroppsett(KreverFra: true, PresensErSkal: true),
+            Start + Subjekt + "(?:" + PliktModal + @"dekke|\s+dekker)\s+(?<obj>(?:[\p{L}\-]+\s+){0,4}?[\p{L}\-]*utgift\p{L}*)"),
+
+        Regex("plikt-gi-opplysninger",
+            "«X skal/plikter å gi (nødvendige) opplysninger (om …) til Y», «… utlevere informasjon til Y». Y påkrevd.",
+            "Ikke målt i docs/33 §1 (informasjonsdeling sto utenfor strukturlaget til #353). Tatt inn etter Johanns godkjenning av #353 (energiloven:u201).",
+            new RegexMonsteroppsett(KreverFra: true, KreverTil: true),
+            Start + Subjekt + PliktModal + @"(?:gi|utlevere)\s+(?:(?:nødvendige|de|alle|slike|relevante|disse)\s+){0,2}(?:opplysninger|informasjon)(?:\s+om\s+[^.;,]{1,80}?)?\s+til\s+" + Frase("til")),
+
+        Regex("plikt-innhente-uttalelse",
+            "«X skal innhente (rådgivende) uttalelse(r) fra Y», og omvendt ordstilling. Y påkrevd («innhente uttalelser» uten «fra» er saksforberedelse, som står utenfor, docs/33 §4.4).",
+            "Ikke målt i docs/33 §1. Tatt inn etter Johanns godkjenning av #353 (konsultasjonsplikt).",
+            new RegexMonsteroppsett(KreverFra: true, KreverTil: true),
+            Start + Subjekt + PliktModal + @"innhente\s+(?:\p{L}+\s+){0,2}?uttalelser?n?\s+fra\s+" + Frase("til"),
+            @"\b(?<modal>skal|kan|bør)\s+" + SubjektOmvendt + @"\s+innhente\s+(?:\p{L}+\s+){0,2}?uttalelser?n?\s+fra\s+" + Frase("til")),
+
         // ---- A har_sete_i -------------------------------------------------------------------------
         Regex("har-sete-i",
             "«X har (sitt) sete i Y», «X skal ha sitt sete i Y».",
@@ -296,6 +350,39 @@ internal static class Monsterkatalog
     {
         var regel = Kompetanseleksikon.For(id);
         return new Strukturmonster(id, regel.Kategori, regel.Type, beskrivelse, korpus, finn) { Normform = regel.Normform };
+    }
+
+    // [Ny, issue #353, juristgjennomgangen 2026-10-09] Et regex-mønster med etterbehandling av funnene (betalingsmottakeren).
+    private static Strukturmonster Etterbehandlet(string id, string beskrivelse, string korpus, RegexMonsteroppsett oppsett,
+        Func<string, IReadOnlyList<Monsterfunn>, IReadOnlyList<Monsterfunn>> etter, params string[] uttrykk)
+    {
+        var kompilert = uttrykk.Select(u => new Regex(u, Valg)).ToList();
+        return Monster(id, beskrivelse, korpus, setning => etter(setning, RegexMonster.Finn(setning, oppsett, kompilert)));
+    }
+
+    // Hvem utgiftene er sine: «… som påføres fylkeskommuner og kommuner ved valg …» eller genitiv først i setningen foran «utgift»
+    // («Det regionale helseforetakets behandlings- og forpleiningsutgifter …»). «Utgiftene til X» (formål) gir ingenting.
+    private static readonly Regex SomPaafores = new(
+        @"\bsom\s+påføres\s+(?<til>[^.;,]+?)(?=\s+(?:ved|i|for|til|under|etter|når|dekkes)\b|[.;,])", Valg);
+    private static readonly Regex GenitivForanUtgift = new(
+        @"^\[?(?<gen>\p{Lu}[\p{L}\-]*(?:\s+\p{L}[\p{L}\-]*){0,4}?s)\s+(?:[\p{L}\-]+\s+(?:og\s+)?){0,5}?[\p{L}\-]*utgift", Valg);
+
+    private static IReadOnlyList<Monsterfunn> Betalingsmottaker(string setning, IReadOnlyList<Monsterfunn> funn)
+    {
+        if (funn.Count == 0) return funn;
+        IReadOnlyList<string> til = [];
+        var p = SomPaafores.Match(setning);
+        if (p.Success) til = Aktorfrase.Tolk(p.Groups["til"].Value);
+        if (til.Count == 0)
+        {
+            var g = GenitivForanUtgift.Match(setning);
+            var ord = g.Success ? g.Groups["gen"].Value.Split(' ', StringSplitOptions.RemoveEmptyEntries) : [];
+            if (ord.Length > 0 && Aktorfrase.UtenGenitiv(ord[^1]) is { } siste)
+            {
+                til = Aktorfrase.Tolk(string.Join(' ', ord[..^1].Append(siste)));
+            }
+        }
+        return til.Count == 0 ? funn : funn.Select(f => f.Til.Count == 0 ? f with { Til = til } : f).ToList();
     }
 
     // ---- Spesialmønstre som trenger mer enn ett uttrykk per setning ---------------------------------

@@ -33,19 +33,19 @@
  },
  {
   "kilde": "sameloven",
-  "kategori": "relasjon",
-  "type": "annet:finansieringsansvar",
+  "kategori": "plikt",
+  "type": "betalingsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "sameloven",
-  "kategori": "relasjon",
-  "type": "annet:finansieringsansvar",
+  "kategori": "plikt",
+  "type": "betalingsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "sameloven",
@@ -1865,35 +1865,35 @@
  },
  {
   "kilde": "sameloven",
-  "kategori": "relasjon",
-  "type": "annet:konsultasjonsplikt_overfor",
+  "kategori": "plikt",
+  "type": "konsultasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "sameloven",
-  "kategori": "relasjon",
-  "type": "annet:konsultasjonsplikt_overfor",
+  "kategori": "plikt",
+  "type": "konsultasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "sameloven",
-  "kategori": "relasjon",
-  "type": "annet:konsultasjonsplikt_overfor",
+  "kategori": "plikt",
+  "type": "konsultasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "sameloven",
-  "kategori": "relasjon",
-  "type": "annet:konsultasjonsplikt_overfor",
+  "kategori": "plikt",
+  "type": "konsultasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "sameloven",
@@ -1905,19 +1905,19 @@
  },
  {
   "kilde": "sameloven",
-  "kategori": "relasjon",
-  "type": "annet:konsultasjonsplikt_overfor",
+  "kategori": "plikt",
+  "type": "konsultasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "sameloven",
-  "kategori": "relasjon",
-  "type": "annet:konsultasjonsplikt_overfor",
+  "kategori": "plikt",
+  "type": "konsultasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "sameloven",
@@ -1929,19 +1929,19 @@
  },
  {
   "kilde": "sameloven",
-  "kategori": "relasjon",
-  "type": "annet:konsultasjonsplikt_overfor",
+  "kategori": "plikt",
+  "type": "konsultasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "sameloven",
-  "kategori": "relasjon",
-  "type": "annet:konsultasjonsplikt_overfor",
+  "kategori": "plikt",
+  "type": "konsultasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "sameloven",
@@ -2161,11 +2161,11 @@
  },
  {
   "kilde": "sameloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "sameloven",
@@ -2481,19 +2481,19 @@
  },
  {
   "kilde": "energiloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "energiloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "energiloven",
@@ -2914,7 +2914,7 @@
  {
   "kilde": "energiloven",
   "kategori": "relasjon",
-  "type": "annet:forvalter_av",
+  "type": "forvaltes_av",
   "dagens": "nei",
   "revidert": "ja",
   "element": "R"
@@ -3226,7 +3226,7 @@
  {
   "kilde": "energiloven",
   "kategori": "kompetanse",
-  "type": "vedtakskompetanse",
+  "type": "paleggskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -3785,91 +3785,91 @@
  },
  {
   "kilde": "energiloven",
-  "kategori": "relasjon",
-  "type": "annet:informasjonsdeling",
+  "kategori": "plikt",
+  "type": "informasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "energiloven",
-  "kategori": "relasjon",
-  "type": "annet:informasjonsdeling",
+  "kategori": "plikt",
+  "type": "informasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "energiloven",
-  "kategori": "relasjon",
-  "type": "annet:informasjonsdeling",
+  "kategori": "plikt",
+  "type": "informasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "energiloven",
-  "kategori": "relasjon",
-  "type": "annet:informasjonsdeling",
+  "kategori": "plikt",
+  "type": "informasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "energiloven",
-  "kategori": "relasjon",
-  "type": "annet:informasjonsdeling",
+  "kategori": "plikt",
+  "type": "informasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "energiloven",
-  "kategori": "relasjon",
-  "type": "annet:informasjonsdeling",
+  "kategori": "plikt",
+  "type": "informasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "energiloven",
-  "kategori": "relasjon",
-  "type": "annet:informasjonsdeling",
+  "kategori": "plikt",
+  "type": "informasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "energiloven",
-  "kategori": "relasjon",
-  "type": "annet:informasjonsdeling",
+  "kategori": "plikt",
+  "type": "informasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "energiloven",
-  "kategori": "relasjon",
-  "type": "annet:informasjonsdeling",
+  "kategori": "plikt",
+  "type": "informasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "energiloven",
-  "kategori": "relasjon",
-  "type": "annet:informasjonsdeling",
+  "kategori": "plikt",
+  "type": "informasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "energiloven",
-  "kategori": "relasjon",
-  "type": "annet:informasjonsdeling",
+  "kategori": "plikt",
+  "type": "informasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "energiloven",
@@ -3881,11 +3881,11 @@
  },
  {
   "kilde": "energiloven",
-  "kategori": "relasjon",
-  "type": "annet:informasjonsdeling",
+  "kategori": "plikt",
+  "type": "informasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "energiloven",
@@ -3906,7 +3906,7 @@
  {
   "kilde": "energiloven",
   "kategori": "kompetanse",
-  "type": "vedtakskompetanse",
+  "type": "paleggskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -4273,11 +4273,11 @@
  },
  {
   "kilde": "energiloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "energiloven",
@@ -4473,19 +4473,19 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "bistar",
+  "kategori": "plikt",
+  "type": "bistandsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -4505,11 +4505,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -4585,11 +4585,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -4657,11 +4657,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "bistar",
+  "kategori": "plikt",
+  "type": "bistandsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -4673,11 +4673,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "annet:kompenserer",
+  "kategori": "plikt",
+  "type": "betalingsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -4697,11 +4697,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -4817,11 +4817,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "avtaleplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -4857,11 +4857,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -4914,26 +4914,26 @@
  {
   "kilde": "helse-og-omsorgstjenesteloven",
   "kategori": "kompetanse",
-  "type": "vedtakskompetanse",
+  "type": "paleggskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -4985,11 +4985,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "bistar",
+  "kategori": "plikt",
+  "type": "bistandsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -5129,11 +5129,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "bistar",
+  "kategori": "plikt",
+  "type": "bistandsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -5177,11 +5177,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "bistar",
+  "kategori": "plikt",
+  "type": "bistandsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -5281,11 +5281,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "bistar",
+  "kategori": "plikt",
+  "type": "bistandsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -5361,11 +5361,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -5497,11 +5497,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "ansvarsomrade",
-  "type": "annet:finansieringsansvar",
+  "kategori": "plikt",
+  "type": "betalingsplikt",
   "dagens": "nei",
   "revidert": "ja",
-  "element": "A"
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -5561,11 +5561,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "avtaleplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -5577,11 +5577,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "annet:finansierer",
+  "kategori": "plikt",
+  "type": "betalingsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -5593,11 +5593,11 @@
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
-  "kategori": "relasjon",
-  "type": "annet:finansierer",
+  "kategori": "plikt",
+  "type": "betalingsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "helse-og-omsorgstjenesteloven",
@@ -6897,11 +6897,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -7225,11 +7225,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "annet:finansierer",
+  "kategori": "plikt",
+  "type": "betalingsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -7281,43 +7281,43 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "bistar",
+  "kategori": "plikt",
+  "type": "bistandsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "annet:finansierer",
+  "kategori": "plikt",
+  "type": "betalingsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -7337,19 +7337,19 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -7361,11 +7361,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -7473,11 +7473,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "bistar",
+  "kategori": "plikt",
+  "type": "bistandsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -7497,11 +7497,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -7537,11 +7537,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "samarbeidsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -7593,11 +7593,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "samarbeider_med",
+  "kategori": "plikt",
+  "type": "avtaleplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -7985,35 +7985,35 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "annet:finansieringsansvar",
-  "type": "annet:dekker_utgifter_for",
+  "kategori": "plikt",
+  "type": "betalingsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "annet:finansieringsansvar",
-  "type": "annet:dekker_utgifter_for",
+  "kategori": "plikt",
+  "type": "betalingsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "annet:finansieringsansvar",
-  "type": "annet:dekker_utgifter_for",
+  "kategori": "plikt",
+  "type": "betalingsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "annet:finansieringsansvar",
-  "type": "annet:dekker_utgifter_for",
+  "kategori": "plikt",
+  "type": "betalingsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -8033,11 +8033,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "annet:finansieringsansvar",
-  "type": "annet:dekker_utgifter_for",
+  "kategori": "plikt",
+  "type": "betalingsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -8049,27 +8049,27 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "annet:finansieringsansvar",
-  "type": "annet:dekker_utgifter_for",
+  "kategori": "annet:tapsfordeling",
+  "type": "annet:tapsfordeling",
   "dagens": "nei",
   "revidert": "senere_lag",
   "element": "-"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "annet:finansieringsansvar",
-  "type": "annet:dekker_utgifter_for",
+  "kategori": "plikt",
+  "type": "betalingsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "annet:finansieringsansvar",
-  "type": "annet:dekker_utgifter_for",
+  "kategori": "plikt",
+  "type": "betalingsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -8081,11 +8081,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "annet:finansieringsansvar",
-  "type": "annet:dekker_utgifter_for",
+  "kategori": "plikt",
+  "type": "betalingsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -8145,11 +8145,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "relasjon",
-  "type": "bistar",
+  "kategori": "plikt",
+  "type": "bistandsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -8225,11 +8225,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "annet:finansieringsansvar",
-  "type": "annet:dekker_utgifter_for",
+  "kategori": "plikt",
+  "type": "betalingsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -8257,11 +8257,19 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "annet:finansieringsansvar",
-  "type": "annet:dekker_utgifter_for",
+  "kategori": "plikt",
+  "type": "betalingsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
+ },
+ {
+  "kilde": "spesialisthelsetjenesteloven",
+  "kategori": "relasjon",
+  "type": "forvaltes_av",
+  "dagens": "nei",
+  "revidert": "ja",
+  "element": "R"
  },
  {
   "kilde": "domstolloven",
@@ -8386,7 +8394,7 @@
  {
   "kilde": "domstolloven",
   "kategori": "organsammensetning",
-  "type": "har_medlemmer",
+  "type": "settes_med",
   "dagens": "nei",
   "revidert": "ja",
   "element": "G"
@@ -8402,7 +8410,7 @@
  {
   "kilde": "domstolloven",
   "kategori": "organsammensetning",
-  "type": "har_medlemmer",
+  "type": "settes_med",
   "dagens": "nei",
   "revidert": "ja",
   "element": "G"
@@ -8602,7 +8610,7 @@
  {
   "kilde": "domstolloven",
   "kategori": "relasjon",
-  "type": "bistar",
+  "type": "annet:anmodning_om_bistand",
   "dagens": "nei",
   "revidert": "senere_lag",
   "element": "-"
@@ -9097,11 +9105,11 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "relasjon",
-  "type": "bistar",
+  "kategori": "plikt",
+  "type": "bistandsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "domstolloven",
@@ -9697,27 +9705,27 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "relasjon",
-  "type": "bistar",
+  "kategori": "plikt",
+  "type": "bistandsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "domstolloven",
-  "kategori": "relasjon",
-  "type": "bistar",
+  "kategori": "plikt",
+  "type": "bistandsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "domstolloven",
-  "kategori": "relasjon",
-  "type": "bistar",
+  "kategori": "plikt",
+  "type": "bistandsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "domstolloven",
@@ -10049,11 +10057,11 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "relasjon",
-  "type": "bistar",
+  "kategori": "plikt",
+  "type": "bistandsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "domstolloven",
@@ -10177,11 +10185,11 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "relasjon",
-  "type": "annet:varsler",
+  "kategori": "plikt",
+  "type": "informasjonsplikt",
   "dagens": "nei",
-  "revidert": "senere_lag",
-  "element": "-"
+  "revidert": "ja",
+  "element": "P"
  },
  {
   "kilde": "domstolloven",

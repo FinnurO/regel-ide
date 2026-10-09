@@ -38,12 +38,15 @@ public sealed record Strukturmonster(
 /// setningen ikke avgjør endepunktet (blir <c>null</c> i utsagnet). Flere elementer = sideordnede aktører
 /// («Reguleringsmyndigheten og klagenemnda»), som gir ett utsagn per kombinasjon.
 /// </summary>
+/// <param name="Modalitet">[Ny, issue #353] skal | kan | bor for et pliktmønster (fra modalverbet i treffet, gruppen
+/// <c>modal</c>), ellers null.</param>
 public sealed record Monsterfunn(
     string Sitat,
     IReadOnlyList<string> Fra,
     IReadOnlyList<string> Til,
     string? Objekt,
-    string Polaritet);
+    string Polaritet,
+    string? Modalitet = null);
 
 /// <summary>
 /// Felles maskineri for mønstre som er én eller flere regulære uttrykk med navngitte grupper:
@@ -55,7 +58,10 @@ internal sealed record RegexMonsteroppsett(
     bool KreverTil = false,
     string Polaritet = "positiv",
     bool ObjektForan = false,
-    bool AlleUttrykk = false);
+    bool AlleUttrykk = false,
+    // [Ny, issue #353, juristgjennomgangen 2026-10-09] Normativ presens uten modalverb («dekkes av staten», «Staten dekker …») er
+    // «skal» — bare for mønstre der presens er en plikt-formulering (betaling).
+    bool PresensErSkal = false);
 
 internal static class RegexMonster
 {
@@ -95,7 +101,7 @@ internal static class RegexMonster
                     objekt = Objekt(setning[..m.Index]);
                 }
 
-                funn.Add(new Monsterfunn(Sitat(setning), fra, til, objekt, oppsett.Polaritet));
+                funn.Add(new Monsterfunn(Sitat(setning), fra, til, objekt, oppsett.Polaritet, Modalitet(m.Groups["modal"]) ?? (oppsett.PresensErSkal ? "skal" : null)));
             }
             if (!oppsett.AlleUttrykk)
             {
@@ -108,6 +114,21 @@ internal static class RegexMonster
             }
         }
         return samlet;
+    }
+
+    /// <summary>
+    /// [Ny, issue #353, jf. L14] Modaliteten fra modalverbet mønsteret fanget i gruppen <c>modal</c>: «skal», «plikter (å)», «har
+    /// plikt til» → <c>skal</c>; «kan» → <c>kan</c>; «bør» → <c>bor</c>. Ingen gruppe (presens: «Staten dekker …») → null — det
+    /// gjettes ikke at presens betyr «skal».
+    /// </summary>
+    internal static string? Modalitet(Group modal)
+    {
+        if (!modal.Success) return null;
+        var v = modal.Value.Trim().ToLowerInvariant();
+        return v.StartsWith("skal") || v.StartsWith("plikt") || v.StartsWith("har plikt") ? "skal"
+            : v.StartsWith("kan") ? "kan"
+            : v.StartsWith("bør") ? "bor"
+            : null;
     }
 
     private static IReadOnlyList<string> Endepunkt(Match m, string gruppe, string genitivgruppe)

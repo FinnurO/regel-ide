@@ -815,8 +815,8 @@
       "id": "u12",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§2-2/ledd-5",
       "sitat": "Offentlige organer som berøres av tiltaket, og andre som tiltaket direkte gjelder, skal få søknaden tilsendt i forbindelse med høringen.",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": null,
       "til": null,
       "objekt": null,
@@ -826,7 +826,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
       "kommentar": "Plikt for offentlige organer til å motta søknaden, men ikke strukturell relasjon i seg selv.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u13",
@@ -955,7 +956,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§2-4/ledd-4",
       "sitat": "Konsesjonsmyndigheten kan pålegge den som gis konsesjon etter § 3-1, å betale utgiftene ved kunngjøringen av konsesjonsvedtaket.",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "paleggskompetanse",
       "fra": "a4",
       "til": null,
       "objekt": "pålegge konsesjonær å betale utgifter ved kunngjøring",
@@ -964,7 +965,7 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -1058,8 +1059,8 @@
       "id": "u26",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§2-5/ledd-4",
       "sitat": "Reguleringsmyndigheten skal samarbeide med andre lands reguleringsmyndigheter og internasjonale institusjoner i samsvar med Norges EØS-rettslige forpliktelser.",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a6",
       "til": null,
       "objekt": null,
@@ -1069,7 +1070,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Samarbeid med klasser av aktører.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u27",
@@ -2145,8 +2147,8 @@
       "id": "u89",
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-10/ledd-2",
       "sitat": "Eier av anlegg i et transmisjonsnett skal melde til reguleringsmyndigheten om enhver planlagt transaksjon som nødvendiggjør vurdering av kravene som følger av § 4-8 eller forskrift gitt i medhold av § 4-8.",
-      "kategori": "relasjon",
-      "type": "annet:meldingsplikt_til",
+      "kategori": "plikt",
+      "type": "informasjonsplikt",
       "fra": "a23",
       "til": "a6",
       "objekt": null,
@@ -2156,7 +2158,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
       "kommentar": "Plikt for eier, men viser til relasjon til reguleringsmyndigheten.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u90",
@@ -2458,7 +2461,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§5-3/ledd-1",
       "sitat": "Departementet kan pålegge ethvert fjernvarmeanlegg å knytte seg til andre fjernvarmeanlegg såfremt anlegget har et varmesystem som kan tilknyttes.",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "paleggskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "pålegg om tilknytting mellom fjernvarmeanlegg",
@@ -2467,7 +2470,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -3452,7 +3455,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1a/ledd-1",
       "sitat": "Konsesjonsmyndigheten kan i driftsperioden pålegge konsesjonæren å utføre og bekoste undersøkelser av tiltakets virkninger for miljø eller annen arealbruk.",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "paleggskompetanse",
       "fra": "a4",
       "til": "a30",
       "objekt": "pålegge undersøkelser",
@@ -3461,7 +3464,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -4247,8 +4250,8 @@
       "id": "u210",
       "eid": "kap-I/ledd-9",
       "sitat": "Gjennomføring av rapportering etter energiloven § 10-1 tredje ledd annet punktum skal samordnes med departementet.",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a34",
       "til": "a1",
       "objekt": null,
@@ -4258,7 +4261,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": "Samordningsplikt mellom NVE og departementet.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u211",

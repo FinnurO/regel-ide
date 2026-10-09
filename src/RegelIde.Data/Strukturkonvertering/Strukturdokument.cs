@@ -44,6 +44,12 @@ public sealed record StrukturAktor(
     [property: JsonPropertyName("distributiv")] bool? Distributiv,
     [property: JsonPropertyName("kommentar")] string? Kommentar)
 {
+    /// <summary>[Ny, issue #353] Undertypen til en aktør med entitetstype <c>ordning</c>: trygdeordning | fond | tilskuddsordning
+    /// (FORMAT.md, <see cref="Strukturkontrakt.Ordningstyper"/>). Utelatt når null.</summary>
+    [JsonPropertyName("undertype")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Undertype { get; init; }
+
     /// <summary>[Ny, issue #312] Samme som <see cref="StrukturUtsagn.VerifisertAv"/>, for aktører fasitrettelsen endret.</summary>
     [JsonPropertyName("verifisert_av")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
@@ -90,6 +96,11 @@ public sealed record StrukturUtsagn(
     [JsonPropertyName("undertype")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Undertype { get; init; }
+
+    /// <summary>[Ny, issue #353] Modaliteten på en plikt (FORMAT.md): skal | kan | bor. Utelatt når null (ikke angitt).</summary>
+    [JsonPropertyName("modalitet")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Modalitet { get; init; }
 
     /// <summary>[Ny, issue #341] offentligrettslig | privatrettslig (FORMAT.md). Utelatt når null.</summary>
     [JsonPropertyName("grunnlag")]

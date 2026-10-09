@@ -9402,7 +9402,7 @@
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-2",
    "sitat": "Domstolens leder kan ellers be lagmannsretten om å foreta tilkalling av slike dommere innen lagdømmet.",
    "kategori": "relasjon",
-   "type": "bistar",
+   "type": "annet:anmodning_om_bistand",
    "fra": "lr",
    "til": "tr",
    "objekt": null,
@@ -9411,7 +9411,7 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": ""
+   "kommentar": "[#353, juristgjennomgangen] «A kan be B om å …» er en adgang til å be om bistand; teksten sier ikke at B skal — ingen plikt."
   },
   {
    "id": "u44",
@@ -10416,8 +10416,8 @@
    "id": "u105",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§44/ledd-1",
    "sitat": "utføres de efter domstolens anmodning av stedets ret",
-   "kategori": "relasjon",
-   "type": "bistar",
+   "kategori": "plikt",
+   "type": "bistandsplikt",
    "fra": "tr",
    "til": "domstolene",
    "objekt": null,
@@ -10426,7 +10426,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Rettsanmodning: bistand mellom sideordnede organer, med mottaker bestemt geografisk."
+   "kommentar": "Rettsanmodning: bistand mellom sideordnede organer, med mottaker bestemt geografisk.",
+   "modalitet": "skal"
   },
   {
    "id": "u106",
@@ -11650,8 +11651,8 @@
    "id": "u180",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§79/ledd-1",
    "sitat": "Etter anmodning fra en domstol, kommune eller fylkeskommune skal politiet gi opplysning",
-   "kategori": "relasjon",
-   "type": "bistar",
+   "kategori": "plikt",
+   "type": "bistandsplikt",
    "fra": "politiet",
    "til": "domstolene",
    "objekt": "opplysninger om meddommerkandidater",
@@ -11660,14 +11661,15 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "modalitet": "skal"
   },
   {
    "id": "u181",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§79/ledd-1",
    "sitat": "Etter anmodning fra en domstol, kommune eller fylkeskommune skal politiet gi opplysning",
-   "kategori": "relasjon",
-   "type": "bistar",
+   "kategori": "plikt",
+   "type": "bistandsplikt",
    "fra": "politiet",
    "til": "kommune",
    "objekt": "opplysninger om meddommerkandidater",
@@ -11676,14 +11678,15 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "modalitet": "skal"
   },
   {
    "id": "u182",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§79/ledd-1",
    "sitat": "Etter anmodning fra en domstol, kommune eller fylkeskommune skal politiet gi opplysning",
-   "kategori": "relasjon",
-   "type": "bistar",
+   "kategori": "plikt",
+   "type": "bistandsplikt",
    "fra": "politiet",
    "til": "fylkeskommune",
    "objekt": "opplysninger om meddommerkandidater",
@@ -11692,7 +11695,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "modalitet": "skal"
   },
   {
    "id": "u183",
@@ -12380,8 +12384,8 @@
    "id": "u224",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§188/ledd-1",
    "sitat": "skal Posten Norge AS sørge for, at brev, som gjælder retssaker, blir bragt til adressaten",
-   "kategori": "relasjon",
-   "type": "bistar",
+   "kategori": "plikt",
+   "type": "bistandsplikt",
    "fra": "posten",
    "til": "domstolene",
    "objekt": null,
@@ -12390,7 +12394,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Pålegg til et aksjeselskap om å bistå «en offentlig myndighet»."
+   "kommentar": "Pålegg til et aksjeselskap om å bistå «en offentlig myndighet».",
+   "modalitet": "skal"
   },
   {
    "id": "u225",
@@ -12646,8 +12651,8 @@
    "id": "u240",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§217a/ledd-1",
    "sitat": "varsle Advokattilsynet om avgjørelsen",
-   "kategori": "relasjon",
-   "type": "annet:varsler",
+   "kategori": "plikt",
+   "type": "informasjonsplikt",
    "fra": "domstolene",
    "til": "advtilsyn",
    "objekt": "straff/erstatning ilagt advokat",
@@ -12656,7 +12661,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "modalitet": "skal"
   },
   {
    "id": "u241",

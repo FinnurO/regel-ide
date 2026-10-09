@@ -412,12 +412,13 @@
     "https://lovdata.no/eli/forskrift/2024/12/20/3495/nor/ledd-1"
    ],
    "antall_forekomster": 5,
-   "entitetstype": "annet:fond",
+   "entitetstype": "ordning",
    "navngitt": true,
    "referent": "Energifondet",
    "oppløsning": "tekstlig",
    "distributiv": null,
-   "kommentar": "Ikke en aktør, men et formuesobjekt med vedtekter og en forvalter-rolle. Tatt med fordi rollen «forvalteren av Energifondet» defineres ut fra det."
+   "kommentar": "Ikke en aktør, men et formuesobjekt med vedtekter og en forvalter-rolle. Tatt med fordi rollen «forvalteren av Energifondet» defineres ut fra det. [#353] Entitetstype var «annet:fond».",
+   "undertype": "fond"
   },
   {
    "id": "a21",
@@ -1358,8 +1359,8 @@
    "id": "u26",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§2-5/ledd-4",
    "sitat": "Reguleringsmyndigheten skal samarbeide med andre lands reguleringsmyndigheter og internasjonale institusjoner",
-   "kategori": "relasjon",
-   "type": "samarbeider_med",
+   "kategori": "plikt",
+   "type": "samarbeidsplikt",
    "fra": "a3",
    "til": "a24",
    "objekt": null,
@@ -1368,14 +1369,15 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "modalitet": "skal"
   },
   {
    "id": "u27",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§2-5/ledd-4",
    "sitat": "Reguleringsmyndigheten skal samarbeide med andre lands reguleringsmyndigheter og internasjonale institusjoner",
-   "kategori": "relasjon",
-   "type": "samarbeider_med",
+   "kategori": "plikt",
+   "type": "samarbeidsplikt",
    "fra": "a3",
    "til": "a25",
    "objekt": null,
@@ -1384,7 +1386,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "modalitet": "skal"
   },
   {
    "id": "u28",
@@ -2240,16 +2243,16 @@
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§4-4/ledd-5",
    "sitat": "forvalteren av Energifondet",
    "kategori": "relasjon",
-   "type": "annet:forvalter_av",
-   "fra": "a19",
-   "til": "a20",
+   "type": "forvaltes_av",
+   "fra": "a20",
+   "til": "a19",
    "objekt": null,
    "polaritet": "positiv",
    "avgrensning": null,
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Rollen er definert ved relasjonen til et formuesobjekt."
+   "kommentar": "Rollen er definert ved relasjonen til et formuesobjekt. [#353] Var annet:forvalter_av (forvalter → ordning); snudd til forvaltes_av (ordning → forvalter), samme forhold."
   },
   {
    "id": "u81",
@@ -2879,7 +2882,7 @@
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§5-3/ledd-1",
    "sitat": "Departementet kan pålegge ethvert fjernvarmeanlegg å knytte seg til andre fjernvarmeanlegg",
    "kategori": "kompetanse",
-   "type": "vedtakskompetanse",
+   "type": "paleggskompetanse",
    "fra": "a1",
    "til": null,
    "objekt": "pålegg om tilknytning mellom fjernvarmeanlegg",
@@ -2888,7 +2891,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt."
   },
   {
    "id": "u120",
@@ -4023,8 +4026,8 @@
    "id": "u189",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-3",
    "sitat": "skal informasjon utleveres til EFTAs faste komité, EFTAs overvåkningsorgan eller EU-kommisjonen",
-   "kategori": "relasjon",
-   "type": "annet:informasjonsdeling",
+   "kategori": "plikt",
+   "type": "informasjonsplikt",
    "fra": null,
    "til": "a28",
    "objekt": null,
@@ -4033,14 +4036,15 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Avsender ikke angitt; delegeringsvedtaket kap-I/ledd-9 forutsetter at NVE rapporterer, samordnet med departementet."
+   "kommentar": "Avsender ikke angitt; delegeringsvedtaket kap-I/ledd-9 forutsetter at NVE rapporterer, samordnet med departementet.",
+   "modalitet": "skal"
   },
   {
    "id": "u190",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-3",
    "sitat": "skal informasjon utleveres til EFTAs faste komité, EFTAs overvåkningsorgan eller EU-kommisjonen",
-   "kategori": "relasjon",
-   "type": "annet:informasjonsdeling",
+   "kategori": "plikt",
+   "type": "informasjonsplikt",
    "fra": null,
    "til": "a16",
    "objekt": null,
@@ -4049,14 +4053,15 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Avsender ikke angitt; delegeringsvedtaket kap-I/ledd-9 forutsetter at NVE rapporterer, samordnet med departementet."
+   "kommentar": "Avsender ikke angitt; delegeringsvedtaket kap-I/ledd-9 forutsetter at NVE rapporterer, samordnet med departementet.",
+   "modalitet": "skal"
   },
   {
    "id": "u191",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-3",
    "sitat": "skal informasjon utleveres til EFTAs faste komité, EFTAs overvåkningsorgan eller EU-kommisjonen",
-   "kategori": "relasjon",
-   "type": "annet:informasjonsdeling",
+   "kategori": "plikt",
+   "type": "informasjonsplikt",
    "fra": null,
    "til": "a29",
    "objekt": null,
@@ -4065,14 +4070,15 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Avsender ikke angitt; delegeringsvedtaket kap-I/ledd-9 forutsetter at NVE rapporterer, samordnet med departementet."
+   "kommentar": "Avsender ikke angitt; delegeringsvedtaket kap-I/ledd-9 forutsetter at NVE rapporterer, samordnet med departementet.",
+   "modalitet": "skal"
   },
   {
    "id": "u192",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-4",
    "sitat": "kan departementet eller reguleringsmyndigheten, uten hinder av lovbestemt taushetsplikt, gi andre norske myndigheter opplysninger",
-   "kategori": "relasjon",
-   "type": "annet:informasjonsdeling",
+   "kategori": "plikt",
+   "type": "informasjonsplikt",
    "fra": "a1",
    "til": "a30",
    "objekt": null,
@@ -4081,14 +4087,15 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "modalitet": "kan"
   },
   {
    "id": "u193",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-4",
    "sitat": "gi energimyndighetene i andre stater som er part i EØS-avtalen, byrået for samarbeid mellom energiregulatorer eller EFTAs overvåkningsorgan opplysninger",
-   "kategori": "relasjon",
-   "type": "annet:informasjonsdeling",
+   "kategori": "plikt",
+   "type": "informasjonsplikt",
    "fra": "a1",
    "til": "a31",
    "objekt": null,
@@ -4097,14 +4104,15 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "modalitet": "kan"
   },
   {
    "id": "u194",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-4",
    "sitat": "gi energimyndighetene i andre stater som er part i EØS-avtalen, byrået for samarbeid mellom energiregulatorer eller EFTAs overvåkningsorgan opplysninger",
-   "kategori": "relasjon",
-   "type": "annet:informasjonsdeling",
+   "kategori": "plikt",
+   "type": "informasjonsplikt",
    "fra": "a1",
    "til": "a32",
    "objekt": null,
@@ -4113,14 +4121,15 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "modalitet": "kan"
   },
   {
    "id": "u195",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-4",
    "sitat": "gi energimyndighetene i andre stater som er part i EØS-avtalen, byrået for samarbeid mellom energiregulatorer eller EFTAs overvåkningsorgan opplysninger",
-   "kategori": "relasjon",
-   "type": "annet:informasjonsdeling",
+   "kategori": "plikt",
+   "type": "informasjonsplikt",
    "fra": "a1",
    "til": "a16",
    "objekt": null,
@@ -4129,14 +4138,15 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "modalitet": "kan"
   },
   {
    "id": "u196",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-4",
    "sitat": "kan departementet eller reguleringsmyndigheten, uten hinder av lovbestemt taushetsplikt, gi andre norske myndigheter opplysninger",
-   "kategori": "relasjon",
-   "type": "annet:informasjonsdeling",
+   "kategori": "plikt",
+   "type": "informasjonsplikt",
    "fra": "a3",
    "til": "a30",
    "objekt": null,
@@ -4145,14 +4155,15 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "modalitet": "kan"
   },
   {
    "id": "u197",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-4",
    "sitat": "gi energimyndighetene i andre stater som er part i EØS-avtalen, byrået for samarbeid mellom energiregulatorer eller EFTAs overvåkningsorgan opplysninger",
-   "kategori": "relasjon",
-   "type": "annet:informasjonsdeling",
+   "kategori": "plikt",
+   "type": "informasjonsplikt",
    "fra": "a3",
    "til": "a31",
    "objekt": null,
@@ -4161,14 +4172,15 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "modalitet": "kan"
   },
   {
    "id": "u198",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-4",
    "sitat": "gi energimyndighetene i andre stater som er part i EØS-avtalen, byrået for samarbeid mellom energiregulatorer eller EFTAs overvåkningsorgan opplysninger",
-   "kategori": "relasjon",
-   "type": "annet:informasjonsdeling",
+   "kategori": "plikt",
+   "type": "informasjonsplikt",
    "fra": "a3",
    "til": "a32",
    "objekt": null,
@@ -4177,14 +4189,15 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "modalitet": "kan"
   },
   {
    "id": "u199",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-4",
    "sitat": "gi energimyndighetene i andre stater som er part i EØS-avtalen, byrået for samarbeid mellom energiregulatorer eller EFTAs overvåkningsorgan opplysninger",
-   "kategori": "relasjon",
-   "type": "annet:informasjonsdeling",
+   "kategori": "plikt",
+   "type": "informasjonsplikt",
    "fra": "a3",
    "til": "a16",
    "objekt": null,
@@ -4193,7 +4206,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "modalitet": "kan"
   },
   {
    "id": "u200",
@@ -4216,8 +4230,8 @@
    "id": "u201",
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1/ledd-6",
    "sitat": "plikt til å utlevere informasjon til det europeiske nettverket for operatører av transmisjonssystem for elektrisk energi",
-   "kategori": "relasjon",
-   "type": "annet:informasjonsdeling",
+   "kategori": "plikt",
+   "type": "informasjonsplikt",
    "fra": null,
    "til": "a33",
    "objekt": null,
@@ -4226,7 +4240,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": true,
    "sikkerhet": "lav",
-   "kommentar": "Avsender ikke angitt (trolig systemansvarlig)."
+   "kommentar": "Avsender ikke angitt (trolig systemansvarlig).",
+   "modalitet": "skal"
   },
   {
    "id": "u202",
@@ -4266,7 +4281,7 @@
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1a/ledd-1",
    "sitat": "Konsesjonsmyndigheten kan i driftsperioden pålegge konsesjonæren å utføre og bekoste undersøkelser",
    "kategori": "kompetanse",
-   "type": "vedtakskompetanse",
+   "type": "paleggskompetanse",
    "fra": "a5",
    "til": null,
    "objekt": "pålegg om etterundersøkelser",
@@ -4275,7 +4290,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt."
   },
   {
    "id": "u205",
@@ -5010,8 +5025,8 @@
    "id": "u250",
    "eid": "kap-I/ledd-9",
    "sitat": "Gjennomføring av rapportering etter energiloven § 10-1 tredje ledd annet punktum skal samordnes med departementet.",
-   "kategori": "relasjon",
-   "type": "samarbeider_med",
+   "kategori": "plikt",
+   "type": "samarbeidsplikt",
    "fra": "a6",
    "til": "a1",
    "objekt": null,
@@ -5020,7 +5035,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Samordningsplikt; fra-aktør (NVE) implisitt."
+   "kommentar": "Samordningsplikt; fra-aktør (NVE) implisitt.",
+   "modalitet": "skal"
   },
   {
    "id": "u251",

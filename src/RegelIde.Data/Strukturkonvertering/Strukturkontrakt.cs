@@ -31,23 +31,26 @@ public static partial class Strukturkontrakt
             // tilsyn_med_aktor, delegerer_til) er kompetanse med motpart. De seks siste er ikke avgjort ennå (FORMAT.md).
             // [ENDRET, issue #352, Johanns beslutninger 2026-10-08] velger er oppnevningskompetanse med undertype valg
             // (fjernet herfra); administrativt_underordnet og radgir er avgjort som relasjon (struktur, ikke myndighet).
-            // bistar, samarbeider_med og del_av er fortsatt ikke avgjort.
+            // [ENDRET, issue #353, Johanns godkjenning 2026-10-08] bistar og samarbeider_med er PLIKT (kategorien plikt under),
+            // ikke relasjon; forvaltes_av (ordning → organet som forvalter den) er ny. del_av er fortsatt ikke avgjort.
             ["relasjon"] =
             [
                 "eies_av", "ledes_av", "sekretariat_for", "rapporterer_til", "etterfolger", "representerer",
-                Strukturkanter.HarDelegertTil, "administrativt_underordnet", "bistar", "samarbeider_med", "radgir",
-                "del_av",
+                Strukturkanter.HarDelegertTil, "administrativt_underordnet", "radgir", "del_av", Strukturkanter.ForvaltesAv,
             ],
             // [ENDRET, issue #341] Typologien (P2 + hierarkiet) — samme liste og rekkefølge som Strukturkanter.Kompetansetyper,
             // så fasit-/konverteringstypen og databasetypen ikke kan drifte. «ukjent» = et kompetanseuttrykk verken
             // leksikonet eller KI kan typebestemme (Johanns beslutning 3: gjettes ikke).
             ["kompetanse"] = [.. Strukturkanter.Kompetansetyper.Select(t => t.FasitType), Ukjent],
+            // [Ny, issue #353] Plikt overfor motpart — samme liste og rekkefølge som Strukturkanter.Plikttyper.
+            ["plikt"] = [.. Strukturkanter.Plikttyper.Select(t => t.FasitType)],
             ["medlemskap"] = ["medlem_av", "inngar_i"],
             ["sammensetning_omrade"] = ["bestar_av", "del_av"],
             ["ansvarsomrade"] = ["har_ansvarsomrade", "har_jurisdiksjon", "har_sete_i"],
             ["konstituerende"] = ["oppretter", "avvikler", "skal_finnes"],
             // [ENDRET, issue #352-tillegg, Johann 2026-10-08] settes_med = sammensetningen i den enkelte sak (saksavhengig).
-            ["organsammensetning"] = ["har_medlemmer", "har_organ", Strukturkanter.SettesMed],
+            // [ENDRET, issue #353] + tilhorer (ordning → rettssubjektet den tilhører, bare når det er hjemlet).
+            ["organsammensetning"] = ["har_medlemmer", "har_organ", Strukturkanter.SettesMed, Strukturkanter.Tilhorer],
         };
 
     /// <summary>[Ny, issue #341] Kompetansetypen når uttrykket ikke kan typebestemmes.</summary>
@@ -61,12 +64,20 @@ public static partial class Strukturkontrakt
     public static bool ErGyldigUndertype(string fasitType, string undertype) =>
         Strukturkanter.KompetansetypeFraFasit.TryGetValue(fasitType, out var kode) && Strukturkanter.ErGyldigUndertype(kode, undertype);
 
+    /// <summary>[Ny, issue #353] FORMAT.md <c>utsagn.modalitet</c> — bare på plikt; samme liste som <see cref="Strukturkanter.Modaliteter"/>.</summary>
+    public static IReadOnlyList<string> Modaliteter => Strukturkanter.Modaliteter;
+
+    /// <summary>[Ny, issue #353] FORMAT.md <c>aktorer.undertype</c> — bare på entitetstype <c>ordning</c>; samme liste som
+    /// <see cref="Nodetyper.Ordningstyper"/>.</summary>
+    public static IReadOnlyList<string> Ordningstyper => Nodetyper.Ordningstyper;
+
     /// <summary>[Ny, issue #341] FORMAT.md <c>utsagn.grunnlag</c> — samme liste som <see cref="Strukturkanter.Grunnlag"/>.</summary>
     public static IReadOnlyList<string> Grunnlag => Strukturkanter.Grunnlag;
 
     /// <summary>FORMAT.md <c>aktorer.entitetstype</c> (i tillegg til <c>annet:&lt;x&gt;</c>).</summary>
+    /// <remarks>[ENDRET, issue #353] + <c>ordning</c> (ikke-aktør: folketrygden, et fond, en tilskuddsordning).</remarks>
     public static IReadOnlyList<string> Entitetstyper { get; } =
-        ["rettssubjekt", "organ", "organisatorisk_enhet", "rolle", "person", "omrade", "klasse"];
+        ["rettssubjekt", "organ", "organisatorisk_enhet", "rolle", "person", "omrade", "klasse", Nodetyper.Ordning];
 
     /// <summary>FORMAT.md <c>aktorer.oppløsning</c>.</summary>
     public static IReadOnlyList<string> Opplosninger { get; } =

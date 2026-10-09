@@ -1829,8 +1829,8 @@
       "id": "u14",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1a/ledd-7",
       "sitat": "Tjenester som nevnt i første ledd kan ytes av de regionale helseforetakene selv, eller ved at de inngår avtale med andre tjenesteytere",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a5",
       "til": "a7",
       "objekt": null,
@@ -1840,7 +1840,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "kan"
     },
     {
       "id": "u15",
@@ -1881,8 +1882,8 @@
       "id": "u17",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1b/ledd-1",
       "sitat": "Beredskapsplanen skal samordnes med kommunenes, fylkeskommunenes og de andre regionale helseforetakenes beredskapsplaner",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a5",
       "til": "a8",
       "objekt": null,
@@ -1892,14 +1893,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u18",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1b/ledd-1",
       "sitat": "Beredskapsplanen skal samordnes med kommunenes, fylkeskommunenes og de andre regionale helseforetakenes beredskapsplaner",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a5",
       "til": "a9",
       "objekt": null,
@@ -1909,14 +1911,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u19",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1c/ledd-1",
       "sitat": "skal helsetjenesten til det regionale helseforetaket yte bistand til andre regionale helseforetak ved ulykker og andre akutte situasjoner",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a5",
       "til": "a5",
       "objekt": null,
@@ -1926,7 +1929,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u20",
@@ -1949,8 +1953,8 @@
       "id": "u21",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1c/ledd-2",
       "sitat": "Det regionale helseforetaket som mottar bistand etter første ledd, skal yte kompensasjon for utgifter som pådras til det regionale helseforetaket som bidrar med hjelp",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a5",
       "til": "a5",
       "objekt": null,
@@ -1960,7 +1964,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": "Kompensasjon er en form for bistand i relasjonen.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u22",
@@ -2000,8 +2005,8 @@
       "id": "u24",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1e/ledd-1",
       "sitat": "Det regionale helseforetaket skal sørge for at virksomheter som yter spesialisthelsetjenester som nevnt i § 2-1 a, samarbeider med andre tjenesteytere dersom samarbeid er nødvendig",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a12",
       "til": "a7",
       "objekt": null,
@@ -2011,14 +2016,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u25",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1e/ledd-1",
       "sitat": "og samarbeider med barnekoordinator dersom dette er oppnevnt etter helse- og omsorgstjenesteloven § 7-2 a",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a12",
       "til": "a13",
       "objekt": null,
@@ -2028,7 +2034,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u26",
@@ -2170,8 +2177,8 @@
       "id": "u34",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-1f/ledd-1",
       "sitat": "De regionale helseforetakene skal legge til rette for at spesialisthelsetjenesten blir i stand til å forebygge, avdekke og avverge vold og seksuelle overgrep.",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a19",
       "til": null,
       "objekt": null,
@@ -2181,7 +2188,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u35",
@@ -2291,8 +2299,8 @@
       "id": "u41",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-4a/ledd-2",
       "sitat": "På forespørsel fra helsepersonell eller pasienter skal den kliniske etikkomiteen bistå med råd",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a22",
       "til": null,
       "objekt": null,
@@ -2302,7 +2310,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u42",
@@ -2325,8 +2334,8 @@
       "id": "u43",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5/ledd-1",
       "sitat": "Helseforetaket skal samarbeide med andre tjenesteytere om planen",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a21",
       "til": "a7",
       "objekt": null,
@@ -2336,7 +2345,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u44",
@@ -2359,8 +2369,8 @@
       "id": "u45",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5/ledd-2",
       "sitat": "Helseforetaket skal så snart som mulig varsle kommunen",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a21",
       "til": "a24",
       "objekt": null,
@@ -2370,14 +2380,15 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u46",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5/ledd-2",
       "sitat": "skal i slike tilfeller medvirke i kommunens arbeid med individuell plan.",
-      "kategori": "relasjon",
-      "type": "bistar",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a21",
       "til": "a24",
       "objekt": null,
@@ -2387,7 +2398,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u47",
@@ -2429,8 +2441,8 @@
       "id": "u49",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5a/ledd-2",
       "sitat": "Koordinatoren skal samarbeide med barnekoordinator dersom dette er oppnevnt etter helse- og omsorgstjenesteloven § 7-2 a.",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a26",
       "til": "a13",
       "objekt": null,
@@ -2440,7 +2452,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u50",
@@ -2481,8 +2494,8 @@
       "id": "u52",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-5b/ledd-1",
       "sitat": "Enheten skal ha oversikt over, og nødvendig kontakt med, habiliterings- og rehabiliteringsvirksomheten i kommunen.",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a27",
       "til": "a24",
       "objekt": null,
@@ -2492,7 +2505,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u53",
@@ -2622,8 +2636,8 @@
       "id": "u60",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§2-6/ledd-1",
       "sitat": "Regionalt helseforetak skal inngå samarbeidsavtale med kommunene om utskrivningsklare pasienter",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "avtaleplikt",
       "fra": "a29",
       "til": "a8",
       "objekt": null,
@@ -2633,7 +2647,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u61",
@@ -3641,8 +3656,8 @@
       "id": "u118",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§6-2/ledd-1",
       "sitat": "Bestemmelsene i helsetilsynsloven § 7 om plikt til å gi tilsynsmyndigheten opplysninger og adgang til virksomheten på anmodning",
-      "kategori": "annet:plikttilstruktur",
-      "type": "annet:opplysningsplikt",
+      "kategori": "plikt",
+      "type": "informasjonsplikt",
       "fra": null,
       "til": null,
       "objekt": null,
@@ -3652,7 +3667,8 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "middels",
       "kommentar": "Utsagnet angir plikt, ikke struktur.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u119",
@@ -3709,8 +3725,8 @@
       "id": "u122",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§6-4/ledd-1",
       "sitat": "Politiet har plikt til å yte slik bistand.",
-      "kategori": "annet:plikt",
-      "type": "annet:bistandsplikt",
+      "kategori": "plikt",
+      "type": "bistandsplikt",
       "fra": "a50",
       "til": null,
       "objekt": null,
@@ -3720,7 +3736,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Utsagnet angir plikt, ikke struktur.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u123",
@@ -6451,8 +6468,8 @@
       "id": "u281",
       "eid": "https://lovdata.no/eli/forskrift/2000/12/20/1551/nor/§1/ledd-4",
       "sitat": "kan behandlingsoppgjøret foretas på grunnlag av avtale mellom det regionale helseforetaket i pasientens bostedsregion og tjenesteyter.",
-      "kategori": "relasjon",
-      "type": "samarbeider_med",
+      "kategori": "plikt",
+      "type": "samarbeidsplikt",
       "fra": "a93",
       "til": "a94",
       "objekt": null,
@@ -6462,7 +6479,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Avtaleinngåelse mellom RHF og tjenesteyter",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "kan"
     },
     {
       "id": "u282",
