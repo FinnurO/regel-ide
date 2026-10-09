@@ -346,6 +346,8 @@ export interface VirksomhetDto {
   /** [Ny, issue #310] rettssubjekt | organ | organisatorisk_enhet — null = uavklart. Automatisk bare for
    * KOMM/FYLK (og forvaltningsnivå kommune/fylkeskommune), ellers satt av et menneske. */
   aktortype: Aktortype | null;
+  /** [Ny, issue #353] trygdeordning | fond | tilskuddsordning — bare når aktørtypen er 'ordning'; null = ikke angitt. */
+  ordningstype: Ordningstype | null;
 }
 
 /** [Ny, 2026-08-30] Opprett en virksomhet med KUN navn — se POST /api/virksomheter. */
@@ -426,7 +428,9 @@ export interface ParagrafspennParDto {
  * RegelIde.Data. R relasjon, K kompetanse, M medlemskap, O områdesammensetning, A ansvarsområde,
  * G organtilhørighet, I rolleinnehav, T klassenivå. Typekoden innenfor kategorien er konfigurerbar
  * (`RelasjonsTypeKonfigurasjonDto`). */
-export type Strukturkantkategori = 'R' | 'K' | 'M' | 'O' | 'A' | 'G' | 'I' | 'T';
+export type Strukturkantkategori = 'R' | 'K' | 'M' | 'O' | 'A' | 'G' | 'I' | 'T'
+  // [Ny, issue #353] P = plikt overfor motpart (samarbeid, avtale, betaling, bistand, informasjon, konsultasjon).
+  | 'P';
 
 /** [Ny, issue #311, Johanns beslutning 2026-10-07] Typen kilde utenfor korpus — speilet av
  * `Strukturkanter.KildeUtenforKorpusTyper`. `nettside_annet` = bare dokumentert på en nettside e.l. —
@@ -451,7 +455,7 @@ export interface StrukturnodeDto {
 
 /** [Ny, issue #311] GET /api/strukturkanter?virksomhetId|begrepId=… — én kant med navn og visningstekst.
  * `retning` er nodens side når listen er hentet for en node ('fra'/'til'), ellers null (per hjemmel,
- * forslagskø). `til` er null bare for K/T. */
+ * forslagskø). `til` er null bare for K/T og P ([ENDRET, issue #353]). */
 /** [Ny, issue #341, Johanns hierarkibeslutning 2026-10-08] Kompetansefamiliene — speilet av `Strukturkanter.Familier`.
  * [ENDRET, issue #352] 'personell' heter 'oppnevning' (Johanns beslutning 1). */
 export type Kompetansefamilie =
@@ -465,6 +469,11 @@ export type FvlKategori = 'forskrift' | 'enkeltvedtak' | 'ikke_vedtak';
 export type Normform = 'forskrift' | 'reglement' | 'arbeidsordning' | 'vedtekter' | 'instruks';
 /** [Ny, issue #341] Kompetansens grunnlag. */
 export type Kompetansegrunnlag = 'offentligrettslig' | 'privatrettslig';
+/** [Ny, issue #353] Modaliteten på en plikt — speilet av `Strukturkanter.Modaliteter` (CHECK ck_strukturkanter_modalitet).
+ * 'bor' lagres uten ø og vises «bør». Bare på P; null = ikke angitt (presens «Staten dekker …» gjettes ikke til «skal»). */
+export type Modalitet = 'skal' | 'kan' | 'bor';
+/** [Ny, issue #353] P-typekodene — speilet av `Strukturkanter.Plikttyper`. */
+export type Plikttype = 'samarbeid' | 'avtale' | 'betaling' | 'bistand' | 'informasjon' | 'konsultasjon';
 
 export interface StrukturkantDto {
   id: string;
@@ -505,6 +514,8 @@ export interface StrukturkantDto {
   /** [Ny, issue #352] Undertypen (bare K oppnevning/overproving). null = ikke angitt. Står også i visningsteksten i parentes. */
   undertype: Kompetanseundertype | null;
   fvlKategori: FvlKategori | null;
+  /** [Ny, issue #353] Modaliteten (bare P). null = ikke angitt. Står alt i visningsteksten i parentes («(skal)», «(bør)»). */
+  modalitet: Modalitet | null;
 }
 
 /** [Ny, issue #311] Rå kantfelt — svaret fra veiviserens kobl-til-*-endepunkter. */
@@ -527,7 +538,7 @@ export interface StrukturkantRadDto {
   status: 'foreslatt_av_ai' | 'validert';
 }
 
-/** [Ny, issue #311] POST /api/strukturkanter. Nøyaktig én fra-node; høyst én til-node (ingen bare for K/T).
+/** [Ny, issue #311] POST /api/strukturkanter. Nøyaktig én fra-node; høyst én til-node (ingen bare for K/T og — [ENDRET, issue #353] — P).
  * Hjemmel ELLER kilde utenfor korpus er påkrevd, og polariteten MÅ oppgis (ingen standardverdi). */
 export interface StrukturkantRequest {
   kategori: Strukturkantkategori;
@@ -556,6 +567,8 @@ export interface StrukturkantRequest {
   delegerbar?: boolean | null;
   /** [Ny, issue #352] Bare på K oppnevning/overproving. Null/utelatt = ikke angitt. */
   undertype?: Kompetanseundertype | null;
+  /** [Ny, issue #353] Bare på P. Null/utelatt = ikke angitt (serveren avviser modalitet på andre kategorier). */
+  modalitet?: Modalitet | null;
 }
 
 // [FJERNET, issue #311] GruppeMedlemskapRequest, VirksomhetRelasjonDto/-Request/-HjemletDto og
@@ -716,8 +729,12 @@ export const BEGREPSKATEGORIER_MED_GRUPPEFUNKSJON: readonly string[] = ['gruppe'
 export function harGruppefunksjon(begrepskategori: string | null | undefined): boolean {
   return !!begrepskategori && BEGREPSKATEGORIER_MED_GRUPPEFUNKSJON.includes(begrepskategori);
 }
-/** [Ny, issue #310] Aktørtype på Virksomhet — NULL = uavklart. */
-export type Aktortype = 'rettssubjekt' | 'organ' | 'organisatorisk_enhet';
+/** [Ny, issue #310] Aktørtype på Virksomhet — NULL = uavklart.
+ * [ENDRET, issue #353] + 'ordning': en IKKE-aktør rettskilden gir en funksjon (folketrygden, et fond, en tilskuddsordning) —
+ * speilet av `Nodetyper.Aktortyper`. */
+export type Aktortype = 'rettssubjekt' | 'organ' | 'organisatorisk_enhet' | 'ordning';
+/** [Ny, issue #353] Undertypen til en ordning — speilet av `Nodetyper.Ordningstyper`. Bare sammen med aktørtypen 'ordning'. */
+export type Ordningstype = 'trygdeordning' | 'fond' | 'tilskuddsordning';
 
 /** [Ny, navnekandidat-wizard-runden, 2026-09-07] PATCH /api/navnekandidater/{id} — utelatt/undefined
  * felt betyr «la stå uendret». Kun for REGEX-ARTEFAKTER i teksten, se `Navneformgrunn` sitt skille.
@@ -1569,6 +1586,37 @@ export interface KommuneTilhorighetDto {
   rubrikker: TilhorighetsrubrikkDto[];
   overordnede: OmradeVisningDto[];
   ansvarlige: { virksomhetId: string; navn: string; typekode: string; via: OmradeVisningDto; kantId: string }[];
+}
+
+/** [Ny, issue #353] Hvorfor en plikt gjelder (eller kan gjelde) kommunen: fra kommunens egen virksomhet, fra en klasse
+ * kommunen er REGISTRERT medlem av, eller fra en klasse uten ett eneste registrert medlem (avgjøres ikke — `grunnlagHull`). */
+export type PliktGrunnlag = 'direkte' | 'medlem_av' | 'klasse_uten_registrert_medlemskap';
+/** [Ny, issue #353] Motparten sett fra kommunen: `konkret` (til er en virksomhet), `entydig` (klasse/rolle løst til ett medlem
+ * via område), `ikke_entydig` (flere — ingen velges), `mangler` (ingen løsning, `hull` sier hvorfor), `ikke_angitt` (teksten
+ * sier ikke hvem). */
+export type PliktMotpartStatus = 'konkret' | 'entydig' | 'ikke_entydig' | 'mangler' | 'ikke_angitt';
+
+/** [Ny, issue #353] Én plikt sett fra kommunen — `PliktTreffDto` i Dtos.cs. Kandidatene er virksomheter. */
+export interface PliktTreffDto {
+  kant: StrukturkantDto;
+  grunnlag: PliktGrunnlag;
+  grunnlagHull: string | null;
+  motpart: {
+    status: PliktMotpartStatus;
+    kandidater: { id: string; navn: string; forslag: boolean }[];
+    hull: string | null;
+  };
+}
+
+/** [Ny, issue #353 AC5, docs/32 S6] GET /api/omrader/kommuner/{kommunenummer}/plikter — «hvem har kommune X (samarbeids)plikt
+ * med?». `hull` er det oppslaget ikke kan avgjøre, i klartekst (f.eks. at kommunen som rettssubjekt ikke er registrert). */
+export interface KommunePlikterDto {
+  kommune: OmradeVisningDto;
+  kommunevirksomhet: StrukturnodeDto | null;
+  /** P-typen det ble filtrert på, null = alle. */
+  type: Plikttype | null;
+  plikter: PliktTreffDto[];
+  hull: string[];
 }
 
 export interface BegrepRequest {

@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import { Alert, Button, Card, Field, Label, Radio, Select, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { KildeUtenforKorpusDokumentasjon, KildeUtenforKorpusType, Kompetansegrunnlag, Kompetanseundertype, Normform, RelasjonsTypeKonfigurasjonDto, RettskildeSammendrag, StrukturkantDto, VirksomhetDto } from '../api/types';
+import type { Aktortype, KildeUtenforKorpusDokumentasjon, KildeUtenforKorpusType, Kompetansegrunnlag, Kompetanseundertype, Normform, RelasjonsTypeKonfigurasjonDto, RettskildeSammendrag, StrukturkantDto, VirksomhetDto } from '../api/types';
 import { FAMILIE_VISNING } from '../strukturkant/StrukturkantTabell';
+import { MODALITETER, modalitetFraValg, ordningKanVaereMotpart, pliktValgtekst, typerForAktortype } from '../strukturkant/plikt';
 import { KildeUtenforKorpusVelger } from '../strukturkant/KildeUtenforKorpus';
 import { VirksomhetVelger } from './VirksomhetVelger';
 import { RettskildeVelger } from '../rettskilde/RettskildeVelger';
@@ -28,6 +29,9 @@ export interface LeggTilVirksomhetRelasjonFormProps {
   virksomheter: VirksomhetDto[];
   rettskilder: RettskildeSammendrag[];
   onOpprettet: (ny: StrukturkantDto) => void;
+  /** [Ny, issue #353] Aktørtypen til virksomheten skjemaet står på (fra-noden) — styrer hvilke typer som tilbys (en ordning
+   * kan bare ha P og R forvaltes_av, se `typerForAktortype`). null = uavklart. */
+  aktortype: Aktortype | null;
 }
 
 /**
@@ -58,8 +62,17 @@ export interface LeggTilVirksomhetRelasjonFormProps {
  * oppnevning, anke) — også den med «Ikke angitt» som utgangspunkt. R «velger» og «er ankeinstans for» finnes ikke lenger
  * i lista; de er oppnevning (valg) og overprøving (anke).
  * </p>
+ * <p>
+ * [ENDRET, issue #353 «plikt overfor motpart», 2026-10-09] «Legg til relasjon, kompetanse eller plikt»: lista har også P-typene
+ * («Plikt — «har samarbeidsplikt overfor motparten»», docs/09 §34). Velges en P-type, tilbyr skjemaet «Modalitet» (Ikke angitt /
+ * Skal / Kan / Bør — aldri forhåndsvalgt, CLAUDE.md §8) og «Hva plikten gjelder» (objektet). Motparten er valgfri for P, som i
+ * datamodellen («Folketrygden skal dekke behandlingsutgifter …» har ingen mottaker i teksten) — men da må objektet eller
+ * hjemmel-eId-en si hva plikten gjelder (samme krav som serveren, StrukturkantTjeneste.OpprettAsync). For R og K er motparten
+ * fortsatt påkrevd i dette skjemaet (K uten motpart registreres av konverteringen eller over API-et). Typene filtreres på
+ * aktørtypen (en ordning er ikke en aktør, `typerForAktortype`), og en ordning tilbys som motpart bare for P.
+ * </p>
  */
-export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rettskilder, onOpprettet }: LeggTilVirksomhetRelasjonFormProps) {
+export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rettskilder, onOpprettet, aktortype }: LeggTilVirksomhetRelasjonFormProps) {
   const [typer, setTyper] = useState<RelasjonsTypeKonfigurasjonDto[] | null>(null);
   const [tilVirksomhetId, setTilVirksomhetId] = useState('');
   const [relasjonsType, setRelasjonsType] = useState('');
@@ -78,40 +91,56 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
   const [delegerbar, setDelegerbar] = useState<'' | 'ja' | 'nei'>('');
   // [Ny, issue #352] Bare for K-typer som har undertyper (UNDERTYPER).
   const [undertype, setUndertype] = useState<Kompetanseundertype | ''>('');
+  // [Ny, issue #353] Bare for P-typer. '' = ikke angitt (null).
+  const [modalitet, setModalitet] = useState('');
+  const [objekt, setObjekt] = useState('');
 
   const [oppretter, setOppretter] = useState(false);
   const [feilmelding, setFeilmelding] = useState<string | null>(null);
 
   useEffect(() => {
     // [ENDRET, issue #341] R og K: «er klageinstans for» heter nå «har klagekompetanse overfor» (K).
-    Promise.all([api.hentRelasjonstyper('R'), api.hentRelasjonstyper('K')])
-      .then(([r, k]) => setTyper([...r, ...k]))
+    // [ENDRET, issue #353] + P (plikt overfor motpart).
+    Promise.all([api.hentRelasjonstyper('R'), api.hentRelasjonstyper('K'), api.hentRelasjonstyper('P')])
+      .then(([r, k, p]) => setTyper([...r, ...k, ...p]))
       .catch(() => setTyper([]));
   }, []);
+  // [Ny, issue #353] Bare typene serveren godtar fra denne aktørtypen (en ordning: P og R forvaltes_av).
+  const tilbudteTyper = typer && typerForAktortype(typer, aktortype);
   // Verdien i nedtrekkslista er «kategori:kode» — samme kode kan i prinsippet finnes i to kategorier.
-  const [valgtKategori, valgtKode] = relasjonsType ? relasjonsType.split(':') as ['R' | 'K', string] : [null, ''];
+  const [valgtKategori, valgtKode] = relasjonsType ? relasjonsType.split(':') as ['R' | 'K' | 'P', string] : [null, ''];
   const erKompetanse = valgtKategori === 'K';
+  const erPlikt = valgtKategori === 'P';
   const undertyper = erKompetanse ? UNDERTYPER[valgtKode] : undefined;
 
   // Andre virksomheter enn denne selv — en relasjon til seg selv avvises uansett server-side, men
   // ingen grunn til å tilby det som et valg i det hele tatt.
-  const andreVirksomheter = virksomheter.filter((v) => v.id !== virksomhetId);
+  // [ENDRET, issue #353] En ordning er motpart bare i P (Strukturkanter.OrdningLovSomTil).
+  const andreVirksomheter = virksomheter.filter((v) => v.id !== virksomhetId
+    && (v.aktortype !== 'ordning' || ordningKanVaereMotpart(valgtKategori)));
   // Hjemmel ELLER kilde utenfor korpus (med type og dokumentasjon) — aldri begge (docs/33 §4.3).
   const harKilde = hjemmelRettskildeId
     ? !kildeTekst.trim()
     : !!kildeTekst.trim() && !!kildeType && !!kildeDok;
+  // [Ny, issue #353] Motparten er valgfri bare for P — og da må objektet eller hjemmel-eId-en si hva plikten gjelder.
+  const harMotpartEllerHva = tilVirksomhetId ? true : erPlikt && (!!objekt.trim() || !!hjemmelEid.trim());
+  // En motpart som ikke lenger tilbys (en ordning, etter bytte fra en P-type til en R/K-type) skal ikke sendes skjult.
+  const motpartGyldig = !tilVirksomhetId || andreVirksomheter.some((v) => v.id === tilVirksomhetId);
 
   async function opprett() {
-    if (!tilVirksomhetId || !relasjonsType || !polaritet || !harKilde) return;
+    if (!harMotpartEllerHva || !motpartGyldig || !relasjonsType || !polaritet || !harKilde) return;
     setFeilmelding(null);
     setOppretter(true);
     try {
       const ny = await api.opprettStrukturkant({
-        kategori: valgtKategori ?? 'R', typekode: valgtKode, fraVirksomhetId: virksomhetId, tilVirksomhetId, polaritet,
+        kategori: valgtKategori ?? 'R', typekode: valgtKode, fraVirksomhetId: virksomhetId, tilVirksomhetId: tilVirksomhetId || null, polaritet,
         normform: erKompetanse && valgtKode === 'normgivning' && normform ? normform : null,
         grunnlag: erKompetanse && grunnlag ? grunnlag : null,
         delegerbar: erKompetanse && delegerbar ? delegerbar === 'ja' : null,
         undertype: undertyper && undertyper.some((u) => u.verdi === undertype) ? (undertype as Kompetanseundertype) : null,
+        // [Ny, issue #353] Bare på P — serveren avviser modalitet på andre kategorier.
+        modalitet: erPlikt ? modalitetFraValg(modalitet) : null,
+        objekt: erPlikt ? objekt.trim() || null : null,
         hjemmelRettskildeId: hjemmelRettskildeId || null, hjemmelEid: hjemmelEid.trim() || null,
         kildeUtenforKorpusTekst: kildeTekst.trim() || null, kildeUtenforKorpusLenke: kildeLenke.trim() || null,
         kildeUtenforKorpusType: kildeType || null, kildeUtenforKorpusDokumentasjon: kildeDok || null,
@@ -132,6 +161,8 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
       setGrunnlag('');
       setDelegerbar('');
       setUndertype('');
+      setModalitet('');
+      setObjekt('');
     } catch (err) {
       setFeilmelding(err instanceof ApiError ? err.message : 'Ukjent feil ved opprettelse av relasjon.');
     } finally {
@@ -143,22 +174,53 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
     <Card style={{ padding: '1rem', marginTop: '0.75rem' }}>
       <div style={{ marginBottom: '0.75rem' }}>
         <VirksomhetVelger virksomheter={andreVirksomheter} value={tilVirksomhetId} onChange={setTilVirksomhetId}
-          label="Motpart (annen virksomhet)" tomValgTekst="Velg virksomhet …" />
+          label={erPlikt ? 'Motpart (annen virksomhet, valgfri for plikt)' : 'Motpart (annen virksomhet)'}
+          tomValgTekst={erPlikt ? 'Ingen motpart i teksten' : 'Velg virksomhet …'} />
+        {!motpartGyldig && (
+          <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginTop: '0.25rem' }}>
+            Den valgte motparten er en ordning, og en ordning kan bare være motpart i en plikt. Velg en annen motpart.
+          </Metatekst>
+        )}
       </div>
 
       <Field data-size="sm" style={{ maxWidth: '24rem', marginBottom: '0.75rem' }}>
-        <Label>Relasjon eller kompetanse</Label>
-        <Select data-size="sm" value={relasjonsType} onChange={(e) => setRelasjonsType(e.target.value)} disabled={!typer}>
-          <Select.Option value="">{typer ? 'Velg type …' : 'Laster …'}</Select.Option>
-          {typer?.map((t) => (
+        <Label>Relasjon, kompetanse eller plikt</Label>
+        <Select data-size="sm" value={relasjonsType} onChange={(e) => setRelasjonsType(e.target.value)} disabled={!tilbudteTyper}>
+          <Select.Option value="">{tilbudteTyper ? 'Velg type …' : 'Laster …'}</Select.Option>
+          {tilbudteTyper?.map((t) => (
             <Select.Option key={`${t.kategori}:${t.kode}`} value={`${t.kategori}:${t.kode}`}>
               {t.kategori === 'K'
                 ? `Kompetanse${t.familie ? ` (${FAMILIE_VISNING[t.familie].toLowerCase()})` : ''} — «${t.fraVisningsmal.replace('{0}', 'overfor motparten')}»`
-                : `Relasjon — «${t.fraVisningsmal.replace('{0}', 'motparten')}»`}
+                : t.kategori === 'P'
+                  ? pliktValgtekst(t)
+                  : `Relasjon — «${t.fraVisningsmal.replace('{0}', 'motparten')}»`}
             </Select.Option>
           ))}
         </Select>
       </Field>
+
+      {/* [Ny, issue #353] Modaliteten står i utsagnsteksten i parentes («har samarbeidsplikt (skal) overfor …»), som normformen
+        * på K — ingen egen tag (docs/09 §34). Objektet er det plikten gjelder når teksten ikke sier hvem den gjelder overfor. */}
+      {erPlikt && (
+        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
+          <Field data-size="sm" style={{ minWidth: '12rem' }}>
+            <Label>Modalitet</Label>
+            <Select data-size="sm" value={modalitet} onChange={(e) => setModalitet(e.target.value)}>
+              <Select.Option value="">Ikke angitt</Select.Option>
+              {MODALITETER.map((m) => (
+                <Select.Option key={m.verdi} value={m.verdi}>{m.tekst}</Select.Option>
+              ))}
+            </Select>
+          </Field>
+          <Textfield data-size="sm" label="Hva plikten gjelder (valgfritt)" placeholder="f.eks. behandlings- og forpleiningsutgifter"
+            value={objekt} onChange={(e) => setObjekt(e.target.value)} style={{ flex: 1, minWidth: '16rem' }} />
+        </div>
+      )}
+      {erPlikt && !harMotpartEllerHva && (
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)', marginBottom: '0.75rem' }}>
+          Uten motpart må plikten si hva den gjelder: fyll ut «Hva plikten gjelder» eller hjemmel-eId-en.
+        </Metatekst>
+      )}
 
       {erKompetanse && (
         <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', marginBottom: '0.75rem' }}>
@@ -242,8 +304,8 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
       </Metatekst>
 
       <Button data-size="sm" type="button" onClick={opprett}
-        disabled={oppretter || !tilVirksomhetId || !relasjonsType || !polaritet || !harKilde}>
-        {oppretter ? 'Oppretter …' : erKompetanse ? 'Opprett kompetanse' : 'Opprett relasjon'}
+        disabled={oppretter || !harMotpartEllerHva || !motpartGyldig || !relasjonsType || !polaritet || !harKilde}>
+        {oppretter ? 'Oppretter …' : erKompetanse ? 'Opprett kompetanse' : erPlikt ? 'Opprett plikt' : 'Opprett relasjon'}
       </Button>
       {feilmelding && <Alert data-color="danger" style={{ marginTop: '0.5rem' }}>{feilmelding}</Alert>}
     </Card>

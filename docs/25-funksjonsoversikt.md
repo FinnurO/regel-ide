@@ -445,8 +445,8 @@ klassen og et synlig hull når medlemskapet eller områdeinndelingen ikke er las
 Organene **Stortinget** og **Kongen i statsråd** er nå virksomheter (aktørtype organ), ikke begreper.
 
 *Hvor:* «Myndighet & relasjoner»-fanen på en virksomhet (seksjonene kompetanse — gruppert og filtrerbar på familie
-[#341] —, relasjoner, medlemskap og roller, ansvarsområder, organtilhørighet; skjemaet «Legg til relasjon eller
-kompetanse»), «Relasjoner»-fanen på et begrep med gruppefunksjon, «Strukturutsagn hjemlet her» på en
+[#341] —, [#353] plikter overfor motpart, relasjoner, medlemskap og roller, ansvarsområder, organtilhørighet; skjemaet «Legg til relasjon, kompetanse eller
+plikt»), «Relasjoner»-fanen på et begrep med gruppefunksjon, «Strukturutsagn hjemlet her» på en
 rettskilde, KI-forslagskøen. API: `/api/strukturkanter` (se `docs/04` §14), og arbeidslista over struktur
 som bare er dokumentert på nettside: `GET /api/strukturkanter/uten-korpusforankring`.
 
@@ -458,7 +458,7 @@ fylker og de 4 RHF-ene → helseregion → fylker. Spørsmålet «gitt kommune X
 lagdømme, lagmannsrett, statsforvalter og RHF?» besvares av oppslaget, som sier «ikke entydig» i stedet for å velge
 når det er flere kandidater.
 
-*Hvor:* «Område»-fanen på et områdebegrep (tilhørighet for en kommune, hvem har ansvar her, består av, inngår i),
+*Hvor:* «Område»-fanen på et områdebegrep (tilhørighet og [#353] plikter for en kommune, hvem har ansvar her, består av, inngår i),
 «Ansvarsområder» i «Myndighet & relasjoner» på en virksomhet. [#353] Plikter for en kommune: `GET /api/omrader/kommuner/{nr}/plikter`. API: `GET /api/omrader/kommuner/{nr}/tilhorighet`,
 `GET /api/omrader/{id}/tilhorighet`. Fornyelse: `src/RegelIde.Data/Seed/fornye-omraderegister.py` (docs/21 §7).
 

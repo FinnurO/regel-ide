@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { Link as RouterLink } from 'react-router';
 import { Alert, Button, Card, Heading, Link, Paragraph, Spinner, Table, Tag } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { KommuneTilhorighetDto, Omradetype, StrukturkantDto, TilhorighetsrubrikkDto } from '../api/types';
+import type { KommunePlikterDto, KommuneTilhorighetDto, Omradetype, StrukturkantDto, TilhorighetsrubrikkDto } from '../api/types';
 import { StrukturkantTabell } from '../strukturkant/StrukturkantTabell';
+import { motpartStatusVisning, pliktGrunnlagTekst } from '../strukturkant/plikt';
 import { Metatekst } from '../entitet/Metatekst';
 
 /**
@@ -119,6 +120,94 @@ function SamletGodkjenning({ kanter, onGodkjent }: { kanter: StrukturkantDto[]; 
   );
 }
 
+/**
+ * [Ny, issue #353 AC5, docs/32 S6] «Hvem har kommunen plikt overfor?» — svaret fra GET /api/omrader/kommuner/{nr}/plikter.
+ * Et BEREGNET svar, som tilhørigheten: per plikt utsagnet, hvorfor den gjelder kommunen (direkte, via registrert medlemskap,
+ * eller fra en klasse uten registrert medlemskap — da med hullet), og motparten løst via område. Statusfargene er
+ * tilhørighetens (docs/09 §32/§34): løst = ingen tag, «Ikke entydig» = warning, «Mangler»/«Ikke angitt» = neutral. Ingen
+ * kandidat velges. Uten plikter vises en kort metatekst — fraværet er selve svaret på spørsmålet.
+ */
+function KommunensPlikter({ kommunenummer }: { kommunenummer: string }) {
+  const [svar, setSvar] = useState<KommunePlikterDto | null>(null);
+  const [feil, setFeil] = useState<string | null>(null);
+  useEffect(() => {
+    setSvar(null);
+    setFeil(null);
+    api.hentKommunePlikter(kommunenummer).then(setSvar)
+      .catch((e) => setFeil(e instanceof ApiError ? e.message : 'Ukjent feil ved oppslag av plikter.'));
+  }, [kommunenummer]);
+
+  return (
+    <section style={{ marginBottom: '2rem' }}>
+      <Heading level={3} data-size="xs" style={{ marginBottom: '0.75rem' }}>Plikter overfor motpart</Heading>
+      <Metatekst style={{ marginBottom: '0.75rem', color: 'var(--ds-color-neutral-text-subtle)' }}>
+        Hvem kommunen skal samarbeide med, inngå avtale med, betale til, bistå, informere eller konsultere (issue #353). En plikt
+        som er registrert på en klasse («kommunen», «det regionale helseforetaket i helseregionen»), løses til konkrete parter
+        gjennom områdene — mangler medlemskapet eller områdeinndelingen, står hullet i klartekst. Ingen kandidat velges.
+      </Metatekst>
+      {feil && <Alert data-color="danger" data-size="sm">{feil}</Alert>}
+      {!svar && !feil && <Spinner aria-label="Laster …" data-size="sm" />}
+      {svar && svar.hull.map((h) => (
+        <Metatekst key={h} style={{ marginBottom: '0.5rem', color: 'var(--ds-color-neutral-text-subtle)' }}>{h}</Metatekst>
+      ))}
+      {svar && svar.plikter.length === 0 && (
+        <Metatekst style={{ color: 'var(--ds-color-neutral-text-subtle)' }}>Ingen registrerte plikter gjelder kommunen.</Metatekst>
+      )}
+      {svar && svar.plikter.length > 0 && (
+        <Card style={{ padding: 0, overflow: 'hidden' }}>
+          <Table data-density="compact">
+            <Table.Head>
+              <Table.Row>
+                <Table.HeaderCell>Plikt</Table.HeaderCell>
+                <Table.HeaderCell>Gjelder kommunen fordi</Table.HeaderCell>
+                <Table.HeaderCell>Motpart</Table.HeaderCell>
+              </Table.Row>
+            </Table.Head>
+            <Table.Body>
+              {svar.plikter.map((t) => {
+                const status = motpartStatusVisning(t.motpart.status);
+                return (
+                  <Table.Row key={t.kant.id}>
+                    <Table.Cell>
+                      {t.kant.visningstekst}
+                      {t.kant.hjemmelRettskildeTittel && (
+                        <Metatekst as="span" style={{ display: 'block', color: 'var(--ds-color-neutral-text-subtle)' }}>
+                          {t.kant.hjemmelRettskildeTittel}
+                        </Metatekst>
+                      )}
+                    </Table.Cell>
+                    <Table.Cell>
+                      {pliktGrunnlagTekst(t.grunnlag, t.kant.fra.navn)}
+                      {t.grunnlagHull && (
+                        <Metatekst as="span" style={{ display: 'block', color: 'var(--ds-color-neutral-text-subtle)' }}>{t.grunnlagHull}</Metatekst>
+                      )}
+                    </Table.Cell>
+                    <Table.Cell>
+                      <span style={{ display: 'inline-flex', gap: '0.5rem', alignItems: 'center', flexWrap: 'wrap' }}>
+                        {t.motpart.kandidater.map((k, i) => (
+                          <span key={k.id}>
+                            <Link asChild><RouterLink to={`/virksomheter/${k.id}`}>{k.navn}</RouterLink></Link>
+                            {i < t.motpart.kandidater.length - 1 ? ',' : ''}
+                          </span>
+                        ))}
+                        {t.motpart.kandidater.length === 0 && '—'}
+                        {status && <Tag data-color={status.farge} data-size="sm" title={status.forklaring}>{status.tekst}</Tag>}
+                      </span>
+                      {t.motpart.hull && (
+                        <Metatekst as="span" style={{ display: 'block', color: 'var(--ds-color-neutral-text-subtle)' }}>{t.motpart.hull}</Metatekst>
+                      )}
+                    </Table.Cell>
+                  </Table.Row>
+                );
+              })}
+            </Table.Body>
+          </Table>
+        </Card>
+      )}
+    </section>
+  );
+}
+
 export function Omraderegister({ omradeId, omradetype }: { omradeId: string; omradetype: Omradetype }) {
   const [kanter, setKanter] = useState<StrukturkantDto[] | null>(null);
   const [tilhorighet, setTilhorighet] = useState<KommuneTilhorighetDto | null>(null);
@@ -190,6 +279,11 @@ export function Omraderegister({ omradeId, omradetype }: { omradeId: string; omr
             )}
           </Card>
         </section>
+      )}
+
+      {/* [Ny, issue #353] S6 «hvem har kommunen plikt overfor?» — bare for en kommune med kommunenummer. */}
+      {omradetype === 'kommune' && tilhorighet?.kommune.omradekode && (
+        <KommunensPlikter kommunenummer={tilhorighet.kommune.omradekode} />
       )}
 
       <section style={{ marginBottom: '2rem' }}>

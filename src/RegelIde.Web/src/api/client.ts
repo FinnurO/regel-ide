@@ -4,6 +4,9 @@ import type {
   Aktortype,
   BegrepDto,
   KommuneTilhorighetDto,
+  KommunePlikterDto,
+  Ordningstype,
+  Plikttype,
   Begrepsnodetype,
   Kandidatnodetype,
   BegrepRequest,
@@ -458,12 +461,14 @@ export const api = {
     return kall<HardslettVirksomhetKandidaterResultatDto>(`/api/virksomhet-kandidater${sok ? `?${sok}` : ''}`, { method: 'DELETE' });
   },
 
-  /** [Ny, issue #310] Aktørtype — null = tilbake til uavklart. */
-  settVirksomhetAktortype: (id: string, aktortype: Aktortype | null) =>
+  /** [Ny, issue #310] Aktørtype — null = tilbake til uavklart.
+   * [ENDRET, issue #353] + ordningstype: bare sammen med 'ordning' (ellers 400). Settes en annen aktørtype, sendes null —
+   * serveren nullstiller den uansett (den finnes bare på en ordning). */
+  settVirksomhetAktortype: (id: string, aktortype: Aktortype | null, ordningstype: Ordningstype | null = null) =>
     kall<VirksomhetDto>(`/api/virksomheter/${id}/aktortype`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ aktortype }),
+      body: JSON.stringify({ aktortype, ordningstype: aktortype === 'ordning' ? ordningstype : null }),
     }),
 
   /** [Ny, issue #310] Setter nodetypen på et begrep med gruppefunksjon (reklassifisering for hånd). */
@@ -1182,6 +1187,12 @@ export const api = {
   /** [Ny, issue #312, AC5] Fylke, tingrett, lagsogn, lagdømme, lagmannsrett, statsforvalter, helseregion og RHF for
    * et kommuneområde (begrep-id), beregnet fra strukturkantene. */
   hentOmradeTilhorighet: (omradeId: string) => kall<KommuneTilhorighetDto>(`/api/omrader/${omradeId}/tilhorighet`),
+  /** [Ny, issue #353 AC5, docs/32 S6] Pliktene (P) som gjelder kommunen med dette kommunenummeret — direkte, via registrert
+   * medlemskap eller fra en klasse uten registrert medlemskap — med motparten løst via område eller et synlig hull. 404 når
+   * kommunenummeret ikke er et gjeldende kommuneområde. `type` = én P-typekode, utelatt = alle. */
+  hentKommunePlikter: (kommunenummer: string, type?: Plikttype) =>
+    kall<KommunePlikterDto>(
+      `/api/omrader/kommuner/${encodeURIComponent(kommunenummer)}/plikter${type ? `?type=${encodeURIComponent(type)}` : ''}`),
 
   opprettBegrep: (request: BegrepRequest) =>
     kall<BegrepDto>('/api/begreper', {

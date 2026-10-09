@@ -29,6 +29,8 @@ export const STRUKTURKANT_KATEGORI_VISNING: Record<Strukturkantkategori, { tekst
   // [ENDRET, issue #341] R er struktur UTEN myndighet; myndigheten er K med motpart (Johanns beslutning P1).
   R: { tekst: 'Relasjon', forklaring: 'Aktør → aktør, struktur uten myndighet (eies av, ledes av, sekretariat for, etterfølger, har delegert til …).' },
   K: { tekst: 'Kompetanse', forklaring: 'Aktør/rolle har kompetanse, eventuelt overfor en motpart (klage, instruksjon, tilsyn, normgivning, vedtak …).' },
+  // [Ny, issue #353] Plikt overfor motpart — modaliteten («skal»/«kan»/«bør») står i utsagnsteksten, ingen egen tag (docs/09 §34).
+  P: { tekst: 'Plikt', forklaring: 'Aktør (også en ordning), rolle eller klasse har en plikt, eventuelt overfor en motpart (samarbeid, avtale, betaling, bistand, informasjon, konsultasjon).' },
   M: { tekst: 'Medlemskap', forklaring: 'Aktør/klasse/område → klasse eller område. Det som gjelder klassen, gjelder medlemmet.' },
   O: { tekst: 'Områdesammensetning', forklaring: 'Område → område (består av).' },
   A: { tekst: 'Ansvarsområde', forklaring: 'Aktør → område (ansvarsområde, jurisdiksjon, sete).' },

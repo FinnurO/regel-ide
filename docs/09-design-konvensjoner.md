@@ -1044,3 +1044,27 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   «Undertype» (Valg/Ansettelse/Utpeking/Oppnevning med verbet i parentes, Anke for overprøving) bare når typen har
   undertyper, med «Ikke angitt» som utgangspunkt. Familien heter «Oppnevning» (var «Personell»). En saksavhengig type (G
   «settes i den enkelte sak med») har antallet fra objektet i parentes i teksten — ingen egen tagg.
+
+## 34. Plikt overfor motpart og ordning (issue #353, 2026-10-09)
+
+- **Pliktene har egen seksjon** «Plikter overfor motpart» i «Myndighet & relasjoner» på VirksomhetDetalj, rett etter
+  kompetansen (motstykket til den): en vanlig `StrukturkantTabell` (§31), ingen egen kanttabell. P-kantene står ikke i
+  «Organtilhørighet og andre strukturutsagn».
+- **Modaliteten står i utsagnsteksten** i parentes, som normformen og undertypen (§33): «har samarbeidsplikt (skal) overfor X»,
+  «(bør)». Ingen egen tag. NULL (teksten har ikke et modalverb) vises ikke — «ikke angitt» er ikke en påstand.
+- **Kategoritaggen** «Plikt» er `neutral` (§31). **Aktørtypen «Ordning»** og **ordningstypen** (Trygdeordning/Fond/
+  Tilskuddsordning, `OrdningstypeTag`) er klassifiseringer → `neutral`.
+- **Skjemaet** heter «Legg til relasjon, kompetanse eller plikt». P-typene står i samme `Select` som «Plikt — «har
+  samarbeidsplikt overfor motparten»». Velges en P-type: «Modalitet» (Ikke angitt / Skal / Kan / Bør, aldri forhåndsvalgt) og
+  «Hva plikten gjelder» (objektet). Motparten er valgfri for P («Ingen motpart i teksten»), men da må objektet eller
+  hjemmel-eId-en si hva plikten gjelder (samme krav som serveren). Typene filtreres på virksomhetens aktørtype
+  (`strukturkant/plikt.ts`, `typerForAktortype`): en ordning får bare P og R «forvaltes av»; «forvaltes av» tilbys aldri en
+  aktør (den krever en ordning). En ordning tilbys som motpart bare i P. **Veiviseren tilbyr ikke P** — `kobl-til-relasjon`
+  slår bare opp R/K og har ingen modalitet (egen sak hvis det trengs).
+- **Aktørtypevelgeren** har «Ordning»; når den er valgt, vises «Ordningstype» med «Ikke angitt» som utgangspunkt.
+- **S6 på områdefanen for en kommune** (`begrep/Omraderegister.tsx`): seksjonen «Plikter overfor motpart» etter tilhørigheten —
+  en kompakt tabell (beregnet svar, ikke kanter, som tilhørigheten §32): utsagnet, «Gjelder kommunen fordi» (direkte / via
+  medlemskap i «X» / «X» — klasse uten registrert medlemskap, med hullet som `Metatekst`) og motparten. Motpartsstatus har
+  tilhørighetens farger: løst (konkret/entydig) = ingen tag, «Ikke entydig» = `warning`, «Mangler» og «Ikke angitt» =
+  `neutral`; hullet står som `Metatekst` under. Ingen kandidat velges. Uten plikter: metatekst «Ingen registrerte plikter
+  gjelder kommunen.» — fraværet er svaret.
