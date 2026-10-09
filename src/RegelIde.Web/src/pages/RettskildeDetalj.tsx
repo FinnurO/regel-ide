@@ -78,6 +78,10 @@ function Punktliste({ punkter, onVelgNode }: { punkter: PunktVisning[]; onVelgNo
               background: 'none', border: 'none', padding: 0, margin: 0, font: 'inherit', color: 'inherit',
               textAlign: 'left', cursor: 'pointer', textDecoration: 'underline', textDecorationStyle: 'dotted',
               textUnderlineOffset: '0.2em',
+              // [Ny, #361-kaldsjekk 2026-10-09] En <button> er inline-block, og grunnlinjen dens er SISTE
+              // linje. Uten dette havnet listemerket («2.») ved siste linje i et punkt som brytes over
+              // flere linjer, og så ut som det hørte til teksten under (energiloven § 10-2 annet ledd).
+              verticalAlign: 'top',
             }}
           >
             {punkt.tekst}
