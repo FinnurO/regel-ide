@@ -82,10 +82,15 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
   "objekt": "<for kompetanse: bestemmelse/sakstype/regelverk, f.eks. 'vedtak etter § 3-1', 'forskrift om …'>",
   "normform": "forskrift" | "reglement" | "arbeidsordning" | "vedtekter" | "instruks",  // [Ny, #341] KUN på
                               // normgivningskompetanse; utelatt/null = ikke angitt
-  "undertype": "valg" | "ansettelse" | "utpeking" | "oppnevning" | "anke",  // [Ny, #352] HVORDAN kompetansen utøves:
+  "undertype": "valg" | "ansettelse" | "utpeking" | "oppnevning" | "utnevning" | "konstitusjon"   // oppnevningskompetanse
+             | "avsetting" | "oppsigelse" | "avskjed" | "anke" | "tilbakekall",  // [ENDRET, #355] avsettings-, overprøvings-, vedtakskompetanse
+                              // [Ny, #352] HVORDAN kompetansen utøves:
                               // KUN på oppnevningskompetanse (valg/ansettelse/utpeking/oppnevning — verbet «velger»,
                               // «ansetter», «utpeker», «oppnevner») og overprovingskompetanse (anke). Utelatt/null = ikke angitt.
-                              // Verbene og ordstammene står i kompetanseleksikon.json («undertyper»)
+                              // Verbene og ordstammene står i kompetanseleksikon.json («undertyper»).
+                              // [ENDRET, #355] Avslutning speiler innsetting: avsettingskompetanse har avsetting (verv/styre),
+                              // oppsigelse og avskjed; oppnevning også utnevning (embete) og konstitusjon (midlertidig);
+                              // vedtakskompetanse har tilbakekall (av tillatelse/autorisasjon)
   "modalitet": "skal" | "kan" | "bor",          // [Ny, #353] KUN på plikt (L14: modaliteten bevares): «skal», «plikter», «har plikt
                               // til» = skal; «bør» = bor. [ENDRET, juristgjennomgangen 2026-10-09] Normativ presens uten modalverb
                               // («dekkes av staten», «Staten dekker») = skal; «Det samme gjelder …» arver modalverbet i setningen
@@ -133,7 +138,7 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
   `oppnevningskompetanse` med motpart og `undertype` (`valg`, `utpeking`, `ansettelse`; `oppnevning` når teksten sier
   «oppnevner»). `avsettingskompetanse` står i familien oppnevning som motsatsen (hovedøktens tolkning, Johann bekrefter).
 - `ankeinstans_for` er `overprovingskompetanse` med motpart og `undertype` `anke` (familien klage og overprøving).
-- `foreleggingskompetanse` er i familien kontroll. «… skal/må godkjennes av X» / «Godkjenning … gis av X» er
+- ~~`foreleggingskompetanse` er i familien kontroll.~~ [FJERNET, #355 — se under] «… skal/må godkjennes av X» / «Godkjenning … gis av X» er
   `godkjenningskompetanse` (styring), ikke `vedtakskompetanse`.
 - [Tillegg, Johann 2026-10-08, fasitkontrollen domstolloven u17] Sammensetningen i den enkelte sak er
   `organsammensetning`/`settes_med` (saksavhengig), ikke `har_medlemmer` (organets faste medlemmer): antallet i `objekt`,
@@ -164,23 +169,53 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
 - Konverteringen er deterministisk: `konvertering-353-plikt.py` (fasit 1797 → 1798 utsagn: 77 til plikt, ett nytt
   `forvaltes_av` slått opp i folketrygdloven § 21-11 a første ledd; KI-utdata 1043 → 1043, 43 til plikt).
 
+**[ENDRET, issue #355, Johanns beslutninger 2026-10-09]** Avslutning speiler innsetting, forelegging etter rettsvirkning:
+- **Avslutning:** `avsettingskompetanse` har `undertype` `avsetting` (verv/styre — motsatsen til valg/oppnevning/utpeking),
+  `oppsigelse` og `avskjed` (motsatsen til ansettelse). Oppnevning har i tillegg `utnevning` (embete etter Grl. § 21) og
+  `konstitusjon` (midlertidig; varigheten i `avgrensning`, den opphører). Ett utsagn per regel (L13): «si opp eller avskjedige»
+  er to rader, «kan ikke sies opp eller forflyttes mot sin vilje og kan bare avskjediges etter rettergang og dom» tre
+  (oppsigelse, avskjed med avgrensning «unntatt etter rettergang og dom», og `annet:forflytning` — forflytning er ikke avsetting).
+- **Tilbakekall** av en tillatelse eller autorisasjon er `vedtakskompetanse` med `undertype` `tilbakekall`, ikke oppnevning.
+  Tilbakekall av delegert myndighet hører til delegering.
+- **Sanksjon er en funksjon, ikke en type:** en avsetting som er en reaksjon (domstolloven § 33a), er `avsettingskompetanse`;
+  vilkåret står i `avgrensning`. `sanksjonskompetanse` er for disposisjoner som selv er reaksjoner (gebyr, tvangsmulkt).
+- **Forelegging er ikke en kompetansetype.** Klassifiser etter rettsvirkningen og formålet: bindende svar (godkjenning,
+  samtykke, avgjørelse) = MOTTAKERENS kompetanse i familien den alt har, og selve foreleggelsen er saksgang (regellaget);
+  rådgivende svar (uttalelse, tolkning, merknader) = `plikt`/`konsultasjonsplikt` fra AVSENDEREN med `modalitet` `kan` eller
+  `skal`, `polaritet` negativ for forbud (domstolloven § 51 a: «kan … forelegge tolkningsspørsmålet for EFTA-domstolen» = kan,
+  objekt «rådgivende tolkningsuttalelse», ODA artikkel 34 som kilde utenfor korpus; forliksrådene: samme, negativ); kontroll bare
+  når mottakeren kan undersøke og følge opp med korreksjon eller reaksjon.
+- **Ankeinstans:** målet er ORGANET. «ankeinstans for flere rettskretser» (inndelingsforskriften § 10) er
+  `overprovingskompetanse`/`anke` fra lagmannsretten til tingrettene; rettskretsen er `avgrensning` (L1). Paret regnes ut via
+  tingrett → lagsogn → lagdømme og lagres ikke dobbelt. «… kan ikke angripes ved anke» er en egen negativ anke-rad.
+- **Ankeadgang og partsposisjon er regellaget**, utenfor strukturlaget (som møteplikt): en parts adgang til å anke
+  (domstolloven §§ 37, 46) er `annet:partsposisjon`/`annet:ankeadgang`; «Kommunen er part i saken» er `annet:partsposisjon` med
+  `til` = null. Den strukturelle delen («paa det offentliges vegne») er relasjon `representerer` (departementet → staten).
+- **«X skal ha en Y» for ETT navngitt organ er ikke `skal_finnes`** (T er bare klassenivå): det er G `del_av` (i fasiten
+  `relasjon`/`del_av`, som designtest.py regner som G), fra = enheten eller STILLINGEN (en rolle knyttet til nettopp det organet,
+  «Høyesteretts direktør»), til = organet. En person kobles til stillingen med I `innehar`.
+- **Ingen `modalitet` på strukturkanter.** Struktur med lovhjemmel er lovpålagt; modalitet brukes bare på `plikt`.
+- Konverteringen er deterministisk: `konvertering-355-avslutning.py` (fasit 1798 → 1803 utsagn; KI-utdata 1043 → 1043).
+
 Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
 - relasjon (aktør→aktør): `eies_av`, `ledes_av`, `sekretariat_for`, `rapporterer_til`, `etterfolger`,
   `representerer`, `har_delegert_til` (gjennomført delegering, når BÅDE fra og til er gitt),
-  `administrativt_underordnet`, `radgir`, `del_av`, `forvaltes_av` ([Ny, #353] ordning → organet som forvalter den, hjemlet
+  `administrativt_underordnet`, `radgir`, `del_av` ([ENDRET, #355] organtilhørighet G: enhet/stilling → organet),
+  `forvaltes_av` ([Ny, #353] ordning → organet som forvalter den, hjemlet
   og avgrenset per kapittel/stønadsområde). [ENDRET, #353] bistar og samarbeider_med er plikt.
 - kompetanse (aktør→motpart/bestemmelse/sakstype): `beslutningskompetanse`, `opprettingskompetanse`,
   `avviklingskompetanse`, `organisasjonskompetanse`, `oppnevningskompetanse` (med undertype: valg, ansettelse,
-  utpeking — X bestemmer hvem som er myndighet —, oppnevning), `avsettingskompetanse`, `instruksjonskompetanse`
+  utpeking — X bestemmer hvem som er myndighet —, oppnevning, [#355] utnevning, konstitusjon), `avsettingskompetanse` ([#355]
+  undertype avsetting, oppsigelse, avskjed), `instruksjonskompetanse`
   (bruk polaritet), `samordningskompetanse`, `delegeringskompetanse` (X kan delegere), `godkjenningskompetanse`,
   `samtykkekompetanse`, `paleggskompetanse`, `normgivningskompetanse` (med normform), `tilsynskompetanse`,
   `revisjonskompetanse`, `klagekompetanse`, `omgjoringskompetanse`, `overprovingskompetanse` (undertype anke),
-  `stadfestingskompetanse`, `vedtakskompetanse` (enkeltvedtak), `sanksjonskompetanse`, `foreleggingskompetanse`,
+  `stadfestingskompetanse`, `vedtakskompetanse` (enkeltvedtak, undertype tilbakekall), `sanksjonskompetanse`,
   `ukjent` (maskinell konvertering: et kompetanseuttrykk verken leksikonet eller KI kan typebestemme — gjettes ikke).
 - plikt (aktør/rolle/klasse/ordning → motpart, valgfri): `samarbeidsplikt`, `avtaleplikt` (plikt til å inngå avtale — den
   inngåtte avtalen er en ekstern kilde), `betalingsplikt` (til = betalingsmottakeren, null når teksten ikke sier det),
   `bistandsplikt`, `informasjonsplikt` (gi opplysninger, varsle, utlevere informasjon), `konsultasjonsplikt` (konsultere, innhente
-  uttalelse fra). [Ny, #353]
+  uttalelse fra; [#355] forelegge for et organ som svarer rådgivende — modalitet kan/skal). [Ny, #353]
 - medlemskap (aktør/klasse → klasse): `medlem_av`, `inngar_i`.
 - sammensetning_omrade (område → område): `bestar_av`, `del_av`.
 - ansvarsomrade (aktør → område): `har_ansvarsomrade`, `har_jurisdiksjon`, `har_sete_i`.

@@ -121,7 +121,8 @@ public class StrukturkantEndepunktTests
         // typer; forelegging er kontroll. R velger/ankeinstans_for er flyttet til K; radgir og oppretter er fortsatt R.
         Assert.Equal("oppnevning", Assert.Single(k!, t => t.Kode == Strukturkanter.Oppnevning).Familie);
         Assert.Equal("oppnevning", Assert.Single(k!, t => t.Kode == "avsetting").Familie);
-        Assert.Equal("kontroll", Assert.Single(k!, t => t.Kode == "forelegging").Familie);
+        // [ENDRET, issue #355] Forelegging er ikke lenger en K-type (klassifiseres etter rettsvirkningen).
+        Assert.DoesNotContain(k!, t => t.Kode == "forelegging");
         Assert.DoesNotContain(k!, t => t.Kode is "utpeking" or "ansettelse" || t.Familie == "personell");
         Assert.DoesNotContain(r!, t => t.Kode is "velger" or "ankeinstans_for");
         Assert.Contains(r!, t => t.Kode == "radgir");

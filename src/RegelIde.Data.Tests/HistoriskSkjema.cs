@@ -23,6 +23,7 @@ internal static class HistoriskSkjema
     public const string Omraderegister = "20261008080640_InnforOmraderegister"; // [Ny, #341]
     public const string KompetanseMedMotpart = "20261008174215_KompetanseMedMotpart"; // [Ny, #352]
     public const string OppnevningsfamilienOgRester = "20261008194308_OppnevningsfamilienOgRester"; // [Ny, #353]
+    public const string PliktOgOrdning = "20261009000135_PliktOgOrdning"; // [Ny, #355]
 
     /// <summary>Oppretter en ny, tom database og migrerer den til <paramref name="tilMigrasjon"/> (null = siste).</summary>
     /// <param name="leggTilSenereKolonner">[Ny, #341] false for en test som selv migrerer videre til siste versjon

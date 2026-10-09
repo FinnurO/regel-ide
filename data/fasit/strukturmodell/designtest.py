@@ -73,6 +73,8 @@ REGLER = [
     (r"kompetanse$|^vedtekts|^reglements|^ansettelses|^innsigelses|normering|samtykke|^begjaer", ("delvis", "ja", "K")),
     (r"overprov|godkjenn|iverksett|ikraftsett|intern_regelgiv|medlemskapsfastsett|omradeinndeling|omradefastsett", ("delvis", "ja", "K")),
     (r"forvaltningsansvar|ressort", ("nei", "ja", "K")),
+    # [Ny, issue #355, kort nr. 58] «Dommere kan ikke … forflyttes mot sin vilje» — negativ kompetanse (stillingsvern), som avsetting.
+    (r"forflytning", ("delvis", "ja", "K")),
     # delegering/overføring med unntak og historikk
     (r"delegering|ansvarsoverforing|oppgave_overfort|overtar_rettigheter|tjenesteutsetting", ("delvis", "ja", "R")),
     # rolleinnehav / utpeking
@@ -91,7 +93,8 @@ REGLER = [
     (r"funksjonstid|moteplikt|moterett|stiftelse|organisasjonsform|tidsbegrenset_rolle|deltar_i|velgerkorps", ("nei", "ja", "G")),
     (r"felles_opprettelse|opprett", ("nei", "ja", "R")),
     # bevisst senere lag: prosess, informasjon, finansiering, saksforberedelse
-    (r"tapsfordeling|informasjon|konsultasjon|anmod|fremmer|forbereder|horing|opplysning|veileder|medvirk|finansier|kompenser|dekker_utgifter|oppgjor|bevilgning|hefter|ramme|adgang|tvist|part_i_sak|forelegg|klagerett|fastsetter_vilkar|avtalt|ansvarsdeling|sorge_for|saklig_arbeidsomrade|definisjon|avgrenset_mot", ("nei", "senere_lag", "-")),
+    # [ENDRET, issue #355, beslutning 5] partsposisjon (ankeadgang, «part i saken») er regellaget — eksplisitt, ikke bare via «adgang».
+    (r"partsposisjon|tapsfordeling|informasjon|konsultasjon|anmod|fremmer|forbereder|horing|opplysning|veileder|medvirk|finansier|kompenser|dekker_utgifter|oppgjor|bevilgning|hefter|ramme|adgang|tvist|part_i_sak|forelegg|klagerett|fastsetter_vilkar|avtalt|ansvarsdeling|sorge_for|saklig_arbeidsomrade|definisjon|avgrenset_mot", ("nei", "senere_lag", "-")),
 ]
 
 def klassifiser(kat, typ):

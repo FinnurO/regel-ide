@@ -861,7 +861,9 @@ public class StrukturkantTjenesteTests
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, Strukturkanter.Oppnevning,
             Kantnode.Virksomhet(kommunestyret), Kantnode.Virksomhet(styret), HjemmelRettskildeId: o.LovId, Undertype: "anke"), "Kari Jurist"));
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, Strukturkanter.Oppnevning,
-            Kantnode.Virksomhet(kommunestyret), Kantnode.Virksomhet(styret), HjemmelRettskildeId: o.LovId, Undertype: "utnevning"), "Kari Jurist"));
+            Kantnode.Virksomhet(kommunestyret), Kantnode.Virksomhet(styret), HjemmelRettskildeId: o.LovId, Undertype: "tilbakekall"), "Kari Jurist"));
+        // [ENDRET, issue #355] «utnevning» ble avvist her til #355 la den til (embete, Grl. § 21). Nå: en undertype fra en ANNEN type
+        // (tilbakekall hører til vedtak) avvises på oppnevning.
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "klage",
             Kantnode.Virksomhet(kommunestyret), Kantnode.Virksomhet(styret), HjemmelRettskildeId: o.LovId, Undertype: "valg"), "Kari Jurist"));
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "radgir",
@@ -945,7 +947,8 @@ public class StrukturkantTjenesteTests
             // [ENDRET, issue #352] Bare beslutning står uten familie: forelegging er kontroll (Johanns beslutning 3).
             Assert.Equal(t.Kode is Strukturkanter.Beslutning, rad.Familie is null);
         }
-        Assert.Equal("kontroll", (await db.RelasjonsTypeKonfigurasjoner.SingleAsync(k => k.Kategori == "K" && k.Kode == "forelegging")).Familie);
+        // [ENDRET, issue #355] Forelegging er ikke lenger en K-type (klassifiseres etter rettsvirkningen).
+        Assert.False(await db.RelasjonsTypeKonfigurasjoner.AnyAsync(k => k.Kategori == "K" && k.Kode == "forelegging"));
         Assert.False(await db.RelasjonsTypeKonfigurasjoner.AnyAsync(k => k.Familie == "personell")); // [Ny, #352] heter oppnevning
         Assert.Equal("normgivning", Strukturkanter.KompetansetypeFraFasit["normgivningskompetanse"]);
         Assert.Equal("enkeltvedtak", Strukturkanter.FvlKategoriFor("vedtak", null, null, "enkeltvedtak"));

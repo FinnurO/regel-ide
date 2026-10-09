@@ -155,7 +155,9 @@ public class KompetanseMigreringTests
             {
                 Assert.False(await etter.RelasjonsTypeKonfigurasjoner.AnyAsync(t => t.Kategori == kategori && t.Kode == kode), $"{kategori} {kode}");
             }
-            foreach (var kode in new[] { "klage", "normgivning", "avsetting", "forelegging", "palegg" })
+            // [ENDRET, issue #355] «forelegging» er tatt ut av lista: testen migrerer til siste versjon, og migrasjonen
+            // AvslutningSpeilerInnsetting sletter koden (forelegging klassifiseres etter rettsvirkningen).
+            foreach (var kode in new[] { "klage", "normgivning", "avsetting", "palegg" })
             {
                 Assert.True(await etter.RelasjonsTypeKonfigurasjoner.AnyAsync(t => t.Kategori == "K" && t.Kode == kode), kode);
             }
