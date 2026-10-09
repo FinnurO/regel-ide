@@ -134,6 +134,7 @@ menneske (sak i §8).
 | `rolle` | reguleringsmyndighet, kommunelege, beredskapsmyndigheten | `Begrep` | Innehas av en aktør, alltid avgrenset |
 | `klasse` | kommunene, språkutviklingskommuner, forvaltningsorgan | `Begrep` | Ekstensjonal (listet med hjemmel) eller intensjonal (kriterium) |
 | `omrade` | Troms, Karasjok (territorium), Agder tingretts rettskrets, forvaltningsområdet for samiske språk | `Begrep` | Gyldighetsperiode; kode (kommune-/fylkesnr) som attributt, aldri identitet |
+| `ordning` | Folketrygden (trygdeordning), Energifondet (fond), en tilskuddsordning | `Virksomhet` (aktørtype `ordning`, orgnr NULL) | [Ny, #353] Ikke-aktør som loven gir en funksjon — se §4.5 |
 | `person` | — | — | Utsatt: ingen av de fem kildene navngir personer |
 
 Aktørtypen (`rettssubjekt`/`organ`/`organisatorisk_enhet`) legges som felt på `Virksomhet`, **NULL =
@@ -233,12 +234,13 @@ Alle strukturutsagn lagres som én kanttype med kategori + konfigurerbar typekod
 
 | Kat. | Fra → Til | Typekoder (startsett, utvidbart) |
 |---|---|---|
-| **R** relasjon | aktør → aktør | [ENDRET, #341] Struktur UTEN myndighet: eies_av, ledes_av, sekretariat_for, rapporterer_til, etterfolger, representerer, har_delegert_til (gjennomført delegering). [ENDRET, #352] Avgjort som R (struktur eller hendelse, ikke myndighet): administrativt_underordnet, radgir, oppretter, avvikler. velger og ankeinstans_for er flyttet til K |
+| **R** relasjon | aktør → aktør | [ENDRET, #341] Struktur UTEN myndighet: eies_av, ledes_av, sekretariat_for, rapporterer_til, etterfolger, representerer, har_delegert_til (gjennomført delegering). [ENDRET, #352] Avgjort som R (struktur eller hendelse, ikke myndighet): administrativt_underordnet, radgir, oppretter, avvikler. velger og ankeinstans_for er flyttet til K. [Ny, #353] forvaltes_av (ordning → organet som forvalter den) |
+| **P** plikt overfor motpart ([Ny, #353]) | aktør (også ordning)/rolle/klasse → **motpart** (valgfri) | samarbeid, avtale, betaling, bistand, informasjon, konsultasjon — med `modalitet` (skal/kan/bør). Se §4.5 |
 | **K** kompetanse | aktør/rolle → **motpart** (valgfri) og bestemmelse/sakstype | [ENDRET, #341, #352] beslutning; struktur: oppretting, avvikling, organisasjon; oppnevning: oppnevning (med undertype valg/ansettelse/utpeking/oppnevning), avsetting; styring: instruksjon, samordning, delegering, godkjenning, samtykke, palegg; normgivning (med normform); kontroll: tilsyn, revisjon, forelegging; klage og overprøving: klage, omgjoring, overproving (med undertype anke), stadfesting; vedtak; sanksjon |
 | **M** medlemskap | aktør/klasse/område → klasse | medlem_av |
 | **O** områdesammensetning | område → område | bestar_av |
 | **A** ansvarsområde | aktør → område | har_ansvarsomrade, har_jurisdiksjon, har_sete_i, valgkrets_for |
-| **G** organtilhørighet | organ/enhet/rolle → rettssubjekt | har_organ, del_av, har_medlemmer (organets faste medlemmer), [Ny, #352] settes_med (sammensetningen i den enkelte sak — saksavhengig) |
+| **G** organtilhørighet | organ/enhet/rolle → rettssubjekt | har_organ, del_av, har_medlemmer (organets faste medlemmer), [Ny, #352] settes_med (sammensetningen i den enkelte sak — saksavhengig), [Ny, #353] tilhorer (ordning → rettssubjekt, bare når hjemlet) |
 | **I** rolleinnehav | aktør → rolle | innehar (= dagens `Myndighetstildeling` når målet er en rolle) |
 | **T** klassenivå | klasse → rolle/organ-type | skal_ha (distributivt: hvert medlem av klassen har …) |
 
@@ -406,9 +408,104 @@ typologien) — 0 lokalt. `grunnlag` og `delegerbar` er ikke satt på noen rad.
 
 ### 4.4 Bevisst ikke i strukturlaget (forslagets punkt 9)
 
-11 % av fasit-utsagnene hører til et senere lag og lagres ikke som strukturkanter: samarbeid,
+~~11 % av fasit-utsagnene hører til et senere lag og lagres ikke som strukturkanter: samarbeid,
 bistand, informasjonsdeling, konsultasjon, saksforberedelse, finansiering/betalingsansvar,
-møteplikt. De står fortsatt i fasiten, så de kan måles når det laget bygges.
+møteplikt. De står fortsatt i fasiten, så de kan måles når det laget bygges.~~
+
+**[ENDRET, issue #353, Johanns godkjenning 2026-10-08] Snudd.** Fasitkontrollen (#309) viste det motsatte: samarbeid,
+avtale, betaling, bistand, informasjon og konsultasjon handler om hvem som har ansvar overfor hvem — selve formålet med
+strukturmodellen. De er nå kategorien **P** (§4.5). Det som **blir stående ute**, er møteplikt og saksforberedelse
+(forelegging, oversending, forberedelse av sak, budsjettforslag), rettigheter som er motstykket til en plikt
+(konsultasjonsrett, høringsrett, informasjonstilgang — å lage plikten av retten ville vært å slutte gjensidighet), plikter
+for private («Enhver plikter …»), hefte/garanti, bevilgning og avtalens innhold. Målt etter konverteringen: 56 av 1 798
+fasitutsagn (3 %) står igjen som «senere lag» (før: 7–8 %, `designtest.py`).
+
+### 4.5 Plikt overfor motpart (P) og nodetypen ordning (issue #353)
+
+**[Bygget, issue #353, Johanns godkjenning 2026-10-08]** Johann la fram en analyse (struktur- vs pliktrelasjoner, plikt som egen
+node, fem roller i en betalingsregel, folketrygden som ordning og ikke aktør) med beskjed om å tilpasse den til modellen vi
+har. Tilpasningen:
+
+1. **To normative kanttyper, ikke ett nytt lag.** R er beskrivende, K (kompetanse med motpart, #341) er normativ «kan». En plikt
+   overfor en motpart er motstykket: **P**, i samme kanttabell, med samme felter som K (fra, valgfri til, hjemmel-eId,
+   avgrensning, polaritet, status, oppdagelseskilde) og i tillegg **`modalitet`** (`skal` | `kan` | `bor`, NULL = ikke angitt;
+   L14 «modalitet bevares»). Typene: `samarbeid`, `avtale`, `betaling`, `bistand`, `informasjon`, `konsultasjon` — lagt inn
+   som **typekoder** i kategorien P (som K-typene), ikke i kantens `undertype`-felt (hovedøktens tolkning, Johann bekrefter).
+2. **Den rike plikt-noden finnes i regellaget.** Vilkår, objekt, unntak, tid, mottaker og begunstiget er regel → vilkår →
+   **rettsfølge** → unntak (docs/01 §7–§8, L16). P-kanten er den **aktørnære projeksjonen**: hvem som skal, overfor hvem, og
+   hvor det står — koblet til regellaget via eId når det bygges.
+3. **De fem rollene i en betalingsregel, uten nye felter:** normadressaten i ordlyden = taggens tekstform; ordningen =
+   fra-noden; forvaltende organ = R `forvaltes_av` (hjemlet); rettslig ansvarsbærer = G `tilhorer` **bare når hjemlet**
+   (ellers ingen kant, synlig hull); betalingsmottaker = `til`, **null når teksten ikke sier det** («utgiftene til X» sier ikke
+   hvem som får pengene); begunstiget = avgrensning nå, regellaget senere.
+4. **Nodetypen `ordning`** (ikke-aktør som rettskilden gir en funksjon) bor på `Virksomhet` som aktørtype, ved siden av
+   rettssubjekt, organ og organisatorisk enhet, med `Virksomhet.Ordningstype` = `trygdeordning` | `fond` | `tilskuddsordning`
+   (CHECK `ck_virksomheter_ordningstype`). Hvorfor `Virksomhet` og ikke en begrepskategori: P/R/G har virksomhet-ender, og et
+   organ uten orgnr («Kongen i statsråd», #311) bor der alt (hovedøktens valg, Johann bekrefter). En ordning kan bare være
+   fra-node i P, R `forvaltes_av` og G `tilhorer`, og til-node i P (`Strukturkanter.OrdningLovSomFra`); `forvaltes_av` og
+   `tilhorer` krever en ordning som fra-node.
+5. **Generelle parter løses opp til konkrete par, ikke lagret.** «Kommunen skal inngå samarbeidsavtale med det regionale
+   helseforetaket i helseregionen» er én P-kant mellom klasser. S6 «hvem har kommune X samarbeidsplikt med?»
+   (`GET /api/omrader/kommuner/{nr}/plikter?type=samarbeid`, `OmradeOppslagTjeneste.PlikterForKommunenummerAsync`):
+   pliktene **direkte** (fra = kommunens virksomhet), **via registrert medlemskap** (M) og fra en **klasse uten registrert
+   medlemskap** — den siste listes med hullet «om plikten gjelder kommunen, avgjøres ikke her» (intensjonal klasse,
+   regelevaluering). Motparten løses som Statsforvalter-eksempelet i §4.2: medlemmene av til-klassen hvis
+   `A har_ansvarsomrade` dekker kommunen eller et område den ligger i — `entydig` | `ikke_entydig` (ingen velges) | `mangler`
+   med hull (helseregionenes inndeling står ikke i lov; den kommer fra vedtektene, ekstern kilde, #340) | `ikke_angitt`.
+   Lokalt finnes helseregion → fylke-kantene fra vedtektene alt (#312), så paret kan regnes ut når RHF-klassens medlemmer er
+   registrert. Klasser uten registrert medlemskap listes for ALLE kommuner (de kan gjelde dem) — det er støy til
+   medlemskapet er lastet eller kan avgjøres, men den er merket, ikke skjult.
+6. **Gjensidighet registreres som teksten sier den.** Én P-kant per pliktsubjekt (L13). Samarbeid mellom medlemmer av samme
+   klasse er én kant fra klassen til seg selv (CHECK `ck_strukturkanter_ikke_selv` har unntaket for P med begrep-ende).
+7. **Avtaleplikt, avtale og det avtalen etablerer er tre ting.** Plikten til å inngå avtale er P `avtale`. Den inngåtte
+   avtalen er en ekstern kilde (kildetype `avtale`, #340 — ikke bygget). Det avtalen etablerer, er R/K-kanter hjemlet i den.
+
+**Folketrygden — slått opp, ikke gjettet.** Folketrygdloven ligger i den lokale basen (ELI `lov/1997/02/28/19`, gjeldende).
+§ 21-11 a første ledd: «Helsedirektoratet skal forvalte kapittel 5, sikre rett ytelse til den enkelte og ha ansvaret for å følge
+opp og kontrollere tjenester, ytelser og utbetalinger» (eId `https://lovdata.no/eli/lov/1997/02/28/19/nor/§21-11a/ledd-1`).
+Det gir R `forvaltes_av` Folketrygden → Helsedirektoratet, avgrenset til kapittel 5. For de andre kapitlene sier
+folketrygdloven ikke «forvalte» om noen (§ 21-11 første ledd gir Arbeids- og velferdsdirektoratet **vedtakskompetanse**, ikke
+forvaltning) — synlig hull. Ingen bestemmelse sier at folketrygden tilhører staten — ingen `tilhorer`-kant. Fasitkommentaren
+«forvaltes av Nav (utenfor korpus)» var en antakelse uten kilde og er erstattet. Hvilket kapittel betalingsplikten i
+spesialisthelsetjenesteloven § 5-3 annet ledd hører under, sier ikke loven.
+
+**Migrasjonen `PliktOgOrdning`** (`PliktMigrering.cs`, teller før/etter, proveniens `migrasjon-353`, `Down` snur nøyaktig og
+nekter når det finnes P-/forvaltes_av-/tilhorer-kanter, en modalitet eller en ordning). **Målt mot lokal `regelide`
+2026-10-09:** 1 261 → 1 261 kanter, typekonfigurasjonen 46 → 54 (P ×6, R `forvaltes_av`, G `tilhorer`), 0 kanter flyttet (ingen
+R `samarbeider_med`/`bistar` lokalt — kodene har aldri stått i startsettet), 0 proveniensrader. `Down` prøvd mot lokal base
+(54 → 46, kolonnen `modalitet` borte) og kjørt opp igjen.
+
+**Fasiten** (`konvertering-353-plikt.py`, deterministisk, idempotent, også på `ki-utdata/`): 1 797 → 1 798 utsagn. 79 til plikt
+(samarbeid 21, betaling 19, bistand 15, informasjon 13, konsultasjon 8, avtale 3); modalitet fra sitatet 48, fra setningen 13,
+null 18. Betalingsmottakeren satt til null i 6 utsagn der teksten bare sier «utgiftene til / som påføres X» (gammel til i
+kommentaren). Folketrygden (spesialisthelsetjenesteloven a39 og helse- og omsorgstjenesteloven a56) og Energifondet er
+entitetstype `ordning`; «forvalteren av Energifondet» er snudd til `forvaltes_av`; ett nytt `forvaltes_av` fra folketrygdloven
+(noden lagt i `noder/`, folketrygdloven som ledsagende kilde med bare den ene noden). KI-utdata 1 043 → 1 043, 43 til plikt.
+Fire plikter fikk ingen modalitet med en grunn som bør leses i #309 (domstolloven u43 og helse- og omsorgstjenesteloven u77:
+modalverbet hører til en annen aktørs kompetanse — «Departementet kan pålegge samarbeid»; spesialisthelsetjenesteloven u190 og
+u276: flere modalverb).
+
+**Leksikonet** (versjon 2026-10-09.1): «skal samarbeide med» → samarbeidsplikt, «skal inngå (samarbeids)avtale med» →
+avtaleplikt, «skal dekkes av» og den aktive «X skal dekke utgifter» → betalingsplikt (til aldri satt), «skal gi opplysninger
+til» → informasjonsplikt, «skal innhente uttalelse fra» → konsultasjonsplikt (uten «fra» er det saksforberedelse). Modaliteten
+tas fra modalverbet i treffet, ikke fra regelen.
+
+| Måling (samme treffregel) | Før #353 | Etter #353 |
+|---|---:|---:|
+| Fasitutsagn | 1 797 | 1 798 |
+| Mønster alle: P / G | 93,9 / 47,2 % | 92,7 / 48,1 % |
+| Mønster P (fasit 79; før: «senere lag» 39): P / G | – / 0 % | 56,7 / 21,5 % |
+| — samarbeidsplikt (21) / avtaleplikt (3) / betalingsplikt (19) | – | 77,8 / 33,3 · 66,7 / 66,7 · 44,4 / 42,1 % |
+| — informasjonsplikt (13) / konsultasjonsplikt (8) | – | 0 treff (fasitens former er passiv «skal informasjon utleveres til» og lister) |
+| KI alle (samme utdata, konvertert): P / G | 36,6 / 21,3 % | 36,6 / 21,2 % |
+| KI P: P / G | (senere lag 35,9 / 35,9 %) | 32,6 / 17,7 % |
+| Union alle: P / G | 58,3 / 55,1 % | 58,2 / 55,7 % |
+| designtest.py revidert ja | 91 % (1 642) | 96 % (1 721) |
+
+Sju av mønsterlagets 13 falske positive i P er «ikke i fasiten» og ser ut som fasitutelatelser («Utgiftene dekkes av det
+offentlige», domstolloven § 105 a; «Kommunen dekker reiseutgifter for behandlingspersonell …», hotl. § 11-1) — ikke målt som
+riktige; de vurderes i #309. KI-tallene er de lagrede utdataene fra #308 konvertert med samme skript, ikke en ny kjøring med
+den nye instruksen.
 
 ## 5. Automatisk konvertering
 
@@ -692,6 +789,10 @@ gruppebegrep («forskriftsmyndighet etter § X»), men uten at kompetansetypen b
 [ENDRET, issue #312] Etter fasitrettelsen gir `designtest.py` 1 797 utsagn, revidert ja 91 % (1 640), delvis 1 %,
 senere lag 8 %; domstolloven 739 strukturutsagn, revidert ja 100 %.
 
+[ENDRET, issue #353] Etter plikt-konverteringen (§4.5): 1 798 utsagn, revidert ja 96 % (1 721), delvis 1 %, senere lag 3 % (56:
+møteplikt, saksforberedelse, rettigheter, hefte, avtalens innhold). Revidert «ja» per element: K 637, A 508, O 177, R 159, P 79,
+M 65, G 61, T 21, I 14.
+
 **Forbehold:** «ja» for revidert modell betyr at utsagnet har en plass med de egenskapene det trenger
 — ikke at modellen er bevist. Beviset er at strukturen for de fem kildene faktisk lastes inn og at
 spørsmålene i §6.1 besvares fra data. Det er akseptansekriteriet for epic-saken.
@@ -708,6 +809,8 @@ ansvarsområde i hvilke områder? 11. Hvilke aktører har myndighet innenfor hvi
 
 Pluss to som følger av funnene: 12. Hvem har hvilken kompetanse etter hvilken paragraf (S1)?
 13. Gitt en kommune: hvilken statsforvalter, tingrett og helseregion gjelder for den (S6)?
+[Ny, #353] 14. Gitt en kommune: hvem har den plikt overfor (samarbeid, avtale, betaling …), og hvor står det (S6)?
+15. Hvem forvalter en ordning (folketrygden), etter hvilket kapittel (S1)?
 
 ## 7. Ikke løst / åpne beslutninger
 

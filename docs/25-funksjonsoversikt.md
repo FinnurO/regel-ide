@@ -432,6 +432,16 @@ underordnet», «gir råd til», «oppretter» og «avvikler» er fortsatt relas
 sak med» skiller hvordan et organ settes i en sakstype («Høyesterett settes med fem dommere i andre saker …») fra organets
 faste medlemmer; typen er merket saksavhengig, og antallet står i teksten.
 
+[NYTT, 2026-10-09, issue #353] **Plikt overfor motpart og ordning.** Ved siden av kompetanse (det A KAN) finnes nå plikt (det A
+SKAL overfor B): «Kommunen har avtaleplikt (skal) overfor det regionale helseforetaket i helseregionen», «Reguleringsmyndigheten
+har samarbeidsplikt (skal) overfor andre lands reguleringsmyndigheter», «Folketrygden har betalingsplikt (skal) — behandlings- og
+forpleiningsutgifter». Typene er samarbeid, avtale, betaling, bistand, informasjon og konsultasjon, og modaliteten (skal/kan/bør)
+står slik teksten sier den. Betalingsmottakeren registreres bare når teksten sier hvem som får pengene, og gjensidighet sluttes
+aldri. En ny aktørtype **ordning** (folketrygden, et fond, en tilskuddsordning) er ikke en aktør, men kan være pliktsubjekt,
+forvaltes av et organ («Folketrygden forvaltes av Helsedirektoratet» for folketrygdloven kapittel 5, § 21-11 a) og tilhøre et
+rettssubjekt når en bestemmelse sier det. Spørsmålet «hvem har kommune X samarbeidsplikt med?» besvares av et oppslag som gir
+klassen og et synlig hull når medlemskapet eller områdeinndelingen ikke er lastet (helseregionene: ekstern kilde, #340).
+
 Organene **Stortinget** og **Kongen i statsråd** er nå virksomheter (aktørtype organ), ikke begreper.
 
 *Hvor:* «Myndighet & relasjoner»-fanen på en virksomhet (seksjonene kompetanse — gruppert og filtrerbar på familie
@@ -449,7 +459,7 @@ lagdømme, lagmannsrett, statsforvalter og RHF?» besvares av oppslaget, som sie
 når det er flere kandidater.
 
 *Hvor:* «Område»-fanen på et områdebegrep (tilhørighet for en kommune, hvem har ansvar her, består av, inngår i),
-«Ansvarsområder» i «Myndighet & relasjoner» på en virksomhet. API: `GET /api/omrader/kommuner/{nr}/tilhorighet`,
+«Ansvarsområder» i «Myndighet & relasjoner» på en virksomhet. [#353] Plikter for en kommune: `GET /api/omrader/kommuner/{nr}/plikter`. API: `GET /api/omrader/kommuner/{nr}/tilhorighet`,
 `GET /api/omrader/{id}/tilhorighet`. Fornyelse: `src/RegelIde.Data/Seed/fornye-omraderegister.py` (docs/21 §7).
 
 ### Rollebegrep og myndighetstildeling
