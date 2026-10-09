@@ -149,11 +149,17 @@ public class KompetanseleksikonTests
         "samarbeidsplikt", "Reguleringsmyndigheten", "andre lands reguleringsmyndigheter|internasjonale institusjoner", "skal")]
     [InlineData("Kommunestyret selv skal inngå samarbeidsavtale med det regionale helseforetaket i helseregionen eller med helseforetak som det regionale helseforetaket bestemmer.",
         "avtaleplikt", "Kommunestyret", "det regionale helseforetaket i helseregionen", "skal")]
+    // [ENDRET, juristgjennomgangen 2026-10-09] Genitiven sier hvem utgiftene er sine: til = det behandlende RHF-et.
     [InlineData("Det regionale helseforetakets behandlingsutgifter skal dekkes av det regionale helseforetaket i pasientens bostedsregion, jf. § 5-1.",
-        "betalingsplikt", "det regionale helseforetaket i pasientens bostedsregion", null, "skal")]
+        "betalingsplikt", "det regionale helseforetaket i pasientens bostedsregion", "Det regionale helseforetaket", "skal")]
+    // «som påføres Y» sier det også; normativ presens «dekkes» = skal.
+    [InlineData("De særlige utgifter som påføres fylkeskommuner og kommuner ved valg til Sametinget dekkes av staten.",
+        "betalingsplikt", "staten", "fylkeskommuner|kommuner", "skal")]
+    // Formål («utgifter til …»): ingen mottaker.
+    [InlineData("Utgifter til gjennomføring av tvungent psykisk helsevern skal dekkes av staten.", "betalingsplikt", "staten", null, "skal")]
     [InlineData("Folketrygden skal dekke behandlings- og forpleiningsutgifter for pasient som ikke har bosted i riket.",
         "betalingsplikt", "Folketrygden", null, "skal")]
-    [InlineData("Staten dekker utgiftene til kontrollkommisjonenes virksomhet.", "betalingsplikt", "Staten", null, null)]
+    [InlineData("Staten dekker utgiftene til kontrollkommisjonenes virksomhet.", "betalingsplikt", "Staten", null, "skal")] // [ENDRET] presens = skal
     [InlineData("Systemansvarlig skal gi opplysninger til reguleringsmyndigheten.", "informasjonsplikt", "Systemansvarlig", "reguleringsmyndigheten", "skal")]
     [InlineData("Kommunen bør innhente uttalelse fra Sametinget før vedtak treffes.", "konsultasjonsplikt", "Kommunen", "Sametinget", "bor")]
     [InlineData("Kommunen kan samarbeide med andre kommuner om ansettelse av kommunelege.", "samarbeidsplikt", "Kommunen", "andre kommuner", "kan")]

@@ -87,8 +87,9 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
                               // «ansetter», «utpeker», «oppnevner») og overprovingskompetanse (anke). Utelatt/null = ikke angitt.
                               // Verbene og ordstammene står i kompetanseleksikon.json («undertyper»)
   "modalitet": "skal" | "kan" | "bor",          // [Ny, #353] KUN på plikt (L14: modaliteten bevares): «skal», «plikter», «har plikt
-                              // til» = skal; «bør» = bor. Utelatt/null = teksten har ikke et modalverb som avgjør det (presens
-                              // «Staten dekker …» er IKKE «skal» — det gjettes ikke)
+                              // til» = skal; «bør» = bor. [ENDRET, juristgjennomgangen 2026-10-09] Normativ presens uten modalverb
+                              // («dekkes av staten», «Staten dekker») = skal; «Det samme gjelder …» arver modalverbet i setningen
+                              // det viser til; «A kan pålegge B …» = B skal når pålegg er gitt (se under). Utelatt/null = ikke avgjort
   "grunnlag": "offentligrettslig" | "privatrettslig",  // [Ny, #341] KUN på kompetanse; privatrettslig = eierskap/
                               // selskapsrett. Utelatt/null = ikke angitt (settes av et menneske, aldri utledet)
   "delegerbar": true | false, // [Ny, #341/#335] KUN på kompetanse: «Kongen …» = true, «Kongen i statsråd …» og
@@ -145,15 +146,22 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
   reguleringsmyndigheter», «Utgiftene skal dekkes av det regionale helseforetaket i pasientens bostedsregion». `fra` =
   pliktsubjektet, `til` = motparten (null når teksten ikke sier det), `modalitet` = skal/kan/bor. Den rike plikten (vilkår,
   unntak, beløp, begunstiget) hører til regellaget (rettsfølge, L16); plikt-utsagnet er den aktørnære projeksjonen.
-- **Betalingsmottakeren:** «utgiftene til X», «Xs utgifter» og «utgifter som påføres X» sier IKKE hvem som får pengene — da er
-  `til` null og X står i `objekt`/`avgrensning`/`kommentar`. «Yte X kompensasjon», «yter tilskudd til X» sier det.
+- **Betalingsmottakeren:** [ENDRET, juristgjennomgangen 2026-10-09] Sier teksten HVEM utgiftene er sine — genitiv («Xs
+  utgifter», «Det regionale helseforetakets … utgifter») eller «utgifter som påføres X» — er `til` = X (en ren tekstlesning). Sier
+  den bare hva utgiftene går TIL (formål: «utgifter til behandling …», «utgiftene til kontrollkommisjonenes virksomhet»), er `til`
+  null. «Yte X kompensasjon», «yter tilskudd til X» sier det. At mottakeren må være en annen enn betaleren, kodes ikke.
+- **Pålegg:** «A kan pålegge B …»: «kan» hører til A sin `paleggskompetanse` (styring); B sin plikt er `plikt` med modalitet
+  `skal`, avgrensning «når pålegg er gitt», `betinget`, og det konkrete pålegget er en kilde utenfor korpus. «A kan be B om å …» er
+  en adgang til å be om bistand, ingen plikt for B (ikke `plikt`).
+- **Tapsfordeling** («Dersom pasienten ikke kan dekke utgiftene selv, skal de dekkes av vedkommende helseinstitusjon») er ikke en
+  plikt overfor en motpart: `annet:tapsfordeling`.
 - **Én rad per pliktsubjekt (L13).** Står begge parter som pliktsubjekt, blir det to rader. Gjensidighet sluttes aldri fra et
   ensidig «A skal samarbeide med B». Samarbeid mellom medlemmer av samme klasse: `fra` = `til` = klassen.
 - **Står utenfor:** møteplikt og saksforberedelse (forelegging, oversending, forberedelse av sak), rettigheter som er
   motstykket til en plikt (konsultasjonsrett, høringsrett), plikter for private («Enhver plikter …»).
 - `bistar` og `samarbeider_med` er ikke lenger relasjonstyper. Ny relasjonstype `forvaltes_av` (ordning → organet som forvalter
   den), ny organsammensetning `tilhorer` (ordning → rettssubjekt, bare når hjemlet). Ny entitetstype `ordning` med `undertype`.
-- Konverteringen er deterministisk: `konvertering-353-plikt.py` (fasit 1797 → 1798 utsagn: 79 til plikt, ett nytt
+- Konverteringen er deterministisk: `konvertering-353-plikt.py` (fasit 1797 → 1798 utsagn: 77 til plikt, ett nytt
   `forvaltes_av` slått opp i folketrygdloven § 21-11 a første ledd; KI-utdata 1043 → 1043, 43 til plikt).
 
 Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):

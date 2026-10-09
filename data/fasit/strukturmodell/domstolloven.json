@@ -9401,8 +9401,8 @@
    "id": "u43",
    "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§19/ledd-2",
    "sitat": "Domstolens leder kan ellers be lagmannsretten om å foreta tilkalling av slike dommere innen lagdømmet.",
-   "kategori": "plikt",
-   "type": "bistandsplikt",
+   "kategori": "relasjon",
+   "type": "annet:anmodning_om_bistand",
    "fra": "lr",
    "til": "tr",
    "objekt": null,
@@ -9411,7 +9411,7 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": ""
+   "kommentar": "[#353, juristgjennomgangen] «A kan be B om å …» er en adgang til å be om bistand; teksten sier ikke at B skal — ingen plikt."
   },
   {
    "id": "u44",

@@ -91,7 +91,7 @@ REGLER = [
     (r"funksjonstid|moteplikt|moterett|stiftelse|organisasjonsform|tidsbegrenset_rolle|deltar_i|velgerkorps", ("nei", "ja", "G")),
     (r"felles_opprettelse|opprett", ("nei", "ja", "R")),
     # bevisst senere lag: prosess, informasjon, finansiering, saksforberedelse
-    (r"informasjon|konsultasjon|anmod|fremmer|forbereder|horing|opplysning|veileder|medvirk|finansier|kompenser|dekker_utgifter|oppgjor|bevilgning|hefter|ramme|adgang|tvist|part_i_sak|forelegg|klagerett|fastsetter_vilkar|avtalt|ansvarsdeling|sorge_for|saklig_arbeidsomrade|definisjon|avgrenset_mot", ("nei", "senere_lag", "-")),
+    (r"tapsfordeling|informasjon|konsultasjon|anmod|fremmer|forbereder|horing|opplysning|veileder|medvirk|finansier|kompenser|dekker_utgifter|oppgjor|bevilgning|hefter|ramme|adgang|tvist|part_i_sak|forelegg|klagerett|fastsetter_vilkar|avtalt|ansvarsdeling|sorge_for|saklig_arbeidsomrade|definisjon|avgrenset_mot", ("nei", "senere_lag", "-")),
 ]
 
 def klassifiser(kat, typ):

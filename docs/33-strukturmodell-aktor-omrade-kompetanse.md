@@ -418,7 +418,7 @@ strukturmodellen. De er nå kategorien **P** (§4.5). Det som **blir stående ut
 (forelegging, oversending, forberedelse av sak, budsjettforslag), rettigheter som er motstykket til en plikt
 (konsultasjonsrett, høringsrett, informasjonstilgang — å lage plikten av retten ville vært å slutte gjensidighet), plikter
 for private («Enhver plikter …»), hefte/garanti, bevilgning og avtalens innhold. Målt etter konverteringen: 56 av 1 798
-fasitutsagn (3 %) står igjen som «senere lag» (før: 7–8 %, `designtest.py`).
+fasitutsagn (3 %) står igjen som «senere lag» (58 etter juristgjennomgangen) (før: 7–8 %, `designtest.py`).
 
 ### 4.5 Plikt overfor motpart (P) og nodetypen ordning (issue #353)
 
@@ -477,34 +477,52 @@ nekter når det finnes P-/forvaltes_av-/tilhorer-kanter, en modalitet eller en o
 R `samarbeider_med`/`bistar` lokalt — kodene har aldri stått i startsettet), 0 proveniensrader. `Down` prøvd mot lokal base
 (54 → 46, kolonnen `modalitet` borte) og kjørt opp igjen.
 
-**Fasiten** (`konvertering-353-plikt.py`, deterministisk, idempotent, også på `ki-utdata/`): 1 797 → 1 798 utsagn. 79 til plikt
-(samarbeid 21, betaling 19, bistand 15, informasjon 13, konsultasjon 8, avtale 3); modalitet fra sitatet 48, fra setningen 13,
-null 18. Betalingsmottakeren satt til null i 6 utsagn der teksten bare sier «utgiftene til / som påføres X» (gammel til i
-kommentaren). Folketrygden (spesialisthelsetjenesteloven a39 og helse- og omsorgstjenesteloven a56) og Energifondet er
-entitetstype `ordning`; «forvalteren av Energifondet» er snudd til `forvaltes_av`; ett nytt `forvaltes_av` fra folketrygdloven
-(noden lagt i `noder/`, folketrygdloven som ledsagende kilde med bare den ene noden). KI-utdata 1 043 → 1 043, 43 til plikt.
-Fire plikter fikk ingen modalitet med en grunn som bør leses i #309 (domstolloven u43 og helse- og omsorgstjenesteloven u77:
-modalverbet hører til en annen aktørs kompetanse — «Departementet kan pålegge samarbeid»; spesialisthelsetjenesteloven u190 og
-u276: flere modalverb).
+**[ENDRET, juristgjennomgangen 2026-10-09, godtatt av koordinatoren] Betalingsmottaker og modalitet.**
+- *Betalingsmottakeren:* sier teksten HVEM utgiftene er sine — genitiv («Det regionale helseforetakets … utgifter») eller
+  «utgifter som påføres X» — er `til` = X; det er en tekstlesning, ikke en slutning. Bare formål («utgifter til behandling …»,
+  «utgiftene til kontrollkommisjonenes virksomhet») gir `til` = null. Spesialisthelsetjenesteloven § 5-2 første ledd første
+  punktum: til = det behandlende RHF-et (at det må være et ANNET RHF, kodes ikke); annet punktum: null. Sameloven § 1-4 første
+  ledd (u5/u6): til = fylkeskommunene og kommunene. § 5-3 første ledd siste punktum («… skal de dekkes av vedkommende
+  helseinstitusjon») er tapsfordeling, ikke plikt overfor en motpart: `annet:tapsfordeling`.
+- *Modalitet:* «Det samme gjelder …» arver modalverbet i setningen det viser til (§ 5-2 første ledd annet punktum → skal). Normativ
+  presens uten modalverb («dekkes av staten», «Staten dekker», «Staten yter») = skal, notert som presens. Et punkt i en liste får
+  innledningens modalverb («Plikten til å konsultere … gjelder for» → skal). «Departementet kan pålegge samarbeid mellom kommuner»
+  (hotl. § 6-6): «kan» hører til departementets K `paleggskompetanse` (var vedtakskompetanse — samme regel gir også energiloven
+  u119 og u204), kommunenes plikt er P samarbeid med modalitet skal, avgrensning «når pålegg er gitt», og det konkrete pålegget er
+  en kilde utenfor korpus. Domstolloven § 19 annet ledd («Domstolens leder kan ellers be lagmannsretten om å foreta tilkalling …»,
+  u43) er verken «A kan pålegge B» eller «B kan, etter samtykke fra A», men «A kan be B om»: en adgang til å be om bistand, ingen
+  plikt for B → `relasjon/annet:anmodning_om_bistand`, ikke P.
+- *Hjemmelen på punktumnivå:* § 5-2 første ledd har ingen punktum-noder i korpuset (bare ledd-eId), så punktumet står i
+  kommentaren/avgrensningen, ikke i eId-en.
 
-**Leksikonet** (versjon 2026-10-09.1): «skal samarbeide med» → samarbeidsplikt, «skal inngå (samarbeids)avtale med» →
-avtaleplikt, «skal dekkes av» og den aktive «X skal dekke utgifter» → betalingsplikt (til aldri satt), «skal gi opplysninger
-til» → informasjonsplikt, «skal innhente uttalelse fra» → konsultasjonsplikt (uten «fra» er det saksforberedelse). Modaliteten
-tas fra modalverbet i treffet, ikke fra regelen.
+**Fasiten** (`konvertering-353-plikt.py`, deterministisk, idempotent, også på `ki-utdata/`): 1 797 → 1 798 utsagn. 77 til plikt
+(samarbeid 21, betaling 18, bistand 14, informasjon 13, konsultasjon 8, avtale 3); modalitet fra sitatet 48, fra setningen 13,
+fra innledningen til lista 7, normativ presens 6, «Det samme gjelder» 1, pålegg 1, null 1 (spesialisthelsetjenesteloven u190:
+«skal … sørge for samarbeid …, slik at … kan ivareta» — to modalverb). Betalingsmottakeren beholdt i 3 utsagn (genitiv / «som
+påføres»), satt til null i 3 (formål). Én betaling er `annet:tapsfordeling`, én bistand er `annet:anmodning_om_bistand`, og tre
+vedtakskompetanser med «kan pålegge» er `paleggskompetanse`. Folketrygden (spesialisthelsetjenesteloven a39 og helse- og
+omsorgstjenesteloven a56) og Energifondet er entitetstype `ordning`; «forvalteren av Energifondet» er snudd til `forvaltes_av`;
+ett nytt `forvaltes_av` fra folketrygdloven (noden lagt i `noder/`, folketrygdloven som ledsagende kilde med bare den ene noden).
+KI-utdata 1 043 → 1 043, 43 til plikt.
+
+**Leksikonet** (versjon 2026-10-09.2): «skal samarbeide med» → samarbeidsplikt, «skal inngå (samarbeids)avtale med» →
+avtaleplikt, «skal dekkes av» og den aktive «X skal dekke utgifter» → betalingsplikt (til = Y bare ved genitiv eller «som påføres
+Y»; presens = skal), «skal gi opplysninger til» → informasjonsplikt, «skal innhente uttalelse fra» → konsultasjonsplikt (uten «fra»
+er det saksforberedelse). Modaliteten tas fra modalverbet i treffet, ikke fra regelen.
 
 | Måling (samme treffregel) | Før #353 | Etter #353 |
 |---|---:|---:|
 | Fasitutsagn | 1 797 | 1 798 |
-| Mønster alle: P / G | 93,9 / 47,2 % | 92,7 / 48,1 % |
-| Mønster P (fasit 79; før: «senere lag» 39): P / G | – / 0 % | 56,7 / 21,5 % |
-| — samarbeidsplikt (21) / avtaleplikt (3) / betalingsplikt (19) | – | 77,8 / 33,3 · 66,7 / 66,7 · 44,4 / 42,1 % |
+| Mønster alle: P / G | 93,9 / 47,2 % | 92,7 / 48,2 % |
+| Mønster P (fasit 77; før: «senere lag» 39): P / G | – / 0 % | 58,1 / 23,4 % |
+| — samarbeidsplikt (21) / avtaleplikt (3) / betalingsplikt (18) | – | 77,8 / 33,3 · 66,7 / 66,7 · 47,4 / 50,0 % |
 | — informasjonsplikt (13) / konsultasjonsplikt (8) | – | 0 treff (fasitens former er passiv «skal informasjon utleveres til» og lister) |
-| KI alle (samme utdata, konvertert): P / G | 36,6 / 21,3 % | 36,6 / 21,2 % |
-| KI P: P / G | (senere lag 35,9 / 35,9 %) | 32,6 / 17,7 % |
+| KI alle (samme utdata, konvertert): P / G | 36,6 / 21,3 % | 36,5 / 21,2 % |
+| KI P: P / G | (senere lag 35,9 / 35,9 %) | 32,6 / 18,2 % |
 | Union alle: P / G | 58,3 / 55,1 % | 58,2 / 55,7 % |
-| designtest.py revidert ja | 91 % (1 642) | 96 % (1 721) |
+| designtest.py revidert ja | 91 % (1 642) | 96 % (1 719) |
 
-Sju av mønsterlagets 13 falske positive i P er «ikke i fasiten» og ser ut som fasitutelatelser («Utgiftene dekkes av det
+Flere av mønsterlagets falske positive i P er «ikke i fasiten» og ser ut som fasitutelatelser («Utgiftene dekkes av det
 offentlige», domstolloven § 105 a; «Kommunen dekker reiseutgifter for behandlingspersonell …», hotl. § 11-1) — ikke målt som
 riktige; de vurderes i #309. KI-tallene er de lagrede utdataene fra #308 konvertert med samme skript, ikke en ny kjøring med
 den nye instruksen.
@@ -786,13 +804,13 @@ ikke avgjøres uten regelevaluering (intensjonale klasser, bostedsregion, komple
 
 Dagens «delvis» er nesten bare kompetanse, som kan presses inn i `Myndighetstildeling` via et
 gruppebegrep («forskriftsmyndighet etter § X»), men uten at kompetansetypen blir spørrbar. Revidert
-«ja» fordeler seg slik på kanttypene: O 578, K 514, R 266, A 176, M 65, G 61, T 21, I 14.
+«ja» fordeler seg slik på kanttypene: O 578, K 514, R 266, A 176, M 65, G 61, T 21, I 14 (P 77 etter juristgjennomgangen).
 
 [ENDRET, issue #312] Etter fasitrettelsen gir `designtest.py` 1 797 utsagn, revidert ja 91 % (1 640), delvis 1 %,
 senere lag 8 %; domstolloven 739 strukturutsagn, revidert ja 100 %.
 
-[ENDRET, issue #353] Etter plikt-konverteringen (§4.5): 1 798 utsagn, revidert ja 96 % (1 721), delvis 1 %, senere lag 3 % (56:
-møteplikt, saksforberedelse, rettigheter, hefte, avtalens innhold). Revidert «ja» per element: K 637, A 508, O 177, R 159, P 79,
+[ENDRET, issue #353] Etter plikt-konverteringen (§4.5): 1 798 utsagn, revidert ja 96 % (1 719), delvis 1 %, senere lag 3 % (56:
+møteplikt, saksforberedelse, rettigheter, hefte, avtalens innhold). Revidert «ja» per element: K 637, A 508, O 177, R 159, P 77,
 M 65, G 61, T 21, I 14.
 
 **Forbehold:** «ja» for revidert modell betyr at utsagnet har en plass med de egenskapene det trenger

@@ -2450,16 +2450,16 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§6-6/ledd-1",
       "sitat": "Departementet kan pålegge samarbeid mellom kommuner",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "paleggskompetanse",
       "fra": "a38",
-      "til": null,
+      "til": "a1",
       "objekt": "pålegg om interkommunalt samarbeid, oppgaver og utgiftsfordeling",
       "polaritet": "positiv",
       "avgrensning": "når påkrevd for forsvarlig løsning av oppgaver",
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Statlig kompetanse til å etablere tvungent interkommunalt samarbeid; formen (vertskommune o.l.) er ikke angitt."
+      "kommentar": "Statlig kompetanse til å etablere tvungent interkommunalt samarbeid; formen (vertskommune o.l.) er ikke angitt. [#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt."
     },
     {
       "id": "u77",
@@ -2471,11 +2471,12 @@
       "til": "a3",
       "objekt": null,
       "polaritet": "positiv",
-      "avgrensning": null,
+      "avgrensning": "når pålegg er gitt",
       "betinget": true,
-      "kilde_utenfor_korpus": false,
+      "kilde_utenfor_korpus": true,
       "sikkerhet": "middels",
-      "kommentar": "Resulterende relasjon kommune–kommune, pålagt ovenfra."
+      "kommentar": "Resulterende relasjon kommune–kommune, pålagt ovenfra. [#353, juristgjennomgangen] «kan» hører til påleggskompetansen; plikten er «skal» når pålegg er gitt, og det konkrete pålegget er en kilde utenfor korpus.",
+      "modalitet": "skal"
     },
     {
       "id": "u78",
@@ -2609,7 +2610,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Rollen bistår rettssubjektet med å ivareta dets ansvar."
+      "kommentar": "Rollen bistår rettssubjektet med å ivareta dets ansvar.",
+      "modalitet": "skal"
     },
     {
       "id": "u86",
@@ -3821,7 +3823,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "[#353] Modalitet skal: normativ presens.",
+      "modalitet": "skal"
     },
     {
       "id": "u160",
@@ -3855,7 +3858,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "[#353] Modalitet skal: normativ presens.",
+      "modalitet": "skal"
     },
     {
       "id": "u162",

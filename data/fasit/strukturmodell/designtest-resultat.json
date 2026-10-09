@@ -3226,7 +3226,7 @@
  {
   "kilde": "energiloven",
   "kategori": "kompetanse",
-  "type": "vedtakskompetanse",
+  "type": "paleggskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -3906,7 +3906,7 @@
  {
   "kilde": "energiloven",
   "kategori": "kompetanse",
-  "type": "vedtakskompetanse",
+  "type": "paleggskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -4914,7 +4914,7 @@
  {
   "kilde": "helse-og-omsorgstjenesteloven",
   "kategori": "kompetanse",
-  "type": "vedtakskompetanse",
+  "type": "paleggskompetanse",
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
@@ -8049,11 +8049,11 @@
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
-  "kategori": "plikt",
-  "type": "betalingsplikt",
+  "kategori": "annet:tapsfordeling",
+  "type": "annet:tapsfordeling",
   "dagens": "nei",
-  "revidert": "ja",
-  "element": "P"
+  "revidert": "senere_lag",
+  "element": "-"
  },
  {
   "kilde": "spesialisthelsetjenesteloven",
@@ -8609,11 +8609,11 @@
  },
  {
   "kilde": "domstolloven",
-  "kategori": "plikt",
-  "type": "bistandsplikt",
+  "kategori": "relasjon",
+  "type": "annet:anmodning_om_bistand",
   "dagens": "nei",
-  "revidert": "ja",
-  "element": "P"
+  "revidert": "senere_lag",
+  "element": "-"
  },
  {
   "kilde": "domstolloven",

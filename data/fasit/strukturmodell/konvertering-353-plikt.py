@@ -27,13 +27,25 @@ Reglene (FORMAT.md og docs/33 §4.4/§4.5 er oppdatert tilsvarende):
      relasjon/annet:meldingsplikt_til → informasjonsplikt.
      Retningen er den annotatøren satte: fra = pliktsubjektet, til = motparten. Ingen kant snus, ingen dupliseres
      (gjensidighet sluttes aldri, L13: én kant per pliktsubjekt — fasiten har det alt).
-  2. Modalitet (L14) avgjøres på SITATET: «skal/skulle», «plikter/plikt/pålagt» → skal; «bør» → bor; «kan» → kan. Har sitatet
-     ingen modalverb, leses SETNINGEN i nodeteksten som inneholder sitatet med samme regel. Ett distinkt modalverb → det; ingen
-     eller flere → ingen modalitet (null, gjettes ikke). Står modalverbet foran «pålegge/be/kreve/anmode», tilhører det en
-     annen aktørs kompetanse («Departementet kan pålegge samarbeid») → ingen modalitet, og raden listes.
-  3. Betalingsmottakeren: «utgiftene til X» / «Xs utgifter» / «utgifter som påføres X» sier ikke hvem som får pengene
-     (sakens tilpasning punkt 3). For dekker_utgifter_for/finansieringsansvar blir til = null; den gamle til-aktøren skrives i
-     kommentaren, så opplysningen ikke går tapt.
+  2. Modalitet (L14). [ENDRET, juristgjennomgangen 2026-10-09, godtatt av koordinatoren] I denne rekkefølgen:
+     a. SITATET: «skal/skulle», «plikter/plikt/pålagt» → skal; «bør» → bor; «kan» → kan. Ett distinkt modalverb → det; flere → null.
+     b. «A kan pålegge B …» (i sitatet eller setningen): «kan» tilhører A sin påleggskompetanse (K paleggskompetanse, styring —
+        vedtakskompetanse med samme sitat gjøres om). B sin plikt er P med modalitet SKAL, avgrensning «når pålegg er gitt»,
+        betinget, og det konkrete pålegget er en kilde utenfor korpus (helse- og omsorgstjenesteloven § 6-6).
+     c. «A kan be B om å …» er en adgang til å be om bistand, ingen plikt for B: relasjon/bistar → relasjon/annet:anmodning_om_bistand,
+        ikke P (domstolloven § 19 annet ledd, u43).
+     d. «Det samme gjelder …» arver modalverbet i setningen før, når den har nøyaktig ett (spesialisthelsetjenesteloven § 5-2
+        første ledd annet punktum → skal; hjemmelen er begge punktum, som står i samme ledd-node).
+     e. SETNINGEN i nodeteksten som inneholder sitatet; for et punkt i en liste INNLEDNINGEN («Plikten til å konsultere … gjelder
+        for» → skal).
+     f. Normativ presens uten modalverb («dekkes av staten», «Staten dekker», «Staten yter») → skal, notert som presens.
+     Ellers null, og raden listes.
+  3. Betalingsmottakeren. [ENDRET, juristgjennomgangen] Sier teksten HVEM utgiftene er sine — genitiv foran «utgift» («Det
+     regionale helseforetakets behandlings- … utgifter») eller «utgifter som påføres X» — er til = X (den annoterte til-aktøren;
+     ingen ny aktør utledes, og det kodes ikke at det må være et annet RHF). Sier teksten bare hva utgiftene går TIL (formål:
+     «utgifter til behandling …», «utgiftene til kontrollkommisjonenes virksomhet»), er til = null; den gamle til-aktøren står i
+     kommentaren. Spesialisthelsetjenesteloven § 5-3 første ledd siste punktum («Dersom pasienten ikke kan dekke utgiftene selv,
+     skal de dekkes av vedkommende helseinstitusjon»): tapsfordeling, ikke plikt overfor en motpart → annet:tapsfordeling.
   4. Ordning: aktøren «Folketrygden» (spesialisthelsetjenesteloven a39, entitetstype annet:trygdeordning) blir entitetstype
      «ordning» med undertype «trygdeordning». Forvaltningen er slått opp i folketrygdloven (lokal base, ELI lov/1997/02/28/19,
      gjeldende): § 21-11 a første ledd «Helsedirektoratet skal forvalte kapittel 5 …» gir relasjon/forvaltes_av fra
@@ -84,15 +96,6 @@ TIL_PLIKT = {
     ("relasjon", "annet:meldingsplikt_til"): ("informasjonsplikt", True),
 }
 
-AVTALE = re.compile(r"\binngå\s+(?:en\s+)?\w*avtaler?\s+med\b", re.IGNORECASE)
-
-MODAL = [
-    (re.compile(r"\b(?:skal|skulle)\b", re.IGNORECASE), "skal"),
-    (re.compile(r"\b(?:plikter|plikt|plikten|pålagt)\b", re.IGNORECASE), "skal"),
-    (re.compile(r"\bbør\b", re.IGNORECASE), "bor"),
-    (re.compile(r"\bkan\b", re.IGNORECASE), "kan"),
-]
-ANNEN_AKTORS_KOMPETANSE = re.compile(r"\b(?:skal|kan|bør)\s+(?:\w+\s+){0,2}?(?:pålegge|be|kreve|anmode)\b", re.IGNORECASE)
 
 # Folketrygden (regel 4). Slått opp i lokal base 2026-10-09 (rettskilder.eli lov/1997/02/28/19, status Gjeldende).
 FTRL = {"tittel": "Lov om folketrygd (folketrygdloven)", "eli": "https://lovdata.no/eli/lov/1997/02/28/19/nor"}
@@ -105,31 +108,98 @@ FTRL_NODE = {
 FORVALTES_AV_SITAT = "Helsedirektoratet skal forvalte kapittel 5"
 
 
+AVTALE = re.compile(r"\binngå\s+(?:en\s+)?\w*avtaler?\s+med\b", re.IGNORECASE)
+
+MODAL = [
+    (re.compile(r"\b(?:skal|skulle)\b", re.IGNORECASE), "skal"),
+    (re.compile(r"\b(?:plikter|plikt|plikten|pålagt|pligter|pligt)\b", re.IGNORECASE), "skal"),  # pligt: eldre rettskrivning (domstolloven)
+    (re.compile(r"\bbør\b", re.IGNORECASE), "bor"),
+    (re.compile(r"\bkan\b", re.IGNORECASE), "kan"),
+]
+# [ENDRET, juristgjennomgangen 2026-10-09] To former der modalverbet tilhører en ANNEN aktør:
+#   «A kan pålegge B …»        → B har plikten (skal) NÅR pålegg er gitt; A har påleggskompetanse (regel 2b).
+#   «A kan be B om å …»        → en adgang til å be om bistand, ingen plikt for B (regel 2c, ikke P).
+PALEGG = re.compile(r"\bkan\s+(?:\w+\s+){0,2}?pålegge\b", re.IGNORECASE)
+ANMODNING = re.compile(r"\bkan\s+(?:\w+\s+){0,2}?be\s+\w+.*?\bom\b", re.IGNORECASE)
+ANNEN_AKTORS_KOMPETANSE = re.compile(r"\b(?:skal|kan|bør)\s+(?:\w+\s+){0,2}?(?:kreve|anmode)\b", re.IGNORECASE)
+DET_SAMME = re.compile(r"^\W*Det samme gjelder\b", re.IGNORECASE)
+NORMATIV_PRESENS = re.compile(r"\b(?:dekkes|dekker|yter|ytes|gjelder|betales|betaler)\b", re.IGNORECASE)
+
+# [Ny, juristgjennomgangen 2026-10-09] Navngitte tilfeller (kilde, id, sitatets begynnelse) — sitatet er med, så en omnummerert
+# fasit ikke treffer feil rad (samme teknikk som SETTES_MED i konvertering-352-oppnevning.py).
+TAPSFORDELING = {("spesialisthelsetjenesteloven", "u276", "Dersom pasienten ikke kan dekke utgiftene selv")}
+
+
+def modaler(tekst):
+    funnet = {m for rx, m in MODAL if rx.search(tekst)}
+    return funnet.pop() if len(funnet) == 1 else ("flere" if funnet else None)
+
+
+def setning_med(nodetekst, sitat):
+    """(setningen som inneholder sitatet, setningen før). Setningsgrense = punktum/semikolon/kolon fulgt av mellomrom og stor
+    bokstav — samme regel som MonsterStrukturkonverterer.Setningsgrense, så «jf. § 5-1» ikke deler en setning."""
+    i = nodetekst.find(sitat)
+    if i < 0:
+        return None, None
+    grense = re.compile(r"(?<=[.;:!?])\s+(?=[\[«(]?[A-ZÆØÅ])")
+    grenser = [0] + [m.end() for m in grense.finditer(nodetekst)]
+    start = max(g for g in grenser if g <= i)
+    slutt = min([m.start() for m in grense.finditer(nodetekst) if m.start() >= i + len(sitat) - 1] or [len(nodetekst)])
+    tidligere = [g for g in grenser if g < start]
+    forrige = nodetekst[max(tidligere):start] if tidligere else None
+    return nodetekst[start:slutt], forrige
+
+
+
 def modalitet(u, tekster):
-    """(modalitet, kilde, kandidatgrunn) — regel 2."""
-    if ANNEN_AKTORS_KOMPETANSE.search(u["sitat"]):
+    """Regel 2 — (modalitet, kilde, kandidatgrunn). Kilde: sitat | setning | forrige setning («Det samme gjelder») |
+    innledningen (punkt i en liste) | presens | pålegg."""
+    sitat = u["sitat"]
+    nodetekst = tekster.get(u["eid"], "")
+    setning, forrige = setning_med(nodetekst, sitat) if nodetekst else (None, None)
+    helhet = (setning or "") + " " + sitat
+    if PALEGG.search(helhet):
+        return "skal", "pålegg", None
+    if ANNEN_AKTORS_KOMPETANSE.search(helhet):
         return None, None, "modalverbet hører til en annen aktørs kompetanse"
-    def fra(tekst):
-        funnet = {m for rx, m in MODAL if rx.search(tekst)}
-        return funnet.pop() if len(funnet) == 1 else (None if not funnet else "flere")
-    m = fra(u["sitat"])
-    if m and m != "flere":
-        return m, "sitat", None
+    m = modaler(sitat)
     if m == "flere":
         return None, None, "flere modalverb i sitatet"
-    nodetekst = tekster.get(u["eid"], "")
-    i = nodetekst.find(u["sitat"])
-    if i < 0:
-        return None, None, None
-    start = max(nodetekst.rfind(". ", 0, i), nodetekst.rfind("; ", 0, i)) + 1
-    slutt_kandidater = [x for x in (nodetekst.find(". ", i + len(u["sitat"])), nodetekst.find("; ", i + len(u["sitat"]))) if x >= 0]
-    setning = nodetekst[start:min(slutt_kandidater) if slutt_kandidater else len(nodetekst)]
-    if ANNEN_AKTORS_KOMPETANSE.search(setning):
-        return None, None, "modalverbet i setningen hører til en annen aktørs kompetanse"
-    m = fra(setning)
-    if m and m != "flere":
-        return m, "setning", None
-    return None, None, ("flere modalverb i setningen" if m == "flere" else None)
+    if m:
+        return m, "sitat", None
+    if DET_SAMME.search(sitat) or (setning and DET_SAMME.search(setning)):
+        fm = modaler(forrige or "")
+        if fm and fm != "flere":
+            return fm, "forrige setning («Det samme gjelder»)", None
+    if setning:
+        m = modaler(setning)
+        if m == "flere":
+            return None, None, "flere modalverb i setningen"
+        if m:
+            return m, "setning", None
+    if "/punkt-" in u["eid"]:
+        forelder = tekster.get(u["eid"].rsplit("/punkt-", 1)[0], "")
+        m = modaler(forelder)
+        if m and m != "flere":
+            return m, "innledningen til lista", None
+    if NORMATIV_PRESENS.search(setning or sitat):
+        return "skal", "presens", None
+    return None, None, "ingen modalverb og ingen normativ presens"
+
+
+def betalingsmottaker_i_teksten(u, former):
+    """Regel 3 — står det HVEM utgiftene er sine? Genitiv foran «utgift» («Det regionale helseforetakets … utgifter») eller
+    «som påføres X». Bare den annoterte til-aktørens egne former telles (ingen ny aktør utledes). «Utgiftene til X» er formål."""
+    if not u.get("til"):
+        return False
+    sitat = u["sitat"]
+    if re.search(r"\bsom\s+påføres\b", sitat, re.IGNORECASE):
+        return True
+    utgift = re.search(r"utgift", sitat, re.IGNORECASE)
+    if not utgift:
+        return False
+    foran = sitat[:utgift.start()].lower()
+    return any(re.search(r"\b" + re.escape(f.lower()) + r"s\b", foran) for f in former.get(u["til"], []))
 
 
 def nodetekster(kilde):
@@ -137,31 +207,74 @@ def nodetekster(kilde):
     return {n["eid"]: n.get("tekst") or "" for n in json.load(open(sti, encoding="utf-8"))} if os.path.exists(sti) else {}
 
 
+def tilfoy(u, felt, tekst):
+    u[felt] = ((u.get(felt) or "") + (" " if u.get(felt) else "") + tekst).strip()
+
+
 def konverter(d, kilde, tekster):
     endret, kandidater, modalkilde = collections.Counter(), [], collections.Counter()
     navn = {a["id"]: a["tekstform"] for a in d["aktorer"]}
+    former = {a["id"]: [a["tekstform"]] + list(a.get("varianter") or []) for a in d["aktorer"]}
+    pliktsubjekt_ved_palegg = {}
     for u in d["utsagn"]:
         gammel = (u["kategori"], u["type"])
         if gammel not in TIL_PLIKT:
+            continue
+        if (kilde, u["id"]) in {(k, i) for k, i, _ in TAPSFORDELING} and any(
+                u["sitat"].startswith(s) for k, i, s in TAPSFORDELING if (k, i) == (kilde, u["id"])):
+            u["kategori"], u["type"] = "annet:tapsfordeling", "annet:tapsfordeling"
+            tilfoy(u, "kommentar", "[#353, juristgjennomgangen] Tapsfordeling, ikke plikt overfor en motpart: institusjonen bærer "
+                                   "selv tapet når pasienten ikke kan betale.")
+            endret[f"{gammel[0]}/{gammel[1]} → annet:tapsfordeling"] += 1
+            continue
+        if gammel == ("relasjon", "bistar") and ANMODNING.search(u["sitat"]) and not PALEGG.search(u["sitat"]):
+            u["type"] = "annet:anmodning_om_bistand"
+            tilfoy(u, "kommentar", "[#353, juristgjennomgangen] «A kan be B om å …» er en adgang til å be om bistand; teksten sier "
+                                   "ikke at B skal — ingen plikt.")
+            endret["relasjon/bistar → relasjon/annet:anmodning_om_bistand («kan be … om»)"] += 1
             continue
         ny_type, behold_til = TIL_PLIKT[gammel]
         if ny_type == "samarbeidsplikt" and AVTALE.search(u["sitat"]):
             ny_type = "avtaleplikt"
         u["kategori"], u["type"] = "plikt", ny_type
         if not behold_til and u.get("til"):
-            u["kommentar"] = ((u.get("kommentar") or "") + f" [#353] Til var «{navn.get(u['til'], u['til'])}», men teksten sier ikke "
-                              "hvem som får pengene («utgiftene til X» er ikke en betalingsmottaker) — til = null.").strip()
-            u["til"] = None
-            endret["betaling: til satt til null"] += 1
+            if betalingsmottaker_i_teksten(u, former):
+                tilfoy(u, "kommentar", f"[#353] Til = «{navn.get(u['til'], u['til'])}»: teksten sier hvem utgiftene er sine "
+                                       "(genitiv / «som påføres»).")
+                endret["betaling: til beholdt (genitiv / «som påføres»)"] += 1
+            else:
+                tilfoy(u, "kommentar", f"[#353] Til var «{navn.get(u['til'], u['til'])}», men teksten sier bare hva utgiftene går "
+                                       "til (formål), ikke hvem som får pengene — til = null.")
+                u["til"] = None
+                endret["betaling: til satt til null (formål)"] += 1
         m, kilde_m, grunn = modalitet(u, tekster)
         if m is not None:
             u["modalitet"] = m
             modalkilde[f"modalitet fra {kilde_m}"] += 1
+            if kilde_m == "pålegg":
+                tilfoy(u, "avgrensning", "når pålegg er gitt")
+                u["betinget"], u["kilde_utenfor_korpus"] = True, True
+                tilfoy(u, "kommentar", "[#353, juristgjennomgangen] «kan» hører til påleggskompetansen; plikten er «skal» når pålegg er "
+                                       "gitt, og det konkrete pålegget er en kilde utenfor korpus.")
+                pliktsubjekt_ved_palegg[u["eid"]] = u.get("fra")
+            elif kilde_m == "presens":
+                tilfoy(u, "kommentar", "[#353] Modalitet skal: normativ presens.")
+            elif kilde_m.startswith("forrige"):
+                tilfoy(u, "kommentar", "[#353] Modaliteten arves fra setningen «Det samme gjelder» viser til; hjemmelen er begge punktum.")
         else:
             modalkilde["modalitet null"] += 1
             if grunn:
                 kandidater.append((u, grunn))
         endret[f"{gammel[0]}/{gammel[1]} → plikt/{ny_type}"] += 1
+    # Regel 2b, kompetansesiden: «A kan pålegge …» er påleggskompetanse (styring), ikke vedtakskompetanse.
+    for u in d["utsagn"]:
+        if (u["kategori"], u["type"]) == ("kompetanse", "vedtakskompetanse") and PALEGG.search(u["sitat"]):
+            u["type"] = "paleggskompetanse"
+            if not u.get("til") and pliktsubjekt_ved_palegg.get(u["eid"]):
+                u["til"] = pliktsubjekt_ved_palegg[u["eid"]]
+            tilfoy(u, "kommentar", "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en "
+                                   "egen P-kant med modalitet skal når pålegg er gitt.")
+            endret["kompetanse/vedtakskompetanse → paleggskompetanse («kan pålegge»)"] += 1
     return endret, kandidater, modalkilde
 
 

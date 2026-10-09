@@ -5759,14 +5759,14 @@
       "kategori": "plikt",
       "type": "betalingsplikt",
       "fra": "a3",
-      "til": null,
+      "til": "a2",
       "objekt": null,
       "polaritet": "positiv",
       "avgrensning": null,
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Betalingsansvar mellom RHF bestemt av pasientens bostedsregion (saksforhold). [#353] Til var «Det regionale helseforetaket», men teksten sier ikke hvem som får pengene («utgiftene til X» er ikke en betalingsmottaker) — til = null.",
+      "kommentar": "Betalingsansvar mellom RHF bestemt av pasientens bostedsregion (saksforhold). [#353] Til = «Det regionale helseforetaket»: teksten sier hvem utgiftene er sine (genitiv / «som påføres»).",
       "modalitet": "skal"
     },
     {
@@ -5783,7 +5783,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "[#353] Til var «andre tjenesteytere», men teksten sier ikke hvem som får pengene («utgiftene til X» er ikke en betalingsmottaker) — til = null."
+      "kommentar": "[#353] Til var «andre tjenesteytere», men teksten sier bare hva utgiftene går til (formål), ikke hvem som får pengene — til = null. [#353] Modaliteten arves fra setningen «Det samme gjelder» viser til; hjemmelen er begge punktum.",
+      "modalitet": "skal"
     },
     {
       "id": "u270",
@@ -5867,7 +5868,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "[#353] Til var «andre tjenesteytere», men teksten sier ikke hvem som får pengene («utgiftene til X» er ikke en betalingsmottaker) — til = null."
+      "kommentar": "[#353] Til var «andre tjenesteytere», men teksten sier bare hva utgiftene går til (formål), ikke hvem som får pengene — til = null. [#353] Modalitet skal: normativ presens.",
+      "modalitet": "skal"
     },
     {
       "id": "u275",
@@ -5890,8 +5892,8 @@
       "id": "u276",
       "eid": "https://lovdata.no/eli/lov/1999/07/02/61/nor/§5-3/ledd-1",
       "sitat": "Dersom pasienten ikke kan dekke utgiftene selv, skal de dekkes av vedkommende helseinstitusjon eller tjenesteyter",
-      "kategori": "plikt",
-      "type": "betalingsplikt",
+      "kategori": "annet:tapsfordeling",
+      "type": "annet:tapsfordeling",
       "fra": "a41",
       "til": null,
       "objekt": null,
@@ -5900,7 +5902,7 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "[#353, juristgjennomgangen] Tapsfordeling, ikke plikt overfor en motpart: institusjonen bærer selv tapet når pasienten ikke kan betale."
     },
     {
       "id": "u277",
@@ -5967,7 +5969,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "[#353] Til var «Kontrollkommisjonene», men teksten sier ikke hvem som får pengene («utgiftene til X» er ikke en betalingsmottaker) — til = null."
+      "kommentar": "[#353] Til var «Kontrollkommisjonene», men teksten sier bare hva utgiftene går til (formål), ikke hvem som får pengene — til = null. [#353] Modalitet skal: normativ presens.",
+      "modalitet": "skal"
     },
     {
       "id": "u281",

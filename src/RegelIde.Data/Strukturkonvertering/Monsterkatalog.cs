@@ -254,16 +254,17 @@ internal static class Monsterkatalog
             Start + Subjekt + PliktModal + @"inngå\s+(?:en\s+)?\p{L}*avtaler?\s+med\s+" + Frase("til"),
             @"\b(?<modal>skal|kan|bør)\s+" + SubjektOmvendt + @"\s+inngå\s+(?:en\s+)?\p{L}*avtaler?\s+med\s+" + Frase("til")),
 
-        Regex("plikt-dekkes-av",
-            "«(Utgiftene til …) skal dekkes av X», «X skal dekke (behandlings-) utgift(er/ene) …», «X dekker utgiftene …» (presens: modalitet null). Betalingsmottakeren settes ALDRI: «utgiftene til X» sier ikke hvem som får pengene (til = null).",
+        Etterbehandlet("plikt-dekkes-av",
+            "«(Utgiftene til …) skal dekkes av X», «… dekkes av X» (normativ presens = skal). [ENDRET, juristgjennomgangen 2026-10-09] Betalingsmottakeren settes når teksten sier HVEM utgiftene er sine: genitiv først i setningen («Det regionale helseforetakets … utgifter») eller «som påføres Y» — ellers (formål: «utgiftene til X») null.",
             "Ikke målt i docs/33 §1 (finansiering sto utenfor strukturlaget til #353). Tatt inn etter Johanns godkjenning av #353 (spesialisthelsetjenesteloven:u269, a39).",
-            new RegexMonsteroppsett(KreverFra: true, ObjektForan: true, AlleUttrykk: true),
+            new RegexMonsteroppsett(KreverFra: true, ObjektForan: true, AlleUttrykk: true, PresensErSkal: true),
+            Betalingsmottaker,
             @"\b(?:(?<modal>skal|kan|bør)\s+(?:de\s+|disse\s+)?(?:også\s+)?)?dekkes\s+(?:også\s+|bare\s+)?av\s+" + Frase("fra")),
 
         Regex("plikt-dekke-utgifter",
-            "«X skal dekke (behandlings- og forpleinings)utgift(er/ene) …», «X dekker utgiftene …» (presens: modalitet null). Til = null (som plikt-dekkes-av).",
+            "«X skal dekke (behandlings- og forpleinings)utgift(er/ene) …», «X dekker utgiftene …» ([ENDRET, juristgjennomgangen] normativ presens = skal). Til = null: objektet står etter verbet og sier hva utgiftene går til.",
             "Ikke målt i docs/33 §1. Den aktive formen av plikt-dekkes-av, samme leksikonregel-familie (betalingsplikt).",
-            new RegexMonsteroppsett(KreverFra: true),
+            new RegexMonsteroppsett(KreverFra: true, PresensErSkal: true),
             Start + Subjekt + "(?:" + PliktModal + @"dekke|\s+dekker)\s+(?<obj>(?:[\p{L}\-]+\s+){0,4}?[\p{L}\-]*utgift\p{L}*)"),
 
         Regex("plikt-gi-opplysninger",
@@ -349,6 +350,39 @@ internal static class Monsterkatalog
     {
         var regel = Kompetanseleksikon.For(id);
         return new Strukturmonster(id, regel.Kategori, regel.Type, beskrivelse, korpus, finn) { Normform = regel.Normform };
+    }
+
+    // [Ny, issue #353, juristgjennomgangen 2026-10-09] Et regex-mønster med etterbehandling av funnene (betalingsmottakeren).
+    private static Strukturmonster Etterbehandlet(string id, string beskrivelse, string korpus, RegexMonsteroppsett oppsett,
+        Func<string, IReadOnlyList<Monsterfunn>, IReadOnlyList<Monsterfunn>> etter, params string[] uttrykk)
+    {
+        var kompilert = uttrykk.Select(u => new Regex(u, Valg)).ToList();
+        return Monster(id, beskrivelse, korpus, setning => etter(setning, RegexMonster.Finn(setning, oppsett, kompilert)));
+    }
+
+    // Hvem utgiftene er sine: «… som påføres fylkeskommuner og kommuner ved valg …» eller genitiv først i setningen foran «utgift»
+    // («Det regionale helseforetakets behandlings- og forpleiningsutgifter …»). «Utgiftene til X» (formål) gir ingenting.
+    private static readonly Regex SomPaafores = new(
+        @"\bsom\s+påføres\s+(?<til>[^.;,]+?)(?=\s+(?:ved|i|for|til|under|etter|når|dekkes)\b|[.;,])", Valg);
+    private static readonly Regex GenitivForanUtgift = new(
+        @"^\[?(?<gen>\p{Lu}[\p{L}\-]*(?:\s+\p{L}[\p{L}\-]*){0,4}?s)\s+(?:[\p{L}\-]+\s+(?:og\s+)?){0,5}?[\p{L}\-]*utgift", Valg);
+
+    private static IReadOnlyList<Monsterfunn> Betalingsmottaker(string setning, IReadOnlyList<Monsterfunn> funn)
+    {
+        if (funn.Count == 0) return funn;
+        IReadOnlyList<string> til = [];
+        var p = SomPaafores.Match(setning);
+        if (p.Success) til = Aktorfrase.Tolk(p.Groups["til"].Value);
+        if (til.Count == 0)
+        {
+            var g = GenitivForanUtgift.Match(setning);
+            var ord = g.Success ? g.Groups["gen"].Value.Split(' ', StringSplitOptions.RemoveEmptyEntries) : [];
+            if (ord.Length > 0 && Aktorfrase.UtenGenitiv(ord[^1]) is { } siste)
+            {
+                til = Aktorfrase.Tolk(string.Join(' ', ord[..^1].Append(siste)));
+            }
+        }
+        return til.Count == 0 ? funn : funn.Select(f => f.Til.Count == 0 ? f with { Til = til } : f).ToList();
     }
 
     // ---- Spesialmønstre som trenger mer enn ett uttrykk per setning ---------------------------------

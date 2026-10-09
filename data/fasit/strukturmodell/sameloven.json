@@ -2726,14 +2726,15 @@
       "kategori": "plikt",
       "type": "betalingsplikt",
       "fra": "a5",
-      "til": null,
+      "til": "a6",
       "objekt": null,
       "polaritet": "positiv",
       "avgrensning": "særlige utgifter ved valg til Sametinget",
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Økonomisk ansvarsrelasjon mellom rettssubjekter (ingen type for dette). Forutsetter også at fylkeskommuner/kommuner har oppgaver ved sametingsvalget (ikke sagt her). [#353] Til var «fylkeskommuner», men teksten sier ikke hvem som får pengene («utgiftene til X» er ikke en betalingsmottaker) — til = null."
+      "kommentar": "Økonomisk ansvarsrelasjon mellom rettssubjekter (ingen type for dette). Forutsetter også at fylkeskommuner/kommuner har oppgaver ved sametingsvalget (ikke sagt her). [#353] Til = «fylkeskommuner»: teksten sier hvem utgiftene er sine (genitiv / «som påføres»). [#353] Modalitet skal: normativ presens.",
+      "modalitet": "skal"
     },
     {
       "id": "u6",
@@ -2742,14 +2743,15 @@
       "kategori": "plikt",
       "type": "betalingsplikt",
       "fra": "a5",
-      "til": null,
+      "til": "a7",
       "objekt": null,
       "polaritet": "positiv",
       "avgrensning": "særlige utgifter ved valg til Sametinget",
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Som forrige, for kommunene. [#353] Til var «kommuner», men teksten sier ikke hvem som får pengene («utgiftene til X» er ikke en betalingsmottaker) — til = null."
+      "kommentar": "Som forrige, for kommunene. [#353] Til = «kommuner»: teksten sier hvem utgiftene er sine (genitiv / «som påføres»). [#353] Modalitet skal: normativ presens.",
+      "modalitet": "skal"
     },
     {
       "id": "u7",
@@ -6426,7 +6428,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "'til' (Sametinget) utledet av § 4-2; gjelder også andre representanter for berørte samiske interesser."
+      "kommentar": "'til' (Sametinget) utledet av § 4-2; gjelder også andre representanter for berørte samiske interesser.",
+      "modalitet": "skal"
     },
     {
       "id": "u235",
@@ -6442,7 +6445,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "'til' (Sametinget) utledet av § 4-2; gjelder også andre representanter for berørte samiske interesser."
+      "kommentar": "'til' (Sametinget) utledet av § 4-2; gjelder også andre representanter for berørte samiske interesser.",
+      "modalitet": "skal"
     },
     {
       "id": "u236",
@@ -6458,7 +6462,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "'til' (Sametinget) utledet av § 4-2; gjelder også andre representanter for berørte samiske interesser."
+      "kommentar": "'til' (Sametinget) utledet av § 4-2; gjelder også andre representanter for berørte samiske interesser.",
+      "modalitet": "skal"
     },
     {
       "id": "u237",
@@ -6474,7 +6479,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "'til' (Sametinget) utledet av § 4-2; gjelder også andre representanter for berørte samiske interesser."
+      "kommentar": "'til' (Sametinget) utledet av § 4-2; gjelder også andre representanter for berørte samiske interesser.",
+      "modalitet": "skal"
     },
     {
       "id": "u238",
@@ -6506,7 +6512,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u240",
@@ -6522,7 +6529,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "",
+      "modalitet": "skal"
     },
     {
       "id": "u241",

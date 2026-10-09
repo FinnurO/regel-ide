@@ -2882,7 +2882,7 @@
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§5-3/ledd-1",
    "sitat": "Departementet kan pålegge ethvert fjernvarmeanlegg å knytte seg til andre fjernvarmeanlegg",
    "kategori": "kompetanse",
-   "type": "vedtakskompetanse",
+   "type": "paleggskompetanse",
    "fra": "a1",
    "til": null,
    "objekt": "pålegg om tilknytning mellom fjernvarmeanlegg",
@@ -2891,7 +2891,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt."
   },
   {
    "id": "u120",
@@ -4281,7 +4281,7 @@
    "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1a/ledd-1",
    "sitat": "Konsesjonsmyndigheten kan i driftsperioden pålegge konsesjonæren å utføre og bekoste undersøkelser",
    "kategori": "kompetanse",
-   "type": "vedtakskompetanse",
+   "type": "paleggskompetanse",
    "fra": "a5",
    "til": null,
    "objekt": "pålegg om etterundersøkelser",
@@ -4290,7 +4290,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt."
   },
   {
    "id": "u205",

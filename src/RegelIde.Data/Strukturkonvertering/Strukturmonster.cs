@@ -58,7 +58,10 @@ internal sealed record RegexMonsteroppsett(
     bool KreverTil = false,
     string Polaritet = "positiv",
     bool ObjektForan = false,
-    bool AlleUttrykk = false);
+    bool AlleUttrykk = false,
+    // [Ny, issue #353, juristgjennomgangen 2026-10-09] Normativ presens uten modalverb («dekkes av staten», «Staten dekker …») er
+    // «skal» — bare for mønstre der presens er en plikt-formulering (betaling).
+    bool PresensErSkal = false);
 
 internal static class RegexMonster
 {
@@ -98,7 +101,7 @@ internal static class RegexMonster
                     objekt = Objekt(setning[..m.Index]);
                 }
 
-                funn.Add(new Monsterfunn(Sitat(setning), fra, til, objekt, oppsett.Polaritet, Modalitet(m.Groups["modal"])));
+                funn.Add(new Monsterfunn(Sitat(setning), fra, til, objekt, oppsett.Polaritet, Modalitet(m.Groups["modal"]) ?? (oppsett.PresensErSkal ? "skal" : null)));
             }
             if (!oppsett.AlleUttrykk)
             {

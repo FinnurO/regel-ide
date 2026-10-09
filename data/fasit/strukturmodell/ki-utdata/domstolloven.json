@@ -3262,8 +3262,7 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "modalitet": "kan"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u50",
@@ -5410,8 +5409,9 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": "Det offentlige dekker utgiftene til rettsvitne. [#353] Til var «Rettsvitne», men teksten sier ikke hvem som får pengene («utgiftene til X» er ikke en betalingsmottaker) — til = null.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "kommentar": "Det offentlige dekker utgiftene til rettsvitne. [#353] Til var «Rettsvitne», men teksten sier bare hva utgiftene går til (formål), ikke hvem som får pengene — til = null. [#353] Modalitet skal: normativ presens.",
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "modalitet": "skal"
     },
     {
       "id": "u174",
@@ -6455,7 +6455,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§163a/ledd-3",
       "sitat": "En domstol kan pålegge en klager eller en saksøker å fremskaffe motpartens adresse.",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "paleggskompetanse",
       "fra": "a32",
       "til": null,
       "objekt": "pålegge en klager eller en saksøker å fremskaffe motpartens adresse",
@@ -6464,7 +6464,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -6544,7 +6544,7 @@
       "eid": "https://lovdata.no/eli/lov/1915/08/13/5/nor/§163b/ledd-3",
       "sitat": "Retten kan pålegge den som skal motta en forkynnelse etter første eller annet ledd å være tilgjengelig for forkynnelse i et bestemt tidsrom.",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "paleggskompetanse",
       "fra": "a32",
       "til": null,
       "objekt": "pålegge den som skal motta en forkynnelse å være tilgjengelig for forkynnelse i et bestemt tidsrom",
@@ -6553,7 +6553,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -6726,7 +6726,7 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "modalitet": "kan"
+      "modalitet": "skal"
     },
     {
       "id": "u250",

@@ -956,7 +956,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§2-4/ledd-4",
       "sitat": "Konsesjonsmyndigheten kan pålegge den som gis konsesjon etter § 3-1, å betale utgiftene ved kunngjøringen av konsesjonsvedtaket.",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "paleggskompetanse",
       "fra": "a4",
       "til": null,
       "objekt": "pålegge konsesjonær å betale utgifter ved kunngjøring",
@@ -965,7 +965,7 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -2461,7 +2461,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§5-3/ledd-1",
       "sitat": "Departementet kan pålegge ethvert fjernvarmeanlegg å knytte seg til andre fjernvarmeanlegg såfremt anlegget har et varmesystem som kan tilknyttes.",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "paleggskompetanse",
       "fra": "a1",
       "til": null,
       "objekt": "pålegg om tilknytting mellom fjernvarmeanlegg",
@@ -2470,7 +2470,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -3455,7 +3455,7 @@
       "eid": "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-1a/ledd-1",
       "sitat": "Konsesjonsmyndigheten kan i driftsperioden pålegge konsesjonæren å utføre og bekoste undersøkelser av tiltakets virkninger for miljø eller annen arealbruk.",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "paleggskompetanse",
       "fra": "a4",
       "til": "a30",
       "objekt": "pålegge undersøkelser",
@@ -3464,7 +3464,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {

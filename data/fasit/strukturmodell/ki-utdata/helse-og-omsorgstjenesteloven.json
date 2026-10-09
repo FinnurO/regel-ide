@@ -1475,7 +1475,7 @@
       "eid": "https://lovdata.no/eli/lov/2011/06/24/30/nor/§5-8/ledd-1",
       "sitat": "Kommunen kan pålegge personell som yter tjenester etter denne lov å gi opplysninger",
       "kategori": "kompetanse",
-      "type": "vedtakskompetanse",
+      "type": "paleggskompetanse",
       "fra": "a5",
       "til": null,
       "objekt": "Pålegg om å gi opplysninger",
@@ -1484,7 +1484,7 @@
       "betinget": true,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
-      "kommentar": null,
+      "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
