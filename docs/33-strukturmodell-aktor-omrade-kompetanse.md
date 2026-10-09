@@ -321,11 +321,11 @@ omgjøring, oppnevning, tilsyn med en aktør, avsetting, sanksjon, samtykke, ove
 |---|---|
 | «Hvem er klageinstans for B?» | K `klage` med til = B — samme retning som R `klageinstans_for` hadde (fra = klageinstansen) |
 | «Kan X delegere?» | K `delegering` (kompetansen til å delegere, «X kan delegere til Y») |
-| «Har X delegert til Y?» | R `har_delegert_til` — en GJENNOMFØRT delegering fra et delegeringsvedtak, avgrenset per paragraf. Unntakene i vedtaket («omfatter ikke …») er avgrensning av delegeringen, ikke negativ kompetanse (beslutning 1) |
+| «Har X delegert til Y?» | R `har_delegert_til` — en GJENNOMFØRT delegering fra et delegeringsvedtak, avgrenset per paragraf. Unntakene i vedtaket («omfatter ikke …») er avgrensning av delegeringen, ikke negativ kompetanse (beslutning 1). [ENDRET, #356] De står i avgrensningen på den positive kanten (med hjemmelsstedet), ikke som egne negative kanter |
 | «Kan X gi forskrift?» | K `normgivning` med `normform = forskrift`. Normformene: forskrift, reglement, arbeidsordning, vedtekter, instruks |
 | Selvregulering | Ikke en egen type: normgivning der til = fra. Den eneste selvkanten CHECK `ck_strukturkanter_ikke_selv` tillater |
 | Privatrettslig instruksjon (morselskap → nettforetak) | Samme modell, feltet `grunnlag = privatrettslig` (beslutning 3). `offentligrettslig`/NULL ellers |
-| «Kan kompetansen delegeres videre?» | Feltet `delegerbar` (bool, NULL = ikke angitt) på K — fra #335: «Kongen …» = true, «Kongen i statsråd …» og «X selv» = false |
+| «Kan kompetansen delegeres videre?» | Feltet `delegerbar` (bool, NULL = ikke angitt) på K — fra #335: «Kongen …» = true, «Kongen i statsråd …» og «X selv» = false. [ENDRET, #356] Også false når loven sier «kan ikke delegeres» (sameloven § 2-12 fjerde ledd) |
 
 *Typologien og hierarkiet (P2 + Johanns hierarkibeslutning 2026-10-08):* hver K-type har en **familie** og en
 **fvl-kategori** i typekonfigurasjonen (`relasjonstype_konfigurasjon.familie`/`fvl_kategori`, kilden er
