@@ -924,7 +924,7 @@ public static partial class LovdataHtmlParser
         // bestemmelse ("Loven gjelder fra den tid Kongen bestemmer") ligger ofte som siste "kapittel" i
         // en endringslov, med ledd/lister direkte som kapittelinnhold — INGEN omsluttende <article
         // class="legalArticle">/paragraf. leddIndeks/punktIndeks er scopet til denne containeren, samme
-        // prinsipp som i ParseParagraf/ParseChildPunkter.
+        // prinsipp som i ParseParagraf/LeggTilNodeMedLister.
         var leddIndeks = 0;
         var punktIndeks = 0;
 
@@ -1166,7 +1166,6 @@ public static partial class LovdataHtmlParser
                     LeggTilLeddEllerPunktNode(
                         child, leddEid, eid, NodeType.Ledd, kontekst, noder, referanser, sortering,
                         leddIndeks.ToString(), kildeIdNårIdMangler: syntetiskKildeId);
-                    ParseChildPunkter([child], leddEid, kontekst, noder, referanser, sortering);
                 }
             }
             else if (child.Name == "footer" && klasse.Contains("footnotes"))
@@ -1175,12 +1174,27 @@ public static partial class LovdataHtmlParser
             }
             else if (child.Name == "p" && klasse.Contains("leddfortsettelse"))
             {
-                // Fortsettelsestekst for et FORUTGÅENDE ledd/punkt DIREKTE under paragrafen, typisk rett
-                // etter en liste som selv lå direkte under paragrafen uten noe omsluttende ledd
-                // (bekreftet ekte, alkoholforskriften § 7-2 og flere andre — full korpusgjennomgang
-                // 2026-08-22). Ikke sitt eget ledd — appender til Tekst/Segmenter på den SISTE
-                // ledd-/punkt-noden som allerede er lagt til under denne paragrafen (samme "ledd"-nivå
-                // som en liste-fortsettelse ville tilhørt), i stedet for å opprette en ny, løsrevet node.
+                // Fortsettelsestekst DIREKTE under paragrafen, for noe som allerede er lagt til under den.
+                //
+                // [ENDRET, avslutningsnode-runden, 2026-10-09, issue #361] Ble før alltid appendet til den
+                // SISTE noden med denne paragrafen som forelder. Når den noden var et punkt (lista står
+                // direkte under paragrafen) havnet avslutningen inni siste punkts tekst, og når den var et
+                // ledd med punkter havnet den i leddteksten, foran punktene i visningen. Nå avgjøres målet
+                // av hva som faktisk står foran, i parserens egen nodestruktur (ikke HTML-søsken, siden
+                // fotnoter og blockquote kan stå imellom):
+                //
+                //   - et punkt direkte under paragrafen (ol/ul eller marginIdArticle): ny avslutning under
+                //     PARAGRAFEN, etter punktene (sf-19801023-8798 § 3, sf-20191121-1578 § 2, og 20 «Sum …»-
+                //     linjer mellom marginIdArticle-punktene i sf-19981216-1240 §§ 4-1/4-2);
+                //   - en avslutning: tekst etter den (to leddfortsettelser etter hverandre, «◄B» «►EØS»
+                //     i sf-20160519-0542) føyes til den samme avslutningen;
+                //   - et ledd med punkter: avslutning på det leddet (eller føyes til leddets siste
+                //     avslutning hvis leddet alt slutter med en);
+                //   - et ledd UTEN punkter: føyes til leddteksten som før. Der står teksten allerede i
+                //     riktig rekkefølge, og det er ingen liste å avslutte (6 tilfeller etter en fotnote, de
+                //     fleste EØS-markører som «◄M4», målt 2026-10-09).
+                //
+                // Alt annet kaster (§3.3) — ikke observert i korpuset.
                 var forrigeIndeks = noder.FindLastIndex(n => n.ParentEid == eid);
                 if (forrigeIndeks < 0)
                 {
@@ -1188,17 +1202,35 @@ public static partial class LovdataHtmlParser
                         $"<p class=\"leddfortsettelse\"> under paragraf {eid} har ingen forutgående ledd/punkt å fortsette. Ingen gjettet fallback (§3.3).");
                 }
                 var forrige = noder[forrigeIndeks];
-                var forrigeTekstLengde = forrige.Tekst?.Length ?? 0;
-                var nyeSegmenter = new List<TekstSegment>(forrige.Segmenter ?? []) { new(" ", null, false) };
-                nyeSegmenter.AddRange(HentSegmenter(child, kontekst));
-                var nyTekst = KollapsDobleMellomrom(string.Concat(nyeSegmenter.Select(s => s.Tekst))).Trim();
-                noder[forrigeIndeks] = forrige with
+                var nyeSegmenter = HentSegmenter(child, kontekst);
+                switch (forrige.NodeType)
                 {
-                    Tekst = nyTekst,
-                    TekstHash = LovdataIdentifikatorer.BeregnTekstHash(nyTekst),
-                    Segmenter = nyeSegmenter,
-                };
-                LeggTilReferanser(referanser, forrige.Eid, nyeSegmenter, nyTekst, startCursor: forrigeTekstLengde);
+                    case NodeType.Punkt:
+                        LeggTilAvslutning(eid, kildeId, nyeSegmenter, noder, referanser, sortering);
+                        break;
+                    case NodeType.Avslutning:
+                        TilføyTekst(forrigeIndeks, nyeSegmenter, noder, referanser);
+                        break;
+                    case NodeType.Ledd:
+                        var sisteBarnIndeks = noder.FindLastIndex(n => n.ParentEid == forrige.Eid);
+                        if (sisteBarnIndeks < 0)
+                        {
+                            TilføyTekst(forrigeIndeks, nyeSegmenter, noder, referanser);
+                        }
+                        else if (noder[sisteBarnIndeks].NodeType == NodeType.Avslutning)
+                        {
+                            TilføyTekst(sisteBarnIndeks, nyeSegmenter, noder, referanser);
+                        }
+                        else
+                        {
+                            LeggTilAvslutning(forrige.Eid, forrige.KildeId, nyeSegmenter, noder, referanser, sortering);
+                        }
+                        break;
+                    default:
+                        throw new NotSupportedException(
+                            $"<p class=\"leddfortsettelse\"> under paragraf {eid} følger en {forrige.NodeType}-node ({forrige.Eid}). " +
+                            "Ingen gjettet fallback (§3.3).");
+                }
             }
             else
             {
@@ -1241,40 +1273,26 @@ public static partial class LovdataHtmlParser
         List<RettskildeNode> noder, List<RettskildeReferanse> referanser, SorteringsTeller sortering)
     {
         var eid = GjørEidUnik(LovdataIdentifikatorer.LeddEid(eidBase, leddIndeks), noder);
+        // [ENDRET, avslutningsnode-runden, 2026-10-09, issue #361] Punktene og avslutningen lages nå inne
+        // i LeggTilLeddEllerPunktNode (via LeggTilNodeMedLister), i dokumentrekkefølge, i stedet for et
+        // eget ParseChildPunkter-kall etterpå.
         LeggTilLeddEllerPunktNode(legalP, eid, parentEid, NodeType.Ledd, kontekst, noder, referanser, sortering, leddIndeks.ToString());
-        ParseChildPunkter([legalP], eid, kontekst, noder, referanser, sortering);
     }
 
-    /// <summary>
-    /// Punkt-lister kan nøstes vilkårlig dypt (bekreftet i ekte data — alkoholforskriften § 6-2 har
-    /// punkt-i-punkt for gebyrsatser). Både &lt;ul&gt; og &lt;ol&gt; forekommer med identisk struktur
-    /// (samme "defaultList"-klasse), kun ulik nummereringsstil — behandles likt. <paramref name="containere"/>
-    /// er gjerne flere enn ett element: et punkt kan selv ha flere direkte legalP-"ledd" (§14-3 punkt 14
-    /// i alkoholforskriften: tekst+underliste, så en oppfølgende setning) — nummereringen av punktbarn
-    /// løper da fortløpende på tvers av alle disse, i dokumentrekkefølge.
-    /// </summary>
-    private static void ParseChildPunkter(
-        IEnumerable<HtmlNode> containere, string parentEid, ReferanseKontekst kontekst,
-        List<RettskildeNode> noder, List<RettskildeReferanse> referanser, SorteringsTeller sortering)
-    {
-        var punktIndeks = 0;
-        foreach (var container in containere)
-        {
-            var lister = (container.SelectNodes("./ul") ?? Enumerable.Empty<HtmlNode>())
-                .Concat(container.SelectNodes("./ol") ?? Enumerable.Empty<HtmlNode>());
-            foreach (var liste in lister)
-            {
-                ParseEnListe(liste, parentEid, ref punktIndeks, kontekst, noder, referanser, sortering);
-            }
-        }
-    }
+    // [FJERNET, avslutningsnode-runden, 2026-10-09, issue #361] ParseChildPunkter. Den hentet alle
+    // ./ul og deretter alle ./ol i et ledd/punkt og laget punktene ETTER at leddets tekst (innledning +
+    // alt etter lista, limt sammen) var lagt til. Erstattet av DelVedLister + LeggTilNodeMedLister, som
+    // går gjennom barna i dokumentrekkefølge og lar teksten etter hver liste bli en egen avslutningsnode.
+    // Punktnummereringen løper fortsatt fortløpende over alle lister i samme ledd/punkt (og over flere
+    // direkte legalP i samme punkt, alkoholforskriften § 14-3 punkt 14). Én forskjell: ul og ol telles
+    // nå i dokumentrekkefølge, ikke «alle ul først» — målt effekt i PR-en for #361.
 
     /// <summary>
-    /// Selve punkt-utbrytningen for ÉN &lt;ul&gt;/&lt;ol&gt;-liste — uttrukket fra <see cref="ParseChildPunkter"/>
-    /// slik at <see cref="ParseKapittelInnhold"/> kan gjenbruke nøyaktig samme logikk for lister som ligger
+    /// Selve punkt-utbrytningen for ÉN &lt;ul&gt;/&lt;ol&gt;-liste — uttrukket fra den nå fjernede
+    /// ParseChildPunkter slik at <see cref="ParseKapittelInnhold"/> kan gjenbruke nøyaktig samme logikk for lister som ligger
     /// DIREKTE under et kapittel/en underinndeling (paragraf-løs ikrafttredelsesbestemmelse, se der).
     /// <paramref name="punktIndeks"/> er 'ref' slik at nummereringen løper fortløpende over FLERE lister i
-    /// samme nivå, akkurat som når ParseChildPunkter kalles med flere containere i ett kall.
+    /// samme nivå (se <see cref="LeggTilNodeMedLister"/>).
     /// </summary>
     private static void ParseEnListe(
         HtmlNode liste, string parentEid, ref int punktIndeks, ReferanseKontekst kontekst,
@@ -1307,19 +1325,6 @@ public static partial class LovdataHtmlParser
             .Where(a => ErLeddKlasse(a.GetAttributeValue("class", "")))
             .ToList();
 
-        // Bladtekst = alle direkte legalP-barns egen tekst, konkatenert i dokumentrekkefølge
-        // (vanligvis nøyaktig ett; §14-3 punkt 14 i alkoholforskriften har to — tekst+underliste,
-        // så en oppfølgende setning). Schemaets 'tekst'-felt er definert som bladtekst for punkt-noder
-        // (§2 i teknisk design) — det introduseres ikke et eget "ledd under punkt"-nivå for dette.
-        var alleSegmenter = new List<TekstSegment>();
-        foreach (var legalP in direkteLegalP)
-        {
-            // Mellomrom mellom flere direkte legalP-"ledd" i samme punkt (§14-3 punkt 14 i
-            // alkoholforskriften) — samme begrunnelse som mellomrommet ved en hoppet-over liste over.
-            if (alleSegmenter.Count > 0) alleSegmenter.Add(new TekstSegment(" ", null, false));
-            alleSegmenter.AddRange(HentSegmenter(legalP, kontekst));
-        }
-
         if (direkteLegalP.Count == 0)
         {
             // Et rent underoverskrift-punkt uten egen bladtekst — bekreftet ekte og OVERRASKENDE VANLIG
@@ -1332,26 +1337,35 @@ public static partial class LovdataHtmlParser
             // (verken legalP ELLER miscHeadline) skal kaste, ikke stille godtas (§3.3).
             var misc = listArticle.SelectSingleNode("./span[contains(@class,'miscHeadline')]")
                 ?? throw new FormatException($"Punkt {eid} har ingen nestet <article class=\"legalP\"/\"listLegalP\"/…> og ingen <span class=\"miscHeadline\"> — uventet struktur, ingen gjettet fallback (§3.3).");
-            alleSegmenter.AddRange(HentSegmenter(misc, kontekst));
+            var miscSegmenter = HentSegmenter(misc, kontekst);
+            var miscTekst = KollapsDobleMellomrom(string.Concat(miscSegmenter.Select(s => s.Tekst))).Trim();
+            noder.Add(new RettskildeNode
+            {
+                Eid = eid,
+                ParentEid = parentEid,
+                KildeId = kildeId,
+                NodeType = NodeType.Punkt,
+                Nummer = punktIndeks.ToString(),
+                Tekst = miscTekst,
+                TekstHash = LovdataIdentifikatorer.BeregnTekstHash(miscTekst),
+                Segmenter = miscSegmenter,
+                SorteringsRekkefolge = sortering.Neste(),
+            });
+            LeggTilReferanser(referanser, eid, miscSegmenter, miscTekst);
+            return;
         }
-        var plainTekst = KollapsDobleMellomrom(string.Concat(alleSegmenter.Select(s => s.Tekst))).Trim();
-        var hash = LovdataIdentifikatorer.BeregnTekstHash(plainTekst);
 
-        noder.Add(new RettskildeNode
-        {
-            Eid = eid,
-            ParentEid = parentEid,
-            KildeId = kildeId,
-            NodeType = NodeType.Punkt,
-            Nummer = punktIndeks.ToString(),
-            Tekst = plainTekst,
-            TekstHash = hash,
-            Segmenter = alleSegmenter,
-            SorteringsRekkefolge = sortering.Neste(),
-        });
-        LeggTilReferanser(referanser, eid, alleSegmenter, plainTekst);
-
-        ParseChildPunkter(direkteLegalP, eid, kontekst, noder, referanser, sortering);
+        // Bladtekst = alle direkte legalP-barns egen tekst, i dokumentrekkefølge (vanligvis nøyaktig ett;
+        // §14-3 punkt 14 i alkoholforskriften har to — tekst+underliste, så en oppfølgende setning).
+        // Schemaets 'tekst'-felt er definert som bladtekst for punkt-noder (§2 i teknisk design) — det
+        // introduseres ikke et eget "ledd under punkt"-nivå for dette.
+        //
+        // [ENDRET, avslutningsnode-runden, 2026-10-09, issue #361] «Bladtekst» er nå bare teksten FØR den
+        // første lista. Det som står etter en liste — løs tekst, en <p class="leddfortsettelse"> eller en
+        // påfølgende legalP i samme punkt (punkt 14 over) — blir en avslutningsnode under punktet, sortert
+        // etter underpunktene. Før ble alt limt inn i punktets egen tekst, foran underpunktene i visningen.
+        LeggTilNodeMedLister(direkteLegalP, eid, parentEid, NodeType.Punkt, kildeId, punktIndeks.ToString(),
+            kontekst, noder, referanser, sortering);
     }
 
     /// <summary>
@@ -1373,9 +1387,86 @@ public static partial class LovdataHtmlParser
         var kildeId = legalP.Attributes["id"]?.Value
             ?? kildeIdNårIdMangler
             ?? throw new FormatException($"{nodeType} {eid} mangler id-attributt.");
-        var segmenter = HentSegmenter(legalP, kontekst);
-        var plainTekst = KollapsDobleMellomrom(string.Concat(segmenter.Select(s => s.Tekst))).Trim();
-        var hash = LovdataIdentifikatorer.BeregnTekstHash(plainTekst);
+        LeggTilNodeMedLister([legalP], eid, parentEid, nodeType, kildeId, nummer, kontekst, noder, referanser, sortering);
+    }
+
+    /// <summary>
+    /// [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Innholdet i et ledd/punkt, delt ved hver
+    /// liste som står DIREKTE i det: teksten før den første lista (<c>Innledning</c>), og for hver
+    /// liste selve lista og teksten etter den, fram til neste liste (<see cref="ListeDel.Etter"/>).
+    /// </summary>
+    private sealed record Listedeling(List<TekstSegment> Innledning, List<ListeDel> Lister);
+
+    private sealed record ListeDel(HtmlNode Liste, List<TekstSegment> Etter);
+
+    /// <summary>
+    /// [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Går gjennom barna til ett eller flere
+    /// tekstbærende elementer (et ledd, eller de direkte legalP-ene i et punkt) i dokumentrekkefølge og
+    /// legger segmentene i riktig bøtte — se <see cref="Listedeling"/>.
+    ///
+    /// <para>
+    /// Alt som står etter en liste regnes med, uansett form. Målt 2026-10-09 i Lovdatas bulk (755 lover +
+    /// 5 122 forskrifter), som forrige søsken av elementet etter lista: <c>&lt;p class="leddfortsettelse"&gt;</c>
+    /// (478 + 82 i legalP, 322 + 38 i numberedLegalP, 8 + 1 i defaultP), løs tekst (188 legalP har løs tekst
+    /// rett etter lista), <c>&lt;p&gt;</c> uten klasse (23 + 45 i legalP) og et nestet ledd
+    /// (<c>&lt;article class="legalP"&gt;</c> rett etter lista i et numberedLegalP, 343 + 23). Det nestede
+    /// leddet var allerede limt inn i leddteksten før (HentSegmenter går transparent gjennom det); nå
+    /// havner det i avslutningen, etter punktene, der det står i kilden. Ukjente elementer kaster fortsatt
+    /// i <see cref="LeggTilSegmenterForBarn"/> (§3.3).
+    /// </para>
+    ///
+    /// <para>
+    /// Bare lister med minst ett <c>&lt;li&gt;</c> deler teksten. En tom liste gir ingen punkter, og en
+    /// avslutning uten punkter foran seg ville vært en node uten noe å avslutte (og ugyldig AKN: en
+    /// <c>&lt;list&gt;</c> må ha minst ett barn). Den beholder det gamle mellomrommet i stedet.
+    /// </para>
+    ///
+    /// <para>
+    /// Tabeller deler IKKE teksten (issue #361 ba om «samme behandling hvis strukturen er den samme»):
+    /// en tabell flates ut til tekst der den står (<see cref="TolkTabellSomFlatTekst"/>), så tekst etter
+    /// en tabell står allerede i riktig rekkefølge i leddteksten. Strukturen er altså ikke den samme, og
+    /// det er ingen rekkefølgefeil å rette (42 tilfeller målt 2026-10-09).
+    /// </para>
+    /// </summary>
+    private static Listedeling DelVedLister(IReadOnlyList<HtmlNode> containere, ReferanseKontekst kontekst)
+    {
+        var innledning = new List<TekstSegment>();
+        var lister = new List<ListeDel>();
+        List<TekstSegment> Gjeldende() => lister.Count == 0 ? innledning : lister[^1].Etter;
+
+        for (var i = 0; i < containere.Count; i++)
+        {
+            // Mellomrom mellom flere direkte legalP-"ledd" i samme punkt (§14-3 punkt 14 i
+            // alkoholforskriften) — bare når det allerede står tekst i bøtta, slik at en avslutning ikke
+            // starter med et mellomrom.
+            if (i > 0 && Gjeldende().Count > 0) Gjeldende().Add(new TekstSegment(" ", null, false));
+            foreach (var child in containere[i].ChildNodes)
+            {
+                if (child.NodeType == HtmlNodeType.Element && child.Name is "ul" or "ol"
+                    && child.SelectNodes("./li") is { Count: > 0 })
+                {
+                    lister.Add(new ListeDel(child, []));
+                    continue;
+                }
+                LeggTilSegmenterForBarn(child, Gjeldende(), kontekst);
+            }
+        }
+        return new Listedeling(innledning, lister);
+    }
+
+    /// <summary>
+    /// [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Legger til et ledd eller punkt med bare
+    /// INNLEDNINGEN som egen tekst, og deretter — i dokumentrekkefølge — punktene i hver liste og
+    /// avslutningen etter den. Sorteringsrekkefølgen blir dermed innledning → punkter → avslutning
+    /// (→ punkter → avslutning-2 …), slik teksten står i loven. Lovteksten forblir ordrett: ingen
+    /// plassholder settes inn der lista sto (Johanns beslutning 2026-10-09).
+    /// </summary>
+    private static void LeggTilNodeMedLister(
+        IReadOnlyList<HtmlNode> containere, string eid, string? parentEid, NodeType nodeType, string kildeId, string? nummer,
+        ReferanseKontekst kontekst, List<RettskildeNode> noder, List<RettskildeReferanse> referanser, SorteringsTeller sortering)
+    {
+        var deling = DelVedLister(containere, kontekst);
+        var plainTekst = KollapsDobleMellomrom(string.Concat(deling.Innledning.Select(s => s.Tekst))).Trim();
 
         noder.Add(new RettskildeNode
         {
@@ -1385,12 +1476,86 @@ public static partial class LovdataHtmlParser
             NodeType = nodeType,
             Nummer = nummer,
             Tekst = plainTekst,
-            TekstHash = hash,
+            TekstHash = LovdataIdentifikatorer.BeregnTekstHash(plainTekst),
+            Segmenter = deling.Innledning,
+            SorteringsRekkefolge = sortering.Neste(),
+        });
+        LeggTilReferanser(referanser, eid, deling.Innledning, plainTekst);
+
+        var punktIndeks = 0;
+        foreach (var del in deling.Lister)
+        {
+            ParseEnListe(del.Liste, eid, ref punktIndeks, kontekst, noder, referanser, sortering);
+            LeggTilAvslutning(eid, kildeId, del.Etter, noder, referanser, sortering);
+        }
+    }
+
+    /// <summary>
+    /// [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Én avslutningsnode under
+    /// <paramref name="forelderEid"/>, med eId fra <see cref="LovdataIdentifikatorer.AvslutningEid"/>
+    /// (N = antall avslutninger forelderen alt har + 1). Tom tekst (bare whitespace etter lista) gir
+    /// ingen node.
+    ///
+    /// <para>
+    /// KildeId: teksten etter en liste har aldri sitt eget id-attributt i Lovdatas HTML
+    /// (<c>&lt;p class="leddfortsettelse"&gt;</c> og løs tekst har det ikke). Den avledes derfor
+    /// deterministisk fra forelderens kildeId + «-avslutning[-N]», samme mønster som «-avsnitt-N» for
+    /// defaultP-ledd uten id (HåndterParagrafBarn).
+    /// </para>
+    /// </summary>
+    private static void LeggTilAvslutning(
+        string forelderEid, string forelderKildeId, List<TekstSegment> segmenter,
+        List<RettskildeNode> noder, List<RettskildeReferanse> referanser, SorteringsTeller sortering)
+    {
+        var tekst = KollapsDobleMellomrom(string.Concat(segmenter.Select(s => s.Tekst))).Trim();
+        if (tekst.Length == 0) return;
+
+        var indeks = noder.Count(n => n.ParentEid == forelderEid && n.NodeType == NodeType.Avslutning) + 1;
+        var eid = GjørEidUnik(LovdataIdentifikatorer.AvslutningEid(forelderEid, indeks), noder);
+        noder.Add(new RettskildeNode
+        {
+            Eid = eid,
+            ParentEid = forelderEid,
+            KildeId = indeks == 1 ? $"{forelderKildeId}-avslutning" : $"{forelderKildeId}-avslutning-{indeks}",
+            NodeType = NodeType.Avslutning,
+            Tekst = tekst,
+            TekstHash = LovdataIdentifikatorer.BeregnTekstHash(tekst),
             Segmenter = segmenter,
             SorteringsRekkefolge = sortering.Neste(),
         });
+        LeggTilReferanser(referanser, eid, segmenter, tekst);
+    }
 
-        LeggTilReferanser(referanser, eid, segmenter, plainTekst);
+    /// <summary>
+    /// [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Føyer <paramref name="nyeSegmenter"/> til
+    /// teksten på en node som alt er lagt til (et ledd uten punkter, eller en avslutning), med ett
+    /// mellomrom imellom. Uttrukket fra den gamle leddfortsettelse-grenen i HåndterParagrafBarn.
+    ///
+    /// <para>
+    /// Retting i samme slag: den gamle grenen kalte LeggTilReferanser med HELE den sammenslåtte
+    /// segmentlista og en startmarkør etter den gamle teksten. Referansene i den gamle delen ble da lagt
+    /// til en gang til, uten posisjon (søket fant dem ikke etter markøren). Importen dedupliserer på
+    /// (fra, til), så det ga ikke doble rader i basen, men listen var feil. Nå sendes bare de nye
+    /// segmentene inn.
+    /// </para>
+    /// </summary>
+    private static void TilføyTekst(
+        int nodeIndeks, List<TekstSegment> nyeSegmenter, List<RettskildeNode> noder, List<RettskildeReferanse> referanser)
+    {
+        var node = noder[nodeIndeks];
+        var gammelLengde = node.Tekst?.Length ?? 0;
+        var tillegg = new List<TekstSegment> { new(" ", null, false) };
+        tillegg.AddRange(nyeSegmenter);
+        var segmenter = new List<TekstSegment>(node.Segmenter ?? []);
+        segmenter.AddRange(tillegg);
+        var nyTekst = KollapsDobleMellomrom(string.Concat(segmenter.Select(s => s.Tekst))).Trim();
+        noder[nodeIndeks] = node with
+        {
+            Tekst = nyTekst,
+            TekstHash = LovdataIdentifikatorer.BeregnTekstHash(nyTekst),
+            Segmenter = segmenter,
+        };
+        LeggTilReferanser(referanser, node.Eid, tillegg, nyTekst, startCursor: gammelLengde);
     }
 
     /// <summary>
@@ -1470,126 +1635,139 @@ public static partial class LovdataHtmlParser
     private static List<TekstSegment> HentSegmenter(HtmlNode node, ReferanseKontekst? kontekst)
     {
         var segmenter = new List<TekstSegment>();
-        foreach (var child in node.ChildNodes)
-        {
-            if (child.NodeType == HtmlNodeType.Text)
-            {
-                var tekst = HtmlEntity.DeEntitize(child.InnerText);
-                if (tekst.Length > 0) segmenter.Add(new TekstSegment(tekst, null, false));
-                continue;
-            }
-
-            if (child.NodeType != HtmlNodeType.Element) continue;
-            var klasse = child.GetAttributeValue("class", "");
-
-            if (child.Name == "a" && child.Attributes["href"]?.Value is string href)
-            {
-                segmenter.Add(TolkLenke(child, href, kontekst));
-            }
-            else if (child.Name == "a")
-            {
-                // <a> uten href-attributt overhodet (bekreftet ekte — et bokmerke-/ankermål uten egen
-                // lenkedestinasjon, ikke en referanse) — samme transparente behandling som de vanlige
-                // GjennomsiktigeInlineElementer under, bare et eget case siden "a" ellers alltid
-                // forsøkes tolket som lenke over.
-                segmenter.AddRange(HentSegmenter(child, kontekst));
-            }
-            else if ((child.Name == "div" && klasse.Contains("indent")) || child.Name == "blockquote")
-            {
-                // Samme transparente innrykk-håndtering som i ParseKapittelInnhold/Parse/
-                // HåndterParagrafBarn — bekreftet ekte også INNI løpetekst (siterte/innlemmede EU-/
-                // EØS-tekster nøstet dypere enn ledd-/punkt-nivå, full korpusgjennomgang 2026-08-22).
-                segmenter.AddRange(HentSegmenter(child, kontekst));
-            }
-            else if (child.Name == "sup" && klasse.Contains("footnotereference"))
-            {
-                // ekskludert fra hovedteksten (§3.2) — fotnoter er egne AKN <authorialNote>
-            }
-            else if (child.Name == "span" && klasse.Contains("footnoteLabel"))
-            {
-                // etiketten hentes separat til Fotnote.Etikett (ParseFotnoter) — skal ikke dupliseres i Tekst
-            }
-            else if (child.Name is "ul" or "ol")
-            {
-                // Selve listen håndteres separat av kalleren (punkt-utbrytning), men et mellomrom
-                // settes inn her slik at tekst før og etter listen ikke smelter sammen uten skille
-                // (f.eks. "herunder" + "Det skal …" → "herunderDet skal …" uten dette) — bekreftet reelt
-                // problem i alkoholforskriften § 7-2 (<p class="leddfortsettelse"> rett etter </ul>).
-                // Endelig Tekst trimmes og tekst_hash kollapser whitespace (§3.4), så et ekstra mellomrom
-                // her er alltid trygt selv om det skulle bli overflødig i noen posisjoner.
-                segmenter.Add(new TekstSegment(" ", null, false));
-            }
-            else if (child.Name == "footer")
-            {
-                // håndteres separat av kalleren (fotnoter) — footer er i praksis alltid søsken av
-                // legalP under paragrafen, ikke et barn av selve legalP-en HentSegmenter kalles på
-            }
-            else if (child.Name == "br")
-            {
-                // Rent visuelt linjeskift innad i løpeteksten (bekreftet ekte, EØS-henvisninger og
-                // ikrafttredelse-fotnoter med flere klausuler) — et selvlukkende element uten barn å
-                // rekursere inn i. Samme mellomrom-skille-prinsipp som ved en hoppet-over liste, slik at
-                // tekst før og etter <br/> ikke smelter sammen.
-                segmenter.Add(new TekstSegment(" ", null, false));
-            }
-            else if (child.Name == "table")
-            {
-                if (segmenter.Count > 0) segmenter.Add(new TekstSegment(" ", null, false));
-                segmenter.Add(TolkTabellSomFlatTekst(child, kontekst));
-            }
-            else if (child.Name == "table")
-            {
-                // Bekreftet ekte og OVERRASKENDE VANLIG i forskrift-korpuset (442 av 5882 dokumenter i
-                // full korpusgjennomgang 2026-08-21 — gebyr-/pensjonssatser, tekniske spesifikasjoner)
-                // — selve tabellinnholdet ER en del av den gjeldende normen, derfor flates den ut til
-                // lesbar tekst i stedet for å hoppes over (se HentTabellSegmenter).
-                if (segmenter.Count > 0) segmenter.Add(new TekstSegment(" ", null, false));
-                segmenter.AddRange(HentTabellSegmenter(child, kontekst));
-            }
-            else if (child.Name == "img")
-            {
-                // Bekreftet ekte (32 av 5882 dokumenter) — img har konsekvent en REELT beskrivende
-                // alt-tekst (f.eks. "Illustrasjon som viser hvordan målene X og L ... skal måles"), ikke
-                // en tom/dekorativ streng. Selve bildet kan ikke representeres i en flat tekstmodell,
-                // men alt-teksten er reelt normativt innhold (illustrerer en måleregel) — tas derfor med
-                // som synlig tekst i stedet for å hoppes over eller kaste.
-                var alt = child.GetAttributeValue("alt", "");
-                if (alt.Length > 0) segmenter.Add(new TekstSegment($"[bilde: {HtmlEntity.DeEntitize(alt)}]", null, false));
-            }
-            else if (child.Name == "div" && klasse.Contains("latexBlock"))
-            {
-                // Bekreftet ekte (37 av 5882 dokumenter — matematiske formler, f.eks. justeringsfaktorer
-                // i en referanseindeks-forskrift). Selve LaTeX-KILDETEKSTEN ("$$F_i = Min(...)$$") er
-                // fortsatt lesbar som tekst for en fagperson, selv urendret — transparent gjennomgang i
-                // stedet for å kaste, samme filosofi som resten av modellen (flat, søkbar tekst > ingenting).
-                segmenter.AddRange(HentSegmenter(child, kontekst));
-            }
-            else if (child.Name == "article" && klasse.Contains("changesToParent"))
-            {
-                // endringshistorikk, ikke løpetekst
-            }
-            else if (child.Name == "article" && (ErLeddKlasse(klasse) || ErAvsnittKlasse(klasse)))
-            {
-                // En fotnote (ParseFotnoter kaller HentSegmenter direkte på <article class="footnote">)
-                // kan selv bestå av FLERE strukturerte "ledd"/avsnitt-barn (footnoteLegalP/footnoteDefaultP)
-                // i stedet for ren inline-tekst — bekreftet ekte, personopplysningsloven (kastet tidligere
-                // "Ukjent inline-element <article class=\"legalP\"> i løpetekst"). Transparent rekursjon,
-                // med samme mellomrom-skille som ved en hoppet-over liste, slik at to etterfølgende
-                // "ledd" i samme fotnote ikke smelter sammen uten mellomrom.
-                if (segmenter.Count > 0) segmenter.Add(new TekstSegment(" ", null, false));
-                segmenter.AddRange(HentSegmenter(child, kontekst));
-            }
-            else if (GjennomsiktigeInlineElementer.Contains(child.Name))
-            {
-                segmenter.AddRange(HentSegmenter(child, kontekst));
-            }
-            else
-            {
-                throw new NotSupportedException(
-                    $"Ukjent inline-element <{child.Name} class=\"{klasse}\"> i løpetekst. Ingen gjettet fallback (§3.3).");
-            }
-        }
+        foreach (var child in node.ChildNodes) LeggTilSegmenterForBarn(child, segmenter, kontekst);
         return segmenter;
+    }
+
+    /// <summary>
+    /// [ENDRET, avslutningsnode-runden, 2026-10-09, issue #361] Løkkekroppen i <see cref="HentSegmenter"/>,
+    /// trukket ut slik at <see cref="DelVedLister"/> kan legge segmentene for hvert barn i RIKTIG bøtte
+    /// (innledningen eller teksten etter en liste) uten å duplisere elementtabellen under. Oppførselen per
+    /// barn er uendret.
+    /// </summary>
+    private static void LeggTilSegmenterForBarn(HtmlNode child, List<TekstSegment> segmenter, ReferanseKontekst? kontekst)
+    {
+        if (child.NodeType == HtmlNodeType.Text)
+        {
+            var tekst = HtmlEntity.DeEntitize(child.InnerText);
+            if (tekst.Length > 0) segmenter.Add(new TekstSegment(tekst, null, false));
+            return;
+        }
+
+        if (child.NodeType != HtmlNodeType.Element) return;
+        var klasse = child.GetAttributeValue("class", "");
+
+        if (child.Name == "a" && child.Attributes["href"]?.Value is string href)
+        {
+            segmenter.Add(TolkLenke(child, href, kontekst));
+        }
+        else if (child.Name == "a")
+        {
+            // <a> uten href-attributt overhodet (bekreftet ekte — et bokmerke-/ankermål uten egen
+            // lenkedestinasjon, ikke en referanse) — samme transparente behandling som de vanlige
+            // GjennomsiktigeInlineElementer under, bare et eget case siden "a" ellers alltid
+            // forsøkes tolket som lenke over.
+            segmenter.AddRange(HentSegmenter(child, kontekst));
+        }
+        else if ((child.Name == "div" && klasse.Contains("indent")) || child.Name == "blockquote")
+        {
+            // Samme transparente innrykk-håndtering som i ParseKapittelInnhold/Parse/
+            // HåndterParagrafBarn — bekreftet ekte også INNI løpetekst (siterte/innlemmede EU-/
+            // EØS-tekster nøstet dypere enn ledd-/punkt-nivå, full korpusgjennomgang 2026-08-22).
+            segmenter.AddRange(HentSegmenter(child, kontekst));
+        }
+        else if (child.Name == "sup" && klasse.Contains("footnotereference"))
+        {
+            // ekskludert fra hovedteksten (§3.2) — fotnoter er egne AKN <authorialNote>
+        }
+        else if (child.Name == "span" && klasse.Contains("footnoteLabel"))
+        {
+            // etiketten hentes separat til Fotnote.Etikett (ParseFotnoter) — skal ikke dupliseres i Tekst
+        }
+        else if (child.Name is "ul" or "ol")
+        {
+            // [ENDRET, avslutningsnode-runden, 2026-10-09, issue #361] En liste som står DIREKTE i et
+            // ledd eller i et punkts legalP når aldri hit lenger: DelVedLister deler teksten ved lista,
+            // og teksten etter den blir en egen avslutningsnode. Før det ble lista byttet ut med ett
+            // mellomrom her, og innledning og avslutning limt sammen til én leddtekst
+            // («… samt i Første punktum gjelder likevel …», energiloven § 10-2 annet ledd).
+            //
+            // Grenen står igjen for lister som IKKE deles: lister inni løpetekst som ikke er et
+            // ledd/punkt (fotnoter), lister dypere nede (inni en <p>, eller inni et nestet ledd i et
+            // numberedLegalP — se issue-rapporten for #361) og en liste uten <li>. Der beholdes det
+            // gamle mellomrommet, slik at tekst før og etter ikke smelter sammen. Endelig Tekst
+            // trimmes og tekst_hash kollapser whitespace (§3.4), så et ekstra mellomrom er trygt.
+            segmenter.Add(new TekstSegment(" ", null, false));
+        }
+        else if (child.Name == "footer")
+        {
+            // håndteres separat av kalleren (fotnoter) — footer er i praksis alltid søsken av
+            // legalP under paragrafen, ikke et barn av selve legalP-en HentSegmenter kalles på
+        }
+        else if (child.Name == "br")
+        {
+            // Rent visuelt linjeskift innad i løpeteksten (bekreftet ekte, EØS-henvisninger og
+            // ikrafttredelse-fotnoter med flere klausuler) — et selvlukkende element uten barn å
+            // rekursere inn i. Samme mellomrom-skille-prinsipp som ved en hoppet-over liste, slik at
+            // tekst før og etter <br/> ikke smelter sammen.
+            segmenter.Add(new TekstSegment(" ", null, false));
+        }
+        else if (child.Name == "table")
+        {
+            if (segmenter.Count > 0) segmenter.Add(new TekstSegment(" ", null, false));
+            segmenter.Add(TolkTabellSomFlatTekst(child, kontekst));
+        }
+        else if (child.Name == "table")
+        {
+            // Bekreftet ekte og OVERRASKENDE VANLIG i forskrift-korpuset (442 av 5882 dokumenter i
+            // full korpusgjennomgang 2026-08-21 — gebyr-/pensjonssatser, tekniske spesifikasjoner)
+            // — selve tabellinnholdet ER en del av den gjeldende normen, derfor flates den ut til
+            // lesbar tekst i stedet for å hoppes over (se HentTabellSegmenter).
+            if (segmenter.Count > 0) segmenter.Add(new TekstSegment(" ", null, false));
+            segmenter.AddRange(HentTabellSegmenter(child, kontekst));
+        }
+        else if (child.Name == "img")
+        {
+            // Bekreftet ekte (32 av 5882 dokumenter) — img har konsekvent en REELT beskrivende
+            // alt-tekst (f.eks. "Illustrasjon som viser hvordan målene X og L ... skal måles"), ikke
+            // en tom/dekorativ streng. Selve bildet kan ikke representeres i en flat tekstmodell,
+            // men alt-teksten er reelt normativt innhold (illustrerer en måleregel) — tas derfor med
+            // som synlig tekst i stedet for å hoppes over eller kaste.
+            var alt = child.GetAttributeValue("alt", "");
+            if (alt.Length > 0) segmenter.Add(new TekstSegment($"[bilde: {HtmlEntity.DeEntitize(alt)}]", null, false));
+        }
+        else if (child.Name == "div" && klasse.Contains("latexBlock"))
+        {
+            // Bekreftet ekte (37 av 5882 dokumenter — matematiske formler, f.eks. justeringsfaktorer
+            // i en referanseindeks-forskrift). Selve LaTeX-KILDETEKSTEN ("$$F_i = Min(...)$$") er
+            // fortsatt lesbar som tekst for en fagperson, selv urendret — transparent gjennomgang i
+            // stedet for å kaste, samme filosofi som resten av modellen (flat, søkbar tekst > ingenting).
+            segmenter.AddRange(HentSegmenter(child, kontekst));
+        }
+        else if (child.Name == "article" && klasse.Contains("changesToParent"))
+        {
+            // endringshistorikk, ikke løpetekst
+        }
+        else if (child.Name == "article" && (ErLeddKlasse(klasse) || ErAvsnittKlasse(klasse)))
+        {
+            // En fotnote (ParseFotnoter kaller HentSegmenter direkte på <article class="footnote">)
+            // kan selv bestå av FLERE strukturerte "ledd"/avsnitt-barn (footnoteLegalP/footnoteDefaultP)
+            // i stedet for ren inline-tekst — bekreftet ekte, personopplysningsloven (kastet tidligere
+            // "Ukjent inline-element <article class=\"legalP\"> i løpetekst"). Transparent rekursjon,
+            // med samme mellomrom-skille som ved en hoppet-over liste, slik at to etterfølgende
+            // "ledd" i samme fotnote ikke smelter sammen uten mellomrom.
+            if (segmenter.Count > 0) segmenter.Add(new TekstSegment(" ", null, false));
+            segmenter.AddRange(HentSegmenter(child, kontekst));
+        }
+        else if (GjennomsiktigeInlineElementer.Contains(child.Name))
+        {
+            segmenter.AddRange(HentSegmenter(child, kontekst));
+        }
+        else
+        {
+            throw new NotSupportedException(
+                $"Ukjent inline-element <{child.Name} class=\"{klasse}\"> i løpetekst. Ingen gjettet fallback (§3.3).");
+        }
     }
 
     /// <summary>

@@ -194,10 +194,21 @@ public static class AknXmlSkriver
                     // block-nivå-barn av <article>. De legges derfor inn i SISTE ledds <p> i stedet.
                     var leddBarn = alleNoder.Where(n => n.ParentEid == node.Eid).OrderBy(n => n.SorteringsRekkefolge).ToList();
                     var fotnoteMarkup = SkrivFotnoterInline(node.Fotnoter);
-                    for (var i = 0; i < leddBarn.Count; i++)
+                    if (leddBarn.Any(n => n.NodeType == NodeType.Avslutning))
                     {
-                        var erSisteLedd = i == leddBarn.Count - 1;
-                        SkrivLedd(sb, alleNoder, leddBarn[i], erSisteLedd ? fotnoteMarkup : null);
+                        // [Ny, avslutningsnode-runden, 2026-10-09, issue #361] En liste direkte under
+                        // paragrafen med tekst etter seg: punktene og avslutningen skrives som
+                        // <list><point/>…<wrapUp/></list>, ledd som før. Bare for paragrafer som HAR en
+                        // avslutning — se SkrivLedd for hvorfor resten skrives uendret.
+                        SkrivParagrafBarnMedAvslutning(sb, alleNoder, leddBarn, fotnoteMarkup);
+                    }
+                    else
+                    {
+                        for (var i = 0; i < leddBarn.Count; i++)
+                        {
+                            var erSisteLedd = i == leddBarn.Count - 1;
+                            SkrivLedd(sb, alleNoder, leddBarn[i], erSisteLedd ? fotnoteMarkup : null);
+                        }
                     }
                     // Ekstremt sjeldent tilfelle: paragraf har fotnote(r) men ingen ledd å feste dem i
                     // (ingen løpetekst overhodet). Det finnes ingen skjemalovlig plassering av
@@ -218,6 +229,12 @@ public static class AknXmlSkriver
                 case NodeType.Punkt:
                     // Skrevet som del av <list> i SkrivLedd, sammen med sitt ledd — ingen egen håndtering her.
                     break;
+
+                case NodeType.Avslutning:
+                    // [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Skrevet som <wrapUp> i lista den
+                    // avslutter (SkrivLedd/SkrivPunkt/SkrivParagrafBarnMedAvslutning) — ingen egen håndtering
+                    // her, samme som Punkt.
+                    break;
             }
         }
     }
@@ -230,6 +247,18 @@ public static class AknXmlSkriver
     /// </summary>
     private static void SkrivLedd(StringBuilder sb, IReadOnlyList<RettskildeNode> alleNoder, RettskildeNode node, string? ekstraInnhold)
     {
+        var barn = alleNoder.Where(n => n.ParentEid == node.Eid).OrderBy(n => n.SorteringsRekkefolge).ToList();
+        if (barn.Any(n => n.NodeType == NodeType.Avslutning))
+        {
+            // [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Se SkrivMedListe. Ledd UTEN
+            // avslutning skrives bevisst nøyaktig som før (under): importen sammenligner AKN-XML for å
+            // avgjøre om et dokument er endret (RettskildeImportTjeneste), så et nytt format for ALLE
+            // ledd med punkter ville gitt ny versjon av tusenvis av dokumenter som ikke har noen
+            // avslutning. Bare dokumenter der teksten faktisk endres, skal få ny versjon.
+            SkrivMedListe(sb, alleNoder, "paragraph", node, barn, ekstraInnhold);
+            return;
+        }
+
         sb.Append($"<paragraph eId=\"{Escape(node.Eid)}\" regelIde:kildeId=\"{Escape(node.KildeId)}\">");
         sb.Append($"<num>{Escape(node.Nummer ?? "")}</num>");
         sb.Append("<content>").Append("<p>").Append(SkrivSegmenter(node.Segmenter));
@@ -249,13 +278,160 @@ public static class AknXmlSkriver
             sb.Append("<list>");
             foreach (var punkt in punktBarn)
             {
-                sb.Append($"<point eId=\"{Escape(punkt.Eid)}\" regelIde:kildeId=\"{Escape(punkt.KildeId)}\">");
-                sb.Append($"<num>{Escape(punkt.Nummer ?? "")}</num>");
-                sb.Append("<content>").Append("<p>").Append(SkrivSegmenter(punkt.Segmenter)).Append("</p>").Append("</content>");
-                sb.Append("</point>");
+                SkrivPunkt(sb, alleNoder, punkt, ekstraInnhold: null);
             }
             sb.Append("</list>");
         }
+    }
+
+    /// <summary>
+    /// Ett punkt (&lt;point&gt;). Et punkt UTEN avslutning skrives som før: bare egen tekst, uten
+    /// underpunkter (underpunkter har aldri vært med i AKN-en, se SkrivLedd).
+    /// [ENDRET, avslutningsnode-runden, 2026-10-09, issue #361] Et punkt MED avslutning skrives med
+    /// <see cref="SkrivMedListe"/>, inkludert underpunktene — ellers ville avslutningsteksten forsvunnet
+    /// helt fra AKN-en, siden den ikke lenger står i punktets egen tekst.
+    /// </summary>
+    private static void SkrivPunkt(StringBuilder sb, IReadOnlyList<RettskildeNode> alleNoder, RettskildeNode punkt, string? ekstraInnhold)
+    {
+        var barn = alleNoder.Where(n => n.ParentEid == punkt.Eid).OrderBy(n => n.SorteringsRekkefolge).ToList();
+        if (barn.Any(n => n.NodeType == NodeType.Avslutning))
+        {
+            SkrivMedListe(sb, alleNoder, "point", punkt, barn, ekstraInnhold);
+            return;
+        }
+        sb.Append($"<point eId=\"{Escape(punkt.Eid)}\" regelIde:kildeId=\"{Escape(punkt.KildeId)}\">");
+        sb.Append($"<num>{Escape(punkt.Nummer ?? "")}</num>");
+        sb.Append("<content>").Append("<p>").Append(SkrivSegmenter(punkt.Segmenter));
+        if (ekstraInnhold is not null) sb.Append(ekstraInnhold);
+        sb.Append("</p>").Append("</content>");
+        sb.Append("</point>");
+    }
+
+    /// <summary>
+    /// [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Et ledd eller punkt med tekst etter en liste,
+    /// skrevet slik AKN modellerer det (hierarchy-typen: <c>intro?</c>, hierarkiske barn, <c>wrapUp?</c>):
+    /// <code>
+    /// &lt;paragraph eId="…/ledd-2"&gt;&lt;num/&gt;
+    ///   &lt;list&gt;&lt;intro&gt;&lt;p&gt;innledning&lt;/p&gt;&lt;/intro&gt;
+    ///     &lt;point/&gt;…&lt;wrapUp eId="…/ledd-2/avslutning"&gt;&lt;p&gt;avslutning&lt;/p&gt;&lt;/wrapUp&gt;
+    ///   &lt;/list&gt;
+    ///   &lt;list&gt;&lt;point/&gt;…&lt;wrapUp eId="…/ledd-2/avslutning-2"&gt;…&lt;/wrapUp&gt;&lt;/list&gt;
+    /// &lt;/paragraph&gt;
+    /// </code>
+    /// Én &lt;list&gt; per liste i kilden. Innledningen (nodens egen tekst) er &lt;intro&gt; i den første
+    /// lista; teksten mellom to lister er &lt;wrapUp&gt; i den første av dem. Ingen tekst dupliseres.
+    /// <paramref name="ekstraInnhold"/> (paragrafens fotnoter) havner i den siste &lt;p&gt;-en som skrives,
+    /// slik at fotnoten fortsatt står sist i paragrafens tekstflyt.
+    /// </summary>
+    private static void SkrivMedListe(
+        StringBuilder sb, IReadOnlyList<RettskildeNode> alleNoder, string tag, RettskildeNode node,
+        IReadOnlyList<RettskildeNode> barn, string? ekstraInnhold)
+    {
+        sb.Append($"<{tag} eId=\"{Escape(node.Eid)}\" regelIde:kildeId=\"{Escape(node.KildeId)}\">");
+        sb.Append($"<num>{Escape(node.Nummer ?? "")}</num>");
+
+        var grupper = GrupperEtterAvslutning(barn);
+        for (var g = 0; g < grupper.Count; g++)
+        {
+            var (punkter, avslutning) = grupper[g];
+            var erSisteGruppe = g == grupper.Count - 1;
+            sb.Append("<list>");
+            if (g == 0)
+            {
+                sb.Append("<intro><p>").Append(SkrivSegmenter(node.Segmenter)).Append("</p></intro>");
+            }
+            for (var i = 0; i < punkter.Count; i++)
+            {
+                var erSistePunkt = erSisteGruppe && avslutning is null && i == punkter.Count - 1;
+                SkrivPunkt(sb, alleNoder, punkter[i], erSistePunkt ? ekstraInnhold : null);
+            }
+            if (avslutning is not null)
+            {
+                sb.Append($"<wrapUp eId=\"{Escape(avslutning.Eid)}\" regelIde:kildeId=\"{Escape(avslutning.KildeId)}\"><p>");
+                sb.Append(SkrivSegmenter(avslutning.Segmenter));
+                if (erSisteGruppe && ekstraInnhold is not null) sb.Append(ekstraInnhold);
+                sb.Append("</p></wrapUp>");
+            }
+            sb.Append("</list>");
+        }
+        sb.Append($"</{tag}>");
+    }
+
+    /// <summary>
+    /// [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Barna til en paragraf som har en avslutning
+    /// direkte under seg (lista står direkte under paragrafen, uten omsluttende ledd). Ledd skrives som
+    /// før; en sammenhengende rekke punkter og avslutningen etter dem blir én &lt;list&gt; med
+    /// &lt;point&gt; og &lt;wrapUp&gt;. Fotnotene havner i siste ledd, punkt eller avslutning.
+    /// </summary>
+    private static void SkrivParagrafBarnMedAvslutning(
+        StringBuilder sb, IReadOnlyList<RettskildeNode> alleNoder, IReadOnlyList<RettskildeNode> barn, string? fotnoteMarkup)
+    {
+        var i = 0;
+        while (i < barn.Count)
+        {
+            if (barn[i].NodeType == NodeType.Ledd)
+            {
+                SkrivLedd(sb, alleNoder, barn[i], i == barn.Count - 1 ? fotnoteMarkup : null);
+                i++;
+                continue;
+            }
+            var rekke = new List<RettskildeNode>();
+            while (i < barn.Count && barn[i].NodeType != NodeType.Ledd)
+            {
+                rekke.Add(barn[i]);
+                i++;
+                if (rekke[^1].NodeType == NodeType.Avslutning) break;
+            }
+            var erSist = i == barn.Count;
+            sb.Append("<list>");
+            for (var j = 0; j < rekke.Count; j++)
+            {
+                var ekstra = erSist && j == rekke.Count - 1 ? fotnoteMarkup : null;
+                var n = rekke[j];
+                if (n.NodeType == NodeType.Avslutning)
+                {
+                    sb.Append($"<wrapUp eId=\"{Escape(n.Eid)}\" regelIde:kildeId=\"{Escape(n.KildeId)}\"><p>");
+                    sb.Append(SkrivSegmenter(n.Segmenter));
+                    if (ekstra is not null) sb.Append(ekstra);
+                    sb.Append("</p></wrapUp>");
+                }
+                else if (n.NodeType == NodeType.Punkt)
+                {
+                    SkrivPunkt(sb, alleNoder, n, ekstra);
+                }
+                else
+                {
+                    throw new InvalidOperationException(
+                        $"Uventet {n.NodeType}-node {n.Eid} direkte under en paragraf med avslutning. Ingen gjettet AKN-plassering.");
+                }
+            }
+            sb.Append("</list>");
+        }
+    }
+
+    /// <summary>Deler barna til et ledd/punkt i én gruppe per liste: punktene, og avslutningen etter dem (om noen).</summary>
+    private static List<(List<RettskildeNode> Punkter, RettskildeNode? Avslutning)> GrupperEtterAvslutning(IReadOnlyList<RettskildeNode> barn)
+    {
+        var grupper = new List<(List<RettskildeNode>, RettskildeNode?)>();
+        var punkter = new List<RettskildeNode>();
+        foreach (var n in barn)
+        {
+            switch (n.NodeType)
+            {
+                case NodeType.Punkt:
+                    punkter.Add(n);
+                    break;
+                case NodeType.Avslutning:
+                    grupper.Add((punkter, n));
+                    punkter = [];
+                    break;
+                default:
+                    throw new InvalidOperationException(
+                        $"Uventet {n.NodeType}-node {n.Eid} under et ledd/punkt. Ingen gjettet AKN-plassering.");
+            }
+        }
+        if (punkter.Count > 0) grupper.Add((punkter, null));
+        return grupper;
     }
 
     /// <summary>

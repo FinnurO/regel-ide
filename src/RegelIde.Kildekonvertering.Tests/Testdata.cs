@@ -65,4 +65,18 @@ internal static class Testdata
     /// </summary>
     public static string LesBergenForskrift() =>
         File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "bergen-forskrift-salgs-skjenke-apningstider.txt"));
+
+    /// <summary>
+    /// [Ny, avslutningsnode-runden, 2026-10-09, issue #361] UTDRAG, ikke hele loven: energiloven § 10-2
+    /// ordrett fra Lovdatas bulkfil (<c>gjeldende-lover</c>, <c>nl/nl-19900629-050.xml</c>, NLOD 2.0,
+    /// kilde Lovdata), hentet 2026-10-09, med et minimalt dokumenthode (Datokode, DokumentID, Departement,
+    /// Tittel, Korttittel) og bare kapittel 10s seksjonselement rundt paragrafen. Annet ledd er saken der
+    /// feilen ble funnet: «… samt i» + liste a–c + «Første punktum gjelder likevel …».
+    ///
+    /// <para>Ligger bevisst i <c>Testdata/Utdrag/</c> og IKKE i <c>data/kilder/raw-lovdata/</c>: oppstarten
+    /// importerer hele den mappa som primærkilder (Program.cs), og et utdrag ville da blitt lest som en ny
+    /// versjon av energiloven med bare én paragraf.</para>
+    /// </summary>
+    public static string LesEnergilovenUtdrag10_2() =>
+        File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Testdata", "Utdrag", "energiloven-LOV-1990-06-29-50-utdrag-10-2.html"));
 }

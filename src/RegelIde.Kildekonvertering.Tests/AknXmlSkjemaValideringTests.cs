@@ -133,4 +133,39 @@ public class AknXmlSkjemaValideringTests
         var feil = Valider(resultat.AknXml);
         Assert.True(feil.Count == 0, $"{feil.Count} skjemafeil:\n{string.Join("\n", feil)}");
     }
+
+    /// <summary>
+    /// [Ny, avslutningsnode-runden, 2026-10-09, issue #361] De nye formene AknXmlSkriver bruker for
+    /// avslutningsnoder (&lt;list&gt; med &lt;intro&gt;/&lt;wrapUp&gt; i et ledd, i et punkt og direkte under
+    /// en paragraf, og flere lister i samme ledd) valideres mot det ekte skjemaet. Alkoholforskriften
+    /// (§ 7-2, § 14-3 punkt 14) og forvaltningsloven (§ 18 d, § 28) over dekker ledd og punkt med én liste.
+    /// </summary>
+    [Theory]
+    [InlineData("energiloven § 10-2 (ekte)", "")]
+    [InlineData("liste direkte under paragrafen + leddfortsettelse", "paragraf")]
+    [InlineData("to lister med tekst etter hver", "to-lister")]
+    [InlineData("liste direkte under paragrafen, ledd etter, fotnote", "paragraf-fotnote")]
+    public void AknXml_med_avslutningsnoder_validerer_mot_skjemaet(string beskrivelse, string variant)
+    {
+        var ol = AvslutningsnodeKonverteringTests.Liste;
+        var html = variant switch
+        {
+            "" => Testdata.LesEnergilovenUtdrag10_2(),
+            "paragraf" => Avslutningsutdrag.MedParagrafinnhold(
+                ol("kapittel-11-paragraf-3", "a", "b") + "<p class=\"leddfortsettelse\">Avslutning.</p>"),
+            "to-lister" => Avslutningsutdrag.MedParagrafinnhold(
+                "<article class=\"legalP\" id=\"kapittel-11-paragraf-3-ledd-1\">Innledning:" + ol("l1", "a") + "Mellom:" +
+                ol("l2", "b") + "Slutt.</article>"),
+            "paragraf-fotnote" => Avslutningsutdrag.MedParagrafinnhold(
+                ol("kapittel-11-paragraf-3", "a") + "<p class=\"leddfortsettelse\">Avslutning.</p>" +
+                "<article class=\"legalP\" id=\"kapittel-11-paragraf-3-ledd-1\">Ledd.</article>" +
+                "<footer class=\"footnotes\"><article class=\"footnote\" data-name=\"1\"><span class=\"footnoteLabel\">1</span> Note.</article></footer>"),
+            _ => throw new ArgumentException(variant),
+        };
+        var resultat = LovdataKonverterer.Konverter(html, new DateOnly(2026, 10, 9));
+        Assert.Contains("<wrapUp ", resultat.AknXml);
+
+        var feil = Valider(resultat.AknXml);
+        Assert.True(feil.Count == 0, $"{feil.Count} skjemafeil ({beskrivelse}):\n{string.Join("\n", feil)}");
+    }
 }
