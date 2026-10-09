@@ -2904,7 +2904,7 @@
       "sitat": "Dette gjelder ikke et styremedlem som er valgt etter §§ 22 eller 23",
       "kategori": "kompetanse",
       "type": "avsettingskompetanse",
-      "fra": "a12",
+      "fra": null,
       "til": "a17",
       "objekt": null,
       "polaritet": "negativ",
@@ -2912,7 +2912,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "[#355, juristrunden] Unntaket fra avsettingen i forrige punktum («Dette» = avsettingen): undertype avsetting; fra = null som u93 («den som har valgt», saksforhold). Var fra = foretaksmøtet.",
+      "undertype": "avsetting"
     },
     {
       "id": "u95",
@@ -4909,8 +4910,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Alternativ rolle-innehaver.",
-      "undertype": "utnevning"
+      "kommentar": "Alternativ rolle-innehaver. [#355, juristrunden] Undertype oppnevning, ikke utnevning: verbet «utnevnes» står, men utnevning er embete etter Grl. § 21 (beslutning 1); kontaktpsykologen er en funksjon institusjonen gir, som kontaktlegen i u215.",
+      "undertype": "oppnevning"
     },
     {
       "id": "u217",

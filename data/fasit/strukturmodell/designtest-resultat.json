@@ -14422,5 +14422,53 @@
   "dagens": "delvis",
   "revidert": "ja",
   "element": "K"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "relasjon",
+  "type": "del_av",
+  "dagens": "ja",
+  "revidert": "ja",
+  "element": "G"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "kompetanse",
+  "type": "overprovingskompetanse",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "kompetanse",
+  "type": "oppnevningskompetanse",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "kompetanse",
+  "type": "avsettingskompetanse",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "kompetanse",
+  "type": "avsettingskompetanse",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
+ },
+ {
+  "kilde": "domstolloven",
+  "kategori": "kompetanse",
+  "type": "annet:forflytning",
+  "dagens": "delvis",
+  "revidert": "ja",
+  "element": "K"
  }
 ]

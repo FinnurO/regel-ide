@@ -4261,11 +4261,11 @@
       "til": null,
       "objekt": "tilbakekall av godkjenning",
       "polaritet": "positiv",
-      "avgrensning": null,
+      "avgrensning": "når virksomheten som er tildelt godkjenningen, ikke fyller kravene som er satt i forskrift",
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Implisitt også kompetanse til å gi godkjenning.",
+      "kommentar": "[slutning] Implisitt også kompetanse til å gi godkjenning.",
       "undertype": "tilbakekall"
     },
     {

@@ -415,24 +415,33 @@ forelegging-kanter (rettsvirkningen kan ikke avgjøres uten teksten); ingen eksi
 2026-10-09:** 1 261 → 1 261 kanter, typekonfigurasjonen 54 → 53 (−K forelegging), 0 K forelegging-kanter, 1 proveniensrad. `Down`
 prøvd (53 → 54, proveniensraden borte, gammel CHECK) og kjørt opp igjen.
 
-*Fasiten* (`konvertering-355-avslutning.py`, deterministisk, idempotent, også på `ki-utdata/`): 1 798 → 1 803 utsagn. Undertype fra
+*Fasiten* (`konvertering-355-avslutning.py`, deterministisk, idempotent, også på `ki-utdata/`): 1 798 → 1 809 utsagn. Undertype fra
 sitatet: konstitusjon 5, tilbakekall 5 (hotl. u186, sphl. u253, energiloven u205–u207), avsetting 2, utnevning 2 (domstolloven u120 og
-spesialisthelsetjenesteloven u216 «kontaktpsykolog utnevnes» — verbet, se PR-en). Kort nr. 58 (domstolloven § 55 femte ledd) er tre
+spesialisthelsetjenesteloven u216 — rettet til oppnevning i juristrunden, se under). Kort nr. 58 (domstolloven § 55 femte ledd) er tre
 rader, spesialisthelsetjenesteloven u118 («si opp eller avskjedige») to. Forelegging: de 2 K-radene (domstolloven u117, u118) → P
 konsultasjon (kan); relasjon/annet:forelegges_for (u52, u56) og annet:intern_forelegging (hotl. u141, u142) står som saksgang. Nye rader:
 § 37 R representerer, § 51 a negativ anke. u275 til = tingrettene, u22/u165 → del_av, u102/u108 → annet:partsposisjon/annet:ankeadgang,
 u145 → annet:partsposisjon (til = null). KI-utdata 1 043 → 1 043 (tilbakekall 6, utnevning 1).
 
+*Juristrunden (CLAUDE.md §23, 2026-10-09):* agenten jurist-utfordrer vurderte de 29 radene konverteringen endret eller la til; 13
+holdt og 16 fikk innvending (9 lav, 7 middels). Alle er akseptert og bygget inn som regel 10 i skriptet, så ingen uenighet gikk
+videre til Johann: konstitusjonsradene fikk motparten dommere og vilkårene/varigheten i avgrensningen (u124, u133, u134, u136, u137);
+Innstillingsrådets konstitusjon etter § 55 f annet ledd er en egen rad (L13); u120 har `delegerbar = false` (Grl. § 21: Kongen i
+statsråd); u216 «kontaktpsykolog utnevnes» er oppnevning, ikke utnevning (ikke embete — verbet alene avgjør ikke); u94 er unntaket fra
+avsettingen (undertype avsetting, fra = null som u93); vilkårene står i avgrensningen på tilbakekallene (u186, u205–u207) og § 51 a
+(u117); nye rader for protokollsekretærer og utredere del_av Høyesterett (§ 9), Høyesteretts anke etter § 37 og § 55 h første ledd
+(kort nr. 58 for midlertidige dommere).
+
 | Måling (samme treffregel, samme utdata) | Før #355 | Etter #355 |
 |---|---:|---:|
-| Fasitutsagn | 1 798 | 1 803 |
-| Mønster alle: P / G | 92,7 / 48,2 % | 92,7 / 48,0 % |
-| Mønster K (fasit 577 → 578): P / G | 88,0 / 49,4 % | 88,0 / 49,3 % |
+| Fasitutsagn | 1 798 | 1 809 |
+| Mønster alle: P / G | 92,7 / 48,2 % | 92,7 / 47,9 % |
+| Mønster K (fasit 577 → 582): P / G | 88,0 / 49,4 % | 88,0 / 49,0 % |
 | KI alle: P / G | 36,5 / 21,2 % | 36,5 / 21,1 % |
-| Union alle: P / G | 58,2 / 55,7 % | 58,2 / 55,6 % |
-| designtest.py revidert ja / senere lag | 1 719 / 58 | 1 722 / 60 |
+| Union alle: P / G | 58,2 / 55,7 % | 58,2 / 55,4 % |
+| designtest.py revidert ja / senere lag | 1 719 / 58 | 1 728 / 60 |
 
-Prediksjonene er uendret (934 mønster, 1 043 KI); fallet i gjenfinning er bare at fasiten fikk fem rader. Leksikonet (versjon
+Prediksjonene er uendret (934 mønster, 1 043 KI); fallet i gjenfinning er bare at fasiten fikk elleve rader. Leksikonet (versjon
 2026-10-09.3) har undertypene med verb og ordstammer; ingen nye mønster-regex er lagt til (ingen målt form med høy nok presisjon).
 
 *Fvl-kategori — på typen, ikke på kanten:* `forskrift | enkeltvedtak | ikke_vedtak` (forvaltningsloven § 2: vedtak =
@@ -875,7 +884,7 @@ gruppebegrep («forskriftsmyndighet etter § X»), men uten at kompetansetypen b
 [ENDRET, issue #312] Etter fasitrettelsen gir `designtest.py` 1 797 utsagn, revidert ja 91 % (1 640), delvis 1 %,
 senere lag 8 %; domstolloven 739 strukturutsagn, revidert ja 100 %.
 
-[ENDRET, issue #355] Etter konverteringen for #355: 1 803 utsagn, revidert ja 96 % (1 722), senere lag 60 (+ ankeadgang u102/u108).
+[ENDRET, issue #355] Etter konverteringen for #355: 1 809 utsagn, revidert ja 96 % (1 728), senere lag 60 (+ ankeadgang u102/u108).
 
 [ENDRET, issue #353] Etter plikt-konverteringen (§4.5): 1 798 utsagn, revidert ja 96 % (1 719), delvis 1 %, senere lag 3 % (56:
 møteplikt, saksforberedelse, rettigheter, hefte, avtalens innhold). Revidert «ja» per element: K 637, A 508, O 177, R 159, P 77,

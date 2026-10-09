@@ -17,9 +17,9 @@ public class AvslutningFasitTests
         var d = Kilde("domstolloven").Fasit;
         var navn = d.Aktorer.ToDictionary(a => a.Id, a => a.Tekstform);
         var omDommere = d.Utsagn.Where(u => u.Kategori == "kompetanse" && u.Type == "oppnevningskompetanse" && u.Fra is not null
-                // Innsettingen i en dommerstilling: til = dommere, eller konstitusjon av en dommer (til står ikke i teksten).
-                // Oppnevning av en særskilt dommer i én sak (u46) og ansettelse av dommerfullmektiger (u140) er andre spørsmål.
-                && (u.Til == "dommer" || u.Undertype is "utnevning" or "konstitusjon"))
+                // Innsettingen i en dommerstilling: motparten er rollen «dommere» (juristrunden 2026-10-09 ga konstitusjonsradene
+                // motparten, så spørsmålet stilles slik et oppslag stiller det — på motparten, ikke på undertypen).
+                && u.Til == "dommer")
             .ToList();
         Assert.Equal(["Innstillingsrådet for dommere", "Kongen", "domstolens leder"],
             omDommere.Select(u => navn[u.Fra!]).Distinct().Order(StringComparer.Ordinal));

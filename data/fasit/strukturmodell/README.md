@@ -55,4 +55,5 @@ Målegrunnlaget for `docs/33-strukturmodell-aktor-omrade-kompetanse.md`.
   tilbakekall fra sitatet (leksikonets stammer); juristdebattens kort nr. 58 (domstolloven § 55 femte ledd → tre rader) og nr. 29
   (hotl. u145 → annet:partsposisjon); ankeadgang (domstolloven u102, u108) → annet:partsposisjon og ny R representerer for § 37;
   u275 med tingrettene som motpart; foreleggingskompetanse (u117, u118) → plikt/konsultasjonsplikt (kan) med ny negativ anke-rad for
-  § 51 a; u22/u165 → del_av. Domstolloven har dermed 768 utsagn og spesialisthelsetjenesteloven 304 (fasiten 1 798 → 1 803).
+  § 51 a; u22/u165 → del_av; og juristrundens 16 rettinger (regel 10). Domstolloven har dermed 774 utsagn og spesialisthelsetjenesteloven
+  304 (fasiten 1 798 → 1 809).

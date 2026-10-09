@@ -12,8 +12,8 @@ bare eId + kategori + type — forskjellen mellom de to viser hvor mye av feilen
 
 ## Totalt
 
-1803 fasitutsagn, 934 predikerte, 866 treff → presisjon **92,7 %**, gjenfinning **48,0 %**
-(uten endepunktkrav: presisjon 94,9 %, gjenfinning 49,1 %).
+1809 fasitutsagn, 934 predikerte, 866 treff → presisjon **92,7 %**, gjenfinning **47,9 %**
+(uten endepunktkrav: presisjon 94,9 %, gjenfinning 49,0 %).
 
 ## Per kategori (kanttype, `docs/33` §4.3)
 
@@ -22,21 +22,21 @@ Bokstaven følger `STD`-tabellen i `designtest.py`. `annet:*`-typer står i egen
 | Kategori | Fasit | Predikert | Treff | Presisjon | Gjenfinning | Presisjon u/endepunkt | Gjenfinning u/endepunkt |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | R | 125 | 4 | 3 | 75,0 % | 2,4 % | 75,0 % | 2,4 % |
-| K | 578 | 324 | 285 | 88,0 % | 49,3 % | 89,5 % | 50,2 % |
+| K | 582 | 324 | 285 | 88,0 % | 49,0 % | 89,5 % | 49,8 % |
 | P | 79 | 31 | 18 | 58,1 % | 22,8 % | 64,5 % | 25,3 % |
 | M | 48 | 0 | 0 | – | 0,0 % | – | 0,0 % |
 | O | 177 | 122 | 109 | 89,3 % | 61,6 % | 98,4 % | 67,8 % |
 | A | 449 | 419 | 419 | 100,0 % | 93,3 % | 100,0 % | 93,3 % |
-| G | 45 | 6 | 4 | 66,7 % | 8,9 % | 100,0 % | 13,3 % |
+| G | 46 | 6 | 4 | 66,7 % | 8,7 % | 100,0 % | 13,0 % |
 | I | 0 | 0 | 0 | – | – | – | – |
 | T | 19 | 0 | 0 | – | 0,0 % | – | 0,0 % |
-| annet | 283 | 28 | 28 | 100,0 % | 9,9 % | 100,0 % | 9,9 % |
+| annet | 284 | 28 | 28 | 100,0 % | 9,9 % | 100,0 % | 9,9 % |
 
 ## Per kilde
 
 | Kilde | Fasit | Predikert | Treff | Presisjon | Gjenfinning | Presisjon u/endepunkt | Gjenfinning u/endepunkt |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| domstolloven | 768 | 540 | 517 | 95,7 % | 67,3 % | 96,9 % | 68,1 % |
+| domstolloven | 774 | 540 | 517 | 95,7 % | 66,8 % | 96,9 % | 67,6 % |
 | energiloven | 254 | 117 | 110 | 94,0 % | 43,3 % | 94,0 % | 43,3 % |
 | helse-og-omsorgstjenesteloven | 192 | 58 | 51 | 87,9 % | 26,6 % | 91,4 % | 27,6 % |
 | sameloven | 285 | 133 | 118 | 88,7 % | 41,4 % | 97,0 % | 45,3 % |
@@ -52,7 +52,7 @@ Bokstaven følger `STD`-tabellen i `designtest.py`. `annet:*`-typer står i egen
 | K kompetanse / klagekompetanse | 22 | 9 | 7 | 77,8 % | 31,8 % | 100,0 % | 40,9 % |
 | R relasjon / administrativt_underordnet | 5 | 0 | 0 | – | 0,0 % | – | 0,0 % |
 | G organsammensetning / har_medlemmer | 21 | 6 | 4 | 66,7 % | 19,0 % | 100,0 % | 28,6 % |
-| K kompetanse / oppnevningskompetanse | 79 | 10 | 7 | 70,0 % | 8,9 % | 100,0 % | 12,7 % |
+| K kompetanse / oppnevningskompetanse | 80 | 10 | 7 | 70,0 % | 8,8 % | 100,0 % | 12,5 % |
 | K kompetanse / instruksjonskompetanse | 27 | 4 | 4 | 100,0 % | 14,8 % | 100,0 % | 14,8 % |
 | K kompetanse / delegeringskompetanse | 19 | 9 | 8 | 88,9 % | 42,1 % | 88,9 % | 42,1 % |
 | R relasjon / har_delegert_til | 20 | 4 | 3 | 75,0 % | 15,0 % | 75,0 % | 15,0 % |
@@ -182,14 +182,14 @@ De 20 vanligste (én fra hver gruppe i tur, vanligste gruppe først):
 | 19 | sameloven | lov/1987/06/12/56/nor/§3-11/ledd-1 | `monster:klage-er-klageinstans` | Statsforvalteren → null | Statsforvalteren er klageinstans når klagen angår kommunale eller fylkeskommunale organ. |
 | 20 | sameloven | lov/1987/06/12/56/nor/§2-12/ledd-5 | `monster:klage-paklages-til` | Sametinget → styre | Enkeltvedtak fattet av styre, råd eller utvalg oppnevnt av Sametinget, kan i samsvar med forvaltningslovens bestemmelser påklages til Sametinget eller særskilt  … |
 
-## Falske negative (937)
+## Falske negative (943)
 
 Gruppert på kategori/type. Typer mønsterlaget ikke har mønster for, er forventet her — de er KI-lagets (#308) nevner.
 
 | Kategori / type | Har mønster | Antall |
 |---|---|---:|
 | K kompetanse / vedtakskompetanse | ja | 87 |
-| K kompetanse / oppnevningskompetanse | ja | 72 |
+| K kompetanse / oppnevningskompetanse | ja | 73 |
 | O sammensetning_omrade / bestar_av | ja | 38 |
 | R relasjon / rapporterer_til | nei | 31 |
 | M medlemskap / medlem_av | nei | 30 |
@@ -206,20 +206,20 @@ Gruppert på kategori/type. Typer mønsterlaget ikke har mønster for, er forven
 | R konstituerende / oppretter | nei | 14 |
 | P plikt / bistandsplikt | nei | 14 |
 | P plikt / samarbeidsplikt | ja | 14 |
+| K kompetanse / overprovingskompetanse | nei | 13 |
 | P plikt / informasjonsplikt | ja | 13 |
 | R relasjon / eies_av | nei | 13 |
-| K kompetanse / overprovingskompetanse | nei | 12 |
+| G relasjon / del_av | nei | 12 |
 | R relasjon / ledes_av | nei | 12 |
 | K kompetanse / delegeringskompetanse | ja | 11 |
-| G relasjon / del_av | nei | 11 |
 | G organsammensetning / har_organ | nei | 10 |
 | P plikt / konsultasjonsplikt | ja | 10 |
 | R relasjon / radgir | nei | 10 |
 | annet kompetanse / annet:forkynningskompetanse | nei | 9 |
+| K kompetanse / avsettingskompetanse | nei | 9 |
 | annet medlemskap / annet:klasse_definert_ved_tjenestekrets | nei | 9 |
 | P plikt / betalingsplikt | ja | 9 |
 | annet annet:funksjonstildeling / annet:lovtildelt_oppgave | nei | 7 |
-| K kompetanse / avsettingskompetanse | nei | 7 |
 | annet medlemskap / annet:virkeomrade_utvidet_til | nei | 7 |
 | annet organsammensetning / annet:valgkrets_for | nei | 7 |
 | R relasjon / etterfolger | nei | 7 |
@@ -228,7 +228,7 @@ Gruppert på kategori/type. Typer mønsterlaget ikke har mønster for, er forven
 | annet ansvarsomrade / annet:lokalisert_i | nei | 5 |
 | R relasjon / administrativt_underordnet | ja | 5 |
 | K kompetanse / organisasjonskompetanse | nei | 4 |
-| … 158 typer til (alle `annet:*` eller ≤ 4 utsagn) | | 236 |
+| … 158 typer til (alle `annet:*` eller ≤ 4 utsagn) | | 237 |
 
 De 20 vanligste blant typene med mønster (én fra hver type i tur, vanligste type først):
 

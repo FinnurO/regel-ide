@@ -195,7 +195,8 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
   `relasjon`/`del_av`, som designtest.py regner som G), fra = enheten eller STILLINGEN (en rolle knyttet til nettopp det organet,
   «Høyesteretts direktør»), til = organet. En person kobles til stillingen med I `innehar`.
 - **Ingen `modalitet` på strukturkanter.** Struktur med lovhjemmel er lovpålagt; modalitet brukes bare på `plikt`.
-- Konverteringen er deterministisk: `konvertering-355-avslutning.py` (fasit 1798 → 1803 utsagn; KI-utdata 1043 → 1043).
+- Konverteringen er deterministisk: `konvertering-355-avslutning.py` (fasit 1798 → 1809 utsagn, inkludert juristrundens rettinger; KI-utdata 1043 → 1043).
+- Verbet alene avgjør ikke undertypen når disposisjonen er en annen: «kontaktpsykolog utnevnes» er oppnevning (ikke embete).
 
 Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
 - relasjon (aktør→aktør): `eies_av`, `ledes_av`, `sekretariat_for`, `rapporterer_til`, `etterfolger`,

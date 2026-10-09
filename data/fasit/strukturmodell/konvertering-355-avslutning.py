@@ -48,7 +48,15 @@ Reglene (FORMAT.md og docs/33 §4.3 er oppdatert tilsvarende):
      «del_av@relasjon» → G, som u14 og u158). Stillingen «direktør» (hr_dir) er rollen knyttet til nettopp Høyesterett; referenten
      settes til «Høyesteretts direktør».
 
-Regel 2–9 er slått opp på (kilde, id, sitat), så en omnummerert fasit ikke treffer feil rad; de gjelder bare fasiten. Regel 1 og 7
+  10. Juristrunden (CLAUDE.md §23, 2026-10-09): agenten jurist-utfordrer vurderte de 29 radene regel 1–9 endret eller la til.
+     13 holdt, 16 fikk innvending, alle akseptert (ingen uenighet til Johann): konstitusjonsradene får motparten dommere og
+     varigheten/vilkårene i avgrensningen; Innstillingsrådets konstitusjon etter § 55 f annet ledd (egen rad, L13); u120 delegerbar
+     = false (Grl. § 21: Kongen i statsråd); u216 «kontaktpsykolog utnevnes» = oppnevning, ikke utnevning (ikke embete); u94 er
+     unntaket fra avsettingen (undertype avsetting, fra = null som u93); vilkårene i avgrensningen på tilbakekallene (u186, u205–u207)
+     og på § 51 a (u117); nye rader: protokollsekretærer og utredere del_av Høyesterett (§ 9), Høyesteretts anke etter § 37, og
+     § 55 h første ledd (kort nr. 58 for midlertidige dommere, ny aktør «midlertidig dommer»).
+
+Regel 2–10 er slått opp på (kilde, id, sitat), så en omnummerert fasit ikke treffer feil rad; de gjelder bare fasiten. Regel 1 og 7
 gjelder også KI-utdataene.
 
 Står utenfor (listes, røres ikke): relasjon/annet:forelegges_for (domstolloven u52, u56: «… skal forelegges for Stortinget») og
@@ -286,6 +294,115 @@ def regel_9(d, kilde, endret):
             a["referent"] = "Høyesteretts direktør"
             endret["aktør hr_dir: referent «Høyesteretts direktør»"] += 1
 
+# Regel 10 — juristrunden 2026-10-09 (CLAUDE.md §23, agenten jurist-utfordrer, runde 1 på de 29 radene #355 endret eller la til).
+# Alle 16 innvendinger er akseptert av modellereren (ingen uenighet igjen, ingen runde 2). Rettingene er tekstlesninger av samme
+# ledd/paragraf; slutninger er merket [slutning]. (kilde, id, sitat) → felt som settes.
+DL55E1 = ("ved siden av fast stilling, ved en sideordnet domstol, inntil to år (jordskifterett inntil fire år), ved ledighet eller fravær, "
+          "inhabilitet, behov for ekstra dommere eller omorganisering (§ 55 e første ledd)")
+JURIST_RETTING = {
+    ("domstolloven", "u117", "forelegge tolkningsspørsmålet for EFTA-domstolen"): {
+        "avgrensning": "når domstolen i en sak må ta stilling til tolkningen av EØS-avtalen med protokoller, vedlegg og rettsakter"},
+    ("domstolloven", "u120", "Dommere til Høyesterett, lagmannsrettene, tingrettene og jordskifterettene utnevnes som embetsmenn av Kongen etter Grunnloven § 21."): {
+        "delegerbar": False,
+        "+kommentar": "[#355, juristrunden] delegerbar = false: sitatet viser til Grunnloven § 21 (Kongen utnevner embetsmenn «etter å ha hørt "
+                      "sitt statsråd», jf. § 28) — Kongen i statsråd, som #335-regelen gir false for. [slutning fra Grl. § 21, i korpus]"},
+    ("domstolloven", "u124", "foreta enkelte konstitusjoner etter nærmere bestemmelser i §§ 55 e og 55 f"): {
+        "til": "dommer", "avgrensning": "enkelte konstitusjoner etter §§ 55 e og 55 f"},
+    ("domstolloven", "u133", "Slik konstitusjon gjøres av domstollederen der vigselen skal foretas."): {
+        "til": "dommer", "avgrensning": "ved en annen domstol, for å foreta vigsler; også pensjonerte dommere; ikke jordskiftelagdommere og "
+                                         "dommere i jordskifterettene (§ 55 e annet ledd)"},
+    ("domstolloven", "u134", "Beslutning om konstitusjon som nevnt i første ledd, gjøres av Innstillingsrådet for dommere."): {
+        "til": "dommer", "avgrensning": DL55E1},
+    ("domstolloven", "u136", "Konstitusjoner med varighet inntil tre måneder kan foretas av domstollederen."): {"til": "dommer"},
+    ("domstolloven", "u137", "men av Kongen dersom konstitusjonen har lengre varighet enn ett år eller konstitusjonen gjelder Høyesterett"): {
+        "til": "dommer", "avgrensning": "ny dommer (§ 55 f første ledd, inntil to år): lengre varighet enn ett år, eller konstitusjonen gjelder Høyesterett"},
+    ("energiloven", "u205", "Departementet eller reguleringsmyndigheten kan trekke tilbake en konsesjon eller annen tillatelse"): {
+        "avgrensning": "uriktige eller ufullstendige opplysninger av vesentlig betydning; ikke lenger skikket etter grovt eller gjentatte brudd "
+                       "på loven eller pålegg; for konsesjon også oversittelse av frister for fremdriften"},
+    ("energiloven", "u206", "Departementet eller reguleringsmyndigheten kan trekke tilbake en konsesjon eller annen tillatelse"): {
+        "avgrensning": "uriktige eller ufullstendige opplysninger av vesentlig betydning; ikke lenger skikket etter grovt eller gjentatte brudd "
+                       "på loven eller pålegg; for konsesjon også oversittelse av frister for fremdriften"},
+    ("energiloven", "u207", "Reguleringsmyndigheten kan, uavhengig av første ledd, helt eller delvis trekke tilbake en omsetningskonsesjon etter § 4-1"): {
+        "avgrensning": "grovt eller gjentatte brudd på loven eller på avtaleloven § 38 b, markedsføringsloven og angrerettloven (opplistet i "
+                       "punktene); bare når lovbruddet gir rimelig grunn til å tro at fortsatt virksomhet kan skade sluttbrukere eller tilliten "
+                       "til strømmarkedet"},
+    ("helse-og-omsorgstjenesteloven", "u186", "Departementet kan tilbakekalle godkjenning"): {
+        "avgrensning": "når virksomheten som er tildelt godkjenningen, ikke fyller kravene som er satt i forskrift",
+        "kommentar": "[slutning] Implisitt også kompetanse til å gi godkjenning."},
+    ("spesialisthelsetjenesteloven", "u94", "Dette gjelder ikke et styremedlem som er valgt etter §§ 22 eller 23"): {
+        "undertype": "avsetting", "fra": None,
+        "+kommentar": "[#355, juristrunden] Unntaket fra avsettingen i forrige punktum («Dette» = avsettingen): undertype avsetting; fra = null "
+                      "som u93 («den som har valgt», saksforhold). Var fra = foretaksmøtet."},
+    ("spesialisthelsetjenesteloven", "u216", "kontaktpsykolog utnevnes i stedet for kontaktlege"): {
+        "undertype": "oppnevning",
+        "+kommentar": "[#355, juristrunden] Undertype oppnevning, ikke utnevning: verbet «utnevnes» står, men utnevning er embete etter Grl. "
+                      "§ 21 (beslutning 1); kontaktpsykologen er en funksjon institusjonen gir, som kontaktlegen i u215."},
+}
+
+
+def regel_10(d, kilde, endret):
+    for u in d["utsagn"]:
+        r = JURIST_RETTING.get((kilde, u["id"], u["sitat"]))
+        if r is None:
+            continue
+        for felt, verdi in r.items():
+            if felt == "+kommentar":
+                tilfoy(u, verdi)
+            elif u.get(felt) != verdi:
+                u[felt] = verdi
+                endret[f"juristrunden: {kilde} {u['id']} {felt}"] += 1
+    if kilde == "domstolloven":
+        _ny = lambda eid, sitat, **f: (None if finnes(d, eid, f["kategori"], f["type"], sitat) else f)
+        hr_mal = finn(d, "u22", "Høyesterett skal ha en direktør")
+        # u22-setningen: protokollsekretærer og utredere er samme konstruksjon (beslutning 1), jf. § 61 annet ledd.
+        s9 = "så mange protokollsekretærer og utredere som saksmengden krever"
+        if hr_mal and not finnes(d, hr_mal["eid"], "relasjon", "del_av", s9):
+            r = ny_rad(d, hr_mal, sitat=s9, kategori="relasjon", type="del_av", fra="protsekr", til="hr", avgrensning="så mange som saksmengden krever",
+                       kommentar="[#355, juristrunden] Samme «Høyesterett skal ha …»-setning som u22: G del_av (beslutning 1), jf. § 61 annet ledd. "
+                                 "Aktøren samler protokollsekretærer og utredere.")
+            endret[f"ny rad {r['id']}: domstolloven § 9 del_av (protokollsekretærer og utredere)"] += 1
+        # § 37: Høyesterett er ankeinstans for anken departementet erklærer (beslutning 4: K overprøving/anke, motpart domstolene).
+        s37 = "erklære anke til Høiesteret for at faa saksbehandlingen og avgjørelsen kjendt ugyldig"
+        mal37 = finn(d, "u102", "kan vedkommende regjeringsdepartement paa det offentliges vegne fremsætte indsigelse og erklære anke til Høiesteret")
+        if mal37 and not finnes(d, mal37["eid"], "kompetanse", "overprovingskompetanse", s37):
+            r = ny_rad(d, mal37, sitat=s37, kategori="kompetanse", type="overprovingskompetanse", undertype="anke", fra="hr", til="domstolene",
+                       objekt="saksbehandlingen og avgjørelsen i en sak som ikke hører under norsk domsmyndighet",
+                       avgrensning="anke fra departementet etter § 37; ingen tidsfrist eller ankesum", sikkerhet="hoy",
+                       kommentar="[#355, juristrunden] Høyesteretts ankekompetanse etter § 37, adskilt fra departementets ankeadgang (u102, regellaget).")
+            endret[f"ny rad {r['id']}: domstolloven § 37 overprøving/anke (Høyesterett)"] += 1
+        # § 55 f annet ledd første del: Innstillingsrådets konstitusjonskompetanse (u137 er bare Kongens del av punktumet).
+        s55f = "Beslutning om konstitusjon som nevnt i første ledd, gjøres av Innstillingsrådet for dommere"
+        mal55f = finn(d, "u137", "men av Kongen dersom konstitusjonen har lengre varighet enn ett år eller konstitusjonen gjelder Høyesterett")
+        if mal55f and not finnes(d, mal55f["eid"], "kompetanse", "oppnevningskompetanse", s55f):
+            r = ny_rad(d, mal55f, sitat=s55f, fra="innst", til="dommer", undertype="konstitusjon", objekt="konstitusjon av ny dommer (§ 55 f)",
+                       avgrensning="ny dommer (§ 55 f første ledd): ikke lengre varighet enn ett år, og ikke Høyesterett",
+                       kommentar="[#355, juristrunden] Punktumet har to regler (L13): Innstillingsrådet (denne raden) og Kongen (u137).")
+            endret[f"ny rad {r['id']}: domstolloven § 55 f annet ledd oppnevning/konstitusjon (Innstillingsrådet)"] += 1
+        # § 55 h første ledd: kort nr. 58 for midlertidige dommere (samme tre regler, avgrenset til perioden).
+        eid55h = DL + "§55h/ledd-1"
+        if not any(a["id"] == "middommer" for a in d["aktorer"]):
+            dommer = next(a for a in d["aktorer"] if a["id"] == "dommer")
+            d["aktorer"].append({**{k: dommer.get(k) for k in dommer}, "id": "middommer", "tekstform": "midlertidig dommer",
+                                 "varianter": ["midlertidige dommere", "midlertidige dommeren"], "eid_eksempler": [eid55h], "antall_forekomster": 3,
+                                 "kommentar": "[#355, juristrunden] Midlertidige dommere, «herunder dommerfullmektig og jordskiftedommerfullmektig» (§ 55 h)."})
+            endret["aktør middommer (midlertidig dommer)"] += 1
+        u122 = next(x for x in d["utsagn"] if x["id"] == "u122")
+        periode = "i den perioden konstitusjonen eller tilsettingen gjelder for"
+        for sitat, type_, undertype, avgr in [
+                ("En midlertidig dommer, herunder dommerfullmektig og jordskiftedommerfullmektig, kan ikke sies opp", "avsettingskompetanse",
+                 "oppsigelse", periode),
+                ("kan bare avskjediges etter rettergang og dom i den perioden konstitusjonen eller tilsettingen gjelder for", "avsettingskompetanse",
+                 "avskjed", "unntatt etter rettergang og dom; " + periode),
+                ("forflyttes mot sin vilje", "annet:forflytning", None, "mot sin vilje; " + periode)]:
+            if finnes(d, eid55h, "kompetanse", type_, sitat):
+                continue
+            r = ny_rad(d, u122, eid=eid55h, sitat=sitat, type=type_, til="middommer", avgrensning=avgr, sikkerhet="hoy",
+                       kommentar="[#355, juristrunden] § 55 h første ledd: samme tre regler som kort nr. 58 (§ 55 femte ledd), for midlertidige "
+                                 "dommere. Siste punktum («fratrer … uten oppsigelse eller avskjed») er at konstitusjonen opphører — ingen kant.")
+            if undertype:
+                r["undertype"] = undertype
+            endret[f"ny rad {r['id']}: domstolloven § 55 h første ledd {type_}" + (f"/{undertype}" if undertype else "")] += 1
+
 
 def tell(d):
     return collections.Counter((u["kategori"], u["type"]) for u in d["utsagn"])
@@ -314,7 +431,9 @@ for kilde in KILDER:
     if not KI:
         regel_8(d, kilde, tekster, endret)
         regel_9(d, kilde, endret)
-    regel_1(d, tekster, endret)  # sist: også de nye radene får undertype (de har den alt satt)
+    regel_1(d, tekster, endret)  # også de nye radene får undertype (de har den alt satt)
+    if not KI:
+        regel_10(d, kilde, endret)  # juristrunden etter regel 1, så en overstyrt undertype (u216) vinner
     assert len(d["utsagn"]) >= antall_for, "ingen rader skal forsvinne"
     for u in d["utsagn"]:
         if tekster and u["sitat"] not in tekster.get(u["eid"], u["sitat"]):
