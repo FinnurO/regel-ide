@@ -42,6 +42,17 @@ public class LovdataIdentifikatorerTests
         Assert.Equal("kap-3A", LovdataIdentifikatorer.KapittelEid("3A"));
     }
 
+    [Theory]
+    [InlineData(1, "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-2/ledd-2/avslutning")]
+    [InlineData(2, "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-2/ledd-2/avslutning-2")]
+    [InlineData(3, "https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-2/ledd-2/avslutning-3")]
+    public void AvslutningEid_er_avslutning_uten_suffiks_for_den_forste_og_med_lopenummer_ellers(int indeks, string forventet)
+    {
+        // [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Johanns beslutning: «{ledd-eId}/avslutning
+        // (-2, -3 … hvis flere)».
+        Assert.Equal(forventet, LovdataIdentifikatorer.AvslutningEid("https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-2/ledd-2", indeks));
+    }
+
     [Fact]
     public void Ugyldig_datokode_kaster_uten_gjettet_fallback()
     {

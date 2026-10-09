@@ -40,37 +40,62 @@ public class AlkoholforskriftenKonverteringTests
     }
 
     [Fact]
-    public void Punkt_med_flere_direkte_legalP_konkatenerer_tekst_i_dokumentrekkefolge()
+    public void Punkt_med_flere_direkte_legalP_far_teksten_etter_underlista_som_avslutning()
     {
-        // § 14-3 ledd-1 punkt-14: tekst+underliste (a/b), så en oppfølgende setning som andre legalP.
+        // § 14-3 ledd-1 punkt-14: tekst+underliste, så en oppfølgende setning som andre legalP.
+        // [ENDRET, avslutningsnode-runden, 2026-10-09, issue #361] Den oppfølgende setningen står ETTER
+        // underlista i kilden og ble før limt inn i punktets egen tekst (og dermed vist foran
+        // underpunktene). Nå er den en avslutningsnode under punktet, sortert etter underpunktene.
         var punkt14Eid = $"{ForskriftEli}/§14-3/ledd-1/punkt-14";
         var punkt14 = Resultat.Noder.Single(n => n.Eid == punkt14Eid);
         Assert.StartsWith("På hjemmesidene til produsenter og grossister", punkt14.Tekst);
-        Assert.EndsWith("Nærmere krav til innhold, utforming og plassering av opplysningene kan fastsettes av Helsedirektoratet.", punkt14.Tekst);
-        // Skjøtepunktet mellom de to legalP-blokkene skal ha nøyaktig ett mellomrom, ikke null
-        // (kildeteksten har INGEN whitespace mellom </article></ol></article> og neste <article>)
-        // og ikke to (fra dobbel mellomrom-innsetting ved både liste-hopp og legalP-skjøt).
-        Assert.Contains("vilkår: ", punkt14.Tekst);
+        Assert.DoesNotContain("Nærmere krav til innhold", punkt14.Tekst);
         Assert.DoesNotContain("  ", punkt14.Tekst);
 
-        // De to underpunktene (a/b) fra <ol type="a"> midt i teksten er egne noder under punkt-14
-        Assert.Contains(Resultat.Noder, n => n.Eid == $"{punkt14Eid}/punkt-1");
-        Assert.Contains(Resultat.Noder, n => n.Eid == $"{punkt14Eid}/punkt-2");
+        // Underpunktene fra <ol> midt i teksten er egne noder under punkt-14
+        var underpunkter = Resultat.Noder.Where(n => n.ParentEid == punkt14Eid && n.NodeType == NodeType.Punkt).ToList();
+        Assert.Equal(3, underpunkter.Count);
+
+        var avslutning = Resultat.Noder.Single(n => n.Eid == $"{punkt14Eid}/avslutning");
+        Assert.Equal(NodeType.Avslutning, avslutning.NodeType);
+        Assert.Equal(punkt14Eid, avslutning.ParentEid);
+        Assert.Equal(
+            "Nærmere krav til innhold, utforming og plassering av opplysningene kan fastsettes av Helsedirektoratet.",
+            avslutning.Tekst);
+        Assert.All(underpunkter, p => Assert.True(p.SorteringsRekkefolge < avslutning.SorteringsRekkefolge));
     }
 
     [Fact]
-    public void Tekst_etter_hoppet_over_liste_pa_leddniva_bevares_med_mellomrom()
+    public void Leddfortsettelse_etter_liste_pa_leddniva_blir_avslutningsnode()
     {
         // § 7-2 ledd-1: tekst før listen ("… herunder"), en nøstet liste, og en
-        // <p class="leddfortsettelse"> med tekst etter listen — reell case som avdekket at
-        // teksten ellers smelter sammen uten mellomrom ("herunderDet skal …").
-        var ledd = Resultat.Noder.Single(n => n.Eid == $"{ForskriftEli}/§7-2/ledd-1");
+        // <p class="leddfortsettelse"> med tekst etter listen.
+        // [ENDRET, avslutningsnode-runden, 2026-10-09, issue #361] Testen het før
+        // «Tekst_etter_hoppet_over_liste_pa_leddniva_bevares_med_mellomrom» og krevde at leddteksten var
+        // «… herunder Det skal legges vekt på …» — nettopp den sammenlimingen #361 retter. Nå har leddet
+        // bare innledningen, og fortsettelsen er en egen node etter punktene.
+        var leddEid = $"{ForskriftEli}/§7-2/ledd-1";
+        var ledd = Resultat.Noder.Single(n => n.Eid == leddEid);
         Assert.Equal(
             "Folkehelseinstituttet kan i samarbeid med Statistisk sentralbyrå bestemme hvordan offisiell " +
-            "statistikk skal utarbeides, herunder Det skal legges vekt på statistikkhensyn og på hensynet " +
-            "til de berørte parters kostnader ved innhenting av opplysninger og utarbeidelse av statistikk.",
+            "statistikk skal utarbeides, herunder",
             ledd.Tekst);
-        Assert.DoesNotContain("  ", ledd.Tekst);
+
+        var avslutning = Resultat.Noder.Single(n => n.Eid == $"{leddEid}/avslutning");
+        Assert.Equal(NodeType.Avslutning, avslutning.NodeType);
+        Assert.Equal(leddEid, avslutning.ParentEid);
+        Assert.Equal("kapittel-7-paragraf-2-ledd-1-avslutning", avslutning.KildeId);
+        Assert.Equal(
+            "Det skal legges vekt på statistikkhensyn og på hensynet til de berørte parters kostnader ved " +
+            "innhenting av opplysninger og utarbeidelse av statistikk.",
+            avslutning.Tekst);
+        Assert.Equal(LovdataIdentifikatorer.BeregnTekstHash(avslutning.Tekst!), avslutning.TekstHash);
+
+        // Rekkefølgen er innledning → punkter → avslutning, slik den står i forskriften.
+        var barn = Resultat.Noder.Where(n => n.ParentEid == leddEid).OrderBy(n => n.SorteringsRekkefolge)
+            .Select(n => n.Eid[(leddEid.Length + 1)..]).ToList();
+        Assert.Equal(["punkt-1", "punkt-2", "avslutning"], barn);
+        Assert.True(ledd.SorteringsRekkefolge < Resultat.Noder.Single(n => n.Eid == $"{leddEid}/punkt-1").SorteringsRekkefolge);
     }
 
     [Fact]

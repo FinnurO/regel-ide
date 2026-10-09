@@ -11,6 +11,16 @@ public enum NodeType
     Paragraf,
     Ledd,
     Punkt,
+
+    /// <summary>
+    /// [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Teksten som står ETTER en punktliste i et
+    /// ledd eller punkt (AKN <c>&lt;wrapUp&gt;</c>, jf. <c>listIntroduction</c>/<c>item</c>/<c>wrapUp</c>).
+    /// Før denne runden ble den limt inn i leddets egen tekst, slik at leddteksten ikke lenger var
+    /// ordrett lovtekst og avslutningen ble vist FØR lista. Johanns beslutning 2026-10-09: egen node,
+    /// eId <c>{ledd-eId}/avslutning</c> (<c>-2</c>, <c>-3</c> … ved flere lister), sortert etter punktene,
+    /// ingen plassholder i leddteksten. Se <see cref="LovdataIdentifikatorer.AvslutningEid"/>.
+    /// </summary>
+    Avslutning,
 }
 
 public static class NodeTypeExtensions
