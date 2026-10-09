@@ -567,7 +567,9 @@ public sealed record StrukturkantDto(
     // [Ny, issue #341] K-feltene, og familie/fvl-kategori fra typekonfigurasjonen.
     string? Normform, string? Grunnlag, bool? Delegerbar, bool Selvregulering, string? Familie, string? FvlKategori,
     // [Ny, issue #352] Undertypen på oppnevning (valg/ansettelse/utpeking/oppnevning) og overprøving (anke). Null = ikke angitt.
-    string? Undertype)
+    string? Undertype,
+    // [Ny, issue #353] Modaliteten på en plikt (skal/kan/bor). Null = ikke angitt.
+    string? Modalitet = null)
 {
     public static StrukturkantDto FraVisning(StrukturkantVisning v) => new(
         v.Id, v.Kategori, v.Typekode, v.Retning, v.Visningstekst,
@@ -576,7 +578,7 @@ public sealed record StrukturkantDto(
         v.HjemmelRettskildeId, v.HjemmelRettskildeTittel, v.HjemmelEid,
         v.KildeUtenforKorpusTekst, v.KildeUtenforKorpusLenke, v.KildeUtenforKorpusType, v.KildeUtenforKorpusDokumentasjon, v.GyldigFra, v.GyldigTil, v.Status, v.OppdagelsesKilde,
         v.Kommentar, v.OpprettetAv, v.OpprettetTidspunkt,
-        v.Normform, v.Grunnlag, v.Delegerbar, v.Selvregulering, v.Familie, v.FvlKategori, v.Undertype);
+        v.Normform, v.Grunnlag, v.Delegerbar, v.Selvregulering, v.Familie, v.FvlKategori, v.Undertype, v.Modalitet);
 }
 
 /// <summary>[Ny, issue #311] Rå kantfelt uten navn/visningstekst — svaret fra veiviserens kobl-til-*-endepunkter,
@@ -613,7 +615,9 @@ public sealed record StrukturkantRequest(
     // [Ny, issue #341] Bare på K: normform (bare normgivning), grunnlag og delegerbar. Null = ikke angitt.
     string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null,
     // [Ny, issue #352] Bare på K oppnevning/overproving — se StrukturkantEntitet.Undertype. Null = ikke angitt.
-    string? Undertype = null);
+    string? Undertype = null,
+    // [Ny, issue #353] Bare på P: skal | kan | bor — se StrukturkantEntitet.Modalitet. Null = ikke angitt.
+    string? Modalitet = null);
 
 /// <summary>[Ny, issue #330, 2026-10-08] PUT /api/strukturkanter/{id}/avgrensning — ERSTATTER kantens avgrensning
 /// (begge feltene; tomt/utelatt spenn og blank tekst fjerner dem). Se <c>StrukturkantTjeneste.OppdaterAvgrensningAsync</c>.</summary>
@@ -715,6 +719,26 @@ public sealed record KommuneTilhorighetDto(
             r.Kandidater.Select((navn, i) => new TilhorighetskandidatDto(r.Ider[i], navn, r.Forslag[i])).ToList())).ToList(),
         t.Overordnede, t.Ansvarlige);
 }
+
+/// <summary>[Ny, issue #353 AC5] Svaret på GET /api/omrader/kommuner/{kommunenummer}/plikter — se
+/// <see cref="OmradeOppslagTjeneste.PlikterForKommunenummerAsync"/>. <c>hull</c> er det oppslaget ikke kan avgjøre, i klartekst.</summary>
+public sealed record KommunePlikterDto(
+    OmradeVisning Kommune, StrukturnodeDto? Kommunevirksomhet, string? Type, IReadOnlyList<PliktTreffDto> Plikter, IReadOnlyList<string> Hull)
+{
+    public static KommunePlikterDto Fra(KommunePlikter p) => new(
+        p.Kommune, p.Kommunevirksomhet is null ? null : StrukturnodeDto.FraVisning(p.Kommunevirksomhet), p.Typekode,
+        p.Plikter.Select(t => new PliktTreffDto(StrukturkantDto.FraVisning(t.Kant), t.Grunnlag, t.GrunnlagHull,
+            new PliktMotpartDto(t.Motpart.Status,
+                t.Motpart.Kandidater.Select((navn, i) => new TilhorighetskandidatDto(t.Motpart.Ider[i], navn, false)).ToList(),
+                t.Motpart.Hull))).ToList(),
+        p.Hull);
+}
+
+/// <summary>[Ny, issue #353] Én plikt sett fra kommunen: <c>grunnlag</c> = direkte | medlem_av | klasse_uten_registrert_medlemskap.</summary>
+public sealed record PliktTreffDto(StrukturkantDto Kant, string Grunnlag, string? GrunnlagHull, PliktMotpartDto Motpart);
+
+/// <summary>[Ny, issue #353] <c>status</c> = konkret | entydig | ikke_entydig | mangler | ikke_angitt; <c>hull</c> sier hvorfor.</summary>
+public sealed record PliktMotpartDto(string Status, IReadOnlyList<TilhorighetskandidatDto> Kandidater, string? Hull);
 
 /// <summary>[Ny, issue #312] Én rubrikk: <c>status</c> = entydig | ikke_entydig | mangler (ved flere velges ingen).</summary>
 public sealed record TilhorighetsrubrikkDto(string Rubrikk, string Status, IReadOnlyList<TilhorighetskandidatDto> Kandidater);
@@ -830,7 +854,9 @@ public sealed record GruppebegrepRequest(Guid? LovkildeId, string Term, string? 
 public sealed record SettNodetypeRequest(string Nodetype);
 
 /// <summary>[Ny, issue #310] <c>PUT /api/virksomheter/{id}/aktortype</c> — NULL = tilbake til uavklart.</summary>
-public sealed record SettAktortypeRequest(string? Aktortype);
+/// [ENDRET, issue #353] + <c>Ordningstype</c> (trygdeordning|fond|tilskuddsordning) — bare sammen med aktørtypen <c>ordning</c>;
+/// null = ikke angitt. Settes en annen aktørtype, nullstilles ordningstypen (den finnes bare på en ordning).
+public sealed record SettAktortypeRequest(string? Aktortype, string? Ordningstype = null);
 
 public sealed record ParagrafspennParDto(string FraEid, string? TilEid);
 

@@ -158,6 +158,85 @@ public class StrukturkantEndepunktTests
         })).StatusCode);
     }
 
+    /// <summary>[Ny, issue #353] P med modalitet gjennom API-et; folketrygden som ordning (aktørtype + ordningstype) forvaltet av
+    /// et organ; og S6 «hvem har kommune X samarbeidsplikt med?» med klassen og et synlig hull.</summary>
+    [Fact]
+    public async Task P_plikt_ordning_og_S6_plikter_for_kommune()
+    {
+        var brukerId = await HentJuristIdAsync();
+        var (lovId, paragrafEid) = await OpprettRettskildeMedParagrafAsync();
+        var (folketrygden, _) = await OpprettVirksomhetAsync("Folketrygden");
+        var (hdir, hdirNavn) = await OpprettVirksomhetAsync("Helsedirektoratet");
+
+        // Ordningstype uten aktørtype ordning avvises; med går den gjennom.
+        Assert.Equal(HttpStatusCode.BadRequest, (await _client.PutAsJsonAsync($"/api/virksomheter/{folketrygden}/aktortype",
+            new { Aktortype = "organ", Ordningstype = "trygdeordning" })).StatusCode);
+        var ordning = await _client.PutAsJsonAsync($"/api/virksomheter/{folketrygden}/aktortype",
+            new { Aktortype = "ordning", Ordningstype = "trygdeordning" });
+        Assert.Equal(HttpStatusCode.OK, ordning.StatusCode);
+        var ordningDto = (await ordning.Content.ReadFromJsonAsync<VirksomhetDto>(JsonInnstillinger))!;
+        Assert.Equal(("ordning", "trygdeordning"), (ordningDto.Aktortype, ordningDto.Ordningstype));
+
+        var forvaltes = await PostKantAsync(brukerId, new
+        {
+            Kategori = "R", Typekode = "forvaltes_av", FraVirksomhetId = folketrygden, TilVirksomhetId = hdir, HjemmelRettskildeId = lovId,
+            HjemmelEid = paragrafEid, AvgrensningTekst = "folketrygdloven kapittel 5", Polaritet = "positiv",
+        });
+        Assert.Equal(HttpStatusCode.Created, forvaltes.StatusCode);
+        Assert.StartsWith($"Folketrygden", (await forvaltes.Content.ReadFromJsonAsync<StrukturkantDto>(JsonInnstillinger))!.Visningstekst);
+
+        var betaling = await PostKantAsync(brukerId, new
+        {
+            Kategori = "P", Typekode = "betaling", FraVirksomhetId = folketrygden, HjemmelRettskildeId = lovId, HjemmelEid = paragrafEid,
+            Objekt = "behandlings- og forpleiningsutgifter", Modalitet = "skal", Polaritet = "positiv",
+        });
+        Assert.Equal(HttpStatusCode.Created, betaling.StatusCode);
+        var kant = (await betaling.Content.ReadFromJsonAsync<StrukturkantDto>(JsonInnstillinger))!;
+        Assert.Equal(("P", "skal", (StrukturnodeDto?)null), (kant.Kategori, kant.Modalitet, kant.Til));
+        Assert.Contains("har betalingsplikt (skal) behandlings- og forpleiningsutgifter", kant.Visningstekst);
+        // Modalitet utenfor P avvises.
+        Assert.Equal(HttpStatusCode.BadRequest, (await PostKantAsync(brukerId, new
+        {
+            Kategori = "R", Typekode = "forvaltes_av", FraVirksomhetId = folketrygden, TilVirksomhetId = hdir, HjemmelRettskildeId = lovId,
+            Modalitet = "skal", Polaritet = "positiv",
+        })).StatusCode);
+        Assert.NotNull(hdirNavn);
+
+        // S6: kommunen som område og rettssubjekt, en avtaleplikt fra en klasse uten registrert medlemskap.
+        var kommunenummer = "T" + Guid.NewGuid().ToString("N")[..6];
+        Guid kommuneOmrade;
+        await using (var db = _fixture.NyDbContext())
+        {
+            var b = new BegrepEntitet
+            {
+                Id = Guid.NewGuid(), Begrepskategori = Nodetyper.Omrade, Omradetype = Omradetyper.Kommune, Omradekode = kommunenummer,
+                Term = $"Testkommune-{kommunenummer}", Status = "publisert", OpprettetAv = "test", OpprettetTidspunkt = DateTimeOffset.UtcNow,
+            };
+            db.Begreper.Add(b);
+            db.Virksomheter.Add(new Virksomhet { Id = Guid.NewGuid(), Navn = $"Testkommune {kommunenummer}", Kommunenummer = kommunenummer });
+            await db.SaveChangesAsync();
+            kommuneOmrade = b.Id;
+            var kommune = await db.Virksomheter.SingleAsync(v => v.Kommunenummer == kommunenummer);
+            await new StrukturkantTjeneste(db).OpprettAsync(new NyStrukturkant("A", "har_ansvarsomrade", Kantnode.Virksomhet(kommune.Id),
+                Kantnode.Begrep(b.Id), HjemmelRettskildeId: lovId, HjemmelEid: paragrafEid), "test");
+        }
+        var kommunen = await OpprettBegrepAsync(brukerId, lovId, Nodetyper.Klasse, "kommunen");
+        var rhf = await OpprettBegrepAsync(brukerId, lovId, Nodetyper.Klasse, "det regionale helseforetaket i helseregionen");
+        Assert.Equal(HttpStatusCode.Created, (await PostKantAsync(brukerId, new
+        {
+            Kategori = "P", Typekode = "avtale", FraBegrepId = kommunen.Id, TilBegrepId = rhf.Id, HjemmelRettskildeId = lovId,
+            HjemmelEid = paragrafEid, Modalitet = "skal", Polaritet = "positiv",
+        })).StatusCode);
+
+        var plikter = await _client.GetFromJsonAsync<KommunePlikterDto>($"/api/omrader/kommuner/{kommunenummer}/plikter?type=avtale", JsonInnstillinger);
+        Assert.Equal(kommuneOmrade, plikter!.Kommune.Id);
+        var treff = Assert.Single(plikter.Plikter, t => t.Kant.Fra.Id == kommunen.Id);
+        Assert.Equal(("klasse_uten_registrert_medlemskap", "mangler"), (treff.Grunnlag, treff.Motpart.Status));
+        Assert.Contains("#340", treff.Motpart.Hull);
+        Assert.Equal(HttpStatusCode.BadRequest, (await _client.GetAsync($"/api/omrader/kommuner/{kommunenummer}/plikter?type=mote")).StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync("/api/omrader/kommuner/XXXX/plikter")).StatusCode);
+    }
+
     // ---------------- Opprett og les per node / per kategori ----------------
 
     [Fact]
