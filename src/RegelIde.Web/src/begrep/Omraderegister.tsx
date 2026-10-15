@@ -73,7 +73,7 @@ function SamletGodkjenning({ kanter, onGodkjent }: { kanter: StrukturkantDto[]; 
   const [bekreft, setBekreft] = useState<string | null>(null);
   const [melding, setMelding] = useState<string | null>(null);
   const [feil, setFeil] = useState<string | null>(null);
-  const hjemler = new Set(kanter.filter((k) => k.status === 'foreslatt_av_ai' && k.hjemmelRettskildeId
+  const hjemler = new Set(kanter.filter((k) => k.status === 'maskinelt_foreslatt' && k.hjemmelRettskildeId
     && k.oppdagelsesKilde.startsWith('monster:')).map((k) => k.hjemmelRettskildeId!));
   useEffect(() => {
     if (hjemler.size === 0) return;

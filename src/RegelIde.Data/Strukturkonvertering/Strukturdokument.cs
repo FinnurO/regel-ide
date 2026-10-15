@@ -107,10 +107,27 @@ public sealed record StrukturUtsagn(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Grunnlag { get; init; }
 
-    /// <summary>[Ny, issue #341/#335] Kan kompetansen delegeres (FORMAT.md)? Utelatt når null.</summary>
-    [JsonPropertyName("delegerbar")]
+    /// <summary>[ENDRET, issue #367 / #335] Erstatter <c>delegerbar</c>: delegeringsadgangen ETTER TEKSTEN (FORMAT.md) —
+    /// uttrykkelig_tillatt | uttrykkelig_forbudt | ikke_regulert. Bare på kompetanse. Utelatt når null (ikke vurdert).</summary>
+    [JsonPropertyName("delegeringsadgang")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-    public bool? Delegerbar { get; init; }
+    public string? Delegeringsadgang { get; init; }
+
+    /// <summary>[Ny, issue #367 / #335] Slutning etter alminnelige regler, alltid merket slutning: trolig_delegerbar |
+    /// trolig_ikke_delegerbar. Bare når delegeringsadgang = ikke_regulert. Utelatt når null.</summary>
+    [JsonPropertyName("delegering_slutning")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? DelegeringSlutning { get; init; }
+
+    /// <summary>[Ny, issue #367] Hvordan utsagnet er kommet fram (FORMAT.md, docs/profil/03 §5). Utelatt når null (ikke vurdert).</summary>
+    [JsonPropertyName("kunnskapsstatus")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Kunnskapsstatus { get; init; }
+
+    /// <summary>[Ny, issue #367] Begrunnelsen for kunnskapsstatusen — for normalisering regelen som er brukt. Utelatt når null.</summary>
+    [JsonPropertyName("begrunnelse")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public string? Begrunnelse { get; init; }
 
     /// <summary>
     /// [Ny, issue #312, 2026-10-08] Hvem som har verifisert/rettet raden i fasiten — første bruk er Johanns systemiske

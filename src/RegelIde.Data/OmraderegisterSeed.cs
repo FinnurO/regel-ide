@@ -381,7 +381,7 @@ public static class OmraderegisterSeed
 
         var gamle = await t.Db.Strukturkanter
             .Where(k => k.HjemmelRettskildeId == forskriftId && k.OpprettetAv == OpprettetAv && k.SistEndretAv == null
-                        && k.Status == "validert")
+                        && k.Status == Strukturkanter.Godkjent)
             .ToListAsync(ct);
         var lagdommeIder = lagdommeOmrade.Values.Select(b => b.Id).ToHashSet();
         foreach (var k in gamle)
@@ -573,7 +573,7 @@ public static class OmraderegisterSeed
         // lagres som FORSLAG og godkjennes samlet av et menneske (StrukturkantTjeneste.GodkjennAlleForHjemmelAsync,
         // docs/33 §5.3). Registerkanter (kildetype register: Kartverket, Enhetsregisteret, SSR) og de kuraterte filene
         // (lest av et menneske, kilden oppgitt) lagres som validert: de er data fra en kilde, ikke tolket lovtekst.
-        var status = oppdagelseskilde.StartsWith("monster:", StringComparison.Ordinal) ? "foreslatt_av_ai" : "validert";
+        var status = oppdagelseskilde.StartsWith("monster:", StringComparison.Ordinal) ? Strukturkanter.MaskineltForeslatt : Strukturkanter.Godkjent;
         var opprettet = await t.Kanter.OpprettAsync(ny with { OppdagelsesKilde = oppdagelseskilde, Status = status }, OpprettetAv, ct);
         t.Kantnokler.Add(nokkel);
         if (opprettet.VarNy) t.NyeKanter++;

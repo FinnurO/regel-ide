@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Alert, Button, Card, Field, Label, Radio, Select, Textfield } from '@digdir/designsystemet-react';
 import { ApiError, api } from '../api/client';
-import type { Aktortype, KildeUtenforKorpusDokumentasjon, KildeUtenforKorpusType, Kompetansegrunnlag, Kompetanseundertype, Normform, RelasjonsTypeKonfigurasjonDto, RettskildeSammendrag, StrukturkantDto, VirksomhetDto } from '../api/types';
+import type { Aktortype, KildeUtenforKorpusDokumentasjon, KildeUtenforKorpusType, Kompetansegrunnlag, Kompetanseundertype, Normform, RelasjonsTypeKonfigurasjonDto, RettskildeSammendrag, StrukturkantDto, VirksomhetDto, Delegeringsadgang, DelegeringSlutning } from '../api/types';
 import { FAMILIE_VISNING } from '../strukturkant/StrukturkantTabell';
 import { MODALITETER, modalitetFraValg, ordningKanVaereMotpart, pliktValgtekst, typerForAktortype } from '../strukturkant/plikt';
 import { KildeUtenforKorpusVelger } from '../strukturkant/KildeUtenforKorpus';
@@ -99,7 +99,9 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
   // [Ny, issue #341] Bare for K-typer.
   const [normform, setNormform] = useState<Normform | ''>('');
   const [grunnlag, setGrunnlag] = useState<Kompetansegrunnlag | ''>('');
-  const [delegerbar, setDelegerbar] = useState<'' | 'ja' | 'nei'>('');
+  // [ENDRET, issue #367 / #335] Delegeringsadgang etter teksten + slutning (bare når teksten ikke regulerer det).
+  const [delegeringsadgang, setDelegeringsadgang] = useState<Delegeringsadgang | ''>('');
+  const [delegeringSlutning, setDelegeringSlutning] = useState<DelegeringSlutning | ''>('');
   // [Ny, issue #352] Bare for K-typer som har undertyper (UNDERTYPER).
   const [undertype, setUndertype] = useState<Kompetanseundertype | ''>('');
   // [Ny, issue #353] Bare for P-typer. '' = ikke angitt (null).
@@ -147,7 +149,8 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
         kategori: valgtKategori ?? 'R', typekode: valgtKode, fraVirksomhetId: virksomhetId, tilVirksomhetId: tilVirksomhetId || null, polaritet,
         normform: erKompetanse && valgtKode === 'normgivning' && normform ? normform : null,
         grunnlag: erKompetanse && grunnlag ? grunnlag : null,
-        delegerbar: erKompetanse && delegerbar ? delegerbar === 'ja' : null,
+        delegeringsadgang: erKompetanse && delegeringsadgang ? delegeringsadgang : null,
+        delegeringSlutning: erKompetanse && delegeringsadgang === 'ikke_regulert' && delegeringSlutning ? delegeringSlutning : null,
         undertype: undertyper && undertyper.some((u) => u.verdi === undertype) ? (undertype as Kompetanseundertype) : null,
         // [Ny, issue #353] Bare på P — serveren avviser modalitet på andre kategorier.
         modalitet: erPlikt ? modalitetFraValg(modalitet) : null,
@@ -170,7 +173,8 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
       setAvgrensning('');
       setNormform('');
       setGrunnlag('');
-      setDelegerbar('');
+      setDelegeringsadgang('');
+      setDelegeringSlutning('');
       setUndertype('');
       setModalitet('');
       setObjekt('');
@@ -266,13 +270,24 @@ export function LeggTilVirksomhetRelasjonForm({ virksomhetId, virksomheter, rett
             </Select>
           </Field>
           <Field data-size="sm" style={{ minWidth: '12rem' }}>
-            <Label>Kan delegeres?</Label>
-            <Select data-size="sm" value={delegerbar} onChange={(e) => setDelegerbar(e.target.value as '' | 'ja' | 'nei')}>
-              <Select.Option value="">Ikke angitt</Select.Option>
-              <Select.Option value="ja">Ja («Kongen …»)</Select.Option>
-              <Select.Option value="nei">Nei («Kongen i statsråd …», «… selv»)</Select.Option>
+            <Label>Delegering etter teksten</Label>
+            <Select data-size="sm" value={delegeringsadgang} onChange={(e) => setDelegeringsadgang(e.target.value as Delegeringsadgang | '')}>
+              <Select.Option value="">Ikke vurdert</Select.Option>
+              <Select.Option value="uttrykkelig_tillatt">Uttrykkelig tillatt («kan delegere»)</Select.Option>
+              <Select.Option value="uttrykkelig_forbudt">Uttrykkelig forbudt («kan ikke delegeres», «… selv»)</Select.Option>
+              <Select.Option value="ikke_regulert">Ikke regulert (teksten sier ingenting)</Select.Option>
             </Select>
           </Field>
+          {delegeringsadgang === 'ikke_regulert' && (
+            <Field data-size="sm" style={{ minWidth: '12rem' }}>
+              <Label>Slutning etter alminnelige regler</Label>
+              <Select data-size="sm" value={delegeringSlutning} onChange={(e) => setDelegeringSlutning(e.target.value as DelegeringSlutning | '')}>
+                <Select.Option value="">Ingen slutning</Select.Option>
+                <Select.Option value="trolig_delegerbar">Trolig delegerbar («Kongen» uten «i statsråd»)</Select.Option>
+                <Select.Option value="trolig_ikke_delegerbar">Trolig ikke delegerbar («Kongen i statsråd»)</Select.Option>
+              </Select>
+            </Field>
+          )}
         </div>
       )}
 

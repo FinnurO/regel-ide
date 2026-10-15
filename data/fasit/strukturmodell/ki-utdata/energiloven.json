@@ -637,7 +637,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u2",
@@ -654,7 +655,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u3",
@@ -670,9 +672,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u4",
@@ -706,7 +709,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u6",
@@ -723,7 +727,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u7",
@@ -740,7 +745,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u8",
@@ -757,7 +763,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u9",
@@ -792,7 +799,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u11",
@@ -809,7 +817,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u12",
@@ -844,7 +853,8 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u14",
@@ -862,7 +872,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u15",
@@ -879,7 +890,8 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "middels",
       "kommentar": "Subjektet er konsesjonsmyndigheten implisitt.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u16",
@@ -896,7 +908,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u17",
@@ -913,7 +926,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u18",
@@ -930,7 +944,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u19",
@@ -946,10 +961,9 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann). Før #367: delegerbar = false.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift",
-      "delegerbar": false
+      "normform": "forskrift"
     },
     {
       "id": "u20",
@@ -966,7 +980,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u21",
@@ -984,7 +999,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u22",
@@ -1002,7 +1018,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u23",
@@ -1036,7 +1053,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u25",
@@ -1089,7 +1107,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u28",
@@ -1107,7 +1126,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u29",
@@ -1124,7 +1144,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u30",
@@ -1141,7 +1162,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u31",
@@ -1158,7 +1180,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Godkjenningskompetanse for konsesjonsmyndigheten.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u32",
@@ -1175,7 +1198,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u33",
@@ -1192,7 +1216,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": "Konsesjonsmyndigheten er ikke ytterligere spesifisert.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u34",
@@ -1209,7 +1234,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": "Plikten gjelder også for anleggskonsesjonærer.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u35",
@@ -1226,7 +1252,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": "Vedtaket er begrenset til visse begunstigede.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u36",
@@ -1259,10 +1286,11 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u38",
@@ -1279,7 +1307,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u39",
@@ -1296,7 +1325,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u40",
@@ -1313,7 +1343,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u41",
@@ -1330,7 +1361,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u42",
@@ -1347,7 +1379,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u43",
@@ -1364,7 +1397,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u44",
@@ -1381,7 +1415,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u45",
@@ -1399,7 +1434,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u46",
@@ -1417,7 +1453,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u47",
@@ -1434,7 +1471,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u48",
@@ -1468,7 +1506,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u50",
@@ -1485,7 +1524,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u51",
@@ -1502,7 +1542,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u52",
@@ -1520,7 +1561,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u53",
@@ -1571,7 +1613,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u56",
@@ -1589,7 +1632,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u57",
@@ -1606,7 +1650,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u58",
@@ -1623,7 +1668,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u59",
@@ -1641,7 +1687,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u60",
@@ -1658,7 +1705,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u61",
@@ -1675,7 +1723,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u62",
@@ -1693,7 +1742,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u63",
@@ -1710,7 +1760,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u64",
@@ -1727,7 +1778,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u65",
@@ -1761,7 +1813,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u67",
@@ -1778,7 +1831,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u68",
@@ -1796,7 +1850,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u69",
@@ -1848,7 +1903,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u72",
@@ -1865,7 +1921,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u73",
@@ -1883,7 +1940,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u74",
@@ -1934,7 +1992,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u77",
@@ -1951,7 +2010,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u78",
@@ -1969,7 +2029,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u79",
@@ -2038,7 +2099,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u83",
@@ -2055,7 +2117,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u84",
@@ -2073,7 +2136,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u85",
@@ -2090,7 +2154,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u86",
@@ -2107,7 +2172,8 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u87",
@@ -2141,7 +2207,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u89",
@@ -2211,7 +2278,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u93",
@@ -2246,7 +2314,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u95",
@@ -2264,7 +2333,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u96",
@@ -2281,7 +2351,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u97",
@@ -2298,7 +2369,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u98",
@@ -2367,7 +2439,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u102",
@@ -2385,7 +2458,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u103",
@@ -2402,7 +2476,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u104",
@@ -2420,7 +2495,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u105",
@@ -2437,7 +2513,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u106",
@@ -2454,7 +2531,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u107",
@@ -2471,7 +2549,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u108",
@@ -2488,7 +2567,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u109",
@@ -2522,7 +2602,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u111",
@@ -2539,7 +2620,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u112",
@@ -2556,7 +2638,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u113",
@@ -2573,7 +2656,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u114",
@@ -2591,7 +2675,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u115",
@@ -2608,7 +2693,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u116",
@@ -2625,7 +2711,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "lav",
       "kommentar": "Hvem som gir fornyet konsesjon er ikke uttrykkelig angitt, men må være departementet ved konsesjonsmyndighet; aktøren er derfor null.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u117",
@@ -2642,7 +2729,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u118",
@@ -2659,7 +2747,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u119",
@@ -2676,7 +2765,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "lav",
       "kommentar": "Det offentlige er ikke nærmere identifisert i teksten.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u120",
@@ -2694,7 +2784,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u121",
@@ -2712,7 +2803,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u122",
@@ -2746,7 +2838,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Den systemansvarlige kan gi instrukser til nærmere angitte aktører.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u124",
@@ -2763,7 +2856,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u125",
@@ -2781,7 +2875,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u126",
@@ -2816,7 +2911,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u128",
@@ -2834,7 +2930,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u129",
@@ -2852,7 +2949,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u130",
@@ -2870,7 +2968,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u131",
@@ -2888,7 +2987,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u132",
@@ -2905,7 +3005,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u133",
@@ -2923,7 +3024,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u134",
@@ -2940,7 +3042,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u135",
@@ -2958,7 +3061,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u136",
@@ -2976,7 +3080,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u137",
@@ -2994,7 +3099,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u138",
@@ -3011,7 +3117,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u139",
@@ -3029,7 +3136,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u140",
@@ -3047,7 +3155,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u141",
@@ -3065,7 +3174,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u142",
@@ -3083,7 +3193,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u143",
@@ -3100,7 +3211,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u144",
@@ -3118,7 +3230,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u145",
@@ -3153,7 +3266,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u147",
@@ -3170,7 +3284,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u148",
@@ -3187,7 +3302,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u149",
@@ -3204,7 +3320,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u150",
@@ -3222,7 +3339,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u151",
@@ -3274,7 +3392,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u154",
@@ -3291,7 +3410,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u155",
@@ -3309,7 +3429,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u156",
@@ -3326,7 +3447,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u157",
@@ -3343,7 +3465,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u158",
@@ -3360,7 +3483,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u159",
@@ -3377,7 +3501,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u160",
@@ -3395,7 +3520,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u161",
@@ -3413,7 +3539,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u162",
@@ -3430,7 +3557,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u163",
@@ -3448,7 +3576,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u164",
@@ -3465,7 +3594,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u165",
@@ -3483,7 +3613,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "undertype": "tilbakekall"
+      "undertype": "tilbakekall",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u166",
@@ -3500,7 +3631,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u167",
@@ -3518,7 +3650,8 @@
       "sikkerhet": "hoy",
       "kommentar": "Gjelder også reguleringsmyndigheten i første punktum",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "undertype": "tilbakekall"
+      "undertype": "tilbakekall",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u168",
@@ -3536,7 +3669,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "undertype": "tilbakekall"
+      "undertype": "tilbakekall",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u169",
@@ -3554,7 +3688,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u170",
@@ -3571,7 +3706,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u171",
@@ -3588,7 +3724,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u172",
@@ -3605,7 +3742,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u173",
@@ -3623,7 +3761,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u174",
@@ -3641,7 +3780,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u175",
@@ -3659,7 +3799,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u176",
@@ -3677,7 +3818,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u177",
@@ -3694,7 +3836,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u178",
@@ -3711,7 +3854,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u179",
@@ -3729,7 +3873,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u180",
@@ -3746,7 +3891,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u181",
@@ -3763,7 +3909,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u182",
@@ -3781,7 +3928,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u183",
@@ -3798,7 +3946,8 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u184",
@@ -3831,9 +3980,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u186",
@@ -3849,9 +3999,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u187",
@@ -3867,9 +4018,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": false
+      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann). Før #367: delegerbar = false.",
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u188",
@@ -3937,7 +4087,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "middels",
-      "kommentar": "Forskriftene fortsetter å gjelde; implisitt myndighet.",
+      "kommentar": "Forskriftene fortsetter å gjelde; implisitt myndighet. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift"
     },
@@ -4008,8 +4158,7 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "middels",
       "kommentar": "Unntatt fra delegering; Kongen i statsråd beholder kompetansen.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": false
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u196",
@@ -4145,7 +4294,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u205",
@@ -4162,7 +4312,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u206",
@@ -4179,7 +4330,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u207",
@@ -4195,7 +4347,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -4212,7 +4364,7 @@
       "betinget": null,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "middels",
-      "kommentar": "Delegering fra departementet; Kongen i statsråd har gitt konsesjonene.",
+      "kommentar": "Delegering fra departementet; Kongen i statsråd har gitt konsesjonene. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {

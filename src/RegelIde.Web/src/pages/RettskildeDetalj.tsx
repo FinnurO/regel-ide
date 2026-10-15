@@ -915,7 +915,7 @@ export default function RettskildeDetalj() {
       items: strukturkanter.map((r) => {
         const kategori = STRUKTURKANT_KATEGORI_VISNING[r.kategori]?.tekst ?? r.kategori;
         const negativ = r.polaritet === 'negativ' ? ' (negativ)' : '';
-        const forslag = r.status === 'foreslatt_av_ai' ? ' [forslag]' : '';
+        const forslag = r.status !== 'godkjent' ? ' [forslag]' : '';
         // Paragrafen alene, ikke `tilEidVisning`: vi ER på denne lovens side, så lovtittelen er
         // støy — og `eidVisningstekst` ville dessuten gitt leddnummeret som paragrafnummer.
         const eid = r.hjemmelEid ?? r.paragrafspenn[0]?.fraEid ?? null;

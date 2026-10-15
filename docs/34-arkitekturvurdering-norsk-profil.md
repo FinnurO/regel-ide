@@ -1,6 +1,7 @@
 # 34 · Arkitekturvurdering: Regel-IDE mot forslag til norsk profil
 
-**Status:** Vurdering og forslag, 15. oktober 2026. Ikke besluttet. Ingenting er bygget.
+**Status:** Vurdering og forslag, 15. oktober 2026. [ENDRET 2026-10-15] **Punkt 1–3 (§3–5) er under bygging i #367** (sammen med #335,
+én migrasjon, Johanns beslutning 2026-10-15) — se docs/33 §4.6. Punkt 4 og 5 er ikke besluttet.
 
 **Grunnlag:**
 - `docs/profil/00-grunnlagsdokument.md` (Johanns standardforslag, revidert 9.10.2026),

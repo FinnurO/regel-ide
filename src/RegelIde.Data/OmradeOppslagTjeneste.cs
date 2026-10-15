@@ -33,7 +33,11 @@ public sealed record KommuneTilhorighet(
 /// <summary>[Ny, issue #353] Motparten til en plikt sett fra én kommune. <see cref="Status"/>: <c>konkret</c> (til er en
 /// virksomhet) | <c>entydig</c> (klasse/rolle løst til ett medlem via område) | <c>ikke_entydig</c> | <c>mangler</c> |
 /// <c>ikke_angitt</c> (teksten sier ikke hvem). <see cref="Hull"/> sier hvorfor når den ikke er løst.</summary>
-public sealed record PliktMotpart(string Status, IReadOnlyList<string> Kandidater, IReadOnlyList<Guid> Ider, string? Hull);
+public sealed record PliktMotpart(string Status, IReadOnlyList<string> Kandidater, IReadOnlyList<Guid> Ider, string? Hull)
+{
+    /// <summary>[Ny, issue #367 AC7] Kantene oppløsningen bygger på (medlemskap/rolleinnehav og ansvarsområde) — premisser.</summary>
+    public IReadOnlyList<Guid> KantIder { get; init; } = [];
+}
 
 /// <summary>[Ny, issue #353] Én plikt som gjelder (eller kan gjelde) kommunen. <see cref="Grunnlag"/>: <c>direkte</c> |
 /// <c>medlem_av</c> | <c>klasse_uten_registrert_medlemskap</c> (da sier <see cref="GrunnlagHull"/> hvorfor det ikke er avgjort).</summary>
@@ -42,6 +46,14 @@ public sealed record PliktTreff(StrukturkantVisning Kant, string Grunnlag, strin
     /// <summary>[Ny, issue #353] <c>kommunen_skal</c> (kommunen er pliktsubjektet) | <c>overfor_kommunen</c> (andre har plikten
     /// overfor kommunen). <see cref="Grunnlag"/> og <see cref="GrunnlagHull"/> gjelder kommunens ende; <see cref="Motpart"/> den andre.</summary>
     public string Retning { get; init; } = OmradeOppslagTjeneste.KommuneSkal;
+
+    /// <summary>[Ny, issue #367 AC7, docs/34 §4] <c>avledet</c> når svaret bygger på mer enn den ene lagrede plikten (medlemskap i en
+    /// klasse, oppløsning av motparten via område) — da med alle <see cref="Premisser"/>. Null: svaret er den lagrede kanten selv, og
+    /// dens egen kunnskapsstatus gjelder. Avledede svar lagres ikke (#345).</summary>
+    public string? Kunnskapsstatus { get; init; }
+
+    /// <summary>[Ny, issue #367 AC7] Id-ene til kantene svaret bygger på (pliktkanten først).</summary>
+    public IReadOnlyList<Guid> Premisser { get; init; } = [];
 }
 
 /// <summary>[Ny, issue #355] Én K overprøving/anke-kant som gjelder domstolen: hvorfor den gjelder (<see cref="Grunnlag"/>:
@@ -53,6 +65,9 @@ public sealed record AnkeinstansTreff(StrukturkantVisning Kant, string Grunnlag,
     /// selv, eller (for en instans som er en virksomhet) kjeden domstol → lagsogn → lagdømme ← instans. Domstolkantene fra
     /// inndelingsforskriften er forslag til de er godkjent (#312) — samme merking som tilhørigheten.</summary>
     public bool Forslag { get; init; }
+
+    /// <summary>[Ny, issue #367 AC7] Id-ene til kantene paret bygger på: anke-kanten, domstolens områdekjede og instansens ansvarsområde.</summary>
+    public IReadOnlyList<Guid> Premisser { get; init; } = [];
 }
 
 /// <summary>[Ny, issue #355 AC4] Svaret på «hvem er ankeinstans for X?». <see cref="Status"/> (entydig | ikke_entydig | mangler) og
@@ -60,7 +75,15 @@ public sealed record AnkeinstansTreff(StrukturkantVisning Kant, string Grunnlag,
 /// til en klasse uten registrert medlemskap står i <see cref="Kanter"/> med hullet, men teller ikke.</summary>
 public sealed record AnkeinstansSvar(
     KantnodeVisning Domstol, string Status, IReadOnlyList<string> Kandidater, IReadOnlyList<Guid> Ider, IReadOnlyList<bool> Forslag,
-    IReadOnlyList<AnkeinstansTreff> Kanter, IReadOnlyList<OmradeVisning> Omrader, IReadOnlyList<string> Hull);
+    IReadOnlyList<AnkeinstansTreff> Kanter, IReadOnlyList<OmradeVisning> Omrader, IReadOnlyList<string> Hull)
+{
+    /// <summary>[Ny, issue #367 AC7, docs/34 §4] Alltid <c>avledet</c>: paret lagmannsrett ↔ tingrett regnes ut og lagres ikke (#345, #355).</summary>
+    public string Kunnskapsstatus { get; init; } = Strukturkanter.Avledet;
+
+    /// <summary>[Ny, issue #367 AC7] Id-ene til kantene de sikre kandidatene bygger på (unionen av treffenes premisser). Tom når status er
+    /// <c>mangler</c>.</summary>
+    public IReadOnlyList<Guid> Premisser { get; init; } = [];
+}
 
 /// <summary>[Ny, issue #353 AC5] Svaret på «hvem har kommune X (samarbeids)plikt med?».</summary>
 public sealed record KommunePlikter(
@@ -118,7 +141,7 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
         // som «sogner til» et område: tingretten har ansvarsområde til kommunen (§§ 2–9) og sogner til lagsognet
         // (§§ 11–16), så kommunen inngår i lagsognet. Kjeden er kommune ← tingrett → lagsogn → lagdømme. Ingenting av
         // dette lagres som kant lagsogn → kommune; det er utledet her fra det forskriften faktisk sier.
-        var foreldrekanter = oKanter.Select(k => (Barn: k.TilBegrepId!.Value, Forelder: k.FraBegrepId!.Value, Validert: k.Status == "validert"))
+        var foreldrekanter = oKanter.Select(k => (Barn: k.TilBegrepId!.Value, Forelder: k.FraBegrepId!.Value, Validert: k.Status == Strukturkanter.Godkjent))
             .Concat(await AvledetGjennomSognerTilAsync(ct)).ToList();
         var foreldre = foreldrekanter.GroupBy(k => k.Barn).ToDictionary(g => g.Key, g => g.Select(k => k.Forelder).ToList());
         var overordnedeIder = new List<Guid>();
@@ -157,7 +180,7 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
         var visninger = (await kanttjeneste.ByggVisningerAsync(aKanter, perspektiv: null, ct)).ToDictionary(v => v.Id);
         var ansvarlige = aKanter
             .Select(k => new AnsvarligAktor(k.FraVirksomhetId!.Value, visninger[k.Id].Fra.Navn, k.Typekode, omrader[k.TilBegrepId!.Value], k.Id,
-                k.Status != "validert" || !validertSett.Contains(k.TilBegrepId!.Value)))
+                k.Status != Strukturkanter.Godkjent || !validertSett.Contains(k.TilBegrepId!.Value)))
             .OrderBy(a => a.Via.Omradetype == Omradetyper.Kommune ? 0 : 1).ThenBy(a => a.Navn, StringComparer.Ordinal)
             .ToList();
 
@@ -246,6 +269,8 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
         var mKanter = await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
             .Where(k => k.Kategori == Strukturkanter.Medlemskap && k.TilBegrepId != null).ToListAsync(ct), ct);
         var medlemAv = new HashSet<Guid>();
+        // [Ny, issue #367 AC7] Kjeden bak hvert medlemskap: klassen → M-kanten som ga den, og klassen den kom fra (premissene).
+        var medlemKant = new Dictionary<Guid, (Guid Kant, Guid? Forrige)>();
         var ko = new Queue<(Guid? V, Guid? B)>();
         if (kommuneVirksomhet is { } kv) ko.Enqueue((kv, null));
         ko.Enqueue((null, tilhorighet.Kommune.Id));
@@ -254,8 +279,18 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
             var (v, b) = ko.Dequeue();
             foreach (var k in mKanter.Where(k => (v != null && k.FraVirksomhetId == v) || (b != null && k.FraBegrepId == b)))
             {
-                if (medlemAv.Add(k.TilBegrepId!.Value)) ko.Enqueue((null, k.TilBegrepId));
+                if (medlemAv.Add(k.TilBegrepId!.Value))
+                {
+                    medlemKant[k.TilBegrepId.Value] = (k.Id, b is { } fb && medlemKant.ContainsKey(fb) ? fb : null);
+                    ko.Enqueue((null, k.TilBegrepId));
+                }
             }
+        }
+        List<Guid> Medlemskjede(Guid? klasse)
+        {
+            var kjede = new List<Guid>();
+            while (klasse is { } c && medlemKant.TryGetValue(c, out var ledd)) { kjede.Add(ledd.Kant); klasse = ledd.Forrige; }
+            return kjede;
         }
 
         var pKanter = await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
@@ -301,7 +336,17 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
             var motpart = retning == KommuneSkal
                 ? await MotpartAsync(kant.TilVirksomhetId, kant.TilBegrepId, visning.Til?.Navn, dekker, ct)
                 : await MotpartAsync(kant.FraVirksomhetId, kant.FraBegrepId, visning.Fra.Navn, dekker, ct);
-            treff.Add(new PliktTreff(visning, grunnlag, grunnlagHull, motpart) { Retning = retning });
+            var kommuneBegrep = retning == KommuneSkal ? kant.FraBegrepId : kant.TilBegrepId;
+            var premisser = new List<Guid> { kant.Id };
+            if (grunnlag == "medlem_av") premisser.AddRange(Medlemskjede(kommuneBegrep));
+            premisser.AddRange(motpart.KantIder);
+            premisser = premisser.Distinct().ToList();
+            treff.Add(new PliktTreff(visning, grunnlag, grunnlagHull, motpart)
+            {
+                Retning = retning,
+                Kunnskapsstatus = premisser.Count > 1 ? Strukturkanter.Avledet : null,
+                Premisser = premisser,
+            });
         }
         var kommunenode = kommuneVirksomhet is not { } kvId ? null
             : new KantnodeVisning("virksomhet", kvId, kommuneRubrikk.Kandidater[0],
@@ -351,23 +396,34 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
             .Where(k => k.Kategori == Strukturkanter.Omradesammensetning && k.FraBegrepId != null && k.TilBegrepId != null)
             .ToListAsync(ct), ct);
         var foreldre = oKanter.GroupBy(k => k.TilBegrepId!.Value).ToDictionary(g => g.Key, g => g.Select(k => k.FraBegrepId!.Value).ToList());
+        // [Ny, issue #367 AC7] Hvordan hvert område ble nådd (kanten og området før), så premissene for et par er bare KJEDEN fra
+        // domstolens egen A-kant opp til området instansen har ansvar for — ikke alle kommunene tingretten dekker.
+        var oKantPerBarn = oKanter.GroupBy(k => k.TilBegrepId!.Value).ToDictionary(g => g.Key, g => g.ToList());
+        var naadd = new Dictionary<Guid, (Guid Kant, Guid? Forrige)>();
         var dekker = new HashSet<Guid>();
-        var ko = new Queue<Guid>(egneA.Select(k => k.TilBegrepId!.Value));
+        var ko = new Queue<(Guid Omrade, Guid Kant, Guid? Forrige)>(egneA.Select(k => (k.TilBegrepId!.Value, k.Id, (Guid?)null)));
         while (ko.Count > 0)
         {
-            var o = ko.Dequeue();
+            var (o, kantId, forrige) = ko.Dequeue();
             if (!dekker.Add(o)) continue;
-            foreach (var f in foreldre.GetValueOrDefault(o) ?? []) ko.Enqueue(f);
+            naadd[o] = (kantId, forrige);
+            foreach (var k in oKantPerBarn.GetValueOrDefault(o) ?? []) ko.Enqueue((k.FraBegrepId!.Value, k.Id, o));
+        }
+        List<Guid> Omradekjede(Guid omrade)
+        {
+            var kjede = new List<Guid>();
+            for (Guid? o = omrade; o is { } x && naadd.TryGetValue(x, out var ledd); o = ledd.Forrige) kjede.Add(ledd.Kant);
+            return kjede;
         }
         if (dekker.Count == 0)
         {
             hull.Add($"«{domstol.Navn}» har ingen registrerte områder (ansvarsområde eller lagsogn) — en ankeinstans med ansvarsområde kan ikke pares.");
         }
         // [Ny, kaldtesten] Samme traversering over bare validerte kanter — områder som bare nås via et forslag.
-        var validerteForeldre = oKanter.Where(k => k.Status == "validert").GroupBy(k => k.TilBegrepId!.Value)
+        var validerteForeldre = oKanter.Where(k => k.Status == Strukturkanter.Godkjent).GroupBy(k => k.TilBegrepId!.Value)
             .ToDictionary(g => g.Key, g => g.Select(k => k.FraBegrepId!.Value).ToList());
         var validertDekker = new HashSet<Guid>();
-        var vko = new Queue<Guid>(egneA.Where(k => k.Status == "validert").Select(k => k.TilBegrepId!.Value));
+        var vko = new Queue<Guid>(egneA.Where(k => k.Status == Strukturkanter.Godkjent).Select(k => k.TilBegrepId!.Value));
         while (vko.Count > 0)
         {
             var o = vko.Dequeue();
@@ -381,13 +437,14 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
         var mKanter = await kanttjeneste.FiltrerGjeldendeAsync(await db.Strukturkanter
             .Where(k => k.Kategori == Strukturkanter.Medlemskap && k.TilBegrepId != null).ToListAsync(ct), ct);
         var medlemAv = new HashSet<Guid>();
+        var medlemPremisser = new HashSet<Guid>(); // [Ny, issue #367 AC7]
         var mko = new Queue<(Guid? V, Guid? B)>([(virksomhetId, null)]);
         while (mko.Count > 0)
         {
             var (v, b) = mko.Dequeue();
             foreach (var k in mKanter.Where(k => (v != null && k.FraVirksomhetId == v) || (b != null && k.FraBegrepId == b)))
             {
-                if (medlemAv.Add(k.TilBegrepId!.Value)) mko.Enqueue((null, k.TilBegrepId));
+                if (medlemAv.Add(k.TilBegrepId!.Value)) { medlemPremisser.Add(k.Id); mko.Enqueue((null, k.TilBegrepId)); }
             }
         }
 
@@ -417,14 +474,16 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
                 .Where(k => k.Kategori == Strukturkanter.Ansvarsomrade && k.Typekode == "har_ansvarsomrade"
                             && k.FraVirksomhetId != null && fraVirksomheter.Contains(k.FraVirksomhetId.Value) && k.TilBegrepId != null)
                 .ToListAsync(ct), ct))
-            .GroupBy(k => k.FraVirksomhetId!.Value).ToDictionary(g => g.Key, g => g.Select(k => (Omrade: k.TilBegrepId!.Value, Validert: k.Status == "validert")).ToList());
+            .GroupBy(k => k.FraVirksomhetId!.Value).ToDictionary(g => g.Key, g => g.Select(k => (Omrade: k.TilBegrepId!.Value, Validert: k.Status == Strukturkanter.Godkjent, k.Id)).ToList());
         var visninger = (await kanttjeneste.ByggVisningerAsync(valgte.Select(v => v.Kant).ToList(), perspektiv: null, ct)).ToDictionary(v => v.Id);
         var treff = new List<AnkeinstansTreff>();
         foreach (var (kant, grunnlag) in valgte)
         {
             var visning = visninger[kant.Id];
             PliktMotpart? instans;
-            var forslag = kant.Status != "validert";
+            var forslag = kant.Status != Strukturkanter.Godkjent;
+            var premisser = new List<Guid> { kant.Id };
+            if (grunnlag == "medlem_av") premisser.AddRange(medlemPremisser);
             if (kant.FraVirksomhetId is { } fv)
             {
                 var omr = fraAnsvar.GetValueOrDefault(fv)?.Select(x => x.Omrade).ToList();
@@ -435,16 +494,26 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
                 instans = omr is null || omr.Any(dekker.Contains)
                     ? new PliktMotpart("konkret", [visning.Fra.Navn], [fv], null)
                     : null;
+                foreach (var x in fraAnsvar.GetValueOrDefault(fv)?.Where(x => dekker.Contains(x.Omrade)) ?? [])
+                {
+                    premisser.Add(x.Id);
+                    premisser.AddRange(Omradekjede(x.Omrade));
+                }
             }
             else
             {
                 instans = await MotpartAsync(null, kant.FraBegrepId, visning.Fra.Navn, dekker, ct);
+                premisser.AddRange(instans.KantIder);
+                var instansOmrader = await db.Strukturkanter
+                    .Where(k => instans.KantIder.Contains(k.Id) && k.Kategori == Strukturkanter.Ansvarsomrade && k.TilBegrepId != null)
+                    .Select(k => k.TilBegrepId!.Value).ToListAsync(ct);
+                foreach (var omrade in instansOmrader.Where(dekker.Contains)) premisser.AddRange(Omradekjede(omrade));
             }
             if (instans is null) continue;
             var grunnlagHull = grunnlag == "klasse_uten_registrert_medlemskap"
                 ? $"Klassen «{visning.Til!.Navn}» har ingen registrerte medlemmer — om den omfatter «{domstol.Navn}», avgjøres ikke her."
                 : null;
-            treff.Add(new AnkeinstansTreff(visning, grunnlag, grunnlagHull, instans) { Forslag = forslag });
+            treff.Add(new AnkeinstansTreff(visning, grunnlag, grunnlagHull, instans) { Forslag = forslag, Premisser = premisser.Distinct().ToList() });
         }
 
         // (4) Svaret, bare fra de sikre kantene.
@@ -469,7 +538,10 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
             sortert.Select(i => navn[i]).ToList(), sortert, sortert.Select(i => bareForslag[i]).ToList(),
             treff.OrderBy(t => t.Grunnlag switch { "direkte" => 0, "medlem_av" => 1, _ => 2 })
                 .ThenBy(t => t.Kant.Visningstekst, StringComparer.Ordinal).ToList(),
-            omrader.OrderBy(o => o.Navn, StringComparer.Ordinal).ToList(), hull);
+            omrader.OrderBy(o => o.Navn, StringComparer.Ordinal).ToList(), hull)
+        {
+            Premisser = sikre.SelectMany(t => t.Premisser).Distinct().OrderBy(x => x).ToList(),
+        };
     }
 
     /// <summary>[Ny, issue #353] <see cref="PliktTreff.Retning"/>: kommunen er pliktsubjektet (fra-siden).</summary>
@@ -503,9 +575,14 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
         var treffIder = ansvar.Select(k => k.FraVirksomhetId!.Value).Distinct().ToList();
         var navn = await db.Virksomheter.Where(v => treffIder.Contains(v.Id)).Select(v => new { v.Id, v.Navn }).ToDictionaryAsync(v => v.Id, v => v.Navn, ct);
         var sortert = treffIder.OrderBy(i => navn.GetValueOrDefault(i), StringComparer.Ordinal).ToList();
+        // [Ny, issue #367 AC7] Premissene for et entydig svar: medlemskapet/rolleinnehavet og ansvarsområdet til den ene.
+        var kantIder = sortert.Count == 1
+            ? medlemskanter.Where(k => k.FraVirksomhetId == sortert[0]).Select(k => k.Id)
+                .Concat(ansvar.Where(k => k.FraVirksomhetId == sortert[0]).Select(k => k.Id)).ToList()
+            : [];
         return sortert.Count switch
         {
-            1 => new PliktMotpart("entydig", [navn[sortert[0]]], sortert, null),
+            1 => new PliktMotpart("entydig", [navn[sortert[0]]], sortert, null) { KantIder = kantIder },
             0 => new PliktMotpart("mangler", [], [],
                 $"Ingen av de {medlemmer.Count} registrerte medlemmene av «{navnPaaNoden}» har ansvarsområde som dekker kommunen — "
                 + "områdeinndelingen er ikke lastet (helseregionene: ekstern kilde, #340)."),
@@ -532,7 +609,7 @@ public sealed class OmradeOppslagTjeneste(RegelIdeDbContext db, StrukturkantTjen
             .ToListAsync(ct), ct);
         var ansvarPerAktor = ansvar.GroupBy(k => k.FraVirksomhetId!.Value).ToDictionary(g => g.Key, g => g.ToList());
         return sogner.SelectMany(s => (ansvarPerAktor.GetValueOrDefault(s.FraVirksomhetId!.Value) ?? [])
-                .Select(a => (Barn: a.TilBegrepId!.Value, Forelder: s.TilBegrepId!.Value, Validert: s.Status == "validert" && a.Status == "validert")))
+                .Select(a => (Barn: a.TilBegrepId!.Value, Forelder: s.TilBegrepId!.Value, Validert: s.Status == Strukturkanter.Godkjent && a.Status == Strukturkanter.Godkjent)))
             .ToList();
     }
 }

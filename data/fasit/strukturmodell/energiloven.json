@@ -976,7 +976,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Forskriftskompetanse – ikke delegert til NVE (delegeringsvedtaket kap-I/ledd-3).",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
   },
   {
    "id": "u3",
@@ -992,7 +995,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Samme setning gir både forskrifts- og vedtakskompetanse. Delegert til NVE (delegeringsvedtaket kap-I/ledd-2)."
+   "kommentar": "Samme setning gir både forskrifts- og vedtakskompetanse. Delegert til NVE (delegeringsvedtaket kap-I/ledd-2).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u4",
@@ -1009,7 +1013,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
    "kommentar": "Form (forskrift/vedtak) ikke angitt.",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u5",
@@ -1025,9 +1030,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Utvider lovens (og dermed myndighetenes) geografiske virkeområde til a48 Svalbard.",
+   "kommentar": "Utvider lovens (og dermed myndighetenes) geografiske virkeområde til a48 Svalbard. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u6",
@@ -1043,7 +1049,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Delegert til NVE (delegeringsvedtaket kap-I/ledd-2)."
+   "kommentar": "Delegert til NVE (delegeringsvedtaket kap-I/ledd-2).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u7",
@@ -1059,7 +1066,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Kompetansen forutsettes, ikke uttrykkelig tildelt."
+   "kommentar": "Kompetansen forutsettes, ikke uttrykkelig tildelt.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u8",
@@ -1075,7 +1083,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u9",
@@ -1091,7 +1100,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Generell regel; i konflikt med at omsetningskonsesjon gis av reguleringsmyndigheten (§ 4-1) og utenlandskonsesjon av departementet (§ 4-2) – viser at «konsesjonsmyndigheten» er saksavhengig."
+   "kommentar": "Generell regel; i konflikt med at omsetningskonsesjon gis av reguleringsmyndigheten (§ 4-1) og utenlandskonsesjon av departementet (§ 4-2) – viser at «konsesjonsmyndigheten» er saksavhengig.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u10",
@@ -1107,7 +1117,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Form ikke angitt (vedtak eller forskrift)."
+   "kommentar": "Form ikke angitt (vedtak eller forskrift).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u11",
@@ -1123,7 +1134,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Ikke vedtak; pliktig uttalelse som forutsetning for videre behandling."
+   "kommentar": "Ikke vedtak; pliktig uttalelse som forutsetning for videre behandling.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u12",
@@ -1139,7 +1151,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
-   "kommentar": "KlageRETT for offentlige organer (part-lignende), ikke klageinstans. Klassen bestemmes i annen lov."
+   "kommentar": "KlageRETT for offentlige organer (part-lignende), ikke klageinstans. Klassen bestemmes i annen lov.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u13",
@@ -1156,7 +1169,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Forskriftskompetanse – ikke delegert til NVE (delegeringsvedtaket kap-I/ledd-3).",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u14",
@@ -1172,8 +1188,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Utøves ved forskrift 2013/681 (i korpus). Kongen kan trekke vedtakskompetanse til seg selv.",
-   "delegerbar": false,
+   "kommentar": "Utøves ved forskrift 2013/681 (i korpus). Kongen kan trekke vedtakskompetanse til seg selv. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann). Før #367: delegerbar = false.",
    "undertype": "utpeking"
   },
   {
@@ -1191,7 +1206,8 @@
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
    "kommentar": "Unntatt fra delegering (kap-I/ledd-5). Selve utpekingen skjer utenfor korpus.",
-   "undertype": "utpeking"
+   "undertype": "utpeking",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u16",
@@ -1208,7 +1224,8 @@
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
    "kommentar": "Unntatt fra delegering (kap-I/ledd-5). Oppnevning av nemndas medlemmer og sekretariat er ikke regulert i korpuset.",
-   "undertype": "utpeking"
+   "undertype": "utpeking",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u17",
@@ -1225,7 +1242,10 @@
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
    "kommentar": "Hjemmel for forskriften (utenfor korpus) som gjør RME til enhet i NVE og oppretter Energiklagenemnda.",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X gir forskrift om» → normgivningskompetanse"
   },
   {
    "id": "u18",
@@ -1305,7 +1325,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u23",
@@ -1403,7 +1424,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Vedtaksmyndigheten for selve hovedkonsesjonen er IKKE angitt i loven. Løses via lovens departement + delegering til NVE, og Kongen i statsråd for visse saker (forskrift 2013/681)."
+   "kommentar": "Vedtaksmyndigheten for selve hovedkonsesjonen er IKKE angitt i loven. Løses via lovens departement + delegering til NVE, og Kongen i statsråd for visse saker (forskrift 2013/681).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u29",
@@ -1420,7 +1442,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Forskriftskompetanse – ikke delegert til NVE (delegeringsvedtaket kap-I/ledd-3).",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X fastsetter ved forskrift» → normgivningskompetanse"
   },
   {
    "id": "u30",
@@ -1437,7 +1462,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Forskriftskompetanse – ikke delegert til NVE (delegeringsvedtaket kap-I/ledd-3).",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
   },
   {
    "id": "u31",
@@ -1453,7 +1481,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Form ikke angitt."
+   "kommentar": "Form ikke angitt.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u32",
@@ -1469,7 +1498,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u33",
@@ -1485,7 +1515,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u34",
@@ -1501,7 +1532,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u35",
@@ -1517,7 +1549,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Vedtaksmyndighet ikke angitt (som § 3-1)."
+   "kommentar": "Vedtaksmyndighet ikke angitt (som § 3-1).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u36",
@@ -1534,7 +1567,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
    "kommentar": "Form ikke angitt.",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u37",
@@ -1566,7 +1600,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u39",
@@ -1583,7 +1618,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Forskriftskompetanse – ikke delegert til NVE (delegeringsvedtaket kap-I/ledd-3).",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u40",
@@ -1599,7 +1637,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Innholdet står i underpunktene."
+   "kommentar": "Innholdet står i underpunktene.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u41",
@@ -1615,7 +1654,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Unntatt fra delegering (kap-I/ledd-5: § 3-4 annet ledd) – departementet selv."
+   "kommentar": "Unntatt fra delegering (kap-I/ledd-5: § 3-4 annet ledd) – departementet selv.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u42",
@@ -1631,7 +1671,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u43",
@@ -1647,7 +1688,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Ikke i unntakslisten → delegert til NVE (kap-I/ledd-6 omtaler omnummereringen)."
+   "kommentar": "Ikke i unntakslisten → delegert til NVE (kap-I/ledd-6 omtaler omnummereringen).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u44",
@@ -1663,7 +1705,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u45",
@@ -1680,7 +1723,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Forskriftskompetanse – ikke delegert til NVE (delegeringsvedtaket kap-I/ledd-3).",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u46",
@@ -1696,7 +1740,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Delegert til NVE (delegeringsvedtaket kap-I/ledd-2)."
+   "kommentar": "Delegert til NVE (delegeringsvedtaket kap-I/ledd-2).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u47",
@@ -1712,7 +1757,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Delegert til NVE (delegeringsvedtaket kap-I/ledd-2)."
+   "kommentar": "Delegert til NVE (delegeringsvedtaket kap-I/ledd-2).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u48",
@@ -1728,7 +1774,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Unntatt fra delegering (kap-I/ledd-5)."
+   "kommentar": "Unntatt fra delegering (kap-I/ledd-5).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u49",
@@ -1745,7 +1792,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Forskrift som regulerer utpeking av en privat rolleinnehaver. Forskriftskompetanse – ikke delegert til NVE (delegeringsvedtaket kap-I/ledd-3).",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u50",
@@ -1762,7 +1812,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Forskriftskompetanse – ikke delegert til NVE (delegeringsvedtaket kap-I/ledd-3).",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u51",
@@ -1778,7 +1831,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": true,
    "sikkerhet": "middels",
-   "kommentar": "Privat rolle som kan få offentlig myndighet; innhold avhenger av forskrift."
+   "kommentar": "Privat rolle som kan få offentlig myndighet; innhold avhenger av forskrift.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u52",
@@ -1794,8 +1848,9 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
-   "delegerbar": true
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u53",
@@ -1843,9 +1898,12 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u56",
@@ -1861,7 +1919,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Her er reguleringsmyndigheten konsesjonsmyndighet – men delegeringsvedtaket utpeker NVE som «konsesjonsmyndighet» etter § 2-2."
+   "kommentar": "Her er reguleringsmyndigheten konsesjonsmyndighet – men delegeringsvedtaket utpeker NVE som «konsesjonsmyndighet» etter § 2-2.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u57",
@@ -1877,7 +1936,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u58",
@@ -1893,7 +1953,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u59",
@@ -1925,7 +1986,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u61",
@@ -1941,7 +2003,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u62",
@@ -1958,7 +2021,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Departementet styrer RMEs skjønn ved forskrift (ikke instruks). Forskriftskompetanse – ikke delegert til NVE (delegeringsvedtaket kap-I/ledd-3).",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u63",
@@ -1975,7 +2041,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Påvirker klageinstansens og overordnets omgjøringskompetanse – strukturelt relevant.",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u64",
@@ -1991,7 +2060,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Kapittel 4 er unntatt fra delegering (kap-I/ledd-5) – departementet selv."
+   "kommentar": "Kapittel 4 er unntatt fra delegering (kap-I/ledd-5) – departementet selv.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u65",
@@ -2007,7 +2077,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u66",
@@ -2023,7 +2094,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Rangordning mellom departementets og RMEs vedtak uten instruksjonsrett."
+   "kommentar": "Rangordning mellom departementets og RMEs vedtak uten instruksjonsrett.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u67",
@@ -2040,7 +2112,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Forskriftskompetanse – ikke delegert til NVE (delegeringsvedtaket kap-I/ledd-3).",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X gir forskrift om» → normgivningskompetanse"
   },
   {
    "id": "u68",
@@ -2057,7 +2132,8 @@
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
    "kommentar": "Utpeker privat aktør som skal utøve offentlig myndighet.",
-   "undertype": "utpeking"
+   "undertype": "utpeking",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u69",
@@ -2073,7 +2149,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u70",
@@ -2089,7 +2166,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Instruksjon overfor private, ikke forvaltningsintern."
+   "kommentar": "Instruksjon overfor private, ikke forvaltningsintern.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u71",
@@ -2105,7 +2183,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Formulert som plikt, men er myndighetsutøvelse."
+   "kommentar": "Formulert som plikt, men er myndighetsutøvelse.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u72",
@@ -2122,7 +2201,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Forskriftskompetanse – ikke delegert til NVE (delegeringsvedtaket kap-I/ledd-3).",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u73",
@@ -2154,7 +2234,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u75",
@@ -2170,7 +2251,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Departementet = Energidepartementet etter overføringsvedtaket 2024/3495. Form ikke angitt (i praksis forskrift om Energifondet)."
+   "kommentar": "Departementet = Energidepartementet etter overføringsvedtaket 2024/3495. Form ikke angitt (i praksis forskrift om Energifondet).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u76",
@@ -2187,7 +2269,8 @@
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
    "kommentar": "Annet ledd er UNNTATT fra overføringen til Energidepartementet – «departementet» her er fortsatt Klima- og miljødepartementet (jf. u om overføring).",
-   "normform": "vedtekter"
+   "normform": "vedtekter",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u77",
@@ -2204,7 +2287,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Energidepartementet etter 2024/3495.",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u78",
@@ -2220,7 +2304,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u79",
@@ -2268,7 +2353,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u82",
@@ -2284,7 +2370,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u83",
@@ -2301,7 +2388,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Departementet rammer inn RMEs kompetanse ved forskrift.",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u84",
@@ -2317,7 +2407,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u85",
@@ -2333,7 +2424,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Utpeking av privat markedsoperatør – ikke myndighetsutpeking."
+   "kommentar": "Utpeking av privat markedsoperatør – ikke myndighetsutpeking.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u86",
@@ -2349,7 +2441,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u87",
@@ -2365,7 +2458,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u88",
@@ -2382,7 +2476,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u89",
@@ -2399,7 +2496,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u90",
@@ -2415,7 +2515,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Kapittel 4 unntatt fra delegering."
+   "kommentar": "Kapittel 4 unntatt fra delegering.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u91",
@@ -2432,7 +2533,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u92",
@@ -2448,7 +2552,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Departementet kan sette vilkår i en konsesjon som ellers gis av reguleringsmyndigheten – overlappende kompetanse."
+   "kommentar": "Departementet kan sette vilkår i en konsesjon som ellers gis av reguleringsmyndigheten – overlappende kompetanse.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u93",
@@ -2480,7 +2585,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u95",
@@ -2497,7 +2603,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u96",
@@ -2513,7 +2622,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u97",
@@ -2530,7 +2640,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «kan X gi forskrift» → normgivningskompetanse"
   },
   {
    "id": "u98",
@@ -2547,7 +2660,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «kan X gi forskrift» → normgivningskompetanse"
   },
   {
    "id": "u99",
@@ -2563,7 +2679,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u100",
@@ -2579,7 +2696,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u101",
@@ -2595,7 +2713,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u102",
@@ -2644,7 +2763,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u105",
@@ -2677,7 +2799,10 @@
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
    "kommentar": "Avhenger av departementsforskrift (utenfor korpus).",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u107",
@@ -2694,7 +2819,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u108",
@@ -2711,7 +2839,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u109",
@@ -2727,7 +2858,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Myndighet utenfor energiforvaltningen; prosedyre etter markedsføringsloven."
+   "kommentar": "Myndighet utenfor energiforvaltningen; prosedyre etter markedsføringsloven.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u110",
@@ -2743,7 +2875,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u111",
@@ -2759,7 +2892,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": true,
    "sikkerhet": "middels",
-   "kommentar": "Passiv form – vedtaksorgan må utledes av markedsføringsloven (Forbrukertilsynet/Markedsrådet)."
+   "kommentar": "Passiv form – vedtaksorgan må utledes av markedsføringsloven (Forbrukertilsynet/Markedsrådet).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u112",
@@ -2776,7 +2910,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u113",
@@ -2792,7 +2929,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Vedtaksmyndighet ikke angitt."
+   "kommentar": "Vedtaksmyndighet ikke angitt.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u114",
@@ -2809,7 +2947,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
    "kommentar": "Form ikke angitt.",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u115",
@@ -2826,7 +2965,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
    "kommentar": "Form ikke angitt.",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u116",
@@ -2843,7 +2983,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u117",
@@ -2859,7 +3000,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Delegert til NVE (delegeringsvedtaket kap-I/ledd-2)."
+   "kommentar": "Delegert til NVE (delegeringsvedtaket kap-I/ledd-2).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u118",
@@ -2875,7 +3017,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u119",
@@ -2891,7 +3034,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt."
+   "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u120",
@@ -2907,7 +3051,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u121",
@@ -2923,7 +3068,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Klage over PRIVAT aktørs priser, ikke over forvaltningsvedtak – en annen type «klageinstans»."
+   "kommentar": "Klage over PRIVAT aktørs priser, ikke over forvaltningsvedtak – en annen type «klageinstans».",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u122",
@@ -2939,7 +3085,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u123",
@@ -2955,7 +3102,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Megling mellom private – ikke vedtak."
+   "kommentar": "Megling mellom private – ikke vedtak.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u124",
@@ -2972,7 +3120,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
   },
   {
    "id": "u125",
@@ -2988,7 +3139,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u126",
@@ -3004,7 +3156,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u127",
@@ -3020,7 +3173,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "lav",
-   "kommentar": "Ubestemt «det offentlige» – vedtaksorgan uklart."
+   "kommentar": "Ubestemt «det offentlige» – vedtaksorgan uklart.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u128",
@@ -3037,7 +3191,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u129",
@@ -3054,7 +3211,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u130",
@@ -3071,7 +3229,8 @@
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
    "kommentar": "Unntatt fra delegering (kap-I/ledd-5). Tildelingsvedtaket er utenfor korpus.",
-   "undertype": "utpeking"
+   "undertype": "utpeking",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u131",
@@ -3087,7 +3246,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u132",
@@ -3103,7 +3263,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Avgjørelsene er unntatt fvl. kap. IV–VI og VIII (samme ledd)."
+   "kommentar": "Avgjørelsene er unntatt fvl. kap. IV–VI og VIII (samme ledd).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u133",
@@ -3119,7 +3280,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u134",
@@ -3151,7 +3313,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Unntatt fra delegering."
+   "kommentar": "Unntatt fra delegering.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u136",
@@ -3168,7 +3331,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Unntatt fra delegering, men utøvd i delegeringsvedtaket kap-I/ledd-7 (NVE).",
-   "undertype": "utpeking"
+   "undertype": "utpeking",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u137",
@@ -3184,7 +3348,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann)."
   },
   {
    "id": "u138",
@@ -3281,7 +3445,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u144",
@@ -3298,7 +3465,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u145",
@@ -3315,7 +3483,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u146",
@@ -3332,7 +3501,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u147",
@@ -3349,7 +3521,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u148",
@@ -3365,7 +3540,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Delegert til NVE (delegeringsvedtaket kap-I/ledd-2)."
+   "kommentar": "Delegert til NVE (delegeringsvedtaket kap-I/ledd-2).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u149",
@@ -3382,7 +3558,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u150",
@@ -3398,7 +3577,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u151",
@@ -3415,7 +3595,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u152",
@@ -3432,7 +3613,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u153",
@@ -3449,7 +3633,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u154",
@@ -3466,7 +3653,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u155",
@@ -3483,7 +3673,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u156",
@@ -3500,7 +3693,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X gir forskrift om» → normgivningskompetanse"
   },
   {
    "id": "u157",
@@ -3517,7 +3713,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X gir forskrift om» → normgivningskompetanse"
   },
   {
    "id": "u158",
@@ -3549,7 +3748,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Kompetanse til å bestemme medlemmer i en klasse/sammenslutning."
+   "kommentar": "Kompetanse til å bestemme medlemmer i en klasse/sammenslutning.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u160",
@@ -3565,7 +3765,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u161",
@@ -3582,7 +3783,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "undertype": "utpeking"
+   "undertype": "utpeking",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u162",
@@ -3614,7 +3816,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Passiv form; vedtaksorgan ikke angitt (trolig beredskapsmyndigheten)."
+   "kommentar": "Passiv form; vedtaksorgan ikke angitt (trolig beredskapsmyndigheten).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u164",
@@ -3630,7 +3833,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Unntatt fra delegering (kap-I/ledd-5: § 9-1 siste ledd) – beredskapsmyndigheten er her departementet."
+   "kommentar": "Unntatt fra delegering (kap-I/ledd-5: § 9-1 siste ledd) – beredskapsmyndigheten er her departementet.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u165",
@@ -3663,7 +3867,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Forskriftskompetanse delegert til NVE (kap-I/ledd-3 unntar § 9-2).",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «kan X gi forskrift» → normgivningskompetanse"
   },
   {
    "id": "u167",
@@ -3679,7 +3886,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u168",
@@ -3695,7 +3903,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u169",
@@ -3711,7 +3920,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u170",
@@ -3728,7 +3938,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Delegert til NVE (kap-I/ledd-3 unntar § 9-3 fra forbeholdet om forskriftskompetanse).",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u171",
@@ -3777,7 +3990,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
   },
   {
    "id": "u174",
@@ -3793,7 +4009,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Adgangsrett som tilsynsmiddel."
+   "kommentar": "Adgangsrett som tilsynsmiddel.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u175",
@@ -3809,7 +4026,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u176",
@@ -3825,7 +4043,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u177",
@@ -3842,7 +4061,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u178",
@@ -3858,7 +4080,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u179",
@@ -3875,7 +4098,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "NB: § 9-6 er ikke unntatt i kap-I/ledd-3 → ikke delegert.",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u180",
@@ -3891,7 +4117,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u181",
@@ -3907,7 +4134,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u182",
@@ -3923,7 +4151,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "«Dette» viser til begge foregående setninger."
+   "kommentar": "«Dette» viser til begge foregående setninger.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u183",
@@ -3939,7 +4168,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u184",
@@ -3955,7 +4185,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Klagenemndas eneste førsteinstanskompetanse i korpuset."
+   "kommentar": "Klagenemndas eneste førsteinstanskompetanse i korpuset.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u185",
@@ -3972,7 +4203,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u186",
@@ -3988,7 +4220,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u187",
@@ -4004,7 +4237,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u188",
@@ -4020,7 +4254,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u189",
@@ -4224,7 +4459,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u201",
@@ -4257,7 +4495,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Tilsynskompetansen forutsettes."
+   "kommentar": "Tilsynskompetansen forutsettes.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u203",
@@ -4274,7 +4513,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u204",
@@ -4290,7 +4532,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt."
+   "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u205",
@@ -4307,7 +4550,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Parallell kompetanse; fordeling følger av hvem som ga tillatelsen (ikke uttrykt).",
-   "undertype": "tilbakekall"
+   "undertype": "tilbakekall",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u206",
@@ -4324,7 +4568,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "undertype": "tilbakekall"
+   "undertype": "tilbakekall",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u207",
@@ -4341,7 +4586,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "undertype": "tilbakekall"
+   "undertype": "tilbakekall",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u208",
@@ -4358,7 +4604,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Utvider RMEs kompetanse ved forskrift.",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u209",
@@ -4374,7 +4623,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u210",
@@ -4390,7 +4640,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u211",
@@ -4406,7 +4657,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u212",
@@ -4422,7 +4674,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Pålegg gis av beredskapsmyndigheten, men gjennomføring av «departementet» (delegert til NVE)."
+   "kommentar": "Pålegg gis av beredskapsmyndigheten, men gjennomføring av «departementet» (delegert til NVE).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u213",
@@ -4438,7 +4691,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Vedtaksorgan ikke angitt; jf. delegeringsvedtaket kap-I/ledd-8 om NVEs myndighet til å behandle endringssøknader."
+   "kommentar": "Vedtaksorgan ikke angitt; jf. delegeringsvedtaket kap-I/ledd-8 om NVEs myndighet til å behandle endringssøknader.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u214",
@@ -4455,7 +4709,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u215",
@@ -4472,7 +4729,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «kan X gi forskrift» → normgivningskompetanse"
   },
   {
    "id": "u216",
@@ -4489,7 +4749,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u217",
@@ -4522,7 +4783,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u219",
@@ -4538,7 +4802,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Sanksjonskompetansen er fordelt mellom departement og RME ved uttømmende paragraflister."
+   "kommentar": "Sanksjonskompetansen er fordelt mellom departement og RME ved uttømmende paragraflister.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u220",
@@ -4554,7 +4819,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u221",
@@ -4570,7 +4836,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u222",
@@ -4587,7 +4854,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u223",
@@ -4603,7 +4873,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u224",
@@ -4619,7 +4890,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u225",
@@ -4636,7 +4908,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
   },
   {
    "id": "u226",
@@ -4652,8 +4927,9 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
-   "delegerbar": true
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u227",
@@ -4669,8 +4945,9 @@
    "betinget": true,
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
-   "kommentar": "Utøvelse av § 2-4 første ledd. Vilkåret avhenger av vedtak etter annen lov.",
-   "delegerbar": false
+   "kommentar": "Utøvelse av § 2-4 første ledd. Vilkåret avhenger av vedtak etter annen lov. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_ikke_delegerbar"
   },
   {
    "id": "u228",
@@ -4879,7 +5156,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Ressortansvar per bestemmelse/ledd."
+   "kommentar": "Ressortansvar per bestemmelse/ledd.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u254",
@@ -4895,7 +5173,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "lav",
-   "kommentar": "Antitetisk: annet ledd overføres ikke og blir antakelig værende hos Klima- og miljødepartementet."
+   "kommentar": "Antitetisk: annet ledd overføres ikke og blir antakelig værende hos Klima- og miljødepartementet.",
+   "delegeringsadgang": "ikke_regulert"
   }
  ]
 }

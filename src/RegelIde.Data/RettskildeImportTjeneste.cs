@@ -501,6 +501,9 @@ public sealed class RettskildeImportTjeneste(RegelIdeDbContext db)
 
         await SettInnNoderOgReferanserAsync(nyRettskildeId, resultat, ct);
         await RelokerTaggerAsync(gammel.Id, nyRettskildeId, resultat.Noder, ct);
+        // [Ny, issue #367 AC4] Strukturkanter som peker på en node i den gamle versjonen, flagges «hjemmel endret» når deltreet er endret.
+        await HjemmelEndretFlagg.FlaggForNyVersjonAsync(db, gammel.Id,
+            resultat.Noder.Select(n => new HjemmelEndretFlagg.Nodeavtrykk(n.Eid, n.Overskrift, n.TekstHash)).ToList(), attribuertTil, ct);
 
         await db.SaveChangesAsync(ct);
         return nyRettskildeId;

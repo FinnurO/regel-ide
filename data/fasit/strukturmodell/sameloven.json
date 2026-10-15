@@ -2701,7 +2701,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Både velgerkorps ('av') og valgbarhetskrets ('blant'). Operasjonalisert via valgmanntallet (§ 2-6).",
-      "undertype": "valg"
+      "undertype": "valg",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u4",
@@ -2767,9 +2768,12 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Forvaltningsansvaret for § 1-4 overført til kommunal- og moderniseringsministeren (forskrift 2021/489).",
+      "kommentar": "Forvaltningsansvaret for § 1-4 overført til kommunal- og moderniseringsministeren (forskrift 2021/489). [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X gir forskrift om» → normgivningskompetanse"
     },
     {
       "id": "u8",
@@ -2785,8 +2789,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
-      "normform": "forskrift"
+      "kommentar": "[#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "normform": "forskrift",
+      "delegeringsadgang": "uttrykkelig_tillatt",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u9",
@@ -2818,7 +2825,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Initiativ-/uttalerett — ikke vedtakskompetanse. Viktig for Sametingets særstilling (rådgivende overfor hele forvaltningen)."
+      "kommentar": "Initiativ-/uttalerett — ikke vedtakskompetanse. Viktig for Sametingets særstilling (rådgivende overfor hele forvaltningen). [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u11",
@@ -2851,7 +2859,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Intern styringsrett (ikke forskrift) — også en styringsRELASJON departement→Sametinget som modellen bør kunne uttrykke. Departementets referent uavklart (delt forvaltningsansvar, se forskrift 2021/489).",
-      "normform": "reglement"
+      "normform": "reglement",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u13",
@@ -2867,8 +2876,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
-      "normform": "forskrift"
+      "kommentar": "[#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "normform": "forskrift",
+      "delegeringsadgang": "uttrykkelig_tillatt",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
     },
     {
       "id": "u14",
@@ -2884,7 +2896,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Åpen henvisning — Sametingets vedtakskompetanse kan følge av andre lover, forskrifter eller delegeringsvedtak utenfor korpuset (f.eks. kulturminneloven, plan- og bygningsloven). [#356, R5] Teksten sier «beslutningsmyndighet» (#341: beslutningskompetanse); vedtakskompetanse betyr enkeltvedtak. Var vedtakskompetanse."
+      "kommentar": "Åpen henvisning — Sametingets vedtakskompetanse kan følge av andre lover, forskrifter eller delegeringsvedtak utenfor korpuset (f.eks. kulturminneloven, plan- og bygningsloven). [#356, R5] Teksten sier «beslutningsmyndighet» (#341: beslutningskompetanse); vedtakskompetanse betyr enkeltvedtak. Var vedtakskompetanse. [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u15",
@@ -2917,7 +2930,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
       "kommentar": "velgerne er de som står i Sametingets valgmanntall (§ 2-6) Tidligere kommentar: «Hvordan organets medlemmer utpekes (direkte valg, ikke oppnevning).». [#309, kort nr. 21] Valg er oppnevning med undertypen valg (#352 beslutning 1); fra = null (passiv), til = medlemmene av Sametinget (samme aktør som i u18). Var organsammensetning/annet:valgmate fra Sametinget.",
-      "undertype": "valg"
+      "undertype": "valg",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u17",
@@ -5029,9 +5043,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u149",
@@ -5047,7 +5062,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Kompetansen er implisitt (begjæringen rettes til Sametinget, som da avgjør den)."
+      "kommentar": "Kompetansen er implisitt (begjæringen rettes til Sametinget, som da avgjør den). [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u150",
@@ -5063,7 +5079,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Registeransvar/registerfører — ingen standardtype."
+      "kommentar": "Registeransvar/registerfører — ingen standardtype. [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u151",
@@ -5127,7 +5144,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Kompetansen er implisitt ('søke Sametinget'), jf. 'Vedtak om registrering'."
+      "kommentar": "Kompetansen er implisitt ('søke Sametinget'), jf. 'Vedtak om registrering'. [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u155",
@@ -5159,9 +5177,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u157",
@@ -5177,7 +5196,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "middels",
-      "kommentar": "Implisitt avgjørelsesmyndighet. Valgnemndas opprettelse og sammensetning er ikke i korpuset."
+      "kommentar": "Implisitt avgjørelsesmyndighet. Valgnemndas opprettelse og sammensetning er ikke i korpuset.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u158",
@@ -5225,8 +5245,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Kan ikke delegeres (§ 2-12 fjerde ledd). [#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u170). Ikke en slutning fra ordet «Kongen».",
-      "delegerbar": false
+      "kommentar": "Kan ikke delegeres (§ 2-12 fjerde ledd). [#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u170). Ikke en slutning fra ordet «Kongen». [#367, D2] Delegering uttrykkelig forbudt: TEKSTFUNN i en annen bestemmelse («kan ikke delegeres» med paragrafhenvisning).",
+      "delegeringsadgang": "uttrykkelig_forbudt"
     },
     {
       "id": "u161",
@@ -5274,8 +5294,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Avledet av rollen «øverste valgmyndighet». Det konkrete innholdet står i forskrift om valg til Sametinget (FOR-2008-12-19-1480, i korpuset): klageinstans (§ 76 tredje ledd) og godkjenning av fullmakter (§ 72 tredje ledd). [#356, R3] delegerbar = false: TEKSTFUNN (§ 2-12 fjerde ledd, u170). [#356, juristrunden] Beslutningskompetanse, ikke enkeltvedtak. Hjemmelen (§ 2-10) og forskriften er i korpuset. Var vedtakskompetanse og kilde utenfor korpus.",
-      "delegerbar": false
+      "kommentar": "Avledet av rollen «øverste valgmyndighet». Det konkrete innholdet står i forskrift om valg til Sametinget (FOR-2008-12-19-1480, i korpuset): klageinstans (§ 76 tredje ledd) og godkjenning av fullmakter (§ 72 tredje ledd). [#356, R3] delegerbar = false: TEKSTFUNN (§ 2-12 fjerde ledd, u170). [#356, juristrunden] Beslutningskompetanse, ikke enkeltvedtak. Hjemmelen (§ 2-10) og forskriften er i korpuset. Var vedtakskompetanse og kilde utenfor korpus. [#367, D2] Delegering uttrykkelig forbudt: TEKSTFUNN i en annen bestemmelse («kan ikke delegeres» med paragrafhenvisning).",
+      "delegeringsadgang": "uttrykkelig_forbudt"
     },
     {
       "id": "u164",
@@ -5291,9 +5311,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Delvis delegert til Kommunal- og regionaldepartementet (forskrift 2004/1607); forvaltningsansvaret overført (forskrift 2021/489).",
+      "kommentar": "Delvis delegert til Kommunal- og regionaldepartementet (forskrift 2004/1607); forvaltningsansvaret overført (forskrift 2021/489). [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u165",
@@ -5325,8 +5346,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Arbeidsgiverfunksjon — ingen standardtype (oppnevningskompetanse dekker ikke ansettelse).",
-      "undertype": "ansettelse"
+      "kommentar": "Arbeidsgiverfunksjon — ingen standardtype (oppnevningskompetanse dekker ikke ansettelse). [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "undertype": "ansettelse",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u167",
@@ -5358,7 +5380,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Opprettelseskompetanse for en åpen klasse av underorganer. [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter."
+      "kommentar": "Opprettelseskompetanse for en åpen klasse av underorganer. [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann)."
     },
     {
       "id": "u169",
@@ -5406,7 +5428,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Forutsatt vedtakskompetanse."
+      "kommentar": "Forutsatt vedtakskompetanse. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann)."
     },
     {
       "id": "u172",
@@ -5422,8 +5444,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
-      "undertype": "oppnevning"
+      "kommentar": "[#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "undertype": "oppnevning",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u173",
@@ -5439,7 +5462,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Klagereglene i forvaltningsloven gjelder."
+      "kommentar": "Klagereglene i forvaltningsloven gjelder. [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u174",
@@ -5455,7 +5479,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Alternativ klageinstans — finnes bare hvis Sametinget oppretter den."
+      "kommentar": "Alternativ klageinstans — finnes bare hvis Sametinget oppretter den.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u175",
@@ -5471,8 +5496,9 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
-      "undertype": "oppnevning"
+      "kommentar": "[#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "undertype": "oppnevning",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u176",
@@ -5488,9 +5514,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Selvorganiseringskompetanse; ikke delegerbar (§ 2-12). Her betyr 'i Sametinget' plenumsorganet. [#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u170). Ikke en slutning fra ordet «Kongen». [#356, juristrunden] Selvregulering: til = fra (#341).",
+      "kommentar": "Selvorganiseringskompetanse; ikke delegerbar (§ 2-12). Her betyr 'i Sametinget' plenumsorganet. [#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u170). Ikke en slutning fra ordet «Kongen». [#356, juristrunden] Selvregulering: til = fra (#341). [#367, D2] Delegering uttrykkelig forbudt: TEKSTFUNN i en annen bestemmelse («kan ikke delegeres» med paragrafhenvisning).",
       "normform": "arbeidsordning",
-      "delegerbar": false
+      "delegeringsadgang": "uttrykkelig_forbudt"
     },
     {
       "id": "u177",
@@ -5506,9 +5532,12 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u178",
@@ -5524,9 +5553,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u179",
@@ -5862,9 +5892,12 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gitt-av: «forskrift fastsatt av X» → normgivningskompetanse"
     },
     {
       "id": "u200",
@@ -5897,7 +5930,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "lav",
       "kommentar": "Prosessuell kompetanse i den enkelte sak — grensetilfelle mot saksbehandling.",
-      "undertype": "oppnevning"
+      "undertype": "oppnevning",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u202",
@@ -5913,7 +5947,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Prosessledende beslutning — grensetilfelle mot saksbehandling."
+      "kommentar": "Prosessledende beslutning — grensetilfelle mot saksbehandling.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u203",
@@ -5929,7 +5964,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u204",
@@ -6041,9 +6077,12 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gitt-av: «forskrift fastsatt av X» → normgivningskompetanse"
     },
     {
       "id": "u211",
@@ -6107,9 +6146,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u215",
@@ -6157,7 +6197,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u218",
@@ -6205,8 +6246,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
-      "delegerbar": false
+      "kommentar": "[#367, D1] Delegering uttrykkelig forbudt: TEKSTFUNN i sitatet.",
+      "delegeringsadgang": "uttrykkelig_forbudt"
     },
     {
       "id": "u221",
@@ -6222,7 +6263,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Generisk klageinstans som må løses via et modellert administrativt hierarki (administrativt_underordnet)."
+      "kommentar": "Generisk klageinstans som må løses via et modellert administrativt hierarki (administrativt_underordnet).",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u222",
@@ -6238,7 +6280,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Hvilken statsforvalter avgjøres av område (fylket kommunen ligger i). Særregel — statsforvalteren er ikke 'overordnet' kommunen."
+      "kommentar": "Hvilken statsforvalter avgjøres av område (fylket kommunen ligger i). Særregel — statsforvalteren er ikke 'overordnet' kommunen.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u223",
@@ -6254,7 +6297,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Organ med RETT til å påklage (ikke klageinstans) — 'klagekompetanse' i formatet betyr trolig å avgjøre klager. Gjelder også landsomfattende samiske organisasjoner (private)."
+      "kommentar": "Organ med RETT til å påklage (ikke klageinstans) — 'klagekompetanse' i formatet betyr trolig å avgjøre klager. Gjelder også landsomfattende samiske organisasjoner (private).",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u224",
@@ -6286,7 +6330,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Også en finansieringsrelasjon Sametinget→kommuner/fylkeskommuner."
+      "kommentar": "Også en finansieringsrelasjon Sametinget→kommuner/fylkeskommuner. [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u226",
@@ -6302,8 +6347,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Forskriftskompetanse hvis UTØVELSE er klasse-/områdemedlemskap (utøvd i forskrift 2005/657). Modellen må kunne knytte medlemskapsutsagn til hjemmelen.",
-      "delegerbar": true
+      "kommentar": "Forskriftskompetanse hvis UTØVELSE er klasse-/områdemedlemskap (utøvd i forskrift 2005/657). Modellen må kunne knytte medlemskapsutsagn til hjemmelen. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u227",
@@ -6319,7 +6365,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u228",
@@ -6335,8 +6382,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Utøvd i forskrift 2003/13 § 3 (som bygger på eldre hjemmel). 'helt eller delvis' = bestemmelsesavgrenset medlemskap.",
-      "delegerbar": true
+      "kommentar": "Utøvd i forskrift 2003/13 § 3 (som bygger på eldre hjemmel). 'helt eller delvis' = bestemmelsesavgrenset medlemskap. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u229",
@@ -6384,7 +6432,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Kompetanse hjemlet utenfor korpuset (pbl.)."
+      "kommentar": "Kompetanse hjemlet utenfor korpuset (pbl.). [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u232",
@@ -6400,7 +6449,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Medvirkningsrett overfor statlige myndigheter — strukturell relasjon Sametinget↔staten, ikke vedtakskompetanse."
+      "kommentar": "Medvirkningsrett overfor statlige myndigheter — strukturell relasjon Sametinget↔staten, ikke vedtakskompetanse. [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     },
     {
       "id": "u233",
@@ -6416,7 +6466,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u234",
@@ -6600,9 +6651,12 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Nær utpekingskompetanse (bestemmer hvem som er part).",
+      "kommentar": "Nær utpekingskompetanse (bestemmer hvem som er part). [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «kan X gi forskrift» → normgivningskompetanse"
     },
     {
       "id": "u245",
@@ -6650,9 +6704,10 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Subsidiær og tidsavgrenset kompetanse — faller bort når Sametinget utøver egen kompetanse.",
+      "kommentar": "Subsidiær og tidsavgrenset kompetanse — faller bort når Sametinget utøver egen kompetanse. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "arbeidsordning",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u248",
@@ -6668,8 +6723,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "",
-      "delegerbar": true
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u249",
@@ -7021,7 +7077,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Navngitt historisk departement; dagens tilsynsorgan fremgår ikke av korpuset."
+      "kommentar": "Navngitt historisk departement; dagens tilsynsorgan fremgår ikke av korpuset.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u271",
@@ -7054,7 +7111,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "lav",
-      "kommentar": "Arbeidsgiverbeslutning — grensetilfelle."
+      "kommentar": "Arbeidsgiverbeslutning — grensetilfelle.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u273",
@@ -7183,7 +7241,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
       "kommentar": "Gjengivelse av Ot.prp. nr. 33 (1986–1987).",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u281",
@@ -7200,7 +7259,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
       "kommentar": "Gjengivelse av forarbeider; 'departementet' generisk.",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u282",
@@ -7216,7 +7276,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Kvalitativ (ikke paragrafbasert) avgrensning av delegert kompetanse.",
+      "kommentar": "Kvalitativ (ikke paragrafbasert) avgrensning av delegert kompetanse. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
       "normform": "forskrift"
     },
     {
@@ -7233,9 +7293,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Restkompetanse hos delegerende organ.",
-      "normform": "forskrift",
-      "delegerbar": true
+      "kommentar": "Restkompetanse hos delegerende organ. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann). Før #367: delegerbar = true.",
+      "normform": "forskrift"
     },
     {
       "id": "u284",
@@ -7283,7 +7342,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "[#356, kort nr. 28 og punkt 7] Sametinget kan samtykke til at andre får tilgang (§ 2-6 fjerde ledd)."
+      "kommentar": "[#356, kort nr. 28 og punkt 7] Sametinget kan samtykke til at andre får tilgang (§ 2-6 fjerde ledd). [#367, D3b] Delegering uttrykkelig tillatt: TEKSTFUNN — generell delegeringsfullmakt i loven («såfremt ikke annet fremgår»).",
+      "delegeringsadgang": "uttrykkelig_tillatt"
     }
   ]
 }

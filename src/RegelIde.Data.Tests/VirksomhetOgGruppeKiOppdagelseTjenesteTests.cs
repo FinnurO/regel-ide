@@ -215,7 +215,7 @@ public class VirksomhetOgGruppeKiOppdagelseTjenesteTests
 
         // [ENDRET, issue #311] Tildelingen er en M-kant (begrepet er en klasse; en rolle hadde gitt I).
         var tildeling = await db.Strukturkanter.SingleAsync(m => m.Id == k.RolleKantId);
-        Assert.Equal("foreslatt_av_ai", tildeling.Status);
+        Assert.Equal("maskinelt_foreslatt", tildeling.Status);
         Assert.Equal(Strukturkanter.Medlemskap, tildeling.Kategori);
         Assert.Equal(rollebegrep.Id, tildeling.TilBegrepId);
         Assert.Equal(virksomhet.Id, tildeling.FraVirksomhetId);
@@ -280,7 +280,7 @@ public class VirksomhetOgGruppeKiOppdagelseTjenesteTests
         var k = Assert.Single(resultat.Kandidater);
         Assert.NotNull(k.RelasjonKantId);
         var relasjon = await db.Strukturkanter.SingleAsync(r => r.Id == k.RelasjonKantId);
-        Assert.Equal("foreslatt_av_ai", relasjon.Status);
+        Assert.Equal("maskinelt_foreslatt", relasjon.Status);
         Assert.Equal(Strukturkanter.Relasjon, relasjon.Kategori);
         Assert.Equal(fra.Id, relasjon.FraVirksomhetId);
         Assert.Equal(til.Id, relasjon.TilVirksomhetId);
@@ -367,7 +367,7 @@ public class VirksomhetOgGruppeKiOppdagelseTjenesteTests
         var k = Assert.Single(resultat.Kandidater);
         Assert.NotNull(k.GruppeAvGruppeKantId);
         var medlemskap = await db.Strukturkanter.SingleAsync(m => m.Id == k.GruppeAvGruppeKantId);
-        Assert.Equal("foreslatt_av_ai", medlemskap.Status);
+        Assert.Equal("maskinelt_foreslatt", medlemskap.Status);
         Assert.Equal(Strukturkanter.Medlemskap, medlemskap.Kategori);
         Assert.Equal(overordnet.Id, medlemskap.TilBegrepId);
         Assert.Equal(underordnet.Id, medlemskap.FraBegrepId);

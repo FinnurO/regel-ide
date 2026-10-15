@@ -1049,6 +1049,22 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   regel: «Ikke angitt» som utgangspunkt, undertypen i parentes i utsagnsteksten. Forelegging finnes ikke lenger som K-type i lista.
   Ankeinstans-oppslaget (#355) har ingen egen visning ennå — det er et API-svar (`GET /api/virksomheter/{id}/ankeinstans`).
 
+## 35. Utsagnsstatus: kunnskapsstatus og godkjenning som egne merker (issue #367, 2026-10-15)
+
+- **To akser, to merker** (`strukturkant/Utsagnsstatus.tsx`, brukt i `StrukturkantTabell` §31): **kunnskapsstatus** (hvordan utsagnet er
+  kommet fram) og **godkjenning** (hvem som har godkjent det). De slås aldri sammen til én tag.
+- **Fargeroller (låst):** kunnskapsstatus er en klassifisering av metoden → `neutral` (Tekstfunn, Normalisering, Fortolkning, Avledet,
+  Eksternt dokumentert, Foreldet); Uavklart og Omstridt → `warning`. NULL vises som «Ikke vurdert» (`neutral`) — docs/34 §3: eksisterende
+  rader har ingen gjettet status. Godkjenning: forslag (maskinelt, manuelt, faglig vurdert) → `info` (som «Forslag» før), avvist →
+  `danger`, godkjent → ingen tag (normaltilstanden, som «validert» før).
+- **Delegering (#335):** tekstfunn og slutning skal aldri se like ut: «Kan delegeres (teksten)» / «Kan ikke delegeres (teksten)» /
+  «Delegering ikke regulert» mot «Kan trolig delegeres (slutning)» / «Kan trolig ikke delegeres (slutning)». Alle `neutral`; ordet står i
+  teksten, forklaringen i `title`. Erstatter §33-taggene «Kan delegeres»/«Kan ikke delegeres».
+- **«Hjemmel endret – vurder på nytt»** (`warning`) når resynken har flagget kanten.
+- **Skjemaet** «Legg til relasjon, kompetanse eller plikt»: «Delegering etter teksten» (Ikke vurdert / Uttrykkelig tillatt / Uttrykkelig
+  forbudt / Ikke regulert) og, bare ved «Ikke regulert», «Slutning etter alminnelige regler» (Ingen slutning / Trolig / Trolig ikke).
+  Ingenting forhåndsvalgt (CLAUDE.md §8).
+
 ## 34. Plikt overfor motpart og ordning (issue #353, 2026-10-09)
 
 - **Pliktene har egen seksjon** «Plikter overfor motpart» i «Myndighet & relasjoner» på VirksomhetDetalj, rett etter

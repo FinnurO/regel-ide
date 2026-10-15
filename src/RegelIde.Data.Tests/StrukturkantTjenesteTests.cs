@@ -72,7 +72,7 @@ public class StrukturkantTjenesteTests
 
         Assert.True(r.VarNy);
         Assert.Equal("manuell", r.Kant.OppdagelsesKilde);
-        Assert.Equal("validert", r.Kant.Status);
+        Assert.Equal("godkjent", r.Kant.Status);
         var prov = await db.Proveniens.SingleAsync(p => p.EntitetId == r.Kant.Id);
         Assert.Equal((StrukturkantTjeneste.ProveniensType, "opprettet"), (prov.EntitetType, prov.Handling));
 
@@ -548,25 +548,25 @@ public class StrukturkantTjenesteTests
         var tjeneste = new StrukturkantTjeneste(db);
 
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon,
-            "radgir", Kantnode.Virksomhet(a), Kantnode.Virksomhet(b), HjemmelRettskildeId: o.LovId, Status: "foreslatt_av_ai"), "KI"));
+            "radgir", Kantnode.Virksomhet(a), Kantnode.Virksomhet(b), HjemmelRettskildeId: o.LovId, Status: "maskinelt_foreslatt"), "KI"));
 
         var forslag = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "radgir",
             Kantnode.Virksomhet(a), Kantnode.Virksomhet(b), HjemmelRettskildeId: o.LovId,
-            Status: "foreslatt_av_ai", AiForslagVersjon: "OpenAiKompatibel:test"), "KI");
+            Status: "maskinelt_foreslatt", AiForslagVersjon: "OpenAiKompatibel:test"), "KI");
         Assert.Equal("ki:OpenAiKompatibel:test", forslag.Kant.OppdagelsesKilde);
         Assert.Contains(await tjeneste.HentForslagAsync(), v => v.Id == forslag.Kant.Id);
         var prov = await db.Proveniens.SingleAsync(p => p.EntitetId == forslag.Kant.Id);
         Assert.Equal(("foreslatt_av_ai", "OpenAiKompatibel:test"), (prov.Handling, prov.AiForslagVersjon));
 
         var godkjent = await tjeneste.GodkjennAsync(forslag.Kant.Id, "Kari Jurist");
-        Assert.Equal("validert", godkjent!.Status);
+        Assert.Equal("godkjent", godkjent!.Status);
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.GodkjennAsync(forslag.Kant.Id, "Kari Jurist"));
         // En validert kant avvises ikke — den slettes.
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.AvvisAsync(forslag.Kant.Id));
 
         var mønster = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "oppnevning",
             Kantnode.Virksomhet(a), Kantnode.Virksomhet(c), HjemmelRettskildeId: o.LovId,
-            Status: "foreslatt_av_ai", OppdagelsesKilde: "monster:oppnevnes-av"), "mønsterlaget");
+            Status: "maskinelt_foreslatt", OppdagelsesKilde: "monster:oppnevnes-av"), "mønsterlaget");
         Assert.Equal("monster:oppnevnes-av", mønster.Kant.OppdagelsesKilde);
         Assert.True(await tjeneste.AvvisAsync(mønster.Kant.Id));
         Assert.False(await db.Strukturkanter.AnyAsync(k => k.Id == mønster.Kant.Id));
@@ -794,8 +794,9 @@ public class StrukturkantTjenesteTests
 
         var forskrift = await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, Strukturkanter.Normgivning,
             Kantnode.Virksomhet(kongen), null, HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid, Objekt: "skjenketider",
-            Normform: "forskrift", Delegerbar: false), "Kari Jurist");
-        Assert.Equal(("forskrift", (bool?)false), (forskrift.Kant.Normform, forskrift.Kant.Delegerbar));
+            Normform: "forskrift", Delegeringsadgang: "ikke_regulert", DelegeringSlutning: "trolig_ikke_delegerbar"), "Kari Jurist");
+        Assert.Equal(("forskrift", "ikke_regulert", "trolig_ikke_delegerbar"),
+            (forskrift.Kant.Normform, forskrift.Kant.Delegeringsadgang, forskrift.Kant.DelegeringSlutning));
         var v = Assert.Single(await tjeneste.HentForNodeAsync(Kantnode.Virksomhet(kongen)));
         Assert.Equal(("normgivning", "forskrift"), (v.Familie, v.FvlKategori)); // fvl-kategorien følger normformen
 
@@ -813,13 +814,19 @@ public class StrukturkantTjenesteTests
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "eies_av",
             Kantnode.Virksomhet(nett), Kantnode.Virksomhet(morselskap), HjemmelRettskildeId: o.LovId, Grunnlag: "privatrettslig"), "Kari Jurist"));
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Relasjon, "eies_av",
-            Kantnode.Virksomhet(nett), Kantnode.Virksomhet(morselskap), HjemmelRettskildeId: o.LovId, Delegerbar: true), "Kari Jurist"));
+            Kantnode.Virksomhet(nett), Kantnode.Virksomhet(morselskap), HjemmelRettskildeId: o.LovId, Delegeringsadgang: "ikke_regulert"), "Kari Jurist"));
+        // [Ny, #367 / #335] En slutning står aldri ved siden av et tekstfunn, og verdiene er en lukket liste.
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "vedtak",
+            Kantnode.Virksomhet(kongen), null, HjemmelRettskildeId: o.LovId, Objekt: "y", Delegeringsadgang: "uttrykkelig_forbudt",
+            DelegeringSlutning: "trolig_delegerbar"), "Kari Jurist"));
+        await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, "vedtak",
+            Kantnode.Virksomhet(kongen), null, HjemmelRettskildeId: o.LovId, Objekt: "y", Delegeringsadgang: "kan_delegeres"), "Kari Jurist"));
 
-        // Samme utsagn med motsatt delegerbar er en motsigelse, ikke et nytt utsagn — og slås ikke stille sammen.
+        // Samme utsagn med motsatt delegeringsadgang er en motsigelse, ikke et nytt utsagn — og slås ikke stille sammen.
         await Assert.ThrowsAsync<ArgumentException>(() => tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, Strukturkanter.Normgivning,
             Kantnode.Virksomhet(kongen), null, HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid, Objekt: "skjenketider",
-            Normform: "forskrift", Delegerbar: true), "Kari Jurist"));
-        // Uten delegerbar: samme kant returneres.
+            Normform: "forskrift", Delegeringsadgang: "uttrykkelig_tillatt"), "Kari Jurist"));
+        // Uten delegeringsadgang: samme kant returneres.
         Assert.False((await tjeneste.OpprettAsync(new NyStrukturkant(Strukturkanter.Kompetanse, Strukturkanter.Normgivning,
             Kantnode.Virksomhet(kongen), null, HjemmelRettskildeId: o.LovId, HjemmelEid: o.ParagrafEid, Objekt: "skjenketider",
             Normform: "forskrift"), "Kari Jurist")).VarNy);

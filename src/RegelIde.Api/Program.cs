@@ -3497,9 +3497,10 @@ strukturkanter.MapGet("/", async (Guid? virksomhetId, Guid? begrepId, string? ka
             }
             if (virksomhetId is null && begrepId is null)
             {
-                if (status != "foreslatt_av_ai")
+                // [ENDRET, issue #367] status=forslag (alle ventende); foreslatt_av_ai/maskinelt_foreslatt godtas for bakoverkompatibilitet.
+                if (status is not ("forslag" or "maskinelt_foreslatt" or "foreslatt_av_ai"))
                 {
-                    return Results.BadRequest(new { feil = "Oppgi virksomhetId eller begrepId (eller status=foreslatt_av_ai for forslagskøen)." });
+                    return Results.BadRequest(new { feil = "Oppgi virksomhetId eller begrepId (eller status=forslag for forslagskøen)." });
                 }
                 var forslag = await tjeneste.HentForslagAsync(ct);
                 return Results.Ok(forslag.Where(v => (kategori == null || v.Kategori == kategori) && (familie == null || v.Familie == familie)
@@ -3522,8 +3523,8 @@ strukturkanter.MapGet("/", async (Guid? virksomhetId, Guid? begrepId, string? ka
     .WithName("HentStrukturkanter")
     .WithSummary("Issue #311 — strukturkantene for én node (virksomhetId ELLER begrepId), i begge retninger, med " +
         "visningstekst fra nodens side. ?kategori=R|K|M|O|A|G|I|T avgrenser, ?gjeldende=true filtrerer på " +
-        "gyldighet (kantens egne datoer + hjemmelens status, docs/29 §Del B). Uten node: ?status=foreslatt_av_ai " +
-        "gir forslagskøen. [Ny, #341] ?familie=struktur|oppnevning|styring|normgivning|kontroll|klage_overproving|vedtak|sanksjon " +
+        "gyldighet (kantens egne datoer + hjemmelens status, docs/29 §Del B). Uten node: ?status=forslag " +
+        "gir forslagskøen ([ENDRET #367] alle ventende godkjenninger). [Ny, #341] ?familie=struktur|oppnevning|styring|normgivning|kontroll|klage_overproving|vedtak|sanksjon " +
         "gir bare kompetansekantene i den familien. [Ny, #355] ?undertype=utnevning|konstitusjon|avskjed|tilbakekall|anke|… gir bare " +
         "kantene med den undertypen («hvem kan sette inn en fast dommer?»: begrepId=dommer&kategori=K&undertype=utnevning).");
 
@@ -3576,8 +3577,11 @@ strukturkanter.MapPost("/", async (HttpRequest request, StrukturkantRequest body
                 body.Objekt, body.Polaritet, body.GyldigFra, body.GyldigTil, body.Kommentar,
                 KildeUtenforKorpusType: body.KildeUtenforKorpusType,
                 KildeUtenforKorpusDokumentasjon: body.KildeUtenforKorpusDokumentasjon,
-                Normform: body.Normform, Grunnlag: body.Grunnlag, Delegerbar: body.Delegerbar,
-                Undertype: body.Undertype, Modalitet: body.Modalitet), bruker.Navn, ct); // [Ny, #352] undertype, [Ny, #353] modalitet
+                Normform: body.Normform, Grunnlag: body.Grunnlag,
+                Delegeringsadgang: body.Delegeringsadgang, DelegeringSlutning: body.DelegeringSlutning, // [ENDRET, #367 / #335]
+                Undertype: body.Undertype, Modalitet: body.Modalitet, // [Ny, #352] undertype, [Ny, #353] modalitet
+                Status: body.Status ?? Strukturkanter.Godkjent, Kunnskapsstatus: body.Kunnskapsstatus, Begrunnelse: body.Begrunnelse,
+                Tolkningsargumenter: body.Tolkningsargumenter, Premisser: body.Premisser), bruker.Navn, ct); // [Ny, #367]
             var dto = StrukturkantDto.FraVisning((await tjeneste.HentAsync(resultat.Kant.Id, ct))!);
             // 201 for en ny kant, 200 når et identisk utsagn alt fantes (idempotent — StrukturkantTjeneste.OpprettAsync).
             return resultat.VarNy ? Results.Created($"/api/strukturkanter/{dto.Id}", dto) : Results.Ok(dto);
@@ -3588,6 +3592,14 @@ strukturkanter.MapPost("/", async (HttpRequest request, StrukturkantRequest body
         }
     })
     .WithName("OpprettStrukturkant")
+    .AddEndpointFilter(async (ctx, next) =>
+    {
+        // [Ny, issue #367] Et menneske registrerer ikke et MASKINELT forslag — det kommer fra KI-/mønsterlaget.
+        var body = ctx.Arguments.OfType<StrukturkantRequest>().FirstOrDefault();
+        return body?.Status == Strukturkanter.MaskineltForeslatt
+            ? Results.BadRequest(new { feil = "Status 'maskinelt_foreslatt' settes bare av KI-/mønsterlaget. Bruk manuelt_foreslatt, faglig_vurdert eller godkjent." })
+            : await next(ctx);
+    })
     .WithSummary("Issue #311 — registrerer ett strukturutsagn (R/K/M/O/A/G/I/T) med hjemmel ELLER kilde utenfor korpus, " +
         "avgrensning, polaritet og gyldighet. Et menneskes registrering lagres som 'validert'/'manuell'. Typekoden må " +
         "finnes for kategorien, nodene må ha lovlig type, og M/O kan ikke lukke en sykel (400 med kjeden navngitt).");
@@ -3637,7 +3649,7 @@ strukturkanter.MapPost("/{id:guid}/godkjenn", async (Guid id, HttpRequest reques
         }
     })
     .WithName("GodkjennStrukturkant")
-    .WithSummary("Issue #311 (#285 AC6) — et menneske bekrefter et forslag ('foreslatt_av_ai' → 'validert').");
+    .WithSummary("Issue #311 (#285 AC6) — et menneske bekrefter et forslag ([ENDRET #367] maskinelt_foreslatt/manuelt_foreslatt/faglig_vurdert → godkjent).");
 
 strukturkanter.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request, StrukturkantTjeneste tjeneste,
         RegelIdeDbContext db, CancellationToken ct) =>
@@ -3656,7 +3668,44 @@ strukturkanter.MapPost("/{id:guid}/avvis", async (Guid id, HttpRequest request, 
         }
     })
     .WithName("AvvisStrukturkant")
-    .WithSummary("Issue #311 — avviser (sletter) et forslag. Kun 'foreslatt_av_ai'; en validert kant slettes med DELETE.");
+    .WithSummary("Issue #311 — avviser (sletter) et forslag. Bare forslag ([ENDRET #367] ikke godkjent); en godkjent kant slettes med DELETE.");
+
+// [Ny, issue #367 AC3, docs/34 §4] Revisjon: en ny rad som erstatter den gamle; den gamle blir foreldet (slettes ikke).
+strukturkanter.MapPost("/{id:guid}/revisjon", async (Guid id, HttpRequest request, StrukturkantRequest body, StrukturkantTjeneste tjeneste,
+        RegelIdeDbContext db, CancellationToken ct) =>
+    {
+        var bruker = await GjeldendeBrukerTjeneste.FinnAsync(request, db, ct);
+        if (bruker is null) return GjeldendeBrukerTjeneste.IkkeInnloggetSvar(request);
+        if (body.Polaritet is null) return Results.BadRequest(new { feil = "Polaritet må oppgis (positiv|negativ). Ingen standardverdi gjettes." });
+        if (body.Status == Strukturkanter.MaskineltForeslatt)
+        {
+            return Results.BadRequest(new { feil = "Status 'maskinelt_foreslatt' settes bare av KI-/mønsterlaget." });
+        }
+        try
+        {
+            Kantnode? til = body.TilVirksomhetId is null && body.TilBegrepId is null ? null : new Kantnode(body.TilVirksomhetId, body.TilBegrepId);
+            var ny = await tjeneste.ReviderAsync(id, new NyStrukturkant(
+                body.Kategori, body.Typekode, new Kantnode(body.FraVirksomhetId, body.FraBegrepId), til,
+                body.HjemmelRettskildeId, body.HjemmelEid, body.KildeUtenforKorpusTekst, body.KildeUtenforKorpusLenke,
+                body.Paragrafspenn?.Select(p => new ParagrafspennPar(p.FraEid, p.TilEid)).ToList(), body.AvgrensningTekst,
+                body.Objekt, body.Polaritet, body.GyldigFra, body.GyldigTil, body.Kommentar,
+                KildeUtenforKorpusType: body.KildeUtenforKorpusType, KildeUtenforKorpusDokumentasjon: body.KildeUtenforKorpusDokumentasjon,
+                Normform: body.Normform, Grunnlag: body.Grunnlag, Delegeringsadgang: body.Delegeringsadgang,
+                DelegeringSlutning: body.DelegeringSlutning, Undertype: body.Undertype, Modalitet: body.Modalitet,
+                Status: body.Status ?? Strukturkanter.Godkjent, Kunnskapsstatus: body.Kunnskapsstatus, Begrunnelse: body.Begrunnelse,
+                Tolkningsargumenter: body.Tolkningsargumenter, Premisser: body.Premisser), bruker.Navn, ct);
+            return ny is null
+                ? Results.NotFound(new { feil = $"Ingen gjeldende strukturkant med id '{id}'." })
+                : Results.Created($"/api/strukturkanter/{ny.Id}", StrukturkantDto.FraVisning((await tjeneste.HentAsync(ny.Id, ct))!));
+        }
+        catch (ArgumentException ex)
+        {
+            return Results.BadRequest(new { feil = ex.Message });
+        }
+    })
+    .WithName("ReviderStrukturkant")
+    .WithSummary("Issue #367 — reviderer en kant: ny rad med erstatterKantId = den gamle, den gamle blir foreldet (ikke slettet). " +
+        "Samme felt og validering som POST /api/strukturkanter, inkludert kunnskapsstatus med grunnlag.");
 
 // [Ny, issue #312, Johanns beslutning 2026-10-08] Samlet godkjenning av forslag per hjemmel (domstolkantene fra
 // inndelingsforskriften). Hver kant logges i Proveniens av GodkjennAsync.

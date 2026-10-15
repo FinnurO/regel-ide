@@ -44,19 +44,13 @@ public sealed class MonsterStrukturkonverterer : IStrukturkonverterer
     public static IReadOnlyList<Strukturmonster> Monstre { get; } = Monsterkatalog.Bygg();
 
     /// <summary>
-    /// [Ny, issue #341 + #335 AC2, 2026-10-08] Kan kompetansen delegeres? Avgjort på SITATET, ikke på aktøren (fasitens
-    /// «Kongen»-aktør har «Kongen i statsråd» som variant): «Kongen i statsråd …» → false, ellers en fra-aktør «Kongen» →
-    /// true, og «X selv» («kommunestyret selv») → false. Alt annet: null (ikke angitt) — samme regel som
-    /// <c>konvertering-341-kompetanse.py</c> brukte på fasiten.
+    /// [ENDRET, issue #367 / #335, Johanns beslutning 2026-10-09] Delegeringsadgangen avgjort på SITATET, ikke på aktøren (fasitens
+    /// «Kongen»-aktør har «Kongen i statsråd» som variant) — <see cref="RegelIde.Data.Strukturkanter.DelegeringFraSitat"/>. «Kongen» og
+    /// «Kongen i statsråd» alene gir en SLUTNING (ikke_regulert + trolig_*), aldri et tekstfunn; «kan ikke delegeres» og «X selv» gir
+    /// uttrykkelig_forbudt. Før #367: bool (true/false).
     /// </summary>
-    internal static bool? Delegerbar(string? fra, string sitat)
-    {
-        if (fra is null) return null;
-        if (Regex.IsMatch(sitat, Regex.Escape(fra) + @"\s+selv\b", RegexOptions.IgnoreCase | RegexOptions.CultureInvariant)) return false;
-        if (!fra.StartsWith("Kongen", StringComparison.OrdinalIgnoreCase)) return null;
-        if (sitat.Contains("Kongen i statsråd", StringComparison.Ordinal)) return false;
-        return string.Equals(fra, "Kongen", StringComparison.OrdinalIgnoreCase) ? true : null;
-    }
+    internal static (string? Adgang, string? Slutning) Delegering(string? fra, string sitat) =>
+        RegelIde.Data.Strukturkanter.DelegeringFraSitat(fra, sitat);
 
     /// <inheritdoc />
     public Strukturdokument Konverter(Strukturkonverteringsgrunnlag grunnlag)
@@ -124,7 +118,11 @@ public sealed class MonsterStrukturkonverterer : IStrukturkonverterer
                 Normform = u.Monster.Normform,
                 // [Ny, issue #352] Undertypen fra leksikonets ordstammer på sitatet (null ved ingen eller flere treff).
                 Undertype = u.Monster.Kategori == "kompetanse" ? Kompetanseleksikon.UndertypeFor(u.Monster.Type, u.Sitat) : null,
-                Delegerbar = u.Monster.Kategori == "kompetanse" ? Delegerbar(u.Fra, u.Sitat) : null,
+                Delegeringsadgang = u.Monster.Kategori == "kompetanse" && u.Monster.Type != "delegeringskompetanse" ? Delegering(u.Fra, u.Sitat).Adgang : null,
+                DelegeringSlutning = u.Monster.Kategori == "kompetanse" && u.Monster.Type != "delegeringskompetanse" ? Delegering(u.Fra, u.Sitat).Slutning : null,
+                // [Ny, issue #367] Mønsterlaget knytter ordlyd til en kontrollert type etter en dokumentert regel (mønsteret) uten ny
+                // materiell påstand: normalisering (docs/profil/03 §5), regelen er oppdagelseskilden.
+                Kunnskapsstatus = "normalisering",
                 // [Ny, issue #353] Modaliteten fra modalverbet i treffet (bare plikt; null når teksten ikke har et).
                 Modalitet = u.Monster.Kategori == "plikt" ? u.Modalitet : null,
             });

@@ -2281,6 +2281,18 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("fvl_kategori");
 
+                    b.Property<DateOnly?>("FvlKategoriGjelderFra")
+                        .HasColumnType("date")
+                        .HasColumnName("fvl_kategori_gjelder_fra");
+
+                    b.Property<DateOnly?>("FvlKategoriGjelderTil")
+                        .HasColumnType("date")
+                        .HasColumnName("fvl_kategori_gjelder_til");
+
+                    b.Property<string>("FvlKategoriHjemmel")
+                        .HasColumnType("text")
+                        .HasColumnName("fvl_kategori_hjemmel");
+
                     b.Property<string>("Kategori")
                         .IsRequired()
                         .ValueGeneratedOnAdd()
@@ -2318,6 +2330,8 @@ namespace RegelIde.Data.Migrasjoner
                     b.ToTable("relasjonstype_konfigurasjon", null, t =>
                         {
                             t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_familie", "familie IS NULL OR (kategori = 'K' AND familie IN ('struktur', 'oppnevning', 'styring', 'normgivning', 'kontroll', 'klage_overproving', 'vedtak', 'sanksjon'))");
+
+                            t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_fvl_gyldighet", "(fvl_kategori IS NOT NULL OR (fvl_kategori_hjemmel IS NULL AND fvl_kategori_gjelder_fra IS NULL AND fvl_kategori_gjelder_til IS NULL)) AND (fvl_kategori_gjelder_fra IS NULL OR fvl_kategori_gjelder_til IS NULL OR fvl_kategori_gjelder_fra <= fvl_kategori_gjelder_til)");
 
                             t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_fvl_kategori", "fvl_kategori IS NULL OR (kategori = 'K' AND fvl_kategori IN ('forskrift', 'enkeltvedtak', 'ikke_vedtak'))");
 
@@ -2857,9 +2871,28 @@ namespace RegelIde.Data.Migrasjoner
                         .HasColumnType("text")
                         .HasColumnName("avgrensning_tekst");
 
-                    b.Property<bool?>("Delegerbar")
-                        .HasColumnType("boolean")
-                        .HasColumnName("delegerbar");
+                    b.Property<string>("Begrunnelse")
+                        .HasColumnType("text")
+                        .HasColumnName("begrunnelse");
+
+                    b.Property<string>("DelegeringSlutning")
+                        .HasColumnType("text")
+                        .HasColumnName("delegering_slutning");
+
+                    b.Property<string>("Delegeringsadgang")
+                        .HasColumnType("text")
+                        .HasColumnName("delegeringsadgang");
+
+                    b.Property<string>("Entitetsstatus")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("text")
+                        .HasDefaultValue("gjeldende")
+                        .HasColumnName("entitetsstatus");
+
+                    b.Property<Guid?>("ErstatterKantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("erstatter_kant_id");
 
                     b.Property<Guid?>("FraBegrepId")
                         .HasColumnType("uuid")
@@ -2884,6 +2917,14 @@ namespace RegelIde.Data.Migrasjoner
                     b.Property<string>("HjemmelEid")
                         .HasColumnType("text")
                         .HasColumnName("hjemmel_eid");
+
+                    b.Property<DateTimeOffset?>("HjemmelEndretTidspunkt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("hjemmel_endret_tidspunkt");
+
+                    b.Property<Guid?>("HjemmelNodeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("hjemmel_node_id");
 
                     b.Property<Guid?>("HjemmelRettskildeId")
                         .HasColumnType("uuid")
@@ -2913,6 +2954,10 @@ namespace RegelIde.Data.Migrasjoner
                     b.Property<string>("Kommentar")
                         .HasColumnType("text")
                         .HasColumnName("kommentar");
+
+                    b.Property<string>("Kunnskapsstatus")
+                        .HasColumnType("text")
+                        .HasColumnName("kunnskapsstatus");
 
                     b.Property<string>("Modalitet")
                         .HasColumnType("text")
@@ -2951,6 +2996,10 @@ namespace RegelIde.Data.Migrasjoner
                         .HasDefaultValue("positiv")
                         .HasColumnName("polaritet");
 
+                    b.Property<string>("Profilversjon")
+                        .HasColumnType("text")
+                        .HasColumnName("profilversjon");
+
                     b.Property<string>("SistEndretAv")
                         .HasColumnType("text")
                         .HasColumnName("sist_endret_av");
@@ -2963,7 +3012,7 @@ namespace RegelIde.Data.Migrasjoner
                         .IsRequired()
                         .ValueGeneratedOnAdd()
                         .HasColumnType("text")
-                        .HasDefaultValue("validert")
+                        .HasDefaultValue("godkjent")
                         .HasColumnName("status");
 
                     b.Property<Guid?>("TilBegrepId")
@@ -2973,6 +3022,10 @@ namespace RegelIde.Data.Migrasjoner
                     b.Property<Guid?>("TilVirksomhetId")
                         .HasColumnType("uuid")
                         .HasColumnName("til_virksomhet_id");
+
+                    b.PrimitiveCollection<List<string>>("Tolkningsargumenter")
+                        .HasColumnType("text[]")
+                        .HasColumnName("tolkningsargumenter");
 
                     b.Property<string>("Typekode")
                         .IsRequired()
@@ -2986,11 +3039,17 @@ namespace RegelIde.Data.Migrasjoner
                     b.HasKey("Id")
                         .HasName("strukturkanter_pkey");
 
+                    b.HasIndex("ErstatterKantId")
+                        .HasDatabaseName("ix_strukturkanter_erstatter");
+
                     b.HasIndex("FraBegrepId")
                         .HasDatabaseName("ix_strukturkanter_fra_begrep");
 
                     b.HasIndex("FraVirksomhetId")
                         .HasDatabaseName("ix_strukturkanter_fra_virksomhet");
+
+                    b.HasIndex("HjemmelNodeId")
+                        .HasDatabaseName("ix_strukturkanter_hjemmel_node");
 
                     b.HasIndex("HjemmelRettskildeId")
                         .HasDatabaseName("ix_strukturkanter_hjemmel");
@@ -3012,7 +3071,13 @@ namespace RegelIde.Data.Migrasjoner
 
                     b.ToTable("strukturkanter", null, t =>
                         {
-                            t.HasCheckConstraint("ck_strukturkanter_delegerbar", "delegerbar IS NULL OR kategori = 'K'");
+                            t.HasCheckConstraint("ck_strukturkanter_delegering_slutning", "delegering_slutning IS NULL OR (kategori = 'K' AND delegeringsadgang = 'ikke_regulert' AND delegering_slutning IN ('trolig_delegerbar', 'trolig_ikke_delegerbar'))");
+
+                            t.HasCheckConstraint("ck_strukturkanter_delegeringsadgang", "delegeringsadgang IS NULL OR (kategori = 'K' AND delegeringsadgang IN ('uttrykkelig_tillatt', 'uttrykkelig_forbudt', 'ikke_regulert'))");
+
+                            t.HasCheckConstraint("ck_strukturkanter_entitetsstatus", "entitetsstatus IN ('gjeldende', 'foreldet')");
+
+                            t.HasCheckConstraint("ck_strukturkanter_fortolkning", "kunnskapsstatus IS NULL OR kunnskapsstatus <> 'fortolkning' OR (begrunnelse IS NOT NULL AND cardinality(tolkningsargumenter) > 0)");
 
                             t.HasCheckConstraint("ck_strukturkanter_fra_en", "(fra_virksomhet_id IS NULL) <> (fra_begrep_id IS NULL)");
 
@@ -3028,19 +3093,47 @@ namespace RegelIde.Data.Migrasjoner
 
                             t.HasCheckConstraint("ck_strukturkanter_kilde_type", "kilde_utenfor_korpus_type IS NULL OR kilde_utenfor_korpus_type IN ('kgl_res', 'instruks', 'tildelingsbrev', 'vedtekter', 'styrevedtak', 'forarbeider', 'nettside_annet', 'register')");
 
+                            t.HasCheckConstraint("ck_strukturkanter_kunnskapsstatus", "kunnskapsstatus IS NULL OR kunnskapsstatus IN ('tekstfunn', 'normalisering', 'fortolkning', 'avledet', 'eksternt_dokumentert', 'uavklart', 'omstridt', 'foreldet')");
+
+                            t.HasCheckConstraint("ck_strukturkanter_kunnskapsstatus_grunnlag", "(kunnskapsstatus IS NULL OR kunnskapsstatus <> 'eksternt_dokumentert' OR kilde_utenfor_korpus_tekst IS NOT NULL) AND (kunnskapsstatus IS NULL OR kunnskapsstatus NOT IN ('tekstfunn', 'normalisering') OR (hjemmel_rettskilde_id IS NOT NULL AND hjemmel_eid IS NOT NULL)) AND (kunnskapsstatus IS NULL OR kunnskapsstatus <> 'foreldet' OR entitetsstatus = 'foreldet')");
+
                             t.HasCheckConstraint("ck_strukturkanter_modalitet", "modalitet IS NULL OR (kategori = 'P' AND modalitet IN ('skal', 'kan', 'bor'))");
 
                             t.HasCheckConstraint("ck_strukturkanter_normform", "normform IS NULL OR (kategori = 'K' AND typekode = 'normgivning' AND normform IN ('forskrift', 'reglement', 'arbeidsordning', 'vedtekter', 'instruks'))");
 
                             t.HasCheckConstraint("ck_strukturkanter_polaritet", "polaritet IN ('positiv', 'negativ')");
 
-                            t.HasCheckConstraint("ck_strukturkanter_status", "status IN ('foreslatt_av_ai', 'validert')");
+                            t.HasCheckConstraint("ck_strukturkanter_status", "status IN ('maskinelt_foreslatt', 'manuelt_foreslatt', 'faglig_vurdert', 'godkjent', 'avvist')");
 
                             t.HasCheckConstraint("ck_strukturkanter_til_hoyst_en", "til_virksomhet_id IS NULL OR til_begrep_id IS NULL");
 
                             t.HasCheckConstraint("ck_strukturkanter_til_pakrevd", "kategori IN ('K', 'P', 'T') OR til_virksomhet_id IS NOT NULL OR til_begrep_id IS NOT NULL");
 
+                            t.HasCheckConstraint("ck_strukturkanter_tolkningsargumenter", "tolkningsargumenter IS NULL OR tolkningsargumenter <@ ARRAY['ordlyd', 'kontekst_system', 'formal', 'forarbeider', 'praksis', 'reelle_hensyn', 'antitetisk_analogisk']::text[]");
+
                             t.HasCheckConstraint("ck_strukturkanter_undertype", "undertype IS NULL OR (kategori = 'K' AND ((typekode = 'oppnevning' AND undertype IN ('valg', 'ansettelse', 'utpeking', 'oppnevning', 'utnevning', 'konstitusjon')) OR (typekode = 'avsetting' AND undertype IN ('avsetting', 'oppsigelse', 'avskjed')) OR (typekode = 'overproving' AND undertype IN ('anke')) OR (typekode = 'vedtak' AND undertype IN ('tilbakekall'))))");
+                        });
+                });
+
+            modelBuilder.Entity("RegelIde.Data.StrukturkantPremissEntitet", b =>
+                {
+                    b.Property<Guid>("KantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("kant_id");
+
+                    b.Property<Guid>("PremissKantId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("premiss_kant_id");
+
+                    b.HasKey("KantId", "PremissKantId")
+                        .HasName("strukturkant_premisser_pkey");
+
+                    b.HasIndex("PremissKantId")
+                        .HasDatabaseName("ix_strukturkant_premisser_premiss");
+
+                    b.ToTable("strukturkant_premisser", null, t =>
+                        {
+                            t.HasCheckConstraint("ck_strukturkant_premisser_ikke_selv", "kant_id <> premiss_kant_id");
                         });
                 });
 
@@ -4552,6 +4645,11 @@ namespace RegelIde.Data.Migrasjoner
 
             modelBuilder.Entity("RegelIde.Data.StrukturkantEntitet", b =>
                 {
+                    b.HasOne("RegelIde.Data.StrukturkantEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("ErstatterKantId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("RegelIde.Data.BegrepEntitet", null)
                         .WithMany()
                         .HasForeignKey("FraBegrepId")
@@ -4561,6 +4659,11 @@ namespace RegelIde.Data.Migrasjoner
                         .WithMany()
                         .HasForeignKey("FraVirksomhetId")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("RegelIde.Data.RettskildeNodeEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("HjemmelNodeId")
+                        .OnDelete(DeleteBehavior.SetNull);
 
                     b.HasOne("RegelIde.Data.RettskildeEntitet", null)
                         .WithMany()
@@ -4576,6 +4679,21 @@ namespace RegelIde.Data.Migrasjoner
                         .WithMany()
                         .HasForeignKey("TilVirksomhetId")
                         .OnDelete(DeleteBehavior.Cascade);
+                });
+
+            modelBuilder.Entity("RegelIde.Data.StrukturkantPremissEntitet", b =>
+                {
+                    b.HasOne("RegelIde.Data.StrukturkantEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("KantId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("RegelIde.Data.StrukturkantEntitet", null)
+                        .WithMany()
+                        .HasForeignKey("PremissKantId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
                 });
 
             modelBuilder.Entity("RegelIde.Data.TekstTaggEntitet", b =>

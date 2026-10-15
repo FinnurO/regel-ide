@@ -758,7 +758,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u4",
@@ -774,10 +775,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u5",
@@ -793,9 +795,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u6",
@@ -811,10 +814,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u7",
@@ -832,7 +836,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u8",
@@ -848,10 +853,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u9",
@@ -867,10 +873,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": false
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_ikke_delegerbar"
     },
     {
       "id": "u10",
@@ -888,7 +895,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u11",
@@ -906,7 +914,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u12",
@@ -924,7 +933,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u13",
@@ -940,10 +950,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u14",
@@ -960,7 +971,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u15",
@@ -977,7 +989,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u16",
@@ -994,7 +1007,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u17",
@@ -1010,10 +1024,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": false
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_ikke_delegerbar"
     },
     {
       "id": "u18",
@@ -1099,7 +1114,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u23",
@@ -1168,10 +1184,11 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": false
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_ikke_delegerbar"
     },
     {
       "id": "u27",
@@ -1189,7 +1206,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u28",
@@ -1241,7 +1259,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u31",
@@ -1258,7 +1277,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u32",
@@ -1311,7 +1331,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u35",
@@ -1329,7 +1350,8 @@
       "sikkerhet": "middels",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u36",
@@ -1381,7 +1403,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u39",
@@ -1415,7 +1438,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u41",
@@ -1450,7 +1474,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u43",
@@ -1468,7 +1493,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u44",
@@ -1485,7 +1511,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": "[#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u45",
@@ -1520,7 +1547,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u47",
@@ -1538,7 +1566,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u48",
@@ -1573,7 +1602,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u50",
@@ -1607,7 +1637,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": "Departementet kan pålegge samarbeid mellom kommuner, inkludert gi bestemmelser om oppgaver og utgiftsfordeling.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u52",
@@ -1624,7 +1655,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u53",
@@ -1641,7 +1673,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u54",
@@ -1675,10 +1708,11 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": false
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_ikke_delegerbar"
     },
     {
       "id": "u56",
@@ -1695,7 +1729,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u57",
@@ -1711,10 +1746,11 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": false
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_ikke_delegerbar"
     },
     {
       "id": "u58",
@@ -1731,7 +1767,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u59",
@@ -1748,7 +1785,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u60",
@@ -1765,7 +1803,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u61",
@@ -1783,7 +1822,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "undertype": "oppnevning"
+      "undertype": "oppnevning",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u62",
@@ -1799,10 +1839,11 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": false
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_ikke_delegerbar"
     },
     {
       "id": "u63",
@@ -1820,7 +1861,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u64",
@@ -1854,7 +1896,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": "Enheten har overordnet ansvar for oppnevning, opplæring og veiledning av koordinator.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u66",
@@ -1871,7 +1914,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": "Enheten har overordnet ansvar for oppnevning, opplæring og veiledning av barnekoordinator.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u67",
@@ -1889,7 +1933,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u68",
@@ -1906,7 +1951,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u69",
@@ -1924,7 +1970,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u70",
@@ -1942,7 +1989,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u71",
@@ -1959,7 +2007,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u72",
@@ -1976,7 +2025,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u73",
@@ -1993,7 +2043,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u74",
@@ -2010,7 +2061,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u75",
@@ -2027,7 +2079,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u76",
@@ -2062,7 +2115,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u78",
@@ -2080,7 +2134,8 @@
       "sikkerhet": "lav",
       "kommentar": "Hvem som oppnevner er ikke angitt. [#356, R2] «Det kan oppnevnes» er en adgang til å oppnevne (L14), ikke organets faste medlemmer: oppnevningskompetanse, fra = null (passiv — teksten sier ikke hvem). Var konstituerende/oppretter fra «None» til «None».",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "undertype": "oppnevning"
+      "undertype": "oppnevning",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u79",
@@ -2096,10 +2151,11 @@
       "betinget": null,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u80",
@@ -2149,10 +2205,11 @@
       "betinget": null,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u83",
@@ -2169,7 +2226,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u84",
@@ -2187,7 +2245,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u85",
@@ -2204,7 +2263,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u86",
@@ -2221,7 +2281,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u87",
@@ -2239,7 +2300,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u88",
@@ -2256,7 +2318,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u89",
@@ -2273,7 +2336,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u90",
@@ -2290,7 +2354,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u91",
@@ -2307,7 +2372,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u92",
@@ -2359,7 +2425,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u95",
@@ -2393,7 +2460,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u97",
@@ -2410,7 +2478,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "lav",
       "kommentar": "Noden angir frister, ikke hvem som har søksmålskompetanse; aktør ikke avgjort i teksten.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u98",
@@ -2427,7 +2496,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u99",
@@ -2462,7 +2532,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u101",
@@ -2480,7 +2551,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u102",
@@ -2498,7 +2570,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u103",
@@ -2516,7 +2589,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u104",
@@ -2534,7 +2608,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u105",
@@ -2570,7 +2645,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u107",
@@ -2586,10 +2662,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u108",
@@ -2606,7 +2683,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u109",
@@ -2623,7 +2701,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u110",
@@ -2640,7 +2719,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u111",
@@ -2658,7 +2738,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u112",
@@ -2675,7 +2756,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u113",
@@ -2692,7 +2774,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u114",
@@ -2709,7 +2792,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u115",
@@ -2726,7 +2810,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u116",
@@ -2743,7 +2828,8 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u117",
@@ -2827,10 +2913,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u122",
@@ -2846,10 +2933,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Utvider forskriftskompetansen til også å gjelde private institusjoner uten avtale.",
+      "kommentar": "Utvider forskriftskompetansen til også å gjelde private institusjoner uten avtale. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u123",
@@ -2866,7 +2954,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u124",
@@ -2883,7 +2972,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u125",
@@ -2900,7 +2990,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u126",
@@ -2918,7 +3009,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u127",
@@ -2936,7 +3028,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "undertype": "tilbakekall"
+      "undertype": "tilbakekall",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u128",
@@ -2970,7 +3063,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u130",
@@ -2988,7 +3082,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u131",
@@ -3006,7 +3101,8 @@
       "sikkerhet": "middels",
       "kommentar": "Overtredelsesgebyr er en reaksjon, men fastsettelsen er forskriftskompetanse.",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u132",
@@ -3022,10 +3118,11 @@
       "betinget": true,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": true,
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u133",
@@ -3041,10 +3138,11 @@
       "betinget": true,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": true,
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     }
   ]
 }

@@ -8930,7 +8930,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Kompetanse til å bestemme intern organisering av et organ — ikke vedtak/forskrift i vanlig forstand."
+   "kommentar": "Kompetanse til å bestemme intern organisering av et organ — ikke vedtak/forskrift i vanlig forstand.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u13",
@@ -8946,7 +8947,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "[#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter."
+   "kommentar": "[#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u14",
@@ -9154,7 +9156,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Områdeavgrenset kompetanse over personell i ANDRE organer."
+   "kommentar": "Områdeavgrenset kompetanse over personell i ANDRE organer.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u27",
@@ -9186,7 +9189,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Kontrast: for Høyesterett er det justitiarius selv (§ 4)."
+   "kommentar": "Kontrast: for Høyesterett er det justitiarius selv (§ 4).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u29",
@@ -9219,7 +9223,8 @@
    "kilde_utenfor_korpus": true,
    "sikkerhet": "middels",
    "kommentar": "Domstolloven forutsetter, men fastsetter ikke, ankeordningen (den står i tvisteloven/straffeprosessloven). Forskrift 2021/163 § 10 sier det eksplisitt. «klageinstans_for» passer ikke for rettslig anke.",
-   "undertype": "anke"
+   "undertype": "anke",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u31",
@@ -9235,9 +9240,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u32",
@@ -9253,7 +9259,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u33",
@@ -9269,8 +9276,9 @@
    "betinget": false,
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
-   "kommentar": "Kompetanse til å DEFINERE områder; utøvd i forskrift 2021/163 (ledsagende). Ingen standardtype for «fastsette områdeinndeling».",
-   "delegerbar": true
+   "kommentar": "Kompetanse til å DEFINERE områder; utøvd i forskrift 2021/163 (ledsagende). Ingen standardtype for «fastsette områdeinndeling». [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u34",
@@ -9334,7 +9342,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Kontrast: tingrettenes faste rettssteder fastsettes av Kongen (§ 25)."
+   "kommentar": "Kontrast: tingrettenes faste rettssteder fastsettes av Kongen (§ 25).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u38",
@@ -9414,7 +9423,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u43",
@@ -9446,7 +9456,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u45",
@@ -9479,7 +9490,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "undertype": "oppnevning"
+   "undertype": "oppnevning",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u47",
@@ -9495,7 +9507,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u48",
@@ -9511,9 +9524,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u49",
@@ -9529,8 +9543,9 @@
    "betinget": false,
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
-   "kommentar": "Utøvd i forskrift 2021/163.",
-   "delegerbar": true
+   "kommentar": "Utøvd i forskrift 2021/163. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u50",
@@ -9594,7 +9609,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u54",
@@ -9610,7 +9626,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Alternativt domstollederen etter DAs bestemmelser."
+   "kommentar": "Alternativt domstollederen etter DAs bestemmelser.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u55",
@@ -9626,8 +9643,9 @@
    "betinget": false,
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
-   "kommentar": "Utøvd i forskrift 2021/163 («med rettssteder i …»).",
-   "delegerbar": true
+   "kommentar": "Utøvd i forskrift 2021/163 («med rettssteder i …»). [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u56",
@@ -9675,7 +9693,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u59",
@@ -9723,9 +9742,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
-   "kommentar": "",
-   "delegerbar": true,
-   "undertype": "utpeking"
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+   "undertype": "utpeking",
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u62",
@@ -9806,7 +9826,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "undertype": "valg"
+   "undertype": "valg",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u67",
@@ -9822,7 +9843,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u68",
@@ -9838,7 +9860,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Godkjenningsrelasjon mellom stat og kommune; ingen standardtype."
+   "kommentar": "Godkjenningsrelasjon mellom stat og kommune; ingen standardtype.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u69",
@@ -9854,9 +9877,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u70",
@@ -9904,9 +9928,12 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
   },
   {
    "id": "u73",
@@ -9922,7 +9949,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Opprettelse krever samtidig vedtak i FLERE rettssubjekter, og er områdeavgrenset (samme domssogn). [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter. [#356, juristrunden] Dersom-vilkåret i samme setning er et vilkår for kompetansen (L9)."
+   "kommentar": "Opprettelse krever samtidig vedtak i FLERE rettssubjekter, og er områdeavgrenset (samme domssogn). [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter. [#356, juristrunden] Dersom-vilkåret i samme setning er et vilkår for kompetansen (L9).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u74",
@@ -9986,8 +10014,9 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "[#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter.",
-   "delegerbar": true
+   "kommentar": "[#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u78",
@@ -10004,7 +10033,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
    "kommentar": "Den som nedsetter/oppnevner (Kongen § 29, DA § 20) — ikke sagt direkte. Ankeinstans fastsettes ad hoc.",
-   "undertype": "utpeking"
+   "undertype": "utpeking",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u79",
@@ -10052,7 +10082,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "Budsjettstyring, ikke ordinær instruksjon."
+   "kommentar": "Budsjettstyring, ikke ordinær instruksjon.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u82",
@@ -10068,8 +10099,9 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Begrenset instruksjonsrett — formkrav (statsråd), høring og underretning. Modellen må kunne knytte vilkår til en instruksjonsrelasjon.",
-   "delegerbar": false
+   "kommentar": "Begrenset instruksjonsrett — formkrav (statsråd), høring og underretning. Modellen må kunne knytte vilkår til en instruksjonsrelasjon. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_ikke_delegerbar"
   },
   {
    "id": "u83",
@@ -10133,9 +10165,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
-   "delegerbar": true,
-   "undertype": "oppnevning"
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+   "undertype": "oppnevning",
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u87",
@@ -10152,7 +10185,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Blandet oppnevning: to ulike statsmakter besetter samme organ.",
-   "undertype": "valg"
+   "undertype": "valg",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u88",
@@ -10168,8 +10202,9 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
-   "delegerbar": true
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u89",
@@ -10185,9 +10220,10 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Avsettingsmyndighet over et helt kollegialt organ.",
-   "delegerbar": true,
-   "undertype": "avsetting"
+   "kommentar": "Avsettingsmyndighet over et helt kollegialt organ. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+   "undertype": "avsetting",
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u90",
@@ -10203,7 +10239,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "lav",
-   "kommentar": "Forutsatt, ikke uttrykkelig hjemlet her."
+   "kommentar": "Forutsatt, ikke uttrykkelig hjemlet her.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u91",
@@ -10251,7 +10288,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann)."
   },
   {
    "id": "u94",
@@ -10267,8 +10304,9 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Kongen i statsråd (ikke departementet).",
-   "delegerbar": false
+   "kommentar": "Kongen i statsråd (ikke departementet). [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_ikke_delegerbar"
   },
   {
    "id": "u95",
@@ -10284,8 +10322,9 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Arbeidsgivermyndighet ≠ oppnevning til verv.",
-   "undertype": "ansettelse"
+   "kommentar": "Arbeidsgivermyndighet ≠ oppnevning til verv. [#367, D3] Delegering uttrykkelig tillatt: TEKSTFUNN i sitatet.",
+   "undertype": "ansettelse",
+   "delegeringsadgang": "uttrykkelig_tillatt"
   },
   {
    "id": "u96",
@@ -10333,7 +10372,7 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann)."
   },
   {
    "id": "u99",
@@ -10365,7 +10404,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Også «faste dommerstillinger felles for flere domstoler» — stilling knyttet til flere organer samtidig."
+   "kommentar": "Også «faste dommerstillinger felles for flere domstoler» — stilling knyttet til flere organer samtidig.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u101",
@@ -10381,9 +10421,12 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u102",
@@ -10481,7 +10524,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "undertype": "utpeking"
+   "undertype": "utpeking",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u108",
@@ -10513,9 +10557,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u110",
@@ -10547,9 +10592,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u112",
@@ -10565,9 +10611,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u113",
@@ -10583,9 +10630,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u114",
@@ -10618,7 +10666,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
    "kommentar": "",
-   "undertype": "utpeking"
+   "undertype": "utpeking",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u116",
@@ -10634,9 +10683,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u117",
@@ -10702,9 +10752,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "UTNEVNING som embetsmann (Grl. § 21) — sterkere enn oppnevning; modellen bør skille utnevning/oppnevning/tilsetting/konstitusjon. [#355, juristrunden] delegerbar = false: sitatet viser til Grunnloven § 21 (Kongen utnevner embetsmenn «etter å ha hørt sitt statsråd», jf. § 28) — Kongen i statsråd, som #335-regelen gir false for. [slutning fra Grl. § 21, i korpus]",
-   "delegerbar": false,
-   "undertype": "utnevning"
+   "kommentar": "UTNEVNING som embetsmann (Grl. § 21) — sterkere enn oppnevning; modellen bør skille utnevning/oppnevning/tilsetting/konstitusjon. [#355, juristrunden] delegerbar = false: sitatet viser til Grunnloven § 21 (Kongen utnevner embetsmenn «etter å ha hørt sitt statsråd», jf. § 28) — Kongen i statsråd, som #335-regelen gir false for. [slutning fra Grl. § 21, i korpus] [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+   "undertype": "utnevning",
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_ikke_delegerbar"
   },
   {
    "id": "u121",
@@ -10753,7 +10804,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u124",
@@ -10770,7 +10822,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "undertype": "konstitusjon"
+   "undertype": "konstitusjon",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u125",
@@ -10802,9 +10855,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
-   "delegerbar": true,
-   "undertype": "oppnevning"
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+   "undertype": "oppnevning",
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u127",
@@ -10820,7 +10874,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u128",
@@ -10900,9 +10955,12 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u133",
@@ -10919,7 +10977,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "undertype": "konstitusjon"
+   "undertype": "konstitusjon",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u134",
@@ -10935,8 +10994,9 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
-   "undertype": "konstitusjon"
+   "kommentar": "[#367, D3] Delegering uttrykkelig tillatt: TEKSTFUNN i sitatet.",
+   "undertype": "konstitusjon",
+   "delegeringsadgang": "uttrykkelig_tillatt"
   },
   {
    "id": "u135",
@@ -10969,7 +11029,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "undertype": "konstitusjon"
+   "undertype": "konstitusjon",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u137",
@@ -10985,9 +11046,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Kompetansefordeling styrt av varighet og domstol.",
-   "delegerbar": true,
-   "undertype": "konstitusjon"
+   "kommentar": "Kompetansefordeling styrt av varighet og domstol. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+   "undertype": "konstitusjon",
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u138",
@@ -11036,7 +11098,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "undertype": "ansettelse"
+   "undertype": "ansettelse",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u141",
@@ -11053,7 +11116,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u142",
@@ -11069,7 +11133,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u143",
@@ -11085,7 +11150,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u144",
@@ -11101,9 +11167,9 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Kommunalt organ besetter et statlig rettspleieorgan.",
+   "kommentar": "Kommunalt organ besetter et statlig rettspleieorgan. [#367, D1] Delegering uttrykkelig forbudt: TEKSTFUNN i sitatet.",
    "undertype": "valg",
-   "delegerbar": false
+   "delegeringsadgang": "uttrykkelig_forbudt"
   },
   {
    "id": "u145",
@@ -11135,7 +11201,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "To-trinns besettelse: kommunestyret VELGER, statsforvalteren OPPNEVNER etter lovlighetskontroll."
+   "kommentar": "To-trinns besettelse: kommunestyret VELGER, statsforvalteren OPPNEVNER etter lovlighetskontroll.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u147",
@@ -11151,7 +11218,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u148",
@@ -11167,7 +11235,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Hvilken statsforvalter løses via område."
+   "kommentar": "Hvilken statsforvalter løses via område.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u149",
@@ -11184,7 +11253,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "undertype": "oppnevning"
+   "undertype": "oppnevning",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u150",
@@ -11200,9 +11270,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u151",
@@ -11219,7 +11290,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "undertype": "ansettelse"
+   "undertype": "ansettelse",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u152",
@@ -11236,7 +11308,8 @@
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "undertype": "ansettelse"
+   "undertype": "ansettelse",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u153",
@@ -11252,7 +11325,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u154",
@@ -11300,7 +11374,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u157",
@@ -11316,7 +11391,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u158",
@@ -11396,7 +11472,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u163",
@@ -11444,7 +11521,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u166",
@@ -11460,9 +11538,9 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D1] Delegering uttrykkelig forbudt: TEKSTFUNN i sitatet.",
    "undertype": "valg",
-   "delegerbar": false
+   "delegeringsadgang": "uttrykkelig_forbudt"
   },
   {
    "id": "u167",
@@ -11495,7 +11573,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u169",
@@ -11511,7 +11590,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u170",
@@ -11527,7 +11607,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u171",
@@ -11543,7 +11624,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u172",
@@ -11560,7 +11642,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "DA (statlig) gir forskrift som binder kommunene.",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u173",
@@ -11592,7 +11677,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Jf. § 68: formannskapet/fast utvalg — kommunens interne kompetanse."
+   "kommentar": "Jf. § 68: formannskapet/fast utvalg — kommunens interne kompetanse.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u175",
@@ -11608,7 +11694,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u176",
@@ -11624,7 +11711,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Domstol som KLAGEINSTANS for kommunal forvaltningsavgjørelse — krysser statsmaktsgrensen. Avgjøres ved kjennelse."
+   "kommentar": "Domstol som KLAGEINSTANS for kommunal forvaltningsavgjørelse — krysser statsmaktsgrensen. Avgjøres ved kjennelse.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u177",
@@ -11640,9 +11728,12 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u178",
@@ -11658,7 +11749,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": true,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u179",
@@ -11675,7 +11767,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "Tilsvarende i § 90 femte ledd og § 91 fjerde ledd (ikke annotert separat).",
-   "undertype": "anke"
+   "undertype": "anke",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u180",
@@ -11774,7 +11867,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u186",
@@ -11807,7 +11901,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "undertype": "oppnevning"
+   "undertype": "oppnevning",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u188",
@@ -11823,7 +11918,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Faglig tilsyn mellom personer i samme organ."
+   "kommentar": "Faglig tilsyn mellom personer i samme organ.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u189",
@@ -11839,7 +11935,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u190",
@@ -11855,7 +11952,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u191",
@@ -11887,7 +11985,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "[#367, D3] Delegering uttrykkelig tillatt: TEKSTFUNN i sitatet.",
+   "delegeringsadgang": "uttrykkelig_tillatt"
   },
   {
    "id": "u193",
@@ -11919,7 +12018,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u195",
@@ -11967,9 +12067,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u198",
@@ -11985,7 +12086,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u199",
@@ -12001,9 +12103,12 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "[#356, tillegg 2026-10-09] Objektet var «sidegjøremål».",
+   "kommentar": "[#356, tillegg 2026-10-09] Objektet var «sidegjøremål». [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u200",
@@ -12019,9 +12124,12 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u201",
@@ -12038,7 +12146,10 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u202",
@@ -12054,9 +12165,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u203",
@@ -12072,9 +12184,12 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
   },
   {
    "id": "u204",
@@ -12090,7 +12205,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u205",
@@ -12107,7 +12223,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u206",
@@ -12123,7 +12240,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u207",
@@ -12140,7 +12258,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "",
-   "normform": "forskrift"
+   "normform": "forskrift",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u208",
@@ -12156,9 +12275,12 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
   },
   {
    "id": "u209",
@@ -12174,9 +12296,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u210",
@@ -12192,7 +12315,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Lukket liste av organer med en bestemt kompetanse — medlemskap i en implisitt klasse «forkynningsmyndigheter»."
+   "kommentar": "Lukket liste av organer med en bestemt kompetanse — medlemskap i en implisitt klasse «forkynningsmyndigheter».",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u211",
@@ -12208,7 +12332,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Lukket liste av organer med en bestemt kompetanse — medlemskap i en implisitt klasse «forkynningsmyndigheter»."
+   "kommentar": "Lukket liste av organer med en bestemt kompetanse — medlemskap i en implisitt klasse «forkynningsmyndigheter».",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u212",
@@ -12224,7 +12349,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Lukket liste av organer med en bestemt kompetanse — medlemskap i en implisitt klasse «forkynningsmyndigheter»."
+   "kommentar": "Lukket liste av organer med en bestemt kompetanse — medlemskap i en implisitt klasse «forkynningsmyndigheter».",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u213",
@@ -12240,7 +12366,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Lukket liste av organer med en bestemt kompetanse — medlemskap i en implisitt klasse «forkynningsmyndigheter»."
+   "kommentar": "Lukket liste av organer med en bestemt kompetanse — medlemskap i en implisitt klasse «forkynningsmyndigheter».",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u214",
@@ -12256,7 +12383,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Lukket liste av organer med en bestemt kompetanse — medlemskap i en implisitt klasse «forkynningsmyndigheter»."
+   "kommentar": "Lukket liste av organer med en bestemt kompetanse — medlemskap i en implisitt klasse «forkynningsmyndigheter».",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u215",
@@ -12272,7 +12400,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Lukket liste av organer med en bestemt kompetanse — medlemskap i en implisitt klasse «forkynningsmyndigheter»."
+   "kommentar": "Lukket liste av organer med en bestemt kompetanse — medlemskap i en implisitt klasse «forkynningsmyndigheter».",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u216",
@@ -12288,7 +12417,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Lukket liste av organer med en bestemt kompetanse — medlemskap i en implisitt klasse «forkynningsmyndigheter»."
+   "kommentar": "Lukket liste av organer med en bestemt kompetanse — medlemskap i en implisitt klasse «forkynningsmyndigheter».",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u217",
@@ -12304,7 +12434,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Lukket liste av organer med en bestemt kompetanse — medlemskap i en implisitt klasse «forkynningsmyndigheter»."
+   "kommentar": "Lukket liste av organer med en bestemt kompetanse — medlemskap i en implisitt klasse «forkynningsmyndigheter».",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u218",
@@ -12320,7 +12451,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Lukket liste av organer med en bestemt kompetanse — medlemskap i en implisitt klasse «forkynningsmyndigheter»."
+   "kommentar": "Lukket liste av organer med en bestemt kompetanse — medlemskap i en implisitt klasse «forkynningsmyndigheter».",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u219",
@@ -12336,9 +12468,12 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Delegert til JD ved forskrift 2012/119 punkt 1.",
+   "kommentar": "Delegert til JD ved forskrift 2012/119 punkt 1. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u220",
@@ -12354,9 +12489,12 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Delegert til JD ved forskrift 2012/119 punkt 1.",
+   "kommentar": "Delegert til JD ved forskrift 2012/119 punkt 1. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
   },
   {
    "id": "u221",
@@ -12372,9 +12510,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u222",
@@ -12390,7 +12529,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u223",
@@ -12406,9 +12546,12 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
   },
   {
    "id": "u224",
@@ -12441,9 +12584,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u226",
@@ -12459,9 +12603,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u227",
@@ -12541,9 +12686,12 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Delegert til JD ved forskrift 2012/119 punkt 2.",
+   "kommentar": "Delegert til JD ved forskrift 2012/119 punkt 2. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
   },
   {
    "id": "u232",
@@ -12559,9 +12707,12 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
   },
   {
    "id": "u233",
@@ -12577,9 +12728,12 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
   },
   {
    "id": "u234",
@@ -12611,7 +12765,8 @@
    "betinget": true,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": "[#356, juristrunden] Omkostningsansvar er kompensasjon, ikke reaksjon (#355 beslutning 3, som kort nr. 61). Var sanksjonskompetanse."
+   "kommentar": "[#356, juristrunden] Omkostningsansvar er kompensasjon, ikke reaksjon (#355 beslutning 3, som kort nr. 61). Var sanksjonskompetanse.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u236",
@@ -12643,7 +12798,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u238",
@@ -12659,7 +12815,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "[#356, juristrunden] «saadant ansvar» er straff og erstatning (første ledd). Straffen står her (sanksjon), og erstatningen er egen rad (kort nr. 61)."
+   "kommentar": "[#356, juristrunden] «saadant ansvar» er straff og erstatning (første ledd). Straffen står her (sanksjon), og erstatningen er egen rad (kort nr. 61).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u239",
@@ -12675,7 +12832,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u240",
@@ -12708,7 +12866,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u242",
@@ -12724,7 +12883,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Disiplinærtilsyn med personer (dommere), ikke med organer. [#356, juristrunden] § 236 fjerde ledd gjelder hele utvalgets virksomhet (kort nr. 62)."
+   "kommentar": "Disiplinærtilsyn med personer (dommere), ikke med organer. [#356, juristrunden] § 236 fjerde ledd gjelder hele utvalgets virksomhet (kort nr. 62).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u243",
@@ -12740,7 +12900,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Klage over PERSON, ikke over vedtak — annen betydning av «klage» enn forvaltningsrettens. [#356, juristrunden] § 236 fjerde ledd gjelder hele utvalgets virksomhet (kort nr. 62)."
+   "kommentar": "Klage over PERSON, ikke over vedtak — annen betydning av «klage» enn forvaltningsrettens. [#356, juristrunden] § 236 fjerde ledd gjelder hele utvalgets virksomhet (kort nr. 62).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u244",
@@ -12772,9 +12933,10 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
-   "delegerbar": true,
-   "undertype": "oppnevning"
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+   "undertype": "oppnevning",
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar"
   },
   {
    "id": "u246",
@@ -12790,7 +12952,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u247",
@@ -12806,7 +12969,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "[#356, kort nr. 62] Disiplinærtiltak (kritikk, advarsel) er selv reaksjoner (#355 beslutning 3): sanksjonskompetanse overfor dommere. u248 («kan ikke vurdere …») er avgrensning her, ikke en egen negativ tilsynskant. Var vedtakskompetanse."
+   "kommentar": "[#356, kort nr. 62] Disiplinærtiltak (kritikk, advarsel) er selv reaksjoner (#355 beslutning 3): sanksjonskompetanse overfor dommere. u248 («kan ikke vurdere …») er avgrensning her, ikke en egen negativ tilsynskant. Var vedtakskompetanse.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u249",
@@ -12918,7 +13082,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Domstolskontroll i stedet for forvaltningsklage."
+   "kommentar": "Domstolskontroll i stedet for forvaltningsklage.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u256",
@@ -12934,9 +13099,12 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
   },
   {
    "id": "u257",
@@ -12952,9 +13120,12 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
   },
   {
    "id": "u258",
@@ -12970,9 +13141,12 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "",
+   "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
    "normform": "forskrift",
-   "delegerbar": true
+   "delegeringsadgang": "ikke_regulert",
+   "delegering_slutning": "trolig_delegerbar",
+   "kunnskapsstatus": "normalisering",
+   "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «kan X gi forskrift» → normgivningskompetanse"
   },
   {
    "id": "u259",
@@ -12989,7 +13163,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "middels",
    "kommentar": "Disjunktiv oppnevner (Kongen ELLER Stortinget ELLER et departement ELLER en statsforvalter) — kan ikke uttrykkes med én fra-aktør.",
-   "undertype": "oppnevning"
+   "undertype": "oppnevning",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u260",
@@ -13005,7 +13180,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u261",
@@ -13021,7 +13197,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": ""
+   "kommentar": "",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u262",
@@ -13037,7 +13214,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "Giveren (Kongen, jf. § 48 «hvis ikke andet er bestemt av Kongen») står ikke i forskriftsteksten. Tittelen kaller det «delegering», men materielt er det unntak fra kanalkravet via departementet."
+   "kommentar": "Giveren (Kongen, jf. § 48 «hvis ikke andet er bestemt av Kongen») står ikke i forskriftsteksten. Tittelen kaller det «delegering», men materielt er det unntak fra kanalkravet via departementet.",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u263",
@@ -13246,7 +13424,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "METONYMI: ankeinstans «for rettskretser» (områder), ikke for tingretter. Modellen må kunne løse område→organ. [#355, beslutning 4] Målet er organet: til = tingrettene (var «domssogn», rettskretsene). Rettskretsen er avgrensning, ikke motpart (L1). Paret lagmannsrett ↔ tingrett regnes ut via tingrett → lagsogn → lagdømme (#345) og lagres ikke dobbelt.",
-   "undertype": "anke"
+   "undertype": "anke",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u276",
@@ -21631,7 +21810,8 @@
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
    "kommentar": "[#355, juristrunden] Høyesteretts ankekompetanse etter § 37, adskilt fra departementets ankeadgang (u102, regellaget).",
-   "undertype": "anke"
+   "undertype": "anke",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u855",
@@ -21647,8 +21827,9 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "[#355, juristrunden] Punktumet har to regler (L13): Innstillingsrådet (denne raden) og Kongen (u137).",
-   "undertype": "konstitusjon"
+   "kommentar": "[#355, juristrunden] Punktumet har to regler (L13): Innstillingsrådet (denne raden) og Kongen (u137). [#367, D3] Delegering uttrykkelig tillatt: TEKSTFUNN i sitatet.",
+   "undertype": "konstitusjon",
+   "delegeringsadgang": "uttrykkelig_tillatt"
   },
   {
    "id": "u856",
@@ -21714,7 +21895,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "[#356, kort nr. 62] Uttalelseskompetansen etter § 236 tredje ledd: ikke sanksjon (ingen disiplinærtiltak) og ikke bindende — annet:uttalelse, med samme avgrensning som u247 (§ 236 fjerde ledd gjelder hele utvalgets virksomhet)."
+   "kommentar": "[#356, kort nr. 62] Uttalelseskompetansen etter § 236 tredje ledd: ikke sanksjon (ingen disiplinærtiltak) og ikke bindende — annet:uttalelse, med samme avgrensning som u247 (§ 236 fjerde ledd gjelder hele utvalgets virksomhet).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u860",
@@ -21746,7 +21928,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "[#356, juristrunden] Skilt ut fra u238 (L13): erstatning er kompensasjon, ikke reaksjon (kort nr. 61)."
+   "kommentar": "[#356, juristrunden] Skilt ut fra u238 (L13): erstatning er kompensasjon, ikke reaksjon (kort nr. 61).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u862",
@@ -21762,7 +21945,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "[#356, juristrunden] § 213 første ledd første punktum: hovedregelen som de negative forliksrådsradene (u236 og raden for erstatning) er unntak fra. Straff er sanksjon og erstatning beslutning (kort nr. 61)."
+   "kommentar": "[#356, juristrunden] § 213 første ledd første punktum: hovedregelen som de negative forliksrådsradene (u236 og raden for erstatning) er unntak fra. Straff er sanksjon og erstatning beslutning (kort nr. 61).",
+   "delegeringsadgang": "ikke_regulert"
   },
   {
    "id": "u863",
@@ -21778,7 +21962,8 @@
    "betinget": false,
    "kilde_utenfor_korpus": false,
    "sikkerhet": "hoy",
-   "kommentar": "[#356, juristrunden] § 213 første ledd første punktum: hovedregelen som de negative forliksrådsradene (u236 og raden for erstatning) er unntak fra. Straff er sanksjon og erstatning beslutning (kort nr. 61)."
+   "kommentar": "[#356, juristrunden] § 213 første ledd første punktum: hovedregelen som de negative forliksrådsradene (u236 og raden for erstatning) er unntak fra. Straff er sanksjon og erstatning beslutning (kort nr. 61).",
+   "delegeringsadgang": "ikke_regulert"
   }
  ]
 }

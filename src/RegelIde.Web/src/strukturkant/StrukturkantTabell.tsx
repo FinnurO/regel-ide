@@ -7,6 +7,7 @@ import type { Kompetansefamilie, RettskildeNodeDto, StrukturkantDto, Strukturkan
 import { paragrafEtikett } from '../rettskilde/paragrafEtikett';
 import { Metatekst } from '../entitet/Metatekst';
 import { KILDETYPE_VISNING } from './KildeUtenforKorpus';
+import { DelegeringTag, GodkjenningTag, KunnskapsstatusTag } from './Utsagnsstatus';
 
 /**
  * [Ny, issue #311 «Strukturmodell 6», 2026-10-07] ÉN delt visning av strukturkanter (docs/33 §4.3) — brukt av
@@ -18,8 +19,9 @@ import { KILDETYPE_VISNING } from './KildeUtenforKorpus';
  * <ul>
  *   <li>Kategorien er en KLASSIFISERING, ikke en status — `neutral`, aldri statusfarger.</li>
  *   <li>Negativ polaritet er `warning`: «kan IKKE instruere» skal ikke kunne leses som at relasjonen gjelder.</li>
- *   <li>Et forslag (`foreslatt_av_ai`) er `info` med oppdagelseskilden i teksten — det er en ubekreftet
- *       påstand, og skal ikke se ut som en validert.</li>
+ *   <li>Et forslag (`maskinelt_foreslatt`, før #367 `foreslatt_av_ai`) er `info` med oppdagelseskilden i teksten — det er en
+ *       ubekreftet påstand, og skal ikke se ut som en godkjent.</li>
+ *   <li>[Ny, issue #367] Kunnskapsstatus og godkjenning er EGNE merker (`Utsagnsstatus.tsx`, docs/09 §35).</li>
  *   <li>«Ingen hjemmel» er `warning` pluss kilden (docs/09 §18) — et forhold bekreftet mot et org-kart
  *       skal ikke kunne forveksles med et som står i en bestemmelse.</li>
  * </ul>
@@ -170,12 +172,8 @@ export function StrukturkantTabell({ kanter, tomTekst, visKategori = false, visH
                       )}
                       {/* [Ny, issue #341] Kompetansens egenskaper — klassifiseringer (`neutral`), ikke statuser (docs/09 §31).
                         * Normform, undertype (#352) og motpart står alt i utsagnsteksten. NULL vises ikke: «ikke angitt» er ikke en påstand. */}
-                      {k.kategori === 'K' && k.delegerbar !== null && (
-                        <Tag data-size="sm" data-color="neutral"
-                          title={k.delegerbar ? 'Kompetansen kan delegeres videre («Kongen …»).' : 'Kompetansen kan ikke delegeres («Kongen i statsråd …», «… selv»).'}>
-                          {k.delegerbar ? 'Kan delegeres' : 'Kan ikke delegeres'}
-                        </Tag>
-                      )}
+                      {/* [ENDRET, issue #367 / #335] Tekstfunn og slutning ser aldri like ut. */}
+                      {k.kategori === 'K' && <DelegeringTag adgang={k.delegeringsadgang} slutning={k.delegeringSlutning} />}
                       {k.kategori === 'K' && k.grunnlag && (
                         <Tag data-size="sm" data-color="neutral" title="Kompetansens grunnlag (issue #341).">
                           {k.grunnlag === 'privatrettslig' ? 'Privatrettslig (eierskap)' : 'Offentligrettslig'}
@@ -184,9 +182,13 @@ export function StrukturkantTabell({ kanter, tomTekst, visKategori = false, visH
                       {visFamilie && k.kategori === 'K' && k.familie && (
                         <Tag data-size="sm" data-color="neutral" title="Kompetansefamilie (issue #341).">{FAMILIE_VISNING[k.familie]}</Tag>
                       )}
-                      {k.status === 'foreslatt_av_ai' && (
-                        <Tag data-size="sm" data-color="info" title="Ikke bekreftet av et menneske — regnes ikke som gjeldende.">
-                          Forslag ({k.oppdagelsesKilde})
+                      {/* [Ny, issue #367] Kunnskapsstatus (metoden) og godkjenning (hvem) — to egne merker. */}
+                      <KunnskapsstatusTag status={k.kunnskapsstatus} premisser={k.premissIder} />
+                      <GodkjenningTag status={k.status} oppdagelsesKilde={k.oppdagelsesKilde} />
+                      {k.hjemmelEndretTidspunkt && (
+                        <Tag data-size="sm" data-color="warning"
+                          title={`Hjemmelens tekst er endret i en ny versjon (${k.hjemmelEndretTidspunkt.slice(0, 10)}). Ingenting annet er endret.`}>
+                          Hjemmel endret – vurder på nytt
                         </Tag>
                       )}
                     </span>

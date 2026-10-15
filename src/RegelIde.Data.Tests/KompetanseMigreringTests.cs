@@ -133,8 +133,8 @@ public class KompetanseMigreringTests
             Assert.Equal(((string?)null, Spenn(lovEid)), ((await LesAsync(etter, mAnnenLov)).HjemmelEid, (await LesAsync(etter, mAnnenLov)).Spenn));
             Assert.Equal(((string?)null, "[]"), ((await LesAsync(etter, mUtenSpenn)).HjemmelEid, (await LesAsync(etter, mUtenSpenn)).Spenn));
 
-            // Ingen grunnlag eller delegerbar er gjettet.
-            Assert.False(await etter.Strukturkanter.AnyAsync(k => k.Grunnlag != null || k.Delegerbar != null));
+            // Ingen grunnlag eller delegerbar er gjettet ([ENDRET, #367] delegerbar → delegeringsadgang/slutning etter siste migrasjon).
+            Assert.False(await etter.Strukturkanter.AnyAsync(k => k.Grunnlag != null || k.Delegeringsadgang != null || k.DelegeringSlutning != null));
 
             // Én proveniensrad per endret kant (3 flyttet + 2 hjemmelssted), med de gamle verdiene.
             var prov = await etter.Proveniens.AsNoTracking()

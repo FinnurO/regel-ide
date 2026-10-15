@@ -60,9 +60,9 @@ public sealed record KiOppdagelseResultat(
 /// <item>Selve navneform-kandidaten opprettes med <c>Status = "Venter"</c> og
 /// <see cref="NavnekandidatOppdagelseTjeneste.KiFriSveipOppdagelsesKilde"/> — UENDRET fra ethvert annet
 /// sveiptreff, må gjennom nøyaktig samme godkjenn/avvis-flyt/veiviser som et menneske ville brukt.</item>
-/// <item>Rolle-/relasjon-/gruppe-av-gruppe-forslagene skrives med <c>Status = "foreslatt_av_ai"</c> (issue
+/// <item>Rolle-/relasjon-/gruppe-av-gruppe-forslagene skrives med <c>Status = "maskinelt_foreslatt"</c> ([ENDRET #367], før <c>foreslatt_av_ai</c>) (issue
 /// #285 AC5 — statusfeltet på <see cref="StrukturkantEntitet"/>, med <c>OppdagelsesKilde = "ki:&lt;modell&gt;"</c>),
-/// ALDRI <c>"validert"</c> direkte — et menneske må eksplisitt godkjenne
+/// ALDRI <c>"godkjent"</c> direkte — et menneske må eksplisitt godkjenne
 /// (<see cref="StrukturkantTjeneste.GodkjennAsync"/>) før raden regnes som gjeldende (issue #285 AC6).</item>
 /// </list>
 /// </para>
@@ -419,7 +419,7 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
             var tildeling = await strukturkanter.OpprettTildelingAsync(
                 // [ENDRET, issue #341] Paragrafen KI-en peker på er HVOR rollen tildeles (hjemmel-eId), ikke en avgrensning.
                 virksomhetId.Value, rolleTreff[0], rettskildeId, paragrafEid, avgrensning: null,
-                avgrensningTekst: null, opprettetAv, ct: ct, status: "foreslatt_av_ai", aiForslagVersjon: AiForslagVersjon);
+                avgrensningTekst: null, opprettetAv, ct: ct, status: Strukturkanter.MaskineltForeslatt, aiForslagVersjon: AiForslagVersjon);
             return (tildeling.Kant.Id, null);
         }
         catch (ArgumentException ex)
@@ -483,7 +483,7 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
                 // Typen gjettes ikke: KI-en har ikke sagt hvor relasjonen er dokumentert — «annet».
                 KildeUtenforKorpusType: relasjon.HjemletHer ? null : Strukturkanter.NettsideAnnet,
                 KildeUtenforKorpusDokumentasjon: relasjon.HjemletHer ? null : Strukturkanter.Sekundaer,
-                Status: "foreslatt_av_ai", AiForslagVersjon: AiForslagVersjon), opprettetAv, ct);
+                Status: Strukturkanter.MaskineltForeslatt, AiForslagVersjon: AiForslagVersjon), opprettetAv, ct);
             return (opprettet.Kant.Id, null);
         }
         catch (ArgumentException ex)
@@ -542,7 +542,7 @@ public sealed class VirksomhetOgGruppeKiOppdagelseTjeneste(
                 Strukturkanter.Medlemskap, Strukturkanter.MedlemAv,
                 Kantnode.Begrep(underordnetTreff[0]), Kantnode.Begrep(overordnetTreff[0]),
                 HjemmelRettskildeId: rettskildeId, HjemmelEid: nodeEid, // [ENDRET, #341] hjemmelssted, ikke avgrensning
-                Status: "foreslatt_av_ai", AiForslagVersjon: AiForslagVersjon), opprettetAv, ct);
+                Status: Strukturkanter.MaskineltForeslatt, AiForslagVersjon: AiForslagVersjon), opprettetAv, ct);
             return (opprettet.Kant.Id, null);
         }
         catch (ArgumentException ex)

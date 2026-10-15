@@ -565,12 +565,18 @@ public sealed record StrukturkantDto(
     DateOnly? GyldigFra, DateOnly? GyldigTil, string Status, string OppdagelsesKilde, string? Kommentar,
     string OpprettetAv, DateTimeOffset OpprettetTidspunkt,
     // [Ny, issue #341] K-feltene, og familie/fvl-kategori fra typekonfigurasjonen.
-    string? Normform, string? Grunnlag, bool? Delegerbar, bool Selvregulering, string? Familie, string? FvlKategori,
+    // [ENDRET, issue #367 / #335] delegerbar → delegeringsadgang (etter teksten) + delegeringSlutning (alltid en slutning).
+    string? Normform, string? Grunnlag, string? Delegeringsadgang, string? DelegeringSlutning, bool Selvregulering, string? Familie, string? FvlKategori,
     // [Ny, issue #352] Undertypen på oppnevning (valg/ansettelse/utpeking/oppnevning) og overprøving (anke). Null = ikke angitt.
     // [ENDRET, issue #355] + oppnevning: utnevning/konstitusjon; avsetting: avsetting/oppsigelse/avskjed; vedtak: tilbakekall.
     string? Undertype,
     // [Ny, issue #353] Modaliteten på en plikt (skal/kan/bor). Null = ikke angitt.
-    string? Modalitet = null)
+    string? Modalitet = null,
+    // [Ny, issue #367] Utsagnsstatus: status er GODKJENNING; kunnskapsstatus er metoden (null = ikke vurdert), med begrunnelse,
+    // tolkningsargumenter, premisser (avledet), analysehistorikk og den versjonerte hjemmelen.
+    string? Kunnskapsstatus = null, string? Begrunnelse = null, IReadOnlyList<string>? Tolkningsargumenter = null,
+    IReadOnlyList<Guid>? PremissIder = null, string Entitetsstatus = "gjeldende", Guid? ErstatterKantId = null, string? Profilversjon = null,
+    Guid? HjemmelNodeId = null, string? HjemmelVersjonMerknad = null, DateTimeOffset? HjemmelEndretTidspunkt = null)
 {
     public static StrukturkantDto FraVisning(StrukturkantVisning v) => new(
         v.Id, v.Kategori, v.Typekode, v.Retning, v.Visningstekst,
@@ -579,7 +585,9 @@ public sealed record StrukturkantDto(
         v.HjemmelRettskildeId, v.HjemmelRettskildeTittel, v.HjemmelEid,
         v.KildeUtenforKorpusTekst, v.KildeUtenforKorpusLenke, v.KildeUtenforKorpusType, v.KildeUtenforKorpusDokumentasjon, v.GyldigFra, v.GyldigTil, v.Status, v.OppdagelsesKilde,
         v.Kommentar, v.OpprettetAv, v.OpprettetTidspunkt,
-        v.Normform, v.Grunnlag, v.Delegerbar, v.Selvregulering, v.Familie, v.FvlKategori, v.Undertype, v.Modalitet);
+        v.Normform, v.Grunnlag, v.Delegeringsadgang, v.DelegeringSlutning, v.Selvregulering, v.Familie, v.FvlKategori, v.Undertype, v.Modalitet,
+        v.Kunnskapsstatus, v.Begrunnelse, v.Tolkningsargumenter, v.PremissIder, v.Entitetsstatus, v.ErstatterKantId, v.Profilversjon,
+        v.HjemmelNodeId, v.HjemmelVersjonMerknad, v.HjemmelEndretTidspunkt);
 }
 
 /// <summary>[Ny, issue #311] Rå kantfelt uten navn/visningstekst — svaret fra veiviserens kobl-til-*-endepunkter,
@@ -599,9 +607,9 @@ public sealed record StrukturkantRadDto(
 }
 
 /// <summary>[Ny, issue #311] Forespørsel for <c>POST /api/strukturkanter</c>. Nøyaktig én av
-/// <c>FraVirksomhetId</c>/<c>FraBegrepId</c>; høyst én av til-feltene (begge null bare for K/T). Status og
-/// oppdagelseskilde settes ikke av klienten: et menneske som registrerer en kant registrerer en validert,
-/// manuell opplysning (forslag kommer fra KI-/mønsterlaget, docs/33 §5.3).</summary>
+/// <c>FraVirksomhetId</c>/<c>FraBegrepId</c>; høyst én av til-feltene (begge null bare for K/T). Oppdagelseskilden settes ikke av
+/// klienten (manuell). [ENDRET, issue #367] Godkjenningen kan oppgis som <c>manuelt_foreslatt</c>, <c>faglig_vurdert</c> eller
+/// <c>godkjent</c> (standard: godkjent — et menneskes registrering); <c>maskinelt_foreslatt</c> kommer bare fra KI-/mønsterlaget.</summary>
 public sealed record StrukturkantRequest(
     string Kategori, string Typekode,
     Guid? FraVirksomhetId, Guid? FraBegrepId, Guid? TilVirksomhetId, Guid? TilBegrepId,
@@ -613,12 +621,16 @@ public sealed record StrukturkantRequest(
     // [Ny, Johanns beslutning 2026-10-07] Påkrevd sammen med KildeUtenforKorpusTekst — se
     // StrukturkantEntitet.KildeUtenforKorpusType. Dokumentasjon: primaer|sekundaer, påkrevd sammen med typen.
     string? KildeUtenforKorpusType = null, string? KildeUtenforKorpusDokumentasjon = null,
-    // [Ny, issue #341] Bare på K: normform (bare normgivning), grunnlag og delegerbar. Null = ikke angitt.
-    string? Normform = null, string? Grunnlag = null, bool? Delegerbar = null,
+    // [Ny, issue #341] Bare på K: normform (bare normgivning) og grunnlag. Null = ikke angitt.
+    // [ENDRET, issue #367 / #335] delegerbar → delegeringsadgang + delegeringSlutning.
+    string? Normform = null, string? Grunnlag = null, string? Delegeringsadgang = null, string? DelegeringSlutning = null,
     // [Ny, issue #352] Bare på K oppnevning/overproving — se StrukturkantEntitet.Undertype. Null = ikke angitt. [ENDRET, #355] + avsetting og vedtak.
     string? Undertype = null,
     // [Ny, issue #353] Bare på P: skal | kan | bor — se StrukturkantEntitet.Modalitet. Null = ikke angitt.
-    string? Modalitet = null);
+    string? Modalitet = null,
+    // [Ny, issue #367] Godkjenning (se over) og kunnskapsstatus med grunnlag: begrunnelse, tolkningsargumenter, premisser (avledet).
+    string? Status = null, string? Kunnskapsstatus = null, string? Begrunnelse = null, IReadOnlyList<string>? Tolkningsargumenter = null,
+    IReadOnlyList<Guid>? Premisser = null);
 
 /// <summary>[Ny, issue #330, 2026-10-08] PUT /api/strukturkanter/{id}/avgrensning — ERSTATTER kantens avgrensning
 /// (begge feltene; tomt/utelatt spenn og blank tekst fjerner dem). Se <c>StrukturkantTjeneste.OppdaterAvgrensningAsync</c>.</summary>
@@ -731,7 +743,7 @@ public sealed record KommunePlikterDto(
         p.Plikter.Select(t => new PliktTreffDto(StrukturkantDto.FraVisning(t.Kant), t.Retning, t.Grunnlag, t.GrunnlagHull,
             new PliktMotpartDto(t.Motpart.Status,
                 t.Motpart.Kandidater.Select((navn, i) => new TilhorighetskandidatDto(t.Motpart.Ider[i], navn, false)).ToList(),
-                t.Motpart.Hull))).ToList(),
+                t.Motpart.Hull), t.Kunnskapsstatus, t.Premisser)).ToList(),
         p.Hull);
 }
 
@@ -740,7 +752,9 @@ public sealed record KommunePlikterDto(
 /// domstolen, med grunnlaget og instansen per kant; <c>omrader</c> = domstolens områder paret ble regnet ut fra.</summary>
 public sealed record AnkeinstansDto(
     StrukturnodeDto Domstol, string Status, IReadOnlyList<TilhorighetskandidatDto> Kandidater, IReadOnlyList<AnkeinstansKantDto> Kanter,
-    IReadOnlyList<OmradeVisning> Omrader, IReadOnlyList<string> Hull)
+    IReadOnlyList<OmradeVisning> Omrader, IReadOnlyList<string> Hull,
+    // [Ny, issue #367 AC7] Svaret er alltid avledet (regnes ut, lagres ikke), med id-ene til kantene det bygger på.
+    string Kunnskapsstatus, IReadOnlyList<Guid> Premisser)
 {
     public static AnkeinstansDto Fra(AnkeinstansSvar s) => new(
         StrukturnodeDto.FraVisning(s.Domstol), s.Status,
@@ -748,16 +762,19 @@ public sealed record AnkeinstansDto(
         s.Kanter.Select(t => new AnkeinstansKantDto(StrukturkantDto.FraVisning(t.Kant), t.Grunnlag, t.GrunnlagHull,
             new PliktMotpartDto(t.Instans.Status,
                 t.Instans.Kandidater.Select((navn, i) => new TilhorighetskandidatDto(t.Instans.Ider[i], navn, t.Forslag)).ToList(),
-                t.Instans.Hull))).ToList(),
-        s.Omrader, s.Hull);
+                t.Instans.Hull), t.Premisser)).ToList(),
+        s.Omrader, s.Hull, s.Kunnskapsstatus, s.Premisser);
 }
 
 /// <summary>[Ny, issue #355] Én anke-kant sett fra domstolen: <c>grunnlag</c> = direkte | medlem_av | klasse_uten_registrert_medlemskap.</summary>
-public sealed record AnkeinstansKantDto(StrukturkantDto Kant, string Grunnlag, string? GrunnlagHull, PliktMotpartDto Instans);
+public sealed record AnkeinstansKantDto(StrukturkantDto Kant, string Grunnlag, string? GrunnlagHull, PliktMotpartDto Instans,
+    IReadOnlyList<Guid> Premisser); // [Ny, issue #367 AC7]
 
 /// <summary>[Ny, issue #353] Én plikt sett fra kommunen: <c>grunnlag</c> = direkte | medlem_av | klasse_uten_registrert_medlemskap (for kommunens ende).</summary>
 /// [ENDRET, #353-retting] <c>retning</c> = kommunen_skal | overfor_kommunen (kommunen er fra- eller til-siden).
-public sealed record PliktTreffDto(StrukturkantDto Kant, string Retning, string Grunnlag, string? GrunnlagHull, PliktMotpartDto Motpart);
+/// [ENDRET, issue #367 AC7] <c>kunnskapsstatus</c> = avledet når svaret bygger på mer enn den lagrede plikten, med <c>premisser</c>.
+public sealed record PliktTreffDto(StrukturkantDto Kant, string Retning, string Grunnlag, string? GrunnlagHull, PliktMotpartDto Motpart,
+    string? Kunnskapsstatus, IReadOnlyList<Guid> Premisser);
 
 /// <summary>[Ny, issue #353] <c>status</c> = konkret | entydig | ikke_entydig | mangler | ikke_angitt; <c>hull</c> sier hvorfor.</summary>
 public sealed record PliktMotpartDto(string Status, IReadOnlyList<TilhorighetskandidatDto> Kandidater, string? Hull);

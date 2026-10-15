@@ -35,13 +35,13 @@ public class AvslutningMigreringTests
     }
 
     private static async Task<Guid> KantAsync(RegelIdeDbContext db, string kategori, string kode, Guid fraV, Guid tilV, Guid hjemmel,
-        string hjemmelEid, string? undertype = null)
+        string hjemmelEid, string? undertype = null, string status = "validert")
     {
         var id = Guid.NewGuid();
         await db.Database.ExecuteSqlInterpolatedAsync($"""
             INSERT INTO strukturkanter ("Id", kategori, typekode, fra_virksomhet_id, til_virksomhet_id,
                 hjemmel_rettskilde_id, hjemmel_eid, undertype, status, oppdagelses_kilde, opprettet_av, opprettet_tidspunkt)
-            VALUES ({id}, {kategori}, {kode}, {fraV}, {tilV}, {hjemmel}, {hjemmelEid}, {undertype}, 'validert', 'manuell', 'test', now())
+            VALUES ({id}, {kategori}, {kode}, {fraV}, {tilV}, {hjemmel}, {hjemmelEid}, {undertype}, {status}, 'manuell', 'test', now())
             """);
         return id;
     }
@@ -82,10 +82,11 @@ public class AvslutningMigreringTests
                     j.RootElement.GetProperty("kode").GetString(), j.RootElement.GetProperty("familie").GetString()));
             }
 
-            // De nye undertypene er lov etterpå (CHECK-en), en undertype typen ikke har er det ikke.
-            await KantAsync(etter, "K", "avsetting", kommunestyret, forliksradet, lov, eid, "avskjed");
-            await KantAsync(etter, "K", "oppnevning", kommunestyret, forliksradet, lov, eid, "utnevning");
-            await Assert.ThrowsAnyAsync<Exception>(() => KantAsync(etter, "K", "avsetting", kommunestyret, forliksradet, lov, eid, "anke"));
+            // De nye undertypene er lov etterpå (CHECK-en), en undertype typen ikke har er det ikke. ([ENDRET, #367] status «godkjent»
+            // etter siste migrasjon.)
+            await KantAsync(etter, "K", "avsetting", kommunestyret, forliksradet, lov, eid, "avskjed", "godkjent");
+            await KantAsync(etter, "K", "oppnevning", kommunestyret, forliksradet, lov, eid, "utnevning", "godkjent");
+            await Assert.ThrowsAnyAsync<Exception>(() => KantAsync(etter, "K", "avsetting", kommunestyret, forliksradet, lov, eid, "anke", "godkjent"));
         }
 
         // ---- Down nekter så lenge undertypene fra #355 finnes ----
@@ -97,7 +98,7 @@ public class AvslutningMigreringTests
         {
             await rydd.Database.ExecuteSqlInterpolatedAsync($"DELETE FROM strukturkanter WHERE \"Id\" <> {valg}");
         }
-        await HistoriskSkjema.MigrerAsync(conn, HistoriskSkjema.PliktOgOrdning, leggTilSenereKolonner: false);
+        await HistoriskSkjema.MigrerAsync(conn, HistoriskSkjema.PliktOgOrdning, leggTilSenereKolonner: true); // [ENDRET, #367] dagens modell leser konfigurasjonen
 
         await using (var tilbake = new RegelIdeDbContext(HistoriskSkjema.Options(conn)))
         {

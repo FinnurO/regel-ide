@@ -33,6 +33,8 @@ klasse, område) og åtte koblinger, testet mot en fasit på 1 797 utsagn fra fe
 fylker og kommuner fra Kartverket, domstolstrukturen fra inndelingsforskriften, statsforvalterne og helseregionene,
 og svarer på «gitt kommune X: hvilket fylke, hvilken tingrett, statsforvalter og RHF?». Lettlest innføring
 for lesere uten forkunnskap: [finnuro.github.io/regel-ide/strukturmodell/](https://finnuro.github.io/regel-ide/strukturmodell/).
+Hvert utsagn har (#367) en **kunnskapsstatus** (tekstfunn, normalisering, fortolkning, avledet …) atskilt fra **godkjenningen**,
+historikk (en revisjon gir en ny rad), og hjemmelen peker på den versjonerte noden, så resynken kan flagge «hjemmel endret».
 Spesifikasjonen og målingene: [`docs/33-strukturmodell-aktor-omrade-kompetanse.md`](docs/33-strukturmodell-aktor-omrade-kompetanse.md)
 (arbeidsplanen er epic #318).
 

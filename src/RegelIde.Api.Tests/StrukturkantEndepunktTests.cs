@@ -311,6 +311,16 @@ public class StrukturkantEndepunktTests
         Assert.Equal("entydig", anke!.Status);
         Assert.Equal((agderLr, agderLrNavn), (Assert.Single(anke.Kandidater).Id, anke.Kandidater[0].Navn));
         Assert.Equal("medlem_av", Assert.Single(anke.Kanter).Grunnlag);
+        // [Ny, issue #367 AC7] Svaret er AVLEDET, med premissene: anke-kanten, tingrett sogner_til lagsogn, lagdømme består_av lagsogn,
+        // lagmannsrettens ansvarsområde og tingrettens medlemskap i klassen — fem kanter, ingen av Gulating-kantene.
+        Assert.Equal("avledet", anke.Kunnskapsstatus);
+        Assert.Equal(5, anke.Premisser.Count);
+        Assert.Equal(anke.Premisser.OrderBy(x => x), anke.Kanter[0].Premisser.OrderBy(x => x));
+        foreach (var premiss in anke.Premisser)
+        {
+            var k = (await _client.GetFromJsonAsync<StrukturkantDto>($"/api/strukturkanter/{premiss}", JsonInnstillinger))!;
+            Assert.DoesNotContain("gulating", (k.Visningstekst + k.Fra.Navn + k.Til?.Navn).ToLowerInvariant());
+        }
         Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync($"/api/virksomheter/{Guid.NewGuid()}/ankeinstans")).StatusCode);
     }
 
@@ -332,7 +342,7 @@ public class StrukturkantEndepunktTests
         });
         Assert.Equal(HttpStatusCode.Created, svar.StatusCode);
         var kant = (await svar.Content.ReadFromJsonAsync<StrukturkantDto>(JsonInnstillinger))!;
-        Assert.Equal(("validert", "manuell"), (kant.Status, kant.OppdagelsesKilde));
+        Assert.Equal(("godkjent", "manuell"), (kant.Status, kant.OppdagelsesKilde));
 
         var fra = await _client.GetFromJsonAsync<List<StrukturkantDto>>($"/api/strukturkanter?virksomhetId={merkenemnd}&kategori=R", JsonInnstillinger);
         var til = await _client.GetFromJsonAsync<List<StrukturkantDto>>($"/api/strukturkanter?virksomhetId={statsforvalteren}", JsonInnstillinger);
@@ -372,11 +382,13 @@ public class StrukturkantEndepunktTests
         var forskrift = await PostKantAsync(brukerId, new
         {
             Kategori = "K", Typekode = "normgivning", FraVirksomhetId = dep, HjemmelRettskildeId = lovId, HjemmelEid = paragrafEid,
-            Objekt = "nettariffer", Normform = "forskrift", Delegerbar = true, Grunnlag = "offentligrettslig", Polaritet = "positiv",
+            Objekt = "nettariffer", Normform = "forskrift", Delegeringsadgang = "ikke_regulert", DelegeringSlutning = "trolig_delegerbar",
+            Grunnlag = "offentligrettslig", Polaritet = "positiv",
         });
         Assert.Equal(HttpStatusCode.Created, forskrift.StatusCode);
         var f = (await forskrift.Content.ReadFromJsonAsync<StrukturkantDto>(JsonInnstillinger))!;
-        Assert.Equal(("forskrift", true, "offentligrettslig", "normgivning", "forskrift"), (f.Normform, f.Delegerbar, f.Grunnlag, f.Familie, f.FvlKategori));
+        Assert.Equal(("forskrift", "ikke_regulert", "trolig_delegerbar", "offentligrettslig", "normgivning", "forskrift"),
+            (f.Normform, f.Delegeringsadgang, f.DelegeringSlutning, f.Grunnlag, f.Familie, f.FvlKategori));
 
         var fraDep = await _client.GetFromJsonAsync<List<StrukturkantDto>>($"/api/strukturkanter?virksomhetId={dep}&kategori=K", JsonInnstillinger);
         Assert.Contains(fraDep!, k => k.Visningstekst == $"har klagekompetanse overfor {nemndNavn}");
@@ -553,7 +565,7 @@ public class StrukturkantEndepunktTests
         {
             Id = Guid.NewGuid(), Kategori = "R", Typekode = typekode, FraVirksomhetId = fra, TilVirksomhetId = til,
             KildeUtenforKorpusTekst = "KI-forslag", KildeUtenforKorpusType = Strukturkanter.NettsideAnnet, KildeUtenforKorpusDokumentasjon = Strukturkanter.Sekundaer,
-            Status = "foreslatt_av_ai", OppdagelsesKilde = "ki:test",
+            Status = "maskinelt_foreslatt", OppdagelsesKilde = "ki:test",
             OpprettetAv = "system-ki", OpprettetTidspunkt = DateTimeOffset.UtcNow,
         };
         db.Strukturkanter.Add(kant);
@@ -577,7 +589,7 @@ public class StrukturkantEndepunktTests
 
         var godkjent = await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/strukturkanter/{godkjennes}/godkjenn", brukerId));
         Assert.Equal(HttpStatusCode.OK, godkjent.StatusCode);
-        Assert.Equal("validert", (await godkjent.Content.ReadFromJsonAsync<StrukturkantDto>(JsonInnstillinger))!.Status);
+        Assert.Equal("godkjent", (await godkjent.Content.ReadFromJsonAsync<StrukturkantDto>(JsonInnstillinger))!.Status);
         // En validert kant kan ikke godkjennes igjen eller avvises — den slettes.
         Assert.Equal(HttpStatusCode.BadRequest, (await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/strukturkanter/{godkjennes}/godkjenn", brukerId))).StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, (await _client.SendAsync(MedBruker(HttpMethod.Post, $"/api/strukturkanter/{godkjennes}/avvis", brukerId))).StatusCode);

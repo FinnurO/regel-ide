@@ -97,9 +97,16 @@ Merk dobbeltnatur eksplisitt i kommentar (f.eks. «kommune» både rettssubjekt 
                               // det viser til; «A kan pålegge B …» = B skal når pålegg er gitt (se under). Utelatt/null = ikke avgjort
   "grunnlag": "offentligrettslig" | "privatrettslig",  // [Ny, #341] KUN på kompetanse; privatrettslig = eierskap/
                               // selskapsrett. Utelatt/null = ikke angitt (settes av et menneske, aldri utledet)
-  "delegerbar": true | false, // [Ny, #341/#335] KUN på kompetanse: «Kongen …» = true, «Kongen i statsråd …» og
-                              // «X selv» = false — avgjort på sitatet. [ENDRET, #356] Også false når loven sier at myndigheten
-                              // «kan ikke delegeres» (tekstfunn, sameloven § 2-12 fjerde ledd). Utelatt/null = ikke angitt
+  "delegeringsadgang": "uttrykkelig_tillatt" | "uttrykkelig_forbudt" | "ikke_regulert",
+                              // [ENDRET, #367/#335 — erstatter "delegerbar"] KUN på kompetanse (ikke på delegeringskompetansen
+                              // selv): det TEKSTEN sier. «X kan delegere» = tillatt; «kan ikke delegeres», «X selv» = forbudt;
+                              // bestemmelsen sier ingenting = ikke_regulert. Utelatt = ikke vurdert
+  "delegering_slutning": "trolig_delegerbar" | "trolig_ikke_delegerbar",
+                              // [Ny, #367/#335] KUN ved ikke_regulert: en SLUTNING etter alminnelige regler, aldri et tekstfunn.
+                              // «Kongen» uten «i statsråd» = trolig_delegerbar; «Kongen i statsråd», «Grunnloven § 21» = trolig_ikke
+  "kunnskapsstatus": "tekstfunn" | "normalisering" | "fortolkning" | "avledet" | "eksternt_dokumentert" | "uavklart" | "omstridt" | "foreldet",
+                              // [Ny, #367] HVORDAN utsagnet er kommet fram (docs/profil/03 §5). Utelatt = ikke vurdert
+  "begrunnelse": "...",       // [Ny, #367] for normalisering: regelen som er brukt; for fortolkning: begrunnelsen
   "polaritet": "positiv" | "negativ",           // «kan ikke instruere» = negativ
   "avgrensning": "<paragraf/sakstype/vilkår som begrenser utsagnet, ellers null>",
   "betinget": true | false,
@@ -230,6 +237,23 @@ idempotent, også på `ki-utdata/`):
 - Fasit 1 809 → 1 802 utsagn (13 negative unntaksrader i energiloven og 4 andre rader slettet, 10 nye), KI-utdata 1 043 → 1 042.
 - Formatet mangler en oppløsningsverdi for en forskrift som ER i korpuset (lærdom 2): «forskrift_utenfor» brukes inntil videre, med
   kommentar (sameloven a141).
+
+**[ENDRET, issue #367 / #335, 2026-10-15] Utsagnsstatus og delegeringsadgang** (`konvertering-367-utsagnsstatus.py`, deterministisk og
+idempotent, også på `ki-utdata/`):
+- `delegerbar` er erstattet av `delegeringsadgang` + `delegering_slutning` (D0–D5 i skriptet): D0 delegeringskompetansen selv og negative
+  kompetanserader får ingen verdi; D1 «kan ikke delegeres»/«X selv» i sitatet eller samme ledd og D2 «kan ikke delegeres» med
+  paragrafhenvisning → uttrykkelig_forbudt; D3 «X kan delegere» i sitatet eller samme ledd og D3b en generell delegeringsfullmakt for
+  aktøren i loven («delegere myndighet … såfremt ikke annet fremgår», sameloven § 2-12 tredje ledd) → uttrykkelig_tillatt; D4 en setning i
+  paragrafen nevner både delegering og aktøren → ingen verdi, raden listes for Johann; D5 ellers ikke_regulert, og for «Kongen»-aktøren en
+  slutning på sitatet («Kongen i statsråd», «Grunnloven § 21» → trolig_ikke_delegerbar; «Kongen» → trolig_delegerbar).
+- `kunnskapsstatus` settes bare der regelen er sikker: `normalisering` når typen er avgjort av en RENT ORDFORMBASERT regel i
+  kompetanseleksikonet (normgivning og plikt; uttrykket står i sitatet), med regelen i `begrunnelse`. Tekstfunn, fortolkning og avledet
+  settes i juristrunder. KI-utdataene får ingen kunnskapsstatus; mønsterlaget setter `normalisering`.
+- Fasit, 668 kompetanseutsagn: D0 47, D1 5, D2 3, D3 4, D3b 15, D4 8 (listet), D5 588 (88 trolig delegerbar, 13 trolig ikke delegerbar).
+  150 utsagn fikk kunnskapsstatus normalisering. KI-utdata: D0 56, D1 7, D2 3, D3 4, D3b 4, D4 9, D5 659.
+- Juristrunden (CLAUDE.md §23) endret reglene: D3b og D0 for negative rader er nye, D4 er innsnevret, K1 er avgrenset til ordformregler.
+  Runde 2: kompetansen i selve fullmaktsleddet (sameloven u168) og et sitat med både «Kongen» og «Kongen i statsråd» (energiloven u14)
+  får ingen verdi og listes.
 
 Typer per kategori (bruk disse når de passer, ellers "annet:<x>"):
 - relasjon (aktør→aktør): `eies_av`, `ledes_av`, `sekretariat_for`, `rapporterer_til`, `etterfolger`,

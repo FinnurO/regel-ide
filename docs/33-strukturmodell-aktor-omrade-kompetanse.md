@@ -250,7 +250,8 @@ Felles egenskaper på **alle** kanter:
   lenke) når hjemmelen er kgl.res./vedtekter/instruks (funn 8).
 - `AvgrensningParagrafspennJson` (samme strukturerte format som i dag, `docs/20` §7.1) og
   `AvgrensningTekst` (sakstype, «bare ugyldige vedtak») — funn 7.
-- `Polaritet` (`positiv`|`negativ`) — funn 6. «Kommunestyret selv» = K med `delegerbar = false` ([Bygget, #341] — se under).
+- `Polaritet` (`positiv`|`negativ`) — funn 6. «Kommunestyret selv» = K med `delegerbar = false` ([Bygget, #341] — se under;
+  [ENDRET, #367] nå `delegeringsadgang = uttrykkelig_forbudt`, §4.6).
 - `GyldigFra`/`GyldigTil`, `Status` (`foreslatt_av_ai`|`validert`, `docs/20` §2.7), `OppdagelsesKilde`
   (`manuell` | `monster:<id>` | `ki:<modell>`) — proveniens for automatisk konvertering (§5).
 - **[Ny, Johanns beslutninger 2026-10-07] `KildeUtenforKorpusType`** — kildens ART: `kgl_res` |
@@ -325,7 +326,7 @@ omgjøring, oppnevning, tilsyn med en aktør, avsetting, sanksjon, samtykke, ove
 | «Kan X gi forskrift?» | K `normgivning` med `normform = forskrift`. Normformene: forskrift, reglement, arbeidsordning, vedtekter, instruks |
 | Selvregulering | Ikke en egen type: normgivning der til = fra. Den eneste selvkanten CHECK `ck_strukturkanter_ikke_selv` tillater |
 | Privatrettslig instruksjon (morselskap → nettforetak) | Samme modell, feltet `grunnlag = privatrettslig` (beslutning 3). `offentligrettslig`/NULL ellers |
-| «Kan kompetansen delegeres videre?» | Feltet `delegerbar` (bool, NULL = ikke angitt) på K — fra #335: «Kongen …» = true, «Kongen i statsråd …» og «X selv» = false. [ENDRET, #356] Også false når loven sier «kan ikke delegeres» (sameloven § 2-12 fjerde ledd) |
+| «Kan kompetansen delegeres videre?» | ~~Feltet `delegerbar` (bool)~~ [ENDRET, #367 / #335] `delegeringsadgang` etter TEKSTEN (`uttrykkelig_tillatt` «kan delegere» / `uttrykkelig_forbudt` «kan ikke delegeres», «X selv» / `ikke_regulert`) og `delegering_slutning` etter alminnelige regler, alltid merket slutning (`trolig_delegerbar` «Kongen» / `trolig_ikke_delegerbar` «Kongen i statsråd», «Grunnloven § 21»). Se §4.6 |
 
 *Typologien og hierarkiet (P2 + Johanns hierarkibeslutning 2026-10-08):* hver K-type har en **familie** og en
 **fvl-kategori** i typekonfigurasjonen (`relasjonstype_konfigurasjon.familie`/`fvl_kategori`, kilden er
@@ -648,6 +649,33 @@ Flere av mønsterlagets falske positive i P er «ikke i fasiten» og ser ut som 
 offentlige», domstolloven § 105 a; «Kommunen dekker reiseutgifter for behandlingspersonell …», hotl. § 11-1) — ikke målt som
 riktige; de vurderes i #309. KI-tallene er de lagrede utdataene fra #308 konvertert med samme skript, ikke en ny kjøring med
 den nye instruksen.
+
+### 4.6 Utsagnsstatus: kunnskapsstatus, godkjenning, historikk og versjonert hjemmel (issue #367 + #335)
+
+[Ny, issue #367, Johanns beslutning 2026-10-15: #367 og #335 i én migrasjon, `UtsagnsstatusOgDelegeringsadgang`] Bygget etter
+docs/34 §3–5 og metodenotatet (docs/profil/03 §5 og §8). Hvert felt på `strukturkanter`:
+
+| Felt | Verdier | Regel |
+|---|---|---|
+| `status` = **godkjenning** | `maskinelt_foreslatt` \| `manuelt_foreslatt` \| `faglig_vurdert` \| `godkjent` \| `avvist` | Gamle verdier: `foreslatt_av_ai` → `maskinelt_foreslatt`, `validert` → `godkjent`. Forslagskøen og «godkjenn» gjelder de tre første. «Avvis» sletter fortsatt forslaget (uendret fra #311); `avvist` finnes i lista, men settes ikke av noen skrivevei ennå |
+| `kunnskapsstatus` = **metode** | `tekstfunn` \| `normalisering` \| `fortolkning` \| `avledet` \| `eksternt_dokumentert` \| `uavklart` \| `omstridt` \| `foreldet`; NULL = ikke vurdert | CHECK: eksternt dokumentert krever kilde utenfor korpus; tekstfunn og normalisering krever hjemmel i korpus med eId; fortolkning krever `begrunnelse` og minst ett av `tolkningsargumenter` (ordlyd, kontekst_system, formal, forarbeider, praksis, reelle_hensyn, antitetisk_analogisk); foreldet krever entitetsstatus foreldet. Avledet krever minst én rad i `strukturkant_premisser` (constraint-trigger, utsatt til commit). Ingen eksisterende rad fikk en verdi |
+| `entitetsstatus`, `erstatter_kant_id` | `gjeldende` \| `foreldet` | En revisjon (`POST /api/strukturkanter/{id}/revisjon`) gir en ny rad; den gamle blir foreldet, ikke slettet. Alle oppslag ser bare gjeldende rader (global spørrefilter). Identitetsregelen gjelder ikke når kunnskapsstatus er `omstridt` |
+| `profilversjon` | `arbeidsutkast-2026-10-09` | Settes på nye rader som får en kunnskapsstatus |
+| `hjemmel_node_id`, `hjemmel_endret_tidspunkt` | FK til `rettskilde_noder` | Settes når kanten opprettes (nøyaktig én gjeldende node med eId-en). Migrerte rader fikk noden i sin egen hjemmel-rettskilde; NULL med eId vises «hjemmelversjon ukjent». Lovdata-resynken (`RettskildeImportTjeneste.OpprettNyVersjonAsync`) og håndbokrevisjonen flagger kanten når nodens deltre (noden og undernodene, også avslutningsnoder fra #361) har annen tekst i den nye versjonen — ellers ikke. Ingenting annet endres |
+| `delegeringsadgang`, `delegering_slutning` | se tabellen i §4.3 | Bare på K; slutningen bare ved `ikke_regulert`. Delegeringskompetansen selv får ingen verdi (den ER delegeringsregelen) |
+
+**Avledede svar** lagres ikke (#345): ankeinstans-oppslaget svarer med `kunnskapsstatus = avledet` og premissenes kant-id-er (anke-kanten,
+områdekjeden, instansens ansvarsområde, medlemskapet); pliktoppslaget for en kommune merker et treff `avledet` når det bygger på mer enn
+den ene lagrede plikten (medlemskap, motpartsoppløsning).
+
+**Kategorier bundet til en lov** (docs/profil/03 §8): typekonfigurasjonen har `fvl_kategori_hjemmel` («forvaltningsloven (LOV-1967-02-10)
+§ 2»), `fvl_kategori_gjelder_fra` (1970-01-01, lovens ikrafttredelse slik korpuset har den) og `fvl_kategori_gjelder_til` (tom: den nye
+forvaltningsloven er ikke i kraft).
+
+**«Kongen» og «Kongen i statsråd»** (#335 AC1, Johanns beslutning 2026-10-08: samme aktør, forskjellen ligger på kompetansen): virksomheten
+Kongen i statsråd har fått navneformen «Kongen», og taggene med teksten «Kongen» er flyttet dit (lokalt 7 av 12; 5 står på «Kongen i statsråd»).
+
+**Fasiten** er konvertert med `konvertering-367-utsagnsstatus.py` (regler D0–D5 og K1, se skriptet og FORMAT.md).
 
 ## 5. Automatisk konvertering
 

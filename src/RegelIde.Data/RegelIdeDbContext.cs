@@ -44,6 +44,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
     // [FJERNET, issue #311] Myndighetstildelinger og GruppeMedlemskap — se Strukturkanter under.
     // [Ny, issue #311 «Strukturmodell 6»] Én typestyrt kanttabell for alle strukturutsagn (docs/33 §4.3).
     public DbSet<StrukturkantEntitet> Strukturkanter => Set<StrukturkantEntitet>();
+    // [Ny, issue #367] Premissene for avledede utsagn — se StrukturkantPremissEntitet.
+    public DbSet<StrukturkantPremissEntitet> StrukturkantPremisser => Set<StrukturkantPremissEntitet>();
     public DbSet<VirksomhetKandidatEntitet> VirksomhetKandidater => Set<VirksomhetKandidatEntitet>();
     public DbSet<NavnekandidatEntitet> Navnekandidater => Set<NavnekandidatEntitet>();
     // [Ny, issue #203 pkt. 4] Korreksjonsregler (RettskildeId, opprinnelig tekst) → korrigert tekst.
@@ -189,7 +191,37 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                 // [ENDRET, issue #353] + 'P' (plikt overfor motpart).
                 t.HasCheckConstraint("ck_strukturkanter_kategori", "kategori IN ('R', 'K', 'P', 'M', 'O', 'A', 'G', 'I', 'T')");
                 t.HasCheckConstraint("ck_strukturkanter_polaritet", "polaritet IN ('positiv', 'negativ')");
-                t.HasCheckConstraint("ck_strukturkanter_status", "status IN ('foreslatt_av_ai', 'validert')");
+                // [ENDRET, issue #367 AC2] status er godkjenning (Strukturkanter.Statuser).
+                t.HasCheckConstraint("ck_strukturkanter_status",
+                    "status IN ('maskinelt_foreslatt', 'manuelt_foreslatt', 'faglig_vurdert', 'godkjent', 'avvist')");
+                // [Ny, issue #367 AC1/AC3] Kunnskapsstatus (Strukturkanter.Kunnskapsstatuser) med kravene til grunnlag (docs/profil/03 §5).
+                // «avledet krever minst én premiss» går på tvers av tabeller og håndheves av constraint-triggeren
+                // tr_strukturkanter_avledet_premiss (migrasjonen UtsagnsstatusOgDelegeringsadgang), ikke her.
+                t.HasCheckConstraint("ck_strukturkanter_kunnskapsstatus",
+                    "kunnskapsstatus IS NULL OR kunnskapsstatus IN ('tekstfunn', 'normalisering', 'fortolkning', 'avledet', "
+                    + "'eksternt_dokumentert', 'uavklart', 'omstridt', 'foreldet')");
+                t.HasCheckConstraint("ck_strukturkanter_kunnskapsstatus_grunnlag",
+                    "(kunnskapsstatus IS NULL OR kunnskapsstatus <> 'eksternt_dokumentert' OR kilde_utenfor_korpus_tekst IS NOT NULL) "
+                    + "AND (kunnskapsstatus IS NULL OR kunnskapsstatus NOT IN ('tekstfunn', 'normalisering') "
+                    + "OR (hjemmel_rettskilde_id IS NOT NULL AND hjemmel_eid IS NOT NULL)) "
+                    + "AND (kunnskapsstatus IS NULL OR kunnskapsstatus <> 'foreldet' OR entitetsstatus = 'foreldet')");
+                t.HasCheckConstraint("ck_strukturkanter_entitetsstatus", "entitetsstatus IN ('gjeldende', 'foreldet')");
+                if (!sqlite)
+                {
+                    t.HasCheckConstraint("ck_strukturkanter_tolkningsargumenter",
+                        "tolkningsargumenter IS NULL OR tolkningsargumenter <@ ARRAY['ordlyd', 'kontekst_system', 'formal', 'forarbeider', "
+                        + "'praksis', 'reelle_hensyn', 'antitetisk_analogisk']::text[]");
+                    t.HasCheckConstraint("ck_strukturkanter_fortolkning",
+                        "kunnskapsstatus IS NULL OR kunnskapsstatus <> 'fortolkning' "
+                        + "OR (begrunnelse IS NOT NULL AND cardinality(tolkningsargumenter) > 0)");
+                }
+                // [Ny, issue #367 AC5 / #335] Delegeringsadgangen etter teksten, og slutningen etter alminnelige regler (bare når teksten
+                // ikke regulerer det). Begge bare på K.
+                t.HasCheckConstraint("ck_strukturkanter_delegeringsadgang",
+                    "delegeringsadgang IS NULL OR (kategori = 'K' AND delegeringsadgang IN ('uttrykkelig_tillatt', 'uttrykkelig_forbudt', 'ikke_regulert'))");
+                t.HasCheckConstraint("ck_strukturkanter_delegering_slutning",
+                    "delegering_slutning IS NULL OR (kategori = 'K' AND delegeringsadgang = 'ikke_regulert' "
+                    + "AND delegering_slutning IN ('trolig_delegerbar', 'trolig_ikke_delegerbar'))");
                 t.HasCheckConstraint("ck_strukturkanter_fra_en",
                     "(fra_virksomhet_id IS NULL) <> (fra_begrep_id IS NULL)");
                 t.HasCheckConstraint("ck_strukturkanter_til_hoyst_en",
@@ -208,13 +240,12 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                     "(kategori = 'K' AND typekode = 'normgivning') OR (kategori = 'P' AND fra_begrep_id IS NOT NULL) OR ("
                     + "(fra_virksomhet_id IS NULL OR til_virksomhet_id IS NULL OR fra_virksomhet_id <> til_virksomhet_id) "
                     + "AND (fra_begrep_id IS NULL OR til_begrep_id IS NULL OR fra_begrep_id <> til_begrep_id))");
-                // [Ny, issue #341] Normform bare på K normgivning; grunnlag og delegerbar bare på K. NULL = ikke angitt.
+                // [Ny, issue #341] Normform bare på K normgivning; grunnlag bare på K. NULL = ikke angitt. ([ENDRET, #367] delegerbar → delegeringsadgang.)
                 t.HasCheckConstraint("ck_strukturkanter_normform",
                     "normform IS NULL OR (kategori = 'K' AND typekode = 'normgivning' "
                     + "AND normform IN ('forskrift', 'reglement', 'arbeidsordning', 'vedtekter', 'instruks'))");
                 t.HasCheckConstraint("ck_strukturkanter_grunnlag",
                     "grunnlag IS NULL OR (kategori = 'K' AND grunnlag IN ('offentligrettslig', 'privatrettslig'))");
-                t.HasCheckConstraint("ck_strukturkanter_delegerbar", "delegerbar IS NULL OR kategori = 'K'");
                 // [Ny, issue #352] Undertype bare på K, og bare de undertypene typen har (Strukturkanter.Undertyper).
                 // [ENDRET, issue #355] + oppnevning: utnevning, konstitusjon; avsetting: avsetting, oppsigelse, avskjed; vedtak: tilbakekall.
                 t.HasCheckConstraint("ck_strukturkanter_undertype",
@@ -263,10 +294,20 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Undertype).HasColumnName("undertype");
             e.Property(x => x.Modalitet).HasColumnName("modalitet");
             e.Property(x => x.Grunnlag).HasColumnName("grunnlag");
-            e.Property(x => x.Delegerbar).HasColumnName("delegerbar");
+            e.Property(x => x.Delegeringsadgang).HasColumnName("delegeringsadgang");
+            e.Property(x => x.DelegeringSlutning).HasColumnName("delegering_slutning");
+            // [Ny, issue #367] Utsagnsstatus — se StrukturkantEntitet.
+            e.Property(x => x.Kunnskapsstatus).HasColumnName("kunnskapsstatus");
+            e.Property(x => x.Begrunnelse).HasColumnName("begrunnelse");
+            e.Property(x => x.Tolkningsargumenter).HasColumnName("tolkningsargumenter");
+            e.Property(x => x.Entitetsstatus).HasColumnName("entitetsstatus").HasDefaultValue("gjeldende");
+            e.Property(x => x.ErstatterKantId).HasColumnName("erstatter_kant_id");
+            e.Property(x => x.Profilversjon).HasColumnName("profilversjon");
+            e.Property(x => x.HjemmelNodeId).HasColumnName("hjemmel_node_id");
+            e.Property(x => x.HjemmelEndretTidspunkt).HasColumnName("hjemmel_endret_tidspunkt");
             e.Property(x => x.GyldigFra).HasColumnName("gyldig_fra");
             e.Property(x => x.GyldigTil).HasColumnName("gyldig_til");
-            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("validert");
+            e.Property(x => x.Status).HasColumnName("status").HasDefaultValue("godkjent");
             e.Property(x => x.OppdagelsesKilde).HasColumnName("oppdagelses_kilde").HasDefaultValue("manuell");
             e.Property(x => x.Kommentar).HasColumnName("kommentar");
             e.Property(x => x.OpprettetAv).HasColumnName("opprettet_av");
@@ -284,6 +325,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.FraBegrepId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne<BegrepEntitet>().WithMany().HasForeignKey(x => x.TilBegrepId).OnDelete(DeleteBehavior.Cascade);
             e.HasOne<RettskildeEntitet>().WithMany().HasForeignKey(x => x.HjemmelRettskildeId).OnDelete(DeleteBehavior.Cascade);
+            // [Ny, issue #367] Den versjonerte hjemmelnoden: SET NULL — noden forsvinner bare når rettskilden slettes, og da går kanten
+            // uansett (CASCADE over). Revisjonskjeden: SET NULL, så en slettet rad ikke tar etterfølgeren med seg.
+            e.HasOne<RettskildeNodeEntitet>().WithMany().HasForeignKey(x => x.HjemmelNodeId).OnDelete(DeleteBehavior.SetNull);
+            e.HasOne<StrukturkantEntitet>().WithMany().HasForeignKey(x => x.ErstatterKantId).OnDelete(DeleteBehavior.SetNull);
 
             e.HasIndex(x => x.FraVirksomhetId).HasDatabaseName("ix_strukturkanter_fra_virksomhet");
             e.HasIndex(x => x.FraBegrepId).HasDatabaseName("ix_strukturkanter_fra_begrep");
@@ -293,6 +338,25 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasIndex(x => new { x.Kategori, x.Typekode }).HasDatabaseName("ix_strukturkanter_kategori_type");
             e.HasIndex(x => x.Status).HasDatabaseName("ix_strukturkanter_status");
             e.HasIndex(x => x.KildeUtenforKorpusType).HasDatabaseName("ix_strukturkanter_kilde_type");
+            e.HasIndex(x => x.HjemmelNodeId).HasDatabaseName("ix_strukturkanter_hjemmel_node");
+            e.HasIndex(x => x.ErstatterKantId).HasDatabaseName("ix_strukturkanter_erstatter");
+            // [Ny, issue #367 AC3] Foreldede analyser (revidert, ikke slettet) er historikk: alle oppslag ser bare de gjeldende. Historikken
+            // leses med IgnoreQueryFilters().
+            e.HasQueryFilter(x => x.Entitetsstatus == "gjeldende");
+        });
+
+        // [Ny, issue #367 AC3] Premissene for et avledet utsagn. CASCADE fra kanten; RESTRICT fra premisset — et premiss som slettes,
+        // ville ellers stille fjerne grunnlaget for slutningen (en revisjon gjør det foreldet i stedet).
+        b.Entity<StrukturkantPremissEntitet>(e =>
+        {
+            e.ToTable("strukturkant_premisser", t =>
+                t.HasCheckConstraint("ck_strukturkant_premisser_ikke_selv", "kant_id <> premiss_kant_id"));
+            e.HasKey(x => new { x.KantId, x.PremissKantId }).HasName("strukturkant_premisser_pkey");
+            e.Property(x => x.KantId).HasColumnName("kant_id");
+            e.Property(x => x.PremissKantId).HasColumnName("premiss_kant_id");
+            e.HasOne<StrukturkantEntitet>().WithMany().HasForeignKey(x => x.KantId).OnDelete(DeleteBehavior.Cascade);
+            e.HasOne<StrukturkantEntitet>().WithMany().HasForeignKey(x => x.PremissKantId).OnDelete(DeleteBehavior.Restrict);
+            e.HasIndex(x => x.PremissKantId).HasDatabaseName("ix_strukturkant_premisser_premiss");
         });
 
         b.Entity<VirksomhetKandidatEntitet>(e =>
@@ -1045,6 +1109,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                     + "'kontroll', 'klage_overproving', 'vedtak', 'sanksjon'))");
                 t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_fvl_kategori",
                     "fvl_kategori IS NULL OR (kategori = 'K' AND fvl_kategori IN ('forskrift', 'enkeltvedtak', 'ikke_vedtak'))");
+                // [Ny, issue #367 AC6] Gyldighetstid bare sammen med en fvl-kategori, og fra <= til.
+                t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_fvl_gyldighet",
+                    "(fvl_kategori IS NOT NULL OR (fvl_kategori_hjemmel IS NULL AND fvl_kategori_gjelder_fra IS NULL AND fvl_kategori_gjelder_til IS NULL)) "
+                    + "AND (fvl_kategori_gjelder_fra IS NULL OR fvl_kategori_gjelder_til IS NULL OR fvl_kategori_gjelder_fra <= fvl_kategori_gjelder_til)");
             });
             e.HasKey(x => x.Id).HasName("relasjonstype_konfigurasjon_pkey");
             // [Ny, issue #311] Kategori — identiteten er (kategori, kode), se RelasjonsTypeKonfigurasjonEntitet.
@@ -1058,6 +1126,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.Aktiv).HasColumnName("aktiv").HasDefaultValue(true);
             e.Property(x => x.Familie).HasColumnName("familie");
             e.Property(x => x.FvlKategori).HasColumnName("fvl_kategori");
+            // [Ny, issue #367 AC6] Gyldighetstiden til lovdefinisjonen fvl-kategorien bygger på.
+            e.Property(x => x.FvlKategoriHjemmel).HasColumnName("fvl_kategori_hjemmel");
+            e.Property(x => x.FvlKategoriGjelderFra).HasColumnName("fvl_kategori_gjelder_fra");
+            e.Property(x => x.FvlKategoriGjelderTil).HasColumnName("fvl_kategori_gjelder_til");
             // [ENDRET, issue #311] Var unik på kode alene — se Kategori over.
             e.HasIndex(x => new { x.Kategori, x.Kode }).IsUnique().HasDatabaseName("ux_relasjonstype_konfigurasjon_kategori_kode");
         });
