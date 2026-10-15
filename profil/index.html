@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="nb" data-root="../">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Forslag til norsk profil — DigRett showcase</title>
+<meta name="description" content="Forslag til norsk profil for maskinlesbar rett: hva det er og ikke er, hvilke internasjonale standarder det bygger på, rettslig metode og status for hvert utsagn, og hva som er planlagt i DigRett.">
+<link rel="canonical" href="https://finnuro.github.io/regel-ide/profil/">
+<link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="../assets/css/fonts.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet.css">
+<link rel="stylesheet" href="../assets/css/vendor/designsystemet-theme.css">
+<link rel="stylesheet" href="../assets/css/site.css">
+<meta property="og:title" content="Forslag til norsk profil — DigRett showcase">
+<meta property="og:description" content="Et forslag, ikke en vedtatt standard: felles begreper for maskinlesbar forvaltningsrett, med DigRett som utprøvingsarena og kandidatreferanseimplementasjon.">
+<meta property="og:type" content="website">
+</head>
+<body>
+
+<a class="ds-link skip-to-content" href="#main">Hopp til innhold</a>
+
+<div class="disclaimer-bar">
+  <div class="wrap">
+    <span>📎 <strong>Midlertidig showcase</strong> — statisk fasade, ikke selve applikasjonen.</span>
+  </div>
+</div>
+
+<header class="site-header">
+  <div class="wrap">
+    <a class="brand plain" href="../">
+      <span class="brand__mark" aria-hidden="true">DR</span>
+      <span class="brand__text">
+        <span class="brand__title">DigRett</span>
+        <span class="brand__subtitle">Digital rettsstat — showcase</span>
+      </span>
+    </a>
+    <nav class="main-nav" aria-label="Hovedmeny">
+      <a href="../">Forside</a>
+      <a href="../rettskilder/">Rettskilder</a>
+      <a href="../virksomheter/">Virksomheter</a>
+      <a href="../grupper/">Grupper</a>
+      <a href="../koblinger/">Koblinger</a>
+      <a href="../kjeden/">Kjeden</a>
+      <a href="../strukturmodell/">Strukturmodellen</a>
+      <a href="../profil/" aria-current="page">Profilforslag</a>
+      <a href="../begreper/">Begreper</a>
+      <a href="../om/">Om</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+  <!-- [Ny, nettside-profil, 2026-10-15] Profilsiden. Alt innhold er hentet fra docs/profil/README.md,
+       docs/profil/00-grunnlagsdokument.md (revidert 9.10.2026), docs/profil/03-metodenotat.md,
+       docs/profil/04-mappingnotat.md (verifisert mot primærkildene 2026-10-09),
+       docs/34-arkitekturvurdering-norsk-profil.md og sakene #367 og #368 (merget i #366).
+       Terminologi besluttet 2026-10-15: «forslag til norsk profil», og Regel-IDE/DigRett er
+       «utprøvingsarena og kandidatreferanseimplementasjon». Ikke kall profilen en standard. -->
+  <div class="wrap page-head">
+    <span class="eyebrow">Forslag · arbeidsutkast oktober 2026</span>
+    <h1>Forslag til norsk profil for maskinlesbar rett</h1>
+    <p class="lead">Strukturmodellen viser hvem som gjør hva i forvaltningen. Profilen er forslaget til de felles reglene bak: hvilke begreper som brukes, hvordan de kobles til internasjonale modeller, og hvordan hvert utsagn viser om det står i loven eller er en tolkning. DigRett er stedet der forslaget prøves ut.</p>
+  </div>
+
+  <div class="wrap">
+    <div class="purpose-box">
+      <span class="purpose-box__label">Status per 15. oktober 2026</span>
+      <div class="purpose-box__pills">
+        <span class="pill" data-tone="warning">Forslag, ikke vedtatt</span><span class="pill" data-tone="warning">Endringene i DigRett er planlagt, ikke bygget</span>
+      </div>
+      <p>Grunnlaget er et forslag fra fagansvarlig Finnur Olafsson, revidert 9. oktober 2026. Dokumentene er arbeidsutkast. Ingen organisasjon har gitt profilen formell status, og den kalles derfor «forslag til norsk profil». DigRett (kildekoden heter regel-ide) er utprøvingsarena og kandidatreferanseimplementasjon. Det betyr at den prøver å følge forslaget, men ennå ikke er vist å gjøre det.</p>
+    </div>
+    <ul class="nytt-innhold" aria-label="Innhold på siden">
+      <li><a href="#hva-det-er">Hva forslaget er</a></li>
+      <li><a href="#standardene">Standardene vi bygger på</a></li>
+      <li><a href="#rettslig-metode">Rettslig metode</a></li>
+      <li><a href="#kunnskapsstatus">Åtte statuser</a></li>
+      <li><a href="#kvalitet">Kvalitet og ærlighet</a></li>
+      <li><a href="#endringer">Hva som endres i DigRett</a></li>
+    </ul>
+  </div>
+
+  <!-- ===================== 1. Hva forslaget er ===================== -->
+  <section class="section" id="hva-det-er">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Hva forslaget er, og hva det ikke er</span>
+        <h2>Et forslag til felles begreper, ikke en vedtatt standard</h2>
+        <p>Lovtekst kan gjøres maskinlesbar på mange måter. Forslaget beskriver én felles og gjenbrukbar måte for norsk forvaltningsrett, uavhengig av hvilken teknologi som brukes.</p>
+      </div>
+      <div class="nytt-kort-grid nytt-kort-grid--bred">
+        <div class="nytt-kort">
+          <h3>Det forslaget er</h3>
+          <ul>
+            <li>Et begrepsapparat for hvem som finnes i forvaltningen, hvilken myndighet og hvilke plikter de har, og hva det bygger på i lovteksten.</li>
+            <li>Regler for hvordan hvert utsagn viser grunnlaget sitt og hvor sikkert det er.</li>
+            <li>Koblinger til internasjonale modeller, uten at viktige norske rettslige forskjeller går tapt.</li>
+          </ul>
+        </div>
+        <div class="nytt-kort">
+          <h3>Det forslaget ikke er</h3>
+          <ul>
+            <li>Ikke en vedtatt standard. Det heter «forslag til norsk profil» til det finnes en styringsmodell, åpen høring, spesifikasjon, testpakke og konformitetstester.</li>
+            <li>Ikke en avgjørelse om hva som er gjeldende rett i konkrete spørsmål.</li>
+            <li>Ikke anvendelse på en konkret sak. Første versjon handler om hva loven sier, ikke om hva som følger for en bestemt person.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="nytt-to-kol struktur-etter-tabell">
+        <figure class="nytt-figur">
+          <svg viewBox="0 0 320 424" role="img" aria-label="Fire ting som holdes fra hverandre. Profilen, med begreper, krav og valideringsregler, er normativ. Den følges av en implementasjon. DigRett er én mulig implementasjon og er ikke normativ. Implementasjonen lager det modellerte korpuset: konkrete analyser av lovtekst, med status og grunnlag. Testkorpuset er et låst utvalg annotert av minst to menneskelige jurister, og det måler implementasjonen.">
+            <defs>
+              <marker id="pf-pil" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="nf-pilspiss" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <rect class="nf-boks nf-boks--slutt" x="10" y="10" width="250" height="74" rx="6"/>
+            <text class="nf-navn" x="24" y="38">Profilen</text>
+            <text class="nf-dempet" x="24" y="58">begreper, krav og valideringsregler</text>
+            <text class="nf-uthevet" x="24" y="76">normativ</text>
+
+            <line class="nf-linje" x1="44" y1="84" x2="44" y2="128" marker-end="url(#pf-pil)"/>
+            <text class="nf-tekst" x="58" y="111">følges av</text>
+
+            <rect class="nf-boks" x="10" y="130" width="250" height="74" rx="6"/>
+            <text class="nf-navn" x="24" y="158">Implementasjon</text>
+            <text class="nf-dempet" x="24" y="178">DigRett er én av flere mulige</text>
+            <text class="nf-dempet" x="24" y="196">ikke normativ</text>
+
+            <line class="nf-linje" x1="44" y1="204" x2="44" y2="248" marker-end="url(#pf-pil)"/>
+            <text class="nf-tekst" x="58" y="231">lager</text>
+
+            <rect class="nf-boks" x="10" y="250" width="250" height="74" rx="6"/>
+            <text class="nf-navn" x="24" y="278">Modellert korpus</text>
+            <text class="nf-dempet" x="24" y="298">konkrete analyser av lovtekst,</text>
+            <text class="nf-dempet" x="24" y="314">med status og grunnlag</text>
+
+            <rect class="nf-boks" x="10" y="340" width="250" height="74" rx="6"/>
+            <text class="nf-navn" x="24" y="368">Testkorpus</text>
+            <text class="nf-dempet" x="24" y="388">låst utvalg, annotert av minst</text>
+            <text class="nf-dempet" x="24" y="404">to menneskelige jurister</text>
+
+            <path class="nf-linje" d="M260,377 H290 V167 H264" marker-end="url(#pf-pil)"/>
+            <text class="nf-tekst" transform="translate(306 272) rotate(-90)" text-anchor="middle">måler</text>
+          </svg>
+          <figcaption>Profil, implementasjon, korpus og testkorpus skal publiseres og versjoneres hver for seg. Et konkret utsagn i korpuset blir ikke automatisk en regel i profilen.</figcaption>
+        </figure>
+
+        <div class="prose">
+          <h3>Fire ting som holdes fra hverandre</h3>
+          <p><strong>Profilen</strong> er selve forslaget: begreper, krav og regler. <strong>Implementasjonen</strong> er et program som følger den. DigRett er én slik implementasjon, og andre skal kunne bruke profilen uten DigRett. <strong>Det modellerte korpuset</strong> er alle de konkrete analysene av lovtekst. <strong>Testkorpuset</strong> er et eget, låst utvalg som brukes til å måle om implementasjonen gjør det riktig.</p>
+          <p>Skillet betyr at en feil i én analyse ikke blir en regel for alle. Det betyr også at DigRett ikke bestemmer hva profilen sier.</p>
+          <h3>Hva som går foran ved motstrid</h3>
+          <p>Hvert dokument i pakken er merket som normativt eller bare informativt. Sier de forskjellige ting, gjelder denne rekkefølgen:</p>
+          <ol>
+            <li>Profilspesifikasjonen (ikke skrevet ennå).</li>
+            <li>Den maskinlesbare profilen og valideringsreglene (SHACL), i den grad spesifikasjonen gjør dem normative.</li>
+            <li>Normative eksempler og testtilfeller.</li>
+            <li>Koblingene til internasjonale modeller. De er informative i første versjon.</li>
+            <li>DigRett, som ikke er normativ.</li>
+          </ol>
+          <p>Motstrid mellom disse er en feil i dokumentpakken. Den rettes med en versjonert endring, ikke ved at implementasjonen velger det som passer.</p>
+        </div>
+      </div>
+
+      <div class="prose struktur-etter-tabell">
+        <h3>Dokumentene så langt</h3>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Dokument</th><th scope="col">Hva det er</th><th scope="col">Status</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row"><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/00-grunnlagsdokument.md" target="_blank" rel="noopener">00 Grunnlagsdokument</a></th><td>Forslaget fra fagansvarlig, revidert 9. oktober 2026</td><td>Grunnlag, ikke normativt. Endres ikke i etterkant</td></tr>
+            <tr><th scope="row">01 Profilspesifikasjon</th><td>Definisjoner, krav og status</td><td>Ikke skrevet</td></tr>
+            <tr><th scope="row">02 Begrepsmanual</th><td>Definisjon, eksempel, moteksempel og grense per begrep</td><td>Ikke skrevet</td></tr>
+            <tr><th scope="row"><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/03-metodenotat.md" target="_blank" rel="noopener">03 Metodenotat</a></th><td>Rettslig metode og status for modellutsagn</td><td>Arbeidsutkast</td></tr>
+            <tr><th scope="row"><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/04-mappingnotat.md" target="_blank" rel="noopener">04 Mappingnotat</a></th><td>DigRett mot ELI, Akoma Ntoso, LKIF Core, UFO-L og LegalRuleML</td><td>Arbeidsutkast, verifisert mot primærkildene 9. oktober 2026</td></tr>
+            <tr><th scope="row">05 Plan for testkorpus</th><td>Låst utvalg med uavhengig menneskelig annotering</td><td>Ikke skrevet</td></tr>
+            <tr><th scope="row">06 Beslutningslogg</th><td>Når nye typer legges til, og hvorfor</td><td>Ikke skrevet</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 2. Standardene ===================== -->
+  <section class="section" id="standardene">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Hva vi bygger på</span>
+        <h2>Fem internasjonale modeller, hver til sitt</h2>
+        <p>Forslaget finner ikke opp maskinlesbar rett på nytt. Det bruker etablerte internasjonale standarder og modeller der de passer, og sier tydelig hvor de ikke passer. Hver kobling er kontrollert mot primærkildene.</p>
+      </div>
+      <div class="nytt-kort-grid">
+        <div class="nytt-kort">
+          <h3>ELI: hvilken lov og hvilken versjon</h3>
+          <p>European Legislation Identifier gir hver rettskilde en fast adresse, for eksempel <code>lovdata.no/eli/lov/1989/06/02/27</code>. Det er grunnmuren for å peke på kilden.</p>
+          <p>Lovdatas ELI er merket «beta». Malen har plass til versjonsdato og til nivåer under loven, men nivået har foreløpig ingen funksjon.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Akoma Ntoso: hvordan teksten er bygget opp</h3>
+          <p>En OASIS-standard for dokumentstruktur: kapitler, paragrafer, ledd, lister og henvisninger. Den sier hvordan teksten er delt opp, men ingenting om hvem som har myndighet.</p>
+          <p>Eksempel: teksten etter en liste i et ledd er en egen del i Akoma Ntoso. DigRett retter nå importen sin etter det (<a href="https://github.com/FinnurO/regel-ide/issues/361" target="_blank" rel="noopener">#361</a>).</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>UFO-L: nærmeste modell for myndighet</h3>
+          <p>UFO-L bygger på Hohfelds rettslige posisjoner. Myndighet (<em>power</em>) hos én part svarer til at den andre er underlagt den (<em>subjection</em>). Det er den eneste av modellene som har kompetanse som eget begrep.</p>
+          <p>«Kan ikke» er mangel på myndighet (<em>disability</em>). Hos motparten heter det immunitet, altså uavhengighet. En handling utenfor myndigheten er <strong>ugyldig</strong>, ikke ulovlig. Et forbud («skal ikke») er noe annet: bruddet er <strong>ulovlig</strong> og kan sanksjoneres.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>LegalRuleML: regellaget</h3>
+          <p>En OASIS-standard for å skrive regler: vilkår, plikt, tillatelse og forbud. Den er mest relevant for neste lag, der vilkår og unntak skal med.</p>
+          <p>Felle: <code>Authority</code> i LegalRuleML betyr den som har gitt eller håndhever en norm. Det er opplysninger om normens opphav, ikke myndighet. LegalRuleML har ikke noe eget element for kompetanse.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>LKIF Core: generelle begreper</h3>
+          <p>En samling ontologier med generelle begreper som aktør, organisasjon, rolle, handling, tid, sted og rettskilde. Den brukes som referanse, ikke som ferdig norsk modell.</p>
+          <p>LKIF Core har ingen klasse for kompetanse. Nærmest er klassen for uttrykk som gir noen makt.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Tekniske byggesteiner</h3>
+          <p>RDF og OWL for å beskrive dataene, SHACL for å kontrollere dem, PROV-O for å vise hvor hvert utsagn kommer fra, og SKOS for begrepslister og koblinger. De avgjør ikke de juridiske spørsmålene.</p>
+        </div>
+      </div>
+
+      <div class="prose struktur-etter-tabell">
+        <h3>Nær, men aldri lik</h3>
+        <p>Et norsk begrep blir aldri erklært å være det samme som et internasjonalt. Koblingen sier om begrepene er <strong>nært beslektet</strong>, om det norske er <strong>snevrere</strong> eller <strong>bredere</strong>, eller at det ikke finnes noe som passer. Koblingene er informative i første versjon.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Begrep i DigRett</th><th scope="col">Nærmeste internasjonale begrep</th><th scope="col">Vurdering i grunnlaget</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Kompetanse</th><td>UFO-L: power, med subjection hos motparten</td><td>Delvis. Ikke bruk LegalRuleML <code>Authority</code></td></tr>
+            <tr><th scope="row">«Kan ikke» (negativ kompetanse)</th><td>UFO-L: disability, med immunity hos motparten</td><td>Delvis. Skilles fra forbud ved eksport</td></tr>
+            <tr><th scope="row">Plikt overfor en motpart</th><td>UFO-L: duty</td><td>Nært beslektet. Ikke et krav for motparten uten videre</td></tr>
+            <tr><th scope="row">Oppgave eller funksjon (planlagt)</th><td>LKIF Core: Function</td><td>Nært beslektet. Ingen motpart i UFO-L eller LegalRuleML</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 3. Rettslig metode ===================== -->
+  <section class="section" id="rettslig-metode">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Rettslig metode</span>
+        <h2>Det juristen gjør i hodet, skal modellen vise</h2>
+        <p>En jurist finner kildene, bestemmer hva de betyr og vurderer hvor sikkert svaret er. En maskinlesbar modell gjør det samme, men den må vise hvordan. Ellers blir slutninger presentert som om de sto i loven. Grunnregelen er den samme som i resten av DigRett: ikke gjett. Mangler grunnlaget, skal modellen si det.</p>
+      </div>
+
+      <div class="prose">
+        <h3>Hvilke kilder modellen kan bygge på</h3>
+        <p>Norsk rettskildelære bygger på mer enn lovteksten. Tabellen viser hvordan hver rettskildefaktor kan brukes i modellen nå.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Rettskildefaktor</th><th scope="col">Kan modellen bygge på den nå?</th><th scope="col">Slik brukes den</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Grunnloven og lov</th><td>Ja</td><td>Hjemmel, fra lovdataene med presis adresse til leddet</td></tr>
+            <tr><th scope="row">Forskrift</th><td>Ja</td><td>Hjemmel. Koblingen til loven forskriften er gitt i medhold av, bør vises</td></tr>
+            <tr><th scope="row">Kgl.res., instruks, tildelingsbrev, vedtekter, styrevedtak</th><td>Delvis</td><td>Kilde utenfor lovdataene, med type og om den er lest i original</td></tr>
+            <tr><th scope="row">Forarbeider</th><td>Delvis</td><td>Tolkningsstøtte, ikke hjemmel</td></tr>
+            <tr><th scope="row">Rettspraksis</th><td>Ikke ennå</td><td>Bare som kilde utenfor lovdataene. Vekt er spesifisert, men ikke bygget</td></tr>
+            <tr><th scope="row">Forvaltningspraksis</th><td>Ikke ennå</td><td>Kilde utenfor lovdataene</td></tr>
+            <tr><th scope="row">EØS-rett og folkerett</th><td>Delvis</td><td>Kilde utenfor lovdataene, for eksempel ODA artikkel 34</td></tr>
+            <tr><th scope="row">Juridisk teori</th><td>Ikke som grunnlag</td><td>Bare som begrunnelse, aldri som hjemmel</td></tr>
+            <tr><th scope="row">Reelle hensyn</th><td>Ikke som grunnlag</td><td>Kan begrunne en tolkning. Utsagnet får da status fortolkning</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose struktur-merk">
+        <p class="struktur-forbehold"><strong>Hjemmel eller begrunnelse.</strong> Bare lov og forskrift, og dokumenterte kilder utenfor lovdataene, kan være <em>hjemmel</em> for et utsagn. De andre faktorene kan bare <em>begrunne</em> en tolkning, og statusen på utsagnet viser det. Hvor tungt hver faktor veier, tar forslaget foreløpig ikke stilling til.</p>
+      </div>
+
+      <div class="nytt-to-kol struktur-etter-tabell">
+        <div class="prose">
+          <h3>Rekkefølgen kildene undersøkes i</h3>
+          <p>Hvem som har myndighet, avgjøres nesten alltid i lovteksten selv. Den nærmeste kilden brukes derfor først:</p>
+          <ol>
+            <li>sitatet</li>
+            <li>hele leddet</li>
+            <li>bestemmelsen</li>
+            <li>henvisninger internt («etter første ledd»)</li>
+            <li>definisjoner i samme lov</li>
+            <li>andre bestemmelser i samme lov</li>
+            <li>annen lov eller forskrift</li>
+            <li>forarbeider</li>
+            <li>rettspraksis</li>
+            <li>alminnelige prinsipper og teori</li>
+          </ol>
+          <p>Dette er en arbeidsrekkefølge, ikke en regel om hvilken kilde som veier tyngst. Den står i instruksen til juristagenten (<a href="https://github.com/FinnurO/regel-ide/pull/359" target="_blank" rel="noopener">#359</a>).</p>
+        </div>
+        <div class="prose">
+          <h3>Når kilden må åpnes</h3>
+          <p>Et sitat er ikke nok når:</p>
+          <ul>
+            <li>sitatet er ufullstendig eller bygger på forrige punktum,</li>
+            <li>teksten viser videre («det samme gjelder», «dersom», «med mindre»),</li>
+            <li>forslaget sier noe som ikke står i leddet,</li>
+            <li>det er tvil om hvilken versjon av loven som gjelder,</li>
+            <li>utsagnet bygger på en kilde utenfor lovdataene.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 3b. Kunnskapsstatus ===================== -->
+  <section class="section" id="kunnskapsstatus">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Rettslig metode · status for et utsagn</span>
+        <h2>Åtte statuser: hvordan vet vi det?</h2>
+        <p>Hvert utsagn i modellen skal ha én status som sier hvordan det er kommet fram. Statusen sier noe om metoden, ikke om hvem som har godkjent utsagnet. Eksemplene er fra fasitkontrollen i DigRett.</p>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Status</th><th scope="col">Hva det betyr</th><th scope="col">Må vise til</th><th scope="col">Eksempel</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Tekstfunn</th><td>Det står uttrykkelig i teksten</td><td>Tekstfragmentet</td><td>«kan ikke delegeres» i sameloven § 2-12 fjerde ledd: delegering er uttrykkelig forbudt (<a href="https://github.com/FinnurO/regel-ide/issues/356" target="_blank" rel="noopener">#356</a>)</td></tr>
+            <tr><th scope="row">Normalisering</th><td>Teksten knyttes til et fast begrep, uten en ny påstand</td><td>Tekstfragmentet, begrepet og regelen som er brukt</td><td>«Det regionale helseforetakets … utgifter skal dekkes av …»: betalingsmottaker er det helseforetaket utgiften gjelder. Vanlig språklig lesning av genitiv (<a href="https://github.com/FinnurO/regel-ide/issues/353" target="_blank" rel="noopener">#353</a>)</td></tr>
+            <tr><th scope="row">Fortolkning</th><td>Følger av en begrunnet tolkning</td><td>Tekstfragmentet og tolkningsargumentene</td><td>Eierstyring i foretaksmøtet er en beslutning, ikke en instruks (helseforetaksloven § 16, sett mot § 29) (<a href="https://github.com/FinnurO/regel-ide/issues/365" target="_blank" rel="noopener">#365</a>)</td></tr>
+            <tr><th scope="row">Avledet slutning</th><td>Følger av flere andre utsagn etter en angitt regel</td><td>Premissene og slutningsregelen</td><td>Agder lagmannsrett er ankeinstans for Agder tingrett, regnet ut via tingrett, lagsogn og lagdømme (<a href="https://github.com/FinnurO/regel-ide/issues/345" target="_blank" rel="noopener">#345</a>, <a href="https://github.com/FinnurO/regel-ide/issues/355" target="_blank" rel="noopener">#355</a>)</td></tr>
+            <tr><th scope="row">Eksternt dokumentert</th><td>Følger av et konkret dokument som ikke er lovtekst</td><td>Kilden, med type, lenke og om den er lest i original</td><td>Helseregion Sør-Øst som ansvarsområde, fra vedtektene til Helse Sør-Øst RHF § 3 (<a href="https://github.com/FinnurO/regel-ide/issues/312" target="_blank" rel="noopener">#312</a>)</td></tr>
+            <tr><th scope="row">Uavklart</th><td>Kan være relevant, men er ikke avgjort</td><td>Hva som mangler</td><td>Hvem som forvalter folketrygden utenom kapittel 5: et synlig hull (<a href="https://github.com/FinnurO/regel-ide/issues/353" target="_blank" rel="noopener">#353</a>)</td></tr>
+            <tr><th scope="row">Omstridt</th><td>Flere dokumenterte tolkninger konkurrerer</td><td>Hver tolkning med eget grunnlag</td><td>Ingen ennå. Uenighet er så langt løst i debattrundene</td></tr>
+            <tr><th scope="row">Foreldet</th><td>En tidligere klassifisering som er erstattet</td><td>Utsagnet som erstatter den</td><td>«Forskriftskompetanse» som egen type, erstattet av normgivning med normform forskrift (<a href="https://github.com/FinnurO/regel-ide/issues/341" target="_blank" rel="noopener">#341</a>)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="nytt-to-kol struktur-etter-tabell">
+        <figure class="nytt-figur">
+          <svg viewBox="0 0 320 420" role="img" aria-label="To uavhengige spørsmål om ett modellutsagn. Kunnskapsstatus beskriver hvordan utsagnet er kommet fram: tekstfunn, normalisering, fortolkning, avledet slutning, eksternt dokumentert, uavklart, omstridt eller foreldet. Godkjenning beskriver hvem som har vurdert det: maskinelt foreslått, manuelt foreslått, faglig vurdert, godkjent eller avvist.">
+            <defs>
+              <marker id="ks-pil" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="nf-pilspiss" d="M0,0 L10,5 L0,10 z"/></marker>
+            </defs>
+            <rect class="nf-boks" x="10" y="10" width="300" height="140" rx="6"/>
+            <text class="nf-navn" x="24" y="38">Kunnskapsstatus</text>
+            <text class="nf-dempet" x="24" y="58">hvordan utsagnet er kommet fram</text>
+            <text class="nf-tekst" x="24" y="86">tekstfunn</text>
+            <text class="nf-tekst" x="24" y="104">normalisering</text>
+            <text class="nf-tekst" x="24" y="122">fortolkning</text>
+            <text class="nf-tekst" x="24" y="140">avledet slutning</text>
+            <text class="nf-tekst" x="150" y="86">eksternt dokumentert</text>
+            <text class="nf-tekst" x="150" y="104">uavklart</text>
+            <text class="nf-tekst" x="150" y="122">omstridt</text>
+            <text class="nf-tekst" x="150" y="140">foreldet</text>
+
+            <line class="nf-linje" x1="44" y1="150" x2="44" y2="194" marker-end="url(#ks-pil)"/>
+            <text class="nf-tekst" x="58" y="177">beskriver</text>
+
+            <rect class="nf-boks nf-boks--slutt" x="10" y="196" width="300" height="60" rx="6"/>
+            <text class="nf-navn" x="24" y="222">Ett modellutsagn</text>
+            <text class="nf-dempet" x="24" y="242">en påstand om retten, med grunnlag</text>
+
+            <line class="nf-linje" x1="44" y1="300" x2="44" y2="258" marker-end="url(#ks-pil)"/>
+            <text class="nf-tekst" x="58" y="283">beskriver</text>
+
+            <rect class="nf-boks" x="10" y="302" width="300" height="108" rx="6"/>
+            <text class="nf-navn" x="24" y="330">Godkjenning</text>
+            <text class="nf-dempet" x="24" y="350">hvem som har vurdert det</text>
+            <text class="nf-tekst" x="24" y="376">maskinelt foreslått</text>
+            <text class="nf-tekst" x="24" y="394">manuelt foreslått</text>
+            <text class="nf-tekst" x="150" y="376">faglig vurdert</text>
+            <text class="nf-tekst" x="150" y="394">godkjent · avvist</text>
+          </svg>
+          <figcaption>To spørsmål som holdes fra hverandre. Et godkjent utsagn kan ha status fortolkning, og et tekstfunn kan være ikke vurdert. Begge feltene er planlagt i <a href="https://github.com/FinnurO/regel-ide/issues/367" target="_blank" rel="noopener">#367</a>, ikke bygget.</figcaption>
+        </figure>
+        <div class="prose">
+          <h3>Fire regler som følger av statusen</h3>
+          <ul>
+            <li><strong>En slutning vises aldri som tekstfunn.</strong> At «Kongen» uten «i statsråd» trolig kan delegere, er en slutning etter alminnelige regler. Den skal vises som «trolig delegerbar (slutning)» (<a href="https://github.com/FinnurO/regel-ide/issues/335" target="_blank" rel="noopener">#335</a>).</li>
+            <li><strong>En slutning er ikke sterkere enn det svakeste premisset.</strong> Bygger den på en fortolkning, kan den ikke vises som sikrere enn det.</li>
+            <li><strong>Uenighet bevares.</strong> Trekker kildene i ulike retninger, står alle tolkningene med status omstridt. Ingen av dem velges i stillhet.</li>
+            <li><strong>«Ikke funnet» er ikke «finnes ikke».</strong> At modellen ikke finner hjemmel, betyr ikke at handlingen er forbudt eller at myndigheten mangler.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 3c. Tolkning, motstrid, tid, skjønn ===================== -->
+  <section class="section" id="tolkning-tid-skjonn">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Rettslig metode · når modellen går ut over ordlyden</span>
+        <h2>Tolkning, motstrid, tid og skjønn</h2>
+      </div>
+      <div class="nytt-kort-grid nytt-kort-grid--bred">
+        <div class="nytt-kort">
+          <h3>Tolkning: vis hvilke argumenter som er brukt</h3>
+          <p>Er et utsagn en fortolkning, skal det gå fram hva den bygger på: ordlyd, sammenheng med andre bestemmelser, formål, forarbeider, praksis, reelle hensyn, eller slutning fra det som ikke er sagt eller fra lignende regler.</p>
+          <p>Forslaget avgjør ikke hvordan argumentene veies. Det sikrer at en jurist kan se hvilke som er brukt, og etterprøve vurderingen.</p>
+          <p>Eksempel på en tolkningsregel: tekstens subjekt er ikke nødvendigvis den som har ansvaret. «Folketrygden skal dekke» peker på en ordning, ikke på en aktør (<a href="https://github.com/FinnurO/regel-ide/issues/353" target="_blank" rel="noopener">#353</a>).</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Motstrid: forrang utledes aldri av rekkefølge alene</h3>
+          <p>Når regler trekker i ulike retninger, går høyere rang foran lavere, særregel foran generell regel og senere regel foran tidligere. At en forskrift er nyere, betyr likevel ikke automatisk at den går foran.</p>
+          <p>Forrang merkes derfor som <strong>direkte angitt</strong> når teksten sier det, for eksempel «uavhengig av første ledd» i energiloven § 10-2 annet ledd, eller som <strong>juridisk utledet</strong> når den følger av prinsippene. Det siste er en fortolkning.</p>
+          <p>En forskrift kobles til loven den er gitt i medhold av. Modellen kan da vise rammen, men avgjør ikke selv om forskriften holder seg innenfor.</p>
+        </div>
+      </div>
+
+      <div class="prose struktur-etter-tabell">
+        <h3>Tid: tre spørsmål som ikke må blandes</h3>
+      </div>
+      <div class="table-scroll">
+        <table class="ds-table struktur-tabell">
+          <thead>
+            <tr><th scope="col">Hvilken tid</th><th scope="col">Spørsmålet</th><th scope="col">Hvor det står i modellen</th></tr>
+          </thead>
+          <tbody>
+            <tr><th scope="row">Kildens gyldighet</th><td>Når gjelder bestemmelsen? Ikrafttredelse, endring, opphevelse og overgangsregler</td><td>Versjonen av rettskilden</td></tr>
+            <tr><th scope="row">Forholdets gyldighet</th><td>Når finnes aktøren eller myndigheten?</td><td>Gyldig fra og til på utsagnet</td></tr>
+            <tr><th scope="row">Analysens gyldighet</th><td>Når ble klassifiseringen gjort, og etter hvilken versjon av profilen?</td><td>Opphav og versjon på analysen</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="prose struktur-merk">
+        <p><strong>Eksempel: den nye forvaltningsloven.</strong> I dag følger kategorien enkeltvedtak av forvaltningsloven fra 1967 § 2. Den nye forvaltningsloven (<a href="https://lovdata.no/dokument/NL/lov/2025-06-20-81" target="_blank" rel="noopener">LOV-2025-06-20-81</a>) er vedtatt, men ikke i kraft. Kongen bestemmer når den trer i kraft. Den flytter definisjonene til § 7 og lovfester delegering i §§ 22–24. Når den trer i kraft, må analyser som bygger på den gamle § 2, vurderes på nytt, og delegering som i dag er «ikke regulert», kan få et lovgrunnlag.</p>
+        <p>Derfor skal hjemmelen peke på en bestemt versjon av lovteksten, ikke bare på paragrafen. Og en analyse slettes ikke når den erstattes. Den blir foreldet og lenkes til den nye.</p>
+        <h3>Skjønn</h3>
+        <p>Lovteksten gir ofte organet et valg («kan»). Det er forskjell på <strong>fritt skjønn</strong>, der organet selv avgjør om og hvordan det bruker myndigheten innenfor rammer som saklighet, og <strong>rettsanvendelsesskjønn</strong>, der vilkåret er en rettslig standard som domstolene kan prøve fullt, for eksempel «uklanderlig vandel».</p>
+        <p>I strukturmodellen har en myndighet med «kan» i dag ingen markør for skjønn. Forslaget er å skille «kan» som adgang fra «kan» som skjønnsmessig vilkår, og å merke det som fortolkning. Profilen skal ikke beskrive hvordan skjønnet skal utøves i en konkret sak.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 4. Kvalitet og ærlighet ===================== -->
+  <section class="section" id="kvalitet">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Kvalitet og ærlighet</span>
+        <h2>Godt nok for utvikling, ikke uavhengig kontroll</h2>
+        <p>Kvalitetssikringen i DigRett har i dag tre trinn: et maskinelt forslag, en juristagent som utfordrer det i to debattrunder, og fagansvarlig Finnur Olafsson som avgjør der det fortsatt er uenighet. Se <a href="../strukturmodell/#nytt-arbeidsmaten">hvordan debatten foregår</a>.</p>
+      </div>
+      <div class="nytt-kort-grid">
+        <div class="nytt-kort">
+          <h3>Juristagenten er KI</h3>
+          <p>Juristagenten er en KI-agent instruert som forvaltningsjurist. Den er ikke en uavhengig juridisk kontroll. Fasiten er dessuten laget med de samme metodene som skal evalueres.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Det som kreves før fasiten er bevis</h3>
+          <p>Et låst utvalg skal klassifiseres av minst to menneskelige jurister, uavhengig av hverandre og uten å se systemets forslag. Uenigheten mellom dem skal dokumenteres. Hvem som gjør det, og hvor stort utvalget skal være, er ikke bestemt.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>En avgjørelse er redaksjonell</h3>
+          <p>Når fagansvarlig avgjør en klassifisering, er det en redaksjonell beslutning om hvordan en analyse skal vises. Det er ikke en avgjørelse om hva som er gjeldende rett. Omstridte spørsmål skal kunne stå som omstridte.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== 5. Endringer i DigRett ===================== -->
+  <section class="section" id="endringer">
+    <div class="wrap">
+      <div class="section-head">
+        <span class="kicker">Hva som endres i DigRett <span class="pill" data-tone="warning">Planlagt, ikke bygget</span></span>
+        <h2>Grunnarkitekturen holder, men trenger fem utvidelser</h2>
+        <p>Arkitekturvurderingen konkluderer med at DigRett ikke må bygges om. Hver kobling i strukturmodellen har allerede hjemmel, avgrensning, gyldighet, status og opphav, og er i praksis et utsagn med grunnlag. Det som mangler, er dette:</p>
+      </div>
+      <div class="nytt-kort-grid">
+        <div class="nytt-kort">
+          <h3>1. Kunnskapsstatus og godkjenning</h3>
+          <p>Hvert utsagn får en av de åtte statusene, og godkjenning blir et eget felt. Eksisterende utsagn får ikke en gjettet status. De vises som «ikke vurdert» til de er vurdert.</p>
+          <p class="status">Planlagt i <a href="https://github.com/FinnurO/regel-ide/issues/367" target="_blank" rel="noopener">#367</a>, sammen med delegeringsadgang fra #335.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>2. Analysehistorikk</h3>
+          <p>En revidert analyse gir en ny rad, og den gamle blir foreldet i stedet for å slettes. Begrunnelse og tolkningsargumenter lagres, en slutning peker på premissene sine, og to omstridte tolkninger kan stå side om side.</p>
+          <p class="status">Planlagt i <a href="https://github.com/FinnurO/regel-ide/issues/367" target="_blank" rel="noopener">#367</a>.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>3. Versjonert hjemmel</h3>
+          <p>Hjemmelen peker på den versjonen av lovteksten analysen bygger på. Endres teksten, blir utsagnet flagget «hjemmel endret, vurder på nytt». Ingenting endres automatisk.</p>
+          <p class="status">Planlagt i <a href="https://github.com/FinnurO/regel-ide/issues/367" target="_blank" rel="noopener">#367</a>.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>4. Oppgave eller funksjon (kategori F)</h3>
+          <p>«Skal samordne», «sørge for», «forvalte», «føre oversikt» og «være sekretariat» presses i dag inn som myndighet, plikt eller relasjon. En oppgave blir et eget begrep, og den gir aldri myndighet eller plikt i seg selv. Ingenting flyttes før kandidatene er vurdert i en juristrunde.</p>
+          <p class="status">Planlagt i <a href="https://github.com/FinnurO/regel-ide/issues/368" target="_blank" rel="noopener">#368</a>.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>5. Plikt er ikke kravsrett</h3>
+          <p>At én part skal gjøre noe overfor en annen, betyr ikke at den andre kan kreve det. Plikten får et eget felt for kravsrett: ikke vurdert, etablert eller ikke etablert.</p>
+          <p class="status">Foreslått i arkitekturvurderingen (docs/34 §6.2). Ingen egen sak ennå.</p>
+        </div>
+        <div class="nytt-kort">
+          <h3>Senere: eksport som konformitetstest</h3>
+          <p>DigRett skal kunne eksportere utsagnene som RDF, med opphav etter PROV-O. Valideringsreglene i SHACL blir normative i profilen. At DigRett består dem, er testen på om den følger profilen. Først når profilen er publisert og DigRett består testene, kan «kandidat» strykes.</p>
+          <p class="status">Etter punkt 1–3. Trengs før første release candidate.</p>
+        </div>
+      </div>
+      <div class="prose struktur-etter-tabell">
+        <p>Fagansvarlig besluttet 15. oktober 2026 at punkt 1–3 bygges i én migrasjon (<a href="https://github.com/FinnurO/regel-ide/issues/367" target="_blank" rel="noopener">#367</a>), og at oppgave eller funksjon blir et eget begrep (<a href="https://github.com/FinnurO/regel-ide/issues/368" target="_blank" rel="noopener">#368</a>). Det som <strong>ikke</strong> endres: myndighet, plikt og relasjon holdes fra hverandre, kompetansefamiliene står, og prinsippet om å ikke gjette gjelder fortsatt.</p>
+      </div>
+      <ul class="source-list struktur-lenker">
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/README.md" target="_blank" rel="noopener">Profilmappen (docs/profil)</a><span class="desc">Oversikt over dokumentene, terminologien og rangordningen.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/03-metodenotat.md" target="_blank" rel="noopener">Metodenotatet</a><span class="desc">Rettskildefaktorene, de åtte statusene, tolkning, motstrid, tid og skjønn.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/04-mappingnotat.md" target="_blank" rel="noopener">Mappingnotatet</a><span class="desc">Koblingene til ELI, Akoma Ntoso, UFO-L, LegalRuleML og LKIF Core, med kildehenvisninger.</span></span></li>
+        <li><span class="dot" aria-hidden="true"></span><span><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/34-arkitekturvurdering-norsk-profil.md" target="_blank" rel="noopener">Arkitekturvurderingen (docs/34)</a><span class="desc">Hva som må endres i DigRett, og i hvilken rekkefølge.</span></span></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <h3>Om nettstedet</h3>
+      <p style="font-size:var(--ds-body-sm-font-size); color:var(--ds-color-text-subtle); max-width:32ch; margin:0;">Midlertidig showcase av <strong>DigRett</strong>, ikke selve produktet. Kildekode: <a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">regel-ide</a>.</p>
+    </div>
+    <div>
+      <h3>Sider</h3>
+      <ul>
+        <li><a href="../">Forside</a></li>
+        <li><a href="../rettskilder/">Rettskilder</a></li>
+        <li><a href="../virksomheter/">Virksomheter</a></li>
+        <li><a href="../grupper/">Grupper</a></li>
+        <li><a href="../koblinger/">Koblinger</a></li>
+        <li><a href="../kjeden/">Kjeden</a></li>
+        <li><a href="../strukturmodell/">Strukturmodellen</a></li>
+        <li><a href="../begreper/">Begreper</a></li>
+        <li><a href="../om/">Om</a></li>
+      </ul>
+    </div>
+    <div>
+      <h3>Kildekode</h3>
+      <ul>
+        <li><a href="https://github.com/FinnurO/regel-ide" target="_blank" rel="noopener">FinnurO/regel-ide</a></li>
+        <li><a href="https://github.com/FinnurO/regel-ide/blob/HEAD/docs/profil/README.md" target="_blank" rel="noopener">Profilmappen (docs/profil)</a></li>
+      </ul>
+    </div>
+    <p class="fine">Tallene på denne siden er målt 7.–9. oktober 2026 mot en maskinelt laget fasit som fortsatt er under kontroll (#309).</p>
+  </div>
+</footer>
+
+<button type="button" class="ds-button feedback-fab" data-color="accent" id="feedback-open-btn" aria-haspopup="dialog">
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+  <span class="btn-label">Gi tilbakemelding</span>
+</button>
+
+<dialog class="feedback-dialog" id="feedback-dialog" aria-labelledby="feedback-dialog-title">
+  <div class="feedback-dialog__body">
+    <h2 id="feedback-dialog-title">Gi tilbakemelding</h2>
+    <p class="lead">Sendes som et innspill på GitHub — du logger inn med (eller oppretter) en gratis GitHub-konto for å fullføre innsendingen der.</p>
+    <p class="feedback-hint">Vi tar automatisk med hvilke seksjoner du har åpnet på siden. Vil du sitere en bestemt setning: lukk dette vinduet, marker teksten på siden, og trykk «Gi tilbakemelding» på nytt.</p>
+    <div class="feedback-context" id="feedback-context"></div>
+    <div class="feedback-field">
+      <label for="feedback-text">Hva vil du si noe om?</label>
+      <textarea id="feedback-text" placeholder="Skriv tilbakemeldingen din her …"></textarea>
+    </div>
+    <div class="feedback-actions">
+      <button type="button" class="ds-button" data-variant="tertiary" data-color="neutral" id="feedback-cancel-btn">Avbryt</button>
+      <button type="button" class="ds-button" data-color="accent" id="feedback-submit-btn">Send inn på GitHub →</button>
+    </div>
+  </div>
+</dialog>
+
+<script src="../assets/js/common.js"></script>
+<script src="../assets/js/feedback.js"></script>
+</body>
+</html>
