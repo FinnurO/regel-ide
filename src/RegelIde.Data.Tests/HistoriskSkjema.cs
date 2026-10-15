@@ -88,6 +88,8 @@ internal static class HistoriskSkjema
             + "ALTER TABLE relasjonstype_konfigurasjon ADD COLUMN IF NOT EXISTS fvl_kategori_hjemmel text; "
             + "ALTER TABLE relasjonstype_konfigurasjon ADD COLUMN IF NOT EXISTS fvl_kategori_gjelder_fra date; "
             + "ALTER TABLE relasjonstype_konfigurasjon ADD COLUMN IF NOT EXISTS fvl_kategori_gjelder_til date;");
+        // [Ny, issue #313 / #374] strukturkanter.avvisning_begrunnelse (AvvistSomStatus).
+        await db.Database.ExecuteSqlRawAsync("ALTER TABLE IF EXISTS strukturkanter ADD COLUMN IF NOT EXISTS avvisning_begrunnelse text;");
     }
 
     /// <summary>
