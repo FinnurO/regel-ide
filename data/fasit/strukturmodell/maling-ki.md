@@ -20,9 +20,9 @@ samme eId + kategori + type + fra/til-tekstform som et mønsterutsagn. **Bare m�
 
 | Lag | Fasit | Predikert | Treff | Presisjon | Gjenfinning | Presisjon u/endepunkt | Gjenfinning u/endepunkt |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| Mønster | 1802 | 934 | 864 | 92,5 % | 47,9 % | 94,8 % | 49,1 % |
+| Mønster | 1802 | 973 | 864 | 88,8 % | 47,9 % | 91,0 % | 49,1 % |
 | KI | 1802 | 1042 | 383 | 36,8 % | 21,3 % | 44,2 % | 25,6 % |
-| Mønster ∪ KI | 1802 | 1721 | 1002 | 58,2 % | 55,6 % | 62,7 % | 59,9 % |
+| Mønster ∪ KI | 1802 | 1760 | 1002 | 56,9 % | 55,6 % | 61,3 % | 59,9 % |
 
 Av 1802 fasitutsagn traff bare mønsterlaget 622, bare KI-laget 141.
 
@@ -35,6 +35,7 @@ P = presisjon, G = gjenfinning (med endepunktkrav).
 | R | 104 | 4 | 75,0 % | 2,9 % | 81 | 33,3 % | 26,0 % | 32,5 % | 26,0 % | 0 | 24 |
 | K | 596 | 324 | 87,3 % | 47,5 % | 723 | 46,1 % | 55,9 % | 47,8 % | 64,1 % | 52 | 102 |
 | P | 79 | 31 | 58,1 % | 22,8 % | 43 | 32,6 % | 17,7 % | 39,1 % | 34,2 % | 13 | 9 |
+| F | 0 | 39 | 0,0 % | – | 0 | – | – | 0,0 % | – | 0 | 0 |
 | M | 47 | 0 | – | 0,0 % | 22 | 4,5 % | 2,1 % | 4,5 % | 2,1 % | 0 | 1 |
 | O | 177 | 122 | 89,3 % | 61,6 % | 11 | 0,0 % | 0,0 % | 82,0 % | 61,6 % | 109 | 0 |
 | A | 449 | 419 | 100,0 % | 93,3 % | 51 | 0,0 % | 0,0 % | 89,1 % | 93,3 % | 419 | 0 |
@@ -42,7 +43,7 @@ P = presisjon, G = gjenfinning (med endepunktkrav).
 | I | 0 | 0 | – | – | 0 | – | – | – | – | 0 | 0 |
 | T | 19 | 0 | – | 0,0 % | 14 | 14,3 % | 10,5 % | 14,3 % | 10,5 % | 0 | 2 |
 | annet | 286 | 28 | 100,0 % | 9,8 % | 56 | 1,8 % | 0,3 % | 34,5 % | 10,1 % | 28 | 1 |
-| **Alle** | 1802 | 934 | 92,5 % | 47,9 % | 1042 | 36,8 % | 21,3 % | 58,2 % | 55,6 % | 622 | 141 |
+| **Alle** | 1802 | 973 | 88,8 % | 47,9 % | 1042 | 36,8 % | 21,3 % | 56,9 % | 55,6 % | 622 | 141 |
 
 ### KI uten endepunktkrav (bare eId + kategori + type)
 
@@ -53,6 +54,7 @@ Avstanden til tabellen over er utsagn KI-en gjenkjente, men med feil eller mangl
 | R | 46,9 % | 36,5 % | 75,0 % | 2,9 % |
 | K | 51,5 % | 62,4 % | 89,2 % | 48,5 % |
 | P | 46,5 % | 25,3 % | 64,5 % | 25,3 % |
+| F | – | – | 0,0 % | – |
 | M | 13,6 % | 6,4 % | – | 0,0 % |
 | O | 81,8 % | 5,1 % | 98,4 % | 67,8 % |
 | A | 7,8 % | 0,9 % | 100,0 % | 93,3 % |
@@ -65,11 +67,11 @@ Avstanden til tabellen over er utsagn KI-en gjenkjente, men med feil eller mangl
 
 | Kilde | Fasit | Mønster pred. | Mønster P | Mønster G | KI pred. | KI P | KI G | Union P | Union G | Bare mønster | Bare KI |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|
-| domstolloven | 778 | 540 | 95,6 % | 66,3 % | 344 | 18,0 % | 8,0 % | 63,9 % | 69,0 % | 475 | 21 |
-| energiloven | 241 | 117 | 94,0 % | 45,6 % | 211 | 58,8 % | 51,5 % | 62,0 % | 62,2 % | 27 | 41 |
-| helse-og-omsorgstjenesteloven | 191 | 58 | 87,9 % | 26,7 % | 133 | 51,1 % | 35,6 % | 49,6 % | 36,1 % | 3 | 20 |
-| sameloven | 286 | 133 | 88,7 % | 41,3 % | 70 | 30,0 % | 7,3 % | 68,6 % | 45,1 % | 108 | 11 |
-| spesialisthelsetjenesteloven | 306 | 86 | 80,2 % | 22,5 % | 284 | 38,0 % | 35,3 % | 37,6 % | 38,2 % | 9 | 48 |
+| domstolloven | 778 | 543 | 95,0 % | 66,3 % | 344 | 18,0 % | 8,0 % | 63,6 % | 69,0 % | 475 | 21 |
+| energiloven | 241 | 121 | 90,9 % | 45,6 % | 211 | 58,8 % | 51,5 % | 61,0 % | 62,2 % | 27 | 41 |
+| helse-og-omsorgstjenesteloven | 191 | 71 | 71,8 % | 26,7 % | 133 | 51,1 % | 35,6 % | 45,4 % | 36,1 % | 3 | 20 |
+| sameloven | 286 | 135 | 87,4 % | 41,3 % | 70 | 30,0 % | 7,3 % | 67,9 % | 45,1 % | 108 | 11 |
+| spesialisthelsetjenesteloven | 306 | 103 | 67,0 % | 22,5 % | 284 | 38,0 % | 35,3 % | 35,7 % | 38,2 % | 9 | 48 |
 
 ## Per type
 
@@ -116,6 +118,9 @@ Alle typer fra FORMAT.md-listene som står i fasiten eller som et av lagene pred
 | P plikt / informasjonsplikt | 13 | 0 | – | 0,0 % | 2 | 0,0 % | 0,0 % | 0,0 % | 0,0 % | 0 | 0 |
 | P plikt / konsultasjonsplikt | 10 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | P plikt / avtaleplikt | 3 | 3 | 66,7 % | 66,7 % | 3 | 66,7 % | 66,7 % | 50,0 % | 66,7 % | 0 | 0 |
+| F oppgave / forvaltningsoppgave | 0 | 1 | 0,0 % | – | 0 | – | – | 0,0 % | – | 0 | 0 |
+| F oppgave / oversiktsoppgave | 0 | 2 | 0,0 % | – | 0 | – | – | 0,0 % | – | 0 | 0 |
+| F oppgave / sorge_for_ansvar | 0 | 36 | 0,0 % | – | 0 | – | – | 0,0 % | – | 0 | 0 |
 | M medlemskap / medlem_av | 29 | 0 | – | 0,0 % | 22 | 4,5 % | 3,4 % | 4,5 % | 3,4 % | 0 | 1 |
 | M medlemskap / inngar_i | 18 | 0 | – | 0,0 % | 0 | – | 0,0 % | – | 0,0 % | 0 | 0 |
 | O sammensetning_omrade / bestar_av | 108 | 75 | 93,3 % | 64,8 % | 11 | 0,0 % | 0,0 % | 81,4 % | 64,8 % | 70 | 0 |

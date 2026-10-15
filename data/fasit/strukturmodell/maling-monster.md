@@ -12,18 +12,19 @@ bare eId + kategori + type — forskjellen mellom de to viser hvor mye av feilen
 
 ## Totalt
 
-1802 fasitutsagn, 934 predikerte, 864 treff → presisjon **92,5 %**, gjenfinning **47,9 %**
-(uten endepunktkrav: presisjon 94,8 %, gjenfinning 49,1 %).
+1802 fasitutsagn, 973 predikerte, 864 treff → presisjon **88,8 %**, gjenfinning **47,9 %**
+(uten endepunktkrav: presisjon 91,0 %, gjenfinning 49,1 %).
 
 ## Per kategori (kanttype, `docs/33` §4.3)
 
-Bokstaven følger `STD`-tabellen i `designtest.py`. `annet:*`-typer står i egen rad. P = plikt overfor motpart (#353; samarbeid og bistand var «senere lag» før).
+Bokstaven følger `STD`-tabellen i `designtest.py`. `annet:*`-typer står i egen rad. P = plikt overfor motpart (#353; samarbeid og bistand var «senere lag» før). F = oppgave/funksjon (#368).
 
 | Kategori | Fasit | Predikert | Treff | Presisjon | Gjenfinning | Presisjon u/endepunkt | Gjenfinning u/endepunkt |
 |---|---:|---:|---:|---:|---:|---:|---:|
 | R | 104 | 4 | 3 | 75,0 % | 2,9 % | 75,0 % | 2,9 % |
 | K | 596 | 324 | 283 | 87,3 % | 47,5 % | 89,2 % | 48,5 % |
 | P | 79 | 31 | 18 | 58,1 % | 22,8 % | 64,5 % | 25,3 % |
+| F | 0 | 39 | 0 | 0,0 % | – | 0,0 % | – |
 | M | 47 | 0 | 0 | – | 0,0 % | – | 0,0 % |
 | O | 177 | 122 | 109 | 89,3 % | 61,6 % | 98,4 % | 67,8 % |
 | A | 449 | 419 | 419 | 100,0 % | 93,3 % | 100,0 % | 93,3 % |
@@ -36,11 +37,11 @@ Bokstaven følger `STD`-tabellen i `designtest.py`. `annet:*`-typer står i egen
 
 | Kilde | Fasit | Predikert | Treff | Presisjon | Gjenfinning | Presisjon u/endepunkt | Gjenfinning u/endepunkt |
 |---|---:|---:|---:|---:|---:|---:|---:|
-| domstolloven | 778 | 540 | 516 | 95,6 % | 66,3 % | 96,7 % | 67,1 % |
-| energiloven | 241 | 117 | 110 | 94,0 % | 45,6 % | 94,0 % | 45,6 % |
-| helse-og-omsorgstjenesteloven | 191 | 58 | 51 | 87,9 % | 26,7 % | 91,4 % | 27,7 % |
-| sameloven | 286 | 133 | 118 | 88,7 % | 41,3 % | 97,7 % | 45,5 % |
-| spesialisthelsetjenesteloven | 306 | 86 | 69 | 80,2 % | 22,5 % | 81,4 % | 22,9 % |
+| domstolloven | 778 | 543 | 516 | 95,0 % | 66,3 % | 96,1 % | 67,1 % |
+| energiloven | 241 | 121 | 110 | 90,9 % | 45,6 % | 90,9 % | 45,6 % |
+| helse-og-omsorgstjenesteloven | 191 | 71 | 51 | 71,8 % | 26,7 % | 74,6 % | 27,7 % |
+| sameloven | 286 | 135 | 118 | 87,4 % | 41,3 % | 96,3 % | 45,5 % |
+| spesialisthelsetjenesteloven | 306 | 103 | 69 | 67,0 % | 22,5 % | 68,0 % | 22,9 % |
 
 ## Per type mønsterlaget produserer
 
@@ -64,6 +65,10 @@ Bokstaven følger `STD`-tabellen i `designtest.py`. `annet:*`-typer står i egen
 | P plikt / betalingsplikt | 18 | 19 | 9 | 47,4 % | 50,0 % | 52,6 % | 55,6 % |
 | P plikt / informasjonsplikt | 13 | 0 | 0 | – | 0,0 % | – | 0,0 % |
 | P plikt / konsultasjonsplikt | 10 | 0 | 0 | – | 0,0 % | – | 0,0 % |
+| F oppgave / sorge_for_ansvar | 0 | 36 | 0 | 0,0 % | – | 0,0 % | – |
+| F oppgave / oversiktsoppgave | 0 | 2 | 0 | 0,0 % | – | 0,0 % | – |
+| F oppgave / veiledningsoppgave | 0 | 0 | 0 | – | – | – | – |
+| F oppgave / forvaltningsoppgave | 0 | 1 | 0 | 0,0 % | – | 0,0 % | – |
 | A ansvarsomrade / har_sete_i | 65 | 62 | 62 | 100,0 % | 95,4 % | 100,0 % | 95,4 % |
 | O sammensetning_omrade / del_av | 69 | 47 | 39 | 83,0 % | 56,5 % | 100,0 % | 68,1 % |
 | A ansvarsomrade / har_ansvarsomrade | 381 | 357 | 357 | 100,0 % | 93,7 % | 100,0 % | 93,7 % |
@@ -116,6 +121,10 @@ Stor avstand mellom presisjon og gjenkjent betyr at mønsteret finner riktig uts
 | `plikt-dekke-utgifter` | betalingsplikt | 7 | 4 | 57,1 % | 57,1 % | Ikke målt i docs/33 §1. Den aktive formen av plikt-dekkes-av, samme leksikonregel-familie (betalingsplikt). |
 | `plikt-gi-opplysninger` | informasjonsplikt | 0 | 0 | – | – | Ikke målt i docs/33 §1 (informasjonsdeling sto utenfor strukturlaget til #353). Tatt inn etter Johanns godkjenning av #353 (energiloven:u201). |
 | `plikt-innhente-uttalelse` | konsultasjonsplikt | 0 | 0 | – | – | Ikke målt i docs/33 §1. Tatt inn etter Johanns godkjenning av #353 (konsultasjonsplikt). |
+| `oppgave-sorge-for` | sorge_for_ansvar | 36 | 0 | 0,0 % | 0,0 % | Ikke målt i docs/33 §1. Tatt inn etter Johanns beslutning om F (#368) og juristrunden: «sørge for» er et resultatansvar (sørge-for-ansvar), ikke kompetanse — KI … |
+| `oppgave-fore-oversikt` | oversiktsoppgave | 2 | 0 | 0,0 % | 0,0 % | Ikke målt i docs/33 §1. Tatt inn etter #368 (domstolloven u171/u198: «Fortegnelse over de valgte meddommere føres av kommunen», «Registeret over sidegjøremål fø … |
+| `oppgave-veilede` | veiledningsoppgave | 0 | 0 | – | – | Ikke målt i docs/33 §1. Tatt inn etter #368 (barnehageloven-piloten #375: «veilede og påse»). |
+| `oppgave-forvalte` | forvaltningsoppgave | 1 | 0 | 0,0 % | 0,0 % | Ikke målt i docs/33 §1. Tatt inn etter #368 (folketrygdloven § 21-11 a: «Helsedirektoratet skal forvalte kapittel 5»). |
 | `har-sete-i` | har_sete_i | 1 | 1 | 100,0 % | 100,0 % | Ikke målt i docs/33 §1. Fast lovformulering for sete; Y tas slik den står («rikets hovedstad»), uten oppslag. |
 | `inndeling-kommune-i-fylke` | del_av | 47 | 39 | 83,0 % | 100,0 % | Ikke målt i docs/33 §1. Fylkestilhørigheten står eksplisitt i setningen. |
 | `inndeling-rettskrets` | har_ansvarsomrade | 357 | 357 | 100,0 % | 100,0 % | docs/33 §1 nevner strukturerte kommunelister i inndelingsforskrifter som høypresisjonskilde (ikke tallfestet). |
@@ -125,12 +134,13 @@ Stor avstand mellom presisjon og gjenkjent betyr at mønsteret finner riktig uts
 | `inndeling-sogner` | annet:sogner_til | 28 | 28 | 100,0 % | 100,0 % | Strukturerte lister i inndelingsforskrifter (docs/33 §1, ikke tallfestet). |
 | `inndeling-bestar-av-liste` | bestar_av | 4 | 4 | 100,0 % | 100,0 % | Ikke målt i docs/33 §1. Generell listeform; kravet om egennavn holder organsammensetning ute. |
 
-## Falske positive (70)
+## Falske positive (109)
 
 Gruppert på mønster og om eId+kategori+type fantes i fasiten (= feil/manglende aktør) eller ikke (= feil gjenkjenning).
 
 | Mønster | Årsak | Antall |
 |---|---|---:|
+| `monster:oppgave-sorge-for` | ikke i fasiten | 36 |
 | `monster:vedtak-avgjores-av` | ikke i fasiten | 9 |
 | `monster:inndeling-kommune-i-fylke` | feil/manglende aktør | 8 |
 | `monster:plikt-dekkes-av` | ikke i fasiten | 6 |
@@ -144,6 +154,7 @@ Gruppert på mønster og om eId+kategori+type fantes i fasiten (= feil/manglende
 | `monster:vedtak-avgjor` | ikke i fasiten | 3 |
 | `monster:forskrift-gitt-av` | ikke i fasiten | 2 |
 | `monster:har-medlemmer` | feil/manglende aktør | 2 |
+| `monster:oppgave-fore-oversikt` | ikke i fasiten | 2 |
 | `monster:samordning-samordne` | ikke i fasiten | 2 |
 | `monster:delegerer-delegeres-til` | ikke i fasiten | 1 |
 | `monster:delegerer-kan-delegere` | ikke i fasiten | 1 |
@@ -151,6 +162,7 @@ Gruppert på mønster og om eId+kategori+type fantes i fasiten (= feil/manglende
 | `monster:forskrift-naermere-regler` | ikke i fasiten | 1 |
 | `monster:klage-er-klageinstans` | feil/manglende aktør | 1 |
 | `monster:klage-paklages-til` | feil/manglende aktør | 1 |
+| `monster:oppgave-forvalte` | ikke i fasiten | 1 |
 | `monster:plikt-dekkes-av` | feil/manglende aktør | 1 |
 | `monster:plikt-inngaa-avtale` | feil/manglende aktør | 1 |
 | `monster:plikt-samarbeide` | feil/manglende aktør | 1 |
@@ -161,26 +173,26 @@ De 20 vanligste (én fra hver gruppe i tur, vanligste gruppe først):
 
 | # | Kilde | eId | Mønster | fra → til | Sitat |
 |---|---|---|---|---|---|
-| 1 | domstolloven | lov/1915/08/13/5/nor/§5/ledd-1 | `monster:vedtak-avgjores-av` | Høyesteretts ankeutvalg → null | I saker som etter lov skal avgjøres av Høyesteretts ankeutvalg, settes Høyesterett med tre dommere. |
-| 2 | sameloven | lov/1987/06/12/56/nor/§2-4/ledd-1/punkt-6 | `monster:inndeling-kommune-i-fylke` | Surnadal → Møre og Romsdal fylke | Surnadal |
-| 3 | domstolloven | lov/1915/08/13/5/nor/§105a/ledd-2 | `monster:plikt-dekkes-av` | det offentlige → null | Utgiftene dekkes av det offentlige. |
-| 4 | energiloven | lov/1990/06/29/50/nor/§2-4/ledd-1 | `monster:forskrift-gi` | Kongen → null | Kongen kan gi forskrift om at nærmere bestemte vedtak etter § 3-1 skal fattes av Kongen i statsråd. |
-| 5 | domstolloven | forskrift/2021/01/22/163/nor/§15/ledd-1 | `monster:inndeling-utgjor` | Borgarting lagdømme → Oslo | Oslo |
-| 6 | domstolloven | lov/1915/08/13/5/nor/§33/ledd-3 | `monster:vedtak-treffe` | Kongen i statsråd → null | Kongen i statsråd kan treffe vedtak om domstoladministrasjonens virksomhet og administrasjonen av domstolene. |
-| 7 | domstolloven | lov/1915/08/13/5/nor/§122/ledd-2 | `monster:forskrift-gi` | Kongen → null | Kongen kan gi forskrift om at opplysninger som nevnt skal gis ved oppslag ved rettens kontor. |
-| 8 | domstolloven | lov/1915/08/13/5/nor/§86/ledd-1 | `monster:forskrift-i-ved` | domstoladministrasjonen → null | Domstoladministrasjonen kan ved forskrift dele lagsogn og domssogn i flere trekningskretser. |
-| 9 | domstolloven | lov/1915/08/13/5/nor/§43/ledd-2 | `monster:oppnevnt-av` | Kongen → særskilt organ | En granskingskommisjon, et kontrollutvalg eller et annet særskilt organ som er oppnevnt av Kongen, Stortinget eller et departement eller en statsforvalter for å … |
-| 10 | helse-og-omsorgstjenesteloven | lov/2011/06/24/30/nor/§11-1/ledd-4 | `monster:plikt-dekke-utgifter` | Kommunen → null | Kommunen dekker reiseutgifter for behandlingspersonell som gir helsetjenester etter folketrygdloven kapittel 5. |
-| 11 | domstolloven | lov/1915/08/13/5/nor/§6/ledd-2 | `monster:vedtak-avgjor` | domstollederen → null | Domstollederen avgjør da om retten skal settes med 11 eller med alle Høyesteretts dommere. |
-| 12 | domstolloven | lov/1915/08/13/5/nor/§105a/ledd-1 | `monster:forskrift-gitt-av` | Kongen → null | Godtgjørelsen til jordskiftemeddommer og meddommer fastsettes av rettens leder etter forskrifter gitt av Kongen. |
-| 13 | domstolloven | lov/1915/08/13/5/nor/§27/ledd-2 | `monster:har-medlemmer` | Forliksrådet → medlemmer | Forliksrådet skal ha tre medlemmer og like mange varamedlemmer. |
-| 14 | helse-og-omsorgstjenesteloven | lov/2011/06/24/30/nor/§3-4/ledd-2 | `monster:samordning-samordne` | Kommunen → null | Kommunen skal samordne tjenestetilbudet etter første ledd. |
-| 15 | sameloven | forskrift/2004/12/10/1607/nor/ledd-3 | `monster:delegerer-delegeres-til` | Kongen → Kommunal- og regionaldepartementet | Departementet foreslår at Kongens myndighet etter samelovens § 2-11 delegeres delvis til Kommunal- og regionaldepartementet. |
-| 16 | energiloven | kap-I/ledd-2 | `monster:delegerer-kan-delegere` | Departementet → Norges vassdrags- og energidirektorat | Departementet delegerer all myndighet etter lov 29. juni 1990 nr. 50 om produksjon, omforming, overføring, omsetning, fordeling og bruk av energi m.m. (energilo … |
-| 17 | sameloven | lov/1987/06/12/56/nor/§2-14/ledd-1 | `monster:forskrift-naermere-regler` | Sametinget → null | Sametinget gir bestemmelser om sammenkalling og arbeidsordningen i Sametinget. |
-| 18 | domstolloven | lov/1915/08/13/5/nor/§33c/ledd-2 | `monster:forskrift-naermere-regler` | domstoladministrasjonen → null | Domstoladministrasjonen gir nærmere bestemmelser om organiseringen av disse dommernes tjenester. |
-| 19 | sameloven | lov/1987/06/12/56/nor/§3-11/ledd-1 | `monster:klage-er-klageinstans` | Statsforvalteren → null | Statsforvalteren er klageinstans når klagen angår kommunale eller fylkeskommunale organ. |
-| 20 | sameloven | lov/1987/06/12/56/nor/§2-12/ledd-5 | `monster:klage-paklages-til` | Sametinget → styre | Enkeltvedtak fattet av styre, råd eller utvalg oppnevnt av Sametinget, kan i samsvar med forvaltningslovens bestemmelser påklages til Sametinget eller særskilt  … |
+| 1 | domstolloven | lov/1915/08/13/5/nor/§159a/ledd-1 | `monster:oppgave-sorge-for` | retten → null | Retten skal sørge for at dom i straffesak blir forkynt etter reglene i annet eller tredje ledd, eller at dommen postforkynnes etter reglene i § 163 a. |
+| 2 | domstolloven | lov/1915/08/13/5/nor/§5/ledd-1 | `monster:vedtak-avgjores-av` | Høyesteretts ankeutvalg → null | I saker som etter lov skal avgjøres av Høyesteretts ankeutvalg, settes Høyesterett med tre dommere. |
+| 3 | sameloven | lov/1987/06/12/56/nor/§2-4/ledd-1/punkt-6 | `monster:inndeling-kommune-i-fylke` | Surnadal → Møre og Romsdal fylke | Surnadal |
+| 4 | domstolloven | lov/1915/08/13/5/nor/§105a/ledd-2 | `monster:plikt-dekkes-av` | det offentlige → null | Utgiftene dekkes av det offentlige. |
+| 5 | energiloven | lov/1990/06/29/50/nor/§2-4/ledd-1 | `monster:forskrift-gi` | Kongen → null | Kongen kan gi forskrift om at nærmere bestemte vedtak etter § 3-1 skal fattes av Kongen i statsråd. |
+| 6 | domstolloven | forskrift/2021/01/22/163/nor/§15/ledd-1 | `monster:inndeling-utgjor` | Borgarting lagdømme → Oslo | Oslo |
+| 7 | domstolloven | lov/1915/08/13/5/nor/§33/ledd-3 | `monster:vedtak-treffe` | Kongen i statsråd → null | Kongen i statsråd kan treffe vedtak om domstoladministrasjonens virksomhet og administrasjonen av domstolene. |
+| 8 | domstolloven | lov/1915/08/13/5/nor/§122/ledd-2 | `monster:forskrift-gi` | Kongen → null | Kongen kan gi forskrift om at opplysninger som nevnt skal gis ved oppslag ved rettens kontor. |
+| 9 | domstolloven | lov/1915/08/13/5/nor/§86/ledd-1 | `monster:forskrift-i-ved` | domstoladministrasjonen → null | Domstoladministrasjonen kan ved forskrift dele lagsogn og domssogn i flere trekningskretser. |
+| 10 | domstolloven | lov/1915/08/13/5/nor/§43/ledd-2 | `monster:oppnevnt-av` | Kongen → særskilt organ | En granskingskommisjon, et kontrollutvalg eller et annet særskilt organ som er oppnevnt av Kongen, Stortinget eller et departement eller en statsforvalter for å … |
+| 11 | helse-og-omsorgstjenesteloven | lov/2011/06/24/30/nor/§11-1/ledd-4 | `monster:plikt-dekke-utgifter` | Kommunen → null | Kommunen dekker reiseutgifter for behandlingspersonell som gir helsetjenester etter folketrygdloven kapittel 5. |
+| 12 | domstolloven | lov/1915/08/13/5/nor/§6/ledd-2 | `monster:vedtak-avgjor` | domstollederen → null | Domstollederen avgjør da om retten skal settes med 11 eller med alle Høyesteretts dommere. |
+| 13 | domstolloven | lov/1915/08/13/5/nor/§105a/ledd-1 | `monster:forskrift-gitt-av` | Kongen → null | Godtgjørelsen til jordskiftemeddommer og meddommer fastsettes av rettens leder etter forskrifter gitt av Kongen. |
+| 14 | domstolloven | lov/1915/08/13/5/nor/§27/ledd-2 | `monster:har-medlemmer` | Forliksrådet → medlemmer | Forliksrådet skal ha tre medlemmer og like mange varamedlemmer. |
+| 15 | domstolloven | lov/1915/08/13/5/nor/§69/ledd-1 | `monster:oppgave-fore-oversikt` | kommunen → null | Fortegnelse over de valgte meddommere føres av kommunen. |
+| 16 | helse-og-omsorgstjenesteloven | lov/2011/06/24/30/nor/§3-4/ledd-2 | `monster:samordning-samordne` | Kommunen → null | Kommunen skal samordne tjenestetilbudet etter første ledd. |
+| 17 | sameloven | forskrift/2004/12/10/1607/nor/ledd-3 | `monster:delegerer-delegeres-til` | Kongen → Kommunal- og regionaldepartementet | Departementet foreslår at Kongens myndighet etter samelovens § 2-11 delegeres delvis til Kommunal- og regionaldepartementet. |
+| 18 | energiloven | kap-I/ledd-2 | `monster:delegerer-kan-delegere` | Departementet → Norges vassdrags- og energidirektorat | Departementet delegerer all myndighet etter lov 29. juni 1990 nr. 50 om produksjon, omforming, overføring, omsetning, fordeling og bruk av energi m.m. (energilo … |
+| 19 | sameloven | lov/1987/06/12/56/nor/§2-14/ledd-1 | `monster:forskrift-naermere-regler` | Sametinget → null | Sametinget gir bestemmelser om sammenkalling og arbeidsordningen i Sametinget. |
+| 20 | domstolloven | lov/1915/08/13/5/nor/§33c/ledd-2 | `monster:forskrift-naermere-regler` | domstoladministrasjonen → null | Domstoladministrasjonen gir nærmere bestemmelser om organiseringen av disse dommernes tjenester. |
 
 ## Falske negative (938)
 
