@@ -608,7 +608,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u3",
@@ -641,10 +642,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u5",
@@ -660,9 +662,9 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "[#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u13). Ikke en slutning fra ordet «Kongen».",
+      "kommentar": "[#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u13). Ikke en slutning fra ordet «Kongen». [#367, D2] Delegering uttrykkelig forbudt: TEKSTFUNN i en annen bestemmelse («kan ikke delegeres» med paragrafhenvisning).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": false
+      "delegeringsadgang": "uttrykkelig_forbudt"
     },
     {
       "id": "u6",
@@ -695,9 +697,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "[#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u13). Ikke en slutning fra ordet «Kongen».",
+      "kommentar": "[#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u13). Ikke en slutning fra ordet «Kongen». [#367, D2] Delegering uttrykkelig forbudt: TEKSTFUNN i en annen bestemmelse («kan ikke delegeres» med paragrafhenvisning).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": false
+      "delegeringsadgang": "uttrykkelig_forbudt"
     },
     {
       "id": "u8",
@@ -713,10 +715,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u9",
@@ -749,7 +752,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "undertype": "ansettelse"
     },
@@ -767,7 +770,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "[#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter.",
+      "kommentar": "[#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter. [#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -818,7 +821,7 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -835,7 +838,7 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "undertype": "oppnevning"
     },
@@ -853,10 +856,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "[#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u13). Ikke en slutning fra ordet «Kongen».",
+      "kommentar": "[#356, R3] delegerbar = false: TEKSTFUNN — 'Beslutningsmyndighet i henhold til §§ 2-9, 2-10 og 2-14 kan ikke delegeres.' (u13). Ikke en slutning fra ordet «Kongen». [#367, D2] Delegering uttrykkelig forbudt: TEKSTFUNN i en annen bestemmelse («kan ikke delegeres» med paragrafhenvisning).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": false
+      "delegeringsadgang": "uttrykkelig_forbudt"
     },
     {
       "id": "u17",
@@ -872,10 +875,11 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u18",
@@ -891,10 +895,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u19",
@@ -945,7 +950,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u22",
@@ -962,7 +968,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u23",
@@ -979,7 +986,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u24",
@@ -1048,7 +1056,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "undertype": "oppnevning"
+      "undertype": "oppnevning",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u28",
@@ -1065,7 +1074,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u29",
@@ -1082,7 +1092,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u30",
@@ -1099,7 +1110,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u31",
@@ -1116,7 +1128,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u32",
@@ -1183,10 +1196,11 @@
       "betinget": true,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u36",
@@ -1219,10 +1233,11 @@
       "betinget": null,
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u38",
@@ -1256,7 +1271,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u40",
@@ -1273,7 +1289,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "middels",
       "kommentar": "Klageinstansen fastsettes som nærmest overordnet organ, ikke konkret angitt.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u41",
@@ -1290,7 +1307,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u42",
@@ -1324,7 +1342,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u44",
@@ -1340,10 +1359,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u45",
@@ -1361,7 +1381,8 @@
       "sikkerhet": "hoy",
       "kommentar": null,
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u46",
@@ -1377,10 +1398,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u47",
@@ -1396,10 +1418,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u48",
@@ -1432,10 +1455,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Midlertidig kompetanse for Kongen.",
+      "kommentar": "Midlertidig kompetanse for Kongen. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u50",
@@ -1451,10 +1475,11 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "Kongen har kompetanse til å fastsette lovens ikrafttredelsestidspunkt.",
+      "kommentar": "Kongen har kompetanse til å fastsette lovens ikrafttredelsestidspunkt. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": true,
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u51",
@@ -1556,7 +1581,8 @@
       "kilde_utenfor_korpus": null,
       "sikkerhet": "hoy",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u57",
@@ -1709,7 +1735,8 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "middels",
       "kommentar": "Utsagnet siterer proposisjonen om at endringer som hovedregel avgjøres ved kongelig resolusjon, men uten denne proposisjonen er det ikke fastsatt.",
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u66",
@@ -1726,7 +1753,8 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "middels",
       "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u67",
@@ -1759,7 +1787,7 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
+      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann).",
       "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
@@ -1776,9 +1804,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": null,
-      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash",
-      "delegerbar": true
+      "kommentar": "[#367, D4] Bestemmelsen nevner delegering; delegeringsadgangen er ikke avgjort uten å lese den (listet for Johann). Før #367: delegerbar = true.",
+      "oppdagelseskilde": "ki:deepseek-ai/DeepSeek-V4-Flash"
     },
     {
       "id": "u70",

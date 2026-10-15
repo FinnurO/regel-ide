@@ -118,8 +118,8 @@ public sealed class MonsterStrukturkonverterer : IStrukturkonverterer
                 Normform = u.Monster.Normform,
                 // [Ny, issue #352] Undertypen fra leksikonets ordstammer på sitatet (null ved ingen eller flere treff).
                 Undertype = u.Monster.Kategori == "kompetanse" ? Kompetanseleksikon.UndertypeFor(u.Monster.Type, u.Sitat) : null,
-                Delegeringsadgang = u.Monster.Kategori == "kompetanse" ? Delegering(u.Fra, u.Sitat).Adgang : null,
-                DelegeringSlutning = u.Monster.Kategori == "kompetanse" ? Delegering(u.Fra, u.Sitat).Slutning : null,
+                Delegeringsadgang = u.Monster.Kategori == "kompetanse" && u.Monster.Type != "delegeringskompetanse" ? Delegering(u.Fra, u.Sitat).Adgang : null,
+                DelegeringSlutning = u.Monster.Kategori == "kompetanse" && u.Monster.Type != "delegeringskompetanse" ? Delegering(u.Fra, u.Sitat).Slutning : null,
                 // [Ny, issue #367] Mønsterlaget knytter ordlyd til en kontrollert type etter en dokumentert regel (mønsteret) uten ny
                 // materiell påstand: normalisering (docs/profil/03 §5), regelen er oppdagelseskilden.
                 Kunnskapsstatus = "normalisering",

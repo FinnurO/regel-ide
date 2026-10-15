@@ -118,8 +118,8 @@ public static class Strukturkanter
     /// <summary>
     /// [Ny, issue #367 AC5 / #335] Delegeringsadgangen avgjort på SITATET (fasit, mønsterlaget): «kan ikke delegeres» eller
     /// «&lt;fra&gt; selv» → uttrykkelig forbudt; «&lt;fra&gt; kan delegere» → uttrykkelig tillatt; «Kongen i statsråd» → ikke regulert +
-    /// trolig ikke delegerbar; fra «Kongen» → ikke regulert + trolig delegerbar. Alt annet: (null, null) — om bestemmelsen ellers
-    /// sier noe om delegering, avgjøres ikke av ett sitat. Samme regel som <c>konvertering-367-utsagnsstatus.py</c>.
+    /// trolig ikke delegerbar (også «Grunnloven § 21»); fra «Kongen» → ikke regulert + trolig delegerbar. Alt annet: (null, null) — om
+    /// bestemmelsen ellers sier noe om delegering, avgjøres ikke av ett sitat (skriptet slår opp paragrafen, D4/D5). Samme regel som <c>konvertering-367-utsagnsstatus.py</c>.
     /// </summary>
     public static (string? Adgang, string? Slutning) DelegeringFraSitat(string? fra, string sitat)
     {
@@ -136,7 +136,9 @@ public static class Strukturkanter
             return (UttrykkeligTillatt, null);
         }
         if (!fra.StartsWith("Kongen", StringComparison.OrdinalIgnoreCase)) return (null, null);
-        if (sitat.Contains("Kongen i statsråd", StringComparison.Ordinal)) return (IkkeRegulert, TroligIkkeDelegerbar);
+        // «Grunnloven § 21»: embetsutnevnelse skjer i statsråd (jf. Grl. § 28) — juristrunden i #355 (domstolloven u120).
+        if (sitat.Contains("Kongen i statsråd", StringComparison.Ordinal)
+            || System.Text.RegularExpressions.Regex.IsMatch(sitat, @"Grunnloven\s+§\s*21")) return (IkkeRegulert, TroligIkkeDelegerbar);
         return string.Equals(fra, "Kongen", StringComparison.OrdinalIgnoreCase) ? (IkkeRegulert, TroligDelegerbar) : (null, null);
     }
 

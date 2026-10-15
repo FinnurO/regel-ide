@@ -1284,7 +1284,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u4",
@@ -1300,9 +1303,12 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Kompetanse avgrenset til område (Svalbard/Jan Mayen).",
+      "kommentar": "Kompetanse avgrenset til område (Svalbard/Jan Mayen). [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
     },
     {
       "id": "u5",
@@ -1318,9 +1324,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "«bestemme» – form (forskrift/enkeltvedtak) ikke angitt; i praksis forskrift.",
+      "kommentar": "«bestemme» – form (forskrift/enkeltvedtak) ikke angitt; i praksis forskrift. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u6",
@@ -1336,9 +1343,12 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u7",
@@ -1355,7 +1365,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u8",
@@ -1403,9 +1416,12 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u11",
@@ -1485,9 +1501,12 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": false
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_ikke_delegerbar",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u16",
@@ -1504,7 +1523,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u17",
@@ -1521,7 +1543,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "«i kommunen» = område.",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u18",
@@ -1538,7 +1563,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Kommunal forskriftskompetanse (plikt). Hvilket organ i kommunen som vedtar forskriften sier loven ikke – følger av kommuneloven (kommunestyret). #300: kompetanse lagt til rettssubjektet, intern fordeling utenfor teksten.",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u19",
@@ -1554,9 +1580,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "lav",
-      "kommentar": "Teksten står i hakeparentes i databasen – trolig ikke ikraftsatt/alternativ versjon. Kongen vs. kommunen som forskriftsgiver er motstridende; modellen bør kunne merke usikker gyldighet.",
+      "kommentar": "Teksten står i hakeparentes i databasen – trolig ikke ikraftsatt/alternativ versjon. Kongen vs. kommunen som forskriftsgiver er motstridende; modellen bør kunne merke usikker gyldighet. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u20",
@@ -1572,7 +1599,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "[#309, kort nr. 6] Skal-plikten og ventelisteplikten hører til regellaget (docs/33 §4.4)."
+      "kommentar": "[#309, kort nr. 6] Skal-plikten og ventelisteplikten hører til regellaget (docs/33 §4.4).",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-treffe: «X kan/skal treffe/fatte (enkelt)vedtak» → vedtakskompetanse"
     },
     {
       "id": "u21",
@@ -1623,7 +1653,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "#300: kommunen utpeker en INTERN enhet/tjenesteyter til en funksjon. Mål-aktør a21.",
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u24",
@@ -1704,9 +1735,12 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": false
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_ikke_delegerbar",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u29",
@@ -1787,7 +1821,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Statlig organ kan regulere kommunens interne organisering.",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
     },
     {
       "id": "u34",
@@ -1868,9 +1905,12 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": false
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_ikke_delegerbar",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u39",
@@ -1887,7 +1927,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "#300: statlig forskrift kan kreve behandling i et bestemt organ inne i kommunen.",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u40",
@@ -1936,7 +1979,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
     },
     {
       "id": "u43",
@@ -1952,7 +1998,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Påleggskompetanse over personell avgrenset av OMRÅDE («i kommunen»), ikke av arbeidsgiverforhold – omfatter også private. Instruksjon på tvers av virksomhetsgrenser."
+      "kommentar": "Påleggskompetanse over personell avgrenset av OMRÅDE («i kommunen»), ikke av arbeidsgiverforhold – omfatter også private. Instruksjon på tvers av virksomhetsgrenser.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u44",
@@ -2131,7 +2178,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Valgfri opprettelse (ikke skal_finnes). [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter."
+      "kommentar": "Valgfri opprettelse (ikke skal_finnes). [#356, R1] Kompetanseordlyd i sitatet: kompetansen til å opprette (#352 beslutning 4). Var konstituerende/oppretter.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u55",
@@ -2180,7 +2228,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u58",
@@ -2244,8 +2295,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "#300: kompetanse lagt DIREKTE til organ inne i kommunen. [#356, R4] Delegeringsforbudet («Kommunestyret selv») står som delegerbar = false på denne raden; den doble negative delegeringsraden (u62) er slettet. [#356, juristrunden] Å inngå en samarbeidsavtale med RHF er ikke et enkeltvedtak (fvl. § 2). Det er beslutningskompetanse, fordelt internt i kommunen. Plikten overfor RHF står som avtaleplikt (u64). Var vedtakskompetanse.",
-      "delegerbar": false
+      "kommentar": "#300: kompetanse lagt DIREKTE til organ inne i kommunen. [#356, R4] Delegeringsforbudet («Kommunestyret selv») står som delegerbar = false på denne raden; den doble negative delegeringsraden (u62) er slettet. [#356, juristrunden] Å inngå en samarbeidsavtale med RHF er ikke et enkeltvedtak (fvl. § 2). Det er beslutningskompetanse, fordelt internt i kommunen. Plikten overfor RHF står som avtaleplikt (u64). Var vedtakskompetanse. [#367, D1] Delegering uttrykkelig forbudt: TEKSTFUNN i sitatet.",
+      "delegeringsadgang": "uttrykkelig_forbudt"
     },
     {
       "id": "u63",
@@ -2327,7 +2378,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "RHF utpeker datterforetak som motpart; impliserer eierrelasjon RHF→HF.",
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u68",
@@ -2424,7 +2476,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u74",
@@ -2472,7 +2525,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Statlig kompetanse til å etablere tvungent interkommunalt samarbeid; formen (vertskommune o.l.) er ikke angitt. [#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt."
+      "kommentar": "Statlig kompetanse til å etablere tvungent interkommunalt samarbeid; formen (vertskommune o.l.) er ikke angitt. [#353, juristgjennomgangen] Påleggskompetanse (styring): «kan» hører hit; pliktsubjektets plikt er en egen P-kant med modalitet skal når pålegg er gitt.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u77",
@@ -2522,9 +2576,12 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": false
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_ikke_delegerbar",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u80",
@@ -2572,9 +2629,12 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": false
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_ikke_delegerbar",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u83",
@@ -2591,7 +2651,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "#300: rettssubjektet oppnevner en rolle. Jf. § 7-3 der den koordinerende enheten har ansvaret for oppnevningen – to nivåer.",
-      "undertype": "oppnevning"
+      "undertype": "oppnevning",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u84",
@@ -2656,9 +2717,12 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": false
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_ikke_delegerbar",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u88",
@@ -2675,7 +2739,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Forskrift kan midlertidig oppheve pliktene til å ha koordinator/barnekoordinator.",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «kan X gi forskrift» → normgivningskompetanse"
     },
     {
       "id": "u89",
@@ -2724,7 +2791,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Intern enhet oppnevner rolle. #300.",
-      "undertype": "oppnevning"
+      "undertype": "oppnevning",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u92",
@@ -2741,7 +2809,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Jf. § 7-2 a der «kommunen» oppnevner – rettssubjekt har plikten, enheten utfører.",
-      "undertype": "oppnevning"
+      "undertype": "oppnevning",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u93",
@@ -2774,7 +2843,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Statlig forskrift om kommunal intern enhet.",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u95",
@@ -2791,7 +2863,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u96",
@@ -2808,7 +2883,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u97",
@@ -2824,7 +2902,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "#300: vedtakskompetanse direkte til ROLLE i tjenesten. Kan være i kommunen eller hos privat avtalepart."
+      "kommentar": "#300: vedtakskompetanse direkte til ROLLE i tjenesten. Kan være i kommunen eller hos privat avtalepart.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u98",
@@ -2840,7 +2919,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Subsidiær kompetanse hos den enkelte ansatte. Modellen må kunne uttrykke rangordnet/betinget kompetanse."
+      "kommentar": "Subsidiær kompetanse hos den enkelte ansatte. Modellen må kunne uttrykke rangordnet/betinget kompetanse.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u99",
@@ -2888,7 +2968,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Statsforvalteren kan bestemme meldingsrutine – en form for instruks overfor kommunal tjeneste."
+      "kommentar": "Statsforvalteren kan bestemme meldingsrutine – en form for instruks overfor kommunal tjeneste.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u102",
@@ -2904,7 +2985,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "#300: vedtakskompetanse direkte til ROLLE inne i kommunen, uten delegering fra kommunestyret."
+      "kommentar": "#300: vedtakskompetanse direkte til ROLLE inne i kommunen, uten delegering fra kommunestyret.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u103",
@@ -2938,7 +3020,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "lav",
       "kommentar": "Vedtaket skal angi en ansvarlig rolle – vedtaksfatter utpeker rolleinnehaver.",
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u105",
@@ -2954,7 +3037,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Obligatorisk ex officio-overprøving (ikke klage). Type finnes ikke; nærmest klageinstans_for/omgjoring."
+      "kommentar": "Obligatorisk ex officio-overprøving (ikke klage). Type finnes ikke; nærmest klageinstans_for/omgjoring.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u106",
@@ -2970,7 +3054,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Godkjenning som vilkår for iverksetting – egen kompetanseform."
+      "kommentar": "Godkjenning som vilkår for iverksetting – egen kompetanseform.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u107",
@@ -2986,7 +3071,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u108",
@@ -3002,7 +3088,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u109",
@@ -3035,7 +3122,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u111",
@@ -3051,7 +3139,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Klageinstans for beslutning truffet av en ROLLE (daglig ansvarlig/tjenesteyter), ikke av et organ – #300."
+      "kommentar": "Klageinstans for beslutning truffet av en ROLLE (daglig ansvarlig/tjenesteyter), ikke av et organ – #300.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u112",
@@ -3067,7 +3156,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u113",
@@ -3083,7 +3173,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Nemnda er klageinstans for statsforvalterens overprøvingsvedtak (to-trinns kontroll)."
+      "kommentar": "Nemnda er klageinstans for statsforvalterens overprøvingsvedtak (to-trinns kontroll).",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u114",
@@ -3099,7 +3190,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u115",
@@ -3132,7 +3224,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
       "kommentar": "Oppnevnende myndighet ikke angitt (passiv form). [#356, R2] «Det kan oppnevnes» er en adgang til å oppnevne (L14), ikke organets faste medlemmer: oppnevningskompetanse, fra = null (passiv — teksten sier ikke hvem). Var organsammensetning/har_medlemmer fra «a52» til «None». [#356, juristrunden] [slutning] Departementet oppnevner, jf. barnevernsloven § 14-2 annet ledd («Departementet oppnevner utvalg av fagkyndige», i korpuset). fra står som null fordi setningen er passiv. Utvalget er en liste over personer som settes inn i nemnda i den enkelte saken (bvl. §§ 14-2 og 14-3), ikke et organ. Aktøren a52 er derfor klasse.",
-      "undertype": "oppnevning"
+      "undertype": "oppnevning",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u117",
@@ -3148,9 +3241,12 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
     },
     {
       "id": "u118",
@@ -3182,7 +3278,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Domstolsprøving av nemndas vedtak."
+      "kommentar": "Domstolsprøving av nemndas vedtak.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u120",
@@ -3198,7 +3295,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "lav",
-      "kommentar": "Passiv form – hvem i spesialisthelsetjenesten som treffer vedtaket er ikke angitt."
+      "kommentar": "Passiv form – hvem i spesialisthelsetjenesten som treffer vedtaket er ikke angitt.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u121",
@@ -3247,9 +3345,12 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u124",
@@ -3266,7 +3367,8 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": "RHF utpeker hvilke institusjoner (jf. spesialisthelsetjenesteloven § 2-1a).",
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u125",
@@ -3282,7 +3384,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u126",
@@ -3298,7 +3401,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Kommunen har skjønnsmessig iverksettingskompetanse for et annet organs vedtak."
+      "kommentar": "Kommunen har skjønnsmessig iverksettingskompetanse for et annet organs vedtak.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u127",
@@ -3314,7 +3418,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Hvilket organ/rolle i kommunen er ikke angitt (#300)."
+      "kommentar": "Hvilket organ/rolle i kommunen er ikke angitt (#300).",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u128",
@@ -3347,7 +3452,8 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u130",
@@ -3363,7 +3469,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Passiv form; vedtaksorgan følger av § 10-3 sjette/sjuende ledd («nemnda har fattet vedtak etter første ledd») og § 10-5."
+      "kommentar": "Passiv form; vedtaksorgan følger av § 10-3 sjette/sjuende ledd («nemnda har fattet vedtak etter første ledd») og § 10-5.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u131",
@@ -3379,7 +3486,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u132",
@@ -3412,7 +3520,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u134",
@@ -3428,7 +3537,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u135",
@@ -3476,7 +3586,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u138",
@@ -3524,7 +3635,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Initiativkompetanse (partsrolle) overfor nemnda."
+      "kommentar": "Initiativkompetanse (partsrolle) overfor nemnda.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u141",
@@ -3588,7 +3700,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u145",
@@ -3636,7 +3749,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Interkommunal avtalebasert overføring av stedlig ansvar – nærmest delegerer_til, men mellom likestilte rettssubjekter og varig. [#309, kort nr. 14] «Kan … ved avtale overføres» er en adgang, ikke en gjennomført overføring (L14). Var relasjon/annet:ansvarsoverforing til «andre kommuner»."
+      "kommentar": "Interkommunal avtalebasert overføring av stedlig ansvar – nærmest delegerer_til, men mellom likestilte rettssubjekter og varig. [#309, kort nr. 14] «Kan … ved avtale overføres» er en adgang, ikke en gjennomført overføring (L14). Var relasjon/annet:ansvarsoverforing til «andre kommuner».",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u148",
@@ -3686,7 +3800,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "Hvem som avgjør tvister mellom kommuner er ikke angitt i loven.",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u151",
@@ -3703,7 +3820,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u152",
@@ -3720,7 +3840,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u153",
@@ -3753,7 +3876,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u155",
@@ -3770,7 +3896,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u156",
@@ -3787,7 +3916,8 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": "Utpeking av ansvarlig kommune skjer i forskrift.",
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u157",
@@ -3821,7 +3951,8 @@
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "undertype": "utpeking"
+      "undertype": "utpeking",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u159",
@@ -3854,9 +3985,12 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gitt-av: «forskrifter/regler gitt av X» → normgivningskompetanse"
     },
     {
       "id": "u161",
@@ -3889,7 +4023,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Parallell/alternativ kompetanse hos to organer på ulike nivå."
+      "kommentar": "Parallell/alternativ kompetanse hos to organer på ulike nivå.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u163",
@@ -3905,7 +4040,8 @@
       "betinget": true,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u164",
@@ -3921,7 +4057,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Årlig fastsettelse – verken klassisk forskrift eller enkeltvedtak."
+      "kommentar": "Årlig fastsettelse – verken klassisk forskrift eller enkeltvedtak.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u165",
@@ -3938,7 +4075,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u166",
@@ -3954,7 +4094,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Statsforvalteren er generisk; den aktuelle avgjøres av kommunens beliggenhet (område)."
+      "kommentar": "Statsforvalteren er generisk; den aktuelle avgjøres av kommunens beliggenhet (område).",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u167",
@@ -3970,7 +4111,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u168",
@@ -3986,7 +4128,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
-      "kommentar": "Passiv form; tilsynsorgan følger av første punktum."
+      "kommentar": "Passiv form; tilsynsorgan følger av første punktum.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u169",
@@ -4002,7 +4145,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u170",
@@ -4034,7 +4178,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Flertall: kompetanse til en funksjon som deles av flere organer."
+      "kommentar": "Flertall: kompetanse til en funksjon som deles av flere organer.",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-forvaltningsverb: «X kan gi pålegg/dispensasjon om» → vedtakskompetanse"
     },
     {
       "id": "u172",
@@ -4050,7 +4197,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": ""
+      "kommentar": "",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel vedtak-forvaltningsverb: «X kan gi pålegg/dispensasjon om» → vedtakskompetanse"
     },
     {
       "id": "u173",
@@ -4130,7 +4280,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "lav",
-      "kommentar": "Institusjon (som kan være enhet i kommunen) har egen regelgivende kompetanse overfor beboere."
+      "kommentar": "Institusjon (som kan være enhet i kommunen) har egen regelgivende kompetanse overfor beboere.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u178",
@@ -4146,9 +4297,12 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "",
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
     },
     {
       "id": "u179",
@@ -4164,9 +4318,10 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Utvidelse av forskriftskompetansens personelle virkeområde.",
+      "kommentar": "Utvidelse av forskriftskompetansens personelle virkeområde. [#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
       "normform": "forskrift",
-      "delegerbar": true
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u180",
@@ -4198,7 +4353,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Eksplisitt instruksjonsrett departement→direktorat; impliserer administrativ underordning."
+      "kommentar": "Eksplisitt instruksjonsrett departement→direktorat; impliserer administrativ underordning.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u182",
@@ -4263,7 +4419,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-gi: «X kan gi (nærmere) forskrift(er) om» → normgivningskompetanse"
     },
     {
       "id": "u186",
@@ -4280,7 +4439,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "[slutning] Implisitt også kompetanse til å gi godkjenning.",
-      "undertype": "tilbakekall"
+      "undertype": "tilbakekall",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u187",
@@ -4312,7 +4472,8 @@
       "betinget": false,
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
-      "kommentar": "Departementet selv som tilsynsorgan – uvanlig."
+      "kommentar": "Departementet selv som tilsynsorgan – uvanlig.",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u189",
@@ -4329,7 +4490,10 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "hoy",
       "kommentar": "",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert",
+      "kunnskapsstatus": "normalisering",
+      "begrunnelse": "kompetanseleksikon 2026-10-09.3, regel forskrift-i-ved: «X kan i/ved forskrift» → normgivningskompetanse"
     },
     {
       "id": "u190",
@@ -4346,7 +4510,8 @@
       "kilde_utenfor_korpus": false,
       "sikkerhet": "middels",
       "kommentar": "Hvem som ilegger gebyret er ikke angitt.",
-      "normform": "forskrift"
+      "normform": "forskrift",
+      "delegeringsadgang": "ikke_regulert"
     },
     {
       "id": "u191",
@@ -4362,8 +4527,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "",
-      "delegerbar": true
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     },
     {
       "id": "u192",
@@ -4379,8 +4545,9 @@
       "betinget": false,
       "kilde_utenfor_korpus": true,
       "sikkerhet": "hoy",
-      "kommentar": "",
-      "delegerbar": true
+      "kommentar": "[#367, D5] Delegering ikke regulert i teksten; «Kongen»/«Kongen i statsråd» gir bare en SLUTNING etter alminnelige regler (#335).",
+      "delegeringsadgang": "ikke_regulert",
+      "delegering_slutning": "trolig_delegerbar"
     }
   ]
 }
