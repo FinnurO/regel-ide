@@ -44,7 +44,7 @@ internal static class Malerapport
 
         sb.AppendLine("## Per kategori (kanttype, `docs/33` §4.3)");
         sb.AppendLine();
-        sb.AppendLine("Bokstaven følger `STD`-tabellen i `designtest.py`. `annet:*`-typer står i egen rad. P = plikt overfor motpart (#353; samarbeid og bistand var «senere lag» før).");
+        sb.AppendLine("Bokstaven følger `STD`-tabellen i `designtest.py`. `annet:*`-typer står i egen rad. P = plikt overfor motpart (#353; samarbeid og bistand var «senere lag» før). F = oppgave/funksjon (#368).");
         sb.AppendLine();
         Tabellhode(sb, "Kategori");
         foreach (var b in Strukturmaling.Bokstavrekkefolge)
