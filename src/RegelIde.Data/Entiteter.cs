@@ -1645,8 +1645,14 @@ public sealed class StrukturkantEntitet
 
     public required string OpprettetAv { get; set; }
     public DateTimeOffset OpprettetTidspunkt { get; set; }
+    /// <summary>[ENDRET, issue #313 / #374] Ved <c>avvist</c>: HVEM som avviste (et menneske via API-et — maskinen avviser aldri en
+    /// lagret kant; KI-valideringens kassasjoner lagres ikke) og når. CHECK <c>ck_strukturkanter_avvist_hvem</c>.</summary>
     public string? SistEndretAv { get; set; }
     public DateTimeOffset? SistEndretTidspunkt { get; set; }
+
+    /// <summary>[Ny, issue #313 / #374] Valgfri begrunnelse for en avvisning. Bare på avviste rader (CHECK
+    /// <c>ck_strukturkanter_avvisning_begrunnelse</c>). Raden slettes ikke: historikken bevares (docs/34 §4).</summary>
+    public string? AvvisningBegrunnelse { get; set; }
 }
 
 /// <summary>

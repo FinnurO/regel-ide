@@ -87,7 +87,19 @@ public sealed record StrukturkantVisning(
     IReadOnlyList<Guid>? PremissIder = null, string Entitetsstatus = "gjeldende", Guid? ErstatterKantId = null,
     string? Profilversjon = null,
     // [Ny, issue #367 AC4] Den versjonerte hjemmelnoden, merknaden når den mangler («hjemmelversjon ukjent») og resynk-flagget.
-    Guid? HjemmelNodeId = null, string? HjemmelVersjonMerknad = null, DateTimeOffset? HjemmelEndretTidspunkt = null);
+    Guid? HjemmelNodeId = null, string? HjemmelVersjonMerknad = null, DateTimeOffset? HjemmelEndretTidspunkt = null)
+{
+    /// <summary>[Ny, issue #313 / #374] Hvem som sist endret godkjenningen (godkjente eller avviste), og når. Ved <c>avvist</c> er det
+    /// alltid et menneske (CHECK <c>ck_strukturkanter_avvist_hvem</c>).</summary>
+    public string? SistEndretAv { get; init; }
+    public DateTimeOffset? SistEndretTidspunkt { get; init; }
+    /// <summary>[Ny, issue #313 / #374] Den valgfrie begrunnelsen for en avvisning.</summary>
+    public string? AvvisningBegrunnelse { get; init; }
+}
+
+/// <summary>[Ny, issue #313] Forhåndsvisningen av ett forslag: slik det blir seende ut på fra-nodens side, på til-nodens side (null uten
+/// til-node, eller når til = fra) og på hjemmelens rettskildeside — samme visningstekst som sidene selv beregner (<see cref="StrukturkantTjeneste.ByggVisningerAsync"/>).</summary>
+public sealed record StrukturkantForhandsvisning(StrukturkantVisning FraSide, StrukturkantVisning? TilSide, StrukturkantVisning Rettskildeside);
 
 /// <summary>
 /// [Ny, issue #311 «Strukturmodell 6: én typestyrt kanttabell», 2026-10-07] Den ENESTE skriveveien til
@@ -113,6 +125,11 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
 
     [GeneratedRegex(@"^(manuell|monster:\S+|ki:\S+)$", RegexOptions.CultureInvariant)]
     private static partial Regex OppdagelsesKildeForm();
+
+    /// <summary>[Ny, issue #313 / #374] De gjeldende kantene MED de avviste — global spørrefilter skjuler avviste (historikk, ikke slettet).
+    /// Brukes av «vis avviste», av oppslaget på én id og av identitetssjekken for maskinelle forslag («tidligere avvist»).</summary>
+    public IQueryable<StrukturkantEntitet> GjeldendeInklAvviste =>
+        db.Strukturkanter.IgnoreQueryFilters().Where(k => k.Entitetsstatus == Strukturkanter.Gjeldende);
 
     /// <summary>
     /// Oppretter en kant — eller returnerer en EKSISTERENDE identisk kant (samme kategori, typekode, fra,
@@ -320,7 +337,10 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         // to rader som bare skiller seg der, er samme utsagn med motstridende opplysning, og det avvises under.
         // [ENDRET, issue #367 AC3] Gjelder bare gjeldende rader (global spørrefilter), og ikke for omstridte utsagn: to konkurrerende
         // tolkninger av samme tekst skal kunne stå side om side.
-        var eksisterende = kunnskapsstatus == Strukturkanter.Omstridt ? null : await db.Strukturkanter.FirstOrDefaultAsync(k =>
+        // [ENDRET, issue #313 / #374] Et MASKINELT forslag som er identisk med et avvist, returnerer den avviste raden (VarNy = false):
+        // det foreslås ikke på nytt i stillhet. Et menneske som registrerer det samme, får en ny rad — avvisningen gjaldt forslaget.
+        var identitetsgrunnlag = ny.Status == Strukturkanter.MaskineltForeslatt ? GjeldendeInklAvviste : db.Strukturkanter;
+        var eksisterende = kunnskapsstatus == Strukturkanter.Omstridt ? null : await identitetsgrunnlag.FirstOrDefaultAsync(k =>
             k.Kategori == ny.Kategori && k.Typekode == ny.Typekode
             && k.FraVirksomhetId == ny.Fra.VirksomhetId && k.FraBegrepId == ny.Fra.BegrepId
             && k.TilVirksomhetId == tilV && k.TilBegrepId == tilB
@@ -647,20 +667,46 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         return kant;
     }
 
-    /// <summary>«Avvis» et forslag — ekte <c>Remove</c>, og BARE for forslag (<see cref="Strukturkanter.Ventende"/>; samme
-    /// avgrensning som før #311: avvisning er for egne, ubekreftede forslag; sletting av en validert kant er
-    /// <see cref="SlettAsync"/>).</summary>
-    public async Task<bool> AvvisAsync(Guid id, CancellationToken ct = default)
+    /// <summary>
+    /// «Avvis» et forslag. [ENDRET, issue #313 / #374, Johanns beslutning 2026-10-15] Setter <c>status = avvist</c> med hvem, når og en
+    /// valgfri begrunnelse — raden SLETTES IKKE (før: ekte <c>Remove</c>). Historikken bevares (docs/34 §4, docs/profil/00 §20.2): en ny
+    /// kjøring av forslagslasteren ser at utsagnet er avvist og foreslår det ikke på nytt. Bare forslag
+    /// (<see cref="Strukturkanter.Ventende"/>) kan avvises; en godkjent kant slettes eller revideres.
+    /// </summary>
+    /// <returns>Kanten, eller null hvis id-en ikke finnes blant de gjeldende, ikke avviste kantene.</returns>
+    public async Task<StrukturkantEntitet?> AvvisAsync(Guid id, string avvistAv, string? begrunnelse = null, CancellationToken ct = default)
     {
         var kant = await db.Strukturkanter.FirstOrDefaultAsync(k => k.Id == id, ct);
-        if (kant is null) return false;
+        if (kant is null) return null;
         if (!Strukturkanter.Ventende.Contains(kant.Status))
         {
-            throw new ArgumentException($"Kanten har status '{kant.Status}' — bare forslag kan avvises. Bruk slett.");
+            throw new ArgumentException($"Kanten har status '{kant.Status}' — bare forslag kan avvises. Bruk slett eller revisjon.");
         }
-        db.Strukturkanter.Remove(kant);
+        var grunn = string.IsNullOrWhiteSpace(begrunnelse) ? null : begrunnelse.Trim();
+        var proveniens = ProveniensHjelper.NyRad(ProveniensType, kant.Id, virksomhetId: null, "avvist", avvistAv);
+        proveniens.KildeReferanserJson = JsonSerializer.Serialize(new { forStatus = kant.Status, begrunnelse = grunn });
+        kant.Status = Strukturkanter.Avvist;
+        kant.SistEndretAv = avvistAv;
+        kant.SistEndretTidspunkt = DateTimeOffset.UtcNow;
+        kant.AvvisningBegrunnelse = grunn;
+        db.Proveniens.Add(proveniens);
         await db.SaveChangesAsync(ct);
-        return true;
+        return kant;
+    }
+
+    /// <summary>[Ny, issue #313] Avviser alle ventende MASKINELLE forslag hjemlet i én rettskilde — speilet av
+    /// <see cref="GodkjennAlleForHjemmelAsync"/>, med samme valgfrie avgrensning til en oppdagelseskilde-prefiks. Hver kant går gjennom
+    /// <see cref="AvvisAsync"/> (egen proveniensrad).</summary>
+    /// <returns>Antall kanter som ble avvist.</returns>
+    public async Task<int> AvvisAlleForHjemmelAsync(
+        Guid hjemmelRettskildeId, string? oppdagelseskildePrefiks, string avvistAv, string? begrunnelse, CancellationToken ct = default)
+    {
+        var ider = await db.Strukturkanter
+            .Where(k => k.Status == Strukturkanter.MaskineltForeslatt && k.HjemmelRettskildeId == hjemmelRettskildeId
+                        && (oppdagelseskildePrefiks == null || k.OppdagelsesKilde.StartsWith(oppdagelseskildePrefiks)))
+            .Select(k => k.Id).ToListAsync(ct);
+        foreach (var id in ider) await AvvisAsync(id, avvistAv, begrunnelse, ct);
+        return ider.Count;
     }
 
     /// <summary>Sletter en kant uansett status — samme presedens som <c>VirksomhetRelasjonregisterTjeneste.SlettAsync</c>
@@ -679,9 +725,10 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
 
     // ---------------- Lesing ----------------
 
+    /// <summary>Én kant — [ENDRET, issue #313 / #374] også en avvist (svaret på «avvis» viser hvem og hvorfor).</summary>
     public async Task<StrukturkantVisning?> HentAsync(Guid id, CancellationToken ct = default)
     {
-        var kant = await db.Strukturkanter.FirstOrDefaultAsync(k => k.Id == id, ct);
+        var kant = await GjeldendeInklAvviste.FirstOrDefaultAsync(k => k.Id == id, ct);
         return kant is null ? null : (await ByggVisningerAsync([kant], perspektiv: null, ct)).Single();
     }
 
@@ -690,7 +737,8 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
     /// <param name="familie">[Ny, issue #341] Bare kompetansekanter i denne familien (<see cref="Strukturkanter.Familier"/>).
     /// <see cref="Strukturkanter.Beslutning"/> er toppen og står ikke i noen familie.</param>
     public async Task<List<StrukturkantVisning>> HentForNodeAsync(
-        Kantnode node, string? kategori = null, bool kunGjeldende = false, CancellationToken ct = default, string? familie = null)
+        Kantnode node, string? kategori = null, bool kunGjeldende = false, CancellationToken ct = default, string? familie = null,
+        bool visAvviste = false)
     {
         if (familie is not null && !Strukturkanter.Familier.Contains(familie))
         {
@@ -701,9 +749,11 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
         {
             throw new ArgumentException($"Ukjent kategori '{kategori}'.");
         }
+        // [ENDRET, issue #313 / #374] visAvviste = «vis avviste»-filteret; ellers skjuler global spørrefilter dem.
+        var kilde = visAvviste ? GjeldendeInklAvviste : db.Strukturkanter;
         var q = node.VirksomhetId is { } v
-            ? db.Strukturkanter.Where(k => k.FraVirksomhetId == v || k.TilVirksomhetId == v)
-            : db.Strukturkanter.Where(k => k.FraBegrepId == node.BegrepId || k.TilBegrepId == node.BegrepId);
+            ? kilde.Where(k => k.FraVirksomhetId == v || k.TilVirksomhetId == v)
+            : kilde.Where(k => k.FraBegrepId == node.BegrepId || k.TilBegrepId == node.BegrepId);
         if (kategori is not null) q = q.Where(k => k.Kategori == kategori);
         if (familie is not null)
         {
@@ -718,9 +768,9 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
 
     /// <summary>Kantene HJEMLET i én rettskilde — docs/32 §3 S1/S2 fra lovens side («hvilke strukturutsagn
     /// gir denne loven?»). Kanter med bare kilde utenfor korpus hører per definisjon ikke hit.</summary>
-    public async Task<List<StrukturkantVisning>> HentForHjemmelRettskildeAsync(Guid rettskildeId, CancellationToken ct = default)
+    public async Task<List<StrukturkantVisning>> HentForHjemmelRettskildeAsync(Guid rettskildeId, CancellationToken ct = default, bool visAvviste = false)
     {
-        var kanter = await db.Strukturkanter.Where(k => k.HjemmelRettskildeId == rettskildeId).ToListAsync(ct);
+        var kanter = await (visAvviste ? GjeldendeInklAvviste : db.Strukturkanter).Where(k => k.HjemmelRettskildeId == rettskildeId).ToListAsync(ct);
         return (await ByggVisningerAsync(kanter, perspektiv: null, ct))
             .OrderBy(v => v.Kategori, StringComparer.Ordinal).ThenBy(v => v.Visningstekst, StringComparer.Ordinal).ToList();
     }
@@ -750,6 +800,30 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
     {
         var kanter = await db.Strukturkanter.Where(k => Strukturkanter.Ventende.Contains(k.Status)).ToListAsync(ct);
         return (await ByggVisningerAsync(kanter, perspektiv: null, ct)).OrderBy(v => v.OpprettetTidspunkt).ToList();
+    }
+
+    /// <summary>[Ny, issue #313 / #374] De avviste kantene («vis avviste» i forslagskøen), valgfritt for én hjemmel. Nyeste avvisning først.</summary>
+    public async Task<List<StrukturkantVisning>> HentAvvisteAsync(Guid? hjemmelRettskildeId = null, CancellationToken ct = default)
+    {
+        var kanter = await GjeldendeInklAvviste
+            .Where(k => k.Status == Strukturkanter.Avvist && (hjemmelRettskildeId == null || k.HjemmelRettskildeId == hjemmelRettskildeId))
+            .ToListAsync(ct);
+        return (await ByggVisningerAsync(kanter, perspektiv: null, ct)).OrderByDescending(v => v.SistEndretTidspunkt).ToList();
+    }
+
+    /// <summary>[Ny, issue #313 AC4] Forhåndsvisningen av én kant (også et forslag eller en avvist): visningsteksten fra fra-nodens side,
+    /// fra til-nodens side og uten perspektiv (rettskildesiden). Samme <see cref="ByggVisningerAsync"/> som sidene bruker — ingen egen
+    /// tekstlogikk.</summary>
+    public async Task<StrukturkantForhandsvisning?> ForhandsvisAsync(Guid id, CancellationToken ct = default)
+    {
+        var kant = await GjeldendeInklAvviste.FirstOrDefaultAsync(k => k.Id == id, ct);
+        if (kant is null) return null;
+        var fra = new Kantnode(kant.FraVirksomhetId, kant.FraBegrepId);
+        Kantnode? til = kant.TilVirksomhetId is null && kant.TilBegrepId is null ? null : new Kantnode(kant.TilVirksomhetId, kant.TilBegrepId);
+        var fraSide = (await ByggVisningerAsync([kant], fra, ct)).Single();
+        var tilSide = til is null || til == fra ? null : (await ByggVisningerAsync([kant], til, ct)).Single();
+        var rettskildeside = (await ByggVisningerAsync([kant], perspektiv: null, ct)).Single();
+        return new StrukturkantForhandsvisning(fraSide, tilSide, rettskildeside);
     }
 
     /// <summary>Deserialiserer <see cref="StrukturkantEntitet.AvgrensningParagrafspennJson"/> (docs/20 §7.1).</summary>
@@ -901,7 +975,10 @@ public sealed partial class StrukturkantTjeneste(RegelIdeDbContext db)
                 k.HjemmelEid is not null && k.HjemmelNodeId is null
                     ? "Hjemmelversjon ukjent: kanten ble registrert før hjemmelen fikk versjon (#367), og noden kunne ikke slås entydig opp."
                     : null,
-                k.HjemmelEndretTidspunkt);
+                k.HjemmelEndretTidspunkt)
+            {
+                SistEndretAv = k.SistEndretAv, SistEndretTidspunkt = k.SistEndretTidspunkt, AvvisningBegrunnelse = k.AvvisningBegrunnelse,
+            };
         }).ToList();
     }
 

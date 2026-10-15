@@ -576,7 +576,9 @@ public sealed record StrukturkantDto(
     // tolkningsargumenter, premisser (avledet), analysehistorikk og den versjonerte hjemmelen.
     string? Kunnskapsstatus = null, string? Begrunnelse = null, IReadOnlyList<string>? Tolkningsargumenter = null,
     IReadOnlyList<Guid>? PremissIder = null, string Entitetsstatus = "gjeldende", Guid? ErstatterKantId = null, string? Profilversjon = null,
-    Guid? HjemmelNodeId = null, string? HjemmelVersjonMerknad = null, DateTimeOffset? HjemmelEndretTidspunkt = null)
+    Guid? HjemmelNodeId = null, string? HjemmelVersjonMerknad = null, DateTimeOffset? HjemmelEndretTidspunkt = null,
+    // [Ny, issue #313 / #374] Hvem som godkjente/avviste sist, når, og begrunnelsen for en avvisning.
+    string? SistEndretAv = null, DateTimeOffset? SistEndretTidspunkt = null, string? AvvisningBegrunnelse = null)
 {
     public static StrukturkantDto FraVisning(StrukturkantVisning v) => new(
         v.Id, v.Kategori, v.Typekode, v.Retning, v.Visningstekst,
@@ -587,7 +589,17 @@ public sealed record StrukturkantDto(
         v.Kommentar, v.OpprettetAv, v.OpprettetTidspunkt,
         v.Normform, v.Grunnlag, v.Delegeringsadgang, v.DelegeringSlutning, v.Selvregulering, v.Familie, v.FvlKategori, v.Undertype, v.Modalitet,
         v.Kunnskapsstatus, v.Begrunnelse, v.Tolkningsargumenter, v.PremissIder, v.Entitetsstatus, v.ErstatterKantId, v.Profilversjon,
-        v.HjemmelNodeId, v.HjemmelVersjonMerknad, v.HjemmelEndretTidspunkt);
+        v.HjemmelNodeId, v.HjemmelVersjonMerknad, v.HjemmelEndretTidspunkt, v.SistEndretAv, v.SistEndretTidspunkt, v.AvvisningBegrunnelse);
+}
+
+/// <summary>[Ny, issue #313 / #374] Kroppen til «avvis» (én eller alle per hjemmel): en valgfri begrunnelse.</summary>
+public sealed record AvvisStrukturkantRequest(string? Begrunnelse);
+
+/// <summary>[Ny, issue #313 AC4] Forhåndsvisning av ett forslag: fra-nodens side, til-nodens side (null uten egen til-node) og rettskildesiden.</summary>
+public sealed record StrukturkantForhandsvisningDto(StrukturkantDto FraSide, StrukturkantDto? TilSide, StrukturkantDto Rettskildeside)
+{
+    public static StrukturkantForhandsvisningDto Fra(StrukturkantForhandsvisning f) => new(
+        StrukturkantDto.FraVisning(f.FraSide), f.TilSide is null ? null : StrukturkantDto.FraVisning(f.TilSide), StrukturkantDto.FraVisning(f.Rettskildeside));
 }
 
 /// <summary>[Ny, issue #311] Rå kantfelt uten navn/visningstekst — svaret fra veiviserens kobl-til-*-endepunkter,

@@ -194,6 +194,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                 // [ENDRET, issue #367 AC2] status er godkjenning (Strukturkanter.Statuser).
                 t.HasCheckConstraint("ck_strukturkanter_status",
                     "status IN ('maskinelt_foreslatt', 'manuelt_foreslatt', 'faglig_vurdert', 'godkjent', 'avvist')");
+                // [Ny, issue #313 / #374] En avvisning sier hvem (og når — settes sammen med sist_endret_av); begrunnelsen hører bare til en avvisning.
+                t.HasCheckConstraint("ck_strukturkanter_avvist_hvem", "status <> 'avvist' OR (sist_endret_av IS NOT NULL AND sist_endret_tidspunkt IS NOT NULL)");
+                t.HasCheckConstraint("ck_strukturkanter_avvisning_begrunnelse", "avvisning_begrunnelse IS NULL OR status = 'avvist'");
                 // [Ny, issue #367 AC1/AC3] Kunnskapsstatus (Strukturkanter.Kunnskapsstatuser) med kravene til grunnlag (docs/profil/03 §5).
                 // «avledet krever minst én premiss» går på tvers av tabeller og håndheves av constraint-triggeren
                 // tr_strukturkanter_avledet_premiss (migrasjonen UtsagnsstatusOgDelegeringsadgang), ikke her.
@@ -314,6 +317,7 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.Property(x => x.OpprettetTidspunkt).HasColumnName("opprettet_tidspunkt").StandardNaa(sqlite);
             e.Property(x => x.SistEndretAv).HasColumnName("sist_endret_av");
             e.Property(x => x.SistEndretTidspunkt).HasColumnName("sist_endret_tidspunkt");
+            e.Property(x => x.AvvisningBegrunnelse).HasColumnName("avvisning_begrunnelse"); // [Ny, issue #313 / #374]
 
             // CASCADE i alle ender: en kant uten en av sine noder er ingen opplysning. (VirksomhetRelasjon
             // hadde RESTRICT på til-siden, og VirksomhetSlettTjeneste slettet de radene eksplisitt før
@@ -342,7 +346,10 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
             e.HasIndex(x => x.ErstatterKantId).HasDatabaseName("ix_strukturkanter_erstatter");
             // [Ny, issue #367 AC3] Foreldede analyser (revidert, ikke slettet) er historikk: alle oppslag ser bare de gjeldende. Historikken
             // leses med IgnoreQueryFilters().
-            e.HasQueryFilter(x => x.Entitetsstatus == "gjeldende");
+            // [ENDRET, issue #313 / #374] Og avviste forslag er historikk på samme måte: de slettes ikke, men vises ikke i aktør- og
+            // rettskildevisningen eller i S-oppslagene. «Vis avviste» og forslagslasterens «tidligere avvist»-sjekk leser dem med
+            // IgnoreQueryFilters() + entitetsstatus = gjeldende (StrukturkantTjeneste.GjeldendeInklAvviste).
+            e.HasQueryFilter(x => x.Entitetsstatus == "gjeldende" && x.Status != "avvist");
         });
 
         // [Ny, issue #367 AC3] Premissene for et avledet utsagn. CASCADE fra kanten; RESTRICT fra premisset — et premiss som slettes,
