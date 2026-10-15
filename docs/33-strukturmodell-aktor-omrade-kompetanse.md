@@ -708,7 +708,7 @@ sekretariat og rådgiver er R alene når teksten bare sier relasjonen (F bare me
 fasiten); «sørge for at» avgjør ikke typen alene (P konsultasjon og P avtale i to kort); ny type `kontroll` for «påse at»; modalitet
 null ved attributiv form; K oppnevning ved siden av F «overordnet ansvar» står som egen fortolkning (hotl. u91/u92, shl. u213). Funn
 som ikke er F (R radgir som er P konsultasjon, P bistand som er informasjonsplikt, P samarbeid sluttet fra F i shl. u187/u188 m.fl.)
-er meldt som egen sak. Åpne typevekstspørsmål til Johann: en type for innsats («arbeide for», «fremme»), og om en tjenestesektor kan
+er meldt som egen sak (#380). Åpne typevekstspørsmål til Johann: en type for innsats («arbeide for», «fremme»), og om en tjenestesektor kan
 bære en oppgave.
 
 **Fasiten** (`konvertering-368-oppgave.py`, deterministisk, idempotent, også på `ki-utdata/`): 1 802 → 1 825 utsagn, 52 oppgaverader
@@ -721,7 +721,7 @@ utfall for de fire lokale kandidatene (R sekretariat_for fra KLAGENEMNDSSEKRETAR
 (Stiftelsesklagenemnda: «sekretariat som foretar saksforberedelse» → ny F sekretariatsfunksjon, kunnskapsstatus `avledet` med R-kanten som
 premiss, status `maskinelt_foreslatt`, oppdagelseskilde `ki:juristrunde-368` — godkjennes i forslagskøen). Ingen kant flyttet. Teller
 før/etter og avbryter ved avvik; `Down` sletter nøyaktig radene med `migrasjon-368`-proveniens og nekter når det finnes F-kanter
-registrert etter migrasjonen. Målt mot lokal `regelide` (se PR-en for tallene fra kaldsjekken).
+registrert etter migrasjonen. **Målt mot lokal `regelide` 2026-10-16 (kjørt ved API-oppstart):** 1 303 → 1 304 kanter, typekonfigurasjonen +9 (F), 1 ny F-kant (KNS sekretariatsfunksjon «saksforberedelse» → Stiftelsesklagenemnda, avledet, premiss = R-kanten 6d5b8668…), 1 proveniensrad, 0 kanter flyttet. `Down` er prøvd i `OppgaveMigreringTests` (ikke mot lokal base).
 
 **Leksikonet** (2026-10-16.1) og mønsterlaget: `oppgave-sorge-for`, `oppgave-fore-oversikt`, `oppgave-veilede`, `oppgave-pase`,
 `oppgave-forvalte`, og `samordning-samordne` (fra #341) gir nå samordningsOPPGAVE, ikke samordningskompetanse: Johanns beslutning om F
