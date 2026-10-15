@@ -4,7 +4,12 @@
 
 namespace RegelIde.Data.Migrasjoner
 {
-    /// <inheritdoc />
+    /// <summary>
+    /// [Ny, issue #368 «oppgave/funksjon (kategori F)», Johanns beslutning 2026-10-15] Ny kategori F i strukturkanter og
+    /// typekonfigurasjonen; modalitet lov på F; F uten til-node; objekt påkrevd på F (ck_strukturkanter_oppgave_objekt). Datadelen i
+    /// <see cref="OppgaveMigrering"/>: de åtte F-typene og BARE det juristrunden avgjorde for de lokale kandidatene. Teller før/etter og
+    /// avbryter ved avvik; <c>Down</c> kjører datadelen FØR de gamle CHECK-ene legges tilbake. Kjørt etter #367/#313 (ikke stablet).
+    /// </summary>
     public partial class OppgaveFunksjon : Migration
     {
         /// <inheritdoc />
@@ -50,11 +55,15 @@ namespace RegelIde.Data.Migrasjoner
                 name: "ck_relasjonstype_konfigurasjon_kategori",
                 table: "relasjonstype_konfigurasjon",
                 sql: "kategori IN ('R', 'K', 'P', 'F', 'M', 'O', 'A', 'G', 'I', 'T')");
+
+            migrationBuilder.Sql(OppgaveMigrering.UpSql);
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.Sql(OppgaveMigrering.DownSql);
+
             migrationBuilder.DropCheckConstraint(
                 name: "ck_strukturkanter_kategori",
                 table: "strukturkanter");
