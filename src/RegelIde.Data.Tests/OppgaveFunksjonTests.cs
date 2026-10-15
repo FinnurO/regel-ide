@@ -97,7 +97,8 @@ public class OppgaveFunksjonTests
         var forliksradet = await NyVirksomhetAsync(db, "Forliksrådet");
         var tjeneste = new StrukturkantTjeneste(db);
 
-        // domstolloven § 27 (u70): «Namsfogden er sekretariat for forliksrådene i sitt distrikt.»
+        // Syntetisk rad for visningen. (Juristrunden i #368: «Namsfogden er sekretariat for forliksrådene», domstolloven u70, er R alene —
+        // F bare når teksten sier hva sekretariatet gjør, som «sekretariat som foretar saksforberedelse».)
         await tjeneste.OpprettAsync(new NyStrukturkant(
             Strukturkanter.Oppgave, "sekretariat", Kantnode.Virksomhet(namsfogden), Kantnode.Virksomhet(forliksradet),
             HjemmelRettskildeId: lov, HjemmelEid: eid, Objekt: "sekretariat for forliksrådene", AvgrensningTekst: "i sitt distrikt"),

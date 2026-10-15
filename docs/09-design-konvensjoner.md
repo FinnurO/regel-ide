@@ -1131,8 +1131,8 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
 - **Rettskildesiden** har gruppen «Oppgaver hjemlet her» i relasjonspanelet, rett under «Strukturutsagn hjemlet her» (som ikke lenger
   tar med F). Samme radform (`Oppgave: …`).
 - **Utsagnsteksten** har modaliteten i parentes og oppgaven (objektet), og det oppgaven gjelder etter tankestrek: «har samordningsoppgave
-  (skal) beredskapsarbeid», «har sekretariatsfunksjon (skal) sekretariat for forliksrådene — gjelder Forliksrådene». Ingen «overfor»: F
-  har ingen motpart. Fra den andre siden beholdes modalitet og objekt («Namsfogden har sekretariatsfunksjon (skal) … — gjelder denne»).
+  (skal) beredskapsarbeid», «har sekretariatsfunksjon (skal) saksforberedelse — gjelder Stiftelsesklagenemnda». Ingen «overfor»: F har ingen
+  motpart. Fra den andre siden beholdes modalitet og objekt («KNS har sekretariatsfunksjon (skal) saksforberedelse — gjelder denne»).
 - **Kategoritaggen** «Oppgave» er `neutral` (§31), som de andre kategoriene.
 - **Skjemaet** heter «Legg til relasjon, kompetanse, plikt eller oppgave». F-typene står i samme `Select` som «Oppgave — «har
   samordningsoppgave …»». Velges en F-type: «Modalitet» (aldri forhåndsvalgt, som P) og «Oppgaven» (påkrevd — knappen er av til den er

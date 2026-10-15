@@ -29,7 +29,10 @@ Testen er tre spørsmål, i denne rekkefølgen:
    gi regler, er det K. Står det bare *hva aktøren skal arbeide med*, er det ikke K.
 2. **Skylder aktøren en bestemt motpart en ytelse?** Kan en navngitt eller klassebestemt motpart si «du skal gjøre dette for
    meg» (samarbeide, betale, bistå, informere, konsultere), er det P. Er mottakeren et område, en befolkning, et arbeidsfelt eller
-   et regelverk, er det ikke P.
+   et regelverk, er det ikke P. [Presisert i juristrunden, #368] Motparten må være en aktør i strukturlaget (et offentlig organ, en
+   rolle eller en organisert representasjon), og ytelsen må skyldes i et konkret forhold («etter anmodning», «på forespørsel», en
+   sak eller en avtale). Private begunstigede (pasienten, borgeren) hører til regellaget; F-raden er projeksjonen med `til` = null.
+   En enhet, tjeneste eller rolle inne i samme rettssubjekt er ikke en motpart.
 3. **Legger teksten et arbeidsfelt eller et ansvar til aktøren?** Da er det F.
 
 Svaret kan være mer enn én rad. «Departementet skal samordne arbeidet og kan gi pålegg om …» er F samordning **og** K pålegg.
@@ -41,6 +44,10 @@ En oppgave gir ikke instruksjonsmyndighet, ikke vedtakskompetanse og ikke en kra
 K- eller P-kant fra en F-kant, og ingen spørring om kompetanse eller plikt returnerer F. Sier teksten at oppgaven også gir
 myndighet eller en plikt overfor noen, registreres det som egne rader med egen hjemmel.
 
+**Også overfor tredjepart.** «A skal sørge for at B gjør X» gir F for A. Det gir ingen plikt for B, og ingen kompetanse for A
+overfor B (juristrunden: «Det regionale helseforetaket skal sørge for at virksomheter … samarbeider» gir ikke P samarbeid for
+virksomhetene).
+
 Begrunnelse: grunnlagsdokumentet §7.8 («Myndigheten skal samordne beredskapsarbeidet» viser ikke uten videre at myndigheten har
 instruksjonskompetanse overfor alle som omfattes av samordningen). Legalitetsprinsippet krever hjemmel for inngrep; en
 oppgavebestemmelse er normalt ikke en slik hjemmel.
@@ -51,10 +58,10 @@ oppgavebestemmelse er normalt ikke en slik hjemmel.
 |---|---|---|
 | `fra` | Aktøren oppgaven er lagt til: aktør, organ, organisatorisk enhet, rolle eller klasse | Påkrevd. En ordning har ingen oppgaver; den forvaltes (R `forvaltes_av`) |
 | `objekt` | Oppgaven, med lovens ord så langt det går: «beredskapsarbeid», «momentan balanse i kraftsystemet», «nasjonale faglige retningslinjer» | **Påkrevd** (CHECK). Oppgaven er hele innholdet i en F-kant |
-| `til` | Valgfri: aktøren, klassen eller området oppgaven gjelder | Bare når teksten sier det. «Sekretariat for forliksrådene» har `til`; «skal samordne beredskapsarbeid» har ikke |
-| `modalitet` | `skal` / `kan` / `bor` | Som på P. «Skal» er plikten til å utføre oppgaven, uten motpart. Normativ presens («Fortegnelse … føres av kommunen») = `skal`. «Kan» = en oppgave aktøren har adgang til å påta seg |
+| `til` | Valgfri: aktøren, klassen eller området oppgaven gjelder | Bare når teksten sier det, og aldri samme node som `fra` (CHECK `ck_strukturkanter_ikke_selv`). Et område bare når det ikke alt står en A-rad for det. «skal samordne beredskapsarbeid» har ingen `til` |
+| `modalitet` | `skal` / `kan` / `bor` | Som på P. «Skal» er plikten til å utføre oppgaven, uten motpart. Bare når teksten har et modalverb eller normativ presens av en handling («Fortegnelse … føres av kommunen», «Styret sørger for») = `skal`. [Juristrunden] Attributiv form uten modalverb («har ansvaret for», «Forvaltningsansvaret for», «hører under») gir `null` — å sette «skal» der er en slutning (jf. #355 pkt. 8) |
 | `polaritet` | `positiv` / `negativ` | «Skal ikke ha oppgaver som …» er negativ |
-| hjemmel, avgrensning, kunnskapsstatus | Som alle kanter | Klassifisering til F er en tolkning: `fortolkning` med begrunnelse og tolkningsargumenter, eller `tekstfunn` når teksten selv bruker funksjonsordet («er sekretariat for», «forvaltningsansvaret for») |
+| hjemmel, avgrensning, kunnskapsstatus | Som alle kanter | `fortolkning` (med begrunnelse og tolkningsargumenter) når teksten har et K- eller P-signal i samme ledd som måtte vurderes — slik var det for alle kandidatene i #368. `normalisering` når typen følger av ordformen i typetabellen og leddet ikke har noe K- eller P-signal (mønsterlaget setter den på egne forslag, som i #367). `tekstfunn` når teksten selv bruker funksjonsordet («Forvaltningsansvaret for …»). `avledet` når en del av utsagnet hviler på en annen kant (KNS som sekretariat, se under) |
 
 ### Typer
 
@@ -62,19 +69,29 @@ Et lite, lukket startsett. Nye typer er rader i typekonfigurasjonen, ikke kode, 
 
 | Kode | Fasittype | Når | Ordlyd som typisk viser den |
 |---|---|---|---|
-| `forvaltning` | `forvaltningsoppgave` | Ansvaret for å forvalte et regelverk, en ordning, et register eller et fond | «skal forvalte», «forvaltningsansvaret for», «forvaltningen av … hører under» |
+| `forvaltning` | `forvaltningsoppgave` | Ansvaret for et regelverk, en ordning, et fond eller et forvaltningsapparat («den sentrale administrasjonen av domstolene») | «skal forvalte», «forvaltningsansvaret for». Ikke «forvaltningen av foretaket hører under styret»: det er selskapsrettslig kompetanse (K) |
 | `samordning` | `samordningsoppgave` | Å samordne eller koordinere andres arbeid, uten myndighet til å binde dem | «skal samordne», «sørge for samordning av», «koordinere» |
 | `sorge_for` | `sorge_for_ansvar` | Et resultatansvar: aktøren skal sørge for at noe skjer eller finnes, for et område eller en befolkning | «skal sørge for at», «har det overordnede ansvar for at», «skal ha ansvaret for» |
-| `oversikt` | `oversiktsoppgave` | Å føre oversikt, register, fortegnelse eller følge med på en tilstand | «skal føre oversikt over», «registeret føres av», «skal følge med på» |
+| `oversikt` | `oversiktsoppgave` | Å føre registeret, fortegnelsen eller oversikten, eller følge med på en tilstand (ansvaret for registeret som ordning er forvaltning) | «skal føre oversikt over», «registeret føres av», «skal følge med på» |
 | `bistand` | `bistandsoppgave` | En generell oppgave å bidra til andres arbeid, uten en bestemt motpart som kan kreve det | «skal bidra i», «medvirke til» (uten motpart) |
 | `sekretariat` | `sekretariatsfunksjon` | Å være sekretariat for et organ eller utføre sekretariatsoppgaver | «er sekretariat for», «sekretariatet skal utføre de oppgavene som» |
 | `radgivning` | `radgivningsoppgave` | Å være rådgiver eller gi råd som fast funksjon | «skal være medisinskfaglig rådgiver for», «skal gi råd» |
-| `veiledning` | `veiledningsoppgave` | Å veilede publikum, tjenesteytere eller andre organer om regelverk eller fag | «skal veilede om», «skal gi veiledning», «opplæring og veiledning av» |
+| `veiledning` | `veiledningsoppgave` | En særskilt lovbestemt veiledningsfunksjon overfor dem som skal etterleve eller bruke regelverket eller faget | «skal veilede om», «skal gi veiledning», «utvikle … retningslinjer og veiledere», «opplæring og veiledning av» |
+| `kontroll` | `kontrolloppgave` | Å påse at andre etterlever regelverket, uten egen hjemmel til å undersøke eller reagere | «skal påse at», «følge opp og kontrollere» |
 
-`veiledning` står ikke i docs/34 §6.1-forslaget. Den er lagt til i #368 fordi barnehageloven (piloten, #375) har «veilede og
-påse» i nesten hver kapittel, og veiledning er et eget forvaltningsrettslig begrep (fvl. § 11). Den er ikke det samme som
-rådgivning: rådgivning går til den som skal avgjøre noe, veiledning til den som skal etterleve eller bruke regelverket.
-Avvik fra docs/34; juristrunden i #368 vurderte det.
+`veiledning` og `kontroll` står ikke i docs/34 §6.1-forslaget; begge er lagt til i #368. Barnehageloven (piloten, #375) har «veilede
+og påse» i nesten hver kapittel. Veiledning er ikke rådgivning: rådgivning går til den som skal avgjøre noe, veiledning til den som
+skal etterleve eller bruke regelverket. [ENDRET, juristrunden] Den alminnelige veiledningsplikten i fvl. § 11 gjelder alle
+forvaltningsorganer og hører til regellaget; den gir ingen F. Veiledning til en bestemt motpart som kan kreve den («skal gi
+spesialisthelsetjenesten råd, veiledning og opplysninger … som er påkrevd for at [den] skal kunne løse sine oppgaver»), er P.
+
+`kontroll` (juristrunden, prinsipp c): «skal påse at» er aldri K tilsyn i seg selv. Barnehageloven skiller: § 10 («påse at») er
+oppgaven, § 53 («fører tilsyn med», pålegg om retting, stenging) er K tilsyn og K pålegg med egen hjemmel — to rader.
+
+**Åpne spørsmål til Johann (typevekst, grunnlagsdokumentet §4.7):** (1) En type for innsats eller arbeidsfelt («arbeide for»,
+«fremme», «legge til rette for», sameloven u224); inntil videre brukes `sorge_for`, som da er videre enn resultatansvar. (2) Kan
+tekstens subjekt være en tjenestesektor («helse- og omsorgstjenestene skal bidra»), eller skal ansvarsbæreren (kommunen, RHF-et)
+løses opp (grunnlagsdokumentet §4.5)? Fasiten bruker i dag tekstens subjekt.
 
 ### Positive eksempler (fra fasiten)
 
@@ -84,9 +101,9 @@ Avvik fra docs/34; juristrunden i #368 vurderte det.
 | «Den systemansvarlige skal sørge for at det til enhver tid er momentan balanse» | energiloven u131 | `sorge_for`, objekt = «momentan balanse mellom produksjon og forbruk», skal |
 | «Kommunen skal sørge for at personer som oppholder seg i kommunen, tilbys nødvendige helse- og omsorgstjenester» | hotl. u9 | `sorge_for`, til = kommunen (området), skal. A `har_ansvarsomrade` står i tillegg |
 | «Fortegnelse over de valgte meddommere føres av kommunen» | domstolloven u171 | `oversikt`, objekt = «fortegnelse over valgte meddommere», skal (normativ presens) |
-| «Namsfogden er sekretariat for forliksrådene i sitt distrikt» | domstolloven u70 | `sekretariat`, til = forliksrådene, avgrensning «i sitt distrikt» |
-| «Kommunelegen skal være medisinskfaglig rådgiver for kommunen» | hotl. u52 | `radgivning`, til = kommunen, skal |
-| «Helsedirektoratet skal utvikle, formidle og vedlikeholde nasjonale faglige retningslinjer og veiledere» | hotl. u180 | `forvaltning` eller `veiledning` (juristrunden avgjør) |
+| «Stiftelsesklagenemnda skal ha et sekretariat som foretar saksforberedelse» | stiftelsesloven § 7a (lokal base) | `sekretariat`, objekt «saksforberedelse» — teksten sier hva sekretariatet gjør. Ved siden av R `sekretariat_for` (begge); kunnskapsstatus `avledet` fordi at sekretariatet er KNS, kommer fra R-kanten |
+| «Helsedirektoratet skal utvikle, formidle og vedlikeholde nasjonale faglige retningslinjer og veiledere» | hotl. u180 | `veiledning` (retningslinjene binder ikke) |
+| «Fortegnelse … føres av kommunen» / «Registeret over sidegjøremål føres av domstoladministrasjonen» | domstolloven u171, u198 | `oversikt`, skal (normativ presens) |
 
 ### Moteksempler (ikke F)
 
@@ -99,6 +116,12 @@ Avvik fra docs/34; juristrunden i #368 vurderte det.
 | «skal departementet innhente rådgivende uttalelser fra andre relevante departementer» | Plikten ligger hos den som spør | P `konsultasjon` fra departementet (#355) |
 | «Folketrygden … forvaltes av Helsedirektoratet» | Struktur fra en ordning til organet | R `forvaltes_av` (#353); se grensen under |
 | «Hver kommune skal ha en koordinerende enhet» | Krav om at et organ finnes | T `skal_ha` / G |
+| «Namsfogden er sekretariat for forliksrådene i sitt distrikt» (domstolloven u70) | Teksten sier bare relasjonen | R `sekretariat_for` alene (juristrunden, prinsipp b) |
+| «Kommunelegen skal være medisinskfaglig rådgiver for kommunen» (hotl. u52) | Bare relasjonen; «medisinskfaglig» er avgrensning | R `radgir` alene |
+| «Energiklagenemndas sekretariat skal utføre de oppgavene som lederen pålegger» | En henvisning uten eget oppgaveinnhold; det leddet sier, er at lederen kan instruere sekretariatet | R `sekretariat_for` + K instruksjon, ingen F |
+| «Kommunen skal sørge for at representanter for pasienter og brukere blir hørt ved utformingen …» (hotl. u34) | Plikt til å høre en klassebestemt motpart. «sørge for at» avgjør ikke typen alene | P konsultasjon |
+| «skal sørge for at det inngås samarbeidsavtaler som nevnt i helse- og omsorgstjenesteloven § 6-1» | Kommunen er motpart og selv avtalepliktig | P avtale |
+| «Klagesaken skal forberedes av statsforvalteren» | Et trinn i én sak, ikke en stående funksjon | Saksforberedelse, regellaget (#353) |
 
 ### Grenser mot naboene
 
@@ -111,23 +134,36 @@ der, er det to rader.
 kommuner ved ulykker», «etter anmodning fra en domstol skal politiet …»). F `bistand` er et arbeidsfelt uten en slik motpart
 («skal bidra i kommunens folkehelsearbeid»). Prøven er om noen kan si «dette skylder du meg».
 
-**F sekretariat mot R `sekretariat_for`.** R `sekretariat_for` sier hvem som er sekretariatet for hvem: en organisatorisk
-relasjon mellom to aktører (docs/33 §4.3, #330). F `sekretariat` sier hva sekretariatet skal gjøre. Et sitat som bare
-sier «A er sekretariat for B», kan være én av delene eller begge; juristrunden i #368 avgjør regelen (se utfallet i docs/33 §4.7).
+**F sekretariat mot R `sekretariat_for` (og F rådgivning mot R `radgir`).** [Avgjort i juristrunden, #368] R alene når teksten
+bare sier relasjonen («A er sekretariat for B», «A skal være rådgiver for B»). F i tillegg bare når teksten sier hva funksjonen går
+ut på («sekretariat som foretar saksforberedelse»). F aldri i stedet for R: R bærer svaret på «hvem er sekretariat for hvem»
+(#330, #352), og en F som bare gjentar relasjonen, er samme faktum lagret to ganger. En ren henvisning («de oppgavene som lederen
+pålegger») er ikke innhold. R `radgir` er for faste rådgiverrelasjoner; uttalelser i én sak som den som avgjør innhenter, er P
+konsultasjon (#355).
+
+**F mot saksforberedelse.** En stående funksjon for et organ («sekretariat som foretar saksforberedelse») er F. Et trinn i én sak
+(«klagesaken skal forberedes av», «avgir forslag eller innstilling») hører til regellaget (#353).
 
 **F radgivning mot R `radgir` og P konsultasjon.** R `radgir` er avgjort som struktur i #352 (en fast rådgiverrelasjon). P
 `konsultasjon` er plikten til å *innhente* råd eller uttalelse og ligger hos den som spør (#355). F `radgivning` er oppgaven å gi
 råd. «Skal gis anledning til å uttale seg» er derfor P konsultasjon hos den som skal spørre, ikke F hos den som svarer.
 
 **F forvaltning mot R `forvaltes_av`.** `forvaltes_av` går fra en ordning (folketrygden, et fond) til organet, fordi ordningen
-ikke er en aktør (#353). F `forvaltning` går fra aktøren og har regelverket eller registeret som objekt
-(«Forvaltningsansvaret for energiloven § 4-4»).
+ikke er en aktør (#353). Når det som forvaltes, er en ordning med egen node, står R `forvaltes_av` alene (juristrunden: «Helsedirektoratet
+skal forvalte kapittel 5»). F `forvaltning` går fra aktøren og har regelverket eller apparatet som objekt («Forvaltningsansvaret for
+energiloven § 4-4»). En identifiserende beskrivelse («det departementet som har ansvaret for loven») tildeler ingenting og gir ingen F.
 
 **F sørge for mot A ansvarsområde.** A `har_ansvarsomrade` sier *hvor* aktøren virker. F `sorge_for` sier *hva* den har
 resultatansvar for. «Kommunen skal sørge for at personer som oppholder seg i kommunen, tilbys …» gir begge.
 
 **F mot regellaget.** Vilkår, frister og kvalitetskrav til oppgaven («forsvarlige», «innen rimelig tid») hører til regellaget
 (rettsfølge, L16). F-kanten er den aktørnære projeksjonen: hvem som har oppgaven, hva den er, og hvor det står.
+
+### Juristrunden i #368
+
+Kandidatene (K samordning, R sekretariat_for/radgir, P bistand og `annet:*` med oppgaveordlyd i fasit, KI-utdata og lokal base)
+ble vurdert i to runder (CLAUDE.md §23). Utfallet per rad står i `data/fasit/strukturmodell/juristrunde-368-oppgave.json`, tallene
+og målingen i docs/33 §4.7. Ingen reell uenighet gikk til Johann; de åpne spørsmålene over er typevekst, ikke uenighet.
 
 ### Hvordan F tegnes i modellen
 
