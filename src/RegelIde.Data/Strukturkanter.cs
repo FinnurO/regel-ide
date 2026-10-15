@@ -39,6 +39,24 @@ public static class Strukturkanter
     /// </para>
     /// </summary>
     public const string Plikt = "P";
+
+    /// <summary>
+    /// [Ny, issue #368 «oppgave/funksjon», Johanns beslutning 2026-10-15, <c>[LÅST]</c>] F — OPPGAVE/FUNKSJON: et arbeidsfelt eller
+    /// ansvar en rettskilde legger til en aktør («skal samordne beredskapsarbeid», «skal sørge for at …», «er sekretariat for»,
+    /// «registeret føres av»), uten at utsagnet i seg selv gir myndighet (K) eller en plikt overfor en bestemt motpart (P).
+    /// Definisjon, typer, eksempler og grenser: docs/profil/02-begrepsmanual.md §F; docs/34 §6.1; grunnlagsdokumentet §7.8.
+    /// <para>
+    /// <b>F gir aldri K eller P i seg selv</b> (docs/34 §6.1, <c>[LÅST]</c>). Ingen kode slutter en K- eller P-kant fra en F-kant, og
+    /// F er en egen kategori nettopp så spørringer på kompetanse eller plikt aldri treffer den. Sier teksten at oppgaven også gir
+    /// myndighet eller en plikt overfor noen, er det egne rader med egen hjemmel.
+    /// </para>
+    /// <para>
+    /// Felter: fra (aktøren), <see cref="StrukturkantEntitet.Objekt"/> = oppgaven (PÅKREVD, CHECK <c>ck_strukturkanter_oppgave_objekt</c>),
+    /// valgfri til (område, klasse, rolle eller aktør oppgaven gjelder), <see cref="StrukturkantEntitet.Modalitet"/> som på P —
+    /// «skal» er plikten til å utføre oppgaven, uten motpart.
+    /// </para>
+    /// </summary>
+    public const string Oppgave = "F";
     public const string Medlemskap = "M";
     public const string Omradesammensetning = "O";
     public const string Ansvarsomrade = "A";
@@ -46,9 +64,10 @@ public static class Strukturkanter
     public const string Rolleinnehav = "I";
     public const string Klasseniva = "T";
 
-    /// <summary>Alle ni, i docs/33 §4.3-rekkefølge. [ENDRET, issue #353] P (plikt overfor motpart) står rett etter K.</summary>
+    /// <summary>Alle ti, i docs/33 §4.3-rekkefølge. [ENDRET, issue #353] P (plikt overfor motpart) står rett etter K.
+    /// [ENDRET, issue #368] F (oppgave/funksjon) står rett etter P.</summary>
     public static readonly string[] Kategorier =
-        [Relasjon, Kompetanse, Plikt, Medlemskap, Omradesammensetning, Ansvarsomrade, Organtilhorighet, Rolleinnehav, Klasseniva];
+        [Relasjon, Kompetanse, Plikt, Oppgave, Medlemskap, Omradesammensetning, Ansvarsomrade, Organtilhorighet, Rolleinnehav, Klasseniva];
 
     public static readonly string[] Polariteter = ["positiv", "negativ"];
 
@@ -180,6 +199,7 @@ public static class Strukturkanter
         Relasjon => "relasjon",
         Kompetanse => "kompetanse",
         Plikt => "plikt overfor motpart", // [Ny, issue #353]
+        Oppgave => "oppgave/funksjon", // [Ny, issue #368]
         Medlemskap => "medlemskap",
         Omradesammensetning => "områdesammensetning",
         Ansvarsomrade => "ansvarsområde",
@@ -215,6 +235,11 @@ public static class Strukturkanter
         // Motparten er valgfri: betalingsmottakeren er null når teksten ikke sier hvem som får pengene («utgiftene til X»).
         [Plikt] = new("aktør (også ordning), rolle eller klasse", true, [Nodetyper.Rolle, Nodetyper.Klasse],
             "motpart (aktør, klasse eller rolle) — valgfri", true, [Nodetyper.Klasse, Nodetyper.Rolle], true),
+        // [Ny, issue #368] Oppgaven er lagt til en aktør, en rolle («Koordinatoren skal sørge for …») eller en klasse («Kommunen
+        // skal sørge for …», generisk). Ikke en ordning: den har ingen oppgaver, den forvaltes (R forvaltes_av). Til er VALGFRI og
+        // sier hva oppgaven gjelder: et område («i kommunen»), en klasse eller en aktør («sekretariat for forliksrådene»).
+        [Oppgave] = new("aktør, rolle eller klasse", true, [Nodetyper.Rolle, Nodetyper.Klasse],
+            "område, klasse, rolle eller aktør oppgaven gjelder — valgfri", true, [Nodetyper.Omrade, Nodetyper.Klasse, Nodetyper.Rolle], true),
         // Mål = klasse ELLER område: «språkutviklingskommuner» (klasse) er medlem av «forvaltningsområdet for
         // samiske språk» (område) — gruppe-av-gruppe-dataene fra #164 har nettopp den formen (målt 2026-10-07).
         [Medlemskap] = new("aktør, klasse eller område", true, [Nodetyper.Klasse, Nodetyper.Omrade],
@@ -505,6 +530,34 @@ public static class Strukturkanter
     /// </summary>
     public static readonly string[] Modaliteter = ["skal", "kan", "bor"];
 
+    /// <summary>[Ny, issue #368] Kategoriene modalitet er lov på — speilet av CHECK <c>ck_strukturkanter_modalitet</c>. På F er «skal»
+    /// plikten til å utføre oppgaven (grunnlagsdokumentet §7.8: «en oppgave/funksjon og en plikt til å utføre den»), uten motpart.</summary>
+    public static readonly string[] KategorierMedModalitet = [Plikt, Oppgave];
+
+    // ---------------- Oppgave/funksjon (issue #368, Johanns beslutning 2026-10-15) ----------------
+
+    /// <summary>
+    /// [Ny, issue #368, <c>[LÅST]</c> til en ny type er begrunnet (grunnlagsdokumentet §4.7)] ÉN tabell over oppgavetypene, som
+    /// <see cref="Plikttyper"/>: koden i databasen, ordet i visningen og typen i FORMAT.md/fasiten. Startsettet (F-radene) og
+    /// <see cref="OppgavetypeFraFasit"/> leses herfra. De sju første er docs/34 §6.1; <c>veiledning</c> er lagt til i #368 (barnehageloven
+    /// «veilede og påse», fvl. § 11) — se begrepsmanualen §F «Typer».
+    /// </summary>
+    public static readonly IReadOnlyList<(string Kode, string Substantiv, string FasitType)> Oppgavetyper =
+    [
+        ("forvaltning", "forvaltningsoppgave", "forvaltningsoppgave"),
+        ("samordning", "samordningsoppgave", "samordningsoppgave"),
+        ("sorge_for", "sørge-for-ansvar", "sorge_for_ansvar"),
+        ("oversikt", "oversiktsoppgave", "oversiktsoppgave"),
+        ("bistand", "bistandsoppgave", "bistandsoppgave"),
+        ("sekretariat", "sekretariatsfunksjon", "sekretariatsfunksjon"),
+        ("radgivning", "rådgivningsoppgave", "radgivningsoppgave"),
+        ("veiledning", "veiledningsoppgave", "veiledningsoppgave"),
+    ];
+
+    /// <summary>[Ny, issue #368] FORMAT.md-typen («samordningsoppgave») → F-typekoden i databasen («samordning»).</summary>
+    public static readonly IReadOnlyDictionary<string, string> OppgavetypeFraFasit =
+        Oppgavetyper.ToDictionary(t => t.FasitType, t => t.Kode, StringComparer.Ordinal);
+
     /// <summary>[Ny, issue #353] R-typen fra en ordning til organet som forvalter den («Helsedirektoratet skal forvalte kapittel 5»,
     /// folketrygdloven § 21-11 a første ledd). Hjemlet, avgrenset per kapittel/stønadsområde.</summary>
     public const string ForvaltesAv = "forvaltes_av";
@@ -627,6 +680,11 @@ public static class Strukturkanter
         // {0} er motpartsteksten StrukturkantTjeneste.Plikttekst bygger: «(skal) overfor B — objekt», eller objektet, eller
         // «etter hjemmelen». Til-malen leses fra motpartens side.
         .. Plikttyper.Select(t => (Plikt, t.Kode, $"har {t.Substantiv} {{0}}", $"{{0}} har {t.Substantiv} overfor denne")),
+
+        // ---- F oppgave/funksjon ([Ny, issue #368]) ----
+        // {0} er teksten StrukturkantTjeneste.Oppgavetekst bygger: «(skal) objekt — gjelder B». Til-malen leses fra siden oppgaven
+        // gjelder («Namsfogden har sekretariatsfunksjon som gjelder denne»). Ingen «overfor»: F har ingen motpart.
+        .. Oppgavetyper.Select(t => (Oppgave, t.Kode, $"har {t.Substantiv} {{0}}", $"{{0}} har {t.Substantiv} som gjelder denne")),
 
         // ---- M medlemskap (aktør/klasse/område → klasse) ----
         (Medlemskap, "medlem_av", "er medlem av {0}", "har medlem {0}"),

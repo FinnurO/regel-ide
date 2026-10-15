@@ -188,8 +188,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
         {
             e.ToTable("strukturkanter", t =>
             {
-                // [ENDRET, issue #353] + 'P' (plikt overfor motpart).
-                t.HasCheckConstraint("ck_strukturkanter_kategori", "kategori IN ('R', 'K', 'P', 'M', 'O', 'A', 'G', 'I', 'T')");
+                // [ENDRET, issue #353] + 'P' (plikt overfor motpart). [ENDRET, issue #368] + 'F' (oppgave/funksjon).
+                t.HasCheckConstraint("ck_strukturkanter_kategori", "kategori IN ('R', 'K', 'P', 'F', 'M', 'O', 'A', 'G', 'I', 'T')");
                 t.HasCheckConstraint("ck_strukturkanter_polaritet", "polaritet IN ('positiv', 'negativ')");
                 // [ENDRET, issue #367 AC2] status er godkjenning (Strukturkanter.Statuser).
                 t.HasCheckConstraint("ck_strukturkanter_status",
@@ -231,8 +231,11 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                     "til_virksomhet_id IS NULL OR til_begrep_id IS NULL");
                 // Bare K, P og T kan stå uten til-node (Strukturkanter.Noderegler.TilValgfri). [ENDRET, issue #353] + P:
                 // betalingsmottakeren er null når teksten ikke sier hvem som får pengene.
+                // [ENDRET, issue #368] + F: «skal samordne beredskapsarbeid» gjelder ikke en bestemt node.
                 t.HasCheckConstraint("ck_strukturkanter_til_pakrevd",
-                    "kategori IN ('K', 'P', 'T') OR til_virksomhet_id IS NOT NULL OR til_begrep_id IS NOT NULL");
+                    "kategori IN ('K', 'P', 'F', 'T') OR til_virksomhet_id IS NOT NULL OR til_begrep_id IS NOT NULL");
+                // [Ny, issue #368] En oppgave ER objektet (begrepsmanualen §F) — påkrevd på F.
+                t.HasCheckConstraint("ck_strukturkanter_oppgave_objekt", "kategori <> 'F' OR objekt IS NOT NULL");
                 // [ENDRET, issue #341] Unntak for selvregulering: normgivning der motparten er innehaveren selv
                 // (Johanns beslutning P2 — «normgivning der B = A»). Alle andre selvkanter er fortsatt en feil.
                 // [ENDRET, issue #353] Og for P mellom medlemmer av SAMME klasse/rolle («bør samiskopplæringen skje i samarbeid
@@ -258,8 +261,9 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
                     + "OR (typekode = 'overproving' AND undertype IN ('anke')) "
                     + "OR (typekode = 'vedtak' AND undertype IN ('tilbakekall'))))");
                 // [Ny, issue #353, jf. L14] Modalitet bare på P (skal/kan/bør). NULL = ikke angitt.
+                // [ENDRET, issue #368] og på F (oppgave/funksjon): «skal» er plikten til å utføre oppgaven (Strukturkanter.KategorierMedModalitet).
                 t.HasCheckConstraint("ck_strukturkanter_modalitet",
-                    "modalitet IS NULL OR (kategori = 'P' AND modalitet IN ('skal', 'kan', 'bor'))");
+                    "modalitet IS NULL OR (kategori IN ('P', 'F') AND modalitet IN ('skal', 'kan', 'bor'))");
                 // docs/33 §4.3: «HjemmelRettskildeId + HjemmelEid — påkrevd, ELLER KildeUtenforKorpus».
                 // [ENDRET, Johanns beslutning 2026-10-07] ELLER i streng forstand: med hjemmel i korpus er alle
                 // kilde-utenfor-feltene NULL; uten hjemmel er både teksten og TYPEN påkrevd.
@@ -1107,8 +1111,8 @@ public sealed class RegelIdeDbContext(DbContextOptions<RegelIdeDbContext> option
         {
             e.ToTable("relasjonstype_konfigurasjon", t =>
             {
-                // [ENDRET, issue #353] + 'P' (plikt overfor motpart).
-                t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_kategori", "kategori IN ('R', 'K', 'P', 'M', 'O', 'A', 'G', 'I', 'T')");
+                // [ENDRET, issue #353] + 'P' (plikt overfor motpart). [ENDRET, issue #368] + 'F' (oppgave/funksjon).
+                t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_kategori", "kategori IN ('R', 'K', 'P', 'F', 'M', 'O', 'A', 'G', 'I', 'T')");
                 // [Ny, issue #341] Familie og fvl-kategori finnes bare på kompetansetyper.
                 // [ENDRET, issue #352, Johanns beslutning 2026-10-08] 'personell' heter 'oppnevning'.
                 t.HasCheckConstraint("ck_relasjonstype_konfigurasjon_familie",

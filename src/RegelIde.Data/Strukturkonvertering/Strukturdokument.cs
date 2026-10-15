@@ -129,6 +129,13 @@ public sealed record StrukturUtsagn(
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
     public string? Begrunnelse { get; init; }
 
+    /// <summary>[Ny, issue #368] Tolkningsargumentene når kunnskapsstatus er fortolkning (docs/profil/03 §6; samme lukkede liste som
+    /// <see cref="Strukturkanter.Tolkningsargumenter"/>). Juristrunden i #368 satte dem på oppgaveradene; konverteringen setter dem aldri.
+    /// Utelatt når null.</summary>
+    [JsonPropertyName("tolkningsargumenter")]
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public IReadOnlyList<string>? Tolkningsargumenter { get; init; }
+
     /// <summary>
     /// [Ny, issue #312, 2026-10-08] Hvem som har verifisert/rettet raden i fasiten — første bruk er Johanns systemiske
     /// rettelse av domstollovens inndelingsdel (FORMAT.md). Konverteringen setter det aldri; utelates når null.

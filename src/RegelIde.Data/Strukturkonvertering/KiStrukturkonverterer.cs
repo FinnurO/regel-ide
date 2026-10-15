@@ -277,6 +277,11 @@ public sealed class KiStrukturkonverterer(
                 til / konsultere B». "fra" = den som har plikten, "til" = motparten, null når teksten ikke sier det (betaling:
                 «utgiftene til X» sier IKKE hvem som får pengene — da er "til" null og X står i "objekt"). Ett utsagn per
                 pliktsubjekt; lag aldri et utsagn B → A fordi teksten sier A → B. Møteplikt og saksforberedelse er ikke plikt her;
+              oppgave = OPPGAVE/FUNKSJON: et arbeidsfelt eller ansvar loven legger til en aktør UTEN at det gir myndighet til å binde
+                noen eller en plikt overfor en bestemt motpart: «skal samordne», «skal sørge for at», «skal føre oversikt over / register
+                over», «skal veilede om», «er/skal være sekretariat for», «skal være rådgiver for», «forvaltningsansvaret for». "fra" =
+                aktøren, "objekt" = oppgaven (PÅKREVD), "til" = det oppgaven gjelder (område/klasse/aktør) eller null, "modalitet".
+                «Skal samordne» er IKKE samordningskompetanse; gir teksten også myndighet eller en plikt overfor noen, er det egne utsagn;
               medlemskap = aktør/klasse→klasse; sammensetning_omrade = område→område; ansvarsomrade = aktør→område;
               konstituerende = oppretter/avvikler/skal_finnes («Hver kommune skal ha …»); oppretter/avvikler er HENDELSEN («er
                 opprettet»), mens «X kan opprette/nedsette», «X treffer vedtak om å opprette» er opprettingskompetanse (avvikling:
@@ -287,7 +292,7 @@ public sealed class KiStrukturkonverterer(
             - "objekt": for kompetanse: bestemmelsen/sakstypen/regelverket (f.eks. "vedtak etter § 3-1")
             - "normform": bare på normgivningskompetanse — en av {{string.Join(", ", Strukturkontrakt.Normformer)}}, når teksten sier det
             - "undertype": {{Undertypeliste()}} — når teksten sier det, ellers utelat
-            - "modalitet": bare på plikt — "skal" (også «plikter», «har plikt til»), "kan" eller "bor" («bør»), når teksten har
+            - "modalitet": bare på plikt og oppgave — "skal" (også «plikter», «har plikt til»), "kan" eller "bor" («bør»), når teksten har
               modalverbet; ellers utelat
             - "grunnlag": bare på kompetanse — "privatrettslig" når kompetansen følger av eierskap/selskapsrett, ellers utelat
             - "delegeringsadgang": bare på kompetanse — det TEKSTEN sier: "uttrykkelig_forbudt" («kan ikke delegeres», «X selv …»),
@@ -621,9 +626,12 @@ public sealed class KiStrukturkonverterer(
         // overprøving: anke).
         if (undertype is not null && (kategori != "kompetanse" || !Strukturkontrakt.ErGyldigUndertype(type, undertype)))
             return (null, Kast(KastetArsak.UgyldigFelt, $"undertype = «{undertype}» (bare på oppnevnings-, avsettings-, overprøvings- og vedtakskompetanse, lukket liste)."));
-        // [Ny, issue #353] Modaliteten: bare på plikt, lukket liste (skal/kan/bor).
-        if (modalitet is not null && (kategori != "plikt" || !Strukturkontrakt.Modaliteter.Contains(modalitet)))
-            return (null, Kast(KastetArsak.UgyldigFelt, $"modalitet = «{modalitet}» (bare på plikt: skal, kan, bor)."));
+        // [Ny, issue #353] Modaliteten: bare på plikt, lukket liste (skal/kan/bor). [ENDRET, issue #368] og på oppgave.
+        if (modalitet is not null && (!Strukturkontrakt.KategorierMedModalitet.Contains(kategori) || !Strukturkontrakt.Modaliteter.Contains(modalitet)))
+            return (null, Kast(KastetArsak.UgyldigFelt, $"modalitet = «{modalitet}» (bare på plikt og oppgave: skal, kan, bor)."));
+        // [Ny, issue #368] En oppgave ER objektet (begrepsmanualen §F) — uten det sier raden ingenting.
+        if (kategori == "oppgave" && string.IsNullOrWhiteSpace(objekt))
+            return (null, Kast(KastetArsak.UgyldigFelt, "oppgave uten objekt (oppgaven er påkrevd)."));
 
         return (new KiRad(node.Eid, sitat, kategori, type, fraAktor, tilAktor, objekt, polaritet, avgrensning,
             betinget, utenfor, sikkerhet, kommentar, normform, grunnlag, delegeringsadgang, delegeringSlutning, undertype, modalitet), null);

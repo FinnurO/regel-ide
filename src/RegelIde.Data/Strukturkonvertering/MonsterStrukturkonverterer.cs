@@ -124,7 +124,8 @@ public sealed class MonsterStrukturkonverterer : IStrukturkonverterer
                 // materiell påstand: normalisering (docs/profil/03 §5), regelen er oppdagelseskilden.
                 Kunnskapsstatus = "normalisering",
                 // [Ny, issue #353] Modaliteten fra modalverbet i treffet (bare plikt; null når teksten ikke har et).
-                Modalitet = u.Monster.Kategori == "plikt" ? u.Modalitet : null,
+                // [ENDRET, issue #368] også oppgave (F): «skal samordne» = skal.
+                Modalitet = Strukturkontrakt.KategorierMedModalitet.Contains(u.Monster.Kategori) ? u.Modalitet : null,
             });
         }
 

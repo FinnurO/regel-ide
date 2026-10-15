@@ -430,7 +430,10 @@ export interface ParagrafspennParDto {
  * (`RelasjonsTypeKonfigurasjonDto`). */
 export type Strukturkantkategori = 'R' | 'K' | 'M' | 'O' | 'A' | 'G' | 'I' | 'T'
   // [Ny, issue #353] P = plikt overfor motpart (samarbeid, avtale, betaling, bistand, informasjon, konsultasjon).
-  | 'P';
+  | 'P'
+  // [Ny, issue #368] F = oppgave/funksjon (forvaltning, samordning, sørge for, oversikt, bistand, sekretariat, rådgivning,
+  // veiledning). Gir aldri K eller P i seg selv (docs/profil/02-begrepsmanual.md §F).
+  | 'F';
 
 /** [Ny, issue #311, Johanns beslutning 2026-10-07] Typen kilde utenfor korpus — speilet av
  * `Strukturkanter.KildeUtenforKorpusTyper`. `nettside_annet` = bare dokumentert på en nettside e.l. —
@@ -477,6 +480,10 @@ export type Kompetansegrunnlag = 'offentligrettslig' | 'privatrettslig';
 export type Modalitet = 'skal' | 'kan' | 'bor';
 /** [Ny, issue #353] P-typekodene — speilet av `Strukturkanter.Plikttyper`. */
 export type Plikttype = 'samarbeid' | 'avtale' | 'betaling' | 'bistand' | 'informasjon' | 'konsultasjon';
+
+/** [Ny, issue #368] F-typekodene — speilet av `Strukturkanter.Oppgavetyper`. */
+export type Oppgavetype =
+  'forvaltning' | 'samordning' | 'sorge_for' | 'oversikt' | 'bistand' | 'sekretariat' | 'radgivning' | 'veiledning';
 
 export interface StrukturkantDto {
   id: string;
