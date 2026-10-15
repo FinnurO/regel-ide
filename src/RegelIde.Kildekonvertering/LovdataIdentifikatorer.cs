@@ -63,6 +63,17 @@ public static partial class LovdataIdentifikatorer
     public static string PunktEid(string leddEid, int punktIndeks) => $"{leddEid}/punkt-{punktIndeks}";
 
     /// <summary>
+    /// [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Avslutnings-eId: <c>{forelder-eId}/avslutning</c>
+    /// for den første teksten etter en liste, <c>/avslutning-2</c>, <c>/avslutning-3</c> … for de neste
+    /// (et ledd med flere lister og tekst etter hver av dem). Forelderen er leddet eller punktet lista
+    /// står i, eller paragrafen når lista står direkte under paragrafen. N er 1-basert og telles per
+    /// forelder, i dokumentrekkefølge. Beslutning: Johann 2026-10-09 (issue #361), etter AKN
+    /// <c>wrapUp</c>.
+    /// </summary>
+    public static string AvslutningEid(string forelderEid, int avslutningIndeks) =>
+        avslutningIndeks == 1 ? $"{forelderEid}/avslutning" : $"{forelderEid}/avslutning-{avslutningIndeks}";
+
+    /// <summary>
     /// tekst_hash presis definisjon, §3.4: SHA-256 av normalisert tekst.
     /// Normalisering (i rekkefølge): (1) tagger fjernet — inkl. interne &lt;a&gt;-referanser,
     /// som kun bidrar med sin synlige tekst (kalleren gir oss allerede ren tekst via

@@ -1074,3 +1074,17 @@ fordi det registrerer at virksomheten ER medlem/innehaver.
   tilhørighetens farger: løst (konkret/entydig) = ingen tag, «Ikke entydig» = `warning`, «Mangler» og «Ikke angitt» =
   `neutral`; hullet står som `Metatekst` under. Ingen kandidat velges. Uten plikter: metatekst «Ingen registrerte plikter
   gjelder kommunen.» — fraværet er svaret.
+
+## 35. Tekst etter en punktliste — avslutningsnoden (issue #361, 2026-10-09)
+
+- **Rekkefølgen er lovens:** innledning (leddets egen tekst, taggbar som før) → punktlista → teksten etter lista →
+  (neste liste → tekst etter den …). `RettskildeDetalj` rendrer barna til den valgte noden med `Underinnhold`
+  (`rettskilde/punktliste.ts`, `underordnetInnhold`), ikke punktene alene.
+- **Avslutningen står uten innrykk og uten merke**, som vanlig tekst i leddet: den er fortsettelsen av leddet, ikke et
+  nytt punkt. Den er en knapp med prikket understrek som velger avslutningsnoden — samme mønster som punktene (§ punktliste,
+  #213), fordi en tagg må lagres mot noden teksten står i. Avslutningsnoder er taggbare når de er valgt.
+- **I treet** (`RettskildeTre`) står avslutningen etter punktene, på punktenes innrykk, med tom markør og tekstutdrag.
+- **Etikett** (`paragrafEtikett`): forelderens etikett + «, tekst etter punktene» («§ 10-2 andre ledd, tekst etter
+  punktene»), med «(2)» for `avslutning-2`. Aldri bare «§ 10-2» — det ville sett ut som hele paragrafen.
+- **Merknaden «leddets tekst over fortsetter etter punktlista»** (#213) vises bare når noden IKKE har en avslutningsnode,
+  dvs. for rettskilder importert før #361 og ikke resynket.

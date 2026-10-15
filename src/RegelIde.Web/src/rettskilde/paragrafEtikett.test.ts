@@ -29,7 +29,19 @@ const ledd6 = node({ id: 'l6', eid: `${BASE}/§36/ledd-6`, nodeType: 'ledd', num
 const punkt2 = node({ id: 'pt2', eid: `${BASE}/§36/ledd-6/punkt-2`, nodeType: 'punkt', nummer: '2', parentNodeId: 'l6' });
 const noder = [paragraf36, ledd6, punkt2];
 
+// [Ny, #361] Avslutningsnoder (teksten etter en punktliste) under ledd 6 og direkte under paragrafen.
+const avslutning = node({ id: 'a1', eid: `${BASE}/§36/ledd-6/avslutning`, nodeType: 'avslutning', parentNodeId: 'l6' });
+const avslutning2 = node({ id: 'a2', eid: `${BASE}/§36/ledd-6/avslutning-2`, nodeType: 'avslutning', parentNodeId: 'l6' });
+const paragrafAvslutning = node({ id: 'a3', eid: `${BASE}/§36/avslutning`, nodeType: 'avslutning', parentNodeId: 'p36' });
+
 describe('paragrafEtikett', () => {
+  it('[#361] viser forelderens ledd + «tekst etter punktene» for en avslutningsnode, aldri bare paragrafen', () => {
+    const alle = [...noder, avslutning, avslutning2, paragrafAvslutning];
+    expect(paragrafEtikett(alle, avslutning.eid)?.tekst).toBe('§ 36 sjette ledd, tekst etter punktene');
+    expect(paragrafEtikett(alle, avslutning2.eid)?.tekst).toBe('§ 36 sjette ledd, tekst etter punktene (2)');
+    expect(paragrafEtikett(alle, paragrafAvslutning.eid)?.tekst).toBe('§ 36, tekst etter punktene');
+  });
+
   it('klatrer opp til paragrafen for et ledd, ikke leddets eget nummer', () => {
     expect(paragrafEtikett(noder, `${BASE}/§36/ledd-6`)?.tekst).toBe('§ 36 sjette ledd');
   });

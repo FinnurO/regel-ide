@@ -8,7 +8,7 @@
  * konstruerte eksempler, siden det nettopp var virkelighetens sammenskjøtinger regelen må tåle.
  */
 import { describe, expect, it } from 'vitest';
-import { PUNKTMERKE_FORKLARING, harTekstEtterListen, underordnedePunkter, type PunktNode } from './punktliste';
+import { PUNKTMERKE_FORKLARING, harTekstEtterListen, underordnedePunkter, underordnetInnhold, type PunktNode } from './punktliste';
 
 const BASE = 'https://lovdata.no/eli/forskrift/2009/12/15/1540/nor';
 
@@ -139,5 +139,70 @@ describe('PUNKTMERKE_FORKLARING', () => {
   it('sier at merket er eId-ens punktnummer og ikke Lovdatas egen merking — hele poenget med å vise den', () => {
     expect(PUNKTMERKE_FORKLARING).toContain('punkt-1');
     expect(PUNKTMERKE_FORKLARING).toContain('«a.»');
+  });
+});
+
+/**
+ * [Ny, avslutningsnode-runden, 2026-10-09, issue #361] Teksten etter en punktliste er en egen
+ * `avslutning`-node og skal vises ETTER punktene, i lovens rekkefølge. Tekstene er ekte (energiloven
+ * § 10-2 annet ledd), forkortet.
+ */
+describe('underordnetInnhold', () => {
+  const E = 'https://lovdata.no/eli/lov/1990/06/29/50/nor/§10-2/ledd-2';
+  const ledd = node({
+    eid: E, nummer: '2', tekst: 'Reguleringsmyndigheten kan … samt i',
+    barn: [
+      node({ eid: `${E}/punkt-1`, nodeType: 'punkt', nummer: '1', tekst: 'avtaleloven § 38 b' }),
+      node({ eid: `${E}/punkt-2`, nodeType: 'punkt', nummer: '2', tekst: 'markedsføringsloven § 6 …' }),
+      node({ eid: `${E}/avslutning`, nodeType: 'avslutning', tekst: 'Første punktum gjelder likevel bare når …' }),
+    ],
+  });
+
+  it('gir punktene som én liste og avslutningen etter dem', () => {
+    const blokker = underordnetInnhold(ledd);
+    expect(blokker.map((b) => b.type)).toEqual(['punkter', 'avslutning']);
+    expect(blokker[0].type === 'punkter' && blokker[0].punkter.map((p) => p.merke)).toEqual(['1', '2']);
+    expect(blokker[1]).toEqual({ type: 'avslutning', eid: `${E}/avslutning`, tekst: 'Første punktum gjelder likevel bare når …' });
+  });
+
+  it('holder flere lister og avslutninger i rekkefølge (avslutning, avslutning-2)', () => {
+    const blokker = underordnetInnhold(node({
+      barn: [
+        node({ eid: 'p1', nodeType: 'punkt', nummer: '1', tekst: 'a' }),
+        node({ eid: 'a1', nodeType: 'avslutning', tekst: 'Mellom:' }),
+        node({ eid: 'p2', nodeType: 'punkt', nummer: '2', tekst: 'b' }),
+        node({ eid: 'a2', nodeType: 'avslutning', tekst: 'Slutt.' }),
+      ],
+    }));
+    expect(blokker.map((b) => (b.type === 'punkter' ? b.punkter.map((p) => p.eid).join() : b.eid))).toEqual(['p1', 'a1', 'p2', 'a2']);
+  });
+
+  it('tar med avslutningen under et punkt i punktets eget innhold (alkoholforskriften § 14-3 punkt 14)', () => {
+    const blokker = underordnetInnhold(node({
+      barn: [node({
+        eid: 'p14', nodeType: 'punkt', nummer: '14', tekst: '… herunder at følgende vilkår:',
+        barn: [
+          node({ eid: 'p14-1', nodeType: 'punkt', nummer: '1', tekst: 'første vilkår' }),
+          node({ eid: 'p14-a', nodeType: 'avslutning', tekst: 'Nærmere krav … kan fastsettes av Helsedirektoratet.' }),
+        ],
+      })],
+    }));
+    const punkt14 = blokker[0].type === 'punkter' ? blokker[0].punkter[0] : undefined;
+    expect(punkt14?.innhold.map((b) => b.type)).toEqual(['punkter', 'avslutning']);
+    expect(punkt14?.punkter.map((p) => p.eid)).toEqual(['p14-1']);
+  });
+
+  it('hopper over en avslutning uten tekst, og ledd under en paragraf', () => {
+    expect(underordnetInnhold(node({
+      nodeType: 'paragraf',
+      barn: [
+        node({ eid: 'l', nodeType: 'ledd', nummer: '1', tekst: 'et ledd' }),
+        node({ eid: 'tom', nodeType: 'avslutning', tekst: '  ' }),
+      ],
+    }))).toEqual([]);
+  });
+
+  it('underordnedePunkter er uendret: bare punktene, ikke avslutningen', () => {
+    expect(underordnedePunkter(ledd).map((p) => p.eid)).toEqual([`${E}/punkt-1`, `${E}/punkt-2`]);
   });
 });

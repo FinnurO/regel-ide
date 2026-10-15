@@ -32,7 +32,7 @@ export function paragrafEtikett(
   // Lovdata-importen legger «§» inn i paragrafnodens nummer («§ 36»), men ikke i leddets («6»).
   const paragrafnummer = paragraf.nummer.startsWith('§') ? paragraf.nummer : `§ ${paragraf.nummer}`;
   return {
-    tekst: `${paragrafnummer}${leddDel(node)}`,
+    tekst: `${paragrafnummer}${node.nodeType === 'avslutning' ? avslutningDel(noder, node) : leddDel(node)}`,
     overskrift: paragraf.overskrift ?? null,
   };
 }
@@ -43,6 +43,18 @@ export function paragrafEtikett(
  */
 const LEDD_ORDENSTALL = ['', 'første', 'andre', 'tredje', 'fjerde', 'femte', 'sjette', 'sjuende',
   'åttende', 'niende', 'tiende'];
+
+/**
+ * [Ny, avslutningsnode-runden, 2026-10-09, issue #361] En avslutningsnode (teksten etter en punktliste)
+ * har ikke noe eget nummer. Etiketten er forelderens («§ 10-2 andre ledd») + «, tekst etter punktene»,
+ * så den ikke kan forveksles med leddet selv. Ved flere avslutninger i samme ledd nummereres de som i
+ * eId-en («avslutning-2» → «(2)»).
+ */
+function avslutningDel(noder: RettskildeNodeDto[], node: RettskildeNodeDto): string {
+  const forelder = noder.find((n) => n.id === node.parentNodeId);
+  const lopenummer = /\/avslutning-(\d+)$/.exec(node.eid)?.[1];
+  return `${forelder ? leddDel(forelder) : ''}, tekst etter punktene${lopenummer ? ` (${lopenummer})` : ''}`;
+}
 
 function leddDel(node: RettskildeNodeDto): string {
   if (!node.nummer) return '';
