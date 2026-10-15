@@ -50,11 +50,18 @@ public sealed class HandlingregisterTjeneste(RegelIdeDbContext db)
     private static readonly string[] GyldigeStatuser =
         ["utkast", "foreslatt_av_ai", "foreslatt_av_annen_virksomhet", "under_revisjon", "validert", "publisert", "tilbaketrukket", "arkivert"];
 
-    public Task<List<HandlingEntitet>> ListerForTjenesteAsync(Guid tjenesteId, CancellationToken ct = default) =>
-        db.Handlinger
+    // [ENDRET 2026-10-16, CI på Linux] Sorteres i minnet med norsk sammenligning (æ, ø, å sist), ikke i
+    // databasen: rekkefølgen fra Postgres avhenger av databasens collation, og den er ulik på Windows
+    // (norsk) og Linux (en_US, der «Å» sorteres som «A»). Listen per tjeneste er liten.
+    public async Task<List<HandlingEntitet>> ListerForTjenesteAsync(Guid tjenesteId, CancellationToken ct = default) =>
+        (await db.Handlinger
             .Where(h => h.TjenesteId == tjenesteId && h.Entitetsstatus == "gjeldende")
-            .OrderBy(h => h.Navn)
-            .ToListAsync(ct);
+            .ToListAsync(ct))
+        .OrderBy(h => h.Navn, NorskSortering)
+        .ToList();
+
+    private static readonly StringComparer NorskSortering =
+        StringComparer.Create(System.Globalization.CultureInfo.GetCultureInfo("nb-NO"), ignoreCase: false);
 
     /// <summary>
     /// Lister ALLE handlinger TVERS AV ALLE tjenester (2026-08-22, toppnivå-siden <c>/handlinger</c>) —
